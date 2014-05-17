@@ -26,8 +26,6 @@ Author: Igor Petrovic
 
 #define NUMBER_OF_COLUMNS
 
-#define NUMBER_OF_MUX
-
 /*
 
 	ADC pins defining guide:
@@ -41,6 +39,31 @@ Author: Igor Petrovic
 	to define that single pin:
 	
 	#define ADC_CHANNEL_2_POT
+	
+	Number of both multiplexers and pots directly connected must be defined (if they're connected that is)
+	
+	Example 1:
+	
+	#define ADC_CHANNEL_0_MUX
+	#define ADC_CHANNEL_1_MUX
+	
+	#define NUMBER_OF_MUX 2
+	
+	
+	Example 2:
+	
+	#define ADC_CHANNEL_5_POT
+	
+	#define NUMBER_OF_AT_POTS 1
+	
+	
+	Example 3:
+	
+	#define ADC_CHANNEL_0_MUX
+	#define ADC_CHANNEL_5_POT
+	
+	#define NUMBER_OF_AT_POTS 1
+	#define NUMBER_OF_MUX 1
 
 
 */
