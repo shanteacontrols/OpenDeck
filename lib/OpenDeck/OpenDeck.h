@@ -1,7 +1,7 @@
 /*
 
 OpenDECK library v1.0
-Last revision date: 2014-05-16
+Last revision date: 2014-05-17
 Author: Igor Petrovic
 
 */
@@ -156,9 +156,12 @@ class OpenDeck  {
 			uint8_t getPotNoteValue(uint8_t analogueMIDIvalue, uint8_t potNumber);
 			bool checkPotNoteValue(uint8_t potNumber, uint8_t ccValue);
 			void processPotReading(uint8_t potNumber, int16_t tempValue);
+			bool adcConnected(uint8_t adcChannel);
+			
 			
 			#ifdef MUX
 				void readPotsMux(uint8_t adcChannel);
+				bool adcChannelMux(uint8_t adcChannel);
 			#endif
 			
 			#ifdef AT_POTS

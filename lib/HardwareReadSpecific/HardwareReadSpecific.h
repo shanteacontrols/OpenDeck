@@ -7,8 +7,6 @@ Author: Igor Petrovic
 
 */
 
-//Please note that this library works correctly only in matrix setups (buttons/LEDs)
-
 #ifndef HardwareReadSpecific_h
 #define HardwareReadSpecific_h
 
@@ -26,9 +24,9 @@ Author: Igor Petrovic
 #define BUTTON_MATRIX
 #define LED_MATRIX
 
-#define NUMBER_OF_COLUMNS 5
+#define NUMBER_OF_COLUMNS
 
-#define NUMBER_OF_MUX 2
+#define NUMBER_OF_MUX
 
 /*
 
@@ -48,10 +46,6 @@ Author: Igor Petrovic
 */
 
 
-
-#define ADC_CHANNEL_0_MUX
-#define ADC_CHANNEL_1_MUX
-
 //if uncommented, each pot will send 6 additional note events,
 //depending on its position
 #define ENABLE_POT_NOTE_EVENTS
@@ -61,32 +55,32 @@ Author: Igor Petrovic
 
 #ifdef LED_MATRIX
 //define LED numbers
-#define LED_1 3
-#define LED_2 2
-#define LED_3 1
-#define LED_4 0
+#define LED_1
+#define LED_2
+#define LED_3
+#define LED_4
 
-#define TOTAL_NUMBER_OF_LEDS 4
+#define TOTAL_NUMBER_OF_LEDS
 
 //all LED numbers need to be inside ledArray
 const uint8_t ledArray[TOTAL_NUMBER_OF_LEDS] = {	LED_1, LED_2, LED_3, LED_4	};
 
 //blink duration in milliseconds
-#define BLINK_DURATION 400
+#define BLINK_DURATION
 
 //speed at which the LEDs are turning on one by one at startup (in ms)
-#define START_UP_LED_SWITCH_TIME 100
+#define START_UP_LED_SWITCH_TIME
 
-#define NUMBER_OF_LED_ROWS 1
+#define NUMBER_OF_LED_ROWS
 #define MAX_NUMBER_OF_LEDS NUMBER_OF_COLUMNS*NUMBER_OF_LED_ROWS
 
 #endif
 
 #ifdef BUTTON_MATRIX
 
-#define NUMBER_OF_BUTTON_ROWS 4
-#define BUTTON_DEBOUNCE_TIME 15
-#define LONG_PRESS_TIME 500
+#define NUMBER_OF_BUTTON_ROWS
+#define BUTTON_DEBOUNCE_TIME
+#define LONG_PRESS_TIME
 #define MAX_NUMBER_OF_BUTTONS NUMBER_OF_COLUMNS*NUMBER_OF_BUTTON_ROWS
 
 #endif
@@ -134,26 +128,19 @@ class HardwareReadSpecific  {
 			static void ledRowsOn();
 			static void ledRowsOff();
 		#endif
-		
+
 		static void activateColumn(uint8_t column);
 		
 		#ifdef BUTTON_MATRIX
 			static uint8_t readButtons();
 		#endif
 		
-		#ifdef POTS
-	
-		static bool adcConnected(uint8_t adcChannel);
-		
 		#ifdef MUX
 		static void setMuxOutput(uint8_t muxInput);
-		static bool adcChannelMux(uint8_t adcChannel);
 		#endif
-		
-		#endif
-		
+
 		static void initPins();
-			    
+
 };
 
 #endif

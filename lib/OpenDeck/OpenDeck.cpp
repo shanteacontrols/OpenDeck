@@ -1,7 +1,7 @@
 /*
 
 OpenDECK library v1.0
-Last revision date: 2014-05-16
+Last revision date: 2014-05-17
 Author: Igor Petrovic
 
 */
@@ -254,6 +254,160 @@ void OpenDeck::setHandleButton(void (*fptr)(uint8_t buttonNumber, uint8_t button
 //pots
 #ifdef POTS
 
+#ifdef MUX
+bool OpenDeck::adcChannelMux(uint8_t adcChannel)	{
+	
+	switch (adcChannel)	{
+		
+		case 0:
+		#ifdef ADC_CHANNEL_0_MUX
+		return true;
+		#else
+		return false;
+		#endif
+		break;
+		
+		case 1:
+		#ifdef ADC_CHANNEL_1_MUX
+		return true;
+		#else
+		return false;
+		#endif
+		break;
+		
+		case 2:
+		#ifdef ADC_CHANNEL_2_MUX
+		return true;
+		#else
+		return false;
+		#endif
+		break;
+		
+		case 3:
+		#ifdef ADC_CHANNEL_3_MUX
+		return true;
+		#else
+		return false;
+		#endif
+		break;
+		
+		case 4:
+		#ifdef ADC_CHANNEL_4_MUX
+		return true;
+		#else
+		return false;
+		#endif
+		break;
+		
+		case 5:
+		#ifdef ADC_CHANNEL_5_MUX
+		return true;
+		#else
+		return false;
+		#endif
+		break;
+		
+		case 6:
+		#ifdef ADC_CHANNEL_6_MUX
+		return true;
+		#else
+		return false;
+		#endif
+		break;
+		
+		case 7:
+		#ifdef ADC_CHANNEL_7_MUX
+		return true;
+		#else
+		return false;
+		#endif
+		break;
+		
+		default:
+		return false;
+		break;
+		
+	}
+	
+}
+#endif
+
+bool OpenDeck::adcConnected(uint8_t adcChannel)	{
+	
+	switch (adcChannel)	{
+		
+		case 0:
+		#if defined(ADC_CHANNEL_0_MUX) || defined (ADC_CHANNEL_0_POT)
+		return true;
+		#else
+		return false;
+		#endif
+		break;
+		
+		case 1:
+		#if defined(ADC_CHANNEL_1_MUX) || defined (ADC_CHANNEL_1_POT)
+		return true;
+		#else
+		return false;
+		#endif
+		break;
+		
+		case 2:
+		#if defined(ADC_CHANNEL_2_MUX) || defined (ADC_CHANNEL_2_POT)
+		return true;
+		#else
+		return false;
+		#endif
+		break;
+		
+		case 3:
+		#if defined(ADC_CHANNEL_3_MUX) || defined (ADC_CHANNEL_3_POT)
+		return true;
+		#else
+		return false;
+		#endif
+		break;
+		
+		case 4:
+		#if defined(ADC_CHANNEL_4_MUX) || defined (ADC_CHANNEL_4_POT)
+		return true;
+		#else
+		return false;
+		#endif
+		break;
+		
+		case 5:
+		#if defined(ADC_CHANNEL_5_MUX) || defined (ADC_CHANNEL_5_POT)
+		return true;
+		#else
+		return false;
+		#endif
+		break;
+		
+		case 6:
+		#if defined(ADC_CHANNEL_6_MUX) || defined (ADC_CHANNEL_6_POT)
+		return true;
+		#else
+		return false;
+		#endif
+		break;
+		
+		case 7:
+		#if defined(ADC_CHANNEL_7_MUX) || defined (ADC_CHANNEL_7_POT)
+		return true;
+		#else
+		return false;
+		#endif
+		break;
+		
+		default:
+		return false;
+		break;
+		
+	}
+	
+}
+
 void OpenDeck::readPots()	{
 	
 	potNumber = 0;
@@ -262,21 +416,21 @@ void OpenDeck::readPots()	{
 		
 		#if defined (AT_POTS) && defined (MUX)
 		
-		if (HardwareReadSpecific::adcConnected(i))	{
+		if (adcConnected(i))	{
 			
-			if (HardwareReadSpecific::adcChannelMux(i))	readPotsMux(i);
+			if (adcChannelMux(i))	readPotsMux(i);
 				else	readPotsATmega(i);
 			
 		}
 		
 		#elif defined (AT_POTS)
 				
-		if (HardwareReadSpecific::adcConnected(i))
+		if (adcConnected(i))
 			readPotsATmega(i);
 					
 		#elif defined (MUX)
 				
-			if (HardwareReadSpecific::adcConnected(i))
+			if (adcConnected(i))
 				readPotsMux(i);
 		
 		#endif
