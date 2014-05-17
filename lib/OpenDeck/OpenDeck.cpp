@@ -58,7 +58,7 @@ void OpenDeck::initVariables()  {
 	  for (i=0; i<TOTAL_NUMBER_OF_POTS; i++)  {
 
 		  lastAnalogueValue[i] = 0;
-		  lastPotNoteValue[i] = 128;
+		  lastPotNoteValue[i] = 0;
 		  potTimer[i] = 0;
 
 	  }
@@ -105,6 +105,8 @@ void OpenDeck::init()	{
 	#ifdef POTS
 		//read pots on startup to avoid sending all pot data
 		//when controller is turned on
+		for (int i=0; i<TOTAL_NUMBER_OF_POTS; i++)	lastPotNoteValue[i] = 128;
+		
 		readPots();
 	#endif
 }
