@@ -1,7 +1,7 @@
 /*
 
 OpenDECK library v1.0
-Last revision date: 2014-05-18
+Last revision date: 2014-05-19
 Author: Igor Petrovic
 
 */
@@ -46,6 +46,14 @@ Author: Igor Petrovic
 #define TOTAL_NUMBER_OF_POTS NUMBER_OF_AT_POTS
 #endif
 
+#endif
+
+#ifdef BUTTON_MATRIX
+#define MAX_NUMBER_OF_BUTTONS NUMBER_OF_COLUMNS*NUMBER_OF_BUTTON_ROWS
+#endif
+
+#ifdef LED_MATRIX
+#define MAX_NUMBER_OF_LEDS NUMBER_OF_COLUMNS*NUMBER_OF_LED_ROWS
 #endif
 
 class OpenDeck  {

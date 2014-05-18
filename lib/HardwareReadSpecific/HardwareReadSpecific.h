@@ -25,6 +25,28 @@ Author: Igor Petrovic
 #define LED_MATRIX
 
 #define NUMBER_OF_COLUMNS
+#define NUMBER_OF_BUTTON_ROWS
+#define NUMBER_OF_LED_ROWS
+
+#define BUTTON_DEBOUNCE_TIME
+#define LONG_PRESS_TIME
+
+//define LED numbers
+#define LED_1
+#define LED_2
+#define LED_3
+#define LED_4
+
+#define TOTAL_NUMBER_OF_LEDS
+
+//all LED numbers need to be inside ledArray
+const uint8_t ledArray[TOTAL_NUMBER_OF_LEDS] = {	LED_1, LED_2, LED_3, LED_4	};
+
+//blink duration in milliseconds
+#define BLINK_DURATION
+
+//speed at which the LEDs are turning on one by one at startup (in ms)
+#define START_UP_LED_SWITCH_TIME
 
 /*
 
@@ -68,7 +90,6 @@ Author: Igor Petrovic
 
 */
 
-
 //if uncommented, each pot will send 6 additional note events,
 //depending on its position
 #define ENABLE_POT_NOTE_EVENTS
@@ -76,66 +97,29 @@ Author: Igor Petrovic
 //uncomment if pot gives you 127 on very left and 0 on right position
 #define INVERT_ANALOGUE_VALUE
 
-#ifdef LED_MATRIX
-//define LED numbers
-#define LED_1
-#define LED_2
-#define LED_3
-#define LED_4
-
-#define TOTAL_NUMBER_OF_LEDS
-
-//all LED numbers need to be inside ledArray
-const uint8_t ledArray[TOTAL_NUMBER_OF_LEDS] = {	LED_1, LED_2, LED_3, LED_4	};
-
-//blink duration in milliseconds
-#define BLINK_DURATION
-
-//speed at which the LEDs are turning on one by one at startup (in ms)
-#define START_UP_LED_SWITCH_TIME
-
-#define NUMBER_OF_LED_ROWS
-#define MAX_NUMBER_OF_LEDS NUMBER_OF_COLUMNS*NUMBER_OF_LED_ROWS
-
-#endif
-
-#ifdef BUTTON_MATRIX
-
-#define NUMBER_OF_BUTTON_ROWS
-#define BUTTON_DEBOUNCE_TIME
-#define LONG_PRESS_TIME
-#define MAX_NUMBER_OF_BUTTONS NUMBER_OF_COLUMNS*NUMBER_OF_BUTTON_ROWS
-
-#endif
-
 ////////////////////////////////////////////////////////////////////////end config
 
 class HardwareReadSpecific  {
 
     public:
-
-        //constructor
-        HardwareReadSpecific();
         
-        //LEDs
+        static void initPins();
+		static void activateColumn(uint8_t column);
+
         #ifdef LED_MATRIX
 			static void ledRowOn(uint8_t rowNummber);
 			static void ledRowOff(uint8_t rowNummber);
 			static void ledRowsOn();
 			static void ledRowsOff();
 		#endif
-
-		static void activateColumn(uint8_t column);
 		
 		#ifdef BUTTON_MATRIX
 			static uint8_t readButtons();
 		#endif
 		
 		#ifdef NUMBER_OF_MUX
-		static void setMuxOutput(uint8_t muxInput);
+			static void setMuxOutput(uint8_t muxInput);
 		#endif
-
-		static void initPins();
 
 };
 
