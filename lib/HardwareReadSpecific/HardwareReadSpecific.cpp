@@ -130,7 +130,7 @@ uint8_t HardwareReadSpecific::readButtons()	{
 #endif
 
 
-#ifdef MUX
+#ifdef NUMBER_OF_MUX
 
 void HardwareReadSpecific::setMuxOutput(uint8_t muxInput)	{
 

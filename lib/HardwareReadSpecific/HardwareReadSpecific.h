@@ -110,33 +110,6 @@ const uint8_t ledArray[TOTAL_NUMBER_OF_LEDS] = {	LED_1, LED_2, LED_3, LED_4	};
 
 ////////////////////////////////////////////////////////////////////////end config
 
-#ifdef NUMBER_OF_AT_POTS
-#define AT_POTS
-#endif
-
-#ifdef NUMBER_OF_MUX
-#define MUX
-//number of pots connected to 4051
-#define NUMBER_OF_MUX_POTS 8*NUMBER_OF_MUX
-#endif
-
-#if defined (MUX) || defined (AT_POTS)
-#define POTS
-#endif
-
-#ifdef POTS
-
-//define number of components
-#if defined(MUX) && defined(AT_POTS)
-#define TOTAL_NUMBER_OF_POTS NUMBER_OF_AT_POTS+NUMBER_OF_MUX_POTS
-#elif defined(MUX)
-#define TOTAL_NUMBER_OF_POTS NUMBER_OF_MUX_POTS
-#else
-#define TOTAL_NUMBER_OF_POTS NUMBER_OF_AT_POTS
-#endif
-
-#endif
-
 class HardwareReadSpecific  {
 
     public:
@@ -158,7 +131,7 @@ class HardwareReadSpecific  {
 			static uint8_t readButtons();
 		#endif
 		
-		#ifdef MUX
+		#ifdef NUMBER_OF_MUX
 		static void setMuxOutput(uint8_t muxInput);
 		#endif
 
