@@ -1,7 +1,7 @@
 /*
 
 OpenDECK library v1.0
-Last revision date: 2014-05-17
+Last revision date: 2014-05-18
 Author: Igor Petrovic
 
 */
@@ -1031,9 +1031,9 @@ void OpenDeck::setLEDState()	{
 
 }
 
-bool OpenDeck::noteReceived()	{
+void OpenDeck::checkReceivedNote()	{
 	
-	return !receivedNoteProcessed;
+	if (!receivedNoteProcessed)	setLEDState();
 	
 }
 

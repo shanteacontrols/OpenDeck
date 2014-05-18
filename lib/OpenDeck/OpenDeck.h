@@ -1,7 +1,7 @@
 /*
 
 OpenDECK library v1.0
-Last revision date: 2014-05-17
+Last revision date: 2014-05-18
 Author: Igor Petrovic
 
 */
@@ -41,20 +41,16 @@ class OpenDeck  {
 			void setHandlePotCC(void (*fptr)(uint8_t potNumber, uint8_t ccValue));
 			void setHandlePotNoteOn(void (*fptr)(uint8_t note));
 			void setHandlePotNoteOff(void (*fptr)(uint8_t note));
-			void checkPotReading(int16_t currentValue, uint8_t potNumber);
 		#endif
 
         //LEDs
         #ifdef LED_MATRIX
 			void oneByOneLED(bool ledDirection, bool singleLED, bool turnOn);
 			void checkLEDs();
-			bool checkLEDsOn();
-			bool checkLEDsOff();
 			void allLEDsOn();
 			void allLEDsOff();
-			void setLEDState();
 			void storeReceivedNote(uint8_t channel, uint8_t pitch, uint8_t velocity);
-			bool noteReceived();
+			void checkReceivedNote();
 			void turnOnLED(uint8_t _ledNumber);
 			void turnOffLED(uint8_t _ledNumber);
 		#endif
@@ -136,6 +132,9 @@ class OpenDeck  {
 			uint8_t setConstantLEDstate();
 			bool ledOn(uint8_t ledNumber);
 			void handleLED(uint8_t ledNumber, bool currentLEDstate, bool blinkMode);
+			bool checkLEDsOn();
+			bool checkLEDsOff();
+			void setLEDState();
 		#endif
 		
 		
@@ -157,7 +156,7 @@ class OpenDeck  {
 			bool checkPotNoteValue(uint8_t potNumber, uint8_t ccValue);
 			void processPotReading(uint8_t potNumber, int16_t tempValue);
 			bool adcConnected(uint8_t adcChannel);
-			
+			void checkPotReading(int16_t currentValue, uint8_t potNumber);
 			
 			#ifdef MUX
 				void readPotsMux(uint8_t adcChannel);
