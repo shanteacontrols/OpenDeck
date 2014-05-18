@@ -11,90 +11,23 @@ Author: Igor Petrovic
 #include "Ownduino.h"
 #include <avr/io.h>
 
-HardwareReadSpecific::HardwareReadSpecific()    {
-
-  //initialization
-
-}
-
-void HardwareReadSpecific::initPins() {
-	
-	//set in/out pins
-
-}
+void HardwareReadSpecific::initPins() {}
 
 void HardwareReadSpecific::activateColumn(uint8_t column)  {
 	
+	//turn off all LED rows before switching to next column
 	#ifdef LED_MATRIX
 		ledRowsOff();
 	#endif
-	
-	//there can only be one column active at the time, the rest is set to HIGH
-	switch (column)  {
-		
-		case 0:
-		break;
-		
-		case 1:
-		break;
-		
-		case 2:
-		break;
-		
-		case 3:
-		break;
-		
-		case 4:
-		break;
-		
-		case 5:
-		break;
-		
-		case 6:
-		break;
-		
-		case 7:
-		break;
-		
-		default:
-		break;
-		
-	}
 	
 }
 
 
 #ifdef LED_MATRIX
 
-void HardwareReadSpecific::ledRowOn(uint8_t rowNumber)  {
+void HardwareReadSpecific::ledRowOn(uint8_t rowNumber)  {}
 
-	switch (rowNumber)	{
-		
-		case 0:
-		//turn on first LED row
-		break;
-		
-		default:
-		break;
-		
-	}
-
-}
-
-void HardwareReadSpecific::ledRowOff(uint8_t rowNumber) {
-
-	switch (rowNumber)	{
-		
-		case 0:
-		//turn off first LED row
-		break;
-		
-		default:
-		break;
-		
-	}
-
-}
+void HardwareReadSpecific::ledRowOff(uint8_t rowNumber) {}
 
 void HardwareReadSpecific::ledRowsOn()	{
 	
