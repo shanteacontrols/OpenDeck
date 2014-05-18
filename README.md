@@ -1,8 +1,9 @@
 # OpenDeck
 
 Ownduino library capable of controlling LED/button matrix and reading of potentiometers (multiplexed using 4051 multiplexer as well).
-Library works together with `HardwareReadSpecific` library, in which the hardware reading methods are defined. Library requires Ownduino
-library to work correctly.
+Library works together with `HardwareReadSpecific` library, in which the hardware reading methods are defined.
+Check `HardwareReadSpecific.h` for hardware definitions.
+Library requires Ownduino library to work correctly.
 
 Library is primarily intended for use in MIDI controllers and for use with MIDI library. It's features are:
 
