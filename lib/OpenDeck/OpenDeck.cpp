@@ -93,7 +93,7 @@ void OpenDeck::initVariables()  {
 	  receivedNotePitch = 0;
 	  receivedNoteVelocity = 0;
 	  
- }
+}
 
 void OpenDeck::init()	{
 	
@@ -134,7 +134,7 @@ void OpenDeck::setNumberOfColumnPasses() {
 	setButtonDebounceCompare();
 	
 
- }
+}
  
 void OpenDeck::setButtonDebounceCompare()	{
 	
@@ -164,7 +164,7 @@ void OpenDeck::setButtonDebounceCompare()	{
 		  
 	  }
 	  
- }
+}
  
 void OpenDeck::readButtons()    {
 
@@ -643,22 +643,22 @@ bool OpenDeck::checkLEDsOff()	{
 
 }
 
-void OpenDeck::turnOnLED(uint8_t _ledNumber)	{
+void OpenDeck::turnOnLED(uint8_t ledNumber)	{
 	
-	ledState[_ledNumber] = setConstantLEDstate();
+	setConstantLEDstate(ledNumber);
 	
 }
 
-void OpenDeck::turnOffLED(uint8_t _ledNumber)	{
+void OpenDeck::turnOffLED(uint8_t ledNumber)	{
 	
-	ledState[_ledNumber] = 0x00;
+	ledState[ledNumber] = 0x00;
 	
 }
 
 void OpenDeck::allLEDsOn()  {
 	
 	//turn on all LEDs
-	for (int i=0; i<TOTAL_NUMBER_OF_LEDS; i++)  ledState[i] = setConstantLEDstate();
+	for (int i=0; i<TOTAL_NUMBER_OF_LEDS; i++)  setConstantLEDstate(i);
 	
 }
 
@@ -679,7 +679,7 @@ void OpenDeck::checkBlinkLEDs() {
 	bool _blinkEnabled = false;
 	
 	//if any LED is blinking, set timerState to true and exit the loop
-	for (int i=0; i<TOTAL_NUMBER_OF_LEDS; i++) if (checkBlinkState(ledState[i]))  { _blinkEnabled = true; break; }
+	for (int i=0; i<TOTAL_NUMBER_OF_LEDS; i++) if (checkBlinkState(i))  { _blinkEnabled = true; break; }
 	
 	if (_blinkEnabled) blinkEnabled = true;
 	
@@ -880,7 +880,7 @@ void OpenDeck::switchBlinkState()  {
 		
 		//change blinkBit state and write it into ledState variable if LED is in blink state
 		for (int i = 0; i<TOTAL_NUMBER_OF_LEDS; i++)
-		if (checkBlinkState(ledState[i]))	setBlinkState(ledState[i], blinkState);
+		if (checkBlinkState(i))	setBlinkState(i, blinkState);
 		
 		//invert blink state
 		blinkState = !blinkState;
@@ -909,32 +909,32 @@ bool OpenDeck::ledOn(uint8_t ledNumber)   {
 
 }
 
-uint8_t OpenDeck::setConstantLEDstate()   {
+void OpenDeck::setConstantLEDstate(uint8_t ledNumber)   {
 
-	return 0x05;
+	ledState[ledNumber] = 0x05;
 
 }
 
-void OpenDeck::setBlinkState(uint8_t &ledState, bool blinkState)    {
+void OpenDeck::setBlinkState(uint8_t ledNumber, bool blinkState)    {
 
 	switch (blinkState) {
 
 		case true:
-		ledState |= 0x10;
+		ledState[ledNumber] |= 0x10;
 		break;
 
 		case false:
-		ledState &= 0xEF;
+		ledState[ledNumber] &= 0xEF;
 		break;
 
 	}
 
 }
 
-bool OpenDeck::checkBlinkState(uint8_t ledState)   {
+bool OpenDeck::checkBlinkState(uint8_t ledNumber)   {
 
 	//function returns true if blinking bit in ledState is set
-	return ((ledState >> 1) & (0x01));
+	return ((ledState[ledNumber] >> 1) & (0x01));
 
 }
 
@@ -990,7 +990,7 @@ void OpenDeck::handleLED(uint8_t ledNumber, bool currentLEDstate, bool blinkMode
 
         //if constant note on is received and LED is already blinking
         //clear blinking bits and set remember bit and constant bit
-        if ((!blinkMode) && checkBlinkState(ledState[ledNumber]))  ledState[ledNumber] = 0x0D;
+        if ((!blinkMode) && checkBlinkState(ledNumber))  ledState[ledNumber] = 0x0D;
 
         //set bit 2 to 1 in any case (constant/blink state)
         else ledState[ledNumber] |= (0x01 << blinkMode) | 0x04 | (blinkMode << 4);
