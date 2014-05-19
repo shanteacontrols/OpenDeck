@@ -86,8 +86,8 @@ class OpenDeck  {
 			void allLEDsOff();
 			void storeReceivedNote(uint8_t channel, uint8_t pitch, uint8_t velocity);
 			void checkReceivedNote();
-			void turnOnLED(uint8_t _ledNumber);
-			void turnOffLED(uint8_t _ledNumber);
+			void turnOnLED(uint8_t ledNumber);
+			void turnOffLED(uint8_t ledNumber);
 		#endif
 		
 		//columns
@@ -159,12 +159,11 @@ class OpenDeck  {
 		
 		//LEDs
 		#ifdef LED_MATRIX
-			bool checkRememberBit(uint8_t ledState);
-			bool checkBlinkState(uint8_t ledState);
+			bool checkBlinkState(uint8_t ledNumber);
 			void switchBlinkState();
 			void checkBlinkLEDs();
-			void setBlinkState(uint8_t &ledState, bool blinkState);
-			uint8_t setConstantLEDstate();
+			void setBlinkState(uint8_t ledNumber, bool blinkState);
+			void setConstantLEDstate(uint8_t ledNumber);
 			bool ledOn(uint8_t ledNumber);
 			void handleLED(uint8_t ledNumber, bool currentLEDstate, bool blinkMode);
 			bool checkLEDsOn();
