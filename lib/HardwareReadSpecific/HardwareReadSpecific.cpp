@@ -2,7 +2,7 @@
 
 Hardware specific library for reading data from multiple sources
 v1.0
-Last revision date: 2014-05-17
+Last revision date: 2014-05-23
 Author: Igor Petrovic
 
 */
@@ -16,9 +16,36 @@ void HardwareReadSpecific::initPins() {}
 void HardwareReadSpecific::activateColumn(uint8_t column)  {
 	
 	//turn off all LED rows before switching to next column
-	#ifdef LED_MATRIX
-		ledRowsOff();
-	#endif
+	switch (column)	{
+	
+	case 0:
+	break;
+	
+	case 1:
+	break;
+	
+	case 2:
+	break;
+	
+	case 3:
+	break;
+	
+	case 4:
+	break;
+	
+	case 5:
+	break;
+	
+	case 6:
+	break;
+	
+	case 7:
+	break;
+	
+	default:
+	break;	
+	
+	}
 	
 }
 
@@ -69,9 +96,6 @@ void HardwareReadSpecific::setMuxOutput(uint8_t muxInput)	{
 
 	//switch to next mux input
 	
-	
-	//add a short delay after switching
-	NOP;
 
 }
 

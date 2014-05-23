@@ -1,7 +1,7 @@
 /*
 
 OpenDECK library v1.0
-Last revision date: 2014-05-19
+Last revision date: 2014-05-23
 Author: Igor Petrovic
 
 */
@@ -447,6 +447,7 @@ void OpenDeck::readPotsMux(uint8_t adcChannel) {
 	for (int j=0; j<8; j++)	{
 		
 		HardwareReadSpecific::setMuxOutput(j);
+		NOP;
 
 		//read analogue value from mux
 		int16_t tempValue = analogRead(adcChannel);
@@ -621,16 +622,16 @@ void OpenDeck::checkLEDs()  {
 	if (blinkEnabled)	switchBlinkState();
 	
 	//if there is an active LED in current column, turn on LED row
-	for (int i=0; i<NUMBER_OF_LED_ROWS; i++)
-	
-	if (ledOn(currentColumn+i*NUMBER_OF_COLUMNS))	HardwareReadSpecific::ledRowOn(i);
+	for (int i=0; i<NUMBER_OF_LED_ROWS; i++)	
+		
+		if (ledOn(currentColumn+i*NUMBER_OF_COLUMNS))	HardwareReadSpecific::ledRowOn(i);
 
 }
 
 bool OpenDeck::checkLEDsOn()	{
 
 	//return true if all LEDs are on
-	for (int i=0; i<TOTAL_NUMBER_OF_LEDS; i++)	if (ledState[i] != 0)	return false;
+	for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)	if (ledState[i] != 0)	return false;
 	return true;
 
 }
@@ -638,7 +639,7 @@ bool OpenDeck::checkLEDsOn()	{
 bool OpenDeck::checkLEDsOff()	{
 
 	//return true if all LEDs are off
-	for (int i=0; i<TOTAL_NUMBER_OF_LEDS; i++)	if (ledState[i] == 0)	return false;
+	for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)	if (ledState[i] == 0)	return false;
 	return true;
 
 }
@@ -658,14 +659,14 @@ void OpenDeck::turnOffLED(uint8_t ledNumber)	{
 void OpenDeck::allLEDsOn()  {
 	
 	//turn on all LEDs
-	for (int i=0; i<TOTAL_NUMBER_OF_LEDS; i++)  setConstantLEDstate(i);
+	for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)  setConstantLEDstate(i);
 	
 }
 
 void OpenDeck::allLEDsOff()  {
 	
 	//turn off all LEDs
-	for (int i=0; i<TOTAL_NUMBER_OF_LEDS; i++)  ledState[i] = 0x00;
+	for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)  ledState[i] = 0x00;
 	
 }
 
@@ -679,7 +680,7 @@ void OpenDeck::checkBlinkLEDs() {
 	bool _blinkEnabled = false;
 	
 	//if any LED is blinking, set timerState to true and exit the loop
-	for (int i=0; i<TOTAL_NUMBER_OF_LEDS; i++) if (checkBlinkState(i))  { _blinkEnabled = true; break; }
+	for (int i=0; i<MAX_NUMBER_OF_LEDS; i++) if (checkBlinkState(i))  { _blinkEnabled = true; break; }
 	
 	if (_blinkEnabled) blinkEnabled = true;
 	
@@ -879,7 +880,7 @@ void OpenDeck::switchBlinkState()  {
 	if ((millis() - blinkTimerCounter) >= BLINK_DURATION)	{
 		
 		//change blinkBit state and write it into ledState variable if LED is in blink state
-		for (int i = 0; i<TOTAL_NUMBER_OF_LEDS; i++)
+		for (int i = 0; i<MAX_NUMBER_OF_LEDS; i++)
 		if (checkBlinkState(i))	setBlinkState(i, blinkState);
 		
 		//invert blink state
@@ -1053,7 +1054,11 @@ void OpenDeck::storeReceivedNote(uint8_t channel, uint8_t pitch, uint8_t velocit
 
 void OpenDeck::nextColumn()   {
 	
-	if (column == NUMBER_OF_COLUMNS)	column = 0;
+	#ifdef LED_MATRIX
+		HardwareReadSpecific::ledRowsOff();
+	#endif
+		
+		if (column == NUMBER_OF_COLUMNS)	column = 0;
 	
 	HardwareReadSpecific::activateColumn(column);
 	
