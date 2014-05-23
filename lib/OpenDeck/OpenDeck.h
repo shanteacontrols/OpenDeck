@@ -1,7 +1,7 @@
 /*
 
 OpenDECK library v1.0
-Last revision date: 2014-05-19
+Last revision date: 2014-05-23
 Author: Igor Petrovic
 
 */
