@@ -1,7 +1,7 @@
 /*
 
-OpenDECK library v1.0
-Last revision date: 2014-05-23
+OpenDECK library v1.90
+Last revision date: 2014-07-30
 Author: Igor Petrovic
 
 */
@@ -10,23 +10,26 @@ Author: Igor Petrovic
 #include "Ownduino.h"
 #include <avr/io.h>
 #include <stdlib.h>
+#include <avr/eeprom.h>
+#include <util/crc16.h>
 
 OpenDeck::OpenDeck()    {
 
   //initialization
-  
-  HardwareReadSpecific::initPins();
   initVariables();
   
-  #ifdef BUTTON_MATRIX
-	sendButtonDataCallback = NULL;
-  #endif
+  //set all callback to NULL pointer
   
-  #ifdef POTS
-	sendPotCCDataCallback = NULL;
-	sendPotNoteOnDataCallback = NULL;
-	sendPotNoteOffDataCallback = NULL;
-  #endif  
+  sendButtonDataCallback		=	NULL;
+  sendLEDrowOnCallback			=	NULL;
+  sendLEDrowsOffCallback		=	NULL;
+  sendButtonReadCallback		=	NULL;
+  sendSwitchMuxOutCallback		=	NULL;
+  sendInitPinsCallback			=	NULL;
+  sendColumnSwitchCallback		=	NULL;
+  sendPotCCDataCallback			=	NULL;
+  sendPotNoteOnDataCallback		=	NULL;
+  sendPotNoteOffDataCallback	=	NULL;
       
 }
 
@@ -34,86 +37,296 @@ OpenDeck::OpenDeck()    {
 //init
 
 void OpenDeck::initVariables()  {
-	  
-	  //set default variable states
-	  
-	  #ifdef BUTTON_MATRIX
-		for (i=0; i<MAX_NUMBER_OF_BUTTONS; i++)  {
+
+	//reset all variables
+	
+	//MIDI channels
+	buttonNoteChannel			= 0;
+	longPressButtonNoteChannel	= 0;
+	ccChanelPot					= 0;
+	ccChannelEnc				= 0;
+	inputChannel				= 0;
+	
+	//hardware params
+	longPressTime				= 0;
+	blinkTime					= 0;
+	startUpLEDswitchTime		= 0;
+	
+	//software features
+	_startUpRoutineEnabled		= false;
+	_ledBlinkEnabled			= false;
+	_longPressEnabled			= false;
+	_potNotesEnabled			= false;
+	_encoderNotesEnabled		= false;
+	_standardNoteOffEnabled		= false;
+	_runningStatusEnabled		= false;
+	
+	//hardware features
+	_buttonsEnabled				= false;
+	_ledsEnabled				= false;
+	_potsEnabled				= false;
+	_encodersEnabled			= false;
+	
+	//buttons	 	  
+	for (i=0; i<MAX_NUMBER_OF_BUTTONS; i++)  {
 			
-			previousButtonState[i] = 0;
+	buttonNote[i]				= 0;
+	previousButtonState[i]		= 0;
+	buttonType[i]				= 0;
+	longPressSent[i]			= false;
+	longPressState[i]			= 0;
 			
-			#ifdef LONG_PRESS_TIME
-				longPressState[i] = 0;
-				longPressSent[i] = false;
-			#endif
-			
-		}
+	}
 		
-		buttonDebounceCompare = 0;
-		numberOfColumnPasses = 0;
-	  #endif
+	buttonDebounceCompare		= 0;
 	  
-	  #ifdef POTS
-	  
-	  for (i=0; i<TOTAL_NUMBER_OF_POTS; i++)  {
+	//pots
+	for (i=0; i<MAX_NUMBER_OF_POTS; i++)  {
 
-		  lastAnalogueValue[i] = 0;
-		  lastPotNoteValue[i] = 0;
-		  potTimer[i] = 0;
+	potInverted[i]				= false;
+	potEnabled[i]				= false;
+	ccNumber[i]					= 0;
+	lastPotNoteValue[i]			= 0;
+	lastAnalogueValue[i]		= 0;
+	potTimer[i]					= 0;
 
-	  }
+	}
+	
+	for (i=0; i<8; i++)
+		_analogueIn[i]			= false;
 	  
-	  potNumber = 0;
-	  
-	  #ifdef MUX
-		muxInput = 0;
-	  #endif
-	  
-	  #endif
+	potNumber					= 0;
 
-	  #ifdef LED_MATRIX
-	  for (i=0; i<MAX_NUMBER_OF_LEDS; i++)  ledState[i] = 0;
+	//LEDs
+	for (i=0; i<MAX_NUMBER_OF_LEDS; i++)  {
+		
+		ledState[i]				= 0;
+		_ledNumber[i]			= 0;
+		
+	}
 	 
-	  //global blink state
-	  blinkState = true;
+	totalNumberOfLEDs			= 0;
+
+	blinkState					= false;
+	blinkEnabled				= false;
+	blinkTimerCounter			= 0;
 	  
-	  //enable/disable blinking
-	  blinkEnabled = false;
-	  
-	  //blink timer
-	  blinkTimerCounter = 0;
-	  #endif
-	  
-	  //column counter
-	  column = 0;
-	  
-	  receivedNoteProcessed = true;
-	  
-	  receivedNoteChannel = 0;
-	  receivedNotePitch = 0;
-	  receivedNoteVelocity = 0;
+	//input
+	receivedNoteProcessed		= false;
+	receivedNoteChannel			= 0;
+	receivedNotePitch			= 0;
+	receivedNoteVelocity		= 0;
+	
+	//column counter
+	column						= 0;
 	  
 }
 
 void OpenDeck::init()	{
 	
-	#ifdef BUTTON_MATRIX
-		setNumberOfColumnPasses();
-		for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)	previousButtonState[i] = buttonDebounceCompare;
-	#endif
+	sendInitPinsCallback();
 	
-	#ifdef POTS
-		//read pots on startup to avoid sending all pot data
-		//when controller is turned on
-		for (int i=0; i<TOTAL_NUMBER_OF_POTS; i++)	lastPotNoteValue[i] = 128;
+	setNumberOfColumnPasses();
+	
+	for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)		previousButtonState[i] = buttonDebounceCompare;
+	
+	//initialize lastPotNoteValue to 128, which is impossible value for MIDI,
+	//to avoid sending note off for that value on first read
+	for (int i=0; i<MAX_NUMBER_OF_POTS; i++)		lastPotNoteValue[i] = 128;
+	
+	blinkState				= true;
+	receivedNoteProcessed	= false;
+
+	//make initial pot reading to avoid sending all data on startup
+	readPots();
+	
+	//get all values from EEPROM
+	getConfiguration();
+	
+}
+
+void OpenDeck::setHandlePinInit(void (*fptr)())	{
+	
+	sendInitPinsCallback = fptr;
+	
+}
+
+
+//configuration retrieve
+
+void OpenDeck::getConfiguration()	{
+	
+	//get configuration from EEPROM
+	getMIDIchannels();
+	getHardwareParams();
+	getSoftwareFeatures();
+	getHardwareFeatures();
+	getPotInvertStates();
+	getEnabledPots();
+	getCCnumbers();
+	getButtonNumbers();
+	getButtonType();
+	getLEDnumbers();
+	getTotalLEDnumber();
+	
+}
+
+void OpenDeck::getMIDIchannels()	{
+	
+	buttonNoteChannel			= eeprom_read_byte((uint8_t*)0);
+	longPressButtonNoteChannel	= eeprom_read_byte((uint8_t*)1);
+	ccChanelPot					= eeprom_read_byte((uint8_t*)2);
+	ccChannelEnc				= eeprom_read_byte((uint8_t*)3);
+	inputChannel				= eeprom_read_byte((uint8_t*)4);
+	
+}
+
+void OpenDeck::getHardwareParams()	{
+	
+	longPressTime				= eeprom_read_byte((uint8_t*)5) * 100;
+	blinkTime					= eeprom_read_byte((uint8_t*)6) * 100;
+	startUpLEDswitchTime		= eeprom_read_byte((uint8_t*)7) * 10;
+	
+}
+
+void OpenDeck::getSoftwareFeatures()	{
+	
+	uint8_t features = eeprom_read_byte((uint8_t*)8);
+	
+	_startUpRoutineEnabled	= features >> 6;
+	_ledBlinkEnabled		= (features >> 5) & 0x01;
+	_longPressEnabled		= (features >> 4) & 0x01;
+	_potNotesEnabled		= (features >> 3) & 0x01;
+	_encoderNotesEnabled	= (features >> 2) & 0x01;
+	_standardNoteOffEnabled = (features >> 1) & 0x01;
+	_runningStatusEnabled	= features & 0x01;
+	
+}
+
+void OpenDeck::getHardwareFeatures()	{
+	
+	uint8_t features = eeprom_read_byte((uint8_t*)9);
+	
+	_buttonsEnabled		= features >> 3;
+	_ledsEnabled		= ((features >> 2) & 0x01);
+	_potsEnabled		= ((features >> 1) & 0x01);
+	_encodersEnabled	= (features & 0x01);
+	
+}
+
+void OpenDeck::getPotInvertStates()	{
+	
+	uint8_t inversionEnabled;
+	uint16_t eepromAddress = 10;
+	
+	for (int i=0; i<(MAX_NUMBER_OF_POTS/8); i++)	{
 		
-		readPots();
-	#endif
+		inversionEnabled = eeprom_read_byte((uint8_t*)eepromAddress);
+		eepromAddress++;
+		
+		for (int j=0; j<8; j++)	potInverted[i*8+j] = (inversionEnabled >> j) & 0x01;;
+
+	}
+	
+}
+
+void OpenDeck::getEnabledPots()	{
+	
+	uint8_t _potEnabled;
+	uint16_t eepromAddress = 26;
+	
+	for (int i=0; i<(MAX_NUMBER_OF_POTS/8); i++)	{
+		
+		_potEnabled = eeprom_read_byte((uint8_t*)eepromAddress);
+		eepromAddress++;
+		
+		for (int j=0; j<8; j++)	potEnabled[i*8+j] = (_potEnabled >> j) & 0x01;
+		
+	}
+	
+}
+
+void OpenDeck::getCCnumbers()	{
+	
+	uint16_t eepromAddress = 42;
+	
+	for (int i=0; i<MAX_NUMBER_OF_POTS; i++)	{
+		
+		ccNumber[i] = eeprom_read_byte((uint8_t*)eepromAddress);
+		eepromAddress++;
+		
+	}
+	
+}
+
+void OpenDeck::getButtonNumbers()	{
+	
+	uint16_t eepromAddress = 170;
+	
+	for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)	{
+		
+		buttonNote[i] = eeprom_read_byte((uint8_t*)eepromAddress);
+		eepromAddress++;
+		
+	}
+	
+}
+
+void OpenDeck::getButtonType()	{
+	
+	uint8_t _buttonType;
+	uint16_t eepromAddress = 298;
+	
+	for (int i=0; i<MAX_NUMBER_OF_BUTTONS/8; i++)	{
+		
+		_buttonType = eeprom_read_byte((uint8_t*)eepromAddress);
+		eepromAddress++;
+		
+		for (int j=0; j<8; j++)	buttonType[i*8+j] = (_buttonType >> j) & 0x01;
+		
+	}
+	
+}
+
+void OpenDeck::getLEDnumbers()	{
+	
+	uint16_t eepromAddress = 314;
+	
+	for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)	{
+		
+		_ledNumber[i] = eeprom_read_byte((uint8_t*)eepromAddress);
+		eepromAddress++;
+		
+	}
+	
+}
+
+void OpenDeck::getTotalLEDnumber()	{
+	
+	totalNumberOfLEDs = eeprom_read_byte((uint8_t*)442);
+	
+}
+
+
+//restore default configuration
+
+void OpenDeck::setDefaultConf()	{
+
+	//write default configuration stored in PROGMEM to EEPROM
+	for (int i=0; i<(int16_t)sizeof(defConf); i++)	
+		eeprom_update_byte((uint8_t*)i, pgm_read_byte(&(defConf[i])));
+			
 }
   
-//buttons
+uint8_t OpenDeck::getInputChannel()	{
+	
+	//return listening MIDI channel
+	return inputChannel;
+	
+}
 
-#ifdef BUTTON_MATRIX
+  
+//buttons
 
 void OpenDeck::setNumberOfColumnPasses() {
 	
@@ -124,19 +337,18 @@ void OpenDeck::setNumberOfColumnPasses() {
 	
 	*/
 	  
-	uint8_t rowPassTime = getTimedLoopTime()*NUMBER_OF_COLUMNS;
+	uint8_t rowPassTime = getTimedLoopTime()*_numberOfColumns;
 	uint8_t mod = 0;
 	  
 	if ((BUTTON_DEBOUNCE_TIME % rowPassTime) > 0)	mod = 1;
 
-	numberOfColumnPasses = ((BUTTON_DEBOUNCE_TIME / rowPassTime) + mod);
+	uint8_t numberOfColumnPasses = ((BUTTON_DEBOUNCE_TIME / rowPassTime) + mod);
 	
-	setButtonDebounceCompare();
+	setButtonDebounceCompare(numberOfColumnPasses);
 	
-
 }
  
-void OpenDeck::setButtonDebounceCompare()	{
+void OpenDeck::setButtonDebounceCompare(uint8_t numberOfColumnPasses)	{
 	
 	//depending on numberOfColumnPasses, button state gets shifted into
 	//different buttonDebounceCompare variable
@@ -169,17 +381,19 @@ void OpenDeck::setButtonDebounceCompare()	{
 void OpenDeck::readButtons()    {
 
 	uint8_t buttonState = 0;
-	uint8_t rowState = HardwareReadSpecific::readButtons();
+	uint8_t rowState = 0;
+	
+	sendButtonReadCallback(rowState);	
 	
 	//iterate over rows
-	for (int i=0; i<NUMBER_OF_BUTTON_ROWS; i++) {
+	for (int i=0; i<_numberOfButtonRows; i++) {
 		
 		//extract current bit from rowState variable
 		//invert extracted bit because of pull-up resistors
 		uint8_t currentBit = !((rowState >> i) & 0x01);
 		
 		//calculate current button number
-		uint8_t buttonNumber = getActiveColumn()+i*NUMBER_OF_COLUMNS;
+		uint8_t buttonNumber = getActiveColumn()+i*_numberOfColumns;
 		
 		//get button state
 		buttonState = checkButton(currentBit, previousButtonState[buttonNumber]);
@@ -190,31 +404,72 @@ void OpenDeck::readButtons()    {
 			if (buttonState == 0xFF)	{	
 				
 				//button is pressed
-				sendButtonDataCallback(buttonNumber, 1);
-				
-				#ifdef LONG_PRESS_TIME
-					//start long press timer
-					longPressState[buttonNumber] = millis();
-				#endif
-				
+				//if button is configured as toggle
+				if (buttonType[buttonNumber]) {
+					
+					//if a button has been already pressed
+					if (buttonPressed[buttonNumber])	{
+						
+						//if longPress is enabled and longPressNote has already been sent
+						if (_longPressEnabled && longPressSent[buttonNumber])	{
+							
+							//send both regular and long press note off
+							sendButtonDataCallback(buttonNote[buttonNumber], false, buttonNoteChannel);
+							sendButtonDataCallback(buttonNote[buttonNumber], false, longPressButtonNoteChannel);
+							
+						}
+						
+						//else send regular note off only
+						else sendButtonDataCallback(buttonNote[buttonNumber], false, buttonNoteChannel);
+						
+						//reset pressed state
+						buttonPressed[buttonNumber] = false;
+						
+				}	else {
+					
+					//send note on on press
+					sendButtonDataCallback(buttonNote[buttonNumber], true, buttonNoteChannel);
+					
+					//toggle buttonPressed flag to true
+					buttonPressed[buttonNumber] = true;
+					
+				}
+					
 			}
+			
+			//button has momentary operation
+			//send note on
+			else sendButtonDataCallback(buttonNote[buttonNumber], true, buttonNoteChannel);
 				
-				else if (buttonState == buttonDebounceCompare)	{
+			//start long press timer
+			if (_longPressEnabled)	longPressState[buttonNumber] = millis();
+				
+		}
+				
+				else if ((buttonState == buttonDebounceCompare) && (!buttonType[buttonNumber]))	{
 					
 					//button is released
+					//check button on release only if it's momentary
 					
-					#ifdef LONG_PRESS_TIME
-						if (longPressSent[buttonNumber]) sendButtonDataCallback(buttonNumber, 3);
-							else sendButtonDataCallback(buttonNumber, 0);
-					#else
-						sendButtonDataCallback(buttonNumber, 0);
-					#endif
-					
-					#ifdef LONG_PRESS_TIME 
-						longPressState[buttonNumber] = 0;
-						longPressSent[buttonNumber] = false;
-					#endif
-					
+						if (_longPressEnabled)	{
+												
+							if (longPressSent[buttonNumber]) {
+													
+								//send both regular and long press note off
+								sendButtonDataCallback(buttonNote[buttonNumber], false, buttonNoteChannel);
+								sendButtonDataCallback(buttonNote[buttonNumber], false, longPressButtonNoteChannel);
+													
+							}
+							
+								else sendButtonDataCallback(buttonNote[buttonNumber], false, buttonNoteChannel);
+								
+								longPressState[buttonNumber] = 0;
+								longPressSent[buttonNumber] = false;
+												
+						}
+						
+							else sendButtonDataCallback(buttonNote[buttonNumber], false, buttonNoteChannel);
+												
 				}
 					
 				//update previous reading with current
@@ -222,17 +477,20 @@ void OpenDeck::readButtons()    {
 			
 		}	
 			
-			#ifdef LONG_PRESS_TIME 
-				if ((millis() - longPressState[buttonNumber] >= LONG_PRESS_TIME) && (!longPressSent[buttonNumber]) && (buttonState == 0xFF))	{
+				if (_longPressEnabled)	{
+					
+					//send long press note if button has been pressed for defined time and note hasn't already been sent
+					if ((millis() - longPressState[buttonNumber] >= longPressTime) && (!longPressSent[buttonNumber]) && (buttonState == 0xFF))	{
 				
-					sendButtonDataCallback(buttonNumber, 2);
+					sendButtonDataCallback(buttonNote[buttonNumber], true, longPressButtonNoteChannel);
 					longPressSent[buttonNumber] = true;
 					
 			}
-			#endif
-		
+					
+		}
+			
 	}
-
+	
 }
 
 uint8_t OpenDeck::checkButton(uint8_t currentState, uint8_t previousState)  {
@@ -245,247 +503,72 @@ uint8_t OpenDeck::checkButton(uint8_t currentState, uint8_t previousState)  {
 
 }
 
-void OpenDeck::setHandleButton(void (*fptr)(uint8_t buttonNumber, uint8_t buttonState))	{
+void OpenDeck::setHandleButtonSend(void (*fptr)(uint8_t buttonNumber, bool buttonState, uint8_t channel))	{
 	
 	sendButtonDataCallback = fptr;
 	
 }
 
-#endif
+void OpenDeck::setHandleButtonRead(void (*fptr)(uint8_t &buttonColumnState))	{
 
-//pots
-#ifdef POTS
-
-#ifdef MUX
-bool OpenDeck::adcChannelMux(uint8_t adcChannel)	{
-	
-	switch (adcChannel)	{
-		
-		case 0:
-		#ifdef ADC_CHANNEL_0_MUX
-		return true;
-		#else
-		return false;
-		#endif
-		break;
-		
-		case 1:
-		#ifdef ADC_CHANNEL_1_MUX
-		return true;
-		#else
-		return false;
-		#endif
-		break;
-		
-		case 2:
-		#ifdef ADC_CHANNEL_2_MUX
-		return true;
-		#else
-		return false;
-		#endif
-		break;
-		
-		case 3:
-		#ifdef ADC_CHANNEL_3_MUX
-		return true;
-		#else
-		return false;
-		#endif
-		break;
-		
-		case 4:
-		#ifdef ADC_CHANNEL_4_MUX
-		return true;
-		#else
-		return false;
-		#endif
-		break;
-		
-		case 5:
-		#ifdef ADC_CHANNEL_5_MUX
-		return true;
-		#else
-		return false;
-		#endif
-		break;
-		
-		case 6:
-		#ifdef ADC_CHANNEL_6_MUX
-		return true;
-		#else
-		return false;
-		#endif
-		break;
-		
-		case 7:
-		#ifdef ADC_CHANNEL_7_MUX
-		return true;
-		#else
-		return false;
-		#endif
-		break;
-		
-		default:
-		return false;
-		break;
-		
-	}
+	sendButtonReadCallback = fptr;	
 	
 }
-#endif
 
+//pots
 bool OpenDeck::adcConnected(uint8_t adcChannel)	{
 	
-	switch (adcChannel)	{
-		
-		case 0:
-		#if defined(ADC_CHANNEL_0_MUX) || defined (ADC_CHANNEL_0_POT)
-		return true;
-		#else
-		return false;
-		#endif
-		break;
-		
-		case 1:
-		#if defined(ADC_CHANNEL_1_MUX) || defined (ADC_CHANNEL_1_POT)
-		return true;
-		#else
-		return false;
-		#endif
-		break;
-		
-		case 2:
-		#if defined(ADC_CHANNEL_2_MUX) || defined (ADC_CHANNEL_2_POT)
-		return true;
-		#else
-		return false;
-		#endif
-		break;
-		
-		case 3:
-		#if defined(ADC_CHANNEL_3_MUX) || defined (ADC_CHANNEL_3_POT)
-		return true;
-		#else
-		return false;
-		#endif
-		break;
-		
-		case 4:
-		#if defined(ADC_CHANNEL_4_MUX) || defined (ADC_CHANNEL_4_POT)
-		return true;
-		#else
-		return false;
-		#endif
-		break;
-		
-		case 5:
-		#if defined(ADC_CHANNEL_5_MUX) || defined (ADC_CHANNEL_5_POT)
-		return true;
-		#else
-		return false;
-		#endif
-		break;
-		
-		case 6:
-		#if defined(ADC_CHANNEL_6_MUX) || defined (ADC_CHANNEL_6_POT)
-		return true;
-		#else
-		return false;
-		#endif
-		break;
-		
-		case 7:
-		#if defined(ADC_CHANNEL_7_MUX) || defined (ADC_CHANNEL_7_POT)
-		return true;
-		#else
-		return false;
-		#endif
-		break;
-		
-		default:
-		return false;
-		break;
-		
-	}
+	//_analogueIn stores 8 variables, for each analogue pin on ATmega328p
+	//if variable is true, analogue input is enabled
+	//else code doesn't check specified input
+	return _analogueIn[adcChannel];
 	
 }
 
 void OpenDeck::readPots()	{
 	
+	//reset potNumber on each call
 	potNumber = 0;
 	
-	for (int i=0; i<8; i++)	{
-		
-		#if defined (AT_POTS) && defined (MUX)
-		
-		if (adcConnected(i))	{
-			
-			if (adcChannelMux(i))	readPotsMux(i);
-				else	readPotsATmega(i);
-			
-		}
-		
-		#elif defined (AT_POTS)
+	//check 8 analogue inputs on ATmega328p
+	for (int i=0; i<8; i++)	
+		if (adcConnected(i))	readPotsMux(i);
 				
-		if (adcConnected(i))
-			readPotsATmega(i);
-					
-		#elif defined (MUX)
-				
-			if (adcConnected(i))
-				readPotsMux(i);
-		
-		#endif
-	
-	}
-
 }
 
-#ifdef MUX
 void OpenDeck::readPotsMux(uint8_t adcChannel) {
 
+	//iterate over 8 inputs on 4051 mux
 	for (int j=0; j<8; j++)	{
 		
-		HardwareReadSpecific::setMuxOutput(j);
+		//enable selected input
+		sendSwitchMuxOutCallback(j);
+		
+		//add small delay between setting select pins and reading the input
 		NOP;
 
 		//read analogue value from mux
 		int16_t tempValue = analogRead(adcChannel);
 
-		//if new reading is stable send new MIDI message
+		//if new reading is stable, send new MIDI message
 		checkPotReading(tempValue, potNumber);
 			
-		//calculate pot number
+		//increment pot number
 		potNumber++;
 
 	}
 
 }
-#endif
-
-#ifdef AT_POTS
-void OpenDeck::readPotsATmega(uint8_t adcChannel) {
-
-		//read analogue value from mux
-		int16_t tempValue = analogRead(adcChannel);
-
-		//if new reading is stable send new MIDI message
-		checkPotReading(tempValue, potNumber);
-		
-		//calculate pot number
-		potNumber++;
-
-
-}
-#endif
 
 void OpenDeck::checkPotReading(int16_t currentValue, uint8_t potNumber)	{
 	
 	//calculate difference between current and previous reading
 	int8_t analogueDiff = currentValue - lastAnalogueValue[potNumber];
+	
+	//get absolute difference
 	if (analogueDiff < 0)	analogueDiff *= -1;
 	
-	uint32_t timeDifference = (millis() - potTimer[potNumber]);
+	uint32_t timeDifference = millis() - potTimer[potNumber];
 	
 		/*	
 		
@@ -512,32 +595,49 @@ void OpenDeck::checkPotReading(int16_t currentValue, uint8_t potNumber)	{
 void OpenDeck::processPotReading(uint8_t potNumber, int16_t tempValue)	{
 	
 	uint8_t ccValue;
+	uint8_t potNoteChannel = longPressButtonNoteChannel+1;
 				
-	#ifdef INVERT_ANALOGUE_VALUE
-		ccValue = 127 - (tempValue >> 3);
-	#else
-		ccValue = tempValue >> 3;
-	#endif
-				
-	if (sendPotCCDataCallback != NULL)	sendPotCCDataCallback(potNumber, ccValue);
+	//invert CC data if potInverted is true
+	if (potInverted[potNumber])	ccValue = 127 - (tempValue >> 3);
+	else	ccValue = tempValue >> 3;
+		
+	//only send data if pot is enabled and function isn't called in setup
+	if ((sendPotCCDataCallback != NULL) && (potEnabled[potNumber]))
+		sendPotCCDataCallback(ccNumber[potNumber], ccValue, ccChanelPot);
+		
+	if (_potNotesEnabled)	{
 			
-	#ifdef ENABLE_POT_NOTE_EVENTS
+	uint8_t noteCurrent = getPotNoteValue(ccValue, ccNumber[potNumber]);
+	
+	//maximum number of notes per MIDI channel is 128, with 127 being final
+	if (noteCurrent > 127)	{
+		
+		//if calculated note is bigger than 127, assign next midi channel
+		potNoteChannel += noteCurrent/128;
+		
+		//substract 128*number of overflown channels from note
+		noteCurrent -= 128*(noteCurrent/128);
+		
+	}
 				
-		uint8_t noteCurrent = getPotNoteValue(ccValue, potNumber);
+		if (checkPotNoteValue(potNumber, noteCurrent))	{
+					
+			//always send note off for previous value, except for the first read
+			if ((lastPotNoteValue[potNumber] != 128) && (sendPotNoteOffDataCallback != NULL) && (potEnabled[potNumber]))
+				sendPotNoteOffDataCallback(lastPotNoteValue[ccNumber[potNumber]], ccNumber[potNumber], (longPressButtonNoteChannel+1));
+			
+			//send note on
+			if ((sendPotNoteOnDataCallback != NULL) && (potEnabled[potNumber]))
+				sendPotNoteOnDataCallback(noteCurrent, ccNumber[potNumber], (longPressButtonNoteChannel+1));
 				
-			if (checkPotNoteValue(potNumber, noteCurrent))	{
+			//update last value with current
+			lastPotNoteValue[potNumber] = noteCurrent;;
 					
-				if ((lastPotNoteValue[potNumber] != 128) && (sendPotNoteOffDataCallback != NULL))
-					sendPotNoteOffDataCallback(lastPotNoteValue[potNumber]);
-				
-				if (sendPotNoteOnDataCallback != NULL) sendPotNoteOnDataCallback(noteCurrent);
-					
-				lastPotNoteValue[potNumber] = noteCurrent;;
-					
-			}
-					
-	#endif
+		}
+		
+	}
 
+	//update values
 	lastAnalogueValue[potNumber] = tempValue;
 	potTimer[potNumber] = millis();
 	
@@ -591,29 +691,32 @@ bool OpenDeck::checkPotNoteValue(uint8_t potNumber, uint8_t noteCurrent)    {
 
 }
 
-void OpenDeck::setHandlePotCC(void (*fptr)(uint8_t potNumber, uint8_t ccValue))	{
+void OpenDeck::setHandlePotCC(void (*fptr)(uint8_t potNumber, uint8_t ccValue, uint8_t channel))	{
 	
 	sendPotCCDataCallback = fptr;
 	
 }
 
-void OpenDeck::setHandlePotNoteOn(void (*fptr)(uint8_t note))	{
+void OpenDeck::setHandlePotNoteOn(void (*fptr)(uint8_t note, uint8_t potNumber, uint8_t channel))	{
 	
 	sendPotNoteOnDataCallback = fptr;
 	
 }
 
-void OpenDeck::setHandlePotNoteOff(void (*fptr)(uint8_t note))	{
+void OpenDeck::setHandlePotNoteOff(void (*fptr)(uint8_t note, uint8_t potNumber, uint8_t channel))	{
 	
 	sendPotNoteOffDataCallback = fptr;
 	
 }
 
-#endif
+void OpenDeck::setHandleMuxOutput(void (*fptr)(uint8_t muxInput))	{
+	
+	sendSwitchMuxOutCallback = fptr;
+	
+}
 
 
 //LEDs
-#ifdef LED_MATRIX
 void OpenDeck::checkLEDs()  {
 	
 	//get currently active column
@@ -622,9 +725,8 @@ void OpenDeck::checkLEDs()  {
 	if (blinkEnabled)	switchBlinkState();
 	
 	//if there is an active LED in current column, turn on LED row
-	for (int i=0; i<NUMBER_OF_LED_ROWS; i++)	
-		
-		if (ledOn(currentColumn+i*NUMBER_OF_COLUMNS))	HardwareReadSpecific::ledRowOn(i);
+	for (int i=0; i<_numberOfLEDrows; i++)	
+		if (ledOn(currentColumn+i*_numberOfColumns))	sendLEDrowOnCallback(i);
 
 }
 
@@ -699,16 +801,16 @@ void OpenDeck::checkBlinkLEDs() {
 void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {   
 	
 	/*
-	 
+	
 	Function accepts three boolean arguments.
 	 
 	ledDirection: true means that LEDs will go from left to right, false from right to left
 	singleLED: true means that only one LED will be active at the time, false means that LEDs
-			   will turn on one by one until they're all lighted up
+			     will turn on one by one until they're all lighted up
 	
 	turnOn: true means that LEDs will be turned on, with all previous LED states being 0
-			false means that all LEDs are lighted up and they turn off one by one, depending
-			on second argument
+			  false means that all LEDs are lighted up and they turn off one by one, depending
+			  on second argument
 	 
     */
 
@@ -731,96 +833,88 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 	allLEDsOn();
      
     if (turnOn)  {
-
-	/*
 	
-	This part of code deals with situations when previous function call has been
-	left direction and current one is right and vice versa.
+	//This part of code deals with situations when previous function call has been
+	//left direction and current one is right and vice versa.
 	
-	On first function call, let's assume the direction was left to right. That would mean
-	that LEDs had to be processed in this order:
+	//On first function call, let's assume the direction was left to right. That would mean
+	//that LEDs had to be processed in this order:
 	
-	LED 1
-	LED 2
-	LED 3
-	LED 4
+	//LED 1
+	//LED 2
+	//LED 3
+	//LED 4
 	
-	Now, when function is finished, LEDs are not reset yet with allLEDsOff() function to keep
-	track of their previous states. Next function call is right to left. On first run with 
-	right to left direction, the LED order would be standard LED 4 to LED 1, however, LED 4 has
-	been already turned on by first function call, so we check if its state is already set, and if
-	it is we increment or decrement ledNumber by one, depending on previous and current direction.
-	When function is called second time with direction different than previous one, the number of 
-	times it needs to execute is reduced by one, therefore passCounter is incremented.
+	//Now, when function is finished, LEDs are not reset yet with allLEDsOff() function to keep
+	//track of their previous states. Next function call is right to left. On first run with 
+	//right to left direction, the LED order would be standard LED 4 to LED 1, however, LED 4 has
+	//been already turned on by first function call, so we check if its state is already set, and if
+	//it is we increment or decrement ledNumber by one, depending on previous and current direction.
+	//When function is called second time with direction different than previous one, the number of 
+	//times it needs to execute is reduced by one, therefore passCounter is incremented.
 	
-	*/
-    
     //right-to-left direction
     if (!ledDirection)
     //if last LED is turned on
-	if (ledOn(ledArray[TOTAL_NUMBER_OF_LEDS-1]))	{
+	if (ledOn(_ledNumber[totalNumberOfLEDs-1]))	{
 
 	    //LED index is penultimate LED number
-	    ledNumber = ledArray[TOTAL_NUMBER_OF_LEDS-2];
+	    ledNumber = _ledNumber[totalNumberOfLEDs-2];
 	    //increment counter since the loop has to run one cycle less
 	    passCounter++;
 
     }
     
 	//led index is last one if last one isn't already on
-	else ledNumber = ledArray[TOTAL_NUMBER_OF_LEDS-1];
+	else ledNumber = _ledNumber[totalNumberOfLEDs-1];
 
 	//left-to-right direction
 	else
 	//if first LED is already on
-	if (ledOn(ledArray[0]))	{
+	if (ledOn(_ledNumber[0]))	{
 
 		//led index is 1
-		ledNumber = ledArray[1];
+		ledNumber = _ledNumber[1];
 		//increment counter
 		passCounter++;
 
 	}
 
-	else ledNumber = ledArray[0];
+	else ledNumber = _ledNumber[0];
       
 	}
     
     else  {
 
-	/*
+	//This is situation when all LEDs are turned on and we're turning them off one by one. Same
+	//logic applies in both cases (see above). In this case we're not checking for whether the LED
+	//is already turned on, but whether it's already turned off.
 	
-	This is situation when all LEDs are turned on and we're turning them off one by one. Same
-	logic applies in both cases (see above). In this case we're not checking for whether the LED
-	is already turned on, but whether it's already turned off.
-	
-	*/
-      
     //right-to-left direction
-    if (!ledDirection)	if (!(ledOn(ledArray[TOTAL_NUMBER_OF_LEDS-1])))	{
+    if (!ledDirection)	if (!(ledOn(_ledNumber[totalNumberOfLEDs-1])))	{
 
-		ledNumber = ledArray[TOTAL_NUMBER_OF_LEDS-2];
+		ledNumber = _ledNumber[totalNumberOfLEDs-2];
 		passCounter++;
 
 	}
     
-	else ledNumber = ledArray[TOTAL_NUMBER_OF_LEDS-1];
+	else ledNumber = _ledNumber[totalNumberOfLEDs-1];
          
     //left-to-right direction
-    else  if (!(ledOn(ledArray[0])))   {
+    else  if (!(ledOn(_ledNumber[0])))   {
 
-		ledNumber = ledArray[1];
+		ledNumber = _ledNumber[1];
 		passCounter++;
 
 	}
 
-	else ledNumber = ledArray[0];
+	else ledNumber = _ledNumber[0];
       
     }
 
     //on first function call, the while loop is called TOTAL_NUMBER_OF_LEDS+1 times
 	//to get empty cycle after processing last LED
-	while (passCounter < TOTAL_NUMBER_OF_LEDS+1)  {	
+	while (passCounter < totalNumberOfLEDs+1)  {	
       
 		if ((millis() - columnTime) > getTimedLoopTime())  {   
     
@@ -828,9 +922,9 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 			nextColumn();
 
 			//only process LED after defined time
-			if ((millis() - startUpTimer) > START_UP_LED_SWITCH_TIME)  {
+			if ((millis() - startUpTimer) > startUpLEDswitchTime)  {
   
-				if (passCounter < TOTAL_NUMBER_OF_LEDS)  {
+				if (passCounter < totalNumberOfLEDs)  {
   
 					//if we're turning LEDs on one by one, turn all the other LEDs off
 					if (singleLED && turnOn)  allLEDsOff(); 
@@ -843,13 +937,13 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 						else turnOffLED(ledNumber);
 
 					//make sure out-of-bound index isn't requested from ledArray
-				    if (passCounter < TOTAL_NUMBER_OF_LEDS-1)	{
+				    if (passCounter < totalNumberOfLEDs-1)	{
 
 						//right-to-left direction
-						if (!ledDirection)	ledNumber = ledArray[TOTAL_NUMBER_OF_LEDS - 2 - passCounter];
+						if (!ledDirection)	ledNumber = _ledNumber[totalNumberOfLEDs - 2 - passCounter];
 
 						//left-to-right direction
-						else	if (passCounter < TOTAL_NUMBER_OF_LEDS-1)	ledNumber = ledArray[passCounter+1];
+						else	if (passCounter < totalNumberOfLEDs-1)	ledNumber = _ledNumber[passCounter+1];
 
 					}
                                           
@@ -871,13 +965,13 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
       
 		}
 
-      }
+	}
   
 }
 
 void OpenDeck::switchBlinkState()  {
 	
-	if ((millis() - blinkTimerCounter) >= BLINK_DURATION)	{
+	if ((millis() - blinkTimerCounter) >= blinkTime)	{
 		
 		//change blinkBit state and write it into ledState variable if LED is in blink state
 		for (int i = 0; i<MAX_NUMBER_OF_LEDS; i++)
@@ -939,7 +1033,7 @@ bool OpenDeck::checkBlinkState(uint8_t ledNumber)   {
 
 }
 
-void OpenDeck::handleLED(uint8_t ledNumber, bool currentLEDstate, bool blinkMode)   {
+void OpenDeck::handleLED(uint8_t ledNote, bool currentLEDstate, bool blinkMode)   {
 
   /*
 
@@ -955,6 +1049,8 @@ void OpenDeck::handleLED(uint8_t ledNumber, bool currentLEDstate, bool blinkMode
   0: LED is constantly turned on
 
   */
+  
+  uint8_t ledNumber = _ledNumber[ledNote];
 
        switch (currentLEDstate) {
 
@@ -1002,11 +1098,11 @@ void OpenDeck::handleLED(uint8_t ledNumber, bool currentLEDstate, bool blinkMode
 
 void OpenDeck::setLEDState()	{
 	
-	//ignore every note bigger than TOTAL_NUMBER_OF_LEDS*2 to avoid out-of-bound request
-	if (receivedNotePitch < TOTAL_NUMBER_OF_LEDS*2)	{
+	//ignore every note bigger than totalNumberOfLEDs*2 to avoid out-of-bound request
+	if (receivedNotePitch < totalNumberOfLEDs*2)	{
 		
 		bool currentLEDstate;
-		uint8_t ledNumber;
+		uint8_t ledNote;
 		
 		//if blinkMode is 1, the LED is blinking
 		uint8_t blinkMode = 0;
@@ -1016,12 +1112,12 @@ void OpenDeck::setLEDState()	{
 		if (receivedNoteVelocity != 0)  currentLEDstate = true;
 		else currentLEDstate = false;
 		
-		if (receivedNotePitch >= TOTAL_NUMBER_OF_LEDS)  blinkMode = 1;
+		if (receivedNotePitch >= totalNumberOfLEDs)  blinkMode = 1;
 		
 		//it's important to get the same led number in either case
-		ledNumber = ledArray[receivedNotePitch - (TOTAL_NUMBER_OF_LEDS*blinkMode)];
+		ledNote = receivedNotePitch - (totalNumberOfLEDs*blinkMode);
 		
-		handleLED(ledNumber, currentLEDstate, blinkMode);
+		handleLED(ledNote, currentLEDstate, blinkMode);
 		
 		if (blinkMode && currentLEDstate)	blinkEnabled = true;
 		else	checkBlinkLEDs();
@@ -1033,8 +1129,8 @@ void OpenDeck::setLEDState()	{
 }
 
 void OpenDeck::checkReceivedNote()	{
-	
-	if (!receivedNoteProcessed)	setLEDState();
+		
+		if (!receivedNoteProcessed)	setLEDState();
 	
 }
 
@@ -1048,19 +1144,28 @@ void OpenDeck::storeReceivedNote(uint8_t channel, uint8_t pitch, uint8_t velocit
 	
 }
 
-#endif
+void OpenDeck::setHandleLEDrowOn(void (*fptr)(uint8_t ledRow))	{
+	
+	sendLEDrowOnCallback = fptr;
+	
+}
+
+void OpenDeck::setHandleLEDrowsOff(void (*fptr)())	{
+	
+	sendLEDrowsOffCallback = fptr;
+	
+}
+
 
 //columns
 
 void OpenDeck::nextColumn()   {
 	
-	#ifdef LED_MATRIX
-		HardwareReadSpecific::ledRowsOff();
-	#endif
-		
-		if (column == NUMBER_OF_COLUMNS)	column = 0;
+	sendLEDrowsOffCallback();
 	
-	HardwareReadSpecific::activateColumn(column);
+	if (column == _numberOfColumns)	column = 0;
+	
+	sendColumnSwitchCallback(column);
 	
 	//increment column
 	column++;
@@ -1072,6 +1177,77 @@ uint8_t OpenDeck::getActiveColumn() {
 	//return currently active column
 	return (column - 1);
 
+}
+
+void OpenDeck::setHandleColumnSwitch(void (*fptr)(uint8_t columnNumber))	{
+	
+	sendColumnSwitchCallback = fptr;
+	
+}
+
+
+//getters
+
+bool OpenDeck::buttonsEnabled()	{
+	
+	return _buttonsEnabled;
+	
+}
+
+bool OpenDeck::ledsEnabled()	{
+	
+	return _ledsEnabled;
+	
+}
+
+bool OpenDeck::potsEnabled()	{
+	
+	return _potsEnabled;
+	
+}
+
+bool OpenDeck::startUpRoutineEnabled()	{
+	
+	return _startUpRoutineEnabled;
+	
+}
+
+bool OpenDeck::standardNoteOffEnabled()	{
+	
+	return _standardNoteOffEnabled;
+	
+}
+
+//setters
+
+void OpenDeck::setNumberOfColumns(uint8_t numberOfColumns)	{
+	
+	_numberOfColumns = numberOfColumns;
+	
+}
+
+void OpenDeck::setNumberOfButtonRows(uint8_t numberOfButtonRows)	{
+	
+	_numberOfButtonRows = numberOfButtonRows;
+	
+}
+
+void OpenDeck::setNumberOfLEDrows(uint8_t numberOfLEDrows)	{
+	
+	_numberOfLEDrows = numberOfLEDrows;
+		
+}
+
+void OpenDeck::setNumberOfMux(uint8_t numberOfMux)	{
+	
+	_numberOfMux = numberOfMux;
+	
+}
+
+void OpenDeck::enableAnalogueInput(uint8_t adcChannel)	{
+	
+	_analogueIn[adcChannel] = true;
+	
 }
 
 //create instance of library automatically
