@@ -1,7 +1,7 @@
 /*
 
-OpenDECK library v1.90
-Last revision date: 2014-07-30
+OpenDECK library v1.91
+Last revision date: 2014-08-09
 Author: Igor Petrovic
 
 */
@@ -75,201 +75,201 @@ const uint8_t defConf[] PROGMEM = {
 			//7-0
 			0x00,									//010
 			//15-8
-			0x00,									//011
+			0x00,
 			//23-16
-			0x00,									//012
+			0x00,
 			//31-24
-			0x00,									//013
+			0x00,
 			//39-32
-			0x00,									//014
+			0x00,
 			//47-40
-			0x00,									//015
+			0x00,
 			//55-48
-			0x00,									//016
+			0x00,
 			//63-56
-			0x00,									//017
+			0x00,
 			//71-64
-			0x00,									//018
+			0x00,
 			//79-72
-			0x00,									//019
+			0x00,
 			//87-80
-			0x00,									//020
+			0x00,
 			//95-88
-			0x00,									//021
+			0x00,
 			//103-96
-			0x00,									//022
+			0x00,
 			//111-104
-			0x00,									//023
+			0x00,
 			//119-112
-			0x00,									//024
+			0x00,
 			//127-120
-			0x00,									//025
+			0x00,
 			
 			//enable pot (1 enabled, 0 disabled)
 						
 			//7-0
 			0x00,									//026
 			//15-8
-			0x00,									//027
+			0x00,
 			//23-16
-			0x00,									//028
+			0x00,
 			//31-24
-			0x00,									//029
+			0x00,
 			//39-32
-			0x00,									//030
+			0x00,
 			//47-40
-			0x00,									//031
+			0x00,
 			//55-48
-			0x00,									//032
+			0x00,
 			//63-56
-			0x00,									//033
+			0x00,
 			//71-64
-			0x00,									//034
+			0x00,
 			//79-72
-			0x00,									//035
+			0x00,
 			//87-80
-			0x00,									//036
+			0x00,
 			//95-88
-			0x00,									//037
+			0x00,
 			//103-96
-			0x00,									//038
+			0x00,
 			//111-104
-			0x00,									//039
+			0x00,
 			//119-112
-			0x00,									//040
+			0x00,
 			//127-120
-			0x00,									//041
+			0x00,
 			
 			//potentiometer numbers
 			
 			0x00,									//042
-			0x01,									//043
-			0x02,									//044
-			0x03,									//045
-			0x04,									//046
-			0x05,									//047
-			0x06,									//048
-			0x07,									//049
-			0x08,									//050
-			0x09,									//051
-			0x0A,									//052
-			0x0B,									//053
-			0x0C,									//054
-			0x0D,									//055
-			0x0E,									//056
-			0x0F,									//057
-			0x10,									//058
-			0x11,									//059
-			0x12,									//060
-			0x13,									//061
-			0x14,									//062
-			0x15,									//063
-			0x16,									//064
-			0x17,									//065
-			0x18,									//066
-			0x19,									//067
-			0x1A,									//068
-			0x1B,									//069
-			0x1C,									//070
-			0x1D,									//071
-			0x1E,									//072
-			0x1F,									//073
-			0x20,									//074
-			0x21,									//075
-			0x22,									//076
-			0x23,									//077
-			0x24,									//078
-			0x25,									//079
-			0x26,									//080
-			0x27,									//081
-			0x28,									//082
-			0x29,									//083
-			0x2A,									//084
-			0x2B,									//085
-			0x2C,									//086
-			0x2D,									//087
-			0x2E,									//088
-			0x2F,									//089
-			0x30,									//090
-			0x31,									//091
-			0x32,									//092
-			0x33,									//093
-			0x34,									//094
-			0x35,									//095
-			0x36,									//096
-			0x37,									//097
-			0x38,									//098
-			0x39,									//099
-			0x3A,									//100
-			0x3B,									//101
-			0x3C,									//102
-			0x3D,									//103
-			0x3E,									//104
-			0x3F,									//105
-			0x40,									//106
-			0x41,									//107
-			0x42,									//108
-			0x43,									//109
-			0x44,									//110
-			0x45,									//111
-			0x46,									//112
-			0x47,									//113
-			0x48,									//114
-			0x49,									//115
-			0x4A,									//116
-			0x4B,									//117
-			0x4C,									//118
-			0x4D,									//119
-			0x4E,									//120
-			0x4F,									//121
-			0x50,									//122
-			0x51,									//123
-			0x52,									//124
-			0x53,									//125
-			0x54,									//126
-			0x55,									//127
-			0x56,									//128
-			0x57,									//129
-			0x58,									//130
-			0x59,									//131
-			0x5A,									//132
-			0x5B,									//133
-			0x5C,									//134
-			0x5D,									//135
-			0x5E,									//136
-			0x5F,									//137
-			0x60,									//138
-			0x61,									//139
-			0x62,									//140
-			0x63,									//141
-			0x64,									//142
-			0x65,									//143
-			0x66,									//144
-			0x67,									//145
-			0x68,									//146
-			0x69,									//147
-			0x6A,									//148
-			0x6B,									//149
-			0x6C,									//150
-			0x6D,									//151
-			0x6E,									//152
-			0x6F,									//153
-			0x70,									//154
-			0x71,									//155
-			0x72,									//156
-			0x73,									//157
-			0x74,									//158
-			0x75,									//159
-			0x76,									//160
-			0x77,									//161
-			0x78,									//162
-			0x79,									//163
-			0x7A,									//164
-			0x7B,									//165
-			0x7C,									//166
-			0x7D,									//167
-			0x7E,									//168
-			0x7F,									//169
+			0x01,
+			0x02,
+			0x03,
+			0x04,
+			0x05,
+			0x06,
+			0x07,
+			0x08,
+			0x09,
+			0x0A,
+			0x0B,
+			0x0C,
+			0x0D,
+			0x0E,
+			0x0F,
+			0x10,
+			0x11,
+			0x12,
+			0x13,
+			0x14,
+			0x15,
+			0x16,
+			0x17,
+			0x18,
+			0x19,
+			0x1A,
+			0x1B,
+			0x1C,
+			0x1D,
+			0x1E,
+			0x1F,
+			0x20,
+			0x21,
+			0x22,
+			0x23,
+			0x24,
+			0x25,
+			0x26,
+			0x27,
+			0x28,
+			0x29,
+			0x2A,
+			0x2B,
+			0x2C,
+			0x2D,
+			0x2E,
+			0x2F,
+			0x30,
+			0x31,
+			0x32,
+			0x33,
+			0x34,
+			0x35,
+			0x36,
+			0x37,
+			0x38,
+			0x39,
+			0x3A,	
+			0x3B,
+			0x3C,
+			0x3D,
+			0x3E,
+			0x3F,
+			0x40,
+			0x41,
+			0x42,
+			0x43,
+			0x44,
+			0x45,
+			0x46,
+			0x47,
+			0x48,
+			0x49,
+			0x4A,
+			0x4B,
+			0x4C,
+			0x4D,
+			0x4E,
+			0x4F,
+			0x50,
+			0x51,
+			0x52,
+			0x53,
+			0x54,
+			0x55,
+			0x56,
+			0x57,
+			0x58,
+			0x59,
+			0x5A,
+			0x5B,
+			0x5C,
+			0x5D,
+			0x5E,
+			0x5F,
+			0x60,
+			0x61,
+			0x62,
+			0x63,
+			0x64,
+			0x65,
+			0x66,
+			0x67,
+			0x68,
+			0x69,
+			0x6A,
+			0x6B,
+			0x6C,
+			0x6D,
+			0x6E,
+			0x6F,
+			0x70,
+			0x71,
+			0x72,
+			0x73,
+			0x74,
+			0x75,
+			0x76,
+			0x77,
+			0x78,
+			0x79,
+			0x7A,
+			0x7B,
+			0x7C,
+			0x7D,
+			0x7E,
+			0x7F,
 			
 			//button numbers
 			
@@ -439,11 +439,11 @@ const uint8_t defConf[] PROGMEM = {
 			//127-120
 			0x00,						
 			
-			//LED notes
+			//LED numbers
 						
 			0x00,								//314
 			0x01,
-			0x03,
+			0x02,
 			0x03,
 			0x04,
 			0x05,
@@ -570,8 +570,8 @@ const uint8_t defConf[] PROGMEM = {
 			0x7E,
 			0x7F,
 			
-			//total number of LEDs				//442
-			0x00
+			//total number of LEDs
+			0x00								//442
 					
 		};
 
@@ -590,79 +590,77 @@ class OpenDeck  {
 		
 		//hardware configuration
 		void setHandlePinInit(void (*fptr)());
-		void setHandleColumnSwitch(void (*fptr)(uint8_t columnNumber));
-		void setNumberOfColumns(uint8_t numberOfColumns);
-		void setNumberOfButtonRows(uint8_t numberOfButtonRows);
-		void setNumberOfLEDrows(uint8_t numberOfLEDrows);
-		void setNumberOfMux(uint8_t numberOfMux);
-		void enableAnalogueInput(uint8_t adcChannel);
+		void setHandleColumnSwitch(void (*fptr)(uint8_t));
+		void setNumberOfColumns(uint8_t);
+		void setNumberOfButtonRows(uint8_t);
+		void setNumberOfLEDrows(uint8_t);
+		void setNumberOfMux(uint8_t);
+		void enableAnalogueInput(uint8_t);
 		
         //buttons
 		void readButtons();
 		void setHandleButtonRead(void (*fptr)(uint8_t &buttonColumnState));
-		void setHandleButtonSend(void (*fptr)(uint8_t buttonNumber, bool buttonState, uint8_t channel));
+		void setHandleButtonSend(void (*fptr)(uint8_t, bool, uint8_t));
         
 		//pot
 		void readPots();
-		void setHandleMuxOutput(void (*fptr)(uint8_t muxInput));
-		void setHandlePotCC(void (*fptr)(uint8_t potNumber, uint8_t ccValue, uint8_t channel));
-		void setHandlePotNoteOn(void (*fptr)(uint8_t note, uint8_t potNumber, uint8_t channel));
-		void setHandlePotNoteOff(void (*fptr)(uint8_t note, uint8_t potNumber, uint8_t channel));
+		void setHandleMuxOutput(void (*fptr)(uint8_t));
+		void setHandlePotCC(void (*fptr)(uint8_t, uint8_t, uint8_t));
+		void setHandlePotNoteOn(void (*fptr)(uint8_t, uint8_t, uint8_t ));
+		void setHandlePotNoteOff(void (*fptr)(uint8_t, uint8_t, uint8_t));
 	
         //LEDs
-		void oneByOneLED(bool ledDirection, bool singleLED, bool turnOn);
+		void oneByOneLED(bool, bool, bool );
 		void checkLEDs();
 		void allLEDsOn();
 		void allLEDsOff();
-		void turnOnLED(uint8_t ledNumber);
-		void turnOffLED(uint8_t ledNumber);
-		void storeReceivedNote(uint8_t channel, uint8_t pitch, uint8_t velocity);
+		void turnOnLED(uint8_t);
+		void turnOffLED(uint8_t);
+		void storeReceivedNote(uint8_t, uint8_t, uint8_t);
 		void checkReceivedNote();
-		void setHandleLEDrowOn(void (*fptr)(uint8_t ledRow));
+		void setHandleLEDrowOn(void (*fptr)(uint8_t));
 		void setHandleLEDrowsOff(void (*fptr)());
 		
 		//columns
 		void nextColumn();
 		
 		//getters
-		
+		bool standardNoteOffEnabled();
 		bool buttonsEnabled();
 		bool ledsEnabled();
-		bool potsEnabled();
-		bool startUpRoutineEnabled();
-		bool standardNoteOffEnabled();
+		bool potsEnabled();		
+		bool getFeature(uint8_t, uint8_t);
+		uint8_t getHardwareParameter(uint8_t);
+		uint8_t getInputMIDIchannel();
 		
-		uint8_t getInputChannel();	
+		//setters
+		bool setFeature(uint8_t, uint8_t, bool);
+		bool setHardwareParameter(uint8_t, uint8_t);
+		
+		//system exclusive handlers
+		void checkID();
+		void storeSysEx(uint8_t sysExArray[], uint8_t);
 					
     private:
 				
 		//variables
 		//MIDI channels
-		uint8_t buttonNoteChannel,
-				longPressButtonNoteChannel,
-				ccChanelPot,
-				ccChannelEnc,
-				inputChannel;
+		uint8_t _buttonNoteChannel,
+				_longPressButtonNoteChannel,
+				_potCCchannel,
+				_encCCchannel,
+				_inputChannel;
 		
         //hardware params
-		uint16_t longPressTime,
-				blinkTime,
-				startUpLEDswitchTime;
+		uint16_t _longPressTime,
+				_blinkTime,
+				_startUpLEDswitchTime;
 				
 		//software features
-		bool _startUpRoutineEnabled,
-			_ledBlinkEnabled,
-			_longPressEnabled,
-			_potNotesEnabled,
-			_encoderNotesEnabled,
-			_standardNoteOffEnabled,
-			_runningStatusEnabled;
+		uint8_t softwareFeatures;
 		
 		//hardware features
-		bool _buttonsEnabled,
-			_ledsEnabled,
-			_potsEnabled,
-			_encodersEnabled;
+		uint8_t hardwareFeatures;
 
 		//buttons
 		uint8_t buttonNote[MAX_NUMBER_OF_BUTTONS],
@@ -710,11 +708,10 @@ class OpenDeck  {
 				_numberOfLEDrows,
 				_numberOfMux;
 		
-		bool _analogueIn[8];
+		uint8_t _analogueIn;
 				
 		//general
 		uint8_t i;
-
         
 		//functions
 		
@@ -737,42 +734,42 @@ class OpenDeck  {
 		void getTotalLEDnumber();
 		
 		//buttons
-		uint8_t checkButton(uint8_t currentState, uint8_t previousState);
+		uint8_t checkButton(uint8_t, uint8_t);
 		void setNumberOfColumnPasses();
-		void setButtonDebounceCompare(uint8_t numberOfColumnPasses);
+		void setButtonDebounceCompare(uint8_t);
 		void (*sendButtonReadCallback)(uint8_t &buttonColumnState);
-		void (*sendButtonDataCallback)(uint8_t buttonNumber, bool buttonState, uint8_t channel);
+		void (*sendButtonDataCallback)(uint8_t, bool, uint8_t);
 				
 		//LEDs
-		void handleLED(uint8_t ledNote, bool currentLEDstate, bool blinkMode);
+		void handleLED(uint8_t, bool, bool);
 		void setLEDState();
 		void checkBlinkLEDs();
-		bool checkBlinkState(uint8_t ledNumber);
-		void setBlinkState(uint8_t ledNumber, bool blinkState);
+		bool checkBlinkState(uint8_t);
+		void setBlinkState(uint8_t, bool);
 		void switchBlinkState();
-		void setConstantLEDstate(uint8_t ledNumber);
-		bool ledOn(uint8_t ledNumber);
+		void setConstantLEDstate(uint8_t);
+		bool ledOn(uint8_t);
 		bool checkLEDsOn();
 		bool checkLEDsOff();
-		void (*sendLEDrowOnCallback)(uint8_t ledRow);
+		void (*sendLEDrowOnCallback)(uint8_t);
 		void (*sendLEDrowsOffCallback)();
 	
 		//pots
-		bool adcConnected(uint8_t adcChannel);
-		bool adcChannelMux(uint8_t adcChannel);
-		void readPotsMux(uint8_t adcChannel);
-		void processPotReading(uint8_t potNumber, int16_t tempValue);
-		uint8_t getPotNoteValue(uint8_t analogueMIDIvalue, uint8_t potNumber);
-		void checkPotReading(int16_t currentValue, uint8_t potNumber);
-		bool checkPotNoteValue(uint8_t potNumber, uint8_t ccValue);
-		void (*sendSwitchMuxOutCallback)(uint8_t muxInput);
-		void (*sendPotCCDataCallback)(uint8_t potNumber, uint8_t ccValue, uint8_t channel);
-		void (*sendPotNoteOnDataCallback)(uint8_t note, uint8_t potNumber, uint8_t channel);
-		void (*sendPotNoteOffDataCallback)(uint8_t note, uint8_t potNumber, uint8_t channel);		
+		bool adcConnected(uint8_t);
+		bool adcChannelMux(uint8_t);
+		void readPotsMux(uint8_t);
+		void processPotReading(uint8_t, int16_t);
+		uint8_t getPotNoteValue(uint8_t, uint8_t);
+		void checkPotReading(int16_t, uint8_t);
+		bool checkPotNoteValue(uint8_t, uint8_t);
+		void (*sendSwitchMuxOutCallback)(uint8_t);
+		void (*sendPotCCDataCallback)(uint8_t, uint8_t, uint8_t);
+		void (*sendPotNoteOnDataCallback)(uint8_t, uint8_t, uint8_t);
+		void (*sendPotNoteOffDataCallback)(uint8_t, uint8_t, uint8_t);		
 			
 		//columns
 		uint8_t getActiveColumn();
-		void (*sendColumnSwitchCallback)(uint8_t columnNumber);
+		void (*sendColumnSwitchCallback)(uint8_t);
 			
 };
 

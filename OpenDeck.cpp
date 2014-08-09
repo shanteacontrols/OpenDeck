@@ -1,7 +1,7 @@
 /*
 
-OpenDeck MIDI controller firmware v1.90
-Last revision date: 2014-07-30
+OpenDeck MIDI controller firmware v1.91
+Last revision date: 2014-08-09
 Author: Igor Petrovic
 
 */
@@ -16,7 +16,7 @@ Author: Igor Petrovic
 #define MIDI_NOTE_OFF_VELOCITY 0
 
 //define time after which code in timedLoop function runs
-#define TIMED_LOOP_SWITCH_TIME 1
+#define COLUMN_SWITCH_TIME 1
 
 
 //hardware control
@@ -40,7 +40,9 @@ void initPins() {
 //switch to next matrix column
 void activateColumn(uint8_t column)  {
 	
-	PORTC &= (0b11000111 | (column << 3));
+	//column switching is controlled by 74HC238 decoder
+	PORTC &= 0b11000111;
+	PORTC |= (0b11000111 | (column << 3));
 	
 }
 
@@ -51,12 +53,12 @@ void ledRowOn(uint8_t rowNumber)  {
 	
 		case 0:
 		//turn on first LED row
-		PORTB |= 0b00000010;
+		PORTB |= 0b00000001;
 		break;
 	
 		case 1:
 		//turn on second LED row
-		PORTB |= 0b00000001;
+		PORTB |= 0b00000010;
 		break;
 	
 		case 2:
@@ -86,7 +88,8 @@ void ledRowsOff()	{
 //control select pins on mux
 void setMuxOutput(uint8_t muxInput)	{
 	
-	PORTC &= (0b11111000 | muxInput);
+	PORTC &= 0b11111000;
+	PORTC |= muxInput;
 	
 }
 
@@ -108,6 +111,11 @@ void getNoteOnData(uint8_t channel, uint8_t pitch, uint8_t velocity)  {
 
 }
 
+void getSysExData(uint8_t *sysExArray, uint8_t size)	{
+	
+	
+}
+
 
 //OpenDeck callback handlers
 
@@ -120,7 +128,9 @@ void sendButtonData(uint8_t buttonNumber, bool buttonState, uint8_t channel)    
 		
 		case false:
 		//button released
-		if (openDeck.standardNoteOffEnabled())	MIDI.sendNoteOff(buttonNumber, MIDI_NOTE_OFF_VELOCITY, channel);
+		if (openDeck.standardNoteOffEnabled())
+			MIDI.sendNoteOff(buttonNumber, MIDI_NOTE_OFF_VELOCITY, channel);
+			
 		else MIDI.sendNoteOn(buttonNumber, MIDI_NOTE_OFF_VELOCITY, channel);
 		break;
 		
@@ -176,12 +186,12 @@ void startUpRoutine()  {
 void setOpenDeckHandlers()	{
 	
 	openDeck.setNumberOfMux(2);
-	openDeck.setNumberOfColumns(5);
-	openDeck.setNumberOfButtonRows(5);
-	openDeck.setNumberOfLEDrows(1);
+	openDeck.setNumberOfColumns(8);
+	openDeck.setNumberOfButtonRows(4);
+	openDeck.setNumberOfLEDrows(4);
 	
-	openDeck.enableAnalogueInput(0);
-	openDeck.enableAnalogueInput(1);
+	openDeck.enableAnalogueInput(6);
+	openDeck.enableAnalogueInput(7);
 	
 	openDeck.setHandleButtonSend(sendButtonData);
 	
@@ -202,6 +212,7 @@ void setOpenDeckHandlers()	{
 void setMIDIhandlers()	{
 	
 	MIDI.setHandleNoteOn(getNoteOnData);
+	MIDI.setHandleSystemExclusive(getSysExData);
 	
 }
 
@@ -210,13 +221,13 @@ void setMIDIhandlers()	{
 void setup()  {
 	
 	//set time in ms after which timedLoop is run
-	setTimedLoop(TIMED_LOOP_SWITCH_TIME);
+	setTimedLoop(COLUMN_SWITCH_TIME);
 	
 	setOpenDeckHandlers();
 	setMIDIhandlers();
 	
 	//write default controller settings to EEPROM
-	//openDeck.setDefaultConf();
+	openDeck.setDefaultConf();
 	
 	//initialize openDeck library
 	openDeck.init();
@@ -225,7 +236,7 @@ void setup()  {
 	startUpRoutine();
 	
 	//read incoming MIDI messages on specified channel
-	MIDI.begin(openDeck.getInputChannel());
+	MIDI.begin(openDeck.getInputMIDIchannel());
 	
 	Serial.begin(38400);
 	
@@ -238,14 +249,11 @@ void timedLoop()	{
 	
 	//if any of the LEDs on current
 	//column are active, turn them on
-	if (openDeck.ledsEnabled()) openDeck.checkLEDs();
+	if (openDeck.ledsEnabled())		openDeck.checkLEDs();
 	
 	//check buttons on current column
-	if (openDeck.buttonsEnabled()) openDeck.readButtons();
-	
-	//read all pots
-	if (openDeck.potsEnabled()) openDeck.readPots();
-	
+	if (openDeck.buttonsEnabled())	openDeck.readButtons();
+
 }
 
 void loop()	{
@@ -255,5 +263,8 @@ void loop()	{
 	
 	//check if there is any received note to process
 	openDeck.checkReceivedNote();
+	
+	//read all pots
+	if (openDeck.potsEnabled())		openDeck.readPots();
 	
 }
