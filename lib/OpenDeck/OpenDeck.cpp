@@ -1,7 +1,7 @@
 /*
 
-OpenDECK library v1.90
-Last revision date: 2014-07-30
+OpenDECK library v1.91
+Last revision date: 2014-08-09
 Author: Igor Petrovic
 
 */
@@ -12,13 +12,51 @@ Author: Igor Petrovic
 #include <stdlib.h>
 #include <avr/eeprom.h>
 #include <util/crc16.h>
+#include <avr/sfr_defs.h>
+
+#define BUTTON_NOTE_CHANNEL_ADD				0
+#define LONG_PRESS_BUTTON_NOTE_CHANNEL_ADD	1
+#define POT_CC_CHANNEL_ADD					2
+#define ENC_CC_CHANNEL_ADD					3
+#define INPUT_CHANNEL_ADD					4
+
+#define LONG_PRESS_TIME_ADD					5
+#define BLINK_TIME_ADD						6
+#define START_UP_SWITCH_TIME_ADD			7
+
+#define SOFTWARE_FEATURES_ADD				8
+
+#define START_UP_ROUTINE_EN_BIT				6
+#define LED_BLINK_EN_BIT					5
+#define LONG_PRESS_EN_BIT					4
+#define POT_NOTES_EN_BIT					3
+#define ENC_NOTES_EN_BIT					2
+#define STANDARD_NOTE_OFF_EN_BIT			1
+#define RUNNING_STATUS_EN_BIT				0
+
+#define HARDWARE_FEATURES_ADD				9
+
+#define BUTTONS_EN_BIT						3
+#define LEDS_EN_BIT							2
+#define POTS_EN_BIT							1
+#define ENC_EN_BIT							0
+
+#define POT_INVERSION_STATUS_ADD			10
+#define POT_ENABLED_STATUS_ADD				26
+#define POT_CC_NUMBER_ADD					42
+
+#define BUTTON_NOTE_NUMBER_ADD				170
+#define BUTTON_TYPE_ADD						298
+
+#define LED_ACT_NOTE_ADD					314
+#define TOTAL_LED_NUMBER_ADD				442
 
 OpenDeck::OpenDeck()    {
 
   //initialization
   initVariables();
   
-  //set all callback to NULL pointer
+  //set all callbacks to NULL pointer
   
   sendButtonDataCallback		=	NULL;
   sendLEDrowOnCallback			=	NULL;
@@ -41,31 +79,22 @@ void OpenDeck::initVariables()  {
 	//reset all variables
 	
 	//MIDI channels
-	buttonNoteChannel			= 0;
-	longPressButtonNoteChannel	= 0;
-	ccChanelPot					= 0;
-	ccChannelEnc				= 0;
-	inputChannel				= 0;
+	_buttonNoteChannel			= 0;
+	_longPressButtonNoteChannel	= 0;
+	_potCCchannel				= 0;
+	_encCCchannel				= 0;
+	_inputChannel				= 0;
 	
 	//hardware params
-	longPressTime				= 0;
-	blinkTime					= 0;
-	startUpLEDswitchTime		= 0;
+	_longPressTime				= 0;
+	_blinkTime					= 0;
+	_startUpLEDswitchTime		= 0;
 	
 	//software features
-	_startUpRoutineEnabled		= false;
-	_ledBlinkEnabled			= false;
-	_longPressEnabled			= false;
-	_potNotesEnabled			= false;
-	_encoderNotesEnabled		= false;
-	_standardNoteOffEnabled		= false;
-	_runningStatusEnabled		= false;
+	softwareFeatures			= 0;
 	
 	//hardware features
-	_buttonsEnabled				= false;
-	_ledsEnabled				= false;
-	_potsEnabled				= false;
-	_encodersEnabled			= false;
+	hardwareFeatures			= 0; 
 	
 	//buttons	 	  
 	for (i=0; i<MAX_NUMBER_OF_BUTTONS; i++)  {
@@ -92,8 +121,7 @@ void OpenDeck::initVariables()  {
 
 	}
 	
-	for (i=0; i<8; i++)
-		_analogueIn[i]			= false;
+	_analogueIn					= 0;
 	  
 	potNumber					= 0;
 
@@ -135,7 +163,7 @@ void OpenDeck::init()	{
 	for (int i=0; i<MAX_NUMBER_OF_POTS; i++)		lastPotNoteValue[i] = 128;
 	
 	blinkState				= true;
-	receivedNoteProcessed	= false;
+	receivedNoteProcessed	= true;
 
 	//make initial pot reading to avoid sending all data on startup
 	readPots();
@@ -173,51 +201,38 @@ void OpenDeck::getConfiguration()	{
 
 void OpenDeck::getMIDIchannels()	{
 	
-	buttonNoteChannel			= eeprom_read_byte((uint8_t*)0);
-	longPressButtonNoteChannel	= eeprom_read_byte((uint8_t*)1);
-	ccChanelPot					= eeprom_read_byte((uint8_t*)2);
-	ccChannelEnc				= eeprom_read_byte((uint8_t*)3);
-	inputChannel				= eeprom_read_byte((uint8_t*)4);
+	_buttonNoteChannel			= eeprom_read_byte((uint8_t*)BUTTON_NOTE_CHANNEL_ADD);
+	_longPressButtonNoteChannel	= eeprom_read_byte((uint8_t*)LONG_PRESS_BUTTON_NOTE_CHANNEL_ADD);
+	_potCCchannel				= eeprom_read_byte((uint8_t*)POT_CC_CHANNEL_ADD);
+	_encCCchannel				= eeprom_read_byte((uint8_t*)ENC_CC_CHANNEL_ADD);
+	_inputChannel				= eeprom_read_byte((uint8_t*)INPUT_CHANNEL_ADD);
 	
 }
 
 void OpenDeck::getHardwareParams()	{
 	
-	longPressTime				= eeprom_read_byte((uint8_t*)5) * 100;
-	blinkTime					= eeprom_read_byte((uint8_t*)6) * 100;
-	startUpLEDswitchTime		= eeprom_read_byte((uint8_t*)7) * 10;
+	_longPressTime				= eeprom_read_byte((uint8_t*)LONG_PRESS_TIME_ADD) * 100;
+	_blinkTime					= eeprom_read_byte((uint8_t*)BLINK_TIME_ADD) * 100;
+	_startUpLEDswitchTime		= eeprom_read_byte((uint8_t*)START_UP_SWITCH_TIME_ADD) * 10;
 	
 }
 
 void OpenDeck::getSoftwareFeatures()	{
 	
-	uint8_t features = eeprom_read_byte((uint8_t*)8);
-	
-	_startUpRoutineEnabled	= features >> 6;
-	_ledBlinkEnabled		= (features >> 5) & 0x01;
-	_longPressEnabled		= (features >> 4) & 0x01;
-	_potNotesEnabled		= (features >> 3) & 0x01;
-	_encoderNotesEnabled	= (features >> 2) & 0x01;
-	_standardNoteOffEnabled = (features >> 1) & 0x01;
-	_runningStatusEnabled	= features & 0x01;
+	softwareFeatures = eeprom_read_byte((uint8_t*)SOFTWARE_FEATURES_ADD);
 	
 }
 
 void OpenDeck::getHardwareFeatures()	{
 	
-	uint8_t features = eeprom_read_byte((uint8_t*)9);
-	
-	_buttonsEnabled		= features >> 3;
-	_ledsEnabled		= ((features >> 2) & 0x01);
-	_potsEnabled		= ((features >> 1) & 0x01);
-	_encodersEnabled	= (features & 0x01);
+	hardwareFeatures = eeprom_read_byte((uint8_t*)HARDWARE_FEATURES_ADD);
 	
 }
 
 void OpenDeck::getPotInvertStates()	{
 	
 	uint8_t inversionEnabled;
-	uint16_t eepromAddress = 10;
+	uint16_t eepromAddress = POT_INVERSION_STATUS_ADD;
 	
 	for (int i=0; i<(MAX_NUMBER_OF_POTS/8); i++)	{
 		
@@ -233,7 +248,7 @@ void OpenDeck::getPotInvertStates()	{
 void OpenDeck::getEnabledPots()	{
 	
 	uint8_t _potEnabled;
-	uint16_t eepromAddress = 26;
+	uint16_t eepromAddress = POT_ENABLED_STATUS_ADD;
 	
 	for (int i=0; i<(MAX_NUMBER_OF_POTS/8); i++)	{
 		
@@ -248,7 +263,7 @@ void OpenDeck::getEnabledPots()	{
 
 void OpenDeck::getCCnumbers()	{
 	
-	uint16_t eepromAddress = 42;
+	uint16_t eepromAddress = POT_CC_NUMBER_ADD;
 	
 	for (int i=0; i<MAX_NUMBER_OF_POTS; i++)	{
 		
@@ -261,7 +276,7 @@ void OpenDeck::getCCnumbers()	{
 
 void OpenDeck::getButtonNumbers()	{
 	
-	uint16_t eepromAddress = 170;
+	uint16_t eepromAddress = BUTTON_NOTE_NUMBER_ADD;
 	
 	for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)	{
 		
@@ -275,7 +290,7 @@ void OpenDeck::getButtonNumbers()	{
 void OpenDeck::getButtonType()	{
 	
 	uint8_t _buttonType;
-	uint16_t eepromAddress = 298;
+	uint16_t eepromAddress = BUTTON_TYPE_ADD;
 	
 	for (int i=0; i<MAX_NUMBER_OF_BUTTONS/8; i++)	{
 		
@@ -290,7 +305,7 @@ void OpenDeck::getButtonType()	{
 
 void OpenDeck::getLEDnumbers()	{
 	
-	uint16_t eepromAddress = 314;
+	uint16_t eepromAddress = LED_ACT_NOTE_ADD;
 	
 	for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)	{
 		
@@ -303,28 +318,35 @@ void OpenDeck::getLEDnumbers()	{
 
 void OpenDeck::getTotalLEDnumber()	{
 	
-	totalNumberOfLEDs = eeprom_read_byte((uint8_t*)442);
+	totalNumberOfLEDs = eeprom_read_byte((uint8_t*)TOTAL_LED_NUMBER_ADD);
 	
-}
-
-
-//restore default configuration
-
-void OpenDeck::setDefaultConf()	{
-
-	//write default configuration stored in PROGMEM to EEPROM
-	for (int i=0; i<(int16_t)sizeof(defConf); i++)	
-		eeprom_update_byte((uint8_t*)i, pgm_read_byte(&(defConf[i])));
-			
 }
   
-uint8_t OpenDeck::getInputChannel()	{
+  
+bool OpenDeck::standardNoteOffEnabled()	{
 	
-	//return listening MIDI channel
-	return inputChannel;
-	
+	return getFeature(SOFTWARE_FEATURES_ADD, STANDARD_NOTE_OFF_EN_BIT); 
+	 
 }
 
+bool OpenDeck::buttonsEnabled()	{
+	
+	return getFeature(HARDWARE_FEATURES_ADD, BUTTONS_EN_BIT);
+
+}
+
+bool OpenDeck::ledsEnabled()	{
+	
+	return getFeature(HARDWARE_FEATURES_ADD, LEDS_EN_BIT);
+
+}
+
+bool OpenDeck::potsEnabled()	{
+	
+	bool returnValue = getFeature(HARDWARE_FEATURES_ADD, POTS_EN_BIT);
+	return returnValue;
+
+}
   
 //buttons
 
@@ -411,16 +433,16 @@ void OpenDeck::readButtons()    {
 					if (buttonPressed[buttonNumber])	{
 						
 						//if longPress is enabled and longPressNote has already been sent
-						if (_longPressEnabled && longPressSent[buttonNumber])	{
+						if (getFeature(SOFTWARE_FEATURES_ADD, LONG_PRESS_EN_BIT) && longPressSent[buttonNumber])	{
 							
 							//send both regular and long press note off
-							sendButtonDataCallback(buttonNote[buttonNumber], false, buttonNoteChannel);
-							sendButtonDataCallback(buttonNote[buttonNumber], false, longPressButtonNoteChannel);
+							sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
+							sendButtonDataCallback(buttonNote[buttonNumber], false, _longPressButtonNoteChannel);
 							
 						}
 						
 						//else send regular note off only
-						else sendButtonDataCallback(buttonNote[buttonNumber], false, buttonNoteChannel);
+						else sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
 						
 						//reset pressed state
 						buttonPressed[buttonNumber] = false;
@@ -428,7 +450,7 @@ void OpenDeck::readButtons()    {
 				}	else {
 					
 					//send note on on press
-					sendButtonDataCallback(buttonNote[buttonNumber], true, buttonNoteChannel);
+					sendButtonDataCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
 					
 					//toggle buttonPressed flag to true
 					buttonPressed[buttonNumber] = true;
@@ -439,10 +461,10 @@ void OpenDeck::readButtons()    {
 			
 			//button has momentary operation
 			//send note on
-			else sendButtonDataCallback(buttonNote[buttonNumber], true, buttonNoteChannel);
+			else sendButtonDataCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
 				
 			//start long press timer
-			if (_longPressEnabled)	longPressState[buttonNumber] = millis();
+			if (getFeature(SOFTWARE_FEATURES_ADD, LONG_PRESS_EN_BIT))	longPressState[buttonNumber] = millis();
 				
 		}
 				
@@ -451,24 +473,24 @@ void OpenDeck::readButtons()    {
 					//button is released
 					//check button on release only if it's momentary
 					
-						if (_longPressEnabled)	{
+						if (getFeature(SOFTWARE_FEATURES_ADD, LONG_PRESS_EN_BIT))	{
 												
 							if (longPressSent[buttonNumber]) {
 													
 								//send both regular and long press note off
-								sendButtonDataCallback(buttonNote[buttonNumber], false, buttonNoteChannel);
-								sendButtonDataCallback(buttonNote[buttonNumber], false, longPressButtonNoteChannel);
+								sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
+								sendButtonDataCallback(buttonNote[buttonNumber], false, _longPressButtonNoteChannel);
 													
 							}
 							
-								else sendButtonDataCallback(buttonNote[buttonNumber], false, buttonNoteChannel);
+								else sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
 								
 								longPressState[buttonNumber] = 0;
 								longPressSent[buttonNumber] = false;
 												
 						}
 						
-							else sendButtonDataCallback(buttonNote[buttonNumber], false, buttonNoteChannel);
+							else sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
 												
 				}
 					
@@ -477,12 +499,12 @@ void OpenDeck::readButtons()    {
 			
 		}	
 			
-				if (_longPressEnabled)	{
+				if (getFeature(SOFTWARE_FEATURES_ADD, LONG_PRESS_EN_BIT))	{
 					
 					//send long press note if button has been pressed for defined time and note hasn't already been sent
-					if ((millis() - longPressState[buttonNumber] >= longPressTime) && (!longPressSent[buttonNumber]) && (buttonState == 0xFF))	{
+					if ((millis() - longPressState[buttonNumber] >= _longPressTime) && (!longPressSent[buttonNumber]) && (buttonState == 0xFF))	{
 				
-					sendButtonDataCallback(buttonNote[buttonNumber], true, longPressButtonNoteChannel);
+					sendButtonDataCallback(buttonNote[buttonNumber], true, _longPressButtonNoteChannel);
 					longPressSent[buttonNumber] = true;
 					
 			}
@@ -521,7 +543,7 @@ bool OpenDeck::adcConnected(uint8_t adcChannel)	{
 	//_analogueIn stores 8 variables, for each analogue pin on ATmega328p
 	//if variable is true, analogue input is enabled
 	//else code doesn't check specified input
-	return _analogueIn[adcChannel];
+	return bitRead(_analogueIn, adcChannel);
 	
 }
 
@@ -595,7 +617,7 @@ void OpenDeck::checkPotReading(int16_t currentValue, uint8_t potNumber)	{
 void OpenDeck::processPotReading(uint8_t potNumber, int16_t tempValue)	{
 	
 	uint8_t ccValue;
-	uint8_t potNoteChannel = longPressButtonNoteChannel+1;
+	uint8_t potNoteChannel = _longPressButtonNoteChannel+1;
 				
 	//invert CC data if potInverted is true
 	if (potInverted[potNumber])	ccValue = 127 - (tempValue >> 3);
@@ -603,9 +625,9 @@ void OpenDeck::processPotReading(uint8_t potNumber, int16_t tempValue)	{
 		
 	//only send data if pot is enabled and function isn't called in setup
 	if ((sendPotCCDataCallback != NULL) && (potEnabled[potNumber]))
-		sendPotCCDataCallback(ccNumber[potNumber], ccValue, ccChanelPot);
+		sendPotCCDataCallback(ccNumber[potNumber], ccValue, _potCCchannel);
 		
-	if (_potNotesEnabled)	{
+	if (getFeature(SOFTWARE_FEATURES_ADD, POT_NOTES_EN_BIT))	{
 			
 	uint8_t noteCurrent = getPotNoteValue(ccValue, ccNumber[potNumber]);
 	
@@ -624,11 +646,11 @@ void OpenDeck::processPotReading(uint8_t potNumber, int16_t tempValue)	{
 					
 			//always send note off for previous value, except for the first read
 			if ((lastPotNoteValue[potNumber] != 128) && (sendPotNoteOffDataCallback != NULL) && (potEnabled[potNumber]))
-				sendPotNoteOffDataCallback(lastPotNoteValue[ccNumber[potNumber]], ccNumber[potNumber], (longPressButtonNoteChannel+1));
+				sendPotNoteOffDataCallback(lastPotNoteValue[ccNumber[potNumber]], ccNumber[potNumber], (_longPressButtonNoteChannel+1));
 			
 			//send note on
 			if ((sendPotNoteOnDataCallback != NULL) && (potEnabled[potNumber]))
-				sendPotNoteOnDataCallback(noteCurrent, ccNumber[potNumber], (longPressButtonNoteChannel+1));
+				sendPotNoteOnDataCallback(noteCurrent, ccNumber[potNumber], (_longPressButtonNoteChannel+1));
 				
 			//update last value with current
 			lastPotNoteValue[potNumber] = noteCurrent;;
@@ -922,7 +944,7 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 			nextColumn();
 
 			//only process LED after defined time
-			if ((millis() - startUpTimer) > startUpLEDswitchTime)  {
+			if ((millis() - startUpTimer) > _startUpLEDswitchTime)  {
   
 				if (passCounter < totalNumberOfLEDs)  {
   
@@ -971,7 +993,7 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 
 void OpenDeck::switchBlinkState()  {
 	
-	if ((millis() - blinkTimerCounter) >= blinkTime)	{
+	if ((millis() - blinkTimerCounter) >= _blinkTime)	{
 		
 		//change blinkBit state and write it into ledState variable if LED is in blink state
 		for (int i = 0; i<MAX_NUMBER_OF_LEDS; i++)
@@ -999,8 +1021,8 @@ bool OpenDeck::ledOn(uint8_t ledNumber)   {
 	ledState[ledNumber] == 0x17
 
 	)  return true;
-
-	return false;
+		
+		return false;
 
 }
 
@@ -1186,37 +1208,6 @@ void OpenDeck::setHandleColumnSwitch(void (*fptr)(uint8_t columnNumber))	{
 }
 
 
-//getters
-
-bool OpenDeck::buttonsEnabled()	{
-	
-	return _buttonsEnabled;
-	
-}
-
-bool OpenDeck::ledsEnabled()	{
-	
-	return _ledsEnabled;
-	
-}
-
-bool OpenDeck::potsEnabled()	{
-	
-	return _potsEnabled;
-	
-}
-
-bool OpenDeck::startUpRoutineEnabled()	{
-	
-	return _startUpRoutineEnabled;
-	
-}
-
-bool OpenDeck::standardNoteOffEnabled()	{
-	
-	return _standardNoteOffEnabled;
-	
-}
 
 //setters
 
@@ -1246,7 +1237,134 @@ void OpenDeck::setNumberOfMux(uint8_t numberOfMux)	{
 
 void OpenDeck::enableAnalogueInput(uint8_t adcChannel)	{
 	
-	_analogueIn[adcChannel] = true;
+	if ((adcChannel >=0) && (adcChannel < 8))
+		bitWrite(_analogueIn, adcChannel, 1);
+	
+}
+
+//SysEx functions
+
+//restore default configuration
+
+void OpenDeck::setDefaultConf()	{
+
+	//write default configuration stored in PROGMEM to EEPROM
+	for (int i=0; i<(int16_t)sizeof(defConf); i++)
+	eeprom_update_byte((uint8_t*)i, pgm_read_byte(&(defConf[i])));
+	
+}
+
+bool OpenDeck::getFeature(uint8_t featureType, uint8_t feature)	{
+	
+	switch (featureType)	{
+		
+		case SOFTWARE_FEATURES_ADD:
+		//software feature
+		return bitRead(softwareFeatures, feature);
+		break;
+		
+		case HARDWARE_FEATURES_ADD:
+		//hardware feature
+		return bitRead(hardwareFeatures, feature);
+		break;
+		
+		default:
+		break;
+		
+		
+	}	return false;
+	
+}
+
+bool OpenDeck::setFeature(uint8_t featureType, uint8_t feature, bool state)	{
+	
+	switch (featureType)	{
+		
+		case SOFTWARE_FEATURES_ADD:
+		//software feature
+		bitWrite(softwareFeatures, feature, state);
+		eeprom_update_byte((uint8_t*) SOFTWARE_FEATURES_ADD, softwareFeatures);
+		return (eeprom_read_byte((uint8_t*)SOFTWARE_FEATURES_ADD) == softwareFeatures);
+		break;
+		
+		case HARDWARE_FEATURES_ADD:
+		//hardware feature
+		bitWrite(hardwareFeatures, feature, state);
+		eeprom_update_byte((uint8_t*) HARDWARE_FEATURES_ADD, hardwareFeatures);
+		return (eeprom_read_byte((uint8_t*)HARDWARE_FEATURES_ADD) == hardwareFeatures);
+		break;
+		
+		default:
+		break;
+		
+		
+	}	return false;
+	
+}
+
+uint8_t OpenDeck::getHardwareParameter(uint8_t parameter)	{
+	
+	switch (parameter)	{
+		
+		case 0:
+		//long press time
+		return _longPressTime;
+		break;
+		
+		case 1:
+		//blink time
+		return _blinkTime;
+		break;
+		
+		case 2:
+		//start-up led switch time
+		return _startUpLEDswitchTime;
+		break;
+		
+		default:
+		break;
+		
+		
+	}	return 0;
+	
+}
+
+bool OpenDeck::setHardwareParameter(uint8_t parameter, uint8_t value)	{
+	
+	switch (parameter)	{
+		
+		case 0:
+		//long press time
+		_longPressTime = value*100;
+		eeprom_update_byte((uint8_t*)LONG_PRESS_TIME_ADD, value);
+		return (eeprom_read_byte((uint8_t*)LONG_PRESS_TIME_ADD) == value);
+		break;
+		
+		case 1:
+		//blink time
+		_blinkTime = value*100;
+		eeprom_update_byte((uint8_t*)BLINK_TIME_ADD, value);
+		return (eeprom_read_byte((uint8_t*)BLINK_TIME_ADD) == value);
+		break;
+		
+		case 2:
+		//start-up led switch time
+		_startUpLEDswitchTime = value*10;
+		eeprom_update_byte((uint8_t*)START_UP_SWITCH_TIME_ADD, value);
+		return (eeprom_read_byte((uint8_t*)START_UP_SWITCH_TIME_ADD) == value);
+		break;
+		
+		default:
+		break;
+		
+		
+	}	return false;
+	
+}
+
+uint8_t OpenDeck::getInputMIDIchannel()	{
+	
+	return _inputChannel;
 	
 }
 
