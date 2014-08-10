@@ -1,7 +1,7 @@
 /*
 
-OpenDECK library v1.91
-Last revision date: 2014-08-09
+OpenDECK library v1.92
+Last revision date: 2014-08-10
 Author: Igor Petrovic
 
 */
@@ -48,7 +48,7 @@ Author: Igor Petrovic
 #define BUTTON_NOTE_NUMBER_ADD				170
 #define BUTTON_TYPE_ADD						298
 
-#define LED_ACT_NOTE_ADD					314
+#define LED_ID_ADD							314
 #define TOTAL_LED_NUMBER_ADD				442
 
 OpenDeck::OpenDeck()    {
@@ -73,6 +73,12 @@ OpenDeck::OpenDeck()    {
 
 
 //init
+
+void OpenDeck::setHandlePinInit(void (*fptr)())	{
+	
+	sendInitPinsCallback = fptr;
+	
+}
 
 void OpenDeck::initVariables()  {
 
@@ -101,9 +107,16 @@ void OpenDeck::initVariables()  {
 			
 	buttonNote[i]				= 0;
 	previousButtonState[i]		= 0;
-	buttonType[i]				= 0;
-	longPressSent[i]			= false;
 	longPressState[i]			= 0;
+	
+	}
+	
+	for (i=0; i<MAX_NUMBER_OF_BUTTONS/8; i++)  {
+		
+	buttonType[i]				= 0;
+	buttonPressed[i]			= 0;
+	longPressSent[i]			= 0;
+	
 			
 	}
 		
@@ -112,13 +125,18 @@ void OpenDeck::initVariables()  {
 	//pots
 	for (i=0; i<MAX_NUMBER_OF_POTS; i++)  {
 
-	potInverted[i]				= false;
-	potEnabled[i]				= false;
 	ccNumber[i]					= 0;
 	lastPotNoteValue[i]			= 0;
 	lastAnalogueValue[i]		= 0;
 	potTimer[i]					= 0;
 
+	}
+	
+	for (i=0; i<MAX_NUMBER_OF_POTS/8; i++)  {
+		
+	potInverted[i]				= 0;
+	potEnabled[i]				= 0;
+		
 	}
 	
 	_analogueIn					= 0;
@@ -129,7 +147,7 @@ void OpenDeck::initVariables()  {
 	for (i=0; i<MAX_NUMBER_OF_LEDS; i++)  {
 		
 		ledState[i]				= 0;
-		_ledNumber[i]			= 0;
+		ledID[i]			= 0;
 		
 	}
 	 
@@ -173,14 +191,10 @@ void OpenDeck::init()	{
 	
 }
 
-void OpenDeck::setHandlePinInit(void (*fptr)())	{
-	
-	sendInitPinsCallback = fptr;
-	
-}
-
 
 //configuration retrieve
+
+//global configuration getter
 
 void OpenDeck::getConfiguration()	{
 	
@@ -189,15 +203,18 @@ void OpenDeck::getConfiguration()	{
 	getHardwareParams();
 	getSoftwareFeatures();
 	getHardwareFeatures();
-	getPotInvertStates();
 	getEnabledPots();
+	getPotInvertStates();
 	getCCnumbers();
-	getButtonNumbers();
-	getButtonType();
-	getLEDnumbers();
+	getButtonsType();
+	getButtonNotes();
+	getLEDIDs();
 	getTotalLEDnumber();
 	
 }
+
+
+//individual configuration getters
 
 void OpenDeck::getMIDIchannels()	{
 	
@@ -229,34 +246,28 @@ void OpenDeck::getHardwareFeatures()	{
 	
 }
 
-void OpenDeck::getPotInvertStates()	{
-	
-	uint8_t inversionEnabled;
-	uint16_t eepromAddress = POT_INVERSION_STATUS_ADD;
-	
-	for (int i=0; i<(MAX_NUMBER_OF_POTS/8); i++)	{
-		
-		inversionEnabled = eeprom_read_byte((uint8_t*)eepromAddress);
-		eepromAddress++;
-		
-		for (int j=0; j<8; j++)	potInverted[i*8+j] = (inversionEnabled >> j) & 0x01;;
-
-	}
-	
-}
-
 void OpenDeck::getEnabledPots()	{
-	
-	uint8_t _potEnabled;
+
 	uint16_t eepromAddress = POT_ENABLED_STATUS_ADD;
 	
 	for (int i=0; i<(MAX_NUMBER_OF_POTS/8); i++)	{
 		
-		_potEnabled = eeprom_read_byte((uint8_t*)eepromAddress);
+		potEnabled[i] = eeprom_read_byte((uint8_t*)eepromAddress);
 		eepromAddress++;
 		
-		for (int j=0; j<8; j++)	potEnabled[i*8+j] = (_potEnabled >> j) & 0x01;
+	}
+	
+}
+
+void OpenDeck::getPotInvertStates()	{
+	
+	uint16_t eepromAddress = POT_INVERSION_STATUS_ADD;
+	
+	for (int i=0; i<(MAX_NUMBER_OF_POTS/8); i++)	{
 		
+		potInverted[i] = eeprom_read_byte((uint8_t*)eepromAddress);
+		eepromAddress++;
+
 	}
 	
 }
@@ -274,7 +285,20 @@ void OpenDeck::getCCnumbers()	{
 	
 }
 
-void OpenDeck::getButtonNumbers()	{
+void OpenDeck::getButtonsType()	{
+	
+	uint16_t eepromAddress = BUTTON_TYPE_ADD;
+	
+	for (int i=0; i<MAX_NUMBER_OF_BUTTONS/8; i++)	{
+		
+		buttonType[i] = eeprom_read_byte((uint8_t*)eepromAddress);
+		eepromAddress++;
+		
+	}
+	
+}
+
+void OpenDeck::getButtonNotes()	{
 	
 	uint16_t eepromAddress = BUTTON_NOTE_NUMBER_ADD;
 	
@@ -287,29 +311,13 @@ void OpenDeck::getButtonNumbers()	{
 	
 }
 
-void OpenDeck::getButtonType()	{
+void OpenDeck::getLEDIDs()	{
 	
-	uint8_t _buttonType;
-	uint16_t eepromAddress = BUTTON_TYPE_ADD;
-	
-	for (int i=0; i<MAX_NUMBER_OF_BUTTONS/8; i++)	{
-		
-		_buttonType = eeprom_read_byte((uint8_t*)eepromAddress);
-		eepromAddress++;
-		
-		for (int j=0; j<8; j++)	buttonType[i*8+j] = (_buttonType >> j) & 0x01;
-		
-	}
-	
-}
-
-void OpenDeck::getLEDnumbers()	{
-	
-	uint16_t eepromAddress = LED_ACT_NOTE_ADD;
+	uint16_t eepromAddress = LED_ID_ADD;
 	
 	for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)	{
 		
-		_ledNumber[i] = eeprom_read_byte((uint8_t*)eepromAddress);
+		ledID[i] = eeprom_read_byte((uint8_t*)eepromAddress);
 		eepromAddress++;
 		
 	}
@@ -427,13 +435,13 @@ void OpenDeck::readButtons()    {
 				
 				//button is pressed
 				//if button is configured as toggle
-				if (buttonType[buttonNumber]) {
+				if (getButtonType(buttonNumber)) {
 					
 					//if a button has been already pressed
-					if (buttonPressed[buttonNumber])	{
+					if (getButtonPressed(buttonNumber))	{
 						
 						//if longPress is enabled and longPressNote has already been sent
-						if (getFeature(SOFTWARE_FEATURES_ADD, LONG_PRESS_EN_BIT) && longPressSent[buttonNumber])	{
+						if (getFeature(SOFTWARE_FEATURES_ADD, LONG_PRESS_EN_BIT) && getButtonLongPressed(buttonNumber))	{
 							
 							//send both regular and long press note off
 							sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
@@ -445,7 +453,7 @@ void OpenDeck::readButtons()    {
 						else sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
 						
 						//reset pressed state
-						buttonPressed[buttonNumber] = false;
+						setButtonPressed(buttonNumber, false);
 						
 				}	else {
 					
@@ -453,7 +461,7 @@ void OpenDeck::readButtons()    {
 					sendButtonDataCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
 					
 					//toggle buttonPressed flag to true
-					buttonPressed[buttonNumber] = true;
+					setButtonPressed(buttonNumber, true);
 					
 				}
 					
@@ -468,14 +476,14 @@ void OpenDeck::readButtons()    {
 				
 		}
 				
-				else if ((buttonState == buttonDebounceCompare) && (!buttonType[buttonNumber]))	{
+				else if ((buttonState == buttonDebounceCompare) && (!getButtonType(buttonNumber)))	{
 					
 					//button is released
 					//check button on release only if it's momentary
 					
 						if (getFeature(SOFTWARE_FEATURES_ADD, LONG_PRESS_EN_BIT))	{
 												
-							if (longPressSent[buttonNumber]) {
+							if (getButtonLongPressed(buttonNumber)) {
 													
 								//send both regular and long press note off
 								sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
@@ -486,7 +494,7 @@ void OpenDeck::readButtons()    {
 								else sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
 								
 								longPressState[buttonNumber] = 0;
-								longPressSent[buttonNumber] = false;
+								setButtonLongPressed(buttonNumber, false);
 												
 						}
 						
@@ -502,10 +510,10 @@ void OpenDeck::readButtons()    {
 				if (getFeature(SOFTWARE_FEATURES_ADD, LONG_PRESS_EN_BIT))	{
 					
 					//send long press note if button has been pressed for defined time and note hasn't already been sent
-					if ((millis() - longPressState[buttonNumber] >= _longPressTime) && (!longPressSent[buttonNumber]) && (buttonState == 0xFF))	{
+					if ((millis() - longPressState[buttonNumber] >= _longPressTime) && (!getButtonLongPressed(buttonNumber)) && (buttonState == 0xFF))	{
 				
 					sendButtonDataCallback(buttonNote[buttonNumber], true, _longPressButtonNoteChannel);
-					longPressSent[buttonNumber] = true;
+					setButtonLongPressed(buttonNumber, true);
 					
 			}
 					
@@ -620,11 +628,11 @@ void OpenDeck::processPotReading(uint8_t potNumber, int16_t tempValue)	{
 	uint8_t potNoteChannel = _longPressButtonNoteChannel+1;
 				
 	//invert CC data if potInverted is true
-	if (potInverted[potNumber])	ccValue = 127 - (tempValue >> 3);
+	if (getPotInvertState(potNumber))	ccValue = 127 - (tempValue >> 3);
 	else	ccValue = tempValue >> 3;
 		
 	//only send data if pot is enabled and function isn't called in setup
-	if ((sendPotCCDataCallback != NULL) && (potEnabled[potNumber]))
+	if ((sendPotCCDataCallback != NULL) && (getPotEnabled(potNumber)))
 		sendPotCCDataCallback(ccNumber[potNumber], ccValue, _potCCchannel);
 		
 	if (getFeature(SOFTWARE_FEATURES_ADD, POT_NOTES_EN_BIT))	{
@@ -645,11 +653,11 @@ void OpenDeck::processPotReading(uint8_t potNumber, int16_t tempValue)	{
 		if (checkPotNoteValue(potNumber, noteCurrent))	{
 					
 			//always send note off for previous value, except for the first read
-			if ((lastPotNoteValue[potNumber] != 128) && (sendPotNoteOffDataCallback != NULL) && (potEnabled[potNumber]))
+			if ((lastPotNoteValue[potNumber] != 128) && (sendPotNoteOffDataCallback != NULL) && (getPotEnabled(potNumber)))
 				sendPotNoteOffDataCallback(lastPotNoteValue[ccNumber[potNumber]], ccNumber[potNumber], (_longPressButtonNoteChannel+1));
 			
 			//send note on
-			if ((sendPotNoteOnDataCallback != NULL) && (potEnabled[potNumber]))
+			if ((sendPotNoteOnDataCallback != NULL) && (getPotEnabled(potNumber)))
 				sendPotNoteOnDataCallback(noteCurrent, ccNumber[potNumber], (_longPressButtonNoteChannel+1));
 				
 			//update last value with current
@@ -878,31 +886,31 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
     //right-to-left direction
     if (!ledDirection)
     //if last LED is turned on
-	if (ledOn(_ledNumber[totalNumberOfLEDs-1]))	{
+	if (ledOn(ledID[totalNumberOfLEDs-1]))	{
 
 	    //LED index is penultimate LED number
-	    ledNumber = _ledNumber[totalNumberOfLEDs-2];
+	    ledNumber = ledID[totalNumberOfLEDs-2];
 	    //increment counter since the loop has to run one cycle less
 	    passCounter++;
 
     }
     
 	//led index is last one if last one isn't already on
-	else ledNumber = _ledNumber[totalNumberOfLEDs-1];
+	else ledNumber = ledID[totalNumberOfLEDs-1];
 
 	//left-to-right direction
 	else
 	//if first LED is already on
-	if (ledOn(_ledNumber[0]))	{
+	if (ledOn(ledID[0]))	{
 
 		//led index is 1
-		ledNumber = _ledNumber[1];
+		ledNumber = ledID[1];
 		//increment counter
 		passCounter++;
 
 	}
 
-	else ledNumber = _ledNumber[0];
+	else ledNumber = ledID[0];
       
 	}
     
@@ -913,24 +921,24 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 	//is already turned on, but whether it's already turned off.
 	
     //right-to-left direction
-    if (!ledDirection)	if (!(ledOn(_ledNumber[totalNumberOfLEDs-1])))	{
+    if (!ledDirection)	if (!(ledOn(ledID[totalNumberOfLEDs-1])))	{
 
-		ledNumber = _ledNumber[totalNumberOfLEDs-2];
+		ledNumber = ledID[totalNumberOfLEDs-2];
 		passCounter++;
 
 	}
     
-	else ledNumber = _ledNumber[totalNumberOfLEDs-1];
+	else ledNumber = ledID[totalNumberOfLEDs-1];
          
     //left-to-right direction
-    else  if (!(ledOn(_ledNumber[0])))   {
+    else  if (!(ledOn(ledID[0])))   {
 
-		ledNumber = _ledNumber[1];
+		ledNumber = ledID[1];
 		passCounter++;
 
 	}
 
-	else ledNumber = _ledNumber[0];
+	else ledNumber = ledID[0];
       
     }
 
@@ -962,10 +970,10 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 				    if (passCounter < totalNumberOfLEDs-1)	{
 
 						//right-to-left direction
-						if (!ledDirection)	ledNumber = _ledNumber[totalNumberOfLEDs - 2 - passCounter];
+						if (!ledDirection)	ledNumber = ledID[totalNumberOfLEDs - 2 - passCounter];
 
 						//left-to-right direction
-						else	if (passCounter < totalNumberOfLEDs-1)	ledNumber = _ledNumber[passCounter+1];
+						else	if (passCounter < totalNumberOfLEDs-1)	ledNumber = ledID[passCounter+1];
 
 					}
                                           
@@ -1072,7 +1080,7 @@ void OpenDeck::handleLED(uint8_t ledNote, bool currentLEDstate, bool blinkMode) 
 
   */
   
-  uint8_t ledNumber = _ledNumber[ledNote];
+  uint8_t _ledID = ledID[ledNote];
 
        switch (currentLEDstate) {
 
@@ -1080,27 +1088,27 @@ void OpenDeck::handleLED(uint8_t ledNote, bool currentLEDstate, bool blinkMode) 
         //note off event
 
         //if remember bit is set
-        if ((ledState[ledNumber] >> 3) & (0x01))  {
+        if ((ledState[_ledID] >> 3) & (0x01))  {
 
           //if note off for blink state is received
           //clear remember bit and blink bits
           //set constant state bit
-          if (blinkMode)  ledState[ledNumber] = 0x05;
+          if (blinkMode)  ledState[_ledID] = 0x05;
             //else clear constant state bit and remember bit
             //set blink bits
-            else ledState[ledNumber] = 0x16;
+            else ledState[_ledID] = 0x16;
 
         }
 
         else {
 
-        if (blinkMode)  /*clear blink bit */ ledState[ledNumber] &= 0x15;
-          else /* clear constant state bit */ ledState[ledNumber] &= 0x16;
+        if (blinkMode)  /*clear blink bit */ ledState[_ledID] &= 0x15;
+          else /* clear constant state bit */ ledState[_ledID] &= 0x16;
 
         }
 
         //if bits 0 and 1 are 0, LED is off so we set ledState to zero
-        if (!(ledState[ledNumber] & 3))  ledState[ledNumber] = 0x00;
+        if (!(ledState[_ledID] & 3))  ledState[_ledID] = 0x00;
 
         break;
 
@@ -1109,10 +1117,10 @@ void OpenDeck::handleLED(uint8_t ledNote, bool currentLEDstate, bool blinkMode) 
 
         //if constant note on is received and LED is already blinking
         //clear blinking bits and set remember bit and constant bit
-        if ((!blinkMode) && checkBlinkState(ledNumber))  ledState[ledNumber] = 0x0D;
+        if ((!blinkMode) && checkBlinkState(_ledID))  ledState[_ledID] = 0x0D;
 
         //set bit 2 to 1 in any case (constant/blink state)
-        else ledState[ledNumber] |= (0x01 << blinkMode) | 0x04 | (blinkMode << 4);
+        else ledState[_ledID] |= (0x01 << blinkMode) | 0x04 | (blinkMode << 4);
 
   }	
 
@@ -1208,7 +1216,6 @@ void OpenDeck::setHandleColumnSwitch(void (*fptr)(uint8_t columnNumber))	{
 }
 
 
-
 //setters
 
 void OpenDeck::setNumberOfColumns(uint8_t numberOfColumns)	{
@@ -1241,6 +1248,7 @@ void OpenDeck::enableAnalogueInput(uint8_t adcChannel)	{
 		bitWrite(_analogueIn, adcChannel, 1);
 	
 }
+
 
 //SysEx functions
 
@@ -1365,6 +1373,228 @@ bool OpenDeck::setHardwareParameter(uint8_t parameter, uint8_t value)	{
 uint8_t OpenDeck::getInputMIDIchannel()	{
 	
 	return _inputChannel;
+	
+}
+
+bool OpenDeck::getButtonType(uint8_t buttonNumber)	{
+	
+	uint8_t arrayIndex = buttonNumber/8;
+	uint8_t buttonIndex = buttonNumber - 8*arrayIndex;
+	
+	return bitRead(buttonType[arrayIndex], buttonIndex);
+	
+}
+
+bool OpenDeck::setButtonType(uint8_t buttonNumber, bool type)	{
+	
+	uint8_t arrayIndex = buttonNumber/8;
+	uint8_t buttonIndex = buttonNumber - 8*arrayIndex;
+	uint16_t eepromAddress = BUTTON_TYPE_ADD+arrayIndex;
+	
+	bitWrite(buttonType[arrayIndex], buttonIndex, type);
+	eeprom_update_byte((uint8_t*)eepromAddress, buttonType[arrayIndex]);
+	
+	return (buttonType[arrayIndex] == eeprom_read_byte((uint8_t*)eepromAddress));
+	
+}
+
+bool OpenDeck::getButtonPressed(uint8_t buttonNumber)	{
+	
+	uint8_t arrayIndex = buttonNumber/8;
+	uint8_t buttonIndex = buttonNumber - 8*arrayIndex;
+	
+	return bitRead(buttonPressed[arrayIndex], buttonIndex);
+	
+}
+
+void OpenDeck::setButtonPressed(uint8_t buttonNumber, bool state)	{
+	
+	uint8_t arrayIndex = buttonNumber/8;
+	uint8_t buttonIndex = buttonNumber - 8*arrayIndex;
+	
+	bitWrite(buttonPressed[arrayIndex], buttonIndex, state);
+	
+}
+
+bool OpenDeck::getButtonLongPressed(uint8_t buttonNumber)	{
+	
+	uint8_t arrayIndex = buttonNumber/8;
+	uint8_t buttonIndex = buttonNumber - 8*arrayIndex;
+	
+	return bitRead(longPressSent[arrayIndex], buttonIndex);
+	
+}
+
+void OpenDeck::setButtonLongPressed(uint8_t buttonNumber, bool state)	{
+	
+	uint8_t arrayIndex = buttonNumber/8;
+	uint8_t buttonIndex = buttonNumber - 8*arrayIndex;
+	
+	bitWrite(longPressSent[arrayIndex], buttonIndex, state);
+	
+}
+
+bool OpenDeck::getPotInvertState(uint8_t potNumber)	{
+	
+	uint8_t arrayIndex = potNumber/8;
+	uint8_t potIndex = potNumber - 8*arrayIndex;
+	
+	return bitRead(potInverted[arrayIndex], potIndex);
+	
+}
+
+bool OpenDeck::setPotInvertState(uint8_t potNumber, bool state)	{
+	
+	uint8_t arrayIndex = potNumber/8;
+	uint8_t potIndex = potNumber - 8*arrayIndex;
+	uint16_t eepromAddress = POT_INVERSION_STATUS_ADD+arrayIndex;
+	
+	bitWrite(potInverted[arrayIndex], potIndex, state);
+	eeprom_update_byte((uint8_t*)eepromAddress, potInverted[arrayIndex]);
+	
+	return (potInverted[arrayIndex] == eeprom_read_byte((uint8_t*)eepromAddress));
+	
+}
+
+bool OpenDeck::getPotEnabled(uint8_t potNumber)	{
+	
+	uint8_t arrayIndex = potNumber/8;
+	uint8_t potIndex = potNumber - 8*arrayIndex;
+	
+	return bitRead(potEnabled[arrayIndex], potIndex);
+	
+}
+
+bool OpenDeck::setPotEnabled(uint8_t potNumber, bool state)	{
+	
+	uint8_t arrayIndex = potNumber/8;
+	uint8_t potIndex = potNumber - 8*arrayIndex;
+	uint16_t eepromAddress = POT_ENABLED_STATUS_ADD+arrayIndex;
+	
+	bitWrite(potEnabled[arrayIndex], potIndex, state);
+	eeprom_update_byte((uint8_t*)eepromAddress, potEnabled[arrayIndex]);
+	
+	return (potEnabled[arrayIndex] == eeprom_read_byte((uint8_t*)eepromAddress));
+	
+}
+
+uint8_t OpenDeck::getMIDIchannel(uint8_t channel)	{
+	
+	switch (channel)	{
+		
+		case 0:
+		return _buttonNoteChannel;
+		break;
+		
+		case 1:
+		return _longPressButtonNoteChannel;
+		break;
+		
+		case 2:
+		return _potCCchannel;
+		break;
+		
+		case 3:
+		return _encCCchannel;
+		break;
+		
+		case 4:
+		return _inputChannel;
+		break;
+		
+		default:
+		return 0;
+		
+	}
+	
+}
+
+bool OpenDeck::setMIDIchannel(uint8_t channel, uint8_t channelNumber)	{
+	
+	switch (channel)	{
+		
+		case 0:
+		_buttonNoteChannel = channelNumber;
+		eeprom_update_byte((uint8_t*)BUTTON_NOTE_CHANNEL_ADD, channelNumber);
+		return (channelNumber == eeprom_read_byte((uint8_t*)BUTTON_NOTE_CHANNEL_ADD));
+		break;
+		
+		case 1:
+		_longPressButtonNoteChannel = channelNumber;
+		eeprom_update_byte((uint8_t*)LONG_PRESS_BUTTON_NOTE_CHANNEL_ADD, channelNumber);
+		return (channelNumber == eeprom_read_byte((uint8_t*)LONG_PRESS_BUTTON_NOTE_CHANNEL_ADD));
+		break;
+		
+		case 2:
+		_potCCchannel = channelNumber;
+		eeprom_update_byte((uint8_t*)POT_CC_CHANNEL_ADD, channelNumber);
+		return (channelNumber == eeprom_read_byte((uint8_t*)POT_CC_CHANNEL_ADD));
+		break;
+		
+		case 3:
+		_encCCchannel = channelNumber;
+		eeprom_update_byte((uint8_t*)ENC_CC_CHANNEL_ADD, channelNumber);
+		return (channelNumber == eeprom_read_byte((uint8_t*)ENC_CC_CHANNEL_ADD));
+		break;
+		
+		case 4:
+		_inputChannel = channelNumber;
+		eeprom_update_byte((uint8_t*)INPUT_CHANNEL_ADD, channelNumber);
+		return (channelNumber == eeprom_read_byte((uint8_t*)INPUT_CHANNEL_ADD));
+		break;
+		
+		default:
+		return false;
+		
+	}
+	
+}
+
+uint8_t OpenDeck::getCCnumber(uint8_t potNumber)	{
+	
+	return ccNumber[potNumber];
+	
+}
+
+bool OpenDeck::setCCnumber(uint8_t potNumber, uint8_t _ccNumber)	{
+	
+	uint16_t eepromAddress = POT_CC_NUMBER_ADD+potNumber;
+	
+	ccNumber[potNumber] = _ccNumber;
+	eeprom_update_byte((uint8_t*)eepromAddress, _ccNumber);
+	return (_ccNumber == eeprom_read_byte((uint8_t*)eepromAddress));
+	
+}
+
+uint8_t OpenDeck::getButtonNote(uint8_t buttonNumber)	{
+	
+	return buttonNote[buttonNumber];
+	
+}
+
+bool OpenDeck::setButtonNote(uint8_t buttonNumber, uint8_t _buttonNote)	{
+	
+	uint16_t eepromAddress = BUTTON_NOTE_NUMBER_ADD+potNumber;
+	
+	buttonNote[buttonNumber] = _buttonNote;
+	eeprom_update_byte((uint8_t*)eepromAddress, _buttonNote);
+	return (_buttonNote == eeprom_read_byte((uint8_t*)eepromAddress));
+	
+}
+
+uint8_t OpenDeck::getLEDID(uint8_t ledNumber)	{
+	
+	return ledID[ledNumber];
+	
+}
+
+bool OpenDeck::setLEDID(uint8_t ledNumber, uint8_t _ledID)	{
+	
+	uint16_t eepromAddress = LED_ID_ADD+ledNumber;
+	
+	ledID[ledNumber] = _ledID;
+	eeprom_update_byte((uint8_t*)eepromAddress, _ledID);
+	return _ledID == eeprom_read_byte((uint8_t*)eepromAddress);
 	
 }
 

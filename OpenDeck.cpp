@@ -1,7 +1,7 @@
 /*
 
-OpenDeck MIDI controller firmware v1.91
-Last revision date: 2014-08-09
+OpenDeck MIDI controller firmware v1.92
+Last revision date: 2014-08-10
 Author: Igor Petrovic
 
 */
@@ -41,8 +41,8 @@ void initPins() {
 void activateColumn(uint8_t column)  {
 	
 	//column switching is controlled by 74HC238 decoder
-	PORTC &= 0b11000111;
-	PORTC |= (0b11000111 | (column << 3));
+	PORTC &= 0xC7;
+	PORTC |= (0xC7 | (column << 3));
 	
 }
 
@@ -53,22 +53,22 @@ void ledRowOn(uint8_t rowNumber)  {
 	
 		case 0:
 		//turn on first LED row
-		PORTB |= 0b00000001;
+		PORTB |= 0x01;
 		break;
 	
 		case 1:
 		//turn on second LED row
-		PORTB |= 0b00000010;
+		PORTB |= 0x02;
 		break;
 	
 		case 2:
 		//turn on third LED row
-		PORTB |= 0b00000100;
+		PORTB |= 0x04;
 		break;
 	
 		case 3:
 		//turn on fourth LED row
-		PORTB |= 0b00001000;
+		PORTB |= 0x08;
 		break;
 	
 		default:
@@ -81,14 +81,14 @@ void ledRowOn(uint8_t rowNumber)  {
 //turn all LED rows off
 void ledRowsOff()	{
 	
-	PORTB &= 0b11110000;
+	PORTB &= 0xF0;
 	
 }
 
 //control select pins on mux
 void setMuxOutput(uint8_t muxInput)	{
 	
-	PORTC &= 0b11111000;
+	PORTC &= 0xF8;
 	PORTC |= muxInput;
 	
 }
@@ -227,7 +227,7 @@ void setup()  {
 	setMIDIhandlers();
 	
 	//write default controller settings to EEPROM
-	openDeck.setDefaultConf();
+	//openDeck.setDefaultConf();
 	
 	//initialize openDeck library
 	openDeck.init();
