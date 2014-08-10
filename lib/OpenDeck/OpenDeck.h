@@ -1,7 +1,7 @@
 /*
 
-OpenDECK library v1.91
-Last revision date: 2014-08-09
+OpenDECK library v1.92
+Last revision date: 2014-08-10
 Author: Igor Petrovic
 
 */
@@ -12,7 +12,7 @@ Author: Igor Petrovic
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 
-#define BUTTON_DEBOUNCE_TIME 20
+#define BUTTON_DEBOUNCE_TIME 15
 
 //potentiometer must exceed this value before sending new value
 #define MIDI_CC_STEP 8
@@ -40,7 +40,7 @@ const uint8_t defConf[] PROGMEM = {
 			//hardware parameters		
 			0x05, //long press time (x100)			//005
 			0x04, //blink duration time (x100)		//006
-			0x07, //start up LED switch time (x10)	//007
+			0x02, //start up LED switch time (x10)	//007
 			
 			//features
 			//bit meaning, MSB first (1/enabled, 0/disabled)
@@ -140,7 +140,7 @@ const uint8_t defConf[] PROGMEM = {
 			//127-120
 			0x00,
 			
-			//potentiometer numbers
+			//CC potentiometer numbers
 			
 			0x00,									//042
 			0x01,
@@ -271,7 +271,7 @@ const uint8_t defConf[] PROGMEM = {
 			0x7E,
 			0x7F,
 			
-			//button numbers
+			//button notes
 			
 			0x00,									//170
 			0x01,
@@ -439,7 +439,7 @@ const uint8_t defConf[] PROGMEM = {
 			//127-120
 			0x00,						
 			
-			//LED numbers
+			//LED IDs
 						
 			0x00,								//314
 			0x01,
@@ -606,11 +606,11 @@ class OpenDeck  {
 		void readPots();
 		void setHandleMuxOutput(void (*fptr)(uint8_t));
 		void setHandlePotCC(void (*fptr)(uint8_t, uint8_t, uint8_t));
-		void setHandlePotNoteOn(void (*fptr)(uint8_t, uint8_t, uint8_t ));
+		void setHandlePotNoteOn(void (*fptr)(uint8_t, uint8_t, uint8_t));
 		void setHandlePotNoteOff(void (*fptr)(uint8_t, uint8_t, uint8_t));
 	
         //LEDs
-		void oneByOneLED(bool, bool, bool );
+		void oneByOneLED(bool, bool, bool);
 		void checkLEDs();
 		void allLEDsOn();
 		void allLEDsOff();
@@ -625,20 +625,13 @@ class OpenDeck  {
 		void nextColumn();
 		
 		//getters
+		uint8_t getInputMIDIchannel();
 		bool standardNoteOffEnabled();
 		bool buttonsEnabled();
 		bool ledsEnabled();
-		bool potsEnabled();		
-		bool getFeature(uint8_t, uint8_t);
-		uint8_t getHardwareParameter(uint8_t);
-		uint8_t getInputMIDIchannel();
-		
-		//setters
-		bool setFeature(uint8_t, uint8_t, bool);
-		bool setHardwareParameter(uint8_t, uint8_t);
+		bool potsEnabled();	
 		
 		//system exclusive handlers
-		void checkID();
 		void storeSysEx(uint8_t sysExArray[], uint8_t);
 					
     private:
@@ -667,15 +660,15 @@ class OpenDeck  {
 				previousButtonState[MAX_NUMBER_OF_BUTTONS],
 				buttonDebounceCompare;
 				
-		bool buttonType[MAX_NUMBER_OF_BUTTONS],
-			buttonPressed[MAX_NUMBER_OF_BUTTONS],
-			longPressSent[MAX_NUMBER_OF_BUTTONS];
+		uint8_t buttonType[MAX_NUMBER_OF_BUTTONS/8],
+				buttonPressed[MAX_NUMBER_OF_BUTTONS/8],
+				longPressSent[MAX_NUMBER_OF_BUTTONS/8];
 		
 		uint32_t longPressState[MAX_NUMBER_OF_BUTTONS];
 		
 		//pots
-		bool potInverted[MAX_NUMBER_OF_POTS],
-			potEnabled[MAX_NUMBER_OF_POTS];
+		uint8_t potInverted[MAX_NUMBER_OF_POTS/8],
+				potEnabled[MAX_NUMBER_OF_POTS/8];
 		
 		uint8_t ccNumber[MAX_NUMBER_OF_POTS],
 				lastPotNoteValue[MAX_NUMBER_OF_POTS],
@@ -686,7 +679,7 @@ class OpenDeck  {
 				
 		//LEDs
 		uint8_t ledState[MAX_NUMBER_OF_LEDS],
-				_ledNumber[MAX_NUMBER_OF_LEDS],
+				ledID[MAX_NUMBER_OF_LEDS],
 				totalNumberOfLEDs;
 		
 		bool blinkState,
@@ -728,9 +721,9 @@ class OpenDeck  {
 		void getPotInvertStates();
 		void getEnabledPots();
 		void getCCnumbers();
-		void getButtonNumbers();
-		void getButtonType();
-		void getLEDnumbers();
+		void getButtonNotes();
+		void getButtonsType();
+		void getLEDIDs();
 		void getTotalLEDnumber();
 		
 		//buttons
@@ -770,6 +763,34 @@ class OpenDeck  {
 		//columns
 		uint8_t getActiveColumn();
 		void (*sendColumnSwitchCallback)(uint8_t);
+		
+		//getters
+		void checkID();
+		
+		bool getFeature(uint8_t, uint8_t);
+		uint8_t getHardwareParameter(uint8_t);
+		bool getButtonType(uint8_t);
+		bool getButtonPressed(uint8_t);
+		bool getButtonLongPressed(uint8_t);
+		bool getPotEnabled(uint8_t);
+		bool getPotInvertState(uint8_t);
+		uint8_t getMIDIchannel(uint8_t);
+		uint8_t getButtonNote(uint8_t);
+		uint8_t getCCnumber(uint8_t);
+		uint8_t getLEDID(uint8_t);
+		
+		//setters
+		bool setFeature(uint8_t, uint8_t, bool);
+		bool setHardwareParameter(uint8_t, uint8_t);
+		bool setButtonType(uint8_t, bool);
+		void setButtonPressed(uint8_t, bool);
+		void setButtonLongPressed(uint8_t, bool);
+		bool setPotEnabled(uint8_t, bool);
+		bool setPotInvertState(uint8_t, bool);
+		bool setMIDIchannel(uint8_t, uint8_t);
+		bool setButtonNote(uint8_t, uint8_t);
+		bool setCCnumber(uint8_t, uint8_t);
+		bool setLEDID(uint8_t, uint8_t);
 			
 };
 
