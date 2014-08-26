@@ -1,7 +1,7 @@
 /*
 
-OpenDeck MIDI controller firmware v1.92
-Last revision date: 2014-08-10
+OpenDeck MIDI controller firmware v1.93
+Last revision date: 2014-08-26
 Author: Igor Petrovic
 
 */
@@ -113,6 +113,7 @@ void getNoteOnData(uint8_t channel, uint8_t pitch, uint8_t velocity)  {
 
 void getSysExData(uint8_t *sysExArray, uint8_t size)	{
 	
+	openDeck.processSysEx(sysExArray, size);
 	
 }
 
@@ -166,6 +167,12 @@ void sendPotNoteOffData(uint8_t note, uint8_t potNumber, uint8_t channel)	{
 	
 }
 
+void sendSysExData(uint8_t *sysExArray, uint8_t size)	{
+	
+	MIDI.sendSysEx(size, sysExArray, false);
+	
+}
+
 
 //start-up animation
 void startUpRoutine()  {
@@ -198,6 +205,8 @@ void setOpenDeckHandlers()	{
 	openDeck.setHandlePotCC(sendPotCCData);
 	openDeck.setHandlePotNoteOn(sendPotNoteOnData);
 	openDeck.setHandlePotNoteOff(sendPotNoteOffData);
+	
+	openDeck.setHandleSysExSend(sendSysExData);
 	
 	openDeck.setHandlePinInit(initPins);
 	openDeck.setHandleColumnSwitch(activateColumn);
