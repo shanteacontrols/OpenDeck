@@ -29,7 +29,7 @@ Author: Igor Petrovic
 #define MAX_NUMBER_OF_BUTTONS		64
 #define MAX_NUMBER_OF_LEDS			64
 
-class OpenDeck  {
+class OpenDeck	{
 
 	public:
 
@@ -106,9 +106,9 @@ class OpenDeck  {
 			previousButtonState[MAX_NUMBER_OF_BUTTONS],
 			buttonDebounceCompare;
 
-	uint8_t buttonType[MAX_NUMBER_OF_BUTTONS/8],
-				buttonPressed[MAX_NUMBER_OF_BUTTONS/8],
-				longPressSent[MAX_NUMBER_OF_BUTTONS/8];
+	uint8_t	buttonType[MAX_NUMBER_OF_BUTTONS/8],
+			buttonPressed[MAX_NUMBER_OF_BUTTONS/8],
+			longPressSent[MAX_NUMBER_OF_BUTTONS/8];
 
 	uint32_t longPressState[MAX_NUMBER_OF_BUTTONS];
 

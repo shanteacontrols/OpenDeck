@@ -5,7 +5,7 @@ File: EEPROM.h
 Last revision date: 2014-08-26
 Author: Igor Petrovic
 
-*/ 
+*/
 
 
 #ifndef EEPROM_H_
@@ -52,24 +52,24 @@ Author: Igor Petrovic
 
 //default controller settings
 const uint8_t defConf[] PROGMEM = {
-	
+
 	//channels
 	0x01, //button note channel 1			//000
 	0x02, //long press note channel 2		//001
 	0x01, //CC channel 1					//002
 	0x02, //encoder channel 2				//003
 	0x01, //MIDI input channel	1			//004
-	
+
 	//hardware parameters
 	0x05, //long press time (x100)			//005
 	0x04, //blink duration time (x100)		//006
 	0x02, //start up LED switch time (x10)	//007
-	
+
 	//features
 	//bit meaning, MSB first (1/enabled, 0/disabled)
-	
+
 	//software
-	
+
 	//no function
 	//start-up routine
 	//LED blinking
@@ -78,11 +78,11 @@ const uint8_t defConf[] PROGMEM = {
 	//encoder notes
 	//standard note off
 	//running status
-	
+
 	0b01111111,								//008
-	
+
 	//hardware
-	
+
 	//no function
 	//no function
 	//no function
@@ -92,9 +92,9 @@ const uint8_t defConf[] PROGMEM = {
 	//pots
 	//buttons
 	0b00001111,								//009
-	
+
 	//invert CC data (1 enabled, 0 disabled)
-	
+
 	//7-0
 	0x00,									//010
 	//15-8
@@ -127,9 +127,9 @@ const uint8_t defConf[] PROGMEM = {
 	0x00,
 	//127-120
 	0x00,
-	
+
 	//enable pot (1 enabled, 0 disabled)
-	
+
 	//7-0
 	0xE2,									//026
 	//15-8
@@ -162,9 +162,9 @@ const uint8_t defConf[] PROGMEM = {
 	0x00,
 	//127-120
 	0x00,
-	
+
 	//CC potentiometer numbers
-	
+
 	0x00,									//042
 	0x01,
 	0x02,
@@ -293,9 +293,9 @@ const uint8_t defConf[] PROGMEM = {
 	0x7D,
 	0x7E,
 	0x7F,
-	
+
 	//button notes
-	
+
 	0x00,									//170
 	0x01,
 	0x02,
@@ -424,11 +424,11 @@ const uint8_t defConf[] PROGMEM = {
 	0x7D,
 	0x7E,
 	0x7F,
-	
+
 	//button type
 	//0 - press/note on, release/note off
 	//1 - press/note on, release/nothing, press again/note off
-	
+
 	//7-0
 	0x00,									//298
 	//15-8
@@ -461,9 +461,9 @@ const uint8_t defConf[] PROGMEM = {
 	0x00,
 	//127-120
 	0x00,
-	
+
 	//LED IDs
-	
+
 	0x00,								//314
 	0x11,
 	0x04,
@@ -592,13 +592,13 @@ const uint8_t defConf[] PROGMEM = {
 	0x7D,
 	0x7E,
 	0x7F,
-	
+
 	//total number of LEDs
 	0x0C,								//442
-	
+
 	//start-up routine pattern
 	0x01								//443
-	
+
 };
 
 

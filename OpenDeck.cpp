@@ -129,11 +129,8 @@ void sendButtonData(uint8_t buttonNumber, bool buttonState, uint8_t channel)	{
 
 		case false:
 		//button released
-		if (openDeck.standardNoteOffEnabled())
-		MIDI.sendNoteOff(buttonNumber, MIDI_NOTE_OFF_VELOCITY, channel);
-
-		else
-		MIDI.sendNoteOn(buttonNumber, MIDI_NOTE_OFF_VELOCITY, channel);
+		if (openDeck.standardNoteOffEnabled())	MIDI.sendNoteOff(buttonNumber, MIDI_NOTE_OFF_VELOCITY, channel);
+		else									MIDI.sendNoteOn(buttonNumber, MIDI_NOTE_OFF_VELOCITY, channel);
 		break;
 
 		case true:
@@ -162,11 +159,8 @@ void sendPotNoteOnData(uint8_t note, uint8_t potNumber, uint8_t channel)	{
 //send pot note off midi data
 void sendPotNoteOffData(uint8_t note, uint8_t potNumber, uint8_t channel)	{
 
-	if (openDeck.standardNoteOffEnabled())
-	MIDI.sendNoteOff(note, MIDI_NOTE_OFF_VELOCITY, channel);
-	
-	else
-	MIDI.sendNoteOn(note, MIDI_NOTE_OFF_VELOCITY, channel);
+	if (openDeck.standardNoteOffEnabled())	MIDI.sendNoteOff(note, MIDI_NOTE_OFF_VELOCITY, channel);
+	else									MIDI.sendNoteOn(note, MIDI_NOTE_OFF_VELOCITY, channel);
 
 }
 
@@ -261,12 +255,10 @@ void timedLoop()	{
 
 	//if any of the LEDs on current
 	//column are active, turn them on
-	if (openDeck.ledsEnabled())
-	openDeck.checkLEDs();
+	if (openDeck.ledsEnabled())		openDeck.checkLEDs();
 
 	//check buttons on current column
-	if (openDeck.buttonsEnabled())
-	openDeck.readButtons();
+	if (openDeck.buttonsEnabled())	openDeck.readButtons();
 
 }
 
@@ -279,7 +271,6 @@ void loop()	{
 	openDeck.checkReceivedNote();
 
 	//read all pots
-	if (openDeck.potsEnabled())
-	openDeck.readPots();
+	if (openDeck.potsEnabled())		openDeck.readPots();
 
 }
