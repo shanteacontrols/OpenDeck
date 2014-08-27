@@ -5,7 +5,7 @@ File: SysEx.h
 Last revision date: 2014-08-26
 Author: Igor Petrovic
 
-*/ 
+*/
 
 
 #ifndef SYSEX_H_
