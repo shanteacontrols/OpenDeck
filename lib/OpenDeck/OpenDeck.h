@@ -42,7 +42,7 @@ class OpenDeck  {
     //hardware configuration
     void setHandlePinInit(void (*fptr)());
     void setHandleColumnSwitch(void (*fptr)(uint8_t));
-    void setHandleButtonRead(void (*fptr)(uint8_t &buttonColumnState));
+    void setHandleButtonRead(void (*fptr)(uint8_t &));
     void setHandleMuxOutput(void (*fptr)(uint8_t));
     void setHandleLEDrowOn(void (*fptr)(uint8_t));
     void setHandleLEDrowsOff(void (*fptr)());

@@ -69,86 +69,85 @@ void OpenDeck::initVariables()  {
     //reset all variables
 
     //MIDI channels
-    _buttonNoteChannel          = 0;
-    _longPressButtonNoteChannel = 0;
-    _potCCchannel               = 0;
-    _encCCchannel               = 0;
-    _inputChannel               = 0;
+    _buttonNoteChannel              = 0;
+    _longPressButtonNoteChannel     = 0;
+    _potCCchannel                   = 0;
+    _encCCchannel                   = 0;
+    _inputChannel                   = 0;
 
     //hardware params
-    _longPressTime              = 0;
-    _blinkTime                  = 0;
-    _startUpLEDswitchTime       = 0;
+    _longPressTime                  = 0;
+    _blinkTime                      = 0;
+    _startUpLEDswitchTime           = 0;
 
     //software features
-    softwareFeatures            = 0;
+    softwareFeatures                = 0;
 
     //hardware features
-    hardwareFeatures            = 0;
+    hardwareFeatures                = 0;
 
     //buttons
     for (i=0; i<MAX_NUMBER_OF_BUTTONS; i++)     {
 
-    buttonNote[i]               = 0;
-    previousButtonState[i]      = 0;
-    longPressState[i]           = 0;
+        buttonNote[i]               = 0;
+        previousButtonState[i]      = 0;
+        longPressState[i]           = 0;
 
     }
 
     for (i=0; i<MAX_NUMBER_OF_BUTTONS/8; i++)   {
 
-    buttonType[i]               = 0;
-    buttonPressed[i]            = 0;
-    longPressSent[i]            = 0;
-
+        buttonType[i]               = 0;
+        buttonPressed[i]            = 0;
+        longPressSent[i]            = 0;
 
     }
 
-    buttonDebounceCompare       = 0;
+    buttonDebounceCompare           = 0;
 
     //pots
     for (i=0; i<MAX_NUMBER_OF_POTS; i++)        {
 
-    ccNumber[i]                 = 0;
-    lastPotNoteValue[i]         = 0;
-    lastAnalogueValue[i]        = 0;
-    potTimer[i]                 = 0;
+        ccNumber[i]                 = 0;
+        lastPotNoteValue[i]         = 0;
+        lastAnalogueValue[i]        = 0;
+        potTimer[i]                 = 0;
 
     }
 
     for (i=0; i<MAX_NUMBER_OF_POTS/8; i++)      {
 
-    potInverted[i]              = 0;
-    potEnabled[i]               = 0;
+        potInverted[i]              = 0;
+        potEnabled[i]               = 0;
 
     }
 
-    _analogueIn                 = 0;
+    _analogueIn                     = 0;
 
-    potNumber                   = 0;
+    potNumber                       = 0;
 
     //LEDs
     for (i=0; i<MAX_NUMBER_OF_LEDS; i++)        {
 
-        ledState[i]             = 0;
-        ledID[i]                = 0;
+        ledState[i]                 = 0;
+        ledID[i]                    = 0;
 
     }
 
-    totalNumberOfLEDs           = 0;
+    totalNumberOfLEDs               = 0;
 
-    blinkState                  = false;
-    blinkEnabled                = false;
-    blinkTimerCounter           = 0;
+    blinkState                      = false;
+    blinkEnabled                    = false;
+    blinkTimerCounter               = 0;
 
     //input
-    receivedNoteProcessed       = false;
-    receivedNoteChannel         = 0;
-    receivedNotePitch           = 0;
-    receivedNoteVelocity        = 0;
+    receivedNoteProcessed           = false;
+    receivedNoteChannel             = 0;
+    receivedNotePitch               = 0;
+    receivedNoteVelocity            = 0;
 
     //column counter
-    column                      = 0;
+    column                          = 0;
 
 }
 
@@ -474,39 +473,30 @@ void OpenDeck::readButtons()    {
                             sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
                             sendButtonDataCallback(buttonNote[buttonNumber], false, _longPressButtonNoteChannel);
 
-                        }
-
-                        //else send regular note off only
-                        else    sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
+                        }   else    sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
 
                         //reset pressed state
                         setButtonPressed(buttonNumber, false);
 
-                }   else    {
+                        }   else    {
 
-                    //send note on on press
-                    sendButtonDataCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
+                                    //send note on on press
+                                    sendButtonDataCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
 
-                    //toggle buttonPressed flag to true
-                    setButtonPressed(buttonNumber, true);
+                                    //toggle buttonPressed flag to true
+                                    setButtonPressed(buttonNumber, true);
 
-                }
+                            }
 
-            }
-
-            //button has momentary operation
-            //send note on
-            else    sendButtonDataCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
+                }   else    sendButtonDataCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
 
             //start long press timer
             if (getFeature(EEPROM_SOFTWARE_FEATURES, EEPROM_SW_LONG_PRESS)) longPressState[buttonNumber] = millis();
 
-        }
+        }   else    if ((buttonState == buttonDebounceCompare) && (!getButtonType(buttonNumber)))   {
 
-                else    if ((buttonState == buttonDebounceCompare) && (!getButtonType(buttonNumber)))   {
-
-                    //button is released
-                    //check button on release only if it's momentary
+                        //button is released
+                        //check button on release only if it's momentary
 
                         if (getFeature(EEPROM_SOFTWARE_FEATURES, EEPROM_SW_LONG_PRESS)) {
 
@@ -516,31 +506,27 @@ void OpenDeck::readButtons()    {
                                 sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
                                 sendButtonDataCallback(buttonNote[buttonNumber], false, _longPressButtonNoteChannel);
 
-                            }
-
-                                else    sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
+                            }   else    sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
 
                                 longPressState[buttonNumber] = 0;
                                 setButtonLongPressed(buttonNumber, false);
 
-                        }
+                        }   else    sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
 
-                            else    sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
+                    }
 
-                }
-
-                //update previous reading with current
-                previousButtonState[buttonNumber] = buttonState;
+            //update previous reading with current
+            previousButtonState[buttonNumber] = buttonState;
 
         }
 
-                if (getFeature(EEPROM_SOFTWARE_FEATURES, EEPROM_SW_LONG_PRESS)) {
+        if (getFeature(EEPROM_SOFTWARE_FEATURES, EEPROM_SW_LONG_PRESS)) {
 
-                    //send long press note if button has been pressed for defined time and note hasn't already been sent
-                    if ((millis() - longPressState[buttonNumber] >= _longPressTime) && (!getButtonLongPressed(buttonNumber)) && (buttonState == 0xFF))  {
+            //send long press note if button has been pressed for defined time and note hasn't already been sent
+            if ((millis() - longPressState[buttonNumber] >= _longPressTime) && (!getButtonLongPressed(buttonNumber)) && (buttonState == 0xFF))  {
 
-                    sendButtonDataCallback(buttonNote[buttonNumber], true, _longPressButtonNoteChannel);
-                    setButtonLongPressed(buttonNumber, true);
+                sendButtonDataCallback(buttonNote[buttonNumber], true, _longPressButtonNoteChannel);
+                setButtonLongPressed(buttonNumber, true);
 
             }
 
@@ -646,13 +632,11 @@ void OpenDeck::checkPotReading(int16_t currentValue, uint8_t potNumber) {
 
             if (analogueDiff >= MIDI_CC_STEP)   processPotReading(potNumber, currentValue);
 
-        }
-
-            else    {
+        }   else    {
 
                 if (analogueDiff >= MIDI_CC_STEP_TIMEOUT)   processPotReading(potNumber, currentValue);
 
-        }
+            }
 
 }
 
@@ -662,29 +646,26 @@ void OpenDeck::processPotReading(uint8_t potNumber, int16_t tempValue)  {
     uint8_t potNoteChannel = _longPressButtonNoteChannel+1;
 
     //invert CC data if potInverted is true
-    if (getPotInvertState(potNumber))
-    ccValue = 127 - (tempValue >> 3);
-    
-    else
-    ccValue = tempValue >> 3;
+    if (getPotInvertState(potNumber))   ccValue = 127 - (tempValue >> 3);
+    else                                ccValue = tempValue >> 3;
 
     //only send data if pot is enabled and function isn't called in setup
     if ((sendPotCCDataCallback != NULL) && (getPotEnabled(potNumber)))  sendPotCCDataCallback(ccNumber[potNumber], ccValue, _potCCchannel);
 
     if (getFeature(EEPROM_SOFTWARE_FEATURES, EEPROM_SW_POT_NOTES))  {
 
-    uint8_t noteCurrent = getPotNoteValue(ccValue, ccNumber[potNumber]);
+        uint8_t noteCurrent = getPotNoteValue(ccValue, ccNumber[potNumber]);
 
-    //maximum number of notes per MIDI channel is 128, with 127 being final
-    if (noteCurrent > 127)  {
+        //maximum number of notes per MIDI channel is 128, with 127 being final
+        if (noteCurrent > 127)  {
 
-        //if calculated note is bigger than 127, assign next midi channel
-        potNoteChannel += noteCurrent/128;
+            //if calculated note is bigger than 127, assign next midi channel
+            potNoteChannel += noteCurrent/128;
 
-        //substract 128*number of overflown channels from note
-        noteCurrent -= 128*(noteCurrent/128);
+            //substract 128*number of overflown channels from note
+            noteCurrent -= 128*(noteCurrent/128);
 
-    }
+        }
 
         if (checkPotNoteValue(potNumber, noteCurrent))  {
 
@@ -774,13 +755,13 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 
     Function accepts three boolean arguments.
 
-    ledDirection: true means that LEDs will go from left to right, false from right to left
-    singleLED: true means that only one LED will be active at the time, false means that LEDs
-                 will turn on one by one until they're all lighted up
+    ledDirection:   true means that LEDs will go from left to right, false from right to left
+    singleLED:      true means that only one LED will be active at the time, false means that LEDs
+                    will turn on one by one until they're all lighted up
 
-    turnOn: true means that LEDs will be turned on, with all previous LED states being 0
-              false means that all LEDs are lighted up and they turn off one by one, depending
-              on second argument
+    turnOn:         true means that LEDs will be turned on, with all previous LED states being 0
+                    false means that all LEDs are lighted up and they turn off one by one, depending
+                    on second argument
 
     */
 
@@ -822,64 +803,57 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
     //When function is called second time with direction different than previous one, the number of
     //times it needs to execute is reduced by one, therefore passCounter is incremented.
 
-    //right-to-left direction
-    if (!ledDirection)
-    //if last LED is turned on
-    if (ledOn(ledID[totalNumberOfLEDs-1]))  {
+        //right-to-left direction
+        if (!ledDirection)  {
+            
+            //if last LED is turned on
+            if (ledOn(ledID[totalNumberOfLEDs-1]))  {
 
-    //LED index is penultimate LED number
-    ledNumber = ledID[totalNumberOfLEDs-2];
-    //increment counter since the loop has to run one cycle less
-    passCounter++;
+                //LED index is penultimate LED number
+                ledNumber = ledID[totalNumberOfLEDs-2];
+                //increment counter since the loop has to run one cycle less
+                passCounter++;
 
-    }
+            }   else    ledNumber = ledID[totalNumberOfLEDs-1]; //led index is last one if last one isn't already on
+            
+        }   else //left-to-right direction
+        
+                //if first LED is already on
+                if (ledOn(ledID[0]))    {
 
-    //led index is last one if last one isn't already on
-    else    ledNumber = ledID[totalNumberOfLEDs-1];
+                //led index is 1
+                ledNumber = ledID[1];
+                //increment counter
+                passCounter++;
 
-    //left-to-right direction
-    else
-    //if first LED is already on
-    if (ledOn(ledID[0]))    {
+                }   else    ledNumber = ledID[0];
 
-        //led index is 1
-        ledNumber = ledID[1];
-        //increment counter
-        passCounter++;
+    }   else    {
 
-    }
+                    //This is situation when all LEDs are turned on and we're turning them off one by one. Same
+                    //logic applies in both cases (see above). In this case we're not checking for whether the LED
+                    //is already turned on, but whether it's already turned off.
 
-    else    ledNumber = ledID[0];
+                    //right-to-left direction
+                    if (!ledDirection)  {
+                        
+                        if (!(ledOn(ledID[totalNumberOfLEDs-1])))   {
 
-    }
+                            ledNumber = ledID[totalNumberOfLEDs-2];
+                            passCounter++;
 
-    else    {
+                        }   else ledNumber = ledID[totalNumberOfLEDs-1];
+                        
+                    }   else
 
-    //This is situation when all LEDs are turned on and we're turning them off one by one. Same
-    //logic applies in both cases (see above). In this case we're not checking for whether the LED
-    //is already turned on, but whether it's already turned off.
+                            if (!(ledOn(ledID[0]))) {   //left-to-right direction
 
-    //right-to-left direction
-    if (!ledDirection)  if (!(ledOn(ledID[totalNumberOfLEDs-1])))   {
+                                ledNumber = ledID[1];
+                                passCounter++;
 
-        ledNumber = ledID[totalNumberOfLEDs-2];
-        passCounter++;
+                            }   else ledNumber = ledID[0];
 
-    }
-
-    else ledNumber = ledID[totalNumberOfLEDs-1];
-
-    //left-to-right direction
-    else    if (!(ledOn(ledID[0]))) {
-
-        ledNumber = ledID[1];
-        passCounter++;
-
-    }
-
-    else ledNumber = ledID[0];
-
-    }
+        }
 
     //on first function call, the while loop is called TOTAL_NUMBER_OF_LEDS+1 times
     //to get empty cycle after processing last LED
@@ -926,8 +900,8 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 
         }
 
-        //check if there is any LED to be turned on
-        checkLEDs();
+            //check if there is any LED to be turned on
+            checkLEDs();
 
             //update last time column was switched
             columnTime = millis();
@@ -1037,7 +1011,8 @@ void OpenDeck::checkBlinkLEDs() {
     bool _blinkEnabled = false;
 
     //if any LED is blinking, set timerState to true and exit the loop
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    if (checkBlinkState(i)) {
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+    if (checkBlinkState(i)) {
 
         _blinkEnabled = true;
         break;
@@ -1049,12 +1024,12 @@ void OpenDeck::checkBlinkLEDs() {
     //don't bother reseting variables if blinking is already disabled
     else    if (!_blinkEnabled && blinkEnabled) {
 
-        //reset blinkState to default value
-        blinkState = true;
-        blinkTimerCounter = 0;
-        blinkEnabled = false;
+                //reset blinkState to default value
+                blinkState = true;
+                blinkTimerCounter = 0;
+                blinkEnabled = false;
 
-    }
+            }
 
 }
 
@@ -1092,25 +1067,23 @@ void OpenDeck::handleLED(uint8_t ledNote, bool currentLEDstate, bool blinkMode) 
     //if remember bit is set
     if ((ledState[_ledID] >> 3) & (0x01))   {
 
-    //if note off for blink state is received
-    //clear remember bit and blink bits
-    //set constant state bit
-    if (blinkMode)  ledState[_ledID] = 0x05;
-    //else clear constant state bit and remember bit
-    //set blink bits
-    else    ledState[_ledID] = 0x16;
+        //if note off for blink state is received
+        //clear remember bit and blink bits
+        //set constant state bit
+        if (blinkMode)  ledState[_ledID] = 0x05;
+        //else clear constant state bit and remember bit
+        //set blink bits
+        else            ledState[_ledID] = 0x16;
 
-    }
+    }   else    {
 
-    else    {
-
-        if (blinkMode)  /*clear blink bit */    ledState[_ledID] &= 0x15;
-        else /* clear constant state bit */     ledState[_ledID] &= 0x16;
+                if (blinkMode)  /*clear blink bit */    ledState[_ledID] &= 0x15;
+                else /* clear constant state bit */     ledState[_ledID] &= 0x16;
 
     }
 
     //if bits 0 and 1 are 0, LED is off so we set ledState to zero
-     if (!(ledState[_ledID] & 3))   ledState[_ledID] = 0x00;
+    if (!(ledState[_ledID] & 3))   ledState[_ledID] = 0x00;
 
     break;
 
@@ -1142,7 +1115,7 @@ void OpenDeck::setLEDState()    {
         //if velocity is 0, turn off LED
         //else turn it on
         if (receivedNoteVelocity != 0)  currentLEDstate = true;
-        else currentLEDstate = false;
+        else                            currentLEDstate = false;
 
         if (receivedNotePitch >= totalNumberOfLEDs) blinkMode = 1;
 
@@ -1360,12 +1333,12 @@ void OpenDeck::setHandleSysExSend(void (*fptr)(uint8_t *sysExArray, uint8_t size
 
 void OpenDeck::processSysEx(uint8_t sysExArray[], uint8_t arrSize)  {
 
-    bool getSet;
-    uint8_t messageType;
-    uint8_t messageSubType;
-    uint8_t parameterID;
-    uint8_t newParameterID;
-    bool singleAll;
+    bool getSet             = false;
+    bool singleAll          = false;
+    uint8_t messageType     = 0;
+    uint8_t messageSubType  = 0;
+    uint8_t parameterID     = 0;
+    uint8_t newParameterID  = 0;
     uint8_t sysExResponse[64];
 
     //check device ID
@@ -1384,6 +1357,7 @@ void OpenDeck::processSysEx(uint8_t sysExArray[], uint8_t arrSize)  {
 
                     singleAll = sysExArray[5];
 
+                    //determine minimum message length based on asked parameters
                     if (arrSize < (SYS_EX_MIN_MESSAGE_LENGHT + (1 - sysExArray[4]) - sysExArray[5]))    {
 
                         //error 6: message too short
@@ -1397,64 +1371,65 @@ void OpenDeck::processSysEx(uint8_t sysExArray[], uint8_t arrSize)  {
 
                     }
 
-                    //check if message type is correct
-                    if (sysExCheckMessageType(sysExArray[6])) {
+                        //check if message type is correct
+                        if (sysExCheckMessageType(sysExArray[6])) {
 
-                        messageType = sysExArray[6];
+                            messageType = sysExArray[6];
 
-                        //check if subtype is correct
-                        if (sysExCheckMessageSubType(messageType, sysExArray[7]))   {
+                            //check if subtype is correct
+                            if (sysExCheckMessageSubType(messageType, sysExArray[7]))   {
 
-                            messageSubType = sysExArray[7];
+                                messageSubType = sysExArray[7];
 
-                            //check if wanted parameter is valid only if single parameter is specified
-                            if (!singleAll) {
-                            if (sysExCheckParameterID(messageType, sysExArray[8]))  {
+                                //check if wanted parameter is valid only if single parameter is specified
+                                if (!singleAll) {
+                                
+                                    if (sysExCheckParameterID(messageType, sysExArray[8]))  {
 
-                                parameterID = sysExArray[8];
+                                        parameterID = sysExArray[8];
+
+                                    }   else {
+
+                                            //error 5: wrong parameter ID
+                                            sysExResponse[0] = SYS_EX_MANUFACTURER_ID_0;
+                                            sysExResponse[1] = SYS_EX_MANUFACTURER_ID_1;
+                                            sysExResponse[2] = SYS_EX_MANUFACTURER_ID_2;
+                                            sysExResponse[3] = 0x05;
+
+                                            sendSysExDataCallback(sysExResponse, 4);
+                                            return;
+
+                                        }
+
+                                    }
 
                             }   else {
 
-                            //error 5: wrong parameter ID
+                                //error 4: wrong message subtype
+                                sysExResponse[0] = SYS_EX_MANUFACTURER_ID_0;
+                                sysExResponse[1] = SYS_EX_MANUFACTURER_ID_1;
+                                sysExResponse[2] = SYS_EX_MANUFACTURER_ID_2;
+                                sysExResponse[3] = 0x04;
+
+                                sendSysExDataCallback(sysExResponse, 4);
+                                return;
+
+                        }
+
+                    }   else {
+
+                            //error 3: wrong message type
                             sysExResponse[0] = SYS_EX_MANUFACTURER_ID_0;
                             sysExResponse[1] = SYS_EX_MANUFACTURER_ID_1;
                             sysExResponse[2] = SYS_EX_MANUFACTURER_ID_2;
-                            sysExResponse[3] = 0x05;
+                            sysExResponse[3] = 0x03;
 
                             sendSysExDataCallback(sysExResponse, 4);
                             return;
 
                         }
 
-                    }
-
-                        }   else {
-
-                        //error 4: wrong message subtype
-                        sysExResponse[0] = SYS_EX_MANUFACTURER_ID_0;
-                        sysExResponse[1] = SYS_EX_MANUFACTURER_ID_1;
-                        sysExResponse[2] = SYS_EX_MANUFACTURER_ID_2;
-                        sysExResponse[3] = 0x04;
-
-                        sendSysExDataCallback(sysExResponse, 4);
-                        return;
-
-                    }
-
-                    }   else {
-
-                    //error 3: wrong message type
-                    sysExResponse[0] = SYS_EX_MANUFACTURER_ID_0;
-                    sysExResponse[1] = SYS_EX_MANUFACTURER_ID_1;
-                    sysExResponse[2] = SYS_EX_MANUFACTURER_ID_2;
-                    sysExResponse[3] = 0x03;
-
-                    sendSysExDataCallback(sysExResponse, 4);
-                    return;
-
-                }
-
-                    }   else {
+            }   else {
 
                     //error 2: parameter must be single or all
                     sysExResponse[0] = SYS_EX_MANUFACTURER_ID_0;
@@ -1467,7 +1442,7 @@ void OpenDeck::processSysEx(uint8_t sysExArray[], uint8_t arrSize)  {
 
                 }
 
-                }   else {
+        }   else {
 
                 //error 1: wish isn't get or set
                 sysExResponse[0] = SYS_EX_MANUFACTURER_ID_0;
@@ -1480,7 +1455,7 @@ void OpenDeck::processSysEx(uint8_t sysExArray[], uint8_t arrSize)  {
 
             }
 
-            }       else {
+    }   else {
 
             //message is just ID check, send ACK signal
             sysExResponse[0] = SYS_EX_MANUFACTURER_ID_0;
@@ -1493,45 +1468,52 @@ void OpenDeck::processSysEx(uint8_t sysExArray[], uint8_t arrSize)  {
 
         }
 
-        }       else {
+    }       else {
 
-        //error 0: wrong ID
-        sysExResponse[0] = SYS_EX_ERROR;
-        sysExResponse[1] = 0;
+                //error 0: wrong ID
+                sysExResponse[0] = SYS_EX_ERROR;
+                sysExResponse[1] = 0;
 
-        sendSysExDataCallback(sysExResponse, 2);
-        return;
+                sendSysExDataCallback(sysExResponse, 2);
+                return;
 
-    }
+            }
 
     //if we managed to get to here, everything is fine with message
-    //create response
 
+    //set first byte to ACK
     sysExResponse[0] = SYS_EX_ACK;
 
+    //create response based on wanted message type
     switch (messageType)    {
 
         case SYS_EX_MIDI_CHANNEL_START:
 
+        //get
         if (!getSet)    {
 
+        //single
         if (!singleAll) {
 
+            //send only asked parameter in response
             sysExResponse[1] = parameterID;
             sendSysExDataCallback(sysExResponse, 2);
             return;
 
         }
 
+            //all
             else {
 
+                //send all existing parameters for wanted message type/sub-type
                 for (int i=0; i<5; i++) sysExResponse[i+1] = sysExGetMIDIchannel(i);
                 sendSysExDataCallback(sysExResponse, 6);
                 return;
 
             }
 
-        }   else {
+        }   //set
+            else {
 
                 //to-do
 
@@ -1563,16 +1545,16 @@ bool OpenDeck::sysExCheckGetSetSingleAll(bool getSet, uint8_t parameter)    {
 
 bool OpenDeck::sysExCheckMessageType(uint8_t messageID) {
 
-    if (
+    if  (
 
-    (messageID == SYS_EX_MIDI_CHANNEL_START)    ||
-    (messageID == SYS_EX_HW_PARAMETER_START)    ||
-    (messageID == SYS_EX_SW_FEATURE_START)      ||
-    (messageID == SYS_EX_HW_FEATURE_START)      ||
-    (messageID == SYS_EX_BUTTON_START)          ||
-    (messageID == SYS_EX_POT_START)             ||
-    (messageID == SYS_EX_ENC_START)             ||
-    (messageID == SYS_EX_LED_START)
+            (messageID == SYS_EX_MIDI_CHANNEL_START)    ||
+            (messageID == SYS_EX_HW_PARAMETER_START)    ||
+            (messageID == SYS_EX_SW_FEATURE_START)      ||
+            (messageID == SYS_EX_HW_FEATURE_START)      ||
+            (messageID == SYS_EX_BUTTON_START)          ||
+            (messageID == SYS_EX_POT_START)             ||
+            (messageID == SYS_EX_ENC_START)             ||
+            (messageID == SYS_EX_LED_START)
 
     )   return true;
 
@@ -1605,7 +1587,13 @@ bool OpenDeck::sysExCheckMessageSubType(uint8_t messageType, uint8_t messageSubT
         break;
 
         case SYS_EX_POT_START:
-        return ((messageSubType == SYS_EX_GET_SET_POT_ENABLED) || (messageSubType == SYS_EX_GET_SET_POT_INVERTED) || (messageSubType == SYS_EX_GET_SET_POT_CC_NUMBER));
+        return  (
+
+                (messageSubType == SYS_EX_GET_SET_POT_ENABLED)  ||
+                (messageSubType == SYS_EX_GET_SET_POT_INVERTED) ||
+                (messageSubType == SYS_EX_GET_SET_POT_CC_NUMBER)
+
+        );
         break;
 
         case SYS_EX_BUTTON_START:
@@ -1629,26 +1617,30 @@ bool OpenDeck::sysExCheckParameterID(uint8_t messageType, uint8_t id)   {
     switch (messageType)    {
 
         case SYS_EX_MIDI_CHANNEL_START:
-        return (
+        return  (
+        
                 (id == SYS_EX_MC_BUTTON_NOTE)               ||
                 (id == SYS_EX_MC_LONG_PRESS_BUTTON_NOTE)    ||
                 (id == SYS_EX_MC_POT_CC)                    ||
                 (id == SYS_EX_MC_ENC_CC)                    ||
                 (id == SYS_EX_MC_INPUT)
-                );
 
+        );
         break;
 
         case SYS_EX_HW_PARAMETER_START:
-        return (
+        return  (
+        
                 (id == SYS_EX_HW_P_LONG_PRESS_TIME)         ||
                 (id == SYS_EX_HW_P_BLINK_TIME)              ||
                 (id == SYS_EX_HW_P_START_UP_SWITCH_TIME)
-                );
+                
+        );
         break;
 
         case SYS_EX_SW_FEATURE_START:
-        return (
+        return  (
+
                 (id == SYS_EX_SW_F_RUNNING_STATUS)          ||
                 (id == SYS_EX_SW_F_STANDARD_NOTE_OFF)       ||
                 (id == SYS_EX_SW_F_ENC_NOTES)               ||
@@ -1656,16 +1648,17 @@ bool OpenDeck::sysExCheckParameterID(uint8_t messageType, uint8_t id)   {
                 (id == SYS_EX_SW_F_LONG_PRESS)              ||
                 (id == SYS_EX_SW_F_LED_BLINK)               ||
                 (id == SYS_EX_SW_F_START_UP_ROUTINE)
-                );
+        );
         break;
 
         case SYS_EX_HW_FEATURE_START:
-        return (
+        return  (
+        
                 (id == SYS_EX_HW_F_BUTTONS)                 ||
                 (id == SYS_EX_HW_F_POTS)                    ||
                 (id == SYS_EX_HW_F_ENC)                     ||
                 (id == SYS_EX_HW_F_LEDS)
-                );
+        );
         break;
 
         case SYS_EX_BUTTON_START:
