@@ -601,6 +601,4 @@ const uint8_t defConf[] PROGMEM = {
 
 };
 
-
-
 #endif /* EEPROM_H_ */
