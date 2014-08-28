@@ -1369,7 +1369,7 @@ void OpenDeck::processSysEx(uint8_t sysExArray[], uint8_t arrSize)  {
                             if (arrSize < sysExGenerateMinMessageLenght(getSet, singleAll, messageType))    {
 
                                 //error 7: message too short
-                                sysExGenerateError(10);
+                                sysExGenerateError(7);
                                 return;
 
                             }
