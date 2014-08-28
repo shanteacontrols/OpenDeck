@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.93
-File: SysEx.h
-Last revision date: 2014-08-27
+OpenDECK library v1.94
+File: OpenDeck.h
+Last revision date: 2014-08-28
 Author: Igor Petrovic
 
 */
@@ -68,7 +68,8 @@ Author: Igor Petrovic
 #define SYS_EX_HW_F_ENC                         0x02
 #define SYS_EX_HW_F_LEDS                        0x03
 
-#define SYS_EX_MIN_MESSAGE_LENGHT               0x09
+#define SYS_EX_ML_BASIC                         0x05
+#define SYS_EX_ML_EXTENDED                      0x09
 #define SYS_EX_ACK                              0x41
 #define SYS_EX_ERROR                            0x46
 
