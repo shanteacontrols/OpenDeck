@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.93
-File: EEPROM.h
-Last revision date: 2014-08-27
+OpenDECK library v1.94
+File: OpenDeck.h
+Last revision date: 2014-08-28
 Author: Igor Petrovic
 
 */
@@ -11,17 +11,23 @@ Author: Igor Petrovic
 #ifndef EEPROM_H_
 #define EEPROM_H_
 
+#define NUMBER_OF_MIDI_CHANNELS             5
+
 #define EEPROM_MC_BUTTON_NOTE               0
 #define EEPROM_MC_LONG_PRESS_BUTTON_NOTE    1
 #define EEPROM_MC_POT_CC                    2
 #define EEPROM_MC_ENC_CC                    3
 #define EEPROM_MC_INPUT                     4
 
+#define NUMBER_OF_HW_P                      3
+
 #define EEPROM_HW_P_LONG_PRESS_TIME         5
 #define EEPROM_HW_P_BLINK_TIME              6
 #define EEPROM_HW_P_START_UP_SWITCH_TIME    7
 
 #define EEPROM_SOFTWARE_FEATURES            8
+
+#define NUMBER_OF_SW_F                      7
 
 #define EEPROM_SW_RUNNING_STATUS            0
 #define EEPROM_SW_STANDARD_NOTE_OFF         1
@@ -32,6 +38,8 @@ Author: Igor Petrovic
 #define EEPROM_SW_START_UP_ROUTINE          6
 
 #define EEPROM_HARDWARE_FEATURES            9
+
+#define NUMBER_OF_HW_F                      3
 
 #define EEPROM_HW_F_BUTTONS                 3
 #define EEPROM_HW_F_POTS                    2
@@ -131,9 +139,9 @@ const uint8_t defConf[] PROGMEM = {
     //enable pot (1 enabled, 0 disabled)
 
     //7-0
-    0xE2,                                   //026
+    0x00,                                   //026
     //15-8
-    0x4B,
+    0x00,
     //23-16
     0x00,
     //31-24

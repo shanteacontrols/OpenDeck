@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.93
-File: OpenDeck.cpp
-Last revision date: 2014-08-27
+OpenDECK library v1.94
+File: OpenDeck.h
+Last revision date: 2014-08-28
 Author: Igor Petrovic
 
 */
@@ -478,15 +478,15 @@ void OpenDeck::readButtons()    {
                         //reset pressed state
                         setButtonPressed(buttonNumber, false);
 
-                        }   else    {
+                    }   else    {
 
-                                    //send note on on press
-                                    sendButtonDataCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
+                                //send note on on press
+                                sendButtonDataCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
 
-                                    //toggle buttonPressed flag to true
-                                    setButtonPressed(buttonNumber, true);
+                                //toggle buttonPressed flag to true
+                                setButtonPressed(buttonNumber, true);
 
-                            }
+                        }
 
                 }   else    sendButtonDataCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
 
@@ -523,7 +523,8 @@ void OpenDeck::readButtons()    {
         if (getFeature(EEPROM_SOFTWARE_FEATURES, EEPROM_SW_LONG_PRESS)) {
 
             //send long press note if button has been pressed for defined time and note hasn't already been sent
-            if ((millis() - longPressState[buttonNumber] >= _longPressTime) && (!getButtonLongPressed(buttonNumber)) && (buttonState == 0xFF))  {
+            if ((millis() - longPressState[buttonNumber] >= _longPressTime) &&
+                (!getButtonLongPressed(buttonNumber)) && (buttonState == 0xFF))  {
 
                 sendButtonDataCallback(buttonNote[buttonNumber], true, _longPressButtonNoteChannel);
                 setButtonLongPressed(buttonNumber, true);
@@ -650,7 +651,8 @@ void OpenDeck::processPotReading(uint8_t potNumber, int16_t tempValue)  {
     else                                ccValue = tempValue >> 3;
 
     //only send data if pot is enabled and function isn't called in setup
-    if ((sendPotCCDataCallback != NULL) && (getPotEnabled(potNumber)))  sendPotCCDataCallback(ccNumber[potNumber], ccValue, _potCCchannel);
+    if ((sendPotCCDataCallback != NULL) && (getPotEnabled(potNumber)))
+        sendPotCCDataCallback(ccNumber[potNumber], ccValue, _potCCchannel);
 
     if (getFeature(EEPROM_SOFTWARE_FEATURES, EEPROM_SW_POT_NOTES))  {
 
@@ -1333,19 +1335,20 @@ void OpenDeck::setHandleSysExSend(void (*fptr)(uint8_t *sysExArray, uint8_t size
 
 void OpenDeck::processSysEx(uint8_t sysExArray[], uint8_t arrSize)  {
 
-    bool getSet             = false;
-    bool singleAll          = false;
-    uint8_t messageType     = 0;
-    uint8_t messageSubType  = 0;
-    uint8_t parameterID     = 0;
-    uint8_t newParameterID  = 0;
-    uint8_t sysExResponse[64];
+    bool getSet                 = false;
+    bool singleAll              = false;
+    uint8_t messageType         = 0;
+    uint8_t messageSubType      = 0;
+    uint8_t parameterID         = 0;
+    uint8_t newParameterID[128] = { 0 };
+    uint8_t newParameterCounter = 0;
+    uint8_t sysExResponse[64]   = { 0 };
 
     //check device ID
     if (sysExCheckID(sysExArray[1], sysExArray[2], sysExArray[3]))  {
 
         //only check rest of the message if it's not just a ID check
-        if (arrSize > 5)    {
+        if (arrSize >= SYS_EX_ML_EXTENDED)    {
 
             //check get/set validity
             if (sysExCheckGetSet(sysExArray[4]))    {
@@ -1353,28 +1356,23 @@ void OpenDeck::processSysEx(uint8_t sysExArray[], uint8_t arrSize)  {
                 getSet = sysExArray[4];
 
                 //check if wanted data is for single or all parameters
-                if (sysExCheckGetSetSingleAll(getSet, sysExArray[5])) {
+                if (sysExCheckSingleAll(sysExArray[5])) {
 
                     singleAll = sysExArray[5];
-
-                    //determine minimum message length based on asked parameters
-                    if (arrSize < (SYS_EX_MIN_MESSAGE_LENGHT + (1 - sysExArray[4]) - sysExArray[5]))    {
-
-                        //error 6: message too short
-                        sysExResponse[0] = SYS_EX_MANUFACTURER_ID_0;
-                        sysExResponse[1] = SYS_EX_MANUFACTURER_ID_1;
-                        sysExResponse[2] = SYS_EX_MANUFACTURER_ID_2;
-                        sysExResponse[3] = 0x06;
-
-                        sendSysExDataCallback(sysExResponse, 4);
-                        return;
-
-                    }
 
                         //check if message type is correct
                         if (sysExCheckMessageType(sysExArray[6])) {
 
                             messageType = sysExArray[6];
+
+                            //determine minimum message length based on asked parameters
+                            if (arrSize < sysExGenerateMinMessageLenght(getSet, singleAll, messageType))    {
+
+                                //error 7: message too short
+                                sysExGenerateError(10);
+                                return;
+
+                            }
 
                             //check if subtype is correct
                             if (sysExCheckMessageSubType(messageType, sysExArray[7]))   {
@@ -1384,34 +1382,111 @@ void OpenDeck::processSysEx(uint8_t sysExArray[], uint8_t arrSize)  {
                                 //check if wanted parameter is valid only if single parameter is specified
                                 if (!singleAll) {
                                 
-                                    if (sysExCheckParameterID(messageType, sysExArray[8]))  {
+                                    if (sysExCheckParameterID(messageType, sysExArray[8], false))  {
 
                                         parameterID = sysExArray[8];
+
+                                        //if message wish is set, check new parameter
+                                        if (getSet) {
+
+                                            if (sysExCheckParameterID(messageType, sysExArray[9], true))
+                                                newParameterID[0] = sysExArray[9];
+
+                                                else    {
+
+                                                    //error 6: new parameter is wrong
+                                                    sysExGenerateError(6);
+                                                    return;
+
+                                                }
+
+                                        }
 
                                     }   else {
 
                                             //error 5: wrong parameter ID
-                                            sysExResponse[0] = SYS_EX_MANUFACTURER_ID_0;
-                                            sysExResponse[1] = SYS_EX_MANUFACTURER_ID_1;
-                                            sysExResponse[2] = SYS_EX_MANUFACTURER_ID_2;
-                                            sysExResponse[3] = 0x05;
-
-                                            sendSysExDataCallback(sysExResponse, 4);
+                                            sysExGenerateError(5);
                                             return;
 
                                         }
 
-                                    }
+                                }   //all parameters
+                                    else    {
+                                        
+                                            //check each new parameter for set command
+                                            if (getSet) {
+                                                
+                                                uint8_t arrayIndex = 8;
+
+                                                do  {
+
+                                                    newParameterID[newParameterCounter] = sysExArray[arrayIndex];
+                                                    if (!sysExCheckParameterID(messageType, newParameterID[newParameterCounter], true)) {
+
+                                                        sysExGenerateError(6);
+                                                        return;
+
+                                                    }
+
+                                                    arrayIndex++;
+                                                    newParameterCounter++;
+
+                                                } while (arrayIndex != (arrSize-1));
+                                                
+                                                switch (messageType)    {
+                                                    
+                                                    case SYS_EX_MIDI_CHANNEL_START:
+                                                    if (newParameterCounter != NUMBER_OF_MIDI_CHANNELS) {
+                                                        
+                                                        sysExGenerateError(7);
+                                                        return;
+                                                        
+                                                    }
+                                                    
+                                                    break;
+                                                    
+                                                    case SYS_EX_HW_PARAMETER_START:
+                                                    if (newParameterCounter != NUMBER_OF_HW_P)  {
+                                                        
+                                                        sysExGenerateError(7);
+                                                        return;
+                                                        
+                                                    }
+                                                    
+                                                    break;
+                                                    
+                                                    case SYS_EX_SW_FEATURE_START:
+                                                    if (newParameterCounter != NUMBER_OF_SW_F)  {
+                                                        
+                                                        sysExGenerateError(7);
+                                                        return;
+                                                        
+                                                    }
+                                                    
+                                                    break;
+                                                    
+                                                    case SYS_EX_HW_FEATURE_START:
+                                                    if (newParameterCounter != NUMBER_OF_HW_F)  {
+                                                        
+                                                        sysExGenerateError(7);
+                                                        return;
+                                                    }
+                                                    
+                                                    break;
+                                                    
+                                                    default:
+                                                    break;
+                                                    
+                                                }
+
+                                            }
+
+                                        }
 
                             }   else {
 
                                 //error 4: wrong message subtype
-                                sysExResponse[0] = SYS_EX_MANUFACTURER_ID_0;
-                                sysExResponse[1] = SYS_EX_MANUFACTURER_ID_1;
-                                sysExResponse[2] = SYS_EX_MANUFACTURER_ID_2;
-                                sysExResponse[3] = 0x04;
-
-                                sendSysExDataCallback(sysExResponse, 4);
+                                sysExGenerateError(4);
                                 return;
 
                         }
@@ -1419,12 +1494,7 @@ void OpenDeck::processSysEx(uint8_t sysExArray[], uint8_t arrSize)  {
                     }   else {
 
                             //error 3: wrong message type
-                            sysExResponse[0] = SYS_EX_MANUFACTURER_ID_0;
-                            sysExResponse[1] = SYS_EX_MANUFACTURER_ID_1;
-                            sysExResponse[2] = SYS_EX_MANUFACTURER_ID_2;
-                            sysExResponse[3] = 0x03;
-
-                            sendSysExDataCallback(sysExResponse, 4);
+                            sysExGenerateError(3);
                             return;
 
                         }
@@ -1432,12 +1502,7 @@ void OpenDeck::processSysEx(uint8_t sysExArray[], uint8_t arrSize)  {
             }   else {
 
                     //error 2: parameter must be single or all
-                    sysExResponse[0] = SYS_EX_MANUFACTURER_ID_0;
-                    sysExResponse[1] = SYS_EX_MANUFACTURER_ID_1;
-                    sysExResponse[2] = SYS_EX_MANUFACTURER_ID_2;
-                    sysExResponse[3] = 0x02;
-
-                    sendSysExDataCallback(sysExResponse, 4);
+                    sysExGenerateError(2);
                     return;
 
                 }
@@ -1445,17 +1510,12 @@ void OpenDeck::processSysEx(uint8_t sysExArray[], uint8_t arrSize)  {
         }   else {
 
                 //error 1: wish isn't get or set
-                sysExResponse[0] = SYS_EX_MANUFACTURER_ID_0;
-                sysExResponse[1] = SYS_EX_MANUFACTURER_ID_1;
-                sysExResponse[2] = SYS_EX_MANUFACTURER_ID_2;
-                sysExResponse[3] = 0x01;
-
-                sendSysExDataCallback(sysExResponse, 4);
+                sysExGenerateError(1);
                 return;
 
             }
 
-    }   else {
+    }   else if (arrSize == SYS_EX_ML_BASIC) {
 
             //message is just ID check, send ACK signal
             sysExResponse[0] = SYS_EX_MANUFACTURER_ID_0;
@@ -1466,23 +1526,31 @@ void OpenDeck::processSysEx(uint8_t sysExArray[], uint8_t arrSize)  {
             sendSysExDataCallback(sysExResponse, 4);
             return;
 
-        }
+        }   else    {
+
+                sysExGenerateError(7);
+                return;
+                
+            }
 
     }       else {
 
                 //error 0: wrong ID
-                sysExResponse[0] = SYS_EX_ERROR;
-                sysExResponse[1] = 0;
-
-                sendSysExDataCallback(sysExResponse, 2);
+                sysExGenerateError(0);
                 return;
 
             }
 
     //if we managed to get to here, everything is fine with message
 
-    //set first byte to ACK
-    sysExResponse[0] = SYS_EX_ACK;
+    sysExResponse[0] = SYS_EX_MANUFACTURER_ID_0;
+    sysExResponse[1] = SYS_EX_MANUFACTURER_ID_1;
+    sysExResponse[2] = SYS_EX_MANUFACTURER_ID_2;
+
+    sysExResponse[3] = SYS_EX_ACK;
+
+    sysExResponse[4] = messageType;
+    sysExResponse[5] = messageSubType;
 
     //create response based on wanted message type
     switch (messageType)    {
@@ -1496,8 +1564,8 @@ void OpenDeck::processSysEx(uint8_t sysExArray[], uint8_t arrSize)  {
         if (!singleAll) {
 
             //send only asked parameter in response
-            sysExResponse[1] = parameterID;
-            sendSysExDataCallback(sysExResponse, 2);
+            sysExResponse[6] = sysExGetMIDIchannel(parameterID);
+            sendSysExDataCallback(sysExResponse, 7);
             return;
 
         }
@@ -1506,8 +1574,8 @@ void OpenDeck::processSysEx(uint8_t sysExArray[], uint8_t arrSize)  {
             else {
 
                 //send all existing parameters for wanted message type/sub-type
-                for (int i=0; i<5; i++) sysExResponse[i+1] = sysExGetMIDIchannel(i);
-                sendSysExDataCallback(sysExResponse, 6);
+                for (int i=0; i<5; i++) sysExResponse[i+6] = sysExGetMIDIchannel(i);
+                sendSysExDataCallback(sysExResponse, 11);
                 return;
 
             }
@@ -1515,7 +1583,23 @@ void OpenDeck::processSysEx(uint8_t sysExArray[], uint8_t arrSize)  {
         }   //set
             else {
 
-                //to-do
+                //single
+                if (!singleAll) {
+
+                    sysExSetMIDIchannel(parameterID, newParameterID[0]);
+                    sysExResponse[6] = SYS_EX_SET;
+                    sendSysExDataCallback(sysExResponse, 7);
+                    return;
+
+                }   else    {   //all
+                    
+                            for (int i=0; i<newParameterCounter; i++)   sysExSetMIDIchannel(i, newParameterID[i]);
+
+                            sysExResponse[6] = SYS_EX_SET;
+                            sendSysExDataCallback(sysExResponse, 7);
+                            return;
+
+                    }
 
         }
 
@@ -1526,7 +1610,13 @@ void OpenDeck::processSysEx(uint8_t sysExArray[], uint8_t arrSize)  {
 //private
 bool OpenDeck::sysExCheckID(uint8_t firstByte, uint8_t secondByte, uint8_t thirdByte)   {
 
-    return ((firstByte == SYS_EX_MANUFACTURER_ID_0) && (secondByte == SYS_EX_MANUFACTURER_ID_1) && (thirdByte == SYS_EX_MANUFACTURER_ID_2));
+    return  (
+
+        (firstByte == SYS_EX_MANUFACTURER_ID_0)     &&
+        (secondByte == SYS_EX_MANUFACTURER_ID_1)    &&
+        (thirdByte == SYS_EX_MANUFACTURER_ID_2)
+
+    );
 
 }
 
@@ -1537,7 +1627,7 @@ bool OpenDeck::sysExCheckGetSet(uint8_t wish)   {
 
 }
 
-bool OpenDeck::sysExCheckGetSetSingleAll(bool getSet, uint8_t parameter)    {
+bool OpenDeck::sysExCheckSingleAll(uint8_t parameter)    {
 
     return ((parameter == SYS_EX_GET_SET_ALL) || (parameter == SYS_EX_GET_SET_SINGLE));
 
@@ -1546,15 +1636,14 @@ bool OpenDeck::sysExCheckGetSetSingleAll(bool getSet, uint8_t parameter)    {
 bool OpenDeck::sysExCheckMessageType(uint8_t messageID) {
 
     if  (
-
-            (messageID == SYS_EX_MIDI_CHANNEL_START)    ||
-            (messageID == SYS_EX_HW_PARAMETER_START)    ||
-            (messageID == SYS_EX_SW_FEATURE_START)      ||
-            (messageID == SYS_EX_HW_FEATURE_START)      ||
-            (messageID == SYS_EX_BUTTON_START)          ||
-            (messageID == SYS_EX_POT_START)             ||
-            (messageID == SYS_EX_ENC_START)             ||
-            (messageID == SYS_EX_LED_START)
+        (messageID == SYS_EX_MIDI_CHANNEL_START)    ||
+        (messageID == SYS_EX_HW_PARAMETER_START)    ||
+        (messageID == SYS_EX_SW_FEATURE_START)      ||
+        (messageID == SYS_EX_HW_FEATURE_START)      ||
+        (messageID == SYS_EX_BUTTON_START)          ||
+        (messageID == SYS_EX_POT_START)             ||
+        (messageID == SYS_EX_ENC_START)             ||
+        (messageID == SYS_EX_LED_START)
 
     )   return true;
 
@@ -1589,9 +1678,9 @@ bool OpenDeck::sysExCheckMessageSubType(uint8_t messageType, uint8_t messageSubT
         case SYS_EX_POT_START:
         return  (
 
-                (messageSubType == SYS_EX_GET_SET_POT_ENABLED)  ||
-                (messageSubType == SYS_EX_GET_SET_POT_INVERTED) ||
-                (messageSubType == SYS_EX_GET_SET_POT_CC_NUMBER)
+            (messageSubType == SYS_EX_GET_SET_POT_ENABLED)  ||
+            (messageSubType == SYS_EX_GET_SET_POT_INVERTED) ||
+            (messageSubType == SYS_EX_GET_SET_POT_CC_NUMBER)
 
         );
         break;
@@ -1612,69 +1701,115 @@ bool OpenDeck::sysExCheckMessageSubType(uint8_t messageType, uint8_t messageSubT
 
 }
 
-bool OpenDeck::sysExCheckParameterID(uint8_t messageType, uint8_t id)   {
+bool OpenDeck::sysExCheckParameterID(uint8_t messageType, uint8_t id, bool newParameter)   {
 
     switch (messageType)    {
 
         case SYS_EX_MIDI_CHANNEL_START:
-        return  (
-        
-                (id == SYS_EX_MC_BUTTON_NOTE)               ||
-                (id == SYS_EX_MC_LONG_PRESS_BUTTON_NOTE)    ||
-                (id == SYS_EX_MC_POT_CC)                    ||
-                (id == SYS_EX_MC_ENC_CC)                    ||
-                (id == SYS_EX_MC_INPUT)
+        if (!newParameter)  {
 
-        );
+            return  (
+
+            (id == SYS_EX_MC_BUTTON_NOTE)               ||
+            (id == SYS_EX_MC_LONG_PRESS_BUTTON_NOTE)    ||
+            (id == SYS_EX_MC_POT_CC)                    ||
+            (id == SYS_EX_MC_ENC_CC)                    ||
+            (id == SYS_EX_MC_INPUT)
+
+            );
+
+        }   else    return ((id >= 1) && (id <= 16));   //there are only 16 MIDI channels
+
         break;
 
         case SYS_EX_HW_PARAMETER_START:
-        return  (
-        
-                (id == SYS_EX_HW_P_LONG_PRESS_TIME)         ||
-                (id == SYS_EX_HW_P_BLINK_TIME)              ||
-                (id == SYS_EX_HW_P_START_UP_SWITCH_TIME)
-                
-        );
+        if (!newParameter)  {
+
+           return  (
+
+           (id == SYS_EX_HW_P_LONG_PRESS_TIME)         ||
+           (id == SYS_EX_HW_P_BLINK_TIME)              ||
+           (id == SYS_EX_HW_P_START_UP_SWITCH_TIME)
+           
+           );
+
+        }   else {
+
+                switch (messageType)    {
+                    
+                    case SYS_EX_HW_P_LONG_PRESS_TIME:
+                    return ((id >= 4) && (id <= 15));
+                    break;
+
+                    case SYS_EX_HW_P_BLINK_TIME:
+                    return ((id >= 1) && (id <= 15));
+                    break;
+
+                    case SYS_EX_HW_P_START_UP_SWITCH_TIME:
+                    return ((id >= 1) && (id <= 150));
+                    break;
+
+                    default:
+                    return false;
+                    break;
+
+                }
+
+        }
+
         break;
 
         case SYS_EX_SW_FEATURE_START:
-        return  (
+        if (!newParameter)  {
 
-                (id == SYS_EX_SW_F_RUNNING_STATUS)          ||
-                (id == SYS_EX_SW_F_STANDARD_NOTE_OFF)       ||
-                (id == SYS_EX_SW_F_ENC_NOTES)               ||
-                (id == SYS_EX_SW_F_POT_NOTES)               ||
-                (id == SYS_EX_SW_F_LONG_PRESS)              ||
-                (id == SYS_EX_SW_F_LED_BLINK)               ||
-                (id == SYS_EX_SW_F_START_UP_ROUTINE)
-        );
+            return  (
+
+            (id == SYS_EX_SW_F_RUNNING_STATUS)          ||
+            (id == SYS_EX_SW_F_STANDARD_NOTE_OFF)       ||
+            (id == SYS_EX_SW_F_ENC_NOTES)               ||
+            (id == SYS_EX_SW_F_POT_NOTES)               ||
+            (id == SYS_EX_SW_F_LONG_PRESS)              ||
+            (id == SYS_EX_SW_F_LED_BLINK)               ||
+            (id == SYS_EX_SW_F_START_UP_ROUTINE)
+            );
+
+        }   else    return ((id == 0) || (id == 1));
+
         break;
 
         case SYS_EX_HW_FEATURE_START:
-        return  (
-        
-                (id == SYS_EX_HW_F_BUTTONS)                 ||
-                (id == SYS_EX_HW_F_POTS)                    ||
-                (id == SYS_EX_HW_F_ENC)                     ||
-                (id == SYS_EX_HW_F_LEDS)
-        );
+        if (!newParameter)  {
+
+           return  (
+
+           (id == SYS_EX_HW_F_BUTTONS)                 ||
+           (id == SYS_EX_HW_F_POTS)                    ||
+           (id == SYS_EX_HW_F_ENC)                     ||
+           (id == SYS_EX_HW_F_LEDS)
+           ); 
+
+        }   else    return ((id ==0) || (id == 1));
+
         break;
 
         case SYS_EX_BUTTON_START:
-        return (id < MAX_NUMBER_OF_BUTTONS);
+        if (!newParameter)  return (id < MAX_NUMBER_OF_BUTTONS);
+        else                return (id < 128);
         break;
 
         case SYS_EX_POT_START:
-        return (id < MAX_NUMBER_OF_POTS);
+        if (!newParameter)  return (id < MAX_NUMBER_OF_POTS);
+        else                return (id < 128);
         break;
 
         case SYS_EX_ENC_START:
-        return (id < (MAX_NUMBER_OF_BUTTONS/2));
+        if (!newParameter)  return (id < (MAX_NUMBER_OF_BUTTONS/2));
+        else                return (id < 128);
         break;
 
         case SYS_EX_LED_START:
-        return (id < MAX_NUMBER_OF_LEDS);
+        if (!newParameter)  return (id < MAX_NUMBER_OF_LEDS);
+        else                return (id < 128);
         break;
 
         default:
@@ -1683,8 +1818,77 @@ bool OpenDeck::sysExCheckParameterID(uint8_t messageType, uint8_t id)   {
 
     }
 
+    return false;
+
 }
 
+void OpenDeck::sysExGenerateError(uint8_t errorNumber)  {
+
+    uint8_t sysExResponse[5];
+
+    if (errorNumber > 0)    {
+
+        sysExResponse[0] = SYS_EX_MANUFACTURER_ID_0;
+        sysExResponse[1] = SYS_EX_MANUFACTURER_ID_1;
+        sysExResponse[2] = SYS_EX_MANUFACTURER_ID_2;
+        sysExResponse[3] = SYS_EX_ERROR;
+        sysExResponse[4] = errorNumber;
+
+        sendSysExDataCallback(sysExResponse, 5);
+
+        }   else    {
+
+        sysExResponse[0] = SYS_EX_ERROR;
+        sysExResponse[1] = 0x00;
+
+        sendSysExDataCallback(sysExResponse, 2);
+
+    }
+
+}
+
+uint8_t OpenDeck::sysExGenerateMinMessageLenght(bool getSet, bool singleAll, uint8_t messageType)    {
+
+    //single parameter
+    if (!singleAll)  {
+
+        if (!getSet)    return SYS_EX_ML_EXTENDED + 1;      //get   //add 1 to length for parameter
+            else        return SYS_EX_ML_EXTENDED + 2;      //set   //add 2 to length for parameter and new value
+
+    }   else    {
+
+            if (!getSet)    return SYS_EX_ML_EXTENDED;      //get
+                else    {                                   //set
+
+                    switch (messageType)    {
+
+                        case SYS_EX_MIDI_CHANNEL_START:
+                        return SYS_EX_ML_EXTENDED + NUMBER_OF_MIDI_CHANNELS;
+                        break;
+
+                        case SYS_EX_HW_PARAMETER_START:
+                        return SYS_EX_ML_EXTENDED + NUMBER_OF_HW_P;
+                        break;
+
+                        case SYS_EX_SW_FEATURE_START:
+                        return SYS_EX_ML_EXTENDED + NUMBER_OF_SW_F;
+                        break;
+
+                        case SYS_EX_HW_FEATURE_START:
+                        return SYS_EX_ML_EXTENDED + NUMBER_OF_HW_F;
+                        break;
+
+                        default:
+                        return 0;
+                        break;
+
+                    }
+
+                }
+
+        }   return 0;
+
+}
 
 //getters
 bool OpenDeck::sysExGetFeature(uint8_t featureType, uint8_t feature)    {
@@ -2006,7 +2210,6 @@ void OpenDeck::sysExSetDefaultConf()    {
     eeprom_update_byte((uint8_t*)i, pgm_read_byte(&(defConf[i])));
 
 }
-
 
 //create instance of library automatically
 OpenDeck openDeck;
