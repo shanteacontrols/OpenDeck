@@ -1,7 +1,7 @@
 /*
 
-OpenDeck MIDI controller firmware v1.93
-Last revision date: 2014-08-27
+OpenDeck MIDI controller firmware v1.94
+Last revision date: 2014-08-29
 Author: Igor Petrovic
 
 */
@@ -171,21 +171,6 @@ void sendSysExData(uint8_t *sysExArray, uint8_t size)   {
 }
 
 
-//start-up animation
-void startUpRoutine()  {
-
-    openDeck.oneByOneLED(true, true, true);
-    openDeck.oneByOneLED(false, false, true);
-    openDeck.oneByOneLED(true, false, false);
-    openDeck.oneByOneLED(false, true, true);
-    openDeck.oneByOneLED(true, false, true);
-    openDeck.oneByOneLED(false, false, false);
-    openDeck.allLEDsOff();
-
-}
-
-
-
 //configure opendeck library
 void setOpenDeckHandlers()  {
 
@@ -239,7 +224,7 @@ void setup()    {
     openDeck.init();
 
     //run LED animation on start-up
-    startUpRoutine();
+    openDeck.startUpRoutine();
 
     //read incoming MIDI messages on specified channel
     MIDI.begin(openDeck.getInputMIDIchannel());

@@ -2,7 +2,7 @@
 
 OpenDECK library v1.94
 File: OpenDeck.h
-Last revision date: 2014-08-28
+Last revision date: 2014-08-29
 Author: Igor Petrovic
 
 */
@@ -82,6 +82,7 @@ void OpenDeck::initVariables()  {
 
     //software features
     softwareFeatures                = 0;
+    startUpRoutinePattern           = 0;
 
     //hardware features
     hardwareFeatures                = 0;
@@ -151,6 +152,27 @@ void OpenDeck::initVariables()  {
 
 }
 
+void OpenDeck::startUpRoutine() {
+
+    switch (startUpRoutinePattern)  {
+
+        case 1:
+        openDeck.oneByOneLED(true, true, true);
+        openDeck.oneByOneLED(false, false, true);
+        openDeck.oneByOneLED(true, false, false);
+        openDeck.oneByOneLED(false, true, true);
+        openDeck.oneByOneLED(true, false, true);
+        openDeck.oneByOneLED(false, false, false);
+        openDeck.allLEDsOff();
+        break;
+
+        default:
+        break;
+
+    }
+
+}
+
 
 //configuration retrieve
 
@@ -161,6 +183,7 @@ void OpenDeck::getConfiguration()   {
     getMIDIchannels();
     getHardwareParams();
     getSoftwareFeatures();
+    getStartUpRoutinePattern();
     getHardwareFeatures();
     getEnabledPots();
     getPotInvertStates();
@@ -195,6 +218,12 @@ void OpenDeck::getSoftwareFeatures()    {
 
     softwareFeatures = eeprom_read_byte((uint8_t*)EEPROM_SOFTWARE_FEATURES);
 
+}
+
+void OpenDeck::getStartUpRoutinePattern()   {
+    
+    startUpRoutinePattern = eeprom_read_byte((uint8_t*)EEPROM_START_UP_ROUTINE_PATTERN);
+    
 }
 
 void OpenDeck::getHardwareFeatures()    {
@@ -1586,14 +1615,32 @@ void OpenDeck::processSysEx(uint8_t sysExArray[], uint8_t arrSize)  {
                 //single
                 if (!singleAll) {
 
-                    sysExSetMIDIchannel(parameterID, newParameterID[0]);
-                    sysExResponse[6] = SYS_EX_SET;
-                    sendSysExDataCallback(sysExResponse, 7);
-                    return;
+                    if (sysExSetMIDIchannel(parameterID, newParameterID[0]))    {
+
+                        sysExResponse[6] = SYS_EX_SET;
+                        sendSysExDataCallback(sysExResponse, 7);
+                        return;
+
+                    }   else    {
+
+                        //error 8: writing to EEPROM not successful
+                        sysExGenerateError(8);
+                        return;
+
+                    }
 
                 }   else    {   //all
                     
-                            for (int i=0; i<newParameterCounter; i++)   sysExSetMIDIchannel(i, newParameterID[i]);
+                            for (int i=0; i<newParameterCounter; i++)   {
+                                
+                                if (!sysExSetMIDIchannel(i, newParameterID[i]))  {
+
+                                sysExGenerateError(8);
+                                return;
+
+                                }
+
+                            }
 
                             sysExResponse[6] = SYS_EX_SET;
                             sendSysExDataCallback(sysExResponse, 7);
