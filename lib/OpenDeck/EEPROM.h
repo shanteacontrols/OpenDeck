@@ -2,7 +2,7 @@
 
 OpenDECK library v1.94
 File: OpenDeck.h
-Last revision date: 2014-08-28
+Last revision date: 2014-08-29
 Author: Igor Petrovic
 
 */
@@ -26,6 +26,8 @@ Author: Igor Petrovic
 #define EEPROM_HW_P_START_UP_SWITCH_TIME    7
 
 #define EEPROM_SOFTWARE_FEATURES            8
+
+#define EEPROM_START_UP_ROUTINE_PATTERN     443
 
 #define NUMBER_OF_SW_F                      7
 
@@ -55,8 +57,6 @@ Author: Igor Petrovic
 
 #define EEPROM_LED_ID_START                 314
 #define EEPROM_TOTAL_LED_NUMBER             442
-
-#define EEPROM_START_UP_ROUTINE_PATTERN     443
 
 //default controller settings
 const uint8_t defConf[] PROGMEM = {

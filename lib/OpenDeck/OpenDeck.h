@@ -2,7 +2,7 @@
 
 OpenDECK library v1.94
 File: OpenDeck.h
-Last revision date: 2014-08-28
+Last revision date: 2014-08-29
 Author: Igor Petrovic
 
 */
@@ -38,6 +38,9 @@ class OpenDeck  {
 
     //library initializer
     void init();
+    
+    //start-up routine
+    void startUpRoutine();
 
     //hardware configuration
     void setHandlePinInit(void (*fptr)());
@@ -96,7 +99,8 @@ class OpenDeck  {
                 _startUpLEDswitchTime;
 
     //software features
-    uint8_t softwareFeatures;
+    uint8_t softwareFeatures,
+            startUpRoutinePattern;
 
     //hardware features
     uint8_t hardwareFeatures;
@@ -170,6 +174,7 @@ class OpenDeck  {
     void getMIDIchannels();
     void getHardwareParams();
     void getSoftwareFeatures();
+    void getStartUpRoutinePattern();
     void getHardwareFeatures();
     void getButtonsType();
     void getButtonNotes();
