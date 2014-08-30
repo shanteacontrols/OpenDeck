@@ -13938,22 +13938,22 @@ Standard 8.5x11 US Letter frame</description>
 </class>
 </classes>
 <parts>
-<part name="P0" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
 <part name="P1" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
-<part name="P6" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
-<part name="P7" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
-<part name="P3" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
 <part name="P2" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
-<part name="P4" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
-<part name="P5" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
+<part name="P7" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
 <part name="P8" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
+<part name="P4" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
+<part name="P3" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
+<part name="P5" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
+<part name="P6" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
 <part name="P9" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
-<part name="P14" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
-<part name="P15" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
-<part name="P11" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
 <part name="P10" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
+<part name="P15" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
+<part name="P16" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
 <part name="P12" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
+<part name="P11" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
 <part name="P13" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
+<part name="P14" library="rcl" deviceset="POTENTIOMETER_" device="PT-10" value="10k"/>
 <part name="P+3" library="supply1" deviceset="+5V" device=""/>
 <part name="S2" library="switch-coto" deviceset="CT10-XXXX-" device="A2"/>
 <part name="D2" library="diode" deviceset="1N4148" device="DO35-10"/>
@@ -14162,52 +14162,52 @@ Pots: 10k linear</text>
 <text x="86.36" y="140.462" size="1.778" layer="95" font="vector">74HC238</text>
 </plain>
 <instances>
-<instance part="P0" gate="1" x="238.76" y="-63.754" smashed="yes" rot="MR90">
+<instance part="P1" gate="1" x="238.76" y="-63.754" smashed="yes" rot="MR90">
 <attribute name="NAME" x="243.84" y="-63.754" size="1.778" layer="95" font="vector" rot="MR90"/>
 </instance>
-<instance part="P1" gate="1" x="297.18" y="-63.754" smashed="yes" rot="MR90">
+<instance part="P2" gate="1" x="297.18" y="-63.754" smashed="yes" rot="MR90">
 <attribute name="NAME" x="302.26" y="-63.754" size="1.778" layer="95" font="vector" rot="MR90"/>
 </instance>
-<instance part="P6" gate="1" x="259.08" y="-81.534" smashed="yes" rot="MR90">
+<instance part="P7" gate="1" x="259.08" y="-81.534" smashed="yes" rot="MR90">
 <attribute name="NAME" x="264.16" y="-81.534" size="1.778" layer="95" font="vector" rot="MR90"/>
 </instance>
-<instance part="P7" gate="1" x="238.76" y="-81.534" smashed="yes" rot="MR90">
+<instance part="P8" gate="1" x="238.76" y="-81.534" smashed="yes" rot="MR90">
 <attribute name="NAME" x="243.84" y="-81.534" size="1.778" layer="95" font="vector" rot="MR90"/>
 </instance>
-<instance part="P3" gate="1" x="259.08" y="-63.754" smashed="yes" rot="MR90">
+<instance part="P4" gate="1" x="259.08" y="-63.754" smashed="yes" rot="MR90">
 <attribute name="NAME" x="264.16" y="-63.754" size="1.778" layer="95" font="vector" rot="MR90"/>
 </instance>
-<instance part="P2" gate="1" x="279.4" y="-63.754" smashed="yes" rot="MR90">
+<instance part="P3" gate="1" x="279.4" y="-63.754" smashed="yes" rot="MR90">
 <attribute name="NAME" x="284.48" y="-63.754" size="1.778" layer="95" font="vector" rot="MR90"/>
 </instance>
-<instance part="P4" gate="1" x="297.18" y="-81.534" smashed="yes" rot="MR90">
+<instance part="P5" gate="1" x="297.18" y="-81.534" smashed="yes" rot="MR90">
 <attribute name="NAME" x="302.26" y="-81.534" size="1.778" layer="95" font="vector" rot="MR90"/>
 </instance>
-<instance part="P5" gate="1" x="279.4" y="-81.534" smashed="yes" rot="MR90">
+<instance part="P6" gate="1" x="279.4" y="-81.534" smashed="yes" rot="MR90">
 <attribute name="NAME" x="284.48" y="-81.534" size="1.778" layer="95" font="vector" rot="MR90"/>
 </instance>
-<instance part="P8" gate="1" x="238.76" y="-142.494" smashed="yes" rot="MR90">
+<instance part="P9" gate="1" x="238.76" y="-142.494" smashed="yes" rot="MR90">
 <attribute name="NAME" x="243.84" y="-142.494" size="1.778" layer="95" font="vector" rot="MR90"/>
 </instance>
-<instance part="P9" gate="1" x="297.18" y="-142.494" smashed="yes" rot="MR90">
+<instance part="P10" gate="1" x="297.18" y="-142.494" smashed="yes" rot="MR90">
 <attribute name="NAME" x="302.26" y="-142.494" size="1.778" layer="95" font="vector" rot="MR90"/>
 </instance>
-<instance part="P14" gate="1" x="259.08" y="-160.274" smashed="yes" rot="MR90">
+<instance part="P15" gate="1" x="259.08" y="-160.274" smashed="yes" rot="MR90">
 <attribute name="NAME" x="264.16" y="-160.274" size="1.778" layer="95" font="vector" rot="MR90"/>
 </instance>
-<instance part="P15" gate="1" x="238.76" y="-160.274" smashed="yes" rot="MR90">
+<instance part="P16" gate="1" x="238.76" y="-160.274" smashed="yes" rot="MR90">
 <attribute name="NAME" x="243.84" y="-160.274" size="1.778" layer="95" font="vector" rot="MR90"/>
 </instance>
-<instance part="P11" gate="1" x="259.08" y="-142.494" smashed="yes" rot="MR90">
+<instance part="P12" gate="1" x="259.08" y="-142.494" smashed="yes" rot="MR90">
 <attribute name="NAME" x="264.16" y="-142.494" size="1.778" layer="95" font="vector" rot="MR90"/>
 </instance>
-<instance part="P10" gate="1" x="279.4" y="-142.494" smashed="yes" rot="MR90">
+<instance part="P11" gate="1" x="279.4" y="-142.494" smashed="yes" rot="MR90">
 <attribute name="NAME" x="284.48" y="-142.494" size="1.778" layer="95" font="vector" rot="MR90"/>
 </instance>
-<instance part="P12" gate="1" x="297.18" y="-160.274" smashed="yes" rot="MR90">
+<instance part="P13" gate="1" x="297.18" y="-160.274" smashed="yes" rot="MR90">
 <attribute name="NAME" x="302.26" y="-160.274" size="1.778" layer="95" font="vector" rot="MR90"/>
 </instance>
-<instance part="P13" gate="1" x="279.4" y="-160.274" smashed="yes" rot="MR90">
+<instance part="P14" gate="1" x="279.4" y="-160.274" smashed="yes" rot="MR90">
 <attribute name="NAME" x="284.48" y="-160.274" size="1.778" layer="95" font="vector" rot="MR90"/>
 </instance>
 <instance part="P+3" gate="1" x="317.5" y="-43.434" smashed="yes" rot="MR0">
@@ -14768,40 +14768,40 @@ Pots: 10k linear</text>
 <nets>
 <net name="VCC" class="0">
 <segment>
-<pinref part="P12" gate="1" pin="2"/>
 <pinref part="P13" gate="1" pin="2"/>
-<wire x1="297.18" y1="-155.194" x2="279.4" y2="-155.194" width="0.1524" layer="91"/>
 <pinref part="P14" gate="1" pin="2"/>
+<wire x1="297.18" y1="-155.194" x2="279.4" y2="-155.194" width="0.1524" layer="91"/>
+<pinref part="P15" gate="1" pin="2"/>
 <wire x1="279.4" y1="-155.194" x2="259.08" y2="-155.194" width="0.1524" layer="91"/>
 <junction x="279.4" y="-155.194"/>
-<pinref part="P15" gate="1" pin="2"/>
+<pinref part="P16" gate="1" pin="2"/>
 <wire x1="259.08" y1="-155.194" x2="238.76" y2="-155.194" width="0.1524" layer="91"/>
 <junction x="259.08" y="-155.194"/>
-<pinref part="P9" gate="1" pin="2"/>
 <pinref part="P10" gate="1" pin="2"/>
-<wire x1="297.18" y1="-137.414" x2="279.4" y2="-137.414" width="0.1524" layer="91"/>
 <pinref part="P11" gate="1" pin="2"/>
+<wire x1="297.18" y1="-137.414" x2="279.4" y2="-137.414" width="0.1524" layer="91"/>
+<pinref part="P12" gate="1" pin="2"/>
 <wire x1="279.4" y1="-137.414" x2="259.08" y2="-137.414" width="0.1524" layer="91"/>
 <junction x="279.4" y="-137.414"/>
-<pinref part="P8" gate="1" pin="2"/>
+<pinref part="P9" gate="1" pin="2"/>
 <wire x1="259.08" y1="-137.414" x2="238.76" y2="-137.414" width="0.1524" layer="91"/>
 <junction x="259.08" y="-137.414"/>
-<pinref part="P4" gate="1" pin="2"/>
 <pinref part="P5" gate="1" pin="2"/>
-<wire x1="297.18" y1="-76.454" x2="279.4" y2="-76.454" width="0.1524" layer="91"/>
 <pinref part="P6" gate="1" pin="2"/>
+<wire x1="297.18" y1="-76.454" x2="279.4" y2="-76.454" width="0.1524" layer="91"/>
+<pinref part="P7" gate="1" pin="2"/>
 <wire x1="279.4" y1="-76.454" x2="259.08" y2="-76.454" width="0.1524" layer="91"/>
 <junction x="279.4" y="-76.454"/>
-<pinref part="P7" gate="1" pin="2"/>
+<pinref part="P8" gate="1" pin="2"/>
 <wire x1="259.08" y1="-76.454" x2="238.76" y2="-76.454" width="0.1524" layer="91"/>
 <junction x="259.08" y="-76.454"/>
-<pinref part="P1" gate="1" pin="2"/>
 <pinref part="P2" gate="1" pin="2"/>
-<wire x1="297.18" y1="-58.674" x2="279.4" y2="-58.674" width="0.1524" layer="91"/>
 <pinref part="P3" gate="1" pin="2"/>
+<wire x1="297.18" y1="-58.674" x2="279.4" y2="-58.674" width="0.1524" layer="91"/>
+<pinref part="P4" gate="1" pin="2"/>
 <wire x1="279.4" y1="-58.674" x2="259.08" y2="-58.674" width="0.1524" layer="91"/>
 <junction x="279.4" y="-58.674"/>
-<pinref part="P0" gate="1" pin="2"/>
+<pinref part="P1" gate="1" pin="2"/>
 <wire x1="259.08" y1="-58.674" x2="238.76" y2="-58.674" width="0.1524" layer="91"/>
 <junction x="259.08" y="-58.674"/>
 <wire x1="297.18" y1="-58.674" x2="317.5" y2="-58.674" width="0.1524" layer="91"/>
@@ -14961,42 +14961,42 @@ Pots: 10k linear</text>
 <junction x="-22.86" y="83.82"/>
 </segment>
 <segment>
-<pinref part="P12" gate="1" pin="1"/>
 <pinref part="P13" gate="1" pin="1"/>
-<wire x1="297.18" y1="-165.354" x2="279.4" y2="-165.354" width="0.1524" layer="91"/>
 <pinref part="P14" gate="1" pin="1"/>
+<wire x1="297.18" y1="-165.354" x2="279.4" y2="-165.354" width="0.1524" layer="91"/>
+<pinref part="P15" gate="1" pin="1"/>
 <wire x1="279.4" y1="-165.354" x2="259.08" y2="-165.354" width="0.1524" layer="91"/>
 <junction x="279.4" y="-165.354"/>
-<pinref part="P15" gate="1" pin="1"/>
+<pinref part="P16" gate="1" pin="1"/>
 <wire x1="259.08" y1="-165.354" x2="238.76" y2="-165.354" width="0.1524" layer="91"/>
 <junction x="259.08" y="-165.354"/>
-<pinref part="P8" gate="1" pin="1"/>
+<pinref part="P9" gate="1" pin="1"/>
 <wire x1="238.76" y1="-147.574" x2="259.08" y2="-147.574" width="0.1524" layer="91"/>
+<pinref part="P12" gate="1" pin="1"/>
 <pinref part="P11" gate="1" pin="1"/>
-<pinref part="P10" gate="1" pin="1"/>
 <wire x1="279.4" y1="-147.574" x2="259.08" y2="-147.574" width="0.1524" layer="91"/>
 <junction x="259.08" y="-147.574"/>
-<pinref part="P9" gate="1" pin="1"/>
+<pinref part="P10" gate="1" pin="1"/>
 <wire x1="297.18" y1="-147.574" x2="279.4" y2="-147.574" width="0.1524" layer="91"/>
 <junction x="279.4" y="-147.574"/>
 <wire x1="297.18" y1="-147.574" x2="309.88" y2="-147.574" width="0.1524" layer="91"/>
 <junction x="297.18" y="-147.574"/>
-<pinref part="P4" gate="1" pin="1"/>
 <pinref part="P5" gate="1" pin="1"/>
-<wire x1="297.18" y1="-86.614" x2="279.4" y2="-86.614" width="0.1524" layer="91"/>
 <pinref part="P6" gate="1" pin="1"/>
+<wire x1="297.18" y1="-86.614" x2="279.4" y2="-86.614" width="0.1524" layer="91"/>
+<pinref part="P7" gate="1" pin="1"/>
 <wire x1="279.4" y1="-86.614" x2="259.08" y2="-86.614" width="0.1524" layer="91"/>
 <junction x="279.4" y="-86.614"/>
-<pinref part="P7" gate="1" pin="1"/>
+<pinref part="P8" gate="1" pin="1"/>
 <wire x1="259.08" y1="-86.614" x2="238.76" y2="-86.614" width="0.1524" layer="91"/>
 <junction x="259.08" y="-86.614"/>
-<pinref part="P0" gate="1" pin="1"/>
+<pinref part="P1" gate="1" pin="1"/>
 <wire x1="238.76" y1="-68.834" x2="259.08" y2="-68.834" width="0.1524" layer="91"/>
+<pinref part="P4" gate="1" pin="1"/>
 <pinref part="P3" gate="1" pin="1"/>
-<pinref part="P2" gate="1" pin="1"/>
 <wire x1="279.4" y1="-68.834" x2="259.08" y2="-68.834" width="0.1524" layer="91"/>
 <junction x="259.08" y="-68.834"/>
-<pinref part="P1" gate="1" pin="1"/>
+<pinref part="P2" gate="1" pin="1"/>
 <wire x1="297.18" y1="-68.834" x2="279.4" y2="-68.834" width="0.1524" layer="91"/>
 <junction x="279.4" y="-68.834"/>
 <wire x1="297.18" y1="-68.834" x2="309.88" y2="-68.834" width="0.1524" layer="91"/>
@@ -15190,7 +15190,7 @@ Pots: 10k linear</text>
 <net name="MUX_1_INPUT_1" class="0">
 <segment>
 <wire x1="147.32" y1="-63.754" x2="233.68" y2="-63.754" width="0.1524" layer="91"/>
-<pinref part="P0" gate="1" pin="3"/>
+<pinref part="P1" gate="1" pin="3"/>
 <pinref part="4051_1" gate="G$1" pin="X0"/>
 </segment>
 </net>
@@ -15198,7 +15198,7 @@ Pots: 10k linear</text>
 <segment>
 <wire x1="147.32" y1="-66.294" x2="215.9" y2="-66.294" width="0.1524" layer="91"/>
 <wire x1="215.9" y1="-66.294" x2="215.9" y2="-45.974" width="0.1524" layer="91"/>
-<pinref part="P1" gate="1" pin="3"/>
+<pinref part="P2" gate="1" pin="3"/>
 <wire x1="215.9" y1="-45.974" x2="292.1" y2="-45.974" width="0.1524" layer="91"/>
 <wire x1="292.1" y1="-45.974" x2="292.1" y2="-63.754" width="0.1524" layer="91"/>
 <pinref part="4051_1" gate="G$1" pin="X1"/>
@@ -15208,7 +15208,7 @@ Pots: 10k linear</text>
 <segment>
 <wire x1="147.32" y1="-68.834" x2="210.82" y2="-68.834" width="0.1524" layer="91"/>
 <wire x1="210.82" y1="-68.834" x2="210.82" y2="-51.054" width="0.1524" layer="91"/>
-<pinref part="P2" gate="1" pin="3"/>
+<pinref part="P3" gate="1" pin="3"/>
 <wire x1="210.82" y1="-51.054" x2="274.32" y2="-51.054" width="0.1524" layer="91"/>
 <wire x1="274.32" y1="-51.054" x2="274.32" y2="-63.754" width="0.1524" layer="91"/>
 <pinref part="4051_1" gate="G$1" pin="X2"/>
@@ -15216,7 +15216,7 @@ Pots: 10k linear</text>
 </net>
 <net name="MUX_1_INPUT_4" class="0">
 <segment>
-<pinref part="P3" gate="1" pin="3"/>
+<pinref part="P4" gate="1" pin="3"/>
 <wire x1="254" y1="-63.754" x2="254" y2="-56.134" width="0.1524" layer="91"/>
 <wire x1="254" y1="-56.134" x2="205.74" y2="-56.134" width="0.1524" layer="91"/>
 <wire x1="205.74" y1="-56.134" x2="205.74" y2="-71.374" width="0.1524" layer="91"/>
@@ -15227,7 +15227,7 @@ Pots: 10k linear</text>
 <net name="MUX_1_INPUT_8" class="0">
 <segment>
 <wire x1="147.32" y1="-81.534" x2="233.68" y2="-81.534" width="0.1524" layer="91"/>
-<pinref part="P7" gate="1" pin="3"/>
+<pinref part="P8" gate="1" pin="3"/>
 <pinref part="4051_1" gate="G$1" pin="X7"/>
 </segment>
 </net>
@@ -15235,7 +15235,7 @@ Pots: 10k linear</text>
 <segment>
 <wire x1="147.32" y1="-78.994" x2="215.9" y2="-78.994" width="0.1524" layer="91"/>
 <wire x1="215.9" y1="-78.994" x2="215.9" y2="-96.774" width="0.1524" layer="91"/>
-<pinref part="P6" gate="1" pin="3"/>
+<pinref part="P7" gate="1" pin="3"/>
 <wire x1="215.9" y1="-96.774" x2="254" y2="-96.774" width="0.1524" layer="91"/>
 <wire x1="254" y1="-96.774" x2="254" y2="-81.534" width="0.1524" layer="91"/>
 <pinref part="4051_1" gate="G$1" pin="X6"/>
@@ -15245,7 +15245,7 @@ Pots: 10k linear</text>
 <segment>
 <wire x1="147.32" y1="-76.454" x2="210.82" y2="-76.454" width="0.1524" layer="91"/>
 <wire x1="210.82" y1="-76.454" x2="210.82" y2="-101.854" width="0.1524" layer="91"/>
-<pinref part="P5" gate="1" pin="3"/>
+<pinref part="P6" gate="1" pin="3"/>
 <wire x1="210.82" y1="-101.854" x2="274.32" y2="-101.854" width="0.1524" layer="91"/>
 <wire x1="274.32" y1="-101.854" x2="274.32" y2="-81.534" width="0.1524" layer="91"/>
 <pinref part="4051_1" gate="G$1" pin="X5"/>
@@ -15255,7 +15255,7 @@ Pots: 10k linear</text>
 <segment>
 <wire x1="147.32" y1="-73.914" x2="205.74" y2="-73.914" width="0.1524" layer="91"/>
 <wire x1="205.74" y1="-73.914" x2="205.74" y2="-106.934" width="0.1524" layer="91"/>
-<pinref part="P4" gate="1" pin="3"/>
+<pinref part="P5" gate="1" pin="3"/>
 <wire x1="205.74" y1="-106.934" x2="292.1" y2="-106.934" width="0.1524" layer="91"/>
 <wire x1="292.1" y1="-106.934" x2="292.1" y2="-81.534" width="0.1524" layer="91"/>
 <pinref part="4051_1" gate="G$1" pin="X4"/>
@@ -15264,7 +15264,7 @@ Pots: 10k linear</text>
 <net name="MUX_2_INPUT_1" class="0">
 <segment>
 <wire x1="147.32" y1="-142.494" x2="233.68" y2="-142.494" width="0.1524" layer="91"/>
-<pinref part="P8" gate="1" pin="3"/>
+<pinref part="P9" gate="1" pin="3"/>
 <pinref part="4051_2" gate="G$1" pin="X0"/>
 </segment>
 </net>
@@ -15272,7 +15272,7 @@ Pots: 10k linear</text>
 <segment>
 <wire x1="147.32" y1="-145.034" x2="215.9" y2="-145.034" width="0.1524" layer="91"/>
 <wire x1="215.9" y1="-145.034" x2="215.9" y2="-124.714" width="0.1524" layer="91"/>
-<pinref part="P9" gate="1" pin="3"/>
+<pinref part="P10" gate="1" pin="3"/>
 <wire x1="215.9" y1="-124.714" x2="292.1" y2="-124.714" width="0.1524" layer="91"/>
 <wire x1="292.1" y1="-124.714" x2="292.1" y2="-142.494" width="0.1524" layer="91"/>
 <pinref part="4051_2" gate="G$1" pin="X1"/>
@@ -15282,7 +15282,7 @@ Pots: 10k linear</text>
 <segment>
 <wire x1="147.32" y1="-147.574" x2="210.82" y2="-147.574" width="0.1524" layer="91"/>
 <wire x1="210.82" y1="-147.574" x2="210.82" y2="-129.794" width="0.1524" layer="91"/>
-<pinref part="P10" gate="1" pin="3"/>
+<pinref part="P11" gate="1" pin="3"/>
 <wire x1="210.82" y1="-129.794" x2="274.32" y2="-129.794" width="0.1524" layer="91"/>
 <wire x1="274.32" y1="-129.794" x2="274.32" y2="-142.494" width="0.1524" layer="91"/>
 <pinref part="4051_2" gate="G$1" pin="X2"/>
@@ -15290,7 +15290,7 @@ Pots: 10k linear</text>
 </net>
 <net name="MUX_2_INPUT_4" class="0">
 <segment>
-<pinref part="P11" gate="1" pin="3"/>
+<pinref part="P12" gate="1" pin="3"/>
 <wire x1="254" y1="-142.494" x2="254" y2="-134.874" width="0.1524" layer="91"/>
 <wire x1="254" y1="-134.874" x2="205.74" y2="-134.874" width="0.1524" layer="91"/>
 <wire x1="205.74" y1="-134.874" x2="205.74" y2="-150.114" width="0.1524" layer="91"/>
@@ -15301,7 +15301,7 @@ Pots: 10k linear</text>
 <net name="MUX_2_INPUT_8" class="0">
 <segment>
 <wire x1="147.32" y1="-160.274" x2="233.68" y2="-160.274" width="0.1524" layer="91"/>
-<pinref part="P15" gate="1" pin="3"/>
+<pinref part="P16" gate="1" pin="3"/>
 <pinref part="4051_2" gate="G$1" pin="X7"/>
 </segment>
 </net>
@@ -15309,7 +15309,7 @@ Pots: 10k linear</text>
 <segment>
 <wire x1="147.32" y1="-157.734" x2="215.9" y2="-157.734" width="0.1524" layer="91"/>
 <wire x1="215.9" y1="-157.734" x2="215.9" y2="-175.514" width="0.1524" layer="91"/>
-<pinref part="P14" gate="1" pin="3"/>
+<pinref part="P15" gate="1" pin="3"/>
 <wire x1="215.9" y1="-175.514" x2="254" y2="-175.514" width="0.1524" layer="91"/>
 <wire x1="254" y1="-175.514" x2="254" y2="-160.274" width="0.1524" layer="91"/>
 <pinref part="4051_2" gate="G$1" pin="X6"/>
@@ -15319,7 +15319,7 @@ Pots: 10k linear</text>
 <segment>
 <wire x1="147.32" y1="-155.194" x2="210.82" y2="-155.194" width="0.1524" layer="91"/>
 <wire x1="210.82" y1="-155.194" x2="210.82" y2="-180.594" width="0.1524" layer="91"/>
-<pinref part="P13" gate="1" pin="3"/>
+<pinref part="P14" gate="1" pin="3"/>
 <wire x1="210.82" y1="-180.594" x2="274.32" y2="-180.594" width="0.1524" layer="91"/>
 <wire x1="274.32" y1="-180.594" x2="274.32" y2="-160.274" width="0.1524" layer="91"/>
 <pinref part="4051_2" gate="G$1" pin="X5"/>
@@ -15329,7 +15329,7 @@ Pots: 10k linear</text>
 <segment>
 <wire x1="147.32" y1="-152.654" x2="205.74" y2="-152.654" width="0.1524" layer="91"/>
 <wire x1="205.74" y1="-152.654" x2="205.74" y2="-185.674" width="0.1524" layer="91"/>
-<pinref part="P12" gate="1" pin="3"/>
+<pinref part="P13" gate="1" pin="3"/>
 <wire x1="205.74" y1="-185.674" x2="292.1" y2="-185.674" width="0.1524" layer="91"/>
 <wire x1="292.1" y1="-185.674" x2="292.1" y2="-160.274" width="0.1524" layer="91"/>
 <pinref part="4051_2" gate="G$1" pin="X4"/>
