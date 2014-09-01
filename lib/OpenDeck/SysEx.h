@@ -1,6 +1,6 @@
 /*
 
-OpenDECK library v1.94
+OpenDECK library v1.95
 File: OpenDeck.h
 Last revision date: 2014-09-01
 Author: Igor Petrovic
