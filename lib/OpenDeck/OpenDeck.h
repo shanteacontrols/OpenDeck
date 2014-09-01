@@ -1,6 +1,6 @@
 /*
 
-OpenDECK library v1.94
+OpenDECK library v1.95
 File: OpenDeck.h
 Last revision date: 2014-09-01
 Author: Igor Petrovic
@@ -246,7 +246,8 @@ class OpenDeck  {
     bool sysExCheckSingleAll(uint8_t);
     bool sysExCheckMessageType(uint8_t);
     bool sysExCheckMessageSubType(uint8_t, uint8_t);
-    bool sysExCheckParameterID(uint8_t, uint8_t, bool);
+    bool sysExCheckParameterID(uint8_t, uint8_t);
+    bool sysExCheckNewParameterID(uint8_t, uint8_t, uint8_t);
     void sysExGenerateError(uint8_t);
     uint8_t sysExGenerateMinMessageLenght(bool, bool, uint8_t);
     //getters

@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.94
+OpenDECK library v1.95
 File: OpenDeck.h
-Last revision date: 2014-08-29
+Last revision date: 2014-09-01
 Author: Igor Petrovic
 
 */
@@ -11,6 +11,7 @@ Author: Igor Petrovic
 #ifndef EEPROM_H_
 #define EEPROM_H_
 
+#define EEPROM_MIDI_CHANNEL_START           0
 #define NUMBER_OF_MIDI_CHANNELS             5
 
 #define EEPROM_MC_BUTTON_NOTE               0
@@ -19,16 +20,14 @@ Author: Igor Petrovic
 #define EEPROM_MC_ENC_CC                    3
 #define EEPROM_MC_INPUT                     4
 
+#define EEPROM_HW_P_START                   5
 #define NUMBER_OF_HW_P                      3
 
 #define EEPROM_HW_P_LONG_PRESS_TIME         5
 #define EEPROM_HW_P_BLINK_TIME              6
 #define EEPROM_HW_P_START_UP_SWITCH_TIME    7
 
-#define EEPROM_SOFTWARE_FEATURES            8
-
-#define EEPROM_START_UP_ROUTINE_PATTERN     443
-
+#define EEPROM_SOFTWARE_FEATURES_START      8
 #define NUMBER_OF_SW_F                      7
 
 #define EEPROM_SW_RUNNING_STATUS            0
@@ -39,9 +38,10 @@ Author: Igor Petrovic
 #define EEPROM_SW_LED_BLINK                 5
 #define EEPROM_SW_START_UP_ROUTINE          6
 
-#define EEPROM_HARDWARE_FEATURES            9
+#define EEPROM_START_UP_ROUTINE_PATTERN     443
 
-#define NUMBER_OF_HW_F                      3
+#define EEPROM_HARDWARE_FEATURES_START      9
+#define NUMBER_OF_HW_F                      4
 
 #define EEPROM_HW_F_BUTTONS                 3
 #define EEPROM_HW_F_POTS                    2
@@ -99,6 +99,7 @@ const uint8_t defConf[] PROGMEM = {
     //encoders
     //pots
     //buttons
+
     0b00001111,                             //009
 
     //invert CC data (1 enabled, 0 disabled)
