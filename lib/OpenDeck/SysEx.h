@@ -2,7 +2,7 @@
 
 OpenDECK library v1.94
 File: OpenDeck.h
-Last revision date: 2014-08-29
+Last revision date: 2014-09-01
 Author: Igor Petrovic
 
 */
@@ -30,6 +30,7 @@ Author: Igor Petrovic
 
 #define SYS_EX_GET                              0x00
 #define SYS_EX_SET                              0x01
+#define SYS_EX_RESTORE                          0x02
 #define SYS_EX_ENABLE                           0x01
 #define SYS_EX_DISABLE                          0x00
 
@@ -68,9 +69,20 @@ Author: Igor Petrovic
 #define SYS_EX_HW_F_ENC                         0x02
 #define SYS_EX_HW_F_LEDS                        0x03
 
-#define SYS_EX_ML_BASIC                         0x05
-#define SYS_EX_ML_EXTENDED                      0x09
+#define SYS_EX_ML_REQ_HANDSHAKE                 0x05
+#define SYS_EX_ML_REQ_DATA                      0x09
+#define SYS_EX_ML_RES_BASIC                     0x08
 #define SYS_EX_ACK                              0x41
 #define SYS_EX_ERROR                            0x46
+
+#define SYS_EX_ERROR_HANDSHAKE                  0x00
+#define SYS_EX_ERROR_WISH                       0x01
+#define SYS_EX_ERROR_SINGLE_ALL                 0x02
+#define SYS_EX_ERROR_MESSAGE_TYPE               0x03
+#define SYS_EX_ERROR_MESSAGE_SUBTYPE            0x04
+#define SYS_EX_ERROR_PARAMETER                  0x05
+#define SYS_EX_ERROR_NEW_PARAMETER              0x06
+#define SYS_EX_ERROR_MESSAGE_LENGTH             0x07
+#define SYS_EX_ERROR_EEPROM                     0x08
 
 #endif /* SYSEX_H_ */

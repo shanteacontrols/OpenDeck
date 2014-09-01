@@ -2,7 +2,7 @@
 
 OpenDECK library v1.94
 File: OpenDeck.h
-Last revision date: 2014-08-29
+Last revision date: 2014-09-01
 Author: Igor Petrovic
 
 */
@@ -159,6 +159,9 @@ class OpenDeck  {
             _numberOfMux;
 
     uint8_t _analogueIn;
+    
+    //sysex
+    bool sysExEnabled;
 
     //general
     uint8_t i;
@@ -239,7 +242,7 @@ class OpenDeck  {
     //sysex
     void (*sendSysExDataCallback)(uint8_t*, uint8_t);
     bool sysExCheckID(uint8_t, uint8_t, uint8_t);
-    bool sysExCheckGetSet(uint8_t);
+    bool sysExCheckWish(uint8_t);
     bool sysExCheckSingleAll(uint8_t);
     bool sysExCheckMessageType(uint8_t);
     bool sysExCheckMessageSubType(uint8_t, uint8_t);
