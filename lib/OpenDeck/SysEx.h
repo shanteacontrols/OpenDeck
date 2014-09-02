@@ -2,7 +2,7 @@
 
 OpenDECK library v1.95
 File: OpenDeck.h
-Last revision date: 2014-09-01
+Last revision date: 2014-09-02
 Author: Igor Petrovic
 
 */
@@ -68,6 +68,17 @@ Author: Igor Petrovic
 #define SYS_EX_HW_F_POTS                        0x01
 #define SYS_EX_HW_F_ENC                         0x02
 #define SYS_EX_HW_F_LEDS                        0x03
+
+#define SYS_EX_MS_MID_0                         0x01
+#define SYS_EX_MS_MID_1                         0x02
+#define SYS_EX_MS_MID_2                         0x03
+#define SYS_EX_MS_WISH                          0x04
+#define SYS_EX_MS_SINGLE_ALL                    0x05
+#define SYS_EX_MS_MESSAGE_TYPE                  0x06
+#define SYS_EX_MS_MESSAGE_SUBTYPE               0x07
+#define SYS_EX_MS_PARAMETER_ID                  0x08
+#define SYS_EX_MS_NEW_PARAMETER_ID_SINGLE       0x09
+#define SYS_EX_MS_NEW_PARAMETER_ID_ALL          0x08
 
 #define SYS_EX_ML_REQ_HANDSHAKE                 0x05
 #define SYS_EX_ML_REQ_DATA                      0x09

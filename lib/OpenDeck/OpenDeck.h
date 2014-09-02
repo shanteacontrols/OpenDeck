@@ -2,7 +2,7 @@
 
 OpenDECK library v1.95
 File: OpenDeck.h
-Last revision date: 2014-09-01
+Last revision date: 2014-09-02
 Author: Igor Petrovic
 
 */
@@ -25,7 +25,7 @@ Author: Igor Petrovic
 //time in ms after which new value from pot must exceed MIDI_CC_STEP_TIMEOUT
 #define POTENTIOMETER_MOVE_TIMEOUT  200
 
-#define MAX_NUMBER_OF_POTS          32
+#define MAX_NUMBER_OF_POTS          16
 #define MAX_NUMBER_OF_BUTTONS       64
 #define MAX_NUMBER_OF_LEDS          64
 
@@ -241,6 +241,7 @@ class OpenDeck  {
 
     //sysex
     void (*sendSysExDataCallback)(uint8_t*, uint8_t);
+    bool sysExCheckMessageValidity(uint8_t*, uint8_t);
     bool sysExCheckID(uint8_t, uint8_t, uint8_t);
     bool sysExCheckWish(uint8_t);
     bool sysExCheckSingleAll(uint8_t);
@@ -249,7 +250,9 @@ class OpenDeck  {
     bool sysExCheckParameterID(uint8_t, uint8_t);
     bool sysExCheckNewParameterID(uint8_t, uint8_t, uint8_t);
     void sysExGenerateError(uint8_t);
+    void sysExGenerateAck();
     uint8_t sysExGenerateMinMessageLenght(bool, bool, uint8_t);
+    void sysExGenerateResponse(uint8_t*, uint8_t);
     //getters
     bool sysExGetFeature(uint8_t, uint8_t);
     uint8_t sysExGetHardwareParameter(uint8_t);
