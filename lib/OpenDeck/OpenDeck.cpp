@@ -2,7 +2,7 @@
 
 OpenDECK library v1.95
 File: OpenDeck.h
-Last revision date: 2014-09-01
+Last revision date: 2014-09-02
 Author: Igor Petrovic
 
 */
@@ -1111,8 +1111,8 @@ void OpenDeck::handleLED(uint8_t ledNote, bool currentLEDstate, bool blinkMode) 
 
     }   else    {
 
-                if (blinkMode)  /*clear blink bit */    ledState[_ledID] &= 0x15;
-                else /* clear constant state bit */     ledState[_ledID] &= 0x16;
+                if (blinkMode)  /*clear blink bit */            ledState[_ledID] &= 0x15;
+                else            /* clear constant state bit */  ledState[_ledID] &= 0x16;
 
     }
 
@@ -1370,299 +1370,144 @@ void OpenDeck::setHandleSysExSend(void (*fptr)(uint8_t *sysExArray, uint8_t size
 
 void OpenDeck::processSysEx(uint8_t sysExArray[], uint8_t arrSize)  {
 
-    uint8_t wish                = 0;
-    bool singleAll              = false;
-    uint8_t messageType         = 0;
-    uint8_t messageSubType      = 0;
-    uint8_t parameterID         = 0;
-    uint8_t newParameterID[128] = { 0 };
-    uint8_t newParameterCounter = 0;
-    uint8_t sysExResponse[128]  = { 0 };
+    if (sysExCheckMessageValidity(sysExArray, arrSize))
+        sysExGenerateResponse(sysExArray, arrSize);
+
+}
+
+//private
+bool OpenDeck::sysExCheckMessageValidity(uint8_t sysExArray[], uint8_t arrSize)  {
 
     //don't respond to sysex message if device ID is wrong
-    if (sysExCheckID(sysExArray[1], sysExArray[2], sysExArray[3]))  {
+    if (sysExCheckID(sysExArray[SYS_EX_MS_MID_0], sysExArray[SYS_EX_MS_MID_1], sysExArray[SYS_EX_MS_MID_2]))  {
 
         //only check rest of the message if it's not just a ID check and controller has received handshake
         if ((arrSize >= SYS_EX_ML_REQ_DATA) && (sysExEnabled))    {
 
             //check wish validity
-            if (sysExCheckWish(sysExArray[4]))    {
-
-                wish = sysExArray[4];
+            if (sysExCheckWish(sysExArray[SYS_EX_MS_WISH]))    {
 
                 //check if wanted data is for single or all parameters
-                if (sysExCheckSingleAll(sysExArray[5])) {
+                if (sysExCheckSingleAll(sysExArray[SYS_EX_MS_SINGLE_ALL])) {
 
-                    singleAll = sysExArray[5];
+                    //check if message type is correct
+                    if (sysExCheckMessageType(sysExArray[SYS_EX_MS_MESSAGE_TYPE])) {
 
-                        //check if message type is correct
-                        if (sysExCheckMessageType(sysExArray[6])) {
+                        //determine minimum message length based on asked parameters
+                        if (arrSize < sysExGenerateMinMessageLenght(sysExArray[SYS_EX_MS_WISH],
+                                                                    sysExArray[SYS_EX_MS_SINGLE_ALL],
+                                                                    sysExArray[SYS_EX_MS_MESSAGE_TYPE]))    {
 
-                            messageType = sysExArray[6];
-
-                            //determine minimum message length based on asked parameters
-                            if (arrSize < sysExGenerateMinMessageLenght(wish, singleAll, messageType))    {
-
-                                sysExGenerateError(SYS_EX_ERROR_MESSAGE_LENGTH);
-                                return;
-
-                            }
-
-                            //check if subtype is correct
-                            if (sysExCheckMessageSubType(messageType, sysExArray[7]))   {
-
-                                messageSubType = sysExArray[7];
-
-                                //check if wanted parameter is valid only if single parameter is specified
-                                if (!singleAll) {
-                                
-                                    if (sysExCheckParameterID(messageType, sysExArray[8]))  {
-
-                                        parameterID = sysExArray[8];
-
-                                        //if message wish is set, check new parameter
-                                        if (wish == SYS_EX_SET) {
-
-                                            if (sysExCheckNewParameterID(messageType, parameterID, sysExArray[9]))
-                                                newParameterID[0] = sysExArray[9];
-
-                                                else    {
-
-                                                    sysExGenerateError(SYS_EX_ERROR_NEW_PARAMETER);
-                                                    return;
-
-                                                }
-
-                                        }
-
-                                    }   else {
-
-                                            //error 5: wrong parameter ID
-                                            sysExGenerateError(SYS_EX_ERROR_PARAMETER);
-                                            return;
-
-                                        }
-
-                                }   //all parameters
-                                    else    {
-
-                                            //check each new parameter for set command
-                                            if (wish == SYS_EX_SET) {
-
-                                                uint8_t arrayIndex = 8;
-
-                                                do  {
-
-                                                    newParameterID[newParameterCounter] = sysExArray[arrayIndex];
-                                                    if (!sysExCheckNewParameterID(messageType, parameterID, newParameterID[newParameterCounter])) {
-
-                                                        sysExGenerateError(SYS_EX_ERROR_NEW_PARAMETER);
-                                                        return;
-
-                                                    }
-
-                                                    arrayIndex++;
-                                                    newParameterCounter++;
-
-                                                } while (arrayIndex != (arrSize-1));
-
-                                            }
-
-                                        }
-
-                            }   else {
-
-                                sysExGenerateError(SYS_EX_ERROR_MESSAGE_SUBTYPE);
-                                return;
+                            sysExGenerateError(SYS_EX_ERROR_MESSAGE_LENGTH);
+                            return false;
 
                         }
 
-                    }   else {
+                        //check if subtype is correct
+                        if (sysExCheckMessageSubType(sysExArray[SYS_EX_MS_MESSAGE_TYPE], sysExArray[SYS_EX_MS_MESSAGE_SUBTYPE]))   {
 
-                            sysExGenerateError(SYS_EX_ERROR_MESSAGE_TYPE);
-                            return;
+                            //check if wanted parameter is valid only if single parameter is specified
+                            if (!sysExArray[SYS_EX_MS_SINGLE_ALL]) {
 
-                        }
+                                if (sysExCheckParameterID(sysExArray[SYS_EX_MS_MESSAGE_TYPE], sysExArray[SYS_EX_MS_PARAMETER_ID]))  {
 
-            }   else {
+                                    //if message wish is set, check new parameter
+                                    if (sysExArray[SYS_EX_MS_WISH] == SYS_EX_SET) {
 
-                    sysExGenerateError(SYS_EX_ERROR_SINGLE_ALL);
-                    return;
+                                        if (!sysExCheckNewParameterID(  sysExArray[SYS_EX_MS_MESSAGE_TYPE],
+                                                                        sysExArray[SYS_EX_MS_PARAMETER_ID],
+                                                                        sysExArray[SYS_EX_MS_NEW_PARAMETER_ID_SINGLE]))   {
 
-                }
+                                            sysExGenerateError(SYS_EX_ERROR_NEW_PARAMETER);
+                                            return false;
 
-        }   else {
-
-                sysExGenerateError(SYS_EX_ERROR_WISH);
-                return;
-
-            }
-
-    }   else if (arrSize == SYS_EX_ML_REQ_HANDSHAKE) {
-
-            //message is just ID check, send ACK signal
-            sysExResponse[0] = SYS_EX_MANUFACTURER_ID_0;
-            sysExResponse[1] = SYS_EX_MANUFACTURER_ID_1;
-            sysExResponse[2] = SYS_EX_MANUFACTURER_ID_2;
-            sysExResponse[3] = SYS_EX_ACK;
-            
-            sysExEnabled = true;
-
-            sendSysExDataCallback(sysExResponse, 4);
-            return;
-
-        }   else    {
-
-                if (sysExEnabled)   sysExGenerateError(SYS_EX_ERROR_MESSAGE_LENGTH);    //message is too short
-                else                sysExGenerateError(SYS_EX_ERROR_HANDSHAKE);         //everything is fine with message, but handshake hasn't been received
-                return;
-
-            }
-
-    }
-
-    //if we managed to get to here, everything is fine with message
-
-    //create basic response
-
-    sysExResponse[0] = SYS_EX_MANUFACTURER_ID_0;
-    sysExResponse[1] = SYS_EX_MANUFACTURER_ID_1;
-    sysExResponse[2] = SYS_EX_MANUFACTURER_ID_2;
-
-    sysExResponse[3] = SYS_EX_ACK;
-
-    sysExResponse[4] = wish;
-    sysExResponse[5] = singleAll;
-    
-    sysExResponse[6] = messageType;
-    sysExResponse[7] = messageSubType;
-
-    //create response based on wanted message type
-    switch (messageType)    {
-
-        case SYS_EX_MIDI_CHANNEL_START:
-
-        //get
-        if (wish == SYS_EX_GET)    {
-
-            //single
-            if (!singleAll) {
-
-                //send only asked parameter in response
-                sysExResponse[SYS_EX_ML_RES_BASIC] = sysExGetMIDIchannel(parameterID);
-                sendSysExDataCallback(sysExResponse, SYS_EX_ML_RES_BASIC+1);
-                return;
-
-            }   else {
-
-                    //send all existing parameters for wanted message type/sub-type
-                    for (int i=0; i<NUMBER_OF_MIDI_CHANNELS; i++) sysExResponse[i+SYS_EX_ML_RES_BASIC] = sysExGetMIDIchannel(i);
-                    sendSysExDataCallback(sysExResponse, SYS_EX_ML_RES_BASIC+NUMBER_OF_MIDI_CHANNELS);
-                    return;
-
-                }
-
-        }   else    if (wish == SYS_EX_SET)    {
-
-                        //single
-                        if (!singleAll) {
-
-                            if (sysExSetMIDIchannel(parameterID, newParameterID[0]))    {
-
-                                sendSysExDataCallback(sysExResponse, SYS_EX_ML_RES_BASIC);
-                                return;
-
-                            }   else    {
-
-                                    sysExGenerateError(SYS_EX_ERROR_EEPROM);
-                                    return;
-
-                                }
-
-                        }   else    {   //all
-
-                                for (int i=0; i<newParameterCounter; i++)   {
-
-                                    if (!sysExSetMIDIchannel(i, newParameterID[i]))  {
-
-                                        sysExGenerateError(SYS_EX_ERROR_EEPROM);
-                                        return;
+                                        }
 
                                     }
 
+                            }   else {
+
+                                    //error 5: wrong parameter ID
+                                    sysExGenerateError(SYS_EX_ERROR_PARAMETER);
+                                    return false;
+
                                 }
 
-                                    sendSysExDataCallback(sysExResponse, SYS_EX_ML_RES_BASIC);
-                                    return;
+                            }   //all parameters
+                            else    {
 
-                            }
+                                //check each new parameter for set command
+                                if (sysExArray[SYS_EX_MS_WISH] == SYS_EX_SET) {
 
-                    }
-            
-        break;
-            
-        case SYS_EX_HW_PARAMETER_START:
+                                    uint8_t arrayIndex = SYS_EX_MS_NEW_PARAMETER_ID_ALL;
 
-        if (wish == SYS_EX_GET)    {
+                                    do  {
 
-            //single
-            if (!singleAll) {
+                                        if (!sysExCheckNewParameterID(  sysExArray[SYS_EX_MS_MESSAGE_TYPE],
+                                                                        sysExArray[SYS_EX_MS_PARAMETER_ID],
+                                                                        sysExArray[arrayIndex])) {
 
-                sysExResponse[SYS_EX_ML_RES_BASIC] = sysExGetHardwareParameter(parameterID);
-                sendSysExDataCallback(sysExResponse, SYS_EX_ML_RES_BASIC+1);
-                return;
+                                            sysExGenerateError(SYS_EX_ERROR_NEW_PARAMETER);
+                                            return false;
 
-            }   else {
+                                        }
 
-                    for (int i=0; i<NUMBER_OF_HW_P; i++) sysExResponse[i+SYS_EX_ML_RES_BASIC] = sysExGetHardwareParameter(i);
-                    sendSysExDataCallback(sysExResponse, SYS_EX_ML_RES_BASIC+NUMBER_OF_HW_P);
-                    return;
+                                        arrayIndex++;
 
-                }
-
-        }   else    if (wish == SYS_EX_SET) {
-
-                        if (!singleAll) {
-
-                            if (sysExSetHardwareParameter(parameterID, newParameterID[0]))    {
-
-                                sendSysExDataCallback(sysExResponse, SYS_EX_ML_RES_BASIC);
-                                return;
-
-                                }   else    {
-
-                                sysExGenerateError(SYS_EX_ERROR_EEPROM);
-                                return;
-
-                            }
-
-                            }   else    {   //all
-                    
-                            for (int i=0; i<newParameterCounter; i++)   {
-
-                                if (!sysExSetHardwareParameter(i, newParameterID[i]))  {
-
-                                    sysExGenerateError(SYS_EX_ERROR_EEPROM);
-                                    return;
+                                    } while (arrayIndex != (arrSize-1));
 
                                 }
 
                             }
 
-                            sendSysExDataCallback(sysExResponse, SYS_EX_ML_RES_BASIC);
-                            return;
+                            }   else {
+
+                            sysExGenerateError(SYS_EX_ERROR_MESSAGE_SUBTYPE);
+                            return false;
 
                         }
 
+                        }   else {
+
+                        sysExGenerateError(SYS_EX_ERROR_MESSAGE_TYPE);
+                        return false;
+
                     }
-            
-            break;
+
+                    }   else {
+
+                    sysExGenerateError(SYS_EX_ERROR_SINGLE_ALL);
+                    return false;
+
+                }
+
+                }   else {
+
+                sysExGenerateError(SYS_EX_ERROR_WISH);
+                return false;
+
+            }
+
+            }   else    {
+
+                    if (arrSize != SYS_EX_ML_REQ_HANDSHAKE) {
+
+                        if (sysExEnabled)   sysExGenerateError(SYS_EX_ERROR_MESSAGE_LENGTH);    //message is too short
+                        else                sysExGenerateError(SYS_EX_ERROR_HANDSHAKE);         //handshake hasn't been received
+                        return false;
+
+                    }
+
+                }
+
+        return true;
 
     }
 
+    return false;
+
 }
 
-//private
 bool OpenDeck::sysExCheckID(uint8_t firstByte, uint8_t secondByte, uint8_t thirdByte)   {
 
     return  (
@@ -1892,25 +1737,29 @@ void OpenDeck::sysExGenerateError(uint8_t errorNumber)  {
 
     uint8_t sysExResponse[5];
 
-    if (errorNumber > 0)    {
+    sysExResponse[0] = SYS_EX_MANUFACTURER_ID_0;
+    sysExResponse[1] = SYS_EX_MANUFACTURER_ID_1;
+    sysExResponse[2] = SYS_EX_MANUFACTURER_ID_2;
+    sysExResponse[3] = SYS_EX_ERROR;
+    sysExResponse[4] = errorNumber;
 
-        sysExResponse[0] = SYS_EX_MANUFACTURER_ID_0;
-        sysExResponse[1] = SYS_EX_MANUFACTURER_ID_1;
-        sysExResponse[2] = SYS_EX_MANUFACTURER_ID_2;
-        sysExResponse[3] = SYS_EX_ERROR;
-        sysExResponse[4] = errorNumber;
+    sendSysExDataCallback(sysExResponse, 5);
 
-        sendSysExDataCallback(sysExResponse, 5);
+}
 
-        }   else    {
+void OpenDeck::sysExGenerateAck()   {
+    
+    uint8_t sysExAckResponse[4];
+    
+    sysExAckResponse[0] = SYS_EX_MANUFACTURER_ID_0;
+    sysExAckResponse[1] = SYS_EX_MANUFACTURER_ID_1;
+    sysExAckResponse[2] = SYS_EX_MANUFACTURER_ID_2;
+    sysExAckResponse[3] = SYS_EX_ACK;
+    
+    sysExEnabled = true;
 
-        sysExResponse[0] = SYS_EX_ERROR;
-        sysExResponse[1] = 0x00;
-
-        sendSysExDataCallback(sysExResponse, 2);
-
-    }
-
+    sendSysExDataCallback(sysExAckResponse, 4);
+    
 }
 
 uint8_t OpenDeck::sysExGenerateMinMessageLenght(bool wish, bool singleAll, uint8_t messageType)    {
@@ -1953,6 +1802,161 @@ uint8_t OpenDeck::sysExGenerateMinMessageLenght(bool wish, bool singleAll, uint8
                 }
 
         }   return 0;
+
+}
+
+void OpenDeck::sysExGenerateResponse(uint8_t sysExArray[], uint8_t arrSize)  {
+
+    if (arrSize == SYS_EX_ML_REQ_HANDSHAKE) {
+
+        sysExGenerateAck();
+        return;
+
+    }
+
+    uint8_t sysExWish           = sysExArray[SYS_EX_MS_WISH],
+            sysExSingleAll      = sysExArray[SYS_EX_MS_SINGLE_ALL],
+            sysExMessageType    = sysExArray[SYS_EX_MS_MESSAGE_TYPE],
+            sysExMessageSubType = sysExArray[SYS_EX_MS_MESSAGE_SUBTYPE],
+            sysExParameterID    = sysExArray[SYS_EX_MS_PARAMETER_ID];
+
+    //create basic response
+    uint8_t sysExResponse[128+SYS_EX_ML_REQ_DATA];
+
+    sysExResponse[0] = SYS_EX_MANUFACTURER_ID_0;
+    sysExResponse[1] = SYS_EX_MANUFACTURER_ID_1;
+    sysExResponse[2] = SYS_EX_MANUFACTURER_ID_2;
+
+    sysExResponse[3] = SYS_EX_ACK;
+
+    sysExResponse[4] = sysExWish;
+    sysExResponse[5] = sysExSingleAll;
+    
+    sysExResponse[6] = sysExMessageType;
+    sysExResponse[7] = sysExMessageSubType;
+
+    //create response based on wanted message type
+    switch (sysExMessageType)    {
+
+        case SYS_EX_MIDI_CHANNEL_START:
+
+        //get
+        if (sysExWish == SYS_EX_GET)    {
+
+            //single
+            if (!sysExSingleAll) {
+
+                //send only asked parameter in response
+                sysExResponse[SYS_EX_ML_RES_BASIC] = sysExGetMIDIchannel(sysExParameterID);
+                sendSysExDataCallback(sysExResponse, SYS_EX_ML_RES_BASIC+1);
+                return;
+
+                }   else {
+
+                //send all existing parameters for wanted message type/sub-type
+                for (int i=0; i<NUMBER_OF_MIDI_CHANNELS; i++) sysExResponse[i+SYS_EX_ML_RES_BASIC] = sysExGetMIDIchannel(i);
+                sendSysExDataCallback(sysExResponse, SYS_EX_ML_RES_BASIC+NUMBER_OF_MIDI_CHANNELS);
+                return;
+
+            }
+
+            }   else    if (sysExWish == SYS_EX_SET)    {
+
+            //single
+            if (!sysExSingleAll) {
+
+                if (sysExSetMIDIchannel(sysExParameterID, sysExArray[SYS_EX_MS_NEW_PARAMETER_ID_SINGLE]))    {
+
+                    sendSysExDataCallback(sysExResponse, SYS_EX_ML_RES_BASIC);
+                    return;
+
+                    }   else    {
+
+                    sysExGenerateError(SYS_EX_ERROR_EEPROM);
+                    return;
+
+                }
+
+                }   else    {   //all
+
+                for (int i=0; i<NUMBER_OF_MIDI_CHANNELS; i++)   {
+
+                    if (!sysExSetMIDIchannel(i, sysExArray[SYS_EX_MS_NEW_PARAMETER_ID_ALL+i]))  {
+
+                        sysExGenerateError(SYS_EX_ERROR_EEPROM);
+                        return;
+
+                    }
+
+                }
+
+                sendSysExDataCallback(sysExResponse, SYS_EX_ML_RES_BASIC);
+                return;
+
+            }
+
+        }
+        
+        break;
+        
+        case SYS_EX_HW_PARAMETER_START:
+
+        if (sysExWish == SYS_EX_GET)    {
+
+            //single
+            if (!sysExSingleAll) {
+
+                sysExResponse[SYS_EX_ML_RES_BASIC] = sysExGetHardwareParameter(sysExParameterID);
+                sendSysExDataCallback(sysExResponse, SYS_EX_ML_RES_BASIC+1);
+                return;
+
+                }   else {
+
+                for (int i=0; i<NUMBER_OF_HW_P; i++) sysExResponse[i+SYS_EX_ML_RES_BASIC] = sysExGetHardwareParameter(i);
+                sendSysExDataCallback(sysExResponse, SYS_EX_ML_RES_BASIC+NUMBER_OF_HW_P);
+                return;
+
+            }
+
+            }   else    if (sysExWish == SYS_EX_SET) {
+
+            if (!sysExSingleAll) {
+
+                if (sysExSetHardwareParameter(sysExParameterID, sysExArray[SYS_EX_MS_NEW_PARAMETER_ID_SINGLE]))    {
+
+                    sendSysExDataCallback(sysExResponse, SYS_EX_ML_RES_BASIC);
+                    return;
+
+                    }   else    {
+
+                    sysExGenerateError(SYS_EX_ERROR_EEPROM);
+                    return;
+
+                }
+
+                }   else    {   //all
+                
+                for (int i=0; i<NUMBER_OF_HW_P; i++)   {
+
+                    if (!sysExSetHardwareParameter(i, sysExArray[SYS_EX_MS_NEW_PARAMETER_ID_ALL+i]))  {
+
+                        sysExGenerateError(SYS_EX_ERROR_EEPROM);
+                        return;
+
+                    }
+
+                }
+
+                sendSysExDataCallback(sysExResponse, SYS_EX_ML_RES_BASIC);
+                return;
+
+            }
+
+        }
+        
+        break;
+
+    }
 
 }
 
