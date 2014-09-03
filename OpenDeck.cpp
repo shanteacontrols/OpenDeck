@@ -1,6 +1,6 @@
 /*
 
-Tannin MIDI controller firmware v2.2
+OpenDeck MIDI controller firmware v1.96
 Last revision date: 2014-09-03
 Author: Igor Petrovic
 
