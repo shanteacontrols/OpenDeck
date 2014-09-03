@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.95
+OpenDECK library v1.96
 File: OpenDeck.h
-Last revision date: 2014-09-02
+Last revision date: 2014-09-03
 Author: Igor Petrovic
 
 */
@@ -13,6 +13,7 @@ Author: Igor Petrovic
 
 #include <avr/io.h>
 #include <avr/pgmspace.h>
+#include "HardwareControl.h"
 
 #define BUTTON_DEBOUNCE_TIME        15
 
@@ -84,6 +85,9 @@ class OpenDeck  {
     //getters
     uint8_t getInputMIDIchannel();
     bool standardNoteOffEnabled();
+    
+    //setters
+    void setBoard(uint8_t);
 
     //sysex
     void setHandleSysExSend(void (*fptr)(uint8_t*, uint8_t));
@@ -156,7 +160,8 @@ class OpenDeck  {
             _numberOfColumns,
             _numberOfButtonRows,
             _numberOfLEDrows,
-            _numberOfMux;
+            _numberOfMux,
+            _board;
 
     uint8_t _analogueIn;
     

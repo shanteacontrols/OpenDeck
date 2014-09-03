@@ -1,7 +1,7 @@
 /*
 
-OpenDeck MIDI controller firmware v1.94
-Last revision date: 2014-08-29
+Tannin MIDI controller firmware v2.2
+Last revision date: 2014-09-03
 Author: Igor Petrovic
 
 */
@@ -16,96 +16,13 @@ Author: Igor Petrovic
 #define MIDI_NOTE_OFF_VELOCITY  0
 
 //define time after which code in timedLoop function runs
-#define COLUMN_SWITCH_TIME  1
-
-
-//hardware control
-
-//initialize pins
-void initPins() {
-
-    //set in/out pins
-    DDRD = 0x02;
-    DDRB = 0x0F;
-    DDRC = 0x3F;
-
-    //enable internal pull-up resistors for button rows
-    PORTD = 0xFC;
-
-    //select first column
-    PORTC = 0x00;
-
-}
-
-//switch to next matrix column
-void activateColumn(uint8_t column) {
-
-    //column switching is controlled by 74HC238 decoder
-    PORTC &= 0xC7;
-    PORTC |= (0xC7 | (column << 3));
-
-}
-
-//turn led row on
-void ledRowOn(uint8_t rowNumber)    {
-
-    switch (rowNumber)  {
-
-        case 0:
-        //turn on first LED row
-        PORTB |= 0x01;
-        break;
-
-        case 1:
-        //turn on second LED row
-        PORTB |= 0x02;
-        break;
-
-        case 2:
-        //turn on third LED row
-        PORTB |= 0x04;
-        break;
-
-        case 3:
-        //turn on fourth LED row
-        PORTB |= 0x08;
-        break;
-
-        default:
-        break;
-
-    }
-
-}
-
-//turn all LED rows off
-void ledRowsOff()   {
-
-    PORTB &= 0xF0;
-
-}
-
-//control select pins on mux
-void setMuxOutput(uint8_t muxInput) {
-
-    PORTC &= 0xF8;
-    PORTC |= muxInput;
-
-}
-
-//get button readings from all rows in matrix
-void readButtons(uint8_t &buttonColumnState)    {
-
-    buttonColumnState = ((PIND >> 4) & 0x0F);
-
-}
-
+#define COLUMN_SWITCH_TIME 1
 
 
 //MIDI callback handlers
 
 //receive and store note on data
-void getNoteOnData(uint8_t channel, uint8_t pitch, uint8_t velocity)    {
+void getNoteOnData(uint8_t channel, uint8_t pitch, uint8_t velocity)  {
 
     openDeck.storeReceivedNote(channel, pitch, velocity);
 
@@ -125,7 +42,7 @@ void sendButtonData(uint8_t buttonNumber, bool buttonState, uint8_t channel)    
 
     //see checkButton in OpenDeck.cpp
 
-    switch (buttonState)    {
+    switch (buttonState) {
 
         case false:
         //button released
@@ -174,14 +91,6 @@ void sendSysExData(uint8_t *sysExArray, uint8_t size)   {
 //configure opendeck library
 void setOpenDeckHandlers()  {
 
-    openDeck.setNumberOfMux(2);
-    openDeck.setNumberOfColumns(8);
-    openDeck.setNumberOfButtonRows(4);
-    openDeck.setNumberOfLEDrows(4);
-
-    openDeck.enableAnalogueInput(6);
-    openDeck.enableAnalogueInput(7);
-
     openDeck.setHandleButtonSend(sendButtonData);
 
     openDeck.setHandlePotCC(sendPotCCData);
@@ -189,13 +98,6 @@ void setOpenDeckHandlers()  {
     openDeck.setHandlePotNoteOff(sendPotNoteOffData);
 
     openDeck.setHandleSysExSend(sendSysExData);
-
-    openDeck.setHandlePinInit(initPins);
-    openDeck.setHandleColumnSwitch(activateColumn);
-    openDeck.setHandleLEDrowOn(ledRowOn);
-    openDeck.setHandleLEDrowsOff(ledRowsOff);
-    openDeck.setHandleMuxOutput(setMuxOutput);
-    openDeck.setHandleButtonRead(readButtons);
 
 }
 
@@ -209,7 +111,7 @@ void setMIDIhandlers()  {
 
 
 //main
-void setup()    {
+void setup()  {
 
     //set time in ms after which timedLoop is run
     setTimedLoop(COLUMN_SWITCH_TIME);
@@ -221,6 +123,8 @@ void setup()    {
     //openDeck.setDefaultConf();
 
     //initialize openDeck library
+    openDeck.setBoard(BOARD_OPEN_DECK_1);
+
     openDeck.init();
 
     //run LED animation on start-up

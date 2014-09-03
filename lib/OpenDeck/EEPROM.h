@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.95
-File: OpenDeck.h
-Last revision date: 2014-09-01
+OpenDECK library v1.96
+File: EEPROM.h
+Last revision date: 2014-09-03
 Author: Igor Petrovic
 
 */
