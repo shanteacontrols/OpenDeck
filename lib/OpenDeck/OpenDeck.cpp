@@ -143,8 +143,6 @@ void OpenDeck::initVariables()  {
 
     _analogueIn                     = 0;
 
-    potNumber                       = 0;
-
     //LEDs
     for (i=0; i<MAX_NUMBER_OF_LEDS; i++)        {
 
@@ -171,7 +169,7 @@ void OpenDeck::initVariables()  {
     //sysex
     sysExEnabled                    = false;
 
-    _board                           = 0;
+    _board                          = 0;
 
 }
 
@@ -494,13 +492,99 @@ void OpenDeck::setButtonDebounceCompare(uint8_t numberOfColumnPasses)   {
 
 }
 
-uint8_t OpenDeck::checkButton(uint8_t currentState, uint8_t previousState)  {
+bool OpenDeck::checkButton(uint8_t buttonNumber, uint8_t buttonState)  {
 
-    uint8_t buttonState = previousState;
+    buttonState = (previousButtonState[buttonNumber] << 1) | buttonState | buttonDebounceCompare;
 
-    buttonState = (buttonState << 1) | currentState | buttonDebounceCompare;
+    if ((buttonState != previousButtonState[buttonNumber]) || (buttonState == 0xFF))
+        return true;
 
-    return buttonState;
+    return false;
+
+}
+
+void OpenDeck::procesButtonReading(uint8_t buttonNumber, uint8_t buttonState)  {
+    
+    if (buttonState)    buttonState = 0xFF;
+    else                buttonState = buttonDebounceCompare;
+    
+    if (buttonState != previousButtonState[buttonNumber])    {
+
+        if (buttonState == 0xFF)    {
+
+            //button is pressed
+            //if button is configured as toggle
+            if (getButtonType(buttonNumber))    {
+
+                //if a button has been already pressed
+                if (getButtonPressed(buttonNumber)) {
+
+                    //if longPress is enabled and longPressNote has already been sent
+                    if (getFeature(EEPROM_SOFTWARE_FEATURES_START, EEPROM_SW_LONG_PRESS) && getButtonLongPressed(buttonNumber))   {
+
+                        //send both regular and long press note off
+                        sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
+                        sendButtonDataCallback(buttonNote[buttonNumber], false, _longPressButtonNoteChannel);
+
+                    }   else    sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
+
+                    //reset pressed state
+                    setButtonPressed(buttonNumber, false);
+
+                    }   else    {
+
+                    //send note on on press
+                    sendButtonDataCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
+
+                    //toggle buttonPressed flag to true
+                    setButtonPressed(buttonNumber, true);
+
+                }
+
+            }   else    sendButtonDataCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
+
+            //start long press timer
+            if (getFeature(EEPROM_SOFTWARE_FEATURES_START, EEPROM_SW_LONG_PRESS)) longPressState[buttonNumber] = millis();
+
+            }   else    if ((buttonState == buttonDebounceCompare) && (!getButtonType(buttonNumber)))   {
+
+            //button is released
+            //check button on release only if it's momentary
+
+            if (getFeature(EEPROM_SOFTWARE_FEATURES_START, EEPROM_SW_LONG_PRESS)) {
+
+                if (getButtonLongPressed(buttonNumber)) {
+
+                    //send both regular and long press note off
+                    sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
+                    sendButtonDataCallback(buttonNote[buttonNumber], false, _longPressButtonNoteChannel);
+
+                }   else    sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
+
+                longPressState[buttonNumber] = 0;
+                setButtonLongPressed(buttonNumber, false);
+
+            }   else    sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
+
+        }
+
+        //update previous reading with current
+        previousButtonState[buttonNumber] = buttonState;
+
+    }
+
+    if (getFeature(EEPROM_SOFTWARE_FEATURES_START, EEPROM_SW_LONG_PRESS)) {
+
+        //send long press note if button has been pressed for defined time and note hasn't already been sent
+        if ((millis() - longPressState[buttonNumber] >= _longPressTime) &&
+            (!getButtonLongPressed(buttonNumber)) && (buttonState == 0xFF))  {
+
+                sendButtonDataCallback(buttonNote[buttonNumber], true, _longPressButtonNoteChannel);
+                setButtonLongPressed(buttonNumber, true);
+
+        }
+
+    }
 
 }
 
@@ -519,20 +603,19 @@ bool OpenDeck::buttonsEnabled() {
 
 void OpenDeck::readButtons()    {
 
-    uint8_t buttonState = 0;
-    uint8_t rowState = 0;
+    uint8_t columnState = 0;
 
-    if (_board == 0)    sendButtonReadCallback(rowState);
+    if (_board == 0)    sendButtonReadCallback(columnState);
     else    {
 
         switch (_board) {
 
             case BOARD_TANNIN:
-            HCTannin::readButtons(rowState);
+            HCTannin::readButtons(columnState);
             break;
             
             case BOARD_OPEN_DECK_1:
-            HCOpenDeck1::readButtons(rowState);
+            HCOpenDeck1::readButtons(columnState);
             break;
 
             default:
@@ -545,94 +628,14 @@ void OpenDeck::readButtons()    {
     //iterate over rows
     for (int i=0; i<_numberOfButtonRows; i++)   {
 
-        //extract current bit from rowState variable
+        //extract current bit from çolumnState variable
         //invert extracted bit because of pull-up resistors
-        uint8_t currentBit = !((rowState >> i) & 0x01);
+        uint8_t buttonState = !((columnState >> i) & 0x01);
 
-        //calculate current button number
         uint8_t buttonNumber = getActiveColumn()+i*_numberOfColumns;
-
-        //get button state
-        buttonState = checkButton(currentBit, previousButtonState[buttonNumber]);
-
-        //if current button status is different from previous
-        if (buttonState != previousButtonState[buttonNumber])   {
-
-            if (buttonState == 0xFF)    {
-
-                //button is pressed
-                //if button is configured as toggle
-                if (getButtonType(buttonNumber))    {
-
-                    //if a button has been already pressed
-                    if (getButtonPressed(buttonNumber)) {
-
-                        //if longPress is enabled and longPressNote has already been sent
-                        if (getFeature(EEPROM_SOFTWARE_FEATURES_START, EEPROM_SW_LONG_PRESS) && getButtonLongPressed(buttonNumber))   {
-
-                            //send both regular and long press note off
-                            sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
-                            sendButtonDataCallback(buttonNote[buttonNumber], false, _longPressButtonNoteChannel);
-
-                        }   else    sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
-
-                        //reset pressed state
-                        setButtonPressed(buttonNumber, false);
-
-                    }   else    {
-
-                                //send note on on press
-                                sendButtonDataCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
-
-                                //toggle buttonPressed flag to true
-                                setButtonPressed(buttonNumber, true);
-
-                        }
-
-                }   else    sendButtonDataCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
-
-            //start long press timer
-            if (getFeature(EEPROM_SOFTWARE_FEATURES_START, EEPROM_SW_LONG_PRESS)) longPressState[buttonNumber] = millis();
-
-        }   else    if ((buttonState == buttonDebounceCompare) && (!getButtonType(buttonNumber)))   {
-
-                        //button is released
-                        //check button on release only if it's momentary
-
-                        if (getFeature(EEPROM_SOFTWARE_FEATURES_START, EEPROM_SW_LONG_PRESS)) {
-
-                            if (getButtonLongPressed(buttonNumber)) {
-
-                                //send both regular and long press note off
-                                sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
-                                sendButtonDataCallback(buttonNote[buttonNumber], false, _longPressButtonNoteChannel);
-
-                            }   else    sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
-
-                                longPressState[buttonNumber] = 0;
-                                setButtonLongPressed(buttonNumber, false);
-
-                        }   else    sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
-
-                    }
-
-            //update previous reading with current
-            previousButtonState[buttonNumber] = buttonState;
-
-        }
-
-        if (getFeature(EEPROM_SOFTWARE_FEATURES_START, EEPROM_SW_LONG_PRESS)) {
-
-            //send long press note if button has been pressed for defined time and note hasn't already been sent
-            if ((millis() - longPressState[buttonNumber] >= _longPressTime) &&
-                (!getButtonLongPressed(buttonNumber)) && (buttonState == 0xFF))  {
-
-                sendButtonDataCallback(buttonNote[buttonNumber], true, _longPressButtonNoteChannel);
-                setButtonLongPressed(buttonNumber, true);
-
-            }
-
-        }
+        
+        if (checkButton(buttonNumber, buttonState))
+            procesButtonReading(buttonNumber, buttonState);
 
     }
 
@@ -669,12 +672,19 @@ bool OpenDeck::potsEnabled()    {
 
 void OpenDeck::readPots()   {
 
-    //reset potNumber on each call
-    potNumber = 0;
+    uint8_t muxNumber = 0;
 
     //check 8 analogue inputs on ATmega328p
-    for (int i=0; i<8; i++)
-    if (adcConnected(i))    readPotsMux(i);
+    for (int i=0; i<8; i++) {
+
+        if (adcConnected(i))    {
+
+            readPotsMux(i, muxNumber);
+            muxNumber++;
+
+        }
+
+    }
 
 }
 
@@ -688,23 +698,25 @@ bool OpenDeck::adcConnected(uint8_t adcChannel) {
 
 }
 
-void OpenDeck::readPotsMux(uint8_t adcChannel)  {
+void OpenDeck::readPotsMux(uint8_t adcChannel, uint8_t muxNumber)  {
+
+    uint8_t potNumber;
 
     //iterate over 8 inputs on 4051 mux
-    for (int j=0; j<8; j++) {
+    for (int i=0; i<8; i++) {
 
         //enable selected input
-        if (_board == 0)    sendSwitchMuxOutCallback(j);
+        if (_board == 0)    sendSwitchMuxOutCallback(i);
         else    {
 
             switch (_board) {
 
                 case BOARD_TANNIN:
-                HCTannin::setMuxOutput(j);
+                HCTannin::setMuxOutput(i);
                 break;
                 
                 case BOARD_OPEN_DECK_1:
-                HCOpenDeck1::setMuxOutput(j);
+                HCOpenDeck1::setMuxOutput(i);
                 break;
 
                 default:
@@ -719,21 +731,22 @@ void OpenDeck::readPotsMux(uint8_t adcChannel)  {
 
         //read analogue value from mux
         int16_t tempValue = analogRead(adcChannel);
+        
+        //calculate pot number
+        potNumber = muxNumber*8+i;
 
         //if new reading is stable, send new MIDI message
-        checkPotReading(tempValue, potNumber);
-
-        //increment pot number
-        potNumber++;
+        if (checkPotReading(tempValue, potNumber))
+            processPotReading(tempValue, potNumber);
 
     }
 
 }
 
-void OpenDeck::checkPotReading(int16_t currentValue, uint8_t potNumber) {
+bool OpenDeck::checkPotReading(int16_t tempValue, uint8_t potNumber) {
 
     //calculate difference between current and previous reading
-    int8_t analogueDiff = currentValue - lastAnalogueValue[potNumber];
+    int8_t analogueDiff = tempValue - lastAnalogueValue[potNumber];
 
     //get absolute difference
     if (analogueDiff < 0)   analogueDiff *= -1;
@@ -750,17 +763,19 @@ void OpenDeck::checkPotReading(int16_t currentValue, uint8_t potNumber) {
 
         if (timeDifference < POTENTIOMETER_MOVE_TIMEOUT)    {
 
-            if (analogueDiff >= MIDI_CC_STEP)   processPotReading(potNumber, currentValue);
+            if (analogueDiff >= MIDI_CC_STEP)   return true;
 
         }   else    {
 
-                if (analogueDiff >= MIDI_CC_STEP_TIMEOUT)   processPotReading(potNumber, currentValue);
+                if (analogueDiff >= MIDI_CC_STEP_TIMEOUT)   return true;
 
             }
 
+    return false;
+
 }
 
-void OpenDeck::processPotReading(uint8_t potNumber, int16_t tempValue)  {
+void OpenDeck::processPotReading(int16_t tempValue, uint8_t potNumber)  {
 
     uint8_t ccValue;
     uint8_t potNoteChannel = _longPressButtonNoteChannel+1;
@@ -2261,7 +2276,7 @@ bool OpenDeck::sysExSetButtonType(uint8_t buttonNumber, bool type)  {
 
 bool OpenDeck::sysExSetButtonNote(uint8_t buttonNumber, uint8_t _buttonNote)    {
 
-    uint16_t eepromAddress = EEPROM_BUTTON_NOTE_START+potNumber;
+    uint16_t eepromAddress = EEPROM_BUTTON_NOTE_START+_buttonNote;
 
     buttonNote[buttonNumber] = _buttonNote;
     eeprom_update_byte((uint8_t*)eepromAddress, _buttonNote);

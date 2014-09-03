@@ -125,8 +125,7 @@ class OpenDeck  {
             potEnabled[MAX_NUMBER_OF_POTS/8];
 
     uint8_t ccNumber[MAX_NUMBER_OF_POTS],
-            lastPotNoteValue[MAX_NUMBER_OF_POTS],
-            potNumber;
+            lastPotNoteValue[MAX_NUMBER_OF_POTS];
 
     uint16_t    lastAnalogueValue[MAX_NUMBER_OF_POTS];
     uint32_t    potTimer[MAX_NUMBER_OF_POTS];
@@ -164,7 +163,7 @@ class OpenDeck  {
             _board;
 
     uint8_t _analogueIn;
-    
+
     //sysex
     bool sysExEnabled;
 
@@ -197,7 +196,8 @@ class OpenDeck  {
     void (*sendButtonDataCallback)(uint8_t, bool, uint8_t);
     void setNumberOfColumnPasses();
     void setButtonDebounceCompare(uint8_t);
-    uint8_t checkButton(uint8_t, uint8_t);
+    bool checkButton(uint8_t, uint8_t);
+    void procesButtonReading(uint8_t buttonNumber, uint8_t buttonState);
 
     //pots
     void (*sendSwitchMuxOutCallback)(uint8_t);
@@ -205,9 +205,9 @@ class OpenDeck  {
     void (*sendPotNoteOnDataCallback)(uint8_t, uint8_t, uint8_t);
     void (*sendPotNoteOffDataCallback)(uint8_t, uint8_t, uint8_t);
     bool adcConnected(uint8_t);
-    void readPotsMux(uint8_t);
-    void checkPotReading(int16_t, uint8_t);
-    void processPotReading(uint8_t, int16_t);
+    void readPotsMux(uint8_t, uint8_t);
+    bool checkPotReading(int16_t, uint8_t);
+    void processPotReading(int16_t, uint8_t);
     uint8_t getPotNoteValue(uint8_t, uint8_t);
     bool checkPotNoteValue(uint8_t, uint8_t);
 
