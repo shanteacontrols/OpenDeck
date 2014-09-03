@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.95
-File: OpenDeck.h
-Last revision date: 2014-09-02
+OpenDECK library v1.96
+File: OpenDeck.cpp
+Last revision date: 2014-09-03
 Author: Igor Petrovic
 
 */
@@ -42,7 +42,25 @@ OpenDeck::OpenDeck()    {
 //public
 void OpenDeck::init()   {
 
-    sendInitPinsCallback();
+    if (_board == 0)    sendInitPinsCallback();
+    else    {
+
+        switch (_board) {
+
+            case BOARD_TANNIN:
+            HCTannin::initPins();
+            break;
+            
+            case BOARD_OPEN_DECK_1:
+            HCOpenDeck1::initPins();
+            break;
+
+            default:
+            break;
+
+        }
+
+    }
 
     setNumberOfColumnPasses();
 
@@ -152,6 +170,8 @@ void OpenDeck::initVariables()  {
     
     //sysex
     sysExEnabled                    = false;
+
+    _board                           = 0;
 
 }
 
@@ -389,6 +409,37 @@ void OpenDeck::enableAnalogueInput(uint8_t adcChannel)  {
 
 }
 
+void OpenDeck::setBoard(uint8_t board)  {
+
+    _board = board;
+
+    switch (_board) {
+
+        case BOARD_OPEN_DECK_1:
+        _numberOfMux = 2;
+        _numberOfColumns = 8;
+        _numberOfButtonRows = 4;
+        _numberOfLEDrows = 4;
+        enableAnalogueInput(6);
+        enableAnalogueInput(7);
+        break;
+
+        case BOARD_TANNIN:
+        _numberOfMux = 2;
+        _numberOfColumns = 5;
+        _numberOfButtonRows = 4;
+        _numberOfLEDrows = 1;
+        enableAnalogueInput(0);
+        enableAnalogueInput(1);
+        break;
+        
+        default:
+        break;
+
+    }
+
+}
+
 
 //buttons
 
@@ -471,7 +522,25 @@ void OpenDeck::readButtons()    {
     uint8_t buttonState = 0;
     uint8_t rowState = 0;
 
-    sendButtonReadCallback(rowState);
+    if (_board == 0)    sendButtonReadCallback(rowState);
+    else    {
+
+        switch (_board) {
+
+            case BOARD_TANNIN:
+            HCTannin::readButtons(rowState);
+            break;
+            
+            case BOARD_OPEN_DECK_1:
+            HCOpenDeck1::readButtons(rowState);
+            break;
+
+            default:
+            break;
+
+        }
+
+    }
 
     //iterate over rows
     for (int i=0; i<_numberOfButtonRows; i++)   {
@@ -625,7 +694,25 @@ void OpenDeck::readPotsMux(uint8_t adcChannel)  {
     for (int j=0; j<8; j++) {
 
         //enable selected input
-        sendSwitchMuxOutCallback(j);
+        if (_board == 0)    sendSwitchMuxOutCallback(j);
+        else    {
+
+            switch (_board) {
+
+                case BOARD_TANNIN:
+                HCTannin::setMuxOutput(j);
+                break;
+                
+                case BOARD_OPEN_DECK_1:
+                HCOpenDeck1::setMuxOutput(j);
+                break;
+
+                default:
+                break;
+
+            }
+
+        }
 
         //add small delay between setting select pins and reading the input
         NOP;
@@ -997,7 +1084,29 @@ void OpenDeck::checkLEDs()  {
 
     //if there is an active LED in current column, turn on LED row
     for (int i=0; i<_numberOfLEDrows; i++)
-    if (ledOn(currentColumn+i*_numberOfColumns))    sendLEDrowOnCallback(i);
+    if (ledOn(currentColumn+i*_numberOfColumns))    {
+
+        if (_board == 0)    sendLEDrowOnCallback(i);
+        else    {
+
+            switch (_board) {
+
+                case BOARD_TANNIN:
+                HCTannin::ledRowOn(i);
+                break;
+                
+                case BOARD_OPEN_DECK_1:
+                HCOpenDeck1::ledRowOn(i);
+                break;
+
+                default:
+                break;
+
+            }
+
+        }
+
+    }
 
 }
 
@@ -1213,11 +1322,47 @@ void OpenDeck::switchBlinkState()   {
 //public
 void OpenDeck::nextColumn() {
 
-    sendLEDrowsOffCallback();
+    if (_board == 0)    sendLEDrowsOffCallback();
+    else    {
+
+        switch (_board) {
+
+            case BOARD_TANNIN:
+            HCTannin::ledRowsOff();
+            break;
+            
+            case BOARD_OPEN_DECK_1:
+            HCOpenDeck1::ledRowsOff();
+            break;
+
+            default:
+            break;
+
+        }
+
+    }
 
     if (column == _numberOfColumns) column = 0;
 
-    sendColumnSwitchCallback(column);
+    if (_board == 0)    sendColumnSwitchCallback(column);
+    else    {
+
+        switch (_board) {
+
+            case BOARD_TANNIN:
+            HCTannin::activateColumn(column);
+            break;
+            
+            case BOARD_OPEN_DECK_1:
+            HCOpenDeck1::activateColumn(column);
+            break;
+
+            default:
+            break;
+
+        }
+
+    }
 
     //increment column
     column++;
