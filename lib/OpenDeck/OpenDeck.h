@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.96
+OpenDECK library v1.97
 File: OpenDeck.h
-Last revision date: 2014-09-03
+Last revision date: 2014-09-10
 Author: Igor Petrovic
 
 */
@@ -38,7 +38,7 @@ class OpenDeck  {
     OpenDeck();
 
     //library initializer
-    void init();
+    void init(uint8_t);
     
     //start-up routine
     void startUpRoutine();
@@ -88,6 +88,7 @@ class OpenDeck  {
     
     //setters
     void setBoard(uint8_t);
+    void sysExSetDefaultConf();
 
     //sysex
     void setHandleSysExSend(void (*fptr)(uint8_t*, uint8_t));
@@ -132,7 +133,7 @@ class OpenDeck  {
 
     //LEDs
     uint8_t ledState[MAX_NUMBER_OF_LEDS],
-            ledID[MAX_NUMBER_OF_LEDS],
+            ledNote[MAX_NUMBER_OF_LEDS],
             totalNumberOfLEDs;
 
     bool    blinkState,
@@ -150,9 +151,9 @@ class OpenDeck  {
     //input
     bool    receivedNoteProcessed;
 
-    uint8_t receivedNoteChannel,
-            receivedNotePitch,
-            receivedNoteVelocity;
+    uint8_t receivedChannel,
+            receivedNote,
+            receivedVelocity;
 
     //hardware
     uint8_t column,
@@ -174,6 +175,7 @@ class OpenDeck  {
 
     //init
     void initVariables();
+    void initialEEPROMwrite();
     void (*sendInitPinsCallback)();
 
     //read configuration
@@ -188,7 +190,7 @@ class OpenDeck  {
     void getEnabledPots();
     void getPotInvertStates();
     void getCCnumbers();
-    void getLEDIDs();
+    void getLEDnotes();
     void getTotalLEDnumber();
 
     //buttons
@@ -219,11 +221,12 @@ class OpenDeck  {
     bool checkLEDsOff();
     void checkBlinkLEDs();
     bool checkBlinkState(uint8_t);
-    void handleLED(uint8_t, bool, bool);
+    void handleLED(bool, bool);
     void setLEDState();
     void setConstantLEDstate(uint8_t);
     void setBlinkState(uint8_t, bool);
     void switchBlinkState();
+    uint8_t getLEDnumber();
 
     //columns
     void (*sendColumnSwitchCallback)(uint8_t);
@@ -238,7 +241,7 @@ class OpenDeck  {
     bool getPotEnabled(uint8_t);
     bool getPotInvertState(uint8_t);
     uint8_t getCCnumber(uint8_t);
-    uint8_t getLEDID(uint8_t);
+    uint8_t getLEDnote(uint8_t);
 
     //setters
     void setButtonPressed(uint8_t, bool);
@@ -262,6 +265,8 @@ class OpenDeck  {
     bool sysExGetFeature(uint8_t, uint8_t);
     uint8_t sysExGetHardwareParameter(uint8_t);
     uint8_t sysExGetMIDIchannel(uint8_t);
+    uint8_t sysExGet(uint8_t, uint8_t, uint8_t);
+    bool sysExSet(uint8_t, uint8_t, uint8_t, uint8_t);
     //setters
     bool sysExSetFeature(uint8_t, uint8_t, bool);
     bool sysExSetHardwareParameter(uint8_t, uint8_t);
@@ -272,9 +277,8 @@ class OpenDeck  {
     bool sysExSetCCnumber(uint8_t, uint8_t);
     bool sysExSetAllPotsEnable();
     bool sysExSetAllPotsDisable();
-    bool sysExSetLEDID(uint8_t, uint8_t);
+    bool sysExSetLEDnote(uint8_t, uint8_t);
     bool sysExSetMIDIchannel(uint8_t, uint8_t);
-    void sysExSetDefaultConf();
 
 };
 

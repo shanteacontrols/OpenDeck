@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.95
-File: OpenDeck.h
-Last revision date: 2014-09-02
+OpenDECK library v1.97
+File: SysEx.h
+Last revision date: 2014-09-10
 Author: Igor Petrovic
 
 */
@@ -45,6 +45,11 @@ Author: Igor Petrovic
 #define SYS_EX_GET_SET_POT_CC_NUMBER            0x02
 
 #define SYS_EX_GET_SET_LED_ID                   0x00
+
+#define SYS_EX_LED_C_ON_VELOCITY                0x3E
+#define SYS_EX_LED_C_OFF_VELOCITY               0x00
+#define SYS_EX_LED_B_ON_VELOCITY                0x7F
+#define SYS_EX_LED_B_OFF_VELOCITY               0x3F
 
 #define SYS_EX_MC_BUTTON_NOTE                   0x00
 #define SYS_EX_MC_LONG_PRESS_BUTTON_NOTE        0x01
