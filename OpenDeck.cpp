@@ -1,7 +1,7 @@
 /*
 
-OpenDeck MIDI controller firmware v1.96
-Last revision date: 2014-09-03
+OpenDeck MIDI controller firmware v1.97
+Last revision date: 2014-09-10
 Author: Igor Petrovic
 
 */
@@ -10,6 +10,7 @@ Author: Igor Petrovic
 #include "MIDI.h"
 #include "Ownduino.h"
 #include <avr/io.h>
+#include <avr/eeprom.h>
 
 //velocity for on and off events
 #define MIDI_NOTE_ON_VELOCITY   127
@@ -119,13 +120,8 @@ void setup()  {
     setOpenDeckHandlers();
     setMIDIhandlers();
 
-    //write default controller settings to EEPROM
-    //openDeck.setDefaultConf();
-
     //initialize openDeck library
-    openDeck.setBoard(BOARD_OPEN_DECK_1);
-
-    openDeck.init();
+    openDeck.init(BOARD_OPEN_DECK_1);
 
     //run LED animation on start-up
     openDeck.startUpRoutine();
