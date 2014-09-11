@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.97
+OpenDECK library v1.98
 File: OpenDeck.h
-Last revision date: 2014-09-10
+Last revision date: 2014-09-111
 Author: Igor Petrovic
 
 */
@@ -30,6 +30,8 @@ Author: Igor Petrovic
 #define MAX_NUMBER_OF_BUTTONS       64
 #define MAX_NUMBER_OF_LEDS          64
 
+#define NUMBER_OF_START_UP_ROUTINES 5
+
 class OpenDeck  {
 
     public:
@@ -54,7 +56,7 @@ class OpenDeck  {
     void setNumberOfButtonRows(uint8_t);
     void setNumberOfLEDrows(uint8_t);
     void setNumberOfMux(uint8_t);
-    void enableAnalogueInput(uint8_t);
+    bool enableAnalogueInput(uint8_t);
 
     //buttons
     void setHandleButtonSend(void (*fptr)(uint8_t, bool, uint8_t));
@@ -221,7 +223,7 @@ class OpenDeck  {
     bool checkLEDsOff();
     void checkBlinkLEDs();
     bool checkBlinkState(uint8_t);
-    void handleLED(bool, bool);
+    void handleLED(bool, bool, uint8_t);
     void setLEDState();
     void setConstantLEDstate(uint8_t);
     void setBlinkState(uint8_t, bool);
@@ -255,8 +257,8 @@ class OpenDeck  {
     bool sysExCheckSingleAll(uint8_t);
     bool sysExCheckMessageType(uint8_t);
     bool sysExCheckMessageSubType(uint8_t, uint8_t);
-    bool sysExCheckParameterID(uint8_t, uint8_t);
-    bool sysExCheckNewParameterID(uint8_t, uint8_t, uint8_t);
+    bool sysExCheckParameterID(uint8_t, uint8_t, uint8_t);
+    bool sysExCheckNewParameterID(uint8_t, uint8_t, uint8_t, uint8_t);
     void sysExGenerateError(uint8_t);
     void sysExGenerateAck();
     uint8_t sysExGenerateMinMessageLenght(bool, bool, uint8_t);
@@ -267,6 +269,7 @@ class OpenDeck  {
     uint8_t sysExGetMIDIchannel(uint8_t);
     uint8_t sysExGet(uint8_t, uint8_t, uint8_t);
     bool sysExSet(uint8_t, uint8_t, uint8_t, uint8_t);
+    bool sysExRestore(uint8_t, uint8_t, uint8_t);
     //setters
     bool sysExSetFeature(uint8_t, uint8_t, bool);
     bool sysExSetHardwareParameter(uint8_t, uint8_t);
@@ -278,6 +281,7 @@ class OpenDeck  {
     bool sysExSetAllPotsEnable();
     bool sysExSetAllPotsDisable();
     bool sysExSetLEDnote(uint8_t, uint8_t);
+    bool sysExSetLEDstartNumber(uint8_t, uint8_t);
     bool sysExSetMIDIchannel(uint8_t, uint8_t);
 
 };

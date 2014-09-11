@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.97
+OpenDECK library v1.98
 File: OpenDeck.cpp
-Last revision date: 2014-09-10
+Last revision date: 2014-09-11
 Author: Igor Petrovic
 
 */
@@ -41,7 +41,7 @@ OpenDeck::OpenDeck()    {
 
 //public
 void OpenDeck::init(uint8_t board)   {
-    
+
     _board = board;
 
     switch (_board) {
@@ -214,6 +214,24 @@ void OpenDeck::startUpRoutine() {
         openDeck.allLEDsOff();
         break;
 
+        case 2:
+        openDeck.oneByOneLED(true, false, true);
+        openDeck.oneByOneLED(false, false, false);
+        openDeck.allLEDsOff();
+        break;
+
+        case 3:
+        openDeck.oneByOneLED(true, true, true);
+        openDeck.oneByOneLED(false, true, true);
+        openDeck.allLEDsOff();
+        break;
+
+        case 4:
+        openDeck.oneByOneLED(true, false, true);
+        openDeck.oneByOneLED(true, false, false);
+        openDeck.allLEDsOff();
+        break;
+
         default:
         break;
 
@@ -269,9 +287,9 @@ void OpenDeck::getSoftwareFeatures()    {
 }
 
 void OpenDeck::getStartUpRoutinePattern()   {
-    
-    startUpRoutinePattern = eeprom_read_byte((uint8_t*)EEPROM_START_UP_ROUTINE_PATTERN);
-    
+
+    startUpRoutinePattern = eeprom_read_byte((uint8_t*)EEPROM_HW_P_START_UP_ROUTINE);
+
 }
 
 void OpenDeck::getHardwareFeatures()    {
@@ -360,7 +378,7 @@ void OpenDeck::getLEDnotes()              {
 
 void OpenDeck::getTotalLEDnumber()      {
 
-    totalNumberOfLEDs = eeprom_read_byte((uint8_t*)EEPROM_TOTAL_LED_NUMBER);
+    totalNumberOfLEDs = eeprom_read_byte((uint8_t*)EEPROM_HW_P_TOTAL_LED_NUMBER);
 
 }
 
@@ -428,9 +446,14 @@ void OpenDeck::setNumberOfMux(uint8_t numberOfMux)  {
 
 }
 
-void OpenDeck::enableAnalogueInput(uint8_t adcChannel)  {
+bool OpenDeck::enableAnalogueInput(uint8_t adcChannel)  {
 
-    if ((adcChannel >=0) && (adcChannel < 8))   bitWrite(_analogueIn, adcChannel, 1);
+    if ((adcChannel >=0) && (adcChannel < 8))   {
+
+        bitWrite(_analogueIn, adcChannel, 1);
+        return true;
+        
+    }   return false;
 
 }
 
@@ -605,17 +628,17 @@ void OpenDeck::readButtons()    {
 
     switch (_board) {
 
-            case BOARD_TANNIN:
-            HCTannin::readButtons(columnState);
-            break;
-            
-            case BOARD_OPEN_DECK_1:
-            HCOpenDeck1::readButtons(columnState);
-            break;
+        case BOARD_TANNIN:
+        HCTannin::readButtons(columnState);
+        break;
 
-            default:
-            sendButtonReadCallback(columnState);
-            break;
+        case BOARD_OPEN_DECK_1:
+        HCOpenDeck1::readButtons(columnState);
+        break;
+
+        default:
+        sendButtonReadCallback(columnState);
+        break;
 
     }
 
@@ -625,9 +648,9 @@ void OpenDeck::readButtons()    {
         //extract current bit from çolumnState variable
         //invert extracted bit because of pull-up resistors
         uint8_t buttonState = !((columnState >> i) & 0x01);
-
+        //get current button number based on row and column
         uint8_t buttonNumber = getActiveColumn()+i*_numberOfColumns;
-        
+
         if (checkButton(buttonNumber, buttonState))
             procesButtonReading(buttonNumber, buttonState);
 
@@ -727,7 +750,7 @@ void OpenDeck::readPotsMux(uint8_t adcChannel, uint8_t muxNumber)  {
 
         //if new reading is stable, send new MIDI message
         if (checkPotReading(tempValue, potNumber))
-        processPotReading(tempValue, potNumber);
+            processPotReading(tempValue, potNumber);
 
     }
 
@@ -1093,6 +1116,7 @@ void OpenDeck::checkLEDs()  {
 
     //if there is an active LED in current column, turn on LED row
     for (int i=0; i<_numberOfLEDrows; i++)
+    
     if (ledOn(currentColumn+i*_numberOfColumns))    {
 
         switch (_board) {
@@ -1189,7 +1213,7 @@ bool OpenDeck::checkBlinkState(uint8_t ledNumber)   {
 
 }
 
-void OpenDeck::handleLED(bool currentLEDstate, bool blinkMode) {
+void OpenDeck::handleLED(bool currentLEDstate, bool blinkMode, uint8_t _ledNumber) {
 
     /*
 
@@ -1206,51 +1230,54 @@ void OpenDeck::handleLED(bool currentLEDstate, bool blinkMode) {
 
     */
 
-    uint8_t ledNumber = getLEDnumber();
-    
-        if (ledNumber < 128)    {
+    uint8_t ledNumber = _ledNumber;
 
-            switch (currentLEDstate) {
+    if (ledNumber < 128)    {
 
-                case false:
-                //note off event
-                
-                //if remember bit is set
-                if ((ledState[ledNumber] >> 3) & (0x01))   {
+        switch (currentLEDstate) {
 
-                    //if note off for blink state is received
-                    //clear remember bit and blink bits
-                    //set constant state bit
-                    if (blinkMode)  ledState[ledNumber] = 0x05;
-                    //else clear constant state bit and remember bit
-                    //set blink bits
-                    else            ledState[ledNumber] = 0x16;
+            case false:
+            //note off event
+            
+            //if remember bit is set
+            if ((ledState[ledNumber] >> 3) & (0x01))   {
 
-                    }   else    {
+                //if note off for blink state is received
+                //clear remember bit and blink bits
+                //set constant state bit
+                if (blinkMode)  ledState[ledNumber] = 0x05;
+                //else clear constant state bit and remember bit
+                //set blink bits
+                else            ledState[ledNumber] = 0x16;
 
-                            if (blinkMode)  /*clear blink bit */            ledState[ledNumber] &= 0x15;
-                            else            /* clear constant state bit */  ledState[ledNumber] &= 0x16;
+                }   else    {
 
-                        }
-
-                //if bits 0 and 1 are 0, LED is off so we set ledState to zero
-                if (!(ledState[ledNumber] & 3))   ledState[ledNumber] = 0x00;
-
-                break;
-
-                case true:
-                //note on event
-
-                //if constant note on is received and LED is already blinking
-                //clear blinking bits and set remember bit and constant bit
-                if ((!blinkMode) && checkBlinkState(ledNumber))    ledState[ledNumber] = 0x0D;
-
-                //set bit 2 to 1 in any case (constant/blink state)
-                else    ledState[ledNumber] |= (0x01 << blinkMode) | 0x04 | (blinkMode << 4);
+                if (blinkMode)  /*clear blink bit */            ledState[ledNumber] &= 0x15;
+                else            /* clear constant state bit */  ledState[ledNumber] &= 0x16;
 
             }
 
+            //if bits 0 and 1 are 0, LED is off so we set ledState to zero
+            if (!(ledState[ledNumber] & 3))   ledState[ledNumber] = 0x00;
+
+            break;
+
+            case true:
+            //note on event
+
+            //if constant note on is received and LED is already blinking
+            //clear blinking bits and set remember bit and constant bit
+            if ((!blinkMode) && checkBlinkState(ledNumber))    ledState[ledNumber] = 0x0D;
+
+            //set bit 2 to 1 in any case (constant/blink state)
+            else    ledState[ledNumber] |= (0x01 << blinkMode) | 0x04 | (blinkMode << 4);
+
         }
+
+    }
+
+    if (blinkMode && currentLEDstate)   blinkEnabled = true;
+    else    checkBlinkLEDs();
 
 }
 
@@ -1276,10 +1303,7 @@ void OpenDeck::setLEDState()    {
     if ((receivedVelocity >= SYS_EX_LED_B_ON_VELOCITY) && (receivedVelocity < 128))
         blinkMode = 1;
 
-    handleLED(currentLEDstate, blinkMode);
-
-    if (blinkMode && currentLEDstate)   blinkEnabled = true;
-    else    checkBlinkLEDs();
+    handleLED(currentLEDstate, blinkMode, getLEDnumber());
 
     receivedNoteProcessed = true;
 
@@ -1343,36 +1367,23 @@ uint8_t OpenDeck::getLEDnumber()   {
 //public
 void OpenDeck::nextColumn() {
 
+    if (column == _numberOfColumns) column = 0;
+    
     //turn off all LED rows before switching to next column
     switch (_board) {
 
         case BOARD_TANNIN:
         HCTannin::ledRowsOff();
-        break;
-        
-        case BOARD_OPEN_DECK_1:
-        HCOpenDeck1::ledRowsOff();
-        break;
-
-        default:
-        sendLEDrowsOffCallback();
-        break;
-
-    }
-
-    if (column == _numberOfColumns) column = 0;
-
-    switch (_board) {
-
-        case BOARD_TANNIN:
         HCTannin::activateColumn(column);
         break;
         
         case BOARD_OPEN_DECK_1:
+        HCOpenDeck1::ledRowsOff();
         HCOpenDeck1::activateColumn(column);
         break;
 
         default:
+        sendLEDrowsOffCallback();
         sendColumnSwitchCallback(column);
         break;
 
@@ -1568,12 +1579,13 @@ bool OpenDeck::sysExCheckMessageValidity(uint8_t sysExArray[], uint8_t arrSize) 
                             //check if wanted parameter is valid only if single parameter is specified
                             if (!sysExArray[SYS_EX_MS_SINGLE_ALL]) {
 
-                                if (sysExCheckParameterID(sysExArray[SYS_EX_MS_MESSAGE_TYPE], sysExArray[SYS_EX_MS_PARAMETER_ID]))  {
+                                if (sysExCheckParameterID(sysExArray[SYS_EX_MS_MESSAGE_TYPE], sysExArray[SYS_EX_MS_MESSAGE_SUBTYPE], sysExArray[SYS_EX_MS_PARAMETER_ID]))  {
 
                                     //if message wish is set, check new parameter
                                     if (sysExArray[SYS_EX_MS_WISH] == SYS_EX_SET) {
 
                                         if (!sysExCheckNewParameterID(  sysExArray[SYS_EX_MS_MESSAGE_TYPE],
+                                                                        sysExArray[SYS_EX_MS_MESSAGE_SUBTYPE],
                                                                         sysExArray[SYS_EX_MS_PARAMETER_ID],
                                                                         sysExArray[SYS_EX_MS_NEW_PARAMETER_ID_SINGLE]))   {
 
@@ -1603,6 +1615,7 @@ bool OpenDeck::sysExCheckMessageValidity(uint8_t sysExArray[], uint8_t arrSize) 
                                     do  {
 
                                         if (!sysExCheckNewParameterID(  sysExArray[SYS_EX_MS_MESSAGE_TYPE],
+                                                                        sysExArray[SYS_EX_MS_MESSAGE_SUBTYPE],
                                                                         sysExArray[SYS_EX_MS_PARAMETER_ID],
                                                                         sysExArray[arrayIndex])) {
 
@@ -1695,7 +1708,7 @@ bool OpenDeck::sysExCheckSingleAll(uint8_t parameter)    {
 bool OpenDeck::sysExCheckMessageType(uint8_t messageID) {
 
     if  (
-    
+
         (messageID == SYS_EX_MIDI_CHANNEL_START)    ||
         (messageID == SYS_EX_HW_PARAMETER_START)    ||
         (messageID == SYS_EX_SW_FEATURE_START)      ||
@@ -1732,7 +1745,13 @@ bool OpenDeck::sysExCheckMessageSubType(uint8_t messageType, uint8_t messageSubT
         break;
 
         case SYS_EX_LED_START:
-        return (messageSubType == SYS_EX_GET_SET_LED_ID);
+        return  (
+            
+            (messageSubType == SYS_EX_GET_SET_LED_ACT_NOTE)         ||
+            (messageSubType == SYS_EX_GET_SET_LED_START_UP_NUMBER)  ||
+            (messageSubType == SYS_EX_GET_SET_LED_STATE)
+            
+        );
         break;
 
         case SYS_EX_POT_START:
@@ -1761,7 +1780,7 @@ bool OpenDeck::sysExCheckMessageSubType(uint8_t messageType, uint8_t messageSubT
 
 }
 
-bool OpenDeck::sysExCheckParameterID(uint8_t messageType, uint8_t parameter)   {
+bool OpenDeck::sysExCheckParameterID(uint8_t messageType, uint8_t messageSubType, uint8_t parameter)   {
 
     switch (messageType)    {
 
@@ -1781,9 +1800,11 @@ bool OpenDeck::sysExCheckParameterID(uint8_t messageType, uint8_t parameter)   {
         case SYS_EX_HW_PARAMETER_START:
         return  (
 
-           (parameter == SYS_EX_HW_P_LONG_PRESS_TIME)         ||
-           (parameter == SYS_EX_HW_P_BLINK_TIME)              ||
-           (parameter == SYS_EX_HW_P_START_UP_SWITCH_TIME)
+           (parameter == SYS_EX_HW_P_LONG_PRESS_TIME)       ||
+           (parameter == SYS_EX_HW_P_BLINK_TIME)            ||
+           (parameter == SYS_EX_HW_P_START_UP_SWITCH_TIME)  ||
+           (parameter == SYS_EX_HW_P_START_UP_ROUTINE)      ||
+           (parameter == SYS_EX_HW_P_TOTAL_LED_NUMBER)
            
         );
 
@@ -1827,7 +1848,17 @@ bool OpenDeck::sysExCheckParameterID(uint8_t messageType, uint8_t parameter)   {
         break;
 
         case SYS_EX_LED_START:
-        return   (parameter < MAX_NUMBER_OF_LEDS);
+
+        switch (messageSubType) {
+
+            case SYS_EX_GET_SET_LED_ACT_NOTE:
+            case SYS_EX_GET_SET_LED_START_UP_NUMBER:
+            case SYS_EX_GET_SET_LED_STATE:
+            return (parameter < MAX_NUMBER_OF_LEDS);
+            break;
+
+        }
+
         break;
 
         default:
@@ -1840,7 +1871,7 @@ bool OpenDeck::sysExCheckParameterID(uint8_t messageType, uint8_t parameter)   {
 
 }
 
-bool OpenDeck::sysExCheckNewParameterID(uint8_t messageType, uint8_t parameter, uint8_t newParameter) {
+bool OpenDeck::sysExCheckNewParameterID(uint8_t messageType, uint8_t messageSubType, uint8_t parameter, uint8_t newParameter) {
 
     switch (messageType)    {
 
@@ -1851,38 +1882,73 @@ bool OpenDeck::sysExCheckNewParameterID(uint8_t messageType, uint8_t parameter, 
         case SYS_EX_HW_PARAMETER_START:
 
         switch (parameter)    {
-                
-                case SYS_EX_HW_P_LONG_PRESS_TIME:
-                return ((newParameter >= 4) && (newParameter <= 15));
-                break;
 
-                case SYS_EX_HW_P_BLINK_TIME:
-                return ((newParameter >= 1) && (newParameter <= 15));
-                break;
+            case SYS_EX_HW_P_LONG_PRESS_TIME:
+            return ((newParameter >= 4) && (newParameter <= 15));
+            break;
 
-                case SYS_EX_HW_P_START_UP_SWITCH_TIME:
-                return ((newParameter >= 1) && (newParameter <= 150));
-                break;
+            case SYS_EX_HW_P_BLINK_TIME:
+            return ((newParameter >= 1) && (newParameter <= 15));
+            break;
 
-                default:
-                return false;
-                break;
+            case SYS_EX_HW_P_START_UP_SWITCH_TIME:
+            return ((newParameter >= 1) && (newParameter <= 150));
+            break;
 
-            }
+            case SYS_EX_HW_P_START_UP_ROUTINE:
+            return (newParameter < NUMBER_OF_START_UP_ROUTINES);
+            break;
+
+            case SYS_EX_HW_P_TOTAL_LED_NUMBER:
+            return (newParameter < MAX_NUMBER_OF_LEDS);
+            break;
+
+            default:
+            return false;
+            break;
+
+        }
 
         break;
 
         case SYS_EX_SW_FEATURE_START:
         case SYS_EX_HW_FEATURE_START:
-        return ((newParameter == 0) || (newParameter == 1));
+        return ((newParameter == SYS_EX_ENABLE) || (newParameter == SYS_EX_DISABLE));
         break;
 
         case SYS_EX_BUTTON_START:
         case SYS_EX_POT_START:
         case SYS_EX_ENC_START:
-        case SYS_EX_LED_START:
         return (newParameter < 128);
         break;
+
+        case SYS_EX_LED_START:
+
+        switch (messageSubType)  {
+
+            case SYS_EX_GET_SET_LED_ACT_NOTE:
+            return (newParameter < 128);
+            break;
+
+            case SYS_EX_GET_SET_LED_START_UP_NUMBER:
+            return (newParameter < MAX_NUMBER_OF_LEDS);
+
+            case SYS_EX_GET_SET_LED_STATE:
+            return  (
+
+                (newParameter == SYS_EX_LED_C_OFF)  ||
+                (newParameter == SYS_EX_LED_C_ON)   ||
+                (newParameter == SYS_EX_LED_B_OFF)  ||
+                (newParameter == SYS_EX_LED_B_ON)
+
+            );
+            break;
+
+            default:
+            return false;
+            break;
+
+        }
 
         default:
         return false;
@@ -1932,7 +1998,7 @@ uint8_t OpenDeck::sysExGenerateMinMessageLenght(bool wish, bool singleAll, uint8
 
     }   else    {
 
-            if (!wish)    return SYS_EX_ML_REQ_DATA;      //get
+            if (!wish)    return SYS_EX_ML_REQ_DATA;        //get
                 else    {                                   //set
 
                     switch (messageType)    {
@@ -1951,6 +2017,18 @@ uint8_t OpenDeck::sysExGenerateMinMessageLenght(bool wish, bool singleAll, uint8
 
                         case SYS_EX_HW_FEATURE_START:
                         return SYS_EX_ML_REQ_DATA + NUMBER_OF_HW_F;
+                        break;
+                        
+                        case SYS_EX_BUTTON_START:
+                        return SYS_EX_ML_REQ_DATA + MAX_NUMBER_OF_BUTTONS;
+                        break;
+                        
+                        case SYS_EX_POT_START:
+                        return SYS_EX_ML_REQ_DATA + MAX_NUMBER_OF_POTS;
+                        break;
+                        
+                        case SYS_EX_LED_START:
+                        return SYS_EX_ML_REQ_DATA + MAX_NUMBER_OF_LEDS;
                         break;
 
                         default:
@@ -2063,7 +2141,7 @@ void OpenDeck::sysExGenerateResponse(uint8_t sysExArray[], uint8_t arrSize)  {
                         
                         _parameter = i;
                         arrayIndex = SYS_EX_MS_NEW_PARAMETER_ID_ALL;
-                        
+
                     }   else    {
 
                             _parameter = sysExParameterID;
@@ -2134,6 +2212,14 @@ uint8_t OpenDeck::sysExGetHardwareParameter(uint8_t parameter)  {
         return _startUpLEDswitchTime/10;
         break;
 
+        case SYS_EX_HW_P_START_UP_ROUTINE:
+        return startUpRoutinePattern;
+        break;
+
+        case SYS_EX_HW_P_TOTAL_LED_NUMBER:
+        return totalNumberOfLEDs;
+        break;
+
         default:
         break;
 
@@ -2191,18 +2277,25 @@ uint8_t OpenDeck::sysExGet(uint8_t messageType, uint8_t messageSubType, uint8_t 
         break;
         
         case SYS_EX_BUTTON_START:
-        if (messageSubType == SYS_EX_GET_SET_BUTTON_TYPE)       return getButtonType(parameter);
-        else                                                    return buttonNote[parameter];
+        if (messageSubType == SYS_EX_GET_SET_BUTTON_TYPE)               return getButtonType(parameter);
+        else                                                            return buttonNote[parameter];
         break;
 
         case SYS_EX_POT_START:
-        if (messageSubType == SYS_EX_GET_SET_POT_ENABLED)       return getPotEnabled(parameter);
-        else if (messageSubType == SYS_EX_GET_SET_POT_INVERTED) return getPotInvertState(parameter);
-        else                                                    return ccNumber[parameter];
+        if (messageSubType == SYS_EX_GET_SET_POT_ENABLED)               return getPotEnabled(parameter);
+        else if (messageSubType == SYS_EX_GET_SET_POT_INVERTED)         return getPotInvertState(parameter);
+        else                                                            return ccNumber[parameter];
+        break;
+
+        case SYS_EX_LED_START:
+        if (messageSubType == SYS_EX_GET_SET_LED_ACT_NOTE)              return ledNote[parameter];
+        else if (messageSubType == SYS_EX_GET_SET_LED_START_UP_NUMBER)  return eeprom_read_byte((uint8_t*)EEPROM_LED_START_UP_NUMBER_START+parameter);
+        else if (messageSubType == SYS_EX_GET_SET_LED_STATE)            return ledState[parameter];
+        else return 0;
         break;
 
         default:
-        return false;
+        return 0;
         break;
 
     }
@@ -2212,37 +2305,81 @@ uint8_t OpenDeck::sysExGet(uint8_t messageType, uint8_t messageSubType, uint8_t 
 bool OpenDeck::sysExSet(uint8_t messageType, uint8_t messageSubType, uint8_t parameter, uint8_t newParameter)    {
 
     switch (messageType)    {
-        
+
         case SYS_EX_MIDI_CHANNEL_START:
         return sysExSetMIDIchannel(parameter, newParameter);
         break;
-        
+
         case SYS_EX_HW_PARAMETER_START:
         return sysExSetHardwareParameter(parameter, newParameter);
         break;
-        
+
         case SYS_EX_SW_FEATURE_START:
         case SYS_EX_HW_FEATURE_START:
         return sysExSetFeature(messageType, parameter, newParameter);
         break;
-        
+
         case SYS_EX_BUTTON_START:
-        if (messageSubType == SYS_EX_GET_SET_BUTTON_TYPE)       return sysExSetButtonType(parameter, newParameter);
-        else                                                    return sysExSetButtonNote(parameter, newParameter);
+        if (messageSubType == SYS_EX_GET_SET_BUTTON_TYPE)               return sysExSetButtonType(parameter, newParameter);
+        else                                                            return sysExSetButtonNote(parameter, newParameter);
         break;
-        
+
         case SYS_EX_POT_START:
-        if (messageSubType == SYS_EX_GET_SET_POT_ENABLED)       return sysExSetPotEnabled(parameter, newParameter);
-        else if (messageSubType == SYS_EX_GET_SET_POT_INVERTED) return sysExSetPotInvertState(parameter, newParameter);
-        else                                                    return sysExSetCCnumber(parameter, newParameter);
+        if (messageSubType == SYS_EX_GET_SET_POT_ENABLED)               return sysExSetPotEnabled(parameter, newParameter);
+        else if (messageSubType == SYS_EX_GET_SET_POT_INVERTED)         return sysExSetPotInvertState(parameter, newParameter);
+        else                                                            return sysExSetCCnumber(parameter, newParameter);
+
+        case SYS_EX_LED_START:
+        if (messageSubType == SYS_EX_GET_SET_LED_ACT_NOTE)              return sysExSetLEDnote(parameter, newParameter);
+        else if (messageSubType == SYS_EX_GET_SET_LED_START_UP_NUMBER)  return sysExSetLEDstartNumber(parameter, newParameter);
+        else if (messageSubType == SYS_EX_GET_SET_LED_STATE)    {
+
+            switch (newParameter)   {
+
+                case SYS_EX_LED_C_OFF:
+                handleLED(false, false, parameter);
+                return true;
+                break;
+
+                case SYS_EX_LED_C_ON:
+                handleLED(true, false, parameter);
+                return true;
+                break;
+
+                case SYS_EX_LED_B_OFF:
+                handleLED(false, true, parameter);
+                return true;
+                break;
+
+                case SYS_EX_LED_B_ON:
+                handleLED(true, true, parameter);
+                return true;
+                break;
+
+                default:
+                return false;
+                break;
+
+            }
+            
+        }   else return false;
+        
+        break;
 
         default:
-        return 0;
+        return false;
         break;
 
     }
     
 }
+
+bool OpenDeck::sysExRestore(uint8_t messageType, uint8_t messageSubType, uint8_t parameter) {
+    
+    
+    
+}
+
 
 //setters
 bool OpenDeck::sysExSetFeature(uint8_t featureType, uint8_t feature, bool state)    {
@@ -2294,6 +2431,20 @@ bool OpenDeck::sysExSetHardwareParameter(uint8_t parameter, uint8_t value)  {
         _startUpLEDswitchTime = value*10;
         eeprom_update_byte((uint8_t*)EEPROM_HW_P_START_UP_SWITCH_TIME, value);
         return (eeprom_read_byte((uint8_t*)EEPROM_HW_P_START_UP_SWITCH_TIME) == value);
+        break;
+
+        case SYS_EX_HW_P_START_UP_ROUTINE:
+        //set start-up routine pattern
+        startUpRoutinePattern = value;
+        eeprom_update_byte((uint8_t*)EEPROM_HW_P_START_UP_ROUTINE, value);
+        return (eeprom_read_byte((uint8_t*)EEPROM_HW_P_START_UP_ROUTINE) == value);
+        break;
+        
+        case SYS_EX_HW_P_TOTAL_LED_NUMBER:
+        //set start-up routine pattern
+        totalNumberOfLEDs = value;
+        eeprom_update_byte((uint8_t*)EEPROM_HW_P_TOTAL_LED_NUMBER, value);
+        return (eeprom_read_byte((uint8_t*)EEPROM_HW_P_TOTAL_LED_NUMBER) == value);
         break;
 
         default:
@@ -2397,6 +2548,15 @@ bool OpenDeck::sysExSetLEDnote(uint8_t ledNumber, uint8_t _ledNote) {
     ledNote[ledNumber] = _ledNote;
     eeprom_update_byte((uint8_t*)eepromAddress, _ledNote);
     return _ledNote == eeprom_read_byte((uint8_t*)eepromAddress);
+
+}
+
+bool OpenDeck::sysExSetLEDstartNumber(uint8_t ledNumber, uint8_t startNumber) {
+
+    uint16_t eepromAddress = EEPROM_LED_START_UP_NUMBER_START+ledNumber;
+
+    eeprom_update_byte((uint8_t*)eepromAddress, startNumber);
+    return startNumber == eeprom_read_byte((uint8_t*)eepromAddress);
 
 }
 

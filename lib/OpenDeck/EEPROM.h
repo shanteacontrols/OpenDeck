@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.97
+OpenDECK library v1.98
 File: EEPROM.h
-Last revision date: 2014-09-10
+Last revision date: 2014-09-11
 Author: Igor Petrovic
 
 */
@@ -21,11 +21,13 @@ Author: Igor Petrovic
 #define EEPROM_MC_INPUT                     4
 
 #define EEPROM_HW_P_START                   5
-#define NUMBER_OF_HW_P                      3
+#define NUMBER_OF_HW_P                      5
 
 #define EEPROM_HW_P_LONG_PRESS_TIME         5
 #define EEPROM_HW_P_BLINK_TIME              6
 #define EEPROM_HW_P_START_UP_SWITCH_TIME    7
+#define EEPROM_HW_P_START_UP_ROUTINE        571
+#define EEPROM_HW_P_TOTAL_LED_NUMBER        570
 
 #define EEPROM_SOFTWARE_FEATURES_START      8
 #define NUMBER_OF_SW_F                      7
@@ -37,8 +39,6 @@ Author: Igor Petrovic
 #define EEPROM_SW_LONG_PRESS                4
 #define EEPROM_SW_LED_BLINK                 5
 #define EEPROM_SW_START_UP_ROUTINE          6
-
-#define EEPROM_START_UP_ROUTINE_PATTERN     571
 
 #define EEPROM_HARDWARE_FEATURES_START      9
 #define NUMBER_OF_HW_F                      4
@@ -57,7 +57,6 @@ Author: Igor Petrovic
 
 #define EEPROM_LED_START_UP_NUMBER_START    314
 #define EEPROM_LED_ACT_NOTE_START           442
-#define EEPROM_TOTAL_LED_NUMBER             570
 
 #define EEPROM_ID_BYTE_1                    572
 #define EEPROM_ID_BYTE_2                    573
@@ -75,7 +74,7 @@ const uint8_t defConf[] PROGMEM = {
     //hardware parameters
     0x05, //long press time (x100)          //005
     0x04, //blink duration time (x100)      //006
-    0x02, //start up LED switch time (x10)  //007
+    0x05, //start up LED switch time (x10)  //007
 
     //features
     //bit meaning, MSB first (1/enabled, 0/disabled)
@@ -104,14 +103,14 @@ const uint8_t defConf[] PROGMEM = {
     //pots
     //buttons
 
-    0b00001111,                             //009
+    0b00000000,                             //009
 
     //invert CC data (1 enabled, 0 disabled)
 
     //7-0
-    0xFF,                                   //010
+    0x00,                                   //010
     //15-8
-    0xFF,
+    0x00,
     //23-16
     0x00,
     //31-24
@@ -144,9 +143,9 @@ const uint8_t defConf[] PROGMEM = {
     //enable pot (1 enabled, 0 disabled)
 
     //7-0
-    0xFF,                                   //026
+    0x00,                                   //026
     //15-8
-    0xFF,
+    0x00,
     //23-16
     0x00,
     //31-24
@@ -477,10 +476,10 @@ const uint8_t defConf[] PROGMEM = {
 
     //LED start-up number
 
-    0x03,                               //314
-    0x02,
+    0x00,                               //314
     0x01,
-    0x00,
+    0x02,
+    0x03,
     0x04,
     0x05,
     0x06,
@@ -608,10 +607,10 @@ const uint8_t defConf[] PROGMEM = {
     
     //LED Activation Notes
 
-    0x03,                               //442
-    0x02,
+    0x00,                               //442
     0x01,
-    0x00,
+    0x02,
+    0x03,
     0x04,
     0x05,
     0x06,
@@ -738,10 +737,10 @@ const uint8_t defConf[] PROGMEM = {
     0x7F,
 
     //total number of LEDs
-    0x04,                               //570
+    0x00,                               //570
 
     //start-up routine pattern
-    0x01,                                //571
+    0x00,                                //571
     
     //bytes to indicate that configuration is written to EEPROM
     0x4F,

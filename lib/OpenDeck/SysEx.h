@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.97
+OpenDECK library v1.98
 File: SysEx.h
-Last revision date: 2014-09-10
+Last revision date: 2014-09-11
 Author: Igor Petrovic
 
 */
@@ -18,11 +18,9 @@ Author: Igor Petrovic
 #define SYS_EX_MANUFACTURER_ID_2                0x43
 
 #define SYS_EX_MIDI_CHANNEL_START               0x4D
-
 #define SYS_EX_HW_PARAMETER_START               0x54
 #define SYS_EX_SW_FEATURE_START                 0x53
 #define SYS_EX_HW_FEATURE_START                 0x48
-
 #define SYS_EX_BUTTON_START                     0x42
 #define SYS_EX_POT_START                        0x50
 #define SYS_EX_ENC_START                        0x45
@@ -44,7 +42,14 @@ Author: Igor Petrovic
 #define SYS_EX_GET_SET_POT_INVERTED             0x01
 #define SYS_EX_GET_SET_POT_CC_NUMBER            0x02
 
-#define SYS_EX_GET_SET_LED_ID                   0x00
+#define SYS_EX_GET_SET_LED_ACT_NOTE             0x00
+#define SYS_EX_GET_SET_LED_START_UP_NUMBER      0x01
+#define SYS_EX_GET_SET_LED_STATE                0x02
+
+#define SYS_EX_LED_C_OFF                        0x00
+#define SYS_EX_LED_C_ON                         0x01
+#define SYS_EX_LED_B_OFF                        0x02
+#define SYS_EX_LED_B_ON                         0x03
 
 #define SYS_EX_LED_C_ON_VELOCITY                0x3E
 #define SYS_EX_LED_C_OFF_VELOCITY               0x00
@@ -60,6 +65,8 @@ Author: Igor Petrovic
 #define SYS_EX_HW_P_LONG_PRESS_TIME             0x00
 #define SYS_EX_HW_P_BLINK_TIME                  0x01
 #define SYS_EX_HW_P_START_UP_SWITCH_TIME        0x02
+#define SYS_EX_HW_P_START_UP_ROUTINE            0x03
+#define SYS_EX_HW_P_TOTAL_LED_NUMBER            0x04
 
 #define SYS_EX_SW_F_RUNNING_STATUS              0x00
 #define SYS_EX_SW_F_STANDARD_NOTE_OFF           0x01
