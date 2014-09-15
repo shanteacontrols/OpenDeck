@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.98
+OpenDECK library v0.99
 File: OpenDeck.h
-Last revision date: 2014-09-111
+Last revision date: 2014-09-15
 Author: Igor Petrovic
 
 */
@@ -13,7 +13,8 @@ Author: Igor Petrovic
 
 #include <avr/io.h>
 #include <avr/pgmspace.h>
-#include "HardwareControl.h"
+#include "EEPROM.h"
+#include "SysEx.h"
 
 #define BUTTON_DEBOUNCE_TIME        15
 
@@ -40,38 +41,22 @@ class OpenDeck  {
     OpenDeck();
 
     //library initializer
-    void init(uint8_t);
-    
-    //start-up routine
-    void startUpRoutine();
+    void init();
 
     //hardware configuration
-    void setHandlePinInit(void (*fptr)());
-    void setHandleColumnSwitch(void (*fptr)(uint8_t));
-    void setHandleButtonRead(void (*fptr)(uint8_t &));
-    void setHandleMuxOutput(void (*fptr)(uint8_t));
-    void setHandleLEDrowOn(void (*fptr)(uint8_t));
-    void setHandleLEDrowsOff(void (*fptr)());
-    void setNumberOfColumns(uint8_t);
-    void setNumberOfButtonRows(uint8_t);
-    void setNumberOfLEDrows(uint8_t);
-    void setNumberOfMux(uint8_t);
     bool enableAnalogueInput(uint8_t);
 
     //buttons
     void setHandleButtonSend(void (*fptr)(uint8_t, bool, uint8_t));
-    bool buttonsEnabled();
     void readButtons();
 
     //pots
     void setHandlePotCC(void (*fptr)(uint8_t, uint8_t, uint8_t));
     void setHandlePotNoteOn(void (*fptr)(uint8_t, uint8_t, uint8_t));
     void setHandlePotNoteOff(void (*fptr)(uint8_t, uint8_t, uint8_t));
-    bool potsEnabled();
     void readPots();
 
     //LEDs
-    bool ledsEnabled();
     void oneByOneLED(bool, bool, bool);
     void allLEDsOn();
     void allLEDsOff();
@@ -87,7 +72,8 @@ class OpenDeck  {
     //getters
     uint8_t getInputMIDIchannel();
     bool standardNoteOffEnabled();
-    
+    bool runningStatusEnabled();
+
     //setters
     void setBoard(uint8_t);
     void sysExSetDefaultConf();
@@ -122,6 +108,8 @@ class OpenDeck  {
             longPressSent[MAX_NUMBER_OF_BUTTONS/8];
 
     uint32_t longPressState[MAX_NUMBER_OF_BUTTONS];
+    bool    _longPressEnabled,
+            _standardNoteOffEnabled;
 
     //pots
     uint8_t potInverted[MAX_NUMBER_OF_POTS/8],
@@ -166,6 +154,8 @@ class OpenDeck  {
             _board;
 
     uint8_t _analogueIn;
+    
+    //HardwareControl board;
 
     //sysex
     bool sysExEnabled;
@@ -173,19 +163,26 @@ class OpenDeck  {
     //general
     uint8_t i;
 
+    //free pins
+    bool freePinConfEn;
+    uint8_t freePinState[NUMBER_OF_FREE_PINS],
+            freePinsAsBRows,
+            freePinsAsLRows;
+
     //functions
 
     //init
     void initVariables();
     void initialEEPROMwrite();
-    void (*sendInitPinsCallback)();
+    void configureFreePins();
+    bool configureFreePin(uint8_t, uint8_t);
 
     //read configuration
     void getConfiguration();
     void getMIDIchannels();
     void getHardwareParams();
+    void getFreePinStates();
     void getSoftwareFeatures();
-    void getStartUpRoutinePattern();
     void getHardwareFeatures();
     void getButtonsType();
     void getButtonNotes();
@@ -193,10 +190,8 @@ class OpenDeck  {
     void getPotInvertStates();
     void getCCnumbers();
     void getLEDnotes();
-    void getTotalLEDnumber();
 
     //buttons
-    void (*sendButtonReadCallback)(uint8_t &buttonColumnState);
     void (*sendButtonDataCallback)(uint8_t, bool, uint8_t);
     void setNumberOfColumnPasses();
     void setButtonDebounceCompare(uint8_t);
@@ -204,7 +199,6 @@ class OpenDeck  {
     void procesButtonReading(uint8_t buttonNumber, uint8_t buttonState);
 
     //pots
-    void (*sendSwitchMuxOutCallback)(uint8_t);
     void (*sendPotCCDataCallback)(uint8_t, uint8_t, uint8_t);
     void (*sendPotNoteOnDataCallback)(uint8_t, uint8_t, uint8_t);
     void (*sendPotNoteOffDataCallback)(uint8_t, uint8_t, uint8_t);
@@ -216,8 +210,7 @@ class OpenDeck  {
     bool checkPotNoteValue(uint8_t, uint8_t);
 
     //LEDs
-    void (*sendLEDrowOnCallback)(uint8_t);
-    void (*sendLEDrowsOffCallback)();
+    void startUpRoutine();
     bool ledOn(uint8_t);
     bool checkLEDsOn();
     bool checkLEDsOff();
@@ -231,11 +224,9 @@ class OpenDeck  {
     uint8_t getLEDnumber();
 
     //columns
-    void (*sendColumnSwitchCallback)(uint8_t);
     uint8_t getActiveColumn();
 
     //getters
-    bool getFeature(uint8_t, uint8_t);
     bool getButtonType(uint8_t);
     uint8_t getButtonNote(uint8_t);
     bool getButtonPressed(uint8_t);
@@ -264,9 +255,10 @@ class OpenDeck  {
     uint8_t sysExGenerateMinMessageLenght(bool, bool, uint8_t);
     void sysExGenerateResponse(uint8_t*, uint8_t);
     //getters
-    bool sysExGetFeature(uint8_t, uint8_t);
-    uint8_t sysExGetHardwareParameter(uint8_t);
     uint8_t sysExGetMIDIchannel(uint8_t);
+    uint8_t sysExGetHardwareParameter(uint8_t);
+    bool sysExGetFeature(uint8_t, uint8_t);
+    uint8_t sysExGetFreePinState(uint8_t pin);
     uint8_t sysExGet(uint8_t, uint8_t, uint8_t);
     bool sysExSet(uint8_t, uint8_t, uint8_t, uint8_t);
     bool sysExRestore(uint8_t, uint8_t, uint8_t);
@@ -283,6 +275,21 @@ class OpenDeck  {
     bool sysExSetLEDnote(uint8_t, uint8_t);
     bool sysExSetLEDstartNumber(uint8_t, uint8_t);
     bool sysExSetMIDIchannel(uint8_t, uint8_t);
+    bool sysExSetFreePin(uint8_t, uint8_t);
+    
+    //hardware control
+    void initBoard();
+    void initPins();
+    void activateColumn(uint8_t);
+    void ledRowOn(uint8_t);
+    void ledRowsOff();
+    void setMuxOutput(uint8_t);
+    void readButtonColumn(uint8_t &);
+    
+    //free pins
+    uint8_t readButtonRowFreePin(uint8_t);
+    void ledRowOffFreePin(uint8_t);
+    void ledRowOnFreePin(uint8_t);
 
 };
 
