@@ -1,7 +1,7 @@
 /*
 
-OpenDeck MIDI controller firmware v1.97
-Last revision date: 2014-09-10
+OpenDeck platform firmware v0.99
+Last revision date: 2014-09-15
 Author: Igor Petrovic
 
 */
@@ -23,9 +23,9 @@ Author: Igor Petrovic
 //MIDI callback handlers
 
 //receive and store note on data
-void getNoteOnData(uint8_t channel, uint8_t pitch, uint8_t velocity)  {
+void getNoteOnData(uint8_t channel, uint8_t note, uint8_t velocity)  {
 
-    openDeck.storeReceivedNote(channel, pitch, velocity);
+    openDeck.storeReceivedNote(channel, note, velocity);
 
 }
 
@@ -117,17 +117,14 @@ void setup()  {
     //set time in ms after which timedLoop is run
     setTimedLoop(COLUMN_SWITCH_TIME);
 
+    //initialize openDeck library for specified board
+    openDeck.init();
+
     setOpenDeckHandlers();
     setMIDIhandlers();
 
-    //initialize openDeck library
-    openDeck.init(BOARD_OPEN_DECK_1);
-
-    //run LED animation on start-up
-    openDeck.startUpRoutine();
-
     //read incoming MIDI messages on specified channel
-    MIDI.begin(openDeck.getInputMIDIchannel());
+    MIDI.begin(openDeck.getInputMIDIchannel(), openDeck.runningStatusEnabled());
 
     Serial.begin(38400);
 
@@ -140,10 +137,10 @@ void timedLoop()    {
 
     //if any of the LEDs on current
     //column are active, turn them on
-    if (openDeck.ledsEnabled())     openDeck.checkLEDs();
+    openDeck.checkLEDs();
 
     //check buttons on current column
-    if (openDeck.buttonsEnabled())  openDeck.readButtons();
+    openDeck.readButtons();
 
 }
 
@@ -156,6 +153,6 @@ void loop() {
     openDeck.checkReceivedNote();
 
     //read all pots
-    if (openDeck.potsEnabled())     openDeck.readPots();
+    openDeck.readPots();
 
 }
