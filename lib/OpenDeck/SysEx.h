@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v0.99
+OpenDECK library v1.0
 File: SysEx.h
-Last revision date: 2014-09-15
+Last revision date: 2014-09-17
 Author: Igor Petrovic
 
 */
@@ -63,8 +63,9 @@ Author: Igor Petrovic
 #define SYS_EX_MC_BUTTON_NOTE                   0x00
 #define SYS_EX_MC_LONG_PRESS_BUTTON_NOTE        0x01
 #define SYS_EX_MC_POT_CC                        0x02
-#define SYS_EX_MC_ENC_CC                        0x03
-#define SYS_EX_MC_INPUT                         0x04
+#define SYS_EX_MC_POT_NOTE                      0x03
+#define SYS_EX_MC_ENC_CC                        0x04
+#define SYS_EX_MC_INPUT                         0x05
 
 //hardware parameters
 #define SYS_EX_HW_P_BOARD_TYPE                  0x00
@@ -116,9 +117,7 @@ Author: Igor Petrovic
 #define SYS_EX_LED_STATE_B_ON                   0x03
 
 //LED blink/constant state determination
-#define SYS_EX_LED_VELOCITY_C_ON                0x3E
 #define SYS_EX_LED_VELOCITY_C_OFF               0x00
-#define SYS_EX_LED_VELOCITY_B_ON                0x7F
 #define SYS_EX_LED_VELOCITY_B_OFF               0x3F
 
 //allowed states of free pins

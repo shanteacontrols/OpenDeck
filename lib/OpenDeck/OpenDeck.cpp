@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v0.99
+OpenDECK library v1.0
 File: OpenDeck.cpp
-Last revision date: 2014-09-15
+Last revision date: 2014-09-17
 Author: Igor Petrovic
 
 */
@@ -30,18 +30,11 @@ OpenDeck::OpenDeck()    {
 
 }
 
-//init
 
-//public
 void OpenDeck::init()   {
 
-    initialEEPROMwrite();
-
-    //get all values from EEPROM
-    getConfiguration();
-
-    if (_board != 0)    initBoard();
-    if (freePinConfEn)  configureFreePins();
+    if (initialEEPROMwrite())   sysExSetDefaultConf();
+    else                        getConfiguration(); //get all values from EEPROM
 
     setNumberOfColumnPasses();
 
@@ -52,7 +45,7 @@ void OpenDeck::init()   {
     for (int i=0; i<MAX_NUMBER_OF_POTS; i++)        lastPotNoteValue[i] = 128;
 
     blinkState              = true;
-    receivedNoteProcessed   = true;
+    receivedNoteOnProcessed = true;
 
     //make initial pot reading to avoid sending all data on startup
     readPots();
@@ -62,7 +55,7 @@ void OpenDeck::init()   {
 
 }
 
-void OpenDeck::initialEEPROMwrite()  {
+bool OpenDeck::initialEEPROMwrite()  {
 
     //if ID bytes haven't been written to EEPROM on specified address,
     //write default configuration to EEPROM
@@ -71,12 +64,11 @@ void OpenDeck::initialEEPROMwrite()  {
         (eeprom_read_byte((uint8_t*)EEPROM_M_ID_BYTE_0) == SYS_EX_M_ID_0) &&
         (eeprom_read_byte((uint8_t*)EEPROM_M_ID_BYTE_1) == SYS_EX_M_ID_1) &&
         (eeprom_read_byte((uint8_t*)EEPROM_M_ID_BYTE_2) == SYS_EX_M_ID_2)
-        
-    ))   sysExSetDefaultConf();
+
+    ))   return true; return false;
 
 }
 
-//private
 void OpenDeck::initVariables()  {
 
     //reset all variables
@@ -85,6 +77,7 @@ void OpenDeck::initVariables()  {
     _buttonNoteChannel              = 0;
     _longPressButtonNoteChannel     = 0;
     _potCCchannel                   = 0;
+    _potNoteChannel                 = 0;
     _encCCchannel                   = 0;
     _inputChannel                   = 0;
 
@@ -153,7 +146,7 @@ void OpenDeck::initVariables()  {
     blinkTimerCounter               = 0;
 
     //input
-    receivedNoteProcessed           = false;
+    receivedNoteOnProcessed         = false;
     receivedChannel                 = 0;
     receivedNote                    = 0;
     receivedVelocity                = 0;
@@ -168,18 +161,14 @@ void OpenDeck::initVariables()  {
     _board                          = 0;
 
     //free pins
+    for (i=0; i<NUMBER_OF_FREE_PINS; i++)
+    freePinState[i]                 = 0;
     freePinConfEn                   = false;
     freePinsAsBRows                 = 0;
     freePinsAsLRows                 = 0;
-    for (i=0; i<NUMBER_OF_FREE_PINS; i++)   freePinState[i] = 0;
 
 }
 
-
-
-//columns
-
-//public
 void OpenDeck::nextColumn() {
 
     if (column == _numberOfColumns) column = 0;
@@ -197,7 +186,6 @@ void OpenDeck::nextColumn() {
 
 }
 
-//private
 uint8_t OpenDeck::getActiveColumn() {
 
     //return currently active column
@@ -205,10 +193,6 @@ uint8_t OpenDeck::getActiveColumn() {
 
 }
 
-
-//getters
-
-//public
 uint8_t OpenDeck::getInputMIDIchannel() {
 
     return _inputChannel;

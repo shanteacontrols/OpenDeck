@@ -10,7 +10,7 @@
 
 /*
     Modified by Igor Petrovic
-    Last edit date: 2014-09-15
+    Last edit date: 2014-09-17
 
     This version of library is stripped of following features:
 

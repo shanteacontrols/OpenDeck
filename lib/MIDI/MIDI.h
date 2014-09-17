@@ -10,7 +10,7 @@
 
 /*
     Modified by Igor Petrovic
-    Last edit date: 2014-09-15
+    Last edit date: 2014-09-17
 
     This version of library is stripped of following features:
 
@@ -136,7 +136,7 @@ public:
 #if COMPILE_MIDI_OUT
 
 public: 
-    
+
     void sendNoteOn(byte NoteNumber,byte Velocity,byte Channel);
     void sendNoteOff(byte NoteNumber,byte Velocity,byte Channel);
     void sendControlChange(byte ControlNumber, byte ControlValue,byte Channel);
@@ -145,28 +145,25 @@ public:
     void sendPitchBend(double PitchValue,byte Channel);
     void sendSysEx(int length, const byte *const array,bool ArrayContainsBoundaries = false);   
     void sendRealTime(kMIDIType Type);
-    
-    void send(kMIDIType type, byte param1, byte param2, byte channel);
-    
-private:
-    
-    const byte genstatus(const kMIDIType inType,const byte inChannel) const;
-    byte    mRunningStatus_TX,
-            runningStatusEn;
 
+    void send(kMIDIType type, byte param1, byte param2, byte channel);
+
+private:
+
+    const byte  genstatus(const kMIDIType inType,const byte inChannel) const;
+    byte        mRunningStatus_TX,
+                runningStatusEn;
 
 #endif  // COMPILE_MIDI_OUT
-    
 
-    
 /* ####### INPUT COMPILATION BLOCK ####### */
 #if COMPILE_MIDI_IN 
-    
+
 public:
-    
+
     bool read();
     bool read(const byte Channel);
-    
+
     // Getters
     kMIDIType getType() const;
     byte getChannel() const;
@@ -175,33 +172,37 @@ public:
     const byte * getSysExArray() const;
     unsigned int getSysExArrayLength() const;
     bool check() const;
-    
-    byte getInputChannel() const 
-    {
+
+    byte getInputChannel() const    {
+
         return mInputChannel;
+
     }
-    
+
     // Setters
     void setInputChannel(const byte Channel);
-    
+
     /*! \brief Extract an enumerated MIDI type from a status byte.
-     
+
      This is a utility static method, used internally, made public so you can handle kMIDITypes more easily.
      */
-    static inline const kMIDIType getTypeFromStatusByte(const byte inStatus) 
-    {
-        if ((inStatus < 0x80) 
-            || (inStatus == 0xF4) 
-            || (inStatus == 0xF5) 
-            || (inStatus == 0xF9) 
-            || (inStatus == 0xFD)) return InvalidType; // data bytes and undefined.
-        if (inStatus < 0xF0) return (kMIDIType)(inStatus & 0xF0);   // Channel message, remove channel nibble.
-        else return (kMIDIType)inStatus;
+    static inline const kMIDIType getTypeFromStatusByte(const byte inStatus)    {
+
+        if (
+            (inStatus < 0x80)   ||
+            (inStatus == 0xF4)  ||
+            (inStatus == 0xF5)  ||
+            (inStatus == 0xF9)  ||
+            (inStatus == 0xFD)
+           )    return InvalidType;                 //data bytes and undefined
+
+        if (inStatus < 0xF0)    return (kMIDIType)(inStatus & 0xF0);    //channel message, remove channel nibble
+        else                    return (kMIDIType)(inStatus);
+
     }
-    
-    
+
 #if USE_CALLBACKS
-    
+
     void setHandleNoteOff(void (*fptr)(byte channel, byte note, byte velocity));
     void setHandleNoteOn(void (*fptr)(byte channel, byte note, byte velocity));
     void setHandleControlChange(void (*fptr)(byte channel, byte number, byte value));
@@ -211,54 +212,43 @@ public:
     void setHandleStart(void (*fptr)(void));
     void setHandleContinue(void (*fptr)(void));
     void setHandleStop(void (*fptr)(void));
-    
+
 #endif // USE_CALLBACKS
-    
-    
+
 private:
-    
+
     bool input_filter(byte inChannel);
     bool parse(byte inChannel);
     void reset_input_attributes();
-    
+
     // Attributes
     byte            mRunningStatus_RX;
     byte            mInputChannel;
-    
+
     byte            mPendingMessage[MIDI_SYSEX_ARRAY_SIZE];
     unsigned int    mPendingMessageExpectedLenght;
     unsigned int    mPendingMessageIndex;                   // Extended to unsigned int for larger sysex payloads.
-    
+
     midimsg         mMessage;
-    
+
 #if USE_CALLBACKS
-    
+
     void launchCallback();
-    
+
     void (*mNoteOffCallback)(byte channel, byte note, byte velocity);
     void (*mNoteOnCallback)(byte channel, byte note, byte velocity);
-    void (*mAfterTouchPolyCallback)(byte channel, byte note, byte velocity);
     void (*mControlChangeCallback)(byte channel, byte, byte);
-    void (*mProgramChangeCallback)(byte channel, byte);
-    void (*mAfterTouchChannelCallback)(byte channel, byte);
     void (*mPitchBendCallback)(byte channel, int);
     void (*mSystemExclusiveCallback)(byte * array, byte size);
-    void (*mTimeCodeQuarterFrameCallback)(byte data);
-    void (*mSongPositionCallback)(unsigned int beats);
-    void (*mSongSelectCallback)(byte songnumber);
-    void (*mTuneRequestCallback)(void);
     void (*mClockCallback)(void);
     void (*mStartCallback)(void);
     void (*mContinueCallback)(void);
     void (*mStopCallback)(void);
-    void (*mActiveSensingCallback)(void);
-    void (*mSystemResetCallback)(void);
-    
+
 #endif // USE_CALLBACKS
-    
-    
+
 #endif // COMPILE_MIDI_IN
-    
+
 };
 
 extern MIDI_Class MIDI;

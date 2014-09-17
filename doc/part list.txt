@@ -1,0 +1,28 @@
+# OpenDeck reference board:
+
+1x  reference PCB
+1x  Arduino Pro Mini
+1x  ULN2803 Darlington transistor array
+1x  74HC238 decoder
+2x  4051 analogue multiplexer
+4x  220 Ohm resistors
+32x 1N4148 diodes
+1x  10µF electrolytic cap
+5x  0.1µF capacitors
+
+
+# USB MIDI board
+
+1x  USB MIDI PCB
+1x  Altmustech AU-123 Integrated USB MIDI Controller
+1x  USB B female connector
+1x  10µF electrolytic cap
+1x  0.1µF cap
+1x  0.01µF cap
+2x  22p caps
+2x  3mm LEDs
+2x  330 Ohm resistors
+1x  2k2 Ohm resistor
+1x  1kOhm resistor
+1x  12Mhz crystal
+1x  2n2222 transistor

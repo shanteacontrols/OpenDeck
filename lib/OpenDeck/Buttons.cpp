@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v0.99
+OpenDECK library v1.0
 File: Buttons.cpp
-Last revision date: 2014-09-15
+Last revision date: 2014-09-17
 Author: Igor Petrovic
 
 */
@@ -10,9 +10,7 @@ Author: Igor Petrovic
 #include "OpenDeck.h"
 #include "Ownduino.h"
 
-//buttons
 
-//private
 void OpenDeck::setNumberOfColumnPasses() {
 
     /*
@@ -81,12 +79,15 @@ void OpenDeck::setButtonLongPressed(uint8_t buttonNumber, bool state)   {
 
 }
 
-bool OpenDeck::getButtonType(uint8_t buttonNumber)  {
+uint8_t OpenDeck::getButtonType(uint8_t buttonNumber)  {
 
     uint8_t arrayIndex = buttonNumber/8;
     uint8_t buttonIndex = buttonNumber - 8*arrayIndex;
 
-    return bitRead(buttonType[arrayIndex], buttonIndex);
+    if (!bitRead(buttonType[arrayIndex], buttonIndex))
+        return SYS_EX_BUTTON_TYPE_MOMENTARY;
+
+    return SYS_EX_BUTTON_TYPE_LATCHING;
 
 }
 
@@ -131,14 +132,14 @@ void OpenDeck::procesButtonReading(uint8_t buttonNumber, uint8_t buttonState)  {
 
     if (buttonState)    buttonState = 0xFF;
     else                buttonState = buttonDebounceCompare;
-    
+
     if (buttonState != previousButtonState[buttonNumber])    {
 
         if (buttonState == 0xFF)    {
 
             //button is pressed
-            //if button is configured as toggle
-            if (getButtonType(buttonNumber))    {
+            //button type is latching
+            if (getButtonType(buttonNumber) == SYS_EX_BUTTON_TYPE_LATCHING)    {
 
                 //if a button has been already pressed
                 if (getButtonPressed(buttonNumber)) {
@@ -212,8 +213,7 @@ void OpenDeck::procesButtonReading(uint8_t buttonNumber, uint8_t buttonState)  {
 
 }
 
-//public
-void OpenDeck::setHandleButtonSend(void (*fptr)(uint8_t buttonNumber, bool buttonState, uint8_t channel))   {
+void OpenDeck::setHandleButtonSend(void (*fptr)(uint8_t buttonNote, bool buttonState, uint8_t channel))   {
 
     sendButtonDataCallback = fptr;
 
