@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v0.99
+OpenDECK library v1.0
 File: Potentiometers.cpp
-Last revision date: 2014-09-15
+Last revision date: 2014-09-17
 Author: Igor Petrovic
 
 */
@@ -11,22 +11,20 @@ Author: Igor Petrovic
 #include <avr/eeprom.h>
 #include "Ownduino.h"
 
-//pots
 
-//public
 void OpenDeck::setHandlePotCC(void (*fptr)(uint8_t potNumber, uint8_t ccValue, uint8_t channel))    {
 
     sendPotCCDataCallback = fptr;
 
 }
 
-void OpenDeck::setHandlePotNoteOn(void (*fptr)(uint8_t note, uint8_t potNumber, uint8_t channel))   {
+void OpenDeck::setHandlePotNoteOn(void (*fptr)(uint8_t note, uint8_t channel))   {
 
     sendPotNoteOnDataCallback = fptr;
 
 }
 
-void OpenDeck::setHandlePotNoteOff(void (*fptr)(uint8_t note, uint8_t potNumber, uint8_t channel))  {
+void OpenDeck::setHandlePotNoteOff(void (*fptr)(uint8_t note, uint8_t channel))  {
 
     sendPotNoteOffDataCallback = fptr;
 
@@ -55,7 +53,6 @@ void OpenDeck::readPots()   {
 
 }
 
-//private
 bool OpenDeck::adcConnected(uint8_t adcChannel) {
 
     //_analogueIn stores 8 variables, for each analogue pin on ATmega328p
@@ -155,11 +152,11 @@ void OpenDeck::processPotReading(int16_t tempValue, uint8_t potNumber)  {
 
             //always send note off for previous value, except for the first read
             if ((lastPotNoteValue[potNumber] != 128) && (sendPotNoteOffDataCallback != NULL) && (getPotEnabled(potNumber)))
-                sendPotNoteOffDataCallback(lastPotNoteValue[ccNumber[potNumber]], ccNumber[potNumber], (_longPressButtonNoteChannel+1));
+                sendPotNoteOffDataCallback(lastPotNoteValue[ccNumber[potNumber]], _potNoteChannel);
 
             //send note on
             if ((sendPotNoteOnDataCallback != NULL) && (getPotEnabled(potNumber)))
-                sendPotNoteOnDataCallback(noteCurrent, ccNumber[potNumber], (_longPressButtonNoteChannel+1));
+                sendPotNoteOnDataCallback(noteCurrent, _potNoteChannel);
 
             //update last value with current
             lastPotNoteValue[potNumber] = noteCurrent;;

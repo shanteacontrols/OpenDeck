@@ -1,14 +1,15 @@
 /*
 
-OpenDECK library v0.99
+OpenDECK library v1.0
 File: FreePins.cpp
-Last revision date: 2014-09-15
+Last revision date: 2014-09-17
 Author: Igor Petrovic
 
 */
 
 #include "OpenDeck.h"
 #include <avr/eeprom.h>
+
 
 void OpenDeck::configureFreePins()  {
 

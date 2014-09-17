@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v0.99
-File: HardwareControl.h
-Last revision date: 2014-09-15
+OpenDECK library v1.0
+File: HardwareControl.cpp
+Last revision date: 2014-09-17
 Author: Igor Petrovic
 
 */ 
@@ -10,9 +10,6 @@ Author: Igor Petrovic
 #include "OpenDeck.h"
 #include "Ownduino.h"
 
-//hardware configuration
-
-//public
 
 bool OpenDeck::enableAnalogueInput(uint8_t adcChannel)  {
 
@@ -24,8 +21,6 @@ bool OpenDeck::enableAnalogueInput(uint8_t adcChannel)  {
     }   return false;
 
 }
-
-//private
 
 void OpenDeck::initBoard()  {
 
@@ -87,7 +82,7 @@ void OpenDeck::initPins() {
         //select first column
         PORTC = 0x00;
         break;
-        
+
         default:
         break;
 

@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v0.99
+OpenDECK library v1.0
 File: EEPROM.cpp
-Last revision date: 2014-09-15
+Last revision date: 2014-09-17
 Author: Igor Petrovic
 
 */ 
@@ -11,7 +11,6 @@ Author: Igor Petrovic
 #include <avr/eeprom.h>
 #include "Ownduino.h"
 
-//configuration retrieve
 
 //global configuration getter
 void OpenDeck::getConfiguration()   {
@@ -29,6 +28,9 @@ void OpenDeck::getConfiguration()   {
     getButtonNotes();
     getLEDnotes();
 
+    if (_board != 0)    initBoard();
+    if (freePinConfEn)  configureFreePins();
+
 }
 
 //individual configuration getters
@@ -37,6 +39,7 @@ void OpenDeck::getMIDIchannels()        {
     _buttonNoteChannel          = eeprom_read_byte((uint8_t*)EEPROM_MC_BUTTON_NOTE);
     _longPressButtonNoteChannel = eeprom_read_byte((uint8_t*)EEPROM_MC_LONG_PRESS_BUTTON_NOTE);
     _potCCchannel               = eeprom_read_byte((uint8_t*)EEPROM_MC_POT_CC);
+    _potNoteChannel             = eeprom_read_byte((uint8_t*)EEPROM_MC_POT_NOTE);
     _encCCchannel               = eeprom_read_byte((uint8_t*)EEPROM_MC_ENC_CC);
     _inputChannel               = eeprom_read_byte((uint8_t*)EEPROM_MC_INPUT);
 

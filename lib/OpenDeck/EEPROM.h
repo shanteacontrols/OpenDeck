@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v0.99
+OpenDECK library v1.0
 File: EEPROM.h
-Last revision date: 2014-09-15
+Last revision date: 2014-09-17
 Author: Igor Petrovic
 
 */
@@ -16,33 +16,34 @@ Author: Igor Petrovic
 #define EEPROM_M_ID_BYTE_2                  2
 
 #define EEPROM_MIDI_CHANNEL_START           3
-#define NUMBER_OF_MIDI_CHANNELS             5
+#define NUMBER_OF_MIDI_CHANNELS             6
 
 #define EEPROM_MC_BUTTON_NOTE               3
 #define EEPROM_MC_LONG_PRESS_BUTTON_NOTE    4
 #define EEPROM_MC_POT_CC                    5
-#define EEPROM_MC_ENC_CC                    6
-#define EEPROM_MC_INPUT                     7
+#define EEPROM_MC_POT_NOTE                  6
+#define EEPROM_MC_ENC_CC                    7
+#define EEPROM_MC_INPUT                     8
 
-#define EEPROM_HW_P_START                   8
+#define EEPROM_HW_P_START                   9
 #define NUMBER_OF_HW_P                      6
 
-#define EEPROM_HW_P_BOARD_TYPE              8
-#define EEPROM_HW_P_LONG_PRESS_TIME         9
-#define EEPROM_HW_P_BLINK_TIME              10
-#define EEPROM_HW_P_TOTAL_LED_NUMBER        11
-#define EEPROM_HW_P_START_UP_SWITCH_TIME    12
-#define EEPROM_HW_P_START_UP_ROUTINE        13
+#define EEPROM_HW_P_BOARD_TYPE              9
+#define EEPROM_HW_P_LONG_PRESS_TIME         10
+#define EEPROM_HW_P_BLINK_TIME              11
+#define EEPROM_HW_P_TOTAL_LED_NUMBER        12
+#define EEPROM_HW_P_START_UP_SWITCH_TIME    13
+#define EEPROM_HW_P_START_UP_ROUTINE        14
 
-#define EEPROM_FREE_PIN_START               14
+#define EEPROM_FREE_PIN_START               15
 #define NUMBER_OF_FREE_PINS                 4
 
-#define EEPROM_FREE_PIN_A                   14
-#define EEPROM_FREE_PIN_B                   15
-#define EEPROM_FREE_PIN_C                   16
-#define EEPROM_FREE_PIN_D                   17
+#define EEPROM_FREE_PIN_A                   15
+#define EEPROM_FREE_PIN_B                   16
+#define EEPROM_FREE_PIN_C                   17
+#define EEPROM_FREE_PIN_D                   18
 
-#define EEPROM_SOFTWARE_FEATURES_START      18
+#define EEPROM_SOFTWARE_FEATURES_START      19
 #define NUMBER_OF_SW_F                      7
 
 #define EEPROM_SW_F_RUNNING_STATUS          0
@@ -53,7 +54,7 @@ Author: Igor Petrovic
 #define EEPROM_SW_F_LED_BLINK               5
 #define EEPROM_SW_F_START_UP_ROUTINE        6
 
-#define EEPROM_HARDWARE_FEATURES_START      19
+#define EEPROM_HARDWARE_FEATURES_START      20
 #define NUMBER_OF_HW_F                      4
 
 #define EEPROM_HW_F_BUTTONS                 0
@@ -61,15 +62,15 @@ Author: Igor Petrovic
 #define EEPROM_HW_F_ENC                     2
 #define EEPROM_HW_F_LEDS                    3
 
-#define EEPROM_BUTTON_TYPE_START            20
-#define EEPROM_BUTTON_NOTE_START            36
+#define EEPROM_BUTTON_TYPE_START            21
+#define EEPROM_BUTTON_NOTE_START            37
 
-#define EEPROM_POT_ENABLED_START            164
-#define EEPROM_POT_INVERSION_START          180
-#define EEPROM_POT_CC_NUMBER_START          196
+#define EEPROM_POT_ENABLED_START            165
+#define EEPROM_POT_INVERSION_START          181
+#define EEPROM_POT_CC_NUMBER_START          197
 
-#define EEPROM_LED_ACT_NOTE_START           324
-#define EEPROM_LED_START_UP_NUMBER_START    452
+#define EEPROM_LED_ACT_NOTE_START           325
+#define EEPROM_LED_START_UP_NUMBER_START    453
 
 
 //default controller settings
@@ -84,22 +85,23 @@ const uint8_t defConf[] PROGMEM = {
     0x01, //button note channel 1           //003
     0x02, //long press note channel 2       //004
     0x01, //CC channel 1                    //005
-    0x02, //encoder channel 2               //006
-    0x01, //MIDI input channel  1           //007
+    0x03, //pot notes channel               //006
+    0x02, //encoder channel 2               //007
+    0x01, //MIDI input channel  1           //008
 
     //hardware parameters
-    0x00, //board type                      //008
-    0x05, //long press time (x100)          //009
-    0x04, //blink duration time (x100)      //010
-    0x00, //total number of LEDs            //011
-    0x05, //start up LED switch time (x10)  //012
-    0x00, //start-up routine pattern        //013
+    0x00, //board type                      //009
+    0x05, //long press time (x100)          //010
+    0x04, //blink duration time (x100)      //011
+    0x00, //total number of LEDs            //012
+    0x05, //start up LED switch time (x10)  //013
+    0x00, //start-up routine pattern        //014
 
     //free pins
-    0x00, //free pin A                      //014
-    0x00, //free pin B                      //015
-    0x00, //free pin C                      //016
-    0x00,  //free pin D                     //017
+    0x00, //free pin A                      //015
+    0x00, //free pin B                      //016
+    0x00, //free pin C                      //017
+    0x00,  //free pin D                     //018
 
     //features
     //bit meaning, MSB first (1/enabled, 0/disabled)
@@ -115,7 +117,7 @@ const uint8_t defConf[] PROGMEM = {
     //standard note off
     //running status
 
-    0b01111101,                             //018
+    0b01111101,                             //019
 
     //hardware
 
@@ -128,14 +130,14 @@ const uint8_t defConf[] PROGMEM = {
     //pots
     //buttons
 
-    0b00000000,                             //019
+    0b00001111,                             //020
 
     //button type
     //0 - press/note on, release/note off
     //1 - press/note on, release/nothing, press again/note off
 
     //7-0
-    0x00,                                   //020
+    0x00,                                   //021
     //15-8
     0x00,
     //23-16
@@ -169,7 +171,7 @@ const uint8_t defConf[] PROGMEM = {
 
     //button notes
 
-    0x00,                                   //036
+    0x00,                                   //037
     0x01,
     0x02,
     0x03,
@@ -301,7 +303,7 @@ const uint8_t defConf[] PROGMEM = {
     //enable pot (1 enabled, 0 disabled)
 
     //7-0
-    0x00,                                   //164
+    0x00,                                   //165
     //15-8
     0x00,
     //23-16
@@ -336,7 +338,7 @@ const uint8_t defConf[] PROGMEM = {
     //invert CC data (1 enabled, 0 disabled)
 
     //7-0
-    0x00,                                   //180
+    0x00,                                   //181
     //15-8
     0x00,
     //23-16
@@ -370,7 +372,7 @@ const uint8_t defConf[] PROGMEM = {
 
     //CC potentiometer numbers
 
-    0x00,                                   //196
+    0x00,                                   //197
     0x01,
     0x02,
     0x03,
@@ -501,7 +503,7 @@ const uint8_t defConf[] PROGMEM = {
 
     //LED Activation Notes
 
-    0x00,                                   //324
+    0x00,                                   //325
     0x01,
     0x02,
     0x03,
@@ -632,7 +634,7 @@ const uint8_t defConf[] PROGMEM = {
     
     //LED start-up number
 
-    0x00,                                   //452
+    0x00,                                   //453
     0x01,
     0x02,
     0x03,

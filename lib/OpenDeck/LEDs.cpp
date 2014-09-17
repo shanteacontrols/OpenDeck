@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v0.99
+OpenDECK library v1.0
 File: LEDs.cpp
-Last revision date: 2014-09-15
+Last revision date: 2014-09-17
 Author: Igor Petrovic
 
 */
@@ -11,7 +11,6 @@ Author: Igor Petrovic
 #include <avr/eeprom.h>
 #include "Ownduino.h"
 
-//LEDs
 
 void OpenDeck::startUpRoutine() {
 
@@ -245,19 +244,19 @@ void OpenDeck::turnOffLED(uint8_t ledNumber)    {
 
 }
 
-void OpenDeck::storeReceivedNote(uint8_t channel, uint8_t note, uint8_t velocity)  {
+void OpenDeck::storeReceivedNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)  {
 
     receivedChannel = channel;
     receivedNote = note;
     receivedVelocity = velocity;
 
-    receivedNoteProcessed = false;
+    receivedNoteOnProcessed = false;
 
 }
 
-void OpenDeck::checkReceivedNote()  {
+void OpenDeck::checkReceivedNoteOn()  {
 
-    if (!receivedNoteProcessed) setLEDState();
+    if (!receivedNoteOnProcessed) setLEDState();
 
 }
 
@@ -268,15 +267,13 @@ void OpenDeck::checkLEDs()  {
         //get currently active column
         uint8_t currentColumn = getActiveColumn();
 
-        if (blinkEnabled)   switchBlinkState();
+        if ((blinkEnabled) && (bitRead(softwareFeatures, EEPROM_SW_F_LED_BLINK)))   switchBlinkState();
 
         //if there is an active LED in current column, turn on LED row
         for (int i=0; i<_numberOfLEDrows+freePinsAsLRows; i++)  {
 
-            if (ledOn(currentColumn+i*_numberOfColumns))    {
+            if (ledOn(currentColumn+i*_numberOfColumns))
                 ledRowOn(i);
-
-            }
 
         }
 
@@ -284,7 +281,6 @@ void OpenDeck::checkLEDs()  {
 
 }
 
-//private
 bool OpenDeck::ledOn(uint8_t ledNumber) {
 
     if  (
@@ -375,6 +371,10 @@ void OpenDeck::handleLED(bool currentLEDstate, bool blinkMode, uint8_t _ledNumbe
 
     */
 
+    //if blink note is received, and blinking is disabled, exit the function
+    if (blinkMode && (!(bitRead(softwareFeatures, EEPROM_SW_F_LED_BLINK))))
+        return;
+
     uint8_t ledNumber = _ledNumber;
 
     if (ledNumber < 128)    {
@@ -383,7 +383,7 @@ void OpenDeck::handleLED(bool currentLEDstate, bool blinkMode, uint8_t _ledNumbe
 
             case false:
             //note off event
-            
+
             //if remember bit is set
             if ((ledState[ledNumber] >> 3) & (0x01))   {
 
@@ -397,8 +397,8 @@ void OpenDeck::handleLED(bool currentLEDstate, bool blinkMode, uint8_t _ledNumbe
 
                 }   else    {
 
-                if (blinkMode)  /*clear blink bit */            ledState[ledNumber] &= 0x15;
-                else            /* clear constant state bit */  ledState[ledNumber] &= 0x16;
+                if (blinkMode)  ledState[ledNumber] &= 0x15;    /*clear blink bit */
+                else            ledState[ledNumber] &= 0x16;    /* clear constant state bit */
 
             }
 
@@ -433,24 +433,49 @@ void OpenDeck::setLEDState()    {
     //if blinkMode is 1, the LED is blinking
     uint8_t blinkMode = 0;
 
-    if ((receivedVelocity == SYS_EX_LED_VELOCITY_C_OFF) || (receivedVelocity == SYS_EX_LED_VELOCITY_B_OFF))
-        currentLEDstate = false;
-        
-    else    if (
-    
-                ((receivedVelocity > SYS_EX_LED_VELOCITY_C_OFF) && (receivedVelocity < SYS_EX_LED_VELOCITY_B_ON)) ||
-                ((receivedVelocity > SYS_EX_LED_VELOCITY_B_OFF) && (receivedVelocity < 128))
+    /*
 
-            )    currentLEDstate = true;
+    If LED blinking is enabled (as a software feature), LED state is determined by these ranges
+    of velocity:
 
-    else return;
-    
-    if ((receivedVelocity >= SYS_EX_LED_VELOCITY_B_ON) && (receivedVelocity < 128))
-        blinkMode = 1;
+    Velocity 0:         Constant state off
+    Velocity 1-62:      Constant state on
+    Velocity 63:        Blink state off
+    Velocity 64-127:    Blink state on
 
+    If LED blinking is disabled, constant state is turned off by sending velocity 0, and turned on
+    by any larger velocity.
+
+    */
+
+    if (bitRead(softwareFeatures, EEPROM_SW_F_LED_BLINK))   {
+
+        if ((receivedVelocity == SYS_EX_LED_VELOCITY_C_OFF) || (receivedVelocity == SYS_EX_LED_VELOCITY_B_OFF))
+            currentLEDstate = false;
+
+        else if (
+
+        ((receivedVelocity > SYS_EX_LED_VELOCITY_C_OFF) && (receivedVelocity < SYS_EX_LED_VELOCITY_B_OFF)) ||
+        ((receivedVelocity > SYS_EX_LED_VELOCITY_B_OFF) && (receivedVelocity < 128))
+
+        )    currentLEDstate = true;
+
+        else return;
+
+        if ((receivedVelocity >= SYS_EX_LED_VELOCITY_B_OFF) && (receivedVelocity < 128))
+            blinkMode = 1;
+
+    }   else    {
+
+            if (receivedVelocity == SYS_EX_LED_VELOCITY_C_OFF)  currentLEDstate = false;
+                else                                            currentLEDstate = true;
+
+        }
+
+    sendButtonDataCallback(blinkMode, true, 1);
     handleLED(currentLEDstate, blinkMode, getLEDnumber());
 
-    receivedNoteProcessed = true;
+    receivedNoteOnProcessed = true;
 
 }
 
