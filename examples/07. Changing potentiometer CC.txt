@@ -1,0 +1,5 @@
+Each potentiometer has configurable CC number.
+
+Setting potentiometer 3 to CC 8:
+F0 00 53 43 01 00 06 02 03 08 F7
+

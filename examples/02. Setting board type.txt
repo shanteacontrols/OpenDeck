@@ -1,0 +1,4 @@
+Controller doesn't work until board type has been specified.
+
+For OpenDeck reference board, board type is 01:
+F0 00 53 43 01 00 01 00 00 01 F7

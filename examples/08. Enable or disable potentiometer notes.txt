@@ -1,0 +1,7 @@
+By default, each potentiometer sends 6 notes on note channel 3, depending on potentiometer position.
+
+Disable potentiometer notes:
+F0 00 53 43 01 00 03 00 03 00 F7
+
+Enable potentiometer notes:
+F0 00 53 43 01 00 03 00 03 01 F7

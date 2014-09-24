@@ -1,0 +1,11 @@
+Each LED can have its own MIDI activation note. When specified note is sent to controller, LED will either be on constantly or will start to blink. If LED blinking is enabled (as a software feature), LED state is determined by these ranges of velocity:
+
+Velocity 0:         Constant state off
+Velocity 1-62:      Constant state on
+Velocity 63:        Blink state off
+Velocity 64-127:    Blink state on
+
+If LED blinking is disabled, constant state is turned off by sending velocity 0, and turned on by any larger velocity.
+
+Setting LED 0 activation note to 2:
+F0 00 53 43 01 00 08 00 00 02 F7

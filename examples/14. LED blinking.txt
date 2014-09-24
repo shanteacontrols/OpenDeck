@@ -1,0 +1,7 @@
+LED blinking is a software feature, and it can be enabled or disabled.
+
+Disable LED blinking:
+F0 00 53 43 01 00 03 00 05 00 F7
+
+Enable LED blinking:
+F0 00 53 43 01 00 03 00 05 01 F7

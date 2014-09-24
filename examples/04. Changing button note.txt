@@ -1,0 +1,6 @@
+Each button has configurable MIDI note.
+
+Setting note for button 19 (0x13) to 20 (0x14):
+F0 00 53 43 01 00 05 01 13 14 F7
+
+Allowed values are 0-127 (0x00-0x7F).

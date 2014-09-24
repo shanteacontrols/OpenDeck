@@ -1,0 +1,13 @@
+By default, all potentiometers are disabled to avoid sending of random data if one or more analogue inputs are left disconnected.
+
+Enable all potentiometers:
+F0 00 53 43 01 01 06 00 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 F7
+
+Disable all potentiometers:
+F0 00 53 43 01 01 06 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 F7
+
+Disable potentiometer 3:
+F0 00 53 43 01 00 06 00 03 00 F7
+
+Enable potentiometer 3:
+F0 00 53 43 01 00 06 00 03 01 F7

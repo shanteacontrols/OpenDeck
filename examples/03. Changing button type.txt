@@ -1,0 +1,6 @@
+Buttons can have two types: momentary and latching. Momentary type sends note off immediately after it's been released. Latching type sends note off on second press.
+
+Configuring button 19 (0x13) to latching type:
+F0 00 53 43 01 00 05 00 13 01 F7
+
+Allowed values are 0 (momentary) and 1 (latching).
