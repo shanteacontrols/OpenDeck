@@ -2,7 +2,7 @@
 
 OpenDECK library v1.0
 File: OpenDeck.h
-Last revision date: 2014-09-17
+Last revision date: 2014-09-24
 Author: Igor Petrovic
 
 */
@@ -98,7 +98,7 @@ class OpenDeck  {
 
     //free pins
     bool        freePinConfEn;
-    uint8_t     freePinState[NUMBER_OF_FREE_PINS],
+    uint8_t     freePinState[SYS_EX_FREE_PIN_END],
                 freePinsAsBRows,
                 freePinsAsLRows;
 
@@ -127,7 +127,9 @@ class OpenDeck  {
                 potEnabled[MAX_NUMBER_OF_POTS/8];
 
     uint8_t     ccNumber[MAX_NUMBER_OF_POTS],
-                lastPotNoteValue[MAX_NUMBER_OF_POTS];
+                lastPotNoteValue[MAX_NUMBER_OF_POTS],
+                ccLowerLimit[MAX_NUMBER_OF_POTS],
+                ccUpperLimit[MAX_NUMBER_OF_POTS];
 
     uint16_t    lastAnalogueValue[MAX_NUMBER_OF_POTS];
     uint32_t    potTimer[MAX_NUMBER_OF_POTS];
@@ -183,6 +185,8 @@ class OpenDeck  {
     void getEnabledPots();
     void getPotInvertStates();
     void getCCnumbers();
+    void getCClowerLimits();
+    void getCCupperLimits();
     void getLEDnotes();
 
     //buttons
@@ -266,6 +270,7 @@ class OpenDeck  {
     bool sysExSetPotEnabled(uint8_t, bool);
     bool sysExSetPotInvertState(uint8_t, bool);
     bool sysExSetCCnumber(uint8_t, uint8_t);
+    bool sysExSetCClimit(uint8_t, uint8_t, uint8_t);
     bool sysExSetLEDnote(uint8_t, uint8_t);
     bool sysExSetLEDstartNumber(uint8_t, uint8_t);
     //restore

@@ -2,7 +2,7 @@
 
 OpenDECK library v1.0
 File: FreePins.cpp
-Last revision date: 2014-09-17
+Last revision date: 2014-09-24
 Author: Igor Petrovic
 
 */
@@ -18,7 +18,7 @@ void OpenDeck::configureFreePins()  {
             bRow = 0,
             lRow = 0;
 
-    for (int i=0; i<NUMBER_OF_FREE_PINS; i++)   {
+    for (int i=0; i<SYS_EX_FREE_PIN_END; i++)   {
 
         pin = i;
         pinState = freePinState[i];

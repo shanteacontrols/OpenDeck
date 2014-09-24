@@ -2,7 +2,7 @@
 
 OpenDECK library v1.0
 File: HardwareControl.cpp
-Last revision date: 2014-09-17
+Last revision date: 2014-09-24
 Author: Igor Petrovic
 
 */ 
@@ -184,7 +184,7 @@ void OpenDeck::ledRowOn(uint8_t rowNumber)  {
 
         }
         
-        for (int i=0; i<NUMBER_OF_FREE_PINS; i++)   {
+        for (int i=0; i<SYS_EX_FREE_PIN_END; i++)   {
             
             if (freePinState[i] == SYS_EX_FREE_PIN_STATE_L_ROW)
                 ledRowOnFreePin(i);
@@ -212,7 +212,7 @@ void OpenDeck::ledRowsOff()   {
         case SYS_EX_BOARD_TYPE_OPEN_DECK_1:
         PORTB &= 0xF0;
 
-        for (int i=0; i<NUMBER_OF_FREE_PINS; i++)   {
+        for (int i=0; i<SYS_EX_FREE_PIN_END; i++)   {
 
             if (freePinState[i] == SYS_EX_FREE_PIN_STATE_L_ROW)
                 ledRowOffFreePin(i);
@@ -261,7 +261,7 @@ void OpenDeck::readButtonColumn(uint8_t &buttonColumnState)    {
         case SYS_EX_BOARD_TYPE_OPEN_DECK_1:
         buttonColumnState = ((PIND >> 4) & 0x0F);
 
-        for (int i=0; i<NUMBER_OF_FREE_PINS; i++)
+        for (int i=0; i<SYS_EX_FREE_PIN_END; i++)
             if (freePinState[i] == SYS_EX_FREE_PIN_STATE_B_ROW) {
 
                 buttonColumnState |= (readButtonRowFreePin(i) << (_numberOfButtonRows+freePinRowCounter));
