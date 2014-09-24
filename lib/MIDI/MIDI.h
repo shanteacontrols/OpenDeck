@@ -10,7 +10,7 @@
 
 /*
     Modified by Igor Petrovic
-    Last edit date: 2014-09-17
+    Last edit date: 2014-09-24
 
     This version of library is stripped of following features:
 
@@ -73,7 +73,7 @@
 #define MIDI_CHANNEL_OMNI       0
 #define MIDI_CHANNEL_OFF        17          // and over
 
-#define MIDI_SYSEX_ARRAY_SIZE   255         // Maximum size is 65535 bytes.
+#define MIDI_SYSEX_ARRAY_SIZE   144
 
 /*! Type definition for practical use (because "unsigned char" is a bit long to write.. )*/
 typedef uint8_t byte;

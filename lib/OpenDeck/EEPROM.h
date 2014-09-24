@@ -2,7 +2,7 @@
 
 OpenDECK library v1.0
 File: EEPROM.h
-Last revision date: 2014-09-17
+Last revision date: 2014-09-24
 Author: Igor Petrovic
 
 */
@@ -16,7 +16,6 @@ Author: Igor Petrovic
 #define EEPROM_M_ID_BYTE_2                  2
 
 #define EEPROM_MIDI_CHANNEL_START           3
-#define NUMBER_OF_MIDI_CHANNELS             6
 
 #define EEPROM_MC_BUTTON_NOTE               3
 #define EEPROM_MC_LONG_PRESS_BUTTON_NOTE    4
@@ -26,7 +25,6 @@ Author: Igor Petrovic
 #define EEPROM_MC_INPUT                     8
 
 #define EEPROM_HW_P_START                   9
-#define NUMBER_OF_HW_P                      6
 
 #define EEPROM_HW_P_BOARD_TYPE              9
 #define EEPROM_HW_P_LONG_PRESS_TIME         10
@@ -36,7 +34,6 @@ Author: Igor Petrovic
 #define EEPROM_HW_P_START_UP_ROUTINE        14
 
 #define EEPROM_FREE_PIN_START               15
-#define NUMBER_OF_FREE_PINS                 4
 
 #define EEPROM_FREE_PIN_A                   15
 #define EEPROM_FREE_PIN_B                   16
@@ -44,7 +41,6 @@ Author: Igor Petrovic
 #define EEPROM_FREE_PIN_D                   18
 
 #define EEPROM_SOFTWARE_FEATURES_START      19
-#define NUMBER_OF_SW_F                      7
 
 #define EEPROM_SW_F_RUNNING_STATUS          0
 #define EEPROM_SW_F_STANDARD_NOTE_OFF       1
@@ -55,7 +51,6 @@ Author: Igor Petrovic
 #define EEPROM_SW_F_START_UP_ROUTINE        6
 
 #define EEPROM_HARDWARE_FEATURES_START      20
-#define NUMBER_OF_HW_F                      4
 
 #define EEPROM_HW_F_BUTTONS                 0
 #define EEPROM_HW_F_POTS                    1
@@ -66,11 +61,15 @@ Author: Igor Petrovic
 #define EEPROM_BUTTON_NOTE_START            37
 
 #define EEPROM_POT_ENABLED_START            165
-#define EEPROM_POT_INVERSION_START          181
-#define EEPROM_POT_CC_NUMBER_START          197
+#define EEPROM_POT_INVERSION_START          173
+#define EEPROM_POT_CC_NUMBER_START          181
+#define EEPROM_POT_LOWER_LIMIT_START        245
+#define EEPROM_POT_UPPER_LIMIT_START        309
 
-#define EEPROM_LED_ACT_NOTE_START           325
-#define EEPROM_LED_START_UP_NUMBER_START    453
+#define EEPROM_ENCODER_START                373
+
+#define EEPROM_LED_ACT_NOTE_START           501
+#define EEPROM_LED_START_UP_NUMBER_START    629
 
 
 //default controller settings
@@ -318,27 +317,11 @@ const uint8_t defConf[] PROGMEM = {
     0x00,
     //63-56
     0x00,
-    //71-64
-    0x00,
-    //79-72
-    0x00,
-    //87-80
-    0x00,
-    //95-88
-    0x00,
-    //103-96
-    0x00,
-    //111-104
-    0x00,
-    //119-112
-    0x00,
-    //127-120
-    0x00,
 
     //invert CC data (1 enabled, 0 disabled)
 
     //7-0
-    0x00,                                   //181
+    0x00,                                   //173
     //15-8
     0x00,
     //23-16
@@ -353,26 +336,211 @@ const uint8_t defConf[] PROGMEM = {
     0x00,
     //63-56
     0x00,
-    //71-64
-    0x00,
-    //79-72
-    0x00,
-    //87-80
-    0x00,
-    //95-88
-    0x00,
-    //103-96
-    0x00,
-    //111-104
-    0x00,
-    //119-112
-    0x00,
-    //127-120
-    0x00,
 
     //CC potentiometer numbers
 
-    0x00,                                   //197
+    0x00,                                   //181
+    0x01,
+    0x02,
+    0x03,
+    0x04,
+    0x05,
+    0x06,
+    0x07,
+    0x08,
+    0x09,
+    0x0A,
+    0x0B,
+    0x0C,
+    0x0D,
+    0x0E,
+    0x0F,
+    0x10,
+    0x11,
+    0x12,
+    0x13,
+    0x14,
+    0x15,
+    0x16,
+    0x17,
+    0x18,
+    0x19,
+    0x1A,
+    0x1B,
+    0x1C,
+    0x1D,
+    0x1E,
+    0x1F,
+    0x20,
+    0x21,
+    0x22,
+    0x23,
+    0x24,
+    0x25,
+    0x26,
+    0x27,
+    0x28,
+    0x29,
+    0x2A,
+    0x2B,
+    0x2C,
+    0x2D,
+    0x2E,
+    0x2F,
+    0x30,
+    0x31,
+    0x32,
+    0x33,
+    0x34,
+    0x35,
+    0x36,
+    0x37,
+    0x38,
+    0x39,
+    0x3A,
+    0x3B,
+    0x3C,
+    0x3D,
+    0x3E,
+    0x3F,
+
+    //CC lower limits
+
+    0x00,                                   //245
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+
+    //CC upper limits
+
+    0x7F,                                   //309
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+    0x7F,
+
+    //encoder combinations
+
+    0x00,                                   //373
     0x01,
     0x02,
     0x03,
@@ -503,7 +671,7 @@ const uint8_t defConf[] PROGMEM = {
 
     //LED Activation Notes
 
-    0x00,                                   //325
+    0x00,                                   //501
     0x01,
     0x02,
     0x03,
@@ -631,10 +799,10 @@ const uint8_t defConf[] PROGMEM = {
     0x7D,
     0x7E,
     0x7F,
-    
+
     //LED start-up number
 
-    0x00,                                   //453
+    0x00,                                   //629
     0x01,
     0x02,
     0x03,

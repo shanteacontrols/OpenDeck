@@ -2,7 +2,7 @@
 
 OpenDECK library v1.0
 File: OpenDeck.cpp
-Last revision date: 2014-09-17
+Last revision date: 2014-09-24
 Author: Igor Petrovic
 
 */
@@ -119,6 +119,8 @@ void OpenDeck::initVariables()  {
         lastPotNoteValue[i]         = 0;
         lastAnalogueValue[i]        = 0;
         potTimer[i]                 = 0;
+        ccLowerLimit[i]             = 0;
+        ccUpperLimit[i]             = 0;
 
     }
 
@@ -161,7 +163,7 @@ void OpenDeck::initVariables()  {
     _board                          = 0;
 
     //free pins
-    for (i=0; i<NUMBER_OF_FREE_PINS; i++)
+    for (i=0; i<SYS_EX_FREE_PIN_END; i++)
     freePinState[i]                 = 0;
     freePinConfEn                   = false;
     freePinsAsBRows                 = 0;

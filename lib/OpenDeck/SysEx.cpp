@@ -2,7 +2,7 @@
 
 OpenDECK library v1.0
 File: SysEx.cpp
-Last revision date: 2014-09-17
+Last revision date: 2014-09-24
 Author: Igor Petrovic
 
 */
@@ -30,7 +30,7 @@ bool OpenDeck::sysExCheckMessageValidity(uint8_t sysExArray[], uint8_t arrSize) 
     if (sysExCheckID(sysExArray[SYS_EX_MS_M_ID_0], sysExArray[SYS_EX_MS_M_ID_1], sysExArray[SYS_EX_MS_M_ID_2]))  {
 
         //only check rest of the message if it's not just a ID check and controller has received handshake
-        if ((arrSize >= SYS_EX_ML_REQ_DATA) && (sysExEnabled))    {
+        if ((arrSize >= SYS_EX_ML_REQ_STANDARD) && (sysExEnabled))    {
 
             //check wish validity
             if (sysExCheckWish(sysExArray[SYS_EX_MS_WISH]))    {
@@ -43,7 +43,7 @@ bool OpenDeck::sysExCheckMessageValidity(uint8_t sysExArray[], uint8_t arrSize) 
 
                         //check for special wish/amount/message type combinations
                         if (!(sysExCheckSpecial(sysExArray[SYS_EX_MS_MT], sysExArray[SYS_EX_MS_WISH], sysExArray[SYS_EX_MS_AMOUNT])))
-                        return false;
+                            return false;
 
                         //determine minimum message length based on asked parameters
                         if (arrSize < sysExGenerateMinMessageLenght(sysExArray[SYS_EX_MS_WISH],
@@ -170,35 +170,19 @@ bool OpenDeck::sysExCheckID(uint8_t firstByte, uint8_t secondByte, uint8_t third
 
 bool OpenDeck::sysExCheckWish(uint8_t wish)   {
 
-    if ((wish == SYS_EX_WISH_GET) || (wish == SYS_EX_WISH_SET) || (wish == SYS_EX_WISH_RESTORE)) return true;
-    return false;
+    return ((wish >= SYS_EX_WISH_START) && (wish < SYS_EX_WISH_END));
 
 }
 
-bool OpenDeck::sysExCheckAmount(uint8_t parameter)    {
+bool OpenDeck::sysExCheckAmount(uint8_t amount)    {
 
-    return ((parameter == SYS_EX_AMOUNT_SINGLE) || (parameter == SYS_EX_AMOUNT_ALL));
+    return ((amount >= SYS_EX_AMOUNT_START) && (amount < SYS_EX_AMOUNT_END));
 
 }
 
-bool OpenDeck::sysExCheckMessageType(uint8_t messageID) {
+bool OpenDeck::sysExCheckMessageType(uint8_t messageType) {
 
-    if  (
-
-    (messageID == SYS_EX_MT_MIDI_CHANNEL)    ||
-    (messageID == SYS_EX_MT_HW_PARAMETER)    ||
-    (messageID == SYS_EX_MT_FREE_PINS)       ||
-    (messageID == SYS_EX_MT_SW_FEATURE)      ||
-    (messageID == SYS_EX_MT_HW_FEATURE)      ||
-    (messageID == SYS_EX_MT_BUTTON)          ||
-    (messageID == SYS_EX_MT_POT)             ||
-    (messageID == SYS_EX_MT_ENC)             ||
-    (messageID == SYS_EX_MT_LED)             ||
-    (messageID == SYS_EX_MT_ALL)
-
-    )   return true;
-
-    return false;
+    return ((messageType >= SYS_EX_MT_START) && (messageType < SYS_EX_MT_END));
 
 }
 
@@ -227,18 +211,11 @@ bool OpenDeck::sysExCheckMessageSubType(uint8_t messageType, uint8_t messageSubT
         break;
 
         case SYS_EX_MT_BUTTON:
-        return ((messageSubType == SYS_EX_MST_BUTTON_TYPE) || (messageSubType == SYS_EX_MST_BUTTON_NOTE));
+        return ((messageSubType >= SYS_EX_MST_BUTTON_START) && (messageSubType < SYS_EX_MST_BUTTON_END));
         break;
 
         case SYS_EX_MT_POT:
-        return  (
-
-        (messageSubType == SYS_EX_MST_POT_ENABLED)  ||
-        (messageSubType == SYS_EX_MST_POT_INVERTED) ||
-        (messageSubType == SYS_EX_MST_POT_CC_NUMBER)
-
-        );
-
+        return ((messageSubType >= SYS_EX_MST_POT_START) && (messageSubType < SYS_EX_MST_POT_END));
         break;
 
         case SYS_EX_MT_ENC:
@@ -247,14 +224,7 @@ bool OpenDeck::sysExCheckMessageSubType(uint8_t messageType, uint8_t messageSubT
         break;
 
         case SYS_EX_MT_LED:
-        return  (
-
-        (messageSubType == SYS_EX_MST_LED_ACT_NOTE)         ||
-        (messageSubType == SYS_EX_MST_LED_START_UP_NUMBER)  ||
-        (messageSubType == SYS_EX_MST_LED_STATE)
-
-        );
-
+        return ((messageSubType >= SYS_EX_MST_LED_START) && (messageSubType < SYS_EX_MST_LED_END));
         break;
 
         case SYS_EX_MT_ALL:
@@ -274,84 +244,39 @@ bool OpenDeck::sysExCheckParameterID(uint8_t messageType, uint8_t messageSubType
     switch (messageType)    {
 
         case SYS_EX_MT_MIDI_CHANNEL:
-        return  (
-
-        (parameter == SYS_EX_MC_BUTTON_NOTE)                ||
-        (parameter == SYS_EX_MC_LONG_PRESS_BUTTON_NOTE)     ||
-        (parameter == SYS_EX_MC_POT_CC)                     ||
-        (parameter == SYS_EX_MC_POT_NOTE)                   ||
-        (parameter == SYS_EX_MC_ENC_CC)                     ||
-        (parameter == SYS_EX_MC_INPUT)
-
-        );
-
+        return ((parameter >= SYS_EX_MC_START) && (parameter < SYS_EX_MC_END));
         break;
 
         case SYS_EX_MT_HW_PARAMETER:
-        return  (
-
-        (parameter == SYS_EX_HW_P_BOARD_TYPE)               ||
-        (parameter == SYS_EX_HW_P_LONG_PRESS_TIME)          ||
-        (parameter == SYS_EX_HW_P_BLINK_TIME)               ||
-        (parameter == SYS_EX_HW_P_START_UP_SWITCH_TIME)     ||
-        (parameter == SYS_EX_HW_P_START_UP_ROUTINE)||
-        (parameter == SYS_EX_HW_P_TOTAL_LED_NUMBER)
-        
-        );
-
+        return ((parameter >= SYS_EX_HW_P_START) && (parameter < SYS_EX_HW_P_END));
         break;
 
         case SYS_EX_MT_FREE_PINS:
-        return  (
-
-        (parameter == SYS_EX_FREE_PIN_A)                    ||
-        (parameter == SYS_EX_FREE_PIN_B)                    ||
-        (parameter == SYS_EX_FREE_PIN_C)                    ||
-        (parameter == SYS_EX_FREE_PIN_D)
-
-        );
-
+        return ((parameter >= SYS_EX_FREE_PIN_START) && (parameter < SYS_EX_FREE_PIN_END));
         break;
 
         case SYS_EX_MT_SW_FEATURE:
-        return  (
-
-        (parameter == SYS_EX_SW_F_RUNNING_STATUS)           ||
-        (parameter == SYS_EX_SW_F_STANDARD_NOTE_OFF)        ||
-        (parameter == SYS_EX_SW_F_ENC_NOTES)                ||
-        (parameter == SYS_EX_SW_F_POT_NOTES)                ||
-        (parameter == SYS_EX_SW_F_LONG_PRESS)               ||
-        (parameter == SYS_EX_SW_F_LED_BLINK)                ||
-        (parameter == SYS_EX_SW_F_START_UP_ROUTINE)
-        );
-
+        return ((parameter >= SYS_EX_SW_F_START) && (parameter < SYS_EX_SW_F_END));
         break;
 
         case SYS_EX_MT_HW_FEATURE:
-        return  (
-
-        (parameter == SYS_EX_HW_F_BUTTONS)                  ||
-        (parameter == SYS_EX_HW_F_POTS)                     ||
-        (parameter == SYS_EX_HW_F_ENC)                      ||
-        (parameter == SYS_EX_HW_F_LEDS)
-        );
-
+        return ((parameter >= SYS_EX_HW_F_START) && (parameter < SYS_EX_HW_F_END));
         break;
 
         case SYS_EX_MT_BUTTON:
-        return   (parameter < MAX_NUMBER_OF_BUTTONS);
+        return  (parameter < MAX_NUMBER_OF_BUTTONS);
         break;
 
         case SYS_EX_MT_POT:
-        return   (parameter < MAX_NUMBER_OF_POTS);
+        return  (parameter < MAX_NUMBER_OF_POTS);
         break;
 
         case SYS_EX_MT_ENC:
-        return   (parameter < (MAX_NUMBER_OF_BUTTONS/2));
+        return  (parameter < (MAX_NUMBER_OF_BUTTONS/2));
         break;
 
         case SYS_EX_MT_LED:
-        return (parameter < MAX_NUMBER_OF_LEDS);
+        return  (parameter < MAX_NUMBER_OF_LEDS);
         break;
 
         default:
@@ -377,26 +302,19 @@ bool OpenDeck::sysExCheckNewParameterID(uint8_t messageType, uint8_t messageSubT
         switch (parameter)    {
 
             case SYS_EX_HW_P_BOARD_TYPE:
-            return  (
-
-                (newParameter == 0)                             ||
-                (newParameter == SYS_EX_BOARD_TYPE_TANNIN)      ||
-                (newParameter == SYS_EX_BOARD_TYPE_OPEN_DECK_1)
-
-            );
-
+            return ((newParameter >= SYS_EX_BOARD_TYPE_START) && (newParameter < SYS_EX_BOARD_TYPE_END));
             break;
 
             case SYS_EX_HW_P_LONG_PRESS_TIME:
-            return ((newParameter >= 4) && (newParameter <= 15));
+            return ((newParameter >= SYS_EX_HW_P_LONG_PRESS_TIME_MIN) && (newParameter <= SYS_EX_HW_P_LONG_PRESS_TIME_MAX));
             break;
 
             case SYS_EX_HW_P_BLINK_TIME:
-            return ((newParameter >= 1) && (newParameter <= 15));
+            return ((newParameter >= SYS_EX_HW_P_BLINK_TIME_MIN) && (newParameter <= SYS_EX_HW_P_BLINK_TIME_MAX));
             break;
 
             case SYS_EX_HW_P_START_UP_SWITCH_TIME:
-            return ((newParameter >= 1) && (newParameter <= 150));
+            return ((newParameter >= SYS_EX_HW_P_START_UP_SWITCH_TIME_MIN) && (newParameter <= SYS_EX_HW_P_START_UP_SWITCH_TIME_MAX));
             break;
 
             case SYS_EX_HW_P_START_UP_ROUTINE:
@@ -422,14 +340,7 @@ bool OpenDeck::sysExCheckNewParameterID(uint8_t messageType, uint8_t messageSubT
             case SYS_EX_FREE_PIN_A:
             case SYS_EX_FREE_PIN_B:
             case SYS_EX_FREE_PIN_D:
-            return  (
-
-            (newParameter == SYS_EX_FREE_PIN_STATE_DISABLED) ||
-            (newParameter == SYS_EX_FREE_PIN_STATE_B_ROW)    ||
-            (newParameter == SYS_EX_FREE_PIN_STATE_L_ROW)
-
-            );
-
+            return ((newParameter >= SYS_EX_FREE_PIN_STATE_START) && (newParameter < SYS_EX_FREE_PIN_STATE_END));
             break;
 
             case SYS_EX_FREE_PIN_C:
@@ -490,6 +401,8 @@ bool OpenDeck::sysExCheckNewParameterID(uint8_t messageType, uint8_t messageSubT
             break;
 
             case SYS_EX_MST_POT_CC_NUMBER:
+            case SYS_EX_MST_POT_LOWER_LIMIT:
+            case SYS_EX_MST_POT_UPPER_LIMIT:
             return (newParameter < 128);
             break;
 
@@ -515,15 +428,7 @@ bool OpenDeck::sysExCheckNewParameterID(uint8_t messageType, uint8_t messageSubT
             return (newParameter < MAX_NUMBER_OF_LEDS);
 
             case SYS_EX_MST_LED_STATE:
-            return  (
-
-            (newParameter == SYS_EX_LED_STATE_C_OFF)  ||
-            (newParameter == SYS_EX_LED_STATE_C_ON)   ||
-            (newParameter == SYS_EX_LED_STATE_B_OFF)  ||
-            (newParameter == SYS_EX_LED_STATE_B_ON)
-
-            );
-
+            return ((newParameter >= SYS_EX_LED_STATE_START)  && (newParameter < SYS_EX_LED_STATE_END));
             break;
 
             default:
@@ -585,48 +490,48 @@ uint8_t OpenDeck::sysExGenerateMinMessageLenght(uint8_t wish, uint8_t amount, ui
     if (amount == SYS_EX_AMOUNT_SINGLE)  {
 
         if ((wish == SYS_EX_WISH_GET) ||
-        (wish == SYS_EX_WISH_RESTORE))          return SYS_EX_ML_REQ_DATA + 1;  //get   //add 1 to length for parameter
-        else                                    return SYS_EX_ML_REQ_DATA + 2;  //set   //add 2 to length for parameter and new value
+        (wish == SYS_EX_WISH_RESTORE))          return SYS_EX_ML_REQ_STANDARD + 1;  //get   //add 1 to length for parameter
+        else                                    return SYS_EX_ML_REQ_STANDARD + 2;  //set   //add 2 to length for parameter and new value
 
         }   else if (amount == SYS_EX_AMOUNT_ALL)   {
 
         if ((wish == SYS_EX_WISH_GET) || (wish == SYS_EX_WISH_RESTORE))         //get/restore
-            return SYS_EX_ML_REQ_DATA;
+            return SYS_EX_ML_REQ_STANDARD;
 
         else    {                                                               //set
 
             switch (messageType)    {
 
                 case SYS_EX_MT_MIDI_CHANNEL:
-                return SYS_EX_ML_REQ_DATA + NUMBER_OF_MIDI_CHANNELS;
+                return SYS_EX_ML_REQ_STANDARD + SYS_EX_MC_END;
                 break;
 
                 case SYS_EX_MT_HW_PARAMETER:
-                return SYS_EX_ML_REQ_DATA + NUMBER_OF_HW_P;
+                return SYS_EX_ML_REQ_STANDARD + SYS_EX_HW_P_END;
                 break;
 
                 case SYS_EX_MT_FREE_PINS:
-                return SYS_EX_ML_REQ_DATA + NUMBER_OF_FREE_PINS;
+                return SYS_EX_ML_REQ_STANDARD + SYS_EX_FREE_PIN_END;
                 break;
 
                 case SYS_EX_MT_SW_FEATURE:
-                return SYS_EX_ML_REQ_DATA + NUMBER_OF_SW_F;
+                return SYS_EX_ML_REQ_STANDARD + SYS_EX_SW_F_END;
                 break;
 
                 case SYS_EX_MT_HW_FEATURE:
-                return SYS_EX_ML_REQ_DATA + NUMBER_OF_HW_F;
+                return SYS_EX_ML_REQ_STANDARD + SYS_EX_HW_F_END;
                 break;
 
                 case SYS_EX_MT_BUTTON:
-                return SYS_EX_ML_REQ_DATA + MAX_NUMBER_OF_BUTTONS;
+                return SYS_EX_ML_REQ_STANDARD + MAX_NUMBER_OF_BUTTONS;
                 break;
                 
                 case SYS_EX_MT_POT:
-                return SYS_EX_ML_REQ_DATA + MAX_NUMBER_OF_POTS;
+                return SYS_EX_ML_REQ_STANDARD + MAX_NUMBER_OF_POTS;
                 break;
                 
                 case SYS_EX_MT_LED:
-                return SYS_EX_ML_REQ_DATA + MAX_NUMBER_OF_LEDS;
+                return SYS_EX_ML_REQ_STANDARD + MAX_NUMBER_OF_LEDS;
                 break;
 
                 default:
@@ -685,40 +590,34 @@ void OpenDeck::sysExGenerateResponse(uint8_t sysExArray[], uint8_t arrSize)  {
     int16_t maxComponentNr  = 0;
 
     //create basic response
-    uint8_t sysExResponse[128+SYS_EX_ML_REQ_DATA];
+    uint8_t sysExResponse[128+SYS_EX_ML_RES_BASIC];
 
-    sysExResponse[0] = SYS_EX_M_ID_0;
-    sysExResponse[1] = SYS_EX_M_ID_1;
-    sysExResponse[2] = SYS_EX_M_ID_2;
+    //copy first part of request to response
+    for (int i=0; i<(SYS_EX_ML_RES_BASIC-1); i++)
+        sysExResponse[i] = sysExArray[i+1];
 
-    sysExResponse[3] = sysExArray[SYS_EX_MS_WISH];
-
-    sysExResponse[4] = sysExArray[SYS_EX_MS_AMOUNT];
-    sysExResponse[5] = sysExArray[SYS_EX_MS_MT];
-
-    sysExResponse[6] = sysExArray[SYS_EX_MS_MST];
-    sysExResponse[7] = SYS_EX_ACK;
+    sysExResponse[SYS_EX_ML_RES_BASIC-1] = SYS_EX_ACK;
 
     switch (sysExArray[SYS_EX_MS_MT])   {
 
         case SYS_EX_MT_MIDI_CHANNEL:
-        maxComponentNr = NUMBER_OF_MIDI_CHANNELS;
+        maxComponentNr = SYS_EX_MC_END;
         break;
 
         case SYS_EX_MT_HW_PARAMETER:
-        maxComponentNr = NUMBER_OF_HW_P;
+        maxComponentNr = SYS_EX_HW_P_END;
         break;
 
         case SYS_EX_MT_FREE_PINS:
-        maxComponentNr = NUMBER_OF_FREE_PINS;
+        maxComponentNr = SYS_EX_FREE_PIN_END;
         break;
 
         case SYS_EX_MT_SW_FEATURE:
-        maxComponentNr = NUMBER_OF_SW_F;
+        maxComponentNr = SYS_EX_SW_F_END;
         break;
 
         case SYS_EX_MT_HW_FEATURE:
-        maxComponentNr = NUMBER_OF_HW_F;
+        maxComponentNr = SYS_EX_HW_F_END;
         break;
 
         case SYS_EX_MT_BUTTON:
@@ -764,7 +663,7 @@ void OpenDeck::sysExGenerateResponse(uint8_t sysExArray[], uint8_t arrSize)  {
         sendSysExDataCallback(sysExResponse, SYS_EX_ML_RES_BASIC+componentNr);
         return;
 
-    }   else    if (sysExArray[SYS_EX_MS_WISH] == SYS_EX_WISH_SET)   {      //set
+    }   else    if (sysExArray[SYS_EX_MS_WISH] == SYS_EX_WISH_SET)   {          //set
 
             uint8_t arrayIndex;
 
@@ -796,7 +695,7 @@ void OpenDeck::sysExGenerateResponse(uint8_t sysExArray[], uint8_t arrSize)  {
             sendSysExDataCallback(sysExResponse, SYS_EX_ML_RES_BASIC);
             return;
 
-        }   else if (sysExArray[SYS_EX_MS_WISH] == SYS_EX_WISH_RESTORE) {           //restore
+        }   else if (sysExArray[SYS_EX_MS_WISH] == SYS_EX_WISH_RESTORE) {       //restore
 
                 if (!sysExRestore(sysExArray[SYS_EX_MS_MT], sysExArray[SYS_EX_MS_MST], sysExArray[SYS_EX_MS_PARAMETER_ID], componentNr)) {
 
@@ -838,10 +737,34 @@ uint8_t OpenDeck::sysExGet(uint8_t messageType, uint8_t messageSubType, uint8_t 
         break;
 
         case SYS_EX_MT_POT:
-        if (messageSubType == SYS_EX_MST_POT_ENABLED)                   return getPotEnabled(parameter);
-        else if (messageSubType == SYS_EX_MST_POT_INVERTED)             return getPotInvertState(parameter);
-        else                                                            return ccNumber[parameter];
-        break;
+
+        switch (messageSubType) {
+
+            case SYS_EX_MST_POT_ENABLED:
+            return getPotEnabled(parameter);
+            break;
+            
+            case SYS_EX_MST_POT_INVERTED:
+            return getPotInvertState(parameter);
+            break;
+            
+            case SYS_EX_MST_POT_CC_NUMBER:
+            return ccNumber[parameter];
+            break;
+            
+            case SYS_EX_MST_POT_LOWER_LIMIT:
+            return ccLowerLimit[parameter];
+            break;
+            
+            case SYS_EX_MST_POT_UPPER_LIMIT:
+            return ccUpperLimit[parameter];
+            break;
+            
+            default:
+            return false;
+            break;
+
+        }
 
         case SYS_EX_MT_LED:
         if (messageSubType == SYS_EX_MST_LED_ACT_NOTE)                  return ledNote[parameter];
@@ -983,9 +906,31 @@ bool OpenDeck::sysExSet(uint8_t messageType, uint8_t messageSubType, uint8_t par
         break;
 
         case SYS_EX_MT_POT:
-        if (messageSubType == SYS_EX_MST_POT_ENABLED)                   return sysExSetPotEnabled(parameter, newParameter);
-        else if (messageSubType == SYS_EX_MST_POT_INVERTED)             return sysExSetPotInvertState(parameter, newParameter);
-        else                                                            return sysExSetCCnumber(parameter, newParameter);
+
+        switch (messageSubType) {
+
+            case SYS_EX_MST_POT_ENABLED:
+            return sysExSetPotEnabled(parameter, newParameter);
+            break;
+
+            case SYS_EX_MST_POT_INVERTED:
+            return sysExSetPotInvertState(parameter, newParameter);
+            break;
+            
+            case SYS_EX_MST_POT_CC_NUMBER:
+            return sysExSetCCnumber(parameter, newParameter);
+            break;
+
+            case SYS_EX_MST_POT_LOWER_LIMIT:
+            case SYS_EX_MST_POT_UPPER_LIMIT:
+            return sysExSetCClimit(messageSubType, parameter, newParameter);
+            break;
+
+            default:
+            return false;
+            break;
+
+        }
 
         case SYS_EX_MT_LED:
         if (messageSubType == SYS_EX_MST_LED_ACT_NOTE)                  return sysExSetLEDnote(parameter, newParameter);
@@ -1032,7 +977,7 @@ bool OpenDeck::sysExSet(uint8_t messageType, uint8_t messageSubType, uint8_t par
     
 }
 
-bool OpenDeck::sysExRestore(uint8_t messageType, uint8_t messageSubType, uint16_t parameter, int16_t maxComponentNr) {
+bool OpenDeck::sysExRestore(uint8_t messageType, uint8_t messageSubType, uint16_t parameter, int16_t componentNr) {
 
     uint16_t    eepromAddress = 0,
                 _parameter    = 0;
@@ -1093,6 +1038,14 @@ bool OpenDeck::sysExRestore(uint8_t messageType, uint8_t messageSubType, uint16_
             eepromAddress = EEPROM_POT_CC_NUMBER_START;
             break;
 
+            case SYS_EX_MST_POT_LOWER_LIMIT:
+            eepromAddress = EEPROM_POT_LOWER_LIMIT_START;
+            break;
+
+            case SYS_EX_MST_POT_UPPER_LIMIT:
+            eepromAddress = EEPROM_POT_UPPER_LIMIT_START;
+            break;
+
             default:
             return false;
             break;
@@ -1148,9 +1101,9 @@ bool OpenDeck::sysExRestore(uint8_t messageType, uint8_t messageSubType, uint16_
 
         }   else    {
 
-                if (maxComponentNr == 1) _parameter = parameter;
+                if (componentNr == 1) _parameter = parameter;
 
-                for (int i=0; i<maxComponentNr; i++)    {
+                for (int i=0; i<componentNr; i++)    {
 
                     if ((!sysExSet(messageType, messageSubType, _parameter, pgm_read_byte(&(defConf[eepromAddress+_parameter])))) && 
                         (!((eeprom_read_byte((uint8_t*)eepromAddress+i)) == (pgm_read_byte(&defConf[eepromAddress+i]))))) return false;
@@ -1359,6 +1312,30 @@ bool OpenDeck::sysExSetCCnumber(uint8_t potNumber, uint8_t _ccNumber)   {
     ccNumber[potNumber] = _ccNumber;
     eeprom_update_byte((uint8_t*)eepromAddress, _ccNumber);
     return (_ccNumber == eeprom_read_byte((uint8_t*)eepromAddress));
+
+}
+
+bool OpenDeck::sysExSetCClimit(uint8_t limitType, uint8_t _ccNumber, uint8_t newLimit)  {
+
+    switch (limitType)  {
+
+        case SYS_EX_MST_POT_LOWER_LIMIT:
+        ccLowerLimit[_ccNumber] = newLimit;
+        eeprom_update_byte((uint8_t*)EEPROM_POT_LOWER_LIMIT_START+_ccNumber, newLimit);
+        return (eeprom_read_byte((uint8_t*)EEPROM_POT_LOWER_LIMIT_START+_ccNumber) == newLimit);
+        break;
+
+        case SYS_EX_MST_POT_UPPER_LIMIT:
+        ccUpperLimit[_ccNumber] = newLimit;
+        eeprom_update_byte((uint8_t*)EEPROM_POT_UPPER_LIMIT_START+_ccNumber, newLimit);
+        return (eeprom_read_byte((uint8_t*)EEPROM_POT_UPPER_LIMIT_START+_ccNumber) == newLimit);
+        break;
+
+        default:
+        return false;
+        break;
+
+    }
 
 }
 

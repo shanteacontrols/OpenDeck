@@ -2,7 +2,7 @@
 
 OpenDECK library v1.0
 File: EEPROM.cpp
-Last revision date: 2014-09-17
+Last revision date: 2014-09-24
 Author: Igor Petrovic
 
 */ 
@@ -21,11 +21,13 @@ void OpenDeck::getConfiguration()   {
     getFreePinStates();
     getSoftwareFeatures();
     getHardwareFeatures();
+    getButtonsType();
+    getButtonNotes();
     getEnabledPots();
     getPotInvertStates();
     getCCnumbers();
-    getButtonsType();
-    getButtonNotes();
+    getCClowerLimits();
+    getCCupperLimits();
     getLEDnotes();
 
     if (_board != 0)    initBoard();
@@ -58,14 +60,8 @@ void OpenDeck::getHardwareParams()      {
 
 void OpenDeck::getFreePinStates()       {
 
-    uint16_t eepromAddress = EEPROM_FREE_PIN_START;
-
-    for (int i=0; i<NUMBER_OF_FREE_PINS; i++)   {
-
-        freePinState[i] = eeprom_read_byte((uint8_t*)eepromAddress);
-        eepromAddress++;
-
-    }
+    for (int i=0; i<SYS_EX_FREE_PIN_END; i++)
+        freePinState[i] = eeprom_read_byte((uint8_t*)EEPROM_FREE_PIN_START+i);
 
 }
 
@@ -83,78 +79,56 @@ void OpenDeck::getHardwareFeatures()    {
 
 void OpenDeck::getButtonsType()         {
 
-    uint16_t eepromAddress = EEPROM_BUTTON_TYPE_START;
-
-    for (int i=0; i<MAX_NUMBER_OF_BUTTONS/8; i++)   {
-
-        buttonType[i] = eeprom_read_byte((uint8_t*)eepromAddress);
-        eepromAddress++;
-
-    }
+    for (int i=0; i<MAX_NUMBER_OF_BUTTONS/8; i++)
+        buttonType[i] = eeprom_read_byte((uint8_t*)EEPROM_BUTTON_TYPE_START+i);
 
 }
 
 void OpenDeck::getButtonNotes()         {
 
-    uint16_t eepromAddress = EEPROM_BUTTON_NOTE_START;
-
-    for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++) {
-
-        buttonNote[i] = eeprom_read_byte((uint8_t*)eepromAddress);
-        eepromAddress++;
-
-    }
+    for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
+        buttonNote[i] = eeprom_read_byte((uint8_t*)EEPROM_BUTTON_NOTE_START+i);
 
 }
 
 void OpenDeck::getEnabledPots()         {
 
-    uint16_t eepromAddress = EEPROM_POT_ENABLED_START;
-
-    for (int i=0; i<(MAX_NUMBER_OF_POTS/8); i++)    {
-
-        potEnabled[i] = eeprom_read_byte((uint8_t*)eepromAddress);
-        eepromAddress++;
-
-    }
+    for (int i=0; i<(MAX_NUMBER_OF_POTS/8); i++)
+        potEnabled[i] = eeprom_read_byte((uint8_t*)EEPROM_POT_ENABLED_START+i);
 
 }
 
 void OpenDeck::getPotInvertStates()     {
 
-    uint16_t eepromAddress = EEPROM_POT_INVERSION_START;
-
-    for (int i=0; i<(MAX_NUMBER_OF_POTS/8); i++)    {
-
-        potInverted[i] = eeprom_read_byte((uint8_t*)eepromAddress);
-        eepromAddress++;
-
-    }
+    for (int i=0; i<(MAX_NUMBER_OF_POTS/8); i++)
+        potInverted[i] = eeprom_read_byte((uint8_t*)EEPROM_POT_INVERSION_START+i);
 
 }
 
 void OpenDeck::getCCnumbers()           {
 
-    uint16_t eepromAddress = EEPROM_POT_CC_NUMBER_START;
+    for (int i=0; i<MAX_NUMBER_OF_POTS; i++)
+        ccNumber[i] = eeprom_read_byte((uint8_t*)EEPROM_POT_CC_NUMBER_START+i);
 
-    for (int i=0; i<MAX_NUMBER_OF_POTS; i++)    {
+}
 
-        ccNumber[i] = eeprom_read_byte((uint8_t*)eepromAddress);
-        eepromAddress++;
+void OpenDeck::getCClowerLimits()   {
 
-    }
+    for (int i=0; i<MAX_NUMBER_OF_POTS; i++)
+        ccLowerLimit[i] = eeprom_read_byte((uint8_t*)EEPROM_POT_LOWER_LIMIT_START+i);
+
+}
+
+void OpenDeck::getCCupperLimits()   {
+
+    for (int i=0; i<MAX_NUMBER_OF_POTS; i++)
+        ccUpperLimit[i] = eeprom_read_byte((uint8_t*)EEPROM_POT_UPPER_LIMIT_START+i);
 
 }
 
 void OpenDeck::getLEDnotes()            {
 
-    uint16_t eepromAddress = EEPROM_LED_ACT_NOTE_START;
-
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    {
-
-        ledNote[i] = eeprom_read_byte((uint8_t*)eepromAddress);
-        eepromAddress++;
-
-    }
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+        ledNote[i] = eeprom_read_byte((uint8_t*)EEPROM_LED_ACT_NOTE_START+i);
 
 }

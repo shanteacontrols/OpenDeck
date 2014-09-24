@@ -130,8 +130,15 @@ void OpenDeck::processPotReading(int16_t tempValue, uint8_t potNumber)  {
     else                                ccValue = tempValue >> 3;
 
     //only send data if pot is enabled and function isn't called in setup
-    if ((sendPotCCDataCallback != NULL) && (getPotEnabled(potNumber)))
-        sendPotCCDataCallback(ccNumber[potNumber], ccValue, _potCCchannel);
+    if ((sendPotCCDataCallback != NULL) && (getPotEnabled(potNumber)))  {
+
+        //only use map when cc limits are different from defaults
+        if ((ccLowerLimit[potNumber] != 0) || (ccUpperLimit[potNumber] != 127))
+            sendPotCCDataCallback(ccNumber[potNumber], map(ccValue, 0, 127, ccLowerLimit[potNumber], ccUpperLimit[potNumber]), _potCCchannel);
+
+        else    sendPotCCDataCallback(ccNumber[potNumber], ccValue, _potCCchannel);
+
+    }
 
     if (bitRead(softwareFeatures, EEPROM_SW_F_POT_NOTES))  {
 
