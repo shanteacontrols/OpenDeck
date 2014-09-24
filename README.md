@@ -146,4 +146,4 @@ LEDs:
 * State (0x02)
 
 
-For parameters and more info, `see SysEx.h`
+For more information, see examples in /examples folder.
