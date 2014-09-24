@@ -37,15 +37,17 @@ Configuring free pins can lead to maximum of 56 buttons or 64 LEDs, depending on
 ### Software features (enable/disable)
 * MIDI running status
 * Standard MIDI note off
+* Encoder notes
 * Potentiometer notes (6 notes from each pot, depending on its position)
 * Long-press
 * LED blinking
 * Start-up routine
 
 ### Hardware features (enable/disable)
-* Buttons (on/off)
-* Pots (on/off)
-* LEDs (on/off)
+* Buttons
+* Pots
+* Encoders
+* LEDs
 
 ### Button configuration
 * Button type (momentary/latching)
@@ -55,6 +57,8 @@ Configuring free pins can lead to maximum of 56 buttons or 64 LEDs, depending on
 * Enable/disable potentiometer
 * Invert potentiometer
 * MIDI CC number
+* Lower CC limit
+* Upper CC limit
 
 ### LED configuration
 * MIDI activation note for each LED
@@ -107,17 +111,18 @@ Only one parameter
 All parameters
 
 ### MESSAGE_TYPE
-There's a total of 9 message types available.
+There's a total of 10 message types available.
 
-* MIDI channel (0x4D)
-* Hardware parameter (0x54)
-* Free pin (0x46)
-* Software feature (0x53)
-* Hardware feature (0x48)
-* Button (0x42)
-* Potentiometer (0x50)
-* LED (0x4C)
-* All (0x52)
+* MIDI channel (0x00)
+* Hardware parameter (0x01)
+* Free pin (0x02)
+* Software feature (0x03)
+* Hardware feature (0x04)
+* Button (0x05)
+* Potentiometer (0x06)
+* Encoder (0x07)
+* LED (0x08)
+* All (0x09)
 
 ### MESSAGE_SUBTYPE
 
@@ -132,6 +137,8 @@ Potentiometers:
 * Pot enabled (0x00)
 * Pot inverted (0x01)
 * CC number (0x02)
+* Lower CC limit (0x03)
+* Upper CC limit (0x04)
 
 LEDs:
 * Activation note (0x00)
