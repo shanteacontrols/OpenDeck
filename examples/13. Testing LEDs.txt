@@ -1,0 +1,19 @@
+Each LED can be tested.
+
+Setting LED 0 to state 1 (constantly on):
+F0 00 53 43 01 00 08 02 00 01 F7
+
+Setting LED 1 to state 3 (blink on):
+F0 00 53 43 01 00 08 02 01 03 F7
+
+Setting LED 2 to state 3 (blink on):
+F0 00 53 43 01 00 08 02 02 03 F7
+
+Setting LED 0 to state 0 (off):
+F0 00 53 43 01 00 08 02 00 00 F7
+
+Setting LED 1 to state 2 (blink off):
+F0 00 53 43 01 00 08 02 01 02 F7
+
+Setting LED 2 to state 3 (blink off):
+F0 00 53 43 01 00 08 02 02 02 F7

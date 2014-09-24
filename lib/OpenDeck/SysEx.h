@@ -1,6 +1,6 @@
 /*
 
-OpenDECK library v1.0
+OpenDECK library v1.1
 File: SysEx.h
 Last revision date: 2014-09-24
 Author: Igor Petrovic
@@ -18,17 +18,20 @@ Author: Igor Petrovic
 #define SYS_EX_M_ID_1                           0x53
 #define SYS_EX_M_ID_2                           0x43
 
+//lower and upper limits for...
+//long press time
 #define SYS_EX_HW_P_LONG_PRESS_TIME_MIN         0x04
 #define SYS_EX_HW_P_LONG_PRESS_TIME_MAX         0x0F
 
+//blink time
 #define SYS_EX_HW_P_BLINK_TIME_MIN              0x01
 #define SYS_EX_HW_P_BLINK_TIME_MAX              0x0F
 
+//LED switch time on start-up
 #define SYS_EX_HW_P_START_UP_SWITCH_TIME_MIN    0x01
-#define SYS_EX_HW_P_START_UP_SWITCH_TIME_MAX    0x96
+#define SYS_EX_HW_P_START_UP_SWITCH_TIME_MAX    0x78
 
-#define SYS_EX_ENABLE                           0x01
-#define SYS_EX_DISABLE                          0x00
+////////////////////////////////////////////////////
 
 //button types
 #define SYS_EX_BUTTON_TYPE_MOMENTARY            0x00
@@ -46,6 +49,9 @@ Author: Igor Petrovic
 //ACK/error start codes
 #define SYS_EX_ACK                              0x41
 #define SYS_EX_ERROR                            0x46
+
+#define SYS_EX_ENABLE                           0x01
+#define SYS_EX_DISABLE                          0x00
 
 typedef enum {
 

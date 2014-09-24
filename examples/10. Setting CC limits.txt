@@ -1,0 +1,9 @@
+Each potentiometer has defineable upper and lower CC limit. Default is 0-127.
+
+Setting lower CC limit for potentiometer 3 to 40 (0x28):
+F0 00 53 43 01 00 06 03 03 28 F7
+
+Setting upper CC limit for potentiometer 3 to 120 (0x78):
+F0 00 53 43 01 00 06 04 03 78 F7
+
+Excepted parameters are 0-127 (0x00-0x7F).

@@ -1,0 +1,12 @@
+Speed at which LEDs are changing states one-by-one on startup is configurable.
+
+*40mS:
+F0 00 53 43 01 00 01 00 04 04 F7
+
+*60mS:
+F0 00 53 43 01 00 01 00 04 06 F7
+
+*100mS:
+F0 00 53 43 01 00 01 00 04 0A F7
+
+Excepted parameters are 1-120 (0x01-0x78). Parameter is multiplied by 10, ie. setting it to 15 (0x0F) will result in 150mS second blink time.

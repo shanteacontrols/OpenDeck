@@ -1,7 +1,7 @@
 /*
 
-OpenDeck platform firmware v0.99
-Last revision date: 2014-09-15
+OpenDeck platform firmware v1.1
+Last revision date: 2014-09-24
 Author: Igor Petrovic
 
 */
