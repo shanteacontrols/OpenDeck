@@ -1,0 +1,7 @@
+Every LED has configurable start-up number, that is, LED with start number 0 will be the first one that is activated in start-up routine, LED with number 1 will be second, etc. Note that you cannot assign start number bigger or equal to total number of LEDs.
+
+Setting start number 0 to LED 0:
+F0 00 53 43 01 00 08 01 00 00 F7
+
+Setting start number 4 to LED 0:
+F0 00 53 43 01 00 08 01 00 00 F7
