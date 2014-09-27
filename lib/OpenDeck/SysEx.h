@@ -232,17 +232,16 @@ typedef enum {
 
 typedef enum {
 
-    SYS_EX_MS,
-    SYS_EX_MS_M_ID_0,
-    SYS_EX_MS_M_ID_1,
-    SYS_EX_MS_M_ID_2,
-    SYS_EX_MS_WISH,
-    SYS_EX_MS_AMOUNT,
-    SYS_EX_MS_MT,
-    SYS_EX_MS_MST,
-    SYS_EX_MS_PARAMETER_ID,
-    SYS_EX_MS_NEW_PARAMETER_ID_SINGLE,
-    SYS_EX_MS_NEW_PARAMETER_ID_ALL
+    SYS_EX_MS_M_ID_0 = 1,
+    SYS_EX_MS_M_ID_1 = 2,
+    SYS_EX_MS_M_ID_2 = 3,
+    SYS_EX_MS_WISH = 4,
+    SYS_EX_MS_AMOUNT = 5,
+    SYS_EX_MS_MT = 6,
+    SYS_EX_MS_MST = 7,
+    SYS_EX_MS_PARAMETER_ID = 8,
+    SYS_EX_MS_NEW_PARAMETER_ID_SINGLE = 9,
+    SYS_EX_MS_NEW_PARAMETER_ID_ALL = 8,
 
 } sysExMessageByteOrder;
 

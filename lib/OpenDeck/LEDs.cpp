@@ -472,7 +472,6 @@ void OpenDeck::setLEDState()    {
 
         }
 
-    sendButtonDataCallback(blinkMode, true, 1);
     handleLED(currentLEDstate, blinkMode, getLEDnumber());
 
     receivedNoteOnProcessed = true;
