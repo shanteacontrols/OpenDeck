@@ -425,7 +425,7 @@ bool OpenDeck::sysExCheckNewParameterID(uint8_t messageType, uint8_t messageSubT
             break;
 
             case SYS_EX_MST_LED_START_UP_NUMBER:
-            return (newParameter < MAX_NUMBER_OF_LEDS);
+            return (newParameter < totalNumberOfLEDs);
 
             case SYS_EX_MST_LED_STATE:
             return ((newParameter >= SYS_EX_LED_STATE_START)  && (newParameter < SYS_EX_LED_STATE_END));
