@@ -2,7 +2,7 @@
 
 OpenDECK library v1.1
 File: EEPROM.cpp
-Last revision date: 2014-09-24
+Last revision date: 2014-09-28
 Author: Igor Petrovic
 
 */ 
