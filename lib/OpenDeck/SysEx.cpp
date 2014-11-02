@@ -2,7 +2,7 @@
 
 OpenDECK library v1.1
 File: SysEx.cpp
-Last revision date: 2014-09-28
+Last revision date: 2014-10-02
 Author: Igor Petrovic
 
 */
@@ -219,7 +219,7 @@ bool OpenDeck::sysExCheckMessageSubType(uint8_t messageType, uint8_t messageSubT
         break;
 
         case SYS_EX_MT_ENC:
-        //to-do
+        return ((messageSubType >= SYS_EX_MST_ENC_START) && (messageSubType < SYS_EX_MST_ENC_END));
         return false;
         break;
 
@@ -413,8 +413,17 @@ bool OpenDeck::sysExCheckNewParameterID(uint8_t messageType, uint8_t messageSubT
         }
 
         case SYS_EX_MT_ENC:
-        return (newParameter < 128);
-        break;
+        switch (messageSubType) {
+
+            case SYS_EX_MST_ENC_PAIR:
+            return ((newParameter == SYS_EX_ENABLE) || (newParameter == SYS_EX_DISABLE));
+            break;
+
+            default:
+            return false;
+            break;
+
+        }
 
         case SYS_EX_MT_LED:
 
@@ -529,6 +538,9 @@ uint8_t OpenDeck::sysExGenerateMinMessageLenght(uint8_t wish, uint8_t amount, ui
                 case SYS_EX_MT_POT:
                 return SYS_EX_ML_REQ_STANDARD + MAX_NUMBER_OF_POTS;
                 break;
+                
+                case SYS_EX_MT_ENC:
+                return SYS_EX_ML_REQ_STANDARD + (MAX_NUMBER_OF_BUTTONS/2);
                 
                 case SYS_EX_MT_LED:
                 return SYS_EX_ML_REQ_STANDARD + MAX_NUMBER_OF_LEDS;
@@ -765,6 +777,19 @@ uint8_t OpenDeck::sysExGet(uint8_t messageType, uint8_t messageSubType, uint8_t 
             break;
 
         }
+        
+        case SYS_EX_MT_ENC:
+        switch (messageSubType) {
+
+            case SYS_EX_MST_ENC_PAIR:
+            return encoderPairEnabled[parameter];
+            break;
+
+            default:
+            return 0;
+            break;
+
+        }
 
         case SYS_EX_MT_LED:
         if (messageSubType == SYS_EX_MST_LED_ACT_NOTE)                  return ledNote[parameter];
@@ -827,7 +852,7 @@ uint8_t OpenDeck::sysExGetHardwareParameter(uint8_t parameter)  {
 
         case SYS_EX_HW_P_LONG_PRESS_TIME:
         //long press time
-        return _longPressTime/100;
+        return eeprom_read_byte((uint8_t*)EEPROM_HW_P_LONG_PRESS_TIME);
         break;
 
         case SYS_EX_HW_P_BLINK_TIME:
@@ -842,12 +867,12 @@ uint8_t OpenDeck::sysExGetHardwareParameter(uint8_t parameter)  {
         case SYS_EX_HW_P_START_UP_SWITCH_TIME:
         //start-up led switch time
         startUpRoutine();
-        return _startUpLEDswitchTime/10;
+        return eeprom_read_byte((uint8_t*)EEPROM_HW_P_START_UP_SWITCH_TIME);
         break;
 
         case SYS_EX_HW_P_START_UP_ROUTINE:
         startUpRoutine();
-        return startUpRoutinePattern;
+        return eeprom_read_byte((uint8_t*)EEPROM_HW_P_START_UP_ROUTINE);
         break;
 
         default:
@@ -928,6 +953,15 @@ bool OpenDeck::sysExSet(uint8_t messageType, uint8_t messageSubType, uint8_t par
 
             default:
             return false;
+            break;
+
+        }
+
+        case SYS_EX_MT_ENC:
+        switch (messageSubType) {
+
+            case SYS_EX_MST_ENC_PAIR:
+            return sysExSetEncoderPair(parameter, newParameter);
             break;
 
         }
@@ -1178,9 +1212,10 @@ bool OpenDeck::sysExSetHardwareParameter(uint8_t parameter, uint8_t value)  {
         
         case SYS_EX_HW_P_LONG_PRESS_TIME:
         //long press time
-        _longPressTime = value*100;
         eeprom_update_byte((uint8_t*)EEPROM_HW_P_LONG_PRESS_TIME, value);
+        setNumberOfLongPressPasses();
         return (eeprom_read_byte((uint8_t*)EEPROM_HW_P_LONG_PRESS_TIME) == value);
+
         return true;
         break;
 
@@ -1193,7 +1228,6 @@ bool OpenDeck::sysExSetHardwareParameter(uint8_t parameter, uint8_t value)  {
 
         case SYS_EX_HW_P_START_UP_SWITCH_TIME:
         //start-up led switch time
-        _startUpLEDswitchTime = value*10;
         eeprom_update_byte((uint8_t*)EEPROM_HW_P_START_UP_SWITCH_TIME, value);
         startUpRoutine();
         return (eeprom_read_byte((uint8_t*)EEPROM_HW_P_START_UP_SWITCH_TIME) == value);
@@ -1201,7 +1235,6 @@ bool OpenDeck::sysExSetHardwareParameter(uint8_t parameter, uint8_t value)  {
 
         case SYS_EX_HW_P_START_UP_ROUTINE:
         //set start-up routine pattern
-        startUpRoutinePattern = value;
         eeprom_update_byte((uint8_t*)EEPROM_HW_P_START_UP_ROUTINE, value);
         startUpRoutine();
         return (eeprom_read_byte((uint8_t*)EEPROM_HW_P_START_UP_ROUTINE) == value);
@@ -1264,6 +1297,10 @@ bool OpenDeck::sysExSetButtonType(uint8_t buttonNumber, bool type)  {
 
     bitWrite(buttonType[arrayIndex], buttonIndex, type);
     eeprom_update_byte((uint8_t*)eepromAddress, buttonType[arrayIndex]);
+
+    resetLongPress(buttonNumber);
+    setButtonPressed(buttonNumber, false);
+    updateButtonState(buttonNumber, false);
 
     return (buttonType[arrayIndex] == eeprom_read_byte((uint8_t*)eepromAddress));
 
@@ -1336,6 +1373,17 @@ bool OpenDeck::sysExSetCClimit(uint8_t limitType, uint8_t _ccNumber, uint8_t new
         break;
 
     }
+
+}
+
+bool OpenDeck::sysExSetEncoderPair(uint8_t pair, bool state)   {
+
+    uint8_t arrayIndex = pair/8;
+    uint8_t pairIndex = pair - 8*arrayIndex;
+
+    bitWrite(encoderPairEnabled[arrayIndex], pairIndex, state);
+    eeprom_update_byte((uint8_t*)EEPROM_ENCODER_START+arrayIndex, encoderPairEnabled[arrayIndex]);
+    return ((eeprom_read_byte((uint8_t*)EEPROM_ENCODER_START+arrayIndex)) == encoderPairEnabled[arrayIndex]);
 
 }
 

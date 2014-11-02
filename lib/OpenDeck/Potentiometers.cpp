@@ -2,7 +2,7 @@
 
 OpenDECK library v1.1
 File: Potentiometers.cpp
-Last revision date: 2014-09-28
+Last revision date: 2014-10-02
 Author: Igor Petrovic
 
 */
@@ -11,6 +11,14 @@ Author: Igor Petrovic
 #include <avr/eeprom.h>
 #include "Ownduino.h"
 
+//potentiometer must exceed this value before sending new value
+#define MIDI_CC_STEP                8
+
+//potentiometer must exceed this value if it hasn't been moved for more than POTENTIOMETER_MOVE_TIMEOUT
+#define MIDI_CC_STEP_TIMEOUT        10
+
+//time in ms after which new value from pot must exceed MIDI_CC_STEP_TIMEOUT
+#define POTENTIOMETER_MOVE_TIMEOUT  200
 
 void OpenDeck::setHandlePotCC(void (*fptr)(uint8_t potNumber, uint8_t ccValue, uint8_t channel))    {
 
@@ -34,18 +42,15 @@ void OpenDeck::readPots()   {
 
     if ((_board != 0) && (bitRead(hardwareFeatures, EEPROM_HW_F_POTS)))    {
 
-        uint8_t muxNumber = 0;
+        for (int muxInput=0; muxInput<8; muxInput++) {
 
-        //check 8 analogue inputs on ATmega328p
-        for (int i=0; i<8; i++) {
+                setMuxOutput(muxInput);
 
-            //read mux on selected input if connected
-            if (adcConnected(i))    {
+                //add small delay between setting select pins and reading the input
+                NOP;
 
-                readPotsMux(i, muxNumber);
-                muxNumber++;
-
-            }
+                for (int muxNumber=0; muxNumber<_numberOfMux; muxNumber++)
+                    readPotsMux(muxInput, muxNumber);
 
         }
 
@@ -53,38 +58,28 @@ void OpenDeck::readPots()   {
 
 }
 
-bool OpenDeck::adcConnected(uint8_t adcChannel) {
+void OpenDeck::readPotsMux(uint8_t muxInput, uint8_t muxNumber)  {
 
-    //_analogueIn stores 8 variables, for each analogue pin on ATmega328p
-    //if variable is true, analogue input is enabled
-    //else code doesn't check specified input
-    return bitRead(_analogueIn, adcChannel);
+        //read analogue value from mux
+        int16_t tempValue = analogRead(adcConnected(muxNumber));
+
+        //calculate pot number
+        uint8_t potNumber = muxNumber*8+muxInput;
+
+        //don't read/process data from pot if it's disabled
+        if (getPotEnabled(potNumber))   {
+
+            //if new reading is stable, send new MIDI message
+            if (checkPotReading(tempValue, potNumber))
+                processPotReading(tempValue, potNumber);
+
+        }
 
 }
 
-void OpenDeck::readPotsMux(uint8_t adcChannel, uint8_t muxNumber)  {
+uint8_t OpenDeck::adcConnected(uint8_t muxNumber) {
 
-    uint8_t potNumber;
-
-    //iterate over 8 inputs on 4051 mux
-    for (int i=0; i<8; i++) {
-
-        setMuxOutput(i);
-
-        //add small delay between setting select pins and reading the input
-        NOP;
-
-        //read analogue value from mux
-        int16_t tempValue = analogRead(adcChannel);
-        
-        //calculate pot number
-        potNumber = muxNumber*8+i;
-
-        //if new reading is stable, send new MIDI message
-        if (checkPotReading(tempValue, potNumber))
-            processPotReading(tempValue, potNumber);
-
-    }
+    return analogueEnabledArray[muxNumber];
 
 }
 
@@ -129,8 +124,8 @@ void OpenDeck::processPotReading(int16_t tempValue, uint8_t potNumber)  {
     if (getPotInvertState(potNumber))   ccValue = 127 - (tempValue >> 3);
     else                                ccValue = tempValue >> 3;
 
-    //only send data if pot is enabled and function isn't called in setup
-    if ((sendPotCCDataCallback != NULL) && (getPotEnabled(potNumber)))  {
+    //only send data if function isn't called in setup
+    if (sendPotCCDataCallback != NULL)  {
 
         //only use map when cc limits are different from defaults
         if ((ccLowerLimit[potNumber] != 0) || (ccUpperLimit[potNumber] != 127))

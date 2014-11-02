@@ -2,7 +2,7 @@
 
 OpenDECK library v1.1
 File: EEPROM.cpp
-Last revision date: 2014-09-28
+Last revision date: 2014-10-02
 Author: Igor Petrovic
 
 */ 
@@ -28,6 +28,7 @@ void OpenDeck::getConfiguration()   {
     getCCnumbers();
     getCClowerLimits();
     getCCupperLimits();
+    getEncoderPairs();
     getLEDnotes();
 
     if (_board != 0)    initBoard();
@@ -50,11 +51,8 @@ void OpenDeck::getMIDIchannels()        {
 void OpenDeck::getHardwareParams()      {
 
     _board                      = eeprom_read_byte((uint8_t*)EEPROM_HW_P_BOARD_TYPE);
-    _longPressTime              = eeprom_read_byte((uint8_t*)EEPROM_HW_P_LONG_PRESS_TIME) * 100;
     _blinkTime                  = eeprom_read_byte((uint8_t*)EEPROM_HW_P_BLINK_TIME) * 100;
     totalNumberOfLEDs           = eeprom_read_byte((uint8_t*)EEPROM_HW_P_TOTAL_LED_NUMBER);
-    _startUpLEDswitchTime       = eeprom_read_byte((uint8_t*)EEPROM_HW_P_START_UP_SWITCH_TIME) * 10;
-    startUpRoutinePattern       = eeprom_read_byte((uint8_t*)EEPROM_HW_P_START_UP_ROUTINE);
 
 }
 
@@ -123,6 +121,13 @@ void OpenDeck::getCCupperLimits()   {
 
     for (int i=0; i<MAX_NUMBER_OF_POTS; i++)
         ccUpperLimit[i] = eeprom_read_byte((uint8_t*)EEPROM_POT_UPPER_LIMIT_START+i);
+
+}
+
+void OpenDeck::getEncoderPairs()    {
+
+    for (int i=0; i<MAX_NUMBER_OF_ENCODERS/8; i++)
+        encoderPairEnabled[i] = eeprom_read_byte((uint8_t*)EEPROM_ENCODER_START+i);
 
 }
 

@@ -2,7 +2,7 @@
 
 OpenDECK library v1.1
 File: LEDs.cpp
-Last revision date: 2014-09-28
+Last revision date: 2014-09-24
 Author: Igor Petrovic
 
 */
@@ -14,7 +14,7 @@ Author: Igor Petrovic
 
 void OpenDeck::startUpRoutine() {
 
-    switch (startUpRoutinePattern)  {
+    switch (eeprom_read_byte((uint8_t*)EEPROM_HW_P_START_UP_ROUTINE))  {
 
         case 1:
         openDeck.oneByOneLED(true, true, true);
@@ -67,6 +67,8 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 
     */
 
+    uint16_t _startUpLEDswitchTime = eeprom_read_byte((uint8_t*)EEPROM_HW_P_START_UP_SWITCH_TIME) * 10;
+
     //remember last time column was switched
     static uint32_t columnTime = 0;
 
@@ -79,7 +81,7 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
     //index of LED to be processed next
     uint8_t ledNumber,
             _ledNumber[MAX_NUMBER_OF_LEDS];
-            
+
     //get LED order for start-up routine
     for (int i=0; i<totalNumberOfLEDs; i++)    _ledNumber[i] = eeprom_read_byte((uint8_t*)EEPROM_LED_START_UP_NUMBER_START+i);
 

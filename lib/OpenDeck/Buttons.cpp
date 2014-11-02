@@ -2,7 +2,7 @@
 
 OpenDECK library v1.1
 File: Buttons.cpp
-Last revision date: 2014-09-28
+Last revision date: 2014-10-02
 Author: Igor Petrovic
 
 */
@@ -10,6 +10,14 @@ Author: Igor Petrovic
 #include "OpenDeck.h"
 #include "Ownduino.h"
 
+#define MIN_BUTTON_DEBOUNCE_TIME            20
+
+
+uint8_t OpenDeck::getRowPassTime() {
+
+    return getTimedLoopTime()*_numberOfColumns;
+
+}
 
 void OpenDeck::setNumberOfColumnPasses() {
 
@@ -20,44 +28,20 @@ void OpenDeck::setNumberOfColumnPasses() {
 
     */
 
-    uint8_t rowPassTime = getTimedLoopTime()*_numberOfColumns;
+    uint8_t rowPassTime = getRowPassTime();
     uint8_t mod = 0;
 
-    if ((BUTTON_DEBOUNCE_TIME % rowPassTime) > 0)   mod = 1;
+    if ((MIN_BUTTON_DEBOUNCE_TIME % rowPassTime) > 0)   mod = 1;
 
-    uint8_t numberOfColumnPasses = ((BUTTON_DEBOUNCE_TIME / rowPassTime) + mod);
+    numberOfColumnPasses = ((MIN_BUTTON_DEBOUNCE_TIME / rowPassTime) + mod);
 
-    setButtonDebounceCompare(numberOfColumnPasses);
+    setNumberOfLongPressPasses();
 
 }
 
-void OpenDeck::setButtonDebounceCompare(uint8_t numberOfColumnPasses)   {
+void OpenDeck::setNumberOfLongPressPasses() {
 
-    //depending on numberOfColumnPasses, button state gets shifted into
-    //different buttonDebounceCompare variable
-
-    switch(numberOfColumnPasses)    {
-
-        case 1:
-        buttonDebounceCompare = 0b11111110;
-        break;
-
-        case 2:
-        buttonDebounceCompare = 0b11111100;
-        break;
-
-        case 3:
-        buttonDebounceCompare = 0b11111000;
-        break;
-
-        case 4:
-        buttonDebounceCompare = 0b11110000;
-        break;
-
-        default:
-        break;
-
-    }
+    longPressColumnPass = sysExGetHardwareParameter(SYS_EX_HW_P_LONG_PRESS_TIME)*100 / getRowPassTime();
 
 }
 
@@ -115,101 +99,116 @@ bool OpenDeck::getButtonLongPressed(uint8_t buttonNumber)   {
 
 }
 
-bool OpenDeck::checkButton(uint8_t buttonNumber, uint8_t buttonState)  {
+void OpenDeck::procesButtonReading(uint8_t buttonNumber, uint8_t buttonState)  {
 
-    //shift new button reading into buttonState
-    buttonState = (previousButtonState[buttonNumber] << 1) | buttonState | buttonDebounceCompare;
+    switch (getButtonType(buttonNumber))   {
 
-    //if buttonState is changed or if button is debounced, return true
-    if ((buttonState != previousButtonState[buttonNumber]) || (buttonState == 0xFF))
-        return true;
+        case SYS_EX_BUTTON_TYPE_LATCHING:
+        processLatchingButton(buttonNumber, buttonState);
+        return;
+        break;
 
-    return false;
+        case SYS_EX_BUTTON_TYPE_MOMENTARY:
+        processMomentaryButton(buttonNumber, buttonState);
+        return;
+        break;
+
+        default:
+        return;
+        break;
+
+    }
 
 }
 
-void OpenDeck::procesButtonReading(uint8_t buttonNumber, uint8_t buttonState)  {
+void OpenDeck::processMomentaryButton(uint8_t buttonNumber, bool buttonState)   {
 
-    if (buttonState)    buttonState = 0xFF;
-    else                buttonState = buttonDebounceCompare;
+    if (buttonState)    {
 
-    if (buttonState != previousButtonState[buttonNumber])    {
+        //send note on only once
+        if (!getButtonPressed(buttonNumber))    {
 
-        if (buttonState == 0xFF)    {
+            sendButtonDataCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
 
-            //button is pressed
-            //button type is latching
-            if (getButtonType(buttonNumber) == SYS_EX_BUTTON_TYPE_LATCHING)    {
+            setButtonPressed(buttonNumber, true);
 
-                //if a button has been already pressed
-                if (getButtonPressed(buttonNumber)) {
+        }
 
-                    //if longPress is enabled and longPressNote has already been sent
-                    if (bitRead(softwareFeatures, EEPROM_SW_F_LONG_PRESS) && getButtonLongPressed(buttonNumber))   {
+    }   else {  //button is released
 
-                        //send both regular and long press note off
-                        sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
-                        sendButtonDataCallback(buttonNote[buttonNumber], false, _longPressButtonNoteChannel);
-
-                    }   else    sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
-
-                    //reset pressed state
-                    setButtonPressed(buttonNumber, false);
-
-                    }   else    {
-
-                    //send note on on press
-                    sendButtonDataCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
-
-                    //toggle buttonPressed flag to true
-                    setButtonPressed(buttonNumber, true);
-
-                }
-
-            }   else    sendButtonDataCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
-
-            //start long press timer
-            if (bitRead(softwareFeatures, EEPROM_SW_F_LONG_PRESS)) longPressState[buttonNumber] = millis();
-
-            }   else    if ((buttonState == buttonDebounceCompare) && (!getButtonType(buttonNumber)))   {
-
-            //button is released
-            //check button on release only if it's momentary
-
+            //if long-press is enabled
             if (bitRead(softwareFeatures, EEPROM_SW_F_LONG_PRESS)) {
 
+                //if long-press is already sent
                 if (getButtonLongPressed(buttonNumber)) {
 
                     //send both regular and long press note off
                     sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
                     sendButtonDataCallback(buttonNote[buttonNumber], false, _longPressButtonNoteChannel);
 
-                }   else    sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
+                }   else if (getButtonPressed(buttonNumber))
+                        //send only regular off note
+                        sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
 
-                longPressState[buttonNumber] = 0;
-                setButtonLongPressed(buttonNumber, false);
+                        //reset long-press parameters
+                        resetLongPress(buttonNumber);
 
-            }   else    sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
+                        //reset regular press
+                        setButtonPressed(buttonNumber, false);
 
-        }
+            }   else if (getButtonPressed(buttonNumber))    {
 
-        //update previous reading with current
-        previousButtonState[buttonNumber] = buttonState;
+                        sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
+                        setButtonPressed(buttonNumber, false);
 
-    }
+                }
 
-    if (bitRead(softwareFeatures, EEPROM_SW_F_LONG_PRESS)) {
+        }   handleLongPress(buttonNumber, buttonState);
 
-        //send long press note if button has been pressed for defined time and note hasn't already been sent
-        if ((millis() - longPressState[buttonNumber] >= _longPressTime) &&
-            (!getButtonLongPressed(buttonNumber)) && (buttonState == 0xFF))  {
+}
 
-                sendButtonDataCallback(buttonNote[buttonNumber], true, _longPressButtonNoteChannel);
-                setButtonLongPressed(buttonNumber, true);
+void OpenDeck::processLatchingButton(uint8_t buttonNumber, bool buttonState)    {
 
-        }
+        if (buttonState != getPreviousButtonState(buttonNumber)) {
 
-    }
+            if (buttonState) {
+
+                //button is pressed
+                //if a button has been already pressed
+                if (getButtonPressed(buttonNumber)) {
+
+                    //if longPress is enabled and longPressNote has already been sent
+                    if (bitRead(softwareFeatures, EEPROM_SW_F_LONG_PRESS) && getButtonLongPressed(buttonNumber)) {
+
+                        //send both regular and long press note off
+                        sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
+                        sendButtonDataCallback(buttonNote[buttonNumber], false, _longPressButtonNoteChannel);
+
+                        resetLongPress(buttonNumber);
+
+                    } else sendButtonDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
+
+                        //reset pressed state
+                        setButtonPressed(buttonNumber, false);
+
+                } else {
+
+                        //send note on
+                        sendButtonDataCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
+
+                        //toggle buttonPressed flag to true
+                        setButtonPressed(buttonNumber, true);
+
+                }
+
+            }   else {
+
+                    //reset long-press parameters if button is released and long-press hasn't been sent
+                    if (!getButtonLongPressed(buttonNumber)) resetLongPress(buttonNumber);
+
+                }
+
+        }   handleLongPress(buttonNumber, buttonState);
 
 }
 
@@ -224,10 +223,20 @@ void OpenDeck::readButtons()    {
     if ((_board != 0) && (bitRead(hardwareFeatures, EEPROM_HW_F_BUTTONS)))    {
 
         uint8_t columnState = 0;
+        uint8_t activeColumn = getActiveColumn();
 
         readButtonColumn(columnState);
 
-        //iterate over rows
+        //column reading is declared stable if there are numberOfColumnPasses same readings
+        if (columnState == lastColumnState[activeColumn])   {
+
+            if (columnPassCounter[activeColumn] < numberOfColumnPasses) columnPassCounter[activeColumn]++;
+
+        }   else columnPassCounter[activeColumn] = 0;
+
+        //iterate over rows if column readings are stable
+        if (columnPassCounter[activeColumn] == numberOfColumnPasses)
+
         for (int i=0; i<(_numberOfButtonRows+freePinsAsBRows); i++)   {
 
             //extract current bit from çolumnState variable
@@ -235,9 +244,71 @@ void OpenDeck::readButtons()    {
             uint8_t buttonState = !((columnState >> i) & 0x01);
             //get current button number based on row and column
             uint8_t buttonNumber = getActiveColumn()+i*_numberOfColumns;
+            //get encoder pair number based on buttonNumber and current row
+            uint8_t encoderPair = getEncoderPairNumber(i, buttonNumber);
 
-            if (checkButton(buttonNumber, buttonState))
+            if (!encoderPairEnabled[encoderPair])    {
+
                 procesButtonReading(buttonNumber, buttonState);
+                updateButtonState(buttonNumber, buttonState);
+
+        }   else {
+
+                    processEncoderPair(encoderPair, columnState, i);
+                    //skip next row since it's also part of current encoder
+                    i++;
+
+            }
+
+        }
+
+        lastColumnState[activeColumn] = columnState;
+
+    }
+
+}
+
+void OpenDeck::updateButtonState(uint8_t buttonNumber, uint8_t buttonState) {
+
+    uint8_t arrayIndex = buttonNumber/8;
+    uint8_t buttonIndex = buttonNumber - 8*arrayIndex;
+
+    if (bitRead(previousButtonState[arrayIndex], buttonIndex) != buttonState)
+        bitWrite(previousButtonState[arrayIndex], buttonIndex, buttonState);
+
+}
+
+bool OpenDeck::getPreviousButtonState(uint8_t buttonNumber) {
+
+    uint8_t arrayIndex = buttonNumber/8;
+    uint8_t buttonIndex = buttonNumber - 8*arrayIndex;
+
+    return bitRead(previousButtonState[arrayIndex], buttonIndex);
+
+}
+
+void OpenDeck::resetLongPress(uint8_t buttonNumber) {
+
+    setButtonLongPressed(buttonNumber, false);
+    longPressCounter[buttonNumber] = 0;
+
+}
+
+void OpenDeck::handleLongPress(uint8_t buttonNumber, bool buttonState) {
+
+    //update longPressCounter if:
+    //a) long-press is enabled
+    //b) button is pressed
+    //c) long-press isn't already sent
+
+    if (buttonState && bitRead(softwareFeatures, EEPROM_SW_F_LONG_PRESS) && getButtonPressed(buttonNumber) && !getButtonLongPressed(buttonNumber)) {
+
+        longPressCounter[buttonNumber]++;
+
+        if (longPressCounter[buttonNumber] == longPressColumnPass) {
+
+            sendButtonDataCallback(buttonNote[buttonNumber], true, _longPressButtonNoteChannel);
+            setButtonLongPressed(buttonNumber, true);
 
         }
 

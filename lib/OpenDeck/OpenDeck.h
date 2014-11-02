@@ -2,7 +2,7 @@
 
 OpenDECK library v1.1
 File: OpenDeck.h
-Last revision date: 2014-09-28
+Last revision date: 2014-10-02
 Author: Igor Petrovic
 
 */
@@ -16,23 +16,12 @@ Author: Igor Petrovic
 #include "EEPROM.h"
 #include "SysEx.h"
 
-#define BUTTON_DEBOUNCE_TIME        15
-
-//potentiometer must exceed this value before sending new value
-#define MIDI_CC_STEP                8
-
-//potentiometer must exceed this value if it hasn't been moved for more than POTENTIOMETER_MOVE_TIMEOUT
-#define MIDI_CC_STEP_TIMEOUT        9
-
-//time in ms after which new value from pot must exceed MIDI_CC_STEP_TIMEOUT
-#define POTENTIOMETER_MOVE_TIMEOUT  200
-
 #define MAX_NUMBER_OF_POTS          16
-#define MAX_NUMBER_OF_BUTTONS       56
+#define MAX_NUMBER_OF_BUTTONS       64
 #define MAX_NUMBER_OF_LEDS          64
+#define MAX_NUMBER_OF_ENCODERS      16
 
 #define NUMBER_OF_START_UP_ROUTINES 5
-
 
 class OpenDeck  {
 
@@ -53,6 +42,9 @@ class OpenDeck  {
     void setHandlePotNoteOn(void (*fptr)(uint8_t, uint8_t));
     void setHandlePotNoteOff(void (*fptr)(uint8_t, uint8_t));
     void readPots();
+    
+    //encoders
+    void readEncoders();
 
     //LEDs
     void oneByOneLED(bool, bool, bool);
@@ -92,9 +84,7 @@ class OpenDeck  {
                 _inputChannel;
 
     //hardware params
-    uint16_t    _longPressTime,
-                _blinkTime,
-                _startUpLEDswitchTime;
+    uint16_t    _blinkTime;
 
     //free pins
     bool        freePinConfEn;
@@ -103,22 +93,23 @@ class OpenDeck  {
                 freePinsAsLRows;
 
     //software features
-    uint8_t     softwareFeatures,
-                startUpRoutinePattern;
+    uint8_t     softwareFeatures;
 
     //hardware features
     uint8_t     hardwareFeatures;
 
     //buttons
     uint8_t     buttonNote[MAX_NUMBER_OF_BUTTONS],
-                previousButtonState[MAX_NUMBER_OF_BUTTONS],
-                buttonDebounceCompare;
-
-    uint8_t     buttonType[MAX_NUMBER_OF_BUTTONS/8],
+                buttonType[MAX_NUMBER_OF_BUTTONS/8],
+                previousButtonState[MAX_NUMBER_OF_BUTTONS/8],
                 buttonPressed[MAX_NUMBER_OF_BUTTONS/8],
-                longPressSent[MAX_NUMBER_OF_BUTTONS/8];
+                longPressSent[MAX_NUMBER_OF_BUTTONS/8],
+                longPressCounter[MAX_NUMBER_OF_BUTTONS],
+                longPressColumnPass,
+                lastColumnState[8],
+                columnPassCounter[8],
+                numberOfColumnPasses;
 
-    uint32_t    longPressState[MAX_NUMBER_OF_BUTTONS];
     bool        _longPressEnabled,
                 _standardNoteOffEnabled;
 
@@ -133,6 +124,10 @@ class OpenDeck  {
 
     uint16_t    lastAnalogueValue[MAX_NUMBER_OF_POTS];
     uint32_t    potTimer[MAX_NUMBER_OF_POTS];
+
+    //encoders
+    uint8_t     encoderPairEnabled[MAX_NUMBER_OF_ENCODERS/8],
+                encoderPairState[MAX_NUMBER_OF_ENCODERS];
 
     //LEDs
     uint8_t     ledState[MAX_NUMBER_OF_LEDS],
@@ -159,7 +154,7 @@ class OpenDeck  {
                 _numberOfMux,
                 _board;
 
-    uint8_t     _analogueIn;
+    uint8_t     analogueEnabledArray[8];
 
     //sysex
     bool        sysExEnabled;
@@ -187,13 +182,13 @@ class OpenDeck  {
     void getCCnumbers();
     void getCClowerLimits();
     void getCCupperLimits();
+    void getEncoderPairs();
     void getLEDnotes();
 
     //buttons
     void (*sendButtonDataCallback)(uint8_t, bool, uint8_t);
+    uint8_t getRowPassTime();
     void setNumberOfColumnPasses();
-    void setButtonDebounceCompare(uint8_t);
-    bool checkButton(uint8_t, uint8_t);
     void procesButtonReading(uint8_t buttonNumber, uint8_t buttonState);
     uint8_t getButtonType(uint8_t);
     uint8_t getButtonNote(uint8_t);
@@ -201,12 +196,19 @@ class OpenDeck  {
     bool getButtonLongPressed(uint8_t);
     void setButtonPressed(uint8_t, bool);
     void setButtonLongPressed(uint8_t, bool);
+    void processMomentaryButton(uint8_t, bool);
+    void processLatchingButton(uint8_t, bool);
+    void updateButtonState(uint8_t, uint8_t);
+    bool getPreviousButtonState(uint8_t);
+    void setNumberOfLongPressPasses();
+    void resetLongPress(uint8_t);
+    void handleLongPress(uint8_t, bool);
 
     //pots
     void (*sendPotCCDataCallback)(uint8_t, uint8_t, uint8_t);
     void (*sendPotNoteOnDataCallback)(uint8_t, uint8_t);
     void (*sendPotNoteOffDataCallback)(uint8_t, uint8_t);
-    bool adcConnected(uint8_t);
+    uint8_t adcConnected(uint8_t);
     void readPotsMux(uint8_t, uint8_t);
     bool checkPotReading(int16_t, uint8_t);
     void processPotReading(int16_t, uint8_t);
@@ -215,6 +217,12 @@ class OpenDeck  {
     uint8_t getCCnumber(uint8_t);
     uint8_t getPotNoteValue(uint8_t, uint8_t);
     bool checkPotNoteValue(uint8_t, uint8_t);
+
+    //encoders
+    uint8_t getEncoderPairEnabled(uint8_t);
+    bool checkMemberOfEncPair(uint8_t, uint8_t);
+    void processEncoderPair(uint8_t, uint8_t, uint8_t);
+    uint8_t getEncoderPairNumber(uint8_t, uint8_t);
 
     //LEDs
     void startUpRoutine();
@@ -273,6 +281,7 @@ class OpenDeck  {
     bool sysExSetCClimit(uint8_t, uint8_t, uint8_t);
     bool sysExSetLEDnote(uint8_t, uint8_t);
     bool sysExSetLEDstartNumber(uint8_t, uint8_t);
+    bool sysExSetEncoderPair(uint8_t, bool);
     //restore
     bool sysExRestore(uint8_t, uint8_t, uint16_t, int16_t);
 
@@ -281,7 +290,7 @@ class OpenDeck  {
     void initPins();
     void activateColumn(uint8_t);
     void readButtonColumn(uint8_t &);
-    bool enableAnalogueInput(uint8_t);
+    void enableAnalogueInput(uint8_t, uint8_t);
     void setMuxOutput(uint8_t);
     void ledRowOn(uint8_t);
     void ledRowsOff();
