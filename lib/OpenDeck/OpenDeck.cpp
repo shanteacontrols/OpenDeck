@@ -2,7 +2,7 @@
 
 OpenDECK library v1.1
 File: OpenDeck.cpp
-Last revision date: 2014-09-28
+Last revision date: 2014-10-02
 Author: Igor Petrovic
 
 */
@@ -37,8 +37,6 @@ void OpenDeck::init()   {
     else                        getConfiguration(); //get all values from EEPROM
 
     setNumberOfColumnPasses();
-
-    for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)     previousButtonState[i] = buttonDebounceCompare;
 
     //initialize lastPotNoteValue to 128, which is impossible value for MIDI,
     //to avoid sending note off for that value on first read
@@ -82,13 +80,10 @@ void OpenDeck::initVariables()  {
     _inputChannel                   = 0;
 
     //hardware params
-    _longPressTime                  = 0;
     _blinkTime                      = 0;
-    _startUpLEDswitchTime           = 0;
 
     //software features
     softwareFeatures                = 0;
-    startUpRoutinePattern           = 0;
 
     //hardware features
     hardwareFeatures                = 0;
@@ -97,8 +92,6 @@ void OpenDeck::initVariables()  {
     for (i=0; i<MAX_NUMBER_OF_BUTTONS; i++)     {
 
         buttonNote[i]               = 0;
-        previousButtonState[i]      = 0;
-        longPressState[i]           = 0;
 
     }
 
@@ -107,10 +100,9 @@ void OpenDeck::initVariables()  {
         buttonType[i]               = 0;
         buttonPressed[i]            = 0;
         longPressSent[i]            = 0;
+        longPressCounter[i]         = 0;
 
     }
-
-    buttonDebounceCompare           = 0;
 
     //pots
     for (i=0; i<MAX_NUMBER_OF_POTS; i++)        {
@@ -131,7 +123,13 @@ void OpenDeck::initVariables()  {
 
     }
 
-    _analogueIn                     = 0;
+    for (i=0; i<8; i++)                         {
+
+        lastColumnState[i] = 0;
+        columnPassCounter[i] = 0;
+        analogueEnabledArray[i] = 0;
+
+    }
 
     //LEDs
     for (i=0; i<MAX_NUMBER_OF_LEDS; i++)        {
@@ -155,7 +153,10 @@ void OpenDeck::initVariables()  {
 
     //column counter
     column                          = 0;
-    
+    numberOfColumnPasses            = 0;
+
+    longPressColumnPass = 0;
+
     //sysex
     sysExEnabled                    = false;
 
@@ -169,11 +170,20 @@ void OpenDeck::initVariables()  {
     freePinsAsBRows                 = 0;
     freePinsAsLRows                 = 0;
 
+    for (int i=0; i<MAX_NUMBER_OF_ENCODERS/8; i++)   {
+
+        encoderPairEnabled[i]   = 0;
+
+    }
+
+    for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
+        encoderPairState[i]         = 0;
+
 }
 
 void OpenDeck::nextColumn() {
 
-    if (column == _numberOfColumns) column = 0;
+    if (column == _numberOfColumns) column = 0;column = 0;
 
     //turn off all LED rows before switching to next column
     if (_board != 0)    {

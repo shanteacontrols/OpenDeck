@@ -2,7 +2,7 @@
 
 OpenDECK library v1.1
 File: HardwareControl.cpp
-Last revision date: 2014-09-28
+Last revision date: 2014-10-02
 Author: Igor Petrovic
 
 */ 
@@ -11,14 +11,9 @@ Author: Igor Petrovic
 #include "Ownduino.h"
 
 
-bool OpenDeck::enableAnalogueInput(uint8_t adcChannel)  {
+void OpenDeck::enableAnalogueInput(uint8_t muxNumber, uint8_t adcChannel)  {
 
-    if ((adcChannel >=0) && (adcChannel < 8))   {
-
-        bitWrite(_analogueIn, adcChannel, 1);
-        return true;
-        
-    }   return false;
+    analogueEnabledArray[muxNumber] = adcChannel;
 
 }
 
@@ -33,8 +28,8 @@ void OpenDeck::initBoard()  {
         _numberOfColumns = 5;
         _numberOfButtonRows = 4;
         _numberOfLEDrows = 1;
-        enableAnalogueInput(0);
-        enableAnalogueInput(1);
+        enableAnalogueInput(0, 0);
+        enableAnalogueInput(1, 1);
         freePinConfEn = false;
         break;
 
@@ -43,8 +38,8 @@ void OpenDeck::initBoard()  {
         _numberOfColumns = 8;
         _numberOfButtonRows = 4;
         _numberOfLEDrows = 4;
-        enableAnalogueInput(6);
-        enableAnalogueInput(7);
+        enableAnalogueInput(0, 6);
+        enableAnalogueInput(1, 7);
         freePinConfEn = true;
         break;
 

@@ -2,7 +2,7 @@
 
 OpenDECK library v1.1
 File: SysEx.h
-Last revision date: 2014-09-28
+Last revision date: 2014-10-02
 Author: Igor Petrovic
 
 */
@@ -112,6 +112,14 @@ typedef enum {
     SYS_EX_MST_POT_END
 
 } sysExMessageSubTypePot;
+
+typedef enum {
+    
+    SYS_EX_MST_ENC_START,
+    SYS_EX_MST_ENC_PAIR = SYS_EX_MST_ENC_START,
+    SYS_EX_MST_ENC_END
+    
+} sysExMessageSubTypeEnc;
 
 typedef enum {
 
