@@ -2,7 +2,7 @@
 
 OpenDECK library v1.1
 File: Potentiometers.cpp
-Last revision date: 2014-10-02
+Last revision date: 2014-11-02
 Author: Igor Petrovic
 
 */
