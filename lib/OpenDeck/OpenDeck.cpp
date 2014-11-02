@@ -183,7 +183,7 @@ void OpenDeck::initVariables()  {
 
 void OpenDeck::nextColumn() {
 
-    if (column == _numberOfColumns) column = 0;column = 0;
+    if (column == _numberOfColumns) column = 0;
 
     //turn off all LED rows before switching to next column
     if (_board != 0)    {
