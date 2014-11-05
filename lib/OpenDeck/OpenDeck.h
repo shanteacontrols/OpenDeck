@@ -241,6 +241,7 @@ class OpenDeck  {
 
     //columns
     uint8_t getActiveColumn();
+    bool columnStable(uint8_t, uint8_t);
 
 
     //sysex

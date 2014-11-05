@@ -2,7 +2,7 @@
 
 OpenDECK library v1.1
 File: Buttons.cpp
-Last revision date: 2014-11-02
+Last revision date: 2014-11-05
 Author: Igor Petrovic
 
 */
@@ -171,7 +171,7 @@ void OpenDeck::processLatchingButton(uint8_t buttonNumber, bool buttonState)    
 
         if (buttonState != getPreviousButtonState(buttonNumber)) {
 
-            if (buttonState) {
+            if (buttonState) {  
 
                 //button is pressed
                 //if a button has been already pressed
@@ -227,42 +227,34 @@ void OpenDeck::readButtons()    {
 
         readButtonColumn(columnState);
 
-        //column reading is declared stable if there are numberOfColumnPasses same readings
-        if (columnState == lastColumnState[activeColumn])   {
+        if (columnStable(columnState, activeColumn))    {
 
-            if (columnPassCounter[activeColumn] < numberOfColumnPasses) columnPassCounter[activeColumn]++;
+            for (int i=0; i<(_numberOfButtonRows+freePinsAsBRows); i++)   {
 
-        }   else columnPassCounter[activeColumn] = 0;
+                //extract current bit from çolumnState variable
+                //invert extracted bit because of pull-up resistors
+                uint8_t buttonState = !((columnState >> i) & 0x01);
+                //get current button number based on row and column
+                uint8_t buttonNumber = getActiveColumn()+i*_numberOfColumns;
+                //get encoder pair number based on buttonNumber and current row
+                uint8_t encoderPair = getEncoderPairNumber(i, buttonNumber);
 
-        //iterate over rows if column readings are stable
-        if (columnPassCounter[activeColumn] == numberOfColumnPasses)
+                if (!encoderPairEnabled[encoderPair])
+                    procesButtonReading(buttonNumber, buttonState);
 
-        for (int i=0; i<(_numberOfButtonRows+freePinsAsBRows); i++)   {
-
-            //extract current bit from çolumnState variable
-            //invert extracted bit because of pull-up resistors
-            uint8_t buttonState = !((columnState >> i) & 0x01);
-            //get current button number based on row and column
-            uint8_t buttonNumber = getActiveColumn()+i*_numberOfColumns;
-            //get encoder pair number based on buttonNumber and current row
-            uint8_t encoderPair = getEncoderPairNumber(i, buttonNumber);
-
-            if (!encoderPairEnabled[encoderPair])    {
-
-                procesButtonReading(buttonNumber, buttonState);
-                updateButtonState(buttonNumber, buttonState);
-
-        }   else {
+                else {
 
                     processEncoderPair(encoderPair, columnState, i);
                     //skip next row since it's also part of current encoder
                     i++;
 
+                }   updateButtonState(buttonNumber, buttonState);
+
             }
 
         }
 
-        lastColumnState[activeColumn] = columnState;
+         lastColumnState[activeColumn] = columnState;
 
     }
 
@@ -273,6 +265,7 @@ void OpenDeck::updateButtonState(uint8_t buttonNumber, uint8_t buttonState) {
     uint8_t arrayIndex = buttonNumber/8;
     uint8_t buttonIndex = buttonNumber - 8*arrayIndex;
 
+    //update state if it's different than last one
     if (bitRead(previousButtonState[arrayIndex], buttonIndex) != buttonState)
         bitWrite(previousButtonState[arrayIndex], buttonIndex, buttonState);
 
@@ -313,5 +306,19 @@ void OpenDeck::handleLongPress(uint8_t buttonNumber, bool buttonState) {
         }
 
     }
+
+}
+
+bool OpenDeck::columnStable(uint8_t columnState, uint8_t activeColumn)   {
+
+    //column reading is declared stable if there are numberOfColumnPasses same readings
+    if (columnState == lastColumnState[activeColumn])   {
+
+        if (columnPassCounter[activeColumn] < numberOfColumnPasses) columnPassCounter[activeColumn]++;
+
+    }   else columnPassCounter[activeColumn] = 0;
+
+    //iterate over rows if column readings are stable
+    return (columnPassCounter[activeColumn] == numberOfColumnPasses);
 
 }

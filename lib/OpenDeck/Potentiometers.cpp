@@ -46,9 +46,6 @@ void OpenDeck::readPots()   {
 
                 setMuxOutput(muxInput);
 
-                //add small delay between setting select pins and reading the input
-                NOP;
-
                 for (int muxNumber=0; muxNumber<_numberOfMux; muxNumber++)
                     readPotsMux(muxInput, muxNumber);
 
