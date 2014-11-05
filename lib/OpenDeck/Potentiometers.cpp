@@ -40,9 +40,29 @@ void OpenDeck::setHandlePotNoteOff(void (*fptr)(uint8_t note, uint8_t channel)) 
 
 void OpenDeck::readPots()   {
 
+    //read only half data from mux each time to avoid issues with
+    //column switching in matrix
+
+    static bool firstHalf = true;
+    uint8_t start, end;
+
+    switch (firstHalf)  {
+
+        case true:
+        start = 0;
+        end = 4;
+        break;
+
+        case false:
+        start = 4;
+        end = 8;
+        break;
+
+    }
+
     if ((_board != 0) && (bitRead(hardwareFeatures, EEPROM_HW_F_POTS)))    {
 
-        for (int muxInput=0; muxInput<8; muxInput++) {
+        for (int muxInput=start; muxInput<end; muxInput++) {
 
                 setMuxOutput(muxInput);
 
@@ -51,20 +71,20 @@ void OpenDeck::readPots()   {
 
         }
 
-    }
+    }   firstHalf = !firstHalf;
 
 }
 
 void OpenDeck::readPotsMux(uint8_t muxInput, uint8_t muxNumber)  {
-
-        //read analogue value from mux
-        int16_t tempValue = analogRead(adcConnected(muxNumber));
 
         //calculate pot number
         uint8_t potNumber = muxNumber*8+muxInput;
 
         //don't read/process data from pot if it's disabled
         if (getPotEnabled(potNumber))   {
+
+            //read analogue value from mux
+            int16_t tempValue = analogRead(adcConnected(muxNumber));
 
             //if new reading is stable, send new MIDI message
             if (checkPotReading(tempValue, potNumber))
