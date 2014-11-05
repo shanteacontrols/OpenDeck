@@ -276,7 +276,7 @@ void OpenDeck::setMuxOutput(uint8_t muxInput) {
         default:
         break;
 
-    }   NOP;
+    }
 
 }
 
