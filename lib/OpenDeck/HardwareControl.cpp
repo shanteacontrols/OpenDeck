@@ -2,7 +2,7 @@
 
 OpenDECK library v1.1
 File: HardwareControl.cpp
-Last revision date: 2014-11-02
+Last revision date: 2014-11-05
 Author: Igor Petrovic
 
 */ 
@@ -123,7 +123,44 @@ void OpenDeck::activateColumn(uint8_t column)  {
         case SYS_EX_BOARD_TYPE_OPEN_DECK_1:
         //column switching is controlled by 74HC238 decoder
         PORTC &= 0xC7;
-        PORTC |= (0xC7 | (column << 3));
+        switch (column) {
+
+            case 0:
+            PORTC &= 0xC7;
+            break;
+            
+            case 1:
+            PORTC |= (0xC7 | 0x20);
+            break;
+            
+            case 2:
+            PORTC |= (0xC7 | 0x10);
+            break;
+            
+            case 3:
+            PORTC |= (0xC7 | 0x30);
+            break;
+            
+            case 4:
+            PORTC |= (0xC7 | 0x08);
+            break;
+            
+            case 5:
+            PORTC |= (0xC7 | 0x28);
+            break;
+            
+            case 6:
+            PORTC |= (0xC7 | 0x18);
+            break;
+            
+            case 7:
+            PORTC |= (0xC7 | 0x38);
+            break;
+            
+            default:
+            break;
+
+        }
         break;
 
         default:
@@ -239,7 +276,7 @@ void OpenDeck::setMuxOutput(uint8_t muxInput) {
         default:
         break;
 
-    }
+    }   NOP;
 
 }
 
