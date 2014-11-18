@@ -114,8 +114,6 @@ void setup()  {
 
     Serial.begin(38400);
 
-    openDeck.allLEDsOn();
-
 }
 
 void loop() {
