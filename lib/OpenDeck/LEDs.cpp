@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.1
+OpenDECK library v1.2
 File: LEDs.cpp
-Last revision date: 2014-09-24
+Last revision date: 2014-11-18
 Author: Igor Petrovic
 
 */
@@ -167,7 +167,7 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
     //to get empty cycle after processing last LED
     while (passCounter < totalNumberOfLEDs+1)   {
 
-        if ((millis() - columnTime) > getTimedLoopTime())   {
+        if ((millis() - columnTime) > COLUMN_SCAN_TIME)   {
 
             //activate next column
             nextColumn();
@@ -209,7 +209,7 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
         }
 
             //check if there is any LED to be turned on
-            checkLEDs();
+            checkLEDs(getActiveColumnStartUp());
 
             //update last time column was switched
             columnTime = millis();
@@ -262,17 +262,14 @@ void OpenDeck::checkReceivedNoteOn()  {
 
 }
 
-void OpenDeck::checkLEDs()  {
+void OpenDeck::checkLEDs(uint8_t currentColumn)  {
 
     if ((_board != 0) && (bitRead(hardwareFeatures, EEPROM_HW_F_LEDS)))    {
-
-        //get currently active column
-        uint8_t currentColumn = getActiveColumn();
 
         if ((blinkEnabled) && (bitRead(softwareFeatures, EEPROM_SW_F_LED_BLINK)))   switchBlinkState();
 
         //if there is an active LED in current column, turn on LED row
-        for (int i=0; i<_numberOfLEDrows+freePinsAsLRows; i++)  {
+        for (int i=0; i<_numberOfLEDrows; i++)  {
 
             if (ledOn(currentColumn+i*_numberOfColumns))
                 ledRowOn(i);

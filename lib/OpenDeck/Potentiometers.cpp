@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.1
+OpenDECK library v1.2
 File: Potentiometers.cpp
-Last revision date: 2014-11-02
+Last revision date: 2014-11-18
 Author: Igor Petrovic
 
 */
@@ -40,38 +40,25 @@ void OpenDeck::setHandlePotNoteOff(void (*fptr)(uint8_t note, uint8_t channel)) 
 
 void OpenDeck::readPots()   {
 
-    //read only half data from mux each time to avoid issues with
-    //column switching in matrix
-
-    static bool firstHalf = true;
-    uint8_t start, end;
-
-    switch (firstHalf)  {
-
-        case true:
-        start = 0;
-        end = 4;
-        break;
-
-        case false:
-        start = 4;
-        end = 8;
-        break;
-
-    }
-
     if ((_board != 0) && (bitRead(hardwareFeatures, EEPROM_HW_F_POTS)))    {
 
-        for (int muxInput=start; muxInput<end; muxInput++) {
+        static int8_t previousMuxNumber = -1;
+        uint8_t currentMuxNumber = getActiveMux();
 
-                setMuxOutput(muxInput);
+        if (previousMuxNumber != currentMuxNumber)   {
 
-                for (int muxNumber=0; muxNumber<_numberOfMux; muxNumber++)
-                    readPotsMux(muxInput, muxNumber);
+            for (int i=0; i<8; i++) {
+
+                setMuxInput(i);
+                readPotsMux(i, currentMuxNumber);
+
+            }
+
+            previousMuxNumber = currentMuxNumber;
 
         }
 
-    }   firstHalf = !firstHalf;
+    }
 
 }
 
@@ -84,7 +71,7 @@ void OpenDeck::readPotsMux(uint8_t muxInput, uint8_t muxNumber)  {
         if (getPotEnabled(potNumber))   {
 
             //read analogue value from mux
-            int16_t tempValue = analogRead(adcConnected(muxNumber));
+            int16_t tempValue = getADCvalue();
 
             //if new reading is stable, send new MIDI message
             if (checkPotReading(tempValue, potNumber))

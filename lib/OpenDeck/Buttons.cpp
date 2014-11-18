@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.1
+OpenDECK library v1.2
 File: Buttons.cpp
-Last revision date: 2014-11-05
+Last revision date: 2014-11-18
 Author: Igor Petrovic
 
 */
@@ -15,7 +15,7 @@ Author: Igor Petrovic
 
 uint8_t OpenDeck::getRowPassTime() {
 
-    return getTimedLoopTime()*_numberOfColumns;
+    return COLUMN_SCAN_TIME*_numberOfColumns;
 
 }
 
@@ -218,43 +218,44 @@ void OpenDeck::setHandleButtonSend(void (*fptr)(uint8_t buttonNote, bool buttonS
 
 }
 
-void OpenDeck::readButtons()    {
+void OpenDeck::readButtons(uint8_t currentColumn)    {
 
     if ((_board != 0) && (bitRead(hardwareFeatures, EEPROM_HW_F_BUTTONS)))    {
 
         uint8_t columnState = 0;
-        uint8_t activeColumn = getActiveColumn();
 
         readButtonColumn(columnState);
 
-        if (columnStable(columnState, activeColumn))    {
+        if (columnStable(columnState, currentColumn))    {
 
-            for (int i=0; i<(_numberOfButtonRows+freePinsAsBRows); i++)   {
+            for (int i=0; i<(_numberOfButtonRows); i++)   {
 
                 //extract current bit from çolumnState variable
                 //invert extracted bit because of pull-up resistors
                 uint8_t buttonState = !((columnState >> i) & 0x01);
                 //get current button number based on row and column
-                uint8_t buttonNumber = getActiveColumn()+i*_numberOfColumns;
+                uint8_t buttonNumber = currentColumn+i*_numberOfColumns;
                 //get encoder pair number based on buttonNumber and current row
-                uint8_t encoderPair = getEncoderPairNumber(i, buttonNumber);
+                //uint8_t encoderPair = getEncoderPairNumber(i, buttonNumber);
 
-                if (!encoderPairEnabled[encoderPair])
+                //if (!encoderPairEnabled[encoderPair])
                     procesButtonReading(buttonNumber, buttonState);
 
-                else {
+                //else {
+//
+                    //processEncoderPair(encoderPair, columnState, i);
+                    ////skip next row since it's also part of current encoder
+                    //i++;
+//
+                //}
 
-                    processEncoderPair(encoderPair, columnState, i);
-                    //skip next row since it's also part of current encoder
-                    i++;
-
-                }   updateButtonState(buttonNumber, buttonState);
+                updateButtonState(buttonNumber, buttonState);
 
             }
 
         }
 
-         lastColumnState[activeColumn] = columnState;
+         lastColumnState[currentColumn] = columnState;
 
     }
 

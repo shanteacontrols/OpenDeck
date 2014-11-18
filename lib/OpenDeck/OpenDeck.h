@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.1
+OpenDECK library v1.2
 File: OpenDeck.h
-Last revision date: 2014-11-02
+Last revision date: 2014-11-18
 Author: Igor Petrovic
 
 */
@@ -23,6 +23,8 @@ Author: Igor Petrovic
 
 #define NUMBER_OF_START_UP_ROUTINES 5
 
+#define COLUMN_SCAN_TIME 1
+
 class OpenDeck  {
 
     public:
@@ -35,14 +37,15 @@ class OpenDeck  {
 
     //buttons
     void setHandleButtonSend(void (*fptr)(uint8_t, bool, uint8_t));
-    void readButtons();
+    void readButtons(uint8_t);
 
     //pots
     void setHandlePotCC(void (*fptr)(uint8_t, uint8_t, uint8_t));
     void setHandlePotNoteOn(void (*fptr)(uint8_t, uint8_t));
     void setHandlePotNoteOff(void (*fptr)(uint8_t, uint8_t));
+    uint8_t adcConnected(uint8_t);
     void readPots();
-    
+
     //encoders
     void readEncoders();
 
@@ -54,18 +57,26 @@ class OpenDeck  {
     void turnOffLED(uint8_t);
     void storeReceivedNoteOn(uint8_t, uint8_t, uint8_t);
     void checkReceivedNoteOn();
-    void checkLEDs();
+    void checkLEDs(uint8_t);
 
     //columns
     void nextColumn();
+    void processMatrix();
 
     //getters
     uint8_t getInputMIDIchannel();
     bool standardNoteOffEnabled();
     bool runningStatusEnabled();
+    uint8_t getNumberOfColumns();
+    void activateColumn(uint8_t);
+    uint8_t getNumberOfMux();
+    uint8_t getBoard();
 
     //setters
     bool sysExSetDefaultConf();
+    void ledRowOn(uint8_t);
+    void ledRowsOff();
+    void setMuxInput(uint8_t);
 
     //sysex
     void setHandleSysExSend(void (*fptr)(uint8_t*, uint8_t));
@@ -85,12 +96,6 @@ class OpenDeck  {
 
     //hardware params
     uint16_t    _blinkTime;
-
-    //free pins
-    bool        freePinConfEn;
-    uint8_t     freePinState[SYS_EX_FREE_PIN_END],
-                freePinsAsBRows,
-                freePinsAsLRows;
 
     //software features
     uint8_t     softwareFeatures;
@@ -132,7 +137,8 @@ class OpenDeck  {
     //LEDs
     uint8_t     ledState[MAX_NUMBER_OF_LEDS],
                 ledNote[MAX_NUMBER_OF_LEDS],
-                totalNumberOfLEDs;
+                totalNumberOfLEDs,
+                columnStartUp;
 
     bool        blinkState,
                 blinkEnabled;
@@ -147,8 +153,7 @@ class OpenDeck  {
                 receivedVelocity;
 
     //hardware
-    uint8_t     column,
-                _numberOfColumns,
+    uint8_t     _numberOfColumns,
                 _numberOfButtonRows,
                 _numberOfLEDrows,
                 _numberOfMux,
@@ -172,7 +177,6 @@ class OpenDeck  {
     void getConfiguration();
     void getMIDIchannels();
     void getHardwareParams();
-    void getFreePinStates();
     void getSoftwareFeatures();
     void getHardwareFeatures();
     void getButtonsType();
@@ -208,7 +212,7 @@ class OpenDeck  {
     void (*sendPotCCDataCallback)(uint8_t, uint8_t, uint8_t);
     void (*sendPotNoteOnDataCallback)(uint8_t, uint8_t);
     void (*sendPotNoteOffDataCallback)(uint8_t, uint8_t);
-    uint8_t adcConnected(uint8_t);
+
     void readPotsMux(uint8_t, uint8_t);
     bool checkPotReading(int16_t, uint8_t);
     void processPotReading(int16_t, uint8_t);
@@ -217,6 +221,7 @@ class OpenDeck  {
     uint8_t getCCnumber(uint8_t);
     uint8_t getPotNoteValue(uint8_t, uint8_t);
     bool checkPotNoteValue(uint8_t, uint8_t);
+    uint8_t getActiveMux();
 
     //encoders
     uint8_t getEncoderPairEnabled(uint8_t);
@@ -238,11 +243,12 @@ class OpenDeck  {
     void switchBlinkState();
     uint8_t getLEDnumber();
     uint8_t getLEDnote(uint8_t);
+    uint8_t getActiveColumnStartUp();
 
     //columns
     uint8_t getActiveColumn();
     bool columnStable(uint8_t, uint8_t);
-
+    void setUpTimer();
 
     //sysex
     //callback
@@ -266,13 +272,11 @@ class OpenDeck  {
     uint8_t sysExGet(uint8_t, uint8_t, uint8_t);
     uint8_t sysExGetMIDIchannel(uint8_t);
     uint8_t sysExGetHardwareParameter(uint8_t);
-    uint8_t sysExGetFreePinState(uint8_t pin);
     bool sysExGetFeature(uint8_t, uint8_t);
     //setters
     bool sysExSet(uint8_t, uint8_t, uint8_t, uint8_t);
     bool sysExSetMIDIchannel(uint8_t, uint8_t);
     bool sysExSetHardwareParameter(uint8_t, uint8_t);
-    bool sysExSetFreePin(uint8_t, uint8_t);
     bool sysExSetFeature(uint8_t, uint8_t, bool);
     bool sysExSetButtonType(uint8_t, bool);
     bool sysExSetButtonNote(uint8_t, uint8_t);
@@ -289,19 +293,8 @@ class OpenDeck  {
     //hardware control
     void initBoard();
     void initPins();
-    void activateColumn(uint8_t);
     void readButtonColumn(uint8_t &);
     void enableAnalogueInput(uint8_t, uint8_t);
-    void setMuxOutput(uint8_t);
-    void ledRowOn(uint8_t);
-    void ledRowsOff();
-
-    //free pins
-    void configureFreePins();
-    bool configureFreePin(uint8_t, uint8_t);
-    uint8_t readButtonRowFreePin(uint8_t);
-    void ledRowOffFreePin(uint8_t);
-    void ledRowOnFreePin(uint8_t);
 
 };
 
