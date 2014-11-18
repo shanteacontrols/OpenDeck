@@ -115,7 +115,6 @@ There's a total of 10 message types available.
 
 * MIDI channel (0x00)
 * Hardware parameter (0x01)
-* Free pin (0x02)
 * Software feature (0x03)
 * Hardware feature (0x04)
 * Button (0x05)
