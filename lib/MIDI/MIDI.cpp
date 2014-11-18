@@ -10,7 +10,7 @@
 
 /*
     Modified by Igor Petrovic
-    Last edit date: 2014-09-17
+    Last edit date: 2014-11-15
 
     This version of library is stripped of following features:
 
@@ -315,6 +315,10 @@ void MIDI_Class::sendRealTime(kMIDIType Type)   {
  */
 bool MIDI_Class::read() {
 
+    int16_t bytes_available = USE_SERIAL_PORT.available();
+
+    if (bytes_available <= 0) return false;
+
     return read(mInputChannel);
 
 }
@@ -347,16 +351,6 @@ bool MIDI_Class::read(const byte inChannel) {
 // Private method: MIDI parser
 bool MIDI_Class::parse(byte inChannel)  {
 
-    const int bytes_available = USE_SERIAL_PORT.available();
-
-    if (bytes_available <= 0) {
-
-        // No data available.
-        return false;
-
-    }
-
-    else {
         
         /* Parsing algorithm:
          Get a byte from the serial buffer.
@@ -598,8 +592,6 @@ bool MIDI_Class::parse(byte inChannel)  {
             }
 
         }
-
-    }
 
     // What are our chances to fall here?
     return false;
