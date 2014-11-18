@@ -87,7 +87,7 @@ void OpenDeck::initPins() {
 
 }
 
-void activateColumnInline(uint8_t column, uint8_t board)  {
+inline void activateColumnInline(uint8_t column, uint8_t board)  {
 
     switch (board) {
 
@@ -178,7 +178,7 @@ void OpenDeck::activateColumn(uint8_t column)   {
 
 }
 
-void ledRowOnInline(uint8_t rowNumber, uint8_t board)  {
+inline void ledRowOnInline(uint8_t rowNumber, uint8_t board)  {
 
     switch (board) {
 
@@ -266,7 +266,7 @@ void OpenDeck::ledRowsOff()   {
 
 }
 
-void setMuxInputInline(uint8_t muxInput, uint8_t board) {
+inline void setMuxInputInline(uint8_t muxInput, uint8_t board) {
 
     switch (board) {
 
