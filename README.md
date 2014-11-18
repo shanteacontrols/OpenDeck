@@ -29,11 +29,6 @@ and modified Arduino MIDI library 3.2. All code is available under GNU GPL v3 li
 * Start-up routine LED switch time
 * Start-up routine pattern
 
-### Free pins
-* Reference board contains 4 unused pins, A, B, C and D. Each pin can be configured as input or output,
-resulting in extra button or LED row, except for pin C, which can only be configured as output.
-Configuring free pins can lead to maximum of 56 buttons or 64 LEDs, depending on configuration.
-
 ### Software features (enable/disable)
 * MIDI running status
 * Standard MIDI note off
