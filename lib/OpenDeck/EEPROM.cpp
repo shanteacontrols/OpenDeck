@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.1
+OpenDECK library v1.2
 File: EEPROM.cpp
-Last revision date: 2014-11-02
+Last revision date: 2014-11-18
 Author: Igor Petrovic
 
 */ 
@@ -18,7 +18,6 @@ void OpenDeck::getConfiguration()   {
     //get configuration from EEPROM
     getMIDIchannels();
     getHardwareParams();
-    getFreePinStates();
     getSoftwareFeatures();
     getHardwareFeatures();
     getButtonsType();
@@ -32,7 +31,6 @@ void OpenDeck::getConfiguration()   {
     getLEDnotes();
 
     if (_board != 0)    initBoard();
-    if (freePinConfEn)  configureFreePins();
 
 }
 
@@ -53,13 +51,6 @@ void OpenDeck::getHardwareParams()      {
     _board                      = eeprom_read_byte((uint8_t*)EEPROM_HW_P_BOARD_TYPE);
     _blinkTime                  = eeprom_read_byte((uint8_t*)EEPROM_HW_P_BLINK_TIME) * 100;
     totalNumberOfLEDs           = eeprom_read_byte((uint8_t*)EEPROM_HW_P_TOTAL_LED_NUMBER);
-
-}
-
-void OpenDeck::getFreePinStates()       {
-
-    for (int i=0; i<SYS_EX_FREE_PIN_END; i++)
-        freePinState[i] = eeprom_read_byte((uint8_t*)EEPROM_FREE_PIN_START+i);
 
 }
 

@@ -1,15 +1,19 @@
 /*
 
-OpenDECK library v1.1
+OpenDECK library v1.2
 File: HardwareControl.cpp
-Last revision date: 2014-11-05
+Last revision date: 2014-11-18
 Author: Igor Petrovic
 
 */ 
 
 #include "OpenDeck.h"
 #include "Ownduino.h"
+#include <avr/interrupt.h>
 
+volatile uint8_t column = 0;
+volatile uint8_t activeMux = 0;
+volatile bool changeSwitch = true;
 
 void OpenDeck::enableAnalogueInput(uint8_t muxNumber, uint8_t adcChannel)  {
 
@@ -30,7 +34,6 @@ void OpenDeck::initBoard()  {
         _numberOfLEDrows = 1;
         enableAnalogueInput(0, 0);
         enableAnalogueInput(1, 1);
-        freePinConfEn = false;
         break;
 
         case SYS_EX_BOARD_TYPE_OPEN_DECK_1:
@@ -38,9 +41,8 @@ void OpenDeck::initBoard()  {
         _numberOfColumns = 8;
         _numberOfButtonRows = 4;
         _numberOfLEDrows = 4;
-        enableAnalogueInput(0, 6);
-        enableAnalogueInput(1, 7);
-        freePinConfEn = true;
+        enableAnalogueInput(1, 6);
+        enableAnalogueInput(0, 7);
         break;
 
         default:
@@ -85,9 +87,9 @@ void OpenDeck::initPins() {
 
 }
 
-void OpenDeck::activateColumn(uint8_t column)  {
+void activateColumnInline(uint8_t column, uint8_t board)  {
 
-    switch (_board) {
+    switch (board) {
 
         case SYS_EX_BOARD_TYPE_TANNIN:
         //there can only be one column active at the time, the rest is set to HIGH
@@ -128,35 +130,35 @@ void OpenDeck::activateColumn(uint8_t column)  {
             case 0:
             PORTC &= 0xC7;
             break;
-            
+
             case 1:
             PORTC |= (0xC7 | 0x20);
             break;
-            
+
             case 2:
             PORTC |= (0xC7 | 0x10);
             break;
-            
+
             case 3:
             PORTC |= (0xC7 | 0x30);
             break;
-            
+
             case 4:
             PORTC |= (0xC7 | 0x08);
             break;
-            
+
             case 5:
             PORTC |= (0xC7 | 0x28);
             break;
-            
+
             case 6:
             PORTC |= (0xC7 | 0x18);
             break;
-            
+
             case 7:
             PORTC |= (0xC7 | 0x38);
             break;
-            
+
             default:
             break;
 
@@ -170,9 +172,15 @@ void OpenDeck::activateColumn(uint8_t column)  {
 
 }
 
-void OpenDeck::ledRowOn(uint8_t rowNumber)  {
+void OpenDeck::activateColumn(uint8_t column)   {
 
-    switch (_board) {
+    activateColumnInline(column, _board);
+
+}
+
+void ledRowOnInline(uint8_t rowNumber, uint8_t board)  {
+
+    switch (board) {
 
         case SYS_EX_BOARD_TYPE_TANNIN:
         switch (rowNumber)  {
@@ -215,16 +223,36 @@ void OpenDeck::ledRowOn(uint8_t rowNumber)  {
             break;
 
         }
-        
-        for (int i=0; i<SYS_EX_FREE_PIN_END; i++)   {
-            
-            if (freePinState[i] == SYS_EX_FREE_PIN_STATE_L_ROW)
-                ledRowOnFreePin(i);
-
-        }
 
         break;
         
+        default:
+        break;
+
+    }
+
+}
+
+void OpenDeck::ledRowOn(uint8_t rowNumber)  {
+
+    ledRowOnInline(rowNumber, _board);
+
+}
+
+inline void ledRowsOffInline(uint8_t board)   {
+
+    switch (board) {
+
+        case SYS_EX_BOARD_TYPE_TANNIN:
+        //turn all LED rows off
+        PORTB &= 0xEF;
+        break;
+
+        case SYS_EX_BOARD_TYPE_OPEN_DECK_1:
+        PORTB &= 0xF0;
+
+        break;
+
         default:
         break;
 
@@ -234,35 +262,13 @@ void OpenDeck::ledRowOn(uint8_t rowNumber)  {
 
 void OpenDeck::ledRowsOff()   {
 
-    switch (_board) {
-
-        case SYS_EX_BOARD_TYPE_TANNIN:
-        //turn all LED rows off
-        PORTB &= 0xEF;
-        break;
-        
-        case SYS_EX_BOARD_TYPE_OPEN_DECK_1:
-        PORTB &= 0xF0;
-
-        for (int i=0; i<SYS_EX_FREE_PIN_END; i++)   {
-
-            if (freePinState[i] == SYS_EX_FREE_PIN_STATE_L_ROW)
-                ledRowOffFreePin(i);
-
-        }
-        
-        break;
-
-        default:
-        break;
-
-    }
+    ledRowsOffInline(_board);
 
 }
 
-void OpenDeck::setMuxOutput(uint8_t muxInput) {
+void setMuxInputInline(uint8_t muxInput, uint8_t board) {
 
-    switch (_board) {
+    switch (board) {
 
         case SYS_EX_BOARD_TYPE_TANNIN:
         PORTC = muxInput << 2;
@@ -280,11 +286,15 @@ void OpenDeck::setMuxOutput(uint8_t muxInput) {
 
 }
 
-void OpenDeck::readButtonColumn(uint8_t &buttonColumnState)    {
+void OpenDeck::setMuxInput(uint8_t muxInput)    {
 
-    uint8_t freePinRowCounter = 0;
+    setMuxInputInline(muxInput, _board);
 
-    switch (_board) {
+}
+
+inline void readButtonColumnInline(uint8_t &buttonColumnState, uint8_t board)    {
+
+    switch (board) {
 
         case SYS_EX_BOARD_TYPE_TANNIN:
         buttonColumnState = (PINB & 0x0F);
@@ -293,19 +303,72 @@ void OpenDeck::readButtonColumn(uint8_t &buttonColumnState)    {
         case SYS_EX_BOARD_TYPE_OPEN_DECK_1:
         buttonColumnState = ((PIND >> 4) & 0x0F);
 
-        for (int i=0; i<SYS_EX_FREE_PIN_END; i++)
-            if (freePinState[i] == SYS_EX_FREE_PIN_STATE_B_ROW) {
-
-                buttonColumnState |= (readButtonRowFreePin(i) << (_numberOfButtonRows+freePinRowCounter));
-                freePinRowCounter++;
-
-            }
-
         break;
 
         default:
         break;
 
     }
+
+}
+
+void OpenDeck::readButtonColumn(uint8_t &buttonColumnState) {
+
+    readButtonColumnInline(buttonColumnState, _board);
+
+}
+
+ISR(TIMER2_COMPA_vect)  {
+
+    uint8_t _column = column;
+    uint8_t _activeMux = activeMux;
+    bool _changeSwitch = changeSwitch;
+    uint8_t board = openDeck.getBoard();
+
+    switch(_changeSwitch)    {
+
+        case true:
+        //switch column
+        if (_column == openDeck.getNumberOfColumns()) _column = 0;
+        //turn off all LED rows before switching to next column
+        ledRowsOffInline(board);
+        activateColumnInline(_column, board);
+        _column++;
+        column = _column;
+        break;
+
+        case false:
+        //switch analogue input
+        if (_activeMux == openDeck.getNumberOfMux())    _activeMux = 0;
+        setADCchannel(openDeck.adcConnected(_activeMux));
+        _activeMux++;
+        activeMux = _activeMux;
+        break;
+
+        default:
+        break;
+
+    }
+
+    _changeSwitch = !_changeSwitch;
+    changeSwitch = _changeSwitch;
+
+}
+
+uint8_t OpenDeck::getActiveColumn() {
+
+    uint8_t _column = column;
+
+    //return currently active column
+    return (_column - 1);
+
+}
+
+uint8_t OpenDeck::getActiveMux() {
+
+    uint8_t _activeMux = activeMux;
+
+    //return currently active column
+    return (_activeMux - 1);
 
 }

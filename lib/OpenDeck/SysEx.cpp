@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.1
+OpenDECK library v1.2
 File: SysEx.cpp
-Last revision date: 2014-11-02
+Last revision date: 2014-11-18
 Author: Igor Petrovic
 
 */
@@ -461,14 +461,6 @@ bool OpenDeck::sysExCheckSpecial(uint8_t messageType, uint8_t wish, uint8_t amou
 
     //check for restricted combinations in sysex message
 
-    //don't allow free pin configuration if the board doesn't support it
-    if ((!freePinConfEn) && (messageType == SYS_EX_MT_FREE_PINS))  {
-
-        sysExGenerateError(SYS_EX_ERROR_NOT_SUPPORTED);
-        return false;
-
-    }
-
     if (messageType == SYS_EX_MT_ALL)  {
 
         //message type SYS_EX_MT_ALL can only be used with SYS_EX_WISH_RESTORE wish
@@ -735,7 +727,7 @@ uint8_t OpenDeck::sysExGet(uint8_t messageType, uint8_t messageSubType, uint8_t 
         break;
 
         case SYS_EX_MT_FREE_PINS:
-        return freePinState[parameter];
+        return false;
         break;
 
         case SYS_EX_MT_SW_FEATURE:
@@ -915,9 +907,9 @@ bool OpenDeck::sysExSet(uint8_t messageType, uint8_t messageSubType, uint8_t par
         case SYS_EX_MT_HW_PARAMETER:
         return sysExSetHardwareParameter(parameter, newParameter);
         break;
-        
+
         case SYS_EX_MT_FREE_PINS:
-        return configureFreePin(parameter, newParameter);
+        return false;
         break;
 
         case SYS_EX_MT_SW_FEATURE:
@@ -1251,14 +1243,6 @@ bool OpenDeck::sysExSetHardwareParameter(uint8_t parameter, uint8_t value)  {
         break;
 
     }   return false;
-
-}
-
-bool OpenDeck::sysExSetFreePin(uint8_t pin, uint8_t pinState)   {
-
-    freePinState[pin] = pinState;
-    eeprom_update_byte((uint8_t*)EEPROM_FREE_PIN_START+pin, pinState);
-    return (eeprom_read_byte((uint8_t*)EEPROM_FREE_PIN_START+pin) == pinState);
 
 }
 

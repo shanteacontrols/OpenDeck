@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.1
+OpenDECK library v1.2
 File: SysEx.h
-Last revision date: 2014-11-02
+Last revision date: 2014-11-18
 Author: Igor Petrovic
 
 */

@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.1
+OpenDECK library v1.2
 File: OpenDeck.cpp
-Last revision date: 2014-11-02
+Last revision date: 2014-11-18
 Author: Igor Petrovic
 
 */
@@ -13,6 +13,7 @@ Author: Igor Petrovic
 #include <avr/io.h>
 #include <stdlib.h>
 #include <avr/eeprom.h>
+#include <avr/interrupt.h>
 
 
 OpenDeck::OpenDeck()    {
@@ -33,6 +34,8 @@ OpenDeck::OpenDeck()    {
 
 void OpenDeck::init()   {
 
+    setADCprescaler(32);
+
     if (initialEEPROMwrite())   sysExSetDefaultConf();
     else                        getConfiguration(); //get all values from EEPROM
 
@@ -45,11 +48,9 @@ void OpenDeck::init()   {
     blinkState              = true;
     receivedNoteOnProcessed = true;
 
-    //make initial pot reading to avoid sending all data on startup
-    readPots();
-
     //run LED animation on start-up
     startUpRoutine();
+    setUpTimer();
 
 }
 
@@ -140,6 +141,7 @@ void OpenDeck::initVariables()  {
     }
 
     totalNumberOfLEDs               = 0;
+    columnStartUp                   = 0;
 
     blinkState                      = false;
     blinkEnabled                    = false;
@@ -152,7 +154,6 @@ void OpenDeck::initVariables()  {
     receivedVelocity                = 0;
 
     //column counter
-    column                          = 0;
     numberOfColumnPasses            = 0;
 
     longPressColumnPass = 0;
@@ -162,13 +163,6 @@ void OpenDeck::initVariables()  {
 
     //board type
     _board                          = 0;
-
-    //free pins
-    for (i=0; i<SYS_EX_FREE_PIN_END; i++)
-    freePinState[i]                 = 0;
-    freePinConfEn                   = false;
-    freePinsAsBRows                 = 0;
-    freePinsAsLRows                 = 0;
 
     for (int i=0; i<MAX_NUMBER_OF_ENCODERS/8; i++)   {
 
@@ -181,27 +175,99 @@ void OpenDeck::initVariables()  {
 
 }
 
+void OpenDeck::setUpTimer()   {
+
+    /*
+
+        This timer is used to switch columns in matrix, and also
+        to switch analogue input pin on ATmega328p. It's configured
+        to run every 500 microseconds. Interrupt routine either switches
+        matrix column, or analogue pin, which results in column/analog pin
+        switching every 1ms.
+
+    */
+
+    TCCR2A = 0;
+    TCCR2B = 0;
+    TCNT2  = 0;
+
+    //turn on CTC mode
+    TCCR2A |= (1 << WGM21);
+
+    //set prescaler to 64
+    TCCR2B |= (1 << CS22);
+
+    //set compare match register to desired timer count
+    OCR2A = 124;
+
+    //enable CTC interrupt
+    TIMSK2 |= (1 << OCIE2A);
+
+}
+
+
 void OpenDeck::nextColumn() {
 
-    if (column == _numberOfColumns) column = 0;
+    //used only for start-up animation
+
+    if (columnStartUp == _numberOfColumns) columnStartUp = 0;
 
     //turn off all LED rows before switching to next column
     if (_board != 0)    {
 
         ledRowsOff();
-        activateColumn(column);
+        activateColumn(columnStartUp);
 
         //increment column
-        column++;
+        columnStartUp++;
 
     }
 
 }
 
-uint8_t OpenDeck::getActiveColumn() {
 
-    //return currently active column
-    return (column - 1);
+
+void OpenDeck::processMatrix()  {
+
+    static int8_t previousColumn = -1;
+    uint8_t currentColumn = getActiveColumn();
+
+    if (currentColumn != previousColumn)    {
+
+        //if any of the LEDs on current
+        //column are active, turn them on
+        checkLEDs(currentColumn);
+
+        //check buttons on current column
+        readButtons(currentColumn);
+
+        previousColumn = currentColumn;
+
+    }
+
+}
+
+uint8_t OpenDeck::getNumberOfColumns()  {
+
+    return _numberOfColumns;
+
+}
+
+uint8_t OpenDeck::getActiveColumnStartUp()  {
+
+    return columnStartUp;
+
+}
+
+uint8_t OpenDeck::getNumberOfMux()    {
+
+    return _numberOfMux;
+
+}
+
+uint8_t OpenDeck::getBoard()    {
+
+    return _board;
 
 }
 

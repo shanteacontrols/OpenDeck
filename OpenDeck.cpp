@@ -1,7 +1,7 @@
 /*
 
-OpenDeck platform firmware v1.1
-Last revision date: 2014-09-28
+OpenDeck platform firmware v1.2
+Last revision date: 2014-11-18
 Author: Igor Petrovic
 
 */
@@ -9,15 +9,11 @@ Author: Igor Petrovic
 #include "OpenDeck.h"
 #include "MIDI.h"
 #include "Ownduino.h"
-#include <avr/io.h>
-#include <avr/eeprom.h>
+
 
 //velocity for on and off events
 #define MIDI_NOTE_ON_VELOCITY   127
 #define MIDI_NOTE_OFF_VELOCITY  0
-
-//define time after which code in timedLoop function runs
-#define COLUMN_SWITCH_TIME 1
 
 
 //MIDI callback handlers
@@ -107,10 +103,7 @@ void setMIDIhandlers()  {
 //main
 void setup()  {
 
-    //set time in ms after which timedLoop is run
-    setTimedLoop(COLUMN_SWITCH_TIME);
-
-    //initialize openDeck library for specified board
+    //initialize openDeck library
     openDeck.init();
 
     setOpenDeckHandlers();
@@ -119,25 +112,16 @@ void setup()  {
     //read incoming MIDI messages on specified channel
     MIDI.begin(openDeck.getInputMIDIchannel(), openDeck.runningStatusEnabled());
 
-    Serial.begin(31250);
+    Serial.begin(38400);
 
-}
-
-void timedLoop()    {
-
-    //activate next column
-    openDeck.nextColumn();
-
-    //if any of the LEDs on current
-    //column are active, turn them on
-    openDeck.checkLEDs();
-
-    //check buttons on current column
-    openDeck.readButtons();
+    openDeck.allLEDsOn();
 
 }
 
 void loop() {
+
+    //process buttons and LEDs
+    openDeck.processMatrix();
 
     //constantly check for incoming MIDI messages
     MIDI.read();
@@ -145,7 +129,7 @@ void loop() {
     //check if there is any received note to process
     openDeck.checkReceivedNoteOn();
 
-    //read all pots
+    //read pots one analogue input at the time
     openDeck.readPots();
 
 }
