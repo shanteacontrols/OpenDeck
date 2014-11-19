@@ -1383,10 +1383,10 @@ bool OpenDeck::sysExSetLEDnote(uint8_t ledNumber, uint8_t _ledNote) {
 
 bool OpenDeck::sysExSetLEDstartNumber(uint8_t ledNumber, uint8_t startNumber) {
 
-    uint16_t eepromAddress = EEPROM_LED_START_UP_NUMBER_START+ledNumber;
+    uint16_t eepromAddress = EEPROM_LED_START_UP_NUMBER_START+startNumber;
 
-    eeprom_update_byte((uint8_t*)eepromAddress, startNumber);
-    return startNumber == eeprom_read_byte((uint8_t*)eepromAddress);
+    eeprom_update_byte((uint8_t*)eepromAddress, ledNumber);
+    return ledNumber == eeprom_read_byte((uint8_t*)eepromAddress);
 
 }
 

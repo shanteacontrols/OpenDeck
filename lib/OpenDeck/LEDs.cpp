@@ -113,7 +113,7 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 
         //right-to-left direction
         if (!ledDirection)  {
-            
+
             //if last LED is turned on
             if (ledOn(_ledNumber[totalNumberOfLEDs-1]))  {
 
@@ -170,7 +170,7 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
         if ((millis() - columnTime) > COLUMN_SCAN_TIME)   {
 
             //activate next column
-            nextColumn();
+            nextColumnStartUp();
 
             //only process LED after defined time
             if ((millis() - startUpTimer) > _startUpLEDswitchTime)  {
