@@ -50,7 +50,7 @@ void OpenDeck::readPots()   {
             for (int i=0; i<8; i++) {
 
                 setMuxInput(i);
-                readPotsMux(i, currentMuxNumber);
+                readPotsMux(i, currentMuxNumber, true);
 
             }
 
@@ -62,7 +62,28 @@ void OpenDeck::readPots()   {
 
 }
 
-void OpenDeck::readPotsMux(uint8_t muxInput, uint8_t muxNumber)  {
+void OpenDeck::readPotsInitial()   {
+
+    if ((_board != 0) && (bitRead(hardwareFeatures, EEPROM_HW_F_POTS)))    {
+
+        for (int muxNumber=0; muxNumber<_numberOfMux; muxNumber++)  {
+
+            for (int muxInput=0; muxInput<8; muxInput++) {
+
+                setMuxInput(muxInput);
+                readPotsMux(muxInput, muxNumber, false);
+
+            }
+
+        }
+
+    }
+
+}
+
+void OpenDeck::readPotsMux(uint8_t muxInput, uint8_t muxNumber, bool initialReadFinished)  {
+
+        int16_t tempValue;
 
         //calculate pot number
         uint8_t potNumber = muxNumber*8+muxInput;
@@ -71,7 +92,8 @@ void OpenDeck::readPotsMux(uint8_t muxInput, uint8_t muxNumber)  {
         if (getPotEnabled(potNumber))   {
 
             //read analogue value from mux
-            int16_t tempValue = getADCvalue();
+            if (initialReadFinished) tempValue = getADCvalue();
+                else tempValue = analogRead(adcConnected(muxNumber));
 
             //if new reading is stable, send new MIDI message
             if (checkPotReading(tempValue, potNumber))
