@@ -48,8 +48,11 @@ void OpenDeck::init()   {
     blinkState              = true;
     receivedNoteOnProcessed = true;
 
+    //make initial pot reading to avoid sending all data on startup
+    readPotsInitial();
+
     //run LED animation on start-up
-    startUpRoutine();
+    //startUpRoutine();
 
     setUpTimer();
 }

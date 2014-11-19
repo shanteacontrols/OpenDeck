@@ -213,7 +213,7 @@ class OpenDeck  {
     void (*sendPotNoteOnDataCallback)(uint8_t, uint8_t);
     void (*sendPotNoteOffDataCallback)(uint8_t, uint8_t);
 
-    void readPotsMux(uint8_t, uint8_t);
+    void readPotsMux(uint8_t, uint8_t, bool);
     bool checkPotReading(int16_t, uint8_t);
     void processPotReading(int16_t, uint8_t);
     bool getPotEnabled(uint8_t);
@@ -222,6 +222,7 @@ class OpenDeck  {
     uint8_t getPotNoteValue(uint8_t, uint8_t);
     bool checkPotNoteValue(uint8_t, uint8_t);
     uint8_t getActiveMux();
+    void readPotsInitial();
 
     //encoders
     uint8_t getEncoderPairEnabled(uint8_t);
