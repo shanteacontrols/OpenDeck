@@ -50,8 +50,8 @@ void OpenDeck::init()   {
 
     //run LED animation on start-up
     startUpRoutine();
-    setUpTimer();
 
+    setUpTimer();
 }
 
 bool OpenDeck::initialEEPROMwrite()  {
@@ -206,7 +206,7 @@ void OpenDeck::setUpTimer()   {
 }
 
 
-void OpenDeck::nextColumn() {
+void OpenDeck::nextColumnStartUp() {
 
     //used only for start-up animation
 

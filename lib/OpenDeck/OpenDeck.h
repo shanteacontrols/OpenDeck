@@ -60,7 +60,7 @@ class OpenDeck  {
     void checkLEDs(uint8_t);
 
     //columns
-    void nextColumn();
+    void nextColumnStartUp();
     void processMatrix();
 
     //getters
