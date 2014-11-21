@@ -38,6 +38,12 @@ void OpenDeck::setHandlePotNoteOff(void (*fptr)(uint8_t note, uint8_t channel)) 
 
 }
 
+uint8_t OpenDeck::getPotNumber(uint8_t muxNumber, uint8_t muxInput) {
+
+    return muxNumber*8+muxInput;
+
+}
+
 void OpenDeck::readPots()   {
 
     if ((_board != 0) && (bitRead(hardwareFeatures, EEPROM_HW_F_POTS)))    {
@@ -50,7 +56,7 @@ void OpenDeck::readPots()   {
             for (int i=0; i<8; i++) {
 
                 setMuxInput(i);
-                readPotsMux(i, currentMuxNumber, true);
+                readPotsMux(i, currentMuxNumber);
 
             }
 
@@ -71,7 +77,8 @@ void OpenDeck::readPotsInitial()   {
             for (int muxInput=0; muxInput<8; muxInput++) {
 
                 setMuxInput(muxInput);
-                readPotsMux(muxInput, muxNumber, false);
+                //store read values right after reading them
+                lastAnalogueValue[getPotNumber(muxNumber, muxInput)] = analogRead(getMuxPin(muxNumber));
 
             }
 
@@ -81,19 +88,16 @@ void OpenDeck::readPotsInitial()   {
 
 }
 
-void OpenDeck::readPotsMux(uint8_t muxInput, uint8_t muxNumber, bool initialReadFinished)  {
-
-        int16_t tempValue;
+void OpenDeck::readPotsMux(uint8_t muxInput, uint8_t muxNumber)  {
 
         //calculate pot number
-        uint8_t potNumber = muxNumber*8+muxInput;
+        uint8_t potNumber = getPotNumber(muxNumber, muxInput);
 
         //don't read/process data from pot if it's disabled
         if (getPotEnabled(potNumber))   {
 
             //read analogue value from mux
-            if (initialReadFinished) tempValue = getADCvalue();
-                else tempValue = analogRead(adcConnected(muxNumber));
+            int16_t tempValue = getADCvalue();
 
             //if new reading is stable, send new MIDI message
             if (checkPotReading(tempValue, potNumber))
@@ -103,8 +107,9 @@ void OpenDeck::readPotsMux(uint8_t muxInput, uint8_t muxNumber, bool initialRead
 
 }
 
-uint8_t OpenDeck::adcConnected(uint8_t muxNumber) {
+uint8_t OpenDeck::getMuxPin(uint8_t muxNumber) {
 
+    //returns pin on which muxNumber is connected
     return analogueEnabledArray[muxNumber];
 
 }

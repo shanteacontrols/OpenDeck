@@ -340,7 +340,7 @@ ISR(TIMER2_COMPA_vect)  {
         case false:
         //switch analogue input
         if (_activeMux == openDeck.getNumberOfMux())    _activeMux = 0;
-        setADCchannel(openDeck.adcConnected(_activeMux));
+        setADCchannel(openDeck.getMuxPin(_activeMux));
         _activeMux++;
         activeMux = _activeMux;
         break;

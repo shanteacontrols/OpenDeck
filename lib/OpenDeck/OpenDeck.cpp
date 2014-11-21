@@ -51,10 +51,12 @@ void OpenDeck::init()   {
     //make initial pot reading to avoid sending all data on startup
     readPotsInitial();
 
-    //run LED animation on start-up
-    //startUpRoutine();
+    //configure column and analog pin switch timer
+    setUpSwitchTimer();
 
-    setUpTimer();
+    //run LED animation on start-up
+    startUpRoutine();
+
 }
 
 bool OpenDeck::initialEEPROMwrite()  {
@@ -93,11 +95,8 @@ void OpenDeck::initVariables()  {
     hardwareFeatures                = 0;
 
     //buttons
-    for (i=0; i<MAX_NUMBER_OF_BUTTONS; i++)     {
-
+    for (i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
         buttonNote[i]               = 0;
-
-    }
 
     for (i=0; i<MAX_NUMBER_OF_BUTTONS/8; i++)   {
 
@@ -107,6 +106,9 @@ void OpenDeck::initVariables()  {
         longPressCounter[i]         = 0;
 
     }
+
+    numberOfColumnPasses            = 0;
+    longPressColumnPass             = 0;
 
     //pots
     for (i=0; i<MAX_NUMBER_OF_POTS; i++)        {
@@ -156,17 +158,13 @@ void OpenDeck::initVariables()  {
     receivedNote                    = 0;
     receivedVelocity                = 0;
 
-    //column counter
-    numberOfColumnPasses            = 0;
-
-    longPressColumnPass = 0;
-
     //sysex
     sysExEnabled                    = false;
 
     //board type
     _board                          = 0;
 
+    //encoders
     for (int i=0; i<MAX_NUMBER_OF_ENCODERS/8; i++)   {
 
         encoderPairEnabled[i]   = 0;
@@ -178,7 +176,7 @@ void OpenDeck::initVariables()  {
 
 }
 
-void OpenDeck::setUpTimer()   {
+void OpenDeck::setUpSwitchTimer()   {
 
     /*
 
@@ -209,7 +207,7 @@ void OpenDeck::setUpTimer()   {
 }
 
 
-void OpenDeck::nextColumnStartUp() {
+void OpenDeck::activateColumnStartUp() {
 
     //used only for start-up animation
 
@@ -258,7 +256,7 @@ uint8_t OpenDeck::getNumberOfColumns()  {
 
 uint8_t OpenDeck::getActiveColumnStartUp()  {
 
-    return columnStartUp;
+    return columnStartUp - 1;
 
 }
 
@@ -289,6 +287,12 @@ bool OpenDeck::standardNoteOffEnabled() {
 bool OpenDeck::runningStatusEnabled()   {
 
     return bitRead(softwareFeatures, EEPROM_SW_F_RUNNING_STATUS);
+
+}
+
+void OpenDeck::stopSwitchTimer()    {
+
+    TIMSK2 &= (0 << OCIE2A);
 
 }
 

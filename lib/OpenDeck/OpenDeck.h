@@ -43,7 +43,7 @@ class OpenDeck  {
     void setHandlePotCC(void (*fptr)(uint8_t, uint8_t, uint8_t));
     void setHandlePotNoteOn(void (*fptr)(uint8_t, uint8_t));
     void setHandlePotNoteOff(void (*fptr)(uint8_t, uint8_t));
-    uint8_t adcConnected(uint8_t);
+    uint8_t getMuxPin(uint8_t);
     void readPots();
 
     //encoders
@@ -59,8 +59,9 @@ class OpenDeck  {
     void checkReceivedNoteOn();
     void checkLEDs(uint8_t);
 
-    //columns
-    void nextColumnStartUp();
+    //matrix
+    void activateColumn(uint8_t);
+    void activateColumnStartUp();
     void processMatrix();
 
     //getters
@@ -68,12 +69,10 @@ class OpenDeck  {
     bool standardNoteOffEnabled();
     bool runningStatusEnabled();
     uint8_t getNumberOfColumns();
-    void activateColumn(uint8_t);
     uint8_t getNumberOfMux();
     uint8_t getBoard();
 
-    //setters
-    bool sysExSetDefaultConf();
+    //hardware control
     void ledRowOn(uint8_t);
     void ledRowsOff();
     void setMuxInput(uint8_t);
@@ -81,6 +80,7 @@ class OpenDeck  {
     //sysex
     void setHandleSysExSend(void (*fptr)(uint8_t*, uint8_t));
     void processSysEx(uint8_t sysExArray[], uint8_t);
+    bool sysExSetDefaultConf();
 
     private:
 
@@ -212,8 +212,8 @@ class OpenDeck  {
     void (*sendPotCCDataCallback)(uint8_t, uint8_t, uint8_t);
     void (*sendPotNoteOnDataCallback)(uint8_t, uint8_t);
     void (*sendPotNoteOffDataCallback)(uint8_t, uint8_t);
-
-    void readPotsMux(uint8_t, uint8_t, bool);
+    uint8_t getPotNumber(uint8_t, uint8_t);
+    void readPotsMux(uint8_t, uint8_t);
     bool checkPotReading(int16_t, uint8_t);
     void processPotReading(int16_t, uint8_t);
     bool getPotEnabled(uint8_t);
@@ -244,12 +244,11 @@ class OpenDeck  {
     void switchBlinkState();
     uint8_t getLEDnumber();
     uint8_t getLEDnote(uint8_t);
-    uint8_t getActiveColumnStartUp();
 
     //columns
     uint8_t getActiveColumn();
+    uint8_t getActiveColumnStartUp();
     bool columnStable(uint8_t, uint8_t);
-    void setUpTimer();
 
     //sysex
     //callback
@@ -296,6 +295,8 @@ class OpenDeck  {
     void initPins();
     void readButtonColumn(uint8_t &);
     void enableAnalogueInput(uint8_t, uint8_t);
+    void setUpSwitchTimer();
+    void stopSwitchTimer();
 
 };
 
