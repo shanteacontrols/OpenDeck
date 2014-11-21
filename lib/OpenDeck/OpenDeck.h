@@ -61,7 +61,6 @@ class OpenDeck  {
 
     //matrix
     void activateColumn(uint8_t);
-    void activateColumnStartUp();
     void processMatrix();
 
     //getters
@@ -137,8 +136,7 @@ class OpenDeck  {
     //LEDs
     uint8_t     ledState[MAX_NUMBER_OF_LEDS],
                 ledNote[MAX_NUMBER_OF_LEDS],
-                totalNumberOfLEDs,
-                columnStartUp;
+                totalNumberOfLEDs;
 
     bool        blinkState,
                 blinkEnabled;
@@ -247,7 +245,6 @@ class OpenDeck  {
 
     //columns
     uint8_t getActiveColumn();
-    uint8_t getActiveColumnStartUp();
     bool columnStable(uint8_t, uint8_t);
 
     //sysex
