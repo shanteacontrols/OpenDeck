@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.1
+OpenDECK library v1.2
 File: Buttons.cpp
-Last revision date: 2014-11-02
+Last revision date: 2014-11-22
 Author: Igor Petrovic
 
 */
