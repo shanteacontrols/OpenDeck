@@ -14,6 +14,9 @@ Author: Igor Petrovic
 
 void OpenDeck::startUpRoutine() {
 
+    //turn off all LEDs before starting animation
+    allLEDsOff();
+
     switch (eeprom_read_byte((uint8_t*)EEPROM_HW_P_START_UP_ROUTINE))  {
 
         case 1:
@@ -69,8 +72,8 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 
     uint16_t _startUpLEDswitchTime = eeprom_read_byte((uint8_t*)EEPROM_HW_P_START_UP_SWITCH_TIME) * 10;
 
-    //remember last time column was switched
-    static uint32_t columnTime = 0;
+    //remember previously active column
+    static int8_t previousColumn = -1;
 
     //while loop counter
     uint8_t passCounter = 0;
@@ -125,7 +128,7 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
             }   else    ledNumber = _ledNumber[totalNumberOfLEDs-1]; //led index is last one if last one isn't already on
             
         }   else //left-to-right direction
-        
+
                 //if first LED is already on
                 if (ledOn(_ledNumber[0]))    {
 
@@ -151,7 +154,7 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
                             passCounter++;
 
                         }   else ledNumber = _ledNumber[totalNumberOfLEDs-1];
-                        
+
                     }   else
 
                             if (!(ledOn(_ledNumber[0]))) {   //left-to-right direction
@@ -167,10 +170,9 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
     //to get empty cycle after processing last LED
     while (passCounter < totalNumberOfLEDs+1)   {
 
-        if ((millis() - columnTime) > COLUMN_SCAN_TIME)   {
+        uint8_t activeColumn = getActiveColumn();
 
-            //activate next column
-            nextColumnStartUp();
+        if (previousColumn != activeColumn)   {
 
             //only process LED after defined time
             if ((millis() - startUpTimer) > _startUpLEDswitchTime)  {
@@ -209,10 +211,10 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
         }
 
             //check if there is any LED to be turned on
-            checkLEDs(getActiveColumnStartUp());
+            checkLEDs(activeColumn);
 
-            //update last time column was switched
-            columnTime = millis();
+            //update last column with current
+            previousColumn = activeColumn;
 
         }
 
