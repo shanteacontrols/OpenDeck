@@ -4,4 +4,4 @@ Setting start number 0 to LED 0:
 F0 00 53 43 01 00 08 01 00 00 F7
 
 Setting start number 4 to LED 0:
-F0 00 53 43 01 00 08 01 00 00 F7
+F0 00 53 43 01 00 08 01 00 04 F7
