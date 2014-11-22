@@ -106,7 +106,7 @@ Only one parameter
 All parameters
 
 ### MESSAGE_TYPE
-There's a total of 10 message types available.
+There's a total of 9 message types available.
 
 * MIDI channel (0x00)
 * Hardware parameter (0x01)
