@@ -171,22 +171,22 @@
 <text x="52.832" y="41.402" size="1.778" layer="25" font="vector" rot="R90">ULN2803</text>
 <text x="26.416" y="11.176" size="1.778" layer="25" font="vector" rot="R90">4051 2</text>
 <text x="37.846" y="11.176" size="1.778" layer="25" font="vector" rot="R90">4051 1</text>
-<text x="20.32" y="73.152" size="1.016" layer="25" font="vector">P13</text>
-<text x="11.43" y="73.152" size="1.016" layer="25" font="vector">P15</text>
-<text x="-2.54" y="49.53" size="1.016" layer="25" font="vector" rot="R90">P16</text>
-<text x="-2.54" y="40.64" size="1.016" layer="25" font="vector" rot="R90">P14</text>
-<text x="-2.54" y="17.78" size="1.016" layer="25" font="vector" rot="R90">P11</text>
-<text x="-2.54" y="8.89" size="1.016" layer="25" font="vector" rot="R90">P10</text>
-<text x="11.938" y="-13.462" size="1.016" layer="25" font="vector">P9</text>
-<text x="20.32" y="-13.462" size="1.016" layer="25" font="vector">P12</text>
-<text x="43.688" y="73.152" size="1.016" layer="25" font="vector">P3</text>
-<text x="52.578" y="73.152" size="1.016" layer="25" font="vector">P2</text>
-<text x="68.58" y="51.816" size="1.016" layer="25" font="vector" rot="R270">P1</text>
-<text x="69.596" y="41.148" size="1.016" layer="25" font="vector" rot="R90">P4</text>
-<text x="69.596" y="18.288" size="1.016" layer="25" font="vector" rot="R90">P5</text>
-<text x="69.596" y="9.652" size="1.016" layer="25" font="vector" rot="R90">P7</text>
-<text x="52.578" y="-13.462" size="1.016" layer="25" font="vector">P8</text>
-<text x="43.688" y="-13.462" size="1.016" layer="25" font="vector">P6</text>
+<text x="20.828" y="73.152" size="1.016" layer="25" font="vector">P4</text>
+<text x="11.938" y="73.152" size="1.016" layer="25" font="vector">P6</text>
+<text x="-2.54" y="49.784" size="1.016" layer="25" font="vector" rot="R90">P7</text>
+<text x="-2.54" y="40.894" size="1.016" layer="25" font="vector" rot="R90">P5</text>
+<text x="-2.54" y="18.288" size="1.016" layer="25" font="vector" rot="R90">P2</text>
+<text x="-2.54" y="8.89" size="1.016" layer="25" font="vector" rot="R90">P1</text>
+<text x="11.938" y="-13.462" size="1.016" layer="25" font="vector">P0</text>
+<text x="20.828" y="-13.462" size="1.016" layer="25" font="vector">P3</text>
+<text x="43.18" y="73.152" size="1.016" layer="25" font="vector">P10</text>
+<text x="52.578" y="73.152" size="1.016" layer="25" font="vector">P9</text>
+<text x="68.58" y="51.816" size="1.016" layer="25" font="vector" rot="R270">P8</text>
+<text x="69.596" y="40.64" size="1.016" layer="25" font="vector" rot="R90">P11</text>
+<text x="69.596" y="17.78" size="1.016" layer="25" font="vector" rot="R90">P12</text>
+<text x="69.596" y="8.89" size="1.016" layer="25" font="vector" rot="R90">P14</text>
+<text x="52.07" y="-13.462" size="1.016" layer="25" font="vector">P15</text>
+<text x="43.18" y="-13.462" size="1.016" layer="25" font="vector">P13</text>
 <text x="72.898" y="75.184" size="1.016" layer="25" font="vector">LR1</text>
 <text x="-4.318" y="71.374" size="0.8128" layer="25" font="vector">LR4</text>
 <text x="68.072" y="71.374" size="1.016" layer="25" font="vector">LR2</text>
@@ -222,15 +222,14 @@
 <text x="69.596" y="-1.524" size="1.016" layer="25" font="vector" rot="R90">BR3</text>
 <text x="69.596" y="-7.874" size="1.016" layer="25" font="vector" rot="R90">BR3</text>
 <text x="69.596" y="-4.826" size="1.016" layer="25" font="vector" rot="R90">BR4</text>
-<text x="35.052" y="60.706" size="0.8128" layer="25" font="vector">10/6.3</text>
-<text x="28.956" y="29.21" size="0.8128" layer="25" font="vector">0.1</text>
-<text x="40.132" y="29.21" size="0.8128" layer="25" font="vector">0.1</text>
-<text x="58.42" y="41.91" size="0.8128" layer="25" font="vector">0.1</text>
-<text x="58.42" y="30.48" size="0.8128" layer="25" font="vector">0.1</text>
-<text x="12.7" y="62.738" size="1.016" layer="25" font="vector">P6</text>
-<text x="52.324" y="62.738" size="1.016" layer="25" font="vector">P9</text>
-<text x="30.226" y="42.418" size="1.27" layer="25" font="vector" rot="R90" align="center">Arduino
-Pro Mini</text>
+<text x="37.338" y="56.388" size="1.016" layer="25" font="vector" rot="R90">10/6.3</text>
+<text x="28.702" y="29.21" size="1.016" layer="25" font="vector">0.1</text>
+<text x="39.878" y="28.956" size="1.016" layer="25" font="vector">0.1</text>
+<text x="57.658" y="41.91" size="1.016" layer="25" font="vector">0.1</text>
+<text x="57.658" y="30.226" size="1.016" layer="25" font="vector">0.1</text>
+<text x="12.192" y="61.722" size="1.778" layer="25" font="vector">P6</text>
+<text x="51.816" y="61.722" size="1.778" layer="25" font="vector">P9</text>
+<text x="30.226" y="40.894" size="1.778" layer="25" font="vector" rot="R90" align="center">Arduino</text>
 <rectangle x1="14.5923" y1="1.4859" x2="16.4211" y2="1.5621" layer="25"/>
 <rectangle x1="16.9545" y1="1.4859" x2="17.3355" y2="1.5621" layer="25"/>
 <rectangle x1="18.7071" y1="1.4859" x2="19.0881" y2="1.5621" layer="25"/>
@@ -1117,7 +1116,7 @@ Pro Mini</text>
 <text x="8.7376" y="11.4808" size="0.8128" layer="25" font="vector" rot="R90">Mux 1 GND</text>
 <text x="-8.89" y="75.184" size="0.8128" layer="25" font="vector">LR3</text>
 <text x="14.224" y="6.35" size="1.778" layer="25" font="vector" rot="R90">http://shanteacontrols.wordpress.com</text>
-<text x="30.48" y="54.356" size="0.8128" layer="25" font="vector" rot="R90">0.1</text>
+<text x="30.48" y="54.356" size="1.016" layer="25" font="vector" rot="R90">0.1</text>
 <hole x="3.81" y="-5.08" drill="2.8"/>
 <hole x="62.23" y="-5.08" drill="2.8"/>
 <hole x="3.81" y="56.388" drill="2.8"/>
@@ -4701,10 +4700,4 @@ design rules under a new name.</description>
 </signals>
 </board>
 </drawing>
-<compatibility>
-<note version="6.3" minversion="6.2.2" severity="warning">
-Since Version 6.2.2 text objects can contain more than one line,
-which will not be processed correctly with this version.
-</note>
-</compatibility>
 </eagle>
