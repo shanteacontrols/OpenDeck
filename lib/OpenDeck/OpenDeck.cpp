@@ -208,7 +208,7 @@ void OpenDeck::setUpSwitchTimer()   {
 void OpenDeck::processMatrix()  {
 
     static int8_t previousColumn = -1;
-    uint8_t currentColumn = getActiveColumn();
+    int8_t currentColumn = getActiveColumn();
 
     if (currentColumn != previousColumn)    {
 

@@ -2,7 +2,7 @@
 
 OpenDECK library v1.2
 File: Potentiometers.cpp
-Last revision date: 2014-11-22
+Last revision date: 2014-11-29
 Author: Igor Petrovic
 
 */
@@ -49,7 +49,7 @@ void OpenDeck::readPots()   {
     if ((_board != 0) && (bitRead(hardwareFeatures, EEPROM_HW_F_POTS)))    {
 
         static int8_t previousMuxNumber = -1;
-        uint8_t currentMuxNumber = getActiveMux();
+        int8_t currentMuxNumber = getActiveMux();
 
         if (previousMuxNumber != currentMuxNumber)   {
 
