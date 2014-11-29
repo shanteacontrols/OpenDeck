@@ -2,7 +2,7 @@
 
 OpenDECK library v1.2
 File: OpenDeck.h
-Last revision date: 2014-11-22
+Last revision date: 2014-11-29
 Author: Igor Petrovic
 
 */
@@ -60,7 +60,7 @@ class OpenDeck  {
     void checkLEDs(uint8_t);
 
     //matrix
-    void activateColumn(uint8_t);
+    void activateColumn(int8_t);
     void processMatrix();
 
     //getters
@@ -219,7 +219,7 @@ class OpenDeck  {
     uint8_t getCCnumber(uint8_t);
     uint8_t getPotNoteValue(uint8_t, uint8_t);
     bool checkPotNoteValue(uint8_t, uint8_t);
-    uint8_t getActiveMux();
+    int8_t getActiveMux();
     void readPotsInitial();
 
     //encoders
@@ -244,7 +244,7 @@ class OpenDeck  {
     uint8_t getLEDnote(uint8_t);
 
     //columns
-    uint8_t getActiveColumn();
+    int8_t getActiveColumn();
     bool columnStable(uint8_t, uint8_t);
 
     //sysex

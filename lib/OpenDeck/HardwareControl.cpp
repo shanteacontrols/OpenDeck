@@ -2,7 +2,7 @@
 
 OpenDECK library v1.2
 File: HardwareControl.cpp
-Last revision date: 2014-11-22
+Last revision date: 2014-11-29
 Author: Igor Petrovic
 
 */ 
@@ -11,8 +11,8 @@ Author: Igor Petrovic
 #include "Ownduino.h"
 #include <avr/interrupt.h>
 
-volatile uint8_t column = 0;
-volatile uint8_t activeMux = 0;
+volatile int8_t column = 0;
+volatile int8_t activeMux = 0;
 volatile bool changeSwitch = true;
 
 void OpenDeck::enableAnalogueInput(uint8_t muxNumber, uint8_t adcChannel)  {
@@ -172,7 +172,7 @@ inline void activateColumnInline(uint8_t column, uint8_t board)  {
 
 }
 
-void OpenDeck::activateColumn(uint8_t column)   {
+void OpenDeck::activateColumn(int8_t column)   {
 
     activateColumnInline(column, _board);
 
@@ -320,8 +320,8 @@ void OpenDeck::readButtonColumn(uint8_t &buttonColumnState) {
 
 ISR(TIMER2_COMPA_vect)  {
 
-    uint8_t _column = column;
-    uint8_t _activeMux = activeMux;
+    int8_t _column = column;
+    int8_t _activeMux = activeMux;
     bool _changeSwitch = changeSwitch;
     uint8_t board = openDeck.getBoard();
 
@@ -355,18 +355,18 @@ ISR(TIMER2_COMPA_vect)  {
 
 }
 
-uint8_t OpenDeck::getActiveColumn() {
+int8_t OpenDeck::getActiveColumn() {
 
-    uint8_t _column = column;
+    int8_t _column = column;
 
     //return currently active column
     return (_column - 1);
 
 }
 
-uint8_t OpenDeck::getActiveMux() {
+int8_t OpenDeck::getActiveMux() {
 
-    uint8_t _activeMux = activeMux;
+    int8_t _activeMux = activeMux;
 
     //return currently active column
     return (_activeMux - 1);
