@@ -110,7 +110,7 @@ void setup()  {
     setMIDIhandlers();
 
     //read incoming MIDI messages on specified channel
-    MIDI.begin(openDeck.getInputMIDIchannel(), openDeck.runningStatusEnabled());
+    MIDI.begin(openDeck.getInputMIDIchannel(), false);
 
     Serial.begin(38400);
 
