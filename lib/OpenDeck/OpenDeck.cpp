@@ -2,7 +2,7 @@
 
 OpenDECK library v1.2
 File: OpenDeck.cpp
-Last revision date: 2014-11-22
+Last revision date: 2014-12-03
 Author: Igor Petrovic
 
 */
@@ -35,6 +35,7 @@ OpenDeck::OpenDeck()    {
 void OpenDeck::init()   {
 
     setADCprescaler(32);
+    set8bitADC();
 
     if (initialEEPROMwrite())   sysExSetDefaultConf();
     else                        getConfiguration(); //get all values from EEPROM
@@ -116,7 +117,6 @@ void OpenDeck::initVariables()  {
         ccNumber[i]                 = 0;
         lastPotNoteValue[i]         = 0;
         lastAnalogueValue[i]        = 0;
-        potTimer[i]                 = 0;
         ccLowerLimit[i]             = 0;
         ccUpperLimit[i]             = 0;
 

@@ -1,7 +1,7 @@
 /*
 
-OpenDeck platform firmware v1.2
-Last revision date: 2014-11-18
+OpenDeck platform firmware v1.2.1
+Last revision date: 2014-11-29
 Author: Igor Petrovic
 
 */
@@ -110,6 +110,7 @@ void setup()  {
     setMIDIhandlers();
 
     //read incoming MIDI messages on specified channel
+    //disable running status by default
     MIDI.begin(openDeck.getInputMIDIchannel(), false);
 
     Serial.begin(38400);
