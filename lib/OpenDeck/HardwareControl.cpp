@@ -2,7 +2,7 @@
 
 OpenDECK library v1.2
 File: HardwareControl.cpp
-Last revision date: 2014-11-29
+Last revision date: 2014-12-03
 Author: Igor Petrovic
 
 */ 
@@ -18,6 +18,9 @@ volatile bool changeSwitch = true;
 void OpenDeck::enableAnalogueInput(uint8_t muxNumber, uint8_t adcChannel)  {
 
     analogueEnabledArray[muxNumber] = adcChannel;
+
+    //disable digital input on enabled analog pins
+    if (adcChannel < 6) bitWrite(DIDR0, adcChannel, 1);
 
 }
 

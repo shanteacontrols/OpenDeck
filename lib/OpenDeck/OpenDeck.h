@@ -2,7 +2,7 @@
 
 OpenDECK library v1.2
 File: OpenDeck.h
-Last revision date: 2014-11-29
+Last revision date: 2014-12-03
 Author: Igor Petrovic
 
 */
@@ -127,7 +127,6 @@ class OpenDeck  {
                 ccUpperLimit[MAX_NUMBER_OF_POTS];
 
     uint16_t    lastAnalogueValue[MAX_NUMBER_OF_POTS];
-    uint32_t    potTimer[MAX_NUMBER_OF_POTS];
 
     //encoders
     uint8_t     encoderPairEnabled[MAX_NUMBER_OF_ENCODERS/8],

@@ -2,7 +2,7 @@
 
 OpenDECK library v1.2
 File: Potentiometers.cpp
-Last revision date: 2014-11-29
+Last revision date: 2014-12-03
 Author: Igor Petrovic
 
 */
@@ -12,13 +12,7 @@ Author: Igor Petrovic
 #include "Ownduino.h"
 
 //potentiometer must exceed this value before sending new value
-#define MIDI_CC_STEP                8
-
-//potentiometer must exceed this value if it hasn't been moved for more than POTENTIOMETER_MOVE_TIMEOUT
-#define MIDI_CC_STEP_TIMEOUT        10
-
-//time in ms after which new value from pot must exceed MIDI_CC_STEP_TIMEOUT
-#define POTENTIOMETER_MOVE_TIMEOUT  200
+#define MIDI_CC_STEP                2
 
 void OpenDeck::setHandlePotCC(void (*fptr)(uint8_t potNumber, uint8_t ccValue, uint8_t channel))    {
 
@@ -122,26 +116,7 @@ bool OpenDeck::checkPotReading(int16_t tempValue, uint8_t potNumber) {
     //get absolute difference
     if (analogueDiff < 0)   analogueDiff *= -1;
 
-    uint32_t timeDifference = millis() - potTimer[potNumber];
-
-        /*
-
-            When value from pot hasn't changed for more than POTENTIOMETER_MOVE_TIMEOUT value (time in ms), pot must
-            exceed MIDI_CC_STEP_TIMEOUT value. If the value has changed during POTENTIOMETER_MOVE_TIMEOUT, it must
-            exceed MIDI_CC_STEP value.
-
-        */
-
-        if (timeDifference < POTENTIOMETER_MOVE_TIMEOUT)    {
-
-            if (analogueDiff >= MIDI_CC_STEP)   return true;
-
-        }   else    {
-
-                if (analogueDiff >= MIDI_CC_STEP_TIMEOUT)   return true;
-
-            }
-
+    if (analogueDiff >= MIDI_CC_STEP)   return true;
     return false;
 
 }
@@ -152,8 +127,8 @@ void OpenDeck::processPotReading(int16_t tempValue, uint8_t potNumber)  {
     uint8_t potNoteChannel = _longPressButtonNoteChannel+1;
 
     //invert CC data if potInverted is true
-    if (getPotInvertState(potNumber))   ccValue = 127 - (tempValue >> 3);
-    else                                ccValue = tempValue >> 3;
+    if (getPotInvertState(potNumber))   ccValue = 127 - (tempValue >> 1);
+    else                                ccValue = tempValue >> 1;
 
     //only send data if function isn't called in setup
     if (sendPotCCDataCallback != NULL)  {
@@ -200,7 +175,6 @@ void OpenDeck::processPotReading(int16_t tempValue, uint8_t potNumber)  {
 
     //update values
     lastAnalogueValue[potNumber] = tempValue;
-    potTimer[potNumber] = millis();
 
 }
 
