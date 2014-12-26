@@ -40,7 +40,7 @@ uint8_t OpenDeck::getPotNumber(uint8_t muxNumber, uint8_t muxInput) {
 
 void OpenDeck::readPots()   {
 
-    if ((_board != 0) && (bitRead(hardwareEnabled, SYS_EX_MST_HW_CONFIG_POTS)))    {
+    if ((_board != 0) && (bitRead(hardwareEnabled, SYS_EX_HW_CONFIG_POTS)))    {
 
         static int8_t previousMuxNumber = -1;
         int8_t currentMuxNumber = getActiveMux();
@@ -64,7 +64,7 @@ void OpenDeck::readPots()   {
 
 void OpenDeck::readPotsInitial()   {
 
-    if ((_board != 0) && (bitRead(hardwareEnabled, SYS_EX_MST_HW_CONFIG_POTS)))    {
+    if ((_board != 0) && (bitRead(hardwareEnabled, SYS_EX_HW_CONFIG_POTS)))    {
 
         for (int muxNumber=0; muxNumber<_numberOfMux; muxNumber++)  {
 

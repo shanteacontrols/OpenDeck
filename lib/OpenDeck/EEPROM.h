@@ -15,18 +15,15 @@ Author: Igor Petrovic
 #define EEPROM_M_ID_BYTE_1                  1
 #define EEPROM_M_ID_BYTE_2                  2
 
-
 #define EEPROM_HW_CONFIG_START              3
 
 #define EEPROM_BOARD_TYPE                   3
 #define EEPROM_HARDWARE_ENABLED             4
 
-
 #define EEPROM_FEATURES_MIDI                5
 #define EEPROM_FEATURES_BUTTONS             6
 #define EEPROM_FEATURES_LEDS                7
 #define EEPROM_FEATURES_POTS                8
-
 
 #define EEPROM_MC_START                     9
 

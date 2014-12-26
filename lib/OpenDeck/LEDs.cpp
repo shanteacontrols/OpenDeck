@@ -266,7 +266,7 @@ void OpenDeck::checkReceivedNoteOn()  {
 
 void OpenDeck::checkLEDs(uint8_t currentColumn)  {
 
-    if ((_board != 0) && (bitRead(hardwareEnabled, SYS_EX_MST_HW_CONFIG_LEDS)))    {
+    if ((_board != 0) && (bitRead(hardwareEnabled, SYS_EX_HW_CONFIG_LEDS)))    {
 
         if ((blinkEnabled) && (bitRead(ledFeatures, SYS_EX_FEATURES_LEDS_BLINK)))   switchBlinkState();
 
@@ -539,18 +539,22 @@ uint8_t OpenDeck::getLEDnote(uint8_t ledNumber)   {
 
 bool OpenDeck::checkSameLEDvalue(uint8_t type, uint8_t number)  {
 
+    //do not allow same activation or start-up number for multiple LEDs
+
     switch(type)    {
-        
-        case 0:
-        //LED activation note
+
+        case SYS_EX_MST_LED_ACT_NOTE:
+        //led activation note
+        for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+            if (ledActNote[i] == number)    return false;
         break;
-        
-        case 1:
+
+        case SYS_EX_MST_LED_START_UP_NUMBER:
         //LED start-up number
+        for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+            if (eeprom_read_byte((uint8_t*)EEPROM_LED_START_UP_NUMBER_START+i) == number)    return false;
         break;
-        
-        
-        
-    }   return false;
+
+    }   return true;
 
 }
