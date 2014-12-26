@@ -10,7 +10,7 @@
 
 /*
     Modified by Igor Petrovic
-    Last edit date: 2014-09-24
+    Last revision date: 2014-12-25
 
     This version of library is stripped of following features:
 
@@ -85,6 +85,7 @@ enum kMIDIType {
     NoteOff               = 0x80,   ///< Note Off
     NoteOn                = 0x90,   ///< Note On
     ControlChange         = 0xB0,   ///< Control Change / Channel Mode
+    ProgramChange         = 0xC0,   ///< Program Change
     PitchBend             = 0xE0,   ///< Pitch Bend
     SystemExclusive       = 0xF0,   ///< System Exclusive
     Clock                 = 0xF8,   ///< System Real Time - Timing Clock
@@ -140,6 +141,7 @@ public:
     void sendNoteOn(byte NoteNumber,byte Velocity,byte Channel);
     void sendNoteOff(byte NoteNumber,byte Velocity,byte Channel);
     void sendControlChange(byte ControlNumber, byte ControlValue,byte Channel);
+    void sendProgramChange(byte ProgramNumber,byte Channel);
     void sendPitchBend(int PitchValue,byte Channel);
     void sendPitchBend(unsigned int PitchValue,byte Channel);
     void sendPitchBend(double PitchValue,byte Channel);
@@ -206,6 +208,7 @@ public:
     void setHandleNoteOff(void (*fptr)(byte channel, byte note, byte velocity));
     void setHandleNoteOn(void (*fptr)(byte channel, byte note, byte velocity));
     void setHandleControlChange(void (*fptr)(byte channel, byte number, byte value));
+    void setHandleProgramChange(void (*fptr)(byte channel, byte number));
     void setHandlePitchBend(void (*fptr)(byte channel, int bend));
     void setHandleSystemExclusive(void (*fptr)(byte * array, byte size));
     void setHandleClock(void (*fptr)(void));
@@ -238,6 +241,7 @@ private:
     void (*mNoteOffCallback)(byte channel, byte note, byte velocity);
     void (*mNoteOnCallback)(byte channel, byte note, byte velocity);
     void (*mControlChangeCallback)(byte channel, byte, byte);
+    void (*mProgramChangeCallback)(byte channel, byte);
     void (*mPitchBendCallback)(byte channel, int);
     void (*mSystemExclusiveCallback)(byte * array, byte size);
     void (*mClockCallback)(void);

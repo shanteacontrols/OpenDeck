@@ -1,7 +1,7 @@
 /*
 
-OpenDeck platform firmware v1.2.1
-Last revision date: 2014-11-29
+OpenDeck platform firmware v1.3
+Last revision date: 2014-12-25
 Author: Igor Petrovic
 
 */
@@ -9,11 +9,15 @@ Author: Igor Petrovic
 #include "OpenDeck.h"
 #include "MIDI.h"
 #include "Ownduino.h"
+//#include "Encoder.h"
+#include <avr/eeprom.h>
 
 
 //velocity for on and off events
 #define MIDI_NOTE_ON_VELOCITY   127
 #define MIDI_NOTE_OFF_VELOCITY  0
+
+//Encoder encoder1 = Encoder(PIN_C,PIN_D);
 
 
 //MIDI callback handlers
@@ -33,7 +37,7 @@ void getSysExData(uint8_t *sysExArray, uint8_t size)    {
 
 //OpenDeck callback handlers
 
-void sendButtonData(uint8_t buttonNote, bool buttonState, uint8_t channel)    {
+void sendButtonNotes(uint8_t buttonNote, bool buttonState, uint8_t channel)    {
 
     switch (buttonState) {
 
@@ -49,6 +53,12 @@ void sendButtonData(uint8_t buttonNote, bool buttonState, uint8_t channel)    {
         break;
 
     }
+
+}
+
+void sendButtonPP(uint8_t channel, uint8_t program)    {
+
+    MIDI.sendProgramChange(program, channel);
 
 }
 
@@ -81,7 +91,8 @@ void sendSysExData(uint8_t *sysExArray, uint8_t size)   {
 //configure opendeck library
 void setOpenDeckHandlers()  {
 
-    openDeck.setHandleButtonSend(sendButtonData);
+    openDeck.setHandleButtonNoteSend(sendButtonNotes);
+    openDeck.setHandleButtonPPSend(sendButtonPP);
 
     openDeck.setHandlePotCC(sendPotCCData);
     openDeck.setHandlePotNoteOn(sendPotNoteOnData);
@@ -103,9 +114,8 @@ void setMIDIhandlers()  {
 //main
 void setup()  {
 
-    //initialize openDeck library
     openDeck.init();
-
+    
     setOpenDeckHandlers();
     setMIDIhandlers();
 
@@ -130,5 +140,8 @@ void loop() {
 
     //read pots one analogue input at the time
     openDeck.readPots();
+
+    //openDeck.readEncoders(encoder1.read());
+    
 
 }

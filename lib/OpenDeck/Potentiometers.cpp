@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.2
+OpenDECK library v1.3
 File: Potentiometers.cpp
-Last revision date: 2014-12-03
+Last revision date: 2014-12-25
 Author: Igor Petrovic
 
 */
@@ -40,7 +40,7 @@ uint8_t OpenDeck::getPotNumber(uint8_t muxNumber, uint8_t muxInput) {
 
 void OpenDeck::readPots()   {
 
-    if ((_board != 0) && (bitRead(hardwareFeatures, EEPROM_HW_F_POTS)))    {
+    if ((_board != 0) && (bitRead(hardwareEnabled, SYS_EX_MST_HW_CONFIG_POTS)))    {
 
         static int8_t previousMuxNumber = -1;
         int8_t currentMuxNumber = getActiveMux();
@@ -64,7 +64,7 @@ void OpenDeck::readPots()   {
 
 void OpenDeck::readPotsInitial()   {
 
-    if ((_board != 0) && (bitRead(hardwareFeatures, EEPROM_HW_F_POTS)))    {
+    if ((_board != 0) && (bitRead(hardwareEnabled, SYS_EX_MST_HW_CONFIG_POTS)))    {
 
         for (int muxNumber=0; muxNumber<_numberOfMux; muxNumber++)  {
 
@@ -135,15 +135,15 @@ void OpenDeck::processPotReading(int16_t tempValue, uint8_t potNumber)  {
 
         //only use map when cc limits are different from defaults
         if ((ccLowerLimit[potNumber] != 0) || (ccUpperLimit[potNumber] != 127))
-            sendPotCCDataCallback(ccNumber[potNumber], map(ccValue, 0, 127, ccLowerLimit[potNumber], ccUpperLimit[potNumber]), _potCCchannel);
+            sendPotCCDataCallback(ccppNumber[potNumber], map(ccValue, 0, 127, ccLowerLimit[potNumber], ccUpperLimit[potNumber]), _potCCchannel);
 
-        else    sendPotCCDataCallback(ccNumber[potNumber], ccValue, _potCCchannel);
+        else    sendPotCCDataCallback(ccppNumber[potNumber], ccValue, _potCCchannel);
 
     }
 
-    if (bitRead(softwareFeatures, EEPROM_SW_F_POT_NOTES))  {
+    if (bitRead(potFeatures, SYS_EX_FEATURES_POTS_NOTES))  {
 
-        uint8_t noteCurrent = getPotNoteValue(ccValue, ccNumber[potNumber]);
+        uint8_t noteCurrent = getPotNoteValue(ccValue, ccppNumber[potNumber]);
 
         //maximum number of notes per MIDI channel is 128, with 127 being final
         if (noteCurrent > 127)  {
@@ -160,7 +160,7 @@ void OpenDeck::processPotReading(int16_t tempValue, uint8_t potNumber)  {
 
             //always send note off for previous value, except for the first read
             if ((lastPotNoteValue[potNumber] != 128) && (sendPotNoteOffDataCallback != NULL) && (getPotEnabled(potNumber)))
-                sendPotNoteOffDataCallback(lastPotNoteValue[ccNumber[potNumber]], _potNoteChannel);
+                sendPotNoteOffDataCallback(lastPotNoteValue[ccppNumber[potNumber]], _potNoteChannel);
 
             //send note on
             if ((sendPotNoteOnDataCallback != NULL) && (getPotEnabled(potNumber)))
@@ -236,6 +236,15 @@ bool OpenDeck::getPotEnabled(uint8_t potNumber) {
 
 }
 
+bool OpenDeck::getPotPPenabled(uint8_t potNumber) {
+
+    uint8_t arrayIndex = potNumber/8;
+    uint8_t potIndex = potNumber - 8*arrayIndex;
+
+    return bitRead(potPPenabled[arrayIndex], potIndex);
+
+}
+
 bool OpenDeck::getPotInvertState(uint8_t potNumber) {
 
     uint8_t arrayIndex = potNumber/8;
@@ -247,6 +256,6 @@ bool OpenDeck::getPotInvertState(uint8_t potNumber) {
 
 uint8_t OpenDeck::getCCnumber(uint8_t potNumber)    {
 
-    return ccNumber[potNumber];
+    return ccppNumber[potNumber];
 
 }

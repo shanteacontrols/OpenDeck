@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.2
+OpenDECK library v1.3
 File: LEDs.cpp
-Last revision date: 2014-11-22
+Last revision date: 2014-12-25
 Author: Igor Petrovic
 
 */
@@ -17,7 +17,7 @@ void OpenDeck::startUpRoutine() {
     //turn off all LEDs before starting animation
     allLEDsOff();
 
-    switch (eeprom_read_byte((uint8_t*)EEPROM_HW_P_START_UP_ROUTINE))  {
+    switch (eeprom_read_byte((uint8_t*)EEPROM_LED_HW_P_START_UP_ROUTINE))  {
 
         case 1:
         openDeck.oneByOneLED(true, true, true);
@@ -70,7 +70,7 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 
     */
 
-    uint16_t _startUpLEDswitchTime = eeprom_read_byte((uint8_t*)EEPROM_HW_P_START_UP_SWITCH_TIME) * 10;
+    uint16_t _startUpLEDswitchTime = eeprom_read_byte((uint8_t*)EEPROM_LED_HW_P_START_UP_SWITCH_TIME) * 10;
 
     //remember previously active column
     static int8_t previousColumn = -1;
@@ -266,9 +266,9 @@ void OpenDeck::checkReceivedNoteOn()  {
 
 void OpenDeck::checkLEDs(uint8_t currentColumn)  {
 
-    if ((_board != 0) && (bitRead(hardwareFeatures, EEPROM_HW_F_LEDS)))    {
+    if ((_board != 0) && (bitRead(hardwareEnabled, SYS_EX_MST_HW_CONFIG_LEDS)))    {
 
-        if ((blinkEnabled) && (bitRead(softwareFeatures, EEPROM_SW_F_LED_BLINK)))   switchBlinkState();
+        if ((blinkEnabled) && (bitRead(ledFeatures, SYS_EX_FEATURES_LEDS_BLINK)))   switchBlinkState();
 
         //if there is an active LED in current column, turn on LED row
         for (int i=0; i<_numberOfLEDrows; i++)  {
@@ -373,7 +373,7 @@ void OpenDeck::handleLED(bool currentLEDstate, bool blinkMode, uint8_t _ledNumbe
     */
 
     //if blink note is received, and blinking is disabled, exit the function
-    if (blinkMode && (!(bitRead(softwareFeatures, EEPROM_SW_F_LED_BLINK))))
+    if (blinkMode && (!(bitRead(ledFeatures, SYS_EX_FEATURES_LEDS_BLINK))))
         return;
 
     uint8_t ledNumber = _ledNumber;
@@ -449,7 +449,7 @@ void OpenDeck::setLEDState()    {
 
     */
 
-    if (bitRead(softwareFeatures, EEPROM_SW_F_LED_BLINK))   {
+    if (bitRead(ledFeatures, SYS_EX_FEATURES_LEDS_BLINK))   {
 
         if ((receivedVelocity == SYS_EX_LED_VELOCITY_C_OFF) || (receivedVelocity == SYS_EX_LED_VELOCITY_B_OFF))
             currentLEDstate = false;
@@ -523,7 +523,7 @@ uint8_t OpenDeck::getLEDnumber()   {
 
     //match LED activation note with its index
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        if (ledNote[i] == receivedNote) return i;
+        if (ledActNote[i] == receivedNote) return i;
 
     //since 128 is impossible note, return it in case
     //that received note doesn't match any LED
@@ -533,6 +533,24 @@ uint8_t OpenDeck::getLEDnumber()   {
 
 uint8_t OpenDeck::getLEDnote(uint8_t ledNumber)   {
 
-    return ledNote[ledNumber];
+    return ledActNote[ledNumber];
+
+}
+
+bool OpenDeck::checkSameLEDvalue(uint8_t type, uint8_t number)  {
+
+    switch(type)    {
+        
+        case 0:
+        //LED activation note
+        break;
+        
+        case 1:
+        //LED start-up number
+        break;
+        
+        
+        
+    }   return false;
 
 }

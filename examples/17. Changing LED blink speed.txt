@@ -1,9 +1,0 @@
-Blinking speed for LEDs can be configured.
-
-Setting blink speed to 0.5 seconds:
-F0 00 53 43 01 00 01 00 02 05 F7
-
-Setting blink speed to 1 second:
-F0 00 53 43 01 00 01 00 02 0A F7
-
-Excepted parameters are 1-15 (0x01-0x0F). Parameter is multiplied by 100, ie. setting it to 15 (0x0F) will result in 1.5 second blink time.

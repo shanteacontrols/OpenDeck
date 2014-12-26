@@ -1,9 +1,0 @@
-Each potentiometer can be inverted.
-
-Inverting potentiometer 3:
-F0 00 53 43 01 00 06 01 03 01 F7
-
-Inverting all potentiometers:
-F0 00 53 43 01 01 06 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 F7
-
-Excepted parameters are 0 (don't invert) and 1 (invert).

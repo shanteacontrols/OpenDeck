@@ -10,7 +10,7 @@
 
 /*
     Modified by Igor Petrovic
-    Last edit date: 2014-11-15
+    Last revision date: 2014-12-25
 
     This version of library is stripped of following features:
 
@@ -50,6 +50,7 @@ MIDI_Class::MIDI_Class()    {
     mNoteOffCallback            = NULL;
     mNoteOnCallback             = NULL;
     mControlChangeCallback      = NULL;
+    mProgramChangeCallback      = NULL;
     mPitchBendCallback          = NULL;
     mSystemExclusiveCallback    = NULL;
     mClockCallback              = NULL;
@@ -153,7 +154,7 @@ void MIDI_Class::send(kMIDIType type,
         // Then send data
         USE_SERIAL_PORT.write(data1);
         
-        if (type != 0xC0 && type != 0xD0)
+        if (type != ProgramChange && type != 0xD0)
             USE_SERIAL_PORT.write(data2);
 
         return;
@@ -205,6 +206,16 @@ void MIDI_Class::sendControlChange(byte ControlNumber,
                                    byte Channel)    {
 
     send(ControlChange, ControlNumber, ControlValue, Channel);
+
+}
+
+/*! \brief Send a Program Change message 
+ \param ProgramNumber	The Program to select (0 to 127).
+ \param Channel			The channel on which the message will be sent (1 to 16).
+ */
+void MIDI_Class::sendProgramChange(byte ProgramNumber, byte Channel)    {
+
+    send(ProgramChange,ProgramNumber,0,Channel);
 
 }
 
@@ -374,6 +385,7 @@ bool MIDI_Class::parse(byte inChannel)  {
                 case NoteOn:
                 case ControlChange:
                 case PitchBend:
+                case ProgramChange:
 
                 //If the status byte is not received, prepend it to the pending message
                 if (extracted < 0x80) {
@@ -420,6 +432,7 @@ bool MIDI_Class::parse(byte inChannel)  {
                 break;
 
                 //2 bytes messages
+                case ProgramChange:
                 mPendingMessageExpectedLenght = 2;
                 break;
 
@@ -561,7 +574,8 @@ bool MIDI_Class::parse(byte inChannel)  {
                     case NoteOff:
                     case NoteOn:
                     case ControlChange:
-                    case PitchBend: 
+                    case PitchBend:
+                    case ProgramChange:
                     //Running status enabled: store it from received message
                     mRunningStatus_RX = mPendingMessage[0];
                     break;
@@ -721,6 +735,7 @@ void MIDI_Class::setInputChannel(const byte Channel)    {
 void MIDI_Class::setHandleNoteOff(void (*fptr)(byte channel, byte note, byte velocity))         { mNoteOffCallback          = fptr; }
 void MIDI_Class::setHandleNoteOn(void (*fptr)(byte channel, byte note, byte velocity))          { mNoteOnCallback           = fptr; }
 void MIDI_Class::setHandleControlChange(void (*fptr)(byte channel, byte number, byte value))    { mControlChangeCallback    = fptr; }
+void MIDI_Class::setHandleProgramChange(void (*fptr)(byte channel, byte number))                { mProgramChangeCallback    = fptr; }
 void MIDI_Class::setHandlePitchBend(void (*fptr)(byte channel, int bend))                       { mPitchBendCallback        = fptr; }
 void MIDI_Class::setHandleSystemExclusive(void (*fptr)(byte * array, byte size))                { mSystemExclusiveCallback  = fptr; }
 void MIDI_Class::setHandleClock(void (*fptr)(void))                                             { mClockCallback            = fptr; }
@@ -751,6 +766,11 @@ void MIDI_Class::launchCallback()   {
         case ControlChange:
         if (mControlChangeCallback != NULL)
         mControlChangeCallback(mMessage.channel,mMessage.data1,mMessage.data2);
+        break;
+
+        case ProgramChange:
+        if (mProgramChangeCallback != NULL)
+        mProgramChangeCallback(mMessage.channel,mMessage.data1);
         break;
 
         case PitchBend:
