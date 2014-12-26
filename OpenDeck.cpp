@@ -115,7 +115,7 @@ void setMIDIhandlers()  {
 void setup()  {
 
     openDeck.init();
-    
+
     setOpenDeckHandlers();
     setMIDIhandlers();
 
@@ -142,6 +142,5 @@ void loop() {
     openDeck.readPots();
 
     //openDeck.readEncoders(encoder1.read());
-    
 
 }

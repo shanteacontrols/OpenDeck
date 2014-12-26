@@ -228,7 +228,7 @@ bool OpenDeck::sysExCheckParameterID(uint8_t messageType, uint8_t messageSubType
     switch (messageType)    {
 
         case SYS_EX_MT_HW_CONFIG:
-        return ((parameter >= SYS_EX_MST_HW_CONFIG_START) && (parameter < SYS_EX_MST_HW_CONFIG_END));
+        return ((parameter >= SYS_EX_HW_CONFIG_START) && (parameter < SYS_EX_HW_CONFIG_END));
         break;
 
         case SYS_EX_MT_FEATURES:
@@ -321,13 +321,13 @@ bool OpenDeck::sysExCheckNewParameterID(uint8_t messageType, uint8_t messageSubT
         case SYS_EX_MT_HW_CONFIG:
         switch(parameter)   {
 
-            case SYS_EX_MST_HW_CONFIG_BOARD:
+            case SYS_EX_HW_CONFIG_BOARD:
             return ((newParameter >= SYS_EX_BOARD_TYPE_START) && (newParameter < SYS_EX_BOARD_TYPE_END));
             break;
 
-            case SYS_EX_MST_HW_CONFIG_BUTTONS:
-            case SYS_EX_MST_HW_CONFIG_LEDS:
-            case SYS_EX_MST_HW_CONFIG_POTS:
+            case SYS_EX_HW_CONFIG_BUTTONS:
+            case SYS_EX_HW_CONFIG_LEDS:
+            case SYS_EX_HW_CONFIG_POTS:
             return ((newParameter == SYS_EX_ENABLE) || (newParameter == SYS_EX_DISABLE));
             break;
 
@@ -405,11 +405,11 @@ bool OpenDeck::sysExCheckNewParameterID(uint8_t messageType, uint8_t messageSubT
         switch (messageSubType)  {
 
             case SYS_EX_MST_LED_ACT_NOTE:
-            return (newParameter < 128);
+            return ((checkSameLEDvalue(SYS_EX_MST_LED_ACT_NOTE, newParameter)) && (newParameter < 128));
             break;
 
             case SYS_EX_MST_LED_START_UP_NUMBER:
-            return (newParameter < totalNumberOfLEDs);
+            return ((checkSameLEDvalue(SYS_EX_MST_LED_START_UP_NUMBER, newParameter)) && (newParameter < totalNumberOfLEDs));
             break;
 
             case SYS_EX_MST_LED_STATE:
@@ -503,7 +503,7 @@ uint8_t OpenDeck::sysExGenerateMinMessageLenght(uint8_t wish, uint8_t amount, ui
             switch (messageType)    {
 
                 case SYS_EX_MT_HW_CONFIG:
-                return SYS_EX_ML_REQ_STANDARD + SYS_EX_MST_HW_CONFIG_END;
+                return SYS_EX_ML_REQ_STANDARD + SYS_EX_HW_CONFIG_END;
                 break;
 
                 case SYS_EX_MT_FEATURES:
@@ -644,7 +644,7 @@ void OpenDeck::sysExGenerateResponse(uint8_t sysExArray[], uint8_t arrSize)  {
     switch (sysExArray[SYS_EX_MS_MT])   {
 
         case SYS_EX_MT_HW_CONFIG:
-        maxComponentNr = SYS_EX_MST_HW_CONFIG_END;
+        maxComponentNr = SYS_EX_HW_CONFIG_END;
         break;
 
         case SYS_EX_MT_FEATURES:
@@ -903,20 +903,20 @@ uint8_t OpenDeck::sysExGetHardwareConfig(uint8_t parameter) {
 
     switch(parameter)   {
 
-        case SYS_EX_MST_HW_CONFIG_BOARD:
+        case SYS_EX_HW_CONFIG_BOARD:
         return _board;
         break;
 
-        case SYS_EX_MST_HW_CONFIG_BUTTONS:
-        return bitRead(hardwareEnabled, SYS_EX_MST_HW_CONFIG_BUTTONS);
+        case SYS_EX_HW_CONFIG_BUTTONS:
+        return bitRead(hardwareEnabled, SYS_EX_HW_CONFIG_BUTTONS);
         break;
 
-        case SYS_EX_MST_HW_CONFIG_LEDS:
-        return bitRead(hardwareEnabled, SYS_EX_MST_HW_CONFIG_LEDS);
+        case SYS_EX_HW_CONFIG_LEDS:
+        return bitRead(hardwareEnabled, SYS_EX_HW_CONFIG_LEDS);
         break;
 
-        case SYS_EX_MST_HW_CONFIG_POTS:
-        return bitRead(hardwareEnabled, SYS_EX_MST_HW_CONFIG_POTS);
+        case SYS_EX_HW_CONFIG_POTS:
+        return bitRead(hardwareEnabled, SYS_EX_HW_CONFIG_POTS);
         break;
 
         default:
@@ -1383,15 +1383,15 @@ bool OpenDeck::sysExSetHardwareConfig(uint8_t parameter, uint8_t value)  {
 
     switch (parameter)  {
 
-        case SYS_EX_MST_HW_CONFIG_BOARD:
+        case SYS_EX_HW_CONFIG_BOARD:
         _board = value;
         eeprom_update_byte((uint8_t*)EEPROM_BOARD_TYPE, value);
         if (eeprom_read_byte((uint8_t*)EEPROM_BOARD_TYPE) == value) { initBoard(); return true; }
         break;
 
-        case SYS_EX_MST_HW_CONFIG_BUTTONS:
-        case SYS_EX_MST_HW_CONFIG_LEDS:
-        case SYS_EX_MST_HW_CONFIG_POTS:
+        case SYS_EX_HW_CONFIG_BUTTONS:
+        case SYS_EX_HW_CONFIG_LEDS:
+        case SYS_EX_HW_CONFIG_POTS:
         //enable/disable specified hardware
         bitWrite(hardwareEnabled, parameter, value);
         eeprom_update_byte((uint8_t*)EEPROM_HARDWARE_ENABLED, hardwareEnabled);
