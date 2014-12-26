@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.2
+OpenDECK library v1.3
 File: EEPROM.h
-Last revision date: 2014-11-22
+Last revision date: 2014-12-25
 Author: Igor Petrovic
 
 */
@@ -15,61 +15,51 @@ Author: Igor Petrovic
 #define EEPROM_M_ID_BYTE_1                  1
 #define EEPROM_M_ID_BYTE_2                  2
 
-#define EEPROM_MIDI_CHANNEL_START           3
 
-#define EEPROM_MC_BUTTON_NOTE               3
-#define EEPROM_MC_LONG_PRESS_BUTTON_NOTE    4
-#define EEPROM_MC_POT_CC                    5
-#define EEPROM_MC_POT_NOTE                  6
-#define EEPROM_MC_ENC_CC                    7
-#define EEPROM_MC_INPUT                     8
+#define EEPROM_HW_CONFIG_START              3
 
-#define EEPROM_HW_P_START                   9
+#define EEPROM_BOARD_TYPE                   3
+#define EEPROM_HARDWARE_ENABLED             4
 
-#define EEPROM_HW_P_BOARD_TYPE              9
-#define EEPROM_HW_P_LONG_PRESS_TIME         10
-#define EEPROM_HW_P_BLINK_TIME              11
-#define EEPROM_HW_P_TOTAL_LED_NUMBER        12
-#define EEPROM_HW_P_START_UP_SWITCH_TIME    13
-#define EEPROM_HW_P_START_UP_ROUTINE        14
 
-#define EEPROM_FREE_PIN_START               15
+#define EEPROM_FEATURES_MIDI                5
+#define EEPROM_FEATURES_BUTTONS             6
+#define EEPROM_FEATURES_LEDS                7
+#define EEPROM_FEATURES_POTS                8
 
-#define EEPROM_FREE_PIN_A                   15
-#define EEPROM_FREE_PIN_B                   16
-#define EEPROM_FREE_PIN_C                   17
-#define EEPROM_FREE_PIN_D                   18
 
-#define EEPROM_SOFTWARE_FEATURES_START      19
+#define EEPROM_MC_START                     9
 
-#define EEPROM_SW_F_RUNNING_STATUS          0
-#define EEPROM_SW_F_STANDARD_NOTE_OFF       1
-#define EEPROM_SW_F_ENC_NOTES               2
-#define EEPROM_SW_F_POT_NOTES               3
-#define EEPROM_SW_F_LONG_PRESS              4
-#define EEPROM_SW_F_LED_BLINK               5
-#define EEPROM_SW_F_START_UP_ROUTINE        6
+#define EEPROM_MC_BUTTON_NOTE               9
+#define EEPROM_MC_LONG_PRESS_BUTTON_NOTE    10
+#define EEPROM_MC_BUTTON_PP                 11
+#define EEPROM_MC_POT_CC                    12
+#define EEPROM_MC_POT_PP                    13
+#define EEPROM_MC_POT_NOTE                  14
+#define EEPROM_MC_INPUT                     15
 
-#define EEPROM_HARDWARE_FEATURES_START      20
+#define EEPROM_BUTTON_TYPE_START            16
+#define EEPROM_BUTTON_PP_ENABLED_START      24
+#define EEPROM_BUTTON_NOTE_START            32
 
-#define EEPROM_HW_F_BUTTONS                 0
-#define EEPROM_HW_F_POTS                    1
-#define EEPROM_HW_F_ENC                     2
-#define EEPROM_HW_F_LEDS                    3
+#define EEPROM_BUTTON_HW_P_START            96
+#define EEPROM_BUTTON_HW_P_LONG_PRESS_TIME  96
 
-#define EEPROM_BUTTON_TYPE_START            21
-#define EEPROM_BUTTON_NOTE_START            37
+#define EEPROM_POT_ENABLED_START            97
+#define EEPROM_POT_PP_ENABLED_START         105
+#define EEPROM_POT_INVERSION_START          113
+#define EEPROM_POT_CC_PP_NUMBER_START       121
+#define EEPROM_POT_LOWER_LIMIT_START        185
+#define EEPROM_POT_UPPER_LIMIT_START        249
 
-#define EEPROM_POT_ENABLED_START            165
-#define EEPROM_POT_INVERSION_START          173
-#define EEPROM_POT_CC_NUMBER_START          181
-#define EEPROM_POT_LOWER_LIMIT_START        245
-#define EEPROM_POT_UPPER_LIMIT_START        309
+#define EEPROM_LED_ACT_NOTE_START           313
+#define EEPROM_LED_START_UP_NUMBER_START    377
 
-#define EEPROM_ENCODER_START                373
-
-#define EEPROM_LED_ACT_NOTE_START           377
-#define EEPROM_LED_START_UP_NUMBER_START    505
+#define EEPROM_LED_HW_P_START                441
+#define EEPROM_LED_HW_P_BLINK_TIME           441
+#define EEPROM_LED_HW_P_TOTAL_NUMBER         442
+#define EEPROM_LED_HW_P_START_UP_SWITCH_TIME 443
+#define EEPROM_LED_HW_P_START_UP_ROUTINE     444
 
 
 //default controller settings
@@ -80,63 +70,86 @@ const uint8_t defConf[] PROGMEM = {
     0x53, //ID byte 1                       //001
     0x43, //ID byte 2                       //002
 
-    //channels
-    0x01, //button note channel 1           //003
-    0x02, //long press note channel 2       //004
-    0x01, //CC channel 1                    //005
-    0x03, //pot notes channel               //006
-    0x02, //encoder channel 2               //007
-    0x01, //MIDI input channel  1           //008
+    //hardware configuration
 
-    //hardware parameters
-    0x00, //board type                      //009
-    0x05, //long press time (x100)          //010
-    0x04, //blink duration time (x100)      //011
-    0x00, //total number of LEDs            //012
-    0x05, //start up LED switch time (x10)  //013
-    0x00, //start-up routine pattern        //014
+    //board type
+    0x00, //no board                        //003
 
-    //free pins
-    0x00, //free pin A                      //015
-    0x00, //free pin B                      //016
-    0x00, //free pin C                      //017
-    0x00,  //free pin D                     //018
-
-    //features
-    //bit meaning, MSB first (1/enabled, 0/disabled)
-
-    //software
+    //1/enabled, 0/disabled
+    //MSB first
 
     //no function
-    //start-up routine
-    //LED blinking
-    //long press
-    //pot notes
-    //encoder notes
+    //no function
+    //no function
+    //pots
+    //LEDs
+    //buttons
+    //no function
+    0b00001110,                             //004
+
+    //MIDI features
+
+    //no function
+    //no function
+    //no function
+    //no function
+    //no function
+    //no function
     //standard note off
     //running status
+    0b00000000,                             //005
 
-    0b01111101,                             //019
-
-    //hardware
+    //button features
 
     //no function
     //no function
     //no function
     //no function
-    //LEDs
-    //encoders
-    //pots
-    //buttons
+    //no function
+    //no function
+    //no function
+    //long press
+    0b00000001,                             //006
 
-    0b00001111,                             //020
+    //LED features
+
+    //no function
+    //no function
+    //no function
+    //no function
+    //no function
+    //no function
+    //LED blinking
+    //start-up routine
+    0b00000011,                             //007
+
+    //potentiometer features
+
+    //no function
+    //no function
+    //no function
+    //no function
+    //no function
+    //no function
+    //no function
+    //potentiometer notes
+    0b00000001,                             //008
+
+    //MIDI channels
+    0x01, //button note channel             //009
+    0x02, //long press note channel         //010
+    0x01, //button PP channel               //011
+    0x01, //pot CC channel                  //012
+    0x01, //pot PP channel                  //013
+    0x03, //pot notes channel               //014
+    0x01, //MIDI input channel              //015
 
     //button type
-    //0 - press/note on, release/note off
-    //1 - press/note on, release/nothing, press again/note off
+    //0 - press/note on, release/note off (momentary)
+    //1 - press/note on, release/nothing, press again/note off (latching)
 
     //7-0
-    0x00,                                   //021
+    0x00,                                   //016
     //15-8
     0x00,
     //23-16
@@ -151,26 +164,32 @@ const uint8_t defConf[] PROGMEM = {
     0x00,
     //63-56
     0x00,
-    //71-64
+
+    //enable button PP
+    //enabling button PP will disable button notes, and vice versa
+    //0 - disabled
+    //1 - enabled
+
+    //7-0
+    0x00,                                   //024
+    //15-8
     0x00,
-    //79-72
+    //23-16
     0x00,
-    //87-80
+    //31-24
     0x00,
-    //95-88
+    //39-32
     0x00,
-    //103-96
+    //47-40
     0x00,
-    //111-104
+    //55-48
     0x00,
-    //119-112
-    0x00,
-    //127-120
+    //63-56
     0x00,
 
-    //button notes
+    //button notes + PP
 
-    0x00,                                   //037
+    0x00,                                   //032
     0x01,
     0x02,
     0x03,
@@ -234,75 +253,16 @@ const uint8_t defConf[] PROGMEM = {
     0x3D,
     0x3E,
     0x3F,
-    0x40,
-    0x41,
-    0x42,
-    0x43,
-    0x44,
-    0x45,
-    0x46,
-    0x47,
-    0x48,
-    0x49,
-    0x4A,
-    0x4B,
-    0x4C,
-    0x4D,
-    0x4E,
-    0x4F,
-    0x50,
-    0x51,
-    0x52,
-    0x53,
-    0x54,
-    0x55,
-    0x56,
-    0x57,
-    0x58,
-    0x59,
-    0x5A,
-    0x5B,
-    0x5C,
-    0x5D,
-    0x5E,
-    0x5F,
-    0x60,
-    0x61,
-    0x62,
-    0x63,
-    0x64,
-    0x65,
-    0x66,
-    0x67,
-    0x68,
-    0x69,
-    0x6A,
-    0x6B,
-    0x6C,
-    0x6D,
-    0x6E,
-    0x6F,
-    0x70,
-    0x71,
-    0x72,
-    0x73,
-    0x74,
-    0x75,
-    0x76,
-    0x77,
-    0x78,
-    0x79,
-    0x7A,
-    0x7B,
-    0x7C,
-    0x7D,
-    0x7E,
-    0x7F,
+
+    //button parameters
+
+    //button long press time
+    0x05, //x100mS                          //096
 
     //enable pot (1 enabled, 0 disabled)
 
     //7-0
-    0x00,                                   //165
+    0x00,                                   //097
     //15-8
     0x00,
     //23-16
@@ -318,10 +278,11 @@ const uint8_t defConf[] PROGMEM = {
     //63-56
     0x00,
 
-    //invert CC data (1 enabled, 0 disabled)
+    //pot PP enabled
+    //enabling PP from pots will disable pot CC, and vice versa
 
     //7-0
-    0x00,                                   //173
+    0x00,                                   //105
     //15-8
     0x00,
     //23-16
@@ -337,9 +298,28 @@ const uint8_t defConf[] PROGMEM = {
     //63-56
     0x00,
 
-    //CC potentiometer numbers
+    //invert potentiometer data (1 invert, 0 don't invert)
 
-    0x00,                                   //181
+    //7-0
+    0x00,                                   //113
+    //15-8
+    0x00,
+    //23-16
+    0x00,
+    //31-24
+    0x00,
+    //39-32
+    0x00,
+    //47-40
+    0x00,
+    //55-48
+    0x00,
+    //63-56
+    0x00,
+
+    //CC/PP potentiometer numbers
+
+    0x00,                                   //121
     0x01,
     0x02,
     0x03,
@@ -404,9 +384,9 @@ const uint8_t defConf[] PROGMEM = {
     0x3E,
     0x3F,
 
-    //CC lower limits
+    //CC/PP lower limits
 
-    0x00,                                   //245
+    0x00,                                   //185
     0x00,
     0x00,
     0x00,
@@ -471,9 +451,9 @@ const uint8_t defConf[] PROGMEM = {
     0x00,
     0x00,
 
-    //CC upper limits
+    //CC/PP upper limits
 
-    0x7F,                                   //309
+    0x7F,                                   //249
     0x7F,
     0x7F,
     0x7F,
@@ -537,81 +517,10 @@ const uint8_t defConf[] PROGMEM = {
     0x7F,
     0x7F,
     0x7F,
-
-    //encoder pairs
-
-    0x00,                                   //373
-    0x00,
-    0x00,
-    0x00,
 
     //LED Activation Notes
 
-    0x7F,                                   //377
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
-    0x7F,
+    0x7F,                                   //313
     0x7F,
     0x7F,
     0x7F,
@@ -678,7 +587,7 @@ const uint8_t defConf[] PROGMEM = {
 
     //LED start-up number
 
-    0x40,                                   //505
+    0x40,                                   //377
     0x40,
     0x40,
     0x40,
@@ -742,70 +651,12 @@ const uint8_t defConf[] PROGMEM = {
     0x40,
     0x40,
     0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40,
-    0x40
+
+    //LED parameters
+    0x04, //blink duration time (x100mS)    //441
+    0x00, //total number of LEDs            //442
+    0x05, //start up LED switch time (x10mS)//443
+    0x00, //start-up routine pattern        //444
 
 };
 

@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.2
+OpenDECK library v1.3
 File: OpenDeck.cpp
-Last revision date: 2014-12-03
+Last revision date: 2014-12-25
 Author: Igor Petrovic
 
 */
@@ -18,12 +18,9 @@ Author: Igor Petrovic
 
 OpenDeck::OpenDeck()    {
 
-    //initialization
-    initVariables();
-
     //set all callbacks to NULL pointer
-
-    sendButtonDataCallback      =   NULL;
+    sendButtonNoteDataCallback  =   NULL;
+    sendButtonPPDataCallback    =   NULL;
     sendPotCCDataCallback       =   NULL;
     sendPotNoteOnDataCallback   =   NULL;
     sendPotNoteOffDataCallback  =   NULL;
@@ -34,29 +31,15 @@ OpenDeck::OpenDeck()    {
 
 void OpenDeck::init()   {
 
+    initVariables();
+
     setADCprescaler(32);
     set8bitADC();
 
     if (initialEEPROMwrite())   sysExSetDefaultConf();
-    else                        getConfiguration(); //get all values from EEPROM
+    else getConfiguration(); //get all values from EEPROM
 
-    setNumberOfColumnPasses();
-
-    //initialize lastPotNoteValue to 128, which is impossible value for MIDI,
-    //to avoid sending note off for that value on first read
-    for (int i=0; i<MAX_NUMBER_OF_POTS; i++)        lastPotNoteValue[i] = 128;
-
-    blinkState              = true;
-    receivedNoteOnProcessed = true;
-
-    //make initial pot reading to avoid sending all data on startup
-    readPotsInitial();
-
-    //configure column and analog pin switch timer
-    setUpSwitchTimer();
-
-    //run LED animation on start-up
-    startUpRoutine();
+    initBoard();
 
 }
 
@@ -66,9 +49,9 @@ bool OpenDeck::initialEEPROMwrite()  {
     //write default configuration to EEPROM
     if  (!(
 
-        (eeprom_read_byte((uint8_t*)EEPROM_M_ID_BYTE_0) == SYS_EX_M_ID_0) &&
-        (eeprom_read_byte((uint8_t*)EEPROM_M_ID_BYTE_1) == SYS_EX_M_ID_1) &&
-        (eeprom_read_byte((uint8_t*)EEPROM_M_ID_BYTE_2) == SYS_EX_M_ID_2)
+    (eeprom_read_byte((uint8_t*)EEPROM_M_ID_BYTE_0) == SYS_EX_M_ID_0) &&
+    (eeprom_read_byte((uint8_t*)EEPROM_M_ID_BYTE_1) == SYS_EX_M_ID_1) &&
+    (eeprom_read_byte((uint8_t*)EEPROM_M_ID_BYTE_2) == SYS_EX_M_ID_2)
 
     ))   return true; return false;
 
@@ -81,19 +64,14 @@ void OpenDeck::initVariables()  {
     //MIDI channels
     _buttonNoteChannel              = 0;
     _longPressButtonNoteChannel     = 0;
+    _buttonPPchannel                = 0;
     _potCCchannel                   = 0;
+    _potPPchannel                   = 0;
     _potNoteChannel                 = 0;
-    _encCCchannel                   = 0;
     _inputChannel                   = 0;
 
     //hardware params
     _blinkTime                      = 0;
-
-    //software features
-    softwareFeatures                = 0;
-
-    //hardware features
-    hardwareFeatures                = 0;
 
     //buttons
     for (i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
@@ -105,6 +83,7 @@ void OpenDeck::initVariables()  {
         buttonPressed[i]            = 0;
         longPressSent[i]            = 0;
         longPressCounter[i]         = 0;
+        buttonPPenabled[i]          = 0;
 
     }
 
@@ -114,8 +93,8 @@ void OpenDeck::initVariables()  {
     //pots
     for (i=0; i<MAX_NUMBER_OF_POTS; i++)        {
 
-        ccNumber[i]                 = 0;
-        lastPotNoteValue[i]         = 0;
+        ccppNumber[i]               = 0;
+        lastPotNoteValue[i]         = 128;
         lastAnalogueValue[i]        = 0;
         ccLowerLimit[i]             = 0;
         ccUpperLimit[i]             = 0;
@@ -126,6 +105,7 @@ void OpenDeck::initVariables()  {
 
         potInverted[i]              = 0;
         potEnabled[i]               = 0;
+        potPPenabled[i]             = 0;
 
     }
 
@@ -141,18 +121,18 @@ void OpenDeck::initVariables()  {
     for (i=0; i<MAX_NUMBER_OF_LEDS; i++)        {
 
         ledState[i]                 = 0;
-        ledNote[i]                    = 0;
+        ledActNote[i]               = 0;
 
     }
 
     totalNumberOfLEDs               = 0;
 
-    blinkState                      = false;
+    blinkState                      = true;
     blinkEnabled                    = false;
     blinkTimerCounter               = 0;
 
     //input
-    receivedNoteOnProcessed         = false;
+    receivedNoteOnProcessed         = true;
     receivedChannel                 = 0;
     receivedNote                    = 0;
     receivedVelocity                = 0;
@@ -162,16 +142,6 @@ void OpenDeck::initVariables()  {
 
     //board type
     _board                          = 0;
-
-    //encoders
-    for (int i=0; i<MAX_NUMBER_OF_ENCODERS/8; i++)   {
-
-        encoderPairEnabled[i]   = 0;
-
-    }
-
-    for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
-        encoderPairState[i]         = 0;
 
 }
 
@@ -251,13 +221,13 @@ uint8_t OpenDeck::getInputMIDIchannel() {
 
 bool OpenDeck::standardNoteOffEnabled() {
 
-    return bitRead(softwareFeatures, EEPROM_SW_F_STANDARD_NOTE_OFF);
+    return bitRead(midiFeatures, SYS_EX_FEATURES_MIDI_STANDARD_NOTE_OFF);
 
 }
 
 bool OpenDeck::runningStatusEnabled()   {
 
-    return bitRead(softwareFeatures, EEPROM_SW_F_RUNNING_STATUS);
+    return bitRead(midiFeatures, SYS_EX_FEATURES_MIDI_RUNNING_STATUS);
 
 }
 

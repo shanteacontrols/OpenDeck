@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.2
+OpenDECK library v1.3
 File: HardwareControl.cpp
-Last revision date: 2014-12-03
+Last revision date: 2014-12-25
 Author: Igor Petrovic
 
 */ 
@@ -20,11 +20,13 @@ void OpenDeck::enableAnalogueInput(uint8_t muxNumber, uint8_t adcChannel)  {
     analogueEnabledArray[muxNumber] = adcChannel;
 
     //disable digital input on enabled analog pins
-    if (adcChannel < 6) bitWrite(DIDR0, adcChannel, 1);
+    disconnectDigitalInADC(adcChannel);
 
 }
 
 void OpenDeck::initBoard()  {
+
+    if (_board == 0)    return;
 
     initPins();
 
@@ -52,6 +54,17 @@ void OpenDeck::initBoard()  {
         break;
 
     }
+
+    setNumberOfColumnPasses();
+
+    //configure column and analog pin switch timer
+    setUpSwitchTimer();
+
+    //make initial pot reading to avoid sending all data on startup
+    readPotsInitial();
+
+    //run LED animation on start-up
+    startUpRoutine();
 
 }
 

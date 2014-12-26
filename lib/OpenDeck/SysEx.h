@@ -1,8 +1,8 @@
 /*
 
-OpenDECK library v1.2
+OpenDECK library v1.3
 File: SysEx.h
-Last revision date: 2014-11-22
+Last revision date: 2014-12-25
 Author: Igor Petrovic
 
 */
@@ -20,16 +20,16 @@ Author: Igor Petrovic
 
 //lower and upper limits for...
 //long press time
-#define SYS_EX_HW_P_LONG_PRESS_TIME_MIN         0x04
-#define SYS_EX_HW_P_LONG_PRESS_TIME_MAX         0x0F
+#define SYS_EX_BUTTON_LONG_PRESS_TIME_MIN       0x04
+#define SYS_EX_BUTTON_LONG_PRESS_TIME_MAX       0x0F
 
 //blink time
-#define SYS_EX_HW_P_BLINK_TIME_MIN              0x01
-#define SYS_EX_HW_P_BLINK_TIME_MAX              0x0F
+#define SYS_EX_LED_BLINK_TIME_MIN               0x01
+#define SYS_EX_LED_BLINK_TIME_MAX               0x0F
 
 //LED switch time on start-up
-#define SYS_EX_HW_P_START_UP_SWITCH_TIME_MIN    0x01
-#define SYS_EX_HW_P_START_UP_SWITCH_TIME_MAX    0x78
+#define SYS_EX_LED_START_UP_SWITCH_TIME_MIN     0x01
+#define SYS_EX_LED_START_UP_SWITCH_TIME_MAX     0x78
 
 ////////////////////////////////////////////////////
 
@@ -78,14 +78,11 @@ typedef enum {
 
     //message types
     SYS_EX_MT_START,
-    SYS_EX_MT_MIDI_CHANNEL = SYS_EX_MT_START,
-    SYS_EX_MT_HW_PARAMETER,
-    SYS_EX_MT_FREE_PINS,
-    SYS_EX_MT_SW_FEATURE,
-    SYS_EX_MT_HW_FEATURE,
+    SYS_EX_MT_HW_CONFIG = SYS_EX_MT_START,
+    SYS_EX_MT_FEATURES,
+    SYS_EX_MT_MIDI_CHANNEL,
     SYS_EX_MT_BUTTON,
     SYS_EX_MT_POT,
-    SYS_EX_MT_ENC,
     SYS_EX_MT_LED,
     SYS_EX_MT_ALL,
     SYS_EX_MT_END
@@ -94,8 +91,90 @@ typedef enum {
 
 typedef enum {
 
+    SYS_EX_MST_HW_CONFIG_START,
+    SYS_EX_MST_HW_CONFIG_BOARD = SYS_EX_MST_HW_CONFIG_START,
+    SYS_EX_MST_HW_CONFIG_BUTTONS,
+    SYS_EX_MST_HW_CONFIG_LEDS,
+    SYS_EX_MST_HW_CONFIG_POTS,
+    SYS_EX_MST_HW_CONFIG_END
+
+} sysExHardwareConfig;
+
+typedef enum {
+
+    SYS_EX_BOARD_TYPE_START,
+    SYS_EX_BOARD_TYPE_OPEN_DECK_1,
+    SYS_EX_BOARD_TYPE_TANNIN,
+    SYS_EX_BOARD_TYPE_END
+
+} sysExBoardType;
+
+typedef enum {
+
+    //features
+    SYS_EX_MST_FEATURES_START,
+    SYS_EX_MST_FEATURES_MIDI = SYS_EX_MST_FEATURES_START,
+    SYS_EX_MST_FEATURES_BUTTONS,
+    SYS_EX_MST_FEATURES_LEDS,
+    SYS_EX_MST_FEATURES_POTS,
+    SYS_EX_MST_FEATURES_END
+
+} sysExFeatures;
+
+typedef enum {
+
+    SYS_EX_FEATURES_MIDI_START,
+    SYS_EX_FEATURES_MIDI_RUNNING_STATUS = SYS_EX_FEATURES_MIDI_START,
+    SYS_EX_FEATURES_MIDI_STANDARD_NOTE_OFF,
+    SYS_EX_FEATURES_MIDI_END
+
+} sysExMIDIfeatures;
+
+typedef enum {
+
+    SYS_EX_FEATURES_BUTTONS_START,
+    SYS_EX_FEATURES_BUTTONS_LONG_PRESS = SYS_EX_FEATURES_BUTTONS_START,
+    SYS_EX_FEATURES_BUTTONS_END
+
+} sysExButtonFeatures;
+
+typedef enum {
+
+    SYS_EX_FEATURES_LEDS_START,
+    SYS_EX_FEATURES_LEDS_START_UP_ROUTINE = SYS_EX_FEATURES_LEDS_START,
+    SYS_EX_FEATURES_LEDS_BLINK,
+    SYS_EX_FEATURES_LEDS_END
+
+} sysExLEDfeatures;
+
+typedef enum {
+
+    SYS_EX_FEATURES_POTS_START,
+    SYS_EX_FEATURES_POTS_NOTES = SYS_EX_FEATURES_POTS_START,
+    SYS_EX_FEATURES_POTS_END
+
+} sysExPotFeatures;
+
+typedef enum {
+
+    SYS_EX_MC_START,
+    SYS_EX_MC_BUTTON_NOTE = SYS_EX_MC_START,
+    SYS_EX_MC_LONG_PRESS_BUTTON_NOTE,
+    SYS_EX_MC_BUTTON_PP,
+    SYS_EX_MC_POT_CC,
+    SYS_EX_MC_POT_PP,
+    SYS_EX_MC_POT_NOTE,
+    SYS_EX_MC_INPUT,
+    SYS_EX_MC_END
+
+} sysExMIDIchannels;
+
+typedef enum {
+
     SYS_EX_MST_BUTTON_START,
-    SYS_EX_MST_BUTTON_TYPE = SYS_EX_MST_BUTTON_START,
+    SYS_EX_MST_BUTTON_HW_P = SYS_EX_MST_BUTTON_START,
+    SYS_EX_MST_BUTTON_TYPE,
+    SYS_EX_MST_BUTTON_PP_ENABLED,
     SYS_EX_MST_BUTTON_NOTE,
     SYS_EX_MST_BUTTON_END
 
@@ -103,10 +182,19 @@ typedef enum {
 
 typedef enum {
 
+    SYS_EX_BUTTON_HW_P_START,
+    SYS_EX_BUTTON_HW_P_LONG_PRESS_TIME = SYS_EX_BUTTON_HW_P_START,
+    SYS_EX_MST_BUTTON_HW_P_END
+
+} sysExButtonHwParameter;
+
+typedef enum {
+
     SYS_EX_MST_POT_START,
     SYS_EX_MST_POT_ENABLED = SYS_EX_MST_POT_START,
+    SYS_EX_MST_POT_PP_ENABLED,
     SYS_EX_MST_POT_INVERTED,
-    SYS_EX_MST_POT_CC_NUMBER,
+    SYS_EX_MST_POT_CC_PP_NUMBER,
     SYS_EX_MST_POT_LOWER_LIMIT,
     SYS_EX_MST_POT_UPPER_LIMIT,
     SYS_EX_MST_POT_END
@@ -114,22 +202,26 @@ typedef enum {
 } sysExMessageSubTypePot;
 
 typedef enum {
-    
-    SYS_EX_MST_ENC_START,
-    SYS_EX_MST_ENC_PAIR = SYS_EX_MST_ENC_START,
-    SYS_EX_MST_ENC_END
-    
-} sysExMessageSubTypeEnc;
+
+    SYS_EX_MST_LED_START,
+    SYS_EX_MST_LED_HW_P = SYS_EX_MST_LED_START,
+    SYS_EX_MST_LED_ACT_NOTE,
+    SYS_EX_MST_LED_START_UP_NUMBER,
+    SYS_EX_MST_LED_STATE,
+    SYS_EX_LED_END
+
+} sysExMessageSubTypeLED;
 
 typedef enum {
 
-    SYS_EX_MST_LED_START,
-    SYS_EX_MST_LED_ACT_NOTE = SYS_EX_MST_LED_START,
-    SYS_EX_MST_LED_START_UP_NUMBER,
-    SYS_EX_MST_LED_STATE,
-    SYS_EX_MST_LED_END
+    SYS_EX_LED_HW_P_START,
+    SYS_EX_LED_HW_P_TOTAL_NUMBER = SYS_EX_LED_HW_P_START,
+    SYS_EX_LED_HW_P_BLINK_TIME,
+    SYS_EX_LED_HW_P_START_UP_SWITCH_TIME,
+    SYS_EX_LED_HW_P_START_UP_ROUTINE,
+    SYS_EX_LED_HW_P_END
 
-} sysExMessageSubTypeLED;
+} sysEXLEDHwParameter;
 
 typedef enum {
 
@@ -141,87 +233,6 @@ typedef enum {
     SYS_EX_LED_STATE_END
 
 } sysExLEDstates;
-
-typedef enum {
-
-    SYS_EX_MC_START,
-    SYS_EX_MC_BUTTON_NOTE = SYS_EX_MC_START,
-    SYS_EX_MC_LONG_PRESS_BUTTON_NOTE,
-    SYS_EX_MC_POT_CC,
-    SYS_EX_MC_POT_NOTE,
-    SYS_EX_MC_ENC_CC,
-    SYS_EX_MC_INPUT,
-    SYS_EX_MC_END
-
-} sysExMIDIchannels;
-
-typedef enum {
-
-    SYS_EX_HW_P_START,
-    SYS_EX_HW_P_BOARD_TYPE = SYS_EX_HW_P_START,
-    SYS_EX_HW_P_LONG_PRESS_TIME,
-    SYS_EX_HW_P_BLINK_TIME,
-    SYS_EX_HW_P_TOTAL_LED_NUMBER,
-    SYS_EX_HW_P_START_UP_SWITCH_TIME,
-    SYS_EX_HW_P_START_UP_ROUTINE,
-    SYS_EX_HW_P_END
-
-} sysExHardwareParameters;
-
-typedef enum {
-
-    SYS_EX_FREE_PIN_START,
-    SYS_EX_FREE_PIN_A = SYS_EX_FREE_PIN_START,
-    SYS_EX_FREE_PIN_B,
-    SYS_EX_FREE_PIN_C,
-    SYS_EX_FREE_PIN_D,
-    SYS_EX_FREE_PIN_END
-
-} sysExFreePins;
-
-typedef enum {
-
-    SYS_EX_FREE_PIN_STATE_START,
-    SYS_EX_FREE_PIN_STATE_DISABLED = SYS_EX_FREE_PIN_STATE_START,
-    SYS_EX_FREE_PIN_STATE_B_ROW,
-    SYS_EX_FREE_PIN_STATE_L_ROW,
-    SYS_EX_FREE_PIN_STATE_END
-
-} sysExFreePinStates;
-
-typedef enum {
-
-    SYS_EX_SW_F_START,
-    SYS_EX_SW_F_RUNNING_STATUS = SYS_EX_SW_F_START,
-    SYS_EX_SW_F_STANDARD_NOTE_OFF,
-    SYS_EX_SW_F_ENC_NOTES,
-    SYS_EX_SW_F_POT_NOTES,
-    SYS_EX_SW_F_LONG_PRESS,
-    SYS_EX_SW_F_LED_BLINK,
-    SYS_EX_SW_F_START_UP_ROUTINE,
-    SYS_EX_SW_F_END
-
-} sysExSoftwareFeatures;
-
-typedef enum {
-
-    SYS_EX_HW_F_START,
-    SYS_EX_HW_F_BUTTONS = SYS_EX_HW_F_START,
-    SYS_EX_HW_F_POTS,
-    SYS_EX_HW_F_ENC,
-    SYS_EX_HW_F_LEDS,
-    SYS_EX_HW_F_END
-
-} sysExHardwareFeatures;
-
-typedef enum {
-
-    SYS_EX_BOARD_TYPE_START,
-    SYS_EX_BOARD_TYPE_OPEN_DECK_1,
-    SYS_EX_BOARD_TYPE_TANNIN,
-    SYS_EX_BOARD_TYPE_END
-
-} sysExBoardType;
 
 typedef enum {
 
