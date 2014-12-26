@@ -4,7 +4,7 @@ OpenDeck MIDI platform is a combination of microcontroller firmware, PCB board a
 The platform allows hassle-free building of MIDI controllers and their configuration via MIDI System Exclusive messages,
 without any need of reprogramming the chip.
 
-This repository contains MCU code, part list, schematic (circuit and PCBs) and pre-compiled binaries, available for serial
+This repository contains MCU code, part list, schematic (circuit and PCB) and pre-compiled binaries, available for serial
 baud rates: 38400, for use with virtual MIDI cable software and serial-to-midi converter, and 31250 for use with native
 MIDI.
 
@@ -139,6 +139,13 @@ There's a total of 7 message types available.
 
 Features, buttons, potentiometers, LEDs are the only types of message which have a sub-type. When dealing
 with other message types, code 0x00 must be specified as sub-type.
+
+Features:
+
+* MIDI features (0x00)
+* Button features (0x01)
+* LED features (0x02)
+* Potentiometer features (0x03)
 
 Buttons:
 * Hardware parameter (0x00)
