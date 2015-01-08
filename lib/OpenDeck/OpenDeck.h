@@ -54,6 +54,7 @@ class OpenDeck  {
 
     //encoders
     void readEncoders(int32_t);
+    void setHandlePitchBend(void (*fptr)(uint16_t, uint8_t));
 
     //LEDs
     void oneByOneLED(bool, bool, bool);
@@ -72,15 +73,17 @@ class OpenDeck  {
     //getters
     uint8_t getInputMIDIchannel();
     bool standardNoteOffEnabled();
-    bool runningStatusEnabled();
     uint8_t getNumberOfColumns();
     uint8_t getNumberOfMux();
     uint8_t getBoard();
+    bool sysExRunning();
 
     //hardware control
     void ledRowOn(uint8_t);
     void ledRowsOff();
     void setMuxInput(uint8_t);
+    void setUpSwitchTimer();
+    void stopSwitchTimer();
 
     //sysex
     void setHandleSysExSend(void (*fptr)(uint8_t*, uint8_t));
@@ -162,7 +165,8 @@ class OpenDeck  {
     uint8_t         analogueEnabledArray[8];
 
     //sysex
-    bool            sysExEnabled;
+    bool            sysExEnabled,
+                    _sysExRunning;
 
     //general
     uint8_t         i;
@@ -233,6 +237,7 @@ class OpenDeck  {
     bool checkMemberOfEncPair(uint8_t, uint8_t);
     void processEncoderPair(uint8_t, uint8_t, uint8_t);
     uint8_t getEncoderPairNumber(uint8_t, uint8_t);
+    void (*sendPitchBendDataCallback)(uint16_t, uint8_t);
 
     //LEDs
     void startUpRoutine();
@@ -306,8 +311,6 @@ class OpenDeck  {
     void initPins();
     void readButtonColumn(uint8_t &);
     void enableAnalogueInput(uint8_t, uint8_t);
-    void setUpSwitchTimer();
-    void stopSwitchTimer();
 
     //new
     bool checkSameLEDvalue(uint8_t, uint8_t);

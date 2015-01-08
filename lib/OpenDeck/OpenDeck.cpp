@@ -22,6 +22,7 @@ OpenDeck::OpenDeck()    {
     sendButtonNoteDataCallback  =   NULL;
     sendButtonPPDataCallback    =   NULL;
     sendPotCCDataCallback       =   NULL;
+    sendPitchBendDataCallback   =   NULL;
     sendPotNoteOnDataCallback   =   NULL;
     sendPotNoteOffDataCallback  =   NULL;
     sendSysExDataCallback       =   NULL;
@@ -139,6 +140,7 @@ void OpenDeck::initVariables()  {
 
     //sysex
     sysExEnabled                    = false;
+    _sysExRunning                   = false;
 
     //board type
     _board                          = 0;
@@ -225,15 +227,15 @@ bool OpenDeck::standardNoteOffEnabled() {
 
 }
 
-bool OpenDeck::runningStatusEnabled()   {
-
-    return bitRead(midiFeatures, SYS_EX_FEATURES_MIDI_RUNNING_STATUS);
-
-}
-
 void OpenDeck::stopSwitchTimer()    {
 
     TIMSK2 &= (0 << OCIE2A);
+
+}
+
+bool OpenDeck::sysExRunning()   {
+
+    return _sysExRunning;
 
 }
 

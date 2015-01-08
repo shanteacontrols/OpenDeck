@@ -92,8 +92,8 @@ const uint8_t defConf[] PROGMEM = {
     //no function
     //no function
     //no function
+    //no function
     //standard note off
-    //running status
     0b00000000,                             //005
 
     //button features
