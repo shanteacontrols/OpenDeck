@@ -65,16 +65,8 @@ MIDI_Class::MIDI_Class()    {
 
 /*! \brief Call the begin method in the setup() function of the Arduino.
  */
-void MIDI_Class::begin(uint8_t inChannel, bool _runningStatusEn)    {
+void MIDI_Class::begin(uint8_t inChannel)    {
 
-#if COMPILE_MIDI_OUT
-
-    runningStatusEn = _runningStatusEn;
-
-    if (runningStatusEn)
-        mRunningStatus_TX = InvalidType;
-
-#endif
 
 #if COMPILE_MIDI_IN
 
@@ -121,9 +113,6 @@ void MIDI_Class::send(kMIDIType type,
     //Then test if channel is valid
     if (channel >= MIDI_CHANNEL_OFF || channel == MIDI_CHANNEL_OMNI || type < NoteOff) {
 
-    if (runningStatusEn)
-        mRunningStatus_TX = InvalidType;
-
         return; //Don't send anything
     }
 
@@ -136,18 +125,6 @@ void MIDI_Class::send(kMIDIType type,
 
         byte statusbyte = genstatus(type,channel);
 
-        if (runningStatusEn)    {
-
-            //Check Running Status
-            if (mRunningStatus_TX != statusbyte) {
-
-                //New message, memorize and send header
-                mRunningStatus_TX = statusbyte;
-                USE_SERIAL_PORT.write(mRunningStatus_TX);
-
-            }
-
-        }   else
         //Don't care about running status, send the Control byte.
         USE_SERIAL_PORT.write(statusbyte);
 
@@ -220,42 +197,14 @@ void MIDI_Class::sendProgramChange(byte ProgramNumber, byte Channel)    {
 }
 
 
-/*! \brief Send a Pitch Bend message using a signed integer value.
- \param PitchValue  The amount of bend to send (in a signed integer format), between -8192 (maximum downwards bend) and 8191 (max upwards bend), center value is 0.
- \param Channel     The channel on which the message will be sent (1 to 16).
- */
-void MIDI_Class::sendPitchBend(int PitchValue,
-                               byte Channel)    {
-
-    unsigned int bend = PitchValue + 8192;
-    sendPitchBend(bend,Channel);
-
-}
-
-
 /*! \brief Send a Pitch Bend message using an unsigned integer value.
  \param PitchValue  The amount of bend to send (in a signed integer format), between 0 (maximum downwards bend) and 16383 (max upwards bend), center value is 8192.
  \param Channel     The channel on which the message will be sent (1 to 16).
  */
-void MIDI_Class::sendPitchBend(unsigned int PitchValue,
+void MIDI_Class::sendPitchBend(uint16_t PitchValue,
                                byte Channel)    {
 
     send(PitchBend,(PitchValue & 0x7F),(PitchValue >> 7) & 0x7F,Channel);
-
-}
-
-
-/*! \brief Send a Pitch Bend message using a floating point value.
- \param PitchValue  The amount of bend to send (in a floating point format), between -1.0f (maximum downwards bend) and +1.0f (max upwards bend), center value is 0.0f.
- \param Channel     The channel on which the message will be sent (1 to 16).
- */
-void MIDI_Class::sendPitchBend(double PitchValue,
-                               byte Channel)    {
-
-    unsigned int pitchval = (PitchValue+1.f)*8192;
-
-    if (pitchval > 16383) pitchval = 16383;     //overflow protection
-        sendPitchBend(pitchval,Channel);
 
 }
 
@@ -279,10 +228,6 @@ void MIDI_Class::sendSysEx(int length,
         USE_SERIAL_PORT.write(0xF7);
 
     }   else    for (int i=0;i<length;++i)  USE_SERIAL_PORT.write(array[i]);
-
-
-    if (runningStatusEn)
-        mRunningStatus_TX = InvalidType;
 
 }
 
