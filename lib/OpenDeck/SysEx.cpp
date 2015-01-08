@@ -19,8 +19,12 @@ void OpenDeck::setHandleSysExSend(void (*fptr)(uint8_t *sysExArray, uint8_t size
 
 void OpenDeck::processSysEx(uint8_t sysExArray[], uint8_t arrSize)  {
 
+    _sysExRunning = true;
+
     if (sysExCheckMessageValidity(sysExArray, arrSize))
         sysExGenerateResponse(sysExArray, arrSize);
+
+    _sysExRunning = false;
 
 }
 
@@ -270,7 +274,7 @@ bool OpenDeck::sysExCheckParameterID(uint8_t messageType, uint8_t messageSubType
             break;
 
             case SYS_EX_MST_BUTTON_HW_P:
-            return ((parameter >= SYS_EX_BUTTON_HW_P_START) && (parameter < SYS_EX_MST_BUTTON_HW_P_END));
+            return ((parameter >= SYS_EX_BUTTON_HW_P_START) && (parameter < SYS_EX_BUTTON_HW_P_END));
             break;
 
             default:
@@ -287,9 +291,12 @@ bool OpenDeck::sysExCheckParameterID(uint8_t messageType, uint8_t messageSubType
         switch (messageSubType) {
 
             case SYS_EX_MST_LED_ACT_NOTE:
-            case SYS_EX_MST_LED_START_UP_NUMBER:
             case SYS_EX_MST_LED_STATE:
             return  (parameter < MAX_NUMBER_OF_LEDS);
+            break;
+
+            case SYS_EX_MST_LED_START_UP_NUMBER:
+            return (parameter < totalNumberOfLEDs);
             break;
 
             case SYS_EX_MST_LED_HW_P:
@@ -405,11 +412,8 @@ bool OpenDeck::sysExCheckNewParameterID(uint8_t messageType, uint8_t messageSubT
         switch (messageSubType)  {
 
             case SYS_EX_MST_LED_ACT_NOTE:
-            return ((checkSameLEDvalue(SYS_EX_MST_LED_ACT_NOTE, newParameter)) && (newParameter < 128));
-            break;
-
             case SYS_EX_MST_LED_START_UP_NUMBER:
-            return ((checkSameLEDvalue(SYS_EX_MST_LED_START_UP_NUMBER, newParameter)) && (newParameter < totalNumberOfLEDs));
+            return ((checkSameLEDvalue(messageSubType, newParameter)) && (newParameter < 128));
             break;
 
             case SYS_EX_MST_LED_STATE:
@@ -545,7 +549,7 @@ uint8_t OpenDeck::sysExGenerateMinMessageLenght(uint8_t wish, uint8_t amount, ui
                     break;
 
                     case SYS_EX_MST_BUTTON_HW_P:
-                    return SYS_EX_ML_REQ_STANDARD + SYS_EX_MST_BUTTON_HW_P_END;
+                    return SYS_EX_ML_REQ_STANDARD + SYS_EX_BUTTON_HW_P_END;
                     break;
 
                     default:
@@ -684,7 +688,7 @@ void OpenDeck::sysExGenerateResponse(uint8_t sysExArray[], uint8_t arrSize)  {
             break;
 
             case SYS_EX_MST_BUTTON_HW_P:
-            maxComponentNr = SYS_EX_MST_BUTTON_HW_P_END;
+            maxComponentNr = SYS_EX_BUTTON_HW_P_END;
             break;
 
             default:
@@ -1030,6 +1034,7 @@ uint8_t OpenDeck::sysExGetLEDHwParameter(uint8_t parameter)  {
         break;
 
         case SYS_EX_LED_HW_P_START_UP_ROUTINE:
+        startUpRoutine();
         return eeprom_read_byte((uint8_t*)EEPROM_LED_HW_P_START_UP_ROUTINE);
         break;
 
@@ -1085,7 +1090,6 @@ bool OpenDeck::sysExSet(uint8_t messageType, uint8_t messageSubType, uint8_t par
         break;
 
         case SYS_EX_MT_POT:
-
         switch (messageSubType) {
 
             case SYS_EX_MST_POT_ENABLED:
@@ -1114,6 +1118,8 @@ bool OpenDeck::sysExSet(uint8_t messageType, uint8_t messageSubType, uint8_t par
             break;
 
         }
+
+        break;
 
         case SYS_EX_MT_LED:
         switch(messageSubType)  {
@@ -1158,6 +1164,8 @@ bool OpenDeck::sysExSet(uint8_t messageType, uint8_t messageSubType, uint8_t par
                 break;
 
             }
+
+            break;
 
         }
 
@@ -1630,10 +1638,9 @@ bool OpenDeck::sysExSetLEDnote(uint8_t ledNumber, uint8_t _ledActNote) {
 
 }
 
-bool OpenDeck::sysExSetLEDstartNumber(uint8_t ledNumber, uint8_t startNumber) {
+bool OpenDeck::sysExSetLEDstartNumber(uint8_t startNumber, uint8_t ledNumber) {
 
     uint16_t eepromAddress = EEPROM_LED_START_UP_NUMBER_START+startNumber;
-    //TODO: add check of same values
     eeprom_update_byte((uint8_t*)eepromAddress, ledNumber);
     return ledNumber == eeprom_read_byte((uint8_t*)eepromAddress);
 
