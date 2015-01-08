@@ -121,7 +121,7 @@ void setup()  {
 
     //read incoming MIDI messages on specified channel
     //disable running status by default
-    MIDI.begin(openDeck.getInputMIDIchannel(), false);
+    MIDI.begin(openDeck.getInputMIDIchannel());
 
     Serial.begin(38400);
 

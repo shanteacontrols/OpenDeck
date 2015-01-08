@@ -25,7 +25,6 @@ and modified Arduino MIDI library 3.2. All code is available under GNU GPL v3 li
 
 ### MIDI features
 
-* Enable/disable running status
 * Enable/disable standard note off
 
 ### Button features
