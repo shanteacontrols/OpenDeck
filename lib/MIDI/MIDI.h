@@ -131,7 +131,7 @@ public:
     //Constructor
     MIDI_Class();
 
-    void begin(uint8_t, bool);
+    void begin(uint8_t);
 
 /* ####### OUTPUT COMPILATION BLOCK ####### */  
 #if COMPILE_MIDI_OUT
@@ -142,9 +142,7 @@ public:
     void sendNoteOff(byte NoteNumber,byte Velocity,byte Channel);
     void sendControlChange(byte ControlNumber, byte ControlValue,byte Channel);
     void sendProgramChange(byte ProgramNumber,byte Channel);
-    void sendPitchBend(int PitchValue,byte Channel);
-    void sendPitchBend(unsigned int PitchValue,byte Channel);
-    void sendPitchBend(double PitchValue,byte Channel);
+    void sendPitchBend(uint16_t PitchValue, byte Channel);
     void sendSysEx(int length, const byte *const array,bool ArrayContainsBoundaries = false);   
     void sendRealTime(kMIDIType Type);
 
@@ -153,8 +151,6 @@ public:
 private:
 
     const byte  genstatus(const kMIDIType inType,const byte inChannel) const;
-    byte        mRunningStatus_TX,
-                runningStatusEn;
 
 #endif  // COMPILE_MIDI_OUT
 
