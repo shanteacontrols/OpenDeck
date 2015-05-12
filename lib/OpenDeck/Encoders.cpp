@@ -191,3 +191,11 @@ bool OpenDeck::getEncoderFastMode(uint8_t encoder)  {
     return bitRead(encoderFastMode[arrayIndex], encoderIndex);
 
 }
+
+void OpenDeck::resetEncoderValues(uint8_t encoder) {
+
+    initialEncoderDebounceCounter[encoder] = 0;
+    pulseCounter[encoder] = 0;
+    lastEncoderSpinTime[encoder] = 0;
+
+}

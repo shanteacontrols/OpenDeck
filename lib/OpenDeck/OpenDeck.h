@@ -201,6 +201,7 @@ class OpenDeck  {
     void processEncoderPair(uint8_t, uint8_t, uint8_t);
     uint8_t getEncoderPairNumber(uint8_t, uint8_t);
     bool getEncoderFastMode(uint8_t);
+    void resetEncoderValues(uint8_t);
 
     //LEDs
     void oneByOneLED(bool, bool, bool);
