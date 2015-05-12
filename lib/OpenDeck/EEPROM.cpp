@@ -16,37 +16,37 @@ Author: Igor Petrovic
 void OpenDeck::getConfiguration()   {
 
     //get configuration from EEPROM
-    getHardwareConfig();
     getFeatures();
     getMIDIchannels();
     getButtonsType();
-    getPPenabledButtons();
-    getButtonNotes();
-    getEnabledPots();
-    getPPenabledPots();
-    getPotInvertStates();
-    getCCPPnumbers();
-    getCCPPlowerLimits();
-    getCCPPupperLimits();
+    getButtonsPCenabled();
+    getButtonsNotes();
+    getButtonsHwParameters();
+    getAnalogEnabled();
+    getAnalogType();
+    getAnalogInversion();
+    getAnalogNumbers();
+    getAnalogLowerLimits();
+    getAnalogUpperLimits();
+    getEncodersEnabled();
+    getEncodersInverted();
+    getEncodersFastMode();
+    getEncodersNumbers();
+    getEncodersPulsesPerStep();
     getLEDnotes();
     getLEDHwParameters();
 
 }
 
 //individual configuration getters
-void OpenDeck::getHardwareConfig()        {
-
-    _board                      = eeprom_read_byte((uint8_t*)EEPROM_BOARD_TYPE);
-    hardwareEnabled             = eeprom_read_byte((uint8_t*)EEPROM_HARDWARE_ENABLED);
-
-}
 
 void OpenDeck::getFeatures()    {
 
     midiFeatures                = eeprom_read_byte((uint8_t*)EEPROM_FEATURES_MIDI);
     buttonFeatures              = eeprom_read_byte((uint8_t*)EEPROM_FEATURES_BUTTONS);
     ledFeatures                 = eeprom_read_byte((uint8_t*)EEPROM_FEATURES_LEDS);
-    potFeatures                 = eeprom_read_byte((uint8_t*)EEPROM_FEATURES_POTS);
+    analogFeatures              = eeprom_read_byte((uint8_t*)EEPROM_FEATURES_POTS);
+    encoderFeatures             = eeprom_read_byte((uint8_t*)EEPROM_FEATURES_ENCODERS);
 
 }
 
@@ -54,10 +54,9 @@ void OpenDeck::getMIDIchannels()        {
 
     _buttonNoteChannel          = eeprom_read_byte((uint8_t*)EEPROM_MC_BUTTON_NOTE);
     _longPressButtonNoteChannel = eeprom_read_byte((uint8_t*)EEPROM_MC_LONG_PRESS_BUTTON_NOTE);
-    _buttonPPchannel            = eeprom_read_byte((uint8_t*)EEPROM_MC_BUTTON_PP);
-    _potCCchannel               = eeprom_read_byte((uint8_t*)EEPROM_MC_POT_CC);
-    _potPPchannel               = eeprom_read_byte((uint8_t*)EEPROM_MC_POT_PP);
-    _potNoteChannel             = eeprom_read_byte((uint8_t*)EEPROM_MC_POT_NOTE);
+    _programChangeChannel       = eeprom_read_byte((uint8_t*)EEPROM_MC_PROGRAM_CHANGE);
+    _analogCCchannel            = eeprom_read_byte((uint8_t*)EEPROM_MC_CC);
+    _pitchBendChannel           = eeprom_read_byte((uint8_t*)EEPROM_MC_PITCH_BEND);
     _inputChannel               = eeprom_read_byte((uint8_t*)EEPROM_MC_INPUT);
 
 }
@@ -65,76 +64,117 @@ void OpenDeck::getMIDIchannels()        {
 void OpenDeck::getButtonsType()         {
 
     for (int i=0; i<MAX_NUMBER_OF_BUTTONS/8; i++)
-        buttonType[i] = eeprom_read_byte((uint8_t*)EEPROM_BUTTON_TYPE_START+i);
+        buttonType[i] = eeprom_read_byte((uint8_t*)EEPROM_BUTTONS_TYPE_START+i);
 
 }
 
-void OpenDeck::getPPenabledButtons()         {
+void OpenDeck::getButtonsPCenabled()         {
 
     for (int i=0; i<(MAX_NUMBER_OF_BUTTONS/8); i++)
-        buttonPPenabled[i] = eeprom_read_byte((uint8_t*)EEPROM_BUTTON_PP_ENABLED_START+i);
+        buttonPCenabled[i] = eeprom_read_byte((uint8_t*)EEPROM_BUTTONS_PC_ENABLED_START+i);
 
 }
 
-void OpenDeck::getButtonNotes()         {
+void OpenDeck::getButtonsNotes()         {
 
     for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
-        buttonNote[i] = eeprom_read_byte((uint8_t*)EEPROM_BUTTON_NOTE_START+i);
+        buttonNote[i] = eeprom_read_byte((uint8_t*)EEPROM_BUTTONS_NOTE_START+i);
 
 }
 
-void OpenDeck::getEnabledPots()         {
+void OpenDeck::getButtonsHwParameters()  {
 
-    for (int i=0; i<(MAX_NUMBER_OF_POTS/8); i++)
-        potEnabled[i] = eeprom_read_byte((uint8_t*)EEPROM_POT_ENABLED_START+i);
-
-}
-
-void OpenDeck::getPPenabledPots()         {
-
-    for (int i=0; i<(MAX_NUMBER_OF_POTS/8); i++)
-        potPPenabled[i] = eeprom_read_byte((uint8_t*)EEPROM_POT_PP_ENABLED_START+i);
+    boardObject.configureLongPress(sysExGetButtonHwParameter(SYS_EX_BUTTONS_HW_P_LONG_PRESS_TIME));
 
 }
 
-void OpenDeck::getPotInvertStates()     {
+void OpenDeck::getAnalogEnabled()         {
 
-    for (int i=0; i<(MAX_NUMBER_OF_POTS/8); i++)
-        potInverted[i] = eeprom_read_byte((uint8_t*)EEPROM_POT_INVERSION_START+i);
-
-}
-
-void OpenDeck::getCCPPnumbers()           {
-
-    for (int i=0; i<MAX_NUMBER_OF_POTS; i++)
-        ccppNumber[i] = eeprom_read_byte((uint8_t*)EEPROM_POT_CC_PP_NUMBER_START+i);
+    for (int i=0; i<(MAX_NUMBER_OF_ANALOG/8); i++)
+        analogEnabled[i] = eeprom_read_byte((uint8_t*)EEPROM_ANALOG_ENABLED_START+i);
 
 }
 
-void OpenDeck::getCCPPlowerLimits()   {
+void OpenDeck::getAnalogType()         {
 
-    for (int i=0; i<MAX_NUMBER_OF_POTS; i++)
-        ccLowerLimit[i] = eeprom_read_byte((uint8_t*)EEPROM_POT_LOWER_LIMIT_START+i);
+    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+        analogType[i] = eeprom_read_byte((uint8_t*)EEPROM_ANALOG_TYPE_START+i);
 
 }
 
-void OpenDeck::getCCPPupperLimits()   {
+void OpenDeck::getAnalogInversion()     {
 
-    for (int i=0; i<MAX_NUMBER_OF_POTS; i++)
-        ccUpperLimit[i] = eeprom_read_byte((uint8_t*)EEPROM_POT_UPPER_LIMIT_START+i);
+    for (int i=0; i<(MAX_NUMBER_OF_ANALOG/8); i++)
+        analogInverted[i] = eeprom_read_byte((uint8_t*)EEPROM_ANALOG_INVERTED_START+i);
+
+}
+
+void OpenDeck::getAnalogNumbers()           {
+
+    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+        analogNumber[i] = eeprom_read_byte((uint8_t*)EEPROM_ANALOG_NUMBER_START+i);
+
+}
+
+void OpenDeck::getAnalogLowerLimits()   {
+
+    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+        analogLowerLimit[i] = eeprom_read_byte((uint8_t*)EEPROM_ANALOG_LOWER_LIMIT_START+i);
+
+}
+
+void OpenDeck::getAnalogUpperLimits()   {
+
+    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+        analogUpperLimit[i] = eeprom_read_byte((uint8_t*)EEPROM_ANALOG_UPPER_LIMIT_START+i);
+
+}
+
+void OpenDeck::getEncodersEnabled()  {
+
+    for (int i=0; i<NUMBER_OF_ENCODERS; i++)
+        encoderEnabled[i] = eeprom_read_byte((uint8_t*)EEPROM_ENCODERS_ENABLED_START+i);
+
+}
+
+void OpenDeck::getEncodersInverted()    {
+
+    for (int i=0; i<NUMBER_OF_ENCODERS; i++)
+        encoderInverted[i] = eeprom_read_byte((uint8_t*)EEPROM_ENCODERS_INVERTED_START+i);
+
+}
+
+void OpenDeck::getEncodersFastMode()    {
+
+    for (int i=0; i<NUMBER_OF_ENCODERS; i++)
+        encoderFastMode[i] = eeprom_read_byte((uint8_t*)EEPROM_ENCODERS_FAST_MODE_START+i);
+
+}
+
+void OpenDeck::getEncodersNumbers()  {
+
+    for (int i=0; i<NUMBER_OF_ENCODERS; i++)
+        encoderNumber[i] = eeprom_read_byte((uint8_t*)EEPROM_ENCODERS_NUMBER_START+i);
+
+}
+
+void OpenDeck::getEncodersPulsesPerStep()   {
+
+    for (int i=0; i<NUMBER_OF_ENCODERS; i++)
+        pulsesPerStep[i] = eeprom_read_byte((uint8_t*)EEPROM_ENCODERS_PULSES_PER_STEP_START+i);
 
 }
 
 void OpenDeck::getLEDnotes()            {
 
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        ledActNote[i] = eeprom_read_byte((uint8_t*)EEPROM_LED_ACT_NOTE_START+i);
+        ledActNote[i] = eeprom_read_byte((uint8_t*)EEPROM_LEDS_ACT_NOTE_START+i);
 
 }
 
 void OpenDeck::getLEDHwParameters() {
 
-    _blinkTime          = eeprom_read_byte((uint8_t*)EEPROM_LED_HW_P_BLINK_TIME)*100;
-    totalNumberOfLEDs   = eeprom_read_byte((uint8_t*)EEPROM_LED_HW_P_TOTAL_NUMBER);
+    boardObject.setLEDblinkTime(eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_BLINK_TIME)*100);
+    totalNumberOfLEDs   = eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_TOTAL_NUMBER);
 
 }

@@ -19,13 +19,11 @@ Author: Igor Petrovic
 OpenDeck::OpenDeck()    {
 
     //set all callbacks to NULL pointer
-    sendButtonNoteDataCallback  =   NULL;
-    sendButtonPPDataCallback    =   NULL;
-    sendPotCCDataCallback       =   NULL;
-    sendPitchBendDataCallback   =   NULL;
-    sendPotNoteOnDataCallback   =   NULL;
-    sendPotNoteOffDataCallback  =   NULL;
-    sendSysExDataCallback       =   NULL;
+    sendNoteCallback            = NULL;
+    sendProgramChangeCallback   = NULL;
+    sendControlChangeCallback   = NULL;
+    sendPitchBendCallback       = NULL;
+    sendSysExCallback           = NULL;
 
 }
 
@@ -34,13 +32,14 @@ void OpenDeck::init()   {
 
     initVariables();
 
-    setADCprescaler(32);
-    set8bitADC();
-
     if (initialEEPROMwrite())   sysExSetDefaultConf();
     else getConfiguration(); //get all values from EEPROM
 
-    initBoard();
+    boardObject.init();
+    readAnalogInitial();
+
+    //run LED animation on start-up
+    startUpRoutine();
 
 }
 
@@ -63,155 +62,85 @@ void OpenDeck::initVariables()  {
     //reset all variables
 
     //MIDI channels
-    _buttonNoteChannel              = 0;
-    _longPressButtonNoteChannel     = 0;
-    _buttonPPchannel                = 0;
-    _potCCchannel                   = 0;
-    _potPPchannel                   = 0;
-    _potNoteChannel                 = 0;
-    _inputChannel                   = 0;
-
-    //hardware params
-    _blinkTime                      = 0;
+    _buttonNoteChannel                      = 0;
+    _longPressButtonNoteChannel             = 0;
+    _programChangeChannel                   = 0;
+    _analogCCchannel                        = 0;
+    _pitchBendChannel                       = 0;
+    _inputChannel                           = 0;
 
     //buttons
     for (i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
-        buttonNote[i]               = 0;
+        buttonNote[i]                       = 0;
 
     for (i=0; i<MAX_NUMBER_OF_BUTTONS/8; i++)   {
 
-        buttonType[i]               = 0;
-        buttonPressed[i]            = 0;
-        longPressSent[i]            = 0;
-        longPressCounter[i]         = 0;
-        buttonPPenabled[i]          = 0;
+        buttonType[i]                       = 0;
+        buttonPressed[i]                    = 0;
+        longPressSent[i]                    = 0;
+        longPressCounter[i]                 = 0;
+        buttonPCenabled[i]                  = 0;
 
     }
 
-    numberOfColumnPasses            = 0;
-    longPressColumnPass             = 0;
+    //analog
+    for (i=0; i<MAX_NUMBER_OF_ANALOG; i++)        {
 
-    //pots
-    for (i=0; i<MAX_NUMBER_OF_POTS; i++)        {
-
-        ccppNumber[i]               = 0;
-        lastPotNoteValue[i]         = 128;
-        lastAnalogueValue[i]        = 0;
-        ccLowerLimit[i]             = 0;
-        ccUpperLimit[i]             = 0;
+        analogNumber[i]                     = 0;
+        lastAnalogueValue[i]                = 0;
+        analogLowerLimit[i]                 = 0;
+        analogUpperLimit[i]                 = 0;
+        analogDebounceCounter[i]            = 0;
+        analogType[i]                       = 0;
 
     }
 
-    for (i=0; i<MAX_NUMBER_OF_POTS/8; i++)      {
+    for (i=0; i<MAX_NUMBER_OF_ANALOG/8; i++)      {
 
-        potInverted[i]              = 0;
-        potEnabled[i]               = 0;
-        potPPenabled[i]             = 0;
+        analogInverted[i]                   = 0;
+        analogEnabled[i]                    = 0;
 
     }
 
-    for (i=0; i<8; i++)                         {
+    //encoders
+    for (i=0; i<NUMBER_OF_ENCODERS; i++)    {
 
-        lastColumnState[i] = 0;
-        columnPassCounter[i] = 0;
-        analogueEnabledArray[i] = 0;
+        lastEncoderState[i]                 = 0;
+        initialEncoderDebounceCounter[i]    = 0;
+        encoderDirection[i]                 = true;
+        lastEncoderSpinTime[i]              = 0;
+        encoderNumber[i]                    = 0;
+        encoderEnabled[i]                   = 0;
+        pulsesPerStep[i]                    = 0;
+        encoderInverted[i]                  = 0;
+        pulseCounter[i]                     = 0;
+        encoderFastMode[i]                  = 0;
+
+    }
+
+    for (i=0; i<NUMBER_OF_BUTTON_COLUMNS; i++)  {
+
+        lastColumnState[i]                  = 0;
+        columnPassCounter[i]                = 0;
 
     }
 
     //LEDs
     for (i=0; i<MAX_NUMBER_OF_LEDS; i++)        {
 
-        ledState[i]                 = 0;
-        ledActNote[i]               = 0;
+        ledActNote[i]                       = 0;
 
     }
 
-    totalNumberOfLEDs               = 0;
-
-    blinkState                      = true;
-    blinkEnabled                    = false;
-    blinkTimerCounter               = 0;
+    totalNumberOfLEDs                       = 0;
 
     //input
-    receivedNoteOnProcessed         = true;
-    receivedChannel                 = 0;
-    receivedNote                    = 0;
-    receivedVelocity                = 0;
+    receivedChannel                         = 0;
+    receivedNote                            = 0;
+    receivedVelocity                        = 0;
 
     //sysex
     sysExEnabled                    = false;
-    _sysExRunning                   = false;
-
-    //board type
-    _board                          = 0;
-
-}
-
-void OpenDeck::setUpSwitchTimer()   {
-
-    /*
-
-        This timer is used to switch columns in matrix, and also
-        to switch analogue input pin on ATmega328p. It's configured
-        to run every 500 microseconds. Interrupt routine either switches
-        matrix column, or analogue pin, which results in column/analog pin
-        switching every 1ms.
-
-    */
-
-    TCCR2A = 0;
-    TCCR2B = 0;
-    TCNT2  = 0;
-
-    //turn on CTC mode
-    TCCR2A |= (1 << WGM21);
-
-    //set prescaler to 64
-    TCCR2B |= (1 << CS22);
-
-    //set compare match register to desired timer count
-    OCR2A = 124;
-
-    //enable CTC interrupt
-    TIMSK2 |= (1 << OCIE2A);
-
-}
-
-void OpenDeck::processMatrix()  {
-
-    static int8_t previousColumn = -1;
-    int8_t currentColumn = getActiveColumn();
-
-    if (currentColumn != previousColumn)    {
-
-        //if any of the LEDs on current
-        //column are active, turn them on
-        checkLEDs(currentColumn);
-
-        //check buttons on current column
-        readButtons(currentColumn);
-
-        previousColumn = currentColumn;
-
-    }
-
-}
-
-uint8_t OpenDeck::getNumberOfColumns()  {
-
-    return _numberOfColumns;
-
-}
-
-uint8_t OpenDeck::getNumberOfMux()    {
-
-    return _numberOfMux;
-
-}
-
-uint8_t OpenDeck::getBoard()    {
-
-    return _board;
 
 }
 
@@ -224,18 +153,6 @@ uint8_t OpenDeck::getInputMIDIchannel() {
 bool OpenDeck::standardNoteOffEnabled() {
 
     return bitRead(midiFeatures, SYS_EX_FEATURES_MIDI_STANDARD_NOTE_OFF);
-
-}
-
-void OpenDeck::stopSwitchTimer()    {
-
-    TIMSK2 &= (0 << OCIE2A);
-
-}
-
-bool OpenDeck::sysExRunning()   {
-
-    return _sysExRunning;
 
 }
 

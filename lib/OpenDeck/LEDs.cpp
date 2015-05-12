@@ -17,7 +17,7 @@ void OpenDeck::startUpRoutine() {
     //turn off all LEDs before starting animation
     allLEDsOff();
 
-    switch (eeprom_read_byte((uint8_t*)EEPROM_LED_HW_P_START_UP_ROUTINE))  {
+    switch (eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_START_UP_ROUTINE))  {
 
         case 1:
         openDeck.oneByOneLED(true, true, true);
@@ -54,6 +54,13 @@ void OpenDeck::startUpRoutine() {
 
 }
 
+bool OpenDeck::ledOn(uint8_t ledNumber) {
+
+    return boardObject.getLEDstate(ledNumber);
+
+}
+
+
 void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 
     /*
@@ -70,10 +77,7 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 
     */
 
-    uint16_t _startUpLEDswitchTime = eeprom_read_byte((uint8_t*)EEPROM_LED_HW_P_START_UP_SWITCH_TIME) * 10;
-
-    //remember previously active column
-    static int8_t previousColumn = -1;
+    uint16_t startUpLEDswitchTime = eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_START_UP_SWITCH_TIME) * 10;
 
     //while loop counter
     uint8_t passCounter = 0;
@@ -86,7 +90,7 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
             _ledNumber[MAX_NUMBER_OF_LEDS];
 
     //get LED order for start-up routine
-    for (int i=0; i<totalNumberOfLEDs; i++)    _ledNumber[i] = eeprom_read_byte((uint8_t*)EEPROM_LED_START_UP_NUMBER_START+i);
+    for (int i=0; i<totalNumberOfLEDs; i++)    _ledNumber[i] = eeprom_read_byte((uint8_t*)EEPROM_LEDS_START_UP_NUMBER_START+i);
 
     //if second and third argument of function are set to false or
     //if second argument is set to false and all the LEDs are turned off
@@ -126,7 +130,7 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
                 passCounter++;
 
             }   else    ledNumber = _ledNumber[totalNumberOfLEDs-1]; //led index is last one if last one isn't already on
-            
+
         }   else //left-to-right direction
 
                 //if first LED is already on
@@ -147,7 +151,7 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 
                     //right-to-left direction
                     if (!ledDirection)  {
-                        
+
                         if (!(ledOn(_ledNumber[totalNumberOfLEDs-1])))   {
 
                             ledNumber = _ledNumber[totalNumberOfLEDs-2];
@@ -170,12 +174,8 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
     //to get empty cycle after processing last LED
     while (passCounter < totalNumberOfLEDs+1)   {
 
-        uint8_t activeColumn = getActiveColumn();
-
-        if (previousColumn != activeColumn)   {
-
             //only process LED after defined time
-            if ((millis() - startUpTimer) > _startUpLEDswitchTime)  {
+            if ((millis() - startUpTimer) > startUpLEDswitchTime)  {
 
                 if (passCounter < totalNumberOfLEDs)    {
 
@@ -186,8 +186,8 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
                     else    if (!turnOn && singleLED)   allLEDsOn();
 
                     //set LED state depending on turnOn parameter
-                    if (turnOn) turnOnLED(ledNumber);
-                        else    turnOffLED(ledNumber);
+                    if (turnOn) boardObject.turnOnLED(ledNumber);
+                        else    boardObject.turnOffLED(ledNumber);
 
                     //make sure out-of-bound index isn't requested from ledArray
                     if (passCounter < totalNumberOfLEDs-1)  {
@@ -210,14 +210,6 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 
         }
 
-            //check if there is any LED to be turned on
-            checkLEDs(activeColumn);
-
-            //update last column with current
-            previousColumn = activeColumn;
-
-        }
-
     }
 
 }
@@ -225,26 +217,14 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 void OpenDeck::allLEDsOn()  {
 
     //turn on all LEDs
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    setConstantLEDstate(i);
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    boardObject.turnOnLED(i);
 
 }
 
 void OpenDeck::allLEDsOff() {
 
     //turn off all LEDs
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    ledState[i] = 0x00;
-
-}
-
-void OpenDeck::turnOnLED(uint8_t ledNumber) {
-
-    setConstantLEDstate(ledNumber);
-
-}
-
-void OpenDeck::turnOffLED(uint8_t ledNumber)    {
-
-    ledState[ledNumber] = 0x00;
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    boardObject.turnOffLED(i);
 
 }
 
@@ -254,55 +234,14 @@ void OpenDeck::storeReceivedNoteOn(uint8_t channel, uint8_t note, uint8_t veloci
     receivedNote = note;
     receivedVelocity = velocity;
 
-    receivedNoteOnProcessed = false;
-
-}
-
-void OpenDeck::checkReceivedNoteOn()  {
-
-    if (!receivedNoteOnProcessed) setLEDState();
-
-}
-
-void OpenDeck::checkLEDs(uint8_t currentColumn)  {
-
-    if ((_board != 0) && (bitRead(hardwareEnabled, SYS_EX_HW_CONFIG_LEDS)))    {
-
-        if ((blinkEnabled) && (bitRead(ledFeatures, SYS_EX_FEATURES_LEDS_BLINK)))   switchBlinkState();
-
-        //if there is an active LED in current column, turn on LED row
-        for (int i=0; i<_numberOfLEDrows; i++)  {
-
-            if (ledOn(currentColumn+i*_numberOfColumns))
-                ledRowOn(i);
-
-        }
-
-    }
-
-}
-
-bool OpenDeck::ledOn(uint8_t ledNumber) {
-
-    if  (
-
-        ledState[ledNumber] == 0x05 ||
-        ledState[ledNumber] == 0x15 ||
-        ledState[ledNumber] == 0x16 ||
-        ledState[ledNumber] == 0x1D ||
-        ledState[ledNumber] == 0x0D ||
-        ledState[ledNumber] == 0x17
-
-    )   return true;
-
-    return false;
+    setLEDState();
 
 }
 
 bool OpenDeck::checkLEDsOn()    {
 
     //return true if all LEDs are on
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    if (ledState[i] != 0)   return false;
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    if (boardObject.getLEDstate(i))   return false;
     return true;
 
 }
@@ -310,120 +249,8 @@ bool OpenDeck::checkLEDsOn()    {
 bool OpenDeck::checkLEDsOff()   {
 
     //return true if all LEDs are off
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    if (ledState[i] == 0)   return false;
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    if (!boardObject.getLEDstate(i))   return false;
     return true;
-
-}
-
-void OpenDeck::checkBlinkLEDs() {
-
-    //this function will disable blinking
-    //if none of the LEDs is in blinking state
-
-    //else it will enable it
-
-    bool _blinkEnabled = false;
-
-    //if any LED is blinking, set timerState to true and exit the loop
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-    
-    if (checkBlinkState(i)) {
-
-        _blinkEnabled = true;
-        break;
-
-    }
-
-    if (_blinkEnabled)  blinkEnabled = true;
-
-    //don't bother reseting variables if blinking is already disabled
-    else    if (!_blinkEnabled && blinkEnabled) {
-
-                //reset blinkState to default value
-                blinkState = true;
-                blinkTimerCounter = 0;
-                blinkEnabled = false;
-
-            }
-
-}
-
-bool OpenDeck::checkBlinkState(uint8_t ledNumber)   {
-
-    //function returns true if blinking bit in ledState is set
-    return ((ledState[ledNumber] >> 1) & (0x01));
-
-}
-
-void OpenDeck::handleLED(bool currentLEDstate, bool blinkMode, uint8_t _ledNumber) {
-
-    /*
-
-    LED state is stored into one byte (ledState). The bits have following meaning (7 being the MSB bit):
-
-    7: x
-    6: x
-    5: x
-    4: Blink bit (timer changes this bit)
-    3: "Remember" bit, used to restore previous LED state
-    2: LED is active (either it blinks or it's constantly on), this bit is OR function between bit 0 and 1
-    1: LED blinks
-    0: LED is constantly turned on
-
-    */
-
-    //if blink note is received, and blinking is disabled, exit the function
-    if (blinkMode && (!(bitRead(ledFeatures, SYS_EX_FEATURES_LEDS_BLINK))))
-        return;
-
-    uint8_t ledNumber = _ledNumber;
-
-    if (ledNumber < 128)    {
-
-        switch (currentLEDstate) {
-
-            case false:
-            //note off event
-
-            //if remember bit is set
-            if ((ledState[ledNumber] >> 3) & (0x01))   {
-
-                //if note off for blink state is received
-                //clear remember bit and blink bits
-                //set constant state bit
-                if (blinkMode)  ledState[ledNumber] = 0x05;
-                //else clear constant state bit and remember bit
-                //set blink bits
-                else            ledState[ledNumber] = 0x16;
-
-                }   else    {
-
-                if (blinkMode)  ledState[ledNumber] &= 0x15;    /*clear blink bit */
-                else            ledState[ledNumber] &= 0x16;    /* clear constant state bit */
-
-            }
-
-            //if bits 0 and 1 are 0, LED is off so we set ledState to zero
-            if (!(ledState[ledNumber] & 3))   ledState[ledNumber] = 0x00;
-
-            break;
-
-            case true:
-            //note on event
-
-            //if constant note on is received and LED is already blinking
-            //clear blinking bits and set remember bit and constant bit
-            if ((!blinkMode) && checkBlinkState(ledNumber))    ledState[ledNumber] = 0x0D;
-
-            //set bit 2 to 1 in any case (constant/blink state)
-            else    ledState[ledNumber] |= (0x01 << blinkMode) | 0x04 | (blinkMode << 4);
-
-        }
-
-    }
-
-    if (blinkMode && currentLEDstate)   blinkEnabled = true;
-    else    checkBlinkLEDs();
 
 }
 
@@ -433,23 +260,6 @@ void OpenDeck::setLEDState()    {
 
     //if blinkMode is 1, the LED is blinking
     uint8_t blinkMode = 0;
-
-    /*
-
-    If LED blinking is enabled (as a software feature), LED state is determined by these ranges
-    of velocity:
-
-    Velocity 0:         Constant state off
-    Velocity 1-62:      Constant state on
-    Velocity 63:        Blink state off
-    Velocity 64-127:    Blink state on
-
-    If LED blinking is disabled, constant state is turned off by sending velocity 0, and turned on
-    by any larger velocity.
-
-    */
-
-    if (bitRead(ledFeatures, SYS_EX_FEATURES_LEDS_BLINK))   {
 
         if ((receivedVelocity == SYS_EX_LED_VELOCITY_C_OFF) || (receivedVelocity == SYS_EX_LED_VELOCITY_B_OFF))
             currentLEDstate = false;
@@ -466,56 +276,7 @@ void OpenDeck::setLEDState()    {
         if ((receivedVelocity >= SYS_EX_LED_VELOCITY_B_OFF) && (receivedVelocity < 128))
             blinkMode = 1;
 
-    }   else    {
-
-            if (receivedVelocity == SYS_EX_LED_VELOCITY_C_OFF)  currentLEDstate = false;
-                else                                            currentLEDstate = true;
-
-        }
-
-    handleLED(currentLEDstate, blinkMode, getLEDnumber());
-
-    receivedNoteOnProcessed = true;
-
-}
-
-void OpenDeck::setConstantLEDstate(uint8_t ledNumber)   {
-
-    ledState[ledNumber] = 0x05;
-
-}
-
-void OpenDeck::setBlinkState(uint8_t ledNumber, bool blinkState)    {
-
-    switch (blinkState) {
-
-        case true:
-        ledState[ledNumber] |= 0x10;
-        break;
-
-        case false:
-        ledState[ledNumber] &= 0xEF;
-        break;
-
-    }
-
-}
-
-void OpenDeck::switchBlinkState()   {
-
-    if ((millis() - blinkTimerCounter) >= _blinkTime)   {
-
-        //change blinkBit state and write it into ledState variable if LED is in blink state
-        for (int i = 0; i<MAX_NUMBER_OF_LEDS; i++)
-        if (checkBlinkState(i)) setBlinkState(i, blinkState);
-
-        //invert blink state
-        blinkState = !blinkState;
-
-        //update blink timer
-        blinkTimerCounter = millis();
-
-    }
+    boardObject.handleLED(currentLEDstate, blinkMode, getLEDnumber());
 
 }
 
@@ -543,16 +304,16 @@ bool OpenDeck::checkSameLEDvalue(uint8_t type, uint8_t number)  {
 
     switch(type)    {
 
-        case SYS_EX_MST_LED_ACT_NOTE:
+        case SYS_EX_MST_LEDS_ACT_NOTE:
         //led activation note
         for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
             if (ledActNote[i] == number)    return false;
         break;
 
-        case SYS_EX_MST_LED_START_UP_NUMBER:
+        case SYS_EX_MST_LEDS_START_UP_NUMBER:
         //LED start-up number
         for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-            if (eeprom_read_byte((uint8_t*)EEPROM_LED_START_UP_NUMBER_START+i) == number)    return false;
+            if (eeprom_read_byte((uint8_t*)EEPROM_LEDS_START_UP_NUMBER_START+i) == number)    return false;
         break;
 
     }   return true;
