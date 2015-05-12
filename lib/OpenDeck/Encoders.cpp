@@ -10,15 +10,12 @@ Author: Igor Petrovic
 #include "OpenDeck.h"
 #include "Ownduino.h"
 
-//lookup table
-static const int8_t enc_states [] =
-{0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0};
+#define ENCODER_FAST_MODE_STABLE_AFTER  1
+#define ENCODER_FAST_MODE_DEBOUNCE_TIME 70
 
-int32_t oldPosition  = -999;
-uint8_t positionCounter = 0;
-bool direction = true;
+#define ENCODER_VALUE_LEFT              1
+#define ENCODER_VALUE_RIGHT             127
 
-#define ENC_STABLE_AFTER 2
 
 //void OpenDeck::processEncoderPair(uint8_t encoderPair, uint8_t columnState, uint8_t row)    {
 //
@@ -78,40 +75,119 @@ bool direction = true;
 uint8_t OpenDeck::getEncoderPairNumber(uint8_t row, uint8_t buttonNumber)   {
 
     //check for whether row is even or not to calculate encoder pair
-    uint8_t rowEven = (row % 2 == 0);
+    //uint8_t rowEven = (row % 2 == 0);
     //get encoder pair number based on current row and buttonNumber
-    return (buttonNumber - _numberOfColumns*!rowEven) - (row-1*!rowEven)*_numberOfButtonRows;
+    //return (buttonNumber - _numberOfColumns*!rowEven) - (row-1*!rowEven)*_numberOfButtonRows;
+    return 0;
 
 }
 
-void OpenDeck::readEncoders(int32_t encoderPosition)   {
+void OpenDeck::readEncoders()   {
 
-    if (_board == SYS_EX_BOARD_TYPE_OPEN_DECK_1)    {
+    for (int i=0; i<NUMBER_OF_ENCODERS; i++)   {
 
-        if (encoderPosition != oldPosition) {
+        if (getEncoderEnabled(i))   {
 
-            if (encoderPosition > oldPosition) {
+            int32_t encState = boardObject.getEncoderState(i);
 
-                if (direction == false) positionCounter = 0;
-                direction = true;
-                positionCounter++;
-                if (positionCounter >= ENC_STABLE_AFTER) { sendButtonNoteDataCallback(126, true, 1); positionCounter = 0; }
+            if (encState != lastEncoderState[i])    {  //encoder is moving
+
+                if (millis() - lastEncoderSpinTime[i] > ENCODER_FAST_MODE_DEBOUNCE_TIME)
+                    initialEncoderDebounceCounter[i] = 0;
+
+                if (encState > lastEncoderState[i]) {
+
+                    if (!encoderDirection[i]) {
+
+                        initialEncoderDebounceCounter[i] = 0;
+                        encoderDirection[i] = true;
+                        pulseCounter[i] = 0;
+
+                    }
+
+                    //only do additional debouncing if encoder is set to fast mode
+                    if ((initialEncoderDebounceCounter[i] >= ENCODER_FAST_MODE_STABLE_AFTER) || (!getEncoderFastMode(i)))   {
+
+                        pulseCounter[i]++;
+
+                        if (pulseCounter[i] >= pulsesPerStep[i])   {
+
+                            if (getEncoderInverted(i))
+                                sendControlChangeCallback(encoderNumber[i], ENCODER_DIRECTION_LEFT, _analogCCchannel);
+
+                            else sendControlChangeCallback(encoderNumber[i], ENCODER_DIRECTION_RIGHT, _analogCCchannel);
+
+                            pulseCounter[i] = 0;
+
+                        }
+
+                    }   else initialEncoderDebounceCounter[i]++;
+
+                }
+
+                else if (encState < lastEncoderState[i]) {
+
+                    if (encoderDirection[i])    {
+
+                        initialEncoderDebounceCounter[i] = 0;
+                        encoderDirection[i] = false;
+                        pulseCounter[i] = 0;
+
+                    }
+
+                    if ((initialEncoderDebounceCounter[i] >= ENCODER_FAST_MODE_STABLE_AFTER) || (!getEncoderFastMode(i)))   {
+
+                        pulseCounter[i]++;
+
+                        if (pulseCounter[i] >= pulsesPerStep[i])   {
+
+                            if (getEncoderInverted(i))
+                                sendControlChangeCallback(encoderNumber[i], ENCODER_DIRECTION_RIGHT, _analogCCchannel);
+
+                            else sendControlChangeCallback(encoderNumber[i], ENCODER_DIRECTION_LEFT, _analogCCchannel);
+
+                            pulseCounter[i] = 0;
+
+                        }
+
+                    }   else initialEncoderDebounceCounter[i]++;
+
+                }
+
+                lastEncoderState[i] = encState;
+                lastEncoderSpinTime[i] = millis();
 
             }
-
-            else if (encoderPosition < oldPosition) {
-
-                if (direction == true) positionCounter = 0;
-                direction = false;
-                positionCounter++;
-                if (positionCounter >= ENC_STABLE_AFTER) { sendButtonNoteDataCallback(127, true, 1); positionCounter = 0; }
-
-            }
-
-            oldPosition = encoderPosition;
 
         }
 
-    }
+        }
+
+}
+
+bool OpenDeck::getEncoderEnabled(uint8_t encoder) {
+
+    uint8_t arrayIndex = encoder/8;
+    uint8_t encoderIndex = encoder - 8*arrayIndex;
+
+    return bitRead(encoderEnabled[arrayIndex], encoderIndex);
+
+}
+
+bool OpenDeck::getEncoderInverted(uint8_t encoder) {
+
+    uint8_t arrayIndex = encoder/8;
+    uint8_t encoderIndex = encoder - 8*arrayIndex;
+
+    return bitRead(encoderInverted[arrayIndex], encoderIndex);
+
+}
+
+bool OpenDeck::getEncoderFastMode(uint8_t encoder)  {
+
+    uint8_t arrayIndex = encoder/8;
+    uint8_t encoderIndex = encoder - 8*arrayIndex;
+
+    return bitRead(encoderFastMode[arrayIndex], encoderIndex);
 
 }

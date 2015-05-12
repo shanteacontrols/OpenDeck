@@ -4,9 +4,8 @@ OpenDeck MIDI platform is a combination of microcontroller firmware, PCB board a
 The platform allows hassle-free building of MIDI controllers and their configuration via MIDI System Exclusive messages,
 without any need of reprogramming the chip.
 
-This repository contains MCU code, part list, schematic (circuit and PCB) and pre-compiled binaries, available for serial
-baud rates: 38400, for use with virtual MIDI cable software and serial-to-midi converter, and 31250 for use with native
-MIDI.
+This repository contains MCU code, part list, schematic (circuit and PCB) and pre-compiled binary file, available for serial
+baud rates (38400, for use with virtual MIDI cable software and serial-to-midi converter.
 
 Code base is built upon OpenDeck library, Ownduino library (minimal fork of Arduino core library)
 and modified Arduino MIDI library 3.2. All code is available under GNU GPL v3 licence.
@@ -14,12 +13,14 @@ and modified Arduino MIDI library 3.2. All code is available under GNU GPL v3 li
 
 # Configurable features
 
-## Hardware parameters
+## MIDI channels
 
-* Board type (OpenDeck reference board, Tannin board, or user-defineable board in `HardwareControl.cpp`)
-* Enable/disable buttons
-* Enable/disable LEDs
-* Enable/disable potentiometers
+* Note
+* Long-press note
+* Program change
+* Control change
+* Pitch bend
+* MIDI input
 
 ## Features
 
@@ -31,25 +32,6 @@ and modified Arduino MIDI library 3.2. All code is available under GNU GPL v3 li
 
 * Enable/disable long-press mode
 
-### LED features
-
-* Enable/disable start-up routine
-* Enable/disable blinking
-
-### Potentiometer features
-
-* Enable/disable potentiometer notes
-
-### MIDI channels
-
-* Button note channel
-* Long-press button note channel
-* Program change button channel
-* Potentiometer CC channel
-* Potentiometer program change channel
-* Potentiometer note channel
-* Input MIDI channel
-
 ## Button configuration
 
 * Hardware parameters: long-press time
@@ -57,15 +39,15 @@ and modified Arduino MIDI library 3.2. All code is available under GNU GPL v3 li
 * Enable/disable program change send instead of notes
 * Button MIDI note
 
-## Potentiometer configuration
+## Analog configuration
 
 * Hardware parameters: (reserved/no parameters yet)
-* Enable/disable potentiometer
-* Enable/disable program change send instead of CC
-* Invert potentiometer
-* CC/Program change number
-* Lower CC/PP limit
-* Upper CC/PP limit
+* Enable/disable analog input
+* Analog input type (only potentiometer at the moment)
+* Invert analog value
+* CC number
+* Lower CC limit
+* Upper CC limit
 
 ## LED configuration
 
@@ -74,6 +56,14 @@ and modified Arduino MIDI library 3.2. All code is available under GNU GPL v3 li
 * LED start-up number
 * Test LED state (constant on/off, blink on/off)
 
+## Encoder configuration
+
+* Hardware parameters (reserved/no parameters yet)
+* Enable/disable encoder
+* Invert encoder value
+* Set fast mode encoder (additional debouncing for high-speed encoders)
+* Change pulses per step for each encoder
+* Change encoder CC number
 
 ## Data restoration
 
@@ -93,14 +83,11 @@ enables full manipulation using SysEx protocol, and responds with the same messa
 
 F0 00 53 43 41 F7
 
-After that, board type must be specified. When using OpenDeck reference board, set it using the following message:
-
-F0 00 53 43 01 00 00 00 00 01 F7
-
-
 Each SysEx message (except for hello world) uses the same format:
 
-F0 ID ID ID WISH AMOUNT MESSAGE_TYPE MESSAGE_SUBTYPE PARAMETER_ID NEW_PARAMETER_ID F7
+F0 ID ID ID WISH AMOUNT MESSAGE_TYPE MESSAGE_SUBTYPE PARAMETER_ID* NEW_PARAMETER_ID* F7
+
+Depending on wish and amount, PARAMETER_ID and NEW_PARAMETER_ID might not be neccessary.
 
 ## ID
 
@@ -126,17 +113,17 @@ All parameters
 ### MESSAGE_TYPE
 There's a total of 7 message types available.
 
-* Hardware configuration (0x00)
+* MIDI channel (0x00)
 * Features (0x01)
-* MIDI channel (0x02)
-* Button (0x03)
-* Potentiometer (0x04)
-* LED (0x05)
-* All (0x07)
+* Buttons (0x02)
+* Analog (0x03)
+* LEDs (0x04)
+* Encoders (0x05)
+* All (0x06)
 
 ### MESSAGE_SUBTYPE
 
-Features, buttons, potentiometers, LEDs are the only types of message which have a sub-type. When dealing
+Features, buttons, analog, LEDs and encoders have sub-type. When dealing
 with other message types, code 0x00 must be specified as sub-type.
 
 Features:
@@ -152,20 +139,28 @@ Buttons:
 * Program change enabled (0x02)
 * Button note (0x03)
 
-Potentiometers:
+Analog:
 * Hardware parameter (0x00)
-* Pot enabled (0x01)
-* Program change enabled (0x02)
-* Pot inverted (0x03)
-* CC/PP number (0x04)
-* Lower CC/PP limit (0x05)
-* Upper CC/PP limit (0x06)
+* Analog enabled (0x01)
+* Analog type (0x02)
+* Analog inverted (0x03)
+* CC number (0x04)
+* Lower CC limit (0x05)
+* Upper CC limit (0x06)
 
 LEDs:
 * Hardware parameter (0x00)
 * Activation note (0x01)
 * Start-up number (0x02)
 * State (0x03)
+
+Encoders:
+* Hardware parameter (0x00)
+* Encoder enabled (0x01)
+* Encoder inverted (0x02)
+* Encoder fast mode (0x03)
+* Pulses per step (0x04)
+* Encoder CC number (0x05)
 
 
 For more information, see examples in /examples folder.

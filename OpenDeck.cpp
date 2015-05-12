@@ -1,7 +1,7 @@
 /*
 
-OpenDeck platform firmware v1.3
-Last revision date: 2014-12-25
+OpenDeck platform firmware v2.0
+Last revision date: 2015-05-08
 Author: Igor Petrovic
 
 */
@@ -9,15 +9,6 @@ Author: Igor Petrovic
 #include "OpenDeck.h"
 #include "MIDI.h"
 #include "Ownduino.h"
-//#include "Encoder.h"
-#include <avr/eeprom.h>
-
-
-//velocity for on and off events
-#define MIDI_NOTE_ON_VELOCITY   127
-#define MIDI_NOTE_OFF_VELOCITY  0
-
-//Encoder encoder1 = Encoder(PIN_C,PIN_D);
 
 
 //MIDI callback handlers
@@ -37,7 +28,7 @@ void getSysExData(uint8_t *sysExArray, uint8_t size)    {
 
 //OpenDeck callback handlers
 
-void sendButtonNotes(uint8_t buttonNote, bool buttonState, uint8_t channel)    {
+void sendNotes(uint8_t buttonNote, bool buttonState, uint8_t channel)    {
 
     switch (buttonState) {
 
@@ -56,49 +47,31 @@ void sendButtonNotes(uint8_t buttonNote, bool buttonState, uint8_t channel)    {
 
 }
 
-void sendButtonPP(uint8_t channel, uint8_t program)    {
+void sendProgramChange(uint8_t channel, uint8_t program)    {
 
     MIDI.sendProgramChange(program, channel);
 
 }
 
-void sendPotCCData(uint8_t ccNumber, uint8_t ccValue, uint8_t channel) {
+void sendControlChange(uint8_t ccNumber, uint8_t ccValue, uint8_t channel) {
 
     MIDI.sendControlChange(ccNumber, ccValue, channel);
 
 }
 
-void sendPotNoteOnData(uint8_t note, uint8_t channel)    {
-
-    MIDI.sendNoteOn(note, MIDI_NOTE_ON_VELOCITY, channel);
-
-}
-
-void sendPotNoteOffData(uint8_t note, uint8_t channel)   {
-
-    if (openDeck.standardNoteOffEnabled())  MIDI.sendNoteOff(note, MIDI_NOTE_OFF_VELOCITY, channel);
-    else                                    MIDI.sendNoteOn(note, MIDI_NOTE_OFF_VELOCITY, channel);
-
-}
-
-void sendSysExData(uint8_t *sysExArray, uint8_t size)   {
+void sendSysEx(uint8_t *sysExArray, uint8_t size)   {
 
     MIDI.sendSysEx(size, sysExArray, false);
 
 }
 
-
 //configure opendeck library
 void setOpenDeckHandlers()  {
 
-    openDeck.setHandleButtonNoteSend(sendButtonNotes);
-    openDeck.setHandleButtonPPSend(sendButtonPP);
-
-    openDeck.setHandlePotCC(sendPotCCData);
-    openDeck.setHandlePotNoteOn(sendPotNoteOnData);
-    openDeck.setHandlePotNoteOff(sendPotNoteOffData);
-
-    openDeck.setHandleSysExSend(sendSysExData);
+    openDeck.setHandleNoteSend(sendNotes);
+    openDeck.setHandleProgramChangeSend(sendProgramChange);
+    openDeck.setHandleControlChangeSend(sendControlChange);
+    openDeck.setHandleSysExSend(sendSysEx);
 
 }
 
@@ -120,7 +93,6 @@ void setup()  {
     setMIDIhandlers();
 
     //read incoming MIDI messages on specified channel
-    //disable running status by default
     MIDI.begin(openDeck.getInputMIDIchannel());
 
     Serial.begin(38400);
@@ -129,18 +101,16 @@ void setup()  {
 
 void loop() {
 
-    //process buttons and LEDs
-    openDeck.processMatrix();
-
-    //constantly check for incoming MIDI messages
+    //check for incoming MIDI messages
     MIDI.read();
 
-    //check if there is any received note to process
-    openDeck.checkReceivedNoteOn();
+    //check buttons
+    openDeck.readButtons();
 
-    //read pots one analogue input at the time
-    openDeck.readPots();
+    //check analog inputs
+    openDeck.readAnalog();
 
-    //openDeck.readEncoders(encoder1.read());
+    //check encoders
+    openDeck.readEncoders();
 
 }

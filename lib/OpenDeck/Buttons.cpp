@@ -10,41 +10,6 @@ Author: Igor Petrovic
 #include "OpenDeck.h"
 #include "Ownduino.h"
 
-#define MIN_BUTTON_DEBOUNCE_TIME            20
-
-
-uint8_t OpenDeck::getRowPassTime() {
-
-    return COLUMN_SCAN_TIME*_numberOfColumns;
-
-}
-
-void OpenDeck::setNumberOfColumnPasses() {
-
-    /*
-
-        Algorithm calculates how many times does it need to read whole row
-        before it can declare button reading stable.
-
-    */
-
-    uint8_t rowPassTime = getRowPassTime();
-    uint8_t mod = 0;
-
-    if ((MIN_BUTTON_DEBOUNCE_TIME % rowPassTime) > 0)   mod = 1;
-
-    numberOfColumnPasses = ((MIN_BUTTON_DEBOUNCE_TIME / rowPassTime) + mod);
-
-    setNumberOfLongPressPasses();
-
-}
-
-void OpenDeck::setNumberOfLongPressPasses() {
-
-    longPressColumnPass = sysExGetButtonHwParameter(SYS_EX_BUTTON_HW_P_LONG_PRESS_TIME)*100 / getRowPassTime();
-
-}
-
 void OpenDeck::setButtonPressed(uint8_t buttonNumber, bool state)   {
 
     uint8_t arrayIndex = buttonNumber/8;
@@ -75,12 +40,12 @@ uint8_t OpenDeck::getButtonType(uint8_t buttonNumber)  {
 
 }
 
-bool OpenDeck::getButtonPPenabled(uint8_t buttonNumber)   {
+bool OpenDeck::getButtonPCenabled(uint8_t buttonNumber)   {
 
     uint8_t arrayIndex = buttonNumber/8;
     uint8_t buttonIndex = buttonNumber - 8*arrayIndex;
 
-    return bitRead(buttonPPenabled[arrayIndex], buttonIndex);
+    return bitRead(buttonPCenabled[arrayIndex], buttonIndex);
 
 }
 
@@ -139,14 +104,14 @@ void OpenDeck::processMomentaryButton(uint8_t buttonNumber, bool buttonState)   
 
             setButtonPressed(buttonNumber, true);
 
-            if (getButtonPPenabled(buttonNumber))    {
+            if (getButtonPCenabled(buttonNumber))    {
                 
-                sendButtonPPDataCallback(_buttonPPchannel, buttonNote[buttonNumber]);
+                sendProgramChangeCallback(_programChangeChannel, buttonNote[buttonNumber]);
                 return;
 
             }
 
-            sendButtonNoteDataCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
+            sendNoteCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
 
         }
 
@@ -159,12 +124,12 @@ void OpenDeck::processMomentaryButton(uint8_t buttonNumber, bool buttonState)   
                 if (getButtonLongPressed(buttonNumber)) {
 
                     //send both regular and long press note off
-                    sendButtonNoteDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
-                    sendButtonNoteDataCallback(buttonNote[buttonNumber], false, _longPressButtonNoteChannel);
+                    sendNoteCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
+                    sendNoteCallback(buttonNote[buttonNumber], false, _longPressButtonNoteChannel);
 
-                }   else if ((getButtonPressed(buttonNumber)) && !getButtonPPenabled(buttonNumber))
+                }   else if ((getButtonPressed(buttonNumber)) && !getButtonPCenabled(buttonNumber))
                         //send only regular off note
-                        sendButtonNoteDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
+                        sendNoteCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
 
                         //reset long-press parameters
                         resetLongPress(buttonNumber);
@@ -174,8 +139,8 @@ void OpenDeck::processMomentaryButton(uint8_t buttonNumber, bool buttonState)   
 
             }   else if (getButtonPressed(buttonNumber))    {
 
-                        if (!getButtonPPenabled(buttonNumber))
-                            sendButtonNoteDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
+                        if (!getButtonPCenabled(buttonNumber))
+                            sendNoteCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
 
                         setButtonPressed(buttonNumber, false);
 
@@ -199,12 +164,12 @@ void OpenDeck::processLatchingButton(uint8_t buttonNumber, bool buttonState)    
                     if (bitRead(buttonFeatures, SYS_EX_FEATURES_BUTTONS_LONG_PRESS) && getButtonLongPressed(buttonNumber)) {
 
                         //send both regular and long press note off
-                        sendButtonNoteDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
-                        sendButtonNoteDataCallback(buttonNote[buttonNumber], false, _longPressButtonNoteChannel);
+                        sendNoteCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
+                        sendNoteCallback(buttonNote[buttonNumber], false, _longPressButtonNoteChannel);
 
                         resetLongPress(buttonNumber);
 
-                    } else sendButtonNoteDataCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
+                    } else sendNoteCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
 
                         //reset pressed state
                         setButtonPressed(buttonNumber, false);
@@ -212,7 +177,7 @@ void OpenDeck::processLatchingButton(uint8_t buttonNumber, bool buttonState)    
                 } else {
 
                         //send note on
-                        sendButtonNoteDataCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
+                        sendNoteCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
 
                         //toggle buttonPressed flag to true
                         setButtonPressed(buttonNumber, true);
@@ -230,58 +195,50 @@ void OpenDeck::processLatchingButton(uint8_t buttonNumber, bool buttonState)    
 
 }
 
-void OpenDeck::setHandleButtonNoteSend(void (*fptr)(uint8_t buttonNote, bool buttonState, uint8_t channel))   {
+void OpenDeck::readButtons()    {
 
-    sendButtonNoteDataCallback = fptr;
+    #ifdef BOARD
 
-}
+        if (boardObject.digitalInDataAvailable())    {
 
-void OpenDeck::setHandleButtonPPSend(void (*fptr)(uint8_t channel, uint8_t program))   {
+            uint16_t columnState = boardObject.getDigitalInData();
+            uint8_t columnNumber = columnState & 0xFF;
+            columnState = columnState >> 8;
 
-    sendButtonPPDataCallback = fptr;
+            if (columnStable(columnState, columnNumber))    {
 
-}
+                for (int i=0; i<(NUMBER_OF_BUTTON_ROWS); i++)   {
 
-void OpenDeck::readButtons(uint8_t currentColumn)    {
+                    //extract current bit from çolumnState variable
+                    //invert extracted bit because of pull-up resistors
+                    uint8_t buttonState = !((columnState >> i) & 0x01);
+                    //get current button number based on row and column
+                    uint8_t buttonNumber = columnNumber+i*NUMBER_OF_BUTTON_COLUMNS;
+                    //get encoder pair number based on buttonNumber and current row
+                    //uint8_t encoderPair = getEncoderPairNumber(i, buttonNumber);
 
-    if ((_board != 0) && (bitRead(hardwareEnabled, SYS_EX_HW_CONFIG_BUTTONS)))    {
-
-        uint8_t columnState = 0;
-
-        readButtonColumn(columnState);
-
-        if (columnStable(columnState, currentColumn))    {
-
-            for (int i=0; i<(_numberOfButtonRows); i++)   {
-
-                //extract current bit from çolumnState variable
-                //invert extracted bit because of pull-up resistors
-                uint8_t buttonState = !((columnState >> i) & 0x01);
-                //get current button number based on row and column
-                uint8_t buttonNumber = currentColumn+i*_numberOfColumns;
-                //get encoder pair number based on buttonNumber and current row
-                //uint8_t encoderPair = getEncoderPairNumber(i, buttonNumber);
-
-                //if (!encoderPairEnabled[encoderPair])
+                    //if (!encoderPairEnabled[encoderPair])
                     procesButtonReading(buttonNumber, buttonState);
 
-                //else {
-//
+                    //else {
+                    //
                     //processEncoderPair(encoderPair, columnState, i);
                     ////skip next row since it's also part of current encoder
                     //i++;
-//
-                //}
+                    //
+                    //}
 
-                updateButtonState(buttonNumber, buttonState);
+                    updateButtonState(buttonNumber, buttonState);
+
+                }
 
             }
 
+            lastColumnState[columnNumber] = columnState;
+
         }
 
-         lastColumnState[currentColumn] = columnState;
-
-    }
+    #endif
 
 }
 
@@ -319,15 +276,15 @@ void OpenDeck::handleLongPress(uint8_t buttonNumber, bool buttonState) {
     //b) button is pressed
     //c) long-press isn't already sent
 
-    if (getButtonPPenabled(buttonNumber)) return; //disable long-press feature when button is configured to send PP
+    if (getButtonPCenabled(buttonNumber)) return; //disable long-press feature when button is configured to send PP
 
     if (buttonState && bitRead(buttonFeatures, SYS_EX_FEATURES_BUTTONS_LONG_PRESS) && getButtonPressed(buttonNumber) && !getButtonLongPressed(buttonNumber)) {
 
         longPressCounter[buttonNumber]++;
 
-        if (longPressCounter[buttonNumber] == longPressColumnPass) {
+        if (longPressCounter[buttonNumber] == boardObject.getLongPressColumnPass()) {
 
-            sendButtonNoteDataCallback(buttonNote[buttonNumber], true, _longPressButtonNoteChannel);
+            sendNoteCallback(buttonNote[buttonNumber], true, _longPressButtonNoteChannel);
             setButtonLongPressed(buttonNumber, true);
 
         }
@@ -336,16 +293,16 @@ void OpenDeck::handleLongPress(uint8_t buttonNumber, bool buttonState) {
 
 }
 
-bool OpenDeck::columnStable(uint8_t columnState, uint8_t activeColumn)   {
+bool OpenDeck::columnStable(uint16_t columnState, uint8_t columnNumber)   {
 
     //column reading is declared stable if there are numberOfColumnPasses same readings
-    if (columnState == lastColumnState[activeColumn])   {
+    if (columnState == lastColumnState[columnNumber])   {
 
-        if (columnPassCounter[activeColumn] < numberOfColumnPasses) columnPassCounter[activeColumn]++;
+        if (columnPassCounter[columnNumber] < boardObject.getNumberOfColumnPasses()) columnPassCounter[columnNumber]++;
 
-    }   else columnPassCounter[activeColumn] = 0;
+    }   else columnPassCounter[columnNumber] = 0;
 
     //iterate over rows if column readings are stable
-    return (columnPassCounter[activeColumn] == numberOfColumnPasses);
+    return (columnPassCounter[columnNumber] == boardObject.getNumberOfColumnPasses());
 
 }
