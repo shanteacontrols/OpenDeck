@@ -1742,6 +1742,9 @@ bool OpenDeck::sysExSetEncoderNumber(uint8_t encoder, uint8_t number)   {
 
 bool OpenDeck::sysExSetEncoderPulsesPerStep(uint8_t encoder, uint8_t pulses)   {
 
+    //reset variables
+    resetEncoderValues(encoder);
+
     uint16_t eepromAddress = EEPROM_ENCODERS_PULSES_PER_STEP_START+encoder;
 
     pulsesPerStep[encoder] = pulses;
@@ -1751,6 +1754,9 @@ bool OpenDeck::sysExSetEncoderPulsesPerStep(uint8_t encoder, uint8_t pulses)   {
 }
 
 bool OpenDeck::sysExSetEncoderFastMode(uint8_t encoder, bool state)    {
+
+    //reset variables
+    resetEncoderValues(encoder);
 
     uint8_t arrayIndex = encoder/8;
     uint8_t encoderIndex = encoder - 8*arrayIndex;
