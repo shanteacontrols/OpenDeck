@@ -309,7 +309,6 @@ void Board::initPins() {
 void Board::initAnalog()    {
 
     setADCprescaler(32);
-    set8bitADC();
     enableADCinterrupt();
 
     #ifdef BOARD_TANNIN
@@ -641,7 +640,7 @@ int32_t Board::getEncoderState(uint8_t encoderNumber)  {
 //ISR
 ISR(ADC_vect)   {
 
-    analogBuffer[analogReadFinishedCounter] = ADCH;
+    analogBuffer[analogReadFinishedCounter] = ADC;
     analogReadFinishedCounter++;
 
     if (!(analogReadFinishedCounter == MAX_NUMBER_OF_ANALOG))  {

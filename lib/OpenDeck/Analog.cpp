@@ -15,33 +15,33 @@ Author: Igor Petrovic
 #define NUMBER_OF_SAMPLES 3
 
 //potentiometer must exceed this value before sending new value
-#define MIDI_CC_STEP                2
+#define MIDI_CC_STEP                8
 
 void OpenDeck::readAnalog()   {
 
     #ifdef BOARD
 
-        if (boardObject.analogInDataAvailable()) {
+    if (boardObject.analogInDataAvailable()) {
 
-            for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)    {
+        for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)    {
 
-                int16_t analogData = boardObject.getAnalogInData(i);
+            int16_t analogData = boardObject.getAnalogInData(i);
 
-                if (getAnalogEnabled(i))   {
+            if (getAnalogEnabled(i))   {
 
-                    if (checkAnalogReading(analogData, i)) {
+                if (checkAnalogReading(analogData, i)) {
 
-                        processAnalogReading(analogData, i);
-
-                    }
+                    processAnalogReading(analogData, i);
 
                 }
 
             }
 
-            boardObject.startAnalogConversion();
-
         }
+
+        boardObject.startAnalogConversion();
+
+    }
 
     #endif
 
@@ -52,18 +52,18 @@ void OpenDeck::readAnalogInitial()   {
     //wait until analog buffer is full, and then update all analog value whether
     //they're stable or not to avoid sending all analog data on power on
     while (!boardObject.analogInDataAvailable())    {};
-        for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
-            lastAnalogueValue[i] = boardObject.getAnalogInData(i);
+    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+    lastAnalogueValue[i] = boardObject.getAnalogInData(i);
 
-     //restart analog readouts
-     boardObject.startAnalogConversion();
+    //restart analog readouts
+    boardObject.startAnalogConversion();
 
 }
 
 bool OpenDeck::checkAnalogReading(int16_t tempValue, uint8_t potNumber) {
 
     //calculate difference between current and previous reading
-    int8_t analogueDiff = tempValue - lastAnalogueValue[potNumber];
+    int16_t analogueDiff = tempValue - lastAnalogueValue[potNumber];
 
     //get absolute difference
     if (analogueDiff < 0)   analogueDiff *= -1;
@@ -86,7 +86,7 @@ bool OpenDeck::checkAnalogReading(int16_t tempValue, uint8_t potNumber) {
 
 void OpenDeck::processAnalogReading(int16_t tempValue, uint8_t potNumber)  {
 
-    uint8_t ccValue = tempValue >> 1;
+    uint8_t ccValue = tempValue >> 3;
 
     //invert CC data if potInverted is true
     if (getAnalogInvertState(potNumber))   ccValue = 127 - ccValue;
@@ -96,7 +96,7 @@ void OpenDeck::processAnalogReading(int16_t tempValue, uint8_t potNumber)  {
 
         //only use map when cc limits are different from defaults
         if ((analogLowerLimit[potNumber] != 0) || (analogUpperLimit[potNumber] != 127))
-            sendControlChangeCallback(analogNumber[potNumber], map(ccValue, 0, 127, analogLowerLimit[potNumber], analogUpperLimit[potNumber]), _analogCCchannel);
+        sendControlChangeCallback(analogNumber[potNumber], map(ccValue, 0, 127, analogLowerLimit[potNumber], analogUpperLimit[potNumber]), _analogCCchannel);
 
         else    sendControlChangeCallback(analogNumber[potNumber], ccValue, _analogCCchannel);
 
