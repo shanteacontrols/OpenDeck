@@ -276,11 +276,11 @@ void OpenDeck::setLEDState()    {
         if ((receivedVelocity >= SYS_EX_LED_VELOCITY_B_OFF) && (receivedVelocity < 128))
             blinkMode = 1;
 
-    boardObject.handleLED(currentLEDstate, blinkMode, getLEDnumber());
+    boardObject.handleLED(currentLEDstate, blinkMode, getLEDid());
 
 }
 
-uint8_t OpenDeck::getLEDnumber()   {
+uint8_t OpenDeck::getLEDid()   {
 
     //match LED activation note with its index
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
@@ -292,7 +292,7 @@ uint8_t OpenDeck::getLEDnumber()   {
 
 }
 
-uint8_t OpenDeck::getLEDnote(uint8_t ledNumber)   {
+uint8_t OpenDeck::getLEDActivationNote(uint8_t ledNumber)   {
 
     return ledActNote[ledNumber];
 
