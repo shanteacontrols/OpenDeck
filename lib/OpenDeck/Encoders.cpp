@@ -11,7 +11,7 @@ Author: Igor Petrovic
 #include "Ownduino.h"
 
 #define ENCODER_FAST_MODE_STABLE_AFTER  1
-#define ENCODER_FAST_MODE_DEBOUNCE_TIME 70
+#define ENCODER_FAST_MODE_DEBOUNCE_TIME 60
 
 #define ENCODER_VALUE_LEFT              1
 #define ENCODER_VALUE_RIGHT             127
@@ -112,7 +112,7 @@ void OpenDeck::readEncoders()   {
 
                         if (pulseCounter[i] >= pulsesPerStep[i])   {
 
-                            if (getEncoderInverted(i))
+                            if (getEncoderInvertState(i))
                                 sendControlChangeCallback(encoderNumber[i], ENCODER_DIRECTION_LEFT, _analogCCchannel);
 
                             else sendControlChangeCallback(encoderNumber[i], ENCODER_DIRECTION_RIGHT, _analogCCchannel);
@@ -141,7 +141,7 @@ void OpenDeck::readEncoders()   {
 
                         if (pulseCounter[i] >= pulsesPerStep[i])   {
 
-                            if (getEncoderInverted(i))
+                            if (getEncoderInvertState(i))
                                 sendControlChangeCallback(encoderNumber[i], ENCODER_DIRECTION_RIGHT, _analogCCchannel);
 
                             else sendControlChangeCallback(encoderNumber[i], ENCODER_DIRECTION_LEFT, _analogCCchannel);
@@ -174,7 +174,7 @@ bool OpenDeck::getEncoderEnabled(uint8_t encoder) {
 
 }
 
-bool OpenDeck::getEncoderInverted(uint8_t encoder) {
+bool OpenDeck::getEncoderInvertState(uint8_t encoder) {
 
     uint8_t arrayIndex = encoder/8;
     uint8_t encoderIndex = encoder - 8*arrayIndex;
