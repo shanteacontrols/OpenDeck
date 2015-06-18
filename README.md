@@ -16,7 +16,6 @@ and modified Arduino MIDI library 3.2. All code is available under GNU GPL v3 li
 ## MIDI channels
 
 * Note
-* Long-press note
 * Program change
 * Control change
 * Pitch bend
@@ -28,13 +27,9 @@ and modified Arduino MIDI library 3.2. All code is available under GNU GPL v3 li
 
 * Enable/disable standard note off
 
-### Button features
-
-* Enable/disable long-press mode
 
 ## Button configuration
 
-* Hardware parameters: long-press time
 * Button type (momentary/latching)
 * Enable/disable program change send instead of notes
 * Button MIDI note
