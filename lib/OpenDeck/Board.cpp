@@ -4,18 +4,15 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
-#define BUFFER_SIZE 32
-
 //variables used by interrupts
 volatile uint8_t    activeButtonColumn  = 0,
                     activeLEDColumn     = 0,
                     ledState[MAX_NUMBER_OF_LEDS],
-                    analogReadFinishedCounter = 0,
-                    activeMux = 0,
                     activeMuxInput = 0,
                     tempEncoderState[NUMBER_OF_ENCODERS] = { 0 };
 
-volatile int16_t    analogBuffer[MAX_NUMBER_OF_ANALOG] = { -1 };
+volatile int16_t    analogBuffer[DIGITAL_BUFFER_SIZE] = { -1 };
+volatile int8_t     digitalBuffer[DIGITAL_BUFFER_SIZE] = { -1 };
 
 volatile uint32_t   blinkTimerCounter = 0;
 volatile int32_t    encoderPosition[NUMBER_OF_ENCODERS] = { 0 };
@@ -28,39 +25,30 @@ static const int8_t enc_states [] = {0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1
 
 uint16_t            ledBlinkTime;
 
-struct ring_buffer  {
+volatile bool changeSwitch = true;
 
-    int16_t buffer[BUFFER_SIZE];
-    volatile uint16_t head;
-    volatile uint16_t tail;
+volatile bool analogReadFinished = false;
+volatile bool digitalReadFinished = false;
 
-};
-
-ring_buffer buttonReadings = { { 0 }, 0, 0};
+volatile int8_t activeMux = 0;
 
 //inline functions
 
-inline void setMux(uint8_t muxNumber)   {
+inline void setMuxInternal(uint8_t muxNumber)   {
 
     setADCchannel(analogueEnabledArray[muxNumber]);
 
 }
 
-inline void setMuxInput()    {
+inline void setMuxInputInteral(uint8_t muxInput)    {
 
     #ifdef BOARD_TANNIN
         //TO-DO
     #elif defined BOARD_OPENDECK_1
         PORTC &= 0xF8;
-        PORTC |= activeMuxInput;
+        PORTC |= muxInput;
+        NOP;
     #endif
-
-}
-
-inline void storeAnalogIn(int16_t value)  {
-
-    analogBuffer[analogReadFinishedCounter] = value;
-    analogReadFinishedCounter++;
 
 }
 
@@ -225,9 +213,9 @@ inline void activateColumn()   {
 
 }
 
-inline void storeDigitalIn(ring_buffer *buffer)  {
+inline void storeDigitalIn()  {
 
-    uint16_t data = 0;
+    uint8_t data = 0;
 
     #ifdef BOARD_TANNIN
     //TO-DO
@@ -235,23 +223,60 @@ inline void storeDigitalIn(ring_buffer *buffer)  {
     data = ((PIND >> 4) & 0x0F);
     #endif
 
-    data = data << 8;
-    data |= activeButtonColumn;
+    digitalBuffer[activeButtonColumn] = data;
 
-    uint16_t i = (unsigned int)(buffer->head + 1) % BUFFER_SIZE;
+    //uint16_t i = (unsigned int)(buffer->head + 1) % DIGITAL_BUFFER_SIZE;
+//
+    //if (i != buffer->tail) {
+//
+        //buffer->buffer[buffer->head] = data;
+        //buffer->head = i;
+//
+    //}
 
-    // if we should be storing the received character into the location
-    // just before the tail (meaning that the head would advance to the
-    // current location of the tail), we're about to overflow the buffer
-    // and so we don't write the character or advance the head.
+}
 
-    if (i != buffer->tail) {
+inline void readEncoders()  {
 
-        buffer->buffer[buffer->head] = data;
-        buffer->head = i;
+    #ifdef BOARD_OPENDECK_1
+    uint8_t encRead = (PIND >> 2) & 0x03;
+    uint8_t tempState = tempEncoderState[0] & 0x03;
+
+    if (encRead & 0x01)         tempState |= 4;
+    if ((encRead >> 1) & 0x01)  tempState |= 8;
+
+
+    tempEncoderState[0] = (tempState >> 2);
+
+    switch (tempState) {
+
+        case 1:
+        case 7:
+        case 8:
+        case 14:
+        encoderPosition[0]++;
+        break;
+
+        case 2:
+        case 4:
+        case 11:
+        case 13:
+        encoderPosition[0]--;
+        break;
+
+        case 3:
+        case 12:
+        encoderPosition[0] += 2;
+        break;
+
+        case 6:
+        case 9:
+        encoderPosition[0] -= 2;
+        break;
 
     }
-
+    #endif
+    
 }
 
 //init
@@ -265,8 +290,6 @@ Board::Board()  {
      ledBlinkTime = 0;
      totalLEDnumber = 0;
 
-     _buttonReadings = &buttonReadings;
-
 }
 
 void Board::init()  {
@@ -279,12 +302,7 @@ void Board::init()  {
     setNumberOfColumnPasses();
 
     //configure column switch timer
-    setUpMatrixTimer();
-
-    #ifdef BOARD_OPENDECK_1
-        //configure encoder read timer
-        setUpEncoderTimer();
-    #endif
+    setUpTimer();
 
 }
 
@@ -308,8 +326,8 @@ void Board::initPins() {
 
 void Board::initAnalog()    {
 
-    setADCprescaler(32);
-    enableADCinterrupt();
+    setUpADC();
+    setADCprescaler(64);
 
     #ifdef BOARD_TANNIN
     //TO-DO
@@ -318,7 +336,10 @@ void Board::initAnalog()    {
     enableAnalogueInput(0, 7);
     #endif
 
-    startAnalogConversion();
+    setMuxInputInteral(activeMuxInput);
+    setADCchannel(analogueEnabledArray[activeMux]);
+    _delay_ms(5);
+    getADCvalue();
 
 }
 
@@ -328,20 +349,6 @@ void Board::enableAnalogueInput(uint8_t muxNumber, uint8_t adcChannel)  {
 
     //disable digital input on enabled analog pins
     disconnectDigitalInADC(adcChannel);
-
-}
-
-void Board::startAnalogConversion()  {
-
-    activeMuxInput = 0;
-    activeMux = 0;
-    setMux(activeMux);
-    setMuxInput();
-    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
-        analogBuffer[i] = -1;
-
-    analogReadFinishedCounter = 0;
-    ADCSRA |= (1<<ADSC);
 
 }
 
@@ -363,7 +370,7 @@ void Board::setNumberOfColumnPasses() {
 
 }
 
-void Board::setUpMatrixTimer()   {
+void Board::setUpTimer()   {
 
     TCCR2A = 0;
     TCCR2B = 0;
@@ -376,30 +383,10 @@ void Board::setUpMatrixTimer()   {
     TCCR2B |= (1 << CS22);
 
     //1ms
-    OCR2A = 249;
+    OCR2A = 150;
 
     //enable CTC interrupt
     TIMSK2 |= (1 << OCIE2A);
-
-}
-
-void Board::setUpEncoderTimer() {
-
-    TCCR1A = 0;
-    TCCR1B = 0;
-    TCNT1  = 0;
-
-    //turn on CTC mode
-    TCCR1B |= (1 << WGM12);
-
-    //set prescaler to 64
-    TCCR1B |= (1 << CS11)|(1<<CS10);
-
-    //500us
-    OCR1A = 124;
-
-    //enable CTC interrupt
-    TIMSK1 |= (1 << OCIE1A);
 
 }
 
@@ -554,75 +541,71 @@ void Board::turnOffLED(uint8_t ledNumber)   {
 }
 
 
-//buttons
-uint16_t Board::digitalInDataAvailable() {
+//digital
+uint8_t Board::getActiveColumn()    {
 
-    //save interrupt flag
-    uint8_t interruptFlag = SREG;
-
-    //disable interrupts
-    cli();
-
-    uint16_t bytesAvailable = ((BUFFER_SIZE + _buttonReadings->head - _buttonReadings->tail) % BUFFER_SIZE);
-
-    SREG = interruptFlag;
-
-    return bytesAvailable;
+    return (activeButtonColumn-1);
 
 }
 
-int16_t Board::getDigitalInData()   {
+bool Board::digitalInDataAvailable() {
 
-    int16_t returnValue;
-
-    //save interrupt flag
-    uint8_t interruptFlag = SREG;
-
-    //disable interrupts
-    cli();
-
-    // if the head isn't ahead of the tail, we don't have any characters
-    if (_buttonReadings->head == _buttonReadings->tail) returnValue = -1;
-
-    else {
-
-        uint16_t data = _buttonReadings->buffer[_buttonReadings->tail];
-        _buttonReadings->tail = (uint16_t)(_buttonReadings->tail + 1) % BUFFER_SIZE;
-        returnValue = data;
-
-    }
-
-    SREG = interruptFlag;
-    return returnValue;
+    return (changeSwitch && !digitalReadFinished);
 
 }
 
-void Board::configureLongPress(uint8_t longPressTime) {
+int8_t Board::getDigitalInData()   {
 
-    longPressColumnPass = longPressTime*100 / (COLUMN_SCAN_TIME*NUMBER_OF_BUTTON_COLUMNS);
-
-}
-
-uint8_t Board::getLongPressColumnPass()    {
-
-    return longPressColumnPass;
+    return digitalBuffer[getActiveColumn()];
 
 }
 
+void Board::setDigitalProcessingFinished(bool state)  {
+
+    digitalReadFinished = state;
+
+}
 
 //analog
+void Board::setMux(uint8_t muxNumber)   {
+
+    setMuxInputInteral(muxNumber);
+
+}
+
+void Board::setMuxInput(uint8_t muxInput)   {
+
+    setMuxInputInteral(muxInput);
+
+}
+
 bool Board::analogInDataAvailable() {
 
-    return (analogReadFinishedCounter == MAX_NUMBER_OF_ANALOG);
+    return (!changeSwitch && !analogReadFinished);
 
 }
 
-int16_t Board::getAnalogInData(uint8_t potNumber)   {
+int16_t Board::getAnalogValue(uint8_t analogID) {
 
-    return analogBuffer[potNumber];
+    setMuxInputInteral(analogID);
+    return getADCvalue();
 
 }
 
+uint8_t Board::getAnalogID(uint8_t id)  {
+
+    int8_t _activeMux = activeMux;
+
+    //return currently active column
+    return id+((_activeMux - 1)*8);
+
+}
+
+void Board::setAnalogProcessingFinished(bool state) {
+
+    analogReadFinished = state;
+
+}
 
 //encoders
 int32_t Board::getEncoderState(uint8_t encoderNumber)  {
@@ -636,90 +619,41 @@ int32_t Board::getEncoderState(uint8_t encoderNumber)  {
 
 }
 
+//timer
+ISR(TIMER2_COMPA_vect)  {
 
-//ISR
-ISR(ADC_vect)   {
+    readEncoders();
+    bool _changeSwitch = changeSwitch;
 
-    analogBuffer[analogReadFinishedCounter] = ADC;
-    analogReadFinishedCounter++;
+    switch(_changeSwitch)    {
 
-    if (!(analogReadFinishedCounter == MAX_NUMBER_OF_ANALOG))  {
+        case true:
+        //switch column
+        if (activeButtonColumn == NUMBER_OF_BUTTON_COLUMNS) activeButtonColumn = 0;
+        //turn off all LED rows before switching to next column
+        ledRowsOff();
+        activateColumn();
+        checkLEDs();
+        storeDigitalIn();
+        activeButtonColumn++;
+        digitalReadFinished = false;
+        break;
 
-        activeMuxInput++;
+        case false:
+        //switch analogue input
+        if (activeMux == NUMBER_OF_MUX) activeMux = 0;
+        setMuxInternal(activeMux);
+        activeMux++;
+        analogReadFinished = false;
+        break;
 
-        if (activeMuxInput == 8) {
-
-            activeMuxInput = 0;
-            activeMux++;
-            if (activeMux == NUMBER_OF_MUX) activeMux = 0;
-            ADMUX = (ADMUX & 0xF0) | (analogueEnabledArray[activeMux] & 0x0F);
-            NOP;
-
-        }
-
-        setMuxInput();
-
-        ADCSRA |= (1<<ADSC);
+        default:
+        break;
 
     }
 
-}
-
-ISR(TIMER1_COMPA_vect)  {
-
-    #ifdef BOARD_OPENDECK_1
-        uint8_t encRead = (PIND >> 2) & 0x03;
-        uint8_t tempState = tempEncoderState[0] & 0x03;
-
-        if (encRead & 0x01)         tempState |= 4;
-        if ((encRead >> 1) & 0x01)  tempState |= 8;
-
-
-        tempEncoderState[0] = (tempState >> 2);
-
-        switch (tempState) {
-
-            case 1:
-            case 7:
-            case 8:
-            case 14:
-            encoderPosition[0]++;
-            break;
-
-            case 2:
-            case 4:
-            case 11:
-            case 13:
-            encoderPosition[0]--;
-            break;
-
-            case 3:
-            case 12:
-            encoderPosition[0] += 2;
-            break;
-
-            case 6:
-            case 9:
-            encoderPosition[0] -= 2;
-            break;
-
-        }
-    #endif
-
-}
-
-ISR(TIMER2_COMPA_vect)  {
-
-    //switch column
-    if (activeButtonColumn == NUMBER_OF_BUTTON_COLUMNS) activeButtonColumn = 0;
-    //turn off all LED rows before switching to next column
-
-    ledRowsOff();
-    activateColumn();
-
-    checkLEDs();
-    storeDigitalIn(&buttonReadings);
-    activeButtonColumn++;
+    _changeSwitch = !_changeSwitch;
+    changeSwitch = _changeSwitch;
 
 }
 

@@ -21,7 +21,6 @@ void OpenDeck::getConfiguration()   {
     getButtonsType();
     getButtonsPCenabled();
     getButtonsNotes();
-    getButtonsHwParameters();
     getAnalogEnabled();
     getAnalogType();
     getAnalogInversion();
@@ -33,7 +32,7 @@ void OpenDeck::getConfiguration()   {
     getEncodersFastMode();
     getEncodersNumbers();
     getEncodersPulsesPerStep();
-    getLEDnotes();
+    getLEDActivationNotes();
     getLEDHwParameters();
 
 }
@@ -53,7 +52,6 @@ void OpenDeck::getFeatures()    {
 void OpenDeck::getMIDIchannels()        {
 
     _buttonNoteChannel          = eeprom_read_byte((uint8_t*)EEPROM_MC_BUTTON_NOTE);
-    _longPressButtonNoteChannel = eeprom_read_byte((uint8_t*)EEPROM_MC_LONG_PRESS_BUTTON_NOTE);
     _programChangeChannel       = eeprom_read_byte((uint8_t*)EEPROM_MC_PROGRAM_CHANGE);
     _analogCCchannel            = eeprom_read_byte((uint8_t*)EEPROM_MC_CC);
     _pitchBendChannel           = eeprom_read_byte((uint8_t*)EEPROM_MC_PITCH_BEND);
@@ -79,12 +77,6 @@ void OpenDeck::getButtonsNotes()         {
 
     for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
         buttonNote[i] = eeprom_read_byte((uint8_t*)EEPROM_BUTTONS_NOTE_START+i);
-
-}
-
-void OpenDeck::getButtonsHwParameters()  {
-
-    boardObject.configureLongPress(sysExGetButtonHwParameter(SYS_EX_BUTTONS_HW_P_LONG_PRESS_TIME));
 
 }
 
@@ -165,7 +157,7 @@ void OpenDeck::getEncodersPulsesPerStep()   {
 
 }
 
-void OpenDeck::getLEDnotes()            {
+void OpenDeck::getLEDActivationNotes()            {
 
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
         ledActNote[i] = eeprom_read_byte((uint8_t*)EEPROM_LEDS_ACT_NOTE_START+i);

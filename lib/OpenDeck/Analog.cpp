@@ -10,7 +10,6 @@ Author: Igor Petrovic
 #include "OpenDeck.h"
 #include <avr/eeprom.h>
 #include "Ownduino.h"
-#include <util/delay.h>
 
 #define NUMBER_OF_SAMPLES 3
 
@@ -21,25 +20,26 @@ void OpenDeck::readAnalog()   {
 
     #ifdef BOARD
 
-    if (boardObject.analogInDataAvailable()) {
+    if (boardObject.analogInDataAvailable())    {
 
-        for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)    {
+        //check one multiplexer at once, each has 8 inputs
+        for (int i=0; i<8; i++)    {
 
-            int16_t analogData = boardObject.getAnalogInData(i);
+            int16_t analogData = boardObject.getAnalogValue(i);
+            uint8_t analogID = boardObject.getAnalogID(i);
 
-            if (getAnalogEnabled(i))   {
+            if (getAnalogEnabled(analogID))   {
 
-                if (checkAnalogReading(analogData, i)) {
+                if (checkAnalogReading(analogData, analogID)) {
 
-                    processAnalogReading(analogData, i);
+                    analogData = getMedianValue(analogID);
+                    processAnalogReading(analogData, analogID);
 
                 }
 
             }
 
-        }
-
-        boardObject.startAnalogConversion();
+        }   boardObject.setAnalogProcessingFinished(true);
 
     }
 
@@ -49,14 +49,18 @@ void OpenDeck::readAnalog()   {
 
 void OpenDeck::readAnalogInitial()   {
 
-    //wait until analog buffer is full, and then update all analog value whether
-    //they're stable or not to avoid sending all analog data on power on
-    while (!boardObject.analogInDataAvailable())    {};
-    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
-    lastAnalogueValue[i] = boardObject.getAnalogInData(i);
+   for (int i=0; i<NUMBER_OF_MUX; i++)  {
 
-    //restart analog readouts
-    boardObject.startAnalogConversion();
+       boardObject.setMux(i);
+
+       for (int j=0; j<8; j++)  {
+
+           boardObject.setMuxInput(j);
+           lastAnalogueValue[j+i*8] = getADCvalue();
+
+       }
+
+   }
 
 }
 
@@ -70,7 +74,9 @@ bool OpenDeck::checkAnalogReading(int16_t tempValue, uint8_t potNumber) {
 
     if (analogueDiff >= MIDI_CC_STEP)   {
 
+        analogSample[potNumber][analogDebounceCounter[potNumber]] = tempValue;
         analogDebounceCounter[potNumber]++;
+
         if (analogDebounceCounter[potNumber] == NUMBER_OF_SAMPLES) {
 
             analogDebounceCounter[potNumber] = 0;
@@ -134,5 +140,26 @@ bool OpenDeck::getAnalogInvertState(uint8_t potNumber) {
 uint8_t OpenDeck::getAnalogNumber(uint8_t potNumber)    {
 
     return analogNumber[potNumber];
+
+}
+
+int16_t OpenDeck::getMedianValue(uint8_t analogID)  {
+
+    int16_t medianValue = 0;
+
+    if ((analogSample[analogID][0] <= analogSample[analogID][1]) && (analogSample[analogID][0] <= analogSample[analogID][2]))
+    {
+        medianValue = (analogSample[analogID][1] <= analogSample[analogID][2]) ? analogSample[analogID][1] : analogSample[analogID][2];
+    }
+    else if ((analogSample[analogID][1] <= analogSample[analogID][0]) && (analogSample[analogID][1] <= analogSample[analogID][2]))
+    {
+        medianValue = (analogSample[analogID][0] <= analogSample[analogID][2]) ? analogSample[analogID][0] : analogSample[analogID][2];
+    }
+    else
+    {
+        medianValue = (analogSample[analogID][0] <= analogSample[analogID][1]) ? analogSample[analogID][0] : analogSample[analogID][1];
+    }
+
+    return medianValue;
 
 }

@@ -63,7 +63,6 @@ void OpenDeck::initVariables()  {
 
     //MIDI channels
     _buttonNoteChannel                      = 0;
-    _longPressButtonNoteChannel             = 0;
     _programChangeChannel                   = 0;
     _analogCCchannel                        = 0;
     _pitchBendChannel                       = 0;
@@ -77,8 +76,6 @@ void OpenDeck::initVariables()  {
 
         buttonType[i]                       = 0;
         buttonPressed[i]                    = 0;
-        longPressSent[i]                    = 0;
-        longPressCounter[i]                 = 0;
         buttonPCenabled[i]                  = 0;
 
     }

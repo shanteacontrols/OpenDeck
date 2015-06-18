@@ -77,7 +77,6 @@ class OpenDeck  {
 
     //MIDI channels
     uint8_t         _buttonNoteChannel,
-                    _longPressButtonNoteChannel,
                     _programChangeChannel,
                     _analogCCchannel,
                     _pitchBendChannel,
@@ -89,8 +88,6 @@ class OpenDeck  {
                     buttonNote[MAX_NUMBER_OF_BUTTONS],
                     previousButtonState[MAX_NUMBER_OF_BUTTONS/8],
                     buttonPressed[MAX_NUMBER_OF_BUTTONS/8],
-                    longPressSent[MAX_NUMBER_OF_BUTTONS/8],
-                    longPressCounter[MAX_NUMBER_OF_BUTTONS],
                     lastColumnState[8],
                     columnPassCounter[8];
 
@@ -103,7 +100,7 @@ class OpenDeck  {
                     analogUpperLimit[MAX_NUMBER_OF_ANALOG],
                     analogDebounceCounter[MAX_NUMBER_OF_ANALOG];
 
-    uint16_t        lastAnalogueValue[MAX_NUMBER_OF_ANALOG];
+    int16_t         lastAnalogueValue[MAX_NUMBER_OF_ANALOG];
 
     //encoders
     int32_t         lastEncoderState[NUMBER_OF_ENCODERS];
@@ -146,12 +143,12 @@ class OpenDeck  {
 
     //configuration retrieval from EEPROM
     void getConfiguration();
-    void getFeatures();
     void getMIDIchannels();
+    void getFeatures();
+    void getButtonsHwParameters();
     void getButtonsType();
     void getButtonsPCenabled();
     void getButtonsNotes();
-    void getButtonsHwParameters();
     void getAnalogEnabled();
     void getAnalogType();
     void getAnalogInversion();
@@ -161,60 +158,81 @@ class OpenDeck  {
     void getEncodersEnabled();
     void getEncodersInverted();
     void getEncodersFastMode();
-    void getEncodersNumbers();
     void getEncodersPulsesPerStep();
-    void getLEDnotes();
+    void getEncodersNumbers();
     void getLEDHwParameters();
+    void getLEDActivationNotes();
+
+    //MIDI channels
+    uint8_t getMIDIchannel(uint8_t);
+    bool setMIDIchannel(uint8_t, uint8_t);
+
+    //features
+    bool getFeature(uint8_t, uint8_t);
+    bool setFeature(uint8_t, uint8_t, bool);
 
     //buttons
-    void procesButtonReading(uint8_t buttonNumber, uint8_t buttonState);
     uint8_t getButtonType(uint8_t);
+    bool setButtonType(uint8_t, bool);
+    bool setButtonNote(uint8_t, uint8_t);
     uint8_t getButtonNote(uint8_t);
+    void procesButtonReading(uint8_t buttonNumber, uint8_t buttonState);
     bool getButtonPCenabled(uint8_t);
+    bool setButtonPCenabled(uint8_t, bool);
     bool getButtonPressed(uint8_t);
-    bool getButtonLongPressed(uint8_t);
     void setButtonPressed(uint8_t, bool);
-    void setButtonLongPressed(uint8_t, bool);
     void processMomentaryButton(uint8_t, bool);
     void processLatchingButton(uint8_t, bool);
     void updateButtonState(uint8_t, uint8_t);
     bool getPreviousButtonState(uint8_t);
     bool columnStable(uint16_t columnState, uint8_t columnNumber);
 
-    void resetLongPress(uint8_t);
-    void handleLongPress(uint8_t, bool);
-
     //analog
+    bool getAnalogEnabled(uint8_t);
+    bool setAnalogEnabled(uint8_t, bool);
+    bool getAnalogInvertState(uint8_t);
+    bool setAnalogInvertState(uint8_t, bool);
+    uint8_t getAnalogType(uint8_t);
+    bool setAnalogType(uint8_t, uint8_t);
+    uint8_t getAnalogNumber(uint8_t);
+    bool setAnalogNumber(uint8_t, uint8_t);
+    bool setAnalogLimit(uint8_t, uint8_t, uint8_t);
     void readAnalogInitial();
     bool checkAnalogReading(int16_t, uint8_t);
     void processAnalogReading(int16_t, uint8_t);
-    bool getAnalogEnabled(uint8_t);
-    uint8_t getAnalogType(uint8_t);
-    bool getAnalogInvertState(uint8_t);
-    uint8_t getAnalogNumber(uint8_t);
+    int16_t getMedianValue(uint8_t analogID);
 
     //encoders
     bool getEncoderEnabled(uint8_t encoderNumber);
-    bool getEncoderInverted(uint8_t encoderNumber);
+    bool setEncoderEnabled(uint8_t, bool);
+    bool getEncoderInvertState(uint8_t encoderNumber);
+    bool setEncoderInvertState(uint8_t, bool);
     uint8_t getEncoderPairEnabled(uint8_t);
     bool checkMemberOfEncPair(uint8_t, uint8_t);
     void processEncoderPair(uint8_t, uint8_t, uint8_t);
     uint8_t getEncoderPairNumber(uint8_t, uint8_t);
     bool getEncoderFastMode(uint8_t);
+    bool setEncoderNumber(uint8_t, uint8_t);
+    bool setEncoderPulsesPerStep(uint8_t, uint8_t);
+    bool setEncoderFastMode(uint8_t, bool);
+    bool setEncoderPair(uint8_t, bool);
     void resetEncoderValues(uint8_t);
 
     //LEDs
+    uint8_t getLEDHwParameter(uint8_t);
+    bool setLEDHwParameter(uint8_t, uint8_t);
+    uint8_t getLEDActivationNote(uint8_t);
+    bool setLEDActivationNote(uint8_t, uint8_t);
+    bool setLEDstartNumber(uint8_t, uint8_t);
+    uint8_t getLEDid();
     void oneByOneLED(bool, bool, bool);
     void startUpRoutine();
     bool checkLEDsOn();
     bool checkLEDsOff();
     void setLEDState();
-    uint8_t getLEDnumber();
-    uint8_t getLEDnote(uint8_t);
     bool checkSameLEDvalue(uint8_t, uint8_t);
 
     //sysex
-    //message check
     bool sysExCheckMessageValidity(uint8_t*, uint8_t);
     bool sysExCheckID(uint8_t, uint8_t, uint8_t);
     bool sysExCheckWish(uint8_t);
@@ -225,45 +243,17 @@ class OpenDeck  {
     bool sysExCheckNewParameterID(uint8_t, uint8_t, uint8_t, uint8_t);
     bool sysExCheckSpecial(uint8_t, uint8_t, uint8_t);
     uint8_t sysExGenerateMinMessageLenght(uint8_t, uint8_t, uint8_t, uint8_t);
-    //sysex response
     void sysExGenerateError(uint8_t);
     void sysExGenerateAck();
     void sysExGenerateResponse(uint8_t*, uint8_t);
-    //getters
     uint8_t sysExGet(uint8_t, uint8_t, uint8_t);
-    uint8_t sysExGetMIDIchannel(uint8_t);
-    uint8_t sysExGetHardwareParameter(uint8_t);
-    bool sysExGetFeature(uint8_t, uint8_t);
-    uint8_t sysExGetButtonHwParameter(uint8_t);
-    uint8_t sysExGetLEDHwParameter(uint8_t);
-    //setters
     bool sysExSet(uint8_t, uint8_t, uint8_t, uint8_t);
-    bool sysExSetMIDIchannel(uint8_t, uint8_t);
-    bool sysExSetFeature(uint8_t, uint8_t, bool);
-    bool sysExSetButtonType(uint8_t, bool);
-    bool sysExSetButtonNote(uint8_t, uint8_t);
-    bool sysExSetAnalogEnabled(uint8_t, bool);
-    bool sysExSetAnalogInvertState(uint8_t, bool);
-    bool sysExSetAnalogNumber(uint8_t, uint8_t);
-    bool sysExSetAnalogLimit(uint8_t, uint8_t, uint8_t);
-    bool sysExSetEncoderEnabled(uint8_t, bool);
-    bool sysExSetEncoderInvertState(uint8_t, bool);
-    bool sysExSetEncoderNumber(uint8_t, uint8_t);
-    bool sysExSetEncoderPulsesPerStep(uint8_t, uint8_t);
-    bool sysExSetEncoderFastMode(uint8_t, bool);
-    bool sysExSetLEDnote(uint8_t, uint8_t);
-    bool sysExSetLEDstartNumber(uint8_t, uint8_t);
-    bool sysExSetEncoderPair(uint8_t, bool);
-    bool sysExSetButtonHwParameter(uint8_t, uint8_t);
-    bool sysExSetButtonPPenabled(uint8_t, bool);
-    bool sysExSetHardwareConfig(uint8_t, uint8_t);
-    bool sysExSetLEDHwParameter(uint8_t, uint8_t);
-    bool sysExSetAnalogType(uint8_t, uint8_t);
-    //restore
     bool sysExRestore(uint8_t, uint8_t, uint16_t, int16_t);
 
     //input
     void checkReceivedNoteOn();
+
+    int16_t analogSample[MAX_NUMBER_OF_ANALOG][3];
 
 };
 
