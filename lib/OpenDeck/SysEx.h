@@ -18,11 +18,6 @@ Author: Igor Petrovic
 #define SYS_EX_M_ID_1                           0x53
 #define SYS_EX_M_ID_2                           0x43
 
-//lower and upper limits for...
-//long press time
-#define SYS_EX_BUTTON_LONG_PRESS_TIME_MIN       0x04
-#define SYS_EX_BUTTON_LONG_PRESS_TIME_MAX       0x0F
-
 //blink time
 #define SYS_EX_LED_BLINK_TIME_MIN               0x01
 #define SYS_EX_LED_BLINK_TIME_MAX               0x0F
@@ -97,7 +92,6 @@ typedef enum {
 
     SYS_EX_MC_START,
     SYS_EX_MC_BUTTON_NOTE = SYS_EX_MC_START,
-    SYS_EX_MC_LONG_PRESS_BUTTON_NOTE,
     SYS_EX_MC_PROGRAM_CHANGE,
     SYS_EX_MC_CC,
     SYS_EX_MC_PITCH_BEND,
@@ -126,14 +120,6 @@ typedef enum {
     SYS_EX_FEATURES_MIDI_END
 
 } sysExMIDIfeatures;
-
-typedef enum {
-
-    SYS_EX_FEATURES_BUTTONS_START,
-    SYS_EX_FEATURES_BUTTONS_LONG_PRESS = SYS_EX_FEATURES_BUTTONS_START,
-    SYS_EX_FEATURES_BUTTONS_END
-
-} sysExButtonFeatures;
 
 typedef enum {
 
@@ -166,14 +152,6 @@ typedef enum {
     SYS_EX_MST_BUTTONS_END
 
 } sysExMessageSubTypeButtons;
-
-typedef enum {
-
-    SYS_EX_BUTTONS_HW_P_START,
-    SYS_EX_BUTTONS_HW_P_LONG_PRESS_TIME = SYS_EX_BUTTONS_HW_P_START,
-    SYS_EX_BUTTONS_HW_P_END
-
-} sysExButtonsHwParameters;
 
 typedef enum {
 

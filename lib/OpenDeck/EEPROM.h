@@ -19,7 +19,6 @@ Author: Igor Petrovic
 #define EEPROM_MC_END                               8
 
 #define EEPROM_MC_BUTTON_NOTE                       3
-#define EEPROM_MC_LONG_PRESS_BUTTON_NOTE            4
 #define EEPROM_MC_PROGRAM_CHANGE                    5
 #define EEPROM_MC_CC                                6
 #define EEPROM_MC_PITCH_BEND                        7
@@ -39,8 +38,6 @@ Author: Igor Petrovic
 
 #define EEPROM_BUTTONS_HW_P_START                   14
 #define EEPROM_BUTTONS_HW_P_END                     18
-
-#define EEPROM_BUTTONS_HW_P_LONG_PRESS_TIME         18
 
 #define EEPROM_BUTTONS_TYPE_START                   19
 #define EEPROM_BUTTONS_TYPE_END                     26
@@ -136,7 +133,7 @@ const uint8_t defConf[] PROGMEM = {
 
     //MIDI channels
     0x01, //button note channel             //003
-    0x02, //long press note channel         //004
+    0x00, //reserved                        //004
     0x01, //program change channel          //005
     0x01, //CC channel                      //006
     0x01, //pitch bend channel              //007
@@ -164,8 +161,8 @@ const uint8_t defConf[] PROGMEM = {
     //no function
     //no function
     //no function
-    //long press
-    0b00000001,                             //010
+    //no function
+    0b00000000,                             //010
 
     //LED features
 
@@ -210,7 +207,7 @@ const uint8_t defConf[] PROGMEM = {
     0x00, //reserved                        //015
     0x00, //reserved                        //016
     0x00, //reserved                        //017
-    0x05, //x100mS, button long press time  //018
+    0x00, //reserved                        //018
 
     //button type
     //0 - press/note on, release/note off (momentary)
