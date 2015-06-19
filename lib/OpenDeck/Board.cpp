@@ -327,7 +327,7 @@ void Board::initPins() {
 void Board::initAnalog()    {
 
     setUpADC();
-    setADCprescaler(64);
+    setADCprescaler(32);
 
     #ifdef BOARD_TANNIN
     //TO-DO
@@ -569,7 +569,7 @@ void Board::setDigitalProcessingFinished(bool state)  {
 //analog
 void Board::setMux(uint8_t muxNumber)   {
 
-    setMuxInputInteral(muxNumber);
+    setMuxInternal(muxNumber);
 
 }
 
