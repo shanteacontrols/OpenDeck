@@ -4,8 +4,7 @@ OpenDeck MIDI platform is a combination of microcontroller firmware, PCB board a
 The platform allows hassle-free building of MIDI controllers and their configuration via MIDI System Exclusive messages,
 without any need of reprogramming the chip.
 
-This repository contains MCU code, part list, schematic (circuit and PCB) and pre-compiled binary file, available for serial
-baud rates (38400, for use with virtual MIDI cable software and serial-to-midi converter.
+This repository contains MCU code, part list and schematics (circuit and PCB).
 
 Code base is built upon OpenDeck library, Ownduino library (minimal fork of Arduino core library)
 and modified Arduino MIDI library 3.2. All code is available under GNU GPL v3 licence.
