@@ -26,18 +26,23 @@ void OpenDeck::readAnalog()   {
 
     if (boardObject.analogInDataAvailable())    {
 
-        //check one multiplexer at once, each has 8 inputs
+        //read all mux inputs first
+        int16_t analogData[8];
+
+        for (int i=0; i<8; i++)
+            analogData[i] = boardObject.getMuxInputValue(i);
+
+        //check values
         for (int i=0; i<8; i++)    {
 
-            int16_t analogData = boardObject.getAnalogValue(i);
             uint8_t analogID = boardObject.getAnalogID(i);
 
             if (getAnalogEnabled(analogID))   {
 
-                if (checkAnalogReading(analogData, analogID)) {
+                if (checkAnalogReading(analogData[i], analogID)) {
 
-                    analogData = getMedianValue(analogID);
-                    processAnalogReading(analogData, analogID);
+                    analogData[i] = getMedianValue(analogID);
+                    processAnalogReading(analogData[i], analogID);
 
                 }
 

@@ -676,7 +676,7 @@ bool Board::analogInDataAvailable() {
 
 }
 
-int16_t Board::getAnalogValue(uint8_t analogID) {
+int16_t Board::getMuxInputValue(uint8_t analogID) {
 
     setMuxInputInteral(analogID);
     return getADCvalue();

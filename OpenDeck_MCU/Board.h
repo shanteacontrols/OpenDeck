@@ -52,7 +52,7 @@ class Board {
     //analog
     bool analogInDataAvailable();
     void setAnalogProcessingFinished(bool state);
-    int16_t getAnalogValue(uint8_t analogID);
+    int16_t getMuxInputValue(uint8_t analogID);
     uint8_t getAnalogID(uint8_t id);
     void setMux(uint8_t muxNumber);
     void setMuxInput(uint8_t muxInput);
