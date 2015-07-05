@@ -56,7 +56,7 @@
 #define COMPILE_MIDI_IN         1           // Set this setting to 1 to use the MIDI input.
 #define COMPILE_MIDI_OUT        1           // Set this setting to 1 to use the MIDI output. 
 
-#define USE_SERIAL_PORT         Serial      // Change the number (to Serial1 for example) if you want
+#define USE_SERIAL_PORT         SerialOwnduino      // Change the number (to Serial1 for example) if you want
                                             // to use a different serial port for MIDI I/O.
 
 

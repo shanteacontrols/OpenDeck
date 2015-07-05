@@ -35,7 +35,7 @@
 
 #include "MIDI.h"
 #include <stdlib.h>
-#include "Ownduino.h"
+#include <Ownduino.h>
 
 /*! \brief Main instance (the class comes pre-instantiated). */
 MIDI_Class MIDI;

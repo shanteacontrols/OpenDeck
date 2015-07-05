@@ -92,7 +92,7 @@ void OpenDeck::readEncoders()   {
 
             if (encState != lastEncoderState[i])    {  //encoder is moving
 
-                if (millis() - lastEncoderSpinTime[i] > ENCODER_FAST_MODE_DEBOUNCE_TIME)
+                if (millisOwnduino() - lastEncoderSpinTime[i] > ENCODER_FAST_MODE_DEBOUNCE_TIME)
                     initialEncoderDebounceCounter[i] = 0;
 
                 if (encState > lastEncoderState[i]) {
@@ -155,7 +155,7 @@ void OpenDeck::readEncoders()   {
                 }
 
                 lastEncoderState[i] = encState;
-                lastEncoderSpinTime[i] = millis();
+                lastEncoderSpinTime[i] = millisOwnduino();
 
             }
 

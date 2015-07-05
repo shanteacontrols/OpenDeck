@@ -1,6 +1,8 @@
 #include "Board.h"
 #include "SysEx.h"
 
+#include <Ownduino.h>
+
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
@@ -33,6 +35,12 @@ volatile bool digitalReadFinished = false;
 volatile int8_t activeMux = 0;
 
 //inline functions
+
+void Board::resetLEDblinkCounter()  {
+
+    blinkTimerCounter = 0;
+
+}
 
 inline void setMuxInternal(uint8_t muxNumber)   {
 
@@ -239,12 +247,13 @@ inline void storeDigitalIn()  {
 inline void readEncoders()  {
 
     #ifdef BOARD_OPENDECK_1
+    #ifndef TANNIN_2_PROTOTYPE
+
     uint8_t encRead = (PIND >> 2) & 0x03;
     uint8_t tempState = tempEncoderState[0] & 0x03;
 
     if (encRead & 0x01)         tempState |= 4;
     if ((encRead >> 1) & 0x01)  tempState |= 8;
-
 
     tempEncoderState[0] = (tempState >> 2);
 
@@ -276,7 +285,70 @@ inline void readEncoders()  {
 
     }
     #endif
-    
+    #else
+
+    //TANNIN 2 PROTOTYPE ONLY
+
+    uint8_t shiftRegisterState = 0;
+
+    //pulse latch pin
+    PORTB &= 0b11011111;
+    NOP; NOP; NOP; NOP;
+    PORTB |= 0b00100000;
+
+    for (int i=0; i<8; i++) {
+
+        shiftRegisterState = (shiftRegisterState << 1);
+        shiftRegisterState |= ((PIND >> 3) & 0x01);
+        //pulse clock pin
+        PORTB |= 0b00010000;
+        NOP; NOP; NOP; NOP;
+        PORTB &= 0b11101111;
+
+    }
+
+    for (int i=0; i<NUMBER_OF_ENCODERS; i++)    {
+
+        uint8_t tempState = tempEncoderState[i] & 0x03;
+        uint8_t tempRegisterState = (shiftRegisterState >> (i*2)) & 0x03;
+
+        if (tempRegisterState & 0x01)         tempState |= 4;
+        if ((tempRegisterState >> 1) & 0x01)  tempState |= 8;
+
+        tempEncoderState[i] = (tempState >> 2);
+
+        switch (tempState) {
+
+            case 1:
+            case 7:
+            case 8:
+            case 14:
+            encoderPosition[i]++;
+            break;
+
+            case 2:
+            case 4:
+            case 11:
+            case 13:
+            encoderPosition[i]--;
+            break;
+
+            case 3:
+            case 12:
+            encoderPosition[i] += 2;
+            break;
+
+            case 6:
+            case 9:
+            encoderPosition[i] -= 2;
+            break;
+
+        }
+
+    }
+
+    #endif
+
 }
 
 //init
@@ -296,6 +368,7 @@ void Board::init()  {
 
     initPins();
     initAnalog();
+    setUpMillisTimer();
 
     _delay_ms(5);
 
@@ -303,6 +376,9 @@ void Board::init()  {
 
     //configure column switch timer
     setUpTimer();
+
+    //enable global interrupts
+    sei();
 
 }
 
@@ -312,14 +388,29 @@ void Board::initPins() {
     //TO-DO
     #elif defined BOARD_OPENDECK_1
     DDRD = 0x02;
-    DDRB = 0x0F;
+
+    #ifdef TANNIN_2_PROTOTYPE
+        DDRB = 0x3F;       //tannin 2 mod
+    #else
+        DDRB = 0x0F;
+    #endif
+
     DDRC = 0x3F;
 
     //enable internal pull-up resistors for button rows and encoder
-    PORTD = 0xFC;
-
+    #ifdef TANNIN_2_PROTOTYPE
+        PORTD = 0xF0;   //tannin 2 mod
+    #else
+        PORTD = 0xFC;
+    #endif
     //select first column
     PORTC = 0x00;
+
+    #ifdef TANNIN_2_PROTOTYPE
+        //write high to latch pin
+        PORTB |= 0b00100000;       //tannin 2 mod
+    #endif
+
     #endif
 
 }
@@ -383,7 +474,7 @@ void Board::setUpTimer()   {
     TCCR2B |= (1 << CS22);
 
     //1ms
-    OCR2A = 150;
+    OCR2A = 180;
 
     //enable CTC interrupt
     TIMSK2 |= (1 << OCIE2A);
@@ -612,7 +703,7 @@ int32_t Board::getEncoderState(uint8_t encoderNumber)  {
 
     int32_t returnValue = 0;
     cli();
-    returnValue = encoderPosition[0];
+    returnValue = encoderPosition[encoderNumber];
     sei();
 
     return returnValue;

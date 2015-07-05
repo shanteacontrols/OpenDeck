@@ -1,116 +1,159 @@
 /*
 
-OpenDeck platform firmware v2.0
-Last revision date: 2015-05-08
+OpenDECK library v1.3
+File: OpenDeck.cpp
+Last revision date: 2014-12-25
 Author: Igor Petrovic
 
 */
 
+
 #include "OpenDeck.h"
-#include "MIDI.h"
-#include "Ownduino.h"
+#include <Ownduino.h>
+#include <avr/io.h>
+#include <stdlib.h>
+#include <avr/eeprom.h>
+#include <avr/interrupt.h>
 
 
-//MIDI callback handlers
+OpenDeck::OpenDeck()    {
 
-void getNoteOnData(uint8_t channel, uint8_t note, uint8_t velocity)  {
-
-    openDeck.storeReceivedNoteOn(channel, note, velocity);
+    //set all callbacks to NULL pointer
+    sendNoteCallback            = NULL;
+    sendProgramChangeCallback   = NULL;
+    sendControlChangeCallback   = NULL;
+    sendPitchBendCallback       = NULL;
+    sendSysExCallback           = NULL;
 
 }
 
-void getSysExData(uint8_t *sysExArray, uint8_t size)    {
 
-    openDeck.processSysEx(sysExArray, size);
+void OpenDeck::init()   {
+
+    initVariables();
+
+    if (initialEEPROMwrite())   sysExSetDefaultConf();
+    else getConfiguration(); //get all values from EEPROM
+
+    boardObject.init();
+    readAnalogInitial();
+
+    //run LED animation on start-up
+    startUpRoutine();
 
 }
 
+bool OpenDeck::initialEEPROMwrite()  {
 
-//OpenDeck callback handlers
+    //if ID bytes haven't been written to EEPROM on specified address,
+    //write default configuration to EEPROM
+    if  (!(
 
-void sendNotes(uint8_t buttonNote, bool buttonState, uint8_t channel)    {
+    (eeprom_read_byte((uint8_t*)EEPROM_M_ID_BYTE_0) == SYS_EX_M_ID_0) &&
+    (eeprom_read_byte((uint8_t*)EEPROM_M_ID_BYTE_1) == SYS_EX_M_ID_1) &&
+    (eeprom_read_byte((uint8_t*)EEPROM_M_ID_BYTE_2) == SYS_EX_M_ID_2)
 
-    switch (buttonState) {
+    ))   return true; return false;
 
-        case false:
-        //button released
-        if (openDeck.standardNoteOffEnabled())  MIDI.sendNoteOff(buttonNote, MIDI_NOTE_OFF_VELOCITY, channel);
-        else                                    MIDI.sendNoteOn(buttonNote, MIDI_NOTE_OFF_VELOCITY, channel);
-        break;
+}
 
-        case true:
-        //button pressed
-        MIDI.sendNoteOn(buttonNote, MIDI_NOTE_ON_VELOCITY, channel);
-        break;
+void OpenDeck::initVariables()  {
+
+    //reset all variables
+
+    //MIDI channels
+    _buttonNoteChannel                      = 0;
+    _programChangeChannel                   = 0;
+    _analogCCchannel                        = 0;
+    _pitchBendChannel                       = 0;
+    _inputChannel                           = 0;
+
+    //buttons
+    for (i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
+        buttonNote[i]                       = 0;
+
+    for (i=0; i<MAX_NUMBER_OF_BUTTONS/8; i++)   {
+
+        buttonType[i]                       = 0;
+        buttonPressed[i]                    = 0;
+        buttonPCenabled[i]                  = 0;
 
     }
 
-}
+    //analog
+    for (i=0; i<MAX_NUMBER_OF_ANALOG; i++)        {
 
-void sendProgramChange(uint8_t channel, uint8_t program)    {
+        analogNumber[i]                     = 0;
+        lastAnalogueValue[i]                = 0;
+        analogLowerLimit[i]                 = 0;
+        analogUpperLimit[i]                 = 0;
+        analogDebounceCounter[i]            = 0;
+        analogType[i]                       = 0;
+        analogTimer[i]                      = 0;
 
-    MIDI.sendProgramChange(program, channel);
+    }
 
-}
+    for (i=0; i<MAX_NUMBER_OF_ANALOG/8; i++)      {
 
-void sendControlChange(uint8_t ccNumber, uint8_t ccValue, uint8_t channel) {
+        analogInverted[i]                   = 0;
+        analogEnabled[i]                    = 0;
 
-    MIDI.sendControlChange(ccNumber, ccValue, channel);
+    }
 
-}
+    //encoders
+    for (i=0; i<NUMBER_OF_ENCODERS; i++)    {
 
-void sendSysEx(uint8_t *sysExArray, uint8_t size)   {
+        lastEncoderState[i]                 = 0;
+        initialEncoderDebounceCounter[i]    = 0;
+        encoderDirection[i]                 = true;
+        lastEncoderSpinTime[i]              = 0;
+        encoderNumber[i]                    = 0;
+        encoderEnabled[i]                   = 0;
+        pulsesPerStep[i]                    = 0;
+        encoderInverted[i]                  = 0;
+        pulseCounter[i]                     = 0;
+        encoderFastMode[i]                  = 0;
 
-    MIDI.sendSysEx(size, sysExArray, false);
+    }
 
-}
+    for (i=0; i<NUMBER_OF_BUTTON_COLUMNS; i++)  {
 
-//configure opendeck library
-void setOpenDeckHandlers()  {
+        lastColumnState[i]                  = 0;
+        columnPassCounter[i]                = 0;
 
-    openDeck.setHandleNoteSend(sendNotes);
-    openDeck.setHandleProgramChangeSend(sendProgramChange);
-    openDeck.setHandleControlChangeSend(sendControlChange);
-    openDeck.setHandleSysExSend(sendSysEx);
+    }
 
-}
+    //LEDs
+    for (i=0; i<MAX_NUMBER_OF_LEDS; i++)        {
 
-//set MIDI handlers
-void setMIDIhandlers()  {
+        ledActNote[i]                       = 0;
 
-    MIDI.setHandleNoteOn(getNoteOnData);
-    MIDI.setHandleSystemExclusive(getSysExData);
+    }
 
-}
+    totalNumberOfLEDs                       = 0;
 
+    //input
+    receivedChannel                         = 0;
+    receivedNote                            = 0;
+    receivedVelocity                        = 0;
 
-//main
-void setup()  {
-
-    openDeck.init();
-
-    setOpenDeckHandlers();
-    setMIDIhandlers();
-
-    //read incoming MIDI messages on specified channel
-    MIDI.begin(openDeck.getInputMIDIchannel());
-
-    Serial.begin(38400);
-
-}
-
-void loop() {
-
-    //check for incoming MIDI messages
-    MIDI.read();
-
-    //check buttons
-    openDeck.readButtons();
-
-    //check analog inputs
-    openDeck.readAnalog();
-
-    //check encoders
-    openDeck.readEncoders();
+    //sysex
+    sysExEnabled                    = false;
 
 }
+
+uint8_t OpenDeck::getInputMIDIchannel() {
+
+    return _inputChannel;
+
+}
+
+bool OpenDeck::standardNoteOffEnabled() {
+
+    return bitRead(midiFeatures, SYS_EX_FEATURES_MIDI_STANDARD_NOTE_OFF);
+
+}
+
+
+//create instance of library automatically
+OpenDeck openDeck;
