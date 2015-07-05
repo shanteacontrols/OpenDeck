@@ -175,7 +175,7 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
     while (passCounter < totalNumberOfLEDs+1)   {
 
             //only process LED after defined time
-            if ((millis() - startUpTimer) > startUpLEDswitchTime)  {
+            if ((millisOwnduino() - startUpTimer) > startUpLEDswitchTime)  {
 
                 if (passCounter < totalNumberOfLEDs)    {
 
@@ -206,7 +206,7 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
             passCounter++;
 
             //update timer
-            startUpTimer = millis();
+            startUpTimer = millisOwnduino();
 
         }
 

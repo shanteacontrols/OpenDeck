@@ -100,6 +100,8 @@ class OpenDeck  {
                     analogUpperLimit[MAX_NUMBER_OF_ANALOG],
                     analogDebounceCounter[MAX_NUMBER_OF_ANALOG];
 
+    uint32_t        analogTimer[MAX_NUMBER_OF_ANALOG];
+
     int16_t         lastAnalogueValue[MAX_NUMBER_OF_ANALOG];
 
     //encoders

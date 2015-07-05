@@ -9,12 +9,16 @@ Author: Igor Petrovic
 
 #include "OpenDeck.h"
 #include <avr/eeprom.h>
-#include "Ownduino.h"
+#include <Ownduino.h>
+#include <util/delay.h>
 
 #define NUMBER_OF_SAMPLES 3
 
 //potentiometer must exceed this value before sending new value
-#define MIDI_CC_STEP                8
+#define MIDI_CC_STEP_REGULAR        8
+#define MIDI_CC_STEP_DEBOUNCE       16
+#define ANALOG_DEBOUNCE_TIMEOUT     80
+
 
 void OpenDeck::readAnalog()   {
 
@@ -72,7 +76,12 @@ bool OpenDeck::checkAnalogReading(int16_t tempValue, uint8_t potNumber) {
     //get absolute difference
     if (analogueDiff < 0)   analogueDiff *= -1;
 
-    if (analogueDiff >= MIDI_CC_STEP)   {
+    uint8_t stepsNeeded;
+
+    if (millisOwnduino() - analogTimer[potNumber] > ANALOG_DEBOUNCE_TIMEOUT) stepsNeeded = MIDI_CC_STEP_DEBOUNCE;
+    else stepsNeeded = MIDI_CC_STEP_REGULAR;
+
+    if (analogueDiff >= stepsNeeded)   {
 
         analogSample[potNumber][analogDebounceCounter[potNumber]] = tempValue;
         analogDebounceCounter[potNumber]++;
@@ -80,6 +89,7 @@ bool OpenDeck::checkAnalogReading(int16_t tempValue, uint8_t potNumber) {
         if (analogDebounceCounter[potNumber] == NUMBER_OF_SAMPLES) {
 
             analogDebounceCounter[potNumber] = 0;
+            analogTimer[potNumber] = millisOwnduino();
             return true;
 
         }
@@ -102,7 +112,7 @@ void OpenDeck::processAnalogReading(int16_t tempValue, uint8_t potNumber)  {
 
         //only use map when cc limits are different from defaults
         if ((analogLowerLimit[potNumber] != 0) || (analogUpperLimit[potNumber] != 127))
-        sendControlChangeCallback(analogNumber[potNumber], map(ccValue, 0, 127, analogLowerLimit[potNumber], analogUpperLimit[potNumber]), _analogCCchannel);
+        sendControlChangeCallback(analogNumber[potNumber], map_uint8(ccValue, 0, 127, analogLowerLimit[potNumber], analogUpperLimit[potNumber]), _analogCCchannel);
 
         else    sendControlChangeCallback(analogNumber[potNumber], ccValue, _analogCCchannel);
 

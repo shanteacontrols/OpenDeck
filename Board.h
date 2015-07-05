@@ -2,7 +2,7 @@
 #define BOARD_H_
 
 #include <avr/io.h>
-#include "Ownduino.h"
+#include <Ownduino.h>
 
 //#include "BoardDefsTannin.h"
 #include "BoardDefsOpenDeck.h"
@@ -10,7 +10,7 @@
 #define DIGITAL_BUFFER_SIZE         8
 #define ANALOG_BUFFER_SIZE          16
 
-#define MIN_BUTTON_DEBOUNCE_TIME    20
+#define MIN_BUTTON_DEBOUNCE_TIME    15
 #define COLUMN_SCAN_TIME            1
 
 #define MAX_NUMBER_OF_ANALOG        16
@@ -64,7 +64,8 @@ class Board {
     void handleLED(bool, bool, uint8_t);
     void setLEDblinkTime(uint16_t);
     void turnOnLED(uint8_t);
-    void turnOffLED(uint8_t); 
+    void turnOffLED(uint8_t);
+    void resetLEDblinkCounter();
 
     private:
 
