@@ -1404,19 +1404,19 @@ bool OpenDeck::setMIDIchannel(uint8_t channel, uint8_t channelNumber)  {
 
         case SYS_EX_MC_BUTTON_NOTE:
         _buttonNoteChannel = channelNumber;
-        eeprom_write_byte((uint8_t*)EEPROM_MC_BUTTON_NOTE, channelNumber);
+        eeprom_update_byte((uint8_t*)EEPROM_MC_BUTTON_NOTE, channelNumber);
         return (channelNumber == eeprom_read_byte((uint8_t*)EEPROM_MC_BUTTON_NOTE));
         break;
 
         case SYS_EX_MC_CC:
         _analogCCchannel = channelNumber;
-        eeprom_write_byte((uint8_t*)EEPROM_MC_CC, channelNumber);
+        eeprom_update_byte((uint8_t*)EEPROM_MC_CC, channelNumber);
         return (channelNumber == eeprom_read_byte((uint8_t*)EEPROM_MC_CC));
         break;
 
         case SYS_EX_MC_INPUT:
         _inputChannel = channelNumber;
-        eeprom_write_byte((uint8_t*)EEPROM_MC_INPUT, channelNumber);
+        eeprom_update_byte((uint8_t*)EEPROM_MC_INPUT, channelNumber);
         return (channelNumber == eeprom_read_byte((uint8_t*)EEPROM_MC_INPUT));
         break;
 
@@ -1435,14 +1435,14 @@ bool OpenDeck::setFeature(uint8_t featureType, uint8_t feature, bool state)    {
         case SYS_EX_MST_FEATURES_MIDI:
         //MIDI features
         bitWrite(midiFeatures, feature, state);
-        eeprom_write_byte((uint8_t*)EEPROM_FEATURES_MIDI, midiFeatures);
+        eeprom_update_byte((uint8_t*)EEPROM_FEATURES_MIDI, midiFeatures);
         return (eeprom_read_byte((uint8_t*)EEPROM_FEATURES_MIDI) == midiFeatures);
         break;
 
         case SYS_EX_MST_FEATURES_BUTTONS:
         //button features
         bitWrite(buttonFeatures, feature, state);
-        eeprom_write_byte((uint8_t*)EEPROM_FEATURES_BUTTONS, buttonFeatures);
+        eeprom_update_byte((uint8_t*)EEPROM_FEATURES_BUTTONS, buttonFeatures);
         return (eeprom_read_byte((uint8_t*)EEPROM_FEATURES_BUTTONS) == buttonFeatures);
         break;
 
@@ -1451,14 +1451,14 @@ bool OpenDeck::setFeature(uint8_t featureType, uint8_t feature, bool state)    {
         bitWrite(ledFeatures, feature, state);
         //if ((feature == SYS_EX_FEATURES_LEDS_BLINK) && (state == SYS_EX_DISABLE))
         //for (int i=0; i<MAX_NUMBER_OF_LEDS; i++) handleLED(false, true, i); //remove all blinking bits from ledState
-        eeprom_write_byte((uint8_t*)EEPROM_FEATURES_LEDS, ledFeatures);
+        eeprom_update_byte((uint8_t*)EEPROM_FEATURES_LEDS, ledFeatures);
         return (eeprom_read_byte((uint8_t*)EEPROM_FEATURES_LEDS) == ledFeatures);
         break;
 
         case SYS_EX_MST_FEATURES_ANALOG:
         //pot features
         bitWrite(analogFeatures, feature, state);
-        eeprom_write_byte((uint8_t*)EEPROM_FEATURES_POTS, analogFeatures);
+        eeprom_update_byte((uint8_t*)EEPROM_FEATURES_POTS, analogFeatures);
         return (eeprom_read_byte((uint8_t*)EEPROM_FEATURES_POTS) == analogFeatures);
         break;
 
@@ -1476,7 +1476,7 @@ bool OpenDeck::setButtonType(uint8_t buttonNumber, bool type)  {
     uint16_t eepromAddress = EEPROM_BUTTONS_TYPE_START+arrayIndex;
 
     bitWrite(buttonType[arrayIndex], buttonIndex, type);
-    eeprom_write_byte((uint8_t*)eepromAddress, buttonType[arrayIndex]);
+    eeprom_update_byte((uint8_t*)eepromAddress, buttonType[arrayIndex]);
 
     setButtonPressed(buttonNumber, false);
     updateButtonState(buttonNumber, false);
@@ -1492,7 +1492,7 @@ bool OpenDeck::setButtonPCenabled(uint8_t buttonNumber, bool value)  {
     uint16_t eepromAddress = EEPROM_BUTTONS_PC_ENABLED_START+arrayIndex;
 
     bitWrite(buttonPCenabled[arrayIndex], buttonIndex, value);
-    eeprom_write_byte((uint8_t*)eepromAddress, buttonPCenabled[arrayIndex]);
+    eeprom_update_byte((uint8_t*)eepromAddress, buttonPCenabled[arrayIndex]);
 
     setButtonPressed(buttonNumber, false);
     updateButtonState(buttonNumber, false);
@@ -1506,7 +1506,7 @@ bool OpenDeck::setButtonNote(uint8_t buttonNumber, uint8_t _buttonNote)    {
     uint16_t eepromAddress = EEPROM_BUTTONS_NOTE_START+buttonNumber;
 
     buttonNote[buttonNumber] = _buttonNote;
-    eeprom_write_byte((uint8_t*)eepromAddress, _buttonNote);
+    eeprom_update_byte((uint8_t*)eepromAddress, _buttonNote);
     return (_buttonNote == eeprom_read_byte((uint8_t*)eepromAddress));
 
 }
@@ -1518,7 +1518,7 @@ bool OpenDeck::setLEDHwParameter(uint8_t parameter, uint8_t value) {
         case SYS_EX_LEDS_HW_P_TOTAL_NUMBER:
         //set total number of LEDs (needed for start-up routine)
         totalNumberOfLEDs = value;
-        eeprom_write_byte((uint8_t*)EEPROM_LEDS_HW_P_TOTAL_NUMBER, value);
+        eeprom_update_byte((uint8_t*)EEPROM_LEDS_HW_P_TOTAL_NUMBER, value);
         return (eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_TOTAL_NUMBER) == value);
         break;
 
@@ -1526,20 +1526,20 @@ bool OpenDeck::setLEDHwParameter(uint8_t parameter, uint8_t value) {
         //blink time
         boardObject.resetLEDblinkCounter();
         boardObject.setLEDblinkTime(value*100);
-        eeprom_write_byte((uint8_t*)EEPROM_LEDS_HW_P_BLINK_TIME, value);
+        eeprom_update_byte((uint8_t*)EEPROM_LEDS_HW_P_BLINK_TIME, value);
         return (eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_BLINK_TIME) == value);
         break;
 
         case SYS_EX_LEDS_HW_P_START_UP_SWITCH_TIME:
         //start-up led switch time
-        eeprom_write_byte((uint8_t*)EEPROM_LEDS_HW_P_START_UP_SWITCH_TIME, value);
+        eeprom_update_byte((uint8_t*)EEPROM_LEDS_HW_P_START_UP_SWITCH_TIME, value);
         startUpRoutine();
         return (eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_START_UP_SWITCH_TIME) == value);
         break;
 
         case SYS_EX_LEDS_HW_P_START_UP_ROUTINE:
         //set start-up routine pattern
-        eeprom_write_byte((uint8_t*)EEPROM_LEDS_HW_P_START_UP_ROUTINE, value);
+        eeprom_update_byte((uint8_t*)EEPROM_LEDS_HW_P_START_UP_ROUTINE, value);
         startUpRoutine();
         return (eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_START_UP_ROUTINE) == value);
         break;
@@ -1555,7 +1555,7 @@ bool OpenDeck::setAnalogEnabled(uint8_t potNumber, bool state)    {
     uint16_t eepromAddress = EEPROM_ANALOG_ENABLED_START+arrayIndex;
 
     bitWrite(analogEnabled[arrayIndex], potIndex, state);
-    eeprom_write_byte((uint8_t*)eepromAddress, analogEnabled[arrayIndex]);
+    eeprom_update_byte((uint8_t*)eepromAddress, analogEnabled[arrayIndex]);
 
     return (analogEnabled[arrayIndex] == eeprom_read_byte((uint8_t*)eepromAddress));
 
@@ -1565,7 +1565,7 @@ bool OpenDeck::setAnalogType(uint8_t potNumber, uint8_t type)    {
 
     uint16_t eepromAddress = EEPROM_ANALOG_TYPE_START+potNumber;
     analogType[potNumber] = type;
-    eeprom_write_byte((uint8_t*)eepromAddress, analogType[potNumber]);
+    eeprom_update_byte((uint8_t*)eepromAddress, analogType[potNumber]);
 
     return (analogType[potNumber] == eeprom_read_byte((uint8_t*)eepromAddress));
 }
@@ -1577,7 +1577,7 @@ bool OpenDeck::setAnalogInvertState(uint8_t potNumber, bool state)    {
     uint16_t eepromAddress = EEPROM_ANALOG_INVERTED_START+arrayIndex;
 
     bitWrite(analogInverted[arrayIndex], potIndex, state);
-    eeprom_write_byte((uint8_t*)eepromAddress, analogInverted[arrayIndex]);
+    eeprom_update_byte((uint8_t*)eepromAddress, analogInverted[arrayIndex]);
 
     return (analogInverted[arrayIndex] == eeprom_read_byte((uint8_t*)eepromAddress));
 
@@ -1588,7 +1588,7 @@ bool OpenDeck::setAnalogNumber(uint8_t potNumber, uint8_t _ccppNumber)   {
     uint16_t eepromAddress = EEPROM_ANALOG_NUMBER_START+potNumber;
 
     analogNumber[potNumber] = _ccppNumber;
-    eeprom_write_byte((uint8_t*)eepromAddress, _ccppNumber);
+    eeprom_update_byte((uint8_t*)eepromAddress, _ccppNumber);
     return (_ccppNumber == eeprom_read_byte((uint8_t*)eepromAddress));
 
 }
@@ -1599,13 +1599,13 @@ bool OpenDeck::setAnalogLimit(uint8_t limitType, uint8_t _ccNumber, uint8_t newL
 
         case SYS_EX_MST_ANALOG_LOWER_LIMIT:
         analogLowerLimit[_ccNumber] = newLimit;
-        eeprom_write_byte((uint8_t*)EEPROM_ANALOG_LOWER_LIMIT_START+_ccNumber, newLimit);
+        eeprom_update_byte((uint8_t*)EEPROM_ANALOG_LOWER_LIMIT_START+_ccNumber, newLimit);
         return (eeprom_read_byte((uint8_t*)EEPROM_ANALOG_LOWER_LIMIT_START+_ccNumber) == newLimit);
         break;
 
         case SYS_EX_MST_ANALOG_UPPER_LIMIT:
         analogUpperLimit[_ccNumber] = newLimit;
-        eeprom_write_byte((uint8_t*)EEPROM_ANALOG_UPPER_LIMIT_START+_ccNumber, newLimit);
+        eeprom_update_byte((uint8_t*)EEPROM_ANALOG_UPPER_LIMIT_START+_ccNumber, newLimit);
         return (eeprom_read_byte((uint8_t*)EEPROM_ANALOG_UPPER_LIMIT_START+_ccNumber) == newLimit);
         break;
 
@@ -1624,7 +1624,7 @@ bool OpenDeck::setEncoderEnabled(uint8_t encoder, bool state)    {
     uint16_t eepromAddress = EEPROM_ENCODERS_ENABLED_START+arrayIndex;
 
     bitWrite(encoderEnabled[arrayIndex], encoderIndex, state);
-    eeprom_write_byte((uint8_t*)eepromAddress, encoderEnabled[arrayIndex]);
+    eeprom_update_byte((uint8_t*)eepromAddress, encoderEnabled[arrayIndex]);
 
     return (encoderEnabled[arrayIndex] == eeprom_read_byte((uint8_t*)eepromAddress));
 
@@ -1637,7 +1637,7 @@ bool OpenDeck::setEncoderInvertState(uint8_t encoder, bool state)    {
     uint16_t eepromAddress = EEPROM_ENCODERS_INVERTED_START+arrayIndex;
 
     bitWrite(encoderInverted[arrayIndex], encoderIndex, state);
-    eeprom_write_byte((uint8_t*)eepromAddress, encoderInverted[arrayIndex]);
+    eeprom_update_byte((uint8_t*)eepromAddress, encoderInverted[arrayIndex]);
 
     return (encoderInverted[arrayIndex] == eeprom_read_byte((uint8_t*)eepromAddress));
 
@@ -1648,7 +1648,7 @@ bool OpenDeck::setEncoderNumber(uint8_t encoder, uint8_t number)   {
     uint16_t eepromAddress = EEPROM_ENCODERS_NUMBER_START+encoder;
 
     encoderNumber[encoder] = number;
-    eeprom_write_byte((uint8_t*)eepromAddress, number);
+    eeprom_update_byte((uint8_t*)eepromAddress, number);
     return (number == eeprom_read_byte((uint8_t*)eepromAddress));
 
 }
@@ -1661,7 +1661,7 @@ bool OpenDeck::setEncoderPulsesPerStep(uint8_t encoder, uint8_t pulses)   {
     uint16_t eepromAddress = EEPROM_ENCODERS_PULSES_PER_STEP_START+encoder;
 
     pulsesPerStep[encoder] = pulses;
-    eeprom_write_byte((uint8_t*)eepromAddress, pulses);
+    eeprom_update_byte((uint8_t*)eepromAddress, pulses);
     return (pulses == eeprom_read_byte((uint8_t*)eepromAddress));
 
 }
@@ -1676,7 +1676,7 @@ bool OpenDeck::setEncoderFastMode(uint8_t encoder, bool state)    {
     uint16_t eepromAddress = EEPROM_ENCODERS_FAST_MODE_START+arrayIndex;
 
     bitWrite(encoderFastMode[arrayIndex], encoderIndex, state);
-    eeprom_write_byte((uint8_t*)eepromAddress, encoderFastMode[arrayIndex]);
+    eeprom_update_byte((uint8_t*)eepromAddress, encoderFastMode[arrayIndex]);
 
     return (encoderFastMode[arrayIndex] == eeprom_read_byte((uint8_t*)eepromAddress));
 
@@ -1688,7 +1688,7 @@ bool OpenDeck::setLEDActivationNote(uint8_t ledNumber, uint8_t _ledActNote) {
 
     ledActNote[ledNumber] = _ledActNote;
     //TODO: add check of same values
-    eeprom_write_byte((uint8_t*)eepromAddress, _ledActNote);
+    eeprom_update_byte((uint8_t*)eepromAddress, _ledActNote);
     return _ledActNote == eeprom_read_byte((uint8_t*)eepromAddress);
 
 }
@@ -1696,7 +1696,7 @@ bool OpenDeck::setLEDActivationNote(uint8_t ledNumber, uint8_t _ledActNote) {
 bool OpenDeck::setLEDstartNumber(uint8_t startNumber, uint8_t ledNumber) {
 
     uint16_t eepromAddress = EEPROM_LEDS_START_UP_NUMBER_START+startNumber;
-    eeprom_write_byte((uint8_t*)eepromAddress, ledNumber);
+    eeprom_update_byte((uint8_t*)eepromAddress, ledNumber);
     return ledNumber == eeprom_read_byte((uint8_t*)eepromAddress);
 
 }
@@ -1706,7 +1706,7 @@ bool OpenDeck::sysExSetDefaultConf()    {
     //write default configuration stored in PROGMEM to EEPROM
     for (int i=0; i<(int16_t)sizeof(defConf); i++)  {
 
-        eeprom_write_byte((uint8_t*)i, pgm_read_byte(&(defConf[i])));
+        eeprom_update_byte((uint8_t*)i, pgm_read_byte(&(defConf[i])));
         if (!(eeprom_read_byte((uint8_t*)i) == (pgm_read_byte(&(defConf[i])))))
             return false;
 
