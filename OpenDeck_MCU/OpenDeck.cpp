@@ -62,15 +62,15 @@ void OpenDeck::initVariables()  {
     //reset all variables
 
     //MIDI channels
-    _buttonNoteChannel                      = 0;
+    _noteChannel                      = 0;
     _programChangeChannel                   = 0;
-    _analogCCchannel                        = 0;
+    _CCchannel                        = 0;
     _pitchBendChannel                       = 0;
     _inputChannel                           = 0;
 
     //buttons
     for (i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
-        buttonNote[i]                       = 0;
+        noteNumber[i]                       = 0;
 
     for (i=0; i<MAX_NUMBER_OF_BUTTONS/8; i++)   {
 
@@ -83,13 +83,12 @@ void OpenDeck::initVariables()  {
     //analog
     for (i=0; i<MAX_NUMBER_OF_ANALOG; i++)        {
 
-        analogNumber[i]                     = 0;
+        ccNumber[i]                         = 0;
         lastAnalogueValue[i]                = 0;
         analogLowerLimit[i]                 = 0;
         analogUpperLimit[i]                 = 0;
         analogDebounceCounter[i]            = 0;
         analogType[i]                       = 0;
-        analogTimer[i]                      = 0;
 
     }
 

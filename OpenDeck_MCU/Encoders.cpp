@@ -113,9 +113,9 @@ void OpenDeck::readEncoders()   {
                         if (pulseCounter[i] >= pulsesPerStep[i])   {
 
                             if (getEncoderInvertState(i))
-                                sendControlChangeCallback(encoderNumber[i], ENCODER_DIRECTION_LEFT, _analogCCchannel);
+                                sendControlChangeCallback(encoderNumber[i], ENCODER_DIRECTION_LEFT, _CCchannel);
 
-                            else sendControlChangeCallback(encoderNumber[i], ENCODER_DIRECTION_RIGHT, _analogCCchannel);
+                            else sendControlChangeCallback(encoderNumber[i], ENCODER_DIRECTION_RIGHT, _CCchannel);
 
                             pulseCounter[i] = 0;
 
@@ -142,9 +142,9 @@ void OpenDeck::readEncoders()   {
                         if (pulseCounter[i] >= pulsesPerStep[i])   {
 
                             if (getEncoderInvertState(i))
-                                sendControlChangeCallback(encoderNumber[i], ENCODER_DIRECTION_RIGHT, _analogCCchannel);
+                                sendControlChangeCallback(encoderNumber[i], ENCODER_DIRECTION_RIGHT, _CCchannel);
 
-                            else sendControlChangeCallback(encoderNumber[i], ENCODER_DIRECTION_LEFT, _analogCCchannel);
+                            else sendControlChangeCallback(encoderNumber[i], ENCODER_DIRECTION_LEFT, _CCchannel);
 
                             pulseCounter[i] = 0;
 

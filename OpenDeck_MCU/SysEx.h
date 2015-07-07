@@ -163,9 +163,9 @@ typedef enum {
     SYS_EX_MST_ANALOG_NUMBER,
     SYS_EX_MST_ANALOG_LOWER_LIMIT,
     SYS_EX_MST_ANALOG_UPPER_LIMIT,
-    SYS_EX_MST_POT_END
+    SYS_EX_MST_ANALOG_END
 
-} sysExMessageSubTypePot;
+} sysExMessageSubTypeAnalog;
 
 typedef enum {
 

@@ -18,7 +18,7 @@ Author: Igor Petrovic
 #define EEPROM_MC_START                             3
 #define EEPROM_MC_END                               8
 
-#define EEPROM_MC_BUTTON_NOTE                       3
+#define EEPROM_MC_NOTE                              3
 #define EEPROM_MC_PROGRAM_CHANGE                    5
 #define EEPROM_MC_CC                                6
 #define EEPROM_MC_PITCH_BEND                        7
@@ -30,7 +30,7 @@ Author: Igor Petrovic
 #define EEPROM_FEATURES_MIDI                        9
 #define EEPROM_FEATURES_BUTTONS                     10
 #define EEPROM_FEATURES_LEDS                        11
-#define EEPROM_FEATURES_POTS                        12
+#define EEPROM_FEATURES_ANALOG                      12
 #define EEPROM_FEATURES_ENCODERS                    13
 
 #define EEPROM_BUTTONS_START                        14
@@ -176,7 +176,7 @@ const uint8_t defConf[] PROGMEM = {
     //no function
     0b00000000,                             //011
 
-    //potentiometer features
+    //analog features
 
     //no function
     //no function

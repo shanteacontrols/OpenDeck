@@ -71,22 +71,22 @@ void OpenDeck::readAnalogInitial()   {
 
 }
 
-bool OpenDeck::checkAnalogReading(int16_t tempValue, uint8_t potNumber) {
+bool OpenDeck::checkAnalogReading(int16_t tempValue, uint8_t analogID) {
 
     //calculate difference between current and previous reading
-    int16_t analogueDiff = tempValue - lastAnalogueValue[potNumber];
+    int16_t analogueDiff = tempValue - lastAnalogueValue[analogID];
 
     //get absolute difference
     if (analogueDiff < 0)   analogueDiff *= -1;
 
     if (analogueDiff >= MIDI_CC_STEP)   {
 
-        analogSample[potNumber][analogDebounceCounter[potNumber]] = tempValue;
-        analogDebounceCounter[potNumber]++;
+        analogSample[analogID][analogDebounceCounter[analogID]] = tempValue;
+        analogDebounceCounter[analogID]++;
 
-        if (analogDebounceCounter[potNumber] == NUMBER_OF_SAMPLES) {
+        if (analogDebounceCounter[analogID] == NUMBER_OF_SAMPLES) {
 
-            analogDebounceCounter[potNumber] = 0;
+            analogDebounceCounter[analogID] = 0;
             return true;
 
         }
@@ -97,56 +97,56 @@ bool OpenDeck::checkAnalogReading(int16_t tempValue, uint8_t potNumber) {
 
 }
 
-void OpenDeck::processAnalogReading(int16_t tempValue, uint8_t potNumber)  {
+void OpenDeck::processAnalogReading(int16_t tempValue, uint8_t analogID)  {
 
     uint8_t ccValue = tempValue >> 3;
 
     //invert CC data if potInverted is true
-    if (getAnalogInvertState(potNumber))   ccValue = 127 - ccValue;
+    if (getAnalogInvertState(analogID))   ccValue = 127 - ccValue;
 
     //only send data if function isn't called in setup
     if (sendControlChangeCallback != NULL)  {
 
         //only use map when cc limits are different from defaults
-        if ((analogLowerLimit[potNumber] != 0) || (analogUpperLimit[potNumber] != 127))
-        sendControlChangeCallback(analogNumber[potNumber], map_uint8(ccValue, 0, 127, analogLowerLimit[potNumber], analogUpperLimit[potNumber]), _analogCCchannel);
+        if ((analogLowerLimit[analogID] != 0) || (analogUpperLimit[analogID] != 127))
+            sendControlChangeCallback(ccNumber[analogID], map_uint8(ccValue, 0, 127, analogLowerLimit[analogID], analogUpperLimit[analogID]), _CCchannel);
 
-        else    sendControlChangeCallback(analogNumber[potNumber], ccValue, _analogCCchannel);
+        else    sendControlChangeCallback(ccNumber[analogID], ccValue, _CCchannel);
 
     }
 
     //update values
-    lastAnalogueValue[potNumber] = tempValue;
+    lastAnalogueValue[analogID] = tempValue;
 
 }
 
-bool OpenDeck::getAnalogEnabled(uint8_t potNumber) {
+bool OpenDeck::getAnalogEnabled(uint8_t analogID) {
 
-    uint8_t arrayIndex = potNumber/8;
-    uint8_t potIndex = potNumber - 8*arrayIndex;
+    uint8_t arrayIndex = analogID/8;
+    uint8_t analogIndex = analogID - 8*arrayIndex;
 
-    return bitRead(analogEnabled[arrayIndex], potIndex);
-
-}
-
-uint8_t OpenDeck::getAnalogType(uint8_t potNumber) {
-
-    return analogType[potNumber];
+    return bitRead(analogEnabled[arrayIndex], analogIndex);
 
 }
 
-bool OpenDeck::getAnalogInvertState(uint8_t potNumber) {
+uint8_t OpenDeck::getAnalogType(uint8_t analogID) {
 
-    uint8_t arrayIndex = potNumber/8;
-    uint8_t potIndex = potNumber - 8*arrayIndex;
-
-    return bitRead(analogInverted[arrayIndex], potIndex);
+    return analogType[analogID];
 
 }
 
-uint8_t OpenDeck::getAnalogNumber(uint8_t potNumber)    {
+bool OpenDeck::getAnalogInvertState(uint8_t analogID) {
 
-    return analogNumber[potNumber];
+    uint8_t arrayIndex = analogID/8;
+    uint8_t analogIndex = analogID - 8*arrayIndex;
+
+    return bitRead(analogInverted[arrayIndex], analogIndex);
+
+}
+
+uint8_t OpenDeck::getCCnumber(uint8_t analogID)    {
+
+    return ccNumber[analogID];
 
 }
 
