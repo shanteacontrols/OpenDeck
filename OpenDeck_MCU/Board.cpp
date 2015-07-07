@@ -247,53 +247,12 @@ inline void storeDigitalIn()  {
 inline void readEncoders()  {
 
     #ifdef BOARD_OPENDECK_1
-    #ifndef TANNIN_2_PROTOTYPE
-
-    uint8_t encRead = (PIND >> 2) & 0x03;
-    uint8_t tempState = tempEncoderState[0] & 0x03;
-
-    if (encRead & 0x01)         tempState |= 4;
-    if ((encRead >> 1) & 0x01)  tempState |= 8;
-
-    tempEncoderState[0] = (tempState >> 2);
-
-    switch (tempState) {
-
-        case 1:
-        case 7:
-        case 8:
-        case 14:
-        encoderPosition[0]++;
-        break;
-
-        case 2:
-        case 4:
-        case 11:
-        case 13:
-        encoderPosition[0]--;
-        break;
-
-        case 3:
-        case 12:
-        encoderPosition[0] += 2;
-        break;
-
-        case 6:
-        case 9:
-        encoderPosition[0] -= 2;
-        break;
-
-    }
-    #endif
-    #else
-
-    //TANNIN 2 PROTOTYPE ONLY
-
+    #ifdef TANNIN_2_PROTOTYPE
     uint8_t shiftRegisterState = 0;
 
     //pulse latch pin
     PORTB &= 0b11011111;
-    NOP; NOP; NOP; NOP;
+    NOP; NOP;
     PORTB |= 0b00100000;
 
     for (int i=0; i<8; i++) {
@@ -302,7 +261,7 @@ inline void readEncoders()  {
         shiftRegisterState |= ((PIND >> 3) & 0x01);
         //pulse clock pin
         PORTB |= 0b00010000;
-        NOP; NOP; NOP; NOP;
+        NOP; NOP;
         PORTB &= 0b11101111;
 
     }
@@ -346,7 +305,43 @@ inline void readEncoders()  {
         }
 
     }
+    #else
+    uint8_t encRead = (PIND >> 2) & 0x03;
+    uint8_t tempState = tempEncoderState[0] & 0x03;
 
+    if (encRead & 0x01)         tempState |= 4;
+    if ((encRead >> 1) & 0x01)  tempState |= 8;
+
+    tempEncoderState[0] = (tempState >> 2);
+
+    switch (tempState) {
+
+        case 1:
+        case 7:
+        case 8:
+        case 14:
+        encoderPosition[0]++;
+        break;
+
+        case 2:
+        case 4:
+        case 11:
+        case 13:
+        encoderPosition[0]--;
+        break;
+
+        case 3:
+        case 12:
+        encoderPosition[0] += 2;
+        break;
+
+        case 6:
+        case 9:
+        encoderPosition[0] -= 2;
+        break;
+
+    }
+    #endif
     #endif
 
 }
