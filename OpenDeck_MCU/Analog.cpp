@@ -15,9 +15,7 @@ Author: Igor Petrovic
 #define NUMBER_OF_SAMPLES 3
 
 //potentiometer must exceed this value before sending new value
-#define MIDI_CC_STEP_REGULAR        8
-#define MIDI_CC_STEP_DEBOUNCE       16
-#define ANALOG_DEBOUNCE_TIMEOUT     80
+#define MIDI_CC_STEP        8
 
 
 void OpenDeck::readAnalog()   {
@@ -81,12 +79,7 @@ bool OpenDeck::checkAnalogReading(int16_t tempValue, uint8_t potNumber) {
     //get absolute difference
     if (analogueDiff < 0)   analogueDiff *= -1;
 
-    uint8_t stepsNeeded;
-
-    if (millisOwnduino() - analogTimer[potNumber] > ANALOG_DEBOUNCE_TIMEOUT) stepsNeeded = MIDI_CC_STEP_DEBOUNCE;
-    else stepsNeeded = MIDI_CC_STEP_REGULAR;
-
-    if (analogueDiff >= stepsNeeded)   {
+    if (analogueDiff >= MIDI_CC_STEP)   {
 
         analogSample[potNumber][analogDebounceCounter[potNumber]] = tempValue;
         analogDebounceCounter[potNumber]++;
@@ -94,7 +87,6 @@ bool OpenDeck::checkAnalogReading(int16_t tempValue, uint8_t potNumber) {
         if (analogDebounceCounter[potNumber] == NUMBER_OF_SAMPLES) {
 
             analogDebounceCounter[potNumber] = 0;
-            analogTimer[potNumber] = millisOwnduino();
             return true;
 
         }
