@@ -42,7 +42,7 @@ bool OpenDeck::getButtonPCenabled(uint8_t buttonNumber)   {
 
 uint8_t OpenDeck::getButtonNote(uint8_t buttonNumber)   {
 
-    return buttonNote[buttonNumber];
+    return noteNumber[buttonNumber];
 
 }
 
@@ -66,12 +66,12 @@ void OpenDeck::processMomentaryButton(uint8_t buttonNumber, bool buttonState)   
 
             if (getButtonPCenabled(buttonNumber))    {
 
-                sendProgramChangeCallback(_programChangeChannel, buttonNote[buttonNumber]);
+                sendProgramChangeCallback(_programChangeChannel, noteNumber[buttonNumber]);
                 return;
 
             }
 
-            sendNoteCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
+            sendNoteCallback(noteNumber[buttonNumber], true, _noteChannel);
 
         }
 
@@ -80,7 +80,7 @@ void OpenDeck::processMomentaryButton(uint8_t buttonNumber, bool buttonState)   
             if (getButtonPressed(buttonNumber))    {
 
                 if (!getButtonPCenabled(buttonNumber))
-                    sendNoteCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
+                    sendNoteCallback(noteNumber[buttonNumber], false, _noteChannel);
 
                 setButtonPressed(buttonNumber, false);
 
@@ -100,7 +100,7 @@ void OpenDeck::processLatchingButton(uint8_t buttonNumber, bool buttonState)    
             //if a button has been already pressed
             if (getButtonPressed(buttonNumber)) {
 
-                sendNoteCallback(buttonNote[buttonNumber], false, _buttonNoteChannel);
+                sendNoteCallback(noteNumber[buttonNumber], false, _noteChannel);
 
                 //reset pressed state
                 setButtonPressed(buttonNumber, false);
@@ -108,7 +108,7 @@ void OpenDeck::processLatchingButton(uint8_t buttonNumber, bool buttonState)    
                 } else {
 
                 //send note on
-                sendNoteCallback(buttonNote[buttonNumber], true, _buttonNoteChannel);
+                sendNoteCallback(noteNumber[buttonNumber], true, _noteChannel);
 
                 //toggle buttonPressed flag to true
                 setButtonPressed(buttonNumber, true);

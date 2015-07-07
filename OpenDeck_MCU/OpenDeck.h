@@ -76,16 +76,16 @@ class OpenDeck  {
                     encoderFeatures;
 
     //MIDI channels
-    uint8_t         _buttonNoteChannel,
+    uint8_t         _noteChannel,
                     _programChangeChannel,
-                    _analogCCchannel,
+                    _CCchannel,
                     _pitchBendChannel,
                     _inputChannel;
 
     //buttons
     uint8_t         buttonType[MAX_NUMBER_OF_BUTTONS/8],
                     buttonPCenabled[MAX_NUMBER_OF_BUTTONS/8],
-                    buttonNote[MAX_NUMBER_OF_BUTTONS],
+                    noteNumber[MAX_NUMBER_OF_BUTTONS],
                     previousButtonState[MAX_NUMBER_OF_BUTTONS/8],
                     buttonPressed[MAX_NUMBER_OF_BUTTONS/8],
                     lastColumnState[8],
@@ -95,12 +95,12 @@ class OpenDeck  {
     uint8_t         analogEnabled[MAX_NUMBER_OF_ANALOG/8],
                     analogType[MAX_NUMBER_OF_ANALOG],
                     analogInverted[MAX_NUMBER_OF_ANALOG/8],
-                    analogNumber[MAX_NUMBER_OF_ANALOG],
+                    ccNumber[MAX_NUMBER_OF_ANALOG],
                     analogLowerLimit[MAX_NUMBER_OF_ANALOG],
                     analogUpperLimit[MAX_NUMBER_OF_ANALOG],
                     analogDebounceCounter[MAX_NUMBER_OF_ANALOG];
 
-    uint32_t        analogTimer[MAX_NUMBER_OF_ANALOG];
+    int16_t         analogSample[MAX_NUMBER_OF_ANALOG][3];
 
     int16_t         lastAnalogueValue[MAX_NUMBER_OF_ANALOG];
 
@@ -196,8 +196,8 @@ class OpenDeck  {
     bool setAnalogInvertState(uint8_t, bool);
     uint8_t getAnalogType(uint8_t);
     bool setAnalogType(uint8_t, uint8_t);
-    uint8_t getAnalogNumber(uint8_t);
-    bool setAnalogNumber(uint8_t, uint8_t);
+    uint8_t getCCnumber(uint8_t);
+    bool setCCnumber(uint8_t, uint8_t);
     bool setAnalogLimit(uint8_t, uint8_t, uint8_t);
     void readAnalogInitial();
     bool checkAnalogReading(int16_t, uint8_t);
@@ -254,8 +254,6 @@ class OpenDeck  {
 
     //input
     void checkReceivedNoteOn();
-
-    int16_t analogSample[MAX_NUMBER_OF_ANALOG][3];
 
 };
 

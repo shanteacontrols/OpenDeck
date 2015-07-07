@@ -44,16 +44,16 @@ void OpenDeck::getFeatures()    {
     midiFeatures                = eeprom_read_byte((uint8_t*)EEPROM_FEATURES_MIDI);
     buttonFeatures              = eeprom_read_byte((uint8_t*)EEPROM_FEATURES_BUTTONS);
     ledFeatures                 = eeprom_read_byte((uint8_t*)EEPROM_FEATURES_LEDS);
-    analogFeatures              = eeprom_read_byte((uint8_t*)EEPROM_FEATURES_POTS);
+    analogFeatures              = eeprom_read_byte((uint8_t*)EEPROM_FEATURES_ANALOG);
     encoderFeatures             = eeprom_read_byte((uint8_t*)EEPROM_FEATURES_ENCODERS);
 
 }
 
 void OpenDeck::getMIDIchannels()        {
 
-    _buttonNoteChannel          = eeprom_read_byte((uint8_t*)EEPROM_MC_BUTTON_NOTE);
+    _noteChannel          = eeprom_read_byte((uint8_t*)EEPROM_MC_NOTE);
     _programChangeChannel       = eeprom_read_byte((uint8_t*)EEPROM_MC_PROGRAM_CHANGE);
-    _analogCCchannel            = eeprom_read_byte((uint8_t*)EEPROM_MC_CC);
+    _CCchannel            = eeprom_read_byte((uint8_t*)EEPROM_MC_CC);
     _pitchBendChannel           = eeprom_read_byte((uint8_t*)EEPROM_MC_PITCH_BEND);
     _inputChannel               = eeprom_read_byte((uint8_t*)EEPROM_MC_INPUT);
 
@@ -76,7 +76,7 @@ void OpenDeck::getButtonsPCenabled()         {
 void OpenDeck::getButtonsNotes()         {
 
     for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
-        buttonNote[i] = eeprom_read_byte((uint8_t*)EEPROM_BUTTONS_NOTE_START+i);
+        noteNumber[i] = eeprom_read_byte((uint8_t*)EEPROM_BUTTONS_NOTE_START+i);
 
 }
 
@@ -104,7 +104,7 @@ void OpenDeck::getAnalogInversion()     {
 void OpenDeck::getAnalogNumbers()           {
 
     for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
-        analogNumber[i] = eeprom_read_byte((uint8_t*)EEPROM_ANALOG_NUMBER_START+i);
+        ccNumber[i] = eeprom_read_byte((uint8_t*)EEPROM_ANALOG_NUMBER_START+i);
 
 }
 
