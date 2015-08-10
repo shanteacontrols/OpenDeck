@@ -6,8 +6,7 @@ without any need of reprogramming the chip.
 
 This repository contains MCU code, part list and schematics (circuit and PCB).
 
-Code base is built upon OpenDeck library, Ownduino library (minimal fork of Arduino core library)
-and modified Arduino MIDI library 3.2. All code is available under GNU GPL v3 licence.
+Code base is built upon OpenDeck library, modified Arduino MIDI library 3.2 and Teensyduino. All code is available under GNU GPL v3 licence.
 
 
 # Configurable features
