@@ -7,13 +7,15 @@ Author: Igor Petrovic
 
 */
 
+#include "Version.h"
+#include "SysEx.h"
 
 #ifndef EEPROM_H_
 #define EEPROM_H_
 
-#define EEPROM_M_ID_BYTE_0                          0
-#define EEPROM_M_ID_BYTE_1                          1
-#define EEPROM_M_ID_BYTE_2                          2
+#define EEPROM_VERSION_BYTE_0                       0
+#define EEPROM_VERSION_BYTE_1                       1
+#define EEPROM_VERSION_BYTE_2                       2
 
 #define EEPROM_MC_START                             3
 #define EEPROM_MC_END                               8
@@ -112,6 +114,7 @@ Author: Igor Petrovic
 #define EEPROM_LEDS_HW_P_TOTAL_NUMBER               726
 #define EEPROM_LEDS_HW_P_START_UP_SWITCH_TIME       727
 #define EEPROM_LEDS_HW_P_START_UP_ROUTINE           728
+#define EEPROM_LEDS_HW_P_FADE_SPEED                 729
 
 #define EEPROM_LEDS_LOCAL_CONTROL_ENABLED_START     730
 #define EEPROM_LEDS_LOCAL_CONTROL_ENABLED_END       737
@@ -124,12 +127,12 @@ Author: Igor Petrovic
 
 
 //default controller settings
-const uint8_t defConf[] PROGMEM = {
+static const uint8_t defConf[] PROGMEM = {
 
-    //manufacturer ID bytes
-    0x00, //ID byte 0                       //000
-    0x53, //ID byte 1                       //001
-    0x43, //ID byte 2                       //002
+    //sysex manufacturer ID bytes
+    SYS_EX_M_ID_0, //byte 0                //000
+    SYS_EX_M_ID_1, //byte 1                //001
+    SYS_EX_M_ID_2, //byte 2                //002
 
     //MIDI channels
     0x01, //button note channel             //003
@@ -1036,7 +1039,7 @@ const uint8_t defConf[] PROGMEM = {
     0x00, //total number of LEDs            //726
     0x05, //start up LED switch time (x10mS)//727
     0x00, //start-up routine pattern        //728
-    0x00, //reserved                        //729
+    0x00, //fade speed                      //729
 
     //use local LED control instead of MIDI in
     //7-0
@@ -1192,4 +1195,4 @@ const uint8_t defConf[] PROGMEM = {
 
 };
 
-#endif /* EEPROM_H_ */
+#endif

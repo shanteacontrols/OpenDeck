@@ -8,49 +8,59 @@ Author: Igor Petrovic
 */
 
 #include "OpenDeck.h"
-#include <avr/eeprom.h>
-#include <Ownduino.h>
-#include <util/delay.h>
 
 #define NUMBER_OF_SAMPLES 3
+#define ADC_8_BIT_ENABLED bitRead(ADMUX, ADLAR)
 
 //potentiometer must exceed this value before sending new value
-#define MIDI_CC_STEP        8
+const uint8_t midiCCstep = ADC_8_BIT_ENABLED ? 2 : 8;
+
+uint8_t mapAnalog(uint8_t x, uint8_t in_min, uint8_t in_max, uint8_t out_min, uint8_t out_max)    {
+
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+
+}
 
 
 void OpenDeck::readAnalog()   {
 
     #ifdef BOARD
 
-    if (boardObject.analogInDataAvailable())    {
+    if (!boardObject.analogInDataAvailable()) return;
 
-        //read all mux inputs first
-        int16_t analogData[8];
+    int16_t analogData[8] = { 0 };
+    uint8_t analogID = 0;
 
-        for (int i=0; i<8; i++)
-            analogData[i] = boardObject.getMuxInputValue(i);
+    //check values
+    for (int i=0; i<8; i++)    {
 
-        //check values
-        for (int i=0; i<8; i++)    {
+        analogData[i] = boardObject.getMuxInputValue(i);
+        analogID = boardObject.getAnalogID(i);
+        bool analogIDenabled = getAnalogEnabled(analogID);
 
-            uint8_t analogID = boardObject.getAnalogID(i);
+        if (analogIDenabled)   {
 
-            if (getAnalogEnabled(analogID))   {
+            bool readingDifferent = checkAnalogValueDifference(analogData[i], analogID);
 
-                if (checkAnalogReading(analogData[i], analogID)) {
+            if (readingDifferent)   addAnalogSample(analogID, analogData[i]);
+            if (analogValueSampled(analogID))    {
 
-                    analogData[i] = getMedianValue(analogID);
-                    processAnalogReading(analogData[i], analogID);
-
-                }
+                analogData[i] = getMedianValue(analogID);
+                processAnalogReading(analogData[i], analogID);
 
             }
 
-        }   boardObject.setAnalogProcessingFinished(true);
+        }
 
-    }
+    }   boardObject.startAnalogConversion();
 
     #endif
+
+}
+
+bool OpenDeck::checkAnalogReading(int16_t tempValue, uint8_t analogID)  {
+
+    return false;
 
 }
 
@@ -71,29 +81,35 @@ void OpenDeck::readAnalogInitial()   {
 
 }
 
-bool OpenDeck::checkAnalogReading(int16_t tempValue, uint8_t analogID) {
+bool OpenDeck::checkAnalogValueDifference(int16_t tempValue, uint8_t analogID)  {
 
     //calculate difference between current and previous reading
-    int16_t analogueDiff = tempValue - lastAnalogueValue[analogID];
+    int16_t analogDiff = tempValue - lastAnalogueValue[analogID];
 
     //get absolute difference
-    if (analogueDiff < 0)   analogueDiff *= -1;
+    if (analogDiff < 0)   analogDiff *= -1;
 
-    if (analogueDiff >= MIDI_CC_STEP)   {
+    return (analogDiff >= midiCCstep);
 
-        analogSample[analogID][analogDebounceCounter[analogID]] = tempValue;
-        analogDebounceCounter[analogID]++;
+}
 
-        if (analogDebounceCounter[analogID] == NUMBER_OF_SAMPLES) {
+void OpenDeck::addAnalogSample(uint8_t analogID, int16_t sample) {
 
-            analogDebounceCounter[analogID] = 0;
-            return true;
+    uint8_t sampleIndex = analogDebounceCounter[analogID];
 
-        }
+    analogSample[analogID][sampleIndex] = sample;
+    analogDebounceCounter[analogID]++;
 
-    }
+}
 
-    return false;
+bool OpenDeck::analogValueSampled(uint8_t analogID) {
+
+    if (analogDebounceCounter[analogID] == NUMBER_OF_SAMPLES) {
+
+        analogDebounceCounter[analogID] = 0;
+        return true;
+
+    }   return false;
 
 }
 
@@ -104,16 +120,11 @@ void OpenDeck::processAnalogReading(int16_t tempValue, uint8_t analogID)  {
     //invert CC data if potInverted is true
     if (getAnalogInvertState(analogID))   ccValue = 127 - ccValue;
 
-    //only send data if function isn't called in setup
-    if (sendControlChangeCallback != NULL)  {
+    //only use map when cc limits are different from defaults
+    if ((analogLowerLimit[analogID] != 0) || (analogUpperLimit[analogID] != 127))
+        sendControlChange(ccNumber[analogID], mapAnalog(ccValue, 0, 127, analogLowerLimit[analogID], analogUpperLimit[analogID]), _CCchannel);
 
-        //only use map when cc limits are different from defaults
-        if ((analogLowerLimit[analogID] != 0) || (analogUpperLimit[analogID] != 127))
-            sendControlChangeCallback(ccNumber[analogID], map_uint8(ccValue, 0, 127, analogLowerLimit[analogID], analogUpperLimit[analogID]), _CCchannel);
-
-        else    sendControlChangeCallback(ccNumber[analogID], ccValue, _CCchannel);
-
-    }
+    else sendControlChange(ccNumber[analogID], ccValue, _CCchannel);
 
     //update values
     lastAnalogueValue[analogID] = tempValue;
@@ -168,5 +179,17 @@ int16_t OpenDeck::getMedianValue(uint8_t analogID)  {
     }
 
     return medianValue;
+
+}
+
+void OpenDeck::sendControlChange(uint8_t ccNumber, uint8_t ccValue, uint8_t channel) {
+
+    #ifdef USBMIDI
+        usbMIDI.sendControlChange(ccNumber, ccValue, channel);
+    #endif
+
+    #ifdef HW_MIDI
+        MIDI.sendControlChange(ccNumber, ccValue, channel);
+    #endif
 
 }

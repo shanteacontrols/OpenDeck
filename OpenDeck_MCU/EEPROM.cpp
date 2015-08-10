@@ -9,7 +9,6 @@ Author: Igor Petrovic
 
 #include "OpenDeck.h"
 #include <avr/eeprom.h>
-#include "Ownduino.h"
 
 
 //global configuration getter
@@ -51,9 +50,9 @@ void OpenDeck::getFeatures()    {
 
 void OpenDeck::getMIDIchannels()        {
 
-    _noteChannel          = eeprom_read_byte((uint8_t*)EEPROM_MC_NOTE);
+    _noteChannel                = eeprom_read_byte((uint8_t*)EEPROM_MC_NOTE);
     _programChangeChannel       = eeprom_read_byte((uint8_t*)EEPROM_MC_PROGRAM_CHANGE);
-    _CCchannel            = eeprom_read_byte((uint8_t*)EEPROM_MC_CC);
+    _CCchannel                  = eeprom_read_byte((uint8_t*)EEPROM_MC_CC);
     _pitchBendChannel           = eeprom_read_byte((uint8_t*)EEPROM_MC_PITCH_BEND);
     _inputChannel               = eeprom_read_byte((uint8_t*)EEPROM_MC_INPUT);
 
@@ -61,14 +60,14 @@ void OpenDeck::getMIDIchannels()        {
 
 void OpenDeck::getButtonsType()         {
 
-    for (int i=0; i<MAX_NUMBER_OF_BUTTONS/8; i++)
-        buttonType[i] = eeprom_read_byte((uint8_t*)EEPROM_BUTTONS_TYPE_START+i);
+    for (int i=0; i<MAX_NUMBER_OF_BUTTONS/8+1; i++)
+        _buttonType[i] = eeprom_read_byte((uint8_t*)EEPROM_BUTTONS_TYPE_START+i);
 
 }
 
 void OpenDeck::getButtonsPCenabled()         {
 
-    for (int i=0; i<(MAX_NUMBER_OF_BUTTONS/8); i++)
+    for (int i=0; i<(MAX_NUMBER_OF_BUTTONS/8+1); i++)
         buttonPCenabled[i] = eeprom_read_byte((uint8_t*)EEPROM_BUTTONS_PC_ENABLED_START+i);
 
 }
@@ -82,7 +81,7 @@ void OpenDeck::getButtonsNotes()         {
 
 void OpenDeck::getAnalogEnabled()         {
 
-    for (int i=0; i<(MAX_NUMBER_OF_ANALOG/8); i++)
+    for (int i=0; i<(MAX_NUMBER_OF_ANALOG/8+1); i++)
         analogEnabled[i] = eeprom_read_byte((uint8_t*)EEPROM_ANALOG_ENABLED_START+i);
 
 }
@@ -96,7 +95,7 @@ void OpenDeck::getAnalogType()         {
 
 void OpenDeck::getAnalogInversion()     {
 
-    for (int i=0; i<(MAX_NUMBER_OF_ANALOG/8); i++)
+    for (int i=0; i<(MAX_NUMBER_OF_ANALOG/8+1); i++)
         analogInverted[i] = eeprom_read_byte((uint8_t*)EEPROM_ANALOG_INVERTED_START+i);
 
 }
@@ -124,21 +123,21 @@ void OpenDeck::getAnalogUpperLimits()   {
 
 void OpenDeck::getEncodersEnabled()  {
 
-    for (int i=0; i<NUMBER_OF_ENCODERS; i++)
+    for (int i=0; i<NUMBER_OF_ENCODERS/8+1; i++)
         encoderEnabled[i] = eeprom_read_byte((uint8_t*)EEPROM_ENCODERS_ENABLED_START+i);
 
 }
 
 void OpenDeck::getEncodersInverted()    {
 
-    for (int i=0; i<NUMBER_OF_ENCODERS; i++)
+    for (int i=0; i<NUMBER_OF_ENCODERS/8+1; i++)
         encoderInverted[i] = eeprom_read_byte((uint8_t*)EEPROM_ENCODERS_INVERTED_START+i);
 
 }
 
 void OpenDeck::getEncodersFastMode()    {
 
-    for (int i=0; i<NUMBER_OF_ENCODERS; i++)
+    for (int i=0; i<NUMBER_OF_ENCODERS/8+1; i++)
         encoderFastMode[i] = eeprom_read_byte((uint8_t*)EEPROM_ENCODERS_FAST_MODE_START+i);
 
 }
@@ -168,5 +167,15 @@ void OpenDeck::getLEDHwParameters() {
 
     boardObject.setLEDblinkTime(eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_BLINK_TIME)*100);
     totalNumberOfLEDs   = eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_TOTAL_NUMBER);
+
+}
+
+void OpenDeck::clearEEPROM()    {
+
+    for (int i=0; i<1024; i++) eeprom_write_byte((uint8_t*)i, 0xFF);
+
+    eeprom_write_byte((uint8_t*)ID_LOCATION_0, UNIQUE_ID);
+    eeprom_write_byte((uint8_t*)ID_LOCATION_1, UNIQUE_ID);
+    eeprom_write_byte((uint8_t*)ID_LOCATION_2, UNIQUE_ID);
 
 }

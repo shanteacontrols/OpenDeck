@@ -8,7 +8,6 @@ Author: Igor Petrovic
 */
 
 #include "OpenDeck.h"
-#include "Ownduino.h"
 
 void OpenDeck::setButtonPressed(uint8_t buttonNumber, bool state)   {
 
@@ -19,15 +18,15 @@ void OpenDeck::setButtonPressed(uint8_t buttonNumber, bool state)   {
 
 }
 
-uint8_t OpenDeck::getButtonType(uint8_t buttonNumber)  {
+buttonType OpenDeck::getButtonType(uint8_t buttonNumber)  {
 
     uint8_t arrayIndex = buttonNumber/8;
     uint8_t buttonIndex = buttonNumber - 8*arrayIndex;
 
-    if (bitRead(buttonType[arrayIndex], buttonIndex))
-        return SYS_EX_BUTTON_TYPE_LATCHING;
+    if (bitRead(_buttonType[arrayIndex], buttonIndex))
+        return buttonLatching;
 
-    return SYS_EX_BUTTON_TYPE_MOMENTARY;
+    return buttonMomentary;
 
 }
 
@@ -66,12 +65,12 @@ void OpenDeck::processMomentaryButton(uint8_t buttonNumber, bool buttonState)   
 
             if (getButtonPCenabled(buttonNumber))    {
 
-                sendProgramChangeCallback(_programChangeChannel, noteNumber[buttonNumber]);
+                sendProgramChange(_programChangeChannel, noteNumber[buttonNumber]);
                 return;
 
             }
 
-            sendNoteCallback(noteNumber[buttonNumber], true, _noteChannel);
+            sendMIDInote(noteNumber[buttonNumber], true, _noteChannel);
 
         }
 
@@ -80,7 +79,7 @@ void OpenDeck::processMomentaryButton(uint8_t buttonNumber, bool buttonState)   
             if (getButtonPressed(buttonNumber))    {
 
                 if (!getButtonPCenabled(buttonNumber))
-                    sendNoteCallback(noteNumber[buttonNumber], false, _noteChannel);
+                    sendMIDInote(noteNumber[buttonNumber], false, _noteChannel);
 
                 setButtonPressed(buttonNumber, false);
 
@@ -100,7 +99,7 @@ void OpenDeck::processLatchingButton(uint8_t buttonNumber, bool buttonState)    
             //if a button has been already pressed
             if (getButtonPressed(buttonNumber)) {
 
-                sendNoteCallback(noteNumber[buttonNumber], false, _noteChannel);
+                sendMIDInote(noteNumber[buttonNumber], false, _noteChannel);
 
                 //reset pressed state
                 setButtonPressed(buttonNumber, false);
@@ -108,7 +107,7 @@ void OpenDeck::processLatchingButton(uint8_t buttonNumber, bool buttonState)    
                 } else {
 
                 //send note on
-                sendNoteCallback(noteNumber[buttonNumber], true, _noteChannel);
+                sendMIDInote(noteNumber[buttonNumber], true, _noteChannel);
 
                 //toggle buttonPressed flag to true
                 setButtonPressed(buttonNumber, true);
@@ -125,57 +124,43 @@ void OpenDeck::readButtons()    {
 
     #ifdef BOARD
 
-        if (boardObject.digitalInDataAvailable())    {
+    if (!boardObject.digitalInDataAvailable()) return;
 
-            int8_t columnState = boardObject.getDigitalInData();
-            uint8_t columnNumber = boardObject.getActiveColumn();
+    uint8_t columnState = boardObject.getDigitalInData();
+    uint8_t columnNumber = boardObject.getActiveColumn();
 
-            if (columnStable(columnState, columnNumber))    {
+    if (columnStable(columnState, columnNumber))    {
 
-                for (int i=0; i<(NUMBER_OF_BUTTON_ROWS); i++)   {
+        for (int i=0; i<NUMBER_OF_BUTTON_ROWS; i++)   {
 
-                    //extract current bit from çolumnState variable
-                    //invert extracted bit because of pull-up resistors
-                    uint8_t buttonState = !((columnState >> i) & 0x01);
-                    //get current button number based on row and column
-                    uint8_t buttonNumber = columnNumber+i*NUMBER_OF_BUTTON_COLUMNS;
-                    ////get encoder pair number based on buttonNumber and current row
-                    ////uint8_t encoderPair = getEncoderPairNumber(i, buttonNumber);
+            //extract current bit from çolumnState variable
+            //invert extracted bit because of pull-up resistors
+            uint8_t buttonState = !((columnState >> i) & 0x01);
+            //get current button number based on row and column
+            uint8_t buttonNumber = columnNumber+i*NUMBER_OF_BUTTON_COLUMNS;
 
-                    ////if (!encoderPairEnabled[encoderPair])
-                    switch (getButtonType(buttonNumber))   {
+            switch (getButtonType(buttonNumber))   {
 
-                        case SYS_EX_BUTTON_TYPE_LATCHING:
-                        processLatchingButton(buttonNumber, buttonState);
-                        break;
+                case buttonLatching:
+                processLatchingButton(buttonNumber, buttonState);
+                break;
 
-                        case SYS_EX_BUTTON_TYPE_MOMENTARY:
-                        processMomentaryButton(buttonNumber, buttonState);
-                        break;
+                case buttonMomentary:
+                processMomentaryButton(buttonNumber, buttonState);
+                break;
 
-                        default:
-                        break;
-
-                    }
-
-                    ////else {
-                    ////
-                    ////processEncoderPair(encoderPair, columnState, i);
-                    //////skip next row since it's also part of current encoder
-                    ////i++;
-                    ////
-                    ////}
-
-                    updateButtonState(buttonNumber, buttonState);
-
-                }
+                default:
+                break;
 
             }
 
-            lastColumnState[columnNumber] = columnState;
-            boardObject.setDigitalProcessingFinished(true);
+            updateButtonState(buttonNumber, buttonState);
 
         }
+
+    }
+
+    lastColumnState[columnNumber] = columnState;
 
     #endif
 
@@ -212,5 +197,61 @@ bool OpenDeck::columnStable(uint16_t columnState, uint8_t columnNumber)   {
 
     //iterate over rows if column readings are stable
     return (columnPassCounter[columnNumber] == boardObject.getNumberOfColumnPasses());
+
+}
+
+void OpenDeck::sendMIDInote(uint8_t buttonNote, bool buttonState, uint8_t channel)  {
+
+    switch (buttonState) {
+
+        case false:
+        //button released
+        if (standardNoteOffEnabled())   {
+
+            #ifdef USBMIDI
+            usbMIDI.sendNoteOff(buttonNote, velocityOff, channel);
+            #endif
+
+            #ifdef HW_MIDI
+                MIDI.sendNoteOff(buttonNote, velocityOff, channel);
+            #endif
+
+        } else {
+
+            #ifdef HW_MIDI
+                MIDI.sendNoteOn(buttonNote, velocityOff, channel);
+            #endif
+
+            #ifdef USBMIDI
+                usbMIDI.sendNoteOn(buttonNote, velocityOff, channel);
+            #endif
+
+        }
+        break;
+
+        case true:
+        //button pressed
+        #ifdef HW_MIDI
+            MIDI.sendNoteOn(buttonNote, velocityOn, channel);
+        #endif
+
+        #ifdef USBMIDI
+            usbMIDI.sendNoteOn(buttonNote, velocityOn, channel);
+        #endif
+        break;
+
+    }
+
+}
+
+void OpenDeck::sendProgramChange(uint8_t channel, uint8_t program)    {
+
+    #ifdef USBMIDI
+        usbMIDI.sendProgramChange(program, channel);
+    #endif
+
+    #ifdef HW_MIDI
+        MIDI.sendProgramChange(program, channel);
+    #endif
 
 }

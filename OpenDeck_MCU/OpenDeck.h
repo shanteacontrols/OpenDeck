@@ -16,12 +16,11 @@ Author: Igor Petrovic
 #include "Board.h"
 #include "EEPROM.h"
 #include "SysEx.h"
-
-//velocity for on and off events
-#define MIDI_NOTE_ON_VELOCITY       127
-#define MIDI_NOTE_OFF_VELOCITY      0
-
-#define NUMBER_OF_START_UP_ROUTINES 5
+#include "MIDI.h"
+#include "Types.h"
+#include "Modules.h"
+#include "Version.h"
+#include "UniqueID.h"
 
 class OpenDeck  {
 
@@ -32,13 +31,6 @@ class OpenDeck  {
 
     //library initializer
     void init();
-
-    //callbacks
-    void setHandleNoteSend(void (*fptr)(uint8_t, bool, uint8_t));
-    void setHandleProgramChangeSend(void (*fptr)(uint8_t, uint8_t));
-    void setHandleControlChangeSend(void (*fptr)(uint8_t, uint8_t, uint8_t));
-    void setHandlePitchBendSend(void (*fptr)(uint16_t, uint8_t));
-    void setHandleSysExSend(void (*fptr)(uint8_t*, uint8_t));
 
     //buttons
     void readButtons();
@@ -52,17 +44,12 @@ class OpenDeck  {
     //LEDs
     void allLEDsOn();
     void allLEDsOff();
-    void storeReceivedNoteOn(uint8_t, uint8_t, uint8_t);
-    void checkLEDs(uint8_t);
 
-    //getters
-    uint8_t getInputMIDIchannel();
-    bool standardNoteOffEnabled();
-    bool ledOn(uint8_t);
+    //MIDI in
+    void checkMIDIIn();
 
-    //sysex
-    void processSysEx(uint8_t sysExArray[], uint8_t);
-    bool sysExSetDefaultConf();
+    friend void storeReceivedNoteOn(uint8_t channel, uint8_t note, uint8_t velocity);
+    friend void processSysEx(uint8_t sysExArray[], uint8_t arrSize, sysExSource messageSource);
 
     private:
 
@@ -83,49 +70,46 @@ class OpenDeck  {
                     _inputChannel;
 
     //buttons
-    uint8_t         buttonType[MAX_NUMBER_OF_BUTTONS/8],
-                    buttonPCenabled[MAX_NUMBER_OF_BUTTONS/8],
-                    noteNumber[MAX_NUMBER_OF_BUTTONS],
-                    previousButtonState[MAX_NUMBER_OF_BUTTONS/8],
-                    buttonPressed[MAX_NUMBER_OF_BUTTONS/8],
-                    lastColumnState[8],
-                    columnPassCounter[8];
+    uint8_t         _buttonType[MAX_NUMBER_OF_BUTTONS/8+1],
+                    buttonPCenabled[MAX_NUMBER_OF_BUTTONS/8+1],
+                    noteNumber[MAX_NUMBER_OF_BUTTONS+1],
+                    previousButtonState[MAX_NUMBER_OF_BUTTONS/8+1],
+                    buttonPressed[MAX_NUMBER_OF_BUTTONS/8+1],
+                    lastColumnState[NUMBER_OF_BUTTON_COLUMNS],
+                    columnPassCounter[NUMBER_OF_BUTTON_COLUMNS];
 
     //analog
-    uint8_t         analogEnabled[MAX_NUMBER_OF_ANALOG/8],
+    uint8_t         analogEnabled[MAX_NUMBER_OF_ANALOG/8+1],
                     analogType[MAX_NUMBER_OF_ANALOG],
-                    analogInverted[MAX_NUMBER_OF_ANALOG/8],
+                    analogInverted[MAX_NUMBER_OF_ANALOG/8+1],
                     ccNumber[MAX_NUMBER_OF_ANALOG],
                     analogLowerLimit[MAX_NUMBER_OF_ANALOG],
                     analogUpperLimit[MAX_NUMBER_OF_ANALOG],
                     analogDebounceCounter[MAX_NUMBER_OF_ANALOG];
 
-    int16_t         analogSample[MAX_NUMBER_OF_ANALOG][3];
-
-    int16_t         lastAnalogueValue[MAX_NUMBER_OF_ANALOG];
+    int16_t         analogSample[MAX_NUMBER_OF_ANALOG][3+1],
+                    lastAnalogueValue[MAX_NUMBER_OF_ANALOG];
 
     //encoders
-    int32_t         lastEncoderState[NUMBER_OF_ENCODERS];
-    uint8_t         initialEncoderDebounceCounter[NUMBER_OF_ENCODERS];
-    bool            encoderDirection[NUMBER_OF_ENCODERS];
-    uint32_t        lastEncoderSpinTime[NUMBER_OF_ENCODERS];
-    uint8_t         encoderNumber[NUMBER_OF_ENCODERS],
-                    encoderEnabled[NUMBER_OF_ENCODERS],
-                    pulsesPerStep[NUMBER_OF_ENCODERS],
-                    pulseCounter[NUMBER_OF_ENCODERS],
-                    encoderInverted[NUMBER_OF_ENCODERS],
-                    encoderFastMode[NUMBER_OF_ENCODERS];
+    uint8_t         encoderNumber[MAX_NUMBER_OF_ENCODERS],
+                    encoderEnabled[MAX_NUMBER_OF_ENCODERS/8+1],
+                    pulsesPerStep[MAX_NUMBER_OF_ENCODERS],
+                    encoderInverted[MAX_NUMBER_OF_ENCODERS/8+1],
+                    encoderFastMode[MAX_NUMBER_OF_ENCODERS/8+1],
+                    initialEncoderDebounceCounter[MAX_NUMBER_OF_ENCODERS];
+
+    uint32_t        lastEncoderSpinTime[MAX_NUMBER_OF_ENCODERS];
 
     //LEDs
     uint8_t         ledActNote[MAX_NUMBER_OF_LEDS],
                     totalNumberOfLEDs;
 
-    uint8_t         receivedChannel,
-                    receivedNote,
+    uint8_t         receivedNote,
                     receivedVelocity;
 
     //sysex
     bool            sysExEnabled;
+    sysExSource     sysExMessageSource;
 
     //general
     uint8_t         i;
@@ -135,13 +119,6 @@ class OpenDeck  {
     //init
     void initVariables();
     bool initialEEPROMwrite();
-
-    //callbacks
-    void (*sendNoteCallback)(uint8_t, bool, uint8_t);
-    void (*sendProgramChangeCallback)(uint8_t, uint8_t);
-    void (*sendControlChangeCallback)(uint8_t, uint8_t, uint8_t);
-    void (*sendPitchBendCallback)(uint16_t, uint8_t);
-    void (*sendSysExCallback)(uint8_t*, uint8_t);
 
     //configuration retrieval from EEPROM
     void getConfiguration();
@@ -165,20 +142,27 @@ class OpenDeck  {
     void getLEDHwParameters();
     void getLEDActivationNotes();
 
-    //MIDI channels
+    void clearEEPROM();
+
+    //MIDI
     uint8_t getMIDIchannel(uint8_t);
     bool setMIDIchannel(uint8_t, uint8_t);
+    bool standardNoteOffEnabled();
+    void sendMIDInote(uint8_t, bool, uint8_t);
+    void sendProgramChange(uint8_t, uint8_t);
+    void sendControlChange(uint8_t, uint8_t, uint8_t);
+    void sendSysEx(uint8_t *sysExArray, uint8_t size);
 
     //features
     bool getFeature(uint8_t, uint8_t);
     bool setFeature(uint8_t, uint8_t, bool);
 
     //buttons
-    uint8_t getButtonType(uint8_t);
+    buttonType getButtonType(uint8_t);
     bool setButtonType(uint8_t, bool);
     bool setButtonNote(uint8_t, uint8_t);
     uint8_t getButtonNote(uint8_t);
-    void procesButtonReading(uint8_t buttonNumber, uint8_t buttonState);
+    void procesButtonReading(uint8_t, uint8_t);
     bool getButtonPCenabled(uint8_t);
     bool setButtonPCenabled(uint8_t, bool);
     bool getButtonPressed(uint8_t);
@@ -187,7 +171,7 @@ class OpenDeck  {
     void processLatchingButton(uint8_t, bool);
     void updateButtonState(uint8_t, uint8_t);
     bool getPreviousButtonState(uint8_t);
-    bool columnStable(uint16_t columnState, uint8_t columnNumber);
+    bool columnStable(uint16_t, uint8_t);
 
     //analog
     bool getAnalogEnabled(uint8_t);
@@ -203,11 +187,14 @@ class OpenDeck  {
     bool checkAnalogReading(int16_t, uint8_t);
     void processAnalogReading(int16_t, uint8_t);
     int16_t getMedianValue(uint8_t analogID);
+    bool checkAnalogValueDifference(int16_t, uint8_t);
+    void addAnalogSample(uint8_t, int16_t);
+    bool analogValueSampled(uint8_t);
 
     //encoders
-    bool getEncoderEnabled(uint8_t encoderNumber);
+    bool getEncoderEnabled(uint8_t);
     bool setEncoderEnabled(uint8_t, bool);
-    bool getEncoderInvertState(uint8_t encoderNumber);
+    bool getEncoderInvertState(uint8_t);
     bool setEncoderInvertState(uint8_t, bool);
     uint8_t getEncoderPairEnabled(uint8_t);
     bool checkMemberOfEncPair(uint8_t, uint8_t);
@@ -233,6 +220,7 @@ class OpenDeck  {
     bool checkLEDsOff();
     void setLEDState();
     bool checkSameLEDvalue(uint8_t, uint8_t);
+    bool ledOn(uint8_t);
 
     //sysex
     bool sysExCheckMessageValidity(uint8_t*, uint8_t);
@@ -245,15 +233,14 @@ class OpenDeck  {
     bool sysExCheckNewParameterID(uint8_t, uint8_t, uint8_t, uint8_t);
     bool sysExCheckSpecial(uint8_t, uint8_t, uint8_t);
     uint8_t sysExGenerateMinMessageLenght(uint8_t, uint8_t, uint8_t, uint8_t);
-    void sysExGenerateError(uint8_t);
+    void sysExGenerateError(sysExError);
     void sysExGenerateAck();
     void sysExGenerateResponse(uint8_t*, uint8_t);
     uint8_t sysExGet(uint8_t, uint8_t, uint8_t);
     bool sysExSet(uint8_t, uint8_t, uint8_t, uint8_t);
     bool sysExRestore(uint8_t, uint8_t, uint16_t, int16_t);
-
-    //input
-    void checkReceivedNoteOn();
+    bool sysExSetDefaultConf();
+    void setSysExSource(sysExSource);
 
 };
 

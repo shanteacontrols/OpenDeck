@@ -11,4 +11,7 @@
 #define NUMBER_OF_LED_ROWS          4
 #define NUMBER_OF_ENCODERS          4
 
+#define NUMBER_OF_ENCODER_ROWS      4
+#define NUMBER_OF_ENCODER_COLUMNS   2
+
 #endif

@@ -9,145 +9,132 @@ Author: Igor Petrovic
 
 #include "OpenDeck.h"
 #include <avr/eeprom.h>
-#include "Ownduino.h"
-
-void OpenDeck::processSysEx(uint8_t sysExArray[], uint8_t arrSize)  {
-
-    if (sysExCheckMessageValidity(sysExArray, arrSize))
-        sysExGenerateResponse(sysExArray, arrSize);
-
-}
+#include "LEDsettings.h"
+#include "EncoderSettings.h"
+#include "SysEx.h"
 
 bool OpenDeck::sysExCheckMessageValidity(uint8_t sysExArray[], uint8_t arrSize)  {
 
     //don't respond to sysex message if device ID is wrong
-    if (sysExCheckID(sysExArray[SYS_EX_MS_M_ID_0], sysExArray[SYS_EX_MS_M_ID_1], sysExArray[SYS_EX_MS_M_ID_2]))  {
+    if (!sysExCheckID(sysExArray[SYS_EX_MS_M_ID_0], sysExArray[SYS_EX_MS_M_ID_1], sysExArray[SYS_EX_MS_M_ID_2])) return false;
 
-        //only check rest of the message if it's not just a ID check and controller has received handshake
-        if ((arrSize >= SYS_EX_ML_REQ_STANDARD) && (sysExEnabled))    {
+    //only check rest of the message if it's not just a ID check and controller has received handshake
+    if (!((arrSize >= SYS_EX_ML_REQ_STANDARD) && (sysExEnabled))) {
 
-            //check wish validity
-            if (sysExCheckWish(sysExArray[SYS_EX_MS_WISH]))    {
+        if (arrSize == (SYS_EX_ML_REQ_HANDSHAKE+1))   {
 
-                //check if wanted amount is correct
-                if (sysExCheckAmount(sysExArray[SYS_EX_MS_AMOUNT])) {
+            if (sysExArray[arrSize-2] == 0x7F)  {
 
-                    //check if message type is correct
-                    if (sysExCheckMessageType(sysExArray[SYS_EX_MS_MT])) {
+                #ifdef USBCON
+                    //this only works on USB boards
+                    boardObject.resetBoard();
+                #endif
 
-                        //check for special wish/amount/message type combinations
-                        if (!(sysExCheckSpecial(sysExArray[SYS_EX_MS_MT], sysExArray[SYS_EX_MS_WISH], sysExArray[SYS_EX_MS_AMOUNT])))
-                            return false;
+            }
 
-                        //determine minimum message length based on asked parameters
-                        if (arrSize < sysExGenerateMinMessageLenght(sysExArray[SYS_EX_MS_WISH],
-                                                                    sysExArray[SYS_EX_MS_AMOUNT],
-                                                                    sysExArray[SYS_EX_MS_MT],
-                                                                    sysExArray[SYS_EX_MS_MST]))    {
+        }
 
-                            sysExGenerateError(SYS_EX_ERROR_MESSAGE_LENGTH);
-                            return false;
+        if (arrSize != SYS_EX_ML_REQ_HANDSHAKE) {
 
-                        }
+            if (sysExEnabled)   sysExGenerateError(SYS_EX_ERROR_MESSAGE_LENGTH);
+            else                sysExGenerateError(SYS_EX_ERROR_HANDSHAKE);
+            return false;
 
-                        //check if subtype is correct
-                        if (sysExCheckMessageSubType(sysExArray[SYS_EX_MS_MT], sysExArray[SYS_EX_MS_MST]))   {
-
-                            //check if wanted parameter is valid only if single parameter is specified
-                            if (sysExArray[SYS_EX_MS_AMOUNT] == SYS_EX_AMOUNT_SINGLE) {
-
-                                if (sysExCheckParameterID(sysExArray[SYS_EX_MS_MT], sysExArray[SYS_EX_MS_MST], sysExArray[SYS_EX_MS_PARAMETER_ID]))  {
-
-                                    //if message wish is set, check new parameter
-                                    if (sysExArray[SYS_EX_MS_WISH] == SYS_EX_WISH_SET) {
-
-                                        if (!sysExCheckNewParameterID(  sysExArray[SYS_EX_MS_MT],
-                                                                        sysExArray[SYS_EX_MS_MST],
-                                                                        sysExArray[SYS_EX_MS_PARAMETER_ID],
-                                                                        sysExArray[SYS_EX_MS_NEW_PARAMETER_ID_SINGLE]))   {
-
-                                            sysExGenerateError(SYS_EX_ERROR_NEW_PARAMETER);
-                                            return false;
-
-                                        }
-
-                                    }
-
-                                }   else {
-
-                                    sysExGenerateError(SYS_EX_ERROR_PARAMETER);
-                                    return false;
-
-                                }
-
-                            }   else    {   //all parameters
-
-                                    //check each new parameter for set command
-                                    if (sysExArray[SYS_EX_MS_WISH] == SYS_EX_WISH_SET) {
-
-                                        uint8_t arrayIndex = SYS_EX_MS_NEW_PARAMETER_ID_ALL;
-
-                                        for (int i=0; i<(arrSize - arrayIndex)-1; i++)
-
-                                        if (!sysExCheckNewParameterID(  sysExArray[SYS_EX_MS_MT],
-                                                                        sysExArray[SYS_EX_MS_MST],
-                                                                        i,
-                                                                        sysExArray[arrayIndex+i]))   {
-
-                                            sysExGenerateError(SYS_EX_ERROR_NEW_PARAMETER);
-                                            return false;
-
-                                         }
-
-                                    }
-
-                                }
-
-                        }  else {
-
-                                sysExGenerateError(SYS_EX_ERROR_MST);
-                                return false;
-
-                            }
-
-                        }   else {
-
-                                sysExGenerateError(SYS_EX_ERROR_MT);
-                                return false;
-
-                            }
-
-                    }   else {
-
-                            sysExGenerateError(SYS_EX_ERROR_AMOUNT);
-                            return false;
-
-                        }
-
-                }   else {
-
-                        sysExGenerateError(SYS_EX_ERROR_WISH);
-                        return false;
-
-                    }
-
-            }   else    {
-
-                    if (arrSize != SYS_EX_ML_REQ_HANDSHAKE) {
-
-                        if (sysExEnabled)   sysExGenerateError(SYS_EX_ERROR_MESSAGE_LENGTH);
-                        else                sysExGenerateError(SYS_EX_ERROR_HANDSHAKE);
-                        return false;
-
-                    }
-
-                }
-
-            return true;
+        }   return true;
 
     }
 
-    return false;
+    //check wish validity
+    if (!sysExCheckWish(sysExArray[SYS_EX_MS_WISH]))    {
+
+        sysExGenerateError(SYS_EX_ERROR_WISH);
+        return false;
+
+    }
+
+    //check if wanted amount is correct
+    if (!sysExCheckAmount(sysExArray[SYS_EX_MS_AMOUNT]))    {
+
+        sysExGenerateError(SYS_EX_ERROR_AMOUNT);
+        return false;
+
+    }
+
+    //check if message type is correct
+    if (!sysExCheckMessageType(sysExArray[SYS_EX_MS_MT]))    {
+
+        sysExGenerateError(SYS_EX_ERROR_MT);
+        return false;
+
+    } else {
+
+        //check for special wish/amount/message type combinations
+        if (!(sysExCheckSpecial(sysExArray[SYS_EX_MS_MT], sysExArray[SYS_EX_MS_WISH], sysExArray[SYS_EX_MS_AMOUNT])))
+            return false;
+
+        //determine minimum message length based on asked parameters
+        if (arrSize < sysExGenerateMinMessageLenght(sysExArray[SYS_EX_MS_WISH], sysExArray[SYS_EX_MS_AMOUNT],sysExArray[SYS_EX_MS_MT], sysExArray[SYS_EX_MS_MST]))    {
+
+            sysExGenerateError(SYS_EX_ERROR_MESSAGE_LENGTH);
+            return false;
+
+        }
+
+    }
+
+    //check if subtype is correct
+    if (!sysExCheckMessageSubType(sysExArray[SYS_EX_MS_MT], sysExArray[SYS_EX_MS_MST])) {
+
+        sysExGenerateError(SYS_EX_ERROR_MST);
+        return false;
+
+    }
+
+    //check if wanted parameter is valid only if single parameter is specified
+    if (sysExArray[SYS_EX_MS_AMOUNT] == SYS_EX_AMOUNT_SINGLE)   {
+
+        if (!sysExCheckParameterID(sysExArray[SYS_EX_MS_MT], sysExArray[SYS_EX_MS_MST], sysExArray[SYS_EX_MS_PARAMETER_ID]))  {
+
+            sysExGenerateError(SYS_EX_ERROR_PARAMETER);
+            return false;
+
+        }
+
+        //if message wish is set, check new parameter
+        if (sysExArray[SYS_EX_MS_WISH] == SYS_EX_WISH_SET) {
+
+            if (!sysExCheckNewParameterID(sysExArray[SYS_EX_MS_MT], sysExArray[SYS_EX_MS_MST], sysExArray[SYS_EX_MS_PARAMETER_ID], sysExArray[SYS_EX_MS_NEW_PARAMETER_ID_SINGLE]))  {
+
+                sysExGenerateError(SYS_EX_ERROR_NEW_PARAMETER);
+                return false;
+
+            }
+
+        }
+
+    } else {
+
+        //all parameters
+
+        //check each new parameter for set command
+        if (sysExArray[SYS_EX_MS_WISH] == SYS_EX_WISH_SET) {
+
+            uint8_t arrayIndex = SYS_EX_MS_NEW_PARAMETER_ID_ALL;
+
+            for (int i=0; i<(arrSize - arrayIndex)-1; i++)
+
+            if (!sysExCheckNewParameterID(sysExArray[SYS_EX_MS_MT], sysExArray[SYS_EX_MS_MST], i, sysExArray[arrayIndex+i]))   {
+
+                sysExGenerateError(SYS_EX_ERROR_NEW_PARAMETER);
+                return false;
+
+            }
+
+        }
+
+    }
+
+    return true;
 
 }
 
@@ -198,7 +185,7 @@ bool OpenDeck::sysExCheckMessageSubType(uint8_t messageType, uint8_t messageSubT
         break;
 
         case SYS_EX_MT_LEDS:
-        return ((messageSubType >= SYS_EX_MST_LEDS_START) && (messageSubType < SYS_EX_LED_END));
+        return ((messageSubType >= SYS_EX_MST_LEDS_START) && (messageSubType < SYS_EX_MST_LEDS_END));
         break;
 
         case SYS_EX_MT_ENCODERS:
@@ -376,7 +363,7 @@ bool OpenDeck::sysExCheckNewParameterID(uint8_t messageType, uint8_t messageSubT
             break;
 
             case SYS_EX_MST_ENCODERS_PULSES_PER_STEP:
-            return ((newParameter >= SYS_EX_ENCODERS_PULSES_PER_STEP_MIN) && (newParameter <= SYS_EX_ENCODERS_PULSES_PER_STEP_MAX));
+            return ((newParameter >= PULSES_PER_STEP_MIN) && (newParameter <= PULSES_PER_STEP_MAX));
             break;
 
         }
@@ -403,15 +390,19 @@ bool OpenDeck::sysExCheckNewParameterID(uint8_t messageType, uint8_t messageSubT
                 break;
 
                 case SYS_EX_LEDS_HW_P_BLINK_TIME:
-                return ((newParameter >= SYS_EX_LED_BLINK_TIME_MIN) && (newParameter <= SYS_EX_LED_BLINK_TIME_MAX));
+                return ((newParameter >= BLINK_TIME_MIN) && (newParameter <= BLINK_TIME_MAX));
                 break;
 
                 case SYS_EX_LEDS_HW_P_START_UP_SWITCH_TIME:
-                return ((newParameter >= SYS_EX_LED_START_UP_SWITCH_TIME_MIN) && (newParameter <= SYS_EX_LED_START_UP_SWITCH_TIME_MAX));
+                return ((newParameter >= START_UP_SWITCH_TIME_MIN) && (newParameter <= START_UP_SWITCH_TIME_MAX));
                 break;
 
                 case SYS_EX_LEDS_HW_P_START_UP_ROUTINE:
                 return (newParameter < NUMBER_OF_START_UP_ROUTINES);
+                break;
+
+                case SYS_EX_LEDS_HW_P_FADE_TIME:
+                return ((newParameter >= FADE_TIME_MIN) && (newParameter <= FADE_TIME_MAX));
                 break;
 
             }
@@ -580,9 +571,12 @@ uint8_t OpenDeck::sysExGenerateMinMessageLenght(uint8_t wish, uint8_t amount, ui
                 switch (messageSubType) {
 
                     case SYS_EX_MST_LEDS_ACT_NOTE:
-                    case SYS_EX_MST_LEDS_START_UP_NUMBER:
                     case SYS_EX_MST_LEDS_STATE:
                     return SYS_EX_ML_REQ_STANDARD + MAX_NUMBER_OF_LEDS;
+                    break;
+
+                    case SYS_EX_MST_LEDS_START_UP_NUMBER:
+                    return totalNumberOfLEDs;
                     break;
 
                     case SYS_EX_MST_LEDS_HW_P:
@@ -609,32 +603,35 @@ uint8_t OpenDeck::sysExGenerateMinMessageLenght(uint8_t wish, uint8_t amount, ui
 
 }
 
-void OpenDeck::sysExGenerateError(uint8_t errorNumber)  {
+void OpenDeck::sysExGenerateError(sysExError errorID)  {
 
     uint8_t sysExResponse[5];
 
     sysExResponse[0] = SYS_EX_M_ID_0;
     sysExResponse[1] = SYS_EX_M_ID_1;
     sysExResponse[2] = SYS_EX_M_ID_2;
-    sysExResponse[3] = SYS_EX_ERROR;
-    sysExResponse[4] = errorNumber;
+    sysExResponse[3] = SYS_EX_NACK;
+    sysExResponse[4] = errorID;
 
-    sendSysExCallback(sysExResponse, 5);
+    sendSysEx(sysExResponse, 5);
 
 }
 
 void OpenDeck::sysExGenerateAck()   {
 
-    uint8_t sysExAckResponse[4];
+    uint8_t sysExAckResponse[7];
 
     sysExAckResponse[0] = SYS_EX_M_ID_0;
     sysExAckResponse[1] = SYS_EX_M_ID_1;
     sysExAckResponse[2] = SYS_EX_M_ID_2;
-    sysExAckResponse[3] = SYS_EX_ACK;
+    sysExAckResponse[3] = VERSION_BYTE_0;
+    sysExAckResponse[4] = VERSION_BYTE_1;
+    sysExAckResponse[5] = VERSION_BYTE_2;
+    sysExAckResponse[6] = SYS_EX_ACK;
 
     sysExEnabled = true;
 
-    sendSysExCallback(sysExAckResponse, 4);
+    sendSysEx(sysExAckResponse, 7);
 
 }
 
@@ -653,7 +650,7 @@ void OpenDeck::sysExGenerateResponse(uint8_t sysExArray[], uint8_t arrSize)  {
     int16_t maxComponentNr  = 0;
 
     //create basic response
-    uint8_t sysExResponse[128+SYS_EX_ML_RES_BASIC];
+    uint8_t sysExResponse[64+SYS_EX_ML_RES_BASIC];
 
     //copy first part of request to response
     for (int i=0; i<(SYS_EX_ML_RES_BASIC-1); i++)
@@ -752,6 +749,26 @@ void OpenDeck::sysExGenerateResponse(uint8_t sysExArray[], uint8_t arrSize)  {
         maxComponentNr = (int16_t)sizeof(defConf);
         break;
 
+        case SYS_EX_MT_ENCODERS:
+        switch (sysExArray[SYS_EX_MS_MST])  {
+
+            case SYS_EX_MST_ENCODERS_ENABLED:
+            case SYS_EX_MST_ENCODERS_FAST_MODE:
+            case SYS_EX_MST_ENCODERS_INVERTED:
+            case SYS_EX_MST_ENCODERS_NUMBER:
+            case SYS_EX_MST_ENCODERS_PULSES_PER_STEP:
+            maxComponentNr = NUMBER_OF_ENCODERS;
+            break;
+
+            case SYS_EX_MST_ENCODERS_HW_P:
+            maxComponentNr = SYS_EX_ENCODERS_HW_P_END;
+            break;
+
+            default:
+            break;
+
+        }
+
         default:
         break;
 
@@ -772,7 +789,7 @@ void OpenDeck::sysExGenerateResponse(uint8_t sysExArray[], uint8_t arrSize)  {
 
         }
 
-        sendSysExCallback(sysExResponse, SYS_EX_ML_RES_BASIC+componentNr);
+        sendSysEx(sysExResponse, SYS_EX_ML_RES_BASIC+componentNr);
         return;
 
     }   else    if (sysExArray[SYS_EX_MS_WISH] == SYS_EX_WISH_SET)   {          //set
@@ -804,7 +821,7 @@ void OpenDeck::sysExGenerateResponse(uint8_t sysExArray[], uint8_t arrSize)  {
 
             }
 
-            sendSysExCallback(sysExResponse, SYS_EX_ML_RES_BASIC);
+            sendSysEx(sysExResponse, SYS_EX_ML_RES_BASIC);
             return;
 
         }   else if (sysExArray[SYS_EX_MS_WISH] == SYS_EX_WISH_RESTORE) {       //restore
@@ -816,7 +833,7 @@ void OpenDeck::sysExGenerateResponse(uint8_t sysExArray[], uint8_t arrSize)  {
 
                 }
 
-                sendSysExCallback(sysExResponse, SYS_EX_ML_RES_BASIC);
+                sendSysEx(sysExResponse, SYS_EX_ML_RES_BASIC);
                 return;
 
             }
@@ -1038,8 +1055,11 @@ uint8_t OpenDeck::getLEDHwParameter(uint8_t parameter)  {
         break;
 
         case SYS_EX_LEDS_HW_P_START_UP_ROUTINE:
-        startUpRoutine();
         return eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_START_UP_ROUTINE);
+        break;
+
+        case SYS_EX_LEDS_HW_P_FADE_TIME:
+        return eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_FADE_SPEED);
         break;
 
         default:
@@ -1475,13 +1495,13 @@ bool OpenDeck::setButtonType(uint8_t buttonNumber, bool type)  {
     uint8_t buttonIndex = buttonNumber - 8*arrayIndex;
     uint16_t eepromAddress = EEPROM_BUTTONS_TYPE_START+arrayIndex;
 
-    bitWrite(buttonType[arrayIndex], buttonIndex, type);
-    eeprom_update_byte((uint8_t*)eepromAddress, buttonType[arrayIndex]);
+    bitWrite(_buttonType[arrayIndex], buttonIndex, type);
+    eeprom_update_byte((uint8_t*)eepromAddress, _buttonType[arrayIndex]);
 
     setButtonPressed(buttonNumber, false);
     updateButtonState(buttonNumber, false);
 
-    return (buttonType[arrayIndex] == eeprom_read_byte((uint8_t*)eepromAddress));
+    return (_buttonType[arrayIndex] == eeprom_read_byte((uint8_t*)eepromAddress));
 
 }
 
@@ -1533,15 +1553,24 @@ bool OpenDeck::setLEDHwParameter(uint8_t parameter, uint8_t value) {
         case SYS_EX_LEDS_HW_P_START_UP_SWITCH_TIME:
         //start-up led switch time
         eeprom_update_byte((uint8_t*)EEPROM_LEDS_HW_P_START_UP_SWITCH_TIME, value);
-        startUpRoutine();
         return (eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_START_UP_SWITCH_TIME) == value);
         break;
 
         case SYS_EX_LEDS_HW_P_START_UP_ROUTINE:
         //set start-up routine pattern
         eeprom_update_byte((uint8_t*)EEPROM_LEDS_HW_P_START_UP_ROUTINE, value);
-        startUpRoutine();
         return (eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_START_UP_ROUTINE) == value);
+        break;
+
+        case SYS_EX_LEDS_HW_P_FADE_TIME:
+        boardObject.resetLEDtransitions();
+        eeprom_update_byte((uint8_t*)EEPROM_LEDS_HW_P_FADE_SPEED, value);
+        if (eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_FADE_SPEED) == value) {
+
+            boardObject.setLEDTransitionSpeed(value);
+            return true;
+
+        } return false;
         break;
 
     }   return false;
@@ -1617,10 +1646,10 @@ bool OpenDeck::setAnalogLimit(uint8_t limitType, uint8_t _ccNumber, uint8_t newL
 
 }
 
-bool OpenDeck::setEncoderEnabled(uint8_t encoder, bool state)    {
+bool OpenDeck::setEncoderEnabled(uint8_t encoderID, bool state)    {
 
-    uint8_t arrayIndex = encoder/8;
-    uint8_t encoderIndex = encoder - 8*arrayIndex;
+    uint8_t arrayIndex = encoderID >> 3;
+    uint8_t encoderIndex = encoderID - 8*arrayIndex;
     uint16_t eepromAddress = EEPROM_ENCODERS_ENABLED_START+arrayIndex;
 
     bitWrite(encoderEnabled[arrayIndex], encoderIndex, state);
@@ -1630,10 +1659,10 @@ bool OpenDeck::setEncoderEnabled(uint8_t encoder, bool state)    {
 
 }
 
-bool OpenDeck::setEncoderInvertState(uint8_t encoder, bool state)    {
+bool OpenDeck::setEncoderInvertState(uint8_t encoderID, bool state)    {
 
-    uint8_t arrayIndex = encoder/8;
-    uint8_t encoderIndex = encoder - 8*arrayIndex;
+    uint8_t arrayIndex = encoderID >> 3;
+    uint8_t encoderIndex = encoderID - 8*arrayIndex;
     uint16_t eepromAddress = EEPROM_ENCODERS_INVERTED_START+arrayIndex;
 
     bitWrite(encoderInverted[arrayIndex], encoderIndex, state);
@@ -1703,6 +1732,8 @@ bool OpenDeck::setLEDstartNumber(uint8_t startNumber, uint8_t ledNumber) {
 
 bool OpenDeck::sysExSetDefaultConf()    {
 
+    //erase entire eeprom first
+
     //write default configuration stored in PROGMEM to EEPROM
     for (int i=0; i<(int16_t)sizeof(defConf); i++)  {
 
@@ -1714,5 +1745,52 @@ bool OpenDeck::sysExSetDefaultConf()    {
 
     getConfiguration();
     return true;
+
+}
+
+void OpenDeck::sendSysEx(uint8_t *sysExArray, uint8_t size)   {
+
+    #ifdef USBMIDI
+        uint8_t usbArraySize = size+2;
+        uint8_t usbSysExArray[usbArraySize];
+    #endif
+
+    switch (sysExMessageSource) {
+
+        case midiSource:
+        #ifdef HW_MIDI
+            MIDI.sendSysEx(size, sysExArray, false);
+        #endif
+        break;
+
+        case usbSource:
+        #ifdef USBMIDI
+            //usbMIDI.sendSysEx needs start and stop byte (F0 and F7)
+
+            //init array
+            for (int i=0; i<usbArraySize; i++) usbSysExArray[i] = 0;
+
+            //append sysex start byte
+            usbSysExArray[0] = 0xF0;
+
+            //copy array
+            for (int i=0; i<size; i++)
+            usbSysExArray[i+1] = sysExArray[i];
+
+            //append sysexstop byte
+            usbSysExArray[size+1] = 0xF7;
+
+            //send modified array
+            usbMIDI.sendSysEx(usbArraySize, usbSysExArray);
+        #endif
+        break;
+
+    }
+
+}
+
+void OpenDeck::setSysExSource(sysExSource source)   {
+
+    sysExMessageSource = source;
 
 }

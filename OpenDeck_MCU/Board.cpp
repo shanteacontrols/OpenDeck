@@ -1,40 +1,49 @@
 #include "Board.h"
 #include "SysEx.h"
 
-#include <Ownduino.h>
-
+#include "LEDsettings.h"
+#include "EEPROM.h"
 #include <avr/interrupt.h>
 #include <util/delay.h>
+#include <avr/cpufunc.h>
+#include <avr/wdt.h>
+#include <avr/eeprom.h>
+#include "Types.h"
 
 //variables used by interrupts
-volatile uint8_t    activeButtonColumn  = 0,
-                    activeLEDColumn     = 0,
-                    ledState[MAX_NUMBER_OF_LEDS],
-                    activeMuxInput = 0,
-                    tempEncoderState[NUMBER_OF_ENCODERS] = { 0 };
+volatile int8_t             activeButtonColumn  = -1,
+                            activeEncoderColumn = -1,
+                            activeLEDColumn = -1;
 
-volatile int16_t    analogBuffer[DIGITAL_BUFFER_SIZE] = { -1 };
-volatile int8_t     digitalBuffer[DIGITAL_BUFFER_SIZE] = { -1 };
+volatile uint8_t            ledState[MAX_NUMBER_OF_LEDS],
+                            activeMuxInput = 0,
+                            tempEncoderState[NUMBER_OF_ENCODERS] = { 0 };
 
-volatile uint32_t   blinkTimerCounter = 0;
-volatile int32_t    encoderPosition[NUMBER_OF_ENCODERS] = { 0 };
+int16_t                     transitionCounter[MAX_NUMBER_OF_LEDS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-uint8_t             blinkEnabled = false,
-                    blinkState = true,
-                    analogueEnabledArray[8] = { 0 };
+volatile uint8_t            digitalBuffer;
+volatile int16_t            analogBuffer[8] = { 0 };
 
-static const int8_t enc_states [] = {0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0};
+volatile uint32_t           blinkTimerCounter = 0;
 
-uint16_t            ledBlinkTime;
+uint8_t                     blinkEnabled = false,
+                            blinkState = true,
+                            analogueEnabledArray[8] = { 0 };
 
-volatile bool changeSwitch = true;
+uint16_t                    ledBlinkTime;
 
-volatile bool analogReadFinished = false;
-volatile bool digitalReadFinished = false;
+bool                        encoderDirection[MAX_NUMBER_OF_ENCODERS] = { 0 };
+int32_t                     encoderPulses[MAX_NUMBER_OF_ENCODERS] = { 0 };
+volatile encoderPosition    encoderMoving[MAX_NUMBER_OF_ENCODERS] = { encStopped };
+static const int8_t         encoderLookUpTable[] = { 0, 1, -1, 2, -1, 0, -2, 1, 1, -2, 0, -1, 2, -1, 1, 0 };
 
-volatile int8_t activeMux = 0;
+volatile int8_t             activeMux = 0;
+volatile uint32_t           rTime_ms = 0;
 
-//inline functions
+volatile int8_t             pwmSteps = eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_FADE_SPEED);
+volatile bool analogDataAvailable = false;
+static const uint8_t ledOnLookUpTable[] = { 0, 0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 0, 0, 0, 0, 255, 0, 0 };
+uint8_t lastRequestedColumn = -1;
 
 void Board::resetLEDblinkCounter()  {
 
@@ -51,11 +60,13 @@ inline void setMuxInternal(uint8_t muxNumber)   {
 inline void setMuxInputInteral(uint8_t muxInput)    {
 
     #ifdef BOARD_TANNIN
-        //TO-DO
+        PORTF &= 0b00011111;
+        PORTF |= (muxInput << 5);
+        _NOP();
     #elif defined BOARD_OPENDECK_1
         PORTC &= 0xF8;
         PORTC |= muxInput;
-        NOP;
+        _NOP();
     #endif
 
 }
@@ -63,44 +74,71 @@ inline void setMuxInputInteral(uint8_t muxInput)    {
 inline void ledRowsOff()   {
 
     #ifdef BOARD_TANNIN
-    //TO-DO
+        //PORTB &= 0x1F;
+        //PORTD &= 0xFE;
+        digitalWrite(4, LOW);
+        digitalWrite(5, LOW);
+        digitalWrite(A7, LOW);
+        digitalWrite(A6, LOW);
     #elif defined BOARD_OPENDECK_1
-    PORTB &= 0xF0;
+        PORTB &= 0xF0;
     #endif
 
 }
 
-inline void ledRowOn(uint8_t rowNumber)  {
+inline void ledRowOn(uint8_t rowNumber, uint8_t intensity)  {
 
     #ifdef BOARD_TANNIN
-    //TO-DO
+        switch (rowNumber)  {
+
+            case 0:
+            //PORTB |= 0b10000000;
+            analogWrite(4, intensity);
+            break;
+
+            case 1:
+            //PORTD |= 0b00000001;
+            analogWrite(5, intensity);
+            break;
+
+            case 2:
+            //PORTB |= 0b00100000;
+            analogWrite(A7, intensity);
+            break;
+
+            case 3:
+            //PORTB |= 0b01000000;
+            analogWrite(A6, intensity);
+            break;
+
+        }
     #elif defined BOARD_OPENDECK_1
-    switch (rowNumber)  {
+        switch (rowNumber)  {
 
-        case 0:
-        //turn on first LED row
-        PORTB |= 0x01;
-        break;
+            case 0:
+            //turn on first LED row
+            PORTB |= 0x01;
+            break;
 
-        case 1:
-        //turn on second LED row
-        PORTB |= 0x02;
-        break;
+            case 1:
+            //turn on second LED row
+            PORTB |= 0x02;
+            break;
 
-        case 2:
-        //turn on third LED row
-        PORTB |= 0x04;
-        break;
+            case 2:
+            //turn on third LED row
+            PORTB |= 0x04;
+            break;
 
-        case 3:
-        //turn on fourth LED row
-        PORTB |= 0x08;
-        break;
+            case 3:
+            //turn on fourth LED row
+            PORTB |= 0x08;
+            break;
 
-        default:
-        break;
+            default:
+            break;
 
-    }
+        }
     #endif
 
 }
@@ -109,7 +147,7 @@ inline void checkLEDs()  {
 
     if (blinkEnabled)   {
 
-        if (blinkTimerCounter == 0)  {
+        if (!blinkTimerCounter)  {
 
             //change blinkBit state and write it into ledState variable if LED is in blink state
             for (int i = 0; i<MAX_NUMBER_OF_LEDS; i++)  {
@@ -133,24 +171,42 @@ inline void checkLEDs()  {
 
     }
 
-    uint8_t ledNumber;
-
     //if there is an active LED in current column, turn on LED row
-    for (int i=0; i<NUMBER_OF_LED_ROWS; i++)  {
+    #if defined (BOARD_OPENDECK_1)
+        //don't bother with LED transitions as PWM is not supported on OpenDeck board yet
+        for (int i=0; i<NUMBER_OF_LED_ROWS; i++)  {
 
-        ledNumber = activeButtonColumn+i*NUMBER_OF_LED_COLUMNS;
-        if  (
+            uint8_t ledNumber = activeButtonColumn+i*NUMBER_OF_LED_COLUMNS;
+            uint8_t ledStateSingle = ledOnLookUpTable[ledState[ledNumber]];
+            if (ledStateSingle) ledRowOn(i, 255);
 
-        ledState[ledNumber] == 0x05 ||
-        ledState[ledNumber] == 0x15 ||
-        ledState[ledNumber] == 0x16 ||
-        ledState[ledNumber] == 0x1D ||
-        ledState[ledNumber] == 0x0D ||
-        ledState[ledNumber] == 0x17
+        }
+    #elif defined BOARD_TANNIN
+        //do fancy transitions here
+        for (int i=0; i<NUMBER_OF_LED_ROWS; i++)  {
 
-        )   ledRowOn(i);
+            uint8_t ledNumber = activeButtonColumn+i*NUMBER_OF_LED_COLUMNS;
+            uint8_t ledStateSingle = ledOnLookUpTable[ledState[ledNumber]];
 
-    }
+            if (!pwmSteps && ledStateSingle) ledRowOn(i, ledStateSingle);
+            else if (pwmSteps) {
+
+                if (ledStateSingle && (transitionCounter[ledNumber] == (NUMBER_OF_TRANSITIONS-1)))  {
+
+                    ledRowOn(i, ledTransitionScale[NUMBER_OF_TRANSITIONS-1]);
+                    continue;
+
+                } else if (!ledStateSingle && !transitionCounter[ledNumber]) continue;
+
+                if (transitionCounter[ledNumber]) ledRowOn(i, ledTransitionScale[transitionCounter[ledNumber]]);
+                transitionCounter[ledNumber] += ledStateSingle ? pwmSteps : (pwmSteps*-1);
+                if (transitionCounter[ledNumber] >= NUMBER_OF_TRANSITIONS) transitionCounter[ledNumber] = NUMBER_OF_TRANSITIONS-1;
+                else if (transitionCounter[ledNumber] < 0) transitionCounter[ledNumber] = 0;
+
+            }
+
+        }
+    #endif
 
 }
 
@@ -173,51 +229,71 @@ inline void setBlinkState(uint8_t ledNumber, bool state)   {
 inline void activateColumn()   {
 
     #ifdef BOARD_TANNIN
-    //TO-DO
+        PORTD &= 0b000011111;
+        PORTD |= (activeButtonColumn << 5);
     #elif defined BOARD_OPENDECK_1
+        //column switching is controlled by 74HC238 decoder
+        PORTC &= 0xC7;
+        switch (activeButtonColumn) {
 
-    //column switching is controlled by 74HC238 decoder
-    PORTC &= 0xC7;
-    switch (activeButtonColumn) {
+            case 0:
+            PORTC &= 0xC7;
+            break;
+
+            case 1:
+            PORTC |= (0xC7 | 0x20);
+            break;
+
+            case 2:
+            PORTC |= (0xC7 | 0x10);
+            break;
+
+            case 3:
+            PORTC |= (0xC7 | 0x30);
+            break;
+
+            case 4:
+            PORTC |= (0xC7 | 0x08);
+            break;
+
+            case 5:
+            PORTC |= (0xC7 | 0x28);
+            break;
+
+            case 6:
+            PORTC |= (0xC7 | 0x18);
+            break;
+
+            case 7:
+            PORTC |= (0xC7 | 0x38);
+            break;
+
+            default:
+            break;
+
+        }
+    #endif
+
+}
+
+inline void activateEncoderColumn(uint8_t column)   {
+
+    PORTC |= 0b11000000;
+
+    switch (column) {
 
         case 0:
-        PORTC &= 0xC7;
+        PORTC &= 0b10111111;
         break;
 
         case 1:
-        PORTC |= (0xC7 | 0x20);
-        break;
-
-        case 2:
-        PORTC |= (0xC7 | 0x10);
-        break;
-
-        case 3:
-        PORTC |= (0xC7 | 0x30);
-        break;
-
-        case 4:
-        PORTC |= (0xC7 | 0x08);
-        break;
-
-        case 5:
-        PORTC |= (0xC7 | 0x28);
-        break;
-
-        case 6:
-        PORTC |= (0xC7 | 0x18);
-        break;
-
-        case 7:
-        PORTC |= (0xC7 | 0x38);
+        PORTC &= 0b01111111;
         break;
 
         default:
         break;
 
     }
-
-    #endif
 
 }
 
@@ -226,125 +302,111 @@ inline void storeDigitalIn()  {
     uint8_t data = 0;
 
     #ifdef BOARD_TANNIN
-    //TO-DO
+        //pulse latch pin
+        PORTD &= 0b11101111;
+        _NOP();
+        PORTD |= 0b00010000;
+
+        for (int i=0; i<8; i++) {
+
+            data = (data << 1);
+            data |= ((PIND >> 1) & 0x01);
+            //pulse clock pin
+            PORTB |= 0b00010000;
+            _NOP();
+            PORTB &= 0b11101111;
+
+        }
     #elif defined BOARD_OPENDECK_1
-    data = ((PIND >> 4) & 0x0F);
+        data = ((PIND >> 4) & 0x0F);
     #endif
 
-    digitalBuffer[activeButtonColumn] = data;
-
-    //uint16_t i = (unsigned int)(buffer->head + 1) % DIGITAL_BUFFER_SIZE;
-//
-    //if (i != buffer->tail) {
-//
-        //buffer->buffer[buffer->head] = data;
-        //buffer->head = i;
-//
-    //}
+    digitalBuffer = data;
 
 }
 
 inline void readEncoders()  {
 
-    #ifdef BOARD_OPENDECK_1
-    #ifdef TANNIN_2_PROTOTYPE
-    uint8_t shiftRegisterState = 0;
+    #if defined (BOARD_OPENDECK_1)
 
-    //pulse latch pin
-    PORTB &= 0b11011111;
-    NOP; NOP;
-    PORTB |= 0b00100000;
+        uint8_t encRead = (PIND >> 2) & 0x03;
+        uint8_t encoderNumber = 0;
 
-    for (int i=0; i<8; i++) {
+        tempEncoderState[encoderNumber] = ((tempEncoderState[encoderNumber] << 2) | encoderValue) & 0x0F;
+        bool lastEncoderDirection = encoderDirection[encoderNumber];
 
-        shiftRegisterState = (shiftRegisterState << 1);
-        shiftRegisterState |= ((PIND >> 3) & 0x01);
-        //pulse clock pin
-        PORTB |= 0b00010000;
-        NOP; NOP;
-        PORTB &= 0b11101111;
+        int8_t encRead = encoderLookUpTable[tempEncoderState[encoderNumber]];
 
-    }
+        if (encRead)    {
 
-    for (int i=0; i<NUMBER_OF_ENCODERS; i++)    {
+            encoderPulses[encoderNumber] += encRead;
+            encoderDirection[encoderNumber] = encRead > 0;
 
-        uint8_t tempState = tempEncoderState[i] & 0x03;
-        uint8_t tempRegisterState = (shiftRegisterState >> (i*2)) & 0x03;
+            if (lastEncoderDirection == encoderDirection[encoderNumber])    {
 
-        if (tempRegisterState & 0x01)         tempState |= 4;
-        if ((tempRegisterState >> 1) & 0x01)  tempState |= 8;
+                if ((encoderPulses[encoderNumber] % PULSES_PER_STEP) == 0)   {
 
-        tempEncoderState[i] = (tempState >> 2);
+                    if (lastEncoderDirection) encoderMoving[encoderNumber] = encMoveLeft;
+                    else encoderMoving[encoderNumber] = encMoveRight;
 
-        switch (tempState) {
+                }
 
-            case 1:
-            case 7:
-            case 8:
-            case 14:
-            encoderPosition[i]++;
-            break;
-
-            case 2:
-            case 4:
-            case 11:
-            case 13:
-            encoderPosition[i]--;
-            break;
-
-            case 3:
-            case 12:
-            encoderPosition[i] += 2;
-            break;
-
-            case 6:
-            case 9:
-            encoderPosition[i] -= 2;
-            break;
+            }
 
         }
 
-    }
-    #else
-    uint8_t encRead = (PIND >> 2) & 0x03;
-    uint8_t tempState = tempEncoderState[0] & 0x03;
+    #elif defined (BOARD_TANNIN)
 
-    if (encRead & 0x01)         tempState |= 4;
-    if ((encRead >> 1) & 0x01)  tempState |= 8;
+        //encoders are setup in matrix setup, like buttons
 
-    tempEncoderState[0] = (tempState >> 2);
+        uint8_t columnState;
 
-    switch (tempState) {
+        for (int i=0; i<NUMBER_OF_ENCODER_COLUMNS; i++) {
 
-        case 1:
-        case 7:
-        case 8:
-        case 14:
-        encoderPosition[0]++;
-        break;
+            activateEncoderColumn(i);
+            columnState = PINB & 0x0F;  //two encoder states
 
-        case 2:
-        case 4:
-        case 11:
-        case 13:
-        encoderPosition[0]--;
-        break;
+            for (int j=0; j<NUMBER_OF_ENCODER_ROWS; j++)    {
 
-        case 3:
-        case 12:
-        encoderPosition[0] += 2;
-        break;
+                bool rowEven = (j % 2 == 0);
+                if (!rowEven) continue;
 
-        case 6:
-        case 9:
-        encoderPosition[0] -= 2;
-        break;
+                uint8_t matrixIndex = i+j*NUMBER_OF_ENCODER_COLUMNS;
+                uint8_t encoderNumber = matrixIndex - j;
 
-    }
-    #endif
+                uint8_t encoderValue = (columnState >> j) & 0x03;
+
+                tempEncoderState[encoderNumber] = ((tempEncoderState[encoderNumber] << 2) | encoderValue) & 0x0F;
+                bool lastEncoderDirection = encoderDirection[encoderNumber];
+
+                int8_t encRead = encoderLookUpTable[tempEncoderState[encoderNumber]];
+
+                if (encRead)    {
+
+                    encoderPulses[encoderNumber] += encRead;
+                    encoderDirection[encoderNumber] = encRead > 0;
+
+                    if (lastEncoderDirection == encoderDirection[encoderNumber])    {
+
+                        if ((encoderPulses[encoderNumber] % PULSES_PER_STEP) == 0)   {
+
+                            if (lastEncoderDirection) encoderMoving[encoderNumber] = encMoveLeft;
+                            else encoderMoving[encoderNumber] = encMoveRight;
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
     #endif
 
 }
+
 
 //init
 
@@ -363,11 +425,18 @@ void Board::init()  {
 
     initPins();
     initAnalog();
-    setUpMillisTimer();
 
     _delay_ms(5);
 
     setNumberOfColumnPasses();
+
+    #if defined (BOARD_TANNIN)
+        setUpTimer4();
+        activateEncoderColumn(activeEncoderColumn);
+        configurePWM();
+    #elif defined (BOARD_OPENDECK_1)
+        setUpTimer1();
+    #endif
 
     //configure column switch timer
     setUpTimer();
@@ -380,32 +449,22 @@ void Board::init()  {
 void Board::initPins() {
 
     #ifdef BOARD_TANNIN
-    //TO-DO
+        DDRF = 0b11100000;
+        DDRB = 0b11110000;
+        DDRD = 0b11111001;
+        DDRC = 0b11000000;
+
+        //encoder pull-ups
+        PORTB |= 0b00001111;
     #elif defined BOARD_OPENDECK_1
-    DDRD = 0x02;
-
-    #ifdef TANNIN_2_PROTOTYPE
-        DDRB = 0x3F;       //tannin 2 mod
-    #else
+        DDRD = 0x02;
         DDRB = 0x0F;
-    #endif
+        DDRC = 0x3F;
 
-    DDRC = 0x3F;
-
-    //enable internal pull-up resistors for button rows and encoder
-    #ifdef TANNIN_2_PROTOTYPE
-        PORTD = 0xF0;   //tannin 2 mod
-    #else
+        //enable internal pull-up resistors for button rows and encoder
         PORTD = 0xFC;
-    #endif
-    //select first column
-    PORTC = 0x00;
-
-    #ifdef TANNIN_2_PROTOTYPE
-        //write high to latch pin
-        PORTB |= 0b00100000;       //tannin 2 mod
-    #endif
-
+        //select first column
+        PORTC = 0x00;
     #endif
 
 }
@@ -413,19 +472,21 @@ void Board::initPins() {
 void Board::initAnalog()    {
 
     setUpADC();
-    setADCprescaler(32);
+    setADCprescaler(64);
 
     #ifdef BOARD_TANNIN
-    //TO-DO
+        enableAnalogueInput(0, 4);
+        enableAnalogueInput(1, 1);
     #elif defined BOARD_OPENDECK_1
-    enableAnalogueInput(1, 6);
-    enableAnalogueInput(0, 7);
+        enableAnalogueInput(1, 6);
+        enableAnalogueInput(0, 7);
     #endif
 
     setMuxInputInteral(activeMuxInput);
     setADCchannel(analogueEnabledArray[activeMux]);
     _delay_ms(5);
     getADCvalue();
+    enableADCinterrupt();
 
 }
 
@@ -447,7 +508,7 @@ void Board::setNumberOfColumnPasses() {
 
     */
 
-    uint8_t rowPassTime = COLUMN_SCAN_TIME*NUMBER_OF_BUTTON_COLUMNS;
+    uint8_t rowPassTime = (COLUMN_SCAN_TIME/1000)*NUMBER_OF_BUTTON_COLUMNS;
     uint8_t mod = 0;
 
     if ((MIN_BUTTON_DEBOUNCE_TIME % rowPassTime) > 0)   mod = 1;
@@ -458,21 +519,46 @@ void Board::setNumberOfColumnPasses() {
 
 void Board::setUpTimer()   {
 
-    TCCR2A = 0;
-    TCCR2B = 0;
-    TCNT2  = 0;
+    #if defined (TCCR2A) && defined (TCCR2B)
+        TCCR2A = 0;
+        TCCR2B = 0;
+        TCNT2  = 0;
 
-    //turn on CTC mode
-    TCCR2A |= (1 << WGM21);
+        //turn on CTC mode
+        TCCR2A |= (1 << WGM21);
 
-    //set prescaler to 64
-    TCCR2B |= (1 << CS22);
+        //set prescaler to 64
+        TCCR2B |= (1 << CS22);
 
-    //1ms
-    OCR2A = 180;
+        //using COLUMN_SWITCH_TIME to calculate timer count
+        //known constants: F_CPU/16 MHz, prescaler/64
 
-    //enable CTC interrupt
-    TIMSK2 |= (1 << OCIE2A);
+        uint32_t timerCount = COLUMN_SCAN_TIME/4;
+
+        OCR2A = timerCount;
+
+        //enable CTC interrupt
+        TIMSK2 |= (1 << OCIE2A);
+    #elif defined (TCCR3A) && defined (TCCR3B)
+        TCCR3A = 0;
+        TCCR3B = 0;
+        TCNT3H = 0;
+        TCNT3L = 0;
+
+        //turn on CTC mode
+        TCCR3B |= (1 << WGM32);
+
+        //set prescaler to 64
+        TCCR3B |= (1 << CS31)|(1 << CS30);
+
+        uint32_t timerCount = COLUMN_SCAN_TIME/4;
+
+        //1ms
+        OCR3A = timerCount;
+
+        //enable CTC interrupt
+        TIMSK3 |= (1 << OCIE3A);
+    #endif
 
 }
 
@@ -486,13 +572,19 @@ uint8_t Board::getNumberOfColumnPasses()    {
 //LEDs
 void Board::setLEDstate(uint8_t ledNumber, uint8_t state)   {
 
+    cli();
     ledState[ledNumber] = state;
+    sei();
 
 }
 
 uint8_t Board::getLEDstate(uint8_t ledNumber)   {
 
-    return ledState[ledNumber];
+    uint8_t returnValue;
+    cli();
+    returnValue = ledState[ledNumber];
+    sei();
+    return returnValue;
 
 }
 
@@ -630,25 +722,17 @@ void Board::turnOffLED(uint8_t ledNumber)   {
 //digital
 uint8_t Board::getActiveColumn()    {
 
-    return (activeButtonColumn-1);
+    return lastRequestedColumn;
 
 }
 
-bool Board::digitalInDataAvailable() {
+uint8_t Board::getDigitalInData()   {
 
-    return (changeSwitch && !digitalReadFinished);
-
-}
-
-int8_t Board::getDigitalInData()   {
-
-    return digitalBuffer[getActiveColumn()];
-
-}
-
-void Board::setDigitalProcessingFinished(bool state)  {
-
-    digitalReadFinished = state;
+    uint8_t returnValue;
+    cli();
+    returnValue = digitalBuffer;
+    sei();
+    return returnValue;
 
 }
 
@@ -667,81 +751,264 @@ void Board::setMuxInput(uint8_t muxInput)   {
 
 bool Board::analogInDataAvailable() {
 
-    return (!changeSwitch && !analogReadFinished);
+    bool returnValue;
+    cli();
+    returnValue = analogDataAvailable;
+    sei();
+    return returnValue;
 
 }
 
 int16_t Board::getMuxInputValue(uint8_t analogID) {
 
-    setMuxInputInteral(analogID);
-    return getADCvalue();
+    //setMuxInputInteral(analogID);
+    //return getADCvalue();
+    int16_t returnValue;
+    cli();
+    returnValue = analogBuffer[analogID];
+    sei();
+    return returnValue;
 
 }
 
 uint8_t Board::getAnalogID(uint8_t id)  {
 
-    int8_t _activeMux = activeMux;
+    int8_t _activeMux;
+    cli();
+    _activeMux = activeMux;
+    sei();
 
-    //return currently active column
-    return id+((_activeMux - 1)*8);
+    if (!_activeMux) _activeMux = NUMBER_OF_MUX-1;
+    else _activeMux--;
 
-}
-
-void Board::setAnalogProcessingFinished(bool state) {
-
-    analogReadFinished = state;
+    return id+(_activeMux*8);
 
 }
 
 //encoders
-int32_t Board::getEncoderState(uint8_t encoderNumber)  {
+encoderPosition Board::getEncoderState(uint8_t encoderNumber)  {
 
-    int32_t returnValue = 0;
+    encoderPosition returnValue;
     cli();
-    returnValue = encoderPosition[encoderNumber];
+    returnValue = encoderMoving[encoderNumber];
+    encoderMoving[encoderNumber] = encStopped;
     sei();
-
     return returnValue;
 
 }
 
-//timer
-ISR(TIMER2_COMPA_vect)  {
+#if defined(TIMER2_COMPA_vect)
+    ISR(TIMER2_COMPA_vect)  {
 
-    readEncoders();
-    bool _changeSwitch = changeSwitch;
-
-    switch(_changeSwitch)    {
-
-        case true:
-        //switch column
-        if (activeButtonColumn == NUMBER_OF_BUTTON_COLUMNS) activeButtonColumn = 0;
         //turn off all LED rows before switching to next column
         ledRowsOff();
-        activateColumn();
-        checkLEDs();
-        storeDigitalIn();
         activeButtonColumn++;
-        digitalReadFinished = false;
-        break;
-
-        case false:
-        //switch analogue input
-        if (activeMux == NUMBER_OF_MUX) activeMux = 0;
-        setMuxInternal(activeMux);
-        activeMux++;
-        analogReadFinished = false;
-        break;
-
-        default:
-        break;
+        if (activeButtonColumn == NUMBER_OF_BUTTON_COLUMNS) activeButtonColumn = 0;
+        activateColumn();
+        storeDigitalIn();
+        checkLEDs();
 
     }
+#elif defined (TIMER3_COMPA_vect)
+    ISR(TIMER3_COMPA_vect)  {
 
-    _changeSwitch = !_changeSwitch;
-    changeSwitch = _changeSwitch;
+        //turn off all LED rows before switching to next column
+        ledRowsOff();
+        activeButtonColumn++;
+        if (activeButtonColumn == NUMBER_OF_BUTTON_COLUMNS) activeButtonColumn = 0;
+        activateColumn();
+        storeDigitalIn();
+        checkLEDs();
+
+    }
+#endif
+
+uint32_t Board::newMillis()    {
+
+    uint32_t _rTime_mS;
+
+    //save interrupt flag
+    uint8_t interruptFlag = SREG;
+
+    //disable interrupts
+    cli();
+
+    _rTime_mS = rTime_ms;
+
+    //restore interruptFlag
+    SREG = interruptFlag;
+
+    return _rTime_mS;
 
 }
 
+void Board::newDelay(uint32_t delayTime)    {
+
+    uint32_t _delayTime = newMillis() + delayTime;
+
+    while (_delayTime > newMillis()) {}
+
+}
+
+#ifdef BOARD_TANNIN
+
+    void Board::configurePWM()   {
+
+        //increase default PWM frequency to 31kHz
+        cli();
+        TCCR1B = (TCCR1B & 0b11111000) | 0x01;
+        TCCR1A = (TCCR1A & 0b11111000) | 0x01;
+        TCCR0B = (TCCR0B & 0b11111000) | 0x01;
+        TCCR0A = (TCCR0A & 0b11111000) | 0x01;
+        sei();
+
+    }
+
+    void Board::setUpTimer4()   {
+
+        TCCR4B = 0;
+        TCCR4A = 0;
+        TCCR4C = 0;
+        TCCR4D = 0;
+        TCCR4E = 0;
+
+        TCCR4B = (1<<CS42) | (1<<CS41) | (1<<CS40) | (1<<PSR4);
+
+        OCR4C = 124;
+
+        TIFR4 = (1<<TOV4);
+        TCNT4 = 0;
+        TIMSK4 = (1<<TOIE4);
+
+    }
+
+    ISR(TIMER4_OVF_vect) {
+
+        static bool updateMS = true;
+        uint32_t ms;
+
+        updateMS = !updateMS;
+
+        if (updateMS)   {
+
+            ms = rTime_ms;
+            ms++;
+            //update run time
+            rTime_ms = ms;
+
+        }
+
+        readEncoders();
+
+    }
+#elif defined (BOARD_OPENDECK_1)
+    void Board::setUpTimer1() {
+
+        TCCR1A = 0;
+        TCCR1B = 0;
+        TCNT1H = 0;
+        TCNT1L = 0;
+
+        //turn on CTC mode
+        TCCR1B |= (1 << WGM12);
+
+        //set prescaler to 64
+        TCCR1B |= (1 << CS11)|(1 << CS10);
+
+        //1ms
+        OCR1A = 124;
+
+        //enable CTC interrupt
+        TIMSK1 |= (1 << OCIE1A);
+
+    }
+
+    ISR(TIMER1_COMPA_vect) {
+
+        static bool updateMS = true;
+        uint32_t ms;
+
+        updateMS = !updateMS;
+
+        if (updateMS)   {
+
+            ms = rTime_ms;
+            ms++;
+            //update run time
+            rTime_ms = ms;
+
+        }
+
+        readEncoders();
+
+    }
+#endif
+
+ISR(ADC_vect)   {
+
+    analogBuffer[activeMuxInput] = ADC;
+    activeMuxInput++;
+
+    bool startConversion = activeMuxInput != 8;
+
+    if (!startConversion)    {
+
+        activeMuxInput = 0;
+        activeMux++;
+        if (activeMux == NUMBER_OF_MUX) activeMux = 0;
+        analogDataAvailable = true;
+        setMuxInternal(activeMux);
+
+    }
+
+    //always set mux input
+    setMuxInputInteral(activeMuxInput);
+    if (startConversion) ADCSRA |= (1<<ADSC);
+
+}
+
+void Board::resetLEDtransitions()   {
+
+    cli();
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+        transitionCounter[i] = 0;
+    sei();
+
+}
+
+void Board::setLEDTransitionSpeed(uint8_t steps) {
+
+    cli();
+    pwmSteps = steps;
+    sei();
+
+}
+
+void Board::startAnalogConversion() {
+
+    cli();
+    analogDataAvailable = false;
+    sei();
+
+    ADCSRA |= (1<<ADSC);
+
+}
+
+bool Board::digitalInDataAvailable()    {
+
+    int8_t column;
+
+    cli();
+    column = activeButtonColumn;
+    sei();
+
+    if (column != lastRequestedColumn)  {
+
+        lastRequestedColumn = column;
+        return true;
+
+    } return false;
+
+}
 
 Board boardObject;

@@ -7,23 +7,31 @@ Author: Igor Petrovic
 
 */
 
-
 #include "OpenDeck.h"
-#include <Ownduino.h>
-#include <avr/io.h>
-#include <stdlib.h>
 #include <avr/eeprom.h>
-#include <avr/interrupt.h>
+
+void storeReceivedNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)  {
+
+    openDeck.receivedNote = note;
+    openDeck.receivedVelocity = velocity;
+
+    openDeck.setLEDState();
+
+}
+
+void processSysEx(uint8_t sysExArray[], uint8_t arrSize, sysExSource messageSource)  {
+
+    openDeck.setSysExSource(messageSource);
+
+    if (openDeck.sysExCheckMessageValidity(sysExArray, arrSize))
+        openDeck.sysExGenerateResponse(sysExArray, arrSize);
+
+}
 
 
 OpenDeck::OpenDeck()    {
 
-    //set all callbacks to NULL pointer
-    sendNoteCallback            = NULL;
-    sendProgramChangeCallback   = NULL;
-    sendControlChangeCallback   = NULL;
-    sendPitchBendCallback       = NULL;
-    sendSysExCallback           = NULL;
+    //default constructor
 
 }
 
@@ -32,14 +40,30 @@ void OpenDeck::init()   {
 
     initVariables();
 
-    if (initialEEPROMwrite())   sysExSetDefaultConf();
-    else getConfiguration(); //get all values from EEPROM
-
     boardObject.init();
     readAnalogInitial();
 
+    if (initialEEPROMwrite())   {
+
+        clearEEPROM();
+        sysExSetDefaultConf();
+
+    } else getConfiguration(); //get all values from EEPROM
+
     //run LED animation on start-up
     startUpRoutine();
+
+    #ifdef HW_MIDI
+        //read incoming MIDI messages on specified channel
+        MIDI.begin(_inputChannel);
+
+        MIDI.setHandleNoteOn(storeReceivedNoteOn);
+        MIDI.setHandleSystemExclusive(processSysEx);
+    #endif
+
+    #ifdef USBMIDI
+        usbMIDI.setHandleNoteOn(storeReceivedNoteOn);
+    #endif
 
 }
 
@@ -49,9 +73,9 @@ bool OpenDeck::initialEEPROMwrite()  {
     //write default configuration to EEPROM
     if  (!(
 
-    (eeprom_read_byte((uint8_t*)EEPROM_M_ID_BYTE_0) == SYS_EX_M_ID_0) &&
-    (eeprom_read_byte((uint8_t*)EEPROM_M_ID_BYTE_1) == SYS_EX_M_ID_1) &&
-    (eeprom_read_byte((uint8_t*)EEPROM_M_ID_BYTE_2) == SYS_EX_M_ID_2)
+    (eeprom_read_byte((uint8_t*)ID_LOCATION_0) == UNIQUE_ID) &&
+    (eeprom_read_byte((uint8_t*)ID_LOCATION_1) == UNIQUE_ID) &&
+    (eeprom_read_byte((uint8_t*)ID_LOCATION_2) == UNIQUE_ID)
 
     ))   return true; return false;
 
@@ -62,9 +86,9 @@ void OpenDeck::initVariables()  {
     //reset all variables
 
     //MIDI channels
-    _noteChannel                      = 0;
+    _noteChannel                            = 0;
     _programChangeChannel                   = 0;
-    _CCchannel                        = 0;
+    _CCchannel                              = 0;
     _pitchBendChannel                       = 0;
     _inputChannel                           = 0;
 
@@ -72,16 +96,16 @@ void OpenDeck::initVariables()  {
     for (i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
         noteNumber[i]                       = 0;
 
-    for (i=0; i<MAX_NUMBER_OF_BUTTONS/8; i++)   {
+    for (i=0; i<MAX_NUMBER_OF_BUTTONS/8+1; i++)       {
 
-        buttonType[i]                       = 0;
+        _buttonType[i]                       = 0;
         buttonPressed[i]                    = 0;
         buttonPCenabled[i]                  = 0;
 
     }
 
     //analog
-    for (i=0; i<MAX_NUMBER_OF_ANALOG; i++)        {
+    for (i=0; i<MAX_NUMBER_OF_ANALOG; i++)          {
 
         ccNumber[i]                         = 0;
         lastAnalogueValue[i]                = 0;
@@ -92,7 +116,7 @@ void OpenDeck::initVariables()  {
 
     }
 
-    for (i=0; i<MAX_NUMBER_OF_ANALOG/8; i++)      {
+    for (i=0; i<MAX_NUMBER_OF_ANALOG/8+1; i++)        {
 
         analogInverted[i]                   = 0;
         analogEnabled[i]                    = 0;
@@ -100,22 +124,24 @@ void OpenDeck::initVariables()  {
     }
 
     //encoders
-    for (i=0; i<NUMBER_OF_ENCODERS; i++)    {
+    for (i=0; i<MAX_NUMBER_OF_ENCODERS; i++)            {
 
-        lastEncoderState[i]                 = 0;
         initialEncoderDebounceCounter[i]    = 0;
-        encoderDirection[i]                 = true;
         lastEncoderSpinTime[i]              = 0;
         encoderNumber[i]                    = 0;
-        encoderEnabled[i]                   = 0;
         pulsesPerStep[i]                    = 0;
+
+    }
+
+    for (i=0; i<NUMBER_OF_ENCODERS/8+1; i++)        {
+
+        encoderEnabled[i]                   = 0;
         encoderInverted[i]                  = 0;
-        pulseCounter[i]                     = 0;
         encoderFastMode[i]                  = 0;
 
     }
 
-    for (i=0; i<NUMBER_OF_BUTTON_COLUMNS; i++)  {
+    for (i=0; i<NUMBER_OF_BUTTON_COLUMNS; i++)      {
 
         lastColumnState[i]                  = 0;
         columnPassCounter[i]                = 0;
@@ -123,7 +149,7 @@ void OpenDeck::initVariables()  {
     }
 
     //LEDs
-    for (i=0; i<MAX_NUMBER_OF_LEDS; i++)        {
+    for (i=0; i<MAX_NUMBER_OF_LEDS; i++)            {
 
         ledActNote[i]                       = 0;
 
@@ -132,24 +158,49 @@ void OpenDeck::initVariables()  {
     totalNumberOfLEDs                       = 0;
 
     //input
-    receivedChannel                         = 0;
     receivedNote                            = 0;
     receivedVelocity                        = 0;
 
     //sysex
-    sysExEnabled                    = false;
-
-}
-
-uint8_t OpenDeck::getInputMIDIchannel() {
-
-    return _inputChannel;
+    sysExEnabled                            = false;
+    sysExMessageSource                      = usbSource;
 
 }
 
 bool OpenDeck::standardNoteOffEnabled() {
 
     return bitRead(midiFeatures, SYS_EX_FEATURES_MIDI_STANDARD_NOTE_OFF);
+
+}
+
+void OpenDeck::checkMIDIIn()    {
+
+    #ifdef USBMIDI
+        static bool sysExProcessed = true;
+
+        if (usbMIDI.read(_inputChannel))   {
+
+            sysExProcessed = false;
+
+            } else {
+
+            uint8_t messageType = usbMIDI.getType();
+
+            //new message has arrived
+            if (!sysExProcessed && (messageType == 7)) {
+
+                processSysEx(usbMIDI.getSysExArray(), usbMIDI.getData1(), usbSource);
+                sysExProcessed = true;
+
+            }
+
+        }
+    #endif
+
+    //check for incoming MIDI messages on USART
+    #ifdef HW_MIDI
+        MIDI.read();
+    #endif
 
 }
 
