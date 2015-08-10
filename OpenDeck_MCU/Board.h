@@ -1,33 +1,32 @@
 #ifndef BOARD_H_
 #define BOARD_H_
 
+#include <Arduino.h>
 #include <avr/io.h>
-#include <Ownduino.h>
+#include "ADC.h"
+#include "EncoderSettings.h"
+#include "Types.h"
 
-//#include "BoardDefsTannin.h"
-#include "BoardDefsOpenDeck.h"
+#include "BoardDefsTannin.h"
+//#include "BoardDefsOpenDeck.h"
 
-#define DIGITAL_BUFFER_SIZE         8
-#define ANALOG_BUFFER_SIZE          16
+#define MIN_BUTTON_DEBOUNCE_TIME    30      //milliseconds
+#define COLUMN_SCAN_TIME            1500    //microseconds
 
-#define MIN_BUTTON_DEBOUNCE_TIME    15
-#define COLUMN_SCAN_TIME            1
+#define MAX_NUMBER_OF_ANALOG        (NUMBER_OF_MUX*8)
+#define MAX_NUMBER_OF_BUTTONS       (NUMBER_OF_BUTTON_COLUMNS*NUMBER_OF_BUTTON_ROWS)
+#define MAX_NUMBER_OF_LEDS          (NUMBER_OF_LED_COLUMNS*NUMBER_OF_LED_ROWS)
+#define MAX_NUMBER_OF_ENCODERS      NUMBER_OF_ENCODERS
 
-#define MAX_NUMBER_OF_ANALOG        16
-#define MAX_NUMBER_OF_BUTTONS       32
-#define MAX_NUMBER_OF_LEDS          32
-#define MAX_NUMBER_OF_ENCODERS      16
-
-#define ENCODER_DIRECTION_LEFT      -1
-#define ENCODER_DIRECTION_RIGHT     1
-#define ENCODER_STOPPED             0
+#define DIGITAL_BUFFER_SIZE         NUMBER_OF_BUTTON_COLUMNS
+#define ANALOG_BUFFER_SIZE          MAX_NUMBER_OF_ANALOG
 
 //function prototypes
 inline void setMuxInternal(uint8_t muxNumber) __attribute__((always_inline));
 inline void setMuxInputInteral(uint8_t muxInput) __attribute__((always_inline));
 inline void storeAnalogIn(int16_t value) __attribute__((always_inline));
 inline void ledRowsOff() __attribute__((always_inline));
-inline void ledRowOn(uint8_t rowNumber) __attribute__((always_inline));
+inline void ledRowOn(uint8_t rowNumber, uint8_t intensity) __attribute__((always_inline));
 inline void checkLEDs() __attribute__((always_inline));
 inline void setBlinkState(uint8_t ledNumber, bool state) __attribute__((always_inline));
 inline void activateColumn() __attribute__((always_inline));
@@ -41,21 +40,24 @@ class Board {
     Board();
     void init();
 
+    uint32_t newMillis();
+    void newDelay(uint32_t delayTime);
+    void resetBoard();
+
     //digital
     bool digitalInDataAvailable();
-    void setDigitalProcessingFinished(bool state);
     uint8_t getActiveColumn();
-    int8_t getDigitalInData();
+    uint8_t getDigitalInData();
     uint8_t getNumberOfColumnPasses();
-    int32_t getEncoderState(uint8_t encoderNumber);
+    encoderPosition getEncoderState(uint8_t encoderNumber);
 
     //analog
     bool analogInDataAvailable();
-    void setAnalogProcessingFinished(bool state);
     int16_t getMuxInputValue(uint8_t analogID);
     uint8_t getAnalogID(uint8_t id);
     void setMux(uint8_t muxNumber);
     void setMuxInput(uint8_t muxInput);
+    void startAnalogConversion();
 
     //LEDs
     uint8_t getLEDstate(uint8_t);
@@ -66,12 +68,17 @@ class Board {
     void turnOnLED(uint8_t);
     void turnOffLED(uint8_t);
     void resetLEDblinkCounter();
+    void resetLEDtransitions();
+    void setLEDTransitionSpeed(uint8_t);
 
     private:
 
     //init
     void initPins();
     void initAnalog();
+    void configurePWM();
+    void setUpTimer1();
+    void setUpTimer4();
 
     //analog
     void enableAnalogueInput(uint8_t, uint8_t);
@@ -96,4 +103,4 @@ class Board {
 
 extern Board boardObject;
 
-#endif /* BOARD_H_ */
+#endif

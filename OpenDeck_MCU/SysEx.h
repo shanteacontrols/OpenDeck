@@ -18,39 +18,16 @@ Author: Igor Petrovic
 #define SYS_EX_M_ID_1                           0x53
 #define SYS_EX_M_ID_2                           0x43
 
-//blink time
-#define SYS_EX_LED_BLINK_TIME_MIN               0x01
-#define SYS_EX_LED_BLINK_TIME_MAX               0x0F
-
-//LED switch time on start-up
-#define SYS_EX_LED_START_UP_SWITCH_TIME_MIN     0x01
-#define SYS_EX_LED_START_UP_SWITCH_TIME_MAX     0x78
-
-//encoder resolution
-#define SYS_EX_ENCODERS_PULSES_PER_STEP_MIN     0x00
-#define SYS_EX_ENCODERS_PULSES_PER_STEP_MAX     0x18
-
-////////////////////////////////////////////////////
-
-//button types
-#define SYS_EX_BUTTON_TYPE_MOMENTARY            0x00
-#define SYS_EX_BUTTON_TYPE_LATCHING             0x01
-
-//LED blink/constant state determination
-#define SYS_EX_LED_VELOCITY_C_OFF               0x00
-#define SYS_EX_LED_VELOCITY_B_OFF               0x3F
-
 //message length
 #define SYS_EX_ML_REQ_HANDSHAKE                 0x05
 #define SYS_EX_ML_REQ_STANDARD                  0x09
 #define SYS_EX_ML_RES_BASIC                     0x08
 
-//ACK/error start codes
-#define SYS_EX_ACK                              0x41
-#define SYS_EX_ERROR                            0x46
-
 #define SYS_EX_ENABLE                           0x01
 #define SYS_EX_DISABLE                          0x00
+
+#define SYS_EX_ACK                              0x41
+#define SYS_EX_NACK                             0x46
 
 typedef enum {
 
@@ -184,7 +161,7 @@ typedef enum {
     SYS_EX_MST_LEDS_ACT_NOTE,
     SYS_EX_MST_LEDS_START_UP_NUMBER,
     SYS_EX_MST_LEDS_STATE,
-    SYS_EX_LED_END
+    SYS_EX_MST_LEDS_END
 
 } sysExMessageSubTypeLED;
 
@@ -195,6 +172,7 @@ typedef enum {
     SYS_EX_LEDS_HW_P_BLINK_TIME,
     SYS_EX_LEDS_HW_P_START_UP_SWITCH_TIME,
     SYS_EX_LEDS_HW_P_START_UP_ROUTINE,
+    SYS_EX_LEDS_HW_P_FADE_TIME,
     SYS_EX_LEDS_HW_P_END
 
 } sysEXLEDHwParameter;
@@ -230,7 +208,6 @@ typedef enum {
 
 } sysExEncodersHwParameters;
 
-
 typedef enum {
 
     SYS_EX_ANALOG_HW_P_START,
@@ -251,7 +228,7 @@ typedef enum {
     SYS_EX_ERROR_NOT_SUPPORTED,
     SYS_EX_ERROR_EEPROM,
 
-} sysExErrors;
+} sysExError;
 
 typedef enum {
 
@@ -268,4 +245,4 @@ typedef enum {
 
 } sysExMessageByteOrder;
 
-#endif /* SYSEX_H_ */
+#endif

@@ -36,7 +36,8 @@
 #ifndef LIB_MIDI_H_
 #define LIB_MIDI_H_
 
-#include <inttypes.h> 
+#include <inttypes.h>
+#include "Types.h"
 
 
 /*  
@@ -56,9 +57,7 @@
 #define COMPILE_MIDI_IN         1           // Set this setting to 1 to use the MIDI input.
 #define COMPILE_MIDI_OUT        1           // Set this setting to 1 to use the MIDI output. 
 
-#define USE_SERIAL_PORT         SerialOwnduino      // Change the number (to Serial1 for example) if you want
-                                            // to use a different serial port for MIDI I/O.
-
+#define USE_SERIAL_PORT         Serial1
 
 #define USE_CALLBACKS           1           // Set this to 1 if you want to use callback handlers (to bind your functions to the library).
                                             // To use the callbacks, you need to have COMPILE_MIDI_IN set to 1
@@ -206,7 +205,7 @@ public:
     void setHandleControlChange(void (*fptr)(byte channel, byte number, byte value));
     void setHandleProgramChange(void (*fptr)(byte channel, byte number));
     void setHandlePitchBend(void (*fptr)(byte channel, int bend));
-    void setHandleSystemExclusive(void (*fptr)(byte * array, byte size));
+    void setHandleSystemExclusive(void (*fptr)(byte * array, byte size, sysExSource messageSource));
     void setHandleClock(void (*fptr)(void));
     void setHandleStart(void (*fptr)(void));
     void setHandleContinue(void (*fptr)(void));
@@ -239,7 +238,7 @@ private:
     void (*mControlChangeCallback)(byte channel, byte, byte);
     void (*mProgramChangeCallback)(byte channel, byte);
     void (*mPitchBendCallback)(byte channel, int);
-    void (*mSystemExclusiveCallback)(byte * array, byte size);
+    void (*mSystemExclusiveCallback)(byte * array, byte size, sysExSource messageSource);
     void (*mClockCallback)(void);
     void (*mStartCallback)(void);
     void (*mContinueCallback)(void);

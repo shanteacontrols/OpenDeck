@@ -12,30 +12,11 @@
     Modified by Igor Petrovic
     Last revision date: 2014-12-25
 
-    This version of library is stripped of following features:
-
-    *THRU mirroring
-    *Polyphonic AfterTouch
-    *Program Change
-    *Channel (monophonic) AfterTouch
-    *System Common - MIDI Time Code Quarter Frame
-    *System Common - Song Position Pointer
-    *System Common - Song Select
-    *System Common - Tune Request
-    *System Real Time - Active Sensing
-    *System Real Time - System Reset
-
-    In addition to that, MIDI.begin is changed to accept two parameters: input channel (uint8_t
-    and boolean parameter used to determine whether running status is enabled or disabled. begin
-    function does not automatically open serial port anymore, do that in main program. Code
-    formatting is changed to match coding style of OpenDeck library.
-
 */
-
-
 #include "MIDI.h"
+#include "Arduino.h"
 #include <stdlib.h>
-#include <Ownduino.h>
+#include "Types.h"
 
 /*! \brief Main instance (the class comes pre-instantiated). */
 MIDI_Class MIDI;
@@ -67,7 +48,6 @@ MIDI_Class::MIDI_Class()    {
  */
 void MIDI_Class::begin(uint8_t inChannel)    {
 
-
 #if COMPILE_MIDI_IN
 
     mInputChannel = inChannel;
@@ -82,6 +62,8 @@ void MIDI_Class::begin(uint8_t inChannel)    {
     mMessage.data2 = 0;
 
 #endif
+
+    USE_SERIAL_PORT.begin(38400);
 
 }
 
@@ -130,7 +112,7 @@ void MIDI_Class::send(kMIDIType type,
 
         // Then send data
         USE_SERIAL_PORT.write(data1);
-        
+
         if (type != ProgramChange && type != 0xD0)
             USE_SERIAL_PORT.write(data2);
 
@@ -307,7 +289,6 @@ bool MIDI_Class::read(const byte inChannel) {
 // Private method: MIDI parser
 bool MIDI_Class::parse(byte inChannel)  {
 
-        
         /* Parsing algorithm:
          Get a byte from the serial buffer.
          * If there is no pending message to be recomposed, start a new one.
@@ -677,16 +658,65 @@ void MIDI_Class::setInputChannel(const byte Channel)    {
 
 #if USE_CALLBACKS
 
-void MIDI_Class::setHandleNoteOff(void (*fptr)(byte channel, byte note, byte velocity))         { mNoteOffCallback          = fptr; }
-void MIDI_Class::setHandleNoteOn(void (*fptr)(byte channel, byte note, byte velocity))          { mNoteOnCallback           = fptr; }
-void MIDI_Class::setHandleControlChange(void (*fptr)(byte channel, byte number, byte value))    { mControlChangeCallback    = fptr; }
-void MIDI_Class::setHandleProgramChange(void (*fptr)(byte channel, byte number))                { mProgramChangeCallback    = fptr; }
-void MIDI_Class::setHandlePitchBend(void (*fptr)(byte channel, int bend))                       { mPitchBendCallback        = fptr; }
-void MIDI_Class::setHandleSystemExclusive(void (*fptr)(byte * array, byte size))                { mSystemExclusiveCallback  = fptr; }
-void MIDI_Class::setHandleClock(void (*fptr)(void))                                             { mClockCallback            = fptr; }
-void MIDI_Class::setHandleStart(void (*fptr)(void))                                             { mStartCallback            = fptr; }
-void MIDI_Class::setHandleContinue(void (*fptr)(void))                                          { mContinueCallback         = fptr; }
-void MIDI_Class::setHandleStop(void (*fptr)(void))                                              { mStopCallback             = fptr; }
+void MIDI_Class::setHandleNoteOff(void (*fptr)(byte channel, byte note, byte velocity)) {
+
+    mNoteOffCallback = fptr;
+
+}
+
+void MIDI_Class::setHandleNoteOn(void (*fptr)(byte channel, byte note, byte velocity))  {
+
+    mNoteOnCallback = fptr;
+
+}
+
+void MIDI_Class::setHandleControlChange(void (*fptr)(byte channel, byte number, byte value))    {
+
+    mControlChangeCallback = fptr;
+
+}
+
+void MIDI_Class::setHandleProgramChange(void (*fptr)(byte channel, byte number))    {
+
+    mProgramChangeCallback = fptr;
+
+}
+
+void MIDI_Class::setHandlePitchBend(void (*fptr)(byte channel, int bend))   {
+
+    mPitchBendCallback = fptr;
+
+}
+
+void MIDI_Class::setHandleSystemExclusive(void (*fptr)(byte * array, byte size, sysExSource messageSource)) {
+
+    mSystemExclusiveCallback  = fptr;
+
+}
+
+void MIDI_Class::setHandleClock(void (*fptr)(void)) {
+
+    mClockCallback = fptr;
+
+}
+
+void MIDI_Class::setHandleStart(void (*fptr)(void)) {
+
+    mStartCallback = fptr;
+
+}
+
+void MIDI_Class::setHandleContinue(void (*fptr)(void))  {
+
+    mContinueCallback = fptr;
+
+}
+
+void MIDI_Class::setHandleStop(void (*fptr)(void)) {
+
+    mStopCallback  = fptr;
+
+}
 
 
 // Private - launch callback function based on received type.
@@ -725,7 +755,7 @@ void MIDI_Class::launchCallback()   {
 
         case SystemExclusive:
         if (mSystemExclusiveCallback != NULL)
-        mSystemExclusiveCallback(mMessage.sysex_array,mMessage.data1);
+        mSystemExclusiveCallback(mMessage.sysex_array,mMessage.data1,midiSource);
         break;
 
         //Real-time messages
