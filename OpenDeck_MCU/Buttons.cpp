@@ -9,6 +9,8 @@ Author: Igor Petrovic
 
 #include "OpenDeck.h"
 
+const uint8_t buttonDebounceCompare = 0b11111000;
+
 void OpenDeck::setButtonPressed(uint8_t buttonNumber, bool state)   {
 
     uint8_t arrayIndex = buttonNumber/8;
@@ -124,43 +126,36 @@ void OpenDeck::readButtons()    {
 
     #ifdef BOARD
 
-    if (!boardObject.digitalInDataAvailable()) return;
+    uint8_t availableButtonData = boardObject.buttonDataAvailable();
+    if (!availableButtonData) return;
 
-    uint8_t columnState = boardObject.getDigitalInData();
-    uint8_t columnNumber = boardObject.getActiveColumn();
+        for (int i=0; i<availableButtonData; i++)   {
 
-    if (columnStable(columnState, columnNumber))    {
+            uint8_t buttonNumber = boardObject.getButtonNumber(i);
+            uint8_t buttonState = boardObject.getButtonState(i);
 
-        for (int i=0; i<NUMBER_OF_BUTTON_ROWS; i++)   {
+            if (buttonDebounced(buttonNumber, buttonState))  {
 
-            //extract current bit from çolumnState variable
-            //invert extracted bit because of pull-up resistors
-            uint8_t buttonState = !((columnState >> i) & 0x01);
-            //get current button number based on row and column
-            uint8_t buttonNumber = columnNumber+i*NUMBER_OF_BUTTON_COLUMNS;
+                switch (getButtonType(buttonNumber))   {
 
-            switch (getButtonType(buttonNumber))   {
+                    case buttonLatching:
+                    processLatchingButton(buttonNumber, buttonState);
+                    break;
 
-                case buttonLatching:
-                processLatchingButton(buttonNumber, buttonState);
-                break;
+                    case buttonMomentary:
+                    processMomentaryButton(buttonNumber, buttonState);
+                    break;
 
-                case buttonMomentary:
-                processMomentaryButton(buttonNumber, buttonState);
-                break;
+                    default:
+                    break;
 
-                default:
-                break;
+                }
+
+                updateButtonState(buttonNumber, buttonState);
 
             }
 
-            updateButtonState(buttonNumber, buttonState);
-
         }
-
-    }
-
-    lastColumnState[columnNumber] = columnState;
 
     #endif
 
@@ -186,17 +181,13 @@ bool OpenDeck::getPreviousButtonState(uint8_t buttonNumber) {
 
 }
 
-bool OpenDeck::columnStable(uint16_t columnState, uint8_t columnNumber)   {
+bool OpenDeck::buttonDebounced(uint8_t buttonNumber, bool buttonState)   {
 
-    //column reading is declared stable if there are numberOfColumnPasses same readings
-    if (columnState == lastColumnState[columnNumber])   {
+    //shift new button reading into previousButtonState
+    buttonDebounceCounter[buttonNumber] = (buttonDebounceCounter[buttonNumber] << 1) | buttonState | buttonDebounceCompare;
 
-        if (columnPassCounter[columnNumber] < boardObject.getNumberOfColumnPasses()) columnPassCounter[columnNumber]++;
-
-    }   else columnPassCounter[columnNumber] = 0;
-
-    //iterate over rows if column readings are stable
-    return (columnPassCounter[columnNumber] == boardObject.getNumberOfColumnPasses());
+    //if button is debounced, return true
+    return ((buttonDebounceCounter[buttonNumber] == buttonDebounceCompare) || (buttonDebounceCounter[buttonNumber] == 0xFF));
 
 }
 

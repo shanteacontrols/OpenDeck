@@ -41,7 +41,6 @@ void OpenDeck::init()   {
     initVariables();
 
     boardObject.init();
-    readAnalogInitial();
 
     if (initialEEPROMwrite())   {
 
@@ -138,13 +137,6 @@ void OpenDeck::initVariables()  {
         encoderEnabled[i]                   = 0;
         encoderInverted[i]                  = 0;
         encoderFastMode[i]                  = 0;
-
-    }
-
-    for (i=0; i<NUMBER_OF_BUTTON_COLUMNS; i++)      {
-
-        lastColumnState[i]                  = 0;
-        columnPassCounter[i]                = 0;
 
     }
 

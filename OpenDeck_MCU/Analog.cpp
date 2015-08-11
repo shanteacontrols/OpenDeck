@@ -26,58 +26,36 @@ void OpenDeck::readAnalog()   {
 
     #ifdef BOARD
 
-    if (!boardObject.analogInDataAvailable()) return;
+    uint8_t availableAnalogData = boardObject.analogDataAvailable();
+    if (!availableAnalogData) return;
 
-    int16_t analogData[8] = { 0 };
+    int16_t analogData;
     uint8_t analogID = 0;
 
     //check values
-    for (int i=0; i<8; i++)    {
+    for (int i=0; i<availableAnalogData; i++)    {
 
-        analogData[i] = boardObject.getMuxInputValue(i);
+        analogData = boardObject.getAnalogValue(i);
         analogID = boardObject.getAnalogID(i);
         bool analogIDenabled = getAnalogEnabled(analogID);
 
         if (analogIDenabled)   {
 
-            bool readingDifferent = checkAnalogValueDifference(analogData[i], analogID);
+            bool readingDifferent = checkAnalogValueDifference(analogData, analogID);
 
-            if (readingDifferent)   addAnalogSample(analogID, analogData[i]);
+            if (readingDifferent)   addAnalogSample(analogID, analogData);
             if (analogValueSampled(analogID))    {
 
-                analogData[i] = getMedianValue(analogID);
-                processAnalogReading(analogData[i], analogID);
+                analogData = getMedianValue(analogID);
+                processAnalogReading(analogData, analogID);
 
             }
 
         }
 
-    }   boardObject.startAnalogConversion();
+    }
 
     #endif
-
-}
-
-bool OpenDeck::checkAnalogReading(int16_t tempValue, uint8_t analogID)  {
-
-    return false;
-
-}
-
-void OpenDeck::readAnalogInitial()   {
-
-   for (int i=0; i<NUMBER_OF_MUX; i++)  {
-
-       boardObject.setMux(i);
-
-       for (int j=0; j<8; j++)  {
-
-           boardObject.setMuxInput(j);
-           lastAnalogueValue[j+i*8] = getADCvalue();
-
-       }
-
-   }
 
 }
 

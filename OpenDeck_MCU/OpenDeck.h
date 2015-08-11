@@ -75,8 +75,7 @@ class OpenDeck  {
                     noteNumber[MAX_NUMBER_OF_BUTTONS+1],
                     previousButtonState[MAX_NUMBER_OF_BUTTONS/8+1],
                     buttonPressed[MAX_NUMBER_OF_BUTTONS/8+1],
-                    lastColumnState[NUMBER_OF_BUTTON_COLUMNS],
-                    columnPassCounter[NUMBER_OF_BUTTON_COLUMNS];
+                    buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS];
 
     //analog
     uint8_t         analogEnabled[MAX_NUMBER_OF_ANALOG/8+1],
@@ -171,7 +170,7 @@ class OpenDeck  {
     void processLatchingButton(uint8_t, bool);
     void updateButtonState(uint8_t, uint8_t);
     bool getPreviousButtonState(uint8_t);
-    bool columnStable(uint16_t, uint8_t);
+    bool buttonDebounced(uint8_t, bool);
 
     //analog
     bool getAnalogEnabled(uint8_t);
@@ -183,8 +182,6 @@ class OpenDeck  {
     uint8_t getCCnumber(uint8_t);
     bool setCCnumber(uint8_t, uint8_t);
     bool setAnalogLimit(uint8_t, uint8_t, uint8_t);
-    void readAnalogInitial();
-    bool checkAnalogReading(int16_t, uint8_t);
     void processAnalogReading(int16_t, uint8_t);
     int16_t getMedianValue(uint8_t analogID);
     bool checkAnalogValueDifference(int16_t, uint8_t);
