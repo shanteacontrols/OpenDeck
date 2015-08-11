@@ -512,6 +512,7 @@ void Board::initAnalog()    {
     _delay_ms(5);
     getADCvalue();
     enableADCinterrupt();
+    startADCconversion();
 
 }
 
