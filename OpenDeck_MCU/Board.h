@@ -10,16 +10,15 @@
 #include "BoardDefsTannin.h"
 //#include "BoardDefsOpenDeck.h"
 
-#define MIN_BUTTON_DEBOUNCE_TIME    30      //milliseconds
 #define COLUMN_SCAN_TIME            1500    //microseconds
+#define MIN_BUTTON_DEBOUNCE_TIME    20      //milliseconds
 
 #define MAX_NUMBER_OF_ANALOG        (NUMBER_OF_MUX*8)
 #define MAX_NUMBER_OF_BUTTONS       (NUMBER_OF_BUTTON_COLUMNS*NUMBER_OF_BUTTON_ROWS)
 #define MAX_NUMBER_OF_LEDS          (NUMBER_OF_LED_COLUMNS*NUMBER_OF_LED_ROWS)
 #define MAX_NUMBER_OF_ENCODERS      NUMBER_OF_ENCODERS
 
-#define DIGITAL_BUFFER_SIZE         NUMBER_OF_BUTTON_COLUMNS
-#define ANALOG_BUFFER_SIZE          MAX_NUMBER_OF_ANALOG
+#define ANALOG_BUFFER_SIZE          8+1 //extra byte to write current mux
 
 //function prototypes
 inline void setMuxInternal(uint8_t muxNumber) __attribute__((always_inline));
@@ -42,22 +41,19 @@ class Board {
 
     uint32_t newMillis();
     void newDelay(uint32_t delayTime);
-    void resetBoard();
+    void rebootBoard();
 
     //digital
-    bool digitalInDataAvailable();
-    uint8_t getActiveColumn();
-    uint8_t getDigitalInData();
+    uint8_t buttonDataAvailable();
     uint8_t getNumberOfColumnPasses();
+    bool getButtonState(uint8_t buttonIndex);
+    uint8_t getButtonNumber(uint8_t buttonIndex);
     encoderPosition getEncoderState(uint8_t encoderNumber);
 
     //analog
-    bool analogInDataAvailable();
-    int16_t getMuxInputValue(uint8_t analogID);
+    uint8_t analogDataAvailable();
+    int16_t getAnalogValue(uint8_t analogID);
     uint8_t getAnalogID(uint8_t id);
-    void setMux(uint8_t muxNumber);
-    void setMuxInput(uint8_t muxInput);
-    void startAnalogConversion();
 
     //LEDs
     uint8_t getLEDstate(uint8_t);
@@ -95,9 +91,7 @@ class Board {
     void switchBlinkState();
 
     //variables
-    uint8_t numberOfColumnPasses,
-            totalLEDnumber,
-            startUpLEDswitchTime;
+    uint8_t numberOfColumnPasses;
 
 };
 

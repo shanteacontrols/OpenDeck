@@ -78,7 +78,7 @@ void Bootloader_Jump_Check(void)    {
 
     }
 
-    void Board::resetBoard()    {
+    void Board::rebootBoard()    {
 
         cli();
         // stop watchdog timer, if running
