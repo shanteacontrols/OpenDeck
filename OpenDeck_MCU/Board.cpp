@@ -78,12 +78,15 @@ inline void setMuxInputInteral(uint8_t muxInput)    {
 inline void ledRowsOff()   {
 
     #ifdef BOARD_TANNIN
-        //PORTB &= 0x1F;
-        //PORTD &= 0xFE;
-        digitalWrite(4, LOW);
-        digitalWrite(5, LOW);
-        digitalWrite(A7, LOW);
-        digitalWrite(A6, LOW);
+        //turn off PWM
+        TCCR1A &= ~(1<<COM1C1); //pin 4
+        TCCR0A &= ~(1<<COM0B1); //pin 5
+        TCCR1A &= ~(1<<COM1A1); //pin A7
+        TCCR1A &= ~(1<<COM1B1); //pin A6
+
+        //turn off pins
+        PORTB &= 0x1F;
+        PORTD &= 0xFE;
     #elif defined BOARD_OPENDECK_1
         PORTB &= 0xF0;
     #endif
@@ -96,23 +99,62 @@ inline void ledRowOn(uint8_t rowNumber, uint8_t intensity)  {
         switch (rowNumber)  {
 
             case 0:
-            //PORTB |= 0b10000000;
-            analogWrite(4, intensity);
+            if (intensity)  {
+
+                OCR1C = intensity;
+                TCCR1A |= (1<<COM1C1); //pin 4
+
+            }   else {
+
+                TCCR1A &= ~(1<<COM1C1);
+                PORTB &= 0b01111111;
+
+            }
             break;
 
             case 1:
-            //PORTD |= 0b00000001;
-            analogWrite(5, intensity);
+            if (intensity)  {
+
+                OCR0B = intensity;
+                TCCR0A |= (1<<COM0B1); //pin 5
+
+            }   else {
+
+                TCCR0A &= ~(1<<COM0B1);
+                PORTD &= 0b11111110;
+
+            }
             break;
 
             case 2:
-            //PORTB |= 0b00100000;
-            analogWrite(A7, intensity);
+            if (intensity)  {
+
+                OCR1A = intensity;
+                TCCR1A |= (1<<COM1A1); //pin A7
+
+            }   else {
+
+                TCCR1A &= ~(1<<COM1A1);
+                PORTB &= 0b11011111;
+
+            };
             break;
 
             case 3:
-            //PORTB |= 0b01000000;
-            analogWrite(A6, intensity);
+            if (intensity)  {
+
+                OCR1B = intensity;
+                TCCR1A |= (1<<COM1B1); //pin A6
+
+            }   else {
+
+                TCCR1A &= ~(1<<COM1B1);
+                PORTB &= 0b10111111;
+
+            }
+            break;
+
+            default:
             break;
 
         }
