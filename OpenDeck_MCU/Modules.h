@@ -6,7 +6,7 @@
     #define USBMIDI
 #endif
 
-#define HW_MIDI
+//#define HW_MIDI
 
 
 #endif
