@@ -32,7 +32,7 @@ bool                        blinkEnabled = false,
                             blinkState = true;
 volatile uint8_t            pwmSteps = eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_FADE_SPEED),
                             ledState[MAX_NUMBER_OF_LEDS];
-static const uint8_t        ledOnLookUpTable[] = { 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0 };
+static const uint8_t        ledOnLookUpTable[] = { 0, 0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 0, 0, 0, 0, 255, 0, 0 };
 uint16_t                    ledBlinkTime;
 int16_t                     transitionCounter[MAX_NUMBER_OF_LEDS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 volatile uint32_t           blinkTimerCounter = 0;
@@ -223,16 +223,7 @@ inline void checkLEDs()  {
         for (int i=0; i<NUMBER_OF_LED_ROWS; i++)  {
 
             uint8_t ledNumber = activeButtonColumn+i*NUMBER_OF_LED_COLUMNS;
-            if  (
-
-            ledState[ledNumber] == 0x05 ||
-            ledState[ledNumber] == 0x15 ||
-            ledState[ledNumber] == 0x16 ||
-            ledState[ledNumber] == 0x1D ||
-            ledState[ledNumber] == 0x0D ||
-            ledState[ledNumber] == 0x17
-
-            )   ledRowOn(i, 255);   //value ignored
+            if (ledOnLookUpTable[ledState[ledNumber]])  ledRowOn(i, 255);   //value ignored
 
         }
     #elif defined BOARD_TANNIN
@@ -240,23 +231,11 @@ inline void checkLEDs()  {
         for (int i=0; i<NUMBER_OF_LED_ROWS; i++)  {
 
             uint8_t ledNumber = activeButtonColumn+i*NUMBER_OF_LED_COLUMNS;
-            uint8_t ledStateSingle = 0;
-
-            if  (
-
-            ledState[ledNumber] == 0x05 ||
-            ledState[ledNumber] == 0x15 ||
-            ledState[ledNumber] == 0x16 ||
-            ledState[ledNumber] == 0x1D ||
-            ledState[ledNumber] == 0x0D ||
-            ledState[ledNumber] == 0x17
-
-            )   ledStateSingle = 255;
+            uint8_t ledStateSingle = ledOnLookUpTable[ledState[ledNumber]];
 
             if (!pwmSteps && ledStateSingle) ledRowOn(i, ledStateSingle);
             else {
 
-                //if (transitionCounter[ledNumber]) ledRowOn(i, ledTransitionScale[transitionCounter[ledNumber]]);
                 if (transitionCounter[ledNumber]) ledRowOn(i, ledTransitionScale[transitionCounter[ledNumber]]);
 
                 if (transitionCounter[ledNumber] < ledStateSingle)
@@ -912,6 +891,10 @@ void Board::newDelay(uint32_t delayTime)    {
 
     void Board::configurePWM()   {
 
+        //stop default timer0 interrupt
+        TCCR0A = 0;
+        TCCR0B = 0;
+
         //increase default PWM frequency to 31kHz
         cli();
         TCCR1B = (TCCR1B & 0b11111000) | 0x01;
@@ -1016,7 +999,7 @@ ISR(ADC_vect)   {
         activeMux++;
         if (activeMux == NUMBER_OF_MUX) activeMux = 0;
         _analogDataAvailable = true;
-        setMuxInternal(activeMux);
+        ADMUX = (ADMUX & 0xF0) | (analogueEnabledArray[activeMux] & 0x0F);
 
     }
 
