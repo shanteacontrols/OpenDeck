@@ -11,7 +11,6 @@
 //#include "BoardDefsOpenDeck.h"
 
 #define COLUMN_SCAN_TIME            1500    //microseconds
-#define MIN_BUTTON_DEBOUNCE_TIME    20      //milliseconds
 
 #define MAX_NUMBER_OF_ANALOG        (NUMBER_OF_MUX*8)
 #define MAX_NUMBER_OF_BUTTONS       (NUMBER_OF_BUTTON_COLUMNS*NUMBER_OF_BUTTON_ROWS)
@@ -23,12 +22,12 @@
 //function prototypes
 inline void setMuxInternal(uint8_t muxNumber) __attribute__((always_inline));
 inline void setMuxInputInteral(uint8_t muxInput) __attribute__((always_inline));
-inline void storeAnalogIn(int16_t value) __attribute__((always_inline));
 inline void ledRowsOff() __attribute__((always_inline));
 inline void ledRowOn(uint8_t rowNumber, uint8_t intensity) __attribute__((always_inline));
 inline void checkLEDs() __attribute__((always_inline));
 inline void setBlinkState(uint8_t ledNumber, bool state) __attribute__((always_inline));
-inline void activateColumn() __attribute__((always_inline));
+inline void activateColumn(uint8_t column) __attribute__((always_inline));
+inline void activateEncoderColumn(uint8_t column) __attribute__((always_inline));
 inline void storeDigitalIn() __attribute__((always_inline));
 inline void readEncoders() __attribute__((always_inline));
 
@@ -45,7 +44,6 @@ class Board {
 
     //digital
     uint8_t buttonDataAvailable();
-    uint8_t getNumberOfColumnPasses();
     bool getButtonState(uint8_t buttonIndex);
     uint8_t getButtonNumber(uint8_t buttonIndex);
     encoderPosition getEncoderState(uint8_t encoderNumber);
@@ -82,16 +80,10 @@ class Board {
     //timers
     void setUpTimer();
 
-    //digital in
-    void setNumberOfColumnPasses();
-
     //LEDs
     bool checkBlinkState(uint8_t);
     void checkBlinkLEDs();
     void switchBlinkState();
-
-    //variables
-    uint8_t numberOfColumnPasses;
 
 };
 
