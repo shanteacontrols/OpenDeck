@@ -34,7 +34,7 @@ volatile uint8_t            pwmSteps = eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW
                             ledState[MAX_NUMBER_OF_LEDS];
 static const uint8_t        ledOnLookUpTable[] = { 0, 0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 0, 0, 0, 0, 255, 0, 0 };
 uint16_t                    ledBlinkTime;
-int16_t                     transitionCounter[MAX_NUMBER_OF_LEDS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+int16_t                     transitionCounter[MAX_NUMBER_OF_LEDS] = { 0 };
 volatile uint32_t           blinkTimerCounter = 0;
 
 //analog
@@ -49,11 +49,7 @@ int16_t                     analogBufferCopy[ANALOG_BUFFER_SIZE] = { 0 };
 volatile uint32_t           rTime_ms = 0;
 
 
-void Board::resetLEDblinkCounter()  {
-
-    blinkTimerCounter = 0;
-
-}
+//inline functions
 
 inline void setMuxInternal(uint8_t muxNumber)   {
 
@@ -233,7 +229,7 @@ inline void checkLEDs()  {
             uint8_t ledNumber = activeButtonColumn+i*NUMBER_OF_LED_COLUMNS;
             uint8_t ledStateSingle = ledOnLookUpTable[ledState[ledNumber]];
 
-            if (!pwmSteps && ledStateSingle) ledRowOn(i, ledStateSingle);
+            if (!pwmSteps && ledStateSingle) ledRowOn(i, 255); //don't bother with pwm if it's disabled
             else {
 
                 if (transitionCounter[ledNumber]) ledRowOn(i, ledTransitionScale[transitionCounter[ledNumber]]);
@@ -271,15 +267,15 @@ inline void setBlinkState(uint8_t ledNumber, bool state)   {
 
 }
 
-inline void activateColumn()   {
+inline void activateColumn(uint8_t column)   {
 
     #ifdef BOARD_TANNIN
         PORTD &= 0b000011111;
-        PORTD |= (activeButtonColumn << 5);
+        PORTD |= (column << 5);
     #elif defined BOARD_OPENDECK_1
         //column switching is controlled by 74HC238 decoder
         PORTC &= 0xC7;
-        switch (activeButtonColumn) {
+        switch (column) {
 
             case 0:
             PORTC &= 0xC7;
@@ -455,15 +451,108 @@ inline void readEncoders()  {
 }
 
 
+//ISR functions
+
+#if defined(BOARD_OPENDECK_1)
+ISR(TIMER2_COMPA_vect)  {
+
+    //switch column
+    if (activeButtonColumn == NUMBER_OF_BUTTON_COLUMNS) activeButtonColumn = 0;
+    //turn off all LED rows before switching to next column
+    ledRowsOff();
+    activateColumn(activeButtonColumn);
+    checkLEDs();
+    storeDigitalIn();
+    activeButtonColumn++;
+    _buttonDataAvailable = true;
+
+}
+
+ISR(TIMER1_COMPA_vect) {
+
+    static bool updateMS = true;
+    uint32_t ms;
+
+    updateMS = !updateMS;
+
+    if (updateMS)   {
+
+        ms = rTime_ms;
+        ms++;
+        //update run time
+        rTime_ms = ms;
+
+    }
+
+    readEncoders();
+
+}
+#elif defined (BOARD_TANNIN)
+ISR(TIMER3_COMPA_vect)  {
+
+    //switch column
+    if (activeButtonColumn == NUMBER_OF_BUTTON_COLUMNS) activeButtonColumn = 0;
+    //turn off all LED rows before switching to next column
+    ledRowsOff();
+    activateColumn(activeButtonColumn);
+    checkLEDs();
+    storeDigitalIn();
+    activeButtonColumn++;
+    _buttonDataAvailable = true;
+
+}
+
+ISR(TIMER4_OVF_vect) {
+
+    static bool updateMS = true;
+    uint32_t ms;
+
+    updateMS = !updateMS;
+
+    if (updateMS)   {
+
+        ms = rTime_ms;
+        ms++;
+        //update run time
+        rTime_ms = ms;
+
+    }
+
+    readEncoders();
+
+}
+#endif
+
+ISR(ADC_vect)   {
+
+    analogBuffer[activeMuxInput] = ADC;
+    activeMuxInput++;
+
+    bool startConversion = activeMuxInput != 8;
+
+    if (!startConversion)    {
+
+        analogBuffer[ANALOG_BUFFER_SIZE-1] = activeMux;
+        activeMuxInput = 0;
+        activeMux++;
+        if (activeMux == NUMBER_OF_MUX) activeMux = 0;
+        _analogDataAvailable = true;
+        ADMUX = (ADMUX & 0xF0) | (analogueEnabledArray[activeMux] & 0x0F);
+
+    }
+
+    //always set mux input
+    setMuxInputInteral(activeMuxInput);
+    if (startConversion) ADCSRA |= (1<<ADSC);
+
+}
+
+
 //init
 
 Board::Board()  {
 
     //default constructor
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        ledState[i] = 0;
-
-     ledBlinkTime = 0;
 
 }
 
@@ -473,8 +562,6 @@ void Board::init()  {
     initAnalog();
 
     _delay_ms(5);
-
-    setNumberOfColumnPasses();
 
     #if defined (BOARD_TANNIN)
         setUpTimer4();
@@ -531,9 +618,9 @@ void Board::initAnalog()    {
     setMuxInputInteral(activeMuxInput);
     setADCchannel(analogueEnabledArray[activeMux]);
     _delay_ms(5);
-    getADCvalue();
+    getADCvalue();  //dummy read to init ADC
     enableADCinterrupt();
-    startADCconversion();
+    startADCconversion();   //start ADC conversions
 
 }
 
@@ -546,23 +633,64 @@ void Board::enableAnalogueInput(uint8_t muxNumber, uint8_t adcChannel)  {
 
 }
 
-void Board::setNumberOfColumnPasses() {
+#ifdef BOARD_TANNIN
 
-    /*
+void Board::configurePWM()   {
 
-        Algorithm calculates how many times does it need to read whole row
-        before it can declare button reading stable.
+    //stop default timer0 interrupt
+    TCCR0A = 0;
+    TCCR0B = 0;
 
-    */
-
-    uint8_t rowPassTime = (COLUMN_SCAN_TIME/1000)*NUMBER_OF_BUTTON_COLUMNS;
-    uint8_t mod = 0;
-
-    if ((MIN_BUTTON_DEBOUNCE_TIME % rowPassTime) > 0)   mod = 1;
-
-    numberOfColumnPasses = ((MIN_BUTTON_DEBOUNCE_TIME / rowPassTime) + mod);
+    //increase default PWM frequency to 31kHz
+    cli();
+    TCCR1B = (TCCR1B & 0b11111000) | 0x01;
+    TCCR1A = (TCCR1A & 0b11111000) | 0x01;
+    TCCR0B = (TCCR0B & 0b11111000) | 0x01;
+    TCCR0A = (TCCR0A & 0b11111000) | 0x01;
+    sei();
 
 }
+
+void Board::setUpTimer4()   {
+
+    TCCR4B = 0;
+    TCCR4A = 0;
+    TCCR4C = 0;
+    TCCR4D = 0;
+    TCCR4E = 0;
+
+    TCCR4B = (1<<CS42) | (1<<CS41) | (1<<CS40) | (1<<PSR4);
+
+    OCR4C = 124;
+
+    TIFR4 = (1<<TOV4);
+    TCNT4 = 0;
+    TIMSK4 = (1<<TOIE4);
+
+}
+#elif defined (BOARD_OPENDECK_1)
+void Board::setUpTimer1() {
+
+    TCCR1A = 0;
+    TCCR1B = 0;
+    TCNT1H = 0;
+    TCNT1L = 0;
+
+    //turn on CTC mode
+    TCCR1B |= (1 << WGM12);
+
+    //set prescaler to 64
+    TCCR1B |= (1 << CS11)|(1 << CS10);
+
+    //1ms
+    OCR1A = 124;
+
+    //enable CTC interrupt
+    TIMSK1 |= (1 << OCIE1A);
+
+}
+
+#endif
 
 void Board::setUpTimer()   {
 
@@ -579,7 +707,6 @@ void Board::setUpTimer()   {
 
         //using COLUMN_SWITCH_TIME to calculate timer count
         //known constants: F_CPU/16 MHz, prescaler/64
-        //divide by 2 since interrupt switches matrix on every second activation
 
         uint32_t timerCount = COLUMN_SCAN_TIME/4;
 
@@ -610,14 +737,9 @@ void Board::setUpTimer()   {
 
 }
 
-uint8_t Board::getNumberOfColumnPasses()    {
-
-    return numberOfColumnPasses;
-
-}
-
 
 //LEDs
+
 void Board::setLEDstate(uint8_t ledNumber, uint8_t state)   {
 
     cli();
@@ -766,23 +888,29 @@ void Board::turnOffLED(uint8_t ledNumber)   {
 
 }
 
-uint8_t Board::buttonDataAvailable() {
+void Board::resetLEDtransitions()   {
 
-    bool state;
     cli();
-    state = _buttonDataAvailable;
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+    transitionCounter[i] = 0;
     sei();
-    if (state) {
-
-        cli();
-        _buttonDataAvailable = false;
-        digitalBufferCopy = digitalBuffer;
-        sei();
-        return NUMBER_OF_BUTTON_ROWS;
-
-    } return 0;
 
 }
+
+void Board::setLEDTransitionSpeed(uint8_t steps) {
+
+    cli();
+    pwmSteps = steps;
+    sei();
+
+}
+
+void Board::resetLEDblinkCounter()  {
+
+    blinkTimerCounter = 0;
+
+}
+
 
 //analog
 
@@ -818,7 +946,9 @@ uint8_t Board::getAnalogID(uint8_t id)  {
 
 }
 
+
 //encoders
+
 encoderPosition Board::getEncoderState(uint8_t encoderNumber)  {
 
     encoderPosition returnValue;
@@ -830,35 +960,41 @@ encoderPosition Board::getEncoderState(uint8_t encoderNumber)  {
 
 }
 
-#if defined(TIMER2_COMPA_vect)
-    ISR(TIMER2_COMPA_vect)  {
 
-        //switch column
-        if (activeButtonColumn == NUMBER_OF_BUTTON_COLUMNS) activeButtonColumn = 0;
-        //turn off all LED rows before switching to next column
-        ledRowsOff();
-        activateColumn();
-        checkLEDs();
-        storeDigitalIn();
-        activeButtonColumn++;
-        _buttonDataAvailable = true;
+//buttons
 
-    }
-#elif defined (TIMER3_COMPA_vect)
-    ISR(TIMER3_COMPA_vect)  {
+uint8_t Board::buttonDataAvailable() {
 
-        //switch column
-        if (activeButtonColumn == NUMBER_OF_BUTTON_COLUMNS) activeButtonColumn = 0;
-        //turn off all LED rows before switching to next column
-        ledRowsOff();
-        activateColumn();
-        checkLEDs();
-        storeDigitalIn();
-        activeButtonColumn++;
-        _buttonDataAvailable = true;
+    bool state;
+    cli();
+    state = _buttonDataAvailable;
+    sei();
+    if (state) {
 
-    }
-#endif
+        cli();
+        _buttonDataAvailable = false;
+        digitalBufferCopy = digitalBuffer;
+        sei();
+        return NUMBER_OF_BUTTON_ROWS;
+
+    } return 0;
+
+}
+
+bool Board::getButtonState(uint8_t buttonIndex) {
+
+    return !(((digitalBufferCopy >> 8) >> buttonIndex) & 0x01);
+
+}
+
+uint8_t Board::getButtonNumber(uint8_t buttonIndex) {
+
+    return (digitalBufferCopy & 0xFF)+buttonIndex*NUMBER_OF_BUTTON_COLUMNS;
+
+}
+
+
+//timer-based functions
 
 uint32_t Board::newMillis()    {
 
@@ -887,155 +1023,5 @@ void Board::newDelay(uint32_t delayTime)    {
 
 }
 
-#ifdef BOARD_TANNIN
-
-    void Board::configurePWM()   {
-
-        //stop default timer0 interrupt
-        TCCR0A = 0;
-        TCCR0B = 0;
-
-        //increase default PWM frequency to 31kHz
-        cli();
-        TCCR1B = (TCCR1B & 0b11111000) | 0x01;
-        TCCR1A = (TCCR1A & 0b11111000) | 0x01;
-        TCCR0B = (TCCR0B & 0b11111000) | 0x01;
-        TCCR0A = (TCCR0A & 0b11111000) | 0x01;
-        sei();
-
-    }
-
-    void Board::setUpTimer4()   {
-
-        TCCR4B = 0;
-        TCCR4A = 0;
-        TCCR4C = 0;
-        TCCR4D = 0;
-        TCCR4E = 0;
-
-        TCCR4B = (1<<CS42) | (1<<CS41) | (1<<CS40) | (1<<PSR4);
-
-        OCR4C = 124;
-
-        TIFR4 = (1<<TOV4);
-        TCNT4 = 0;
-        TIMSK4 = (1<<TOIE4);
-
-    }
-
-    ISR(TIMER4_OVF_vect) {
-
-        static bool updateMS = true;
-        uint32_t ms;
-
-        updateMS = !updateMS;
-
-        if (updateMS)   {
-
-            ms = rTime_ms;
-            ms++;
-            //update run time
-            rTime_ms = ms;
-
-        }
-
-        readEncoders();
-
-    }
-#elif defined (BOARD_OPENDECK_1)
-    void Board::setUpTimer1() {
-
-        TCCR1A = 0;
-        TCCR1B = 0;
-        TCNT1H = 0;
-        TCNT1L = 0;
-
-        //turn on CTC mode
-        TCCR1B |= (1 << WGM12);
-
-        //set prescaler to 64
-        TCCR1B |= (1 << CS11)|(1 << CS10);
-
-        //1ms
-        OCR1A = 124;
-
-        //enable CTC interrupt
-        TIMSK1 |= (1 << OCIE1A);
-
-    }
-
-    ISR(TIMER1_COMPA_vect) {
-
-        static bool updateMS = true;
-        uint32_t ms;
-
-        updateMS = !updateMS;
-
-        if (updateMS)   {
-
-            ms = rTime_ms;
-            ms++;
-            //update run time
-            rTime_ms = ms;
-
-        }
-
-        readEncoders();
-
-    }
-#endif
-
-ISR(ADC_vect)   {
-
-    analogBuffer[activeMuxInput] = ADC;
-    activeMuxInput++;
-
-    bool startConversion = activeMuxInput != 8;
-
-    if (!startConversion)    {
-
-        analogBuffer[ANALOG_BUFFER_SIZE-1] = activeMux;
-        activeMuxInput = 0;
-        activeMux++;
-        if (activeMux == NUMBER_OF_MUX) activeMux = 0;
-        _analogDataAvailable = true;
-        ADMUX = (ADMUX & 0xF0) | (analogueEnabledArray[activeMux] & 0x0F);
-
-    }
-
-    //always set mux input
-    setMuxInputInteral(activeMuxInput);
-    if (startConversion) ADCSRA |= (1<<ADSC);
-
-}
-
-void Board::resetLEDtransitions()   {
-
-    cli();
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        transitionCounter[i] = 0;
-    sei();
-
-}
-
-void Board::setLEDTransitionSpeed(uint8_t steps) {
-
-    cli();
-    pwmSteps = steps;
-    sei();
-
-}
-
-bool Board::getButtonState(uint8_t buttonIndex) {
-
-    return !(((digitalBufferCopy >> 8) >> buttonIndex) & 0x01);
-
-}
-
-uint8_t Board::getButtonNumber(uint8_t buttonIndex) {
-
-    return (digitalBufferCopy & 0xFF)+buttonIndex*NUMBER_OF_BUTTON_COLUMNS;
-
-}
 
 Board boardObject;
