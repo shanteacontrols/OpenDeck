@@ -6,9 +6,6 @@ Author: Igor Petrovic
 
 */
 
-//disable default serial object
-
-
 #include "OpenDeck.h"
 
 void setup()    {
