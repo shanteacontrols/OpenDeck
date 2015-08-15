@@ -38,6 +38,7 @@
 
 #include <inttypes.h>
 #include "Types.h"
+#include "Board.h"
 
 
 /*  
@@ -57,7 +58,11 @@
 #define COMPILE_MIDI_IN         1           // Set this setting to 1 to use the MIDI input.
 #define COMPILE_MIDI_OUT        1           // Set this setting to 1 to use the MIDI output. 
 
+#if defined (BOARD_TANNIN)
 #define USE_SERIAL_PORT         Serial1
+#elif defined (BOARD_OPENDECK_1)
+#define USE_SERIAL_PORT         Serial
+#endif
 
 #define USE_CALLBACKS           1           // Set this to 1 if you want to use callback handlers (to bind your functions to the library).
                                             // To use the callbacks, you need to have COMPILE_MIDI_IN set to 1

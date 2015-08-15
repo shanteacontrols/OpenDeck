@@ -372,7 +372,7 @@ inline void readEncoders()  {
 
     #if defined (BOARD_OPENDECK_1)
 
-        uint8_t encRead = (PIND >> 2) & 0x03;
+        uint8_t encoderValue = (PIND >> 2) & 0x03;
         uint8_t encoderNumber = 0;
 
         tempEncoderState[encoderNumber] = ((tempEncoderState[encoderNumber] << 2) | encoderValue) & 0x0F;
