@@ -44,7 +44,7 @@ Code base is built upon OpenDeck library, modified Arduino MIDI library 3.2 and 
 
 ## LED configuration
 
-* Hardware parameters: total LED number, blink time, start-up switch time, start-up routine
+* Hardware parameters: total LED number, blink time, start-up switch time, start-up routine, fade speed
 * LED activation note
 * LED start-up number
 * Test LED state (constant on/off, blink on/off)
@@ -54,8 +54,6 @@ Code base is built upon OpenDeck library, modified Arduino MIDI library 3.2 and 
 * Hardware parameters (reserved/no parameters yet)
 * Enable/disable encoder
 * Invert encoder value
-* Set fast mode encoder (additional debouncing for high-speed encoders)
-* Change pulses per step for each encoder
 * Change encoder CC number
 
 ## Data restoration
@@ -151,8 +149,6 @@ Encoders:
 * Hardware parameter (0x00)
 * Encoder enabled (0x01)
 * Encoder inverted (0x02)
-* Encoder fast mode (0x03)
-* Pulses per step (0x04)
 * Encoder CC number (0x05)
 
 
