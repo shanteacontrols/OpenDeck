@@ -62,6 +62,7 @@ void OpenDeck::init()   {
 
     #ifdef USBMIDI
         usbMIDI.setHandleNoteOn(storeReceivedNoteOn);
+        usbMIDI.setHandleNoteOff(storeReceivedNoteOn);
     #endif
 
 }
