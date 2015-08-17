@@ -1,0 +1,5 @@
+To upload bootloader using USBasp programmer, set fuses first:
+avrdude -p m32U4 -c usbasp -U lfuse:w:0xff:m -U hfuse:w:0xd1:m -U efuse:w:0xc8:m
+
+Upload bootloader using following command:
+avrdude -p m32U4 -c usbasp -U flash:w:BootloaderMassStorage.hex:i
