@@ -232,19 +232,23 @@ inline void checkLEDs()  {
             if (!pwmSteps && ledStateSingle) ledRowOn(i, 255); //don't bother with pwm if it's disabled
             else {
 
-                if (transitionCounter[ledNumber]) ledRowOn(i, ledTransitionScale[transitionCounter[ledNumber]]);
+                if (
+                (ledStateSingle && (transitionCounter[ledNumber] != (NUMBER_OF_TRANSITIONS-1))) ||
+                (!ledStateSingle && transitionCounter[ledNumber])
+                )  {
 
-                if (transitionCounter[ledNumber] < ledStateSingle)
-                transitionCounter[ledNumber] += pwmSteps;
+                    //skip this check if led state is off and transition counter is 0 or
+                    //led is on and transition counter has max value
 
-                if (transitionCounter[ledNumber] >= NUMBER_OF_TRANSITIONS) transitionCounter[ledNumber] = NUMBER_OF_TRANSITIONS-1;
+                    if (ledStateSingle) transitionCounter[ledNumber] += pwmSteps;
+                    else transitionCounter[ledNumber] -= pwmSteps;
 
-                if (ledStateSingle == 0)
-                transitionCounter[ledNumber] -= pwmSteps;
+                    if (transitionCounter[ledNumber] >= NUMBER_OF_TRANSITIONS) transitionCounter[ledNumber] = NUMBER_OF_TRANSITIONS-1;
+                    if (transitionCounter[ledNumber] < 0) transitionCounter[ledNumber] = 0;
 
-                if (transitionCounter[ledNumber] < 0) transitionCounter[ledNumber] = 0;
+                }
 
-            }
+            }   if (transitionCounter[ledNumber]) ledRowOn(i, ledTransitionScale[transitionCounter[ledNumber]]);
 
         }
     #endif
