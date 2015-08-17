@@ -7,8 +7,11 @@
 #include "EncoderSettings.h"
 #include "Types.h"
 
+#ifdef USBCON
 #include "BoardDefsTannin.h"
-//#include "BoardDefsOpenDeck.h"
+#else
+#include "BoardDefsOpenDeck.h"
+#endif
 
 #define COLUMN_SCAN_TIME            1500    //microseconds
 
