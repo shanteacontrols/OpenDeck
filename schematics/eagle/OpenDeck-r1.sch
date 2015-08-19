@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
 <layer number="2" name="Route2" color="1" fill="3" visible="no" active="no"/>
@@ -21821,6 +21821,7 @@ Source: http://www.onsemi.com/pub/Collateral/MC33269-D.PDF</description>
 <part name="GND28" library="supply1" deviceset="GND" device=""/>
 <part name="C16" library="rcl" deviceset="CPOL-EU" device="SMCB" value="10u"/>
 <part name="GND29" library="supply1" deviceset="GND" device=""/>
+<part name="C17" library="rcl" deviceset="C-EU" device="025-025X050" value="0.01"/>
 </parts>
 <sheets>
 <sheet>
@@ -21855,14 +21856,14 @@ Source: http://www.onsemi.com/pub/Collateral/MC33269-D.PDF</description>
 <text x="200.66" y="261.62" size="5.08" layer="97" font="vector">ANALOG</text>
 <text x="200.66" y="347.98" size="5.08" layer="97" font="vector">USB</text>
 <wire x1="195.58" y1="363.22" x2="7.62" y2="363.22" width="0.1524" layer="97" style="dashdot"/>
-<wire x1="7.62" y1="363.22" x2="7.62" y2="228.6" width="0.1524" layer="97" style="dashdot"/>
-<wire x1="7.62" y1="228.6" x2="195.58" y2="228.6" width="0.1524" layer="97" style="dashdot"/>
-<wire x1="195.58" y1="228.6" x2="195.58" y2="363.22" width="0.1524" layer="97" style="dashdot"/>
+<wire x1="7.62" y1="363.22" x2="7.62" y2="220.98" width="0.1524" layer="97" style="dashdot"/>
+<wire x1="7.62" y1="220.98" x2="195.58" y2="220.98" width="0.1524" layer="97" style="dashdot"/>
+<wire x1="195.58" y1="220.98" x2="195.58" y2="363.22" width="0.1524" layer="97" style="dashdot"/>
 <text x="165.1" y="353.06" size="7.62" layer="97" font="vector">MCU</text>
 <wire x1="198.12" y1="363.22" x2="284.48" y2="363.22" width="0.1524" layer="97" style="dashdot"/>
-<wire x1="284.48" y1="363.22" x2="284.48" y2="228.6" width="0.1524" layer="97" style="dashdot"/>
-<wire x1="284.48" y1="228.6" x2="198.12" y2="228.6" width="0.1524" layer="97" style="dashdot"/>
-<wire x1="198.12" y1="228.6" x2="198.12" y2="363.22" width="0.1524" layer="97" style="dashdot"/>
+<wire x1="284.48" y1="363.22" x2="284.48" y2="220.98" width="0.1524" layer="97" style="dashdot"/>
+<wire x1="284.48" y1="220.98" x2="198.12" y2="220.98" width="0.1524" layer="97" style="dashdot"/>
+<wire x1="198.12" y1="220.98" x2="198.12" y2="363.22" width="0.1524" layer="97" style="dashdot"/>
 <text x="248.92" y="353.06" size="7.62" layer="97" font="vector">POWER</text>
 <text x="154.94" y="190.5" size="7.62" layer="97" font="vector">MULTIPLEXING</text>
 <text x="12.7" y="190.5" size="5.08" layer="97" font="vector">LED MATRIX</text>
@@ -21875,14 +21876,15 @@ Source: http://www.onsemi.com/pub/Collateral/MC33269-D.PDF</description>
 <text x="142.24" y="30.48" size="2.54" layer="104" font="vector">U7 POWER</text>
 <text x="304.8" y="152.4" size="2.54" layer="104" font="vector">U2 POWER</text>
 <text x="332.74" y="152.4" size="2.54" layer="104" font="vector">U3 POWER</text>
-<text x="12.7" y="274.32" size="2.54" layer="104" font="vector">VCC</text>
-<text x="12.7" y="266.7" size="2.54" layer="104" font="vector">VCC1</text>
-<text x="12.7" y="259.08" size="2.54" layer="104" font="vector">UVCC</text>
-<text x="12.7" y="251.46" size="2.54" layer="104" font="vector">AVCC</text>
-<text x="12.7" y="243.84" size="2.54" layer="104" font="vector">AVCC1</text>
+<text x="12.7" y="266.7" size="2.54" layer="104" font="vector">VCC</text>
+<text x="12.7" y="259.08" size="2.54" layer="104" font="vector">VCC1</text>
+<text x="12.7" y="251.46" size="2.54" layer="104" font="vector">UVCC</text>
+<text x="12.7" y="243.84" size="2.54" layer="104" font="vector">AVCC</text>
+<text x="12.7" y="236.22" size="2.54" layer="104" font="vector">AVCC1</text>
 <text x="530.86" y="73.66" size="7.62" layer="97" font="vector">Note:
 All diodes 1N4148</text>
 <text x="200.66" y="304.8" size="5.08" layer="97" font="vector">POWER JACK</text>
+<text x="12.7" y="274.32" size="2.54" layer="104" font="vector">VBUS</text>
 </plain>
 <instances>
 <instance part="FRAME1" gate="G$2" x="557.276" y="2.032"/>
@@ -22723,8 +22725,8 @@ All diodes 1N4148</text>
 <attribute name="NAME" x="31.496" y="244.221" size="1.778" layer="95" font="vector" rot="MR0"/>
 <attribute name="VALUE" x="37.084" y="245.999" size="1.778" layer="96" font="vector" rot="MR180"/>
 </instance>
-<instance part="GND22" gate="1" x="43.18" y="236.22" smashed="yes">
-<attribute name="VALUE" x="40.64" y="233.68" size="1.778" layer="96" font="vector"/>
+<instance part="GND22" gate="1" x="43.18" y="228.6" smashed="yes">
+<attribute name="VALUE" x="40.64" y="226.06" size="1.778" layer="96" font="vector"/>
 </instance>
 <instance part="JP2" gate="G$1" x="210.82" y="289.56"/>
 <instance part="GND24" gate="1" x="215.9" y="287.02" smashed="yes">
@@ -22769,6 +22771,10 @@ All diodes 1N4148</text>
 </instance>
 <instance part="GND29" gate="1" x="243.84" y="276.86" smashed="yes">
 <attribute name="VALUE" x="241.3" y="274.32" size="1.778" layer="96" font="vector"/>
+</instance>
+<instance part="C17" gate="G$1" x="33.02" y="236.22" smashed="yes" rot="MR270">
+<attribute name="NAME" x="31.496" y="236.601" size="1.778" layer="95" font="vector" rot="MR0"/>
+<attribute name="VALUE" x="37.084" y="238.379" size="1.778" layer="96" font="vector" rot="MR180"/>
 </instance>
 </instances>
 <busses>
@@ -22972,9 +22978,13 @@ All diodes 1N4148</text>
 <junction x="43.18" y="266.7"/>
 <junction x="43.18" y="259.08"/>
 <junction x="43.18" y="251.46"/>
-<wire x1="43.18" y1="243.84" x2="43.18" y2="238.76" width="0.1524" layer="91"/>
+<wire x1="43.18" y1="243.84" x2="43.18" y2="236.22" width="0.1524" layer="91"/>
 <junction x="43.18" y="243.84"/>
 <pinref part="GND22" gate="1" pin="GND"/>
+<pinref part="C17" gate="G$1" pin="2"/>
+<wire x1="43.18" y1="236.22" x2="43.18" y2="231.14" width="0.1524" layer="91"/>
+<wire x1="38.1" y1="236.22" x2="43.18" y2="236.22" width="0.1524" layer="91"/>
+<junction x="43.18" y="236.22"/>
 </segment>
 <segment>
 <pinref part="JP2" gate="G$1" pin="GNDBREAK"/>
@@ -25650,8 +25660,12 @@ All diodes 1N4148</text>
 <junction x="25.4" y="259.08"/>
 <junction x="25.4" y="251.46"/>
 <junction x="25.4" y="243.84"/>
-<wire x1="25.4" y1="243.84" x2="25.4" y2="238.76" width="0.1524" layer="91"/>
-<label x="25.4" y="238.76" size="1.778" layer="95" font="vector" rot="MR270" xref="yes"/>
+<wire x1="25.4" y1="243.84" x2="25.4" y2="236.22" width="0.1524" layer="91"/>
+<label x="25.4" y="231.14" size="1.778" layer="95" font="vector" rot="MR270" xref="yes"/>
+<pinref part="C17" gate="G$1" pin="1"/>
+<wire x1="25.4" y1="236.22" x2="25.4" y2="231.14" width="0.1524" layer="91"/>
+<wire x1="30.48" y1="236.22" x2="25.4" y2="236.22" width="0.1524" layer="91"/>
+<junction x="25.4" y="236.22"/>
 </segment>
 <segment>
 <pinref part="R23" gate="G$1" pin="2"/>
