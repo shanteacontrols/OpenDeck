@@ -69,12 +69,6 @@ void UART::write(uint8_t data)   {
     if (tx_buffer_counter >= SERIAL_BUFFER_SIZE) tx_buffer_counter = 0;
 
     tx_buffer[tx_buffer_counter] = data;
-    #if defined (UCSR1B)
-        UCSR1B = (1<<TXEN1);
-    #elif defined (UCSR0B)
-        UCSR0B = (1<<TXEN0);
-    #endif
-
     tx_buffer_counter++;
 
 }
@@ -135,7 +129,7 @@ void UART::begin(uint32_t baudRate)   {
 
 }
 
-uint16_t UART::availableRX()    {
+int16_t UART::availableRX()    {
 
     //return available number of bytes in incoming buffer
 

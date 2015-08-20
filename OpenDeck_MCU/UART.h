@@ -13,7 +13,7 @@ class UART    {
     public:
         UART();
         void begin(uint32_t baud_count);
-        uint16_t availableRX();
+        int16_t availableRX();
         uint8_t availableTX();
         int8_t read();
         void write(uint8_t);
