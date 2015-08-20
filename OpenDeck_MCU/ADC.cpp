@@ -114,9 +114,7 @@ void disconnectDigitalInADC(uint8_t adcChannel) {
 
 void enableADCinterrupt()   {
 
-    cli();
     ADCSRA |= (1<<ADIE);
-    sei();
 
 }
 
