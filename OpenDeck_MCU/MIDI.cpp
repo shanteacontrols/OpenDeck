@@ -14,7 +14,6 @@
 
 */
 #include "MIDI.h"
-#include "Arduino.h"
 #include <stdlib.h>
 #include "Types.h"
 
