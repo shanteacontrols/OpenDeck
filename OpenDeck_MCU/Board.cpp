@@ -275,6 +275,7 @@ inline void activateColumn(uint8_t column)   {
     #ifdef BOARD_TANNIN
         PORTD &= 0b000011111;
         PORTD |= (column << 5);
+        _NOP();
     #elif defined BOARD_OPENDECK_1
         //column switching is controlled by 74HC238 decoder
         PORTC &= 0xC7;
@@ -315,7 +316,7 @@ inline void activateColumn(uint8_t column)   {
             default:
             break;
 
-        }
+        }   _NOP();
     #endif
 
 }
@@ -328,18 +329,16 @@ inline void activateEncoderColumn(uint8_t column)   {
 
         case 0:
         PORTC &= 0b10111111;
-        _NOP();
         break;
 
         case 1:
         PORTC &= 0b01111111;
-        _NOP();
         break;
 
         default:
         break;
 
-    }
+    }   _NOP();
 
 }
 
