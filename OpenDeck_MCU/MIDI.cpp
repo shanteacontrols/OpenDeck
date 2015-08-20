@@ -253,7 +253,13 @@ void MIDI_Class::sendRealTime(kMIDIType Type)   {
  */
 bool MIDI_Class::read() {
 
-    int16_t bytes_available = USE_SERIAL_PORT.available();
+    int16_t bytes_available;
+
+    #ifdef SERIAL_MOD
+        bytes_available = USE_SERIAL_PORT.availableRX();
+    #else
+         bytes_available = USE_SERIAL_PORT.available();
+     #endif
 
     if (bytes_available <= 0) return false;
 
