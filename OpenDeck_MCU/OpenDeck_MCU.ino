@@ -6,6 +6,9 @@ Author: Igor Petrovic
 
 */
 
+//disable default serial object
+#define HardwareSerial_h
+
 #include "OpenDeck.h"
 
 void setup()    {
@@ -28,5 +31,9 @@ void loop() {
 
     //check encoders
     openDeck.readEncoders();
+
+    #ifdef SERIAL_MOD
+        uart.releaseTX();
+    #endif
 
 }
