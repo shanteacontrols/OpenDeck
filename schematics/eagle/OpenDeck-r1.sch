@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
 <layer number="2" name="Route2" color="1" fill="3" visible="no" active="no"/>
@@ -21809,9 +21809,9 @@ Source: http://www.onsemi.com/pub/Collateral/MC33269-D.PDF</description>
 <part name="GND22" library="supply1" deviceset="GND" device=""/>
 <part name="JP2" library="SparkFun-Connectors" deviceset="POWER_JACK" device="PTH"/>
 <part name="GND24" library="supply1" deviceset="GND" device=""/>
-<part name="R23" library="rcl" deviceset="R-EU_" device="0204/7" value="220"/>
+<part name="R23" library="rcl" deviceset="R-EU_" device="0204/7" value="130"/>
 <part name="GND25" library="supply1" deviceset="GND" device=""/>
-<part name="R24" library="rcl" deviceset="R-EU_" device="0204/7" value="220"/>
+<part name="R24" library="rcl" deviceset="R-EU_" device="0204/7" value="130"/>
 <part name="GND26" library="supply1" deviceset="GND" device=""/>
 <part name="BOOT_LED" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="POWER_LED" library="led" deviceset="*W51M" device="" technology="LA"/>
@@ -25408,15 +25408,6 @@ All diodes 1N4148</text>
 <junction x="50.8" y="289.56"/>
 </segment>
 </net>
-<net name="N$74" class="0">
-<segment>
-<pinref part="U1" gate="G$1" pin="PE2(!HWB)"/>
-<wire x1="106.68" y1="325.12" x2="116.84" y2="325.12" width="0.1524" layer="91"/>
-<wire x1="116.84" y1="325.12" x2="116.84" y2="327.66" width="0.1524" layer="91"/>
-<wire x1="116.84" y1="327.66" x2="121.92" y2="327.66" width="0.1524" layer="91"/>
-<pinref part="R21" gate="G$1" pin="2"/>
-</segment>
-</net>
 <net name="RESET" class="0">
 <segment>
 <pinref part="HEADER_1" gate="A" pin="5"/>
@@ -25496,13 +25487,8 @@ All diodes 1N4148</text>
 </segment>
 <segment>
 <pinref part="R21" gate="G$1" pin="1"/>
-<wire x1="132.08" y1="327.66" x2="134.62" y2="327.66" width="0.1524" layer="91"/>
 <label x="142.24" y="327.66" size="1.778" layer="95" font="vector" xref="yes"/>
-<pinref part="S66" gate="G$1" pin="1"/>
-<wire x1="134.62" y1="327.66" x2="142.24" y2="327.66" width="0.1524" layer="91"/>
-<wire x1="137.16" y1="320.04" x2="134.62" y2="320.04" width="0.1524" layer="91"/>
-<wire x1="134.62" y1="320.04" x2="134.62" y2="327.66" width="0.1524" layer="91"/>
-<junction x="134.62" y="327.66"/>
+<wire x1="132.08" y1="327.66" x2="142.24" y2="327.66" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="LM4132CMF-4.1" gate="A" pin="VIN"/>
@@ -25797,6 +25783,20 @@ All diodes 1N4148</text>
 <pinref part="JP2" gate="G$1" pin="PWR"/>
 <wire x1="213.36" y1="297.18" x2="220.98" y2="297.18" width="0.1524" layer="91"/>
 <label x="220.98" y="297.18" size="1.778" layer="95" font="vector" xref="yes"/>
+</segment>
+</net>
+<net name="N$77" class="1">
+<segment>
+<pinref part="S66" gate="G$1" pin="1"/>
+<wire x1="137.16" y1="320.04" x2="134.62" y2="320.04" width="0.1524" layer="91"/>
+<wire x1="134.62" y1="320.04" x2="134.62" y2="325.12" width="0.1524" layer="91"/>
+<pinref part="U1" gate="G$1" pin="PE2(!HWB)"/>
+<wire x1="106.68" y1="325.12" x2="116.84" y2="325.12" width="0.1524" layer="91"/>
+<wire x1="116.84" y1="325.12" x2="116.84" y2="327.66" width="0.1524" layer="91"/>
+<wire x1="116.84" y1="327.66" x2="121.92" y2="327.66" width="0.1524" layer="91"/>
+<pinref part="R21" gate="G$1" pin="2"/>
+<wire x1="134.62" y1="325.12" x2="116.84" y2="325.12" width="0.1524" layer="91"/>
+<junction x="116.84" y="325.12"/>
 </segment>
 </net>
 </nets>
