@@ -12,8 +12,7 @@
 
 
 //matrix columns
-volatile uint8_t            activeButtonColumn  = 0,
-                            activeEncoderColumn = 0;
+volatile uint8_t            activeButtonColumn  = 0;
 
 //buttons
 volatile bool               _buttonDataAvailable = false;
@@ -329,10 +328,12 @@ inline void activateEncoderColumn(uint8_t column)   {
 
         case 0:
         PORTC &= 0b10111111;
+        _NOP();
         break;
 
         case 1:
         PORTC &= 0b01111111;
+        _NOP();
         break;
 
         default:
@@ -376,7 +377,7 @@ inline void readEncoders()  {
 
     #if defined (BOARD_OPENDECK_1)
 
-        uint8_t encoderValue = (PIND >> 2) & 0x03;
+        uint8_t encRead = (PIND >> 2) & 0x03;
         uint8_t encoderNumber = 0;
 
         tempEncoderState[encoderNumber] = ((tempEncoderState[encoderNumber] << 2) | encoderValue) & 0x0F;
@@ -562,6 +563,7 @@ Board::Board()  {
 
 void Board::init()  {
 
+    cli();
     initPins();
     initAnalog();
 
@@ -569,7 +571,6 @@ void Board::init()  {
 
     #if defined (BOARD_TANNIN)
         setUpTimer4();
-        activateEncoderColumn(activeEncoderColumn);
         configurePWM();
     #elif defined (BOARD_OPENDECK_1)
         setUpTimer1();
@@ -591,8 +592,11 @@ void Board::initPins() {
         DDRD = 0b11111001;
         DDRC = 0b11000000;
 
-        //encoder pull-ups
+        //encoder pull-ups (rows)
         PORTB |= 0b00001111;
+
+        //turn off encoder columns
+        PORTC |= 0b11000000;
     #elif defined BOARD_OPENDECK_1
         DDRD = 0x02;
         DDRB = 0x0F;
@@ -646,12 +650,10 @@ void Board::configurePWM()   {
     TCCR0B = 0;
 
     //increase default PWM frequency to 31kHz
-    cli();
     TCCR1B = (TCCR1B & 0b11111000) | 0x01;
     TCCR1A = (TCCR1A & 0b11111000) | 0x01;
     TCCR0B = (TCCR0B & 0b11111000) | 0x01;
     TCCR0A = (TCCR0A & 0b11111000) | 0x01;
-    sei();
 
 }
 
