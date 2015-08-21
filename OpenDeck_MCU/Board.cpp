@@ -763,118 +763,6 @@ uint8_t Board::getLEDstate(uint8_t ledNumber)   {
 
 }
 
-void Board::handleLED(bool currentLEDstate, bool blinkMode, uint8_t ledNumber) {
-
-    /*
-
-    LED state is stored into one byte (ledState). The bits have following meaning (7 being the MSB bit):
-
-    7: x
-    6: x
-    5: x
-    4: Blink bit (timer changes this bit)
-    3: "Remember" bit, used to restore previous LED state
-    2: LED is active (either it blinks or it's constantly on), this bit is OR function between bit 0 and 1
-    1: LED blinks
-    0: LED is constantly turned on
-
-    */
-
-    //if blink note is received, and blinking is disabled, exit the function
-    //if (blinkMode && (!(bitRead(ledFeatures, SYS_EX_FEATURES_LEDS_BLINK))))
-        //return;
-
-    if (ledNumber < 128)    {
-
-        switch (currentLEDstate) {
-
-            case false:
-            //note off event
-
-            //if remember bit is set
-            if ((ledState[ledNumber] >> 3) & (0x01))   {
-
-                //if note off for blink state is received
-                //clear remember bit and blink bits
-                //set constant state bit
-                if (blinkMode) ledState[ledNumber] = 0x05;
-                //else clear constant state bit and remember bit
-                //set blink bits
-                else           ledState[ledNumber] = 0x16;
-
-                }   else    {
-
-                if (blinkMode)  ledState[ledNumber] &= 0x15; /*clear blink bit */
-                else            ledState[ledNumber] &= 0x16; /* clear constant state bit */
-
-            }
-
-            //if bits 0 and 1 are 0, LED is off so we set ledState to zero
-            if (!(ledState[ledNumber] & 3)) ledState[ledNumber] = 0;
-
-            break;
-
-            case true:
-            //note on event
-
-            //if constant note on is received and LED is already blinking
-            //clear blinking bits and set remember bit and constant bit
-            if ((!blinkMode) && checkBlinkState(ledNumber)) ledState[ledNumber] = 0x0D;
-
-            //set bit 2 to 1 in any case (constant/blink state)
-            else    ledState[ledNumber] |= (0x01 << blinkMode) | 0x04 | (blinkMode << 4);
-
-        }
-
-    }
-
-    if (blinkMode && currentLEDstate)   blinkEnabled = true;
-    else    checkBlinkLEDs();
-
-}
-
-void Board::checkBlinkLEDs() {
-
-    //this function will disable blinking
-    //if none of the LEDs is in blinking state
-
-    //else it will enable it
-
-    bool _blinkEnabled = false;
-
-    //if any LED is blinking, set timerState to true and exit the loop
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-
-    if (checkBlinkState(i)) {
-
-        _blinkEnabled = true;
-        break;
-
-    }
-
-    if (_blinkEnabled)  blinkEnabled = true;
-
-    //don't bother reseting variables if blinking is already disabled
-    else    if (!_blinkEnabled && blinkEnabled) {
-
-        //reset blinkState to default value
-        blinkState = true;
-        cli();
-        blinkTimerCounter = 0;
-        sei();
-        blinkEnabled = false;
-
-    }
-
-}
-
-bool Board::checkBlinkState(uint8_t ledNumber)   {
-
-    //function returns true if blinking bit in ledState is set
-    return ((ledState[ledNumber] >> 1) & (0x01));
-
-}
-
 void Board::setLEDblinkTime(uint16_t time)  {
 
     ledBlinkTime = time;
@@ -1025,6 +913,28 @@ void Board::newDelay(uint32_t delayTime)    {
     uint32_t _delayTime = newMillis() + delayTime;
 
     while (_delayTime > newMillis()) {}
+
+}
+
+void Board::ledBlinkingStart() {
+
+    blinkEnabled = true;
+
+}
+
+void Board::ledBlinkingStop()   {
+
+    blinkState = true;
+    cli();
+    blinkTimerCounter = 0;
+    sei();
+    blinkEnabled = false;
+
+}
+
+bool Board::ledBlinkingActive() {
+
+    return blinkEnabled;
 
 }
 

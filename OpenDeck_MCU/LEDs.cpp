@@ -345,7 +345,7 @@ void OpenDeck::setLEDState()    {
         if ((receivedVelocity >= LED_VELOCITY_B_OFF) && (receivedVelocity < 128))
             blinkMode = 1;
 
-    boardObject.handleLED(currentLEDstate, blinkMode, getLEDid());
+    handleLED(currentLEDstate, blinkMode, getLEDid());
 
 }
 
@@ -386,5 +386,116 @@ bool OpenDeck::checkSameLEDvalue(uint8_t type, uint8_t number)  {
         break;
 
     }   return true;
+
+}
+
+void OpenDeck::handleLED(bool currentLEDstate, bool blinkMode, uint8_t ledNumber) {
+
+    /*
+
+    LED state is stored into one byte (ledState). The bits have following meaning (7 being the MSB bit):
+
+    7: x
+    6: x
+    5: x
+    4: Blink bit (timer changes this bit)
+    3: "Remember" bit, used to restore previous LED state
+    2: LED is active (either it blinks or it's constantly on), this bit is OR function between bit 0 and 1
+    1: LED blinks
+    0: LED is constantly turned on
+
+    */
+
+    //if blink note is received, and blinking is disabled, exit the function
+    //if (blinkMode && (!(bitRead(ledFeatures, SYS_EX_FEATURES_LEDS_BLINK))))
+        //return;
+
+    uint8_t state = boardObject.getLEDstate(ledNumber);
+
+    switch (currentLEDstate) {
+
+        case false:
+        //note off event
+
+        //if remember bit is set
+        if ((state >> 3) & (0x01))   {
+
+            //if note off for blink state is received
+            //clear remember bit and blink bits
+            //set constant state bit
+            if (blinkMode) state = 0x05;
+            //else clear constant state bit and remember bit
+            //set blink bits
+            else           state = 0x16;
+
+            }   else    {
+
+            if (blinkMode)  state &= 0x15; /*clear blink bit */
+            else            state &= 0x16; /* clear constant state bit */
+
+        }
+
+        //if bits 0 and 1 are 0, LED is off so we set ledState to zero
+        if (!(state & 3)) state = 0;
+
+        break;
+
+        case true:
+        //note on event
+
+        //if constant note on is received and LED is already blinking
+        //clear blinking bits and set remember bit and constant bit
+        if ((!blinkMode) && checkBlinkState(ledNumber)) state = 0x0D;
+
+        //set bit 2 to 1 in any case (constant/blink state)
+        else    state |= (0x01 << blinkMode) | 0x04 | (blinkMode << 4);
+
+    }
+
+    boardObject.setLEDstate(ledNumber, state);
+    if (blinkMode && currentLEDstate)   boardObject.ledBlinkingStart();
+    else    checkBlinkLEDs();
+
+}
+
+void OpenDeck::checkBlinkLEDs() {
+
+    //this function will disable blinking
+    //if none of the LEDs is in blinking state
+
+    //else it will enable it
+
+    bool _blinkEnabled = false;
+
+    //if any LED is blinking, set timerState to true and exit the loop
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    {
+
+        if (checkBlinkState(i)) {
+
+            _blinkEnabled = true;
+            break;
+
+        }
+
+    }
+
+    if (_blinkEnabled)  boardObject.ledBlinkingStart();
+
+    //don't bother reseting variables if blinking is already disabled
+    else    if (!_blinkEnabled && boardObject.ledBlinkingActive()) {
+
+        //reset blinkState to default value
+        boardObject.ledBlinkingStop();
+
+    }
+
+}
+
+bool OpenDeck::checkBlinkState(uint8_t ledNumber)   {
+
+    uint8_t state = boardObject.getLEDstate(ledNumber);
+
+    //function returns true if blinking bit in ledState is set
+    return ((state >> 1) & (0x01));
 
 }
