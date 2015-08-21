@@ -218,6 +218,9 @@ class OpenDeck  {
     void setLEDState();
     bool checkSameLEDvalue(uint8_t, uint8_t);
     bool ledOn(uint8_t);
+    void handleLED(bool, bool, uint8_t);
+    void checkBlinkLEDs();
+    bool checkBlinkState(uint8_t);
 
     //sysex
     bool sysExCheckMessageValidity(uint8_t*, uint8_t);

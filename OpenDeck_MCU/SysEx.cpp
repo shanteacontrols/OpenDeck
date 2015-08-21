@@ -1189,22 +1189,22 @@ bool OpenDeck::sysExSet(uint8_t messageType, uint8_t messageSubType, uint8_t par
             switch (newParameter)   {
 
                 case SYS_EX_LEDS_STATE_C_OFF:
-                boardObject.handleLED(false, false, parameter);
+                handleLED(false, false, parameter);
                 return true;
                 break;
 
                 case SYS_EX_LEDS_STATE_C_ON:
-                boardObject.handleLED(true, false, parameter);
+                handleLED(true, false, parameter);
                 return true;
                 break;
 
                 case SYS_EX_LEDS_STATE_B_OFF:
-                boardObject.handleLED(false, true, parameter);
+                handleLED(false, true, parameter);
                 return true;
                 break;
 
                 case SYS_EX_LEDS_STATE_B_ON:
-                boardObject.handleLED(true, true, parameter);
+                handleLED(true, true, parameter);
                 return true;
                 break;
 

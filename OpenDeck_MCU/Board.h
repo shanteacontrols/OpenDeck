@@ -60,13 +60,15 @@ class Board {
     uint8_t getLEDstate(uint8_t);
     void setLEDstate(uint8_t, uint8_t);
     void setBlinkState(bool);
-    void handleLED(bool, bool, uint8_t);
     void setLEDblinkTime(uint16_t);
     void turnOnLED(uint8_t);
     void turnOffLED(uint8_t);
     void resetLEDblinkCounter();
     void resetLEDtransitions();
     void setLEDTransitionSpeed(uint8_t);
+    void ledBlinkingStart();
+    void ledBlinkingStop();
+    bool ledBlinkingActive();
 
     private:
 
@@ -84,8 +86,6 @@ class Board {
     void setUpTimer();
 
     //LEDs
-    bool checkBlinkState(uint8_t);
-    void checkBlinkLEDs();
     void switchBlinkState();
 
 };
