@@ -624,7 +624,7 @@ void Board::initAnalog()    {
 
     setMuxInputInteral(activeMuxInput);
     setADCchannel(analogueEnabledArray[activeMux]);
-    _delay_ms(5);
+    _delay_ms(2);
     getADCvalue();  //dummy read to init ADC
     enableADCinterrupt();
     startADCconversion();   //start ADC conversions

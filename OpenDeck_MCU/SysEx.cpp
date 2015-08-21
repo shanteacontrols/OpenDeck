@@ -658,123 +658,125 @@ void OpenDeck::sysExGenerateResponse(uint8_t sysExArray[], uint8_t arrSize)  {
 
     sysExResponse[SYS_EX_ML_RES_BASIC-1] = SYS_EX_ACK;
 
-    switch (sysExArray[SYS_EX_MS_MT])   {
+    if (sysExArray[SYS_EX_MS_AMOUNT] == SYS_EX_AMOUNT_ALL) {
 
-        case SYS_EX_MT_FEATURES:
-        switch (sysExArray[SYS_EX_MS_MST])  {
+        switch (sysExArray[SYS_EX_MS_MT])   {
 
-            case SYS_EX_MST_FEATURES_MIDI:
-            maxComponentNr = SYS_EX_FEATURES_MIDI_END;
+            case SYS_EX_MT_FEATURES:
+            switch (sysExArray[SYS_EX_MS_MST])  {
+
+                case SYS_EX_MST_FEATURES_MIDI:
+                maxComponentNr = SYS_EX_FEATURES_MIDI_END;
+                break;
+
+                case SYS_EX_MST_FEATURES_LEDS:
+                maxComponentNr = SYS_EX_FEATURES_LEDS_END;
+                break;
+
+                case SYS_EX_MST_FEATURES_ANALOG:
+                maxComponentNr = SYS_EX_FEATURES_ANALOG_END;
+                break;
+
+                case SYS_EX_MST_FEATURES_ENCODERS:
+                maxComponentNr = SYS_EX_FEATURES_ENCODERS_END;
+                break;
+
+            }
+
             break;
 
-            case SYS_EX_MST_FEATURES_LEDS:
-            maxComponentNr = SYS_EX_FEATURES_LEDS_END;
+            case SYS_EX_MT_MIDI_CHANNEL:
+            maxComponentNr = SYS_EX_MC_END;
             break;
 
-            case SYS_EX_MST_FEATURES_ANALOG:
-            maxComponentNr = SYS_EX_FEATURES_ANALOG_END;
+            case SYS_EX_MT_BUTTONS:
+            switch (sysExArray[SYS_EX_MS_MST])  {
+
+                case SYS_EX_MST_BUTTONS_TYPE:
+                case SYS_EX_MST_BUTTONS_PROGRAM_CHANGE_ENABLED:
+                case SYS_EX_MST_BUTTONS_NOTE:
+                maxComponentNr = MAX_NUMBER_OF_BUTTONS;
+                break;
+
+                default:
+                break;
+
+            }
+
             break;
 
-            case SYS_EX_MST_FEATURES_ENCODERS:
-            maxComponentNr = SYS_EX_FEATURES_ENCODERS_END;
+            case SYS_EX_MT_ANALOG:
+            switch (sysExArray[SYS_EX_MS_MST])  {
+
+                case SYS_EX_MST_ANALOG_ENABLED:
+                case SYS_EX_MST_ANALOG_INVERTED:
+                case SYS_EX_MST_ANALOG_NUMBER:
+                case SYS_EX_MST_ANALOG_LOWER_LIMIT:
+                case SYS_EX_MST_ANALOG_UPPER_LIMIT:
+                maxComponentNr = MAX_NUMBER_OF_ANALOG;
+                break;
+
+                case SYS_EX_MST_ANALOG_HW_P:
+                maxComponentNr = SYS_EX_ANALOG_HW_P_END;
+                break;
+
+                default:
+                break;
+
+            }
+
             break;
 
-        }
+            case SYS_EX_MT_LEDS:
+            switch (sysExArray[SYS_EX_MS_MST])  {
 
-        break;
+                case SYS_EX_MST_LEDS_ACT_NOTE:
+                case SYS_EX_MST_LEDS_START_UP_NUMBER:
+                case SYS_EX_MST_LEDS_STATE:
+                maxComponentNr = MAX_NUMBER_OF_LEDS;
+                break;
 
-        case SYS_EX_MT_MIDI_CHANNEL:
-        maxComponentNr = SYS_EX_MC_END;
-        break;
+                case SYS_EX_MST_LEDS_HW_P:
+                maxComponentNr = SYS_EX_LEDS_HW_P_END;
+                break;
 
-        case SYS_EX_MT_BUTTONS:
-        switch (sysExArray[SYS_EX_MS_MST])  {
+                default:
+                break;
 
-            case SYS_EX_MST_BUTTONS_TYPE:
-            case SYS_EX_MST_BUTTONS_PROGRAM_CHANGE_ENABLED:
-            case SYS_EX_MST_BUTTONS_NOTE:
-            maxComponentNr = MAX_NUMBER_OF_BUTTONS;
+            }
+
             break;
+
+            case SYS_EX_MT_ALL:
+            maxComponentNr = (int16_t)sizeof(defConf);
+            break;
+
+            case SYS_EX_MT_ENCODERS:
+            switch (sysExArray[SYS_EX_MS_MST])  {
+
+                case SYS_EX_MST_ENCODERS_ENABLED:
+                case SYS_EX_MST_ENCODERS_FAST_MODE:
+                case SYS_EX_MST_ENCODERS_INVERTED:
+                case SYS_EX_MST_ENCODERS_NUMBER:
+                case SYS_EX_MST_ENCODERS_PULSES_PER_STEP:
+                maxComponentNr = NUMBER_OF_ENCODERS;
+                break;
+
+                case SYS_EX_MST_ENCODERS_HW_P:
+                maxComponentNr = SYS_EX_ENCODERS_HW_P_END;
+                break;
+
+                default:
+                break;
+
+            }
 
             default:
             break;
 
-        }
-
-        break;
-
-        case SYS_EX_MT_ANALOG:
-        switch (sysExArray[SYS_EX_MS_MST])  {
-
-            case SYS_EX_MST_ANALOG_ENABLED:
-            case SYS_EX_MST_ANALOG_INVERTED:
-            case SYS_EX_MST_ANALOG_NUMBER:
-            case SYS_EX_MST_ANALOG_LOWER_LIMIT:
-            case SYS_EX_MST_ANALOG_UPPER_LIMIT:
-            maxComponentNr = MAX_NUMBER_OF_ANALOG;
-            break;
-
-            case SYS_EX_MST_ANALOG_HW_P:
-            maxComponentNr = SYS_EX_ANALOG_HW_P_END;
-            break;
-
-            default:
-            break;
-
-        }
-
-        break;
-
-        case SYS_EX_MT_LEDS:
-        switch (sysExArray[SYS_EX_MS_MST])  {
-
-            case SYS_EX_MST_LEDS_ACT_NOTE:
-            case SYS_EX_MST_LEDS_START_UP_NUMBER:
-            case SYS_EX_MST_LEDS_STATE:
-            maxComponentNr = MAX_NUMBER_OF_LEDS;
-            break;
-
-            case SYS_EX_MST_LEDS_HW_P:
-            maxComponentNr = SYS_EX_LEDS_HW_P_END;
-            break;
-
-            default:
-            break;
-
-        }
-
-        break;
-
-        case SYS_EX_MT_ALL:
-        maxComponentNr = (int16_t)sizeof(defConf);
-        break;
-
-        case SYS_EX_MT_ENCODERS:
-        switch (sysExArray[SYS_EX_MS_MST])  {
-
-            case SYS_EX_MST_ENCODERS_ENABLED:
-            case SYS_EX_MST_ENCODERS_FAST_MODE:
-            case SYS_EX_MST_ENCODERS_INVERTED:
-            case SYS_EX_MST_ENCODERS_NUMBER:
-            case SYS_EX_MST_ENCODERS_PULSES_PER_STEP:
-            maxComponentNr = NUMBER_OF_ENCODERS;
-            break;
-
-            case SYS_EX_MST_ENCODERS_HW_P:
-            maxComponentNr = SYS_EX_ENCODERS_HW_P_END;
-            break;
-
-            default:
-            break;
-
-        }
-
-        default:
-        break;
+        }   componentNr = maxComponentNr;
 
     }
-
-    if (sysExArray[SYS_EX_MS_AMOUNT] == SYS_EX_AMOUNT_ALL) componentNr = maxComponentNr;
 
     //create response based on wanted message type
     if (sysExArray[SYS_EX_MS_WISH] == SYS_EX_WISH_GET)    {                     //get
