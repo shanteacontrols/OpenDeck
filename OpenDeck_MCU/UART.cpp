@@ -161,6 +161,9 @@ void UART::releaseTX()  {
 
     //there is some data in buffer
     if (tx_buffer_counter) {
+ 
+        //turn on TX line
+        PORTD |= 0b00001000;
 
         for (int i=0; i<tx_buffer_counter; i++) {
 
@@ -174,6 +177,9 @@ void UART::releaseTX()  {
             #endif
 
         }   tx_buffer_counter = 0;
+
+        //turn off TX line
+        PORTD &= 0b11110111;
 
     }
 
