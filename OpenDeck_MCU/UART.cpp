@@ -162,9 +162,12 @@ void UART::releaseTX()  {
     //there is some data in buffer
     if (tx_buffer_counter) {
  
-        //turn on TX line
-        PORTD |= 0b00001000;
-
+        //enable RX
+        #if defined (UCSR1B) && defined (TXEN1)
+            UCSR1B |= (1<<TXEN1);
+        #elif defined (UCSR0B) && defined (TXEN0)
+            UCSR0B |= (1<<TXEN0);
+        #endif
         for (int i=0; i<tx_buffer_counter; i++) {
 
             //wait until UDR is ready
@@ -178,8 +181,12 @@ void UART::releaseTX()  {
 
         }   tx_buffer_counter = 0;
 
-        //turn off TX line
-        PORTD &= 0b11110111;
+        //disable RX
+        #if defined (UCSR1B) && defined (TXEN1)
+            UCSR1B &= ~(1<<TXEN1);
+        #elif defined (UCSR0B) && defined (TXEN0)
+            UCSR0B &= ~(1<<TXEN0);
+        #endif
 
     }
 
