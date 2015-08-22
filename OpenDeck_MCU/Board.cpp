@@ -95,25 +95,21 @@ inline void ledRowOn(uint8_t rowNumber, uint8_t intensity)  {
             case 0:
             OCR1C = intensity;
             TCCR1A |= (1<<COM1C1); //pin 4
-            //digitalWrite(4, HIGH);
             break;
 
             case 1:
             OCR0B = intensity;
             TCCR0A |= (1<<COM0B1); //pin 5
-            //digitalWrite(5, HIGH);
             break;
 
             case 2:
             OCR1A = intensity;
             TCCR1A |= (1<<COM1A1); //pin A7
-            //digitalWrite(A7, HIGH);
             break;
 
             case 3:
             OCR1B = intensity;
             TCCR1A |= (1<<COM1B1); //pin A6
-            //digitalWrite(A6, HIGH);
             break;
 
             default:
@@ -322,7 +318,7 @@ inline void readEncoders()  {
 
     #if defined (BOARD_OPENDECK_1)
 
-        uint8_t encRead = (PIND >> 2) & 0x03;
+        uint8_t encoderValue = (PIND >> 2) & 0x03;
         uint8_t encoderNumber = 0;
 
         tempEncoderState[encoderNumber] = ((tempEncoderState[encoderNumber] << 2) | encoderValue) & 0x0F;
