@@ -31,7 +31,6 @@ bool                        blinkEnabled = false,
                             blinkState = true;
 volatile uint8_t            pwmSteps = eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_FADE_SPEED),
                             ledState[MAX_NUMBER_OF_LEDS];
-static const uint8_t        ledOnLookUpTable[] = { 0, 0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 0, 0, 0, 0, 0, 255, 0, 0 };
 uint16_t                    ledBlinkTime;
 int16_t                     transitionCounter[MAX_NUMBER_OF_LEDS] = { 0 };
 volatile uint32_t           blinkTimerCounter = 0;
@@ -94,59 +93,27 @@ inline void ledRowOn(uint8_t rowNumber, uint8_t intensity)  {
         switch (rowNumber)  {
 
             case 0:
-            if (intensity)  {
-
-                OCR1C = intensity;
-                TCCR1A |= (1<<COM1C1); //pin 4
-
-            }   else {
-
-                TCCR1A &= ~(1<<COM1C1);
-                PORTB &= 0b01111111;
-
-            }
+            OCR1C = intensity;
+            TCCR1A |= (1<<COM1C1); //pin 4
+            //digitalWrite(4, HIGH);
             break;
 
             case 1:
-            if (intensity)  {
-
-                OCR0B = intensity;
-                TCCR0A |= (1<<COM0B1); //pin 5
-
-            }   else {
-
-                TCCR0A &= ~(1<<COM0B1);
-                PORTD &= 0b11111110;
-
-            }
+            OCR0B = intensity;
+            TCCR0A |= (1<<COM0B1); //pin 5
+            //digitalWrite(5, HIGH);
             break;
 
             case 2:
-            if (intensity)  {
-
-                OCR1A = intensity;
-                TCCR1A |= (1<<COM1A1); //pin A7
-
-            }   else {
-
-                TCCR1A &= ~(1<<COM1A1);
-                PORTB &= 0b11011111;
-
-            };
+            OCR1A = intensity;
+            TCCR1A |= (1<<COM1A1); //pin A7
+            //digitalWrite(A7, HIGH);
             break;
 
             case 3:
-            if (intensity)  {
-
-                OCR1B = intensity;
-                TCCR1A |= (1<<COM1B1); //pin A6
-
-            }   else {
-
-                TCCR1A &= ~(1<<COM1B1);
-                PORTB &= 0b10111111;
-
-            }
+            OCR1B = intensity;
+            TCCR1A |= (1<<COM1B1); //pin A6
+            //digitalWrite(A6, HIGH);
             break;
 
             default:
@@ -193,10 +160,10 @@ inline void checkLEDs()  {
             //change blinkBit state and write it into ledState variable if LED is in blink state
             for (int i = 0; i<MAX_NUMBER_OF_LEDS; i++)  {
 
-                if ((ledState[i] >> 1) & (0x01))    {
+                if (bitRead(ledState[i], LED_BLINK_ON_BIT))    {
 
-                    if (blinkState) ledState[i] |= 0x10;
-                    else ledState[i] &= 0xEF;
+                    if (blinkState) bitWrite(ledState[i], LED_BLINK_STATE_BIT, 1);
+                    else bitWrite(ledState[i], LED_BLINK_STATE_BIT, 0);
 
                 }
 
@@ -206,9 +173,6 @@ inline void checkLEDs()  {
             blinkState = !blinkState;
 
         }
-
-        blinkTimerCounter++;
-        if (blinkTimerCounter == ledBlinkTime) blinkTimerCounter = 0;
 
     }
 
@@ -251,22 +215,6 @@ inline void checkLEDs()  {
 
         }
     #endif
-
-}
-
-inline void setBlinkState(uint8_t ledNumber, bool state)   {
-
-    switch (state) {
-
-        case true:
-        ledState[ledNumber] |= 0x10;
-        break;
-
-        case false:
-        ledState[ledNumber] &= 0xEF;
-        break;
-
-    }
 
 }
 
@@ -349,7 +297,6 @@ inline void storeDigitalIn()  {
     #ifdef BOARD_TANNIN
         //pulse latch pin
         PORTD &= 0b11101111;
-        _NOP();
         PORTD |= 0b00010000;
 
         for (int i=0; i<8; i++) {
@@ -358,7 +305,6 @@ inline void storeDigitalIn()  {
             data |= ((PIND >> 1) & 0x01);
             //pulse clock pin
             PORTB |= 0b00010000;
-            _NOP();
             PORTB &= 0b11101111;
 
         }
@@ -494,15 +440,45 @@ ISR(TIMER1_COMPA_vect) {
 #elif defined (BOARD_TANNIN)
 ISR(TIMER3_COMPA_vect)  {
 
-    //switch column
-    if (activeButtonColumn == NUMBER_OF_BUTTON_COLUMNS) activeButtonColumn = 0;
-    //turn off all LED rows before switching to next column
-    ledRowsOff();
-    activateColumn(activeButtonColumn);
-    checkLEDs();
-    storeDigitalIn();
-    activeButtonColumn++;
-    _buttonDataAvailable = true;
+    static uint8_t switchCounter = 0;
+
+    if (!switchCounter) {
+
+        if (activeButtonColumn == NUMBER_OF_BUTTON_COLUMNS) activeButtonColumn = 0;
+        ledRowsOff();
+        activateColumn(activeButtonColumn);
+        checkLEDs();
+        storeDigitalIn();
+        activeButtonColumn++;
+        _buttonDataAvailable = true;
+
+    }
+
+    switchCounter++;
+    switch(switchCounter)   {
+
+        //pwm LED matrix runs best at 1500 microseconds
+        //blinkTimerCounter would get increased every 1.5 milliseconds
+        //fix by running timer interrupt every 500ms
+        //when switchCounter is 2, 1ms has passed, increase counter
+
+        case 2:
+        if (blinkEnabled) {
+
+            blinkTimerCounter++;
+            if (blinkTimerCounter == ledBlinkTime) blinkTimerCounter = 0;
+
+        }
+        break;
+
+        case 3:
+        switchCounter = 0;
+        break;
+
+        default:
+        break;
+
+    }
 
 }
 
@@ -529,7 +505,8 @@ ISR(TIMER4_OVF_vect) {
 
 ISR(ADC_vect)   {
 
-    analogBuffer[activeMuxInput] = ADC;
+    uint8_t low = ADCL;
+    analogBuffer[activeMuxInput] =  (ADCH << 8) | low;
     activeMuxInput++;
 
     bool startConversion = activeMuxInput != 8;
@@ -542,6 +519,9 @@ ISR(ADC_vect)   {
         if (activeMux == NUMBER_OF_MUX) activeMux = 0;
         _analogDataAvailable = true;
         ADMUX = (ADMUX & 0xF0) | (analogueEnabledArray[activeMux] & 0x0F);
+
+        for (int i=0; i<ANALOG_BUFFER_SIZE; i++)
+            analogBufferCopy[i] = analogBuffer[i];
 
     }
 
@@ -625,9 +605,10 @@ void Board::initAnalog()    {
     setMuxInputInteral(activeMuxInput);
     setADCchannel(analogueEnabledArray[activeMux]);
     _delay_ms(2);
-    getADCvalue();  //dummy read to init ADC
+    for (int i=0; i<5; i++)
+        getADCvalue();  //dummy read to init ADC
     enableADCinterrupt();
-    startADCconversion();   //start ADC conversions
+    startADCconversion();
 
 }
 
@@ -713,7 +694,7 @@ void Board::setUpTimer()   {
         //using COLUMN_SWITCH_TIME to calculate timer count
         //known constants: F_CPU/16 MHz, prescaler/64
 
-        uint32_t timerCount = COLUMN_SCAN_TIME/4;
+        uint32_t timerCount = MATRIX_TIMER_SWITCH_TIME/4;
 
         OCR2A = timerCount;
 
@@ -731,7 +712,7 @@ void Board::setUpTimer()   {
         //set prescaler to 64
         TCCR3B |= (1 << CS31)|(1 << CS30);
 
-        uint32_t timerCount = COLUMN_SCAN_TIME/4;
+        uint32_t timerCount = MATRIX_TIMER_SWITCH_TIME/4;
 
         //1ms
         OCR3A = timerCount;
@@ -769,23 +750,11 @@ void Board::setLEDblinkTime(uint16_t time)  {
 
 }
 
-void Board::turnOnLED(uint8_t ledNumber)    {
-
-    setLEDstate(ledNumber, 0x05);
-
-}
-
-void Board::turnOffLED(uint8_t ledNumber)   {
-
-    setLEDstate(ledNumber, 0);
-
-}
-
 void Board::resetLEDtransitions()   {
 
     cli();
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-    transitionCounter[i] = 0;
+        transitionCounter[i] = 0;
     sei();
 
 }
@@ -800,7 +769,44 @@ void Board::setLEDTransitionSpeed(uint8_t steps) {
 
 void Board::resetLEDblinkCounter()  {
 
+    cli();
     blinkTimerCounter = 0;
+    sei();
+
+}
+
+void Board::ledBlinkingStart() {
+
+    cli();
+    bool _blinkEnabled = blinkEnabled;
+    sei();
+
+    if (!_blinkEnabled) {
+
+        blinkEnabled = true;
+        blinkState = true;
+
+    }
+
+}
+
+void Board::ledBlinkingStop()   {
+
+    blinkState = true;
+    cli();
+    blinkTimerCounter = 0;
+    sei();
+    blinkEnabled = false;
+
+}
+
+bool Board::ledBlinkingActive() {
+
+    bool state;
+    cli();
+    state = blinkEnabled;
+    sei();
+    return state;
 
 }
 
@@ -815,11 +821,7 @@ uint8_t Board::analogDataAvailable() {
     sei();
     if (state) {
 
-        cli();
         _analogDataAvailable = false;
-        for (int i=0; i<ANALOG_BUFFER_SIZE; i++)
-            analogBufferCopy[i] = analogBuffer[i];
-        sei();
         startADCconversion();
         return ANALOG_BUFFER_SIZE-1;
 
@@ -836,6 +838,18 @@ int16_t Board::getAnalogValue(uint8_t analogID) {
 uint8_t Board::getAnalogID(uint8_t id)  {
 
     return id+(analogBufferCopy[ANALOG_BUFFER_SIZE-1]*8);
+
+}
+
+void Board::setMux(uint8_t mux) {
+
+    setMuxInternal(mux);
+
+}
+
+void Board::setMuxInput(uint8_t input)  {
+
+    setMuxInputInteral(input);
 
 }
 
@@ -915,28 +929,5 @@ void Board::newDelay(uint32_t delayTime)    {
     while (_delayTime > newMillis()) {}
 
 }
-
-void Board::ledBlinkingStart() {
-
-    blinkEnabled = true;
-
-}
-
-void Board::ledBlinkingStop()   {
-
-    blinkState = true;
-    cli();
-    blinkTimerCounter = 0;
-    sei();
-    blinkEnabled = false;
-
-}
-
-bool Board::ledBlinkingActive() {
-
-    return blinkEnabled;
-
-}
-
 
 Board boardObject;

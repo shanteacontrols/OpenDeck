@@ -10,6 +10,7 @@ Author: Igor Petrovic
 #include "OpenDeck.h"
 #include <avr/eeprom.h>
 #include <util/delay.h>
+#include "LEDsettings.h"
 
 //LED blink/constant state determination
 #define LED_VELOCITY_C_OFF               0x00
@@ -22,59 +23,59 @@ Author: Igor Petrovic
         uint16_t startUpLEDswitchTime = eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_START_UP_SWITCH_TIME) * 10;
         boardObject.setLEDTransitionSpeed(1);
 
-        boardObject.turnOnLED(6);
-        boardObject.turnOnLED(30);
+        boardObject.setLEDstate(6, ledOn);
+        boardObject.setLEDstate(30, ledOn);
         boardObject.newDelay(startUpLEDswitchTime);
-        boardObject.turnOnLED(5);
-        boardObject.turnOnLED(29);
+        boardObject.setLEDstate(5, ledOn);
+        boardObject.setLEDstate(29, ledOn);
         boardObject.newDelay(startUpLEDswitchTime);
-        boardObject.turnOnLED(28);
-        boardObject.turnOnLED(4);
+        boardObject.setLEDstate(28, ledOn);
+        boardObject.setLEDstate(4, ledOn);
         boardObject.newDelay(startUpLEDswitchTime);
-        boardObject.turnOnLED(31);
-        boardObject.turnOnLED(7);
+        boardObject.setLEDstate(31, ledOn);
+        boardObject.setLEDstate(7, ledOn);
 
         boardObject.newDelay(startUpLEDswitchTime);
 
-        boardObject.turnOnLED(22);
-        boardObject.turnOnLED(14);
+        boardObject.setLEDstate(22, ledOn);
+        boardObject.setLEDstate(14, ledOn);
         boardObject.newDelay(startUpLEDswitchTime);
-        boardObject.turnOnLED(21);
-        boardObject.turnOnLED(13);
+        boardObject.setLEDstate(21, ledOn);
+        boardObject.setLEDstate(13, ledOn);
         boardObject.newDelay(startUpLEDswitchTime);
-        boardObject.turnOnLED(20);
-        boardObject.turnOnLED(12);
+        boardObject.setLEDstate(20, ledOn);
+        boardObject.setLEDstate(12, ledOn);
         boardObject.newDelay(startUpLEDswitchTime);
-        boardObject.turnOnLED(23);
-        boardObject.turnOnLED(15);
+        boardObject.setLEDstate(23, ledOn);
+        boardObject.setLEDstate(15, ledOn);
 
         boardObject.newDelay(startUpLEDswitchTime);
 
-        boardObject.turnOffLED(31);
-        boardObject.turnOffLED(7);
+        boardObject.setLEDstate(31, ledOff);
+        boardObject.setLEDstate(7, ledOff);
         boardObject.newDelay(startUpLEDswitchTime);
-        boardObject.turnOffLED(28);
-        boardObject.turnOffLED(4);
+        boardObject.setLEDstate(28, ledOff);
+        boardObject.setLEDstate(4, ledOff);
         boardObject.newDelay(startUpLEDswitchTime);
-        boardObject.turnOffLED(29);
-        boardObject.turnOffLED(5);
+        boardObject.setLEDstate(29, ledOff);
+        boardObject.setLEDstate(5, ledOff);
         boardObject.newDelay(startUpLEDswitchTime);
-        boardObject.turnOffLED(30);
-        boardObject.turnOffLED(6);
+        boardObject.setLEDstate(30, ledOff);
+        boardObject.setLEDstate(6, ledOff);
 
         boardObject.newDelay(startUpLEDswitchTime);
 
-        boardObject.turnOffLED(23);
-        boardObject.turnOffLED(15);
+        boardObject.setLEDstate(23, ledOff);
+        boardObject.setLEDstate(15, ledOff);
         boardObject.newDelay(startUpLEDswitchTime);
-        boardObject.turnOffLED(20);
-        boardObject.turnOffLED(12);
+        boardObject.setLEDstate(20, ledOff);
+        boardObject.setLEDstate(12, ledOff);
         boardObject.newDelay(startUpLEDswitchTime);
-        boardObject.turnOffLED(21);
-        boardObject.turnOffLED(13);
+        boardObject.setLEDstate(21, ledOff);
+        boardObject.setLEDstate(13, ledOff);
         boardObject.newDelay(startUpLEDswitchTime);
-        boardObject.turnOffLED(22);
-        boardObject.turnOffLED(14);
+        boardObject.setLEDstate(22, ledOff);
+        boardObject.setLEDstate(14, ledOff);
 
         boardObject.newDelay(1000);
 
@@ -86,6 +87,8 @@ Author: Igor Petrovic
 
 
 void OpenDeck::startUpRoutine() {
+
+    //boardObject.setUpTimer();
 
     //turn off all LEDs before starting animation
     allLEDsOff();
@@ -129,16 +132,9 @@ void OpenDeck::startUpRoutine() {
 
     }
     #endif
-    openDeck.allLEDsOff(); delay(1000);
+    openDeck.allLEDsOff(); delay(1000); //boardObject.disconnectTimer();
 
 }
-
-bool OpenDeck::ledOn(uint8_t ledNumber) {
-
-    return boardObject.getLEDstate(ledNumber);
-
-}
-
 
 void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 
@@ -201,7 +197,7 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
         if (!ledDirection)  {
 
             //if last LED is turned on
-            if (ledOn(_ledNumber[totalNumberOfLEDs-1]))  {
+            if (boardObject.getLEDstate(_ledNumber[totalNumberOfLEDs-1]))  {
 
                 //LED index is penultimate LED number
                 ledNumber = _ledNumber[totalNumberOfLEDs-2];
@@ -213,7 +209,7 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
         }   else //left-to-right direction
 
                 //if first LED is already on
-                if (ledOn(_ledNumber[0]))    {
+                if (boardObject.getLEDstate(_ledNumber[0]))    {
 
                 //led index is 1
                 ledNumber = _ledNumber[1];
@@ -231,7 +227,7 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
                     //right-to-left direction
                     if (!ledDirection)  {
 
-                        if (!(ledOn(_ledNumber[totalNumberOfLEDs-1])))   {
+                        if (!(boardObject.getLEDstate(_ledNumber[totalNumberOfLEDs-1])))   {
 
                             ledNumber = _ledNumber[totalNumberOfLEDs-2];
                             passCounter++;
@@ -240,7 +236,7 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 
                     }   else
 
-                            if (!(ledOn(_ledNumber[0]))) {   //left-to-right direction
+                            if (!(boardObject.getLEDstate(_ledNumber[0]))) {   //left-to-right direction
 
                                 ledNumber = _ledNumber[1];
                                 passCounter++;
@@ -265,8 +261,8 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
                     else    if (!turnOn && singleLED)   allLEDsOn();
 
                     //set LED state depending on turnOn parameter
-                    if (turnOn) boardObject.turnOnLED(ledNumber);
-                        else    boardObject.turnOffLED(ledNumber);
+                    if (turnOn) boardObject.setLEDstate(ledNumber, ledOn);
+                        else    boardObject.setLEDstate(ledNumber, ledOff);
 
                     //make sure out-of-bound index isn't requested from ledArray
                     if (passCounter < totalNumberOfLEDs-1)  {
@@ -296,14 +292,14 @@ void OpenDeck::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 void OpenDeck::allLEDsOn()  {
 
     //turn on all LEDs
-    for (int i=0; i<(NUMBER_OF_LED_COLUMNS*NUMBER_OF_LED_ROWS); i++)    boardObject.turnOnLED(i);
+    for (int i=0; i<(NUMBER_OF_LED_COLUMNS*NUMBER_OF_LED_ROWS); i++)    boardObject.setLEDstate(i, ledOn);
 
 }
 
 void OpenDeck::allLEDsOff() {
 
     //turn off all LEDs
-    for (int i=0; i<(NUMBER_OF_LED_COLUMNS*NUMBER_OF_LED_ROWS); i++)    boardObject.turnOffLED(i);
+    for (int i=0; i<(NUMBER_OF_LED_COLUMNS*NUMBER_OF_LED_ROWS); i++)    boardObject.setLEDstate(i, ledOff);
 
 }
 
@@ -418,37 +414,37 @@ void OpenDeck::handleLED(bool currentLEDstate, bool blinkMode, uint8_t ledNumber
         //note off event
 
         //if remember bit is set
-        if ((state >> 3) & (0x01))   {
+        if (bitRead(state, LED_REMEMBER_BIT))   {
 
             //if note off for blink state is received
             //clear remember bit and blink bits
             //set constant state bit
-            if (blinkMode) state = 0x05;
+            if (blinkMode) state = ledOn;
             //else clear constant state bit and remember bit
             //set blink bits
-            else           state = 0x16;
+            else           state = ledBlink;
 
-            }   else    {
-
-            if (blinkMode)  state &= 0x15; /*clear blink bit */
-            else            state &= 0x16; /* clear constant state bit */
-
-        }
-
-        //if bits 0 and 1 are 0, LED is off so we set ledState to zero
-        if (!(state & 3)) state = 0;
+        }   else state = ledOff;
 
         break;
 
         case true:
         //note on event
 
-        //if constant note on is received and LED is already blinking
-        //clear blinking bits and set remember bit and constant bit
-        if ((!blinkMode) && checkBlinkState(ledNumber)) state = 0x0D;
+        if ((!blinkMode) && bitRead(state, LED_BLINK_ON_BIT))   state = ledOnRemember;
+        else if ((blinkMode) && bitRead(state, LED_ON_BIT))     state = ledBlinkRemember;
 
-        //set bit 2 to 1 in any case (constant/blink state)
-        else    state |= (0x01 << blinkMode) | 0x04 | (blinkMode << 4);
+        else    {
+
+            bitWrite(state, LED_ACTIVE_BIT, 1);
+            if (blinkMode)  {
+
+                bitWrite(state, LED_BLINK_ON_BIT, 1);
+                bitWrite(state, LED_BLINK_STATE_BIT, 1);
+
+            }   else bitWrite(state, LED_ON_BIT, 1);
+
+        }
 
     }
 
@@ -466,11 +462,14 @@ void OpenDeck::checkBlinkLEDs() {
     //else it will enable it
 
     bool _blinkEnabled = false;
+    uint8_t ledState;
 
     //if any LED is blinking, set timerState to true and exit the loop
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    {
 
-        if (checkBlinkState(i)) {
+        ledState = boardObject.getLEDstate(i);
+
+        if (bitRead(ledState, LED_BLINK_ON_BIT)) {
 
             _blinkEnabled = true;
             break;
@@ -488,14 +487,5 @@ void OpenDeck::checkBlinkLEDs() {
         boardObject.ledBlinkingStop();
 
     }
-
-}
-
-bool OpenDeck::checkBlinkState(uint8_t ledNumber)   {
-
-    uint8_t state = boardObject.getLEDstate(ledNumber);
-
-    //function returns true if blinking bit in ledState is set
-    return ((state >> 1) & (0x01));
 
 }

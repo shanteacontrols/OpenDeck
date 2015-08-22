@@ -16,6 +16,14 @@
 
 #define NUMBER_OF_TRANSITIONS           64
 
+#define LED_ON_BIT                      0x00
+#define LED_BLINK_ON_BIT                0x01
+#define LED_ACTIVE_BIT                  0x02
+#define LED_REMEMBER_BIT                0x03
+#define LED_BLINK_STATE_BIT             0x04
+
+const uint8_t ledOnLookUpTable[] = { 0, 0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 0, 0, 0, 0, 0, 0, 0, 255 };
+
 const uint8_t ledTransitionScale[] = {
 
     0,

@@ -13,7 +13,7 @@
 #include "BoardDefsOpenDeck.h"
 #endif
 
-#define COLUMN_SCAN_TIME            1500    //microseconds
+#define MATRIX_TIMER_SWITCH_TIME    500    //microseconds
 
 #define MAX_NUMBER_OF_ANALOG        (NUMBER_OF_MUX*8)
 #define MAX_NUMBER_OF_BUTTONS       (NUMBER_OF_BUTTON_COLUMNS*NUMBER_OF_BUTTON_ROWS)
@@ -55,14 +55,13 @@ class Board {
     uint8_t analogDataAvailable();
     int16_t getAnalogValue(uint8_t analogID);
     uint8_t getAnalogID(uint8_t id);
+    void setMux(uint8_t mux);
+    void setMuxInput(uint8_t input);
 
     //LEDs
     uint8_t getLEDstate(uint8_t);
     void setLEDstate(uint8_t, uint8_t);
-    void setBlinkState(bool);
     void setLEDblinkTime(uint16_t);
-    void turnOnLED(uint8_t);
-    void turnOffLED(uint8_t);
     void resetLEDblinkCounter();
     void resetLEDtransitions();
     void setLEDTransitionSpeed(uint8_t);
