@@ -17,10 +17,11 @@ void setUpADC() {
     ADCSRA = 0x0;
 
     //set analogue reference voltage to 5V
-    ADMUX |= (1<<REFS0);
+    //ADMUX |= (1<<REFS0);
 
     //set prescaler to 128 and enable ADC
     ADCSRA |= (1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0)|(1<<ADEN);
+    ADCSRB |= (1<<ADHSM);
 
 }
 
@@ -121,5 +122,6 @@ void enableADCinterrupt()   {
 void startADCconversion()   {
 
     ADCSRA |= (1<<ADSC);
+    ADCSRB |= (1<<ADHSM);
 
 }
