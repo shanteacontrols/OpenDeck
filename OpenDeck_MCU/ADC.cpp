@@ -21,7 +21,9 @@ void setUpADC() {
 
     //set prescaler to 128 and enable ADC
     ADCSRA |= (1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0)|(1<<ADEN);
-    ADCSRB |= (1<<ADHSM);
+    #ifdef ADHSM
+        ADCSRB |= (1<<ADHSM);
+    #endif
 
 }
 
@@ -122,6 +124,5 @@ void enableADCinterrupt()   {
 void startADCconversion()   {
 
     ADCSRA |= (1<<ADSC);
-    ADCSRB |= (1<<ADHSM);
 
 }
