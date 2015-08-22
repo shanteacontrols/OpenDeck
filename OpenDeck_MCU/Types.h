@@ -31,5 +31,15 @@ enum buttonType {
 
 };
 
+enum ledStates  {
+
+    ledOff = 0,
+    ledOn = 0x05,
+    ledBlink = 0x16,
+    ledOnRemember = 0x0D,
+    ledBlinkRemember = 0x1F
+
+};
+
 
 #endif
