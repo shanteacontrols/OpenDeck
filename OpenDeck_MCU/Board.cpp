@@ -292,16 +292,18 @@ inline void storeDigitalIn()  {
 
     #ifdef BOARD_TANNIN
         //pulse latch pin
-        PORTD &= 0b11101111;
-        PORTD |= 0b00010000;
+        PORTD &= 0b11101111;    //low
+        _NOP();
+        PORTD |= 0b00010000;    //high
 
         for (int i=0; i<8; i++) {
 
             data = (data << 1);
             data |= ((PIND >> 1) & 0x01);
             //pulse clock pin
-            PORTB |= 0b00010000;
-            PORTB &= 0b11101111;
+            PORTB |= 0b00010000;    //high
+            _NOP();
+            PORTB &= 0b11101111;    //low
 
         }
     #elif defined BOARD_OPENDECK_1
