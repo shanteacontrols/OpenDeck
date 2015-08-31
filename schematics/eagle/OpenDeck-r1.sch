@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
 <layer number="2" name="Route2" color="1" fill="3" visible="no" active="no"/>
@@ -19850,9 +19850,9 @@ Source: http://www.fairchildsemi.com/ds/FD/FDN360P.pdf</description>
 <part name="L14" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L22" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L15" library="led" deviceset="*W51M" device="" technology="LA"/>
-<part name="R1" library="rcl" deviceset="R-EU_" device="0204/7" value="75"/>
-<part name="R2" library="rcl" deviceset="R-EU_" device="0204/7" value="75"/>
-<part name="R3" library="rcl" deviceset="R-EU_" device="0204/7" value="75"/>
+<part name="R1" library="rcl" deviceset="R-EU_" device="0204/7" value="100"/>
+<part name="R2" library="rcl" deviceset="R-EU_" device="0204/7" value="100"/>
+<part name="R3" library="rcl" deviceset="R-EU_" device="0204/7" value="100"/>
 <part name="L25" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L26" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L27" library="led" deviceset="*W51M" device="" technology="LA"/>
@@ -19861,7 +19861,7 @@ Source: http://www.fairchildsemi.com/ds/FD/FDN360P.pdf</description>
 <part name="L30" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L31" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L32" library="led" deviceset="*W51M" device="" technology="LA"/>
-<part name="R4" library="rcl" deviceset="R-EU_" device="0204/7" value="75"/>
+<part name="R4" library="rcl" deviceset="R-EU_" device="0204/7" value="100"/>
 <part name="L33" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L34" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L35" library="led" deviceset="*W51M" device="" technology="LA"/>
@@ -19870,7 +19870,7 @@ Source: http://www.fairchildsemi.com/ds/FD/FDN360P.pdf</description>
 <part name="L38" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L39" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L40" library="led" deviceset="*W51M" device="" technology="LA"/>
-<part name="R5" library="rcl" deviceset="R-EU_" device="0204/7" value="75"/>
+<part name="R5" library="rcl" deviceset="R-EU_" device="0204/7" value="100"/>
 <part name="L41" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L42" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L43" library="led" deviceset="*W51M" device="" technology="LA"/>
@@ -19879,7 +19879,7 @@ Source: http://www.fairchildsemi.com/ds/FD/FDN360P.pdf</description>
 <part name="L46" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L47" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L48" library="led" deviceset="*W51M" device="" technology="LA"/>
-<part name="R6" library="rcl" deviceset="R-EU_" device="0204/7" value="75"/>
+<part name="R6" library="rcl" deviceset="R-EU_" device="0204/7" value="100"/>
 <part name="U6" library="74xx-eu" deviceset="74*165" device="D" technology="AC"/>
 <part name="GND2" library="supply1" deviceset="GND" device=""/>
 <part name="R8" library="rcl" deviceset="R-EU_" device="0204/7" value="10k"/>
@@ -19972,6 +19972,12 @@ Source: http://www.fairchildsemi.com/ds/FD/FDN360P.pdf</description>
 <part name="PRTR5V0U2X" library="PRTR5V0U2X" deviceset="PRTR5V0U2X" device=""/>
 <part name="GND24" library="supply1" deviceset="GND" device=""/>
 <part name="R7" library="rcl" deviceset="R-EU_" device="0204/7" value="22"/>
+<part name="R25" library="rcl" deviceset="R-EU_" device="0204/7" value="4k7"/>
+<part name="R26" library="rcl" deviceset="R-EU_" device="0204/7" value="4k7"/>
+<part name="R27" library="rcl" deviceset="R-EU_" device="0204/7" value="4k7"/>
+<part name="R28" library="rcl" deviceset="R-EU_" device="0204/7" value="4k7"/>
+<part name="R29" library="rcl" deviceset="R-EU_" device="0204/7" value="4k7"/>
+<part name="R30" library="rcl" deviceset="R-EU_" device="0204/7" value="4k7"/>
 </parts>
 <sheets>
 <sheet>
@@ -20018,7 +20024,7 @@ Source: http://www.fairchildsemi.com/ds/FD/FDN360P.pdf</description>
 <text x="154.94" y="175.26" size="7.62" layer="97" font="vector">MULTIPLEXING</text>
 <text x="12.7" y="177.8" size="5.08" layer="97" font="vector">LED MATRIX</text>
 <text x="12.7" y="83.82" size="5.08" layer="97" font="vector">BUTTON MATRIX</text>
-<text x="434.34" y="200.66" size="5.08" layer="97" font="vector">LED MATRIX</text>
+<text x="434.34" y="205.74" size="5.08" layer="97" font="vector">LED MATRIX</text>
 <text x="434.34" y="350.52" size="5.08" layer="97" font="vector">BUTTON MATRIX</text>
 <text x="304.8" y="330.2" size="5.08" layer="97" font="vector">ANALOG</text>
 <text x="17.78" y="129.54" size="2.54" layer="104" font="vector">U4 POWER</text>
@@ -20033,8 +20039,7 @@ Source: http://www.fairchildsemi.com/ds/FD/FDN360P.pdf</description>
 <text x="12.7" y="236.22" size="2.54" layer="104" font="vector">AVCC1</text>
 <text x="505.46" y="63.5" size="7.62" layer="97" font="vector">Notes:
 All diodes 1N4148
-Transistors: FDC6312P
-TVS diodes: PRTR5V0U2X</text>
+Transistors: FDC6312P</text>
 <text x="200.66" y="269.24" size="5.08" layer="97" font="vector">ANALOG</text>
 </plain>
 <instances>
@@ -20943,6 +20948,30 @@ TVS diodes: PRTR5V0U2X</text>
 <instance part="R7" gate="G$1" x="215.9" y="327.66" smashed="yes" rot="R180">
 <attribute name="NAME" x="219.71" y="326.1614" size="1.778" layer="95" font="vector" rot="R180"/>
 <attribute name="VALUE" x="219.71" y="330.962" size="1.778" layer="96" font="vector" rot="R180"/>
+</instance>
+<instance part="R25" gate="G$1" x="472.44" y="195.58" smashed="yes" rot="R270">
+<attribute name="NAME" x="473.9386" y="199.39" size="1.778" layer="95" font="vector" rot="R270"/>
+<attribute name="VALUE" x="469.138" y="199.39" size="1.778" layer="96" font="vector" rot="R270"/>
+</instance>
+<instance part="R26" gate="G$1" x="472.44" y="182.88" smashed="yes" rot="R270">
+<attribute name="NAME" x="473.9386" y="186.69" size="1.778" layer="95" font="vector" rot="R270"/>
+<attribute name="VALUE" x="469.138" y="186.69" size="1.778" layer="96" font="vector" rot="R270"/>
+</instance>
+<instance part="R27" gate="G$1" x="472.44" y="170.18" smashed="yes" rot="R270">
+<attribute name="NAME" x="473.9386" y="173.99" size="1.778" layer="95" font="vector" rot="R270"/>
+<attribute name="VALUE" x="469.138" y="173.99" size="1.778" layer="96" font="vector" rot="R270"/>
+</instance>
+<instance part="R28" gate="G$1" x="472.44" y="157.48" smashed="yes" rot="R270">
+<attribute name="NAME" x="473.9386" y="161.29" size="1.778" layer="95" font="vector" rot="R270"/>
+<attribute name="VALUE" x="469.138" y="161.29" size="1.778" layer="96" font="vector" rot="R270"/>
+</instance>
+<instance part="R29" gate="G$1" x="472.44" y="144.78" smashed="yes" rot="R270">
+<attribute name="NAME" x="473.9386" y="148.59" size="1.778" layer="95" font="vector" rot="R270"/>
+<attribute name="VALUE" x="469.138" y="148.59" size="1.778" layer="96" font="vector" rot="R270"/>
+</instance>
+<instance part="R30" gate="G$1" x="472.44" y="132.08" smashed="yes" rot="R270">
+<attribute name="NAME" x="473.9386" y="135.89" size="1.778" layer="95" font="vector" rot="R270"/>
+<attribute name="VALUE" x="469.138" y="135.89" size="1.778" layer="96" font="vector" rot="R270"/>
 </instance>
 </instances>
 <busses>
@@ -22863,8 +22892,11 @@ TVS diodes: PRTR5V0U2X</text>
 </segment>
 <segment>
 <pinref part="Q1" gate="G$1" pin="G"/>
-<wire x1="480.06" y1="190.5" x2="474.98" y2="190.5" width="0.1524" layer="91"/>
-<label x="474.98" y="190.5" size="1.778" layer="95" font="vector" rot="R180" xref="yes"/>
+<wire x1="480.06" y1="190.5" x2="472.44" y2="190.5" width="0.1524" layer="91"/>
+<label x="462.28" y="190.5" size="1.778" layer="95" font="vector" rot="R180" xref="yes"/>
+<pinref part="R25" gate="G$1" pin="2"/>
+<junction x="472.44" y="190.5"/>
+<wire x1="472.44" y1="190.5" x2="462.28" y2="190.5" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="LR_2" class="0">
@@ -22875,8 +22907,11 @@ TVS diodes: PRTR5V0U2X</text>
 </segment>
 <segment>
 <pinref part="Q2" gate="G$1" pin="G"/>
-<wire x1="480.06" y1="177.8" x2="474.98" y2="177.8" width="0.1524" layer="91"/>
-<label x="474.98" y="177.8" size="1.778" layer="95" font="vector" rot="R180" xref="yes"/>
+<wire x1="480.06" y1="177.8" x2="472.44" y2="177.8" width="0.1524" layer="91"/>
+<label x="462.28" y="177.8" size="1.778" layer="95" font="vector" rot="R180" xref="yes"/>
+<pinref part="R26" gate="G$1" pin="2"/>
+<junction x="472.44" y="177.8"/>
+<wire x1="462.28" y1="177.8" x2="472.44" y2="177.8" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="LR_3" class="0">
@@ -22887,8 +22922,11 @@ TVS diodes: PRTR5V0U2X</text>
 </segment>
 <segment>
 <pinref part="Q3" gate="G$1" pin="G"/>
-<wire x1="480.06" y1="165.1" x2="474.98" y2="165.1" width="0.1524" layer="91"/>
-<label x="474.98" y="165.1" size="1.778" layer="95" font="vector" rot="R180" xref="yes"/>
+<wire x1="480.06" y1="165.1" x2="472.44" y2="165.1" width="0.1524" layer="91"/>
+<label x="462.28" y="165.1" size="1.778" layer="95" font="vector" rot="R180" xref="yes"/>
+<pinref part="R27" gate="G$1" pin="2"/>
+<junction x="472.44" y="165.1"/>
+<wire x1="462.28" y1="165.1" x2="472.44" y2="165.1" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="LR_4" class="0">
@@ -22901,8 +22939,11 @@ TVS diodes: PRTR5V0U2X</text>
 </segment>
 <segment>
 <pinref part="Q4" gate="G$1" pin="G"/>
-<wire x1="480.06" y1="152.4" x2="474.98" y2="152.4" width="0.1524" layer="91"/>
-<label x="474.98" y="152.4" size="1.778" layer="95" font="vector" rot="R180" xref="yes"/>
+<wire x1="480.06" y1="152.4" x2="472.44" y2="152.4" width="0.1524" layer="91"/>
+<label x="462.28" y="152.4" size="1.778" layer="95" font="vector" rot="R180" xref="yes"/>
+<pinref part="R28" gate="G$1" pin="2"/>
+<junction x="472.44" y="152.4"/>
+<wire x1="462.28" y1="152.4" x2="472.44" y2="152.4" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="LR_5" class="0">
@@ -22915,8 +22956,11 @@ TVS diodes: PRTR5V0U2X</text>
 </segment>
 <segment>
 <pinref part="Q5" gate="G$1" pin="G"/>
-<wire x1="480.06" y1="139.7" x2="474.98" y2="139.7" width="0.1524" layer="91"/>
-<label x="474.98" y="139.7" size="1.778" layer="95" font="vector" rot="R180" xref="yes"/>
+<wire x1="480.06" y1="139.7" x2="472.44" y2="139.7" width="0.1524" layer="91"/>
+<label x="462.28" y="139.7" size="1.778" layer="95" font="vector" rot="R180" xref="yes"/>
+<pinref part="R29" gate="G$1" pin="2"/>
+<junction x="472.44" y="139.7"/>
+<wire x1="462.28" y1="139.7" x2="472.44" y2="139.7" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="LR_6" class="0">
@@ -22929,8 +22973,11 @@ TVS diodes: PRTR5V0U2X</text>
 </segment>
 <segment>
 <pinref part="Q6" gate="G$1" pin="G"/>
-<wire x1="480.06" y1="127" x2="474.98" y2="127" width="0.1524" layer="91"/>
-<label x="474.98" y="127" size="1.778" layer="95" font="vector" rot="R180" xref="yes"/>
+<wire x1="480.06" y1="127" x2="472.44" y2="127" width="0.1524" layer="91"/>
+<label x="462.28" y="127" size="1.778" layer="95" font="vector" rot="R180" xref="yes"/>
+<pinref part="R30" gate="G$1" pin="2"/>
+<junction x="472.44" y="127"/>
+<wire x1="462.28" y1="127" x2="472.44" y2="127" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="SR_LATCH" class="0">
@@ -23905,7 +23952,7 @@ TVS diodes: PRTR5V0U2X</text>
 <wire x1="485.14" y1="180.34" x2="492.76" y2="180.34" width="0.1524" layer="91"/>
 <wire x1="492.76" y1="180.34" x2="492.76" y2="193.04" width="0.1524" layer="91"/>
 <pinref part="Q3" gate="G$1" pin="S"/>
-<wire x1="492.76" y1="193.04" x2="492.76" y2="195.58" width="0.1524" layer="91"/>
+<wire x1="492.76" y1="193.04" x2="492.76" y2="200.66" width="0.1524" layer="91"/>
 <wire x1="485.14" y1="167.64" x2="492.76" y2="167.64" width="0.1524" layer="91"/>
 <wire x1="492.76" y1="167.64" x2="492.76" y2="180.34" width="0.1524" layer="91"/>
 <pinref part="Q4" gate="G$1" pin="S"/>
@@ -23921,10 +23968,35 @@ TVS diodes: PRTR5V0U2X</text>
 <junction x="492.76" y="167.64"/>
 <junction x="492.76" y="154.94"/>
 <junction x="492.76" y="142.24"/>
-<label x="492.76" y="195.58" size="1.778" layer="95" font="vector" rot="R90" xref="yes"/>
+<label x="492.76" y="203.2" size="1.778" layer="95" font="vector" rot="R90" xref="yes"/>
 <pinref part="Q1" gate="G$1" pin="S"/>
 <wire x1="485.14" y1="193.04" x2="492.76" y2="193.04" width="0.1524" layer="91"/>
 <junction x="492.76" y="193.04"/>
+<pinref part="R25" gate="G$1" pin="1"/>
+<wire x1="472.44" y1="200.66" x2="477.52" y2="200.66" width="0.1524" layer="91"/>
+<pinref part="R26" gate="G$1" pin="1"/>
+<wire x1="477.52" y1="200.66" x2="492.76" y2="200.66" width="0.1524" layer="91"/>
+<wire x1="492.76" y1="200.66" x2="492.76" y2="203.2" width="0.1524" layer="91"/>
+<wire x1="472.44" y1="187.96" x2="477.52" y2="187.96" width="0.1524" layer="91"/>
+<wire x1="477.52" y1="187.96" x2="477.52" y2="200.66" width="0.1524" layer="91"/>
+<pinref part="R27" gate="G$1" pin="1"/>
+<wire x1="472.44" y1="175.26" x2="477.52" y2="175.26" width="0.1524" layer="91"/>
+<wire x1="477.52" y1="175.26" x2="477.52" y2="187.96" width="0.1524" layer="91"/>
+<pinref part="R28" gate="G$1" pin="1"/>
+<wire x1="472.44" y1="162.56" x2="477.52" y2="162.56" width="0.1524" layer="91"/>
+<wire x1="477.52" y1="162.56" x2="477.52" y2="175.26" width="0.1524" layer="91"/>
+<pinref part="R29" gate="G$1" pin="1"/>
+<wire x1="472.44" y1="149.86" x2="477.52" y2="149.86" width="0.1524" layer="91"/>
+<wire x1="477.52" y1="149.86" x2="477.52" y2="162.56" width="0.1524" layer="91"/>
+<pinref part="R30" gate="G$1" pin="1"/>
+<wire x1="472.44" y1="137.16" x2="477.52" y2="137.16" width="0.1524" layer="91"/>
+<wire x1="477.52" y1="137.16" x2="477.52" y2="149.86" width="0.1524" layer="91"/>
+<junction x="477.52" y="200.66"/>
+<junction x="477.52" y="187.96"/>
+<junction x="477.52" y="175.26"/>
+<junction x="477.52" y="162.56"/>
+<junction x="477.52" y="149.86"/>
+<junction x="492.76" y="200.66"/>
 </segment>
 </net>
 <net name="N$74" class="0">
