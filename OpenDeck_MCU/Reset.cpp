@@ -62,19 +62,19 @@ void Bootloader_Jump_Check(void)    {
         //disable I2C
         TWCR = 0;
 
-        //set all pins to inputs
-        DDRB = 0;
-        DDRC = 0;
-        DDRD = 0;
-        DDRE = 0;
-        DDRF = 0;
-
         //write low to all pins
         PORTB = 0;
         PORTC = 0;
         PORTD = 0;
         PORTE = 0;
         PORTF = 0;
+
+        //set all pins to inputs
+        DDRB = 0;
+        DDRC = 0;
+        DDRD = 0;
+        DDRE = 0;
+        DDRF = 0;
 
     }
 

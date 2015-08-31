@@ -27,6 +27,12 @@ bool OpenDeck::sysExCheckMessageValidity(uint8_t sysExArray[], uint8_t arrSize) 
 
                 #ifdef USBCON
                     //this only works on USB boards
+                    //turn off all leds slowly before reseting
+                    boardObject.setLEDTransitionSpeed(1);
+                    allLEDsOff();
+                    //make sure all leds are off
+                    boardObject.newDelay(1000);
+                    //reboot
                     boardObject.rebootBoard();
                 #endif
 
