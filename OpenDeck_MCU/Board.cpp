@@ -207,7 +207,9 @@ inline void checkLEDs()  {
 
                 }
 
-            }   if (transitionCounter[ledNumber]) ledRowOn(i, ledTransitionScale[transitionCounter[ledNumber]]);
+                if (transitionCounter[ledNumber]) ledRowOn(i, ledTransitionScale[transitionCounter[ledNumber]]);
+
+            }
 
         }
     #endif
@@ -404,15 +406,45 @@ inline void readEncoders()  {
 #if defined(BOARD_OPENDECK_1)
 ISR(TIMER2_COMPA_vect)  {
 
-    //switch column
-    if (activeButtonColumn == NUMBER_OF_BUTTON_COLUMNS) activeButtonColumn = 0;
-    //turn off all LED rows before switching to next column
-    ledRowsOff();
-    activateColumn(activeButtonColumn);
-    checkLEDs();
-    storeDigitalIn();
-    activeButtonColumn++;
-    _buttonDataAvailable = true;
+    static uint8_t switchCounter = 0;
+
+    if (!switchCounter) {
+
+        if (activeButtonColumn == NUMBER_OF_BUTTON_COLUMNS) activeButtonColumn = 0;
+        ledRowsOff();
+        activateColumn(activeButtonColumn);
+        checkLEDs();
+        storeDigitalIn();
+        activeButtonColumn++;
+        _buttonDataAvailable = true;
+
+    }
+
+    switchCounter++;
+    switch(switchCounter)   {
+
+        //pwm LED matrix runs best at 1500 microseconds
+        //blinkTimerCounter would get increased every 1.5 milliseconds
+        //fix by running timer interrupt every 500ms
+        //when switchCounter is 2, 1ms has passed, increase counter
+
+        case 2:
+        if (blinkEnabled) {
+
+            blinkTimerCounter++;
+            if (blinkTimerCounter == ledBlinkTime) blinkTimerCounter = 0;
+
+        }
+        break;
+
+        case 3:
+        switchCounter = 0;
+        break;
+
+        default:
+        break;
+
+    }
 
 }
 
@@ -503,8 +535,7 @@ ISR(TIMER4_OVF_vect) {
 
 ISR(ADC_vect)   {
 
-    uint8_t low = ADCL;
-    analogBuffer[activeMuxInput] =  (ADCH << 8) | low;
+    analogBuffer[activeMuxInput] =  ADC;
     activeMuxInput++;
 
     bool startConversion = activeMuxInput != 8;
@@ -590,7 +621,7 @@ void Board::initPins() {
 void Board::initAnalog()    {
 
     setUpADC();
-    setADCprescaler(64);
+    setADCprescaler(32);
 
     #ifdef BOARD_TANNIN
         enableAnalogueInput(0, 4);
