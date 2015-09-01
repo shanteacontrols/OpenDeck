@@ -9,7 +9,7 @@ Author: Igor Petrovic
 
 #include "OpenDeck.h"
 
-const uint8_t buttonDebounceCompare = 0b11111100;
+const uint8_t buttonDebounceCompare = 0b11111000;
 
 void OpenDeck::setButtonPressed(uint8_t buttonNumber, bool state)   {
 
