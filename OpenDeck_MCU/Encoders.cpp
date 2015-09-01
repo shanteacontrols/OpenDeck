@@ -14,7 +14,7 @@ Author: Igor Petrovic
 
 void OpenDeck::readEncoders()   {
 
-    for (int i=0; i<NUMBER_OF_ENCODERS; i++)    {
+    for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)    {
 
         if (!getEncoderEnabled(i)) continue;
 
@@ -28,7 +28,7 @@ void OpenDeck::readEncoders()   {
 
              else encoderState = encMoveLeft;
 
-        } sendControlChange(encoderNumber[i], encoderState, _CCchannel);
+        }   sendControlChange(encoderNumber[i], encoderState, _CCchannel);
 
     }
 
