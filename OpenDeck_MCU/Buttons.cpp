@@ -124,8 +124,6 @@ void OpenDeck::processLatchingButton(uint8_t buttonNumber, bool buttonState)    
 
 void OpenDeck::readButtons()    {
 
-    #ifdef BOARD
-
     uint8_t availableButtonData = boardObject.buttonDataAvailable();
     if (!availableButtonData) return;
 
@@ -156,8 +154,6 @@ void OpenDeck::readButtons()    {
             }
 
         }
-
-    #endif
 
 }
 

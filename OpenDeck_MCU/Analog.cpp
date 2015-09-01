@@ -24,8 +24,6 @@ uint8_t mapAnalog(uint8_t x, uint8_t in_min, uint8_t in_max, uint8_t out_min, ui
 
 void OpenDeck::readAnalog()   {
 
-    #ifdef BOARD
-
     uint8_t availableAnalogData = boardObject.analogDataAvailable();
     if (!availableAnalogData) return;
 
@@ -54,8 +52,6 @@ void OpenDeck::readAnalog()   {
         }
 
     }
-
-    #endif
 
 }
 
