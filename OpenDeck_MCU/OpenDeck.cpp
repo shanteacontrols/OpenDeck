@@ -38,9 +38,8 @@ OpenDeck::OpenDeck()    {
 
 void OpenDeck::init()   {
 
-    initVariables();
-
     boardObject.init();
+    initVariables();
 
     if (initialEEPROMwrite())   {
 
