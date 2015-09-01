@@ -417,6 +417,7 @@ ISR(TIMER2_COMPA_vect)  {
         storeDigitalIn();
         activeButtonColumn++;
         _buttonDataAvailable = true;
+        ADCSRA |= (1<<ADSC); //start filling ADC buffer
 
     }
 
@@ -481,6 +482,7 @@ ISR(TIMER3_COMPA_vect)  {
         storeDigitalIn();
         activeButtonColumn++;
         _buttonDataAvailable = true;
+        ADCSRA |= (1<<ADSC); //start filling ADC buffer
 
     }
 
@@ -534,6 +536,18 @@ ISR(TIMER4_OVF_vect) {
 #endif
 
 ISR(ADC_vect)   {
+
+    //at prescaler 32, one conversion takes around 25us
+    //since buffer size is 8, it takes around 200us to fill it
+
+    //steps:
+    //1) switch matrix column
+    //2) start ADC interrupt which will fill the buffer
+    //3) one matrix column is switched every 1.5ms so
+    //there is no way ADC can be interrupted during that time
+    //since it takes 200us to fill ADC buffer
+
+    //in total this gives us about 5330 samples per second
 
     analogBuffer[activeMuxInput] =  ADC;
     activeMuxInput++;
@@ -851,7 +865,6 @@ uint8_t Board::analogDataAvailable() {
     if (state) {
 
         _analogDataAvailable = false;
-        startADCconversion();
         return ANALOG_BUFFER_SIZE-1;
 
     } return 0;
