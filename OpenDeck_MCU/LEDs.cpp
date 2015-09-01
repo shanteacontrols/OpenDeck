@@ -88,8 +88,6 @@ Author: Igor Petrovic
 
 void OpenDeck::startUpRoutine() {
 
-    //boardObject.setUpTimer();
-
     //turn off all LEDs before starting animation
     allLEDsOff();
 
@@ -132,7 +130,7 @@ void OpenDeck::startUpRoutine() {
 
     }
     #endif
-    openDeck.allLEDsOff(); delay(1000); //boardObject.disconnectTimer();
+    openDeck.allLEDsOff(); boardObject.newDelay(500);
 
 }
 
