@@ -16,11 +16,14 @@ void setUpADC() {
     ADMUX = 0x00;
     ADCSRA = 0x0;
 
-    //set analogue reference voltage to 5V
-    //ADMUX |= (1<<REFS0);
+    #ifdef BOARD_OPENDECK_1
+        //set analogue reference voltage to 5V
+        ADMUX |= (1<<REFS0);
+    #endif
 
     //set prescaler to 128 and enable ADC
     ADCSRA |= (1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0)|(1<<ADEN);
+
     #ifdef ADHSM
         ADCSRB |= (1<<ADHSM);
     #endif
@@ -64,7 +67,7 @@ void setADCprescaler(uint8_t prescaler) {
 
 }
 
-int16_t analogReadOwnduino(uint8_t adcChannel)  {
+int16_t analogReadBlocking(uint8_t adcChannel)  {
 
     //check for valid channel
     if ((adcChannel < 0) || (adcChannel > 7))   return -1;
