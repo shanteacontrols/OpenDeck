@@ -84,70 +84,16 @@ void OpenDeck::initVariables()  {
 
     //reset all variables
 
-    //MIDI channels
-    _noteChannel                            = 0;
-    _programChangeChannel                   = 0;
-    _CCchannel                              = 0;
-    _pitchBendChannel                       = 0;
-    _inputChannel                           = 0;
-
-    //buttons
-    for (i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
-        noteNumber[i]                       = 0;
-
-    for (i=0; i<MAX_NUMBER_OF_BUTTONS/8+1; i++)       {
-
-        _buttonType[i]                       = 0;
+    for (i=0; i<MAX_NUMBER_OF_BUTTONS/8+1; i++)
         buttonPressed[i]                    = 0;
-        buttonPCenabled[i]                  = 0;
-
-    }
 
     //analog
     for (i=0; i<MAX_NUMBER_OF_ANALOG; i++)          {
 
-        ccNumber[i]                         = 0;
         lastAnalogueValue[i]                = 0;
-        analogLowerLimit[i]                 = 0;
-        analogUpperLimit[i]                 = 0;
         analogDebounceCounter[i]            = 0;
-        analogType[i]                       = 0;
 
     }
-
-    for (i=0; i<MAX_NUMBER_OF_ANALOG/8+1; i++)        {
-
-        analogInverted[i]                   = 0;
-        analogEnabled[i]                    = 0;
-
-    }
-
-    //encoders
-    for (i=0; i<MAX_NUMBER_OF_ENCODERS; i++)            {
-
-        initialEncoderDebounceCounter[i]    = 0;
-        lastEncoderSpinTime[i]              = 0;
-        encoderNumber[i]                    = 0;
-        pulsesPerStep[i]                    = 0;
-
-    }
-
-    for (i=0; i<NUMBER_OF_ENCODERS/8+1; i++)        {
-
-        encoderEnabled[i]                   = 0;
-        encoderInverted[i]                  = 0;
-        encoderFastMode[i]                  = 0;
-
-    }
-
-    //LEDs
-    for (i=0; i<MAX_NUMBER_OF_LEDS; i++)            {
-
-        ledActNote[i]                       = 0;
-
-    }
-
-    totalNumberOfLEDs                       = 0;
 
     //input
     receivedNote                            = 0;

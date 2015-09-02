@@ -18,8 +18,8 @@ enum midiVelocity {
 
 enum encoderPosition {
 
-    encMoveLeft = 1,
-    encMoveRight = 127,
+    encMoveLeft = -1,
+    encMoveRight = 1,
     encStopped = 0
 
 };
@@ -38,6 +38,13 @@ enum ledStates  {
     ledBlink = 0x16,
     ledOnRemember = 0x0D,
     ledBlinkRemember = 0x1F
+
+};
+
+enum encoderType {
+
+    enc7Fh01f = 0,
+    enc3Fh41h = 1
 
 };
 

@@ -372,6 +372,10 @@ bool OpenDeck::sysExCheckNewParameterID(uint8_t messageType, uint8_t messageSubT
             return ((newParameter >= PULSES_PER_STEP_MIN) && (newParameter <= PULSES_PER_STEP_MAX));
             break;
 
+            case SYS_EX_MST_ENCODERS_ENCODING_MODE:
+            return (newParameter < ENCODING_MODES);
+            break;
+
         }
 
         break;
@@ -562,6 +566,7 @@ uint8_t OpenDeck::sysExGenerateMinMessageLenght(uint8_t wish, uint8_t amount, ui
                     case SYS_EX_MST_ENCODERS_FAST_MODE:
                     case SYS_EX_MST_ENCODERS_PULSES_PER_STEP:
                     case SYS_EX_MST_ENCODERS_NUMBER:
+                    case SYS_EX_MST_ENCODERS_ENCODING_MODE:
                     return SYS_EX_ML_REQ_STANDARD + NUMBER_OF_ENCODERS;
                     break;
 
@@ -765,6 +770,7 @@ void OpenDeck::sysExGenerateResponse(uint8_t sysExArray[], uint8_t arrSize)  {
                 case SYS_EX_MST_ENCODERS_INVERTED:
                 case SYS_EX_MST_ENCODERS_NUMBER:
                 case SYS_EX_MST_ENCODERS_PULSES_PER_STEP:
+                case SYS_EX_MST_ENCODERS_ENCODING_MODE:
                 maxComponentNr = NUMBER_OF_ENCODERS;
                 break;
 
@@ -968,6 +974,10 @@ uint8_t OpenDeck::sysExGet(uint8_t messageType, uint8_t messageSubType, uint8_t 
             return getEncoderFastMode(parameter);
             break;
 
+            case SYS_EX_MST_ENCODERS_ENCODING_MODE:
+            return (uint8_t)_encoderType[parameter];
+            break;
+
             default:
             return false;
             break;
@@ -1168,6 +1178,10 @@ bool OpenDeck::sysExSet(uint8_t messageType, uint8_t messageSubType, uint8_t par
             return setEncoderFastMode(parameter, newParameter);
             break;
 
+            case SYS_EX_MST_ENCODERS_ENCODING_MODE:
+            return setEncoderType(parameter, (encoderType)newParameter);
+            break;
+
             default:
             return false;
             break;
@@ -1357,6 +1371,10 @@ bool OpenDeck::sysExRestore(uint8_t messageType, uint8_t messageSubType, uint16_
 
             case SYS_EX_MST_ENCODERS_PULSES_PER_STEP:
             eepromAddress = EEPROM_ENCODERS_PULSES_PER_STEP_START;
+            break;
+
+            case SYS_EX_MST_ENCODERS_ENCODING_MODE:
+            eepromAddress = EEPROM_ENCODERS_ENCODING_MODE_START;
             break;
 
             default:
@@ -1677,6 +1695,14 @@ bool OpenDeck::setEncoderInvertState(uint8_t encoderID, bool state)    {
     eeprom_update_byte((uint8_t*)eepromAddress, encoderInverted[arrayIndex]);
 
     return (encoderInverted[arrayIndex] == eeprom_read_byte((uint8_t*)eepromAddress));
+
+}
+
+bool OpenDeck::setEncoderType(uint8_t encoderID, encoderType type)  {
+
+    _encoderType[encoderID] = type;
+    eeprom_update_byte((uint8_t*)EEPROM_ENCODERS_ENCODING_MODE_START+encoderID, (uint8_t)type);
+    return (_encoderType[encoderID] == eeprom_read_byte((uint8_t*)EEPROM_ENCODERS_ENCODING_MODE_START+encoderID));
 
 }
 

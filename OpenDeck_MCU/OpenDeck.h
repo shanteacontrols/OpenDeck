@@ -97,6 +97,8 @@ class OpenDeck  {
                     encoderFastMode[MAX_NUMBER_OF_ENCODERS/8+1],
                     initialEncoderDebounceCounter[MAX_NUMBER_OF_ENCODERS];
 
+    encoderType     _encoderType[MAX_NUMBER_OF_ENCODERS];
+
     uint32_t        lastEncoderSpinTime[MAX_NUMBER_OF_ENCODERS];
 
     //LEDs
@@ -135,6 +137,7 @@ class OpenDeck  {
     void getAnalogUpperLimits();
     void getEncodersEnabled();
     void getEncodersInverted();
+    void getEncodersType();
     void getEncodersFastMode();
     void getEncodersPulsesPerStep();
     void getEncodersNumbers();
@@ -193,10 +196,8 @@ class OpenDeck  {
     bool setEncoderEnabled(uint8_t, bool);
     bool getEncoderInvertState(uint8_t);
     bool setEncoderInvertState(uint8_t, bool);
-    uint8_t getEncoderPairEnabled(uint8_t);
-    bool checkMemberOfEncPair(uint8_t, uint8_t);
-    void processEncoderPair(uint8_t, uint8_t, uint8_t);
-    uint8_t getEncoderPairNumber(uint8_t, uint8_t);
+    encoderType getEncoderType(uint8_t);
+    bool setEncoderType(uint8_t, encoderType);
     bool getEncoderFastMode(uint8_t);
     bool setEncoderNumber(uint8_t, uint8_t);
     bool setEncoderPulsesPerStep(uint8_t, uint8_t);
