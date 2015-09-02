@@ -339,8 +339,8 @@ inline void readEncoders()  {
 
                 if ((encoderPulses[encoderNumber] % PULSES_PER_STEP) == 0)   {
 
-                    if (lastEncoderDirection) encoderMoving[encoderNumber] = encMoveLeft;
-                    else encoderMoving[encoderNumber] = encMoveRight;
+                    if (lastEncoderDirection) encoderMoving[encoderNumber] = encMoveRight;
+                    else encoderMoving[encoderNumber] = encMoveLeft;
 
                 }
 
@@ -383,8 +383,8 @@ inline void readEncoders()  {
 
                         if ((encoderPulses[encoderNumber] % PULSES_PER_STEP) == 0)   {
 
-                            if (lastEncoderDirection) encoderMoving[encoderNumber] = encMoveLeft;
-                            else encoderMoving[encoderNumber] = encMoveRight;
+                            if (lastEncoderDirection) encoderMoving[encoderNumber] = encMoveRight;
+                            else encoderMoving[encoderNumber] = encMoveLeft;
 
                         }
 

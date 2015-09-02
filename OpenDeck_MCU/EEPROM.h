@@ -767,6 +767,9 @@ static const uint8_t defConf[] PROGMEM = {
     0x04,
 
     //encoding mode
+    //0 - 7Fh/01h
+    //1 - 3Fh/41h
+    //2 - reserved for ableton
     0x00,                                   //469
     0x00,
     0x00,

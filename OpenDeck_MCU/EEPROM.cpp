@@ -28,6 +28,7 @@ void OpenDeck::getConfiguration()   {
     getAnalogUpperLimits();
     getEncodersEnabled();
     getEncodersInverted();
+    getEncodersType();
     getEncodersFastMode();
     getEncodersNumbers();
     getEncodersPulsesPerStep();
@@ -132,6 +133,13 @@ void OpenDeck::getEncodersInverted()    {
 
     for (int i=0; i<NUMBER_OF_ENCODERS/8+1; i++)
         encoderInverted[i] = eeprom_read_byte((uint8_t*)EEPROM_ENCODERS_INVERTED_START+i);
+
+}
+
+void OpenDeck::getEncodersType()    {
+
+    for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
+        _encoderType[i] = (encoderType)eeprom_read_byte((uint8_t*)EEPROM_ENCODERS_ENCODING_MODE_START+i);
 
 }
 

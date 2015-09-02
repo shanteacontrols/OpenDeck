@@ -2,6 +2,7 @@
 #define ENCODERSETTINGS_H_
 
 #define PULSES_PER_STEP         4
+#define ENCODING_MODES          2
 
 //encoder resolution
 #define PULSES_PER_STEP_MIN     0x00
