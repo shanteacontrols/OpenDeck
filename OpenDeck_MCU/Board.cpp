@@ -407,9 +407,15 @@ inline void readEncoders()  {
 ISR(TIMER2_COMPA_vect)  {
 
     static uint8_t switchCounter = 0;
+    if (switchCounter == 3) switchCounter = 0;
 
-    if (!switchCounter) {
+    switch(switchCounter)   {
 
+        case 0:
+        ADCSRA |= (1<<ADSC); //start filling ADC buffer
+        break;
+
+        case 1:
         if (activeButtonColumn == NUMBER_OF_BUTTON_COLUMNS) activeButtonColumn = 0;
         ledRowsOff();
         activateColumn(activeButtonColumn);
@@ -417,12 +423,7 @@ ISR(TIMER2_COMPA_vect)  {
         storeDigitalIn();
         activeButtonColumn++;
         _buttonDataAvailable = true;
-        ADCSRA |= (1<<ADSC); //start filling ADC buffer
-
-    }
-
-    switchCounter++;
-    switch(switchCounter)   {
+        break;
 
         //pwm LED matrix runs best at 1500 microseconds
         //blinkTimerCounter would get increased every 1.5 milliseconds
@@ -438,14 +439,10 @@ ISR(TIMER2_COMPA_vect)  {
         }
         break;
 
-        case 3:
-        switchCounter = 0;
-        break;
-
         default:
         break;
 
-    }
+    }   switchCounter++;
 
 }
 
@@ -472,9 +469,15 @@ ISR(TIMER1_COMPA_vect) {
 ISR(TIMER3_COMPA_vect)  {
 
     static uint8_t switchCounter = 0;
+    if (switchCounter == 3) switchCounter = 0;
 
-    if (!switchCounter) {
+    switch(switchCounter)   {
 
+        case 0:
+        ADCSRA |= (1<<ADSC); //start filling ADC buffer
+        break;
+
+        case 1:
         if (activeButtonColumn == NUMBER_OF_BUTTON_COLUMNS) activeButtonColumn = 0;
         ledRowsOff();
         activateColumn(activeButtonColumn);
@@ -482,12 +485,7 @@ ISR(TIMER3_COMPA_vect)  {
         storeDigitalIn();
         activeButtonColumn++;
         _buttonDataAvailable = true;
-        ADCSRA |= (1<<ADSC); //start filling ADC buffer
-
-    }
-
-    switchCounter++;
-    switch(switchCounter)   {
+        break;
 
         //pwm LED matrix runs best at 1500 microseconds
         //blinkTimerCounter would get increased every 1.5 milliseconds
@@ -503,14 +501,10 @@ ISR(TIMER3_COMPA_vect)  {
         }
         break;
 
-        case 3:
-        switchCounter = 0;
-        break;
-
         default:
         break;
 
-    }
+    }   switchCounter++;
 
 }
 
@@ -549,7 +543,7 @@ ISR(ADC_vect)   {
 
     //in total this gives us about 5330 samples per second
 
-    analogBuffer[activeMuxInput] =  ADC;
+    analogBuffer[activeMuxInput] = ADC;
     activeMuxInput++;
 
     bool startConversion = activeMuxInput != 8;
@@ -635,7 +629,7 @@ void Board::initPins() {
 void Board::initAnalog()    {
 
     setUpADC();
-    setADCprescaler(32);
+    setADCprescaler(128);
 
     #ifdef BOARD_TANNIN
         enableAnalogueInput(0, 4);
@@ -651,7 +645,6 @@ void Board::initAnalog()    {
     for (int i=0; i<5; i++)
         getADCvalue();  //dummy read to init ADC
     enableADCinterrupt();
-    startADCconversion();
 
 }
 
