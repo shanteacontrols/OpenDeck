@@ -57,14 +57,18 @@ inline void setMuxInternal(uint8_t muxNumber)   {
 
 inline void setMuxInputInteral(uint8_t muxInput)    {
 
+    //according to datasheet, propagation delay between setting Sn pins
+    //and output appearing on Yn is around 150ns
+    //add three NOPs to compensate
+
     #ifdef BOARD_TANNIN
         PORTF &= 0b00011111;
         PORTF |= (muxInput << 5);
-        _NOP();
+        _NOP(); _NOP(); _NOP();
     #elif defined BOARD_OPENDECK_1
         PORTC &= 0xF8;
         PORTC |= muxInput;
-        _NOP();
+        _NOP(); _NOP(); _NOP();
     #endif
 
 }
@@ -531,17 +535,7 @@ ISR(TIMER4_OVF_vect) {
 
 ISR(ADC_vect)   {
 
-    //at prescaler 32, one conversion takes around 25us
-    //since buffer size is 8, it takes around 200us to fill it
-
-    //steps:
-    //1) switch matrix column
-    //2) start ADC interrupt which will fill the buffer
-    //3) one matrix column is switched every 1.5ms so
-    //there is no way ADC can be interrupted during that time
-    //since it takes 200us to fill ADC buffer
-
-    //in total this gives us about 5330 samples per second
+    //adc runs at about 5300 samples per second
 
     analogBuffer[activeMuxInput] = ADC;
     activeMuxInput++;
@@ -613,6 +607,7 @@ void Board::initPins() {
 
         //turn off encoder columns
         PORTC |= 0b11000000;
+        PORTD |= 0b00000100;    //pull-up for RX
     #elif defined BOARD_OPENDECK_1
         DDRD = 0x02;
         DDRB = 0x0F;
