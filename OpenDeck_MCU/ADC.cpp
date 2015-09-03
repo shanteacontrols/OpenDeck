@@ -75,6 +75,8 @@ int16_t analogReadBlocking(uint8_t adcChannel)  {
     //select ADC channel with safety mask
     ADMUX = (ADMUX & 0xF0) | (adcChannel & 0x0F);
 
+    _NOP();
+
     //single conversion mode
     ADCSRA |= (1<<ADSC);
 

@@ -57,9 +57,5 @@ void loop() {
     //check encoders
     openDeck.readEncoders();
 
-    #ifdef SERIAL_MOD
-        uart.releaseTX();
-    #endif
-
 }
 #endif

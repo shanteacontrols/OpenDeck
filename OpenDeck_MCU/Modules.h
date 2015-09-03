@@ -3,7 +3,7 @@
 
 #ifdef USBCON
     #define USBMIDI
-    //#define HW_MIDI
+    #define HW_MIDI
 #else
     #define HW_MIDI
 #endif
