@@ -43,7 +43,7 @@ enum ledStates  {
 
 enum encoderType {
 
-    enc7Fh01f = 0,
+    enc7Fh01h = 0,
     enc3Fh41h = 1
 
 };

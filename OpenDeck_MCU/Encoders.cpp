@@ -37,7 +37,7 @@ void OpenDeck::readEncoders()   {
 
         switch(_encoderType[i]) {
 
-            case enc7Fh01f:
+            case enc7Fh01h:
             if (encoderState == encMoveLeft) encoderValue = ENCODER_VALUE_LEFT_7FH01H;
             else encoderValue = ENCODER_VALUE_RIGHT_7FH01H;
             break;
