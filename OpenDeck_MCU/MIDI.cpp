@@ -62,7 +62,7 @@ void MIDI_Class::begin(uint8_t inChannel)    {
 
 #endif
 
-    USE_SERIAL_PORT.begin(31250);
+    USE_SERIAL_PORT.begin(38400);
 
 }
 
@@ -252,13 +252,7 @@ void MIDI_Class::sendRealTime(kMIDIType Type)   {
  */
 bool MIDI_Class::read() {
 
-    int16_t bytes_available;
-
-    #ifdef SERIAL_MOD
-        bytes_available = USE_SERIAL_PORT.availableRX();
-    #else
-         bytes_available = USE_SERIAL_PORT.available();
-     #endif
+    int16_t bytes_available = USE_SERIAL_PORT.available();
 
     if (bytes_available <= 0) return false;
 
