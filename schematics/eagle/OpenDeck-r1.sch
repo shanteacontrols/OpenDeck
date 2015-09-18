@@ -19864,9 +19864,9 @@ at 30/07/2012 12:23:11</description>
 <part name="L14" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L22" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L15" library="led" deviceset="*W51M" device="" technology="LA"/>
-<part name="R1" library="rcl" deviceset="R-EU_" device="0204/7" value="100"/>
-<part name="R2" library="rcl" deviceset="R-EU_" device="0204/7" value="100"/>
-<part name="R3" library="rcl" deviceset="R-EU_" device="0204/7" value="100"/>
+<part name="R1" library="rcl" deviceset="R-EU_" device="0204/7" value="75"/>
+<part name="R2" library="rcl" deviceset="R-EU_" device="0204/7" value="75"/>
+<part name="R3" library="rcl" deviceset="R-EU_" device="0204/7" value="75"/>
 <part name="L25" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L26" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L27" library="led" deviceset="*W51M" device="" technology="LA"/>
@@ -19875,7 +19875,7 @@ at 30/07/2012 12:23:11</description>
 <part name="L30" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L31" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L32" library="led" deviceset="*W51M" device="" technology="LA"/>
-<part name="R4" library="rcl" deviceset="R-EU_" device="0204/7" value="100"/>
+<part name="R4" library="rcl" deviceset="R-EU_" device="0204/7" value="75"/>
 <part name="L33" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L34" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L35" library="led" deviceset="*W51M" device="" technology="LA"/>
@@ -19884,7 +19884,7 @@ at 30/07/2012 12:23:11</description>
 <part name="L38" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L39" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L40" library="led" deviceset="*W51M" device="" technology="LA"/>
-<part name="R5" library="rcl" deviceset="R-EU_" device="0204/7" value="100"/>
+<part name="R5" library="rcl" deviceset="R-EU_" device="0204/7" value="75"/>
 <part name="L41" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L42" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L43" library="led" deviceset="*W51M" device="" technology="LA"/>
@@ -19893,7 +19893,7 @@ at 30/07/2012 12:23:11</description>
 <part name="L46" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L47" library="led" deviceset="*W51M" device="" technology="LA"/>
 <part name="L48" library="led" deviceset="*W51M" device="" technology="LA"/>
-<part name="R6" library="rcl" deviceset="R-EU_" device="0204/7" value="100"/>
+<part name="R6" library="rcl" deviceset="R-EU_" device="0204/7" value="75"/>
 <part name="U6" library="74xx-eu" deviceset="74*165" device="D" technology="AC"/>
 <part name="GND2" library="supply1" deviceset="GND" device=""/>
 <part name="R8" library="rcl" deviceset="R-EU_" device="0204/7" value="10k"/>
