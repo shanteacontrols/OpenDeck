@@ -10,17 +10,6 @@ Author: Igor Petrovic
 #include "OpenDeck.h"
 
 #define NUMBER_OF_SAMPLES 3
-#define ADC_8_BIT_ENABLED bitRead(ADMUX, ADLAR)
-
-//potentiometer must exceed this value before sending new value
-const uint8_t midiCCstep = ADC_8_BIT_ENABLED ? 2 : 8;
-
-uint8_t mapAnalog(uint8_t x, uint8_t in_min, uint8_t in_max, uint8_t out_min, uint8_t out_max)    {
-
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-
-}
-
 
 void OpenDeck::readAnalog()   {
 
@@ -33,37 +22,35 @@ void OpenDeck::readAnalog()   {
     //check values
     for (int i=0; i<availableAnalogData; i++)    {
 
-        analogData = boardObject.getAnalogValue(i);
-        analogID = boardObject.getAnalogID(i);
-        bool analogIDenabled = getAnalogEnabled(analogID);
+        analogData = boardObject.getAnalogValue(i); //get raw analog reading
+        analogID = boardObject.getAnalogID(i);  //get hardware ID for analog component
+        if (!getAnalogEnabled(analogID)) continue; //don't process component if it's not enabled
+        addAnalogSample(analogID, analogData);  //add current reading to sample array
+        if (!analogValueSampled(analogID)) continue;  //three samples are needed
+        analogData = getMedianValue(analogID);  //get median value from three analog samples for better accuracy
+        analogType type = getAnalogType(analogID);  //get type of current analog component
 
-        if (analogIDenabled)   {
+        switch(type) {
 
-            bool readingDifferent = checkAnalogValueDifference(analogData, analogID);
+            case potentiometer:
+            checkPotentiometerValue(analogData, analogID);
+            break;
 
-            if (readingDifferent)   addAnalogSample(analogID, analogData);
-            if (analogValueSampled(analogID))    {
+            case fsr1:
+            case fsr2:
+            case fsr3:
+            checkFSRvalue(analogData, analogID, type);
+            break;
 
-                analogData = getMedianValue(analogID);
-                processAnalogReading(analogData, analogID);
+            case ldr:
+            break;
 
-            }
+            default:
+            return;
 
         }
 
     }
-
-}
-
-bool OpenDeck::checkAnalogValueDifference(int16_t tempValue, uint8_t analogID)  {
-
-    //calculate difference between current and previous reading
-    int16_t analogDiff = tempValue - lastAnalogueValue[analogID];
-
-    //get absolute difference
-    if (analogDiff < 0)   analogDiff *= -1;
-
-    return (analogDiff >= midiCCstep);
 
 }
 
@@ -87,24 +74,6 @@ bool OpenDeck::analogValueSampled(uint8_t analogID) {
 
 }
 
-void OpenDeck::processAnalogReading(int16_t tempValue, uint8_t analogID)  {
-
-    uint8_t ccValue = tempValue >> 3;
-
-    //invert CC data if potInverted is true
-    if (getAnalogInvertState(analogID))   ccValue = 127 - ccValue;
-
-    //only use map when cc limits are different from defaults
-    if ((analogLowerLimit[analogID] != 0) || (analogUpperLimit[analogID] != 127))
-        sendControlChange(ccNumber[analogID], mapAnalog(ccValue, 0, 127, analogLowerLimit[analogID], analogUpperLimit[analogID]), _CCchannel);
-
-    else sendControlChange(ccNumber[analogID], ccValue, _CCchannel);
-
-    //update values
-    lastAnalogueValue[analogID] = tempValue;
-
-}
-
 bool OpenDeck::getAnalogEnabled(uint8_t analogID) {
 
     uint8_t arrayIndex = analogID/8;
@@ -114,9 +83,9 @@ bool OpenDeck::getAnalogEnabled(uint8_t analogID) {
 
 }
 
-uint8_t OpenDeck::getAnalogType(uint8_t analogID) {
+analogType OpenDeck::getAnalogType(uint8_t analogID) {
 
-    return analogType[analogID];
+    return _analogType[analogID];
 
 }
 
@@ -153,6 +122,12 @@ int16_t OpenDeck::getMedianValue(uint8_t analogID)  {
     }
 
     return medianValue;
+
+}
+
+uint8_t OpenDeck::mapAnalog(uint8_t x, uint8_t in_min, uint8_t in_max, uint8_t out_min, uint8_t out_max)    {
+
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 
 }
 

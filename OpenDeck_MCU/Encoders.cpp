@@ -50,6 +50,7 @@ void OpenDeck::readEncoders()   {
         }
 
         sendControlChange(encoderNumber[i], encoderValue, _CCchannel);
+        if (sysExEnabled) sysExSendID(encoder, i);
 
     }
 

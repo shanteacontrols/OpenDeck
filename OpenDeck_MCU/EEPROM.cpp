@@ -21,7 +21,7 @@ void OpenDeck::getConfiguration()   {
     getButtonsPCenabled();
     getButtonsNotes();
     getAnalogEnabled();
-    getAnalogType();
+    getAnalogTypes();
     getAnalogInversion();
     getAnalogNumbers();
     getAnalogLowerLimits();
@@ -87,10 +87,10 @@ void OpenDeck::getAnalogEnabled()         {
 
 }
 
-void OpenDeck::getAnalogType()         {
+void OpenDeck::getAnalogTypes()         {
 
     for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
-        analogType[i] = eeprom_read_byte((uint8_t*)EEPROM_ANALOG_TYPE_START+i);
+        _analogType[i] = (analogType)eeprom_read_byte((uint8_t*)EEPROM_ANALOG_TYPE_START+i);
 
 }
 

@@ -79,12 +79,13 @@ class OpenDeck  {
 
     //analog
     uint8_t         analogEnabled[MAX_NUMBER_OF_ANALOG/8+1],
-                    analogType[MAX_NUMBER_OF_ANALOG],
                     analogInverted[MAX_NUMBER_OF_ANALOG/8+1],
                     ccNumber[MAX_NUMBER_OF_ANALOG],
                     analogLowerLimit[MAX_NUMBER_OF_ANALOG],
                     analogUpperLimit[MAX_NUMBER_OF_ANALOG],
                     analogDebounceCounter[MAX_NUMBER_OF_ANALOG];
+
+    analogType      _analogType[MAX_NUMBER_OF_ANALOG];
 
     int16_t         analogSample[MAX_NUMBER_OF_ANALOG][3+1],
                     lastAnalogueValue[MAX_NUMBER_OF_ANALOG];
@@ -130,7 +131,7 @@ class OpenDeck  {
     void getButtonsPCenabled();
     void getButtonsNotes();
     void getAnalogEnabled();
-    void getAnalogType();
+    void getAnalogTypes();
     void getAnalogInversion();
     void getAnalogNumbers();
     void getAnalogLowerLimits();
@@ -180,16 +181,18 @@ class OpenDeck  {
     bool setAnalogEnabled(uint8_t, bool);
     bool getAnalogInvertState(uint8_t);
     bool setAnalogInvertState(uint8_t, bool);
-    uint8_t getAnalogType(uint8_t);
-    bool setAnalogType(uint8_t, uint8_t);
+    analogType getAnalogType(uint8_t);
+    bool setAnalogType(uint8_t, analogType);
     uint8_t getCCnumber(uint8_t);
     bool setCCnumber(uint8_t, uint8_t);
     bool setAnalogLimit(uint8_t, uint8_t, uint8_t);
-    void processAnalogReading(int16_t, uint8_t);
+    void checkPotentiometerValue(int16_t, uint8_t);
+    void checkFSRvalue(int16_t, uint8_t, analogType);
+    bool fsrPressureStable(uint8_t, uint8_t);
     int16_t getMedianValue(uint8_t analogID);
-    bool checkAnalogValueDifference(int16_t, uint8_t);
     void addAnalogSample(uint8_t, int16_t);
     bool analogValueSampled(uint8_t);
+    uint8_t mapAnalog(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
 
     //encoders
     bool getEncoderEnabled(uint8_t);
@@ -234,6 +237,7 @@ class OpenDeck  {
     uint8_t sysExGenerateMinMessageLenght(uint8_t, uint8_t, uint8_t, uint8_t);
     void sysExGenerateError(sysExError);
     void sysExGenerateAck();
+    void sysExSendID(sysExIDcomponentType, uint8_t);
     void sysExGenerateResponse(uint8_t*, uint8_t);
     uint8_t sysExGet(uint8_t, uint8_t, uint8_t);
     bool sysExSet(uint8_t, uint8_t, uint8_t, uint8_t);

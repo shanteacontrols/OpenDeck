@@ -27,7 +27,8 @@ enum encoderPosition {
 enum buttonType {
 
     buttonMomentary,
-    buttonLatching
+    buttonLatching,
+    buttonTypeEnd
 
 };
 
@@ -45,6 +46,32 @@ enum encoderType {
 
     enc7Fh01h = 0,
     enc3Fh41h = 1
+
+};
+
+enum sysExIDcomponentType   {
+
+    button = 0,
+    encoder = 1,
+    analog = 2
+
+};
+
+enum pressureType {
+
+    velocity,
+    aftertouch
+
+};
+
+enum analogType {
+
+    potentiometer = 0,
+    fsr1 = 1,
+    fsr2 = 2,
+    fsr3 = 3,
+    ldr = 4,
+    analogTypeEnd
 
 };
 
