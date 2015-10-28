@@ -315,6 +315,9 @@ bool OpenDeck::sysExCheckNewParameterID(uint8_t messageType, uint8_t messageSubT
         switch (messageSubType) {
 
             case SYS_EX_MST_BUTTONS_TYPE:
+            return (newParameter < buttonTypeEnd);
+            break;
+
             case SYS_EX_MST_BUTTONS_PROGRAM_CHANGE_ENABLED:
             return ((newParameter == SYS_EX_ENABLE) || (newParameter == SYS_EX_DISABLE));
             break;
@@ -340,7 +343,7 @@ bool OpenDeck::sysExCheckNewParameterID(uint8_t messageType, uint8_t messageSubT
             break;
 
             case SYS_EX_MST_ANALOG_TYPE:
-            return ((newParameter >= SYS_EX_ANALOG_TYPE_START) && (newParameter < SYS_EX_ANALOG_TYPE_END));
+            return (newParameter < analogTypeEnd);
             break;
 
             case SYS_EX_MST_ANALOG_NUMBER:
@@ -643,6 +646,20 @@ void OpenDeck::sysExGenerateAck()   {
     sysExEnabled = true;
 
     sendSysEx(sysExAckResponse, 7);
+
+}
+
+void OpenDeck::sysExSendID(sysExIDcomponentType type, uint8_t componentID)   {
+
+    uint8_t sysExAckResponse[5];
+
+    sysExAckResponse[0] = SYS_EX_M_ID_0;
+    sysExAckResponse[1] = SYS_EX_M_ID_1;
+    sysExAckResponse[2] = SYS_EX_M_ID_2;
+    sysExAckResponse[3] = type;
+    sysExAckResponse[4] = componentID;
+
+    sendSysEx(sysExAckResponse, 5);
 
 }
 
@@ -992,8 +1009,6 @@ uint8_t OpenDeck::sysExGet(uint8_t messageType, uint8_t messageSubType, uint8_t 
 
 }
 
-
-
 bool OpenDeck::getFeature(uint8_t featureType, uint8_t feature)    {
 
     switch (featureType)    {
@@ -1131,7 +1146,7 @@ bool OpenDeck::sysExSet(uint8_t messageType, uint8_t messageSubType, uint8_t par
             break;
 
             case SYS_EX_MST_ANALOG_TYPE:
-            return setAnalogType(parameter, newParameter);
+            return setAnalogType(parameter, (analogType)newParameter);
             break;
 
             case SYS_EX_MST_ANALOG_INVERTED:
@@ -1473,7 +1488,6 @@ bool OpenDeck::setMIDIchannel(uint8_t channel, uint8_t channelNumber)  {
 
 }
 
-
 bool OpenDeck::setFeature(uint8_t featureType, uint8_t feature, bool state)    {
 
     switch (featureType)    {
@@ -1616,13 +1630,13 @@ bool OpenDeck::setAnalogEnabled(uint8_t analogID, bool state)    {
 
 }
 
-bool OpenDeck::setAnalogType(uint8_t analogID, uint8_t type)    {
+bool OpenDeck::setAnalogType(uint8_t analogID, analogType type)    {
 
     uint16_t eepromAddress = EEPROM_ANALOG_TYPE_START+analogID;
-    analogType[analogID] = type;
-    eeprom_update_byte((uint8_t*)eepromAddress, analogType[analogID]);
+    _analogType[analogID] = type;
+    eeprom_update_byte((uint8_t*)eepromAddress, (uint8_t)_analogType[analogID]);
 
-    return (analogType[analogID] == eeprom_read_byte((uint8_t*)eepromAddress));
+    return ((uint8_t)_analogType[analogID] == eeprom_read_byte((uint8_t*)eepromAddress));
 }
 
 bool OpenDeck::setAnalogInvertState(uint8_t analogID, bool state)    {

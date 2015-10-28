@@ -68,11 +68,13 @@ void OpenDeck::processMomentaryButton(uint8_t buttonNumber, bool buttonState)   
             if (getButtonPCenabled(buttonNumber))    {
 
                 sendProgramChange(_programChangeChannel, noteNumber[buttonNumber]);
+                if (sysExEnabled) sysExSendID(button, buttonNumber);
                 return;
 
             }
 
-            sendMIDInote(noteNumber[buttonNumber], true, _noteChannel);
+            sendMIDInote(noteNumber[buttonNumber], true, velocityOn);
+            if (sysExEnabled) sysExSendID(button, buttonNumber);
 
         }
 
@@ -80,8 +82,12 @@ void OpenDeck::processMomentaryButton(uint8_t buttonNumber, bool buttonState)   
 
             if (getButtonPressed(buttonNumber))    {
 
-                if (!getButtonPCenabled(buttonNumber))
-                    sendMIDInote(noteNumber[buttonNumber], false, _noteChannel);
+                if (!getButtonPCenabled(buttonNumber))  {
+
+                    sendMIDInote(noteNumber[buttonNumber], false, velocityOff);
+                    if (sysExEnabled) sysExSendID(button, buttonNumber);
+
+                }
 
                 setButtonPressed(buttonNumber, false);
 
@@ -101,15 +107,17 @@ void OpenDeck::processLatchingButton(uint8_t buttonNumber, bool buttonState)    
             //if a button has been already pressed
             if (getButtonPressed(buttonNumber)) {
 
-                sendMIDInote(noteNumber[buttonNumber], false, _noteChannel);
+                sendMIDInote(noteNumber[buttonNumber], false, velocityOff);
+                if (sysExEnabled) sysExSendID(button, buttonNumber);
 
                 //reset pressed state
                 setButtonPressed(buttonNumber, false);
 
-                } else {
+            } else {
 
                 //send note on
-                sendMIDInote(noteNumber[buttonNumber], true, _noteChannel);
+                sendMIDInote(noteNumber[buttonNumber], true, velocityOn);
+                if (sysExEnabled) sysExSendID(button, buttonNumber);
 
                 //toggle buttonPressed flag to true
                 setButtonPressed(buttonNumber, true);
@@ -187,7 +195,7 @@ bool OpenDeck::buttonDebounced(uint8_t buttonNumber, bool buttonState)   {
 
 }
 
-void OpenDeck::sendMIDInote(uint8_t buttonNote, bool buttonState, uint8_t channel)  {
+void OpenDeck::sendMIDInote(uint8_t buttonNote, bool buttonState, uint8_t _velocity)  {
 
     switch (buttonState) {
 
@@ -196,21 +204,21 @@ void OpenDeck::sendMIDInote(uint8_t buttonNote, bool buttonState, uint8_t channe
         if (standardNoteOffEnabled())   {
 
             #ifdef USBMIDI
-            usbMIDI.sendNoteOff(buttonNote, velocityOff, channel);
+            usbMIDI.sendNoteOff(buttonNote, _velocity, _noteChannel);
             #endif
 
             #ifdef HW_MIDI
-                MIDI.sendNoteOff(buttonNote, velocityOff, channel);
+                MIDI.sendNoteOff(buttonNote, _velocity, _noteChannel);
             #endif
 
         } else {
 
             #ifdef HW_MIDI
-                MIDI.sendNoteOn(buttonNote, velocityOff, channel);
+                MIDI.sendNoteOn(buttonNote, _velocity, _noteChannel);
             #endif
 
             #ifdef USBMIDI
-                usbMIDI.sendNoteOn(buttonNote, velocityOff, channel);
+                usbMIDI.sendNoteOn(buttonNote, _velocity, _noteChannel);
             #endif
 
         }
@@ -219,11 +227,11 @@ void OpenDeck::sendMIDInote(uint8_t buttonNote, bool buttonState, uint8_t channe
         case true:
         //button pressed
         #ifdef HW_MIDI
-            MIDI.sendNoteOn(buttonNote, velocityOn, channel);
+            MIDI.sendNoteOn(buttonNote, _velocity, _noteChannel);
         #endif
 
         #ifdef USBMIDI
-            usbMIDI.sendNoteOn(buttonNote, velocityOn, channel);
+            usbMIDI.sendNoteOn(buttonNote, _velocity, _noteChannel);
         #endif
         break;
 
