@@ -10,6 +10,8 @@ Author: Igor Petrovic
 #include "OpenDeck.h"
 #include <avr/eeprom.h>
 
+#define SYS_EX_CONFIG_TIMEOUT   60000   //minute
+
 void storeReceivedNoteOn(uint8_t channel, uint8_t note, uint8_t velocity)  {
 
     openDeck.receivedNote = note;
@@ -120,15 +122,16 @@ void OpenDeck::checkMIDIIn()    {
 
             sysExProcessed = false;
 
-            } else {
+        } else {
 
             uint8_t messageType = usbMIDI.getType();
 
             //new message has arrived
-            if (!sysExProcessed && (messageType == 7)) {
+            if (!sysExProcessed && (messageType == 7)) {    //sysex
 
                 processSysEx(usbMIDI.getSysExArray(), usbMIDI.getData1(), usbSource);
                 sysExProcessed = true;
+                lastSysExMessageTime = boardObject.newMillis();
 
             }
 
@@ -139,6 +142,10 @@ void OpenDeck::checkMIDIIn()    {
     #ifdef HW_MIDI
         MIDI.read();
     #endif
+
+    //disable sysex config after inactivity
+    if (boardObject.newMillis() - lastSysExMessageTime > SYS_EX_CONFIG_TIMEOUT)
+        sysExEnabled = false;
 
 }
 
