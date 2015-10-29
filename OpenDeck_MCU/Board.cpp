@@ -759,18 +759,14 @@ void Board::setUpTimer()   {
 
 void Board::setLEDstate(uint8_t ledNumber, uint8_t state)   {
 
-    cli();
     ledState[ledNumber] = state;
-    sei();
 
 }
 
 uint8_t Board::getLEDstate(uint8_t ledNumber)   {
 
     uint8_t returnValue;
-    cli();
     returnValue = ledState[ledNumber];
-    sei();
     return returnValue;
 
 }
@@ -808,9 +804,8 @@ void Board::resetLEDblinkCounter()  {
 
 void Board::ledBlinkingStart() {
 
-    cli();
-    bool _blinkEnabled = blinkEnabled;
-    sei();
+    bool _blinkEnabled;
+    _blinkEnabled = blinkEnabled;
 
     if (!_blinkEnabled) {
 
@@ -834,9 +829,7 @@ void Board::ledBlinkingStop()   {
 bool Board::ledBlinkingActive() {
 
     bool state;
-    cli();
     state = blinkEnabled;
-    sei();
     return state;
 
 }
@@ -847,9 +840,7 @@ bool Board::ledBlinkingActive() {
 uint8_t Board::analogDataAvailable() {
 
     bool state;
-    cli();
     state = _analogDataAvailable;
-    sei();
     if (state) {
 
         _analogDataAvailable = false;
@@ -903,13 +894,10 @@ encoderPosition Board::getEncoderState(uint8_t encoderNumber)  {
 uint8_t Board::buttonDataAvailable() {
 
     bool state;
-    cli();
     state = _buttonDataAvailable;
-    sei();
     if (state) {
 
         cli();
-        _buttonDataAvailable = false;
         digitalBufferCopy = digitalBuffer;
         sei();
         return NUMBER_OF_BUTTON_ROWS;
