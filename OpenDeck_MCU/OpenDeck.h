@@ -112,6 +112,7 @@ class OpenDeck  {
     //sysex
     bool            sysExEnabled;
     sysExSource     sysExMessageSource;
+    uint32_t        lastSysExMessageTime;
 
     //general
     uint8_t         i;
