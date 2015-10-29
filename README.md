@@ -20,6 +20,7 @@ connect programmer on ICSP pins on board, select the programmer you're using und
 
 ICSP
 RESET  SCK  MISO
+
 GND  MOSI  VCC
 
 
