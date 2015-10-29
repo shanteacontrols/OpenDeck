@@ -1,12 +1,26 @@
 # OpenDeck Platform
 
 OpenDeck MIDI platform is a combination of microcontroller firmware, PCB board and GUI application.
+
+Note: At the moment GUI application is still in design phase.
+
 The platform allows hassle-free building of MIDI controllers and their configuration via MIDI System Exclusive messages,
 without any need of reprogramming the chip.
 
 This repository contains MCU code, part list and schematics (circuit and PCB).
 
 Code base is built upon OpenDeck library, modified Arduino MIDI library 3.2 and Teensyduino. All code is available under GNU GPL v3 licence.
+
+# Compilation
+
+To compile the code, open OpenDeck_MCU.ino with Arduino IDE 1.6.x, select Teensy 2.0 as selected board and set MIDI as USB type. To upload the code,
+connect programmer on ICSP pins on board, select the programmer you're using under Tools/Programmer in Arduino IDE, press shift and click upload.
+
+## ICSP pinout
+
+ICSP
+RESET  SCK  MISO
+GND  MOSI  VCC
 
 
 # Configurable features
@@ -70,9 +84,9 @@ Before attempting to change parameters of OpenDeck controller, a "Hello World" m
 F0 00 53 43 F7
 
 F0 is a SysEx start, 00, 50 and 43 are ID bytes, and F7 is SysEx end. After the controller receives the message, it
-enables full manipulation using SysEx protocol, and responds with the same message, with an extra ACK byte at the end, 0x41:
+enables full manipulation using SysEx protocol, and responds with ID bytes, firmware version and ACK byte at the end (0x41):
 
-F0 00 53 43 41 F7
+F0 00 53 43 00 00 00 41 F7
 
 Each SysEx message (except for hello world) uses the same format:
 
