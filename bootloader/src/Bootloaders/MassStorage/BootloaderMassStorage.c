@@ -150,6 +150,17 @@ int main(void)
 	/* Unlock the forced application start mode of the bootloader if it is restarted */
 	MagicBootKey = MAGIC_BOOT_KEY;
 
+	/* Bootloader active LED toggle timer initialization */
+	TIMSK1 = (1 << TOIE1);
+	TCCR1B = ((1 << CS11) | (1 << CS10));
+
+	/* delay 2 seconds */
+	for (int i=0; i<8; i++)	_delay_ms(250);
+	while (PINE >> 6) {}
+	
+	/* led is now off, disable timer */
+	TIMSK1 = 0;
+	
 	/* Enable the watchdog and force a timeout to reset the AVR */
 	wdt_enable(WDTO_250MS);
 
@@ -174,15 +185,17 @@ static void SetupHardware(void)
 	LEDs_Init();
 	USB_Init();
 
-	/* Bootloader active LED toggle timer initialization */
-	TIMSK1 = (1 << TOIE1);
-	TCCR1B = ((1 << CS11) | (1 << CS10));
+	/* configure opendeck led */
+	DDRE |= 0b01000000; //led output
+	PORTE |= 0b01000000; //led high
+	
 }
 
 /** ISR to periodically toggle the LEDs on the board to indicate that the bootloader is active. */
 ISR(TIMER1_OVF_vect, ISR_BLOCK)
 {
-	LEDs_ToggleLEDs(LEDS_LED1 | LEDS_LED2);
+	if (PINE >> 6) PORTE &= 0b10111111;
+	else PORTE |= 0b01000000;
 }
 
 /** Event handler for the USB_Connect event. This indicates that the device is enumerating via the status LEDs. */
