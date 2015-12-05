@@ -17,10 +17,10 @@ class Analog {
     private:
 
     //variables
-    uint8_t                 analogDebounceCounter[MAX_NUMBER_OF_ANALOG];
+    uint8_t analogDebounceCounter[MAX_NUMBER_OF_ANALOG];
 
-    int16_t                 analogSample[MAX_NUMBER_OF_ANALOG][3+1],
-                            lastAnalogueValue[MAX_NUMBER_OF_ANALOG];
+    int16_t analogSample[MAX_NUMBER_OF_ANALOG][3+1],
+            lastAnalogueValue[MAX_NUMBER_OF_ANALOG];
 
     //data processing
     void checkPotentiometerValue(int16_t tempValue, uint8_t analogID);

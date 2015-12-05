@@ -37,11 +37,11 @@ static const uint8_t PROGMEM endpoint_config_table[] = {
  *
  **************************************************************************/
 
-// Descriptors are the data that your computer reads when it auto-detects
-// this USB device (called "enumeration" in USB lingo).  The most commonly
-// changed items are editable at the top of this file.  Changing things
-// in here should only be done by those who've read chapter 9 of the USB
-// spec and relevant portions of any USB class specifications!
+//Descriptors are the data that your computer reads when it auto-detects
+//this USB device (called "enumeration" in USB lingo).  The most commonly
+//changed items are editable at the top of this file.  Changing things
+//in here should only be done by those who've read chapter 9 of the USB
+//spec and relevant portions of any USB class specifications!
 
 static const uint8_t PROGMEM device_descriptor[] = {
 
@@ -297,13 +297,17 @@ static const struct descriptor_list_struct {
     uint16_t        wIndex;
     const uint8_t   *addr;
     uint8_t         length;
-} PROGMEM descriptor_list[] = {
+}
+
+PROGMEM descriptor_list[] = {
+
     {0x0100, 0x0000, device_descriptor, sizeof(device_descriptor)},
     {0x0200, 0x0000, config1_descriptor, sizeof(config1_descriptor)},
-        {0x2200, DEBUG_INTERFACE, debug_hid_report_desc, sizeof(debug_hid_report_desc)},
-        {0x2100, DEBUG_INTERFACE, config1_descriptor+DEBUG_HID_DESC_OFFSET, 9},
+    {0x2200, DEBUG_INTERFACE, debug_hid_report_desc, sizeof(debug_hid_report_desc)},
+    {0x2100, DEBUG_INTERFACE, config1_descriptor+DEBUG_HID_DESC_OFFSET, 9},
     {0x0300, 0x0000, (const uint8_t *)&string0, 4},
     {0x0301, 0x0409, (const uint8_t *)&string1, sizeof(STR_PRODUCT)},
+
 };
 
 #define NUM_DESC_LIST (sizeof(descriptor_list)/sizeof(struct descriptor_list_struct))
@@ -315,15 +319,13 @@ static const struct descriptor_list_struct {
  *
  **************************************************************************/
 
-// zero when we are not configured, non-zero when enumerated
+//zero when we are not configured, non-zero when enumerated
 volatile uint8_t usb_configuration USBSTATE;
 volatile uint8_t usb_suspended USBSTATE;
 
-// the time remaining before we transmit any partially full
-// packet, or send a zero length packet.
+//the time remaining before we transmit any partially full
+//packet, or send a zero length packet.
 volatile uint8_t debug_flush_timer USBSTATE;
-
-
 
 
 
@@ -333,9 +335,7 @@ volatile uint8_t debug_flush_timer USBSTATE;
  *
  **************************************************************************/
 
-
-
-// initialize USB serial
+//initialize USB
 void usb_init(void) {
 
     uint8_t u;
@@ -367,9 +367,6 @@ void usb_shutdown(void) {
 
 }
 
-
-// Public API functions moved to usb_api.cpp
-
 /**************************************************************************
  *
  *  Private Functions - not intended for general user consumption....
@@ -377,12 +374,10 @@ void usb_shutdown(void) {
  **************************************************************************/
 
 
+//USB Device Interrupt - handle all device-level events
+//the transmit buffer flushing is triggered by the start of frame
+ISR(USB_GEN_vect)   {
 
-// USB Device Interrupt - handle all device-level events
-// the transmit buffer flushing is triggered by the start of frame
-//
-ISR(USB_GEN_vect)
-{
     uint8_t intbits, t;
     intbits = UDINT;
     UDINT = 0;
@@ -397,76 +392,107 @@ ISR(USB_GEN_vect)
         usb_configuration = 0;
 
     }
-        if ((intbits & (1<<SOFI)) && usb_configuration) {
-                t = debug_flush_timer;
-                if (t) {
-                        debug_flush_timer = --t;
-                        if (!t) {
-                                UENUM = DEBUG_TX_ENDPOINT;
-                                while ((UEINTX & (1<<RWAL))) {
-                                        UEDATX = 0;
-                                }
-                                UEINTX = 0x3A;
-                        }
+
+    if ((intbits & (1<<SOFI)) && usb_configuration) {
+
+        t = debug_flush_timer;
+
+        if (t) {
+
+            debug_flush_timer = --t;
+
+            if (!t) {
+
+                UENUM = DEBUG_TX_ENDPOINT;
+
+                while ((UEINTX & (1<<RWAL))) {
+
+                    UEDATX = 0;
+
                 }
-                UENUM = MIDI_TX_ENDPOINT;
-        if (UEBCLX) UEINTX = 0x3A;
+
+                UEINTX = 0x3A;
+
+            }
+
         }
+
+        UENUM = MIDI_TX_ENDPOINT;
+        if (UEBCLX) UEINTX = 0x3A;
+
+    }
+
     if (intbits & (1<<SUSPI)) {
-        // USB Suspend (inactivity for 3ms)
+
+        //USB Suspend (inactivity for 3ms)
         UDIEN = (1<<WAKEUPE);
         usb_configuration = 0;
         usb_suspended = 1;
+
         #if (F_CPU >= 8000000L)
-        // WAKEUPI does not work with USB clock freeze 
-        // when CPU is running less than 8 MHz.
-        // Is this a hardware bug?
-        USB_FREEZE();           // shut off USB
-        PLLCSR = 0;         // shut off PLL
+        //WAKEUPI does not work with USB clock freeze 
+        //when CPU is running less than 8 MHz.
+        //Is this a hardware bug?
+        USB_FREEZE();   //shut off USB
+        PLLCSR = 0;     //shut off PLL
         #endif
-        // to properly meet the USB spec, current must
-        // reduce to less than 2.5 mA, which means using
-        // powerdown mode, but that breaks the Arduino
-        // user's paradigm....
+
+        //to properly meet the USB spec, current must
+        //reduce to less than 2.5 mA, which means using
+        //powerdown mode, but that breaks the Arduino
+        //user's paradigm....
+
     }
+
     if (usb_suspended && (intbits & (1<<WAKEUPI))) {
-        // USB Resume (pretty much any activity)
+
+        //USB Resume (pretty much any activity)
         #if (F_CPU >= 8000000L)
         PLL_CONFIG();
         while (!(PLLCSR & (1<<PLOCK))) ;
         USB_CONFIG();
         #endif
+
         UDIEN = (1<<EORSTE)|(1<<SOFE)|(1<<SUSPE);
         usb_suspended = 0;
+
         return;
+
     }
+
 }
 
 
 // Misc functions to wait for ready and send/receive packets
-static inline void usb_wait_in_ready(void)
-{
+static inline void usb_wait_in_ready(void)  {
+
     while (!(UEINTX & (1<<TXINI))) ;
+
 }
-static inline void usb_send_in(void)
-{
+
+static inline void usb_send_in(void)    {
+
     UEINTX = ~(1<<TXINI);
+
 }
-static inline void usb_wait_receive_out(void)
-{
+
+static inline void usb_wait_receive_out(void)   {
+
     while (!(UEINTX & (1<<RXOUTI))) ;
+
 }
-static inline void usb_ack_out(void)
-{
+
+static inline void usb_ack_out(void)    {
+
     UEINTX = ~(1<<RXOUTI);
+
 }
 
 
 
-// USB Endpoint Interrupt - endpoint 0 is handled here.  The
-// other endpoints are manipulated by the user-callable
-// functions, and the start-of-frame interrupt.
-//
+//USB Endpoint Interrupt - endpoint 0 is handled here.  The
+//other endpoints are manipulated by the user-callable
+//functions, and the start-of-frame interrupt.
 ISR(USB_COM_vect)   {
 
     uint8_t intbits;
