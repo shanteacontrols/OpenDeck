@@ -129,9 +129,9 @@ const uint8_t eepromMIDIchannelArray[] = { EEPROM_MC_NOTE, EEPROM_MC_PROGRAM_CHA
 const uint8_t defConf[] PROGMEM = {
 
     //unique ID bytes
-    UNIQUE_ID, //byte 0                 //000
-    UNIQUE_ID, //byte 1                 //001
-    UNIQUE_ID, //byte 2                 //002
+    UNIQUE_ID, //byte 0                     //000
+    UNIQUE_ID, //byte 1                     //001
+    UNIQUE_ID, //byte 2                     //002
 
     //MIDI channels
     0x01, //button note channel             //003
@@ -1208,4 +1208,5 @@ class EEPROMsettings   {
 };
 
 extern EEPROMsettings eepromSettings;
+
 #endif

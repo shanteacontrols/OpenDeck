@@ -47,6 +47,4 @@ class Analog {
 
 extern Analog analog;
 
-
-
-#endif /* ANALOG_H_ */
+#endif

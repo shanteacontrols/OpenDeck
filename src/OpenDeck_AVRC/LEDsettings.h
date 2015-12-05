@@ -80,5 +80,4 @@ const uint8_t ledTransitionScale[] = {
 
 };
 
-
 #endif

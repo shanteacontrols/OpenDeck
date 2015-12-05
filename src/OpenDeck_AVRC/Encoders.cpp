@@ -83,13 +83,13 @@ void Encoders::init()   {
 
 void Encoders::update()   {
 
-    if (!boardObject.encoderDataAvailable()) return;
+    if (!board.encoderDataAvailable()) return;
 
     for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)    {
 
         if (!getEncoderEnabled(i)) continue;
 
-        encoderPosition encoderState = boardObject.getEncoderState(i);
+        encoderPosition encoderState = board.getEncoderState(i);
         if (encoderState == encStopped) continue;
 
         if (getEncoderInvertState(i))   {

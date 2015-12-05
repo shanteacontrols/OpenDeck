@@ -90,24 +90,19 @@ void Analog::init() {
 
 void Analog::update()   {
 
-    if (!boardObject.analogDataAvailable()) return;
+    if (!board.analogDataAvailable()) return;
 
     int16_t analogData;
 
     //check values
     for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)    {
 
-        analogData = boardObject.getAnalogValue(i); //get raw analog reading
+        analogData = board.getAnalogValue(i); //get raw analog reading
         if (!getAnalogEnabled(i)) continue; //don't process component if it's not enabled
-        //Serial.print("Analog ID ");
-        //Serial.println(i);
-        //Serial.print("Analog value: ");
-        //Serial.println(analogData);
-        //Serial.println();
-        addAnalogSample(i, analogData);  //add current reading to sample array
+        addAnalogSample(i, analogData);
         if (!analogValueSampled(i)) continue;  //three samples are needed
         analogData = getMedianValue(i);  //get median value from three analog samples for better accuracy
-        analogType type = getAnalogType(i);  //get type of current analog component
+        analogType type = getAnalogType(i);
 
         switch(type) {
 
@@ -374,6 +369,5 @@ bool Analog::setAnalogInvertState(uint8_t analogID, uint8_t state) {
     return (analogInvertedArray == eeprom_read_byte((uint8_t*)address));
 
 }
-
 
 Analog analog;

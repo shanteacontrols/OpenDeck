@@ -65,6 +65,6 @@ class Board {
 
 };
 
-extern Board boardObject;
+extern Board board;
 
 #endif

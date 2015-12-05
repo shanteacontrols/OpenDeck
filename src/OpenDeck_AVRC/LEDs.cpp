@@ -105,7 +105,7 @@ void LEDs::init()   {
 
 void LEDs::getConfiguration()   {
 
-    boardObject.setLEDblinkTime(eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_BLINK_TIME)*100);
+    board.setLEDblinkTime(eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_BLINK_TIME)*100);
 
 }
 
@@ -214,7 +214,7 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
         if (!ledDirection)  {
 
             //if last LED is turned on
-            if (boardObject.getLEDstate(_ledNumber[totalNumberOfLEDs-1]))  {
+            if (board.getLEDstate(_ledNumber[totalNumberOfLEDs-1]))  {
 
                 //LED index is penultimate LED number
                 ledNumber = _ledNumber[totalNumberOfLEDs-2];
@@ -226,7 +226,7 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
         }   else //left-to-right direction
 
                 //if first LED is already on
-                if (boardObject.getLEDstate(_ledNumber[0]))    {
+                if (board.getLEDstate(_ledNumber[0]))    {
 
                 //led index is 1
                 ledNumber = _ledNumber[1];
@@ -244,7 +244,7 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
                     //right-to-left direction
                     if (!ledDirection)  {
 
-                        if (!(boardObject.getLEDstate(_ledNumber[totalNumberOfLEDs-1])))   {
+                        if (!(board.getLEDstate(_ledNumber[totalNumberOfLEDs-1])))   {
 
                             ledNumber = _ledNumber[totalNumberOfLEDs-2];
                             passCounter++;
@@ -253,7 +253,7 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 
                     }   else
 
-                            if (!(boardObject.getLEDstate(_ledNumber[0]))) {   //left-to-right direction
+                            if (!(board.getLEDstate(_ledNumber[0]))) {   //left-to-right direction
 
                                 ledNumber = _ledNumber[1];
                                 passCounter++;
@@ -275,8 +275,8 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
             else    if (!turnOn && singleLED)   allLEDsOn();
 
             //set LED state depending on turnOn parameter
-            if (turnOn) boardObject.setLEDstate(ledNumber, ledOn);
-            else    boardObject.setLEDstate(ledNumber, ledOff);
+            if (turnOn) board.setLEDstate(ledNumber, ledOn);
+            else    board.setLEDstate(ledNumber, ledOff);
 
             //make sure out-of-bound index isn't requested from ledArray
             if (passCounter < totalNumberOfLEDs-1)  {
@@ -329,29 +329,29 @@ void LEDs::noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity)    {
 void LEDs::allLEDsOn()  {
 
     //turn on all LEDs
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    boardObject.setLEDstate(i, ledOn);
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    board.setLEDstate(i, ledOn);
 
 }
 
 void LEDs::allLEDsOff() {
 
     //turn off all LEDs
-    for (int i=0; i<(NUMBER_OF_LED_COLUMNS*NUMBER_OF_LED_ROWS); i++)    boardObject.setLEDstate(i, ledOff);
+    for (int i=0; i<(NUMBER_OF_LED_COLUMNS*NUMBER_OF_LED_ROWS); i++)    board.setLEDstate(i, ledOff);
 
 }
 
 void LEDs::allLEDsBlink()   {
 
     //turn on all LEDs
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    boardObject.setLEDstate(i, ledBlinkOff);
-    boardObject.ledBlinkingStart();
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    board.setLEDstate(i, ledBlinkOff);
+    board.ledBlinkingStart();
 
 }
 
 bool LEDs::checkLEDsOn()    {
 
     //return true if all LEDs are on
-    for (int i=0; i<(NUMBER_OF_LED_COLUMNS*NUMBER_OF_LED_ROWS); i++)    if (boardObject.getLEDstate(i))   return false;
+    for (int i=0; i<(NUMBER_OF_LED_COLUMNS*NUMBER_OF_LED_ROWS); i++)    if (board.getLEDstate(i))   return false;
     return true;
 
 }
@@ -359,7 +359,7 @@ bool LEDs::checkLEDsOn()    {
 bool LEDs::checkLEDsOff()   {
 
     //return true if all LEDs are off
-    for (int i=0; i<(NUMBER_OF_LED_COLUMNS*NUMBER_OF_LED_ROWS); i++)    if (!boardObject.getLEDstate(i))   return false;
+    for (int i=0; i<(NUMBER_OF_LED_COLUMNS*NUMBER_OF_LED_ROWS); i++)    if (!board.getLEDstate(i))   return false;
     return true;
 
 }
@@ -424,7 +424,7 @@ void LEDs::handleLED(bool newLEDstate, bool blinkMode, uint8_t ledNumber) {
     //if (blinkMode && (!(bitRead(ledFeatures, SYS_EX_FEATURES_LEDS_BLINK))))
         //return;
 
-    uint8_t state = boardObject.getLEDstate(ledNumber);
+    uint8_t state = board.getLEDstate(ledNumber);
 
     switch (newLEDstate) {
 
@@ -466,8 +466,8 @@ void LEDs::handleLED(bool newLEDstate, bool blinkMode, uint8_t ledNumber) {
 
     }
 
-    boardObject.setLEDstate(ledNumber, state);
-    if (blinkMode && newLEDstate)   boardObject.ledBlinkingStart();
+    board.setLEDstate(ledNumber, state);
+    if (blinkMode && newLEDstate)   board.ledBlinkingStart();
     else    checkBlinkLEDs();
 
 }
@@ -485,7 +485,7 @@ void LEDs::checkBlinkLEDs() {
     //if any LED is blinking, set timerState to true and exit the loop
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    {
 
-        ledState = boardObject.getLEDstate(i);
+        ledState = board.getLEDstate(i);
 
         if (bitRead(ledState, LED_BLINK_ON_BIT)) {
 
@@ -496,13 +496,13 @@ void LEDs::checkBlinkLEDs() {
 
     }
 
-    if (_blinkEnabled)  boardObject.ledBlinkingStart();
+    if (_blinkEnabled)  board.ledBlinkingStart();
 
     //don't bother reseting variables if blinking is already disabled
-    else    if (!_blinkEnabled && boardObject.ledBlinkingActive()) {
+    else    if (!_blinkEnabled && board.ledBlinkingActive()) {
 
         //reset blinkState to default value
-        boardObject.ledBlinkingStop();
+        board.ledBlinkingStop();
 
     }
 
@@ -525,8 +525,8 @@ bool LEDs::setLEDHwParameter(uint8_t parameter, uint8_t newParameter) {
         //blink time
         address = EEPROM_LEDS_HW_P_BLINK_TIME;
         if (newParameter == RESET_VALUE) newParameter = pgm_read_byte(&(defConf[address]));
-        boardObject.resetLEDblinkCounter();
-        boardObject.setLEDblinkTime(newParameter*100);
+        board.resetLEDblinkCounter();
+        board.setLEDblinkTime(newParameter*100);
         eeprom_update_byte((uint8_t*)address, newParameter);
         return (eeprom_read_byte((uint8_t*)address) == newParameter);
         break;
@@ -551,11 +551,11 @@ bool LEDs::setLEDHwParameter(uint8_t parameter, uint8_t newParameter) {
         //pwm fade speed
         address = EEPROM_LEDS_HW_P_FADE_SPEED;
         if (newParameter == RESET_VALUE) newParameter = pgm_read_byte(&(defConf[address]));
-        boardObject.resetLEDtransitions();
+        board.resetLEDtransitions();
         eeprom_update_byte((uint8_t*)address, newParameter);
         if (eeprom_read_byte((uint8_t*)address) == newParameter) {
 
-            boardObject.setLEDTransitionSpeed(newParameter);
+            board.setLEDTransitionSpeed(newParameter);
             return true;
 
         } return false;
@@ -616,7 +616,7 @@ uint8_t LEDs::getParameter(uint8_t messageType, uint8_t parameter)   {
         break;
 
         case ledsStateConf:
-        return boardObject.getLEDstate(parameter);
+        return board.getLEDstate(parameter);
         break;
 
         default:

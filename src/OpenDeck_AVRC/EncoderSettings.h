@@ -1,7 +1,6 @@
 #ifndef ENCODERSETTINGS_H_
 #define ENCODERSETTINGS_H_
 
-
 #define PULSES_PER_STEP         4
 
 /*
@@ -25,4 +24,4 @@
 
 #define ENCODER_DEFAULT_PULSE_COUNT_STATE   8
 
-#endif /* ENCODERSETTINGS_H_ */
+#endif

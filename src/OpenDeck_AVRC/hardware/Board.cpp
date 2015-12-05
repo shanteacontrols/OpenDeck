@@ -815,4 +815,4 @@ bool Board::getButtonState(uint8_t buttonIndex) {
 
 }
 
-Board boardObject;
+Board board;

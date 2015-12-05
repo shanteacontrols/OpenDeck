@@ -194,11 +194,11 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)    {
 
 void Buttons::update()    {
 
-    if (!boardObject.buttonDataAvailable()) return;
+    if (!board.buttonDataAvailable()) return;
 
     for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++) {
 
-        uint8_t buttonState = boardObject.getButtonState(i);
+        uint8_t buttonState = board.getButtonState(i);
 
         if (buttonDebounced(i, buttonState))  {
 
