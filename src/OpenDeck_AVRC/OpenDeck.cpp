@@ -1,12 +1,10 @@
 /*
-
     OpenDeck MIDI platform firmware
     https://shanteacontrols.wordpress.com
     Copyright (c) 2015 Igor Petrovic
     Version: 1.0
 
     Released under GPLv3.
-
 */
 
 #include "hardware/Board.h"
