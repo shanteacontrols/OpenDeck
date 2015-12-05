@@ -338,6 +338,7 @@ volatile uint8_t debug_flush_timer USBSTATE;
 //initialize USB
 void usb_init(void) {
 
+    cli();
     uint8_t u;
 
     u = USBCON;
@@ -353,6 +354,7 @@ void usb_init(void) {
     debug_flush_timer = 0;
     UDINT = 0;
     UDIEN = (1<<EORSTE)|(1<<SOFE);
+    sei();
 
 }
 
