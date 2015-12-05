@@ -92,9 +92,9 @@ extern volatile uint8_t usb_configuration;
 extern volatile uint8_t usb_suspended;
 extern volatile uint8_t debug_flush_timer;
 
-
 #ifdef __cplusplus
 } // extern "C"
 #endif
+
 
 #endif

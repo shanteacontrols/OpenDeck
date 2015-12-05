@@ -1,4 +1,5 @@
-/* USB API for Teensy USB Development Board
+/*
+ * USB API for Teensy USB Development Board
  * http://www.pjrc.com/teensy/teensyduino.html
  * Copyright (c) 2008 PJRC.COM, LLC
  * 

@@ -35,5 +35,4 @@ class MIDI {
 
 extern MIDI midi;
 
-
-#endif /* MIDIHELPER_H_ */
+#endif

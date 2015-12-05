@@ -22,7 +22,7 @@
 void onReboot()  {
 
     //turn off all leds slowly before reseting
-    boardObject.setLEDTransitionSpeed(1);
+    board.setLEDTransitionSpeed(1);
     leds.allLEDsOff();
     //make sure all leds are off
     wait(1000);
@@ -140,7 +140,7 @@ void setup()    {
     midi.setHandleSysEx(onSysEx);
     midi.setHandleNote(onNote);
 
-    boardObject.init();
+    board.init();
     midi.init();
     buttons.init();
     leds.init();
@@ -152,7 +152,7 @@ void setup()    {
 int main()  {
 
     setup();
-    while(1) { midi.checkInput(); buttons.update(); analog.update(); encoders.update();}
+    while(1) { midi.checkInput(); buttons.update(); analog.update(); encoders.update(); }
 
     return 0;
 

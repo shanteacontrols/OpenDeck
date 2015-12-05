@@ -785,7 +785,6 @@ void MIDI_Class::launchCallback()   {
 
 }
 
-
 #endif // USE_CALLBACKS
 
 #endif // COMPILE_MIDI_IN
