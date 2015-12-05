@@ -26,94 +26,85 @@
 #define USBserial_h_
 
 #include <inttypes.h>
-
-#define USB_MIDI_SYSEX_MAX          80  //maximum sysex length we can receive
-
-enum USBmiditype {
-
-    USBmidiNoteOff,
-    USBmidiNoteOn,
-    USBmidiAfterTouchPoly,
-    USBmidiControlChange,
-    USBmidiProgramChange,
-    USBmidiAfterTouchChannel,
-    USBmidiHwMIDIpitchBend,
-    USBmidiSystemExclusive
-
-};
-
+#include "..\Types.h"
+#include "..\midi\MIDIsettings.h"
 
 class usb_midi_class    {
 
-public:
+    public:
     void begin(uint8_t channel);
     void sendNoteOff(uint8_t note, uint8_t velocity, uint8_t channel);
     void sendNoteOn(uint8_t note, uint8_t velocity, uint8_t channel);
-    void sendPolyPressure(uint8_t note, uint8_t pressure, uint8_t channel);
     void sendControlChange(uint8_t control, uint8_t value, uint8_t channel);
     void sendProgramChange(uint8_t program, uint8_t channel);
     void sendAfterTouch(uint8_t pressure, uint8_t channel);
-    void sendHwMIDIpitchBend(uint16_t value, uint8_t channel);
+    void sendPitchBend(uint16_t value, uint8_t channel);
     void sendSysEx(uint8_t length, const uint8_t *data);
     void send_now(void);
     bool read();
+
     inline uint8_t getType(void) {
         return msg_type;
     };
+
     inline uint8_t getChannel(void) {
         return msg_channel;
     };
+
     inline uint8_t getData1(void) {
         return msg_data1;
     };
+
     inline uint8_t getData2(void) {
         return msg_data2;
     };
+
     inline uint8_t * getSysExArray(void) {
         return msg_sysex;
     };
+
     inline void setHandleNoteOff(void (*fptr)(uint8_t channel, uint8_t note, uint8_t velocity)) {
         handleNoteOff = fptr;
     };
+
     inline void setHandleNoteOn(void (*fptr)(uint8_t channel, uint8_t note, uint8_t velocity)) {
         handleNoteOn = fptr;
     };
-    inline void setHandleVelocityChange(void (*fptr)(uint8_t channel, uint8_t note, uint8_t velocity)) {
-        handleVelocityChange = fptr;
-    };
+
     inline void setHandleControlChange(void (*fptr)(uint8_t channel, uint8_t control, uint8_t value)) {
         handleControlChange = fptr;
     };
+
     inline void setHandleProgramChange(void (*fptr)(uint8_t channel, uint8_t program)) {
         handleProgramChange = fptr;
     };
+
     inline void setHandleAfterTouch(void (*fptr)(uint8_t channel, uint8_t pressure)) {
         handleAfterTouch = fptr;
     };
+
     inline void setHandlePitchChange(void (*fptr)(uint8_t channel, int pitch)) {
         handlePitchChange = fptr;
     };
-    inline void setHandleRealTimeSystem(void (*fptr)(uint8_t realtimebyte)) {
-        handleRealTimeSystem = fptr;
-    };
-private:
-    void send_raw(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3);
-    void read_sysex_byte(uint8_t b);
+
+    private:
     uint8_t inChannel;
     uint8_t msg_channel;
     uint8_t msg_type;
     uint8_t msg_data1;
     uint8_t msg_data2;
-    uint8_t msg_sysex[USB_MIDI_SYSEX_MAX];
+    uint8_t msg_sysex[MIDI_SYSEX_ARRAY_SIZE];
     uint8_t msg_sysex_len;
+
+    void send_raw(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3);
+    void read_sysex_byte(uint8_t b);
     void (*handleNoteOff)(uint8_t ch, uint8_t note, uint8_t vel);
     void (*handleNoteOn)(uint8_t ch, uint8_t note, uint8_t vel);
-    void (*handleVelocityChange)(uint8_t ch, uint8_t note, uint8_t vel);
     void (*handleControlChange)(uint8_t ch, uint8_t, uint8_t);
     void (*handleProgramChange)(uint8_t ch, uint8_t);
     void (*handleAfterTouch)(uint8_t ch, uint8_t);
     void (*handlePitchChange)(uint8_t ch, int pitch);
-    void (*handleRealTimeSystem)(uint8_t rtb);
+
 };
 
 extern usb_midi_class usbMIDI;

@@ -107,4 +107,18 @@ enum ccLimitType {
 
 };
 
+
+enum midiMessageType {
+
+    midiMessageNoteOff           = 0x80, //Note Off
+    midiMessageNoteOn            = 0x90, //Note On
+    midiMessageControlChange     = 0xB0, //Control Change / Channel Mode
+    midiMessageProgramChange     = 0xC0, //Program Change
+    midiMessageAfterTouchChannel = 0xD0, //Channel (monophonic) AfterTouch
+    midiMessagePitchBend         = 0xE0, //Pitch Bend
+    midiMessageSystemExclusive   = 0xF0, //System Exclusive
+    midiMessageInvalidType       = 0x00  //For notifying errors
+
+};
+
 #endif

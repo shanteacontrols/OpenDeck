@@ -145,13 +145,13 @@ void MIDI::checkInput()   {
 
         switch(messageType) {
 
-            case USBmidiSystemExclusive:
+            case midiMessageSystemExclusive:
             sendSysExCallback(usbMIDI.getSysExArray(), usbMIDI.getData1());
             lastSysExMessageTime = rTimeMillis();
             break;
 
-            case USBmidiNoteOff:
-            case USBmidiNoteOn:
+            case midiMessageNoteOff:
+            case midiMessageNoteOn:
             sendNoteCallback(usbMIDI.getData1(), usbMIDI.getData2());
             break;
 
@@ -167,12 +167,12 @@ void MIDI::checkInput()   {
 
         switch(messageType) {
 
-            case HwMIDInoteOff:
-            case HwMIDInoteOn:
+            case midiMessageNoteOff:
+            case midiMessageNoteOn:
             sendNoteCallback(hwMIDI.getData1(), hwMIDI.getData2());
             break;
 
-            case HwMIDIsystemExclusive:
+            case midiMessageSystemExclusive:
             sendSysExCallback(hwMIDI.getSysExArray(), hwMIDI.getSysExArrayLength());
             break;
 

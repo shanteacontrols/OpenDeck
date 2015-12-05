@@ -28,6 +28,7 @@
 #include "usb_common.h"
 #include "usb_private.h"
 #include "USBmidi.h"
+#include "CIN.h"
 
 void usb_midi_class::begin(uint8_t channel) {
 
@@ -38,60 +39,54 @@ void usb_midi_class::begin(uint8_t channel) {
 
 void usb_midi_class::sendNoteOff(uint8_t note, uint8_t velocity, uint8_t channel)   {
 
-    send_raw(0x08, 0x80 | ((channel - 1) & 0x0F), note & 0x7F, velocity & 0x7F);
+    send_raw(CIN_NOTE_OFF, midiMessageNoteOff | normalizeChannel(channel), normalizeData(note), normalizeData(velocity));
 
 }
 
 void usb_midi_class::sendNoteOn(uint8_t note, uint8_t velocity, uint8_t channel)    {
 
-    send_raw(0x09, 0x90 | ((channel - 1) & 0x0F), note & 0x7F, velocity & 0x7F);
-
-}
-
-void usb_midi_class::sendPolyPressure(uint8_t note, uint8_t pressure, uint8_t channel)  {
-
-    send_raw(0x0A, 0xA0 | ((channel - 1) & 0x0F), note & 0x7F, pressure & 0x7F);
+    send_raw(CIN_NOTE_ON, midiMessageNoteOn | normalizeChannel(channel), normalizeData(note), normalizeData(velocity));
 
 }
 
 void usb_midi_class::sendControlChange(uint8_t control, uint8_t value, uint8_t channel) {
 
-    send_raw(0x0B, 0xB0 | ((channel - 1) & 0x0F), control & 0x7F, value & 0x7F);
+    send_raw(CIN_CONTROL_CHANGE, midiMessageControlChange | normalizeChannel(channel), normalizeData(control), normalizeData(value));
 
 }
 
 void usb_midi_class::sendProgramChange(uint8_t program, uint8_t channel)    {
 
-    send_raw(0x0C, 0xC0 | ((channel - 1) & 0x0F), program & 0x7F, 0);
+    send_raw(CIN_PROGRAM_CHANGE, midiMessageProgramChange | normalizeChannel(channel), normalizeData(program), 0);
 
 }
 
 void usb_midi_class::sendAfterTouch(uint8_t pressure, uint8_t channel)  {
 
-    send_raw(0x0D, 0xD0 | ((channel - 1) & 0x0F), pressure & 0x7F, 0);
+    send_raw(CIN_AFTERTOUCH, midiMessageAfterTouchChannel | normalizeChannel(channel), normalizeData(pressure), 0);
 
 }
 
-void usb_midi_class::sendHwMIDIpitchBend(uint16_t value, uint8_t channel)   {
+void usb_midi_class::sendPitchBend(uint16_t value, uint8_t channel)   {
 
-    send_raw(0x0E, 0xE0 | ((channel - 1) & 0x0F), value & 0x7F, (value >> 7) & 0x7F);
+    send_raw(CIN_PITCH_BEND, midiMessagePitchBend | normalizeChannel(channel), normalizeData(value), normalizeData(value >> 7));
 
 }
 
 void usb_midi_class::sendSysEx(uint8_t length, const uint8_t *data) {
 
-    // TODO: MIDI 2.5 lib automatically adds start and stop bytes
+    //TODO: MIDI 2.5 lib automatically adds start and stop bytes
     while (length > 3) {
 
-        send_raw(0x04, data[0], data[1], data[2]);
+        send_raw(CIN_SYSEX_START, data[0], data[1], data[2]);
         data += 3;
         length -= 3;
 
     }
 
-    if (length == 3)        send_raw(0x07, data[0], data[1], data[2]);
-    else if (length == 2)   send_raw(0x06, data[0], data[1], 0);
-    else if (length == 1)   send_raw(0x05, data[0], 0, 0);
+    if (length == 3)        send_raw(CIN_SYSEX_STOP_3BYTE, data[0], data[1], data[2]);
+    else if (length == 2)   send_raw(CIN_SYSEX_STOP_2BYTE, data[0], data[1], 0);
+    else if (length == 1)   send_raw(CIN_SYSEX_STOP_1BYTE, data[0], 0, 0);
 
 }
 
@@ -199,70 +194,63 @@ bool usb_midi_class::read() {
 
         }
 
-        if (type1 == 0x08 && type2 == 0x80) {
+        if (type1 == 0x08 && type2 == midiMessageNoteOff) {
 
-            msg_type = 0;               //Note off
+            //note off
+            msg_type = midiMessageNoteOff;
             if (handleNoteOff) (*handleNoteOff)(c, b2, b3);
 
             goto return_message;
 
         }
 
-        if (type1 == 0x09 && type2 == 0x90) {
+        if (type1 == 0x09 && type2 == midiMessageNoteOn) {
 
-            if (b3) {
-
-                msg_type = 1;           //Note on
-                if (handleNoteOn) (*handleNoteOn)(c, b2, b3);
-
-            } else {
-
-                msg_type = 0;           //Note off
-                if (handleNoteOff) (*handleNoteOff)(c, b2, b3);
-
-            }
+            //note on
+            msg_type = midiMessageNoteOn;
+            if (handleNoteOn) (*handleNoteOn)(c, b2, b3);
 
             goto return_message;
 
         }
 
-        if (type1 == 0x0A && type2 == 0xA0) {
+        if (type1 == 0x0B && type2 == midiMessageControlChange) {
 
-            msg_type = 2;               //Poly Pressure
-            if (handleVelocityChange) (*handleVelocityChange)(c, b2, b3);
-            goto return_message;
-
-        }
-
-        if (type1 == 0x0B && type2 == 0xB0) {
-
-            msg_type = 3;               //Control Change
+            //control change
+            msg_type = midiMessageControlChange;
             if (handleControlChange) (*handleControlChange)(c, b2, b3);
+
             goto return_message;
 
         }
 
-        if (type1 == 0x0C && type2 == 0xC0) {
+        if (type1 == 0x0C && type2 == midiMessageProgramChange) {
 
-            msg_type = 4;               //Program Change
+            //program change
+            msg_type = midiMessageProgramChange;
             if (handleProgramChange) (*handleProgramChange)(c, b2);
+
             goto return_message;
 
         }
 
-        if (type1 == 0x0D && type2 == 0xD0) {
+        if (type1 == 0x0D && type2 == midiMessageAfterTouchChannel) {
 
-            msg_type = 5;               //After Touch
+            //aftertouch
+            msg_type = midiMessageAfterTouchChannel;
             if (handleAfterTouch) (*handleAfterTouch)(c, b2);
+
             goto return_message;
 
         }
 
-        if (type1 == 0x0E && type2 == 0xE0) {
+        if (type1 == 0x0E && type2 == midiMessagePitchBend) {
 
-            msg_type = 6;               //Pitch Bend
+            //pitch bend
+            msg_type = midiMessagePitchBend;
             if (handlePitchChange) (*handlePitchChange)(c,
                 (b2 & 0x7F) | ((b3 & 0x7F) << 7));
+
             goto return_message;
 
         }
@@ -295,15 +283,16 @@ bool usb_midi_class::read() {
         if (type1 == 0x07) read_sysex_byte(b3);
         msg_data1 = msg_sysex_len;
         msg_sysex_len = 0;
-        msg_type = 7;
+        msg_type = midiMessageSystemExclusive;
         return true;
 
     }
 
-    if (type1 == 0x0F) {
+    if (type1 == midiMessageSystemExclusive) {
 
         //TODO: does this need to be a full MIDI parser?
         //What software actually uses this message type in practice?
+        //opendeck does!
 
         if (msg_sysex_len > 0) {
 
@@ -311,14 +300,6 @@ bool usb_midi_class::read() {
             //OSX sometimes uses Single Byte Unparsed to
             //send bytes in the middle of a SYSEX message.
             read_sysex_byte(b1);
-
-        } else {
-
-            //From Sebastian Tomczak, seb.tomczak at gmail.com
-            //http://little-scale.blogspot.com/2011/08/usb-midi-game-boy-sync-for-16.html
-            msg_type = 8;
-            if (handleRealTimeSystem) (*handleRealTimeSystem)(b1);
-            goto return_message;
 
         }
 
@@ -330,7 +311,7 @@ bool usb_midi_class::read() {
 
 void usb_midi_class::read_sysex_byte(uint8_t b) {
 
-    if (msg_sysex_len < USB_MIDI_SYSEX_MAX)
+    if (msg_sysex_len < MIDI_SYSEX_ARRAY_SIZE)
         msg_sysex[msg_sysex_len++] = b;
 
 }
