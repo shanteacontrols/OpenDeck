@@ -4,7 +4,7 @@
 #include <inttypes.h>
 #include "..\hardware/uart/UART.h"
 
-/*  
+/*
     ###############################################################
     #                                                             #
     #    CONFIGURATION AREA                                       #
@@ -43,7 +43,7 @@ typedef uint8_t byte;
 typedef uint16_t word;
 
 /*! Enumeration of MIDI types */
-enum kMIDIType {
+enum HwMIDItype {
 
     HwMIDInoteOff               = 0x80,   //Note Off
     HwMIDInoteOn                = 0x90,   //Note On
@@ -67,7 +67,7 @@ struct midimsg  {
     byte channel; 
 
     /*! The type of the message (see the define section for types reference) */
-    kMIDIType type;
+    HwMIDItype type;
 
     /*! The first data byte.\n Value goes from 0 to 127.\n */
     byte data1;
@@ -107,13 +107,13 @@ public:
     void sendProgramChange(byte ProgramNumber,byte Channel);
     void sendHwMIDIpitchBend(uint16_t PitchValue, byte Channel);
     void sendSysEx(int length, const byte *const array,bool ArrayContainsBoundaries = false);   
-    void sendRealTime(kMIDIType Type);
+    void sendRealTime(HwMIDItype Type);
 
-    void send(kMIDIType type, byte param1, byte param2, byte channel);
+    void send(HwMIDItype type, byte param1, byte param2, byte channel);
 
 private:
 
-    const byte  genstatus(const kMIDIType inType,const byte inChannel) const;
+    const byte  genstatus(const HwMIDItype inType,const byte inChannel) const;
 
 #endif  // COMPILE_MIDI_OUT
 
@@ -126,7 +126,7 @@ public:
     bool read(const byte Channel);
 
     // Getters
-    kMIDIType getType() const;
+    HwMIDItype getType() const;
     byte getChannel() const;
     byte getData1() const;
     byte getData2() const;
@@ -147,7 +147,7 @@ public:
 
      This is a utility static method, used internally, made public so you can handle kMIDITypes more easily.
      */
-    static inline const kMIDIType getTypeFromStatusByte(const byte inStatus)    {
+    static inline const HwMIDItype getTypeFromStatusByte(const byte inStatus)    {
 
         if (
             (inStatus < 0x80)   ||
@@ -157,8 +157,8 @@ public:
             (inStatus == 0xFD)
            )    return HwMIDIinvalidType;                 //data bytes and undefined
 
-        if (inStatus < 0xF0)    return (kMIDIType)(inStatus & 0xF0);    //channel message, remove channel nibble
-        else                    return (kMIDIType)(inStatus);
+        if (inStatus < 0xF0)    return (HwMIDItype)(inStatus & 0xF0);    //channel message, remove channel nibble
+        else                    return (HwMIDItype)(inStatus);
 
     }
 

@@ -69,7 +69,7 @@ void MIDI_Class::begin(uint8_t inChannel)    {
 #if COMPILE_MIDI_OUT
 
 // Private method for generating a status byte from channel and type
-const byte MIDI_Class::genstatus(const kMIDIType inType,
+const byte MIDI_Class::genstatus(const HwMIDItype inType,
                                  const byte inChannel) const    {
 
     return ((byte)inType | ((inChannel-1) & 0x0F));
@@ -85,7 +85,7 @@ const byte MIDI_Class::genstatus(const kMIDIType inType,
  
  This is an internal method, use it only if you need to send raw data from your code, at your own risks.
  */
-void MIDI_Class::send(kMIDIType type,
+void MIDI_Class::send(HwMIDItype type,
                       byte data1,
                       byte data2,
                       byte channel) {
@@ -216,9 +216,9 @@ void MIDI_Class::sendSysEx(int length,
  
  \param Type The available Real Time types are: HwMIDIstart, HwMIDIstop, HwMIDIcontinue, HwMIDIclock, ActiveSensing and SystemReset.
  You can also send a Tune Request with this method.
- @see kMIDIType
+ @see HwMIDItype
  */
-void MIDI_Class::sendRealTime(kMIDIType Type)   {
+void MIDI_Class::sendRealTime(HwMIDItype Type)   {
 
     switch (Type) {
 
@@ -420,7 +420,7 @@ bool MIDI_Class::parse(byte inChannel)  {
                     This is done by leaving the pending message as is, it will be completed on next calls.
                     */
 
-                    mMessage.type = (kMIDIType)extracted;
+                    mMessage.type = (HwMIDItype)extracted;
                     mMessage.data1 = 0;
                     mMessage.data2 = 0;
                     mMessage.channel = 0;
@@ -574,9 +574,9 @@ void MIDI_Class::reset_input_attributes()   {
 // Getters
 /*! \brief Get the last received message's type
  
- Returns an enumerated type. @see kMIDIType
+ Returns an enumerated type. @see HwMIDItype
  */
-kMIDIType MIDI_Class::getType() const   {
+HwMIDItype MIDI_Class::getType() const   {
 
     return mMessage.type;
 

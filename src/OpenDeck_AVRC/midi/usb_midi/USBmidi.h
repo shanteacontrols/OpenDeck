@@ -29,14 +29,18 @@
 
 #define USB_MIDI_SYSEX_MAX          80  //maximum sysex length we can receive
 
-#define USBmidiNoteOff              0
-#define USBmidiNoteOn               1
-#define USBmidiAfterTouchPoly       2
-#define USBmidiControlChange        3
-#define USBmidiProgramChange        4
-#define USBmidiAfterTouchChannel    5
-#define USBmidiHwMIDIpitchBend      6
-#define USBmidiSystemExclusive      7
+enum USBmiditype {
+
+    USBmidiNoteOff,
+    USBmidiNoteOn,
+    USBmidiAfterTouchPoly,
+    USBmidiControlChange,
+    USBmidiProgramChange,
+    USBmidiAfterTouchChannel,
+    USBmidiHwMIDIpitchBend,
+    USBmidiSystemExclusive
+
+};
 
 
 class usb_midi_class    {
