@@ -38,27 +38,25 @@ extern "C"{
  *
  **************************************************************************/
 
-// These buffer sizes are best for most applications, but perhaps if you
-// want more buffering on some endpoint at the expense of others, this
-// is where you can make such changes.  The AT90USB162 has only 176 bytes
-// of DPRAM (USB buffers) and only endpoints 3 & 4 can double buffer.
+//These buffer sizes are best for most applications, but perhaps if you
+//want more buffering on some endpoint at the expense of others, this
+//is where you can make such changes.  The AT90USB162 has only 176 bytes
+//of DPRAM (USB buffers) and only endpoints 3 & 4 can double buffer.
 
 
-// 0: control
-// 1: debug IN
-// 2: debug OUT
-// 3: midi IN
-// 4: midi OUT
+//0: control
+//1: debug IN
+//2: debug OUT
+//3: midi IN
+//4: midi OUT
 
-#if defined(__AVR_ATmega32U4__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB1286__)
+//Some operating systems, especially Windows, may cache USB device
+//info.  Changes to the device name may not update on the same
+//computer unless the vendor or product ID numbers change, or the
+//"bcdDevice" revision code is increased.
 
-// Some operating systems, especially Windows, may cache USB device
-// info.  Changes to the device name may not update on the same
-// computer unless the vendor or product ID numbers change, or the
-// "bcdDevice" revision code is increased.
-
-#define STR_PRODUCT             L"OpenDeck"
-#define ENDPOINT0_SIZE          64
+#define STR_PRODUCT         L"OpenDeck"
+#define ENDPOINT0_SIZE      64
 
 #define DEBUG_INTERFACE     1
 #define DEBUG_TX_ENDPOINT   1
@@ -81,8 +79,6 @@ extern "C"{
 #define NUM_ENDPOINTS       5
 #define NUM_INTERFACE       2
 
-#endif
-
 // setup
 void usb_init(void);            //initialize everything
 void usb_shutdown(void);        //shut off USB
@@ -95,6 +91,5 @@ extern volatile uint8_t debug_flush_timer;
 #ifdef __cplusplus
 } // extern "C"
 #endif
-
 
 #endif
