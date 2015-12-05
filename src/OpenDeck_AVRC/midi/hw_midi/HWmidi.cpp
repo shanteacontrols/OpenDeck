@@ -10,7 +10,6 @@
 
 /*
     Modified by Igor Petrovic
-    Last revision date: 2015-12-04
 */
 
 #include "HWmidi.h"
@@ -30,13 +29,8 @@ MIDI_Class::MIDI_Class()    {
     mNoteOnCallback             = NULL;
     mControlChangeCallback      = NULL;
     mProgramChangeCallback      = NULL;
-    mHwMIDIpitchBendCallback          = NULL;
+    mPitchBendCallback          = NULL;
     mSystemExclusiveCallback    = NULL;
-    mClockCallback              = NULL;
-    mStartCallback              = NULL;
-    mContinueCallback           = NULL;
-    mStopCallback               = NULL;
-
 #endif
 
 }
@@ -49,12 +43,12 @@ void MIDI_Class::begin(uint8_t inChannel)    {
 #if COMPILE_MIDI_IN
 
     mInputChannel = inChannel;
-    mRunningStatus_RX = HwMIDIinvalidType;
+    mRunningStatus_RX = midiMessageInvalidType;
     mPendingMessageIndex = 0;
     mPendingMessageExpectedLenght = 0;
 
     mMessage.valid = false;
-    mMessage.type = HwMIDIinvalidType;
+    mMessage.type = midiMessageInvalidType;
     mMessage.channel = 0;
     mMessage.data1 = 0;
     mMessage.data2 = 0;
@@ -69,10 +63,10 @@ void MIDI_Class::begin(uint8_t inChannel)    {
 #if COMPILE_MIDI_OUT
 
 // Private method for generating a status byte from channel and type
-const byte MIDI_Class::genstatus(const HwMIDItype inType,
+const byte MIDI_Class::genstatus(const midiMessageType inType,
                                  const byte inChannel) const    {
 
-    return ((byte)inType | ((inChannel-1) & 0x0F));
+    return ((byte)inType | ((inChannel-1) & MAX_MIDI_CHANNEL_MASK));
 
 }
 
@@ -85,23 +79,23 @@ const byte MIDI_Class::genstatus(const HwMIDItype inType,
  
  This is an internal method, use it only if you need to send raw data from your code, at your own risks.
  */
-void MIDI_Class::send(HwMIDItype type,
+void MIDI_Class::send(midiMessageType type,
                       byte data1,
                       byte data2,
                       byte channel) {
 
     //Then test if channel is valid
-    if (channel >= MIDI_CHANNEL_OFF || channel == MIDI_CHANNEL_OMNI || type < HwMIDInoteOff) {
+    if (channel >= MIDI_CHANNEL_OFF || channel == MIDI_CHANNEL_OMNI || type < midiMessageNoteOff) {
 
         return; //Don't send anything
     }
 
-    if (type <= HwMIDIpitchBend)  {
+    if (type <= midiMessagePitchBend)  {
 
         //Channel messages
         //Protection: remove MSBs on data
-        data1 &= 0x7F;
-        data2 &= 0x7F;
+        data1 &= MAX_MIDI_VALUE_MASK;
+        data2 &= MAX_MIDI_VALUE_MASK;
 
         byte statusbyte = genstatus(type,channel);
 
@@ -111,29 +105,26 @@ void MIDI_Class::send(HwMIDItype type,
         // Then send data
         USE_SERIAL_PORT.write(data1);
 
-        if (type != HwMIDIprogramChange && type != 0xD0)
+        if (type != midiMessageProgramChange && type != 0xD0)
             USE_SERIAL_PORT.write(data2);
 
         return;
-    }
 
-    if (type >= 0xF6 && type <= 0xFF) 
-        //System Real-time and 1 byte.
-        sendRealTime(type);
+    }
 
 }
 
 
 /*! \brief Send a Note On message 
  \param NoteNumber  Pitch value in the MIDI format (0 to 127). Take a look at the values, names and frequencies of notes here: http://www.phys.unsw.edu.au/jw/notes.html\n
- \param Velocity    Note attack velocity (0 to 127). A HwMIDInoteOn with 0 velocity is considered as a NoteOff.
+ \param Velocity    Note attack velocity (0 to 127). A midiMessageNoteOn with 0 velocity is considered as a NoteOff.
  \param Channel     The channel on which the message will be sent (1 to 16). 
  */
 void MIDI_Class::sendNoteOn(byte NoteNumber,
                             byte Velocity,
                             byte Channel)   {
 
-    send(HwMIDInoteOn, NoteNumber, Velocity, Channel);
+    send(midiMessageNoteOn, NoteNumber, Velocity, Channel);
 
 }
 
@@ -147,7 +138,7 @@ void MIDI_Class::sendNoteOff(byte NoteNumber,
                              byte Velocity,
                              byte Channel)  {
 
-    send(HwMIDInoteOff, NoteNumber, Velocity, Channel);
+    send(midiMessageNoteOff, NoteNumber, Velocity, Channel);
 
 }
 
@@ -162,7 +153,7 @@ void MIDI_Class::sendControlChange(byte ControlNumber,
                                    byte ControlValue,
                                    byte Channel)    {
 
-    send(HwMIDIcontrolChange, ControlNumber, ControlValue, Channel);
+    send(midiMessageControlChange, ControlNumber, ControlValue, Channel);
 
 }
 
@@ -172,7 +163,7 @@ void MIDI_Class::sendControlChange(byte ControlNumber,
  */
 void MIDI_Class::sendProgramChange(byte ProgramNumber, byte Channel)    {
 
-    send(HwMIDIprogramChange,ProgramNumber,0,Channel);
+    send(midiMessageProgramChange,ProgramNumber,0,Channel);
 
 }
 
@@ -181,10 +172,10 @@ void MIDI_Class::sendProgramChange(byte ProgramNumber, byte Channel)    {
  \param PitchValue  The amount of bend to send (in a signed integer format), between 0 (maximum downwards bend) and 16383 (max upwards bend), center value is 8192.
  \param Channel     The channel on which the message will be sent (1 to 16).
  */
-void MIDI_Class::sendHwMIDIpitchBend(uint16_t PitchValue,
+void MIDI_Class::sendPitchBend(uint16_t PitchValue,
                                byte Channel)    {
 
-    send(HwMIDIpitchBend,(PitchValue & 0x7F),(PitchValue >> 7) & 0x7F,Channel);
+    send(midiMessagePitchBend,(PitchValue & 0x7F),(PitchValue >> 7) & 0x7F,Channel);
 
 }
 
@@ -208,32 +199,6 @@ void MIDI_Class::sendSysEx(int length,
         USE_SERIAL_PORT.write(0xF7);
 
     }   else    for (int i=0;i<length;++i)  USE_SERIAL_PORT.write(array[i]);
-
-}
-
-
-/*! \brief Send a Real Time (one byte) message. 
- 
- \param Type The available Real Time types are: HwMIDIstart, HwMIDIstop, HwMIDIcontinue, HwMIDIclock, ActiveSensing and SystemReset.
- You can also send a Tune Request with this method.
- @see HwMIDItype
- */
-void MIDI_Class::sendRealTime(HwMIDItype Type)   {
-
-    switch (Type) {
-
-        case HwMIDIclock:
-        case HwMIDIstart:
-        case HwMIDIstop:
-        case HwMIDIcontinue:
-        USE_SERIAL_PORT.write((byte)Type);
-        break;
-
-        default:
-        //Invalid Real Time marker
-        break;
-
-    }
 
 }
 
@@ -305,11 +270,11 @@ bool MIDI_Class::parse(byte inChannel)  {
             switch (getTypeFromStatusByte(mRunningStatus_RX))   {
 
                 //Only these types allow Running Status:
-                case HwMIDInoteOff:
-                case HwMIDInoteOn:
-                case HwMIDIcontrolChange:
-                case HwMIDIpitchBend:
-                case HwMIDIprogramChange:
+                case midiMessageNoteOff:
+                case midiMessageNoteOn:
+                case midiMessageControlChange:
+                case midiMessagePitchBend:
+                case midiMessageProgramChange:
 
                 //If the status byte is not received, prepend it to the pending message
                 if (extracted < 0x80) {
@@ -332,48 +297,25 @@ bool MIDI_Class::parse(byte inChannel)  {
 
             switch (getTypeFromStatusByte(mPendingMessage[0])) {
 
-                //1 byte messages
-                case HwMIDIstart:
-                case HwMIDIcontinue:
-                case HwMIDIstop:
-                case HwMIDIclock:
-                //Handle the message type directly here.
-                mMessage.type = getTypeFromStatusByte(mPendingMessage[0]);
-                mMessage.channel = 0;
-                mMessage.data1 = 0;
-                mMessage.data2 = 0;
-                mMessage.valid = true;
-
-                //\fix Running Status broken when receiving HwMIDIclock messages.
-                //Do not reset all input attributes, Running Status must remain unchanged.
-                //reset_input_attributes(); 
-
-                //We still need to reset these
-                mPendingMessageIndex = 0;
-                mPendingMessageExpectedLenght = 0;
-
-                return true;
-                break;
-
                 //2 bytes messages
-                case HwMIDIprogramChange:
+                case midiMessageProgramChange:
                 mPendingMessageExpectedLenght = 2;
                 break;
 
                 //3 bytes messages
-                case HwMIDInoteOn:
-                case HwMIDInoteOff:
-                case HwMIDIcontrolChange:
-                case HwMIDIpitchBend:
+                case midiMessageNoteOn:
+                case midiMessageNoteOff:
+                case midiMessageControlChange:
+                case midiMessagePitchBend:
                 mPendingMessageExpectedLenght = 3;
                 break;
 
-                case HwMIDIsystemExclusive:
+                case midiMessageSystemExclusive:
                 mPendingMessageExpectedLenght = MIDI_SYSEX_ARRAY_SIZE; // As the message can be any length between 3 and MIDI_SYSEX_ARRAY_SIZE bytes
-                mRunningStatus_RX = HwMIDIinvalidType;
+                mRunningStatus_RX = midiMessageInvalidType;
                 break;
 
-                case HwMIDIinvalidType:
+                case midiMessageInvalidType:
                 default:
                 //This is obviously wrong. Let's get the hell out'a here.
                 reset_input_attributes();
@@ -405,37 +347,14 @@ bool MIDI_Class::parse(byte inChannel)  {
                 //are allowed only for interleaved Real Time message or EOX
                 switch (extracted) {
 
-                    case HwMIDIclock:
-                    case HwMIDIstart:
-                    case HwMIDIcontinue:
-                    case HwMIDIstop:
-
-                    /*
-                    This is tricky. Here we will have to extract the one-byte message,
-                    pass it to the structure for being read outside the MIDI class,
-                    and recompose the message it was interleaved into.
-
-                    Oh, and without killing the running status.. 
-
-                    This is done by leaving the pending message as is, it will be completed on next calls.
-                    */
-
-                    mMessage.type = (HwMIDItype)extracted;
-                    mMessage.data1 = 0;
-                    mMessage.data2 = 0;
-                    mMessage.channel = 0;
-                    mMessage.valid = true;
-                    return true;
-                    break;
-
                     //End of Exclusive
                     case 0xF7:
-                    if (getTypeFromStatusByte(mPendingMessage[0]) == HwMIDIsystemExclusive)   {
+                    if (getTypeFromStatusByte(mPendingMessage[0]) == midiMessageSystemExclusive)   {
 
                         //Store System Exclusive array in midimsg structure
                         for (byte i=0;i<MIDI_SYSEX_ARRAY_SIZE;i++)  mMessage.sysex_array[i] = mPendingMessage[i];
 
-                        mMessage.type = HwMIDIsystemExclusive;
+                        mMessage.type = midiMessageSystemExclusive;
 
                         //Get length
                         mMessage.data1 = (mPendingMessageIndex+1) & 0xFF;
@@ -472,7 +391,7 @@ bool MIDI_Class::parse(byte inChannel)  {
                 // "FML" case: fall down here with an overflown SysEx..
                 // This means we received the last possible data byte that can fit the buffer.
                 // If this happens, try increasing MIDI_SYSEX_ARRAY_SIZE.
-                if (getTypeFromStatusByte(mPendingMessage[0]) == HwMIDIsystemExclusive) {
+                if (getTypeFromStatusByte(mPendingMessage[0]) == midiMessageSystemExclusive) {
 
                     reset_input_attributes();
                     return false;
@@ -480,7 +399,7 @@ bool MIDI_Class::parse(byte inChannel)  {
                 }
 
                 mMessage.type = getTypeFromStatusByte(mPendingMessage[0]);
-                mMessage.channel = (mPendingMessage[0] & 0x0F)+1; //Don't check if it is a Channel Message
+                mMessage.channel = (mPendingMessage[0] & MAX_MIDI_CHANNEL_MASK)+1; //Don't check if it is a Channel Message
                 mMessage.data1 = mPendingMessage[1];
 
                 //Save data2 only if applicable
@@ -495,18 +414,18 @@ bool MIDI_Class::parse(byte inChannel)  {
                 //Activate running status (if enabled for the received type)
                 switch (mMessage.type) {
 
-                    case HwMIDInoteOff:
-                    case HwMIDInoteOn:
-                    case HwMIDIcontrolChange:
-                    case HwMIDIpitchBend:
-                    case HwMIDIprogramChange:
+                    case midiMessageNoteOff:
+                    case midiMessageNoteOn:
+                    case midiMessageControlChange:
+                    case midiMessagePitchBend:
+                    case midiMessageProgramChange:
                     //Running status enabled: store it from received message
                     mRunningStatus_RX = mPendingMessage[0];
                     break;
 
                     default:
                     //No running status
-                    mRunningStatus_RX = HwMIDIinvalidType;
+                    mRunningStatus_RX = midiMessageInvalidType;
                     break;
 
                 }
@@ -542,10 +461,10 @@ bool MIDI_Class::input_filter(byte inChannel)   {
 
     //This method handles recognition of channel (to know if the message is destinated to the Arduino)
 
-    if (mMessage.type == HwMIDIinvalidType) return false;
+    if (mMessage.type == midiMessageInvalidType) return false;
 
     //First, check if the received message is Channel
-    if (mMessage.type >= HwMIDInoteOff && mMessage.type <= HwMIDIpitchBend) {
+    if (mMessage.type >= midiMessageNoteOff && mMessage.type <= midiMessagePitchBend) {
 
         // Then we need to know if we listen to it
         if ((mMessage.channel == mInputChannel) || (mInputChannel == MIDI_CHANNEL_OMNI))    return true;
@@ -566,7 +485,7 @@ void MIDI_Class::reset_input_attributes()   {
 
     mPendingMessageIndex = 0;
     mPendingMessageExpectedLenght = 0;
-    mRunningStatus_RX = HwMIDIinvalidType;
+    mRunningStatus_RX = midiMessageInvalidType;
 
 }
 
@@ -574,9 +493,9 @@ void MIDI_Class::reset_input_attributes()   {
 // Getters
 /*! \brief Get the last received message's type
  
- Returns an enumerated type. @see HwMIDItype
+ Returns an enumerated type. @see midiMessageType
  */
-HwMIDItype MIDI_Class::getType() const   {
+midiMessageType MIDI_Class::getType() const   {
 
     return mMessage.type;
 
@@ -725,59 +644,38 @@ void MIDI_Class::launchCallback()   {
     switch (mMessage.type) {
 
         //Notes
-        case HwMIDInoteOff:
+        case midiMessageNoteOff:
         if (mNoteOffCallback != NULL)
         mNoteOffCallback(mMessage.channel,mMessage.data1,mMessage.data2);
         break;
 
-        case HwMIDInoteOn:
+        case midiMessageNoteOn:
         if (mNoteOnCallback != NULL)
         mNoteOnCallback(mMessage.channel,mMessage.data1,mMessage.data2);
         break;
 
         //Continuous controllers
-        case HwMIDIcontrolChange:
+        case midiMessageControlChange:
         if (mControlChangeCallback != NULL)
         mControlChangeCallback(mMessage.channel,mMessage.data1,mMessage.data2);
         break;
 
-        case HwMIDIprogramChange:
+        case midiMessageProgramChange:
         if (mProgramChangeCallback != NULL)
         mProgramChangeCallback(mMessage.channel,mMessage.data1);
         break;
 
-        case HwMIDIpitchBend:
+        case midiMessagePitchBend:
         if (mHwMIDIpitchBendCallback != NULL)
         mHwMIDIpitchBendCallback(mMessage.channel,(int)((mMessage.data1 & 0x7F) | ((mMessage.data2 & 0x7F)<< 7)) - 8192);
         break; // TODO: check this
 
-        case HwMIDIsystemExclusive:
+        case midiMessageSystemExclusive:
         if (mSystemExclusiveCallback != NULL)
         mSystemExclusiveCallback(mMessage.sysex_array,mMessage.data1);
         break;
 
-        //Real-time messages
-        case HwMIDIclock:
-        if (mClockCallback != NULL)
-        mClockCallback();
-        break;
-
-        case HwMIDIstart:
-        if (mStartCallback != NULL)
-        mStartCallback();
-        break;
-
-        case HwMIDIcontinue:
-        if (mContinueCallback != NULL)
-        mContinueCallback();
-        break;
-
-        case HwMIDIstop:
-        if (mStopCallback != NULL)
-        mStopCallback();
-        break;
-
-        case HwMIDIinvalidType:
+        case midiMessageInvalidType:
         default:
         break;
 

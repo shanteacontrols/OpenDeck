@@ -3,6 +3,8 @@
 
 #include <inttypes.h>
 #include "..\hardware/uart/UART.h"
+#include "..\Types.h"
+#include "..\midi\MIDIsettings.h"
 
 /*
     ###############################################################
@@ -36,29 +38,9 @@
 #define MIDI_CHANNEL_OMNI       0
 #define MIDI_CHANNEL_OFF        17          // and over
 
-#define MIDI_SYSEX_ARRAY_SIZE   80
-
 /*! Type definition for practical use (because "unsigned char" is a bit long to write.. )*/
 typedef uint8_t byte;
 typedef uint16_t word;
-
-/*! Enumeration of MIDI types */
-enum HwMIDItype {
-
-    HwMIDInoteOff               = 0x80,   //Note Off
-    HwMIDInoteOn                = 0x90,   //Note On
-    HwMIDIcontrolChange         = 0xB0,   //Control Change / Channel Mode
-    HwMIDIprogramChange         = 0xC0,   //Program Change
-    HwMIDIpitchBend             = 0xE0,   //Pitch Bend
-    HwMIDIsystemExclusive       = 0xF0,   //System Exclusive
-    HwMIDIclock                 = 0xF8,   //System Real Time - Timing HwMIDIclock
-    HwMIDIstart                 = 0xFA,   //System Real Time - HwMIDIstart
-    HwMIDIcontinue              = 0xFB,   //System Real Time - HwMIDIcontinue
-    HwMIDIstop                  = 0xFC,   //System Real Time - HwMIDIstop
-    HwMIDIinvalidType           = 0x00    //For notifying errors
-
-};
-
 
 /*! The midimsg structure contains decoded data of a MIDI message read from the serial port with read() or thru(). \n */
 struct midimsg  {
@@ -67,7 +49,7 @@ struct midimsg  {
     byte channel; 
 
     /*! The type of the message (see the define section for types reference) */
-    HwMIDItype type;
+    midiMessageType type;
 
     /*! The first data byte.\n Value goes from 0 to 127.\n */
     byte data1;
@@ -105,15 +87,14 @@ public:
     void sendNoteOff(byte NoteNumber,byte Velocity,byte Channel);
     void sendControlChange(byte ControlNumber, byte ControlValue,byte Channel);
     void sendProgramChange(byte ProgramNumber,byte Channel);
-    void sendHwMIDIpitchBend(uint16_t PitchValue, byte Channel);
-    void sendSysEx(int length, const byte *const array,bool ArrayContainsBoundaries = false);   
-    void sendRealTime(HwMIDItype Type);
+    void sendPitchBend(uint16_t PitchValue, byte Channel);
+    void sendSysEx(int length, const byte *const array,bool ArrayContainsBoundaries = false);
 
-    void send(HwMIDItype type, byte param1, byte param2, byte channel);
+    void send(midiMessageType type, byte param1, byte param2, byte channel);
 
 private:
 
-    const byte  genstatus(const HwMIDItype inType,const byte inChannel) const;
+    const byte  genstatus(const midiMessageType inType,const byte inChannel) const;
 
 #endif  // COMPILE_MIDI_OUT
 
@@ -126,7 +107,7 @@ public:
     bool read(const byte Channel);
 
     // Getters
-    HwMIDItype getType() const;
+    midiMessageType getType() const;
     byte getChannel() const;
     byte getData1() const;
     byte getData2() const;
@@ -147,7 +128,7 @@ public:
 
      This is a utility static method, used internally, made public so you can handle kMIDITypes more easily.
      */
-    static inline const HwMIDItype getTypeFromStatusByte(const byte inStatus)    {
+    static inline const midiMessageType getTypeFromStatusByte(const byte inStatus)    {
 
         if (
             (inStatus < 0x80)   ||
@@ -155,10 +136,10 @@ public:
             (inStatus == 0xF5)  ||
             (inStatus == 0xF9)  ||
             (inStatus == 0xFD)
-           )    return HwMIDIinvalidType;                 //data bytes and undefined
+           )    return midiMessageInvalidType;                 //data bytes and undefined
 
-        if (inStatus < 0xF0)    return (HwMIDItype)(inStatus & 0xF0);    //channel message, remove channel nibble
-        else                    return (HwMIDItype)(inStatus);
+        if (inStatus < 0xF0)    return (midiMessageType)(inStatus & 0xF0);    //channel message, remove channel nibble
+        else                    return (midiMessageType)(inStatus);
 
     }
 
@@ -170,10 +151,6 @@ public:
     void setHandleProgramChange(void (*fptr)(byte channel, byte number));
     void setHandleHwMIDIpitchBend(void (*fptr)(byte channel, int bend));
     void setHandleSystemExclusive(void (*fptr)(byte * array, byte size));
-    void setHandleClock(void (*fptr)(void));
-    void setHandleStart(void (*fptr)(void));
-    void setHandleContinue(void (*fptr)(void));
-    void setHandleStop(void (*fptr)(void));
 
 #endif // USE_CALLBACKS
 
@@ -203,10 +180,6 @@ private:
     void (*mProgramChangeCallback)(byte channel, byte);
     void (*mHwMIDIpitchBendCallback)(byte channel, int);
     void (*mSystemExclusiveCallback)(byte * array, byte size);
-    void (*mClockCallback)(void);
-    void (*mStartCallback)(void);
-    void (*mContinueCallback)(void);
-    void (*mStopCallback)(void);
 
 #endif // USE_CALLBACKS
 
