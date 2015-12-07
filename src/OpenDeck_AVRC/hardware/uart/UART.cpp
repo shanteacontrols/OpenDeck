@@ -56,6 +56,7 @@ ISR(USART1_UDRE_vect)   {
 
 }
 
+ISR(USART1_TX_vect) {}
 
 UART::UART()  {
 
