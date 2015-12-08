@@ -55,7 +55,7 @@ void MIDI_Class::begin(uint8_t inChannel)    {
 
 #endif
 
-    USE_SERIAL_PORT.begin(38400, true, true);
+    USE_SERIAL_PORT.begin(31250, true, true);
 
 }
 
