@@ -38,7 +38,6 @@ Code is available as Atmel Studio 7.0 project. Simply open 'OpenDeck_AVRC.atsln'
 
 ## Analog configuration
 
-* Hardware parameters: (reserved/no parameters yet)
 * Enable/disable analog input
 * Analog input type (only potentiometer at the moment)
 * Invert analog value
@@ -55,8 +54,8 @@ Code is available as Atmel Studio 7.0 project. Simply open 'OpenDeck_AVRC.atsln'
 
 ## Encoder configuration
 
-* Hardware parameters (reserved/no parameters yet)
 * Enable/disable encoder
+* Encoding type
 * Invert encoder value
 * Change encoder CC number
 
