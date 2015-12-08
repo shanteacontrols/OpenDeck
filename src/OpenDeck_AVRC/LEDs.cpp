@@ -322,7 +322,9 @@ void LEDs::noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity)    {
     if ((receivedVelocity >= LED_VELOCITY_B_OFF) && (receivedVelocity < 128))
     blinkMode = 1;
 
-    handleLED(newLEDstate, blinkMode, getLEDid(receivedNote));
+    uint8_t ledID = getLEDid(receivedNote);
+    if (ledID & MAX_MIDI_VALUE_MASK)
+        handleLED(newLEDstate, blinkMode, ledID);
 
 }
 
