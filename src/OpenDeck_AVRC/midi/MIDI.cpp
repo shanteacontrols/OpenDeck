@@ -82,12 +82,10 @@ void MIDI::init() {
 
     }
 
-    #ifndef DEBUG_MODE
-        uint8_t inChannel = getMIDIchannel(inputChannel);
-        //read incoming MIDI messages on specified channel
-        hwMIDI.begin(inChannel);
-        usbMIDI.begin(inChannel);
-    #endif
+    uint8_t inChannel = getMIDIchannel(inputChannel);
+    //read incoming MIDI messages on specified channel
+    hwMIDI.begin(inChannel);
+    usbMIDI.begin(inChannel);
 
 }
 
@@ -137,6 +135,8 @@ bool MIDI::setParameter(uint8_t messageType, uint8_t parameterID, uint8_t newVal
 
 void MIDI::checkInput()   {
 
+    hwMIDI.sendNoteOn(10,127,1);
+
     if (usbMIDI.read())   {   //new message on usb
 
         uint8_t messageType = usbMIDI.getType();
@@ -162,18 +162,62 @@ void MIDI::checkInput()   {
     if (hwMIDI.read())    {
 
         uint8_t messageType = hwMIDI.getType();
+        uint8_t data1 = hwMIDI.getData1();
+        uint8_t data2 = hwMIDI.getData2();
+        uint8_t sysExArraySize;
+        uint8_t sysExArray[MIDI_SYSEX_ARRAY_SIZE];
+
         source = midiSource;
 
-        switch(messageType) {
+        if (!getFeature(midiFeatureUSBconvert))  {
 
-            case midiMessageNoteOff:
-            case midiMessageNoteOn:
-            sendNoteCallback(hwMIDI.getData1(), hwMIDI.getData2());
-            break;
+            switch(messageType) {
 
-            case midiMessageSystemExclusive:
-            sendSysExCallback(hwMIDI.getSysExArray(), hwMIDI.getSysExArrayLength());
-            break;
+                case midiMessageNoteOff:
+                case midiMessageNoteOn:
+                sendNoteCallback(hwMIDI.getData1(), hwMIDI.getData2());
+                break;
+
+                case midiMessageSystemExclusive:
+                sendSysExCallback(hwMIDI.getSysExArray(), hwMIDI.getSysExArrayLength());
+                break;
+
+            }
+
+        }   else {
+
+                //dump everything from MIDI in to USB MIDI out
+                switch(messageType) {
+
+                    case midiMessageNoteOff:
+                    usbMIDI.sendNoteOn(data1, data2, getMIDIchannel(inputChannel));
+                    break;
+
+                    case midiMessageNoteOn:
+                    usbMIDI.sendNoteOn(data1, data2, getMIDIchannel(inputChannel));
+                    break;
+
+                    case midiMessageControlChange:
+                    usbMIDI.sendControlChange(data1, data2, getMIDIchannel(inputChannel));
+                    break;
+
+                    case midiMessageProgramChange:
+                    usbMIDI.sendProgramChange(data1, getMIDIchannel(inputChannel));
+                    break;
+
+                    case midiMessageSystemExclusive:
+                    //to-do
+                    break;
+
+                    case midiMessageAfterTouchChannel:
+                    usbMIDI.sendAfterTouch(data1, getMIDIchannel(inputChannel));
+                    break;
+
+                    case midiMessagePitchBend:
+                    //to-do
+                    break;
+
+                }
 
         }
 
@@ -225,28 +269,21 @@ void MIDI::sendMIDInote(uint8_t buttonNote, bool buttonState, uint8_t _velocity)
 
 void MIDI::sendProgramChange(uint8_t program)    {
 
-    #ifndef DEBUG_MODE
     uint8_t channel = getMIDIchannel(programChangeChannel);
     usbMIDI.sendProgramChange(program, channel);
     hwMIDI.sendProgramChange(program, channel);
-    #endif
 
 }
 
 void MIDI::sendControlChange(uint8_t ccNumber, uint8_t ccValue) {
 
-    #ifndef DEBUG_MODE
     uint8_t channel = getMIDIchannel(CCchannel);
     usbMIDI.sendControlChange(ccNumber, ccValue, channel);
     hwMIDI.sendControlChange(ccNumber, ccValue, channel);
-    #endif
+
 }
 
 void MIDI::sendSysEx(uint8_t *sysExArray, uint8_t arraySize)   {
-
-    #ifndef DEBUG_MODE
-    uint8_t usbArraySize = arraySize+2;
-    uint8_t usbSysExArray[usbArraySize];
 
     switch (source) {
 
@@ -255,27 +292,10 @@ void MIDI::sendSysEx(uint8_t *sysExArray, uint8_t arraySize)   {
         break;
 
         case usbSource:
-        //usbMIDI.sendSysEx needs start and stop byte (F0 and F7)
-
-        //init array
-        for (int i=0; i<usbArraySize; i++) usbSysExArray[i] = 0;
-
-        //append sysex start byte
-        usbSysExArray[0] = 0xF0;
-
-        //copy array
-        for (int i=0; i<arraySize; i++)
-            usbSysExArray[i+1] = sysExArray[i];
-
-        //append sysexstop byte
-        usbSysExArray[arraySize+1] = 0xF7;
-
-        //send modified array
-        usbMIDI.sendSysEx(usbArraySize, usbSysExArray);
+        usbMIDI.sendSysEx(arraySize, sysExArray, false);
         break;
 
     }
-    #endif
 
 }
 
