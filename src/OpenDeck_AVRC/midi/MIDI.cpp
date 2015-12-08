@@ -137,7 +137,6 @@ bool MIDI::setParameter(uint8_t messageType, uint8_t parameterID, uint8_t newVal
 
 void MIDI::checkInput()   {
 
-    #ifndef DEBUG_MODE
     if (usbMIDI.read())   {   //new message on usb
 
         uint8_t messageType = usbMIDI.getType();
@@ -183,7 +182,6 @@ void MIDI::checkInput()   {
     //disable sysex config after inactivity
     if (rTimeMillis() - lastSysExMessageTime > CONFIG_TIMEOUT)
         sysEx.disableConf();
-    #endif
 
 }
 
@@ -196,7 +194,6 @@ bool MIDI::getFeature(uint8_t featureID)  {
 
 void MIDI::sendMIDInote(uint8_t buttonNote, bool buttonState, uint8_t _velocity)  {
 
-    #ifndef DEBUG_MODE
     uint8_t channel = getMIDIchannel(noteChannel);
 
     switch (buttonState) {
@@ -223,7 +220,6 @@ void MIDI::sendMIDInote(uint8_t buttonNote, bool buttonState, uint8_t _velocity)
         break;
 
     }
-    #endif
 
 }
 
