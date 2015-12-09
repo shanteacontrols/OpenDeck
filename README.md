@@ -1,22 +1,18 @@
 # OpenDeck Platform
 
-OpenDeck MIDI platform is a combination of microcontroller firmware, PCB board and GUI application.
+OpenDeck MIDI platform is a combination of microcontroller firmware, PCB board and GUI application. (At the moment GUI application is still in design phase).
 
-Note: At the moment GUI application is still in design phase.
+The platform allows hassle-free building of MIDI controllers and their configuration via MIDI System Exclusive messages, without any need of reprogramming the chip.
 
-The platform allows hassle-free building of MIDI controllers and their configuration via MIDI System Exclusive messages,
-without any need of reprogramming the chip.
-
-This repository contains MCU code, part list and schematics (circuit and PCB).
-
-All code is available under GNU GPL v3 licence.
-
-# Compilation
-Code is available as Atmel Studio 7.0 project. Simply open 'OpenDeck_AVRC.atsln' using the IDE and everything should work.
+## Repository content
+* firmware (MCU code)
+* part list
+* schematic (PDF)
+* PCB files (gerbers)
 
 # Configurable features
 
-## MIDI channels
+### MIDI channels
 
 * Note
 * Program change
@@ -24,19 +20,19 @@ Code is available as Atmel Studio 7.0 project. Simply open 'OpenDeck_AVRC.atsln'
 * Pitch bend
 * MIDI input
 
-## Features
-
-### MIDI features
+### MIDI settings
 
 * Enable/disable standard note off
+* Enable/disable running status (DIN MIDI only)
+* Enable/disable DIN MIDI in to USB MIDI out converter
 
-## Button configuration
+### Button configuration
 
 * Button type (momentary/latching)
 * Enable/disable program change send instead of notes
-* Button MIDI note
+* MIDI note
 
-## Analog configuration
+### Analog configuration
 
 * Enable/disable analog input
 * Analog input type (only potentiometer at the moment)
@@ -45,26 +41,37 @@ Code is available as Atmel Studio 7.0 project. Simply open 'OpenDeck_AVRC.atsln'
 * Lower CC limit
 * Upper CC limit
 
-## LED configuration
+### LED configuration
 
-* Hardware parameters: total LED number, blink time, start-up switch time, start-up routine, fade speed
+* Hardware parameters:
+  - total LED number
+  - blink time
+  - start-up LED switch time
+  - start-up animation routine
+  - fade speed
 * LED activation note
 * LED start-up number
 * Test LED state (constant on/off, blink on/off)
 
-## Encoder configuration
+### Encoder configuration
 
 * Enable/disable encoder
 * Encoding type
 * Invert encoder value
-* Change encoder CC number
+* CC number
 
-## Data restoration
+### Data restoration
 
 * Restoration of single parameter back to default (ie. restore potentiometer 6 CC number to default)
 * Restoration of all parameters within message type (ie. restore all button notes to default)
 * Complete factory reset of all values
 
-# SysEx configuration
-
+### SysEx configuration
 All configuration is done using MIDI System Exclusive messages. For more information, see examples in /examples folder.
+
+## Firmware compilation
+MCU Code is available as Atmel Studio 7.0 project. Simply open 'OpenDeck_AVRC.atsln' using the IDE and everything should work.
+
+
+## Licence
+All code is available under GNU GPL v3 licence.
