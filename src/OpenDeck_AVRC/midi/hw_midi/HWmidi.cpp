@@ -38,11 +38,36 @@ void MIDI_Class::begin(uint8_t inChannel)    {
 
     #endif
 
+    #if COMPILE_MIDI_OUT
+
+    disableRunningStatus();
+
+    #endif
+
     USE_SERIAL_PORT.begin(31250, true, true);
 
 }
 
 #if COMPILE_MIDI_OUT
+
+void MIDI_Class::enableRunningStatus()  {
+
+    setRunningStatusState(true);
+
+}
+
+void MIDI_Class::disableRunningStatus() {
+
+    setRunningStatusState(false);
+
+}
+
+void MIDI_Class::setRunningStatusState(bool state)  {
+
+    mRunningStatus_TX = midiMessageInvalidType;
+    runningStatusEnabled = state;
+
+}
 
 //private method for generating a status byte from channel and type
 const uint8_t MIDI_Class::genstatus(const midiMessageType inType, const uint8_t inChannel) const    {
@@ -60,20 +85,39 @@ void MIDI_Class::send(midiMessageType type, uint8_t data1, uint8_t data2, uint8_
     //data2                     The second data byte (if the message contains only 1 data byte, set this one to 0)
     //channel                   The output channel on which the message will be sent (values from 1 to 16)
 
+    if (runningStatusEnabled)   {
+
+        //reset running status
+        mRunningStatus_TX = midiMessageInvalidType;
+
+    }
+
     //test if channel is valid
     if (channel >= MIDI_CHANNEL_OFF || channel == MIDI_CHANNEL_OMNI || type < midiMessageNoteOff)
         return; //Don't send anything
 
     if (type <= midiMessagePitchBend)  {
 
-        //Channel messages
-        //Protection: remove MSBs on data
+        //channel messages
+        //protection: remove MSBs on data
         data1 &= MAX_MIDI_VALUE_MASK;
         data2 &= MAX_MIDI_VALUE_MASK;
 
         uint8_t statusByte = genstatus(type, channel);
 
-        //Don't care about running status, send the control byte
+        if (runningStatusEnabled)   {
+
+            if (mRunningStatus_TX != statusByte)    {
+
+                //new message, memorize and send header
+                mRunningStatus_TX = statusByte;
+                USE_SERIAL_PORT.write(mRunningStatus_TX);
+
+            }
+
+        } else
+
+        //don't care about running status, send the control byte
         USE_SERIAL_PORT.write(statusByte);
 
         //send data
@@ -150,6 +194,9 @@ void MIDI_Class::sendSysEx(int length, const uint8_t *const array, bool ArrayCon
         USE_SERIAL_PORT.write(0xF7);
 
     }   else    for (int i=0; i<length; ++i)  USE_SERIAL_PORT.write(array[i]);
+
+    if (runningStatusEnabled)
+        mRunningStatus_TX = midiMessageInvalidType;
 
 }
 

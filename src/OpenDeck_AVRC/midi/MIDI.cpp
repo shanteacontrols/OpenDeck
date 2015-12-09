@@ -118,6 +118,14 @@ bool MIDI::setParameter(uint8_t messageType, uint8_t parameterID, uint8_t newVal
         else                            bitWrite(featuresArray, parameterID, newValue);
 
         eeprom_update_byte((uint8_t*)address, featuresArray);
+
+        if (parameterID == midiFeatureRunningStatus)    {
+
+            //tell hwMIDI object that we've changed this setting
+            newValue ? hwMIDI.enableRunningStatus() : hwMIDI.disableRunningStatus();
+
+        }
+
         return (featuresArray == eeprom_read_byte((uint8_t*)EEPROM_FEATURES_MIDI));
         break;
 
@@ -164,8 +172,6 @@ void MIDI::checkInput()   {
         uint8_t messageType = hwMIDI.getType();
         uint8_t data1 = hwMIDI.getData1();
         uint8_t data2 = hwMIDI.getData2();
-        uint8_t sysExArraySize;
-        uint8_t sysExArray[MIDI_SYSEX_ARRAY_SIZE];
 
         source = midiSource;
 
@@ -206,7 +212,7 @@ void MIDI::checkInput()   {
                     break;
 
                     case midiMessageSystemExclusive:
-                    //to-do
+                    usbMIDI.sendSysEx(hwMIDI.getSysExArrayLength(), hwMIDI.getSysExArray(), false);
                     break;
 
                     case midiMessageAfterTouchChannel:

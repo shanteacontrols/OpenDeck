@@ -56,10 +56,16 @@ class MIDI_Class {
     void sendPitchBend(uint16_t PitchValue, uint8_t Channel);
     void sendSysEx(int length, const uint8_t *const array, bool ArrayContainsBoundaries = false);
 
+    void enableRunningStatus();
+    void disableRunningStatus();
+
     void send(midiMessageType type, uint8_t param1, uint8_t param2, uint8_t channel);
 
     private:
     const uint8_t genstatus(const midiMessageType inType, const uint8_t inChannel) const;
+    void setRunningStatusState(bool state);
+    uint8_t mRunningStatus_TX;
+    bool runningStatusEnabled;
 
     #endif
 
