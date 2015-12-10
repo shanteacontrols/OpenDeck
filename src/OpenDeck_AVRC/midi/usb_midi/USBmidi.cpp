@@ -211,8 +211,8 @@ void usb_midi_class::send_now(void) {
 
 bool usb_midi_class::read() {
 
-    uint8_t c, intr_state;
-    uint8_t b0, b1, b2, b3, type1, type2;
+    uint8_t decodedChannel, intr_state;
+    uint8_t b0, b1, b2, b3, cin, messageType;
 
     intr_state = SREG;
     cli();
@@ -227,11 +227,11 @@ bool usb_midi_class::read() {
     UENUM = MIDI_RX_ENDPOINT;
 
     retry:
-    c = UEINTX;
+    decodedChannel = UEINTX;
 
-    if (!(c & (1<<RWAL))) {
+    if (!(decodedChannel & (1<<RWAL))) {
 
-        if (c & (1<<RXOUTI)) {
+        if (decodedChannel & (1<<RXOUTI)) {
 
             UEINTX = 0x6B;
             goto retry;
@@ -251,75 +251,74 @@ bool usb_midi_class::read() {
     if (!(UEINTX & (1<<RWAL))) UEINTX = 0x6B;
     SREG = intr_state;
 
-    type1 = b0 & 0x0F;
-    type2 = b1 & 0xF0;
-    c = (b1 & 0x0F) + 1;
+    cin = b0 & 0x0F;
+    messageType = b1 & 0xF0;
+    decodedChannel = (b1 & 0x0F) + 1;
 
-    if (type1 >= 0x08 && type1 <= 0x0E) {
+    if (cin >= CIN_NOTE_OFF && cin <= CIN_PITCH_BEND) {
 
-        if (inChannel && inChannel != c) {
+        if (inChannel && inChannel != decodedChannel) {
 
             //ignore other channels when user wants single channel read
             return false;
 
         }
 
-        if (type1 == CIN_NOTE_OFF && type2 == midiMessageNoteOff) {
+        if (cin == CIN_NOTE_OFF && messageType == midiMessageNoteOff) {
 
             //note off
             msg_type = midiMessageNoteOff;
-            if (handleNoteOff) (*handleNoteOff)(c, b2, b3);
+            if (handleNoteOff) (*handleNoteOff)(decodedChannel, b2, b3);
 
             goto return_message;
 
         }
 
-        if (type1 == CIN_NOTE_ON && type2 == midiMessageNoteOn) {
+        if (cin == CIN_NOTE_ON && messageType == midiMessageNoteOn) {
 
             //note on
             msg_type = midiMessageNoteOn;
-            if (handleNoteOn) (*handleNoteOn)(c, b2, b3);
+            if (handleNoteOn) (*handleNoteOn)(decodedChannel, b2, b3);
 
             goto return_message;
 
         }
 
-        if (type1 == CIN_CONTROL_CHANGE && type2 == midiMessageControlChange) {
+        if (cin == CIN_CONTROL_CHANGE && messageType == midiMessageControlChange) {
 
             //control change
             msg_type = midiMessageControlChange;
-            if (handleControlChange) (*handleControlChange)(c, b2, b3);
+            if (handleControlChange) (*handleControlChange)(decodedChannel, b2, b3);
 
             goto return_message;
 
         }
 
-        if (type1 == CIN_PROGRAM_CHANGE && type2 == midiMessageProgramChange) {
+        if (cin == CIN_PROGRAM_CHANGE && messageType == midiMessageProgramChange) {
 
             //program change
             msg_type = midiMessageProgramChange;
-            if (handleProgramChange) (*handleProgramChange)(c, b2);
+            if (handleProgramChange) (*handleProgramChange)(decodedChannel, b2);
 
             goto return_message;
 
         }
 
-        if (type1 == CIN_AFTERTOUCH && type2 == midiMessageAfterTouchChannel) {
+        if (cin == CIN_AFTERTOUCH && messageType == midiMessageAfterTouchChannel) {
 
             //aftertouch
             msg_type = midiMessageAfterTouchChannel;
-            if (handleAfterTouch) (*handleAfterTouch)(c, b2);
+            if (handleAfterTouch) (*handleAfterTouch)(decodedChannel, b2);
 
             goto return_message;
 
         }
 
-        if (type1 == CIN_PITCH_BEND && type2 == midiMessagePitchBend) {
+        if (cin == CIN_PITCH_BEND && messageType == midiMessagePitchBend) {
 
             //pitch bend
             msg_type = midiMessagePitchBend;
-            if (handlePitchChange) (*handlePitchChange)(c,
-                (b2 & 0x7F) | ((b3 & 0x7F) << 7));
+            if (handlePitchChange) (*handlePitchChange)(decodedChannel, (b2 & 0x7F) | ((b3 & 0x7F) << 7));
 
             goto return_message;
 
@@ -330,14 +329,14 @@ bool usb_midi_class::read() {
         return_message:
         // only update these when returning true for a parsed message
         // all other return cases will preserve these user-visible values
-        msg_channel = c;
+        msg_channel = decodedChannel;
         msg_data1 = b2;
         msg_data2 = b3;
         return true;
 
     }
 
-    if (type1 == CIN_SYSEX_START) {
+    if (cin == CIN_SYSEX_START) {
 
         read_sysex_byte(b1);
         read_sysex_byte(b2);
@@ -346,11 +345,11 @@ bool usb_midi_class::read() {
 
     }
 
-    if (type1 >= CIN_SYSEX_STOP_1BYTE && type1 <= CIN_SYSEX_STOP_3BYTE) {
+    if (cin >= CIN_SYSEX_STOP_1BYTE && cin <= CIN_SYSEX_STOP_3BYTE) {
 
         read_sysex_byte(b1);
-        if (type1 >= CIN_SYSEX_STOP_2BYTE) read_sysex_byte(b2);
-        if (type1 == CIN_SYSEX_STOP_3BYTE) read_sysex_byte(b3);
+        if (cin >= CIN_SYSEX_STOP_2BYTE) read_sysex_byte(b2);
+        if (cin == CIN_SYSEX_STOP_3BYTE) read_sysex_byte(b3);
         msg_data1 = msg_sysex_len;
         msg_sysex_len = 0;
         msg_type = midiMessageSystemExclusive;
@@ -358,7 +357,7 @@ bool usb_midi_class::read() {
 
     }
 
-    if (type1 == midiMessageSystemExclusive) {
+    if (cin == midiMessageSystemExclusive) {
 
         //TODO: does this need to be a full MIDI parser?
         //What software actually uses this message type in practice?
