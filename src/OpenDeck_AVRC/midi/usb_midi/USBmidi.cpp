@@ -264,7 +264,7 @@ bool usb_midi_class::read() {
 
         }
 
-        if (type1 == 0x08 && type2 == midiMessageNoteOff) {
+        if (type1 == CIN_NOTE_OFF && type2 == midiMessageNoteOff) {
 
             //note off
             msg_type = midiMessageNoteOff;
@@ -274,7 +274,7 @@ bool usb_midi_class::read() {
 
         }
 
-        if (type1 == 0x09 && type2 == midiMessageNoteOn) {
+        if (type1 == CIN_NOTE_ON && type2 == midiMessageNoteOn) {
 
             //note on
             msg_type = midiMessageNoteOn;
@@ -284,7 +284,7 @@ bool usb_midi_class::read() {
 
         }
 
-        if (type1 == 0x0B && type2 == midiMessageControlChange) {
+        if (type1 == CIN_CONTROL_CHANGE && type2 == midiMessageControlChange) {
 
             //control change
             msg_type = midiMessageControlChange;
@@ -294,7 +294,7 @@ bool usb_midi_class::read() {
 
         }
 
-        if (type1 == 0x0C && type2 == midiMessageProgramChange) {
+        if (type1 == CIN_PROGRAM_CHANGE && type2 == midiMessageProgramChange) {
 
             //program change
             msg_type = midiMessageProgramChange;
@@ -304,7 +304,7 @@ bool usb_midi_class::read() {
 
         }
 
-        if (type1 == 0x0D && type2 == midiMessageAfterTouchChannel) {
+        if (type1 == CIN_AFTERTOUCH && type2 == midiMessageAfterTouchChannel) {
 
             //aftertouch
             msg_type = midiMessageAfterTouchChannel;
@@ -314,7 +314,7 @@ bool usb_midi_class::read() {
 
         }
 
-        if (type1 == 0x0E && type2 == midiMessagePitchBend) {
+        if (type1 == CIN_PITCH_BEND && type2 == midiMessagePitchBend) {
 
             //pitch bend
             msg_type = midiMessagePitchBend;
@@ -337,7 +337,7 @@ bool usb_midi_class::read() {
 
     }
 
-    if (type1 == 0x04) {
+    if (type1 == CIN_SYSEX_START) {
 
         read_sysex_byte(b1);
         read_sysex_byte(b2);
@@ -346,11 +346,11 @@ bool usb_midi_class::read() {
 
     }
 
-    if (type1 >= 0x05 && type1 <= 0x07) {
+    if (type1 >= CIN_SYSEX_STOP_1BYTE && type1 <= CIN_SYSEX_STOP_3BYTE) {
 
         read_sysex_byte(b1);
-        if (type1 >= 0x06) read_sysex_byte(b2);
-        if (type1 == 0x07) read_sysex_byte(b3);
+        if (type1 >= CIN_SYSEX_STOP_2BYTE) read_sysex_byte(b2);
+        if (type1 == CIN_SYSEX_STOP_3BYTE) read_sysex_byte(b3);
         msg_data1 = msg_sysex_len;
         msg_sysex_len = 0;
         msg_type = midiMessageSystemExclusive;
