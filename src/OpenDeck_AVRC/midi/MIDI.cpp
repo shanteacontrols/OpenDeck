@@ -143,8 +143,6 @@ bool MIDI::setParameter(uint8_t messageType, uint8_t parameterID, uint8_t newVal
 
 void MIDI::checkInput()   {
 
-    hwMIDI.sendNoteOn(10,127,1);
-
     if (usbMIDI.read())   {   //new message on usb
 
         uint8_t messageType = usbMIDI.getType();
