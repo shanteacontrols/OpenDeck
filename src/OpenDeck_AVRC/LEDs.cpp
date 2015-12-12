@@ -1,9 +1,7 @@
 #include "LEDs.h"
 #include "sysex/ProtocolDefinitions.h"
-#include "eeprom/EEPROMsettings.h"
 #include "LEDsettings.h"
 #include "sysex/SysEx.h"
-#include "BitManipulation.h"
 
 typedef enum {
 
