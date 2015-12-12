@@ -2,12 +2,14 @@
 #include "sysex/ProtocolDefinitions.h"
 #include "LEDsettings.h"
 #include "sysex/SysEx.h"
+#include "LEDcolors.h"
 
 typedef enum {
 
     ledsHardwareParameterConf,
     ledsActivationNoteConf,
     ledsStartUpNumberConf,
+    ledsRGBcolorConf,
     ledsStateConf,
     LEDS_SUBTYPES
 
@@ -37,6 +39,7 @@ typedef enum {
 subtype ledsHardwareParameterSubtype    = { LEDS_HARDWARE_PARAMETERS, IGNORE_NEW_VALUE, IGNORE_NEW_VALUE };
 subtype ledsActivationNoteSubtype       = { MAX_NUMBER_OF_LEDS, 0, 127 };
 subtype ledsStartUpNumberSubtype        = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_LEDS-1 };
+subtype ledsRGBcolorSubtype             = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_COLORS-1 };
 subtype ledsStateSubtype                = { MAX_NUMBER_OF_LEDS, 0, LED_STATES };
 
 const uint8_t ledsSubtypeArray[] = {
@@ -44,6 +47,7 @@ const uint8_t ledsSubtypeArray[] = {
     ledsHardwareParameterConf,
     ledsActivationNoteConf,
     ledsStartUpNumberConf,
+    ledsRGBcolorConf,
     ledsStateConf
 
 };
@@ -53,6 +57,7 @@ const uint8_t ledsParametersArray[] = {
     ledsHardwareParameterSubtype.parameters,
     ledsActivationNoteSubtype.parameters,
     ledsStartUpNumberSubtype.parameters,
+    ledsRGBcolorSubtype.parameters,
     ledsStateSubtype.parameters
 
 };
@@ -62,6 +67,7 @@ const uint8_t ledsNewParameterLowArray[] = {
     ledsHardwareParameterSubtype.lowValue,
     ledsActivationNoteSubtype.lowValue,
     ledsStartUpNumberSubtype.lowValue,
+    ledsRGBcolorSubtype.lowValue,
     ledsStateSubtype.lowValue
 
 };
@@ -71,6 +77,7 @@ const uint8_t ledsNewParameterHighArray[] = {
     ledsHardwareParameterSubtype.highValue,
     ledsActivationNoteSubtype.highValue,
     ledsStartUpNumberSubtype.highValue,
+    ledsRGBcolorSubtype.highValue,
     ledsStateSubtype.highValue
 
 };
@@ -615,6 +622,10 @@ uint8_t LEDs::getParameter(uint8_t messageType, uint8_t parameter)   {
 
         case ledsStartUpNumberConf:
         return eeprom_read_byte((uint8_t*)EEPROM_LEDS_START_UP_NUMBER_START+parameter);
+        break;
+
+        case ledsRGBcolorConf:
+        return eeprom_read_byte((uint8_t*)EEPROM_LEDS_RGB_COLOR_ID+parameter);
         break;
 
         case ledsStateConf:
