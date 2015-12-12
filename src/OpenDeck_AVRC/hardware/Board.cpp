@@ -1,6 +1,7 @@
 #include "Board.h"
 #include "..\sysex/SysEx.h"
 #include "..\LEDsettings.h"
+#include "..\LEDs.h"
 #include <util/delay.h>
 #include <avr/cpufunc.h>
 #include <avr/wdt.h>
@@ -34,9 +35,12 @@ bool                        buttonsProcessed,
 //LEDs
 bool                        blinkEnabled = false,
                             blinkState = true;
+
 volatile uint8_t            pwmSteps,
-                            ledState[MAX_NUMBER_OF_LEDS];
+                            ledState[MAX_NUMBER_OF_LEDS][3];
+
 uint16_t                    ledBlinkTime;
+
 int8_t                      transitionCounter[MAX_NUMBER_OF_LEDS];
 volatile uint32_t           blinkTimerCounter = 0;
 
@@ -47,7 +51,6 @@ uint8_t                     activeMux = 0,
                             analogBufferCounter;
 volatile int16_t            analogBuffer[ANALOG_BUFFER_SIZE];
 int16_t                     analogBufferCopy[ANALOG_BUFFER_SIZE];
-uint32_t                    lastADCsampleTime;
 
 //run time in milliseconds
 volatile uint32_t           rTime_ms = 0;
@@ -246,10 +249,10 @@ inline void checkLEDs()  {
             //change blinkBit state and write it into ledState variable if LED is in blink state
             for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)  {
 
-                if (bitRead(ledState[i], LED_BLINK_ON_BIT))    {
+                if (bitRead(ledState[i][0], LED_BLINK_ON_BIT))    {
 
-                    if (blinkState) bitWrite(ledState[i], LED_BLINK_STATE_BIT, 1);
-                    else bitWrite(ledState[i], LED_BLINK_STATE_BIT, 0);
+                    if (blinkState) bitWrite(ledState[i][0], LED_BLINK_STATE_BIT, 1);
+                    else bitWrite(ledState[i][0], LED_BLINK_STATE_BIT, 0);
 
                 }
 
@@ -266,7 +269,7 @@ inline void checkLEDs()  {
         for (int i=0; i<NUMBER_OF_LED_ROWS; i++)  {
 
             uint8_t ledNumber = activeLEDcolumn+i*NUMBER_OF_LED_COLUMNS;
-            uint8_t ledStateSingle = ledOnLookUpTable[ledState[ledNumber]];
+            uint8_t ledStateSingle = ledOnLookUpTable[ledState[ledNumber][0]];
 
             //don't bother with pwm if it's disabled
             if (!pwmSteps && ledStateSingle)    {
@@ -630,14 +633,14 @@ void Board::configureTimers()   {
 
 void Board::setLEDstate(uint8_t ledNumber, uint8_t state)   {
 
-    ledState[ledNumber] = state;
+    ledState[ledNumber][0] = state;
 
 }
 
 uint8_t Board::getLEDstate(uint8_t ledNumber)   {
 
     uint8_t returnValue;
-    returnValue = ledState[ledNumber];
+    returnValue = ledState[ledNumber][0];
     return returnValue;
 
 }

@@ -2,6 +2,8 @@
 #define LEDS_H_
 
 #include "hardware/Board.h"
+#include "..\BitManipulation.h"
+#include "eeprom/EEPROMsettings.h"
 
 //blink time
 #define BLINK_TIME_MIN                  0x02
@@ -32,6 +34,16 @@ class LEDs {
     void allLEDsOff();
     void allLEDsBlink();
     void update();
+
+    inline bool rgbLEDenabled(uint8_t ledID)    {
+
+        uint8_t arrayIndex = ledID/8;
+        uint8_t ledIndex = ledID - 8*arrayIndex;
+        uint8_t rgbEnabledArray = eeprom_read_byte((uint8_t*)EEPROM_LEDS_RGB_ENABLED_START+arrayIndex);
+
+        return (bitRead(rgbEnabledArray, ledIndex));
+
+    }
 
     private:
     //data processing

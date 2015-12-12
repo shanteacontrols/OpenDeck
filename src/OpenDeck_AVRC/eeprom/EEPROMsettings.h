@@ -124,6 +124,8 @@ const uint8_t eepromMIDIchannelArray[] = { EEPROM_MC_NOTE, EEPROM_MC_PROGRAM_CHA
 #define EEPROM_LEDS_START_UP_NUMBER_START           802
 #define EEPROM_LEDS_START_UP_NUMBER_END             865
 
+#define EEPROM_LEDS_RGB_ENABLED_START               866
+
 
 //default controller settings
 const uint8_t defConf[] PROGMEM = {
@@ -1034,7 +1036,6 @@ const uint8_t defConf[] PROGMEM = {
     0x7E,
     0x7F,
 
-
     //LED hardware parameters
 
     0x04, //blink duration time (x100mS)    //725
@@ -1130,7 +1131,7 @@ const uint8_t defConf[] PROGMEM = {
 
     //LED start-up number
 
-    MAX_NUMBER_OF_LEDS,                                   //802
+    MAX_NUMBER_OF_LEDS,                     //802
     MAX_NUMBER_OF_LEDS,
     MAX_NUMBER_OF_LEDS,
     MAX_NUMBER_OF_LEDS,
@@ -1193,7 +1194,25 @@ const uint8_t defConf[] PROGMEM = {
     MAX_NUMBER_OF_LEDS,
     MAX_NUMBER_OF_LEDS,
     MAX_NUMBER_OF_LEDS,
-    MAX_NUMBER_OF_LEDS
+    MAX_NUMBER_OF_LEDS,
+
+    //RGB LED enabled
+    //7-0
+    0x00,                                   //866
+    //15-8
+    0x00,
+    //23-16
+    0x00,
+    //31-24
+    0x00,
+    //39-32
+    0x00,
+    //47-40
+    0x00,
+    //55-48
+    0x00,
+    //63-56
+    0x00,
 
 };
 
