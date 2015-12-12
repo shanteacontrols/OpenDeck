@@ -125,6 +125,7 @@ const uint8_t eepromMIDIchannelArray[] = { EEPROM_MC_NOTE, EEPROM_MC_PROGRAM_CHA
 #define EEPROM_LEDS_START_UP_NUMBER_END             865
 
 #define EEPROM_LEDS_RGB_ENABLED_START               866
+#define EEPROM_LEDS_RGB_COLOR_ID                    874
 
 
 //default controller settings
@@ -1213,6 +1214,72 @@ const uint8_t defConf[] PROGMEM = {
     0x00,
     //63-56
     0x00,
+
+    //define color for RGB LED
+    0,                                      //874
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
 
 };
 
