@@ -27,7 +27,11 @@ class Analog {
     int16_t getMedianValue(uint8_t analogID);
     void addAnalogSample(uint8_t analogID, int16_t sample);
     bool analogValueSampled(uint8_t analogID);
-    uint8_t mapAnalog(uint8_t x, uint8_t in_min, uint8_t in_max, uint8_t out_min, uint8_t out_max);
+    inline uint8_t mapAnalog(uint8_t x, uint8_t in_min, uint8_t in_max, uint8_t out_min, uint8_t out_max) {
+
+        return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+
+    };
 
     //set
     bool setAnalogEnabled(uint8_t analogID, uint8_t state);
