@@ -18,35 +18,11 @@ subtype buttonTypeSubtype                   = { MAX_NUMBER_OF_BUTTONS, 0, (BUTTO
 subtype buttonProgramChangeEnabledSubtype   = { MAX_NUMBER_OF_BUTTONS, 0, 1 };
 subtype buttonMIDIidSubtype                 = { MAX_NUMBER_OF_BUTTONS, 0, 127 };
 
-const uint8_t buttonSubtypeArray[] = {
+const subtype *buttonSubtypeArray[] = {
 
-    buttonTypeConf,
-    buttonProgramChangeEnabledConf,
-    buttonMIDIidConf
-
-};
-
-const uint8_t buttonParametersArray[] = {
-
-    buttonTypeSubtype.parameters,
-    buttonProgramChangeEnabledSubtype.parameters,
-    buttonMIDIidSubtype.parameters
-
-};
-
-const uint8_t buttonNewParameterLowArray[] = {
-
-    buttonTypeSubtype.lowValue,
-    buttonProgramChangeEnabledSubtype.lowValue,
-    buttonMIDIidSubtype.lowValue
-
-};
-
-const uint8_t buttonNewParameterHighArray[] = {
-
-    buttonTypeSubtype.highValue,
-    buttonProgramChangeEnabledSubtype.highValue,
-    buttonMIDIidSubtype.highValue
+    &buttonTypeSubtype,
+    &buttonProgramChangeEnabledSubtype,
+    &buttonMIDIidSubtype
 
 };
 
@@ -66,7 +42,7 @@ void Buttons::init()    {
     for (int i=0; i<BUTTONS_SUBTYPES; i++)   {
 
         //define subtype messages
-        sysEx.addMessageSubType(SYS_EX_MT_BUTTONS, buttonSubtypeArray[i], buttonParametersArray[i], buttonNewParameterLowArray[i], buttonNewParameterHighArray[i]);
+        sysEx.addMessageSubType(SYS_EX_MT_BUTTONS, i, buttonSubtypeArray[i]->parameters, buttonSubtypeArray[i]->lowValue, buttonSubtypeArray[i]->highValue);
 
     }
 

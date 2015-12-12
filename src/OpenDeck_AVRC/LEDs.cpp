@@ -42,43 +42,13 @@ subtype ledsStartUpNumberSubtype        = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF
 subtype ledsRGBcolorSubtype             = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_COLORS-1 };
 subtype ledsStateSubtype                = { MAX_NUMBER_OF_LEDS, 0, LED_STATES };
 
-const uint8_t ledsSubtypeArray[] = {
+const subtype *ledsSubtypeArray[] = {
 
-    ledsHardwareParameterConf,
-    ledsActivationNoteConf,
-    ledsStartUpNumberConf,
-    ledsRGBcolorConf,
-    ledsStateConf
-
-};
-
-const uint8_t ledsParametersArray[] = {
-
-    ledsHardwareParameterSubtype.parameters,
-    ledsActivationNoteSubtype.parameters,
-    ledsStartUpNumberSubtype.parameters,
-    ledsRGBcolorSubtype.parameters,
-    ledsStateSubtype.parameters
-
-};
-
-const uint8_t ledsNewParameterLowArray[] = {
-
-    ledsHardwareParameterSubtype.lowValue,
-    ledsActivationNoteSubtype.lowValue,
-    ledsStartUpNumberSubtype.lowValue,
-    ledsRGBcolorSubtype.lowValue,
-    ledsStateSubtype.lowValue
-
-};
-
-const uint8_t ledsNewParameterHighArray[] = {
-
-    ledsHardwareParameterSubtype.highValue,
-    ledsActivationNoteSubtype.highValue,
-    ledsStartUpNumberSubtype.highValue,
-    ledsRGBcolorSubtype.highValue,
-    ledsStateSubtype.highValue
+    &ledsHardwareParameterSubtype,
+    &ledsActivationNoteSubtype,
+    &ledsStartUpNumberSubtype,
+    &ledsRGBcolorSubtype,
+    &ledsStateSubtype
 
 };
 
@@ -99,7 +69,7 @@ void LEDs::init()   {
     for (int i=0; i<LEDS_SUBTYPES; i++)   {
 
         //define subtype messages
-        sysEx.addMessageSubType(SYS_EX_MT_LEDS, ledsSubtypeArray[i], ledsParametersArray[i], ledsNewParameterLowArray[i], ledsNewParameterHighArray[i]);
+        sysEx.addMessageSubType(SYS_EX_MT_LEDS, i, ledsSubtypeArray[i]->parameters, ledsSubtypeArray[i]->lowValue, ledsSubtypeArray[i]->highValue);
 
     }
 

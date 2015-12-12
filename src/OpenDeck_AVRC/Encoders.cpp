@@ -26,38 +26,12 @@ subtype encoderInvertedSubtype      = { MAX_NUMBER_OF_ENCODERS, 0, 1 };
 subtype encoderEncodingModeSubtype  = { MAX_NUMBER_OF_ENCODERS, 0, ENCODING_MODES-1 };
 subtype encoderMIDIidSubtype        = { MAX_NUMBER_OF_ENCODERS, 0, 127 };
 
-const uint8_t encodersSubtypeArray[] = {
+const subtype *encodersSubtypeArray[] = {
 
-    encoderEnabledConf,
-    encoderInvertedConf,
-    encoderEncodingModeConf,
-    encoderMIDIidConf
-
-};
-
-const uint8_t encodersParametersArray[] = {
-
-    encoderEnabledSubtype.parameters,
-    encoderInvertedSubtype.parameters,
-    encoderEncodingModeSubtype.parameters,
-    encoderMIDIidSubtype.parameters
-
-};
-
-const uint8_t encodersNewParameterLowArray[] = {
-
-    encoderEnabledSubtype.lowValue,
-    encoderInvertedSubtype.lowValue,
-    encoderEncodingModeSubtype.lowValue,
-    encoderMIDIidSubtype.lowValue
-};
-
-const uint8_t encodersNewParameterHighArray[] = {
-
-    encoderEnabledSubtype.highValue,
-    encoderInvertedSubtype.highValue,
-    encoderEncodingModeSubtype.highValue,
-    encoderMIDIidSubtype.highValue
+    &encoderEnabledSubtype,
+    &encoderInvertedSubtype,
+    &encoderEncodingModeSubtype,
+    &encoderMIDIidSubtype
 
 };
 
@@ -75,7 +49,7 @@ void Encoders::init()   {
     for (int i=0; i<ENCODERS_SUBTYPES; i++)   {
 
         //define subtype messages
-        sysEx.addMessageSubType(SYS_EX_MT_ENCODERS, encodersSubtypeArray[i], encodersParametersArray[i], encodersNewParameterLowArray[i], encodersNewParameterHighArray[i]);
+        sysEx.addMessageSubType(SYS_EX_MT_ENCODERS, i, encodersSubtypeArray[i]->parameters, encodersSubtypeArray[i]->lowValue, encodersSubtypeArray[i]->highValue);
 
     }
 

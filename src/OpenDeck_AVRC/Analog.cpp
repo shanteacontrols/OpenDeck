@@ -17,54 +17,21 @@ typedef enum {
 
 } sysExMessageSubtypeAnalog;
 
-subtype analogEnabledSubtype       = { MAX_NUMBER_OF_ANALOG, 0, 1 };
-subtype analogTypeSubtype          = { MAX_NUMBER_OF_ANALOG, 0, ANALOG_TYPES-1 };
-subtype analogInvertedSubtype      = { MAX_NUMBER_OF_ANALOG, 0, 1 };
-subtype analogMIDIidSubtype        = { MAX_NUMBER_OF_ANALOG, 0, 127 };
-subtype analogCClowerLimitSubtype  = { MAX_NUMBER_OF_ANALOG, 0, 127 };
-subtype analogCCupperLimitSubtype  = { MAX_NUMBER_OF_ANALOG, 0, 127 };
+const subtype analogEnabledSubtype       = { MAX_NUMBER_OF_ANALOG, 0, 1 };
+const subtype analogTypeSubtype          = { MAX_NUMBER_OF_ANALOG, 0, ANALOG_TYPES-1 };
+const subtype analogInvertedSubtype      = { MAX_NUMBER_OF_ANALOG, 0, 1 };
+const subtype analogMIDIidSubtype        = { MAX_NUMBER_OF_ANALOG, 0, 127 };
+const subtype analogCClowerLimitSubtype  = { MAX_NUMBER_OF_ANALOG, 0, 127 };
+const subtype analogCCupperLimitSubtype  = { MAX_NUMBER_OF_ANALOG, 0, 127 };
 
-const uint8_t analogSubtypeArray[] = {
+const subtype *analogSubtypeArray[] = {
 
-    analogEnabledConf,
-    analogTypeConf,
-    analogInvertedConf,
-    analogMIDIidConf,
-    analogCClowerLimitConf,
-    analogCCupperLimitConf
-
-};
-
-const uint8_t analogParametersArray[] = {
-
-    analogEnabledSubtype.parameters,
-    analogTypeSubtype.parameters,
-    analogInvertedSubtype.parameters,
-    analogMIDIidSubtype.parameters,
-    analogCClowerLimitSubtype.parameters,
-    analogCCupperLimitSubtype.parameters,
-
-};
-
-const uint8_t analogNewParameterLowArray[] = {
-
-    analogEnabledSubtype.lowValue,
-    analogTypeSubtype.lowValue,
-    analogInvertedSubtype.lowValue,
-    analogMIDIidSubtype.lowValue,
-    analogCClowerLimitSubtype.lowValue,
-    analogCCupperLimitSubtype.lowValue
-
-};
-
-const uint8_t analogNewParameterHighArray[] = {
-
-    analogEnabledSubtype.highValue,
-    analogTypeSubtype.highValue,
-    analogInvertedSubtype.highValue,
-    analogMIDIidSubtype.highValue,
-    analogCClowerLimitSubtype.highValue,
-    analogCCupperLimitSubtype.highValue
+    &analogEnabledSubtype,
+    &analogTypeSubtype,
+    &analogInvertedSubtype,
+    &analogMIDIidSubtype,
+    &analogCClowerLimitSubtype,
+    &analogCCupperLimitSubtype
 
 };
 
@@ -82,7 +49,7 @@ void Analog::init() {
     for (int i=0; i<ANALOG_SUBTYPES; i++)   {
 
         //define subtype messages
-        sysEx.addMessageSubType(SYS_EX_MT_ANALOG, analogSubtypeArray[i], analogParametersArray[i], analogNewParameterLowArray[i], analogNewParameterHighArray[i]);
+        sysEx.addMessageSubType(SYS_EX_MT_ANALOG, i, analogSubtypeArray[i]->parameters, analogSubtypeArray[i]->lowValue, analogSubtypeArray[i]->highValue);
 
     }
 
@@ -125,8 +92,6 @@ void Analog::update()   {
 
 }
 
-
-
 void Analog::addAnalogSample(uint8_t analogID, int16_t sample) {
 
     uint8_t sampleIndex = analogDebounceCounter[analogID];
@@ -147,6 +112,24 @@ bool Analog::analogValueSampled(uint8_t analogID) {
 
 }
 
+int16_t Analog::getMedianValue(uint8_t analogID)  {
+
+    int16_t medianValue = 0;
+
+    if ((analogSample[analogID][0] <= analogSample[analogID][1]) && (analogSample[analogID][0] <= analogSample[analogID][2]))
+    medianValue = (analogSample[analogID][1] <= analogSample[analogID][2]) ? analogSample[analogID][1] : analogSample[analogID][2];
+
+    else if ((analogSample[analogID][1] <= analogSample[analogID][0]) && (analogSample[analogID][1] <= analogSample[analogID][2]))
+    medianValue = (analogSample[analogID][0] <= analogSample[analogID][2]) ? analogSample[analogID][0] : analogSample[analogID][2];
+
+    else
+    medianValue = (analogSample[analogID][0] <= analogSample[analogID][1]) ? analogSample[analogID][0] : analogSample[analogID][1];
+
+
+    return medianValue;
+
+}
+
 bool Analog::getAnalogEnabled(uint8_t analogID) {
 
     uint8_t arrayIndex = analogID/8;
@@ -154,12 +137,6 @@ bool Analog::getAnalogEnabled(uint8_t analogID) {
     uint8_t analogEnabledArray = eeprom_read_byte((uint8_t*)EEPROM_ANALOG_ENABLED_START+arrayIndex);
 
     return bitRead(analogEnabledArray, analogIndex);
-
-}
-
-analogType Analog::getAnalogType(uint8_t analogID) {
-
-    return (analogType)eeprom_read_byte((uint8_t*)EEPROM_ANALOG_TYPE_START+analogID);
 
 }
 
@@ -173,61 +150,15 @@ bool Analog::getAnalogInvertState(uint8_t analogID) {
 
 }
 
+analogType Analog::getAnalogType(uint8_t analogID) {
+
+    return (analogType)eeprom_read_byte((uint8_t*)EEPROM_ANALOG_TYPE_START+analogID);
+
+}
+
 uint8_t Analog::getMIDIid(uint8_t analogID)    {
 
     return eeprom_read_byte((uint8_t*)EEPROM_ANALOG_NUMBER_START+analogID);
-
-}
-
-int16_t Analog::getMedianValue(uint8_t analogID)  {
-
-    int16_t medianValue = 0;
-
-    if ((analogSample[analogID][0] <= analogSample[analogID][1]) && (analogSample[analogID][0] <= analogSample[analogID][2]))
-        medianValue = (analogSample[analogID][1] <= analogSample[analogID][2]) ? analogSample[analogID][1] : analogSample[analogID][2];
-
-    else if ((analogSample[analogID][1] <= analogSample[analogID][0]) && (analogSample[analogID][1] <= analogSample[analogID][2]))
-        medianValue = (analogSample[analogID][0] <= analogSample[analogID][2]) ? analogSample[analogID][0] : analogSample[analogID][2];
-
-    else
-        medianValue = (analogSample[analogID][0] <= analogSample[analogID][1]) ? analogSample[analogID][0] : analogSample[analogID][1];
-
-
-    return medianValue;
-
-}
-
-uint8_t Analog::mapAnalog(uint8_t x, uint8_t in_min, uint8_t in_max, uint8_t out_min, uint8_t out_max)    {
-
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-
-}
-
-bool Analog::setAnalogEnabled(uint8_t analogID, uint8_t state)    {
-
-    uint8_t arrayIndex = analogID/8;
-    uint8_t analogIndex = analogID - 8*arrayIndex;
-    uint16_t address = EEPROM_ANALOG_ENABLED_START+arrayIndex;
-    uint8_t analogEnabledArray = eeprom_read_byte((uint8_t*)address);
-
-    if (state == RESET_VALUE)   bitWrite(analogEnabledArray, analogIndex, bitRead(pgm_read_byte(&(defConf[address])), analogIndex));
-    else                        bitWrite(analogEnabledArray, analogIndex, state);
-
-    eeprom_update_byte((uint8_t*)address, analogEnabledArray);
-
-    return (analogEnabledArray == eeprom_read_byte((uint8_t*)address));
-
-}
-
-bool Analog::setAnalogType(uint8_t analogID, uint8_t type)    {
-
-    uint16_t address = EEPROM_ANALOG_TYPE_START+analogID;
-
-    if (type == RESET_VALUE) type = pgm_read_byte(&(defConf[address]));
-
-    eeprom_update_byte((uint8_t*)address, (uint8_t)type);
-
-    return ((uint8_t)type == eeprom_read_byte((uint8_t*)address));
 
 }
 
@@ -255,12 +186,12 @@ uint8_t Analog::getParameter(uint8_t messageType, uint8_t parameter) {
         return getAnalogEnabled(parameter);
         break;
 
-        case analogTypeConf:
-        return getAnalogType(parameter);
-        break;
-
         case analogInvertedConf:
         return getAnalogInvertState(parameter);
+        break;
+
+        case analogTypeConf:
+        return getAnalogType(parameter);
         break;
 
         case analogMIDIidConf:
@@ -272,42 +203,54 @@ uint8_t Analog::getParameter(uint8_t messageType, uint8_t parameter) {
         break;
 
         case analogCCupperLimitConf:
-         return getCClimit(parameter, ccLimitHigh);
+        return getCClimit(parameter, ccLimitHigh);
         break;
 
     }   return INVALID_VALUE;
 
 }
 
-bool Analog::setParameter(uint8_t messageType, uint8_t parameter, uint8_t newParameter)    {
+bool Analog::setAnalogEnabled(uint8_t analogID, uint8_t state)    {
 
-    switch(messageType) {
+    uint8_t arrayIndex = analogID/8;
+    uint8_t analogIndex = analogID - 8*arrayIndex;
+    uint16_t address = EEPROM_ANALOG_ENABLED_START+arrayIndex;
+    uint8_t analogEnabledArray = eeprom_read_byte((uint8_t*)address);
 
-        case analogEnabledConf:
-        return setAnalogEnabled(parameter, newParameter);
-        break;
+    if (state == RESET_VALUE)   bitWrite(analogEnabledArray, analogIndex, bitRead(pgm_read_byte(&(defConf[address])), analogIndex));
+    else                        bitWrite(analogEnabledArray, analogIndex, state);
 
-        case analogTypeConf:
-        return setAnalogType(parameter, (analogType)newParameter);
-        break;
+    eeprom_update_byte((uint8_t*)address, analogEnabledArray);
 
-        case analogInvertedConf:
-        return setAnalogInvertState(parameter, newParameter);
-        break;
+    return (analogEnabledArray == eeprom_read_byte((uint8_t*)address));
 
-        case analogMIDIidConf:
-        return setMIDIid(parameter, newParameter);
-        break;
+}
 
-        case analogCClowerLimitConf:
-        return setAnalogLimit(ccLimitLow, parameter, newParameter);
-        break;
+bool Analog::setAnalogInvertState(uint8_t analogID, uint8_t state) {
 
-        case analogCCupperLimitConf:
-        return setAnalogLimit(ccLimitHigh, parameter, newParameter);
-        break;
+    uint8_t arrayIndex = analogID/8;
+    uint8_t analogIndex = analogID - 8*arrayIndex;
+    uint16_t address = EEPROM_ANALOG_INVERTED_START+arrayIndex;
+    uint8_t analogInvertedArray = eeprom_read_byte((uint8_t*)address);
 
-    }   return false;
+    if (state == RESET_VALUE)   bitWrite(analogInvertedArray, analogIndex, bitRead(pgm_read_byte(&(defConf[address])), analogIndex));
+    else                        bitWrite(analogInvertedArray, analogIndex, state);
+
+    eeprom_update_byte((uint8_t*)address, analogInvertedArray);
+
+    return (analogInvertedArray == eeprom_read_byte((uint8_t*)address));
+
+}
+
+bool Analog::setAnalogType(uint8_t analogID, uint8_t type)    {
+
+    uint16_t address = EEPROM_ANALOG_TYPE_START+analogID;
+
+    if (type == RESET_VALUE) type = pgm_read_byte(&(defConf[address]));
+
+    eeprom_update_byte((uint8_t*)address, (uint8_t)type);
+
+    return ((uint8_t)type == eeprom_read_byte((uint8_t*)address));
 
 }
 
@@ -351,19 +294,35 @@ bool Analog::setAnalogLimit(ccLimitType type, uint8_t analogID, uint8_t limit)  
 
 }
 
-bool Analog::setAnalogInvertState(uint8_t analogID, uint8_t state) {
+bool Analog::setParameter(uint8_t messageType, uint8_t parameter, uint8_t newParameter)    {
 
-    uint8_t arrayIndex = analogID/8;
-    uint8_t analogIndex = analogID - 8*arrayIndex;
-    uint16_t address = EEPROM_ANALOG_INVERTED_START+arrayIndex;
-    uint8_t analogInvertedArray = eeprom_read_byte((uint8_t*)address);
+    switch(messageType) {
 
-    if (state == RESET_VALUE)   bitWrite(analogInvertedArray, analogIndex, bitRead(pgm_read_byte(&(defConf[address])), analogIndex));
-    else                        bitWrite(analogInvertedArray, analogIndex, state);
+        case analogEnabledConf:
+        return setAnalogEnabled(parameter, newParameter);
+        break;
 
-    eeprom_update_byte((uint8_t*)address, analogInvertedArray);
+        case analogInvertedConf:
+        return setAnalogInvertState(parameter, newParameter);
+        break;
 
-    return (analogInvertedArray == eeprom_read_byte((uint8_t*)address));
+        case analogTypeConf:
+        return setAnalogType(parameter, (analogType)newParameter);
+        break;
+
+        case analogMIDIidConf:
+        return setMIDIid(parameter, newParameter);
+        break;
+
+        case analogCClowerLimitConf:
+        return setAnalogLimit(ccLimitLow, parameter, newParameter);
+        break;
+
+        case analogCCupperLimitConf:
+        return setAnalogLimit(ccLimitHigh, parameter, newParameter);
+        break;
+
+    }   return false;
 
 }
 
