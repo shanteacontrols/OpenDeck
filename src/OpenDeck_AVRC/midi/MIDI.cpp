@@ -4,6 +4,7 @@
 #include "..\sysex/ProtocolDefinitions.h"
 #include "..\BitManipulation.h"
 #include "..\midi\usb_midi\USBmidi.h"
+#include "..\LEDs.h"
 
 typedef enum {
 
@@ -66,8 +67,7 @@ const uint8_t midiNewParameterHighArray[] = {
 
 MIDI::MIDI()    {
 
-    sendSysExCallback   = NULL;
-    sendNoteCallback    = NULL;
+    //default constructor
 
 }
 
@@ -151,13 +151,14 @@ void MIDI::checkInput()   {
         switch(messageType) {
 
             case midiMessageSystemExclusive:
-            sendSysExCallback(usbMIDI.getSysExArray(), usbMIDI.getData1());
+            sysEx.handleSysEx(usbMIDI.getSysExArray(), usbMIDI.getData1());
             lastSysExMessageTime = rTimeMillis();
             break;
 
             case midiMessageNoteOff:
             case midiMessageNoteOn:
-            sendNoteCallback(usbMIDI.getData1(), usbMIDI.getData2());
+            //we're using received note data to control LEDs
+            leds.noteToLEDstate(usbMIDI.getData1(), usbMIDI.getData2());
             break;
 
         }
@@ -179,11 +180,11 @@ void MIDI::checkInput()   {
 
                 case midiMessageNoteOff:
                 case midiMessageNoteOn:
-                sendNoteCallback(hwMIDI.getData1(), hwMIDI.getData2());
+                leds.noteToLEDstate(data1, data2);
                 break;
 
                 case midiMessageSystemExclusive:
-                sendSysExCallback(hwMIDI.getSysExArray(), hwMIDI.getSysExArrayLength());
+                sysEx.handleSysEx(hwMIDI.getSysExArray(), hwMIDI.getSysExArrayLength());
                 break;
 
             }
@@ -313,18 +314,6 @@ bool MIDI::setMIDIchannel(uint8_t channel, uint8_t channelNumber)  {
 uint8_t MIDI::getMIDIchannel(uint8_t channel)  {
 
     return eeprom_read_byte((uint8_t*)((int16_t)eepromMIDIchannelArray[channel]));
-
-}
-
-void MIDI::setHandleSysEx(void(*fptr)(uint8_t sysExArray[], uint8_t arraySize))    {
-
-    sendSysExCallback = fptr;
-
-}
-
-void MIDI::setHandleNote(void(*fptr)(uint8_t note, uint8_t noteVelocity))    {
-
-    sendNoteCallback = fptr;
 
 }
 

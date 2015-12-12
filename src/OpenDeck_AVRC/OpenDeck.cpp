@@ -113,19 +113,6 @@ bool onReset(uint8_t messageType, uint8_t messageSubtype, uint8_t parameter) {
 
 }
 
-void onSysEx(uint8_t sysExArray[], uint8_t arraySize)   {
-
-    sysEx.handleSysEx(sysExArray, arraySize);
-
-}
-
-void onNote(uint8_t note, uint8_t noteVelocity) {
-
-    //we're using received note data to control LEDs
-    leds.noteToLEDstate(note, noteVelocity);
-
-}
-
 void setup()    {
 
     eepromSettings.init();
@@ -134,9 +121,6 @@ void setup()    {
     sysEx.setHandleGet(onGet);
     sysEx.setHandleSet(onSet);
     sysEx.setHandleReset(onReset);
-
-    midi.setHandleSysEx(onSysEx);
-    midi.setHandleNote(onNote);
 
     board.init();
     midi.init();
