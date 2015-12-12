@@ -14,9 +14,9 @@ typedef enum {
 
 } sysExMessageSubTypeButtons;
 
-subtype buttonTypeSubtype                   = { MAX_NUMBER_OF_BUTTONS, 0, (BUTTON_TYPES-1) };
-subtype buttonProgramChangeEnabledSubtype   = { MAX_NUMBER_OF_BUTTONS, 0, 1 };
-subtype buttonMIDIidSubtype                 = { MAX_NUMBER_OF_BUTTONS, 0, 127 };
+subtype buttonTypeSubtype                   = { MAX_NUMBER_OF_BUTTONS, 0, BUTTON_TYPES-1, EEPROM_BUTTONS_TYPE_START, BIT_PARAMETER };
+subtype buttonProgramChangeEnabledSubtype   = { MAX_NUMBER_OF_BUTTONS, 0, 1, EEPROM_BUTTONS_PC_ENABLED_START, BIT_PARAMETER };
+subtype buttonMIDIidSubtype                 = { MAX_NUMBER_OF_BUTTONS, 0, 127, EEPROM_BUTTONS_NOTE_START, BYTE_PARAMETER };
 
 const subtype *buttonSubtypeArray[] = {
 
@@ -54,34 +54,6 @@ void Buttons::setButtonPressed(uint8_t buttonID, bool state)   {
     uint8_t buttonIndex = buttonID - 8*arrayIndex;
 
     bitWrite(buttonPressed[arrayIndex], buttonIndex, state);
-
-}
-
-buttonType Buttons::getButtonType(uint8_t buttonID)  {
-
-    uint8_t arrayIndex = buttonID/8;
-    uint8_t buttonIndex = buttonID - 8*arrayIndex;
-    uint8_t buttonTypeArray = eeprom_read_byte((uint8_t*)EEPROM_BUTTONS_TYPE_START+arrayIndex);
-
-    if (bitRead(buttonTypeArray, buttonIndex))
-        return buttonLatching;
-    return buttonMomentary;
-
-}
-
-bool Buttons::getButtonPCenabled(uint8_t buttonID)   {
-
-    uint8_t arrayIndex = buttonID/8;
-    uint8_t buttonIndex = buttonID - 8*arrayIndex;
-    uint8_t buttonPCenabledArray = eeprom_read_byte((uint8_t*)EEPROM_BUTTONS_PC_ENABLED_START+arrayIndex);
-
-    return bitRead(buttonPCenabledArray, buttonIndex);
-
-}
-
-uint8_t Buttons::getMIDIid(uint8_t buttonID)   {
-
-    return eeprom_read_byte((uint8_t*)EEPROM_BUTTONS_NOTE_START+buttonID);
 
 }
 
@@ -233,85 +205,49 @@ bool Buttons::buttonDebounced(uint8_t buttonID, bool buttonState)   {
 
 bool Buttons::setButtonType(uint8_t buttonID, uint8_t type)  {
 
-    uint8_t arrayIndex = buttonID/8;
-    uint8_t buttonIndex = buttonID - 8*arrayIndex;
-    uint16_t address = EEPROM_BUTTONS_TYPE_START+arrayIndex;
-    uint8_t buttonTypeArray = eeprom_read_byte((uint8_t*)address);
-
-    if (type == RESET_VALUE)    bitWrite(buttonTypeArray, buttonIndex, bitRead(pgm_read_byte(&(defConf[address])), buttonIndex));
-    else                        bitWrite(buttonTypeArray, buttonIndex, type);
-
-    eeprom_update_byte((uint8_t*)address, buttonTypeArray);
-
-    return (buttonTypeArray == eeprom_read_byte((uint8_t*)address));
+    return eepromSettings.writeParameter(buttonSubtypeArray[buttonTypeConf]->eepromAddress, buttonID, type, buttonSubtypeArray[buttonTypeConf]->parameterType);
 
 }
 
 bool Buttons::setButtonPCenabled(uint8_t buttonID, uint8_t state)  {
 
-    uint8_t arrayIndex = buttonID/8;
-    uint8_t buttonIndex = buttonID - 8*arrayIndex;
-    uint16_t address = EEPROM_BUTTONS_TYPE_START+arrayIndex;
-    uint8_t buttonPCenabledArray = eeprom_read_byte((uint8_t*)address);
-
-    if (state == RESET_VALUE)   bitWrite(buttonPCenabledArray, buttonIndex, bitRead(pgm_read_byte(&(defConf[address])), buttonIndex));
-    else                        bitWrite(buttonPCenabledArray, buttonIndex, state);
-
-    eeprom_update_byte((uint8_t*)address, buttonPCenabledArray);
-
-    return (buttonPCenabledArray == eeprom_read_byte((uint8_t*)address));
-
-}
-
-uint8_t Buttons::getParameter(uint8_t messageType, uint8_t parameterID) {
-
-    switch(messageType) {
-
-        case buttonTypeConf:
-        return getButtonType(parameterID);
-        break;
-
-        case buttonProgramChangeEnabledConf:
-        return (int8_t)getButtonPCenabled(parameterID);
-        break;
-
-        case buttonMIDIidConf:
-        return getMIDIid(parameterID);
-        break;
-
-    }   return INVALID_VALUE;
-
-}
-
-bool Buttons::setParameter(uint8_t messageType, uint8_t parameter, uint8_t newParameter)    {
-
-    switch(messageType) {
-
-        case buttonTypeConf:
-        return setButtonType(parameter, newParameter);
-        break;
-
-        case buttonProgramChangeEnabledConf:
-        return setButtonPCenabled(parameter, newParameter);
-        break;
-
-        case buttonMIDIidConf:
-        return setMIDIid(newParameter, newParameter);
-        break;
-
-    }   return false;
+    return eepromSettings.writeParameter(buttonSubtypeArray[buttonProgramChangeEnabledConf]->eepromAddress, buttonID, state, buttonSubtypeArray[buttonProgramChangeEnabledConf]->parameterType);
 
 }
 
 bool Buttons::setMIDIid(uint8_t buttonID, uint8_t midiID)    {
 
-    uint16_t address = EEPROM_BUTTONS_NOTE_START+buttonID;
+    return eepromSettings.writeParameter(buttonSubtypeArray[buttonMIDIidConf]->eepromAddress, buttonID, midiID, buttonSubtypeArray[buttonMIDIidConf]->parameterType);
 
-    if (midiID == RESET_VALUE) midiID = pgm_read_byte(&(defConf[address]));
+}
 
-    eeprom_update_byte((uint8_t*)address, midiID);
+bool Buttons::setParameter(uint8_t messageType, uint8_t parameter, uint8_t newParameter)    {
 
-    return (midiID == eeprom_read_byte((uint8_t*)address));
+    return eepromSettings.writeParameter(buttonSubtypeArray[messageType]->eepromAddress, parameter, newParameter, buttonSubtypeArray[messageType]->parameterType);
+
+}
+
+buttonType Buttons::getButtonType(uint8_t buttonID)  {
+
+    return (buttonType)eepromSettings.readParameter(buttonSubtypeArray[buttonTypeConf]->eepromAddress, buttonID, buttonSubtypeArray[buttonTypeConf]->parameterType);
+
+}
+
+bool Buttons::getButtonPCenabled(uint8_t buttonID)   {
+
+    return eepromSettings.readParameter(buttonSubtypeArray[buttonProgramChangeEnabledConf]->eepromAddress, buttonID, buttonSubtypeArray[buttonProgramChangeEnabledConf]->parameterType);
+
+}
+
+uint8_t Buttons::getMIDIid(uint8_t buttonID)   {
+
+    return eepromSettings.readParameter(buttonSubtypeArray[buttonMIDIidConf]->eepromAddress, buttonID, buttonSubtypeArray[buttonMIDIidConf]->parameterType);
+
+}
+
+uint8_t Buttons::getParameter(uint8_t messageType, uint8_t parameterID) {
+
+    return eepromSettings.readParameter(buttonSubtypeArray[messageType]->eepromAddress, parameterID, buttonSubtypeArray[messageType]->parameterType);
 
 }
 

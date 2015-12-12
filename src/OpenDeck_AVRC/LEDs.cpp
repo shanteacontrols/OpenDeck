@@ -36,11 +36,11 @@ typedef enum {
 
 } ledStatesHardwareParameter;
 
-subtype ledsHardwareParameterSubtype    = { LEDS_HARDWARE_PARAMETERS, IGNORE_NEW_VALUE, IGNORE_NEW_VALUE };
-subtype ledsActivationNoteSubtype       = { MAX_NUMBER_OF_LEDS, 0, 127 };
-subtype ledsStartUpNumberSubtype        = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_LEDS-1 };
-subtype ledsRGBcolorSubtype             = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_COLORS-1 };
-subtype ledsStateSubtype                = { MAX_NUMBER_OF_LEDS, 0, LED_STATES };
+subtype ledsHardwareParameterSubtype    = { LEDS_HARDWARE_PARAMETERS, IGNORE_NEW_VALUE, IGNORE_NEW_VALUE, EEPROM_LEDS_HW_P_START, BYTE_PARAMETER };
+subtype ledsActivationNoteSubtype       = { MAX_NUMBER_OF_LEDS, 0, 127, EEPROM_LEDS_ACT_NOTE_START, BYTE_PARAMETER };
+subtype ledsStartUpNumberSubtype        = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_LEDS-1, EEPROM_LEDS_START_UP_NUMBER_START, BYTE_PARAMETER };
+subtype ledsRGBcolorSubtype             = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_COLORS-1, EEPROM_LEDS_RGB_COLOR_ID, BYTE_PARAMETER };
+subtype ledsStateSubtype                = { MAX_NUMBER_OF_LEDS, 0, LED_STATES, 0, BYTE_PARAMETER };
 
 const subtype *ledsSubtypeArray[] = {
 
@@ -487,143 +487,59 @@ void LEDs::checkBlinkLEDs() {
 
 }
 
-bool LEDs::setLEDHwParameter(uint8_t parameter, uint8_t newParameter) {
-
-    uint16_t address;
-
-    switch((ledsHardwareParameter)parameter)   {
-
-        case ledsHwParameterTotalLEDnumber:
-        //set total number of LEDs (needed for start-up routine)
-        address = EEPROM_LEDS_HW_P_TOTAL_NUMBER;
-        if (newParameter == RESET_VALUE) newParameter = pgm_read_byte(&(defConf[address]));
-        return (eeprom_read_byte((uint8_t*)address) == newParameter);
-        break;
-
-        case ledsHwParameterBlinkTime:
-        //blink time
-        address = EEPROM_LEDS_HW_P_BLINK_TIME;
-        if (newParameter == RESET_VALUE) newParameter = pgm_read_byte(&(defConf[address]));
-        board.resetLEDblinkCounter();
-        board.setLEDblinkTime(newParameter*100);
-        eeprom_update_byte((uint8_t*)address, newParameter);
-        return (eeprom_read_byte((uint8_t*)address) == newParameter);
-        break;
-
-        case ledsHwParameterStartUpSwitchTime:
-        //start-up led switch time
-        address = EEPROM_LEDS_HW_P_START_UP_SWITCH_TIME;
-        if (newParameter == RESET_VALUE) newParameter = pgm_read_byte(&(defConf[address]));
-        eeprom_update_byte((uint8_t*)address, newParameter);
-        return (eeprom_read_byte((uint8_t*)address) == newParameter);
-        break;
-
-        case ledsHwParameterStartUpRoutine:
-        //set start-up routine pattern
-        address = EEPROM_LEDS_HW_P_START_UP_ROUTINE;
-        if (newParameter == RESET_VALUE) newParameter = pgm_read_byte(&(defConf[address]));
-        eeprom_update_byte((uint8_t*)address, newParameter);
-        return (eeprom_read_byte((uint8_t*)address) == newParameter);
-        break;
-
-        case ledsHwParameterFadeTime:
-        //pwm fade speed
-        address = EEPROM_LEDS_HW_P_FADE_SPEED;
-        if (newParameter == RESET_VALUE) newParameter = pgm_read_byte(&(defConf[address]));
-        board.resetLEDtransitions();
-        eeprom_update_byte((uint8_t*)address, newParameter);
-        if (eeprom_read_byte((uint8_t*)address) == newParameter) {
-
-            board.setLEDTransitionSpeed(newParameter);
-            return true;
-
-        } return false;
-        break;
-
-        default:
-        break;
-
-    }   return false;
-
-}
-
 uint8_t LEDs::getLEDHwParameter(uint8_t parameter)  {
 
-    switch (parameter)  {
-
-        case ledsHwParameterTotalLEDnumber:
-        return eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_TOTAL_NUMBER);
-        break;
-
-        case ledsHwParameterBlinkTime:
-        return eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_BLINK_TIME);
-        break;
-
-        case ledsHwParameterStartUpSwitchTime:
-        return eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_START_UP_SWITCH_TIME);
-        break;
-
-        case ledsHwParameterStartUpRoutine:
-        return eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_START_UP_ROUTINE);
-        break;
-
-        case ledsHwParameterFadeTime:
-        return eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_FADE_SPEED);
-        break;
-
-        default:
-        break;
-
-    }   return INVALID_VALUE;
+    return eepromSettings.readParameter(ledsSubtypeArray[ledsHardwareParameterConf]->eepromAddress, parameter, ledsSubtypeArray[ledsHardwareParameterConf]->parameterType);
 
 }
 
-uint8_t LEDs::getParameter(uint8_t messageType, uint8_t parameter)   {
+uint8_t LEDs::getParameter(uint8_t messageType, uint8_t parameterID)   {
 
-    switch(messageType) {
+    return eepromSettings.readParameter(ledsSubtypeArray[messageType]->eepromAddress, parameterID, ledsSubtypeArray[messageType]->parameterType);
 
-        case ledsHardwareParameterConf:
-        return getLEDHwParameter(parameter);
+}
+
+bool LEDs::setLEDHwParameter(uint8_t parameter, uint8_t newParameter) {
+
+    bool returnValue = eepromSettings.writeParameter(ledsSubtypeArray[ledsHardwareParameterConf]->eepromAddress, parameter, newParameter, ledsSubtypeArray[ledsHardwareParameterConf]->parameterType);
+
+    if (!returnValue) return false;
+
+    //some special considerations here
+    switch((ledsHardwareParameter)parameter)   {
+
+        case ledsHwParameterBlinkTime:
+        board.resetLEDblinkCounter();
+        board.setLEDblinkTime(newParameter*100);
         break;
 
-        case ledsActivationNoteConf:
-        return getLEDActivationNote(parameter);
-        break;
-
-        case ledsStartUpNumberConf:
-        return eeprom_read_byte((uint8_t*)EEPROM_LEDS_START_UP_NUMBER_START+parameter);
-        break;
-
-        case ledsRGBcolorConf:
-        return eeprom_read_byte((uint8_t*)EEPROM_LEDS_RGB_COLOR_ID+parameter);
-        break;
-
-        case ledsStateConf:
-        return board.getLEDstate(parameter);
+        case ledsHwParameterFadeTime:
+        board.resetLEDtransitions();
+        board.setLEDTransitionSpeed(newParameter);
         break;
 
         default:
         break;
 
-    }   return INVALID_VALUE;
+    }   return true;
+
+}
+
+bool LEDs::setLEDActivationNote(uint8_t ledNumber, uint8_t ledActNote) {
+
+    return eepromSettings.writeParameter(ledsSubtypeArray[ledsActivationNoteConf]->eepromAddress, ledNumber, ledActNote, ledsSubtypeArray[ledsActivationNoteConf]->parameterType);
+
+}
+
+bool LEDs::setLEDstartNumber(uint8_t startNumber, uint8_t ledNumber) {
+
+    return eepromSettings.writeParameter(ledsSubtypeArray[ledsStartUpNumberConf]->eepromAddress, startNumber, ledNumber, ledsSubtypeArray[ledsStartUpNumberConf]->parameterType);
 
 }
 
 bool LEDs::setParameter(uint8_t messageType, uint8_t parameter, uint8_t newParameter)   {
 
     switch((sysExMessageSubTypeLEDs)messageType) {
-
-        case ledsHardwareParameterConf:
-        return setLEDHwParameter(parameter, newParameter);
-        break;
-
-        case ledsActivationNoteConf:
-        return setLEDActivationNote(parameter, newParameter);
-        break;
-
-        case ledsStartUpNumberConf:
-        return setLEDstartNumber(parameter, newParameter);
-        break;
 
         case ledsStateConf:
         switch ((ledStatesHardwareParameter)newParameter)   {
@@ -656,33 +572,10 @@ bool LEDs::setParameter(uint8_t messageType, uint8_t parameter, uint8_t newParam
         break;
 
         default:
+        return eepromSettings.writeParameter(ledsSubtypeArray[messageType]->eepromAddress, parameter, newParameter, ledsSubtypeArray[messageType]->parameterType);
         break;
 
-    }   return false;
-
-}
-
-bool LEDs::setLEDActivationNote(uint8_t ledNumber, uint8_t ledActNote) {
-
-    uint16_t address = EEPROM_LEDS_ACT_NOTE_START+ledNumber;
-
-    if (ledActNote == RESET_VALUE) ledActNote = pgm_read_byte(&(defConf[address]));
-
-    eeprom_update_byte((uint8_t*)address, ledActNote);
-
-    return (ledActNote == eeprom_read_byte((uint8_t*)address));
-
-}
-
-bool LEDs::setLEDstartNumber(uint8_t startNumber, uint8_t ledNumber) {
-
-    uint16_t address = EEPROM_LEDS_START_UP_NUMBER_START+startNumber;
-
-    if (ledNumber == RESET_VALUE) ledNumber = pgm_read_byte(&(defConf[address]));
-
-    eeprom_update_byte((uint8_t*)address, ledNumber);
-
-    return ledNumber == eeprom_read_byte((uint8_t*)address);
+    }
 
 }
 

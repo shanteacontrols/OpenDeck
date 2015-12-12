@@ -9,7 +9,7 @@ class Encoders  {
     Encoders();
     void init();
     void update();
-    uint8_t getParameter(uint8_t messageType, uint8_t parameter);
+    uint8_t getParameter(uint8_t messageType, uint8_t parameterID);
     bool setParameter(uint8_t messageType, uint8_t parameter, uint8_t newParameter);
     bool getEncoderEnabled(uint8_t encoderID);
 

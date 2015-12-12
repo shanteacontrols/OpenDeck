@@ -1,6 +1,7 @@
 #include "..\sysex/Version.h"
 #include "..\hardware/Board.h"
 #include "UniqueID.h"
+#include "..\BitManipulation.h"
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
@@ -9,6 +10,9 @@
 #define EEPROM_H_
 
 #define RESET_VALUE                                 128
+
+#define BYTE_PARAMETER                              0
+#define BIT_PARAMETER                               1
 
 #define EEPROM_VERSION_BYTE_0                       0
 #define EEPROM_VERSION_BYTE_1                       1
@@ -1290,6 +1294,27 @@ class EEPROMsettings   {
     void init();
     void resetConfiguration();
     void clearEEPROM();
+    inline uint8_t readParameter(int16_t startAddress, uint8_t parameterID, uint8_t parameterType)  {
+
+        uint8_t arrayIndex;
+        uint8_t parameterIndex;
+
+        switch(parameterType)   {
+
+            case BIT_PARAMETER:
+            arrayIndex = parameterID/8;
+            parameterIndex = parameterID - 8*arrayIndex;
+            return bitRead(eeprom_read_byte((uint8_t*)startAddress+arrayIndex), parameterIndex);
+            break;
+
+            case BYTE_PARAMETER:
+            return eeprom_read_byte((uint8_t*)startAddress+parameterID);
+            break;
+
+        }   return 0;
+
+    }
+    bool writeParameter(int16_t startAddress, uint8_t parameterID, uint8_t newParameter, uint8_t parameterType);
 
 };
 
