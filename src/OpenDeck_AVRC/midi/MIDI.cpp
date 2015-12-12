@@ -37,10 +37,10 @@ typedef enum {
 subtype midiFeatureSubtype  = { MIDI_FEATURES, 0, 1 };
 subtype midiChannelSubtype  = { NUMBER_OF_CHANNELS, 1, 16 };
 
-const uint8_t midiSubtypeArray[] = {
+const subtype *midiSubtypeArray[] = {
 
-    midiFeatureConf,
-    midiChannelConf
+    &midiFeatureSubtype,
+    &midiChannelSubtype
 
 };
 
@@ -78,7 +78,7 @@ void MIDI::init() {
     for (int i=0; i<MIDI_SUBTYPES; i++)   {
 
         //define subtype messages
-        sysEx.addMessageSubType(SYS_EX_MT_MIDI, midiSubtypeArray[i], midiParametersArray[i], midiNewParameterLowArray[i], midiNewParameterHighArray[i]);
+        sysEx.addMessageSubType(SYS_EX_MT_MIDI, i, midiSubtypeArray[i]->parameters, midiSubtypeArray[i]->lowValue, midiSubtypeArray[i]->highValue);
 
     }
 
