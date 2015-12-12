@@ -34,8 +34,8 @@ typedef enum {
 
 } midiFeaturesParameters;
 
-subtype midiFeatureSubtype  = { MIDI_FEATURES, 0, 1 };
-subtype midiChannelSubtype  = { NUMBER_OF_CHANNELS, 1, 16 };
+subtype midiFeatureSubtype  = { MIDI_FEATURES, 0, 1, EEPROM_FEATURES_MIDI, BIT_PARAMETER };
+subtype midiChannelSubtype  = { NUMBER_OF_CHANNELS, 1, 16, EEPROM_MC_START, BYTE_PARAMETER };
 
 const subtype *midiSubtypeArray[] = {
 
@@ -91,53 +91,30 @@ void MIDI::init() {
 
 uint8_t MIDI::getParameter(uint8_t messageType, uint8_t parameterID)  {
 
-    switch(messageType) {
+    return eepromSettings.readParameter(midiSubtypeArray[messageType]->eepromAddress, parameterID, midiSubtypeArray[messageType]->parameterType);
 
-        case midiFeatureConf:
-        return getFeature(parameterID);
-        break;
-
-        case midiChannelConf:
-        return getMIDIchannel(parameterID);
-        break;
-
-    }   return INVALID_VALUE;
 }
 
 bool MIDI::setParameter(uint8_t messageType, uint8_t parameterID, uint8_t newValue) {
 
-    int16_t address;
-    uint8_t featuresArray;
+    if (!eepromSettings.writeParameter(midiSubtypeArray[messageType]->eepromAddress, parameterID, newValue, midiSubtypeArray[messageType]->parameterType))
+        return false;
 
     switch(messageType) {
 
         case midiFeatureConf:
-        address = EEPROM_FEATURES_MIDI;
-        featuresArray = eeprom_read_byte((uint8_t*)address);
-        if (newValue == RESET_VALUE)    bitWrite(featuresArray, parameterID, bitRead(pgm_read_byte(&(defConf[address])), parameterID));
-        else                            bitWrite(featuresArray, parameterID, newValue);
-
-        eeprom_update_byte((uint8_t*)address, featuresArray);
-
         if (parameterID == midiFeatureRunningStatus)    {
 
             //tell hwMIDI object that we've changed this setting
             newValue ? hwMIDI.enableRunningStatus() : hwMIDI.disableRunningStatus();
 
         }
-
-        return (featuresArray == eeprom_read_byte((uint8_t*)EEPROM_FEATURES_MIDI));
         break;
 
-        case midiChannelConf:
-        address = eepromMIDIchannelArray[parameterID];
-        if (newValue == RESET_VALUE)
-            eeprom_update_byte((uint8_t*)address, pgm_read_byte(&(defConf[address])));
-        else eeprom_update_byte((uint8_t*)address, newValue);
-        return (newValue == getMIDIchannel(parameterID));
+        default:
         break;
 
-    }   return false;
+    }   return true;
 
 }
 
@@ -183,8 +160,7 @@ void MIDI::checkInput()   {
                 leds.noteToLEDstate(data1, data2);
                 break;
 
-                case midiMessageSystemExclusive:
-                sysEx.handleSysEx(hwMIDI.getSysExArray(), hwMIDI.getSysExArrayLength());
+                default:
                 break;
 
             }
@@ -236,8 +212,7 @@ void MIDI::checkInput()   {
 
 bool MIDI::getFeature(uint8_t featureID)  {
 
-    uint8_t features = eeprom_read_byte((uint8_t*)EEPROM_FEATURES_MIDI);
-    return bitRead(features, featureID);
+    return eepromSettings.readParameter(midiSubtypeArray[midiFeatureConf]->eepromAddress, featureID, midiSubtypeArray[midiFeatureConf]->parameterType);
 
 }
 
@@ -306,14 +281,13 @@ void MIDI::sendSysEx(uint8_t *sysExArray, uint8_t arraySize)   {
 
 bool MIDI::setMIDIchannel(uint8_t channel, uint8_t channelNumber)  {
 
-    eeprom_update_byte((uint8_t*)((int16_t)eepromMIDIchannelArray[channel]), channelNumber);
-    return (channelNumber == eeprom_read_byte((uint8_t*)((int16_t)eepromMIDIchannelArray[channel])));
+    return eepromSettings.writeParameter(midiSubtypeArray[midiChannelConf]->eepromAddress, channel, channelNumber, midiSubtypeArray[midiChannelConf]->parameterType);
 
 }
 
 uint8_t MIDI::getMIDIchannel(uint8_t channel)  {
 
-    return eeprom_read_byte((uint8_t*)((int16_t)eepromMIDIchannelArray[channel]));
+    return eepromSettings.readParameter(midiSubtypeArray[midiChannelConf]->eepromAddress, channel, midiSubtypeArray[midiChannelConf]->parameterType);
 
 }
 

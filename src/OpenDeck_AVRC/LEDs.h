@@ -27,7 +27,7 @@ class LEDs {
     LEDs();
     void init();
     void getConfiguration();
-    uint8_t getParameter(uint8_t messageType, uint8_t parameter);
+    uint8_t getParameter(uint8_t messageType, uint8_t parameterID);
     bool setParameter(uint8_t messageType, uint8_t parameter, uint8_t newParameter);
     void noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity);
     void allLEDsOn();

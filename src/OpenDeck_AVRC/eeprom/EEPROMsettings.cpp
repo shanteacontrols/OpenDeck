@@ -39,4 +39,40 @@ void EEPROMsettings::clearEEPROM()    {
 
 }
 
+bool EEPROMsettings::writeParameter(int16_t startAddress, uint8_t parameterID, uint8_t newParameter, uint8_t parameterType)  {
+
+    uint8_t arrayIndex,
+            parameterIndex,
+            changedArray;
+
+    switch(parameterType)   {
+
+        case BIT_PARAMETER:
+        arrayIndex = parameterID/8;
+        parameterIndex = parameterID - 8*arrayIndex;
+        startAddress += arrayIndex;
+        changedArray = eeprom_read_byte((uint8_t*)startAddress);
+
+        if (newParameter == RESET_VALUE)    bitWrite(changedArray, parameterIndex, bitRead(pgm_read_byte(&(defConf[startAddress])), parameterIndex));
+        else                                bitWrite(changedArray, parameterIndex, newParameter);
+
+        eeprom_update_byte((uint8_t*)startAddress, changedArray);
+
+        return (changedArray == eeprom_read_byte((uint8_t*)startAddress));
+        break;
+
+        case BYTE_PARAMETER:
+        startAddress += parameterID;
+
+        if (newParameter == RESET_VALUE) newParameter = pgm_read_byte(&(defConf[startAddress]));
+
+        eeprom_update_byte((uint8_t*)startAddress, newParameter);
+
+        return (newParameter == eeprom_read_byte((uint8_t*)startAddress));
+        break;
+
+    }   return false;
+
+}
+
 EEPROMsettings eepromSettings;
