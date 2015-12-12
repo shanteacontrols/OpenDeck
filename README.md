@@ -70,7 +70,7 @@ The platform allows hassle-free building of MIDI controllers and their configura
 All configuration is done using MIDI System Exclusive messages. For more information, see examples in /examples folder.
 
 ## Firmware compilation
-MCU Code is available as Atmel Studio 7.0 project. Simply open 'OpenDeck_AVRC.atsln' using the IDE and everything should work.
+MCU Code is available as Atmel Studio 7.0 project. Simply open `OpenDeck_AVRC.atsln` using the IDE and everything should work.
 
 
 ## Licence
