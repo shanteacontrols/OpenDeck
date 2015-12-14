@@ -1,4 +1,5 @@
 #include "EEPROMsettings.h"
+#include "..\sysex\SysEx.h"
 
 EEPROMsettings::EEPROMsettings()    {
 

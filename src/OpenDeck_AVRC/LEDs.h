@@ -56,7 +56,8 @@ class LEDs {
 
     //get
     uint8_t getLEDHwParameter(uint8_t parameter);
-    uint8_t getLEDActivationNote(uint8_t);
+    uint8_t getLEDActivationNote(uint8_t ledNumber);
+    uint8_t getLEDstartUpNumber(uint8_t ledNumber);
     uint8_t getLEDid(uint8_t midiID);
 
     //set

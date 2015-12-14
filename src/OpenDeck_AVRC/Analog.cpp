@@ -1,7 +1,6 @@
 #include "Analog.h"
 #include "sysex/SysEx.h"
 #include "eeprom/EEPROMsettings.h"
-#include "sysex/ProtocolDefinitions.h"
 #include "..\midi\MIDI.h"
 #include "BitManipulation.h"
 
@@ -17,24 +16,6 @@ typedef enum {
 
 } sysExMessageSubtypeAnalog;
 
-const subtype analogEnabledSubtype       = { MAX_NUMBER_OF_ANALOG, 0, 1, EEPROM_ANALOG_ENABLED_START, BIT_PARAMETER };
-const subtype analogInvertedSubtype      = { MAX_NUMBER_OF_ANALOG, 0, 1, EEPROM_ANALOG_INVERTED_START, BIT_PARAMETER };
-const subtype analogTypeSubtype          = { MAX_NUMBER_OF_ANALOG, 0, ANALOG_TYPES-1, EEPROM_ANALOG_TYPE_START, BYTE_PARAMETER };
-const subtype analogMIDIidSubtype        = { MAX_NUMBER_OF_ANALOG, 0, 127, EEPROM_ANALOG_NUMBER_START, BYTE_PARAMETER };
-const subtype analogCClowerLimitSubtype  = { MAX_NUMBER_OF_ANALOG, 0, 127, EEPROM_ANALOG_LOWER_LIMIT_START, BYTE_PARAMETER };
-const subtype analogCCupperLimitSubtype  = { MAX_NUMBER_OF_ANALOG, 0, 127, EEPROM_ANALOG_UPPER_LIMIT_START, BYTE_PARAMETER };
-
-const subtype *analogSubtypeArray[] = {
-
-    &analogEnabledSubtype,
-    &analogTypeSubtype,
-    &analogInvertedSubtype,
-    &analogMIDIidSubtype,
-    &analogCClowerLimitSubtype,
-    &analogCCupperLimitSubtype
-
-};
-
 Analog::Analog()    {
 
     //def const
@@ -43,13 +24,31 @@ Analog::Analog()    {
 
 void Analog::init() {
 
+    const subtype analogEnabledSubtype       = { MAX_NUMBER_OF_ANALOG, 0, 1 };
+    const subtype analogInvertedSubtype      = { MAX_NUMBER_OF_ANALOG, 0, 1 };
+    const subtype analogTypeSubtype          = { MAX_NUMBER_OF_ANALOG, 0, ANALOG_TYPES-1 };
+    const subtype analogMIDIidSubtype        = { MAX_NUMBER_OF_ANALOG, 0, 127 };
+    const subtype analogCClowerLimitSubtype  = { MAX_NUMBER_OF_ANALOG, 0, 127 };
+    const subtype analogCCupperLimitSubtype  = { MAX_NUMBER_OF_ANALOG, 0, 127 };
+
+    const subtype *analogSubtypeArray[] = {
+
+        &analogEnabledSubtype,
+        &analogTypeSubtype,
+        &analogInvertedSubtype,
+        &analogMIDIidSubtype,
+        &analogCClowerLimitSubtype,
+        &analogCCupperLimitSubtype
+
+    };
+
     //define message for sysex configuration
-    sysEx.addMessageType(SYS_EX_MT_ANALOG, ANALOG_SUBTYPES);
+    sysEx.addMessageType(CONF_ENCODER_BLOCK, ANALOG_SUBTYPES);
 
     for (int i=0; i<ANALOG_SUBTYPES; i++)   {
 
         //define subtype messages
-        sysEx.addMessageSubType(SYS_EX_MT_ANALOG, i, analogSubtypeArray[i]->parameters, analogSubtypeArray[i]->lowValue, analogSubtypeArray[i]->highValue);
+        sysEx.addMessageSubType(CONF_ENCODER_BLOCK, i, analogSubtypeArray[i]->parameters, analogSubtypeArray[i]->lowValue, analogSubtypeArray[i]->highValue);
 
     }
 
@@ -133,25 +132,25 @@ int16_t Analog::getMedianValue(uint8_t analogID)  {
 
 bool Analog::getAnalogEnabled(uint8_t analogID) {
 
-    return eepromSettings.readParameter(analogSubtypeArray[analogEnabledConf]->eepromAddress, analogID, analogSubtypeArray[analogEnabledConf]->parameterType);
+    return eepromSettings.readParameter(EEPROM_ANALOG_ENABLED_START, analogID, BIT_PARAMETER);
 
 }
 
 bool Analog::getAnalogInvertState(uint8_t analogID) {
 
-    return eepromSettings.readParameter(analogSubtypeArray[analogInvertedConf]->eepromAddress, analogID, analogSubtypeArray[analogInvertedConf]->parameterType);
+    return eepromSettings.readParameter(EEPROM_ANALOG_INVERTED_START, analogID, BIT_PARAMETER);
 
 }
 
 analogType Analog::getAnalogType(uint8_t analogID) {
 
-    return (analogType)eepromSettings.readParameter(analogSubtypeArray[analogTypeConf]->eepromAddress, analogID, analogSubtypeArray[analogTypeConf]->parameterType);
+    return (analogType)eepromSettings.readParameter(EEPROM_ANALOG_TYPE_START, analogID, BYTE_PARAMETER);
 
 }
 
 uint8_t Analog::getMIDIid(uint8_t analogID)    {
 
-    return eepromSettings.readParameter(analogSubtypeArray[analogMIDIidConf]->eepromAddress, analogID, analogSubtypeArray[analogMIDIidConf]->parameterType);
+    return eepromSettings.readParameter(EEPROM_ANALOG_NUMBER_START, analogID, BYTE_PARAMETER);
 
 }
 
@@ -160,11 +159,11 @@ uint8_t Analog::getCClimit(uint8_t analogID, ccLimitType type)  {
     switch(type)    {
 
         case ccLimitLow:
-        return eepromSettings.readParameter(analogSubtypeArray[analogCClowerLimitConf]->eepromAddress, analogID, analogSubtypeArray[analogCClowerLimitConf]->parameterType);
+        return eepromSettings.readParameter(EEPROM_ANALOG_LOWER_LIMIT_START, analogID, BYTE_PARAMETER);
         break;
 
         case ccLimitHigh:
-        return eepromSettings.readParameter(analogSubtypeArray[analogCCupperLimitConf]->eepromAddress, analogID, analogSubtypeArray[analogCCupperLimitConf]->parameterType);
+        return eepromSettings.readParameter(EEPROM_ANALOG_UPPER_LIMIT_START, analogID, BYTE_PARAMETER);
         break;
 
     }   return 0;
@@ -173,45 +172,71 @@ uint8_t Analog::getCClimit(uint8_t analogID, ccLimitType type)  {
 
 uint8_t Analog::getParameter(uint8_t messageType, uint8_t parameter) {
 
-    return eepromSettings.readParameter(analogSubtypeArray[messageType]->eepromAddress, parameter, analogSubtypeArray[messageType]->parameterType);
+    switch(messageType) {
+
+        case analogEnabledConf:
+        return getAnalogEnabled(parameter);
+        break;
+
+        case analogInvertedConf:
+        return getAnalogInvertState(parameter);
+        break;
+
+        case analogTypeConf:
+        return getAnalogType(parameter);
+        break;
+
+        case analogMIDIidConf:
+        return getMIDIid(parameter);
+        break;
+
+        case analogCClowerLimitConf:
+        return getCClimit(parameter, ccLimitLow);
+        break;
+
+        case analogCCupperLimitConf:
+        return getCClimit(parameter, ccLimitHigh);
+        break;
+
+    }   return 0;
 
 }
 
 
 bool Analog::setAnalogEnabled(uint8_t analogID, uint8_t state)    {
 
-    return eepromSettings.writeParameter(analogSubtypeArray[analogEnabledConf]->eepromAddress, analogID, state, analogSubtypeArray[analogEnabledConf]->parameterType);
+    return eepromSettings.writeParameter(EEPROM_ANALOG_ENABLED_START, analogID, state, BIT_PARAMETER);
 
 }
 
 bool Analog::setAnalogInvertState(uint8_t analogID, uint8_t state) {
 
-    return eepromSettings.writeParameter(analogSubtypeArray[analogInvertedConf]->eepromAddress, analogID, state, analogSubtypeArray[analogInvertedConf]->parameterType);
+    return eepromSettings.writeParameter(EEPROM_ANALOG_INVERTED_START, analogID, state, BIT_PARAMETER);
 
 }
 
 bool Analog::setAnalogType(uint8_t analogID, uint8_t type)    {
 
-    return eepromSettings.writeParameter(analogSubtypeArray[analogTypeConf]->eepromAddress, analogID, type, analogSubtypeArray[analogTypeConf]->parameterType);
+    return eepromSettings.writeParameter(EEPROM_ANALOG_TYPE_START, analogID, type, BYTE_PARAMETER);
 
 }
 
 bool Analog::setMIDIid(uint8_t analogID, uint8_t midiID)   {
 
-    return eepromSettings.writeParameter(analogSubtypeArray[analogMIDIidConf]->eepromAddress, analogID, midiID, analogSubtypeArray[analogMIDIidConf]->parameterType);
+    return eepromSettings.writeParameter(EEPROM_ANALOG_NUMBER_START, analogID, midiID, BYTE_PARAMETER);
 
 }
 
-bool Analog::setAnalogLimit(ccLimitType type, uint8_t analogID, uint8_t limit)  {
+bool Analog::setCClimit(ccLimitType type, uint8_t analogID, uint8_t limit)  {
 
     switch (limit)  {
 
         case ccLimitLow:
-        return eepromSettings.writeParameter(analogSubtypeArray[analogCClowerLimitConf]->eepromAddress, analogID, limit, analogSubtypeArray[analogCClowerLimitConf]->parameterType);
+        return eepromSettings.writeParameter(EEPROM_ANALOG_LOWER_LIMIT_START, analogID, limit, BYTE_PARAMETER);
         break;
 
         case ccLimitHigh:
-        return eepromSettings.writeParameter(analogSubtypeArray[analogCCupperLimitConf]->eepromAddress, analogID, limit, analogSubtypeArray[analogCCupperLimitConf]->parameterType);
+        return eepromSettings.writeParameter(EEPROM_ANALOG_UPPER_LIMIT_START, analogID, limit, BYTE_PARAMETER);
         break;
 
         default:
@@ -224,7 +249,33 @@ bool Analog::setAnalogLimit(ccLimitType type, uint8_t analogID, uint8_t limit)  
 
 bool Analog::setParameter(uint8_t messageType, uint8_t parameter, uint8_t newParameter)    {
 
-    return eepromSettings.writeParameter(analogSubtypeArray[messageType]->eepromAddress, parameter, newParameter, analogSubtypeArray[messageType]->parameterType);
+    switch(messageType) {
+
+        case analogEnabledConf:
+        return setAnalogEnabled(parameter, newParameter);
+        break;
+
+        case analogInvertedConf:
+        return setAnalogInvertState(parameter, newParameter);
+        break;
+
+        case analogTypeConf:
+        return setAnalogType(parameter, newParameter);
+        break;
+
+        case analogMIDIidConf:
+        return setMIDIid(parameter, newParameter);
+        break;
+
+        case analogCClowerLimitConf:
+        return setCClimit(ccLimitLow, parameter, newParameter);
+        break;
+
+        case analogCCupperLimitConf:
+        return setCClimit(ccLimitLow, parameter, newParameter);
+        break;
+
+    }   return false;
 
 }
 

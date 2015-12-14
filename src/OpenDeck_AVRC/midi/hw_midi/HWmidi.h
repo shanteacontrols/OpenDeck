@@ -55,7 +55,6 @@ class MIDI_Class {
     void sendProgramChange(uint8_t ProgramNumber, uint8_t Channel);
     void sendPitchBend(uint16_t PitchValue, uint8_t Channel);
     void sendSysEx(int length, const uint8_t *const array, bool ArrayContainsBoundaries = false);
-
     void enableRunningStatus();
     void disableRunningStatus();
 

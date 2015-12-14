@@ -5,6 +5,7 @@
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
+#include "Blocks.h"
 
 #ifndef EEPROM_H_
 #define EEPROM_H_
@@ -20,14 +21,6 @@
 
 #define EEPROM_MC_START                             3
 #define EEPROM_MC_END                               8
-
-#define EEPROM_MC_NOTE                              3
-#define EEPROM_MC_PROGRAM_CHANGE                    5
-#define EEPROM_MC_CC                                6
-#define EEPROM_MC_PITCH_BEND                        7
-#define EEPROM_MC_INPUT                             8
-
-const uint8_t eepromMIDIchannelArray[] = { EEPROM_MC_NOTE, EEPROM_MC_PROGRAM_CHANGE, EEPROM_MC_CC, EEPROM_MC_PITCH_BEND, EEPROM_MC_INPUT };
 
 #define EEPROM_FEATURES_START                       9
 #define EEPROM_FEATURES_END                         13
@@ -130,6 +123,913 @@ const uint8_t eepromMIDIchannelArray[] = { EEPROM_MC_NOTE, EEPROM_MC_PROGRAM_CHA
 
 #define EEPROM_LEDS_RGB_ENABLED_START               866
 #define EEPROM_LEDS_RGB_COLOR_ID                    874
+////
+////typedef struct {
+////
+    ////uint8_t subsectionStart;
+    ////uint8_t parameterType;
+    ////uint8_t maxParameters;
+    ////uint8_t defaultValue;
+    ////uint8_t minValue;
+    ////uint8_t maxValue;
+////
+////} eepromSubsection;
+////
+////const uint8_t midiConf[] PROGMEM = {
+////
+    //////MIDI channels
+    ////0x01, //button note channel             //003
+    ////0x00, //reserved                        //004
+    ////0x01, //program change channel          //005
+    ////0x01, //CC channel                      //006
+    ////0x01, //pitch bend channel              //007
+    ////0x01, //MIDI input channel              //008
+////
+    //////features
+    //////MIDI features
+////
+    //////no function
+    //////no function
+    //////no function
+    //////no function
+    //////no function
+    //////no function
+    //////running status on/off (hw midi only)
+    //////standard note off
+    ////0b00000000,                             //009
+////
+////};
+////
+////const uint8_t buttonDefConf[] PROGMEM = {
+////
+    //////button type
+    //////0 - press/note on, release/note off (momentary)
+    //////1 - press/note on, release/nothing, press again/note off (latching)
+////
+    ////BIT_PARAMETER,
+    //////7-0
+    ////0x00,                                   //019
+    //////15-8
+    ////0x00,
+    //////23-16
+    ////0x00,
+    //////31-24
+    ////0x00,
+    //////39-32
+    ////0x00,
+    //////47-40
+    ////0x00,
+    //////55-48
+    ////0x00,
+    //////63-56
+    ////0x00,
+////
+    //////enable button program change
+    //////enabling button program change will disable button notes, and vice versa
+    //////0 - disabled
+    //////1 - enabled
+////
+    ////BIT_PARAMETER,
+    //////7-0
+    ////0x00,                                   //027
+    //////15-8
+    ////0x00,
+    //////23-16
+    ////0x00,
+    //////31-24
+    ////0x00,
+    //////39-32
+    ////0x00,
+    //////47-40
+    ////0x00,
+    //////55-48
+    ////0x00,
+    //////63-56
+    ////0x00,
+////
+    //////button notes/program change
+////
+    ////BYTE_PARAMETER,
+    ////0x00,                                   //035
+    ////0x01,   //22
+    ////0x02,
+    ////0x03,
+    ////0x04,
+    ////0x05,
+    ////0x06,
+    ////0x07,
+    ////0x08,
+    ////0x09,   //30
+    ////0x0A,
+    ////0x0B,
+    ////0x0C,
+    ////0x0D,
+    ////0x0E,
+    ////0x0F,
+    ////0x10,
+    ////0x11,
+    ////0x12,
+    ////0x13,
+    ////0x14,
+    ////0x15,
+    ////0x16,
+    ////0x17,
+    ////0x18,
+    ////0x19,
+    ////0x1A,
+    ////0x1B,
+    ////0x1C,
+    ////0x1D,
+    ////0x1E,
+    ////0x1F,
+    ////0x20,
+    ////0x21,
+    ////0x22,
+    ////0x23,
+    ////0x24,
+    ////0x25,
+    ////0x26,
+    ////0x27,
+    ////0x28,
+    ////0x29,
+    ////0x2A,
+    ////0x2B,
+    ////0x2C,
+    ////0x2D,
+    ////0x2E,
+    ////0x2F,
+    ////0x30,
+    ////0x31,
+    ////0x32,
+    ////0x33,
+    ////0x34,
+    ////0x35,
+    ////0x36,
+    ////0x37,
+    ////0x38,
+    ////0x39,
+    ////0x3A,
+    ////0x3B,
+    ////0x3C,
+    ////0x3D,
+    ////0x3E,
+    ////0x3F,
+////
+////};
+////
+////const uint8_t encoderConf[] PROGMEM = {
+////
+    //////invert encoder
+    //////7-0
+    ////0x00,                                   //389
+    //////15-8
+    ////0x00,
+    //////23-16
+    ////0x00,
+    //////31-24
+    ////0x00,
+    //////39-32
+    ////0x00,
+    //////47-40
+    ////0x00,
+    //////55-48
+    ////0x00,
+    //////63-56
+    ////0x00,
+////
+    //////fast encoder mode
+    //////7-0
+    ////0x00,                                   //397
+    //////15-8
+    ////0x00,
+    //////23-16
+    ////0x00,
+    //////31-24
+    ////0x00,
+    //////39-32
+    ////0x00,
+    //////47-40
+    ////0x00,
+    //////55-48
+    ////0x00,
+    //////63-56
+    ////0x00,
+////
+    //////encoding mode
+    //////0 - 7Fh/01h
+    //////1 - 3Fh/41h
+    //////2 - reserved for ableton
+    ////0x00,                                   //469
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+////
+    //////encoder acceleration/sensitivity
+    //////first four bytes acc
+    //////2nd four sensitivity
+    ////0x00,                                   //533
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+////
+////};
+////
+////const uint8_t analogConf[] PROGMEM = {
+////
+    //////analog hardware parameters
+    ////0x00,  //reserved                       //099
+    ////0x00,  //reserved                       //100
+    ////0x00,  //reserved                       //101
+    ////0x00,  //reserved                       //102
+    ////0x00,  //reserved                       //103
+////
+    //////enable analog (1 enabled, 0 disabled)
+////
+    //////7-0
+    ////0x00,                                   //104
+    //////15-8
+    ////0x00,
+    //////23-16
+    ////0x00,
+    //////31-24
+    ////0x00,
+    //////39-32
+    ////0x00,
+    //////47-40
+    ////0x00,
+    //////55-48
+    ////0x00,
+    //////63-56
+    ////0x00,
+////
+    //////analog connection type
+    //////0 - potentiometer
+    //////1 - button
+    //////2 - FSR
+    ////0x00,                                   //112
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+////
+    //////invert analog data (1 invert, 0 don't invert)
+////
+    //////7-0
+    ////0x00,                                   //176
+    //////15-8
+    ////0x00,
+    //////23-16
+    ////0x00,
+    //////31-24
+    ////0x00,
+    //////39-32
+    ////0x00,
+    //////47-40
+    ////0x00,
+    //////55-48
+    ////0x00,
+    //////63-56
+    ////0x00,
+////
+    //////CC numbers
+////
+    ////0x00,                                   //184
+    ////0x01,
+    ////0x02,
+    ////0x03,
+    ////0x04,
+    ////0x05,
+    ////0x06,
+    ////0x07,
+    ////0x08,
+    ////0x09,
+    ////0x0A,
+    ////0x0B,
+    ////0x0C,
+    ////0x0D,
+    ////0x0E,
+    ////0x0F,
+    ////0x10,
+    ////0x11,
+    ////0x12,
+    ////0x13,
+    ////0x14,
+    ////0x15,
+    ////0x16,
+    ////0x17,
+    ////0x18,
+    ////0x19,
+    ////0x1A,
+    ////0x1B,
+    ////0x1C,
+    ////0x1D,
+    ////0x1E,
+    ////0x1F,
+    ////0x20,
+    ////0x21,
+    ////0x22,
+    ////0x23,
+    ////0x24,
+    ////0x25,
+    ////0x26,
+    ////0x27,
+    ////0x28,
+    ////0x29,
+    ////0x2A,
+    ////0x2B,
+    ////0x2C,
+    ////0x2D,
+    ////0x2E,
+    ////0x2F,
+    ////0x30,
+    ////0x31,
+    ////0x32,
+    ////0x33,
+    ////0x34,
+    ////0x35,
+    ////0x36,
+    ////0x37,
+    ////0x38,
+    ////0x39,
+    ////0x3A,
+    ////0x3B,
+    ////0x3C,
+    ////0x3D,
+    ////0x3E,
+    ////0x3F,
+////
+    //////CC lower limits
+////
+    ////0x00,                                   //248
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+    ////0x00,
+////
+    //////CC upper limits
+////
+    ////0x7F,                                   //312
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+////
+////};
+////
+////const uint8_t ledConf[] PROGMEM = {
+////
+    //////LED hardware parameters
+////
+    ////0x04, //blink duration time (x100mS)    //725
+    ////0x00, //total number of LEDs            //726
+    ////0x05, //start up LED switch time (x10mS)//727
+    ////0x00, //start-up routine pattern        //728
+    ////0x05, //fade speed                      //729
+////
+    //////use local LED control instead of MIDI in
+    //////7-0
+    ////0x00,                                   //730
+    //////15-8
+    ////0x00,
+    //////23-16
+    ////0x00,
+    //////31-24
+    ////0x00,
+    //////39-32
+    ////0x00,
+    //////47-40
+    ////0x00,
+    //////55-48
+    ////0x00,
+    //////63-56
+    ////0x00,
+////
+    //////LED activation notes/buttons
+////
+    ////0x7F,                                   //738
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+    ////0x7F,
+////
+    //////LED start-up number
+////
+    ////MAX_NUMBER_OF_LEDS,                     //802
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+    ////MAX_NUMBER_OF_LEDS,
+////
+    //////RGB LED enabled
+    //////7-0
+    ////0x00,                                   //866
+    //////15-8
+    ////0x00,
+    //////23-16
+    ////0x00,
+    //////31-24
+    ////0x00,
+    //////39-32
+    ////0x00,
+    //////47-40
+    ////0x00,
+    //////55-48
+    ////0x00,
+    //////63-56
+    ////0x00,
+////
+    //////define color for RGB LED
+    ////0,                                      //874
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0,
+    ////0
+////
+////};
+////
+////const uint8_t* const configurationArray[] PROGMEM = {
+////
+    ////midiConf,
+    ////buttonDefConf,
+    ////encoderConf,
+    ////analogConf,
+    ////ledConf
+////
+////};
 
 
 //default controller settings
@@ -141,12 +1041,12 @@ const uint8_t defConf[] PROGMEM = {
     UNIQUE_ID, //byte 2                     //002
 
     //MIDI channels
-    0x01, //button note channel             //003
-    0x00, //reserved                        //004
-    0x01, //program change channel          //005
-    0x01, //CC channel                      //006
-    0x01, //pitch bend channel              //007
-    0x01, //MIDI input channel              //008
+    0x01, //note channel                    //003
+    0x01, //program change channel          //004
+    0x01, //CC channel                      //005
+    0x01, //pitch bend channel              //006
+    0x01, //MIDI input channel              //007
+    0x01, //reserved                        //008
 
     //features
     //MIDI features
@@ -1313,7 +2213,7 @@ class EEPROMsettings   {
 
         }   return 0;
 
-    }
+    };
     bool writeParameter(int16_t startAddress, uint8_t parameterID, uint8_t newParameter, uint8_t parameterType);
 
 };

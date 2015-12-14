@@ -23,8 +23,6 @@ typedef struct {
     uint8_t parameters;
     uint8_t lowValue;
     uint8_t highValue;
-    int16_t eepromAddress;
-    uint8_t parameterType;
 
 } subtype;
 
