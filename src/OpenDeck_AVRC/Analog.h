@@ -38,7 +38,7 @@ class Analog {
     bool setAnalogType(uint8_t analogID, uint8_t type);
     bool setAnalogInvertState(uint8_t analogID, uint8_t state);
     bool setMIDIid(uint8_t analogID, uint8_t midiID);
-    bool setAnalogLimit(ccLimitType type, uint8_t analogID, uint8_t limit);
+    bool setCClimit(ccLimitType type, uint8_t analogID, uint8_t limit);
 
     //get
     bool getAnalogEnabled(uint8_t analogID);

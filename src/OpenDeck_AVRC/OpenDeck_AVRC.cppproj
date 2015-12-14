@@ -184,6 +184,9 @@
     <Compile Include="Buttons.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="eeprom\Blocks.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="eeprom\EEPROMsettings.cpp">
       <SubType>compile</SubType>
     </Compile>
@@ -290,9 +293,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="sysex\ManufacturerID.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="sysex\ProtocolDefinitions.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="sysex\SysEx.cpp">

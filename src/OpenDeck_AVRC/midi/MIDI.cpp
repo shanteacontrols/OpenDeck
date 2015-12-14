@@ -1,21 +1,9 @@
 #include "MIDI.h"
 #include "..\sysex/SysEx.h"
 #include "..\eeprom/EEPROMsettings.h"
-#include "..\sysex/ProtocolDefinitions.h"
 #include "..\BitManipulation.h"
 #include "..\midi\usb_midi\USBmidi.h"
 #include "..\LEDs.h"
-
-typedef enum {
-
-    noteChannel,
-    programChangeChannel,
-    CCchannel,
-    HwMIDIpitchBendChannel,
-    inputChannel,
-    NUMBER_OF_CHANNELS
-
-} channels;
 
 typedef enum {
 
@@ -27,43 +15,23 @@ typedef enum {
 
 typedef enum {
 
+    noteChannel,
+    programChangeChannel,
+    CCchannel,
+    pitchBendChannel,
+    inputChannel,
+    NUMBER_OF_CHANNELS
+
+} channels;
+
+typedef enum {
+
     midiFeatureStandardNoteOff,
     midiFeatureRunningStatus,
     midiFeatureUSBconvert,
     MIDI_FEATURES
 
 } midiFeaturesParameters;
-
-subtype midiFeatureSubtype  = { MIDI_FEATURES, 0, 1, EEPROM_FEATURES_MIDI, BIT_PARAMETER };
-subtype midiChannelSubtype  = { NUMBER_OF_CHANNELS, 1, 16, EEPROM_MC_START, BYTE_PARAMETER };
-
-const subtype *midiSubtypeArray[] = {
-
-    &midiFeatureSubtype,
-    &midiChannelSubtype
-
-};
-
-const uint8_t midiParametersArray[] = {
-
-    midiFeatureSubtype.parameters,
-    midiChannelSubtype.parameters
-
-};
-
-const uint8_t midiNewParameterLowArray[] = {
-
-    midiFeatureSubtype.lowValue,
-    midiChannelSubtype.lowValue
-
-};
-
-const uint8_t midiNewParameterHighArray[] = {
-
-    midiFeatureSubtype.highValue,
-    midiChannelSubtype.highValue
-
-};
 
 MIDI::MIDI()    {
 
@@ -73,12 +41,22 @@ MIDI::MIDI()    {
 
 void MIDI::init() {
 
-    sysEx.addMessageType(SYS_EX_MT_MIDI, MIDI_SUBTYPES);
+    const subtype midiFeatureSubtype  = { MIDI_FEATURES, 0, 1 };
+    const subtype midiChannelSubtype  = { NUMBER_OF_CHANNELS, 1, 16 };
+
+    const subtype *midiSubtypeArray[] = {
+
+        &midiFeatureSubtype,
+        &midiChannelSubtype
+
+    };
+
+    sysEx.addMessageType(CONF_MIDI_BLOCK, MIDI_SUBTYPES);
 
     for (int i=0; i<MIDI_SUBTYPES; i++)   {
 
         //define subtype messages
-        sysEx.addMessageSubType(SYS_EX_MT_MIDI, i, midiSubtypeArray[i]->parameters, midiSubtypeArray[i]->lowValue, midiSubtypeArray[i]->highValue);
+        sysEx.addMessageSubType(CONF_MIDI_BLOCK, i, midiSubtypeArray[i]->parameters, midiSubtypeArray[i]->lowValue, midiSubtypeArray[i]->highValue);
 
     }
 
@@ -86,35 +64,6 @@ void MIDI::init() {
     //read incoming MIDI messages on specified channel
     hwMIDI.begin(inChannel);
     usbMIDI.begin(inChannel);
-
-}
-
-uint8_t MIDI::getParameter(uint8_t messageType, uint8_t parameterID)  {
-
-    return eepromSettings.readParameter(midiSubtypeArray[messageType]->eepromAddress, parameterID, midiSubtypeArray[messageType]->parameterType);
-
-}
-
-bool MIDI::setParameter(uint8_t messageType, uint8_t parameterID, uint8_t newValue) {
-
-    if (!eepromSettings.writeParameter(midiSubtypeArray[messageType]->eepromAddress, parameterID, newValue, midiSubtypeArray[messageType]->parameterType))
-        return false;
-
-    switch(messageType) {
-
-        case midiFeatureConf:
-        if (parameterID == midiFeatureRunningStatus)    {
-
-            //tell hwMIDI object that we've changed this setting
-            newValue ? hwMIDI.enableRunningStatus() : hwMIDI.disableRunningStatus();
-
-        }
-        break;
-
-        default:
-        break;
-
-    }   return true;
 
 }
 
@@ -210,12 +159,6 @@ void MIDI::checkInput()   {
 
 }
 
-bool MIDI::getFeature(uint8_t featureID)  {
-
-    return eepromSettings.readParameter(midiSubtypeArray[midiFeatureConf]->eepromAddress, featureID, midiSubtypeArray[midiFeatureConf]->parameterType);
-
-}
-
 void MIDI::sendMIDInote(uint8_t buttonNote, bool buttonState, uint8_t _velocity)  {
 
     uint8_t channel = getMIDIchannel(noteChannel);
@@ -279,16 +222,73 @@ void MIDI::sendSysEx(uint8_t *sysExArray, uint8_t arraySize)   {
 
 }
 
-bool MIDI::setMIDIchannel(uint8_t channel, uint8_t channelNumber)  {
 
-    return eepromSettings.writeParameter(midiSubtypeArray[midiChannelConf]->eepromAddress, channel, channelNumber, midiSubtypeArray[midiChannelConf]->parameterType);
+bool MIDI::getFeature(uint8_t featureID)  {
+
+    return eepromSettings.readParameter(EEPROM_FEATURES_MIDI, featureID, BIT_PARAMETER);
 
 }
 
 uint8_t MIDI::getMIDIchannel(uint8_t channel)  {
 
-    return eepromSettings.readParameter(midiSubtypeArray[midiChannelConf]->eepromAddress, channel, midiSubtypeArray[midiChannelConf]->parameterType);
+    return eepromSettings.readParameter(EEPROM_MC_START, channel, BYTE_PARAMETER);
 
 }
+
+uint8_t MIDI::getParameter(uint8_t messageType, uint8_t parameterID)  {
+
+    switch(messageType) {
+
+        case midiFeatureConf:
+        return getFeature(parameterID);
+        break;
+
+        case midiChannelConf:
+        setHighMacro(BTLDR_LED_PORT, BTLDR_LED_PIN);
+        return getMIDIchannel(parameterID);
+        break;
+
+    }   return 0;
+
+}
+
+
+bool MIDI::setMIDIchannel(uint8_t channel, uint8_t channelNumber)  {
+
+    return eepromSettings.writeParameter(EEPROM_MC_START, channel, channelNumber, BYTE_PARAMETER);
+
+}
+
+bool MIDI::setFeature(uint8_t featureID, uint8_t newValue)  {
+
+    if (!eepromSettings.writeParameter(EEPROM_FEATURES_MIDI, featureID, newValue, BIT_PARAMETER))
+        return false;
+
+    if (featureID == midiFeatureRunningStatus)    {
+
+        //tell hwMIDI object that we've changed this setting
+        newValue ? hwMIDI.enableRunningStatus() : hwMIDI.disableRunningStatus();
+
+    }   return true;
+
+}
+
+bool MIDI::setParameter(uint8_t messageType, uint8_t parameterID, uint8_t newValue) {
+
+    switch(messageType) {
+
+        case midiFeatureConf:
+        return setFeature(parameterID, newValue);
+        break;
+
+        case midiChannelConf:
+        return setMIDIchannel(parameterID, newValue);
+        break;
+
+    }   return false;
+
+}
+
+
 
 MIDI midi;

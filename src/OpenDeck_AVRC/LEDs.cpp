@@ -1,5 +1,4 @@
 #include "LEDs.h"
-#include "sysex/ProtocolDefinitions.h"
 #include "LEDsettings.h"
 #include "sysex/SysEx.h"
 #include "LEDcolors.h"
@@ -11,7 +10,7 @@ typedef enum {
     ledsStartUpNumberConf,
     ledsRGBcolorConf,
     ledsStateConf,
-    LEDS_SUBTYPES
+    LED_SUBTYPES
 
 } sysExMessageSubTypeLEDs;
 
@@ -36,22 +35,6 @@ typedef enum {
 
 } ledStatesHardwareParameter;
 
-subtype ledsHardwareParameterSubtype    = { LEDS_HARDWARE_PARAMETERS, IGNORE_NEW_VALUE, IGNORE_NEW_VALUE, EEPROM_LEDS_HW_P_START, BYTE_PARAMETER };
-subtype ledsActivationNoteSubtype       = { MAX_NUMBER_OF_LEDS, 0, 127, EEPROM_LEDS_ACT_NOTE_START, BYTE_PARAMETER };
-subtype ledsStartUpNumberSubtype        = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_LEDS-1, EEPROM_LEDS_START_UP_NUMBER_START, BYTE_PARAMETER };
-subtype ledsRGBcolorSubtype             = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_COLORS-1, EEPROM_LEDS_RGB_COLOR_ID, BYTE_PARAMETER };
-subtype ledsStateSubtype                = { MAX_NUMBER_OF_LEDS, 0, LED_STATES, 0, BYTE_PARAMETER };
-
-const subtype *ledsSubtypeArray[] = {
-
-    &ledsHardwareParameterSubtype,
-    &ledsActivationNoteSubtype,
-    &ledsStartUpNumberSubtype,
-    &ledsRGBcolorSubtype,
-    &ledsStateSubtype
-
-};
-
 LEDs::LEDs()    {
 
     //def const
@@ -60,16 +43,32 @@ LEDs::LEDs()    {
 
 void LEDs::init()   {
 
+    const subtype ledsHardwareParameterSubtype    = { LEDS_HARDWARE_PARAMETERS, IGNORE_NEW_VALUE, IGNORE_NEW_VALUE };
+    const subtype ledsActivationNoteSubtype       = { MAX_NUMBER_OF_LEDS, 0, 127 };
+    const subtype ledsStartUpNumberSubtype        = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_LEDS-1 };
+    const subtype ledsRGBcolorSubtype             = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_COLORS-1 };
+    const subtype ledsStateSubtype                = { MAX_NUMBER_OF_LEDS, 0, LED_STATES, };
+
+    const subtype *ledsSubtypeArray[] = {
+
+        &ledsHardwareParameterSubtype,
+        &ledsActivationNoteSubtype,
+        &ledsStartUpNumberSubtype,
+        &ledsRGBcolorSubtype,
+        &ledsStateSubtype
+
+    };
+
     getConfiguration();
 
     //define message for sysex configuration
-    sysEx.addMessageType(SYS_EX_MT_LEDS, LEDS_SUBTYPES);
+    sysEx.addMessageType(CONF_LED_BLOCK, LED_SUBTYPES);
 
     //add subtypes
-    for (int i=0; i<LEDS_SUBTYPES; i++)   {
+    for (int i=0; i<LED_SUBTYPES; i++)   {
 
         //define subtype messages
-        sysEx.addMessageSubType(SYS_EX_MT_LEDS, i, ledsSubtypeArray[i]->parameters, ledsSubtypeArray[i]->lowValue, ledsSubtypeArray[i]->highValue);
+        sysEx.addMessageSubType(CONF_LED_BLOCK, i, ledsSubtypeArray[i]->parameters, ledsSubtypeArray[i]->lowValue, ledsSubtypeArray[i]->highValue);
 
     }
 
@@ -355,12 +354,6 @@ uint8_t LEDs::getLEDid(uint8_t midiID)   {
 
 }
 
-uint8_t LEDs::getLEDActivationNote(uint8_t ledNumber)   {
-
-    return eeprom_read_byte((uint8_t*)EEPROM_LEDS_ACT_NOTE_START+ledNumber);
-
-}
-
 bool LEDs::checkLEDstartUpNumber(uint8_t ledID)  {
 
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
@@ -487,21 +480,55 @@ void LEDs::checkBlinkLEDs() {
 
 }
 
+
 uint8_t LEDs::getLEDHwParameter(uint8_t parameter)  {
 
-    return eepromSettings.readParameter(ledsSubtypeArray[ledsHardwareParameterConf]->eepromAddress, parameter, ledsSubtypeArray[ledsHardwareParameterConf]->parameterType);
+    return eepromSettings.readParameter(EEPROM_LEDS_HW_P_START, parameter, BYTE_PARAMETER);
+
+}
+
+uint8_t LEDs::getLEDActivationNote(uint8_t ledNumber)   {
+
+    return eepromSettings.readParameter(EEPROM_LEDS_ACT_NOTE_START, ledNumber, BYTE_PARAMETER);
+
+}
+
+uint8_t LEDs::getLEDstartUpNumber(uint8_t ledNumber)    {
+
+    return eepromSettings.readParameter(EEPROM_LEDS_START_UP_NUMBER_START, ledNumber, BYTE_PARAMETER);
 
 }
 
 uint8_t LEDs::getParameter(uint8_t messageType, uint8_t parameterID)   {
 
-    return eepromSettings.readParameter(ledsSubtypeArray[messageType]->eepromAddress, parameterID, ledsSubtypeArray[messageType]->parameterType);
+    switch(messageType) {
+
+        case ledsHardwareParameterConf:
+        return getLEDHwParameter(parameterID);
+        break;
+
+        case ledsActivationNoteConf:
+        return getLEDActivationNote(parameterID);
+        break;
+
+        case ledsStartUpNumberConf:
+        return getLEDstartUpNumber(parameterID);
+        break;
+
+        case ledsRGBcolorConf:
+        break;
+
+        case ledsStateConf:
+        break;
+
+    }   return 0;
 
 }
 
+
 bool LEDs::setLEDHwParameter(uint8_t parameter, uint8_t newParameter) {
 
-    bool returnValue = eepromSettings.writeParameter(ledsSubtypeArray[ledsHardwareParameterConf]->eepromAddress, parameter, newParameter, ledsSubtypeArray[ledsHardwareParameterConf]->parameterType);
+    bool returnValue = eepromSettings.writeParameter(EEPROM_LEDS_HW_P_START, parameter, newParameter, BYTE_PARAMETER);
 
     if (!returnValue) return false;
 
@@ -527,19 +554,34 @@ bool LEDs::setLEDHwParameter(uint8_t parameter, uint8_t newParameter) {
 
 bool LEDs::setLEDActivationNote(uint8_t ledNumber, uint8_t ledActNote) {
 
-    return eepromSettings.writeParameter(ledsSubtypeArray[ledsActivationNoteConf]->eepromAddress, ledNumber, ledActNote, ledsSubtypeArray[ledsActivationNoteConf]->parameterType);
+    return eepromSettings.writeParameter(EEPROM_LEDS_ACT_NOTE_START, ledNumber, ledActNote, BYTE_PARAMETER);
 
 }
 
 bool LEDs::setLEDstartNumber(uint8_t startNumber, uint8_t ledNumber) {
 
-    return eepromSettings.writeParameter(ledsSubtypeArray[ledsStartUpNumberConf]->eepromAddress, startNumber, ledNumber, ledsSubtypeArray[ledsStartUpNumberConf]->parameterType);
+    return eepromSettings.writeParameter(EEPROM_LEDS_START_UP_NUMBER_START, startNumber, ledNumber, BYTE_PARAMETER);
 
 }
 
 bool LEDs::setParameter(uint8_t messageType, uint8_t parameter, uint8_t newParameter)   {
 
-    switch((sysExMessageSubTypeLEDs)messageType) {
+    switch(messageType) {
+
+        case ledsHardwareParameterConf:
+        return setLEDHwParameter(parameter, newParameter);
+        break;
+
+        case ledsActivationNoteConf:
+        return setLEDActivationNote(parameter, newParameter);
+        break;
+
+        case ledsStartUpNumberConf:
+        return setLEDstartNumber(parameter, newParameter);
+        break;
+
+        case ledsRGBcolorConf:
+        break;
 
         case ledsStateConf:
         switch ((ledStatesHardwareParameter)newParameter)   {
@@ -571,11 +613,7 @@ bool LEDs::setParameter(uint8_t messageType, uint8_t parameter, uint8_t newParam
         }
         break;
 
-        default:
-        return eepromSettings.writeParameter(ledsSubtypeArray[messageType]->eepromAddress, parameter, newParameter, ledsSubtypeArray[messageType]->parameterType);
-        break;
-
-    }
+    }   return false;
 
 }
 

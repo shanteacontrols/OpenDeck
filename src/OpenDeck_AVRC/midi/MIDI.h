@@ -11,6 +11,7 @@ class MIDI {
     void init();
     void checkInput();
     uint8_t getParameter(uint8_t messageType, uint8_t parameterID);
+    bool setFeature(uint8_t featureID, uint8_t newValue);
     bool setParameter(uint8_t messageType, uint8_t parameterID, uint8_t newParameterID);
 
     void sendMIDInote(uint8_t, bool, uint8_t);

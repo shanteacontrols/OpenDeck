@@ -13,7 +13,6 @@
 #include "Encoders.h"
 #include "LEDs.h"
 #include "eeprom/EEPROMsettings.h"
-#include "sysex/ProtocolDefinitions.h"
 #include "sysex/SysEx.h"
 #include "hardware/Reset.h"
 
@@ -33,24 +32,24 @@ uint8_t onGet(uint8_t messageType, uint8_t messageSubtype, uint8_t parameter) {
 
     switch(messageType) {
 
-        case SYS_EX_MT_MIDI:
+        case CONF_MIDI_BLOCK:
         return midi.getParameter(messageSubtype, parameter);
         break;
 
-        case SYS_EX_MT_BUTTONS:
+        case CONF_BUTTON_BLOCK:
         return buttons.getParameter(messageSubtype, parameter);
         break;
 
-        case SYS_EX_MT_ANALOG:
+        case CONF_ENCODER_BLOCK:
+        return encoders.getParameter(messageSubtype, parameter);
+        break;
+
+        case CONF_ANALOG_BLOCK:
         return analog.getParameter(messageSubtype, parameter);
         break;
 
-        case SYS_EX_MT_LEDS:
+        case CONF_LED_BLOCK:
         return leds.getParameter(messageSubtype, parameter);
-        break;
-
-        case SYS_EX_MT_ENCODERS:
-        return encoders.getParameter(messageSubtype, parameter);
         break;
 
     } return INVALID_VALUE;
@@ -61,23 +60,23 @@ bool onSet(uint8_t messageType, uint8_t messageSubtype, uint8_t parameter, uint8
 
     switch(messageType) {
 
-        case SYS_EX_MT_MIDI:
+        case CONF_MIDI_BLOCK:
         return midi.setParameter(messageSubtype, parameter, newParameter);
         break;
 
-        case SYS_EX_MT_BUTTONS:
+        case CONF_BUTTON_BLOCK:
         return buttons.setParameter(messageSubtype, parameter, newParameter);
         break;
 
-        case SYS_EX_MT_ANALOG:
+        case CONF_ENCODER_BLOCK:
         return analog.setParameter(messageSubtype, parameter, newParameter);
         break;
 
-        case SYS_EX_MT_LEDS:
+        case CONF_LED_BLOCK:
         return leds.setParameter(messageSubtype, parameter, newParameter);
         break;
 
-        case SYS_EX_MT_ENCODERS:
+        case CONF_ANALOG_BLOCK:
         return encoders.setParameter(messageSubtype, parameter, newParameter);
         break;
 
@@ -89,23 +88,23 @@ bool onReset(uint8_t messageType, uint8_t messageSubtype, uint8_t parameter) {
 
     switch(messageType) {
 
-        case SYS_EX_MT_MIDI:
+        case CONF_MIDI_BLOCK:
         return midi.setParameter(messageSubtype, parameter, RESET_VALUE);
         break;
 
-        case SYS_EX_MT_BUTTONS:
+        case CONF_BUTTON_BLOCK:
         return buttons.setParameter(messageSubtype, parameter, RESET_VALUE);
         break;
 
-        case SYS_EX_MT_ANALOG:
+        case CONF_ENCODER_BLOCK:
         return analog.setParameter(messageSubtype, parameter, RESET_VALUE);
         break;
 
-        case SYS_EX_MT_LEDS:
+        case CONF_LED_BLOCK:
         return leds.setParameter(messageSubtype, parameter, RESET_VALUE);
         break;
 
-        case SYS_EX_MT_ENCODERS:
+        case CONF_ANALOG_BLOCK:
         return encoders.setParameter(messageSubtype, parameter, RESET_VALUE);
         break;
 
@@ -135,7 +134,6 @@ int main()  {
 
     setup();
     while(1) { midi.checkInput(); buttons.update(); analog.update(); encoders.update(); }
-
     return 0;
 
 }
