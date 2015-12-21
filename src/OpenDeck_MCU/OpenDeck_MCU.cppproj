@@ -13,7 +13,7 @@
     <OutputFileExtension>.elf</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
     <AssemblyName>OpenDeck_AVRC</AssemblyName>
-    <Name>OpenDeck_AVRC</Name>
+    <Name>OpenDeck_MCU</Name>
     <RootNamespace>OpenDeck_AVRC</RootNamespace>
     <ToolchainFlavour>Native</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
