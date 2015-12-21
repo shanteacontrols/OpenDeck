@@ -1,5 +1,5 @@
 #include "Analog.h"
-#include "sysex/SysEx.h"
+#include "..\sysex/SysEx.h"
 
 //potentiometer must exceed this value before sending new value
 #define POTENTIOMETER_CC_STEP 8

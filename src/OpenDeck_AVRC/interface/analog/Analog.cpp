@@ -1,20 +1,9 @@
 #include "Analog.h"
-#include "sysex/SysEx.h"
-#include "eeprom/EEPROMsettings.h"
-#include "..\midi\MIDI.h"
-#include "BitManipulation.h"
-
-typedef enum {
-
-    analogEnabledConf,
-    analogTypeConf,
-    analogInvertedConf,
-    analogMIDIidConf,
-    analogCClowerLimitConf,
-    analogCCupperLimitConf,
-    ANALOG_SUBTYPES
-
-} sysExMessageSubtypeAnalog;
+#include "..\sysex\SysEx.h"
+#include "..\eeprom\Configuration.h"
+#include "..\interface\midi\MIDI.h"
+#include "..\BitManipulation.h"
+#include "..\interface\settings\AnalogSettings.h"
 
 Analog::Analog()    {
 
@@ -132,25 +121,25 @@ int16_t Analog::getMedianValue(uint8_t analogID)  {
 
 bool Analog::getAnalogEnabled(uint8_t analogID) {
 
-    return eepromSettings.readParameter(EEPROM_ANALOG_ENABLED_START, analogID, BIT_PARAMETER);
+    return configuration.readParameter(CONF_ANALOG_BLOCK, analogEnabledConf, analogID);
 
 }
 
 bool Analog::getAnalogInvertState(uint8_t analogID) {
 
-    return eepromSettings.readParameter(EEPROM_ANALOG_INVERTED_START, analogID, BIT_PARAMETER);
+    return configuration.readParameter(CONF_ANALOG_BLOCK, analogInvertedConf, analogID);
 
 }
 
 analogType Analog::getAnalogType(uint8_t analogID) {
 
-    return (analogType)eepromSettings.readParameter(EEPROM_ANALOG_TYPE_START, analogID, BYTE_PARAMETER);
+    return (analogType)configuration.readParameter(CONF_ANALOG_BLOCK, analogTypeConf, analogID);
 
 }
 
 uint8_t Analog::getMIDIid(uint8_t analogID)    {
 
-    return eepromSettings.readParameter(EEPROM_ANALOG_NUMBER_START, analogID, BYTE_PARAMETER);
+    return configuration.readParameter(CONF_ANALOG_BLOCK, analogMIDIidConf, analogID);
 
 }
 
@@ -159,11 +148,11 @@ uint8_t Analog::getCClimit(uint8_t analogID, ccLimitType type)  {
     switch(type)    {
 
         case ccLimitLow:
-        return eepromSettings.readParameter(EEPROM_ANALOG_LOWER_LIMIT_START, analogID, BYTE_PARAMETER);
+        return configuration.readParameter(CONF_ANALOG_BLOCK, analogCClowerLimitConf, analogID);
         break;
 
         case ccLimitHigh:
-        return eepromSettings.readParameter(EEPROM_ANALOG_UPPER_LIMIT_START, analogID, BYTE_PARAMETER);
+        return configuration.readParameter(CONF_ANALOG_BLOCK, analogCCupperLimitConf, analogID);
         break;
 
     }   return 0;
@@ -205,25 +194,25 @@ uint8_t Analog::getParameter(uint8_t messageType, uint8_t parameter) {
 
 bool Analog::setAnalogEnabled(uint8_t analogID, uint8_t state)    {
 
-    return eepromSettings.writeParameter(EEPROM_ANALOG_ENABLED_START, analogID, state, BIT_PARAMETER);
+    return configuration.writeParameter(CONF_ANALOG_BLOCK, analogEnabledConf, analogID, state);
 
 }
 
 bool Analog::setAnalogInvertState(uint8_t analogID, uint8_t state) {
 
-    return eepromSettings.writeParameter(EEPROM_ANALOG_INVERTED_START, analogID, state, BIT_PARAMETER);
+    return configuration.writeParameter(CONF_ANALOG_BLOCK, analogInvertedConf, analogID, state);
 
 }
 
 bool Analog::setAnalogType(uint8_t analogID, uint8_t type)    {
 
-    return eepromSettings.writeParameter(EEPROM_ANALOG_TYPE_START, analogID, type, BYTE_PARAMETER);
+    return configuration.writeParameter(CONF_ANALOG_BLOCK, analogTypeConf, analogID, type);
 
 }
 
 bool Analog::setMIDIid(uint8_t analogID, uint8_t midiID)   {
 
-    return eepromSettings.writeParameter(EEPROM_ANALOG_NUMBER_START, analogID, midiID, BYTE_PARAMETER);
+    return configuration.writeParameter(CONF_ANALOG_BLOCK, analogMIDIidConf, analogID, midiID);
 
 }
 
@@ -232,11 +221,11 @@ bool Analog::setCClimit(ccLimitType type, uint8_t analogID, uint8_t limit)  {
     switch (limit)  {
 
         case ccLimitLow:
-        return eepromSettings.writeParameter(EEPROM_ANALOG_LOWER_LIMIT_START, analogID, limit, BYTE_PARAMETER);
+        return configuration.writeParameter(CONF_ANALOG_BLOCK, analogCClowerLimitConf, analogID, limit);
         break;
 
         case ccLimitHigh:
-        return eepromSettings.writeParameter(EEPROM_ANALOG_UPPER_LIMIT_START, analogID, limit, BYTE_PARAMETER);
+        return configuration.writeParameter(CONF_ANALOG_BLOCK, analogCCupperLimitConf, analogID, limit);
         break;
 
         default:

@@ -5,7 +5,7 @@
 #include "..\Types.h"
 #include "Version.h"
 #include "ManufacturerID.h"
-#include "..\midi\MIDI.h"
+#include "..\interface\midi\MIDI.h"
 
 #define MAX_NUMBER_OF_MESSAGES  7
 #define MAX_NUMBER_OF_SUBTYPES  7

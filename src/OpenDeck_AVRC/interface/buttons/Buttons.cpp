@@ -1,17 +1,9 @@
 #include "Buttons.h"
-#include "eeprom/EEPROMsettings.h"
-#include "..\midi\MIDI.h"
-#include "sysex/SysEx.h"
-#include "BitManipulation.h"
-
-typedef enum {
-
-    buttonTypeConf,
-    buttonProgramChangeEnabledConf,
-    buttonMIDIidConf,
-    BUTTON_SUBTYPES
-
-} sysExMessageSubTypeButtons;
+#include "..\eeprom\Configuration.h"
+#include "..\interface\midi\MIDI.h"
+#include "..\sysex/SysEx.h"
+#include "..\BitManipulation.h"
+#include "..\interface\settings\ButtonSettings.h"
 
 const uint8_t buttonDebounceCompare = 0b10000000;
 
@@ -202,21 +194,58 @@ bool Buttons::buttonDebounced(uint8_t buttonID, bool buttonState)   {
 
 }
 
+buttonType Buttons::getButtonType(uint8_t buttonID)  {
+
+    return (buttonType)configuration.readParameter(CONF_BUTTON_BLOCK, buttonTypeConf, buttonID);
+
+}
+
+bool Buttons::getButtonPCenabled(uint8_t buttonID)   {
+
+    return configuration.readParameter(CONF_BUTTON_BLOCK, buttonProgramChangeEnabledConf, buttonID);
+
+}
+
+uint8_t Buttons::getMIDIid(uint8_t buttonID)   {
+
+    return configuration.readParameter(CONF_BUTTON_BLOCK, buttonMIDIidConf, buttonID);
+
+}
+
+uint8_t Buttons::getParameter(uint8_t messageType, uint8_t parameterID) {
+
+    switch(messageType) {
+
+        case buttonTypeConf:
+        return getButtonType(parameterID);
+        break;
+
+        case buttonProgramChangeEnabledConf:
+        return getButtonPCenabled(parameterID);
+        break;
+
+        case buttonMIDIidConf:
+        return getMIDIid(parameterID);
+        break;
+
+    }   return 0;
+}
+
 bool Buttons::setButtonType(uint8_t buttonID, uint8_t type)  {
 
-    return eepromSettings.writeParameter(EEPROM_BUTTONS_TYPE_START, buttonID, type, BIT_PARAMETER);
+    return configuration.writeParameter(CONF_BUTTON_BLOCK, buttonTypeConf, buttonID, type);
 
 }
 
 bool Buttons::setButtonPCenabled(uint8_t buttonID, uint8_t state)  {
 
-    return eepromSettings.writeParameter(EEPROM_BUTTONS_PC_ENABLED_START, buttonID, state, BIT_PARAMETER);
+    return configuration.writeParameter(CONF_BUTTON_BLOCK, buttonProgramChangeEnabledConf, buttonID, state);
 
 }
 
 bool Buttons::setMIDIid(uint8_t buttonID, uint8_t midiID)    {
 
-    return eepromSettings.writeParameter(EEPROM_BUTTONS_NOTE_START, buttonID, midiID, BYTE_PARAMETER);
+    return configuration.writeParameter(CONF_BUTTON_BLOCK, buttonMIDIidConf, buttonID, midiID);
 
 }
 
@@ -238,43 +267,6 @@ bool Buttons::setParameter(uint8_t messageType, uint8_t parameter, uint8_t newPa
 
     }   return false;
 
-}
-
-buttonType Buttons::getButtonType(uint8_t buttonID)  {
-
-    return (buttonType)eepromSettings.readParameter(EEPROM_BUTTONS_TYPE_START, buttonID, BIT_PARAMETER);
-
-}
-
-bool Buttons::getButtonPCenabled(uint8_t buttonID)   {
-
-    return eepromSettings.readParameter(EEPROM_BUTTONS_PC_ENABLED_START, buttonID, BIT_PARAMETER);
-
-}
-
-uint8_t Buttons::getMIDIid(uint8_t buttonID)   {
-
-    return eepromSettings.readParameter(EEPROM_BUTTONS_NOTE_START, buttonID, BYTE_PARAMETER);
-
-}
-
-uint8_t Buttons::getParameter(uint8_t messageType, uint8_t parameterID) {
-
-    switch(messageType) {
-
-        case buttonTypeConf:
-        return getButtonType(parameterID);
-        break;
-
-        case buttonProgramChangeEnabledConf:
-        return getButtonPCenabled(parameterID);
-        break;
-
-        case buttonMIDIidConf:
-        return getMIDIid(parameterID);
-        break;
-
-    }   return 0;
 }
 
 Buttons buttons;

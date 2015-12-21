@@ -7,14 +7,14 @@
     Released under GPLv3.
 */
 
-#include "hardware/Board.h"
-#include "Buttons.h"
-#include "Analog.h"
-#include "Encoders.h"
-#include "LEDs.h"
-#include "eeprom/EEPROMsettings.h"
-#include "sysex/SysEx.h"
-#include "hardware/Reset.h"
+#include "hardware\board\Board.h"
+#include "interface\analog\Analog.h"
+#include "interface\buttons\Buttons.h"
+#include "interface\encoders\Encoders.h"
+#include "interface\leds\LEDs.h"
+#include "eeprom\Configuration.h"
+#include "sysex\SysEx.h"
+#include "hardware\reset\Reset.h"
 
 void onReboot()  {
 
@@ -69,15 +69,15 @@ bool onSet(uint8_t messageType, uint8_t messageSubtype, uint8_t parameter, uint8
         break;
 
         case CONF_ENCODER_BLOCK:
+        return encoders.setParameter(messageSubtype, parameter, newParameter);
+        break;
+
+        case CONF_ANALOG_BLOCK:
         return analog.setParameter(messageSubtype, parameter, newParameter);
         break;
 
         case CONF_LED_BLOCK:
         return leds.setParameter(messageSubtype, parameter, newParameter);
-        break;
-
-        case CONF_ANALOG_BLOCK:
-        return encoders.setParameter(messageSubtype, parameter, newParameter);
         break;
 
     }   return false;
@@ -114,7 +114,7 @@ bool onReset(uint8_t messageType, uint8_t messageSubtype, uint8_t parameter) {
 
 void setup()    {
 
-    eepromSettings.init();
+    configuration.init();
 
     sysEx.setHandleReboot(onReboot);
     sysEx.setHandleGet(onGet);

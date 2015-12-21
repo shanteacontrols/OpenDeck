@@ -1,7 +1,7 @@
 #ifndef ANALOG_H_
 #define ANALOG_H_
 
-#include "hardware/Board.h"
+#include "..\hardware\board\Board.h"
 
 #define NUMBER_OF_SAMPLES 3 //do not change
 
