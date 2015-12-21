@@ -1,11 +1,16 @@
 #ifndef BLOCKS_H_
 #define BLOCKS_H_
 
-#define CONF_MIDI_BLOCK     0
-#define CONF_BUTTON_BLOCK   1
-#define CONF_ENCODER_BLOCK  2
-#define CONF_ANALOG_BLOCK   3
-#define CONF_LED_BLOCK      4
+//define block names
+enum eepromBlocks {
 
+    CONF_MIDI_BLOCK,
+    CONF_BUTTON_BLOCK,
+    CONF_ENCODER_BLOCK,
+    CONF_ANALOG_BLOCK,
+    CONF_LED_BLOCK,
+    NUMBER_OF_BLOCKS
 
-#endif /* BLOCKS_H_ */
+};
+
+#endif

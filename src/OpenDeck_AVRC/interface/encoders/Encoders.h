@@ -1,7 +1,7 @@
 #ifndef ENCODERS_H_
 #define ENCODERS_H_
 
-#include "hardware/Board.h"
+#include "..\hardware\board\Board.h"
 
 class Encoders  {
 
@@ -18,12 +18,12 @@ class Encoders  {
     //set
     bool setEncoderEnabled(uint8_t encoderID, uint8_t state);
     bool setEncoderInvertState(uint8_t encoderID, uint8_t state);
-    bool setEncoderType(uint8_t encoderID, uint8_t type);
+    bool setEncodingMode(uint8_t encoderID, uint8_t type);
     bool setMIDIid(uint8_t encoderID, uint8_t _midiID);
 
     //get
     bool getEncoderInvertState(uint8_t encoderID);
-    encoderType getEncoderType(uint8_t encoderID);
+    encoderType getEncodingMode(uint8_t encoderID);
     uint8_t getMIDIid(uint8_t encoderID);
 
 };

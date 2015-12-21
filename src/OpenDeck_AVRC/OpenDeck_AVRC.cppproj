@@ -169,40 +169,22 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Analog.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Analog.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="BitManipulation.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Buttons.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Buttons.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="eeprom\Blocks.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="eeprom\EEPROMsettings.cpp">
+    <Compile Include="eeprom\Configuration.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="eeprom\EEPROMsettings.h">
+    <Compile Include="eeprom\Configuration.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="eeprom\MemoryLayout.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="eeprom\UniqueID.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Encoders.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Encoders.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="EncoderSettings.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hardware\adc\ADC.cpp">
@@ -211,22 +193,37 @@
     <Compile Include="hardware\adc\ADC.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="hardware\Board.cpp">
+    <Compile Include="hardware\board\Board.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="hardware\Board.h">
+    <Compile Include="hardware\board\Board.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="hardware\BoardPins.h">
+    <Compile Include="hardware\midi\hw_midi\HWmidi.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="hardware\PinManipulation.h">
+    <Compile Include="hardware\midi\hw_midi\HWmidi.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="hardware\Reset.cpp">
+    <Compile Include="hardware\midi\usb_midi\CIN.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="hardware\Reset.h">
+    <Compile Include="hardware\midi\usb_midi\USBmidi.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\midi\usb_midi\USBmidi.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\pins\Pins.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\pins\PinManipulation.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\reset\Reset.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\reset\Reset.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hardware\uart\UART.cpp">
@@ -250,46 +247,61 @@
     <Compile Include="hardware\usb\VID_PID.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="LEDcolors.h">
+    <Compile Include="interface\analog\Analog.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="LEDs.cpp">
+    <Compile Include="interface\analog\Analog.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="LEDs.h">
+    <Compile Include="interface\analog\Potentiometer.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="LEDsettings.h">
+    <Compile Include="interface\buttons\Buttons.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="midi\MIDIsettings.h">
+    <Compile Include="interface\buttons\Buttons.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="midi\usb_midi\CIN.h">
+    <Compile Include="interface\encoders\Encoders.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="interface\encoders\Encoders.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="interface\leds\LEDcolors.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="interface\leds\LEDs.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="interface\leds\LEDs.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="interface\midi\MIDI.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="interface\midi\MIDI.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="interface\settings\AnalogSettings.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="interface\settings\ButtonSettings.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="interface\settings\EncoderSettings.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="interface\settings\LEDsettings.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="interface\settings\MIDIsettings.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="interface\settings\Settings.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="OpenDeck.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="midi\hw_midi\HWmidi.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="midi\hw_midi\HWmidi.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="midi\MIDI.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="midi\MIDI.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="midi\usb_midi\USBmidi.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="midi\usb_midi\USBmidi.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Potentiometer.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="sysex\ManufacturerID.h">
@@ -312,11 +324,21 @@
     <Folder Include="eeprom" />
     <Folder Include="hardware" />
     <Folder Include="hardware\adc" />
+    <Folder Include="hardware\midi\" />
+    <Folder Include="hardware\midi\hw_midi\" />
+    <Folder Include="hardware\midi\usb_midi\" />
+    <Folder Include="hardware\board" />
+    <Folder Include="hardware\pins" />
+    <Folder Include="hardware\reset" />
     <Folder Include="hardware\uart" />
     <Folder Include="hardware\usb" />
-    <Folder Include="midi" />
-    <Folder Include="midi\hw_midi" />
-    <Folder Include="midi\usb_midi" />
+    <Folder Include="interface\analog\" />
+    <Folder Include="interface\buttons\" />
+    <Folder Include="interface\encoders\" />
+    <Folder Include="interface\leds\" />
+    <Folder Include="interface\midi" />
+    <Folder Include="interface" />
+    <Folder Include="interface\settings\" />
     <Folder Include="sysex" />
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />

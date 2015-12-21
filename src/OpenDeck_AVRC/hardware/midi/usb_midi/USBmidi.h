@@ -27,7 +27,7 @@
 
 #include <inttypes.h>
 #include "..\Types.h"
-#include "..\midi\MIDIsettings.h"
+#include "..\interface\settings\MIDIsettings.h"
 
 class usb_midi_class    {
 

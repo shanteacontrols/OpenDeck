@@ -1,37 +1,10 @@
 #include "MIDI.h"
 #include "..\sysex/SysEx.h"
-#include "..\eeprom/EEPROMsettings.h"
+#include "..\eeprom\Configuration.h"
 #include "..\BitManipulation.h"
-#include "..\midi\usb_midi\USBmidi.h"
-#include "..\LEDs.h"
-
-typedef enum {
-
-    midiFeatureConf,
-    midiChannelConf,
-    MIDI_SUBTYPES
-
-} sysExMessageSubtypeMIDI;
-
-typedef enum {
-
-    noteChannel,
-    programChangeChannel,
-    CCchannel,
-    pitchBendChannel,
-    inputChannel,
-    NUMBER_OF_CHANNELS
-
-} channels;
-
-typedef enum {
-
-    midiFeatureStandardNoteOff,
-    midiFeatureRunningStatus,
-    midiFeatureUSBconvert,
-    MIDI_FEATURES
-
-} midiFeaturesParameters;
+#include "..\hardware\midi\usb_midi\USBmidi.h"
+#include "..\hardware\board\Board.h"
+#include "..\interface\leds\LEDs.h"
 
 MIDI::MIDI()    {
 
@@ -41,8 +14,8 @@ MIDI::MIDI()    {
 
 void MIDI::init() {
 
-    const subtype midiFeatureSubtype  = { MIDI_FEATURES, 0, 1 };
-    const subtype midiChannelSubtype  = { NUMBER_OF_CHANNELS, 1, 16 };
+    const subtype midiFeatureSubtype = { MIDI_FEATURES, 0, 1 };
+    const subtype midiChannelSubtype = { MIDI_CHANNELS, 1, 16 };
 
     const subtype *midiSubtypeArray[] = {
 
@@ -225,13 +198,13 @@ void MIDI::sendSysEx(uint8_t *sysExArray, uint8_t arraySize)   {
 
 bool MIDI::getFeature(uint8_t featureID)  {
 
-    return eepromSettings.readParameter(EEPROM_FEATURES_MIDI, featureID, BIT_PARAMETER);
+    return configuration.readParameter(CONF_MIDI_BLOCK, midiFeatureConf, featureID);
 
 }
 
 uint8_t MIDI::getMIDIchannel(uint8_t channel)  {
 
-    return eepromSettings.readParameter(EEPROM_MC_START, channel, BYTE_PARAMETER);
+    return configuration.readParameter(CONF_MIDI_BLOCK, midiChannelConf, channel);
 
 }
 
@@ -244,7 +217,6 @@ uint8_t MIDI::getParameter(uint8_t messageType, uint8_t parameterID)  {
         break;
 
         case midiChannelConf:
-        setHighMacro(BTLDR_LED_PORT, BTLDR_LED_PIN);
         return getMIDIchannel(parameterID);
         break;
 
@@ -255,13 +227,13 @@ uint8_t MIDI::getParameter(uint8_t messageType, uint8_t parameterID)  {
 
 bool MIDI::setMIDIchannel(uint8_t channel, uint8_t channelNumber)  {
 
-    return eepromSettings.writeParameter(EEPROM_MC_START, channel, channelNumber, BYTE_PARAMETER);
+    return configuration.writeParameter(CONF_MIDI_BLOCK, midiChannelConf, channel, channelNumber);
 
 }
 
 bool MIDI::setFeature(uint8_t featureID, uint8_t newValue)  {
 
-    if (!eepromSettings.writeParameter(EEPROM_FEATURES_MIDI, featureID, newValue, BIT_PARAMETER))
+    if (!configuration.writeParameter(CONF_MIDI_BLOCK, midiFeatureConf, featureID, newValue))
         return false;
 
     if (featureID == midiFeatureRunningStatus)    {

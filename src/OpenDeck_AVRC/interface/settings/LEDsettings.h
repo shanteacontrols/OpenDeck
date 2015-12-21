@@ -80,4 +80,36 @@ const uint8_t ledTransitionScale[] = {
 
 };
 
+typedef enum {
+
+    ledsHardwareParameterConf,
+    ledsActivationNoteConf,
+    ledsStartUpNumberConf,
+    ledsRGBcolorConf,
+    ledsStateConf,
+    LED_SUBTYPES
+
+} sysExMessageSubTypeLEDs;
+
+typedef enum {
+
+    ledsHwParameterTotalLEDnumber,
+    ledsHwParameterBlinkTime,
+    ledsHwParameterStartUpSwitchTime,
+    ledsHwParameterStartUpRoutine,
+    ledsHwParameterFadeTime,
+    LED_HARDWARE_PARAMETERS
+
+} ledsHardwareParameter;
+
+typedef enum {
+
+    ledStateConstantOff,
+    ledStateConstantOn,
+    ledStateBlinkOff,
+    ledStateBlinkOn,
+    LED_STATES
+
+} ledStatesHardwareParameter;
+
 #endif

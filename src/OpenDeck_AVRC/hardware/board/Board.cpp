@@ -1,15 +1,13 @@
 #include "Board.h"
 #include "..\sysex/SysEx.h"
-#include "..\LEDsettings.h"
-#include "..\LEDs.h"
 #include <util/delay.h>
 #include <avr/cpufunc.h>
 #include <avr/wdt.h>
 #include <avr/eeprom.h>
-#include "..\eeprom/EEPROMsettings.h"
-#include "..\Encoders.h"
-#include "..\EncoderSettings.h"
+#include "..\eeprom\Configuration.h"
 #include "..\BitManipulation.h"
+#include "..\interface\settings\Settings.h"
+#include "..\interface\encoders\Encoders.h"
 
 #define DIGITAL_BUFFER_SIZE 4
 
@@ -496,7 +494,7 @@ void Board::init()  {
     initPins();
     initAnalog();
 
-    pwmSteps = eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_FADE_SPEED);
+    pwmSteps = 5; //TO-DO, fix
 
     for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)    {
 

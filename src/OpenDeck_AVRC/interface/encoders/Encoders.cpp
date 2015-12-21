@@ -1,18 +1,9 @@
 #include "Encoders.h"
-#include "..\midi\MIDI.h"
-#include "eeprom/EEPROMsettings.h"
-#include "sysex/SysEx.h"
-#include "BitManipulation.h"
-
-typedef enum {
-
-    encoderEnabledConf,
-    encoderInvertedConf,
-    encoderEncodingModeConf,
-    encoderMIDIidConf,
-    ENCODER_SUBTYPES
-
-} sysExMessageSubTypeEncoders;
+#include "..\interface\midi\MIDI.h"
+#include "..\eeprom\Configuration.h"
+#include "..\sysex/SysEx.h"
+#include "..\BitManipulation.h"
+#include "..\interface\settings\EncoderSettings.h"
 
 #define ENCODER_VALUE_LEFT_7FH01H   127
 #define ENCODER_VALUE_RIGHT_7FH01H  1
@@ -76,7 +67,7 @@ void Encoders::update()   {
 
         uint8_t encoderValue = 0;
 
-        switch(getEncoderType(i)) {
+        switch(getEncodingMode(i)) {
 
             case enc7Fh01h:
             if (encoderState == encMoveLeft) encoderValue = ENCODER_VALUE_LEFT_7FH01H;
@@ -102,25 +93,25 @@ void Encoders::update()   {
 
 bool Encoders::getEncoderEnabled(uint8_t encoderID) {
 
-    return eepromSettings.readParameter(EEPROM_ENCODERS_ENABLED_START, encoderID, BIT_PARAMETER);
+    return configuration.readParameter(CONF_ENCODER_BLOCK, encoderEnabledConf, encoderID);
 
 }
 
 bool Encoders::getEncoderInvertState(uint8_t encoderID) {
 
-    return eepromSettings.readParameter(EEPROM_ENCODERS_INVERTED_START, encoderID, BIT_PARAMETER);
+    return configuration.readParameter(CONF_ENCODER_BLOCK, encoderInvertedConf, encoderID);
 
 }
 
-encoderType Encoders::getEncoderType(uint8_t encoderID)  {
+encoderType Encoders::getEncodingMode(uint8_t encoderID)  {
 
-    return (encoderType)eepromSettings.readParameter(EEPROM_ENCODERS_ENCODING_MODE_START, encoderID, BYTE_PARAMETER);
+    return (encoderType)configuration.readParameter(CONF_ENCODER_BLOCK, encoderEncodingModeConf, encoderID);
 
 }
 
 uint8_t Encoders::getMIDIid(uint8_t encoderID)  {
 
-    return eepromSettings.readParameter(EEPROM_ENCODERS_NUMBER_START, encoderID, BYTE_PARAMETER);
+    return configuration.readParameter(CONF_ENCODER_BLOCK, encoderID, BYTE_PARAMETER);
 
 }
 
@@ -137,7 +128,7 @@ uint8_t Encoders::getParameter(uint8_t messageType, uint8_t parameterID)  {
         break;
 
         case encoderEncodingModeConf:
-        return getEncoderType(parameterID);
+        return getEncodingMode(parameterID);
         break;
 
         case encoderMIDIidConf:
@@ -150,25 +141,25 @@ uint8_t Encoders::getParameter(uint8_t messageType, uint8_t parameterID)  {
 
 bool Encoders::setEncoderEnabled(uint8_t encoderID, uint8_t state)    {
 
-   return eepromSettings.writeParameter(EEPROM_ENCODERS_ENABLED_START, encoderID, state, BIT_PARAMETER);
+   return configuration.writeParameter(CONF_ENCODER_BLOCK, encoderEnabledConf, encoderID, state);
 
 }
 
 bool Encoders::setEncoderInvertState(uint8_t encoderID, uint8_t state)    {
 
-   return eepromSettings.writeParameter(EEPROM_ENCODERS_INVERTED_START, encoderID, state, BIT_PARAMETER);
+   return configuration.writeParameter(CONF_ENCODER_BLOCK, encoderInvertedConf, encoderID, state);
 
 }
 
-bool Encoders::setEncoderType(uint8_t encoderID, uint8_t type)  {
+bool Encoders::setEncodingMode(uint8_t encoderID, uint8_t type)  {
 
-   return eepromSettings.writeParameter(EEPROM_ENCODERS_ENCODING_MODE_START, encoderID, type, BYTE_PARAMETER);
+   return configuration.writeParameter(CONF_ENCODER_BLOCK, encoderEncodingModeConf, encoderID, type);
 
 }
 
 bool Encoders::setMIDIid(uint8_t encoderID, uint8_t midiID)  {
 
-   return eepromSettings.writeParameter(EEPROM_ENCODERS_NUMBER_START, encoderID, midiID, BYTE_PARAMETER);
+   return configuration.writeParameter(CONF_ENCODER_BLOCK, encoderMIDIidConf, encoderID, midiID);
 
 }
 
@@ -185,7 +176,7 @@ bool Encoders::setParameter(uint8_t messageType, uint8_t parameter, uint8_t newP
         break;
 
         case encoderEncodingModeConf:
-        return setEncoderType(parameter, newParameter);
+        return setEncodingMode(parameter, newParameter);
         break;
 
         case encoderMIDIidConf:

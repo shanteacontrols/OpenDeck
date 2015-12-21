@@ -5,7 +5,7 @@
 #include <avr/interrupt.h>
 #include "adc/ADC.h"
 #include "..\Types.h"
-#include "BoardPins.h"
+#include "..\hardware\pins\Pins.h"
 #include "usb/usb_common.h"
 #include "usb/usb_private.h"
 
