@@ -246,20 +246,25 @@ void LEDs::noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity)    {
     //if blinkMode is 1, the LED is blinking
     uint8_t blinkMode = 0;
 
-    if ((receivedVelocity == LED_VELOCITY_C_OFF) || (receivedVelocity == LED_VELOCITY_B_OFF))
-    newLEDstate = false;
+    if (getLEDHwParameter(ledsHwParameterBlinkTime))    {
 
-    else if (
+        //led blinking is enabled
+        if ((receivedVelocity == LED_VELOCITY_C_OFF) || (receivedVelocity == LED_VELOCITY_B_OFF))
+        newLEDstate = false;
 
-    ((receivedVelocity > LED_VELOCITY_C_OFF) && (receivedVelocity < LED_VELOCITY_B_OFF)) ||
-    ((receivedVelocity > LED_VELOCITY_B_OFF) && (receivedVelocity < 128))
+        else if (
 
-    )    newLEDstate = true;
+        ((receivedVelocity > LED_VELOCITY_C_OFF) && (receivedVelocity < LED_VELOCITY_B_OFF)) ||
+        ((receivedVelocity > LED_VELOCITY_B_OFF) && (receivedVelocity < 128))
 
-    else return;
+        )    newLEDstate = true;
 
-    if ((receivedVelocity >= LED_VELOCITY_B_OFF) && (receivedVelocity < 128))
-    blinkMode = 1;
+        else return;
+
+        if ((receivedVelocity >= LED_VELOCITY_B_OFF) && (receivedVelocity < 128))
+        blinkMode = 1;
+
+    }   else newLEDstate = bool(receivedVelocity);
 
     handleLED(newLEDstate, blinkMode, ledID);
 
