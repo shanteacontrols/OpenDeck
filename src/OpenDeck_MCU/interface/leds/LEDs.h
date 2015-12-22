@@ -31,8 +31,6 @@ class LEDs {
     void noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity);
     void allLEDsOn();
     void allLEDsOff();
-    void allLEDsBlink();
-    void update();
 
     private:
     //data processing
@@ -40,8 +38,7 @@ class LEDs {
     bool checkLEDsOn();
     bool checkLEDsOff();
     bool checkLEDstartUpNumber(uint8_t ledID);
-    bool checkLEDactivationNote(uint8_t ledID);
-    void checkBlinkLEDs();
+    bool checkLEDactivationNote(uint8_t activationNote);
 
     //get
     uint8_t getLEDHwParameter(uint8_t parameter);

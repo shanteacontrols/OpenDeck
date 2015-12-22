@@ -196,19 +196,19 @@ bool Buttons::buttonDebounced(uint8_t buttonID, bool buttonState)   {
 
 buttonType Buttons::getButtonType(uint8_t buttonID)  {
 
-    return (buttonType)configuration.readParameter(CONF_BUTTON_BLOCK, buttonTypeConf, buttonID);
+    return (buttonType)configuration.readParameter(CONF_BUTTON_BLOCK, buttonTypeSection, buttonID);
 
 }
 
 bool Buttons::getButtonPCenabled(uint8_t buttonID)   {
 
-    return configuration.readParameter(CONF_BUTTON_BLOCK, buttonProgramChangeEnabledConf, buttonID);
+    return configuration.readParameter(CONF_BUTTON_BLOCK, buttonProgramChangeEnabledSection, buttonID);
 
 }
 
 uint8_t Buttons::getMIDIid(uint8_t buttonID)   {
 
-    return configuration.readParameter(CONF_BUTTON_BLOCK, buttonMIDIidConf, buttonID);
+    return configuration.readParameter(CONF_BUTTON_BLOCK, buttonMIDIidSection, buttonID);
 
 }
 
@@ -233,19 +233,19 @@ uint8_t Buttons::getParameter(uint8_t messageType, uint8_t parameterID) {
 
 bool Buttons::setButtonType(uint8_t buttonID, uint8_t type)  {
 
-    return configuration.writeParameter(CONF_BUTTON_BLOCK, buttonTypeConf, buttonID, type);
+    return configuration.writeParameter(CONF_BUTTON_BLOCK, buttonTypeSection, buttonID, type);
 
 }
 
 bool Buttons::setButtonPCenabled(uint8_t buttonID, uint8_t state)  {
 
-    return configuration.writeParameter(CONF_BUTTON_BLOCK, buttonProgramChangeEnabledConf, buttonID, state);
+    return configuration.writeParameter(CONF_BUTTON_BLOCK, buttonProgramChangeEnabledSection, buttonID, state);
 
 }
 
 bool Buttons::setMIDIid(uint8_t buttonID, uint8_t midiID)    {
 
-    return configuration.writeParameter(CONF_BUTTON_BLOCK, buttonMIDIidConf, buttonID, midiID);
+    return configuration.writeParameter(CONF_BUTTON_BLOCK, buttonMIDIidSection, buttonID, midiID);
 
 }
 

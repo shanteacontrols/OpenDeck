@@ -4,6 +4,7 @@
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 #include "Blocks.h"
+#include "Sections.h"
 
 #define BIT_PARAMETER_BYTES     8
 #define BYTE_PARAMETER_BYTES    64
