@@ -121,25 +121,25 @@ int16_t Analog::getMedianValue(uint8_t analogID)  {
 
 bool Analog::getAnalogEnabled(uint8_t analogID) {
 
-    return configuration.readParameter(CONF_ANALOG_BLOCK, analogEnabledConf, analogID);
+    return configuration.readParameter(CONF_ANALOG_BLOCK, analogEnabledSection, analogID);
 
 }
 
 bool Analog::getAnalogInvertState(uint8_t analogID) {
 
-    return configuration.readParameter(CONF_ANALOG_BLOCK, analogInvertedConf, analogID);
+    return configuration.readParameter(CONF_ANALOG_BLOCK, analogInvertedSection, analogID);
 
 }
 
 analogType Analog::getAnalogType(uint8_t analogID) {
 
-    return (analogType)configuration.readParameter(CONF_ANALOG_BLOCK, analogTypeConf, analogID);
+    return (analogType)configuration.readParameter(CONF_ANALOG_BLOCK, analogTypeSection, analogID);
 
 }
 
 uint8_t Analog::getMIDIid(uint8_t analogID)    {
 
-    return configuration.readParameter(CONF_ANALOG_BLOCK, analogMIDIidConf, analogID);
+    return configuration.readParameter(CONF_ANALOG_BLOCK, analogMIDIidSection, analogID);
 
 }
 
@@ -148,11 +148,11 @@ uint8_t Analog::getCClimit(uint8_t analogID, ccLimitType type)  {
     switch(type)    {
 
         case ccLimitLow:
-        return configuration.readParameter(CONF_ANALOG_BLOCK, analogCClowerLimitConf, analogID);
+        return configuration.readParameter(CONF_ANALOG_BLOCK, analogCClowerLimitSection, analogID);
         break;
 
         case ccLimitHigh:
-        return configuration.readParameter(CONF_ANALOG_BLOCK, analogCCupperLimitConf, analogID);
+        return configuration.readParameter(CONF_ANALOG_BLOCK, analogCCupperLimitSection, analogID);
         break;
 
     }   return 0;
@@ -194,25 +194,25 @@ uint8_t Analog::getParameter(uint8_t messageType, uint8_t parameter) {
 
 bool Analog::setAnalogEnabled(uint8_t analogID, uint8_t state)    {
 
-    return configuration.writeParameter(CONF_ANALOG_BLOCK, analogEnabledConf, analogID, state);
+    return configuration.writeParameter(CONF_ANALOG_BLOCK, analogEnabledSection, analogID, state);
 
 }
 
 bool Analog::setAnalogInvertState(uint8_t analogID, uint8_t state) {
 
-    return configuration.writeParameter(CONF_ANALOG_BLOCK, analogInvertedConf, analogID, state);
+    return configuration.writeParameter(CONF_ANALOG_BLOCK, analogInvertedSection, analogID, state);
 
 }
 
 bool Analog::setAnalogType(uint8_t analogID, uint8_t type)    {
 
-    return configuration.writeParameter(CONF_ANALOG_BLOCK, analogTypeConf, analogID, type);
+    return configuration.writeParameter(CONF_ANALOG_BLOCK, analogTypeSection, analogID, type);
 
 }
 
 bool Analog::setMIDIid(uint8_t analogID, uint8_t midiID)   {
 
-    return configuration.writeParameter(CONF_ANALOG_BLOCK, analogMIDIidConf, analogID, midiID);
+    return configuration.writeParameter(CONF_ANALOG_BLOCK, analogMIDIidSection, analogID, midiID);
 
 }
 
@@ -221,11 +221,11 @@ bool Analog::setCClimit(ccLimitType type, uint8_t analogID, uint8_t limit)  {
     switch (limit)  {
 
         case ccLimitLow:
-        return configuration.writeParameter(CONF_ANALOG_BLOCK, analogCClowerLimitConf, analogID, limit);
+        return configuration.writeParameter(CONF_ANALOG_BLOCK, analogCClowerLimitSection, analogID, limit);
         break;
 
         case ccLimitHigh:
-        return configuration.writeParameter(CONF_ANALOG_BLOCK, analogCCupperLimitConf, analogID, limit);
+        return configuration.writeParameter(CONF_ANALOG_BLOCK, analogCCupperLimitSection, analogID, limit);
         break;
 
         default:

@@ -198,13 +198,13 @@ void MIDI::sendSysEx(uint8_t *sysExArray, uint8_t arraySize)   {
 
 bool MIDI::getFeature(uint8_t featureID)  {
 
-    return configuration.readParameter(CONF_MIDI_BLOCK, midiFeatureConf, featureID);
+    return configuration.readParameter(CONF_MIDI_BLOCK, midiFeatureSection, featureID);
 
 }
 
 uint8_t MIDI::getMIDIchannel(uint8_t channel)  {
 
-    return configuration.readParameter(CONF_MIDI_BLOCK, midiChannelConf, channel);
+    return configuration.readParameter(CONF_MIDI_BLOCK, midiChannelSection, channel);
 
 }
 
@@ -227,13 +227,13 @@ uint8_t MIDI::getParameter(uint8_t messageType, uint8_t parameterID)  {
 
 bool MIDI::setMIDIchannel(uint8_t channel, uint8_t channelNumber)  {
 
-    return configuration.writeParameter(CONF_MIDI_BLOCK, midiChannelConf, channel, channelNumber);
+    return configuration.writeParameter(CONF_MIDI_BLOCK, midiChannelSection, channel, channelNumber);
 
 }
 
 bool MIDI::setFeature(uint8_t featureID, uint8_t newValue)  {
 
-    if (!configuration.writeParameter(CONF_MIDI_BLOCK, midiFeatureConf, featureID, newValue))
+    if (!configuration.writeParameter(CONF_MIDI_BLOCK, midiFeatureSection, featureID, newValue))
         return false;
 
     if (featureID == midiFeatureRunningStatus)    {
@@ -260,7 +260,5 @@ bool MIDI::setParameter(uint8_t messageType, uint8_t parameterID, uint8_t newVal
     }   return false;
 
 }
-
-
 
 MIDI midi;

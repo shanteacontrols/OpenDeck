@@ -242,7 +242,7 @@ void LEDs::noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity)    {
 
     uint8_t ledID = getLEDid(receivedNote);
 
-    if (ledID == 128) return;
+    if (ledID >= 128) return;
 
     bool newLEDstate;
 
@@ -269,29 +269,21 @@ void LEDs::noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity)    {
 
     }   else newLEDstate = bool(receivedVelocity);
 
-    handleLED(newLEDstate, blinkMode, ledID);
+    board.setLEDstate(ledID, newLEDstate, blinkMode);
 
 }
 
 void LEDs::allLEDsOn()  {
 
     //turn on all LEDs
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    board.setLEDstate(i, ledOn);
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    board.setLEDstate(i, true, false);
 
 }
 
 void LEDs::allLEDsOff() {
 
     //turn off all LEDs
-    for (int i=0; i<(NUMBER_OF_LED_COLUMNS*NUMBER_OF_LED_ROWS); i++)    board.setLEDstate(i, ledOff);
-
-}
-
-void LEDs::allLEDsBlink()   {
-
-    //turn on all LEDs
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    board.setLEDstate(i, ledBlinkOff);
-    board.ledBlinkingStart();
+    for (int i=0; i<(NUMBER_OF_LED_COLUMNS*NUMBER_OF_LED_ROWS); i++)    board.setLEDstate(i, false, false);
 
 }
 
@@ -325,146 +317,44 @@ uint8_t LEDs::getLEDid(uint8_t midiID)   {
 
 bool LEDs::checkLEDstartUpNumber(uint8_t ledID)  {
 
-    //for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        //if (eeprom_read_byte((uint8_t*)EEPROM_LEDS_START_UP_NUMBER_START+i) == ledID)
-            //return false;
-
-    return true;
-
-}
-
-bool LEDs::checkLEDactivationNote(uint8_t ledID)    {
-
-    //led activation note
+    //if received start-up number is already assigned to another led, return false
+ 
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        if (getLEDActivationNote(i) == ledID)
+        if (configuration.readParameter(CONF_LED_BLOCK, ledStartUpNumberSection, i) == ledID)
             return false;
 
     return true;
 
 }
 
-void LEDs::handleLED(bool newLEDstate, bool blinkMode, uint8_t ledNumber) {
+bool LEDs::checkLEDactivationNote(uint8_t activationNote)    {
 
-    /*
+    //if received activation note is already assigned to another led, return false
 
-    LED state is stored into one byte (ledState). The bits have following meaning (7 being the MSB bit):
+    //led activation note
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+        if (getLEDActivationNote(i) == activationNote)
+            return false;
 
-    7: x
-    6: x
-    5: x
-    4: Blink bit (timer changes this bit)
-    3: "Remember" bit, used to restore previous LED state
-    2: LED is active (either it blinks or it's constantly on), this bit is OR function between bit 0 and 1
-    1: LED blinks
-    0: LED is constantly turned on
-
-    */
-
-    //if blink note is received, and blinking is disabled, exit the function
-    //if (blinkMode && (!(bitRead(ledFeatures, SYS_EX_FEATURES_LEDS_BLINK))))
-        //return;
-
-    uint8_t state = board.getLEDstate(ledNumber);
-
-    switch (newLEDstate) {
-
-        case false:
-        //note off event
-
-        //if remember bit is set
-        if (bitRead(state, LED_REMEMBER_BIT))   {
-
-            //if note off for blink state is received
-            //clear remember bit and blink bits
-            //set constant state bit
-            if (blinkMode) state = ledOn;
-            //else clear constant state bit and remember bit
-            //set blink bits
-            else           state = ledBlinkOn;
-
-        }   else state = ledOff;
-
-        break;
-
-        case true:
-        //note on event
-
-        if ((!blinkMode) && bitRead(state, LED_BLINK_ON_BIT))   state = ledOnRemember;
-        else if ((blinkMode) && bitRead(state, LED_ON_BIT))     state = ledBlinkRemember;
-
-        else    {
-
-            bitWrite(state, LED_ACTIVE_BIT, 1);
-            if (blinkMode)  {
-
-                bitWrite(state, LED_BLINK_ON_BIT, 1);
-                bitWrite(state, LED_BLINK_STATE_BIT, 1);
-
-            }   else bitWrite(state, LED_ON_BIT, 1);
-
-        }
-
-    }
-
-    board.setLEDstate(ledNumber, state);
-    if (blinkMode && newLEDstate)   board.ledBlinkingStart();
-    else    checkBlinkLEDs();
+    return true;
 
 }
-
-void LEDs::checkBlinkLEDs() {
-
-    //this function will disable blinking
-    //if none of the LEDs is in blinking state
-
-    //else it will enable it
-
-    bool _blinkEnabled = false;
-    uint8_t ledState;
-
-    //if any LED is blinking, set timerState to true and exit the loop
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    {
-
-        ledState = board.getLEDstate(i);
-
-        if (bitRead(ledState, LED_BLINK_ON_BIT)) {
-
-            _blinkEnabled = true;
-            break;
-
-        }
-
-    }
-
-    if (_blinkEnabled)  board.ledBlinkingStart();
-
-    //don't bother reseting variables if blinking is already disabled
-    else    if (!_blinkEnabled && board.ledBlinkingActive()) {
-
-        //reset blinkState to default value
-        board.ledBlinkingStop();
-
-    }
-
-}
-
 
 uint8_t LEDs::getLEDHwParameter(uint8_t parameter)  {
 
-    return configuration.readParameter(CONF_LED_BLOCK, ledsHardwareParameterConf, parameter);
+    return configuration.readParameter(CONF_LED_BLOCK, ledHardwareParameterSection, parameter);
 
 }
 
 uint8_t LEDs::getLEDActivationNote(uint8_t ledNumber)   {
 
-    return configuration.readParameter(CONF_LED_BLOCK, ledsActivationNoteConf, ledNumber);
+    return configuration.readParameter(CONF_LED_BLOCK, ledActivationNoteSection, ledNumber);
 
 }
 
 uint8_t LEDs::getLEDstartUpNumber(uint8_t ledNumber)    {
 
-    return configuration.readParameter(CONF_LED_BLOCK, ledsStartUpNumberConf, ledNumber);
+    return configuration.readParameter(CONF_LED_BLOCK, ledStartUpNumberSection, ledNumber);
 
 }
 
@@ -497,7 +387,7 @@ uint8_t LEDs::getParameter(uint8_t messageType, uint8_t parameterID)   {
 
 bool LEDs::setLEDHwParameter(uint8_t parameter, uint8_t newParameter) {
 
-    bool returnValue = configuration.writeParameter(CONF_LED_BLOCK, ledsHardwareParameterConf, parameter, newParameter);
+    bool returnValue = configuration.writeParameter(CONF_LED_BLOCK, ledHardwareParameterSection, parameter, newParameter);
 
     if (!returnValue) return false;
 
@@ -521,13 +411,15 @@ bool LEDs::setLEDHwParameter(uint8_t parameter, uint8_t newParameter) {
 
 bool LEDs::setLEDActivationNote(uint8_t ledNumber, uint8_t ledActNote) {
 
-    return configuration.writeParameter(CONF_LED_BLOCK, ledsActivationNoteConf, ledNumber, ledActNote);
+    if (!checkLEDactivationNote(ledActNote)) return false;
+
+    return configuration.writeParameter(CONF_LED_BLOCK, ledActivationNoteSection, ledNumber, ledActNote);
 
 }
 
 bool LEDs::setLEDstartNumber(uint8_t startNumber, uint8_t ledNumber) {
 
-    return configuration.writeParameter(CONF_LED_BLOCK, ledsStartUpNumberConf, startNumber, ledNumber);
+    return configuration.writeParameter(CONF_LED_BLOCK, ledStartUpNumberSection, startNumber, ledNumber);
 
 }
 
@@ -554,22 +446,22 @@ bool LEDs::setParameter(uint8_t messageType, uint8_t parameter, uint8_t newParam
         switch ((ledStatesHardwareParameter)newParameter)   {
 
             case ledStateConstantOff:
-            handleLED(false, false, parameter);
+            board.setLEDstate(parameter, false, false);
             return true;
             break;
 
             case ledStateConstantOn:
-            handleLED(true, false, parameter);
+            board.setLEDstate(parameter, true, false);
             return true;
             break;
 
             case ledStateBlinkOff:
-            handleLED(false, true, parameter);
+            board.setLEDstate(parameter, false, true);
             return true;
             break;
 
             case ledStateBlinkOn:
-            handleLED(true, true, parameter);
+            board.setLEDstate(parameter, true, true);
             return true;
             break;
 

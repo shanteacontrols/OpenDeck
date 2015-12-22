@@ -184,6 +184,9 @@
     <Compile Include="eeprom\MemoryLayout.cpp">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="eeprom\Sections.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="eeprom\UniqueID.h">
       <SubType>compile</SubType>
     </Compile>

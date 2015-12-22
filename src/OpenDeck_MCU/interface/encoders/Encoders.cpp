@@ -93,25 +93,25 @@ void Encoders::update()   {
 
 bool Encoders::getEncoderEnabled(uint8_t encoderID) {
 
-    return configuration.readParameter(CONF_ENCODER_BLOCK, encoderEnabledConf, encoderID);
+    return configuration.readParameter(CONF_ENCODER_BLOCK, encoderEnabledSection, encoderID);
 
 }
 
 bool Encoders::getEncoderInvertState(uint8_t encoderID) {
 
-    return configuration.readParameter(CONF_ENCODER_BLOCK, encoderInvertedConf, encoderID);
+    return configuration.readParameter(CONF_ENCODER_BLOCK, encoderInvertedSection, encoderID);
 
 }
 
 encoderType Encoders::getEncodingMode(uint8_t encoderID)  {
 
-    return (encoderType)configuration.readParameter(CONF_ENCODER_BLOCK, encoderEncodingModeConf, encoderID);
+    return (encoderType)configuration.readParameter(CONF_ENCODER_BLOCK, encoderEncodingModeSection, encoderID);
 
 }
 
 uint8_t Encoders::getMIDIid(uint8_t encoderID)  {
 
-    return configuration.readParameter(CONF_ENCODER_BLOCK, encoderID, BYTE_PARAMETER);
+    return configuration.readParameter(CONF_ENCODER_BLOCK, encoderMIDIidSection, encoderID);
 
 }
 
@@ -141,25 +141,25 @@ uint8_t Encoders::getParameter(uint8_t messageType, uint8_t parameterID)  {
 
 bool Encoders::setEncoderEnabled(uint8_t encoderID, uint8_t state)    {
 
-   return configuration.writeParameter(CONF_ENCODER_BLOCK, encoderEnabledConf, encoderID, state);
+   return configuration.writeParameter(CONF_ENCODER_BLOCK, encoderEnabledSection, encoderID, state);
 
 }
 
 bool Encoders::setEncoderInvertState(uint8_t encoderID, uint8_t state)    {
 
-   return configuration.writeParameter(CONF_ENCODER_BLOCK, encoderInvertedConf, encoderID, state);
+   return configuration.writeParameter(CONF_ENCODER_BLOCK, encoderInvertedSection, encoderID, state);
 
 }
 
 bool Encoders::setEncodingMode(uint8_t encoderID, uint8_t type)  {
 
-   return configuration.writeParameter(CONF_ENCODER_BLOCK, encoderEncodingModeConf, encoderID, type);
+   return configuration.writeParameter(CONF_ENCODER_BLOCK, encoderEncodingModeSection, encoderID, type);
 
 }
 
 bool Encoders::setMIDIid(uint8_t encoderID, uint8_t midiID)  {
 
-   return configuration.writeParameter(CONF_ENCODER_BLOCK, encoderMIDIidConf, encoderID, midiID);
+   return configuration.writeParameter(CONF_ENCODER_BLOCK, encoderMIDIidSection, encoderID, midiID);
 
 }
 
@@ -186,7 +186,5 @@ bool Encoders::setParameter(uint8_t messageType, uint8_t parameter, uint8_t newP
     }   return 0;
 
 }
-
-
 
 Encoders encoders;
