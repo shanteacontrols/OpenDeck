@@ -17,17 +17,6 @@
 #ifndef EEPROM_H_
 #define EEPROM_H_
 
-typedef struct {    //hardcoded value based on max subtypes (analog has the most)
-
-    uint8_t sections;
-    uint16_t blockStartAddress;
-    uint16_t subsectionAddress[6];
-    uint8_t sectionParameters[6];
-    uint8_t subsectionType[6];
-    uint8_t defaultValue[6];
-
-} blockDescriptor;
-
 class Configuration   {
 
     public:
@@ -60,6 +49,17 @@ class Configuration   {
     bool writeParameter(uint8_t blockID, uint8_t sectionID, uint8_t parameterID, uint8_t newValue);
 
     private:
+    typedef struct {    //hardcoded value based on max subtypes (analog has the most)
+
+        uint8_t sections;
+        uint16_t blockStartAddress;
+        uint16_t subsectionAddress[6];
+        uint8_t sectionParameters[6];
+        uint8_t subsectionType[6];
+        uint8_t defaultValue[6];
+
+    } blockDescriptor;
+
     blockDescriptor blocks[NUMBER_OF_BLOCKS];
     inline uint16_t getSectionAddress(uint8_t blockID, uint8_t sectionID)   {
 
