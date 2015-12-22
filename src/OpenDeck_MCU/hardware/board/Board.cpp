@@ -495,8 +495,6 @@ void Board::init()  {
     initPins();
     initAnalog();
 
-    pwmSteps = leds.getParameter(ledsHardwareParameterConf, ledsHwParameterFadeTime);
-
     for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)    {
 
         encoderData[i] |= ((uint16_t)encStopped << 8);
@@ -647,7 +645,7 @@ uint8_t Board::getLEDstate(uint8_t ledNumber)   {
 void Board::setLEDblinkTime(uint16_t blinkTime)  {
 
     cli();
-    ledBlinkTime = blinkTime;
+    ledBlinkTime = blinkTime*100;
     blinkTimerCounter = 0;
     sei();
 
