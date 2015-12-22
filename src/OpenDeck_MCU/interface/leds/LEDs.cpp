@@ -38,6 +38,9 @@ void LEDs::init()   {
 
     }
 
+    board.setLEDblinkTime(getLEDHwParameter(ledsHwParameterBlinkTime));
+    board.setLEDTransitionSpeed(getLEDHwParameter(ledsHwParameterFadeTime));
+
     //run LED animation on start-up
     //startUpRoutine();
 
@@ -502,7 +505,7 @@ bool LEDs::setLEDHwParameter(uint8_t parameter, uint8_t newParameter) {
     switch((ledsHardwareParameter)parameter)   {
 
         case ledsHwParameterBlinkTime:
-        board.setLEDblinkTime(newParameter*100);
+        board.setLEDblinkTime(newParameter);
         break;
 
         case ledsHwParameterFadeTime:
