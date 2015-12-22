@@ -42,201 +42,208 @@ void LEDs::init()   {
     board.setLEDTransitionSpeed(getLEDHwParameter(ledsHwParameterFadeTime));
 
     //run LED animation on start-up
-    //startUpRoutine();
+    startUpRoutine();
 
 }
-//
-//void LEDs::startUpRoutine() {
-//
-    ////turn off all LEDs before starting animation
-    //allLEDsOff();
-//
-    //switch (eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_START_UP_ROUTINE))  {
-//
-        //case 1:
+
+void LEDs::startUpRoutine() {
+
+    //turn off all LEDs before starting animation
+    allLEDsOff();
+
+    switch (getLEDHwParameter(ledsHwParameterStartUpRoutine))  {
+
+        case 1:
         //oneByOneLED(true, true, true);
         //oneByOneLED(false, false, true);
         //oneByOneLED(true, false, false);
         //oneByOneLED(false, true, true);
         //oneByOneLED(true, false, true);
         //oneByOneLED(false, false, false);
-        //break;
-//
-        //case 2:
+        break;
+
+        case 2:
         //oneByOneLED(true, false, true);
         //oneByOneLED(false, false, false);
-        //break;
-//
-        //case 3:
+        break;
+
+        case 3:
         //oneByOneLED(true, true, true);
         //oneByOneLED(false, true, true);
-        //break;
-//
-        //case 4:
+        break;
+
+        case 4:
         //oneByOneLED(true, false, true);
         //oneByOneLED(true, false, false);
-        //break;
-//
-        //case 5:
-        //oneByOneLED(true, false, true);
-        //break;
-//
-        //default:
-        //break;
-//
-    //}
-//
-    //allLEDsOff();
-    //wait(500);
-//
-//}
+        break;
 
-//
-//void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
-//
-    ///*
-//
-    //Function accepts three boolean arguments.
-//
-    //ledDirection:   true means that LEDs will go from left to right, false from right to left
-    //singleLED:      true means that only one LED will be active at the time, false means that LEDs
-                    //will turn on one by one until they're all lighted up
-//
-    //turnOn:         true means that LEDs will be turned on, with all previous LED states being 0
-                    //false means that all LEDs are lighted up and they turn off one by one, depending
-                    //on second argument
-//
-    //*/
-//
-    //uint16_t startUpLEDswitchTime = eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_START_UP_SWITCH_TIME) * 10;
-//
-    ////while loop counter
-    //uint8_t passCounter = 0;
-//
-    ////index of LED to be processed next
-    //uint8_t ledNumber,
-            //_ledNumber[MAX_NUMBER_OF_LEDS];
-//
-    //uint8_t totalNumberOfLEDs = eeprom_read_byte((uint8_t*)EEPROM_LEDS_HW_P_TOTAL_NUMBER);
-//
-    ////get LED order for start-up routine
-    //for (int i=0; i<totalNumberOfLEDs; i++)    _ledNumber[i] = eeprom_read_byte((uint8_t*)EEPROM_LEDS_START_UP_NUMBER_START+i);
-//
-    ////if second and third argument of function are set to false or
-    ////if second argument is set to false and all the LEDs are turned off
-    ////light up all LEDs
-    //if ((!singleLED && !turnOn) || (checkLEDsOff() && !turnOn)) allLEDsOn();
-//
-    //if (turnOn) {
-//
-    ////This part of code deals with situations when previous function call has been
-    ////left direction and current one is right and vice versa.
-//
-    ////On first function call, let's assume the direction was left to right. That would mean
-    ////that LEDs had to be processed in this order:
-//
-    ////LED 1
-    ////LED 2
-    ////LED 3
-    ////LED 4
-//
-    ////Now, when function is finished, LEDs are not reset yet with allLEDsOff() function to keep
-    ////track of their previous states. Next function call is right to left. On first run with
-    ////right to left direction, the LED order would be standard LED 4 to LED 1, however, LED 4 has
-    ////been already turned on by first function call, so we check if its state is already set, and if
-    ////it is we increment or decrement ledNumber by one, depending on previous and current direction.
-    ////When function is called second time with direction different than previous one, the number of
-    ////times it needs to execute is reduced by one, therefore passCounter is incremented.
-//
-        ////right-to-left direction
-        //if (!ledDirection)  {
-//
-            ////if last LED is turned on
-            //if (board.getLEDstate(_ledNumber[totalNumberOfLEDs-1]))  {
-//
-                ////LED index is penultimate LED number
-                //ledNumber = _ledNumber[totalNumberOfLEDs-2];
-                ////increment counter since the loop has to run one cycle less
-                //passCounter++;
-//
-            //}   else    ledNumber = _ledNumber[totalNumberOfLEDs-1]; //led index is last one if last one isn't already on
-//
-        //}   else //left-to-right direction
-//
-                ////if first LED is already on
-                //if (board.getLEDstate(_ledNumber[0]))    {
-//
-                ////led index is 1
-                //ledNumber = _ledNumber[1];
-                ////increment counter
-                //passCounter++;
-//
-                //}   else    ledNumber = _ledNumber[0];
-//
-    //}   else    {
-//
-                    ////This is situation when all LEDs are turned on and we're turning them off one by one. Same
-                    ////logic applies in both cases (see above). In this case we're not checking for whether the LED
-                    ////is already turned on, but whether it's already turned off.
-//
-                    ////right-to-left direction
-                    //if (!ledDirection)  {
-//
-                        //if (!(board.getLEDstate(_ledNumber[totalNumberOfLEDs-1])))   {
-//
-                            //ledNumber = _ledNumber[totalNumberOfLEDs-2];
-                            //passCounter++;
-//
-                        //}   else ledNumber = _ledNumber[totalNumberOfLEDs-1];
-//
-                    //}   else
-//
-                            //if (!(board.getLEDstate(_ledNumber[0]))) {   //left-to-right direction
-//
-                                //ledNumber = _ledNumber[1];
-                                //passCounter++;
-//
-                            //}   else ledNumber = _ledNumber[0];
-//
-        //}
-//
-    ////on first function call, the while loop is called TOTAL_NUMBER_OF_LEDS+1 times
-    ////to get empty cycle after processing last LED
-    //while (passCounter < totalNumberOfLEDs+1)   {
-//
-        //if (passCounter < totalNumberOfLEDs)    {
-//
-            ////if we're turning LEDs on one by one, turn all the other LEDs off
-            //if (singleLED && turnOn)            allLEDsOff();
-//
-            ////if we're turning LEDs off one by one, turn all the other LEDs on
-            //else    if (!turnOn && singleLED)   allLEDsOn();
-//
-            ////set LED state depending on turnOn parameter
-            //if (turnOn) board.setLEDstate(ledNumber, ledOn);
-            //else    board.setLEDstate(ledNumber, ledOff);
-//
-            ////make sure out-of-bound index isn't requested from ledArray
-            //if (passCounter < totalNumberOfLEDs-1)  {
-//
-                ////right-to-left direction
-                //if (!ledDirection)  ledNumber = _ledNumber[totalNumberOfLEDs - 2 - passCounter];
-//
-                ////left-to-right direction
-                //else    if (passCounter < totalNumberOfLEDs-1)  ledNumber = _ledNumber[passCounter+1];
-//
-            //}
-//
-        //}
-//
-        ////always increment pass counter
-        //passCounter++;
-//
-        //wait(startUpLEDswitchTime);
-//
-    //}
-//
-//}
+        case 5:
+        //oneByOneLED(true, false, true);
+        break;
+
+        default:
+        break;
+
+    }
+
+    allLEDsOff();
+    wait(500);
+
+}
+
+
+void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
+
+    /*
+
+    Function accepts three boolean arguments.
+
+    ledDirection:   true means that LEDs will go from left to right, false from right to left
+    singleLED:      true means that only one LED will be active at the time, false means that LEDs
+                    will turn on one by one until they're all lighted up
+
+    turnOn:         true means that LEDs will be turned on, with all previous LED states being 0
+                    false means that all LEDs are lighted up and they turn off one by one, depending
+                    on second argument
+
+    */
+
+    uint16_t startUpLEDswitchTime = getLEDHwParameter(ledsHwParameterStartUpSwitchTime) * 10;
+
+    //while loop counter
+    uint8_t passCounter = 0;
+
+    //index of LED to be processed next
+    uint8_t ledNumber,
+            _ledNumber[MAX_NUMBER_OF_LEDS];
+
+    uint8_t totalNumberOfLEDs = getLEDHwParameter(ledsHwParameterTotalLEDnumber);
+
+    //get LED order for start-up routine
+    for (int i=0; i<totalNumberOfLEDs; i++)
+        _ledNumber[i] = getLEDstartUpNumber(i);
+
+    //if second and third argument of function are set to false or
+    //if second argument is set to false and all the LEDs are turned off
+    //light up all LEDs
+    if ((!singleLED && !turnOn) || (checkLEDsOff() && !turnOn)) allLEDsOn();
+
+    if (turnOn) {
+
+    //This part of code deals with situations when previous function call has been
+    //left direction and current one is right and vice versa.
+
+    //On first function call, let's assume the direction was left to right. That would mean
+    //that LEDs had to be processed in this order:
+
+    //LED 1
+    //LED 2
+    //LED 3
+    //LED 4
+
+    //Now, when function is finished, LEDs are not reset yet with allLEDsOff() function to keep
+    //track of their previous states. Next function call is right to left. On first run with
+    //right to left direction, the LED order would be standard LED 4 to LED 1, however, LED 4 has
+    //been already turned on by first function call, so we check if its state is already set, and if
+    //it is we increment or decrement ledNumber by one, depending on previous and current direction.
+    //When function is called second time with direction different than previous one, the number of
+    //times it needs to execute is reduced by one, therefore passCounter is incremented.
+
+        //right-to-left direction
+        if (!ledDirection)  {
+
+            //if last LED is turned on
+            if (board.getLEDstate(_ledNumber[totalNumberOfLEDs-1]))  {
+
+                //LED index is penultimate LED number
+                ledNumber = _ledNumber[totalNumberOfLEDs-2];
+                //increment counter since the loop has to run one cycle less
+                passCounter++;
+
+            }   else    ledNumber = _ledNumber[totalNumberOfLEDs-1]; //led index is last one if last one isn't already on
+
+        }   else {
+
+            //left-to-right direction
+            //if first LED is already on
+            if (board.getLEDstate(_ledNumber[0]))    {
+
+                //led index is 1
+                ledNumber = _ledNumber[1];
+                //increment counter
+                passCounter++;
+
+            }   else ledNumber = _ledNumber[0];
+
+        }
+
+    }   else    {
+
+        //This is situation when all LEDs are turned on and we're turning them off one by one. Same
+        //logic applies in both cases (see above). In this case we're not checking for whether the LED
+        //is already turned on, but whether it's already turned off.
+
+        //right-to-left direction
+        if (!ledDirection)  {
+
+            if (!(board.getLEDstate(_ledNumber[totalNumberOfLEDs-1])))   {
+
+                ledNumber = _ledNumber[totalNumberOfLEDs-2];
+                passCounter++;
+
+            }   else ledNumber = _ledNumber[totalNumberOfLEDs-1];
+
+            }   else {
+
+            //left-to-right direction
+            if (!(board.getLEDstate(_ledNumber[0]))) {
+
+                ledNumber = _ledNumber[1];
+                passCounter++;
+
+            }   else ledNumber = _ledNumber[0];
+
+        }
+
+    }
+
+    //on first function call, the while loop is called TOTAL_NUMBER_OF_LEDS+1 times
+    //to get empty cycle after processing last LED
+    while (passCounter < totalNumberOfLEDs+1)   {
+
+        if (passCounter < totalNumberOfLEDs)    {
+
+            //if we're turning LEDs on one by one, turn all the other LEDs off
+            if (singleLED && turnOn)            allLEDsOff();
+
+            //if we're turning LEDs off one by one, turn all the other LEDs on
+            else    if (!turnOn && singleLED)   allLEDsOn();
+
+            //set LED state depending on turnOn parameter
+            if (turnOn) board.setLEDstate(ledNumber, true, false);
+            else    board.setLEDstate(ledNumber, false, false);
+
+            //make sure out-of-bound index isn't requested from ledArray
+            if (passCounter < totalNumberOfLEDs-1)  {
+
+                //right-to-left direction
+                if (!ledDirection)  ledNumber = _ledNumber[totalNumberOfLEDs - 2 - passCounter];
+
+                //left-to-right direction
+                else    if (passCounter < totalNumberOfLEDs-1)  ledNumber = _ledNumber[passCounter+1];
+
+            }
+
+        }
+
+        //always increment pass counter
+        passCounter++;
+
+        wait(startUpLEDswitchTime);
+
+    }
+
+}
 
 void LEDs::noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity)    {
 
