@@ -644,10 +644,10 @@ uint8_t Board::getLEDstate(uint8_t ledNumber)   {
 
 }
 
-void Board::setLEDblinkTime(uint16_t time)  {
+void Board::setLEDblinkTime(uint16_t blinkTime)  {
 
-    ledBlinkTime = time;
     cli();
+    ledBlinkTime = blinkTime;
     blinkTimerCounter = 0;
     sei();
 
@@ -662,9 +662,9 @@ void Board::resetLEDtransitions()   {
 
 }
 
-void Board::setLEDTransitionSpeed(uint8_t steps) {
+void Board::setLEDTransitionSpeed(uint8_t transitionSteps) {
 
-    pwmSteps = steps;
+    pwmSteps = transitionSteps;
 
 }
 
