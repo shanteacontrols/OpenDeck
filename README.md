@@ -35,8 +35,8 @@ The platform allows hassle-free building of MIDI controllers and their configura
 ### Analog configuration
 
 * Enable/disable analog input
-* Analog input type (only potentiometer at the moment)
 * Invert analog value
+* Analog input type (only potentiometer at the moment)
 * CC number
 * Lower CC limit
 * Upper CC limit
@@ -56,8 +56,8 @@ The platform allows hassle-free building of MIDI controllers and their configura
 ### Encoder configuration
 
 * Enable/disable encoder
-* Encoding type
 * Invert encoder value
+* Encoding type
 * CC number
 
 ### Data restoration

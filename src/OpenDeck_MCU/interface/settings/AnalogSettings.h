@@ -4,8 +4,8 @@
 typedef enum {
 
     analogEnabledConf,
-    analogTypeConf,
     analogInvertedConf,
+    analogTypeConf,
     analogMIDIidConf,
     analogCClowerLimitConf,
     analogCCupperLimitConf,
