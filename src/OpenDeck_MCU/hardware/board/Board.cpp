@@ -653,26 +653,15 @@ void Board::setLEDblinkTime(uint16_t blinkTime)  {
 
 }
 
-void Board::resetLEDtransitions()   {
+void Board::setLEDTransitionSpeed(uint8_t transitionSteps) {
 
+    //reset transition counter
     cli();
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
         transitionCounter[i] = 0;
     sei();
 
-}
-
-void Board::setLEDTransitionSpeed(uint8_t transitionSteps) {
-
     pwmSteps = transitionSteps;
-
-}
-
-void Board::resetLEDblinkCounter()  {
-
-    cli();
-    blinkTimerCounter = 0;
-    sei();
 
 }
 
