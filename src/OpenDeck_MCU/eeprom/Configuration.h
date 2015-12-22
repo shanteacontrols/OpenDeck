@@ -6,9 +6,6 @@
 #include "Blocks.h"
 #include "Sections.h"
 
-#define BIT_PARAMETER_BYTES     8
-#define BYTE_PARAMETER_BYTES    64
-
 #define BYTE_PARAMETER          0
 #define BIT_PARAMETER           1
 
