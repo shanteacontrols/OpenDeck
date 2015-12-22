@@ -502,12 +502,10 @@ bool LEDs::setLEDHwParameter(uint8_t parameter, uint8_t newParameter) {
     switch((ledsHardwareParameter)parameter)   {
 
         case ledsHwParameterBlinkTime:
-        board.resetLEDblinkCounter();
         board.setLEDblinkTime(newParameter*100);
         break;
 
         case ledsHwParameterFadeTime:
-        board.resetLEDtransitions();
         board.setLEDTransitionSpeed(newParameter);
         break;
 
