@@ -8,6 +8,7 @@
 #include "..\BitManipulation.h"
 #include "..\interface\settings\Settings.h"
 #include "..\interface\encoders\Encoders.h"
+#include "..\interface\leds\LEDs.h"
 
 #define DIGITAL_BUFFER_SIZE 4
 
@@ -494,7 +495,7 @@ void Board::init()  {
     initPins();
     initAnalog();
 
-    pwmSteps = 5; //TO-DO, fix
+    pwmSteps = leds.getParameter(ledsHardwareParameterConf, ledsHwParameterFadeTime);
 
     for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)    {
 
