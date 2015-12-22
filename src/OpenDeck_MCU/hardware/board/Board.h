@@ -46,12 +46,12 @@ class Board {
     int16_t getAnalogValue(uint8_t analogID);
 
     //LEDs
-    uint8_t getLEDstate(uint8_t);
+    uint8_t getLEDstate(uint8_t ledNumber);
     void setLEDstate(uint8_t ledNumber, uint8_t ledState);
-    void setLEDblinkTime(uint16_t);
+    void setLEDblinkTime(uint16_t blinkTime);
     void resetLEDblinkCounter();
     void resetLEDtransitions();
-    void setLEDTransitionSpeed(uint8_t);
+    void setLEDTransitionSpeed(uint8_t transitionSteps);
     void ledBlinkingStart();
     void ledBlinkingStop();
     bool ledBlinkingActive();
