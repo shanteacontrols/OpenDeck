@@ -504,9 +504,13 @@ Example #1:
 User wants to find out MIDI CC number for analog component 5.
 
 `WISH`: `GET` (`0`)
+
 `AMOUNT`: `SINGLE` (`0`)
+
 `BLOCK`: Analog (`3`)
+
 `SECTION`: MIDI ID (`3`)
+
 `PARAMETER`: `5`
 
 * Request:
@@ -520,8 +524,11 @@ Example #2:
 User wants to find out encoding mode for all encoders.
 
 `WISH`: `GET` (`0`)
+
 `AMOUNT`: `ALL` (`1`)
+
 `BLOCK`: Encoder (`2`)
+
 `SECTION`: Encoding mode (`2`)
 
 `PARAMETER` byte doesn't need to be specified since `AMOUNT` is `ALL`.
@@ -539,10 +546,15 @@ Example 1:
 User wants to configure button 6 to send program change event instead of note event.
 
 `WISH`: `SET` (`1`)
+
 `AMOUNT`: `SINGLE` (`0`)
+
 `BLOCK`: Button (`1`)
+
 `SECTION`: Program change mode (`1`)
+
 `PARAMETER`: `6`
+
 `NEW_PARAMETER`: Enabled (`1`)
 
 * Request:
@@ -555,9 +567,13 @@ When `WISH` is `SET`, response contains only manufacturer ID bytes and `ACK` byt
 Example 2: User wants to set all MIDI channels to channel 5.
 
 `WISH`: `SET` (`1`)
+
 `AMOUNT`: `SINGLE` (`0`)
+
 `BLOCK`: Button (`1`)
+
 `SECTION`: Program change mode (`1`)
+
 `NEW_PARAMETER`: 05 05 05 05
 
 `PARAMETER` byte isn't needed since `WISH` is `SET` and `AMOUNT` is `ALL`.
@@ -575,9 +591,13 @@ Example 1:
 User wants to restore Program change channel back to default.
 
 `WISH`: `RESTORE` (`2`)
+
 `AMOUNT`: `SINGLE` (`0`)
+
 `BLOCK`: MIDI (`0`)
+
 `SECTION`: Channels (`1`)
+
 `PARAMETER`: Program change channel (`1`)
 
 `NEW_PARAMETER` byte isn't needed when `WISH` is `RESTORE`.
@@ -591,8 +611,11 @@ Example 2:
 User wants to restore restore all button program change states back to default (disable):
 
 `WISH`: `RESTORE` (`2`)
+
 `AMOUNT`: `ALL` (`1`)
+
 `BLOCK`: Buton (`0`)
+
 `SECTION`: Program change state (`1`)
 
 `PARAMETER` isn't needed since `WISH` is `RESTORE` and `AMOUNT` is `ALL`.
