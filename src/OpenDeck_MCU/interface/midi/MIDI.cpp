@@ -225,9 +225,9 @@ uint8_t MIDI::getParameter(uint8_t messageType, uint8_t parameterID)  {
 }
 
 
-bool MIDI::setMIDIchannel(uint8_t channel, uint8_t channelNumber)  {
+bool MIDI::setMIDIchannel(uint8_t channelID, uint8_t channelNumber)  {
 
-    return configuration.writeParameter(CONF_MIDI_BLOCK, midiChannelSection, channel, channelNumber);
+    return configuration.writeParameter(CONF_MIDI_BLOCK, midiChannelSection, channelID, channelNumber);
 
 }
 
