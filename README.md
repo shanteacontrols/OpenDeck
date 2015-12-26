@@ -36,7 +36,7 @@ The platform allows hassle-free building of MIDI controllers and their configura
 
 * Enable/disable analog input
 * Invert analog value
-* Analog input type (only potentiometer at the moment)
+* Analog input type
 * CC number
 * Lower CC limit
 * Upper CC limit
@@ -67,11 +67,10 @@ The platform allows hassle-free building of MIDI controllers and their configura
 * Complete factory reset of all values
 
 ### SysEx configuration
-All configuration is done using MIDI System Exclusive messages. For more information, see examples in /examples folder.
+All configuration is done using MIDI System Exclusive messages. For more information, see `configuration.md` in `doc` directory.
 
 ## Firmware compilation
 MCU Code is available as Atmel Studio 7.0 project. Simply open `OpenDeck_AVRC.atsln` using the IDE and everything should work.
-
 
 ## Licence
 All code is available under GNU GPL v3 licence.
