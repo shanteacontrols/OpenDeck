@@ -89,6 +89,12 @@ Configuration messages have the following structure:
 
 `START M_ID_0 M_ID_1 M_ID_1 WISH AMOUNT BLOCK SECTION PARAMETER* NEW_PARAMETER* STOP`
 
+`WISH` determines what the user wants with selected parameter (get, set or restore to default value).
+`AMOUNT` determines how many parameters user wants to configure (single or all).
+`BLOCK` and `SECTION` determine parameter category.
+`PARAMETER` is the component ID that user wants to manipulate.
+`NEW_PARAMETER` is the new value that user wants to set to selected parameter.
+
 Items marked with asterisk aren't needed in certain scenarios.
 
 ### 1.2.1 `WISH` byte
