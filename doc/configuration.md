@@ -12,8 +12,11 @@ and parameter have their own SysEx ID, used to specifically identify wanted opti
 
 Each MIDI SysEx message starts with `START` (`F0`) byte and ends with `STOP` (`F7`) byte. `START` byte *always* needs to be followed by three
 manufacturer ID bytes. Manufacturer bytes ensure that SysEx message doesn't end up on wrong MIDI controller. OpenDeck uses these manufacturer ID bytes:
+
 1) `M_ID_0`: `00`
+
 2) `M_ID_1`: `53`
+
 3) `M_ID_2`: `43`
 
 If manufacturer bytes aren't specified (or they're wrong), OpenDeck won't respond.
@@ -21,6 +24,7 @@ If manufacturer bytes aren't specified (or they're wrong), OpenDeck won't respon
 There are two types of SysEx messages on OpenDeck:
 
 1) Special messages
+
 2) Configuration messages
 
 OpenDeck SysEx protocol checks all incoming messages. If a request is wrong, protocol will return error code.
@@ -34,7 +38,9 @@ Special messages have the following structure:
 There are three special SysEx messages:
 
 1) Hello message
+
 2) Firmware update message
+
 3) Factory reset message
 
 Special messages are differentiated by `SPECIAL_MESSAGE_ID` byte.
@@ -90,7 +96,9 @@ Items marked with asterisk aren't needed in certain scenarios.
 `WISH` byte comes after three manufacturer ID bytes. There are three options available:
 
 1) `GET`
+
 2) `SET`
+
 3) `RESTORE`
 
 #### 1.2.1.1 `GET`
@@ -115,6 +123,7 @@ Used to restore one or more parameter to its default state.
 After `GET`, `SET` or `RESTORE` command, `AMOUNT` byte is needed. `AMOUNT` determines amount of parameters user wants to manipulate. There are two choices for `AMOUNT` byte:
 
 1) `SINGLE`
+
 2) `ALL`
 
 #### 1.2.2.1 `SINGLE`
@@ -134,9 +143,13 @@ Used to get, set or restore all parameters within block section.
 `BLOCK` determines which part of the board user wants to configure. `BLOCK` byte comes after `AMOUNT` byte. There are five options available:
 
 1) MIDI
+
 2) Button
+
 3) Encoder
+
 4) Analog
+
 5) LED
 
 Each block has its own sections for precise determination of parameter user wants to configure.
@@ -184,8 +197,11 @@ SysEx `SECTION` ID: `1`
 There are several configurable MIDI channels (parameters):
 
 1) Note channel
+
 2) Program change channel
+
 3) Continuous change channel
+
 4) Input channel
 
 All channels are set to 1 by default. Accepted values for `NEW_PARAMETER` byte range between 1-16.
@@ -220,7 +236,9 @@ SysEx `BLOCK` ID: `1`
 This block has the following subsections:
 
 1) Type
+
 2) Program change state
+
 3) MIDI ID
 
 ##### 1.2.3.2.1 Type
@@ -248,7 +266,9 @@ SysEx `BLOCK` ID: `2`
 This block has the following subsections:
 
 1) Enabled/disabled
+
 2) Invert state
+
 3) Encoding mode
 
 ##### 1.2.3.3.1 Enabled/disabled
@@ -270,6 +290,7 @@ SysEx `SECTION` ID: `2`
 Denotes encoder encoding mode. There two options:
 
 1) 7Fh01h encoding
+
 2) 3Fh41h encoding
 
 Default option is 7Fh01h for all encoders. Acceptable values for `NEW_PARAMETER` byte are `0` (7Fh01h) and `1` (3Fh41h). `PARAMETER` byte can range between 0-31 (total of 32 values for 32 encoders).
@@ -294,10 +315,15 @@ SysEx `BLOCK` ID: `3`
 This block has the following subsections:
 
 1) Enabled/disabled
+
 2) Invert state
+
 3) Type
+
 4) MIDI ID
+
 5) Lower CC limit
+
 6) Upper CC limit
 
 ##### 1.2.3.4.1 Enabled/disabled
@@ -319,6 +345,7 @@ SysEx `SECTION` ID: `2`
 Analog inputs can behave differently based on selected type. There are several analog types:
 
 1) Potentiometer
+
 2) FSR
 
 Default option is potentiometer for all analog inputs. Acceptable values for `NEW_PARAMETER` byte are `0` (potentiometer) and `1` (FSR). `PARAMETER` byte can range between 0-31 (total of 32 values for 32 analog inputs).
@@ -360,8 +387,11 @@ SysEx `BLOCK` ID: `4`
 This block has the following sections:
 
 1) Hardware parameters
+
 2) Activation note
+
 3) Start-up number
+
 4) LED state test
 
 ##### 1.2.3.5.1 Hardware parameters
@@ -371,9 +401,13 @@ SysEx `SECTION` ID: `0`
 LED block has several hardware parameters which can be configured.
 
 1) Total LED number
+
 2) Blink time
+
 3) Start-up switch time
+
 4) Start-up routine
+
 5) Fade time
 
 ###### 1.2.3.5.1.1 Total LED number
@@ -423,8 +457,11 @@ If LED blinking is enabled, LED can be in both states, depending on velocity:
 If two modes are active at the same time, both need to be turned off to completely turn off the LED. LEDs "remember" their state. Example scenario:
 
 1) User sends velocity 62 to LED, LED is in constant on state
+
 2) User sends velocity 127 to same LED, LED starts blinking
+
 3) User sends velocity 62 to same LED, LED stops blinking and returns to constant on state
+
 4) User sends velocity 0 to same LED, LED is now off
 
 ##### 1.2.3.5.3 Start-up number
@@ -440,8 +477,11 @@ SysEx `SECTION` ID: `3`
 This setting doesn't write anything to the board. Used only for testing LED states. `NEW_PARAMETER` (state) can have four values:
 
 1) `0` - turn constant state off
+
 2) `1` - turn constant state on
+
 3) `2` - turn blink state off
+
 4) `3` - turn blink state on
 
 `PARAMETER` byte can range between 0-47 (total of 48values for 48 LEDs).
@@ -516,13 +556,21 @@ User wants to restore restore all button program change states back to default (
 If user types wrong byte in message request, the board will return specific error code based on what the user did wrong. There are 9 possible errors that can happen while sending SysEx request:
 
 1) Handshake error
+
 2) `WISH` error
+
 3) `AMOUNT` error
+
 4) `BLOCK` error
+
 5) `SECTION` error
+
 6) `PARAMETER` error
+
 7) `NEW_PARAMETER` error
+
 8) Message length error
+
 9) EEPROM error
 
 Error message structure:
