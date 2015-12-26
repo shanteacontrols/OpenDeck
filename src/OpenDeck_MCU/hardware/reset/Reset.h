@@ -9,8 +9,11 @@
 #define ATTR_INIT_SECTION(SectionIndex)     __attribute__ ((used, naked, section (".init" #SectionIndex )))
 #define WDFR 3
 
+#define APP_REBOOT      0
+#define BTLDR_REBOOT    1
+
 void Bootloader_Jump_Check(void) ATTR_INIT_SECTION(3);
 void disablePeripherals();
-void reboot();
+void reboot(uint8_t mode);
 
 #endif

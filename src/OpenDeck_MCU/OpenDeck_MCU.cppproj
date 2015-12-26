@@ -256,6 +256,9 @@
     <Compile Include="interface\analog\Analog.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="interface\analog\FSR.cpp">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="interface\analog\Potentiometer.cpp">
       <SubType>compile</SubType>
     </Compile>
@@ -305,6 +308,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="OpenDeck.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sysex\Errors.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="sysex\ManufacturerID.h">

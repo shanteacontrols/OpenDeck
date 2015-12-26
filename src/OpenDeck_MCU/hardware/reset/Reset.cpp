@@ -66,7 +66,7 @@ void disablePeripherals(void)   {
 
 }
 
-void reboot()    {
+void reboot(uint8_t mode)    {
 
     cli();
     //stop watchdog timer, if running
@@ -79,9 +79,20 @@ void reboot()    {
     _delay_ms(2000);
     disablePeripherals();
 
-    // Set the bootloader key to the magic value and force a reset
-    Boot_Key = MAGIC_BOOT_KEY;
-    wdt_enable(WDTO_250MS);
-    for (;;);
+    switch(mode)    {
+
+        case APP_REBOOT:
+        wdt_enable(WDTO_250MS);
+        for (;;);
+        break;
+
+        case BTLDR_REBOOT:
+        //set the bootloader key to the magic value and force a reset
+        Boot_Key = MAGIC_BOOT_KEY;
+        wdt_enable(WDTO_250MS);
+        for (;;);
+        break;
+
+    }
 
 }

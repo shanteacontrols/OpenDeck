@@ -1,0 +1,18 @@
+#ifndef ERRORS_H_
+#define ERRORS_H_
+
+typedef enum {
+
+    ERROR_HANDSHAKE,
+    ERROR_WISH,
+    ERROR_AMOUNT,
+    ERROR_MT,
+    ERROR_MST,
+    ERROR_PARAMETER,
+    ERROR_NEW_PARAMETER,
+    ERROR_MESSAGE_LENGTH,
+    ERROR_EEPROM,
+
+} sysExError;
+
+#endif

@@ -6,6 +6,7 @@
 #include "Version.h"
 #include "ManufacturerID.h"
 #include "..\interface\midi\MIDI.h"
+#include "Errors.h"
 
 #define MAX_NUMBER_OF_MESSAGES  7
 #define MAX_NUMBER_OF_SUBTYPES  7
@@ -32,9 +33,11 @@ typedef struct {
 #define ML_SPECIAL              0x06
 #define ML_REQ_STANDARD         0x09
 #define ML_RES_BASIC            0x08
+#define ML_SET_RESTORE          0x04
 
 #define HELLO_STRING            0x48
-#define RESET_STRING            0x7F
+#define REBOOT_STRING           0x7F
+#define FACTORY_RESET_STRING    0x44
 
 #define ENABLE                  0x01
 #define DISABLE                 0x00
@@ -67,20 +70,6 @@ typedef enum {
 
 typedef enum {
 
-    ERROR_HANDSHAKE,
-    ERROR_WISH,
-    ERROR_AMOUNT,
-    ERROR_MT,
-    ERROR_MST,
-    ERROR_PARAMETER,
-    ERROR_NEW_PARAMETER,
-    ERROR_MESSAGE_LENGTH,
-    ERROR_EEPROM,
-
-} sysExError;
-
-typedef enum {
-
     MS_M_ID_0 = 1,
     MS_M_ID_1 = 2,
     MS_M_ID_2 = 3,
@@ -106,6 +95,7 @@ class SysEx {
     bool configurationEnabled();
 
     void setHandleReboot(void(*fptr)(void));
+    void setHandleFactoryReset(void(*fptr)(void));
     void setHandleGet(uint8_t(*fptr)(uint8_t messageID, uint8_t messageSubtype, uint8_t parameterID));
     void setHandleSet(bool(*fptr)(uint8_t messageID, uint8_t messageSubtype, uint8_t parameterID, uint8_t newParameter));
     void setHandleReset(bool(*fptr)(uint8_t messageID, uint8_t messageSubtype, uint8_t parameterID));
@@ -151,6 +141,7 @@ class SysEx {
     void generateAck();
 
     void (*sendRebootCallback)(void);
+    void (*sendFactoryResetCallback)(void);
     uint8_t (*sendGetCallback)(uint8_t messageID, uint8_t messageSubtype, uint8_t parameter);
     bool (*sendSetCallback)(uint8_t messageID, uint8_t messageSubtype, uint8_t parameter, uint8_t newParameter);
     bool (*sendResetCallback)(uint8_t messageID, uint8_t messageSubtype, uint8_t parameter);

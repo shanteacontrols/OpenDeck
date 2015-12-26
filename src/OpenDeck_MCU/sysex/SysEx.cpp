@@ -4,10 +4,11 @@
 
 SysEx::SysEx()  {
 
-    sendRebootCallback  = NULL;
-    sendGetCallback     = NULL;
-    sendSetCallback     = NULL;
-    sendResetCallback   = NULL;
+    sendRebootCallback          = NULL;
+    sendFactoryResetCallback    = NULL;
+    sendGetCallback             = NULL;
+    sendSetCallback             = NULL;
+    sendResetCallback           = NULL;
 
     sysExEnabled = false;
 
@@ -58,7 +59,7 @@ bool SysEx::checkSpecial(uint8_t *array, uint8_t size) {
 
     if (size == ML_SPECIAL)   {
 
-        if (array[size-2] == RESET_STRING)  {   //reset message
+        if (array[size-2] == REBOOT_STRING)  {   //reset message
 
             if (sysExEnabled)
                 sendRebootCallback();
@@ -70,6 +71,10 @@ bool SysEx::checkSpecial(uint8_t *array, uint8_t size) {
             //hello message, necessary for allowing configuration
             generateAck();
             return true;
+
+        }   else if (array[size-2] == FACTORY_RESET_STRING) {
+
+            sendFactoryResetCallback();
 
         }
 
@@ -84,7 +89,6 @@ void SysEx::handleSysEx(uint8_t *sysExArray, uint8_t size)    {
     //don't respond to sysex message if device ID is wrong
     if (!checkID(sysExArray[MS_M_ID_0], sysExArray[MS_M_ID_1], sysExArray[MS_M_ID_2])) return;
 
-    //check for reset or hello message
     if (checkSpecial(sysExArray, size)) return;
     //message appears to be fine for now
     //check if hello message has been received by now
@@ -345,10 +349,19 @@ void SysEx::generateResponse(uint8_t sysExArray[], uint8_t arraySize)  {
     uint8_t sysExResponse[64+ML_RES_BASIC];
 
     //copy first part of request to response
-    for (int i=0; i<(ML_RES_BASIC-1); i++)
-        sysExResponse[i] = sysExArray[i+1];
+    //for (int i=0; i<(ML_RES_BASIC-1); i++)
+        //sysExResponse[i] = sysExArray[i+1];
+//
+    //sysExResponse[ML_RES_BASIC-1] = RESPONSE_ACK;
 
-    sysExResponse[ML_RES_BASIC-1] = RESPONSE_ACK;
+    sysExResponse[0] = SYS_EX_M_ID_0;
+    sysExResponse[1] = SYS_EX_M_ID_1;
+    sysExResponse[2] = SYS_EX_M_ID_2;
+    sysExResponse[3] = RESPONSE_ACK;
+
+    //copy first part of request to response
+    //for (int i=0; i<(ML_RES_BASIC-1); i++)
+        //sysExResponse[i+4] = sysExArray[i+4];
 
     if (sysExArray[MS_AMOUNT] == AMOUNT_ALL) {
 
@@ -367,12 +380,12 @@ void SysEx::generateResponse(uint8_t sysExArray[], uint8_t arraySize)  {
 
         for (int i=0; i<componentNr; i++) {
 
-            sysExResponse[i+ML_RES_BASIC] = sendGetCallback(sysExArray[MS_MT], sysExArray[MS_MST], _parameter);
+            sysExResponse[i+ML_SET_RESTORE] = sendGetCallback(sysExArray[MS_MT], sysExArray[MS_MST], _parameter);
             _parameter++;
 
         }
 
-        midi.sendSysEx(sysExResponse, ML_RES_BASIC+componentNr);
+        midi.sendSysEx(sysExResponse, ML_SET_RESTORE+componentNr);
         return;
 
     }   else    if (sysExArray[MS_WISH] == WISH_SET)   {          //set
@@ -404,7 +417,7 @@ void SysEx::generateResponse(uint8_t sysExArray[], uint8_t arraySize)  {
 
             }
 
-            midi.sendSysEx(sysExResponse, ML_RES_BASIC);
+            midi.sendSysEx(sysExResponse, ML_SET_RESTORE);
             return;
 
         }   else if (sysExArray[MS_WISH] == WISH_RESTORE) {       //restore
@@ -424,7 +437,7 @@ void SysEx::generateResponse(uint8_t sysExArray[], uint8_t arraySize)  {
 
                 }
 
-                midi.sendSysEx(sysExResponse, ML_RES_BASIC);
+                midi.sendSysEx(sysExResponse, ML_SET_RESTORE);
                 return;
 
             }
@@ -436,6 +449,12 @@ void SysEx::generateResponse(uint8_t sysExArray[], uint8_t arraySize)  {
 void SysEx::setHandleReboot(void (*fptr)(void)) {
 
     sendRebootCallback = fptr;
+
+}
+
+void SysEx::setHandleFactoryReset(void (*fptr)(void))   {
+
+    sendFactoryResetCallback = fptr;
 
 }
 

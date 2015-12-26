@@ -21,12 +21,14 @@ void Configuration::init() {
     (eeprom_read_byte((uint8_t*)ID_LOCATION_1) == UNIQUE_ID) &&
     (eeprom_read_byte((uint8_t*)ID_LOCATION_2) == UNIQUE_ID)
 
-    )) {
+    ))  factoryReset();
 
-        clearEEPROM();
-        writeConfiguration();
+}
 
-    }
+void Configuration::factoryReset()  {
+
+    clearEEPROM();
+    writeConfiguration();
 
 }
 
@@ -51,14 +53,25 @@ bool Configuration::writeParameter(uint8_t blockID, uint8_t sectionID, uint8_t p
         arrayIndex = parameterID/8;
         parameterIndex = parameterID - 8*arrayIndex;
         arrayValue = eeprom_read_byte((uint8_t*)startAddress+arrayIndex);
-        bitWrite(arrayValue, parameterIndex, newValue);
+        if (newValue == DEFAULT_VALUE)
+            bitWrite(arrayValue, parameterIndex, (blocks[blockID].defaultValue[sectionID] & 0x01));
+        else bitWrite(arrayValue, parameterIndex, newValue);
         eeprom_update_byte((uint8_t*)startAddress+arrayIndex, arrayValue);
         return (arrayValue == eeprom_read_byte((uint8_t*)startAddress+arrayIndex));
         break;
 
         case BYTE_PARAMETER:
-        eeprom_update_byte((uint8_t*)startAddress+parameterID, newValue);
-        return (newValue == eeprom_read_byte((uint8_t*)startAddress+parameterID));
+        if (newValue == DEFAULT_VALUE)    {
+
+            eeprom_update_byte((uint8_t*)startAddress+parameterID, blocks[blockID].defaultValue[sectionID]);
+            return (blocks[blockID].defaultValue[sectionID] == eeprom_read_byte((uint8_t*)startAddress+parameterID));
+
+        }   else {
+
+            eeprom_update_byte((uint8_t*)startAddress+parameterID, newValue);
+            return (newValue == eeprom_read_byte((uint8_t*)startAddress+parameterID));
+
+        }
         break;
 
     }   return 0;
