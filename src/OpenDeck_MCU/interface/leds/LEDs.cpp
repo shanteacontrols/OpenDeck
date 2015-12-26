@@ -381,9 +381,6 @@ uint8_t LEDs::getParameter(uint8_t messageType, uint8_t parameterID)   {
         return getLEDstartUpNumber(parameterID);
         break;
 
-        case ledsRGBcolorConf:
-        break;
-
         case ledsStateConf:
         break;
 
@@ -444,9 +441,6 @@ bool LEDs::setParameter(uint8_t messageType, uint8_t parameter, uint8_t newParam
 
         case ledsStartUpNumberConf:
         return setLEDstartNumber(parameter, newParameter);
-        break;
-
-        case ledsRGBcolorConf:
         break;
 
         case ledsStateConf:
