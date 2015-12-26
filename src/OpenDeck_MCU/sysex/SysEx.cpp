@@ -69,7 +69,7 @@ bool SysEx::checkSpecial(uint8_t *array, uint8_t size) {
         }   else if (array[size-2] == HELLO_STRING)   {
 
             //hello message, necessary for allowing configuration
-            generateAck();
+            sendHelloResponse();
             return true;
 
         }   else if (array[size-2] == FACTORY_RESET_STRING) {
@@ -305,22 +305,21 @@ void SysEx::generateError(sysExError errorID)  {
 
 }
 
-void SysEx::generateAck()   {
+void SysEx::sendHelloResponse()   {
 
-    uint8_t sysExAckResponse[8];
+    uint8_t sysExAckResponse[7];
 
     sysExAckResponse[0] = SYS_EX_M_ID_0;
     sysExAckResponse[1] = SYS_EX_M_ID_1;
     sysExAckResponse[2] = SYS_EX_M_ID_2;
     sysExAckResponse[3] = RESPONSE_ACK;
-    sysExAckResponse[4] = HELLO_STRING;
-    sysExAckResponse[5] = VERSION_BYTE_0;
-    sysExAckResponse[6] = VERSION_BYTE_1;
-    sysExAckResponse[7] = VERSION_BYTE_2;
+    sysExAckResponse[4] = VERSION_BYTE_0;
+    sysExAckResponse[5] = VERSION_BYTE_1;
+    sysExAckResponse[6] = VERSION_BYTE_2;
 
     sysExEnabled = true;
 
-    midi.sendSysEx(sysExAckResponse, 8);
+    midi.sendSysEx(sysExAckResponse, 7);
 
 }
 
