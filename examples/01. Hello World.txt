@@ -1,9 +1,0 @@
-SysEx programming of OpenDeck doesn't work until Hello World message has been sent to controller.
-
-Hello World message consists only of SysEx start, three ID bytes and SysEx end:
-F0 00 53 43 F7
-
-The controller will respond with:
-F0 00 53 43 41 00 00 00 F7
-
-41 at the end means "ACK", everything is fine. Three following bytes represent firmware version.
