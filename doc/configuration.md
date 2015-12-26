@@ -503,7 +503,11 @@ This setting doesn't write anything to the board. Used only for testing LED stat
 Example #1:
 User wants to find out MIDI CC number for analog component 5.
 
-Since only one component info is needed, `AMOUNT` byte is set to `SINGLE`.
+`WISH`: `GET` (`0`)
+`AMOUNT`: `SINGLE` (`0`)
+`BLOCK`: Analog (`3`)
+`SECTION`: MIDI ID (`3`)
+`PARAMETER`: `5`
 
 * Request:
 `F0 00 53 43 00 00 03 03 05 F7`
@@ -514,6 +518,13 @@ Response always has three manufacturer IDs followed by `ACK` byte. When `WISH` i
 
 Example #2:
 User wants to find out encoding mode for all encoders.
+
+`WISH`: `GET` (`0`)
+`AMOUNT`: `ALL` (`1`)
+`BLOCK`: Encoder (`2`)
+`SECTION`: Encoding mode (`2`)
+
+`PARAMETER` byte doesn't need to be specified since `AMOUNT` is `ALL`.
 
 * Request:
 `F0 00 53 43 00 01 02 02 F7`
@@ -527,6 +538,13 @@ Response returned 32 values for 32 encoders. Since all encoders have default enc
 Example 1:
 User wants to configure button 6 to send program change event instead of note event.
 
+`WISH`: `SET` (`1`)
+`AMOUNT`: `SINGLE` (`0`)
+`BLOCK`: Button (`1`)
+`SECTION`: Program change mode (`1`)
+`PARAMETER`: `6`
+`NEW_PARAMETER`: Enabled (`1`)
+
 * Request:
 `F0 00 53 43 01 00 01 01 06 01 F7`
 * Response:
@@ -535,6 +553,14 @@ User wants to configure button 6 to send program change event instead of note ev
 When `WISH` is `SET`, response contains only manufacturer ID bytes and `ACK` byte.
 
 Example 2: User wants to set all MIDI channels to channel 5.
+
+`WISH`: `SET` (`1`)
+`AMOUNT`: `SINGLE` (`0`)
+`BLOCK`: Button (`1`)
+`SECTION`: Program change mode (`1`)
+`NEW_PARAMETER`: 05 05 05 05
+
+`PARAMETER` byte isn't needed since `WISH` is `SET` and `AMOUNT` is `ALL`.
 
 * Request:
 `F0 00 53 43 01 01 00 01 05 05 05 05 F7`
@@ -548,6 +574,14 @@ When `WISH` byte is `SET`, and `AMOUNT` is `ALL`, all parameters within section 
 Example 1:
 User wants to restore Program change channel back to default.
 
+`WISH`: `RESTORE` (`2`)
+`AMOUNT`: `SINGLE` (`0`)
+`BLOCK`: MIDI (`0`)
+`SECTION`: Channels (`1`)
+`PARAMETER`: Program change channel (`1`)
+
+`NEW_PARAMETER` byte isn't needed when `WISH` is `RESTORE`.
+
 * Request:
 `F0 00 53 43 02 00 00 01 01 F7`
 * Response:
@@ -555,6 +589,13 @@ User wants to restore Program change channel back to default.
 
 Example 2:
 User wants to restore restore all button program change states back to default (disable):
+
+`WISH`: `RESTORE` (`2`)
+`AMOUNT`: `ALL` (`1`)
+`BLOCK`: Buton (`0`)
+`SECTION`: Program change state (`1`)
+
+`PARAMETER` isn't needed since `WISH` is `RESTORE` and `AMOUNT` is `ALL`.
 
 * Request:
 `F0 00 53 43 02 01 01 01 F7`
