@@ -484,7 +484,7 @@ This setting doesn't write anything to the board. Used only for testing LED stat
 
 4) `3` - turn blink state on
 
-`PARAMETER` byte can range between 0-47 (total of 48values for 48 LEDs).
+`PARAMETER` byte can range between 0-47 (total of 48 values for 48 LEDs).
 
 ## 2. Configuration examples
 
@@ -493,7 +493,9 @@ This setting doesn't write anything to the board. Used only for testing LED stat
 *Note: All `GET` examples assume default board configuration.*
 
 Example #1:
-User wants to find out MIDI CC number for analog component 5. Since only one component info is needed, `AMOUNT` byte is set to `SINGLE`.
+User wants to find out MIDI CC number for analog component 5.
+
+Since only one component info is needed, `AMOUNT` byte is set to `SINGLE`.
 
 * Request:
 `F0 00 53 43 00 00 03 03 05 F7`
@@ -515,7 +517,7 @@ Response returned 32 values for 32 encoders. Since all encoders have default enc
 ### 2.2 `SET` command
 
 Example 1:
-User wants to set configure button 6 to send program change event instead of note event.
+User wants to configure button 6 to send program change event instead of note event.
 
 * Request:
 `F0 00 53 43 01 00 01 01 06 01 F7`
