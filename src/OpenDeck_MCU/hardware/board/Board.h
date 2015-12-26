@@ -26,7 +26,6 @@ inline encoderPosition readEncoder(uint8_t encoderID, uint8_t pairState) __attri
 uint32_t rTimeMillis();
 void wait(uint32_t time);
 void disableWatchDog();
-void reboot();
 
 class Board {
 

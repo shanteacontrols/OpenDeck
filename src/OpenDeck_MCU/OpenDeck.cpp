@@ -16,15 +16,29 @@
 #include "sysex\SysEx.h"
 #include "hardware\reset\Reset.h"
 
-void onReboot()  {
+void ledsOff_slow() {
 
     //turn off all leds slowly before reseting
     board.setLEDTransitionSpeed(1);
     leds.allLEDsOff();
     //make sure all leds are off
     wait(1000);
+
+}
+
+void onReboot()  {
+
+    ledsOff_slow();
     //this will reset the board into bootloader mode
-    reboot();
+    reboot(BTLDR_REBOOT);
+
+}
+
+void onFactoryReset()   {
+
+    ledsOff_slow();
+    configuration.factoryReset();
+    reboot(APP_REBOOT);
 
 }
 
@@ -89,23 +103,23 @@ bool onReset(uint8_t messageType, uint8_t messageSubtype, uint8_t parameter) {
     switch(messageType) {
 
         case CONF_MIDI_BLOCK:
-        return midi.setParameter(messageSubtype, parameter, RESET_VALUE);
+        return midi.setParameter(messageSubtype, parameter, DEFAULT_VALUE);
         break;
 
         case CONF_BUTTON_BLOCK:
-        return buttons.setParameter(messageSubtype, parameter, RESET_VALUE);
+        return buttons.setParameter(messageSubtype, parameter, DEFAULT_VALUE);
         break;
 
         case CONF_ENCODER_BLOCK:
-        return analog.setParameter(messageSubtype, parameter, RESET_VALUE);
+        return analog.setParameter(messageSubtype, parameter, DEFAULT_VALUE);
         break;
 
         case CONF_LED_BLOCK:
-        return leds.setParameter(messageSubtype, parameter, RESET_VALUE);
+        return leds.setParameter(messageSubtype, parameter, DEFAULT_VALUE);
         break;
 
         case CONF_ANALOG_BLOCK:
-        return encoders.setParameter(messageSubtype, parameter, RESET_VALUE);
+        return encoders.setParameter(messageSubtype, parameter, DEFAULT_VALUE);
         break;
 
     }   return false;
@@ -120,6 +134,7 @@ void setup()    {
     sysEx.setHandleGet(onGet);
     sysEx.setHandleSet(onSet);
     sysEx.setHandleReset(onReset);
+    sysEx.setHandleFactoryReset(onFactoryReset);
 
     board.init();
     midi.init();

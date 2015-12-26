@@ -9,7 +9,7 @@
 #define BYTE_PARAMETER          0
 #define BIT_PARAMETER           1
 
-#define RESET_VALUE             128
+#define DEFAULT_VALUE           128
 #define AUTO_INCREMENT          255
 
 #ifndef EEPROM_H_
@@ -21,6 +21,7 @@ class Configuration   {
     Configuration();
     void init();
     void clearEEPROM();
+    void factoryReset();
     inline uint8_t readParameter(uint8_t blockID, uint8_t sectionID, uint8_t parameterID)  {
 
         uint16_t startAddress = getSectionAddress(blockID, sectionID);
