@@ -164,6 +164,7 @@ SysEx `BLOCK` ID: `0`
 MIDI block has the following sections:
 
 1) Enable/disable features
+
 2) Channel configuration
 
 ##### 1.2.3.1.1 MIDI features
