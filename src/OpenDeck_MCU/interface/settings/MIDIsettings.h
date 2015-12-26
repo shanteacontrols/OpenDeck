@@ -24,7 +24,6 @@ typedef enum {
     noteChannel,
     programChangeChannel,
     CCchannel,
-    pitchBendChannel,
     inputChannel,
     MIDI_CHANNELS
 
