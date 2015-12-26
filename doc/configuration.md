@@ -256,19 +256,19 @@ This block has the following subsections:
 
 SysEx `SECTION` ID: `0`
 
-Denotes button type. Type can be momentary, which means that note off is sent as soon as button is released, or latching, which means that note off is sent on second button press. All buttons are configured as momentary by default. Acceptable values for `NEW_PARAMETER` byte are `0` (momentary) and `1` (latching). `PARAMETER` byte can range between 0-63 (total of 64 values for 64 buttons).
+Denotes button type. Type can be momentary, which means that note off is sent as soon as button is released, or latching, which means that note off is sent on second button press. All buttons are configured as momentary by default. Acceptable values for `NEW_PARAMETER` byte are `0` (momentary) and `1` (latching). `PARAMETER` byte can range between 0-63 and represents button ID (total of 64 values for 64 buttons).
 
 ##### 1.2.3.2.2 Program change state
 
 SysEx `SECTION` ID: `1`
 
-When enabled, instead of notes, button will send program change event. This option is disabled by default for all buttons.  Acceptable values for `NEW_PARAMETER` byte are `0` (disabled) and `1` (enabled). `PARAMETER` byte can range between 0-63 (total of 64 values for 64 buttons).
+When enabled, instead of notes, button will send program change event. This option is disabled by default for all buttons.  Acceptable values for `NEW_PARAMETER` byte are `0` (disabled) and `1` (enabled). `PARAMETER` byte can range between 0-63 and represents button ID (total of 64 values for 64 buttons).
 
 ##### 1.2.3.2.3 MIDI ID
 
 SysEx `SECTION` ID: `2`
 
-Denotes note/program change MIDI number. Default value is button number (button 0 has default note 0, button 1 has default note 1 etc.).  Acceptable values for `NEW_PARAMETER` byte range between 0-127. `PARAMETER` byte can range between 0-63 (total of 64 values for 64 buttons).
+Denotes note/program change MIDI number. Default value is button number (button 0 has default note 0, button 1 has default note 1 etc.).  Acceptable values for `NEW_PARAMETER` byte range between 0-127. `PARAMETER` byte can range between 0-63 and represents button ID (total of 64 values for 64 buttons).
 
 #### 1.2.3.3 Encoder configuration block
 
@@ -286,13 +286,13 @@ This block has the following subsections:
 
 SysEx `SECTION` ID: `0`
 
-Enables or disables encoder. All encoders are disabled by default. Acceptable values for `NEW_PARAMETER` byte are `0` (disabled) and `1` (enabled). `PARAMETER` byte can range between 0-31 (total of 32 values for 32 encoders).
+Enables or disables encoder. All encoders are disabled by default. Acceptable values for `NEW_PARAMETER` byte are `0` (disabled) and `1` (enabled). `PARAMETER` byte can range between 0-31 and represents encoder ID (total of 32 values for 32 encoders).
 
 ##### 1.2.3.3.2 Invert state
 
 SysEx `SECTION` ID: `1`
 
-When enabled, encoder will send inverted MIDI CC messages in different directions. Default option is disabled for all encoders. Acceptable values for `NEW_PARAMETER` byte are `0` (not inverted) and `1` (inverted). `PARAMETER` byte can range between 0-31 (total of 32 values for 32 encoders).
+When enabled, encoder will send inverted MIDI CC messages in different directions. Default option is disabled for all encoders. Acceptable values for `NEW_PARAMETER` byte are `0` (not inverted) and `1` (inverted). `PARAMETER` byte can range between 0-31 and represents encoder ID (total of 32 values for 32 encoders).
 
 ##### 1.2.3.3.3 Encoding mode
 
@@ -304,7 +304,7 @@ Denotes encoder encoding mode. There two options:
 
 2) 3Fh41h encoding
 
-Default option is 7Fh01h for all encoders. Acceptable values for `NEW_PARAMETER` byte are `0` (7Fh01h) and `1` (3Fh41h). `PARAMETER` byte can range between 0-31 (total of 32 values for 32 encoders).
+Default option is 7Fh01h for all encoders. Acceptable values for `NEW_PARAMETER` byte are `0` (7Fh01h) and `1` (3Fh41h). `PARAMETER` byte can range between 0-31 and represents encoder ID (total of 32 values for 32 encoders).
 
 ###### 1.2.3.3.3.1 7Fh01h encoding
 When this mode is active, encoder will send CC message with value 127 in one direction, and value 1 in other direction.
@@ -317,7 +317,7 @@ When this mode is active, encoder will send CC message with value 63 in one dire
 
 SysEx `SECTION` ID: `3`
 
-Denotes the MIDI CC number for each encoder. Default value is same as encoder ID.  Acceptable values for `NEW_PARAMETER` byte range between 0-127. `PARAMETER` byte can range between 0-31 (total of 32 values for 32 encoders).
+Denotes the MIDI CC number for each encoder. Default value is same as encoder ID.  Acceptable values for `NEW_PARAMETER` byte range between 0-127. `PARAMETER` byte can range between 0-31 and represents encoder ID (total of 32 values for 32 encoders).
 
 #### 1.2.3.4 Analog configuration block
 
@@ -341,13 +341,13 @@ This block has the following subsections:
 
 SysEx `SECTION` ID: `0`
 
-Enables or disables analog input. By default, all analog inputs are disabled. Acceptable values for `NEW_PARAMETER` byte are `0` (disabled) and `1` (enabled). `PARAMETER` byte can range between 0-31 (total of 32 values for 32 analog inputs).
+Enables or disables analog input. By default, all analog inputs are disabled. Acceptable values for `NEW_PARAMETER` byte are `0` (disabled) and `1` (enabled). `PARAMETER` byte can range between 0-31 and represents analog ID (total of 32 values for 32 analog inputs).
 
 ##### 1.2.3.4.2 Invert
 
 SysEx `SECTION` ID: `1`
 
-When enabled, analog input will send inverted MIDI CC messages in each direction. By default, this option is disabled for all analog inputs. Acceptable values for `NEW_PARAMETER` byte are `0` (not inverted) and `1` (inverted). `PARAMETER` byte can range between 0-31 (total of 32 values for 32 analog inputs).
+When enabled, analog input will send inverted MIDI CC messages in each direction. By default, this option is disabled for all analog inputs. Acceptable values for `NEW_PARAMETER` byte are `0` (not inverted) and `1` (inverted). `PARAMETER` byte can range between 0-31 and represents analog ID (total of 32 values for 32 analog inputs).
 
 ##### 1.2.3.4.3 Type
 
@@ -359,7 +359,7 @@ Analog inputs can behave differently based on selected type. There are several a
 
 2) FSR
 
-Default option is potentiometer for all analog inputs. Acceptable values for `NEW_PARAMETER` byte are `0` (potentiometer) and `1` (FSR). `PARAMETER` byte can range between 0-31 (total of 32 values for 32 analog inputs).
+Default option is potentiometer for all analog inputs. Acceptable values for `NEW_PARAMETER` byte are `0` (potentiometer) and `1` (FSR). `PARAMETER` byte can range between 0-31 and represents analog ID (total of 32 values for 32 analog inputs).
 
 ###### 1.2.3.4.3.1 Potentiometer
 
@@ -377,19 +377,19 @@ Force-sensitive resistor. Sends MIDI note with velocity. Velocity depends on app
 
 SysEx `SECTION` ID: `3`
 
-Denotes MIDI CC number. Default value is analog ID. Acceptable values for `NEW_PARAMETER` byte range between 0-127. `PARAMETER` byte can range between 0-31 (total of 32 values for 32 analog inputs).
+Denotes MIDI CC number. Default value is analog ID. Acceptable values for `NEW_PARAMETER` byte range between 0-127. `PARAMETER` byte can range between 0-31 and represents analog ID (total of 32 values for 32 analog inputs).
 
 ##### 1.2.3.4.5 Lower CC limit
 
 SysEx `SECTION` ID: `4`
 
-Denotes minimum CC value. Default value is 0. If any other value is specified, CC range gets scaled. Acceptable values for `NEW_PARAMETER` byte range between 0-127. `PARAMETER` byte can range between 0-31 (total of 32 values for 32 analog inputs).
+Denotes minimum CC value. Default value is 0. If any other value is specified, CC range gets scaled. Acceptable values for `NEW_PARAMETER` byte range between 0-127. `PARAMETER` byte can range between 0-31 and represents analog ID (total of 32 values for 32 analog inputs).
 
 ##### 1.2.3.4.6 Upper CC limit
 
 SysEx `SECTION` ID: `5`
 
-Denotes maximum CC value. Default value is 127. If any other value is specified, CC range gets scaled. Acceptable values for `NEW_PARAMETER` byte range between 0-127. `PARAMETER` byte can range between 0-31 (total of 32 values for 32 analog inputs).
+Denotes maximum CC value. Default value is 127. If any other value is specified, CC range gets scaled. Acceptable values for `NEW_PARAMETER` byte range between 0-127. `PARAMETER` byte can range between 0-31 and represents analog ID (total of 32 values for 32 analog inputs).
 
 #### 1.2.3.5 LED configuration block
 
@@ -453,7 +453,7 @@ Speed at which LEDs transition between on and off state (PWM). Default value is 
 
 SysEx `SECTION` ID: `1`
 
-Sets the note which turns the LED on. By default, activation note is "blank", which means it has to be specified by user. Acceptable values for `NEW_PARAMETER` byte range between 0-127. `PARAMETER` byte can range between 0-47 (total of 48 values for 48 LEDs). LED state depends on received velocity. If LED blinking is disabled, that is, if LED blink time hardware parameter is set to 0, there are two possible LED states:
+Sets the note which turns the LED on. By default, activation note is "blank", which means it has to be specified by user. Acceptable values for `NEW_PARAMETER` byte range between 0-127. `PARAMETER` byte can range between 0-47 and represents LED ID (total of 48 values for 48 LEDs). LED state depends on received velocity. If LED blinking is disabled, that is, if LED blink time hardware parameter is set to 0, there are two possible LED states:
 
 * LED on (velocity > 0)
 * LED off (velocity 0)
@@ -479,7 +479,7 @@ If two modes are active at the same time, both need to be turned off to complete
 
 SysEx `SECTION` ID: `2`
 
-Start-up animation switches the LEDs one-by-one in user-defined order. Change LED order with this setting. Acceptable values for `NEW_PARAMETER` byte range between 0-47. `PARAMETER` byte can range between 0-47 (total of 48 values for 48 LEDs).
+Start-up animation switches the LEDs one-by-one in user-defined order. Change LED order with this setting. Acceptable values for `NEW_PARAMETER` byte range between 0-47. `PARAMETER` byte can range between 0-47 and represents LED ID (total of 48 values for 48 LEDs).
 
 ##### 1.2.3.5.4 LED state testing
 
@@ -495,7 +495,7 @@ This setting doesn't write anything to the board. Used only for testing LED stat
 
 4) `3` - turn blink state on
 
-`PARAMETER` byte can range between 0-47 (total of 48 values for 48 LEDs).
+`PARAMETER` byte can range between 0-47 and represents LED ID (total of 48 values for 48 LEDs).
 
 ## 2. Configuration examples
 
