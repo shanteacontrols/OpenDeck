@@ -85,7 +85,6 @@ typedef enum {
     ledsHardwareParameterConf,
     ledsActivationNoteConf,
     ledsStartUpNumberConf,
-    ledsRGBcolorConf,
     ledsStateConf,
     LED_SUBTYPES
 
