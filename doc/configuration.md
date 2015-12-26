@@ -173,11 +173,11 @@ SysEx `BLOCK` ID: `0`
 
 MIDI block has the following sections:
 
-1) Enable/disable features
+1) Features
 
-2) Channel configuration
+2) Channels
 
-##### 1.2.3.1.1 MIDI features
+##### 1.2.3.1.1 Features
 
 SysEx `SECTION` ID: `0`
 
@@ -201,7 +201,7 @@ SysEx `PARAMETER` ID: `2`
 
 When enabled, all data received via DIN MIDI in port will be translated to USB MIDI.
 
-##### 1.2.3.1.2 MIDI channels
+##### 1.2.3.1.2 Channels
 
 SysEx `SECTION` ID: `1`
 
