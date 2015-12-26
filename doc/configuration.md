@@ -55,16 +55,13 @@ a "Hello" message must be sent to board. Hello message enables SysEx configurati
 Hello message: `F0 00 53 43 48 F7`
 
 After hello message has been sent, controller will respond with following message:
-`F0 00 53 43 41 48 01 00 00 F7`
+`F0 00 53 43 41 01 00 00 F7`
 
 Like request, every response always has three manufacturer ID bytes after `START` byte.
 
 `41` is `ACK` byte and will always follow after manufacturer bytes if request was correct.
 
-After `ACK` byte, original message request is copied back into response for easier determination of message meaning. In this case, message request
-was "hello", or `48` byte.
-
-Next three bytes determine firmware version currently running on board. At the time of writing this documentation, firmware version was v1.0.0.
+After `ACK` byte, three bytes determine firmware version currently running on board. At the time of writing this documentation, firmware version was v1.0.0.
 
 Last byte is always SysEx `STOP` byte.
 

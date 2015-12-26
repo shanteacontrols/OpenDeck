@@ -138,7 +138,7 @@ class SysEx {
 
     uint8_t generateMinMessageLenght(uint8_t, uint8_t, uint8_t, uint8_t);
     void generateError(sysExError);
-    void generateAck();
+    void sendHelloResponse();
 
     void (*sendRebootCallback)(void);
     void (*sendFactoryResetCallback)(void);
