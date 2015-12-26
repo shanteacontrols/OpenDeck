@@ -25,7 +25,7 @@ class MIDI {
 
     //functions
     uint8_t getMIDIchannel(uint8_t);
-    bool setMIDIchannel(uint8_t, uint8_t);
+    bool setMIDIchannel(uint8_t channelID, uint8_t channelNumber);
     bool getFeature(uint8_t featureID);
 
 };
