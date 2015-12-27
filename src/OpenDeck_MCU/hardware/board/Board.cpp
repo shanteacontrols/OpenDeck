@@ -50,6 +50,7 @@ uint8_t                     activeMux = 0,
                             analogBufferCounter;
 volatile int16_t            analogBuffer[ANALOG_BUFFER_SIZE];
 int16_t                     analogBufferCopy[ANALOG_BUFFER_SIZE];
+uint8_t                     adcDelayCounter;
 
 //run time in milliseconds
 volatile uint32_t           rTime_ms = 0;
@@ -450,6 +451,18 @@ ISR(TIMER0_COMPA_vect) {
 
     }
 
+    if (!_analogDataAvailable && !bitRead(ADCSRA, ADSC))   {
+
+        adcDelayCounter++;
+        if (adcDelayCounter == 2)   {
+
+            adcDelayCounter = 0;
+            startADCconversion();
+
+        }
+
+    }
+
 }
 
 ISR(ADC_vect)   {
@@ -575,8 +588,8 @@ void Board::initAnalog()    {
     setMuxInput(activeMuxInput);
     setADCchannel(MUX_1_IN_PIN);
 
-    //disconnectDigitalInADC(MUX_1_IN_PIN);
-    //disconnectDigitalInADC(MUX_2_IN_PIN);
+    disconnectDigitalInADC(MUX_1_IN_PIN);
+    disconnectDigitalInADC(MUX_2_IN_PIN);
 
     _delay_ms(2);
     for (int i=0; i<5; i++)
@@ -816,7 +829,7 @@ bool Board::analogDataAvailable() {
             analogBufferCopy[i] = analogBuffer[i];
 
         _analogDataAvailable = false;
-        startADCconversion();
+        adcDelayCounter = 0;
         return true;
 
     } return false;
