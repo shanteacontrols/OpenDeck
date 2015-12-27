@@ -132,31 +132,31 @@ void MIDI::checkInput()   {
 
 }
 
-void MIDI::sendMIDInote(uint8_t buttonNote, bool buttonState, uint8_t _velocity)  {
+void MIDI::sendMIDInote(uint8_t note, bool state, uint8_t _velocity)  {
 
     uint8_t channel = getMIDIchannel(noteChannel);
 
-    switch (buttonState) {
+    switch (state) {
 
         case false:
         //button released
         if (getFeature(midiFeatureStandardNoteOff))   {
 
-            usbMIDI.sendNoteOff(buttonNote, _velocity, channel);
-            hwMIDI.sendNoteOff(buttonNote, _velocity, channel);
+            usbMIDI.sendNoteOff(note, _velocity, channel);
+            hwMIDI.sendNoteOff(note, _velocity, channel);
 
         } else {
 
-            usbMIDI.sendNoteOn(buttonNote, _velocity, channel);
-            hwMIDI.sendNoteOn(buttonNote, _velocity, channel);
+            usbMIDI.sendNoteOn(note, _velocity, channel);
+            hwMIDI.sendNoteOn(note, _velocity, channel);
 
         }
         break;
 
         case true:
         //button pressed
-        usbMIDI.sendNoteOn(buttonNote, _velocity, channel);
-        hwMIDI.sendNoteOn(buttonNote, _velocity, channel);
+        usbMIDI.sendNoteOn(note, _velocity, channel);
+        hwMIDI.sendNoteOn(note, _velocity, channel);
         break;
 
     }
