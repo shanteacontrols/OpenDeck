@@ -1,8 +1,6 @@
 #include "Analog.h"
 #include "..\sysex\SysEx.h"
 #include "..\eeprom\Configuration.h"
-#include "..\interface\midi\MIDI.h"
-#include "..\BitManipulation.h"
 #include "..\interface\settings\AnalogSettings.h"
 
 Analog::Analog()    {
@@ -62,10 +60,11 @@ void Analog::update()   {
         switch(type) {
 
             case potentiometer:
-            checkPotentiometerValue(analogData, i);
+            checkPotentiometerValue(i, analogData);
             break;
 
             case fsr:
+            checkFSRvalue(i, analogData);
             break;
 
             case ldr:
