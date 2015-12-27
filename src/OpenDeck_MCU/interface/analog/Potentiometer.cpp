@@ -4,7 +4,7 @@
 //potentiometer must exceed this value before sending new value
 #define POTENTIOMETER_CC_STEP 8
 
-void Analog::checkPotentiometerValue(int16_t tempValue, uint8_t analogID)  {
+void Analog::checkPotentiometerValue(uint8_t analogID, int16_t tempValue)  {
 
     //calculate difference between current and previous reading
     int16_t analogDiff = tempValue - lastAnalogueValue[analogID];
@@ -25,7 +25,7 @@ void Analog::checkPotentiometerValue(int16_t tempValue, uint8_t analogID)  {
     //only use map when cc limits are different from defaults
     if ((lowerCClimit != 0) || (upperCClimit != 127))   {
 
-        midi.sendControlChange(getMIDIid(analogID), mapAnalog(ccValue, 0, 127, lowerCClimit, upperCClimit));
+        midi.sendControlChange(getMIDIid(analogID), mapAnalog_uint8(ccValue, 0, 127, lowerCClimit, upperCClimit));
         if (sysEx.configurationEnabled()) sysEx.sendID(analogComponent, analogID);
 
     }
