@@ -72,5 +72,13 @@ All configuration is done using MIDI System Exclusive messages. For more informa
 ## Firmware compilation
 MCU Code is available as Atmel Studio 7.0 project. Simply open `OpenDeck_AVRC.atsln` using the IDE and everything should work.
 
+## Credits
+
+Hardware MIDI source code based on [Arduino MIDI library v3.2](https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/3.2) by Francois Best.
+
+USB MIDI source code based on [Teensyduino Arduino add-on](http://www.pjrc.com/teensy/teensyduino.html) by Paul Stoffregen and PJRC.com LLC.
+
+Parts of code taken from [Arduino framework](https://github.com/arduino/Arduino).
+
 ## Licence
 All code is available under GNU GPL v3 licence.
