@@ -4,11 +4,11 @@
 //define block names
 enum eepromBlocks {
 
-    CONF_MIDI_BLOCK,
-    CONF_BUTTON_BLOCK,
-    CONF_ENCODER_BLOCK,
-    CONF_ANALOG_BLOCK,
-    CONF_LED_BLOCK,
+    CONF_MIDI_BLOCK,    //0
+    CONF_BUTTON_BLOCK,  //1
+    CONF_ENCODER_BLOCK, //2
+    CONF_ANALOG_BLOCK,  //3
+    CONF_LED_BLOCK,     //4
     NUMBER_OF_BLOCKS
 
 };
