@@ -49,6 +49,28 @@ enum ledStates  {
 
 };
 
+enum ledColor {
+
+    colorOff,
+    colorWhite,
+    colorCyan,
+    colorMagenta,
+    colorRed,
+    colorBlue,
+    colorYellow,
+    colorGreen,
+    colorOnDefault,
+    LED_COLORS
+
+};
+
+enum ledType {
+
+    singleLED,
+    rgbLED
+
+};
+
 enum encoderType {
 
     enc7Fh01h = 0,

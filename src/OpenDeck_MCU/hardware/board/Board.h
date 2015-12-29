@@ -46,7 +46,7 @@ class Board {
 
     //LEDs
     uint8_t getLEDstate(uint8_t ledNumber);
-    void setLEDstate(uint8_t ledNumber, bool ledState, bool blinkMode);
+    void setLEDstate(uint8_t ledNumber, ledColor color, bool blinkMode);
     void setLEDblinkTime(uint16_t blinkTime);
     void setLEDTransitionSpeed(uint8_t transitionSteps);
 
@@ -60,7 +60,7 @@ class Board {
     void ledBlinkingStart();
     void ledBlinkingStop();
     bool ledBlinkingActive();
-    void handleLED(uint8_t ledNumber, bool newLEDstate, bool blinkMode);
+    void handleLED(uint8_t ledNumber, ledColor color, bool blinkMode, ledType type);
 
 };
 

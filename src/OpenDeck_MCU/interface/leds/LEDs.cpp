@@ -11,18 +11,18 @@ LEDs::LEDs()    {
 
 void LEDs::init()   {
 
-    const subtype ledsHardwareParameterSubtype    = { LED_HARDWARE_PARAMETERS, IGNORE_NEW_VALUE, IGNORE_NEW_VALUE };
-    const subtype ledsActivationNoteSubtype       = { MAX_NUMBER_OF_LEDS, 0, 127 };
-    const subtype ledsStartUpNumberSubtype        = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_LEDS-1 };
-    const subtype ledsRGBcolorSubtype             = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_COLORS-1 };
-    const subtype ledsStateSubtype                = { MAX_NUMBER_OF_LEDS, 0, LED_STATES, };
+    const subtype ledHardwareParameterSubtype   = { LED_HARDWARE_PARAMETERS, IGNORE_NEW_VALUE, IGNORE_NEW_VALUE };
+    const subtype ledActivationNoteSubtype      = { MAX_NUMBER_OF_LEDS, 0, 127 };
+    const subtype ledStartUpNumberSubtype       = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_LEDS-1 };
+    const subtype ledRGBenabledSubtype          = { MAX_NUMBER_OF_LEDS, 0, 1 };
+    const subtype ledsStateSubtype              = { MAX_NUMBER_OF_LEDS, 0, LED_STATES, };
 
     const subtype *ledsSubtypeArray[] = {
 
-        &ledsHardwareParameterSubtype,
-        &ledsActivationNoteSubtype,
-        &ledsStartUpNumberSubtype,
-        &ledsRGBcolorSubtype,
+        &ledHardwareParameterSubtype,
+        &ledActivationNoteSubtype,
+        &ledStartUpNumberSubtype,
+        &ledRGBenabledSubtype,
         &ledsStateSubtype
 
     };
@@ -38,8 +38,8 @@ void LEDs::init()   {
 
     }
 
-    board.setLEDblinkTime(getLEDHwParameter(ledsHwParameterBlinkTime));
-    board.setLEDTransitionSpeed(getLEDHwParameter(ledsHwParameterFadeTime));
+    board.setLEDblinkTime(getLEDHwParameter(ledHwParameterBlinkTime));
+    board.setLEDTransitionSpeed(getLEDHwParameter(ledHwParameterFadeTime));
 
     //run LED animation on start-up
     startUpRoutine();
@@ -51,34 +51,34 @@ void LEDs::startUpRoutine() {
     //turn off all LEDs before starting animation
     allLEDsOff();
 
-    switch (getLEDHwParameter(ledsHwParameterStartUpRoutine))  {
+    switch (getLEDHwParameter(ledHwParameterStartUpRoutine))  {
 
         case 1:
-        //oneByOneLED(true, true, true);
-        //oneByOneLED(false, false, true);
-        //oneByOneLED(true, false, false);
-        //oneByOneLED(false, true, true);
-        //oneByOneLED(true, false, true);
-        //oneByOneLED(false, false, false);
+        oneByOneLED(true, true, true);
+        oneByOneLED(false, false, true);
+        oneByOneLED(true, false, false);
+        oneByOneLED(false, true, true);
+        oneByOneLED(true, false, true);
+        oneByOneLED(false, false, false);
         break;
 
         case 2:
-        //oneByOneLED(true, false, true);
-        //oneByOneLED(false, false, false);
+        oneByOneLED(true, false, true);
+        oneByOneLED(false, false, false);
         break;
 
         case 3:
-        //oneByOneLED(true, true, true);
-        //oneByOneLED(false, true, true);
+        oneByOneLED(true, true, true);
+        oneByOneLED(false, true, true);
         break;
 
         case 4:
-        //oneByOneLED(true, false, true);
-        //oneByOneLED(true, false, false);
+        oneByOneLED(true, false, true);
+        oneByOneLED(true, false, false);
         break;
 
         case 5:
-        //oneByOneLED(true, false, true);
+        oneByOneLED(true, false, true);
         break;
 
         default:
@@ -108,7 +108,7 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 
     */
 
-    uint16_t startUpLEDswitchTime = getLEDHwParameter(ledsHwParameterStartUpSwitchTime) * 10;
+    uint16_t startUpLEDswitchTime = getLEDHwParameter(ledHwParameterStartUpSwitchTime) * 10;
 
     //while loop counter
     uint8_t passCounter = 0;
@@ -117,7 +117,7 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
     uint8_t ledNumber,
             _ledNumber[MAX_NUMBER_OF_LEDS];
 
-    uint8_t totalNumberOfLEDs = getLEDHwParameter(ledsHwParameterTotalLEDnumber);
+    uint8_t totalNumberOfLEDs = getLEDHwParameter(ledHwParameterTotalLEDnumber);
 
     //get LED order for start-up routine
     for (int i=0; i<totalNumberOfLEDs; i++)
@@ -220,8 +220,8 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
             else    if (!turnOn && singleLED)   allLEDsOn();
 
             //set LED state depending on turnOn parameter
-            if (turnOn) board.setLEDstate(ledNumber, true, false);
-            else    board.setLEDstate(ledNumber, false, false);
+            if (turnOn) board.setLEDstate(ledNumber, colorOnDefault, false);
+            else    board.setLEDstate(ledNumber, colorOff, false);
 
             //make sure out-of-bound index isn't requested from ledArray
             if (passCounter < totalNumberOfLEDs-1)  {
@@ -245,59 +245,99 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 
 }
 
+ledColor LEDs::velocity2color(bool blinkEnabled, uint8_t receivedVelocity) {
+
+    /*
+
+    blinkEnabled:
+    constant:
+    0-7 off
+    8-15 white
+    16-23 cyan
+    24-31 magenta
+    32-39 red
+    40-47 blue
+    48-55 yellow
+    56-63 green
+
+    blink:
+    64-71 off
+    72-79 white
+    80-87 cyan
+    88-95 magenta
+    96-103 red
+    104-111 blue
+    112-119 yellow
+    120-127 green
+
+    blinkDisabled:
+    constant only:
+    0-15 off
+    16-31 white
+    32-47 cyan
+    48-63 magenta
+    64-79 red
+    80-95 blue
+    96-111 yellow
+    112-127 green
+
+    */
+
+    switch(blinkEnabled) {
+
+        case false:
+        return (ledColor)(receivedVelocity/16);
+        break;
+
+        case true:
+        if (receivedVelocity > 63) receivedVelocity -= 64;
+        return (ledColor)(receivedVelocity/8);
+        break;
+
+    }
+
+}
+
+bool LEDs::velocity2blinkState(uint8_t receivedVelocity)    {
+
+    return (receivedVelocity > 63);
+
+}
+
 void LEDs::noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity)    {
 
     uint8_t ledID = getLEDid(receivedNote);
 
     if (ledID >= 128) return;
 
-    bool newLEDstate;
+    bool blinkEnabled_global = getLEDHwParameter(ledHwParameterBlinkTime);
+    bool blinkEnabled_led;
+    if (!blinkEnabled_global) blinkEnabled_led = false;
+    else blinkEnabled_led = velocity2blinkState(receivedVelocity);
+    ledColor color = velocity2color(blinkEnabled_global, receivedVelocity);
 
-    //if blinkMode is 1, the LED is blinking
-    uint8_t blinkMode = 0;
-
-    if (getLEDHwParameter(ledsHwParameterBlinkTime))    {
-
-        //led blinking is enabled
-        if ((receivedVelocity == LED_VELOCITY_C_OFF) || (receivedVelocity == LED_VELOCITY_B_OFF))
-        newLEDstate = false;
-
-        else if (
-
-        ((receivedVelocity > LED_VELOCITY_C_OFF) && (receivedVelocity < LED_VELOCITY_B_OFF)) ||
-        ((receivedVelocity > LED_VELOCITY_B_OFF) && (receivedVelocity < 128))
-
-        )    newLEDstate = true;
-
-        else return;
-
-        if ((receivedVelocity >= LED_VELOCITY_B_OFF) && (receivedVelocity < 128))
-        blinkMode = 1;
-
-    }   else newLEDstate = bool(receivedVelocity);
-
-    board.setLEDstate(ledID, newLEDstate, blinkMode);
+    board.setLEDstate(ledID, color, blinkEnabled_led);
 
 }
 
 void LEDs::allLEDsOn()  {
 
     //turn on all LEDs
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    board.setLEDstate(i, true, false);
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    board.setLEDstate(i, colorOnDefault, false);
 
 }
 
 void LEDs::allLEDsOff() {
 
     //turn off all LEDs
-    for (int i=0; i<(NUMBER_OF_LED_COLUMNS*NUMBER_OF_LED_ROWS); i++)    board.setLEDstate(i, false, false);
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    board.setLEDstate(i, colorOff, false);
 
 }
 
 bool LEDs::checkLEDsOn()    {
 
     //return true if all LEDs are on
-    for (int i=0; i<(NUMBER_OF_LED_COLUMNS*NUMBER_OF_LED_ROWS); i++)    if (board.getLEDstate(i))   return false;
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    if (board.getLEDstate(i))   return false;
     return true;
 
 }
@@ -305,7 +345,7 @@ bool LEDs::checkLEDsOn()    {
 bool LEDs::checkLEDsOff()   {
 
     //return true if all LEDs are off
-    for (int i=0; i<(NUMBER_OF_LED_COLUMNS*NUMBER_OF_LED_ROWS); i++)    if (!board.getLEDstate(i))   return false;
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    if (!board.getLEDstate(i))   return false;
     return true;
 
 }
@@ -365,23 +405,34 @@ uint8_t LEDs::getLEDstartUpNumber(uint8_t ledNumber)    {
 
 }
 
+bool LEDs::getRGBenabled(uint8_t ledNumber) {
+
+    return configuration.readParameter(CONF_LED_BLOCK, ledRGBenabledSection, ledNumber);
+
+}
+
 uint8_t LEDs::getParameter(uint8_t messageType, uint8_t parameterID)   {
 
     switch(messageType) {
 
-        case ledsHardwareParameterConf:
+        case ledHardwareParameterConf:
         return getLEDHwParameter(parameterID);
         break;
 
-        case ledsActivationNoteConf:
+        case ledActivationNoteConf:
         return getLEDActivationNote(parameterID);
         break;
 
-        case ledsStartUpNumberConf:
+        case ledStartUpNumberConf:
         return getLEDstartUpNumber(parameterID);
         break;
 
-        case ledsStateConf:
+        case ledRGBenabledConf:
+        return getRGBenabled(parameterID);
+        break;
+
+        case ledStateConf:
+        return (bool)board.getLEDstate(parameterID);
         break;
 
     }   return 0;
@@ -396,13 +447,13 @@ bool LEDs::setLEDHwParameter(uint8_t parameter, uint8_t newParameter) {
     if (!returnValue) return false;
 
     //some special considerations here
-    switch((ledsHardwareParameter)parameter)   {
+    switch((ledHardwareParameter)parameter)   {
 
-        case ledsHwParameterBlinkTime:
+        case ledHwParameterBlinkTime:
         board.setLEDblinkTime(newParameter);
         break;
 
-        case ledsHwParameterFadeTime:
+        case ledHwParameterFadeTime:
         board.setLEDTransitionSpeed(newParameter);
         break;
 
@@ -427,42 +478,107 @@ bool LEDs::setLEDstartNumber(uint8_t startNumber, uint8_t ledNumber) {
 
 }
 
+bool LEDs::setRGBenabled(uint8_t ledNumber, bool state) {
+
+    return configuration.writeParameter(CONF_LED_BLOCK, ledRGBenabledSection, ledNumber, state);
+
+}
+
 bool LEDs::setParameter(uint8_t messageType, uint8_t parameter, uint8_t newParameter)   {
 
     switch(messageType) {
 
-        case ledsHardwareParameterConf:
+        case ledHardwareParameterConf:
         return setLEDHwParameter(parameter, newParameter);
         break;
 
-        case ledsActivationNoteConf:
+        case ledActivationNoteConf:
         return setLEDActivationNote(parameter, newParameter);
         break;
 
-        case ledsStartUpNumberConf:
+        case ledStartUpNumberConf:
         return setLEDstartNumber(parameter, newParameter);
         break;
 
-        case ledsStateConf:
+        case ledRGBenabledConf:
+        return setRGBenabled(parameter, newParameter);
+        break;
+
+        case ledStateConf:
         switch ((ledStatesHardwareParameter)newParameter)   {
 
-            case ledStateConstantOff:
-            board.setLEDstate(parameter, false, false);
+            case ledStateOff:
+            board.setLEDstate(parameter, colorOff, false);
             return true;
             break;
 
-            case ledStateConstantOn:
-            board.setLEDstate(parameter, true, false);
+            case ledStateConstantWhite:
+            board.setLEDstate(parameter, colorWhite, false);
             return true;
             break;
 
-            case ledStateBlinkOff:
-            board.setLEDstate(parameter, false, true);
+            case ledStateConstantCyan:
+            board.setLEDstate(parameter, colorCyan, false);
             return true;
             break;
 
-            case ledStateBlinkOn:
-            board.setLEDstate(parameter, true, true);
+            case ledStateConstantMagenta:
+            board.setLEDstate(parameter, colorMagenta, false);
+            return true;
+            break;
+
+            case ledStateConstantRed:
+            board.setLEDstate(parameter, colorRed, false);
+            return true;
+            break;
+
+            case ledStateConstantBlue:
+            board.setLEDstate(parameter, colorBlue, false);
+            return true;
+            break;
+
+            case ledStateConstantYellow:
+            board.setLEDstate(parameter, colorYellow, false);
+            return true;
+            break;
+
+            case ledStateConstantGreen:
+            board.setLEDstate(parameter, colorGreen, false);
+            return true;
+            break;
+
+            case ledStateBlinkWhite:
+            board.setLEDstate(parameter, colorWhite, true);
+            return true;
+            break;
+
+            case ledStateBlinkCyan:
+            board.setLEDstate(parameter, colorCyan, true);
+            return true;
+            break;
+
+            case ledStateBlinkMagenta:
+            board.setLEDstate(parameter, colorMagenta, true);
+            return true;
+            break;
+
+            case ledStateBlinkRed:
+            board.setLEDstate(parameter, colorRed, true);
+            return true;
+            break;
+
+            case ledStateBlinkBlue:
+            board.setLEDstate(parameter, colorBlue, true);
+            return true;
+            break;
+
+            case ledStateBlinkYellow:
+            board.setLEDstate(parameter, colorYellow, true);
+            return true;
+            break;
+
+            case ledStateBlinkGreen:
+            board.setLEDstate(parameter, colorGreen, true);
             return true;
             break;
 
