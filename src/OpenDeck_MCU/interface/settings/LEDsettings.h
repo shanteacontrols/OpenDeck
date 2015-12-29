@@ -4,7 +4,7 @@
 #define LED_ON_BIT                      0x00
 #define LED_BLINK_ON_BIT                0x01
 #define LED_ACTIVE_BIT                  0x02
-#define LED_REMEMBER_BIT                0x03
+//#define LED_REMEMBER_BIT                0x03
 #define LED_BLINK_STATE_BIT             0x04
 
 const uint8_t ledOnLookUpTable[] = { 0, 0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 0, 0, 0, 0, 0, 0, 0, 255 };
@@ -82,31 +82,43 @@ const uint8_t ledTransitionScale[] = {
 
 typedef enum {
 
-    ledsHardwareParameterConf,
-    ledsActivationNoteConf,
-    ledsStartUpNumberConf,
-    ledsStateConf,
+    ledHardwareParameterConf,
+    ledActivationNoteConf,
+    ledStartUpNumberConf,
+    ledRGBenabledConf,
+    ledStateConf,
     LED_SUBTYPES
 
 } sysExMessageSubTypeLEDs;
 
 typedef enum {
 
-    ledsHwParameterTotalLEDnumber,
-    ledsHwParameterBlinkTime,
-    ledsHwParameterStartUpSwitchTime,
-    ledsHwParameterStartUpRoutine,
-    ledsHwParameterFadeTime,
+    ledHwParameterTotalLEDnumber,
+    ledHwParameterBlinkTime,
+    ledHwParameterStartUpSwitchTime,
+    ledHwParameterStartUpRoutine,
+    ledHwParameterFadeTime,
     LED_HARDWARE_PARAMETERS
 
-} ledsHardwareParameter;
+} ledHardwareParameter;
 
 typedef enum {
 
-    ledStateConstantOff,
-    ledStateConstantOn,
-    ledStateBlinkOff,
-    ledStateBlinkOn,
+    ledStateOff,
+    ledStateConstantWhite,
+    ledStateConstantCyan,
+    ledStateConstantMagenta,
+    ledStateConstantRed,
+    ledStateConstantBlue,
+    ledStateConstantYellow,
+    ledStateConstantGreen,
+    ledStateBlinkWhite,
+    ledStateBlinkCyan,
+    ledStateBlinkMagenta,
+    ledStateBlinkRed,
+    ledStateBlinkBlue,
+    ledStateBlinkYellow,
+    ledStateBlinkGreen,
     LED_STATES
 
 } ledStatesHardwareParameter;

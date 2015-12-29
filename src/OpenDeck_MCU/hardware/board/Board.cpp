@@ -9,6 +9,7 @@
 #include "..\interface\settings\Settings.h"
 #include "..\interface\encoders\Encoders.h"
 #include "..\interface\leds\LEDs.h"
+#include "..\interface\leds\LEDcolors.h"
 
 #define DIGITAL_BUFFER_SIZE 4
 
@@ -91,7 +92,7 @@ inline uint8_t getEncoderPairFromButtonIndex(uint8_t buttonIndex)   {
 
     uint8_t row = buttonIndex/NUMBER_OF_BUTTON_COLUMNS;
     if (row%2) row -= 1;   //uneven row, get info from previous (even) row
-    uint8_t column = buttonIndex % 8;
+    uint8_t column = buttonIndex % NUMBER_OF_BUTTON_COLUMNS;
     return (row*NUMBER_OF_BUTTON_COLUMNS)/2 + column;
 
 }
@@ -646,11 +647,33 @@ void Board::configureTimers()   {
 
 //LEDs
 
-void Board::setLEDstate(uint8_t ledNumber, bool state, bool blinkMode)   {
+inline uint8_t getRGBIDFromLEDID(uint8_t ledID) {
 
-    handleLED(ledNumber, state, blinkMode);
+    uint8_t row = ledID/NUMBER_OF_LED_COLUMNS;
 
-    if (blinkMode && state) ledBlinkingStart();
+    uint8_t mod = row%3;    //RGB LED = 3 normal LEDs
+    row -= mod;
+
+    uint8_t column = ledID % NUMBER_OF_BUTTON_COLUMNS;
+
+    return (row*NUMBER_OF_LED_COLUMNS)/3 + column;
+
+}
+
+void Board::setLEDstate(uint8_t ledNumber, ledColor color, bool blinkMode)   {
+
+    uint8_t rgbID = getRGBIDFromLEDID(ledNumber);
+    bool rgbEnabled = configuration.readParameter(CONF_LED_BLOCK, ledRGBenabledSection, rgbID);
+
+    if (!rgbEnabled)    {
+
+        if (color != colorOff)
+            color = colorOnDefault;
+        handleLED(ledNumber, color, blinkMode, singleLED);
+
+    }   else handleLED(rgbID, color, blinkMode, rgbLED);
+
+    if (blinkMode && (color != colorOff)) ledBlinkingStart();
     else    checkBlinkLEDs();
 
 }
@@ -750,7 +773,18 @@ void Board::checkBlinkLEDs() {
 
 }
 
-void Board::handleLED(uint8_t ledNumber, bool newLEDstate, bool blinkMode) {
+inline uint8_t getRGBfirstID(uint8_t rgbID)    {
+
+    //get first RGB LED address (out of three)
+    uint8_t column = rgbID % NUMBER_OF_LED_COLUMNS;
+    uint8_t row  = (rgbID/NUMBER_OF_BUTTON_COLUMNS)*3;
+
+    return column + NUMBER_OF_LED_COLUMNS*row;
+
+}
+
+
+void Board::handleLED(uint8_t ledNumber, ledColor color, bool blinkMode, ledType type) {
 
     /*
 
@@ -767,51 +801,87 @@ void Board::handleLED(uint8_t ledNumber, bool newLEDstate, bool blinkMode) {
 
     */
 
-    uint8_t state = getLEDstate(ledNumber);
+    uint8_t currentState[3];
+    bool newLEDstate[3];
+    uint8_t loops = 1;
 
-    switch (newLEDstate) {
+    if (color == colorOnDefault)
+        type = singleLED; //this is a mistake, handle led in single mode instead
 
-        case false:
-        //note off event
+    switch(type)    {
 
-        //if remember bit is set
-        if (bitRead(state, LED_REMEMBER_BIT))   {
-
-            //if note off for blink state is received
-            //clear remember bit and blink bits
-            //set constant state bit
-            if (blinkMode) state = ledOn;
-            //else clear constant state bit and remember bit
-            //set blink bits
-            else           state = ledBlinkOn;
-
-        }   else state = ledOff;
-
+        case singleLED:
+        loops = 1;
+        currentState[0] = getLEDstate(ledNumber);
+        newLEDstate[0] = (color != colorOff);
         break;
 
-        case true:
-        //note on event
+        case rgbLED:
+        loops = 3;
+        ledNumber = getRGBfirstID(ledNumber);
+        currentState[0] = getLEDstate(ledNumber);
+        currentState[1] = getLEDstate(ledNumber+NUMBER_OF_LED_COLUMNS*1);
+        currentState[2] = getLEDstate(ledNumber+NUMBER_OF_LED_COLUMNS*2);
 
-        if ((!blinkMode) && bitRead(state, LED_BLINK_ON_BIT))   state = ledOnRemember;
-        else if ((blinkMode) && bitRead(state, LED_ON_BIT))     state = ledBlinkRemember;
-
-        else    {
-
-            bitWrite(state, LED_ACTIVE_BIT, 1);
-            if (blinkMode)  {
-
-                bitWrite(state, LED_BLINK_ON_BIT, 1);
-                //this will turn the led immediately no matter how little time it's
-                //going to blink first time
-                bitWrite(state, LED_BLINK_STATE_BIT, 1);
-
-            }   else bitWrite(state, LED_ON_BIT, 1);
-
-        }
+        newLEDstate[0] = rgbColors[color][0];
+        newLEDstate[1] = rgbColors[color][1];
+        newLEDstate[2] = rgbColors[color][2];
+        break;
 
     }
 
-    ledState[ledNumber] = state;
+    for (int i=0; i<loops; i++) {
+
+        ledNumber += 8*(bool)i;
+
+        switch (newLEDstate[i]) {
+
+            case false:
+            //note off event
+
+            //if remember bit is set
+            //if (bitRead(currentState[i], LED_REMEMBER_BIT))   {
+//
+                ////if note off for blink state is received
+                ////clear remember bit and blink bits
+                ////set constant state bit
+                //if (blinkMode) currentState[i] = ledOn;
+                ////else clear constant state bit and remember bit
+                ////set blink bits
+                //else           currentState[i] = ledBlinkOn;
+//
+            //}   else currentState[i] = ledOff;
+            currentState[i] = ledOff;
+
+            break;
+
+            case true:
+            //note on event
+
+            //if ((!blinkMode) && bitRead(currentState[i], LED_BLINK_ON_BIT))   currentState[i] = ledOnRemember;
+            //else if ((blinkMode) && bitRead(currentState[i], LED_ON_BIT))     currentState[i] = ledBlinkRemember;
+
+            if ((!blinkMode) && bitRead(currentState[i], LED_BLINK_ON_BIT))   currentState[i] = ledOff;
+            else if ((blinkMode) && bitRead(currentState[i], LED_ON_BIT))     currentState[i] = ledOff;
+//
+            //else    {
+
+                bitWrite(currentState[i], LED_ACTIVE_BIT, 1);
+                if (blinkMode)  {
+
+                    bitWrite(currentState[i], LED_BLINK_ON_BIT, 1);
+                    //this will turn the led immediately no matter how little time it's
+                    //going to blink first time
+                    bitWrite(currentState[i], LED_BLINK_STATE_BIT, 1);
+
+                }   else bitWrite(currentState[i], LED_ON_BIT, 1);
+
+            //}
+            break;
+
+        }   ledState[ledNumber] = currentState[i];
+
+    }
 
 }
 

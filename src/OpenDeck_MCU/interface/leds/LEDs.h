@@ -28,6 +28,8 @@ class LEDs {
     void init();
     uint8_t getParameter(uint8_t messageType, uint8_t parameterID);
     bool setParameter(uint8_t messageType, uint8_t parameter, uint8_t newParameter);
+    ledColor velocity2color(bool blinEnabled, uint8_t receivedVelocity);
+    bool velocity2blinkState(uint8_t receivedVelocity);
     void noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity);
     void allLEDsOn();
     void allLEDsOff();
@@ -44,15 +46,17 @@ class LEDs {
     uint8_t getLEDHwParameter(uint8_t parameter);
     uint8_t getLEDActivationNote(uint8_t ledNumber);
     uint8_t getLEDstartUpNumber(uint8_t ledNumber);
+    bool getRGBenabled(uint8_t ledNumber);
     uint8_t getLEDid(uint8_t midiID);
 
     //set
     bool setLEDHwParameter(uint8_t parameter, uint8_t newParameter);
-    bool setLEDActivationNote(uint8_t, uint8_t);
-    bool setLEDstartNumber(uint8_t, uint8_t);
+    bool setLEDActivationNote(uint8_t ledNumber, uint8_t ledActNote);
+    bool setLEDstartNumber(uint8_t startNumber, uint8_t ledNumber);
+    bool setRGBenabled(uint8_t ledNumber, bool state);
 
     //animation
-    void oneByOneLED(bool, bool, bool);
+    void oneByOneLED(bool ledDirection, bool singleLED, bool turnOn);
     void startUpRoutine();
 
 };

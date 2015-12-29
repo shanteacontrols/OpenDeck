@@ -178,7 +178,7 @@ MIDI block has the following sections:
 
 SysEx `SECTION` ID: `0`
 
-By default, all MIDI features are disabled.  Accepted values for `NEW_PARAMETER` byte are `1` (enabled) and `0` (disabled). These are configurable MIDI features (parameters):
+By default, all MIDI features are disabled. Accepted values for `NEW_PARAMETER` byte are `1` (enabled) and `0` (disabled). These are configurable MIDI features (parameters):
 
 ###### 1.2.3.1.1.1 Standard note off
 
@@ -400,7 +400,9 @@ This block has the following sections:
 
 3) Start-up number
 
-4) LED state test
+4) RGB enabled/disabled
+
+5) LED state test
 
 ##### 1.2.3.5.1 Hardware parameters
 
@@ -450,27 +452,39 @@ Speed at which LEDs transition between on and off state (PWM). Default value is 
 
 SysEx `SECTION` ID: `1`
 
-Sets the note which turns the LED on. By default, activation note is "blank", which means it has to be specified by user. Acceptable values for `NEW_PARAMETER` byte range between 0-127. `PARAMETER` byte can range between 0-47 and represents LED ID (total of 48 values for 48 LEDs). LED state depends on received velocity. If LED blinking is disabled, that is, if LED blink time hardware parameter is set to 0, there are two possible LED states:
+Sets the note which turns the LED on. By default, activation note is "blank", which means it has to be specified by user. Acceptable values for `NEW_PARAMETER` byte range between 0-127. `PARAMETER` byte can range between 0-47 and represents LED ID (total of 48 values for 48 LEDs). LED state depends on received velocity and blink time parameter, that is, whether blinking is enabled or disabled. Velocity also triggers color on RGB LED (if enabled). LED color is ignored when dealing with single-color LEDs, so any velocity that doesn't turn the LED off will turn the LED on.
 
-* LED on (velocity > 0)
-* LED off (velocity 0)
+1) Velocity table when blinking is enabled
+* Constant state:
+ - 0-7 off
+ - 8-15 white
+ - 16-23 cyan
+ - 24-31 magenta
+ - 32-39 red
+ - 40-47 blue
+ - 48-55 yellow
+ - 56-63 green
 
-If LED blinking is enabled, LED can be in both states, depending on velocity:
+* Blink state:
+ - 64-71 off
+ - 72-79 white
+ - 80-87 cyan
+ - 88-95 magenta
+ - 96-103 red
+ - 104-111 blue
+ - 112-119 yellow
+ - 120-127 green
 
-* LED constant state off (velocity 0)
-* LED constant state on (velocity 1-62)
-* LED blink state off (velocity 63)
-* LED blink state on (velocity 64-127)
-
-If two modes are active at the same time, both need to be turned off to completely turn off the LED. LEDs "remember" their state. Example scenario:
-
-1) User sends velocity 62 to LED, LED is in constant on state
-
-2) User sends velocity 127 to same LED, LED starts blinking
-
-3) User sends velocity 62 to same LED, LED stops blinking and returns to constant on state
-
-4) User sends velocity 0 to same LED, LED is now off
+2) Velocity table when blinking is disabled
+*Constant state only:
+ - 0-15 off
+ - 16-31 white
+ - 32-47 cyan
+ - 48-63 magenta
+ - 64-79 red
+ - 80-95 blue
+ - 96-111 yellow
+ - 112-127 green
 
 ##### 1.2.3.5.3 Start-up number
 
@@ -478,21 +492,47 @@ SysEx `SECTION` ID: `2`
 
 Start-up animation switches the LEDs one-by-one in user-defined order. Change LED order with this setting. Acceptable values for `NEW_PARAMETER` byte range between 0-47. `PARAMETER` byte can range between 0-47 and represents LED ID (total of 48 values for 48 LEDs).
 
-##### 1.2.3.5.4 LED state testing
+##### 1.2.3.5.4 RGB enabled/disabled
+
+Enables or disabled RGB LED. Accepted values for `NEW_PARAMETER` byte are `1` (enabled) and `0` (disabled). `PARAMETER` byte can range between 0-15 and represents LED ID (total of 16 values for 16 RGB LEDs). All RGB LEDs are disabled by default.
+
+##### 1.2.3.5.5 LED state testing
 
 SysEx `SECTION` ID: `3`
 
-This setting doesn't write anything to the board. Used only for testing LED states. `NEW_PARAMETER` (state) can have four values:
+This setting doesn't write anything to the board. Used only for testing LED states. `NEW_PARAMETER` (state) can have the following values:
 
-1) `0` - turn constant state off
+1) `0` - turn LED off
 
-2) `1` - turn constant state on
+2) `1` - constant state, white color
 
-3) `2` - turn blink state off
+3) `2` - constant state, cyan color
 
-4) `3` - turn blink state on
+4) `3` - constant state, magenta color
 
-`PARAMETER` byte can range between 0-47 and represents LED ID (total of 48 values for 48 LEDs).
+5) `4` - constant state, red color
+
+6) `5` - constant state, blue color
+
+7) `6` - constant state, yellow color
+
+8) `7` - constant state, green color
+
+9) `8` - blink state, white color
+
+10) `9` - blink state, cyan color
+
+11) `10` - blink state, magenta color
+
+12) `11` - blink state, red color
+
+13) `12` - blink state, blue color
+
+14) `13` - blink state, yellow color
+
+15) `13` - blink state, green color
+
+`PARAMETER` byte can range between 0-47 and represents LED ID (total of 48 values for 48 LEDs). When testing single color LED, color setting is ignored.
 
 ## 2. Configuration examples
 

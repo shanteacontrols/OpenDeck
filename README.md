@@ -51,7 +51,8 @@ The platform allows hassle-free building of MIDI controllers and their configura
   - fade speed
 * LED activation note
 * LED start-up number
-* Test LED state (constant on/off, blink on/off)
+* Enable/disable RGB LED
+* Test LED state
 
 ### Encoder configuration
 

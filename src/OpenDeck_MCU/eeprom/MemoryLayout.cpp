@@ -107,9 +107,9 @@ void Configuration::createMemoryLayout()   {
         blocks[CONF_LED_BLOCK].defaultValue[ledStartUpNumberSection] = MAX_NUMBER_OF_LEDS;
         blocks[CONF_LED_BLOCK].sectionParameters[ledStartUpNumberSection] = MAX_NUMBER_OF_LEDS;
 
-        blocks[CONF_LED_BLOCK].subsectionType[ledRGBcolorSection] = BYTE_PARAMETER;
-        blocks[CONF_LED_BLOCK].defaultValue[ledRGBcolorSection] = 0;
-        blocks[CONF_LED_BLOCK].sectionParameters[ledRGBcolorSection] = MAX_NUMBER_OF_LEDS;
+        blocks[CONF_LED_BLOCK].subsectionType[ledRGBenabledSection] = BIT_PARAMETER;
+        blocks[CONF_LED_BLOCK].defaultValue[ledRGBenabledSection] = 0;
+        blocks[CONF_LED_BLOCK].sectionParameters[ledRGBenabledSection] = MAX_NUMBER_OF_LEDS;
     }
 
 }
