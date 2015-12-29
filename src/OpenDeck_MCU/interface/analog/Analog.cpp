@@ -205,6 +205,8 @@ bool Analog::setAnalogInvertState(uint8_t analogID, uint8_t state) {
 
 bool Analog::setAnalogType(uint8_t analogID, uint8_t type)    {
 
+    lastAnalogueValue[analogID] = 0;
+
     return configuration.writeParameter(CONF_ANALOG_BLOCK, analogTypeSection, analogID, type);
 
 }
