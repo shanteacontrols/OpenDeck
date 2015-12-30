@@ -14,8 +14,8 @@ void LEDs::init()   {
     const subtype ledHardwareParameterSubtype   = { LED_HARDWARE_PARAMETERS, IGNORE_NEW_VALUE, IGNORE_NEW_VALUE };
     const subtype ledActivationNoteSubtype      = { MAX_NUMBER_OF_LEDS, 0, 127 };
     const subtype ledStartUpNumberSubtype       = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_LEDS-1 };
-    const subtype ledRGBenabledSubtype          = { MAX_NUMBER_OF_LEDS, 0, 1 };
-    const subtype ledsStateSubtype              = { MAX_NUMBER_OF_LEDS, 0, LED_STATES, };
+    const subtype ledRGBenabledSubtype          = { MAX_NUMBER_OF_RGB_LEDS, 0, 1 };
+    const subtype ledsStateSubtype              = { MAX_NUMBER_OF_LEDS, 0, LED_STATES-1 };
 
     const subtype *ledsSubtypeArray[] = {
 
