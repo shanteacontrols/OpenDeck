@@ -81,5 +81,7 @@ USB MIDI source code based on [Teensyduino Arduino add-on](http://www.pjrc.com/t
 
 Parts of code taken from [Arduino framework](https://github.com/arduino/Arduino).
 
+Bootloader code based on [LUFA Mass Storage bootloader](http://www.fourwalledcubicle.com/LUFA.php) by Dean Camera.
+
 ## Licence
 All code is available under GNU GPL v3 licence.
