@@ -1,5 +1,6 @@
 #include "Analog.h"
 #include "..\sysex/SysEx.h"
+#include "..\eeprom\Blocks.h"
 
 //potentiometer must exceed this value before sending new value
 #define POTENTIOMETER_CC_STEP 8
@@ -26,14 +27,14 @@ void Analog::checkPotentiometerValue(uint8_t analogID, int16_t tempValue)  {
     if ((lowerCClimit != 0) || (upperCClimit != 127))   {
 
         midi.sendControlChange(getMIDIid(analogID), mapAnalog_uint8(ccValue, 0, 127, lowerCClimit, upperCClimit));
-        if (sysEx.configurationEnabled()) sysEx.sendID(analogComponent, analogID);
+        if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_ANALOG_BLOCK, analogID);
 
     }
 
     else {
 
         midi.sendControlChange(getMIDIid(analogID), ccValue);
-        if (sysEx.configurationEnabled()) sysEx.sendID(analogComponent, analogID);
+        if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_ANALOG_BLOCK, analogID);
 
     }
 

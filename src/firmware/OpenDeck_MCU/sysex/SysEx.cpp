@@ -323,17 +323,18 @@ void SysEx::sendHelloResponse()   {
 
 }
 
-void SysEx::sendID(uint8_t type, uint8_t componentID)   {
+void SysEx::sendComponentID(uint8_t blockID, uint8_t componentID)   {
 
-    uint8_t sysExAckResponse[5];
+    uint8_t sysExResponse[6];
 
-    sysExAckResponse[0] = SYS_EX_M_ID_0;
-    sysExAckResponse[1] = SYS_EX_M_ID_1;
-    sysExAckResponse[2] = SYS_EX_M_ID_2;
-    sysExAckResponse[3] = type;
-    sysExAckResponse[4] = componentID;
+    sysExResponse[0] = SYS_EX_M_ID_0;
+    sysExResponse[1] = SYS_EX_M_ID_1;
+    sysExResponse[2] = SYS_EX_M_ID_2;
+    sysExResponse[3] = COMPONENT_INFO_STRING;
+    sysExResponse[4] = blockID;
+    sysExResponse[5] = componentID;
 
-    midi.sendSysEx(sysExAckResponse, 5);
+    midi.sendSysEx(sysExResponse, 6);
 
 }
 
@@ -347,20 +348,10 @@ void SysEx::generateResponse(uint8_t sysExArray[], uint8_t arraySize)  {
     //create basic response
     uint8_t sysExResponse[64+ML_RES_BASIC];
 
-    //copy first part of request to response
-    //for (int i=0; i<(ML_RES_BASIC-1); i++)
-        //sysExResponse[i] = sysExArray[i+1];
-//
-    //sysExResponse[ML_RES_BASIC-1] = RESPONSE_ACK;
-
     sysExResponse[0] = SYS_EX_M_ID_0;
     sysExResponse[1] = SYS_EX_M_ID_1;
     sysExResponse[2] = SYS_EX_M_ID_2;
     sysExResponse[3] = RESPONSE_ACK;
-
-    //copy first part of request to response
-    //for (int i=0; i<(ML_RES_BASIC-1); i++)
-        //sysExResponse[i+4] = sysExArray[i+4];
 
     if (sysExArray[MS_AMOUNT] == AMOUNT_ALL) {
 

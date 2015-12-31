@@ -7,6 +7,7 @@
 #include "ManufacturerID.h"
 #include "..\interface\midi\MIDI.h"
 #include "Errors.h"
+#include "SpecialStrings.h"
 
 #define MAX_NUMBER_OF_MESSAGES  7
 #define MAX_NUMBER_OF_SUBTYPES  7
@@ -34,10 +35,6 @@ typedef struct {
 #define ML_REQ_STANDARD         0x09
 #define ML_RES_BASIC            0x08
 #define ML_SET_RESTORE          0x04
-
-#define HELLO_STRING            0x48
-#define REBOOT_STRING           0x7F
-#define FACTORY_RESET_STRING    0x44
 
 #define ENABLE                  0x01
 #define DISABLE                 0x00
@@ -106,7 +103,7 @@ class SysEx {
     bool checkMessageValidity(uint8_t*, uint8_t);
     void generateResponse(uint8_t sysExArray[], uint8_t arraySize);
 
-    void sendID(uint8_t, uint8_t);
+    void sendComponentID(uint8_t blockID, uint8_t componentID);
 
     private:
 
