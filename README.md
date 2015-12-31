@@ -71,6 +71,10 @@ to OpenDeck board and start using your new MIDI controller in no-time. Compatibl
 ### SysEx configuration
 All configuration is done using MIDI System Exclusive messages. For more information, see `configuration.md` in `doc` directory.
 
+### Firmware update
+
+OpenDeck uses LUFA mass storage bootloader for firmware updating. For more information on how to update firmware, see `firmware_update.md` in `doc` directory.
+
 ## Firmware compilation
 MCU Code is available as Atmel Studio 7.0 project. Simply open `OpenDeck_AVRC.atsln` using the IDE and everything should work.
 
