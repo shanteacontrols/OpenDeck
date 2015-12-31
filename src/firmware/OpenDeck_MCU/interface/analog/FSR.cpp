@@ -1,4 +1,6 @@
 #include "Analog.h"
+#include "..\sysex\SysEx.h"
+#include "..\eeprom\Blocks.h"
 
 //use 1k resistor when connecting FSR between signal and ground
 
@@ -84,6 +86,7 @@ void Analog::checkFSRvalue(uint8_t analogID, int16_t pressure)  {
             //sensor is really pressed
             setFsrPressed(analogID, true);
             midi.sendMIDInote(getMIDIid(analogID), true, calibratedPressure);
+            if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_ANALOG_BLOCK, analogID);
 
         }
         break;
@@ -94,6 +97,7 @@ void Analog::checkFSRvalue(uint8_t analogID, int16_t pressure)  {
 
             setFsrPressed(analogID, false);
             midi.sendMIDInote(getMIDIid(analogID), false, 0);
+            if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_ANALOG_BLOCK, analogID);
 
         }
 
