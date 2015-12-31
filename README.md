@@ -1,13 +1,14 @@
 # OpenDeck MIDI Platform
 
-OpenDeck MIDI platform is a combination of microcontroller firmware, PCB board and GUI application. (At the moment GUI application is still in design phase).
-
-The platform allows hassle-free building of MIDI controllers and their configuration via MIDI System Exclusive messages, without any need of reprogramming the chip.
+OpenDeck is a platform for building DIY MIDI controllers. Connect your potentiometers, buttons, LEDs and other stuff your want in your MIDI controller
+to OpenDeck board and start using your new MIDI controller in no-time. Compatible with any MIDI software on any OS.
 
 ## Repository content
-* firmware (MCU code)
-* part list
-* schematic (PDF)
+* Firmware
+* Bootloader
+* Part list
+* Configuration documentation
+* Schematic (PDF)
 * PCB files (gerbers)
 
 # Configurable features
