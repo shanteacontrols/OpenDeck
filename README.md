@@ -1,4 +1,4 @@
-# OpenDeck Platform
+# OpenDeck MIDI Platform
 
 OpenDeck MIDI platform is a combination of microcontroller firmware, PCB board and GUI application. (At the moment GUI application is still in design phase).
 
