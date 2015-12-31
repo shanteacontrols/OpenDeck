@@ -69,13 +69,13 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState)   {
             if (getButtonPCenabled(buttonID))    {
 
                 midi.sendProgramChange(getMIDIid(buttonID));
-                if (sysEx.configurationEnabled()) sysEx.sendID(buttonComponent, buttonID);
+                if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_BUTTON_BLOCK, buttonID);
                 return;
 
             }
 
             midi.sendMIDInote(getMIDIid(buttonID), true, velocityOn);
-            if (sysEx.configurationEnabled()) sysEx.sendID(buttonComponent, buttonID);
+            if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_BUTTON_BLOCK, buttonID);
 
         }
 
@@ -86,7 +86,7 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState)   {
                 if (!getButtonPCenabled(buttonID))  {
 
                     midi.sendMIDInote(getMIDIid(buttonID), false, velocityOff);
-                    if (sysEx.configurationEnabled()) sysEx.sendID(buttonComponent, buttonID);
+                    if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_BUTTON_BLOCK, buttonID);
 
                 }
 
@@ -109,7 +109,7 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)    {
             if (getButtonPressed(buttonID)) {
 
                 midi.sendMIDInote(getMIDIid(buttonID), false, velocityOff);
-                if (sysEx.configurationEnabled()) sysEx.sendID(buttonComponent, buttonID);
+                if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_BUTTON_BLOCK, buttonID);
 
                 //reset pressed state
                 setButtonPressed(buttonID, false);
@@ -118,7 +118,7 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)    {
 
                 //send note on
                 midi.sendMIDInote(getMIDIid(buttonID), true, velocityOn);
-                if (sysEx.configurationEnabled()) sysEx.sendID(buttonComponent, buttonID);
+                if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_BUTTON_BLOCK, buttonID);
 
                 //toggle buttonPressed flag to true
                 setButtonPressed(buttonID, true);

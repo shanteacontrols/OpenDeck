@@ -79,14 +79,6 @@ enum encoderType {
 
 };
 
-enum sysExIDcomponentType   {
-
-    buttonComponent = 0,
-    encoderComponent = 1,
-    analogComponent = 2
-
-};
-
 enum pressureType {
 
     velocity,

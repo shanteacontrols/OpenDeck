@@ -85,7 +85,7 @@ void Encoders::update()   {
         }
 
         midi.sendControlChange(getMIDIid(i), encoderValue);
-        if (sysEx.configurationEnabled()) sysEx.sendID(encoderComponent, i);
+        if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_ENCODER_BLOCK, i);
 
     }
 

@@ -316,6 +316,9 @@
     <Compile Include="sysex\ManufacturerID.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="sysex\SpecialStrings.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="sysex\SysEx.cpp">
       <SubType>compile</SubType>
     </Compile>
