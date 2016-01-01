@@ -21,13 +21,15 @@ manufacturer ID bytes. Manufacturer bytes ensure that SysEx message doesn't end 
 
 If manufacturer bytes aren't specified (or they're wrong), OpenDeck won't respond.
 
-There are three types of SysEx messages on OpenDeck:
+There are four types of SysEx messages on OpenDeck:
 
 1) Special messages
 
 2) Configuration messages
 
 3) Component info messages
+
+4) Error messages
 
 OpenDeck SysEx protocol checks all incoming messages. If a request is wrong, protocol will return error code.
 
@@ -692,7 +694,7 @@ User wants to set CC number for potentiometer 0 to 5 using the following message
 
 Now, potentiometer sends CC 5. If your controller was already enclosed so that you don't have easy access to board, and you wanted to change CC for that potentiometer again, you wouldn't know its ID without tracking cable from potentiometer to board. When SysEx is turned on, component info message sends the component ID.
 
-## 1.4 SysEx errors
+## 1.4 Error messages
 
 If user types wrong byte in message request, the board will return specific error code based on what the user did wrong. There are 9 possible errors that can happen while sending SysEx request:
 
