@@ -76,7 +76,7 @@ This message has `7F` as `SPECIAL_MESSAGE_ID`. When this message is sent to boar
 
 Firmware update message: `F0 00 53 43 7F F7`
 
-### 1.1.2 Factory reset message
+### 1.1.3 Factory reset message
 
 This message has `44` as `SPECIAL_MESSAGE_ID`. When this message is sent to board, the board will restore all configurable parameters back to default value. After this process is complete, board will reboot. The board doesn't send response to this message.
 
