@@ -51,7 +51,7 @@ class Analog {
     //};
 
     //set
-    bool setAnalogEnabled(uint8_t analogID, uint8_t state);
+    bool setAnalogEnabled(uint8_t analogID, bool state);
     bool setAnalogType(uint8_t analogID, uint8_t type);
     bool setAnalogInvertState(uint8_t analogID, uint8_t state);
     bool setMIDIid(uint8_t analogID, uint8_t midiID);
