@@ -117,7 +117,6 @@ int16_t Analog::getMedianValue(uint8_t analogID)  {
 
 }
 
-
 bool Analog::getAnalogEnabled(uint8_t analogID) {
 
     return configuration.readParameter(CONF_ANALOG_BLOCK, analogEnabledSection, analogID);
@@ -191,7 +190,7 @@ uint8_t Analog::getParameter(uint8_t messageType, uint8_t parameter) {
 }
 
 
-bool Analog::setAnalogEnabled(uint8_t analogID, uint8_t state)    {
+bool Analog::setAnalogEnabled(uint8_t analogID, bool state)    {
 
     return configuration.writeParameter(CONF_ANALOG_BLOCK, analogEnabledSection, analogID, state);
 
