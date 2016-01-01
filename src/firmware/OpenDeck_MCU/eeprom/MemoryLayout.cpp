@@ -76,7 +76,7 @@ void Configuration::createMemoryLayout()   {
         blocks[CONF_ANALOG_BLOCK].sectionParameters[analogInvertedSection] = MAX_NUMBER_OF_ANALOG;
 
         blocks[CONF_ANALOG_BLOCK].subsectionType[analogTypeSection] = BYTE_PARAMETER;
-        blocks[CONF_ANALOG_BLOCK].defaultValue[analogTypeSection] = AUTO_INCREMENT;
+        blocks[CONF_ANALOG_BLOCK].defaultValue[analogTypeSection] = 0;
         blocks[CONF_ANALOG_BLOCK].sectionParameters[analogTypeSection] = MAX_NUMBER_OF_ANALOG;
 
         blocks[CONF_ANALOG_BLOCK].subsectionType[analogMIDIidSection] = BYTE_PARAMETER;
