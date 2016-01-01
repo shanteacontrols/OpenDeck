@@ -4,12 +4,12 @@ OpenDeck is a platform for building DIY MIDI controllers. Connect your potentiom
 to OpenDeck board and start using your new MIDI controller in no-time. Compatible with any MIDI software on any OS.
 
 ## Repository content
-* Firmware
-* Bootloader
-* Part list
-* Wiki
-* Schematic (PDF)
-* PCB files (gerbers)
+* [Firmware](https://github.com/paradajz/OpenDeck/tree/master/src/firmware)
+* [Bootloader](https://github.com/paradajz/OpenDeck/tree/master/src/bootloader)
+* [Part list](https://github.com/paradajz/OpenDeck/blob/master/doc/part_list.txt)
+* [Schematic (PDF)](https://github.com/paradajz/OpenDeck/blob/master/schematics/OpenDeck-r1.pdf)
+* [PCB files (gerbers)](https://github.com/paradajz/OpenDeck/tree/master/schematics/gerbers)
+* [Wiki](https://github.com/paradajz/OpenDeck/wiki)
 
 ## Credits
 Hardware MIDI source code based on [Arduino MIDI library v3.2](https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/3.2) by Francois Best.
