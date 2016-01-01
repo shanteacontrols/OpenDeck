@@ -31,8 +31,6 @@ There are four types of SysEx messages on OpenDeck:
 
 4) Error messages
 
-OpenDeck SysEx protocol checks all incoming messages. If a request is wrong, protocol will return error code.
-
 ## 1.1 Special SysEx messages
 
 Special messages have the following structure:
