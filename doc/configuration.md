@@ -669,12 +669,14 @@ User wants to restore restore all button program change states back to default (
 
 ## 1.3 Component info messages
 
-Component info message has similar structure as special messages:
+Component info message has similar structure as special message:
 
 `START M_ID_0 M_ID_1 M_ID_2 SPECIAL_MESSAGE_ID BLOCK PARAMETER END`
 
 `SPECIAL_MESSAGE_ID` is `49`.
-`BLOCK` is the block ID of component that is sending MIDI data - analog (`3`), button (`1`) or encoder (`2`).
+
+`BLOCK` is the block ID of component that is sending MIDI data - button (`1`), encoder (`2`) or analog/FSR (`3`).
+
 `PARAMETER` is the component ID.
 
 Unlike all other special messages, this message isn't sent to board - it's received from the board. This message is sent when SysEx configuration is enabled. It's used primarily for identifying component sending MIDI data.
@@ -682,6 +684,7 @@ Unlike all other special messages, this message isn't sent to board - it's recei
 Let's take a look at following scenario:
 
 User has enabled potentiometer 0 using this message: `F0 00 53 43 01 00 03 00 00 01 F7`
+
 When user moves potentiometer, `BLOCK` byte in Component info message will be `3`, since that is analog block ID, and parameter will be 0, since user has enabled potentiometer 0.
 
 Message: `F0 00 53 43 49 03 00 F7`
@@ -691,6 +694,8 @@ This doesn't seem useful at first, but let's take a look at another example:
 User wants to set CC number for potentiometer 0 to 5 using the following message: `F0 00 53 43 01 00 03 03 00 05 F7`
 
 Now, potentiometer sends CC 5. If your controller was already enclosed so that you don't have easy access to board, and you wanted to change CC for that potentiometer again, you wouldn't know its ID without tracking cable from potentiometer to board. When SysEx is turned on, component info message sends the component ID.
+
+The process is the same for buttons and encoders.
 
 ## 1.4 Error messages
 
