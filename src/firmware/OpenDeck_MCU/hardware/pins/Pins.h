@@ -128,41 +128,41 @@ const uint8_t dmColumnArray[] = { DM_COLUMN_1, DM_COLUMN_2, DM_COLUMN_3, DM_COLU
 #define MUX_S3_PORT                 PORTF
 #define MUX_S3_PIN                  6
 
-#define MUX_PIN_1                   8
-#define MUX_PIN_2                   9
-#define MUX_PIN_3                   10
-#define MUX_PIN_4                   11
-#define MUX_PIN_5                   12
-#define MUX_PIN_6                   13
-#define MUX_PIN_7                   15
-#define MUX_PIN_8                   15
-#define MUX_PIN_9                   7
-#define MUX_PIN_10                  6
-#define MUX_PIN_11                  5
-#define MUX_PIN_12                  4
-#define MUX_PIN_13                  3
-#define MUX_PIN_14                  2
-#define MUX_PIN_15                  1
-#define MUX_PIN_16                  0
+#define MUX_Y0                      8
+#define MUX_Y1                      9
+#define MUX_Y2                      10
+#define MUX_Y3                      11
+#define MUX_Y4                      12
+#define MUX_Y5                      13
+#define MUX_Y6                      14
+#define MUX_Y7                      15
+#define MUX_Y8                      7
+#define MUX_Y9                      6
+#define MUX_Y10                     5
+#define MUX_Y11                     4
+#define MUX_Y12                     3
+#define MUX_Y13                     2
+#define MUX_Y14                     1
+#define MUX_Y15                     0
 
 const uint8_t muxPinOrderArray[] = {
 
-    MUX_PIN_1,
-    MUX_PIN_2,
-    MUX_PIN_3,
-    MUX_PIN_4,
-    MUX_PIN_5,
-    MUX_PIN_6,
-    MUX_PIN_7,
-    MUX_PIN_8,
-    MUX_PIN_9,
-    MUX_PIN_10,
-    MUX_PIN_11,
-    MUX_PIN_12,
-    MUX_PIN_13,
-    MUX_PIN_14,
-    MUX_PIN_15,
-    MUX_PIN_16
+    MUX_Y0,
+    MUX_Y1,
+    MUX_Y2,
+    MUX_Y3,
+    MUX_Y4,
+    MUX_Y5,
+    MUX_Y6,
+    MUX_Y7,
+    MUX_Y8,
+    MUX_Y9,
+    MUX_Y10,
+    MUX_Y11,
+    MUX_Y12,
+    MUX_Y13,
+    MUX_Y14,
+    MUX_Y15
 
 };
 
