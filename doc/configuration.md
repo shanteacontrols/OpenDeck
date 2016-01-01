@@ -21,11 +21,13 @@ manufacturer ID bytes. Manufacturer bytes ensure that SysEx message doesn't end 
 
 If manufacturer bytes aren't specified (or they're wrong), OpenDeck won't respond.
 
-There are two types of SysEx messages on OpenDeck:
+There are three types of SysEx messages on OpenDeck:
 
 1) Special messages
 
 2) Configuration messages
+
+3) Component info messages
 
 OpenDeck SysEx protocol checks all incoming messages. If a request is wrong, protocol will return error code.
 
@@ -534,9 +536,9 @@ This setting doesn't write anything to the board. Used only for testing LED stat
 
 `PARAMETER` byte can range between 0-47 and represents LED ID (total of 48 values for 48 LEDs). When testing single color LED, color setting is ignored.
 
-## 2. Configuration examples
+### 1.2.4 Configuration examples
 
-### 2.1 `GET` command
+#### 1.2.4.1 `GET` command
 
 *Note: All `GET` examples assume default board configuration.*
 
@@ -580,7 +582,7 @@ User wants to find out encoding mode for all encoders.
 
 Response returned 32 values for 32 encoders. Since all encoders have default encoding mode set to 7Fh01h (`0`), all 32  values are `0`.
 
-### 2.2 `SET` command
+#### 1.2.4.2 `SET` command
 
 Example 1:
 User wants to configure button 6 to send program change event instead of note event.
@@ -625,7 +627,7 @@ Example 2: User wants to set all MIDI channels to channel 5.
 
 When `WISH` byte is `SET`, and `AMOUNT` is `ALL`, all parameters within section must be specified. MIDI channel section has four channels, therefore four channels are listed after `SECTION` byte.
 
-### 2.2 `RESTORE` command
+#### 1.2.4.3 `RESTORE` command
 
 Example 1:
 User wants to restore Program change channel back to default.
@@ -665,7 +667,32 @@ User wants to restore restore all button program change states back to default (
 * Response:
 `F0 00 53 43 41 F7`
 
-## 1.3 SysEx errors
+## 1.3 Component info messages
+
+Component info message has similar structure as special messages:
+
+`START M_ID_0 M_ID_1 M_ID_2 SPECIAL_MESSAGE_ID BLOCK PARAMETER END`
+
+`SPECIAL_MESSAGE_ID` is `49`.
+`BLOCK` is the block ID of component that is sending MIDI data - analog (`3`), button (`1`) or encoder (`2`).
+`PARAMETER` is the component ID.
+
+Unlike all other special messages, this message isn't sent to board - it's received from the board. This message is sent when SysEx configuration is enabled. It's used primarily for identifying component sending MIDI data.
+
+Let's take a look at following scenario:
+
+User has enabled potentiometer 0 using this message: `F0 00 53 43 01 00 03 00 00 01 F7`
+When user moves potentiometer, `BLOCK` byte in Component info message will be `3`, since that is analog block ID, and parameter will be 0, since user has enabled potentiometer 0.
+
+Message: `F0 00 53 43 49 03 00 F7`
+
+This doesn't seem useful at first, but let's take a look at another example:
+
+User wants to set CC number for potentiometer 0 to 5 using the following message: `F0 00 53 43 01 00 03 03 00 05 F7`
+
+Now, potentiometer sends CC 5. If your controller was already enclosed so that you don't have easy access to board, and you wanted to change CC for that potentiometer again, you wouldn't know its ID without tracking cable from potentiometer to board. When SysEx is turned on, component info message sends the component ID.
+
+## 1.4 SysEx errors
 
 If user types wrong byte in message request, the board will return specific error code based on what the user did wrong. There are 9 possible errors that can happen while sending SysEx request:
 
@@ -691,7 +718,7 @@ Error message structure:
 
 `START M_ID_0 M_ID_1 M_ID_2 ERROR_CODE STOP`
 
-### 1.3.1 Handshake error
+### 1.4.1 Handshake error
 
 Error code: `0`
 
@@ -699,7 +726,7 @@ This error is returned when request is correct, but hello message hasn't been se
 
 Message: `F0 00 53 43 46 00 F7`
 
-### 1.3.1 `WISH` error
+### 1.4.2 `WISH` error
 
 Error code: `1`
 
@@ -707,7 +734,7 @@ This error is returned when `WISH` is anything other than `GET`, `SET` or `RESTO
 
 Message: `F0 00 53 43 46 01 F7`
 
-### 1.3.1 `AMOUNT` error
+### 1.4.3 `AMOUNT` error
 
 Error code: `2`
 
@@ -715,7 +742,7 @@ This error is returned when `AMOUNT` is anything other than `SINGLE` or `ALL`.
 
 Message: `F0 00 53 43 46 02 F7`
 
-### 1.3.1 `BLOCK` error
+### 1.4.4 `BLOCK` error
 
 Error code: `3`
 
@@ -723,7 +750,7 @@ This error is returned when `BLOCK` byte is incorrect.
 
 Message: `F0 00 53 43 46 03 F7`
 
-### 1.3.1 `SECTION` error
+### 1.4.5 `SECTION` error
 
 Error code: `4`
 
@@ -731,7 +758,7 @@ This error is returned when `SECTION` byte is incorrect.
 
 Message: `F0 00 53 43 46 04 F7`
 
-### 1.3.1 `PARAMETER` error
+### 1.4.6 `PARAMETER` error
 
 Error code: `5`
 
@@ -739,7 +766,7 @@ This error is returned when wanted parameter is incorrect.
 
 Message: `F0 00 53 43 46 05 F7`
 
-### 1.3.1 `NEW_PARAMETER` error
+### 1.4.7 `NEW_PARAMETER` error
 
 Error code: `6`
 
@@ -747,7 +774,7 @@ This error is returned when `NEW_PARAMETER` is incorrect.
 
 Message: `F0 00 53 43 46 06 F7`
 
-### 1.3.1 Message length error
+### 1.4.8 Message length error
 
 Error code: `7`
 
@@ -755,7 +782,7 @@ This error is returned when request is too short.
 
 Message: `F0 00 53 43 46 07 F7`
 
-### 1.3.1 EEPROM error
+### 1.4.9 EEPROM error
 
 Error code: `8`
 
