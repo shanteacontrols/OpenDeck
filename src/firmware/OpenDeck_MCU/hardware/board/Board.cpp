@@ -793,8 +793,8 @@ void Board::handleLED(uint8_t ledNumber, ledColor color, bool blinkMode, ledType
     7: x
     6: x
     5: x
-    4: Blink bit (timer changes this bit)
-    3: "Remember" bit, used to restore previous LED state
+    4: x
+    3: Blink bit (timer changes this bit)
     2: LED is active (either it blinks or it's constantly on), this bit is OR function between bit 0 and 1
     1: LED blinks
     0: LED is constantly turned on
@@ -805,7 +805,7 @@ void Board::handleLED(uint8_t ledNumber, ledColor color, bool blinkMode, ledType
     bool newLEDstate[3];
     uint8_t loops = 1;
 
-    if (color == colorOnDefault)
+    if ((color == colorOnDefault) && (type == rgbLED))
         type = singleLED; //this is a mistake, handle led in single mode instead
 
     switch(type)    {
@@ -837,46 +837,25 @@ void Board::handleLED(uint8_t ledNumber, ledColor color, bool blinkMode, ledType
         switch (newLEDstate[i]) {
 
             case false:
-            //note off event
-
-            //if remember bit is set
-            //if (bitRead(currentState[i], LED_REMEMBER_BIT))   {
-//
-                ////if note off for blink state is received
-                ////clear remember bit and blink bits
-                ////set constant state bit
-                //if (blinkMode) currentState[i] = ledOn;
-                ////else clear constant state bit and remember bit
-                ////set blink bits
-                //else           currentState[i] = ledBlinkOn;
-//
-            //}   else currentState[i] = ledOff;
-            currentState[i] = ledOff;
-
+            //turn off the led
+            currentState[i] = 0;
             break;
 
             case true:
-            //note on event
+            //turn on the led
+            //if led was already active, clear the on bits before setting new state
+            if (bitRead(currentState[i], LED_ACTIVE_BIT))
+                currentState[i] = 0;
 
-            //if ((!blinkMode) && bitRead(currentState[i], LED_BLINK_ON_BIT))   currentState[i] = ledOnRemember;
-            //else if ((blinkMode) && bitRead(currentState[i], LED_ON_BIT))     currentState[i] = ledBlinkRemember;
+            bitWrite(currentState[i], LED_ACTIVE_BIT, 1);
+            if (blinkMode)  {
 
-            if ((!blinkMode) && bitRead(currentState[i], LED_BLINK_ON_BIT))   currentState[i] = ledOff;
-            else if ((blinkMode) && bitRead(currentState[i], LED_ON_BIT))     currentState[i] = ledOff;
-//
-            //else    {
+                bitWrite(currentState[i], LED_BLINK_ON_BIT, 1);
+                //this will turn the led immediately no matter how little time it's
+                //going to blink first time
+                bitWrite(currentState[i], LED_BLINK_STATE_BIT, 1);
 
-                bitWrite(currentState[i], LED_ACTIVE_BIT, 1);
-                if (blinkMode)  {
-
-                    bitWrite(currentState[i], LED_BLINK_ON_BIT, 1);
-                    //this will turn the led immediately no matter how little time it's
-                    //going to blink first time
-                    bitWrite(currentState[i], LED_BLINK_STATE_BIT, 1);
-
-                }   else bitWrite(currentState[i], LED_ON_BIT, 1);
-
-            //}
+            }   else bitWrite(currentState[i], LED_CONSTANT_ON_BIT, 1);
             break;
 
         }   ledState[ledNumber] = currentState[i];
