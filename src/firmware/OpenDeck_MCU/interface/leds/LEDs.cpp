@@ -48,6 +48,9 @@ void LEDs::init()   {
 
 void LEDs::startUpRoutine() {
 
+    if (!getLEDHwParameter(ledHwParameterTotalLEDnumber) || !getLEDHwParameter(ledHwParameterStartUpSwitchTime))
+        return;
+
     //turn off all LEDs before starting animation
     allLEDsOff();
 
@@ -365,7 +368,7 @@ uint8_t LEDs::getLEDid(uint8_t midiID)   {
 bool LEDs::checkLEDstartUpNumber(uint8_t ledID)  {
 
     //if received start-up number is already assigned to another led, return false
- 
+
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
         if (configuration.readParameter(CONF_LED_BLOCK, ledStartUpNumberSection, i) == ledID)
             return false;
@@ -416,7 +419,14 @@ uint8_t LEDs::getParameter(uint8_t messageType, uint8_t parameterID)   {
     switch(messageType) {
 
         case ledHardwareParameterConf:
-        return getLEDHwParameter(parameterID);
+        if (getLEDHwParameter(parameterID)) {
+
+            if (parameterID == ledHwParameterStartUpRoutine)
+                startUpRoutine();
+
+            return true;
+
+        }   return false;
         break;
 
         case ledActivationNoteConf:
@@ -478,6 +488,13 @@ bool LEDs::setLEDActivationNote(uint8_t ledNumber, uint8_t ledActNote) {
 }
 
 bool LEDs::setLEDstartNumber(uint8_t startNumber, uint8_t ledNumber) {
+
+    if (!checkLEDstartUpNumber(ledNumber))    {
+
+        sysEx.sendError(ERROR_NEW_PARAMETER);
+        return false;
+
+    }
 
     return configuration.writeParameter(CONF_LED_BLOCK, ledStartUpNumberSection, startNumber, ledNumber);
 
