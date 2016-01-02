@@ -63,7 +63,7 @@ bool SysEx::checkSpecial(uint8_t *array, uint8_t size) {
 
             if (sysExEnabled)
                 sendRebootCallback();
-            else generateError(ERROR_HANDSHAKE);
+            else sendError(ERROR_HANDSHAKE);
             return true;
 
         }   else if (array[size-2] == HELLO_STRING)   {
@@ -84,6 +84,9 @@ bool SysEx::checkSpecial(uint8_t *array, uint8_t size) {
 
 void SysEx::handleSysEx(uint8_t *sysExArray, uint8_t size)    {
 
+    //we have new data
+    dataAvailable = true;
+
     //ignore messages shorter than absolute minimum
     if (size < ML_SPECIAL) return;
     //don't respond to sysex message if device ID is wrong
@@ -95,13 +98,16 @@ void SysEx::handleSysEx(uint8_t *sysExArray, uint8_t size)    {
     if (!sysExEnabled) {
 
         //message is fine, but handshake hasn't been received
-        generateError(ERROR_HANDSHAKE);
+        sendError(ERROR_HANDSHAKE);
         return;
 
     }
 
     if (!checkMessageValidity(sysExArray, size)) return; //message not valid
-    generateResponse(sysExArray, size);
+        sendResponse(sysExArray, size);
+
+    //data is processed
+    dataAvailable = false;
 
 }
 
@@ -110,7 +116,7 @@ bool SysEx::checkMessageValidity(uint8_t sysExArray[], uint8_t arrSize)  {
     //check wish validity
     if (!checkWish(sysExArray[MS_WISH]))    {
 
-        generateError(ERROR_WISH);
+        sendError(ERROR_WISH);
         return false;
 
     }
@@ -118,23 +124,23 @@ bool SysEx::checkMessageValidity(uint8_t sysExArray[], uint8_t arrSize)  {
     //check if wanted amount is correct
     if (!checkAmount(sysExArray[MS_AMOUNT]))    {
 
-        generateError(ERROR_AMOUNT);
+        sendError(ERROR_AMOUNT);
         return false;
 
     }
 
     //check if message type is correct
-    if (!checkMessageType(sysExArray[MS_MT]))    {
+    if (!checkBlock(sysExArray[MS_BLOCK]))    {
 
-        generateError(ERROR_MT);
+        sendError(ERROR_BLOCK);
         return false;
 
     } else {
 
         //determine minimum message length based on asked parameters
-        if (arrSize < generateMinMessageLenght(sysExArray[MS_WISH], sysExArray[MS_AMOUNT],sysExArray[MS_MT], sysExArray[MS_MST]))    {
+        if (arrSize < generateMinMessageLenght(sysExArray[MS_WISH], sysExArray[MS_AMOUNT],sysExArray[MS_BLOCK], sysExArray[MS_SECTION]))    {
 
-            generateError(ERROR_MESSAGE_LENGTH);
+            sendError(ERROR_MESSAGE_LENGTH);
             return false;
 
         }
@@ -142,9 +148,9 @@ bool SysEx::checkMessageValidity(uint8_t sysExArray[], uint8_t arrSize)  {
     }
 
     //check if subtype is correct
-    if (!checkMessageSubType(sysExArray[MS_MT], sysExArray[MS_MST])) {
+    if (!checkSection(sysExArray[MS_BLOCK], sysExArray[MS_SECTION])) {
 
-        generateError(ERROR_MST);
+        sendError(ERROR_SECTION);
         return false;
 
     }
@@ -152,9 +158,9 @@ bool SysEx::checkMessageValidity(uint8_t sysExArray[], uint8_t arrSize)  {
     //check if wanted parameter is valid only if single parameter is specified
     if (sysExArray[MS_AMOUNT] == AMOUNT_SINGLE)   {
 
-        if (!checkParameterID(sysExArray[MS_MT], sysExArray[MS_MST], sysExArray[MS_PARAMETER_ID]))  {
+        if (!checkParameterID(sysExArray[MS_BLOCK], sysExArray[MS_SECTION], sysExArray[MS_PARAMETER_ID]))  {
 
-            generateError(ERROR_PARAMETER);
+            sendError(ERROR_PARAMETER);
             return false;
 
         }
@@ -162,9 +168,9 @@ bool SysEx::checkMessageValidity(uint8_t sysExArray[], uint8_t arrSize)  {
         //if message wish is set, check new parameter
         if (sysExArray[MS_WISH] == WISH_SET) {
 
-            if (!checkNewParameter(sysExArray[MS_MT], sysExArray[MS_MST], sysExArray[MS_PARAMETER_ID], sysExArray[MS_NEW_PARAMETER_ID_SINGLE]))  {
+            if (!checkNewParameter(sysExArray[MS_BLOCK], sysExArray[MS_SECTION], sysExArray[MS_PARAMETER_ID], sysExArray[MS_NEW_PARAMETER_ID_SINGLE]))  {
 
-                generateError(ERROR_NEW_PARAMETER);
+                sendError(ERROR_NEW_PARAMETER);
                 return false;
 
             }
@@ -182,9 +188,9 @@ bool SysEx::checkMessageValidity(uint8_t sysExArray[], uint8_t arrSize)  {
 
             for (int i=0; i<(arrSize - arrayIndex)-1; i++)
 
-            if (!checkNewParameter(sysExArray[MS_MT], sysExArray[MS_MST], i, sysExArray[arrayIndex+i]))   {
+            if (!checkNewParameter(sysExArray[MS_BLOCK], sysExArray[MS_SECTION], i, sysExArray[arrayIndex+i]))   {
 
-                generateError(ERROR_NEW_PARAMETER);
+                sendError(ERROR_NEW_PARAMETER);
                 return false;
 
             }
@@ -224,7 +230,7 @@ bool SysEx::checkAmount(uint8_t amount)    {
 
 //component specific
 
-bool SysEx::checkMessageType(uint8_t messageType) {
+bool SysEx::checkBlock(uint8_t messageType) {
 
     //check if message type is valid
     for (int i=0; i<MAX_NUMBER_OF_MESSAGES; i++)
@@ -235,7 +241,7 @@ bool SysEx::checkMessageType(uint8_t messageType) {
 
 }
 
-bool SysEx::checkMessageSubType(uint8_t messageType, uint8_t messageSubType)    {
+bool SysEx::checkSection(uint8_t messageType, uint8_t messageSubType)    {
 
     return (messageSubType < messageInfo[messageType].numberOfSubtypes);
 
@@ -291,7 +297,10 @@ uint8_t SysEx::generateMinMessageLenght(uint8_t wish, uint8_t amount, uint8_t me
 
 }
 
-void SysEx::generateError(sysExError errorID)  {
+void SysEx::sendError(sysExError errorID)  {
+
+    //public function, interface objects can use this function directly
+    //to override internal error checking
 
     uint8_t sysExResponse[5];
 
@@ -302,6 +311,7 @@ void SysEx::generateError(sysExError errorID)  {
     sysExResponse[4] = errorID;
 
     midi.sendSysEx(sysExResponse, 5);
+    dataAvailable = false;
 
 }
 
@@ -338,15 +348,16 @@ void SysEx::sendComponentID(uint8_t blockID, uint8_t componentID)   {
 
 }
 
-void SysEx::generateResponse(uint8_t sysExArray[], uint8_t arraySize)  {
+void SysEx::sendResponse(uint8_t sysExArray[], uint8_t arraySize)  {
 
     uint8_t componentNr     = 1,
             _parameter      = 0;
 
-    int16_t maxComponentNr  = 0;
-
     //create basic response
     uint8_t sysExResponse[64+ML_RES_BASIC];
+    uint8_t arrayLength = 0;
+    uint8_t arrayIndex = 0;
+    bool eepromError = false;
 
     sysExResponse[0] = SYS_EX_M_ID_0;
     sysExResponse[1] = SYS_EX_M_ID_1;
@@ -355,82 +366,79 @@ void SysEx::generateResponse(uint8_t sysExArray[], uint8_t arraySize)  {
 
     if (sysExArray[MS_AMOUNT] == AMOUNT_ALL) {
 
-        uint8_t messageType = sysExArray[MS_MT];
-        uint8_t messageSubtype = sysExArray[MS_MST];
-        maxComponentNr = messageInfo[messageType].subTypeInfo[messageSubtype][PARAMETERS_BYTE];
-        componentNr = maxComponentNr;
+        uint8_t messageType = sysExArray[MS_BLOCK];
+        uint8_t messageSubtype = sysExArray[MS_SECTION];
+        componentNr = messageInfo[messageType].subTypeInfo[messageSubtype][PARAMETERS_BYTE];
 
     }
 
     //create response based on wanted message type
-    if (sysExArray[MS_WISH] == WISH_GET)    {                     //get
+    switch(sysExArray[MS_WISH]) {
 
+        case WISH_GET:
         if (sysExArray[MS_AMOUNT] == AMOUNT_ALL)    _parameter = 0;
         else                                        _parameter = sysExArray[MS_PARAMETER_ID];
 
         for (int i=0; i<componentNr; i++) {
 
-            sysExResponse[i+ML_SET_RESTORE] = sendGetCallback(sysExArray[MS_MT], sysExArray[MS_MST], _parameter);
+            sysExResponse[i+ML_SET_RESTORE] = sendGetCallback(sysExArray[MS_BLOCK], sysExArray[MS_SECTION], _parameter);
             _parameter++;
 
-        }
+        }   arrayLength = ML_SET_RESTORE+componentNr;
+        break;
 
-        midi.sendSysEx(sysExResponse, ML_SET_RESTORE+componentNr);
-        return;
+        case WISH_SET:
+        if (sysExArray[MS_AMOUNT] == AMOUNT_ALL) {
 
-    }   else    if (sysExArray[MS_WISH] == WISH_SET)   {          //set
-
-            uint8_t arrayIndex;
-
-            if (sysExArray[MS_AMOUNT] == AMOUNT_ALL) {
-
-                _parameter = 0;
-                arrayIndex = MS_NEW_PARAMETER_ID_ALL;
+            _parameter = 0;
+            arrayIndex = MS_NEW_PARAMETER_ID_ALL;
 
             }   else    {
 
-                    _parameter = sysExArray[MS_PARAMETER_ID];
-                    arrayIndex = MS_NEW_PARAMETER_ID_SINGLE;
+            _parameter = sysExArray[MS_PARAMETER_ID];
+            arrayIndex = MS_NEW_PARAMETER_ID_SINGLE;
 
-                }
+        }
 
-            for (int i=0; i<componentNr; i++)   {
+        for (int i=0; i<componentNr; i++)   {
 
-                if (!sendSetCallback(sysExArray[MS_MT], sysExArray[MS_MST], _parameter, sysExArray[arrayIndex+i]))  {
+            if (!sendSetCallback(sysExArray[MS_BLOCK], sysExArray[MS_SECTION], _parameter, sysExArray[arrayIndex+i]))  {
 
-                    generateError(ERROR_EEPROM);
-                    return;
-
-                }
-
-                _parameter++;
+                eepromError = true;
+                break;
 
             }
 
-            midi.sendSysEx(sysExResponse, ML_SET_RESTORE);
-            return;
+            _parameter++;
 
-        }   else if (sysExArray[MS_WISH] == WISH_RESTORE) {       //restore
+        }   arrayLength = ML_SET_RESTORE;
+        break;
 
-                if (sysExArray[MS_AMOUNT] == AMOUNT_ALL)
-                    _parameter = 0;
-                else _parameter = sysExArray[MS_PARAMETER_ID];
+        case WISH_RESTORE:
+        if (sysExArray[MS_AMOUNT] == AMOUNT_ALL)
+        _parameter = 0;
+        else _parameter = sysExArray[MS_PARAMETER_ID];
 
-                for (int i=0; i<componentNr; i++)   {
+        for (int i=0; i<componentNr; i++)   {
 
-                    if (!sendResetCallback(sysExArray[MS_MT], sysExArray[MS_MST], _parameter))  {
+            if (!sendResetCallback(sysExArray[MS_BLOCK], sysExArray[MS_SECTION], _parameter))  {
 
-                        generateError(ERROR_EEPROM);
-                        return;
+                eepromError = true;
+                break;
 
-                    }   _parameter++;
+            }   _parameter++;
 
-                }
+        }   arrayLength = ML_SET_RESTORE;
+        break;
 
-                midi.sendSysEx(sysExResponse, ML_SET_RESTORE);
-                return;
+    }
 
-            }
+    if (dataAvailable)  {
+
+        if (!eepromError)   midi.sendSysEx(sysExResponse, arrayLength);
+        else                sendError(ERROR_EEPROM);
+
+    }
 
 }
 

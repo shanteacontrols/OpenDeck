@@ -466,7 +466,12 @@ bool LEDs::setLEDHwParameter(uint8_t parameter, uint8_t newParameter) {
 
 bool LEDs::setLEDActivationNote(uint8_t ledNumber, uint8_t ledActNote) {
 
-    if (!checkLEDactivationNote(ledActNote)) return false;
+    if (!checkLEDactivationNote(ledActNote))    {
+
+        sysEx.sendError(ERROR_NEW_PARAMETER);
+        return false;
+
+    }
 
     return configuration.writeParameter(CONF_LED_BLOCK, ledActivationNoteSection, ledNumber, ledActNote);
 
