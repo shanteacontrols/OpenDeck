@@ -72,8 +72,8 @@ typedef enum {
     MS_M_ID_2 = 3,
     MS_WISH = 4,
     MS_AMOUNT = 5,
-    MS_MT = 6,
-    MS_MST = 7,
+    MS_BLOCK = 6,
+    MS_SECTION = 7,
     MS_PARAMETER_ID = 8,
     MS_NEW_PARAMETER_ID_SINGLE = 9,
     MS_NEW_PARAMETER_ID_ALL = 8,
@@ -90,6 +90,7 @@ class SysEx {
     void disableConf();
     void enableConf();
     bool configurationEnabled();
+    void sendError(sysExError errorID);
 
     void setHandleReboot(void(*fptr)(void));
     void setHandleFactoryReset(void(*fptr)(void));
@@ -101,7 +102,7 @@ class SysEx {
     void addMessageSubType(uint8_t messageID, uint8_t subTypeId, uint8_t numberOfParameters, uint8_t minValue, uint8_t maxValue);
 
     bool checkMessageValidity(uint8_t*, uint8_t);
-    void generateResponse(uint8_t sysExArray[], uint8_t arraySize);
+    void sendResponse(uint8_t sysExArray[], uint8_t arraySize);
 
     void sendComponentID(uint8_t blockID, uint8_t componentID);
 
@@ -128,13 +129,12 @@ class SysEx {
     bool checkSpecial(uint8_t *array, uint8_t size);
     bool checkWish(uint8_t);
     bool checkAmount(uint8_t);
-    bool checkMessageType(uint8_t);
-    bool checkMessageSubType(uint8_t, uint8_t);
+    bool checkBlock(uint8_t);
+    bool checkSection(uint8_t, uint8_t);
     bool checkParameterID(uint8_t, uint8_t, uint8_t);
     bool checkNewParameter(uint8_t, uint8_t, uint8_t, uint8_t);
 
     uint8_t generateMinMessageLenght(uint8_t, uint8_t, uint8_t, uint8_t);
-    void generateError(sysExError);
     void sendHelloResponse();
 
     void (*sendRebootCallback)(void);
@@ -145,6 +145,7 @@ class SysEx {
 
     bool                    sysExEnabled;
     bool                    specialMessageChecked;
+    bool                    dataAvailable;
     sysExMessageTypeInfo    messageInfo[MAX_NUMBER_OF_MESSAGES];
 
 };
