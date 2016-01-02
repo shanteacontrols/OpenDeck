@@ -38,17 +38,6 @@ enum ledMessageType {
 
 };
 
-enum ledStates  {
-
-    ledOff = 0,
-    ledOn = 0x05,
-    ledBlinkOn = 0x16,
-    ledBlinkOff = 0x06,
-    ledOnRemember = 0x0D,
-    ledBlinkRemember = 0x1F
-
-};
-
 enum ledColor {
 
     colorOff,
