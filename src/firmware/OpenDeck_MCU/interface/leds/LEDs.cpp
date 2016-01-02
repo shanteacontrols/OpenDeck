@@ -90,7 +90,7 @@ void LEDs::startUpRoutine() {
     }
 
     allLEDsOff();
-    wait(500);
+    wait(1000);
 
 }
 
