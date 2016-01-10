@@ -94,13 +94,16 @@ void Configuration::createSectionAddresses()   {
                 }   else {
 
                 switch(blocks[i].subsectionType[j-1])   {
+                    
+                    //calculate address of current section by adding number of parameters in last section
+                    //and adding last section address
 
                     case BIT_PARAMETER:
-                    blocks[i].subsectionAddress[j] = (1+blocks[i].sectionParameters[j]/8) + blocks[i].subsectionAddress[j-1];
+                    blocks[i].subsectionAddress[j] = (1+blocks[i].sectionParameters[j-1]/8) + blocks[i].subsectionAddress[j-1];
                     break;
 
                     case BYTE_PARAMETER:
-                    blocks[i].subsectionAddress[j] = blocks[i].sectionParameters[j] + blocks[i].subsectionAddress[j-1];
+                    blocks[i].subsectionAddress[j] = blocks[i].sectionParameters[j-1] + blocks[i].subsectionAddress[j-1];
                     break;
 
                 }
