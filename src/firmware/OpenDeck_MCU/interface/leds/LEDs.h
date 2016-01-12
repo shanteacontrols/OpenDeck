@@ -57,7 +57,7 @@ class LEDs {
 
     //animation
     void oneByOneLED(bool ledDirection, bool singleLED, bool turnOn);
-    void startUpRoutine();
+    void startUpAnimation();
 
 };
 

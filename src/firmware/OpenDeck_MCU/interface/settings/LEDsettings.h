@@ -6,6 +6,17 @@
 #define LED_ACTIVE_BIT                  0x02
 #define LED_BLINK_STATE_BIT             0x03
 
+#define BLINK_TIME_MIN                  0x02
+#define BLINK_TIME_MAX                  0x0F
+
+#define START_UP_SWITCH_TIME_MIN        0x01
+#define START_UP_SWITCH_TIME_MAX        0x78
+
+#define FADE_TIME_MIN                   0x00
+#define FADE_TIME_MAX                   0x0A
+
+#define NUMBER_OF_START_UP_ANIMATIONS   5
+
 const uint8_t ledOnLookUpTable[] = { 0, 0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 255, 0 };
 
 #define NUMBER_OF_TRANSITIONS           64

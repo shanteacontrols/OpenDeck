@@ -42,11 +42,11 @@ void LEDs::init()   {
     board.setLEDTransitionSpeed(getLEDHwParameter(ledHwParameterFadeTime));
 
     //run LED animation on start-up
-    startUpRoutine();
+    startUpAnimation();
 
 }
 
-void LEDs::startUpRoutine() {
+void LEDs::startUpAnimation() {
 
     if (!getLEDHwParameter(ledHwParameterTotalLEDnumber) || !getLEDHwParameter(ledHwParameterStartUpSwitchTime))
         return;
@@ -422,7 +422,7 @@ uint8_t LEDs::getParameter(uint8_t messageType, uint8_t parameterID)   {
         if (getLEDHwParameter(parameterID)) {
 
             if (parameterID == ledHwParameterStartUpRoutine)
-                startUpRoutine();
+                startUpAnimation();
 
             return true;
 
@@ -452,25 +452,47 @@ uint8_t LEDs::getParameter(uint8_t messageType, uint8_t parameterID)   {
 
 bool LEDs::setLEDHwParameter(uint8_t parameter, uint8_t newParameter) {
 
-    bool returnValue = configuration.writeParameter(CONF_LED_BLOCK, ledHardwareParameterSection, parameter, newParameter);
-
-    if (!returnValue) return false;
-
     //some special considerations here
-    switch((ledHardwareParameter)parameter)   {
+    switch(parameter)   {
 
         case ledHwParameterBlinkTime:
-        board.setLEDblinkTime(newParameter);
+        if ((newParameter < BLINK_TIME_MIN) || (newParameter > BLINK_TIME_MAX)) { sysEx.sendError(ERROR_NEW_PARAMETER); return false; }
         break;
 
         case ledHwParameterFadeTime:
-        board.setLEDTransitionSpeed(newParameter);
+        if ((newParameter < FADE_TIME_MIN) || (newParameter > FADE_TIME_MAX)) { sysEx.sendError(ERROR_NEW_PARAMETER); return false; }
+        break;
+
+        case ledHwParameterStartUpSwitchTime:
+        if ((newParameter < START_UP_SWITCH_TIME_MIN) || (newParameter > START_UP_SWITCH_TIME_MAX)) { sysEx.sendError(ERROR_NEW_PARAMETER); return false; }
+        break;
+
+        case ledHwParameterStartUpRoutine:
+        if (newParameter > NUMBER_OF_START_UP_ANIMATIONS) { sysEx.sendError(ERROR_NEW_PARAMETER); return false; }
         break;
 
         default:
         break;
 
-    }   return true;
+    }
+
+    bool returnValue = configuration.writeParameter(CONF_LED_BLOCK, ledHardwareParameterSection, parameter, newParameter);
+
+    if (returnValue)    {
+
+        switch(newParameter)    {
+
+            case ledHwParameterBlinkTime:
+            board.setLEDblinkTime(newParameter);
+            break;
+
+            case ledHwParameterFadeTime:
+            board.setLEDTransitionSpeed(newParameter);
+            break;
+
+        }   return true;
+
+    }   return false;
 
 }
 
