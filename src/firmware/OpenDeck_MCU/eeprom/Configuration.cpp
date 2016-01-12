@@ -94,12 +94,12 @@ void Configuration::createSectionAddresses()   {
                 }   else {
 
                 switch(blocks[i].subsectionType[j-1])   {
-                    
+
                     //calculate address of current section by adding number of parameters in last section
                     //and adding last section address
 
                     case BIT_PARAMETER:
-                    blocks[i].subsectionAddress[j] = (1+blocks[i].sectionParameters[j-1]/8) + blocks[i].subsectionAddress[j-1];
+                    blocks[i].subsectionAddress[j] = ((blocks[i].sectionParameters[j]%8 != 0) + blocks[i].sectionParameters[j-1]/8) + blocks[i].subsectionAddress[j-1];
                     break;
 
                     case BYTE_PARAMETER:
@@ -110,17 +110,19 @@ void Configuration::createSectionAddresses()   {
 
             }
 
-            switch(blocks[i].subsectionType[j]) {
+        }
 
-                case BIT_PARAMETER:
-                memory_usage = blocks[i].subsectionAddress[j]+(1+blocks[i].sectionParameters[j]/8);
-                break;
+        uint8_t lastSection = blocks[i].sections-1;
 
-                case BYTE_PARAMETER:
-                memory_usage = blocks[i].subsectionAddress[j]+blocks[i].sectionParameters[j];
-                break;
+        switch(blocks[i].subsectionType[lastSection]) {
 
-            }
+            case BIT_PARAMETER:
+            memory_usage = blocks[i].subsectionAddress[lastSection]+((blocks[i].sectionParameters[lastSection]%8 != 0)+blocks[i].sectionParameters[lastSection]/8);
+            break;
+
+            case BYTE_PARAMETER:
+            memory_usage = blocks[i].subsectionAddress[lastSection]+blocks[i].sectionParameters[lastSection];
+            break;
 
         }
 
