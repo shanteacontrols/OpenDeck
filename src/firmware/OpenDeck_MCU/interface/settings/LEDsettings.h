@@ -6,10 +6,10 @@
 #define LED_ACTIVE_BIT                  0x02
 #define LED_BLINK_STATE_BIT             0x03
 
-#define BLINK_TIME_MIN                  0x02
+#define BLINK_TIME_MIN                  0x00
 #define BLINK_TIME_MAX                  0x0F
 
-#define START_UP_SWITCH_TIME_MIN        0x01
+#define START_UP_SWITCH_TIME_MIN        0x00
 #define START_UP_SWITCH_TIME_MAX        0x78
 
 #define FADE_TIME_MIN                   0x00
