@@ -5,22 +5,6 @@
 #include "..\BitManipulation.h"
 #include "..\eeprom\Configuration.h"
 
-//blink time
-#define BLINK_TIME_MIN                  0x02
-#define BLINK_TIME_MAX                  0x0F
-
-//LED switch time on start-up
-#define START_UP_SWITCH_TIME_MIN        0x01
-#define START_UP_SWITCH_TIME_MAX        0x78
-
-#define FADE_TIME_MIN                   0x00
-#define FADE_TIME_MAX                   0x0A
-
-//LED blink/constant state determination
-#define LED_VELOCITY_C_OFF              0x00
-#define LED_VELOCITY_B_OFF              0x3F
-
-
 class LEDs {
 
     public:
