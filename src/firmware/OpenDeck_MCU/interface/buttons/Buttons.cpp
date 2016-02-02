@@ -57,6 +57,30 @@ bool Buttons::getButtonPressed(uint8_t buttonID)   {
 
 }
 
+void Buttons::processProgramChange(uint8_t buttonID, bool buttonState)   {
+
+    if (buttonState)    {
+
+        if (!getButtonPressed(buttonID))    {
+
+            setButtonPressed(buttonID, true);
+            midi.sendProgramChange(getMIDIid(buttonID));
+            if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_BUTTON_BLOCK, buttonID);
+
+        }
+
+    }   else {
+
+        if (getButtonPressed(buttonID)) {
+
+            setButtonPressed(buttonID, false);
+
+        }
+
+    }
+
+}
+
 void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState)   {
 
     if (buttonState)    {
@@ -65,14 +89,6 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState)   {
         if (!getButtonPressed(buttonID))    {
 
             setButtonPressed(buttonID, true);
-
-            if (getButtonPCenabled(buttonID))    {
-
-                midi.sendProgramChange(getMIDIid(buttonID));
-                if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_BUTTON_BLOCK, buttonID);
-                return;
-
-            }
 
             midi.sendMIDInote(getMIDIid(buttonID), true, velocityOn);
             if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_BUTTON_BLOCK, buttonID);
@@ -83,12 +99,8 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState)   {
 
             if (getButtonPressed(buttonID))    {
 
-                if (!getButtonPCenabled(buttonID))  {
-
-                    midi.sendMIDInote(getMIDIid(buttonID), false, velocityOff);
-                    if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_BUTTON_BLOCK, buttonID);
-
-                }
+                midi.sendMIDInote(getMIDIid(buttonID), false, velocityOff);
+                if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_BUTTON_BLOCK, buttonID);
 
                 setButtonPressed(buttonID, false);
 
@@ -141,18 +153,28 @@ void Buttons::update()    {
 
         if (buttonDebounced(i, buttonState))  {
 
-            switch (getButtonType(i))   {
+            if (getButtonPCenabled(i))  {
 
-                case buttonLatching:
-                processLatchingButton(i, buttonState);
-                break;
+                //ignore momentary/latching modes if button sends program change
+                //when in program change, button has latching mode since momentary mode makes no sense
+                processProgramChange(i, buttonState);
 
-                case buttonMomentary:
-                processMomentaryButton(i, buttonState);
-                break;
+            }   else {
 
-                default:
-                break;
+                switch (getButtonType(i))   {
+
+                    case buttonLatching:
+                    processLatchingButton(i, buttonState);
+                    break;
+
+                    case buttonMomentary:
+                    processMomentaryButton(i, buttonState);
+                    break;
+
+                    default:
+                    break;
+
+                }
 
             }
 

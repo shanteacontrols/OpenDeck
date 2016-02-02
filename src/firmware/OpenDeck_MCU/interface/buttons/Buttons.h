@@ -25,6 +25,7 @@ class Buttons {
     void setButtonPressed(uint8_t buttonID, bool state);
     void processMomentaryButton(uint8_t buttonID, bool buttonState);
     void processLatchingButton(uint8_t buttonID, bool buttonState);
+    void processProgramChange(uint8_t buttonID, bool buttonState);
     void updateButtonState(uint8_t buttonID, uint8_t buttonState);
     bool getPreviousButtonState(uint8_t buttonID);
     bool buttonDebounced(uint8_t buttonID, bool buttonState);
