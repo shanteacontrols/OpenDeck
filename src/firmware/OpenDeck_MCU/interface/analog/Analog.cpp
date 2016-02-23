@@ -30,12 +30,12 @@ void Analog::init() {
     };
 
     //define message for sysex configuration
-    sysEx.addMessageType(CONF_ENCODER_BLOCK, ANALOG_SUBTYPES);
+    sysEx.addMessageType(CONF_ANALOG_BLOCK, ANALOG_SUBTYPES);
 
     for (int i=0; i<ANALOG_SUBTYPES; i++)   {
 
         //define subtype messages
-        sysEx.addMessageSubType(CONF_ENCODER_BLOCK, i, analogSubtypeArray[i]->parameters, analogSubtypeArray[i]->lowValue, analogSubtypeArray[i]->highValue);
+        sysEx.addMessageSubType(CONF_ANALOG_BLOCK, i, analogSubtypeArray[i]->parameters, analogSubtypeArray[i]->lowValue, analogSubtypeArray[i]->highValue);
 
     }
 
@@ -218,7 +218,7 @@ bool Analog::setMIDIid(uint8_t analogID, uint8_t midiID)   {
 
 bool Analog::setCClimit(ccLimitType type, uint8_t analogID, uint8_t limit)  {
 
-    switch (limit)  {
+    switch (type)  {
 
         case ccLimitLow:
         return configuration.writeParameter(CONF_ANALOG_BLOCK, analogCClowerLimitSection, analogID, limit);
@@ -261,7 +261,7 @@ bool Analog::setParameter(uint8_t messageType, uint8_t parameter, uint8_t newPar
         break;
 
         case analogCCupperLimitConf:
-        return setCClimit(ccLimitLow, parameter, newParameter);
+        return setCClimit(ccLimitHigh, parameter, newParameter);
         break;
 
     }   return false;

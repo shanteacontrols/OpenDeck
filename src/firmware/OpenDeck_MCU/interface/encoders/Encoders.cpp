@@ -34,12 +34,12 @@ void Encoders::init()   {
     };
 
     //define message for sysex configuration
-    sysEx.addMessageType(CONF_ANALOG_BLOCK, ENCODER_SUBTYPES);
+    sysEx.addMessageType(CONF_ENCODER_BLOCK, ENCODER_SUBTYPES);
 
     for (int i=0; i<ENCODER_SUBTYPES; i++)   {
 
         //define subtype messages
-        sysEx.addMessageSubType(CONF_ANALOG_BLOCK, i, encodersSubtypeArray[i]->parameters, encodersSubtypeArray[i]->lowValue, encodersSubtypeArray[i]->highValue);
+        sysEx.addMessageSubType(CONF_ENCODER_BLOCK, i, encodersSubtypeArray[i]->parameters, encodersSubtypeArray[i]->lowValue, encodersSubtypeArray[i]->highValue);
 
     }
 
