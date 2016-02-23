@@ -309,17 +309,23 @@ bool LEDs::velocity2blinkState(uint8_t receivedVelocity)    {
 
 void LEDs::noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity)    {
 
-    uint8_t ledID = getLEDid(receivedNote);
-
-    if (ledID >= 128) return;
-
     bool blinkEnabled_global = getLEDHwParameter(ledHwParameterBlinkTime);
     bool blinkEnabled_led;
     if (!blinkEnabled_global) blinkEnabled_led = false;
     else blinkEnabled_led = velocity2blinkState(receivedVelocity);
+
     ledColor color = velocity2color(blinkEnabled_global, receivedVelocity);
 
-    board.setLEDstate(ledID, color, blinkEnabled_led);
+    //match LED activation note with its index
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    {
+
+        if (getLEDActivationNote(i) == receivedNote)  {
+
+            board.setLEDstate(i, color, blinkEnabled_led);
+
+        }
+
+    }
 
 }
 
@@ -350,18 +356,6 @@ bool LEDs::checkLEDsOff()   {
     //return true if all LEDs are off
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    if (!board.getLEDstate(i))   return false;
     return true;
-
-}
-
-uint8_t LEDs::getLEDid(uint8_t midiID)   {
-
-    //match LED activation note with its index
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        if (getLEDActivationNote(i) == midiID) return i;
-
-    //since 128 is impossible note, return it in case
-    //that received note doesn't match any LED
-    return 128;
 
 }
 
@@ -419,14 +413,7 @@ uint8_t LEDs::getParameter(uint8_t messageType, uint8_t parameterID)   {
     switch(messageType) {
 
         case ledHardwareParameterConf:
-        if (getLEDHwParameter(parameterID)) {
-
-            if (parameterID == ledHwParameterStartUpRoutine)
-                startUpAnimation();
-
-            return true;
-
-        }   return false;
+        return getLEDHwParameter(parameterID);
         break;
 
         case ledActivationNoteConf:
@@ -497,13 +484,6 @@ bool LEDs::setLEDHwParameter(uint8_t parameter, uint8_t newParameter) {
 }
 
 bool LEDs::setLEDActivationNote(uint8_t ledNumber, uint8_t ledActNote) {
-
-    if (!checkLEDactivationNote(ledActNote))    {
-
-        sysEx.sendError(ERROR_NEW_PARAMETER);
-        return false;
-
-    }
 
     return configuration.writeParameter(CONF_LED_BLOCK, ledActivationNoteSection, ledNumber, ledActNote);
 

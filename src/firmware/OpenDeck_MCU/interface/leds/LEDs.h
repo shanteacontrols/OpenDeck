@@ -31,7 +31,6 @@ class LEDs {
     uint8_t getLEDActivationNote(uint8_t ledNumber);
     uint8_t getLEDstartUpNumber(uint8_t ledNumber);
     bool getRGBenabled(uint8_t ledNumber);
-    uint8_t getLEDid(uint8_t midiID);
 
     //set
     bool setLEDHwParameter(uint8_t parameter, uint8_t newParameter);
