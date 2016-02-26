@@ -1,0 +1,234 @@
+﻿body {
+
+margin:0;
+padding:0;
+
+}
+
+.logo {
+
+    margin: 30px 0;
+}
+
+
+.menu li {
+
+    text-align: center;
+    font-size: 30px;
+    margin: 0px 0;
+    border-top: 1px solid #0090c5;
+    /* padding: 40px 0; */
+    font-family: sans-serif;
+    color: #0090c5;
+    cursor: pointer;
+    max-height: 114px;
+    overflow: hidden;
+    -moz-transition: max-height 1s ease;
+    -webkit-transition: max-height 1s ease;
+    -o-transition: max-height 1s ease;
+    transition: max-height 1s ease;
+}
+
+
+.menuHover {
+max-height:1000px !important;
+}
+
+ul {
+list-style:none;
+padding:0;
+margin:0;
+}
+
+
+.menu span {
+     width: 100%;
+    display: block;
+    padding: 40px 0;
+
+}
+.menuSubLevel li {
+  padding: 40px 0; 
+}
+
+.menu span:hover,.menuItemActive,.menuSubLevel li:hover {
+ background:#cce8f3;
+}
+
+
+a {
+text-decoration: none;
+}
+
+.clear {
+clear:both;
+}
+
+.front, .back {
+
+}
+
+.content {
+
+width:90%;
+margin:50px auto 0 auto;
+}
+
+
+/*Buttons*/
+
+.buttonOuter {
+    position: relative;
+    padding: 100px 100px;
+    display: block;
+    float: left;
+    background: #0090c5;
+    margin: 10px;
+    border-radius: 20px;
+}
+
+.buttonInner {
+    position: absolute;
+    left: 15px;
+    top: 10px;
+    color: #FFFFFF;
+    font-size:50px;
+}
+
+.header {
+    border-bottom: 1px solid #0090c5;
+    font-family: sans-serif;
+    color: #0090c5;
+}
+
+
+.block {
+    margin: 50px 0;
+}
+
+
+.range {
+width:100%;
+
+}
+
+.range_label {
+    display: table;
+    margin: 10px auto;
+    font-size: 24px;
+    font-weight: bold;
+    color: #0090c5;
+}
+.clear {
+clear:both;
+
+}
+
+
+.commandButton {
+ display: table;
+ margin: 0 auto;
+ background: #0090c5;
+ padding: 20px 50px;
+ font-size: 20px;
+ color:#FFFFFF;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.flip-container {
+	perspective: 1000;
+}
+	/* flip the pane when hovered */
+	 .flip-container.hover .flipper {
+		transform: rotateY(180deg);
+	}
+
+.flip-container, .front, .back {
+	width: 100%;
+}
+
+/* flip speed goes here */
+.flipper {
+	transition: 0.6s;
+	transform-style: preserve-3d;
+
+	position: relative;
+}
+
+/* hide back of pane during swap */
+.front, .back {
+	backface-visibility: hidden;
+
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+/* front pane, placed above back */
+.front {
+	z-index: 2;
+	/* for firefox 31 */
+	transform: rotateY(0deg);
+}
+
+/* back, initially hidden pane */
+.back {
+	transform: rotateY(180deg);
+}
+
+
+
+.buttonInnerLevel0,
+.buttonInnerLevel1,
+.buttonInnerLevel2,
+.buttonInnerLevel3,
+.buttonInnerLevel4,
+.buttonInnerLevel5  {
+    position: absolute;
+    left: 15px;
+    color: #FFFFFF;
+    font-size: 16px;
+    font-family:sans-serif;
+}
+
+
+.buttonInnerLevel0 {
+    top: 70px;
+}
+.buttonInnerLevel1 {
+    top: 90px;
+}
+.buttonInnerLevel2 {
+    top: 110px;
+}
+.buttonInnerLevel3 {
+    top: 130px;
+}
+
+.buttonInnerLevel4 {
+    top: 150px;
+}
+
+.buttonInnerLevel5 {
+    top: 170px;
+}
+ 
