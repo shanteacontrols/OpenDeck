@@ -72,7 +72,7 @@ function editButtonData(_index)
   _edit.appendChild(addBlock(generateText(_index + 1 ), "Button"));
   _edit.appendChild(addBlock(generateRange('midiid', _m, 0, 127), "Midi ID"));
   _edit.appendChild(addBlock(generateSwitch('programstate',_p,'Enabled','Disabled'), "Program state"));
-  _edit.appendChild(addBlock(generateSwitch('buttontype', _p, 'Momentary', 'Latching'), "Button type"));
+  _edit.appendChild(addBlock(generateSwitch('buttontype', _p, 'Latching', 'Momentary'), "Button type"));
 
   _edit.appendChild(addBlock(setSaveButton(_index)),'');
 
