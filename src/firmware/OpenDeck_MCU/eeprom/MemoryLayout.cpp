@@ -104,7 +104,7 @@ void Configuration::createMemoryLayout()   {
         blocks[CONF_LED_BLOCK].sectionParameters[ledActivationNoteSection] = MAX_NUMBER_OF_LEDS;
 
         blocks[CONF_LED_BLOCK].subsectionType[ledStartUpNumberSection] = BYTE_PARAMETER;
-        blocks[CONF_LED_BLOCK].defaultValue[ledStartUpNumberSection] = MAX_NUMBER_OF_LEDS;
+        blocks[CONF_LED_BLOCK].defaultValue[ledStartUpNumberSection] = AUTO_INCREMENT;
         blocks[CONF_LED_BLOCK].sectionParameters[ledStartUpNumberSection] = MAX_NUMBER_OF_LEDS;
 
         blocks[CONF_LED_BLOCK].subsectionType[ledRGBenabledSection] = BIT_PARAMETER;
