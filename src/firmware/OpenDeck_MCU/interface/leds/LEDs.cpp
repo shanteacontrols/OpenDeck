@@ -359,31 +359,6 @@ bool LEDs::checkLEDsOff()   {
 
 }
 
-bool LEDs::checkLEDstartUpNumber(uint8_t ledID)  {
-
-    //if received start-up number is already assigned to another led, return false
-
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        if (configuration.readParameter(CONF_LED_BLOCK, ledStartUpNumberSection, i) == ledID)
-            return false;
-
-    return true;
-
-}
-
-bool LEDs::checkLEDactivationNote(uint8_t activationNote)    {
-
-    //if received activation note is already assigned to another led, return false
-
-    //led activation note
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        if (getLEDActivationNote(i) == activationNote)
-            return false;
-
-    return true;
-
-}
-
 uint8_t LEDs::getLEDHwParameter(uint8_t parameter)  {
 
     return configuration.readParameter(CONF_LED_BLOCK, ledHardwareParameterSection, parameter);
@@ -490,13 +465,6 @@ bool LEDs::setLEDActivationNote(uint8_t ledNumber, uint8_t ledActNote) {
 }
 
 bool LEDs::setLEDstartNumber(uint8_t startNumber, uint8_t ledNumber) {
-
-    if (!checkLEDstartUpNumber(ledNumber))    {
-
-        sysEx.sendError(ERROR_NEW_PARAMETER);
-        return false;
-
-    }
 
     return configuration.writeParameter(CONF_LED_BLOCK, ledStartUpNumberSection, startNumber, ledNumber);
 
