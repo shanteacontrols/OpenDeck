@@ -23,8 +23,6 @@ class LEDs {
     void handleLED(bool newLEDstate, bool blinkMode, uint8_t ledNumber);
     bool checkLEDsOn();
     bool checkLEDsOff();
-    bool checkLEDstartUpNumber(uint8_t ledID);
-    bool checkLEDactivationNote(uint8_t activationNote);
 
     //get
     uint8_t getLEDHwParameter(uint8_t parameter);
