@@ -1,9 +1,9 @@
 #include "Buttons.h"
-#include "..\eeprom\Configuration.h"
-#include "..\interface\midi\MIDI.h"
-#include "..\sysex/SysEx.h"
-#include "..\BitManipulation.h"
-#include "..\interface\settings\ButtonSettings.h"
+#include "../../eeprom/Configuration.h"
+#include "../../interface/midi/MIDI.h"
+#include "../../sysex/SysEx.h"
+#include "../../BitManipulation.h"
+#include "../../interface/settings/ButtonSettings.h"
 
 const uint8_t buttonDebounceCompare = 0b10000000;
 

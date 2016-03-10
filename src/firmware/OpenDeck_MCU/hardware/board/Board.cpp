@@ -1,15 +1,15 @@
 #include "Board.h"
-#include "..\sysex/SysEx.h"
+#include "../../sysex/SysEx.h"
 #include <util/delay.h>
 #include <avr/cpufunc.h>
 #include <avr/wdt.h>
 #include <avr/eeprom.h>
-#include "..\eeprom\Configuration.h"
-#include "..\BitManipulation.h"
-#include "..\interface\settings\Settings.h"
-#include "..\interface\encoders\Encoders.h"
-#include "..\interface\leds\LEDs.h"
-#include "..\interface\leds\LEDcolors.h"
+#include "../../eeprom/Configuration.h"
+#include "../../BitManipulation.h"
+#include "../../interface/settings/Settings.h"
+#include "../../interface/encoders/Encoders.h"
+#include "../../interface/leds/LEDs.h"
+#include "../../interface/leds/LEDcolors.h"
 
 #define DIGITAL_BUFFER_SIZE 4
 

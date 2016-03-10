@@ -2,10 +2,10 @@
 #define SYSEX_H_
 
 #include <avr/io.h>
-#include "..\Types.h"
+#include "../Types.h"
 #include "Version.h"
 #include "ManufacturerID.h"
-#include "..\interface\midi\MIDI.h"
+#include "../interface/midi/MIDI.h"
 #include "Errors.h"
 #include "SpecialStrings.h"
 

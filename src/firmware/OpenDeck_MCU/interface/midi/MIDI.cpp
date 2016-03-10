@@ -1,10 +1,10 @@
 #include "MIDI.h"
-#include "..\sysex/SysEx.h"
-#include "..\eeprom\Configuration.h"
-#include "..\BitManipulation.h"
-#include "..\hardware\midi\usb_midi\USBmidi.h"
-#include "..\hardware\board\Board.h"
-#include "..\interface\leds\LEDs.h"
+#include "../../sysex/SysEx.h"
+#include "../../eeprom/Configuration.h"
+#include "../../BitManipulation.h"
+#include "../../hardware/midi/usb_midi/USBmidi.h"
+#include "../../hardware/board/Board.h"
+#include "../../interface/leds/LEDs.h"
 
 MIDI::MIDI()    {
 

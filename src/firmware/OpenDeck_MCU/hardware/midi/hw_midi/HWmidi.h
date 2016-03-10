@@ -2,9 +2,9 @@
 #define LIB_MIDI_H_
 
 #include <inttypes.h>
-#include "..\hardware\uart\UART.h"
-#include "..\Types.h"
-#include "..\interface\settings\MIDIsettings.h"
+#include "../../uart/UART.h"
+#include "../../../Types.h"
+#include "../../../interface/settings/MIDIsettings.h"
 
 #define COMPILE_MIDI_IN         1
 #define COMPILE_MIDI_OUT        1

@@ -3,11 +3,11 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "adc/ADC.h"
-#include "..\Types.h"
-#include "..\hardware\pins\Pins.h"
-#include "usb/usb_common.h"
-#include "usb/usb_private.h"
+#include "../adc/ADC.h"
+#include "../../Types.h"
+#include "../pins/Pins.h"
+#include "../usb/usb_common.h"
+#include "../usb/usb_private.h"
 
 #define ANALOG_BUFFER_SIZE  MAX_NUMBER_OF_ANALOG
 
