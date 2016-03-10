@@ -1,6 +1,6 @@
 #include <avr/eeprom.h>
 #include "SysEx.h"
-#include "..\hardware\board\Board.h"
+#include "../hardware/board/Board.h"
 
 SysEx::SysEx()  {
 

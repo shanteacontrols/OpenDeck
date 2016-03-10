@@ -1,6 +1,6 @@
 #include "LEDs.h"
-#include "..\interface\settings\LEDsettings.h"
-#include "..\sysex\SysEx.h"
+#include "../../interface/settings/LEDsettings.h"
+#include "../../sysex/SysEx.h"
 #include "LEDcolors.h"
 
 LEDs::LEDs()    {

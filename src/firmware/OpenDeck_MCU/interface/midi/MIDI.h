@@ -1,8 +1,8 @@
 #ifndef MIDIHELPER_H_
 #define MIDIHELPER_H_
 
-#include "..\Types.h"
-#include "..\midi\hw_midi\HWmidi.h"
+#include "../../Types.h"
+#include "../../hardware/midi/hw_midi/HWmidi.h"
 
 class MIDI {
 

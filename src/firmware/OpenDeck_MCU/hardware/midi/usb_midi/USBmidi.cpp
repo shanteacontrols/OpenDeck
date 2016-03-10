@@ -25,8 +25,8 @@
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <stdint.h>
-#include "usb_common.h"
-#include "usb_private.h"
+#include "../../usb/usb_common.h"
+#include "../../usb/usb_private.h"
 #include "USBmidi.h"
 #include "CIN.h"
 

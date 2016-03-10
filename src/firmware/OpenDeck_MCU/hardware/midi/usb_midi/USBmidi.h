@@ -26,8 +26,8 @@
 #define USBserial_h_
 
 #include <inttypes.h>
-#include "..\Types.h"
-#include "..\interface\settings\MIDIsettings.h"
+#include "../../../Types.h"
+#include "../../../interface/settings/MIDIsettings.h"
 
 class usb_midi_class    {
 

@@ -1,9 +1,9 @@
 #ifndef LEDS_H_
 #define LEDS_H_
 
-#include "..\hardware\board\Board.h"
-#include "..\BitManipulation.h"
-#include "..\eeprom\Configuration.h"
+#include "../../hardware/board/Board.h"
+#include "../../BitManipulation.h"
+#include "../../eeprom/Configuration.h"
 
 class LEDs {
 

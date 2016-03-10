@@ -1,6 +1,6 @@
 #include "Configuration.h"
-#include "..\sysex\SysEx.h"
-#include "..\interface\settings\Settings.h"
+#include "../sysex/SysEx.h"
+#include "../interface/settings/Settings.h"
 
 Configuration::Configuration()    {
 

@@ -1,7 +1,7 @@
 #include "Analog.h"
-#include "..\sysex\SysEx.h"
-#include "..\eeprom\Configuration.h"
-#include "..\interface\settings\AnalogSettings.h"
+#include "../../sysex/SysEx.h"
+#include "../../eeprom/Configuration.h"
+#include "../../interface/settings/AnalogSettings.h"
 
 Analog::Analog()    {
 

@@ -1,7 +1,7 @@
 #include "Configuration.h"
-#include "../hardware\board\Board.h"
-#include "..\interface\settings\MIDIsettings.h"
-#include "..\interface\settings\LEDsettings.h"
+#include "../hardware/board/Board.h"
+#include "../interface/settings/MIDIsettings.h"
+#include "../interface/settings/LEDsettings.h"
 
 void Configuration::createMemoryLayout()   {
 

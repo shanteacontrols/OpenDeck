@@ -1,5 +1,5 @@
 #include "UniqueID.h"
-#include "..\BitManipulation.h"
+#include "../BitManipulation.h"
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>

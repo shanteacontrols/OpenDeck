@@ -1,9 +1,9 @@
 #ifndef ANALOG_H_
 #define ANALOG_H_
 
-#include "..\hardware\board\Board.h"
-#include "..\interface\midi\MIDI.h"
-#include "..\BitManipulation.h"
+#include "../../hardware/board/Board.h"
+#include "../../interface/midi/MIDI.h"
+#include "../../BitManipulation.h"
 
 #define NUMBER_OF_SAMPLES 3 //do not change
 
