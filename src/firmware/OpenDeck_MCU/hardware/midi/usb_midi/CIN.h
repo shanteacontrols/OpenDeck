@@ -15,5 +15,8 @@
 #define CIN_CHANNEL_AFTERTOUCH  0x0D
 #define CIN_KEY_AFTERTOUCH      0x0A
 #define CIN_PITCH_BEND          0x0E
+#define CIN_SYSTEM_COMMON_2BYTE 0x02
+#define CIN_SYSTEM_COMMON_3BYTE 0x03
+
 
 #endif

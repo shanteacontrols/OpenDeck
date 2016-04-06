@@ -32,7 +32,6 @@
 
 void usb_midi_class::init(uint8_t channel) {
 
-    usb_init();
     inChannel = channel;
 
 }

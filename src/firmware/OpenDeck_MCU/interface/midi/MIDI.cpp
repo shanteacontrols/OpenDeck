@@ -34,8 +34,9 @@ void MIDI::init() {
     }
 
     uint8_t inChannel = getMIDIchannel(inputChannel);
-    //read incoming MIDI messages on specified channel
-    hwMIDI.init(inChannel);
+    hwMIDI.init(inChannel, true, true, dinInterface);
+    hwMIDI.init(inChannel, true, true, usbInterface);
+    hwMIDI.setInputChannel(inChannel);
     usbMIDI.init(inChannel);
 
 }
@@ -45,7 +46,7 @@ void MIDI::checkInput()   {
     if (usbMIDI.read())   {   //new message on usb
 
         uint8_t messageType = usbMIDI.getType();
-        source = usbSource;
+        source = usbInterface;
 
         switch(messageType) {
 
@@ -71,7 +72,7 @@ void MIDI::checkInput()   {
         uint8_t data1 = hwMIDI.getData1();
         uint8_t data2 = hwMIDI.getData2();
 
-        source = midiSource;
+        source = dinInterface;
 
         if (!getFeature(midiFeatureUSBconvert))  {
 
@@ -186,11 +187,11 @@ void MIDI::sendSysEx(uint8_t *sysExArray, uint8_t arraySize)   {
 
     switch (source) {
 
-        case midiSource:
+        case dinInterface:
         hwMIDI.sendSysEx(arraySize, sysExArray, false);
         break;
 
-        case usbSource:
+        case usbInterface:
         usbMIDI.sendSysEx(arraySize, sysExArray, false);
         break;
 

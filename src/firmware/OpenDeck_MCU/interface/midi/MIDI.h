@@ -21,7 +21,7 @@ class MIDI {
 
     private:
     uint32_t            lastSysExMessageTime;
-    midiMessageSource   source;
+    midiInterfaceType   source;
 
     //functions
     uint8_t getMIDIchannel(uint8_t);

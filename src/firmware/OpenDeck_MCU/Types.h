@@ -1,10 +1,10 @@
 #ifndef TYPES_H_
 #define TYPES_H_
 
-enum midiMessageSource   {
+enum midiInterfaceType   {
 
-    midiSource,
-    usbSource
+    dinInterface,
+    usbInterface
 
 };
 

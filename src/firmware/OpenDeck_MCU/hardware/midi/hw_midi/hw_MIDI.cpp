@@ -29,14 +29,6 @@ HWmidi::HWmidi()   {
 
     //default constructor
 
-}
-
-void HWmidi::init(uint8_t inChannel, bool inputEnabled, bool outputEnabled) {
-
-    USE_SERIAL_PORT.begin(31250, inputEnabled, outputEnabled);
-
-    mInputChannel = inChannel;
-
     mRunningStatus_TX = midiMessageInvalidType;
     mRunningStatus_RX = midiMessageInvalidType;
 
@@ -53,6 +45,28 @@ void HWmidi::init(uint8_t inChannel, bool inputEnabled, bool outputEnabled) {
     mThruActivated      = false;
     useRunningStatus    = false;
     use1byteParsing     = true;
+
+}
+
+bool HWmidi::init(uint8_t inChannel, bool inputEnabled, bool outputEnabled, midiInterfaceType type) {
+
+    switch(type)    {
+
+        case dinInterface:
+        USE_SERIAL_PORT.begin(31250, inputEnabled, outputEnabled);
+        return true;
+        break;
+
+        case usbInterface:
+        usb_init();
+        return true;
+        break;
+
+        default:
+        return false;
+        break;
+
+    }
 
 }
 
