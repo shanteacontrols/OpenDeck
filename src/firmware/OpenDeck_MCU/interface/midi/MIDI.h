@@ -2,7 +2,7 @@
 #define MIDIHELPER_H_
 
 #include "../../Types.h"
-#include "../../hardware/midi/hw_midi/HWmidi.h"
+#include "../../hardware/midi/hw_midi/hw_MIDI.h"
 
 class MIDI {
 

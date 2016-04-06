@@ -32,7 +32,7 @@
 class usb_midi_class    {
 
     public:
-    void begin(uint8_t channel);
+    void init(uint8_t channel);
     void sendNoteOff(uint8_t note, uint8_t velocity, uint8_t channel);
     void sendNoteOn(uint8_t note, uint8_t velocity, uint8_t channel);
     void sendControlChange(uint8_t control, uint8_t value, uint8_t channel);

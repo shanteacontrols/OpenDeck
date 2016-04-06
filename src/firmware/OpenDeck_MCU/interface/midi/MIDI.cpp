@@ -35,8 +35,8 @@ void MIDI::init() {
 
     uint8_t inChannel = getMIDIchannel(inputChannel);
     //read incoming MIDI messages on specified channel
-    hwMIDI.begin(inChannel);
-    usbMIDI.begin(inChannel);
+    hwMIDI.init(inChannel);
+    usbMIDI.init(inChannel);
 
 }
 
@@ -93,7 +93,7 @@ void MIDI::checkInput()   {
                 switch(messageType) {
 
                     case midiMessageNoteOff:
-                    usbMIDI.sendNoteOn(data1, data2, getMIDIchannel(inputChannel));
+                    usbMIDI.sendNoteOff(data1, data2, getMIDIchannel(inputChannel));
                     break;
 
                     case midiMessageNoteOn:
@@ -109,15 +109,14 @@ void MIDI::checkInput()   {
                     break;
 
                     case midiMessageSystemExclusive:
-                    usbMIDI.sendSysEx(hwMIDI.getSysExArrayLength(), hwMIDI.getSysExArray(), false);
+                    usbMIDI.sendSysEx(hwMIDI.getSysExArrayLength(), hwMIDI.getSysExArray(), true);
                     break;
 
                     case midiMessageAfterTouchChannel:
                     usbMIDI.sendAfterTouch(data1, getMIDIchannel(inputChannel));
                     break;
 
-                    case midiMessagePitchBend:
-                    //to-do
+                    default:
                     break;
 
                 }
