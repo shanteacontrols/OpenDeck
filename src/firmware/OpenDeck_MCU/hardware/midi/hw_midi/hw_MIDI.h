@@ -43,7 +43,7 @@ class HWmidi    {
 
     public:
     HWmidi();
-    void init(uint8_t inChannel = 1, bool inputEnabled = true, bool outputEnabled = true);
+    bool init(uint8_t inChannel, bool inputEnabled, bool outputEnabled, midiInterfaceType type);
 
     //MIDI output
 
