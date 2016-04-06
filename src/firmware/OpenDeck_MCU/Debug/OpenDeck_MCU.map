@@ -1,0 +1,1675 @@
+Archive member included to satisfy reference by file (symbol)
+
+c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_divmodhi4.o)
+                              hardware/board/Board.o (__divmodhi4)
+c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodsi4.o)
+                              hardware/uart/UART.o (__udivmodsi4)
+c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_exit.o)
+                              c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5/crtatmega32u4.o (exit)
+c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_tablejump2.o)
+                              hardware/midi/hw_midi/hw_MIDI.o (__tablejump2__)
+c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_copy_data.o)
+                              hardware/board/Board.o (__do_copy_data)
+c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_clear_bss.o)
+                              eeprom/Configuration.o (__do_clear_bss)
+c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ctors.o)
+                              sysex/SysEx.o (__do_global_ctors)
+c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ashldi3.o)
+                              hardware/board/Board.o (__ashldi3)
+c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ashrdi3.o)
+                              hardware/board/Board.o (__lshrdi3)
+c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodhi4.o)
+                              c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_divmodhi4.o) (__udivmodhi4)
+c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libatmega32u4.a(eerd_byte.o)
+                              eeprom/Configuration.o (eeprom_read_byte)
+c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libatmega32u4.a(eeupd_byte.o)
+                              eeprom/Configuration.o (eeprom_update_byte)
+
+Discarded input sections
+
+ .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5/crtatmega32u4.o
+ .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5/crtatmega32u4.o
+ .text          0x00000000        0x0 eeprom/Configuration.o
+ .data          0x00000000        0x0 eeprom/Configuration.o
+ .bss           0x00000000        0x0 eeprom/Configuration.o
+ .text._ZN13ConfigurationC2Ev
+                0x00000000        0x2 eeprom/Configuration.o
+ .text          0x00000000        0x0 eeprom/MemoryLayout.o
+ .data          0x00000000        0x0 eeprom/MemoryLayout.o
+ .bss           0x00000000        0x0 eeprom/MemoryLayout.o
+ .text          0x00000000        0x0 hardware/adc/ADC.o
+ .data          0x00000000        0x0 hardware/adc/ADC.o
+ .bss           0x00000000        0x0 hardware/adc/ADC.o
+ .text          0x00000000        0x0 hardware/board/Board.o
+ .data          0x00000000        0x0 hardware/board/Board.o
+ .bss           0x00000000        0x0 hardware/board/Board.o
+ .text._ZN5BoardC2Ev
+                0x00000000        0x2 hardware/board/Board.o
+ .text._ZN5Board17ledBlinkingActiveEv
+                0x00000000        0x6 hardware/board/Board.o
+ .bss.activeButtonColumn
+                0x00000000        0x1 hardware/board/Board.o
+ .text          0x00000000        0x0 hardware/midi/hw_midi/hw_MIDI.o
+ .data          0x00000000        0x0 hardware/midi/hw_midi/hw_MIDI.o
+ .bss           0x00000000        0x0 hardware/midi/hw_midi/hw_MIDI.o
+ .text._ZN6HWmidiC2Ev
+                0x00000000        0x2 hardware/midi/hw_midi/hw_MIDI.o
+ .text._ZN6HWmidi15sendTuneRequestEv
+                0x00000000        0x8 hardware/midi/hw_midi/hw_MIDI.o
+ .text._ZN6HWmidi16sendPolyPressureEhhh
+                0x00000000       0x12 hardware/midi/hw_midi/hw_MIDI.o
+ .text._ZN6HWmidi14sendAfterTouchEhh
+                0x00000000       0x12 hardware/midi/hw_midi/hw_MIDI.o
+ .text._ZN6HWmidi13sendPitchBendEih
+                0x00000000       0x22 hardware/midi/hw_midi/hw_MIDI.o
+ .text._ZNK6HWmidi9getStatusE15midiMessageTypeh
+                0x00000000        0xa hardware/midi/hw_midi/hw_MIDI.o
+ .text._ZN6HWmidi10resetInputEv
+                0x00000000        0xe hardware/midi/hw_midi/hw_MIDI.o
+ .text._ZNK6HWmidi10getChannelEv
+                0x00000000        0x6 hardware/midi/hw_midi/hw_MIDI.o
+ .text._ZNK6HWmidi5checkEv
+                0x00000000        0xa hardware/midi/hw_midi/hw_MIDI.o
+ .text._ZNK6HWmidi15getInputChannelEv
+                0x00000000        0x6 hardware/midi/hw_midi/hw_MIDI.o
+ .text._ZN6HWmidi15setInputChannelEh
+                0x00000000        0x6 hardware/midi/hw_midi/hw_MIDI.o
+ .text._ZN6HWmidi24getChannelFromStatusByteEh
+                0x00000000        0x8 hardware/midi/hw_midi/hw_MIDI.o
+ .text._ZN6HWmidi17setThruFilterModeE14MidiFilterMode
+                0x00000000       0x14 hardware/midi/hw_midi/hw_MIDI.o
+ .text._ZNK6HWmidi13getFilterModeEv
+                0x00000000        0x6 hardware/midi/hw_midi/hw_MIDI.o
+ .text._ZNK6HWmidi12getThruStateEv
+                0x00000000        0x6 hardware/midi/hw_midi/hw_MIDI.o
+ .text._ZN6HWmidi10turnThruOnE14MidiFilterMode
+                0x00000000        0xa hardware/midi/hw_midi/hw_MIDI.o
+ .text._ZN6HWmidi11turnThruOffEv
+                0x00000000        0x8 hardware/midi/hw_midi/hw_MIDI.o
+ .text          0x00000000        0x0 hardware/midi/usb_midi/USBmidi.o
+ .data          0x00000000        0x0 hardware/midi/usb_midi/USBmidi.o
+ .bss           0x00000000        0x0 hardware/midi/usb_midi/USBmidi.o
+ .text._ZN14usb_midi_class13sendPitchBendEjh
+                0x00000000       0x28 hardware/midi/usb_midi/USBmidi.o
+ .text._ZN14usb_midi_class8send_nowEv
+                0x00000000       0x24 hardware/midi/usb_midi/USBmidi.o
+ .text          0x00000000        0x0 hardware/reset/Reset.o
+ .data          0x00000000        0x0 hardware/reset/Reset.o
+ .bss           0x00000000        0x0 hardware/reset/Reset.o
+ .text          0x00000000        0x0 hardware/uart/UART.o
+ .data          0x00000000        0x0 hardware/uart/UART.o
+ .bss           0x00000000        0x0 hardware/uart/UART.o
+ .text._ZN4UARTC2Ev
+                0x00000000        0x2 hardware/uart/UART.o
+ .text          0x00000000        0x0 hardware/usb/usb.o
+ .data          0x00000000        0x0 hardware/usb/usb.o
+ .bss           0x00000000        0x0 hardware/usb/usb.o
+ .text.usb_shutdown
+                0x00000000       0x1a hardware/usb/usb.o
+ .text          0x00000000        0x0 interface/analog/Analog.o
+ .data          0x00000000        0x0 interface/analog/Analog.o
+ .bss           0x00000000        0x0 interface/analog/Analog.o
+ .text._ZN6AnalogC2Ev
+                0x00000000        0x2 interface/analog/Analog.o
+ .text._ZN6Analog15addAnalogSampleEhi
+                0x00000000       0x2e interface/analog/Analog.o
+ .text._ZN6Analog18analogValueSampledEh
+                0x00000000       0x1e interface/analog/Analog.o
+ .text          0x00000000        0x0 interface/analog/FSR.o
+ .data          0x00000000        0x0 interface/analog/FSR.o
+ .bss           0x00000000        0x0 interface/analog/FSR.o
+ .text          0x00000000        0x0 interface/analog/Potentiometer.o
+ .data          0x00000000        0x0 interface/analog/Potentiometer.o
+ .bss           0x00000000        0x0 interface/analog/Potentiometer.o
+ .text          0x00000000        0x0 interface/buttons/Buttons.o
+ .data          0x00000000        0x0 interface/buttons/Buttons.o
+ .bss           0x00000000        0x0 interface/buttons/Buttons.o
+ .text._ZN7ButtonsC2Ev
+                0x00000000        0x2 interface/buttons/Buttons.o
+ .text          0x00000000        0x0 interface/encoders/Encoders.o
+ .data          0x00000000        0x0 interface/encoders/Encoders.o
+ .bss           0x00000000        0x0 interface/encoders/Encoders.o
+ .text._ZN8EncodersC2Ev
+                0x00000000        0x2 interface/encoders/Encoders.o
+ .text          0x00000000        0x0 interface/leds/LEDs.o
+ .data          0x00000000        0x0 interface/leds/LEDs.o
+ .bss           0x00000000        0x0 interface/leds/LEDs.o
+ .text._ZN4LEDsC2Ev
+                0x00000000        0x2 interface/leds/LEDs.o
+ .text._ZN4LEDs19velocity2blinkStateEh
+                0x00000000        0xa interface/leds/LEDs.o
+ .text._ZN4LEDs11checkLEDsOnEv
+                0x00000000       0x22 interface/leds/LEDs.o
+ .text          0x00000000        0x0 interface/midi/MIDI.o
+ .data          0x00000000        0x0 interface/midi/MIDI.o
+ .bss           0x00000000        0x0 interface/midi/MIDI.o
+ .text._ZN4MIDIC2Ev
+                0x00000000        0x2 interface/midi/MIDI.o
+ .text          0x00000000        0x0 OpenDeck.o
+ .data          0x00000000        0x0 OpenDeck.o
+ .bss           0x00000000        0x0 OpenDeck.o
+ .text          0x00000000        0x0 sysex/SysEx.o
+ .data          0x00000000        0x0 sysex/SysEx.o
+ .bss           0x00000000        0x0 sysex/SysEx.o
+ .text._ZN5SysEx10enableConfEv
+                0x00000000        0x8 sysex/SysEx.o
+ .text._ZN5SysEx7checkIDEhhh
+                0x00000000       0x1a sysex/SysEx.o
+ .text._ZN5SysEx9checkWishEh
+                0x00000000        0xa sysex/SysEx.o
+ .text._ZN5SysEx11checkAmountEh
+                0x00000000        0xa sysex/SysEx.o
+ .text._ZN5SysEx12checkSectionEhh
+                0x00000000       0x18 sysex/SysEx.o
+ .text._ZN5SysEx16checkParameterIDEhhh
+                0x00000000       0x26 sysex/SysEx.o
+ .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_divmodhi4.o)
+ .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_divmodhi4.o)
+ .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_divmodhi4.o)
+ .text.libgcc.mul
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_divmodhi4.o)
+ .text.libgcc   0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_divmodhi4.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_divmodhi4.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_divmodhi4.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_divmodhi4.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_divmodhi4.o)
+ .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodsi4.o)
+ .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodsi4.o)
+ .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodsi4.o)
+ .text.libgcc.mul
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodsi4.o)
+ .text.libgcc   0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodsi4.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodsi4.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodsi4.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodsi4.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodsi4.o)
+ .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_exit.o)
+ .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_exit.o)
+ .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_exit.o)
+ .text.libgcc.mul
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_exit.o)
+ .text.libgcc.div
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_exit.o)
+ .text.libgcc   0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_exit.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_exit.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_exit.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_exit.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_exit.o)
+ .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_tablejump2.o)
+ .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_tablejump2.o)
+ .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_tablejump2.o)
+ .text.libgcc.mul
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_tablejump2.o)
+ .text.libgcc.div
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_tablejump2.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_tablejump2.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_tablejump2.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_tablejump2.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_tablejump2.o)
+ .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_copy_data.o)
+ .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_copy_data.o)
+ .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_copy_data.o)
+ .text.libgcc.mul
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_copy_data.o)
+ .text.libgcc.div
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_copy_data.o)
+ .text.libgcc   0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_copy_data.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_copy_data.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_copy_data.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_copy_data.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_copy_data.o)
+ .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_clear_bss.o)
+ .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_clear_bss.o)
+ .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_clear_bss.o)
+ .text.libgcc.mul
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_clear_bss.o)
+ .text.libgcc.div
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_clear_bss.o)
+ .text.libgcc   0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_clear_bss.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_clear_bss.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_clear_bss.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_clear_bss.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_clear_bss.o)
+ .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ctors.o)
+ .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ctors.o)
+ .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ctors.o)
+ .text.libgcc.mul
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ctors.o)
+ .text.libgcc.div
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ctors.o)
+ .text.libgcc   0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ctors.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ctors.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ctors.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ctors.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ctors.o)
+ .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ashldi3.o)
+ .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ashldi3.o)
+ .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ashldi3.o)
+ .text.libgcc.mul
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ashldi3.o)
+ .text.libgcc.div
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ashldi3.o)
+ .text.libgcc   0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ashldi3.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ashldi3.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ashldi3.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ashldi3.o)
+ .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ashrdi3.o)
+ .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ashrdi3.o)
+ .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ashrdi3.o)
+ .text.libgcc.mul
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ashrdi3.o)
+ .text.libgcc.div
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ashrdi3.o)
+ .text.libgcc   0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ashrdi3.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ashrdi3.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ashrdi3.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ashrdi3.o)
+ .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodhi4.o)
+ .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodhi4.o)
+ .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodhi4.o)
+ .text.libgcc.mul
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodhi4.o)
+ .text.libgcc   0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodhi4.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodhi4.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodhi4.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodhi4.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodhi4.o)
+ .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libatmega32u4.a(eerd_byte.o)
+ .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libatmega32u4.a(eerd_byte.o)
+ .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libatmega32u4.a(eerd_byte.o)
+ .text          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libatmega32u4.a(eeupd_byte.o)
+ .data          0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libatmega32u4.a(eeupd_byte.o)
+ .bss           0x00000000        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libatmega32u4.a(eeupd_byte.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+text             0x00000000         0x00020000         xr
+data             0x00800060         0x0000ffa0         rw !x
+eeprom           0x00810000         0x00010000         rw !x
+fuse             0x00820000         0x00000400         rw !x
+lock             0x00830000         0x00000400         rw !x
+signature        0x00840000         0x00000400         rw !x
+user_signatures  0x00850000         0x00000400         rw !x
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+Address of section .data set to 0x800100
+LOAD c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5/crtatmega32u4.o
+LOAD eeprom/Configuration.o
+LOAD eeprom/MemoryLayout.o
+LOAD hardware/adc/ADC.o
+LOAD hardware/board/Board.o
+LOAD hardware/midi/hw_midi/hw_MIDI.o
+LOAD hardware/midi/usb_midi/USBmidi.o
+LOAD hardware/reset/Reset.o
+LOAD hardware/uart/UART.o
+LOAD hardware/usb/usb.o
+LOAD interface/analog/Analog.o
+LOAD interface/analog/FSR.o
+LOAD interface/analog/Potentiometer.o
+LOAD interface/buttons/Buttons.o
+LOAD interface/encoders/Encoders.o
+LOAD interface/leds/LEDs.o
+LOAD interface/midi/MIDI.o
+LOAD OpenDeck.o
+LOAD sysex/SysEx.o
+START GROUP
+LOAD c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a
+END GROUP
+LOAD c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a
+LOAD c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a
+START GROUP
+LOAD c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a
+LOAD c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libm.a
+LOAD c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libc.a
+LOAD c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libatmega32u4.a
+END GROUP
+
+.hash
+ *(.hash)
+
+.dynsym
+ *(.dynsym)
+
+.dynstr
+ *(.dynstr)
+
+.gnu.version
+ *(.gnu.version)
+
+.gnu.version_d
+ *(.gnu.version_d)
+
+.gnu.version_r
+ *(.gnu.version_r)
+
+.rel.init
+ *(.rel.init)
+
+.rela.init
+ *(.rela.init)
+
+.rel.text
+ *(.rel.text)
+ *(.rel.text.*)
+ *(.rel.gnu.linkonce.t*)
+
+.rela.text
+ *(.rela.text)
+ *(.rela.text.*)
+ *(.rela.gnu.linkonce.t*)
+
+.rel.fini
+ *(.rel.fini)
+
+.rela.fini
+ *(.rela.fini)
+
+.rel.rodata
+ *(.rel.rodata)
+ *(.rel.rodata.*)
+ *(.rel.gnu.linkonce.r*)
+
+.rela.rodata
+ *(.rela.rodata)
+ *(.rela.rodata.*)
+ *(.rela.gnu.linkonce.r*)
+
+.rel.data
+ *(.rel.data)
+ *(.rel.data.*)
+ *(.rel.gnu.linkonce.d*)
+
+.rela.data
+ *(.rela.data)
+ *(.rela.data.*)
+ *(.rela.gnu.linkonce.d*)
+
+.rel.ctors
+ *(.rel.ctors)
+
+.rela.ctors
+ *(.rela.ctors)
+
+.rel.dtors
+ *(.rel.dtors)
+
+.rela.dtors
+ *(.rela.dtors)
+
+.rel.got
+ *(.rel.got)
+
+.rela.got
+ *(.rela.got)
+
+.rel.bss
+ *(.rel.bss)
+
+.rela.bss
+ *(.rela.bss)
+
+.rel.plt
+ *(.rel.plt)
+
+.rela.plt
+ *(.rela.plt)
+
+.text           0x00000000     0x574a
+ *(.vectors)
+ .vectors       0x00000000       0xac c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5/crtatmega32u4.o
+                0x00000000                __vector_default
+                0x00000000                __vectors
+ *(.vectors)
+ *(.progmem.gcc*)
+ .progmem.gcc_sw_table._ZN6HWmidi5parseEv
+                0x000000ac      0x100 hardware/midi/hw_midi/hw_MIDI.o
+ .progmem.gcc_sw_table._ZN6HWmidi10thruFilterEh
+                0x000001ac       0x20 hardware/midi/hw_midi/hw_MIDI.o
+ .progmem.gcc_sw_table._ZN4LEDs12setParameterEhhh
+                0x000001cc       0x1e interface/leds/LEDs.o
+                0x000001ea                . = ALIGN (0x2)
+                0x000001ea                __trampolines_start = .
+ *(.trampolines)
+ .trampolines   0x000001ea        0x0 linker stubs
+ *(.trampolines*)
+                0x000001ea                __trampolines_end = .
+ *(.progmem*)
+ .progmem.data.descriptor_list
+                0x000001ea       0x2a hardware/usb/usb.o
+ .progmem.data.string1
+                0x00000214       0x14 hardware/usb/usb.o
+ .progmem.data.string0
+                0x00000228        0x4 hardware/usb/usb.o
+ .progmem.data.config1_descriptor
+                0x0000022c       0x73 hardware/usb/usb.o
+ .progmem.data.debug_hid_report_desc
+                0x0000029f       0x21 hardware/usb/usb.o
+ .progmem.data.device_descriptor
+                0x000002c0       0x12 hardware/usb/usb.o
+ .progmem.data.endpoint_config_table
+                0x000002d2        0xc hardware/usb/usb.o
+                0x000002de                . = ALIGN (0x2)
+ *(.jumptables)
+ *(.jumptables*)
+ *(.lowtext)
+ *(.lowtext*)
+                0x000002de                __ctors_start = .
+ *(.ctors)
+ .ctors         0x000002de        0x2 sysex/SysEx.o
+                0x000002e0                __ctors_end = .
+                0x000002e0                __dtors_start = .
+ *(.dtors)
+                0x000002e0                __dtors_end = .
+ SORT(*)(.ctors)
+ SORT(*)(.dtors)
+ *(.init0)
+ .init0         0x000002e0        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5/crtatmega32u4.o
+                0x000002e0                __init
+ *(.init0)
+ *(.init1)
+ *(.init1)
+ *(.init2)
+ .init2         0x000002e0        0xc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5/crtatmega32u4.o
+ *(.init2)
+ *(.init3)
+ .init3         0x000002ec       0x36 hardware/reset/Reset.o
+                0x000002ec                _Z21Bootloader_Jump_Checkv
+ *(.init3)
+ *(.init4)
+ .init4         0x00000322       0x16 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_copy_data.o)
+                0x00000322                __do_copy_data
+ .init4         0x00000338       0x10 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_clear_bss.o)
+                0x00000338                __do_clear_bss
+ *(.init4)
+ *(.init5)
+ *(.init5)
+ *(.init6)
+ .init6         0x00000348       0x16 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ctors.o)
+                0x00000348                __do_global_ctors
+ *(.init6)
+ *(.init7)
+ *(.init7)
+ *(.init8)
+ *(.init8)
+ *(.init9)
+ .init9         0x0000035e        0x8 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5/crtatmega32u4.o
+ *(.init9)
+ *(.text)
+ .text          0x00000366        0x4 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5/crtatmega32u4.o
+                0x00000366                __vector_38
+                0x00000366                __vector_22
+                0x00000366                __vector_28
+                0x00000366                __vector_1
+                0x00000366                __vector_32
+                0x00000366                __vector_34
+                0x00000366                __vector_24
+                0x00000366                __vector_12
+                0x00000366                __bad_interrupt
+                0x00000366                __vector_6
+                0x00000366                __vector_31
+                0x00000366                __vector_35
+                0x00000366                __vector_39
+                0x00000366                __vector_3
+                0x00000366                __vector_23
+                0x00000366                __vector_30
+                0x00000366                __vector_13
+                0x00000366                __vector_17
+                0x00000366                __vector_19
+                0x00000366                __vector_7
+                0x00000366                __vector_41
+                0x00000366                __vector_5
+                0x00000366                __vector_33
+                0x00000366                __vector_37
+                0x00000366                __vector_4
+                0x00000366                __vector_9
+                0x00000366                __vector_2
+                0x00000366                __vector_15
+                0x00000366                __vector_36
+                0x00000366                __vector_40
+                0x00000366                __vector_8
+                0x00000366                __vector_14
+                0x00000366                __vector_16
+                0x00000366                __vector_18
+                0x00000366                __vector_20
+                0x00000366                __vector_42
+                0x0000036a                . = ALIGN (0x2)
+ *(.text.*)
+ .text._ZN13Configuration11clearEEPROMEv
+                0x0000036a       0x20 eeprom/Configuration.o
+                0x0000036a                _ZN13Configuration11clearEEPROMEv
+ .text._ZN13Configuration14writeParameterEhhhh
+                0x0000038a      0x18e eeprom/Configuration.o
+                0x0000038a                _ZN13Configuration14writeParameterEhhhh
+ .text._ZN13Configuration22createSectionAddressesEv
+                0x00000518      0x214 eeprom/Configuration.o
+                0x00000518                _ZN13Configuration22createSectionAddressesEv
+ .text._ZN13Configuration18writeConfigurationEv
+                0x0000072c      0x1ba eeprom/Configuration.o
+                0x0000072c                _ZN13Configuration18writeConfigurationEv
+ .text._ZN13Configuration12factoryResetEv
+                0x000008e6       0x16 eeprom/Configuration.o
+                0x000008e6                _ZN13Configuration12factoryResetEv
+ .text._ZN13Configuration4initEv
+                0x000008fc       0x40 eeprom/Configuration.o
+                0x000008fc                _ZN13Configuration4initEv
+ .text._ZN13Configuration18createMemoryLayoutEv
+                0x0000093c       0xf6 eeprom/MemoryLayout.o
+                0x0000093c                _ZN13Configuration18createMemoryLayoutEv
+ .text._Z8setUpADCv
+                0x00000a32       0x1c hardware/adc/ADC.o
+                0x00000a32                _Z8setUpADCv
+ .text._Z15setADCprescalerh
+                0x00000a4e       0x5a hardware/adc/ADC.o
+                0x00000a4e                _Z15setADCprescalerh
+ .text._Z13setADCchannelh
+                0x00000aa8       0x16 hardware/adc/ADC.o
+                0x00000aa8                _Z13setADCchannelh
+ .text._Z11getADCvaluev
+                0x00000abe       0x1a hardware/adc/ADC.o
+                0x00000abe                _Z11getADCvaluev
+ .text._Z22disconnectDigitalInADCh
+                0x00000ad8       0x22 hardware/adc/ADC.o
+                0x00000ad8                _Z22disconnectDigitalInADCh
+ .text._Z15disableWatchDogv
+                0x00000afa       0x1e hardware/board/Board.o
+                0x00000afa                _Z15disableWatchDogv
+ .text._Z11rTimeMillisv
+                0x00000b18       0x18 hardware/board/Board.o
+                0x00000b18                _Z11rTimeMillisv
+ .text._Z4waitm
+                0x00000b30       0x30 hardware/board/Board.o
+                0x00000b30                _Z4waitm
+ .text._Z24getInputMatrixBufferSizev
+                0x00000b60       0x16 hardware/board/Board.o
+                0x00000b60                _Z24getInputMatrixBufferSizev
+ .text._Z21copyInputMatrixBufferv
+                0x00000b76       0x86 hardware/board/Board.o
+                0x00000b76                _Z21copyInputMatrixBufferv
+ .text.__vector_21
+                0x00000bfc      0x61e hardware/board/Board.o
+                0x00000bfc                __vector_21
+ .text.__vector_29
+                0x0000121a      0x10a hardware/board/Board.o
+                0x0000121a                __vector_29
+ .text._ZN5Board8initPinsEv
+                0x00001324       0x3a hardware/board/Board.o
+                0x00001324                _ZN5Board8initPinsEv
+ .text._ZN5Board10initAnalogEv
+                0x0000135e       0xa2 hardware/board/Board.o
+                0x0000135e                _ZN5Board10initAnalogEv
+ .text._ZN5Board15configureTimersEv
+                0x00001400       0xdc hardware/board/Board.o
+                0x00001400                _ZN5Board15configureTimersEv
+ .text._ZN5Board4initEv
+                0x000014dc       0x4a hardware/board/Board.o
+                0x000014dc                _ZN5Board4initEv
+ .text._ZN5Board11getLEDstateEh
+                0x00001526        0xc hardware/board/Board.o
+                0x00001526                _ZN5Board11getLEDstateEh
+ .text._ZN5Board15setLEDblinkTimeEj
+                0x00001532       0x2a hardware/board/Board.o
+                0x00001532                _ZN5Board15setLEDblinkTimeEj
+ .text._ZN5Board21setLEDTransitionSpeedEh
+                0x0000155c       0x1a hardware/board/Board.o
+                0x0000155c                _ZN5Board21setLEDTransitionSpeedEh
+ .text._ZN5Board16ledBlinkingStartEv
+                0x00001576       0x24 hardware/board/Board.o
+                0x00001576                _ZN5Board16ledBlinkingStartEv
+ .text._ZN5Board15ledBlinkingStopEv
+                0x0000159a       0x20 hardware/board/Board.o
+                0x0000159a                _ZN5Board15ledBlinkingStopEv
+ .text._ZN5Board14checkBlinkLEDsEv
+                0x000015ba       0x40 hardware/board/Board.o
+                0x000015ba                _ZN5Board14checkBlinkLEDsEv
+ .text._ZN5Board9handleLEDEh8ledColorb7ledType
+                0x000015fa      0x166 hardware/board/Board.o
+                0x000015fa                _ZN5Board9handleLEDEh8ledColorb7ledType
+ .text._ZN5Board11setLEDstateEh8ledColorb
+                0x00001760       0xee hardware/board/Board.o
+                0x00001760                _ZN5Board11setLEDstateEh8ledColorb
+ .text._ZN5Board19analogDataAvailableEv
+                0x0000184e       0x3a hardware/board/Board.o
+                0x0000184e                _ZN5Board19analogDataAvailableEv
+ .text._ZN5Board14getAnalogValueEh
+                0x00001888       0x12 hardware/board/Board.o
+                0x00001888                _ZN5Board14getAnalogValueEh
+ .text._ZN5Board15getEncoderStateEh
+                0x0000189a      0x128 hardware/board/Board.o
+                0x0000189a                _ZN5Board15getEncoderStateEh
+ .text._ZN5Board20encoderDataAvailableEv
+                0x000019c2       0x3c hardware/board/Board.o
+                0x000019c2                _ZN5Board20encoderDataAvailableEv
+ .text._ZN5Board19buttonDataAvailableEv
+                0x000019fe       0x3c hardware/board/Board.o
+                0x000019fe                _ZN5Board19buttonDataAvailableEv
+ .text._ZN5Board14getButtonStateEh
+                0x00001a3a       0x78 hardware/board/Board.o
+                0x00001a3a                _ZN5Board14getButtonStateEh
+ .text._ZN6HWmidi4initEhbb
+                0x00001ab2       0x52 hardware/midi/hw_midi/hw_MIDI.o
+                0x00001ab2                _ZN6HWmidi4initEhbb
+ .text._ZN6HWmidi9sendSysExEjPKhb
+                0x00001b04       0x82 hardware/midi/hw_midi/hw_MIDI.o
+                0x00001b04                _ZN6HWmidi9sendSysExEjPKhb
+ .text._ZN6HWmidi24sendTimeCodeQuarterFrameEh
+                0x00001b86       0x2c hardware/midi/hw_midi/hw_MIDI.o
+                0x00001b86                _ZN6HWmidi24sendTimeCodeQuarterFrameEh
+ .text._ZN6HWmidi24sendTimeCodeQuarterFrameEhh
+                0x00001bb2       0x16 hardware/midi/hw_midi/hw_MIDI.o
+                0x00001bb2                _ZN6HWmidi24sendTimeCodeQuarterFrameEhh
+ .text._ZN6HWmidi16sendSongPositionEj
+                0x00001bc8       0x4a hardware/midi/hw_midi/hw_MIDI.o
+                0x00001bc8                _ZN6HWmidi16sendSongPositionEj
+ .text._ZN6HWmidi14sendSongSelectEh
+                0x00001c12       0x2e hardware/midi/hw_midi/hw_MIDI.o
+                0x00001c12                _ZN6HWmidi14sendSongSelectEh
+ .text._ZN6HWmidi12sendRealTimeE15midiMessageType
+                0x00001c40       0x40 hardware/midi/hw_midi/hw_MIDI.o
+                0x00001c40                _ZN6HWmidi12sendRealTimeE15midiMessageType
+ .text._ZN6HWmidi4sendE15midiMessageTypehhh
+                0x00001c80       0x84 hardware/midi/hw_midi/hw_MIDI.o
+                0x00001c80                _ZN6HWmidi4sendE15midiMessageTypehhh
+ .text._ZN6HWmidi10sendNoteOnEhhh
+                0x00001d04       0x12 hardware/midi/hw_midi/hw_MIDI.o
+                0x00001d04                _ZN6HWmidi10sendNoteOnEhhh
+ .text._ZN6HWmidi11sendNoteOffEhhh
+                0x00001d16       0x12 hardware/midi/hw_midi/hw_MIDI.o
+                0x00001d16                _ZN6HWmidi11sendNoteOffEhhh
+ .text._ZN6HWmidi17sendProgramChangeEhh
+                0x00001d28       0x12 hardware/midi/hw_midi/hw_MIDI.o
+                0x00001d28                _ZN6HWmidi17sendProgramChangeEhh
+ .text._ZN6HWmidi17sendControlChangeEhhh
+                0x00001d3a       0x12 hardware/midi/hw_midi/hw_MIDI.o
+                0x00001d3a                _ZN6HWmidi17sendControlChangeEhhh
+ .text._ZN6HWmidi19enableRunningStatusEv
+                0x00001d4c        0x8 hardware/midi/hw_midi/hw_MIDI.o
+                0x00001d4c                _ZN6HWmidi19enableRunningStatusEv
+ .text._ZN6HWmidi20disableRunningStatusEv
+                0x00001d54        0x6 hardware/midi/hw_midi/hw_MIDI.o
+                0x00001d54                _ZN6HWmidi20disableRunningStatusEv
+ .text._ZN6HWmidi11inputFilterEh
+                0x00001d5a       0x2a hardware/midi/hw_midi/hw_MIDI.o
+                0x00001d5a                _ZN6HWmidi11inputFilterEh
+ .text._ZNK6HWmidi7getTypeEv
+                0x00001d84        0x6 hardware/midi/hw_midi/hw_MIDI.o
+                0x00001d84                _ZNK6HWmidi7getTypeEv
+ .text._ZNK6HWmidi8getData1Ev
+                0x00001d8a        0x6 hardware/midi/hw_midi/hw_MIDI.o
+                0x00001d8a                _ZNK6HWmidi8getData1Ev
+ .text._ZNK6HWmidi8getData2Ev
+                0x00001d90        0x6 hardware/midi/hw_midi/hw_MIDI.o
+                0x00001d90                _ZNK6HWmidi8getData2Ev
+ .text._ZNK6HWmidi13getSysExArrayEv
+                0x00001d96        0x4 hardware/midi/hw_midi/hw_MIDI.o
+                0x00001d96                _ZNK6HWmidi13getSysExArrayEv
+ .text._ZNK6HWmidi19getSysExArrayLengthEv
+                0x00001d9a       0x1e hardware/midi/hw_midi/hw_MIDI.o
+                0x00001d9a                _ZNK6HWmidi19getSysExArrayLengthEv
+ .text._ZN6HWmidi21getTypeFromStatusByteEh
+                0x00001db8       0x2e hardware/midi/hw_midi/hw_MIDI.o
+                0x00001db8                _ZN6HWmidi21getTypeFromStatusByteEh
+ .text._ZN6HWmidi16isChannelMessageE15midiMessageType
+                0x00001de6       0x2e hardware/midi/hw_midi/hw_MIDI.o
+                0x00001de6                _ZN6HWmidi16isChannelMessageE15midiMessageType
+ .text._ZN6HWmidi5parseEv
+                0x00001e14      0x2a2 hardware/midi/hw_midi/hw_MIDI.o
+                0x00001e14                _ZN6HWmidi5parseEv
+ .text._ZN6HWmidi10thruFilterEh
+                0x000020b6       0xe8 hardware/midi/hw_midi/hw_MIDI.o
+                0x000020b6                _ZN6HWmidi10thruFilterEh
+ .text._ZN6HWmidi4readEh
+                0x0000219e       0x3a hardware/midi/hw_midi/hw_MIDI.o
+                0x0000219e                _ZN6HWmidi4readEh
+ .text._ZN6HWmidi4readEv
+                0x000021d8        0xa hardware/midi/hw_midi/hw_MIDI.o
+                0x000021d8                _ZN6HWmidi4readEv
+ .text._ZN14usb_midi_class4initEh
+                0x000021e2       0x18 hardware/midi/usb_midi/USBmidi.o
+                0x000021e2                _ZN14usb_midi_class4initEh
+ .text._ZN14usb_midi_class8send_rawEhhhh
+                0x000021fa       0x88 hardware/midi/usb_midi/USBmidi.o
+                0x000021fa                _ZN14usb_midi_class8send_rawEhhhh
+ .text._ZN14usb_midi_class11sendNoteOffEhhh
+                0x00002282       0x1e hardware/midi/usb_midi/USBmidi.o
+                0x00002282                _ZN14usb_midi_class11sendNoteOffEhhh
+ .text._ZN14usb_midi_class10sendNoteOnEhhh
+                0x000022a0       0x1e hardware/midi/usb_midi/USBmidi.o
+                0x000022a0                _ZN14usb_midi_class10sendNoteOnEhhh
+ .text._ZN14usb_midi_class17sendControlChangeEhhh
+                0x000022be       0x1e hardware/midi/usb_midi/USBmidi.o
+                0x000022be                _ZN14usb_midi_class17sendControlChangeEhhh
+ .text._ZN14usb_midi_class17sendProgramChangeEhh
+                0x000022dc       0x18 hardware/midi/usb_midi/USBmidi.o
+                0x000022dc                _ZN14usb_midi_class17sendProgramChangeEhh
+ .text._ZN14usb_midi_class14sendAfterTouchEhh
+                0x000022f4       0x18 hardware/midi/usb_midi/USBmidi.o
+                0x000022f4                _ZN14usb_midi_class14sendAfterTouchEhh
+ .text._ZN14usb_midi_class9sendSysExEhPKhb
+                0x0000230c      0x194 hardware/midi/usb_midi/USBmidi.o
+                0x0000230c                _ZN14usb_midi_class9sendSysExEhPKhb
+ .text._ZN14usb_midi_class15read_sysex_byteEh
+                0x000024a0       0x1c hardware/midi/usb_midi/USBmidi.o
+                0x000024a0                _ZN14usb_midi_class15read_sysex_byteEh
+ .text._ZN14usb_midi_class4readEv
+                0x000024bc      0x240 hardware/midi/usb_midi/USBmidi.o
+                0x000024bc                _ZN14usb_midi_class4readEv
+ .text._Z18disablePeripheralsv
+                0x000026fc       0x3e hardware/reset/Reset.o
+                0x000026fc                _Z18disablePeripheralsv
+ .text._Z6rebooth
+                0x0000273a       0x98 hardware/reset/Reset.o
+                0x0000273a                _Z6rebooth
+ .text.__vector_25
+                0x000027d2       0x4e hardware/uart/UART.o
+                0x000027d2                __vector_25
+ .text.__vector_26
+                0x00002820       0x66 hardware/uart/UART.o
+                0x00002820                __vector_26
+ .text.__vector_27
+                0x00002886       0x14 hardware/uart/UART.o
+                0x00002886                __vector_27
+ .text._ZN4UART4readEv
+                0x0000289a       0x2c hardware/uart/UART.o
+                0x0000289a                _ZN4UART4readEv
+ .text._ZN4UART5writeEh
+                0x000028c6       0x4a hardware/uart/UART.o
+                0x000028c6                _ZN4UART5writeEh
+ .text._ZN4UART5beginEmbb
+                0x00002910       0xc2 hardware/uart/UART.o
+                0x00002910                _ZN4UART5beginEmbb
+ .text._ZN4UART9availableEv
+                0x000029d2       0x16 hardware/uart/UART.o
+                0x000029d2                _ZN4UART9availableEv
+ .text.usb_init
+                0x000029e8       0x48 hardware/usb/usb.o
+                0x000029e8                usb_init
+ .text.__vector_10
+                0x00002a30       0xee hardware/usb/usb.o
+                0x00002a30                __vector_10
+ .text.__vector_11
+                0x00002b1e      0x242 hardware/usb/usb.o
+                0x00002b1e                __vector_11
+ .text._ZN6Analog4initEv
+                0x00002d60       0xc0 interface/analog/Analog.o
+                0x00002d60                _ZN6Analog4initEv
+ .text._ZN6Analog14getMedianValueEh
+                0x00002e20       0x96 interface/analog/Analog.o
+                0x00002e20                _ZN6Analog14getMedianValueEh
+ .text._ZN6Analog16getAnalogEnabledEh
+                0x00002eb6       0x62 interface/analog/Analog.o
+                0x00002eb6                _ZN6Analog16getAnalogEnabledEh
+ .text._ZN6Analog20getAnalogInvertStateEh
+                0x00002f18       0x62 interface/analog/Analog.o
+                0x00002f18                _ZN6Analog20getAnalogInvertStateEh
+ .text._ZN6Analog13getAnalogTypeEh
+                0x00002f7a       0x56 interface/analog/Analog.o
+                0x00002f7a                _ZN6Analog13getAnalogTypeEh
+ .text._ZN6Analog6updateEv
+                0x00002fd0       0xca interface/analog/Analog.o
+                0x00002fd0                _ZN6Analog6updateEv
+ .text._ZN6Analog9getMIDIidEh
+                0x0000309a       0x56 interface/analog/Analog.o
+                0x0000309a                _ZN6Analog9getMIDIidEh
+ .text._ZN6Analog10getCClimitEh11ccLimitType
+                0x000030f0       0xb8 interface/analog/Analog.o
+                0x000030f0                _ZN6Analog10getCClimitEh11ccLimitType
+ .text._ZN6Analog12getParameterEhh
+                0x000031a8       0x56 interface/analog/Analog.o
+                0x000031a8                _ZN6Analog12getParameterEhh
+ .text._ZN6Analog16setAnalogEnabledEhb
+                0x000031fe       0x16 interface/analog/Analog.o
+                0x000031fe                _ZN6Analog16setAnalogEnabledEhb
+ .text._ZN6Analog20setAnalogInvertStateEhh
+                0x00003214       0x16 interface/analog/Analog.o
+                0x00003214                _ZN6Analog20setAnalogInvertStateEhh
+ .text._ZN6Analog13setAnalogTypeEhh
+                0x0000322a       0x2c interface/analog/Analog.o
+                0x0000322a                _ZN6Analog13setAnalogTypeEhh
+ .text._ZN6Analog9setMIDIidEhh
+                0x00003256       0x16 interface/analog/Analog.o
+                0x00003256                _ZN6Analog9setMIDIidEhh
+ .text._ZN6Analog10setCClimitE11ccLimitTypehh
+                0x0000326c       0x36 interface/analog/Analog.o
+                0x0000326c                _ZN6Analog10setCClimitE11ccLimitTypehh
+ .text._ZN6Analog12setParameterEhhh
+                0x000032a2       0x60 interface/analog/Analog.o
+                0x000032a2                _ZN6Analog12setParameterEhhh
+ .text._ZN6Analog13getFsrPressedEh
+                0x00003302       0x28 interface/analog/FSR.o
+                0x00003302                _ZN6Analog13getFsrPressedEh
+ .text._ZN6Analog13setFsrPressedEhb
+                0x0000332a       0x58 interface/analog/FSR.o
+                0x0000332a                _ZN6Analog13setFsrPressedEhb
+ .text._ZN6Analog13checkFSRvalueEhi
+                0x00003382      0x14e interface/analog/FSR.o
+                0x00003382                _ZN6Analog13checkFSRvalueEhi
+ .text._ZN6Analog23checkPotentiometerValueEhi
+                0x000034d0      0x126 interface/analog/Potentiometer.o
+                0x000034d0                _ZN6Analog23checkPotentiometerValueEhi
+ .text._ZN7Buttons4initEv
+                0x000035f6       0x9a interface/buttons/Buttons.o
+                0x000035f6                _ZN7Buttons4initEv
+ .text._ZN7Buttons16setButtonPressedEhb
+                0x00003690       0x58 interface/buttons/Buttons.o
+                0x00003690                _ZN7Buttons16setButtonPressedEhb
+ .text._ZN7Buttons16getButtonPressedEh
+                0x000036e8       0x28 interface/buttons/Buttons.o
+                0x000036e8                _ZN7Buttons16getButtonPressedEh
+ .text._ZN7Buttons17updateButtonStateEhh
+                0x00003710       0x8e interface/buttons/Buttons.o
+                0x00003710                _ZN7Buttons17updateButtonStateEhh
+ .text._ZN7Buttons22getPreviousButtonStateEh
+                0x0000379e       0x28 interface/buttons/Buttons.o
+                0x0000379e                _ZN7Buttons22getPreviousButtonStateEh
+ .text._ZN7Buttons15buttonDebouncedEhb
+                0x000037c6       0x22 interface/buttons/Buttons.o
+                0x000037c6                _ZN7Buttons15buttonDebouncedEhb
+ .text._ZN7Buttons13getButtonTypeEh
+                0x000037e8       0x50 interface/buttons/Buttons.o
+                0x000037e8                _ZN7Buttons13getButtonTypeEh
+ .text._ZN7Buttons18getButtonPCenabledEh
+                0x00003838       0x5c interface/buttons/Buttons.o
+                0x00003838                _ZN7Buttons18getButtonPCenabledEh
+ .text._ZN7Buttons9getMIDIidEh
+                0x00003894       0x50 interface/buttons/Buttons.o
+                0x00003894                _ZN7Buttons9getMIDIidEh
+ .text._ZN7Buttons20processProgramChangeEhb
+                0x000038e4       0x66 interface/buttons/Buttons.o
+                0x000038e4                _ZN7Buttons20processProgramChangeEhb
+ .text._ZN7Buttons22processMomentaryButtonEhb
+                0x0000394a       0x98 interface/buttons/Buttons.o
+                0x0000394a                _ZN7Buttons22processMomentaryButtonEhb
+ .text._ZN7Buttons21processLatchingButtonEhb
+                0x000039e2       0xa6 interface/buttons/Buttons.o
+                0x000039e2                _ZN7Buttons21processLatchingButtonEhb
+ .text._ZN7Buttons6updateEv
+                0x00003a88       0x8a interface/buttons/Buttons.o
+                0x00003a88                _ZN7Buttons6updateEv
+ .text._ZN7Buttons12getParameterEhh
+                0x00003b12       0x28 interface/buttons/Buttons.o
+                0x00003b12                _ZN7Buttons12getParameterEhh
+ .text._ZN7Buttons13setButtonTypeEhh
+                0x00003b3a       0x16 interface/buttons/Buttons.o
+                0x00003b3a                _ZN7Buttons13setButtonTypeEhh
+ .text._ZN7Buttons18setButtonPCenabledEhh
+                0x00003b50       0x16 interface/buttons/Buttons.o
+                0x00003b50                _ZN7Buttons18setButtonPCenabledEhh
+ .text._ZN7Buttons9setMIDIidEhh
+                0x00003b66       0x16 interface/buttons/Buttons.o
+                0x00003b66                _ZN7Buttons9setMIDIidEhh
+ .text._ZN7Buttons12setParameterEhhh
+                0x00003b7c       0x30 interface/buttons/Buttons.o
+                0x00003b7c                _ZN7Buttons12setParameterEhhh
+ .text._ZN8Encoders4initEv
+                0x00003bac       0xa6 interface/encoders/Encoders.o
+                0x00003bac                _ZN8Encoders4initEv
+ .text._ZN8Encoders17getEncoderEnabledEh
+                0x00003c52       0x62 interface/encoders/Encoders.o
+                0x00003c52                _ZN8Encoders17getEncoderEnabledEh
+ .text._ZN8Encoders21getEncoderInvertStateEh
+                0x00003cb4       0x62 interface/encoders/Encoders.o
+                0x00003cb4                _ZN8Encoders21getEncoderInvertStateEh
+ .text._ZN8Encoders15getEncodingModeEh
+                0x00003d16       0x56 interface/encoders/Encoders.o
+                0x00003d16                _ZN8Encoders15getEncodingModeEh
+ .text._ZN8Encoders9getMIDIidEh
+                0x00003d6c       0x56 interface/encoders/Encoders.o
+                0x00003d6c                _ZN8Encoders9getMIDIidEh
+ .text._ZN8Encoders6updateEv
+                0x00003dc2       0xd2 interface/encoders/Encoders.o
+                0x00003dc2                _ZN8Encoders6updateEv
+ .text._ZN8Encoders12getParameterEhh
+                0x00003e94       0x34 interface/encoders/Encoders.o
+                0x00003e94                _ZN8Encoders12getParameterEhh
+ .text._ZN8Encoders17setEncoderEnabledEhh
+                0x00003ec8       0x16 interface/encoders/Encoders.o
+                0x00003ec8                _ZN8Encoders17setEncoderEnabledEhh
+ .text._ZN8Encoders21setEncoderInvertStateEhh
+                0x00003ede       0x16 interface/encoders/Encoders.o
+                0x00003ede                _ZN8Encoders21setEncoderInvertStateEhh
+ .text._ZN8Encoders15setEncodingModeEhh
+                0x00003ef4       0x16 interface/encoders/Encoders.o
+                0x00003ef4                _ZN8Encoders15setEncodingModeEhh
+ .text._ZN8Encoders9setMIDIidEhh
+                0x00003f0a       0x16 interface/encoders/Encoders.o
+                0x00003f0a                _ZN8Encoders9setMIDIidEhh
+ .text._ZN8Encoders12setParameterEhhh
+                0x00003f20       0x3e interface/encoders/Encoders.o
+                0x00003f20                _ZN8Encoders12setParameterEhhh
+ .text._ZN4LEDs14velocity2colorEbh
+                0x00003f5e       0x1c interface/leds/LEDs.o
+                0x00003f5e                _ZN4LEDs14velocity2colorEbh
+ .text._ZN4LEDs9allLEDsOnEv
+                0x00003f7a       0x1c interface/leds/LEDs.o
+                0x00003f7a                _ZN4LEDs9allLEDsOnEv
+ .text._ZN4LEDs10allLEDsOffEv
+                0x00003f96       0x1c interface/leds/LEDs.o
+                0x00003f96                _ZN4LEDs10allLEDsOffEv
+ .text._ZN4LEDs12checkLEDsOffEv
+                0x00003fb2       0x22 interface/leds/LEDs.o
+                0x00003fb2                _ZN4LEDs12checkLEDsOffEv
+ .text._ZN4LEDs17getLEDHwParameterEh
+                0x00003fd4       0x56 interface/leds/LEDs.o
+                0x00003fd4                _ZN4LEDs17getLEDHwParameterEh
+ .text._ZN4LEDs20getLEDActivationNoteEh
+                0x0000402a       0x56 interface/leds/LEDs.o
+                0x0000402a                _ZN4LEDs20getLEDActivationNoteEh
+ .text._ZN4LEDs14noteToLEDstateEhh
+                0x00004080       0x6c interface/leds/LEDs.o
+                0x00004080                _ZN4LEDs14noteToLEDstateEhh
+ .text._ZN4LEDs19getLEDstartUpNumberEh
+                0x000040ec       0x56 interface/leds/LEDs.o
+                0x000040ec                _ZN4LEDs19getLEDstartUpNumberEh
+ .text._ZN4LEDs11oneByOneLEDEbbb
+                0x00004142      0x250 interface/leds/LEDs.o
+                0x00004142                _ZN4LEDs11oneByOneLEDEbbb
+ .text._ZN4LEDs16startUpAnimationEv
+                0x00004392      0x10a interface/leds/LEDs.o
+                0x00004392                _ZN4LEDs16startUpAnimationEv
+ .text._ZN4LEDs4initEv
+                0x0000449c       0xf2 interface/leds/LEDs.o
+                0x0000449c                _ZN4LEDs4initEv
+ .text._ZN4LEDs13getRGBenabledEh
+                0x0000458e       0x62 interface/leds/LEDs.o
+                0x0000458e                _ZN4LEDs13getRGBenabledEh
+ .text._ZN4LEDs12getParameterEhh
+                0x000045f0       0x5c interface/leds/LEDs.o
+                0x000045f0                _ZN4LEDs12getParameterEhh
+ .text._ZN4LEDs17setLEDHwParameterEhh
+                0x0000464c       0xac interface/leds/LEDs.o
+                0x0000464c                _ZN4LEDs17setLEDHwParameterEhh
+ .text._ZN4LEDs20setLEDActivationNoteEhh
+                0x000046f8       0x16 interface/leds/LEDs.o
+                0x000046f8                _ZN4LEDs20setLEDActivationNoteEhh
+ .text._ZN4LEDs17setLEDstartNumberEhh
+                0x0000470e       0x16 interface/leds/LEDs.o
+                0x0000470e                _ZN4LEDs17setLEDstartNumberEhh
+ .text._ZN4LEDs13setRGBenabledEhb
+                0x00004724       0x16 interface/leds/LEDs.o
+                0x00004724                _ZN4LEDs13setRGBenabledEhb
+ .text._ZN4LEDs12setParameterEhhh
+                0x0000473a      0x176 interface/leds/LEDs.o
+                0x0000473a                _ZN4LEDs12setParameterEhhh
+ .text._ZN4MIDI9sendSysExEPhh
+                0x000048b0       0x34 interface/midi/MIDI.o
+                0x000048b0                _ZN4MIDI9sendSysExEPhh
+ .text._ZN4MIDI10getFeatureEh
+                0x000048e4       0x5c interface/midi/MIDI.o
+                0x000048e4                _ZN4MIDI10getFeatureEh
+ .text._ZN4MIDI14getMIDIchannelEh
+                0x00004940       0x50 interface/midi/MIDI.o
+                0x00004940                _ZN4MIDI14getMIDIchannelEh
+ .text._ZN4MIDI4initEv
+                0x00004990       0xbc interface/midi/MIDI.o
+                0x00004990                _ZN4MIDI4initEv
+ .text._ZN4MIDI10checkInputEv
+                0x00004a4c      0x19a interface/midi/MIDI.o
+                0x00004a4c                _ZN4MIDI10checkInputEv
+ .text._ZN4MIDI12sendMIDInoteEhbh
+                0x00004be6       0x92 interface/midi/MIDI.o
+                0x00004be6                _ZN4MIDI12sendMIDInoteEhbh
+ .text._ZN4MIDI17sendProgramChangeEh
+                0x00004c78       0x2c interface/midi/MIDI.o
+                0x00004c78                _ZN4MIDI17sendProgramChangeEh
+ .text._ZN4MIDI17sendControlChangeEhh
+                0x00004ca4       0x36 interface/midi/MIDI.o
+                0x00004ca4                _ZN4MIDI17sendControlChangeEhh
+ .text._ZN4MIDI12getParameterEhh
+                0x00004cda       0x1e interface/midi/MIDI.o
+                0x00004cda                _ZN4MIDI12getParameterEhh
+ .text._ZN4MIDI14setMIDIchannelEhh
+                0x00004cf8       0x16 interface/midi/MIDI.o
+                0x00004cf8                _ZN4MIDI14setMIDIchannelEhh
+ .text._ZN4MIDI10setFeatureEhh
+                0x00004d0e       0x48 interface/midi/MIDI.o
+                0x00004d0e                _ZN4MIDI10setFeatureEhh
+ .text._ZN4MIDI12setParameterEhhh
+                0x00004d56       0x24 interface/midi/MIDI.o
+                0x00004d56                _ZN4MIDI12setParameterEhhh
+ .text._Z5onGethhh
+                0x00004d7a       0x50 OpenDeck.o
+                0x00004d7a                _Z5onGethhh
+ .text._Z5onSethhhh
+                0x00004dca       0x50 OpenDeck.o
+                0x00004dca                _Z5onSethhhh
+ .text._Z7onResethhh
+                0x00004e1a       0x5a OpenDeck.o
+                0x00004e1a                _Z7onResethhh
+ .text._Z12ledsOff_slowv
+                0x00004e74       0x20 OpenDeck.o
+                0x00004e74                _Z12ledsOff_slowv
+ .text._Z8onRebootv
+                0x00004e94        0xc OpenDeck.o
+                0x00004e94                _Z8onRebootv
+ .text._Z14onFactoryResetv
+                0x00004ea0       0x14 OpenDeck.o
+                0x00004ea0                _Z14onFactoryResetv
+ .text._Z5setupv
+                0x00004eb4       0x76 OpenDeck.o
+                0x00004eb4                _Z5setupv
+ .text.main     0x00004f2a       0x26 OpenDeck.o
+                0x00004f2a                main
+ .text._ZN5SysExC2Ev
+                0x00004f50       0x5c sysex/SysEx.o
+                0x00004f50                _ZN5SysExC1Ev
+                0x00004f50                _ZN5SysExC2Ev
+ .text._ZN5SysEx11disableConfEv
+                0x00004fac        0x6 sysex/SysEx.o
+                0x00004fac                _ZN5SysEx11disableConfEv
+ .text._ZN5SysEx14addMessageTypeEhh
+                0x00004fb2       0x12 sysex/SysEx.o
+                0x00004fb2                _ZN5SysEx14addMessageTypeEhh
+ .text._ZN5SysEx17addMessageSubTypeEhhhhh
+                0x00004fc4       0x46 sysex/SysEx.o
+                0x00004fc4                _ZN5SysEx17addMessageSubTypeEhhhhh
+ .text._ZN5SysEx10checkBlockEh
+                0x0000500a       0x16 sysex/SysEx.o
+                0x0000500a                _ZN5SysEx10checkBlockEh
+ .text._ZN5SysEx17checkNewParameterEhhhh
+                0x00005020       0x70 sysex/SysEx.o
+                0x00005020                _ZN5SysEx17checkNewParameterEhhhh
+ .text._ZN5SysEx24generateMinMessageLenghtEhhhh
+                0x00005090       0x44 sysex/SysEx.o
+                0x00005090                _ZN5SysEx24generateMinMessageLenghtEhhhh
+ .text._ZN5SysEx9sendErrorE10sysExError
+                0x000050d4       0x4c sysex/SysEx.o
+                0x000050d4                _ZN5SysEx9sendErrorE10sysExError
+ .text._ZN5SysEx20checkMessageValidityEPhh
+                0x00005120      0x15a sysex/SysEx.o
+                0x00005120                _ZN5SysEx20checkMessageValidityEPhh
+ .text._ZN5SysEx17sendHelloResponseEv
+                0x0000527a       0x50 sysex/SysEx.o
+                0x0000527a                _ZN5SysEx17sendHelloResponseEv
+ .text._ZN5SysEx12checkSpecialEPhh
+                0x000052ca       0x54 sysex/SysEx.o
+                0x000052ca                _ZN5SysEx12checkSpecialEPhh
+ .text._ZN5SysEx15sendComponentIDEhh
+                0x0000531e       0x42 sysex/SysEx.o
+                0x0000531e                _ZN5SysEx15sendComponentIDEhh
+ .text._ZN5SysEx12sendResponseEPhh
+                0x00005360      0x1fc sysex/SysEx.o
+                0x00005360                _ZN5SysEx12sendResponseEPhh
+ .text._ZN5SysEx11handleSysExEPhh
+                0x0000555c       0x70 sysex/SysEx.o
+                0x0000555c                _ZN5SysEx11handleSysExEPhh
+ .text._ZN5SysEx15setHandleRebootEPFvvE
+                0x000055cc        0x8 sysex/SysEx.o
+                0x000055cc                _ZN5SysEx15setHandleRebootEPFvvE
+ .text._ZN5SysEx21setHandleFactoryResetEPFvvE
+                0x000055d4        0x8 sysex/SysEx.o
+                0x000055d4                _ZN5SysEx21setHandleFactoryResetEPFvvE
+ .text._ZN5SysEx12setHandleGetEPFhhhhE
+                0x000055dc        0x8 sysex/SysEx.o
+                0x000055dc                _ZN5SysEx12setHandleGetEPFhhhhE
+ .text._ZN5SysEx12setHandleSetEPFbhhhhE
+                0x000055e4        0x8 sysex/SysEx.o
+                0x000055e4                _ZN5SysEx12setHandleSetEPFbhhhhE
+ .text._ZN5SysEx14setHandleResetEPFbhhhE
+                0x000055ec        0x8 sysex/SysEx.o
+                0x000055ec                _ZN5SysEx14setHandleResetEPFbhhhE
+ .text._ZN5SysEx20configurationEnabledEv
+                0x000055f4        0x6 sysex/SysEx.o
+                0x000055f4                _ZN5SysEx20configurationEnabledEv
+ .text._GLOBAL__sub_I__ZN5SysExC2Ev
+                0x000055fa        0xa sysex/SysEx.o
+ .text.libgcc.div
+                0x00005604       0x28 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_divmodhi4.o)
+                0x00005604                _div
+                0x00005604                __divmodhi4
+ .text.libgcc.div
+                0x0000562c       0x44 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodsi4.o)
+                0x0000562c                __udivmodsi4
+ .text.libgcc   0x00005670        0xc c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_tablejump2.o)
+                0x00005670                __tablejump2__
+ .text.libgcc.builtins
+                0x0000567c       0x32 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ashldi3.o)
+                0x0000567c                __ashldi3
+ .text.libgcc.builtins
+                0x000056ae       0x3c c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_ashrdi3.o)
+                0x000056ae                __ashrdi3
+                0x000056b2                __lshrdi3
+ .text.libgcc.div
+                0x000056ea       0x28 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_udivmodhi4.o)
+                0x000056ea                __udivmodhi4
+ .text.avr-libc
+                0x00005712       0x10 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libatmega32u4.a(eerd_byte.o)
+                0x00005712                eeprom_read_byte
+ .text.avr-libc
+                0x00005722       0x24 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5\libatmega32u4.a(eeupd_byte.o)
+                0x00005722                eeprom_update_byte
+                0x00005724                eeprom_update_r18
+                0x00005746                . = ALIGN (0x2)
+ *(.fini9)
+ .fini9         0x00005746        0x0 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_exit.o)
+                0x00005746                _exit
+                0x00005746                exit
+ *(.fini9)
+ *(.fini8)
+ *(.fini8)
+ *(.fini7)
+ *(.fini7)
+ *(.fini6)
+ *(.fini6)
+ *(.fini5)
+ *(.fini5)
+ *(.fini4)
+ *(.fini4)
+ *(.fini3)
+ *(.fini3)
+ *(.fini2)
+ *(.fini2)
+ *(.fini1)
+ *(.fini1)
+ *(.fini0)
+ .fini0         0x00005746        0x4 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/avr5\libgcc.a(_exit.o)
+ *(.fini0)
+                0x0000574a                _etext = .
+
+.data           0x00800100       0x9a load address 0x0000574a
+                0x00800100                PROVIDE (__data_start, .)
+ *(.data)
+ *(.data*)
+ .data.blinkState
+                0x00800100        0x1 hardware/board/Board.o
+                0x00800100                blinkState
+ *(.rodata)
+ *(.rodata*)
+ .rodata._ZL18encoderLookUpTable
+                0x00800101       0x10 hardware/board/Board.o
+ .rodata._ZL9rgbColors
+                0x00800111       0x18 hardware/board/Board.o
+ .rodata._ZL18ledTransitionScale
+                0x00800129       0x40 hardware/board/Board.o
+ .rodata._ZL16ledOnLookUpTable
+                0x00800169       0x10 hardware/board/Board.o
+ .rodata._ZL16muxPinOrderArray
+                0x00800179       0x10 hardware/board/Board.o
+ .rodata._ZL13dmColumnArray
+                0x00800189        0x8 hardware/board/Board.o
+ .rodata._ZL13dmRowBitArray
+                0x00800191        0x8 hardware/board/Board.o
+ *(.gnu.linkonce.d*)
+                0x0080019a                . = ALIGN (0x2)
+ *fill*         0x00800199        0x1 
+                0x0080019a                _edata = .
+                0x0080019a                PROVIDE (__data_end, .)
+
+.bss            0x0080019a      0x650
+                0x0080019a                PROVIDE (__bss_start, .)
+ *(.bss)
+ *(.bss*)
+ .bss.configuration
+                0x0080019a       0xa5 eeprom/Configuration.o
+                0x0080019a                configuration
+ .bss._ZZ11__vector_21E20updateMillisAndBlink
+                0x0080023f        0x1 hardware/board/Board.o
+ .bss._ZZ11__vector_21E19matrixSwitchCounter
+                0x00800240        0x1 hardware/board/Board.o
+ .bss.board     0x00800241        0x1 hardware/board/Board.o
+                0x00800241                board
+ .bss.rTime_ms  0x00800242        0x4 hardware/board/Board.o
+                0x00800242                rTime_ms
+ .bss.adcDelayCounter
+                0x00800246        0x1 hardware/board/Board.o
+                0x00800246                adcDelayCounter
+ .bss.analogBufferCopy
+                0x00800247       0x40 hardware/board/Board.o
+                0x00800247                analogBufferCopy
+ .bss.analogBuffer
+                0x00800287       0x40 hardware/board/Board.o
+                0x00800287                analogBuffer
+ .bss.analogBufferCounter
+                0x008002c7        0x1 hardware/board/Board.o
+                0x008002c7                analogBufferCounter
+ .bss.activeMuxInput
+                0x008002c8        0x1 hardware/board/Board.o
+                0x008002c8                activeMuxInput
+ .bss.activeMux
+                0x008002c9        0x1 hardware/board/Board.o
+                0x008002c9                activeMux
+ .bss._analogDataAvailable
+                0x008002ca        0x1 hardware/board/Board.o
+                0x008002ca                _analogDataAvailable
+ .bss.blinkTimerCounter
+                0x008002cb        0x4 hardware/board/Board.o
+                0x008002cb                blinkTimerCounter
+ .bss.transitionCounter
+                0x008002cf       0x30 hardware/board/Board.o
+                0x008002cf                transitionCounter
+ .bss.ledBlinkTime
+                0x008002ff        0x2 hardware/board/Board.o
+                0x008002ff                ledBlinkTime
+ .bss.ledState  0x00800301       0x30 hardware/board/Board.o
+                0x00800301                ledState
+ .bss.pwmSteps  0x00800331        0x1 hardware/board/Board.o
+                0x00800331                pwmSteps
+ .bss.blinkEnabled
+                0x00800332        0x1 hardware/board/Board.o
+                0x00800332                blinkEnabled
+ .bss.dmBufferCopied
+                0x00800333        0x1 hardware/board/Board.o
+                0x00800333                dmBufferCopied
+ .bss.encodersProcessed
+                0x00800334        0x1 hardware/board/Board.o
+                0x00800334                encodersProcessed
+ .bss.buttonsProcessed
+                0x00800335        0x1 hardware/board/Board.o
+                0x00800335                buttonsProcessed
+ .bss.encoderData
+                0x00800336       0x40 hardware/board/Board.o
+                0x00800336                encoderData
+ .bss._ZL19digital_buffer_tail
+                0x00800376        0x1 hardware/board/Board.o
+ .bss._ZL19digital_buffer_head
+                0x00800377        0x1 hardware/board/Board.o
+ .bss._ZL11inputBuffer
+                0x00800378       0x20 hardware/board/Board.o
+ .bss.inputMatrixBufferCopy
+                0x00800398        0x8 hardware/board/Board.o
+                0x00800398                inputMatrixBufferCopy
+ .bss.activeLEDcolumn
+                0x008003a0        0x1 hardware/board/Board.o
+                0x008003a0                activeLEDcolumn
+ .bss.hwMIDI    0x008003a1       0x63 hardware/midi/hw_midi/hw_MIDI.o
+                0x008003a1                hwMIDI
+ .bss.usbMIDI   0x00800404       0x62 hardware/midi/usb_midi/USBmidi.o
+                0x00800404                usbMIDI
+ .bss.uart      0x00800466        0x1 hardware/uart/UART.o
+                0x00800466                uart
+ .bss.txEnabled
+                0x00800467        0x1 hardware/uart/UART.o
+                0x00800467                txEnabled
+ .bss.rxEnabled
+                0x00800468        0x1 hardware/uart/UART.o
+                0x00800468                rxEnabled
+ .bss._ZL14tx_buffer_tail
+                0x00800469        0x1 hardware/uart/UART.o
+ .bss._ZL14tx_buffer_head
+                0x0080046a        0x1 hardware/uart/UART.o
+ .bss._ZL14rx_buffer_tail
+                0x0080046b        0x1 hardware/uart/UART.o
+ .bss._ZL14rx_buffer_head
+                0x0080046c        0x1 hardware/uart/UART.o
+ .bss._ZL9rx_buffer
+                0x0080046d       0x50 hardware/uart/UART.o
+ .bss._ZL9tx_buffer
+                0x008004bd       0x50 hardware/uart/UART.o
+ .bss.analog    0x0080050d      0x1a5 interface/analog/Analog.o
+                0x0080050d                analog
+ .bss.buttons   0x008006b2       0x52 interface/buttons/Buttons.o
+                0x008006b2                buttons
+ .bss.encoders  0x00800704        0x1 interface/encoders/Encoders.o
+                0x00800704                encoders
+ .bss.leds      0x00800705        0x1 interface/leds/LEDs.o
+                0x00800705                leds
+ .bss.midi      0x00800706        0x5 interface/midi/MIDI.o
+                0x00800706                midi
+ .bss.sysEx     0x0080070b       0xdf sysex/SysEx.o
+                0x0080070b                sysEx
+ *(COMMON)
+                0x008007ea                PROVIDE (__bss_end, .)
+                0x0000574a                __data_load_start = LOADADDR (.data)
+                0x000057e4                __data_load_end = (__data_load_start + SIZEOF (.data))
+
+.noinit         0x008007ea        0x7
+                0x008007ea                PROVIDE (__noinit_start, .)
+ *(.noinit*)
+ .noinit        0x008007ea        0x4 hardware/reset/Reset.o
+                0x008007ea                Boot_Key
+ .noinit        0x008007ee        0x3 hardware/usb/usb.o
+                0x008007ee                debug_flush_timer
+                0x008007ef                usb_suspended
+                0x008007f0                usb_configuration
+                0x008007f1                PROVIDE (__noinit_end, .)
+                0x008007f1                _end = .
+                0x008007f1                PROVIDE (__heap_start, .)
+
+.eeprom         0x00810000        0x0
+ *(.eeprom*)
+                0x00810000                __eeprom_end = .
+
+.fuse
+ *(.fuse)
+ *(.lfuse)
+ *(.hfuse)
+ *(.efuse)
+
+.lock
+ *(.lock*)
+
+.signature
+ *(.signature*)
+
+.user_signatures
+ *(.user_signatures*)
+
+.stab
+ *(.stab)
+
+.stabstr
+ *(.stabstr)
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.comment        0x00000000       0x30
+ *(.comment)
+ .comment       0x00000000       0x30 eeprom/Configuration.o
+                                 0x31 (size before relaxing)
+ .comment       0x00000030       0x31 eeprom/MemoryLayout.o
+ .comment       0x00000030       0x31 hardware/adc/ADC.o
+ .comment       0x00000030       0x31 hardware/board/Board.o
+ .comment       0x00000030       0x31 hardware/midi/hw_midi/hw_MIDI.o
+ .comment       0x00000030       0x31 hardware/midi/usb_midi/USBmidi.o
+ .comment       0x00000030       0x31 hardware/reset/Reset.o
+ .comment       0x00000030       0x31 hardware/uart/UART.o
+ .comment       0x00000030       0x31 hardware/usb/usb.o
+ .comment       0x00000030       0x31 interface/analog/Analog.o
+ .comment       0x00000030       0x31 interface/analog/FSR.o
+ .comment       0x00000030       0x31 interface/analog/Potentiometer.o
+ .comment       0x00000030       0x31 interface/buttons/Buttons.o
+ .comment       0x00000030       0x31 interface/encoders/Encoders.o
+ .comment       0x00000030       0x31 interface/leds/LEDs.o
+ .comment       0x00000030       0x31 interface/midi/MIDI.o
+ .comment       0x00000030       0x31 OpenDeck.o
+ .comment       0x00000030       0x31 sysex/SysEx.o
+
+.note.gnu.avr.deviceinfo
+                0x00000000       0x40
+ .note.gnu.avr.deviceinfo
+                0x00000000       0x40 c:/program files (x86)/atmel/studio/7.0/toolchain/avr8/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.9.2/../../../../avr/lib/avr5/crtatmega32u4.o
+
+.note.gnu.build-id
+ *(.note.gnu.build-id)
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges  0x00000000      0x8f8
+ *(.debug_aranges)
+ .debug_aranges
+                0x00000000       0x50 eeprom/Configuration.o
+ .debug_aranges
+                0x00000050       0x20 eeprom/MemoryLayout.o
+ .debug_aranges
+                0x00000070       0x40 hardware/adc/ADC.o
+ .debug_aranges
+                0x000000b0       0xf0 hardware/board/Board.o
+ .debug_aranges
+                0x000001a0      0x170 hardware/midi/hw_midi/hw_MIDI.o
+ .debug_aranges
+                0x00000310       0x78 hardware/midi/usb_midi/USBmidi.o
+ .debug_aranges
+                0x00000388       0x30 hardware/reset/Reset.o
+ .debug_aranges
+                0x000003b8       0x58 hardware/uart/UART.o
+ .debug_aranges
+                0x00000410       0x38 hardware/usb/usb.o
+ .debug_aranges
+                0x00000448       0xa8 interface/analog/Analog.o
+ .debug_aranges
+                0x000004f0       0x30 interface/analog/FSR.o
+ .debug_aranges
+                0x00000520       0x20 interface/analog/Potentiometer.o
+ .debug_aranges
+                0x00000540       0xb0 interface/buttons/Buttons.o
+ .debug_aranges
+                0x000005f0       0x80 interface/encoders/Encoders.o
+ .debug_aranges
+                0x00000670       0xc0 interface/leds/LEDs.o
+ .debug_aranges
+                0x00000730       0x80 interface/midi/MIDI.o
+ .debug_aranges
+                0x000007b0       0x58 OpenDeck.o
+ .debug_aranges
+                0x00000808       0xf0 sysex/SysEx.o
+
+.debug_pubnames
+ *(.debug_pubnames)
+
+.debug_info     0x00000000    0x16a92
+ *(.debug_info .gnu.linkonce.wi.*)
+ .debug_info    0x00000000      0xa5f eeprom/Configuration.o
+ .debug_info    0x00000a5f      0x5d1 eeprom/MemoryLayout.o
+ .debug_info    0x00001030      0x131 hardware/adc/ADC.o
+ .debug_info    0x00001161     0x2041 hardware/board/Board.o
+ .debug_info    0x000031a2     0x1b49 hardware/midi/hw_midi/hw_MIDI.o
+ .debug_info    0x00004ceb      0xefa hardware/midi/usb_midi/USBmidi.o
+ .debug_info    0x00005be5      0x230 hardware/reset/Reset.o
+ .debug_info    0x00005e15      0x44e hardware/uart/UART.o
+ .debug_info    0x00006263      0x49f hardware/usb/usb.o
+ .debug_info    0x00006702     0x200e interface/analog/Analog.o
+ .debug_info    0x00008710     0x1157 interface/analog/FSR.o
+ .debug_info    0x00009867     0x1037 interface/analog/Potentiometer.o
+ .debug_info    0x0000a89e     0x20aa interface/buttons/Buttons.o
+ .debug_info    0x0000c948     0x1b3e interface/encoders/Encoders.o
+ .debug_info    0x0000e486     0x2574 interface/leds/LEDs.o
+ .debug_info    0x000109fa     0x28b7 interface/midi/MIDI.o
+ .debug_info    0x000132b1     0x2035 OpenDeck.o
+ .debug_info    0x000152e6     0x17ac sysex/SysEx.o
+
+.debug_abbrev   0x00000000     0x32b7
+ *(.debug_abbrev)
+ .debug_abbrev  0x00000000      0x2b7 eeprom/Configuration.o
+ .debug_abbrev  0x000002b7      0x191 eeprom/MemoryLayout.o
+ .debug_abbrev  0x00000448       0xb0 hardware/adc/ADC.o
+ .debug_abbrev  0x000004f8      0x5a6 hardware/board/Board.o
+ .debug_abbrev  0x00000a9e      0x35f hardware/midi/hw_midi/hw_MIDI.o
+ .debug_abbrev  0x00000dfd      0x26d hardware/midi/usb_midi/USBmidi.o
+ .debug_abbrev  0x0000106a      0x16f hardware/reset/Reset.o
+ .debug_abbrev  0x000011d9      0x1d3 hardware/uart/UART.o
+ .debug_abbrev  0x000013ac      0x165 hardware/usb/usb.o
+ .debug_abbrev  0x00001511      0x381 interface/analog/Analog.o
+ .debug_abbrev  0x00001892      0x2d4 interface/analog/FSR.o
+ .debug_abbrev  0x00001b66      0x282 interface/analog/Potentiometer.o
+ .debug_abbrev  0x00001de8      0x3aa interface/buttons/Buttons.o
+ .debug_abbrev  0x00002192      0x358 interface/encoders/Encoders.o
+ .debug_abbrev  0x000024ea      0x3f6 interface/leds/LEDs.o
+ .debug_abbrev  0x000028e0      0x379 interface/midi/MIDI.o
+ .debug_abbrev  0x00002c59      0x271 OpenDeck.o
+ .debug_abbrev  0x00002eca      0x3ed sysex/SysEx.o
+
+.debug_line     0x00000000     0x3e63
+ *(.debug_line .debug_line.* .debug_line_end)
+ .debug_line    0x00000000      0x2d9 eeprom/Configuration.o
+ .debug_line    0x000002d9      0x1b2 eeprom/MemoryLayout.o
+ .debug_line    0x0000048b       0xfc hardware/adc/ADC.o
+ .debug_line    0x00000587      0x7d2 hardware/board/Board.o
+ .debug_line    0x00000d59      0x5dc hardware/midi/hw_midi/hw_MIDI.o
+ .debug_line    0x00001335      0x31e hardware/midi/usb_midi/USBmidi.o
+ .debug_line    0x00001653      0x1f7 hardware/reset/Reset.o
+ .debug_line    0x0000184a      0x174 hardware/uart/UART.o
+ .debug_line    0x000019be      0x216 hardware/usb/usb.o
+ .debug_line    0x00001bd4      0x482 interface/analog/Analog.o
+ .debug_line    0x00002056      0x21d interface/analog/FSR.o
+ .debug_line    0x00002273      0x1fd interface/analog/Potentiometer.o
+ .debug_line    0x00002470      0x4d2 interface/buttons/Buttons.o
+ .debug_line    0x00002942      0x436 interface/encoders/Encoders.o
+ .debug_line    0x00002d78      0x581 interface/leds/LEDs.o
+ .debug_line    0x000032f9      0x45e interface/midi/MIDI.o
+ .debug_line    0x00003757      0x2ee OpenDeck.o
+ .debug_line    0x00003a45      0x41e sysex/SysEx.o
+
+.debug_frame    0x00000000     0x1a68
+ *(.debug_frame)
+ .debug_frame   0x00000000      0x19c eeprom/Configuration.o
+ .debug_frame   0x0000019c       0x24 eeprom/MemoryLayout.o
+ .debug_frame   0x000001c0       0x64 hardware/adc/ADC.o
+ .debug_frame   0x00000224      0x344 hardware/board/Board.o
+ .debug_frame   0x00000568      0x3dc hardware/midi/hw_midi/hw_MIDI.o
+ .debug_frame   0x00000944      0x178 hardware/midi/usb_midi/USBmidi.o
+ .debug_frame   0x00000abc       0x4c hardware/reset/Reset.o
+ .debug_frame   0x00000b08      0x104 hardware/uart/UART.o
+ .debug_frame   0x00000c0c       0xcc hardware/usb/usb.o
+ .debug_frame   0x00000cd8      0x1e0 interface/analog/Analog.o
+ .debug_frame   0x00000eb8       0x64 interface/analog/FSR.o
+ .debug_frame   0x00000f1c       0x5c interface/analog/Potentiometer.o
+ .debug_frame   0x00000f78      0x1fc interface/buttons/Buttons.o
+ .debug_frame   0x00001174      0x174 interface/encoders/Encoders.o
+ .debug_frame   0x000012e8      0x288 interface/leds/LEDs.o
+ .debug_frame   0x00001570      0x19c interface/midi/MIDI.o
+ .debug_frame   0x0000170c       0x94 OpenDeck.o
+ .debug_frame   0x000017a0      0x2c8 sysex/SysEx.o
+
+.debug_str      0x00000000     0x4b62
+ *(.debug_str)
+ .debug_str     0x00000000      0x5c8 eeprom/Configuration.o
+                                0x61d (size before relaxing)
+ .debug_str     0x000005c8      0x408 eeprom/MemoryLayout.o
+                                0x997 (size before relaxing)
+ .debug_str     0x000009d0       0xcf hardware/adc/ADC.o
+                                0x273 (size before relaxing)
+ .debug_str     0x00000a9f      0xc43 hardware/board/Board.o
+                               0x13f7 (size before relaxing)
+ .debug_str     0x000016e2      0xbb9 hardware/midi/hw_midi/hw_MIDI.o
+                                0xe17 (size before relaxing)
+ .debug_str     0x0000229b      0x57c hardware/midi/usb_midi/USBmidi.o
+                                0x9d3 (size before relaxing)
+ .debug_str     0x00002817       0xa3 hardware/reset/Reset.o
+                                0x28f (size before relaxing)
+ .debug_str     0x000028ba       0xd5 hardware/uart/UART.o
+                                0x31b (size before relaxing)
+ .debug_str     0x0000298f      0x246 hardware/usb/usb.o
+                                0x349 (size before relaxing)
+ .debug_str     0x00002bd5      0xcaa interface/analog/Analog.o
+                               0x186c (size before relaxing)
+ .debug_str     0x0000387f      0x264 interface/analog/FSR.o
+                               0x1075 (size before relaxing)
+ .debug_str     0x00003ae3       0x5d interface/analog/Potentiometer.o
+                               0x101e (size before relaxing)
+ .debug_str     0x00003b40      0x4cc interface/buttons/Buttons.o
+                               0x179a (size before relaxing)
+ .debug_str     0x0000400c      0x140 interface/encoders/Encoders.o
+                               0x16ff (size before relaxing)
+ .debug_str     0x0000414c      0x675 interface/leds/LEDs.o
+                               0x187c (size before relaxing)
+ .debug_str     0x000047c1       0xf1 interface/midi/MIDI.o
+                               0x236f (size before relaxing)
+ .debug_str     0x000048b2       0xc9 OpenDeck.o
+                               0x207b (size before relaxing)
+ .debug_str     0x0000497b      0x1e7 sysex/SysEx.o
+                                0xd40 (size before relaxing)
+
+.debug_loc      0x00000000     0xc4dc
+ *(.debug_loc)
+ .debug_loc     0x00000000      0xd0b eeprom/Configuration.o
+ .debug_loc     0x00000d0b       0x36 eeprom/MemoryLayout.o
+ .debug_loc     0x00000d41       0xae hardware/adc/ADC.o
+ .debug_loc     0x00000def     0x1a0f hardware/board/Board.o
+ .debug_loc     0x000027fe     0x1529 hardware/midi/hw_midi/hw_MIDI.o
+ .debug_loc     0x00003d27      0xa81 hardware/midi/usb_midi/USBmidi.o
+ .debug_loc     0x000047a8       0x76 hardware/reset/Reset.o
+ .debug_loc     0x0000481e      0x348 hardware/uart/UART.o
+ .debug_loc     0x00004b66      0x55d hardware/usb/usb.o
+ .debug_loc     0x000050c3     0x14b9 interface/analog/Analog.o
+ .debug_loc     0x0000657c      0x32e interface/analog/FSR.o
+ .debug_loc     0x000068aa      0x231 interface/analog/Potentiometer.o
+ .debug_loc     0x00006adb     0x1017 interface/buttons/Buttons.o
+ .debug_loc     0x00007af2      0xcc2 interface/encoders/Encoders.o
+ .debug_loc     0x000087b4     0x19f3 interface/leds/LEDs.o
+ .debug_loc     0x0000a1a7      0xb73 interface/midi/MIDI.o
+ .debug_loc     0x0000ad1a      0x5ca OpenDeck.o
+ .debug_loc     0x0000b2e4     0x11f8 sysex/SysEx.o
+
+.debug_macinfo
+ *(.debug_macinfo)
+
+.debug_weaknames
+ *(.debug_weaknames)
+
+.debug_funcnames
+ *(.debug_funcnames)
+
+.debug_typenames
+ *(.debug_typenames)
+
+.debug_varnames
+ *(.debug_varnames)
+
+.debug_pubtypes
+ *(.debug_pubtypes)
+
+.debug_ranges   0x00000000      0xb10
+ *(.debug_ranges)
+ .debug_ranges  0x00000000       0xf0 eeprom/Configuration.o
+ .debug_ranges  0x000000f0       0x10 eeprom/MemoryLayout.o
+ .debug_ranges  0x00000100       0x30 hardware/adc/ADC.o
+ .debug_ranges  0x00000130      0x218 hardware/board/Board.o
+ .debug_ranges  0x00000348      0x1b8 hardware/midi/hw_midi/hw_MIDI.o
+ .debug_ranges  0x00000500       0x80 hardware/midi/usb_midi/USBmidi.o
+ .debug_ranges  0x00000580       0x20 hardware/reset/Reset.o
+ .debug_ranges  0x000005a0       0x48 hardware/uart/UART.o
+ .debug_ranges  0x000005e8       0x48 hardware/usb/usb.o
+ .debug_ranges  0x00000630       0xf8 interface/analog/Analog.o
+ .debug_ranges  0x00000728       0x38 interface/analog/FSR.o
+ .debug_ranges  0x00000760       0x10 interface/analog/Potentiometer.o
+ .debug_ranges  0x00000770       0xa0 interface/buttons/Buttons.o
+ .debug_ranges  0x00000810       0x70 interface/encoders/Encoders.o
+ .debug_ranges  0x00000880       0xe0 interface/leds/LEDs.o
+ .debug_ranges  0x00000960       0x70 interface/midi/MIDI.o
+ .debug_ranges  0x000009d0       0x48 OpenDeck.o
+ .debug_ranges  0x00000a18       0xf8 sysex/SysEx.o
+
+.debug_macro
+ *(.debug_macro)
+OUTPUT(OpenDeck_MCU.elf elf32-avr)
+LOAD linker stubs

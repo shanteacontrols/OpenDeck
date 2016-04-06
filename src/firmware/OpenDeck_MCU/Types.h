@@ -110,17 +110,36 @@ enum ccLimitType {
 
 };
 
-
 enum midiMessageType {
 
-    midiMessageNoteOff           = 0x80, //Note Off
-    midiMessageNoteOn            = 0x90, //Note On
-    midiMessageControlChange     = 0xB0, //Control Change / Channel Mode
-    midiMessageProgramChange     = 0xC0, //Program Change
-    midiMessageAfterTouchChannel = 0xD0, //Channel (monophonic) AfterTouch
-    midiMessagePitchBend         = 0xE0, //Pitch Bend
-    midiMessageSystemExclusive   = 0xF0, //System Exclusive
-    midiMessageInvalidType       = 0x00  //For notifying errors
+    midiMessageNoteOff              = 0x80, //Note Off
+    midiMessageNoteOn               = 0x90, //Note On
+    midiMessageControlChange        = 0xB0, //Control Change / Channel Mode
+    midiMessageProgramChange        = 0xC0, //Program Change
+    midiMessageAfterTouchChannel    = 0xD0, //Channel (monophonic) AfterTouch
+    midiMessageAfterTouchPoly       = 0xA0, //Polyphonic AfterTouch
+    midiMessagePitchBend            = 0xE0, //Pitch Bend
+    midiMessageSystemExclusive      = 0xF0, //System Exclusive
+    midiMessageTimeCodeQuarterFrame = 0xF1, //System Common - MIDI Time Code Quarter Frame
+    midiMessageSongPosition         = 0xF2, //System Common - Song Position Pointer
+    midiMessageSongSelect           = 0xF3, //System Common - Song Select
+    midiMessageTuneRequest          = 0xF6, //System Common - Tune Request
+    midiMessageClock                = 0xF8, //System Real Time - Timing Clock
+    midiMessageStart                = 0xFA, //System Real Time - Start
+    midiMessageContinue             = 0xFB, //System Real Time - Continue
+    midiMessageStop                 = 0xFC, //System Real Time - Stop
+    midiMessageActiveSensing        = 0xFE, //System Real Time - Active Sensing
+    midiMessageSystemReset          = 0xFF, //System Real Time - System Reset
+    midiMessageInvalidType          = 0x00  //For notifying errors
+
+};
+
+enum MidiFilterMode {
+
+    Off,                //thru disabled (nothing passes through)
+    Full,               //fully enabled Thru (every incoming message is sent back)
+    SameChannel,        //only the messages on the Input Channel will be sent back
+    DifferentChannel    //all the messages but the ones on the Input Channel will be sent back
 
 };
 

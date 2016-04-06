@@ -202,10 +202,10 @@
     <Compile Include="hardware\board\Board.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="hardware\midi\hw_midi\HWmidi.cpp">
+    <Compile Include="hardware\midi\hw_midi\hw_MIDI.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="hardware\midi\hw_midi\HWmidi.h">
+    <Compile Include="hardware\midi\hw_midi\hw_MIDI.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hardware\midi\usb_midi\CIN.h">

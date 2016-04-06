@@ -44,12 +44,6 @@ class Analog {
 
     };
 
-    //inline uint16_t mapAnalog_uint16(uint16_t x, uint16_t in_min, uint16_t in_max, uint16_t out_min, uint16_t out_max) {
-//
-        //return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-//
-    //};
-
     //set
     bool setAnalogEnabled(uint8_t analogID, bool state);
     bool setAnalogType(uint8_t analogID, uint8_t type);

@@ -30,7 +30,7 @@
 #include "USBmidi.h"
 #include "CIN.h"
 
-void usb_midi_class::begin(uint8_t channel) {
+void usb_midi_class::init(uint8_t channel) {
 
     usb_init();
     inChannel = channel;
