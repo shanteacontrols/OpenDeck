@@ -113,7 +113,11 @@ void MIDI::checkInput()   {
                     break;
 
                     case midiMessageAfterTouchChannel:
-                    usbMIDI.sendAfterTouch(data1, getMIDIchannel(inputChannel));
+                    usbMIDI.sendChannelAftertouch(data1, getMIDIchannel(inputChannel));
+                    break;
+
+                    case midiMessageAfterTouchPoly:
+                    usbMIDI.sendKeyAftertouch(data1, data2, getMIDIchannel(inputChannel));
                     break;
 
                     default:

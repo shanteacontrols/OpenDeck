@@ -12,7 +12,8 @@
 #define CIN_SYSEX_STOP_3BYTE    0x07
 #define CIN_CONTROL_CHANGE      0x0B
 #define CIN_PROGRAM_CHANGE      0x0C
-#define CIN_AFTERTOUCH          0x0D
+#define CIN_CHANNEL_AFTERTOUCH  0x0D
+#define CIN_KEY_AFTERTOUCH      0x0A
 #define CIN_PITCH_BEND          0x0E
 
 #endif

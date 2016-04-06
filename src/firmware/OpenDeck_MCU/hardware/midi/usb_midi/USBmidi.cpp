@@ -61,9 +61,15 @@ void usb_midi_class::sendProgramChange(uint8_t program, uint8_t channel)    {
 
 }
 
-void usb_midi_class::sendAfterTouch(uint8_t pressure, uint8_t channel)  {
+void usb_midi_class::sendChannelAftertouch(uint8_t pressure, uint8_t channel)  {
 
-    send_raw(CIN_AFTERTOUCH, midiMessageAfterTouchChannel | normalizeChannel(channel), normalizeData(pressure), 0);
+    send_raw(CIN_CHANNEL_AFTERTOUCH, midiMessageAfterTouchChannel | normalizeChannel(channel), normalizeData(pressure), 0);
+
+}
+
+void usb_midi_class::sendKeyAftertouch(uint8_t note, uint8_t pressure, uint8_t channel)  {
+
+    send_raw(CIN_KEY_AFTERTOUCH, midiMessageAfterTouchPoly | normalizeChannel(channel), normalizeData(note), normalizeData(pressure));
 
 }
 
@@ -268,8 +274,6 @@ bool usb_midi_class::read() {
 
             //note off
             msg_type = midiMessageNoteOff;
-            if (handleNoteOff) (*handleNoteOff)(decodedChannel, b2, b3);
-
             goto return_message;
 
         }
@@ -278,8 +282,6 @@ bool usb_midi_class::read() {
 
             //note on
             msg_type = midiMessageNoteOn;
-            if (handleNoteOn) (*handleNoteOn)(decodedChannel, b2, b3);
-
             goto return_message;
 
         }
@@ -288,8 +290,6 @@ bool usb_midi_class::read() {
 
             //control change
             msg_type = midiMessageControlChange;
-            if (handleControlChange) (*handleControlChange)(decodedChannel, b2, b3);
-
             goto return_message;
 
         }
@@ -298,18 +298,14 @@ bool usb_midi_class::read() {
 
             //program change
             msg_type = midiMessageProgramChange;
-            if (handleProgramChange) (*handleProgramChange)(decodedChannel, b2);
-
             goto return_message;
 
         }
 
-        if (cin == CIN_AFTERTOUCH && messageType == midiMessageAfterTouchChannel) {
+        if (cin == CIN_CHANNEL_AFTERTOUCH && messageType == midiMessageAfterTouchChannel) {
 
             //aftertouch
             msg_type = midiMessageAfterTouchChannel;
-            if (handleAfterTouch) (*handleAfterTouch)(decodedChannel, b2);
-
             goto return_message;
 
         }
@@ -318,8 +314,6 @@ bool usb_midi_class::read() {
 
             //pitch bend
             msg_type = midiMessagePitchBend;
-            if (handlePitchChange) (*handlePitchChange)(decodedChannel, (b2 & 0x7F) | ((b3 & 0x7F) << 7));
-
             goto return_message;
 
         }
