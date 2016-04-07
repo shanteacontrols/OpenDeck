@@ -22,18 +22,6 @@ extern "C"{
 
 /**************************************************************************
  *
- *  Configurable Options
- *
- **************************************************************************/
-
-
-
-#define TRANSMIT_FLUSH_TIMEOUT  4   /* in milliseconds */
-#define TRANSMIT_TIMEOUT        25  /* in milliseconds */
-
-
-/**************************************************************************
- *
  *  Endpoint Buffer Configuration
  *
  **************************************************************************/
@@ -45,8 +33,6 @@ extern "C"{
 
 
 //0: control
-//1: debug IN
-//2: debug OUT
 //3: midi IN
 //4: midi OUT
 
@@ -69,24 +55,24 @@ extern "C"{
 #define DEBUG_RX_INTERVAL   2
 
 #define MIDI_INTERFACE      0
-#define MIDI_TX_ENDPOINT    3
+#define MIDI_TX_ENDPOINT    1
 #define MIDI_TX_SIZE        64
 #define MIDI_TX_BUFFER      EP_DOUBLE_BUFFER
-#define MIDI_RX_ENDPOINT    4
+#define MIDI_RX_ENDPOINT    2
 #define MIDI_RX_SIZE        64
 #define MIDI_RX_BUFFER      EP_DOUBLE_BUFFER
 
-#define NUM_ENDPOINTS       5
-#define NUM_INTERFACE       2
+#define NUM_ENDPOINTS       3
 
-// setup
+//setup
 void usb_init(void);            //initialize everything
 void usb_shutdown(void);        //shut off USB
 
-// variables
+void usbSend(uint8_t usbByte0, uint8_t usbByte1, uint8_t usbByte2, uint8_t usbByte3);
+
+//variables
 extern volatile uint8_t usb_configuration;
 extern volatile uint8_t usb_suspended;
-extern volatile uint8_t debug_flush_timer;
 
 #ifdef __cplusplus
 } // extern "C"

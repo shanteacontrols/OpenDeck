@@ -216,9 +216,9 @@ bool Buttons::buttonDebounced(uint8_t buttonID, bool buttonState)   {
 
 }
 
-buttonType Buttons::getButtonType(uint8_t buttonID)  {
+buttonType_t Buttons::getButtonType(uint8_t buttonID)  {
 
-    return (buttonType)configuration.readParameter(CONF_BUTTON_BLOCK, buttonTypeSection, buttonID);
+    return (buttonType_t)configuration.readParameter(CONF_BUTTON_BLOCK, buttonTypeSection, buttonID);
 
 }
 

@@ -12,7 +12,7 @@ class LEDs {
     void init();
     uint8_t getParameter(uint8_t messageType, uint8_t parameterID);
     bool setParameter(uint8_t messageType, uint8_t parameter, uint8_t newParameter);
-    ledColor velocity2color(bool blinEnabled, uint8_t receivedVelocity);
+    ledColor_t velocity2color(bool blinEnabled, uint8_t receivedVelocity);
     bool velocity2blinkState(uint8_t receivedVelocity);
     void noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity);
     void allLEDsOn();

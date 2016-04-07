@@ -31,7 +31,7 @@ class Buttons {
     bool buttonDebounced(uint8_t buttonID, bool buttonState);
 
     //get
-    buttonType getButtonType(uint8_t buttonID);
+    buttonType_t getButtonType(uint8_t buttonID);
     bool getButtonPCenabled(uint8_t buttonID);
     uint8_t getMIDIid(uint8_t buttonID);
 

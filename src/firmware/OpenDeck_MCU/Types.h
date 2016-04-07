@@ -1,21 +1,21 @@
 #ifndef TYPES_H_
 #define TYPES_H_
 
-enum midiInterfaceType   {
+enum midiInterfaceType_t   {
 
     dinInterface,
     usbInterface
 
 };
 
-enum midiVelocity {
+enum midiVelocity_t {
 
     velocityOn = 127,
     velocityOff = 0
 
 };
 
-enum encoderPosition {
+enum encoderPosition_t {
 
     encMoveLeft = 1,
     encMoveRight = 2,
@@ -23,7 +23,7 @@ enum encoderPosition {
 
 };
 
-enum buttonType {
+enum buttonType_t {
 
     buttonMomentary,
     buttonLatching,
@@ -31,14 +31,14 @@ enum buttonType {
 
 };
 
-enum ledMessageType {
+enum ledMessageType_t {
 
     ledActivationNoteMessage,
     ledStartUpNumberMessage
 
 };
 
-enum ledColor {
+enum ledColor_t {
 
     colorOff,
     colorWhite,
@@ -53,14 +53,14 @@ enum ledColor {
 
 };
 
-enum ledType {
+enum ledType_t {
 
     singleLED,
     rgbLED
 
 };
 
-enum encoderType {
+enum encoderType_t {
 
     enc7Fh01h = 0,
     enc3Fh41h = 1,
@@ -68,14 +68,14 @@ enum encoderType {
 
 };
 
-enum pressureType {
+enum pressureType_t {
 
     velocity,
     aftertouch
 
 };
 
-enum analogType {
+enum analogType_t {
 
     potentiometer,
     fsr,
@@ -84,7 +84,7 @@ enum analogType {
 
 };
 
-enum midiComponentType {
+enum midiComponentType_t {
 
     midiComponentButton,
     midiComponentEncoder,
@@ -93,7 +93,7 @@ enum midiComponentType {
 
 };
 
-enum midiEventType {
+enum midiEventType_t {
 
     midiEventNote,
     midiEventCC,
@@ -103,14 +103,14 @@ enum midiEventType {
 
 };
 
-enum ccLimitType {
+enum ccLimitType_t {
 
     ccLimitLow,
     ccLimitHigh
 
 };
 
-enum midiMessageType {
+enum midiMessageType_t {
 
     midiMessageNoteOff              = 0x80, //Note Off
     midiMessageNoteOn               = 0x90, //Note On
@@ -134,7 +134,7 @@ enum midiMessageType {
 
 };
 
-enum MidiFilterMode {
+enum midiFilterMode_t {
 
     Off,                //thru disabled (nothing passes through)
     Full,               //fully enabled Thru (every incoming message is sent back)

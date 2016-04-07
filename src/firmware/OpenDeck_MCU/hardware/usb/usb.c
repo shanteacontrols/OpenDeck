@@ -11,7 +11,7 @@
 
 #include <util/delay.h>
 #include "usb_common.h"
-#include "usb_private.h"
+#include "usb.h"
 
 
 /**************************************************************************
@@ -23,8 +23,6 @@
 
 static const uint8_t PROGMEM endpoint_config_table[] = {
 
-    1, EP_TYPE_INTERRUPT_IN,  EP_SIZE(DEBUG_TX_SIZE) | DEBUG_TX_BUFFER,
-    1, EP_TYPE_INTERRUPT_OUT, EP_SIZE(DEBUG_RX_SIZE) | DEBUG_RX_BUFFER,
     1, EP_TYPE_BULK_IN,       EP_SIZE(MIDI_TX_SIZE) | MIDI_TX_BUFFER,
     1, EP_TYPE_BULK_OUT,      EP_SIZE(MIDI_RX_SIZE) | MIDI_RX_BUFFER
 
@@ -43,94 +41,44 @@ static const uint8_t PROGMEM endpoint_config_table[] = {
 //in here should only be done by those who've read chapter 9 of the USB
 //spec and relevant portions of any USB class specifications!
 
+//more info here: http://docs.lpcware.com/usbromlib/v1.0/_page__usb_descriptors.html
+
 static const uint8_t PROGMEM device_descriptor[] = {
 
-    18,                                 //bLength
-    1,                                  //bDescriptorType
-    0x00, 0x02,                         //bcdUSB
-    0,                                  //bDeviceClass
-    0,                                  //bDeviceSubClass
-    0,                                  //bDeviceProtocol
-    ENDPOINT0_SIZE,                     //bMaxPacketSize0
-    LSB(VENDOR_ID), MSB(VENDOR_ID),     //idVendor
-    LSB(PRODUCT_ID), MSB(PRODUCT_ID),   //idProduct
-    0x00, 0x01,                         //bcdDevice
-    0,                                  //iManufacturer
-    1,                                  //iProduct
-    0,                                  //iSerialNumber
-    1                                   //bNumConfigurations
+    18,                                 //bLength               //0
+    1,                                  //bDescriptorType       //1
+    0x00, 0x02,                         //bcdUSB                //2
+    0,                                  //bDeviceClass          //3
+    0,                                  //bDeviceSubClass       //4
+    0,                                  //bDeviceProtocol       //5
+    ENDPOINT0_SIZE,                     //bMaxPacketSize0       //6
+    LSB(VENDOR_ID), MSB(VENDOR_ID),     //idVendor              //7
+    LSB(PRODUCT_ID), MSB(PRODUCT_ID),   //idProduct             //8
+    0x00, 0x01,                         //bcdDevice             //9
+    0,                                  //iManufacturer         //10
+    1,                                  //iProduct              //11
+    0,                                  //iSerialNumber         //12
+    1                                   //bNumConfigurations    //13
 
 };
-
-static const uint8_t PROGMEM debug_hid_report_desc[] = {
-
-        0x06, 0xC9, 0xFF,               //Usage Page 0xFFC9 (vendor defined)
-        0x09, 0x04,                     //Usage 0x04
-        0xA1, 0x5C,                     //Collection 0x5C
-        0x75, 0x08,                     //report size = 8 bits (global)
-        0x15, 0x00,                     //logical minimum = 0 (global)
-        0x26, 0xFF, 0x00,               //logical maximum = 255 (global)
-        0x95, DEBUG_TX_SIZE,            //report count (global)
-        0x09, 0x75,                     //usage (local)
-        0x81, 0x02,                     //Input
-        0x95, DEBUG_RX_SIZE,            //report count (global)
-        0x09, 0x76,                     //usage (local)
-        0x91, 0x02,                     //Output
-        0x95, 0x04,                     //report count (global)
-        0x09, 0x76,                     //usage (local)
-        0xB1, 0x02,                     //Feature
-        0xC0                            //end collection
-
-};
-
 
 #define CONFIG1_DESC_SIZE               (9 + 74 + 32)
-#define DEBUG_HID_DESC_OFFSET           (9 + 74 + 9)
 
-static const uint8_t PROGMEM config1_descriptor[CONFIG1_DESC_SIZE] = {
+static const uint8_t PROGMEM config_descriptor[CONFIG1_DESC_SIZE] = {
 
     //configuration descriptor, USB spec 9.6.3, page 264-266, Table 9-10
     9,                                  //bLength;
     2,                                  //bDescriptorType;
-    LSB(CONFIG1_DESC_SIZE),             //wTotalLength
-    MSB(CONFIG1_DESC_SIZE),
-    NUM_INTERFACE,                      //bNumInterfaces
+    LSB(CONFIG1_DESC_SIZE),             //wTotalLength LSB
+    MSB(CONFIG1_DESC_SIZE),             //wTotalLength MSB
+    1,                                  //bNumInterfaces
     1,                                  //bConfigurationValue
     0,                                  //iConfiguration
     0xC0,                               //bmAttributes
-    50,                                 //bMaxPower
+    250,                                //bMaxPower
 
     // This MIDI stuff is a copy of the example from the Audio Class
     // MIDI spec 1.0 (Nov 1, 1999), Appendix B, pages 37 to 43.
-
-    #if 0
-    http://www.usb.org/developers/devclass_docs/midi10.pdf
-
-    Section B.3 seems to say these extra descriptors are required,
-    but when I add them, MIDI breaks on Linux (havent tried Mac and
-    Windows yet).  TODO: investigate these....
-    reported by "John K." on May 7, 2012, subject "USB MIDI descriptors"
-
-    //Standard AC Interface Descriptor
-    9,                                  //bLength
-    4,                                  //bDescriptorType = INTERFACE
-    0,                                  //bInterfaceNumber
-    0,                                  //bAlternateSetting
-    0,                                  //bNumEndpoints
-    1,                                  //bInterfaceClass = AUDIO
-    1,                                  //bInterfaceSubclass = AUDIO_CONTROL
-    0,                                  //bInterfaceProtocol
-    0,                                  //iInterface
-
-    //Class-specific AC Interface Descriptor
-    9,                                  //bLength
-    0x24,                               //bDescriptorType = CS_INTERFACE
-    1,                                  //bDescriptorSubtype = HEADER
-    0x00, 0x01,                         //bcdADC
-    0x09, 0x00,                         //wTotalLength
-    1,                                  //bInCollection
-    1,                                  //baInterfaceNr(1)
-    #endif
 
     //Standard MS Interface Descriptor
     9,                                  //bLength
@@ -205,7 +153,7 @@ static const uint8_t PROGMEM config1_descriptor[CONFIG1_DESC_SIZE] = {
     1,                                  //bNumEmbMIDIJack = 1 jack
     1,                                  //BaAssocJackID(1) = jack ID #1
 
-    //Standard Bulk IN Endpoint Descriptor, B.5.1, Table B-11, pae 42
+    //Standard Bulk IN Endpoint Descriptor, B.5.1, Table B-11, page 42
     9,                                  //bLength
     5,                                  //bDescriptorType = ENDPOINT 
     MIDI_TX_ENDPOINT | 0x80,            //bEndpointAddress
@@ -221,43 +169,6 @@ static const uint8_t PROGMEM config1_descriptor[CONFIG1_DESC_SIZE] = {
     0x01,                               //bJackType = MS_GENERAL
     1,                                  //bNumEmbMIDIJack = 1 jack
     3,                                  //BaAssocJackID(1) = jack ID #3
-
-    //interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
-    9,                                  //bLength
-    4,                                  //bDescriptorType
-    DEBUG_INTERFACE,                    //bInterfaceNumber
-    0,                                  //bAlternateSetting
-    2,                                  //bNumEndpoints
-    0x03,                               //bInterfaceClass (0x03 = HID)
-    0x00,                               //bInterfaceSubClass
-    0x00,                               //bInterfaceProtocol
-    0,                                  //iInterface
-
-    //HID interface descriptor, HID 1.11 spec, section 6.2.1
-    9,                                  //bLength
-    0x21,                               //bDescriptorType
-    0x11, 0x01,                         //bcdHID
-    0,                                  //bCountryCode
-    1,                                  //bNumDescriptors
-    0x22,                               //bDescriptorType
-    sizeof(debug_hid_report_desc),      //wDescriptorLength
-    0,
-
-    //endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
-    7,                                  //bLength
-    5,                                  //bDescriptorType
-    DEBUG_TX_ENDPOINT | 0x80,           //bEndpointAddress
-    0x03,                               //bmAttributes (0x03=intr)
-    DEBUG_TX_SIZE, 0,                   //wMaxPacketSize
-    DEBUG_TX_INTERVAL,                  //bInterval
-
-    //endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
-    7,                                  //bLength
-    5,                                  //bDescriptorType
-    DEBUG_RX_ENDPOINT,                  //bEndpointAddress
-    0x03,                               //bmAttributes (0x03=intr)
-    DEBUG_RX_SIZE, 0,                   //wMaxPacketSize
-    DEBUG_RX_INTERVAL,                  //bInterval
 
 };
 
@@ -297,14 +208,13 @@ static const struct descriptor_list_struct {
     uint16_t        wIndex;
     const uint8_t   *addr;
     uint8_t         length;
+
 }
 
 PROGMEM descriptor_list[] = {
 
     {0x0100, 0x0000, device_descriptor, sizeof(device_descriptor)},
-    {0x0200, 0x0000, config1_descriptor, sizeof(config1_descriptor)},
-    {0x2200, DEBUG_INTERFACE, debug_hid_report_desc, sizeof(debug_hid_report_desc)},
-    {0x2100, DEBUG_INTERFACE, config1_descriptor+DEBUG_HID_DESC_OFFSET, 9},
+    {0x0200, 0x0000, config_descriptor, sizeof(config_descriptor)},
     {0x0300, 0x0000, (const uint8_t *)&string0, 4},
     {0x0301, 0x0409, (const uint8_t *)&string1, sizeof(STR_PRODUCT)},
 
@@ -322,11 +232,6 @@ PROGMEM descriptor_list[] = {
 //zero when we are not configured, non-zero when enumerated
 volatile uint8_t usb_configuration USBSTATE;
 volatile uint8_t usb_suspended USBSTATE;
-
-//the time remaining before we transmit any partially full
-//packet, or send a zero length packet.
-volatile uint8_t debug_flush_timer USBSTATE;
-
 
 
 /**************************************************************************
@@ -351,7 +256,6 @@ void usb_init(void) {
     UDCON = 0;                      //enable attach resistor
     usb_configuration = 0;
     usb_suspended = 0;
-    debug_flush_timer = 0;
     UDINT = 0;
     UDIEN = (1<<EORSTE)|(1<<SOFE);
     sei();
@@ -369,6 +273,57 @@ void usb_shutdown(void) {
 
 }
 
+static inline void send_now(void)   {
+
+    uint8_t intr_state;
+
+    if (!usb_configuration) return;
+    intr_state = SREG;
+    cli();
+    UENUM = MIDI_TX_ENDPOINT;
+
+    if (UEBCLX != MIDI_TX_SIZE)
+    UEINTX = 0x3A;
+
+    SREG = intr_state;
+
+}
+
+void usbSend(uint8_t usbByte0, uint8_t usbByte1, uint8_t usbByte2, uint8_t usbByte3)   {
+
+    uint8_t intr_state, timeout;
+
+    if (!usb_configuration) return;
+    intr_state = SREG;
+    cli();
+    UENUM = MIDI_TX_ENDPOINT;
+    timeout = UDFNUML + 2;
+
+    while (1) {
+
+        //are we ready to transmit?
+        if (UEINTX & (1<<RWAL)) break;
+        SREG = intr_state;
+        if (UDFNUML == timeout) return;
+        if (!usb_configuration) return;
+        intr_state = SREG;
+        cli();
+        UENUM = MIDI_TX_ENDPOINT;
+
+    }
+
+    UEDATX = usbByte0;
+    UEDATX = usbByte1;
+    UEDATX = usbByte2;
+    UEDATX = usbByte3;
+
+    if (!(UEINTX & (1<<RWAL))) UEINTX = 0x3A;
+    SREG = intr_state;
+
+    send_now();
+
+}
+
 /**************************************************************************
  *
  *  Private Functions - not intended for general user consumption....
@@ -380,7 +335,7 @@ void usb_shutdown(void) {
 //the transmit buffer flushing is triggered by the start of frame
 ISR(USB_GEN_vect)   {
 
-    uint8_t intbits, t;
+    uint8_t intbits;
     intbits = UDINT;
     UDINT = 0;
 
@@ -396,28 +351,6 @@ ISR(USB_GEN_vect)   {
     }
 
     if ((intbits & (1<<SOFI)) && usb_configuration) {
-
-        t = debug_flush_timer;
-
-        if (t) {
-
-            debug_flush_timer = --t;
-
-            if (!t) {
-
-                UENUM = DEBUG_TX_ENDPOINT;
-
-                while ((UEINTX & (1<<RWAL))) {
-
-                    UEDATX = 0;
-
-                }
-
-                UEINTX = 0x3A;
-
-            }
-
-        }
 
         UENUM = MIDI_TX_ENDPOINT;
         if (UEBCLX) UEINTX = 0x3A;
@@ -464,7 +397,6 @@ ISR(USB_GEN_vect)   {
 
 }
 
-
 // Misc functions to wait for ready and send/receive packets
 static inline void usb_wait_in_ready(void)  {
 
@@ -477,20 +409,6 @@ static inline void usb_send_in(void)    {
     UEINTX = ~(1<<TXINI);
 
 }
-
-static inline void usb_wait_receive_out(void)   {
-
-    while (!(UEINTX & (1<<RXOUTI))) ;
-
-}
-
-static inline void usb_ack_out(void)    {
-
-    UEINTX = ~(1<<RXOUTI);
-
-}
-
-
 
 //USB Endpoint Interrupt - endpoint 0 is handled here.  The
 //other endpoints are manipulated by the user-callable
@@ -607,7 +525,6 @@ ISR(USB_COM_vect)   {
         if (bRequest == SET_CONFIGURATION && bmRequestType == 0)    {
 
             usb_configuration = wValue;
-            debug_flush_timer = 0;
             usb_send_in();
             cfg = endpoint_config_table;
 
@@ -672,9 +589,9 @@ ISR(USB_COM_vect)   {
                 usb_send_in();
                 UENUM = i;
 
-                if (bRequest == SET_FEATURE) {
+                if (bRequest == SET_FEATURE)
                     UECONX = (1<<STALLRQ)|(1<<EPEN);
-                } else {
+                else {
 
                     UECONX = (1<<STALLRQC)|(1<<RSTDT)|(1<<EPEN);
                     UERST = (1 << i);
@@ -688,78 +605,7 @@ ISR(USB_COM_vect)   {
 
         }
 
-//i really hope this section isn't necessary
-        //if (wIndex == DEBUG_INTERFACE) {
-//
-            //if (bRequest == HID_GET_REPORT && bmRequestType == 0xA1) {
-//
-                //len = wLength;
-//
-                //do {
-//
-                    ////wait for host ready for IN packet
-                    //do {
-//
-                        //i = UEINTX;
-//
-                    //} while (!(i & ((1<<TXINI)|(1<<RXOUTI))));
-//
-                    //if (i & (1<<RXOUTI)) return;    //abort
-//
-                    ////send IN packet
-                    //n = len < ENDPOINT0_SIZE ? len : ENDPOINT0_SIZE;
-//
-                    //for (i = n; i; i--) {
-//
-                        //UEDATX = 0;
-//
-                    //}
-//
-                    //len -= n;
-                    //usb_send_in();
-//
-                //} while (len || n == ENDPOINT0_SIZE);
-//
-                //return;
-//
-            //}
-//
-            //if (bRequest == HID_SET_REPORT && bmRequestType == 0x21) {
-//
-                //if (wValue == 0x0300 && wLength == 0x0004) {
-//
-                    //uint8_t b1, b2, b3, b4;
-//
-                    //usb_wait_receive_out();
-//
-                    //b1 = UEDATX;
-                    //b2 = UEDATX;
-                    //b3 = UEDATX;
-                    //b4 = UEDATX;
-//
-                    //usb_ack_out();
-                    //usb_send_in();
-//
-                    //if (b1 == 0xA9 && b2 == 0x45 && b3 == 0xC2 && b4 == 0x6B)
-                        //_reboot_Teensyduino_();
-                    //if (b1 == 0x8B && b2 == 0xC5 && b3 == 0x1D && b4 == 0x70)
-                        //_restart_Teensyduino_();
-//
-                //}
-//
-            //}
-//
-        //}
-
-        //if (bRequest == 0xC9 && bmRequestType == 0x40) {
-//
-            //usb_send_in();
-            //usb_wait_in_ready();
-            //_restart_Teensyduino_();
-//
-        //}
-
-        UECONX = (1<<STALLRQ) | (1<<EPEN);  // stall
+        UECONX = (1<<STALLRQ) | (1<<EPEN);
 
     }
 

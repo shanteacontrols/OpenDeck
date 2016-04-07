@@ -248,7 +248,7 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 
 }
 
-ledColor LEDs::velocity2color(bool blinkEnabled, uint8_t receivedVelocity) {
+ledColor_t LEDs::velocity2color(bool blinkEnabled, uint8_t receivedVelocity) {
 
     /*
 
@@ -289,12 +289,12 @@ ledColor LEDs::velocity2color(bool blinkEnabled, uint8_t receivedVelocity) {
     switch(blinkEnabled) {
 
         case false:
-        return (ledColor)(receivedVelocity/16);
+        return (ledColor_t)(receivedVelocity/16);
         break;
 
         case true:
         if (receivedVelocity > 63) receivedVelocity -= 64;
-        return (ledColor)(receivedVelocity/8);
+        return (ledColor_t)(receivedVelocity/8);
         break;
 
     }
@@ -314,7 +314,7 @@ void LEDs::noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity)    {
     if (!blinkEnabled_global) blinkEnabled_led = false;
     else blinkEnabled_led = velocity2blinkState(receivedVelocity);
 
-    ledColor color = velocity2color(blinkEnabled_global, receivedVelocity);
+    ledColor_t color = velocity2color(blinkEnabled_global, receivedVelocity);
 
     //match LED activation note with its index
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    {

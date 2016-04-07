@@ -6,8 +6,6 @@
 #include "../adc/ADC.h"
 #include "../../Types.h"
 #include "../pins/Pins.h"
-#include "../usb/usb_common.h"
-#include "../usb/usb_private.h"
 
 #define ANALOG_BUFFER_SIZE  MAX_NUMBER_OF_ANALOG
 
@@ -21,7 +19,7 @@ inline void setBlinkState(uint8_t ledNumber, bool state) __attribute__((always_i
 inline void activateInputColumn(uint8_t column) __attribute__((always_inline));
 inline void activateOutputColumn(uint8_t column) __attribute__((always_inline));
 inline void storeDigitalIn(uint8_t column, uint8_t bufferIndex) __attribute__((always_inline));
-inline encoderPosition readEncoder(uint8_t encoderID, uint8_t pairState) __attribute__((always_inline));
+inline encoderPosition_t readEncoder(uint8_t encoderID, uint8_t pairState) __attribute__((always_inline));
 
 uint32_t rTimeMillis();
 void wait(uint32_t time);
@@ -38,7 +36,7 @@ class Board {
     bool buttonDataAvailable();
     bool encoderDataAvailable();
     bool getButtonState(uint8_t buttonIndex);
-    encoderPosition getEncoderState(uint8_t encoderID);
+    encoderPosition_t getEncoderState(uint8_t encoderID);
 
     //analog
     bool analogDataAvailable();
@@ -46,7 +44,7 @@ class Board {
 
     //LEDs
     uint8_t getLEDstate(uint8_t ledNumber);
-    void setLEDstate(uint8_t ledNumber, ledColor color, bool blinkMode);
+    void setLEDstate(uint8_t ledNumber, ledColor_t color, bool blinkMode);
     void setLEDblinkTime(uint16_t blinkTime);
     void setLEDTransitionSpeed(uint8_t transitionSteps);
 
@@ -60,7 +58,7 @@ class Board {
     void ledBlinkingStart();
     void ledBlinkingStop();
     bool ledBlinkingActive();
-    void handleLED(uint8_t ledNumber, ledColor color, bool blinkMode, ledType type);
+    void handleLED(uint8_t ledNumber, ledColor_t color, bool blinkMode, ledType_t type);
 
 };
 
