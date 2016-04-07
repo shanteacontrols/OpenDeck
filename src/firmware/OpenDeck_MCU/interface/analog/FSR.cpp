@@ -25,7 +25,7 @@ inline int16_t mapAnalog_int16(int16_t x, int16_t in_min, int16_t in_max, int16_
 
 };
 
-inline int16_t calibratePressure(int16_t value, pressureType type)  {
+inline int16_t calibratePressure(int16_t value, pressureType_t type)  {
 
     switch(type)    {
 

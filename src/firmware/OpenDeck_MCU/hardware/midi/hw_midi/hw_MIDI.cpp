@@ -21,9 +21,11 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//library modifed by Igor Petrovic
+//library modified by Igor Petrovic
 
 #include "hw_MIDI.h"
+#include "../usb_midi/CIN.h"
+#include "../../hardware/usb/usb.h"
 
 HWmidi::HWmidi()   {
 
@@ -48,7 +50,7 @@ HWmidi::HWmidi()   {
 
 }
 
-bool HWmidi::init(uint8_t inChannel, bool inputEnabled, bool outputEnabled, midiInterfaceType type) {
+bool HWmidi::init(uint8_t inChannel, bool inputEnabled, bool outputEnabled, midiInterfaceType_t type) {
 
     switch(type)    {
 
@@ -70,7 +72,7 @@ bool HWmidi::init(uint8_t inChannel, bool inputEnabled, bool outputEnabled, midi
 
 }
 
-void HWmidi::send(midiMessageType inType, uint8_t inData1, uint8_t inData2, uint8_t inChannel)  {
+void HWmidi::send(midiMessageType_t inType, uint8_t inData1, uint8_t inData2, uint8_t inChannel, midiInterfaceType_t type)  {
 
     //inType:       MIDI message type
     //inData1:      The first data byte
@@ -79,10 +81,10 @@ void HWmidi::send(midiMessageType inType, uint8_t inData1, uint8_t inData2, uint
 
     //test if channel is valid
     if (inChannel >= MIDI_CHANNEL_OFF  ||
-        inChannel == MIDI_CHANNEL_OMNI ||
-        inType < 0x80)  {
+    inChannel == MIDI_CHANNEL_OMNI ||
+    inType < 0x80)  {
 
-        if (useRunningStatus)
+        if (useRunningStatus && (type == dinInterface))
             mRunningStatus_TX = midiMessageInvalidType;
 
         return; //don't send anything
@@ -99,7 +101,7 @@ void HWmidi::send(midiMessageType inType, uint8_t inData1, uint8_t inData2, uint
 
         const uint8_t status = getStatus(inType, inChannel);
 
-        if (useRunningStatus)   {
+        if (useRunningStatus && (type == dinInterface))   {
 
             if (mRunningStatus_TX != status)    {
 
@@ -111,93 +113,134 @@ void HWmidi::send(midiMessageType inType, uint8_t inData1, uint8_t inData2, uint
 
         }   else {
 
-            //don't care about running status, send the status byte
-            USE_SERIAL_PORT.write(status);
+            switch(type)    {
+
+                case dinInterface:
+                //don't care about running status, send the status byte
+                USE_SERIAL_PORT.write(status);
+                break;
+
+                default:
+                //nothing
+                break;
+
+            }
 
         }
 
         //send data
-        USE_SERIAL_PORT.write(inData1);
+        switch(type)    {
 
-        if (inType != midiMessageProgramChange && inType != midiMessageAfterTouchChannel)
-            USE_SERIAL_PORT.write(inData2);
+            case dinInterface:
+            USE_SERIAL_PORT.write(inData1);
+            break;
+
+            case usbInterface:
+            break;
+
+        }
+
+        if (inType != midiMessageProgramChange && inType != midiMessageAfterTouchChannel)   {
+
+            switch(type)    {
+
+                case dinInterface:
+                USE_SERIAL_PORT.write(inData2);
+                break;
+
+                case usbInterface:
+                break;
+
+            }
+
+        }
+
+        if (type == usbInterface)
+            usbSend(cin, status, inData1, inData2);
 
     }   else if (inType >= midiMessageTuneRequest && inType <= midiMessageSystemReset)
-            sendRealTime(inType); //system real-time and 1 byte
+            sendRealTime(inType, type); //system real-time and 1 byte
 
 }
 
-void HWmidi::sendNoteOn(uint8_t inNoteNumber, uint8_t inVelocity, uint8_t inChannel)    {
+void HWmidi::sendNoteOn(uint8_t inNoteNumber, uint8_t inVelocity, uint8_t inChannel, midiInterfaceType_t type)    {
 
     //inNoteNumber:   Pitch value in the MIDI format (0 to 127)
     //inVelocity:     Note attack velocity (0 to 127)
     //inChannel:      The channel on which the message will be sent (1 to 16).
 
-    send(midiMessageNoteOn, inNoteNumber, inVelocity, inChannel);
+    cin = CIN_NOTE_ON;
+    send(midiMessageNoteOn, inNoteNumber, inVelocity, inChannel, type);
 
 }
 
-void HWmidi::sendNoteOff(uint8_t inNoteNumber, uint8_t inVelocity, uint8_t inChannel)   {
+void HWmidi::sendNoteOff(uint8_t inNoteNumber, uint8_t inVelocity, uint8_t inChannel, midiInterfaceType_t type)   {
 
     //inNoteNumber:    Pitch value in the MIDI format (0 to 127)
     //inVelocity:      Release velocity (0 to 127)
     //inChannel:       The channel on which the message will be sent (1 to 16)
 
-    send(midiMessageNoteOff, inNoteNumber, inVelocity, inChannel);
+    cin = CIN_NOTE_OFF;
+    send(midiMessageNoteOff, inNoteNumber, inVelocity, inChannel, type);
 
 }
 
-void HWmidi::sendProgramChange(uint8_t inProgramNumber, uint8_t inChannel)  {
+void HWmidi::sendProgramChange(uint8_t inProgramNumber, uint8_t inChannel, midiInterfaceType_t type)  {
 
     //inProgramNumber:    The Program to select (0 to 127)
     //inChannel:          The channel on which the message will be sent (1 to 16)
 
-    send(midiMessageProgramChange, inProgramNumber, 0, inChannel);
+    cin = CIN_PROGRAM_CHANGE;
+    send(midiMessageProgramChange, inProgramNumber, 0, inChannel, type);
 
 }
 
-void HWmidi::sendControlChange(uint8_t inControlNumber, uint8_t inControlValue, uint8_t inChannel)  {
+void HWmidi::sendControlChange(uint8_t inControlNumber, uint8_t inControlValue, uint8_t inChannel, midiInterfaceType_t type)  {
 
     //inControlNumber:    The controller number (0 to 127)
     //inControlValue:     The value for the specified controller (0 to 127)
     //inChannel:          The channel on which the message will be sent (1 to 16)
 
-    send(midiMessageControlChange, inControlNumber, inControlValue, inChannel);
+    cin = CIN_CONTROL_CHANGE;
+    send(midiMessageControlChange, inControlNumber, inControlValue, inChannel, type);
 
 }
 
-void HWmidi::sendPolyPressure(uint8_t inNoteNumber, uint8_t inPressure, uint8_t inChannel)  {
+void HWmidi::sendPolyPressure(uint8_t inNoteNumber, uint8_t inPressure, uint8_t inChannel, midiInterfaceType_t type)  {
 
      //inNoteNumber:    The note to apply AfterTouch to (0 to 127)
      //inPressure:      The amount of AfterTouch to apply (0 to 127)
      //inChannel:       The channel on which the message will be sent (1 to 16)
 
-    send(midiMessageAfterTouchPoly, inNoteNumber, inPressure, inChannel);
+    cin = CIN_KEY_AFTERTOUCH;
+    send(midiMessageAfterTouchPoly, inNoteNumber, inPressure, inChannel, type);
 
 }
 
-void HWmidi::sendAfterTouch(uint8_t inPressure, uint8_t inChannel)  {
+void HWmidi::sendAfterTouch(uint8_t inPressure, uint8_t inChannel, midiInterfaceType_t type)  {
 
      //inPressure:  The amount of AfterTouch to apply to all notes
      //inChannel:   The channel on which the message will be sent (1 to 16)
 
-    send(midiMessageAfterTouchChannel, inPressure, 0, inChannel);
+    cin = CIN_CHANNEL_AFTERTOUCH;
+    send(midiMessageAfterTouchChannel, inPressure, 0, inChannel, type);
 
 }
 
-void HWmidi::sendPitchBend(int inPitchValue, uint8_t inChannel) {
+void HWmidi::sendPitchBend(int16_t inPitchValue, uint8_t inChannel, midiInterfaceType_t type) {
 
     //inPitchValue: The amount of bend to send (in a signed integer format),
                     //between MIDI_PITCHBEND_MIN and MIDI_PITCHBEND_MAX,
                     //center value is 0
     //inChannel:    The channel on which the message will be sent (1 to 16)
 
+    cin = CIN_PITCH_BEND;
     const unsigned bend = inPitchValue - MIDI_PITCHBEND_MIN;
-    send(midiMessagePitchBend, (bend & 0x7f), (bend >> 7) & 0x7f, inChannel);
+    send(midiMessagePitchBend, (bend & 0x7f), (bend >> 7) & 0x7f, inChannel, type);
 
 }
 
-void HWmidi::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayContainsBoundaries)   {
+void HWmidi::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayContainsBoundaries, midiInterfaceType_t type)   {
 
      //inLength:                    The size of the array to send
      //inArray:                     The byte array containing the data to send
@@ -205,40 +248,128 @@ void HWmidi::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCo
                                     //(start & stop SysEx) will NOT be sent
                                     //(and therefore must be included in the array)
 
-    if (!inArrayContainsBoundaries)
-        USE_SERIAL_PORT.write(0xf0);
+    switch(type)    {
 
-    for (unsigned i = 0; i < inLength; ++i)
-        USE_SERIAL_PORT.write(inArray[i]);
+        case dinInterface:
+        if (!inArrayContainsBoundaries)
+            USE_SERIAL_PORT.write(0xf0);
 
-    if (!inArrayContainsBoundaries)
-        USE_SERIAL_PORT.write(0xf7);
+        for (unsigned i = 0; i < inLength; ++i)
+            USE_SERIAL_PORT.write(inArray[i]);
 
-    if (useRunningStatus)
-        mRunningStatus_TX = midiMessageInvalidType;
+        if (!inArrayContainsBoundaries)
+            USE_SERIAL_PORT.write(0xf7);
+
+        if (useRunningStatus)
+            mRunningStatus_TX = midiMessageInvalidType;
+        break;
+
+        case usbInterface:
+        if (!inArrayContainsBoundaries)   {
+
+            //append sysex start (0xF0) and stop (0xF7) bytes to array
+
+            bool firstByte = true;
+            bool startSent = false;
+
+            while (inLength > 3) {
+
+                if (firstByte)  {
+
+                    usbSend(CIN_SYSEX_START, 0xF0, inArray[0], inArray[1]);
+                    firstByte = false;
+                    startSent = true;
+                    inArray += 2;
+                    inLength -= 2;
+
+                }   else {
+
+                    usbSend(CIN_SYSEX_START, inArray[0], inArray[1], inArray[2]);
+                    inArray += 3;
+                    inLength -= 3;
+
+                }
+
+            }
+
+            if (inLength == 3)    {
+
+                if (startSent)  {
+
+                    usbSend(CIN_SYSEX_START, inArray[0], inArray[1], inArray[2]);
+                    usbSend(CIN_SYSEX_STOP_1BYTE, 0xF7, 0, 0);
+
+                }   else {
+
+                    usbSend(CIN_SYSEX_START, 0xF0, inArray[0], inArray[1]);
+                    usbSend(CIN_SYSEX_STOP_2BYTE, inArray[2], 0xF7, 0);
+
+                }
+
+            }
+
+            else if (inLength == 2) {
+
+                if (startSent)
+                    usbSend(CIN_SYSEX_STOP_3BYTE, inArray[0], inArray[1], 0xF7);
+
+                else {
+
+                    usbSend(CIN_SYSEX_START, 0xF0, inArray[0], inArray[1]);
+                    usbSend(CIN_SYSEX_STOP_1BYTE, 0xF7, 0, 0);
+
+                }
+
+            }
+
+            else if (inLength == 1) {
+
+                if (startSent)  usbSend(CIN_SYSEX_STOP_2BYTE, inArray[0], 0xF7, 0);
+                else            usbSend(CIN_SYSEX_STOP_3BYTE, 0xF0, inArray[0], 0xF7);
+
+            }
+
+        }   else {
+
+            while (inLength > 3) {
+
+                usbSend(CIN_SYSEX_START, inArray[0], inArray[1], inArray[2]);
+                inArray += 3;
+                inLength -= 3;
+
+            }
+
+            if (inLength == 3)        usbSend(CIN_SYSEX_STOP_3BYTE, inArray[0], inArray[1], inArray[2]);
+            else if (inLength == 2)   usbSend(CIN_SYSEX_STOP_2BYTE, inArray[0], inArray[1], 0);
+            else if (inLength == 1)   usbSend(CIN_SYSEX_STOP_1BYTE, inArray[0], 0, 0);
+
+        }
+        break;
+
+    }
 
 }
 
-void HWmidi::sendTuneRequest()  {
+void HWmidi::sendTuneRequest(midiInterfaceType_t type)  {
 
     //when a MIDI unit receives this message,
     //it should tune its oscillators (if equipped with any)
 
-    sendRealTime(midiMessageTuneRequest);
+    sendRealTime(midiMessageTuneRequest, type);
 
 }
 
-void HWmidi::sendTimeCodeQuarterFrame(uint8_t inTypeNibble, uint8_t inValuesNibble) {
+void HWmidi::sendTimeCodeQuarterFrame(uint8_t inTypeNibble, uint8_t inValuesNibble, midiInterfaceType_t type) {
 
      //inTypeNibble     MTC type
      //inValuesNibble   MTC data
 
     const uint8_t data = (((inTypeNibble & 0x07) << 4) | (inValuesNibble & 0x0f));
-    sendTimeCodeQuarterFrame(data);
+    sendTimeCodeQuarterFrame(data, type);
 
 }
 
-void HWmidi::sendTimeCodeQuarterFrame(uint8_t inData)   {
+void HWmidi::sendTimeCodeQuarterFrame(uint8_t inData, midiInterfaceType_t type)   {
 
     //inData:   if you want to encode directly the nibbles in your program,
                 //you can send the byte here.
@@ -251,7 +382,7 @@ void HWmidi::sendTimeCodeQuarterFrame(uint8_t inData)   {
 
 }
 
-void HWmidi::sendSongPosition(uint16_t inBeats) {
+void HWmidi::sendSongPosition(uint16_t inBeats, midiInterfaceType_t type) {
 
     //inBeats:  The number of beats since the start of the song
 
@@ -264,7 +395,7 @@ void HWmidi::sendSongPosition(uint16_t inBeats) {
 
 }
 
-void HWmidi::sendSongSelect(uint8_t inSongNumber)   {
+void HWmidi::sendSongSelect(uint8_t inSongNumber, midiInterfaceType_t type)   {
 
     //inSongNumber: Wanted song number
 
@@ -276,11 +407,13 @@ void HWmidi::sendSongSelect(uint8_t inSongNumber)   {
 
 }
 
-void HWmidi::sendRealTime(midiMessageType inType)   {
+void HWmidi::sendRealTime(midiMessageType_t inType, midiInterfaceType_t type)   {
 
      //inType:  The available Real Time types are:
                 //Start, Stop, Continue, Clock, ActiveSensing and SystemReset
                 //You can also send a Tune Request with this method
+
+    cin = CIN_SYSTEM_COMMON_1BYTE;
 
     switch (inType) {
 
@@ -321,24 +454,24 @@ void HWmidi::disableRunningStatus() {
 
 }
 
-uint8_t HWmidi::getStatus(midiMessageType inType, uint8_t inChannel) const  {
+uint8_t HWmidi::getStatus(midiMessageType_t inType, uint8_t inChannel) const  {
 
     return ((uint8_t)inType | ((inChannel - 1) & 0x0f));
 
 }
 
-bool HWmidi::read() {
+bool HWmidi::read(midiInterfaceType_t type) {
 
     //returns true if a valid message has been stored in the structure, false if not
     //a valid message is a message that matches the input channel
     //if the Thru is enabled and the message matches the filter,
     //it is sent back on the MIDI output
 
-    return read(mInputChannel);
+    return read(mInputChannel, type);
 
 }
 
-bool HWmidi::read(uint8_t inChannel)    {
+bool HWmidi::read(uint8_t inChannel, midiInterfaceType_t type)    {
 
     if (inChannel >= MIDI_CHANNEL_OFF)
         return false; //MIDI Input disabled
@@ -347,7 +480,7 @@ bool HWmidi::read(uint8_t inChannel)    {
 
     const bool channelMatch = inputFilter(inChannel);
 
-    thruFilter(inChannel);
+    thruFilter(inChannel, type);
 
     return channelMatch;
 
@@ -514,7 +647,7 @@ bool HWmidi::parse()    {
                 //interleaved into without killing the running status..
                 //this is done by leaving the pending message as is,
                 //it will be completed on next calls
-                mMessage.type    = (midiMessageType)extracted;
+                mMessage.type    = (midiMessageType_t)extracted;
                 mMessage.data1   = 0;
                 mMessage.data2   = 0;
                 mMessage.channel = 0;
@@ -680,7 +813,7 @@ void HWmidi::resetInput()   {
 
 }
 
-midiMessageType HWmidi::getType() const {
+midiMessageType_t HWmidi::getType() const {
 
     //get the last received message's type
     return mMessage.type;
@@ -751,7 +884,7 @@ void HWmidi::setInputChannel(uint8_t inChannel) {
 
 }
 
-midiMessageType HWmidi::getTypeFromStatusByte(uint8_t inStatus) {
+midiMessageType_t HWmidi::getTypeFromStatusByte(uint8_t inStatus) {
 
     //extract an enumerated MIDI type from a status byte
 
@@ -769,11 +902,11 @@ midiMessageType HWmidi::getTypeFromStatusByte(uint8_t inStatus) {
     if (inStatus < 0xf0)    {
 
         //channel message, remove channel nibble
-        return midiMessageType(inStatus & 0xf0);
+        return midiMessageType_t(inStatus & 0xf0);
 
     }
 
-    return midiMessageType(inStatus);
+    return midiMessageType_t(inStatus);
 
 }
 
@@ -784,7 +917,7 @@ uint8_t HWmidi::getChannelFromStatusByte(uint8_t inStatus)   {
 
 }
 
-bool HWmidi::isChannelMessage(midiMessageType inType)   {
+bool HWmidi::isChannelMessage(midiMessageType_t inType)   {
 
     return (inType == midiMessageNoteOff           ||
             inType == midiMessageNoteOn            ||
@@ -796,7 +929,7 @@ bool HWmidi::isChannelMessage(midiMessageType inType)   {
 
 }
 
-void HWmidi::setThruFilterMode(MidiFilterMode inThruFilterMode) {
+void HWmidi::setThruFilterMode(midiFilterMode_t inThruFilterMode) {
 
     //set the filter for thru mirroring
     //inThruFilterMode: A filter mode
@@ -809,7 +942,7 @@ void HWmidi::setThruFilterMode(MidiFilterMode inThruFilterMode) {
 
 }
 
-MidiFilterMode HWmidi::getFilterMode() const    {
+midiFilterMode_t HWmidi::getFilterMode() const    {
 
     return mThruFilterMode;
 
@@ -821,7 +954,7 @@ bool HWmidi::getThruState() const   {
 
 }
 
-void HWmidi::turnThruOn(MidiFilterMode inThruFilterMode)    {
+void HWmidi::turnThruOn(midiFilterMode_t inThruFilterMode)    {
 
     mThruActivated = true;
     mThruFilterMode = inThruFilterMode;
@@ -835,7 +968,7 @@ void HWmidi::turnThruOff()  {
 
 }
 
-void HWmidi::thruFilter(uint8_t inChannel)  {
+void HWmidi::thruFilter(uint8_t inChannel, midiInterfaceType_t type)  {
 
     //this method is called upon reception of a message
     //and takes care of Thru filtering and sending
@@ -860,17 +993,17 @@ void HWmidi::thruFilter(uint8_t inChannel)  {
         switch (mThruFilterMode)    {
 
             case Full:
-            send(mMessage.type, mMessage.data1, mMessage.data2, mMessage.channel);
+            send(mMessage.type, mMessage.data1, mMessage.data2, mMessage.channel, type);
             break;
 
             case SameChannel:
             if (filter_condition)
-                send(mMessage.type, mMessage.data1, mMessage.data2, mMessage.channel);
+                send(mMessage.type, mMessage.data1, mMessage.data2, mMessage.channel, type);
             break;
 
             case DifferentChannel:
             if (!filter_condition)
-                send(mMessage.type, mMessage.data1, mMessage.data2, mMessage.channel);
+                send(mMessage.type, mMessage.data1, mMessage.data2, mMessage.channel, type);
             break;
 
             case Off:
@@ -897,24 +1030,24 @@ void HWmidi::thruFilter(uint8_t inChannel)  {
             case midiMessageActiveSensing:
             case midiMessageSystemReset:
             case midiMessageTuneRequest:
-            sendRealTime(mMessage.type);
+            sendRealTime(mMessage.type, type);
             break;
 
             case midiMessageSystemExclusive:
             //send SysEx (0xf0 and 0xf7 are included in the buffer)
-            sendSysEx(getSysExArrayLength(), getSysExArray(), true);
+            sendSysEx(getSysExArrayLength(), getSysExArray(), true, type);
             break;
 
             case midiMessageSongSelect:
-            sendSongSelect(mMessage.data1);
+            sendSongSelect(mMessage.data1, type);
             break;
 
             case midiMessageSongPosition:
-            sendSongPosition(mMessage.data1 | ((unsigned)mMessage.data2 << 7));
+            sendSongPosition(mMessage.data1 | ((unsigned)mMessage.data2 << 7), type);
             break;
 
             case midiMessageTimeCodeQuarterFrame:
-            sendTimeCodeQuarterFrame(mMessage.data1,mMessage.data2);
+            sendTimeCodeQuarterFrame(mMessage.data1,mMessage.data2, type);
             break;
 
             default:

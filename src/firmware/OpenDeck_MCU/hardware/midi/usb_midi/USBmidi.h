@@ -33,14 +33,6 @@ class usb_midi_class    {
 
     public:
     void init(uint8_t channel);
-    void sendNoteOff(uint8_t note, uint8_t velocity, uint8_t channel);
-    void sendNoteOn(uint8_t note, uint8_t velocity, uint8_t channel);
-    void sendControlChange(uint8_t control, uint8_t value, uint8_t channel);
-    void sendProgramChange(uint8_t program, uint8_t channel);
-    void sendChannelAftertouch(uint8_t pressure, uint8_t channel);
-    void sendKeyAftertouch(uint8_t note, uint8_t pressure, uint8_t channel);
-    void sendPitchBend(uint16_t value, uint8_t channel);
-    void sendSysEx(uint8_t length, const uint8_t *data, bool ArrayContainsBoundaries);
     void send_now(void);
     bool read();
 
@@ -73,7 +65,6 @@ class usb_midi_class    {
     uint8_t msg_sysex[MIDI_SYSEX_ARRAY_SIZE];
     uint8_t msg_sysex_len;
 
-    void send_raw(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3);
     void read_sysex_byte(uint8_t b);
 
 };

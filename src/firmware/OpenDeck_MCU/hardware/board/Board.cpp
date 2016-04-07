@@ -97,7 +97,7 @@ inline uint8_t getEncoderPairFromButtonIndex(uint8_t buttonIndex)   {
 
 }
 
-inline encoderPosition readEncoder(uint8_t encoderID, uint8_t pairState)  {
+inline encoderPosition_t readEncoder(uint8_t encoderID, uint8_t pairState)  {
 
     //add new data
     uint8_t newPairData = 0;
@@ -660,7 +660,7 @@ inline uint8_t getRGBIDFromLEDID(uint8_t ledID) {
 
 }
 
-void Board::setLEDstate(uint8_t ledNumber, ledColor color, bool blinkMode)   {
+void Board::setLEDstate(uint8_t ledNumber, ledColor_t color, bool blinkMode)   {
 
     uint8_t rgbID = getRGBIDFromLEDID(ledNumber);
     bool rgbEnabled = configuration.readParameter(CONF_LED_BLOCK, ledRGBenabledSection, rgbID);
@@ -784,7 +784,7 @@ inline uint8_t getRGBfirstID(uint8_t rgbID)    {
 }
 
 
-void Board::handleLED(uint8_t ledNumber, ledColor color, bool blinkMode, ledType type) {
+void Board::handleLED(uint8_t ledNumber, ledColor_t color, bool blinkMode, ledType_t type) {
 
     /*
 
@@ -906,7 +906,7 @@ inline void checkInputMatrixBufferCopy()    {
 
 //encoders
 
-encoderPosition Board::getEncoderState(uint8_t encoderNumber)  {
+encoderPosition_t Board::getEncoderState(uint8_t encoderNumber)  {
 
     uint8_t column = encoderNumber % NUMBER_OF_BUTTON_COLUMNS;
     uint8_t row  = (encoderNumber/NUMBER_OF_BUTTON_COLUMNS)*2;

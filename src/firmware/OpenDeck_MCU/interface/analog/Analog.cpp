@@ -55,7 +55,7 @@ void Analog::update()   {
         addAnalogSample(i, analogData);
         if (!analogValueSampled(i)) continue;  //three samples are needed
         analogData = getMedianValue(i);  //get median value from three analog samples for better accuracy
-        analogType type = getAnalogType(i);
+        analogType_t type = getAnalogType(i);
 
         switch(type) {
 
@@ -129,9 +129,9 @@ bool Analog::getAnalogInvertState(uint8_t analogID) {
 
 }
 
-analogType Analog::getAnalogType(uint8_t analogID) {
+analogType_t Analog::getAnalogType(uint8_t analogID) {
 
-    return (analogType)configuration.readParameter(CONF_ANALOG_BLOCK, analogTypeSection, analogID);
+    return (analogType_t)configuration.readParameter(CONF_ANALOG_BLOCK, analogTypeSection, analogID);
 
 }
 
@@ -141,7 +141,7 @@ uint8_t Analog::getMIDIid(uint8_t analogID)    {
 
 }
 
-uint8_t Analog::getCClimit(uint8_t analogID, ccLimitType type)  {
+uint8_t Analog::getCClimit(uint8_t analogID, ccLimitType_t type)  {
 
     switch(type)    {
 
@@ -216,7 +216,7 @@ bool Analog::setMIDIid(uint8_t analogID, uint8_t midiID)   {
 
 }
 
-bool Analog::setCClimit(ccLimitType type, uint8_t analogID, uint8_t limit)  {
+bool Analog::setCClimit(ccLimitType_t type, uint8_t analogID, uint8_t limit)  {
 
     switch (type)  {
 

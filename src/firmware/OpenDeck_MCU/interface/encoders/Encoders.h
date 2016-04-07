@@ -23,7 +23,7 @@ class Encoders  {
 
     //get
     bool getEncoderInvertState(uint8_t encoderID);
-    encoderType getEncodingMode(uint8_t encoderID);
+    encoderType_t getEncodingMode(uint8_t encoderID);
     uint8_t getMIDIid(uint8_t encoderID);
 
 };

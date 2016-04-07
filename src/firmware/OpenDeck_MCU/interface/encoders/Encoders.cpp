@@ -53,7 +53,7 @@ void Encoders::update()   {
 
         if (!getEncoderEnabled(i)) continue;
 
-        encoderPosition encoderState = board.getEncoderState(i);
+        encoderPosition_t encoderState = board.getEncoderState(i);
         if (encoderState == encStopped) continue;
 
         if (getEncoderInvertState(i))   {
@@ -103,9 +103,9 @@ bool Encoders::getEncoderInvertState(uint8_t encoderID) {
 
 }
 
-encoderType Encoders::getEncodingMode(uint8_t encoderID)  {
+encoderType_t Encoders::getEncodingMode(uint8_t encoderID)  {
 
-    return (encoderType)configuration.readParameter(CONF_ENCODER_BLOCK, encoderEncodingModeSection, encoderID);
+    return (encoderType_t)configuration.readParameter(CONF_ENCODER_BLOCK, encoderEncodingModeSection, encoderID);
 
 }
 

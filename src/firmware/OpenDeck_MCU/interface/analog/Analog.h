@@ -49,14 +49,14 @@ class Analog {
     bool setAnalogType(uint8_t analogID, uint8_t type);
     bool setAnalogInvertState(uint8_t analogID, uint8_t state);
     bool setMIDIid(uint8_t analogID, uint8_t midiID);
-    bool setCClimit(ccLimitType type, uint8_t analogID, uint8_t limit);
+    bool setCClimit(ccLimitType_t type, uint8_t analogID, uint8_t limit);
 
     //get
     bool getAnalogEnabled(uint8_t analogID);
-    analogType getAnalogType(uint8_t analogID);
+    analogType_t getAnalogType(uint8_t analogID);
     bool getAnalogInvertState(uint8_t analogID);
     uint8_t getMIDIid(uint8_t analogID);
-    uint8_t getCClimit(uint8_t analogID, ccLimitType type);
+    uint8_t getCClimit(uint8_t analogID, ccLimitType_t type);
 
 };
 

@@ -244,7 +244,7 @@
     <Compile Include="hardware\usb\usb_common.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="hardware\usb\usb_private.h">
+    <Compile Include="hardware\usb\usb.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hardware\usb\VID_PID.h">
