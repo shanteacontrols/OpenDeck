@@ -238,6 +238,12 @@
     <Compile Include="hardware\uart\UARTsettings.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="hardware\usb\Descriptors.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\Endpoints.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="hardware\usb\usb.c">
       <SubType>compile</SubType>
     </Compile>

@@ -12,233 +12,11 @@
 #include <util/delay.h>
 #include "usb_common.h"
 #include "usb.h"
-
-
-/**************************************************************************
- *
- *  Endpoint Buffer Configuration
- *
- **************************************************************************/
-
-
-static const uint8_t PROGMEM endpoint_config_table[] = {
-
-    1, EP_TYPE_BULK_IN,       EP_SIZE(MIDI_TX_SIZE) | MIDI_TX_BUFFER,
-    1, EP_TYPE_BULK_OUT,      EP_SIZE(MIDI_RX_SIZE) | MIDI_RX_BUFFER
-
-};
-
-
-/**************************************************************************
- *
- *  Descriptor Data
- *
- **************************************************************************/
-
-//Descriptors are the data that your computer reads when it auto-detects
-//this USB device (called "enumeration" in USB lingo).  The most commonly
-//changed items are editable at the top of this file.  Changing things
-//in here should only be done by those who've read chapter 9 of the USB
-//spec and relevant portions of any USB class specifications!
-
-//more info here: http://docs.lpcware.com/usbromlib/v1.0/_page__usb_descriptors.html
-
-static const uint8_t PROGMEM device_descriptor[] = {
-
-    18,                                 //bLength               //0
-    1,                                  //bDescriptorType       //1
-    0x00, 0x02,                         //bcdUSB                //2
-    0,                                  //bDeviceClass          //3
-    0,                                  //bDeviceSubClass       //4
-    0,                                  //bDeviceProtocol       //5
-    ENDPOINT0_SIZE,                     //bMaxPacketSize0       //6
-    LSB(VENDOR_ID), MSB(VENDOR_ID),     //idVendor              //7
-    LSB(PRODUCT_ID), MSB(PRODUCT_ID),   //idProduct             //8
-    0x00, 0x01,                         //bcdDevice             //9
-    0,                                  //iManufacturer         //10
-    1,                                  //iProduct              //11
-    0,                                  //iSerialNumber         //12
-    1                                   //bNumConfigurations    //13
-
-};
-
-#define CONFIG1_DESC_SIZE               (9 + 74 + 32)
-
-static const uint8_t PROGMEM config_descriptor[CONFIG1_DESC_SIZE] = {
-
-    //configuration descriptor, USB spec 9.6.3, page 264-266, Table 9-10
-    9,                                  //bLength;
-    2,                                  //bDescriptorType;
-    LSB(CONFIG1_DESC_SIZE),             //wTotalLength LSB
-    MSB(CONFIG1_DESC_SIZE),             //wTotalLength MSB
-    1,                                  //bNumInterfaces
-    1,                                  //bConfigurationValue
-    0,                                  //iConfiguration
-    0xC0,                               //bmAttributes
-    250,                                //bMaxPower
-
-    // This MIDI stuff is a copy of the example from the Audio Class
-    // MIDI spec 1.0 (Nov 1, 1999), Appendix B, pages 37 to 43.
-
-    //Standard MS Interface Descriptor
-    9,                                  //bLength
-    4,                                  //bDescriptorType
-    MIDI_INTERFACE,                     //bInterfaceNumber
-    0,                                  //AlternateSetting
-    2,                                  //bNumEndpoints
-    0x01,                               //bInterfaceClass (0x01 = Audio)
-    0x03,                               //bInterfaceSubClass (0x03 = MIDI)
-    0x00,                               //bInterfaceProtocol (unused for MIDI)
-    0,                                  //iInterface
-
-    //MIDI MS Interface Header, USB MIDI 6.1.2.1, page 21, Table 6-2
-    7,                                  //bLength
-    0x24,                               //bDescriptorType = CS_INTERFACE
-    0x01,                               //bDescriptorSubtype = MS_HEADER 
-    0x00, 0x01,                         //bcdMSC = revision 01.00
-    0x41, 0x00,                         //wTotalLength
-
-    //MIDI IN Jack Descriptor, B.4.3, Table B-7 (embedded), page 40
-    6,                                  //bLength
-    0x24,                               //bDescriptorType = CS_INTERFACE
-    0x02,                               //bDescriptorSubtype = MIDI_IN_JACK
-    0x01,                               //bJackType = EMBEDDED
-    1,                                  //bJackID, ID = 1
-    0,                                  //iJack
-
-    //MIDI IN Jack Descriptor, B.4.3, Table B-8 (external), page 40
-    6,                                  //bLength
-    0x24,                               //bDescriptorType = CS_INTERFACE
-    0x02,                               //bDescriptorSubtype = MIDI_IN_JACK
-    0x02,                               //bJackType = EXTERNAL
-    2,                                  //bJackID, ID = 2
-    0,                                  //iJack
-
-    //MIDI OUT Jack Descriptor, B.4.4, Table B-9, page 41
-    9,
-    0x24,                               //bDescriptorType = CS_INTERFACE
-    0x03,                               //bDescriptorSubtype = MIDI_OUT_JACK
-    0x01,                               //bJackType = EMBEDDED
-    3,                                  //bJackID, ID = 3
-    1,                                  //bNrInputPins = 1 pin
-    2,                                  //BaSourceID(1) = 2
-    1,                                  //BaSourcePin(1) = first pin
-    0,                                  //iJack
-
-    //MIDI OUT Jack Descriptor, B.4.4, Table B-10, page 41
-    9,
-    0x24,                               //bDescriptorType = CS_INTERFACE
-    0x03,                               //bDescriptorSubtype = MIDI_OUT_JACK
-    0x02,                               //bJackType = EXTERNAL
-    4,                                  //bJackID, ID = 4
-    1,                                  //bNrInputPins = 1 pin
-    1,                                  //BaSourceID(1) = 1
-    1,                                  //BaSourcePin(1) = first pin
-    0,                                  //iJack
-
-    //Standard Bulk OUT Endpoint Descriptor, B.5.1, Table B-11, page 42
-    9,                                  //bLength
-    5,                                  //bDescriptorType = ENDPOINT 
-    MIDI_RX_ENDPOINT,                   //bEndpointAddress
-    0x02,                               //bmAttributes (0x02=bulk)
-    MIDI_RX_SIZE, 0,                    //wMaxPacketSize
-    0,                                  //bInterval
-    0,                                  //bRefresh
-    0,                                  //bSynchAddress
-
-    //Class-specific MS Bulk OUT Endpoint Descriptor, B.5.2, Table B-12, page 42
-    5,                                  //bLength
-    0x25,                               //bDescriptorSubtype = CS_ENDPOINT
-    0x01,                               //bJackType = MS_GENERAL
-    1,                                  //bNumEmbMIDIJack = 1 jack
-    1,                                  //BaAssocJackID(1) = jack ID #1
-
-    //Standard Bulk IN Endpoint Descriptor, B.5.1, Table B-11, page 42
-    9,                                  //bLength
-    5,                                  //bDescriptorType = ENDPOINT 
-    MIDI_TX_ENDPOINT | 0x80,            //bEndpointAddress
-    0x02,                               //bmAttributes (0x02=bulk)
-    MIDI_TX_SIZE, 0,                    //wMaxPacketSize
-    0,                                  //bInterval
-    0,                                  //bRefresh
-    0,                                  //bSynchAddress
-
-    //Class-specific MS Bulk IN Endpoint Descriptor, B.5.2, Table B-12, page 42
-    5,                                  //bLength
-    0x25,                               //bDescriptorSubtype = CS_ENDPOINT
-    0x01,                               //bJackType = MS_GENERAL
-    1,                                  //bNumEmbMIDIJack = 1 jack
-    3,                                  //BaAssocJackID(1) = jack ID #3
-
-};
-
-//If you're desperate for a little extra code memory, these strings
-//can be completely removed if iManufacturer, iProduct, iSerialNumber
-//in the device descriptor are changed to zeros.
-
-struct usb_string_descriptor_struct {
-
-    uint8_t bLength;
-    uint8_t bDescriptorType;
-    int16_t wString[];
-
-};
-
-static const struct usb_string_descriptor_struct PROGMEM string0 = {
-
-    4,
-    3,
-    {0x0409}
-
-};
-
-static const struct usb_string_descriptor_struct PROGMEM string1 = {
-
-    sizeof(STR_PRODUCT),
-    3,
-    STR_PRODUCT
-
-};
-
-//This table defines which descriptor data is sent for each specific
-//request from the host (in wValue and wIndex).
-static const struct descriptor_list_struct {
-
-    uint16_t        wValue;
-    uint16_t        wIndex;
-    const uint8_t   *addr;
-    uint8_t         length;
-
-}
-
-PROGMEM descriptor_list[] = {
-
-    {0x0100, 0x0000, device_descriptor, sizeof(device_descriptor)},
-    {0x0200, 0x0000, config_descriptor, sizeof(config_descriptor)},
-    {0x0300, 0x0000, (const uint8_t *)&string0, 4},
-    {0x0301, 0x0409, (const uint8_t *)&string1, sizeof(STR_PRODUCT)},
-
-};
-
-#define NUM_DESC_LIST (sizeof(descriptor_list)/sizeof(struct descriptor_list_struct))
-
-
-/**************************************************************************
- *
- *  Variables - these are the only non-stack RAM usage
- *
- **************************************************************************/
+#include "Descriptors.h"
 
 //zero when we are not configured, non-zero when enumerated
 volatile uint8_t usb_configuration USBSTATE;
 volatile uint8_t usb_suspended USBSTATE;
-
-
-/**************************************************************************
- *
- *  Public Functions - these are the API intended for the user
- *
- **************************************************************************/
 
 //initialize USB
 void usb_init(void) {
@@ -323,13 +101,6 @@ void usbSend(uint8_t usbByte0, uint8_t usbByte1, uint8_t usbByte2, uint8_t usbBy
     send_now();
 
 }
-
-/**************************************************************************
- *
- *  Private Functions - not intended for general user consumption....
- *
- **************************************************************************/
-
 
 //USB Device Interrupt - handle all device-level events
 //the transmit buffer flushing is triggered by the start of frame
@@ -448,7 +219,7 @@ ISR(USB_COM_vect)   {
 
             for (i=0; ; i++) {
 
-                if (i >= NUM_DESC_LIST) {
+                if (i >= DESCRIPTOR_LIST_SIZE) {
 
                     UECONX = (1<<STALLRQ)|(1<<EPEN);  //stall
                     return;

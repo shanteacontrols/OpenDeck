@@ -29,15 +29,12 @@ extern "C"{
 #define EP_TYPE_CONTROL                 0x00
 #define EP_TYPE_BULK_IN                 0x81
 #define EP_TYPE_BULK_OUT                0x80
-#define EP_TYPE_INTERRUPT_IN            0xC1
-#define EP_TYPE_INTERRUPT_OUT           0xC0
 #define EP_SINGLE_BUFFER                0x02
 #define EP_DOUBLE_BUFFER                0x06
 #define EP_SIZE(s)                      ((s) == 64 ? 0x30 :     \
 ((s) == 32 ? 0x20 :     \
 ((s) == 16 ? 0x10 :     \
 0x00)))
-
 
 #define HW_CONFIG()                     (UHWCON = 0x01)
 #define PLL_CONFIG()                    (PLLCSR = 0x12)
@@ -52,6 +49,14 @@ extern "C"{
 #define GET_DESCRIPTOR                  6
 #define GET_CONFIGURATION               8
 #define SET_CONFIGURATION               9
+
+#define DESCRIPTOR_DEVICE_WVALUE        0x0100
+#define DESCRIPTOR_CONFIGURATION_WVALUE 0x0200
+#define DESCRIPTOR_STRING_WVALUE        0x0300
+
+#define USB_LANGUAGE_ID                 0x0409 //US English
+
+#define USB_STRING_DESCRIPTOR_TYPE      0x03
 
 #define pgm_read_byte_postinc(val, addr) \
         asm ("lpm  %0, Z+\n" : "=r" (val), "+z" (addr) : )

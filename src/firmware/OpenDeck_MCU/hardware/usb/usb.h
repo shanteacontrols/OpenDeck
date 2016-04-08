@@ -15,54 +15,11 @@
 
 #include <stdint.h>
 #include "VID_PID.h"
+#include "Endpoints.h"
 
 #ifdef __cplusplus
 extern "C"{
 #endif
-
-/**************************************************************************
- *
- *  Endpoint Buffer Configuration
- *
- **************************************************************************/
-
-//These buffer sizes are best for most applications, but perhaps if you
-//want more buffering on some endpoint at the expense of others, this
-//is where you can make such changes.  The AT90USB162 has only 176 bytes
-//of DPRAM (USB buffers) and only endpoints 3 & 4 can double buffer.
-
-
-//0: control
-//3: midi IN
-//4: midi OUT
-
-//Some operating systems, especially Windows, may cache USB device
-//info.  Changes to the device name may not update on the same
-//computer unless the vendor or product ID numbers change, or the
-//"bcdDevice" revision code is increased.
-
-#define STR_PRODUCT         L"OpenDeck"
-#define ENDPOINT0_SIZE      64
-
-#define DEBUG_INTERFACE     1
-#define DEBUG_TX_ENDPOINT   1
-#define DEBUG_TX_SIZE       64
-#define DEBUG_TX_BUFFER     EP_DOUBLE_BUFFER
-#define DEBUG_TX_INTERVAL   1
-#define DEBUG_RX_ENDPOINT   2
-#define DEBUG_RX_SIZE       32
-#define DEBUG_RX_BUFFER     EP_DOUBLE_BUFFER
-#define DEBUG_RX_INTERVAL   2
-
-#define MIDI_INTERFACE      0
-#define MIDI_TX_ENDPOINT    1
-#define MIDI_TX_SIZE        64
-#define MIDI_TX_BUFFER      EP_DOUBLE_BUFFER
-#define MIDI_RX_ENDPOINT    2
-#define MIDI_RX_SIZE        64
-#define MIDI_RX_BUFFER      EP_DOUBLE_BUFFER
-
-#define NUM_ENDPOINTS       3
 
 //setup
 void usb_init(void);            //initialize everything
