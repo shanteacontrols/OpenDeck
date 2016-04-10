@@ -36,9 +36,9 @@
 #include <avr/interrupt.h>
 #include <stdbool.h>
 
-#include "../usb/Descriptors.h"
-#include "../usb/LUFA/Drivers/USB/USB.h"
-#include "../usb/LUFA/Platform/Platform.h"
+#include "../usb/midi/Descriptors.h"
+#include "../usb/midi/LUFA/Drivers/USB/USB.h"
+#include "../usb/midi/LUFA/Platform/Platform.h"
 
 #define USE_SERIAL_PORT         uart
 
