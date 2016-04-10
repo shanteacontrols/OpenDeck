@@ -148,7 +148,7 @@ void setup()    {
 int main()  {
 
     setup();
-    while(1) { midi.checkInput(); buttons.update(); analog.update(); encoders.update(); }
+    while(1) { USB_USBTask(); midi.checkInput(); buttons.update(); analog.update(); encoders.update(); }
     return 0;
 
 }

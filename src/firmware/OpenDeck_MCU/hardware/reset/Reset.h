@@ -5,7 +5,7 @@
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
 
-#define ATTR_NO_INIT                        __attribute__((section (".noinit")))
+#define ATTR_NO_INIT_RESET                  __attribute__((section (".noinit")))
 #define ATTR_INIT_SECTION(SectionIndex)     __attribute__ ((used, naked, section (".init" #SectionIndex )))
 #define WDFR 3
 
