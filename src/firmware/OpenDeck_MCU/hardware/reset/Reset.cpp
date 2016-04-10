@@ -3,7 +3,7 @@
 //original code here:
 //http://www.fourwalledcubicle.com/files/LUFA/Doc/120219/html/_page__software_bootloader_start.html
 
-uint32_t Boot_Key ATTR_NO_INIT;
+uint32_t Boot_Key ATTR_NO_INIT_RESET;
 
 #define MAGIC_BOOT_KEY            0xDC42ACCA
 #define BOOTLOADER_START_ADDRESS  0x7000

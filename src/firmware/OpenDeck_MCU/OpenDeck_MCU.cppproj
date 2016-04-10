@@ -108,64 +108,72 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
       <AvrGccCpp>
-        <avrgcc.common.Device>-mmcu=atmega32u4 -B "%24(PackRepoDir)\atmel\ATmega_DFP\1.0.90\gcc\dev\atmega32u4"</avrgcc.common.Device>
-        <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
-        <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
-        <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
-        <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
-        <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
-        <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
-        <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
-        <avrgcc.compiler.symbols.DefSymbols>
-          <ListValues>
-            <Value>DEBUG</Value>
-            <Value>F_CPU=16000000UL</Value>
-          </ListValues>
-        </avrgcc.compiler.symbols.DefSymbols>
-        <avrgcc.compiler.directories.IncludePaths>
-          <ListValues>
-            <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.0.90\include</Value>
-            <Value>../eeprom</Value>
-            <Value>../hardware</Value>
-            <Value>../sysex</Value>
-          </ListValues>
-        </avrgcc.compiler.directories.IncludePaths>
-        <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
-        <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
-        <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
-        <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
-        <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
-        <avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>
-        <avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>
-        <avrgcccpp.compiler.symbols.DefSymbols>
-          <ListValues>
-            <Value>DEBUG</Value>
-            <Value>F_CPU=16000000UL</Value>
-          </ListValues>
-        </avrgcccpp.compiler.symbols.DefSymbols>
-        <avrgcccpp.compiler.directories.IncludePaths>
-          <ListValues>
-            <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.0.90\include</Value>
-            <Value>../eeprom</Value>
-            <Value>../hardware</Value>
-            <Value>../hardware/adc</Value>
-            <Value>../hardware/usb</Value>
-            <Value>../sysex</Value>
-            <Value>../hardware/uart</Value>
-          </ListValues>
-        </avrgcccpp.compiler.directories.IncludePaths>
-        <avrgcccpp.compiler.optimization.level>Optimize (-O1)</avrgcccpp.compiler.optimization.level>
-        <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
-        <avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>
-        <avrgcccpp.compiler.optimization.DebugLevel>Default (-g2)</avrgcccpp.compiler.optimization.DebugLevel>
-        <avrgcccpp.compiler.warnings.AllWarnings>True</avrgcccpp.compiler.warnings.AllWarnings>
-        <avrgcccpp.linker.libraries.Libraries>
-          <ListValues>
-            <Value>libm</Value>
-          </ListValues>
-        </avrgcccpp.linker.libraries.Libraries>
-        <avrgcccpp.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcccpp.assembler.debugging.DebugLevel>
-      </AvrGccCpp>
+  <avrgcc.common.Device>-mmcu=atmega32u4 -B "%24(PackRepoDir)\atmel\ATmega_DFP\1.0.90\gcc\dev\atmega32u4"</avrgcc.common.Device>
+  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+  <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+  <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
+  <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
+  <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+  <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+  <avrgcc.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>DEBUG</Value>
+      <Value>ARCH=ARCH_AVR8</Value>
+      <Value>BOARD=BOARD_NONE</Value>
+      <Value>F_CPU=16000000UL</Value>
+      <Value>USE_LUFA_CONFIG_HEADER</Value>
+      <Value>F_USB=16000000UL</Value>
+    </ListValues>
+  </avrgcc.compiler.symbols.DefSymbols>
+  <avrgcc.compiler.directories.IncludePaths>
+    <ListValues>
+      <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.0.90\include</Value>
+      <Value>../eeprom</Value>
+      <Value>../hardware</Value>
+      <Value>../sysex</Value>
+    </ListValues>
+  </avrgcc.compiler.directories.IncludePaths>
+  <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
+  <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+  <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+  <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
+  <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+  <avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>
+  <avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>
+  <avrgcccpp.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>DEBUG</Value>
+      <Value>ARCH=ARCH_AVR8</Value>
+      <Value>BOARD=BOARD_NONE</Value>
+      <Value>F_CPU=16000000UL</Value>
+      <Value>USE_LUFA_CONFIG_HEADER</Value>
+      <Value>F_USB=16000000UL</Value>
+    </ListValues>
+  </avrgcccpp.compiler.symbols.DefSymbols>
+  <avrgcccpp.compiler.directories.IncludePaths>
+    <ListValues>
+      <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.0.90\include</Value>
+      <Value>../eeprom</Value>
+      <Value>../hardware</Value>
+      <Value>../hardware/adc</Value>
+      <Value>../hardware/usb</Value>
+      <Value>../sysex</Value>
+      <Value>../hardware/uart</Value>
+    </ListValues>
+  </avrgcccpp.compiler.directories.IncludePaths>
+  <avrgcccpp.compiler.optimization.level>Optimize (-O1)</avrgcccpp.compiler.optimization.level>
+  <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
+  <avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>
+  <avrgcccpp.compiler.optimization.DebugLevel>Default (-g2)</avrgcccpp.compiler.optimization.DebugLevel>
+  <avrgcccpp.compiler.warnings.AllWarnings>True</avrgcccpp.compiler.warnings.AllWarnings>
+  <avrgcccpp.linker.libraries.Libraries>
+    <ListValues>
+      <Value>libm</Value>
+    </ListValues>
+  </avrgcccpp.linker.libraries.Libraries>
+  <avrgcccpp.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcccpp.assembler.debugging.DebugLevel>
+</AvrGccCpp>
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
@@ -202,19 +210,10 @@
     <Compile Include="hardware\board\Board.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="hardware\midi\hw_midi\hw_MIDI.cpp">
+    <Compile Include="hardware\midi\MIDI.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="hardware\midi\hw_midi\hw_MIDI.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="hardware\midi\usb_midi\CIN.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="hardware\midi\usb_midi\USBmidi.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="hardware\midi\usb_midi\USBmidi.h">
+    <Compile Include="hardware\midi\MIDI.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hardware\pins\Pins.h">
@@ -238,22 +237,196 @@
     <Compile Include="hardware\uart\UARTsettings.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="hardware\usb\config\LUFAConfig.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\Descriptors.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="hardware\usb\Descriptors.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="hardware\usb\Endpoints.h">
+    <Compile Include="hardware\usb\LUFA\Common\Architectures.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="hardware\usb\usb.c">
+    <Compile Include="hardware\usb\LUFA\Common\ArchitectureSpecific.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="hardware\usb\usb_common.h">
+    <Compile Include="hardware\usb\LUFA\Common\Attributes.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="hardware\usb\usb.h">
+    <Compile Include="hardware\usb\LUFA\Common\BoardTypes.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="hardware\usb\VID_PID.h">
+    <Compile Include="hardware\usb\LUFA\Common\Common.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Common\CompilerSpecific.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Common\Endianness.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Class\AudioClass.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Class\Common\AudioClassCommon.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Class\Common\MIDIClassCommon.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Class\Device\AudioClassDevice.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Class\Device\AudioClassDevice.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Class\Device\MIDIClassDevice.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Class\Device\MIDIClassDevice.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Class\MIDIClass.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\Device_AVR8.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\Device_AVR8.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\EndpointStream_AVR8.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\EndpointStream_AVR8.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\Endpoint_AVR8.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\Endpoint_AVR8.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\Host_AVR8.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\Host_AVR8.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\OTG_AVR8.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\PipeStream_AVR8.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\PipeStream_AVR8.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\Pipe_AVR8.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\Pipe_AVR8.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\Template\Template_Endpoint_Control_R.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\Template\Template_Endpoint_Control_W.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\Template\Template_Endpoint_RW.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\Template\Template_Pipe_RW.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\USBController_AVR8.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\USBController_AVR8.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\USBInterrupt_AVR8.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\USBInterrupt_AVR8.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\ConfigDescriptors.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\ConfigDescriptors.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\Device.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\DeviceStandardReq.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\DeviceStandardReq.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\Endpoint.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\EndpointStream.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\Events.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\Events.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\Host.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\HostStandardReq.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\HostStandardReq.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\OTG.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\Pipe.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\PipeStream.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\StdDescriptors.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\StdRequestType.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\USBController.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\USBInterrupt.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\USBMode.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\USBTask.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\Core\USBTask.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Drivers\USB\USB.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Platform\Platform.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\usb\LUFA\Version.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="interface\analog\Analog.cpp">
@@ -343,13 +516,23 @@
     <Folder Include="hardware" />
     <Folder Include="hardware\adc" />
     <Folder Include="hardware\midi\" />
-    <Folder Include="hardware\midi\hw_midi\" />
-    <Folder Include="hardware\midi\usb_midi\" />
     <Folder Include="hardware\board" />
     <Folder Include="hardware\pins" />
     <Folder Include="hardware\reset" />
     <Folder Include="hardware\uart" />
     <Folder Include="hardware\usb" />
+    <Folder Include="hardware\usb\config\" />
+    <Folder Include="hardware\usb\LUFA\" />
+    <Folder Include="hardware\usb\LUFA\Common\" />
+    <Folder Include="hardware\usb\LUFA\Drivers\" />
+    <Folder Include="hardware\usb\LUFA\Drivers\USB\" />
+    <Folder Include="hardware\usb\LUFA\Drivers\USB\Class\" />
+    <Folder Include="hardware\usb\LUFA\Drivers\USB\Class\Common\" />
+    <Folder Include="hardware\usb\LUFA\Drivers\USB\Class\Device\" />
+    <Folder Include="hardware\usb\LUFA\Drivers\USB\Core\" />
+    <Folder Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\" />
+    <Folder Include="hardware\usb\LUFA\Drivers\USB\Core\AVR8\Template\" />
+    <Folder Include="hardware\usb\LUFA\Platform\" />
     <Folder Include="interface\analog\" />
     <Folder Include="interface\buttons\" />
     <Folder Include="interface\encoders\" />

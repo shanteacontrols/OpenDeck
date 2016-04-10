@@ -2,7 +2,6 @@
 #include "../../sysex/SysEx.h"
 #include "../../eeprom/Configuration.h"
 #include "../../BitManipulation.h"
-#include "../../hardware/midi/usb_midi/USBmidi.h"
 #include "../../hardware/board/Board.h"
 #include "../../interface/leds/LEDs.h"
 
@@ -37,28 +36,32 @@ void MIDI::init() {
     hwMIDI.init(inChannel, true, true, dinInterface);
     hwMIDI.init(inChannel, true, true, usbInterface);
     hwMIDI.setInputChannel(inChannel);
-    usbMIDI.init(inChannel);
 
 }
 
 void MIDI::checkInput()   {
 
-    if (usbMIDI.read())   {   //new message on usb
+    if (hwMIDI.read(usbInterface))   {   //new message on usb
 
-        uint8_t messageType = usbMIDI.getType();
+        midiMessageType_t messageType = hwMIDI.getType(usbInterface);
+        uint8_t data1 = hwMIDI.getData1(usbInterface);
+        uint8_t data2 = hwMIDI.getData2(usbInterface);
         source = usbInterface;
 
         switch(messageType) {
 
             case midiMessageSystemExclusive:
-            sysEx.handleSysEx(usbMIDI.getSysExArray(), usbMIDI.getData1());
+            sysEx.handleSysEx(hwMIDI.getSysExArray(usbInterface), hwMIDI.getSysExArrayLength(usbInterface));
             lastSysExMessageTime = rTimeMillis();
             break;
 
             case midiMessageNoteOff:
             case midiMessageNoteOn:
             //we're using received note data to control LEDs
-            leds.noteToLEDstate(usbMIDI.getData1(), usbMIDI.getData2());
+            leds.noteToLEDstate(data1, data2);
+            break;
+
+            default:
             break;
 
         }
@@ -68,9 +71,9 @@ void MIDI::checkInput()   {
     //check for incoming MIDI messages on USART
     if (hwMIDI.read(dinInterface))    {
 
-        uint8_t messageType = hwMIDI.getType();
-        uint8_t data1 = hwMIDI.getData1();
-        uint8_t data2 = hwMIDI.getData2();
+        uint8_t messageType = hwMIDI.getType(dinInterface);
+        uint8_t data1 = hwMIDI.getData1(dinInterface);
+        uint8_t data2 = hwMIDI.getData2(dinInterface);
 
         source = dinInterface;
 
@@ -110,7 +113,7 @@ void MIDI::checkInput()   {
                     break;
 
                     case midiMessageSystemExclusive:
-                    hwMIDI.sendSysEx(hwMIDI.getSysExArrayLength(), hwMIDI.getSysExArray(), true, usbInterface);
+                    hwMIDI.sendSysEx(hwMIDI.getSysExArrayLength(dinInterface), hwMIDI.getSysExArray(dinInterface), true, usbInterface);
                     break;
 
                     case midiMessageAfterTouchChannel:

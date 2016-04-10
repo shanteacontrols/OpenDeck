@@ -134,6 +134,20 @@ enum midiMessageType_t {
 
 };
 
+enum usbMIDIsystemCin_t {
+
+    //normally, usb midi cin (cable index number) is just midiMessageType shifted left by four bytes
+    //system common/exclusive messages have a bit convulted pattern so they're grouped in different enum
+    sysCommon1byteCin = 0x50,
+    sysCommon2byteCin = 0x20,
+    sysCommon3byteCin = 0x30,
+    sysExStartCin = 0x40,
+    sysExStop1byteCin = sysCommon1byteCin,
+    sysExStop2byteCin = 0x60,
+    sysExStop3byteCin = 0x70
+
+};
+
 enum midiFilterMode_t {
 
     Off,                //thru disabled (nothing passes through)

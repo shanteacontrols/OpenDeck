@@ -16,11 +16,9 @@ to OpenDeck board and start using your new MIDI controller in no-time. Compatibl
 ## Credits
 Hardware MIDI source code based on [Arduino MIDI library v4.2](https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/4.2) by Francois Best.
 
-USB MIDI source code based on [Teensyduino Arduino add-on](http://www.pjrc.com/teensy/teensyduino.html) by Paul Stoffregen and PJRC.com LLC.
+USB MIDI and bootloader source code based on [LUFA USB framework](http://www.fourwalledcubicle.com/LUFA.php) by Dean Camera.
 
 Parts of code taken from [Arduino framework](https://github.com/arduino/Arduino).
-
-Bootloader code based on [LUFA Mass Storage bootloader](http://www.fourwalledcubicle.com/LUFA.php) by Dean Camera.
 
 ## Licence
 All code is available under GNU GPL v3 licence.
