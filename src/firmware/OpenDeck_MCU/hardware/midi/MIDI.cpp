@@ -24,6 +24,7 @@
 //library modified by Igor Petrovic
 
 #include "MIDI.h"
+#include "../board/Board.h"
 
 HWmidi::HWmidi()   {
 
@@ -165,8 +166,8 @@ void HWmidi::send(midiMessageType_t inType, uint8_t inData1, uint8_t inData2, ui
 
             if (Endpoint_IsINReady())   {
 
-                uint8_t midiEvent = (uint8_t)inType << 4;
-                uint8_t data1 = (uint8_t)inType | inChannel;
+                uint8_t midiEvent = (uint8_t)inType >> 4;
+                uint8_t data1 = getStatus(inType, inChannel);
 
                 MIDI_EventPacket_t MIDIEvent = (MIDI_EventPacket_t)
                 {

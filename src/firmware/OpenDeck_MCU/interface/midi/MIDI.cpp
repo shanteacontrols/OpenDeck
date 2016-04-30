@@ -162,7 +162,7 @@ void MIDI::sendMIDInote(uint8_t note, bool state, uint8_t _velocity)  {
 
         case true:
         //button pressed
-         hwMIDI.sendNoteOn(note, _velocity, channel, usbInterface);
+        hwMIDI.sendNoteOn(note, _velocity, channel, usbInterface);
         hwMIDI.sendNoteOn(note, _velocity, channel, dinInterface);
         break;
 
