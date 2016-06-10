@@ -10,7 +10,6 @@ to OpenDeck board and start using your new MIDI controller in no-time. Compatibl
 * [Web UI page](https://paradajz.github.io/OpenDeck/)
 * [Part list](https://github.com/paradajz/OpenDeck/blob/master/schematics/part_list.csv)
 * [Schematic (PDF)](https://github.com/paradajz/OpenDeck/blob/master/schematics/OpenDeck-r1.pdf)
-* [PCB files (gerbers)](https://github.com/paradajz/OpenDeck/tree/master/schematics/gerbers)
 * [Wiki](https://github.com/paradajz/OpenDeck/wiki)
 
 ## Credits
