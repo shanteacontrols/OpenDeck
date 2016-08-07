@@ -185,12 +185,12 @@ call bin\sh.exe -l version_script.sh
 REM converting hex to bin and adding crc
 call srec_cat.exe "$(MSBuildProjectDirectory)\$(Configuration)\$(OutputFileName).hex" -intel -fill 0xFF 0x0000 0x1DFFE -Cyclic_Redundancy_Check_16_Big_Endian 0x1DFFE -XMODEM -o "$(SolutionDir)\..\tools\FLASH.bin" -binary
 
-REM move binary to root dir
-call move FLASH.bin ..\FLASH.bin
-
 REM calling version_append
 call version_append.exe
-call del version</PostBuildEvent>
+call del version
+
+REM move binary to root dir
+call move FLASH.bin ..\FLASH.bin</PostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="BitManipulation.h">
