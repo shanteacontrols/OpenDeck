@@ -1,23 +1,5 @@
 #include "Reset.h"
 
-//original code here:
-//http://www.fourwalledcubicle.com/files/LUFA/Doc/120219/html/_page__software_bootloader_start.html
-
-uint32_t Boot_Key ATTR_NO_INIT_RESET;
-
-#define MAGIC_BOOT_KEY            0xDC42ACCA
-#define BOOTLOADER_START_ADDRESS  0x7000
-
-void Bootloader_Jump_Check(void)    {
-
-    // If the reset source was the bootloader and the key is correct, clear it and jump to the bootloader
-    if ((MCUSR & (1 << WDRF)) && (Boot_Key == MAGIC_BOOT_KEY))  {
-        Boot_Key = 0;
-        ((void (*)(void))BOOTLOADER_START_ADDRESS)();
-
-    }
-}
-
 void disablePeripherals(void)   {
 
     //disable eeprom
@@ -66,7 +48,7 @@ void disablePeripherals(void)   {
 
 }
 
-void reboot(uint8_t mode)    {
+void reboot()    {
 
     cli();
     //stop watchdog timer, if running
@@ -79,20 +61,7 @@ void reboot(uint8_t mode)    {
     _delay_ms(2000);
     disablePeripherals();
 
-    switch(mode)    {
-
-        case APP_REBOOT:
-        wdt_enable(WDTO_250MS);
-        for (;;);
-        break;
-
-        case BTLDR_REBOOT:
-        //set the bootloader key to the magic value and force a reset
-        Boot_Key = MAGIC_BOOT_KEY;
-        wdt_enable(WDTO_250MS);
-        for (;;);
-        break;
-
-    }
+    wdt_enable(WDTO_250MS);
+    for (;;);
 
 }
