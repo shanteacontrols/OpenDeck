@@ -328,9 +328,9 @@ void SysEx::sendHelloResponse()   {
     sysExAckResponse[1] = SYS_EX_M_ID_1;
     sysExAckResponse[2] = SYS_EX_M_ID_2;
     sysExAckResponse[3] = RESPONSE_ACK;
-    sysExAckResponse[4] = VERSION_BYTE_0;
-    sysExAckResponse[5] = VERSION_BYTE_1;
-    sysExAckResponse[6] = VERSION_BYTE_2;
+    sysExAckResponse[4] = getSWversion(swVersion_major);
+    sysExAckResponse[5] = getSWversion(swVersion_minor);
+    sysExAckResponse[6] = getSWversion(swVersion_revision);
 
     sysExEnabled = true;
 

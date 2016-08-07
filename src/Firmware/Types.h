@@ -157,4 +157,13 @@ enum midiFilterMode_t {
 
 };
 
+typedef enum {
+
+    swVersion_major,
+    swVersion_minor,
+    swVersion_revision,
+    swVersion_development
+
+} swVersion_t;
+
 #endif

@@ -34,7 +34,7 @@ void Configuration::factoryReset()  {
 
 void Configuration::clearEEPROM()    {
 
-    for (int i=0; i<1024; i++) eeprom_update_byte((uint8_t*)i, 0xFF);
+    for (int i=0; i<EEPROM_SIZE; i++) eeprom_update_byte((uint8_t*)i, 0xFF);
 
 }
 
