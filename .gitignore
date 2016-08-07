@@ -3,4 +3,4 @@ src/Bootloader/.vs
 src/Bootloader/Debug
 src/Firmware/Debug
 tools/tmp/*
-src/FLASH.bin
+FLASH.bin
