@@ -82,7 +82,7 @@ static uint8_t TicksSinceLastCommand = 0;
  */
 void Application_Jump_Check(void)
 {
-    //bool JumpToApplication = false;
+    //if rx/tx pins are connected together on startup, jump to bootloader
 
     //configure rx/tx pins
     setInputMacro(RX_TX_DDR, RX_PIN_INDEX);
@@ -94,15 +94,8 @@ void Application_Jump_Check(void)
     //add some delay before reading pin
     _NOP();
     _NOP();
-
-    //if rx/tx pins are connected together on startup, jump to bootloader
-
-    //if (((RX_TX_PIN_REGISTER >> RX_PIN_INDEX) & 0x01))  {
-//
-        ////bootloader button is released
-        //JumpToApplication = true;
-//
-    //}
+    _NOP();
+    _NOP();
 
     /* Clear external reset source if source is external*/
     if (!(MCUSR & (1 << EXTRF)))

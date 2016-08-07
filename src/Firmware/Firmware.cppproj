@@ -152,7 +152,7 @@
       <Value>F_USB=16000000UL</Value>
       <Value>INTERRUPT_CONTROL_ENDPOINT</Value>
       <Value>EEPROM_SIZE=1024</Value>
-      <Value>FLASH_SIZE=0x7000</Value>
+      <Value>FLASH_SIZE=0x6800</Value>
     </ListValues>
   </avrgcccpp.compiler.symbols.DefSymbols>
   <avrgcccpp.compiler.directories.IncludePaths>
@@ -185,7 +185,7 @@ call cd ..\tools
 call bin\sh.exe -l version_script.sh
 
 REM converting hex to bin and adding crc
-call srec_cat.exe "$(MSBuildProjectDirectory)\$(Configuration)\$(OutputFileName).hex" -intel -fill 0xFF 0x0000 0x6FFE -Cyclic_Redundancy_Check_16_Big_Endian 0x6FFE -XMODEM -o "$(SolutionDir)\..\tools\FLASH.bin" -binary
+call srec_cat.exe "$(MSBuildProjectDirectory)\$(Configuration)\$(OutputFileName).hex" -intel -fill 0xFF 0x0000 0x67FE -Cyclic_Redundancy_Check_16_Big_Endian 0x67FE -XMODEM -o "$(SolutionDir)\..\tools\FLASH.bin" -binary
 
 REM calling version_append
 call version_append.exe
