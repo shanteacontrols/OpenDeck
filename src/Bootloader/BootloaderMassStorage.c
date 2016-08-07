@@ -35,8 +35,9 @@
 
 #define  INCLUDE_FROM_BOOTLOADER_MASSSTORAGE_C
 #include "BootloaderMassStorage.h"
-#include "Pins.h"
-#include "PinManipulation.h"
+#include "hardware/pins/Pins.h"
+#include "hardware/pins/PinManipulation.h"
+#include <avr/cpufunc.h>
 
 /** LUFA Mass Storage Class driver interface configuration and state information. This structure is
  *  passed to all Mass Storage Class driver functions, so that multiple instances of the same class
@@ -69,13 +70,6 @@ USB_ClassInfo_MS_Device_t Disk_MS_Interface =
  */
 bool RunBootloader = true;
 
-/** Magic lock for forced application start. If the HWBE fuse is programmed and BOOTRST is unprogrammed, the bootloader
- *  will start if the /HWB line of the AVR is held low and the system is reset. However, if the /HWB line is still held
- *  low when the application attempts to start via a watchdog reset, the bootloader will re-start. If set to the value
- *  \ref MAGIC_BOOT_KEY the special init function \ref Application_Jump_Check() will force the application to start.
- */
-uint16_t MagicBootKey ATTR_NO_INIT;
-
 /** Indicates if the bootloader is allowed to exit immediately if \ref RunBootloader is \c false. During shutdown all
  *  pending commands must be processed before jumping to the user-application, thus this tracks the main program loop
  *  iterations since a SCSI command from the host was received.
@@ -88,20 +82,45 @@ static uint8_t TicksSinceLastCommand = 0;
  */
 void Application_Jump_Check(void)
 {
-	bool JumpToApplication = false;
+    //bool JumpToApplication = false;
 
-	/* If the reset source was the bootloader and the key is correct, clear it and jump to the application */
-	if ((MCUSR & (1 << WDRF)) && (MagicBootKey == MAGIC_BOOT_KEY))
-	{
-		MagicBootKey      = 0;
-		JumpToApplication = true;
-	}
+    //configure rx/tx pins
+    setInputMacro(RX_TX_DDR, RX_PIN_INDEX);
+    setOutputMacro(RX_TX_DDR, TX_PIN_INDEX);
 
-	if (JumpToApplication)
-	{
-		// cppcheck-suppress constStatement
-		((void (*)(void))0x0000)();
-	}
+    //set tx pin to 0V
+    setLowMacro(RX_TX_PORT, TX_PIN_INDEX);
+
+    //add some delay before reading pin
+    _NOP();
+    _NOP();
+
+    //if rx/tx pins are connected together on startup, jump to bootloader
+
+    //if (((RX_TX_PIN_REGISTER >> RX_PIN_INDEX) & 0x01))  {
+//
+        ////bootloader button is released
+        //JumpToApplication = true;
+//
+    //}
+
+    /* Clear external reset source if source is external*/
+    if (!(MCUSR & (1 << EXTRF)))
+        MCUSR &= ~(1 << EXTRF);
+
+    /* Don't run the user application if the reset vector is blank (no app loaded) */
+    bool ApplicationValid = (pgm_read_word_near(0) != 0xFFFF);
+
+    /* If a request has been made to jump to the user application, honor it */
+    if ((((RX_TX_PIN_REGISTER >> RX_PIN_INDEX) & 0x01)) && ApplicationValid)
+    {
+        /* Turn off the watchdog */
+        MCUSR &= ~(1 << WDRF);
+        wdt_disable();
+        // cppcheck-suppress constStatement
+        ((void (*)(void))0x0000)();
+    }   else setHighMacro(LED_PORT, LED_PIN);
+
 }
 
 /** Main program entry point. This routine configures the hardware required by the application, then
@@ -122,11 +141,8 @@ int main(void)
     /* Disconnect from the host - USB interface will be reset later along with the AVR */
     USB_Detach();
 
-    /* Unlock the forced application start mode of the bootloader if it is restarted */
-    MagicBootKey = MAGIC_BOOT_KEY;
-
     /* blink bootloader led couple of times */
-    for (int i=0; i<2; i++)	{
+    for (int i=0; i<2; i++) {
 
         setLowMacro(LED_PORT, LED_PIN);
         _delay_ms(250);

@@ -4,7 +4,6 @@
 
 SysEx::SysEx()  {
 
-    sendRebootCallback          = NULL;
     sendFactoryResetCallback    = NULL;
     sendGetCallback             = NULL;
     sendSetCallback             = NULL;
@@ -59,14 +58,7 @@ bool SysEx::checkSpecial(uint8_t *array, uint8_t size) {
 
     if (size == ML_SPECIAL)   {
 
-        if (array[size-2] == REBOOT_STRING)  {   //reset message
-
-            if (sysExEnabled)
-                sendRebootCallback();
-            else sendError(ERROR_HANDSHAKE);
-            return true;
-
-        }   else if (array[size-2] == HELLO_STRING)   {
+        if (array[size-2] == HELLO_STRING)   {
 
             //hello message, necessary for allowing configuration
             sendHelloResponse();
@@ -328,6 +320,9 @@ void SysEx::sendHelloResponse()   {
     sysExAckResponse[1] = SYS_EX_M_ID_1;
     sysExAckResponse[2] = SYS_EX_M_ID_2;
     sysExAckResponse[3] = RESPONSE_ACK;
+    //sysExAckResponse[4] = 0;//getSWversion(swVersion_major);
+    //sysExAckResponse[5] = 1;//getSWversion(swVersion_minor);
+    //sysExAckResponse[6] = 2;//getSWversion(swVersion_revision);
     sysExAckResponse[4] = getSWversion(swVersion_major);
     sysExAckResponse[5] = getSWversion(swVersion_minor);
     sysExAckResponse[6] = getSWversion(swVersion_revision);
@@ -448,12 +443,6 @@ void SysEx::sendResponse(uint8_t sysExArray[], uint8_t arraySize)  {
 }
 
 //callbacks
-
-void SysEx::setHandleReboot(void (*fptr)(void)) {
-
-    sendRebootCallback = fptr;
-
-}
 
 void SysEx::setHandleFactoryReset(void (*fptr)(void))   {
 

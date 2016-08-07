@@ -56,9 +56,6 @@
 			#error This bootloader requires that it be optimized for size, not speed, to fit into the target device. Change optimization settings and try again.
 		#endif
 
-    /** Magic bootloader key to unlock forced application start mode. */
-    #define MAGIC_BOOT_KEY             0xDC42
-
 	/* Global Variables: */
 		extern bool RunBootloader;
 

@@ -26,19 +26,11 @@ void ledsOff_slow() {
 
 }
 
-void onReboot()  {
-
-    ledsOff_slow();
-    //this will reset the board into bootloader mode
-    reboot(BTLDR_REBOOT);
-
-}
-
 void onFactoryReset()   {
 
     ledsOff_slow();
     configuration.factoryReset();
-    reboot(APP_REBOOT);
+    reboot();
 
 }
 
@@ -130,7 +122,6 @@ void setup()    {
 
     configuration.init();
 
-    sysEx.setHandleReboot(onReboot);
     sysEx.setHandleGet(onGet);
     sysEx.setHandleSet(onSet);
     sysEx.setHandleReset(onReset);

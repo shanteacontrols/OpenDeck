@@ -100,7 +100,6 @@ class SysEx {
     bool configurationEnabled();
     void sendError(sysExError errorID);
 
-    void setHandleReboot(void(*fptr)(void));
     void setHandleFactoryReset(void(*fptr)(void));
     void setHandleGet(uint8_t(*fptr)(uint8_t messageID, uint8_t messageSubtype, uint8_t parameterID));
     void setHandleSet(bool(*fptr)(uint8_t messageID, uint8_t messageSubtype, uint8_t parameterID, uint8_t newParameter));
@@ -145,7 +144,6 @@ class SysEx {
     uint8_t generateMinMessageLenght(uint8_t, uint8_t, uint8_t, uint8_t);
     void sendHelloResponse();
 
-    void (*sendRebootCallback)(void);
     void (*sendFactoryResetCallback)(void);
     uint8_t (*sendGetCallback)(uint8_t messageID, uint8_t messageSubtype, uint8_t parameter);
     bool (*sendSetCallback)(uint8_t messageID, uint8_t messageSubtype, uint8_t parameter, uint8_t newParameter);

@@ -5,6 +5,6 @@
 #include "../Types.h"
 
 bool checkNewRevision();
-int16_t getSWversion(swVersion_t point);
+uint8_t getSWversion(swVersion_t point);
 
 #endif
