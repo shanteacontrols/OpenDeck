@@ -185,7 +185,7 @@ call cd ..\tools
 call bin\sh.exe -l version_script.sh
 
 REM converting hex to bin and adding crc
-call srec_cat.exe "$(MSBuildProjectDirectory)\$(Configuration)\$(OutputFileName).hex" -intel -fill 0xFF 0x0000 0x1DFFE -Cyclic_Redundancy_Check_16_Big_Endian 0x1DFFE -XMODEM -o "$(SolutionDir)\..\tools\FLASH.bin" -binary
+call srec_cat.exe "$(MSBuildProjectDirectory)\$(Configuration)\$(OutputFileName).hex" -intel -fill 0xFF 0x0000 0x6FFE -Cyclic_Redundancy_Check_16_Big_Endian 0x6FFE -XMODEM -o "$(SolutionDir)\..\tools\FLASH.bin" -binary
 
 REM calling version_append
 call version_append.exe
