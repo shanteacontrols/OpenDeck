@@ -1,2 +1,0 @@
-bootloader compiled with LUFA 151115
-to compile, download LUFA 151115 and replace Bootloaders/MassStorage dir with OpenDeck/src/bootloader/src/MassStorage dir
