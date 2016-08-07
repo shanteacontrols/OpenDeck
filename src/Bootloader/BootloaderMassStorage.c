@@ -98,8 +98,8 @@ void Application_Jump_Check(void)
     _NOP();
 
     /* Clear external reset source if source is external*/
-    if (!(MCUSR & (1 << EXTRF)))
-        MCUSR &= ~(1 << EXTRF);
+    //if (!(MCUSR & (1 << EXTRF)))
+        //MCUSR &= ~(1 << EXTRF);
 
     /* Don't run the user application if the reset vector is blank (no app loaded) */
     bool ApplicationValid = (pgm_read_word_near(0) != 0xFFFF);
@@ -112,7 +112,7 @@ void Application_Jump_Check(void)
         wdt_disable();
         // cppcheck-suppress constStatement
         ((void (*)(void))0x0000)();
-    }   else setHighMacro(LED_PORT, LED_PIN);
+    }
 
 }
 
