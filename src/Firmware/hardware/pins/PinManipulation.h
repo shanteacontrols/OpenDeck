@@ -1,21 +1,21 @@
 #ifndef PINMANIPULATION_H_
 #define PINMANIPULATION_H_
 
-#define setOutputMacro(ddr, pin) ((ddr) |= (1 << (pin)))
-#define setInputMacro(ddr, pin) ((ddr) &= ~(1 << (pin)))
-#define setLowMacro(port, pin) ((port) &= ~(1 << (pin)))
-#define setHighMacro(port, pin) ((port) |= (1 << (pin)))
+#define setOutput(ddr, pin) ((ddr) |= (1 << (pin)))
+#define setInput(ddr, pin) ((ddr) &= ~(1 << (pin)))
+#define setLow(port, pin) ((port) &= ~(1 << (pin)))
+#define setHigh(port, pin) ((port) |= (1 << (pin)))
 
 #define pulseHightToLow(port, pin) do { \
-    setHighMacro((port), (pin)); \
+    setHigh((port), (pin)); \
     _NOP(); \
-    setLowMacro((port), (pin)); \
+    setLow((port), (pin)); \
 } while (0)
 
 #define pulseLowToHigh(port, pin) do { \
-    setLowMacro((port), (pin)); \
+    setLow((port), (pin)); \
     _NOP(); \
-    setHighMacro((port), (pin)); \
+    setHigh((port), (pin)); \
 } while (0)
 
 #endif

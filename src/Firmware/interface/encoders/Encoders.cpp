@@ -17,46 +17,18 @@ Encoders::Encoders()    {
 
 }
 
-void Encoders::init()   {
-
-    const subtype encoderEnabledSubtype       = { MAX_NUMBER_OF_ENCODERS, 0, 1 };
-    const subtype encoderInvertedSubtype      = { MAX_NUMBER_OF_ENCODERS, 0, 1 };
-    const subtype encoderEncodingModeSubtype  = { MAX_NUMBER_OF_ENCODERS, 0, ENCODING_MODES-1 };
-    const subtype encoderMIDIidSubtype        = { MAX_NUMBER_OF_ENCODERS, 0, 127 };
-
-    const subtype *encodersSubtypeArray[] = {
-
-        &encoderEnabledSubtype,
-        &encoderInvertedSubtype,
-        &encoderEncodingModeSubtype,
-        &encoderMIDIidSubtype
-
-    };
-
-    //define message for sysex configuration
-    sysEx.addMessageType(CONF_ENCODER_BLOCK, ENCODER_SUBTYPES);
-
-    for (int i=0; i<ENCODER_SUBTYPES; i++)   {
-
-        //define subtype messages
-        sysEx.addMessageSubType(CONF_ENCODER_BLOCK, i, encodersSubtypeArray[i]->parameters, encodersSubtypeArray[i]->lowValue, encodersSubtypeArray[i]->highValue);
-
-    }
-
-}
-
 void Encoders::update()   {
 
-    if (!board.encoderDataAvailable()) return;
+    if (!core.encoderDataAvailable()) return;
 
     for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)    {
 
-        if (!getEncoderEnabled(i)) continue;
+        if (!configuration.readParameter(CONF_BLOCK_ENCODER, encoderEnabledSection, i)) continue;
 
-        encoderPosition_t encoderState = board.getEncoderState(i);
+        encoderPosition_t encoderState = core.getEncoderState(i);
         if (encoderState == encStopped) continue;
 
-        if (getEncoderInvertState(i))   {
+        if (configuration.readParameter(CONF_BLOCK_ENCODER, encoderInvertedSection, i))   {
 
             if (encoderState == encMoveLeft)
                 encoderState = encMoveRight;
@@ -67,7 +39,7 @@ void Encoders::update()   {
 
         uint8_t encoderValue = 0;
 
-        switch(getEncodingMode(i)) {
+        switch((encoderType_t)configuration.readParameter(CONF_BLOCK_ENCODER, encoderEncodingModeSection, i)) {
 
             case enc7Fh01h:
             if (encoderState == encMoveLeft) encoderValue = ENCODER_VALUE_LEFT_7FH01H;
@@ -84,106 +56,11 @@ void Encoders::update()   {
 
         }
 
-        midi.sendControlChange(getMIDIid(i), encoderValue);
-        if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_ENCODER_BLOCK, i);
+        midi.sendControlChange(configuration.readParameter(CONF_BLOCK_ENCODER, encoderMIDIidSection, i), encoderValue);
+        //if (sysEx.configurationEnabled())
+            //sysEx.sendComponentID(CONF_BLOCK_ENCODER, i);
 
     }
-
-}
-
-bool Encoders::getEncoderEnabled(uint8_t encoderID) {
-
-    return configuration.readParameter(CONF_ENCODER_BLOCK, encoderEnabledSection, encoderID);
-
-}
-
-bool Encoders::getEncoderInvertState(uint8_t encoderID) {
-
-    return configuration.readParameter(CONF_ENCODER_BLOCK, encoderInvertedSection, encoderID);
-
-}
-
-encoderType_t Encoders::getEncodingMode(uint8_t encoderID)  {
-
-    return (encoderType_t)configuration.readParameter(CONF_ENCODER_BLOCK, encoderEncodingModeSection, encoderID);
-
-}
-
-uint8_t Encoders::getMIDIid(uint8_t encoderID)  {
-
-    return configuration.readParameter(CONF_ENCODER_BLOCK, encoderMIDIidSection, encoderID);
-
-}
-
-uint8_t Encoders::getParameter(uint8_t messageType, uint8_t parameterID)  {
-
-    switch(messageType) {
-
-        case encoderEnabledConf:
-        return getEncoderEnabled(parameterID);
-        break;
-
-        case encoderInvertedConf:
-        return getEncoderInvertState(parameterID);
-        break;
-
-        case encoderEncodingModeConf:
-        return getEncodingMode(parameterID);
-        break;
-
-        case encoderMIDIidConf:
-        return getMIDIid(parameterID);
-        break;
-
-    }   return 0;
-
-}
-
-bool Encoders::setEncoderEnabled(uint8_t encoderID, uint8_t state)    {
-
-   return configuration.writeParameter(CONF_ENCODER_BLOCK, encoderEnabledSection, encoderID, state);
-
-}
-
-bool Encoders::setEncoderInvertState(uint8_t encoderID, uint8_t state)    {
-
-   return configuration.writeParameter(CONF_ENCODER_BLOCK, encoderInvertedSection, encoderID, state);
-
-}
-
-bool Encoders::setEncodingMode(uint8_t encoderID, uint8_t type)  {
-
-   return configuration.writeParameter(CONF_ENCODER_BLOCK, encoderEncodingModeSection, encoderID, type);
-
-}
-
-bool Encoders::setMIDIid(uint8_t encoderID, uint8_t midiID)  {
-
-   return configuration.writeParameter(CONF_ENCODER_BLOCK, encoderMIDIidSection, encoderID, midiID);
-
-}
-
-bool Encoders::setParameter(uint8_t messageType, uint8_t parameter, uint8_t newParameter)   {
-
-    switch(messageType) {
-
-        case encoderEnabledConf:
-        return setEncoderEnabled(parameter, newParameter);
-        break;
-
-        case encoderInvertedConf:
-        return setEncoderInvertState(parameter, newParameter);
-        break;
-
-        case encoderEncodingModeConf:
-        return setEncodingMode(parameter, newParameter);
-        break;
-
-        case encoderMIDIidConf:
-        return setMIDIid(parameter, newParameter);
-        break;
-
-    }   return 0;
 
 }
 

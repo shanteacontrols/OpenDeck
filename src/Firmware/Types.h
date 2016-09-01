@@ -166,4 +166,12 @@ typedef enum {
 
 } swVersion_t;
 
+typedef enum {
+
+    factoryReset_wipeRestore, //clear eeprom, restore defaults
+    factoryReset_restore, //update eeprom with defaults
+    factoryReset_partial //partially restore defaults
+
+} factoryResetType_t;
+
 #endif

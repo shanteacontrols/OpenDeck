@@ -18,23 +18,25 @@ void Analog::checkPotentiometerValue(uint8_t analogID, int16_t tempValue)  {
     uint8_t ccValue = tempValue >> 3;
 
     //invert CC data if potInverted is true
-    if (getAnalogInvertState(analogID))   ccValue = 127 - ccValue;
+    if (configuration.readParameter(CONF_BLOCK_ANALOG, analogInvertedSection, analogID))   ccValue = 127 - ccValue;
 
-    uint8_t lowerCClimit = getCClimit(analogID, ccLimitLow);
-    uint8_t upperCClimit = getCClimit(analogID, ccLimitHigh);
+    uint8_t lowerCClimit = configuration.readParameter(CONF_BLOCK_ANALOG, analogCClowerLimitSection, analogID);
+    uint8_t upperCClimit = configuration.readParameter(CONF_BLOCK_ANALOG, analogCCupperLimitSection, analogID);
 
     //only use map when cc limits are different from defaults
     if ((lowerCClimit != 0) || (upperCClimit != 127))   {
 
-        midi.sendControlChange(getMIDIid(analogID), mapAnalog_uint8(ccValue, 0, 127, lowerCClimit, upperCClimit));
-        if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_ANALOG_BLOCK, analogID);
+        midi.sendControlChange(configuration.readParameter(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID), mapAnalog_uint8(ccValue, 0, 127, lowerCClimit, upperCClimit));
+        //if (sysEx.configurationEnabled())
+            //sysEx.sendComponentID(CONF_BLOCK_ANALOG, analogID);
 
     }
 
     else {
 
-        midi.sendControlChange(getMIDIid(analogID), ccValue);
-        if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_ANALOG_BLOCK, analogID);
+        midi.sendControlChange(configuration.readParameter(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID), ccValue);
+        //if (sysEx.configurationEnabled())
+            //sysEx.sendComponentID(CONF_BLOCK_ANALOG, analogID);
 
     }
 

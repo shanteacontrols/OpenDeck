@@ -268,7 +268,7 @@ void HWmidi::sendPitchBend(int16_t inPitchValue, uint8_t inChannel, midiInterfac
     //inChannel:    The channel on which the message will be sent (1 to 16)
 
     const unsigned bend = inPitchValue - MIDI_PITCHBEND_MIN;
-    send(midiMessagePitchBend, (bend & 0x7f), (bend >> 7) & 0x7f, inChannel, type);
+    send(midiMessagePitchBend, lowByte_7bit(bend), highByte_7bit(bend), inChannel, type);
 
 }
 
@@ -288,7 +288,7 @@ void HWmidi::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCo
         if (!inArrayContainsBoundaries)
             USE_SERIAL_PORT.write(0xf0);
 
-        for (unsigned i = 0; i < inLength; ++i)
+        for (uint16_t i=0; i<inLength; ++i)
             USE_SERIAL_PORT.write(inArray[i]);
 
         if (!inArrayContainsBoundaries)
@@ -299,8 +299,6 @@ void HWmidi::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCo
         break;
 
         case usbInterface:
-        //Endpoint_SelectEndpoint(MIDI_STREAM_IN_EPADDR);
-        //if (!Endpoint_IsINReady()) return;
         if (!inArrayContainsBoundaries)   {
 
             //append sysex start (0xF0) and stop (0xF7) bytes to array
@@ -340,11 +338,8 @@ void HWmidi::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCo
                         .Data3       = inArray[2],
                     };
 
-                    //write the MIDI event packet to the endpoint
-                    Endpoint_Write_Stream_LE(&MIDIEvent, sizeof(MIDIEvent), NULL);
-
-                    //send the data in the endpoint to the host
-                    Endpoint_ClearIN();
+                    MIDI_Device_SendEventPacket(&MIDI_Interface, &MIDIEvent);
+                    MIDI_Device_Flush(&MIDI_Interface);
 
                     inArray += 3;
                     inLength -= 3;
@@ -366,11 +361,8 @@ void HWmidi::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCo
                         .Data3       = inArray[2],
                     };
 
-                    //write the MIDI event packet to the endpoint
-                    Endpoint_Write_Stream_LE(&MIDIEvent, sizeof(MIDIEvent), NULL);
-
-                    //send the data in the endpoint to the host
-                    Endpoint_ClearIN();
+                    MIDI_Device_SendEventPacket(&MIDI_Interface, &MIDIEvent);
+                    MIDI_Device_Flush(&MIDI_Interface);
 
                     MIDIEvent = (MIDI_EventPacket_t)
                     {
@@ -381,11 +373,8 @@ void HWmidi::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCo
                         .Data3       = 0,
                     };
 
-                    //write the MIDI event packet to the endpoint
-                    Endpoint_Write_Stream_LE(&MIDIEvent, sizeof(MIDIEvent), NULL);
-
-                    //send the data in the endpoint to the host
-                    Endpoint_ClearIN();
+                    MIDI_Device_SendEventPacket(&MIDI_Interface, &MIDIEvent);
+                    MIDI_Device_Flush(&MIDI_Interface);
 
                 }   else {
 
@@ -398,11 +387,8 @@ void HWmidi::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCo
                         .Data3       = inArray[1],
                     };
 
-                    //write the MIDI event packet to the endpoint
-                    Endpoint_Write_Stream_LE(&MIDIEvent, sizeof(MIDIEvent), NULL);
-
-                    //send the data in the endpoint to the host
-                    Endpoint_ClearIN();
+                    MIDI_Device_SendEventPacket(&MIDI_Interface, &MIDIEvent);
+                    MIDI_Device_Flush(&MIDI_Interface);
 
                     MIDIEvent = (MIDI_EventPacket_t)
                     {
@@ -413,11 +399,8 @@ void HWmidi::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCo
                         .Data3       = 0,
                     };
 
-                    //write the MIDI event packet to the endpoint
-                    Endpoint_Write_Stream_LE(&MIDIEvent, sizeof(MIDIEvent), NULL);
-
-                    //send the data in the endpoint to the host
-                    Endpoint_ClearIN();
+                    MIDI_Device_SendEventPacket(&MIDI_Interface, &MIDIEvent);
+                    MIDI_Device_Flush(&MIDI_Interface);
 
                 }
 
@@ -436,11 +419,8 @@ void HWmidi::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCo
                         .Data3       = 0xF7,
                     };
 
-                    //write the MIDI event packet to the endpoint
-                    Endpoint_Write_Stream_LE(&MIDIEvent, sizeof(MIDIEvent), NULL);
-
-                    //send the data in the endpoint to the host
-                    Endpoint_ClearIN();
+                    MIDI_Device_SendEventPacket(&MIDI_Interface, &MIDIEvent);
+                    MIDI_Device_Flush(&MIDI_Interface);
 
                 }
 
@@ -455,11 +435,8 @@ void HWmidi::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCo
                         .Data3       = inArray[1],
                     };
 
-                    //write the MIDI event packet to the endpoint
-                    Endpoint_Write_Stream_LE(&MIDIEvent, sizeof(MIDIEvent), NULL);
-
-                    //send the data in the endpoint to the host
-                    Endpoint_ClearIN();
+                    MIDI_Device_SendEventPacket(&MIDI_Interface, &MIDIEvent);
+                    MIDI_Device_Flush(&MIDI_Interface);
 
                     MIDIEvent = (MIDI_EventPacket_t)
                     {
@@ -470,11 +447,8 @@ void HWmidi::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCo
                         .Data3       = 0,
                     };
 
-                    //write the MIDI event packet to the endpoint
-                    Endpoint_Write_Stream_LE(&MIDIEvent, sizeof(MIDIEvent), NULL);
-
-                    //send the data in the endpoint to the host
-                    Endpoint_ClearIN();
+                    MIDI_Device_SendEventPacket(&MIDI_Interface, &MIDIEvent);
+                    MIDI_Device_Flush(&MIDI_Interface);
 
                 }
 
@@ -493,11 +467,8 @@ void HWmidi::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCo
                         .Data3       = 0,
                     };
 
-                    //write the MIDI event packet to the endpoint
-                    Endpoint_Write_Stream_LE(&MIDIEvent, sizeof(MIDIEvent), NULL);
-
-                    //send the data in the endpoint to the host
-                    Endpoint_ClearIN();
+                    MIDI_Device_SendEventPacket(&MIDI_Interface, &MIDIEvent);
+                    MIDI_Device_Flush(&MIDI_Interface);
 
                 }   else {
 
@@ -510,11 +481,8 @@ void HWmidi::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCo
                         .Data3       = 0xF7,
                     };
 
-                    //write the MIDI event packet to the endpoint
-                    Endpoint_Write_Stream_LE(&MIDIEvent, sizeof(MIDIEvent), NULL);
-
-                    //send the data in the endpoint to the host
-                    Endpoint_ClearIN();
+                    MIDI_Device_SendEventPacket(&MIDI_Interface, &MIDIEvent);
+                    MIDI_Device_Flush(&MIDI_Interface);
 
                 }
 
@@ -533,11 +501,8 @@ void HWmidi::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCo
                     .Data3       = inArray[2],
                 };
 
-                //write the MIDI event packet to the endpoint
-                Endpoint_Write_Stream_LE(&MIDIEvent, sizeof(MIDIEvent), NULL);
-
-                //send the data in the endpoint to the host
-                Endpoint_ClearIN();
+                MIDI_Device_SendEventPacket(&MIDI_Interface, &MIDIEvent);
+                MIDI_Device_Flush(&MIDI_Interface);
 
                 inArray += 3;
                 inLength -= 3;
@@ -555,11 +520,8 @@ void HWmidi::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCo
                     .Data3       = inArray[2],
                 };
 
-                //write the MIDI event packet to the endpoint
-                Endpoint_Write_Stream_LE(&MIDIEvent, sizeof(MIDIEvent), NULL);
-
-                //send the data in the endpoint to the host
-                Endpoint_ClearIN();
+                MIDI_Device_SendEventPacket(&MIDI_Interface, &MIDIEvent);
+                MIDI_Device_Flush(&MIDI_Interface);
 
             }   else if (inLength == 2) {
 
@@ -572,11 +534,8 @@ void HWmidi::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCo
                     .Data3       = 0,
                 };
 
-                //write the MIDI event packet to the endpoint
-                Endpoint_Write_Stream_LE(&MIDIEvent, sizeof(MIDIEvent), NULL);
-
-                //send the data in the endpoint to the host
-                Endpoint_ClearIN();
+                MIDI_Device_SendEventPacket(&MIDI_Interface, &MIDIEvent);
+                MIDI_Device_Flush(&MIDI_Interface);
 
             }   else if (inLength == 1) {
 
@@ -589,11 +548,8 @@ void HWmidi::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCo
                     .Data3       = 0,
                 };
 
-                //write the MIDI event packet to the endpoint
-                Endpoint_Write_Stream_LE(&MIDIEvent, sizeof(MIDIEvent), NULL);
-
-                //send the data in the endpoint to the host
-                Endpoint_ClearIN();
+                MIDI_Device_SendEventPacket(&MIDI_Interface, &MIDIEvent);
+                MIDI_Device_Flush(&MIDI_Interface);
 
             }
 

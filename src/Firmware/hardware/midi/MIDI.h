@@ -23,13 +23,12 @@
 
 //library modifed by Igor Petrovic
 
- 
 #ifndef HW_MIDI_H
 #define HW_MIDI_H
 
-#include "../../interface/settings/MIDIsettings.h"
 #include "../../hardware/uart/UART.h"
 #include "../../Types.h"
+#include "../../BitManipulation.h"
 
 #include <avr/io.h>
 #include <avr/wdt.h>
@@ -46,6 +45,9 @@
 
 #define MIDI_PITCHBEND_MIN      -8192
 #define MIDI_PITCHBEND_MAX      8191
+
+//maximum sysex length we can receive
+#define MIDI_SYSEX_ARRAY_SIZE   45
 
 //usb
 void EVENT_USB_Device_ConfigurationChanged(void);
@@ -156,7 +158,7 @@ class HWmidi    {
     uint16_t            dinPendingMessageIndex;
     uint16_t            sysExArrayLength;
     Message             dinMessage,
-    usbMessage;
+                        usbMessage;
 
 };
 

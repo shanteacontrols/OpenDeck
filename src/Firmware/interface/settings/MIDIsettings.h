@@ -1,9 +1,6 @@
 #ifndef MIDISETTINGS_H_
 #define MIDISETTINGS_H_
 
-//maximum sysex length we can receive
-#define MIDI_SYSEX_ARRAY_SIZE   75
-
 //safety masks
 #define MAX_MIDI_VALUE_MASK     0x7F
 #define MAX_MIDI_CHANNEL_MASK   0x0F

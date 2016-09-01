@@ -1,61 +1,31 @@
 #include "Analog.h"
 #include "../../sysex/SysEx.h"
-#include "../../eeprom/Configuration.h"
 #include "../../interface/settings/AnalogSettings.h"
 
 Analog::Analog()    {
 
     //def const
-
-}
-
-void Analog::init() {
-
-    const subtype analogEnabledSubtype       = { MAX_NUMBER_OF_ANALOG, 0, 1 };
-    const subtype analogInvertedSubtype      = { MAX_NUMBER_OF_ANALOG, 0, 1 };
-    const subtype analogTypeSubtype          = { MAX_NUMBER_OF_ANALOG, 0, ANALOG_TYPES-1 };
-    const subtype analogMIDIidSubtype        = { MAX_NUMBER_OF_ANALOG, 0, 127 };
-    const subtype analogCClowerLimitSubtype  = { MAX_NUMBER_OF_ANALOG, 0, 127 };
-    const subtype analogCCupperLimitSubtype  = { MAX_NUMBER_OF_ANALOG, 0, 127 };
-
-    const subtype *analogSubtypeArray[] = {
-
-        &analogEnabledSubtype,
-        &analogTypeSubtype,
-        &analogInvertedSubtype,
-        &analogMIDIidSubtype,
-        &analogCClowerLimitSubtype,
-        &analogCCupperLimitSubtype
-
-    };
-
-    //define message for sysex configuration
-    sysEx.addMessageType(CONF_ANALOG_BLOCK, ANALOG_SUBTYPES);
-
-    for (int i=0; i<ANALOG_SUBTYPES; i++)   {
-
-        //define subtype messages
-        sysEx.addMessageSubType(CONF_ANALOG_BLOCK, i, analogSubtypeArray[i]->parameters, analogSubtypeArray[i]->lowValue, analogSubtypeArray[i]->highValue);
-
-    }
+    analogDebounceCounter = 0;
 
 }
 
 void Analog::update()   {
 
-    if (!board.analogDataAvailable()) return;
+    if (!core.analogDataAvailable()) return;
+
+    addAnalogSamples();
+    if (!analogValuesSampled()) return;  //three samples are needed
 
     int16_t analogData;
 
     //check values
     for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)    {
 
-        analogData = board.getAnalogValue(i); //get raw analog reading
-        if (!getAnalogEnabled(i)) continue; //don't process component if it's not enabled
-        addAnalogSample(i, analogData);
-        if (!analogValueSampled(i)) continue;  //three samples are needed
-        analogData = getMedianValue(i);  //get median value from three analog samples for better accuracy
-        analogType_t type = getAnalogType(i);
+        //don't process component if it's not enabled
+        if (!configuration.readParameter(CONF_BLOCK_ANALOG, analogEnabledSection, i)) continue;
+        //get median value from three analog samples for better accuracy
+        analogData = getMedianValue(i);
+        analogType_t type = (analogType_t)configuration.readParameter(CONF_BLOCK_ANALOG, analogTypeSection, i);
 
         switch(type) {
 
@@ -79,20 +49,20 @@ void Analog::update()   {
 
 }
 
-void Analog::addAnalogSample(uint8_t analogID, int16_t sample) {
+void Analog::addAnalogSamples() {
 
-    uint8_t sampleIndex = analogDebounceCounter[analogID];
+    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+        analogSample[i][analogDebounceCounter] = core.getAnalogValue(i); //get raw analog reading
 
-    analogSample[analogID][sampleIndex] = sample;
-    analogDebounceCounter[analogID]++;
+    analogDebounceCounter++;
 
 }
 
-bool Analog::analogValueSampled(uint8_t analogID) {
+bool Analog::analogValuesSampled() {
 
-    if (analogDebounceCounter[analogID] == NUMBER_OF_SAMPLES) {
+    if (analogDebounceCounter == NUMBER_OF_SAMPLES) {
 
-        analogDebounceCounter[analogID] = 0;
+        analogDebounceCounter = 0;
         return true;
 
     }   return false;
@@ -117,154 +87,15 @@ int16_t Analog::getMedianValue(uint8_t analogID)  {
 
 }
 
-bool Analog::getAnalogEnabled(uint8_t analogID) {
+void Analog::debounceReset(uint16_t index)    {
 
-    return configuration.readParameter(CONF_ANALOG_BLOCK, analogEnabledSection, analogID);
+    lastAnalogueValue[index] = 0;
+    fsrLastAfterTouchValue[index] = 0;
 
-}
+    uint8_t arrayIndex = index/8;
+    uint8_t fsrIndex = index - 8*arrayIndex;
 
-bool Analog::getAnalogInvertState(uint8_t analogID) {
-
-    return configuration.readParameter(CONF_ANALOG_BLOCK, analogInvertedSection, analogID);
-
-}
-
-analogType_t Analog::getAnalogType(uint8_t analogID) {
-
-    return (analogType_t)configuration.readParameter(CONF_ANALOG_BLOCK, analogTypeSection, analogID);
-
-}
-
-uint8_t Analog::getMIDIid(uint8_t analogID)    {
-
-    return configuration.readParameter(CONF_ANALOG_BLOCK, analogMIDIidSection, analogID);
-
-}
-
-uint8_t Analog::getCClimit(uint8_t analogID, ccLimitType_t type)  {
-
-    switch(type)    {
-
-        case ccLimitLow:
-        return configuration.readParameter(CONF_ANALOG_BLOCK, analogCClowerLimitSection, analogID);
-        break;
-
-        case ccLimitHigh:
-        return configuration.readParameter(CONF_ANALOG_BLOCK, analogCCupperLimitSection, analogID);
-        break;
-
-    }   return 0;
-
-}
-
-uint8_t Analog::getParameter(uint8_t messageType, uint8_t parameter) {
-
-    switch(messageType) {
-
-        case analogEnabledConf:
-        return getAnalogEnabled(parameter);
-        break;
-
-        case analogInvertedConf:
-        return getAnalogInvertState(parameter);
-        break;
-
-        case analogTypeConf:
-        return getAnalogType(parameter);
-        break;
-
-        case analogMIDIidConf:
-        return getMIDIid(parameter);
-        break;
-
-        case analogCClowerLimitConf:
-        return getCClimit(parameter, ccLimitLow);
-        break;
-
-        case analogCCupperLimitConf:
-        return getCClimit(parameter, ccLimitHigh);
-        break;
-
-    }   return 0;
-
-}
-
-
-bool Analog::setAnalogEnabled(uint8_t analogID, bool state)    {
-
-    return configuration.writeParameter(CONF_ANALOG_BLOCK, analogEnabledSection, analogID, state);
-
-}
-
-bool Analog::setAnalogInvertState(uint8_t analogID, uint8_t state) {
-
-    return configuration.writeParameter(CONF_ANALOG_BLOCK, analogInvertedSection, analogID, state);
-
-}
-
-bool Analog::setAnalogType(uint8_t analogID, uint8_t type)    {
-
-    lastAnalogueValue[analogID] = 0;
-
-    return configuration.writeParameter(CONF_ANALOG_BLOCK, analogTypeSection, analogID, type);
-
-}
-
-bool Analog::setMIDIid(uint8_t analogID, uint8_t midiID)   {
-
-    return configuration.writeParameter(CONF_ANALOG_BLOCK, analogMIDIidSection, analogID, midiID);
-
-}
-
-bool Analog::setCClimit(ccLimitType_t type, uint8_t analogID, uint8_t limit)  {
-
-    switch (type)  {
-
-        case ccLimitLow:
-        return configuration.writeParameter(CONF_ANALOG_BLOCK, analogCClowerLimitSection, analogID, limit);
-        break;
-
-        case ccLimitHigh:
-        return configuration.writeParameter(CONF_ANALOG_BLOCK, analogCCupperLimitSection, analogID, limit);
-        break;
-
-        default:
-        return false;
-        break;
-
-    }
-
-}
-
-bool Analog::setParameter(uint8_t messageType, uint8_t parameter, uint8_t newParameter)    {
-
-    switch(messageType) {
-
-        case analogEnabledConf:
-        return setAnalogEnabled(parameter, newParameter);
-        break;
-
-        case analogInvertedConf:
-        return setAnalogInvertState(parameter, newParameter);
-        break;
-
-        case analogTypeConf:
-        return setAnalogType(parameter, newParameter);
-        break;
-
-        case analogMIDIidConf:
-        return setMIDIid(parameter, newParameter);
-        break;
-
-        case analogCClowerLimitConf:
-        return setCClimit(ccLimitLow, parameter, newParameter);
-        break;
-
-        case analogCCupperLimitConf:
-        return setCClimit(ccLimitHigh, parameter, newParameter);
-        break;
-
-    }   return false;
+    bitWrite(fsrPressed[arrayIndex], fsrIndex, false);
 
 }
 
