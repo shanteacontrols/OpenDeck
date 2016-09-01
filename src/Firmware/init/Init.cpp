@@ -6,29 +6,19 @@ void initSysEx()    {
         sysEx.addBlock(configuration.getBlockSections(i));
 
     {
-        const sysExSection analogEnabledSubtype       = { MAX_NUMBER_OF_ANALOG, 0, 1 };
-        const sysExSection analogInvertedSubtype      = { MAX_NUMBER_OF_ANALOG, 0, 1 };
-        const sysExSection analogTypeSubtype          = { MAX_NUMBER_OF_ANALOG, 0, ANALOG_TYPES-1 };
-        const sysExSection analogMIDIidSubtype        = { MAX_NUMBER_OF_ANALOG, 0, 127 };
-        const sysExSection analogCClowerLimitSubtype  = { MAX_NUMBER_OF_ANALOG, 0, 127 };
-        const sysExSection analogCCupperLimitSubtype  = { MAX_NUMBER_OF_ANALOG, 0, 127 };
+        const sysExSection midiFeatureSubtype = { MIDI_FEATURES, 0, 1 };
+        const sysExSection midiChannelSubtype = { MIDI_CHANNELS, 1, 16 };
 
-        const sysExSection *analogSubtypeArray[] = {
+        const sysExSection *midiSubtypeArray[] = {
 
-            &analogEnabledSubtype,
-            &analogTypeSubtype,
-            &analogInvertedSubtype,
-            &analogMIDIidSubtype,
-            &analogCClowerLimitSubtype,
-            &analogCCupperLimitSubtype
+            &midiFeatureSubtype,
+            &midiChannelSubtype
 
         };
 
-        uint8_t i = ANALOG_SUBTYPES;
+        for (int i=0; i<MIDI_SUBTYPES; i++) {
 
-        while (i--)   {
-
-            sysEx.addSection(CONF_BLOCK_ANALOG, analogSubtypeArray[i]->numberOfParameters, analogSubtypeArray[i]->minValue, analogSubtypeArray[i]->maxValue);
+            sysEx.addSection(CONF_BLOCK_MIDI, midiSubtypeArray[i]->numberOfParameters, midiSubtypeArray[i]->minValue, midiSubtypeArray[i]->maxValue);
 
         }
     }
@@ -46,9 +36,7 @@ void initSysEx()    {
 
         };
 
-        uint8_t i = BUTTON_SUBTYPES;
-
-        while (i--)   {
+        for (int i=0; i<BUTTON_SUBTYPES; i++)   {
 
             sysEx.addSection(CONF_BLOCK_BUTTON, buttonSubtypeArray[i]->numberOfParameters, buttonSubtypeArray[i]->minValue, buttonSubtypeArray[i]->maxValue);
 
@@ -70,11 +58,35 @@ void initSysEx()    {
 
         };
 
-        uint8_t i = ENCODER_SUBTYPES;
-
-        while (i--)   {
+        for (int i=0; i<ENCODER_SUBTYPES; i++)  {
 
             sysEx.addSection(CONF_BLOCK_ENCODER, encodersSubtypeArray[i]->numberOfParameters, encodersSubtypeArray[i]->minValue, encodersSubtypeArray[i]->maxValue);
+
+        }
+    }
+
+    {
+        const sysExSection analogEnabledSubtype       = { MAX_NUMBER_OF_ANALOG, 0, 1 };
+        const sysExSection analogInvertedSubtype      = { MAX_NUMBER_OF_ANALOG, 0, 1 };
+        const sysExSection analogTypeSubtype          = { MAX_NUMBER_OF_ANALOG, 0, ANALOG_TYPES-1 };
+        const sysExSection analogMIDIidSubtype        = { MAX_NUMBER_OF_ANALOG, 0, 127 };
+        const sysExSection analogCClowerLimitSubtype  = { MAX_NUMBER_OF_ANALOG, 0, 127 };
+        const sysExSection analogCCupperLimitSubtype  = { MAX_NUMBER_OF_ANALOG, 0, 127 };
+
+        const sysExSection *analogSubtypeArray[] = {
+
+            &analogEnabledSubtype,
+            &analogTypeSubtype,
+            &analogInvertedSubtype,
+            &analogMIDIidSubtype,
+            &analogCClowerLimitSubtype,
+            &analogCCupperLimitSubtype
+
+        };
+
+        for (int i=0; i<ANALOG_SUBTYPES; i++)   {
+
+            sysEx.addSection(CONF_BLOCK_ANALOG, analogSubtypeArray[i]->numberOfParameters, analogSubtypeArray[i]->minValue, analogSubtypeArray[i]->maxValue);
 
         }
     }
@@ -96,34 +108,12 @@ void initSysEx()    {
 
         };
 
-        uint8_t i = LED_SUBTYPES;
-
-        while (i--)   {
+        for (int i=0; i<LED_SUBTYPES; i++)  {
 
             sysEx.addSection(CONF_BLOCK_LED, ledsSubtypeArray[i]->numberOfParameters, ledsSubtypeArray[i]->minValue, ledsSubtypeArray[i]->maxValue);
 
         }
 
-    }
-
-    {
-        const sysExSection midiFeatureSubtype = { MIDI_FEATURES, 0, 1 };
-        const sysExSection midiChannelSubtype = { MIDI_CHANNELS, 1, 16 };
-
-        const sysExSection *midiSubtypeArray[] = {
-
-            &midiFeatureSubtype,
-            &midiChannelSubtype
-
-        };
-
-        uint8_t i = MIDI_SUBTYPES;
-
-        while (i--)   {
-
-            sysEx.addSection(CONF_BLOCK_MIDI, midiSubtypeArray[i]->numberOfParameters, midiSubtypeArray[i]->minValue, midiSubtypeArray[i]->maxValue);
-
-        }
     }
 
 }

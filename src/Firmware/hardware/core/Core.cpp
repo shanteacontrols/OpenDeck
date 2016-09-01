@@ -967,7 +967,7 @@ bool Core::buttonDataAvailable()   {
 bool Core::getButtonState(uint8_t buttonIndex) {
 
     uint8_t encoderPairIndex = getEncoderPairFromButtonIndex(buttonIndex);
-    if (!configuration.readParameter(CONF_BLOCK_ENCODER, encoderEnabledSection, encoderPairIndex))
+    if (configuration.readParameter(CONF_BLOCK_ENCODER, encoderEnabledSection, encoderPairIndex))
         return false;   //button is member of encoder pair, return "not pressed" state
 
     uint8_t row = buttonIndex/NUMBER_OF_BUTTON_COLUMNS;
