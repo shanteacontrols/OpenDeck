@@ -331,16 +331,6 @@ bool SysEx::checkParameters()   {
     uint8_t loops = 1, responseSize_ = responseSize;
     uint16_t startIndex = 0, endIndex = 1;
 
-    if (decodedMessage.wish == sysExWish_backup)    {
-
-        //convert response to request
-        sysExArray[(uint8_t)statusByte] = REQUEST;
-        //now convert wish to set
-        sysExArray[(uint8_t)wishByte] = (uint8_t)sysExWish_set;
-        decodedMessage.wish = sysExWish_get;
-
-    }
-
     if (decodedMessage.amount == sysExAmount_single)   {
 
         #if PARAM_SIZE == 2
@@ -352,6 +342,7 @@ bool SysEx::checkParameters()   {
         #elif PARAM_SIZE == 1
         decodedMessage.index = sysExArray[indexByte];
         #endif
+        decodedMessage.index += (PARAMETERS_PER_MESSAGE*decodedMessage.part);
 
         if (decodedMessage.wish == sysExWish_set)   {
 
@@ -361,7 +352,6 @@ bool SysEx::checkParameters()   {
             decoded.low = sysExArray[newValueByte_single+1];
             decodedMessage.newValue = decoded.decode14bit();
             #elif PARAM_SIZE == 1
-            decodedMessage.index = sysExArray[indexByte];
             decodedMessage.newValue = sysExArray[newValueByte_single];
             #endif
 
@@ -369,16 +359,27 @@ bool SysEx::checkParameters()   {
 
     }
 
-    if  (
-    (
-    (decodedMessage.wish == sysExWish_backup) ||
-    (decodedMessage.wish == sysExWish_get)
-    ) && (decodedMessage.part == 127))  {
+    if ((decodedMessage.wish == sysExWish_backup) || (decodedMessage.wish == sysExWish_get))    {
 
-        loops = sysExMessage[decodedMessage.block].section[decodedMessage.section].parts;
-        forcedSend = true;
-        if (decodedMessage.wish == sysExWish_backup)
-            responseSize_ = sysExArraySize - 1; //don't overwrite anything if backup is requested
+        if (decodedMessage.part == 127) {
+
+            loops = sysExMessage[decodedMessage.block].section[decodedMessage.section].parts;
+            forcedSend = true;
+
+        }
+
+        if (decodedMessage.wish == sysExWish_backup)    {
+
+            //don't overwrite anything if backup is requested
+            responseSize_ = sysExArraySize - 1;
+            //convert response to request
+            sysExArray[(uint8_t)statusByte] = REQUEST;
+            //now convert wish to set
+            sysExArray[(uint8_t)wishByte] = (uint8_t)sysExWish_set;
+            //decoded message wish needs to be set to get so that we can retrieve parameters
+            decodedMessage.wish = sysExWish_get;
+
+        }
 
     }
 
@@ -412,7 +413,7 @@ bool SysEx::checkParameters()   {
 
                     if (!checkParameterIndex())  {
 
-                        setStatus(ERROR_PARAMETER);
+                        setStatus(ERROR_INDEX);
                         return false;
 
                     }   else {
@@ -434,14 +435,14 @@ bool SysEx::checkParameters()   {
 
                     if (!checkParameterIndex())  {
 
-                        setStatus(ERROR_PARAMETER);
+                        setStatus(ERROR_INDEX);
                         return false;
 
                     }
 
                     if (!checkNewValue())   {
 
-                        setStatus(ERROR_NEW_PARAMETER);
+                        setStatus(ERROR_NEW_VALUE);
                         return false;
 
                     }
@@ -464,12 +465,12 @@ bool SysEx::checkParameters()   {
                     decoded.low = sysExArray[arrayIndex+1];
                     decodedMessage.newValue = decoded.decode14bit();
                     #elif PARAM_SIZE == 1
-                    decodedMessage.newValue = sysExArray[arrayIndex];
+                    decodedMessage.newValue = sysExArray[arrayIndex+newValueByte_all];
                     #endif
 
                     if (!checkNewValue())   {
 
-                        setStatus(ERROR_NEW_PARAMETER);
+                        setStatus(ERROR_NEW_VALUE);
                         return false;
 
                     }
@@ -634,7 +635,7 @@ bool SysEx::checkPart() {
 
         }   else {
 
-            if (decodedMessage.part != 0)   {
+            if (decodedMessage.part >= sysExMessage[decodedMessage.block].section[decodedMessage.section].parts)   {
 
                 setStatus(ERROR_STATUS);
                 return false;
@@ -704,7 +705,7 @@ void SysEx::sendCustomMessage(uint8_t id, sysExParameter_t value)   {
     customMessage[idByte_1] = defaultID.byte1;
     customMessage[idByte_2] = defaultID.byte2;
     customMessage[idByte_3] = defaultID.byte3;
-    customMessage[statusByte] = CUSTOM;
+    customMessage[statusByte] = ACK;
     customMessage[statusByte+1] = id;
     #if PARAM_SIZE == 2
     encDec_14bit encoded;

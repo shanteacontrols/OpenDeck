@@ -74,8 +74,8 @@ class SysEx {
         sectionByte,    //9
         REQUEST_SIZE,
         RESPONSE_SIZE = partByte + 1,
-        MIN_MESSAGE_LENGTH = wishByte + 1 + 1, //add next byte and end
-        ML_REQ_STANDARD = REQUEST_SIZE + 1 //add end byte
+        MIN_MESSAGE_LENGTH = wishByte + 1 + 1,  //add next byte and end
+        ML_REQ_STANDARD = REQUEST_SIZE + 1      //add end byte
 
     } sysExRequestByteOrder;
 
