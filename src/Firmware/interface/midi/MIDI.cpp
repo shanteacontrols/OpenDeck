@@ -2,8 +2,9 @@
 #include "../../sysex/SysEx.h"
 #include "../../eeprom/Configuration.h"
 #include "../../BitManipulation.h"
-#include "../../hardware/board/Board.h"
+#include "../../hardware/core/Core.h"
 #include "../../interface/leds/LEDs.h"
+#include "../../interface/settings/MIDIsettings.h"
 
 MIDI::MIDI()    {
 
@@ -13,26 +14,7 @@ MIDI::MIDI()    {
 
 void MIDI::init() {
 
-    const subtype midiFeatureSubtype = { MIDI_FEATURES, 0, 1 };
-    const subtype midiChannelSubtype = { MIDI_CHANNELS, 1, 16 };
-
-    const subtype *midiSubtypeArray[] = {
-
-        &midiFeatureSubtype,
-        &midiChannelSubtype
-
-    };
-
-    sysEx.addMessageType(CONF_MIDI_BLOCK, MIDI_SUBTYPES);
-
-    for (int i=0; i<MIDI_SUBTYPES; i++)   {
-
-        //define subtype messages
-        sysEx.addMessageSubType(CONF_MIDI_BLOCK, i, midiSubtypeArray[i]->parameters, midiSubtypeArray[i]->lowValue, midiSubtypeArray[i]->highValue);
-
-    }
-
-    uint8_t inChannel = getMIDIchannel(inputChannel);
+    uint8_t inChannel = configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, inputChannel);
     hwMIDI.init(true, true, dinInterface);
     hwMIDI.init(true, true, usbInterface);
     hwMIDI.setInputChannel(inChannel);
@@ -77,7 +59,7 @@ void MIDI::checkInput()   {
 
         source = dinInterface;
 
-        if (!getFeature(midiFeatureUSBconvert))  {
+        if (!configuration.readParameter(CONF_BLOCK_MIDI, midiFeatureSection, midiFeatureUSBconvert))  {
 
             switch(messageType) {
 
@@ -97,19 +79,19 @@ void MIDI::checkInput()   {
                 switch(messageType) {
 
                     case midiMessageNoteOff:
-                    hwMIDI.sendNoteOff(data1, data2, getMIDIchannel(inputChannel), usbInterface);
+                    hwMIDI.sendNoteOff(data1, data2, configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, inputChannel), usbInterface);
                     break;
 
                     case midiMessageNoteOn:
-                    hwMIDI.sendNoteOn(data1, data2, getMIDIchannel(inputChannel), usbInterface);
+                    hwMIDI.sendNoteOn(data1, data2, configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, inputChannel), usbInterface);
                     break;
 
                     case midiMessageControlChange:
-                    hwMIDI.sendControlChange(data1, data2, getMIDIchannel(inputChannel), usbInterface);
+                    hwMIDI.sendControlChange(data1, data2, configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, inputChannel), usbInterface);
                     break;
 
                     case midiMessageProgramChange:
-                    hwMIDI.sendProgramChange(data1, getMIDIchannel(inputChannel), usbInterface);
+                    hwMIDI.sendProgramChange(data1, configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, inputChannel), usbInterface);
                     break;
 
                     case midiMessageSystemExclusive:
@@ -117,11 +99,11 @@ void MIDI::checkInput()   {
                     break;
 
                     case midiMessageAfterTouchChannel:
-                    hwMIDI.sendAfterTouch(data1, getMIDIchannel(inputChannel), usbInterface);
+                    hwMIDI.sendAfterTouch(data1, configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, inputChannel), usbInterface);
                     break;
 
                     case midiMessageAfterTouchPoly:
-                    hwMIDI.sendPolyPressure(data1, data2, getMIDIchannel(inputChannel), usbInterface);
+                    hwMIDI.sendPolyPressure(data1, data2, configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, inputChannel), usbInterface);
                     break;
 
                     default:
@@ -141,13 +123,13 @@ void MIDI::checkInput()   {
 
 void MIDI::sendMIDInote(uint8_t note, bool state, uint8_t _velocity)  {
 
-    uint8_t channel = getMIDIchannel(noteChannel);
+    uint8_t channel = configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, noteChannel);
 
     switch (state) {
 
         case false:
         //button released
-        if (getFeature(midiFeatureStandardNoteOff))   {
+        if (configuration.readParameter(CONF_BLOCK_MIDI, midiFeatureSection, midiFeatureStandardNoteOff))   {
 
             hwMIDI.sendNoteOff(note, _velocity, channel, usbInterface);
             hwMIDI.sendNoteOff(note, _velocity, channel, dinInterface);
@@ -172,7 +154,7 @@ void MIDI::sendMIDInote(uint8_t note, bool state, uint8_t _velocity)  {
 
 void MIDI::sendProgramChange(uint8_t program)    {
 
-    uint8_t channel = getMIDIchannel(programChangeChannel);
+    uint8_t channel = configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, programChangeChannel);
     hwMIDI.sendProgramChange(program, channel, usbInterface);
     hwMIDI.sendProgramChange(program, channel, dinInterface);
 
@@ -180,91 +162,16 @@ void MIDI::sendProgramChange(uint8_t program)    {
 
 void MIDI::sendControlChange(uint8_t ccNumber, uint8_t ccValue) {
 
-    uint8_t channel = getMIDIchannel(CCchannel);
+    uint8_t channel = configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, CCchannel);
     hwMIDI.sendControlChange(ccNumber, ccValue, channel, usbInterface);
     hwMIDI.sendControlChange(ccNumber, ccValue, channel, dinInterface);
 
 }
 
-void MIDI::sendSysEx(uint8_t *sysExArray, uint8_t arraySize)   {
+void MIDI::sendSysEx(uint8_t *sysExArray, uint8_t arraySize, bool arrayContainsBoundaries)   {
 
-    switch (source) {
-
-        case dinInterface:
-        hwMIDI.sendSysEx(arraySize, sysExArray, false, dinInterface);
-        break;
-
-        case usbInterface:
-        hwMIDI.sendSysEx(arraySize, sysExArray, false, usbInterface);
-        break;
-
-    }
-
-}
-
-
-bool MIDI::getFeature(uint8_t featureID)  {
-
-    return configuration.readParameter(CONF_MIDI_BLOCK, midiFeatureSection, featureID);
-
-}
-
-uint8_t MIDI::getMIDIchannel(uint8_t channel)  {
-
-    return configuration.readParameter(CONF_MIDI_BLOCK, midiChannelSection, channel);
-
-}
-
-uint8_t MIDI::getParameter(uint8_t messageType, uint8_t parameterID)  {
-
-    switch(messageType) {
-
-        case midiFeatureConf:
-        return getFeature(parameterID);
-        break;
-
-        case midiChannelConf:
-        return getMIDIchannel(parameterID);
-        break;
-
-    }   return 0;
-
-}
-
-
-bool MIDI::setMIDIchannel(uint8_t channelID, uint8_t channelNumber)  {
-
-    return configuration.writeParameter(CONF_MIDI_BLOCK, midiChannelSection, channelID, channelNumber);
-
-}
-
-bool MIDI::setFeature(uint8_t featureID, uint8_t newValue)  {
-
-    if (!configuration.writeParameter(CONF_MIDI_BLOCK, midiFeatureSection, featureID, newValue))
-        return false;
-
-    if (featureID == midiFeatureRunningStatus)    {
-
-        //tell hwMIDI object that we've changed this setting
-        newValue ? hwMIDI.enableRunningStatus() : hwMIDI.disableRunningStatus();
-
-    }   return true;
-
-}
-
-bool MIDI::setParameter(uint8_t messageType, uint8_t parameterID, uint8_t newValue) {
-
-    switch(messageType) {
-
-        case midiFeatureConf:
-        return setFeature(parameterID, newValue);
-        break;
-
-        case midiChannelConf:
-        return setMIDIchannel(parameterID, newValue);
-        break;
-
-    }   return false;
+    hwMIDI.sendSysEx(arraySize, sysExArray, arrayContainsBoundaries, dinInterface);
+    hwMIDI.sendSysEx(arraySize, sysExArray, arrayContainsBoundaries, usbInterface);
 
 }
 

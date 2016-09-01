@@ -1,4 +1,4 @@
-#include "Board.h"
+#include "Core.h"
 #include "../../sysex/SysEx.h"
 #include <util/delay.h>
 #include <avr/cpufunc.h>
@@ -80,8 +80,11 @@ uint32_t rTimeMillis()    {
 
 void wait(uint32_t time)    {
 
-    uint32_t _delayTime = rTimeMillis() + time;
-    while (_delayTime > rTimeMillis()) {}
+    while(time--)   {
+
+        _delay_ms(1);
+
+    }
 
 }
 
@@ -171,10 +174,10 @@ inline void setMuxInput(uint8_t muxInput)    {
     //and output appearing on Yn is around 150ns
     //add three NOPs to compensate
 
-    bitRead(muxPinOrderArray[muxInput], 0) ? setHighMacro(MUX_S0_PORT, MUX_S0_PIN) : setLowMacro(MUX_S0_PORT, MUX_S0_PIN);
-    bitRead(muxPinOrderArray[muxInput], 1) ? setHighMacro(MUX_S1_PORT, MUX_S1_PIN) : setLowMacro(MUX_S1_PORT, MUX_S1_PIN);
-    bitRead(muxPinOrderArray[muxInput], 2) ? setHighMacro(MUX_S2_PORT, MUX_S2_PIN) : setLowMacro(MUX_S2_PORT, MUX_S2_PIN);
-    bitRead(muxPinOrderArray[muxInput], 3) ? setHighMacro(MUX_S3_PORT, MUX_S3_PIN) : setLowMacro(MUX_S3_PORT, MUX_S3_PIN);
+    bitRead(muxPinOrderArray[muxInput], 0) ? setHigh(MUX_S0_PORT, MUX_S0_PIN) : setLow(MUX_S0_PORT, MUX_S0_PIN);
+    bitRead(muxPinOrderArray[muxInput], 1) ? setHigh(MUX_S1_PORT, MUX_S1_PIN) : setLow(MUX_S1_PORT, MUX_S1_PIN);
+    bitRead(muxPinOrderArray[muxInput], 2) ? setHigh(MUX_S2_PORT, MUX_S2_PIN) : setLow(MUX_S2_PORT, MUX_S2_PIN);
+    bitRead(muxPinOrderArray[muxInput], 3) ? setHigh(MUX_S3_PORT, MUX_S3_PIN) : setLow(MUX_S3_PORT, MUX_S3_PIN);
 
     _NOP(); _NOP(); _NOP();
 
@@ -190,13 +193,12 @@ inline void ledRowsOff()   {
     TCCR3A &= ~(1<<COM3A1);
     TCCR1A &= ~(1<<COM1B1);
 
-    setHighMacro(LED_ROW_1_PORT, LED_ROW_1_PIN);
-    setHighMacro(LED_ROW_2_PORT, LED_ROW_2_PIN);
-    setHighMacro(LED_ROW_3_PORT, LED_ROW_3_PIN);
-    setHighMacro(LED_ROW_4_PORT, LED_ROW_4_PIN);
-    setHighMacro(LED_ROW_5_PORT, LED_ROW_5_PIN);
-    setHighMacro(LED_ROW_6_PORT, LED_ROW_6_PIN);
-
+    setHigh(LED_ROW_1_PORT, LED_ROW_1_PIN);
+    setHigh(LED_ROW_2_PORT, LED_ROW_2_PIN);
+    setHigh(LED_ROW_3_PORT, LED_ROW_3_PIN);
+    setHigh(LED_ROW_4_PORT, LED_ROW_4_PIN);
+    setHigh(LED_ROW_5_PORT, LED_ROW_5_PIN);
+    setHigh(LED_ROW_6_PORT, LED_ROW_6_PIN);
 
 }
 
@@ -241,7 +243,7 @@ inline void ledRowOn(uint8_t rowNumber, uint8_t intensity)  {
 
 }
 
-inline void checkLEDs()  {
+void checkLEDs()  {
 
     if (blinkEnabled)   {
 
@@ -314,9 +316,9 @@ inline void checkLEDs()  {
 
 inline void activateInputColumn(uint8_t column)   {
 
-    bitRead(dmColumnArray[column], 0) ? setHighMacro(DEC_DM_A0_PORT, DEC_DM_A0_PIN) : setLowMacro(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
-    bitRead(dmColumnArray[column], 1) ? setHighMacro(DEC_DM_A1_PORT, DEC_DM_A1_PIN) : setLowMacro(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
-    bitRead(dmColumnArray[column], 2) ? setHighMacro(DEC_DM_A2_PORT, DEC_DM_A2_PIN) : setLowMacro(DEC_DM_A2_PORT, DEC_DM_A2_PIN);
+    bitRead(dmColumnArray[column], 0) ? setHigh(DEC_DM_A0_PORT, DEC_DM_A0_PIN) : setLow(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
+    bitRead(dmColumnArray[column], 1) ? setHigh(DEC_DM_A1_PORT, DEC_DM_A1_PIN) : setLow(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
+    bitRead(dmColumnArray[column], 2) ? setHigh(DEC_DM_A2_PORT, DEC_DM_A2_PIN) : setLow(DEC_DM_A2_PORT, DEC_DM_A2_PIN);
 
     _NOP();
 
@@ -324,9 +326,9 @@ inline void activateInputColumn(uint8_t column)   {
 
 inline void activateOutputColumn(uint8_t column)    {
 
-    bitRead(column, 0) ? setHighMacro(DEC_LM_A0_PORT, DEC_LM_A0_PIN) : setLowMacro(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
-    bitRead(column, 1) ? setHighMacro(DEC_LM_A1_PORT, DEC_LM_A1_PIN) : setLowMacro(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
-    bitRead(column, 2) ? setHighMacro(DEC_LM_A2_PORT, DEC_LM_A2_PIN) : setLowMacro(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
+    bitRead(column, 0) ? setHigh(DEC_LM_A0_PORT, DEC_LM_A0_PIN) : setLow(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
+    bitRead(column, 1) ? setHigh(DEC_LM_A1_PORT, DEC_LM_A1_PIN) : setLow(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
+    bitRead(column, 2) ? setHigh(DEC_LM_A2_PORT, DEC_LM_A2_PIN) : setLow(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
 
     _NOP();
 
@@ -501,13 +503,13 @@ ISR(ADC_vect)   {
 
 //init
 
-Board::Board()  {
+Core::Core()  {
 
     //default constructor
 
 }
 
-void Board::init()  {
+void Core::init()  {
 
     cli();
     disableWatchDog();
@@ -530,58 +532,58 @@ void Board::init()  {
 
 }
 
-void Board::initPins() {
+void Core::initPins() {
 
     //configure input matrix
     //shift register
-    setInputMacro(SR_DIN_DDR, SR_DIN_PIN);
-    setOutputMacro(SR_CLK_DDR, SR_CLK_PIN);
-    setOutputMacro(SR_LATCH_DDR, SR_LATCH_PIN);
+    setInput(SR_DIN_DDR, SR_DIN_PIN);
+    setOutput(SR_CLK_DDR, SR_CLK_PIN);
+    setOutput(SR_LATCH_DDR, SR_LATCH_PIN);
 
     //decoder
-    setOutputMacro(DEC_DM_A0_DDR, DEC_DM_A0_PIN);
-    setOutputMacro(DEC_DM_A1_DDR, DEC_DM_A1_PIN);
-    setOutputMacro(DEC_DM_A1_DDR, DEC_DM_A2_PIN);
+    setOutput(DEC_DM_A0_DDR, DEC_DM_A0_PIN);
+    setOutput(DEC_DM_A1_DDR, DEC_DM_A1_PIN);
+    setOutput(DEC_DM_A1_DDR, DEC_DM_A2_PIN);
 
     //configure led matrix
     //rows
 
-    setHighMacro(LED_ROW_1_PORT, LED_ROW_1_PIN);
-    setHighMacro(LED_ROW_2_PORT, LED_ROW_2_PIN);
-    setHighMacro(LED_ROW_3_PORT, LED_ROW_3_PIN);
-    setHighMacro(LED_ROW_4_PORT, LED_ROW_4_PIN);
-    setHighMacro(LED_ROW_5_PORT, LED_ROW_5_PIN);
-    setHighMacro(LED_ROW_6_PORT, LED_ROW_6_PIN);
+    setHigh(LED_ROW_1_PORT, LED_ROW_1_PIN);
+    setHigh(LED_ROW_2_PORT, LED_ROW_2_PIN);
+    setHigh(LED_ROW_3_PORT, LED_ROW_3_PIN);
+    setHigh(LED_ROW_4_PORT, LED_ROW_4_PIN);
+    setHigh(LED_ROW_5_PORT, LED_ROW_5_PIN);
+    setHigh(LED_ROW_6_PORT, LED_ROW_6_PIN);
 
-    setOutputMacro(LED_ROW_1_DDR, LED_ROW_1_PIN);
-    setOutputMacro(LED_ROW_2_DDR, LED_ROW_2_PIN);
-    setOutputMacro(LED_ROW_3_DDR, LED_ROW_3_PIN);
-    setOutputMacro(LED_ROW_4_DDR, LED_ROW_4_PIN);
-    setOutputMacro(LED_ROW_5_DDR, LED_ROW_5_PIN);
-    setOutputMacro(LED_ROW_6_DDR, LED_ROW_6_PIN);
+    setOutput(LED_ROW_1_DDR, LED_ROW_1_PIN);
+    setOutput(LED_ROW_2_DDR, LED_ROW_2_PIN);
+    setOutput(LED_ROW_3_DDR, LED_ROW_3_PIN);
+    setOutput(LED_ROW_4_DDR, LED_ROW_4_PIN);
+    setOutput(LED_ROW_5_DDR, LED_ROW_5_PIN);
+    setOutput(LED_ROW_6_DDR, LED_ROW_6_PIN);
 
     //decoder
-    setOutputMacro(DEC_LM_A0_DDR, DEC_LM_A0_PIN);
-    setOutputMacro(DEC_LM_A1_DDR, DEC_LM_A1_PIN);
-    setOutputMacro(DEC_LM_A2_DDR, DEC_LM_A2_PIN);
+    setOutput(DEC_LM_A0_DDR, DEC_LM_A0_PIN);
+    setOutput(DEC_LM_A1_DDR, DEC_LM_A1_PIN);
+    setOutput(DEC_LM_A2_DDR, DEC_LM_A2_PIN);
 
     //configure analog
     //select pins
-    setOutputMacro(MUX_S0_DDR, MUX_S0_PIN);
-    setOutputMacro(MUX_S1_DDR, MUX_S1_PIN);
-    setOutputMacro(MUX_S2_DDR, MUX_S2_PIN);
-    setOutputMacro(MUX_S3_DDR, MUX_S3_PIN);
+    setOutput(MUX_S0_DDR, MUX_S0_PIN);
+    setOutput(MUX_S1_DDR, MUX_S1_PIN);
+    setOutput(MUX_S2_DDR, MUX_S2_PIN);
+    setOutput(MUX_S3_DDR, MUX_S3_PIN);
 
     //mux inputs
-    setInputMacro(MUX_1_IN_DDR, MUX_1_IN_PIN);
-    setInputMacro(MUX_2_IN_DDR, MUX_2_IN_PIN);
+    setInput(MUX_1_IN_DDR, MUX_1_IN_PIN);
+    setInput(MUX_2_IN_DDR, MUX_2_IN_PIN);
 
     //bootloader led
-    setOutputMacro(BTLDR_LED_DDR, BTLDR_LED_PIN);
+    setOutput(BTLDR_LED_DDR, BTLDR_LED_PIN);
 
 }
 
-void Board::initAnalog()    {
+void Core::initAnalog()    {
 
     setUpADC();
     setADCprescaler(128);
@@ -600,7 +602,7 @@ void Board::initAnalog()    {
 
 }
 
-void Board::configureTimers()   {
+void Core::configureTimers()   {
 
     //clear timer0 conf
     TCCR0A = 0;
@@ -660,10 +662,10 @@ inline uint8_t getRGBIDFromLEDID(uint8_t ledID) {
 
 }
 
-void Board::setLEDstate(uint8_t ledNumber, ledColor_t color, bool blinkMode)   {
+void Core::setLEDstate(uint8_t ledNumber, ledColor_t color, bool blinkMode)   {
 
     uint8_t rgbID = getRGBIDFromLEDID(ledNumber);
-    bool rgbEnabled = configuration.readParameter(CONF_LED_BLOCK, ledRGBenabledSection, rgbID);
+    bool rgbEnabled = configuration.readParameter(CONF_BLOCK_LED, ledRGBenabledSection, rgbID);
 
     if (!rgbEnabled)    {
 
@@ -678,7 +680,7 @@ void Board::setLEDstate(uint8_t ledNumber, ledColor_t color, bool blinkMode)   {
 
 }
 
-uint8_t Board::getLEDstate(uint8_t ledNumber)   {
+uint8_t Core::getLEDstate(uint8_t ledNumber)   {
 
     uint8_t returnValue;
     returnValue = ledState[ledNumber];
@@ -686,7 +688,7 @@ uint8_t Board::getLEDstate(uint8_t ledNumber)   {
 
 }
 
-void Board::setLEDblinkTime(uint16_t blinkTime)  {
+void Core::setLEDblinkTime(uint16_t blinkTime)  {
 
     cli();
     ledBlinkTime = blinkTime*100;
@@ -695,7 +697,7 @@ void Board::setLEDblinkTime(uint16_t blinkTime)  {
 
 }
 
-void Board::setLEDTransitionSpeed(uint8_t transitionSteps) {
+void Core::setLEDTransitionSpeed(uint8_t transitionSteps) {
 
     //reset transition counter
     cli();
@@ -707,7 +709,7 @@ void Board::setLEDTransitionSpeed(uint8_t transitionSteps) {
 
 }
 
-void Board::ledBlinkingStart() {
+void Core::ledBlinkingStart() {
 
     if (!blinkEnabled)  {
 
@@ -719,7 +721,7 @@ void Board::ledBlinkingStart() {
 
 }
 
-void Board::ledBlinkingStop()   {
+void Core::ledBlinkingStop()   {
 
     blinkState = true;
     cli();
@@ -729,7 +731,7 @@ void Board::ledBlinkingStop()   {
 
 }
 
-bool Board::ledBlinkingActive() {
+bool Core::ledBlinkingActive() {
 
     bool state;
     state = blinkEnabled;
@@ -737,7 +739,7 @@ bool Board::ledBlinkingActive() {
 
 }
 
-void Board::checkBlinkLEDs() {
+void Core::checkBlinkLEDs() {
 
     //this function will disable blinking
     //if none of the LEDs is in blinking state
@@ -784,7 +786,7 @@ inline uint8_t getRGBfirstID(uint8_t rgbID)    {
 }
 
 
-void Board::handleLED(uint8_t ledNumber, ledColor_t color, bool blinkMode, ledType_t type) {
+void Core::handleLED(uint8_t ledNumber, ledColor_t color, bool blinkMode, ledType_t type) {
 
     /*
 
@@ -828,37 +830,40 @@ void Board::handleLED(uint8_t ledNumber, ledColor_t color, bool blinkMode, ledTy
         newLEDstate[2] = rgbColors[color][2];
         break;
 
+        default:
+        return;
+
     }
 
-    for (int i=0; i<loops; i++) {
+    while (loops--) {
 
-        ledNumber += 8*(bool)i;
+        ledNumber += 8*(bool)loops;
 
-        switch (newLEDstate[i]) {
+        switch (newLEDstate[loops]) {
 
             case false:
             //turn off the led
-            currentState[i] = 0;
+            currentState[loops] = 0;
             break;
 
             case true:
             //turn on the led
             //if led was already active, clear the on bits before setting new state
-            if (bitRead(currentState[i], LED_ACTIVE_BIT))
-                currentState[i] = 0;
+            if (bitRead(currentState[loops], LED_ACTIVE_BIT))
+                currentState[loops] = 0;
 
-            bitWrite(currentState[i], LED_ACTIVE_BIT, 1);
+            bitWrite(currentState[loops], LED_ACTIVE_BIT, 1);
             if (blinkMode)  {
 
-                bitWrite(currentState[i], LED_BLINK_ON_BIT, 1);
+                bitWrite(currentState[loops], LED_BLINK_ON_BIT, 1);
                 //this will turn the led immediately no matter how little time it's
                 //going to blink first time
-                bitWrite(currentState[i], LED_BLINK_STATE_BIT, 1);
+                bitWrite(currentState[loops], LED_BLINK_STATE_BIT, 1);
 
-            }   else bitWrite(currentState[i], LED_CONSTANT_ON_BIT, 1);
+            }   else bitWrite(currentState[loops], LED_CONSTANT_ON_BIT, 1);
             break;
 
-        }   ledState[ledNumber] = currentState[i];
+        }   ledState[ledNumber] = currentState[loops];
 
     }
 
@@ -867,7 +872,7 @@ void Board::handleLED(uint8_t ledNumber, ledColor_t color, bool blinkMode, ledTy
 
 //analog
 
-bool Board::analogDataAvailable() {
+bool Core::analogDataAvailable() {
 
     bool state;
     state = _analogDataAvailable;
@@ -885,7 +890,7 @@ bool Board::analogDataAvailable() {
 
 }
 
-int16_t Board::getAnalogValue(uint8_t analogID) {
+int16_t Core::getAnalogValue(uint8_t analogID) {
 
     return analogBufferCopy[analogID];
 
@@ -906,7 +911,7 @@ inline void checkInputMatrixBufferCopy()    {
 
 //encoders
 
-encoderPosition_t Board::getEncoderState(uint8_t encoderNumber)  {
+encoderPosition_t Core::getEncoderState(uint8_t encoderNumber)  {
 
     uint8_t column = encoderNumber % NUMBER_OF_BUTTON_COLUMNS;
     uint8_t row  = (encoderNumber/NUMBER_OF_BUTTON_COLUMNS)*2;
@@ -918,7 +923,7 @@ encoderPosition_t Board::getEncoderState(uint8_t encoderNumber)  {
 
 }
 
-bool Board::encoderDataAvailable()  {
+bool Core::encoderDataAvailable()  {
 
     checkInputMatrixBufferCopy();
 
@@ -940,7 +945,7 @@ bool Board::encoderDataAvailable()  {
 
 //buttons
 
-bool Board::buttonDataAvailable()   {
+bool Core::buttonDataAvailable()   {
 
     checkInputMatrixBufferCopy();
 
@@ -959,10 +964,10 @@ bool Board::buttonDataAvailable()   {
 
 }
 
-bool Board::getButtonState(uint8_t buttonIndex) {
+bool Core::getButtonState(uint8_t buttonIndex) {
 
     uint8_t encoderPairIndex = getEncoderPairFromButtonIndex(buttonIndex);
-    if (encoders.getEncoderEnabled(encoderPairIndex))
+    if (!configuration.readParameter(CONF_BLOCK_ENCODER, encoderEnabledSection, encoderPairIndex))
         return false;   //button is member of encoder pair, return "not pressed" state
 
     uint8_t row = buttonIndex/NUMBER_OF_BUTTON_COLUMNS;
@@ -973,4 +978,4 @@ bool Board::getButtonState(uint8_t buttonIndex) {
 
 }
 
-Board board;
+Core core;

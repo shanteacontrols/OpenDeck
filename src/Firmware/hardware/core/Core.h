@@ -25,11 +25,11 @@ uint32_t rTimeMillis();
 void wait(uint32_t time);
 void disableWatchDog();
 
-class Board {
+class Core {
 
     public:
     //init
-    Board();
+    Core();
     void init();
 
     //digital
@@ -62,6 +62,6 @@ class Board {
 
 };
 
-extern Board board;
+extern Core core;
 
 #endif

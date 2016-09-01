@@ -2,17 +2,14 @@
 #define BUTTONS_H_
 
 #include <avr/io.h>
-#include "../../hardware/board/Board.h"
+#include "../../hardware/core/Core.h"
 
 class Buttons {
 
     public:
     Buttons();
 
-    void init();
     void update();
-    uint8_t getParameter(uint8_t messageType, uint8_t parameterID);
-    bool setParameter(uint8_t messageType, uint8_t parameter, uint8_t newParameter);
 
     private:
     //variables
@@ -29,16 +26,6 @@ class Buttons {
     void updateButtonState(uint8_t buttonID, uint8_t buttonState);
     bool getPreviousButtonState(uint8_t buttonID);
     bool buttonDebounced(uint8_t buttonID, bool buttonState);
-
-    //get
-    buttonType_t getButtonType(uint8_t buttonID);
-    bool getButtonPCenabled(uint8_t buttonID);
-    uint8_t getMIDIid(uint8_t buttonID);
-
-    //set
-    bool setButtonType(uint8_t buttonID, uint8_t type);
-    bool setMIDIid(uint8_t buttonID, uint8_t midiID);
-    bool setButtonPCenabled(uint8_t buttonID, uint8_t state);
 
 };
 

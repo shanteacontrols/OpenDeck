@@ -13,32 +13,6 @@ Buttons::Buttons()  {
 
 }
 
-void Buttons::init()    {
-
-    const subtype buttonTypeSubtype                   = { MAX_NUMBER_OF_BUTTONS, 0, BUTTON_TYPES-1 };
-    const subtype buttonProgramChangeEnabledSubtype   = { MAX_NUMBER_OF_BUTTONS, 0, 1 };
-    const subtype buttonMIDIidSubtype                 = { MAX_NUMBER_OF_BUTTONS, 0, 127 };
-
-    const subtype *buttonSubtypeArray[] = {
-
-        &buttonTypeSubtype,
-        &buttonProgramChangeEnabledSubtype,
-        &buttonMIDIidSubtype
-
-    };
-
-    //define message for sysex configuration
-    sysEx.addMessageType(CONF_BUTTON_BLOCK, BUTTON_SUBTYPES);
-
-    for (int i=0; i<BUTTON_SUBTYPES; i++)   {
-
-        //define subtype messages
-        sysEx.addMessageSubType(CONF_BUTTON_BLOCK, i, buttonSubtypeArray[i]->parameters, buttonSubtypeArray[i]->lowValue, buttonSubtypeArray[i]->highValue);
-
-    }
-
-}
-
 void Buttons::setButtonPressed(uint8_t buttonID, bool state)   {
 
     uint8_t arrayIndex = buttonID/8;
@@ -64,8 +38,9 @@ void Buttons::processProgramChange(uint8_t buttonID, bool buttonState)   {
         if (!getButtonPressed(buttonID))    {
 
             setButtonPressed(buttonID, true);
-            midi.sendProgramChange(getMIDIid(buttonID));
-            if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_BUTTON_BLOCK, buttonID);
+            midi.sendProgramChange(configuration.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID));
+            //if (sysEx.configurationEnabled())
+                //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
 
         }
 
@@ -89,9 +64,9 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState)   {
         if (!getButtonPressed(buttonID))    {
 
             setButtonPressed(buttonID, true);
-
-            midi.sendMIDInote(getMIDIid(buttonID), true, velocityOn);
-            if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_BUTTON_BLOCK, buttonID);
+            midi.sendMIDInote(configuration.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), true, velocityOn);
+            //if (sysEx.configurationEnabled())
+                //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
 
         }
 
@@ -99,8 +74,9 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState)   {
 
             if (getButtonPressed(buttonID))    {
 
-                midi.sendMIDInote(getMIDIid(buttonID), false, velocityOff);
-                if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_BUTTON_BLOCK, buttonID);
+                midi.sendMIDInote(configuration.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), false, velocityOff);
+                //if (sysEx.configurationEnabled())
+                    //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
 
                 setButtonPressed(buttonID, false);
 
@@ -120,8 +96,9 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)    {
             //if a button has been already pressed
             if (getButtonPressed(buttonID)) {
 
-                midi.sendMIDInote(getMIDIid(buttonID), false, velocityOff);
-                if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_BUTTON_BLOCK, buttonID);
+                midi.sendMIDInote(configuration.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), false, velocityOff);
+                //if (sysEx.configurationEnabled())
+                    //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
 
                 //reset pressed state
                 setButtonPressed(buttonID, false);
@@ -129,8 +106,9 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)    {
             } else {
 
                 //send note on
-                midi.sendMIDInote(getMIDIid(buttonID), true, velocityOn);
-                if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_BUTTON_BLOCK, buttonID);
+                midi.sendMIDInote(configuration.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), true, velocityOn);
+                //if (sysEx.configurationEnabled())
+                    //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
 
                 //toggle buttonPressed flag to true
                 setButtonPressed(buttonID, true);
@@ -145,15 +123,15 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)    {
 
 void Buttons::update()    {
 
-    if (!board.buttonDataAvailable()) return;
+    if (!core.buttonDataAvailable()) return;
 
     for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++) {
 
-        uint8_t buttonState = board.getButtonState(i);
+        uint8_t buttonState = core.getButtonState(i);
 
         if (buttonDebounced(i, buttonState))  {
 
-            if (getButtonPCenabled(i))  {
+            if (configuration.readParameter(CONF_BLOCK_BUTTON, buttonProgramChangeEnabledSection, i))  {
 
                 //ignore momentary/latching modes if button sends program change
                 //when in program change, button has latching mode since momentary mode makes no sense
@@ -161,7 +139,7 @@ void Buttons::update()    {
 
             }   else {
 
-                switch (getButtonType(i))   {
+                switch ((buttonType_t)configuration.readParameter(CONF_BLOCK_BUTTON, buttonTypeSection, i))   {
 
                     case buttonLatching:
                     processLatchingButton(i, buttonState);
@@ -213,81 +191,6 @@ bool Buttons::buttonDebounced(uint8_t buttonID, bool buttonState)   {
 
     //if button is debounced, return true
     return ((buttonDebounceCounter[buttonID] == buttonDebounceCompare) || (buttonDebounceCounter[buttonID] == 0xFF));
-
-}
-
-buttonType_t Buttons::getButtonType(uint8_t buttonID)  {
-
-    return (buttonType_t)configuration.readParameter(CONF_BUTTON_BLOCK, buttonTypeSection, buttonID);
-
-}
-
-bool Buttons::getButtonPCenabled(uint8_t buttonID)   {
-
-    return configuration.readParameter(CONF_BUTTON_BLOCK, buttonProgramChangeEnabledSection, buttonID);
-
-}
-
-uint8_t Buttons::getMIDIid(uint8_t buttonID)   {
-
-    return configuration.readParameter(CONF_BUTTON_BLOCK, buttonMIDIidSection, buttonID);
-
-}
-
-uint8_t Buttons::getParameter(uint8_t messageType, uint8_t parameterID) {
-
-    switch(messageType) {
-
-        case buttonTypeConf:
-        return getButtonType(parameterID);
-        break;
-
-        case buttonProgramChangeEnabledConf:
-        return getButtonPCenabled(parameterID);
-        break;
-
-        case buttonMIDIidConf:
-        return getMIDIid(parameterID);
-        break;
-
-    }   return 0;
-}
-
-bool Buttons::setButtonType(uint8_t buttonID, uint8_t type)  {
-
-    return configuration.writeParameter(CONF_BUTTON_BLOCK, buttonTypeSection, buttonID, type);
-
-}
-
-bool Buttons::setButtonPCenabled(uint8_t buttonID, uint8_t state)  {
-
-    return configuration.writeParameter(CONF_BUTTON_BLOCK, buttonProgramChangeEnabledSection, buttonID, state);
-
-}
-
-bool Buttons::setMIDIid(uint8_t buttonID, uint8_t midiID)    {
-
-    return configuration.writeParameter(CONF_BUTTON_BLOCK, buttonMIDIidSection, buttonID, midiID);
-
-}
-
-bool Buttons::setParameter(uint8_t messageType, uint8_t parameter, uint8_t newParameter)    {
-
-    switch(messageType) {
-
-        case buttonTypeConf:
-        return setButtonType(parameter, newParameter);
-        break;
-
-        case buttonProgramChangeEnabledConf:
-        return setButtonPCenabled(parameter, newParameter);
-        break;
-
-        case buttonMIDIidConf:
-        return setMIDIid(parameter, newParameter);
-        break;
-
-    }   return false;
 
 }
 

@@ -8,13 +8,8 @@
 #define FSR_MAX_VALUE                       340
 
 #define AFTERTOUCH_MAX_VALUE                600
-
-#define FSR_MEDIAN_RUNS                     2
-
 #define AFTERTOUCH_SEND_TIMEOUT_IGNORE      25       //ignore aftertouch reading change below this timeout
-
 #define AFTERTOUCH_SEND_TIMEOUT_STEP        2
-
 #define AFTERTOUCH_SEND_TIMEOUT             100
 
 #define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
@@ -64,16 +59,10 @@ void Analog::checkFSRvalue(uint8_t analogID, int16_t pressure)  {
 
     uint8_t calibratedPressure = calibratePressure(pressure, velocity);
 
-    fsrMedianRunCounter[analogID]++;
     lastAnalogueValue[analogID] += calibratedPressure;
 
-    if (fsrMedianRunCounter[analogID] == FSR_MEDIAN_RUNS) {
-
-        fsrMedianRunCounter[analogID] = 0;
-        calibratedPressure = lastAnalogueValue[analogID] / FSR_MEDIAN_RUNS;
-        lastAnalogueValue[analogID] = 0;
-
-    }   else return;
+    calibratedPressure = lastAnalogueValue[analogID];
+    lastAnalogueValue[analogID] = 0;
 
     bool pressDetected = (calibratedPressure > 0);
 
@@ -85,8 +74,9 @@ void Analog::checkFSRvalue(uint8_t analogID, int16_t pressure)  {
 
             //sensor is really pressed
             setFsrPressed(analogID, true);
-            midi.sendMIDInote(getMIDIid(analogID), true, calibratedPressure);
-            if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_ANALOG_BLOCK, analogID);
+            midi.sendMIDInote(configuration.readParameter(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID), true, calibratedPressure);
+            //if (sysEx.configurationEnabled())
+                //sysEx.sendComponentID(CONF_BLOCK_ANALOG, analogID);
 
         }
         break;
@@ -96,8 +86,9 @@ void Analog::checkFSRvalue(uint8_t analogID, int16_t pressure)  {
         if (getFsrPressed(analogID))  {
 
             setFsrPressed(analogID, false);
-            midi.sendMIDInote(getMIDIid(analogID), false, 0);
-            if (sysEx.configurationEnabled()) sysEx.sendComponentID(CONF_ANALOG_BLOCK, analogID);
+            midi.sendMIDInote(configuration.readParameter(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID), false, 0);
+            //if (sysEx.configurationEnabled())
+                //sysEx.sendComponentID(CONF_BLOCK_ANALOG, analogID);
 
         }
 
