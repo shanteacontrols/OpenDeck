@@ -74,7 +74,6 @@ class Configuration {
     void factoryReset(factoryResetType_t type);
     void createMemoryLayout();
     void createSectionAddresses();
-    uint8_t getBlockSections(uint8_t block);
     inline uint16_t readParameter(uint8_t blockID, uint8_t sectionID, uint16_t parameterID = 0)  {
 
         uint16_t startAddress = getSectionAddress(blockID, sectionID);
