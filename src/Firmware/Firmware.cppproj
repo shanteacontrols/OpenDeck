@@ -495,12 +495,6 @@ call move FLASH.bin ..\FLASH.bin</PostBuildEvent>
     <Compile Include="interface\midi\MIDI.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="interface\settings\AnalogSettings.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="interface\settings\ButtonSettings.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="interface\settings\EncoderSettings.h">
       <SubType>compile</SubType>
     </Compile>

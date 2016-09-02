@@ -1,6 +1,8 @@
 #ifndef LEDSETTINGS_H_
 #define LEDSETTINGS_H_
 
+#include "../../eeprom/Blocks.h"
+
 #define LED_CONSTANT_ON_BIT             0x00
 #define LED_BLINK_ON_BIT                0x01
 #define LED_ACTIVE_BIT                  0x02
@@ -17,9 +19,12 @@
 
 #define NUMBER_OF_START_UP_ANIMATIONS   5
 
-const uint8_t ledOnLookUpTable[] = { 0, 0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 255, 0 };
+const uint8_t ledOnLookUpTable[]        = { 0, 0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 255, 0 };
 
 #define NUMBER_OF_TRANSITIONS           64
+
+//define extra section for setting/getting led states
+#define ledStateSection                 LED_SECTIONS
 
 const uint8_t ledTransitionScale[] = {
 
@@ -89,17 +94,6 @@ const uint8_t ledTransitionScale[] = {
     255
 
 };
-
-typedef enum {
-
-    ledHardwareParameterConf,
-    ledActivationNoteConf,
-    ledStartUpNumberConf,
-    ledRGBenabledConf,
-    ledStateConf,
-    LED_SUBTYPES
-
-} sysExMessageSubTypeLEDs;
 
 typedef enum {
 

@@ -1,6 +1,5 @@
 #include "Analog.h"
 #include "../../sysex/SysEx.h"
-#include "../../interface/settings/AnalogSettings.h"
 
 Analog::Analog()    {
 

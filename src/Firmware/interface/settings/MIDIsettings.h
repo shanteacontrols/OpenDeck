@@ -10,14 +10,6 @@
 
 typedef enum {
 
-    midiFeatureConf,
-    midiChannelConf,
-    MIDI_SUBTYPES
-
-} sysExMessageSubtypeMIDI;
-
-typedef enum {
-
     noteChannel,
     programChangeChannel,
     CCchannel,
