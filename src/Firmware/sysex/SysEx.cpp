@@ -290,9 +290,16 @@ bool SysEx::checkRequest()  {
 
     }
 
-    if (!checkPart())   {
+    if (!checkBlock())    {
 
-        setStatus(ERROR_PART);
+        setStatus(ERROR_BLOCK);
+        return false;
+
+    }
+
+    if (!checkSection()) {
+
+        setStatus(ERROR_SECTION);
         return false;
 
     }
@@ -304,16 +311,9 @@ bool SysEx::checkRequest()  {
 
     }
 
-    if (!checkBlock())    {
+    if (!checkPart())   {
 
-        setStatus(ERROR_BLOCK);
-        return false;
-
-    }
-
-    if (!checkSection()) {
-
-        setStatus(ERROR_SECTION);
+        setStatus(ERROR_PART);
         return false;
 
     }
@@ -606,7 +606,6 @@ bool SysEx::checkPart() {
         if (decodedMessage.part == 127) return true;
         if (decodedMessage.part >= sysExMessage[decodedMessage.block].section[decodedMessage.section].parts)   {
 
-            setStatus(ERROR_STATUS);
             return false;
 
         }   else {
@@ -618,8 +617,12 @@ bool SysEx::checkPart() {
 
         case sysExWish_set:
         case sysExWish_backup:
-        if (decodedMessage.wish == sysExWish_backup)
-            if (decodedMessage.part == 127) return true;
+        if (decodedMessage.wish == sysExWish_backup)    {
+
+            if (decodedMessage.part == 127)
+                return true;
+
+        }
         if (decodedMessage.amount == sysExAmount_all)   {
 
             if (decodedMessage.part < sysExMessage[decodedMessage.block].section[decodedMessage.section].parts) {
@@ -628,7 +631,6 @@ bool SysEx::checkPart() {
 
             }   else {
 
-                setStatus(ERROR_STATUS);
                 return false;
 
             }
@@ -637,7 +639,6 @@ bool SysEx::checkPart() {
 
             if (decodedMessage.part >= sysExMessage[decodedMessage.block].section[decodedMessage.section].parts)   {
 
-                setStatus(ERROR_STATUS);
                 return false;
 
             }   else {

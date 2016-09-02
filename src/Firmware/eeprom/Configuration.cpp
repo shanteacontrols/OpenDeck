@@ -326,12 +326,4 @@ bool Configuration::update()    {
 }
 #endif
 
-uint8_t Configuration::getBlockSections(uint8_t block)  {
-
-    if (block >= CONF_BLOCKS) return 0;
-
-    return blocks[block].sections;
-
-}
-
 Configuration configuration;

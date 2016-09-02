@@ -2,10 +2,10 @@
 
 void initSysEx()    {
 
-    for (int i=0; i<CONF_BLOCKS; i++)
-        sysEx.addBlock(configuration.getBlockSections(i));
-
     {
+
+        sysEx.addBlock(MIDI_SECTIONS);
+
         const sysExSection midiFeature_section = { MIDI_FEATURES, 0, 1 };
         const sysExSection midiChannel_section = { MIDI_CHANNELS, 1, 16 };
 
@@ -24,6 +24,9 @@ void initSysEx()    {
     }
 
     {
+
+        sysEx.addBlock(BUTTON_SECTIONS);
+
         const sysExSection buttonType_section                   = { MAX_NUMBER_OF_BUTTONS, 0, BUTTON_TYPES-1 };
         const sysExSection buttonProgramChangeEnabled_section   = { MAX_NUMBER_OF_BUTTONS, 0, 1 };
         const sysExSection buttonMIDIid_section                 = { MAX_NUMBER_OF_BUTTONS, 0, 127 };
@@ -44,6 +47,9 @@ void initSysEx()    {
     }
 
     {
+
+        sysEx.addBlock(ENCODER_SECTIONS);
+
         const sysExSection encoderEnabled_section           = { MAX_NUMBER_OF_ENCODERS, 0, 1 };
         const sysExSection encoderInverted_section          = { MAX_NUMBER_OF_ENCODERS, 0, 1 };
         const sysExSection encoderEncodingMode_section      = { MAX_NUMBER_OF_ENCODERS, 0, ENCODING_MODES-1 };
@@ -66,6 +72,9 @@ void initSysEx()    {
     }
 
     {
+
+        sysEx.addBlock(ANALOG_SECTIONS);
+
         const sysExSection analogEnabled_section            = { MAX_NUMBER_OF_ANALOG, 0, 1 };
         const sysExSection analogInverted_section           = { MAX_NUMBER_OF_ANALOG, 0, 1 };
         const sysExSection analogType_section               = { MAX_NUMBER_OF_ANALOG, 0, ANALOG_TYPES-1 };
@@ -92,6 +101,9 @@ void initSysEx()    {
     }
 
     {
+
+        sysEx.addBlock(LED_SECTIONS+1);
+
         const sysExSection ledHardwareParameter_section     = { LED_HARDWARE_PARAMETERS, 0, 0 };
         const sysExSection ledActivationNote_section        = { MAX_NUMBER_OF_LEDS, 0, 127 };
         const sysExSection ledStartUpNumber_section         = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_LEDS-1 };
@@ -109,7 +121,7 @@ void initSysEx()    {
 
         };
 
-        for (int i=0; i<LED_SECTIONS+1; i++)  {
+        for (int i=0; i<(LED_SECTIONS+1); i++)  {
 
             sysEx.addSection(CONF_BLOCK_LED, ledsSubtypeArray[i]->numberOfParameters, ledsSubtypeArray[i]->minValue, ledsSubtypeArray[i]->maxValue);
 

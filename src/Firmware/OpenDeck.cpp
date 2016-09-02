@@ -76,7 +76,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
 
     bool returnValue = true;
     //don't write led states to eeprom
-    if (!((block == CONF_BLOCK_LED) && (section == ledStateSection)))
+    if (block != CONF_BLOCK_LED)
         returnValue = configuration.writeParameter(block, section, index, newValue);
 
     if (returnValue)    {
@@ -97,15 +97,31 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             case CONF_BLOCK_LED:
             if (section == ledHardwareParameterSection) {
 
-                switch(newValue)    {
+                switch(index)    {
 
                     case ledHwParameterBlinkTime:
+                    if ((newValue < BLINK_TIME_MIN) || (newValue > BLINK_TIME_MAX))
+                        return false;
                     core.setLEDblinkTime(newValue);
                     break;
 
                     case ledHwParameterFadeTime:
+                    if ((newValue < FADE_TIME_MIN) || (newValue > FADE_TIME_MAX))
+                        return false;
                     core.setLEDTransitionSpeed(newValue);
                     break;
+
+                    case ledHwParameterStartUpSwitchTime:
+                    if ((newValue < START_UP_SWITCH_TIME_MIN) || (newValue > START_UP_SWITCH_TIME_MAX))
+                        return false;
+                    break;
+
+                    case ledHwParameterStartUpRoutine:
+                    if (newValue > NUMBER_OF_START_UP_ANIMATIONS)
+                        return false;
+                    break;
+
+                    configuration.writeParameter(block, section, index, newValue);
 
                 }
 
