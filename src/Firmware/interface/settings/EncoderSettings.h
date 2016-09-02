@@ -24,14 +24,4 @@
 
 #define ENCODER_DEFAULT_PULSE_COUNT_STATE   8
 
-typedef enum {
-
-    encoderEnabledConf,
-    encoderInvertedConf,
-    encoderEncodingModeConf,
-    encoderMIDIidConf,
-    ENCODER_SUBTYPES
-
-} sysExMessageSubTypeEncoders;
-
 #endif

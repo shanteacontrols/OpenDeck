@@ -51,13 +51,33 @@ bool onCustom(uint8_t value) {
 
 sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index) {
 
-    return configuration.readParameter(block, section, index);
+    switch(block)   {
+
+        case CONF_BLOCK_LED:
+        if (section == ledStateSection)    {
+
+            return core.getLEDstate(index);
+
+        } else {
+
+            return configuration.readParameter(block, section, index);
+
+        }
+        break;
+
+        default:
+        return configuration.readParameter(block, section, index);
+
+    }
 
 }
 
 bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newValue)   {
 
-    bool returnValue = configuration.writeParameter(block, section, index, newValue);
+    bool returnValue = true;
+    //don't write led states to eeprom
+    if (!((block == CONF_BLOCK_LED) && (section == ledStateSection)))
+        returnValue = configuration.writeParameter(block, section, index, newValue);
 
     if (returnValue)    {
 
@@ -85,6 +105,76 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
 
                     case ledHwParameterFadeTime:
                     core.setLEDTransitionSpeed(newValue);
+                    break;
+
+                }
+
+            } else if (section == ledStateSection)  {
+
+                switch ((ledStatesHardwareParameter)newValue)   {
+
+                    case ledStateOff:
+                    core.setLEDstate(index, colorOff, false);
+                    break;
+
+                    case ledStateConstantWhite:
+                    core.setLEDstate(index, colorWhite, false);
+                    break;
+
+                    case ledStateConstantCyan:
+                    core.setLEDstate(index, colorCyan, false);
+                    break;
+
+                    case ledStateConstantMagenta:
+                    core.setLEDstate(index, colorMagenta, false);
+                    break;
+
+                    case ledStateConstantRed:
+                    core.setLEDstate(index, colorRed, false);
+                    break;
+
+                    case ledStateConstantBlue:
+                    core.setLEDstate(index, colorBlue, false);
+                    break;
+
+                    case ledStateConstantYellow:
+                    core.setLEDstate(index, colorYellow, false);
+                    break;
+
+                    case ledStateConstantGreen:
+                    core.setLEDstate(index, colorGreen, false);
+                    break;
+
+                    case ledStateBlinkWhite:
+                    core.setLEDstate(index, colorWhite, true);
+                    break;
+
+                    case ledStateBlinkCyan:
+                    core.setLEDstate(index, colorCyan, true);
+                    break;
+
+                    case ledStateBlinkMagenta:
+                    core.setLEDstate(index, colorMagenta, true);
+                    break;
+
+                    case ledStateBlinkRed:
+                    core.setLEDstate(index, colorRed, true);
+                    break;
+
+                    case ledStateBlinkBlue:
+                    core.setLEDstate(index, colorBlue, true);
+                    break;
+
+                    case ledStateBlinkYellow:
+                    core.setLEDstate(index, colorYellow, true);
+                    break;
+
+                    case ledStateBlinkGreen:
+                    core.setLEDstate(index, colorGreen, true);
+                    break;
+
+                    default:
+                    return false;
                     break;
 
                 }
