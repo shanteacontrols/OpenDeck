@@ -222,6 +222,13 @@ int main()  {
     sysEx.addCustomRequest(REBOOT_STRING);
     sysEx.addCustomRequest(FACTORY_RESET_STRING);
 
-    while(1) { midi.checkInput(); buttons.update(); analog.update(); encoders.update(); }
+    while(1)    {
+
+        midi.checkInput();
+        buttons.update();
+        analog.update();
+        encoders.update();
+
+    }
 
 }

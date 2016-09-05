@@ -68,12 +68,12 @@ HWmidi::HWmidi()   {
 
 }
 
-bool HWmidi::init(bool inputEnabled, bool outputEnabled, midiInterfaceType_t type) {
+bool HWmidi::init(midiInterfaceType_t type) {
 
     switch(type)    {
 
         case dinInterface:
-        USE_SERIAL_PORT.begin(31250, inputEnabled, outputEnabled);
+        USE_SERIAL_PORT.begin(31250);
         return true;
         break;
 

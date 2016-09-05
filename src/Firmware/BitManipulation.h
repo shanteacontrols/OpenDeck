@@ -1,6 +1,8 @@
 #ifndef BITMANIPULATION_H_
 #define BITMANIPULATION_H_
 
+#include <stdio.h>
+
 #define bitRead(value, bit) (((value) >> (bit)) & 0x01)
 #define bitSet(value, bit) ((value) |= (1UL << (bit)))
 #define bitClear(value, bit) ((value) &= ~(1UL << (bit)))

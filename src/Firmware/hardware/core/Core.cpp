@@ -515,13 +515,7 @@ void Core::init()  {
     disableWatchDog();
     initPins();
     initAnalog();
-
-    for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)    {
-
-        encoderData[i] |= ((uint16_t)encStopped << 8);
-        encoderData[i] |= ((uint16_t)ENCODER_DEFAULT_PULSE_COUNT_STATE << 4);   //set number of pulses to 8
-
-    }
+    initEncoders();
 
     _delay_ms(5);
 
@@ -602,6 +596,17 @@ void Core::initAnalog()    {
 
 }
 
+void Core::initEncoders()   {
+
+    for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)    {
+
+        encoderData[i] |= ((uint16_t)encStopped << 8);
+        encoderData[i] |= ((uint16_t)ENCODER_DEFAULT_PULSE_COUNT_STATE << 4);   //set number of pulses to 8
+
+    }
+
+}
+
 void Core::configureTimers()   {
 
     //clear timer0 conf
@@ -631,8 +636,6 @@ void Core::configureTimers()   {
     //timer 3
     TCCR3A |= (1<<WGM30);           //phase correct PWM
     TCCR3B |= (1<<CS30);            //prescaler 1
-    //OCR3A = 10000;
-    //TIMSK3 |= (1<<OCIE3A);
     //timer 4
     TCCR4A |= (1<<PWM4A);           //Pulse Width Modulator A Enable
     TCCR4B |= (1<<CS40);            //prescaler 1

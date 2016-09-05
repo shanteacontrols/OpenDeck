@@ -9,9 +9,9 @@ class UART    {
 
     public:
     UART();
-    void begin(uint32_t baud_count, bool enableRX, bool enableTX);
-    uint8_t available();
-    int8_t read();
+    int8_t begin(uint32_t baud_count);
+    bool available();
+    int16_t read();
     void write(uint8_t);
 
 };
