@@ -56,37 +56,6 @@ UART::UART()  {
 
 }
 
-
-int16_t UART::read(void)   {
-
-    #if RX_ENABLE == 1
-    uint8_t data = RingBuffer_Remove(&rxBuffer);
-    return data;
-    #else
-    #error RX not enabled
-    #endif
-
-}
-
-void UART::write(uint8_t data)  {
-
-    #if TX_ENABLE == 1
-    if (!(UCSR1B & (1<<TXEN1))) return;
-
-    RingBuffer_Insert(&txBuffer, data);
-
-    #if RX_ENABLE == 0
-        UCSR1B = (1<<TXCIE1) | (1<<TXEN1) | (1<<UDRIE1);
-    #else
-        UCSR1B = (1<<RXEN1) | (1<<TXCIE1) | (1<<TXEN1) | (1<<RXCIE1) | (1<<UDRIE1);
-    #endif
-
-    #else
-    #error TX not enabled
-    #endif
-
-}
-
 int8_t UART::begin(uint32_t baudRate)   {
 
     #if RX_ENABLE == 0 && TX_ENABLE == 0
@@ -100,7 +69,7 @@ int8_t UART::begin(uint32_t baudRate)   {
         UCSR1A = (1<<U2X1); //double speed uart
         UBRR1 = baud_count - 1;
 
-    }   else {
+        }   else {
 
         UCSR1A = 0;
         UBRR1 = (baud_count >> 1) - 1;
@@ -113,11 +82,11 @@ int8_t UART::begin(uint32_t baudRate)   {
         UCSR1C = (1<<UCSZ11) | (1<<UCSZ10);
 
         #if TX_ENABLE == 1 && RX_ENABLE == 1
-            UCSR1B = (1<<RXEN1) | (1<<TXCIE1) | (1<<TXEN1) | (1<<RXCIE1);
+        UCSR1B = (1<<RXEN1) | (1<<TXCIE1) | (1<<TXEN1) | (1<<RXCIE1);
         #elif RX_ENABLE == 1 && TX_ENABLE == 0
-            UCSR1B = (1<<RXEN1) | (1<<RXCIE1);
+        UCSR1B = (1<<RXEN1) | (1<<RXCIE1);
         #elif RX_ENABLE == 0 && TX_ENABLE == 1
-            UCSR1B = (1<<TXCIE1) | (1<<TXEN1);
+        UCSR1B = (1<<TXCIE1) | (1<<TXEN1);
         #endif
 
     }
@@ -129,6 +98,43 @@ int8_t UART::begin(uint32_t baudRate)   {
     RingBuffer_InitBuffer(&rxBuffer);
     #elif RX_ENABLE == 0 && TX_ENABLE == 1
     RingBuffer_InitBuffer(&txBuffer);
+    #endif
+
+    return 0;
+
+}
+
+int16_t UART::read(void)   {
+
+    #if RX_ENABLE == 1
+    if (RingBuffer_IsEmpty(&rxBuffer))
+        return -1;
+    uint8_t data = RingBuffer_Remove(&rxBuffer);
+    return data;
+    #else
+    #error RX not enabled
+    #endif
+
+}
+
+int8_t UART::write(uint8_t data)  {
+
+    #if TX_ENABLE == 1
+    if (!(UCSR1B & (1<<TXEN1))) return -1;
+
+    if (RingBuffer_IsFull(&txBuffer))
+        return -1;
+
+    RingBuffer_Insert(&txBuffer, data);
+
+    #if RX_ENABLE == 0
+        UCSR1B = (1<<TXCIE1) | (1<<TXEN1) | (1<<UDRIE1);
+    #else
+        UCSR1B = (1<<RXEN1) | (1<<TXCIE1) | (1<<TXEN1) | (1<<RXCIE1) | (1<<UDRIE1);
+    #endif
+
+    #else
+    #error TX not enabled
     #endif
 
     return 0;
