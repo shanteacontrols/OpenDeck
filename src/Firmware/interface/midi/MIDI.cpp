@@ -15,17 +15,19 @@ MIDI::MIDI()    {
 void MIDI::init() {
 
     uint8_t inChannel = configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, inputChannel);
-    hwMIDI.init(true, true, dinInterface);
-    hwMIDI.init(true, true, usbInterface);
+    hwMIDI.init(dinInterface);
+    hwMIDI.init(usbInterface);
     hwMIDI.setInputChannel(inChannel);
 
 }
 
 void MIDI::checkInput()   {
 
+    midiMessageType_t messageType;
+
     if (hwMIDI.read(usbInterface))   {   //new message on usb
 
-        midiMessageType_t messageType = hwMIDI.getType(usbInterface);
+        messageType = hwMIDI.getType(usbInterface);
         uint8_t data1 = hwMIDI.getData1(usbInterface);
         uint8_t data2 = hwMIDI.getData2(usbInterface);
         source = usbInterface;
@@ -53,7 +55,7 @@ void MIDI::checkInput()   {
     //check for incoming MIDI messages on USART
     if (hwMIDI.read(dinInterface))    {
 
-        uint8_t messageType = hwMIDI.getType(dinInterface);
+        messageType = hwMIDI.getType(dinInterface);
         uint8_t data1 = hwMIDI.getData1(dinInterface);
         uint8_t data2 = hwMIDI.getData2(dinInterface);
 
@@ -168,10 +170,10 @@ void MIDI::sendControlChange(uint8_t ccNumber, uint8_t ccValue) {
 
 }
 
-void MIDI::sendSysEx(uint8_t *sysExArray, uint8_t arraySize, bool arrayContainsBoundaries)   {
+void MIDI::sendSysEx(uint8_t *sysExArray, uint8_t arraySize, bool arrayContainsBoundaries, bool usbSend, bool dinSend)   {
 
-    hwMIDI.sendSysEx(arraySize, sysExArray, arrayContainsBoundaries, dinInterface);
-    hwMIDI.sendSysEx(arraySize, sysExArray, arrayContainsBoundaries, usbInterface);
+    if (usbSend) hwMIDI.sendSysEx(arraySize, sysExArray, arrayContainsBoundaries, usbInterface);
+    if (dinSend) hwMIDI.sendSysEx(arraySize, sysExArray, arrayContainsBoundaries, dinInterface);
 
 }
 

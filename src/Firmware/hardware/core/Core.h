@@ -53,6 +53,7 @@ class Core {
     //init
     void initPins();
     void initAnalog();
+    void initEncoders();
     void configureTimers();
     void checkBlinkLEDs();
     void ledBlinkingStart();

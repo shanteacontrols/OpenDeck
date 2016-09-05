@@ -1,5 +1,6 @@
 #include "ADC.h"
 #include <avr/cpufunc.h>
+#include "Config.h"
 
 void setUpADC() {
 
@@ -10,11 +11,6 @@ void setUpADC() {
 
     //set prescaler to 128 and enable ADC
     ADCSRA |= (1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0)|(1<<ADEN);
-
-    //enable high-speed mode if available
-    #ifdef ADHSM
-        ADCSRB |= (1<<ADHSM);
-    #endif
 
 }
 

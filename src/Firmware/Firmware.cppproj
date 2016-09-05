@@ -225,10 +225,16 @@ call move FLASH.bin ..\FLASH.bin</PostBuildEvent>
     <Compile Include="hardware\adc\ADC.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="hardware\adc\Config.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="hardware\core\Core.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hardware\core\Core.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\midi\Config.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hardware\midi\MIDI.cpp">
@@ -249,13 +255,19 @@ call move FLASH.bin ..\FLASH.bin</PostBuildEvent>
     <Compile Include="hardware\reset\Reset.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="hardware\uart\Config.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\uart\ring_buffer\Config.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hardware\uart\ring_buffer\RingBuffer.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="hardware\uart\UART.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hardware\uart\UART.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="hardware\uart\UARTsettings.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hardware\usb\midi\config\LUFAConfig.h">
@@ -547,6 +559,7 @@ call move FLASH.bin ..\FLASH.bin</PostBuildEvent>
     <Folder Include="hardware\pins" />
     <Folder Include="hardware\reset" />
     <Folder Include="hardware\uart" />
+    <Folder Include="hardware\uart\ring_buffer" />
     <Folder Include="hardware\usb" />
     <Folder Include="hardware\usb\midi" />
     <Folder Include="hardware\usb\midi\config\" />
