@@ -19,7 +19,8 @@ RingBuff_t rxBuffer;
 ISR(USART1_RX_vect) {
 
     uint8_t data = UDR1;
-    RingBuffer_Insert(&rxBuffer, data);
+    if (!RingBuffer_IsFull(&rxBuffer))
+        RingBuffer_Insert(&rxBuffer, data);
 
 }
 #endif
