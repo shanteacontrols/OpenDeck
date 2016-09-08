@@ -152,7 +152,7 @@ bool Configuration::writeParameter(uint8_t blockID, uint8_t sectionID, int16_t p
             queueData(startAddress+arrayIndex, arrayValue, BIT_PARAMETER);
             return true;
 
-            } else {
+        } else {
 
             eeprom_update_byte((uint8_t*)startAddress+arrayIndex, arrayValue);
             return (arrayValue == eeprom_read_byte((uint8_t*)startAddress+arrayIndex));
@@ -171,7 +171,7 @@ bool Configuration::writeParameter(uint8_t blockID, uint8_t sectionID, int16_t p
             queueData(startAddress+parameterID, newValue, BYTE_PARAMETER);
             return true;
 
-            }   else {
+        }   else {
 
             eeprom_update_byte((uint8_t*)startAddress+parameterID, newValue);
             return (newValue == eeprom_read_byte((uint8_t*)startAddress+parameterID));
@@ -190,7 +190,7 @@ bool Configuration::writeParameter(uint8_t blockID, uint8_t sectionID, int16_t p
             queueData(startAddress+parameterID, newValue, WORD_PARAMETER);
             return true;
 
-            }   else {
+        }   else {
 
             eeprom_update_word((uint16_t*)startAddress+parameterID, newValue);
             return (newValue == (int16_t)eeprom_read_word((uint16_t*)startAddress+parameterID));
@@ -219,7 +219,7 @@ void Configuration::createSectionAddresses()   {
                 //first section address is always 0
                 blocks[i].sectionAddress[0] = 0;
 
-                }   else {
+            }   else {
 
                 switch(blocks[i].sectionParameterType[j-1])   {
 

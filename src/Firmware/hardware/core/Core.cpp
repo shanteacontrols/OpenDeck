@@ -348,7 +348,7 @@ inline void storeDigitalIn(uint8_t column, uint8_t bufferIndex)  {
     for (int i=0; i<8; i++) {
 
         data <<= 1;
-        data |= ((SR_DIN_PIN_REGISTER >> SR_DIN_PIN) & 0x01);
+        data |= readPin(SR_DIN_PORT, SR_DIN_PIN);
         //pulse clock pin
         pulseHightToLow(SR_CLK_PORT, SR_CLK_PIN);
 
@@ -530,14 +530,14 @@ void Core::initPins() {
 
     //configure input matrix
     //shift register
-    setInput(SR_DIN_DDR, SR_DIN_PIN);
-    setOutput(SR_CLK_DDR, SR_CLK_PIN);
-    setOutput(SR_LATCH_DDR, SR_LATCH_PIN);
+    setInput(SR_DIN_PORT, SR_DIN_PIN);
+    setOutput(SR_CLK_PORT, SR_CLK_PIN);
+    setOutput(SR_LATCH_PORT, SR_LATCH_PIN);
 
     //decoder
-    setOutput(DEC_DM_A0_DDR, DEC_DM_A0_PIN);
-    setOutput(DEC_DM_A1_DDR, DEC_DM_A1_PIN);
-    setOutput(DEC_DM_A1_DDR, DEC_DM_A2_PIN);
+    setOutput(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
+    setOutput(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
+    setOutput(DEC_DM_A1_PORT, DEC_DM_A2_PIN);
 
     //configure led matrix
     //rows
@@ -549,31 +549,31 @@ void Core::initPins() {
     setHigh(LED_ROW_5_PORT, LED_ROW_5_PIN);
     setHigh(LED_ROW_6_PORT, LED_ROW_6_PIN);
 
-    setOutput(LED_ROW_1_DDR, LED_ROW_1_PIN);
-    setOutput(LED_ROW_2_DDR, LED_ROW_2_PIN);
-    setOutput(LED_ROW_3_DDR, LED_ROW_3_PIN);
-    setOutput(LED_ROW_4_DDR, LED_ROW_4_PIN);
-    setOutput(LED_ROW_5_DDR, LED_ROW_5_PIN);
-    setOutput(LED_ROW_6_DDR, LED_ROW_6_PIN);
+    setOutput(LED_ROW_1_PORT, LED_ROW_1_PIN);
+    setOutput(LED_ROW_2_PORT, LED_ROW_2_PIN);
+    setOutput(LED_ROW_3_PORT, LED_ROW_3_PIN);
+    setOutput(LED_ROW_4_PORT, LED_ROW_4_PIN);
+    setOutput(LED_ROW_5_PORT, LED_ROW_5_PIN);
+    setOutput(LED_ROW_6_PORT, LED_ROW_6_PIN);
 
     //decoder
-    setOutput(DEC_LM_A0_DDR, DEC_LM_A0_PIN);
-    setOutput(DEC_LM_A1_DDR, DEC_LM_A1_PIN);
-    setOutput(DEC_LM_A2_DDR, DEC_LM_A2_PIN);
+    setOutput(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
+    setOutput(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
+    setOutput(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
 
     //configure analog
     //select pins
-    setOutput(MUX_S0_DDR, MUX_S0_PIN);
-    setOutput(MUX_S1_DDR, MUX_S1_PIN);
-    setOutput(MUX_S2_DDR, MUX_S2_PIN);
-    setOutput(MUX_S3_DDR, MUX_S3_PIN);
+    setOutput(MUX_S0_PORT, MUX_S0_PIN);
+    setOutput(MUX_S1_PORT, MUX_S1_PIN);
+    setOutput(MUX_S2_PORT, MUX_S2_PIN);
+    setOutput(MUX_S3_PORT, MUX_S3_PIN);
 
     //mux inputs
-    setInput(MUX_1_IN_DDR, MUX_1_IN_PIN);
-    setInput(MUX_2_IN_DDR, MUX_2_IN_PIN);
+    setInput(MUX_1_IN_PORT, MUX_1_IN_PIN);
+    setInput(MUX_2_IN_PORT, MUX_2_IN_PIN);
 
     //bootloader led
-    setOutput(BTLDR_LED_DDR, BTLDR_LED_PIN);
+    setOutput(BTLDR_LED_PORT, BTLDR_LED_PIN);
 
 }
 

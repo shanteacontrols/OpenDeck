@@ -70,7 +70,7 @@ int8_t UART::begin(uint32_t baudRate)   {
         UCSR1A = (1<<U2X1); //double speed uart
         UBRR1 = baud_count - 1;
 
-        }   else {
+    }   else {
 
         UCSR1A = 0;
         UBRR1 = (baud_count >> 1) - 1;
