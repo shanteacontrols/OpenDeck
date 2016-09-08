@@ -50,15 +50,6 @@ typedef struct {
 
 } blockDescriptor;
 
-typedef enum {
-
-    sections,
-    parameters,
-    parameterType,
-    preserveOnPartialreset
-
-} blockInfo_t;
-
 //default controller settings
 
 class Configuration {
@@ -113,7 +104,6 @@ class Configuration {
 
     };
     bool writeParameter(uint8_t blockID, uint8_t sectionID, int16_t parameterID, int16_t newValue, bool async = false);
-    bool resetParameter(uint8_t blockID, uint8_t sectionID, int16_t parameterID, bool async = false);
     blockDescriptor blocks[CONF_BLOCKS];
 
     private:

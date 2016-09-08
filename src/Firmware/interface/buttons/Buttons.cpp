@@ -57,7 +57,7 @@ void Buttons::processProgramChange(uint8_t buttonID, bool buttonState)   {
 
 void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState)   {
 
-    if (buttonState)    {
+    if (buttonState)    {   
 
         //send note on only once
         if (!getButtonPressed(buttonID))    {
@@ -81,7 +81,7 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState)   {
 
             }
 
-        }
+     }
 
 }
 
