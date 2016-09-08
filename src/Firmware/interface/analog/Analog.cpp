@@ -105,7 +105,7 @@ void Analog::update()   {
 
             analogData = core.getAnalogValue(i);
             bool state = analogData > DIGITAL_VALUE_THRESHOLD;
-            Buttons::processButton(i+MAX_NUMBER_OF_BUTTONS, state);
+            Buttons::processButton(i+MAX_NUMBER_OF_BUTTONS, state, false);
 
         }
 

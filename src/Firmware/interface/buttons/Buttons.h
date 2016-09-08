@@ -12,7 +12,7 @@ class Buttons {
     void update();
 
     protected:
-    void processButton(uint8_t buttonID, bool state);
+    void processButton(uint8_t buttonID, bool state, bool debounce = true);
 
     private:
     //variables
