@@ -120,9 +120,11 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)    {
 
 }
 
-void Buttons::processButton(uint8_t buttonID, bool state)   {
+void Buttons::processButton(uint8_t buttonID, bool state, bool debounce)   {
 
-    if (buttonDebounced(buttonID, state))  {
+    bool debounced = debounce ? buttonDebounced(buttonID, state) : true;
+
+    if (debounced)  {
 
         if (configuration.readParameter(CONF_BLOCK_BUTTON, buttonProgramChangeEnabledSection, buttonID))  {
 
