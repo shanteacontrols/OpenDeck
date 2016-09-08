@@ -48,6 +48,7 @@ typedef enum {
     analogMIDIidSection,
     analogCClowerLimitSection,
     analogCCupperLimitSection,
+    analogDigitalEnabledSection,
     ANALOG_SECTIONS
 
 } analogSection;

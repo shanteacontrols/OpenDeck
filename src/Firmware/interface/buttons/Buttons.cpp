@@ -120,44 +120,49 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)    {
 
 }
 
+void Buttons::processButton(uint8_t buttonID, bool state)   {
+
+    if (buttonDebounced(buttonID, state))  {
+
+        if (configuration.readParameter(CONF_BLOCK_BUTTON, buttonProgramChangeEnabledSection, buttonID))  {
+
+            //ignore momentary/latching modes if button sends program change
+            //when in program change, button has latching mode since momentary mode makes no sense
+            processProgramChange(buttonID, state);
+
+        }   else {
+
+            switch ((buttonType_t)configuration.readParameter(CONF_BLOCK_BUTTON, buttonTypeSection, buttonID))   {
+
+                case buttonLatching:
+                processLatchingButton(buttonID, state);
+                break;
+
+                case buttonMomentary:
+                processMomentaryButton(buttonID, state);
+                break;
+
+                default:
+                break;
+
+            }
+
+        }
+
+        updateButtonState(buttonID, state);
+
+    }
+
+}
+
 void Buttons::update()    {
 
     if (!core.buttonDataAvailable()) return;
 
     for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++) {
 
-        uint8_t buttonState = core.getButtonState(i);
-
-        if (buttonDebounced(i, buttonState))  {
-
-            if (configuration.readParameter(CONF_BLOCK_BUTTON, buttonProgramChangeEnabledSection, i))  {
-
-                //ignore momentary/latching modes if button sends program change
-                //when in program change, button has latching mode since momentary mode makes no sense
-                processProgramChange(i, buttonState);
-
-            }   else {
-
-                switch ((buttonType_t)configuration.readParameter(CONF_BLOCK_BUTTON, buttonTypeSection, i))   {
-
-                    case buttonLatching:
-                    processLatchingButton(i, buttonState);
-                    break;
-
-                    case buttonMomentary:
-                    processMomentaryButton(i, buttonState);
-                    break;
-
-                    default:
-                    break;
-
-                }
-
-            }
-
-            updateButtonState(i, buttonState);
-
-        }
+        bool buttonState = core.getButtonState(i);
+        processButton(i, buttonState);
 
     }
 

@@ -11,11 +11,14 @@ class Buttons {
 
     void update();
 
+    protected:
+    void processButton(uint8_t buttonID, bool state);
+
     private:
     //variables
-    uint8_t     previousButtonState[MAX_NUMBER_OF_BUTTONS/8+1],
-                buttonPressed[MAX_NUMBER_OF_BUTTONS/8+1],
-                buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS];
+    uint8_t     previousButtonState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1],
+                buttonPressed[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1],
+                buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG];
 
     //data processing
     bool getButtonPressed(uint8_t buttonID);
