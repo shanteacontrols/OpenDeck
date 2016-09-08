@@ -27,9 +27,9 @@ void initSysEx()    {
 
         sysEx.addBlock(BUTTON_SECTIONS);
 
-        const sysExSection buttonType_section                   = { MAX_NUMBER_OF_BUTTONS, 0, BUTTON_TYPES-1 };
-        const sysExSection buttonProgramChangeEnabled_section   = { MAX_NUMBER_OF_BUTTONS, 0, 1 };
-        const sysExSection buttonMIDIid_section                 = { MAX_NUMBER_OF_BUTTONS, 0, 127 };
+        const sysExSection buttonType_section                   = { MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG, 0, BUTTON_TYPES-1 };
+        const sysExSection buttonProgramChangeEnabled_section   = { MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG, 0, 1 };
+        const sysExSection buttonMIDIid_section                 = { MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG, 0, 127 };
 
         const sysExSection *buttonSubtypeArray[] = {
 
@@ -81,6 +81,7 @@ void initSysEx()    {
         const sysExSection analogMIDIid_section             = { MAX_NUMBER_OF_ANALOG, 0, 127 };
         const sysExSection analogCClowerLimit_section       = { MAX_NUMBER_OF_ANALOG, 0, 127 };
         const sysExSection analogCCupperLimit_section       = { MAX_NUMBER_OF_ANALOG, 0, 127 };
+        const sysExSection analogDigitalEnabled_Section     = { MAX_NUMBER_OF_ANALOG, 0, 1 };
 
         const sysExSection *analogSubtypeArray[] = {
 
@@ -89,7 +90,8 @@ void initSysEx()    {
             &analogInverted_section,
             &analogMIDIid_section,
             &analogCClowerLimit_section,
-            &analogCCupperLimit_section
+            &analogCCupperLimit_section,
+            &analogDigitalEnabled_Section
 
         };
 

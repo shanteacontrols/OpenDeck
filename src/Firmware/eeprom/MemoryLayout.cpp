@@ -22,15 +22,15 @@ void Configuration::createMemoryLayout()   {
 
         blocks[CONF_BLOCK_BUTTON].sectionParameterType[buttonTypeSection] = BIT_PARAMETER;
         blocks[CONF_BLOCK_BUTTON].defaultValue[buttonTypeSection] = 0;
-        blocks[CONF_BLOCK_BUTTON].sectionParameters[buttonTypeSection] = MAX_NUMBER_OF_BUTTONS;
+        blocks[CONF_BLOCK_BUTTON].sectionParameters[buttonTypeSection] = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
 
         blocks[CONF_BLOCK_BUTTON].sectionParameterType[buttonProgramChangeEnabledSection] = BIT_PARAMETER;
         blocks[CONF_BLOCK_BUTTON].defaultValue[buttonProgramChangeEnabledSection] = 0;
-        blocks[CONF_BLOCK_BUTTON].sectionParameters[buttonProgramChangeEnabledSection] = MAX_NUMBER_OF_BUTTONS;
+        blocks[CONF_BLOCK_BUTTON].sectionParameters[buttonProgramChangeEnabledSection] = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
 
         blocks[CONF_BLOCK_BUTTON].sectionParameterType[buttonMIDIidSection] = BYTE_PARAMETER;
         blocks[CONF_BLOCK_BUTTON].defaultValue[buttonMIDIidSection] = AUTO_INCREMENT;
-        blocks[CONF_BLOCK_BUTTON].sectionParameters[buttonMIDIidSection] = MAX_NUMBER_OF_BUTTONS;
+        blocks[CONF_BLOCK_BUTTON].sectionParameters[buttonMIDIidSection] = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
     }
 
     {
@@ -79,6 +79,10 @@ void Configuration::createMemoryLayout()   {
         blocks[CONF_BLOCK_ANALOG].sectionParameterType[analogCCupperLimitSection] = BYTE_PARAMETER;
         blocks[CONF_BLOCK_ANALOG].defaultValue[analogCCupperLimitSection] = 127;
         blocks[CONF_BLOCK_ANALOG].sectionParameters[analogCCupperLimitSection] = MAX_NUMBER_OF_ANALOG;
+
+        blocks[CONF_BLOCK_ANALOG].sectionParameterType[analogDigitalEnabledSection] = BIT_PARAMETER;
+        blocks[CONF_BLOCK_ANALOG].defaultValue[analogDigitalEnabledSection] = 0;
+        blocks[CONF_BLOCK_ANALOG].sectionParameters[analogDigitalEnabledSection] = MAX_NUMBER_OF_ANALOG;
     }
 
     {

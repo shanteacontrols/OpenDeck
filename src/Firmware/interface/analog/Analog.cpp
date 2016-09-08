@@ -1,6 +1,8 @@
 #include "Analog.h"
 #include "../../sysex/SysEx.h"
 
+#define DIGITAL_VALUE_THRESHOLD 0x3E8
+
 Analog::Analog()    {
 
     //def const
@@ -10,10 +12,59 @@ Analog::Analog()    {
 
 void Analog::update()   {
 
+    //if (!core.analogDataAvailable()) return;
+//
+    //addAnalogSamples();
+    //int16_t analogData;
+//
+    ////check values
+    //for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)    {
+//
+        ////don't process component if it's not enabled
+        //if (!configuration.readParameter(CONF_BLOCK_ANALOG, analogEnabledSection, i)) continue;
+//
+        //if (!configuration.readParameter(CONF_BLOCK_ANALOG, analogDigitalEnabledSection, i))    {
+//
+            ////if (!analogValuesSampled()) continue;  //three samples are needed for analog values
+//
+            ////get median value from three analog samples for better accuracy
+            //analogData = getMedianValue(i);
+//
+            //analogType_t type = (analogType_t)configuration.readParameter(CONF_BLOCK_ANALOG, analogTypeSection, i);
+//
+            //switch(type) {
+//
+                //case potentiometer:
+                //checkPotentiometerValue(i, analogData);
+                //break;
+//
+                //case fsr:
+                //checkFSRvalue(i, analogData);
+                //break;
+//
+                //case ldr:
+                //break;
+//
+                //default:
+                //break;
+//
+            //}
+////
+        //}   else {
+//
+            ////analogData = core.getAnalogValue(i);
+            ////bool state = analogData > DIGITAL_VALUE_THRESHOLD;
+            ////Buttons::processButton(i+MAX_NUMBER_OF_BUTTONS, state);
+//
+        //}
+//
+    //}
+
     if (!core.analogDataAvailable()) return;
 
     addAnalogSamples();
-    if (!analogValuesSampled()) return;  //three samples are needed
+    //three samples are needed
+    bool sampled = analogValuesSampled();
 
     int16_t analogData;
 
@@ -22,25 +73,39 @@ void Analog::update()   {
 
         //don't process component if it's not enabled
         if (!configuration.readParameter(CONF_BLOCK_ANALOG, analogEnabledSection, i)) continue;
-        //get median value from three analog samples for better accuracy
-        analogData = getMedianValue(i);
-        analogType_t type = (analogType_t)configuration.readParameter(CONF_BLOCK_ANALOG, analogTypeSection, i);
 
-        switch(type) {
+        if (!configuration.readParameter(CONF_BLOCK_ANALOG, analogDigitalEnabledSection, i))    {
 
-            case potentiometer:
-            checkPotentiometerValue(i, analogData);
-            break;
+            //three samples are needed
+            if (!sampled) continue;
 
-            case fsr:
-            checkFSRvalue(i, analogData);
-            break;
+            //get median value from three analog samples for better accuracy
+            analogData = getMedianValue(i);
+            analogType_t type = (analogType_t)configuration.readParameter(CONF_BLOCK_ANALOG, analogTypeSection, i);
 
-            case ldr:
-            break;
+            switch(type) {
 
-            default:
-            return;
+                case potentiometer:
+                checkPotentiometerValue(i, analogData);
+                break;
+
+                case fsr:
+                checkFSRvalue(i, analogData);
+                break;
+
+                case ldr:
+                break;
+
+                default:
+                return;
+
+            }
+
+        }   else {
+
+            analogData = core.getAnalogValue(i);
+            bool state = analogData > DIGITAL_VALUE_THRESHOLD;
+            Buttons::processButton(i+MAX_NUMBER_OF_BUTTONS, state);
 
         }
 

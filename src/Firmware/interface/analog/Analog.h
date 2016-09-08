@@ -5,10 +5,11 @@
 #include "../../interface/midi/MIDI.h"
 #include "../../BitManipulation.h"
 #include "../../eeprom/Configuration.h"
+#include "../buttons/Buttons.h"
 
 #define NUMBER_OF_SAMPLES 3 //do not change
 
-class Analog {
+class Analog : Buttons {
 
     public:
     Analog();
