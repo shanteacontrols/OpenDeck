@@ -9,7 +9,7 @@ void initSysEx()    {
         const sysExSection midiFeature_section = { MIDI_FEATURES, 0, 1 };
         const sysExSection midiChannel_section = { MIDI_CHANNELS, 1, 16 };
 
-        const sysExSection *midiSubtypeArray[] = {
+        const sysExSection *midiSectionArray[] = {
 
             &midiFeature_section,
             &midiChannel_section
@@ -18,7 +18,7 @@ void initSysEx()    {
 
         for (int i=0; i<MIDI_SECTIONS; i++) {
 
-            sysEx.addSection(CONF_BLOCK_MIDI, midiSubtypeArray[i]->numberOfParameters, midiSubtypeArray[i]->minValue, midiSubtypeArray[i]->maxValue);
+            sysEx.addSection(CONF_BLOCK_MIDI, midiSectionArray[i]->numberOfParameters, midiSectionArray[i]->minValue, midiSectionArray[i]->maxValue);
 
         }
     }
@@ -31,7 +31,7 @@ void initSysEx()    {
         const sysExSection buttonProgramChangeEnabled_section   = { MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG, 0, 1 };
         const sysExSection buttonMIDIid_section                 = { MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG, 0, 127 };
 
-        const sysExSection *buttonSubtypeArray[] = {
+        const sysExSection *buttonSectionArray[] = {
 
             &buttonType_section,
             &buttonProgramChangeEnabled_section,
@@ -41,7 +41,7 @@ void initSysEx()    {
 
         for (int i=0; i<BUTTON_SECTIONS; i++)   {
 
-            sysEx.addSection(CONF_BLOCK_BUTTON, buttonSubtypeArray[i]->numberOfParameters, buttonSubtypeArray[i]->minValue, buttonSubtypeArray[i]->maxValue);
+            sysEx.addSection(CONF_BLOCK_BUTTON, buttonSectionArray[i]->numberOfParameters, buttonSectionArray[i]->minValue, buttonSectionArray[i]->maxValue);
 
         }
     }
@@ -55,7 +55,7 @@ void initSysEx()    {
         const sysExSection encoderEncodingMode_section      = { MAX_NUMBER_OF_ENCODERS, 0, ENCODING_MODES-1 };
         const sysExSection encoderMIDIid_section            = { MAX_NUMBER_OF_ENCODERS, 0, 127 };
 
-        const sysExSection *encodersSubtypeArray[] = {
+        const sysExSection *encodersSectionArray[] = {
 
             &encoderEnabled_section,
             &encoderInverted_section,
@@ -66,7 +66,7 @@ void initSysEx()    {
 
         for (int i=0; i<ENCODER_SECTIONS; i++)  {
 
-            sysEx.addSection(CONF_BLOCK_ENCODER, encodersSubtypeArray[i]->numberOfParameters, encodersSubtypeArray[i]->minValue, encodersSubtypeArray[i]->maxValue);
+            sysEx.addSection(CONF_BLOCK_ENCODER, encodersSectionArray[i]->numberOfParameters, encodersSectionArray[i]->minValue, encodersSectionArray[i]->maxValue);
 
         }
     }
@@ -83,7 +83,7 @@ void initSysEx()    {
         const sysExSection analogCCupperLimit_section       = { MAX_NUMBER_OF_ANALOG, 0, 127 };
         const sysExSection analogDigitalEnabled_Section     = { MAX_NUMBER_OF_ANALOG, 0, 1 };
 
-        const sysExSection *analogSubtypeArray[] = {
+        const sysExSection *analogSectionArray[] = {
 
             &analogEnabled_section,
             &analogType_section,
@@ -97,7 +97,7 @@ void initSysEx()    {
 
         for (int i=0; i<ANALOG_SECTIONS; i++)   {
 
-            sysEx.addSection(CONF_BLOCK_ANALOG, analogSubtypeArray[i]->numberOfParameters, analogSubtypeArray[i]->minValue, analogSubtypeArray[i]->maxValue);
+            sysEx.addSection(CONF_BLOCK_ANALOG, analogSectionArray[i]->numberOfParameters, analogSectionArray[i]->minValue, analogSectionArray[i]->maxValue);
 
         }
     }
@@ -107,25 +107,27 @@ void initSysEx()    {
         sysEx.addBlock(LED_SECTIONS+1);
 
         const sysExSection ledHardwareParameter_section     = { LED_HARDWARE_PARAMETERS, 0, 0 };
-        const sysExSection ledActivationNote_section        = { MAX_NUMBER_OF_LEDS, 0, 127 };
+        const sysExSection ledActivationNote_section        = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_LEDS }; //MAX_NUMBER_OF_LEDS = blank note
         const sysExSection ledStartUpNumber_section         = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_LEDS-1 };
         const sysExSection ledRGBenabled_section            = { MAX_NUMBER_OF_RGB_LEDS, 0, 1 };
+        const sysExSection ledLocalControl_Enabled          = { MAX_NUMBER_OF_LEDS, 0, 1 };
         //extra - not defined in eeprom blocks since it's not persistent section
         const sysExSection ledState_section                 = { MAX_NUMBER_OF_LEDS, 0, LED_STATES-1 };
 
-        const sysExSection *ledsSubtypeArray[] = {
+        const sysExSection *ledsSectionArray[] = {
 
             &ledHardwareParameter_section,
             &ledActivationNote_section,
             &ledStartUpNumber_section,
             &ledRGBenabled_section,
+            &ledLocalControl_Enabled,
             &ledState_section
 
         };
 
         for (int i=0; i<(LED_SECTIONS+1); i++)  {
 
-            sysEx.addSection(CONF_BLOCK_LED, ledsSubtypeArray[i]->numberOfParameters, ledsSubtypeArray[i]->minValue, ledsSubtypeArray[i]->maxValue);
+            sysEx.addSection(CONF_BLOCK_LED, ledsSectionArray[i]->numberOfParameters, ledsSectionArray[i]->minValue, ledsSectionArray[i]->maxValue);
 
         }
 

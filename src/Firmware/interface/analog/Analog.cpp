@@ -12,54 +12,6 @@ Analog::Analog()    {
 
 void Analog::update()   {
 
-    //if (!core.analogDataAvailable()) return;
-//
-    //addAnalogSamples();
-    //int16_t analogData;
-//
-    ////check values
-    //for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)    {
-//
-        ////don't process component if it's not enabled
-        //if (!configuration.readParameter(CONF_BLOCK_ANALOG, analogEnabledSection, i)) continue;
-//
-        //if (!configuration.readParameter(CONF_BLOCK_ANALOG, analogDigitalEnabledSection, i))    {
-//
-            ////if (!analogValuesSampled()) continue;  //three samples are needed for analog values
-//
-            ////get median value from three analog samples for better accuracy
-            //analogData = getMedianValue(i);
-//
-            //analogType_t type = (analogType_t)configuration.readParameter(CONF_BLOCK_ANALOG, analogTypeSection, i);
-//
-            //switch(type) {
-//
-                //case potentiometer:
-                //checkPotentiometerValue(i, analogData);
-                //break;
-//
-                //case fsr:
-                //checkFSRvalue(i, analogData);
-                //break;
-//
-                //case ldr:
-                //break;
-//
-                //default:
-                //break;
-//
-            //}
-////
-        //}   else {
-//
-            ////analogData = core.getAnalogValue(i);
-            ////bool state = analogData > DIGITAL_VALUE_THRESHOLD;
-            ////Buttons::processButton(i+MAX_NUMBER_OF_BUTTONS, state);
-//
-        //}
-//
-    //}
-
     if (!core.analogDataAvailable()) return;
 
     addAnalogSamples();
@@ -97,7 +49,7 @@ void Analog::update()   {
                 break;
 
                 default:
-                return;
+                break;
 
             }
 
@@ -105,7 +57,7 @@ void Analog::update()   {
 
             analogData = core.getAnalogValue(i);
             bool state = analogData > DIGITAL_VALUE_THRESHOLD;
-            Buttons::processButton(i+MAX_NUMBER_OF_BUTTONS, state, false);
+            processButton(i+MAX_NUMBER_OF_BUTTONS, state, false);
 
         }
 

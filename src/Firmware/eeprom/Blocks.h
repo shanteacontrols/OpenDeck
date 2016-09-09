@@ -59,6 +59,7 @@ typedef enum {
     ledActivationNoteSection,
     ledStartUpNumberSection,
     ledRGBenabledSection,
+    ledLocalControlEnabled,
     LED_SECTIONS
 
 } ledSection;
