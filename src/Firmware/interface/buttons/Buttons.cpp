@@ -30,34 +30,9 @@ bool Buttons::getButtonPressed(uint8_t buttonID)   {
 
 }
 
-void Buttons::processProgramChange(uint8_t buttonID, bool buttonState)   {
+void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool sendMIDI)   {
 
     if (buttonState)    {
-
-        if (!getButtonPressed(buttonID))    {
-
-            setButtonPressed(buttonID, true);
-            midi.sendProgramChange(configuration.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID));
-            //if (sysEx.configurationEnabled())
-                //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
-
-        }
-
-    }   else {
-
-        if (getButtonPressed(buttonID)) {
-
-            setButtonPressed(buttonID, false);
-
-        }
-
-    }
-
-}
-
-void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState)   {
-
-    if (buttonState)    {   
 
         //send note on only once
         if (!getButtonPressed(buttonID))    {
@@ -126,22 +101,24 @@ void Buttons::processButton(uint8_t buttonID, bool state, bool debounce)   {
 
     if (debounced)  {
 
+        buttonType_t type = (buttonType_t)configuration.readParameter(CONF_BLOCK_BUTTON, buttonTypeSection, buttonID);
+
         if (configuration.readParameter(CONF_BLOCK_BUTTON, buttonProgramChangeEnabledSection, buttonID))  {
 
             //ignore momentary/latching modes if button sends program change
-            //when in program change, button has latching mode since momentary mode makes no sense
-            processProgramChange(buttonID, state);
+            //when released, don't send anything
+            processMomentaryButton(buttonID, state, state);
 
         }   else {
 
-            switch ((buttonType_t)configuration.readParameter(CONF_BLOCK_BUTTON, buttonTypeSection, buttonID))   {
-
-                case buttonLatching:
-                processLatchingButton(buttonID, state);
-                break;
+            switch (type)   {
 
                 case buttonMomentary:
                 processMomentaryButton(buttonID, state);
+                break;
+
+                case buttonLatching:
+                processLatchingButton(buttonID, state);
                 break;
 
                 default:
