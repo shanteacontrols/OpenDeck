@@ -95,37 +95,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             break;
 
             case CONF_BLOCK_LED:
-            if (section == ledHardwareParameterSection) {
-
-                switch(index)    {
-
-                    case ledHwParameterBlinkTime:
-                    if ((newValue < BLINK_TIME_MIN) || (newValue > BLINK_TIME_MAX))
-                        return false;
-                    core.setLEDblinkTime(newValue);
-                    break;
-
-                    case ledHwParameterFadeTime:
-                    if ((newValue < FADE_TIME_MIN) || (newValue > FADE_TIME_MAX))
-                        return false;
-                    core.setLEDTransitionSpeed(newValue);
-                    break;
-
-                    case ledHwParameterStartUpSwitchTime:
-                    if ((newValue < START_UP_SWITCH_TIME_MIN) || (newValue > START_UP_SWITCH_TIME_MAX))
-                        return false;
-                    break;
-
-                    case ledHwParameterStartUpRoutine:
-                    if (newValue > NUMBER_OF_START_UP_ANIMATIONS)
-                        return false;
-                    break;
-
-                    configuration.writeParameter(block, section, index, newValue);
-
-                }
-
-            } else if (section == ledStateSection)  {
+            if (section == ledStateSection)  {
 
                 switch ((ledStatesHardwareParameter)newValue)   {
 
@@ -194,6 +164,40 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                     break;
 
                 }
+
+            } else  {
+
+                if (section == ledHardwareParameterSection) {
+
+                    switch(index)    {
+
+                        case ledHwParameterBlinkTime:
+                        if ((newValue < BLINK_TIME_MIN) || (newValue > BLINK_TIME_MAX))
+                        return false;
+                        core.setLEDblinkTime(newValue);
+                        break;
+
+                        case ledHwParameterFadeTime:
+                        if ((newValue < FADE_TIME_MIN) || (newValue > FADE_TIME_MAX))
+                        return false;
+                        core.setLEDTransitionSpeed(newValue);
+                        break;
+
+                        case ledHwParameterStartUpSwitchTime:
+                        if ((newValue < START_UP_SWITCH_TIME_MIN) || (newValue > START_UP_SWITCH_TIME_MAX))
+                        return false;
+                        break;
+
+                        case ledHwParameterStartUpRoutine:
+                        if (newValue > NUMBER_OF_START_UP_ANIMATIONS)
+                        return false;
+                        break;
+
+                    }
+
+                }
+
+                configuration.writeParameter(block, section, index, newValue);
 
             }
             break;
