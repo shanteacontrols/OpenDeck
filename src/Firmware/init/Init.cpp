@@ -138,7 +138,7 @@ void initSysEx()    {
 void globalInit()   {
 
     configuration.init();
-    core.init();
+    board.init();
     midi.init();
     leds.init();
     initSysEx();

@@ -1,7 +1,5 @@
-#ifndef BOARDDEFSOPENDECK_H_
-#define BOARDDEFSOPENDECK_H_
-
-#include "PinManipulation.h"
+#ifndef PINS_H_
+#define PINS_H_
 
 #include <avr/cpufunc.h>
 

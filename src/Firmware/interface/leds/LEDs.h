@@ -1,11 +1,13 @@
 #ifndef LEDS_H_
 #define LEDS_H_
 
-#include "../../hardware/core/Core.h"
+#include "../../board/Board.h"
 #include "../../BitManipulation.h"
 #include "../../eeprom/Configuration.h"
 
-class LEDs {
+#include "LEDcolors.h"
+
+class LEDs : Board {
 
     public:
     LEDs();
@@ -13,9 +15,12 @@ class LEDs {
     ledColor_t velocity2color(bool blinEnabled, uint8_t receivedVelocity);
     bool velocity2blinkState(uint8_t receivedVelocity);
     void noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity);
-    void allLEDsOn();
-    void allLEDsOff();
-    void setFadeSpeed(uint8_t speed);
+    void allOn();
+    void allOff();
+    uint8_t getState(uint8_t ledNumber);
+    void setState(uint8_t ledNumber, ledColor_t color, bool blinkMode);
+    void setBlinkTime(uint16_t blinkTime);
+    void setFadeTime(uint8_t fadeTime);
 
     private:
     //data processing

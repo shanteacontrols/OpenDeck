@@ -1,7 +1,7 @@
 #ifndef MIDI_CONFIG_H_
 #define MIDI_CONFIG_H_
 
-#include "../../hardware/uart/UART.h"
+#include "../uart/UART.h"
 
 #define USE_SERIAL_PORT         uart
 

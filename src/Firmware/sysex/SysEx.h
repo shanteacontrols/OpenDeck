@@ -2,6 +2,7 @@
 #define SYSEX_H_
 
 #include <avr/io.h>
+#include <stdio.h>
 #include "../interface/midi/MIDI.h"
 #include "Status.h"
 #include "SpecialRequests.h"

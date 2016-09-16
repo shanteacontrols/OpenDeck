@@ -245,7 +245,7 @@
 			 *        \n\n
 			 *
 			 *  \note The mode parameter does not exist on devices where only one mode is possible, such as USB
-			 *        AVR models which only implement the USB device mode in hardware.
+			 *        AVR models which only implement the USB device mode in board.
 			 *
 			 *  \see \ref Group_Device for the \c USB_DEVICE_OPT_* masks.
 			 */

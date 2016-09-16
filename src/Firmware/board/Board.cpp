@@ -1,15 +1,13 @@
-#include "Core.h"
-#include "../../sysex/SysEx.h"
+#include "board.h"
+//#include "../../sysex/SysEx.h"
 #include <util/delay.h>
 #include <avr/cpufunc.h>
 #include <avr/wdt.h>
 #include <avr/eeprom.h>
-#include "../../eeprom/Configuration.h"
-#include "../../BitManipulation.h"
-#include "../../interface/settings/Settings.h"
-#include "../../interface/encoders/Encoders.h"
-#include "../../interface/leds/LEDs.h"
-#include "../../interface/leds/LEDcolors.h"
+
+#include "../eeprom/Configuration.h"
+#include "../BitManipulation.h"
+#include "../interface/Interface.h"
 
 #define DIGITAL_BUFFER_SIZE 2
 
@@ -503,13 +501,13 @@ ISR(ADC_vect)   {
 
 //init
 
-Core::Core()  {
+Board::Board()  {
 
     //default constructor
 
 }
 
-void Core::init()  {
+void Board::init()  {
 
     cli();
     disableWatchDog();
@@ -526,7 +524,7 @@ void Core::init()  {
 
 }
 
-void Core::initPins() {
+void Board::initPins() {
 
     //configure input matrix
     //shift register
@@ -577,7 +575,7 @@ void Core::initPins() {
 
 }
 
-void Core::initAnalog()    {
+void Board::initAnalog()    {
 
     setUpADC();
     setADCprescaler(128);
@@ -596,7 +594,7 @@ void Core::initAnalog()    {
 
 }
 
-void Core::initEncoders()   {
+void Board::initEncoders()   {
 
     for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)    {
 
@@ -607,7 +605,7 @@ void Core::initEncoders()   {
 
 }
 
-void Core::configureTimers()   {
+void Board::configureTimers()   {
 
     //clear timer0 conf
     TCCR0A = 0;
@@ -665,7 +663,15 @@ inline uint8_t getRGBIDFromLEDID(uint8_t ledID) {
 
 }
 
-void Core::setLEDstate(uint8_t ledNumber, ledColor_t color, bool blinkMode)   {
+uint8_t Board::getLEDstate(uint8_t ledNumber)   {
+
+    uint8_t returnValue;
+    returnValue = ledState[ledNumber];
+    return returnValue;
+
+}
+
+void Board::setLEDstate(uint8_t ledNumber, ledColor_t color, bool blinkMode)   {
 
     uint8_t rgbID = getRGBIDFromLEDID(ledNumber);
     bool rgbEnabled = configuration.readParameter(CONF_BLOCK_LED, ledRGBenabledSection, rgbID);
@@ -673,7 +679,7 @@ void Core::setLEDstate(uint8_t ledNumber, ledColor_t color, bool blinkMode)   {
     if (!rgbEnabled)    {
 
         if (color != colorOff)
-            color = colorOnDefault;
+        color = colorOnDefault;
         handleLED(ledNumber, color, blinkMode, singleLED);
 
     }   else handleLED(rgbID, color, blinkMode, rgbLED);
@@ -683,15 +689,7 @@ void Core::setLEDstate(uint8_t ledNumber, ledColor_t color, bool blinkMode)   {
 
 }
 
-uint8_t Core::getLEDstate(uint8_t ledNumber)   {
-
-    uint8_t returnValue;
-    returnValue = ledState[ledNumber];
-    return returnValue;
-
-}
-
-void Core::setLEDblinkTime(uint16_t blinkTime)  {
+void Board::setLEDblinkTime(uint16_t blinkTime)  {
 
     cli();
     ledBlinkTime = blinkTime*100;
@@ -700,7 +698,7 @@ void Core::setLEDblinkTime(uint16_t blinkTime)  {
 
 }
 
-void Core::setLEDTransitionSpeed(uint8_t transitionSteps) {
+void Board::setLEDfadeTime(uint8_t transitionSteps) {
 
     //reset transition counter
     cli();
@@ -712,7 +710,7 @@ void Core::setLEDTransitionSpeed(uint8_t transitionSteps) {
 
 }
 
-void Core::ledBlinkingStart() {
+void Board::ledBlinkingStart() {
 
     if (!blinkEnabled)  {
 
@@ -724,7 +722,7 @@ void Core::ledBlinkingStart() {
 
 }
 
-void Core::ledBlinkingStop()   {
+void Board::ledBlinkingStop()   {
 
     blinkState = true;
     cli();
@@ -734,7 +732,7 @@ void Core::ledBlinkingStop()   {
 
 }
 
-bool Core::ledBlinkingActive() {
+bool Board::ledBlinkingActive() {
 
     bool state;
     state = blinkEnabled;
@@ -742,7 +740,7 @@ bool Core::ledBlinkingActive() {
 
 }
 
-void Core::checkBlinkLEDs() {
+void Board::checkBlinkLEDs() {
 
     //this function will disable blinking
     //if none of the LEDs is in blinking state
@@ -789,7 +787,7 @@ inline uint8_t getRGBfirstID(uint8_t rgbID)    {
 }
 
 
-void Core::handleLED(uint8_t ledNumber, ledColor_t color, bool blinkMode, ledType_t type) {
+void Board::handleLED(uint8_t ledNumber, ledColor_t color, bool blinkMode, ledType_t type) {
 
     /*
 
@@ -875,7 +873,7 @@ void Core::handleLED(uint8_t ledNumber, ledColor_t color, bool blinkMode, ledTyp
 
 //analog
 
-bool Core::analogDataAvailable() {
+bool Board::analogDataAvailable() {
 
     bool state;
     state = _analogDataAvailable;
@@ -893,7 +891,7 @@ bool Core::analogDataAvailable() {
 
 }
 
-int16_t Core::getAnalogValue(uint8_t analogID) {
+int16_t Board::getAnalogValue(uint8_t analogID) {
 
     return analogBufferCopy[analogID];
 
@@ -914,7 +912,7 @@ inline void checkInputMatrixBufferCopy()    {
 
 //encoders
 
-encoderPosition_t Core::getEncoderState(uint8_t encoderNumber)  {
+encoderPosition_t Board::getEncoderState(uint8_t encoderNumber)  {
 
     uint8_t column = encoderNumber % NUMBER_OF_BUTTON_COLUMNS;
     uint8_t row  = (encoderNumber/NUMBER_OF_BUTTON_COLUMNS)*2;
@@ -926,7 +924,7 @@ encoderPosition_t Core::getEncoderState(uint8_t encoderNumber)  {
 
 }
 
-bool Core::encoderDataAvailable()  {
+bool Board::encoderDataAvailable()  {
 
     checkInputMatrixBufferCopy();
 
@@ -948,7 +946,7 @@ bool Core::encoderDataAvailable()  {
 
 //buttons
 
-bool Core::buttonDataAvailable()   {
+bool Board::buttonDataAvailable()   {
 
     checkInputMatrixBufferCopy();
 
@@ -967,7 +965,7 @@ bool Core::buttonDataAvailable()   {
 
 }
 
-bool Core::getButtonState(uint8_t buttonIndex) {
+bool Board::getButtonState(uint8_t buttonIndex) {
 
     uint8_t encoderPairIndex = getEncoderPairFromButtonIndex(buttonIndex);
     if (configuration.readParameter(CONF_BLOCK_ENCODER, encoderEnabledSection, encoderPairIndex))
@@ -981,4 +979,4 @@ bool Core::getButtonState(uint8_t buttonIndex) {
 
 }
 
-Core core;
+Board board;

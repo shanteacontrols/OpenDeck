@@ -1,11 +1,9 @@
-#ifndef BOARD_H_
-#define BOARD_H_
+#ifndef HARDWARE_H_
+#define HARDWARE_H_
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "../adc/ADC.h"
-#include "../../Types.h"
-#include "../pins/Pins.h"
+#include "../core/Core.h"
 
 #define ANALOG_BUFFER_SIZE  MAX_NUMBER_OF_ANALOG
 
@@ -25,11 +23,11 @@ uint32_t rTimeMillis();
 void wait(uint32_t time);
 void disableWatchDog();
 
-class Core {
+class Board {
 
     public:
     //init
-    Core();
+    Board();
     void init();
 
     //digital
@@ -42,11 +40,12 @@ class Core {
     bool analogDataAvailable();
     int16_t getAnalogValue(uint8_t analogID);
 
+    protected:
     //LEDs
     uint8_t getLEDstate(uint8_t ledNumber);
     void setLEDstate(uint8_t ledNumber, ledColor_t color, bool blinkMode);
     void setLEDblinkTime(uint16_t blinkTime);
-    void setLEDTransitionSpeed(uint8_t transitionSteps);
+    void setLEDfadeTime(uint8_t transitionSteps);
 
     private:
 
@@ -63,6 +62,6 @@ class Core {
 
 };
 
-extern Core core;
+extern Board board;
 
 #endif
