@@ -1,7 +1,6 @@
 #include "LEDs.h"
 #include "../../interface/settings/LEDsettings.h"
 #include "../../sysex/SysEx.h"
-#include "LEDcolors.h"
 
 LEDs::LEDs()    {
 
@@ -11,8 +10,8 @@ LEDs::LEDs()    {
 
 void LEDs::init()   {
 
-    core.setLEDblinkTime(configuration.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime));
-    core.setLEDTransitionSpeed(configuration.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterFadeTime));
+    Board::setLEDblinkTime(configuration.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime));
+    Board::setLEDfadeTime(configuration.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterFadeTime));
 
     //run LED animation on start-up
     startUpAnimation();
@@ -25,7 +24,7 @@ void LEDs::startUpAnimation() {
         return;
 
     //turn off all LEDs before starting animation
-    allLEDsOff();
+    allOff();
 
     switch (configuration.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpRoutine))  {
 
@@ -62,7 +61,7 @@ void LEDs::startUpAnimation() {
 
     }
 
-    allLEDsOff();
+    allOff();
     wait(1000);
 
 }
@@ -102,7 +101,7 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
     //if second and third argument of function are set to false or
     //if second argument is set to false and all the LEDs are turned off
     //light up all LEDs
-    if ((!singleLED && !turnOn) || (checkLEDsOff() && !turnOn)) allLEDsOn();
+    if ((!singleLED && !turnOn) || (checkLEDsOff() && !turnOn)) allOn();
 
     if (turnOn) {
 
@@ -129,7 +128,7 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
         if (!ledDirection)  {
 
             //if last LED is turned on
-            if (core.getLEDstate(_ledNumber[totalNumberOfLEDs-1]))  {
+            if (Board::getLEDstate(_ledNumber[totalNumberOfLEDs-1]))  {
 
                 //LED index is penultimate LED number
                 ledNumber = _ledNumber[totalNumberOfLEDs-2];
@@ -142,7 +141,7 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 
             //left-to-right direction
             //if first LED is already on
-            if (core.getLEDstate(_ledNumber[0]))    {
+            if (Board::getLEDstate(_ledNumber[0]))    {
 
                 //led index is 1
                 ledNumber = _ledNumber[1];
@@ -162,7 +161,7 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
         //right-to-left direction
         if (!ledDirection)  {
 
-            if (!(core.getLEDstate(_ledNumber[totalNumberOfLEDs-1])))   {
+            if (!(Board::getLEDstate(_ledNumber[totalNumberOfLEDs-1])))   {
 
                 ledNumber = _ledNumber[totalNumberOfLEDs-2];
                 passCounter++;
@@ -172,7 +171,7 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
             }   else {
 
             //left-to-right direction
-            if (!(core.getLEDstate(_ledNumber[0]))) {
+            if (!(Board::getLEDstate(_ledNumber[0]))) {
 
                 ledNumber = _ledNumber[1];
                 passCounter++;
@@ -190,14 +189,14 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
         if (passCounter < totalNumberOfLEDs)    {
 
             //if we're turning LEDs on one by one, turn all the other LEDs off
-            if (singleLED && turnOn)            allLEDsOff();
+            if (singleLED && turnOn)            allOff();
 
             //if we're turning LEDs off one by one, turn all the other LEDs on
-            else    if (!turnOn && singleLED)   allLEDsOn();
+            else    if (!turnOn && singleLED)   allOn();
 
             //set LED state depending on turnOn parameter
-            if (turnOn) core.setLEDstate(ledNumber, colorOnDefault, false);
-            else    core.setLEDstate(ledNumber, colorOff, false);
+            if (turnOn) Board::setLEDstate(ledNumber, colorOnDefault, false);
+            else    Board::setLEDstate(ledNumber, colorOff, false);
 
             //make sure out-of-bound index isn't requested from ledArray
             if (passCounter < totalNumberOfLEDs-1)  {
@@ -294,7 +293,7 @@ void LEDs::noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity)    {
 
         if (configuration.readParameter(CONF_BLOCK_LED, ledActivationNoteSection, i) == receivedNote)  {
 
-            core.setLEDstate(i, color, blinkEnabled_led);
+            Board::setLEDstate(i, color, blinkEnabled_led);
 
         }
 
@@ -302,19 +301,19 @@ void LEDs::noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity)    {
 
 }
 
-void LEDs::allLEDsOn()  {
+void LEDs::allOn()  {
 
     //turn on all LEDs
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        core.setLEDstate(i, colorOnDefault, false);
+        Board::setLEDstate(i, colorOnDefault, false);
 
 }
 
-void LEDs::allLEDsOff() {
+void LEDs::allOff() {
 
     //turn off all LEDs
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        core.setLEDstate(i, colorOff, false);
+        Board::setLEDstate(i, colorOff, false);
 
 }
 
@@ -322,7 +321,7 @@ bool LEDs::checkLEDsOn()    {
 
     //return true if all LEDs are on
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        if (core.getLEDstate(i))
+        if (Board::getLEDstate(i))
             return false;
     return true;
 
@@ -332,15 +331,33 @@ bool LEDs::checkLEDsOff()   {
 
     //return true if all LEDs are off
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        if (!core.getLEDstate(i))
+        if (!Board::getLEDstate(i))
             return false;
     return true;
 
 }
 
-void LEDs::setFadeSpeed(uint8_t speed)  {
+uint8_t LEDs::getState(uint8_t ledNumber)    {
 
-    core.setLEDTransitionSpeed(speed);
+    return Board::getLEDstate(ledNumber);
+
+}
+
+void LEDs::setState(uint8_t ledNumber, ledColor_t color, bool blinkMode) {
+
+    Board::setLEDstate(ledNumber, color, blinkMode);
+
+}
+
+void LEDs::setFadeTime(uint8_t speed)  {
+
+    Board::setLEDfadeTime(speed);
+
+}
+
+void LEDs::setBlinkTime(uint16_t blinkTime)  {
+
+    Board::setLEDblinkTime(blinkTime);
 
 }
 

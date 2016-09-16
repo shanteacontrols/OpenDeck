@@ -19,13 +19,13 @@ Encoders::Encoders()    {
 
 void Encoders::update()   {
 
-    if (!core.encoderDataAvailable()) return;
+    if (!board.encoderDataAvailable()) return;
 
     for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)    {
 
         if (!configuration.readParameter(CONF_BLOCK_ENCODER, encoderEnabledSection, i)) continue;
 
-        encoderPosition_t encoderState = core.getEncoderState(i);
+        encoderPosition_t encoderState = board.getEncoderState(i);
         if (encoderState == encStopped) continue;
 
         if (configuration.readParameter(CONF_BLOCK_ENCODER, encoderInvertedSection, i))   {

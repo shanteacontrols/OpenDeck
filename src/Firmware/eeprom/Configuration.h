@@ -11,7 +11,7 @@ EEPROM addresses of parameters.
 #include "UniqueID.h"
 #include "Config.h"
 #include "../Types.h"
-
+#include "../core/Core.h"
 #include "../BitManipulation.h"
 #include "Blocks.h"
 

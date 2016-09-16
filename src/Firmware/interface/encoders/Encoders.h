@@ -1,7 +1,7 @@
 #ifndef ENCODERS_H_
 #define ENCODERS_H_
 
-#include "../../hardware/core/Core.h"
+#include "../../board/Board.h"
 
 class Encoders  {
 

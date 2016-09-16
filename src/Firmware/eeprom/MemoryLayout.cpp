@@ -1,5 +1,4 @@
 #include "Configuration.h"
-#include "../hardware/core/Core.h"
 #include "../interface/settings/MIDIsettings.h"
 #include "../interface/settings/LEDsettings.h"
 

@@ -1,11 +1,9 @@
 #ifndef ANALOG_H_
 #define ANALOG_H_
 
-#include "../../hardware/core/Core.h"
-#include "../../interface/midi/MIDI.h"
-#include "../../BitManipulation.h"
+#include "../../board/Board.h"
 #include "../../eeprom/Configuration.h"
-#include "../buttons/Buttons.h"
+#include "../../interface/buttons/Buttons.h"
 
 #define NUMBER_OF_SAMPLES 3 //do not change
 

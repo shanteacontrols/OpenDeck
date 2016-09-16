@@ -1,5 +1,5 @@
-#ifndef HARDWARE_H_
-#define HARDWARE_H_
+#ifndef HARDWARE_VERSION_H_
+#define HARDWARE_VERSION_H_
 
 #define HARDWARE_VERSION_MAJOR      1
 #define HARDWARE_VERSION_MINOR      0

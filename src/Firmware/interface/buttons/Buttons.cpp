@@ -1,6 +1,7 @@
 #include "Buttons.h"
 #include "../../eeprom/Configuration.h"
 #include "../../interface/midi/MIDI.h"
+#include "../../interface/leds/LEDs.h"
 #include "../../sysex/SysEx.h"
 #include "../../BitManipulation.h"
 
@@ -40,7 +41,7 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
             setButtonPressed(buttonID, true);
             midi.sendMIDInote(configuration.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), true, velocityOn);
             if (configuration.readParameter(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
-                core.setLEDstate(buttonID, colorOnDefault, false);
+                leds.setState(buttonID, colorOnDefault, false);
             //if (sysEx.configurationEnabled())
                 //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
 
@@ -52,7 +53,7 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
 
                 midi.sendMIDInote(configuration.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), false, velocityOff);
                 if (configuration.readParameter(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
-                    core.setLEDstate(buttonID, colorOff, false);
+                    leds.setState(buttonID, colorOff, false);
                 //if (sysEx.configurationEnabled())
                     //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
 
@@ -76,7 +77,7 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)    {
 
                 midi.sendMIDInote(configuration.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), false, velocityOff);
                 if (configuration.readParameter(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
-                    core.setLEDstate(buttonID, colorOff, false);
+                    leds.setState(buttonID, colorOff, false);
                 //if (sysEx.configurationEnabled())
                     //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
 
@@ -88,7 +89,7 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)    {
                 //send note on
                 midi.sendMIDInote(configuration.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), true, velocityOn);
                 if (configuration.readParameter(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
-                    core.setLEDstate(buttonID, colorOnDefault, false);
+                    leds.setState(buttonID, colorOnDefault, false);
                 //if (sysEx.configurationEnabled())
                     //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
 
@@ -144,11 +145,11 @@ void Buttons::processButton(uint8_t buttonID, bool state, bool debounce)   {
 
 void Buttons::update()    {
 
-    if (!core.buttonDataAvailable()) return;
+    if (!board.buttonDataAvailable()) return;
 
     for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++) {
 
-        bool buttonState = core.getButtonState(i);
+        bool buttonState = board.getButtonState(i);
         processButton(i, buttonState);
 
     }

@@ -31,15 +31,15 @@ bool onCustom(uint8_t value) {
         return true;
 
         case REBOOT_STRING:
-        leds.setFadeSpeed(1);
-        leds.allLEDsOff();
+        leds.setFadeTime(1);
+        leds.allOff();
         wait(1500);
         reboot();
         return true; //pointless, but we're making compiler happy
 
         case FACTORY_RESET_STRING:
-        leds.setFadeSpeed(1);
-        leds.allLEDsOff();
+        leds.setFadeTime(1);
+        leds.allOff();
         wait(1500);
         configuration.factoryReset(factoryReset_partial);
         reboot();
@@ -56,7 +56,7 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index) {
         case CONF_BLOCK_LED:
         if (section == ledStateSection)    {
 
-            return core.getLEDstate(index);
+            return leds.getState(index);
 
         } else {
 
@@ -100,63 +100,63 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 switch ((ledStatesHardwareParameter)newValue)   {
 
                     case ledStateOff:
-                    core.setLEDstate(index, colorOff, false);
+                    leds.setState(index, colorOff, false);
                     break;
 
                     case ledStateConstantWhite:
-                    core.setLEDstate(index, colorWhite, false);
+                    leds.setState(index, colorWhite, false);
                     break;
 
                     case ledStateConstantCyan:
-                    core.setLEDstate(index, colorCyan, false);
+                    leds.setState(index, colorCyan, false);
                     break;
 
                     case ledStateConstantMagenta:
-                    core.setLEDstate(index, colorMagenta, false);
+                    leds.setState(index, colorMagenta, false);
                     break;
 
                     case ledStateConstantRed:
-                    core.setLEDstate(index, colorRed, false);
+                    leds.setState(index, colorRed, false);
                     break;
 
                     case ledStateConstantBlue:
-                    core.setLEDstate(index, colorBlue, false);
+                    leds.setState(index, colorBlue, false);
                     break;
 
                     case ledStateConstantYellow:
-                    core.setLEDstate(index, colorYellow, false);
+                    leds.setState(index, colorYellow, false);
                     break;
 
                     case ledStateConstantGreen:
-                    core.setLEDstate(index, colorGreen, false);
+                    leds.setState(index, colorGreen, false);
                     break;
 
                     case ledStateBlinkWhite:
-                    core.setLEDstate(index, colorWhite, true);
+                    leds.setState(index, colorWhite, true);
                     break;
 
                     case ledStateBlinkCyan:
-                    core.setLEDstate(index, colorCyan, true);
+                    leds.setState(index, colorCyan, true);
                     break;
 
                     case ledStateBlinkMagenta:
-                    core.setLEDstate(index, colorMagenta, true);
+                    leds.setState(index, colorMagenta, true);
                     break;
 
                     case ledStateBlinkRed:
-                    core.setLEDstate(index, colorRed, true);
+                    leds.setState(index, colorRed, true);
                     break;
 
                     case ledStateBlinkBlue:
-                    core.setLEDstate(index, colorBlue, true);
+                    leds.setState(index, colorBlue, true);
                     break;
 
                     case ledStateBlinkYellow:
-                    core.setLEDstate(index, colorYellow, true);
+                    leds.setState(index, colorYellow, true);
                     break;
 
                     case ledStateBlinkGreen:
-                    core.setLEDstate(index, colorGreen, true);
+                    leds.setState(index, colorGreen, true);
                     break;
 
                     default:
@@ -174,13 +174,13 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                         case ledHwParameterBlinkTime:
                         if ((newValue < BLINK_TIME_MIN) || (newValue > BLINK_TIME_MAX))
                         return false;
-                        core.setLEDblinkTime(newValue);
+                        leds.setBlinkTime(newValue);
                         break;
 
                         case ledHwParameterFadeTime:
                         if ((newValue < FADE_TIME_MIN) || (newValue > FADE_TIME_MAX))
                         return false;
-                        core.setLEDTransitionSpeed(newValue);
+                        leds.setFadeTime(newValue);
                         break;
 
                         case ledHwParameterStartUpSwitchTime:

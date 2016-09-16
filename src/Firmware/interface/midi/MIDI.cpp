@@ -2,9 +2,8 @@
 #include "../../sysex/SysEx.h"
 #include "../../eeprom/Configuration.h"
 #include "../../BitManipulation.h"
-#include "../../hardware/core/Core.h"
-#include "../../interface/leds/LEDs.h"
-#include "../../interface/settings/MIDIsettings.h"
+#include "../../board/Board.h"
+#include "../../interface/Interface.h"
 
 MIDI::MIDI()    {
 

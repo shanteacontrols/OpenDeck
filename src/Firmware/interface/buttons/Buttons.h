@@ -2,7 +2,7 @@
 #define BUTTONS_H_
 
 #include <avr/io.h>
-#include "../../hardware/core/Core.h"
+#include "../../board/Board.h"
 
 class Buttons {
 
