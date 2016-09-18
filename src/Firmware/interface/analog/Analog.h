@@ -21,7 +21,7 @@
 
 #include "../../board/Board.h"
 #include "../../eeprom/Configuration.h"
-#include "../../interface/buttons/Buttons.h"
+#include "../interface/buttons/Buttons.h"
 
 #define NUMBER_OF_SAMPLES 3 //do not change
 

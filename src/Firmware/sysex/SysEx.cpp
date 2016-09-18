@@ -203,7 +203,7 @@ void SysEx::handleSysEx(uint8_t *array, uint8_t size)    {
         sysExArray[responseSize] = 0xF7;
         responseSize++;
 
-        midi.sendSysEx(sysExArray, responseSize, true);
+        midi.sendSysEx(responseSize, sysExArray, true);
 
     }
 
@@ -516,7 +516,7 @@ bool SysEx::checkParameters()   {
             sysExArray[responseSize] = 0xF7;
             responseSize++;
 
-            midi.sendSysEx(sysExArray, responseSize, true);
+            midi.sendSysEx(responseSize, sysExArray, true);
 
         }
 
@@ -738,7 +738,7 @@ void SysEx::sendCustomMessage(uint8_t id, sysExParameter_t value)   {
     customMessage[statusByte+3] = 0xF7;
     #endif
 
-    midi.sendSysEx(customMessage, size, true);
+    midi.sendSysEx(size, customMessage, true);
 
 }
 

@@ -21,6 +21,8 @@
 
 #include <avr/io.h>
 #include "../../board/Board.h"
+#include "../../midi/MIDI.h"
+#include "../interface/settings/MIDIsettings.h"
 
 class Buttons {
 

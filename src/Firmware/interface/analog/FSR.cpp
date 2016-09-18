@@ -92,7 +92,7 @@ void Analog::checkFSRvalue(uint8_t analogID, int16_t pressure)  {
 
             //sensor is really pressed
             setFsrPressed(analogID, true);
-            midi.sendMIDInote(configuration.readParameter(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID), true, calibratedPressure);
+            midi.sendNoteOn(configuration.readParameter(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID), calibratedPressure);
             //if (sysEx.configurationEnabled())
                 //sysEx.sendComponentID(CONF_BLOCK_ANALOG, analogID);
 
@@ -100,16 +100,14 @@ void Analog::checkFSRvalue(uint8_t analogID, int16_t pressure)  {
         break;
 
         case false:
-
         if (getFsrPressed(analogID))  {
 
             setFsrPressed(analogID, false);
-            midi.sendMIDInote(configuration.readParameter(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID), false, 0);
+            midi.sendNoteOff(configuration.readParameter(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID), 0);
             //if (sysEx.configurationEnabled())
                 //sysEx.sendComponentID(CONF_BLOCK_ANALOG, analogID);
 
         }
-
         break;
 
     }

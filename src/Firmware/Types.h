@@ -177,6 +177,13 @@ enum midiFilterMode_t {
 
 typedef enum {
 
+    noteOffType_noteOnZeroVel,
+    noteOffType_standardNoteOff
+
+} noteOffType_t;
+
+typedef enum {
+
     swVersion_major,
     swVersion_minor,
     swVersion_revision,

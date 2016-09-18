@@ -26,8 +26,8 @@
 #ifndef HW_MIDI_H
 #define HW_MIDI_H
 
-#include "../../Types.h"
-#include "../../BitManipulation.h"
+#include "../Types.h"
+#include "../BitManipulation.h"
 #include "Config.h"
 
 #include <avr/io.h>
@@ -36,41 +36,43 @@
 #include <avr/interrupt.h>
 #include <stdbool.h>
 
-#include "../usb/midi/Descriptors.h"
+#include "../core/usb/midi/Descriptors.h"
 
 //usb
 void EVENT_USB_Device_ConfigurationChanged(void);
 
-class HWmidi    {
+class MIDI    {
 
     public:
-    HWmidi();
+    MIDI();
     bool init(midiInterfaceType_t type);
 
-    //MIDI output
-
     public:
-    void sendNoteOn(uint8_t inNoteNumber, uint8_t inVelocity, uint8_t inChannel, midiInterfaceType_t type);
-    void sendNoteOff(uint8_t inNoteNumber, uint8_t inVelocity, uint8_t inChannel, midiInterfaceType_t type);
-    void sendProgramChange(uint8_t inProgramNumber, uint8_t inChannel, midiInterfaceType_t type);
-    void sendControlChange(uint8_t inControlNumber, uint8_t inControlValue, uint8_t inChannel, midiInterfaceType_t type);
-    void sendPitchBend(int16_t inPitchValue, uint8_t inChannel, midiInterfaceType_t type);
-    void sendPolyPressure(uint8_t inNoteNumber, uint8_t inPressure, uint8_t inChannel, midiInterfaceType_t type);
-    void sendAfterTouch(uint8_t inPressure, uint8_t inChannel, midiInterfaceType_t type);
-    void sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayContainsBoundaries, midiInterfaceType_t type);
-    void sendTimeCodeQuarterFrame(uint8_t inTypeNibble, uint8_t inValuesNibble, midiInterfaceType_t type);
-    void sendTimeCodeQuarterFrame(uint8_t inData, midiInterfaceType_t type);
-    void sendSongPosition(uint16_t inBeats, midiInterfaceType_t type);
-    void sendSongSelect(uint8_t inSongNumber, midiInterfaceType_t type);
-    void sendTuneRequest(midiInterfaceType_t type);
-    void sendRealTime(midiMessageType_t inType, midiInterfaceType_t type);
+    void sendNoteOn(uint8_t inNoteNumber, uint8_t inVelocity, uint8_t inChannel = 0);
+    void sendNoteOff(uint8_t inNoteNumber, uint8_t inVelocity, uint8_t inChannel = 0);
+    void sendProgramChange(uint8_t inProgramNumber, uint8_t inChannel = 0);
+    void sendControlChange(uint8_t inControlNumber, uint8_t inControlValue, uint8_t inChannel = 0);
+    void sendPitchBend(int16_t inPitchValue, uint8_t inChannel);
+    void sendPolyPressure(uint8_t inNoteNumber, uint8_t inPressure, uint8_t inChannel = 0);
+    void sendAfterTouch(uint8_t inPressure, uint8_t inChannel = 0);
+    void sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayContainsBoundaries);
+    void sendTimeCodeQuarterFrame(uint8_t inTypeNibble, uint8_t inValuesNibble);
+    void sendTimeCodeQuarterFrame(uint8_t inData);
+    void sendSongPosition(uint16_t inBeats);
+    void sendSongSelect(uint8_t inSongNumber);
+    void sendTuneRequest();
+    void sendRealTime(midiMessageType_t inType);
+    void setNoteOffMode(noteOffType_t type);
 
     void enableRunningStatus();
     void disableRunningStatus();
     bool runningStatusEnabled();
+    void setNoteChannel(uint8_t channel);
+    void setCCchannel(uint8_t channel);
+    void setProgramChangeChannel(uint8_t channel);
 
     private:
-    void send(midiMessageType_t inType, uint8_t inData1, uint8_t inData2, uint8_t inChannel, midiInterfaceType_t type);
+    void send(midiMessageType_t inType, uint8_t inData1, uint8_t inData2, uint8_t inChannel);
 
     //MIDI input
 
@@ -94,8 +96,6 @@ class HWmidi    {
     private:
     bool addSysExArrayByte(midiInterfaceType_t type);
 
-    //MIDI soft thru
-
     public:
     midiFilterMode_t getFilterMode() const;
     bool getThruState() const;
@@ -105,11 +105,13 @@ class HWmidi    {
     void setThruFilterMode(midiFilterMode_t inThruFilterMode);
 
     private:
-    void thruFilter(uint8_t inChannel, midiInterfaceType_t type);
+    void thruFilter(uint8_t inChannel);
     bool parse(midiInterfaceType_t type);
     bool inputFilter(uint8_t inChannel, midiInterfaceType_t type);
     void resetInput();
     uint8_t getStatus(midiMessageType_t inType, uint8_t inChannel) const;
+    bool    usbEnabled,
+            dinEnabled;
 
     //decoded data of a MIDI message
     struct Message  {
@@ -148,9 +150,14 @@ class HWmidi    {
     uint16_t            sysExArrayLength;
     Message             dinMessage,
                         usbMessage;
+    noteOffType_t       noteOffMode;
+    uint8_t             noteChannel_,
+                        ccChannel_,
+                        programChangeChannel_,
+                        aftertouchChannel_;
 
 };
 
-extern HWmidi hwMIDI;
+extern MIDI midi;
 
 #endif

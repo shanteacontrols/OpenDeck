@@ -17,11 +17,10 @@
 */
 
 #include "Encoders.h"
-#include "../../interface/midi/MIDI.h"
 #include "../../eeprom/Configuration.h"
 #include "../../sysex/SysEx.h"
 #include "../../BitManipulation.h"
-#include "../../interface/settings/EncoderSettings.h"
+#include "../settings/EncoderSettings.h"
 
 #define ENCODER_VALUE_LEFT_7FH01H   127
 #define ENCODER_VALUE_RIGHT_7FH01H  1

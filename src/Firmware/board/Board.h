@@ -22,6 +22,8 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "../core/Core.h"
+#include "pins/Pins.h"
+#include "../Types.h"
 
 #define ANALOG_BUFFER_SIZE  MAX_NUMBER_OF_ANALOG
 

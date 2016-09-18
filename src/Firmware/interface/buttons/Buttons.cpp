@@ -18,7 +18,6 @@
 
 #include "Buttons.h"
 #include "../../eeprom/Configuration.h"
-#include "../../interface/midi/MIDI.h"
 #include "../../interface/leds/LEDs.h"
 #include "../../sysex/SysEx.h"
 #include "../../BitManipulation.h"
@@ -57,7 +56,7 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
         if (!getButtonPressed(buttonID))    {
 
             setButtonPressed(buttonID, true);
-            midi.sendMIDInote(configuration.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), true, velocityOn);
+            midi.sendNoteOn(configuration.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOn, configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
             if (configuration.readParameter(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
                 leds.setState(buttonID, colorOnDefault, false);
             //if (sysEx.configurationEnabled())
@@ -69,7 +68,7 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
 
             if (getButtonPressed(buttonID))    {
 
-                midi.sendMIDInote(configuration.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), false, velocityOff);
+                midi.sendNoteOff(configuration.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOff, configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
                 if (configuration.readParameter(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
                     leds.setState(buttonID, colorOff, false);
                 //if (sysEx.configurationEnabled())
@@ -93,7 +92,7 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)    {
             //if a button has been already pressed
             if (getButtonPressed(buttonID)) {
 
-                midi.sendMIDInote(configuration.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), false, velocityOff);
+                midi.sendNoteOff(configuration.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOff);
                 if (configuration.readParameter(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
                     leds.setState(buttonID, colorOff, false);
                 //if (sysEx.configurationEnabled())
@@ -105,7 +104,7 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)    {
             } else {
 
                 //send note on
-                midi.sendMIDInote(configuration.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), true, velocityOn);
+                midi.sendNoteOn(configuration.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOn);
                 if (configuration.readParameter(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
                     leds.setState(buttonID, colorOnDefault, false);
                 //if (sysEx.configurationEnabled())

@@ -198,6 +198,9 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="BitManipulation.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="board\pins\Pins.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="core\adc\ADC.cpp">
       <SubType>compile</SubType>
     </Compile>
@@ -210,16 +213,7 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="core\Core.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="core\midi\Config.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="core\midi\MIDI.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="core\midi\MIDI.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="core\pins\PinManipulation.h">
+    <Compile Include="core\PinManipulation.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="core\pins\Pins.h">
@@ -561,12 +555,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="interface\leds\LEDs.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="interface\midi\MIDI.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="interface\midi\MIDI.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="interface\settings\EncoderSettings.h">
       <SubType>compile</SubType>
     </Compile>
@@ -577,6 +565,15 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="interface\settings\Settings.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="midi\Config.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="midi\MIDI.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="midi\MIDI.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="OpenDeck.cpp">
@@ -611,8 +608,8 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="board\pins\" />
     <Folder Include="core\adc\" />
-    <Folder Include="core\midi\" />
     <Folder Include="core\pins\" />
     <Folder Include="core\reset\" />
     <Folder Include="core\uart\" />
@@ -639,10 +636,10 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Folder Include="interface\buttons\" />
     <Folder Include="interface\encoders\" />
     <Folder Include="interface\leds\" />
-    <Folder Include="interface\midi" />
     <Folder Include="interface" />
     <Folder Include="interface\settings\" />
     <Folder Include="init" />
+    <Folder Include="midi\" />
     <Folder Include="version" />
     <Folder Include="sysex" />
   </ItemGroup>

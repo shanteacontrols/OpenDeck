@@ -157,8 +157,15 @@ void globalInit()   {
 
     configuration.init();
     board.init();
-    midi.init();
     leds.init();
+
+    midi.init(dinInterface);
+    midi.init(usbInterface);
+    midi.setInputChannel(configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, inputChannel));
+    midi.setNoteChannel(configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
+    midi.setCCchannel(configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, CCchannel));
+    midi.setProgramChangeChannel(configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, programChangeChannel));
+
     initSysEx();
     checkNewRevision();
 
