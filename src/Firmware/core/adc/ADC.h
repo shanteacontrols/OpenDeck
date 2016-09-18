@@ -27,7 +27,6 @@
 #define adcInterruptEnable() (ADCSRA |= (1<<ADIE))
 
 void setUpADC();
-void setADCprescaler(uint8_t);
 void setADCchannel(uint8_t);
 int16_t getADCvalue();
 void disconnectDigitalInADC(uint8_t);

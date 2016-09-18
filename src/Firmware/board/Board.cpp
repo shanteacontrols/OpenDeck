@@ -595,7 +595,6 @@ void Board::initPins() {
 void Board::initAnalog()    {
 
     setUpADC();
-    setADCprescaler(128);
 
     setMuxInput(activeMuxInput);
     setADCchannel(MUX_1_IN_PIN);
