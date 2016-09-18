@@ -21,7 +21,6 @@
 #include <avr/eeprom.h>
 #include "UniqueID.h"
 #include "Config.h"
-#include "../Types.h"
 #include "../board/Board.h"
 #include "../BitManipulation.h"
 #include "Blocks.h"
@@ -40,6 +39,15 @@ typedef enum {
     WORD_PARAMETER
 
 } sectionParameterType_t;
+
+
+typedef enum {
+
+    factoryReset_wipeRestore, //clear eeprom, restore defaults
+    factoryReset_restore, //update eeprom with defaults
+    factoryReset_partial //partially restore defaults
+
+} factoryResetType_t;
 
 #if VALUE_BYTES == 1
 typedef uint8_t eepromValue_t;

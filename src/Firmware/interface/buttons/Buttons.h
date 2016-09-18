@@ -24,6 +24,14 @@
 #include "../../midi/MIDI.h"
 #include "../interface/settings/MIDIsettings.h"
 
+enum buttonType_t {
+
+    buttonMomentary,
+    buttonLatching,
+    BUTTON_TYPES
+
+};
+
 class Buttons {
 
     public:

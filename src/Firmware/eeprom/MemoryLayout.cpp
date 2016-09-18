@@ -19,6 +19,7 @@
 #include "Configuration.h"
 #include "../interface/settings/MIDIsettings.h"
 #include "../interface/settings/LEDsettings.h"
+#include "../interface/encoders/Encoders.h"
 
 void Configuration::createMemoryLayout()   {
 

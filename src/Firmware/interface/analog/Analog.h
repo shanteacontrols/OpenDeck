@@ -25,6 +25,22 @@
 
 #define NUMBER_OF_SAMPLES 3 //do not change
 
+enum ccLimitType_t {
+
+    ccLimitLow,
+    ccLimitHigh
+
+};
+
+enum analogType_t {
+
+    potentiometer,
+    fsr,
+    ldr,
+    ANALOG_TYPES
+
+};
+
 class Analog : Buttons {
 
     public:

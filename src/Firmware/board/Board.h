@@ -23,7 +23,29 @@
 #include <avr/interrupt.h>
 #include "../core/Core.h"
 #include "pins/Pins.h"
-#include "../Types.h"
+
+enum encoderPosition_t {
+
+    encStopped,
+    encMoveLeft,
+    encMoveRight,
+
+};
+
+enum ledColor_t {
+
+    colorOff,
+    colorWhite,
+    colorCyan,
+    colorMagenta,
+    colorRed,
+    colorBlue,
+    colorYellow,
+    colorGreen,
+    colorOnDefault,
+    LED_COLORS
+
+};
 
 #define ANALOG_BUFFER_SIZE  MAX_NUMBER_OF_ANALOG
 
@@ -78,7 +100,7 @@ class Board {
     void ledBlinkingStart();
     void ledBlinkingStop();
     bool ledBlinkingActive();
-    void handleLED(uint8_t ledNumber, ledColor_t color, bool blinkMode, ledType_t type);
+    void handleLED(uint8_t ledNumber, ledColor_t color, bool blinkMode, bool rgbLED);
 
 };
 

@@ -22,6 +22,14 @@
 #include "../../board/Board.h"
 #include "../interface/settings/MIDIsettings.h"
 
+enum encoderType_t {
+
+    enc7Fh01h = 0,
+    enc3Fh41h = 1,
+    ENCODING_MODES
+
+};
+
 class Encoders  {
 
     public:

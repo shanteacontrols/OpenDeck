@@ -696,9 +696,9 @@ void Board::setLEDstate(uint8_t ledNumber, ledColor_t color, bool blinkMode)   {
 
         if (color != colorOff)
         color = colorOnDefault;
-        handleLED(ledNumber, color, blinkMode, singleLED);
+        handleLED(ledNumber, color, blinkMode, false);
 
-    }   else handleLED(rgbID, color, blinkMode, rgbLED);
+    }   else handleLED(rgbID, color, blinkMode, true);
 
     if (blinkMode && (color != colorOff)) ledBlinkingStart();
     else    checkBlinkLEDs();
@@ -803,7 +803,7 @@ inline uint8_t getRGBfirstID(uint8_t rgbID)    {
 }
 
 
-void Board::handleLED(uint8_t ledNumber, ledColor_t color, bool blinkMode, ledType_t type) {
+void Board::handleLED(uint8_t ledNumber, ledColor_t color, bool blinkMode, bool rgbLED) {
 
     /*
 
@@ -824,18 +824,18 @@ void Board::handleLED(uint8_t ledNumber, ledColor_t color, bool blinkMode, ledTy
     bool newLEDstate[3];
     uint8_t loops = 1;
 
-    if ((color == colorOnDefault) && (type == rgbLED))
-        type = singleLED; //this is a mistake, handle led in single mode instead
+    if ((color == colorOnDefault) && (rgbLED))
+        rgbLED = false; //this is a mistake, handle led in single mode instead
 
-    switch(type)    {
+    switch(rgbLED)    {
 
-        case singleLED:
+        case false:
         loops = 1;
         currentState[0] = getLEDstate(ledNumber);
         newLEDstate[0] = (color != colorOff);
         break;
 
-        case rgbLED:
+        case true:
         loops = 3;
         ledNumber = getRGBfirstID(ledNumber);
         currentState[0] = getLEDstate(ledNumber);
