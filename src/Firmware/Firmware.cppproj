@@ -611,6 +611,7 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="core\adc\" />
     <Folder Include="core\midi\" />
     <Folder Include="core\pins\" />
     <Folder Include="core\reset\" />
@@ -633,7 +634,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Folder Include="core\usb\midi\LUFA\Platform\" />
     <Folder Include="eeprom" />
     <Folder Include="core" />
-    <Folder Include="core\adc" />
     <Folder Include="board" />
     <Folder Include="interface\analog\" />
     <Folder Include="interface\buttons\" />
