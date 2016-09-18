@@ -20,6 +20,7 @@
 #define ENCODERS_H_
 
 #include "../../board/Board.h"
+#include "../interface/settings/MIDIsettings.h"
 
 class Encoders  {
 

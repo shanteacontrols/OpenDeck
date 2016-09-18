@@ -44,7 +44,7 @@ void Analog::checkPotentiometerValue(uint8_t analogID, int16_t tempValue)  {
     //only use map when cc limits are different from defaults
     if ((lowerCClimit != 0) || (upperCClimit != 127))   {
 
-        midi.sendControlChange(configuration.readParameter(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID), mapAnalog_uint8(ccValue, 0, 127, lowerCClimit, upperCClimit));
+        midi.sendNoteOn(configuration.readParameter(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID), mapAnalog_uint8(ccValue, 0, 127, lowerCClimit, upperCClimit));
         //if (sysEx.configurationEnabled())
             //sysEx.sendComponentID(CONF_BLOCK_ANALOG, analogID);
 
@@ -52,7 +52,7 @@ void Analog::checkPotentiometerValue(uint8_t analogID, int16_t tempValue)  {
 
     else {
 
-        midi.sendControlChange(configuration.readParameter(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID), ccValue);
+        midi.sendNoteOn(configuration.readParameter(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID), ccValue);
         //if (sysEx.configurationEnabled())
             //sysEx.sendComponentID(CONF_BLOCK_ANALOG, analogID);
 

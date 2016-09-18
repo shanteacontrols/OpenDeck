@@ -23,7 +23,6 @@
 #include "buttons/Buttons.h"
 #include "encoders/Encoders.h"
 #include "leds/LEDs.h"
-#include "midi/MIDI.h"
 #include "settings/Settings.h"
 
 #endif

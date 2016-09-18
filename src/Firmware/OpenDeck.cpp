@@ -18,10 +18,10 @@
 
 #include "init/Init.h"
 
-#define FIRMWARE_VERSION_STRING 0x56
-#define HARDWARE_VERSION_STRING 0x42
-#define REBOOT_STRING           0x7F
-#define FACTORY_RESET_STRING    0x44
+#define FIRMWARE_VERSION_STRING     0x56
+#define HARDWARE_VERSION_STRING     0x42
+#define REBOOT_STRING               0x7F
+#define FACTORY_RESET_STRING        0x44
 
 bool onCustom(uint8_t value) {
 
@@ -99,8 +99,14 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             break;
 
             case CONF_BLOCK_MIDI:
-            if (section == midiFeatureSection)
-                newValue ? hwMIDI.enableRunningStatus() : hwMIDI.disableRunningStatus();
+            if (section == midiFeatureSection)  {
+
+                if (index == midiFeatureRunningStatus)
+                    newValue ? midi.enableRunningStatus() : midi.disableRunningStatus();
+                else if (index == midiFeatureStandardNoteOff)
+                    newValue ? midi.setNoteOffMode(noteOffType_standardNoteOff) : midi.setNoteOffMode(noteOffType_noteOnZeroVel);
+
+            }
             break;
 
             case CONF_BLOCK_LED:
@@ -237,7 +243,95 @@ int main()  {
 
     while(1)    {
 
-        midi.checkInput();
+        if (midi.read(usbInterface))   {   //new message on usb
+
+            midiMessageType_t messageType = midi.getType(usbInterface);
+            uint8_t data1 = midi.getData1(usbInterface);
+            uint8_t data2 = midi.getData2(usbInterface);
+
+            switch(messageType) {
+
+                case midiMessageSystemExclusive:
+                sysEx.handleSysEx(midi.getSysExArray(usbInterface), midi.getSysExArrayLength(usbInterface));
+                break;
+
+                case midiMessageNoteOff:
+                case midiMessageNoteOn:
+                //we're using received note data to control LEDs
+                leds.noteToLEDstate(data1, data2);
+                break;
+
+                default:
+                break;
+
+            }
+
+        }
+
+        //check for incoming MIDI messages on USART
+        if (midi.read(dinInterface))    {
+
+            midiMessageType_t messageType = midi.getType(dinInterface);
+            uint8_t data1 = midi.getData1(dinInterface);
+            uint8_t data2 = midi.getData2(dinInterface);
+
+            if (!configuration.readParameter(CONF_BLOCK_MIDI, midiFeatureSection, midiFeatureUSBconvert))  {
+
+                switch(messageType) {
+
+                    case midiMessageNoteOff:
+                    case midiMessageNoteOn:
+                    leds.noteToLEDstate(data1, data2);
+                    break;
+
+                    default:
+                    break;
+
+                }
+
+            }   else {
+
+                //dump everything from MIDI in to USB MIDI out
+                uint8_t inChannel = configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, inputChannel);
+                switch(messageType) {
+
+                    case midiMessageNoteOff:
+                    midi.sendNoteOff(data1, data2, inChannel);
+                    break;
+
+                    case midiMessageNoteOn:
+                    midi.sendNoteOn(data1, data2, inChannel);
+                    break;
+
+                    case midiMessageControlChange:
+                    midi.sendControlChange(data1, data2, inChannel);
+                    break;
+
+                    case midiMessageProgramChange:
+                    midi.sendProgramChange(data1, inChannel);
+                    break;
+
+                    case midiMessageSystemExclusive:
+                    midi.sendSysEx(midi.getSysExArrayLength(dinInterface), midi.getSysExArray(dinInterface), true);
+                    break;
+
+                    case midiMessageAfterTouchChannel:
+                    midi.sendAfterTouch(data1, inChannel);
+                    break;
+
+                    case midiMessageAfterTouchPoly:
+                    midi.sendPolyPressure(data1, data2, inChannel);
+                    break;
+
+                    default:
+                    break;
+
+                }
+
+            }
+
+        }
+
         buttons.update();
         analog.update();
         encoders.update();

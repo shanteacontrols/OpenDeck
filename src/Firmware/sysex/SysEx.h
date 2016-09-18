@@ -21,10 +21,10 @@
 
 #include <avr/io.h>
 #include <stdio.h>
-#include "../interface/midi/MIDI.h"
 #include "Status.h"
 #include "SpecialRequests.h"
 #include "Config.h"
+#include "../midi/MIDI.h"
 
 typedef struct {
 

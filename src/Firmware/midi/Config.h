@@ -19,7 +19,7 @@
 #ifndef MIDI_CONFIG_H_
 #define MIDI_CONFIG_H_
 
-#include "../uart/UART.h"
+#include "../core/uart/UART.h"
 
 #define USE_SERIAL_PORT         uart
 
