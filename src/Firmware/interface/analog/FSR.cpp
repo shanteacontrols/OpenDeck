@@ -30,6 +30,13 @@
 #define AFTERTOUCH_SEND_TIMEOUT_STEP        2
 #define AFTERTOUCH_SEND_TIMEOUT             100
 
+enum pressureType_t {
+
+    velocity,
+    aftertouch
+
+};
+
 #define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
 
 inline int16_t mapAnalog_int16(int16_t x, int16_t in_min, int16_t in_max, int16_t out_min, int16_t out_max) {

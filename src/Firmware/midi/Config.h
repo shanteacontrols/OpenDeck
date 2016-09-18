@@ -20,6 +20,7 @@
 #define MIDI_CONFIG_H_
 
 #include "../core/uart/UART.h"
+#include "../BitManipulation.h"
 
 #define USE_SERIAL_PORT         uart
 

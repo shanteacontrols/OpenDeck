@@ -192,7 +192,7 @@ call version_append.exe
 call del version
 
 REM upload code using usbasp
-call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
+REM call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="BitManipulation.h">
@@ -594,9 +594,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="sysex\SysEx.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Types.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="version\Firmware.cpp">
       <SubType>compile</SubType>
     </Compile>
@@ -610,6 +607,7 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
   <ItemGroup>
     <Folder Include="board\pins\" />
     <Folder Include="core\adc\" />
+    <Folder Include="core\helpers" />
     <Folder Include="core\pins\" />
     <Folder Include="core\reset\" />
     <Folder Include="core\uart\" />
