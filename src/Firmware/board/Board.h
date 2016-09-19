@@ -53,7 +53,6 @@ inline int8_t readEncoder(uint8_t encoderID, uint8_t pairState) __attribute__((a
 
 uint32_t rTimeMillis();
 void wait(uint32_t time);
-void disableWatchDog();
 
 class Board {
 
@@ -72,7 +71,6 @@ class Board {
     bool analogDataAvailable();
     int16_t getAnalogValue(uint8_t analogID);
 
-    protected:
     //LEDs
     uint8_t getLEDstate(uint8_t ledNumber);
     void setLEDstate(uint8_t ledNumber, ledColor_t color, bool blinkMode);

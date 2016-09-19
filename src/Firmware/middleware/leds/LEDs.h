@@ -36,7 +36,7 @@
 
 #define NUMBER_OF_START_UP_ANIMATIONS   5
 
-class LEDs : Board {
+class LEDs {
 
     public:
     LEDs();
