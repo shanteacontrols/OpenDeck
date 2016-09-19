@@ -112,73 +112,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             case CONF_BLOCK_LED:
             if (section == ledStateSection)  {
 
-                switch ((ledStatesHardwareParameter)newValue)   {
-
-                    case ledStateOff:
-                    leds.setState(index, colorOff, false);
-                    break;
-
-                    case ledStateConstantWhite:
-                    leds.setState(index, colorWhite, false);
-                    break;
-
-                    case ledStateConstantCyan:
-                    leds.setState(index, colorCyan, false);
-                    break;
-
-                    case ledStateConstantMagenta:
-                    leds.setState(index, colorMagenta, false);
-                    break;
-
-                    case ledStateConstantRed:
-                    leds.setState(index, colorRed, false);
-                    break;
-
-                    case ledStateConstantBlue:
-                    leds.setState(index, colorBlue, false);
-                    break;
-
-                    case ledStateConstantYellow:
-                    leds.setState(index, colorYellow, false);
-                    break;
-
-                    case ledStateConstantGreen:
-                    leds.setState(index, colorGreen, false);
-                    break;
-
-                    case ledStateBlinkWhite:
-                    leds.setState(index, colorWhite, true);
-                    break;
-
-                    case ledStateBlinkCyan:
-                    leds.setState(index, colorCyan, true);
-                    break;
-
-                    case ledStateBlinkMagenta:
-                    leds.setState(index, colorMagenta, true);
-                    break;
-
-                    case ledStateBlinkRed:
-                    leds.setState(index, colorRed, true);
-                    break;
-
-                    case ledStateBlinkBlue:
-                    leds.setState(index, colorBlue, true);
-                    break;
-
-                    case ledStateBlinkYellow:
-                    leds.setState(index, colorYellow, true);
-                    break;
-
-                    case ledStateBlinkGreen:
-                    leds.setState(index, colorGreen, true);
-                    break;
-
-                    default:
-                    return false;
-                    break;
-
-                }
+                leds.noteToLEDstate(index, newValue);
 
             } else  {
 

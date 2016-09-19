@@ -17,8 +17,6 @@
 */
 
 #include "Analog.h"
-#include "../../sysex/SysEx.h"
-#include "../../eeprom/Blocks.h"
 
 //use 1k resistor when connecting FSR between signal and ground
 

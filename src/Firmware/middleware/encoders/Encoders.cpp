@@ -18,9 +18,7 @@
 
 #include "Encoders.h"
 #include "../../eeprom/Configuration.h"
-#include "../../sysex/SysEx.h"
-#include "../../BitManipulation.h"
-#include "../settings/EncoderSettings.h"
+#include "../../midi/MIDI.h"
 
 #define ENCODER_VALUE_LEFT_7FH01H   127
 #define ENCODER_VALUE_RIGHT_7FH01H  1
@@ -42,7 +40,7 @@ void Encoders::update()   {
 
         if (!configuration.readParameter(CONF_BLOCK_ENCODER, encoderEnabledSection, i)) continue;
 
-        encoderPosition_t encoderState = board.getEncoderState(i);
+        encoderPosition_t encoderState = (encoderPosition_t)board.getEncoderState(i);
         if (encoderState == encStopped) continue;
 
         if (configuration.readParameter(CONF_BLOCK_ENCODER, encoderInvertedSection, i))   {

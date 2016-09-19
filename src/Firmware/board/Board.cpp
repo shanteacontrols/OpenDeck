@@ -22,51 +22,162 @@
 #include <avr/wdt.h>
 #include <avr/eeprom.h>
 
-#include "../eeprom/Configuration.h"
-#include "../BitManipulation.h"
-#include "../interface/Interface.h"
-
-#define DIGITAL_BUFFER_SIZE 2
+#define DIGITAL_BUFFER_SIZE                 2
+#define ANALOG_BUFFER_SIZE                  MAX_NUMBER_OF_ANALOG
 
 //matrix columns
-volatile uint8_t            activeButtonColumn  = 0;
-volatile uint8_t            activeLEDcolumn = 0;
+volatile uint8_t                            activeButtonColumn  = 0;
+volatile uint8_t                            activeLEDcolumn = 0;
 
 //buttons
-uint64_t                    inputMatrixBufferCopy;
+uint64_t                                    inputMatrixBufferCopy;
 
-static volatile uint64_t    inputBuffer[DIGITAL_BUFFER_SIZE];
-static volatile uint8_t     digital_buffer_head = 0;
-static volatile uint8_t     digital_buffer_tail = 0;
+static volatile uint64_t                    inputBuffer[DIGITAL_BUFFER_SIZE];
+static volatile uint8_t                     digital_buffer_head = 0;
+static volatile uint8_t                     digital_buffer_tail = 0;
 
 //encoders
-uint16_t                    encoderData[MAX_NUMBER_OF_ENCODERS];
-static const int8_t         encoderLookUpTable[] = { 0, 1, -1, 2, -1, 0, -2, 1, 1, -2, 0, -1, 2, -1, 1, 0 };
+uint16_t                                    encoderData[MAX_NUMBER_OF_ENCODERS];
+static const int8_t                         encoderLookUpTable[] = { 0, 1, -1, 2, -1, 0, -2, 1, 1, -2, 0, -1, 2, -1, 1, 0 };
 
-bool                        buttonsProcessed,
-                            encodersProcessed,
-                            dmBufferCopied;
+bool                                        buttonsProcessed,
+                                            encodersProcessed,
+                                            dmBufferCopied;
+
+#define PULSES_PER_STEP                     4
+
+/*
+
+    Encoder data formatting, uint16_t variable type
+    0      1      2      3
+    0000 | 0000 | 0000 | 0000
+
+    0 - encoder direction (0/1 - left/right)
+    1 - encoderMoving (0/1/2 - stopped/left/right)
+    2 - counted pulses (default value is 8 to avoid issues with negative values)
+    3 - temp encoder state (2 readings of 2 encoder pairs)
+
+*/
+
+#define ENCODER_CLEAR_TEMP_STATE_MASK       0xFFF0
+#define ENCODER_CLEAR_PULSES_MASK           0xFF0F
+#define ENCODER_CLEAR_MOVING_STATUS_MASK    0xF0FF
+
+#define ENCODER_DIRECTION_BIT               15
+
+#define ENCODER_DEFAULT_PULSE_COUNT_STATE   8
 
 //LEDs
-bool                        blinkEnabled = false,
-                            blinkState = true;
+bool                                        blinkEnabled = false,
+                                            blinkState = true;
 
-volatile uint8_t            pwmSteps,
-                            ledState[MAX_NUMBER_OF_LEDS];
+volatile uint8_t                            pwmSteps,
+                                            ledState[MAX_NUMBER_OF_LEDS];
 
-uint16_t                    ledBlinkTime;
+uint16_t                                    ledBlinkTime;
 
-int8_t                      transitionCounter[MAX_NUMBER_OF_LEDS];
-volatile uint32_t           blinkTimerCounter = 0;
+int8_t                                      transitionCounter[MAX_NUMBER_OF_LEDS];
+volatile uint32_t                           blinkTimerCounter = 0;
+
+#define NUMBER_OF_TRANSITIONS               64
+
+#define LED_CONSTANT_ON_BIT                 0x00
+#define LED_BLINK_ON_BIT                    0x01
+#define LED_ACTIVE_BIT                      0x02
+#define LED_BLINK_STATE_BIT                 0x03
+
+const uint8_t ledOnLookUpTable[]            = { 0, 0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 255, 0 };
+
+const uint8_t ledTransitionScale[] = {
+
+    0,
+    2,
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16,
+    18,
+    20,
+    22,
+    24,
+    26,
+    28,
+    30,
+    32,
+    34,
+    36,
+    38,
+    40,
+    42,
+    44,
+    46,
+    48,
+    50,
+    52,
+    54,
+    56,
+    58,
+    60,
+    62,
+    64,
+    68,
+    70,
+    75,
+    80,
+    85,
+    90,
+    95,
+    100,
+    105,
+    110,
+    115,
+    120,
+    125,
+    130,
+    135,
+    140,
+    145,
+    150,
+    155,
+    160,
+    165,
+    170,
+    180,
+    190,
+    200,
+    210,
+    220,
+    230,
+    240,
+    250,
+    255
+
+};
+
+const uint8_t rgbColors[][3] = {
+
+    { 0, 0, 0 },        //rgbOff
+    { 255, 255, 255 },  //white
+    { 0, 255, 255 },    //cyan
+    { 255, 0, 255 },    //magenta
+    { 255, 0, 0 },      //red
+    { 0, 0, 255 },      //blue
+    { 255, 255, 0 },    //yellow
+    { 0, 255, 0 }       //green
+
+};
 
 //analog
-volatile bool               _analogDataAvailable = false;
-uint8_t                     activeMux = 0,
-                            activeMuxInput = 0,
-                            analogBufferCounter;
-volatile int16_t            analogBuffer[ANALOG_BUFFER_SIZE];
-int16_t                     analogBufferCopy[ANALOG_BUFFER_SIZE];
-uint8_t                     adcDelayCounter;
+volatile bool                               _analogDataAvailable = false;
+uint8_t                                     activeMux = 0,
+                                            activeMuxInput = 0,
+                                            analogBufferCounter;
+volatile int16_t                            analogBuffer[ANALOG_BUFFER_SIZE];
+int16_t                                     analogBufferCopy[ANALOG_BUFFER_SIZE];
+uint8_t                                     adcDelayCounter;
 
 //run time in milliseconds
 volatile uint32_t           rTime_ms = 0;
@@ -106,7 +217,7 @@ void wait(uint32_t time)    {
 
 //inline functions
 
-inline uint8_t getEncoderPairFromButtonIndex(uint8_t buttonIndex)   {
+uint8_t Board::getEncoderPairFromButtonIndex(uint8_t buttonIndex)   {
 
     uint8_t row = buttonIndex/NUMBER_OF_BUTTON_COLUMNS;
     if (row%2) row -= 1;   //uneven row, get info from previous (even) row
@@ -115,7 +226,7 @@ inline uint8_t getEncoderPairFromButtonIndex(uint8_t buttonIndex)   {
 
 }
 
-inline encoderPosition_t readEncoder(uint8_t encoderID, uint8_t pairState)  {
+inline int8_t readEncoder(uint8_t encoderID, uint8_t pairState)  {
 
     //add new data
     uint8_t newPairData = 0;
@@ -129,7 +240,7 @@ inline encoderPosition_t readEncoder(uint8_t encoderID, uint8_t pairState)  {
 
     int8_t encRead = encoderLookUpTable[newPairData];
 
-    if (!encRead) return encStopped;
+    if (!encRead) return 0;
 
     bool newEncoderDirection = encRead > 0;
     //get current number of pulses from encoderData
@@ -144,8 +255,8 @@ inline encoderPosition_t readEncoder(uint8_t encoderID, uint8_t pairState)  {
     //write new encoder direction
     bitWrite(encoderData[encoderID], ENCODER_DIRECTION_BIT, newEncoderDirection);
 
-    if (lastEncoderDirection != newEncoderDirection) return encStopped;
-    if (currentPulses % PULSES_PER_STEP) return encStopped;
+    if (lastEncoderDirection != newEncoderDirection) return 0;
+    if (currentPulses % PULSES_PER_STEP) return 0;
 
     //clear current pulses
     encoderData[encoderID] &= ENCODER_CLEAR_PULSES_MASK;
@@ -155,8 +266,8 @@ inline encoderPosition_t readEncoder(uint8_t encoderID, uint8_t pairState)  {
 
     //clear current moving status
     //encoderData[encoderID] &= ENCODER_CLEAR_MOVING_STATUS_MASK;
-    if (newEncoderDirection) return encMoveRight;
-    else return encMoveLeft;
+    if (newEncoderDirection) return 1;
+    else return -1;
 
 }
 
@@ -614,7 +725,7 @@ void Board::initEncoders()   {
 
     for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)    {
 
-        encoderData[i] |= ((uint16_t)encStopped << 8);
+        encoderData[i] |= ((uint16_t)0 << 8);
         encoderData[i] |= ((uint16_t)ENCODER_DEFAULT_PULSE_COUNT_STATE << 4);   //set number of pulses to 8
 
     }
@@ -666,7 +777,7 @@ void Board::configureTimers()   {
 
 //LEDs
 
-inline uint8_t getRGBIDFromLEDID(uint8_t ledID) {
+uint8_t Board::getRGBIDFromLEDID(uint8_t ledID) {
 
     uint8_t row = ledID/NUMBER_OF_LED_COLUMNS;
 
@@ -689,19 +800,17 @@ uint8_t Board::getLEDstate(uint8_t ledNumber)   {
 
 void Board::setLEDstate(uint8_t ledNumber, ledColor_t color, bool blinkMode)   {
 
-    uint8_t rgbID = getRGBIDFromLEDID(ledNumber);
-    bool rgbEnabled = configuration.readParameter(CONF_BLOCK_LED, ledRGBenabledSection, rgbID);
+    if (color != colorOff && color != colorOnDefault)   {
 
-    if (!rgbEnabled)    {
+        //rgb led
+        handleLED(ledNumber, color, blinkMode, true);
 
-        if (color != colorOff)
-        color = colorOnDefault;
-        handleLED(ledNumber, color, blinkMode, false);
+    }   else handleLED(ledNumber, color, blinkMode, false);
 
-    }   else handleLED(rgbID, color, blinkMode, true);
-
-    if (blinkMode && (color != colorOff)) ledBlinkingStart();
-    else    checkBlinkLEDs();
+    if (blinkMode && (color != colorOff))
+        ledBlinkingStart();
+    else
+        checkBlinkLEDs();
 
 }
 
@@ -824,9 +933,6 @@ void Board::handleLED(uint8_t ledNumber, ledColor_t color, bool blinkMode, bool 
     bool newLEDstate[3];
     uint8_t loops = 1;
 
-    if ((color == colorOnDefault) && (rgbLED))
-        rgbLED = false; //this is a mistake, handle led in single mode instead
-
     switch(rgbLED)    {
 
         case false:
@@ -928,7 +1034,7 @@ inline void checkInputMatrixBufferCopy()    {
 
 //encoders
 
-encoderPosition_t Board::getEncoderState(uint8_t encoderNumber)  {
+int8_t Board::getEncoderState(uint8_t encoderNumber)  {
 
     uint8_t column = encoderNumber % NUMBER_OF_BUTTON_COLUMNS;
     uint8_t row  = (encoderNumber/NUMBER_OF_BUTTON_COLUMNS)*2;
@@ -982,10 +1088,6 @@ bool Board::buttonDataAvailable()   {
 }
 
 bool Board::getButtonState(uint8_t buttonIndex) {
-
-    uint8_t encoderPairIndex = getEncoderPairFromButtonIndex(buttonIndex);
-    if (configuration.readParameter(CONF_BLOCK_ENCODER, encoderEnabledSection, encoderPairIndex))
-        return false;   //button is member of encoder pair, return "not pressed" state
 
     uint8_t row = buttonIndex/NUMBER_OF_BUTTON_COLUMNS;
     uint8_t column = (NUMBER_OF_BUTTON_COLUMNS-1) - buttonIndex % NUMBER_OF_BUTTON_COLUMNS; //invert column order

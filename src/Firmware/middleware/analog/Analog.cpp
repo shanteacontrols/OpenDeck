@@ -17,7 +17,6 @@
 */
 
 #include "Analog.h"
-#include "../../sysex/SysEx.h"
 
 #define DIGITAL_VALUE_THRESHOLD 0x3E8
 

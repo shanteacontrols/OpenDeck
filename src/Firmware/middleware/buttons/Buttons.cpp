@@ -18,9 +18,8 @@
 
 #include "Buttons.h"
 #include "../../eeprom/Configuration.h"
-#include "../../interface/leds/LEDs.h"
-#include "../../sysex/SysEx.h"
-#include "../../BitManipulation.h"
+#include "../../middleware/leds/LEDs.h"
+#include "../../midi/MIDI.h"
 
 const uint8_t buttonDebounceCompare = 0b10000000;
 
@@ -166,7 +165,12 @@ void Buttons::update()    {
 
     for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++) {
 
-        bool buttonState = board.getButtonState(i);
+        bool buttonState;
+        uint8_t encoderPairIndex = Board::getEncoderPairFromButtonIndex(i);
+        if (configuration.readParameter(CONF_BLOCK_ENCODER, encoderEnabledSection, encoderPairIndex))
+            //button is member of encoder pair, always set state to released
+            buttonState = false;
+        else buttonState = board.getButtonState(i);
         processButton(i, buttonState);
 
     }

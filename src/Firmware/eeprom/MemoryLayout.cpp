@@ -17,9 +17,6 @@
 */
 
 #include "Configuration.h"
-#include "../interface/settings/MIDIsettings.h"
-#include "../interface/settings/LEDsettings.h"
-#include "../interface/encoders/Encoders.h"
 
 void Configuration::createMemoryLayout()   {
 
@@ -63,7 +60,7 @@ void Configuration::createMemoryLayout()   {
         blocks[CONF_BLOCK_ENCODER].sectionParameters[encoderInvertedSection] = MAX_NUMBER_OF_ENCODERS;
 
         blocks[CONF_BLOCK_ENCODER].sectionParameterType[encoderEncodingModeSection] = BYTE_PARAMETER;
-        blocks[CONF_BLOCK_ENCODER].defaultValue[encoderEncodingModeSection] = enc7Fh01h;
+        blocks[CONF_BLOCK_ENCODER].defaultValue[encoderEncodingModeSection] = 0;
         blocks[CONF_BLOCK_ENCODER].sectionParameters[encoderEncodingModeSection] = MAX_NUMBER_OF_ENCODERS;
 
         blocks[CONF_BLOCK_ENCODER].sectionParameterType[encoderMIDIidSection] = BYTE_PARAMETER;
