@@ -17,8 +17,6 @@
 */
 
 #include "LEDs.h"
-#include "../../interface/settings/LEDsettings.h"
-#include "../../sysex/SysEx.h"
 
 LEDs::LEDs()    {
 
@@ -363,7 +361,17 @@ uint8_t LEDs::getState(uint8_t ledNumber)    {
 
 void LEDs::setState(uint8_t ledNumber, ledColor_t color, bool blinkMode) {
 
-    Board::setLEDstate(ledNumber, color, blinkMode);
+    uint8_t rgbID = Board::getRGBIDFromLEDID(ledNumber);
+    bool rgbEnabled = configuration.readParameter(CONF_BLOCK_LED, ledRGBenabledSection, rgbID);
+
+    if (!rgbEnabled)    {
+
+        if (color != colorOff)
+            color = colorOnDefault;
+
+        Board::setLEDstate(ledNumber, color, blinkMode);
+
+    } else Board::setLEDstate(rgbID, color, blinkMode);
 
 }
 

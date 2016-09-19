@@ -22,7 +22,6 @@
 #include <avr/io.h>
 #include "../../board/Board.h"
 #include "../../midi/MIDI.h"
-#include "../interface/settings/MIDIsettings.h"
 
 enum buttonType_t {
 
@@ -32,7 +31,7 @@ enum buttonType_t {
 
 };
 
-class Buttons {
+class Buttons : Board {
 
     public:
     Buttons();

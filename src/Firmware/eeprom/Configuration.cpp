@@ -17,7 +17,6 @@
 */
 
 #include "Configuration.h"
-#include "../interface/settings/Settings.h"
 
 Configuration::Configuration()    {
 

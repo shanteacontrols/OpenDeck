@@ -16,11 +16,35 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SETTINGS_H_
-#define SETTINGS_H_
+#ifndef ENCODERS_H_
+#define ENCODERS_H_
 
-#include "EncoderSettings.h"
-#include "LEDsettings.h"
-#include "MIDIsettings.h"
+#include "../../board/Board.h"
+
+enum encoderType_t {
+
+    enc7Fh01h = 0,
+    enc3Fh41h = 1,
+    ENCODING_MODES
+
+};
+
+enum encoderPosition_t {
+
+    encStopped,
+    encMoveLeft,
+    encMoveRight,
+
+};
+
+class Encoders  {
+
+    public:
+    Encoders();
+    void update();
+
+};
+
+extern Encoders encoders;
 
 #endif

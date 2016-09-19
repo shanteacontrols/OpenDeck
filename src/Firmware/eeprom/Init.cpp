@@ -16,9 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef INIT_H_
-#define INIT_H_
-
 #include "Configuration.h"
 
 void Configuration::initSettings(bool partialReset) {
@@ -56,5 +53,3 @@ void Configuration::initSettings(bool partialReset) {
     }
 
 }
-
-#endif

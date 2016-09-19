@@ -22,8 +22,7 @@
 #include "UniqueID.h"
 #include "Config.h"
 #include "../board/Board.h"
-#include "../BitManipulation.h"
-#include "Blocks.h"
+#include "blocks/Blocks.h"
 
 #ifndef EEPROM_H_
 #define EEPROM_H_

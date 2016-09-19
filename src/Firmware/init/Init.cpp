@@ -130,7 +130,7 @@ void initSysEx()    {
         const sysExSection ledRGBenabled_section            = { MAX_NUMBER_OF_RGB_LEDS, 0, 1 };
         const sysExSection ledLocalControl_Enabled          = { MAX_NUMBER_OF_LEDS, 0, 1 };
         //extra - not defined in eeprom blocks since it's not persistent section
-        const sysExSection ledState_section                 = { MAX_NUMBER_OF_LEDS, 0, LED_STATES-1 };
+        const sysExSection ledState_section                 = { MAX_NUMBER_OF_LEDS, 0, 127 };
 
         const sysExSection *ledsSectionArray[] = {
 
