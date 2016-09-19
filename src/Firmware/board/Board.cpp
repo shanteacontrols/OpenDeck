@@ -182,13 +182,6 @@ uint8_t                                     adcDelayCounter;
 //run time in milliseconds
 volatile uint32_t           rTime_ms = 0;
 
-void disableWatchDog()  {
-
-    MCUSR &= ~(1 << WDRF);
-    wdt_disable();
-
-}
-
 //timer-based functions
 
 uint32_t rTimeMillis()    {
@@ -638,7 +631,9 @@ Board::Board()  {
 void Board::init()  {
 
     cli();
-    disableWatchDog();
+    //disable watchdog
+    MCUSR &= ~(1 << WDRF);
+    wdt_disable();
     initPins();
     initAnalog();
     initEncoders();

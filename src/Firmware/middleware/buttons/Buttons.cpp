@@ -166,7 +166,7 @@ void Buttons::update()    {
     for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++) {
 
         bool buttonState;
-        uint8_t encoderPairIndex = Board::getEncoderPairFromButtonIndex(i);
+        uint8_t encoderPairIndex = board.getEncoderPairFromButtonIndex(i);
         if (configuration.readParameter(CONF_BLOCK_ENCODER, encoderEnabledSection, encoderPairIndex))
             //button is member of encoder pair, always set state to released
             buttonState = false;

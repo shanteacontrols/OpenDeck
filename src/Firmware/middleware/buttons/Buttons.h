@@ -31,7 +31,7 @@ enum buttonType_t {
 
 };
 
-class Buttons : Board {
+class Buttons {
 
     public:
     Buttons();
