@@ -1555,6 +1555,30 @@ void MIDI::setNoteOffMode(noteOffType_t type)   {
 
 }
 
+void MIDI::enableUSB()  {
+
+    usbEnabled = true;
+
+}
+
+void MIDI::enableDIN()  {
+
+    dinEnabled = true;
+
+}
+
+void MIDI::disableUSB() {
+
+    usbEnabled = false;
+
+}
+
+void MIDI::disableDIN() {
+
+    dinEnabled = false;
+
+}
+
 /** Event handler for the USB_ConfigurationChanged event. This is fired when the host set the current configuration
  *  of the USB device after enumeration - the device endpoints are configured and the MIDI management task started.
  */

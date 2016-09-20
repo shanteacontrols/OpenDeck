@@ -226,7 +226,9 @@ int main()  {
             }   else {
 
                 //dump everything from MIDI in to USB MIDI out
-                uint8_t inChannel = configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, inputChannel);
+                uint8_t inChannel = midi.getChannel(dinInterface);
+                //temporarily disable din midi out - send to usb only
+                midi.disableDIN();
                 switch(messageType) {
 
                     case midiMessageNoteOff:
@@ -261,6 +263,9 @@ int main()  {
                     break;
 
                 }
+
+                //enable din output again
+                midi.enableDIN();
 
             }
 

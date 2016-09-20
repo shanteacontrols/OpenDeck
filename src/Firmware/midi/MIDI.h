@@ -152,6 +152,7 @@ class MIDI    {
     MIDI();
     bool init(midiInterfaceType_t type);
 
+    //MIDI output
     public:
     void sendNoteOn(uint8_t inNoteNumber, uint8_t inVelocity, uint8_t inChannel = 0);
     void sendNoteOff(uint8_t inNoteNumber, uint8_t inVelocity, uint8_t inChannel = 0);
@@ -168,10 +169,15 @@ class MIDI    {
     void sendTuneRequest();
     void sendRealTime(midiMessageType_t inType);
     void setNoteOffMode(noteOffType_t type);
-
     void enableRunningStatus();
     void disableRunningStatus();
     bool runningStatusEnabled();
+
+    void enableUSB();
+    void enableDIN();
+    void disableUSB();
+    void disableDIN();
+
     void setNoteChannel(uint8_t channel);
     void setCCchannel(uint8_t channel);
     void setProgramChangeChannel(uint8_t channel);
@@ -183,8 +189,6 @@ class MIDI    {
 
     public:
     bool read(midiInterfaceType_t type);
-    bool read(uint8_t inChannel, midiInterfaceType_t type);
-
     midiMessageType_t getType(midiInterfaceType_t type) const;
     uint8_t  getChannel(midiInterfaceType_t type) const;
     uint8_t getData1(midiInterfaceType_t type) const;
@@ -199,6 +203,7 @@ class MIDI    {
     bool isChannelMessage(midiMessageType_t inType);
 
     private:
+    bool read(uint8_t inChannel, midiInterfaceType_t type);
     bool addSysExArrayByte(midiInterfaceType_t type);
 
     public:
