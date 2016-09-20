@@ -37,7 +37,7 @@ enum encoderPosition_t {
 
 };
 
-class Encoders  {
+class Encoders : Board {
 
     public:
     Encoders();

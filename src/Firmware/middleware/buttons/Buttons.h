@@ -31,14 +31,12 @@ enum buttonType_t {
 
 };
 
-class Buttons {
+class Buttons : Board {
 
     public:
     Buttons();
 
     void update();
-
-    protected:
     void processButton(uint8_t buttonID, bool state, bool debounce = true);
 
     private:

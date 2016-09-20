@@ -23,5 +23,4 @@ typedef enum {
 
 } ledHardwareParameter;
 
-
 #endif

@@ -197,7 +197,7 @@ void wait(uint32_t time)    {
 
 //inline functions
 
-uint8_t Board::getEncoderPairFromButtonIndex(uint8_t buttonIndex)   {
+uint8_t Board::getEncoderPair(uint8_t buttonIndex)   {
 
     uint8_t row = buttonIndex/NUMBER_OF_BUTTON_COLUMNS;
     if (row%2) row -= 1;   //uneven row, get info from previous (even) row
@@ -759,7 +759,7 @@ void Board::configureTimers()   {
 
 //LEDs
 
-uint8_t Board::getRGBIDFromLEDID(uint8_t ledID) {
+uint8_t Board::getRGBID(uint8_t ledID) {
 
     uint8_t row = ledID/NUMBER_OF_LED_COLUMNS;
 

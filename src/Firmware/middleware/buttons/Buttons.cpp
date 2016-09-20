@@ -161,16 +161,16 @@ void Buttons::processButton(uint8_t buttonID, bool state, bool debounce)   {
 
 void Buttons::update()    {
 
-    if (!board.buttonDataAvailable()) return;
+    if (!Board::buttonDataAvailable()) return;
 
     for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++) {
 
         bool buttonState;
-        uint8_t encoderPairIndex = board.getEncoderPairFromButtonIndex(i);
+        uint8_t encoderPairIndex = Board::getEncoderPair(i);
         if (configuration.readParameter(CONF_BLOCK_ENCODER, encoderEnabledSection, encoderPairIndex))
             //button is member of encoder pair, always set state to released
             buttonState = false;
-        else buttonState = board.getButtonState(i);
+        else buttonState = Board::getButtonState(i);
         processButton(i, buttonState);
 
     }
