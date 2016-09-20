@@ -41,7 +41,7 @@ enum analogType_t {
 
 };
 
-class Analog : Buttons {
+class Analog : Board {
 
     public:
     Analog();

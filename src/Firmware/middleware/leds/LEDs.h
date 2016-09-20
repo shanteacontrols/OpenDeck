@@ -37,14 +37,14 @@
 
 #define NUMBER_OF_START_UP_ANIMATIONS   5
 
-class LEDs {
+class LEDs : Board {
 
     public:
     LEDs();
     void init();
     void setState(uint8_t ledNumber, bool state);
     void setState(uint8_t ledNumber, rgb color);
-    rgb velocityToColor(uint8_t receivedVelocity);
+    rgb velocityToColor(uint8_t receivedVelocity, bool blinkEnabled);
     bool velocity2blinkState(uint8_t receivedVelocity);
     void noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity);
     void allOn();

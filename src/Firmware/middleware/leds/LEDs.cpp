@@ -26,8 +26,8 @@ LEDs::LEDs()    {
 
 void LEDs::init()   {
 
-    board.setLEDblinkTime(configuration.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime));
-    board.setLEDfadeTime(configuration.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterFadeTime));
+    Board::setLEDblinkTime(configuration.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime));
+    Board::setLEDfadeTime(configuration.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterFadeTime));
 
     //run LED animation on start-up
     startUpAnimation();
@@ -144,7 +144,7 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
         if (!ledDirection)  {
 
             //if last LED is turned on
-            if (board.getLEDstate(_ledNumber[totalNumberOfLEDs-1]))  {
+            if (Board::getLEDstate(_ledNumber[totalNumberOfLEDs-1]))  {
 
                 //LED index is penultimate LED number
                 ledNumber = _ledNumber[totalNumberOfLEDs-2];
@@ -157,7 +157,7 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 
             //left-to-right direction
             //if first LED is already on
-            if (board.getLEDstate(_ledNumber[0]))    {
+            if (Board::getLEDstate(_ledNumber[0]))    {
 
                 //led index is 1
                 ledNumber = _ledNumber[1];
@@ -177,7 +177,7 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
         //right-to-left direction
         if (!ledDirection)  {
 
-            if (!(board.getLEDstate(_ledNumber[totalNumberOfLEDs-1])))   {
+            if (!(Board::getLEDstate(_ledNumber[totalNumberOfLEDs-1])))   {
 
                 ledNumber = _ledNumber[totalNumberOfLEDs-2];
                 passCounter++;
@@ -187,7 +187,7 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
             }   else {
 
             //left-to-right direction
-            if (!(board.getLEDstate(_ledNumber[0]))) {
+            if (!(Board::getLEDstate(_ledNumber[0]))) {
 
                 ledNumber = _ledNumber[1];
                 passCounter++;
@@ -236,10 +236,11 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 
 }
 
-rgb LEDs::velocityToColor(uint8_t receivedVelocity) {
+rgb LEDs::velocityToColor(uint8_t receivedVelocity, bool blinkEnabled) {
 
     /*
 
+    blinkEnabled:
     constant:
     0-7 off
     8-15 white
@@ -249,7 +250,6 @@ rgb LEDs::velocityToColor(uint8_t receivedVelocity) {
     40-47 blue
     48-55 yellow
     56-63 green
-
     blink:
     64-71 off
     72-79 white
@@ -260,12 +260,35 @@ rgb LEDs::velocityToColor(uint8_t receivedVelocity) {
     112-119 yellow
     120-127 green
 
+    blinkDisabled:
+    constant only:
+    0-15 off
+    16-31 white
+    32-47 cyan
+    48-63 magenta
+    64-79 red
+    80-95 blue
+    96-111 yellow
+    112-127 green
+
     */
 
-    if (receivedVelocity > 63) receivedVelocity -= 64;
-    uint8_t colorID = (receivedVelocity/8);
+    ledColor_t color;
 
-    return colors[colorID];
+    switch(blinkEnabled) {
+
+        case false:
+        color = (ledColor_t)(receivedVelocity/16);
+        break;
+
+        case true:
+        if (receivedVelocity > 63) receivedVelocity -= 64;
+        color = (ledColor_t)(receivedVelocity/8);
+        break;
+
+    }
+
+    return colors[(uint8_t)color];
 
 }
 
@@ -277,8 +300,12 @@ bool LEDs::velocity2blinkState(uint8_t receivedVelocity)    {
 
 void LEDs::noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity)    {
 
-    bool blinkEnabled = velocity2blinkState(receivedVelocity);
-    rgb color = velocityToColor(receivedVelocity);
+    bool blinkEnabled_global = configuration.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime);
+    bool blinkEnabled_led;
+    if (!blinkEnabled_global) blinkEnabled_led = false;
+    else blinkEnabled_led = velocity2blinkState(receivedVelocity);
+
+    rgb color = velocityToColor(receivedVelocity, blinkEnabled_global);
 
     //match LED activation note with its index
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    {
@@ -288,13 +315,13 @@ void LEDs::noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity)    {
             if (configuration.readParameter(CONF_BLOCK_LED, ledRGBenabledSection, i))   {
 
                 //rgb led
-                board.setRGBled(i, color, blinkEnabled);
+                Board::setRGBled(i, color, blinkEnabled_led);
 
             }   else {
 
                 bool state = color.r || color.g || color.b;
 
-                board.setSingleLED(i, state, blinkEnabled);
+                Board::setSingleLED(i, state, blinkEnabled_led);
 
             }
 
@@ -308,7 +335,7 @@ void LEDs::allOn()  {
 
     //turn on all LEDs
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        board.setSingleLED(i, true, false);
+        Board::setSingleLED(i, true, false);
 
 }
 
@@ -316,19 +343,19 @@ void LEDs::allOff() {
 
     //turn off all LEDs
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        board.setSingleLED(i, true, false);
+        Board::setSingleLED(i, true, false);
 
 }
 
 void LEDs::setState(uint8_t ledNumber, rgb color)   {
 
-    board.setRGBled(ledNumber, color, false);
+    Board::setRGBled(ledNumber, color, false);
 
 }
 
 void LEDs::setState(uint8_t ledNumber, bool state)  {
 
-    board.setSingleLED(ledNumber, state, false);
+    Board::setSingleLED(ledNumber, state, false);
 
 }
 
@@ -336,7 +363,7 @@ bool LEDs::checkLEDsOn()    {
 
     //return true if all LEDs are on
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        if (board.getLEDstate(i))
+        if (Board::getLEDstate(i))
             return false;
     return true;
 
@@ -346,7 +373,7 @@ bool LEDs::checkLEDsOff()   {
 
     //return true if all LEDs are off
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        if (!board.getLEDstate(i))
+        if (!Board::getLEDstate(i))
             return false;
     return true;
 
@@ -354,19 +381,19 @@ bool LEDs::checkLEDsOff()   {
 
 uint8_t LEDs::getState(uint8_t ledNumber)    {
 
-    return board.getLEDstate(ledNumber);
+    return Board::getLEDstate(ledNumber);
 
 }
 
 void LEDs::setFadeTime(uint8_t speed)  {
 
-    board.setLEDfadeTime(speed);
+    Board::setLEDfadeTime(speed);
 
 }
 
 void LEDs::setBlinkTime(uint16_t blinkTime)  {
 
-    board.setLEDblinkTime(blinkTime);
+    Board::setLEDblinkTime(blinkTime);
 
 }
 

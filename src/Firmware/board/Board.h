@@ -54,6 +54,7 @@ class Board {
     Board();
     void init();
 
+    protected:
     //digital
     bool buttonDataAvailable();
     bool encoderDataAvailable();
@@ -71,8 +72,8 @@ class Board {
     void blinkLed(uint8_t ledNumber);
     void setLEDblinkTime(uint16_t blinkTime);
     void setLEDfadeTime(uint8_t transitionSteps);
-    uint8_t getRGBIDFromLEDID(uint8_t ledNumber);
-    uint8_t getEncoderPairFromButtonIndex(uint8_t buttonID);
+    uint8_t getRGBID(uint8_t ledNumber);
+    uint8_t getEncoderPair(uint8_t buttonID);
 
     private:
     //init

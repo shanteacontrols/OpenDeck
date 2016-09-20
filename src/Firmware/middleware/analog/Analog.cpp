@@ -29,7 +29,7 @@ Analog::Analog()    {
 
 void Analog::update()   {
 
-    if (!board.analogDataAvailable()) return;
+    if (!Board::analogDataAvailable()) return;
 
     addAnalogSamples();
     //three samples are needed
@@ -72,9 +72,9 @@ void Analog::update()   {
 
         }   else {
 
-            analogData = board.getAnalogValue(i);
+            analogData = Board::getAnalogValue(i);
             bool state = analogData > DIGITAL_VALUE_THRESHOLD;
-            processButton(i+MAX_NUMBER_OF_BUTTONS, state, false);
+            buttons.processButton(i+MAX_NUMBER_OF_BUTTONS, state, false);
 
         }
 
@@ -85,7 +85,7 @@ void Analog::update()   {
 void Analog::addAnalogSamples() {
 
     for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
-        analogSample[i][analogDebounceCounter] = board.getAnalogValue(i); //get raw analog reading
+        analogSample[i][analogDebounceCounter] = Board::getAnalogValue(i); //get raw analog reading
 
     analogDebounceCounter++;
 
