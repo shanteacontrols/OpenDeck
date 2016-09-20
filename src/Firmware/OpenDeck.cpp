@@ -44,7 +44,7 @@ bool onCustom(uint8_t value) {
         leds.allOff();
         wait(1500);
         reboot();
-        return true; //pointless, but we're making compiler happy
+        return true; //pointless, but whatever
 
         case FACTORY_RESET_STRING:
         leds.setFadeTime(1);

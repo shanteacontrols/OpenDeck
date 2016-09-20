@@ -57,7 +57,7 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
             setButtonPressed(buttonID, true);
             midi.sendNoteOn(configuration.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOn, configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
             if (configuration.readParameter(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
-                leds.setState(buttonID, colorOnDefault, false);
+                leds.setState(buttonID, true);
             //if (sysEx.configurationEnabled())
                 //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
 
@@ -69,7 +69,7 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
 
                 midi.sendNoteOff(configuration.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOff, configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
                 if (configuration.readParameter(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
-                    leds.setState(buttonID, colorOff, false);
+                    leds.setState(buttonID, false);
                 //if (sysEx.configurationEnabled())
                     //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
 
@@ -93,7 +93,7 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)    {
 
                 midi.sendNoteOff(configuration.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOff);
                 if (configuration.readParameter(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
-                    leds.setState(buttonID, colorOff, false);
+                    leds.setState(buttonID, false);
                 //if (sysEx.configurationEnabled())
                     //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
 
@@ -105,7 +105,7 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)    {
                 //send note on
                 midi.sendNoteOn(configuration.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOn);
                 if (configuration.readParameter(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
-                    leds.setState(buttonID, colorOnDefault, false);
+                    leds.setState(buttonID, true);
                 //if (sysEx.configurationEnabled())
                     //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
 

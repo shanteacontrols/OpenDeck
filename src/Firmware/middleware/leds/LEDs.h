@@ -21,6 +21,7 @@
 
 #include "../../board/Board.h"
 #include "../../eeprom/Configuration.h"
+#include "Colors.h"
 
 //define extra sysex section for setting/getting led states
 #define ledStateSection                 LED_SECTIONS
@@ -41,13 +42,14 @@ class LEDs {
     public:
     LEDs();
     void init();
-    ledColor_t velocity2color(bool blinEnabled, uint8_t receivedVelocity);
+    void setState(uint8_t ledNumber, bool state);
+    void setState(uint8_t ledNumber, rgb color);
+    rgb velocityToColor(uint8_t receivedVelocity);
     bool velocity2blinkState(uint8_t receivedVelocity);
     void noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity);
     void allOn();
     void allOff();
     uint8_t getState(uint8_t ledNumber);
-    void setState(uint8_t ledNumber, ledColor_t color, bool blinkMode);
     void setBlinkTime(uint16_t blinkTime);
     void setFadeTime(uint8_t fadeTime);
 

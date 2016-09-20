@@ -211,8 +211,8 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
             else    if (!turnOn && singleLED)   allOn();
 
             //set LED state depending on turnOn parameter
-            if (turnOn) board.setLEDstate(ledNumber, colorOnDefault, false);
-            else    board.setLEDstate(ledNumber, colorOff, false);
+            if (turnOn) setState(ledNumber, true);
+            else    setState(ledNumber, true);
 
             //make sure out-of-bound index isn't requested from ledArray
             if (passCounter < totalNumberOfLEDs-1)  {
@@ -236,11 +236,10 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
 
 }
 
-ledColor_t LEDs::velocity2color(bool blinkEnabled, uint8_t receivedVelocity) {
+rgb LEDs::velocityToColor(uint8_t receivedVelocity) {
 
     /*
 
-    blinkEnabled:
     constant:
     0-7 off
     8-15 white
@@ -261,31 +260,12 @@ ledColor_t LEDs::velocity2color(bool blinkEnabled, uint8_t receivedVelocity) {
     112-119 yellow
     120-127 green
 
-    blinkDisabled:
-    constant only:
-    0-15 off
-    16-31 white
-    32-47 cyan
-    48-63 magenta
-    64-79 red
-    80-95 blue
-    96-111 yellow
-    112-127 green
-
     */
 
-    switch(blinkEnabled) {
+    if (receivedVelocity > 63) receivedVelocity -= 64;
+    uint8_t colorID = (receivedVelocity/8);
 
-        case false:
-        return (ledColor_t)(receivedVelocity/16);
-        break;
-
-        case true:
-        if (receivedVelocity > 63) receivedVelocity -= 64;
-        return (ledColor_t)(receivedVelocity/8);
-        break;
-
-    }
+    return colors[colorID];
 
 }
 
@@ -297,19 +277,26 @@ bool LEDs::velocity2blinkState(uint8_t receivedVelocity)    {
 
 void LEDs::noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity)    {
 
-    bool blinkEnabled_global = configuration.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime);
-    bool blinkEnabled_led;
-    if (!blinkEnabled_global) blinkEnabled_led = false;
-    else blinkEnabled_led = velocity2blinkState(receivedVelocity);
-
-    ledColor_t color = velocity2color(blinkEnabled_global, receivedVelocity);
+    bool blinkEnabled = velocity2blinkState(receivedVelocity);
+    rgb color = velocityToColor(receivedVelocity);
 
     //match LED activation note with its index
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    {
 
         if (configuration.readParameter(CONF_BLOCK_LED, ledActivationNoteSection, i) == receivedNote)  {
 
-            board.setLEDstate(i, color, blinkEnabled_led);
+            if (configuration.readParameter(CONF_BLOCK_LED, ledRGBenabledSection, i))   {
+
+                //rgb led
+                board.setRGBled(i, color, blinkEnabled);
+
+            }   else {
+
+                bool state = color.r || color.g || color.b;
+
+                board.setSingleLED(i, state, blinkEnabled);
+
+            }
 
         }
 
@@ -321,7 +308,7 @@ void LEDs::allOn()  {
 
     //turn on all LEDs
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        board.setLEDstate(i, colorOnDefault, false);
+        board.setSingleLED(i, true, false);
 
 }
 
@@ -329,7 +316,19 @@ void LEDs::allOff() {
 
     //turn off all LEDs
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        board.setLEDstate(i, colorOff, false);
+        board.setSingleLED(i, true, false);
+
+}
+
+void LEDs::setState(uint8_t ledNumber, rgb color)   {
+
+    board.setRGBled(ledNumber, color, false);
+
+}
+
+void LEDs::setState(uint8_t ledNumber, bool state)  {
+
+    board.setSingleLED(ledNumber, state, false);
 
 }
 
@@ -356,22 +355,6 @@ bool LEDs::checkLEDsOff()   {
 uint8_t LEDs::getState(uint8_t ledNumber)    {
 
     return board.getLEDstate(ledNumber);
-
-}
-
-void LEDs::setState(uint8_t ledNumber, ledColor_t color, bool blinkMode) {
-
-    uint8_t rgbID = board.getRGBIDFromLEDID(ledNumber);
-    bool rgbEnabled = configuration.readParameter(CONF_BLOCK_LED, ledRGBenabledSection, rgbID);
-
-    if (!rgbEnabled)    {
-
-        if (color != colorOff)
-            color = colorOnDefault;
-
-        board.setLEDstate(ledNumber, color, blinkMode);
-
-    } else board.setLEDstate(rgbID, color, blinkMode);
 
 }
 
