@@ -195,7 +195,7 @@ call version_append.exe
 call del version
 
 REM upload code using usbasp
-REM call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
+call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="BitManipulation.h">
@@ -559,6 +559,9 @@ REM call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="middleware\encoders\Encoders.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="middleware\leds\Colors.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="middleware\Middleware.h">

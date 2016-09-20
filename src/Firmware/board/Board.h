@@ -24,21 +24,6 @@
 #include "../core/Core.h"
 #include "pins/Pins.h"
 
-enum ledColor_t {
-
-    colorOff,
-    colorWhite,
-    colorCyan,
-    colorMagenta,
-    colorRed,
-    colorBlue,
-    colorYellow,
-    colorGreen,
-    colorOnDefault,
-    LED_COLORS
-
-};
-
 //function prototypes
 inline void setAnalogPin(uint8_t muxNumber) __attribute__((always_inline));
 inline void setMuxInput(uint8_t muxInput) __attribute__((always_inline));
@@ -53,6 +38,14 @@ inline int8_t readEncoder(uint8_t encoderID, uint8_t pairState) __attribute__((a
 
 uint32_t rTimeMillis();
 void wait(uint32_t time);
+
+typedef struct {
+
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+
+} rgb;
 
 class Board {
 
@@ -73,14 +66,15 @@ class Board {
 
     //LEDs
     uint8_t getLEDstate(uint8_t ledNumber);
-    void setLEDstate(uint8_t ledNumber, ledColor_t color, bool blinkMode);
+    void setSingleLED(uint8_t ledNumber, bool state, bool blinkMode);
+    void setRGBled(uint8_t ledNumber, rgb color, bool blinkMode);
+    void blinkLed(uint8_t ledNumber);
     void setLEDblinkTime(uint16_t blinkTime);
     void setLEDfadeTime(uint8_t transitionSteps);
     uint8_t getRGBIDFromLEDID(uint8_t ledNumber);
     uint8_t getEncoderPairFromButtonIndex(uint8_t buttonID);
 
     private:
-
     //init
     void initPins();
     void initAnalog();
@@ -90,7 +84,8 @@ class Board {
     void ledBlinkingStart();
     void ledBlinkingStop();
     bool ledBlinkingActive();
-    void handleLED(uint8_t ledNumber, ledColor_t color, bool blinkMode, bool rgbLED);
+    void handleLED(uint8_t ledNumber, bool state, bool blinkMode);
+    void handleLED(uint8_t ledNumber, rgb color, bool blinkMode);
 
 };
 
