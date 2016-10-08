@@ -64,13 +64,9 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
     {
         case CONF_BLOCK_LED:
         if (section == ledStateSection)
-        {
             return leds.getState(index);
-        }
         else
-        {
             return database.read(block, section, index);
-        }
         break;
 
         default:
@@ -119,24 +115,24 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                     {
                         case ledHwParameterBlinkTime:
                         if ((newValue < BLINK_TIME_MIN) || (newValue > BLINK_TIME_MAX))
-                        return false;
+                            return false;
                         leds.setBlinkTime(newValue);
                         break;
 
                         case ledHwParameterFadeTime:
                         if ((newValue < FADE_TIME_MIN) || (newValue > FADE_TIME_MAX))
-                        return false;
+                            return false;
                         leds.setFadeTime(newValue);
                         break;
 
                         case ledHwParameterStartUpSwitchTime:
                         if ((newValue < START_UP_SWITCH_TIME_MIN) || (newValue > START_UP_SWITCH_TIME_MAX))
-                        return false;
+                            return false;
                         break;
 
                         case ledHwParameterStartUpRoutine:
                         if (newValue > NUMBER_OF_START_UP_ANIMATIONS)
-                        return false;
+                            return false;
                         break;
                     }
                 }
