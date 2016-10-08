@@ -19,8 +19,8 @@
 #ifndef SYSEX_STATUS_H_
 #define SYSEX_STATUS_H_
 
-typedef enum {
-
+typedef enum
+{
     REQUEST,                //0x00
     ACK,                    //0x01
     ERROR_STATUS,           //0x02
@@ -34,7 +34,6 @@ typedef enum {
     ERROR_NEW_VALUE,        //0x0A
     ERROR_MESSAGE_LENGTH,   //0x0B
     ERROR_WRITE             //0x0C
-
 } sysExStatus_t;
 
 #endif

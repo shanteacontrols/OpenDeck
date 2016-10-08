@@ -26,12 +26,11 @@
 #include "Config.h"
 #include "../midi/MIDI.h"
 
-typedef struct {
-
+typedef struct
+{
     uint8_t byte1;
     uint8_t byte2;
     uint8_t byte3;
-
 } sysExManufacturerID;
 
 #if PARAM_SIZE == 2
@@ -42,20 +41,17 @@ typedef int8_t sysExParameter_t;
 #error Incorrect parameter size for SysEx
 #endif
 
-typedef struct {
-
+typedef struct
+{
     sysExParameter_t numberOfParameters;
     sysExParameter_t minValue;
     sysExParameter_t maxValue;
     uint8_t parts;
     bool newValueIgnored;
-
 } sysExSection;
 
-//class
-
-class SysEx {
-
+class SysEx
+{
     public:
     SysEx();
     void handleSysEx(uint8_t *sysExArray, uint8_t size);
@@ -79,8 +75,8 @@ class SysEx {
 
     private:
 
-    typedef enum {
-
+    typedef enum
+    {
         startByte,      //0
         idByte_1,       //1
         idByte_2,       //2
@@ -95,48 +91,42 @@ class SysEx {
         RESPONSE_SIZE = partByte + 1,
         MIN_MESSAGE_LENGTH = wishByte + 1 + 1,  //add next byte and end
         ML_REQ_STANDARD = REQUEST_SIZE + 1      //add end byte
-
     } sysExRequestByteOrder;
 
-    typedef enum {
-
+    typedef enum
+    {
         indexByte = REQUEST_SIZE,
         newValueByte_single = indexByte+sizeof(sysExParameter_t),
         newValueByte_all = indexByte
-
     } sysExParameterByteOrder;
 
-    typedef enum {
-
+    typedef enum
+    {
         //message wish
         sysExWish_get,
         sysExWish_set,
         sysExWish_backup,
         SYSEX_WISH_MAX
-
     } sysExWish;
 
-    typedef enum {
-
+    typedef enum
+    {
         //wanted data amount
         sysExAmount_single,
         sysExAmount_all,
-        SYSEX_AMOUNT_MAX
-
+        SYSEX_AMOUNT_MAXs
     } sysExAmount;
 
-    typedef struct {
-
+    typedef struct
+    {
         //a struct containing entire info for block/message type
-
         uint8_t numberOfSections;
         uint8_t sectionCounter;
         sysExSection section[MAX_NUMBER_OF_SECTIONS];
-
     } sysExBlock;
 
-    typedef struct {
-
+    typedef struct
+    {
         sysExManufacturerID id;
         sysExStatus_t status;
         sysExWish wish;
@@ -146,7 +136,6 @@ class SysEx {
         uint8_t part;
         sysExParameter_t index;
         sysExParameter_t newValue;
-
     } decodedMessage_t;
 
     bool checkID();
@@ -176,7 +165,6 @@ class SysEx {
                         customRequestCounter,
                         sysExBlockCounter,
                         responseSize;
-
 };
 
 extern SysEx sysEx;
