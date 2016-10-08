@@ -21,13 +21,12 @@
 
 #include <inttypes.h>
 
-typedef enum {
-
+typedef enum
+{
     version_major,
     version_minor,
     version_revision,
     version_development
-
 } version_t;
 
 #define VERSION_POINT_LOCATION  (FLASH_SIZE - 10) //8 bytes for version, 2 bytes for crc

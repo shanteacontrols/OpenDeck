@@ -23,10 +23,10 @@
 #define REBOOT_STRING               0x7F
 #define FACTORY_RESET_STRING        0x44
 
-bool onCustom(uint8_t value) {
-
-    switch(value)   {
-
+bool onCustom(uint8_t value)
+{
+    switch(value)
+    {
         case FIRMWARE_VERSION_STRING:
         sysEx.addToResponse(getSWversion(version_major));
         sysEx.addToResponse(getSWversion(version_minor));
@@ -53,73 +53,71 @@ bool onCustom(uint8_t value) {
         database.factoryReset(factoryReset_partial);
         reboot();
         return true;
+    }
 
-    }   return false;
-
+    return false;
 }
 
-sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index) {
-
-    switch(block)   {
+sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
+{
+    switch(block)
+    {
 
         case CONF_BLOCK_LED:
-        if (section == ledStateSection)    {
-
+        if (section == ledStateSection)
+        {
             return leds.getState(index);
-
-        } else {
-
+        }
+        else
+        {
             return database.readParameter(block, section, index);
-
         }
         break;
 
         default:
         return database.readParameter(block, section, index);
-
     }
 
 }
 
-bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newValue)   {
-
+bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newValue)
+{
     bool returnValue = true;
     //don't write led states to eeprom
     if (block != CONF_BLOCK_LED)
         returnValue = database.writeParameter(block, section, index, newValue);
 
-    if (returnValue)    {
-
+    if (returnValue)
+    {
         //special checks
-        switch(block)   {
-
+        switch(block)
+        {
             case CONF_BLOCK_ANALOG:
             if (section == analogTypeSection)
                 analog.debounceReset(index);
             break;
 
             case CONF_BLOCK_MIDI:
-            if (section == midiFeatureSection)  {
-
+            if (section == midiFeatureSection)
+            {
                 if (index == midiFeatureRunningStatus)
                     newValue ? midi.enableRunningStatus() : midi.disableRunningStatus();
                 else if (index == midiFeatureStandardNoteOff)
                     newValue ? midi.setNoteOffMode(noteOffType_standardNoteOff) : midi.setNoteOffMode(noteOffType_noteOnZeroVel);
-
             }
             break;
 
             case CONF_BLOCK_LED:
-            if (section == ledStateSection)  {
-
+            if (section == ledStateSection)
+            {
                 leds.noteToLEDstate(index, newValue);
-
-            } else  {
-
-                if (section == ledHardwareParameterSection) {
-
-                    switch(index)    {
-
+            }
+            else
+            {
+                if (section == ledHardwareParameterSection)
+                {
+                    switch(index)
+                    {
                         case ledHwParameterBlinkTime:
                         if ((newValue < BLINK_TIME_MIN) || (newValue > BLINK_TIME_MAX))
                         return false;
@@ -141,25 +139,19 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                         if (newValue > NUMBER_OF_START_UP_ANIMATIONS)
                         return false;
                         break;
-
                     }
-
                 }
 
                 database.writeParameter(block, section, index, newValue);
-
             }
             break;
 
             default:
             break;
-
         }
-
     }
 
     return returnValue;
-
 }
 
 int main()  {
@@ -175,16 +167,17 @@ int main()  {
     sysEx.addCustomRequest(REBOOT_STRING);
     sysEx.addCustomRequest(FACTORY_RESET_STRING);
 
-    while(1)    {
-
-        if (midi.read(usbInterface))   {   //new message on usb
-
+    while(1)
+    {
+        if (midi.read(usbInterface))
+        {
+            //new message on usb
             midiMessageType_t messageType = midi.getType(usbInterface);
             uint8_t data1 = midi.getData1(usbInterface);
             uint8_t data2 = midi.getData2(usbInterface);
 
-            switch(messageType) {
-
+            switch(messageType)
+            {
                 case midiMessageSystemExclusive:
                 sysEx.handleSysEx(midi.getSysExArray(usbInterface), midi.getSysExArrayLength(usbInterface));
                 break;
@@ -197,22 +190,20 @@ int main()  {
 
                 default:
                 break;
-
             }
-
         }
 
         //check for incoming MIDI messages on USART
-        if (midi.read(dinInterface))    {
-
+        if (midi.read(dinInterface))
+        {
             midiMessageType_t messageType = midi.getType(dinInterface);
             uint8_t data1 = midi.getData1(dinInterface);
             uint8_t data2 = midi.getData2(dinInterface);
 
-            if (!database.readParameter(CONF_BLOCK_MIDI, midiFeatureSection, midiFeatureUSBconvert))  {
-
-                switch(messageType) {
-
+            if (!database.readParameter(CONF_BLOCK_MIDI, midiFeatureSection, midiFeatureUSBconvert))
+            {
+                switch(messageType)
+                {
                     case midiMessageNoteOff:
                     case midiMessageNoteOn:
                     leds.noteToLEDstate(data1, data2);
@@ -220,17 +211,17 @@ int main()  {
 
                     default:
                     break;
-
                 }
-
-            }   else {
-
+            }
+            else
+            {
                 //dump everything from MIDI in to USB MIDI out
                 uint8_t inChannel = midi.getChannel(dinInterface);
                 //temporarily disable din midi out - send to usb only
                 midi.disableDIN();
-                switch(messageType) {
 
+                switch(messageType)
+                {
                     case midiMessageNoteOff:
                     midi.sendNoteOff(data1, data2, inChannel);
                     break;
@@ -261,20 +252,15 @@ int main()  {
 
                     default:
                     break;
-
                 }
 
                 //enable din output again
                 midi.enableDIN();
-
             }
-
         }
 
         buttons.update();
         analog.update();
         encoders.update();
-
     }
-
 }
