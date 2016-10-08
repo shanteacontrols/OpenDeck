@@ -69,12 +69,12 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
         }
         else
         {
-            return database.readParameter(block, section, index);
+            return database.read(block, section, index);
         }
         break;
 
         default:
-        return database.readParameter(block, section, index);
+        return database.read(block, section, index);
     }
 
 }
@@ -84,7 +84,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
     bool returnValue = true;
     //don't write led states to eeprom
     if (block != CONF_BLOCK_LED)
-        returnValue = database.writeParameter(block, section, index, newValue);
+        returnValue = database.update(block, section, index, newValue);
 
     if (returnValue)
     {
@@ -141,7 +141,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                     }
                 }
 
-                database.writeParameter(block, section, index, newValue);
+                database.update(block, section, index, newValue);
             }
             break;
 
@@ -199,7 +199,7 @@ int main()  {
             uint8_t data1 = midi.getData1(dinInterface);
             uint8_t data2 = midi.getData2(dinInterface);
 
-            if (!database.readParameter(CONF_BLOCK_MIDI, midiFeatureSection, midiFeatureUSBconvert))
+            if (!database.read(CONF_BLOCK_MIDI, midiFeatureSection, midiFeatureUSBconvert))
             {
                 switch(messageType)
                 {

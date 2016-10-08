@@ -25,8 +25,8 @@ LEDs::LEDs()
 
 void LEDs::init()
 {
-    Board::setLEDblinkTime(database.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime));
-    Board::setLEDfadeTime(database.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterFadeTime));
+    Board::setLEDblinkTime(database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime));
+    Board::setLEDfadeTime(database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterFadeTime));
 
     //run LED animation on start-up
     startUpAnimation();
@@ -34,13 +34,13 @@ void LEDs::init()
 
 void LEDs::startUpAnimation()
 {
-    if (!database.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterTotalLEDnumber) || !database.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpSwitchTime))
+    if (!database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterTotalLEDnumber) || !database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpSwitchTime))
         return;
 
     //turn off all LEDs before starting animation
     allOff();
 
-    switch (database.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpRoutine))
+    switch (database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpRoutine))
     {
         case 1:
         oneByOneLED(true, true, true);
@@ -94,7 +94,7 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)
 
     */
 
-    uint16_t startUpLEDswitchTime = database.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpSwitchTime) * 10;
+    uint16_t startUpLEDswitchTime = database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpSwitchTime) * 10;
 
     //while loop counter
     uint8_t passCounter = 0;
@@ -103,11 +103,11 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)
     uint8_t ledNumber,
             _ledNumber[MAX_NUMBER_OF_LEDS];
 
-    uint8_t totalNumberOfLEDs = database.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterTotalLEDnumber);
+    uint8_t totalNumberOfLEDs = database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterTotalLEDnumber);
 
     //get LED order for start-up routine
     for (int i=0; i<totalNumberOfLEDs; i++)
-        _ledNumber[i] = database.readParameter(CONF_BLOCK_LED, ledStartUpNumberSection, i);
+        _ledNumber[i] = database.read(CONF_BLOCK_LED, ledStartUpNumberSection, i);
 
     //if second and third argument of function are set to false or
     //if second argument is set to false and all the LEDs are turned off
@@ -308,7 +308,7 @@ bool LEDs::velocity2blinkState(uint8_t receivedVelocity)
 
 void LEDs::noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity)
 {
-    bool blinkEnabled_global = database.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime);
+    bool blinkEnabled_global = database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime);
     bool blinkEnabled_led;
     if (!blinkEnabled_global)
         blinkEnabled_led = false;
@@ -320,9 +320,9 @@ void LEDs::noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity)
     //match LED activation note with its index
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
     {
-        if (database.readParameter(CONF_BLOCK_LED, ledActivationNoteSection, i) == receivedNote)
+        if (database.read(CONF_BLOCK_LED, ledActivationNoteSection, i) == receivedNote)
         {
-            if (database.readParameter(CONF_BLOCK_LED, ledRGBenabledSection, i))
+            if (database.read(CONF_BLOCK_LED, ledRGBenabledSection, i))
             {
                 //rgb led
                 Board::setRGBled(i, color, blinkEnabled_led);

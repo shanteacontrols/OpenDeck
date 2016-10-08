@@ -52,8 +52,8 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
         if (!getButtonPressed(buttonID))
         {
             setButtonPressed(buttonID, true);
-            midi.sendNoteOn(database.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOn, database.readParameter(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
-            if (database.readParameter(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
+            midi.sendNoteOn(database.read(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOn, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
+            if (database.read(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
                 leds.setState(buttonID, true);
             //if (sysEx.configurationEnabled())
                 //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
@@ -64,8 +64,8 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
         //button is released
         if (getButtonPressed(buttonID))
         {
-            midi.sendNoteOff(database.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOff, database.readParameter(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
-            if (database.readParameter(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
+            midi.sendNoteOff(database.read(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOff, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
+            if (database.read(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
                 leds.setState(buttonID, false);
             //if (sysEx.configurationEnabled())
                 //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
@@ -85,8 +85,8 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)
             //if a button has been already pressed
             if (getButtonPressed(buttonID))
             {
-                midi.sendNoteOff(database.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOff);
-                if (database.readParameter(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
+                midi.sendNoteOff(database.read(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOff);
+                if (database.read(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
                     leds.setState(buttonID, false);
                 //if (sysEx.configurationEnabled())
                     //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
@@ -97,8 +97,8 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)
             else
             {
                 //send note on
-                midi.sendNoteOn(database.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOn);
-                if (database.readParameter(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
+                midi.sendNoteOn(database.read(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOn);
+                if (database.read(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
                     leds.setState(buttonID, true);
                 //if (sysEx.configurationEnabled())
                     //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
@@ -116,9 +116,9 @@ void Buttons::processButton(uint8_t buttonID, bool state, bool debounce)
 
     if (debounced)
     {
-        buttonType_t type = (buttonType_t)database.readParameter(CONF_BLOCK_BUTTON, buttonTypeSection, buttonID);
+        buttonType_t type = (buttonType_t)database.read(CONF_BLOCK_BUTTON, buttonTypeSection, buttonID);
 
-        if (database.readParameter(CONF_BLOCK_BUTTON, buttonProgramChangeEnabledSection, buttonID))
+        if (database.read(CONF_BLOCK_BUTTON, buttonProgramChangeEnabledSection, buttonID))
         {
             //ignore momentary/latching modes if button sends program change
             //when released, don't send anything
@@ -155,7 +155,7 @@ void Buttons::update()
         bool buttonState;
         uint8_t encoderPairIndex = Board::getEncoderPair(i);
 
-        if (database.readParameter(CONF_BLOCK_ENCODER, encoderEnabledSection, encoderPairIndex))
+        if (database.read(CONF_BLOCK_ENCODER, encoderEnabledSection, encoderPairIndex))
             buttonState = false;    //button is member of encoder pair, always set state to released
         else
             buttonState = Board::getButtonState(i);

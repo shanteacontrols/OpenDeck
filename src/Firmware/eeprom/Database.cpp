@@ -106,7 +106,7 @@ void Database::clearEEPROM()    {
 
 }
 
-uint16_t Database::readParameter(uint8_t blockID, uint8_t sectionID, uint16_t parameterID)
+uint16_t Database::read(uint8_t blockID, uint8_t sectionID, uint16_t parameterID)
 {
     uint16_t startAddress = getSectionAddress(blockID, sectionID);
     uint8_t parameterType = getParameterType(blockID, sectionID);
@@ -144,7 +144,7 @@ uint16_t Database::readParameter(uint8_t blockID, uint8_t sectionID, uint16_t pa
     return 0;
 }
 
-bool Database::writeParameter(uint8_t blockID, uint8_t sectionID, int16_t parameterID, int16_t newValue, bool async)
+bool Database::update(uint8_t blockID, uint8_t sectionID, int16_t parameterID, int16_t newValue, bool async)
 {
     uint16_t startAddress = getSectionAddress(blockID, sectionID);
 
@@ -295,7 +295,7 @@ void Database::queueData(uint16_t eepromAddress, uint16_t data, uint8_t paramete
         printf("Oops, buffer full. Waiting...\n");
         #endif
 
-        while (!update());
+        while (!checkQueue());
     }
 
     eeprom_update_bufer_param_type[index] = parameterType;
@@ -304,7 +304,7 @@ void Database::queueData(uint16_t eepromAddress, uint16_t data, uint8_t paramete
     eeprom_update_buffer_head = index;
 }
 
-bool Database::update()
+bool Database::checkQueue()
 {
     //write queued data to eeprom
     if (eeprom_update_buffer_head == eeprom_update_buffer_tail)

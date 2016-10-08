@@ -71,7 +71,7 @@ class Database
     public:
     Database();
     #ifdef ENABLE_ASYNC_UPDATE
-    bool update();
+    bool checkQueue();
     #endif
     void clearEEPROM();
     void init();
@@ -79,8 +79,8 @@ class Database
     void factoryReset(factoryResetType_t type);
     void createMemoryLayout();
     void createSectionAddresses();
-    uint16_t readParameter(uint8_t blockID, uint8_t sectionID, uint16_t parameterID = 0);
-    bool writeParameter(uint8_t blockID, uint8_t sectionID, int16_t parameterID, int16_t newValue, bool async = false);
+    uint16_t read(uint8_t blockID, uint8_t sectionID, uint16_t parameterID = 0);
+    bool update(uint8_t blockID, uint8_t sectionID, int16_t parameterID, int16_t newValue, bool async = false);
     blockDescriptor blocks[CONF_BLOCKS];
 
     private:
