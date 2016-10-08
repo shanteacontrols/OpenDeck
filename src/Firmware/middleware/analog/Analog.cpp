@@ -40,10 +40,10 @@ void Analog::update()
     for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
     {
         //don't process component if it's not enabled
-        if (!database.readParameter(CONF_BLOCK_ANALOG, analogEnabledSection, i))
+        if (!database.read(CONF_BLOCK_ANALOG, analogEnabledSection, i))
             continue;
 
-        if (!database.readParameter(CONF_BLOCK_ANALOG, analogDigitalEnabledSection, i))
+        if (!database.read(CONF_BLOCK_ANALOG, analogDigitalEnabledSection, i))
         {
             //three samples are needed
             if (!sampled)
@@ -51,7 +51,7 @@ void Analog::update()
 
             //get median value from three analog samples for better accuracy
             analogData = getMedianValue(i);
-            analogType_t type = (analogType_t)database.readParameter(CONF_BLOCK_ANALOG, analogTypeSection, i);
+            analogType_t type = (analogType_t)database.read(CONF_BLOCK_ANALOG, analogTypeSection, i);
 
             switch(type)
             {

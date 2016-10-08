@@ -134,10 +134,10 @@ void globalInit()
 
     midi.init(dinInterface);
     midi.init(usbInterface);
-    midi.setInputChannel(database.readParameter(CONF_BLOCK_MIDI, midiChannelSection, inputChannel));
-    midi.setNoteChannel(database.readParameter(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
-    midi.setCCchannel(database.readParameter(CONF_BLOCK_MIDI, midiChannelSection, CCchannel));
-    midi.setProgramChangeChannel(database.readParameter(CONF_BLOCK_MIDI, midiChannelSection, programChangeChannel));
+    midi.setInputChannel(database.read(CONF_BLOCK_MIDI, midiChannelSection, inputChannel));
+    midi.setNoteChannel(database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
+    midi.setCCchannel(database.read(CONF_BLOCK_MIDI, midiChannelSection, CCchannel));
+    midi.setProgramChangeChannel(database.read(CONF_BLOCK_MIDI, midiChannelSection, programChangeChannel));
 
     initSysEx();
     checkNewRevision();
