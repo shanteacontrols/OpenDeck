@@ -31,21 +31,18 @@
 #define EEPROM_UPDATE_BUFFER_SIZE   64
 #endif
 
-typedef enum {
-
+typedef enum
+{
     BIT_PARAMETER,
     BYTE_PARAMETER,
     WORD_PARAMETER
-
 } sectionParameterType_t;
 
-
-typedef enum {
-
+typedef enum
+{
     factoryReset_wipeRestore, //clear eeprom, restore defaults
     factoryReset_restore, //update eeprom with defaults
     factoryReset_partial //partially restore defaults
-
 } factoryResetType_t;
 
 #if VALUE_BYTES == 1
@@ -56,8 +53,8 @@ typedef uint16_t eepromValue_t;
 #error Incorrect EEPROM value size
 #endif
 
-typedef struct {
-
+typedef struct
+{
     uint8_t sections;
     uint16_t blockStartAddress;
     uint16_t sectionAddress[MAX_SECTIONS];
@@ -65,13 +62,12 @@ typedef struct {
     sectionParameterType_t sectionParameterType[MAX_SECTIONS];
     bool preserveOnPartialReset[MAX_SECTIONS];
     eepromValue_t defaultValue[MAX_SECTIONS];
-
 } blockDescriptor;
 
 //default controller settings
 
-class Database {
-
+class Database
+{
     public:
     Database();
     #ifdef ENABLE_ASYNC_UPDATE
@@ -83,62 +79,22 @@ class Database {
     void factoryReset(factoryResetType_t type);
     void createMemoryLayout();
     void createSectionAddresses();
-    inline uint16_t readParameter(uint8_t blockID, uint8_t sectionID, uint16_t parameterID = 0)  {
-
-        uint16_t startAddress = getSectionAddress(blockID, sectionID);
-        uint8_t parameterType = getParameterType(blockID, sectionID);
-
-        uint8_t arrayIndex;
-        uint8_t parameterIndex;
-
-        switch(parameterType)   {
-
-            case BIT_PARAMETER:
-            arrayIndex = parameterID/8;
-            parameterIndex = parameterID - 8*arrayIndex;
-            startAddress += arrayIndex;
-            if (startAddress > EEPROM_SIZE) {
-
-                #if MODE_SERIAL > 0
-                    printf("Requested address out of EEPROM memory range\n");
-                #endif
-                return 0;
-
-            }
-            return bitRead(eeprom_read_byte((uint8_t*)startAddress), parameterIndex);
-            break;
-
-            case BYTE_PARAMETER:
-            startAddress += parameterID;
-            return eeprom_read_byte((uint8_t*)startAddress);
-            break;
-
-            case WORD_PARAMETER:
-            startAddress += ((uint16_t)parameterID*2);
-            return eeprom_read_word((uint16_t*)startAddress);
-            break;
-
-        }   return 0;
-
-    };
+    uint16_t readParameter(uint8_t blockID, uint8_t sectionID, uint16_t parameterID = 0);
     bool writeParameter(uint8_t blockID, uint8_t sectionID, int16_t parameterID, int16_t newValue, bool async = false);
     blockDescriptor blocks[CONF_BLOCKS];
 
     private:
-    inline uint16_t getSectionAddress(uint8_t blockID, uint8_t sectionID)   {
-
+    inline uint16_t getSectionAddress(uint8_t blockID, uint8_t sectionID)
+    {
         return blocks[blockID].blockStartAddress+blocks[blockID].sectionAddress[sectionID] + START_OFFSET;
-
     };
-    inline uint16_t getBlockAddress(uint8_t blockID)   {
-
+    inline uint16_t getBlockAddress(uint8_t blockID)
+    {
         return blocks[blockID].blockStartAddress+START_OFFSET;
-
     };
-    inline uint8_t getParameterType(uint8_t blockID, uint8_t sectionID) {
-
+    inline uint8_t getParameterType(uint8_t blockID, uint8_t sectionID)
+    {
         return blocks[blockID].sectionParameterType[sectionID];
-
     }
     void initProgramSettings(bool partialReset);
     void initUserScales(bool partialReset);
@@ -150,13 +106,12 @@ class Database {
     void queueData(uint16_t eepromAddress, uint16_t data, uint8_t parameterType);
     #endif
 
-    struct {
-
+    struct
+    {
         uint8_t major;
         uint8_t minor;
         uint8_t revision;
         uint16_t crc;
-
     } firmwareVersion;
 
     #ifdef ENABLE_ASYNC_UPDATE
@@ -167,7 +122,6 @@ class Database {
     uint8_t     eeprom_update_buffer_head;
     uint8_t     eeprom_update_buffer_tail;
     #endif
-
 };
 
 extern Database database;

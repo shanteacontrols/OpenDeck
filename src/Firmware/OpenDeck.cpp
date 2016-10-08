@@ -62,7 +62,6 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
 {
     switch(block)
     {
-
         case CONF_BLOCK_LED:
         if (section == ledStateSection)
         {

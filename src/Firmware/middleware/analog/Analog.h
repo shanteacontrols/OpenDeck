@@ -25,24 +25,22 @@
 
 #define NUMBER_OF_SAMPLES 3 //do not change
 
-enum ccLimitType_t {
-
+enum ccLimitType_t
+{
     ccLimitLow,
     ccLimitHigh
-
 };
 
-enum analogType_t {
-
+enum analogType_t
+{
     potentiometer,
     fsr,
     ldr,
     ANALOG_TYPES
-
 };
 
-class Analog : Board {
-
+class Analog : Board
+{
     public:
     Analog();
     void update();
@@ -74,7 +72,6 @@ class Analog : Board {
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 
     };
-
 };
 
 extern Analog analog;

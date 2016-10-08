@@ -114,7 +114,7 @@ class SysEx
         //wanted data amount
         sysExAmount_single,
         sysExAmount_all,
-        SYSEX_AMOUNT_MAXs
+        SYSEX_AMOUNT_MAX
     } sysExAmount;
 
     typedef struct

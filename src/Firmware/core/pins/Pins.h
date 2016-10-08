@@ -146,8 +146,8 @@ const uint8_t dmColumnArray[] = { DM_COLUMN_1, DM_COLUMN_2, DM_COLUMN_3, DM_COLU
 #define MUX_Y14                     1
 #define MUX_Y15                     0
 
-const uint8_t muxPinOrderArray[] = {
-
+const uint8_t muxPinOrderArray[] =
+{
     MUX_Y0,
     MUX_Y1,
     MUX_Y2,
@@ -164,7 +164,6 @@ const uint8_t muxPinOrderArray[] = {
     MUX_Y13,
     MUX_Y14,
     MUX_Y15
-
 };
 
 #endif

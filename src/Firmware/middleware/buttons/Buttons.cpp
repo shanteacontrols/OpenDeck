@@ -23,74 +23,68 @@
 
 const uint8_t buttonDebounceCompare = 0b10000000;
 
-Buttons::Buttons()  {
-
+Buttons::Buttons()
+{
     //def const
-
 }
 
-void Buttons::setButtonPressed(uint8_t buttonID, bool state)   {
-
+void Buttons::setButtonPressed(uint8_t buttonID, bool state)
+{
     uint8_t arrayIndex = buttonID/8;
     uint8_t buttonIndex = buttonID - 8*arrayIndex;
 
     bitWrite(buttonPressed[arrayIndex], buttonIndex, state);
-
 }
 
-bool Buttons::getButtonPressed(uint8_t buttonID)   {
-
+bool Buttons::getButtonPressed(uint8_t buttonID)
+{
     uint8_t arrayIndex = buttonID/8;
     uint8_t buttonIndex = buttonID - 8*arrayIndex;
 
     return bitRead(buttonPressed[arrayIndex], buttonIndex);
-
 }
 
-void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool sendMIDI)   {
-
-    if (buttonState)    {
-
+void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool sendMIDI)
+{
+    if (buttonState)
+    {
         //send note on only once
-        if (!getButtonPressed(buttonID))    {
-
+        if (!getButtonPressed(buttonID))
+        {
             setButtonPressed(buttonID, true);
             midi.sendNoteOn(database.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOn, database.readParameter(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
             if (database.readParameter(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
                 leds.setState(buttonID, true);
             //if (sysEx.configurationEnabled())
                 //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
-
         }
+    }
+    else
+    {
+        //button is released
+        if (getButtonPressed(buttonID))
+        {
+            midi.sendNoteOff(database.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOff, database.readParameter(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
+            if (database.readParameter(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
+                leds.setState(buttonID, false);
+            //if (sysEx.configurationEnabled())
+                //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
 
-    }   else {  //button is released
-
-            if (getButtonPressed(buttonID))    {
-
-                midi.sendNoteOff(database.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOff, database.readParameter(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
-                if (database.readParameter(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
-                    leds.setState(buttonID, false);
-                //if (sysEx.configurationEnabled())
-                    //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
-
-                setButtonPressed(buttonID, false);
-
-            }
-
-     }
-
+            setButtonPressed(buttonID, false);
+        }
+    }
 }
 
-void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)    {
-
-    if (buttonState != getPreviousButtonState(buttonID)) {
-
-        if (buttonState) {
-
+void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)
+{
+    if (buttonState != getPreviousButtonState(buttonID))
+    {
+        if (buttonState)
+        {
             //button is pressed
             //if a button has been already pressed
-            if (getButtonPressed(buttonID)) {
-
+            if (getButtonPressed(buttonID))
+            {
                 midi.sendNoteOff(database.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOff);
                 if (database.readParameter(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
                     leds.setState(buttonID, false);
@@ -99,9 +93,9 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)    {
 
                 //reset pressed state
                 setButtonPressed(buttonID, false);
-
-            } else {
-
+            }
+            else
+            {
                 //send note on
                 midi.sendNoteOn(database.readParameter(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOn);
                 if (database.readParameter(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
@@ -111,33 +105,29 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)    {
 
                 //toggle buttonPressed flag to true
                 setButtonPressed(buttonID, true);
-
             }
-
         }
-
     }
-
 }
 
-void Buttons::processButton(uint8_t buttonID, bool state, bool debounce)   {
-
+void Buttons::processButton(uint8_t buttonID, bool state, bool debounce)
+{
     bool debounced = debounce ? buttonDebounced(buttonID, state) : true;
 
-    if (debounced)  {
-
+    if (debounced)
+    {
         buttonType_t type = (buttonType_t)database.readParameter(CONF_BLOCK_BUTTON, buttonTypeSection, buttonID);
 
-        if (database.readParameter(CONF_BLOCK_BUTTON, buttonProgramChangeEnabledSection, buttonID))  {
-
+        if (database.readParameter(CONF_BLOCK_BUTTON, buttonProgramChangeEnabledSection, buttonID))
+        {
             //ignore momentary/latching modes if button sends program change
             //when released, don't send anything
             processMomentaryButton(buttonID, state, state);
-
-        }   else {
-
-            switch (type)   {
-
+        }
+        else
+        {
+            switch (type)
+            {
                 case buttonMomentary:
                 processMomentaryButton(buttonID, state);
                 break;
@@ -148,63 +138,57 @@ void Buttons::processButton(uint8_t buttonID, bool state, bool debounce)   {
 
                 default:
                 break;
-
             }
-
         }
 
         updateButtonState(buttonID, state);
-
     }
-
 }
 
-void Buttons::update()    {
+void Buttons::update()
+{
+    if (!Board::buttonDataAvailable())
+        return;
 
-    if (!Board::buttonDataAvailable()) return;
-
-    for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++) {
-
+    for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
+    {
         bool buttonState;
         uint8_t encoderPairIndex = Board::getEncoderPair(i);
+
         if (database.readParameter(CONF_BLOCK_ENCODER, encoderEnabledSection, encoderPairIndex))
-            //button is member of encoder pair, always set state to released
-            buttonState = false;
-        else buttonState = Board::getButtonState(i);
+            buttonState = false;    //button is member of encoder pair, always set state to released
+        else
+            buttonState = Board::getButtonState(i);
+
         processButton(i, buttonState);
-
     }
-
 }
 
-void Buttons::updateButtonState(uint8_t buttonID, uint8_t buttonState) {
-
+void Buttons::updateButtonState(uint8_t buttonID, uint8_t buttonState)
+{
     uint8_t arrayIndex = buttonID/8;
     uint8_t buttonIndex = buttonID - 8*arrayIndex;
 
     //update state if it's different than last one
     if (bitRead(previousButtonState[arrayIndex], buttonIndex) != buttonState)
         bitWrite(previousButtonState[arrayIndex], buttonIndex, buttonState);
-
 }
 
-bool Buttons::getPreviousButtonState(uint8_t buttonID) {
-
+bool Buttons::getPreviousButtonState(uint8_t buttonID)
+{
     uint8_t arrayIndex = buttonID/8;
     uint8_t buttonIndex = buttonID - 8*arrayIndex;
 
     return bitRead(previousButtonState[arrayIndex], buttonIndex);
-
 }
 
-bool Buttons::buttonDebounced(uint8_t buttonID, bool buttonState)   {
-
+bool Buttons::buttonDebounced(uint8_t buttonID, bool buttonState)
+{
     //shift new button reading into previousButtonState
     buttonDebounceCounter[buttonID] = (buttonDebounceCounter[buttonID] << 1) | buttonState | buttonDebounceCompare;
 
     //if button is debounced, return true
     return ((buttonDebounceCounter[buttonID] == buttonDebounceCompare) || (buttonDebounceCounter[buttonID] == 0xFF));
-
 }
 
 Buttons buttons;

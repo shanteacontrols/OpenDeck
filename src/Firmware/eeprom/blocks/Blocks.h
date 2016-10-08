@@ -26,15 +26,14 @@
 #include "LEDs.h"
 
 //define block names
-enum eepromBlocks {
-
+enum eepromBlocks
+{
     CONF_BLOCK_MIDI,    //0
     CONF_BLOCK_BUTTON,  //1
     CONF_BLOCK_ENCODER, //2
     CONF_BLOCK_ANALOG,  //3
     CONF_BLOCK_LED,     //4
     CONF_BLOCKS
-
 };
 
 #endif

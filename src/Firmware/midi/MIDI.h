@@ -39,22 +39,20 @@
 //usb
 void EVENT_USB_Device_ConfigurationChanged(void);
 
-enum midiInterfaceType_t   {
-
+enum midiInterfaceType_t
+{
     dinInterface,
     usbInterface
-
 };
 
-enum midiVelocity_t {
-
+enum midiVelocity_t
+{
     velocityOn = 127,
     velocityOff = 0
-
 };
 
-enum midiMessageType_t {
-
+enum midiMessageType_t
+{
     midiMessageNoteOff              = 0x80, //Note Off
     midiMessageNoteOn               = 0x90, //Note On
     midiMessageControlChange        = 0xB0, //Control Change / Channel Mode
@@ -74,11 +72,10 @@ enum midiMessageType_t {
     midiMessageActiveSensing        = 0xFE, //System Real Time - Active Sensing
     midiMessageSystemReset          = 0xFF, //System Real Time - System Reset
     midiMessageInvalidType          = 0x00  //For notifying errors
-
 };
 
-enum usbMIDIsystemCin_t {
-
+enum usbMIDIsystemCin_t
+{
     //normally, usb midi cin (cable index number) is just midiMessageType shifted left by four bytes
     //system common/exclusive messages have a bit convulted pattern so they're grouped in different enum
     sysCommon1byteCin = 0x50,
@@ -88,23 +85,20 @@ enum usbMIDIsystemCin_t {
     sysExStop1byteCin = sysCommon1byteCin,
     sysExStop2byteCin = 0x60,
     sysExStop3byteCin = 0x70
-
 };
 
-enum midiFilterMode_t {
-
+enum midiFilterMode_t
+{
     Off,                //thru disabled (nothing passes through)
     Full,               //fully enabled Thru (every incoming message is sent back)
     SameChannel,        //only the messages on the Input Channel will be sent back
     DifferentChannel    //all the messages but the ones on the Input Channel will be sent back
-
 };
 
-typedef enum {
-
+typedef enum
+{
     noteOffType_noteOnZeroVel,
     noteOffType_standardNoteOff
-
 } noteOffType_t;
 
 #define normalizeChannel(channel) (((channel - 1) & MAX_MIDI_CHANNEL_MASK))
@@ -112,14 +106,14 @@ typedef enum {
 #define lowByte_7bit(value) ((value) & 0x7F)
 #define highByte_7bit(value) ((value >> 7) & 0x7f)
 
-typedef struct {
-
+typedef struct
+{
     uint8_t high;
     uint8_t low;
     uint16_t value;
 
-    void encodeTo14bit()    {
-
+    void encodeTo14bit()
+    {
         uint8_t newHigh = (value >> 8) & 0xFF;
         uint8_t newLow = value & 0xFF;
         newHigh = (newHigh << 1) & 0x7F;
@@ -127,11 +121,10 @@ typedef struct {
         newLow = lowByte_7bit(newLow);
         high = newHigh;
         low = newLow;
-
     }
 
-    uint16_t decode14bit()  {
-
+    uint16_t decode14bit()
+    {
         bitWrite(low, 7, bitRead(high, 0));
         high >>= 1;
 
@@ -141,13 +134,11 @@ typedef struct {
         joined |= low;
 
         return joined;
-
     }
-
 } encDec_14bit;
 
-class MIDI    {
-
+class MIDI
+{
     public:
     MIDI();
     bool init(midiInterfaceType_t type);
@@ -224,8 +215,8 @@ class MIDI    {
             dinEnabled;
 
     //decoded data of a MIDI message
-    struct Message  {
-
+    struct Message
+    {
         //MIDI channel on which the message was received (1-16)
         uint8_t channel;
 
@@ -243,7 +234,6 @@ class MIDI    {
 
         //message valid/invalid (no channel consideration here, validity means the message respects the MIDI norm)
         bool valid;
-
     };
 
     bool                mThruActivated;
@@ -265,7 +255,6 @@ class MIDI    {
                         ccChannel_,
                         programChangeChannel_,
                         aftertouchChannel_;
-
 };
 
 extern MIDI midi;

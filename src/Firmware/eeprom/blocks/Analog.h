@@ -1,8 +1,8 @@
 #ifndef ANALOG_BLOCK_H_
 #define ANALOG_BLOCK_H_
 
-typedef enum {
-
+typedef enum
+{
     analogEnabledSection,
     analogTypeSection,
     analogInvertedSection,
@@ -11,7 +11,6 @@ typedef enum {
     analogCCupperLimitSection,
     analogDigitalEnabledSection,
     ANALOG_SECTIONS
-
 } analogSection;
 
 #endif

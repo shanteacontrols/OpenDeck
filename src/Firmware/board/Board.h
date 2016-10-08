@@ -39,16 +39,15 @@ inline int8_t readEncoder(uint8_t encoderID, uint8_t pairState) __attribute__((a
 uint32_t rTimeMillis();
 void wait(uint32_t time);
 
-typedef struct {
-
+typedef struct
+{
     uint8_t r;
     uint8_t g;
     uint8_t b;
-
 } rgb;
 
-class Board {
-
+class Board
+{
     public:
     //init
     Board();
@@ -87,7 +86,6 @@ class Board {
     bool ledBlinkingActive();
     void handleLED(uint8_t ledNumber, bool state, bool blinkMode);
     void handleLED(uint8_t ledNumber, rgb color, bool blinkMode);
-
 };
 
 extern Board board;

@@ -28,25 +28,23 @@
 #define AFTERTOUCH_SEND_TIMEOUT_STEP        2
 #define AFTERTOUCH_SEND_TIMEOUT             100
 
-enum pressureType_t {
-
+enum pressureType_t
+{
     velocity,
     aftertouch
-
 };
 
 #define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
 
-inline int16_t mapAnalog_int16(int16_t x, int16_t in_min, int16_t in_max, int16_t out_min, int16_t out_max) {
-
+inline int16_t mapAnalog_int16(int16_t x, int16_t in_min, int16_t in_max, int16_t out_min, int16_t out_max)
+{
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-
 };
 
-inline int16_t calibratePressure(int16_t value, pressureType_t type)  {
-
-    switch(type)    {
-
+inline int16_t calibratePressure(int16_t value, pressureType_t type)
+{
+    switch(type)
+    {
         case velocity:
         return mapAnalog_int16(constrain(value, FSR_MIN_VALUE, FSR_MAX_VALUE), FSR_MIN_VALUE, FSR_MAX_VALUE, 0, 127);
 
@@ -55,31 +53,27 @@ inline int16_t calibratePressure(int16_t value, pressureType_t type)  {
 
         default:
         return 0;
-
     }
-
 }
 
-bool Analog::getFsrPressed(uint8_t fsrID)   {
-
+bool Analog::getFsrPressed(uint8_t fsrID)
+{
     uint8_t arrayIndex = fsrID/8;
     uint8_t fsrIndex = fsrID - 8*arrayIndex;
 
     return bitRead(fsrPressed[arrayIndex], fsrIndex);
-
 }
 
-void Analog::setFsrPressed(uint8_t fsrID, bool state)   {
-
+void Analog::setFsrPressed(uint8_t fsrID, bool state)
+{
     uint8_t arrayIndex = fsrID/8;
     uint8_t fsrIndex = fsrID - 8*arrayIndex;
 
     bitWrite(fsrPressed[arrayIndex], fsrIndex, state);
-
 }
 
-void Analog::checkFSRvalue(uint8_t analogID, int16_t pressure)  {
-
+void Analog::checkFSRvalue(uint8_t analogID, int16_t pressure)
+{
     uint8_t calibratedPressure = calibratePressure(pressure, velocity);
 
     lastAnalogueValue[analogID] += calibratedPressure;
@@ -89,32 +83,27 @@ void Analog::checkFSRvalue(uint8_t analogID, int16_t pressure)  {
 
     bool pressDetected = (calibratedPressure > 0);
 
-    switch (pressDetected)    {
-
+    switch (pressDetected)
+    {
         case true:
-
-        if (!getFsrPressed(analogID)) {
-
+        if (!getFsrPressed(analogID))
+        {
             //sensor is really pressed
             setFsrPressed(analogID, true);
             midi.sendNoteOn(database.readParameter(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID), calibratedPressure);
             //if (sysEx.configurationEnabled())
                 //sysEx.sendComponentID(CONF_BLOCK_ANALOG, analogID);
-
         }
         break;
 
         case false:
-        if (getFsrPressed(analogID))  {
-
+        if (getFsrPressed(analogID))
+        {
             setFsrPressed(analogID, false);
             midi.sendNoteOff(database.readParameter(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID), 0);
             //if (sysEx.configurationEnabled())
                 //sysEx.sendComponentID(CONF_BLOCK_ANALOG, analogID);
-
         }
         break;
-
     }
-
 }

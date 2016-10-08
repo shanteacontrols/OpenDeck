@@ -88,8 +88,8 @@ volatile uint32_t                           blinkTimerCounter = 0;
 
 const uint8_t ledOnLookUpTable[]            = { 0, 0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 255, 0 };
 
-const uint8_t ledTransitionScale[] = {
-
+const uint8_t ledTransitionScale[] =
+{
     0,
     2,
     4,
@@ -154,7 +154,6 @@ const uint8_t ledTransitionScale[] = {
     240,
     250,
     255
-
 };
 
 //analog
@@ -171,8 +170,8 @@ volatile uint32_t           rTime_ms = 0;
 
 //timer-based functions
 
-uint32_t rTimeMillis()    {
-
+uint32_t rTimeMillis()
+{
     uint32_t _rTime_mS;
     uint8_t interruptFlag = SREG;
 
@@ -181,33 +180,30 @@ uint32_t rTimeMillis()    {
     SREG = interruptFlag;
 
     return _rTime_mS;
-
 }
 
-void wait(uint32_t time)    {
-
-    while(time--)   {
-
+void wait(uint32_t time)
+{
+    while(time--)
+    {
         _delay_ms(1);
-
     }
-
 }
 
 
 //inline functions
 
-uint8_t Board::getEncoderPair(uint8_t buttonIndex)   {
-
+uint8_t Board::getEncoderPair(uint8_t buttonIndex)
+{
     uint8_t row = buttonIndex/NUMBER_OF_BUTTON_COLUMNS;
-    if (row%2) row -= 1;   //uneven row, get info from previous (even) row
+    if (row%2)
+        row -= 1;   //uneven row, get info from previous (even) row
     uint8_t column = buttonIndex % NUMBER_OF_BUTTON_COLUMNS;
     return (row*NUMBER_OF_BUTTON_COLUMNS)/2 + column;
-
 }
 
-inline int8_t readEncoder(uint8_t encoderID, uint8_t pairState)  {
-
+inline int8_t readEncoder(uint8_t encoderID, uint8_t pairState)
+{
     //add new data
     uint8_t newPairData = 0;
     newPairData |= (((encoderData[encoderID] << 2) & 0x000F) | (uint16_t)pairState);
@@ -220,7 +216,8 @@ inline int8_t readEncoder(uint8_t encoderID, uint8_t pairState)  {
 
     int8_t encRead = encoderLookUpTable[newPairData];
 
-    if (!encRead) return 0;
+    if (!encRead)
+        return 0;
 
     bool newEncoderDirection = encRead > 0;
     //get current number of pulses from encoderData
@@ -235,8 +232,10 @@ inline int8_t readEncoder(uint8_t encoderID, uint8_t pairState)  {
     //write new encoder direction
     bitWrite(encoderData[encoderID], ENCODER_DIRECTION_BIT, newEncoderDirection);
 
-    if (lastEncoderDirection != newEncoderDirection) return 0;
-    if (currentPulses % PULSES_PER_STEP) return 0;
+    if (lastEncoderDirection != newEncoderDirection)
+        return 0;
+    if (currentPulses % PULSES_PER_STEP)    
+        return 0;
 
     //clear current pulses
     encoderData[encoderID] &= ENCODER_CLEAR_PULSES_MASK;
@@ -246,17 +245,18 @@ inline int8_t readEncoder(uint8_t encoderID, uint8_t pairState)  {
 
     //clear current moving status
     //encoderData[encoderID] &= ENCODER_CLEAR_MOVING_STATUS_MASK;
-    if (newEncoderDirection) return 1;
-    else return -1;
-
+    if (newEncoderDirection)
+        return 1;
+    else
+        return -1;
 }
 
-inline void setAnalogPin(uint8_t muxNumber)   {
-
+inline void setAnalogPin(uint8_t muxNumber)
+{
     uint8_t analogPin;
 
-    switch(muxNumber) {
-
+    switch(muxNumber)
+    {
         case 0:
         analogPin = MUX_1_IN_PIN;
         break;
@@ -267,15 +267,13 @@ inline void setAnalogPin(uint8_t muxNumber)   {
 
         default:
         return;
-
     }
 
     ADMUX = (ADMUX & 0xF0) | (analogPin & 0x0F);
-
 }
 
-inline void setMuxInput(uint8_t muxInput)    {
-
+inline void setMuxInput(uint8_t muxInput)
+{
     //according to datasheet, propagation delay between setting Sn pins
     //and output appearing on Yn is around 150ns
     //add three NOPs to compensate
@@ -286,11 +284,10 @@ inline void setMuxInput(uint8_t muxInput)    {
     bitRead(muxPinOrderArray[muxInput], 3) ? setHigh(MUX_S3_PORT, MUX_S3_PIN) : setLow(MUX_S3_PORT, MUX_S3_PIN);
 
     _NOP(); _NOP(); _NOP();
-
 }
 
-inline void ledRowsOff()   {
-
+inline void ledRowsOff()
+{
     //turn off PWM
     TCCR1A &= ~(1<<COM1C1);
     TCCR4C &= ~(1<<COM4D1);
@@ -305,13 +302,12 @@ inline void ledRowsOff()   {
     setHigh(LED_ROW_4_PORT, LED_ROW_4_PIN);
     setHigh(LED_ROW_5_PORT, LED_ROW_5_PIN);
     setHigh(LED_ROW_6_PORT, LED_ROW_6_PIN);
-
 }
 
-inline void ledRowOn(uint8_t rowNumber, uint8_t intensity)  {
-
-    switch (rowNumber)  {
-
+inline void ledRowOn(uint8_t rowNumber, uint8_t intensity)
+{
+    switch (rowNumber)
+    {
         case 0:
         OCR1C = intensity;
         TCCR1A |= (1<<COM1C1);
@@ -344,104 +340,97 @@ inline void ledRowOn(uint8_t rowNumber, uint8_t intensity)  {
 
         default:
         break;
-
     }
-
 }
 
-void checkLEDs()  {
-
-    if (blinkEnabled)   {
-
-        if (!blinkTimerCounter)  {
-
+void checkLEDs()
+{
+    if (blinkEnabled)
+    {
+        if (!blinkTimerCounter)
+        {
             //change blinkBit state and write it into ledState variable if LED is in blink state
-            for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)  {
-
-                if (bitRead(ledState[i], LED_BLINK_ON_BIT))    {
-
-                    if (blinkState) bitWrite(ledState[i], LED_BLINK_STATE_BIT, 1);
-                    else bitWrite(ledState[i], LED_BLINK_STATE_BIT, 0);
-
+            for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+            {
+                if (bitRead(ledState[i], LED_BLINK_ON_BIT))
+                {
+                    if (blinkState)
+                        bitWrite(ledState[i], LED_BLINK_STATE_BIT, 1);
+                    else
+                        bitWrite(ledState[i], LED_BLINK_STATE_BIT, 0);
                 }
-
             }
 
             blinkState = !blinkState;
-
         }
-
     }
 
     //if there is an active LED in current column, turn on LED row
     //do fancy transitions here
-        for (int i=0; i<NUMBER_OF_LED_ROWS; i++)  {
+    for (int i=0; i<NUMBER_OF_LED_ROWS; i++)
+    {
+        uint8_t ledNumber = activeLEDcolumn+i*NUMBER_OF_LED_COLUMNS;
+        uint8_t ledStateSingle = ledOnLookUpTable[ledState[ledNumber]];
 
-            uint8_t ledNumber = activeLEDcolumn+i*NUMBER_OF_LED_COLUMNS;
-            uint8_t ledStateSingle = ledOnLookUpTable[ledState[ledNumber]];
+        //don't bother with pwm if it's disabled
+        if (!pwmSteps && ledStateSingle)
+        {
+            #ifdef LED_INVERT
+            ledRowOn(i, 0);
+            #else
+            ledRowOn(i, 255);
+            #endif
+        }
+        else
+        {
+            if (
+            (ledStateSingle && (transitionCounter[ledNumber] != (NUMBER_OF_TRANSITIONS-1))) ||
+            (!ledStateSingle && transitionCounter[ledNumber])
+            )
+            {
+                if (ledStateSingle)
+                    transitionCounter[ledNumber] += pwmSteps;
+                else
+                    transitionCounter[ledNumber] -= pwmSteps;
 
-            //don't bother with pwm if it's disabled
-            if (!pwmSteps && ledStateSingle)    {
-
-                #ifdef LED_INVERT
-                    ledRowOn(i, 0);
-                #else
-                    ledRowOn(i, 255);
-                #endif
-
-            } else {
-
-                if (
-                (ledStateSingle && (transitionCounter[ledNumber] != (NUMBER_OF_TRANSITIONS-1))) ||
-                (!ledStateSingle && transitionCounter[ledNumber])
-                )  {
-
-                    if (ledStateSingle) transitionCounter[ledNumber] += pwmSteps;
-                    else transitionCounter[ledNumber] -= pwmSteps;
-
-                    if (transitionCounter[ledNumber] >= NUMBER_OF_TRANSITIONS) transitionCounter[ledNumber] = NUMBER_OF_TRANSITIONS-1;
-                    if (transitionCounter[ledNumber] < 0) transitionCounter[ledNumber] = 0;
-
-                }
-
-                if (transitionCounter[ledNumber]) {
-
-                    #ifdef LED_INVERT
-                        ledRowOn(i, 255-ledTransitionScale[transitionCounter[ledNumber]]);
-                    #else
-                        ledRowOn(i, ledTransitionScale[transitionCounter[ledNumber]]);
-                    #endif
-
-                }
-
+                if (transitionCounter[ledNumber] >= NUMBER_OF_TRANSITIONS)
+                    transitionCounter[ledNumber] = NUMBER_OF_TRANSITIONS-1;
+                if (transitionCounter[ledNumber] < 0)
+                    transitionCounter[ledNumber] = 0;
             }
 
+            if (transitionCounter[ledNumber])
+            {
+                #ifdef LED_INVERT
+                ledRowOn(i, 255-ledTransitionScale[transitionCounter[ledNumber]]);
+                #else
+                ledRowOn(i, ledTransitionScale[transitionCounter[ledNumber]]);
+                #endif
+            }
         }
-
+    }
 }
 
-inline void activateInputColumn(uint8_t column)   {
-
+inline void activateInputColumn(uint8_t column)
+{
     bitRead(dmColumnArray[column], 0) ? setHigh(DEC_DM_A0_PORT, DEC_DM_A0_PIN) : setLow(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
     bitRead(dmColumnArray[column], 1) ? setHigh(DEC_DM_A1_PORT, DEC_DM_A1_PIN) : setLow(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
     bitRead(dmColumnArray[column], 2) ? setHigh(DEC_DM_A2_PORT, DEC_DM_A2_PIN) : setLow(DEC_DM_A2_PORT, DEC_DM_A2_PIN);
 
     _NOP();
-
 }
 
-inline void activateOutputColumn(uint8_t column)    {
-
+inline void activateOutputColumn(uint8_t column)
+{
     bitRead(column, 0) ? setHigh(DEC_LM_A0_PORT, DEC_LM_A0_PIN) : setLow(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
     bitRead(column, 1) ? setHigh(DEC_LM_A1_PORT, DEC_LM_A1_PIN) : setLow(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
     bitRead(column, 2) ? setHigh(DEC_LM_A2_PORT, DEC_LM_A2_PIN) : setLow(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
 
     _NOP();
-
 }
 
-inline void storeDigitalIn(uint8_t column, uint8_t bufferIndex)  {
-
+inline void storeDigitalIn(uint8_t column, uint8_t bufferIndex)
+{
     uint8_t data = 0;
     uint8_t dataReorder = 0;
 
@@ -451,13 +440,12 @@ inline void storeDigitalIn(uint8_t column, uint8_t bufferIndex)  {
     //pulse latch pin
     pulseLowToHigh(SR_LATCH_PORT, SR_LATCH_PIN);
 
-    for (int i=0; i<8; i++) {
-
+    for (int i=0; i<8; i++)
+    {
         data <<= 1;
         data |= readPin(SR_DIN_PORT, SR_DIN_PIN);
         //pulse clock pin
         pulseHightToLow(SR_CLK_PORT, SR_CLK_PIN);
-
     }
 
     //reorder data to match rows on PCB layout
@@ -465,46 +453,51 @@ inline void storeDigitalIn(uint8_t column, uint8_t bufferIndex)  {
         bitWrite(dataReorder, i, bitRead(data, dmRowBitArray[i]));
 
     inputBuffer[bufferIndex] |= (uint64_t)dataReorder;
-
 }
 
-int8_t getInputMatrixBufferSize() {
-
+int8_t getInputMatrixBufferSize()
+{
     uint8_t head, tail;
 
     head = digital_buffer_head;
     tail = digital_buffer_tail;
-    if (head >= tail) return head - tail;
-    return DIGITAL_BUFFER_SIZE + head - tail;
+    if (head >= tail)
+        return head - tail;
 
+    return DIGITAL_BUFFER_SIZE + head - tail;
 }
 
-bool copyInputMatrixBuffer()    {
-
+bool copyInputMatrixBuffer()
+{
     int8_t bufferSize = getInputMatrixBufferSize();
 
-    if (bufferSize <= 0) return false;
+    if (bufferSize <= 0)
+        return false;
 
     //some data in buffer
     //copy oldest member of buffer to inputMatrixBufferCopy
-    if (digital_buffer_head == digital_buffer_tail) return false;
+    if (digital_buffer_head == digital_buffer_tail)
+        return false;
+
     uint8_t index = digital_buffer_tail + 1;
-    if (index >= DIGITAL_BUFFER_SIZE) index = 0;
+    if (index >= DIGITAL_BUFFER_SIZE)
+        index = 0;
+
     cli();
     inputMatrixBufferCopy = inputBuffer[index];
     sei();
+
     dmBufferCopied = true;
     buttonsProcessed = false;
     encodersProcessed = false;
     digital_buffer_tail = index;
-    return true;
 
+    return true;
 }
 
-
 //ISR functions
-ISR(TIMER0_COMPA_vect) {
-
+ISR(TIMER0_COMPA_vect)
+{
     //run millis and blink update every 1ms
     //update led matrix every 1.5us
     //update button matrix each time
@@ -513,69 +506,72 @@ ISR(TIMER0_COMPA_vect) {
     static uint8_t matrixSwitchCounter = 0;
     uint32_t ms;
 
-    if (matrixSwitchCounter == 1)   {
-
+    if (matrixSwitchCounter == 1)
+    {
         ledRowsOff();
-        if (activeLEDcolumn == NUMBER_OF_LED_COLUMNS) activeLEDcolumn = 0;
+
+        if (activeLEDcolumn == NUMBER_OF_LED_COLUMNS)
+            activeLEDcolumn = 0;
+
         activateOutputColumn(activeLEDcolumn);
         checkLEDs();
         activeLEDcolumn++;
         matrixSwitchCounter = 0;
-
     }
 
-    if (updateMillisAndBlink)   {
-
+    if (updateMillisAndBlink)
+    {
         ms = rTime_ms;
         ms++;
         //update run time
         rTime_ms = ms;
 
         matrixSwitchCounter++;
-
-    }   else {
-
-        if (blinkEnabled) {
-
+    }
+    else
+    {
+        if (blinkEnabled)
+        {
             blinkTimerCounter++;
-            if (blinkTimerCounter >= ledBlinkTime) blinkTimerCounter = 0;
-
+            if (blinkTimerCounter >= ledBlinkTime)
+                blinkTimerCounter = 0;
         }
-
     }
 
     updateMillisAndBlink = !updateMillisAndBlink;
 
     //read input matrix
     uint8_t bufferIndex = digital_buffer_head + 1;
-    if (bufferIndex >= DIGITAL_BUFFER_SIZE) bufferIndex = 0;
-    if (digital_buffer_tail == bufferIndex) return; //buffer full, exit
+
+    if (bufferIndex >= DIGITAL_BUFFER_SIZE)
+        bufferIndex = 0;
+
+    if (digital_buffer_tail == bufferIndex)
+        return; //buffer full, exit
+
     inputBuffer[bufferIndex] = 0;
     digital_buffer_head = bufferIndex;
 
-    for (int i=0; i<NUMBER_OF_BUTTON_COLUMNS; i++)  {
-
+    for (int i=0; i<NUMBER_OF_BUTTON_COLUMNS; i++)
+    {
         activateInputColumn(i);
         storeDigitalIn(i, bufferIndex);
-
     }
 
-    if (!_analogDataAvailable && !bitRead(ADCSRA, ADSC))   {
-
+    if (!_analogDataAvailable && !bitRead(ADCSRA, ADSC))
+    {
         adcDelayCounter++;
-        if (adcDelayCounter == 2)   {
 
+        if (adcDelayCounter == 2)
+        {
             adcDelayCounter = 0;
             startADCconversion();
-
         }
-
     }
-
 }
 
-ISR(ADC_vect)   {
-
+ISR(ADC_vect)
+{
     analogBuffer[analogBufferCounter] = ADC;
     analogBufferCounter++;
 
@@ -584,39 +580,40 @@ ISR(ADC_vect)   {
     bool switchMux = (activeMuxInput == NUMBER_OF_MUX_INPUTS);
     bool bufferFull = (analogBufferCounter == MAX_NUMBER_OF_ANALOG);
 
-    if (switchMux)  {
-
+    if (switchMux)
+    {
         activeMuxInput = 0;
         activeMux++;
-        if (activeMux == NUMBER_OF_MUX) activeMux = 0;
-        setAnalogPin(activeMux);
 
+        if (activeMux == NUMBER_OF_MUX)
+            activeMux = 0;
+
+        setAnalogPin(activeMux);
     }
 
-    if (bufferFull)   {
-
+    if (bufferFull)
+    {
         analogBufferCounter = 0;
          _analogDataAvailable = true;
-
     }
 
     //always set mux input
     setMuxInput(activeMuxInput);
-    if (!bufferFull) startADCconversion();
 
+    if (!bufferFull)
+        startADCconversion();
 }
 
 
 //init
 
-Board::Board()  {
-
+Board::Board()
+{
     //default constructor
-
 }
 
-void Board::init()  {
-
+void Board::init()
+{
     cli();
     //disable watchdog
     MCUSR &= ~(1 << WDRF);
@@ -631,11 +628,10 @@ void Board::init()  {
 
     //enable global interrupts
     sei();
-
 }
 
-void Board::initPins() {
-
+void Board::initPins()
+{
     //configure input matrix
     //shift register
     setInput(SR_DIN_PORT, SR_DIN_PIN);
@@ -682,11 +678,10 @@ void Board::initPins() {
 
     //bootloader led
     setOutput(BTLDR_LED_PORT, BTLDR_LED_PIN);
-
 }
 
-void Board::initAnalog()    {
-
+void Board::initAnalog()
+{
     setUpADC();
 
     setMuxInput(activeMuxInput);
@@ -696,26 +691,25 @@ void Board::initAnalog()    {
     disconnectDigitalInADC(MUX_2_IN_PIN);
 
     _delay_ms(2);
+
     for (int i=0; i<5; i++)
         getADCvalue();  //few dummy reads to init ADC
+
     adcInterruptEnable();
     startADCconversion();
-
 }
 
-void Board::initEncoders()   {
-
-    for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)    {
-
+void Board::initEncoders()
+{
+    for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
+    {
         encoderData[i] |= ((uint16_t)0 << 8);
         encoderData[i] |= ((uint16_t)ENCODER_DEFAULT_PULSE_COUNT_STATE << 4);   //set number of pulses to 8
-
     }
-
 }
 
-void Board::configureTimers()   {
-
+void Board::configureTimers()
+{
     //clear timer0 conf
     TCCR0A = 0;
     TCCR0B = 0;
@@ -754,13 +748,12 @@ void Board::configureTimers()   {
     TCCR0B |= (1<<CS01)|(1<<CS00);  //prescaler 64
     OCR0A = 124;                    //500uS
     TIMSK0 |= (1<<OCIE0A);          //compare match interrupt
-
 }
 
 //LEDs
 
-uint8_t Board::getRGBID(uint8_t ledID) {
-
+uint8_t Board::getRGBID(uint8_t ledID)
+{
     uint8_t row = ledID/NUMBER_OF_LED_COLUMNS;
 
     uint8_t mod = row%3;    //RGB LED = 3 normal LEDs
@@ -769,50 +762,45 @@ uint8_t Board::getRGBID(uint8_t ledID) {
     uint8_t column = ledID % NUMBER_OF_BUTTON_COLUMNS;
 
     return (row*NUMBER_OF_LED_COLUMNS)/3 + column;
-
 }
 
-uint8_t Board::getLEDstate(uint8_t ledNumber)   {
-
+uint8_t Board::getLEDstate(uint8_t ledNumber)
+{
     uint8_t returnValue;
     returnValue = ledState[ledNumber];
     return returnValue;
-
 }
 
-void Board::setSingleLED(uint8_t ledNumber, bool state, bool blinkMode)   {
-
+void Board::setSingleLED(uint8_t ledNumber, bool state, bool blinkMode)
+{
     handleLED(ledNumber, state, blinkMode);
 
     if (blinkMode && state)
         ledBlinkingStart();
     else
         checkBlinkLEDs();
-
 }
 
-void Board::setRGBled(uint8_t ledNumber, rgb color, bool blinkMode) {
-
+void Board::setRGBled(uint8_t ledNumber, rgb color, bool blinkMode)
+{
     handleLED(ledNumber, color, blinkMode);
 
     if (blinkMode && color.r && color.g && color.b)
         ledBlinkingStart();
     else
         checkBlinkLEDs();
-
 }
 
-void Board::setLEDblinkTime(uint16_t blinkTime)  {
-
+void Board::setLEDblinkTime(uint16_t blinkTime)
+{
     cli();
     ledBlinkTime = blinkTime*100;
     blinkTimerCounter = 0;
     sei();
-
 }
 
-void Board::setLEDfadeTime(uint8_t transitionSteps) {
-
+void Board::setLEDfadeTime(uint8_t transitionSteps)
+{
     //reset transition counter
     cli();
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
@@ -820,41 +808,36 @@ void Board::setLEDfadeTime(uint8_t transitionSteps) {
     sei();
 
     pwmSteps = transitionSteps;
-
 }
 
-void Board::ledBlinkingStart() {
-
-    if (!blinkEnabled)  {
-
+void Board::ledBlinkingStart()
+{
+    if (!blinkEnabled)
+    {
         blinkEnabled = true;
         blinkState = true;
         blinkTimerCounter = 0;
-
     }
-
 }
 
-void Board::ledBlinkingStop()   {
-
+void Board::ledBlinkingStop()
+{
     blinkState = true;
     cli();
     blinkTimerCounter = 0;
     sei();
     blinkEnabled = false;
-
 }
 
-bool Board::ledBlinkingActive() {
-
+bool Board::ledBlinkingActive()
+{
     bool state;
     state = blinkEnabled;
     return state;
-
 }
 
-void Board::checkBlinkLEDs() {
-
+void Board::checkBlinkLEDs()
+{
     //this function will disable blinking
     //if none of the LEDs is in blinking state
 
@@ -864,43 +847,40 @@ void Board::checkBlinkLEDs() {
     uint8_t ledState;
 
     //if any LED is blinking, set timerState to true and exit the loop
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    {
-
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+    {
         ledState = getLEDstate(i);
-
-        if (bitRead(ledState, LED_BLINK_ON_BIT)) {
-
+        if (bitRead(ledState, LED_BLINK_ON_BIT))
+        {
             _blinkEnabled = true;
             break;
-
         }
-
     }
 
-    if (_blinkEnabled)  ledBlinkingStart();
-
-    //don't bother reseting variables if blinking is already disabled
-    else    if (!_blinkEnabled && ledBlinkingActive()) {
-
+    if (_blinkEnabled)
+    {
+        ledBlinkingStart();
+    }
+    else if (!_blinkEnabled && ledBlinkingActive())
+    {
+        //don't bother reseting variables if blinking is already disabled
         //reset blinkState to default value
         ledBlinkingStop();
 
     }
-
 }
 
-inline uint8_t getRGBfirstID(uint8_t rgbID)    {
-
+inline uint8_t getRGBfirstID(uint8_t rgbID)
+{
     //get first RGB LED address (out of three)
     uint8_t column = rgbID % NUMBER_OF_LED_COLUMNS;
     uint8_t row  = (rgbID/NUMBER_OF_BUTTON_COLUMNS)*3;
 
     return column + NUMBER_OF_LED_COLUMNS*row;
-
 }
 
-void Board::handleLED(uint8_t ledNumber, rgb color, bool blinkMode)    {
-
+void Board::handleLED(uint8_t ledNumber, rgb color, bool blinkMode)
+{
     uint8_t led1 = getRGBfirstID(ledNumber);
     uint8_t led2 = led1 + NUMBER_OF_LED_COLUMNS*1;
     uint8_t led3 = led1 + NUMBER_OF_LED_COLUMNS*2;
@@ -908,11 +888,10 @@ void Board::handleLED(uint8_t ledNumber, rgb color, bool blinkMode)    {
     handleLED(led1, color.r, blinkMode);
     handleLED(led2, color.g, blinkMode);
     handleLED(led3, color.b, blinkMode);
-
 }
 
-void Board::handleLED(uint8_t ledNumber, bool state, bool blinkMode) {
-
+void Board::handleLED(uint8_t ledNumber, bool state, bool blinkMode)
+{
     /*
 
     LED state is stored into one byte (ledState). The bits have following meaning (7 being the MSB bit):
@@ -941,32 +920,36 @@ void Board::handleLED(uint8_t ledNumber, bool state, bool blinkMode) {
         //turn on the led
         //if led was already active, clear the on bits before setting new state
         if (bitRead(currentState, LED_ACTIVE_BIT))
-        currentState = 0;
+            currentState = 0;
 
         bitWrite(currentState, LED_ACTIVE_BIT, 1);
-        if (blinkMode)  {
-
+        if (blinkMode)
+        {
             bitWrite(currentState, LED_BLINK_ON_BIT, 1);
             //this will turn the led immediately no matter how little time it's
             //going to blink first time
             bitWrite(currentState, LED_BLINK_STATE_BIT, 1);
-
-        }   else bitWrite(currentState, LED_CONSTANT_ON_BIT, 1);
+        }
+        else
+        {
+            bitWrite(currentState, LED_CONSTANT_ON_BIT, 1);
+        }
         break;
+    }
 
-    }   ledState[ledNumber] = currentState;
-
+    ledState[ledNumber] = currentState;
 }
 
 
 //analog
 
-bool Board::analogDataAvailable() {
-
+bool Board::analogDataAvailable()
+{
     bool state;
     state = _analogDataAvailable;
-    if (state) {
 
+    if (state)
+    {
         //no cli/sei needed since adc conversion is stopped at the moment
         for (int i=0; i<ANALOG_BUFFER_SIZE; i++)
             analogBufferCopy[i] = analogBuffer[i];
@@ -974,34 +957,31 @@ bool Board::analogDataAvailable() {
         _analogDataAvailable = false;
         adcDelayCounter = 0;
         return true;
+    }
 
-    } return false;
-
+    return false;
 }
 
-int16_t Board::getAnalogValue(uint8_t analogID) {
-
+int16_t Board::getAnalogValue(uint8_t analogID)
+{
     return analogBufferCopy[analogID];
-
 }
 
-inline void checkInputMatrixBufferCopy()    {
-
-    if ((buttonsProcessed == true) && (encodersProcessed == true) && (dmBufferCopied == true))  {
-
+inline void checkInputMatrixBufferCopy()
+{
+    if ((buttonsProcessed == true) && (encodersProcessed == true) && (dmBufferCopied == true))
+    {
         dmBufferCopied = false;
         buttonsProcessed = false;
         encodersProcessed = false;
-
     }
-
 }
 
 
 //encoders
 
-int8_t Board::getEncoderState(uint8_t encoderNumber)  {
-
+int8_t Board::getEncoderState(uint8_t encoderNumber)
+{
     uint8_t column = encoderNumber % NUMBER_OF_BUTTON_COLUMNS;
     uint8_t row  = (encoderNumber/NUMBER_OF_BUTTON_COLUMNS)*2;
     uint8_t shiftAmount = ((NUMBER_OF_BUTTON_COLUMNS-1)*8) - column*8;
@@ -1009,58 +989,49 @@ int8_t Board::getEncoderState(uint8_t encoderNumber)  {
     pairState = ((pairState >> row) & 0x03);
 
     return readEncoder(encoderNumber, pairState);
-
 }
 
-bool Board::encoderDataAvailable()  {
-
+bool Board::encoderDataAvailable()
+{
     checkInputMatrixBufferCopy();
 
     bool returnValue = true;
     bool _dmBufferCopied;
     _dmBufferCopied = dmBufferCopied;
 
-    if (!_dmBufferCopied)    {   //buffer isn't copied
-
-        returnValue = copyInputMatrixBuffer();
-
-    }
+    if (!_dmBufferCopied)
+        returnValue = copyInputMatrixBuffer();  //buffer isn't copied
 
     encodersProcessed = true;
     return returnValue;
-
 }
 
 
 //buttons
 
-bool Board::buttonDataAvailable()   {
-
+bool Board::buttonDataAvailable()
+{
     checkInputMatrixBufferCopy();
 
     bool returnValue = true;
     bool _dmBufferCopied;
     _dmBufferCopied = dmBufferCopied;
 
-    if (!_dmBufferCopied)    {   //buffer isn't copied
-
-        returnValue = copyInputMatrixBuffer();
-
-    }
+    if (!_dmBufferCopied)
+        returnValue = copyInputMatrixBuffer();  //buffer isn't copied
 
     buttonsProcessed = true;
     return returnValue;
-
 }
 
-bool Board::getButtonState(uint8_t buttonIndex) {
-
+bool Board::getButtonState(uint8_t buttonIndex)
+{
     uint8_t row = buttonIndex/NUMBER_OF_BUTTON_COLUMNS;
-    uint8_t column = (NUMBER_OF_BUTTON_COLUMNS-1) - buttonIndex % NUMBER_OF_BUTTON_COLUMNS; //invert column order
+    //invert column order
+    uint8_t column = (NUMBER_OF_BUTTON_COLUMNS-1) - buttonIndex % NUMBER_OF_BUTTON_COLUMNS;
     buttonIndex = column*8 + row;
 
     return !((inputMatrixBufferCopy >> buttonIndex) & 0x01);
-
 }
 
 Board board;
