@@ -155,16 +155,16 @@ void initSysEx()    {
 
 void globalInit()   {
 
-    configuration.init();
+    database.init();
     board.init();
     leds.init();
 
     midi.init(dinInterface);
     midi.init(usbInterface);
-    midi.setInputChannel(configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, inputChannel));
-    midi.setNoteChannel(configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
-    midi.setCCchannel(configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, CCchannel));
-    midi.setProgramChangeChannel(configuration.readParameter(CONF_BLOCK_MIDI, midiChannelSection, programChangeChannel));
+    midi.setInputChannel(database.readParameter(CONF_BLOCK_MIDI, midiChannelSection, inputChannel));
+    midi.setNoteChannel(database.readParameter(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
+    midi.setCCchannel(database.readParameter(CONF_BLOCK_MIDI, midiChannelSection, CCchannel));
+    midi.setProgramChangeChannel(database.readParameter(CONF_BLOCK_MIDI, midiChannelSection, programChangeChannel));
 
     initSysEx();
     checkNewRevision();

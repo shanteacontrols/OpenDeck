@@ -34,15 +34,15 @@ void Analog::checkPotentiometerValue(uint8_t analogID, int16_t tempValue)  {
     uint8_t ccValue = tempValue >> 3;
 
     //invert CC data if potInverted is true
-    if (configuration.readParameter(CONF_BLOCK_ANALOG, analogInvertedSection, analogID))   ccValue = 127 - ccValue;
+    if (database.readParameter(CONF_BLOCK_ANALOG, analogInvertedSection, analogID))   ccValue = 127 - ccValue;
 
-    uint8_t lowerCClimit = configuration.readParameter(CONF_BLOCK_ANALOG, analogCClowerLimitSection, analogID);
-    uint8_t upperCClimit = configuration.readParameter(CONF_BLOCK_ANALOG, analogCCupperLimitSection, analogID);
+    uint8_t lowerCClimit = database.readParameter(CONF_BLOCK_ANALOG, analogCClowerLimitSection, analogID);
+    uint8_t upperCClimit = database.readParameter(CONF_BLOCK_ANALOG, analogCCupperLimitSection, analogID);
 
     //only use map when cc limits are different from defaults
     if ((lowerCClimit != 0) || (upperCClimit != 127))   {
 
-        midi.sendNoteOn(configuration.readParameter(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID), mapAnalog_uint8(ccValue, 0, 127, lowerCClimit, upperCClimit));
+        midi.sendNoteOn(database.readParameter(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID), mapAnalog_uint8(ccValue, 0, 127, lowerCClimit, upperCClimit));
         //if (sysEx.configurationEnabled())
             //sysEx.sendComponentID(CONF_BLOCK_ANALOG, analogID);
 
@@ -50,7 +50,7 @@ void Analog::checkPotentiometerValue(uint8_t analogID, int16_t tempValue)  {
 
     else {
 
-        midi.sendNoteOn(configuration.readParameter(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID), ccValue);
+        midi.sendNoteOn(database.readParameter(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID), ccValue);
         //if (sysEx.configurationEnabled())
             //sysEx.sendComponentID(CONF_BLOCK_ANALOG, analogID);
 

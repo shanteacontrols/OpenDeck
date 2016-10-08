@@ -16,9 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Configuration.h"
+#include "Database.h"
 
-void Configuration::createMemoryLayout()   {
+void Database::createMemoryLayout()   {
 
     {
         blocks[CONF_BLOCK_MIDI].sections = MIDI_SECTIONS;

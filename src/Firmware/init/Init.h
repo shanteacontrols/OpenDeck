@@ -19,7 +19,7 @@
 #ifndef INIT_H_
 #define INIT_H_
 
-#include "../eeprom/Configuration.h"
+#include "../eeprom/Database.h"
 #include "../sysex/SysEx.h"
 #include "../version/Firmware.h"
 #include "../version/Hardware.h"

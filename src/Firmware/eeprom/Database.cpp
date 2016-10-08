@@ -16,9 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Configuration.h"
+#include "Database.h"
 
-Configuration::Configuration()    {
+Database::Database()    {
 
     //def const
     #ifdef ENABLE_ASYNC_UPDATE
@@ -36,7 +36,7 @@ Configuration::Configuration()    {
 
 }
 
-void Configuration::init() {
+void Database::init() {
 
     createMemoryLayout();
     createSectionAddresses();
@@ -45,7 +45,7 @@ void Configuration::init() {
 
 }
 
-void Configuration::checkReset()    {
+void Database::checkReset()    {
 
     //if ID bytes haven't been written to EEPROM on specified address,
     //write default configuration to EEPROM
@@ -91,7 +91,7 @@ void Configuration::checkReset()    {
 
 }
 
-void Configuration::writeSignature()    {
+void Database::writeSignature()    {
 
     uint8_t unique_id_invert = invertByte(EEPROM_UNIQUE_ID);
 
@@ -100,7 +100,7 @@ void Configuration::writeSignature()    {
 
 }
 
-void Configuration::factoryReset(factoryResetType_t type)   {
+void Database::factoryReset(factoryResetType_t type)   {
 
     #ifdef MODULE_LCD
     strcpy_P(stringBuffer, restoringDefaults_string);
@@ -130,14 +130,14 @@ void Configuration::factoryReset(factoryResetType_t type)   {
 
 }
 
-void Configuration::clearEEPROM()    {
+void Database::clearEEPROM()    {
 
     for (int i=0; i<EEPROM_SIZE; i++)
         eeprom_update_byte((uint8_t*)i, 0xFF);
 
 }
 
-bool Configuration::writeParameter(uint8_t blockID, uint8_t sectionID, int16_t parameterID, int16_t newValue, bool async)    {
+bool Database::writeParameter(uint8_t blockID, uint8_t sectionID, int16_t parameterID, int16_t newValue, bool async)    {
 
     uint16_t startAddress = getSectionAddress(blockID, sectionID);
 
@@ -223,7 +223,7 @@ bool Configuration::writeParameter(uint8_t blockID, uint8_t sectionID, int16_t p
 
 }
 
-void Configuration::createSectionAddresses()   {
+void Database::createSectionAddresses()   {
 
     for (int i=0; i<CONF_BLOCKS; i++)  {
 
@@ -287,7 +287,7 @@ void Configuration::createSectionAddresses()   {
 }
 
 #ifdef ENABLE_ASYNC_UPDATE
-void Configuration::queueData(uint16_t eepromAddress, uint16_t data, uint8_t parameterType)    {
+void Database::queueData(uint16_t eepromAddress, uint16_t data, uint8_t parameterType)    {
 
     uint8_t index = eeprom_update_buffer_head + 1;
     if (index >= EEPROM_UPDATE_BUFFER_SIZE) index = 0;
@@ -309,7 +309,7 @@ void Configuration::queueData(uint16_t eepromAddress, uint16_t data, uint8_t par
 
 }
 
-bool Configuration::update()    {
+bool Database::update()    {
 
     //write queued data to eeprom
 
@@ -343,4 +343,4 @@ bool Configuration::update()    {
 }
 #endif
 
-Configuration configuration;
+Database database;

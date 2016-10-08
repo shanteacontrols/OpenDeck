@@ -16,9 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Configuration.h"
+#include "Database.h"
 
-void Configuration::initSettings(bool partialReset) {
+void Database::initSettings(bool partialReset) {
 
     for (int i=0; i<CONF_BLOCKS; i++)  {
 
