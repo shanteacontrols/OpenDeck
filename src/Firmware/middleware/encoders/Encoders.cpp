@@ -17,7 +17,7 @@
 */
 
 #include "Encoders.h"
-#include "../../eeprom/Configuration.h"
+#include "../../eeprom/Database.h"
 #include "../../midi/MIDI.h"
 
 #define ENCODER_VALUE_LEFT_7FH01H   127
@@ -38,12 +38,12 @@ void Encoders::update()   {
 
     for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)    {
 
-        if (!configuration.readParameter(CONF_BLOCK_ENCODER, encoderEnabledSection, i)) continue;
+        if (!database.readParameter(CONF_BLOCK_ENCODER, encoderEnabledSection, i)) continue;
 
         encoderPosition_t encoderState = (encoderPosition_t)Board::getEncoderState(i);
         if (encoderState == encStopped) continue;
 
-        if (configuration.readParameter(CONF_BLOCK_ENCODER, encoderInvertedSection, i))   {
+        if (database.readParameter(CONF_BLOCK_ENCODER, encoderInvertedSection, i))   {
 
             if (encoderState == encMoveLeft)
                 encoderState = encMoveRight;
@@ -54,7 +54,7 @@ void Encoders::update()   {
 
         uint8_t encoderValue = 0;
 
-        switch((encoderType_t)configuration.readParameter(CONF_BLOCK_ENCODER, encoderEncodingModeSection, i)) {
+        switch((encoderType_t)database.readParameter(CONF_BLOCK_ENCODER, encoderEncodingModeSection, i)) {
 
             case enc7Fh01h:
             if (encoderState == encMoveLeft) encoderValue = ENCODER_VALUE_LEFT_7FH01H;
@@ -71,7 +71,7 @@ void Encoders::update()   {
 
         }
 
-        midi.sendControlChange(configuration.readParameter(CONF_BLOCK_ENCODER, encoderMIDIidSection, i), encoderValue);
+        midi.sendControlChange(database.readParameter(CONF_BLOCK_ENCODER, encoderMIDIidSection, i), encoderValue);
         //if (sysEx.configurationEnabled())
             //sysEx.sendComponentID(CONF_BLOCK_ENCODER, i);
 

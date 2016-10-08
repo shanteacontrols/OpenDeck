@@ -50,7 +50,7 @@ bool onCustom(uint8_t value) {
         leds.setFadeTime(1);
         leds.allOff();
         wait(1500);
-        configuration.factoryReset(factoryReset_partial);
+        database.factoryReset(factoryReset_partial);
         reboot();
         return true;
 
@@ -69,13 +69,13 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index) {
 
         } else {
 
-            return configuration.readParameter(block, section, index);
+            return database.readParameter(block, section, index);
 
         }
         break;
 
         default:
-        return configuration.readParameter(block, section, index);
+        return database.readParameter(block, section, index);
 
     }
 
@@ -86,7 +86,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
     bool returnValue = true;
     //don't write led states to eeprom
     if (block != CONF_BLOCK_LED)
-        returnValue = configuration.writeParameter(block, section, index, newValue);
+        returnValue = database.writeParameter(block, section, index, newValue);
 
     if (returnValue)    {
 
@@ -146,7 +146,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
 
                 }
 
-                configuration.writeParameter(block, section, index, newValue);
+                database.writeParameter(block, section, index, newValue);
 
             }
             break;
@@ -209,7 +209,7 @@ int main()  {
             uint8_t data1 = midi.getData1(dinInterface);
             uint8_t data2 = midi.getData2(dinInterface);
 
-            if (!configuration.readParameter(CONF_BLOCK_MIDI, midiFeatureSection, midiFeatureUSBconvert))  {
+            if (!database.readParameter(CONF_BLOCK_MIDI, midiFeatureSection, midiFeatureUSBconvert))  {
 
                 switch(messageType) {
 

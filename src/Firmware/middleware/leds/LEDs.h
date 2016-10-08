@@ -20,7 +20,7 @@
 #define LEDS_H_
 
 #include "../../board/Board.h"
-#include "../../eeprom/Configuration.h"
+#include "../../eeprom/Database.h"
 #include "Colors.h"
 
 //define extra sysex section for setting/getting led states

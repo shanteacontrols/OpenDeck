@@ -24,8 +24,8 @@
 #include "../board/Board.h"
 #include "blocks/Blocks.h"
 
-#ifndef EEPROM_H_
-#define EEPROM_H_
+#ifndef DATABASE_H_
+#define DATABASE_H_
 
 #ifdef ENABLE_ASYNC_UPDATE
 #define EEPROM_UPDATE_BUFFER_SIZE   64
@@ -70,10 +70,10 @@ typedef struct {
 
 //default controller settings
 
-class Configuration {
+class Database {
 
     public:
-    Configuration();
+    Database();
     #ifdef ENABLE_ASYNC_UPDATE
     bool update();
     #endif
@@ -170,6 +170,6 @@ class Configuration {
 
 };
 
-extern Configuration configuration;
+extern Database database;
 
 #endif
