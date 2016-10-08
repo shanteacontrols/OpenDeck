@@ -22,8 +22,8 @@
 //some predefined colors here
 #include "../../board/Board.h"
 
-typedef enum {
-
+typedef enum
+{
     colorOff,
     colorWhite,
     colorCyan,
@@ -32,48 +32,54 @@ typedef enum {
     colorBlue,
     colorYellow,
     colorGreen
-
 } ledColor_t;
 
-const rgb colors[] = {
-
-    {   //off
+const rgb colors[] =
+{
+    {
+        //off
         0,
         0,
         0
     },
 
-    {   //white
+    {
+        //white
         255,
         255,
         255
     },
 
-    {   //cyan
+    {
+        //cyan
         0,
         255,
         255
     },
 
-    {   //magenta
+    {
+        //magenta
         255,
         0,
         255
     },
 
-    {   //red
+    {
+        //red
         255,
         0,
         0
     },
 
-    {   //blue
+    {
+        //blue
         0,
         0,
         255
     },
 
-    {   //yellow
+    {
+        //yellow
         255,
         255,
         0
@@ -85,7 +91,6 @@ const rgb colors[] = {
         255,
         0
     }
-
 };
 
 #endif

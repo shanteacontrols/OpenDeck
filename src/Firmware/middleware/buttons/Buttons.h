@@ -23,16 +23,15 @@
 #include "../../board/Board.h"
 #include "../../midi/MIDI.h"
 
-enum buttonType_t {
-
+enum buttonType_t
+{
     buttonMomentary,
     buttonLatching,
     BUTTON_TYPES
-
 };
 
-class Buttons : Board {
-
+class Buttons : Board
+{
     public:
     Buttons();
 
@@ -53,7 +52,6 @@ class Buttons : Board {
     void updateButtonState(uint8_t buttonID, uint8_t buttonState);
     bool getPreviousButtonState(uint8_t buttonID);
     bool buttonDebounced(uint8_t buttonID, bool buttonState);
-
 };
 
 extern Buttons buttons;

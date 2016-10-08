@@ -37,8 +37,8 @@
 
 #define NUMBER_OF_START_UP_ANIMATIONS   5
 
-class LEDs : Board {
-
+class LEDs : Board
+{
     public:
     LEDs();
     void init();
@@ -62,7 +62,6 @@ class LEDs : Board {
     //animation
     void oneByOneLED(bool ledDirection, bool singleLED, bool turnOn);
     void startUpAnimation();
-
 };
 
 extern LEDs leds;

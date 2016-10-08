@@ -21,28 +21,25 @@
 
 #include "../../board/Board.h"
 
-enum encoderType_t {
-
-    enc7Fh01h = 0,
-    enc3Fh41h = 1,
+enum encoderType_t
+{
+    enc7Fh01h,
+    enc3Fh41h,
     ENCODING_MODES
-
 };
 
-enum encoderPosition_t {
-
+enum encoderPosition_t
+{
     encStopped,
     encMoveLeft,
     encMoveRight,
-
 };
 
-class Encoders : Board {
-
+class Encoders : Board
+{
     public:
     Encoders();
     void update();
-
 };
 
 extern Encoders encoders;

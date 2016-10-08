@@ -18,8 +18,8 @@
 
 #include "Database.h"
 
-void Database::createMemoryLayout()   {
-
+void Database::createMemoryLayout()
+{
     {
         blocks[CONF_BLOCK_MIDI].sections = MIDI_SECTIONS;
 
@@ -123,5 +123,4 @@ void Database::createMemoryLayout()   {
         blocks[CONF_BLOCK_LED].defaultValue[ledLocalControlEnabled] = 0;
         blocks[CONF_BLOCK_LED].sectionParameters[ledLocalControlEnabled] = MAX_NUMBER_OF_LEDS;
     }
-
 }

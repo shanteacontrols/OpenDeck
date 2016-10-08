@@ -29,10 +29,9 @@
 
 USB_ClassInfo_MIDI_Device_t MIDI_Interface;
 
-MIDI::MIDI()   {
-
+MIDI::MIDI()
+{
     //default constructor
-
     mRunningStatus_TX               = midiMessageInvalidType;
     mRunningStatus_RX               = midiMessageInvalidType;
 
@@ -56,27 +55,26 @@ MIDI::MIDI()   {
     useRunningStatus                = false;
     use1byteParsing                 = true;
 
-    MIDI_Interface.Config.StreamingInterfaceNumber = INTERFACE_ID_AudioStream;
+    MIDI_Interface.Config.StreamingInterfaceNumber  = INTERFACE_ID_AudioStream;
 
-    MIDI_Interface.Config.DataINEndpoint.Address = MIDI_STREAM_IN_EPADDR;
-    MIDI_Interface.Config.DataINEndpoint.Size = MIDI_STREAM_EPSIZE;
-    MIDI_Interface.Config.DataINEndpoint.Banks = 1;
+    MIDI_Interface.Config.DataINEndpoint.Address    = MIDI_STREAM_IN_EPADDR;
+    MIDI_Interface.Config.DataINEndpoint.Size       = MIDI_STREAM_EPSIZE;
+    MIDI_Interface.Config.DataINEndpoint.Banks      = 1;
 
-    MIDI_Interface.Config.DataOUTEndpoint.Address = MIDI_STREAM_OUT_EPADDR;
-    MIDI_Interface.Config.DataOUTEndpoint.Size = MIDI_STREAM_EPSIZE;
-    MIDI_Interface.Config.DataOUTEndpoint.Banks = 1;
+    MIDI_Interface.Config.DataOUTEndpoint.Address   = MIDI_STREAM_OUT_EPADDR;
+    MIDI_Interface.Config.DataOUTEndpoint.Size      = MIDI_STREAM_EPSIZE;
+    MIDI_Interface.Config.DataOUTEndpoint.Banks     = 1;
 
     noteChannel_            = 1;
     ccChannel_              = 1;
     programChangeChannel_   = 1;
     aftertouchChannel_      = 1;
-
 }
 
-bool MIDI::init(midiInterfaceType_t type) {
-
-    switch(type)    {
-
+bool MIDI::init(midiInterfaceType_t type)
+{
+    switch(type)
+    {
         case dinInterface:
         USE_SERIAL_PORT.begin(31250);
         dinEnabled = true;
@@ -92,72 +90,60 @@ bool MIDI::init(midiInterfaceType_t type) {
         default:
         return false;
         break;
-
     }
-
 }
 
-void MIDI::send(midiMessageType_t inType, uint8_t inData1, uint8_t inData2, uint8_t inChannel)  {
-
+void MIDI::send(midiMessageType_t inType, uint8_t inData1, uint8_t inData2, uint8_t inChannel)
+{
     //inType:       MIDI message type
     //inData1:      The first data byte
     //inData2:      The second data byte (if the message contains only 1 data byte, set this one to 0)
     //inChannel:    The output channel on which the message will be sent (values from 1 to 16)
 
     //test if channel is valid
-    if (inChannel >= MIDI_CHANNEL_OFF  ||
-    inChannel == MIDI_CHANNEL_OMNI ||
-    inType < 0x80)  {
-
+    if (inChannel >= MIDI_CHANNEL_OFF || inChannel == MIDI_CHANNEL_OMNI || inType < 0x80)
+    {
         if (useRunningStatus && dinEnabled)
             mRunningStatus_TX = midiMessageInvalidType;
 
         return; //don't send anything
-
     }
 
-    if (inType <= midiMessagePitchBend) {
-
+    if (inType <= midiMessagePitchBend)
+    {
         //channel messages
-
         //protection: remove MSBs on data
         inData1 &= 0x7f;
         inData2 &= 0x7f;
 
         const uint8_t status = getStatus(inType, inChannel);
 
-        if (dinEnabled)   {
-
-            if (useRunningStatus)   {
-
-                if (mRunningStatus_TX != status)    {
-
+        if (dinEnabled)
+        {
+            if (useRunningStatus)
+            {
+                if (mRunningStatus_TX != status)
+                {
                     //new message, memorize and send header
                     mRunningStatus_TX = status;
                     USE_SERIAL_PORT.write(mRunningStatus_TX);
-
                 }
-
-            }   else {
-
+            }
+            else
+            {
                 //don't care about running status, send the status byte
                 USE_SERIAL_PORT.write(status);
-
             }
 
             //send data
             USE_SERIAL_PORT.write(inData1);
 
-            if ((inType != midiMessageProgramChange) && (inType != midiMessageAfterTouchChannel))   {
-
+            if ((inType != midiMessageProgramChange) && (inType != midiMessageAfterTouchChannel))
                 USE_SERIAL_PORT.write(inData2);
-
-            }
-
         }
 
-        if (usbEnabled)   {
-
+        if (usbEnabled)
+        {
             uint8_t midiEvent = (uint8_t)inType >> 4;
             uint8_t data1 = getStatus(inType, inChannel);
 
@@ -170,24 +156,18 @@ void MIDI::send(midiMessageType_t inType, uint8_t inData1, uint8_t inData2, uint
                 .Data3       = inData2,
             };
 
-            //write the MIDI event packet to the endpoint
-            //Endpoint_Write_Stream_LE(&MIDIEvent, sizeof(MIDIEvent), NULL);
-
-            //send the data in the endpoint to the host
-            //Endpoint_ClearIN();
-
             MIDI_Device_SendEventPacket(&MIDI_Interface, &MIDIEvent);
             MIDI_Device_Flush(&MIDI_Interface);
-
         }
-
-    }   else if (inType >= midiMessageTuneRequest && inType <= midiMessageSystemReset)
-            sendRealTime(inType); //system real-time and 1 byte
-
+    }
+    else if (inType >= midiMessageTuneRequest && inType <= midiMessageSystemReset)
+    {
+        sendRealTime(inType); //system real-time and 1 byte
+    }
 }
 
-void MIDI::sendNoteOn(uint8_t inNoteNumber, uint8_t inVelocity, uint8_t inChannel)    {
-
+void MIDI::sendNoteOn(uint8_t inNoteNumber, uint8_t inVelocity, uint8_t inChannel)
+{
     //inNoteNumber:   Pitch value in the MIDI format (0 to 127)
     //inVelocity:     Note attack velocity (0 to 127)
     //inChannel:      The channel on which the message will be sent (1 to 16).
@@ -196,11 +176,10 @@ void MIDI::sendNoteOn(uint8_t inNoteNumber, uint8_t inVelocity, uint8_t inChanne
         inChannel = noteChannel_;
 
     send(midiMessageNoteOn, inNoteNumber, inVelocity, inChannel);
-
 }
 
-void MIDI::sendNoteOff(uint8_t inNoteNumber, uint8_t inVelocity, uint8_t inChannel)   {
-
+void MIDI::sendNoteOff(uint8_t inNoteNumber, uint8_t inVelocity, uint8_t inChannel)
+{
     //inNoteNumber:    Pitch value in the MIDI format (0 to 127)
     //inVelocity:      Release velocity (0 to 127)
     //inChannel:       The channel on which the message will be sent (1 to 16)
@@ -208,20 +187,14 @@ void MIDI::sendNoteOff(uint8_t inNoteNumber, uint8_t inVelocity, uint8_t inChann
     if (!inChannel)
         inChannel = noteChannel_;
 
-    if (noteOffMode == noteOffType_standardNoteOff)   {
-
+    if (noteOffMode == noteOffType_standardNoteOff)
         send(midiMessageNoteOff, inNoteNumber, inVelocity, inChannel);
-
-    } else {
-
+    else
         send(midiMessageNoteOn, inNoteNumber, inVelocity, inChannel);
-
-    }
-
 }
 
-void MIDI::sendProgramChange(uint8_t inProgramNumber, uint8_t inChannel)  {
-
+void MIDI::sendProgramChange(uint8_t inProgramNumber, uint8_t inChannel)
+{
     //inProgramNumber:    The Program to select (0 to 127)
     //inChannel:          The channel on which the message will be sent (1 to 16)
 
@@ -229,11 +202,10 @@ void MIDI::sendProgramChange(uint8_t inProgramNumber, uint8_t inChannel)  {
         inChannel = programChangeChannel_;
 
     send(midiMessageProgramChange, inProgramNumber, 0, inChannel);
-
 }
 
-void MIDI::sendControlChange(uint8_t inControlNumber, uint8_t inControlValue, uint8_t inChannel)  {
-
+void MIDI::sendControlChange(uint8_t inControlNumber, uint8_t inControlValue, uint8_t inChannel)
+{
     //inControlNumber:    The controller number (0 to 127)
     //inControlValue:     The value for the specified controller (0 to 127)
     //inChannel:          The channel on which the message will be sent (1 to 16)
@@ -242,11 +214,10 @@ void MIDI::sendControlChange(uint8_t inControlNumber, uint8_t inControlValue, ui
         inChannel = ccChannel_;
 
     send(midiMessageControlChange, inControlNumber, inControlValue, inChannel);
-
 }
 
-void MIDI::sendPolyPressure(uint8_t inNoteNumber, uint8_t inPressure, uint8_t inChannel)  {
-
+void MIDI::sendPolyPressure(uint8_t inNoteNumber, uint8_t inPressure, uint8_t inChannel)
+{
      //inNoteNumber:    The note to apply AfterTouch to (0 to 127)
      //inPressure:      The amount of AfterTouch to apply (0 to 127)
      //inChannel:       The channel on which the message will be sent (1 to 16)
@@ -255,11 +226,10 @@ void MIDI::sendPolyPressure(uint8_t inNoteNumber, uint8_t inPressure, uint8_t in
         inChannel = aftertouchChannel_;
 
     send(midiMessageAfterTouchPoly, inNoteNumber, inPressure, inChannel);
-
 }
 
-void MIDI::sendAfterTouch(uint8_t inPressure, uint8_t inChannel)  {
-
+void MIDI::sendAfterTouch(uint8_t inPressure, uint8_t inChannel)
+{
      //inPressure:  The amount of AfterTouch to apply to all notes
      //inChannel:   The channel on which the message will be sent (1 to 16)
 
@@ -267,11 +237,10 @@ void MIDI::sendAfterTouch(uint8_t inPressure, uint8_t inChannel)  {
         inChannel = aftertouchChannel_;
 
     send(midiMessageAfterTouchChannel, inPressure, 0, inChannel);
-
 }
 
-void MIDI::sendPitchBend(int16_t inPitchValue, uint8_t inChannel) {
-
+void MIDI::sendPitchBend(int16_t inPitchValue, uint8_t inChannel)
+{
     //inPitchValue: The amount of bend to send (in a signed integer format),
                     //between MIDI_PITCHBEND_MIN and MIDI_PITCHBEND_MAX,
                     //center value is 0
@@ -279,11 +248,10 @@ void MIDI::sendPitchBend(int16_t inPitchValue, uint8_t inChannel) {
 
     const unsigned bend = inPitchValue - MIDI_PITCHBEND_MIN;
     send(midiMessagePitchBend, lowByte_7bit(bend), highByte_7bit(bend), inChannel);
-
 }
 
-void MIDI::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayContainsBoundaries)   {
-
+void MIDI::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayContainsBoundaries)
+{
      //inLength:                    The size of the array to send
      //inArray:                     The byte array containing the data to send
      //inArrayContainsBoundaries:   When set to 'true', 0xf0 & 0xf7 bytes
@@ -292,8 +260,8 @@ void MIDI::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCont
 
     MIDI_EventPacket_t MIDIEvent;
 
-    if (dinEnabled)  {
-
+    if (dinEnabled)
+    {
         if (!inArrayContainsBoundaries)
             USE_SERIAL_PORT.write(0xf0);
 
@@ -301,26 +269,24 @@ void MIDI::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCont
             USE_SERIAL_PORT.write(inArray[i]);
 
         if (!inArrayContainsBoundaries)
-        USE_SERIAL_PORT.write(0xf7);
+            USE_SERIAL_PORT.write(0xf7);
 
         if (useRunningStatus)
             mRunningStatus_TX = midiMessageInvalidType;
-
     }
 
-    if (usbEnabled) {
-
-        if (!inArrayContainsBoundaries)   {
-
+    if (usbEnabled)
+    {
+        if (!inArrayContainsBoundaries)
+        {
             //append sysex start (0xF0) and stop (0xF7) bytes to array
-
             bool firstByte = true;
             bool startSent = false;
 
-            while (inLength > 3) {
-
-                if (firstByte)  {
-
+            while (inLength > 3)
+            {
+                if (firstByte)
+                {
                     MIDIEvent = (MIDI_EventPacket_t)
                     {
                         .Event       = MIDI_EVENT(0, sysExStartCin),
@@ -338,8 +304,9 @@ void MIDI::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCont
                     inArray += 2;
                     inLength -= 2;
 
-                    }   else {
-
+                }
+                else
+                {
                     MIDIEvent = (MIDI_EventPacket_t)
                     {
                         .Event       = MIDI_EVENT(0, sysExStartCin),
@@ -354,15 +321,13 @@ void MIDI::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCont
 
                     inArray += 3;
                     inLength -= 3;
-
                 }
-
             }
 
-            if (inLength == 3)    {
-
-                if (startSent)  {
-
+            if (inLength == 3)
+            {
+                if (startSent)
+                {
                     MIDIEvent = (MIDI_EventPacket_t)
                     {
                         .Event       = MIDI_EVENT(0, sysExStartCin),
@@ -387,8 +352,9 @@ void MIDI::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCont
                     MIDI_Device_SendEventPacket(&MIDI_Interface, &MIDIEvent);
                     MIDI_Device_Flush(&MIDI_Interface);
 
-                    }   else {
-
+                }
+                else
+                {
                     MIDIEvent = (MIDI_EventPacket_t)
                     {
                         .Event       = MIDI_EVENT(0, sysExStartCin),
@@ -414,13 +380,11 @@ void MIDI::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCont
                     MIDI_Device_Flush(&MIDI_Interface);
 
                 }
-
             }
-
-            else if (inLength == 2) {
-
-                if (startSent)  {
-
+            else if (inLength == 2)
+            {
+                if (startSent)
+                {
                     MIDIEvent = (MIDI_EventPacket_t)
                     {
                         .Event       = MIDI_EVENT(0, sysExStop3byteCin),
@@ -434,9 +398,8 @@ void MIDI::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCont
                     MIDI_Device_Flush(&MIDI_Interface);
 
                 }
-
-                else {
-
+                else
+                {
                     MIDIEvent = (MIDI_EventPacket_t)
                     {
                         .Event       = MIDI_EVENT(0, sysExStartCin),
@@ -460,15 +423,12 @@ void MIDI::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCont
 
                     MIDI_Device_SendEventPacket(&MIDI_Interface, &MIDIEvent);
                     MIDI_Device_Flush(&MIDI_Interface);
-
                 }
-
             }
-
-            else if (inLength == 1) {
-
-                if (startSent)  {
-
+            else if (inLength == 1)
+            {
+                if (startSent)
+                {
                     MIDIEvent = (MIDI_EventPacket_t)
                     {
                         .Event       = MIDI_EVENT(0, sysExStop2byteCin),
@@ -481,8 +441,9 @@ void MIDI::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCont
                     MIDI_Device_SendEventPacket(&MIDI_Interface, &MIDIEvent);
                     MIDI_Device_Flush(&MIDI_Interface);
 
-                    }   else {
-
+                }
+                else
+                {
                     MIDIEvent = (MIDI_EventPacket_t)
                     {
                         .Event       = MIDI_EVENT(0, sysExStop3byteCin),
@@ -494,15 +455,13 @@ void MIDI::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCont
 
                     MIDI_Device_SendEventPacket(&MIDI_Interface, &MIDIEvent);
                     MIDI_Device_Flush(&MIDI_Interface);
-
                 }
-
             }
-
-            }   else {
-
-            while (inLength > 3) {
-
+        }
+        else
+        {
+            while (inLength > 3)
+            {
                 MIDIEvent = (MIDI_EventPacket_t)
                 {
                     .Event       = MIDI_EVENT(0, sysExStartCin),
@@ -517,11 +476,10 @@ void MIDI::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCont
 
                 inArray += 3;
                 inLength -= 3;
-
             }
 
-            if (inLength == 3)  {
-
+            if (inLength == 3)
+            {
                 MIDIEvent = (MIDI_EventPacket_t)
                 {
                     .Event       = MIDI_EVENT(0, sysExStop3byteCin),
@@ -534,8 +492,9 @@ void MIDI::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCont
                 MIDI_Device_SendEventPacket(&MIDI_Interface, &MIDIEvent);
                 MIDI_Device_Flush(&MIDI_Interface);
 
-                }   else if (inLength == 2) {
-
+            }
+            else if (inLength == 2)
+            {
                 MIDIEvent = (MIDI_EventPacket_t)
                 {
                     .Event       = MIDI_EVENT(0, sysExStop2byteCin),
@@ -548,8 +507,9 @@ void MIDI::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCont
                 MIDI_Device_SendEventPacket(&MIDI_Interface, &MIDIEvent);
                 MIDI_Device_Flush(&MIDI_Interface);
 
-                }   else if (inLength == 1) {
-
+            }
+            else if (inLength == 1)
+            {
                 MIDIEvent = (MIDI_EventPacket_t)
                 {
                     .Event       = MIDI_EVENT(0, sysExStop1byteCin),
@@ -561,36 +521,30 @@ void MIDI::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCont
 
                 MIDI_Device_SendEventPacket(&MIDI_Interface, &MIDIEvent);
                 MIDI_Device_Flush(&MIDI_Interface);
-
             }
-
         }
-
     }
-
 }
 
-void MIDI::sendTuneRequest()  {
-
+void MIDI::sendTuneRequest()
+{
     //when a MIDI unit receives this message,
     //it should tune its oscillators (if equipped with any)
 
     sendRealTime(midiMessageTuneRequest);
-
 }
 
-void MIDI::sendTimeCodeQuarterFrame(uint8_t inTypeNibble, uint8_t inValuesNibble) {
-
+void MIDI::sendTimeCodeQuarterFrame(uint8_t inTypeNibble, uint8_t inValuesNibble)
+{
      //inTypeNibble     MTC type
      //inValuesNibble   MTC data
 
     uint8_t data = (((inTypeNibble & 0x07) << 4) | (inValuesNibble & 0x0f));
     sendTimeCodeQuarterFrame(data);
-
 }
 
-void MIDI::sendTimeCodeQuarterFrame(uint8_t inData)   {
-
+void MIDI::sendTimeCodeQuarterFrame(uint8_t inData)
+{
     //inData:   if you want to encode directly the nibbles in your program,
                 //you can send the byte here.
 
@@ -599,11 +553,10 @@ void MIDI::sendTimeCodeQuarterFrame(uint8_t inData)   {
 
     if (useRunningStatus)
         mRunningStatus_TX = midiMessageInvalidType;
-
 }
 
-void MIDI::sendSongPosition(uint16_t inBeats) {
-
+void MIDI::sendSongPosition(uint16_t inBeats)
+{
     //inBeats:  The number of beats since the start of the song
 
     USE_SERIAL_PORT.write((uint8_t)midiMessageSongPosition);
@@ -612,11 +565,10 @@ void MIDI::sendSongPosition(uint16_t inBeats) {
 
     if (useRunningStatus)
         mRunningStatus_TX = midiMessageInvalidType;
-
 }
 
-void MIDI::sendSongSelect(uint8_t inSongNumber)   {
-
+void MIDI::sendSongSelect(uint8_t inSongNumber)
+{
     //inSongNumber: Wanted song number
 
     USE_SERIAL_PORT.write((uint8_t)midiMessageSongSelect);
@@ -624,17 +576,16 @@ void MIDI::sendSongSelect(uint8_t inSongNumber)   {
 
     if (useRunningStatus)
         mRunningStatus_TX = midiMessageInvalidType;
-
 }
 
-void MIDI::sendRealTime(midiMessageType_t inType)   {
-
+void MIDI::sendRealTime(midiMessageType_t inType)
+{
      //inType:  The available Real Time types are:
                 //Start, Stop, Continue, Clock, ActiveSensing and SystemReset
                 //You can also send a Tune Request with this method
 
-    switch (inType) {
-
+    switch (inType)
+    {
         case midiMessageTuneRequest: //not really real-time, but one byte anyway
         case midiMessageClock:
         case midiMessageStart:
@@ -648,7 +599,6 @@ void MIDI::sendRealTime(midiMessageType_t inType)   {
         default:
         //invalid Real Time marker
         break;
-
     }
 
     //do not cancel Running Status for real-time messages as they can be
@@ -657,63 +607,57 @@ void MIDI::sendRealTime(midiMessageType_t inType)   {
     //it must reset Running Status
     if (useRunningStatus && inType == midiMessageTuneRequest)
         mRunningStatus_TX = midiMessageInvalidType;
-
 }
 
-void MIDI::enableRunningStatus()  {
-
+void MIDI::enableRunningStatus()
+{
     useRunningStatus = true;
-
 }
 
-void MIDI::disableRunningStatus() {
-
+void MIDI::disableRunningStatus()
+{
     useRunningStatus = false;
-
 }
 
-bool MIDI::runningStatusEnabled() {
-
+bool MIDI::runningStatusEnabled()
+{
     return useRunningStatus;
-
 }
 
-uint8_t MIDI::getStatus(midiMessageType_t inType, uint8_t inChannel) const  {
-
+uint8_t MIDI::getStatus(midiMessageType_t inType, uint8_t inChannel) const
+{
     return ((uint8_t)inType | ((inChannel - 1) & 0x0f));
-
 }
 
-bool MIDI::read(midiInterfaceType_t type) {
-
+bool MIDI::read(midiInterfaceType_t type)
+{
     //returns true if a valid message has been stored in the structure, false if not
     //a valid message is a message that matches the input channel
     //if the Thru is enabled and the message matches the filter,
     //it is sent back on the MIDI output
 
     return read(mInputChannel, type);
-
 }
 
-bool MIDI::read(uint8_t inChannel, midiInterfaceType_t type)    {
-
+bool MIDI::read(uint8_t inChannel, midiInterfaceType_t type)
+{
     if (inChannel >= MIDI_CHANNEL_OFF)
         return false; //MIDI Input disabled
 
-    if (!parse(type)) return false;
+    if (!parse(type))
+        return false;
 
     const bool channelMatch = inputFilter(inChannel, type);
 
     //thruFilter(inChannel, type);
 
     return channelMatch;
-
 }
 
-bool MIDI::parse(midiInterfaceType_t type)    {
-
-    if (type == dinInterface)   {
-
+bool MIDI::parse(midiInterfaceType_t type)
+{
+    if (type == dinInterface)
+    {
         //parsing algorithm:
         //get a byte from the serial buffer
         //if there is no pending message to be recomposed, start a new one
@@ -724,37 +668,34 @@ bool MIDI::parse(midiInterfaceType_t type)    {
         //when the message is done, store it
 
         if (USE_SERIAL_PORT.available() == 0)
-            //no data available
-            return false;
+            return false;   //no data available
 
         const uint8_t extracted = USE_SERIAL_PORT.read();
 
-        if (dinPendingMessageIndex == 0)  {
-
+        if (dinPendingMessageIndex == 0)
+        {
             //start a new pending message
             mPendingMessage[0] = extracted;
 
             //check for running status first (din only)
-            if (isChannelMessage(getTypeFromStatusByte(mRunningStatus_RX))) {
-
+            if (isChannelMessage(getTypeFromStatusByte(mRunningStatus_RX)))
+            {
                 //only channel messages allow Running Status
                 //if the status byte is not received, prepend it to the pending message
-                if (extracted < 0x80)   {
-
+                if (extracted < 0x80)
+                {
                     mPendingMessage[0]   = mRunningStatus_RX;
                     mPendingMessage[1]   = extracted;
                     dinPendingMessageIndex = 1;
-
                 }
 
                 //else: well, we received another status byte,
                 //so the running status does not apply here
                 //it will be updated upon completion of this message
-
             }
 
-            switch (getTypeFromStatusByte(mPendingMessage[0]))  {
-
+            switch (getTypeFromStatusByte(mPendingMessage[0]))
+            {
                 //1 byte messages
                 case midiMessageStart:
                 case midiMessageContinue:
@@ -813,11 +754,10 @@ bool MIDI::parse(midiInterfaceType_t type)    {
                 resetInput();
                 return false;
                 break;
-
             }
 
-            if (dinPendingMessageIndex >= (dinPendingMessageExpectedLenght - 1))    {
-
+            if (dinPendingMessageIndex >= (dinPendingMessageExpectedLenght - 1))
+            {
                 //reception complete
                 dinMessage.type    = getTypeFromStatusByte(mPendingMessage[0]);
                 dinMessage.channel = getChannelFromStatusByte(mPendingMessage[0]);
@@ -832,36 +772,34 @@ bool MIDI::parse(midiInterfaceType_t type)    {
                 dinPendingMessageExpectedLenght = 0;
                 dinMessage.valid = true;
                 return true;
-
-            }   else {
-
+            }
+            else
+            {
                 //waiting for more data
                 dinPendingMessageIndex++;
-
             }
 
-            if (use1byteParsing)    {
-
+            if (use1byteParsing)
+            {
                 //message is not complete.
                 return false;
-
-            } else {
-
+            }
+            else
+            {
                 //call the parser recursively
                 //to parse the rest of the message.
                 return parse(dinInterface);
-
             }
-
-        }   else {
-
+        }
+        else
+        {
             //first, test if this is a status byte
-            if (extracted >= 0x80)  {
-
+            if (extracted >= 0x80)
+            {
                 //reception of status bytes in the middle of an uncompleted message
                 //are allowed only for interleaved Real Time message or EOX
-                switch (extracted)  {
-
+                switch (extracted)
+                {
                     case midiMessageClock:
                     case midiMessageStart:
                     case midiMessageContinue:
@@ -884,8 +822,8 @@ bool MIDI::parse(midiInterfaceType_t type)    {
 
                     //end of sysex
                     case 0xf7:
-                    if (dinMessage.sysexArray[0] == midiMessageSystemExclusive)   {
-
+                    if (dinMessage.sysexArray[0] == midiMessageSystemExclusive)
+                    {
                         //store the last byte (EOX)
                         dinMessage.sysexArray[dinPendingMessageIndex++] = 0xf7;
                         dinMessage.type = midiMessageSystemExclusive;
@@ -898,46 +836,44 @@ bool MIDI::parse(midiInterfaceType_t type)    {
 
                         resetInput();
                         return true;
-
-                    }   else {
-
+                    }
+                    else
+                    {
                         //error
                         resetInput();
                         return false;
-
                     }
                     break;
 
                     default:
                     break;
-
                 }
-
             }
 
             //add extracted data byte to pending message
             if (mPendingMessage[0] == midiMessageSystemExclusive)
                 dinMessage.sysexArray[dinPendingMessageIndex] = extracted;
-            else mPendingMessage[dinPendingMessageIndex] = extracted;
+            else
+                mPendingMessage[dinPendingMessageIndex] = extracted;
 
             //now we are going to check if we have reached the end of the message
-            if (dinPendingMessageIndex >= (dinPendingMessageExpectedLenght - 1))    {
-
+            if (dinPendingMessageIndex >= (dinPendingMessageExpectedLenght - 1))
+            {
                 //"FML" case: fall down here with an overflown SysEx..
                 //this means we received the last possible data byte that can fit the buffer
                 //if this happens, try increasing MIDI_SYSEX_ARRAY_SIZE
-                if (mPendingMessage[0] == midiMessageSystemExclusive)   {
-
+                if (mPendingMessage[0] == midiMessageSystemExclusive)
+                {
                     resetInput();
                     return false;
-
                 }
 
                 dinMessage.type = getTypeFromStatusByte(mPendingMessage[0]);
 
                 if (isChannelMessage(dinMessage.type))
                     dinMessage.channel = getChannelFromStatusByte(mPendingMessage[0]);
-                else dinMessage.channel = 0;
+                else
+                    dinMessage.channel = 0;
 
                 dinMessage.data1 = mPendingMessage[1];
 
@@ -953,8 +889,8 @@ bool MIDI::parse(midiInterfaceType_t type)    {
                 dinMessage.valid = true;
 
                 //activate running status (if enabled for the received type)
-                switch (dinMessage.type)  {
-
+                switch (dinMessage.type)
+                {
                     case midiMessageNoteOff:
                     case midiMessageNoteOn:
                     case midiMessageAfterTouchPoly:
@@ -970,69 +906,60 @@ bool MIDI::parse(midiInterfaceType_t type)    {
                     //no running status
                     mRunningStatus_RX = midiMessageInvalidType;
                     break;
-
                 }
 
                 return true;
-
-            }   else {
-
+            }
+            else
+            {
                 //update the index of the pending message
                 dinPendingMessageIndex++;
 
-                if (use1byteParsing)    {
-
-                    //message is not complete.
-                    return false;
-
-                }   else {
-
-                    //call the parser recursively to parse the rest of the message.
-                    return parse(dinInterface);
-
-                }
-
+                if (use1byteParsing)
+                    return false;   //message is not complete.
+                else
+                    return parse(dinInterface); //call the parser recursively to parse the rest of the message.
             }
-
         }
-
-    }   else if (type == usbInterface)  {
-
+    }
+    else if (type == usbInterface)
+    {
             MIDI_EventPacket_t MIDIEvent;
 
             //device must be connected and configured for the task to run
-            if (USB_DeviceState != DEVICE_STATE_Configured) return false;
+            if (USB_DeviceState != DEVICE_STATE_Configured)
+                return false;
 
             //select the MIDI OUT stream
             Endpoint_SelectEndpoint(MIDI_STREAM_OUT_EPADDR);
 
             //check if a MIDI command has been received
-            if (Endpoint_IsOUTReceived())   {
-
+            if (Endpoint_IsOUTReceived())
+            {
                 //read the MIDI event packet from the endpoint
                 Endpoint_Read_Stream_LE(&MIDIEvent, sizeof(MIDIEvent), NULL);
 
                 //if the endpoint is now empty, clear the bank
-                if (!(Endpoint_BytesInEndpoint()))  {
+                if (!(Endpoint_BytesInEndpoint()))
+                    Endpoint_ClearOUT();    //clear the endpoint ready for new packet
 
-                    //clear the endpoint ready for new packet
-                    Endpoint_ClearOUT();
-
-                }
-
-            }   else return false;
+            }
+            else
+            {
+                return false;
+            }
 
             //we already have entire message here
             //MIDIEvent.Event is CIN, see midi10.pdf
             //shift cin four bytes left to get midiMessageType_t
             uint8_t midiMessage = MIDIEvent.Event << 4;
 
-            switch(midiMessage) {
-
+            switch(midiMessage)
+            {
                 //1 byte messages
                 case sysCommon1byteCin:
-                if (MIDIEvent.Data1 != 0xF7)   {
-
+                if (MIDIEvent.Data1 != 0xF7)
+                {
                     //this isn't end of sysex, it's 1byte system common message
 
                     //case midiMessageClock:
@@ -1047,9 +974,9 @@ bool MIDI::parse(midiInterfaceType_t type)    {
                     usbMessage.data2   = 0;
                     usbMessage.valid   = true;
                     return true;
-
-                }   else {
-
+                }
+                else
+                {
                     //end of sysex
                     usbMessage.sysexArray[sysExArrayLength] = MIDIEvent.Data1;
                     sysExArrayLength++;
@@ -1057,7 +984,6 @@ bool MIDI::parse(midiInterfaceType_t type)    {
                     usbMessage.channel = 0;
                     usbMessage.valid   = true;
                     return true;
-
                 }
                 break;
 
@@ -1093,12 +1019,9 @@ bool MIDI::parse(midiInterfaceType_t type)    {
                 //sysex
                 case sysExStartCin:
                 //the message can be any length between 3 and MIDI_SYSEX_ARRAY_SIZE
-                if (MIDIEvent.Data1 == 0xF0) {
+                if (MIDIEvent.Data1 == 0xF0)
+                    sysExArrayLength = 0;   //this is a new sysex message, reset length
 
-                    //this is a new sysex message, reset length
-                    sysExArrayLength = 0;
-
-                }
                 usbMessage.sysexArray[sysExArrayLength] = MIDIEvent.Data1;
                 sysExArrayLength++;
                 usbMessage.sysexArray[sysExArrayLength] = MIDIEvent.Data2;
@@ -1135,43 +1058,39 @@ bool MIDI::parse(midiInterfaceType_t type)    {
                 default:
                 return false;
                 break;
-
             }
-
-    }   else return false;
+    }
+    else
+    {
+        return false;
+    }
 
 }
 
-bool MIDI::inputFilter(uint8_t inChannel, midiInterfaceType_t type) {
-
+bool MIDI::inputFilter(uint8_t inChannel, midiInterfaceType_t type)
+{
     //check if the received message is on the listened channel
 
-    switch(type)    {
-
+    switch(type)
+    {
         case dinInterface:
         if (dinMessage.type == midiMessageInvalidType)
-        return false;
+            return false;
 
         //first, check if the received message is Channel
-        if (dinMessage.type >= midiMessageNoteOff && dinMessage.type <= midiMessagePitchBend)   {
-
+        if (dinMessage.type >= midiMessageNoteOff && dinMessage.type <= midiMessagePitchBend)
+        {
             //then we need to know if we listen to it
-            if ((dinMessage.channel == inChannel) ||
-            (inChannel == MIDI_CHANNEL_OMNI))
-            return true;
+            if ((dinMessage.channel == inChannel) || (inChannel == MIDI_CHANNEL_OMNI))
+                return true;
+            else
+                return false;   //we don't listen to this channel
 
-            else {
-
-                //we don't listen to this channel
-                return false;
-
-            }
-
-            }   else {
-
+        }
+        else
+        {
             //system messages are always received
             return true;
-
         }
         break;
 
@@ -1180,52 +1099,42 @@ bool MIDI::inputFilter(uint8_t inChannel, midiInterfaceType_t type) {
             return false;
 
         //first, check if the received message is Channel
-        if (usbMessage.type >= midiMessageNoteOff && usbMessage.type <= midiMessagePitchBend)   {
-
+        if (usbMessage.type >= midiMessageNoteOff && usbMessage.type <= midiMessagePitchBend)
+        {
             //then we need to know if we listen to it
-            if ((usbMessage.channel == inChannel) ||
-                (inChannel == MIDI_CHANNEL_OMNI))
-            return true;
+            if ((usbMessage.channel == inChannel) || (inChannel == MIDI_CHANNEL_OMNI))
+                return true;
+            else
+                return false;   //we don't listen to this channel
 
-            else {
-
-                //we don't listen to this channel
-                return false;
-
-            }
-
-            }   else {
-
+        }
+        else
+        {
             //system messages are always received
             return true;
-
         }
         break;
 
         default:
         return false;
         break;
-
     }
-
 }
 
-void MIDI::resetInput()   {
-
+void MIDI::resetInput()
+{
     //reset input attributes
 
     dinPendingMessageIndex = 0;
     dinPendingMessageExpectedLenght = 0;
     mRunningStatus_RX = midiMessageInvalidType;
-
 }
 
-midiMessageType_t MIDI::getType(midiInterfaceType_t type) const {
-
+midiMessageType_t MIDI::getType(midiInterfaceType_t type) const
+{
     //get the last received message's type
-
-    switch(type)    {
-
+    switch(type)
+    {
         case dinInterface:
         return dinMessage.type;
         break;
@@ -1234,18 +1143,19 @@ midiMessageType_t MIDI::getType(midiInterfaceType_t type) const {
         return usbMessage.type;
         break;
 
-    }   return midiMessageInvalidType;
+    }
 
+    return midiMessageInvalidType;
 }
 
-uint8_t MIDI::getChannel(midiInterfaceType_t type) const  {
-
+uint8_t MIDI::getChannel(midiInterfaceType_t type) const
+{
     //get the channel of the message stored in the structure
     //channel range is 1 to 16
     //For non-channel messages, this will return 0
 
-    switch(type)    {
-
+    switch(type)
+    {
         case dinInterface:
         return dinMessage.channel;
         break;
@@ -1253,16 +1163,16 @@ uint8_t MIDI::getChannel(midiInterfaceType_t type) const  {
         case usbInterface:
         return usbMessage.channel;
         break;
+    }
 
-    }   return 0;
-
+    return 0;
 }
 
-uint8_t MIDI::getData1(midiInterfaceType_t type) const    {
-
+uint8_t MIDI::getData1(midiInterfaceType_t type) const
+{
     //get the first data byte of the last received message
-    switch(type)    {
-
+    switch(type)
+    {
         case dinInterface:
         return dinMessage.data1;
         break;
@@ -1270,17 +1180,17 @@ uint8_t MIDI::getData1(midiInterfaceType_t type) const    {
         case usbInterface:
         return usbMessage.data1;
         break;
+    }
 
-    }   return 0;
-
+    return 0;
 }
 
-uint8_t MIDI::getData2(midiInterfaceType_t type) const    {
-
+uint8_t MIDI::getData2(midiInterfaceType_t type) const
+{
     //get the second data byte of the last received message
     //get the first data byte of the last received message
-    switch(type)    {
-
+    switch(type)
+    {
         case dinInterface:
         return dinMessage.data2;
         break;
@@ -1288,16 +1198,16 @@ uint8_t MIDI::getData2(midiInterfaceType_t type) const    {
         case usbInterface:
         return usbMessage.data2;
         break;
+    }
 
-    }   return 0;
-
+    return 0;
 }
 
-uint8_t* MIDI::getSysExArray(midiInterfaceType_t type)    {
-
+uint8_t* MIDI::getSysExArray(midiInterfaceType_t type)
+{
     //get the System Exclusive byte array
-    switch(type)    {
-
+    switch(type)
+    {
         case dinInterface:
         return dinMessage.sysexArray;
         break;
@@ -1305,20 +1215,20 @@ uint8_t* MIDI::getSysExArray(midiInterfaceType_t type)    {
         case usbInterface:
         return usbMessage.sysexArray;
         break;
+    }
 
-    }   return 0;
-
+    return 0;
 }
 
-uint16_t MIDI::getSysExArrayLength(midiInterfaceType_t type)  {
-
+uint16_t MIDI::getSysExArrayLength(midiInterfaceType_t type)
+{
     //get the length of the System Exclusive array
     //it is coded using data1 as LSB and data2 as MSB
 
     uint16_t size = 0;
 
-    switch(type)    {
-
+    switch(type)
+    {
         case dinInterface:
         size = unsigned(dinMessage.data2) << 8 | dinMessage.data1;
         break;
@@ -1326,71 +1236,62 @@ uint16_t MIDI::getSysExArrayLength(midiInterfaceType_t type)  {
         case usbInterface:
         return sysExArrayLength;
         break;
-
     }
 
     return size > MIDI_SYSEX_ARRAY_SIZE ? MIDI_SYSEX_ARRAY_SIZE : size;
-
 }
 
-bool MIDI::check() const  {
-
+bool MIDI::check() const
+{
     //check if a valid message is stored in the structure
     return dinMessage.valid;
-
 }
 
-uint8_t MIDI::getInputChannel() const {
-
+uint8_t MIDI::getInputChannel() const
+{
     return mInputChannel;
-
 }
 
-void MIDI::setInputChannel(uint8_t inChannel) {
-
+void MIDI::setInputChannel(uint8_t inChannel)
+{
     //set the value for the input MIDI channel
     //inChannel:    The channel value
                     //Valid values are 1 to 16, MIDI_CHANNEL_OMNI
 
     mInputChannel = inChannel;
-
 }
 
-midiMessageType_t MIDI::getTypeFromStatusByte(uint8_t inStatus) {
-
+midiMessageType_t MIDI::getTypeFromStatusByte(uint8_t inStatus)
+{
     //extract an enumerated MIDI type from a status byte
 
     if ((inStatus  < 0x80) ||
         (inStatus == 0xf4) ||
         (inStatus == 0xf5) ||
         (inStatus == 0xf9) ||
-        (inStatus == 0xfD)) {
-
+        (inStatus == 0xfD))
+    {
         //data bytes and undefined
         return midiMessageInvalidType;
-
     }
 
-    if (inStatus < 0xf0)    {
-
+    if (inStatus < 0xf0)
+    {
         //channel message, remove channel nibble
         return midiMessageType_t(inStatus & 0xf0);
-
     }
 
     return midiMessageType_t(inStatus);
-
 }
 
-uint8_t MIDI::getChannelFromStatusByte(uint8_t inStatus)   {
-
+uint8_t MIDI::getChannelFromStatusByte(uint8_t inStatus)
+{
     //returns channel in the range 1-16
     return (inStatus & 0x0f) + 1;
-
 }
 
-bool MIDI::isChannelMessage(midiMessageType_t inType)   {
-
+bool MIDI::isChannelMessage(midiMessageType_t inType)
+{
     return (inType == midiMessageNoteOff           ||
             inType == midiMessageNoteOn            ||
             inType == midiMessageControlChange     ||
@@ -1398,11 +1299,10 @@ bool MIDI::isChannelMessage(midiMessageType_t inType)   {
             inType == midiMessageAfterTouchChannel ||
             inType == midiMessagePitchBend         ||
             inType == midiMessageProgramChange);
-
 }
 
-void MIDI::setThruFilterMode(midiFilterMode_t inThruFilterMode) {
-
+void MIDI::setThruFilterMode(midiFilterMode_t inThruFilterMode)
+{
     //set the filter for thru mirroring
     //inThruFilterMode: A filter mode
 
@@ -1410,38 +1310,34 @@ void MIDI::setThruFilterMode(midiFilterMode_t inThruFilterMode) {
 
     if (mThruFilterMode != Off)
         mThruActivated = true;
-    else mThruActivated = false;
-
+    else
+        mThruActivated = false;
 }
 
-midiFilterMode_t MIDI::getFilterMode() const    {
-
+midiFilterMode_t MIDI::getFilterMode() const
+{
     return mThruFilterMode;
-
 }
 
-bool MIDI::getThruState() const   {
-
+bool MIDI::getThruState() const
+{
     return mThruActivated;
-
 }
 
-void MIDI::turnThruOn(midiFilterMode_t inThruFilterMode)    {
-
+void MIDI::turnThruOn(midiFilterMode_t inThruFilterMode)
+{
     mThruActivated = true;
     mThruFilterMode = inThruFilterMode;
-
 }
 
-void MIDI::turnThruOff()  {
-
+void MIDI::turnThruOff()
+{
     mThruActivated = false;
     mThruFilterMode = Off;
-
 }
 
-void MIDI::thruFilter(uint8_t inChannel)  {
-
+void MIDI::thruFilter(uint8_t inChannel)
+{
     //this method is called upon reception of a message
     //and takes care of Thru filtering and sending
 
@@ -1456,14 +1352,14 @@ void MIDI::thruFilter(uint8_t inChannel)  {
         return;
 
     //first, check if the received message is Channel
-    if (dinMessage.type >= midiMessageNoteOff && dinMessage.type <= midiMessagePitchBend)   {
-
+    if (dinMessage.type >= midiMessageNoteOff && dinMessage.type <= midiMessagePitchBend)
+    {
         const bool filter_condition = ((dinMessage.channel == mInputChannel) ||
                                        (mInputChannel == MIDI_CHANNEL_OMNI));
 
         //now let's pass it to the output
-        switch (mThruFilterMode)    {
-
+        switch (mThruFilterMode)
+        {
             case Full:
             send(dinMessage.type, dinMessage.data1, dinMessage.data2, dinMessage.channel);
             break;
@@ -1486,14 +1382,13 @@ void MIDI::thruFilter(uint8_t inChannel)  {
 
             default:
             break;
-
         }
-
-    }   else {
-
+    }
+    else
+    {
         //send the message to the output
-        switch (dinMessage.type)  {
-
+        switch (dinMessage.type)
+        {
             //real Time and 1 byte
             case midiMessageClock:
             case midiMessageStart:
@@ -1524,72 +1419,60 @@ void MIDI::thruFilter(uint8_t inChannel)  {
 
             default:
             break;
-
         }
-
     }
-
 }
 
-void MIDI::setNoteChannel(uint8_t channel)  {
-
+void MIDI::setNoteChannel(uint8_t channel)
+{
     noteChannel_ = channel;
-
 }
 
-void MIDI::setCCchannel(uint8_t channel)    {
-
+void MIDI::setCCchannel(uint8_t channel)
+{
     ccChannel_ = channel;
-
 }
 
-void MIDI::setProgramChangeChannel(uint8_t channel) {
-
+void MIDI::setProgramChangeChannel(uint8_t channel)
+{
     programChangeChannel_ = channel;
-
 }
 
-void MIDI::setNoteOffMode(noteOffType_t type)   {
-
+void MIDI::setNoteOffMode(noteOffType_t type)
+{
     noteOffMode = type;
-
 }
 
-void MIDI::enableUSB()  {
-
+void MIDI::enableUSB()
+{
     usbEnabled = true;
-
 }
 
-void MIDI::enableDIN()  {
-
+void MIDI::enableDIN()
+{
     dinEnabled = true;
-
 }
 
-void MIDI::disableUSB() {
-
+void MIDI::disableUSB()
+{
     usbEnabled = false;
-
 }
 
-void MIDI::disableDIN() {
-
+void MIDI::disableDIN()
+{
     dinEnabled = false;
-
 }
 
 /** Event handler for the USB_ConfigurationChanged event. This is fired when the host set the current configuration
  *  of the USB device after enumeration - the device endpoints are configured and the MIDI management task started.
  */
-void EVENT_USB_Device_ConfigurationChanged(void) {
-
+void EVENT_USB_Device_ConfigurationChanged(void)
+{
     bool ConfigSuccess = true;
 
     /* Setup MIDI Data Endpoints */
     ConfigSuccess &= Endpoint_ConfigureEndpoint(MIDI_STREAM_IN_EPADDR, EP_TYPE_BULK, MIDI_STREAM_EPSIZE, 1);
     ConfigSuccess &= Endpoint_ConfigureEndpoint(MIDI_STREAM_OUT_EPADDR, EP_TYPE_BULK, MIDI_STREAM_EPSIZE, 1);
-
 }
 
 MIDI midi;

@@ -18,8 +18,8 @@
 
 #include "Reset.h"
 
-void disablePeripherals(void)   {
-
+void disablePeripherals(void)
+{
     //disable eeprom
     EECR = 0;
 
@@ -63,11 +63,10 @@ void disablePeripherals(void)   {
     DDRD = 0;
     DDRE = 0;
     DDRF = 0;
-
 }
 
-void reboot()    {
-
+void reboot()
+{
     cli();
     //stop watchdog timer, if running
     MCUSR &= ~(1<<WDFR);
@@ -81,5 +80,4 @@ void reboot()    {
 
     wdt_enable(WDTO_250MS);
     for (;;);
-
 }

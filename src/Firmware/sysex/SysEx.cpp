@@ -96,8 +96,8 @@ bool SysEx::addBlock(uint8_t sections)
     return true;
 }
 
-bool SysEx::addSection(uint8_t block, sysExParameter_t numberOfParameters, sysExParameter_t minValue, sysExParameter_t maxValue) {
-
+bool SysEx::addSection(uint8_t block, sysExParameter_t numberOfParameters, sysExParameter_t minValue, sysExParameter_t maxValue)
+{
     if (sysExMessage[block].sectionCounter >= MAX_NUMBER_OF_SECTIONS)
         return false;
 

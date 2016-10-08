@@ -1,13 +1,12 @@
 #ifndef BUTTONS_BLOCK_H_
 #define BUTTONS_BLOCK_H_
 
-typedef enum {
-
+typedef enum
+{
     buttonTypeSection,
     buttonProgramChangeEnabledSection,
     buttonMIDIidSection,
     BUTTON_SECTIONS
-
 } buttonSection;
 
 #endif

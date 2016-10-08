@@ -34,69 +34,62 @@ RingBuff_t rxBuffer;
 //isr functions
 
 #if RX_ENABLE == 1
-ISR(USART1_RX_vect) {
-
+ISR(USART1_RX_vect)
+{
     uint8_t data = UDR1;
     if (!RingBuffer_IsFull(&rxBuffer))
         RingBuffer_Insert(&rxBuffer, data);
-
 }
 #endif
 
 #if TX_ENABLE == 1
-ISR(USART1_UDRE_vect)   {
-
-    if (RingBuffer_IsEmpty(&txBuffer))  {
-
+ISR(USART1_UDRE_vect)
+{
+    if (RingBuffer_IsEmpty(&txBuffer))
+    {
         // buffer is empty, disable transmit interrupt
         #if RX_ENABLE == 0
-            UCSR1B = (1<<TXCIE1) | (1<<TXEN1);
+        UCSR1B = (1<<TXCIE1) | (1<<TXEN1);
         #else
-            UCSR1B = (1<<RXEN1) | (1<<TXCIE1) | (1<<TXEN1) | (1<<RXCIE1);
+        UCSR1B = (1<<RXEN1) | (1<<TXCIE1) | (1<<TXEN1) | (1<<RXCIE1);
         #endif
-
-    } else {
-
+    }
+    else
+    {
         uint8_t data = RingBuffer_Remove(&txBuffer);
         UDR1 = data;
-
     }
-
 }
 
 ISR(USART1_TX_vect) {}
 #endif
 
-
-UART::UART()  {
-
+UART::UART()
+{
     //default constructor
-
-
 }
 
-int8_t UART::begin(uint32_t baudRate)   {
-
+int8_t UART::begin(uint32_t baudRate)
+{
     #if RX_ENABLE == 0 && TX_ENABLE == 0
     #error RX and TX are disabled, please enable at least one channel
     #endif
 
     int16_t baud_count = ((F_CPU / 8) + (baudRate / 2)) / baudRate;
 
-    if ((baud_count & 1) && baud_count <= 4096) {
-
+    if ((baud_count & 1) && baud_count <= 4096)
+    {
         UCSR1A = (1<<U2X1); //double speed uart
         UBRR1 = baud_count - 1;
-
-    }   else {
-
+    }
+    else
+    {
         UCSR1A = 0;
         UBRR1 = (baud_count >> 1) - 1;
-
     }
 
-    if (!(UCSR1B & (1<<TXEN1))) {
-
+    if (!(UCSR1B & (1<<TXEN1)))
+    {
         //8 bit, no parity, 1 stop bit
         UCSR1C = (1<<UCSZ11) | (1<<UCSZ10);
 
@@ -107,7 +100,6 @@ int8_t UART::begin(uint32_t baudRate)   {
         #elif RX_ENABLE == 0 && TX_ENABLE == 1
         UCSR1B = (1<<TXCIE1) | (1<<TXEN1);
         #endif
-
     }
 
     #if RX_ENABLE == 1 && TX_ENABLE == 1
@@ -120,11 +112,10 @@ int8_t UART::begin(uint32_t baudRate)   {
     #endif
 
     return 0;
-
 }
 
-int16_t UART::read(void)   {
-
+int16_t UART::read(void)
+{
     #if RX_ENABLE == 1
     if (RingBuffer_IsEmpty(&rxBuffer))
         return -1;
@@ -133,13 +124,13 @@ int16_t UART::read(void)   {
     #else
     #error RX not enabled
     #endif
-
 }
 
-int8_t UART::write(uint8_t data)  {
-
+int8_t UART::write(uint8_t data)
+{
     #if TX_ENABLE == 1
-    if (!(UCSR1B & (1<<TXEN1))) return -1;
+    if (!(UCSR1B & (1<<TXEN1)))
+        return -1;
 
     if (RingBuffer_IsFull(&txBuffer))
         return -1;
@@ -147,9 +138,9 @@ int8_t UART::write(uint8_t data)  {
     RingBuffer_Insert(&txBuffer, data);
 
     #if RX_ENABLE == 0
-        UCSR1B = (1<<TXCIE1) | (1<<TXEN1) | (1<<UDRIE1);
+    UCSR1B = (1<<TXCIE1) | (1<<TXEN1) | (1<<UDRIE1);
     #else
-        UCSR1B = (1<<RXEN1) | (1<<TXCIE1) | (1<<TXEN1) | (1<<RXCIE1) | (1<<UDRIE1);
+    UCSR1B = (1<<RXEN1) | (1<<TXCIE1) | (1<<TXEN1) | (1<<RXCIE1) | (1<<UDRIE1);
     #endif
 
     #else
@@ -157,17 +148,15 @@ int8_t UART::write(uint8_t data)  {
     #endif
 
     return 0;
-
 }
 
-bool UART::available()    {
-
+bool UART::available()
+{
     #if RX_ENABLE == 1
     return !RingBuffer_IsEmpty(&rxBuffer);
     #else
     #error RX not enabled
     #endif
-
 }
 
 UART uart;

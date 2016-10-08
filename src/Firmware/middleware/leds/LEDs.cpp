@@ -18,32 +18,30 @@
 
 #include "LEDs.h"
 
-LEDs::LEDs()    {
-
+LEDs::LEDs()
+{
     //def const
-
 }
 
-void LEDs::init()   {
-
+void LEDs::init()
+{
     Board::setLEDblinkTime(database.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime));
     Board::setLEDfadeTime(database.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterFadeTime));
 
     //run LED animation on start-up
     startUpAnimation();
-
 }
 
-void LEDs::startUpAnimation() {
-
+void LEDs::startUpAnimation()
+{
     if (!database.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterTotalLEDnumber) || !database.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpSwitchTime))
         return;
 
     //turn off all LEDs before starting animation
     allOff();
 
-    switch (database.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpRoutine))  {
-
+    switch (database.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpRoutine))
+    {
         case 1:
         oneByOneLED(true, true, true);
         oneByOneLED(false, false, true);
@@ -74,17 +72,14 @@ void LEDs::startUpAnimation() {
 
         default:
         break;
-
     }
 
     allOff();
     wait(1000);
-
 }
 
-
-void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
-
+void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)
+{
     /*
 
     Function accepts three boolean arguments.
@@ -117,10 +112,11 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
     //if second and third argument of function are set to false or
     //if second argument is set to false and all the LEDs are turned off
     //light up all LEDs
-    if ((!singleLED && !turnOn) || (checkLEDsOff() && !turnOn)) allOn();
+    if ((!singleLED && !turnOn) || (checkLEDsOff() && !turnOn))
+        allOn();
 
-    if (turnOn) {
-
+    if (turnOn)
+    {
     //This part of code deals with situations when previous function call has been
     //left direction and current one is right and vice versa.
 
@@ -141,105 +137,119 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)  {
     //times it needs to execute is reduced by one, therefore passCounter is incremented.
 
         //right-to-left direction
-        if (!ledDirection)  {
-
+        if (!ledDirection)
+        {
             //if last LED is turned on
-            if (Board::getLEDstate(_ledNumber[totalNumberOfLEDs-1]))  {
-
+            if (Board::getLEDstate(_ledNumber[totalNumberOfLEDs-1]))
+            {
                 //LED index is penultimate LED number
                 ledNumber = _ledNumber[totalNumberOfLEDs-2];
                 //increment counter since the loop has to run one cycle less
                 passCounter++;
 
-            }   else    ledNumber = _ledNumber[totalNumberOfLEDs-1]; //led index is last one if last one isn't already on
+            }
+            else
+            {
+                //led index is last one if last one isn't already on
+                ledNumber = _ledNumber[totalNumberOfLEDs-1];
+            }
 
-        }   else {
-
+        }
+        else
+        {
             //left-to-right direction
             //if first LED is already on
-            if (Board::getLEDstate(_ledNumber[0]))    {
-
+            if (Board::getLEDstate(_ledNumber[0]))
+            {
                 //led index is 1
                 ledNumber = _ledNumber[1];
                 //increment counter
                 passCounter++;
-
-            }   else ledNumber = _ledNumber[0];
-
+            }
+            else
+            {
+                ledNumber = _ledNumber[0];
+            }
         }
-
-    }   else    {
-
+    }
+    else
+    {
         //This is situation when all LEDs are turned on and we're turning them off one by one. Same
         //logic applies in both cases (see above). In this case we're not checking for whether the LED
         //is already turned on, but whether it's already turned off.
 
         //right-to-left direction
-        if (!ledDirection)  {
-
-            if (!(Board::getLEDstate(_ledNumber[totalNumberOfLEDs-1])))   {
-
+        if (!ledDirection)
+        {
+            if (!(Board::getLEDstate(_ledNumber[totalNumberOfLEDs-1])))
+            {
                 ledNumber = _ledNumber[totalNumberOfLEDs-2];
                 passCounter++;
-
-            }   else ledNumber = _ledNumber[totalNumberOfLEDs-1];
-
-            }   else {
-
+            }
+            else
+            {
+                ledNumber = _ledNumber[totalNumberOfLEDs-1];
+            }
+        }
+        else
+        {
             //left-to-right direction
-            if (!(Board::getLEDstate(_ledNumber[0]))) {
-
+            if (!(Board::getLEDstate(_ledNumber[0])))
+            {
                 ledNumber = _ledNumber[1];
                 passCounter++;
 
-            }   else ledNumber = _ledNumber[0];
-
+            }
+            else
+            {
+                ledNumber = _ledNumber[0];
+            }
         }
-
     }
 
     //on first function call, the while loop is called TOTAL_NUMBER_OF_LEDS+1 times
     //to get empty cycle after processing last LED
-    while (passCounter < totalNumberOfLEDs+1)   {
-
-        if (passCounter < totalNumberOfLEDs)    {
-
-            //if we're turning LEDs on one by one, turn all the other LEDs off
-            if (singleLED && turnOn)            allOff();
-
-            //if we're turning LEDs off one by one, turn all the other LEDs on
-            else    if (!turnOn && singleLED)   allOn();
-
-            //set LED state depending on turnOn parameter
-            if (turnOn) setState(ledNumber, true);
-            else    setState(ledNumber, true);
-
-            //make sure out-of-bound index isn't requested from ledArray
-            if (passCounter < totalNumberOfLEDs-1)  {
-
-                //right-to-left direction
-                if (!ledDirection)  ledNumber = _ledNumber[totalNumberOfLEDs - 2 - passCounter];
-
-                //left-to-right direction
-                else    if (passCounter < totalNumberOfLEDs-1)  ledNumber = _ledNumber[passCounter+1];
-
+    while (passCounter < totalNumberOfLEDs+1)
+    {
+        if (passCounter < totalNumberOfLEDs)
+        {
+            if (singleLED && turnOn)
+            {
+                //if we're turning LEDs on one by one, turn all the other LEDs off
+                allOff();
+            }
+            else if (!turnOn && singleLED)
+            {
+                //if we're turning LEDs off one by one, turn all the other LEDs on
+                allOn();
             }
 
+            //set LED state depending on turnOn parameter
+            if (turnOn)
+                setState(ledNumber, true);
+            else
+                setState(ledNumber, true);
+
+            //make sure out-of-bound index isn't requested from ledArray
+            if (passCounter < totalNumberOfLEDs-1)
+            {
+                if (!ledDirection)
+                    ledNumber = _ledNumber[totalNumberOfLEDs - 2 - passCounter];    //right-to-left direction
+                else if (passCounter < totalNumberOfLEDs-1)
+                    ledNumber = _ledNumber[passCounter+1];  //left-to-right direction
+            }
         }
 
         //always increment pass counter
         passCounter++;
 
         wait(startUpLEDswitchTime);
-
     }
-
 }
 
-rgb LEDs::velocityToColor(uint8_t receivedVelocity, bool blinkEnabled) {
-
+rgb LEDs::velocityToColor(uint8_t receivedVelocity, bool blinkEnabled)
+{
     /*
-
     blinkEnabled:
     constant:
     0-7 off
@@ -270,131 +280,119 @@ rgb LEDs::velocityToColor(uint8_t receivedVelocity, bool blinkEnabled) {
     80-95 blue
     96-111 yellow
     112-127 green
-
     */
 
     ledColor_t color;
 
-    switch(blinkEnabled) {
-
+    switch(blinkEnabled)
+    {
         case false:
         color = (ledColor_t)(receivedVelocity/16);
         break;
 
         case true:
-        if (receivedVelocity > 63) receivedVelocity -= 64;
+        if (receivedVelocity > 63)
+            receivedVelocity -= 64;
         color = (ledColor_t)(receivedVelocity/8);
         break;
 
     }
 
     return colors[(uint8_t)color];
-
 }
 
-bool LEDs::velocity2blinkState(uint8_t receivedVelocity)    {
-
+bool LEDs::velocity2blinkState(uint8_t receivedVelocity)
+{
     return (receivedVelocity > 63);
-
 }
 
-void LEDs::noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity)    {
-
+void LEDs::noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity)
+{
     bool blinkEnabled_global = database.readParameter(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime);
     bool blinkEnabled_led;
-    if (!blinkEnabled_global) blinkEnabled_led = false;
-    else blinkEnabled_led = velocity2blinkState(receivedVelocity);
+    if (!blinkEnabled_global)
+        blinkEnabled_led = false;
+    else
+        blinkEnabled_led = velocity2blinkState(receivedVelocity);
 
     rgb color = velocityToColor(receivedVelocity, blinkEnabled_global);
 
     //match LED activation note with its index
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)    {
-
-        if (database.readParameter(CONF_BLOCK_LED, ledActivationNoteSection, i) == receivedNote)  {
-
-            if (database.readParameter(CONF_BLOCK_LED, ledRGBenabledSection, i))   {
-
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+    {
+        if (database.readParameter(CONF_BLOCK_LED, ledActivationNoteSection, i) == receivedNote)
+        {
+            if (database.readParameter(CONF_BLOCK_LED, ledRGBenabledSection, i))
+            {
                 //rgb led
                 Board::setRGBled(i, color, blinkEnabled_led);
-
-            }   else {
-
-                bool state = color.r || color.g || color.b;
-
-                Board::setSingleLED(i, state, blinkEnabled_led);
-
             }
-
+            else
+            {
+                bool state = color.r || color.g || color.b;
+                Board::setSingleLED(i, state, blinkEnabled_led);
+            }
         }
-
     }
-
 }
 
-void LEDs::allOn()  {
-
+void LEDs::allOn()
+{
     //turn on all LEDs
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
         Board::setSingleLED(i, true, false);
-
 }
 
-void LEDs::allOff() {
-
+void LEDs::allOff()
+{
     //turn off all LEDs
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
         Board::setSingleLED(i, true, false);
-
 }
 
-void LEDs::setState(uint8_t ledNumber, rgb color)   {
-
+void LEDs::setState(uint8_t ledNumber, rgb color)
+{
     Board::setRGBled(ledNumber, color, false);
-
 }
 
-void LEDs::setState(uint8_t ledNumber, bool state)  {
-
+void LEDs::setState(uint8_t ledNumber, bool state)
+{
     Board::setSingleLED(ledNumber, state, false);
-
 }
 
-bool LEDs::checkLEDsOn()    {
-
+bool LEDs::checkLEDsOn()
+{
     //return true if all LEDs are on
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
         if (Board::getLEDstate(i))
             return false;
-    return true;
 
+    return true;
 }
 
-bool LEDs::checkLEDsOff()   {
-
+bool LEDs::checkLEDsOff()
+{
     //return true if all LEDs are off
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
         if (!Board::getLEDstate(i))
             return false;
+
     return true;
-
 }
 
-uint8_t LEDs::getState(uint8_t ledNumber)    {
-
+uint8_t LEDs::getState(uint8_t ledNumber)
+{
     return Board::getLEDstate(ledNumber);
-
 }
 
-void LEDs::setFadeTime(uint8_t speed)  {
-
+void LEDs::setFadeTime(uint8_t speed)
+{
     Board::setLEDfadeTime(speed);
-
 }
 
-void LEDs::setBlinkTime(uint16_t blinkTime)  {
-
+void LEDs::setBlinkTime(uint16_t blinkTime)
+{
     Board::setLEDblinkTime(blinkTime);
-
 }
 
 LEDs leds;
