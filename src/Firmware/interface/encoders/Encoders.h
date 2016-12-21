@@ -19,22 +19,9 @@
 #pragma once
 
 #include "../../board/Board.h"
+#include "DataTypes.h"
 
-enum encoderType_t
-{
-    enc7Fh01h,
-    enc3Fh41h,
-    ENCODING_MODES
-};
-
-enum encoderPosition_t
-{
-    encStopped,
-    encMoveLeft,
-    encMoveRight,
-};
-
-class Encoders : Board
+class Encoders
 {
     public:
     Encoders();

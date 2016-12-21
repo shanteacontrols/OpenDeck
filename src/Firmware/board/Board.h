@@ -21,7 +21,9 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "../core/Core.h"
-#include "pins/Pins.h"
+#include "Import.h"
+#include "variant/Variant.h"
+#include "Constants.h"
 
 //function prototypes
 inline void setAnalogPin(uint8_t muxNumber) __attribute__((always_inline));
@@ -35,16 +37,6 @@ inline void activateOutputColumn(uint8_t column) __attribute__((always_inline));
 inline void storeDigitalIn(uint8_t column, uint8_t bufferIndex) __attribute__((always_inline));
 inline int8_t readEncoder(uint8_t encoderID, uint8_t pairState) __attribute__((always_inline));
 
-uint32_t rTimeMillis();
-void wait(uint32_t time);
-
-typedef struct
-{
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
-} rgb;
-
 class Board
 {
     public:
@@ -52,26 +44,22 @@ class Board
     Board();
     void init();
 
-    protected:
-    //digital
+    //buttons
     bool buttonDataAvailable();
-    bool encoderDataAvailable();
     bool getButtonState(uint8_t buttonIndex);
-    int8_t getEncoderState(uint8_t encoderID);
 
     //analog
     bool analogDataAvailable();
     int16_t getAnalogValue(uint8_t analogID);
 
-    //LEDs
-    uint8_t getLEDstate(uint8_t ledNumber);
-    void setSingleLED(uint8_t ledNumber, bool state, bool blinkMode);
-    void setRGBled(uint8_t ledNumber, rgb color, bool blinkMode);
-    void blinkLed(uint8_t ledNumber);
-    void setLEDblinkTime(uint16_t blinkTime);
-    void setLEDfadeTime(uint8_t transitionSteps);
-    uint8_t getRGBID(uint8_t ledNumber);
+    //encoders
     uint8_t getEncoderPair(uint8_t buttonID);
+    bool encoderDataAvailable();
+    int8_t getEncoderState(uint8_t encoderID);
+
+    //leds
+    uint8_t getRGBaddress(uint8_t rgbID, rgbIndex_t index);
+    uint8_t getRGBID(uint8_t ledNumber);
 
     private:
     //init
@@ -79,12 +67,8 @@ class Board
     void initAnalog();
     void initEncoders();
     void configureTimers();
-    void checkBlinkLEDs();
-    void ledBlinkingStart();
-    void ledBlinkingStop();
-    bool ledBlinkingActive();
-    void handleLED(uint8_t ledNumber, bool state, bool blinkMode);
-    void handleLED(uint8_t ledNumber, rgb color, bool blinkMode);
+    bool copyInputMatrixBuffer();
+    void checkInputMatrixBufferCopy();
 };
 
 extern Board board;
