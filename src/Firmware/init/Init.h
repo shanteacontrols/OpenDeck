@@ -24,6 +24,6 @@
 #include "../version/Hardware.h"
 #include "../core/Core.h"
 #include "../board/Board.h"
-#include "../middleware/Middleware.h"
+#include "../interface/Interface.h"
 
 void globalInit();

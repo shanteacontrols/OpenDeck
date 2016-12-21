@@ -17,6 +17,7 @@
 */
 
 #include "LEDs.h"
+#include "../../board/Board.h"
 
 LEDs::LEDs()
 {
@@ -25,8 +26,8 @@ LEDs::LEDs()
 
 void LEDs::init()
 {
-    Board::setLEDblinkTime(database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime));
-    Board::setLEDfadeTime(database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterFadeTime));
+    setBlinkTime(database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime));
+    setFadeTime(database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterFadeTime));
 
     //run LED animation on start-up
     startUpAnimation();
@@ -38,47 +39,47 @@ void LEDs::startUpAnimation()
         return;
 
     //turn off all LEDs before starting animation
-    allOff();
+    setAllOff();
 
     switch (database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpRoutine))
     {
         case 1:
-        oneByOneLED(true, true, true);
-        oneByOneLED(false, false, true);
-        oneByOneLED(true, false, false);
-        oneByOneLED(false, true, true);
-        oneByOneLED(true, false, true);
-        oneByOneLED(false, false, false);
+        oneByOne(true, true, true);
+        oneByOne(false, false, true);
+        oneByOne(true, false, false);
+        oneByOne(false, true, true);
+        oneByOne(true, false, true);
+        oneByOne(false, false, false);
         break;
 
         case 2:
-        oneByOneLED(true, false, true);
-        oneByOneLED(false, false, false);
+        oneByOne(true, false, true);
+        oneByOne(false, false, false);
         break;
 
         case 3:
-        oneByOneLED(true, true, true);
-        oneByOneLED(false, true, true);
+        oneByOne(true, true, true);
+        oneByOne(false, true, true);
         break;
 
         case 4:
-        oneByOneLED(true, false, true);
-        oneByOneLED(true, false, false);
+        oneByOne(true, false, true);
+        oneByOne(true, false, false);
         break;
 
         case 5:
-        oneByOneLED(true, false, true);
+        oneByOne(true, false, true);
         break;
 
         default:
         break;
     }
 
-    allOff();
+    setAllOff();
     wait(1000);
 }
 
-void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)
+void LEDs::oneByOne(bool ledDirection, bool singleLED, bool turnOn)
 {
     /*
 
@@ -112,8 +113,8 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)
     //if second and third argument of function are set to false or
     //if second argument is set to false and all the LEDs are turned off
     //light up all LEDs
-    if ((!singleLED && !turnOn) || (checkLEDsOff() && !turnOn))
-        allOn();
+    if ((!singleLED && !turnOn) || (allLEDsOff() && !turnOn))
+        setAllOn();
 
     if (turnOn)
     {
@@ -140,7 +141,7 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)
         if (!ledDirection)
         {
             //if last LED is turned on
-            if (Board::getLEDstate(_ledNumber[totalNumberOfLEDs-1]))
+            if (getState(_ledNumber[totalNumberOfLEDs-1]))
             {
                 //LED index is penultimate LED number
                 ledNumber = _ledNumber[totalNumberOfLEDs-2];
@@ -159,7 +160,7 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)
         {
             //left-to-right direction
             //if first LED is already on
-            if (Board::getLEDstate(_ledNumber[0]))
+            if (getState(_ledNumber[0]))
             {
                 //led index is 1
                 ledNumber = _ledNumber[1];
@@ -181,7 +182,7 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)
         //right-to-left direction
         if (!ledDirection)
         {
-            if (!(Board::getLEDstate(_ledNumber[totalNumberOfLEDs-1])))
+            if (!(getState(_ledNumber[totalNumberOfLEDs-1])))
             {
                 ledNumber = _ledNumber[totalNumberOfLEDs-2];
                 passCounter++;
@@ -194,7 +195,7 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)
         else
         {
             //left-to-right direction
-            if (!(Board::getLEDstate(_ledNumber[0])))
+            if (!(getState(_ledNumber[0])))
             {
                 ledNumber = _ledNumber[1];
                 passCounter++;
@@ -216,12 +217,12 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)
             if (singleLED && turnOn)
             {
                 //if we're turning LEDs on one by one, turn all the other LEDs off
-                allOff();
+                setAllOff();
             }
             else if (!turnOn && singleLED)
             {
                 //if we're turning LEDs off one by one, turn all the other LEDs on
-                allOn();
+                setAllOn();
             }
 
             //set LED state depending on turnOn parameter
@@ -247,7 +248,7 @@ void LEDs::oneByOneLED(bool ledDirection, bool singleLED, bool turnOn)
     }
 }
 
-rgb LEDs::velocityToColor(uint8_t receivedVelocity, bool blinkEnabled)
+rgbValue_t LEDs::velocityToColor(uint8_t receivedVelocity, bool blinkEnabled)
 {
     /*
     blinkEnabled:
@@ -301,21 +302,21 @@ rgb LEDs::velocityToColor(uint8_t receivedVelocity, bool blinkEnabled)
     return colors[(uint8_t)color];
 }
 
-bool LEDs::velocity2blinkState(uint8_t receivedVelocity)
+bool LEDs::velocityToblinkState(uint8_t receivedVelocity)
 {
     return (receivedVelocity > 63);
 }
 
-void LEDs::noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity)
+void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity)
 {
     bool blinkEnabled_global = database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime);
     bool blinkEnabled_led;
     if (!blinkEnabled_global)
         blinkEnabled_led = false;
     else
-        blinkEnabled_led = velocity2blinkState(receivedVelocity);
+        blinkEnabled_led = velocityToblinkState(receivedVelocity);
 
-    rgb color = velocityToColor(receivedVelocity, blinkEnabled_global);
+    rgbValue_t color = velocityToColor(receivedVelocity, blinkEnabled_global);
 
     //match LED activation note with its index
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
@@ -325,74 +326,235 @@ void LEDs::noteToLEDstate(uint8_t receivedNote, uint8_t receivedVelocity)
             if (database.read(CONF_BLOCK_LED, ledRGBenabledSection, i))
             {
                 //rgb led
-                Board::setRGBled(i, color, blinkEnabled_led);
+                setRGBled(i, color, blinkEnabled_led);
             }
             else
             {
                 bool state = color.r || color.g || color.b;
-                Board::setSingleLED(i, state, blinkEnabled_led);
+                setSingleLED(i, state, blinkEnabled_led);
             }
         }
     }
 }
 
-void LEDs::allOn()
+void LEDs::setAllOn()
 {
     //turn on all LEDs
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        Board::setSingleLED(i, true, false);
+        setSingleLED(i, true, false);
 }
 
-void LEDs::allOff()
+void LEDs::setAllOff()
 {
     //turn off all LEDs
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        Board::setSingleLED(i, true, false);
+        setSingleLED(i, true, false);
 }
 
-void LEDs::setState(uint8_t ledNumber, rgb color)
+void LEDs::setState(uint8_t ledNumber, rgbValue_t color)
 {
-    Board::setRGBled(ledNumber, color, false);
+    setRGBled(ledNumber, color, false);
 }
 
 void LEDs::setState(uint8_t ledNumber, bool state)
 {
-    Board::setSingleLED(ledNumber, state, false);
+    setSingleLED(ledNumber, state, false);
 }
 
-bool LEDs::checkLEDsOn()
+void LEDs::setSingleLED(uint8_t ledNumber, bool state, bool blinkMode)
 {
-    //return true if all LEDs are on
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        if (Board::getLEDstate(i))
-            return false;
+    handleLED(ledNumber, state, blinkMode);
 
-    return true;
+    if (blinkMode && state)
+        startBlinking();
+    else
+        checkBlinkLEDs();
 }
 
-bool LEDs::checkLEDsOff()
+void LEDs::setRGBled(uint8_t ledNumber, rgbValue_t color, bool blinkMode)
 {
-    //return true if all LEDs are off
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        if (!Board::getLEDstate(i))
-            return false;
+    handleLED(ledNumber, color, blinkMode);
 
-    return true;
+    if (blinkMode && color.r && color.g && color.b)
+        startBlinking();
+    else
+        checkBlinkLEDs();
 }
 
 uint8_t LEDs::getState(uint8_t ledNumber)
 {
-    return Board::getLEDstate(ledNumber);
+    uint8_t returnValue;
+    returnValue = ledState[ledNumber];
+    return returnValue;
 }
 
-void LEDs::setFadeTime(uint8_t speed)
+bool LEDs::allLEDsOn()
 {
-    Board::setLEDfadeTime(speed);
+    //return true if all LEDs are on
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+    {
+        if (getState(i))
+            return false;
+    }
+
+    return true;
+}
+
+bool LEDs::allLEDsOff()
+{
+    //return true if all LEDs are off
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+    {
+        if (!getState(i))
+            return false;
+    }
+
+    return true;
+}
+
+void LEDs::setFadeTime(uint8_t transitionSpeed)
+{
+    //reset transition counter
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+            transitionCounter[i] = 0;
+
+        pwmSteps = transitionSpeed;
+    }
 }
 
 void LEDs::setBlinkTime(uint16_t blinkTime)
 {
-    Board::setLEDblinkTime(blinkTime);
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        ledBlinkTime = blinkTime*100;
+        blinkTimerCounter = 0;
+    }
+}
+
+void LEDs::handleLED(uint8_t ledNumber, bool state, bool blinkMode)
+{
+    /*
+
+    LED state is stored into one byte (ledState). The bits have following meaning (7 being the MSB bit):
+
+    7: x
+    6: x
+    5: x
+    4: x
+    3: Blink bit (timer changes this bit)
+    2: LED is active (either it blinks or it's constantly on), this bit is OR function between bit 0 and 1
+    1: LED blinks
+    0: LED is constantly turned on
+
+    */
+
+    uint8_t currentState = getState(ledNumber);
+
+    switch(state) {
+
+        case false:
+        //turn off the led
+        currentState = 0;
+        break;
+
+        case true:
+        //turn on the led
+        //if led was already active, clear the on bits before setting new state
+        if (bitRead(currentState, LED_ACTIVE_BIT))
+            currentState = 0;
+
+        bitWrite(currentState, LED_ACTIVE_BIT, 1);
+        if (blinkMode)
+        {
+            bitWrite(currentState, LED_BLINK_ON_BIT, 1);
+            //this will turn the led immediately no matter how little time it's
+            //going to blink first time
+            bitWrite(currentState, LED_BLINK_STATE_BIT, 1);
+        }
+        else
+        {
+            bitWrite(currentState, LED_CONSTANT_ON_BIT, 1);
+        }
+        break;
+    }
+
+    ledState[ledNumber] = currentState;
+}
+
+void LEDs::handleLED(uint8_t ledNumber, rgbValue_t color, bool blinkMode)
+{
+    uint8_t led1 = board.getRGBaddress(ledNumber, rgb_R);
+    uint8_t led2 = board.getRGBaddress(ledNumber, rgb_G);
+    uint8_t led3 = board.getRGBaddress(ledNumber, rgb_B);
+
+    handleLED(led1, color.r, blinkMode);
+    handleLED(led2, color.g, blinkMode);
+    handleLED(led3, color.b, blinkMode);
+}
+
+void LEDs::startBlinking()
+{
+    if (!blinkEnabled)
+    {
+        blinkEnabled = true;
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        {
+            blinkState = true;
+            blinkTimerCounter = 0;
+        }
+    }
+}
+
+void LEDs::stopBlinking()
+{
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        blinkState = true;
+        blinkTimerCounter = 0;
+    }
+    blinkEnabled = false;
+}
+
+bool LEDs::blinkingActive()
+{
+    bool state;
+    state = blinkEnabled;
+    return state;
+}
+
+void LEDs::checkBlinkLEDs()
+{
+    //this function will disable blinking
+    //if none of the LEDs is in blinking state
+
+    //else it will enable it
+
+    bool _blinkEnabled = false;
+    uint8_t ledState;
+
+    //if any LED is blinking, set timerState to true and exit the loop
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+    {
+        ledState = getState(i);
+        if (bitRead(ledState, LED_BLINK_ON_BIT))
+        {
+            _blinkEnabled = true;
+            break;
+        }
+    }
+
+    if (_blinkEnabled)
+    {
+        startBlinking();
+    }
+    else if (!_blinkEnabled && blinkingActive())
+    {
+        //don't bother reseting variables if blinking is already disabled
+        //reset blinkState to default value
+        stopBlinking();
+    }
 }
 
 LEDs leds;

@@ -21,15 +21,9 @@
 #include <avr/io.h>
 #include "../../board/Board.h"
 #include "../../midi/MIDI.h"
+#include "DataTypes.h"
 
-enum buttonType_t
-{
-    buttonMomentary,
-    buttonLatching,
-    BUTTON_TYPES
-};
-
-class Buttons : Board
+class Buttons
 {
     public:
     Buttons();

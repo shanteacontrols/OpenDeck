@@ -18,7 +18,7 @@
 
 #include "Buttons.h"
 #include "../../eeprom/Database.h"
-#include "../../middleware/leds/LEDs.h"
+#include "../../interface/leds/LEDs.h"
 #include "../../midi/MIDI.h"
 
 const uint8_t buttonDebounceCompare = 0b10000000;
@@ -147,18 +147,18 @@ void Buttons::processButton(uint8_t buttonID, bool state, bool debounce)
 
 void Buttons::update()
 {
-    if (!Board::buttonDataAvailable())
+    if (!board.buttonDataAvailable())
         return;
 
     for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
     {
         bool buttonState;
-        uint8_t encoderPairIndex = Board::getEncoderPair(i);
+        uint8_t encoderPairIndex = board.getEncoderPair(i);
 
         if (database.read(CONF_BLOCK_ENCODER, encoderEnabledSection, encoderPairIndex))
             buttonState = false;    //button is member of encoder pair, always set state to released
         else
-            buttonState = Board::getButtonState(i);
+            buttonState = board.getButtonState(i);
 
         processButton(i, buttonState);
     }

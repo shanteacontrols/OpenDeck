@@ -19,12 +19,7 @@
 #include "Encoders.h"
 #include "../../eeprom/Database.h"
 #include "../../midi/MIDI.h"
-
-#define ENCODER_VALUE_LEFT_7FH01H   127
-#define ENCODER_VALUE_RIGHT_7FH01H  1
-
-#define ENCODER_VALUE_LEFT_3FH41H   63
-#define ENCODER_VALUE_RIGHT_3FH41H  65
+#include "Constants.h"
 
 Encoders::Encoders()
 {
@@ -33,7 +28,7 @@ Encoders::Encoders()
 
 void Encoders::update()
 {
-    if (!Board::encoderDataAvailable())
+    if (!board.encoderDataAvailable())
         return;
 
     for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
@@ -41,7 +36,7 @@ void Encoders::update()
         if (!database.read(CONF_BLOCK_ENCODER, encoderEnabledSection, i))
             continue;
 
-        encoderPosition_t encoderState = (encoderPosition_t)Board::getEncoderState(i);
+        encoderPosition_t encoderState = (encoderPosition_t)board.getEncoderState(i);
         if (encoderState == encStopped)
             continue;
 

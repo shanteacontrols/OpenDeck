@@ -19,7 +19,7 @@
 #pragma once
 
 //some predefined colors here
-#include "../../board/Board.h"
+#include "DataTypes.h"
 
 typedef enum
 {
@@ -33,7 +33,7 @@ typedef enum
     colorGreen
 } ledColor_t;
 
-const rgb colors[] =
+const rgbValue_t colors[] =
 {
     {
         //off

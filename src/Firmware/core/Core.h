@@ -18,9 +18,13 @@
 
 #pragma once
 
+#include <util/atomic.h>
+
 #include "adc/ADC.h"
 #include "reset/Reset.h"
 #include "uart/UART.h"
 #include "usb/midi/Descriptors.h"
 #include "helpers/PinManipulation.h"
 #include "helpers/BitManipulation.h"
+#include "timer/RunTime.h"
+#include "timer/Wait.h"

@@ -21,24 +21,11 @@
 #include "../../board/Board.h"
 #include "../buttons/Buttons.h"
 #include "../../eeprom/Database.h"
+#include "DataTypes.h"
 
 #define NUMBER_OF_SAMPLES 3 //do not change
 
-enum ccLimitType_t
-{
-    ccLimitLow,
-    ccLimitHigh
-};
-
-enum analogType_t
-{
-    potentiometer,
-    fsr,
-    ldr,
-    ANALOG_TYPES
-};
-
-class Analog : Board
+class Analog
 {
     public:
     Analog();
@@ -66,10 +53,9 @@ class Analog : Board
     int16_t getMedianValue(uint8_t analogID);
     void addAnalogSamples();
     bool analogValuesSampled();
-    inline uint8_t mapAnalog_uint8(uint8_t x, uint8_t in_min, uint8_t in_max, uint8_t out_min, uint8_t out_max) {
-
+    inline uint8_t mapAnalog_uint8(uint8_t x, uint8_t in_min, uint8_t in_max, uint8_t out_min, uint8_t out_max)
+    {
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-
     };
 };
 

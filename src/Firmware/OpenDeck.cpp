@@ -41,14 +41,14 @@ bool onCustom(uint8_t value)
 
         case REBOOT_STRING:
         leds.setFadeTime(1);
-        leds.allOff();
+        leds.setAllOff();
         wait(1500);
         reboot();
         return true; //pointless, but whatever
 
         case FACTORY_RESET_STRING:
         leds.setFadeTime(1);
-        leds.allOff();
+        leds.setAllOff();
         wait(1500);
         database.factoryReset(factoryReset_partial);
         reboot();
@@ -104,7 +104,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             case CONF_BLOCK_LED:
             if (section == ledStateSection)
             {
-                leds.noteToLEDstate(index, newValue);
+                leds.noteToState(index, newValue);
             }
             else
             {
@@ -179,7 +179,7 @@ int main()  {
                 case midiMessageNoteOff:
                 case midiMessageNoteOn:
                 //we're using received note data to control LEDs
-                leds.noteToLEDstate(data1, data2);
+                leds.noteToState(data1, data2);
                 break;
 
                 default:
@@ -200,7 +200,7 @@ int main()  {
                 {
                     case midiMessageNoteOff:
                     case midiMessageNoteOn:
-                    leds.noteToLEDstate(data1, data2);
+                    leds.noteToState(data1, data2);
                     break;
 
                     default:
