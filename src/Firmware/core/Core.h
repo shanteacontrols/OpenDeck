@@ -22,4 +22,5 @@
 #include "reset/Reset.h"
 #include "uart/UART.h"
 #include "usb/midi/Descriptors.h"
-#include "PinManipulation.h"
+#include "helpers/PinManipulation.h"
+#include "helpers/BitManipulation.h"
