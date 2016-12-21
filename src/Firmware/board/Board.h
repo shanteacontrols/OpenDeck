@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BOARD_H_
-#define BOARD_H_
+#pragma once
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -89,5 +88,3 @@ class Board
 };
 
 extern Board board;
-
-#endif

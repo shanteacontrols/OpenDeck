@@ -1,5 +1,4 @@
-#ifndef BUTTONS_BLOCK_H_
-#define BUTTONS_BLOCK_H_
+#pragma once
 
 typedef enum
 {
@@ -8,5 +7,3 @@ typedef enum
     buttonMIDIidSection,
     BUTTON_SECTIONS
 } buttonSection;
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ENCODERS_BLOCK_H_
-#define ENCODERS_BLOCK_H_
+#pragma once
 
 typedef enum
 {
@@ -9,5 +8,3 @@ typedef enum
     encoderMIDIidSection,
     ENCODER_SECTIONS
 } encoderSection;
-
-#endif

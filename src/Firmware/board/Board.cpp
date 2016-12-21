@@ -47,7 +47,6 @@ bool                                        buttonsProcessed,
 #define PULSES_PER_STEP                     4
 
 /*
-
     Encoder data formatting, uint16_t variable type
     0      1      2      3
     0000 | 0000 | 0000 | 0000
@@ -56,7 +55,6 @@ bool                                        buttonsProcessed,
     1 - encoderMoving (0/1/2 - stopped/left/right)
     2 - counted pulses (default value is 8 to avoid issues with negative values)
     3 - temp encoder state (2 readings of 2 encoder pairs)
-
 */
 
 #define ENCODER_CLEAR_TEMP_STATE_MASK       0xFFF0

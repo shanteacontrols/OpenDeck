@@ -16,10 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef UART_CONFIG_H_
-#define UART_CONFIG_H_
+#pragma once
 
 #define TX_ENABLE   1
 #define RX_ENABLE   1
-
-#endif

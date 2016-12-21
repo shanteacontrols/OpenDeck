@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef Uart_h
-#define Uart_h
+#pragma once
 
 #include <avr/io.h>
 
@@ -34,5 +33,3 @@ class UART
 };
 
 extern UART uart;
-
-#endif

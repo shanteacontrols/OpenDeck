@@ -16,13 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ADC_CONFIG_H_
-#define ADC_CONFIG_H_
+#pragma once
 
 #define ADC_PRESCALER   128
 //#define VREF_AREF
 #define VREF_AVCC
 //#define VREF_INTERNAL_2V56
 //#define VREF_INTERNAL_1V1
-
-#endif

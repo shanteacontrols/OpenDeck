@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PINS_H_
-#define PINS_H_
+#pragma once
 
 #include <avr/cpufunc.h>
 
@@ -166,5 +165,3 @@ const uint8_t muxPinOrderArray[] = {
     MUX_Y15
 
 };
-
-#endif

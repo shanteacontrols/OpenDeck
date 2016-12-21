@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ADC_H_
-#define ADC_H_
+#pragma once
 
 //ADC setup and manipulation
 
@@ -30,5 +29,3 @@ void setUpADC();
 void setADCchannel(uint8_t);
 int16_t getADCvalue();
 void disconnectDigitalInADC(uint8_t);
-
-#endif

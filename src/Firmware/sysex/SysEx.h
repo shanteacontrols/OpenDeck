@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SYSEX_H_
-#define SYSEX_H_
+#pragma once
 
 #include <avr/io.h>
 #include <stdio.h>
@@ -168,5 +167,3 @@ class SysEx
 };
 
 extern SysEx sysEx;
-
-#endif

@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef FIRMWARE_VERSION_H_
-#define FIRMWARE_VERSION_H_
+#pragma once
 
 #include <inttypes.h>
 
@@ -35,5 +34,3 @@ typedef enum
 
 bool checkNewRevision();
 uint8_t getSWversion(version_t point);
-
-#endif

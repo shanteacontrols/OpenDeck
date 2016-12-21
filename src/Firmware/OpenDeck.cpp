@@ -77,7 +77,7 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
 bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newValue)
 {
     bool returnValue = true;
-    //don't write led states to eeprom
+    //check this block manually
     if (block != CONF_BLOCK_LED)
         returnValue = database.update(block, section, index, newValue);
 

@@ -24,8 +24,7 @@
 #include "../board/Board.h"
 #include "blocks/Blocks.h"
 
-#ifndef DATABASE_H_
-#define DATABASE_H_
+#pragma once
 
 #ifdef ENABLE_ASYNC_UPDATE
 #define EEPROM_UPDATE_BUFFER_SIZE   64
@@ -125,5 +124,3 @@ class Database
 };
 
 extern Database database;
-
-#endif

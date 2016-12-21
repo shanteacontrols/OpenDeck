@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef HARDWARE_VERSION_H_
-#define HARDWARE_VERSION_H_
+#pragma once
 
 #define HARDWARE_VERSION_MAJOR      1
 #define HARDWARE_VERSION_MINOR      0
@@ -34,5 +33,3 @@ const struct
     HARDWARE_VERSION_MINOR,
     HARDWARE_VERSION_REVISION
 };
-
-#endif

@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BUTTONS_H_
-#define BUTTONS_H_
+#pragma once
 
 #include <avr/io.h>
 #include "../../board/Board.h"
@@ -55,5 +54,3 @@ class Buttons : Board
 };
 
 extern Buttons buttons;
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef LEDS_BLOCK_H_
-#define LEDS_BLOCK_H_
+#pragma once
 
 typedef enum
 {
@@ -20,5 +19,3 @@ typedef enum
     ledHwParameterFadeTime,
     LED_HARDWARE_PARAMETERS
 } ledHardwareParameter;
-
-#endif
