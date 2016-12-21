@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ANALOG_H_
-#define ANALOG_H_
+#pragma once
 
 #include "../../board/Board.h"
 #include "../buttons/Buttons.h"
@@ -75,5 +74,3 @@ class Analog : Board
 };
 
 extern Analog analog;
-
-#endif

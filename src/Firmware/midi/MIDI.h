@@ -23,8 +23,7 @@
 
 //library modifed by Igor Petrovic
 
-#ifndef HW_MIDI_H
-#define HW_MIDI_H
+#pragma once
 
 #include "Config.h"
 
@@ -258,5 +257,3 @@ class MIDI
 };
 
 extern MIDI midi;
-
-#endif

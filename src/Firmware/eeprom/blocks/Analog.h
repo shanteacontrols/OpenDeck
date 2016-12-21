@@ -1,5 +1,4 @@
-#ifndef ANALOG_BLOCK_H_
-#define ANALOG_BLOCK_H_
+#pragma once
 
 typedef enum
 {
@@ -12,5 +11,3 @@ typedef enum
     analogDigitalEnabledSection,
     ANALOG_SECTIONS
 } analogSection;
-
-#endif

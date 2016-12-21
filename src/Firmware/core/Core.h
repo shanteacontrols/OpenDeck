@@ -16,13 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CORE_H_
-#define CORE_H_
+#pragma once
 
 #include "adc/ADC.h"
 #include "reset/Reset.h"
 #include "uart/UART.h"
 #include "usb/midi/Descriptors.h"
 #include "PinManipulation.h"
-
-#endif

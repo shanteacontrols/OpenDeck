@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef MIDI_CONFIG_H_
-#define MIDI_CONFIG_H_
+#pragma once
 
 #include "../core/uart/UART.h"
 
@@ -31,5 +30,3 @@
 
 //maximum sysex length we can receive
 #define MIDI_SYSEX_ARRAY_SIZE   45
-
-#endif

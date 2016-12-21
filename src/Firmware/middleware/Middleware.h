@@ -16,12 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef MIDDLEWARE_H_
-#define MIDDLEWARE_H_
+#pragma once
 
 #include "analog/Analog.h"
 #include "buttons/Buttons.h"
 #include "encoders/Encoders.h"
 #include "leds/LEDs.h"
-
-#endif

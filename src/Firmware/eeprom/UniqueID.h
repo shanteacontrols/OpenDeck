@@ -16,9 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef UNIQUEID_H_
-#define UNIQUEID_H_
+#pragma once
 
 #define EEPROM_UNIQUE_ID    47
-
-#endif

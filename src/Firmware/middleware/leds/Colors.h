@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LED_COLORS_H_
-#define LED_COLORS_H_
+#pragma once
 
 //some predefined colors here
 #include "../../board/Board.h"
@@ -92,5 +91,3 @@ const rgb colors[] =
         0
     }
 };
-
-#endif

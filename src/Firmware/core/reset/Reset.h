@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef RESET_H_
-#define RESET_H_
+#pragma once
 
 #include <util/delay.h>
 #include <avr/wdt.h>
@@ -27,5 +26,3 @@
 
 void disablePeripherals();
 void reboot();
-
-#endif

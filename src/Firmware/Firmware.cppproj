@@ -219,9 +219,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="core\PinManipulation.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="core\pins\Pins.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="core\reset\Reset.cpp">
       <SubType>compile</SubType>
     </Compile>

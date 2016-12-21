@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CONFIG_SYSEX_H_
-#define CONFIG_SYSEX_H_
+#pragma once
 
 #define MAX_NUMBER_OF_BLOCKS    7
 #define MAX_NUMBER_OF_SECTIONS  7
@@ -38,5 +37,3 @@
 #define SYS_EX_M_ID_0           0x00
 #define SYS_EX_M_ID_1           0x53
 #define SYS_EX_M_ID_2           0x43
-
-#endif

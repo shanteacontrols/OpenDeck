@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#pragma once
 
 #include <stdio.h>
 
@@ -27,5 +26,3 @@
 #define MAX_SECTIONS    7
 #define START_OFFSET    5
 #define VALUE_BYTES     1
-
-#endif

@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef INIT_H_
-#define INIT_H_
+#pragma once
 
 #include "../eeprom/Database.h"
 #include "../sysex/SysEx.h"
@@ -28,5 +27,3 @@
 #include "../middleware/Middleware.h"
 
 void globalInit();
-
-#endif

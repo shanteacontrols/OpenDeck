@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LEDS_H_
-#define LEDS_H_
+#pragma once
 
 #include "../../board/Board.h"
 #include "../../eeprom/Database.h"
@@ -65,5 +64,3 @@ class LEDs : Board
 };
 
 extern LEDs leds;
-
-#endif

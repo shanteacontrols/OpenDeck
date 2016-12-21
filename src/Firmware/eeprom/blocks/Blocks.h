@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BLOCKS_H_
-#define BLOCKS_H_
+#pragma once
 
 #include "MIDI.h"
 #include "Buttons.h"
@@ -35,5 +34,3 @@ enum eepromBlocks
     CONF_BLOCK_LED,     //4
     CONF_BLOCKS
 };
-
-#endif

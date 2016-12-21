@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ENCODERS_H_
-#define ENCODERS_H_
+#pragma once
 
 #include "../../board/Board.h"
 
@@ -43,5 +42,3 @@ class Encoders : Board
 };
 
 extern Encoders encoders;
-
-#endif

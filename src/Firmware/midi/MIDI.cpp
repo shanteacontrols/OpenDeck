@@ -25,8 +25,6 @@
 
 #include "MIDI.h"
 
-#ifdef HW_MIDI_H
-
 USB_ClassInfo_MIDI_Device_t MIDI_Interface;
 
 MIDI::MIDI()
@@ -1476,4 +1474,3 @@ void EVENT_USB_Device_ConfigurationChanged(void)
 }
 
 MIDI midi;
-#endif

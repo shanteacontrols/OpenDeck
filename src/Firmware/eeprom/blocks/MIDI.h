@@ -1,5 +1,4 @@
-#ifndef MIDI_BLOCK_H_
-#define MIDI_BLOCK_H_
+#pragma once
 
 typedef enum
 {
@@ -24,5 +23,3 @@ typedef enum
     midiFeatureUSBconvert,
     MIDI_FEATURES
 } midiFeatures;
-
-#endif

@@ -18,8 +18,6 @@
 
 #include "SysEx.h"
 
-#ifdef SYSEX_H_
-
 const sysExManufacturerID defaultID =
 {
     SYS_EX_M_ID_0,
@@ -685,4 +683,3 @@ void SysEx::setHandleCustomRequest(bool(*fptr)(uint8_t value))
 }
 
 SysEx sysEx;
-#endif

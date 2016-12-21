@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PINMANIPULATION_H_
-#define PINMANIPULATION_H_
+#pragma once
 
 #define DDR(x) (*(&x-1))
 #define PIN(x) (*(&x-2))
@@ -41,5 +40,3 @@
     _NOP(); \
     setHigh((port), (pin)); \
 } while (0)
-
-#endif
