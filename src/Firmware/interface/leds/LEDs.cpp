@@ -307,7 +307,7 @@ bool LEDs::velocityToblinkState(uint8_t receivedVelocity)
     return (receivedVelocity > 63);
 }
 
-void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity)
+void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool local)
 {
     bool blinkEnabled_global = database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime);
     bool blinkEnabled_led;
@@ -318,21 +318,38 @@ void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity)
 
     rgbValue_t color = velocityToColor(receivedVelocity, blinkEnabled_global);
 
-    //match LED activation note with its index
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+    if (local)
     {
-        if (database.read(CONF_BLOCK_LED, ledActivationNoteSection, i) == receivedNote)
+        //match LED activation note with its index
+        for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
         {
-            if (database.read(CONF_BLOCK_LED, ledRGBenabledSection, i))
+            if (database.read(CONF_BLOCK_LED, ledActivationNoteSection, i) == receivedNote)
             {
-                //rgb led
-                setRGBled(i, color, blinkEnabled_led);
+                if (database.read(CONF_BLOCK_LED, ledRGBenabledSection, i))
+                {
+                    //rgb led
+                    setRGBled(i, color, blinkEnabled_led);
+                }
+                else
+                {
+                    bool state = color.r || color.g || color.b;
+                    setSingleLED(i, state, blinkEnabled_led);
+                }
             }
-            else
-            {
-                bool state = color.r || color.g || color.b;
-                setSingleLED(i, state, blinkEnabled_led);
-            }
+        }
+    }
+    else
+    {
+        //treat received note as led ID
+        if (database.read(CONF_BLOCK_LED, ledRGBenabledSection, receivedNote))
+        {
+            //rgb led
+            setRGBled(receivedNote, color, blinkEnabled_led);
+        }
+        else
+        {
+            bool state = color.r || color.g || color.b;
+            setSingleLED(receivedNote, state, blinkEnabled_led);
         }
     }
 }
