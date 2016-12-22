@@ -34,7 +34,7 @@ inline void storeDigitalIn(uint8_t column, uint8_t bufferIndex)
 
     //reorder data to match rows on PCB layout
     for (int i=0; i<8; i++)
-    bitWrite(dataReorder, i, bitRead(data, dmRowBitArray[i]));
+        bitWrite(dataReorder, i, bitRead(data, dmRowBitArray[i]));
 
     inputBuffer[bufferIndex] |= (uint64_t)dataReorder;
 }
@@ -181,7 +181,7 @@ ISR(TIMER0_COMPA_vect)
 
     static bool updateMillisAndBlink = false;
     static uint8_t matrixSwitchCounter = 0;
-    uint32_t ms;
+    //uint32_t ms;
 
     if (matrixSwitchCounter == 1)
     {
@@ -198,10 +198,10 @@ ISR(TIMER0_COMPA_vect)
 
     if (updateMillisAndBlink)
     {
-        ms = rTime_ms;
-        ms++;
-        //update run time
-        rTime_ms = ms;
+        //ms = rTime_ms;
+        //ms++;
+        ////update run time
+        //rTime_ms = ms;
 
         matrixSwitchCounter++;
     }
