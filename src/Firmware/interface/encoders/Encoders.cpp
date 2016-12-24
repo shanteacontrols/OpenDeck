@@ -70,7 +70,7 @@ void Encoders::update()
             break;
         }
 
-        midi.sendControlChange(database.read(CONF_BLOCK_ENCODER, encoderMIDIidSection, i), encoderValue);
+        midi.sendControlChange(database.read(CONF_BLOCK_ENCODER, encoderMIDIidSection, i), encoderValue, database.read(CONF_BLOCK_MIDI, midiChannelSection, CCchannel));
         //if (sysEx.configurationEnabled())
             //sysEx.sendComponentID(CONF_BLOCK_ENCODER, i);
     }

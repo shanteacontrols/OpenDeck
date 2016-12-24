@@ -197,7 +197,7 @@ call version_append.exe
 call del version
 
 REM upload code using usbasp
-call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
+REM call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="board\Analog.cpp">

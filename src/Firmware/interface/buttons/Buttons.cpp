@@ -51,10 +51,10 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
         //send note on only once
         if (!getButtonPressed(buttonID))
         {
+            uint8_t note = database.read(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID);
             setButtonPressed(buttonID, true);
-            midi.sendNoteOn(database.read(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOn, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
-            if (database.read(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
-                leds.setState(buttonID, true);
+            midi.sendNoteOn(note, velocityOn, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
+            //leds.noteToState(note, velocityOn);
             //if (sysEx.configurationEnabled())
                 //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
         }
@@ -64,9 +64,9 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
         //button is released
         if (getButtonPressed(buttonID))
         {
-            midi.sendNoteOff(database.read(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOff, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
-            if (database.read(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
-                leds.setState(buttonID, false);
+            uint8_t note = database.read(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID);
+            midi.sendNoteOff(note, velocityOff, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
+            //leds.noteToState(note, velocityOff);
             //if (sysEx.configurationEnabled())
                 //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
 
@@ -79,15 +79,17 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)
 {
     if (buttonState != getPreviousButtonState(buttonID))
     {
+        uint8_t note = database.read(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID);
+        uint8_t channel = database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel);
+
         if (buttonState)
         {
             //button is pressed
             //if a button has been already pressed
             if (getButtonPressed(buttonID))
             {
-                midi.sendNoteOff(database.read(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOff);
-                if (database.read(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
-                    leds.setState(buttonID, false);
+                midi.sendNoteOff(note, velocityOff, channel);
+                //leds.noteToState(note, velocityOff);
                 //if (sysEx.configurationEnabled())
                     //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
 
@@ -97,9 +99,8 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)
             else
             {
                 //send note on
-                midi.sendNoteOn(database.read(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID), velocityOn);
-                if (database.read(CONF_BLOCK_LED, ledLocalControlEnabled, buttonID))
-                    leds.setState(buttonID, true);
+                midi.sendNoteOn(note, velocityOn, channel);
+                //leds.noteToState(note, velocityOff);
                 //if (sysEx.configurationEnabled())
                     //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
 
