@@ -37,7 +37,7 @@ class LEDs
     void setFadeTime(uint8_t transitionSpeed);
     rgbValue_t velocityToColor(uint8_t receivedVelocity, bool blinkEnabled);
     bool velocityToblinkState(uint8_t receivedVelocity);
-    void noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool local = false);
+    void noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool ledID = false);
 
     private:
     //data processing
