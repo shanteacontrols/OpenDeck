@@ -307,7 +307,7 @@ bool LEDs::velocityToblinkState(uint8_t receivedVelocity)
     return (receivedVelocity > 63);
 }
 
-void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool local)
+void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool ledID)
 {
     bool blinkEnabled_global = database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime);
     bool blinkEnabled_led;
@@ -318,7 +318,7 @@ void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool loca
 
     rgbValue_t color = velocityToColor(receivedVelocity, blinkEnabled_global);
 
-    if (local)
+    if (!ledID)
     {
         //match LED activation note with its index
         for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
