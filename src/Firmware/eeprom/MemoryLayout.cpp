@@ -120,8 +120,8 @@ void Database::createMemoryLayout()
         blocks[CONF_BLOCK_LED].defaultValue[ledRGBenabledSection] = 0;
         blocks[CONF_BLOCK_LED].sectionParameters[ledRGBenabledSection] = MAX_NUMBER_OF_LEDS;
 
-        blocks[CONF_BLOCK_LED].sectionParameterType[ledLocalControlEnabled] = BIT_PARAMETER;
-        blocks[CONF_BLOCK_LED].defaultValue[ledLocalControlEnabled] = 0;
-        blocks[CONF_BLOCK_LED].sectionParameters[ledLocalControlEnabled] = MAX_NUMBER_OF_LEDS;
+        blocks[CONF_BLOCK_LED].sectionParameterType[ledLocalControlSection] = BIT_PARAMETER;
+        blocks[CONF_BLOCK_LED].defaultValue[ledLocalControlSection] = 0;
+        blocks[CONF_BLOCK_LED].sectionParameters[ledLocalControlSection] = MAX_NUMBER_OF_LEDS;
     }
 }
