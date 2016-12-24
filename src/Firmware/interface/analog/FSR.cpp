@@ -17,6 +17,7 @@
 */
 
 #include "Analog.h"
+#include "../leds/LEDs.h"
 
 //use 1k resistor when connecting FSR between signal and ground
 
@@ -92,7 +93,7 @@ void Analog::checkFSRvalue(uint8_t analogID, int16_t pressure)
             setFsrPressed(analogID, true);
             uint8_t note = database.read(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID);
             midi.sendNoteOn(note, calibratedPressure, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
-            //leds.noteToState(note, calibratedPressure);
+            leds.noteToState(note, calibratedPressure, false, true);
             //if (sysEx.configurationEnabled())
                 //sysEx.sendComponentID(CONF_BLOCK_ANALOG, analogID);
         }
@@ -104,7 +105,7 @@ void Analog::checkFSRvalue(uint8_t analogID, int16_t pressure)
             setFsrPressed(analogID, false);
             uint8_t note = database.read(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID);
             midi.sendNoteOff(note, 0, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
-            //leds.noteToState(note, 0);
+            leds.noteToState(note, 0, false, true);
             //if (sysEx.configurationEnabled())
                 //sysEx.sendComponentID(CONF_BLOCK_ANALOG, analogID);
         }
