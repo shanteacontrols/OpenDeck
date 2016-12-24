@@ -1,6 +1,6 @@
-src/.vs
-src/Bootloader/.vs
-src/Bootloader/Debug
-src/Firmware/Debug
+src/Bootloader/.vs/*
+src/Bootloader/Debug/*
+src/Firmware/Debug*
+src/Firmware/Release*
 tools/tmp/*
 FLASH.bin
