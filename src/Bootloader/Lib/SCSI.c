@@ -65,8 +65,8 @@ static const SCSI_Inquiry_Response_t InquiryData =
 		.WideBus32Bit        = false,
 		.RelAddr             = false,
 
-		.VendorID            = "SCONT",
-		.ProductID           = "OpenDeck",
+		.VendorID            = "LUFA",
+		.ProductID           = "Bootloader",
 		.RevisionID          = {'0','.','0','0'},
 	};
 
@@ -264,7 +264,7 @@ static bool SCSI_Command_ReadWrite_10(USB_ClassInfo_MS_Device_t* const MSInterfa
 		if (IsDataRead == DATA_READ)
 		  VirtualFAT_ReadBlock(BlockAddress + i);
 		else
-    		VirtualFAT_WriteBlock(BlockAddress + i);
+		  VirtualFAT_WriteBlock(BlockAddress + i);
 	}
 
 	/* Update the bytes transferred counter and succeed the command */

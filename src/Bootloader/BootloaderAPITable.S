@@ -51,6 +51,14 @@ BootloaderAPI_Trampolines:
 		jmp BootloaderAPI_WritePage
 	BootloaderAPI_FillWord_Trampoline:
 		jmp BootloaderAPI_FillWord
+	BootloaderAPI_ReadSignature_Trampoline:
+		jmp BootloaderAPI_ReadSignature
+	BootloaderAPI_ReadFuse_Trampoline:
+		jmp BootloaderAPI_ReadFuse
+	BootloaderAPI_ReadLock_Trampoline:
+		jmp BootloaderAPI_ReadLock
+	BootloaderAPI_WriteLock_Trampoline:
+		jmp BootloaderAPI_WriteLock
 	BootloaderAPI_UNUSED1:
 		ret
 	BootloaderAPI_UNUSED2:
@@ -72,6 +80,10 @@ BootloaderAPI_JumpTable:
 	rjmp BootloaderAPI_ErasePage_Trampoline
 	rjmp BootloaderAPI_WritePage_Trampoline
 	rjmp BootloaderAPI_FillWord_Trampoline
+	rjmp BootloaderAPI_ReadSignature_Trampoline
+	rjmp BootloaderAPI_ReadFuse_Trampoline
+	rjmp BootloaderAPI_ReadLock_Trampoline
+	rjmp BootloaderAPI_WriteLock_Trampoline
 	rjmp BootloaderAPI_UNUSED1 ; UNUSED ENTRY 1
 	rjmp BootloaderAPI_UNUSED2 ; UNUSED ENTRY 2
 	rjmp BootloaderAPI_UNUSED3 ; UNUSED ENTRY 3
