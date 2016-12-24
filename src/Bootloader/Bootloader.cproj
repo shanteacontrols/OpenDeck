@@ -235,6 +235,10 @@
         </avrgcc.assembler.general.IncludePaths>
       </AvrGcc>
     </ToolchainSettings>
+    <PostBuildEvent>REM uploading bootloader using usbasp
+call cd $(SolutionDir)
+call cd ..\tools
+call avrdude.exe -p m32u4 -c usbasp -U flash:w:"$(MSBuildProjectDirectory)\$(Configuration)\$(OutputFileName).hex":i</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
@@ -300,7 +304,7 @@
     <PostBuildEvent>REM uploading bootloader using usbasp
 call cd $(SolutionDir)
 call cd ..\tools
-call avrdude.exe -p m32u4 -c usbasp -U flash:w:"$(MSBuildProjectDirectory)\$(Configuration)\$(OutputFileName).hex":i</PostBuildEvent>
+REM call avrdude.exe -p m32u4 -c usbasp -U flash:w:"$(MSBuildProjectDirectory)\$(Configuration)\$(OutputFileName).hex":i</PostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="BootloaderAPI.c">
