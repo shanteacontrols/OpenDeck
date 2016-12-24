@@ -1,3 +1,4 @@
+src/.vs/*
 src/Bootloader/.vs/*
 src/Bootloader/Debug/*
 src/Firmware/Debug*
