@@ -307,7 +307,7 @@ bool LEDs::velocityToblinkState(uint8_t receivedVelocity)
     return (receivedVelocity > 63);
 }
 
-void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool ledID)
+void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool ledID, bool local)
 {
     bool blinkEnabled_global = database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime);
     bool blinkEnabled_led;
@@ -327,13 +327,29 @@ void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool ledI
             {
                 if (database.read(CONF_BLOCK_LED, ledRGBenabledSection, i))
                 {
-                    //rgb led
-                    setRGBled(i, color, blinkEnabled_led);
+                    if (local)
+                    {
+                        //if local is set to true, check if local led control is enabled for this led before changing state
+                        if (database.read(CONF_BLOCK_LED, ledLocalControlSection, i))
+                            setRGBled(i, color, blinkEnabled_led);
+                    }
+                    else
+                    {
+                        setRGBled(i, color, blinkEnabled_led);
+                    }
                 }
                 else
                 {
                     bool state = color.r || color.g || color.b;
-                    setSingleLED(i, state, blinkEnabled_led);
+                    if (local)
+                    {
+                        if (database.read(CONF_BLOCK_LED, ledLocalControlSection, i))
+                            setSingleLED(i, state, blinkEnabled_led);
+                    }
+                    else
+                    {
+                        setSingleLED(i, state, blinkEnabled_led);
+                    }
                 }
             }
         }
@@ -341,6 +357,7 @@ void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool ledI
     else
     {
         //treat received note as led ID
+        //we can ignore local argument here
         if (database.read(CONF_BLOCK_LED, ledRGBenabledSection, receivedNote))
         {
             //rgb led
