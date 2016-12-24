@@ -54,7 +54,7 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
             uint8_t note = database.read(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID);
             setButtonPressed(buttonID, true);
             midi.sendNoteOn(note, velocityOn, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
-            //leds.noteToState(note, velocityOn);
+            leds.noteToState(note, velocityOn, false, true);
             //if (sysEx.configurationEnabled())
                 //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
         }
@@ -66,7 +66,7 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
         {
             uint8_t note = database.read(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID);
             midi.sendNoteOff(note, velocityOff, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
-            //leds.noteToState(note, velocityOff);
+            leds.noteToState(note, velocityOff, false, true);
             //if (sysEx.configurationEnabled())
                 //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
 
@@ -89,7 +89,7 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)
             if (getButtonPressed(buttonID))
             {
                 midi.sendNoteOff(note, velocityOff, channel);
-                //leds.noteToState(note, velocityOff);
+                leds.noteToState(note, velocityOff, false, true);
                 //if (sysEx.configurationEnabled())
                     //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
 
@@ -100,7 +100,7 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)
             {
                 //send note on
                 midi.sendNoteOn(note, velocityOn, channel);
-                //leds.noteToState(note, velocityOff);
+                leds.noteToState(note, velocityOn, false, true);
                 //if (sysEx.configurationEnabled())
                     //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
 
