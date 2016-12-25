@@ -170,6 +170,7 @@
   <offline-documentation help="" />
   <dependencies>
     <content-extension eid="fourwalledcubicle.lufa" uuidref="0e160d5c-e331-48d9-850b-e0387912171b" version="15.11.15" />
+    <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.31.0" />
   </dependencies>
   <project id="lufa.bootloaders.mass_storage.avr8.32_4" value="Add" config="" content-id="0e160d5c-e331-48d9-850b-e0387912171b" />
   <board id="lufa.boards.dummy.avr8" value="Add" config="" content-id="0e160d5c-e331-48d9-850b-e0387912171b" />
@@ -179,61 +180,61 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
       <AvrGcc>
-  <avrgcc.common.Device>-mmcu=atmega32u4 -B "%24(PackRepoDir)\atmel\ATmega_DFP\1.0.106\gcc\dev\atmega32u4"</avrgcc.common.Device>
-  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
-  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
-  <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
-  <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
-  <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
-  <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
-  <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
-  <avrgcc.compiler.symbols.DefSymbols>
-    <ListValues>
-      <Value>NDEBUG</Value>
-      <Value>BOARD=BOARD_NONE</Value>
-      <Value>USE_LUFA_CONFIG_HEADER</Value>
-      <Value>F_USB=16000000UL</Value>
-      <Value>AUX_BOOT_SECTION_SIZE=2048</Value>
-      <Value>ARCH=ARCH_AVR8</Value>
-      <Value>F_CPU=16000000UL</Value>
-      <Value>BOOT_START_ADDR=0x7000</Value>
-      <Value>BOARD_R101</Value>
-    </ListValues>
-  </avrgcc.compiler.symbols.DefSymbols>
-  <avrgcc.compiler.directories.IncludePaths>
-    <ListValues>
-      <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.0.106\include</Value>
-      <Value>../src</Value>
-      <Value>.</Value>
-      <Value>../src/LUFA</Value>
-      <Value>../Lib</Value>
-      <Value>../src/config</Value>
-    </ListValues>
-  </avrgcc.compiler.directories.IncludePaths>
-  <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
-  <avrgcc.compiler.optimization.OtherFlags>-fdata-sections</avrgcc.compiler.optimization.OtherFlags>
-  <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
-  <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
-  <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
-  <avrgcc.compiler.miscellaneous.OtherFlags>-mrelax -std=gnu99 -fno-strict-aliasing -fno-jump-tables</avrgcc.compiler.miscellaneous.OtherFlags>
-  <avrgcc.linker.libraries.Libraries>
-    <ListValues>
-      <Value>libm</Value>
-    </ListValues>
-  </avrgcc.linker.libraries.Libraries>
-  <avrgcc.linker.miscellaneous.LinkerFlags>-Wl,--relax -Wl,--section-start=.apitable_jumptable=0x7FE0 -Wl,--section-start=.apitable_signatures=0x7FF8 -Wl,--section-start=.apitable_trampolines=0x7FA0 -Wl,--section-start=.boot_aux=0x6810 -Wl,--section-start=.boot_aux_trampoline=0x6800 -Wl,--section-start=.text=0x7000 -Wl,--undefined=Boot_AUX_Trampoline -Wl,--undefined=BootloaderAPI_JumpTable -Wl,--undefined=BootloaderAPI_Signatures -Wl,--undefined=BootloaderAPI_Trampolines</avrgcc.linker.miscellaneous.LinkerFlags>
-  <avrgcc.assembler.general.AssemblerFlags>-DARCH=ARCH_AVR8 -DAUX_BOOT_SECTION_SIZE=2048 -DBOARD=BOARD_NONE -DBOOT_START_ADDR=0x7000 -DF_CPU=16000000UL -DF_USB=16000000UL -DUSE_LUFA_CONFIG_HEADER</avrgcc.assembler.general.AssemblerFlags>
-  <avrgcc.assembler.general.IncludePaths>
-    <ListValues>
-      <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.0.106\include</Value>
-      <Value>../src</Value>
-      <Value>.</Value>
-      <Value>../src/LUFA</Value>
-      <Value>../Lib</Value>
-      <Value>../src/config</Value>
-    </ListValues>
-  </avrgcc.assembler.general.IncludePaths>
-</AvrGcc>
+        <avrgcc.common.Device>-mmcu=atmega32u4 -B "%24(PackRepoDir)\atmel\ATmega_DFP\1.0.106\gcc\dev\atmega32u4"</avrgcc.common.Device>
+        <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+        <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+        <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+        <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
+        <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
+        <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+        <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+        <avrgcc.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>NDEBUG</Value>
+            <Value>BOARD=BOARD_NONE</Value>
+            <Value>USE_LUFA_CONFIG_HEADER</Value>
+            <Value>F_USB=16000000UL</Value>
+            <Value>AUX_BOOT_SECTION_SIZE=2048</Value>
+            <Value>ARCH=ARCH_AVR8</Value>
+            <Value>F_CPU=16000000UL</Value>
+            <Value>BOOT_START_ADDR=0x7000</Value>
+            <Value>BOARD_R101</Value>
+          </ListValues>
+        </avrgcc.compiler.symbols.DefSymbols>
+        <avrgcc.compiler.directories.IncludePaths>
+          <ListValues>
+            <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.0.106\include</Value>
+            <Value>../src</Value>
+            <Value>.</Value>
+            <Value>../src/LUFA</Value>
+            <Value>../Lib</Value>
+            <Value>../src/config</Value>
+          </ListValues>
+        </avrgcc.compiler.directories.IncludePaths>
+        <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
+        <avrgcc.compiler.optimization.OtherFlags>-fdata-sections</avrgcc.compiler.optimization.OtherFlags>
+        <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+        <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+        <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+        <avrgcc.compiler.miscellaneous.OtherFlags>-mrelax -std=gnu99 -fno-strict-aliasing -fno-jump-tables</avrgcc.compiler.miscellaneous.OtherFlags>
+        <avrgcc.linker.libraries.Libraries>
+          <ListValues>
+            <Value>libm</Value>
+          </ListValues>
+        </avrgcc.linker.libraries.Libraries>
+        <avrgcc.linker.miscellaneous.LinkerFlags>-Wl,--relax -Wl,--section-start=.apitable_jumptable=0x7FE0 -Wl,--section-start=.apitable_signatures=0x7FF8 -Wl,--section-start=.apitable_trampolines=0x7FA0 -Wl,--section-start=.boot_aux=0x6810 -Wl,--section-start=.boot_aux_trampoline=0x6800 -Wl,--section-start=.text=0x7000 -Wl,--undefined=Boot_AUX_Trampoline -Wl,--undefined=BootloaderAPI_JumpTable -Wl,--undefined=BootloaderAPI_Signatures -Wl,--undefined=BootloaderAPI_Trampolines</avrgcc.linker.miscellaneous.LinkerFlags>
+        <avrgcc.assembler.general.AssemblerFlags>-DARCH=ARCH_AVR8 -DAUX_BOOT_SECTION_SIZE=2048 -DBOARD=BOARD_NONE -DBOOT_START_ADDR=0x7000 -DF_CPU=16000000UL -DF_USB=16000000UL -DUSE_LUFA_CONFIG_HEADER</avrgcc.assembler.general.AssemblerFlags>
+        <avrgcc.assembler.general.IncludePaths>
+          <ListValues>
+            <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.0.106\include</Value>
+            <Value>../src</Value>
+            <Value>.</Value>
+            <Value>../src/LUFA</Value>
+            <Value>../Lib</Value>
+            <Value>../src/config</Value>
+          </ListValues>
+        </avrgcc.assembler.general.IncludePaths>
+      </AvrGcc>
     </ToolchainSettings>
     <PostBuildEvent>call cd $(SolutionDir)
 call cd ..\tools
@@ -245,62 +246,62 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:"$(OutputDirectory)\$(OutputFileN
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
       <AvrGcc>
-  <avrgcc.common.Device>-mmcu=atmega32u4 -B "%24(PackRepoDir)\atmel\ATmega_DFP\1.0.106\gcc\dev\atmega32u4"</avrgcc.common.Device>
-  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
-  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
-  <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
-  <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
-  <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
-  <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
-  <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
-  <avrgcc.compiler.symbols.DefSymbols>
-    <ListValues>
-      <Value>DEBUG</Value>
-      <Value>BOARD=BOARD_NONE</Value>
-      <Value>USE_LUFA_CONFIG_HEADER</Value>
-      <Value>F_USB=16000000UL</Value>
-      <Value>AUX_BOOT_SECTION_SIZE=2048</Value>
-      <Value>ARCH=ARCH_AVR8</Value>
-      <Value>F_CPU=16000000UL</Value>
-      <Value>BOOT_START_ADDR=0x7000</Value>
-    </ListValues>
-  </avrgcc.compiler.symbols.DefSymbols>
-  <avrgcc.compiler.directories.IncludePaths>
-    <ListValues>
-      <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.0.106\include</Value>
-      <Value>../src</Value>
-      <Value>.</Value>
-      <Value>../src/LUFA</Value>
-      <Value>../Lib</Value>
-      <Value>../src/config</Value>
-    </ListValues>
-  </avrgcc.compiler.directories.IncludePaths>
-  <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
-  <avrgcc.compiler.optimization.OtherFlags>-fdata-sections</avrgcc.compiler.optimization.OtherFlags>
-  <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
-  <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
-  <avrgcc.compiler.optimization.DebugLevel>Maximum (-g3)</avrgcc.compiler.optimization.DebugLevel>
-  <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
-  <avrgcc.compiler.miscellaneous.OtherFlags>-mrelax -std=gnu99 -fno-strict-aliasing -fno-jump-tables</avrgcc.compiler.miscellaneous.OtherFlags>
-  <avrgcc.linker.libraries.Libraries>
-    <ListValues>
-      <Value>libm</Value>
-    </ListValues>
-  </avrgcc.linker.libraries.Libraries>
-  <avrgcc.linker.miscellaneous.LinkerFlags>-Wl,--relax -Wl,--section-start=.apitable_jumptable=0x7FE0 -Wl,--section-start=.apitable_signatures=0x7FF8 -Wl,--section-start=.apitable_trampolines=0x7FA0 -Wl,--section-start=.boot_aux=0x6810 -Wl,--section-start=.boot_aux_trampoline=0x6800 -Wl,--section-start=.text=0x7000 -Wl,--undefined=Boot_AUX_Trampoline -Wl,--undefined=BootloaderAPI_JumpTable -Wl,--undefined=BootloaderAPI_Signatures -Wl,--undefined=BootloaderAPI_Trampolines</avrgcc.linker.miscellaneous.LinkerFlags>
-  <avrgcc.assembler.general.AssemblerFlags>-DARCH=ARCH_AVR8 -DAUX_BOOT_SECTION_SIZE=2048 -DBOARD=BOARD_NONE -DBOOT_START_ADDR=0x7000 -DF_CPU=16000000UL -DF_USB=16000000UL -DUSE_LUFA_CONFIG_HEADER</avrgcc.assembler.general.AssemblerFlags>
-  <avrgcc.assembler.general.IncludePaths>
-    <ListValues>
-      <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.0.106\include</Value>
-      <Value>../src</Value>
-      <Value>.</Value>
-      <Value>../src/LUFA</Value>
-      <Value>../Lib</Value>
-      <Value>../src/config</Value>
-    </ListValues>
-  </avrgcc.assembler.general.IncludePaths>
-  <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
-</AvrGcc>
+        <avrgcc.common.Device>-mmcu=atmega32u4 -B "%24(PackRepoDir)\atmel\ATmega_DFP\1.0.106\gcc\dev\atmega32u4"</avrgcc.common.Device>
+        <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+        <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+        <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+        <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
+        <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
+        <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+        <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+        <avrgcc.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>DEBUG</Value>
+            <Value>BOARD=BOARD_NONE</Value>
+            <Value>USE_LUFA_CONFIG_HEADER</Value>
+            <Value>F_USB=16000000UL</Value>
+            <Value>AUX_BOOT_SECTION_SIZE=2048</Value>
+            <Value>ARCH=ARCH_AVR8</Value>
+            <Value>F_CPU=16000000UL</Value>
+            <Value>BOOT_START_ADDR=0x7000</Value>
+          </ListValues>
+        </avrgcc.compiler.symbols.DefSymbols>
+        <avrgcc.compiler.directories.IncludePaths>
+          <ListValues>
+            <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.0.106\include</Value>
+            <Value>../src</Value>
+            <Value>.</Value>
+            <Value>../src/LUFA</Value>
+            <Value>../Lib</Value>
+            <Value>../src/config</Value>
+          </ListValues>
+        </avrgcc.compiler.directories.IncludePaths>
+        <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
+        <avrgcc.compiler.optimization.OtherFlags>-fdata-sections</avrgcc.compiler.optimization.OtherFlags>
+        <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+        <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+        <avrgcc.compiler.optimization.DebugLevel>Maximum (-g3)</avrgcc.compiler.optimization.DebugLevel>
+        <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+        <avrgcc.compiler.miscellaneous.OtherFlags>-mrelax -std=gnu99 -fno-strict-aliasing -fno-jump-tables</avrgcc.compiler.miscellaneous.OtherFlags>
+        <avrgcc.linker.libraries.Libraries>
+          <ListValues>
+            <Value>libm</Value>
+          </ListValues>
+        </avrgcc.linker.libraries.Libraries>
+        <avrgcc.linker.miscellaneous.LinkerFlags>-Wl,--relax -Wl,--section-start=.apitable_jumptable=0x7FE0 -Wl,--section-start=.apitable_signatures=0x7FF8 -Wl,--section-start=.apitable_trampolines=0x7FA0 -Wl,--section-start=.boot_aux=0x6810 -Wl,--section-start=.boot_aux_trampoline=0x6800 -Wl,--section-start=.text=0x7000 -Wl,--undefined=Boot_AUX_Trampoline -Wl,--undefined=BootloaderAPI_JumpTable -Wl,--undefined=BootloaderAPI_Signatures -Wl,--undefined=BootloaderAPI_Trampolines</avrgcc.linker.miscellaneous.LinkerFlags>
+        <avrgcc.assembler.general.AssemblerFlags>-DARCH=ARCH_AVR8 -DAUX_BOOT_SECTION_SIZE=2048 -DBOARD=BOARD_NONE -DBOOT_START_ADDR=0x7000 -DF_CPU=16000000UL -DF_USB=16000000UL -DUSE_LUFA_CONFIG_HEADER</avrgcc.assembler.general.AssemblerFlags>
+        <avrgcc.assembler.general.IncludePaths>
+          <ListValues>
+            <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.0.106\include</Value>
+            <Value>../src</Value>
+            <Value>.</Value>
+            <Value>../src/LUFA</Value>
+            <Value>../Lib</Value>
+            <Value>../src/config</Value>
+          </ListValues>
+        </avrgcc.assembler.general.IncludePaths>
+        <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
+      </AvrGcc>
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>

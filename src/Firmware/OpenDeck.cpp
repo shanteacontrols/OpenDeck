@@ -20,7 +20,8 @@
 
 #define FIRMWARE_VERSION_STRING     0x56
 #define HARDWARE_VERSION_STRING     0x42
-#define REBOOT_STRING               0x7F
+#define REBOOT_APP_STRING           0x7F
+#define REBOOT_BTLDR_STRING         0x55
 #define FACTORY_RESET_STRING        0x44
 
 bool onCustom(uint8_t value)
@@ -39,7 +40,14 @@ bool onCustom(uint8_t value)
         sysEx.addToResponse(hardwareVersion.revision);
         return true;
 
-        case REBOOT_STRING:
+        case REBOOT_APP_STRING:
+        leds.setFadeTime(1);
+        leds.setAllOff();
+        wait(1500);
+        reboot();
+        return true; //pointless, but whatever
+
+        case REBOOT_BTLDR_STRING:
         leds.setFadeTime(1);
         leds.setAllOff();
         wait(1500);
@@ -158,7 +166,7 @@ int main()  {
 
     sysEx.addCustomRequest(FIRMWARE_VERSION_STRING);
     sysEx.addCustomRequest(HARDWARE_VERSION_STRING);
-    sysEx.addCustomRequest(REBOOT_STRING);
+    sysEx.addCustomRequest(REBOOT_APP_STRING);
     sysEx.addCustomRequest(FACTORY_RESET_STRING);
 
     while(1)
