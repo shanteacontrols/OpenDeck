@@ -1,8 +1,17 @@
 # OpenDeck MIDI Platform
 
-OpenDeck is a platform for building DIY MIDI controllers compatible with any MIDI software on any OS.
+OpenDeck is a platform suited both for prototyping and developing custom DIY MIDI controllers compatible with any MIDI software on any OS. Main part of the platform is board on which various components used to build a MIDI controller can be connected. The board supports the following components:
+
+* Buttons
+* Encoders
+* LEDs (single color or RGB)
+* Potentiometers
+* FSRs (force-sensitive resistors)
+
+All board configuration is done using custom SysEx protocol explained in-depth in Wiki.
 
 ## Repository content
+
 * [Firmware](https://github.com/paradajz/OpenDeck/tree/master/src/firmware)
 * [Bootloader](https://github.com/paradajz/OpenDeck/tree/master/src/bootloader)
 * [Schematic (PDF)](https://github.com/paradajz/OpenDeck/blob/master/bin/sch/OpenDeck-r1.1.0.pdf)
@@ -10,11 +19,13 @@ OpenDeck is a platform for building DIY MIDI controllers compatible with any MID
 * [Wiki](https://github.com/paradajz/OpenDeck/wiki)
 
 ## Credits
-Hardware MIDI source code based on [Arduino MIDI library v4.2](https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/4.2) by Francois Best.
+
+Hardware MIDI source code based on [Arduino MIDI library v4.2]https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/4.2) by Francois Best.
 
 USB MIDI and bootloader source code based on [LUFA USB framework](http://www.fourwalledcubicle.com/LUFA.php) by Dean Camera.
 
 Parts of code taken from [Arduino framework](https://github.com/arduino/Arduino).
 
 ## Licence
+
 All code is available under GNU GPL v3 licence.
