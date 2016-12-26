@@ -6,8 +6,8 @@ to OpenDeck board and start using your new MIDI controller in no-time. Compatibl
 ## Repository content
 * [Firmware](https://github.com/paradajz/OpenDeck/tree/master/src/firmware)
 * [Bootloader](https://github.com/paradajz/OpenDeck/tree/master/src/bootloader)
-* [Part list](https://github.com/paradajz/OpenDeck/blob/master/schematics/part_list.csv)
-* [Schematic (PDF)](https://github.com/paradajz/OpenDeck/blob/master/schematics/OpenDeck-r1.pdf)
+* [Schematic (PDF)](https://github.com/paradajz/OpenDeck/blob/master/bin/sch/OpenDeck-r1.1.0.pdf)
+* [BOM](https://github.com/paradajz/OpenDeck/blob/master/bin/sch/OpenDeck-r1.1.0-bom.csv)
 * [Wiki](https://github.com/paradajz/OpenDeck/wiki)
 
 ## Credits
