@@ -8,7 +8,7 @@ OpenDeck is a platform suited both for prototyping and developing custom DIY MID
 * Potentiometers
 * FSRs (force-sensitive resistors)
 
-All board configuration is done using custom SysEx protocol explained in-depth in Wiki.
+All board configuration is done using OpenDeck SysEx protocol.
 
 ## Repository content
 
