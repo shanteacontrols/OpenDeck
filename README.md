@@ -12,8 +12,8 @@ All board configuration is done using OpenDeck SysEx protocol.
 
 ## Repository content
 
-* [Firmware](https://github.com/paradajz/OpenDeck/tree/master/src/firmware)
-* [Bootloader](https://github.com/paradajz/OpenDeck/tree/master/src/bootloader)
+* [Firmware](https://github.com/paradajz/OpenDeck/tree/master/src/Firmware)
+* [Bootloader](https://github.com/paradajz/OpenDeck/tree/master/src/Bootloader)
 * [Schematic (PDF)](https://github.com/paradajz/OpenDeck/blob/master/bin/sch/OpenDeck-r1.1.0.pdf)
 * [BOM](https://github.com/paradajz/OpenDeck/blob/master/bin/sch/OpenDeck-r1.1.0-bom.csv)
 * [Wiki](https://github.com/paradajz/OpenDeck/wiki)
