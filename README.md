@@ -1,7 +1,6 @@
 # OpenDeck MIDI Platform
 
-OpenDeck is a platform for building DIY MIDI controllers. Connect your potentiometers, buttons, LEDs and other stuff your want in your MIDI controller
-to OpenDeck board and start using your new MIDI controller in no-time. Compatible with any MIDI software on any OS.
+OpenDeck is a platform for building DIY MIDI controllers compatible with any MIDI software on any OS.
 
 ## Repository content
 * [Firmware](https://github.com/paradajz/OpenDeck/tree/master/src/firmware)
