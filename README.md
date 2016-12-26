@@ -20,7 +20,7 @@ All board configuration is done using OpenDeck SysEx protocol.
 
 ## Credits
 
-Hardware MIDI source code based on [Arduino MIDI library v4.2]https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/4.2) by Francois Best.
+Hardware MIDI source code based on [Arduino MIDI library v4.2](https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/4.2) by Francois Best.
 
 USB MIDI and bootloader source code based on [LUFA USB framework](http://www.fourwalledcubicle.com/LUFA.php) by Dean Camera.
 
