@@ -17,6 +17,11 @@
 */
 
 #include "Reset.h"
+#include <avr/eeprom.h>
+
+#define REBOOT_VALUE_EEPROM_LOCATION    EEPROM_SIZE-1
+#define BTLDR_REBOOT_VALUE              0x47
+#define APP_REBOOT_VALUE                0xFF
 
 void disablePeripherals(void)
 {
@@ -65,7 +70,7 @@ void disablePeripherals(void)
     DDRF = 0;
 }
 
-void reboot()
+void reboot(rebootType_t type)
 {
     cli();
     //stop watchdog timer, if running
@@ -77,6 +82,17 @@ void reboot()
     USBCON = (1<<FRZCLK);
     _delay_ms(2000);
     disablePeripherals();
+
+    switch(type)
+    {
+        case rebootApp:
+        eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, APP_REBOOT_VALUE);
+        break;
+
+        case rebootBtldr:
+        eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, BTLDR_REBOOT_VALUE);
+        break;
+    }
 
     wdt_enable(WDTO_250MS);
     for (;;);

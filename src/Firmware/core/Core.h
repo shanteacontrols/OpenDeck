@@ -21,7 +21,6 @@
 #include <util/atomic.h>
 
 #include "adc/ADC.h"
-#include "reset/Reset.h"
 #include "uart/UART.h"
 #include "usb/midi/Descriptors.h"
 #include "helpers/PinManipulation.h"

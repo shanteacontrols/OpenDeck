@@ -44,14 +44,14 @@ bool onCustom(uint8_t value)
         leds.setFadeTime(1);
         leds.setAllOff();
         wait(1500);
-        reboot();
+        reboot(rebootApp);
         return true; //pointless, but whatever
 
         case REBOOT_BTLDR_STRING:
         leds.setFadeTime(1);
         leds.setAllOff();
         wait(1500);
-        reboot();
+        reboot(rebootBtldr);
         return true; //pointless, but whatever
 
         case FACTORY_RESET_STRING:
@@ -59,7 +59,7 @@ bool onCustom(uint8_t value)
         leds.setAllOff();
         wait(1500);
         database.factoryReset(factoryReset_partial);
-        reboot();
+        reboot(rebootApp);
         return true;
     }
 
@@ -167,6 +167,7 @@ int main()  {
     sysEx.addCustomRequest(FIRMWARE_VERSION_STRING);
     sysEx.addCustomRequest(HARDWARE_VERSION_STRING);
     sysEx.addCustomRequest(REBOOT_APP_STRING);
+    sysEx.addCustomRequest(REBOOT_BTLDR_STRING);
     sysEx.addCustomRequest(FACTORY_RESET_STRING);
 
     while(1)

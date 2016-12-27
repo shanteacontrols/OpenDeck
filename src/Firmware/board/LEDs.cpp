@@ -1,16 +1,16 @@
 #include "Board.h"
 
-volatile bool       blinkEnabled = false,
-                    blinkState = true;
+volatile bool       blinkEnabled,
+                    blinkState;
 
 volatile uint8_t    pwmSteps,
                     ledState[MAX_NUMBER_OF_LEDS],
-                    activeLEDcolumn = 0;
+                    activeLEDcolumn;
 
 volatile uint16_t   ledBlinkTime;
 
 volatile int8_t     transitionCounter[MAX_NUMBER_OF_LEDS];
-volatile uint32_t   blinkTimerCounter = 0;
+volatile uint32_t   blinkTimerCounter;
 
 
 uint8_t Board::getRGBaddress(uint8_t rgbID, rgbIndex_t index)

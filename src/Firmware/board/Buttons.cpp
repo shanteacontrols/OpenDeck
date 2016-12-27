@@ -1,7 +1,7 @@
 #include "Board.h"
 #include "Variables.h"
 
-bool buttonsProcessed = false;
+bool buttonsProcessed;
 
 bool Board::buttonDataAvailable()
 {
