@@ -2,13 +2,13 @@
 #include "Variables.h"
 #include "Constants.h"
 
-bool                dmBufferCopied = false;
+bool                dmBufferCopied;
 uint64_t            inputMatrixBufferCopy;
 
 volatile uint64_t   inputBuffer[DIGITAL_BUFFER_SIZE];
-volatile uint8_t    digital_buffer_head = 0;
-volatile uint8_t    digital_buffer_tail = 0;
-volatile uint8_t    activeButtonColumn  = 0;
+volatile uint8_t    digital_buffer_head;
+volatile uint8_t    digital_buffer_tail;
+volatile uint8_t    activeButtonColumn;
 
 int8_t getInputMatrixBufferSize()
 {

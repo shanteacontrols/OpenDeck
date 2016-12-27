@@ -83,6 +83,9 @@ uint16_t MagicBootKey ATTR_NO_INIT;
  */
 static uint8_t TicksSinceLastCommand = 0;
 
+#define REBOOT_VALUE_EEPROM_LOCATION    EEPROM_FILE_SIZE_BYTES
+#define BTLDR_REBOOT_VALUE              0x47
+#define APP_REBOOT_VALUE                0xFF
 
 /** Special startup routine to check if the bootloader was started via a watchdog reset, and if the magic application
  *  start key has been loaded into \ref MagicBootKey. If the bootloader started via the watchdog and the key is valid,
@@ -92,52 +95,30 @@ void Application_Jump_Check(void)
 {
 	bool JumpToApplication = false;
 
-	#if (BOARD == BOARD_LEONARDO)
-		/* Enable pull-up on the IO13 pin so we can use it to select the mode */
-		PORTC |= (1 << 7);
-		Delay_MS(10);
+	/* Check if the device's BOOTRST fuse is set */
+    //note: it is set on opendeck board
+	if (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) & FUSE_BOOTRST)
+	{
+        //if rx/tx MIDI pins are connected together on startup, jump to bootloader
+        //configure rx/tx pins
+        setInput(RX_TX_PORT, RX_PIN);
+        setOutput(RX_TX_PORT, TX_PIN);
 
-		/* If IO13 is not jumpered to ground, start the user application instead */
-		JumpToApplication = ((PINC & (1 << 7)) != 0);
+        //set tx pin to 0V
+        setLow(RX_TX_PORT, TX_PIN);
 
-		/* Disable pull-up after the check has completed */
-		PORTC &= ~(1 << 7);
-	#elif ((BOARD == BOARD_XPLAIN) || (BOARD == BOARD_XPLAIN_REV1))
-		/* Disable JTAG debugging */
-		JTAG_DISABLE();
+        //add some delay before reading pin
+        _delay_ms(10);
 
-		/* Enable pull-up on the JTAG TCK pin so we can use it to select the mode */
-		PORTF |= (1 << 4);
-		Delay_MS(10);
+        bool hardwareTrigger = readPin(RX_TX_PORT, RX_PIN) == BOOTLOADER_ENABLE_SIGNAL;
+        bool softwareTrigger = eeprom_read_byte((uint8_t*)EEPROM_FILE_SIZE_BYTES) == BTLDR_REBOOT_VALUE;
 
-		/* If the TCK pin is not jumpered to ground, start the user application instead */
-		JumpToApplication = ((PINF & (1 << 4)) != 0);
+        if (!hardwareTrigger && !softwareTrigger)
+            JumpToApplication = true;
 
-		/* Re-enable JTAG debugging */
-		JTAG_ENABLE();
-	#else
-		/* Check if the device's BOOTRST fuse is set */
-        //note: it is set on opendeck board
-		if (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) & FUSE_BOOTRST)
-		{
-            //if rx/tx MIDI pins are connected together on startup, jump to bootloader
-            //configure rx/tx pins
-            setInput(RX_TX_PORT, RX_PIN);
-            setOutput(RX_TX_PORT, TX_PIN);
-
-            //set tx pin to 0V
-            setLow(RX_TX_PORT, TX_PIN);
-
-            //add some delay before reading pin
-            _delay_ms(10);
-
-            if (readPin(RX_TX_PORT, RX_PIN) != BOOTLOADER_ENABLE_SIGNAL)
-                JumpToApplication = true;
-
-			/* Clear reset source */
-			MCUSR &= ~(1 << EXTRF);
-		}
-	#endif
+		/* Clear reset source */
+		MCUSR &= ~(1 << EXTRF);
+	}
 
 	/* Don't run the user application if the reset vector is blank (no app loaded) */
 	bool ApplicationValid = (pgm_read_word_near(0) != 0xFFFF);
@@ -150,7 +131,7 @@ void Application_Jump_Check(void)
 		wdt_disable();
 
 		/* Clear the boot key and jump to the user application */
-		MagicBootKey = 0;
+		eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, APP_REBOOT_VALUE);
 
 		// cppcheck-suppress constStatement
 		((void (*)(void))0x0000)();
@@ -176,15 +157,14 @@ int main(void)
 	/* Disconnect from the host - USB interface will be reset later along with the AVR */
 	USB_Detach();
 
-	/* Unlock the forced application start mode of the bootloader if it is restarted */
-	MagicBootKey = MAGIC_BOOT_KEY;
-
     //opendeck specific - blink bootloader led few times
     for (int i=0; i<2; i++)
     {
         (i%2) ? setHigh(LED_PORT, LED_PIN) : setLow(LED_PORT, LED_PIN);
         _delay_ms(250);
     }
+
+    eeprom_update_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, 0xFF);
 
     setLow(LED_PORT, LED_PIN);
 

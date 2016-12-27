@@ -74,7 +74,7 @@
 		#define LEDMASK_USB_BUSY          LEDS_LED2
 
 		/** Magic bootloader key to unlock forced application start mode. */
-		#define MAGIC_BOOT_KEY             0xDC42
+		#define MAGIC_BOOT_KEY             0x3210
 
 	/* Global Variables: */
 		extern bool RunBootloader;

@@ -24,6 +24,7 @@
 #include "Import.h"
 #include "variant/Variant.h"
 #include "Constants.h"
+#include "reset/Reset.h"
 
 //function prototypes
 inline void setAnalogPin(uint8_t muxNumber) __attribute__((always_inline));

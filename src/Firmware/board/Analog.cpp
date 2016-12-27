@@ -3,9 +3,9 @@
 
 #define ANALOG_BUFFER_SIZE  MAX_NUMBER_OF_ANALOG
 
-volatile bool       _analogDataAvailable = false;
-uint8_t             activeMux = 0,
-                    activeMuxInput = 0,
+volatile bool       _analogDataAvailable;
+uint8_t             activeMux,
+                    activeMuxInput,
                     analogBufferCounter,
                     adcDelayCounter;
 

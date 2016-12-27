@@ -2,7 +2,7 @@
 #include "Variables.h"
 
 //run time in milliseconds
-volatile uint32_t rTime_ms = 0;
+volatile uint32_t rTime_ms;
 
 inline void activateInputColumn(uint8_t column)
 {
