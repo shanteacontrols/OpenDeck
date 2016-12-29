@@ -31,6 +31,8 @@ void Encoders::update()
     if (!board.encoderDataAvailable())
         return;
 
+    uint8_t encoderValue;
+
     for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
     {
         if (!database.read(CONF_BLOCK_ENCODER, encoderEnabledSection, i))
@@ -47,8 +49,6 @@ void Encoders::update()
              else
                 encoderState = encMoveLeft;
         }
-
-        uint8_t encoderValue = 0;
 
         switch((encoderType_t)database.read(CONF_BLOCK_ENCODER, encoderEncodingModeSection, i))
         {
@@ -67,6 +67,7 @@ void Encoders::update()
             break;
 
             default:
+            continue;
             break;
         }
 
