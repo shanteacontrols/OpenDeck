@@ -41,211 +41,42 @@ void LEDs::startUpAnimation()
     //turn off all LEDs before starting animation
     setAllOff();
 
-    switch (database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpRoutine))
-    {
-        case 1:
-        oneByOne(true, true, true);
-        oneByOne(false, false, true);
-        oneByOne(true, false, false);
-        oneByOne(false, true, true);
-        oneByOne(true, false, true);
-        oneByOne(false, false, false);
-        break;
-
-        case 2:
-        oneByOne(true, false, true);
-        oneByOne(false, false, false);
-        break;
-
-        case 3:
-        oneByOne(true, true, true);
-        oneByOne(false, true, true);
-        break;
-
-        case 4:
-        oneByOne(true, false, true);
-        oneByOne(true, false, false);
-        break;
-
-        case 5:
-        oneByOne(true, false, true);
-        break;
-
-        default:
-        break;
-    }
+    //switch (database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpRoutine))
+    //{
+        //case 1:
+        //oneByOne(true, true, true);
+        //oneByOne(false, false, true);
+        //oneByOne(true, false, false);
+        //oneByOne(false, true, true);
+        //oneByOne(true, false, true);
+        //oneByOne(false, false, false);
+        //break;
+//
+        //case 2:
+        //oneByOne(true, false, true);
+        //oneByOne(false, false, false);
+        //break;
+//
+        //case 3:
+        //oneByOne(true, true, true);
+        //oneByOne(false, true, true);
+        //break;
+//
+        //case 4:
+        //oneByOne(true, false, true);
+        //oneByOne(true, false, false);
+        //break;
+//
+        //case 5:
+        //oneByOne(true, false, true);
+        //break;
+//
+        //default:
+        //break;
+    //}
 
     setAllOff();
     wait(1000);
-}
-
-void LEDs::oneByOne(bool ledDirection, bool singleLED, bool turnOn)
-{
-    /*
-
-    Function accepts three boolean arguments.
-
-    ledDirection:   true means that LEDs will go from left to right, false from right to left
-    singleLED:      true means that only one LED will be active at the time, false means that LEDs
-                    will turn on one by one until they're all lighted up
-
-    turnOn:         true means that LEDs will be turned on, with all previous LED states being 0
-                    false means that all LEDs are lighted up and they turn off one by one, depending
-                    on second argument
-
-    */
-
-    uint16_t startUpLEDswitchTime = database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpSwitchTime) * 10;
-
-    //while loop counter
-    uint8_t passCounter = 0;
-
-    //index of LED to be processed next
-    uint8_t ledNumber,
-            _ledNumber[MAX_NUMBER_OF_LEDS];
-
-    uint8_t totalNumberOfLEDs = database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterTotalLEDnumber);
-
-    //get LED order for start-up routine
-    for (int i=0; i<totalNumberOfLEDs; i++)
-        _ledNumber[i] = database.read(CONF_BLOCK_LED, ledStartUpNumberSection, i);
-
-    //if second and third argument of function are set to false or
-    //if second argument is set to false and all the LEDs are turned off
-    //light up all LEDs
-    if ((!singleLED && !turnOn) || (allLEDsOff() && !turnOn))
-        setAllOn();
-
-    if (turnOn)
-    {
-    //This part of code deals with situations when previous function call has been
-    //left direction and current one is right and vice versa.
-
-    //On first function call, let's assume the direction was left to right. That would mean
-    //that LEDs had to be processed in this order:
-
-    //LED 1
-    //LED 2
-    //LED 3
-    //LED 4
-
-    //Now, when function is finished, LEDs are not reset yet with allLEDsOff() function to keep
-    //track of their previous states. Next function call is right to left. On first run with
-    //right to left direction, the LED order would be standard LED 4 to LED 1, however, LED 4 has
-    //been already turned on by first function call, so we check if its state is already set, and if
-    //it is we increment or decrement ledNumber by one, depending on previous and current direction.
-    //When function is called second time with direction different than previous one, the number of
-    //times it needs to execute is reduced by one, therefore passCounter is incremented.
-
-        //right-to-left direction
-        if (!ledDirection)
-        {
-            //if last LED is turned on
-            if (getState(_ledNumber[totalNumberOfLEDs-1]))
-            {
-                //LED index is penultimate LED number
-                ledNumber = _ledNumber[totalNumberOfLEDs-2];
-                //increment counter since the loop has to run one cycle less
-                passCounter++;
-
-            }
-            else
-            {
-                //led index is last one if last one isn't already on
-                ledNumber = _ledNumber[totalNumberOfLEDs-1];
-            }
-
-        }
-        else
-        {
-            //left-to-right direction
-            //if first LED is already on
-            if (getState(_ledNumber[0]))
-            {
-                //led index is 1
-                ledNumber = _ledNumber[1];
-                //increment counter
-                passCounter++;
-            }
-            else
-            {
-                ledNumber = _ledNumber[0];
-            }
-        }
-    }
-    else
-    {
-        //This is situation when all LEDs are turned on and we're turning them off one by one. Same
-        //logic applies in both cases (see above). In this case we're not checking for whether the LED
-        //is already turned on, but whether it's already turned off.
-
-        //right-to-left direction
-        if (!ledDirection)
-        {
-            if (!(getState(_ledNumber[totalNumberOfLEDs-1])))
-            {
-                ledNumber = _ledNumber[totalNumberOfLEDs-2];
-                passCounter++;
-            }
-            else
-            {
-                ledNumber = _ledNumber[totalNumberOfLEDs-1];
-            }
-        }
-        else
-        {
-            //left-to-right direction
-            if (!(getState(_ledNumber[0])))
-            {
-                ledNumber = _ledNumber[1];
-                passCounter++;
-
-            }
-            else
-            {
-                ledNumber = _ledNumber[0];
-            }
-        }
-    }
-
-    //on first function call, the while loop is called TOTAL_NUMBER_OF_LEDS+1 times
-    //to get empty cycle after processing last LED
-    while (passCounter < totalNumberOfLEDs+1)
-    {
-        if (passCounter < totalNumberOfLEDs)
-        {
-            if (singleLED && turnOn)
-            {
-                //if we're turning LEDs on one by one, turn all the other LEDs off
-                setAllOff();
-            }
-            else if (!turnOn && singleLED)
-            {
-                //if we're turning LEDs off one by one, turn all the other LEDs on
-                setAllOn();
-            }
-
-            //set LED state depending on turnOn parameter
-            if (turnOn)
-                setState(ledNumber, true);
-            else
-                setState(ledNumber, true);
-
-            //make sure out-of-bound index isn't requested from ledArray
-            if (passCounter < totalNumberOfLEDs-1)
-            {
-                if (!ledDirection)
-                    ledNumber = _ledNumber[totalNumberOfLEDs - 2 - passCounter];    //right-to-left direction
-                else if (passCounter < totalNumberOfLEDs-1)
-                    ledNumber = _ledNumber[passCounter+1];  //left-to-right direction
-            }
-        }
-
-        //always increment pass counter
-        passCounter++;
-
-        wait(startUpLEDswitchTime);
-    }
 }
 
 rgbValue_t LEDs::velocityToColor(uint8_t receivedVelocity, bool blinkEnabled)
@@ -499,17 +330,17 @@ void LEDs::handleLED(uint8_t ledNumber, bool state, bool blinkMode)
         if (bitRead(currentState, LED_ACTIVE_BIT))
             currentState = 0;
 
-        bitWrite(currentState, LED_ACTIVE_BIT, 1);
+        bitSet(currentState, LED_ACTIVE_BIT);
         if (blinkMode)
         {
-            bitWrite(currentState, LED_BLINK_ON_BIT, 1);
+            bitSet(currentState, LED_BLINK_ON_BIT);
             //this will turn the led immediately no matter how little time it's
             //going to blink first time
-            bitWrite(currentState, LED_BLINK_STATE_BIT, 1);
+            bitSet(currentState, LED_BLINK_STATE_BIT);
         }
         else
         {
-            bitWrite(currentState, LED_CONSTANT_ON_BIT, 1);
+            bitSet(currentState, LED_CONSTANT_ON_BIT);
         }
         break;
     }
