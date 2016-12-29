@@ -53,7 +53,6 @@ class LEDs
     void setRGBled(uint8_t ledNumber, rgbValue_t color, bool blinkMode);
 
     //animation
-    void oneByOne(bool ledDirection, bool singleLED, bool turnOn);
     void startUpAnimation();
 };
 
