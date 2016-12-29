@@ -19,6 +19,7 @@
 #pragma once
 
 #include <util/atomic.h>
+#include <stdlib.h>
 
 #include "adc/ADC.h"
 #include "uart/UART.h"
