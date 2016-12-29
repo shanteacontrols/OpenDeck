@@ -53,7 +53,9 @@ class SysEx
 {
     public:
     SysEx();
-    void handleSysEx(uint8_t *sysExArray, uint8_t size);
+    void handleMessage(uint8_t *sysExArray, uint8_t size);
+    void decode();
+    void checkForcedSend();
     void disableConf();
     void enableConf();
     bool configurationEnabled();

@@ -112,16 +112,22 @@ bool SysEx::addSection(uint8_t block, sysExParameter_t numberOfParameters, sysEx
     return true;
 }
 
-void SysEx::handleSysEx(uint8_t *array, uint8_t size)
+void SysEx::handleMessage(uint8_t *array, uint8_t size)
 {
     //save pointer to received array so we can manipulate it directly
     sysExArray = array;
     sysExArraySize = size;
     responseSize = RESPONSE_SIZE;
 
-    if (size < MIN_MESSAGE_LENGTH)
+    if (sysExArraySize < MIN_MESSAGE_LENGTH)
         return; //ignore small messages
 
+    decode();
+    checkForcedSend();
+}
+
+void SysEx::decode()
+{
     //don't respond to sysex message if device ID is wrong
     decodedMessage.id.byte1 = sysExArray[idByte_1];
     decodedMessage.id.byte2 = sysExArray[idByte_2];
@@ -132,58 +138,55 @@ void SysEx::handleSysEx(uint8_t *array, uint8_t size)
     {
         //don't let status be anything but request
         setStatus(ERROR_STATUS);
+        return;
     }
-    else
+
+    if (!checkID())
+        return; //don't send response to wrong ID
+
+    if (checkSpecialRequests())
+        return; //special request was handled by now
+
+    //message appears to be fine for now
+    if (!sysExEnabled)
     {
-        if (checkID())
-        {
-            if (!checkSpecialRequests())
-            {
-                //message appears to be fine for now
-                if (sysExEnabled)
-                {
-                    if (sysExArraySize < REQUEST_SIZE)
-                    {
-                        setStatus(ERROR_MESSAGE_LENGTH);
-                    }
-                    else
-                    {
-                        //don't try to request these parameters if the size is too small
-                        decodedMessage.part = sysExArray[(uint8_t)partByte];
-                        decodedMessage.wish = (sysExWish)sysExArray[(uint8_t)wishByte];
-                        decodedMessage.amount = (sysExAmount)sysExArray[(uint8_t)amountByte];
-                        decodedMessage.block = sysExArray[(uint8_t)blockByte];
-                        decodedMessage.section = sysExArray[(uint8_t)sectionByte];
-
-                        if (checkRequest())
-                        {
-                            if (size < generateMinMessageLenght())
-                            {
-                                setStatus(ERROR_MESSAGE_LENGTH);
-                            }
-                            else
-                            {
-                                if (checkParameters())
-                                {
-                                    //message is ok
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    //message is fine, but handshake hasn't been received
-                    setStatus(ERROR_HANDSHAKE);
-                }
-            }
-        }
-        else
-        {
-            //don't send response to wrong ID
-        }
+        //message is fine, but handshake hasn't been received
+        setStatus(ERROR_HANDSHAKE);
+        return;
     }
 
+    if (sysExArraySize < REQUEST_SIZE)
+    {
+        setStatus(ERROR_MESSAGE_LENGTH);
+        return;
+    }
+
+    //don't try to request these parameters if the size is too small
+    decodedMessage.part = sysExArray[(uint8_t)partByte];
+    decodedMessage.wish = (sysExWish)sysExArray[(uint8_t)wishByte];
+    decodedMessage.amount = (sysExAmount)sysExArray[(uint8_t)amountByte];
+    decodedMessage.block = sysExArray[(uint8_t)blockByte];
+    decodedMessage.section = sysExArray[(uint8_t)sectionByte];
+
+    if (!checkRequest())
+        return;
+
+    uint16_t minLength = generateMinMessageLenght();
+
+    if (sysExArraySize < minLength || !minLength)
+    {
+        setStatus(ERROR_MESSAGE_LENGTH);
+        return;
+    }
+
+    if (checkParameters())
+    {
+        //message is ok
+    }
+}
+
+void SysEx::checkForcedSend()
+{
     if (!forcedSend)
     {
         sysExArray[responseSize] = 0xF7;
@@ -210,70 +213,67 @@ bool SysEx::checkID()
 
 bool SysEx::checkSpecialRequests()
 {
-    if (sysExArraySize == MIN_MESSAGE_LENGTH)
+    if (sysExArraySize != MIN_MESSAGE_LENGTH)
+        return false;
+
+    switch(sysExArray[wishByte])
     {
-        switch(sysExArray[wishByte])
+        case HANDSHAKE_REQUEST:
+        //hello message, necessary for allowing configuration
+        sysExEnabled = true;
+        setStatus(ACK);
+        return true;
+
+        case BYTES_PER_VALUE_REQUEST:
+        if (sysExEnabled)
         {
-            case HANDSHAKE_REQUEST:
-            //hello message, necessary for allowing configuration
-            sysExEnabled = true;
             setStatus(ACK);
-            return true;
-
-            case BYTES_PER_VALUE_REQUEST:
-            if (sysExEnabled)
-            {
-                setStatus(ACK);
-                addToResponse(PARAM_SIZE);
-            }
-            else
-            {
-                setStatus(ERROR_HANDSHAKE);
-            }
-            return true;
-
-            case PARAMS_PER_MESSAGE_REQUEST:
-            if (sysExEnabled)
-            {
-                setStatus(ACK);
-                addToResponse(PARAMETERS_PER_MESSAGE);
-            }
-            else
-            {
-                setStatus(ERROR_HANDSHAKE);
-            }
-            return true;
-
-            default:
-            //check for custom string
-            for (int i=0; i<MAX_CUSTOM_REQUESTS; i++)
-            {
-                if (customRequests[i] != INVALID_VALUE)
-                {
-                    if (customRequests[i] == sysExArray[wishByte])
-                    {
-                        if (sysExEnabled)
-                        {
-                            setStatus(ACK);
-                            sendCustomRequestCallback(customRequests[i]);
-                        }
-                        else
-                        {
-                            setStatus(ERROR_HANDSHAKE);
-                        }
-
-                        return true;
-                    }
-                }
-            }
-
-            setStatus(ERROR_WISH);
-            return true;
-            break;
+            addToResponse(PARAM_SIZE);
         }
-    }
+        else
+        {
+            setStatus(ERROR_HANDSHAKE);
+        }
+        return true;
 
-    return false;
+        case PARAMS_PER_MESSAGE_REQUEST:
+        if (sysExEnabled)
+        {
+            setStatus(ACK);
+            addToResponse(PARAMETERS_PER_MESSAGE);
+        }
+        else
+        {
+            setStatus(ERROR_HANDSHAKE);
+        }
+        return true;
+
+        default:
+        //check for custom string
+        for (int i=0; i<MAX_CUSTOM_REQUESTS; i++)
+        {
+            if (customRequests[i] == INVALID_VALUE)
+                continue;
+
+            if (customRequests[i] != sysExArray[wishByte])
+                continue;
+
+            if (sysExEnabled)
+            {
+                setStatus(ACK);
+                sendCustomRequestCallback(customRequests[i]);
+            }
+            else
+            {
+                setStatus(ERROR_HANDSHAKE);
+            }
+
+            return true;
+        }
+        //custom string not found
+        setStatus(ERROR_WISH);
+        return true;
+    }
 }
 
 bool SysEx::checkRequest()
@@ -486,15 +486,15 @@ uint8_t SysEx::generateMinMessageLenght()
         {
             case sysExWish_get:
             case sysExWish_backup:
-            size = ML_REQ_STANDARD + sizeof(sysExParameter_t); //add parameter length
+            return ML_REQ_STANDARD + sizeof(sysExParameter_t); //add parameter length
             break;
 
             case sysExWish_set:
-            size = ML_REQ_STANDARD + 2*sizeof(sysExParameter_t); //add parameter length and new value length
+            return ML_REQ_STANDARD + 2*sizeof(sysExParameter_t); //add parameter length and new value length
             break;
 
             default:
-            break;
+            return 0;
         }
         break;
 
@@ -503,8 +503,7 @@ uint8_t SysEx::generateMinMessageLenght()
         {
             case sysExWish_get:
             case sysExWish_backup:
-            size = ML_REQ_STANDARD;
-            break;
+            return ML_REQ_STANDARD;
 
             case sysExWish_set:
             size = sysExMessage[decodedMessage.block].section[decodedMessage.section].numberOfParameters;
@@ -519,15 +518,15 @@ uint8_t SysEx::generateMinMessageLenght()
 
             size *= sizeof(sysExParameter_t);
             size += ML_REQ_STANDARD;
-            break;
+            return size;
 
             default:
-            break;
+            return 0;
         }
         break;
 
         default:
-        break;
+        return 0;
     }
 
     return size;

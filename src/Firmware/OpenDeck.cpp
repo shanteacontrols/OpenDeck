@@ -182,7 +182,7 @@ int main()  {
             switch(messageType)
             {
                 case midiMessageSystemExclusive:
-                sysEx.handleSysEx(midi.getSysExArray(usbInterface), midi.getSysExArrayLength(usbInterface));
+                sysEx.handleMessage(midi.getSysExArray(usbInterface), midi.getSysExArrayLength(usbInterface));
                 break;
 
                 case midiMessageNoteOff:
@@ -237,20 +237,20 @@ int main()  {
                     midi.sendControlChange(data1, data2, inChannel);
                     break;
 
-                    case midiMessageProgramChange:
-                    midi.sendProgramChange(data1, inChannel);
+                    case midiMessageAfterTouchPoly:
+                    midi.sendPolyPressure(data1, data2, inChannel);
                     break;
 
-                    case midiMessageSystemExclusive:
-                    midi.sendSysEx(midi.getSysExArrayLength(dinInterface), midi.getSysExArray(dinInterface), true);
+                    case midiMessageProgramChange:
+                    midi.sendProgramChange(data1, inChannel);
                     break;
 
                     case midiMessageAfterTouchChannel:
                     midi.sendAfterTouch(data1, inChannel);
                     break;
 
-                    case midiMessageAfterTouchPoly:
-                    midi.sendPolyPressure(data1, data2, inChannel);
+                    case midiMessageSystemExclusive:
+                    midi.sendSysEx(midi.getSysExArrayLength(dinInterface), midi.getSysExArray(dinInterface), true);
                     break;
 
                     default:
