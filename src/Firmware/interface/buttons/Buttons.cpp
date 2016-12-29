@@ -17,7 +17,7 @@
 */
 
 #include "Buttons.h"
-#include "../../eeprom/Database.h"
+#include "../../database/Database.h"
 #include "../../interface/leds/LEDs.h"
 #include "../../midi/MIDI.h"
 
