@@ -17,7 +17,7 @@
 */
 
 #include "Encoders.h"
-#include "../../eeprom/Database.h"
+#include "../../database/Database.h"
 #include "../../midi/MIDI.h"
 #include "Constants.h"
 

@@ -13,3 +13,9 @@ typedef enum
     ldr,
     ANALOG_TYPES
 } analogType_t;
+
+typedef enum
+{
+    velocity,
+    aftertouch
+} pressureType_t;

@@ -21,22 +21,6 @@
 
 //use 1k resistor when connecting FSR between signal and ground
 
-#define FSR_MIN_VALUE                       40
-#define FSR_MAX_VALUE                       340
-
-#define AFTERTOUCH_MAX_VALUE                600
-#define AFTERTOUCH_SEND_TIMEOUT_IGNORE      25       //ignore aftertouch reading change below this timeout
-#define AFTERTOUCH_SEND_TIMEOUT_STEP        2
-#define AFTERTOUCH_SEND_TIMEOUT             100
-
-enum pressureType_t
-{
-    velocity,
-    aftertouch
-};
-
-#define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
-
 inline int16_t mapAnalog_int16(int16_t x, int16_t in_min, int16_t in_max, int16_t out_min, int16_t out_max)
 {
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
@@ -73,7 +57,7 @@ void Analog::setFsrPressed(uint8_t fsrID, bool state)
     bitWrite(fsrPressed[arrayIndex], fsrIndex, state);
 }
 
-void Analog::checkFSRvalue(uint8_t analogID, int16_t pressure)
+void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
 {
     uint8_t calibratedPressure = calibratePressure(pressure, velocity);
 

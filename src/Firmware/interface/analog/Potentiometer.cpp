@@ -18,22 +18,19 @@
 
 #include "Analog.h"
 
-//potentiometer must exceed this value before sending new value
-#define POTENTIOMETER_CC_STEP 8
-
-void Analog::checkPotentiometerValue(uint8_t analogID, int16_t tempValue)
+void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t tempValue)
 {
     //calculate difference between current and previous reading
-    int16_t analogDiff = tempValue - lastAnalogueValue[analogID];
-
-    //get absolute difference
-    if (analogDiff < 0)
-        analogDiff *= -1;
+    uint16_t analogDiff = abs(tempValue - lastAnalogueValue[analogID]);
 
     if (!(analogDiff >= POTENTIOMETER_CC_STEP))
         return;
 
-    uint8_t ccValue = tempValue >> 3;
+    uint8_t ccValue = RAW_ADC_2_MIDI(tempValue);
+    uint8_t oldCCvalue = RAW_ADC_2_MIDI(lastAnalogueValue[analogID]);
+
+    if (ccValue == oldCCvalue)
+        return;
 
     //invert CC data if potInverted is true
     if (database.read(CONF_BLOCK_ANALOG, analogInvertedSection, analogID))
