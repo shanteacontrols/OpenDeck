@@ -18,12 +18,9 @@
 
 #include "Analog.h"
 
-#define DIGITAL_VALUE_THRESHOLD 0x3E8
-
 Analog::Analog()
 {
     //def const
-    analogDebounceCounter = 0;
 }
 
 void Analog::update()
@@ -32,9 +29,11 @@ void Analog::update()
         return;
 
     addAnalogSamples();
-    bool sampled = analogValuesSampled();
 
-    int16_t analogData;
+    if (!analogValuesSampled())
+        return;
+
+    uint16_t analogData;
 
     //check values
     for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
@@ -45,12 +44,7 @@ void Analog::update()
 
         if (!database.read(CONF_BLOCK_ANALOG, analogDigitalEnabledSection, i))
         {
-            //three samples are needed
-            if (!sampled)
-                continue;
-
-            //get median value from three analog samples for better accuracy
-            analogData = getMedianValue(i);
+            analogData = getAverageValue(i);
             analogType_t type = (analogType_t)database.read(CONF_BLOCK_ANALOG, analogTypeSection, i);
 
             switch(type)
@@ -77,39 +71,34 @@ void Analog::update()
             buttons.processButton(i+MAX_NUMBER_OF_BUTTONS, state, false);
         }
     }
+
+    resetSamples();
 }
 
 void Analog::addAnalogSamples()
 {
     for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
-        analogSample[i][analogDebounceCounter] = board.getAnalogValue(i); //get raw analog reading
+        analogSample[i] += board.getAnalogValue(i); //get raw analog reading
 
-    analogDebounceCounter++;
+    sampleCounter++;
+}
+
+void Analog::resetSamples()
+{
+    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+        analogSample[i] = 0;
+
+    sampleCounter = 0;
 }
 
 bool Analog::analogValuesSampled()
 {
-    if (analogDebounceCounter == NUMBER_OF_SAMPLES)
-    {
-        analogDebounceCounter = 0;
-        return true;
-    }
-
-    return false;
+    return (sampleCounter == NUMBER_OF_SAMPLES);
 }
 
-int16_t Analog::getMedianValue(uint8_t analogID)
+uint16_t Analog::getAverageValue(uint8_t analogID)
 {
-    int16_t medianValue = 0;
-
-    if ((analogSample[analogID][0] <= analogSample[analogID][1]) && (analogSample[analogID][0] <= analogSample[analogID][2]))
-        medianValue = (analogSample[analogID][1] <= analogSample[analogID][2]) ? analogSample[analogID][1] : analogSample[analogID][2];
-    else if ((analogSample[analogID][1] <= analogSample[analogID][0]) && (analogSample[analogID][1] <= analogSample[analogID][2]))
-        medianValue = (analogSample[analogID][0] <= analogSample[analogID][2]) ? analogSample[analogID][0] : analogSample[analogID][2];
-    else
-        medianValue = (analogSample[analogID][0] <= analogSample[analogID][1]) ? analogSample[analogID][0] : analogSample[analogID][1];
-
-    return medianValue;
+    return ADC_AVG_VALUE(analogSample[analogID]);
 }
 
 void Analog::debounceReset(uint16_t index)
@@ -120,7 +109,7 @@ void Analog::debounceReset(uint16_t index)
     uint8_t arrayIndex = index/8;
     uint8_t fsrIndex = index - 8*arrayIndex;
 
-    bitWrite(fsrPressed[arrayIndex], fsrIndex, false);
+    bitClear(fsrPressed[arrayIndex], fsrIndex);
 }
 
 Analog analog;

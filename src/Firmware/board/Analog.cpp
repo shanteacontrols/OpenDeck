@@ -6,22 +6,21 @@
 volatile bool       _analogDataAvailable;
 uint8_t             activeMux,
                     activeMuxInput,
-                    analogBufferCounter,
-                    adcDelayCounter;
+                    analogBufferCounter;
 
-volatile int16_t    analogBuffer[ANALOG_BUFFER_SIZE];
-int16_t             analogBufferCopy[ANALOG_BUFFER_SIZE];
+volatile uint16_t   analogBuffer[ANALOG_BUFFER_SIZE];
+uint32_t            retrievedData;
 
 
 void Board::initAnalog()
 {
+    disconnectDigitalInADC(MUX_1_IN_PIN);
+    disconnectDigitalInADC(MUX_2_IN_PIN);
+
     setUpADC();
 
     setMuxInput(activeMuxInput);
     setADCchannel(MUX_1_IN_PIN);
-
-    disconnectDigitalInADC(MUX_1_IN_PIN);
-    disconnectDigitalInADC(MUX_2_IN_PIN);
 
     _delay_ms(2);
 
@@ -43,6 +42,9 @@ inline void setMuxInput(uint8_t muxInput)
     bitRead(muxPinOrderArray[muxInput], 2) ? setHigh(MUX_S2_PORT, MUX_S2_PIN) : setLow(MUX_S2_PORT, MUX_S2_PIN);
     bitRead(muxPinOrderArray[muxInput], 3) ? setHigh(MUX_S3_PORT, MUX_S3_PIN) : setLow(MUX_S3_PORT, MUX_S3_PIN);
 
+    _NOP(); _NOP(); _NOP();
+    _NOP(); _NOP(); _NOP();
+    _NOP(); _NOP(); _NOP();
     _NOP(); _NOP(); _NOP();
 }
 
@@ -72,23 +74,24 @@ bool Board::analogDataAvailable()
     bool state;
     state = _analogDataAvailable;
 
-    if (state)
-    {
-        //no cli/sei needed since adc conversion is stopped at the moment
-        for (int i=0; i<ANALOG_BUFFER_SIZE; i++)
-            analogBufferCopy[i] = analogBuffer[i];
-
-        _analogDataAvailable = false;
-        adcDelayCounter = 0;
-        return true;
-    }
-
-    return false;
+    return state;
 }
 
-int16_t Board::getAnalogValue(uint8_t analogID)
+uint16_t Board::getAnalogValue(uint8_t analogID)
 {
-    return analogBufferCopy[analogID];
+    uint16_t value;
+    value = analogBuffer[analogID];
+    bitSet(retrievedData, analogID);
+
+    if (retrievedData == 0xFFFFFFFF)
+    {
+        //all data is retrieved, start new readout
+        retrievedData = 0;
+        startADCconversion();
+        _analogDataAvailable = false;
+    }
+
+    return value;
 }
 
 ISR(ADC_vect)
@@ -107,7 +110,7 @@ ISR(ADC_vect)
         activeMux++;
 
         if (activeMux == NUMBER_OF_MUX)
-        activeMux = 0;
+            activeMux = 0;
 
         setAnalogPin(activeMux);
     }
