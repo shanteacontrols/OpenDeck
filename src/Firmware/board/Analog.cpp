@@ -33,9 +33,7 @@ void Board::initAnalog()
 
 inline void setMuxInput(uint8_t muxInput)
 {
-    //according to datasheet, propagation delay between setting Sn pins
-    //and output appearing on Yn is around 150ns
-    //add three NOPs to compensate
+    //add NOPs to compensate for propagation delay
 
     bitRead(muxPinOrderArray[muxInput], 0) ? setHigh(MUX_S0_PORT, MUX_S0_PIN) : setLow(MUX_S0_PORT, MUX_S0_PIN);
     bitRead(muxPinOrderArray[muxInput], 1) ? setHigh(MUX_S1_PORT, MUX_S1_PIN) : setLow(MUX_S1_PORT, MUX_S1_PIN);
