@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../eeprom/Database.h"
+#include "../../database/Database.h"
 
 //define extra sysex section for setting/getting led states
 #define ledStateSection                 LED_SECTIONS

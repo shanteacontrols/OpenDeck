@@ -21,11 +21,16 @@
 //ADC setup and manipulation
 
 #include <avr/io.h>
+#include "Config.h"
 
 #define startADCconversion() (ADCSRA |= (1<<ADSC))
 #define adcInterruptEnable() (ADCSRA |= (1<<ADIE))
 
 void setUpADC();
 void setADCchannel(uint8_t);
-int16_t getADCvalue();
+#ifdef ADC_8BIT
+uint8_t getADCvalue();
+#else
+uint16_t getADCvalue();
+#endif
 void disconnectDigitalInADC(uint8_t);

@@ -23,3 +23,4 @@
 #define VREF_AVCC
 //#define VREF_INTERNAL_2V56
 //#define VREF_INTERNAL_1V1
+//#define ADC_8BIT

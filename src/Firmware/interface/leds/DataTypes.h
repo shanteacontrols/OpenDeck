@@ -15,3 +15,15 @@ typedef enum
     rgb_G,
     rgb_B
 } rgbIndex_t;
+
+typedef enum
+{
+    colorOff,
+    colorWhite,
+    colorCyan,
+    colorMagenta,
+    colorRed,
+    colorBlue,
+    colorYellow,
+    colorGreen
+} ledColor_t;
