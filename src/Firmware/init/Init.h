@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "../eeprom/Database.h"
+#include "../database/Database.h"
 #include "../sysex/SysEx.h"
 #include "../version/Firmware.h"
 #include "../version/Hardware.h"
