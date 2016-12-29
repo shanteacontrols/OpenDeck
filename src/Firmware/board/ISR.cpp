@@ -1,9 +1,6 @@
 #include "Board.h"
 #include "Variables.h"
 
-//run time in milliseconds
-volatile uint32_t rTime_ms;
-
 inline void activateInputColumn(uint8_t column)
 {
     bitRead(dmColumnArray[column], 0) ? setHigh(DEC_DM_A0_PORT, DEC_DM_A0_PIN) : setLow(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
@@ -117,9 +114,9 @@ inline void checkLEDs()
                 if (bitRead(ledState[i], LED_BLINK_ON_BIT))
                 {
                     if (blinkState)
-                    bitWrite(ledState[i], LED_BLINK_STATE_BIT, 1);
+                        bitSet(ledState[i], LED_BLINK_STATE_BIT);
                     else
-                    bitWrite(ledState[i], LED_BLINK_STATE_BIT, 0);
+                        bitClear(ledState[i], LED_BLINK_STATE_BIT);
                 }
             }
 
@@ -175,13 +172,12 @@ inline void checkLEDs()
 
 ISR(TIMER0_COMPA_vect)
 {
-    //run millis and blink update every 1ms
+    //update blink every 1ms
     //update led matrix every 1.5ms
     //update button matrix each time
 
-    static bool updateMillisAndBlink = false;
+    static bool updateBlink = false;
     static uint8_t matrixSwitchCounter = 0;
-    //uint32_t ms;
 
     if (matrixSwitchCounter == 1)
     {
@@ -196,13 +192,8 @@ ISR(TIMER0_COMPA_vect)
         matrixSwitchCounter = 0;
     }
 
-    if (updateMillisAndBlink)
+    if (updateBlink)
     {
-        //ms = rTime_ms;
-        //ms++;
-        ////update run time
-        //rTime_ms = ms;
-
         matrixSwitchCounter++;
     }
     else
@@ -215,7 +206,7 @@ ISR(TIMER0_COMPA_vect)
         }
     }
 
-    updateMillisAndBlink = !updateMillisAndBlink;
+    updateBlink = !updateBlink;
 
     //read input matrix
     uint8_t bufferIndex = digital_buffer_head + 1;
@@ -233,16 +224,5 @@ ISR(TIMER0_COMPA_vect)
     {
         activateInputColumn(i);
         storeDigitalIn(i, bufferIndex);
-    }
-
-    if (!_analogDataAvailable && !bitRead(ADCSRA, ADSC))
-    {
-        adcDelayCounter++;
-
-        if (adcDelayCounter == 2)
-        {
-            adcDelayCounter = 0;
-            startADCconversion();
-        }
     }
 }

@@ -51,7 +51,8 @@ class Board
 
     //analog
     bool analogDataAvailable();
-    int16_t getAnalogValue(uint8_t analogID);
+    uint16_t getAnalogValue(uint8_t analogID);
+    void resetADC();
 
     //encoders
     uint8_t getEncoderPair(uint8_t buttonID);

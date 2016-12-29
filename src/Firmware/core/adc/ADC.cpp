@@ -51,6 +51,11 @@ void setUpADC()
     #error "No ADC reference selected or setting is invalid. Valid options are VREF_AREF, VREF_AVCC, VREF_INTERNAL_2V56 and VREF_INTERNAL_1V1"
     #endif
 
+    #ifdef ADC_8BIT
+    //8bit result
+    ADMUX |= (1<<ADLAR);
+    #endif
+
     //enable ADC
     ADCSRA |= (1<<ADEN);
 }
@@ -67,7 +72,11 @@ void setADCchannel(uint8_t adcChannel)
     _NOP();
 }
 
-int16_t getADCvalue()
+#ifdef ADC_8BIT
+uint8_t getADCvalue()
+#else
+uint16_t getADCvalue()
+#endif
 {
     //single conversion mode
     ADCSRA |= (1<<ADSC);

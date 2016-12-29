@@ -21,18 +21,6 @@
 //some predefined colors here
 #include "DataTypes.h"
 
-typedef enum
-{
-    colorOff,
-    colorWhite,
-    colorCyan,
-    colorMagenta,
-    colorRed,
-    colorBlue,
-    colorYellow,
-    colorGreen
-} ledColor_t;
-
 const rgbValue_t colors[] =
 {
     {
