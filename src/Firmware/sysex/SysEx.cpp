@@ -202,9 +202,9 @@ bool SysEx::checkID()
 
     return
     (
-        (decodedMessage.id.byte1  == defaultID.byte1)   &&
+        (decodedMessage.id.byte1 == defaultID.byte1)    &&
         (decodedMessage.id.byte2 == defaultID.byte2)    &&
-        (decodedMessage.id.byte3== defaultID.byte3)
+        (decodedMessage.id.byte3 == defaultID.byte3)
     );
 }
 
