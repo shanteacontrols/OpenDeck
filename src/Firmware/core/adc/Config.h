@@ -18,7 +18,7 @@
 
 #pragma once
 
-#define ADC_PRESCALER   128
+#define ADC_PRESCALER   64
 //#define VREF_AREF
 #define VREF_AVCC
 //#define VREF_INTERNAL_2V56
