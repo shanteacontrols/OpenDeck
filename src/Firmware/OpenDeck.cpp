@@ -43,14 +43,14 @@ bool onCustom(uint8_t value)
         case REBOOT_APP_STRING:
         leds.setFadeTime(1);
         leds.setAllOff();
-        wait(1500);
+        wait(2500);
         reboot(rebootApp);
         return true; //pointless, but whatever
 
         case REBOOT_BTLDR_STRING:
         leds.setFadeTime(1);
         leds.setAllOff();
-        wait(1500);
+        wait(2500);
         reboot(rebootBtldr);
         return true; //pointless, but whatever
 
