@@ -20,8 +20,9 @@
 
 typedef enum
 {
-    HANDSHAKE_REQUEST,          //00
-    BYTES_PER_VALUE_REQUEST,    //01
-    PARAMS_PER_MESSAGE_REQUEST, //02
+    SYSEX_CLOSE_REQUEST,        //00
+    HANDSHAKE_REQUEST,          //01
+    BYTES_PER_VALUE_REQUEST,    //02
+    PARAMS_PER_MESSAGE_REQUEST, //03
     SPECIAL_PARAMETERS
 } sysEx_specialRequestID;

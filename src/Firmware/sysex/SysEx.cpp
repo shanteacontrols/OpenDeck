@@ -54,16 +54,6 @@ SysEx::SysEx()
     sysExBlockCounter = 0;
 }
 
-void SysEx::enableConf()
-{
-    sysExEnabled = true;
-}
-
-void SysEx::disableConf()
-{
-    sysExEnabled = false;
-}
-
 bool SysEx::configurationEnabled()
 {
     return sysExEnabled;
@@ -218,6 +208,22 @@ bool SysEx::checkSpecialRequests()
 
     switch(sysExArray[wishByte])
     {
+        case SYSEX_CLOSE_REQUEST:
+        if (!sysExEnabled)
+        {
+            //connection can't be closed if it isn't opened
+            setStatus(ERROR_HANDSHAKE);
+            return true;
+        }
+        else
+        {
+            //close sysex connection
+            sysExEnabled = false;
+            setStatus(ACK);
+            return true;
+        }
+        break;
+
         case HANDSHAKE_REQUEST:
         //hello message, necessary for allowing configuration
         sysExEnabled = true;

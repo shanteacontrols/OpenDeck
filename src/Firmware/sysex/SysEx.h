@@ -56,8 +56,6 @@ class SysEx
     void handleMessage(uint8_t *sysExArray, uint8_t size);
     void decode();
     void checkForcedSend();
-    void disableConf();
-    void enableConf();
     bool configurationEnabled();
     bool addCustomRequest(uint8_t value);
     void addToResponse(sysExParameter_t value);
