@@ -35,7 +35,7 @@ bool onCustom(uint8_t value)
         return true;
 
         case MAX_COMPONENTS_STRING:
-        sysEx.addToResponse(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG);
+        sysEx.addToResponse(MAX_NUMBER_OF_BUTTONS);
         sysEx.addToResponse(MAX_NUMBER_OF_ENCODERS);
         sysEx.addToResponse(MAX_NUMBER_OF_ANALOG);
         sysEx.addToResponse(MAX_NUMBER_OF_LEDS);

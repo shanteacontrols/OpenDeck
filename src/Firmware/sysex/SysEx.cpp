@@ -618,6 +618,24 @@ bool SysEx::checkNewValue()
         return true; //don't check new value if min and max are the same
 }
 
+void SysEx::startResponse()
+{
+    responseSize = 0;
+
+    sysExArray[responseSize] = 0xF0;
+    responseSize++;
+    sysExArray[responseSize] = SYS_EX_M_ID_0;
+    responseSize++;
+    sysExArray[responseSize] = SYS_EX_M_ID_1;
+    responseSize++;
+    sysExArray[responseSize] = SYS_EX_M_ID_2;
+    responseSize++;
+    sysExArray[responseSize] = ACK;
+    responseSize++;
+    sysExArray[responseSize] = 0; //message part
+    responseSize++;
+}
+
 void SysEx::addToResponse(sysExParameter_t value)
 {
     #if PARAM_SIZE == 2
@@ -636,7 +654,10 @@ void SysEx::addToResponse(sysExParameter_t value)
 
 void SysEx::sendResponse()
 {
-    
+    sysExArray[responseSize] = 0xF7;
+    responseSize++;
+
+    midi.sendSysEx(responseSize, sysExArray, true);
 }
 
 void SysEx::setStatus(sysExStatus_t status)

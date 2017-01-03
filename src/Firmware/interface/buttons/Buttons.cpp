@@ -57,6 +57,7 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
             leds.noteToState(note, velocityOn, false, true);
             if (sysEx.configurationEnabled())
             {
+                sysEx.startResponse();
                 sysEx.addToResponse(COMPONENT_ID_STRING);
                 sysEx.addToResponse(CONF_BLOCK_BUTTON);
                 sysEx.addToResponse(buttonID);
@@ -74,6 +75,7 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
             leds.noteToState(note, velocityOff, false, true);
             if (sysEx.configurationEnabled())
             {
+                sysEx.startResponse();
                 sysEx.addToResponse(COMPONENT_ID_STRING);
                 sysEx.addToResponse(CONF_BLOCK_BUTTON);
                 sysEx.addToResponse(buttonID);
@@ -102,6 +104,7 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)
                 leds.noteToState(note, velocityOff, false, true);
                 if (sysEx.configurationEnabled())
                 {
+                    sysEx.startResponse();
                     sysEx.addToResponse(COMPONENT_ID_STRING);
                     sysEx.addToResponse(CONF_BLOCK_BUTTON);
                     sysEx.addToResponse(buttonID);
@@ -118,6 +121,7 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)
                 leds.noteToState(note, velocityOn, false, true);
                 if (sysEx.configurationEnabled())
                 {
+                    sysEx.startResponse();
                     sysEx.addToResponse(COMPONENT_ID_STRING);
                     sysEx.addToResponse(CONF_BLOCK_BUTTON);
                     sysEx.addToResponse(buttonID);

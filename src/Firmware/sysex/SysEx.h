@@ -58,7 +58,9 @@ class SysEx
     void checkForcedSend();
     bool configurationEnabled();
     bool addCustomRequest(uint8_t value);
+    void startResponse();
     void addToResponse(sysExParameter_t value);
+    void sendResponse();
 
     void setHandleGet(sysExParameter_t(*fptr)(uint8_t block, uint8_t section, uint16_t index));
     void setHandleSet(bool(*fptr)(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newValue));
@@ -69,7 +71,6 @@ class SysEx
 
     bool checkRequest();
     bool checkParameters();
-    void sendResponse();
 
     private:
 
