@@ -45,7 +45,6 @@ uint8_t getSWversion(version_t point)
         case version_major:
         case version_minor:
         case version_revision:
-        case version_development:
         return (uint8_t)pgm_read_word_far(VERSION_POINT_LOCATION+(uint8_t)point*2);
 
         default:
