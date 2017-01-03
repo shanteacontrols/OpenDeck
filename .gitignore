@@ -9,6 +9,7 @@ tools/bin/*
 tools/mingw64/*
 tools/usr/*
 tools/avr-objcopy.exe
+tools/avrdude.conf
 tools/srec_cat.exe
 tools/avrdude.exe
 tools/FLASH.bin
