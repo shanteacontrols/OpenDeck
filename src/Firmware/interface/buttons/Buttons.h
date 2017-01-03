@@ -22,6 +22,7 @@
 #include "../../board/Board.h"
 #include "../../midi/MIDI.h"
 #include "DataTypes.h"
+#include "../../OpenDeck.h"
 
 class Buttons
 {

@@ -16,13 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "init/Init.h"
-
-#define FIRMWARE_VERSION_STRING     0x56
-#define HARDWARE_VERSION_STRING     0x42
-#define REBOOT_APP_STRING           0x7F
-#define REBOOT_BTLDR_STRING         0x55
-#define FACTORY_RESET_STRING        0x44
+#include "OpenDeck.h"
 
 bool onCustom(uint8_t value)
 {
