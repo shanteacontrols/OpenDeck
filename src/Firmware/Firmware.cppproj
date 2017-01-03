@@ -136,7 +136,10 @@ call version_append.exe
 call del version
 
 REM upload code using usbasp
-REM call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
+REM call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin
+
+REM move flash to bin dir
+call move FLASH.bin ..\bin\compiled</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
