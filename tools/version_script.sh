@@ -1,41 +1,36 @@
 #!/bin/bash
 
-#count all tags with "v*.0" pattern and assign value to $major
-major=$(git tag -l "v*.0" | wc -l)
+#set revision to initial state
+revision=0
 
-#list all tags descending until major tag is found, count the output and assign result to $minor
-minor=$(git for-each-ref --format='%(*creatordate:raw)%(creatordate:raw) %(refname) %(*objectname) %(objectname)' refs/tags | sort -r | awk '{ print $3 }' | sed -e 's/refs\/tags\///g' | sed '/v*.0/Q' | wc -l)
+#read MAJOR file
+major_new=`cat MAJOR_NEW`
 
-#assign number of commits since last tag to $revision
-function revisionCheck_lastTag {
+#read MINOR file
+minor_new=`cat MINOR_NEW`
 
-	last_tag_commit=$(git for-each-ref --format='%(*creatordate:raw)%(creatordate:raw) %(refname) %(*objectname) %(objectname)' refs/tags | sort -r | awk '{ print $4 }' | sed -e 's/refs\/tags\///g' | head -1)
-	revision=$(git rev-list --remotes | sed '/'$last_tag_commit'/Q' | wc -l)
+#read saved MAJOR file
+major_old=`cat MAJOR_OLD`
 
-}
+#read saved MINOR file
+minor_old=`cat MINOR_OLD`
 
-#there are no major tags, count all tags instead
-if [ $minor == 0 ]
+#get the last commit from file
+last_commit=`cat LAST_COMMIT`
+
+if [[ ( $minor_new > $minor_old ) || ( $major_new > $major_old ) ]]
 then
-minor=$(git tag | wc -l)
-
-#if minor is still zero, revision is number of tags
-if [ $minor == 0 ]
-then
-revision=$(git rev-list --remotes | wc -l)
+echo $minor_new > MINOR_OLD
+echo $major_new > MAJOR_OLD
+echo '0' > REVISION
+echo $(git rev-parse HEAD) > LAST_COMMIT
+echo $(git tag v$major_new.$minor_new.$revision)
+echo $(git push --tags)
+echo $(git status)
 else
-revisionCheck_lastTag
-fi
-else
-revisionCheck_lastTag
-fi
-
-if [ -z "$(git status --porcelain)" ]; then 
-  development=0
-else 
-  development=1
+revision=$(git rev-list $last_commit..HEAD --count)
 fi
 
 #output $major, $minor and $revision into separate files
-echo "software version: $major.$minor.$revision.$development"
-echo "$major,$minor,$revision,$development" > version
+echo "software version: $major_new.$minor_new.$revision"
+echo "$major_new,$minor_new.$revision" > version
