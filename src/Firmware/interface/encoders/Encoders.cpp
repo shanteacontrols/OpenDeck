@@ -76,7 +76,7 @@ void Encoders::update()
         {
             sysEx.startResponse();
             sysEx.addToResponse(COMPONENT_ID_STRING);
-            sysEx.addToResponse(CONF_BLOCK_BUTTON);
+            sysEx.addToResponse(CONF_BLOCK_ENCODER);
             sysEx.addToResponse(i);
             sysEx.sendResponse();
         }
