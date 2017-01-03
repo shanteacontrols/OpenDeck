@@ -34,19 +34,26 @@ bool onCustom(uint8_t value)
         sysEx.addToResponse(hardwareVersion.revision);
         return true;
 
+        case MAX_COMPONENTS_STRING:
+        sysEx.addToResponse(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG);
+        sysEx.addToResponse(MAX_NUMBER_OF_ENCODERS);
+        sysEx.addToResponse(MAX_NUMBER_OF_ANALOG);
+        sysEx.addToResponse(MAX_NUMBER_OF_LEDS);
+        return true;
+
         case REBOOT_APP_STRING:
         leds.setFadeTime(1);
         leds.setAllOff();
         wait(2500);
         reboot(rebootApp);
-        return true; //pointless, but whatever
+        return true;
 
         case REBOOT_BTLDR_STRING:
         leds.setFadeTime(1);
         leds.setAllOff();
         wait(2500);
         reboot(rebootBtldr);
-        return true; //pointless, but whatever
+        return true;
 
         case FACTORY_RESET_STRING:
         leds.setFadeTime(1);
@@ -160,6 +167,7 @@ int main()  {
 
     sysEx.addCustomRequest(FIRMWARE_VERSION_STRING);
     sysEx.addCustomRequest(HARDWARE_VERSION_STRING);
+    sysEx.addCustomRequest(MAX_COMPONENTS_STRING);
     sysEx.addCustomRequest(REBOOT_APP_STRING);
     sysEx.addCustomRequest(REBOOT_BTLDR_STRING);
     sysEx.addCustomRequest(FACTORY_RESET_STRING);

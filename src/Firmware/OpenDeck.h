@@ -26,6 +26,7 @@
 #define REBOOT_BTLDR_STRING         0x55
 #define FACTORY_RESET_STRING        0x44
 #define COMPONENT_ID_STRING         0x49
+#define MAX_COMPONENTS_STRING       0x4D
 
 int main();
 sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index);
