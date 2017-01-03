@@ -81,7 +81,7 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             if (sysEx.configurationEnabled())
             {
                 sysEx.addToResponse(COMPONENT_ID_STRING);
-                sysEx.addToResponse(CONF_BLOCK_BUTTON);
+                sysEx.addToResponse(CONF_BLOCK_ANALOG);
                 sysEx.addToResponse(analogID);
                 sysEx.sendResponse();
             }
@@ -98,7 +98,7 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             if (sysEx.configurationEnabled())
             {
                 sysEx.addToResponse(COMPONENT_ID_STRING);
-                sysEx.addToResponse(CONF_BLOCK_BUTTON);
+                sysEx.addToResponse(CONF_BLOCK_ANALOG);
                 sysEx.addToResponse(analogID);
                 sysEx.sendResponse();
             }

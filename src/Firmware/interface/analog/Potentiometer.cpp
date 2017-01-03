@@ -47,7 +47,7 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t tempValue)
         {
             sysEx.startResponse();
             sysEx.addToResponse(COMPONENT_ID_STRING);
-            sysEx.addToResponse(CONF_BLOCK_BUTTON);
+            sysEx.addToResponse(CONF_BLOCK_ANALOG);
             sysEx.addToResponse(analogID);
             sysEx.sendResponse();
         }
@@ -59,7 +59,7 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t tempValue)
         {
             sysEx.startResponse();
             sysEx.addToResponse(COMPONENT_ID_STRING);
-            sysEx.addToResponse(CONF_BLOCK_BUTTON);
+            sysEx.addToResponse(CONF_BLOCK_ANALOG);
             sysEx.addToResponse(analogID);
             sysEx.sendResponse();
         }
