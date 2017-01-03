@@ -213,7 +213,7 @@ void LEDs::setAllOff()
 {
     //turn off all LEDs
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        setSingleLED(i, true, false);
+        setSingleLED(i, false, false);
 }
 
 void LEDs::setState(uint8_t ledNumber, rgbValue_t color)
