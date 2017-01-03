@@ -133,7 +133,7 @@ call srec_cat.exe "$(MSBuildProjectDirectory)\$(Configuration)\$(OutputFileName)
 
 REM calling version_append
 call version_append.exe
-REM call del version
+call del version
 
 REM upload code using usbasp
 REM call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin
