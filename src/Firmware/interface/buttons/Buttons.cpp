@@ -55,8 +55,13 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
             setButtonPressed(buttonID, true);
             midi.sendNoteOn(note, velocityOn, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
             leds.noteToState(note, velocityOn, false, true);
-            //if (sysEx.configurationEnabled())
-                //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
+            if (sysEx.configurationEnabled())
+            {
+                sysEx.addToResponse(COMPONENT_ID_STRING);
+                sysEx.addToResponse(CONF_BLOCK_BUTTON);
+                sysEx.addToResponse(buttonID);
+                sysEx.sendResponse();
+            }
         }
     }
     else
@@ -67,8 +72,13 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
             uint8_t note = database.read(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID);
             midi.sendNoteOff(note, velocityOff, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
             leds.noteToState(note, velocityOff, false, true);
-            //if (sysEx.configurationEnabled())
-                //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
+            if (sysEx.configurationEnabled())
+            {
+                sysEx.addToResponse(COMPONENT_ID_STRING);
+                sysEx.addToResponse(CONF_BLOCK_BUTTON);
+                sysEx.addToResponse(buttonID);
+                sysEx.sendResponse();
+            }
 
             setButtonPressed(buttonID, false);
         }
@@ -90,8 +100,13 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)
             {
                 midi.sendNoteOff(note, velocityOff, channel);
                 leds.noteToState(note, velocityOff, false, true);
-                //if (sysEx.configurationEnabled())
-                    //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
+                if (sysEx.configurationEnabled())
+                {
+                    sysEx.addToResponse(COMPONENT_ID_STRING);
+                    sysEx.addToResponse(CONF_BLOCK_BUTTON);
+                    sysEx.addToResponse(buttonID);
+                    sysEx.sendResponse();
+                }
 
                 //reset pressed state
                 setButtonPressed(buttonID, false);
@@ -101,8 +116,13 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)
                 //send note on
                 midi.sendNoteOn(note, velocityOn, channel);
                 leds.noteToState(note, velocityOn, false, true);
-                //if (sysEx.configurationEnabled())
-                    //sysEx.sendComponentID(CONF_BLOCK_BUTTON, buttonID);
+                if (sysEx.configurationEnabled())
+                {
+                    sysEx.addToResponse(COMPONENT_ID_STRING);
+                    sysEx.addToResponse(CONF_BLOCK_BUTTON);
+                    sysEx.addToResponse(buttonID);
+                    sysEx.sendResponse();
+                }
 
                 //toggle buttonPressed flag to true
                 setButtonPressed(buttonID, true);

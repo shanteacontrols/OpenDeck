@@ -43,14 +43,24 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t tempValue)
     if ((lowerCClimit != 0) || (upperCClimit != 127))
     {
         midi.sendControlChange(database.read(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID), mapAnalog_uint8(ccValue, 0, 127, lowerCClimit, upperCClimit), database.read(CONF_BLOCK_MIDI, midiChannelSection, CCchannel));
-        //if (sysEx.configurationEnabled())
-            //sysEx.sendComponentID(CONF_BLOCK_ANALOG, analogID);
+        if (sysEx.configurationEnabled())
+        {
+            sysEx.addToResponse(COMPONENT_ID_STRING);
+            sysEx.addToResponse(CONF_BLOCK_BUTTON);
+            sysEx.addToResponse(analogID);
+            sysEx.sendResponse();
+        }
     }
     else
     {
         midi.sendControlChange(database.read(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID), ccValue, database.read(CONF_BLOCK_MIDI, midiChannelSection, CCchannel));
-        //if (sysEx.configurationEnabled())
-            //sysEx.sendComponentID(CONF_BLOCK_ANALOG, analogID);
+        if (sysEx.configurationEnabled())
+        {
+            sysEx.addToResponse(COMPONENT_ID_STRING);
+            sysEx.addToResponse(CONF_BLOCK_BUTTON);
+            sysEx.addToResponse(analogID);
+            sysEx.sendResponse();
+        }
     }
 
     //update values

@@ -24,6 +24,7 @@
 #include "DataTypes.h"
 #include "Config.h"
 #include "Helpers.h"
+#include "../../OpenDeck.h"
 
 class Analog
 {

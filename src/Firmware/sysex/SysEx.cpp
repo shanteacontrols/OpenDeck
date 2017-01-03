@@ -634,35 +634,9 @@ void SysEx::addToResponse(sysExParameter_t value)
     #endif
 }
 
-void SysEx::sendCustomMessage(uint8_t id, sysExParameter_t value)
+void SysEx::sendResponse()
 {
-    #if PARAM_SIZE == 2
-    uint8_t size = 9;
-    #elif PARAM_SIZE == 1
-    uint8_t size = 8;
-    #endif
-
-    uint8_t customMessage[size];
-
-    customMessage[startByte] = 0xF0;
-    customMessage[idByte_1] = defaultID.byte1;
-    customMessage[idByte_2] = defaultID.byte2;
-    customMessage[idByte_3] = defaultID.byte3;
-    customMessage[statusByte] = ACK;
-    customMessage[statusByte+1] = id;
-    #if PARAM_SIZE == 2
-    encDec_14bit encoded;
-    encoded.value = value;
-    encoded.encodeTo14bit();
-    customMessage[statusByte+2] = encoded.high;
-    customMessage[statusByte+3] = encoded.low;
-    customMessage[statusByte+4] = 0xF7;
-    #elif PARAM_SIZE == 1
-    customMessage[statusByte+2] = value;
-    customMessage[statusByte+3] = 0xF7;
-    #endif
-
-    midi.sendSysEx(size, customMessage, true);
+    
 }
 
 void SysEx::setStatus(sysExStatus_t status)
