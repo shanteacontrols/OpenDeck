@@ -30,4 +30,4 @@ fi
 
 #output $major, $minor and $revision into separate files
 echo "software version: $major_new.$minor_new.$revision"
-echo "$major_new,$minor_new.$revision" > version
+echo "$major_new,$minor_new,$revision" > version
