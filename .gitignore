@@ -12,3 +12,4 @@ tools/avr-objcopy.exe
 tools/avrdude.conf
 tools/srec_cat.exe
 tools/avrdude.exe
+OpenDeck.wiki/*
