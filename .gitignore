@@ -5,4 +5,11 @@ src/Bootloader/Release*/*
 src/Firmware/Debug*
 src/Firmware/Release*
 tools/tmp/*
+tools/bin/*
+tools/mingw64/*
+tools/usr/*
+tools/avr-objcopy.exe
+tools/srec_cat.exe
+tools/avrdude.exe
+tools/FLASH.bin
 FLASH.bin
