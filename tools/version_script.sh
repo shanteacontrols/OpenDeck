@@ -28,6 +28,8 @@ else
 revision=$(git rev-list $last_commit..HEAD --count)
 fi
 
+echo $revision > REVISION
+
 #output $major, $minor and $revision into separate files
 echo "software version: $major_new.$minor_new.$revision"
 echo "$major_new,$minor_new,$revision" > version
