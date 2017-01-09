@@ -42,21 +42,18 @@ bool onCustom(uint8_t value)
         return true;
 
         case REBOOT_APP_STRING:
-        leds.setFadeTime(FADE_TIME_MAX);
         leds.setAllOff();
         wait(2500);
         reboot(rebootApp);
         return true;
 
         case REBOOT_BTLDR_STRING:
-        leds.setFadeTime(FADE_TIME_MAX);
         leds.setAllOff();
         wait(2500);
         reboot(rebootBtldr);
         return true;
 
         case FACTORY_RESET_STRING:
-        leds.setFadeTime(FADE_TIME_MAX);
         leds.setAllOff();
         wait(1500);
         database.factoryReset(factoryReset_partial);

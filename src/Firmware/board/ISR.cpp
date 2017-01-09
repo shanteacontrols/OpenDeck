@@ -55,46 +55,140 @@ inline void ledRowsOff()
     TCCR3A &= ~(1<<COM3A1);
     TCCR1A &= ~(1<<COM1B1);
 
+    #ifdef LED_INVERT
     setHigh(LED_ROW_1_PORT, LED_ROW_1_PIN);
     setHigh(LED_ROW_2_PORT, LED_ROW_2_PIN);
     setHigh(LED_ROW_3_PORT, LED_ROW_3_PIN);
     setHigh(LED_ROW_4_PORT, LED_ROW_4_PIN);
     setHigh(LED_ROW_5_PORT, LED_ROW_5_PIN);
     setHigh(LED_ROW_6_PORT, LED_ROW_6_PIN);
+    #else
+    setLow(LED_ROW_1_PORT, LED_ROW_1_PIN);
+    setLow(LED_ROW_2_PORT, LED_ROW_2_PIN);
+    setLow(LED_ROW_3_PORT, LED_ROW_3_PIN);
+    setLow(LED_ROW_4_PORT, LED_ROW_4_PIN);
+    setLow(LED_ROW_5_PORT, LED_ROW_5_PIN);
+    setLow(LED_ROW_6_PORT, LED_ROW_6_PIN);
+    #endif
 }
 
 inline void ledRowOn(uint8_t rowNumber, uint8_t intensity)
 {
     switch (rowNumber)
     {
+        //turn off pwm if intensity is max
         case 0:
-        OCR1C = intensity;
-        TCCR1A |= (1<<COM1C1);
+        #ifdef LED_INVERT
+        if (intensity == 0)
+        {
+            setLow(LED_ROW_1_PORT, LED_ROW_1_PIN);
+        #else
+        if (intensity == 255)
+        {
+            setHigh(LED_ROW_1_PORT, LED_ROW_1_PIN);
+        #endif
+            TCCR1A &= ~(1<<COM1C1);
+        }
+        else
+        {
+            OCR1C = intensity;
+            TCCR1A |= (1<<COM1C1);
+        }
         break;
 
         case 1:
-        OCR4D = intensity;
-        TCCR4C |= (1<<COM4D1);
+        #ifdef LED_INVERT
+        if (intensity == 0)
+        {
+            setLow(LED_ROW_2_PORT, LED_ROW_2_PIN);
+        #else
+        if (intensity == 255)
+        {
+            setHigh(LED_ROW_2_PORT, LED_ROW_2_PIN);
+        #endif
+            TCCR4C &= ~(1<<COM4D1);
+        }
+        else
+        {
+            OCR4D = intensity;
+            TCCR4C |= (1<<COM4D1);
+        }
         break;
 
         case 2:
-        OCR1A = intensity;
-        TCCR1A |= (1<<COM1A1);
+        #ifdef LED_INVERT
+        if (intensity == 0)
+        {
+            setLow(LED_ROW_3_PORT, LED_ROW_3_PIN);
+        #else
+        if (intensity == 255)
+        {
+            setHigh(LED_ROW_3_PORT, LED_ROW_3_PIN);
+        #endif
+            TCCR1A &= ~(1<<COM1A1);
+        }
+        else
+        {
+            OCR1A = intensity;
+            TCCR1A |= (1<<COM1A1);
+        }
         break;
 
         case 3:
-        OCR4A = intensity;
-        TCCR4A |= (1<<COM4A1);
+        #ifdef LED_INVERT
+        if (intensity == 0)
+        {
+            setLow(LED_ROW_4_PORT, LED_ROW_4_PIN);
+        #else
+        if (intensity == 255)
+        {
+            setHigh(LED_ROW_4_PORT, LED_ROW_4_PIN);
+        #endif
+            TCCR4A &= ~(1<<COM4A1);
+        }
+        else
+        {
+            OCR4A = intensity;
+            TCCR4A |= (1<<COM4A1);
+        }
         break;
 
         case 4:
-        OCR3A = intensity;
-        TCCR3A |= (1<<COM3A1);
+        #ifdef LED_INVERT
+        if (intensity == 0)
+        {
+            setLow(LED_ROW_5_PORT, LED_ROW_5_PIN);
+        #else
+        if (intensity == 255)
+        {
+            setHigh(LED_ROW_5_PORT, LED_ROW_5_PIN);
+        #endif
+            TCCR3A &= ~(1<<COM3A1);
+        }
+        else
+        {
+            OCR3A = intensity;
+            TCCR3A |= (1<<COM3A1);
+        }
         break;
 
         case 5:
-        OCR1B = intensity;
-        TCCR1A |= (1<<COM1B1);
+        #ifdef LED_INVERT
+        if (intensity == 0)
+        {
+            setLow(LED_ROW_6_PORT, LED_ROW_6_PIN);
+        #else
+        if (intensity == 255)
+        {
+            setHigh(LED_ROW_6_PORT, LED_ROW_6_PIN);
+        #endif
+            TCCR1A &= ~(1<<COM1B1);
+        }
+        else
+        {
+            OCR1B = intensity;
+            TCCR1A |= (1<<COM1B1);
+        }
         break;
 
         default:
@@ -142,29 +236,39 @@ inline void checkLEDs()
         }
         else
         {
-            if (
-            (ledStateSingle && (transitionCounter[ledNumber] != (NUMBER_OF_LED_TRANSITIONS-1))) ||
-            (!ledStateSingle && transitionCounter[ledNumber])
-            )
-            {
-                if (ledStateSingle)
-                transitionCounter[ledNumber] += pwmSteps;
-                else
-                transitionCounter[ledNumber] -= pwmSteps;
-
-                if (transitionCounter[ledNumber] >= NUMBER_OF_LED_TRANSITIONS)
-                transitionCounter[ledNumber] = NUMBER_OF_LED_TRANSITIONS-1;
-                if (transitionCounter[ledNumber] < 0)
-                transitionCounter[ledNumber] = 0;
-            }
-
-            if (transitionCounter[ledNumber])
+            if (ledTransitionScale[transitionCounter[ledNumber]])
             {
                 #ifdef LED_INVERT
                 ledRowOn(i, 255-ledTransitionScale[transitionCounter[ledNumber]]);
                 #else
                 ledRowOn(i, ledTransitionScale[transitionCounter[ledNumber]]);
                 #endif
+            }
+
+            if (ledTransitionScale[transitionCounter[ledNumber]] != ledStateSingle)
+            {
+                if(ledTransitionScale[transitionCounter[ledNumber]] < ledStateSingle)
+                {
+                    //fade up
+                    if (transitionCounter[ledNumber] < (NUMBER_OF_LED_TRANSITIONS-1))
+                    {
+                        transitionCounter[ledNumber] += pwmSteps;
+
+                        if (transitionCounter[ledNumber] >= NUMBER_OF_LED_TRANSITIONS)
+                            transitionCounter[ledNumber] = NUMBER_OF_LED_TRANSITIONS-1;
+                    }
+                }
+                else
+                {
+                    //fade down
+                    if (transitionCounter[ledNumber])
+                    {
+                        transitionCounter[ledNumber] -= pwmSteps;
+
+                        if (transitionCounter[ledNumber] < 0)
+                            transitionCounter[ledNumber] = 0;
+                    }
+                }
             }
         }
     }
