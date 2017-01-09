@@ -104,7 +104,7 @@ rgbValue_t LEDs::velocityToColor(uint8_t receivedVelocity)
 
 void LEDs::ccToBlink(uint8_t cc, uint8_t value)
 {
-    bool blink = (value == 127);
+    bool blink = (bool)value;
 
     //match LED activation note with received cc
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
