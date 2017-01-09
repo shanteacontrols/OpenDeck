@@ -2,10 +2,11 @@
 
 #include "../../database/Database.h"
 
-//define extra sysex section for setting/getting led states
-#define ledStateSection                 LED_SECTIONS
+//define extra sysex sections for setting/getting led states
+#define ledColorSection                 LED_SECTIONS
+#define ledBlinkSection                 LED_SECTIONS+1
 
-#define BLINK_TIME_MIN                  0x00
+#define BLINK_TIME_MIN                  0x01
 #define BLINK_TIME_MAX                  0x0F
 
 #define START_UP_SWITCH_TIME_MIN        0x00

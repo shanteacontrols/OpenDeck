@@ -29,28 +29,26 @@ class LEDs
     LEDs();
     void init();
     void setState(uint8_t ledNumber, bool state);
-    void setState(uint8_t ledNumber, rgbValue_t color);
+    void setColor(uint8_t ledNumber, rgbValue_t color);
     void setAllOn();
     void setAllOff();
+    ledColor_t getColor(uint8_t ledID);
     uint8_t getState(uint8_t ledNumber);
+    bool isBlinking(uint8_t ledID);
     void setBlinkTime(uint16_t blinkTime);
     void setFadeTime(uint8_t transitionSpeed);
-    rgbValue_t velocityToColor(uint8_t receivedVelocity, bool blinkEnabled);
-    bool velocityToblinkState(uint8_t receivedVelocity);
+    rgbValue_t velocityToColor(uint8_t receivedVelocity);
+    void ccToBlink(uint8_t cc, uint8_t value);
     void noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool ledID = false, bool local = false);
+    void blinkLED(uint8_t ledID, bool state);
 
     private:
     //data processing
-    void handleLED(uint8_t ledNumber, bool state, bool blinkMode);
-    void handleLED(uint8_t ledNumber, rgbValue_t color, bool blinkMode);
-    void startBlinking();
-    void stopBlinking();
-    bool blinkingActive();
+    void handleLED(uint8_t ledNumber, bool state);
+    void handleLED(uint8_t ledNumber, rgbValue_t color);
     void checkBlinkLEDs();
     bool allLEDsOn();
     bool allLEDsOff();
-    void setSingleLED(uint8_t ledNumber, bool state, bool blinkMode);
-    void setRGBled(uint8_t ledNumber, rgbValue_t color, bool blinkMode);
 
     //animation
     void startUpAnimation();
