@@ -101,15 +101,16 @@ void initSysEx()
     }
 
     {
-        sysEx.addBlock(LED_SECTIONS+1);
+        sysEx.addBlock(LED_SECTIONS+2);
 
         const sysExSection ledHardwareParameter_section     = { LED_HARDWARE_PARAMETERS, 0, 0 };
         const sysExSection ledActivationNote_section        = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_LEDS }; //MAX_NUMBER_OF_LEDS = blank note
         const sysExSection ledStartUpNumber_section         = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_LEDS-1 };
         const sysExSection ledRGBenabled_section            = { MAX_NUMBER_OF_RGB_LEDS, 0, 1 };
         const sysExSection ledLocalControl_Enabled          = { MAX_NUMBER_OF_LEDS, 0, 1 };
-        //extra - not defined in eeprom blocks since it's not persistent section
-        const sysExSection ledState_section                 = { MAX_NUMBER_OF_LEDS, 0, 127 };
+        //extras - not defined in eeprom blocks since it's not persistent section
+        const sysExSection ledColor_section                 = { MAX_NUMBER_OF_LEDS, 0, 127 };
+        const sysExSection ledBlink_section                 = { MAX_NUMBER_OF_LEDS, 0, 127 };
 
         const sysExSection *ledsSectionArray[] =
         {
@@ -118,10 +119,11 @@ void initSysEx()
             &ledStartUpNumber_section,
             &ledRGBenabled_section,
             &ledLocalControl_Enabled,
-            &ledState_section
+            &ledColor_section,
+            &ledBlink_section
         };
 
-        for (int i=0; i<(LED_SECTIONS+1); i++)
+        for (int i=0; i<(LED_SECTIONS+2); i++)
             sysEx.addSection(CONF_BLOCK_LED, ledsSectionArray[i]->numberOfParameters, ledsSectionArray[i]->minValue, ledsSectionArray[i]->maxValue);
     }
 }

@@ -26,11 +26,17 @@ LEDs::LEDs()
 
 void LEDs::init()
 {
+    if (!database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime))
+    {
+        //make sure to set default blink time
+        database.update(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime, BLINK_TIME_MIN);
+    }
+
     setBlinkTime(database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime));
     setFadeTime(database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterFadeTime));
 
     //run LED animation on start-up
-    startUpAnimation();
+    //startUpAnimation();
 }
 
 void LEDs::startUpAnimation()
@@ -79,75 +85,42 @@ void LEDs::startUpAnimation()
     wait(1000);
 }
 
-rgbValue_t LEDs::velocityToColor(uint8_t receivedVelocity, bool blinkEnabled)
+rgbValue_t LEDs::velocityToColor(uint8_t receivedVelocity)
 {
     /*
-    blinkEnabled:
-    constant:
-    0-7 off
-    8-15 white
-    16-23 cyan
-    24-31 magenta
-    32-39 red
-    40-47 blue
-    48-55 yellow
-    56-63 green
-    blink:
-    64-71 off
-    72-79 white
-    80-87 cyan
-    88-95 magenta
-    96-103 red
-    104-111 blue
-    112-119 yellow
-    120-127 green
-
-    blinkDisabled:
-    constant only:
-    0-15 off
-    16-31 white
-    32-47 cyan
-    48-63 magenta
-    64-79 red
-    80-95 blue
-    96-111 yellow
-    112-127 green
+        0-15 off
+        16-31 white
+        32-47 cyan
+        48-63 magenta
+        64-79 red
+        80-95 blue
+        96-111 yellow
+        112-127 green
     */
 
-    ledColor_t color;
-
-    switch(blinkEnabled)
-    {
-        case false:
-        color = (ledColor_t)(receivedVelocity/16);
-        break;
-
-        case true:
-        if (receivedVelocity > 63)
-            receivedVelocity -= 64;
-        color = (ledColor_t)(receivedVelocity/8);
-        break;
-
-    }
-
+    ledColor_t color = (ledColor_t)(receivedVelocity/16);
     return colors[(uint8_t)color];
 }
 
-bool LEDs::velocityToblinkState(uint8_t receivedVelocity)
+void LEDs::ccToBlink(uint8_t cc, uint8_t value)
 {
-    return (receivedVelocity > 63);
+    bool blink = (value == 127);
+
+    //match LED activation note with received cc
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+    {
+        if (database.read(CONF_BLOCK_LED, ledActivationNoteSection, i) == cc)
+        {
+            blinkLED(i, blink);
+        }
+    }
+
+    checkBlinkLEDs();
 }
 
 void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool ledID, bool local)
 {
-    bool blinkEnabled_global = database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime);
-    bool blinkEnabled_led;
-    if (!blinkEnabled_global)
-        blinkEnabled_led = false;
-    else
-        blinkEnabled_led = velocityToblinkState(receivedVelocity);
-
-    rgbValue_t color = velocityToColor(receivedVelocity, blinkEnabled_global);
+    rgbValue_t color = velocityToColor(receivedVelocity);
 
     if (!ledID)
     {
@@ -162,11 +135,11 @@ void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool ledI
                     {
                         //if local is set to true, check if local led control is enabled for this led before changing state
                         if (database.read(CONF_BLOCK_LED, ledLocalControlSection, i))
-                            setRGBled(i, color, blinkEnabled_led);
+                            handleLED(i, color);
                     }
                     else
                     {
-                        setRGBled(i, color, blinkEnabled_led);
+                        handleLED(i, color);
                     }
                 }
                 else
@@ -175,11 +148,11 @@ void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool ledI
                     if (local)
                     {
                         if (database.read(CONF_BLOCK_LED, ledLocalControlSection, i))
-                            setSingleLED(i, state, blinkEnabled_led);
+                            handleLED(i, state);
                     }
                     else
                     {
-                        setSingleLED(i, state, blinkEnabled_led);
+                        handleLED(i, state);
                     }
                 }
             }
@@ -192,12 +165,33 @@ void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool ledI
         if (database.read(CONF_BLOCK_LED, ledRGBenabledSection, receivedNote))
         {
             //rgb led
-            setRGBled(receivedNote, color, blinkEnabled_led);
+            handleLED(receivedNote, color);
         }
         else
         {
             bool state = color.r || color.g || color.b;
-            setSingleLED(receivedNote, state, blinkEnabled_led);
+            handleLED(receivedNote, state);
+        }
+    }
+
+    checkBlinkLEDs();
+}
+
+void LEDs::blinkLED(uint8_t ledID, bool state)
+{
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        if (state)
+        {
+            bitSet(ledState[ledID], LED_BLINK_ON_BIT);
+            //this will turn the led immediately no matter how little time it's
+            //going to blink first time
+            bitSet(ledState[ledID], LED_BLINK_STATE_BIT);
+        }
+        else
+        {
+            bitClear(ledState[ledID], LED_BLINK_ON_BIT);
+            bitClear(ledState[ledID], LED_BLINK_STATE_BIT);
         }
     }
 }
@@ -206,44 +200,32 @@ void LEDs::setAllOn()
 {
     //turn on all LEDs
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        setSingleLED(i, true, false);
+        handleLED(i, true);
 }
 
 void LEDs::setAllOff()
 {
     //turn off all LEDs
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        setSingleLED(i, false, false);
-}
-
-void LEDs::setState(uint8_t ledNumber, rgbValue_t color)
-{
-    setRGBled(ledNumber, color, false);
+        handleLED(i, false);
 }
 
 void LEDs::setState(uint8_t ledNumber, bool state)
 {
-    setSingleLED(ledNumber, state, false);
+    handleLED(ledNumber, state);
 }
 
-void LEDs::setSingleLED(uint8_t ledNumber, bool state, bool blinkMode)
+void LEDs::setColor(uint8_t ledNumber, rgbValue_t color)
 {
-    handleLED(ledNumber, state, blinkMode);
-
-    if (blinkMode && state)
-        startBlinking();
-    else
-        checkBlinkLEDs();
+    handleLED(ledNumber, color);
 }
 
-void LEDs::setRGBled(uint8_t ledNumber, rgbValue_t color, bool blinkMode)
+ledColor_t LEDs::getColor(uint8_t ledID)
 {
-    handleLED(ledNumber, color, blinkMode);
-
-    if (blinkMode && color.r && color.g && color.b)
-        startBlinking();
+    if (!database.read(CONF_BLOCK_LED, ledRGBenabledSection, ledID))
+        return (ledColor_t)(127/16); //127 = velocity, 16 = color divider
     else
-        checkBlinkLEDs();
+        return colorWhite;
 }
 
 uint8_t LEDs::getState(uint8_t ledNumber)
@@ -251,6 +233,12 @@ uint8_t LEDs::getState(uint8_t ledNumber)
     uint8_t returnValue;
     returnValue = ledState[ledNumber];
     return returnValue;
+}
+
+bool LEDs::isBlinking(uint8_t ledID)
+{
+    uint8_t state = getState(ledID);
+    return bitRead(state, LED_BLINK_ON_BIT);
 }
 
 bool LEDs::allLEDsOn()
@@ -298,7 +286,7 @@ void LEDs::setBlinkTime(uint16_t blinkTime)
     }
 }
 
-void LEDs::handleLED(uint8_t ledNumber, bool state, bool blinkMode)
+void LEDs::handleLED(uint8_t ledNumber, bool state)
 {
     /*
 
@@ -331,62 +319,22 @@ void LEDs::handleLED(uint8_t ledNumber, bool state, bool blinkMode)
             currentState = 0;
 
         bitSet(currentState, LED_ACTIVE_BIT);
-        if (blinkMode)
-        {
-            bitSet(currentState, LED_BLINK_ON_BIT);
-            //this will turn the led immediately no matter how little time it's
-            //going to blink first time
-            bitSet(currentState, LED_BLINK_STATE_BIT);
-        }
-        else
-        {
-            bitSet(currentState, LED_CONSTANT_ON_BIT);
-        }
+        bitSet(currentState, LED_CONSTANT_ON_BIT);
         break;
     }
 
     ledState[ledNumber] = currentState;
 }
 
-void LEDs::handleLED(uint8_t ledNumber, rgbValue_t color, bool blinkMode)
+void LEDs::handleLED(uint8_t ledNumber, rgbValue_t color)
 {
     uint8_t led1 = board.getRGBaddress(ledNumber, rgb_R);
     uint8_t led2 = board.getRGBaddress(ledNumber, rgb_G);
     uint8_t led3 = board.getRGBaddress(ledNumber, rgb_B);
 
-    handleLED(led1, color.r, blinkMode);
-    handleLED(led2, color.g, blinkMode);
-    handleLED(led3, color.b, blinkMode);
-}
-
-void LEDs::startBlinking()
-{
-    if (!blinkEnabled)
-    {
-        blinkEnabled = true;
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-        {
-            blinkState = true;
-            blinkTimerCounter = 0;
-        }
-    }
-}
-
-void LEDs::stopBlinking()
-{
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    {
-        blinkState = true;
-        blinkTimerCounter = 0;
-    }
-    blinkEnabled = false;
-}
-
-bool LEDs::blinkingActive()
-{
-    bool state;
-    state = blinkEnabled;
-    return state;
+    handleLED(led1, color.r);
+    handleLED(led2, color.g);
+    handleLED(led3, color.b);
 }
 
 void LEDs::checkBlinkLEDs()
@@ -403,22 +351,32 @@ void LEDs::checkBlinkLEDs()
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
     {
         ledState = getState(i);
-        if (bitRead(ledState, LED_BLINK_ON_BIT))
+        if (bitRead(ledState, LED_BLINK_ON_BIT) && bitRead(ledState, LED_ACTIVE_BIT))
         {
             _blinkEnabled = true;
             break;
         }
     }
 
-    if (_blinkEnabled)
+    if (_blinkEnabled && !blinkEnabled)
     {
-        startBlinking();
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        {
+            blinkEnabled = true;
+            blinkState = true;
+            blinkTimerCounter = 0;
+        }
     }
-    else if (!_blinkEnabled && blinkingActive())
+    else if (!_blinkEnabled && blinkEnabled)
     {
         //don't bother reseting variables if blinking is already disabled
         //reset blinkState to default value
-        stopBlinking();
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        {
+            blinkState = true;
+            blinkTimerCounter = 0;
+            blinkEnabled = false;
+        }
     }
 }
 

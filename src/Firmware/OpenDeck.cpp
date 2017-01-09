@@ -42,21 +42,21 @@ bool onCustom(uint8_t value)
         return true;
 
         case REBOOT_APP_STRING:
-        leds.setFadeTime(1);
+        leds.setFadeTime(FADE_TIME_MAX);
         leds.setAllOff();
         wait(2500);
         reboot(rebootApp);
         return true;
 
         case REBOOT_BTLDR_STRING:
-        leds.setFadeTime(1);
+        leds.setFadeTime(FADE_TIME_MAX);
         leds.setAllOff();
         wait(2500);
         reboot(rebootBtldr);
         return true;
 
         case FACTORY_RESET_STRING:
-        leds.setFadeTime(1);
+        leds.setFadeTime(FADE_TIME_MAX);
         leds.setAllOff();
         wait(1500);
         database.factoryReset(factoryReset_partial);
@@ -72,10 +72,17 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
     switch(block)
     {
         case CONF_BLOCK_LED:
-        if (section == ledStateSection)
-            return leds.getState(index);
-        else
+        switch(section)
+        {
+            case ledColorSection:
+            return leds.getColor(index);
+
+            case ledBlinkSection:
+            return leds.isBlinking(index);
+
+            default:
             return database.read(block, section, index);
+        }
         break;
 
         default:
@@ -111,9 +118,13 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             break;
 
             case CONF_BLOCK_LED:
-            if (section == ledStateSection)
+            if (section == ledColorSection)
             {
                 leds.noteToState(index, newValue, true);
+            }
+            else if (section == ledBlinkSection)
+            {
+                leds.ccToBlink(index, newValue);
             }
             else
             {
@@ -189,8 +200,13 @@ int main()  {
 
                 case midiMessageNoteOff:
                 case midiMessageNoteOn:
-                //we're using received note data to control LEDs
+                //we're using received note data to control LED color
                 leds.noteToState(data1, data2);
+                break;
+
+                case midiMessageControlChange:
+                //control change is used to control led blinking
+                leds.ccToBlink(data1, data2);
                 break;
 
                 default:

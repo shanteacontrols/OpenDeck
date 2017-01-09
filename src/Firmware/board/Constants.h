@@ -21,9 +21,9 @@
 #define PULSES_PER_STEP                     4
 
 #define NUMBER_OF_LED_TRANSITIONS           64
-#define LED_CONSTANT_ON_BIT                 0x00
-#define LED_BLINK_ON_BIT                    0x01
-#define LED_ACTIVE_BIT                      0x02
+#define LED_ACTIVE_BIT                      0x00
+#define LED_CONSTANT_ON_BIT                 0x01
+#define LED_BLINK_ON_BIT                    0x02
 #define LED_BLINK_STATE_BIT                 0x03
 
 const uint8_t ledOnLookUpTable[] =
@@ -31,8 +31,6 @@ const uint8_t ledOnLookUpTable[] =
     0,
     0,
     0,
-    0,
-    0,
     255,
     0,
     0,
@@ -42,8 +40,10 @@ const uint8_t ledOnLookUpTable[] =
     0,
     0,
     0,
-    255,
-    0
+    0,
+    0,
+    0,
+    255
 };
 
 const uint8_t ledTransitionScale[] =
