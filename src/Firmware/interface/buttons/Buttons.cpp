@@ -44,7 +44,7 @@ bool Buttons::getButtonPressed(uint8_t buttonID)
     return bitRead(buttonPressed[arrayIndex], buttonIndex);
 }
 
-void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool sendMIDI)
+void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool sendProgramChange)
 {
     if (buttonState)
     {
@@ -53,8 +53,15 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
         {
             uint8_t note = database.read(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID);
             setButtonPressed(buttonID, true);
-            midi.sendNoteOn(note, velocityOn, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
-            leds.noteToState(note, velocityOn, false, true);
+            if (sendProgramChange)
+            {
+                midi.sendProgramChange(note, database.read(CONF_BLOCK_MIDI, midiChannelSection, programChangeChannel));
+            }
+            else
+            {
+                midi.sendNoteOn(note, velocityOn, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
+                leds.noteToState(note, velocityOn, false, true);
+            }
             if (sysEx.configurationEnabled())
             {
                 sysEx.startResponse();
@@ -71,8 +78,11 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
         if (getButtonPressed(buttonID))
         {
             uint8_t note = database.read(CONF_BLOCK_BUTTON, buttonMIDIidSection, buttonID);
-            midi.sendNoteOff(note, velocityOff, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
-            leds.noteToState(note, velocityOff, false, true);
+            if (!sendProgramChange)
+            {
+                midi.sendNoteOff(note, velocityOff, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
+                leds.noteToState(note, velocityOff, false, true);
+            }
             if (sysEx.configurationEnabled())
             {
                 sysEx.startResponse();
@@ -143,11 +153,13 @@ void Buttons::processButton(uint8_t buttonID, bool state, bool debounce)
     {
         buttonType_t type = (buttonType_t)database.read(CONF_BLOCK_BUTTON, buttonTypeSection, buttonID);
 
-        if (database.read(CONF_BLOCK_BUTTON, buttonProgramChangeEnabledSection, buttonID))
+        bool sendProgramChange = database.read(CONF_BLOCK_BUTTON, buttonProgramChangeEnabledSection, buttonID);
+
+        if (sendProgramChange)
         {
             //ignore momentary/latching modes if button sends program change
             //when released, don't send anything
-            processMomentaryButton(buttonID, state, state);
+            processMomentaryButton(buttonID, state, sendProgramChange);
         }
         else
         {
