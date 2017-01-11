@@ -20,7 +20,7 @@
 
 #define MAX_NUMBER_OF_BLOCKS    7
 #define MAX_NUMBER_OF_SECTIONS  7
-#define MAX_CUSTOM_REQUESTS     5
+#define MAX_CUSTOM_REQUESTS     10
 
 #define INVALID_VALUE           128
 
