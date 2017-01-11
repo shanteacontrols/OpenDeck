@@ -6,7 +6,7 @@
 #define ledColorSection                 LED_SECTIONS
 #define ledBlinkSection                 LED_SECTIONS+1
 
-#define BLINK_TIME_MIN                  0x01
+#define BLINK_TIME_MIN                  0x02
 #define BLINK_TIME_MAX                  0x0F
 
 #define START_UP_SWITCH_TIME_MIN        0x00
