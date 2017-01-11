@@ -24,8 +24,6 @@
 
 #define INVALID_VALUE           128
 
-#define CONFIG_TIMEOUT          60000   //1 minute
-
 #define PARAMETERS_PER_MESSAGE  32
 
 //1 - one byte size for parameter index and new value (uint8_t)
