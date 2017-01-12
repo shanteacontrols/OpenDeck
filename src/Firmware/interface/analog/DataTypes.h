@@ -8,9 +8,9 @@ typedef enum
 
 typedef enum 
 {
-    potentiometer,
-    fsr,
-    ldr,
+    aType_potentiometer,
+    aType_fsr,
+    aType_button,
     ANALOG_TYPES
 } analogType_t;
 

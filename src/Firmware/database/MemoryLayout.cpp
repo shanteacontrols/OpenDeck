@@ -95,10 +95,6 @@ void Database::createMemoryLayout()
         blocks[CONF_BLOCK_ANALOG].sectionParameterType[analogCCupperLimitSection] = BYTE_PARAMETER;
         blocks[CONF_BLOCK_ANALOG].defaultValue[analogCCupperLimitSection] = 127;
         blocks[CONF_BLOCK_ANALOG].sectionParameters[analogCCupperLimitSection] = MAX_NUMBER_OF_ANALOG;
-
-        blocks[CONF_BLOCK_ANALOG].sectionParameterType[analogDigitalEnabledSection] = BIT_PARAMETER;
-        blocks[CONF_BLOCK_ANALOG].defaultValue[analogDigitalEnabledSection] = 0;
-        blocks[CONF_BLOCK_ANALOG].sectionParameters[analogDigitalEnabledSection] = MAX_NUMBER_OF_ANALOG;
     }
 
     {

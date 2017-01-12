@@ -42,22 +42,19 @@ void Analog::update()
         if (!database.read(CONF_BLOCK_ANALOG, analogEnabledSection, i))
             continue;
 
-        if (!database.read(CONF_BLOCK_ANALOG, analogDigitalEnabledSection, i))
+        if (database.read(CONF_BLOCK_ANALOG, analogTypeSection, i) != aType_button)
         {
             analogData = getAverageValue(i);
             analogType_t type = (analogType_t)database.read(CONF_BLOCK_ANALOG, analogTypeSection, i);
 
             switch(type)
             {
-                case potentiometer:
+                case aType_potentiometer:
                 checkPotentiometerValue(i, analogData);
                 break;
 
-                case fsr:
+                case aType_fsr:
                 checkFSRvalue(i, analogData);
-                break;
-
-                case ldr:
                 break;
 
                 default:

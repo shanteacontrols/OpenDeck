@@ -3,11 +3,10 @@
 typedef enum
 {
     analogEnabledSection,
-    analogTypeSection,
     analogInvertedSection,
+    analogTypeSection,
     analogMIDIidSection,
     analogCClowerLimitSection,
     analogCCupperLimitSection,
-    analogDigitalEnabledSection,
     ANALOG_SECTIONS
 } analogSection;
