@@ -83,17 +83,15 @@ void initSysEx()
         const sysExSection analogMIDIid_section             = { MAX_NUMBER_OF_ANALOG, 0, 127 };
         const sysExSection analogCClowerLimit_section       = { MAX_NUMBER_OF_ANALOG, 0, 127 };
         const sysExSection analogCCupperLimit_section       = { MAX_NUMBER_OF_ANALOG, 0, 127 };
-        const sysExSection analogDigitalEnabled_Section     = { MAX_NUMBER_OF_ANALOG, 0, 1 };
 
         const sysExSection *analogSectionArray[] =
         {
             &analogEnabled_section,
-            &analogType_section,
             &analogInverted_section,
+            &analogType_section,
             &analogMIDIid_section,
             &analogCClowerLimit_section,
-            &analogCCupperLimit_section,
-            &analogDigitalEnabled_Section
+            &analogCCupperLimit_section
         };
 
         for (int i=0; i<ANALOG_SECTIONS; i++)
@@ -132,7 +130,6 @@ void globalInit()
 {
     database.init();
     board.init();
-    leds.init();
 
     midi.init(dinInterface);
     midi.init(usbInterface);
@@ -143,4 +140,6 @@ void globalInit()
 
     initSysEx();
     checkNewRevision();
+
+    leds.init();
 }
