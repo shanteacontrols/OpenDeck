@@ -127,15 +127,30 @@ void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool loca
     {
         if (database.read(CONF_BLOCK_LED, ledActivationNoteSection, i) == receivedNote)
         {
-            if (local)
+            if (database.read(CONF_BLOCK_LED, ledRGBenabledSection, i))
             {
-                //if local is set to true, check if local led control is enabled for this led before changing state
-                if (database.read(CONF_BLOCK_LED, ledLocalControlSection, i))
+                if (local)
+                {
+                    //if local is set to true, check if local led control is enabled for this led before changing state
+                    if (database.read(CONF_BLOCK_LED, ledLocalControlSection, i))
+                        setColor(i, color);
+                }
+                else
+                {
                     setColor(i, color);
+                }
             }
             else
             {
-                setColor(i, color);
+                if (local)
+                {
+                    if (database.read(CONF_BLOCK_LED, ledLocalControlSection, i))
+                        setColor(i, color);
+                }
+                else
+                {
+                    setColor(i, color);
+                }
             }
         }
     }
@@ -145,45 +160,21 @@ void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool loca
 
 void LEDs::setBlinkState(uint8_t ledID, bool state)
 {
-    uint8_t ledArray[3], leds = 0;
-
-    if (database.read(CONF_BLOCK_LED, ledRGBenabledSection, board.getRGBID(ledID)))
-    {
-        ledArray[0] = board.getRGBaddress(ledID, rgb_R);
-        ledArray[1] = board.getRGBaddress(ledID, rgb_G);
-        ledArray[2] = board.getRGBaddress(ledID, rgb_B);
-
-        leds = 3;
-    }
-    else
-    {
-        ledArray[0] = ledID;
-        ledArray[1] = ledID;
-        ledArray[2] = ledID;
-
-        leds = 1;
-    }
-
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
-        for (int i=0; i<leds; i++)
+        if (state)
         {
-            if (state)
-            {
-                bitSet(ledState[ledArray[i]], LED_BLINK_ON_BIT);
-                //this will turn the led immediately no matter how little time it's
-                //going to blink first time
-                bitSet(ledState[ledArray[i]], LED_BLINK_STATE_BIT);
-            }
-            else
-            {
-                bitClear(ledState[ledArray[i]], LED_BLINK_ON_BIT);
-                bitClear(ledState[ledArray[i]], LED_BLINK_STATE_BIT);
-            }
+            bitSet(ledState[ledID], LED_BLINK_ON_BIT);
+            //this will turn the led immediately no matter how little time it's
+            //going to blink first time
+            bitSet(ledState[ledID], LED_BLINK_STATE_BIT);
+        }
+        else
+        {
+            bitClear(ledState[ledID], LED_BLINK_ON_BIT);
+            bitClear(ledState[ledID], LED_BLINK_STATE_BIT);
         }
     }
-
-    checkBlinkLEDs();
 }
 
 void LEDs::setAllOn()
@@ -202,20 +193,13 @@ void LEDs::setAllOff()
 
 void LEDs::setColor(uint8_t ledNumber, ledColor_t color)
 {
-    if (database.read(CONF_BLOCK_LED, ledRGBenabledSection, board.getRGBID(ledNumber)))
-    {
-        uint8_t led1 = board.getRGBaddress(ledNumber, rgb_R);
-        uint8_t led2 = board.getRGBaddress(ledNumber, rgb_G);
-        uint8_t led3 = board.getRGBaddress(ledNumber, rgb_B);
+    uint8_t led1 = board.getRGBaddress(ledNumber, rgb_R);
+    uint8_t led2 = board.getRGBaddress(ledNumber, rgb_G);
+    uint8_t led3 = board.getRGBaddress(ledNumber, rgb_B);
 
-        handleLED(led1, bitRead(color, 0));
-        handleLED(led2, bitRead(color, 1));
-        handleLED(led3, bitRead(color, 2));
-    }
-    else
-    {
-        handleLED(ledNumber, (bool)color);
-    }
+    handleLED(led1, bitRead(color, 0));
+    handleLED(led2, bitRead(color, 1));
+    handleLED(led3, bitRead(color, 2));
 }
 
 ledColor_t LEDs::getColor(uint8_t ledID)
@@ -255,11 +239,7 @@ ledColor_t LEDs::getColor(uint8_t ledID)
 uint8_t LEDs::getState(uint8_t ledNumber)
 {
     uint8_t returnValue;
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    {
-        returnValue = ledState[ledNumber];
-    }
-
+    returnValue = ledState[ledNumber];
     return returnValue;
 }
 
@@ -296,10 +276,10 @@ void LEDs::handleLED(uint8_t ledNumber, bool state, bool rgbLED, rgbIndex_t inde
 
     LED state is stored into one byte (ledState). The bits have following meaning (7 being the MSB bit):
 
-    7: B index of RGB LED
-    6: G index of RGB LED
-    5: R index of RGB LED
-    4: RGB enabled
+    7: x
+    6: x
+    5: x
+    4: x
     3: Blink bit (timer changes this bit)
     2: LED is active (either it blinks or it's constantly on), this bit is OR function between bit 0 and 1
     1: LED blinks
@@ -325,22 +305,19 @@ void LEDs::handleLED(uint8_t ledNumber, bool state, bool rgbLED, rgbIndex_t inde
         bitSet(currentState, LED_ACTIVE_BIT);
         bitSet(currentState, LED_CONSTANT_ON_BIT);
         bitWrite(currentState, LED_RGB_BIT, rgbLED);
-        if (rgbLED)
+        switch(index)
         {
-            switch(index)
-            {
-                case rgb_R:
-                bitWrite(currentState, LED_RGB_R_BIT, state);
-                break;
+            case rgb_R:
+            bitWrite(currentState, LED_RGB_R_BIT, state);
+            break;
 
-                case rgb_G:
-                bitWrite(currentState, LED_RGB_G_BIT, state);
-                break;
+            case rgb_G:
+            bitWrite(currentState, LED_RGB_G_BIT, state);
+            break;
 
-                case rgb_B:
-                bitWrite(currentState, LED_RGB_B_BIT, state);
-                break;
-            }
+            case rgb_B:
+            bitWrite(currentState, LED_RGB_B_BIT, state);
+            break;
         }
         break;
     }

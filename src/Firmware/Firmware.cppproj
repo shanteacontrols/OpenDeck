@@ -657,9 +657,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="interface\Export.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="interface\leds\Colors.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="interface\leds\Constants.h">
       <SubType>compile</SubType>
     </Compile>

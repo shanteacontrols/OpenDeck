@@ -25,26 +25,10 @@
 #define LED_CONSTANT_ON_BIT                 0x01
 #define LED_BLINK_ON_BIT                    0x02
 #define LED_BLINK_STATE_BIT                 0x03
-
-const uint8_t ledOnLookUpTable[] =
-{
-    0,
-    0,
-    0,
-    255,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    255
-};
+#define LED_RGB_BIT                         0x04
+#define LED_RGB_R_BIT                       0x05
+#define LED_RGB_G_BIT                       0x06
+#define LED_RGB_B_BIT                       0x07
 
 const uint8_t ledTransitionScale[] =
 {

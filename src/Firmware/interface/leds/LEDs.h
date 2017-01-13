@@ -20,7 +20,6 @@
 
 #include "DataTypes.h"
 #include "Constants.h"
-#include "Colors.h"
 #include "../../core/Core.h"
 
 class LEDs
@@ -28,27 +27,22 @@ class LEDs
     public:
     LEDs();
     void init();
-    void setState(uint8_t ledNumber, bool state);
-    void setColor(uint8_t ledNumber, rgbValue_t color);
     void setAllOn();
     void setAllOff();
+    void setColor(uint8_t ledNumber, ledColor_t color);
     ledColor_t getColor(uint8_t ledID);
-    uint8_t getState(uint8_t ledNumber);
-    bool isBlinking(uint8_t ledID);
+    void setBlinkState(uint8_t ledID, bool state);
+    bool getBlinkState(uint8_t ledID);
     void setBlinkTime(uint16_t blinkTime);
     void setFadeTime(uint8_t transitionSpeed);
-    rgbValue_t velocityToColor(uint8_t receivedVelocity);
+    ledColor_t velocityToColor(uint8_t receivedVelocity);
     void ccToBlink(uint8_t cc, uint8_t value);
-    void noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool ledID = false, bool local = false);
-    void blinkLED(uint8_t ledID, bool state);
+    void noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool local = false);
 
     private:
-    //data processing
-    void handleLED(uint8_t ledNumber, bool state);
-    void handleLED(uint8_t ledNumber, rgbValue_t color);
+    uint8_t getState(uint8_t ledNumber);
+    void handleLED(uint8_t ledNumber, bool state, bool rgbLED = false, rgbIndex_t index = rgb_R);
     void checkBlinkLEDs();
-    bool allLEDsOn();
-    bool allLEDsOff();
 
     //animation
     void startUpAnimation();

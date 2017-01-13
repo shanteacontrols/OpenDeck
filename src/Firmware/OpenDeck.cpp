@@ -75,7 +75,7 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
             return leds.getColor(index);
 
             case ledBlinkSection:
-            return leds.isBlinking(index);
+            return leds.getBlinkState(index);
 
             default:
             return database.read(block, section, index);
@@ -117,11 +117,11 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             case CONF_BLOCK_LED:
             if (section == ledColorSection)
             {
-                leds.noteToState(index, newValue, true);
+                leds.setColor(index, (ledColor_t)newValue);
             }
             else if (section == ledBlinkSection)
             {
-                leds.ccToBlink(index, newValue);
+                leds.setBlinkState(index, newValue);
             }
             else
             {

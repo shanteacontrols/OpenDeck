@@ -77,7 +77,7 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             setFsrPressed(analogID, true);
             uint8_t note = database.read(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID);
             midi.sendNoteOn(note, calibratedPressure, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
-            leds.noteToState(note, calibratedPressure, false, true);
+            leds.noteToState(note, calibratedPressure, true);
             if (sysEx.configurationEnabled())
             {
                 sysEx.addToResponse(COMPONENT_ID_STRING);
@@ -93,8 +93,8 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
         {
             setFsrPressed(analogID, false);
             uint8_t note = database.read(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID);
-            midi.sendNoteOff(note, 0, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
-            leds.noteToState(note, 0, false, true);
+            midi.sendNoteOff(note, velocityOff, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
+            leds.noteToState(note, velocityOff, true);
             if (sysEx.configurationEnabled())
             {
                 sysEx.addToResponse(COMPONENT_ID_STRING);

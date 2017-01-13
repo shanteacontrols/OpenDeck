@@ -223,7 +223,8 @@ inline void checkLEDs()
     for (int i=0; i<NUMBER_OF_LED_ROWS; i++)
     {
         uint8_t ledNumber = activeLEDcolumn+i*NUMBER_OF_LED_COLUMNS;
-        uint8_t ledStateSingle = ledOnLookUpTable[ledState[ledNumber]];
+        uint8_t ledStateSingle = bitRead(ledState[ledNumber], LED_ACTIVE_BIT) && (bitRead(ledState[ledNumber], LED_BLINK_ON_BIT) == bitRead(ledState[ledNumber], LED_BLINK_STATE_BIT));
+        ledStateSingle *= 255;
 
         //don't bother with pwm if it's disabled
         if (!pwmSteps && ledStateSingle)
