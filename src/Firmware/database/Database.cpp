@@ -117,8 +117,8 @@ uint16_t Database::read(uint8_t blockID, uint8_t sectionID, uint16_t parameterID
     switch(parameterType)
     {
         case BIT_PARAMETER:
-        arrayIndex = parameterID/8;
-        parameterIndex = parameterID - 8*arrayIndex;
+        arrayIndex = parameterID >> 3;
+        parameterIndex = parameterID - (arrayIndex << 3);
         startAddress += arrayIndex;
         if (startAddress > EEPROM_SIZE)
         {

@@ -60,7 +60,7 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
             else
             {
                 midi.sendNoteOn(note, velocityOn, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
-                leds.noteToState(note, velocityOn, false, true);
+                leds.noteToState(note, velocityOn, true);
             }
             if (sysEx.configurationEnabled())
             {
@@ -81,7 +81,7 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
             if (!sendProgramChange)
             {
                 midi.sendNoteOff(note, velocityOff, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
-                leds.noteToState(note, velocityOff, false, true);
+                leds.noteToState(note, velocityOff, true);
             }
             if (sysEx.configurationEnabled())
             {
@@ -111,7 +111,7 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)
             if (getButtonPressed(buttonID))
             {
                 midi.sendNoteOff(note, velocityOff, channel);
-                leds.noteToState(note, velocityOff, false, true);
+                leds.noteToState(note, velocityOff, true);
                 if (sysEx.configurationEnabled())
                 {
                     sysEx.startResponse();
@@ -128,7 +128,7 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)
             {
                 //send note on
                 midi.sendNoteOn(note, velocityOn, channel);
-                leds.noteToState(note, velocityOn, false, true);
+                leds.noteToState(note, velocityOn, true);
                 if (sysEx.configurationEnabled())
                 {
                     sysEx.startResponse();

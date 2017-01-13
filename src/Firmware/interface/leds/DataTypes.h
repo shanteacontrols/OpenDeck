@@ -2,13 +2,6 @@
 
 #include <inttypes.h>
 
-typedef struct
-{
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
-} rgbValue_t;
-
 typedef enum
 {
     rgb_R,
@@ -19,11 +12,12 @@ typedef enum
 typedef enum
 {
     colorOff,
-    colorWhite,
-    colorCyan,
-    colorMagenta,
     colorRed,
-    colorBlue,
+    colorGreen,
     colorYellow,
-    colorGreen
+    colorBlue,
+    colorMagenta,
+    colorCyan,
+    colorWhite,
+    LED_COLORS
 } ledColor_t;
