@@ -56,17 +56,20 @@ void LEDs::startUpAnimation()
         case 2:
         for (int i=0; i<database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterTotalLEDnumber); i++)
         {
-            leds.setColor(database.read(CONF_BLOCK_LED, ledStartUpNumberSection, i), colorWhite);
+            leds.setColor(database.read(CONF_BLOCK_LED, ledStartUpNumberSection, i), colorRed);
             wait(database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpSwitchTime)*10);
         }
         wait(2000);
         break;
 
-        //case 3:
-        //oneByOne(true, true, true);
-        //oneByOne(false, true, true);
-        //break;
-//
+        case 3:
+        setAllOn();
+        for (int i=0; i<database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterTotalLEDnumber); i++)
+        {
+            leds.setColor(database.read(CONF_BLOCK_LED, ledStartUpNumberSection, i), colorOff);
+            wait(database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpSwitchTime)*10);
+        }break;
+
         //case 4:
         //oneByOne(true, false, true);
         //oneByOne(true, false, false);
@@ -190,14 +193,14 @@ void LEDs::setAllOn()
 {
     //turn on all LEDs
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        handleLED(i, true);
+        setColor(i, colorRed);
 }
 
 void LEDs::setAllOff()
 {
     //turn off all LEDs
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        handleLED(i, false);
+        setColor(i, colorOff);
 }
 
 void LEDs::setColor(uint8_t ledNumber, ledColor_t color)
@@ -231,7 +234,7 @@ ledColor_t LEDs::getColor(uint8_t ledID)
         if (!bitRead(state, LED_RGB_BIT))
         {
             //single color led
-            return colorWhite;
+            return colorRed;
         }
         else
         {
@@ -358,7 +361,7 @@ void LEDs::checkBlinkLEDs()
     bool _blinkEnabled = false;
     uint8_t ledState;
 
-    //if any LED is blinking, set timerState to true and exit the loop
+    //if any LED is blinking, set _blinkEnabled to true and exit the loop
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
     {
         ledState = getState(i);
