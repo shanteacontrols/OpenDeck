@@ -17,3 +17,6 @@ tools/MAJOR_NEW
 tools/MAJOR_OLD
 tools/MINOR_NEW
 tools/MINOR_OLD
+tools/MAJOR
+tools/MINOR
+tools/REVISION
