@@ -12,3 +12,8 @@ tools/avr-objcopy.exe
 tools/avrdude.conf
 tools/srec_cat.exe
 tools/avrdude.exe
+tools/LAST_COMMIT
+tools/MAJOR_NEW
+tools/MAJOR_OLD
+tools/MINOR_NEW
+tools/MINOR_OLD
