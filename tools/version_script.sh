@@ -7,7 +7,7 @@ major=`cat MAJOR`
 minor=`cat MINOR`
 
 #read REVISION
-major_old=`cat REVISION`
+revision=`cat REVISION`
 
 #output $major, $minor and $revision into separate files
 echo "software version: $major.$minor.$revision"
