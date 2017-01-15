@@ -124,8 +124,9 @@
     <PostBuildEvent>REM running version script
 call cd $(SolutionDir)
 call cd ..\tools
-call cp ..\version\MAJOR MAJOR_NEW
-call cp ..\version\MINOR MINOR_NEW
+call cp ..\version\MAJOR MAJOR
+call cp ..\version\MINOR MINOR
+call cp ..\version\REVISION REVISION
 call bin\sh.exe -l version_script.sh
 
 REM converting hex to bin and adding crc
