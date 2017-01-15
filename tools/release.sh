@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #read MAJOR file
-major=`cat MAJOR_`
+major=`cat MAJOR`
 
 #read MINOR file
 minor=`cat MINOR`
