@@ -1,10 +1,10 @@
 #!/bin/bash
 
 #read MAJOR file
-major=`cat MAJOR_NEW`
+major=`cat MAJOR_`
 
 #read MINOR file
-minor=`cat MINOR_NEW`
+minor=`cat MINOR`
 
 #read REVISION file
 revision=`cat REVISION`
