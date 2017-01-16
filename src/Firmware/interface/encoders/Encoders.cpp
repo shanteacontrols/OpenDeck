@@ -20,6 +20,7 @@
 #include "../../database/Database.h"
 #include "../../midi/MIDI.h"
 #include "Constants.h"
+#include "../../OpenDeck.h"
 
 Encoders::Encoders()
 {
@@ -74,11 +75,15 @@ void Encoders::update()
         midi.sendControlChange(database.read(CONF_BLOCK_ENCODER, encoderMIDIidSection, i), encoderValue, database.read(CONF_BLOCK_MIDI, midiChannelSection, CCchannel));
         if (sysEx.configurationEnabled())
         {
-            sysEx.startResponse();
-            sysEx.addToResponse(COMPONENT_ID_STRING);
-            sysEx.addToResponse(CONF_BLOCK_ENCODER);
-            sysEx.addToResponse(i);
-            sysEx.sendResponse();
+            if ((rTimeMs() - getLastCinfoMsgTime(CONF_BLOCK_ENCODER)) > COMPONENT_INFO_TIMEOUT)
+            {
+                sysEx.startResponse();
+                sysEx.addToResponse(COMPONENT_ID_STRING);
+                sysEx.addToResponse(CONF_BLOCK_ENCODER);
+                sysEx.addToResponse(i);
+                sysEx.sendResponse();
+                updateCinfoTime(CONF_BLOCK_ENCODER);
+            }
         }
     }
 }

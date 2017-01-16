@@ -1,6 +1,8 @@
 #include "Board.h"
 #include "Variables.h"
 
+volatile uint32_t rTime_ms;
+
 inline void activateInputColumn(uint8_t column)
 {
     bitRead(dmColumnArray[column], 0) ? setHigh(DEC_DM_A0_PORT, DEC_DM_A0_PIN) : setLow(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
@@ -300,6 +302,8 @@ ISR(TIMER0_COMPA_vect)
     if (updateBlink)
     {
         matrixSwitchCounter++;
+        //update run time as well
+        rTime_ms++;
     }
     else
     {

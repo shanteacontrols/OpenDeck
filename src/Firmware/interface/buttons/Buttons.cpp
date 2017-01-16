@@ -20,6 +20,7 @@
 #include "../../database/Database.h"
 #include "../../interface/leds/LEDs.h"
 #include "../../midi/MIDI.h"
+#include "../../OpenDeck.h"
 
 const uint8_t buttonDebounceCompare = 0b10000000;
 
@@ -64,11 +65,15 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
             }
             if (sysEx.configurationEnabled())
             {
-                sysEx.startResponse();
-                sysEx.addToResponse(COMPONENT_ID_STRING);
-                sysEx.addToResponse(CONF_BLOCK_BUTTON);
-                sysEx.addToResponse(buttonID);
-                sysEx.sendResponse();
+                if ((rTimeMs() - getLastCinfoMsgTime(CONF_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)
+                {
+                    sysEx.startResponse();
+                    sysEx.addToResponse(COMPONENT_ID_STRING);
+                    sysEx.addToResponse(CONF_BLOCK_BUTTON);
+                    sysEx.addToResponse(buttonID);
+                    sysEx.sendResponse();
+                    updateCinfoTime(CONF_BLOCK_BUTTON);
+                }
             }
         }
     }
@@ -85,11 +90,15 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
             }
             if (sysEx.configurationEnabled())
             {
-                sysEx.startResponse();
-                sysEx.addToResponse(COMPONENT_ID_STRING);
-                sysEx.addToResponse(CONF_BLOCK_BUTTON);
-                sysEx.addToResponse(buttonID);
-                sysEx.sendResponse();
+                if ((rTimeMs() - getLastCinfoMsgTime(CONF_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)
+                {
+                    sysEx.startResponse();
+                    sysEx.addToResponse(COMPONENT_ID_STRING);
+                    sysEx.addToResponse(CONF_BLOCK_BUTTON);
+                    sysEx.addToResponse(buttonID);
+                    sysEx.sendResponse();
+                    updateCinfoTime(CONF_BLOCK_BUTTON);
+                }
             }
 
             setButtonPressed(buttonID, false);
@@ -114,11 +123,15 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)
                 leds.noteToState(note, velocityOff, true);
                 if (sysEx.configurationEnabled())
                 {
-                    sysEx.startResponse();
-                    sysEx.addToResponse(COMPONENT_ID_STRING);
-                    sysEx.addToResponse(CONF_BLOCK_BUTTON);
-                    sysEx.addToResponse(buttonID);
-                    sysEx.sendResponse();
+                    if ((rTimeMs() - getLastCinfoMsgTime(CONF_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)
+                    {
+                        sysEx.startResponse();
+                        sysEx.addToResponse(COMPONENT_ID_STRING);
+                        sysEx.addToResponse(CONF_BLOCK_BUTTON);
+                        sysEx.addToResponse(buttonID);
+                        sysEx.sendResponse();
+                        updateCinfoTime(CONF_BLOCK_BUTTON);
+                    }
                 }
 
                 //reset pressed state
@@ -131,11 +144,15 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)
                 leds.noteToState(note, velocityOn, true);
                 if (sysEx.configurationEnabled())
                 {
-                    sysEx.startResponse();
-                    sysEx.addToResponse(COMPONENT_ID_STRING);
-                    sysEx.addToResponse(CONF_BLOCK_BUTTON);
-                    sysEx.addToResponse(buttonID);
-                    sysEx.sendResponse();
+                    if ((rTimeMs() - getLastCinfoMsgTime(CONF_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)
+                    {
+                        sysEx.startResponse();
+                        sysEx.addToResponse(COMPONENT_ID_STRING);
+                        sysEx.addToResponse(CONF_BLOCK_BUTTON);
+                        sysEx.addToResponse(buttonID);
+                        sysEx.sendResponse();
+                        updateCinfoTime(CONF_BLOCK_BUTTON);
+                    }
                 }
 
                 //toggle buttonPressed flag to true

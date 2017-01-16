@@ -18,6 +18,7 @@
 
 #include "Analog.h"
 #include "../leds/LEDs.h"
+#include "../../OpenDeck.h"
 
 //use 1k resistor when connecting FSR between signal and ground
 
@@ -80,10 +81,15 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             leds.noteToState(note, calibratedPressure, true);
             if (sysEx.configurationEnabled())
             {
-                sysEx.addToResponse(COMPONENT_ID_STRING);
-                sysEx.addToResponse(CONF_BLOCK_ANALOG);
-                sysEx.addToResponse(analogID);
-                sysEx.sendResponse();
+                if ((rTimeMs() - getLastCinfoMsgTime(CONF_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)
+                {
+                    sysEx.startResponse();
+                    sysEx.addToResponse(COMPONENT_ID_STRING);
+                    sysEx.addToResponse(CONF_BLOCK_BUTTON);
+                    sysEx.addToResponse(analogID);
+                    sysEx.sendResponse();
+                    updateCinfoTime(CONF_BLOCK_BUTTON);
+                }
             }
         }
         break;
@@ -97,10 +103,15 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             leds.noteToState(note, velocityOff, true);
             if (sysEx.configurationEnabled())
             {
-                sysEx.addToResponse(COMPONENT_ID_STRING);
-                sysEx.addToResponse(CONF_BLOCK_ANALOG);
-                sysEx.addToResponse(analogID);
-                sysEx.sendResponse();
+                if ((rTimeMs() - getLastCinfoMsgTime(CONF_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)
+                {
+                    sysEx.startResponse();
+                    sysEx.addToResponse(COMPONENT_ID_STRING);
+                    sysEx.addToResponse(CONF_BLOCK_BUTTON);
+                    sysEx.addToResponse(analogID);
+                    sysEx.sendResponse();
+                    updateCinfoTime(CONF_BLOCK_BUTTON);
+                }
             }
         }
         break;

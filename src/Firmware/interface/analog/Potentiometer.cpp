@@ -17,6 +17,7 @@
 */
 
 #include "Analog.h"
+#include "../../OpenDeck.h"
 
 void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t tempValue)
 {
@@ -45,11 +46,15 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t tempValue)
         midi.sendControlChange(database.read(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID), mapAnalog_uint8(ccValue, 0, 127, lowerCClimit, upperCClimit), database.read(CONF_BLOCK_MIDI, midiChannelSection, CCchannel));
         if (sysEx.configurationEnabled())
         {
-            sysEx.startResponse();
-            sysEx.addToResponse(COMPONENT_ID_STRING);
-            sysEx.addToResponse(CONF_BLOCK_ANALOG);
-            sysEx.addToResponse(analogID);
-            sysEx.sendResponse();
+            if ((rTimeMs() - getLastCinfoMsgTime(CONF_BLOCK_ANALOG)) > COMPONENT_INFO_TIMEOUT)
+            {
+                sysEx.startResponse();
+                sysEx.addToResponse(COMPONENT_ID_STRING);
+                sysEx.addToResponse(CONF_BLOCK_ANALOG);
+                sysEx.addToResponse(analogID);
+                sysEx.sendResponse();
+                updateCinfoTime(CONF_BLOCK_ANALOG);
+            }
         }
     }
     else
@@ -57,11 +62,15 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t tempValue)
         midi.sendControlChange(database.read(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID), ccValue, database.read(CONF_BLOCK_MIDI, midiChannelSection, CCchannel));
         if (sysEx.configurationEnabled())
         {
-            sysEx.startResponse();
-            sysEx.addToResponse(COMPONENT_ID_STRING);
-            sysEx.addToResponse(CONF_BLOCK_ANALOG);
-            sysEx.addToResponse(analogID);
-            sysEx.sendResponse();
+            if ((rTimeMs() - getLastCinfoMsgTime(CONF_BLOCK_ANALOG)) > COMPONENT_INFO_TIMEOUT)
+            {
+                sysEx.startResponse();
+                sysEx.addToResponse(COMPONENT_ID_STRING);
+                sysEx.addToResponse(CONF_BLOCK_ANALOG);
+                sysEx.addToResponse(analogID);
+                sysEx.sendResponse();
+                updateCinfoTime(CONF_BLOCK_ANALOG);
+            }
         }
     }
 

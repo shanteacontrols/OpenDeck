@@ -20,15 +20,19 @@
 
 #include "init/Init.h"
 
-#define FIRMWARE_VERSION_STRING     0x56
-#define HARDWARE_VERSION_STRING     0x42
-#define REBOOT_APP_STRING           0x7F
-#define REBOOT_BTLDR_STRING         0x55
-#define FACTORY_RESET_STRING        0x44
-#define COMPONENT_ID_STRING         0x49
-#define MAX_COMPONENTS_STRING       0x4D
+#define FIRMWARE_VERSION_STRING         0x56
+#define HARDWARE_VERSION_STRING         0x42
+#define REBOOT_APP_STRING               0x7F
+#define REBOOT_BTLDR_STRING             0x55
+#define FACTORY_RESET_STRING            0x44
+#define COMPONENT_ID_STRING             0x49
+#define MAX_COMPONENTS_STRING           0x4D
+
+#define COMPONENT_INFO_TIMEOUT          500 //ms
 
 int main();
 sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index);
 bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newValue);
 bool onCustom(uint8_t value);
+void updateCinfoTime(uint8_t block);
+uint32_t getLastCinfoMsgTime(uint8_t block);
