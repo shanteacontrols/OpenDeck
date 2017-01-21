@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include <stdio.h>
-
 //#define ENABLE_ASYNC_UPDATE
 #define AUTO_INCREMENT      255
 #define START_OFFSET        5

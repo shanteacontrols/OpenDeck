@@ -16,13 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
-#include <avr/pgmspace.h>
-#include <avr/eeprom.h>
+#pragma once
+
 #include "Config.h"
 #include "blocks/Blocks.h"
-
-#pragma once
 
 #ifdef ENABLE_ASYNC_UPDATE
 #define EEPROM_UPDATE_BUFFER_SIZE   64

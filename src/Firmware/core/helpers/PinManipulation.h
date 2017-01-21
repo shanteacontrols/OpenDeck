@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include <avr/cpufunc.h>
-
 #define DDR(x) (*(&x-1))
 #define PIN(x) (*(&x-2))
 

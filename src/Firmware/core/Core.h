@@ -26,6 +26,7 @@
 #include <avr/cpufunc.h>
 #include <avr/wdt.h>
 #include <avr/eeprom.h>
+#include <avr/pgmspace.h>
 
 #include "adc/ADC.h"
 #include "uart/UART.h"

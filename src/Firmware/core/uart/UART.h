@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include <avr/io.h>
-
 //minimal UART implementation
 
 class UART

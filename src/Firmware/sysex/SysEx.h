@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include <avr/io.h>
-#include <stdio.h>
 #include "Status.h"
 #include "SpecialRequests.h"
 #include "Config.h"

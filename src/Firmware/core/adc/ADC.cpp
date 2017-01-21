@@ -18,7 +18,6 @@
 
 #include "ADC.h"
 #include "Config.h"
-#include <avr/cpufunc.h>
 
 void setUpADC()
 {
