@@ -16,22 +16,27 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "Board.h"
 
-#include <util/atomic.h>
-#include <stdlib.h>
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <util/delay.h>
-#include <avr/cpufunc.h>
-#include <avr/wdt.h>
-#include <avr/eeprom.h>
+Board::Board()
+{
+    //default constructor
+}
 
-#include "adc/ADC.h"
-#include "uart/UART.h"
-#include "usb/midi/Descriptors.h"
-#include "helpers/PinManipulation.h"
-#include "helpers/BitManipulation.h"
-#include "timer/RunTime.h"
-#include "timer/Wait.h"
-#include "reboot/Reboot.h"
+void Board::reboot(rebootType_t type)
+{
+    switch(type)
+    {
+        case rebootApp:
+        eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, APP_REBOOT_VALUE);
+        break;
+
+        case rebootBtldr:
+        eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, BTLDR_REBOOT_VALUE);
+        break;
+    }
+
+    wdReboot();
+}
+
+Board board;

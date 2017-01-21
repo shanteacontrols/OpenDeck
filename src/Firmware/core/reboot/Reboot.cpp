@@ -16,12 +16,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Reset.h"
-#include <avr/eeprom.h>
+#include "Reboot.h"
 
-#define REBOOT_VALUE_EEPROM_LOCATION    EEPROM_SIZE-1
-#define BTLDR_REBOOT_VALUE              0x47
-#define APP_REBOOT_VALUE                0xFF
+#include <avr/io.h>
+#include <util/delay.h>
+#include <avr/wdt.h>
+#include <avr/interrupt.h>
+
+#define WDFR 3
 
 void disablePeripherals(void)
 {
@@ -70,7 +72,7 @@ void disablePeripherals(void)
     DDRF = 0;
 }
 
-void reboot(rebootType_t type)
+void wdReboot()
 {
     cli();
     //stop watchdog timer, if running
@@ -82,17 +84,6 @@ void reboot(rebootType_t type)
     USBCON = (1<<FRZCLK);
     _delay_ms(2000);
     disablePeripherals();
-
-    switch(type)
-    {
-        case rebootApp:
-        eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, APP_REBOOT_VALUE);
-        break;
-
-        case rebootBtldr:
-        eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, BTLDR_REBOOT_VALUE);
-        break;
-    }
 
     wdt_enable(WDTO_250MS);
     for (;;);

@@ -56,20 +56,20 @@ bool onCustom(uint8_t value)
         case REBOOT_APP_STRING:
         leds.setAllOff();
         wait(2500);
-        reboot(rebootApp);
+        board.reboot(rebootApp);
         return true;
 
         case REBOOT_BTLDR_STRING:
         leds.setAllOff();
         wait(2500);
-        reboot(rebootBtldr);
+        board.reboot(rebootBtldr);
         return true;
 
         case FACTORY_RESET_STRING:
         leds.setAllOff();
         wait(1500);
         database.factoryReset(factoryReset_partial);
-        reboot(rebootApp);
+        board.reboot(rebootApp);
         return true;
     }
 

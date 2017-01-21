@@ -18,12 +18,5 @@
 
 #pragma once
 
-#include <util/delay.h>
-#include <avr/wdt.h>
-#include <avr/interrupt.h>
-#include "DataTypes.h"
-
-#define WDFR 3
-
 void disablePeripherals();
-void reboot(rebootType_t type);
+void wdReboot();
