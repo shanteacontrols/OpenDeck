@@ -18,11 +18,6 @@
 
 #include "Reboot.h"
 
-#include <avr/io.h>
-#include <util/delay.h>
-#include <avr/wdt.h>
-#include <avr/interrupt.h>
-
 #define WDFR 3
 
 void disablePeripherals(void)

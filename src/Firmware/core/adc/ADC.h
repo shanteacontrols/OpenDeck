@@ -20,7 +20,6 @@
 
 //ADC setup and manipulation
 
-#include <avr/io.h>
 #include "Config.h"
 
 #define startADCconversion() (ADCSRA |= (1<<ADSC))

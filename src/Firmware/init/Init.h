@@ -22,7 +22,6 @@
 #include "../sysex/SysEx.h"
 #include "../version/Firmware.h"
 #include "../version/Hardware.h"
-#include "../core/Core.h"
 #include "../board/Board.h"
 #include "../interface/Interface.h"
 

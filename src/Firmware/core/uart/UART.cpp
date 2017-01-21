@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <avr/interrupt.h>
 #include "UART.h"
 #include "Config.h"
 #include "ring_buffer/RingBuffer.h"

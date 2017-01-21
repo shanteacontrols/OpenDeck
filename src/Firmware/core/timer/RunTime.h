@@ -1,7 +1,5 @@
 #pragma once
 
-#include <util/atomic.h>
-
 extern volatile uint32_t rTime_ms;
 
 static inline uint32_t rTimeMs()
