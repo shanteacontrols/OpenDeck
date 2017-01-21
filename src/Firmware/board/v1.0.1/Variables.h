@@ -1,7 +1,6 @@
 #pragma once
 
-#include <inttypes.h>
-#include "Constants.h"
+#include "constants/Constants.h"
 
 extern bool                 dmBufferCopied;
 extern volatile uint8_t     activeLEDcolumn;

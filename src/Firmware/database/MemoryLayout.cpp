@@ -17,7 +17,7 @@
 */
 
 #include "Database.h"
-#include "../board/variant/Variant.h"
+#include "../board/Board.h"
 
 void Database::createMemoryLayout()
 {

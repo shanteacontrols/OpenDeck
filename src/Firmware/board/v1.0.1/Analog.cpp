@@ -1,8 +1,6 @@
 #include "Board.h"
 #include "Variables.h"
 
-#define ANALOG_BUFFER_SIZE  MAX_NUMBER_OF_ANALOG
-
 volatile bool       _analogDataAvailable;
 uint8_t             activeMux,
                     activeMuxInput,

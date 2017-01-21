@@ -92,7 +92,6 @@
         <avrgcccpp.compiler.symbols.DefSymbols>
           <ListValues>
             <Value>NDEBUG</Value>
-            <Value>BOARD_R101</Value>
             <Value>ARCH=ARCH_AVR8</Value>
             <Value>INTERRUPT_CONTROL_ENDPOINT</Value>
             <Value>FLASH_SIZE=0x6800</Value>
@@ -101,6 +100,7 @@
             <Value>F_CPU=16000000UL</Value>
             <Value>BOARD=BOARD_NONE</Value>
             <Value>F_USB=16000000UL</Value>
+            <Value>BOARD_V101</Value>
           </ListValues>
         </avrgcccpp.compiler.symbols.DefSymbols>
         <avrgcccpp.compiler.directories.IncludePaths>
@@ -235,52 +235,73 @@ REM upload code using usbasp
 call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="board\Analog.cpp">
+    <Compile Include="board\Board.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\Buttons.cpp">
+    <Compile Include="board\Common.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\Constants.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="board\Encoders.cpp">
+    <Compile Include="board\DataTypes.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="board\Import.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\InMatrix.cpp">
+    <Compile Include="board\v1.0.1\Analog.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\ISR.cpp">
+    <Compile Include="board\v1.0.1\Board.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\LEDs.cpp">
+    <Compile Include="board\v1.0.1\Board.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\reset\DataTypes.h">
+    <Compile Include="board\v1.0.1\Buttons.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\reset\Reset.cpp">
+    <Compile Include="board\v1.0.1\constants\Buffer.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\reset\Reset.h">
+    <Compile Include="board\v1.0.1\constants\Constants.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variant\v1.0.1\Config.h">
+    <Compile Include="board\v1.0.1\constants\Encoders.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variant\v1.0.1\Map.h">
+    <Compile Include="board\v1.0.1\constants\Hardware.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variant\v1.0.1\Pins.h">
+    <Compile Include="board\v1.0.1\constants\LEDs.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\Variables.h">
+    <Compile Include="board\v1.0.1\constants\Reboot.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variant\Variant.h">
+    <Compile Include="board\v1.0.1\Encoders.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\v1.0.1\Init.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\v1.0.1\InMatrix.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\v1.0.1\ISR.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\v1.0.1\LEDs.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\v1.0.1\OutMatrix.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\v1.0.1\pins\Map.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\v1.0.1\pins\Pins.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\v1.0.1\Variables.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="core\adc\ADC.cpp">
@@ -299,6 +320,12 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="core\helpers\PinManipulation.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="core\reboot\Reboot.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="core\reboot\Reboot.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="core\timer\RunTime.h">
@@ -601,12 +628,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="database\MemoryLayout.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\Board.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="board\Board.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="init\Init.cpp">
       <SubType>compile</SubType>
     </Compile>
@@ -717,11 +738,12 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="board\reset\" />
-    <Folder Include="board\variant" />
-    <Folder Include="board\variant\v1.0.1" />
+    <Folder Include="board\v1.0.1" />
+    <Folder Include="board\v1.0.1\constants" />
+    <Folder Include="board\v1.0.1\pins" />
     <Folder Include="core\adc\" />
     <Folder Include="core\helpers" />
+    <Folder Include="core\reboot" />
     <Folder Include="core\timer" />
     <Folder Include="core\uart\" />
     <Folder Include="core\uart\ring_buffer\" />
@@ -742,7 +764,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Folder Include="core\usb\midi\LUFA\Platform\" />
     <Folder Include="database" />
     <Folder Include="core" />
-    <Folder Include="board" />
     <Folder Include="database\blocks" />
     <Folder Include="interface\analog" />
     <Folder Include="interface\buttons" />
@@ -751,6 +772,7 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Folder Include="interface" />
     <Folder Include="init" />
     <Folder Include="midi\" />
+    <Folder Include="board" />
     <Folder Include="version" />
     <Folder Include="sysex" />
   </ItemGroup>

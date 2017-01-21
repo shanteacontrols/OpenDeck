@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../board/variant/Variant.h"
+#include "../../board/Board.h"
 
 extern volatile bool        blinkEnabled,
                             blinkState;

@@ -68,7 +68,8 @@ void LEDs::startUpAnimation()
         {
             leds.setColor(database.read(CONF_BLOCK_LED, ledStartUpNumberSection, i), colorOff);
             wait(database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpSwitchTime)*10);
-        }break;
+        }
+        break;
 
         //case 4:
         //oneByOne(true, false, true);
