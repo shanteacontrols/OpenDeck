@@ -3,6 +3,26 @@
 
 volatile uint32_t rTime_ms;
 
+const uint8_t ledRowPinArray[] =
+{
+    LED_ROW_1_PIN,
+    LED_ROW_2_PIN,
+    LED_ROW_3_PIN,
+    LED_ROW_4_PIN,
+    LED_ROW_5_PIN,
+    LED_ROW_6_PIN
+};
+
+volatile uint8_t *ledRowPortArray[] =
+{
+    &LED_ROW_1_PORT,
+    &LED_ROW_2_PORT,
+    &LED_ROW_3_PORT,
+    &LED_ROW_4_PORT,
+    &LED_ROW_5_PORT,
+    &LED_ROW_6_PORT
+};
+
 inline void activateInputColumn(uint8_t column)
 {
     bitRead(dmColumnArray[column], 0) ? setHigh(DEC_DM_A0_PORT, DEC_DM_A0_PIN) : setLow(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
@@ -57,140 +77,64 @@ inline void ledRowsOff()
     TCCR3A &= ~(1<<COM3A1);
     TCCR1A &= ~(1<<COM1B1);
 
-    #ifdef LED_INVERT
-    setHigh(LED_ROW_1_PORT, LED_ROW_1_PIN);
-    setHigh(LED_ROW_2_PORT, LED_ROW_2_PIN);
-    setHigh(LED_ROW_3_PORT, LED_ROW_3_PIN);
-    setHigh(LED_ROW_4_PORT, LED_ROW_4_PIN);
-    setHigh(LED_ROW_5_PORT, LED_ROW_5_PIN);
-    setHigh(LED_ROW_6_PORT, LED_ROW_6_PIN);
-    #else
-    setLow(LED_ROW_1_PORT, LED_ROW_1_PIN);
-    setLow(LED_ROW_2_PORT, LED_ROW_2_PIN);
-    setLow(LED_ROW_3_PORT, LED_ROW_3_PIN);
-    setLow(LED_ROW_4_PORT, LED_ROW_4_PIN);
-    setLow(LED_ROW_5_PORT, LED_ROW_5_PIN);
-    setLow(LED_ROW_6_PORT, LED_ROW_6_PIN);
-    #endif
+    for (int i=0; i<NUMBER_OF_LED_ROWS; i++)
+    {
+        #ifdef LED_INVERT
+        setHigh(*(ledRowPortArray[i]), ledRowPinArray[i]);
+        #else
+        setLow(*(ledRowPortArray[i]), ledRowPinArray[i]);
+        #endif
+    }
 }
 
 inline void ledRowOn(uint8_t rowNumber, uint8_t intensity)
 {
+    if (intensity == 255)
+    {
+        //max value, don't use pwm
+        #ifdef LED_INVERT
+        setLow(*(ledRowPortArray[rowNumber]), ledRowPinArray[rowNumber]);
+        #else
+        setHigh(*(ledRowPortArray[rowNumber]), ledRowPinArray[rowNumber]);
+        #endif
+        return;
+    }
+
+    #ifdef LED_INVERT
+    intensity = 255 - intensity;
+    #endif
+
     switch (rowNumber)
     {
         //turn off pwm if intensity is max
         case 0:
-        #ifdef LED_INVERT
-        if (intensity == 0)
-        {
-            setLow(LED_ROW_1_PORT, LED_ROW_1_PIN);
-        #else
-        if (intensity == 255)
-        {
-            setHigh(LED_ROW_1_PORT, LED_ROW_1_PIN);
-        #endif
-            TCCR1A &= ~(1<<COM1C1);
-        }
-        else
-        {
-            OCR1C = intensity;
-            TCCR1A |= (1<<COM1C1);
-        }
+        OCR1C = intensity;
+        TCCR1A |= (1<<COM1C1);
         break;
 
         case 1:
-        #ifdef LED_INVERT
-        if (intensity == 0)
-        {
-            setLow(LED_ROW_2_PORT, LED_ROW_2_PIN);
-        #else
-        if (intensity == 255)
-        {
-            setHigh(LED_ROW_2_PORT, LED_ROW_2_PIN);
-        #endif
-            TCCR4C &= ~(1<<COM4D1);
-        }
-        else
-        {
-            OCR4D = intensity;
-            TCCR4C |= (1<<COM4D1);
-        }
+        OCR4D = intensity;
+        TCCR4C |= (1<<COM4D1);
         break;
 
         case 2:
-        #ifdef LED_INVERT
-        if (intensity == 0)
-        {
-            setLow(LED_ROW_3_PORT, LED_ROW_3_PIN);
-        #else
-        if (intensity == 255)
-        {
-            setHigh(LED_ROW_3_PORT, LED_ROW_3_PIN);
-        #endif
-            TCCR1A &= ~(1<<COM1A1);
-        }
-        else
-        {
-            OCR1A = intensity;
-            TCCR1A |= (1<<COM1A1);
-        }
+        OCR1A = intensity;
+        TCCR1A |= (1<<COM1A1);
         break;
 
         case 3:
-        #ifdef LED_INVERT
-        if (intensity == 0)
-        {
-            setLow(LED_ROW_4_PORT, LED_ROW_4_PIN);
-        #else
-        if (intensity == 255)
-        {
-            setHigh(LED_ROW_4_PORT, LED_ROW_4_PIN);
-        #endif
-            TCCR4A &= ~(1<<COM4A1);
-        }
-        else
-        {
-            OCR4A = intensity;
-            TCCR4A |= (1<<COM4A1);
-        }
+        OCR4A = intensity;
+        TCCR4A |= (1<<COM4A1);
         break;
 
         case 4:
-        #ifdef LED_INVERT
-        if (intensity == 0)
-        {
-            setLow(LED_ROW_5_PORT, LED_ROW_5_PIN);
-        #else
-        if (intensity == 255)
-        {
-            setHigh(LED_ROW_5_PORT, LED_ROW_5_PIN);
-        #endif
-            TCCR3A &= ~(1<<COM3A1);
-        }
-        else
-        {
-            OCR3A = intensity;
-            TCCR3A |= (1<<COM3A1);
-        }
+        OCR3A = intensity;
+        TCCR3A |= (1<<COM3A1);
         break;
 
         case 5:
-        #ifdef LED_INVERT
-        if (intensity == 0)
-        {
-            setLow(LED_ROW_6_PORT, LED_ROW_6_PIN);
-        #else
-        if (intensity == 255)
-        {
-            setHigh(LED_ROW_6_PORT, LED_ROW_6_PIN);
-        #endif
-            TCCR1A &= ~(1<<COM1B1);
-        }
-        else
-        {
-            OCR1B = intensity;
-            TCCR1A |= (1<<COM1B1);
-        }
+        OCR1B = intensity;
+        TCCR1A |= (1<<COM1B1);
         break;
 
         default:
@@ -226,51 +170,35 @@ inline void checkLEDs()
     {
         uint8_t ledNumber = activeLEDcolumn+i*NUMBER_OF_LED_COLUMNS;
         uint8_t ledStateSingle = bitRead(ledState[ledNumber], LED_ACTIVE_BIT) && (bitRead(ledState[ledNumber], LED_BLINK_ON_BIT) == bitRead(ledState[ledNumber], LED_BLINK_STATE_BIT));
-        ledStateSingle *= 255;
+        ledStateSingle *= (NUMBER_OF_LED_TRANSITIONS-1);
 
         //don't bother with pwm if it's disabled
         if (!pwmSteps && ledStateSingle)
         {
-            #ifdef LED_INVERT
-            ledRowOn(i, 0);
-            #else
             ledRowOn(i, 255);
-            #endif
         }
         else
         {
             if (ledTransitionScale[transitionCounter[ledNumber]])
-            {
-                #ifdef LED_INVERT
-                ledRowOn(i, 255-ledTransitionScale[transitionCounter[ledNumber]]);
-                #else
                 ledRowOn(i, ledTransitionScale[transitionCounter[ledNumber]]);
-                #endif
-            }
 
-            if (ledTransitionScale[transitionCounter[ledNumber]] != ledStateSingle)
+            if (transitionCounter[ledNumber] != ledStateSingle)
             {
-                if(ledTransitionScale[transitionCounter[ledNumber]] < ledStateSingle)
+                //fade up
+                if (transitionCounter[ledNumber] < ledStateSingle)
                 {
-                    //fade up
-                    if (transitionCounter[ledNumber] < (NUMBER_OF_LED_TRANSITIONS-1))
-                    {
-                        transitionCounter[ledNumber] += pwmSteps;
+                    transitionCounter[ledNumber] += pwmSteps;
 
-                        if (transitionCounter[ledNumber] >= NUMBER_OF_LED_TRANSITIONS)
-                            transitionCounter[ledNumber] = NUMBER_OF_LED_TRANSITIONS-1;
-                    }
+                    if (transitionCounter[ledNumber] > ledStateSingle)
+                        transitionCounter[ledNumber] = ledStateSingle;
                 }
                 else
                 {
                     //fade down
-                    if (transitionCounter[ledNumber])
-                    {
-                        transitionCounter[ledNumber] -= pwmSteps;
+                    transitionCounter[ledNumber] -= pwmSteps;
 
-                        if (transitionCounter[ledNumber] < 0)
-                            transitionCounter[ledNumber] = 0;
-                    }
+                    if (transitionCounter[ledNumber] < 0)
+                        transitionCounter[ledNumber] = 0;
                 }
             }
         }
@@ -280,13 +208,12 @@ inline void checkLEDs()
 ISR(TIMER0_COMPA_vect)
 {
     //update blink every 1ms
-    //update led matrix every 1.5ms
+    //update led matrix every 1ms
     //update button matrix each time
 
-    static bool updateBlink = false;
-    static uint8_t matrixSwitchCounter = 0;
+    static bool updateStuff = false;
 
-    if (matrixSwitchCounter == 1)
+    if (updateStuff)
     {
         ledRowsOff();
 
@@ -295,27 +222,16 @@ ISR(TIMER0_COMPA_vect)
 
         activateOutputColumn(activeLEDcolumn);
         checkLEDs();
+
         activeLEDcolumn++;
-        matrixSwitchCounter = 0;
-    }
-
-    if (updateBlink)
-    {
-        matrixSwitchCounter++;
-        //update run time as well
+        blinkTimerCounter++;
         rTime_ms++;
-    }
-    else
-    {
-        if (blinkEnabled)
-        {
-            blinkTimerCounter++;
-            if (blinkTimerCounter >= ledBlinkTime)
-                blinkTimerCounter = 0;
-        }
+
+        if (blinkTimerCounter >= ledBlinkTime)
+            blinkTimerCounter = 0;
     }
 
-    updateBlink = !updateBlink;
+    updateStuff = !updateStuff;
 
     //read input matrix
     uint8_t bufferIndex = digital_buffer_head + 1;
