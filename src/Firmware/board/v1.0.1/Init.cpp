@@ -35,19 +35,29 @@ void Board::initPins()
     //configure led matrix
     //rows
 
-    setHigh(LED_ROW_1_PORT, LED_ROW_1_PIN);
-    setHigh(LED_ROW_2_PORT, LED_ROW_2_PIN);
-    setHigh(LED_ROW_3_PORT, LED_ROW_3_PIN);
-    setHigh(LED_ROW_4_PORT, LED_ROW_4_PIN);
-    setHigh(LED_ROW_5_PORT, LED_ROW_5_PIN);
-    setHigh(LED_ROW_6_PORT, LED_ROW_6_PIN);
-
     setOutput(LED_ROW_1_PORT, LED_ROW_1_PIN);
     setOutput(LED_ROW_2_PORT, LED_ROW_2_PIN);
     setOutput(LED_ROW_3_PORT, LED_ROW_3_PIN);
     setOutput(LED_ROW_4_PORT, LED_ROW_4_PIN);
     setOutput(LED_ROW_5_PORT, LED_ROW_5_PIN);
     setOutput(LED_ROW_6_PORT, LED_ROW_6_PIN);
+
+    //make sure to turn all rows off
+    #ifdef LED_INVERT
+    setHigh(LED_ROW_1_PORT, LED_ROW_1_PIN);
+    setHigh(LED_ROW_2_PORT, LED_ROW_2_PIN);
+    setHigh(LED_ROW_3_PORT, LED_ROW_3_PIN);
+    setHigh(LED_ROW_4_PORT, LED_ROW_4_PIN);
+    setHigh(LED_ROW_5_PORT, LED_ROW_5_PIN);
+    setHigh(LED_ROW_6_PORT, LED_ROW_6_PIN);
+    #else
+    setLow(LED_ROW_1_PORT, LED_ROW_1_PIN);
+    setLow(LED_ROW_2_PORT, LED_ROW_2_PIN);
+    setLow(LED_ROW_3_PORT, LED_ROW_3_PIN);
+    setLow(LED_ROW_4_PORT, LED_ROW_4_PIN);
+    setLow(LED_ROW_5_PORT, LED_ROW_5_PIN);
+    setLow(LED_ROW_6_PORT, LED_ROW_6_PIN);
+    #endif
 
     //decoder
     setOutput(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
