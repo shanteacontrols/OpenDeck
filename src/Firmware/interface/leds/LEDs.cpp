@@ -220,6 +220,8 @@ void LEDs::setColor(uint8_t ledNumber, ledColor_t color)
     {
         handleLED(ledNumber, (bool)color);
     }
+
+    checkBlinkLEDs();
 }
 
 ledColor_t LEDs::getColor(uint8_t ledID)
@@ -259,6 +261,7 @@ ledColor_t LEDs::getColor(uint8_t ledID)
 uint8_t LEDs::getState(uint8_t ledNumber)
 {
     uint8_t returnValue;
+
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
         returnValue = ledState[ledNumber];
@@ -313,8 +316,8 @@ void LEDs::handleLED(uint8_t ledNumber, bool state, bool rgbLED, rgbIndex_t inde
 
     uint8_t currentState = getState(ledNumber);
 
-    switch(state) {
-
+    switch(state)
+    {
         case false:
         //turn off the led
         currentState = 0;
