@@ -4,7 +4,6 @@ typedef enum
 {
     ledHardwareParameterSection,
     ledActivationNoteSection,
-    ledStartUpNumberSection,
     ledRGBenabledSection,
     ledLocalControlSection,
     LED_SECTIONS
@@ -12,10 +11,8 @@ typedef enum
 
 typedef enum
 {
-    ledHwParameterTotalLEDnumber,
     ledHwParameterBlinkTime,
-    ledHwParameterStartUpSwitchTime,
-    ledHwParameterStartUpRoutine,
     ledHwParameterFadeTime,
+    ledHwParameterStartUpRoutine,
     LED_HARDWARE_PARAMETERS
 } ledHardwareParameter;

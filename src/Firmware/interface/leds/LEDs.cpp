@@ -41,52 +41,16 @@ void LEDs::init()
 
 void LEDs::startUpAnimation()
 {
-    //if (!database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterTotalLEDnumber) || !database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpSwitchTime))
-        //return;
-
     setFadeTime(1);
 
-    switch (database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpRoutine))
+    if (database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpRoutine))
     {
-        case 1:
         setAllOn();
         wait(2000);
-        break;
-
-        case 2:
-        for (int i=0; i<database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterTotalLEDnumber); i++)
-        {
-            leds.setColor(database.read(CONF_BLOCK_LED, ledStartUpNumberSection, i), colorRed);
-            wait(database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpSwitchTime)*10);
-        }
+        setAllOff();
         wait(2000);
-        break;
-
-        case 3:
-        setAllOn();
-        for (int i=0; i<database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterTotalLEDnumber); i++)
-        {
-            leds.setColor(database.read(CONF_BLOCK_LED, ledStartUpNumberSection, i), colorOff);
-            wait(database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpSwitchTime)*10);
-        }
-        break;
-
-        //case 4:
-        //oneByOne(true, false, true);
-        //oneByOne(true, false, false);
-        //break;
-//
-        //case 5:
-        //oneByOne(true, false, true);
-        //break;
-//
-        //default:
-        //break;
+        setFadeTime(database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterFadeTime));
     }
-
-    setAllOff();
-    wait(2000);
-    setFadeTime(database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterFadeTime));
 }
 
 ledColor_t LEDs::velocityToColor(uint8_t receivedVelocity)

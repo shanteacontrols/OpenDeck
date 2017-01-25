@@ -103,7 +103,6 @@ void initSysEx()
 
         const sysExSection ledHardwareParameter_section     = { LED_HARDWARE_PARAMETERS, 0, 0 };
         const sysExSection ledActivationNote_section        = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_LEDS }; //MAX_NUMBER_OF_LEDS = blank note
-        const sysExSection ledStartUpNumber_section         = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_LEDS-1 };
         const sysExSection ledRGBenabled_section            = { MAX_NUMBER_OF_LEDS, 0, 1 };
         const sysExSection ledLocalControl_Enabled          = { MAX_NUMBER_OF_LEDS, 0, 1 };
         //extras - not defined in eeprom blocks since it's not persistent section
@@ -114,7 +113,6 @@ void initSysEx()
         {
             &ledHardwareParameter_section,
             &ledActivationNote_section,
-            &ledStartUpNumber_section,
             &ledRGBenabled_section,
             &ledLocalControl_Enabled,
             &ledColor_section,
