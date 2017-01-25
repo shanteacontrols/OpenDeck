@@ -24,4 +24,4 @@
 #define MAX_SECTIONS        7
 #define START_OFFSET        5
 #define VALUE_BYTES         1
-#define EEPROM_UNIQUE_ID    40
+#define EEPROM_UNIQUE_ID    47
