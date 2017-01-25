@@ -155,13 +155,8 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                     leds.setFadeTime(newValue);
                     break;
 
-                    case ledHwParameterStartUpSwitchTime:
-                    if ((newValue < START_UP_SWITCH_TIME_MIN) || (newValue > START_UP_SWITCH_TIME_MAX))
-                        return false;
-                    break;
-
                     case ledHwParameterStartUpRoutine:
-                    if (newValue > NUMBER_OF_START_UP_ANIMATIONS)
+                    if (newValue > 1)
                         return false;
                     break;
                 }

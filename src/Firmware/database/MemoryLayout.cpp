@@ -108,10 +108,6 @@ void Database::createMemoryLayout()
         blocks[CONF_BLOCK_LED].defaultValue[ledActivationNoteSection] = AUTO_INCREMENT;
         blocks[CONF_BLOCK_LED].sectionParameters[ledActivationNoteSection] = MAX_NUMBER_OF_LEDS;
 
-        blocks[CONF_BLOCK_LED].sectionParameterType[ledStartUpNumberSection] = BYTE_PARAMETER;
-        blocks[CONF_BLOCK_LED].defaultValue[ledStartUpNumberSection] = AUTO_INCREMENT;
-        blocks[CONF_BLOCK_LED].sectionParameters[ledStartUpNumberSection] = MAX_NUMBER_OF_LEDS;
-
         blocks[CONF_BLOCK_LED].sectionParameterType[ledRGBenabledSection] = BIT_PARAMETER;
         blocks[CONF_BLOCK_LED].defaultValue[ledRGBenabledSection] = 0;
         blocks[CONF_BLOCK_LED].sectionParameters[ledRGBenabledSection] = MAX_NUMBER_OF_LEDS;
