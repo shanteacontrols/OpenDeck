@@ -165,7 +165,11 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 break;
 
                 case ledRGBenabledSection:
-                //here we need to write rgb enabled bit to three leds
+                //make sure to turn all three leds off before setting new state
+                leds.setColor(board.getRGBaddress(index, rgb_R), colorOff);
+                leds.setColor(board.getRGBaddress(index, rgb_G), colorOff);
+                leds.setColor(board.getRGBaddress(index, rgb_B), colorOff);
+                //write rgb enabled bit to three leds
                 database.update(block, section, board.getRGBaddress(index, rgb_R), newValue);
                 database.update(block, section, board.getRGBaddress(index, rgb_G), newValue);
                 database.update(block, section, board.getRGBaddress(index, rgb_B), newValue);
