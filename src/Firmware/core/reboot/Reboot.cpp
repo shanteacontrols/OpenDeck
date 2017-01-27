@@ -80,6 +80,6 @@ void wdReboot()
     _delay_ms(2000);
     disablePeripherals();
 
-    wdt_enable(WDTO_250MS);
-    for (;;);
+    wdt_enable(WDTO_15MS);
+    while(1);
 }
