@@ -188,6 +188,7 @@ inline void checkLEDs()
     {
         uint8_t ledNumber = activeLEDcolumn+i*NUMBER_OF_LED_COLUMNS;
         uint8_t ledStateSingle = bitRead(ledState[ledNumber], LED_ACTIVE_BIT) && (bitRead(ledState[ledNumber], LED_BLINK_ON_BIT) == bitRead(ledState[ledNumber], LED_BLINK_STATE_BIT));
+
         ledStateSingle *= (NUMBER_OF_LED_TRANSITIONS-1);
 
         //don't bother with pwm if it's disabled

@@ -84,16 +84,14 @@ inline void setAnalogPin(uint8_t muxNumber)
 
 bool Board::analogDataAvailable()
 {
-    bool state;
-    state = _analogDataAvailable;
+    bool state = _analogDataAvailable;
 
     return state;
 }
 
 uint16_t Board::getAnalogValue(uint8_t analogID)
 {
-    uint16_t value;
-    value = analogBuffer[analogID];
+    uint16_t value = analogBuffer[analogID];
     bitSet(retrievedData, analogID);
 
     if (retrievedData == 0xFFFFFFFF)

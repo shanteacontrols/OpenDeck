@@ -26,13 +26,13 @@ bool Board::buttonDataAvailable()
     checkInputMatrixBufferCopy();
 
     bool returnValue = true;
-    bool _dmBufferCopied;
-    _dmBufferCopied = dmBufferCopied;
+    bool _dmBufferCopied = dmBufferCopied;
 
     if (!_dmBufferCopied)
         returnValue = copyInputMatrixBuffer();  //buffer isn't copied
 
     buttonsProcessed = true;
+
     return returnValue;
 }
 
