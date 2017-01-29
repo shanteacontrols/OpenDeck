@@ -141,14 +141,21 @@ uint16_t Board::getAnalogValue(uint8_t analogID)
         if (getHysteresisState(analogID))
         {
             //hysteresis is enabled
-            if (value < (HYSTERESIS_THRESHOLD-HYSTERESIS_ADDITION))
+            if (value > (HYSTERESIS_THRESHOLD-HYSTERESIS_ADDITION))
             {
-                //now we can disable hysteresis
+                value += HYSTERESIS_ADDITION;
+
+                if (value > 1023)
+                    return 1023;
+
+                return value;
+            }
+            else
+            {
+                //disable hysteresis now
                 setHysteresisState(analogID, false);
                 return value;
             }
-
-            return (value - HYSTERESIS_ADDITION);
         }
 
         return value;

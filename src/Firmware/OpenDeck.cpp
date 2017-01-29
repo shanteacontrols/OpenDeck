@@ -189,8 +189,8 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
     return returnValue;
 }
 
-int main()  {
-
+int main()
+{
     globalInit();
 
     sysEx.setHandleGet(onGet);
