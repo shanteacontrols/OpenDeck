@@ -50,6 +50,15 @@ inline void activateInputColumn(uint8_t column)
     _NOP();
 }
 
+inline void activateOutputColumn(uint8_t column)
+{
+    bitRead(column, 0) ? setHigh(DEC_LM_A0_PORT, DEC_LM_A0_PIN) : setLow(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
+    bitRead(column, 1) ? setHigh(DEC_LM_A1_PORT, DEC_LM_A1_PIN) : setLow(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
+    bitRead(column, 2) ? setHigh(DEC_LM_A2_PORT, DEC_LM_A2_PIN) : setLow(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
+
+    _NOP();
+}
+
 inline void storeDigitalIn(uint8_t column, uint8_t bufferIndex)
 {
     uint8_t data = 0;
@@ -74,15 +83,6 @@ inline void storeDigitalIn(uint8_t column, uint8_t bufferIndex)
         bitWrite(dataReorder, i, bitRead(data, dmRowBitArray[i]));
 
     inputBuffer[bufferIndex] |= (uint64_t)dataReorder;
-}
-
-inline void activateOutputColumn(uint8_t column)
-{
-    bitRead(column, 0) ? setHigh(DEC_LM_A0_PORT, DEC_LM_A0_PIN) : setLow(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
-    bitRead(column, 1) ? setHigh(DEC_LM_A1_PORT, DEC_LM_A1_PIN) : setLow(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
-    bitRead(column, 2) ? setHigh(DEC_LM_A2_PORT, DEC_LM_A2_PIN) : setLow(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
-
-    _NOP();
 }
 
 inline void ledRowsOff()
