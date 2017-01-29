@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Analog.h"
 #include "Buffer.h"
 #include "Encoders.h"
 #include "Hardware.h"
