@@ -39,6 +39,7 @@ uint8_t Board::getEncoderPair(uint8_t buttonIndex)
         row -= 1;   //uneven row, get info from previous (even) row
 
     uint8_t column = buttonIndex % NUMBER_OF_BUTTON_COLUMNS;
+
     return (row*NUMBER_OF_BUTTON_COLUMNS)/2 + column;
 }
 
@@ -47,13 +48,13 @@ bool Board::encoderDataAvailable()
     checkInputMatrixBufferCopy();
 
     bool returnValue = true;
-    bool _dmBufferCopied;
-    _dmBufferCopied = dmBufferCopied;
+    bool _dmBufferCopied = dmBufferCopied;
 
     if (!_dmBufferCopied)
         returnValue = copyInputMatrixBuffer();  //buffer isn't copied
 
     encodersProcessed = true;
+
     return returnValue;
 }
 

@@ -36,7 +36,6 @@ uint8_t Board::getRGBaddress(uint8_t rgbID, rgbIndex_t index)
     //get RGB LED address for specified index
     uint8_t column = rgbID % NUMBER_OF_LED_COLUMNS;
     uint8_t row  = (rgbID/NUMBER_OF_BUTTON_COLUMNS)*3;
-
     uint8_t address = column + NUMBER_OF_LED_COLUMNS*row;
 
     switch(index)

@@ -33,8 +33,9 @@ int8_t getInputMatrixBufferSize()
 
     head = digital_buffer_head;
     tail = digital_buffer_tail;
+
     if (head >= tail)
-    return head - tail;
+        return head - tail;
 
     return DIGITAL_BUFFER_SIZE + head - tail;
 }
@@ -44,16 +45,17 @@ bool Board::copyInputMatrixBuffer()
     int8_t bufferSize = getInputMatrixBufferSize();
 
     if (bufferSize <= 0)
-    return false;
+        return false;
 
     //some data in buffer
     //copy oldest member of buffer to inputMatrixBufferCopy
     if (digital_buffer_head == digital_buffer_tail)
-    return false;
+        return false;
 
     uint8_t index = digital_buffer_tail + 1;
+
     if (index >= DIGITAL_BUFFER_SIZE)
-    index = 0;
+        index = 0;
 
     cli();
     inputMatrixBufferCopy = inputBuffer[index];
