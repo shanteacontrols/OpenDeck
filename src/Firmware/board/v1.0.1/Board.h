@@ -71,6 +71,8 @@ class Board : BoardCommon
     void configureTimers();
     bool copyInputMatrixBuffer();
     void checkInputMatrixBufferCopy();
+    bool getHysteresisState(uint8_t analogID);
+    void setHysteresisState(uint8_t analogID, bool state);
 };
 
 extern Board board;
