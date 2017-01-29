@@ -26,7 +26,6 @@ uint8_t             activeMux,
 
 volatile uint16_t   analogBuffer[ANALOG_BUFFER_SIZE];
 uint32_t            retrievedData;
-bool                muxHysteresisActive[ANALOG_BUFFER_SIZE/8+1];
 
 void Board::initAnalog()
 {
@@ -91,24 +90,6 @@ bool Board::analogDataAvailable()
     return state;
 }
 
-bool Board::getHysteresisState(uint8_t analogID)
-{
-    uint8_t arrayIndex = analogID/8;
-    uint8_t analogIndex = analogID - 8*arrayIndex;
-
-    return bitRead(muxHysteresisActive[arrayIndex], analogIndex);
-}
-
-void Board::setHysteresisState(uint8_t analogID, bool state)
-{
-    uint8_t arrayIndex = analogID/8;
-    uint8_t analogIndex = analogID - 8*arrayIndex;
-
-    //update state if it's different than last one
-    if (bitRead(muxHysteresisActive[arrayIndex], analogIndex) != state)
-        bitWrite(muxHysteresisActive[arrayIndex], analogIndex, state);
-}
-
 uint16_t Board::getAnalogValue(uint8_t analogID)
 {
     uint16_t value;
@@ -123,46 +104,7 @@ uint16_t Board::getAnalogValue(uint8_t analogID)
         _analogDataAvailable = false;
     }
 
-    #ifdef ENABLE_HYSTERESIS
-    if (value > HYSTERESIS_THRESHOLD)
-    {
-        //enable hysteresis
-        setHysteresisState(analogID, true);
-
-        value += HYSTERESIS_ADDITION;
-
-        if (value > 1023)
-            return 1023;
-
-        return value;
-    }
-    else
-    {
-        if (getHysteresisState(analogID))
-        {
-            //hysteresis is enabled
-            if (value > (HYSTERESIS_THRESHOLD-HYSTERESIS_ADDITION))
-            {
-                value += HYSTERESIS_ADDITION;
-
-                if (value > 1023)
-                    return 1023;
-
-                return value;
-            }
-            else
-            {
-                //disable hysteresis now
-                setHysteresisState(analogID, false);
-                return value;
-            }
-        }
-
-        return value;
-    }
-    #else
     return value;
-    #endif
 }
 
 ISR(ADC_vect)
