@@ -259,9 +259,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="board\v1.0.1\Buttons.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\v1.0.1\constants\Analog.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="board\v1.0.1\constants\Buffer.h">
       <SubType>compile</SubType>
     </Compile>

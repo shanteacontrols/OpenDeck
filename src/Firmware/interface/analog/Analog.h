@@ -52,6 +52,9 @@ class Analog
     bool getFsrDebounceTimerStarted(uint8_t fsrID);
     void setFsrDebounceTimerStarted(uint8_t fsrID, bool state);
     uint16_t getAverageValue(uint8_t analogID);
+    #ifdef ENABLE_HYSTERESIS
+    uint16_t getHysteresisValue(uint8_t analogID, uint16_t value);
+    #endif
     void addAnalogSamples();
     void resetSamples();
     bool analogValuesSampled();

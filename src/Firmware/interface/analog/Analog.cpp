@@ -45,6 +45,9 @@ void Analog::update()
         if (database.read(CONF_BLOCK_ANALOG, analogTypeSection, i) != aType_button)
         {
             analogData = getAverageValue(i);
+            #ifdef ENABLE_HYSTERESIS
+            analogData = getHysteresisValue(i, analogData);
+            #endif
             analogType_t type = (analogType_t)database.read(CONF_BLOCK_ANALOG, analogTypeSection, i);
 
             switch(type)
@@ -97,6 +100,45 @@ uint16_t Analog::getAverageValue(uint8_t analogID)
 {
     return ADC_AVG_VALUE(analogSample[analogID]);
 }
+
+#ifdef ENABLE_HYSTERESIS
+uint16_t Analog::getHysteresisValue(uint8_t analogID, uint16_t value)
+{
+    if (value > HYSTERESIS_THRESHOLD)
+    {
+        value += HYSTERESIS_ADDITION;
+
+        if (value > 1023)
+            return 1023;
+
+        return value;
+    }
+    else
+    {
+        if (value < (HYSTERESIS_THRESHOLD-HYSTERESIS_ADDITION))
+        {
+            return value;
+        }
+        else
+        {
+            if (abs(lastAnalogueValue[analogID] - value) < HYSTERESIS_ADDITION)
+            {
+                //hysteresis still enabled
+                value += HYSTERESIS_ADDITION;
+
+                if (value > 1023)
+                    return 1023;
+
+                return value;
+            }
+            else
+            {
+                return value;
+            }
+        }
+    }
+}
+#endif
 
 void Analog::debounceReset(uint16_t index)
 {
