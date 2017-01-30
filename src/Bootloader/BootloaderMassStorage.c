@@ -160,13 +160,23 @@ int main(void)
     //opendeck specific - blink bootloader led few times
     for (int i=0; i<2; i++)
     {
-        (i%2) ? setHigh(LED_PORT, LED_PIN) : setLow(LED_PORT, LED_PIN);
+        if (i%2)
+        {
+            setHigh(LED_OUT_PORT, LED_OUT_PIN);
+            setHigh(LED_IN_PORT, LED_IN_PIN);
+        }
+        else
+        {
+            setLow(LED_OUT_PORT, LED_OUT_PIN);
+            setLow(LED_IN_PORT, LED_IN_PIN);
+        }
         _delay_ms(250);
     }
 
     eeprom_update_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, 0xFF);
 
-    setLow(LED_PORT, LED_PIN);
+    setLow(LED_OUT_PORT, LED_OUT_PIN);
+    setLow(LED_IN_PORT, LED_IN_PIN);
 
 	/* Enable the watchdog and force a timeout to reset the AVR */
 	wdt_enable(WDTO_250MS);
@@ -192,12 +202,10 @@ static void SetupHardware(void)
 	LEDs_Init();
 	USB_Init();
 
-    setOutput(LED_PORT, LED_PIN);
-    setHigh(LED_PORT, LED_PIN);
-
-	/* Bootloader active LED toggle timer initialization */
-	//TIMSK1 = (1 << TOIE1);
-	//TCCR1B = ((1 << CS11) | (1 << CS10));
+    setOutput(LED_OUT_PORT, LED_OUT_PIN);
+    setOutput(LED_IN_PORT, LED_IN_PIN);
+    setHigh(LED_OUT_PORT, LED_OUT_PIN);
+    setHigh(LED_IN_PORT, LED_IN_PIN);
 }
 
 /** ISR to periodically toggle the LEDs on the board to indicate that the bootloader is active. */
