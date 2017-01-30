@@ -20,6 +20,7 @@
 #include "Variables.h"
 
 volatile uint32_t rTime_ms;
+uint8_t midiIn_timeout, midiOut_timeout;
 
 const uint8_t ledRowPinArray[] =
 {
@@ -248,6 +249,30 @@ ISR(TIMER0_COMPA_vect)
 
         if (blinkTimerCounter >= ledBlinkTime)
             blinkTimerCounter = 0;
+
+        if (MIDIevent_in)
+        {
+            setHigh(LED_IN_PORT, LED_IN_PIN);
+            MIDIevent_in = false;
+            midiIn_timeout = MIDI_INDICATOR_TIMEOUT;
+        }
+
+        if (MIDIevent_out)
+        {
+            setHigh(LED_OUT_PORT, LED_OUT_PIN);
+            MIDIevent_out = false;
+            midiOut_timeout = MIDI_INDICATOR_TIMEOUT;
+        }
+
+        if (midiIn_timeout)
+            midiIn_timeout--;
+        else
+            setLow(LED_IN_PORT, LED_IN_PIN);
+
+        if (midiOut_timeout)
+            midiOut_timeout--;
+        else
+            setLow(LED_OUT_PORT, LED_OUT_PIN);
     }
 
     updateStuff = !updateStuff;

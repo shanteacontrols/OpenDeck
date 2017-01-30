@@ -28,6 +28,8 @@
 #define LED_RGB_G_BIT                       0x06
 #define LED_RGB_B_BIT                       0x07
 
+#define MIDI_INDICATOR_TIMEOUT              50 //ms
+
 const uint8_t ledTransitionScale[NUMBER_OF_LED_TRANSITIONS] =
 {
     0,

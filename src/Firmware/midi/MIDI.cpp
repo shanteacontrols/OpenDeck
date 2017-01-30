@@ -45,6 +45,8 @@
 
 USB_ClassInfo_MIDI_Device_t MIDI_Interface;
 
+volatile bool MIDIevent_in, MIDIevent_out;
+
 MIDI::MIDI()
 {
     //default constructor
@@ -180,6 +182,8 @@ void MIDI::send(midiMessageType_t inType, uint8_t inData1, uint8_t inData2, uint
     {
         sendRealTime(inType); //system real-time and 1 byte
     }
+
+    MIDIevent_out = true;
 }
 
 void MIDI::sendNoteOn(uint8_t inNoteNumber, uint8_t inVelocity, uint8_t inChannel)
@@ -289,6 +293,8 @@ void MIDI::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCont
 
         if (useRunningStatus)
             mRunningStatus_TX = midiMessageInvalidType;
+
+        MIDIevent_out = true;
     }
 
     if (usbEnabled)
@@ -539,6 +545,8 @@ void MIDI::sendSysEx(uint16_t inLength, const uint8_t* inArray, bool inArrayCont
                 MIDI_Device_Flush(&MIDI_Interface);
             }
         }
+
+        MIDIevent_out = true;
     }
 }
 
@@ -569,6 +577,8 @@ void MIDI::sendTimeCodeQuarterFrame(uint8_t inData)
 
     if (useRunningStatus)
         mRunningStatus_TX = midiMessageInvalidType;
+
+    MIDIevent_out = true;
 }
 
 void MIDI::sendSongPosition(uint16_t inBeats)
@@ -581,6 +591,8 @@ void MIDI::sendSongPosition(uint16_t inBeats)
 
     if (useRunningStatus)
         mRunningStatus_TX = midiMessageInvalidType;
+
+    MIDIevent_out = true;
 }
 
 void MIDI::sendSongSelect(uint8_t inSongNumber)
@@ -592,6 +604,8 @@ void MIDI::sendSongSelect(uint8_t inSongNumber)
 
     if (useRunningStatus)
         mRunningStatus_TX = midiMessageInvalidType;
+
+    MIDIevent_out = true;
 }
 
 void MIDI::sendRealTime(midiMessageType_t inType)
@@ -610,6 +624,7 @@ void MIDI::sendRealTime(midiMessageType_t inType)
         case midiMessageActiveSensing:
         case midiMessageSystemReset:
         USE_SERIAL_PORT.write((uint8_t)inType);
+        MIDIevent_out = true;
         break;
 
         default:
@@ -662,6 +677,8 @@ bool MIDI::read(uint8_t inChannel, midiInterfaceType_t type)
 
     if (!parse(type))
         return false;
+
+    MIDIevent_in = true;
 
     const bool channelMatch = inputFilter(inChannel, type);
 

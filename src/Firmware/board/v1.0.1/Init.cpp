@@ -93,7 +93,8 @@ void Board::initPins()
     setInput(MUX_2_IN_PORT, MUX_2_IN_PIN);
 
     //bootloader led
-    setOutput(BTLDR_LED_PORT, BTLDR_LED_PIN);
+    setOutput(LED_OUT_PORT, LED_OUT_PIN);
+    setOutput(LED_IN_PORT, LED_IN_PIN);
 }
 
 void Board::configureTimers()
