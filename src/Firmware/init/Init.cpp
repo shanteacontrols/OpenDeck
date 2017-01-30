@@ -126,11 +126,12 @@ void initSysEx()
 
 void globalInit()
 {
+    midi.init(usbInterface);
+    midi.init(dinInterface);
+
     database.init();
     board.init();
 
-    midi.init(dinInterface);
-    midi.init(usbInterface);
     midi.setInputChannel(database.read(CONF_BLOCK_MIDI, midiChannelSection, inputChannel));
     midi.setNoteChannel(database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
     midi.setCCchannel(database.read(CONF_BLOCK_MIDI, midiChannelSection, CCchannel));
