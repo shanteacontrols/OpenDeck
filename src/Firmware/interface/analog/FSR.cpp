@@ -62,11 +62,6 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
 {
     uint8_t calibratedPressure = calibratePressure(pressure, velocity);
 
-    lastAnalogueValue[analogID] += calibratedPressure;
-
-    calibratedPressure = lastAnalogueValue[analogID];
-    lastAnalogueValue[analogID] = 0;
-
     bool pressDetected = (calibratedPressure > 0);
 
     switch (pressDetected)
