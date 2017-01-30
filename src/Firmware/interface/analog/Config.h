@@ -38,3 +38,4 @@
 #define ENABLE_HYSTERESIS
 #define HYSTERESIS_THRESHOLD            950
 #define HYSTERESIS_ADDITION             25
+#define DISABLE_DIFF_THRESHOLD          250
