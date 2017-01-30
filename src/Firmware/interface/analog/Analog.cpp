@@ -18,6 +18,8 @@
 
 #include "Analog.h"
 
+const uint8_t disableCompare = 0b11111100;
+
 Analog::Analog()
 {
     //def const
@@ -66,10 +68,14 @@ void Analog::update()
         }
         else
         {
+            //read raw value
             analogData = board.getAnalogValue(i);
             bool state = analogData > DIGITAL_VALUE_THRESHOLD;
             buttons.processButton(i+MAX_NUMBER_OF_BUTTONS, state, false);
         }
+
+        //update values
+        lastAnalogueValue[i] = analogData;
     }
 
     resetSamples();
@@ -78,7 +84,10 @@ void Analog::update()
 void Analog::addAnalogSamples()
 {
     for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
-        analogSample[i] += board.getAnalogValue(i); //get raw analog reading
+    {
+        //get raw analog reading
+        analogSample[i] += board.getAnalogValue(i);
+    }
 
     sampleCounter++;
 }

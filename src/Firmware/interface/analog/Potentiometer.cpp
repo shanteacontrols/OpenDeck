@@ -73,7 +73,4 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t tempValue)
             }
         }
     }
-
-    //update values
-    lastAnalogueValue[analogID] = tempValue;
 }
