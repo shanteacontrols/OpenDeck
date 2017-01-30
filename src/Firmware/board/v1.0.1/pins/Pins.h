@@ -63,9 +63,6 @@
 #define LED_ROW_6_PORT              PORTB
 #define LED_ROW_6_PIN               6
 
-#define BTLDR_LED_PORT              PORTE
-#define BTLDR_LED_PIN               6
-
 #define MUX_S0_PORT                 PORTF
 #define MUX_S0_PIN                  5
 
@@ -83,3 +80,9 @@
 
 #define MUX_2_IN_PORT               PORTF
 #define MUX_2_IN_PIN                1
+
+#define LED_IN_PORT                 PORTE
+#define LED_IN_PIN                  6
+
+#define LED_OUT_PORT                PORTE
+#define LED_OUT_PIN                 2

@@ -268,3 +268,5 @@ class MIDI
 };
 
 extern MIDI midi;
+extern volatile bool MIDIevent_in;
+extern volatile bool MIDIevent_out;
