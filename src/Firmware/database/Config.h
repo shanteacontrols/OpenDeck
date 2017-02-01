@@ -22,5 +22,4 @@
 #define AUTO_INCREMENT      255
 #define START_OFFSET        5
 #define MAX_SECTIONS        7
-#define VALUE_BYTES         1
 #define EEPROM_UNIQUE_ID    47
