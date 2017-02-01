@@ -39,14 +39,6 @@ typedef enum
     factoryReset_partial //partially restore defaults
 } factoryResetType_t;
 
-#if VALUE_BYTES == 1
-typedef uint8_t eepromValue_t;
-#elif VALUE_BYTES == 2
-typedef uint16_t eepromValue_t;
-#else
-#error Incorrect EEPROM value size
-#endif
-
 typedef struct
 {
     uint8_t sections;
@@ -55,7 +47,7 @@ typedef struct
     uint16_t sectionParameters[MAX_SECTIONS];
     sectionParameterType_t sectionParameterType[MAX_SECTIONS];
     bool preserveOnPartialReset[MAX_SECTIONS];
-    eepromValue_t defaultValue[MAX_SECTIONS];
+    uint16_t defaultValue[MAX_SECTIONS];
 } blockDescriptor;
 
 //default controller settings
@@ -90,23 +82,11 @@ class Database
     {
         return blocks[blockID].sectionParameterType[sectionID];
     }
-    void initProgramSettings(bool partialReset);
-    void initUserScales(bool partialReset);
-    void initPadCalibration(bool partialReset);
-    void initMIDIsettings(bool partialReset);
     void checkReset();
     void writeSignature();
     #ifdef ENABLE_ASYNC_UPDATE
     void queueData(uint16_t eepromAddress, uint16_t data, uint8_t parameterType);
     #endif
-
-    struct
-    {
-        uint8_t major;
-        uint8_t minor;
-        uint8_t revision;
-        uint16_t crc;
-    } firmwareVersion;
 
     #ifdef ENABLE_ASYNC_UPDATE
     //update buffer

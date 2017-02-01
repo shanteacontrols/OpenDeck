@@ -41,10 +41,9 @@ void LEDs::init()
 
 void LEDs::startUpAnimation()
 {
-    setFadeTime(1);
-
     if (database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpRoutine))
     {
+        setFadeTime(1);
         setAllOn();
         wait(2000);
         setAllOff();
