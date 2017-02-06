@@ -161,7 +161,11 @@ void globalInit()
         _delay_ms(200);
         setLow(LED_OUT_PORT, LED_OUT_PIN);
         setLow(LED_IN_PORT, LED_IN_PIN);
+        _delay_ms(200);
     }
 
     leds.init();
+
+    //enable global interrupts
+    sei();
 }
