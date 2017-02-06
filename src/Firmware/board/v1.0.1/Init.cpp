@@ -31,9 +31,6 @@ void Board::init()
     _delay_ms(5);
 
     configureTimers();
-
-    //enable global interrupts
-    sei();
 }
 
 void Board::initPins()
@@ -95,6 +92,9 @@ void Board::initPins()
     //bootloader led
     setOutput(LED_OUT_PORT, LED_OUT_PIN);
     setOutput(LED_IN_PORT, LED_IN_PIN);
+
+    setLow(LED_OUT_PORT, LED_OUT_PIN);
+    setLow(LED_IN_PORT, LED_IN_PIN);
 }
 
 void Board::configureTimers()
