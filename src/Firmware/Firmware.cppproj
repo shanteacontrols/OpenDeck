@@ -630,10 +630,19 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="database\Database.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="database\Init.cpp">
+    <Compile Include="database\MemoryLayout.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="database\MemoryLayout.cpp">
+    <Compile Include="dbms\Config.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="dbms\DataTypes.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="dbms\DBMS.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="dbms\DBMS.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="init\Init.cpp">
@@ -770,9 +779,10 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Folder Include="core\usb\midi\LUFA\Drivers\USB\Core\AVR8\" />
     <Folder Include="core\usb\midi\LUFA\Drivers\USB\Core\AVR8\Template\" />
     <Folder Include="core\usb\midi\LUFA\Platform\" />
-    <Folder Include="database" />
     <Folder Include="core" />
-    <Folder Include="database\blocks" />
+    <Folder Include="database\" />
+    <Folder Include="database\blocks\" />
+    <Folder Include="dbms\" />
     <Folder Include="interface\analog" />
     <Folder Include="interface\buttons" />
     <Folder Include="interface\encoders" />

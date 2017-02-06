@@ -18,21 +18,23 @@
 
 #pragma once
 
-#include "../dbms/DBMS.h"
-#include "blocks/Blocks.h"
-#include "Config.h"
-
-class Database : public DBMS
+typedef enum
 {
-    public:
-    Database();
-    void init();
-    void factoryReset(initType_t type);
+    BIT_PARAMETER,
+    BYTE_PARAMETER,
+    WORD_PARAMETER
+} sectionParameterType_t;
 
-    private:
-    bool signatureValid();
-    void writeCustomValues();
-    void createLayout();
-};
+typedef struct
+{
+    uint16_t parameters;
+    sectionParameterType_t parameterType;
+    bool preserveOnPartialReset;
+    uint16_t defaultValue;
+} dbSection_t;
 
-extern Database database;
+typedef enum
+{
+    initPartial,
+    initWipe
+} initType_t;

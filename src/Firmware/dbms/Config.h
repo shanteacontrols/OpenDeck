@@ -18,21 +18,10 @@
 
 #pragma once
 
-#include "../dbms/DBMS.h"
-#include "blocks/Blocks.h"
-#include "Config.h"
-
-class Database : public DBMS
-{
-    public:
-    Database();
-    void init();
-    void factoryReset(initType_t type);
-
-    private:
-    bool signatureValid();
-    void writeCustomValues();
-    void createLayout();
-};
-
-extern Database database;
+//#define ENABLE_ASYNC_UPDATE
+#define AUTO_INCREMENT              255
+#define MAX_SECTIONS                7
+#define MAX_BLOCKS                  7
+#ifdef ENABLE_ASYNC_UPDATE
+#define EEPROM_UPDATE_BUFFER_SIZE   64
+#endif

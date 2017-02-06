@@ -33,7 +33,7 @@ void initSysEx()
         };
 
         for (int i=0; i<MIDI_SECTIONS; i++)
-            sysEx.addSection(CONF_BLOCK_MIDI, midiSectionArray[i]->numberOfParameters, midiSectionArray[i]->minValue, midiSectionArray[i]->maxValue);
+            sysEx.addSection(DB_BLOCK_MIDI, midiSectionArray[i]->numberOfParameters, midiSectionArray[i]->minValue, midiSectionArray[i]->maxValue);
     }
 
     {
@@ -51,7 +51,7 @@ void initSysEx()
         };
 
         for (int i=0; i<BUTTON_SECTIONS; i++)
-            sysEx.addSection(CONF_BLOCK_BUTTON, buttonSectionArray[i]->numberOfParameters, buttonSectionArray[i]->minValue, buttonSectionArray[i]->maxValue);
+            sysEx.addSection(DB_BLOCK_BUTTON, buttonSectionArray[i]->numberOfParameters, buttonSectionArray[i]->minValue, buttonSectionArray[i]->maxValue);
     }
 
     {
@@ -71,7 +71,7 @@ void initSysEx()
         };
 
         for (int i=0; i<ENCODER_SECTIONS; i++)
-            sysEx.addSection(CONF_BLOCK_ENCODER, encodersSectionArray[i]->numberOfParameters, encodersSectionArray[i]->minValue, encodersSectionArray[i]->maxValue);
+            sysEx.addSection(DB_BLOCK_ENCODER, encodersSectionArray[i]->numberOfParameters, encodersSectionArray[i]->minValue, encodersSectionArray[i]->maxValue);
     }
 
     {
@@ -95,7 +95,7 @@ void initSysEx()
         };
 
         for (int i=0; i<ANALOG_SECTIONS; i++)
-            sysEx.addSection(CONF_BLOCK_ANALOG, analogSectionArray[i]->numberOfParameters, analogSectionArray[i]->minValue, analogSectionArray[i]->maxValue);
+            sysEx.addSection(DB_BLOCK_ANALOG, analogSectionArray[i]->numberOfParameters, analogSectionArray[i]->minValue, analogSectionArray[i]->maxValue);
     }
 
     {
@@ -120,7 +120,7 @@ void initSysEx()
         };
 
         for (int i=0; i<(LED_SECTIONS+2); i++)
-            sysEx.addSection(CONF_BLOCK_LED, ledsSectionArray[i]->numberOfParameters, ledsSectionArray[i]->minValue, ledsSectionArray[i]->maxValue);
+            sysEx.addSection(DB_BLOCK_LED, ledsSectionArray[i]->numberOfParameters, ledsSectionArray[i]->minValue, ledsSectionArray[i]->maxValue);
     }
 }
 
@@ -132,13 +132,36 @@ void globalInit()
     database.init();
     board.init();
 
-    midi.setInputChannel(database.read(CONF_BLOCK_MIDI, midiChannelSection, inputChannel));
-    midi.setNoteChannel(database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
-    midi.setCCchannel(database.read(CONF_BLOCK_MIDI, midiChannelSection, CCchannel));
-    midi.setProgramChangeChannel(database.read(CONF_BLOCK_MIDI, midiChannelSection, programChangeChannel));
+    midi.setInputChannel(database.read(DB_BLOCK_MIDI, midiChannelSection, inputChannel));
+    midi.setNoteChannel(database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
+    midi.setCCchannel(database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+    midi.setProgramChangeChannel(database.read(DB_BLOCK_MIDI, midiChannelSection, programChangeChannel));
 
     initSysEx();
-    checkNewRevision();
+
+    if (checkNewRevision())
+    {
+        for (int i=0; i<3; i++)
+        {
+            setHigh(LED_OUT_PORT, LED_OUT_PIN);
+            setLow(LED_IN_PORT, LED_IN_PIN);
+            _delay_ms(200);
+            setLow(LED_OUT_PORT, LED_OUT_PIN);
+            setHigh(LED_IN_PORT, LED_IN_PIN);
+            _delay_ms(200);
+        }
+
+        setLow(LED_OUT_PORT, LED_OUT_PIN);
+        setLow(LED_IN_PORT, LED_IN_PIN);
+    }
+    else
+    {
+        setHigh(LED_OUT_PORT, LED_OUT_PIN);
+        setHigh(LED_IN_PORT, LED_IN_PIN);
+        _delay_ms(200);
+        setLow(LED_OUT_PORT, LED_OUT_PIN);
+        setLow(LED_IN_PORT, LED_IN_PIN);
+    }
 
     leds.init();
 }

@@ -26,14 +26,14 @@ LEDs::LEDs()
 
 void LEDs::init()
 {
-    if (!database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime))
+    if (!database.read(DB_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime))
     {
         //make sure to set default blink time
-        database.update(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime, BLINK_TIME_MIN);
+        database.update(DB_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime, BLINK_TIME_MIN);
     }
 
-    setBlinkTime(database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime));
-    setFadeTime(database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterFadeTime));
+    setBlinkTime(database.read(DB_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime));
+    setFadeTime(database.read(DB_BLOCK_LED, ledHardwareParameterSection, ledHwParameterFadeTime));
 
     //run LED animation on start-up
     startUpAnimation();
@@ -41,14 +41,14 @@ void LEDs::init()
 
 void LEDs::startUpAnimation()
 {
-    if (database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpRoutine))
+    if (database.read(DB_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpRoutine))
     {
         setFadeTime(1);
         setAllOn();
         wait(2000);
         setAllOff();
         wait(2000);
-        setFadeTime(database.read(CONF_BLOCK_LED, ledHardwareParameterSection, ledHwParameterFadeTime));
+        setFadeTime(database.read(DB_BLOCK_LED, ledHardwareParameterSection, ledHwParameterFadeTime));
     }
 }
 
@@ -76,7 +76,7 @@ void LEDs::ccToBlink(uint8_t cc, uint8_t value)
     //match LED activation note with received cc
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
     {
-        if (database.read(CONF_BLOCK_LED, ledActivationNoteSection, i) == cc)
+        if (database.read(DB_BLOCK_LED, ledActivationNoteSection, i) == cc)
         {
             setBlinkState(i, blink);
         }
@@ -92,12 +92,12 @@ void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool loca
     //match LED activation note with its index
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
     {
-        if (database.read(CONF_BLOCK_LED, ledActivationNoteSection, i) == receivedNote)
+        if (database.read(DB_BLOCK_LED, ledActivationNoteSection, i) == receivedNote)
         {
             if (local)
             {
                 //if local is set to true, check if local led control is enabled for this led before changing state
-                if (database.read(CONF_BLOCK_LED, ledLocalControlSection, i))
+                if (database.read(DB_BLOCK_LED, ledLocalControlSection, i))
                     setColor(i, color);
             }
             else
@@ -114,7 +114,7 @@ void LEDs::setBlinkState(uint8_t ledID, bool state)
 {
     uint8_t ledArray[3], leds = 0;
 
-    if (database.read(CONF_BLOCK_LED, ledRGBenabledSection, board.getRGBID(ledID)))
+    if (database.read(DB_BLOCK_LED, ledRGBenabledSection, board.getRGBID(ledID)))
     {
         ledArray[0] = board.getRGBaddress(ledID, rgb_R);
         ledArray[1] = board.getRGBaddress(ledID, rgb_G);
@@ -169,7 +169,7 @@ void LEDs::setAllOff()
 
 void LEDs::setColor(uint8_t ledNumber, ledColor_t color)
 {
-    if (database.read(CONF_BLOCK_LED, ledRGBenabledSection, board.getRGBID(ledNumber)))
+    if (database.read(DB_BLOCK_LED, ledRGBenabledSection, board.getRGBID(ledNumber)))
     {
         uint8_t led1 = board.getRGBaddress(ledNumber, rgb_R);
         uint8_t led2 = board.getRGBaddress(ledNumber, rgb_G);
