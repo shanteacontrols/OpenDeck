@@ -19,101 +19,161 @@
 #include "Database.h"
 #include "../board/Board.h"
 
-void Database::createMemoryLayout()
+void Database::createLayout()
 {
+    DBMS::addBlocks(DB_BLOCKS);
+
+    dbSection_t section;
+
     {
-        blocks[CONF_BLOCK_MIDI].sections = MIDI_SECTIONS;
+        section.parameters = MIDI_FEATURES;
+        section.defaultValue = 0;
+        section.parameterType = BIT_PARAMETER;
+        section.preserveOnPartialReset = 0;
 
-        blocks[CONF_BLOCK_MIDI].sectionParameterType[midiFeatureSection] = BIT_PARAMETER;
-        blocks[CONF_BLOCK_MIDI].defaultValue[midiFeatureSection] = 0;
-        blocks[CONF_BLOCK_MIDI].sectionParameters[midiFeatureSection] = MIDI_FEATURES;
+        DBMS::addSection(DB_BLOCK_MIDI, section);
 
-        blocks[CONF_BLOCK_MIDI].sectionParameterType[midiChannelSection] = BYTE_PARAMETER;
-        blocks[CONF_BLOCK_MIDI].defaultValue[midiChannelSection] = 0x01;
-        blocks[CONF_BLOCK_MIDI].sectionParameters[midiChannelSection] = MIDI_CHANNELS;
+        section.parameters = MIDI_CHANNELS;
+        section.defaultValue = 1;
+        section.parameterType = BYTE_PARAMETER;
+        section.preserveOnPartialReset = 0;
+
+        DBMS::addSection(DB_BLOCK_MIDI, section);
     }
 
     {
-        blocks[CONF_BLOCK_BUTTON].sections = BUTTON_SECTIONS;
+        section.parameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
+        section.defaultValue = 0;
+        section.parameterType = BIT_PARAMETER;
+        section.preserveOnPartialReset = 0;
 
-        blocks[CONF_BLOCK_BUTTON].sectionParameterType[buttonTypeSection] = BIT_PARAMETER;
-        blocks[CONF_BLOCK_BUTTON].defaultValue[buttonTypeSection] = 0;
-        blocks[CONF_BLOCK_BUTTON].sectionParameters[buttonTypeSection] = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
+        DBMS::addSection(DB_BLOCK_BUTTON, section);
 
-        blocks[CONF_BLOCK_BUTTON].sectionParameterType[buttonProgramChangeEnabledSection] = BIT_PARAMETER;
-        blocks[CONF_BLOCK_BUTTON].defaultValue[buttonProgramChangeEnabledSection] = 0;
-        blocks[CONF_BLOCK_BUTTON].sectionParameters[buttonProgramChangeEnabledSection] = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
+        section.parameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
+        section.defaultValue = 0;
+        section.parameterType = BIT_PARAMETER;
+        section.preserveOnPartialReset = 0;
 
-        blocks[CONF_BLOCK_BUTTON].sectionParameterType[buttonMIDIidSection] = BYTE_PARAMETER;
-        blocks[CONF_BLOCK_BUTTON].defaultValue[buttonMIDIidSection] = AUTO_INCREMENT;
-        blocks[CONF_BLOCK_BUTTON].sectionParameters[buttonMIDIidSection] = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
+        DBMS::addSection(DB_BLOCK_BUTTON, section);
+
+        section.parameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
+        section.defaultValue = AUTO_INCREMENT;
+        section.parameterType = BYTE_PARAMETER;
+        section.preserveOnPartialReset = 0;
+
+        DBMS::addSection(DB_BLOCK_BUTTON, section);
     }
 
     {
-        blocks[CONF_BLOCK_ENCODER].sections = ENCODER_SECTIONS;
+        section.parameters = MAX_NUMBER_OF_ENCODERS;
+        section.defaultValue = 0;
+        section.parameterType = BIT_PARAMETER;
+        section.preserveOnPartialReset = 0;
 
-        blocks[CONF_BLOCK_ENCODER].sectionParameterType[encoderEnabledSection] = BIT_PARAMETER;
-        blocks[CONF_BLOCK_ENCODER].defaultValue[encoderEnabledSection] = 0;
-        blocks[CONF_BLOCK_ENCODER].sectionParameters[encoderEnabledSection] = MAX_NUMBER_OF_ENCODERS;
+        DBMS::addSection(DB_BLOCK_ENCODER, section);
 
-        blocks[CONF_BLOCK_ENCODER].sectionParameterType[encoderInvertedSection] = BIT_PARAMETER;
-        blocks[CONF_BLOCK_ENCODER].defaultValue[encoderInvertedSection] = 0;
-        blocks[CONF_BLOCK_ENCODER].sectionParameters[encoderInvertedSection] = MAX_NUMBER_OF_ENCODERS;
+        section.parameters = MAX_NUMBER_OF_ENCODERS;
+        section.defaultValue = 0;
+        section.parameterType = BIT_PARAMETER;
+        section.preserveOnPartialReset = 0;
 
-        blocks[CONF_BLOCK_ENCODER].sectionParameterType[encoderEncodingModeSection] = BYTE_PARAMETER;
-        blocks[CONF_BLOCK_ENCODER].defaultValue[encoderEncodingModeSection] = 0;
-        blocks[CONF_BLOCK_ENCODER].sectionParameters[encoderEncodingModeSection] = MAX_NUMBER_OF_ENCODERS;
+        DBMS::addSection(DB_BLOCK_ENCODER, section);
 
-        blocks[CONF_BLOCK_ENCODER].sectionParameterType[encoderMIDIidSection] = BYTE_PARAMETER;
-        blocks[CONF_BLOCK_ENCODER].defaultValue[encoderMIDIidSection] = AUTO_INCREMENT;
-        blocks[CONF_BLOCK_ENCODER].sectionParameters[encoderMIDIidSection] = MAX_NUMBER_OF_ENCODERS;
+        section.parameters = MAX_NUMBER_OF_ENCODERS;
+        section.defaultValue = 0;
+        section.parameterType = BYTE_PARAMETER;
+        section.preserveOnPartialReset = 0;
+
+        DBMS::addSection(DB_BLOCK_ENCODER, section);
+
+        section.parameters = MAX_NUMBER_OF_ENCODERS;
+        section.defaultValue = AUTO_INCREMENT;
+        section.parameterType = BYTE_PARAMETER;
+        section.preserveOnPartialReset = 0;
+
+        DBMS::addSection(DB_BLOCK_ENCODER, section);
     }
 
     {
-        blocks[CONF_BLOCK_ANALOG].sections = ANALOG_SECTIONS;
+        section.parameters = MAX_NUMBER_OF_ANALOG;
+        section.defaultValue = 0;
+        section.parameterType = BIT_PARAMETER;
+        section.preserveOnPartialReset = 0;
 
-        blocks[CONF_BLOCK_ANALOG].sectionParameterType[analogEnabledSection] = BIT_PARAMETER;
-        blocks[CONF_BLOCK_ANALOG].defaultValue[analogEnabledSection] = 0;
-        blocks[CONF_BLOCK_ANALOG].sectionParameters[analogEnabledSection] = MAX_NUMBER_OF_ANALOG;
+        DBMS::addSection(DB_BLOCK_ANALOG, section);
 
-        blocks[CONF_BLOCK_ANALOG].sectionParameterType[analogInvertedSection] = BIT_PARAMETER;
-        blocks[CONF_BLOCK_ANALOG].defaultValue[analogInvertedSection] = 0;
-        blocks[CONF_BLOCK_ANALOG].sectionParameters[analogInvertedSection] = MAX_NUMBER_OF_ANALOG;
+        section.parameters = MAX_NUMBER_OF_ANALOG;
+        section.defaultValue = 0;
+        section.parameterType = BIT_PARAMETER;
+        section.preserveOnPartialReset = 0;
 
-        blocks[CONF_BLOCK_ANALOG].sectionParameterType[analogTypeSection] = BYTE_PARAMETER;
-        blocks[CONF_BLOCK_ANALOG].defaultValue[analogTypeSection] = 0;
-        blocks[CONF_BLOCK_ANALOG].sectionParameters[analogTypeSection] = MAX_NUMBER_OF_ANALOG;
+        DBMS::addSection(DB_BLOCK_ANALOG, section);
 
-        blocks[CONF_BLOCK_ANALOG].sectionParameterType[analogMIDIidSection] = BYTE_PARAMETER;
-        blocks[CONF_BLOCK_ANALOG].defaultValue[analogMIDIidSection] = AUTO_INCREMENT;
-        blocks[CONF_BLOCK_ANALOG].sectionParameters[analogMIDIidSection] = MAX_NUMBER_OF_ANALOG;
+        section.parameters = MAX_NUMBER_OF_ANALOG;
+        section.defaultValue = 0;
+        section.parameterType = BYTE_PARAMETER;
+        section.preserveOnPartialReset = 0;
 
-        blocks[CONF_BLOCK_ANALOG].sectionParameterType[analogCClowerLimitSection] = BYTE_PARAMETER;
-        blocks[CONF_BLOCK_ANALOG].defaultValue[analogCClowerLimitSection] = 0;
-        blocks[CONF_BLOCK_ANALOG].sectionParameters[analogCClowerLimitSection] = MAX_NUMBER_OF_ANALOG;
+        DBMS::addSection(DB_BLOCK_ANALOG, section);
 
-        blocks[CONF_BLOCK_ANALOG].sectionParameterType[analogCCupperLimitSection] = BYTE_PARAMETER;
-        blocks[CONF_BLOCK_ANALOG].defaultValue[analogCCupperLimitSection] = 127;
-        blocks[CONF_BLOCK_ANALOG].sectionParameters[analogCCupperLimitSection] = MAX_NUMBER_OF_ANALOG;
+        section.parameters = MAX_NUMBER_OF_ANALOG;
+        section.defaultValue = AUTO_INCREMENT;
+        section.parameterType = BYTE_PARAMETER;
+        section.preserveOnPartialReset = 0;
+
+        DBMS::addSection(DB_BLOCK_ANALOG, section);
+
+        section.parameters = MAX_NUMBER_OF_ANALOG;
+        section.defaultValue = 0;
+        section.parameterType = BYTE_PARAMETER;
+        section.preserveOnPartialReset = 0;
+
+        DBMS::addSection(DB_BLOCK_ANALOG, section);
+
+        section.parameters = MAX_NUMBER_OF_ANALOG;
+        section.defaultValue = 127;
+        section.parameterType = BYTE_PARAMETER;
+        section.preserveOnPartialReset = 0;
+
+        DBMS::addSection(DB_BLOCK_ANALOG, section);
     }
 
     {
-        blocks[CONF_BLOCK_LED].sections = LED_SECTIONS;
+        section.parameters = LED_HARDWARE_PARAMETERS;
+        section.defaultValue = 0;
+        section.parameterType = BYTE_PARAMETER;
+        section.preserveOnPartialReset = 0;
 
-        blocks[CONF_BLOCK_LED].sectionParameterType[ledHardwareParameterSection] = BYTE_PARAMETER;
-        blocks[CONF_BLOCK_LED].defaultValue[ledHardwareParameterSection] = 0;
-        blocks[CONF_BLOCK_LED].sectionParameters[ledHardwareParameterSection] = LED_HARDWARE_PARAMETERS;
+        DBMS::addSection(DB_BLOCK_LED, section);
 
-        blocks[CONF_BLOCK_LED].sectionParameterType[ledActivationNoteSection] = BYTE_PARAMETER;
-        blocks[CONF_BLOCK_LED].defaultValue[ledActivationNoteSection] = AUTO_INCREMENT;
-        blocks[CONF_BLOCK_LED].sectionParameters[ledActivationNoteSection] = MAX_NUMBER_OF_LEDS;
+        section.parameters = MAX_NUMBER_OF_LEDS;
+        section.defaultValue = AUTO_INCREMENT;
+        section.parameterType = BYTE_PARAMETER;
+        section.preserveOnPartialReset = 0;
 
-        blocks[CONF_BLOCK_LED].sectionParameterType[ledRGBenabledSection] = BIT_PARAMETER;
-        blocks[CONF_BLOCK_LED].defaultValue[ledRGBenabledSection] = 0;
-        blocks[CONF_BLOCK_LED].sectionParameters[ledRGBenabledSection] = MAX_NUMBER_OF_LEDS;
+        DBMS::addSection(DB_BLOCK_LED, section);
 
-        blocks[CONF_BLOCK_LED].sectionParameterType[ledLocalControlSection] = BIT_PARAMETER;
-        blocks[CONF_BLOCK_LED].defaultValue[ledLocalControlSection] = 0;
-        blocks[CONF_BLOCK_LED].sectionParameters[ledLocalControlSection] = MAX_NUMBER_OF_LEDS;
+        section.parameters = MAX_NUMBER_OF_LEDS;
+        section.defaultValue = 0;
+        section.parameterType = BIT_PARAMETER;
+        section.preserveOnPartialReset = 0;
+
+        DBMS::addSection(DB_BLOCK_LED, section);
+
+        section.parameters = MAX_NUMBER_OF_LEDS;
+        section.defaultValue = 0;
+        section.parameterType = BIT_PARAMETER;
+        section.preserveOnPartialReset = 0;
+
+        DBMS::addSection(DB_BLOCK_LED, section);
+    }
+
+    {
+        section.parameters = ID_OFFSET;
+        section.defaultValue = UNIQUE_ID;
+        section.parameterType = BYTE_PARAMETER;
+        section.preserveOnPartialReset = 0;
+
+        DBMS::addSection(DB_BLOCK_ID, section);
     }
 }

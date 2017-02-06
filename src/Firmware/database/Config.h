@@ -18,8 +18,5 @@
 
 #pragma once
 
-//#define ENABLE_ASYNC_UPDATE
-#define AUTO_INCREMENT      255
-#define START_OFFSET        5
-#define MAX_SECTIONS        7
-#define EEPROM_UNIQUE_ID    47
+#define UNIQUE_ID       47
+#define ID_OFFSET       10

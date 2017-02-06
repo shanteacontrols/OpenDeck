@@ -18,7 +18,7 @@
 
 #include "OpenDeck.h"
 
-uint32_t lastCinfoMsgTime[CONF_BLOCKS];
+uint32_t lastCinfoMsgTime[DB_BLOCKS];
 
 uint32_t getLastCinfoMsgTime(uint8_t block)
 {
@@ -68,7 +68,7 @@ bool onCustom(uint8_t value)
         case FACTORY_RESET_STRING:
         leds.setAllOff();
         wait(1500);
-        database.factoryReset(factoryReset_partial);
+        database.factoryReset(initPartial);
         board.reboot(rebootApp);
         return true;
     }
@@ -80,7 +80,7 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
 {
     switch(block)
     {
-        case CONF_BLOCK_LED:
+        case DB_BLOCK_LED:
         switch(section)
         {
             case ledColorSection:
@@ -103,7 +103,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
 {
     bool returnValue = true;
     //check this block manually
-    if (block != CONF_BLOCK_LED)
+    if (block != DB_BLOCK_LED)
         returnValue = database.update(block, section, index, newValue);
 
     if (returnValue)
@@ -111,12 +111,12 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
         //special checks
         switch(block)
         {
-            case CONF_BLOCK_ANALOG:
+            case DB_BLOCK_ANALOG:
             if (section == analogTypeSection)
                 analog.debounceReset(index);
             break;
 
-            case CONF_BLOCK_MIDI:
+            case DB_BLOCK_MIDI:
             if (section == midiFeatureSection)
             {
                 if (index == midiFeatureRunningStatus)
@@ -126,7 +126,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             }
             break;
 
-            case CONF_BLOCK_LED:
+            case DB_BLOCK_LED:
             switch(section)
             {
                 case ledColorSection:
@@ -242,7 +242,7 @@ int main()
             uint8_t data1 = midi.getData1(dinInterface);
             uint8_t data2 = midi.getData2(dinInterface);
 
-            if (!database.read(CONF_BLOCK_MIDI, midiFeatureSection, midiFeatureUSBconvert))
+            if (!database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureUSBconvert))
             {
                 switch(messageType)
                 {
