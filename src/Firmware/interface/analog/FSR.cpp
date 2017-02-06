@@ -71,19 +71,19 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
         {
             //sensor is really pressed
             setFsrPressed(analogID, true);
-            uint8_t note = database.read(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID);
-            midi.sendNoteOn(note, calibratedPressure, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
+            uint8_t note = database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID);
+            midi.sendNoteOn(note, calibratedPressure, database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
             leds.noteToState(note, calibratedPressure, true);
             if (sysEx.configurationEnabled())
             {
-                if ((rTimeMs() - getLastCinfoMsgTime(CONF_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)
+                if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)
                 {
                     sysEx.startResponse();
                     sysEx.addToResponse(COMPONENT_ID_STRING);
-                    sysEx.addToResponse(CONF_BLOCK_BUTTON);
+                    sysEx.addToResponse(DB_BLOCK_BUTTON);
                     sysEx.addToResponse(analogID);
                     sysEx.sendResponse();
-                    updateCinfoTime(CONF_BLOCK_BUTTON);
+                    updateCinfoTime(DB_BLOCK_BUTTON);
                 }
             }
         }
@@ -93,22 +93,25 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
         if (getFsrPressed(analogID))
         {
             setFsrPressed(analogID, false);
-            uint8_t note = database.read(CONF_BLOCK_ANALOG, analogMIDIidSection, analogID);
-            midi.sendNoteOff(note, velocityOff, database.read(CONF_BLOCK_MIDI, midiChannelSection, noteChannel));
+            uint8_t note = database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID);
+            midi.sendNoteOff(note, velocityOff, database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
             leds.noteToState(note, velocityOff, true);
             if (sysEx.configurationEnabled())
             {
-                if ((rTimeMs() - getLastCinfoMsgTime(CONF_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)
+                if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)
                 {
                     sysEx.startResponse();
                     sysEx.addToResponse(COMPONENT_ID_STRING);
-                    sysEx.addToResponse(CONF_BLOCK_BUTTON);
+                    sysEx.addToResponse(DB_BLOCK_BUTTON);
                     sysEx.addToResponse(analogID);
                     sysEx.sendResponse();
-                    updateCinfoTime(CONF_BLOCK_BUTTON);
+                    updateCinfoTime(DB_BLOCK_BUTTON);
                 }
             }
         }
         break;
     }
+
+    //update values
+    lastAnalogueValue[analogID] = pressure;
 }

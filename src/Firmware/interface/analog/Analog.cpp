@@ -41,16 +41,16 @@ void Analog::update()
     for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
     {
         //don't process component if it's not enabled
-        if (!database.read(CONF_BLOCK_ANALOG, analogEnabledSection, i))
+        if (!database.read(DB_BLOCK_ANALOG, analogEnabledSection, i))
             continue;
 
-        if (database.read(CONF_BLOCK_ANALOG, analogTypeSection, i) != aType_button)
+        if (database.read(DB_BLOCK_ANALOG, analogTypeSection, i) != aType_button)
         {
             analogData = getAverageValue(i);
             #ifdef ENABLE_HYSTERESIS
             analogData = getHysteresisValue(i, analogData);
             #endif
-            analogType_t type = (analogType_t)database.read(CONF_BLOCK_ANALOG, analogTypeSection, i);
+            analogType_t type = (analogType_t)database.read(DB_BLOCK_ANALOG, analogTypeSection, i);
 
             switch(type)
             {
@@ -73,9 +73,6 @@ void Analog::update()
             bool state = analogData > DIGITAL_VALUE_THRESHOLD;
             buttons.processButton(i+MAX_NUMBER_OF_BUTTONS, state, false);
         }
-
-        //update values
-        lastAnalogueValue[i] = analogData;
     }
 
     resetSamples();
@@ -152,7 +149,6 @@ uint16_t Analog::getHysteresisValue(uint8_t analogID, uint16_t value)
 void Analog::debounceReset(uint16_t index)
 {
     lastAnalogueValue[index] = 0;
-    fsrLastAfterTouchValue[index] = 0;
 
     uint8_t arrayIndex = index/8;
     uint8_t fsrIndex = index - 8*arrayIndex;

@@ -37,8 +37,7 @@ class Analog
 
     //variables
     uint8_t     sampleCounter,
-                fsrPressed[MAX_NUMBER_OF_ANALOG/8+1],
-                fsrLastAfterTouchValue[MAX_NUMBER_OF_ANALOG];
+                fsrPressed[MAX_NUMBER_OF_ANALOG/8+1];
 
     uint16_t    analogSample[MAX_NUMBER_OF_ANALOG],
                 lastAnalogueValue[MAX_NUMBER_OF_ANALOG];
