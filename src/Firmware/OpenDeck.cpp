@@ -41,9 +41,9 @@ bool onCustom(uint8_t value)
         return true;
 
         case HARDWARE_VERSION_STRING:
-        sysEx.addToResponse(hardwareVersion.major);
-        sysEx.addToResponse(hardwareVersion.minor);
-        sysEx.addToResponse(hardwareVersion.revision);
+        sysEx.addToResponse(HARDWARE_VERSION_MAJOR);
+        sysEx.addToResponse(HARDWARE_VERSION_MINOR);
+        sysEx.addToResponse(HARDWARE_VERSION_REVISION);
         return true;
 
         case MAX_COMPONENTS_STRING:
