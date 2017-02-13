@@ -80,7 +80,7 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
                 {
                     sysEx.startResponse();
                     sysEx.addToResponse(COMPONENT_ID_STRING);
-                    sysEx.addToResponse(DB_BLOCK_BUTTON);
+                    sysEx.addToResponse(DB_BLOCK_ANALOG);
                     sysEx.addToResponse(analogID);
                     sysEx.sendResponse();
                     updateCinfoTime(DB_BLOCK_BUTTON);
@@ -102,7 +102,7 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
                 {
                     sysEx.startResponse();
                     sysEx.addToResponse(COMPONENT_ID_STRING);
-                    sysEx.addToResponse(DB_BLOCK_BUTTON);
+                    sysEx.addToResponse(DB_BLOCK_ANALOG);
                     sysEx.addToResponse(analogID);
                     sysEx.sendResponse();
                     updateCinfoTime(DB_BLOCK_BUTTON);
