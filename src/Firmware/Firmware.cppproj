@@ -720,6 +720,12 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="midi\Config.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="midi\DataTypes.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="midi\Helpers.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="midi\MIDI.cpp">
       <SubType>compile</SubType>
     </Compile>
@@ -735,10 +741,7 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="sysex\Config.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="sysex\SpecialRequests.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="sysex\Status.h">
+    <Compile Include="sysex\DataTypes.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="sysex\SysEx.cpp">
