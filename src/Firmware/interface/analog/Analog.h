@@ -26,6 +26,11 @@
 #include "Helpers.h"
 #include "../../OpenDeck.h"
 
+///
+/// \brief Analog components handling.
+/// \ingroup interface
+/// @{
+///
 class Analog
 {
     public:
@@ -64,3 +69,4 @@ class Analog
 };
 
 extern Analog analog;
+/// @}

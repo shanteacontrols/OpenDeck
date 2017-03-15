@@ -327,6 +327,9 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="core\helpers\BitManipulation.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="core\helpers\Helpers.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="core\helpers\PinManipulation.h">
       <SubType>compile</SubType>
     </Compile>
@@ -648,10 +651,7 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="dbms\DBMS.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="init\Init.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="init\Init.h">
+    <Compile Include="Init.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="interface\analog\Analog.cpp">
@@ -796,7 +796,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Folder Include="interface\encoders" />
     <Folder Include="interface\leds" />
     <Folder Include="interface" />
-    <Folder Include="init" />
     <Folder Include="midi\" />
     <Folder Include="board" />
     <Folder Include="version" />

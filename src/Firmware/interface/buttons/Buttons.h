@@ -23,6 +23,11 @@
 #include "DataTypes.h"
 #include "../../OpenDeck.h"
 
+///
+/// \brief Button handling.
+/// \ingroup interface
+/// @{
+///
 class Buttons
 {
     public:
@@ -48,3 +53,4 @@ class Buttons
 };
 
 extern Buttons buttons;
+/// @}
