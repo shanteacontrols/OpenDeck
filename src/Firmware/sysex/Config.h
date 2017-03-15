@@ -35,3 +35,11 @@
 #define SYS_EX_M_ID_0           0x00
 #define SYS_EX_M_ID_1           0x53
 #define SYS_EX_M_ID_2           0x43
+
+#if PARAM_SIZE == 2
+typedef int16_t sysExParameter_t;
+#elif PARAM_SIZE == 1
+typedef int8_t sysExParameter_t;
+#else
+#error Incorrect parameter size for SysEx
+#endif

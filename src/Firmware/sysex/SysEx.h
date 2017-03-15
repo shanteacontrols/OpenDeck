@@ -18,42 +18,21 @@
 
 #pragma once
 
-#include "Status.h"
-#include "SpecialRequests.h"
 #include "Config.h"
 #include "../midi/MIDI.h"
+#include "DataTypes.h"
 
-typedef struct
-{
-    uint8_t byte1;
-    uint8_t byte2;
-    uint8_t byte3;
-} sysExManufacturerID;
-
-#if PARAM_SIZE == 2
-typedef int16_t sysExParameter_t;
-#elif PARAM_SIZE == 1
-typedef int8_t sysExParameter_t;
-#else
-#error Incorrect parameter size for SysEx
-#endif
-
-typedef struct
-{
-    sysExParameter_t numberOfParameters;
-    sysExParameter_t minValue;
-    sysExParameter_t maxValue;
-    uint8_t parts;
-    bool newValueIgnored;
-} sysExSection;
-
+///
+/// \brief Configuration protocol created using custom SysEx MIDI messages.
+/// \ingroup conf
+/// @{
+///
 class SysEx
 {
     public:
     SysEx();
     void handleMessage(uint8_t *sysExArray, uint8_t size);
     void decode();
-    void checkForcedSend();
     bool configurationEnabled();
     bool addCustomRequest(uint8_t value);
     void startResponse();
@@ -64,77 +43,14 @@ class SysEx
     void setHandleSet(bool(*fptr)(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newValue));
     void setHandleCustomRequest(bool(*fptr)(uint8_t value));
 
-    bool addBlock(uint8_t sections);
-    bool addSection(uint8_t block, sysExParameter_t numberOfParameters, sysExParameter_t minValue, sysExParameter_t maxValue);
+    bool addBlock();
+    bool addBlocks(uint8_t numberOfBlocks);
+    bool addSection(uint8_t blockID, sysExSection section);
 
     bool checkRequest();
     bool checkParameters();
 
     private:
-
-    typedef enum
-    {
-        startByte,      //0
-        idByte_1,       //1
-        idByte_2,       //2
-        idByte_3,       //3
-        statusByte,     //4
-        partByte,       //5
-        wishByte,       //6
-        amountByte,     //7
-        blockByte,      //8
-        sectionByte,    //9
-        REQUEST_SIZE,
-        RESPONSE_SIZE = partByte + 1,
-        MIN_MESSAGE_LENGTH = wishByte + 1 + 1,  //add next byte and end
-        ML_REQ_STANDARD = REQUEST_SIZE + 1      //add end byte
-    } sysExRequestByteOrder;
-
-    typedef enum
-    {
-        indexByte = REQUEST_SIZE,
-        newValueByte_single = indexByte+sizeof(sysExParameter_t),
-        newValueByte_all = indexByte
-    } sysExParameterByteOrder;
-
-    typedef enum
-    {
-        //message wish
-        sysExWish_get,
-        sysExWish_set,
-        sysExWish_backup,
-        SYSEX_WISH_MAX
-    } sysExWish;
-
-    typedef enum
-    {
-        //wanted data amount
-        sysExAmount_single,
-        sysExAmount_all,
-        SYSEX_AMOUNT_MAX
-    } sysExAmount;
-
-    typedef struct
-    {
-        //a struct containing entire info for block/message type
-        uint8_t numberOfSections;
-        uint8_t sectionCounter;
-        sysExSection section[MAX_NUMBER_OF_SECTIONS];
-    } sysExBlock;
-
-    typedef struct
-    {
-        sysExManufacturerID id;
-        sysExStatus_t status;
-        sysExWish wish;
-        sysExAmount amount;
-        uint8_t block;
-        uint8_t section;
-        uint8_t part;
-        sysExParameter_t index;
-        sysExParameter_t newValue;
-    } decodedMessage_t;
-
     bool checkID();
     bool checkSpecialRequests();
     bool checkWish();
@@ -165,3 +81,4 @@ class SysEx
 };
 
 extern SysEx sysEx;
+/// @}
