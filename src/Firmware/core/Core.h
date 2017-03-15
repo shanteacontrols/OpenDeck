@@ -31,7 +31,6 @@
 #include "adc/ADC.h"
 #include "uart/UART.h"
 #include "usb/midi/Descriptors.h"
-#include "helpers/PinManipulation.h"
-#include "helpers/BitManipulation.h"
+#include "helpers/Helpers.h"
 #include "timer/Timing.h"
 #include "reset/Reset.h"

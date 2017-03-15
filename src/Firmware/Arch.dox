@@ -1,0 +1,15 @@
+/// @defgroup core Core
+/// \brief Integrated MCU peripherals.
+///
+
+/// @defgroup eeprom EEPROM
+/// \brief Simple DMBS and database implemented using internal EEPROM.
+///
+
+/// @defgroup conf Configuration
+/// \brief SysEx configuration protocol.
+///
+
+/// @defgroup midi MIDI
+/// \brief MIDI
+///
