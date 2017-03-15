@@ -36,6 +36,10 @@ inline void activateOutputColumn(uint8_t column) __attribute__((always_inline));
 inline void storeDigitalIn(uint8_t column, uint8_t bufferIndex) __attribute__((always_inline));
 inline int8_t readEncoder(uint8_t encoderID, uint8_t pairState) __attribute__((always_inline));
 
+///
+/// \addtogroup board
+/// @{
+///
 class Board : BoardCommon
 {
     public:
@@ -74,3 +78,4 @@ class Board : BoardCommon
 };
 
 extern Board board;
+/// @}
