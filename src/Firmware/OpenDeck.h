@@ -18,7 +18,11 @@
 
 #pragma once
 
-#include "init/Init.h"
+#include "database/Database.h"
+#include "sysex/SysEx.h"
+#include "version/Version.h"
+#include "board/Board.h"
+#include "interface/Interface.h"
 
 #define FIRMWARE_VERSION_STRING         0x56
 #define HARDWARE_VERSION_STRING         0x42
@@ -31,6 +35,7 @@
 #define COMPONENT_INFO_TIMEOUT          500 //ms
 
 int main();
+void globalInit();
 sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index);
 bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newValue);
 bool onCustom(uint8_t value);

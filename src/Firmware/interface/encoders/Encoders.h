@@ -22,6 +22,11 @@
 #include "DataTypes.h"
 #include "../../OpenDeck.h"
 
+///
+/// \brief Encoder handling.
+/// \ingroup interface
+/// @{
+///
 class Encoders
 {
     public:
@@ -30,3 +35,4 @@ class Encoders
 };
 
 extern Encoders encoders;
+/// @}

@@ -13,3 +13,7 @@
 /// @defgroup midi MIDI
 /// \brief MIDI
 ///
+
+/// @defgroup interface Interface
+/// \brief Encoder, button, LED and analog component handling.
+///

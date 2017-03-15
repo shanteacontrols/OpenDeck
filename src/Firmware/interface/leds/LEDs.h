@@ -21,6 +21,11 @@
 #include "DataTypes.h"
 #include "Constants.h"
 
+///
+/// \brief LED handling.
+/// \ingroup interface
+/// @{
+///
 class LEDs
 {
     public:
@@ -43,8 +48,8 @@ class LEDs
     void handleLED(uint8_t ledNumber, bool state, bool rgbLED = false, rgbIndex_t index = rgb_R);
     void checkBlinkLEDs();
 
-    //animation
     void startUpAnimation();
 };
 
 extern LEDs leds;
+/// @}
