@@ -18,15 +18,17 @@
 
 #pragma once
 
-//simple database management system (dbms)
-
-#include "Config.h"
 #include "DataTypes.h"
 
 #ifndef EEPROM_SIZE
 #error EEPROM size not defined
 #endif
 
+///
+/// \brief Simple database-like management system.
+/// \ingroup eeprom
+/// @{
+///
 class DBMS
 {
     public:
@@ -62,3 +64,4 @@ class DBMS
 
     uint8_t blockCounter;
 };
+/// @}

@@ -33,6 +33,5 @@
 #include "usb/midi/Descriptors.h"
 #include "helpers/PinManipulation.h"
 #include "helpers/BitManipulation.h"
-#include "timer/RunTime.h"
-#include "timer/Wait.h"
-#include "reboot/Reboot.h"
+#include "timer/Timing.h"
+#include "reset/Reset.h"

@@ -94,7 +94,7 @@ bool MIDI::init(midiInterfaceType_t type)
     switch(type)
     {
         case dinInterface:
-        USE_SERIAL_PORT.begin(31250);
+        USE_SERIAL_PORT.init(31250);
         dinEnabled = true;
         return true;
         break;

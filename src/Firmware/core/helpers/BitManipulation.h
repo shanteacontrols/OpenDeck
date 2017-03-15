@@ -16,10 +16,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
+///
+/// \brief Helper macros for easier byte/bit manipulation.
+/// \defgroup coreBitHelpers Bit manipulation
+/// \ingroup coreHelpers
+/// @{
 #define bitRead(value, bit) (((value) >> (bit)) & 0x01)
 #define bitSet(value, bit) ((value) |= (1UL << (bit)))
 #define bitClear(value, bit) ((value) &= ~(1UL << (bit)))
 #define bitWrite(value, bit, bitvalue) (bitvalue ? bitSet(value, bit) : bitClear(value, bit))
 #define invertByte(value) ((value) ^ 0xFF)
+/// @}

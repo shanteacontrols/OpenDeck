@@ -16,12 +16,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "Timing.h"
 
-static inline void wait(uint32_t time)
+uint32_t rTimeMs()
 {
-    while(time--)
+    uint32_t _rTime_mS;
+
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
-        _delay_ms(1);
+        _rTime_mS = rTime_ms;
     }
+
+    return _rTime_mS;
 }

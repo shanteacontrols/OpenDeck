@@ -35,9 +35,9 @@ bool onCustom(uint8_t value)
     switch(value)
     {
         case FIRMWARE_VERSION_STRING:
-        sysEx.addToResponse(getSWversion(version_major));
-        sysEx.addToResponse(getSWversion(version_minor));
-        sysEx.addToResponse(getSWversion(version_revision));
+        sysEx.addToResponse(getSWversion(swVersion_major));
+        sysEx.addToResponse(getSWversion(swVersion_minor));
+        sysEx.addToResponse(getSWversion(swVersion_revision));
         return true;
 
         case HARDWARE_VERSION_STRING:
@@ -55,19 +55,19 @@ bool onCustom(uint8_t value)
 
         case REBOOT_APP_STRING:
         leds.setAllOff();
-        wait(2500);
+        wait_ms(2500);
         board.reboot(rebootApp);
         return true;
 
         case REBOOT_BTLDR_STRING:
         leds.setAllOff();
-        wait(2500);
+        wait_ms(2500);
         board.reboot(rebootBtldr);
         return true;
 
         case FACTORY_RESET_STRING:
         leds.setAllOff();
-        wait(1500);
+        wait_ms(1500);
         database.factoryReset(initPartial);
         board.reboot(rebootApp);
         return true;

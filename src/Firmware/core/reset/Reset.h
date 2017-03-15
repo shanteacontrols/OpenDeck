@@ -18,16 +18,20 @@
 
 #pragma once
 
-typedef enum
-{
-    version_major,
-    version_minor,
-    version_revision
-} version_t;
+///
+/// \brief Provides helper functions to facilitate software reset on MCU.
+/// \defgroup reset Reset
+/// \ingroup core
+/// @{
 
-#define VERSION_POINT_LOCATION  (FLASH_SIZE - 8) //6 bytes for version, 2 bytes for crc
-#define CRC_LOCATION_FLASH      (FLASH_SIZE - 2)
-#define CRC_LOCATION_EEPROM     (EEPROM_SIZE - 3)
+///
+/// \brief Disables all peripherals present on MCU.
+///
+void disablePeripherals();
 
-bool checkNewRevision();
-uint8_t getSWversion(version_t point);
+///
+/// \brief Initiates watchdog software MCU reset by setting watch-dog timeout and waiting until watchdog is activated.
+///
+void wdReset();
+
+/// @}

@@ -19,6 +19,9 @@
 #include "Database.h"
 #include "../board/Board.h"
 
+///
+/// \brief Creates database layout by defining blocks and sections.
+///
 void Database::createLayout()
 {
     DBMS::addBlocks(DB_BLOCKS);

@@ -22,6 +22,10 @@
 #include "blocks/Blocks.h"
 #include "Config.h"
 
+///
+/// \addtogroup eeprom
+/// @{
+///
 class Database : public DBMS
 {
     public:
@@ -36,3 +40,4 @@ class Database : public DBMS
 };
 
 extern Database database;
+/// @} 

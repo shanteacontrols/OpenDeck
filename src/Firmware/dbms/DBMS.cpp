@@ -18,33 +18,38 @@
 
 #include "DBMS.h"
 
-typedef struct
-{
-    uint8_t sections;
-    uint16_t blockStartAddress;
-    uint16_t sectionAddress[MAX_SECTIONS];
-    dbSection_t section[MAX_SECTIONS];
-} blockDescriptor;
-
 blockDescriptor block[MAX_BLOCKS];
 
-//inline functions
-
+///
+/// \brief Returns section address for specified section within block.
+/// \returns Section address.
+///
 inline uint16_t getSectionAddress(uint8_t blockID, uint8_t sectionID)
 {
     return block[blockID].blockStartAddress+block[blockID].sectionAddress[sectionID];
 };
 
+///
+/// \brief Returns block address for specified block.
+/// \returns Block address.
+///
 inline uint16_t getBlockAddress(uint8_t blockID)
 {
     return block[blockID].blockStartAddress;
 };
 
+///
+/// \brief Returns parameter type for specified block and section.
+/// \returns Parameter type.
+///
 inline sectionParameterType_t getParameterType(uint8_t blockID, uint8_t sectionID)
 {
     return block[blockID].section[sectionID].parameterType;
 }
 
+///
+/// \brief Default constructor
+///
 DBMS::DBMS()
 {
     #ifdef ENABLE_ASYNC_UPDATE
@@ -60,6 +65,13 @@ DBMS::DBMS()
     #endif
 }
 
+///
+/// \brief Reads value from database.
+/// @param [in] blockID     Block for wanted parameter.
+/// @param [in] sectionID   Section for wanted parameter.
+/// @param [in] parameterID Parameter ID
+/// \returns Retrived value.
+///
 int16_t DBMS::read(uint8_t blockID, uint8_t sectionID, uint16_t parameterID)
 {
     uint16_t startAddress = getSectionAddress(blockID, sectionID);
@@ -91,6 +103,15 @@ int16_t DBMS::read(uint8_t blockID, uint8_t sectionID, uint16_t parameterID)
     return 0;
 }
 
+///
+/// \brief Updates value for specified block and section in database.
+/// @param [in] blockID     Block for wanted parameter.
+/// @param [in] sectionID   Section for wanted parameter.
+/// @param [in] parameterID Parameter ID.
+/// @param [in] newValue    New value for parameter
+/// @param [in] async       Whether to update value immediately (false) or later (true).
+/// \returns True on success, false otherwise.
+///
 bool DBMS::update(uint8_t blockID, uint8_t sectionID, int16_t parameterID, int16_t newValue, bool async)
 {
     uint16_t startAddress = getSectionAddress(blockID, sectionID);
@@ -173,12 +194,19 @@ bool DBMS::update(uint8_t blockID, uint8_t sectionID, int16_t parameterID, int16
     return 0;
 }
 
+///
+/// \brief Clears entire EEPROM memory by writing 0xFF to each location.
+///
 void DBMS::clear()
 {
     for (int i=0; i<EEPROM_SIZE; i++)
         eeprom_update_byte((uint8_t*)i, 0xFF);
 }
 
+///
+/// \brief Adds single block to current layout.
+/// \returns True on success, false otherwise.
+///
 bool DBMS::addBlock()
 {
     if (blockCounter >= MAX_BLOCKS)
@@ -188,6 +216,11 @@ bool DBMS::addBlock()
     return true;
 }
 
+///
+/// \brief Adds specified number of blocks to current layout.
+/// @param [in] numberOfBlocks  Number of blocks to add.
+/// \returns True on success, false otherwise.
+///
 bool DBMS::addBlocks(uint8_t numberOfBlocks)
 {
     if (blockCounter+numberOfBlocks >= MAX_BLOCKS)
@@ -197,6 +230,12 @@ bool DBMS::addBlocks(uint8_t numberOfBlocks)
     return true;
 }
 
+///
+/// \brief Adds section to specified block.
+/// @param [in] blockID Block on which to add section.
+/// @param [in] section Structure holding description of section.
+/// \returns True on success, false otherwise.
+///
 bool DBMS::addSection(uint8_t blockID, dbSection_t section)
 {
     if (block[blockID].sections >= MAX_SECTIONS)
@@ -211,6 +250,9 @@ bool DBMS::addSection(uint8_t blockID, dbSection_t section)
     return true;
 }
 
+///
+/// \brief Calculates all addresses for specified blocks and sections.
+///
 void DBMS::commitLayout()
 {
     for (int i=0; i<blockCounter; i++)
@@ -265,6 +307,11 @@ void DBMS::commitLayout()
     }
 }
 
+///
+/// \brief Writes default values to EEPROM from defaultValue parameter.
+/// @param [in] type    Type of initialization (initPartial or initWipe). Init wipe will simply orverwrite currently existing
+///                     data. initPartial will leave data as is, but only if preserveOnPartialReset parameter is set to true.
+///
 void DBMS::initData(initType_t type)
 {
     for (int i=0; i<blockCounter; i++)

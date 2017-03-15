@@ -30,9 +30,10 @@ RingBuff_t rxBuffer;
 #error Please enable RX or TX
 #endif
 
-//isr functions
-
 #if RX_ENABLE == 1
+///
+/// \brief ISR used to store incoming data from UART to buffer.
+///
 ISR(USART1_RX_vect)
 {
     uint8_t data = UDR1;
@@ -42,6 +43,9 @@ ISR(USART1_RX_vect)
 #endif
 
 #if TX_ENABLE == 1
+///
+/// \brief ISR used to send data from outgoing buffer to UART.
+///
 ISR(USART1_UDRE_vect)
 {
     if (RingBuffer_IsEmpty(&txBuffer))
@@ -63,12 +67,18 @@ ISR(USART1_UDRE_vect)
 ISR(USART1_TX_vect) {}
 #endif
 
+///
+/// \brief Default constructor (empty).
+///
 UART::UART()
 {
-    //default constructor
+    
 }
 
-int8_t UART::begin(uint32_t baudRate)
+///
+/// \brief Initializes UART peripheral.
+///
+void UART::init(uint32_t baudRate)
 {
     #if RX_ENABLE == 0 && TX_ENABLE == 0
     #error RX and TX are disabled, please enable at least one channel
@@ -109,10 +119,12 @@ int8_t UART::begin(uint32_t baudRate)
     #elif RX_ENABLE == 0 && TX_ENABLE == 1
     RingBuffer_InitBuffer(&txBuffer);
     #endif
-
-    return 0;
 }
 
+///
+/// \brief Reads a byte from incoming UART buffer
+/// \returns Single byte on success, -1 is buffer is empty.
+///
 int16_t UART::read(void)
 {
     #if RX_ENABLE == 1
@@ -125,6 +137,11 @@ int16_t UART::read(void)
     #endif
 }
 
+///
+/// \brief Writes single byte to TX buffer.
+/// @param [in] data    Byte value
+/// \returns 0 on success, -1 otherwise.
+///
 int8_t UART::write(uint8_t data)
 {
     #if TX_ENABLE == 1
@@ -149,6 +166,10 @@ int8_t UART::write(uint8_t data)
     return 0;
 }
 
+///
+/// \brief Checks if any incoming UART data is available.
+/// \returns True if any data is available, false otherwise.
+///
 bool UART::available()
 {
     #if RX_ENABLE == 1
