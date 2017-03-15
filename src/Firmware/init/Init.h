@@ -20,8 +20,7 @@
 
 #include "../database/Database.h"
 #include "../sysex/SysEx.h"
-#include "../version/Firmware.h"
-#include "../version/Hardware.h"
+#include "../version/Version.h"
 #include "../board/Board.h"
 #include "../interface/Interface.h"
 

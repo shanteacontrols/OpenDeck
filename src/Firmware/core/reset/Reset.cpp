@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Reboot.h"
+#include "Reset.h"
 
 #define WDFR 3
 
@@ -67,7 +67,7 @@ void disablePeripherals(void)
     DDRF = 0;
 }
 
-void wdReboot()
+void wdReset()
 {
     cli();
     //stop watchdog timer, if running
@@ -75,9 +75,6 @@ void wdReboot()
     WDTCSR |= (1<<WDCE);
     WDTCSR = 0;
     _delay_ms(5);
-    UDCON = 1;
-    USBCON = (1<<FRZCLK);
-    _delay_ms(2000);
     disablePeripherals();
 
     wdt_enable(WDTO_15MS);

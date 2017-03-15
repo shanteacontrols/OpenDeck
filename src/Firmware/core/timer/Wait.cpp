@@ -16,12 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "Timing.h"
 
-#ifdef BOARD_V1
-#define HARDWARE_VERSION_MAJOR      1
-#define HARDWARE_VERSION_MINOR      1
-#define HARDWARE_VERSION_REVISION   1
-#else
-#error Wrong board selected
-#endif
+void wait_ms(uint32_t ms)
+{
+    while(ms--)
+    {
+        _delay_ms(1);
+    }
+}

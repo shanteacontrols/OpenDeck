@@ -255,9 +255,9 @@
     <PostBuildEvent>call cd $(SolutionDir)
 call cd ..\tools
 
-call avrdude -p m32u4 -c usbasp -U lock:w:0x3F:m
-call avrdude -p m32U4 -c usbasp -U lfuse:w:0xff:m -U hfuse:w:0xd0:m -U efuse:w:0xC8:m
-call avrdude.exe -p m32u4 -c usbasp -U flash:w:"$(OutputDirectory)\$(OutputFileName).hex":i</PostBuildEvent>
+REM call avrdude -p m32u4 -c usbasp -U lock:w:0x3F:m
+REM call avrdude -p m32U4 -c usbasp -U lfuse:w:0xff:m -U hfuse:w:0xd0:m -U efuse:w:0xC8:m
+REM call avrdude.exe -p m32u4 -c usbasp -U flash:w:"$(OutputDirectory)\$(OutputFileName).hex":i</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
