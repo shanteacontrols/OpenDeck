@@ -20,107 +20,175 @@
 
 void initSysEx()
 {
+    sysEx.addBlocks(DB_BLOCKS);
+
+    sysExSection section;
+
     {
-        sysEx.addBlock(MIDI_SECTIONS);
+        //MIDI block
 
-        const sysExSection midiFeature_section = { MIDI_FEATURES, 0, 1 };
-        const sysExSection midiChannel_section = { MIDI_CHANNELS, 1, 16 };
+        //midi feature section
+        section.numberOfParameters = MIDI_FEATURES;
+        section.minValue = 0;
+        section.maxValue = 1;
 
-        const sysExSection *midiSectionArray[] =
-        {
-            &midiFeature_section,
-            &midiChannel_section
-        };
+        sysEx.addSection(DB_BLOCK_MIDI, section);
 
-        for (int i=0; i<MIDI_SECTIONS; i++)
-            sysEx.addSection(DB_BLOCK_MIDI, midiSectionArray[i]->numberOfParameters, midiSectionArray[i]->minValue, midiSectionArray[i]->maxValue);
+        //midi channel section
+        section.numberOfParameters = MIDI_CHANNELS;
+        section.minValue = 1;
+        section.maxValue = 16;
+
+        sysEx.addSection(DB_BLOCK_MIDI, section);
     }
 
     {
-        sysEx.addBlock(BUTTON_SECTIONS);
+        //button block
 
-        const sysExSection buttonType_section                   = { MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG, 0, BUTTON_TYPES-1 };
-        const sysExSection buttonProgramChangeEnabled_section   = { MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG, 0, 1 };
-        const sysExSection buttonMIDIid_section                 = { MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG, 0, 127 };
+        //type section
+        section.numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
+        section.minValue = 0;
+        section.maxValue = BUTTON_TYPES-1;
 
-        const sysExSection *buttonSectionArray[] =
-        {
-            &buttonType_section,
-            &buttonProgramChangeEnabled_section,
-            &buttonMIDIid_section
-        };
+        sysEx.addSection(DB_BLOCK_BUTTON, section);
 
-        for (int i=0; i<BUTTON_SECTIONS; i++)
-            sysEx.addSection(DB_BLOCK_BUTTON, buttonSectionArray[i]->numberOfParameters, buttonSectionArray[i]->minValue, buttonSectionArray[i]->maxValue);
+        //program change enabled section
+        section.numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
+        section.minValue = 0;
+        section.maxValue = 1;
+
+        sysEx.addSection(DB_BLOCK_BUTTON, section);
+
+        //midi id section
+        section.numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
+        section.minValue = 0;
+        section.maxValue = 127;
+
+        sysEx.addSection(DB_BLOCK_BUTTON, section);
     }
 
     {
-        sysEx.addBlock(ENCODER_SECTIONS);
+        //encoder block
 
-        const sysExSection encoderEnabled_section           = { MAX_NUMBER_OF_ENCODERS, 0, 1 };
-        const sysExSection encoderInverted_section          = { MAX_NUMBER_OF_ENCODERS, 0, 1 };
-        const sysExSection encoderEncodingMode_section      = { MAX_NUMBER_OF_ENCODERS, 0, ENCODING_MODES-1 };
-        const sysExSection encoderMIDIid_section            = { MAX_NUMBER_OF_ENCODERS, 0, 127 };
+        //encoder enabled section
+        section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
+        section.minValue = 0;
+        section.maxValue = 1;
 
-        const sysExSection *encodersSectionArray[] =
-        {
-            &encoderEnabled_section,
-            &encoderInverted_section,
-            &encoderEncodingMode_section,
-            &encoderMIDIid_section
-        };
+        sysEx.addSection(DB_BLOCK_ENCODER, section);
 
-        for (int i=0; i<ENCODER_SECTIONS; i++)
-            sysEx.addSection(DB_BLOCK_ENCODER, encodersSectionArray[i]->numberOfParameters, encodersSectionArray[i]->minValue, encodersSectionArray[i]->maxValue);
+        //encoder inverted section
+        section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
+        section.minValue = 0;
+        section.maxValue = 1;
+
+        sysEx.addSection(DB_BLOCK_ENCODER, section);
+
+        //encoding mode section
+        section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
+        section.minValue = 0;
+        section.maxValue = ENCODING_MODES-1;
+
+        sysEx.addSection(DB_BLOCK_ENCODER, section);
+
+        //midi id section
+        section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
+        section.minValue = 0;
+        section.maxValue = 127;
+
+        sysEx.addSection(DB_BLOCK_ENCODER, section);
     }
 
     {
-        sysEx.addBlock(ANALOG_SECTIONS);
+        //analog block
 
-        const sysExSection analogEnabled_section            = { MAX_NUMBER_OF_ANALOG, 0, 1 };
-        const sysExSection analogInverted_section           = { MAX_NUMBER_OF_ANALOG, 0, 1 };
-        const sysExSection analogType_section               = { MAX_NUMBER_OF_ANALOG, 0, ANALOG_TYPES-1 };
-        const sysExSection analogMIDIid_section             = { MAX_NUMBER_OF_ANALOG, 0, 127 };
-        const sysExSection analogCClowerLimit_section       = { MAX_NUMBER_OF_ANALOG, 0, 127 };
-        const sysExSection analogCCupperLimit_section       = { MAX_NUMBER_OF_ANALOG, 0, 127 };
+        //analog enabled section
+        section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
+        section.minValue = 0;
+        section.maxValue = 1;
 
-        const sysExSection *analogSectionArray[] =
-        {
-            &analogEnabled_section,
-            &analogInverted_section,
-            &analogType_section,
-            &analogMIDIid_section,
-            &analogCClowerLimit_section,
-            &analogCCupperLimit_section
-        };
+        sysEx.addSection(DB_BLOCK_ANALOG, section);
 
-        for (int i=0; i<ANALOG_SECTIONS; i++)
-            sysEx.addSection(DB_BLOCK_ANALOG, analogSectionArray[i]->numberOfParameters, analogSectionArray[i]->minValue, analogSectionArray[i]->maxValue);
+        //analog inverted section
+        section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
+        section.minValue = 0;
+        section.maxValue = 1;
+
+        sysEx.addSection(DB_BLOCK_ANALOG, section);
+
+        //analog type section
+        section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
+        section.minValue = 0;
+        section.maxValue = ANALOG_TYPES-1;
+
+        sysEx.addSection(DB_BLOCK_ANALOG, section);
+
+        //midi id section
+        section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
+        section.minValue = 0;
+        section.maxValue = 127;
+
+        sysEx.addSection(DB_BLOCK_ANALOG, section);
+
+        //lower cc limit
+        section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
+        section.minValue = 0;
+        section.maxValue = 127;
+
+        sysEx.addSection(DB_BLOCK_ANALOG, section);
+
+        //upper cc limit
+        section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
+        section.minValue = 0;
+        section.maxValue = 127;
+
+        sysEx.addSection(DB_BLOCK_ANALOG, section);
     }
 
     {
-        sysEx.addBlock(LED_SECTIONS+2);
+        //led block
 
-        const sysExSection ledHardwareParameter_section     = { LED_HARDWARE_PARAMETERS, 0, 0 };
-        const sysExSection ledActivationNote_section        = { MAX_NUMBER_OF_LEDS, 0, MAX_NUMBER_OF_LEDS }; //MAX_NUMBER_OF_LEDS = blank note
-        const sysExSection ledRGBenabled_section            = { MAX_NUMBER_OF_LEDS, 0, 1 };
-        const sysExSection ledLocalControl_Enabled          = { MAX_NUMBER_OF_LEDS, 0, 1 };
-        //extras - not defined in eeprom blocks since it's not persistent section
-        const sysExSection ledColor_section                 = { MAX_NUMBER_OF_LEDS, 0, LED_COLORS-1 };
-        const sysExSection ledBlink_section                 = { MAX_NUMBER_OF_LEDS, 0, 1 };
+        //hardware parameters section
+        section.numberOfParameters = LED_HARDWARE_PARAMETERS;
+        section.minValue = 0;
+        section.maxValue = 0;
 
-        const sysExSection *ledsSectionArray[] =
-        {
-            &ledHardwareParameter_section,
-            &ledActivationNote_section,
-            &ledRGBenabled_section,
-            &ledLocalControl_Enabled,
-            &ledColor_section,
-            &ledBlink_section
-        };
+        sysEx.addSection(DB_BLOCK_ANALOG, section);
 
-        for (int i=0; i<(LED_SECTIONS+2); i++)
-            sysEx.addSection(DB_BLOCK_LED, ledsSectionArray[i]->numberOfParameters, ledsSectionArray[i]->minValue, ledsSectionArray[i]->maxValue);
+        //activation note section
+        section.numberOfParameters = MAX_NUMBER_OF_LEDS;
+        section.minValue = 0;
+        section.maxValue = 127;
+
+        sysEx.addSection(DB_BLOCK_ANALOG, section);
+
+        //rgb enabled section
+        section.numberOfParameters = MAX_NUMBER_OF_LEDS;
+        section.minValue = 0;
+        section.maxValue = 1;
+
+        sysEx.addSection(DB_BLOCK_ANALOG, section);
+
+        //local led control enabled section
+        section.numberOfParameters = MAX_NUMBER_OF_LEDS;
+        section.minValue = 0;
+        section.maxValue = 1;
+
+        sysEx.addSection(DB_BLOCK_ANALOG, section);
+
+        //led color section
+        section.numberOfParameters = MAX_NUMBER_OF_LEDS;
+        section.minValue = 0;
+        section.maxValue = LED_COLORS-1;
+
+        sysEx.addSection(DB_BLOCK_ANALOG, section);
+
+        //led blink section
+        section.numberOfParameters = MAX_NUMBER_OF_LEDS;
+        section.minValue = 0;
+        section.maxValue = 1;
+
+        sysEx.addSection(DB_BLOCK_ANALOG, section);
     }
 }
 
