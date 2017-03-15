@@ -4,6 +4,7 @@ src/Bootloader/Debug/*
 src/Bootloader/Release*/*
 src/Firmware/Debug*
 src/Firmware/Release*
+src/Firmware/doxygen/*
 tools/tmp/*
 tools/bin/*
 tools/mingw64/*
