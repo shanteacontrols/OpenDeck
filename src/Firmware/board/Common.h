@@ -21,6 +21,11 @@
 #include "DataTypes.h"
 #include "Import.h"
 
+///
+/// \brief Common interface for all boards.
+/// \ingroup board
+/// @{
+///
 class BoardCommon
 {
     public:
@@ -32,3 +37,4 @@ class BoardCommon
     virtual bool encoderDataAvailable() = 0;
     virtual int8_t getEncoderState(uint8_t encoderID) = 0;
 };
+/// @}

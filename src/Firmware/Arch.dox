@@ -2,6 +2,10 @@
 /// \brief Integrated MCU peripherals.
 ///
 
+/// @defgroup board Board
+/// \brief I/O control.
+///
+
 /// @defgroup eeprom EEPROM
 /// \brief Simple DMBS and database implemented using internal EEPROM.
 ///
