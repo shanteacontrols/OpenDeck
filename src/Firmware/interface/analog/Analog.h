@@ -28,6 +28,7 @@
 
 ///
 /// \brief Analog components handling.
+/// \defgroup analog Analog
 /// \ingroup interface
 /// @{
 ///
