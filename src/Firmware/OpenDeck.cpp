@@ -211,7 +211,7 @@ int main()
             //new message on usb
             midiMessageType_t messageType = midi.getType(usbInterface);
             uint8_t data1 = midi.getData1(usbInterface);
-            uint8_t data2 = midi.getData2(usbInterface);
+            uint8_t data2 = midi.getData2(usbInterface);    
 
             switch(messageType)
             {
@@ -224,7 +224,7 @@ int main()
                 leds.noteToState(data1, data2);
                 break;
 
-                case case midiMessageNoteOff:
+                case midiMessageNoteOff:
                 //always turn led off when note off is received
                 leds.noteToState(data1, 0);
                 break;
