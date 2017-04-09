@@ -23,6 +23,7 @@
 
 ///
 /// \brief LED handling.
+/// \defgroup leds LEDs
 /// \ingroup interface
 /// @{
 ///
