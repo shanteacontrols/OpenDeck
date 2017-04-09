@@ -44,7 +44,7 @@
 #pragma once
 
 #include "Config.h"
-#include "../core/usb/midi/Descriptors.h"
+#include "../core/usb/MIDI.h"
 #include "DataTypes.h"
 #include "Helpers.h"
 
