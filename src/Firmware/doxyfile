@@ -875,7 +875,7 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = "D:\Dropbox\Documents\Atmel Studio\Projects\OpenDeck\src\Firmware\core\usb"
+EXCLUDE                = "D:\Dropbox\Documents\Atmel Studio\Projects\OpenDeck\src\Firmware\core\usb\midi"
 EXCLUDE 			+= "D:\Dropbox\Documents\Atmel Studio\Projects\OpenDeck\src\Firmware\Debug"				
 EXCLUDE 			+= "D:\Dropbox\Documents\Atmel Studio\Projects\OpenDeck\src\Firmware\Release"		
 EXCLUDE 			+= "D:\Dropbox\Documents\Atmel Studio\Projects\OpenDeck\src\Firmware\doxygen"				
