@@ -25,6 +25,7 @@
 
 ///
 /// \brief Button handling.
+/// \defgroup buttons Buttons
 /// \ingroup interface
 /// @{
 ///
