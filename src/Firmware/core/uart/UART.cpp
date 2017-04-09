@@ -125,7 +125,7 @@ void UART::init(uint32_t baudRate)
 /// \brief Reads a byte from incoming UART buffer
 /// \returns Single byte on success, -1 is buffer is empty.
 ///
-int16_t UART::read(void)
+int8_t UART::read(void)
 {
     #if RX_ENABLE == 1
     if (RingBuffer_IsEmpty(&rxBuffer))
