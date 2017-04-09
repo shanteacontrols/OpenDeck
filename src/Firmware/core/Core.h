@@ -32,5 +32,5 @@
 #include "uart/UART.h"
 #include "usb/midi/Descriptors.h"
 #include "helpers/Helpers.h"
-#include "timer/Timing.h"
+#include "timing/Timing.h"
 #include "reset/Reset.h"
