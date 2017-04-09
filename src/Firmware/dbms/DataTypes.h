@@ -47,7 +47,7 @@ typedef struct
     uint16_t blockStartAddress;
     uint16_t sectionAddress[MAX_SECTIONS];
     dbSection_t section[MAX_SECTIONS];
-} blockDescriptor;
+} dbBlock_t;
 
 typedef enum
 {
