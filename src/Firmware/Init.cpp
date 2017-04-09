@@ -153,42 +153,42 @@ void initSysEx()
         section.minValue = 0;
         section.maxValue = 0;
 
-        sysEx.addSection(DB_BLOCK_ANALOG, section);
+        sysEx.addSection(DB_BLOCK_LED, section);
 
         //activation note section
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
         section.minValue = 0;
         section.maxValue = 127;
 
-        sysEx.addSection(DB_BLOCK_ANALOG, section);
+        sysEx.addSection(DB_BLOCK_LED, section);
 
         //rgb enabled section
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
         section.minValue = 0;
         section.maxValue = 1;
 
-        sysEx.addSection(DB_BLOCK_ANALOG, section);
+        sysEx.addSection(DB_BLOCK_LED, section);
 
         //local led control enabled section
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
         section.minValue = 0;
         section.maxValue = 1;
 
-        sysEx.addSection(DB_BLOCK_ANALOG, section);
+        sysEx.addSection(DB_BLOCK_LED, section);
 
         //led color section
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
         section.minValue = 0;
         section.maxValue = LED_COLORS-1;
 
-        sysEx.addSection(DB_BLOCK_ANALOG, section);
+        sysEx.addSection(DB_BLOCK_LED, section);
 
         //led blink section
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
         section.minValue = 0;
         section.maxValue = 1;
 
-        sysEx.addSection(DB_BLOCK_ANALOG, section);
+        sysEx.addSection(DB_BLOCK_LED, section);
     }
 }
 
