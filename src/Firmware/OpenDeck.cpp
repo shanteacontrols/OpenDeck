@@ -219,10 +219,14 @@ int main()
                 sysEx.handleMessage(midi.getSysExArray(usbInterface), midi.getSysExArrayLength(usbInterface));
                 break;
 
-                case midiMessageNoteOff:
                 case midiMessageNoteOn:
                 //we're using received note data to control LED color
                 leds.noteToState(data1, data2);
+                break;
+
+                case case midiMessageNoteOff:
+                //always turn led off when note off is received
+                leds.noteToState(data1, 0);
                 break;
 
                 case midiMessageControlChange:
