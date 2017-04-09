@@ -32,7 +32,7 @@ class UART
     UART();
     void init(uint32_t baud_count);
     bool available();
-    int16_t read();
+    int8_t read();
     int8_t write(uint8_t);
 };
 
