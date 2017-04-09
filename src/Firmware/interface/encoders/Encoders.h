@@ -24,6 +24,7 @@
 
 ///
 /// \brief Encoder handling.
+/// \defgroup encoders Encoders
 /// \ingroup interface
 /// @{
 ///
