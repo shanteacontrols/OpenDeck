@@ -339,13 +339,13 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="core\reset\Reset.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="core\timer\RunTime.cpp">
+    <Compile Include="core\timing\RunTime.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="core\timer\Timing.h">
+    <Compile Include="core\timing\Timing.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="core\timer\Wait.cpp">
+    <Compile Include="core\timing\Wait.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="core\uart\Config.h">
@@ -609,6 +609,9 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="core\usb\midi\LUFA\Version.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="core\usb\MIDI.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="database\blocks\Analog.h">
       <SubType>compile</SubType>
     </Compile>
@@ -769,7 +772,7 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Folder Include="core\adc\" />
     <Folder Include="core\helpers" />
     <Folder Include="core\reset" />
-    <Folder Include="core\timer" />
+    <Folder Include="core\timing" />
     <Folder Include="core\uart\" />
     <Folder Include="core\uart\ring_buffer\" />
     <Folder Include="core\usb\" />
