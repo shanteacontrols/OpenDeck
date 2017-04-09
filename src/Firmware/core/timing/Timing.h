@@ -20,7 +20,7 @@
 
 ///
 /// \brief Provides delay function and interface to accommodate MCU run time in milliseconds.
-/// \defgroup timer Timer
+/// \defgroup timing Timing
 /// \ingroup core
 /// @{
 
