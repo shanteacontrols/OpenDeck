@@ -29,6 +29,7 @@
 class BoardCommon
 {
     public:
+    virtual void init() = 0;
     virtual void reboot(rebootType_t type);
     virtual bool buttonDataAvailable() = 0;
     virtual bool getButtonState(uint8_t buttonIndex) = 0;
