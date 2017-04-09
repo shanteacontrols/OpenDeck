@@ -18,7 +18,7 @@
 
 #include "DBMS.h"
 
-blockDescriptor block[MAX_BLOCKS];
+dbBlock_t block[MAX_BLOCKS];
 
 ///
 /// \brief Returns section address for specified section within block.
