@@ -19,9 +19,11 @@
 #pragma once
 
 #include "Pins.h"
+#include "../../../version/Version.h"
 
 //match pins on pcb
 
+#if HARDWARE_VERSION_MINOR == 1
 #define MUX_Y0                      8
 #define MUX_Y1                      9
 #define MUX_Y2                      10
@@ -38,6 +40,24 @@
 #define MUX_Y13                     2
 #define MUX_Y14                     1
 #define MUX_Y15                     0
+#elif HARDWARE_VERSION_MINOR == 2
+#define MUX_Y0                      8
+#define MUX_Y1                      9
+#define MUX_Y2                      10
+#define MUX_Y3                      11
+#define MUX_Y4                      12
+#define MUX_Y5                      13
+#define MUX_Y6                      14
+#define MUX_Y7                      15
+#define MUX_Y8                      4
+#define MUX_Y9                      5
+#define MUX_Y10                     7
+#define MUX_Y11                     6
+#define MUX_Y12                     0
+#define MUX_Y13                     1
+#define MUX_Y14                     2
+#define MUX_Y15                     3
+#endif
 
 const uint8_t muxPinOrderArray[] =
 {
