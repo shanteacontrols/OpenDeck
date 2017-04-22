@@ -54,7 +54,8 @@ void Analog::update()
 
             switch(type)
             {
-                case aType_potentiometer:
+                case aType_potentiometer_cc:
+                case aType_potentiometer_note:
                 checkPotentiometerValue(i, analogData);
                 break;
 
