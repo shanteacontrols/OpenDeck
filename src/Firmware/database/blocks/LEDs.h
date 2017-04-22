@@ -26,11 +26,3 @@ typedef enum
     ledLocalControlSection,
     LED_SECTIONS
 } ledSection;
-
-typedef enum
-{
-    ledHwParameterBlinkTime,
-    ledHwParameterFadeTime,
-    ledHwParameterStartUpRoutine,
-    LED_HARDWARE_PARAMETERS
-} ledHardwareParameter;
