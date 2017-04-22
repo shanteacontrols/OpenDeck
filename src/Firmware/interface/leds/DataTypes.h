@@ -37,3 +37,11 @@ typedef enum
     colorWhite,
     LED_COLORS
 } ledColor_t;
+
+typedef enum
+{
+    ledHwParameterBlinkTime,
+    ledHwParameterFadeTime,
+    ledHwParameterStartUpRoutine,
+    LED_HARDWARE_PARAMETERS
+} ledHardwareParameter_t;
