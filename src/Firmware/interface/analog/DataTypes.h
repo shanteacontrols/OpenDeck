@@ -26,7 +26,8 @@ typedef enum
 
 typedef enum 
 {
-    aType_potentiometer,
+    aType_potentiometer_cc,
+    aType_potentiometer_note,
     aType_fsr,
     aType_button,
     ANALOG_TYPES
