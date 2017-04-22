@@ -132,26 +132,24 @@
         <avrgcccpp.linker.miscellaneous.LinkerFlags>-Wl,--section-start=.noinit=0x00800AFD</avrgcccpp.linker.miscellaneous.LinkerFlags>
       </AvrGccCpp>
     </ToolchainSettings>
-    <PostBuildEvent>REM running version script
+    <PostBuildEvent>REM cd to tools dir
 call cd $(SolutionDir)
-call cd ..\tools
-call cp ..\version\MAJOR MAJOR
-call cp ..\version\MINOR MINOR
-call cp ..\version\REVISION REVISION
-call bin\sh.exe -l version_script.sh
+call cd ..\tools\
 
-REM converting hex to bin and adding crc
-call srec_cat.exe "$(MSBuildProjectDirectory)\$(Configuration)\$(OutputFileName).hex" -intel -fill 0xFF 0x0000 0x67FE -Cyclic_Redundancy_Check_16_Big_Endian 0x67FE -XMODEM -o "$(SolutionDir)\..\tools\FLASH.bin" -binary
+REM copy compiled hex to current dir
+call cp "$(MSBuildProjectDirectory)\$(Configuration)\$(OutputFileName).hex" FLASH.hex
 
-REM calling version_append
+REM get software version and append crc
+call C:\Windows\Sysnative\bash.exe -c "./version_script.sh"
+
+REM append version to bin file
 call version_append.exe
-call del version
 
-REM upload code using usbasp
-REM call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin
+REM remove version
+del version
 
-REM move flash to bin dir
-call move FLASH.bin ..\bin\compiled</PostBuildEvent>
+REM move FLASH.bin to bin dir
+call move FLASH.bin ../bin/FLASH.bin</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
