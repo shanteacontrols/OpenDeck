@@ -1,21 +1,3 @@
-/*
-    OpenDeck MIDI platform firmware
-    Copyright (C) 2015-2017 Igor Petrovic
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 #include "Version.h"
 
 bool checkNewRevision()
@@ -38,14 +20,30 @@ bool checkNewRevision()
 
 uint8_t getSWversion(swVersion_t point)
 {
+    uint32_t address;
+
     switch(point)
     {
         case swVersion_major:
         case swVersion_minor:
         case swVersion_revision:
-        return (uint8_t)pgm_read_word_far(SW_VERSION_POINT_LOCATION+(uint8_t)point*2);
+        address = SW_VERSION_POINT_LOCATION+(uint32_t)point*(uint32_t)2;
+        return (uint8_t)pgm_read_word_far(address);
 
         default:
         return 0;
     }
+}
+
+void getGitHash(char *hash)
+{
+    uint32_t address = 2 + SW_VERSION_POINT_LOCATION+(uint32_t)swVersion_revision*(uint32_t)2;
+
+    for (int i=0; i<7; i++)
+    {
+        hash[i] = (uint8_t)pgm_read_word_far(address);
+        address++;
+    }
+
+    hash[7] = '\0';
 }
