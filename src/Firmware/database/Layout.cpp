@@ -29,6 +29,9 @@ void Database::createLayout()
     dbSection_t section;
 
     {
+        //MIDI block
+
+        //midi feature section
         section.parameters = MIDI_FEATURES;
         section.defaultValue = 0;
         section.parameterType = BIT_PARAMETER;
@@ -36,6 +39,7 @@ void Database::createLayout()
 
         DBMS::addSection(DB_BLOCK_MIDI, section);
 
+        //midi channel section
         section.parameters = MIDI_CHANNELS;
         section.defaultValue = 1;
         section.parameterType = BYTE_PARAMETER;
@@ -45,6 +49,9 @@ void Database::createLayout()
     }
 
     {
+        //button block
+
+        //type section
         section.parameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
         section.defaultValue = 0;
         section.parameterType = BIT_PARAMETER;
@@ -52,6 +59,7 @@ void Database::createLayout()
 
         DBMS::addSection(DB_BLOCK_BUTTON, section);
 
+        //program change enabled section
         section.parameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
         section.defaultValue = 0;
         section.parameterType = BIT_PARAMETER;
@@ -59,6 +67,7 @@ void Database::createLayout()
 
         DBMS::addSection(DB_BLOCK_BUTTON, section);
 
+        //midi id section
         section.parameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
         section.defaultValue = AUTO_INCREMENT;
         section.parameterType = BYTE_PARAMETER;
@@ -68,6 +77,9 @@ void Database::createLayout()
     }
 
     {
+        //encoder block
+
+        //encoder enabled section
         section.parameters = MAX_NUMBER_OF_ENCODERS;
         section.defaultValue = 0;
         section.parameterType = BIT_PARAMETER;
@@ -75,6 +87,7 @@ void Database::createLayout()
 
         DBMS::addSection(DB_BLOCK_ENCODER, section);
 
+        //encoder inverted section
         section.parameters = MAX_NUMBER_OF_ENCODERS;
         section.defaultValue = 0;
         section.parameterType = BIT_PARAMETER;
@@ -82,6 +95,7 @@ void Database::createLayout()
 
         DBMS::addSection(DB_BLOCK_ENCODER, section);
 
+        //encoding mode section
         section.parameters = MAX_NUMBER_OF_ENCODERS;
         section.defaultValue = 0;
         section.parameterType = BYTE_PARAMETER;
@@ -89,6 +103,7 @@ void Database::createLayout()
 
         DBMS::addSection(DB_BLOCK_ENCODER, section);
 
+        //midi id section
         section.parameters = MAX_NUMBER_OF_ENCODERS;
         section.defaultValue = AUTO_INCREMENT;
         section.parameterType = BYTE_PARAMETER;
@@ -98,6 +113,9 @@ void Database::createLayout()
     }
 
     {
+        //analog block
+
+        //analog enabled section
         section.parameters = MAX_NUMBER_OF_ANALOG;
         section.defaultValue = 0;
         section.parameterType = BIT_PARAMETER;
@@ -105,6 +123,7 @@ void Database::createLayout()
 
         DBMS::addSection(DB_BLOCK_ANALOG, section);
 
+        //analog inverted section
         section.parameters = MAX_NUMBER_OF_ANALOG;
         section.defaultValue = 0;
         section.parameterType = BIT_PARAMETER;
@@ -112,6 +131,7 @@ void Database::createLayout()
 
         DBMS::addSection(DB_BLOCK_ANALOG, section);
 
+        //analog type section
         section.parameters = MAX_NUMBER_OF_ANALOG;
         section.defaultValue = 0;
         section.parameterType = BYTE_PARAMETER;
@@ -119,6 +139,7 @@ void Database::createLayout()
 
         DBMS::addSection(DB_BLOCK_ANALOG, section);
 
+        //midi id section
         section.parameters = MAX_NUMBER_OF_ANALOG;
         section.defaultValue = AUTO_INCREMENT;
         section.parameterType = BYTE_PARAMETER;
@@ -126,6 +147,7 @@ void Database::createLayout()
 
         DBMS::addSection(DB_BLOCK_ANALOG, section);
 
+        //lower cc limit
         section.parameters = MAX_NUMBER_OF_ANALOG;
         section.defaultValue = 0;
         section.parameterType = BYTE_PARAMETER;
@@ -133,6 +155,7 @@ void Database::createLayout()
 
         DBMS::addSection(DB_BLOCK_ANALOG, section);
 
+        //upper cc limit
         section.parameters = MAX_NUMBER_OF_ANALOG;
         section.defaultValue = 127;
         section.parameterType = BYTE_PARAMETER;
@@ -142,6 +165,9 @@ void Database::createLayout()
     }
 
     {
+        //led block
+
+        //hardware parameters section
         section.parameters = LED_HARDWARE_PARAMETERS;
         section.defaultValue = 0;
         section.parameterType = BYTE_PARAMETER;
@@ -149,6 +175,7 @@ void Database::createLayout()
 
         DBMS::addSection(DB_BLOCK_LED, section);
 
+        //activation id section
         section.parameters = MAX_NUMBER_OF_LEDS;
         section.defaultValue = AUTO_INCREMENT;
         section.parameterType = BYTE_PARAMETER;
@@ -156,6 +183,7 @@ void Database::createLayout()
 
         DBMS::addSection(DB_BLOCK_LED, section);
 
+        //rgb enabled section
         section.parameters = MAX_NUMBER_OF_LEDS;
         section.defaultValue = 0;
         section.parameterType = BIT_PARAMETER;
@@ -163,6 +191,7 @@ void Database::createLayout()
 
         DBMS::addSection(DB_BLOCK_LED, section);
 
+        //local led control enabled section
         section.parameters = MAX_NUMBER_OF_LEDS;
         section.defaultValue = 0;
         section.parameterType = BIT_PARAMETER;
@@ -172,6 +201,8 @@ void Database::createLayout()
     }
 
     {
+        //ID block
+
         section.parameters = ID_OFFSET;
         section.defaultValue = UNIQUE_ID;
         section.parameterType = BYTE_PARAMETER;
