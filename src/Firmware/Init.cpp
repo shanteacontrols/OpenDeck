@@ -232,8 +232,8 @@ void globalInit()
         _delay_ms(200);
     }
 
-    leds.init();
-
     //enable global interrupts
     sei();
+
+    leds.init();
 }
