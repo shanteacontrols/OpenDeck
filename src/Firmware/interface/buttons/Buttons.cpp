@@ -45,7 +45,7 @@ bool Buttons::getButtonPressed(uint8_t buttonID)
     return bitRead(buttonPressed[arrayIndex], buttonIndex);
 }
 
-void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool sendProgramChange)
+void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonMIDImessage_t midiMessage)
 {
     if (buttonState)
     {
@@ -54,15 +54,26 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
         {
             uint8_t note = database.read(DB_BLOCK_BUTTON, buttonMIDIidSection, buttonID);
             setButtonPressed(buttonID, true);
-            if (sendProgramChange)
+
+            switch(midiMessage)
             {
+                case buttonPC:
                 midi.sendProgramChange(note, database.read(DB_BLOCK_MIDI, midiChannelSection, programChangeChannel));
-            }
-            else
-            {
+                break;
+
+                case buttonNote:
                 midi.sendNoteOn(note, velocityOn, database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
                 leds.noteToState(note, velocityOn, true);
+                break;
+
+                case buttonCC:
+                midi.sendControlChange(note, velocityOn, database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
+                break;
+
+                default:
+                break;
             }
+
             if (sysEx.configurationEnabled())
             {
                 if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)
@@ -83,11 +94,26 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
         if (getButtonPressed(buttonID))
         {
             uint8_t note = database.read(DB_BLOCK_BUTTON, buttonMIDIidSection, buttonID);
-            if (!sendProgramChange)
+
+            switch(midiMessage)
             {
+                case buttonPC:
+                //do nothing
+                break;
+
+                case buttonNote:
                 midi.sendNoteOff(note, velocityOff, database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
                 leds.noteToState(note, velocityOff, true);
+                break;
+
+                case buttonCC:
+                midi.sendControlChange(note, velocityOff, database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
+                break;
+
+                default:
+                break;
             }
+
             if (sysEx.configurationEnabled())
             {
                 if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)
@@ -106,7 +132,7 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, bool se
     }
 }
 
-void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState)
+void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMIDImessage_t midiMessage)
 {
     if (buttonState != getPreviousButtonState(buttonID))
     {
@@ -170,24 +196,24 @@ void Buttons::processButton(uint8_t buttonID, bool state, bool debounce)
     {
         buttonType_t type = (buttonType_t)database.read(DB_BLOCK_BUTTON, buttonTypeSection, buttonID);
 
-        bool sendProgramChange = database.read(DB_BLOCK_BUTTON, buttonProgramChangeEnabledSection, buttonID);
+        buttonMIDImessage_t midiMessage = (buttonMIDImessage_t)database.read(DB_BLOCK_BUTTON, buttonMIDImessageSection, buttonID);
 
-        if (sendProgramChange)
+        if (midiMessage == buttonPC)
         {
             //ignore momentary/latching modes if button sends program change
             //when released, don't send anything
-            processMomentaryButton(buttonID, state, sendProgramChange);
+            processMomentaryButton(buttonID, state, midiMessage);
         }
         else
         {
             switch (type)
             {
                 case buttonMomentary:
-                processMomentaryButton(buttonID, state);
+                processMomentaryButton(buttonID, state, midiMessage);
                 break;
 
                 case buttonLatching:
-                processLatchingButton(buttonID, state);
+                processLatchingButton(buttonID, state, midiMessage);
                 break;
 
                 default:

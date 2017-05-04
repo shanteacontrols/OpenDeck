@@ -52,10 +52,10 @@ void initSysEx()
 
         sysEx.addSection(DB_BLOCK_BUTTON, section);
 
-        //program change enabled section
+        //midi message type section
         section.numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
         section.minValue = 0;
-        section.maxValue = 1;
+        section.maxValue = BUTTON_MESSAGE_TYPES-1;
 
         sysEx.addSection(DB_BLOCK_BUTTON, section);
 

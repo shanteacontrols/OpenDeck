@@ -46,8 +46,8 @@ class Buttons
     //data processing
     bool getButtonPressed(uint8_t buttonID);
     void setButtonPressed(uint8_t buttonID, bool state);
-    void processMomentaryButton(uint8_t buttonID, bool buttonState, bool sendProgramChange = false);
-    void processLatchingButton(uint8_t buttonID, bool buttonState);
+    void processMomentaryButton(uint8_t buttonID, bool buttonState, buttonMIDImessage_t midiMessage = buttonNote);
+    void processLatchingButton(uint8_t buttonID, bool buttonState, buttonMIDImessage_t midiMessage = buttonNote);
     void updateButtonState(uint8_t buttonID, uint8_t buttonState);
     bool getPreviousButtonState(uint8_t buttonID);
     bool buttonDebounced(uint8_t buttonID, bool buttonState);

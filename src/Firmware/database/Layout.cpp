@@ -59,10 +59,10 @@ void Database::createLayout()
 
         DBMS::addSection(DB_BLOCK_BUTTON, section);
 
-        //program change enabled section
+        //midi message type section
         section.parameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
         section.defaultValue = 0;
-        section.parameterType = BIT_PARAMETER;
+        section.parameterType = BYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
         DBMS::addSection(DB_BLOCK_BUTTON, section);
