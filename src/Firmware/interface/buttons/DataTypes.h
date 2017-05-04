@@ -24,3 +24,11 @@ typedef enum
     buttonLatching,
     BUTTON_TYPES
 } buttonType_t;
+
+typedef enum
+{
+    buttonNote,
+    buttonPC,
+    buttonCC,
+    BUTTON_MESSAGE_TYPES
+} buttonMIDImessage_t;
