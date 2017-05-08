@@ -19,6 +19,7 @@
 #pragma once
 
 #include "Helpers.h"
+#include "Config.h"
 
 enum midiInterfaceType_t
 {

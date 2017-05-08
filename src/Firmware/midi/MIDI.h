@@ -43,8 +43,10 @@
 
 #pragma once
 
+#ifdef NDEBUG
+
 #include "Config.h"
-#include "../core/usb/MIDI.h"
+#include "Descriptors.h"
 #include "DataTypes.h"
 #include "Helpers.h"
 
@@ -91,6 +93,8 @@ class MIDI
     void setNoteChannel(uint8_t channel);
     void setCCchannel(uint8_t channel);
     void setProgramChangeChannel(uint8_t channel);
+
+    noteOffType_t getNoteOffMode();
 
     private:
     void send(midiMessageType_t inType, uint8_t inData1, uint8_t inData2, uint8_t inChannel);
@@ -158,4 +162,6 @@ class MIDI
 extern MIDI midi;
 extern volatile bool MIDIevent_in;
 extern volatile bool MIDIevent_out;
+
+#endif
 /// @}

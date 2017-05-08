@@ -30,3 +30,6 @@
 
 //maximum sysex length we can receive
 #define MIDI_SYSEX_ARRAY_SIZE   45
+
+#define USE_SERIAL_RX           1
+#define USE_SERIAL_TX           1
