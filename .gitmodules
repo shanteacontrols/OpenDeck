@@ -7,3 +7,6 @@
 [submodule "src/Firmware/dbms"]
 	path = src/Firmware/dbms
 	url = git@github.com:paradajz/AVR-DB.git
+[submodule "src/Firmware/sysex"]
+	path = src/Firmware/sysex
+	url = git@github.com:paradajz/sysex-conf.git
