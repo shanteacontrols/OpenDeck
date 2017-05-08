@@ -1348,27 +1348,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="lufa\LUFA\Version.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="midi\Config.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="midi\DataTypes.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="midi\Descriptors.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="midi\Descriptors.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="midi\Helpers.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="midi\MIDI.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="midi\MIDI.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="OpenDeck.cpp">
       <SubType>compile</SubType>
     </Compile>
@@ -1494,7 +1473,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Folder Include="lufa\LUFA\Drivers\USB\Core\XMEGA\" />
     <Folder Include="lufa\LUFA\Drivers\USB\Core\XMEGA\Template\" />
     <Folder Include="lufa\LUFA\Platform\" />
-    <Folder Include="midi\" />
     <Folder Include="board" />
     <Folder Include="version" />
     <Folder Include="sysex" />
