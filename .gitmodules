@@ -1,0 +1,3 @@
+[submodule "src/Firmware/core"]
+	path = src/Firmware/core
+	url = git@github.com:paradajz/avr-core.git
