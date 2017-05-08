@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "../core/uart/UART.h"
-
 #define USE_SERIAL_PORT         uart
 
 #define MIDI_CHANNEL_OMNI       0

@@ -36,7 +36,7 @@ void Board::reboot(rebootType_t type)
         break;
     }
 
-    wdReset();
+    mcuReset();
 }
 
 Board board;

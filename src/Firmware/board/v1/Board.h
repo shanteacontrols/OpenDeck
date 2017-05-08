@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "../../core/Core.h"
 #include "constants/Constants.h"
 #include "../Common.h"
 #include "pins/Pins.h"
