@@ -4,3 +4,6 @@
 [submodule "src/Firmware/midi"]
 	path = src/Firmware/midi
 	url = git@github.com:paradajz/midi-lib.git
+[submodule "src/Firmware/dbms"]
+	path = src/Firmware/dbms
+	url = git@github.com:paradajz/AVR-DB.git
