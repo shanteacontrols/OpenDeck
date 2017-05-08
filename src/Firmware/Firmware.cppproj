@@ -403,18 +403,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="database\Layout.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="dbms\Config.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="dbms\DataTypes.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="dbms\DBMS.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="dbms\DBMS.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="Init.cpp">
       <SubType>compile</SubType>
     </Compile>
@@ -1416,7 +1404,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Folder Include="core\src\uart\RingBuffer\" />
     <Folder Include="database\" />
     <Folder Include="database\blocks\" />
-    <Folder Include="dbms\" />
     <Folder Include="interface\analog" />
     <Folder Include="interface\buttons" />
     <Folder Include="interface\encoders" />
