@@ -18,7 +18,7 @@
 
 #include "Encoders.h"
 #include "../../database/Database.h"
-#include "../../midi/MIDI.h"
+#include "../../midi/src/MIDI.h"
 #include "Constants.h"
 #include "../../OpenDeck.h"
 
