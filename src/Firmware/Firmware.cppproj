@@ -1375,16 +1375,16 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="OpenDeck.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="sysex\Config.h">
+    <Compile Include="sysex\src\Config.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="sysex\DataTypes.h">
+    <Compile Include="sysex\src\DataTypes.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="sysex\SysEx.cpp">
+    <Compile Include="sysex\src\SysEx.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="sysex\SysEx.h">
+    <Compile Include="sysex\src\SysEx.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="version\DataTypes.h">
@@ -1504,8 +1504,9 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Folder Include="midi\src\" />
     <Folder Include="midi\src\" />
     <Folder Include="midi\src\" />
+    <Folder Include="sysex\" />
+    <Folder Include="sysex\src\" />
     <Folder Include="version" />
-    <Folder Include="sysex" />
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>
