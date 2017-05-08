@@ -19,7 +19,7 @@
 #pragma once
 
 #include "../../board/Board.h"
-#include "../../midi/MIDI.h"
+#include "../../midi/src/MIDI.h"
 #include "DataTypes.h"
 #include "../../OpenDeck.h"
 

@@ -19,7 +19,7 @@
 #pragma once
 
 #include "Config.h"
-#include "../midi/MIDI.h"
+#include "../midi/src/MIDI.h"
 #include "DataTypes.h"
 
 ///

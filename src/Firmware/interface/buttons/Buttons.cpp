@@ -19,7 +19,7 @@
 #include "Buttons.h"
 #include "../../database/Database.h"
 #include "../../interface/leds/LEDs.h"
-#include "../../midi/MIDI.h"
+#include "../../midi/src/MIDI.h"
 #include "../../OpenDeck.h"
 
 const uint8_t buttonDebounceCompare = 0b10000000;
