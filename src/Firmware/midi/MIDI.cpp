@@ -41,6 +41,7 @@
 
 //library modified by Igor Petrovic
 
+#ifdef NDEBUG
 #include "MIDI.h"
 
 USB_ClassInfo_MIDI_Device_t MIDI_Interface;
@@ -94,7 +95,7 @@ bool MIDI::init(midiInterfaceType_t type)
     switch(type)
     {
         case dinInterface:
-        USE_SERIAL_PORT.init(31250);
+        USE_SERIAL_PORT.begin(31250, USE_SERIAL_RX, USE_SERIAL_TX);
         dinEnabled = true;
         return true;
         break;
@@ -1476,6 +1477,11 @@ void MIDI::setNoteOffMode(noteOffType_t type)
     noteOffMode = type;
 }
 
+noteOffType_t MIDI::getNoteOffMode()
+{
+    return noteOffMode;
+}
+
 void MIDI::enableUSB()
 {
     usbEnabled = true;
@@ -1509,3 +1515,5 @@ void EVENT_USB_Device_ConfigurationChanged(void)
 }
 
 MIDI midi;
+
+#endif
