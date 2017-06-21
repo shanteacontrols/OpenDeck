@@ -10,6 +10,9 @@
 [submodule "src/Firmware/sysex"]
 	path = src/Firmware/sysex
 	url = git@github.com:paradajz/sysex-conf.git
+[submodule "src/Firmware/lufa"]
+	path = src/Firmware/lufa
+	url = git@github.com:abcminiuser/lufa.git
 [submodule "src/Firmware/versioning"]
 	path = src/Firmware/versioning
 	url = https://github.com/paradajz/AVR-versioning.git
