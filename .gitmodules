@@ -1,15 +1,15 @@
 [submodule "src/Firmware/core"]
 	path = src/Firmware/core
-	url = git@github.com:paradajz/avr-core.git
+	url = https://github.com/paradajz/avr-core.git
 [submodule "src/Firmware/midi"]
 	path = src/Firmware/midi
-	url = git@github.com:paradajz/midi-lib.git
+	url = https://github.com/paradajz/midi-lib.git
 [submodule "src/Firmware/dbms"]
 	path = src/Firmware/dbms
-	url = git@github.com:paradajz/AVR-DB.git
+	url = https://github.com/paradajz/AVR-DB.git
 [submodule "src/Firmware/sysex"]
 	path = src/Firmware/sysex
-	url = git@github.com:paradajz/sysex-conf.git
+	url = https://github.com/paradajz/sysex-conf.git
 [submodule "src/Firmware/versioning"]
 	path = src/Firmware/versioning
 	url = https://github.com/paradajz/AVR-versioning.git
