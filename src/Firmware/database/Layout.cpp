@@ -34,6 +34,7 @@ void Database::createLayout()
         //midi feature section
         section.numberOfParameters = MIDI_FEATURES;
         section.defaultValue = 0;
+        section.autoIncrement = false;
         section.parameterType = BIT_PARAMETER;
         section.preserveOnPartialReset = 0;
 
@@ -42,6 +43,7 @@ void Database::createLayout()
         //midi channel section
         section.numberOfParameters = MIDI_CHANNELS;
         section.defaultValue = 1;
+        section.autoIncrement = false;
         section.parameterType = BYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
@@ -54,6 +56,7 @@ void Database::createLayout()
         //type section
         section.numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
         section.defaultValue = 0;
+        section.autoIncrement = false;
         section.parameterType = BIT_PARAMETER;
         section.preserveOnPartialReset = 0;
 
@@ -62,6 +65,7 @@ void Database::createLayout()
         //midi message type section
         section.numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
         section.defaultValue = 0;
+        section.autoIncrement = false;
         section.parameterType = BYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
@@ -83,6 +87,7 @@ void Database::createLayout()
         //encoder enabled section
         section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
         section.defaultValue = 0;
+        section.autoIncrement = false;
         section.parameterType = BIT_PARAMETER;
         section.preserveOnPartialReset = 0;
 
@@ -91,6 +96,7 @@ void Database::createLayout()
         //encoder inverted section
         section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
         section.defaultValue = 0;
+        section.autoIncrement = false;
         section.parameterType = BIT_PARAMETER;
         section.preserveOnPartialReset = 0;
 
@@ -99,6 +105,7 @@ void Database::createLayout()
         //encoding mode section
         section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
         section.defaultValue = 0;
+        section.autoIncrement = false;
         section.parameterType = BYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
@@ -120,6 +127,7 @@ void Database::createLayout()
         //analog enabled section
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
         section.defaultValue = 0;
+        section.autoIncrement = false;
         section.parameterType = BIT_PARAMETER;
         section.preserveOnPartialReset = 0;
 
@@ -128,6 +136,7 @@ void Database::createLayout()
         //analog inverted section
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
         section.defaultValue = 0;
+        section.autoIncrement = false;
         section.parameterType = BIT_PARAMETER;
         section.preserveOnPartialReset = 0;
 
@@ -136,6 +145,7 @@ void Database::createLayout()
         //analog type section
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
         section.defaultValue = 0;
+        section.autoIncrement = false;
         section.parameterType = BYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
@@ -153,6 +163,7 @@ void Database::createLayout()
         //lower cc limit
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
         section.defaultValue = 0;
+        section.autoIncrement = false;
         section.parameterType = BYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
@@ -161,6 +172,7 @@ void Database::createLayout()
         //upper cc limit
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
         section.defaultValue = 127;
+        section.autoIncrement = false;
         section.parameterType = BYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
@@ -173,6 +185,7 @@ void Database::createLayout()
         //hardware parameters section
         section.numberOfParameters = LED_HARDWARE_PARAMETERS;
         section.defaultValue = 0;
+        section.autoIncrement = false;
         section.parameterType = BYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
@@ -190,6 +203,7 @@ void Database::createLayout()
         //rgb enabled section
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
         section.defaultValue = 0;
+        section.autoIncrement = false;
         section.parameterType = BIT_PARAMETER;
         section.preserveOnPartialReset = 0;
 
@@ -198,6 +212,7 @@ void Database::createLayout()
         //local led control enabled section
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
         section.defaultValue = 0;
+        section.autoIncrement = false;
         section.parameterType = BIT_PARAMETER;
         section.preserveOnPartialReset = 0;
 
@@ -209,6 +224,7 @@ void Database::createLayout()
 
         section.numberOfParameters = ID_OFFSET;
         section.defaultValue = UNIQUE_ID;
+        section.autoIncrement = false;
         section.parameterType = BYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
