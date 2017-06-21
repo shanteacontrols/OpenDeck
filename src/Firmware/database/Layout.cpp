@@ -69,7 +69,8 @@ void Database::createLayout()
 
         //midi id section
         section.numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
-        section.defaultValue = AUTO_INCREMENT;
+        section.defaultValue = 0;
+        section.autoIncrement = true;
         section.parameterType = BYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
@@ -105,7 +106,8 @@ void Database::createLayout()
 
         //midi id section
         section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
-        section.defaultValue = AUTO_INCREMENT;
+        section.defaultValue = 0;
+        section.autoIncrement = true;
         section.parameterType = BYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
@@ -141,7 +143,8 @@ void Database::createLayout()
 
         //midi id section
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
-        section.defaultValue = AUTO_INCREMENT;
+        section.defaultValue = 0;
+        section.autoIncrement = true;
         section.parameterType = BYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
@@ -177,7 +180,8 @@ void Database::createLayout()
 
         //activation id section
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
-        section.defaultValue = AUTO_INCREMENT;
+        section.defaultValue = 0;
+        section.autoIncrement = true;
         section.parameterType = BYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 

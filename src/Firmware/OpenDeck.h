@@ -20,7 +20,7 @@
 
 #include "database/Database.h"
 #include "sysex/src/SysEx.h"
-#include "version/Version.h"
+#include "versioning/src/avr/Version.h"
 #include "board/Board.h"
 #include "interface/Interface.h"
 
