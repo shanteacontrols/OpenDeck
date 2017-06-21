@@ -19,7 +19,7 @@
 #pragma once
 
 #include "Pins.h"
-#include "../../../version/Version.h"
+#include "../Board.h"
 
 //match pins on pcb
 

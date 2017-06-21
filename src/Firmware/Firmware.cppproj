@@ -82,10 +82,28 @@
           <ListValues>
             <Value>NDEBUG</Value>
             <Value>ARCH=ARCH_AVR8</Value>
-            <Value>F_USB=16000000UL</Value>
             <Value>F_CPU=16000000UL</Value>
+            <Value>F_USB=16000000UL</Value>
             <Value>BOARD=BOARD_NONE</Value>
-            <Value>USE_LUFA_CONFIG_HEADER</Value>
+            <Value>EEPROM_SIZE=1024</Value>
+            <Value>FLASH_SIZE=0x6800</Value>
+            <Value>MIDI_VENDOR_ID=0x1209</Value>
+            <Value>MIDI_PRODUCT_ID=0x8472</Value>
+            <Value>USE_STATIC_OPTIONS=0</Value>
+            <Value>USB_DEVICE_ONLY</Value>
+            <Value>USE_FLASH_DESCRIPTORS</Value>
+            <Value>FIXED_CONTROL_ENDPOINT_SIZE=8</Value>
+            <Value>FIXED_NUM_CONFIGURATIONS=1</Value>
+            <Value>INTERRUPT_CONTROL_ENDPOINT</Value>
+            <Value>MIDI_SYSEX_ARRAY_SIZE=45</Value>
+            <Value>UART_BUFFER_SIZE=30</Value>
+            <Value>USE_RX</Value>
+            <Value>USE_TX</Value>
+            <Value>ADC_PRESCALER=128</Value>
+            <Value>VREF_AREF</Value>
+            <Value>DBMS_MAX_SECTIONS=7</Value>
+            <Value>DBMS_MAX_BLOCKS=7</Value>
+            <Value>USBMIDI</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
         <avrgcc.compiler.directories.IncludePaths>
@@ -104,13 +122,28 @@
           <ListValues>
             <Value>NDEBUG</Value>
             <Value>ARCH=ARCH_AVR8</Value>
-            <Value>FLASH_SIZE=0x6800</Value>
-            <Value>EEPROM_SIZE=1024</Value>
-            <Value>USE_LUFA_CONFIG_HEADER</Value>
             <Value>F_CPU=16000000UL</Value>
-            <Value>BOARD=BOARD_NONE</Value>
             <Value>F_USB=16000000UL</Value>
-            <Value>BOARD_V1</Value>
+            <Value>BOARD=BOARD_NONE</Value>
+            <Value>EEPROM_SIZE=1024</Value>
+            <Value>FLASH_SIZE=0x6800</Value>
+            <Value>MIDI_VENDOR_ID=0x1209</Value>
+            <Value>MIDI_PRODUCT_ID=0x8472</Value>
+            <Value>USE_STATIC_OPTIONS=0</Value>
+            <Value>USB_DEVICE_ONLY</Value>
+            <Value>USE_FLASH_DESCRIPTORS</Value>
+            <Value>FIXED_CONTROL_ENDPOINT_SIZE=8</Value>
+            <Value>FIXED_NUM_CONFIGURATIONS=1</Value>
+            <Value>INTERRUPT_CONTROL_ENDPOINT</Value>
+            <Value>MIDI_SYSEX_ARRAY_SIZE=45</Value>
+            <Value>UART_BUFFER_SIZE=30</Value>
+            <Value>USE_RX</Value>
+            <Value>USE_TX</Value>
+            <Value>ADC_PRESCALER=128</Value>
+            <Value>VREF_AREF</Value>
+            <Value>DBMS_MAX_SECTIONS=7</Value>
+            <Value>DBMS_MAX_BLOCKS=7</Value>
+            <Value>USBMIDI</Value>
           </ListValues>
         </avrgcccpp.compiler.symbols.DefSymbols>
         <avrgcccpp.compiler.directories.IncludePaths>
@@ -139,17 +172,32 @@ call cd ..\tools\
 REM copy compiled hex to current dir
 call cp "$(MSBuildProjectDirectory)\$(Configuration)\$(OutputFileName).hex" FLASH.hex
 
-REM get software version and append crc
+REM convert hex to bin and remove hex
 call C:\Windows\Sysnative\bash.exe -c "./version_script.sh"
 
-REM append version to bin file
-call version_append.exe
+REM copy bin file, MAJOR, MINOR, REVISION and HASH to versioning/bin directory
+call cp FLASH.bin "$(MSBuildProjectDirectory)\versioning\bin\FLASH.bin"
+call cp "$(MSBuildProjectDirectory)\version\MAJOR" "$(MSBuildProjectDirectory)\versioning\bin\MAJOR"
+call cp "$(MSBuildProjectDirectory)\version\MINOR" "$(MSBuildProjectDirectory)\versioning\bin\MINOR"
+call cp "$(MSBuildProjectDirectory)\version\REVISION" "$(MSBuildProjectDirectory)\versioning\bin\REVISION"
+call cp "$(MSBuildProjectDirectory)\version\HASH" "$(MSBuildProjectDirectory)\versioning\bin\HASH"
 
-REM remove version
-del version
+REM remove FLASH.bin from current dir
+call del FLASH.bin
 
-REM move FLASH.bin to bin dir
-call move FLASH.bin ../bin/FLASH.bin</PostBuildEvent>
+REM change to av2b dir
+call cd "$(MSBuildProjectDirectory)\versioning\bin"
+call av2b.exe
+
+REM remove leftovers
+call del MAJOR
+call del MINOR
+call del REVISION
+call del HASH
+
+REM move binary to root/bin
+call cd $(SolutionDir)
+call move "$(MSBuildProjectDirectory)\versioning\bin\FLASH.bin" "../bin/FLASH.bin"</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
@@ -315,9 +363,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="core\src\adc\ADC.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="core\src\adc\Config.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="core\src\Core.h">
       <SubType>compile</SubType>
     </Compile>
@@ -342,9 +387,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="core\src\spi\SPI.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="core\src\strings\Config.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="core\src\strings\Strings.cpp">
       <SubType>compile</SubType>
     </Compile>
@@ -358,9 +400,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="core\src\timing\Wait.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="core\src\uart\Config.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="core\src\uart\RingBuffer\Config.h">
@@ -403,9 +442,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="database\Layout.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="dbms\src\Config.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="dbms\src\DataTypes.h">
@@ -1404,9 +1440,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="lufa\LUFA\Drivers\USB\USB.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="midi\src\Config.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="midi\src\DataTypes.h">
       <SubType>compile</SubType>
     </Compile>
@@ -1443,13 +1476,13 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="sysex\src\SysEx.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="version\DataTypes.h">
+    <Compile Include="versioning\src\avr\DataTypes.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="version\Version.cpp">
+    <Compile Include="versioning\src\avr\Version.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="version\Version.h">
+    <Compile Include="versioning\src\avr\Version.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>
@@ -1568,7 +1601,15 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Folder Include="midi\src\" />
     <Folder Include="sysex\" />
     <Folder Include="sysex\src\" />
-    <Folder Include="version" />
+    <Folder Include="versioning\" />
+    <Folder Include="versioning\" />
+    <Folder Include="versioning\" />
+    <Folder Include="versioning\src\" />
+    <Folder Include="versioning\src\" />
+    <Folder Include="versioning\src\" />
+    <Folder Include="versioning\src\avr\" />
+    <Folder Include="versioning\src\avr\" />
+    <Folder Include="versioning\src\avr\" />
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>
