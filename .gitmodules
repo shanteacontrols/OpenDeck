@@ -13,3 +13,6 @@
 [submodule "src/Firmware/lufa"]
 	path = src/Firmware/lufa
 	url = git@github.com:abcminiuser/lufa.git
+[submodule "src/Firmware/versioning"]
+	path = src/Firmware/versioning
+	url = https://github.com/paradajz/AVR-versioning.git
