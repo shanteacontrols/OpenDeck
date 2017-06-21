@@ -423,6 +423,9 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="database\blocks\Buttons.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="database\blocks\ID.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="database\blocks\Encoders.h">
       <SubType>compile</SubType>
     </Compile>
@@ -430,9 +433,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="database\blocks\MIDI.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="database\Config.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="database\Database.cpp">

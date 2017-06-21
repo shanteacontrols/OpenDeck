@@ -222,7 +222,7 @@ void Database::createLayout()
     {
         //ID block
 
-        section.numberOfParameters = ID_OFFSET;
+        section.numberOfParameters = ID_BYTES;
         section.defaultValue = UNIQUE_ID;
         section.autoIncrement = false;
         section.parameterType = BYTE_PARAMETER;

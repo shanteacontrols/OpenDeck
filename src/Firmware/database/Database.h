@@ -20,7 +20,6 @@
 
 #include "../dbms/src/DBMS.h"
 #include "blocks/Blocks.h"
-#include "Config.h"
 
 ///
 /// \addtogroup eeprom
