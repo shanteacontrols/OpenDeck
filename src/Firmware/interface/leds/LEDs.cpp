@@ -279,14 +279,8 @@ void LEDs::handleLED(uint8_t ledNumber, bool state, bool rgbLED, rgbIndex_t inde
 
     uint8_t currentState = getState(ledNumber);
 
-    switch(state)
+    if (state)
     {
-        case false:
-        //turn off the led
-        currentState = 0;
-        break;
-
-        case true:
         //turn on the led
         //if led was already active, clear the on bits before setting new state
         if (BIT_READ(currentState, LED_ACTIVE_BIT))
@@ -295,6 +289,7 @@ void LEDs::handleLED(uint8_t ledNumber, bool state, bool rgbLED, rgbIndex_t inde
         BIT_SET(currentState, LED_ACTIVE_BIT);
         BIT_SET(currentState, LED_CONSTANT_ON_BIT);
         BIT_WRITE(currentState, LED_RGB_BIT, rgbLED);
+
         if (rgbLED)
         {
             switch(index)
@@ -312,7 +307,11 @@ void LEDs::handleLED(uint8_t ledNumber, bool state, bool rgbLED, rgbIndex_t inde
                 break;
             }
         }
-        break;
+    }
+    else
+    {
+        //turn off the led
+        currentState = 0;
     }
 
     ledState[ledNumber] = currentState;
