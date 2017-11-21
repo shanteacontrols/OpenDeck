@@ -62,11 +62,8 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
 {
     uint8_t calibratedPressure = calibratePressure(pressure, velocity);
 
-    bool pressDetected = (calibratedPressure > 0);
-
-    switch (pressDetected)
+    if (calibratedPressure > 0)
     {
-        case true:
         if (!getFsrPressed(analogID))
         {
             //sensor is really pressed
@@ -87,9 +84,9 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
                 }
             }
         }
-        break;
-
-        case false:
+    }
+    else
+    {
         if (getFsrPressed(analogID))
         {
             setFsrPressed(analogID, false);
@@ -109,7 +106,6 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
                 }
             }
         }
-        break;
     }
 
     //update values
