@@ -95,9 +95,9 @@ inline int8_t readEncoder(uint8_t encoderID, uint8_t pairState)
     //shift in new pulse count
     encoderData[encoderID] |= (uint16_t)(currentPulses << 4);
     //get last encoder direction
-    bool lastEncoderDirection = bitRead(encoderData[encoderID], ENCODER_DIRECTION_BIT);
+    bool lastEncoderDirection = BIT_READ(encoderData[encoderID], ENCODER_DIRECTION_BIT);
     //write new encoder direction
-    bitWrite(encoderData[encoderID], ENCODER_DIRECTION_BIT, newEncoderDirection);
+    BIT_WRITE(encoderData[encoderID], ENCODER_DIRECTION_BIT, newEncoderDirection);
 
     if (lastEncoderDirection != newEncoderDirection)
         return 0;

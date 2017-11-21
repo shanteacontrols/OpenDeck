@@ -44,18 +44,18 @@ volatile uint8_t *ledRowPortArray[] =
 
 inline void activateInputColumn(uint8_t column)
 {
-    bitRead(dmColumnArray[column], 0) ? setHigh(DEC_DM_A0_PORT, DEC_DM_A0_PIN) : setLow(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
-    bitRead(dmColumnArray[column], 1) ? setHigh(DEC_DM_A1_PORT, DEC_DM_A1_PIN) : setLow(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
-    bitRead(dmColumnArray[column], 2) ? setHigh(DEC_DM_A2_PORT, DEC_DM_A2_PIN) : setLow(DEC_DM_A2_PORT, DEC_DM_A2_PIN);
+    BIT_READ(dmColumnArray[column], 0) ? setHigh(DEC_DM_A0_PORT, DEC_DM_A0_PIN) : setLow(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
+    BIT_READ(dmColumnArray[column], 1) ? setHigh(DEC_DM_A1_PORT, DEC_DM_A1_PIN) : setLow(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
+    BIT_READ(dmColumnArray[column], 2) ? setHigh(DEC_DM_A2_PORT, DEC_DM_A2_PIN) : setLow(DEC_DM_A2_PORT, DEC_DM_A2_PIN);
 
     _NOP();
 }
 
 inline void activateOutputColumn(uint8_t column)
 {
-    bitRead(column, 0) ? setHigh(DEC_LM_A0_PORT, DEC_LM_A0_PIN) : setLow(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
-    bitRead(column, 1) ? setHigh(DEC_LM_A1_PORT, DEC_LM_A1_PIN) : setLow(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
-    bitRead(column, 2) ? setHigh(DEC_LM_A2_PORT, DEC_LM_A2_PIN) : setLow(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
+    BIT_READ(column, 0) ? setHigh(DEC_LM_A0_PORT, DEC_LM_A0_PIN) : setLow(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
+    BIT_READ(column, 1) ? setHigh(DEC_LM_A1_PORT, DEC_LM_A1_PIN) : setLow(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
+    BIT_READ(column, 2) ? setHigh(DEC_LM_A2_PORT, DEC_LM_A2_PIN) : setLow(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
 
     _NOP();
 }
@@ -76,12 +76,12 @@ inline void storeDigitalIn(uint8_t column, uint8_t bufferIndex)
         data <<= 1;
         data |= readPin(SR_DIN_PORT, SR_DIN_PIN);
         //pulse clock pin
-        pulseHightToLow(SR_CLK_PORT, SR_CLK_PIN);
+        pulseHighToLow(SR_CLK_PORT, SR_CLK_PIN);
     }
 
     //reorder data to match rows on PCB layout
     for (int i=0; i<8; i++)
-        bitWrite(dataReorder, i, bitRead(data, dmRowBitArray[i]));
+        BIT_WRITE(dataReorder, i, BIT_READ(data, dmRowBitArray[i]));
 
     inputBuffer[bufferIndex] |= (uint64_t)dataReorder;
 }
@@ -170,12 +170,12 @@ inline void checkLEDs()
             //change blinkBit state and write it into ledState variable if LED is in blink state
             for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
             {
-                if (bitRead(ledState[i], LED_BLINK_ON_BIT))
+                if (BIT_READ(ledState[i], LED_BLINK_ON_BIT))
                 {
                     if (blinkState)
-                        bitSet(ledState[i], LED_BLINK_STATE_BIT);
+                        BIT_SET(ledState[i], LED_BLINK_STATE_BIT);
                     else
-                        bitClear(ledState[i], LED_BLINK_STATE_BIT);
+                        BIT_CLEAR(ledState[i], LED_BLINK_STATE_BIT);
                 }
             }
 
@@ -188,7 +188,7 @@ inline void checkLEDs()
     for (int i=0; i<NUMBER_OF_LED_ROWS; i++)
     {
         uint8_t ledNumber = activeLEDcolumn+i*NUMBER_OF_LED_COLUMNS;
-        uint8_t ledStateSingle = bitRead(ledState[ledNumber], LED_ACTIVE_BIT) && (bitRead(ledState[ledNumber], LED_BLINK_ON_BIT) == bitRead(ledState[ledNumber], LED_BLINK_STATE_BIT));
+        uint8_t ledStateSingle = BIT_READ(ledState[ledNumber], LED_ACTIVE_BIT) && (BIT_READ(ledState[ledNumber], LED_BLINK_ON_BIT) == BIT_READ(ledState[ledNumber], LED_BLINK_STATE_BIT));
 
         ledStateSingle *= (NUMBER_OF_LED_TRANSITIONS-1);
 

@@ -22,6 +22,7 @@
 #include "../Common.h"
 #include "pins/Pins.h"
 #include "pins/Map.h"
+#include "../../core/src/Core.h"
 
 //function prototypes
 inline void setAnalogPin(uint8_t muxNumber) __attribute__((always_inline));
@@ -71,6 +72,7 @@ class Board : BoardCommon
     void initPins();
     void initAnalog();
     void initEncoders();
+    void initUART_MIDI();
     void configureTimers();
     bool copyInputMatrixBuffer();
     void checkInputMatrixBufferCopy();
