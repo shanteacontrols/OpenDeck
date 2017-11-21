@@ -50,10 +50,10 @@ inline void setMuxInput(uint8_t muxInput)
 {
     //add NOPs to compensate for propagation delay
 
-    bitRead(muxPinOrderArray[muxInput], 0) ? setHigh(MUX_S0_PORT, MUX_S0_PIN) : setLow(MUX_S0_PORT, MUX_S0_PIN);
-    bitRead(muxPinOrderArray[muxInput], 1) ? setHigh(MUX_S1_PORT, MUX_S1_PIN) : setLow(MUX_S1_PORT, MUX_S1_PIN);
-    bitRead(muxPinOrderArray[muxInput], 2) ? setHigh(MUX_S2_PORT, MUX_S2_PIN) : setLow(MUX_S2_PORT, MUX_S2_PIN);
-    bitRead(muxPinOrderArray[muxInput], 3) ? setHigh(MUX_S3_PORT, MUX_S3_PIN) : setLow(MUX_S3_PORT, MUX_S3_PIN);
+    BIT_READ(muxPinOrderArray[muxInput], 0) ? setHigh(MUX_S0_PORT, MUX_S0_PIN) : setLow(MUX_S0_PORT, MUX_S0_PIN);
+    BIT_READ(muxPinOrderArray[muxInput], 1) ? setHigh(MUX_S1_PORT, MUX_S1_PIN) : setLow(MUX_S1_PORT, MUX_S1_PIN);
+    BIT_READ(muxPinOrderArray[muxInput], 2) ? setHigh(MUX_S2_PORT, MUX_S2_PIN) : setLow(MUX_S2_PORT, MUX_S2_PIN);
+    BIT_READ(muxPinOrderArray[muxInput], 3) ? setHigh(MUX_S3_PORT, MUX_S3_PIN) : setLow(MUX_S3_PORT, MUX_S3_PIN);
 
     _NOP(); _NOP(); _NOP();
     _NOP(); _NOP(); _NOP();
@@ -92,7 +92,7 @@ bool Board::analogDataAvailable()
 uint16_t Board::getAnalogValue(uint8_t analogID)
 {
     uint16_t value = analogBuffer[analogID];
-    bitSet(retrievedData, analogID);
+    BIT_SET(retrievedData, analogID);
 
     if (retrievedData == 0xFFFFFFFF)
     {

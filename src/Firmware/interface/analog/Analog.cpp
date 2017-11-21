@@ -154,7 +154,7 @@ void Analog::debounceReset(uint16_t index)
     uint8_t arrayIndex = index/8;
     uint8_t fsrIndex = index - 8*arrayIndex;
 
-    bitClear(fsrPressed[arrayIndex], fsrIndex);
+    BIT_CLEAR(fsrPressed[arrayIndex], fsrIndex);
 }
 
 Analog analog;

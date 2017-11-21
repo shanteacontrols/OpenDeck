@@ -137,15 +137,15 @@ void LEDs::setBlinkState(uint8_t ledID, bool state)
         {
             if (state)
             {
-                bitSet(ledState[ledArray[i]], LED_BLINK_ON_BIT);
+                BIT_SET(ledState[ledArray[i]], LED_BLINK_ON_BIT);
                 //this will turn the led immediately no matter how little time it's
                 //going to blink first time
-                bitSet(ledState[ledArray[i]], LED_BLINK_STATE_BIT);
+                BIT_SET(ledState[ledArray[i]], LED_BLINK_STATE_BIT);
             }
             else
             {
-                bitClear(ledState[ledArray[i]], LED_BLINK_ON_BIT);
-                bitClear(ledState[ledArray[i]], LED_BLINK_STATE_BIT);
+                BIT_CLEAR(ledState[ledArray[i]], LED_BLINK_ON_BIT);
+                BIT_CLEAR(ledState[ledArray[i]], LED_BLINK_STATE_BIT);
             }
         }
     }
@@ -175,9 +175,9 @@ void LEDs::setColor(uint8_t ledNumber, ledColor_t color)
         uint8_t led2 = board.getRGBaddress(ledNumber, rgb_G);
         uint8_t led3 = board.getRGBaddress(ledNumber, rgb_B);
 
-        handleLED(led1, bitRead(color, 0));
-        handleLED(led2, bitRead(color, 1));
-        handleLED(led3, bitRead(color, 2));
+        handleLED(led1, BIT_READ(color, 0));
+        handleLED(led2, BIT_READ(color, 1));
+        handleLED(led3, BIT_READ(color, 2));
     }
     else
     {
@@ -191,13 +191,13 @@ ledColor_t LEDs::getColor(uint8_t ledID)
 {
     uint8_t state = getState(ledID);
 
-    if (!bitRead(state, LED_ACTIVE_BIT))
+    if (!BIT_READ(state, LED_ACTIVE_BIT))
     {
         return colorOff;
     }
     else
     {
-        if (!bitRead(state, LED_RGB_BIT))
+        if (!BIT_READ(state, LED_RGB_BIT))
         {
             //single color led
             return colorRed;
@@ -210,11 +210,11 @@ ledColor_t LEDs::getColor(uint8_t ledID)
             uint8_t led3 = getState(board.getRGBaddress(ledID, rgb_B));
 
             uint8_t color = 0;
-            color |= bitRead(led1, LED_RGB_B_BIT);
+            color |= BIT_READ(led1, LED_RGB_B_BIT);
             color <<= 1;
-            color |= bitRead(led2, LED_RGB_G_BIT);
+            color |= BIT_READ(led2, LED_RGB_G_BIT);
             color <<= 1;
-            color |= bitRead(led3, LED_RGB_R_BIT);
+            color |= BIT_READ(led3, LED_RGB_R_BIT);
 
             return (ledColor_t)color;
         }
@@ -236,7 +236,7 @@ uint8_t LEDs::getState(uint8_t ledNumber)
 bool LEDs::getBlinkState(uint8_t ledID)
 {
     uint8_t state = getState(ledID);
-    return bitRead(state, LED_BLINK_ON_BIT);
+    return BIT_READ(state, LED_BLINK_ON_BIT);
 }
 
 void LEDs::setFadeTime(uint8_t transitionSpeed)
@@ -289,26 +289,26 @@ void LEDs::handleLED(uint8_t ledNumber, bool state, bool rgbLED, rgbIndex_t inde
         case true:
         //turn on the led
         //if led was already active, clear the on bits before setting new state
-        if (bitRead(currentState, LED_ACTIVE_BIT))
+        if (BIT_READ(currentState, LED_ACTIVE_BIT))
             currentState = 0;
 
-        bitSet(currentState, LED_ACTIVE_BIT);
-        bitSet(currentState, LED_CONSTANT_ON_BIT);
-        bitWrite(currentState, LED_RGB_BIT, rgbLED);
+        BIT_SET(currentState, LED_ACTIVE_BIT);
+        BIT_SET(currentState, LED_CONSTANT_ON_BIT);
+        BIT_WRITE(currentState, LED_RGB_BIT, rgbLED);
         if (rgbLED)
         {
             switch(index)
             {
                 case rgb_R:
-                bitWrite(currentState, LED_RGB_R_BIT, state);
+                BIT_WRITE(currentState, LED_RGB_R_BIT, state);
                 break;
 
                 case rgb_G:
-                bitWrite(currentState, LED_RGB_G_BIT, state);
+                BIT_WRITE(currentState, LED_RGB_G_BIT, state);
                 break;
 
                 case rgb_B:
-                bitWrite(currentState, LED_RGB_B_BIT, state);
+                BIT_WRITE(currentState, LED_RGB_B_BIT, state);
                 break;
             }
         }
@@ -332,7 +332,7 @@ void LEDs::checkBlinkLEDs()
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
     {
         ledState = getState(i);
-        if (bitRead(ledState, LED_BLINK_ON_BIT) && bitRead(ledState, LED_ACTIVE_BIT))
+        if (BIT_READ(ledState, LED_BLINK_ON_BIT) && BIT_READ(ledState, LED_ACTIVE_BIT))
         {
             _blinkEnabled = true;
             break;

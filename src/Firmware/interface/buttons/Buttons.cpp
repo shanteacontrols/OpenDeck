@@ -34,7 +34,7 @@ void Buttons::setButtonPressed(uint8_t buttonID, bool state)
     uint8_t arrayIndex = buttonID/8;
     uint8_t buttonIndex = buttonID - 8*arrayIndex;
 
-    bitWrite(buttonPressed[arrayIndex], buttonIndex, state);
+    BIT_WRITE(buttonPressed[arrayIndex], buttonIndex, state);
 }
 
 bool Buttons::getButtonPressed(uint8_t buttonID)
@@ -42,7 +42,7 @@ bool Buttons::getButtonPressed(uint8_t buttonID)
     uint8_t arrayIndex = buttonID/8;
     uint8_t buttonIndex = buttonID - 8*arrayIndex;
 
-    return bitRead(buttonPressed[arrayIndex], buttonIndex);
+    return BIT_READ(buttonPressed[arrayIndex], buttonIndex);
 }
 
 void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonMIDImessage_t midiMessage)
@@ -250,8 +250,8 @@ void Buttons::updateButtonState(uint8_t buttonID, uint8_t buttonState)
     uint8_t buttonIndex = buttonID - 8*arrayIndex;
 
     //update state if it's different than last one
-    if (bitRead(previousButtonState[arrayIndex], buttonIndex) != buttonState)
-        bitWrite(previousButtonState[arrayIndex], buttonIndex, buttonState);
+    if (BIT_READ(previousButtonState[arrayIndex], buttonIndex) != buttonState)
+        BIT_WRITE(previousButtonState[arrayIndex], buttonIndex, buttonState);
 }
 
 bool Buttons::getPreviousButtonState(uint8_t buttonID)
@@ -259,7 +259,7 @@ bool Buttons::getPreviousButtonState(uint8_t buttonID)
     uint8_t arrayIndex = buttonID/8;
     uint8_t buttonIndex = buttonID - 8*arrayIndex;
 
-    return bitRead(previousButtonState[arrayIndex], buttonIndex);
+    return BIT_READ(previousButtonState[arrayIndex], buttonIndex);
 }
 
 bool Buttons::buttonDebounced(uint8_t buttonID, bool buttonState)

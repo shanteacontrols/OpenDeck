@@ -47,7 +47,7 @@ bool Analog::getFsrPressed(uint8_t fsrID)
     uint8_t arrayIndex = fsrID/8;
     uint8_t fsrIndex = fsrID - 8*arrayIndex;
 
-    return bitRead(fsrPressed[arrayIndex], fsrIndex);
+    return BIT_READ(fsrPressed[arrayIndex], fsrIndex);
 }
 
 void Analog::setFsrPressed(uint8_t fsrID, bool state)
@@ -55,7 +55,7 @@ void Analog::setFsrPressed(uint8_t fsrID, bool state)
     uint8_t arrayIndex = fsrID/8;
     uint8_t fsrIndex = fsrID - 8*arrayIndex;
 
-    bitWrite(fsrPressed[arrayIndex], fsrIndex, state);
+    BIT_WRITE(fsrPressed[arrayIndex], fsrIndex, state);
 }
 
 void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
