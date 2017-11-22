@@ -16,9 +16,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef BOARD_OPEN_DECK
+#ifdef BOARD_A_LEO
 
 #include "Board.h"
+
+int16_t UARTread()
+{
+    return -1;
+}
+
+int8_t UARTwrite(uint8_t byte)
+{
+    return -1;
+}
 
 void Board::init()
 {
@@ -33,70 +43,87 @@ void Board::init()
     _delay_ms(5);
 
     configureTimers();
+
+    //midi.handleUARTread(UARTread);
+    //midi.handleUARTwrite(UARTwrite);
 }
 
 void Board::initPins()
 {
-    //configure input matrix
-    //shift register
-    setInput(SR_DIN_PORT, SR_DIN_PIN);
-    setOutput(SR_CLK_PORT, SR_CLK_PIN);
-    setOutput(SR_LATCH_PORT, SR_LATCH_PIN);
+    setInput(DI_1_PORT, DI_1_PIN);
+    setHigh(DI_1_PORT, DI_1_PIN);
 
-    //decoder
-    setOutput(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
-    setOutput(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
-    setOutput(DEC_DM_A1_PORT, DEC_DM_A2_PIN);
+    setInput(DI_2_PORT, DI_2_PIN);
+    setHigh(DI_2_PORT, DI_2_PIN);
 
-    //configure led matrix
-    //rows
+    setInput(DI_3_PORT, DI_3_PIN);
+    setHigh(DI_3_PORT, DI_3_PIN);
 
-    setOutput(LED_ROW_1_PORT, LED_ROW_1_PIN);
-    setOutput(LED_ROW_2_PORT, LED_ROW_2_PIN);
-    setOutput(LED_ROW_3_PORT, LED_ROW_3_PIN);
-    setOutput(LED_ROW_4_PORT, LED_ROW_4_PIN);
-    setOutput(LED_ROW_5_PORT, LED_ROW_5_PIN);
-    setOutput(LED_ROW_6_PORT, LED_ROW_6_PIN);
+    setInput(DI_4_PORT, DI_4_PIN);
+    setHigh(DI_4_PORT, DI_4_PIN);
 
-    //make sure to turn all rows off
-    #ifdef LED_INVERT
-    setHigh(LED_ROW_1_PORT, LED_ROW_1_PIN);
-    setHigh(LED_ROW_2_PORT, LED_ROW_2_PIN);
-    setHigh(LED_ROW_3_PORT, LED_ROW_3_PIN);
-    setHigh(LED_ROW_4_PORT, LED_ROW_4_PIN);
-    setHigh(LED_ROW_5_PORT, LED_ROW_5_PIN);
-    setHigh(LED_ROW_6_PORT, LED_ROW_6_PIN);
-    #else
-    setLow(LED_ROW_1_PORT, LED_ROW_1_PIN);
-    setLow(LED_ROW_2_PORT, LED_ROW_2_PIN);
-    setLow(LED_ROW_3_PORT, LED_ROW_3_PIN);
-    setLow(LED_ROW_4_PORT, LED_ROW_4_PIN);
-    setLow(LED_ROW_5_PORT, LED_ROW_5_PIN);
-    setLow(LED_ROW_6_PORT, LED_ROW_6_PIN);
-    #endif
+    setInput(DI_5_PORT, DI_5_PIN);
+    setHigh(DI_5_PORT, DI_5_PIN);
 
-    //decoder
-    setOutput(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
-    setOutput(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
-    setOutput(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
+    setInput(DI_6_PORT, DI_6_PIN);
+    setHigh(DI_6_PORT, DI_6_PIN);
 
-    //configure analog
-    //select pins
-    setOutput(MUX_S0_PORT, MUX_S0_PIN);
-    setOutput(MUX_S1_PORT, MUX_S1_PIN);
-    setOutput(MUX_S2_PORT, MUX_S2_PIN);
-    setOutput(MUX_S3_PORT, MUX_S3_PIN);
+    setInput(DI_7_PORT, DI_7_PIN);
+    setHigh(DI_7_PORT, DI_7_PIN);
 
-    //mux inputs
-    setInput(MUX_1_IN_PORT, MUX_1_IN_PIN);
-    setInput(MUX_2_IN_PORT, MUX_2_IN_PIN);
+    setInput(DI_8_PORT, DI_8_PIN);
+    setHigh(DI_8_PORT, DI_8_PIN);
 
-    //bootloader led
+
+    setOutput(DO_1_PORT, DO_1_PIN);
+    setLow(DO_1_PORT, DO_1_PIN);
+
+    setOutput(DO_2_PORT, DO_2_PIN);
+    setLow(DO_2_PORT, DO_2_PIN);
+
+    setOutput(DO_3_PORT, DO_3_PIN);
+    setLow(DO_3_PORT, DO_3_PIN);
+
+    setOutput(DO_4_PORT, DO_4_PIN);
+    setLow(DO_4_PORT, DO_4_PIN);
+
+    setOutput(DO_5_PORT, DO_5_PIN);
+    setLow(DO_5_PORT, DO_5_PIN);
+
+    setOutput(DO_6_PORT, DO_6_PIN);
+    setLow(DO_6_PORT, DO_6_PIN);
+
+    setOutput(DO_7_PORT, DO_7_PIN);
+    setLow(DO_7_PORT, DO_7_PIN);
+
+    setOutput(DO_8_PORT, DO_8_PIN);
+    setLow(DO_8_PORT, DO_8_PIN);
+
+
+    setInput(AI_1_PORT, AI_1_PIN);
+    setLow(AI_1_PORT, AI_1_PIN);
+
+    setInput(AI_2_PORT, AI_2_PIN);
+    setLow(AI_2_PORT, AI_2_PIN);
+
+    setInput(AI_3_PORT, AI_3_PIN);
+    setLow(AI_3_PORT, AI_3_PIN);
+
+    setInput(AI_4_PORT, AI_4_PIN);
+    setLow(AI_4_PORT, AI_4_PIN);
+
+    setInput(AI_5_PORT, AI_5_PIN);
+    setLow(AI_5_PORT, AI_5_PIN);
+
+    setInput(AI_6_PORT, AI_6_PIN);
+    setLow(AI_6_PORT, AI_6_PIN);
+
+    //active low logic for these leds on leonardo
     setOutput(LED_OUT_PORT, LED_OUT_PIN);
-    setOutput(LED_IN_PORT, LED_IN_PIN);
+    setHigh(LED_OUT_PORT, LED_OUT_PIN);
 
-    setLow(LED_OUT_PORT, LED_OUT_PIN);
-    setLow(LED_IN_PORT, LED_IN_PIN);
+    setOutput(LED_IN_PORT, LED_IN_PIN);
+    setHigh(LED_IN_PORT, LED_IN_PIN);
 }
 
 void Board::configureTimers()
@@ -137,7 +164,7 @@ void Board::configureTimers()
     //set timer0 to ctc, used for millis/led matrix
     TCCR0A |= (1<<WGM01);           //CTC mode
     TCCR0B |= (1<<CS01)|(1<<CS00);  //prescaler 64
-    OCR0A = 124;                    //500uS
+    OCR0A = 62;                     //250us
     TIMSK0 |= (1<<OCIE0A);          //compare match interrupt
 }
 

@@ -18,13 +18,32 @@
 
 #pragma once
 
+#ifdef BOARD_OPEN_DECK
+
 ///
 /// \brief Hardcoded board version.
 /// @{
 ///
+
 #define HARDWARE_VERSION_MAJOR      1
 #define HARDWARE_VERSION_MINOR      2
 #define HARDWARE_VERSION_REVISION   0
+
 /// @}
 
 #include "v1/Board.h"
+#elif defined(BOARD_A_LEO)
+///
+/// \brief Hardcoded board version.
+/// @{
+///
+
+#define HARDWARE_VERSION_MAJOR      1
+#define HARDWARE_VERSION_MINOR      0
+#define HARDWARE_VERSION_REVISION   0
+
+#include "leonardo/Board.h"
+
+/// @}
+
+#endif

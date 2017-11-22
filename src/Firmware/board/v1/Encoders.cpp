@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef BOARD_OPEN_DECK
+
 #include "Board.h"
 #include "Variables.h"
 
@@ -116,3 +118,5 @@ inline int8_t readEncoder(uint8_t encoderID, uint8_t pairState)
     else
         return -1;
 }
+
+#endif

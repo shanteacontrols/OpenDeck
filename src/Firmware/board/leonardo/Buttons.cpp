@@ -16,13 +16,32 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef BOARD_OPEN_DECK
+#ifdef BOARD_A_LEO
 
-#pragma once
+#include "Board.h"
+#include "Variables.h"
 
-#include "Hardware.h"
+bool buttonsProcessed;
 
-#define DIGITAL_BUFFER_SIZE 2
-#define ANALOG_BUFFER_SIZE  MAX_NUMBER_OF_ANALOG
+volatile uint8_t     digital_buffer_head;
+volatile uint8_t     digital_buffer_tail;
+volatile uint8_t     inputBuffer[DIGITAL_BUFFER_SIZE];
+
+bool Board::buttonDataAvailable()
+{
+    return false;
+}
+
+bool Board::getButtonState(uint8_t buttonIndex)
+{
+    //uint8_t row = buttonIndex/NUMBER_OF_BUTTON_COLUMNS;
+    ////invert column order
+    //uint8_t column = (NUMBER_OF_BUTTON_COLUMNS-1) - buttonIndex % NUMBER_OF_BUTTON_COLUMNS;
+    //buttonIndex = column*8 + row;
+//
+    //return !((inputMatrixBufferCopy >> buttonIndex) & 0x01);
+
+    return false;
+}
 
 #endif

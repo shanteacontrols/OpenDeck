@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef BOARD_OPEN_DECK
+#ifdef BOARD_A_LEO
 
 #pragma once
 
@@ -31,73 +31,5 @@
 #define LED_RGB_B_BIT                       0x07
 
 #define MIDI_INDICATOR_TIMEOUT              50 //ms
-
-const uint8_t ledTransitionScale[NUMBER_OF_LED_TRANSITIONS] =
-{
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    1,
-    1,
-    1,
-    1,
-    2,
-    2,
-    2,
-    2,
-    3,
-    3,
-    4,
-    4,
-    5,
-    5,
-    6,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    16,
-    17,
-    19,
-    21,
-    23,
-    25,
-    28,
-    30,
-    33,
-    36,
-    40,
-    44,
-    48,
-    52,
-    57,
-    62,
-    68,
-    74,
-    81,
-    89,
-    97,
-    106,
-    115,
-    126,
-    138,
-    150,
-    164,
-    179,
-    195,
-    213,
-    255
-};
 
 #endif

@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef BOARD_OPEN_DECK
+
 #pragma once
 
 #define SR_DIN_PORT                 PORTD
@@ -86,3 +88,5 @@
 
 #define LED_OUT_PORT                PORTE
 #define LED_OUT_PIN                 2
+
+#endif

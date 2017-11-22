@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef BOARD_OPEN_DECK
+
 #pragma once
 
 //uncomment if leds use reverse logic for setting on/off state
@@ -35,3 +37,5 @@
 #define MAX_NUMBER_OF_LEDS          (NUMBER_OF_LED_COLUMNS*NUMBER_OF_LED_ROWS)
 #define MAX_NUMBER_OF_RGB_LEDS      (MAX_NUMBER_OF_LEDS/3)
 #define MAX_NUMBER_OF_ENCODERS      (MAX_NUMBER_OF_BUTTONS/2)
+
+#endif

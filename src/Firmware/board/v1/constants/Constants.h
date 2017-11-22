@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef BOARD_OPEN_DECK
+
 #pragma once
 
 #include "Buffer.h"
@@ -23,3 +25,5 @@
 #include "Hardware.h"
 #include "LEDs.h"
 #include "Reboot.h"
+
+#endif

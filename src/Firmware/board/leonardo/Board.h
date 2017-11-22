@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef BOARD_OPEN_DECK
+#ifdef BOARD_A_LEO
 
 #pragma once
 
@@ -28,13 +28,9 @@
 
 //function prototypes
 inline void setAnalogPin(uint8_t muxNumber) __attribute__((always_inline));
-inline void setMuxInput(uint8_t muxInput) __attribute__((always_inline));
-inline void ledRowsOff() __attribute__((always_inline));
-inline void ledRowOn(uint8_t rowNumber, uint8_t intensity) __attribute__((always_inline));
+inline void ledSet(uint8_t rowNumber, uint8_t intensity) __attribute__((always_inline));
 inline void checkLEDs() __attribute__((always_inline));
 inline void setBlinkState(uint8_t ledNumber, bool state) __attribute__((always_inline));
-inline void activateInputColumn(uint8_t column) __attribute__((always_inline));
-inline void activateOutputColumn(uint8_t column) __attribute__((always_inline));
 inline void storeDigitalIn(uint8_t column, uint8_t bufferIndex) __attribute__((always_inline));
 inline int8_t readEncoder(uint8_t encoderID, uint8_t pairState) __attribute__((always_inline));
 
@@ -42,6 +38,7 @@ inline int8_t readEncoder(uint8_t encoderID, uint8_t pairState) __attribute__((a
 /// \addtogroup board
 /// @{
 ///
+
 class Board : BoardCommon
 {
     public:
@@ -55,7 +52,7 @@ class Board : BoardCommon
 
     //analog
     bool analogDataAvailable();
-    uint16_t getAnalogValue(uint8_t analogID);
+    int16_t getAnalogValue(uint8_t analogID);
     void resetADC();
 
     //encoders
@@ -76,8 +73,8 @@ class Board : BoardCommon
     void initEncoders();
     void initUART_MIDI();
     void configureTimers();
-    bool copyInputMatrixBuffer();
-    void checkInputMatrixBufferCopy();
+    bool copyInputBuffer();
+    void checkInputBufferCopy();
 };
 
 extern Board board;

@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef BOARD_OPEN_DECK
+
 #pragma once
 
 #include "constants/Constants.h"
@@ -30,3 +32,5 @@ extern volatile bool        _analogDataAvailable;
 extern bool                 encodersProcessed;
 extern uint64_t             inputMatrixBufferCopy;
 extern bool                 buttonsProcessed;
+
+#endif

@@ -1,3 +1,5 @@
+#ifdef BOARD_OPEN_DECK
+
 #include "Board.h"
 
 ///
@@ -111,3 +113,5 @@ void Board::initUART_MIDI()
     midi.handleUARTread(UARTread);
     midi.handleUARTwrite(UARTwrite);
 }
+
+#endif

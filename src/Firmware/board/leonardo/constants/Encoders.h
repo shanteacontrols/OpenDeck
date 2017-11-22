@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef BOARD_OPEN_DECK
+#ifdef BOARD_A_LEO
 
 #pragma once
 

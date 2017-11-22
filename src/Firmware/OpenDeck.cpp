@@ -152,7 +152,9 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                     case ledHwParameterFadeTime:
                     if ((newValue < FADE_TIME_MIN) || (newValue > FADE_TIME_MAX))
                         return false;
+                    #ifdef BOARD_OPEN_DECK
                     leds.setFadeTime(newValue);
+                    #endif
                     break;
 
                     case ledHwParameterStartUpRoutine:
@@ -211,7 +213,7 @@ int main()
             //new message on usb
             midiMessageType_t messageType = midi.getType(usbInterface);
             uint8_t data1 = midi.getData1(usbInterface);
-            uint8_t data2 = midi.getData2(usbInterface);    
+            uint8_t data2 = midi.getData2(usbInterface);
 
             switch(messageType)
             {
@@ -239,69 +241,72 @@ int main()
             }
         }
 
-        //check for incoming MIDI messages on USART
-        if (midi.read(dinInterface))
+        if (midi.getDINMIDIstate())
         {
-            midiMessageType_t messageType = midi.getType(dinInterface);
-            uint8_t data1 = midi.getData1(dinInterface);
-            uint8_t data2 = midi.getData2(dinInterface);
-
-            if (!database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureUSBconvert))
+            //check for incoming MIDI messages on USART
+            if (midi.read(dinInterface))
             {
-                switch(messageType)
+                midiMessageType_t messageType = midi.getType(dinInterface);
+                uint8_t data1 = midi.getData1(dinInterface);
+                uint8_t data2 = midi.getData2(dinInterface);
+
+                if (!database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureUSBconvert))
                 {
-                    case midiMessageNoteOff:
-                    case midiMessageNoteOn:
-                    leds.noteToState(data1, data2);
-                    break;
+                    switch(messageType)
+                    {
+                        case midiMessageNoteOff:
+                        case midiMessageNoteOn:
+                        leds.noteToState(data1, data2);
+                        break;
 
-                    default:
-                    break;
+                        default:
+                        break;
+                    }
                 }
-            }
-            else
-            {
-                //dump everything from MIDI in to USB MIDI out
-                uint8_t inChannel = midi.getChannel(dinInterface);
-                //temporarily disable din midi out - send to usb only
-                midi.disableDIN();
-
-                switch(messageType)
+                else
                 {
-                    case midiMessageNoteOff:
-                    midi.sendNoteOff(data1, data2, inChannel);
-                    break;
+                    //dump everything from MIDI in to USB MIDI out
+                    uint8_t inChannel = midi.getChannel(dinInterface);
+                    //temporarily disable din midi out - send to usb only
+                    midi.setDINMIDIstate(false);
 
-                    case midiMessageNoteOn:
-                    midi.sendNoteOn(data1, data2, inChannel);
-                    break;
+                    switch(messageType)
+                    {
+                        case midiMessageNoteOff:
+                        midi.sendNoteOff(data1, data2, inChannel);
+                        break;
 
-                    case midiMessageControlChange:
-                    midi.sendControlChange(data1, data2, inChannel);
-                    break;
+                        case midiMessageNoteOn:
+                        midi.sendNoteOn(data1, data2, inChannel);
+                        break;
 
-                    case midiMessageAfterTouchPoly:
-                    midi.sendPolyPressure(data1, data2, inChannel);
-                    break;
+                        case midiMessageControlChange:
+                        midi.sendControlChange(data1, data2, inChannel);
+                        break;
 
-                    case midiMessageProgramChange:
-                    midi.sendProgramChange(data1, inChannel);
-                    break;
+                        case midiMessageAfterTouchPoly:
+                        midi.sendPolyPressure(data1, data2, inChannel);
+                        break;
 
-                    case midiMessageAfterTouchChannel:
-                    midi.sendAfterTouch(data1, inChannel);
-                    break;
+                        case midiMessageProgramChange:
+                        midi.sendProgramChange(data1, inChannel);
+                        break;
 
-                    case midiMessageSystemExclusive:
-                    midi.sendSysEx(midi.getSysExArrayLength(dinInterface), midi.getSysExArray(dinInterface), true);
-                    break;
+                        case midiMessageAfterTouchChannel:
+                        midi.sendAfterTouch(data1, inChannel);
+                        break;
 
-                    default:
-                    break;
+                        case midiMessageSystemExclusive:
+                        midi.sendSysEx(midi.getSysExArrayLength(dinInterface), midi.getSysExArray(dinInterface), true);
+                        break;
+
+                        default:
+                        break;
+                    }
+
+                    //enable din output again
+                    midi.setDINMIDIstate(true);
                 }
-
-                //enable din output again
-                midi.enableDIN();
             }
         }
 
