@@ -139,12 +139,11 @@
       <Value>INTERRUPT_CONTROL_ENDPOINT</Value>
       <Value>MIDI_SYSEX_ARRAY_SIZE=45</Value>
       <Value>UART_BUFFER_SIZE=30</Value>
-      <Value>ADC_PRESCALER=128</Value>
-      <Value>VREF_AREF</Value>
       <Value>DBMS_MAX_SECTIONS=7</Value>
       <Value>DBMS_MAX_BLOCKS=7</Value>
       <Value>USBMIDI</Value>
       <Value>USE_ADC</Value>
+      <Value>BOARD_A_LEO</Value>
     </ListValues>
   </avrgcccpp.compiler.symbols.DefSymbols>
   <avrgcccpp.compiler.directories.IncludePaths>
@@ -304,6 +303,57 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="board\Import.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="board\leonardo\Analog.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\leonardo\Board.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\leonardo\Board.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\leonardo\Buttons.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\leonardo\constants\Buffer.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\leonardo\constants\Constants.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\leonardo\constants\Encoders.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\leonardo\constants\Hardware.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\leonardo\constants\LEDs.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\leonardo\constants\Reboot.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\leonardo\Encoders.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\leonardo\Init.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\leonardo\ISR.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\leonardo\LEDs.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\leonardo\pins\Map.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\leonardo\pins\Pins.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\leonardo\Variables.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="board\v1\Analog.cpp">
       <SubType>compile</SubType>
     </Compile>
@@ -383,6 +433,9 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="core\src\HAL\avr\adc\ADC.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="core\src\HAL\avr\adc\Config.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="core\src\HAL\avr\AVR.h">
@@ -1491,6 +1544,9 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="board\leonardo" />
+    <Folder Include="board\leonardo\constants\" />
+    <Folder Include="board\leonardo\pins" />
     <Folder Include="board\v1\" />
     <Folder Include="board\v1\" />
     <Folder Include="board\v1\constants\" />

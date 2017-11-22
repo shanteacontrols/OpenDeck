@@ -16,13 +16,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef BOARD_OPEN_DECK
+#ifdef BOARD_A_LEO
 
 #pragma once
 
-#include "Hardware.h"
+//uncomment if leds use reverse logic for setting on/off state
+//#define LED_INVERT
 
-#define DIGITAL_BUFFER_SIZE 2
-#define ANALOG_BUFFER_SIZE  MAX_NUMBER_OF_ANALOG
+#define MAX_NUMBER_OF_ANALOG        6
+#define MAX_NUMBER_OF_BUTTONS       8
+#define MAX_NUMBER_OF_LEDS          8
+#define MAX_NUMBER_OF_RGB_LEDS      (MAX_NUMBER_OF_LEDS/3)
+#define MAX_NUMBER_OF_ENCODERS      (MAX_NUMBER_OF_BUTTONS/2)
 
 #endif

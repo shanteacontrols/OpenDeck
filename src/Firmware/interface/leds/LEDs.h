@@ -39,7 +39,9 @@ class LEDs
     void setBlinkState(uint8_t ledID, bool state);
     bool getBlinkState(uint8_t ledID);
     void setBlinkTime(uint16_t blinkTime);
+    #ifdef BOARD_OPEN_DECK
     void setFadeTime(uint8_t transitionSpeed);
+    #endif
     ledColor_t velocityToColor(uint8_t receivedVelocity);
     void ccToBlink(uint8_t cc, uint8_t value);
     void noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool local = false);

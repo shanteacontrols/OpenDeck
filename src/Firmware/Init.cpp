@@ -195,7 +195,9 @@ void initSysEx()
 void globalInit()
 {
     midi.init(usbInterface);
+    #ifdef BOARD_OPEN_DECK
     midi.init(dinInterface);
+    #endif
 
     database.init();
     board.init();
@@ -211,25 +213,48 @@ void globalInit()
     {
         for (int i=0; i<3; i++)
         {
+            #ifdef BOARD_OPEN_DECK
             setHigh(LED_OUT_PORT, LED_OUT_PIN);
             setLow(LED_IN_PORT, LED_IN_PIN);
             _delay_ms(200);
             setLow(LED_OUT_PORT, LED_OUT_PIN);
             setHigh(LED_IN_PORT, LED_IN_PIN);
             _delay_ms(200);
+            #elif defined(BOARD_A_LEO)
+            setLow(LED_OUT_PORT, LED_OUT_PIN);
+            setHigh(LED_IN_PORT, LED_IN_PIN);
+            _delay_ms(200);
+            setHigh(LED_OUT_PORT, LED_OUT_PIN);
+            setLow(LED_IN_PORT, LED_IN_PIN);
+            _delay_ms(200);
+            #endif
         }
 
+        #ifdef BOARD_OPEN_DECK
         setLow(LED_OUT_PORT, LED_OUT_PIN);
         setLow(LED_IN_PORT, LED_IN_PIN);
+        #elif defined(BOARD_A_LEO)
+        setHigh(LED_OUT_PORT, LED_OUT_PIN);
+        setHigh(LED_IN_PORT, LED_IN_PIN);
+        #endif
     }
     else
     {
+        #ifdef BOARD_OPEN_DECK
         setHigh(LED_OUT_PORT, LED_OUT_PIN);
         setHigh(LED_IN_PORT, LED_IN_PIN);
         _delay_ms(200);
         setLow(LED_OUT_PORT, LED_OUT_PIN);
         setLow(LED_IN_PORT, LED_IN_PIN);
         _delay_ms(200);
+        #elif defined(BOARD_A_LEO)
+        setLow(LED_OUT_PORT, LED_OUT_PIN);
+        setLow(LED_IN_PORT, LED_IN_PIN);
+        _delay_ms(200);
+        setHigh(LED_OUT_PORT, LED_OUT_PIN);
+        setHigh(LED_IN_PORT, LED_IN_PIN);
+        _delay_ms(200);
+        #endif
     }
 
     //enable global interrupts

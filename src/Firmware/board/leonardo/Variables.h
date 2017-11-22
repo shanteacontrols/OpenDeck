@@ -16,13 +16,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef BOARD_OPEN_DECK
-
 #pragma once
 
-#include "Hardware.h"
+#ifdef BOARD_A_LEO
 
-#define DIGITAL_BUFFER_SIZE 2
-#define ANALOG_BUFFER_SIZE  MAX_NUMBER_OF_ANALOG
+#include "constants/Constants.h"
+
+extern bool                 dmBufferCopied;
+extern volatile uint8_t     inputBuffer[DIGITAL_BUFFER_SIZE];
+extern volatile uint8_t     digital_buffer_head;
+extern volatile uint8_t     digital_buffer_tail;
+extern bool                 encodersProcessed;
+extern uint64_t             inputMatrixBufferCopy;
+extern bool                 buttonsProcessed;
 
 #endif

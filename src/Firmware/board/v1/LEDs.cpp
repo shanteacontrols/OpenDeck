@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef BOARD_OPEN_DECK
+
 #include "Board.h"
 
 volatile bool       blinkEnabled,
@@ -64,3 +66,5 @@ uint8_t Board::getRGBID(uint8_t ledNumber)
 
     return (row*NUMBER_OF_LED_COLUMNS)/3 + column;
 }
+
+#endif

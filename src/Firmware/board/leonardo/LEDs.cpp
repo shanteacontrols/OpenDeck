@@ -16,13 +16,29 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef BOARD_OPEN_DECK
+#ifdef BOARD_A_LEO
 
-#pragma once
+#include "Board.h"
 
-#include "Hardware.h"
+volatile bool       blinkEnabled,
+                    blinkState;
 
-#define DIGITAL_BUFFER_SIZE 2
-#define ANALOG_BUFFER_SIZE  MAX_NUMBER_OF_ANALOG
+volatile uint8_t    pwmSteps,
+                    ledState[MAX_NUMBER_OF_LEDS];
+
+volatile uint16_t   ledBlinkTime;
+volatile uint32_t   blinkTimerCounter;
+
+
+uint8_t Board::getRGBaddress(uint8_t rgbID, rgbIndex_t index)
+{
+    //get RGB LED address for specified index
+    return rgbID*3+(uint8_t)index;
+}
+
+uint8_t Board::getRGBID(uint8_t ledNumber)
+{
+    return ledNumber / 3;    //RGB LED = 3 normal LEDs
+}
 
 #endif

@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef BOARD_OPEN_DECK
+
 #pragma once
 
 #include "Pins.h"
@@ -120,3 +122,5 @@ const uint8_t dmColumnArray[] =
     DM_COLUMN_7,
     DM_COLUMN_8
 };
+
+#endif

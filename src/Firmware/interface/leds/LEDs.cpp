@@ -33,7 +33,9 @@ void LEDs::init()
     }
 
     setBlinkTime(database.read(DB_BLOCK_LED, ledHardwareParameterSection, ledHwParameterBlinkTime));
+    #ifdef BOARD_OPEN_DECK
     setFadeTime(database.read(DB_BLOCK_LED, ledHardwareParameterSection, ledHwParameterFadeTime));
+    #endif
 
     //run LED animation on start-up
     startUpAnimation();
@@ -43,12 +45,16 @@ void LEDs::startUpAnimation()
 {
     if (database.read(DB_BLOCK_LED, ledHardwareParameterSection, ledHwParameterStartUpRoutine))
     {
+        #ifdef BOARD_OPEN_DECK
         setFadeTime(1);
+        #endif
         setAllOn();
         wait_ms(2000);
         setAllOff();
         wait_ms(2000);
+        #ifdef BOARD_OPEN_DECK
         setFadeTime(database.read(DB_BLOCK_LED, ledHardwareParameterSection, ledHwParameterFadeTime));
+        #endif
     }
 }
 
@@ -239,6 +245,7 @@ bool LEDs::getBlinkState(uint8_t ledID)
     return BIT_READ(state, LED_BLINK_ON_BIT);
 }
 
+#ifdef BOARD_OPEN_DECK
 void LEDs::setFadeTime(uint8_t transitionSpeed)
 {
     //reset transition counter
@@ -250,6 +257,7 @@ void LEDs::setFadeTime(uint8_t transitionSpeed)
         pwmSteps = transitionSpeed;
     }
 }
+#endif
 
 void LEDs::setBlinkTime(uint16_t blinkTime)
 {

@@ -16,13 +16,31 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef BOARD_OPEN_DECK
+#ifdef BOARD_A_LEO
 
-#pragma once
+#include "Board.h"
 
-#include "Hardware.h"
+Board::Board()
+{
+    //default constructor
+}
 
-#define DIGITAL_BUFFER_SIZE 2
-#define ANALOG_BUFFER_SIZE  MAX_NUMBER_OF_ANALOG
+void Board::reboot(rebootType_t type)
+{
+    switch(type)
+    {
+        case rebootApp:
+        eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, APP_REBOOT_VALUE);
+        break;
+
+        case rebootBtldr:
+        eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, BTLDR_REBOOT_VALUE);
+        break;
+    }
+
+    mcuReset();
+}
+
+Board board;
 
 #endif

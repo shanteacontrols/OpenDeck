@@ -16,13 +16,41 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef BOARD_OPEN_DECK
+#ifdef BOARD_A_LEO
 
-#pragma once
+#include "Board.h"
+#include "Variables.h"
 
-#include "Hardware.h"
+bool                encodersProcessed;
+uint16_t            encoderData[MAX_NUMBER_OF_ENCODERS];
 
-#define DIGITAL_BUFFER_SIZE 2
-#define ANALOG_BUFFER_SIZE  MAX_NUMBER_OF_ANALOG
+void Board::initEncoders()
+{
+    for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
+    {
+        encoderData[i] |= ((uint16_t)0 << 8);
+        encoderData[i] |= ((uint16_t)ENCODER_DEFAULT_PULSE_COUNT_STATE << 4);   //set number of pulses to 8
+    }
+}
+
+uint8_t Board::getEncoderPair(uint8_t buttonIndex)
+{
+    return buttonIndex/2;
+}
+
+bool Board::encoderDataAvailable()
+{
+    return false;
+}
+
+int8_t Board::getEncoderState(uint8_t encoderNumber)
+{
+    return 0;
+}
+
+inline int8_t readEncoder(uint8_t encoderID, uint8_t pairState)
+{
+    return 0;
+}
 
 #endif

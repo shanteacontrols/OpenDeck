@@ -35,7 +35,7 @@ void Analog::update()
     if (!analogValuesSampled())
         return;
 
-    uint16_t analogData;
+    int16_t analogData;
 
     //check values
     for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
@@ -71,6 +71,12 @@ void Analog::update()
         {
             //read raw value
             analogData = board.getAnalogValue(i);
+
+            if (analogData == -1)
+            {
+                continue;
+            }
+
             bool state = analogData > DIGITAL_VALUE_THRESHOLD;
             buttons.processButton(i+MAX_NUMBER_OF_BUTTONS, state, false);
         }
@@ -83,8 +89,17 @@ void Analog::addAnalogSamples()
 {
     for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
     {
-        //get raw analog reading
-        analogSample[i] += board.getAnalogValue(i);
+        int16_t value = board.getAnalogValue(i);
+
+        if (value == -1)
+        {
+            continue;
+        }
+        else
+        {
+             //get raw analog reading
+             analogSample[i] += value;
+        }
     }
 
     sampleCounter++;
