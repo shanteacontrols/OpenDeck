@@ -18,13 +18,11 @@
 
 #pragma once
 
-#include "../../board/Board.h"
-#include "../buttons/Buttons.h"
+#include "../digital/input/buttons/Buttons.h"
 #include "../../database/Database.h"
 #include "DataTypes.h"
 #include "Config.h"
 #include "Helpers.h"
-#include "../../OpenDeck.h"
 
 ///
 /// \brief Analog components handling.
@@ -32,6 +30,7 @@
 /// \ingroup interface
 /// @{
 ///
+
 class Analog
 {
     public:
@@ -40,13 +39,9 @@ class Analog
     void debounceReset(uint16_t index);
 
     private:
-
     //variables
-    uint8_t     sampleCounter,
-                fsrPressed[MAX_NUMBER_OF_ANALOG/8+1];
-
-    uint16_t    analogSample[MAX_NUMBER_OF_ANALOG],
-                lastAnalogueValue[MAX_NUMBER_OF_ANALOG];
+    uint8_t     fsrPressed[MAX_NUMBER_OF_ANALOG/8+1];
+    uint16_t    lastAnalogueValue[MAX_NUMBER_OF_ANALOG];
 
     //data processing
     void checkPotentiometerValue(uint8_t analogID, uint16_t tempValue);
@@ -56,13 +51,10 @@ class Analog
     void setFsrPressed(uint8_t fsrID, bool state);
     bool getFsrDebounceTimerStarted(uint8_t fsrID);
     void setFsrDebounceTimerStarted(uint8_t fsrID, bool state);
-    uint16_t getAverageValue(uint8_t analogID);
     #ifdef ENABLE_HYSTERESIS
     uint16_t getHysteresisValue(uint8_t analogID, uint16_t value);
     #endif
-    void addAnalogSamples();
-    void resetSamples();
-    bool analogValuesSampled();
+
     inline uint8_t mapAnalog_uint8(uint8_t x, uint8_t in_min, uint8_t in_max, uint8_t out_min, uint8_t out_max)
     {
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
@@ -70,4 +62,5 @@ class Analog
 };
 
 extern Analog analog;
+
 /// @}

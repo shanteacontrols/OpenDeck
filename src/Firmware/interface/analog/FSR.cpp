@@ -17,8 +17,10 @@
 */
 
 #include "Analog.h"
-#include "../leds/LEDs.h"
-#include "../../OpenDeck.h"
+#include "../../board/Board.h"
+#include "../digital/output/leds/LEDs.h"
+#include "../../sysex/src/SysEx.h"
+#include "../cinfo/CInfo.h"
 
 //use 1k resistor when connecting FSR between signal and ground
 
@@ -91,8 +93,8 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
         {
             setFsrPressed(analogID, false);
             uint8_t note = database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID);
-            midi.sendNoteOff(note, velocityOff, database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
-            leds.noteToState(note, velocityOff, true);
+            midi.sendNoteOff(note, 0, database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
+            leds.noteToState(note, 0, true);
             if (sysEx.configurationEnabled())
             {
                 if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)

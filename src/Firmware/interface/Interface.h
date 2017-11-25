@@ -19,6 +19,5 @@
 #pragma once
 
 #include "analog/Analog.h"
-#include "buttons/Buttons.h"
-#include "encoders/Encoders.h"
-#include "leds/LEDs.h"
+#include "digital/input/DigitalInput.h"
+#include "digital/output/leds/LEDs.h"

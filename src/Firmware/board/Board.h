@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "../midi/src/MIDI.h"
+
 #ifdef BOARD_OPEN_DECK
 
 ///
@@ -31,8 +33,9 @@
 
 /// @}
 
-#include "v1/Board.h"
+#include "variants/v1/Board.h"
 #elif defined(BOARD_A_LEO)
+
 ///
 /// \brief Hardcoded board version.
 /// @{
@@ -42,8 +45,15 @@
 #define HARDWARE_VERSION_MINOR      0
 #define HARDWARE_VERSION_REVISION   0
 
-#include "leonardo/Board.h"
+#include "variants/leonardo/Leonardo.h"
 
 /// @}
+
+#elif defined(BOARD_A_MEGA)
+#define HARDWARE_VERSION_MAJOR      1
+#define HARDWARE_VERSION_MINOR      0
+#define HARDWARE_VERSION_REVISION   0
+
+#include "variants/mega/Board.h"
 
 #endif

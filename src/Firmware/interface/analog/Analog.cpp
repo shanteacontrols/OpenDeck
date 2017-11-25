@@ -17,6 +17,7 @@
 */
 
 #include "Analog.h"
+#include "../../board/Board.h"
 
 const uint8_t disableCompare = 0b11111100;
 
@@ -30,23 +31,19 @@ void Analog::update()
     if (!board.analogDataAvailable())
         return;
 
-    addAnalogSamples();
-
-    if (!analogValuesSampled())
-        return;
-
     int16_t analogData;
 
     //check values
     for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
     {
+        analogData = board.getAnalogValue(i);
+
         //don't process component if it's not enabled
         if (!database.read(DB_BLOCK_ANALOG, analogEnabledSection, i))
             continue;
 
         if (database.read(DB_BLOCK_ANALOG, analogTypeSection, i) != aType_button)
         {
-            analogData = getAverageValue(i);
             #ifdef ENABLE_HYSTERESIS
             analogData = getHysteresisValue(i, analogData);
             #endif
@@ -82,45 +79,7 @@ void Analog::update()
         }
     }
 
-    resetSamples();
-}
-
-void Analog::addAnalogSamples()
-{
-    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
-    {
-        int16_t value = board.getAnalogValue(i);
-
-        if (value == -1)
-        {
-            continue;
-        }
-        else
-        {
-             //get raw analog reading
-             analogSample[i] += value;
-        }
-    }
-
-    sampleCounter++;
-}
-
-void Analog::resetSamples()
-{
-    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
-        analogSample[i] = 0;
-
-    sampleCounter = 0;
-}
-
-bool Analog::analogValuesSampled()
-{
-    return (sampleCounter == NUMBER_OF_SAMPLES);
-}
-
-uint16_t Analog::getAverageValue(uint8_t analogID)
-{
-    return ADC_AVG_VALUE(analogSample[analogID]);
+    board.continueADCreadout();
 }
 
 #ifdef ENABLE_HYSTERESIS
