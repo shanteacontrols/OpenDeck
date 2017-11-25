@@ -1,6 +1,6 @@
 #ifdef BOARD_A_LEO
 
-#include "Leonardo.h"
+#include "Board.h"
 #include "Variables.h"
 
 bool Board::digitalInputDataAvailable()

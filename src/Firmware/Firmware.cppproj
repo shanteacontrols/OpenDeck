@@ -359,7 +359,7 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="board\variants\leonardo\LEDs.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variants\leonardo\Leonardo.h">
+    <Compile Include="board\variants\leonardo\Board.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="board\variants\leonardo\pins\Map.h">

@@ -18,7 +18,7 @@
 
 #ifdef BOARD_A_LEO
 
-#include "Leonardo.h"
+#include "Board.h"
 
 uint8_t Board::getRGBaddress(uint8_t rgbID, rgbIndex_t index)
 {

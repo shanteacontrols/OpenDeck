@@ -43,7 +43,7 @@
 #define HARDWARE_VERSION_MINOR      0
 #define HARDWARE_VERSION_REVISION   0
 
-#include "variants/leonardo/Leonardo.h"
+#include "variants/leonardo/Board.h"
 
 /// @}
 
