@@ -1,6 +1,7 @@
 #pragma once
 
 #include "sysex/src/SysEx.h"
+#include "midi/src/MIDI.h"
 
 #define FIRMWARE_VERSION_STRING         0x56
 #define HARDWARE_VERSION_STRING         0x42
@@ -11,3 +12,4 @@
 #define MAX_COMPONENTS_STRING           0x4D
 
 extern SysEx sysEx;
+extern MIDI midi;
