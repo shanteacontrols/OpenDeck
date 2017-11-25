@@ -22,4 +22,3 @@ void Board::reboot(rebootType_t type)
 }
 
 Board board;
-MIDI midi;

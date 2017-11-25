@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "../midi/src/MIDI.h"
-
 #ifdef BOARD_OPEN_DECK
 
 ///
@@ -33,7 +31,7 @@
 
 /// @}
 
-#include "variants/v1/Board.h"
+#include "variants/opendeck//Board.h"
 #elif defined(BOARD_A_LEO)
 
 ///

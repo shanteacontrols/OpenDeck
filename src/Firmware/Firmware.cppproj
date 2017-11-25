@@ -434,61 +434,61 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="board\variants\mega\Variables.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variants\v1\Analog.cpp">
+    <Compile Include="board\variants\opendeck\Analog.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variants\v1\Board.cpp">
+    <Compile Include="board\variants\opendeck\Board.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variants\v1\Board.h">
+    <Compile Include="board\variants\opendeck\Board.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variants\v1\Buttons.cpp">
+    <Compile Include="board\variants\opendeck\Buttons.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variants\v1\constants\Buffer.h">
+    <Compile Include="board\variants\opendeck\constants\Buffer.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variants\v1\constants\Constants.h">
+    <Compile Include="board\variants\opendeck\constants\Constants.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variants\v1\constants\Encoders.h">
+    <Compile Include="board\variants\opendeck\constants\Encoders.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variants\v1\constants\LEDs.h">
+    <Compile Include="board\variants\opendeck\constants\LEDs.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variants\v1\constants\Reboot.h">
+    <Compile Include="board\variants\opendeck\constants\Reboot.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variants\v1\Encoders.cpp">
+    <Compile Include="board\variants\opendeck\Encoders.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variants\v1\Hardware.h">
+    <Compile Include="board\variants\opendeck\Hardware.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variants\v1\Init.cpp">
+    <Compile Include="board\variants\opendeck\Init.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variants\v1\InMatrix.cpp">
+    <Compile Include="board\variants\opendeck\InMatrix.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variants\v1\ISR.cpp">
+    <Compile Include="board\variants\opendeck\ISR.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variants\v1\LEDs.cpp">
+    <Compile Include="board\variants\opendeck\LEDs.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variants\v1\pins\Map.h">
+    <Compile Include="board\variants\opendeck\pins\Map.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variants\v1\pins\Pins.h">
+    <Compile Include="board\variants\opendeck\pins\Pins.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variants\v1\UART_MIDI.cpp">
+    <Compile Include="board\variants\opendeck\UART_MIDI.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\variants\v1\Variables.h">
+    <Compile Include="board\variants\opendeck\Variables.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="core\src\Common.h">
@@ -1377,9 +1377,9 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Folder Include="board\variants\mega\" />
     <Folder Include="board\variants\mega\constants\" />
     <Folder Include="board\variants\mega\pins\" />
-    <Folder Include="board\variants\v1\" />
-    <Folder Include="board\variants\v1\constants\" />
-    <Folder Include="board\variants\v1\pins\" />
+    <Folder Include="board\variants\opendeck" />
+    <Folder Include="board\variants\opendeck\constants" />
+    <Folder Include="board\variants\opendeck\pins" />
     <Folder Include="core\" />
     <Folder Include="core\src\" />
     <Folder Include="core\src\general\" />

@@ -16,11 +16,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "midi/src/MIDI.h"
 #include "versioning/src/avr/Version.h"
 #include "interface/Interface.h"
 
 SysEx sysEx;
+MIDI midi;
 
 void initSysEx()
 {

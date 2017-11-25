@@ -2,7 +2,6 @@
 
 #include "Leonardo.h"
 #include "../../usb/Descriptors.h"
-#include "../../../midi/src/DataTypes.h"
 
 ///
 /// \brief MIDI Class Device Mode Configuration and State Structure.
