@@ -25,7 +25,6 @@
 #include "pins/Map.h"
 #include "../../../core/src/Core.h"
 #include "../../../interface/digital/output/leds/DataTypes.h"
-#include "../../../midi/src/MIDI.h"
 
 //function prototypes
 inline void checkLEDs() __attribute__((always_inline));

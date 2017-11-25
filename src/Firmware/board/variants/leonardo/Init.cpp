@@ -18,7 +18,7 @@
 
 #ifdef BOARD_A_LEO
 
-#include "Leonardo.h"
+#include "Board.h"
 
 void Board::init()
 {
