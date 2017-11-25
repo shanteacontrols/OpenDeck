@@ -7,20 +7,34 @@ Project("{E66E83B9-2572-4076-B26E-6BE79FF3018A}") = "Firmware", "Firmware\Firmwa
 EndProject
 Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "Bootloader", "Bootloader\Bootloader.cproj", "{072A67D6-6AF6-4417-8510-67FE250F6015}"
 EndProject
+Project("{E66E83B9-2572-4076-B26E-6BE79FF3018A}") = "Arduino_16u2_Serial2USBMIDI", "Arduino_16u2_Serial2USBMIDI\Arduino_16u2_Serial2USBMIDI.cppproj", "{0AE9EE16-6637-4D12-B1F2-10178DF6F53D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AVR = Debug|AVR
+		Debug|test = Debug|test
 		Release|AVR = Release|AVR
+		Release|test = Release|test
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Debug|AVR.ActiveCfg = Debug|AVR
 		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Debug|AVR.Build.0 = Debug|AVR
+		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Debug|test.ActiveCfg = Debug|AVR
 		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Release|AVR.ActiveCfg = Release|AVR
 		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Release|AVR.Build.0 = Release|AVR
+		{DCE6C7E3-EE26-4D79-826B-08594B9AD897}.Release|test.ActiveCfg = Release|AVR
 		{072A67D6-6AF6-4417-8510-67FE250F6015}.Debug|AVR.ActiveCfg = Debug|AVR
 		{072A67D6-6AF6-4417-8510-67FE250F6015}.Debug|AVR.Build.0 = Debug|AVR
+		{072A67D6-6AF6-4417-8510-67FE250F6015}.Debug|test.ActiveCfg = Debug|AVR
 		{072A67D6-6AF6-4417-8510-67FE250F6015}.Release|AVR.ActiveCfg = Release|AVR
 		{072A67D6-6AF6-4417-8510-67FE250F6015}.Release|AVR.Build.0 = Release|AVR
+		{072A67D6-6AF6-4417-8510-67FE250F6015}.Release|test.ActiveCfg = Release|AVR
+		{0AE9EE16-6637-4D12-B1F2-10178DF6F53D}.Debug|AVR.ActiveCfg = Debug|AVR
+		{0AE9EE16-6637-4D12-B1F2-10178DF6F53D}.Debug|AVR.Build.0 = Debug|AVR
+		{0AE9EE16-6637-4D12-B1F2-10178DF6F53D}.Debug|test.ActiveCfg = Debug|AVR
+		{0AE9EE16-6637-4D12-B1F2-10178DF6F53D}.Release|AVR.ActiveCfg = Release|AVR
+		{0AE9EE16-6637-4D12-B1F2-10178DF6F53D}.Release|AVR.Build.0 = Release|AVR
+		{0AE9EE16-6637-4D12-B1F2-10178DF6F53D}.Release|test.ActiveCfg = Release|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

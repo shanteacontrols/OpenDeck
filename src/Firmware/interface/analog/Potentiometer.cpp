@@ -17,7 +17,9 @@
 */
 
 #include "Analog.h"
-#include "../../OpenDeck.h"
+#include "../../board/Board.h"
+#include "../../sysex/src/SysEx.h"
+#include "../cinfo/CInfo.h"
 
 void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t tempValue)
 {

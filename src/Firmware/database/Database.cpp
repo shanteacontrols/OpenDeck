@@ -17,7 +17,6 @@
 */
 
 #include "Database.h"
-#include "../board/Board.h"
 
 ///
 /// \brief Default constructor.

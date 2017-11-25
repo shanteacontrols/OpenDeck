@@ -16,18 +16,254 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "OpenDeck.h"
+#include "midi/src/MIDI.h"
+#include "versioning/src/avr/Version.h"
+#include "interface/Interface.h"
 
-uint32_t lastCinfoMsgTime[DB_BLOCKS];
+SysEx sysEx;
 
-uint32_t getLastCinfoMsgTime(uint8_t block)
+void initSysEx()
 {
-    return lastCinfoMsgTime[block];
+    sysEx.addBlocks(DB_BLOCKS);
+
+    sysExSection section;
+
+    {
+        //MIDI block
+
+        //midi feature section
+        section.numberOfParameters = MIDI_FEATURES;
+        section.minValue = 0;
+        section.maxValue = 1;
+
+        sysEx.addSection(DB_BLOCK_MIDI, section);
+
+        //midi channel section
+        section.numberOfParameters = MIDI_CHANNELS;
+        section.minValue = 1;
+        section.maxValue = 16;
+
+        sysEx.addSection(DB_BLOCK_MIDI, section);
+    }
+
+    {
+        //button block
+
+        //type section
+        section.numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
+        section.minValue = 0;
+        section.maxValue = BUTTON_TYPES-1;
+
+        sysEx.addSection(DB_BLOCK_BUTTON, section);
+
+        //midi message type section
+        section.numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
+        section.minValue = 0;
+        section.maxValue = BUTTON_MESSAGE_TYPES-1;
+
+        sysEx.addSection(DB_BLOCK_BUTTON, section);
+
+        //midi id section
+        section.numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
+        section.minValue = 0;
+        section.maxValue = 127;
+
+        sysEx.addSection(DB_BLOCK_BUTTON, section);
+    }
+
+    {
+        //encoder block
+
+        //encoder enabled section
+        section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
+        section.minValue = 0;
+        section.maxValue = 1;
+
+        sysEx.addSection(DB_BLOCK_ENCODER, section);
+
+        //encoder inverted section
+        section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
+        section.minValue = 0;
+        section.maxValue = 1;
+
+        sysEx.addSection(DB_BLOCK_ENCODER, section);
+
+        //encoding mode section
+        section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
+        section.minValue = 0;
+        section.maxValue = ENCODING_MODES-1;
+
+        sysEx.addSection(DB_BLOCK_ENCODER, section);
+
+        //midi id section
+        section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
+        section.minValue = 0;
+        section.maxValue = 127;
+
+        sysEx.addSection(DB_BLOCK_ENCODER, section);
+    }
+
+    {
+        //analog block
+
+        //analog enabled section
+        section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
+        section.minValue = 0;
+        section.maxValue = 1;
+
+        sysEx.addSection(DB_BLOCK_ANALOG, section);
+
+        //analog inverted section
+        section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
+        section.minValue = 0;
+        section.maxValue = 1;
+
+        sysEx.addSection(DB_BLOCK_ANALOG, section);
+
+        //analog type section
+        section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
+        section.minValue = 0;
+        section.maxValue = ANALOG_TYPES-1;
+
+        sysEx.addSection(DB_BLOCK_ANALOG, section);
+
+        //midi id section
+        section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
+        section.minValue = 0;
+        section.maxValue = 127;
+
+        sysEx.addSection(DB_BLOCK_ANALOG, section);
+
+        //lower cc limit
+        section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
+        section.minValue = 0;
+        section.maxValue = 127;
+
+        sysEx.addSection(DB_BLOCK_ANALOG, section);
+
+        //upper cc limit
+        section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
+        section.minValue = 0;
+        section.maxValue = 127;
+
+        sysEx.addSection(DB_BLOCK_ANALOG, section);
+    }
+
+    {
+        //led block
+
+        //hardware parameters section
+        section.numberOfParameters = LED_HARDWARE_PARAMETERS;
+        section.minValue = 0;
+        section.maxValue = 0;
+
+        sysEx.addSection(DB_BLOCK_LED, section);
+
+        //activation note section
+        section.numberOfParameters = MAX_NUMBER_OF_LEDS;
+        section.minValue = 0;
+        section.maxValue = 127;
+
+        sysEx.addSection(DB_BLOCK_LED, section);
+
+        //rgb enabled section
+        section.numberOfParameters = MAX_NUMBER_OF_LEDS;
+        section.minValue = 0;
+        section.maxValue = 1;
+
+        sysEx.addSection(DB_BLOCK_LED, section);
+
+        //local led control enabled section
+        section.numberOfParameters = MAX_NUMBER_OF_LEDS;
+        section.minValue = 0;
+        section.maxValue = 1;
+
+        sysEx.addSection(DB_BLOCK_LED, section);
+
+        //led color section
+        section.numberOfParameters = MAX_NUMBER_OF_LEDS;
+        section.minValue = 0;
+        section.maxValue = LED_COLORS-1;
+
+        sysEx.addSection(DB_BLOCK_LED, section);
+
+        //led blink section
+        section.numberOfParameters = MAX_NUMBER_OF_LEDS;
+        section.minValue = 0;
+        section.maxValue = 1;
+
+        sysEx.addSection(DB_BLOCK_LED, section);
+    }
 }
 
-void updateCinfoTime(uint8_t block)
+void globalInit()
 {
-    lastCinfoMsgTime[block] = rTimeMs();
+    #if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO)
+    midi.setUSBMIDIstate(true);
+    #endif
+
+    #if defined(BOARD_OPEN_DECK) || defined(BOARD_A_MEGA)
+    midi.setDINMIDIstate(true);
+    #endif
+
+    database.init();
+    board.init();
+
+    midi.setInputChannel(database.read(DB_BLOCK_MIDI, midiChannelSection, inputChannel));
+    initSysEx();
+
+    if (checkNewRevision())
+    {
+        for (int i=0; i<3; i++)
+        {
+            #ifdef BOARD_OPEN_DECK
+            setHigh(LED_OUT_PORT, LED_OUT_PIN);
+            setLow(LED_IN_PORT, LED_IN_PIN);
+            _delay_ms(200);
+            setLow(LED_OUT_PORT, LED_OUT_PIN);
+            setHigh(LED_IN_PORT, LED_IN_PIN);
+            _delay_ms(200);
+            #elif defined(BOARD_A_LEO)
+            setLow(LED_OUT_PORT, LED_OUT_PIN);
+            setHigh(LED_IN_PORT, LED_IN_PIN);
+            _delay_ms(200);
+            setHigh(LED_OUT_PORT, LED_OUT_PIN);
+            setLow(LED_IN_PORT, LED_IN_PIN);
+            _delay_ms(200);
+            #endif
+        }
+
+        #ifdef BOARD_OPEN_DECK
+        setLow(LED_OUT_PORT, LED_OUT_PIN);
+        setLow(LED_IN_PORT, LED_IN_PIN);
+        #elif defined(BOARD_A_LEO)
+        setHigh(LED_OUT_PORT, LED_OUT_PIN);
+        setHigh(LED_IN_PORT, LED_IN_PIN);
+        #endif
+    }
+    else
+    {
+        #ifdef BOARD_OPEN_DECK
+        setHigh(LED_OUT_PORT, LED_OUT_PIN);
+        setHigh(LED_IN_PORT, LED_IN_PIN);
+        _delay_ms(200);
+        setLow(LED_OUT_PORT, LED_OUT_PIN);
+        setLow(LED_IN_PORT, LED_IN_PIN);
+        _delay_ms(200);
+        #elif defined(BOARD_A_LEO)
+        setLow(LED_OUT_PORT, LED_OUT_PIN);
+        setLow(LED_IN_PORT, LED_IN_PIN);
+        _delay_ms(200);
+        setHigh(LED_OUT_PORT, LED_OUT_PIN);
+        setHigh(LED_IN_PORT, LED_IN_PIN);
+        _delay_ms(200);
+        #endif
+    }
+
+    //enable global interrupts
+    sei();
+
+    leds.init();
 }
 
 bool onCustom(uint8_t value)
@@ -120,7 +356,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             if (section == midiFeatureSection)
             {
                 if (index == midiFeatureRunningStatus)
-                    newValue ? midi.enableRunningStatus() : midi.disableRunningStatus();
+                    midi.setRunningStatusState(newValue);
                 else if (index == midiFeatureStandardNoteOff)
                     newValue ? midi.setNoteOffMode(noteOffType_standardNoteOff) : midi.setNoteOffMode(noteOffType_noteOnZeroVel);
             }
@@ -191,6 +427,11 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
     return returnValue;
 }
 
+void writeSysEx(uint8_t sysExArray[], uint8_t arraysize)
+{
+    midi.sendSysEx(arraysize, sysExArray, true);
+}
+
 int main()
 {
     globalInit();
@@ -198,6 +439,7 @@ int main()
     sysEx.setHandleGet(onGet);
     sysEx.setHandleSet(onSet);
     sysEx.setHandleCustomRequest(onCustom);
+    sysEx.setHandleSysExWrite(writeSysEx);
 
     sysEx.addCustomRequest(FIRMWARE_VERSION_STRING);
     sysEx.addCustomRequest(HARDWARE_VERSION_STRING);
@@ -208,6 +450,7 @@ int main()
 
     while(1)
     {
+        #if defined(BOARD_A_LEO) || defined(BOARD_OPEN_DECK)
         if (midi.read(usbInterface))
         {
             //new message on usb
@@ -240,78 +483,48 @@ int main()
                 break;
             }
         }
+        #endif
 
+        #ifndef BOARD_A_MEGA
         if (midi.getDINMIDIstate())
         {
             //check for incoming MIDI messages on USART
-            if (midi.read(dinInterface))
+            if (!database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureUSBconvert))
             {
+                midi.read(dinInterface);
                 midiMessageType_t messageType = midi.getType(dinInterface);
                 uint8_t data1 = midi.getData1(dinInterface);
                 uint8_t data2 = midi.getData2(dinInterface);
 
-                if (!database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureUSBconvert))
+                switch(messageType)
                 {
-                    switch(messageType)
-                    {
-                        case midiMessageNoteOff:
-                        case midiMessageNoteOn:
-                        leds.noteToState(data1, data2);
-                        break;
+                    case midiMessageNoteOff:
+                    case midiMessageNoteOn:
+                    leds.noteToState(data1, data2);
+                    break;
 
-                        default:
-                        break;
-                    }
-                }
-                else
-                {
-                    //dump everything from MIDI in to USB MIDI out
-                    uint8_t inChannel = midi.getChannel(dinInterface);
-                    //temporarily disable din midi out - send to usb only
-                    midi.setDINMIDIstate(false);
-
-                    switch(messageType)
-                    {
-                        case midiMessageNoteOff:
-                        midi.sendNoteOff(data1, data2, inChannel);
-                        break;
-
-                        case midiMessageNoteOn:
-                        midi.sendNoteOn(data1, data2, inChannel);
-                        break;
-
-                        case midiMessageControlChange:
-                        midi.sendControlChange(data1, data2, inChannel);
-                        break;
-
-                        case midiMessageAfterTouchPoly:
-                        midi.sendPolyPressure(data1, data2, inChannel);
-                        break;
-
-                        case midiMessageProgramChange:
-                        midi.sendProgramChange(data1, inChannel);
-                        break;
-
-                        case midiMessageAfterTouchChannel:
-                        midi.sendAfterTouch(data1, inChannel);
-                        break;
-
-                        case midiMessageSystemExclusive:
-                        midi.sendSysEx(midi.getSysExArrayLength(dinInterface), midi.getSysExArray(dinInterface), true);
-                        break;
-
-                        default:
-                        break;
-                    }
-
-                    //enable din output again
-                    midi.setDINMIDIstate(true);
+                    default:
+                    break;
                 }
             }
+            else
+            {
+                //dump everything from MIDI in to USB MIDI out
+                midi.read(dinInterface, THRU_FULL_USB);
+            }
         }
+        #endif
 
-        buttons.update();
+        //#ifdef BOARD_A_MEGA
+        //static uint32_t last = 0;
+        //if ((rTimeMs() - last) > 1000)
+        //{
+            //midi.sendNoteOn(127,127,1);
+            //last = rTimeMs();
+        //}
+        //#endif
+
+        digitalInput.update();
         analog.update();
-        encoders.update();
     }
 }

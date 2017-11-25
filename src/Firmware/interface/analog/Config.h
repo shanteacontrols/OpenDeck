@@ -18,10 +18,6 @@
 
 #pragma once
 
-//power of 2
-#define NUMBER_OF_SAMPLES               8
-//2^3 = 8 (number of samples)
-#define SAMPLE_SHIFT                    3
 #define MIDI_SHIFT                      3
 #define DIGITAL_VALUE_THRESHOLD         1000
 //potentiometer must exceed this value before sending new value

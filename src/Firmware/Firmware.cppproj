@@ -73,6 +73,7 @@
     <ToolchainSettings>
       <AvrGccCpp>
   <avrgcc.common.Device>-mmcu=atmega32u4 -B "%24(PackRepoDir)\atmel\ATmega_DFP\1.0.90\gcc\dev\atmega32u4"</avrgcc.common.Device>
+  <avrgcc.common.optimization.RelaxBranches>True</avrgcc.common.optimization.RelaxBranches>
   <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
   <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
   <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
@@ -98,11 +99,6 @@
       <Value>FIXED_NUM_CONFIGURATIONS=1</Value>
       <Value>INTERRUPT_CONTROL_ENDPOINT</Value>
       <Value>MIDI_SYSEX_ARRAY_SIZE=45</Value>
-      <Value>UART_BUFFER_SIZE=30</Value>
-      <Value>USE_RX</Value>
-      <Value>USE_TX</Value>
-      <Value>ADC_PRESCALER=128</Value>
-      <Value>VREF_AREF</Value>
       <Value>DBMS_MAX_SECTIONS=7</Value>
       <Value>DBMS_MAX_BLOCKS=7</Value>
       <Value>USBMIDI</Value>
@@ -138,12 +134,12 @@
       <Value>FIXED_NUM_CONFIGURATIONS=1</Value>
       <Value>INTERRUPT_CONTROL_ENDPOINT</Value>
       <Value>MIDI_SYSEX_ARRAY_SIZE=45</Value>
-      <Value>UART_BUFFER_SIZE=30</Value>
+      <Value>RING_BUFFER_SIZE=30</Value>
       <Value>DBMS_MAX_SECTIONS=7</Value>
       <Value>DBMS_MAX_BLOCKS=7</Value>
       <Value>USBMIDI</Value>
-      <Value>USE_ADC</Value>
       <Value>BOARD_A_LEO</Value>
+      <Value>STRING_BUFFER_SIZE=1</Value>
     </ListValues>
   </avrgcccpp.compiler.symbols.DefSymbols>
   <avrgcccpp.compiler.directories.IncludePaths>
@@ -156,7 +152,7 @@
   <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
   <avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>
   <avrgcccpp.compiler.warnings.AllWarnings>True</avrgcccpp.compiler.warnings.AllWarnings>
-  <avrgcccpp.compiler.miscellaneous.OtherFlags>-include "%24(MSBuildProjectDirectory)/core/src/Core.h"</avrgcccpp.compiler.miscellaneous.OtherFlags>
+  <avrgcccpp.compiler.miscellaneous.OtherFlags>-include "%24(MSBuildProjectDirectory)/core/src/Core.h" -H -include "%24(MSBuildProjectDirectory)/OpenDeck.h"</avrgcccpp.compiler.miscellaneous.OtherFlags>
   <avrgcccpp.linker.libraries.Libraries>
     <ListValues>
       <Value>libm</Value>
@@ -197,83 +193,92 @@ call del HASH
 
 REM move binary to root/bin
 call cd $(SolutionDir)
-call move "$(MSBuildProjectDirectory)\versioning\bin\FLASH.bin" "../bin/FLASH.bin"</PostBuildEvent>
+call move "$(MSBuildProjectDirectory)\versioning\bin\FLASH.bin" "../bin/FLASH.bin"
+
+copy "$(MSBuildProjectDirectory)\Release\$(MSBuildProjectName).elf" "$(MSBuildProjectDirectory)\$(MSBuildProjectName).elf"</PostBuildEvent>
+    <UsesExternalMakeFile>False</UsesExternalMakeFile>
+    <OutputDirectory>
+    </OutputDirectory>
+    <BuildTarget>all</BuildTarget>
+    <CleanTarget>clean</CleanTarget>
+    <ExternalMakeFilePath>D:\Dropbox\Documents\Atmel Studio\Projects\OpenDeck\src\Firmware\Release\MyMakefile</ExternalMakeFilePath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
       <AvrGccCpp>
-        <avrgcc.common.Device>-mmcu=atmega32u4 -B "%24(PackRepoDir)\atmel\ATmega_DFP\1.0.90\gcc\dev\atmega32u4"</avrgcc.common.Device>
-        <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
-        <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
-        <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
-        <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
-        <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
-        <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
-        <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
-        <avrgcc.compiler.symbols.DefSymbols>
-          <ListValues>
-            <Value>DEBUG</Value>
-            <Value>ARCH=ARCH_AVR8</Value>
-            <Value>BOARD=BOARD_NONE</Value>
-            <Value>F_CPU=16000000UL</Value>
-            <Value>USE_LUFA_CONFIG_HEADER</Value>
-            <Value>F_USB=16000000UL</Value>
-            <Value>INTERRUPT_CONTROL_ENDPOINT</Value>
-          </ListValues>
-        </avrgcc.compiler.symbols.DefSymbols>
-        <avrgcc.compiler.directories.IncludePaths>
-          <ListValues>
-            <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.0.90\include</Value>
-            <Value>../eeprom</Value>
-            <Value>../hardware</Value>
-            <Value>../sysex</Value>
-          </ListValues>
-        </avrgcc.compiler.directories.IncludePaths>
-        <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
-        <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
-        <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
-        <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
-        <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
-        <avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>
-        <avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>
-        <avrgcccpp.compiler.symbols.DefSymbols>
-          <ListValues>
-            <Value>DEBUG</Value>
-            <Value>ARCH=ARCH_AVR8</Value>
-            <Value>BOARD=BOARD_NONE</Value>
-            <Value>F_CPU=16000000UL</Value>
-            <Value>USE_LUFA_CONFIG_HEADER</Value>
-            <Value>F_USB=16000000UL</Value>
-            <Value>INTERRUPT_CONTROL_ENDPOINT</Value>
-            <Value>EEPROM_SIZE=1024</Value>
-            <Value>FLASH_SIZE=0x6800</Value>
-            <Value>BOARD_R101</Value>
-          </ListValues>
-        </avrgcccpp.compiler.symbols.DefSymbols>
-        <avrgcccpp.compiler.directories.IncludePaths>
-          <ListValues>
-            <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.0.90\include</Value>
-            <Value>../eeprom</Value>
-            <Value>../hardware</Value>
-            <Value>../hardware/adc</Value>
-            <Value>../hardware/usb</Value>
-            <Value>../sysex</Value>
-            <Value>../hardware/uart</Value>
-          </ListValues>
-        </avrgcccpp.compiler.directories.IncludePaths>
-        <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>
-        <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
-        <avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>
-        <avrgcccpp.compiler.optimization.DebugLevel>Default (-g2)</avrgcccpp.compiler.optimization.DebugLevel>
-        <avrgcccpp.compiler.warnings.AllWarnings>True</avrgcccpp.compiler.warnings.AllWarnings>
-        <avrgcccpp.linker.libraries.Libraries>
-          <ListValues>
-            <Value>libm</Value>
-          </ListValues>
-        </avrgcccpp.linker.libraries.Libraries>
-        <avrgcccpp.linker.miscellaneous.LinkerFlags>-include "BitManipulation.h"</avrgcccpp.linker.miscellaneous.LinkerFlags>
-        <avrgcccpp.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcccpp.assembler.debugging.DebugLevel>
-      </AvrGccCpp>
+  <avrgcc.common.Device>-mmcu=atmega32u4 -B "%24(PackRepoDir)\atmel\ATmega_DFP\1.0.90\gcc\dev\atmega32u4"</avrgcc.common.Device>
+  <avrgcc.common.optimization.RelaxBranches>True</avrgcc.common.optimization.RelaxBranches>
+  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+  <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+  <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
+  <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
+  <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+  <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+  <avrgcc.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>DEBUG</Value>
+      <Value>ARCH=ARCH_AVR8</Value>
+      <Value>BOARD=BOARD_NONE</Value>
+      <Value>F_CPU=16000000UL</Value>
+      <Value>USE_LUFA_CONFIG_HEADER</Value>
+      <Value>F_USB=16000000UL</Value>
+      <Value>INTERRUPT_CONTROL_ENDPOINT</Value>
+    </ListValues>
+  </avrgcc.compiler.symbols.DefSymbols>
+  <avrgcc.compiler.directories.IncludePaths>
+    <ListValues>
+      <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.0.90\include</Value>
+      <Value>../eeprom</Value>
+      <Value>../hardware</Value>
+      <Value>../sysex</Value>
+    </ListValues>
+  </avrgcc.compiler.directories.IncludePaths>
+  <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
+  <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+  <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+  <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
+  <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+  <avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>
+  <avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>
+  <avrgcccpp.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>DEBUG</Value>
+      <Value>ARCH=ARCH_AVR8</Value>
+      <Value>BOARD=BOARD_NONE</Value>
+      <Value>F_CPU=16000000UL</Value>
+      <Value>USE_LUFA_CONFIG_HEADER</Value>
+      <Value>F_USB=16000000UL</Value>
+      <Value>INTERRUPT_CONTROL_ENDPOINT</Value>
+      <Value>EEPROM_SIZE=1024</Value>
+      <Value>FLASH_SIZE=0x6800</Value>
+      <Value>BOARD_R101</Value>
+    </ListValues>
+  </avrgcccpp.compiler.symbols.DefSymbols>
+  <avrgcccpp.compiler.directories.IncludePaths>
+    <ListValues>
+      <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.0.90\include</Value>
+      <Value>../eeprom</Value>
+      <Value>../hardware</Value>
+      <Value>../hardware/adc</Value>
+      <Value>../hardware/usb</Value>
+      <Value>../sysex</Value>
+      <Value>../hardware/uart</Value>
+    </ListValues>
+  </avrgcccpp.compiler.directories.IncludePaths>
+  <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>
+  <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
+  <avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>
+  <avrgcccpp.compiler.optimization.DebugLevel>Default (-g2)</avrgcccpp.compiler.optimization.DebugLevel>
+  <avrgcccpp.compiler.warnings.AllWarnings>True</avrgcccpp.compiler.warnings.AllWarnings>
+  <avrgcccpp.linker.libraries.Libraries>
+    <ListValues>
+      <Value>libm</Value>
+    </ListValues>
+  </avrgcccpp.linker.libraries.Libraries>
+  <avrgcccpp.linker.miscellaneous.LinkerFlags>-include "BitManipulation.h"</avrgcccpp.linker.miscellaneous.LinkerFlags>
+  <avrgcccpp.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcccpp.assembler.debugging.DebugLevel>
+</AvrGccCpp>
     </ToolchainSettings>
     <PostBuildEvent>REM running version script
 call cd $(SolutionDir)
@@ -294,121 +299,199 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="board\Board.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\Common.h">
+    <Compile Include="board\common\Common.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\DataTypes.h">
+    <Compile Include="board\common\constants\Analog.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\Import.h">
+    <Compile Include="board\common\constants\Constants.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\leonardo\Analog.cpp">
+    <Compile Include="board\common\constants\Encoders.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\leonardo\Board.cpp">
+    <Compile Include="board\common\constants\LEDs.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\leonardo\Board.h">
+    <Compile Include="board\common\constants\Reboot.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\leonardo\Buttons.cpp">
+    <Compile Include="board\common\DataTypes.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\leonardo\constants\Buffer.h">
+    <Compile Include="board\common\Variables.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\leonardo\constants\Constants.h">
+    <Compile Include="board\usb\Descriptors.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\leonardo\constants\Encoders.h">
+    <Compile Include="board\usb\Descriptors.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\leonardo\constants\Hardware.h">
+    <Compile Include="board\variants\leonardo\Analog.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\leonardo\constants\LEDs.h">
+    <Compile Include="board\variants\leonardo\Board.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\leonardo\constants\Reboot.h">
+    <Compile Include="board\variants\leonardo\Buffer.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\leonardo\Encoders.cpp">
+    <Compile Include="board\variants\leonardo\Buttons.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\leonardo\Init.cpp">
+    <Compile Include="board\variants\leonardo\DigitalIn.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\leonardo\ISR.cpp">
+    <Compile Include="board\variants\leonardo\Encoders.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\leonardo\LEDs.cpp">
+    <Compile Include="board\variants\leonardo\Hardware.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\leonardo\pins\Map.h">
+    <Compile Include="board\variants\leonardo\Init.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\leonardo\pins\Pins.h">
+    <Compile Include="board\variants\leonardo\ISR.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\leonardo\Variables.h">
+    <Compile Include="board\variants\leonardo\LEDs.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\v1\Analog.cpp">
+    <Compile Include="board\variants\leonardo\Leonardo.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\v1\Board.cpp">
+    <Compile Include="board\variants\leonardo\pins\Map.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\v1\Board.h">
+    <Compile Include="board\variants\leonardo\pins\Pins.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\v1\Buttons.cpp">
+    <Compile Include="board\variants\leonardo\USB_MIDI.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\v1\constants\Buffer.h">
+    <Compile Include="board\variants\leonardo\Variables.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\v1\constants\Constants.h">
+    <Compile Include="board\variants\mega\Analog.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\v1\constants\Encoders.h">
+    <Compile Include="board\variants\mega\Board.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\v1\constants\Hardware.h">
+    <Compile Include="board\variants\mega\Board.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\v1\constants\LEDs.h">
+    <Compile Include="board\variants\mega\Buttons.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\v1\constants\Reboot.h">
+    <Compile Include="board\variants\mega\constants\Analog.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\v1\Encoders.cpp">
+    <Compile Include="board\variants\mega\constants\Buffer.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\v1\Init.cpp">
+    <Compile Include="board\variants\mega\constants\Constants.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\v1\InMatrix.cpp">
+    <Compile Include="board\variants\mega\constants\Encoders.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\v1\ISR.cpp">
+    <Compile Include="board\variants\mega\constants\LEDs.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\v1\LEDs.cpp">
+    <Compile Include="board\variants\mega\constants\Reboot.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\v1\pins\Map.h">
+    <Compile Include="board\variants\mega\DigitalIn.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\v1\pins\Pins.h">
+    <Compile Include="board\variants\mega\Encoders.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\v1\UART_MIDI.cpp">
+    <Compile Include="board\variants\mega\Hardware.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="board\v1\Variables.h">
+    <Compile Include="board\variants\mega\Init.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\mega\ISR.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\mega\LEDs.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\mega\pins\Map.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\mega\pins\Pins.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\mega\UART_MIDI.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\mega\Variables.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\v1\Analog.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\v1\Board.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\v1\Board.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\v1\Buttons.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\v1\constants\Buffer.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\v1\constants\Constants.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\v1\constants\Encoders.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\v1\constants\LEDs.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\v1\constants\Reboot.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\v1\Encoders.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\v1\Hardware.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\v1\Init.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\v1\InMatrix.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\v1\ISR.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\v1\LEDs.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\v1\pins\Map.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\v1\pins\Pins.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\v1\UART_MIDI.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="board\variants\v1\Variables.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="core\src\Common.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="core\src\Core.h">
@@ -427,9 +510,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="core\src\general\Timing.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="core\src\HAL\avr\adc\ADC.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="core\src\HAL\avr\adc\ADC.h">
@@ -510,9 +590,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="dbms\src\DBMS.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Init.cpp">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="interface\analog\Analog.cpp">
       <SubType>compile</SubType>
     </Compile>
@@ -534,46 +611,55 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="interface\analog\Potentiometer.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="interface\buttons\Buttons.cpp">
+    <Compile Include="interface\cinfo\CInfo.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="interface\buttons\Buttons.h">
+    <Compile Include="interface\cinfo\CInfo.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="interface\buttons\DataTypes.h">
+    <Compile Include="interface\digital\input\buttons\Buttons.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="interface\encoders\Constants.h">
+    <Compile Include="interface\digital\input\buttons\Buttons.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="interface\encoders\DataTypes.h">
+    <Compile Include="interface\digital\input\buttons\DataTypes.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="interface\encoders\Encoders.cpp">
+    <Compile Include="interface\digital\input\DigitalInput.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="interface\encoders\Encoders.h">
+    <Compile Include="interface\digital\input\DigitalInput.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="interface\Export.h">
+    <Compile Include="interface\digital\input\encoders\Constants.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="interface\leds\Constants.h">
+    <Compile Include="interface\digital\input\encoders\DataTypes.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="interface\leds\DataTypes.h">
+    <Compile Include="interface\digital\input\encoders\Encoders.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="interface\leds\Variables.h">
+    <Compile Include="interface\digital\input\encoders\Encoders.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="interface\digital\output\leds\Constants.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="interface\digital\output\leds\DataTypes.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="interface\digital\output\leds\LEDs.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="interface\digital\output\leds\LEDs.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="interface\digital\output\leds\Variables.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="interface\Interface.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="interface\leds\LEDs.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="interface\leds\LEDs.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="lufa\LUFA\Common\Architectures.h">
@@ -595,9 +681,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="lufa\LUFA\Common\Endianness.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\AVR8\ADAFRUITU4\Board.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="lufa\LUFA\Drivers\Board\AVR8\ADAFRUITU4\LEDs.h">
@@ -957,81 +1040,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="lufa\LUFA\Drivers\Board\Temperature.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\UC3\EVK1100\Board.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\UC3\EVK1100\Buttons.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\UC3\EVK1100\Joystick.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\UC3\EVK1100\LEDs.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\UC3\EVK1101\Board.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\UC3\EVK1101\Buttons.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\UC3\EVK1101\Joystick.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\UC3\EVK1101\LEDs.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\UC3\EVK1104\Board.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\UC3\EVK1104\Buttons.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\UC3\EVK1104\LEDs.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\UC3\UC3A3_XPLAINED\Board.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\UC3\UC3A3_XPLAINED\Buttons.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\UC3\UC3A3_XPLAINED\LEDs.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\XMEGA\A3BU_XPLAINED\Board.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\XMEGA\A3BU_XPLAINED\Buttons.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\XMEGA\A3BU_XPLAINED\Dataflash.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\XMEGA\A3BU_XPLAINED\LEDs.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\XMEGA\B1_XPLAINED\Board.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\XMEGA\B1_XPLAINED\Buttons.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\XMEGA\B1_XPLAINED\Dataflash.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\XMEGA\B1_XPLAINED\LEDs.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\XMEGA\C3_XPLAINED\Board.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\XMEGA\C3_XPLAINED\Buttons.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Board\XMEGA\C3_XPLAINED\LEDs.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="lufa\LUFA\Drivers\Misc\AT45DB321C.h">
       <SubType>compile</SubType>
     </Compile>
@@ -1078,24 +1086,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="lufa\LUFA\Drivers\Peripheral\TWI.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Peripheral\XMEGA\SerialSPI_XMEGA.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Peripheral\XMEGA\Serial_XMEGA.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Peripheral\XMEGA\Serial_XMEGA.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Peripheral\XMEGA\SPI_XMEGA.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Peripheral\XMEGA\TWI_XMEGA.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\Peripheral\XMEGA\TWI_XMEGA.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="lufa\LUFA\Drivers\USB\Class\AndroidAccessoryClass.h">
@@ -1186,60 +1176,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="lufa\LUFA\Drivers\USB\Class\HIDClass.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Class\Host\AndroidAccessoryClassHost.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Class\Host\AndroidAccessoryClassHost.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Class\Host\AudioClassHost.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Class\Host\AudioClassHost.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Class\Host\CDCClassHost.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Class\Host\CDCClassHost.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Class\Host\HIDClassHost.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Class\Host\HIDClassHost.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Class\Host\MassStorageClassHost.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Class\Host\MassStorageClassHost.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Class\Host\MIDIClassHost.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Class\Host\MIDIClassHost.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Class\Host\PrinterClassHost.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Class\Host\PrinterClassHost.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Class\Host\RNDISClassHost.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Class\Host\RNDISClassHost.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Class\Host\StillImageClassHost.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Class\Host\StillImageClassHost.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="lufa\LUFA\Drivers\USB\Class\MassStorageClass.h">
@@ -1371,66 +1307,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="lufa\LUFA\Drivers\USB\Core\StdRequestType.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\UC3\Device_UC3.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\UC3\Device_UC3.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\UC3\EndpointStream_UC3.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\UC3\EndpointStream_UC3.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\UC3\Endpoint_UC3.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\UC3\Endpoint_UC3.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\UC3\Host_UC3.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\UC3\Host_UC3.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\UC3\PipeStream_UC3.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\UC3\PipeStream_UC3.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\UC3\Pipe_UC3.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\UC3\Pipe_UC3.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\UC3\Template\Template_Endpoint_Control_R.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\UC3\Template\Template_Endpoint_Control_W.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\UC3\Template\Template_Endpoint_RW.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\UC3\Template\Template_Pipe_RW.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\UC3\USBController_UC3.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\UC3\USBController_UC3.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\UC3\USBInterrupt_UC3.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\UC3\USBInterrupt_UC3.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="lufa\LUFA\Drivers\USB\Core\USBController.h">
       <SubType>compile</SubType>
     </Compile>
@@ -1446,64 +1322,10 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Compile Include="lufa\LUFA\Drivers\USB\Core\USBTask.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\XMEGA\Device_XMEGA.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\XMEGA\Device_XMEGA.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\XMEGA\EndpointStream_XMEGA.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\XMEGA\EndpointStream_XMEGA.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\XMEGA\Endpoint_XMEGA.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\XMEGA\Endpoint_XMEGA.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\XMEGA\Host_XMEGA.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\XMEGA\PipeStream_XMEGA.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\XMEGA\Pipe_XMEGA.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\XMEGA\Template\Template_Endpoint_Control_R.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\XMEGA\Template\Template_Endpoint_Control_W.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\XMEGA\Template\Template_Endpoint_RW.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\XMEGA\USBController_XMEGA.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\XMEGA\USBController_XMEGA.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\XMEGA\USBInterrupt_XMEGA.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lufa\LUFA\Drivers\USB\Core\XMEGA\USBInterrupt_XMEGA.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="lufa\LUFA\Drivers\USB\USB.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="midi\src\DataTypes.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="midi\src\Descriptors.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="midi\src\Descriptors.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="midi\src\Helpers.h">
@@ -1544,14 +1366,20 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="board\leonardo" />
-    <Folder Include="board\leonardo\constants\" />
-    <Folder Include="board\leonardo\pins" />
-    <Folder Include="board\v1\" />
+    <Folder Include="board\common\constants\" />
+    <Folder Include="board\common" />
+    <Folder Include="board\variants" />
+    <Folder Include="board\usb\" />
     <Folder Include="board\v1\" />
     <Folder Include="board\v1\constants\" />
-    <Folder Include="board\v1\constants\" />
-    <Folder Include="board\v1\pins\" />
+    <Folder Include="board\variants\leonardo\" />
+    <Folder Include="board\variants\leonardo\pins\" />
+    <Folder Include="board\variants\mega\" />
+    <Folder Include="board\variants\mega\constants\" />
+    <Folder Include="board\variants\mega\pins\" />
+    <Folder Include="board\variants\v1\" />
+    <Folder Include="board\variants\v1\constants\" />
+    <Folder Include="board\variants\v1\pins\" />
     <Folder Include="core\" />
     <Folder Include="core\src\" />
     <Folder Include="core\src\general\" />
@@ -1561,7 +1389,6 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Folder Include="core\src\HAL\avr\reset\" />
     <Folder Include="core\src\HAL\avr\spi\" />
     <Folder Include="core\src\HAL\stm32\" />
-    <Folder Include="core\src\helpers\" />
     <Folder Include="database\" />
     <Folder Include="database\blocks\" />
     <Folder Include="dbms\" />
@@ -1569,10 +1396,14 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Folder Include="dbms\src\" />
     <Folder Include="dbms\src\" />
     <Folder Include="interface\analog" />
-    <Folder Include="interface\buttons" />
-    <Folder Include="interface\encoders" />
-    <Folder Include="interface\leds" />
+    <Folder Include="interface\digital\input" />
+    <Folder Include="interface\digital\input\buttons\" />
+    <Folder Include="interface\digital\input\encoders\" />
+    <Folder Include="interface\digital\output" />
     <Folder Include="interface" />
+    <Folder Include="interface\digital" />
+    <Folder Include="interface\digital\output\leds\" />
+    <Folder Include="interface\cinfo" />
     <Folder Include="lufa\" />
     <Folder Include="lufa\" />
     <Folder Include="board" />
@@ -1624,19 +1455,9 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Folder Include="lufa\LUFA\Drivers\Board\AVR8\XPLAINED_MINI\" />
     <Folder Include="lufa\LUFA\Drivers\Board\AVR8\XPLAIN\" />
     <Folder Include="lufa\LUFA\Drivers\Board\AVR8\YUN\" />
-    <Folder Include="lufa\LUFA\Drivers\Board\UC3\" />
-    <Folder Include="lufa\LUFA\Drivers\Board\UC3\EVK1100\" />
-    <Folder Include="lufa\LUFA\Drivers\Board\UC3\EVK1101\" />
-    <Folder Include="lufa\LUFA\Drivers\Board\UC3\EVK1104\" />
-    <Folder Include="lufa\LUFA\Drivers\Board\UC3\UC3A3_XPLAINED\" />
-    <Folder Include="lufa\LUFA\Drivers\Board\XMEGA\" />
-    <Folder Include="lufa\LUFA\Drivers\Board\XMEGA\A3BU_XPLAINED\" />
-    <Folder Include="lufa\LUFA\Drivers\Board\XMEGA\B1_XPLAINED\" />
-    <Folder Include="lufa\LUFA\Drivers\Board\XMEGA\C3_XPLAINED\" />
     <Folder Include="lufa\LUFA\Drivers\Misc\" />
     <Folder Include="lufa\LUFA\Drivers\Peripheral\" />
     <Folder Include="lufa\LUFA\Drivers\Peripheral\AVR8\" />
-    <Folder Include="lufa\LUFA\Drivers\Peripheral\XMEGA\" />
     <Folder Include="lufa\LUFA\Drivers\USB\" />
     <Folder Include="lufa\LUFA\Drivers\USB\" />
     <Folder Include="lufa\LUFA\Drivers\USB\Class\" />
@@ -1644,14 +1465,9 @@ call avrdude.exe -p m32u4 -c usbasp -U flash:w:FLASH.bin</PostBuildEvent>
     <Folder Include="lufa\LUFA\Drivers\USB\Class\Common\" />
     <Folder Include="lufa\LUFA\Drivers\USB\Class\Common\" />
     <Folder Include="lufa\LUFA\Drivers\USB\Class\Device\" />
-    <Folder Include="lufa\LUFA\Drivers\USB\Class\Host\" />
     <Folder Include="lufa\LUFA\Drivers\USB\Core\" />
     <Folder Include="lufa\LUFA\Drivers\USB\Core\AVR8\" />
     <Folder Include="lufa\LUFA\Drivers\USB\Core\AVR8\Template\" />
-    <Folder Include="lufa\LUFA\Drivers\USB\Core\UC3\" />
-    <Folder Include="lufa\LUFA\Drivers\USB\Core\UC3\Template\" />
-    <Folder Include="lufa\LUFA\Drivers\USB\Core\XMEGA\" />
-    <Folder Include="lufa\LUFA\Drivers\USB\Core\XMEGA\Template\" />
     <Folder Include="midi\" />
     <Folder Include="midi\" />
     <Folder Include="midi\" />
