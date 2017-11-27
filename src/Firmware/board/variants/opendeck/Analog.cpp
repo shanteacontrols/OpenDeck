@@ -20,24 +20,38 @@
 
 #include "Board.h"
 #include "Variables.h"
+#include "Hardware.h"
 
-volatile bool       _analogDataAvailable;
 uint8_t             activeMux,
-                    activeMuxInput,
-                    analogBufferCounter;
+                    activeMuxInput;
 
-volatile uint16_t   analogBuffer[ANALOG_BUFFER_SIZE];
-uint32_t            retrievedData;
+uint8_t             analogBufferCounter;
+volatile uint8_t    analogSampleCounter;
+volatile int16_t    analogBuffer[MAX_NUMBER_OF_ANALOG];
+
+inline void setMuxInput()
+{
+    //add NOPs to compensate for propagation delay
+
+    BIT_READ(muxPinOrderArray[activeMuxInput], 0) ? setHigh(MUX_S0_PORT, MUX_S0_PIN) : setLow(MUX_S0_PORT, MUX_S0_PIN);
+    BIT_READ(muxPinOrderArray[activeMuxInput], 1) ? setHigh(MUX_S1_PORT, MUX_S1_PIN) : setLow(MUX_S1_PORT, MUX_S1_PIN);
+    BIT_READ(muxPinOrderArray[activeMuxInput], 2) ? setHigh(MUX_S2_PORT, MUX_S2_PIN) : setLow(MUX_S2_PORT, MUX_S2_PIN);
+    BIT_READ(muxPinOrderArray[activeMuxInput], 3) ? setHigh(MUX_S3_PORT, MUX_S3_PIN) : setLow(MUX_S3_PORT, MUX_S3_PIN);
+}
 
 void Board::initAnalog()
 {
     disconnectDigitalInADC(MUX_1_IN_PIN);
     disconnectDigitalInADC(MUX_2_IN_PIN);
 
-    setUpADC();
+    adcConf adcConfiguration;
 
-    setMuxInput(activeMuxInput);
-    setADCchannel(MUX_1_IN_PIN);
+    adcConfiguration.prescaler = ADC_PRESCALER_128;
+    adcConfiguration.vref = ADC_VREF_AREF;
+
+    setUpADC(adcConfiguration);
+    setMuxInput();
+    setADCchannel(muxInPinArray[0]);
 
     _delay_ms(2);
 
@@ -45,77 +59,39 @@ void Board::initAnalog()
         getADCvalue();  //few dummy reads to init ADC
 
     adcInterruptEnable();
-    startADCconversion();
-}
-
-inline void setMuxInput(uint8_t muxInput)
-{
-    //add NOPs to compensate for propagation delay
-
-    BIT_READ(muxPinOrderArray[muxInput], 0) ? setHigh(MUX_S0_PORT, MUX_S0_PIN) : setLow(MUX_S0_PORT, MUX_S0_PIN);
-    BIT_READ(muxPinOrderArray[muxInput], 1) ? setHigh(MUX_S1_PORT, MUX_S1_PIN) : setLow(MUX_S1_PORT, MUX_S1_PIN);
-    BIT_READ(muxPinOrderArray[muxInput], 2) ? setHigh(MUX_S2_PORT, MUX_S2_PIN) : setLow(MUX_S2_PORT, MUX_S2_PIN);
-    BIT_READ(muxPinOrderArray[muxInput], 3) ? setHigh(MUX_S3_PORT, MUX_S3_PIN) : setLow(MUX_S3_PORT, MUX_S3_PIN);
-
-    _NOP(); _NOP(); _NOP();
-    _NOP(); _NOP(); _NOP();
-    _NOP(); _NOP(); _NOP();
-    _NOP(); _NOP(); _NOP();
-}
-
-inline void setAnalogPin(uint8_t muxNumber)
-{
-    uint8_t analogPin;
-
-    switch(muxNumber)
-    {
-        case 0:
-        analogPin = MUX_1_IN_PIN;
-        break;
-
-        case 1:
-        analogPin = MUX_2_IN_PIN;
-        break;
-
-        default:
-        return;
-    }
-
-    ADMUX = (ADMUX & 0xF0) | (analogPin & 0x0F);
 }
 
 bool Board::analogDataAvailable()
 {
-    bool state = _analogDataAvailable;
-
-    return state;
+    return (analogSampleCounter == NUMBER_OF_ANALOG_SAMPLES);
 }
 
-uint16_t Board::getAnalogValue(uint8_t analogID)
+int16_t Board::getAnalogValue(uint8_t analogID)
 {
-    uint16_t value = analogBuffer[analogID];
-    BIT_SET(retrievedData, analogID);
+    int16_t value;
 
-    if (retrievedData == 0xFFFFFFFF)
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
-        //all data is retrieved, start new readout
-        retrievedData = 0;
-        startADCconversion();
-        _analogDataAvailable = false;
+        value = analogBuffer[analogID] >> ANALOG_SAMPLE_SHIFT;
+        analogBuffer[analogID] = 0;
     }
 
     return value;
 }
 
+void Board::continueADCreadout()
+{
+    analogSampleCounter = 0;
+    analogBufferCounter = 0;
+}
+
 ISR(ADC_vect)
 {
-    analogBuffer[analogBufferCounter] = ADC;
+    analogBuffer[analogBufferCounter] += ADC;
     analogBufferCounter++;
-
     activeMuxInput++;
 
     bool switchMux = (activeMuxInput == NUMBER_OF_MUX_INPUTS);
-    bool bufferFull = (analogBufferCounter == MAX_NUMBER_OF_ANALOG);
 
     if (switchMux)
     {
@@ -123,22 +99,17 @@ ISR(ADC_vect)
         activeMux++;
 
         if (activeMux == NUMBER_OF_MUX)
+        {
             activeMux = 0;
+            analogBufferCounter = 0;
+            analogSampleCounter++;
+        }
 
-        setAnalogPin(activeMux);
-    }
-
-    if (bufferFull)
-    {
-        analogBufferCounter = 0;
-        _analogDataAvailable = true;
+        setADCchannel(muxInPinArray[activeMux]);
     }
 
     //always set mux input
-    setMuxInput(activeMuxInput);
-
-    if (!bufferFull)
-        startADCconversion();
+    setMuxInput();
 }
 
 #endif

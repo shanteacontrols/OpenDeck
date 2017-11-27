@@ -19,19 +19,9 @@
 #ifdef BOARD_OPEN_DECK
 
 #include "Board.h"
+#include "Hardware.h"
 
-volatile bool       blinkEnabled,
-                    blinkState;
-
-volatile uint8_t    pwmSteps,
-                    ledState[MAX_NUMBER_OF_LEDS],
-                    activeLEDcolumn;
-
-volatile uint16_t   ledBlinkTime;
-
-volatile int8_t     transitionCounter[MAX_NUMBER_OF_LEDS];
-volatile uint32_t   blinkTimerCounter;
-
+volatile uint8_t    activeOutColumn;
 
 uint8_t Board::getRGBaddress(uint8_t rgbID, rgbIndex_t index)
 {

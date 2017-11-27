@@ -33,6 +33,7 @@ class LEDs
     public:
     LEDs();
     void init();
+    void update();
     void setAllOn();
     void setAllOff();
     void setColor(uint8_t ledNumber, ledColor_t color);
@@ -40,9 +41,7 @@ class LEDs
     void setBlinkState(uint8_t ledID, bool state);
     bool getBlinkState(uint8_t ledID);
     void setBlinkTime(uint16_t blinkTime);
-    #ifdef BOARD_OPEN_DECK
     void setFadeTime(uint8_t transitionSpeed);
-    #endif
     ledColor_t velocityToColor(uint8_t receivedVelocity);
     void ccToBlink(uint8_t cc, uint8_t value);
     void noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool local = false);
@@ -50,7 +49,6 @@ class LEDs
     private:
     uint8_t getState(uint8_t ledNumber);
     void handleLED(uint8_t ledNumber, bool state, bool rgbLED = false, rgbIndex_t index = rgb_R);
-    void checkBlinkLEDs();
 
     void startUpAnimation();
 };

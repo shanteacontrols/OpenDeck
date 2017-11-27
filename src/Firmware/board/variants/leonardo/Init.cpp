@@ -29,11 +29,9 @@ void Board::init()
     initPins();
     initAnalog();
     initEncoders();
-    initUSB_MIDI();
-
-    _delay_ms(5);
-
     configureTimers();
+
+    initUSB_MIDI();
 }
 
 void Board::initPins()

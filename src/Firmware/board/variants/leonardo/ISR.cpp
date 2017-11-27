@@ -21,6 +21,7 @@
 #include "Board.h"
 #include "Variables.h"
 #include "../../../interface/digital/output/leds/Variables.h"
+#include "../../../interface/digital/output/leds/Helpers.h"
 
 volatile uint32_t rTime_ms;
 uint8_t midiIn_timeout, midiOut_timeout;
@@ -92,31 +93,11 @@ inline void storeDigitalIn()
 
 inline void checkLEDs()
 {
-    if (blinkEnabled)
-    {
-        if (!blinkTimerCounter)
-        {
-            //change blinkBit state and write it into ledState variable if LED is in blink state
-            for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-            {
-                if (BIT_READ(ledState[i], LED_BLINK_ON_BIT))
-                {
-                    if (blinkState)
-                        BIT_SET(ledState[i], LED_BLINK_STATE_BIT);
-                    else
-                        BIT_CLEAR(ledState[i], LED_BLINK_STATE_BIT);
-                }
-            }
-
-            blinkState = !blinkState;
-        }
-    }
-
     //if there is an active LED in current column, turn on LED row
     //do fancy transitions here
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
     {
-        uint8_t ledStateSingle = BIT_READ(ledState[i], LED_ACTIVE_BIT) && (BIT_READ(ledState[i], LED_BLINK_ON_BIT) == BIT_READ(ledState[i], LED_BLINK_STATE_BIT));
+        uint8_t ledStateSingle = LED_ON(ledState[i]);
 
         if (ledStateSingle != lastLEDstate[i])
         {
@@ -149,12 +130,8 @@ ISR(TIMER0_COMPA_vect)
     if (updateStuff == 4)
     {
         checkLEDs();
-        blinkTimerCounter++;
         rTime_ms++;
         updateStuff = 0;
-
-        if (blinkTimerCounter >= ledBlinkTime)
-            blinkTimerCounter = 0;
 
         if (MIDIreceived)
         {

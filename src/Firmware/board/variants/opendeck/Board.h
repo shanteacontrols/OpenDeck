@@ -20,46 +20,50 @@
 
 #pragma once
 
-#include "constants/Constants.h"
-#include "../Common.h"
+///
+/// \brief Hardcoded board version.
+/// @{
+///
+
+#define HARDWARE_VERSION_MAJOR      1
+#define HARDWARE_VERSION_MINOR      2
+#define HARDWARE_VERSION_REVISION   0
+
+/// @}
+
+#include "../../common/Common.h"
 #include "pins/Pins.h"
 #include "pins/Map.h"
-#include "../../core/src/Core.h"
-
-//function prototypes
-inline void setAnalogPin(uint8_t muxNumber) __attribute__((always_inline));
-inline void setMuxInput(uint8_t muxInput) __attribute__((always_inline));
-inline void ledRowsOff() __attribute__((always_inline));
-inline void ledRowOn(uint8_t rowNumber, uint8_t intensity) __attribute__((always_inline));
-inline void checkLEDs() __attribute__((always_inline));
-inline void setBlinkState(uint8_t ledNumber, bool state) __attribute__((always_inline));
-inline void activateInputColumn(uint8_t column) __attribute__((always_inline));
-inline void activateOutputColumn(uint8_t column) __attribute__((always_inline));
-inline void storeDigitalIn(uint8_t column, uint8_t bufferIndex) __attribute__((always_inline));
-inline int8_t readEncoder(uint8_t encoderID, uint8_t pairState) __attribute__((always_inline));
+#include "../../../core/src/Core.h"
+#include "../../../interface/digital/output/leds/DataTypes.h"
+#include "Hardware.h"
 
 ///
 /// \addtogroup board
 /// @{
 ///
-class Board : BoardCommon
+
+class Board : BoardInterface
 {
     public:
     //init
     Board();
     void init();
 
+    //digital in
+    bool digitalInputDataAvailable();
+    void continueDigitalInReadout();
+
     //buttons
-    bool buttonDataAvailable();
     bool getButtonState(uint8_t buttonIndex);
 
     //analog
     bool analogDataAvailable();
-    uint16_t getAnalogValue(uint8_t analogID);
+    int16_t getAnalogValue(uint8_t analogID);
+    void continueADCreadout();
 
     //encoders
     uint8_t getEncoderPair(uint8_t buttonID);
-    bool encoderDataAvailable();
     int8_t getEncoderState(uint8_t encoderID);
 
     //leds
@@ -74,9 +78,9 @@ class Board : BoardCommon
     void initAnalog();
     void initEncoders();
     void initUART_MIDI();
+    void initUSB_MIDI();
     void configureTimers();
-    bool copyInputMatrixBuffer();
-    void checkInputMatrixBufferCopy();
+    int8_t readEncoder(uint8_t encoderID, uint8_t pairState);
 };
 
 extern Board board;
