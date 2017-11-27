@@ -485,35 +485,35 @@ int main()
         }
         #endif
 
-        #ifndef BOARD_A_MEGA
-        if (midi.getDINMIDIstate())
-        {
-            //check for incoming MIDI messages on USART
-            if (!database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureUSBconvert))
-            {
-                midi.read(dinInterface);
-                midiMessageType_t messageType = midi.getType(dinInterface);
-                uint8_t data1 = midi.getData1(dinInterface);
-                uint8_t data2 = midi.getData2(dinInterface);
-
-                switch(messageType)
-                {
-                    case midiMessageNoteOff:
-                    case midiMessageNoteOn:
-                    leds.noteToState(data1, data2);
-                    break;
-
-                    default:
-                    break;
-                }
-            }
-            else
-            {
-                //dump everything from MIDI in to USB MIDI out
-                midi.read(dinInterface, THRU_FULL_USB);
-            }
-        }
-        #endif
+        //#ifndef BOARD_A_MEGA
+        //if (midi.getDINMIDIstate())
+        //{
+            ////check for incoming MIDI messages on USART
+            //if (!database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureUSBconvert))
+            //{
+                //midi.read(dinInterface);
+                //midiMessageType_t messageType = midi.getType(dinInterface);
+                //uint8_t data1 = midi.getData1(dinInterface);
+                //uint8_t data2 = midi.getData2(dinInterface);
+//
+                //switch(messageType)
+                //{
+                    //case midiMessageNoteOff:
+                    //case midiMessageNoteOn:
+                    //leds.noteToState(data1, data2);
+                    //break;
+//
+                    //default:
+                    //break;
+                //}
+            //}
+            //else
+            //{
+                ////dump everything from MIDI in to USB MIDI out
+                //midi.read(dinInterface, THRU_FULL_USB);
+            //}
+        //}
+        //#endif
 
         //#ifdef BOARD_A_MEGA
         //static uint32_t last = 0;
@@ -526,5 +526,6 @@ int main()
 
         digitalInput.update();
         analog.update();
+        leds.update();
     }
 }

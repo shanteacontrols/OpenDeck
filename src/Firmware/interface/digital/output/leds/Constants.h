@@ -29,3 +29,11 @@
 
 #define FADE_TIME_MIN                   0x00
 #define FADE_TIME_MAX                   0x0A
+
+#define LED_ACTIVE_BIT                  0x00
+#define LED_BLINK_ON_BIT                0x01
+#define LED_STATE_BIT                   0x02
+#define LED_RGB_BIT                     0x03
+#define LED_RGB_R_BIT                   0x04
+#define LED_RGB_G_BIT                   0x05
+#define LED_RGB_B_BIT                   0x06

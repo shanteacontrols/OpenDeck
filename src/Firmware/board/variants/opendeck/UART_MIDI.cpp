@@ -26,24 +26,11 @@ ISR(USART1_RX_vect)
 }
 
 ///
-/// \brief Empty ISR handler for UART transmission.
+/// \brief ISR signaling that transmission is done.
 ///
 ISR(USART1_TX_vect)
 {
-    
-}
-
-///
-/// \brief ISR used to send data from outgoing buffer to UART.
-///
-ISR(USART1_UDRE_vect)
-{
-    if (RingBuffer_IsEmpty(&txBuffer))
-    {
-        //buffer is empty, disable transmit interrupt
-        UCSR1B = (1<<RXEN1) | (1<<TXCIE1) | (1<<TXEN1) | (1<<RXCIE1);
-    }
-    else
+    if (!RingBuffer_IsEmpty(&txBuffer))
     {
         uint8_t data = RingBuffer_Remove(&txBuffer);
         UDR1 = data;
@@ -57,14 +44,18 @@ ISR(USART1_UDRE_vect)
 ///
 int8_t UARTwrite(uint8_t data)
 {
-    if (RingBuffer_IsFull(&txBuffer))
+    if (!BIT_READ(UCSR1A, UDRE1))
     {
-        return -1;
+        //data transmission is already ongoing, store data in buffer
+        if (RingBuffer_IsFull(&txBuffer))
+            return -1;
+
+        RingBuffer_Insert(&txBuffer, data);
     }
-
-    RingBuffer_Insert(&txBuffer, data);
-
-    UCSR1B = (1<<RXEN1) | (1<<TXCIE1) | (1<<TXEN1) | (1<<RXCIE1) | (1<<UDRIE1);
+    else
+    {
+        UDR1 = data;
+    }
 
     return 0;
 }
@@ -89,7 +80,7 @@ int16_t UARTread()
 ///
 void Board::initUART_MIDI()
 {
-    int16_t baud_count = ((F_CPU / 8) + (115200 / 2)) / 115200;
+    int16_t baud_count = ((F_CPU / 8) + (31250 / 2)) / 31250;
 
     if ((baud_count & 1) && baud_count <= 4096)
     {

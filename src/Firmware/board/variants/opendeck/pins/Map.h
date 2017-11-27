@@ -81,6 +81,12 @@ const uint8_t muxPinOrderArray[] =
     MUX_Y15
 };
 
+const uint8_t muxInPinArray[] =
+{
+    MUX_1_IN_PIN,
+    MUX_2_IN_PIN
+};
+
 #define DM_ROW_8_BIT                4
 #define DM_ROW_7_BIT                5
 #define DM_ROW_6_BIT                6

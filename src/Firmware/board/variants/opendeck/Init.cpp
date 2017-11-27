@@ -30,7 +30,8 @@ void Board::init()
     initAnalog();
     initEncoders();
 
-    _delay_ms(5);
+    initUART_MIDI();
+    initUSB_MIDI();
 
     configureTimers();
 }
@@ -137,7 +138,7 @@ void Board::configureTimers()
     //set timer0 to ctc, used for millis/led matrix
     TCCR0A |= (1<<WGM01);           //CTC mode
     TCCR0B |= (1<<CS01)|(1<<CS00);  //prescaler 64
-    OCR0A = 124;                    //500uS
+    OCR0A = 62;                     //250us
     TIMSK0 |= (1<<OCIE0A);          //compare match interrupt
 }
 

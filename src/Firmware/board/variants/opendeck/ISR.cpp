@@ -20,9 +20,13 @@
 
 #include "Board.h"
 #include "Variables.h"
+#include "../../../interface/digital/output/leds/Variables.h"
+#include "../../../interface/digital/output/leds/Helpers.h"
 
 volatile uint32_t rTime_ms;
 uint8_t midiIn_timeout, midiOut_timeout;
+
+bool MIDIreceived, MIDIsent;
 
 const uint8_t ledRowPinArray[] =
 {
@@ -44,48 +48,34 @@ volatile uint8_t *ledRowPortArray[] =
     &LED_ROW_6_PORT
 };
 
-inline void activateInputColumn(uint8_t column)
+inline void activateInputColumn()
 {
-    BIT_READ(dmColumnArray[column], 0) ? setHigh(DEC_DM_A0_PORT, DEC_DM_A0_PIN) : setLow(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
-    BIT_READ(dmColumnArray[column], 1) ? setHigh(DEC_DM_A1_PORT, DEC_DM_A1_PIN) : setLow(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
-    BIT_READ(dmColumnArray[column], 2) ? setHigh(DEC_DM_A2_PORT, DEC_DM_A2_PIN) : setLow(DEC_DM_A2_PORT, DEC_DM_A2_PIN);
-
-    _NOP();
+    BIT_READ(dmColumnArray[activeInColumn], 0) ? setHigh(DEC_DM_A0_PORT, DEC_DM_A0_PIN) : setLow(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
+    BIT_READ(dmColumnArray[activeInColumn], 1) ? setHigh(DEC_DM_A1_PORT, DEC_DM_A1_PIN) : setLow(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
+    BIT_READ(dmColumnArray[activeInColumn], 2) ? setHigh(DEC_DM_A2_PORT, DEC_DM_A2_PIN) : setLow(DEC_DM_A2_PORT, DEC_DM_A2_PIN);
 }
 
-inline void activateOutputColumn(uint8_t column)
+inline void activateOutputColumn()
 {
-    BIT_READ(column, 0) ? setHigh(DEC_LM_A0_PORT, DEC_LM_A0_PIN) : setLow(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
-    BIT_READ(column, 1) ? setHigh(DEC_LM_A1_PORT, DEC_LM_A1_PIN) : setLow(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
-    BIT_READ(column, 2) ? setHigh(DEC_LM_A2_PORT, DEC_LM_A2_PIN) : setLow(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
-
-    _NOP();
+    BIT_READ(activeOutColumn, 0) ? setHigh(DEC_LM_A0_PORT, DEC_LM_A0_PIN) : setLow(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
+    BIT_READ(activeOutColumn, 1) ? setHigh(DEC_LM_A1_PORT, DEC_LM_A1_PIN) : setLow(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
+    BIT_READ(activeOutColumn, 2) ? setHigh(DEC_LM_A2_PORT, DEC_LM_A2_PIN) : setLow(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
 }
 
-inline void storeDigitalIn(uint8_t column, uint8_t bufferIndex)
+inline void storeDigitalIn()
 {
-    uint8_t data = 0;
-    uint8_t dataReorder = 0;
-
-    //make room for new data
-    inputBuffer[bufferIndex] <<= 8;
+    digitalInBuffer[activeInColumn] = 0;
 
     //pulse latch pin
     pulseLowToHigh(SR_LATCH_PORT, SR_LATCH_PIN);
 
     for (int i=0; i<8; i++)
     {
-        data <<= 1;
-        data |= readPin(SR_DIN_PORT, SR_DIN_PIN);
+        digitalInBuffer[activeInColumn] <<= 1;
+        digitalInBuffer[activeInColumn] |= readPin(SR_DIN_PORT, SR_DIN_PIN);
         //pulse clock pin
         pulseHighToLow(SR_CLK_PORT, SR_CLK_PIN);
     }
-
-    //reorder data to match rows on PCB layout
-    for (int i=0; i<8; i++)
-        BIT_WRITE(dataReorder, i, BIT_READ(data, dmRowBitArray[i]));
-
-    inputBuffer[bufferIndex] |= (uint64_t)dataReorder;
 }
 
 inline void ledRowsOff()
@@ -118,79 +108,60 @@ inline void ledRowOn(uint8_t rowNumber, uint8_t intensity)
         #else
         setHigh(*(ledRowPortArray[rowNumber]), ledRowPinArray[rowNumber]);
         #endif
-        return;
     }
-
-    #ifdef LED_INVERT
-    intensity = 255 - intensity;
-    #endif
-
-    switch (rowNumber)
+    else
     {
-        //turn off pwm if intensity is max
-        case 0:
-        OCR1C = intensity;
-        TCCR1A |= (1<<COM1C1);
-        break;
+        #ifdef LED_INVERT
+        intensity = 255 - intensity;
+        #endif
 
-        case 1:
-        OCR4D = intensity;
-        TCCR4C |= (1<<COM4D1);
-        break;
+        switch (rowNumber)
+        {
+            //turn off pwm if intensity is max
+            case 0:
+            OCR1C = intensity;
+            TCCR1A |= (1<<COM1C1);
+            break;
 
-        case 2:
-        OCR1A = intensity;
-        TCCR1A |= (1<<COM1A1);
-        break;
+            case 1:
+            OCR4D = intensity;
+            TCCR4C |= (1<<COM4D1);
+            break;
 
-        case 3:
-        OCR4A = intensity;
-        TCCR4A |= (1<<COM4A1);
-        break;
+            case 2:
+            OCR1A = intensity;
+            TCCR1A |= (1<<COM1A1);
+            break;
 
-        case 4:
-        OCR3A = intensity;
-        TCCR3A |= (1<<COM3A1);
-        break;
+            case 3:
+            OCR4A = intensity;
+            TCCR4A |= (1<<COM4A1);
+            break;
 
-        case 5:
-        OCR1B = intensity;
-        TCCR1A |= (1<<COM1B1);
-        break;
+            case 4:
+            OCR3A = intensity;
+            TCCR3A |= (1<<COM3A1);
+            break;
 
-        default:
-        break;
+            case 5:
+            OCR1B = intensity;
+            TCCR1A |= (1<<COM1B1);
+            break;
+
+            default:
+            break;
+        }
     }
 }
 
 inline void checkLEDs()
 {
-    if (blinkEnabled)
-    {
-        if (!blinkTimerCounter)
-        {
-            //change blinkBit state and write it into ledState variable if LED is in blink state
-            for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-            {
-                if (BIT_READ(ledState[i], LED_BLINK_ON_BIT))
-                {
-                    if (blinkState)
-                        BIT_SET(ledState[i], LED_BLINK_STATE_BIT);
-                    else
-                        BIT_CLEAR(ledState[i], LED_BLINK_STATE_BIT);
-                }
-            }
-
-            blinkState = !blinkState;
-        }
-    }
-
     //if there is an active LED in current column, turn on LED row
     //do fancy transitions here
     for (int i=0; i<NUMBER_OF_LED_ROWS; i++)
     {
-        uint8_t ledNumber = activeLEDcolumn+i*NUMBER_OF_LED_COLUMNS;
-        uint8_t ledStateSingle = BIT_READ(ledState[ledNumber], LED_ACTIVE_BIT) && (BIT_READ(ledState[ledNumber], LED_BLINK_ON_BIT) == BIT_READ(ledState[ledNumber], LED_BLINK_STATE_BIT));
+        uint8_t ledNumber = activeOutColumn+i*NUMBER_OF_LED_COLUMNS;
+        uint8_t ledStateSingle = LED_ON(ledState[ledNumber]);
 
         ledStateSingle *= (NUMBER_OF_LED_TRANSITIONS-1);
 
@@ -233,36 +204,49 @@ ISR(TIMER0_COMPA_vect)
     //update led matrix every 1ms
     //update button matrix each time
 
-    static bool updateStuff = false;
+    static uint8_t updateStuff = 0;
+    updateStuff++;
 
-    if (updateStuff)
+    if (analogSampleCounter != NUMBER_OF_ANALOG_SAMPLES)
+        startADCconversion();
+
+    if (updateStuff == 4)
     {
         ledRowsOff();
 
-        if (activeLEDcolumn == NUMBER_OF_LED_COLUMNS)
-            activeLEDcolumn = 0;
+        if (activeOutColumn == NUMBER_OF_LED_COLUMNS)
+            activeOutColumn = 0;
 
-        activateOutputColumn(activeLEDcolumn);
+        activateOutputColumn();
         checkLEDs();
 
-        activeLEDcolumn++;
-        blinkTimerCounter++;
+        activeOutColumn++;
         rTime_ms++;
 
-        if (blinkTimerCounter >= ledBlinkTime)
-            blinkTimerCounter = 0;
+        //read input matrix
+        if (activeInColumn < NUMBER_OF_BUTTON_COLUMNS)
+        {
+            for (int i=0; i<NUMBER_OF_BUTTON_COLUMNS; i++)
+            {
+                activeInColumn = i;
+                activateInputColumn();
+                storeDigitalIn();
+            }
 
-        if (MIDIevent_in)
+            activeInColumn = NUMBER_OF_BUTTON_COLUMNS;
+        }
+
+        if (MIDIreceived)
         {
             setHigh(LED_IN_PORT, LED_IN_PIN);
-            MIDIevent_in = false;
+            MIDIreceived = false;
             midiIn_timeout = MIDI_INDICATOR_TIMEOUT;
         }
 
-        if (MIDIevent_out)
+        if (MIDIsent)
         {
             setHigh(LED_OUT_PORT, LED_OUT_PIN);
-            MIDIevent_out = false;
+            MIDIsent = false;
             midiOut_timeout = MIDI_INDICATOR_TIMEOUT;
         }
 
@@ -275,26 +259,8 @@ ISR(TIMER0_COMPA_vect)
             midiOut_timeout--;
         else
             setLow(LED_OUT_PORT, LED_OUT_PIN);
-    }
 
-    updateStuff = !updateStuff;
-
-    //read input matrix
-    uint8_t bufferIndex = digital_buffer_head + 1;
-
-    if (bufferIndex >= DIGITAL_BUFFER_SIZE)
-        bufferIndex = 0;
-
-    if (digital_buffer_tail == bufferIndex)
-        return; //buffer full, exit
-
-    inputBuffer[bufferIndex] = 0;
-    digital_buffer_head = bufferIndex;
-
-    for (int i=0; i<NUMBER_OF_BUTTON_COLUMNS; i++)
-    {
-        activateInputColumn(i);
-        storeDigitalIn(i, bufferIndex);
+        updateStuff = 0;
     }
 }
 

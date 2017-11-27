@@ -20,17 +20,12 @@
 
 #pragma once
 
-#include "constants/Constants.h"
+#include "Hardware.h"
 
-extern bool                 dmBufferCopied;
-extern volatile uint8_t     activeLEDcolumn;
-extern volatile uint64_t    inputBuffer[DIGITAL_BUFFER_SIZE];
-extern volatile uint8_t     digital_buffer_head;
-extern volatile uint8_t     digital_buffer_tail;
-extern volatile uint8_t     activeButtonColumn;
-extern volatile bool        _analogDataAvailable;
-extern bool                 encodersProcessed;
-extern uint64_t             inputMatrixBufferCopy;
-extern bool                 buttonsProcessed;
+extern volatile uint8_t     digitalInBuffer[NUMBER_OF_BUTTON_COLUMNS];
+extern volatile uint8_t     digitalInBuffer_copy[NUMBER_OF_BUTTON_COLUMNS];
+extern volatile uint8_t     activeInColumn;
+extern volatile uint8_t     activeOutColumn;
+extern volatile uint8_t     analogSampleCounter;
 
 #endif

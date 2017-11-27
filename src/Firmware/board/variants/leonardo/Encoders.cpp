@@ -50,7 +50,7 @@ int8_t Board::getEncoderState(uint8_t encoderNumber)
     return readEncoder(encoderNumber, pairState);
 }
 
-inline int8_t readEncoder(uint8_t encoderID, uint8_t pairState)
+int8_t Board::readEncoder(uint8_t encoderID, uint8_t pairState)
 {
     //add new data
     uint8_t newPairData = 0;

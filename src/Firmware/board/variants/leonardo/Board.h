@@ -26,11 +26,6 @@
 #include "../../../core/src/Core.h"
 #include "../../../interface/digital/output/leds/DataTypes.h"
 
-//function prototypes
-inline void checkLEDs() __attribute__((always_inline));
-inline void storeDigitalIn(uint8_t column, uint8_t bufferIndex) __attribute__((always_inline));
-inline int8_t readEncoder(uint8_t encoderID, uint8_t pairState) __attribute__((always_inline));
-
 ///
 /// \addtogroup board
 /// @{
@@ -72,6 +67,7 @@ class Board : BoardInterface
     void initEncoders();
     void initUSB_MIDI();
     void configureTimers();
+    int8_t readEncoder(uint8_t encoderID, uint8_t pairState);
 };
 
 extern Board board;

@@ -19,19 +19,7 @@
 #pragma once
 
 #ifdef BOARD_OPEN_DECK
-
-///
-/// \brief Hardcoded board version.
-/// @{
-///
-
-#define HARDWARE_VERSION_MAJOR      1
-#define HARDWARE_VERSION_MINOR      2
-#define HARDWARE_VERSION_REVISION   0
-
-/// @}
-
-#include "variants/opendeck//Board.h"
+#include "variants/opendeck/Board.h"
 #elif defined(BOARD_A_LEO)
 
 ///

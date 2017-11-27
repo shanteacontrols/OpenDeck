@@ -18,16 +18,15 @@
 
 #include "LEDs.h"
 
-volatile bool       blinkEnabled,
-                    blinkState;
+bool                blinkState;
 
-volatile uint8_t    pwmSteps,
-                    ledState[MAX_NUMBER_OF_LEDS];
+volatile uint8_t    pwmSteps;
+uint8_t             ledState[MAX_NUMBER_OF_LEDS];
 
-volatile uint16_t   ledBlinkTime;
+uint32_t            ledBlinkTime,
+                    lastLEDblinkUpdateTime;
 
 volatile int8_t     transitionCounter[MAX_NUMBER_OF_LEDS];
-volatile uint32_t   blinkTimerCounter;
 
 
 LEDs::LEDs()
@@ -50,6 +49,28 @@ void LEDs::init()
 
     //run LED animation on start-up
     startUpAnimation();
+}
+
+void LEDs::update()
+{
+    if ((rTimeMs() - lastLEDblinkUpdateTime) >= ledBlinkTime)
+    {
+        //time to update blinking leds
+        //change blinkBit state and write it into ledState variable if LED is in blink state
+        for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+        {
+            if (BIT_READ(ledState[i], LED_BLINK_ON_BIT))
+            {
+                if (blinkState)
+                    BIT_SET(ledState[i], LED_STATE_BIT);
+                else
+                    BIT_CLEAR(ledState[i], LED_STATE_BIT);
+            }
+        }
+
+        blinkState = !blinkState;
+        lastLEDblinkUpdateTime = rTimeMs();
+    }
 }
 
 void LEDs::startUpAnimation()
@@ -98,8 +119,6 @@ void LEDs::ccToBlink(uint8_t cc, uint8_t value)
             setBlinkState(i, blink);
         }
     }
-
-    checkBlinkLEDs();
 }
 
 void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool local)
@@ -123,8 +142,6 @@ void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool loca
             }
         }
     }
-
-    checkBlinkLEDs();
 }
 
 void LEDs::setBlinkState(uint8_t ledID, bool state)
@@ -148,26 +165,21 @@ void LEDs::setBlinkState(uint8_t ledID, bool state)
         leds = 1;
     }
 
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    for (int i=0; i<leds; i++)
     {
-        for (int i=0; i<leds; i++)
+        if (state)
         {
-            if (state)
-            {
-                BIT_SET(ledState[ledArray[i]], LED_BLINK_ON_BIT);
-                //this will turn the led immediately no matter how little time it's
-                //going to blink first time
-                BIT_SET(ledState[ledArray[i]], LED_BLINK_STATE_BIT);
-            }
-            else
-            {
-                BIT_CLEAR(ledState[ledArray[i]], LED_BLINK_ON_BIT);
-                BIT_CLEAR(ledState[ledArray[i]], LED_BLINK_STATE_BIT);
-            }
+            BIT_SET(ledState[ledArray[i]], LED_BLINK_ON_BIT);
+            //this will turn the led immediately no matter how little time it's
+            //going to blink first time
+            BIT_SET(ledState[ledArray[i]], LED_STATE_BIT);
+        }
+        else
+        {
+            BIT_CLEAR(ledState[ledArray[i]], LED_BLINK_ON_BIT);
+            BIT_WRITE(ledState[ledArray[i]], LED_STATE_BIT, BIT_READ(ledState[i], LED_ACTIVE_BIT));
         }
     }
-
-    checkBlinkLEDs();
 }
 
 void LEDs::setAllOn()
@@ -200,8 +212,6 @@ void LEDs::setColor(uint8_t ledNumber, ledColor_t color)
     {
         handleLED(ledNumber, (bool)color);
     }
-
-    checkBlinkLEDs();
 }
 
 ledColor_t LEDs::getColor(uint8_t ledID)
@@ -240,23 +250,14 @@ ledColor_t LEDs::getColor(uint8_t ledID)
 
 uint8_t LEDs::getState(uint8_t ledNumber)
 {
-    uint8_t returnValue;
-
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    {
-        returnValue = ledState[ledNumber];
-    }
-
-    return returnValue;
+    return ledState[ledNumber];
 }
 
 bool LEDs::getBlinkState(uint8_t ledID)
 {
-    uint8_t state = getState(ledID);
-    return BIT_READ(state, LED_BLINK_ON_BIT);
+    return BIT_READ(ledState[ledID], LED_BLINK_ON_BIT);
 }
 
-#ifdef BOARD_OPEN_DECK
 void LEDs::setFadeTime(uint8_t transitionSpeed)
 {
     //reset transition counter
@@ -268,15 +269,11 @@ void LEDs::setFadeTime(uint8_t transitionSpeed)
         pwmSteps = transitionSpeed;
     }
 }
-#endif
 
 void LEDs::setBlinkTime(uint16_t blinkTime)
 {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    {
-        ledBlinkTime = blinkTime*100;
-        blinkTimerCounter = 0;
-    }
+    ledBlinkTime = blinkTime*100;
+    lastLEDblinkUpdateTime = 0;
 }
 
 void LEDs::handleLED(uint8_t ledNumber, bool state, bool rgbLED, rgbIndex_t index)
@@ -306,7 +303,7 @@ void LEDs::handleLED(uint8_t ledNumber, bool state, bool rgbLED, rgbIndex_t inde
             currentState = 0;
 
         BIT_SET(currentState, LED_ACTIVE_BIT);
-        BIT_SET(currentState, LED_CONSTANT_ON_BIT);
+        BIT_SET(currentState, LED_STATE_BIT);
         BIT_WRITE(currentState, LED_RGB_BIT, rgbLED);
 
         if (rgbLED)
@@ -334,49 +331,6 @@ void LEDs::handleLED(uint8_t ledNumber, bool state, bool rgbLED, rgbIndex_t inde
     }
 
     ledState[ledNumber] = currentState;
-}
-
-void LEDs::checkBlinkLEDs()
-{
-    //this function will disable blinking
-    //if none of the LEDs is in blinking state
-
-    //else it will enable it
-
-    bool _blinkEnabled = false;
-    uint8_t ledState;
-
-    //if any LED is blinking, set _blinkEnabled to true and exit the loop
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-    {
-        ledState = getState(i);
-        if (BIT_READ(ledState, LED_BLINK_ON_BIT) && BIT_READ(ledState, LED_ACTIVE_BIT))
-        {
-            _blinkEnabled = true;
-            break;
-        }
-    }
-
-    if (_blinkEnabled && !blinkEnabled)
-    {
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-        {
-            blinkEnabled = true;
-            blinkState = true;
-            blinkTimerCounter = 0;
-        }
-    }
-    else if (!_blinkEnabled && blinkEnabled)
-    {
-        //don't bother reseting variables if blinking is already disabled
-        //reset blinkState to default value
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-        {
-            blinkState = true;
-            blinkTimerCounter = 0;
-            blinkEnabled = false;
-        }
-    }
 }
 
 LEDs leds;

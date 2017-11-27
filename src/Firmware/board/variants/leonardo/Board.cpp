@@ -1,3 +1,5 @@
+#ifdef BOARD_A_LEO
+
 #include "Board.h"
 
 Board::Board()
@@ -22,3 +24,5 @@ void Board::reboot(rebootType_t type)
 }
 
 Board board;
+
+#endif
