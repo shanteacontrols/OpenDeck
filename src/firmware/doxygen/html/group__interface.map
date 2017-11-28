@@ -1,0 +1,6 @@
+<map id="Interface" name="Interface">
+<area shape="rect" id="node1" href="$group__analog.html" title="Analog components handling. " alt="" coords="144,5,215,35"/>
+<area shape="rect" id="node2" href="$group__encoders.html" title="Encoder handling. " alt="" coords="135,59,224,88"/>
+<area shape="rect" id="node3" href="$group__buttons.html" title="Button handling. " alt="" coords="142,112,217,141"/>
+<area shape="rect" id="node5" href="$group__leds.html" title="LED handling. " alt="" coords="148,165,211,195"/>
+</map>

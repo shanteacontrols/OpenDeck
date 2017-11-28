@@ -1,0 +1,6 @@
+<map id="AVR" name="AVR">
+<area shape="rect" id="node1" href="$group__core_h_a_l.html" title="Hardware abstraction APIs and macros. " alt="" coords="5,59,59,88"/>
+<area shape="rect" id="node2" href="$group__core_h_a_lavr_s_p_i.html" title="Setup and manipulation of SPI peripheral. " alt="" coords="217,5,264,35"/>
+<area shape="rect" id="node3" href="$group__core_h_a_lavr_reset.html" title="Provides helper functions to facilitate software reset on MCU. " alt="" coords="209,59,272,88"/>
+<area shape="rect" id="node5" href="$group__core_h_a_lavr_a_d_c.html" title="Setup and manipulation of ADC peripheral. " alt="" coords="212,112,269,141"/>
+</map>

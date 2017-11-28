@@ -1,0 +1,34 @@
+<map id="sysex/src/SysEx.h" name="sysex/src/SysEx.h">
+<area shape="rect" id="node2" href="$sysex_2src_2_config_8h.html" title="Config.h" alt="" coords="352,169,432,198"/>
+<area shape="rect" id="node3" href="$_open_deck_8h.html" title="../../OpenDeck.h" alt="" coords="635,83,768,112"/>
+<area shape="rect" id="node35" href="$sysex_2src_2_data_types_8h.html" title="DataTypes.h" alt="" coords="365,83,475,112"/>
+<area shape="rect" id="node4" href="$database_2_database_8h.html" title="database/Database.h" alt="" coords="456,444,629,473"/>
+<area shape="rect" id="node15" href="$_version_8h.html" title="versioning/src/avr\l/Version.h" alt="" coords="977,160,1119,207"/>
+<area shape="rect" id="node17" href="$_interface_8h.html" title="interface/Interface.h" alt="" coords="507,169,664,198"/>
+<area shape="rect" id="node31" href="$midi_2src_2_m_i_d_i_8h.html" title="midi/src/MIDI.h" alt="" coords="1195,169,1319,198"/>
+<area shape="rect" id="node5" href="$_d_b_m_s_8h.html" title="../dbms/src/DBMS.h" alt="" coords="337,521,498,551"/>
+<area shape="rect" id="node8" href="$database_2blocks_2_blocks_8h.html" title="blocks/Blocks.h" alt="" coords="603,521,733,551"/>
+<area shape="rect" id="node6" href="$dbms_2src_2_data_types_8h.html" title="DataTypes.h" alt="" coords="282,599,393,628"/>
+<area shape="rect" id="node9" href="$database_2blocks_2_m_i_d_i_8h.html" title="MIDI.h" alt="" coords="417,599,482,628"/>
+<area shape="rect" id="node10" href="$database_2blocks_2_buttons_8h.html" title="Buttons.h" alt="" coords="506,599,593,628"/>
+<area shape="rect" id="node11" href="$database_2blocks_2_encoders_8h.html" title="Encoders.h" alt="" coords="617,599,719,628"/>
+<area shape="rect" id="node12" href="$database_2blocks_2_analog_8h.html" title="Analog.h" alt="" coords="743,599,825,628"/>
+<area shape="rect" id="node13" href="$database_2blocks_2_l_e_ds_8h.html" title="LEDs.h" alt="" coords="849,599,924,628"/>
+<area shape="rect" id="node14" href="$database_2blocks_2_i_d_8h.html" title="ID.h" alt="" coords="949,599,998,628"/>
+<area shape="rect" id="node16" href="$versioning_2src_2avr_2_data_types_8h.html" title="DataTypes.h" alt="" coords="1009,263,1119,293"/>
+<area shape="rect" id="node18" href="$interface_2analog_2_analog_8h.html" title="analog/Analog.h" alt="" coords="279,263,414,293"/>
+<area shape="rect" id="node25" href="$_digital_input_8h.html" title="digital/input/DigitalInput.h" alt="" coords="739,263,933,293"/>
+<area shape="rect" id="node28" href="$interface_2digital_2output_2leds_2_l_e_ds_8h.html" title="digital/output/leds\l/LEDs.h" alt="" coords="511,255,654,301"/>
+<area shape="rect" id="node19" href="$_board_8h.html" title="../../board/Board.h" alt="" coords="355,358,501,387"/>
+<area shape="rect" id="node20" href="$interface_2digital_2input_2buttons_2_buttons_8h.html" title="../digital/input/buttons\l/Buttons.h" alt="" coords="755,349,922,396"/>
+<area shape="rect" id="node22" href="$interface_2analog_2_data_types_8h.html" title="DataTypes.h" alt="" coords="219,358,330,387"/>
+<area shape="rect" id="node23" href="$interface_2analog_2_config_8h.html" title="Config.h" alt="" coords="51,444,131,473"/>
+<area shape="rect" id="node24" href="$interface_2analog_2_helpers_8h.html" title="Helpers.h" alt="" coords="5,358,93,387"/>
+<area shape="rect" id="node21" href="$interface_2digital_2input_2buttons_2_data_types_8h.html" title="DataTypes.h" alt="" coords="783,444,894,473"/>
+<area shape="rect" id="node26" href="$interface_2digital_2input_2encoders_2_encoders_8h.html" title="encoders/Encoders.h" alt="" coords="960,358,1131,387"/>
+<area shape="rect" id="node27" href="$interface_2digital_2input_2encoders_2_data_types_8h.html" title="DataTypes.h" alt="" coords="990,444,1101,473"/>
+<area shape="rect" id="node29" href="$interface_2digital_2output_2leds_2_data_types_8h.html" title="DataTypes.h" alt="" coords="870,521,981,551"/>
+<area shape="rect" id="node30" href="$interface_2digital_2output_2leds_2_constants_8h.html" title="Constants.h" alt="" coords="525,358,629,387"/>
+<area shape="rect" id="node32" href="$midi_2src_2_data_types_8h.html" title="DataTypes.h" alt="" coords="1195,263,1306,293"/>
+<area shape="rect" id="node33" href="$midi_2src_2_helpers_8h.html" title="Helpers.h" alt="" coords="1207,358,1295,387"/>
+</map>
