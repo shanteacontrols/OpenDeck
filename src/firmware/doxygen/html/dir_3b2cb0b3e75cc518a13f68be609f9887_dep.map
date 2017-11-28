@@ -1,7 +1,0 @@
-<map id="core/src/HAL/avr" name="core/src/HAL/avr">
-<area shape="rect" id="node2" href="dir_4f4402c09814169cea7133aedba32cd6.html" title="adc" alt="" coords="229,65,301,113"/>
-<area shape="rect" id="node3" href="dir_1b41b81ff5e41b25a7c0666e48b03c57.html" title="reset" alt="" coords="133,65,205,113"/>
-<area shape="rect" id="node4" href="dir_4942c06891bbe4512b0c8af9499578cf.html" title="spi" alt="" coords="37,65,109,113"/>
-<area shape="rect" id="clust2" href="dir_3b2cb0b3e75cc518a13f68be609f9887.html" alt="" coords="27,55,408,124"/>
-<area shape="rect" id="clust1" href="dir_89f84a6580cdca5e5baa0f72a5bf395a.html" title="HAL" alt="" coords="16,16,419,135"/>
-</map>

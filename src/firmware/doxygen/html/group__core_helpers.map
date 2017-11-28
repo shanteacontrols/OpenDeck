@@ -1,5 +1,0 @@
-<map id="Helpers" name="Helpers">
-<area shape="rect" id="node1" href="$group__core_pin_helpers.html" title="Helper macros for easier port and pin manipulation. " alt="" coords="235,5,372,35"/>
-<area shape="rect" id="node2" href="$group__core_bit_helpers.html" title="Helper macros for easier byte/bit manipulation. " alt="" coords="237,59,370,88"/>
-<area shape="rect" id="node4" href="$group__core.html" title="Integrated MCU peripherals. " alt="" coords="5,32,63,61"/>
-</map>

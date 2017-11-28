@@ -1,5 +1,0 @@
-<map id="SysEx" name="SysEx">
-<area shape="rect" id="node2" href="$structsys_ex_block.html" title="Structure holding data for single SysEx block. " alt="" coords="12,100,115,129"/>
-<area shape="rect" id="node3" href="$structsys_ex_section.html" title="Structure holding data for single SysEx section within block. " alt="" coords="5,5,121,35"/>
-<area shape="rect" id="node4" href="$structdecoded_message__t.html" title="Structure holding decoded request data. " alt="" coords="139,100,302,129"/>
-</map>
