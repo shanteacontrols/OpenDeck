@@ -1,0 +1,22 @@
+var searchData=
+[
+  ['manufacturerstring',['ManufacturerString',['../_descriptors_8c.html#a84557c5ab5d188d8d7cfdbfe6de20f02',1,'Descriptors.c']]],
+  ['maxvalue',['maxValue',['../structsys_ex_section.html#aacf9ca3869ce5b4551477e7bb7654dc9',1,'sysExSection']]],
+  ['memoryusage',['memoryUsage',['../class_d_b_m_s.html#a490bea3daa34d9c9f578cd5d58e19f5a',1,'DBMS']]],
+  ['midi',['midi',['../_open_deck_8h.html#a7f16f841a14dbe5e8216faabe56a2bc8',1,'OpenDeck.h']]],
+  ['midi_5fin_5fjack_5femb',['MIDI_In_Jack_Emb',['../struct_u_s_b___descriptor___configuration__t.html#a632c0583c24749ddd24c70365ed4676e',1,'USB_Descriptor_Configuration_t']]],
+  ['midi_5fin_5fjack_5fendpoint',['MIDI_In_Jack_Endpoint',['../struct_u_s_b___descriptor___configuration__t.html#a21c3298873edefe825074eb1c1b07be7',1,'USB_Descriptor_Configuration_t']]],
+  ['midi_5fin_5fjack_5fendpoint_5fspc',['MIDI_In_Jack_Endpoint_SPC',['../struct_u_s_b___descriptor___configuration__t.html#a81bbd035bed38e16bd4b05a3781d3de4',1,'USB_Descriptor_Configuration_t']]],
+  ['midi_5fin_5fjack_5fext',['MIDI_In_Jack_Ext',['../struct_u_s_b___descriptor___configuration__t.html#a800bffb258c6d794f5c28e69e1b8f9ba',1,'USB_Descriptor_Configuration_t']]],
+  ['midi_5fout_5fjack_5femb',['MIDI_Out_Jack_Emb',['../struct_u_s_b___descriptor___configuration__t.html#af82734007f206c6ca306e2a1ec282d54',1,'USB_Descriptor_Configuration_t']]],
+  ['midi_5fout_5fjack_5fendpoint',['MIDI_Out_Jack_Endpoint',['../struct_u_s_b___descriptor___configuration__t.html#a4cb83c806e3198921f45ead36c5ff979',1,'USB_Descriptor_Configuration_t']]],
+  ['midi_5fout_5fjack_5fendpoint_5fspc',['MIDI_Out_Jack_Endpoint_SPC',['../struct_u_s_b___descriptor___configuration__t.html#a8402cb3b56120626f5aa721d77ad274d',1,'USB_Descriptor_Configuration_t']]],
+  ['midi_5fout_5fjack_5fext',['MIDI_Out_Jack_Ext',['../struct_u_s_b___descriptor___configuration__t.html#a351efc3f013090331eddbd2e085298bb',1,'USB_Descriptor_Configuration_t']]],
+  ['midireceived',['MIDIreceived',['../board_2common_2_variables_8h.html#ae53daec6b3005ada2dfad33031e170e9',1,'MIDIreceived():&#160;Common.h'],['../board_2midi_2_common_8h.html#ae53daec6b3005ada2dfad33031e170e9',1,'MIDIreceived():&#160;Common.h']]],
+  ['midisent',['MIDIsent',['../board_2common_2_variables_8h.html#ad9791a95dbe8fb55f34a798f37e32677',1,'MIDIsent():&#160;Common.h'],['../board_2midi_2_common_8h.html#ad9791a95dbe8fb55f34a798f37e32677',1,'MIDIsent():&#160;Common.h']]],
+  ['minputchannel',['mInputChannel',['../class_m_i_d_i.html#a8883893412cf3ff8f78c50903b0e126b',1,'MIDI']]],
+  ['minvalue',['minValue',['../structsys_ex_section.html#a1ab4f7186dd2459388a33cc21ccf5f8d',1,'sysExSection']]],
+  ['mpendingmessage',['mPendingMessage',['../class_m_i_d_i.html#a65cb6646f730b08a97253263af736101',1,'MIDI']]],
+  ['mrunningstatus_5frx',['mRunningStatus_RX',['../class_m_i_d_i.html#a661c96e5ab976012874df9ed215aaf96',1,'MIDI']]],
+  ['mrunningstatus_5ftx',['mRunningStatus_TX',['../class_m_i_d_i.html#a715b973615c6b1d54ddf492d8a8532ff',1,'MIDI']]]
+];

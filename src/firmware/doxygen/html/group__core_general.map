@@ -1,0 +1,6 @@
+<map id="General" name="General">
+<area shape="rect" id="node1" href="$group__core_general_strings.html" title="C++ class used for easier building of strings. " alt="" coords="162,5,233,35"/>
+<area shape="rect" id="node2" href="$group__core_general_misc.html" title="Miscellaneous helpers. " alt="" coords="137,59,258,88"/>
+<area shape="rect" id="node3" href="$group__core_general_ring_buffer.html" title="Ultra lightweight ring buffer, for fast insertion/deletion. " alt="" coords="149,112,246,141"/>
+<area shape="rect" id="node5" href="$group__core_general_bit_manipulation.html" title="Helper macros for easier byte/bit manipulation. " alt="" coords="131,165,264,195"/>
+</map>

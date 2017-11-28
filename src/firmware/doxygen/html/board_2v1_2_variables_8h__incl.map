@@ -1,0 +1,8 @@
+<map id="board/v1/Variables.h" name="board/v1/Variables.h">
+<area shape="rect" id="node2" href="$board_2v1_2constants_2_constants_8h.html" title="constants/Constants.h" alt="" coords="118,83,293,112"/>
+<area shape="rect" id="node3" href="$_buffer_8h.html" title="Buffer.h" alt="" coords="5,160,80,189"/>
+<area shape="rect" id="node4" href="$_hardware_8h.html" title="Hardware.h" alt="" coords="29,237,131,267"/>
+<area shape="rect" id="node5" href="$board_2v1_2constants_2_encoders_8h.html" title="Encoders.h" alt="" coords="155,160,256,189"/>
+<area shape="rect" id="node6" href="$board_2v1_2constants_2_l_e_ds_8h.html" title="LEDs.h" alt="" coords="280,160,355,189"/>
+<area shape="rect" id="node7" href="$_reboot_8h.html" title="Reboot.h" alt="" coords="379,160,464,189"/>
+</map>

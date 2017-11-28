@@ -1,0 +1,12 @@
+<map id="board/v1/pins/Pins.h" name="board/v1/pins/Pins.h">
+<area shape="rect" id="node2" href="$v1_2_board_8h.html" title="board/v1/Board.h" alt="" coords="688,160,831,189"/>
+<area shape="rect" id="node11" href="$_map_8h.html" title="board/v1/pins/Map.h" alt="" coords="738,83,901,112"/>
+<area shape="rect" id="node3" href="$board_2v1_2_analog_8cpp.html" title="board/v1/Analog.cpp" alt="" coords="5,237,172,267"/>
+<area shape="rect" id="node4" href="$_board_8cpp.html" title="board/v1/Board.cpp" alt="" coords="197,237,357,267"/>
+<area shape="rect" id="node5" href="$board_2v1_2_buttons_8cpp.html" title="board/v1/Buttons.cpp" alt="" coords="381,237,551,267"/>
+<area shape="rect" id="node6" href="$board_2v1_2_encoders_8cpp.html" title="board/v1/Encoders.cpp" alt="" coords="575,237,759,267"/>
+<area shape="rect" id="node7" href="$board_2v1_2_init_8cpp.html" title="board/v1/Init.cpp" alt="" coords="783,237,919,267"/>
+<area shape="rect" id="node8" href="$_in_matrix_8cpp.html" title="board/v1/InMatrix.cpp" alt="" coords="943,237,1114,267"/>
+<area shape="rect" id="node9" href="$_i_s_r_8cpp.html" title="board/v1/ISR.cpp" alt="" coords="1139,237,1281,267"/>
+<area shape="rect" id="node10" href="$board_2v1_2_l_e_ds_8cpp.html" title="board/v1/LEDs.cpp" alt="" coords="1306,237,1463,267"/>
+</map>

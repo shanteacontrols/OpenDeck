@@ -1,0 +1,32 @@
+<map id="board/v1/Board.h" name="board/v1/Board.h">
+<area shape="rect" id="node2" href="$board_2v1_2constants_2_constants_8h.html" title="constants/Constants.h" alt="" coords="174,83,349,112"/>
+<area shape="rect" id="node8" href="$_common_8h.html" title="../Common.h" alt="" coords="573,83,683,112"/>
+<area shape="rect" id="node28" href="$_pins_8h.html" title="pins/Pins.h" alt="" coords="725,160,824,189"/>
+<area shape="rect" id="node29" href="$_map_8h.html" title="pins/Map.h" alt="" coords="759,83,857,112"/>
+<area shape="rect" id="node3" href="$_buffer_8h.html" title="Buffer.h" alt="" coords="5,160,80,189"/>
+<area shape="rect" id="node4" href="$_hardware_8h.html" title="Hardware.h" alt="" coords="29,237,131,267"/>
+<area shape="rect" id="node5" href="$board_2v1_2constants_2_encoders_8h.html" title="Encoders.h" alt="" coords="155,160,256,189"/>
+<area shape="rect" id="node6" href="$board_2v1_2constants_2_l_e_ds_8h.html" title="LEDs.h" alt="" coords="280,160,355,189"/>
+<area shape="rect" id="node7" href="$_reboot_8h.html" title="Reboot.h" alt="" coords="379,160,464,189"/>
+<area shape="rect" id="node9" href="$board_2_data_types_8h.html" title="DataTypes.h" alt="" coords="489,160,599,189"/>
+<area shape="rect" id="node10" href="$_import_8h.html" title="Import.h" alt="" coords="624,160,701,189"/>
+<area shape="rect" id="node11" href="$_export_8h.html" title="../interface/Export.h" alt="" coords="585,237,740,267"/>
+<area shape="rect" id="node12" href="$interface_2leds_2_variables_8h.html" title="leds/Variables.h" alt="" coords="351,315,486,344"/>
+<area shape="rect" id="node14" href="$interface_2leds_2_data_types_8h.html" title="leds/DataTypes.h" alt="" coords="510,315,653,344"/>
+<area shape="rect" id="node15" href="$interface_2leds_2_constants_8h.html" title="leds/Constants.h" alt="" coords="677,315,814,344"/>
+<area shape="rect" id="node27" href="$midi_2src_2_m_i_d_i_8h.html" title="../midi/src/MIDI.h" alt="" coords="839,315,975,344"/>
+<area shape="rect" id="node13" href="$_board_8h.html" title="../../board/Board.h" alt="" coords="345,392,492,421"/>
+<area shape="rect" id="node16" href="$_database_8h.html" title="../../database/Database.h" alt="" coords="647,392,844,421"/>
+<area shape="rect" id="node17" href="$_d_b_m_s_8h.html" title="../dbms/src/DBMS.h" alt="" coords="414,469,575,499"/>
+<area shape="rect" id="node20" href="$_blocks_8h.html" title="blocks/Blocks.h" alt="" coords="680,469,811,499"/>
+<area shape="rect" id="node26" href="$database_2_config_8h.html" title="Config.h" alt="" coords="835,469,915,499"/>
+<area shape="rect" id="node18" href="$dbms_2src_2_data_types_8h.html" title="DataTypes.h" alt="" coords="419,547,530,576"/>
+<area shape="rect" id="node19" href="$dbms_2src_2_config_8h.html" title="Config.h" alt="" coords="435,624,515,653"/>
+<area shape="rect" id="node21" href="$database_2blocks_2_m_i_d_i_8h.html" title="MIDI.h" alt="" coords="554,547,619,576"/>
+<area shape="rect" id="node22" href="$database_2blocks_2_buttons_8h.html" title="Buttons.h" alt="" coords="643,547,730,576"/>
+<area shape="rect" id="node23" href="$database_2blocks_2_encoders_8h.html" title="Encoders.h" alt="" coords="755,547,856,576"/>
+<area shape="rect" id="node24" href="$database_2blocks_2_analog_8h.html" title="Analog.h" alt="" coords="880,547,963,576"/>
+<area shape="rect" id="node25" href="$database_2blocks_2_l_e_ds_8h.html" title="LEDs.h" alt="" coords="987,547,1061,576"/>
+<area shape="rect" id="node30" href="$_version_8h.html" title="../../../version/Version.h" alt="" coords="848,160,1027,189"/>
+<area shape="rect" id="node31" href="$version_2_data_types_8h.html" title="DataTypes.h" alt="" coords="882,237,993,267"/>
+</map>

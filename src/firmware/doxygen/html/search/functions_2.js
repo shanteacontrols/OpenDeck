@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['calibratepressure',['calibratePressure',['../_f_s_r_8cpp.html#a60534ec1b8d7926fb91e45234ff36c93',1,'FSR.cpp']]],
+  ['callback_5fusb_5fgetdescriptor',['CALLBACK_USB_GetDescriptor',['../_descriptors_8c.html#aa0890c5e991cffc64420173f6bd6c623',1,'CALLBACK_USB_GetDescriptor(const uint16_t wValue, const uint16_t wIndex, const void **const DescriptorAddress):&#160;Descriptors.c'],['../_descriptors_8h.html#af8c2dd70ada32eb9017d08afc75543b2',1,'CALLBACK_USB_GetDescriptor(const uint16_t wValue, const uint16_t wIndex, const void **const DescriptorAddress) ATTR_WARN_UNUSED_RESULT ATTR_NON_NULL_PTR_ARG(3):&#160;Descriptors.c']]],
+  ['cctoblink',['ccToBlink',['../class_l_e_ds.html#ab4ba17ffd00a8f95a3fe737ff3e68dd8',1,'LEDs']]],
+  ['checkamount',['checkAmount',['../class_sys_ex.html#af52c82e1620d93373a3b1fb6859ee0e0',1,'SysEx']]],
+  ['checkblinkleds',['checkBlinkLEDs',['../class_l_e_ds.html#ae0ecb961c67b1dceb12ddeeb99b1fab2',1,'LEDs']]],
+  ['checkblock',['checkBlock',['../class_sys_ex.html#aee1296b35cc3aac7bfd46299c3d91c2c',1,'SysEx']]],
+  ['checkfsrvalue',['checkFSRvalue',['../class_analog.html#a90295e81c3af25441bf6b3edd94a4252',1,'Analog']]],
+  ['checkid',['checkID',['../class_sys_ex.html#ae5760f95bc3dc43808248e2b0e67ab24',1,'SysEx']]],
+  ['checknewrevision',['checkNewRevision',['../group__version.html#gab891d302d4c3a911a588931ad4a87cc5',1,'checkNewRevision():&#160;Version.cpp'],['../group__version.html#gab891d302d4c3a911a588931ad4a87cc5',1,'checkNewRevision():&#160;Version.cpp']]],
+  ['checknewvalue',['checkNewValue',['../class_sys_ex.html#ae026f3d4289065272a6c1d0c9df4bdf0',1,'SysEx']]],
+  ['checkparameterindex',['checkParameterIndex',['../class_sys_ex.html#a33244f84fdcb37990e37a21792c3fd7f',1,'SysEx']]],
+  ['checkparameters',['checkParameters',['../class_sys_ex.html#a55abbd81b8747247d94942c2151830df',1,'SysEx']]],
+  ['checkpart',['checkPart',['../class_sys_ex.html#ad319fbbaa3c6b33fd55b11ed4dedf73d',1,'SysEx']]],
+  ['checkpotentiometervalue',['checkPotentiometerValue',['../class_analog.html#a3aceaa9a501f9af3f925ce75515786df',1,'Analog']]],
+  ['checkrequest',['checkRequest',['../class_sys_ex.html#acf5c474448c85b4e259bc26f878b6c91',1,'SysEx']]],
+  ['checksection',['checkSection',['../class_sys_ex.html#af5a748289949911ad39d493f68510eb9',1,'SysEx']]],
+  ['checkspecialrequests',['checkSpecialRequests',['../class_sys_ex.html#a31e7f2758114e483354d1821beb9ec24',1,'SysEx']]],
+  ['checkwish',['checkWish',['../class_sys_ex.html#aab0a032cd156b7d062ae55ee857c1db8',1,'SysEx']]],
+  ['clear',['clear',['../class_d_b_m_s.html#a0b66c5be0315418beaafcc3a45ea633f',1,'DBMS']]],
+  ['commitlayout',['commitLayout',['../class_d_b_m_s.html#a826a1ddc342a9fa3a5d7e4b601e9cd33',1,'DBMS']]],
+  ['configurationenabled',['configurationEnabled',['../class_sys_ex.html#a83b072660e919f207568fd9ca515cb3e',1,'SysEx']]],
+  ['crc16',['crc16',['../main_8c.html#a0e45e204da9d6f1272403dd03e369200',1,'main.c']]],
+  ['createlayout',['createLayout',['../class_database.html#a035fcc324c7e84e58f8170d334f28478',1,'Database::createLayout()'],['../class_database.html#a035fcc324c7e84e58f8170d334f28478',1,'Database::createLayout()']]]
+];
