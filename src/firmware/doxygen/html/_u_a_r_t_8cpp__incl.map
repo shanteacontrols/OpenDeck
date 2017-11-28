@@ -1,6 +1,0 @@
-<map id="core/src/uart/UART.cpp" name="core/src/uart/UART.cpp">
-<area shape="rect" id="node2" href="$_u_a_r_t_8h.html" title="UART.h" alt="" coords="43,83,119,112"/>
-<area shape="rect" id="node4" href="$_ring_buffer_8h.html" title="RingBuffer/RingBuffer.h" alt="" coords="181,83,365,112"/>
-<area shape="rect" id="node3" href="$core_2src_2uart_2_config_8h.html" title="Config.h" alt="" coords="5,160,85,189"/>
-<area shape="rect" id="node8" href="$core_2src_2uart_2_ring_buffer_2_config_8h.html" title="Config.h" alt="" coords="443,160,523,189"/>
-</map>

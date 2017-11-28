@@ -1,7 +1,0 @@
-<map id="board/v1/Variables.h" name="board/v1/Variables.h">
-<area shape="rect" id="node2" href="$board_2v1_2_analog_8cpp.html" title="board/v1/Analog.cpp" alt="" coords="5,83,172,112"/>
-<area shape="rect" id="node3" href="$board_2v1_2_buttons_8cpp.html" title="board/v1/Buttons.cpp" alt="" coords="196,83,365,112"/>
-<area shape="rect" id="node4" href="$board_2v1_2_encoders_8cpp.html" title="board/v1/Encoders.cpp" alt="" coords="390,83,574,112"/>
-<area shape="rect" id="node5" href="$_in_matrix_8cpp.html" title="board/v1/InMatrix.cpp" alt="" coords="598,83,769,112"/>
-<area shape="rect" id="node6" href="$_i_s_r_8cpp.html" title="board/v1/ISR.cpp" alt="" coords="793,83,936,112"/>
-</map>

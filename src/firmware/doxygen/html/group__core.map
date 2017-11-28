@@ -1,9 +1,0 @@
-<map id="Core" name="Core">
-<area shape="rect" id="node1" href="$group__spi.html" title="Setup and manipulation of SPI peripheral. " alt="" coords="125,5,172,35"/>
-<area shape="rect" id="node2" href="$group__adc.html" title="Setup and manipulation of ADC peripheral. " alt="" coords="120,59,177,88"/>
-<area shape="rect" id="node3" href="$group__reset.html" title="Provides helper functions to facilitate software reset on MCU. " alt="" coords="117,112,180,141"/>
-<area shape="rect" id="node4" href="$group__uart.html" title="Object for interfacing with configured UART peripheral. " alt="" coords="117,165,181,195"/>
-<area shape="rect" id="node5" href="$group__core_helpers.html" title="Various helper macros. " alt="" coords="111,219,187,248"/>
-<area shape="rect" id="node6" href="$group__strings__core.html" title="Various functions used to manipulate strings more easily. " alt="" coords="113,272,184,301"/>
-<area shape="rect" id="node8" href="$group__timer.html" title="Provides delay function and interface to accommodate MCU run time in milliseconds. " alt="" coords="117,325,180,355"/>
-</map>
