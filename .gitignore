@@ -1,7 +1,2 @@
-src/.vs/*
-src/Bootloader/.vs/*
-src/Bootloader/Debug/*
-src/Bootloader/Release*/*
-src/Firmware/Debug*
-src/Firmware/Release*
-src/Firmware/doxygen/*
+src/firmware/build*
+src/bootloader/build*
