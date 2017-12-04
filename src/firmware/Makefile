@@ -1,18 +1,11 @@
-RM := rm -rf
-
-TARGET := OpenDeck
-
-CXX := avr-g++
-CXXFLAGS := -funsigned-char -funsigned-bitfields -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -Wall -c
+BUILD_DIR := build/
 
 CPP := avr-gcc
-
+CXX := avr-g++
+CXXFLAGS := -funsigned-char -funsigned-bitfields -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -Wall -c
 OPT := -O2
 LDFLAGS := -Wl,--section-start=.noinit=0x00800AFD -Wl,--gc-sections -mrelax -Wl,--start-group -Wl,-lm -Wl,--end-group
 
-BUILD_DIR := build/
-
-MCU := atmega32u4
 DEFINES := -DNDEBUG
 DEFINES += -DARCH=ARCH_AVR8
 DEFINES += -DF_CPU=16000000UL
@@ -29,10 +22,9 @@ DEFINES += -DFIXED_CONTROL_ENDPOINT_SIZE=8
 DEFINES += -DFIXED_NUM_CONFIGURATIONS=1
 DEFINES += -DINTERRUPT_CONTROL_ENDPOINT
 DEFINES += -DMIDI_SYSEX_ARRAY_SIZE=45
-DEFINES += -DRING_BUFFER_SIZE=30
+DEFINES += -DRING_BUFFER_SIZE=50
 DEFINES += -DDBMS_MAX_SECTIONS=7
 DEFINES += -DDBMS_MAX_BLOCKS=7
-DEFINES += -DBOARD_OPEN_DECK
 DEFINES += -DSTRING_BUFFER_SIZE=1
 
 INCLUDE_FILES := -include "../modules/core/src/Core.h" -include "OpenDeck.h"
@@ -40,7 +32,7 @@ INCLUDE_DIRS := -I"../modules/lufa/"
 INCLUDE_DIRS += -I"../modules/"
 
 LUFA_OBJS := \
-board/usb/Descriptors.o \
+board/avr/usb/Descriptors.o \
 ../modules/lufa/LUFA/Drivers/USB/Class/Device/AudioClassDevice.o \
 ../modules/lufa/LUFA/Drivers/USB/Class/Device/MIDIClassDevice.o \
 ../modules/lufa/LUFA/Drivers/USB/Core/AVR8/Device_AVR8.o \
@@ -63,34 +55,6 @@ LUFA_OBJS_WDIR := $(addprefix $(BUILD_DIR),$(LUFA_OBJS:.c=.o))
 
 CPP_OBJECTS := \
 OpenDeck.o \
-board/variants/leonardo/Analog.o \
-board/variants/leonardo/Board.o \
-board/variants/leonardo/Buttons.o \
-board/variants/leonardo/DigitalIn.o \
-board/variants/leonardo/Encoders.o \
-board/variants/leonardo/Init.o \
-board/variants/leonardo/ISR.o \
-board/variants/leonardo/LEDs.o \
-board/variants/leonardo/USB_MIDI.o \
-board/variants/mega/Analog.o \
-board/variants/mega/Board.o \
-board/variants/mega/Buttons.o \
-board/variants/mega/DigitalIn.o \
-board/variants/mega/Encoders.o \
-board/variants/mega/Init.o \
-board/variants/mega/ISR.o \
-board/variants/mega/LEDs.o \
-board/variants/mega/UART_MIDI.o \
-board/variants/opendeck/Analog.o \
-board/variants/opendeck/Board.o \
-board/variants/opendeck/Buttons.o \
-board/variants/opendeck/DigitalIn.o \
-board/variants/opendeck/Encoders.o \
-board/variants/opendeck/Init.o \
-board/variants/opendeck/ISR.o \
-board/variants/opendeck/LEDs.o \
-board/variants/opendeck/UART_MIDI.o \
-board/variants/opendeck/USB_MIDI.o \
 ../modules/core/src/HAL/avr/reset/Reset.o \
 ../modules/core/src/HAL/avr/spi/SPI.o \
 database/Database.o \
@@ -106,7 +70,57 @@ interface/digital/input/encoders/Encoders.o \
 interface/digital/output/leds/LEDs.o \
 ../modules/midi/src/MIDI.o \
 ../modules/sysex/src/SysEx.o \
-../modules/versioning/src/avr/Version.o \
+../modules/versioning/src/avr/Version.o
+
+ifeq ($(MAKECMDGOALS),leonardo)
+	TARGET := Leonardo
+	MCU := atmega32u4
+	DEFINES += -DBOARD_A_LEO
+	CPP_OBJECTS += \
+board/avr/variants/leonardo/Analog.o \
+board/avr/variants/leonardo/Board.o \
+board/avr/variants/leonardo/Buttons.o \
+board/avr/variants/leonardo/DigitalIn.o \
+board/avr/variants/leonardo/Encoders.o \
+board/avr/variants/leonardo/Init.o \
+board/avr/variants/leonardo/ISR.o \
+board/avr/variants/leonardo/LEDs.o \
+board/avr/usb/USB_MIDI.o
+endif
+
+ifeq ($(MAKECMDGOALS),opendeck)
+	TARGET := OpenDeck
+	MCU := atmega32u4
+	DEFINES += -DBOARD_OPEN_DECK
+	CPP_OBJECTS += \
+board/avr/variants/opendeck/Analog.o \
+board/avr/variants/opendeck/Board.o \
+board/avr/variants/opendeck/Buttons.o \
+board/avr/variants/opendeck/DigitalIn.o \
+board/avr/variants/opendeck/Encoders.o \
+board/avr/variants/opendeck/Init.o \
+board/avr/variants/opendeck/ISR.o \
+board/avr/variants/opendeck/LEDs.o \
+board/avr/usb/USB_MIDI.o \
+board/avr/uart/UART_MIDI_1.o
+endif
+
+ifeq ($(MAKECMDGOALS),mega)
+	TARGET := Mega
+	MCU := atmega2560
+	DEFINES += -DBOARD_A_MEGA
+	LUFA_OBJS_WDIR := 
+	CPP_OBJECTS += \
+board/avr/variants/mega/Analog.o \
+board/avr/variants/mega/Board.o \
+board/avr/variants/mega/Buttons.o \
+board/avr/variants/mega/DigitalIn.o \
+board/avr/variants/mega/Encoders.o \
+board/avr/variants/mega/Init.o \
+board/avr/variants/mega/ISR.o \
+board/avr/variants/mega/LEDs.o \
+board/avr/uart/UART_MIDI_0.o
+endif
 
 CPP_OBJECTS_WDIR := $(addprefix $(BUILD_DIR),$(CPP_OBJECTS:.cpp=.o))
 
@@ -124,17 +138,15 @@ $(LUFA_OBJS_WDIR): $(BUILD_DIR)%.o: %.c
 	@echo Finished building: $<
 #lufa end
 
-# All Target
-all: $(TARGET).elf
+#targets
+leonardo opendeck mega: $(TARGET).elf
 
 $(TARGET).elf: $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR)
 	@$(CXX) -o$(TARGET).elf $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR) -mmcu=$(MCU)  $(LDFLAGS)
 	@echo Finished building target: $@
-	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(TARGET).elf" "$(TARGET).hex"
+	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(TARGET).elf" "../../bin/compiled/$(TARGET).hex"
 	@avr-size "$(TARGET).elf"
 
 # Other Targets
 clean:
-	-$(RM) $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR)
-	-$(RM)
-	rm -rf "$(TARGET).elf" "$(TARGET).a" "$(TARGET).hex" "$(TARGET).lss" "$(TARGET).eep" "$(TARGET).map" "$(TARGET).srec"
+	rm -rf "$(TARGET).elf"

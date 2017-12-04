@@ -1,5 +1,3 @@
-TARGET := BootloaderHID
-
 CPP := avr-gcc
 
 CPPFLAGS := \
@@ -18,11 +16,10 @@ CPPFLAGS := \
 -fno-jump-tables
 
 OPT := -Os
-LDFLAGS := -Wl,--start-group -Wl,-lm  -Wl,--end-group -Wl,--gc-sections -Wl,--relax -Wl,--section-start=.text=0x7000
+LDFLAGS := -Wl,--start-group -Wl,-lm  -Wl,--end-group -Wl,--gc-sections -Wl,--relax
 
 BUILD_DIR := build/
 
-MCU := atmega32u4
 DEFINES := -DNDEBUG
 DEFINES += -DBOARD=BOARD_NONE
 DEFINES += -DF_USB=16000000UL
@@ -42,7 +39,6 @@ DEFINES += -DNO_DEVICE_REMOTE_WAKEUP
 DEFINES += -DNO_DEVICE_SELF_POWER
 DEFINES += -DUSB_VENDOR_ID=0x1209
 DEFINES += -DUSB_PRODUCT_ID=0x8473
-DEFINES += -DBOARD_OPEN_DECK
 
 INCLUDE_DIRS := -I"../modules/lufa/"
 INCLUDE_DIRS += -I"../modules/"
@@ -72,6 +68,29 @@ Descriptors.o \
 
 LUFA_OBJS_WDIR := $(addprefix $(BUILD_DIR),$(LUFA_OBJS:.c=.o))
 
+ifeq ($(MAKECMDGOALS),leonardo)
+	TARGET := BootloaderHID_Leonardo
+	MCU := atmega32u4
+	BOOT_START_ADDR := 0x7000
+	DEFINES += -DBOARD_A_LEO
+endif
+
+ifeq ($(MAKECMDGOALS),opendeck)
+	TARGET := BootloaderHID_OpenDeck
+	MCU := atmega32u4
+	BOOT_START_ADDR := 0x7000
+	DEFINES += -DBOARD_OPEN_DECK
+endif
+
+ifeq ($(MAKECMDGOALS),mega)
+	TARGET := BootloaderHID_Mega
+	MCU := atmega16u2
+	BOOT_START_ADDR := 0x3800
+	DEFINES += -DBOARD_A_MEGA
+endif
+
+DEFINES += -DBOOT_START_ADDR$(BOOT_START_ADDR)
+
 #lufa start
 $(LUFA_OBJS_WDIR): $(BUILD_DIR)%.o: %.c
 	@mkdir -p $(@D)
@@ -80,10 +99,11 @@ $(LUFA_OBJS_WDIR): $(BUILD_DIR)%.o: %.c
 #lufa end
 
 # All Target
-all: $(TARGET).elf
+opendeck leonardo mega: $(TARGET).elf
 
 $(TARGET).elf: $(LUFA_OBJS_WDIR)
-	@$(CPP) -o$(TARGET).elf $(LUFA_OBJS_WDIR) -Wl,-Map="$(TARGET).map" -mmcu=$(MCU) $(LDFLAGS)
+	@echo Linking target
+	@$(CPP) -o$(TARGET).elf $(LUFA_OBJS_WDIR) -mmcu=$(MCU) $(LDFLAGS) -Wl,--section-start=.text=$(BOOT_START_ADDR)
 	@echo Finished building target: $@
 	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(TARGET).elf" "$(TARGET).hex"
 	@avr-size "$(TARGET).elf"
@@ -91,4 +111,4 @@ $(TARGET).elf: $(LUFA_OBJS_WDIR)
 # Other Targets
 clean:
 	rm -rf $(BUILD_DIR)
-	rm -rf "$(TARGET).elf" "$(TARGET).a" "$(TARGET).hex" "$(TARGET).lss" "$(TARGET).eep" "$(TARGET).map" "$(TARGET).srec"
+	rm -rf "$(TARGET).elf" "$(TARGET).a" "$(TARGET).hex"

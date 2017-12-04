@@ -40,8 +40,8 @@
 #include "../firmware/board/variants/leonardo/pins/Pins.h"
 #elif defined(BOARD_OPEN_DECK)
 #include "../firmware/board/variants/opendeck/pins/Pins.h"
-#else
-#error Wrong board defined.
+#elif defined(BOARD_A_MEGA)
+#include "../firmware/board/variants/mega/pins/Pins.h"
 #endif
 
 /** Flag to indicate if the bootloader should be running, or should exit and allow the application code to run
@@ -76,6 +76,9 @@ void Application_Jump_Check(void)
         setInput(PORTB, 2);
         setHigh(PORTB, 2);
         bool hardwareTrigger = !readPin(PORTB, 2);
+        #else
+        #warning Define hardware jump for 16u2
+        bool hardwareTrigger = false;
         #endif
 
         bool softwareTrigger = eeprom_read_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION) == BTLDR_REBOOT_VALUE;
@@ -152,7 +155,7 @@ static void SetupHardware(void)
     #if defined(BOARD_OPEN_DECK)
     setHigh(LED_IN_PORT, LED_IN_PIN);
     setHigh(LED_OUT_PORT, LED_OUT_PIN);
-    #elif defined(BOARD_A_LEO)
+    #elif defined(BOARD_A_LEO) || defined(BOARD_A_MEGA)
     //inverted logic
     setLow(LED_IN_PORT, LED_IN_PIN);
     setLow(LED_OUT_PORT, LED_OUT_PIN);

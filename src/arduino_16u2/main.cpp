@@ -1,4 +1,5 @@
 #include "board/Board.h"
+
 Board board;
 
 int main(void)
@@ -7,46 +8,47 @@ int main(void)
 
     midi.setUSBMIDIstate(true);
     midi.setDINMIDIstate(true);
-    midi.setOneByteParseDINstate(false);
+    midi.setOneByteParseDINstate(true);
 
-    //if (checkNewRevision())
-    //{
-        //for (int i=0; i<3; i++)
-        //{
-            //#ifdef BOARD_OPEN_DECK
-            //setHigh(LED_OUT_PORT, LED_OUT_PIN);
-            //setLow(LED_IN_PORT, LED_IN_PIN);
-            //_delay_ms(200);
-            //setLow(LED_OUT_PORT, LED_OUT_PIN);
-            //setHigh(LED_IN_PORT, LED_IN_PIN);
-            //_delay_ms(200);
-            //#elif defined(BOARD_A_LEO)
-            //setLow(LED_OUT_PORT, LED_OUT_PIN);
-            //setHigh(LED_IN_PORT, LED_IN_PIN);
-            //_delay_ms(200);
-            //setHigh(LED_OUT_PORT, LED_OUT_PIN);
-            //setLow(LED_IN_PORT, LED_IN_PIN);
-            //_delay_ms(200);
-            //#endif
-        //}
-//
-        //#ifdef BOARD_OPEN_DECK
-        //setLow(LED_OUT_PORT, LED_OUT_PIN);
-        //setLow(LED_IN_PORT, LED_IN_PIN);
-        //#elif defined(BOARD_A_LEO)
-        //setHigh(LED_OUT_PORT, LED_OUT_PIN);
-        //setHigh(LED_IN_PORT, LED_IN_PIN);
-        //#endif
-    //}
-    //else
-    //{
+    // if (checkNewRevision())
+    // {
+    //     for (int i=0; i<3; i++)
+    //     {
+    //         #ifdef BOARD_OPEN_DECK
+    //         setHigh(LED_OUT_PORT, LED_OUT_PIN);
+    //         setLow(LED_IN_PORT, LED_IN_PIN);
+    //         _delay_ms(200);
+    //         setLow(LED_OUT_PORT, LED_OUT_PIN);
+    //         setHigh(LED_IN_PORT, LED_IN_PIN);
+    //         _delay_ms(200);
+    //         #elif defined(BOARD_A_LEO)
+    //         setLow(LED_OUT_PORT, LED_OUT_PIN);
+    //         setHigh(LED_IN_PORT, LED_IN_PIN);
+    //         _delay_ms(200);
+    //         setHigh(LED_OUT_PORT, LED_OUT_PIN);
+    //         setLow(LED_IN_PORT, LED_IN_PIN);
+    //         _delay_ms(200);
+    //         #endif
+    //     }
+
+    //     #ifdef BOARD_OPEN_DECK
+    //     setLow(LED_OUT_PORT, LED_OUT_PIN);
+    //     setLow(LED_IN_PORT, LED_IN_PIN);
+    //     #elif defined(BOARD_A_LEO)
+    //     setHigh(LED_OUT_PORT, LED_OUT_PIN);
+    //     setHigh(LED_IN_PORT, LED_IN_PIN);
+    //     #endif
+    // }
+    // else
+    // {
         setLow(LED_OUT_PORT, LED_OUT_PIN);
         setLow(LED_IN_PORT, LED_IN_PIN);
-        _delay_ms(200);
+        wait_ms(200);
         setHigh(LED_OUT_PORT, LED_OUT_PIN);
         setHigh(LED_IN_PORT, LED_IN_PIN);
-        _delay_ms(200);
-    //}
+    // }
+
+    sei();
 
     while (1)
     {
