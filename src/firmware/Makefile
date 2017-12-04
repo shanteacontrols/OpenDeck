@@ -27,7 +27,12 @@ DEFINES += -DDBMS_MAX_SECTIONS=7
 DEFINES += -DDBMS_MAX_BLOCKS=7
 DEFINES += -DSTRING_BUFFER_SIZE=1
 
+ifneq ($(MAKECMDGOALS),16u2)
 INCLUDE_FILES := -include "../modules/core/src/Core.h" -include "OpenDeck.h"
+else
+INCLUDE_FILES := -include "../modules/core/src/Core.h"
+endif
+
 INCLUDE_DIRS := -I"../modules/lufa/"
 INCLUDE_DIRS += -I"../modules/"
 
@@ -53,10 +58,10 @@ board/avr/usb/Descriptors.o \
 
 LUFA_OBJS_WDIR := $(addprefix $(BUILD_DIR),$(LUFA_OBJS:.c=.o))
 
+ifneq ($(MAKECMDGOALS),16u2)
 CPP_OBJECTS := \
 OpenDeck.o \
 ../modules/core/src/HAL/avr/reset/Reset.o \
-../modules/core/src/HAL/avr/spi/SPI.o \
 database/Database.o \
 database/Layout.o \
 ../modules/dbms/src/DBMS.o \
@@ -71,6 +76,7 @@ interface/digital/output/leds/LEDs.o \
 ../modules/midi/src/MIDI.o \
 ../modules/sysex/src/SysEx.o \
 ../modules/versioning/src/avr/Version.o
+endif
 
 ifeq ($(MAKECMDGOALS),leonardo)
 	TARGET := Leonardo
@@ -122,6 +128,19 @@ board/avr/variants/mega/LEDs.o \
 board/avr/uart/UART_MIDI_0.o
 endif
 
+ifeq ($(MAKECMDGOALS),16u2)
+	TARGET := 16u2
+	MCU := atmega16u2
+	DEFINES += -DBOARD_A_16u2
+	CPP_OBJECTS := \
+board/avr/variants/arduino16u2/Board.o \
+board/avr/variants/arduino16u2/ISR.o \
+board/avr/variants/arduino16u2/main.o \
+../modules/midi/src/MIDI.o \
+board/avr/uart/UART_MIDI_1.o \
+board/avr/usb/USB_MIDI.o
+endif
+
 CPP_OBJECTS_WDIR := $(addprefix $(BUILD_DIR),$(CPP_OBJECTS:.cpp=.o))
 
 #user start
@@ -139,7 +158,7 @@ $(LUFA_OBJS_WDIR): $(BUILD_DIR)%.o: %.c
 #lufa end
 
 #targets
-leonardo opendeck mega: $(TARGET).elf
+leonardo opendeck mega 16u2: $(TARGET).elf
 
 $(TARGET).elf: $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR)
 	@$(CXX) -o$(TARGET).elf $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR) -mmcu=$(MCU)  $(LDFLAGS)

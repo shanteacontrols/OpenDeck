@@ -1,7 +1,6 @@
 #pragma once
 
-#include "../core/src/Core.h"
-#include "../midi/src/MIDI.h"
+#include "../../../common/Common.h"
 #include "Pins.h"
 #include "Variables.h"
 
