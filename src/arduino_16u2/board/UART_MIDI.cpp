@@ -25,39 +25,41 @@ ISR(USART1_RX_vect)
     }
 }
 
-///
-/// \brief ISR signaling that transmission is done.
-///
-ISR(USART1_TX_vect)
+ISR(USART1_UDRE_vect)
 {
-    if (!RingBuffer_IsEmpty(&txBuffer))
+    if (RingBuffer_IsEmpty(&txBuffer))
+    {
+        //buffer is empty, disable transmit interrupt
+        UCSR1B &= ~(1<<UDRIE1);
+    }
+    else
     {
         uint8_t data = RingBuffer_Remove(&txBuffer);
         UDR1 = data;
     }
 }
 
-///
-/// \brief Writes single byte to TX buffer.
-/// @param [in] data    Byte value
-/// \returns 0 on success, -1 otherwise.
-///
 int8_t UARTwrite(uint8_t data)
 {
-    if (!BIT_READ(UCSR1A, UDRE1))
+    // If the buffer and the data register is empty, just write the byte
+    // to the data register and be done. This shortcut helps
+    // significantly improve the effective datarate at high (>
+    // 500kbit/s) bitrates, where interrupt overhead becomes a slowdown.
+    if (RingBuffer_IsEmpty(&txBuffer) && (UCSR1A & (1<<UDRE1)))
     {
-        //data transmission is already ongoing, store data in buffer
-        if (RingBuffer_IsFull(&txBuffer))
-            return -1;
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        {
+            UDR1 = data;
+        }
 
-        RingBuffer_Insert(&txBuffer, data);
-    }
-    else
-    {
-        UDR1 = data;
+        return 1;
     }
 
-    return 0;
+    while (RingBuffer_IsFull(&txBuffer));
+    RingBuffer_Insert(&txBuffer, data);
+    UCSR1B |= (1<<UDRIE1);
+
+    return 1;
 }
 
 ///
@@ -93,10 +95,9 @@ void Board::initUART_MIDI()
         UBRR1 = (baud_count >> 1) - 1;
     }
 
-    UCSR1B = (1<<RXEN1) | (1<<TXEN1) | (1<<TXCIE1) | (1<<RXCIE1);
-
     //8 bit, no parity, 1 stop bit
     UCSR1C = (1<<UCSZ11) | (1<<UCSZ10);
+    UCSR1B = (1<<RXEN1) | (1<<TXEN1) | (1<<RXCIE1);
 
     RingBuffer_InitBuffer(&rxBuffer);
     RingBuffer_InitBuffer(&txBuffer);

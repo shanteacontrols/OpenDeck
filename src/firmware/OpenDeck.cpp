@@ -212,6 +212,7 @@ void globalInit()
     midi.setInputChannel(database.read(DB_BLOCK_MIDI, midiChannelSection, inputChannel));
     initSysEx();
 
+    #ifndef BOARD_A_MEGA
     if (checkNewRevision())
     {
         for (int i=0; i<3; i++)
@@ -259,6 +260,7 @@ void globalInit()
         _delay_ms(200);
         #endif
     }
+    #endif
 
     //enable global interrupts
     sei();
@@ -485,44 +487,91 @@ int main()
         }
         #endif
 
-        //#ifndef BOARD_A_MEGA
-        //if (midi.getDINMIDIstate())
-        //{
-            ////check for incoming MIDI messages on USART
-            //if (!database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureUSBconvert))
-            //{
-                //midi.read(dinInterface);
-                //midiMessageType_t messageType = midi.getType(dinInterface);
-                //uint8_t data1 = midi.getData1(dinInterface);
-                //uint8_t data2 = midi.getData2(dinInterface);
-//
-                //switch(messageType)
-                //{
-                    //case midiMessageNoteOff:
-                    //case midiMessageNoteOn:
-                    //leds.noteToState(data1, data2);
-                    //break;
-//
-                    //default:
-                    //break;
-                //}
-            //}
-            //else
-            //{
-                ////dump everything from MIDI in to USB MIDI out
-                //midi.read(dinInterface, THRU_FULL_USB);
-            //}
-        //}
-        //#endif
+        #ifndef BOARD_A_MEGA
+        if (midi.getDINMIDIstate())
+        {
+            //check for incoming MIDI messages on USART
+            if (!database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureUSBconvert))
+            {
+                midi.read(dinInterface);
+                midiMessageType_t messageType = midi.getType(dinInterface);
+                uint8_t data1 = midi.getData1(dinInterface);
+                uint8_t data2 = midi.getData2(dinInterface);
 
-        //#ifdef BOARD_A_MEGA
-        //static uint32_t last = 0;
-        //if ((rTimeMs() - last) > 1000)
-        //{
-            //midi.sendNoteOn(127,127,1);
-            //last = rTimeMs();
-        //}
-        //#endif
+                switch(messageType)
+                {
+                    case midiMessageNoteOff:
+                    case midiMessageNoteOn:
+                    leds.noteToState(data1, data2);
+                    break;
+
+                    default:
+                    break;
+                }
+            }
+            else
+            {
+                //dump everything from MIDI in to USB MIDI out
+                midi.read(dinInterface, THRU_FULL_USB);
+            }
+        }
+        #endif
+
+        // #ifdef BOARD_A_MEGA
+        // static uint32_t last = 0;
+        // if (rTimeMs() - last > 1000)
+        // {
+        //     last = rTimeMs();
+        //     midi.sendNoteOn(127,127,1);
+        // }
+        // #endif
+
+        #ifdef BOARD_A_MEGA
+        if (midi.read(dinInterface))
+        {
+            midiMessageType_t messageType = midi.getType(dinInterface);
+            uint8_t data1 = midi.getData1(dinInterface);
+            uint8_t data2 = midi.getData2(dinInterface);
+
+            static bool ledState = false;
+
+            if (ledState)
+            {
+                setLow(PORTB, 7);
+            }
+            else
+            {
+                setHigh(PORTB, 7);
+            }
+
+            ledState = !ledState;
+
+            switch(messageType)
+            {
+                case midiMessageSystemExclusive:
+                sysEx.handleMessage(midi.getSysExArray(dinInterface), midi.getSysExArrayLength(dinInterface));
+                break;
+
+                case midiMessageNoteOn:
+                //we're using received note data to control LED color
+                leds.noteToState(data1, data2);
+                break;
+
+                case midiMessageNoteOff:
+                //always turn led off when note off is received
+                leds.noteToState(data1, 0);
+                break;
+
+                case midiMessageControlChange:
+                //control change is used to control led blinking
+                leds.ccToBlink(data1, data2);
+                break;
+
+                default:
+                break;
+            }
+        }
+        #endif
 
         digitalInput.update();
         analog.update();

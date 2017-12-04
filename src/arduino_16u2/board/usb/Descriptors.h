@@ -36,8 +36,7 @@
 #pragma once
 
 /* Includes: */
-#include "../../lufa/LUFA/Drivers/USB/USB.h"
-
+#include "LUFA/Drivers/USB/USB.h"
 #include <avr/pgmspace.h>
 
 /* Macros: */

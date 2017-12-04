@@ -19,7 +19,7 @@
 #pragma once
 
 #ifdef BOARD_OPEN_DECK
-#include "variants/opendeck/Board.h"
+#include "avr/variants/opendeck/Board.h"
 #elif defined(BOARD_A_LEO)
 
 ///
@@ -31,7 +31,7 @@
 #define HARDWARE_VERSION_MINOR      0
 #define HARDWARE_VERSION_REVISION   0
 
-#include "variants/leonardo/Board.h"
+#include "avr/variants/leonardo/Board.h"
 
 /// @}
 
@@ -40,6 +40,6 @@
 #define HARDWARE_VERSION_MINOR      0
 #define HARDWARE_VERSION_REVISION   0
 
-#include "variants/mega/Board.h"
+#include "avr/variants/mega/Board.h"
 
 #endif

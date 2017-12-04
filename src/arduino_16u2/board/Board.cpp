@@ -29,7 +29,6 @@ void Board::init()
     //disable watchdog
     MCUSR &= ~(1 << WDRF);
     wdt_disable();
-    sei();
 
     initPins();
     initUART_MIDI();
