@@ -41,7 +41,7 @@
 #elif defined(BOARD_OPEN_DECK)
 #include "../firmware/board/avr/variants/opendeck/pins/Pins.h"
 #elif defined(BOARD_A_16u2)
-#include "../firmware/board/avr/variants/arduino16u2/Pins.h"
+#include "../firmware/board/avr/variants/16u2/Pins.h"
 #endif
 
 /** Flag to indicate if the bootloader should be running, or should exit and allow the application code to run

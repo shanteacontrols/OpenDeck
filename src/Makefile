@@ -1,6 +1,6 @@
+include Defines.mk
 include LUFAsources.mk
 include FirmwareSources.mk
-include Defines.mk
 
 ########################
 #compiler options
