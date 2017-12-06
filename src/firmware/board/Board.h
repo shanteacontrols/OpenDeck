@@ -42,6 +42,6 @@
 #define HARDWARE_VERSION_MINOR      0
 #define HARDWARE_VERSION_REVISION   0
 
-#include "avr/variants/arduino16u2/Board.h"
+#include "avr/variants/16u2/Board.h"
 
 #endif
