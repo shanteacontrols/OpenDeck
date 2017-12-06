@@ -73,8 +73,8 @@ const USB_Descriptor_Device_t DeviceDescriptor =
 
     .Endpoint0Size          = FIXED_CONTROL_ENDPOINT_SIZE,
 
-    .VendorID               = USB_VENDOR_ID,
-    .ProductID              = USB_PRODUCT_ID,
+    .VendorID               = HID_VENDOR_ID,
+    .ProductID              = HID_PRODUCT_ID,
     .ReleaseNumber          = VERSION_BCD(0,0,1),
 
     .ManufacturerStrIndex   = NO_DESCRIPTOR,

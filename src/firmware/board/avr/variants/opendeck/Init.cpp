@@ -28,7 +28,7 @@ void Board::init()
     initAnalog();
     initEncoders();
 
-    initUART_MIDI();
+    initUART_MIDI(31250);
     initUSB_MIDI();
 
     configureTimers();

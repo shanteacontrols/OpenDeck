@@ -1,3 +1,21 @@
+/*
+    OpenDeck MIDI platform firmware
+    Copyright (C) 2015-2017 Igor Petrovic
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "../../Board.h"
 
 ///
@@ -23,6 +41,9 @@ ISR(USART0_RX_vect)
     }
 }
 
+///
+/// \brief ISR used to write outgoing data in buffer to UART.
+///
 ISR(USART0_UDRE_vect)
 {
     if (RingBuffer_IsEmpty(&txBuffer))
@@ -37,12 +58,15 @@ ISR(USART0_UDRE_vect)
     }
 }
 
+///
+/// \brief Writes a byte to outgoing UART buffer.
+/// \returns Positive value on success. Since this function waits if
+/// outgoig buffer is full, result will always be success (1).
+///
 int8_t UARTwrite(uint8_t data)
 {
-    // If the buffer and the data register is empty, just write the byte
-    // to the data register and be done. This shortcut helps
-    // significantly improve the effective datarate at high (>
-    // 500kbit/s) bitrates, where interrupt overhead becomes a slowdown.
+    //if both the outgoing buffer and the UART data register are empty
+    //write the byte to the data register directly
     if (RingBuffer_IsEmpty(&txBuffer) && (UCSR0A & (1<<UDRE0)))
     {
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
@@ -78,9 +102,9 @@ int16_t UARTread()
 ///
 /// \brief Initializes UART peripheral used to send and receive MIDI data.
 ///
-void Board::initUART_MIDI()
+void Board::initUART_MIDI(uint16_t baudRate)
 {
-    int16_t baud_count = ((F_CPU / 8) + (31250 / 2)) / 31250;
+    int16_t baud_count = ((F_CPU / 8) + (baudRate / 2)) / baudRate;
 
     if ((baud_count & 1) && baud_count <= 4096)
     {
@@ -95,6 +119,8 @@ void Board::initUART_MIDI()
 
     //8 bit, no parity, 1 stop bit
     UCSR0C = (1<<UCSZ01) | (1<<UCSZ00);
+
+    //enable receiver, transmitter and receive interrupt
     UCSR0B = (1<<RXEN0) | (1<<TXEN0) | (1<<RXCIE0);
 
     RingBuffer_InitBuffer(&rxBuffer);

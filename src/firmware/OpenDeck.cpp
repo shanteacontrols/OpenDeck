@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "versioning/src/avr/Version.h"
 #include "interface/Interface.h"
 
 SysEx sysEx;
@@ -206,61 +205,13 @@ void globalInit()
     midi.setDINMIDIstate(true);
     #endif
 
+    midi.setOneByteParseDINstate(true);
+
     database.init();
     board.init();
 
     midi.setInputChannel(database.read(DB_BLOCK_MIDI, midiChannelSection, inputChannel));
     initSysEx();
-
-    #ifndef BOARD_A_MEGA
-    if (checkNewRevision())
-    {
-        for (int i=0; i<3; i++)
-        {
-            #ifdef BOARD_OPEN_DECK
-            setHigh(LED_OUT_PORT, LED_OUT_PIN);
-            setLow(LED_IN_PORT, LED_IN_PIN);
-            _delay_ms(200);
-            setLow(LED_OUT_PORT, LED_OUT_PIN);
-            setHigh(LED_IN_PORT, LED_IN_PIN);
-            _delay_ms(200);
-            #elif defined(BOARD_A_LEO)
-            setLow(LED_OUT_PORT, LED_OUT_PIN);
-            setHigh(LED_IN_PORT, LED_IN_PIN);
-            _delay_ms(200);
-            setHigh(LED_OUT_PORT, LED_OUT_PIN);
-            setLow(LED_IN_PORT, LED_IN_PIN);
-            _delay_ms(200);
-            #endif
-        }
-
-        #ifdef BOARD_OPEN_DECK
-        setLow(LED_OUT_PORT, LED_OUT_PIN);
-        setLow(LED_IN_PORT, LED_IN_PIN);
-        #elif defined(BOARD_A_LEO)
-        setHigh(LED_OUT_PORT, LED_OUT_PIN);
-        setHigh(LED_IN_PORT, LED_IN_PIN);
-        #endif
-    }
-    else
-    {
-        #ifdef BOARD_OPEN_DECK
-        setHigh(LED_OUT_PORT, LED_OUT_PIN);
-        setHigh(LED_IN_PORT, LED_IN_PIN);
-        _delay_ms(200);
-        setLow(LED_OUT_PORT, LED_OUT_PIN);
-        setLow(LED_IN_PORT, LED_IN_PIN);
-        _delay_ms(200);
-        #elif defined(BOARD_A_LEO)
-        setLow(LED_OUT_PORT, LED_OUT_PIN);
-        setLow(LED_IN_PORT, LED_IN_PIN);
-        _delay_ms(200);
-        setHigh(LED_OUT_PORT, LED_OUT_PIN);
-        setHigh(LED_IN_PORT, LED_IN_PIN);
-        _delay_ms(200);
-        #endif
-    }
-    #endif
 
     //enable global interrupts
     sei();
@@ -273,9 +224,9 @@ bool onCustom(uint8_t value)
     switch(value)
     {
         case FIRMWARE_VERSION_STRING:
-        sysEx.addToResponse(getSWversion(swVersion_major));
-        sysEx.addToResponse(getSWversion(swVersion_minor));
-        sysEx.addToResponse(getSWversion(swVersion_revision));
+        sysEx.addToResponse(1);
+        sysEx.addToResponse(0);
+        sysEx.addToResponse(0);
         return true;
 
         case HARDWARE_VERSION_STRING:
@@ -517,15 +468,6 @@ int main()
         }
         #endif
 
-        // #ifdef BOARD_A_MEGA
-        // static uint32_t last = 0;
-        // if (rTimeMs() - last > 1000)
-        // {
-        //     last = rTimeMs();
-        //     midi.sendNoteOn(127,127,1);
-        // }
-        // #endif
-
         #ifdef BOARD_A_MEGA
         if (midi.read(dinInterface))
         {
@@ -533,22 +475,8 @@ int main()
             uint8_t data1 = midi.getData1(dinInterface);
             uint8_t data2 = midi.getData2(dinInterface);
 
-            static bool ledState = false;
-
-            if (ledState)
-            {
-                setLow(PORTB, 7);
-            }
-            else
-            {
-                setHigh(PORTB, 7);
-            }
-
-            ledState = !ledState;
-
             switch(messageType)
             {
-                case midiMessageSystemExclusive:
                 sysEx.handleMessage(midi.getSysExArray(dinInterface), midi.getSysExArrayLength(dinInterface));
                 break;
 
@@ -573,8 +501,8 @@ int main()
         }
         #endif
 
-        digitalInput.update();
-        analog.update();
-        leds.update();
+        //digitalInput.update();
+        //analog.update();
+        //leds.update();
     }
 }

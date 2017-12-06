@@ -37,11 +37,11 @@
 #include "core/src/HAL/avr/PinManipulation.h"
 
 #if defined(BOARD_A_LEO)
-#include "../firmware/board/variants/leonardo/pins/Pins.h"
+#include "../firmware/board/avr/variants/leonardo/pins/Pins.h"
 #elif defined(BOARD_OPEN_DECK)
-#include "../firmware/board/variants/opendeck/pins/Pins.h"
-#elif defined(BOARD_A_MEGA)
-#include "../firmware/board/variants/mega/pins/Pins.h"
+#include "../firmware/board/avr/variants/opendeck/pins/Pins.h"
+#elif defined(BOARD_A_16u2)
+#include "../firmware/board/avr/variants/arduino16u2/Pins.h"
 #endif
 
 /** Flag to indicate if the bootloader should be running, or should exit and allow the application code to run
@@ -155,7 +155,7 @@ static void SetupHardware(void)
     #if defined(BOARD_OPEN_DECK)
     setHigh(LED_IN_PORT, LED_IN_PIN);
     setHigh(LED_OUT_PORT, LED_OUT_PIN);
-    #elif defined(BOARD_A_LEO) || defined(BOARD_A_MEGA)
+    #elif defined(BOARD_A_LEO) || defined(BOARD_A_16u2)
     //inverted logic
     setLow(LED_IN_PORT, LED_IN_PIN);
     setLow(LED_OUT_PORT, LED_OUT_PIN);

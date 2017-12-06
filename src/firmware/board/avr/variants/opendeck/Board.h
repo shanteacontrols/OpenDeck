@@ -74,7 +74,7 @@ class Board : BoardInterface
     void initPins();
     void initAnalog();
     void initEncoders();
-    void initUART_MIDI();
+    void initUART_MIDI(uint16_t baudRate);
     void initUSB_MIDI();
     void configureTimers();
     int8_t readEncoder(uint8_t encoderID, uint8_t pairState);
