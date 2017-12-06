@@ -83,6 +83,7 @@ $(MAKECMDGOALS).elf: $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR)
 	@echo Finished building target: $@
 	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(MAKECMDGOALS).elf" "../bin/compiled/$(MAKECMDGOALS).hex"
 	@avr-size "$(MAKECMDGOALS).elf"
+	@rm $(MAKECMDGOALS).elf
 
 # Other Targets
 clean:
