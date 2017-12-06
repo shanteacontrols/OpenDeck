@@ -1,6 +1,7 @@
 include Defines.mk
 include LUFAsources.mk
 include FirmwareSources.mk
+include Upload.mk
 
 ########################
 #compiler options
@@ -75,19 +76,35 @@ $(LUFA_OBJS_WDIR): $(BUILD_DIR)%.o: %.c
 	@echo Finished building: $<
 #lufa end
 
+#determine if we're running make on Windows subsystem for Linux
+#this is needed when running upload command since we can't access usb devices directly
+#instead, call upload command from windows
+ifeq ($(findstring Microsoft,$(shell uname -r)), Microsoft)
+WINBASH := cmd.exe /c
+#also, replace forward slash with backslash in path
+AVR_DUDE_PATH := $(subst /,\,$(AVR_DUDE_PATH))
+PATH_QUOTE := "
+endif
+
+ifeq ($(UPLOAD),1)
+RUN_UPLOAD := $(WINBASH) $(PATH_QUOTE)$(AVR_DUDE_PATH)$(AVR_DUDE_BIN)$(PATH_QUOTE) -p $(MCU_avrdude) -c $(AVRDUDE_PROGRAMMER) -U flash:w:"$(MAKECMDGOALS).hex"
+endif
+
 #targets
 fw_opendeck fw_leonardo fw_mega fw_16u2 boot_opendeck boot_leonardo boot_16u2: $(MAKECMDGOALS).elf
 
 $(MAKECMDGOALS).elf: $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR)
 	@$(CXX) -o$(MAKECMDGOALS).elf $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR) -mmcu=$(MCU) $(LDFLAGS)
 	@echo Finished building target: $@
-	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(MAKECMDGOALS).elf" "../bin/compiled/$(MAKECMDGOALS).hex"
+	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(MAKECMDGOALS).elf" "$(MAKECMDGOALS).hex"
 	@avr-size "$(MAKECMDGOALS).elf"
 	@rm $(MAKECMDGOALS).elf
+	@echo Uploading binary to target...
+	@$(RUN_UPLOAD)
 
 # Other Targets
 clean:
-	rm -rf *.elf
+	rm -rf *.elf *.hex
 	rm -rf $(BUILD_DIR)
 
 print-%:

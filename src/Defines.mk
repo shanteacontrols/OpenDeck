@@ -19,6 +19,7 @@ DEFINES := \
 
 ifeq ($(findstring opendeck,$(MAKECMDGOALS)), opendeck)
 MCU := atmega32u4
+MCU_avrdude := m32u4
 DEFINES += -DBOARD_OPEN_DECK
 DEFINES += -DEEPROM_SIZE=1024
 BOOT_START_ADDR := 0x7000
@@ -26,6 +27,7 @@ endif
 
 ifeq ($(findstring leonardo,$(MAKECMDGOALS)), leonardo)
 MCU := atmega32u4
+MCU_avrdude := m32u4
 DEFINES += -DBOARD_A_LEO
 DEFINES += -DEEPROM_SIZE=1024
 BOOT_START_ADDR := 0x7000
@@ -33,12 +35,14 @@ endif
 
 ifeq ($(findstring mega,$(MAKECMDGOALS)), mega)
 MCU := atmega2560
+MCU_avrdude := m2560
 DEFINES += -DBOARD_A_MEGA
 DEFINES += -DEEPROM_SIZE=4096
 endif
 
 ifeq ($(findstring 16u2,$(MAKECMDGOALS)), 16u2)
 MCU := atmega16u2
+MCU_avrdude := m16u2
 DEFINES += -DBOARD_A_16u2
 DEFINES += -DEEPROM_SIZE=512
 BOOT_START_ADDR := 0x3000
