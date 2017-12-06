@@ -27,7 +27,7 @@ void Board::init()
     initPins();
     initAnalog();
     initEncoders();
-    initUART_MIDI();
+    initUART_MIDI(38400);
 
     _delay_ms(5);
 
