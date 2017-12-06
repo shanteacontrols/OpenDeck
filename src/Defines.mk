@@ -15,7 +15,7 @@ DEFINES := \
 -DMIDI_PRODUCT_ID=0x8472 \
 -DSTRING_BUFFER_SIZE=1 \
 -DDBMS_MAX_SECTIONS=7 \
--DDBMS_MAX_BLOCKS=7 
+-DDBMS_MAX_BLOCKS=7
 
 ifeq ($(findstring opendeck,$(MAKECMDGOALS)), opendeck)
 MCU := atmega32u4
