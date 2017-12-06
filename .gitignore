@@ -1,3 +1,2 @@
-src/firmware/build*
-src/bootloader/build*
+src/build/*
 bin/compiled/*
