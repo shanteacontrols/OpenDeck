@@ -87,24 +87,21 @@ PATH_QUOTE := "
 endif
 
 ifeq ($(UPLOAD),1)
-RUN_UPLOAD := $(WINBASH) $(PATH_QUOTE)$(AVR_DUDE_PATH)$(AVR_DUDE_BIN)$(PATH_QUOTE) -p $(MCU_avrdude) -c $(AVRDUDE_PROGRAMMER) -U flash:w:"$(MAKECMDGOALS).hex"
+RUN_UPLOAD := $(WINBASH) $(PATH_QUOTE)$(AVR_DUDE_PATH)$(AVR_DUDE_BIN)$(PATH_QUOTE) -p $(MCU_avrdude) -c $(AVRDUDE_PROGRAMMER) -U flash:w:"$(BUILD_DIR)$(MAKECMDGOALS).hex"
 endif
 
 #targets
-fw_opendeck fw_leonardo fw_mega fw_16u2 boot_opendeck boot_leonardo boot_16u2: $(MAKECMDGOALS).elf
+fw_opendeck fw_leonardo fw_mega fw_16u2 boot_opendeck boot_leonardo boot_16u2: $(BUILD_DIR)$(MAKECMDGOALS).elf
 
-$(MAKECMDGOALS).elf: $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR)
-	@$(CXX) -o$(MAKECMDGOALS).elf $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR) -mmcu=$(MCU) $(LDFLAGS)
+$(BUILD_DIR)$(MAKECMDGOALS).elf: $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR)
+	@$(CXX) -o$(BUILD_DIR)$(MAKECMDGOALS).elf $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR) -mmcu=$(MCU) $(LDFLAGS)
 	@echo Finished building target: $@
-	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(MAKECMDGOALS).elf" "$(MAKECMDGOALS).hex"
-	@avr-size "$(MAKECMDGOALS).elf"
-	@rm $(MAKECMDGOALS).elf
-	@echo Uploading binary to target...
+	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(BUILD_DIR)$(MAKECMDGOALS).elf" "$(BUILD_DIR)$(MAKECMDGOALS).hex"
+	@avr-size "$(BUILD_DIR)$(MAKECMDGOALS).elf"
 	@$(RUN_UPLOAD)
 
 # Other Targets
 clean:
-	rm -rf *.elf *.hex
 	rm -rf $(BUILD_DIR)
 
 print-%:
