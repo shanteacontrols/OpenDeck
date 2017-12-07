@@ -477,6 +477,7 @@ int main()
 
             switch(messageType)
             {
+                case midiMessageSystemExclusive:
                 sysEx.handleMessage(midi.getSysExArray(dinInterface), midi.getSysExArrayLength(dinInterface));
                 break;
 
