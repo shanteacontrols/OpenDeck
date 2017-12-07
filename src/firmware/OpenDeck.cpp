@@ -502,8 +502,8 @@ int main()
         }
         #endif
 
-        //digitalInput.update();
-        //analog.update();
-        //leds.update();
+        digitalInput.update();
+        analog.update();
+        leds.update();
     }
 }
