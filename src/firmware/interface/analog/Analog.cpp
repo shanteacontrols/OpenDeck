@@ -45,7 +45,7 @@ void Analog::update()
         if (database.read(DB_BLOCK_ANALOG, analogTypeSection, i) != aType_button)
         {
             #ifdef ENABLE_HYSTERESIS
-            analogData = getHysteresisValue(i, analogData);
+            analogData = getHysteresisValue(analogData);
             #endif
             analogType_t type = (analogType_t)database.read(DB_BLOCK_ANALOG, analogTypeSection, i);
 
@@ -83,10 +83,16 @@ void Analog::update()
 }
 
 #ifdef ENABLE_HYSTERESIS
-uint16_t Analog::getHysteresisValue(uint8_t analogID, uint16_t value)
+uint16_t Analog::getHysteresisValue(int16_t value)
 {
-    if (value > HYSTERESIS_THRESHOLD)
+    static bool highHysteresisActive = false;
+    static bool lowHysteresisActive = false;
+
+    if (value > HYSTERESIS_THRESHOLD_HIGH)
     {
+        highHysteresisActive = true;
+        lowHysteresisActive = false;
+
         value += HYSTERESIS_ADDITION;
 
         if (value > 1023)
@@ -96,15 +102,48 @@ uint16_t Analog::getHysteresisValue(uint8_t analogID, uint16_t value)
     }
     else
     {
-        if (value < (HYSTERESIS_THRESHOLD-HYSTERESIS_ADDITION))
+        if (value < (HYSTERESIS_THRESHOLD_HIGH - HYSTERESIS_ADDITION))
         {
+            //value is now either in non-hysteresis area or low hysteresis area
+
+            highHysteresisActive = false;
+
+            if (value < (HYSTERESIS_THRESHOLD_LOW + HYSTERESIS_SUBTRACTION))
+            {
+                if (value < HYSTERESIS_THRESHOLD_LOW)
+                {
+                    lowHysteresisActive = true;
+                    value -= HYSTERESIS_SUBTRACTION;
+
+                    if (value < 0)
+                        value = 0;
+
+                    return value;
+                }
+                else
+                {
+                    if (lowHysteresisActive)
+                    {
+                        value -= HYSTERESIS_SUBTRACTION;
+
+                        if (value < 0)
+                            return 0;
+                    }
+
+                    return value;
+                }
+            }
+
+            lowHysteresisActive = false;
+            highHysteresisActive = false;
+
             return value;
         }
         else
         {
-            if (abs(lastAnalogueValue[analogID] - value) < HYSTERESIS_ADDITION)
+            if (highHysteresisActive)
             {
-                //hysteresis still enabled
+                //high hysteresis still enabled
                 value += HYSTERESIS_ADDITION;
 
                 if (value > 1023)
@@ -114,6 +153,7 @@ uint16_t Analog::getHysteresisValue(uint8_t analogID, uint16_t value)
             }
             else
             {
+                highHysteresisActive = false;
                 return value;
             }
         }

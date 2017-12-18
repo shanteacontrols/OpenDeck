@@ -52,7 +52,7 @@ class Analog
     bool getFsrDebounceTimerStarted(uint8_t fsrID);
     void setFsrDebounceTimerStarted(uint8_t fsrID, bool state);
     #ifdef ENABLE_HYSTERESIS
-    uint16_t getHysteresisValue(uint8_t analogID, uint16_t value);
+    uint16_t getHysteresisValue(int16_t value);
     #endif
 
     inline uint8_t mapAnalog_uint8(uint8_t x, uint8_t in_min, uint8_t in_max, uint8_t out_min, uint8_t out_max)
