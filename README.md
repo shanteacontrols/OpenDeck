@@ -1,6 +1,6 @@
 # OpenDeck MIDI Platform
 
-OpenDeck is a platform suited both for prototyping and developing custom MIDI controllers. Platform uses class-compliant USB MIDI which makes it compatible with any MIDI software on any OS. Main part of the platform is board on which various components used to build a MIDI controller can be connected. The board supports the following components:
+OpenDeck is a platform suited both for prototyping and developing custom MIDI controllers. Platform uses class-compliant USB MIDI which makes it compatible with any MIDI software on any OS. Main part of the platform is board on which various components used to build a MIDI controller can be connected. OpenDeck supports the following components:
 
 * Buttons
 * Encoders
@@ -8,7 +8,15 @@ OpenDeck is a platform suited both for prototyping and developing custom MIDI co
 * Potentiometers
 * FSRs (force-sensitive resistors)
 
-All board configuration is done using OpenDeck SysEx protocol.
+All configuration is done using custom SysEx protocol explained in detail on [Wiki page](https://github.com/paradajz/OpenDeck/wiki/SysEx-Configuration) or
+using [Web interface](https://config.shanteacontrols.com/).
+
+OpenDeck firmware is compatible with official OpenDeck board, as well as various Arduino boards:
+
+* Arduino Uno
+* Arduino Leonardo
+* Arduino Pro Micro
+* Arduino Mega2560
 
 ## Repository content
 
@@ -20,11 +28,8 @@ All board configuration is done using OpenDeck SysEx protocol.
 
 ## Credits
 
-Hardware MIDI source code based on [Arduino MIDI library v4.2](https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/4.2) by Francois Best.
-
-USB MIDI and bootloader source code based on [LUFA USB framework](http://www.fourwalledcubicle.com/LUFA.php) by Dean Camera.
-
-Parts of code taken from [Arduino framework](https://github.com/arduino/Arduino).
+* Hardware MIDI source code based on [Arduino MIDI library v4.2](https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/4.2) by Francois Best.
+* USB MIDI and bootloader source code based on [LUFA USB framework](http://www.fourwalledcubicle.com/LUFA.php) by Dean Camera.
 
 ## Licence
 
