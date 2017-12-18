@@ -22,13 +22,10 @@
 #include "../../../../interface/digital/output/leds/Helpers.h"
 
 volatile uint32_t rTime_ms;
-uint8_t midiIn_timeout, midiOut_timeout;
-
-bool MIDIreceived, MIDIsent;
 
 uint8_t lastLEDstate[MAX_NUMBER_OF_LEDS];
 
-volatile uint8_t *dInPortArray[] =
+volatile uint8_t *dInPortArray[MAX_NUMBER_OF_BUTTONS] =
 {
     &DI_1_PORT,
     &DI_2_PORT,
@@ -37,10 +34,34 @@ volatile uint8_t *dInPortArray[] =
     &DI_5_PORT,
     &DI_6_PORT,
     &DI_7_PORT,
-    &DI_8_PORT
+    &DI_8_PORT,
+    &DI_9_PORT,
+    &DI_10_PORT,
+    &DI_11_PORT,
+    &DI_12_PORT,
+    &DI_13_PORT,
+    &DI_14_PORT,
+    &DI_15_PORT,
+    &DI_16_PORT,
+    &DI_17_PORT,
+    &DI_18_PORT,
+    &DI_19_PORT,
+    &DI_20_PORT,
+    &DI_21_PORT,
+    &DI_22_PORT,
+    &DI_23_PORT,
+    &DI_24_PORT,
+    &DI_25_PORT,
+    &DI_26_PORT,
+    &DI_27_PORT,
+    &DI_28_PORT,
+    &DI_29_PORT,
+    &DI_30_PORT,
+    &DI_31_PORT,
+    &DI_32_PORT,
 };
 
-const uint8_t dInPinArray[] =
+const uint8_t dInPinArray[MAX_NUMBER_OF_BUTTONS] =
 {
     DI_1_PIN,
     DI_2_PIN,
@@ -49,10 +70,34 @@ const uint8_t dInPinArray[] =
     DI_5_PIN,
     DI_6_PIN,
     DI_7_PIN,
-    DI_8_PIN
+    DI_8_PIN,
+    DI_9_PIN,
+    DI_10_PIN,
+    DI_11_PIN,
+    DI_12_PIN,
+    DI_13_PIN,
+    DI_14_PIN,
+    DI_15_PIN,
+    DI_16_PIN,
+    DI_17_PIN,
+    DI_18_PIN,
+    DI_19_PIN,
+    DI_20_PIN,
+    DI_21_PIN,
+    DI_22_PIN,
+    DI_23_PIN,
+    DI_24_PIN,
+    DI_25_PIN,
+    DI_26_PIN,
+    DI_27_PIN,
+    DI_28_PIN,
+    DI_29_PIN,
+    DI_30_PIN,
+    DI_31_PIN,
+    DI_32_PIN
 };
 
-volatile uint8_t *dOutPortArray[] =
+volatile uint8_t *dOutPortArray[MAX_NUMBER_OF_LEDS] =
 {
     &DO_1_PORT,
     &DO_2_PORT,
@@ -60,9 +105,19 @@ volatile uint8_t *dOutPortArray[] =
     &DO_4_PORT,
     &DO_5_PORT,
     &DO_6_PORT,
+    &DO_7_PORT,
+    &DO_8_PORT,
+    &DO_9_PORT,
+    &DO_10_PORT,
+    &DO_11_PORT,
+    &DO_12_PORT,
+    &DO_13_PORT,
+    &DO_14_PORT,
+    &DO_15_PORT,
+    &DO_16_PORT,
 };
 
-const uint8_t dOutPinArray[] =
+const uint8_t dOutPinArray[MAX_NUMBER_OF_LEDS] =
 {
     DO_1_PIN,
     DO_2_PIN,
@@ -70,6 +125,16 @@ const uint8_t dOutPinArray[] =
     DO_4_PIN,
     DO_5_PIN,
     DO_6_PIN,
+    DO_7_PIN,
+    DO_8_PIN,
+    DO_9_PIN,
+    DO_10_PIN,
+    DO_11_PIN,
+    DO_12_PIN,
+    DO_13_PIN,
+    DO_14_PIN,
+    DO_15_PIN,
+    DO_16_PIN
 };
 
 inline void storeDigitalIn()
@@ -79,10 +144,12 @@ inline void storeDigitalIn()
     //clear old data
     digitalInBuffer[digitalInBufferCounter] = 0;
 
-    for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
+    uint8_t index = 8*digitalInBufferCounter;
+
+    for (int i=0; i<8; i++)
     {
         data <<= 1;
-        data |= !readPin(*(dInPortArray[i]), dInPinArray[i]); //invert reading because of pull-up configuration
+        data |= !readPin(*(dInPortArray[i+index]), dInPinArray[i+index]); //invert reading because of pull-up configuration
     }
 
     digitalInBuffer[digitalInBufferCounter] = data;
@@ -130,30 +197,6 @@ ISR(TIMER0_COMPA_vect)
         checkLEDs();
         rTime_ms++;
         updateStuff = 0;
-
-        if (MIDIreceived)
-        {
-            setLow(LED_IN_PORT, LED_IN_PIN);
-            MIDIreceived = false;
-            midiIn_timeout = MIDI_INDICATOR_TIMEOUT;
-        }
-
-        if (MIDIsent)
-        {
-            setLow(LED_OUT_PORT, LED_OUT_PIN);
-            MIDIsent = false;
-            midiOut_timeout = MIDI_INDICATOR_TIMEOUT;
-        }
-
-        if (midiIn_timeout)
-            midiIn_timeout--;
-        else
-            setHigh(LED_IN_PORT, LED_IN_PIN);
-
-        if (midiOut_timeout)
-            midiOut_timeout--;
-        else
-            setHigh(LED_OUT_PORT, LED_OUT_PIN);
 
         if (digitalInBufferCounter < DIGITAL_BUFFER_SIZE)
             storeDigitalIn();
