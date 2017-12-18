@@ -31,7 +31,7 @@ void Board::initAnalog()
     adcConfiguration.vref = ADC_VREF_AVCC;
 
     setUpADC(adcConfiguration);
-    setADCchannel(aInPinMap[0]);
+    setADCchannel(0);
 
     _delay_ms(2);
 
@@ -77,5 +77,5 @@ ISR(ADC_vect)
     }
 
     //always set mux input
-    setADCchannel(aInPinMap[analogBufferCounter]);
+    setADCchannel(analogBufferCounter);
 }
