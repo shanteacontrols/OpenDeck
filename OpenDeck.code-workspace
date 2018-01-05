@@ -1,0 +1,24 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"set": "cpp",
+			"iosfwd": "cpp",
+			"chrono": "cpp",
+			"functional": "cpp",
+			"future": "cpp",
+			"memory": "cpp",
+			"ratio": "cpp",
+			"tuple": "cpp",
+			"type_traits": "cpp",
+			"utility": "cpp",
+			"xmemory0": "cpp",
+			"xtr1common": "cpp",
+			"xutility": "cpp"
+		}
+	}
+}
