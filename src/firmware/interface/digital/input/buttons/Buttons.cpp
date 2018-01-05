@@ -24,6 +24,8 @@
 
 const uint8_t buttonDebounceCompare = 0b10000000;
 
+uint8_t mmcArray[] =  { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 }; //based on MIDI spec for transport control
+
 Buttons::Buttons()
 {
     //def const
@@ -47,27 +49,44 @@ bool Buttons::getButtonPressed(uint8_t buttonID)
 
 void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonMIDImessage_t midiMessage)
 {
+    uint8_t note = database.read(DB_BLOCK_BUTTON, buttonMIDIidSection, buttonID);
+    mmcArray[2] = note; //use midi note as channel id for transport control
+
     if (buttonState)
     {
         //send note on only once
         if (!getButtonPressed(buttonID))
         {
-            uint8_t note = database.read(DB_BLOCK_BUTTON, buttonMIDIidSection, buttonID);
             setButtonPressed(buttonID, true);
 
             switch(midiMessage)
             {
-                case buttonPC:
-                midi.sendProgramChange(note, database.read(DB_BLOCK_MIDI, midiChannelSection, programChangeChannel));
-                break;
-
                 case buttonNote:
                 midi.sendNoteOn(note, 127, database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
                 leds.noteToState(note, 127, true);
                 break;
 
+                case buttonPC:
+                midi.sendProgramChange(note, database.read(DB_BLOCK_MIDI, midiChannelSection, programChangeChannel));
+                break;
+
                 case buttonCC:
                 midi.sendControlChange(note, 127, database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
+                break;
+
+                case buttonMMCPlay:
+                mmcArray[4] = 0x02;
+                midi.sendSysEx(6, mmcArray, true);
+                break;
+
+                case buttonMMCStop:
+                mmcArray[4] = 0x01;
+                midi.sendSysEx(6, mmcArray, true);
+                break;
+
+                case buttonMMCPause:
+                mmcArray[4] = 0x09;
+                midi.sendSysEx(6, mmcArray, true);
                 break;
 
                 default:
@@ -93,21 +112,11 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonM
         //button is released
         if (getButtonPressed(buttonID))
         {
-            uint8_t note = database.read(DB_BLOCK_BUTTON, buttonMIDIidSection, buttonID);
-
             switch(midiMessage)
             {
-                case buttonPC:
-                //do nothing
-                break;
-
                 case buttonNote:
                 midi.sendNoteOff(note, 0, database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
                 leds.noteToState(note, 0, true);
-                break;
-
-                case buttonCC:
-                midi.sendControlChange(note, 0, database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
                 break;
 
                 default:
@@ -136,17 +145,33 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
 {
     if (buttonState != getPreviousButtonState(buttonID))
     {
-        uint8_t note = database.read(DB_BLOCK_BUTTON, buttonMIDIidSection, buttonID);
-        uint8_t channel = database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel);
-
         if (buttonState)
         {
+            uint8_t note = database.read(DB_BLOCK_BUTTON, buttonMIDIidSection, buttonID);
+            uint8_t channel = database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel);
+            mmcArray[2] = note;
+
             //button is pressed
             //if a button has been already pressed
             if (getButtonPressed(buttonID))
             {
-                midi.sendNoteOff(note, 0, channel);
-                leds.noteToState(note, 0, true);
+                switch(midiMessage)
+                {
+                    case buttonNote:
+                    midi.sendNoteOff(note, 0, channel);
+                    leds.noteToState(note, 0, true);
+                    break;
+
+                    case buttonMMCRecord:
+                    //stop recording
+                    mmcArray[4] = 0x07;
+                    midi.sendSysEx(6, mmcArray, true);
+                    break;
+
+                    default:
+                    break;
+                }
+
                 if (sysEx.configurationEnabled())
                 {
                     if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)
@@ -165,9 +190,23 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
             }
             else
             {
-                //send note on
-                midi.sendNoteOn(note, 127, channel);
-                leds.noteToState(note, 127, true);
+                switch(midiMessage)
+                {
+                    case buttonNote:
+                    midi.sendNoteOn(note, 127, channel);
+                    leds.noteToState(note, 127, true);
+                    break;
+
+                    case buttonMMCRecord:
+                    //start recording
+                    mmcArray[4] = 0x06;
+                    midi.sendSysEx(6, mmcArray, true);
+                    break;
+
+                    default:
+                    break;
+                }
+
                 if (sysEx.configurationEnabled())
                 {
                     if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)
@@ -198,27 +237,37 @@ void Buttons::processButton(uint8_t buttonID, bool state, bool debounce)
 
         buttonMIDImessage_t midiMessage = (buttonMIDImessage_t)database.read(DB_BLOCK_BUTTON, buttonMIDImessageSection, buttonID);
 
-        if (midiMessage == buttonPC)
+        //overwrite type under certain conditions
+        switch(midiMessage)
         {
-            //ignore momentary/latching modes if button sends program change
-            //when released, don't send anything
-            processMomentaryButton(buttonID, state, midiMessage);
+            case buttonPC:
+            case buttonCC:
+            case buttonMMCPlay:
+            case buttonMMCStop:
+            case buttonMMCPause:
+            type = buttonMomentary;
+            break;
+
+            case buttonMMCRecord:
+            type = buttonLatching;
+            break;
+
+            default:
+            break;
         }
-        else
+
+        switch (type)
         {
-            switch (type)
-            {
-                case buttonMomentary:
-                processMomentaryButton(buttonID, state, midiMessage);
-                break;
+            case buttonMomentary:
+            processMomentaryButton(buttonID, state, midiMessage);
+            break;
 
-                case buttonLatching:
-                processLatchingButton(buttonID, state, midiMessage);
-                break;
+            case buttonLatching:
+            processLatchingButton(buttonID, state, midiMessage);
+            break;
 
-                default:
-                break;
-            }
+            default:
+            break;
         }
 
         updateButtonState(buttonID, state);

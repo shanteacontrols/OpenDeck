@@ -30,5 +30,9 @@ typedef enum
     buttonNote,
     buttonPC,
     buttonCC,
+    buttonMMCStop,
+    buttonMMCPlay,
+    buttonMMCRecord,
+    buttonMMCPause,
     BUTTON_MESSAGE_TYPES
 } buttonMIDImessage_t;
