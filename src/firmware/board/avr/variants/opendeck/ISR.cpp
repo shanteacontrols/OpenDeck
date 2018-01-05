@@ -70,7 +70,7 @@ inline void storeDigitalIn()
     for (int i=0; i<8; i++)
     {
         digitalInBuffer[activeInColumn] <<= 1;
-        digitalInBuffer[activeInColumn] |= readPin(SR_DIN_PORT, SR_DIN_PIN);
+        digitalInBuffer[activeInColumn] |= !readPin(SR_DIN_PORT, SR_DIN_PIN);
         //pulse clock pin
         pulseHighToLow(SR_CLK_PORT, SR_CLK_PIN);
     }
