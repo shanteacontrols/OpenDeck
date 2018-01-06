@@ -50,6 +50,7 @@ bool Buttons::getButtonPressed(uint8_t buttonID)
 void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonMIDImessage_t midiMessage)
 {
     uint8_t note = database.read(DB_BLOCK_BUTTON, buttonMIDIidSection, buttonID);
+    uint8_t velocity = database.read(DB_BLOCK_BUTTON, buttonMIDIvelocitySection, buttonID);
     mmcArray[2] = note; //use midi note as channel id for transport control
 
     if (buttonState)
@@ -62,8 +63,8 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonM
             switch(midiMessage)
             {
                 case buttonNote:
-                midi.sendNoteOn(note, 127, database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
-                leds.noteToState(note, 127, true);
+                midi.sendNoteOn(note, velocity, database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
+                leds.noteToState(note, velocity, true);
                 break;
 
                 case buttonPC:
@@ -71,7 +72,7 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonM
                 break;
 
                 case buttonCC:
-                midi.sendControlChange(note, 127, database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
+                midi.sendControlChange(note, velocity, database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
                 break;
 
                 case buttonMMCPlay:
@@ -149,6 +150,7 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
         {
             uint8_t note = database.read(DB_BLOCK_BUTTON, buttonMIDIidSection, buttonID);
             uint8_t channel = database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel);
+            uint8_t velocity = database.read(DB_BLOCK_BUTTON, buttonMIDIvelocitySection, buttonID);
             mmcArray[2] = note;
 
             //button is pressed
@@ -193,8 +195,8 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
                 switch(midiMessage)
                 {
                     case buttonNote:
-                    midi.sendNoteOn(note, 127, channel);
-                    leds.noteToState(note, 127, true);
+                    midi.sendNoteOn(note, velocity, channel);
+                    leds.noteToState(note, velocity, true);
                     break;
 
                     case buttonMMCRecord:

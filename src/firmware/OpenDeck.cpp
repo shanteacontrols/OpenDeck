@@ -68,6 +68,13 @@ void initSysEx()
         section.maxValue = 127;
 
         sysEx.addSection(DB_BLOCK_BUTTON, section);
+
+        //midi velocity section
+        section.numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
+        section.minValue = 0;
+        section.maxValue = 127;
+
+        sysEx.addSection(DB_BLOCK_BUTTON, section);
     }
 
     {

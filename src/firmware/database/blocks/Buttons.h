@@ -23,5 +23,6 @@ typedef enum
     buttonTypeSection,
     buttonMIDImessageSection,
     buttonMIDIidSection,
+    buttonMIDIvelocitySection,
     BUTTON_SECTIONS
 } buttonSection;
