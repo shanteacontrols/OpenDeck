@@ -217,7 +217,6 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
                     midi.sendSysEx(6, mmcArray, true);
                     break;
 
-                    case buttonCC:
                     case buttonCCreset:
                     midi.sendControlChange(note, velocity, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
                     leds.noteToState(note, velocity, true);
@@ -264,6 +263,7 @@ void Buttons::processButton(uint8_t buttonID, bool state, bool debounce)
             case buttonMMCPlay:
             case buttonMMCStop:
             case buttonMMCPause:
+            case buttonCC:
             type = buttonMomentary;
             break;
 
