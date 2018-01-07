@@ -30,6 +30,7 @@ typedef enum
     buttonNote,
     buttonPC,
     buttonCC,
+    buttonCCreset,
     buttonMMCStop,
     buttonMMCPlay,
     buttonMMCRecord,

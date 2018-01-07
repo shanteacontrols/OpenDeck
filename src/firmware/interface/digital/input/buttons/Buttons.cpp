@@ -72,7 +72,9 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonM
                 break;
 
                 case buttonCC:
-                midi.sendControlChange(note, velocity, database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
+                case buttonCCreset:
+                midi.sendControlChange(note, velocity, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+                leds.noteToState(note, velocity, true);
                 break;
 
                 case buttonMMCPlay:
@@ -117,6 +119,11 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonM
             {
                 case buttonNote:
                 midi.sendNoteOff(note, 0, database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
+                leds.noteToState(note, 0, true);
+                break;
+
+                case buttonCCreset:
+                midi.sendControlChange(note, 0, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
                 leds.noteToState(note, 0, true);
                 break;
 
@@ -170,6 +177,11 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
                     midi.sendSysEx(6, mmcArray, true);
                     break;
 
+                    case buttonCCreset:
+                    midi.sendControlChange(note, 0, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+                    leds.noteToState(note, 0, true);
+                    break;
+
                     default:
                     break;
                 }
@@ -203,6 +215,12 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
                     //start recording
                     mmcArray[4] = 0x06;
                     midi.sendSysEx(6, mmcArray, true);
+                    break;
+
+                    case buttonCC:
+                    case buttonCCreset:
+                    midi.sendControlChange(note, velocity, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+                    leds.noteToState(note, velocity, true);
                     break;
 
                     default:
@@ -243,7 +261,6 @@ void Buttons::processButton(uint8_t buttonID, bool state, bool debounce)
         switch(midiMessage)
         {
             case buttonPC:
-            case buttonCC:
             case buttonMMCPlay:
             case buttonMMCStop:
             case buttonMMCPause:
