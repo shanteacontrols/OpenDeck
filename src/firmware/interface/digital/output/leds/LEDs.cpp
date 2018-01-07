@@ -130,6 +130,11 @@ void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool loca
     {
         if (database.read(DB_BLOCK_LED, ledActivationNoteSection, i) == receivedNote)
         {
+            //change color if rgb led is disabled
+            //any color will do
+            if (!database.read(DB_BLOCK_LED, ledRGBenabledSection, i))
+                color = (database.read(DB_BLOCK_LED, ledSingleVelocityValueSection, i) == receivedVelocity) ? colorRed : colorOff;
+
             if (local)
             {
                 //if local is set to true, check if local led control is enabled for this led before changing state
