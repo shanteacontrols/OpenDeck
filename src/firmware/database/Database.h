@@ -25,6 +25,7 @@
 /// \addtogroup eeprom
 /// @{
 ///
+
 class Database : public DBMS
 {
     public:
@@ -39,4 +40,5 @@ class Database : public DBMS
 };
 
 extern Database database;
-/// @} 
+
+/// @}
