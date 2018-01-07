@@ -186,6 +186,20 @@ void initSysEx()
 
         sysEx.addSection(DB_BLOCK_LED, section);
 
+        //alt velocity enabled section
+        section.numberOfParameters = MAX_NUMBER_OF_LEDS;
+        section.minValue = 0;
+        section.maxValue = 1;
+
+        sysEx.addSection(DB_BLOCK_LED, section);
+
+        //alt velocity value section
+        section.numberOfParameters = MAX_NUMBER_OF_LEDS;
+        section.minValue = 1;
+        section.maxValue = 127;
+
+        sysEx.addSection(DB_BLOCK_LED, section);
+
         //led color section
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
         section.minValue = 0;
@@ -298,7 +312,7 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
 bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newValue)
 {
     bool returnValue = true;
-    //check this block manually
+    //check led block manually
     if (block != DB_BLOCK_LED)
         returnValue = database.update(block, section, index, newValue);
 
@@ -364,13 +378,52 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
 
                 case ledRGBenabledSection:
                 //make sure to turn all three leds off before setting new state
-                leds.setColor(board.getRGBaddress(index, rgb_R), colorOff);
-                leds.setColor(board.getRGBaddress(index, rgb_G), colorOff);
-                leds.setColor(board.getRGBaddress(index, rgb_B), colorOff);
+                leds.setColor(board.getRGBaddress(board.getRGBID(index), rgb_R), colorOff);
+                leds.setColor(board.getRGBaddress(board.getRGBID(index), rgb_G), colorOff);
+                leds.setColor(board.getRGBaddress(board.getRGBID(index), rgb_B), colorOff);
                 //write rgb enabled bit to three leds
-                database.update(block, section, board.getRGBaddress(index, rgb_R), newValue);
-                database.update(block, section, board.getRGBaddress(index, rgb_G), newValue);
-                database.update(block, section, board.getRGBaddress(index, rgb_B), newValue);
+                database.update(block, section, board.getRGBaddress(board.getRGBID(index), rgb_R), newValue);
+                database.update(block, section, board.getRGBaddress(board.getRGBID(index), rgb_G), newValue);
+                database.update(block, section, board.getRGBaddress(board.getRGBID(index), rgb_B), newValue);
+
+                if (newValue)
+                {
+                    //copy over alt velocity, note activation and local control settings from current led index
+                    database.update(block, ledAltVelocityEnabledSection, board.getRGBaddress(board.getRGBID(index), rgb_R), database.read(block, ledAltVelocityEnabledSection, index));
+                    database.update(block, ledAltVelocityEnabledSection, board.getRGBaddress(board.getRGBID(index), rgb_G), database.read(block, ledAltVelocityEnabledSection, index));
+                    database.update(block, ledAltVelocityEnabledSection, board.getRGBaddress(board.getRGBID(index), rgb_B), database.read(block, ledAltVelocityEnabledSection, index));
+
+                    database.update(block, ledAltVelocityValueSection, board.getRGBaddress(board.getRGBID(index), rgb_R), database.read(block, ledAltVelocityValueSection, index));
+                    database.update(block, ledAltVelocityValueSection, board.getRGBaddress(board.getRGBID(index), rgb_G), database.read(block, ledAltVelocityValueSection, index));
+                    database.update(block, ledAltVelocityValueSection, board.getRGBaddress(board.getRGBID(index), rgb_B), database.read(block, ledAltVelocityValueSection, index));
+
+                    database.update(block, ledActivationNoteSection, board.getRGBaddress(board.getRGBID(index), rgb_R), database.read(block, ledActivationNoteSection, index));
+                    database.update(block, ledActivationNoteSection, board.getRGBaddress(board.getRGBID(index), rgb_G), database.read(block, ledActivationNoteSection, index));
+                    database.update(block, ledActivationNoteSection, board.getRGBaddress(board.getRGBID(index), rgb_B), database.read(block, ledActivationNoteSection, index));
+
+                    database.update(block, ledLocalControlSection, board.getRGBaddress(board.getRGBID(index), rgb_R), database.read(block, ledActivationNoteSection, index));
+                    database.update(block, ledLocalControlSection, board.getRGBaddress(board.getRGBID(index), rgb_G), database.read(block, ledActivationNoteSection, index));
+                    database.update(block, ledLocalControlSection, board.getRGBaddress(board.getRGBID(index), rgb_B), database.read(block, ledActivationNoteSection, index));
+                }
+                break;
+
+                case ledAltVelocityEnabledSection:
+                case ledAltVelocityValueSection:
+                case ledActivationNoteSection:
+                case ledLocalControlSection:
+                //first, find out if RGB led is enabled for this led index
+                if (database.read(block, ledRGBenabledSection, index))
+                {
+                    //rgb led enabled - copy these settings to all three leds
+                    database.update(block, section, board.getRGBaddress(board.getRGBID(index), rgb_R), newValue);
+                    database.update(block, section, board.getRGBaddress(board.getRGBID(index), rgb_G), newValue);
+                    database.update(block, section, board.getRGBaddress(board.getRGBID(index), rgb_B), newValue);
+                }
+                else
+                {
+                    //apply to single led only
+                    database.update(block, section, index, newValue);
+                }
                 break;
 
                 default:

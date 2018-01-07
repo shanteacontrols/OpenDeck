@@ -226,6 +226,24 @@ void Database::createLayout()
         section.preserveOnPartialReset = 0;
 
         DBMS::addSection(DB_BLOCK_LED, section);
+
+        //alt velocity enabled section
+        section.numberOfParameters = MAX_NUMBER_OF_LEDS;
+        section.defaultValue = 0;
+        section.autoIncrement = false;
+        section.parameterType = BIT_PARAMETER;
+        section.preserveOnPartialReset = 0;
+
+        DBMS::addSection(DB_BLOCK_LED, section);
+
+        //alt velocity value section
+        section.numberOfParameters = MAX_NUMBER_OF_LEDS;
+        section.defaultValue = 127;
+        section.autoIncrement = false;
+        section.parameterType = BYTE_PARAMETER;
+        section.preserveOnPartialReset = 0;
+
+        DBMS::addSection(DB_BLOCK_LED, section);
     }
 
     {
