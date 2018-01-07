@@ -24,7 +24,6 @@ typedef enum
     ledActivationNoteSection,
     ledRGBenabledSection,
     ledLocalControlSection,
-    ledAltVelocityEnabledSection,
-    ledAltVelocityValueSection,
+    ledSingleVelocityValueSection,
     LED_SECTIONS
 } ledSection;
