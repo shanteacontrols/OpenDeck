@@ -30,6 +30,10 @@ typedef enum
     aType_potentiometer_note,
     aType_fsr,
     aType_button,
+    aType_NRPN_7,
+    aType_NRPN_14,
+    aType_NRPN_Inc,
+    aType_NRPN_Dec,
     ANALOG_TYPES
 } analogType_t;
 

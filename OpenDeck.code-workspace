@@ -20,7 +20,12 @@
 			"xtr1common": "cpp",
 			"xutility": "cpp",
 			"istream": "cpp",
-			"xlocale": "cpp"
+			"xlocale": "cpp",
+			"system_error": "cpp",
+			"xfunctional": "cpp",
+			"array": "cpp",
+			"vector": "cpp",
+			"xstring": "cpp"
 		}
 	}
 }

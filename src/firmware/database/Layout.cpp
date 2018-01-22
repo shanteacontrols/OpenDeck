@@ -164,7 +164,7 @@ void Database::createLayout()
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
         section.defaultValue = 0;
         section.autoIncrement = true;
-        section.parameterType = BYTE_PARAMETER;
+        section.parameterType = WORD_PARAMETER;
         section.preserveOnPartialReset = 0;
 
         DBMS::addSection(DB_BLOCK_ANALOG, section);
@@ -173,7 +173,7 @@ void Database::createLayout()
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
         section.defaultValue = 0;
         section.autoIncrement = false;
-        section.parameterType = BYTE_PARAMETER;
+        section.parameterType = WORD_PARAMETER;
         section.preserveOnPartialReset = 0;
 
         DBMS::addSection(DB_BLOCK_ANALOG, section);
@@ -182,7 +182,7 @@ void Database::createLayout()
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
         section.defaultValue = 127;
         section.autoIncrement = false;
-        section.parameterType = BYTE_PARAMETER;
+        section.parameterType = WORD_PARAMETER;
         section.preserveOnPartialReset = 0;
 
         DBMS::addSection(DB_BLOCK_ANALOG, section);

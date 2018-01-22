@@ -34,10 +34,10 @@ inline int16_t calibratePressure(int16_t value, pressureType_t type)
     switch(type)
     {
         case velocity:
-        return mapAnalog_int16(constrain(value, FSR_MIN_VALUE, FSR_MAX_VALUE), FSR_MIN_VALUE, FSR_MAX_VALUE, 0, 127);
+        return mapAnalog_int16(CONSTRAIN(value, FSR_MIN_VALUE, FSR_MAX_VALUE), FSR_MIN_VALUE, FSR_MAX_VALUE, 0, 127);
 
         case aftertouch:
-        return mapAnalog_int16(constrain(value, FSR_MIN_VALUE, AFTERTOUCH_MAX_VALUE), FSR_MIN_VALUE, AFTERTOUCH_MAX_VALUE, 0, 127);
+        return mapAnalog_int16(CONSTRAIN(value, FSR_MIN_VALUE, AFTERTOUCH_MAX_VALUE), FSR_MIN_VALUE, AFTERTOUCH_MAX_VALUE, 0, 127);
 
         default:
         return 0;
