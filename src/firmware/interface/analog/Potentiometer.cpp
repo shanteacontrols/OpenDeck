@@ -21,69 +21,75 @@
 #include "sysex/src/SysEx.h"
 #include "../cinfo/CInfo.h"
 
-void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t tempValue)
+void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
 {
+    analogType_t analogType = (analogType_t)database.read(DB_BLOCK_ANALOG, analogTypeSection, analogID);
+
     //calculate difference between current and previous reading
-    uint16_t analogDiff = abs(tempValue - lastAnalogueValue[analogID]);
+    uint16_t analogDiff = abs(value - lastAnalogueValue[analogID]);
 
     if (analogDiff < POTENTIOMETER_CC_STEP)
         return;
 
-    uint8_t ccValue = RAW_ADC_2_MIDI(tempValue);
-    uint8_t oldCCvalue = RAW_ADC_2_MIDI(lastAnalogueValue[analogID]);
+    uint16_t midiValue = RAW_ADC_2_MIDI(value);
+    uint16_t oldMIDIvalue = RAW_ADC_2_MIDI(lastAnalogueValue[analogID]);
 
-    if (ccValue == oldCCvalue)
+    if (midiValue == oldMIDIvalue)
         return;
 
     //invert CC data if potInverted is true
     if (database.read(DB_BLOCK_ANALOG, analogInvertedSection, analogID))
-        ccValue = 127 - ccValue;
-
-    uint8_t lowerCClimit = database.read(DB_BLOCK_ANALOG, analogCClowerLimitSection, analogID);
-    uint8_t upperCClimit = database.read(DB_BLOCK_ANALOG, analogCCupperLimitSection, analogID);
-
-    //only use map when cc limits are different from defaults
-    if ((lowerCClimit != 0) || (upperCClimit != 127))
     {
-        if (database.read(DB_BLOCK_ANALOG, analogTypeSection, analogID) == aType_potentiometer_cc)
-            midi.sendControlChange(database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID), mapAnalog_uint8(ccValue, 0, 127, lowerCClimit, upperCClimit), database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+        if (analogType == aType_NRPN_14)
+            midiValue = 16383 - midiValue;
         else
-            midi.sendNoteOn(database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID), mapAnalog_uint8(ccValue, 0, 127, lowerCClimit, upperCClimit), database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
-
-        if (sysEx.configurationEnabled())
-        {
-            if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_ANALOG)) > COMPONENT_INFO_TIMEOUT)
-            {
-                sysEx.startResponse();
-                sysEx.addToResponse(COMPONENT_ID_STRING);
-                sysEx.addToResponse(DB_BLOCK_ANALOG);
-                sysEx.addToResponse(analogID);
-                sysEx.sendResponse();
-                updateCinfoTime(DB_BLOCK_ANALOG);
-            }
-        }
+            midiValue = 127 - midiValue;
     }
-    else
-    {
-        if (database.read(DB_BLOCK_ANALOG, analogTypeSection, analogID) == aType_potentiometer_cc)
-            midi.sendControlChange(database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID), ccValue, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
-        else
-            midi.sendNoteOn(database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID), ccValue, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
 
-        if (sysEx.configurationEnabled())
+    uint16_t lowerCClimit_14bit = database.read(DB_BLOCK_ANALOG, analogCClowerLimitSection, analogID);
+    uint16_t upperCClimit_14bit = database.read(DB_BLOCK_ANALOG, analogCCupperLimitSection, analogID);
+
+    uint8_t lowerCClimit_7bit = lowerCClimit_14bit & (uint16_t)0x00FF;
+    uint8_t upperCClimit_7bit = upperCClimit_14bit & (uint16_t)0x00FF;
+
+    encDec_14bit_t encDec_14bit;
+
+    switch(analogType)
+    {
+        case aType_potentiometer_cc:
+        midi.sendControlChange(database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID), mapAnalog_uint8(midiValue, 0, 127, lowerCClimit_7bit, upperCClimit_7bit), database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+        break;
+
+        case aType_potentiometer_note:
+        midi.sendNoteOn(database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID), mapAnalog_uint8(midiValue, 0, 127, lowerCClimit_7bit, upperCClimit_7bit), database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+        break;
+
+        case aType_NRPN_7:
+        case aType_NRPN_14:
+        encDec_14bit.value = database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID);
+        encDec_14bit.split14bit();
+        midi.sendControlChange(99, encDec_14bit.high, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+        midi.sendControlChange(98, encDec_14bit.low, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+        midi.sendControlChange(6, mapAnalog_uint8(midiValue, 0, 127, lowerCClimit_7bit, upperCClimit_7bit), database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+        break;
+
+        default:
+        return;
+    }
+
+    if (sysEx.configurationEnabled())
+    {
+        if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_ANALOG)) > COMPONENT_INFO_TIMEOUT)
         {
-            if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_ANALOG)) > COMPONENT_INFO_TIMEOUT)
-            {
-                sysEx.startResponse();
-                sysEx.addToResponse(COMPONENT_ID_STRING);
-                sysEx.addToResponse(DB_BLOCK_ANALOG);
-                sysEx.addToResponse(analogID);
-                sysEx.sendResponse();
-                updateCinfoTime(DB_BLOCK_ANALOG);
-            }
+            sysEx.startResponse();
+            sysEx.addToResponse(COMPONENT_ID_STRING);
+            sysEx.addToResponse(DB_BLOCK_ANALOG);
+            sysEx.addToResponse(analogID);
+            sysEx.sendResponse();
+            updateCinfoTime(DB_BLOCK_ANALOG);
         }
     }
 
     //update values
-    lastAnalogueValue[analogID] = tempValue;
+    lastAnalogueValue[analogID] = value;
 }

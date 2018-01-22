@@ -21,6 +21,30 @@
 SysEx sysEx;
 MIDI midi;
 
+//use enum for analog sysex/db sections due to 7/14 bit number conversion
+typedef enum
+{
+    analogEnabled_sysExSection,
+    analogInverted_sysExSection,
+    analogType_sysExSection,
+    analogMIDIidLSB_sysExSection,
+    analogMIDIidMSB_sysExSection,
+    analogLowerCClimitLSB_sysExSection,
+    analogLowerCClimitMSB_sysExSection,
+    analogUpperCClimitLSB_sysExSection,
+    analogUpperCClimitMSB_sysExSection
+} analogSysExSection_t;
+
+typedef enum
+{
+    analogEnabled_dbSection,
+    analogInverted_dbSection,
+    analogType_dbSection,
+    analogMIDIid_dbSection,
+    analogLowerCClimit_dbSection,
+    analogUpperCClimit_dbSection
+} analogDBSection_t;
+
 void initSysEx()
 {
     sysEx.addBlocks(DB_BLOCKS);
@@ -133,21 +157,42 @@ void initSysEx()
 
         sysEx.addSection(DB_BLOCK_ANALOG, section);
 
-        //midi id section
+        //midi id section, lsb
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
         section.minValue = 0;
         section.maxValue = 127;
 
         sysEx.addSection(DB_BLOCK_ANALOG, section);
 
-        //lower cc limit
+        //midi id section, msb
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
         section.minValue = 0;
         section.maxValue = 127;
 
         sysEx.addSection(DB_BLOCK_ANALOG, section);
 
-        //upper cc limit
+        //lower cc limit, lsb
+        section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
+        section.minValue = 0;
+        section.maxValue = 127;
+
+        sysEx.addSection(DB_BLOCK_ANALOG, section);
+
+        //lower cc limit, msb
+        section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
+        section.minValue = 0;
+        section.maxValue = 127;
+
+        sysEx.addSection(DB_BLOCK_ANALOG, section);
+
+        //upper cc limit, lsb
+        section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
+        section.minValue = 0;
+        section.maxValue = 127;
+
+        sysEx.addSection(DB_BLOCK_ANALOG, section);
+
+        //upper cc limit, msb
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
         section.minValue = 0;
         section.maxValue = 127;
@@ -281,6 +326,8 @@ bool onCustom(uint8_t value)
 
 sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
 {
+    encDec_14bit_t encDec_14bit;
+
     switch(block)
     {
         case DB_BLOCK_LED:
@@ -297,6 +344,47 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
         }
         break;
 
+        case DB_BLOCK_ANALOG:
+        switch(section)
+        {
+            case analogMIDIidLSB_sysExSection:
+            case analogMIDIidMSB_sysExSection:
+            encDec_14bit.value = database.read(block, analogMIDIid_dbSection, index);
+            encDec_14bit.split14bit();
+
+            if (section == analogMIDIidLSB_sysExSection)
+                return encDec_14bit.low;
+            else
+                return encDec_14bit.high;
+            break;
+
+            case analogLowerCClimitLSB_sysExSection:
+            case analogLowerCClimitMSB_sysExSection:
+            encDec_14bit.value = database.read(block, analogLowerCClimit_dbSection, index);
+            encDec_14bit.split14bit();
+
+            if (section == analogLowerCClimitLSB_sysExSection)
+                return encDec_14bit.low;
+            else
+                return encDec_14bit.high;
+            break;
+
+            case analogUpperCClimitLSB_sysExSection:
+            case analogUpperCClimitMSB_sysExSection:
+            encDec_14bit.value = database.read(block, analogUpperCClimit_dbSection, index);
+            encDec_14bit.split14bit();
+
+            if (section == analogUpperCClimitLSB_sysExSection)
+                return encDec_14bit.low;
+            else
+                return encDec_14bit.high;
+            break;
+
+            default:
+            return database.read(block, section, index);
+        }
+        break;
+
         default:
         return database.read(block, section, index);
     }
@@ -305,119 +393,167 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
 bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newValue)
 {
     bool returnValue = true;
-    //check led block manually
-    if (block != DB_BLOCK_LED)
-        returnValue = database.update(block, section, index, newValue);
-
-    if (returnValue)
+    encDec_14bit_t encDec_14bit;
+    //check led and analog block manually
+    switch(block)
     {
-        //special checks
-        switch(block)
+        case DB_BLOCK_ANALOG:
+        switch(section)
         {
-            case DB_BLOCK_ANALOG:
-            if (section == analogTypeSection)
-                analog.debounceReset(index);
+            case analogMIDIidLSB_sysExSection:
+            case analogMIDIidMSB_sysExSection:
+            encDec_14bit.value = database.read(block, analogMIDIid_dbSection, index);
+            encDec_14bit.split14bit();
+
+            if (section == analogMIDIidLSB_sysExSection)
+                encDec_14bit.low = newValue;
+            else
+                encDec_14bit.high = newValue;
+
+            encDec_14bit.mergeTo14bit();
+            returnValue = database.update(block, section, index, encDec_14bit.value);
             break;
 
-            case DB_BLOCK_MIDI:
-            if (section == midiFeatureSection)
+            case analogLowerCClimitLSB_sysExSection:
+            case analogLowerCClimitMSB_sysExSection:
+            encDec_14bit.value = database.read(block, analogLowerCClimit_dbSection, index);
+            encDec_14bit.split14bit();
+
+            if (section == analogLowerCClimitLSB_sysExSection)
+                encDec_14bit.low = newValue;
+            else
+                encDec_14bit.high = newValue;
+
+            encDec_14bit.mergeTo14bit();
+            returnValue = database.update(block, section, index, encDec_14bit.value);
+            break;
+
+            case analogUpperCClimitLSB_sysExSection:
+            case analogUpperCClimitMSB_sysExSection:
+            encDec_14bit.value = database.read(block, analogUpperCClimit_dbSection, index);
+            encDec_14bit.split14bit();
+
+            if (section == analogUpperCClimitLSB_sysExSection)
+                encDec_14bit.low = newValue;
+            else
+                encDec_14bit.high = newValue;
+
+            encDec_14bit.mergeTo14bit();
+            returnValue = database.update(block, section, index, encDec_14bit.value);
+            break;
+
+            case analogTypeSection:
+            analog.debounceReset(index);
+            returnValue = database.update(block, section, index, newValue);
+            break;
+
+            default:
+            returnValue = database.update(block, section, index, newValue);
+            break;
+        }
+        break;
+
+        case DB_BLOCK_MIDI:
+        if (section == midiFeatureSection)
+        {
+            if (index == midiFeatureRunningStatus)
+                midi.setRunningStatusState(newValue);
+            else if (index == midiFeatureStandardNoteOff)
+                newValue ? midi.setNoteOffMode(noteOffType_standardNoteOff) : midi.setNoteOffMode(noteOffType_noteOnZeroVel);
+        }
+        returnValue = database.update(block, section, index, newValue);
+        break;
+
+        case DB_BLOCK_LED:
+        switch(section)
+        {
+            case ledColorSection:
+            //no writing to database
+            leds.setColor(index, (ledColor_t)newValue);
+            break;
+
+            case ledBlinkSection:
+            //no writing to database
+            leds.setBlinkState(index, newValue);
+            break;
+
+            case ledHardwareParameterSection:
+            //this entire section needs specific value check
+            switch(index)
             {
-                if (index == midiFeatureRunningStatus)
-                    midi.setRunningStatusState(newValue);
-                else if (index == midiFeatureStandardNoteOff)
-                    newValue ? midi.setNoteOffMode(noteOffType_standardNoteOff) : midi.setNoteOffMode(noteOffType_noteOnZeroVel);
+                case ledHwParameterBlinkTime:
+                if ((newValue < BLINK_TIME_MIN) || (newValue > BLINK_TIME_MAX))
+                    return false;
+                leds.setBlinkTime(newValue);
+                break;
+
+                case ledHwParameterFadeTime:
+                if ((newValue < FADE_TIME_MIN) || (newValue > FADE_TIME_MAX))
+                    return false;
+                #ifdef BOARD_OPEN_DECK
+                leds.setFadeTime(newValue);
+                #endif
+                break;
+
+                case ledHwParameterStartUpRoutine:
+                if (newValue > 1)
+                    return false;
+                break;
+            }
+
+            //values are ok - write
+            returnValue = database.update(block, section, index, newValue);
+            break;
+
+            case ledRGBenabledSection:
+            //make sure to turn all three leds off before setting new state
+            leds.setColor(board.getRGBaddress(board.getRGBID(index), rgb_R), colorOff);
+            leds.setColor(board.getRGBaddress(board.getRGBID(index), rgb_G), colorOff);
+            leds.setColor(board.getRGBaddress(board.getRGBID(index), rgb_B), colorOff);
+            //write rgb enabled bit to three leds
+            database.update(block, section, board.getRGBaddress(board.getRGBID(index), rgb_R), newValue);
+            database.update(block, section, board.getRGBaddress(board.getRGBID(index), rgb_G), newValue);
+            database.update(block, section, board.getRGBaddress(board.getRGBID(index), rgb_B), newValue);
+
+            if (newValue)
+            {
+                //copy over note activation and local control settings from current led index to all three leds
+                database.update(block, ledActivationNoteSection, board.getRGBaddress(board.getRGBID(index), rgb_R), database.read(block, ledActivationNoteSection, index));
+                database.update(block, ledActivationNoteSection, board.getRGBaddress(board.getRGBID(index), rgb_G), database.read(block, ledActivationNoteSection, index));
+                database.update(block, ledActivationNoteSection, board.getRGBaddress(board.getRGBID(index), rgb_B), database.read(block, ledActivationNoteSection, index));
+
+                database.update(block, ledLocalControlSection, board.getRGBaddress(board.getRGBID(index), rgb_R), database.read(block, ledLocalControlSection, index));
+                database.update(block, ledLocalControlSection, board.getRGBaddress(board.getRGBID(index), rgb_G), database.read(block, ledLocalControlSection, index));
+                database.update(block, ledLocalControlSection, board.getRGBaddress(board.getRGBID(index), rgb_B), database.read(block, ledLocalControlSection, index));
             }
             break;
 
-            case DB_BLOCK_LED:
-            switch(section)
+            case ledActivationNoteSection:
+            case ledLocalControlSection:
+            //first, find out if RGB led is enabled for this led index
+            if (database.read(block, ledRGBenabledSection, index))
             {
-                case ledColorSection:
-                //no writing to database
-                leds.setColor(index, (ledColor_t)newValue);
-                break;
-
-                case ledBlinkSection:
-                //no writing to database
-                leds.setBlinkState(index, newValue);
-                break;
-
-                case ledHardwareParameterSection:
-                //this entire section needs specific value check
-                switch(index)
-                {
-                    case ledHwParameterBlinkTime:
-                    if ((newValue < BLINK_TIME_MIN) || (newValue > BLINK_TIME_MAX))
-                        return false;
-                    leds.setBlinkTime(newValue);
-                    break;
-
-                    case ledHwParameterFadeTime:
-                    if ((newValue < FADE_TIME_MIN) || (newValue > FADE_TIME_MAX))
-                        return false;
-                    #ifdef BOARD_OPEN_DECK
-                    leds.setFadeTime(newValue);
-                    #endif
-                    break;
-
-                    case ledHwParameterStartUpRoutine:
-                    if (newValue > 1)
-                        return false;
-                    break;
-                }
-                //values are ok - write
-                database.update(block, section, index, newValue);
-                break;
-
-                case ledRGBenabledSection:
-                //make sure to turn all three leds off before setting new state
-                leds.setColor(board.getRGBaddress(board.getRGBID(index), rgb_R), colorOff);
-                leds.setColor(board.getRGBaddress(board.getRGBID(index), rgb_G), colorOff);
-                leds.setColor(board.getRGBaddress(board.getRGBID(index), rgb_B), colorOff);
-                //write rgb enabled bit to three leds
+                //rgb led enabled - copy these settings to all three leds
                 database.update(block, section, board.getRGBaddress(board.getRGBID(index), rgb_R), newValue);
                 database.update(block, section, board.getRGBaddress(board.getRGBID(index), rgb_G), newValue);
                 database.update(block, section, board.getRGBaddress(board.getRGBID(index), rgb_B), newValue);
-
-                if (newValue)
-                {
-                    //copy over note activation and local control settings from current led index to all three leds
-                    database.update(block, ledActivationNoteSection, board.getRGBaddress(board.getRGBID(index), rgb_R), database.read(block, ledActivationNoteSection, index));
-                    database.update(block, ledActivationNoteSection, board.getRGBaddress(board.getRGBID(index), rgb_G), database.read(block, ledActivationNoteSection, index));
-                    database.update(block, ledActivationNoteSection, board.getRGBaddress(board.getRGBID(index), rgb_B), database.read(block, ledActivationNoteSection, index));
-
-                    database.update(block, ledLocalControlSection, board.getRGBaddress(board.getRGBID(index), rgb_R), database.read(block, ledLocalControlSection, index));
-                    database.update(block, ledLocalControlSection, board.getRGBaddress(board.getRGBID(index), rgb_G), database.read(block, ledLocalControlSection, index));
-                    database.update(block, ledLocalControlSection, board.getRGBaddress(board.getRGBID(index), rgb_B), database.read(block, ledLocalControlSection, index));
-                }
-                break;
-
-                case ledActivationNoteSection:
-                case ledLocalControlSection:
-                //first, find out if RGB led is enabled for this led index
-                if (database.read(block, ledRGBenabledSection, index))
-                {
-                    //rgb led enabled - copy these settings to all three leds
-                    database.update(block, section, board.getRGBaddress(board.getRGBID(index), rgb_R), newValue);
-                    database.update(block, section, board.getRGBaddress(board.getRGBID(index), rgb_G), newValue);
-                    database.update(block, section, board.getRGBaddress(board.getRGBID(index), rgb_B), newValue);
-                }
-                else
-                {
-                    //apply to single led only
-                    database.update(block, section, index, newValue);
-                }
-                break;
-
-                default:
+            }
+            else
+            {
+                //apply to single led only
                 database.update(block, section, index, newValue);
-                break;
             }
             break;
 
             default:
+            database.update(block, section, index, newValue);
             break;
         }
+        break;
+
+        default:
+        returnValue = database.update(block, section, index, newValue);
+        break;
     }
 
     return returnValue;

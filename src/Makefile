@@ -98,7 +98,7 @@ $(BUILD_DIR)$(MAKECMDGOALS).elf: $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR)
 	@echo Finished building target: $@
 	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(BUILD_DIR)$(MAKECMDGOALS).elf" "$(BUILD_DIR)$(MAKECMDGOALS).hex"
 	@objcopy -I ihex "$(BUILD_DIR)$(MAKECMDGOALS).hex" -O binary "$(BUILD_DIR)$(MAKECMDGOALS).bin"
-	@avr-size "$(BUILD_DIR)$(MAKECMDGOALS).elf"
+	@avr-size -C --mcu=$(MCU) "$(BUILD_DIR)$(MAKECMDGOALS).elf"
 	@$(RUN_UPLOAD)
 
 # Other Targets

@@ -18,19 +18,6 @@
 
 #pragma once
 
-#define MIDI_SHIFT                      3
-#define DIGITAL_VALUE_THRESHOLD         1000
-//potentiometer must exceed this value before sending new value
-#define POTENTIOMETER_CC_STEP           6
-#define FSR_MIN_VALUE                   40
-#define FSR_MAX_VALUE                   340
-
-#define AFTERTOUCH_MAX_VALUE            600
-//ignore aftertouch reading change below this timeout
-#define AFTERTOUCH_SEND_TIMEOUT_IGNORE  25
-#define AFTERTOUCH_SEND_TIMEOUT_STEP    2
-#define AFTERTOUCH_SEND_TIMEOUT         100
-
 #define ENABLE_HYSTERESIS
 #define HYSTERESIS_THRESHOLD_HIGH       950
 #define HYSTERESIS_THRESHOLD_LOW        50
