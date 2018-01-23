@@ -30,6 +30,7 @@
 /// @}
 
 #include "../../../common/Common.h"
+#include "../Common.h"
 #include "pins/Pins.h"
 #include "pins/Map.h"
 #include "../../../../interface/digital/output/leds/DataTypes.h"
