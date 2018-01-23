@@ -58,6 +58,7 @@ class Board : BoardInterface
     bool analogDataAvailable();
     int16_t getAnalogValue(uint8_t analogID);
     void continueADCreadout();
+    uint16_t scaleADC(uint16_t value, uint16_t maxValue);
 
     //encoders
     uint8_t getEncoderPair(uint8_t buttonID);

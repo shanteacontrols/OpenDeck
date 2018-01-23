@@ -392,9 +392,8 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
 
 bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newValue)
 {
-    bool returnValue = true;
     encDec_14bit_t encDec_14bit;
-    //check led and analog block manually
+
     switch(block)
     {
         case DB_BLOCK_ANALOG:
@@ -411,7 +410,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 encDec_14bit.high = newValue;
 
             encDec_14bit.mergeTo14bit();
-            returnValue = database.update(block, section, index, encDec_14bit.value);
+            return database.update(block, analogMIDIid_dbSection, index, encDec_14bit.value);
             break;
 
             case analogLowerCClimitLSB_sysExSection:
@@ -425,7 +424,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 encDec_14bit.high = newValue;
 
             encDec_14bit.mergeTo14bit();
-            returnValue = database.update(block, section, index, encDec_14bit.value);
+            return database.update(block, analogLowerCClimit_dbSection, index, encDec_14bit.value);
             break;
 
             case analogUpperCClimitLSB_sysExSection:
@@ -439,16 +438,16 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 encDec_14bit.high = newValue;
 
             encDec_14bit.mergeTo14bit();
-            returnValue = database.update(block, section, index, encDec_14bit.value);
+            return database.update(block, analogUpperCClimit_dbSection, index, encDec_14bit.value);
             break;
 
             case analogTypeSection:
             analog.debounceReset(index);
-            returnValue = database.update(block, section, index, newValue);
+            return database.update(block, section, index, newValue);
             break;
 
             default:
-            returnValue = database.update(block, section, index, newValue);
+            return database.update(block, section, index, newValue);
             break;
         }
         break;
@@ -461,7 +460,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             else if (index == midiFeatureStandardNoteOff)
                 newValue ? midi.setNoteOffMode(noteOffType_standardNoteOff) : midi.setNoteOffMode(noteOffType_noteOnZeroVel);
         }
-        returnValue = database.update(block, section, index, newValue);
+        return database.update(block, section, index, newValue);
         break;
 
         case DB_BLOCK_LED:
@@ -502,7 +501,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             }
 
             //values are ok - write
-            returnValue = database.update(block, section, index, newValue);
+            return database.update(block, section, index, newValue);
             break;
 
             case ledRGBenabledSection:
@@ -546,17 +545,17 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             break;
 
             default:
-            database.update(block, section, index, newValue);
+            return database.update(block, section, index, newValue);
             break;
         }
         break;
 
         default:
-        returnValue = database.update(block, section, index, newValue);
+        return database.update(block, section, index, newValue);
         break;
     }
 
-    return returnValue;
+    return true;
 }
 
 void writeSysEx(uint8_t sysExArray[], uint8_t arraysize)

@@ -36,10 +36,10 @@
 #define MAX_NUMBER_OF_RGB_LEDS          (MAX_NUMBER_OF_LEDS/3)
 #define MAX_NUMBER_OF_ENCODERS          (MAX_NUMBER_OF_BUTTONS/2)
 
-#define MIDI_SHIFT_7_BIT                3
 #define DIGITAL_VALUE_THRESHOLD         1000
 //potentiometer must exceed this value before sending new value
-#define POTENTIOMETER_CC_STEP           6
+#define ANALOG_7_BIT_STEP_MIN           6
+#define ANALOG_14_BIT_STEP_MIN          10
 #define FSR_MIN_VALUE                   40
 #define FSR_MAX_VALUE                   340
 
@@ -49,5 +49,7 @@
 #define AFTERTOUCH_SEND_TIMEOUT_STEP    2
 #define AFTERTOUCH_SEND_TIMEOUT         100
 
-#define RAW_ADC_2_MIDI(value)           (value >> MIDI_SHIFT_7_BIT)
 #define ADC_AVG_VALUE(value)            (value >> SAMPLE_SHIFT)
+
+#define ADC_MIN_VALUE                   0
+#define ADC_MAX_VALUE                   1023
