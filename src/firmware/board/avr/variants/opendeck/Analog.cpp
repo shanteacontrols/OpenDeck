@@ -76,11 +76,21 @@ int16_t Board::getAnalogValue(uint8_t analogID)
 
     if (value < ADC_LOW_CUTOFF)
     {
-        return 0;
+        value -= 10;
+
+        if (value < 0)
+            return 0;
+        else
+            return value;
     }
     else if (value > ADC_HIGH_CUTOFF)
     {
-        return 1023;
+        value += 10;
+
+        if (value > 1023)
+            return 1023;
+        else
+            return value;
     }
     else
     {
