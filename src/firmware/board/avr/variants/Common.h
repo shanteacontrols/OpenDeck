@@ -34,5 +34,5 @@
 #define ADC_MIN_VALUE                   0
 #define ADC_MAX_VALUE                   1023
 
-#define ADC_LOW_CUTOFF                  20
-#define ADC_HIGH_CUTOFF                 1010
+#define ADC_LOW_CUTOFF                  30
+#define ADC_HIGH_CUTOFF                 1000
