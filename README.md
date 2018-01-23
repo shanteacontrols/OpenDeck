@@ -8,6 +8,8 @@ OpenDeck is a platform suited both for prototyping and developing custom MIDI co
 * Potentiometers
 * FSRs (force-sensitive resistors)
 
+OpenDeck supports sending of both 7-bit and 14-bit Non-Registered Part Numbers (NRPN), latching messages on buttons, various encoding modes for quadrature encoders, LED control using MIDI In, configurable MIDI channels etc. Full list of supported features can be found [here](https://github.com/paradajz/OpenDeck/wiki/Configurable-features).
+
 All configuration is done using custom SysEx protocol explained in detail on [Wiki page](https://github.com/paradajz/OpenDeck/wiki/SysEx-Configuration) or
 using [Web interface](https://config.shanteacontrols.com/).
 
