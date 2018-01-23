@@ -25,7 +25,7 @@ class DigitalInput
 {
     public:
     DigitalInput();
-    void update();
+    static void update();
 };
 
 extern DigitalInput digitalInput;

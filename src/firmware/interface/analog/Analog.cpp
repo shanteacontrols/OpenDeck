@@ -31,12 +31,10 @@ void Analog::update()
     if (!board.analogDataAvailable())
         return;
 
-    int16_t analogData;
-
     //check values
     for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
     {
-        analogData = board.getAnalogValue(i);
+        int16_t analogData = board.getAnalogValue(i);
 
         //don't process component if it's not enabled
         if (!database.read(DB_BLOCK_ANALOG, analogEnabledSection, i))

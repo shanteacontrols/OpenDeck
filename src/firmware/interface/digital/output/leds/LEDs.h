@@ -32,25 +32,25 @@ class LEDs
 {
     public:
     LEDs();
-    void init();
-    void update();
-    void setAllOn();
-    void setAllOff();
-    void setColor(uint8_t ledNumber, ledColor_t color);
-    ledColor_t getColor(uint8_t ledID);
-    void setBlinkState(uint8_t ledID, bool state);
-    bool getBlinkState(uint8_t ledID);
-    void setBlinkTime(uint16_t blinkTime);
-    void setFadeTime(uint8_t transitionSpeed);
-    ledColor_t velocityToColor(uint8_t receivedVelocity);
-    void ccToBlink(uint8_t cc, uint8_t value);
-    void noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool local = false);
+    static void init();
+    static void update();
+    static void setAllOn();
+    static void setAllOff();
+    static void setColor(uint8_t ledNumber, ledColor_t color);
+    static ledColor_t getColor(uint8_t ledID);
+    static void setBlinkState(uint8_t ledID, bool state);
+    static bool getBlinkState(uint8_t ledID);
+    static void setBlinkTime(uint16_t blinkTime);
+    static void setFadeTime(uint8_t transitionSpeed);
+    static ledColor_t velocityToColor(uint8_t receivedVelocity);
+    static void ccToBlink(uint8_t cc, uint8_t value);
+    static void noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool local = false);
 
     private:
-    uint8_t getState(uint8_t ledNumber);
-    void handleLED(uint8_t ledNumber, bool state, bool rgbLED = false, rgbIndex_t index = rgb_R);
+    static uint8_t getState(uint8_t ledNumber);
+    static void handleLED(uint8_t ledNumber, bool state, bool rgbLED = false, rgbIndex_t index = rgb_R);
 
-    void startUpAnimation();
+    static void startUpAnimation();
 };
 
 extern LEDs leds;

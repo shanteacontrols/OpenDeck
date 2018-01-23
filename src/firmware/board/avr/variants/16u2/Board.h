@@ -29,7 +29,7 @@ class Board
     void init();
 
     private:
-    void initUART_MIDI(uint16_t baudRate);
-    void initUSB_MIDI();
-    void initPins();
+    static void initUART_MIDI(uint16_t baudRate);
+    static void initUSB_MIDI();
+    static void initPins();
 };
