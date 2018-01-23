@@ -53,30 +53,6 @@ class Analog
     #ifdef ENABLE_HYSTERESIS
     uint16_t getHysteresisValue(int16_t value);
     #endif
-
-    inline uint8_t mapAnalog_uint8(uint8_t x, uint8_t in_min, uint8_t in_max, uint8_t out_min, uint8_t out_max)
-    {
-        if ((out_min != 0) || (out_max != 127))
-        {
-            return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-        }
-        else
-        {
-            return x;
-        }
-    };
-
-    inline uint16_t mapAnalog_uint16(uint16_t x, uint16_t in_min, uint16_t in_max, uint16_t out_min, uint16_t out_max)
-    {
-        if ((out_min != 0) || (out_max != 16383))
-        {
-            return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-        }
-        else
-        {
-            return x;
-        }
-    };
 };
 
 extern Analog analog;

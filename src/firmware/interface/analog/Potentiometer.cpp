@@ -24,15 +24,20 @@
 void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
 {
     analogType_t analogType = (analogType_t)database.read(DB_BLOCK_ANALOG, analogTypeSection, analogID);
+    uint16_t midiValue;
+    uint16_t oldMIDIvalue;
 
-    //calculate difference between current and previous reading
-    uint16_t analogDiff = abs(value - lastAnalogueValue[analogID]);
 
-    if (analogDiff < POTENTIOMETER_CC_STEP)
-        return;
+    uint16_t lowerCClimit_14bit = database.read(DB_BLOCK_ANALOG, analogCClowerLimitSection, analogID);
+    uint16_t upperCClimit_14bit = database.read(DB_BLOCK_ANALOG, analogCCupperLimitSection, analogID);
 
-    uint16_t midiValue = RAW_ADC_2_MIDI(value);
-    uint16_t oldMIDIvalue = RAW_ADC_2_MIDI(lastAnalogueValue[analogID]);
+    uint8_t lowerCClimit_7bit = lowerCClimit_14bit & (uint16_t)0x00FF;
+    uint8_t upperCClimit_7bit = upperCClimit_14bit & (uint16_t)0x00FF;
+
+    encDec_14bit_t encDec_14bit;
+
+    midiValue = board.scaleADC(value, (analogType == aType_NRPN_14) ? 16383 : 127);
+    oldMIDIvalue = board.scaleADC(lastAnalogueValue[analogID], 127);
 
     if (midiValue == oldMIDIvalue)
         return;
@@ -46,22 +51,21 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
             midiValue = 127 - midiValue;
     }
 
-    uint16_t lowerCClimit_14bit = database.read(DB_BLOCK_ANALOG, analogCClowerLimitSection, analogID);
-    uint16_t upperCClimit_14bit = database.read(DB_BLOCK_ANALOG, analogCCupperLimitSection, analogID);
+    uint16_t analogDiff = abs(value - lastAnalogueValue[analogID]);
+    uint16_t minDiff = (analogType == aType_NRPN_14) ? ANALOG_14_BIT_STEP_MIN : ANALOG_7_BIT_STEP_MIN;
 
-    uint8_t lowerCClimit_7bit = lowerCClimit_14bit & (uint16_t)0x00FF;
-    uint8_t upperCClimit_7bit = upperCClimit_14bit & (uint16_t)0x00FF;
-
-    encDec_14bit_t encDec_14bit;
+    if (analogDiff < minDiff)
+        return;
 
     switch(analogType)
     {
         case aType_potentiometer_cc:
-        midi.sendControlChange(database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID), mapAnalog_uint8(midiValue, 0, 127, lowerCClimit_7bit, upperCClimit_7bit), database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
-        break;
-
         case aType_potentiometer_note:
-        midi.sendNoteOn(database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID), mapAnalog_uint8(midiValue, 0, 127, lowerCClimit_7bit, upperCClimit_7bit), database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+
+        if (analogType == aType_potentiometer_cc)
+            midi.sendControlChange(database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID), mapAnalog_uint8(midiValue, 0, 127, lowerCClimit_7bit, upperCClimit_7bit), database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+        else
+            midi.sendNoteOn(database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID), mapAnalog_uint8(midiValue, 0, 127, lowerCClimit_7bit, upperCClimit_7bit), database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
         break;
 
         case aType_NRPN_7:
@@ -70,7 +74,19 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
         encDec_14bit.split14bit();
         midi.sendControlChange(99, encDec_14bit.high, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
         midi.sendControlChange(98, encDec_14bit.low, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
-        midi.sendControlChange(6, mapAnalog_uint8(midiValue, 0, 127, lowerCClimit_7bit, upperCClimit_7bit), database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+
+        if (analogType == aType_NRPN_7)
+        {
+            midi.sendControlChange(6, mapAnalog_uint8(midiValue, 0, 127, lowerCClimit_7bit, upperCClimit_7bit), database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+        }
+        else
+        {
+            encDec_14bit.value = mapAnalog_uint16(midiValue, 0, 16383, lowerCClimit_14bit, upperCClimit_14bit);
+            encDec_14bit.split14bit();
+
+            midi.sendControlChange(6, encDec_14bit.high, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+            midi.sendControlChange(38, encDec_14bit.low, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+        }
         break;
 
         default:
