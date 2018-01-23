@@ -26,35 +26,39 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
     analogType_t analogType = (analogType_t)database.read(DB_BLOCK_ANALOG, analogTypeSection, analogID);
     uint16_t midiValue;
     uint16_t oldMIDIvalue;
-
+    encDec_14bit_t encDec_14bit;
 
     uint16_t lowerCClimit_14bit = database.read(DB_BLOCK_ANALOG, analogCClowerLimitSection, analogID);
     uint16_t upperCClimit_14bit = database.read(DB_BLOCK_ANALOG, analogCCupperLimitSection, analogID);
 
-    uint8_t lowerCClimit_7bit = lowerCClimit_14bit & (uint16_t)0x00FF;
-    uint8_t upperCClimit_7bit = upperCClimit_14bit & (uint16_t)0x00FF;
+    encDec_14bit.value = lowerCClimit_14bit;
+    encDec_14bit.split14bit();
 
-    encDec_14bit_t encDec_14bit;
+    uint8_t lowerCClimit_7bit = encDec_14bit.low;
 
-    midiValue = board.scaleADC(value, (analogType == aType_NRPN_14) ? 16383 : 127);
-    oldMIDIvalue = board.scaleADC(lastAnalogueValue[analogID], 127);
+    encDec_14bit.value = upperCClimit_14bit;
+    encDec_14bit.split14bit();
+
+    uint8_t upperCClimit_7bit = encDec_14bit.low;
+
+    midiValue = board.scaleADC(value, (analogType == aType_NRPN_14) ? MIDI_14_BIT_VALUE_MAX : MIDI_7_BIT_VALUE_MAX);
+    oldMIDIvalue = board.scaleADC(lastAnalogueValue[analogID], (analogType == aType_NRPN_14) ? MIDI_14_BIT_VALUE_MAX : MIDI_7_BIT_VALUE_MAX);
 
     if (midiValue == oldMIDIvalue)
         return;
 
-    //invert CC data if potInverted is true
-    if (database.read(DB_BLOCK_ANALOG, analogInvertedSection, analogID))
-    {
-        if (analogType == aType_NRPN_14)
-            midiValue = 16383 - midiValue;
-        else
-            midiValue = 127 - midiValue;
-    }
+    //invert CC data if configured
+    // if (database.read(DB_BLOCK_ANALOG, analogInvertedSection, analogID))
+    // {
+    //     if (analogType == aType_NRPN_14)
+    //         midiValue = 16383 - midiValue;
+    //     else
+    //         midiValue = 127 - midiValue;
+    // }
 
     uint16_t analogDiff = abs(value - lastAnalogueValue[analogID]);
-    uint16_t minDiff = (analogType == aType_NRPN_14) ? ANALOG_14_BIT_STEP_MIN : ANALOG_7_BIT_STEP_MIN;
 
-    if (analogDiff < minDiff)
+    if (analogDiff < ANALOG_14_BIT_STEP_MIN)
         return;
 
     switch(analogType)
@@ -77,11 +81,12 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
 
         if (analogType == aType_NRPN_7)
         {
-            midi.sendControlChange(6, mapAnalog_uint8(midiValue, 0, 127, lowerCClimit_7bit, upperCClimit_7bit), database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+            midi.sendControlChange(6, mapAnalog_uint8(midiValue, 0, MIDI_7_BIT_VALUE_MAX, lowerCClimit_7bit, upperCClimit_7bit), database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
         }
         else
         {
-            encDec_14bit.value = mapAnalog_uint16(midiValue, 0, 16383, lowerCClimit_14bit, upperCClimit_14bit);
+            //use mapAnalog_uint32 to avoid overflow issues
+            encDec_14bit.value = mapAnalog_uint32(midiValue, 0, MIDI_14_BIT_VALUE_MAX, lowerCClimit_14bit, upperCClimit_14bit);
             encDec_14bit.split14bit();
 
             midi.sendControlChange(6, encDec_14bit.high, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));

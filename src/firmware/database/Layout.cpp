@@ -180,7 +180,7 @@ void Database::createLayout()
 
         //upper cc limit
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
-        section.defaultValue = 127;
+        section.defaultValue = 16383;
         section.autoIncrement = false;
         section.parameterType = WORD_PARAMETER;
         section.preserveOnPartialReset = 0;
