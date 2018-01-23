@@ -21,8 +21,7 @@
 //common constants for all avr boards
 
 #define DIGITAL_VALUE_THRESHOLD         1000
-#define ANALOG_7_BIT_STEP_MIN           6
-#define ANALOG_14_BIT_STEP_MIN          10
+#define ANALOG_STEP_MIN_DIFF            6
 #define FSR_MIN_VALUE                   40
 #define FSR_MAX_VALUE                   340
 

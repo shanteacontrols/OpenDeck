@@ -28,6 +28,11 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
     uint16_t oldMIDIvalue;
     encDec_14bit_t encDec_14bit;
 
+    uint16_t analogDiff = abs(value - lastAnalogueValue[analogID]);
+
+    if (analogDiff < ANALOG_STEP_MIN_DIFF)
+        return;
+
     uint16_t lowerCClimit_14bit = database.read(DB_BLOCK_ANALOG, analogCClowerLimitSection, analogID);
     uint16_t upperCClimit_14bit = database.read(DB_BLOCK_ANALOG, analogCCupperLimitSection, analogID);
 
@@ -48,18 +53,13 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
         return;
 
     //invert CC data if configured
-    // if (database.read(DB_BLOCK_ANALOG, analogInvertedSection, analogID))
-    // {
-    //     if (analogType == aType_NRPN_14)
-    //         midiValue = 16383 - midiValue;
-    //     else
-    //         midiValue = 127 - midiValue;
-    // }
-
-    uint16_t analogDiff = abs(value - lastAnalogueValue[analogID]);
-
-    if (analogDiff < ANALOG_14_BIT_STEP_MIN)
-        return;
+    if (database.read(DB_BLOCK_ANALOG, analogInvertedSection, analogID))
+    {
+        if (analogType == aType_NRPN_14)
+            midiValue = 16383 - midiValue;
+        else
+            midiValue = 127 - midiValue;
+    }
 
     switch(analogType)
     {
