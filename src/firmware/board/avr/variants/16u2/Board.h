@@ -26,7 +26,7 @@ class Board
 {
     public:
     Board();
-    void init();
+    static void init();
 
     private:
     static void initUART_MIDI(uint16_t baudRate);

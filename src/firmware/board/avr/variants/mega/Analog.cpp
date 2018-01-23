@@ -65,6 +65,22 @@ void Board::continueADCreadout()
     analogBufferCounter = 0;
 }
 
+uint16_t Board::scaleADC(uint16_t value, uint16_t maxValue)
+{
+    if (maxValue == 1023)
+    {
+        return value;
+    }
+    else if (maxValue == 127)
+    {
+        return value >> 3;
+    }
+    else
+    {
+        return mapAnalog_uint16(value, 0, 1023, 0, maxValue);
+    }
+}
+
 ISR(ADC_vect)
 {
     analogBuffer[analogBufferCounter] += ADC;

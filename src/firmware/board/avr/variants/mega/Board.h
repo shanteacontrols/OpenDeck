@@ -19,6 +19,7 @@
 #pragma once
 
 #include "../../../common/Common.h"
+#include "../Common.h"
 #include "pins/Pins.h"
 #include "pins/Map.h"
 #include "../../../../interface/digital/output/leds/DataTypes.h"
@@ -37,10 +38,10 @@ class Board : BoardInterface
 
     //digital in
     bool digitalInputDataAvailable();
-    void continueDigitalInReadout();
+    static void continueDigitalInReadout();
 
     //encoders
-    uint8_t getEncoderPair(uint8_t buttonID);
+    static uint8_t getEncoderPair(uint8_t buttonID);
     int8_t getEncoderState(uint8_t encoderID);
 
     //buttons
@@ -49,22 +50,23 @@ class Board : BoardInterface
     //analog
     bool analogDataAvailable();
     int16_t getAnalogValue(uint8_t analogID);
-    void continueADCreadout();
+    static void continueADCreadout();
+    static uint16_t scaleADC(uint16_t value, uint16_t maxValue);
 
     //leds
-    uint8_t getRGBaddress(uint8_t rgbID, rgbIndex_t index);
-    uint8_t getRGBID(uint8_t ledNumber);
+    static uint8_t getRGBaddress(uint8_t rgbID, rgbIndex_t index);
+    static uint8_t getRGBID(uint8_t ledID);
 
     void reboot(rebootType_t type);
 
     private:
     //init
-    void initPins();
-    void initAnalog();
-    void initEncoders();
+    static void initPins();
+    static void initAnalog();
+    static void initEncoders();
     static void initUART_MIDI(uint16_t baudRate);
-    void configureTimers();
-    int8_t readEncoder(uint8_t encoderID, uint8_t pairState);
+    static void configureTimers();
+    static int8_t readEncoder(uint8_t encoderID, uint8_t pairState);
 };
 
 extern Board board;

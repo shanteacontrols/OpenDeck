@@ -25,7 +25,7 @@ uint8_t Board::getRGBaddress(uint8_t rgbID, rgbIndex_t index)
     return rgbID*3+(uint8_t)index;
 }
 
-uint8_t Board::getRGBID(uint8_t ledNumber)
+uint8_t Board::getRGBID(uint8_t ledID)
 {
-    return ledNumber / 3;    //RGB LED = 3 normal LEDs
+    return ledID / 3;    //RGB LED = 3 normal LEDs
 }
