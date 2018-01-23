@@ -74,7 +74,18 @@ int16_t Board::getAnalogValue(uint8_t analogID)
         analogBuffer[analogID] = 0;
     }
 
-    return value;
+    if (value < ADC_LOW_CUTOFF)
+    {
+        return 0;
+    }
+    else if (value > ADC_HIGH_CUTOFF)
+    {
+        return 1023;
+    }
+    else
+    {
+        return value;
+    }
 }
 
 void Board::continueADCreadout()
@@ -89,13 +100,17 @@ uint16_t Board::scaleADC(uint16_t value, uint16_t maxValue)
     {
         return value;
     }
-    else if (maxValue == 127)
+    else if (maxValue == MIDI_7_BIT_VALUE_MAX)
     {
         return value >> 3;
     }
+    else if (maxValue == MIDI_14_BIT_VALUE_MAX)
+    {
+        return value << 4;
+    }
     else
     {
-        return mapAnalog_uint16(value, 0, 1023, 0, maxValue);
+        return 0;//mapAnalog_uint32(value, 0, 1023, 0, maxValue);
     }
 }
 

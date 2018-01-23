@@ -42,9 +42,6 @@ void Analog::update()
 
         if (database.read(DB_BLOCK_ANALOG, analogTypeSection, i) != aType_button)
         {
-            #ifdef ENABLE_HYSTERESIS
-            analogData = getHysteresisValue(analogData);
-            #endif
             analogType_t type = (analogType_t)database.read(DB_BLOCK_ANALOG, analogTypeSection, i);
 
             switch(type)
@@ -81,85 +78,6 @@ void Analog::update()
 
     board.continueADCreadout();
 }
-
-#ifdef ENABLE_HYSTERESIS
-uint16_t Analog::getHysteresisValue(int16_t value)
-{
-    static bool highHysteresisActive = false;
-    static bool lowHysteresisActive = false;
-
-    if (value > HYSTERESIS_THRESHOLD_HIGH)
-    {
-        highHysteresisActive = true;
-        lowHysteresisActive = false;
-
-        value += HYSTERESIS_ADDITION;
-
-        if (value > 1023)
-            return 1023;
-
-        return value;
-    }
-    else
-    {
-        if (value < (HYSTERESIS_THRESHOLD_HIGH - HYSTERESIS_ADDITION))
-        {
-            //value is now either in non-hysteresis area or low hysteresis area
-
-            highHysteresisActive = false;
-
-            if (value < (HYSTERESIS_THRESHOLD_LOW + HYSTERESIS_SUBTRACTION))
-            {
-                if (value < HYSTERESIS_THRESHOLD_LOW)
-                {
-                    lowHysteresisActive = true;
-                    value -= HYSTERESIS_SUBTRACTION;
-
-                    if (value < 0)
-                        value = 0;
-
-                    return value;
-                }
-                else
-                {
-                    if (lowHysteresisActive)
-                    {
-                        value -= HYSTERESIS_SUBTRACTION;
-
-                        if (value < 0)
-                            return 0;
-                    }
-
-                    return value;
-                }
-            }
-
-            lowHysteresisActive = false;
-            highHysteresisActive = false;
-
-            return value;
-        }
-        else
-        {
-            if (highHysteresisActive)
-            {
-                //high hysteresis still enabled
-                value += HYSTERESIS_ADDITION;
-
-                if (value > 1023)
-                    return 1023;
-
-                return value;
-            }
-            else
-            {
-                highHysteresisActive = false;
-                return value;
-            }
-        }
-    }
-}
-#endif
 
 void Analog::debounceReset(uint16_t index)
 {

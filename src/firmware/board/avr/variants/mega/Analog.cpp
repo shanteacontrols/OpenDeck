@@ -56,7 +56,18 @@ int16_t Board::getAnalogValue(uint8_t analogID)
         analogBuffer[analogID] = 0;
     }
 
-    return value;
+    if (value < ADC_LOW_CUTOFF)
+    {
+        return 0;
+    }
+    else if (value > ADC_HIGH_CUTOFF)
+    {
+        return 1023;
+    }
+    else
+    {
+        return value;
+    }
 }
 
 void Board::continueADCreadout()

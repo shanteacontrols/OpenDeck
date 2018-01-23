@@ -21,7 +21,6 @@
 #include "../digital/input/buttons/Buttons.h"
 #include "../../database/Database.h"
 #include "DataTypes.h"
-#include "Config.h"
 
 ///
 /// \brief Analog components handling.
@@ -50,9 +49,6 @@ class Analog
     void setFsrPressed(uint8_t fsrID, bool state);
     bool getFsrDebounceTimerStarted(uint8_t fsrID);
     void setFsrDebounceTimerStarted(uint8_t fsrID, bool state);
-    #ifdef ENABLE_HYSTERESIS
-    uint16_t getHysteresisValue(int16_t value);
-    #endif
 };
 
 extern Analog analog;
