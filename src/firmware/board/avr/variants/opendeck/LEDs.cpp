@@ -43,14 +43,14 @@ uint8_t Board::getRGBaddress(uint8_t rgbID, rgbIndex_t index)
     return 0;
 }
 
-uint8_t Board::getRGBID(uint8_t ledNumber)
+uint8_t Board::getRGBID(uint8_t ledID)
 {
-    uint8_t row = ledNumber/NUMBER_OF_LED_COLUMNS;
+    uint8_t row = ledID/NUMBER_OF_LED_COLUMNS;
 
     uint8_t mod = row%3;    //RGB LED = 3 normal LEDs
     row -= mod;
 
-    uint8_t column = ledNumber % NUMBER_OF_BUTTON_COLUMNS;
+    uint8_t column = ledID % NUMBER_OF_BUTTON_COLUMNS;
 
     return (row*NUMBER_OF_LED_COLUMNS)/3 + column;
 }

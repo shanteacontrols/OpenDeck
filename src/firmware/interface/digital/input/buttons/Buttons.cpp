@@ -330,7 +330,7 @@ bool Buttons::getPreviousButtonState(uint8_t buttonID)
 bool Buttons::buttonDebounced(uint8_t buttonID, bool buttonState)
 {
     //shift new button reading into previousButtonState
-    buttonDebounceCounter[buttonID] = (buttonDebounceCounter[buttonID] << 1) | buttonState | buttonDebounceCompare;
+    buttonDebounceCounter[buttonID] = (buttonDebounceCounter[buttonID] << (uint8_t)1) | (uint8_t)buttonState | buttonDebounceCompare;
 
     //if button is debounced, return true
     return ((buttonDebounceCounter[buttonID] == buttonDebounceCompare) || (buttonDebounceCounter[buttonID] == 0xFF));

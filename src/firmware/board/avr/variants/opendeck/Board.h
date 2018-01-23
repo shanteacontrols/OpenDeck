@@ -49,7 +49,7 @@ class Board : BoardInterface
 
     //digital in
     bool digitalInputDataAvailable();
-    void continueDigitalInReadout();
+    static void continueDigitalInReadout();
 
     //buttons
     bool getButtonState(uint8_t buttonIndex);
@@ -57,28 +57,28 @@ class Board : BoardInterface
     //analog
     bool analogDataAvailable();
     int16_t getAnalogValue(uint8_t analogID);
-    void continueADCreadout();
-    uint16_t scaleADC(uint16_t value, uint16_t maxValue);
+    static void continueADCreadout();
+    static uint16_t scaleADC(uint16_t value, uint16_t maxValue);
 
     //encoders
-    uint8_t getEncoderPair(uint8_t buttonID);
+    static uint8_t getEncoderPair(uint8_t buttonID);
     int8_t getEncoderState(uint8_t encoderID);
 
     //leds
-    uint8_t getRGBaddress(uint8_t rgbID, rgbIndex_t index);
-    uint8_t getRGBID(uint8_t ledNumber);
+    static uint8_t getRGBaddress(uint8_t rgbID, rgbIndex_t index);
+    static uint8_t getRGBID(uint8_t ledID);
 
     void reboot(rebootType_t type);
 
     private:
     //init
-    void initPins();
-    void initAnalog();
-    void initEncoders();
-    void initUART_MIDI(uint16_t baudRate);
-    void initUSB_MIDI();
-    void configureTimers();
-    int8_t readEncoder(uint8_t encoderID, uint8_t pairState);
+    static void initPins();
+    static void initAnalog();
+    static void initEncoders();
+    static void initUART_MIDI(uint16_t baudRate);
+    static void initUSB_MIDI();
+    static void configureTimers();
+    static int8_t readEncoder(uint8_t encoderID, uint8_t pairState);
 };
 
 extern Board board;

@@ -31,10 +31,10 @@ void Board::initEncoders()
     }
 }
 
-uint8_t Board::getEncoderPair(uint8_t buttonIndex)
+uint8_t Board::getEncoderPair(uint8_t buttonID)
 {
-    uint8_t row = buttonIndex/NUMBER_OF_BUTTON_COLUMNS;
-    uint8_t column = buttonIndex % NUMBER_OF_BUTTON_COLUMNS;
+    uint8_t row = buttonID/NUMBER_OF_BUTTON_COLUMNS;
+    uint8_t column = buttonID % NUMBER_OF_BUTTON_COLUMNS;
 
     if (row%2)
         row -= 1;   //uneven row, get info from previous (even) row
@@ -42,13 +42,13 @@ uint8_t Board::getEncoderPair(uint8_t buttonIndex)
     return (row*NUMBER_OF_BUTTON_COLUMNS)/2 + column;
 }
 
-int8_t Board::getEncoderState(uint8_t encoderNumber)
+int8_t Board::getEncoderState(uint8_t encoderID)
 {
-    uint8_t column = encoderNumber % NUMBER_OF_BUTTON_COLUMNS;
-    uint8_t row  = (encoderNumber/NUMBER_OF_BUTTON_COLUMNS)*2;
+    uint8_t column = encoderID % NUMBER_OF_BUTTON_COLUMNS;
+    uint8_t row  = (encoderID/NUMBER_OF_BUTTON_COLUMNS)*2;
     uint8_t pairState = (digitalInBuffer[dmColumnArray[column]] >> dmRowBitArray[row]) & 0x03;
 
-    return readEncoder(encoderNumber, pairState);
+    return readEncoder(encoderID, pairState);
 }
 
 int8_t Board::readEncoder(uint8_t encoderID, uint8_t pairState)

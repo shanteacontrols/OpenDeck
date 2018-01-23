@@ -30,7 +30,7 @@ class Encoders
 {
     public:
     Encoders();
-    void update();
+    static void update();
 };
 
 extern Encoders encoders;
