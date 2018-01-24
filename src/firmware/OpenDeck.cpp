@@ -284,7 +284,7 @@ bool onCustom(uint8_t value)
     {
         case FIRMWARE_VERSION_STRING:
         sysEx.addToResponse(1);
-        sysEx.addToResponse(3);
+        sysEx.addToResponse(4);
         sysEx.addToResponse(0);
         return true;
 
