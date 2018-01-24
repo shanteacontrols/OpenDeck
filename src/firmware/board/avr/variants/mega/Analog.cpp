@@ -88,7 +88,8 @@ uint16_t Board::scaleADC(uint16_t value, uint16_t maxValue)
     }
     else
     {
-        return mapAnalog_uint16(value, 0, 1023, 0, maxValue);
+        //use mapRange_uint32 to avoif overflow issues
+        return mapRange_uint32(value, 0, 1023, 0, maxValue);
     }
 }
 
