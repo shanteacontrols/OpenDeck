@@ -92,6 +92,30 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonM
                 midi.sendSysEx(6, mmcArray, true);
                 break;
 
+                case buttonRealTimeClock:
+                midi.sendRealTime(midiMessageClock);
+                break;
+
+                case buttonRealTimeStart:
+                midi.sendRealTime(midiMessageStart);
+                break;
+
+                case buttonRealTimeContinue:
+                midi.sendRealTime(midiMessageContinue);
+                break;
+
+                case buttonRealTimeStop:
+                midi.sendRealTime(midiMessageStop);
+                break;
+
+                case buttonRealTimeActiveSensing:
+                midi.sendRealTime(midiMessageActiveSensing);
+                break;
+
+                case buttonRealTimeSystemReset:
+                midi.sendRealTime(midiMessageSystemReset);
+                break;
+
                 default:
                 break;
             }
@@ -264,6 +288,12 @@ void Buttons::processButton(uint8_t buttonID, bool state, bool debounce)
             case buttonMMCStop:
             case buttonMMCPause:
             case buttonCC:
+            case buttonRealTimeClock:
+            case buttonRealTimeStart:
+            case buttonRealTimeContinue:
+            case buttonRealTimeStop:
+            case buttonRealTimeActiveSensing:
+            case buttonRealTimeSystemReset:
             type = buttonMomentary;
             break;
 

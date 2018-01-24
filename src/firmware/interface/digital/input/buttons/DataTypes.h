@@ -35,5 +35,11 @@ typedef enum
     buttonMMCPlay,
     buttonMMCRecord,
     buttonMMCPause,
+    buttonRealTimeClock,
+    buttonRealTimeStart,
+    buttonRealTimeContinue,
+    buttonRealTimeStop,
+    buttonRealTimeActiveSensing,
+    buttonRealTimeSystemReset,
     BUTTON_MESSAGE_TYPES
 } buttonMIDImessage_t;
