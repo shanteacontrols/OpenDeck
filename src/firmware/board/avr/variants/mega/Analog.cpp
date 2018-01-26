@@ -23,6 +23,105 @@ static uint8_t      analogBufferCounter;
 volatile uint8_t    analogSampleCounter;
 volatile int16_t    analogBuffer[ANALOG_BUFFER_SIZE];
 
+static uint8_t lowHysteresisActive[MAX_NUMBER_OF_ANALOG/8+1];
+static uint8_t highHysteresisActive[MAX_NUMBER_OF_ANALOG/8+1];
+
+static bool isHysteresisActive(hysteresisType_t type, uint8_t analogID)
+{
+    uint8_t arrayIndex = analogID/8;
+    uint8_t analogIndex = analogID - 8*arrayIndex;
+
+    if (type == lowHysteresis)
+        return BIT_READ(lowHysteresisActive[arrayIndex], analogIndex);
+    else
+        return BIT_READ(highHysteresisActive[arrayIndex], analogIndex);
+}
+
+static void updateHysteresisState(hysteresisType_t type, uint8_t analogID, bool state)
+{
+    uint8_t arrayIndex = analogID/8;
+    uint8_t analogIndex = analogID - 8*arrayIndex;
+
+    if (type == lowHysteresis)
+        BIT_WRITE(lowHysteresisActive[arrayIndex], analogIndex, state);
+    else
+        BIT_WRITE(highHysteresisActive[arrayIndex], analogIndex, state);
+}
+
+static uint16_t getHysteresisValue(uint8_t analogID, int16_t value)
+{
+    if (value > HYSTERESIS_THRESHOLD_HIGH)
+    {
+        updateHysteresisState(highHysteresis, analogID, true);
+        updateHysteresisState(lowHysteresis, analogID, false);
+
+        value += HYSTERESIS_ADDITION;
+
+        if (value > 1023)
+            return 1023;
+
+        return value;
+    }
+    else
+    {
+        if (value < (HYSTERESIS_THRESHOLD_HIGH - HYSTERESIS_ADDITION))
+        {
+            //value is now either in non-hysteresis area or low hysteresis area
+
+            updateHysteresisState(highHysteresis, analogID, false);
+
+            if (value < (HYSTERESIS_THRESHOLD_LOW + HYSTERESIS_SUBTRACTION))
+            {
+                if (value < HYSTERESIS_THRESHOLD_LOW)
+                {
+                    updateHysteresisState(lowHysteresis, analogID, true);
+                    value -= HYSTERESIS_SUBTRACTION;
+
+                    if (value < 0)
+                        value = 0;
+
+                    return value;
+                }
+                else
+                {
+                    if (isHysteresisActive(lowHysteresis, analogID))
+                    {
+                        value -= HYSTERESIS_SUBTRACTION;
+
+                        if (value < 0)
+                            return 0;
+                    }
+
+                    return value;
+                }
+            }
+
+            updateHysteresisState(lowHysteresis, analogID, false);
+            updateHysteresisState(highHysteresis, analogID, false);
+
+            return value;
+        }
+        else
+        {
+            if (isHysteresisActive(highHysteresis, analogID))
+            {
+                //high hysteresis still enabled
+                value += HYSTERESIS_ADDITION;
+
+                if (value > 1023)
+                    return 1023;
+
+                return value;
+            }
+            else
+            {
+                updateHysteresisState(highHysteresis, analogID, false);
+                return value;
+            }
+        }
+    }
+}
+
 void Board::initAnalog()
 {
     adcConf adcConfiguration;
@@ -56,18 +155,7 @@ int16_t Board::getAnalogValue(uint8_t analogID)
         analogBuffer[analogID] = 0;
     }
 
-    if (value < ADC_LOW_CUTOFF)
-    {
-        return 0;
-    }
-    else if (value > ADC_HIGH_CUTOFF)
-    {
-        return 1023;
-    }
-    else
-    {
-        return value;
-    }
+    return getHysteresisValue(analogID, value);
 }
 
 void Board::continueADCreadout()
