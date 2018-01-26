@@ -263,6 +263,7 @@ void globalInit()
     midi.setInputChannel(database.read(DB_BLOCK_MIDI, midiChannelSection, inputChannel));
     initSysEx();
 
+    #ifndef BOARD_A_MEGA
     if (board.checkNewRevision())
     {
         for (int i=0; i<3; i++)
@@ -287,6 +288,7 @@ void globalInit()
         setLow(LED_IN_PORT, LED_IN_PIN);
         _delay_ms(200);
     }
+    #endif
 
     //enable global interrupts
     sei();

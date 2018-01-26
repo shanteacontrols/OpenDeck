@@ -35,6 +35,7 @@ class Board
     //init
     Board();
     void init();
+    bool checkNewRevision();
 
     //digital in
     bool digitalInputDataAvailable();
