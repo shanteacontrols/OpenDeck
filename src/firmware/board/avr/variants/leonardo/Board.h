@@ -29,7 +29,7 @@
 /// @{
 ///
 
-class Board : BoardInterface
+class Board
 {
     public:
     //init
