@@ -21,23 +21,19 @@
 #include "../digital/output/leds/LEDs.h"
 #include "sysex/src/SysEx.h"
 #include "../cinfo/CInfo.h"
+#include "Variables.h"
 
 //use 1k resistor when connecting FSR between signal and ground
-
-inline int16_t mapAnalog_int16(int16_t x, int16_t in_min, int16_t in_max, int16_t out_min, int16_t out_max)
-{
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-};
 
 inline int16_t calibratePressure(int16_t value, pressureType_t type)
 {
     switch(type)
     {
         case velocity:
-        return mapAnalog_int16(CONSTRAIN(value, FSR_MIN_VALUE, FSR_MAX_VALUE), FSR_MIN_VALUE, FSR_MAX_VALUE, 0, 127);
+        return mapRange_uint16(CONSTRAIN(value, FSR_MIN_VALUE, FSR_MAX_VALUE), FSR_MIN_VALUE, FSR_MAX_VALUE, 0, 127);
 
         case aftertouch:
-        return mapAnalog_int16(CONSTRAIN(value, FSR_MIN_VALUE, AFTERTOUCH_MAX_VALUE), FSR_MIN_VALUE, AFTERTOUCH_MAX_VALUE, 0, 127);
+        return mapRange_uint16(CONSTRAIN(value, FSR_MIN_VALUE, AFTERTOUCH_MAX_VALUE), FSR_MIN_VALUE, AFTERTOUCH_MAX_VALUE, 0, 127);
 
         default:
         return 0;

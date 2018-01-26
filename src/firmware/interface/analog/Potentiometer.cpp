@@ -20,6 +20,7 @@
 #include "../../board/Board.h"
 #include "sysex/src/SysEx.h"
 #include "../cinfo/CInfo.h"
+#include "Variables.h"
 
 void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
 {

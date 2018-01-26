@@ -30,13 +30,13 @@ class Database : public DBMS
 {
     public:
     Database();
-    void init();
-    void factoryReset(initType_t type);
+    static void init();
+    static void factoryReset(initType_t type);
 
     private:
-    bool signatureValid();
-    void writeCustomValues();
-    void createLayout();
+    static bool signatureValid();
+    static void writeCustomValues();
+    static void createLayout();
 };
 
 extern Database database;

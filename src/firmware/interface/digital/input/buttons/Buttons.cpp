@@ -22,9 +22,14 @@
 #include "sysex/src/SysEx.h"
 #include "../../../cinfo/CInfo.h"
 
-const uint8_t buttonDebounceCompare = 0b10000000;
+const uint8_t   buttonDebounceCompare = 0b10000000;
 
-uint8_t mmcArray[] =  { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 }; //based on MIDI spec for transport control
+static uint8_t  mmcArray[] =  { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 }; //based on MIDI spec for transport control
+
+//variables
+static uint8_t  previousButtonState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1],
+                buttonPressed[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1],
+                buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG];
 
 Buttons::Buttons()
 {

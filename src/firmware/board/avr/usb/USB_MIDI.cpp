@@ -22,7 +22,7 @@
 ///
 /// \brief MIDI Class Device Mode Configuration and State Structure.
 ///
-USB_ClassInfo_MIDI_Device_t MIDI_Interface;
+static USB_ClassInfo_MIDI_Device_t MIDI_Interface;
 
 ///
 /// \brief Event handler for the USB_ConfigurationChanged event.

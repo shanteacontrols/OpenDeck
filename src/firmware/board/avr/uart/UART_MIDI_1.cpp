@@ -21,12 +21,12 @@
 ///
 /// \brief Buffer in which outgoing data is stored.
 ///
-RingBuff_t  txBuffer;
+static RingBuff_t  txBuffer;
 
 ///
 /// \brief Buffer in which incoming data is stored.
 ///
-RingBuff_t  rxBuffer;
+static RingBuff_t  rxBuffer;
 
 ///
 /// \brief ISR used to store incoming data from UART to buffer.

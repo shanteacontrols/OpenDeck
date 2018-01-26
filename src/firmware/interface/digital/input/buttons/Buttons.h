@@ -33,23 +33,18 @@ class Buttons
     public:
     Buttons();
 
-    void update();
-    void processButton(uint8_t buttonID, bool state, bool debounce = true);
+    static void update();
+    static void processButton(uint8_t buttonID, bool state, bool debounce = true);
 
     private:
-    //variables
-    uint8_t     previousButtonState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1],
-                buttonPressed[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1],
-                buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG];
-
     //data processing
-    bool getButtonPressed(uint8_t buttonID);
-    void setButtonPressed(uint8_t buttonID, bool state);
-    void processMomentaryButton(uint8_t buttonID, bool buttonState, buttonMIDImessage_t midiMessage = buttonNote);
-    void processLatchingButton(uint8_t buttonID, bool buttonState, buttonMIDImessage_t midiMessage = buttonNote);
-    void updateButtonState(uint8_t buttonID, uint8_t buttonState);
-    bool getPreviousButtonState(uint8_t buttonID);
-    bool buttonDebounced(uint8_t buttonID, bool buttonState);
+    static bool getButtonPressed(uint8_t buttonID);
+    static void setButtonPressed(uint8_t buttonID, bool state);
+    static void processMomentaryButton(uint8_t buttonID, bool buttonState, buttonMIDImessage_t midiMessage = buttonNote);
+    static void processLatchingButton(uint8_t buttonID, bool buttonState, buttonMIDImessage_t midiMessage = buttonNote);
+    static void updateButtonState(uint8_t buttonID, uint8_t buttonState);
+    static bool getPreviousButtonState(uint8_t buttonID);
+    static bool buttonDebounced(uint8_t buttonID, bool buttonState);
 };
 
 extern Buttons buttons;

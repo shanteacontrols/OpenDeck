@@ -19,7 +19,7 @@
 #include "Board.h"
 #include "Variables.h"
 
-uint8_t             analogBufferCounter;
+static uint8_t      analogBufferCounter;
 volatile uint8_t    analogSampleCounter;
 volatile int16_t    analogBuffer[ANALOG_BUFFER_SIZE];
 
