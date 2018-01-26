@@ -33,5 +33,7 @@
 #define ADC_MIN_VALUE                   0
 #define ADC_MAX_VALUE                   1023
 
-#define ADC_LOW_CUTOFF                  30
-#define ADC_HIGH_CUTOFF                 1000
+#define HYSTERESIS_THRESHOLD_HIGH       950
+#define HYSTERESIS_THRESHOLD_LOW        50
+#define HYSTERESIS_ADDITION             25
+#define HYSTERESIS_SUBTRACTION          5

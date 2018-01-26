@@ -23,3 +23,9 @@
 #define ANALOG_SAMPLE_SHIFT         2
 
 #define ADC_AVG_VALUE(value)        (value >> ANALOG_SAMPLE_SHIFT)
+
+typedef enum
+{
+    lowHysteresis,
+    highHysteresis
+} hysteresisType_t;
