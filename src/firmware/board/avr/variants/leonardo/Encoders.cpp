@@ -63,7 +63,7 @@ int8_t Board::readEncoder(uint8_t encoderID, uint8_t pairState)
     int8_t encRead = encoderLookUpTable[newPairData];
 
     if (!encRead)
-    return 0;
+        return 0;
 
     bool newEncoderDirection = encRead > 0;
     //get current number of pulses from encoderData
@@ -79,10 +79,10 @@ int8_t Board::readEncoder(uint8_t encoderID, uint8_t pairState)
     BIT_WRITE(encoderData[encoderID], ENCODER_DIRECTION_BIT, newEncoderDirection);
 
     if (lastEncoderDirection != newEncoderDirection)
-    return 0;
+        return 0;
 
     if (currentPulses % PULSES_PER_STEP)
-    return 0;
+        return 0;
 
     //clear current pulses
     encoderData[encoderID] &= ENCODER_CLEAR_PULSES_MASK;
@@ -91,7 +91,7 @@ int8_t Board::readEncoder(uint8_t encoderID, uint8_t pairState)
     encoderData[encoderID] |= ((uint16_t)ENCODER_DEFAULT_PULSE_COUNT_STATE << 4);
 
     if (newEncoderDirection)
-    return 1;
+        return 1;
     else
-    return -1;
+        return -1;
 }
