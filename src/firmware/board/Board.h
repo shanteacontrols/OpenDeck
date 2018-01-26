@@ -22,26 +22,21 @@
 #include "avr/variants/opendeck/Board.h"
 #elif defined(BOARD_A_LEO)
 
-#define HARDWARE_VERSION_MAJOR      1
-#define HARDWARE_VERSION_MINOR      0
-#define HARDWARE_VERSION_REVISION   0
-
 #include "avr/variants/leonardo/Board.h"
 
 #elif defined(BOARD_A_MEGA)
-
-#define HARDWARE_VERSION_MAJOR      1
-#define HARDWARE_VERSION_MINOR      0
-#define HARDWARE_VERSION_REVISION   0
 
 #include "avr/variants/mega/Board.h"
 
 #elif defined(BOARD_A_16u2)
 
-#define HARDWARE_VERSION_MAJOR      1
-#define HARDWARE_VERSION_MINOR      0
-#define HARDWARE_VERSION_REVISION   0
-
 #include "avr/variants/16u2/Board.h"
 
 #endif
+
+typedef enum
+{
+    BOARD_OPEN_DECK_ID,
+    BOARD_A_LEO_ID,
+    BOARD_A_MEGA_ID
+} boardID_t;
