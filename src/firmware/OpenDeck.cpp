@@ -307,9 +307,41 @@ bool onCustom(uint8_t value)
         return true;
 
         case HARDWARE_VERSION_STRING:
+        #ifdef BOARD_OPEN_DECK
         sysEx.addToResponse(HARDWARE_VERSION_MAJOR);
         sysEx.addToResponse(HARDWARE_VERSION_MINOR);
         sysEx.addToResponse(HARDWARE_VERSION_REVISION);
+        #elif defined(BOARD_A_LEO)
+        sysEx.addToResponse(0);
+        sysEx.addToResponse(0);
+        sysEx.addToResponse(BOARD_A_LEO_ID);
+        #elif defined(BOARD_A_MEGA)
+        sysEx.addToResponse(0);
+        sysEx.addToResponse(0);
+        sysEx.addToResponse(BOARD_A_MEGA_ID);
+        #endif
+        return true;
+
+        case FIRMWARE_HARDWARE_VERSION_STRING:
+        sysEx.addToResponse(SW_VERSION_MAJOR);
+        sysEx.addToResponse(SW_VERSION_MINOR);
+        sysEx.addToResponse(SW_VERSION_REVISION);
+        #ifdef BOARD_OPEN_DECK
+        sysEx.addToResponse(BOARD_OPEN_DECK_ID);
+        sysEx.addToResponse(HARDWARE_VERSION_MAJOR);
+        sysEx.addToResponse(HARDWARE_VERSION_MINOR);
+        sysEx.addToResponse(HARDWARE_VERSION_REVISION);
+        #elif defined(BOARD_A_LEO)
+        sysEx.addToResponse(BOARD_A_LEO_ID);
+        sysEx.addToResponse(0);
+        sysEx.addToResponse(0);
+        sysEx.addToResponse(0);
+        #elif defined(BOARD_A_MEGA)
+        sysEx.addToResponse(BOARD_A_MEGA_ID);
+        sysEx.addToResponse(0);
+        sysEx.addToResponse(0);
+        sysEx.addToResponse(0);
+        #endif
         return true;
 
         case MAX_COMPONENTS_STRING:
@@ -592,6 +624,7 @@ int main()
 
     sysEx.addCustomRequest(FIRMWARE_VERSION_STRING);
     sysEx.addCustomRequest(HARDWARE_VERSION_STRING);
+    sysEx.addCustomRequest(FIRMWARE_HARDWARE_VERSION_STRING);
     sysEx.addCustomRequest(MAX_COMPONENTS_STRING);
     sysEx.addCustomRequest(REBOOT_APP_STRING);
     sysEx.addCustomRequest(REBOOT_BTLDR_STRING);
