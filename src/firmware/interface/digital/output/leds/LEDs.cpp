@@ -18,12 +18,12 @@
 
 #include "LEDs.h"
 
-bool                blinkState;
+static bool         blinkState;
 
 volatile uint8_t    pwmSteps;
 uint8_t             ledState[MAX_NUMBER_OF_LEDS];
 
-uint32_t            ledBlinkTime,
+static uint32_t     ledBlinkTime,
                     lastLEDblinkUpdateTime;
 
 volatile int8_t     transitionCounter[MAX_NUMBER_OF_LEDS];

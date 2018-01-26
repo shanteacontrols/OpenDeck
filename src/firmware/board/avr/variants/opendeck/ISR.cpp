@@ -22,7 +22,7 @@
 #include "../../../../interface/digital/output/leds/Helpers.h"
 
 volatile uint32_t rTime_ms;
-uint8_t midiIn_timeout, midiOut_timeout;
+static uint8_t midiIn_timeout, midiOut_timeout;
 
 bool MIDIreceived, MIDIsent;
 

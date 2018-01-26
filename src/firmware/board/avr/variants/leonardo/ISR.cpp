@@ -22,11 +22,11 @@
 #include "../../../../interface/digital/output/leds/Helpers.h"
 
 volatile uint32_t rTime_ms;
-uint8_t midiIn_timeout, midiOut_timeout;
+static uint8_t midiIn_timeout, midiOut_timeout;
 
 bool MIDIreceived, MIDIsent;
 
-uint8_t lastLEDstate[MAX_NUMBER_OF_LEDS];
+static uint8_t lastLEDstate[MAX_NUMBER_OF_LEDS];
 
 volatile uint8_t *dInPortArray[] =
 {

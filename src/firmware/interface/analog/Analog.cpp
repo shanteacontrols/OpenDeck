@@ -18,8 +18,10 @@
 
 #include "Analog.h"
 #include "../../board/Board.h"
+#include "Variables.h"
 
-const uint8_t disableCompare = 0b11111100;
+uint16_t    lastAnalogueValue[MAX_NUMBER_OF_ANALOG];
+uint8_t     fsrPressed[MAX_NUMBER_OF_ANALOG/8+1];
 
 Analog::Analog()
 {

@@ -33,22 +33,18 @@ class Analog
 {
     public:
     Analog();
-    void update();
-    void debounceReset(uint16_t index);
+    static void update();
+    static void debounceReset(uint16_t index);
 
     private:
-    //variables
-    uint8_t     fsrPressed[MAX_NUMBER_OF_ANALOG/8+1];
-    uint16_t    lastAnalogueValue[MAX_NUMBER_OF_ANALOG];
-
     //data processing
-    void checkPotentiometerValue(uint8_t analogID, uint16_t value);
-    void checkFSRvalue(uint8_t analogID, uint16_t pressure);
-    bool fsrPressureStable(uint8_t analogID);
-    bool getFsrPressed(uint8_t fsrID);
-    void setFsrPressed(uint8_t fsrID, bool state);
-    bool getFsrDebounceTimerStarted(uint8_t fsrID);
-    void setFsrDebounceTimerStarted(uint8_t fsrID, bool state);
+    static void checkPotentiometerValue(uint8_t analogID, uint16_t value);
+    static void checkFSRvalue(uint8_t analogID, uint16_t pressure);
+    static bool fsrPressureStable(uint8_t analogID);
+    static bool getFsrPressed(uint8_t fsrID);
+    static void setFsrPressed(uint8_t fsrID, bool state);
+    static bool getFsrDebounceTimerStarted(uint8_t fsrID);
+    static void setFsrDebounceTimerStarted(uint8_t fsrID, bool state);
 };
 
 extern Analog analog;
