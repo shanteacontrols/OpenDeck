@@ -39,4 +39,13 @@ void Board::reboot(rebootType_t type)
     mcuReset();
 }
 
+///
+/// \brief Checks if firmware has been updated.
+/// Firmware file has written CRC in last two flash addresses. Application stores last read CRC in EEPROM. If EEPROM and flash CRC differ, firmware has been updated.
+///
+bool Board::checkNewRevision()
+{
+    return false;
+}
+
 Board board;
