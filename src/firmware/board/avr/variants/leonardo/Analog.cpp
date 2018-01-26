@@ -23,6 +23,9 @@ static uint8_t      analogBufferCounter;
 volatile uint8_t    analogSampleCounter;
 volatile int16_t    analogBuffer[ANALOG_BUFFER_SIZE];
 
+static uint8_t lowHysteresisActive[MAX_NUMBER_OF_ANALOG/8+1];
+static uint8_t highHysteresisActive[MAX_NUMBER_OF_ANALOG/8+1];
+
 static bool isHysteresisActive(hysteresisType_t type, uint8_t analogID)
 {
     uint8_t arrayIndex = analogID/8;
