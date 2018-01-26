@@ -17,11 +17,12 @@
 */
 
 #include "interface/Interface.h"
+#include "Version.h"
 
 SysEx sysEx;
 MIDI midi;
 
-//use enum for analog sysex/db sections due to 7/14 bit number conversion
+//use enum for analog sysex sections due to 7/14 bit number conversion
 typedef enum
 {
     analogEnabled_sysExSection,
@@ -34,16 +35,6 @@ typedef enum
     analogUpperCClimitLSB_sysExSection,
     analogUpperCClimitMSB_sysExSection
 } analogSysExSection_t;
-
-typedef enum
-{
-    analogEnabled_dbSection,
-    analogInverted_dbSection,
-    analogType_dbSection,
-    analogMIDIid_dbSection,
-    analogLowerCClimit_dbSection,
-    analogUpperCClimit_dbSection
-} analogDBSection_t;
 
 void initSysEx()
 {
@@ -283,9 +274,9 @@ bool onCustom(uint8_t value)
     switch(value)
     {
         case FIRMWARE_VERSION_STRING:
-        sysEx.addToResponse(1);
-        sysEx.addToResponse(4);
-        sysEx.addToResponse(0);
+        sysEx.addToResponse(SW_VERSION_MAJOR);
+        sysEx.addToResponse(SW_VERSION_MINOR);
+        sysEx.addToResponse(SW_VERSION_REVISION);
         return true;
 
         case HARDWARE_VERSION_STRING:
@@ -349,7 +340,7 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
         {
             case analogMIDIidLSB_sysExSection:
             case analogMIDIidMSB_sysExSection:
-            encDec_14bit.value = database.read(block, analogMIDIid_dbSection, index);
+            encDec_14bit.value = database.read(block, analogMIDIidSection, index);
             encDec_14bit.split14bit();
 
             if (section == analogMIDIidLSB_sysExSection)
@@ -360,7 +351,7 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
 
             case analogLowerCClimitLSB_sysExSection:
             case analogLowerCClimitMSB_sysExSection:
-            encDec_14bit.value = database.read(block, analogLowerCClimit_dbSection, index);
+            encDec_14bit.value = database.read(block, analogCClowerLimitSection, index);
             encDec_14bit.split14bit();
 
             if (section == analogLowerCClimitLSB_sysExSection)
@@ -371,7 +362,7 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
 
             case analogUpperCClimitLSB_sysExSection:
             case analogUpperCClimitMSB_sysExSection:
-            encDec_14bit.value = database.read(block, analogUpperCClimit_dbSection, index);
+            encDec_14bit.value = database.read(block, analogCCupperLimitSection, index);
             encDec_14bit.split14bit();
 
             if (section == analogUpperCClimitLSB_sysExSection)
@@ -401,7 +392,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
         {
             case analogMIDIidLSB_sysExSection:
             case analogMIDIidMSB_sysExSection:
-            encDec_14bit.value = database.read(block, analogMIDIid_dbSection, index);
+            encDec_14bit.value = database.read(block, analogMIDIidSection, index);
             encDec_14bit.split14bit();
 
             if (section == analogMIDIidLSB_sysExSection)
@@ -410,12 +401,12 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 encDec_14bit.high = newValue;
 
             encDec_14bit.mergeTo14bit();
-            return database.update(block, analogMIDIid_dbSection, index, encDec_14bit.value);
+            return database.update(block, analogMIDIidSection, index, encDec_14bit.value);
             break;
 
             case analogLowerCClimitLSB_sysExSection:
             case analogLowerCClimitMSB_sysExSection:
-            encDec_14bit.value = database.read(block, analogLowerCClimit_dbSection, index);
+            encDec_14bit.value = database.read(block, analogCClowerLimitSection, index);
             encDec_14bit.split14bit();
 
             if (section == analogLowerCClimitLSB_sysExSection)
@@ -424,12 +415,12 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 encDec_14bit.high = newValue;
 
             encDec_14bit.mergeTo14bit();
-            return database.update(block, analogLowerCClimit_dbSection, index, encDec_14bit.value);
+            return database.update(block, analogCClowerLimitSection, index, encDec_14bit.value);
             break;
 
             case analogUpperCClimitLSB_sysExSection:
             case analogUpperCClimitMSB_sysExSection:
-            encDec_14bit.value = database.read(block, analogUpperCClimit_dbSection, index);
+            encDec_14bit.value = database.read(block, analogCCupperLimitSection, index);
             encDec_14bit.split14bit();
 
             if (section == analogUpperCClimitLSB_sysExSection)
@@ -438,7 +429,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 encDec_14bit.high = newValue;
 
             encDec_14bit.mergeTo14bit();
-            return database.update(block, analogUpperCClimit_dbSection, index, encDec_14bit.value);
+            return database.update(block, analogCCupperLimitSection, index, encDec_14bit.value);
             break;
 
             case analogTypeSection:
