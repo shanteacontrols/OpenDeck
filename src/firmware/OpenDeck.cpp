@@ -263,6 +263,31 @@ void globalInit()
     midi.setInputChannel(database.read(DB_BLOCK_MIDI, midiChannelSection, inputChannel));
     initSysEx();
 
+    if (board.checkNewRevision())
+    {
+        for (int i=0; i<3; i++)
+        {
+            setHigh(LED_OUT_PORT, LED_OUT_PIN);
+            setLow(LED_IN_PORT, LED_IN_PIN);
+            _delay_ms(200);
+            setLow(LED_OUT_PORT, LED_OUT_PIN);
+            setHigh(LED_IN_PORT, LED_IN_PIN);
+            _delay_ms(200);
+        }
+
+        setLow(LED_OUT_PORT, LED_OUT_PIN);
+        setLow(LED_IN_PORT, LED_IN_PIN);
+    }
+    else
+    {
+        setHigh(LED_OUT_PORT, LED_OUT_PIN);
+        setHigh(LED_IN_PORT, LED_IN_PIN);
+        _delay_ms(200);
+        setLow(LED_OUT_PORT, LED_OUT_PIN);
+        setLow(LED_IN_PORT, LED_IN_PIN);
+        _delay_ms(200);
+    }
+
     //enable global interrupts
     sei();
 
