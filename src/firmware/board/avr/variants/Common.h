@@ -37,3 +37,16 @@
 #define HYSTERESIS_THRESHOLD_LOW        50
 #define HYSTERESIS_ADDITION             25
 #define HYSTERESIS_SUBTRACTION          5
+
+///
+/// \brief Location at which reboot type is written in EEPROM when initiating software reset.
+/// See Reboot.h
+///
+#define REBOOT_VALUE_EEPROM_LOCATION    (EEPROM_SIZE - 1)
+
+///
+/// \brief Location at which compiled binary CRC is written in EEPROM.
+/// CRC takes two bytes.
+///
+#define SW_CRC_LOCATION_EEPROM          (EEPROM_SIZE - 3)
+
