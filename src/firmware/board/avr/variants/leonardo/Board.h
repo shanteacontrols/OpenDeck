@@ -25,6 +25,17 @@
 #include "../../../../interface/digital/output/leds/DataTypes.h"
 
 ///
+/// \brief Hardcoded board version.
+/// @{
+///
+
+#define HARDWARE_VERSION_MAJOR      1
+#define HARDWARE_VERSION_MINOR      0
+#define HARDWARE_VERSION_REVISION   0
+
+/// @}
+
+///
 /// \addtogroup board
 /// @{
 ///
