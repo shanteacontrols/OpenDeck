@@ -120,9 +120,7 @@ $(BUILD_DIR)$(MAKECMDGOALS).elf: $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR)
 	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(BUILD_DIR)$(MAKECMDGOALS).elf" "$(BUILD_DIR)$(MAKECMDGOALS).hex"
 	@if [ "$(LEN_APPEND)" = "1" ]; then\
 		srec_cat $(BUILD_DIR)$(MAKECMDGOALS).hex -Intel -exclude $(FLASH_SIZE_START_ADDR) $(FLASH_SIZE_END_ADDR) -Little_Endian_Maximum $(FLASH_SIZE_START_ADDR) -fill 0xff -over $(BUILD_DIR)$(MAKECMDGOALS).hex -I -Output $(BUILD_DIR)$(MAKECMDGOALS).hex -Intel;\
-		objcopy -I ihex "$(BUILD_DIR)$(MAKECMDGOALS).hex" -O binary "$(BUILD_DIR)$(MAKECMDGOALS).filled.bin";\
 		srec_cat $(BUILD_DIR)$(MAKECMDGOALS).hex -Intel -Little_Endian_CRC16 -max-address $(BUILD_DIR)$(MAKECMDGOALS).hex -Intel -Cyclic_Redundancy_Check_16_XMODEM -Output $(BUILD_DIR)$(MAKECMDGOALS).hex -Intel;\
-		objcopy -I ihex "$(BUILD_DIR)$(MAKECMDGOALS).hex" -O binary "$(BUILD_DIR)$(MAKECMDGOALS).crc.bin";\
 	fi
 	@objcopy -I ihex "$(BUILD_DIR)$(MAKECMDGOALS).hex" -O binary "$(BUILD_DIR)$(MAKECMDGOALS).bin"
 	@avr-size -C --mcu=$(MCU) "$(BUILD_DIR)$(MAKECMDGOALS).elf"
