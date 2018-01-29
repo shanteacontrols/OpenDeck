@@ -35,6 +35,7 @@
 
 #include "BootloaderHID.h"
 #include "core/src/HAL/avr/PinManipulation.h"
+#include <util/crc16.h>
 
 #if defined(BOARD_A_LEO)
 #include "../firmware/board/avr/variants/leonardo/pins/Pins.h"
@@ -44,66 +45,74 @@
 #include "../firmware/board/avr/variants/16u2/Pins.h"
 #endif
 
+#if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO)
+///
+/// \brief Location at which size of application is written in flash.
+///
+#define APP_LENGTH_LOCATION         (uint32_t)0xAC
+
+///
+/// \brief Calculates CRC of entire flash.
+/// \return True if CRC is valid, that is, if it matches CRC written in last flash address.
+///
+bool appCRCvalid()
+{
+    uint16_t crc = 0x0000;
+    uint16_t lastAddress = pgm_read_word_near(APP_LENGTH_LOCATION);
+
+    for (int i=0; i<lastAddress; i++)
+    {
+        crc = _crc_xmodem_update(crc, pgm_read_byte_near(i));
+    }
+
+    return (crc == pgm_read_word_near(lastAddress));
+}
+#endif
+
 /** Flag to indicate if the bootloader should be running, or should exit and allow the application code to run
  *  via a soft reset. When cleared, the bootloader will abort, the USB interface will shut down and the application
  *  started via a forced watchdog reset.
  */
 static bool RunBootloader = true;
 
-/** Magic lock for forced application start. If the HWBE fuse is programmed and BOOTRST is unprogrammed, the bootloader
- *  will start if the /HWB line of the AVR is held low and the system is reset. However, if the /HWB line is still held
- *  low when the application attempts to start via a watchdog reset, the bootloader will re-start. If set to the value
- *  \ref MAGIC_BOOT_KEY the special init function \ref Application_Jump_Check() will force the application to start.
- */
-uint16_t MagicBootKey ATTR_NO_INIT;
-
-/** Special startup routine to check if the bootloader was started via a watchdog reset, and if the magic application
- *  start key has been loaded into \ref MagicBootKey. If the bootloader started via the watchdog and the key is valid,
- *  this will force the user application to start via a software jump.
- */
+///
+/// \brief Check if application or bootloader should run
+///
 void Application_Jump_Check(void)
 {
     bool JumpToApplication = false;
 
-    /* Check if the device's BOOTRST fuse is set */
-    //note: it is set on opendeck board
-    if (boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS) & FUSE_BOOTRST)
-    {
-        //add some delay before reading pin
-        _delay_ms(10);
+    setInput(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+    setHigh(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
 
-        #if defined(BOARD_A_LEO) || defined(BOARD_OPEN_DECK)
-        setInput(PORTB, 2);
-        setHigh(PORTB, 2);
-        bool hardwareTrigger = !readPin(PORTB, 2);
-        #else
-        #warning Define hardware jump for 16u2
-        bool hardwareTrigger = false;
-        #endif
+    // add some delay before reading pin
+    _delay_ms(5);
 
-        bool softwareTrigger = eeprom_read_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION) == BTLDR_REBOOT_VALUE;
+    //invert reading - pin uses pull-up
+    bool hardwareTrigger = !readPin(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
 
-        if (!hardwareTrigger && !softwareTrigger)
-            JumpToApplication = true;
+    //check if user wants to enter bootloader
+    bool softwareTrigger = eeprom_read_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION) == BTLDR_REBOOT_VALUE;
+    //reset value in eeprom after reading
+    eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, APP_REBOOT_VALUE);
 
-        /* Clear reset source */
-        MCUSR &= ~(1 << EXTRF);
-    }
+    //jump to app only if both software and hardware triggers aren't activated
+    if (!hardwareTrigger && !softwareTrigger)
+        JumpToApplication = true;
 
-    /* Don't run the user application if the reset vector is blank (no app loaded) */
+    //clear reset source
+    MCUSR &= ~(1 << EXTRF);
+
+    //don't run the user application if the reset vector is blank (no app loaded)
     bool ApplicationValid = (pgm_read_word_near(0) != 0xFFFF);
 
-    /* If a request has been made to jump to the user application, honor it */
     if (JumpToApplication && ApplicationValid)
     {
-        /* Turn off the watchdog */
+        //disable watchdog
         MCUSR &= ~(1 << WDRF);
         wdt_disable();
 
-        /* Clear the boot key and jump to the user application */
-        eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, APP_REBOOT_VALUE);
-
-        // cppcheck-suppress constStatement
+        //run app
         ((void (*)(void))0x0000)();
     }
 }
@@ -120,13 +129,12 @@ int main(void)
     GlobalInterruptEnable();
 
     while (RunBootloader)
-      USB_USBTask();
+    {
+        USB_USBTask();
+    }
 
     /* Disconnect from the host - USB interface will be reset later along with the AVR */
     USB_Detach();
-
-    /* Unlock the forced application start mode of the bootloader if it is restarted */
-    MagicBootKey = MAGIC_BOOT_KEY;
 
     /* Enable the watchdog and force a timeout to reset the AVR */
     wdt_enable(WDTO_250MS);
@@ -152,14 +160,8 @@ static void SetupHardware(void)
     setOutput(LED_OUT_PORT, LED_OUT_PIN);
 
     //indicate that we're in bootloader mode
-    #if defined(BOARD_OPEN_DECK)
-    setHigh(LED_IN_PORT, LED_IN_PIN);
-    setHigh(LED_OUT_PORT, LED_OUT_PIN);
-    #elif defined(BOARD_A_LEO) || defined(BOARD_A_16u2)
-    //inverted logic
-    setLow(LED_IN_PORT, LED_IN_PIN);
-    setLow(LED_OUT_PORT, LED_OUT_PIN);
-    #endif
+    BTLDR_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+    BTLDR_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
 
     /* Initialize USB subsystem */
     USB_Init();
@@ -191,58 +193,74 @@ void EVENT_USB_Device_ControlRequest(void)
     switch (USB_ControlRequest.bRequest)
     {
         case HID_REQ_SetReport:
-            Endpoint_ClearSETUP();
+        Endpoint_ClearSETUP();
 
-            /* Wait until the command has been sent by the host */
-            while (!(Endpoint_IsOUTReceived()));
+        /* Wait until the command has been sent by the host */
+        while (!(Endpoint_IsOUTReceived()));
 
-            /* Read in the write destination address */
-            #if (FLASHEND > 0xFFFF)
-            uint32_t PageAddress = ((uint32_t)Endpoint_Read_16_LE() << 8);
-            #else
-            uint16_t PageAddress = Endpoint_Read_16_LE();
-            #endif
+        /* Read in the write destination address */
+        #if (FLASHEND > 0xFFFF)
+        uint32_t PageAddress = ((uint32_t)Endpoint_Read_16_LE() << 8);
+        #else
+        uint16_t PageAddress = Endpoint_Read_16_LE();
+        #endif
 
-            /* Check if the command is a program page command, or a start application command */
-            #if (FLASHEND > 0xFFFF)
-            if ((uint16_t)(PageAddress >> 8) == COMMAND_STARTAPPLICATION)
-            #else
-            if (PageAddress == COMMAND_STARTAPPLICATION)
-            #endif
+        /* Check if the command is a program page command, or a start application command */
+        #if (FLASHEND > 0xFFFF)
+        if ((uint16_t)(PageAddress >> 8) == COMMAND_STARTAPPLICATION)
+        #else
+        if (PageAddress == COMMAND_STARTAPPLICATION)
+        #endif
+        {
+            #if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO)
+            if (!appCRCvalid())
             {
-                RunBootloader = false;
-            }
-            else if (PageAddress < BOOT_START_ADDR)
-            {
-                /* Erase the given FLASH page, ready to be programmed */
-                boot_page_erase(PageAddress);
-                boot_spm_busy_wait();
-
-                /* Write each of the FLASH page's bytes in sequence */
-                for (uint8_t PageWord = 0; PageWord < (SPM_PAGESIZE / 2); PageWord++)
+                while (1)
                 {
-                    /* Check if endpoint is empty - if so clear it and wait until ready for next packet */
-                    if (!(Endpoint_BytesInEndpoint()))
-                    {
-                        Endpoint_ClearOUT();
-                        while (!(Endpoint_IsOUTReceived()));
-                    }
+                    //indicate error by flashing leds
+                    BTLDR_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+                    BTLDR_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+                    _delay_ms(500);
+                    BTLDR_LED_ON(LED_IN_PORT, LED_IN_PIN);
+                    BTLDR_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+                    _delay_ms(500);
+                }
+            }
+            #endif
 
-                    /* Write the next data word to the FLASH page */
-                    boot_page_fill(PageAddress + ((uint16_t)PageWord << 1), Endpoint_Read_16_LE());
+            RunBootloader = false;
+        }
+        else if (PageAddress < BOOT_START_ADDR)
+        {
+            /* Erase the given FLASH page, ready to be programmed */
+            boot_page_erase(PageAddress);
+            boot_spm_busy_wait();
+
+            /* Write each of the FLASH page's bytes in sequence */
+            for (uint8_t PageWord = 0; PageWord < (SPM_PAGESIZE / 2); PageWord++)
+            {
+                /* Check if endpoint is empty - if so clear it and wait until ready for next packet */
+                if (!(Endpoint_BytesInEndpoint()))
+                {
+                    Endpoint_ClearOUT();
+                    while (!(Endpoint_IsOUTReceived()));
                 }
 
-                /* Write the filled FLASH page to memory */
-                boot_page_write(PageAddress);
-                boot_spm_busy_wait();
-
-                /* Re-enable RWW section */
-                boot_rww_enable();
+                /* Write the next data word to the FLASH page */
+                boot_page_fill(PageAddress + ((uint16_t)PageWord << 1), Endpoint_Read_16_LE());
             }
 
-            Endpoint_ClearOUT();
+            /* Write the filled FLASH page to memory */
+            boot_page_write(PageAddress);
+            boot_spm_busy_wait();
 
-            Endpoint_ClearStatusStage();
-            break;
+            /* Re-enable RWW section */
+            boot_rww_enable();
+        }
+
+        Endpoint_ClearOUT();
+
+        Endpoint_ClearStatusStage();
+        break;
     }
 }
