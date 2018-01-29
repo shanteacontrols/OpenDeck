@@ -86,3 +86,6 @@
 
 #define LED_OUT_PORT                PORTE
 #define LED_OUT_PIN                 2
+
+#define BTLDR_BUTTON_PORT           PORTB
+#define BTLDR_BUTTON_PIN            2
