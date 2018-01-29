@@ -160,8 +160,8 @@ static void SetupHardware(void)
     setOutput(LED_OUT_PORT, LED_OUT_PIN);
 
     //indicate that we're in bootloader mode
-    BTLDR_LED_OFF(LED_IN_PORT, LED_IN_PIN);
-    BTLDR_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+    BTLDR_LED_ON(LED_IN_PORT, LED_IN_PIN);
+    BTLDR_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
 
     /* Initialize USB subsystem */
     USB_Init();
