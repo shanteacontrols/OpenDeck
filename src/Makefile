@@ -29,6 +29,7 @@ OPT := -O2
 ########################
 
 BUILD_DIR := build/
+LEN_APPEND := 0
 
 INCLUDE_FILES := -include "modules/core/src/Core.h"
 INCLUDE_DIRS := \
@@ -39,6 +40,17 @@ INCLUDE_DIRS := \
 ifeq ($(findstring boot,$(MAKECMDGOALS)), boot)
 #use -Os for bootloader
 OPT := -Os
+endif
+
+#custom linker script for 32u4 boards
+ifeq ($(MCU),atmega32u4)
+LDFLAGS += -T ld_32u4.x
+
+#append length only in firmware
+ifeq ($(findstring fw,$(MAKECMDGOALS)), fw)
+LEN_APPEND := 1
+endif
+
 endif
 ######
 
@@ -87,19 +99,37 @@ PATH_QUOTE := "
 endif
 
 ifeq ($(UPLOAD),1)
-RUN_UPLOAD := $(WINBASH) $(PATH_QUOTE)$(AVR_DUDE_PATH)$(AVR_DUDE_BIN)$(PATH_QUOTE) -p $(MCU_avrdude) -c $(AVRDUDE_PROGRAMMER) -U flash:w:"$(BUILD_DIR)$(MAKECMDGOALS).hex"
+
+ifeq ($(MCU),atmega32u4)
+FUSE_UNLOCK := 0x3F
+FUSE_EXT := 0xf8
+FUSE_HIGH := 0xd0
+FUSE_LOW := 0xff
+FUSE_LOCK := 0x2F
+endif
+
+
 endif
 
 #targets
 fw_opendeck fw_leonardo fw_mega fw_16u2 boot_opendeck boot_leonardo boot_16u2: $(BUILD_DIR)$(MAKECMDGOALS).elf
 
 $(BUILD_DIR)$(MAKECMDGOALS).elf: $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR)
-	@$(CXX) -o$(BUILD_DIR)$(MAKECMDGOALS).elf $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR) -mmcu=$(MCU) $(LDFLAGS)
+	@$(CXX) -o$(BUILD_DIR)$(MAKECMDGOALS).elf $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR) -mmcu=$(MCU) $(LDFLAGS) -Wl,-Map,$(BUILD_DIR)$(MAKECMDGOALS).map
 	@echo Finished building target: $@
 	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(BUILD_DIR)$(MAKECMDGOALS).elf" "$(BUILD_DIR)$(MAKECMDGOALS).hex"
+	@if [ "$(LEN_APPEND)" = "1" ]; then\
+		srec_cat $(BUILD_DIR)$(MAKECMDGOALS).hex -Intel -exclude $(FLASH_SIZE_START_ADDR) $(FLASH_SIZE_END_ADDR) -Little_Endian_Maximum $(FLASH_SIZE_START_ADDR) -fill 0xff -over $(BUILD_DIR)$(MAKECMDGOALS).hex -I -Output $(BUILD_DIR)$(MAKECMDGOALS).hex -Intel;\
+		objcopy -I ihex "$(BUILD_DIR)$(MAKECMDGOALS).hex" -O binary "$(BUILD_DIR)$(MAKECMDGOALS).filled.bin";\
+		srec_cat $(BUILD_DIR)$(MAKECMDGOALS).hex -Intel -Little_Endian_CRC16 -max-address $(BUILD_DIR)$(MAKECMDGOALS).hex -Intel -Cyclic_Redundancy_Check_16_XMODEM -Output $(BUILD_DIR)$(MAKECMDGOALS).hex -Intel;\
+		objcopy -I ihex "$(BUILD_DIR)$(MAKECMDGOALS).hex" -O binary "$(BUILD_DIR)$(MAKECMDGOALS).crc.bin";\
+	fi
 	@objcopy -I ihex "$(BUILD_DIR)$(MAKECMDGOALS).hex" -O binary "$(BUILD_DIR)$(MAKECMDGOALS).bin"
 	@avr-size -C --mcu=$(MCU) "$(BUILD_DIR)$(MAKECMDGOALS).elf"
-	@$(RUN_UPLOAD)
+	@if [ "$(UPLOAD)" = "1" ]; then\
+		$(WINBASH) $(PATH_QUOTE)$(AVR_DUDE_PATH)$(AVR_DUDE_BIN)$(PATH_QUOTE) -p $(MCU_avrdude) -c $(AVRDUDE_PROGRAMMER) -e -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m;\
+		$(WINBASH) $(PATH_QUOTE)$(AVR_DUDE_PATH)$(AVR_DUDE_BIN)$(PATH_QUOTE) -p $(MCU_avrdude) -c $(AVRDUDE_PROGRAMMER) -U flash:w:"$(BUILD_DIR)$(MAKECMDGOALS).hex" -U lock:w:$(FUSE_LOCK):m;\
+	fi
 
 # Other Targets
 clean:
