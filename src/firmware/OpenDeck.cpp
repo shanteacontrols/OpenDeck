@@ -268,24 +268,24 @@ void globalInit()
     {
         for (int i=0; i<3; i++)
         {
-            setHigh(LED_OUT_PORT, LED_OUT_PIN);
-            setLow(LED_IN_PORT, LED_IN_PIN);
+            BTLDR_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+            BTLDR_LED_OFF(LED_IN_PORT, LED_IN_PIN);
             _delay_ms(200);
-            setLow(LED_OUT_PORT, LED_OUT_PIN);
-            setHigh(LED_IN_PORT, LED_IN_PIN);
+            BTLDR_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+            BTLDR_LED_ON(LED_IN_PORT, LED_IN_PIN);
             _delay_ms(200);
         }
 
-        setLow(LED_OUT_PORT, LED_OUT_PIN);
-        setLow(LED_IN_PORT, LED_IN_PIN);
+        BTLDR_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+        BTLDR_LED_OFF(LED_IN_PORT, LED_IN_PIN);
     }
     else
     {
-        setHigh(LED_OUT_PORT, LED_OUT_PIN);
-        setHigh(LED_IN_PORT, LED_IN_PIN);
+        BTLDR_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+        BTLDR_LED_ON(LED_IN_PORT, LED_IN_PIN);
         _delay_ms(200);
-        setLow(LED_OUT_PORT, LED_OUT_PIN);
-        setLow(LED_IN_PORT, LED_IN_PIN);
+        BTLDR_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+        BTLDR_LED_OFF(LED_IN_PORT, LED_IN_PIN);
         _delay_ms(200);
     }
     #endif
@@ -307,41 +307,20 @@ bool onCustom(uint8_t value)
         return true;
 
         case HARDWARE_VERSION_STRING:
-        #ifdef BOARD_OPEN_DECK
+        sysEx.addToResponse(BOARD_ID);
         sysEx.addToResponse(HARDWARE_VERSION_MAJOR);
         sysEx.addToResponse(HARDWARE_VERSION_MINOR);
         sysEx.addToResponse(HARDWARE_VERSION_REVISION);
-        #elif defined(BOARD_A_LEO)
-        sysEx.addToResponse(0);
-        sysEx.addToResponse(0);
-        sysEx.addToResponse(BOARD_A_LEO_ID);
-        #elif defined(BOARD_A_MEGA)
-        sysEx.addToResponse(0);
-        sysEx.addToResponse(0);
-        sysEx.addToResponse(BOARD_A_MEGA_ID);
-        #endif
         return true;
 
         case FIRMWARE_HARDWARE_VERSION_STRING:
         sysEx.addToResponse(SW_VERSION_MAJOR);
         sysEx.addToResponse(SW_VERSION_MINOR);
         sysEx.addToResponse(SW_VERSION_REVISION);
-        #ifdef BOARD_OPEN_DECK
-        sysEx.addToResponse(BOARD_OPEN_DECK_ID);
+        sysEx.addToResponse(BOARD_ID);
         sysEx.addToResponse(HARDWARE_VERSION_MAJOR);
         sysEx.addToResponse(HARDWARE_VERSION_MINOR);
         sysEx.addToResponse(HARDWARE_VERSION_REVISION);
-        #elif defined(BOARD_A_LEO)
-        sysEx.addToResponse(BOARD_A_LEO_ID);
-        sysEx.addToResponse(0);
-        sysEx.addToResponse(0);
-        sysEx.addToResponse(0);
-        #elif defined(BOARD_A_MEGA)
-        sysEx.addToResponse(BOARD_A_MEGA_ID);
-        sysEx.addToResponse(0);
-        sysEx.addToResponse(0);
-        sysEx.addToResponse(0);
-        #endif
         return true;
 
         case MAX_COMPONENTS_STRING:

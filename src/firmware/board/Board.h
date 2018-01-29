@@ -18,25 +18,23 @@
 
 #pragma once
 
-#ifdef BOARD_OPEN_DECK
-#include "avr/variants/opendeck/Board.h"
-#elif defined(BOARD_A_LEO)
-
-#include "avr/variants/leonardo/Board.h"
-
-#elif defined(BOARD_A_MEGA)
-
-#include "avr/variants/mega/Board.h"
-
-#elif defined(BOARD_A_16u2)
-
-#include "avr/variants/16u2/Board.h"
-
-#endif
-
 typedef enum
 {
     BOARD_OPEN_DECK_ID,
     BOARD_A_LEO_ID,
     BOARD_A_MEGA_ID
 } boardID_t;
+
+#ifdef BOARD_OPEN_DECK
+#include "avr/variants/opendeck/Board.h"
+#define BOARD_ID    BOARD_OPEN_DECK_ID
+#elif defined(BOARD_A_LEO)
+#include "avr/variants/leonardo/Board.h"
+#define BOARD_ID    BOARD_A_LEO_ID
+#elif defined(BOARD_A_MEGA)
+#include "avr/variants/mega/Board.h"
+#define BOARD_ID    BOARD_A_MEGA_ID
+#elif defined(BOARD_A_16u2)
+#include "avr/variants/16u2/Board.h"
+//no id needed
+#endif

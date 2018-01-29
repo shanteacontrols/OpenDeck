@@ -21,6 +21,18 @@
 #include "../../../common/Common.h"
 #include "Pins.h"
 #include "Variables.h"
+#include "Hardware.h"
+
+///
+/// \brief Hardcoded board version.
+/// @{
+///
+
+#define HARDWARE_VERSION_MAJOR      1
+#define HARDWARE_VERSION_MINOR      0
+#define HARDWARE_VERSION_REVISION   0
+
+/// @}
 
 class Board
 {
