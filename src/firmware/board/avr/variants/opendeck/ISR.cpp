@@ -236,14 +236,14 @@ ISR(TIMER0_COMPA_vect)
 
         if (MIDIreceived)
         {
-            setHigh(LED_IN_PORT, LED_IN_PIN);
+            MIDI_LED_ON(LED_IN_PORT, LED_IN_PIN);
             MIDIreceived = false;
             midiIn_timeout = MIDI_INDICATOR_TIMEOUT;
         }
 
         if (MIDIsent)
         {
-            setHigh(LED_OUT_PORT, LED_OUT_PIN);
+            MIDI_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
             MIDIsent = false;
             midiOut_timeout = MIDI_INDICATOR_TIMEOUT;
         }
@@ -251,12 +251,12 @@ ISR(TIMER0_COMPA_vect)
         if (midiIn_timeout)
             midiIn_timeout--;
         else
-            setLow(LED_IN_PORT, LED_IN_PIN);
+            MIDI_LED_OFF(LED_IN_PORT, LED_IN_PIN);
 
         if (midiOut_timeout)
             midiOut_timeout--;
         else
-            setLow(LED_OUT_PORT, LED_OUT_PIN);
+            MIDI_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
 
         updateStuff = 0;
     }
