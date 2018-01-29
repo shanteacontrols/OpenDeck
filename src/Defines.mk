@@ -25,6 +25,8 @@ MCU_avrdude := m32u4
 DEFINES += -DBOARD_OPEN_DECK
 DEFINES += -DEEPROM_SIZE=1024
 BOOT_START_ADDR := 0x7000
+FLASH_SIZE_START_ADDR := 0xAC
+FLASH_SIZE_END_ADDR := 0xB0
 endif
 
 ifeq ($(findstring leonardo,$(MAKECMDGOALS)), leonardo)
@@ -33,6 +35,8 @@ MCU_avrdude := m32u4
 DEFINES += -DBOARD_A_LEO
 DEFINES += -DEEPROM_SIZE=1024
 BOOT_START_ADDR := 0x7000
+FLASH_SIZE_START_ADDR := 0xAC
+FLASH_SIZE_END_ADDR := 0xB0
 endif
 
 ifeq ($(findstring mega,$(MAKECMDGOALS)), mega)
