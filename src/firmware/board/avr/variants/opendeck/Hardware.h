@@ -35,3 +35,10 @@
 #define MAX_NUMBER_OF_LEDS              (NUMBER_OF_LED_COLUMNS*NUMBER_OF_LED_ROWS)
 #define MAX_NUMBER_OF_RGB_LEDS          (MAX_NUMBER_OF_LEDS/3)
 #define MAX_NUMBER_OF_ENCODERS          (MAX_NUMBER_OF_BUTTONS/2)
+
+//active high logic
+#define BTLDR_LED_ON(port, pin)         ((port) |= (1 << (pin)))
+#define MIDI_LED_ON(port, pin)          BTLDR_LED_ON(port, pin)
+
+#define BTLDR_LED_OFF(port, pin)        ((port) &= ~(1 << (pin)))
+#define MIDI_LED_OFF(port, pin)         BTLDR_LED_OFF(port, pin)

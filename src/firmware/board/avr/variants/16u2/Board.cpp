@@ -46,10 +46,10 @@ void Board::init()
 
 void Board::initPins()
 {
-    //active low logic for these leds
-    setOutput(LED_OUT_PORT, LED_OUT_PIN);
-    setHigh(LED_OUT_PORT, LED_OUT_PIN);
-
+    //bootloader/midi leds
     setOutput(LED_IN_PORT, LED_IN_PIN);
-    setHigh(LED_IN_PORT, LED_IN_PIN);
+    setOutput(LED_OUT_PORT, LED_OUT_PIN);
+
+    MIDI_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+    MIDI_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
 }
