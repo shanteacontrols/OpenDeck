@@ -49,6 +49,20 @@
 #include <LUFA/Drivers/USB/USB.h>
 #include <LUFA/Platform/Platform.h>
 
+#include "../firmware/board/avr/variants/Common.h"
+#include "../firmware/board/common/constants/Reboot.h"
+
+#ifdef BOARD_OPEN_DECK
+#include "../firmware/board/avr/variants/opendeck/pins/Pins.h"
+#include "../firmware/board/avr/variants/opendeck/Hardware.h"
+#elif defined(BOARD_A_LEO)
+#include "../firmware/board/avr/variants/leonardo/pins/Pins.h"
+#include "../firmware/board/avr/variants/leonardo/Hardware.h"
+#elif defined(BOARD_A_16u2)
+#include "../firmware/board/avr/variants/16u2/Pins.h"
+#include "../firmware/board/avr/variants/16u2/Hardware.h"
+#endif
+
 /* Preprocessor Checks: */
 #if !defined(__OPTIMIZE_SIZE__)
 #error This bootloader requires that it be optimized for size, not speed, to fit into the target device. Change optimization settings and try again.
@@ -57,13 +71,6 @@
 /* Macros: */
 /** Bootloader special address to start the user application */
 #define COMMAND_STARTAPPLICATION        0xFFFF
-
-/** Magic bootloader key to unlock forced application start mode. */
-#define MAGIC_BOOT_KEY                  0xDC42
-
-#define REBOOT_VALUE_EEPROM_LOCATION    1023
-#define BTLDR_REBOOT_VALUE              0x47
-#define APP_REBOOT_VALUE                0xFF
 
 /* Function Prototypes: */
 static void SetupHardware(void);
