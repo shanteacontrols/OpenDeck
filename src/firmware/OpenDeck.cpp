@@ -252,7 +252,7 @@ void globalInit()
     #endif
 
     #if defined(BOARD_OPEN_DECK) || defined(BOARD_A_MEGA)
-    midi.setDINMIDIstate(true);
+    midi.setDINMIDIstate(database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureDinEnabled));
     #endif
 
     midi.setOneByteParseDINstate(true);
@@ -484,11 +484,26 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
         case DB_BLOCK_MIDI:
         if (section == midiFeatureSection)
         {
-            if (index == midiFeatureRunningStatus)
+            switch(index)
+            {
+                case midiFeatureRunningStatus:
                 midi.setRunningStatusState(newValue);
-            else if (index == midiFeatureStandardNoteOff)
+                break;
+
+                case midiFeatureStandardNoteOff:
                 newValue ? midi.setNoteOffMode(noteOffType_standardNoteOff) : midi.setNoteOffMode(noteOffType_noteOnZeroVel);
+                break;
+
+                case midiFeatureDinEnabled:
+                midi.setDINMIDIstate(newValue);
+                break;
+
+                default:
+                return false;
+                break;
+            }
         }
+
         return database.update(block, section, index, newValue);
         break;
 

@@ -39,5 +39,6 @@ typedef enum
     midiFeatureStandardNoteOff,
     midiFeatureRunningStatus,
     midiFeatureUSBconvert,
+    midiFeatureDinEnabled,
     MIDI_FEATURES
 } midiFeatures;
