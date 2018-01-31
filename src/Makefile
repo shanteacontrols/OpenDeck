@@ -98,19 +98,6 @@ AVR_DUDE_PATH := $(subst /,\,$(AVR_DUDE_PATH))
 PATH_QUOTE := "
 endif
 
-ifeq ($(UPLOAD),1)
-
-ifeq ($(MCU),atmega32u4)
-FUSE_UNLOCK := 0x3F
-FUSE_EXT := 0xf8
-FUSE_HIGH := 0xd0
-FUSE_LOW := 0xff
-FUSE_LOCK := 0x2F
-endif
-
-
-endif
-
 #targets
 fw_opendeck fw_leonardo fw_mega fw_16u2 boot_opendeck boot_leonardo boot_16u2: $(BUILD_DIR)$(MAKECMDGOALS).elf
 
@@ -128,6 +115,12 @@ $(BUILD_DIR)$(MAKECMDGOALS).elf: $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR)
 		$(WINBASH) $(PATH_QUOTE)$(AVR_DUDE_PATH)$(AVR_DUDE_BIN)$(PATH_QUOTE) -p $(MCU_avrdude) -c $(AVRDUDE_PROGRAMMER) -e -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m;\
 		$(WINBASH) $(PATH_QUOTE)$(AVR_DUDE_PATH)$(AVR_DUDE_BIN)$(PATH_QUOTE) -p $(MCU_avrdude) -c $(AVRDUDE_PROGRAMMER) -U flash:w:"$(BUILD_DIR)$(MAKECMDGOALS).hex" -U lock:w:$(FUSE_LOCK):m;\
 	fi
+
+boot_mega:
+	@mkdir -p build
+	@cd bootloader/stk500v2 && $(MAKE) mega2560 --no-print-directory
+	@cp bootloader/stk500v2/stk500boot_v2_mega2560.hex build/boot_mega.hex
+	@cd bootloader/stk500v2 && $(MAKE) clean --no-print-directory
 
 # Other Targets
 clean:

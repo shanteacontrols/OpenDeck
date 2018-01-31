@@ -20,8 +20,8 @@ modules/lufa/LUFA/Drivers/USB/Core/USBTask.o
 ifeq ($(findstring boot,$(MAKECMDGOALS)), boot)
 
 LUFA_OBJS += \
-bootloader/BootloaderHID.o \
-bootloader/Descriptors.o \
+bootloader/hid/BootloaderHID.o \
+bootloader/hid/Descriptors.o \
 modules/lufa/LUFA/Drivers/USB/Class/Common/HIDParser.o \
 modules/lufa/LUFA/Drivers/USB/Class/Device/HIDClassDevice.o
 
