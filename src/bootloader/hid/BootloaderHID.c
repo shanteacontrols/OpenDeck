@@ -37,14 +37,6 @@
 #include "core/src/HAL/avr/PinManipulation.h"
 #include <util/crc16.h>
 
-#if defined(BOARD_A_LEO)
-#include "../firmware/board/avr/variants/leonardo/pins/Pins.h"
-#elif defined(BOARD_OPEN_DECK)
-#include "../firmware/board/avr/variants/opendeck/pins/Pins.h"
-#elif defined(BOARD_A_16u2)
-#include "../firmware/board/avr/variants/16u2/Pins.h"
-#endif
-
 #if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO)
 ///
 /// \brief Location at which size of application is written in flash.

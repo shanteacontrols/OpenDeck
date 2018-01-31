@@ -74,3 +74,11 @@ DEFINES += \
 -DMIDI_SYSEX_ARRAY_SIZE=45 \
 -DRING_BUFFER_SIZE=50
 endif
+
+ifeq ($(MCU),atmega32u4)
+FUSE_UNLOCK := 0x3F
+FUSE_EXT := 0xf8
+FUSE_HIGH := 0xd0
+FUSE_LOW := 0xff
+FUSE_LOCK := 0x2F
+endif
