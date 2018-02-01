@@ -18,7 +18,7 @@
 
 #pragma once
 
-#if defined(BOARD_A_LEONARDO)
+#if defined(BOARD_A_LEO)
 #include "Leonardo.h"
 #elif defined(BOARD_A_PRO_MICRO)
 #include "ProMicro.h"
