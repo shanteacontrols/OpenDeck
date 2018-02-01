@@ -251,8 +251,13 @@ void globalInit()
     midi.setUSBMIDIstate(true);
     #endif
 
-    #if defined(BOARD_OPEN_DECK) || defined(BOARD_A_MEGA)
+    #ifdef BOARD_OPEN_DECK
     midi.setDINMIDIstate(database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureDinEnabled));
+    #endif
+    
+    #ifdef BOARD_A_MEGA
+    //always enable (for now)
+    midi.setDINMIDIstate(true);
     #endif
 
     midi.setOneByteParseDINstate(true);
