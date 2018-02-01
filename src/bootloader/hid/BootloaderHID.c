@@ -37,7 +37,7 @@
 #include "core/src/HAL/avr/PinManipulation.h"
 #include <util/crc16.h>
 
-#if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO)
+#if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO)
 ///
 /// \brief Location at which size of application is written in flash.
 ///
@@ -204,7 +204,7 @@ void EVENT_USB_Device_ControlRequest(void)
         if (PageAddress == COMMAND_STARTAPPLICATION)
         #endif
         {
-            #if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO)
+            #if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO)
             if (!appCRCvalid())
             {
                 while (1)

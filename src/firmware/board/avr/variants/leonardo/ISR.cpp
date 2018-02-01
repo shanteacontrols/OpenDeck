@@ -35,9 +35,7 @@ volatile uint8_t *dInPortArray[] =
     &DI_3_PORT,
     &DI_4_PORT,
     &DI_5_PORT,
-    &DI_6_PORT,
-    &DI_7_PORT,
-    &DI_8_PORT
+    &DI_6_PORT
 };
 
 const uint8_t dInPinArray[] =
@@ -47,9 +45,7 @@ const uint8_t dInPinArray[] =
     DI_3_PIN,
     DI_4_PIN,
     DI_5_PIN,
-    DI_6_PIN,
-    DI_7_PIN,
-    DI_8_PIN
+    DI_6_PIN
 };
 
 volatile uint8_t *dOutPortArray[] =

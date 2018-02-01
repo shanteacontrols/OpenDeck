@@ -21,8 +21,12 @@
 //uncomment if leds use reverse logic for setting on/off state
 //#define LED_INVERT
 
+#ifdef BOARD_A_PRO_MICRO
+#define MAX_NUMBER_OF_ANALOG            4
+#else
 #define MAX_NUMBER_OF_ANALOG            6
-#define MAX_NUMBER_OF_BUTTONS           8
+#endif
+#define MAX_NUMBER_OF_BUTTONS           6
 #define MAX_NUMBER_OF_LEDS              6
 #define MAX_NUMBER_OF_RGB_LEDS          (MAX_NUMBER_OF_LEDS/3)
 #define MAX_NUMBER_OF_ENCODERS          (MAX_NUMBER_OF_BUTTONS/2)
