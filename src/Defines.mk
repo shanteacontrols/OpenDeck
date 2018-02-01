@@ -76,9 +76,25 @@ DEFINES += \
 endif
 
 ifeq ($(MCU),atmega32u4)
-FUSE_UNLOCK := 0x3F
+FUSE_UNLOCK := 0x3f
 FUSE_EXT := 0xf8
 FUSE_HIGH := 0xd0
 FUSE_LOW := 0xff
-FUSE_LOCK := 0x2F
+FUSE_LOCK := 0x2f
+endif
+
+ifeq ($(MCU),atmega16u2)
+FUSE_UNLOCK := 0x3f
+FUSE_EXT := 0xf0
+FUSE_HIGH := 0xd3
+FUSE_LOW := 0xff
+FUSE_LOCK := 0x2f
+endif
+
+ifeq ($(MCU),atmega2560)
+FUSE_UNLOCK := 0x3f
+FUSE_EXT := 0xfc
+FUSE_HIGH := 0xd6
+FUSE_LOW := 0xff
+FUSE_LOCK := 0x2f
 endif
