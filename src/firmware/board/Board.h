@@ -23,7 +23,7 @@ typedef enum
     BOARD_OPEN_DECK_ID,
     BOARD_A_LEO_ID,
     BOARD_A_MEGA_ID,
-    BOARD_A_PRO_MICRO
+    BOARD_A_PRO_MICRO_ID
 } boardID_t;
 
 #ifdef BOARD_OPEN_DECK
@@ -34,7 +34,7 @@ typedef enum
 #define BOARD_ID    BOARD_A_LEO_ID
 #elif defined(BOARD_A_PRO_MICRO)
 #include "avr/variants/leonardo/Board.h"
-#define BOARD_ID    BOARD_A_PRO_MICRO
+#define BOARD_ID    BOARD_A_PRO_MICRO_ID
 #elif defined(BOARD_A_MEGA)
 #include "avr/variants/mega/Board.h"
 #define BOARD_ID    BOARD_A_MEGA_ID
