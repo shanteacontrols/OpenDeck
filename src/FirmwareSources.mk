@@ -1,6 +1,11 @@
 #determine board variant from target
 board_dir := $(subst fw_,,$(MAKECMDGOALS))
 
+ifeq ($(board_dir),pro_micro)
+#pro micro is just a leonardo variant
+board_dir := leonardo
+endif
+
 CPP_OBJECTS := \
 firmware/OpenDeck.o \
 modules/core/src/HAL/avr/reset/Reset.o \
@@ -38,6 +43,11 @@ modules/midi/src/MIDI.o
 endif
 
 ifeq ($(MAKECMDGOALS),fw_leonardo)
+	CPP_OBJECTS += \
+firmware/board/avr/usb/USB_MIDI.o
+endif
+
+ifeq ($(MAKECMDGOALS),fw_pro_micro)
 	CPP_OBJECTS += \
 firmware/board/avr/usb/USB_MIDI.o
 endif
