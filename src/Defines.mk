@@ -39,6 +39,16 @@ FLASH_SIZE_START_ADDR := 0xAC
 FLASH_SIZE_END_ADDR := 0xB0
 endif
 
+ifeq ($(findstring pro_micro,$(MAKECMDGOALS)), pro_micro)
+MCU := atmega32u4
+MCU_avrdude := m32u4
+DEFINES += -DBOARD_A_PRO_MICRO
+DEFINES += -DEEPROM_SIZE=1024
+BOOT_START_ADDR := 0x7000
+FLASH_SIZE_START_ADDR := 0xAC
+FLASH_SIZE_END_ADDR := 0xB0
+endif
+
 ifeq ($(findstring mega,$(MAKECMDGOALS)), mega)
 MCU := atmega2560
 MCU_avrdude := m2560

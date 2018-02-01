@@ -52,12 +52,6 @@ void Board::initPins()
     setInput(DI_6_PORT, DI_6_PIN);
     setHigh(DI_6_PORT, DI_6_PIN);
 
-    setInput(DI_7_PORT, DI_7_PIN);
-    setHigh(DI_7_PORT, DI_7_PIN);
-
-    setInput(DI_8_PORT, DI_8_PIN);
-    setHigh(DI_8_PORT, DI_8_PIN);
-
 
     setOutput(DO_1_PORT, DO_1_PIN);
     setLow(DO_1_PORT, DO_1_PIN);
@@ -90,11 +84,13 @@ void Board::initPins()
     setInput(AI_4_PORT, AI_4_PIN);
     setLow(AI_4_PORT, AI_4_PIN);
 
+    #ifdef BOARD_A_LEO
     setInput(AI_5_PORT, AI_5_PIN);
     setLow(AI_5_PORT, AI_5_PIN);
 
     setInput(AI_6_PORT, AI_6_PIN);
     setLow(AI_6_PORT, AI_6_PIN);
+    #endif
 
     //bootloader/midi leds
     setOutput(LED_IN_PORT, LED_IN_PIN);

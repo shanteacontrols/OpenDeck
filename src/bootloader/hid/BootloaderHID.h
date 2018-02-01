@@ -55,7 +55,7 @@
 #ifdef BOARD_OPEN_DECK
 #include "../../firmware/board/avr/variants/opendeck/pins/Pins.h"
 #include "../../firmware/board/avr/variants/opendeck/Hardware.h"
-#elif defined(BOARD_A_LEO)
+#elif defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO)
 #include "../../firmware/board/avr/variants/leonardo/pins/Pins.h"
 #include "../../firmware/board/avr/variants/leonardo/Hardware.h"
 #elif defined(BOARD_A_16u2)

@@ -247,7 +247,7 @@ void initSysEx()
 
 void globalInit()
 {
-    #if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO)
+    #if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO)
     midi.setUSBMIDIstate(true);
     #endif
 
@@ -631,7 +631,7 @@ int main()
 
     while(1)
     {
-        #if defined(BOARD_A_LEO) || defined(BOARD_OPEN_DECK)
+        #if defined(BOARD_A_LEO) || defined(BOARD_OPEN_DECK) || defined(BOARD_A_PRO_MICRO)
         if (midi.read(usbInterface))
         {
             //new message on usb
