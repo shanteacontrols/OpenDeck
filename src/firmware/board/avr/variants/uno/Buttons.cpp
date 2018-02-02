@@ -27,5 +27,5 @@ bool Board::getButtonState(uint8_t buttonID)
     uint8_t arrayIndex = buttonID/8;
     uint8_t buttonIndex = buttonID - 8*arrayIndex;
 
-    return BIT_READ(digitalInBuffer[arrayIndex], 7-buttonIndex);
+    return BIT_READ(digitalInBuffer[arrayIndex], BUTTON_INDEX_SUBST-buttonIndex);
 }
