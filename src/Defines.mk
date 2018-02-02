@@ -118,7 +118,7 @@ endif
 
 ifeq ($(MCU),atmega328p)
 FUSE_UNLOCK := 0x3f
-FUSE_EXT := 0xfc
+FUSE_EXT := 0x04
 FUSE_HIGH := 0xd6
 FUSE_LOW := 0xff
 FUSE_LOCK := 0x2f
