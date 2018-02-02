@@ -254,9 +254,14 @@ void globalInit()
     #ifdef BOARD_OPEN_DECK
     midi.setDINMIDIstate(database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureDinEnabled));
     #endif
-    
+
     #ifdef BOARD_A_MEGA
     //always enable (for now)
+    midi.setDINMIDIstate(true);
+    #endif
+
+    #ifdef BOARD_A_UNO
+    //always enable
     midi.setDINMIDIstate(true);
     #endif
 
@@ -268,7 +273,7 @@ void globalInit()
     midi.setInputChannel(database.read(DB_BLOCK_MIDI, midiChannelSection, inputChannel));
     initSysEx();
 
-    #ifndef BOARD_A_MEGA
+    #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
     if (board.checkNewRevision())
     {
         for (int i=0; i<3; i++)
@@ -666,7 +671,7 @@ int main()
         }
         #endif
 
-        #ifndef BOARD_A_MEGA
+        #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
         if (midi.getDINMIDIstate())
         {
             //check for incoming MIDI messages on USART
@@ -696,7 +701,7 @@ int main()
         }
         #endif
 
-        #ifdef BOARD_A_MEGA
+        #if defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
         if (midi.read(dinInterface))
         {
             midiMessageType_t messageType = midi.getType(dinInterface);

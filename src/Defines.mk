@@ -56,6 +56,13 @@ DEFINES += -DBOARD_A_MEGA
 DEFINES += -DEEPROM_SIZE=4096
 endif
 
+ifeq ($(findstring uno,$(MAKECMDGOALS)), uno)
+MCU := atmega328p
+MCU_avrdude := m328p
+DEFINES += -DBOARD_A_UNO
+DEFINES += -DEEPROM_SIZE=1024
+endif
+
 ifeq ($(findstring 16u2,$(MAKECMDGOALS)), 16u2)
 MCU := atmega16u2
 MCU_avrdude := m16u2
@@ -102,6 +109,14 @@ FUSE_LOCK := 0x2f
 endif
 
 ifeq ($(MCU),atmega2560)
+FUSE_UNLOCK := 0x3f
+FUSE_EXT := 0xfc
+FUSE_HIGH := 0xd6
+FUSE_LOW := 0xff
+FUSE_LOCK := 0x2f
+endif
+
+ifeq ($(MCU),atmega328p)
 FUSE_UNLOCK := 0x3f
 FUSE_EXT := 0xfc
 FUSE_HIGH := 0xd6

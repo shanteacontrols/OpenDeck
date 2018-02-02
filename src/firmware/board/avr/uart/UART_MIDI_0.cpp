@@ -28,6 +28,15 @@ static RingBuff_t  txBuffer;
 ///
 static RingBuff_t  rxBuffer;
 
+//some atmega models don't have number appended next to irq handler - assume 0
+#ifdef USART_RX_vect
+#define USART0_RX_vect USART_RX_vect
+#endif
+
+#ifdef USART_UDRE_vect
+#define USART0_UDRE_vect USART_UDRE_vect
+#endif
+
 ///
 /// \brief ISR used to store incoming data from UART to buffer.
 ///
