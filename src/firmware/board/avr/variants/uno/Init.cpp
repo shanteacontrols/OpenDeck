@@ -27,9 +27,10 @@ void Board::init()
     initPins();
     initAnalog();
     initEncoders();
-    configureTimers();
 
-    initUART_MIDI(38400);
+    initUART_MIDI(MIDI_BAUD_RATE);
+
+    configureTimers();
 }
 
 void Board::initPins()

@@ -251,7 +251,7 @@ void globalInit()
     midi.setUSBMIDIstate(true);
     #endif
 
-    #ifdef BOARD_OPEN_DECK
+    #if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO)
     midi.setDINMIDIstate(database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureDinEnabled));
     #endif
 
@@ -702,6 +702,7 @@ int main()
         #endif
 
         #if defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
+        //din interface here is actually translated usb traffic from 16u2
         if (midi.read(dinInterface))
         {
             midiMessageType_t messageType = midi.getType(dinInterface);

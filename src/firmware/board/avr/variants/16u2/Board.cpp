@@ -31,7 +31,7 @@ void Board::init()
     wdt_disable();
 
     initPins();
-    initUART_MIDI(38400);
+    initUART_MIDI(MIDI_BAUD_RATE);
     initUSB_MIDI();
 
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
