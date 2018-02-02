@@ -19,17 +19,15 @@
 #include "Board.h"
 
 void Board::init()
-{
-    cli();
+{    cli();
     //disable watchdog
     MCUSR &= ~(1 << WDRF);
     wdt_disable();
     initPins();
     initAnalog();
     initEncoders();
-    initUART_MIDI(38400);
 
-    _delay_ms(5);
+    initUART_MIDI(31250);
 
     configureTimers();
 }

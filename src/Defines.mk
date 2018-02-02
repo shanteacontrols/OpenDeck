@@ -17,7 +17,8 @@ DEFINES := \
 -DDBMS_MAX_SECTIONS=7 \
 -DDBMS_MAX_BLOCKS=7 \
 -DSYSEX_MAX_BLOCKS=7 \
--DSYSEX_MAX_SECTIONS=10
+-DSYSEX_MAX_SECTIONS=10 \
+-DMIDI_BAUD_RATE=31250
 
 ifeq ($(findstring opendeck,$(MAKECMDGOALS)), opendeck)
 MCU := atmega32u4
@@ -94,7 +95,7 @@ endif
 
 ifeq ($(MCU),atmega32u4)
 FUSE_UNLOCK := 0x3f
-FUSE_EXT := 0xf8
+FUSE_EXT := 0xc8
 FUSE_HIGH := 0xd0
 FUSE_LOW := 0xff
 FUSE_LOCK := 0x2f
