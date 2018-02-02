@@ -39,6 +39,8 @@ modules/lufa/LUFA/Drivers/USB/Class/Device/MIDIClassDevice.o
 else
 LUFA_OBJS :=
 endif
+else
+LUFA_OBJS :=
 endif
 
 endif
