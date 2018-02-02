@@ -49,10 +49,10 @@
 #define DO_4_PORT           PORTB
 #define DO_4_PIN            3
 
-#define DO_5_PORT           PORTD
+#define DO_5_PORT           PORTB
 #define DO_5_PIN            4
 
-#define DO_6_PORT           PORTC
+#define DO_6_PORT           PORTB
 #define DO_6_PIN            5
 
 
