@@ -29,14 +29,16 @@ endif
 
 ifeq ($(findstring fw,$(MAKECMDGOALS)), fw)
 
-#no lufa for mega
+#no lufa for mega or uno
 ifneq ($(MAKECMDGOALS),fw_mega)
+ifneq ($(MAKECMDGOALS),fw_uno)
 LUFA_OBJS += \
 firmware/board/avr/usb/Descriptors.o \
 modules/lufa/LUFA/Drivers/USB/Class/Device/AudioClassDevice.o \
 modules/lufa/LUFA/Drivers/USB/Class/Device/MIDIClassDevice.o
 else
 LUFA_OBJS :=
+endif
 endif
 
 endif

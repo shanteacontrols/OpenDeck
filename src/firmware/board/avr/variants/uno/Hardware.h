@@ -18,31 +18,18 @@
 
 #pragma once
 
-typedef enum
-{
-    BOARD_OPEN_DECK_ID,
-    BOARD_A_LEO_ID,
-    BOARD_A_MEGA_ID,
-    BOARD_A_PRO_MICRO_ID,
-    BOARD_A_UNO_ID,
-} boardID_t;
+//uncomment if leds use reverse logic for setting on/off state
+//#define LED_INVERT
 
-#ifdef BOARD_OPEN_DECK
-#include "avr/variants/opendeck/Board.h"
-#define BOARD_ID    BOARD_OPEN_DECK_ID
-#elif defined(BOARD_A_LEO)
-#include "avr/variants/leonardo/Board.h"
-#define BOARD_ID    BOARD_A_LEO_ID
-#elif defined(BOARD_A_PRO_MICRO)
-#include "avr/variants/leonardo/Board.h"
-#define BOARD_ID    BOARD_A_PRO_MICRO_ID
-#elif defined(BOARD_A_MEGA)
-#include "avr/variants/mega/Board.h"
-#define BOARD_ID    BOARD_A_MEGA_ID
-#elif defined(BOARD_A_UNO)
-#include "avr/variants/uno/Board.h"
-#define BOARD_ID    BOARD_A_UNO_ID
-#elif defined(BOARD_A_16u2)
-#include "avr/variants/16u2/Board.h"
-//no id needed
-#endif
+#define MAX_NUMBER_OF_ANALOG            6
+#define MAX_NUMBER_OF_BUTTONS           6
+#define MAX_NUMBER_OF_LEDS              6
+#define MAX_NUMBER_OF_RGB_LEDS          (MAX_NUMBER_OF_LEDS/3)
+#define MAX_NUMBER_OF_ENCODERS          (MAX_NUMBER_OF_BUTTONS/2)
+
+//active low logic
+#define BTLDR_LED_ON(port, pin)         ((port) &= ~(1 << (pin)))
+#define MIDI_LED_ON(port, pin)          BTLDR_LED_ON(port, pin)
+
+#define BTLDR_LED_OFF(port, pin)        ((port) |= (1 << (pin)))
+#define MIDI_LED_OFF(port, pin)         BTLDR_LED_OFF(port, pin)

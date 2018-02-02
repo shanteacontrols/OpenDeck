@@ -18,31 +18,14 @@
 
 #pragma once
 
-typedef enum
-{
-    BOARD_OPEN_DECK_ID,
-    BOARD_A_LEO_ID,
-    BOARD_A_MEGA_ID,
-    BOARD_A_PRO_MICRO_ID,
-    BOARD_A_UNO_ID,
-} boardID_t;
+#include "../Hardware.h"
 
-#ifdef BOARD_OPEN_DECK
-#include "avr/variants/opendeck/Board.h"
-#define BOARD_ID    BOARD_OPEN_DECK_ID
-#elif defined(BOARD_A_LEO)
-#include "avr/variants/leonardo/Board.h"
-#define BOARD_ID    BOARD_A_LEO_ID
-#elif defined(BOARD_A_PRO_MICRO)
-#include "avr/variants/leonardo/Board.h"
-#define BOARD_ID    BOARD_A_PRO_MICRO_ID
-#elif defined(BOARD_A_MEGA)
-#include "avr/variants/mega/Board.h"
-#define BOARD_ID    BOARD_A_MEGA_ID
-#elif defined(BOARD_A_UNO)
-#include "avr/variants/uno/Board.h"
-#define BOARD_ID    BOARD_A_UNO_ID
-#elif defined(BOARD_A_16u2)
-#include "avr/variants/16u2/Board.h"
-//no id needed
-#endif
+const uint8_t aInPinMap[MAX_NUMBER_OF_ANALOG] =
+{
+    AI_1_PIN,
+    AI_2_PIN,
+    AI_3_PIN,
+    AI_4_PIN,
+    AI_5_PIN,
+    AI_6_PIN
+};

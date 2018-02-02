@@ -62,3 +62,8 @@ ifeq ($(MAKECMDGOALS),fw_mega)
 	CPP_OBJECTS += \
 firmware/board/avr/uart/UART_MIDI_0.o
 endif
+
+ifeq ($(MAKECMDGOALS),fw_uno)
+	CPP_OBJECTS += \
+firmware/board/avr/uart/UART_MIDI_0.o
+endif
