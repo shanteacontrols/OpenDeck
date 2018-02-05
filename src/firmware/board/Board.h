@@ -25,6 +25,7 @@ typedef enum
     BOARD_A_MEGA_ID,
     BOARD_A_PRO_MICRO_ID,
     BOARD_A_UNO_ID,
+    BOARD_T_2PP_ID
 } boardID_t;
 
 #ifdef BOARD_OPEN_DECK
@@ -42,6 +43,9 @@ typedef enum
 #elif defined(BOARD_A_UNO)
 #include "avr/variants/uno/Board.h"
 #define BOARD_ID    BOARD_A_UNO_ID
+#elif defined(BOARD_T_2PP)
+#include "avr/variants/teensy2pp/Board.h"
+#define BOARD_ID    BOARD_T_2PP_ID
 #elif defined(BOARD_A_16u2)
 #include "avr/variants/16u2/Board.h"
 //no id needed

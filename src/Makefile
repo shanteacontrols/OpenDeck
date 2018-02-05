@@ -42,7 +42,8 @@ ifeq ($(findstring boot,$(MAKECMDGOALS)), boot)
 OPT := -Os
 endif
 
-#custom linker script for 32u4 boards
+#custom linker script for 32u4/1286 boards
+
 ifeq ($(MCU),atmega32u4)
 LDFLAGS += -T ld_32u4.x
 
@@ -52,7 +53,16 @@ LEN_APPEND := 1
 endif
 
 endif
-######
+
+ifeq ($(MCU),at90usb1286)
+LDFLAGS += -T ld_1286.x
+
+#append length only in firmware
+ifeq ($(findstring fw,$(MAKECMDGOALS)), fw)
+LEN_APPEND := 1
+endif
+
+endif
 
 ifneq ($(MAKECMDGOALS),fw_16u2)
 INCLUDE_FILES += -include "firmware/OpenDeck.h"
@@ -99,7 +109,7 @@ PATH_QUOTE := "
 endif
 
 #targets
-fw_opendeck fw_leonardo fw_pro_micro fw_mega fw_uno fw_16u2 boot_opendeck boot_leonardo boot_16u2: $(BUILD_DIR)$(MAKECMDGOALS).elf
+fw_opendeck fw_leonardo fw_pro_micro fw_teensy2pp fw_mega fw_uno fw_16u2 boot_opendeck boot_leonardo boot_16u2: $(BUILD_DIR)$(MAKECMDGOALS).elf
 
 $(BUILD_DIR)$(MAKECMDGOALS).elf: $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR)
 	@$(CXX) -o$(BUILD_DIR)$(MAKECMDGOALS).elf $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR) -mmcu=$(MCU) $(LDFLAGS) -Wl,-Map,$(BUILD_DIR)$(MAKECMDGOALS).map

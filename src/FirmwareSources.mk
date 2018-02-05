@@ -54,6 +54,12 @@ firmware/board/avr/usb/USB_MIDI.o \
 firmware/board/avr/uart/UART_MIDI_1.o
 endif
 
+ifeq ($(MAKECMDGOALS),fw_teensy2pp)
+	CPP_OBJECTS += \
+firmware/board/avr/usb/USB_MIDI.o \
+firmware/board/avr/uart/UART_MIDI_1.o
+endif
+
 ifeq ($(MAKECMDGOALS),fw_opendeck)
 	CPP_OBJECTS += \
 firmware/board/avr/usb/USB_MIDI.o \
