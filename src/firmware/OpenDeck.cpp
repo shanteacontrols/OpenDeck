@@ -247,11 +247,11 @@ void initSysEx()
 
 void globalInit()
 {
-    #if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO)
+    #if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO) || defined(BOARD_T_2PP)
     midi.setUSBMIDIstate(true);
     #endif
 
-    #if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO)
+    #if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO) || defined(BOARD_T_2PP)
     midi.setDINMIDIstate(database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureDinEnabled));
     #endif
 
@@ -273,7 +273,7 @@ void globalInit()
     midi.setInputChannel(database.read(DB_BLOCK_MIDI, midiChannelSection, inputChannel));
     initSysEx();
 
-    #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
+    #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO) && !defined(BOARD_T_2PP)
     if (board.checkNewRevision())
     {
         for (int i=0; i<3; i++)
@@ -636,7 +636,7 @@ int main()
 
     while(1)
     {
-        #if defined(BOARD_A_LEO) || defined(BOARD_OPEN_DECK) || defined(BOARD_A_PRO_MICRO)
+        #if defined(BOARD_A_LEO) || defined(BOARD_OPEN_DECK) || defined(BOARD_A_PRO_MICRO) || defined(BOARD_T_2PP)
         if (midi.read(usbInterface))
         {
             //new message on usb

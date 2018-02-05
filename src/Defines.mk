@@ -50,6 +50,16 @@ FLASH_SIZE_START_ADDR := 0xAC
 FLASH_SIZE_END_ADDR := 0xB0
 endif
 
+ifeq ($(findstring teensy2pp,$(MAKECMDGOALS)), teensy2pp)
+MCU := at90usb1286
+MCU_avrdude := usb1286
+DEFINES += -DBOARD_T_2PP
+DEFINES += -DEEPROM_SIZE=4096
+BOOT_START_ADDR := 0x1F000
+FLASH_SIZE_START_ADDR := 0x98
+FLASH_SIZE_END_ADDR := 0x9C
+endif
+
 ifeq ($(findstring mega,$(MAKECMDGOALS)), mega)
 MCU := atmega2560
 MCU_avrdude := m2560
@@ -97,6 +107,14 @@ ifeq ($(MCU),atmega32u4)
 FUSE_UNLOCK := 0x3f
 FUSE_EXT := 0xc8
 FUSE_HIGH := 0xd0
+FUSE_LOW := 0xff
+FUSE_LOCK := 0x2f
+endif
+
+ifeq ($(MCU),at90usb1286)
+FUSE_UNLOCK := 0x3f
+FUSE_EXT := 0xf8
+FUSE_HIGH := 0xd2
 FUSE_LOW := 0xff
 FUSE_LOCK := 0x2f
 endif
