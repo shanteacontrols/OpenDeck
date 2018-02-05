@@ -20,13 +20,11 @@ OpenDeck firmware is compatible with official OpenDeck board, as well as various
 * Arduino Pro Micro
 * Arduino Mega2560
 
-## Repository content
+## Coming soon
 
-* [Firmware](https://github.com/paradajz/OpenDeck/tree/master/src/Firmware)
-* [Bootloader](https://github.com/paradajz/OpenDeck/tree/master/src/Bootloader)
-* [Schematic (PDF)](https://github.com/paradajz/OpenDeck/blob/master/bin/sch/v1.2.0/OpenDeck-r1.2.0.pdf)
-* [BOM](https://github.com/paradajz/OpenDeck/blob/master/bin/sch/v1.2.0/OpenDeck-r1.2.0.csv)
-* [Wiki](https://github.com/paradajz/OpenDeck/wiki)
+* Support for Teensy 2.0++
+* Support for LCD/OLED displays
+* Support for advanced I2C sensors
 
 ## Credits
 
