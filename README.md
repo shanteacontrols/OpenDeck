@@ -13,7 +13,7 @@ OpenDeck supports sending of both 7-bit and 14-bit Non-Registered Part Numbers (
 All configuration is done using custom SysEx protocol explained in detail on [Wiki page](https://github.com/paradajz/OpenDeck/wiki/SysEx-Configuration) or
 using [Web interface](https://config.shanteacontrols.com/).
 
-OpenDeck firmware is compatible with official OpenDeck board, as well as various Arduino boards:
+OpenDeck firmware is compatible with official OpenDeck board, as well as various other boards:
 
 * Arduino Uno
 * Arduino Leonardo
