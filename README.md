@@ -19,10 +19,10 @@ OpenDeck firmware is compatible with official OpenDeck board, as well as various
 * Arduino Leonardo
 * Arduino Pro Micro
 * Arduino Mega2560
+* Teensy++ 2.0
 
 ## Coming soon
 
-* Support for Teensy 2.0++
 * Support for LCD/OLED displays
 * Support for advanced I2C sensors
 
