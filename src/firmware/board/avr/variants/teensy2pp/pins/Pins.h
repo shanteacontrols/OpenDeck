@@ -140,5 +140,13 @@
 #define AI_8_PORT               PORTF
 #define AI_8_PIN                7
 
+//on teensy, there is only one led which is used as an output
+//use this led as indicator only on startup
+#define LED_IN_PORT             DO_4_PORT
+#define LED_IN_PIN              DO_4_PIN
+
+#define LED_OUT_PORT            LED_IN_PORT
+#define LED_OUT_PIN             LED_IN_PIN
+
 #define BTLDR_BUTTON_PORT       PORTE
 #define BTLDR_BUTTON_PIN        4
