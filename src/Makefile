@@ -110,26 +110,31 @@ endif
 #targets
 fw_opendeck fw_leonardo fw_pro_micro fw_teensy2pp fw_mega fw_uno fw_16u2 boot_opendeck boot_leonardo boot_16u2 boot_teensy2pp: $(TARGET).elf
 
-$(TARGET).elf: $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR)
-	#compile first
+#determine if make clean should be run
+#first check if MCU file in build dir exists
+ifneq ("$(wildcard $(BUILD_DIR)MCU)","")
+    ifneq ($(shell cat $(BUILD_DIR)MCU), $(MCU_avrdude))
+        RUN_CLEAN := clean
+    endif
+endif
+
+$(TARGET).elf: $(RUN_CLEAN) $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR)
+	@#compile first
 	@$(CXX) -o$(TARGET).elf $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR) -mmcu=$(MCU) $(LDFLAGS) -Wl,-Map,$(TARGET).map
 	@echo Finished building target: $@
-	#convet elf to hex
+	@#convet elf to hex
 	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(TARGET).elf" "$(TARGET).hex"
-	#write firmware length at specified location and crc at the end of compiled binary if supported for target
+	@#write firmware length at specified location and crc at the end of compiled binary if supported for target
 	@if [ "$(LEN_APPEND)" = "1" ]; then\
 		srec_cat $(TARGET).hex -Intel -exclude $(FLASH_SIZE_START_ADDR) $(FLASH_SIZE_END_ADDR) -Little_Endian_Maximum $(FLASH_SIZE_START_ADDR) -fill 0xff -over $(TARGET).hex -I -Output $(TARGET).hex -Intel;\
 		srec_cat $(TARGET).hex -Intel -Little_Endian_CRC16 -max-address $(TARGET).hex -Intel -Cyclic_Redundancy_Check_16_XMODEM -Output $(TARGET).hex -Intel;\
 	fi
-	#convert hex to bin
+	@#convert hex to bin
 	@objcopy -I ihex "$(TARGET).hex" -O binary "$(TARGET).bin"
-	#display memory usage
+	@#create a file with contents being mcu name (for upload process)
+	@echo $(MCU_avrdude) > $(BUILD_DIR)MCU
+	@#display memory usage
 	@avr-size -C --mcu=$(MCU) "$(TARGET).elf"
-	#upload binary to mcu if specified
-	@if [ "$(UPLOAD)" = "1" ]; then\
-		$(WINBASH) $(PATH_QUOTE)$(AVR_DUDE_PATH)$(AVR_DUDE_BIN)$(PATH_QUOTE) -p $(MCU_avrdude) -c $(AVRDUDE_PROGRAMMER) -e -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m;\
-		$(WINBASH) $(PATH_QUOTE)$(AVR_DUDE_PATH)$(AVR_DUDE_BIN)$(PATH_QUOTE) -p $(MCU_avrdude) -c $(AVRDUDE_PROGRAMMER) -U flash:w:"$(TARGET).hex" -U lock:w:$(FUSE_LOCK):m;\
-	fi
 
 #use existing makefile for mega bootloader
 boot_mega:
@@ -138,9 +143,15 @@ boot_mega:
 	@cp bootloader/stk500v2/stk500boot_v2_mega2560.hex build/boot_mega.hex
 	@cd bootloader/stk500v2 && $(MAKE) clean --no-print-directory
 
+#firmware upload with avrdude
+upload:
+	@$(WINBASH) $(PATH_QUOTE)$(AVR_DUDE_PATH)$(AVR_DUDE_BIN)$(PATH_QUOTE) -p $(shell cat $(BUILD_DIR)MCU) -c $(AVRDUDE_PROGRAMMER) -e -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
+	@$(WINBASH) $(PATH_QUOTE)$(AVR_DUDE_PATH)$(AVR_DUDE_BIN)$(PATH_QUOTE) -p $(shell cat $(BUILD_DIR)MCU) -c $(AVRDUDE_PROGRAMMER) -U flash:w:$(shell find . -name "*.hex" | head -1) -U lock:w:$(FUSE_LOCK):m
+
 #other targets
 clean:
-	rm -rf $(BUILD_DIR)
+	@echo Cleaning up.
+	@rm -rf $(BUILD_DIR)
 
 #debugging
 print-%:
