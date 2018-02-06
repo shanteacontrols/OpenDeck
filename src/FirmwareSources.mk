@@ -1,56 +1,56 @@
 #determine board variant from target
-board_dir := $(subst fw_,,$(MAKECMDGOALS))
+BOARD_DIR := $(subst fw_,,$(MAKECMDGOALS))
 
-ifeq ($(board_dir),pro_micro)
+ifeq ($(BOARD_DIR),pro_micro)
     #pro micro is just a leonardo variant
-    board_dir := leonardo
+    BOARD_DIR := leonardo
 endif
 
 ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
     CPP_OBJECTS := \
-    firmware/OpenDeck.o \
-    modules/core/src/HAL/avr/reset/Reset.o \
-    firmware/database/Database.o \
-    firmware/database/Layout.o \
-    modules/dbms/src/DBMS.o \
-    firmware/interface/analog/Analog.o \
-    firmware/interface/analog/FSR.o \
-    firmware/interface/analog/Potentiometer.o \
-    firmware/interface/cinfo/CInfo.o \
-    firmware/interface/digital/input/DigitalInput.o \
-    firmware/interface/digital/input/buttons/Buttons.o \
-    firmware/interface/digital/input/encoders/Encoders.o \
-    firmware/interface/digital/output/leds/LEDs.o \
-    modules/midi/src/MIDI.o \
-    modules/sysex/src/SysEx.o \
-    firmware/board/avr/variants/$(board_dir)/Analog.o \
-    firmware/board/avr/variants/$(board_dir)/Board.o \
-    firmware/board/avr/variants/$(board_dir)/Buttons.o \
-    firmware/board/avr/variants/$(board_dir)/DigitalIn.o \
-    firmware/board/avr/variants/$(board_dir)/Encoders.o \
-    firmware/board/avr/variants/$(board_dir)/Init.o \
-    firmware/board/avr/variants/$(board_dir)/ISR.o \
-    firmware/board/avr/variants/$(board_dir)/LEDs.o
+    firmware/OpenDeck.cpp \
+    modules/core/src/HAL/avr/reset/Reset.cpp \
+    firmware/database/Database.cpp \
+    firmware/database/Layout.cpp \
+    modules/dbms/src/DBMS.cpp \
+    firmware/interface/analog/Analog.cpp \
+    firmware/interface/analog/FSR.cpp \
+    firmware/interface/analog/Potentiometer.cpp \
+    firmware/interface/cinfo/CInfo.cpp \
+    firmware/interface/digital/input/DigitalInput.cpp \
+    firmware/interface/digital/input/buttons/Buttons.cpp \
+    firmware/interface/digital/input/encoders/Encoders.cpp \
+    firmware/interface/digital/output/leds/LEDs.cpp \
+    modules/midi/src/MIDI.cpp \
+    modules/sysex/src/SysEx.cpp \
+    firmware/board/avr/variants/$(BOARD_DIR)/Analog.cpp \
+    firmware/board/avr/variants/$(BOARD_DIR)/Board.cpp \
+    firmware/board/avr/variants/$(BOARD_DIR)/Buttons.cpp \
+    firmware/board/avr/variants/$(BOARD_DIR)/DigitalIn.cpp \
+    firmware/board/avr/variants/$(BOARD_DIR)/Encoders.cpp \
+    firmware/board/avr/variants/$(BOARD_DIR)/Init.cpp \
+    firmware/board/avr/variants/$(BOARD_DIR)/ISR.cpp \
+    firmware/board/avr/variants/$(BOARD_DIR)/LEDs.cpp
 
     ifeq ($(MAKECMDGOALS),fw_16u2)
         #16u2 uses different set of sources than other firmwares, overwrite
         CPP_OBJECTS := \
-        firmware/board/avr/variants/$(board_dir)/Board.o \
-        firmware/board/avr/variants/$(board_dir)/ISR.o \
-        firmware/board/avr/variants/$(board_dir)/main.o \
-        firmware/board/avr/uart/UART_MIDI_1.o \
-        firmware/board/avr/usb/USB_MIDI.o \
-        modules/midi/src/MIDI.o
+        firmware/board/avr/variants/$(BOARD_DIR)/Board.cpp \
+        firmware/board/avr/variants/$(BOARD_DIR)/ISR.cpp \
+        firmware/board/avr/variants/$(BOARD_DIR)/main.cpp \
+        firmware/board/avr/uart/UART_MIDI_1.cpp \
+        firmware/board/avr/usb/USB_MIDI.cpp \
+        modules/midi/src/MIDI.cpp
     else
         ifneq ($(filter fw_leonardo fw_pro_micro fw_opendeck fw_teensy2pp, $(MAKECMDGOALS)), )
             #these variants all support usb midi and use uart1 for din midi
             CPP_OBJECTS += \
-            firmware/board/avr/usb/USB_MIDI.o \
-            firmware/board/avr/uart/UART_MIDI_1.o
+            firmware/board/avr/usb/USB_MIDI.cpp \
+            firmware/board/avr/uart/UART_MIDI_1.cpp
         else ifneq ($(filter fw_mega fw_uno, $(MAKECMDGOALS)), )
             #no usb midi, uart0 for din midi
             CPP_OBJECTS += \
-            firmware/board/avr/uart/UART_MIDI_0.o
+            firmware/board/avr/uart/UART_MIDI_0.cpp
         endif
     endif
 else
