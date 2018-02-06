@@ -4,6 +4,9 @@ BOARD_DIR := $(subst fw_,,$(MAKECMDGOALS))
 ifeq ($(BOARD_DIR),pro_micro)
     #pro micro is just a leonardo variant
     BOARD_DIR := leonardo
+else ifneq ($(filter fw_16u2 fw_8u2, $(MAKECMDGOALS)), )
+    #16u2 and 8u2 are basically same
+    BOARD_DIR := xu2
 endif
 
 ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
@@ -32,8 +35,8 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
     firmware/board/avr/variants/$(BOARD_DIR)/ISR.cpp \
     firmware/board/avr/variants/$(BOARD_DIR)/LEDs.cpp
 
-    ifeq ($(MAKECMDGOALS),fw_16u2)
-        #16u2 uses different set of sources than other firmwares, overwrite
+    ifeq ($(BOARD_DIR),xu2)
+        #xu2 uses different set of sources than other firmwares, overwrite
         CPP_OBJECTS := \
         firmware/board/avr/variants/$(BOARD_DIR)/Board.cpp \
         firmware/board/avr/variants/$(BOARD_DIR)/ISR.cpp \

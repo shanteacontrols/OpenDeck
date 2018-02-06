@@ -1,3 +1,6 @@
+#includes
+include BuildDir.mk
+
 #common defines
 DEFINES := \
 NDEBUG \
@@ -59,7 +62,18 @@ else ifeq ($(findstring uno,$(MAKECMDGOALS)), uno)
     DEFINES += BOARD_A_UNO
 else ifeq ($(findstring 16u2,$(MAKECMDGOALS)), 16u2)
     MCU := atmega16u2
-    DEFINES += BOARD_A_16u2
+    DEFINES += BOARD_A_xu2
+else ifeq ($(findstring 8u2,$(MAKECMDGOALS)), 8u2)
+    MCU := atmega8u2
+    DEFINES += BOARD_A_xu2
+else ifeq ($(MAKECMDGOALS),upload)
+    #hack used to set MCU if only make upload target is called
+    #check if MCU file exists
+    ifneq ("$(wildcard $(BUILD_DIR)MCU)","")
+        MCU := $(shell cat $(BUILD_DIR)MCU)
+    else
+        $(error Please run make for specific target first)
+    endif
 endif
 
 #mcu specific
@@ -73,7 +87,6 @@ ifeq ($(MCU),atmega32u4)
     BOOT_START_ADDR := 0x7000
     FLASH_SIZE_START_ADDR := 0xAC
     FLASH_SIZE_END_ADDR := 0xB0
-    MCU_avrdude := m32u4
 else ifeq ($(MCU),at90usb1286)
     FUSE_UNLOCK := 0x3f
     FUSE_EXT := 0xf8
@@ -84,16 +97,22 @@ else ifeq ($(MCU),at90usb1286)
     BOOT_START_ADDR := 0x1F000
     FLASH_SIZE_START_ADDR := 0x98
     FLASH_SIZE_END_ADDR := 0x9C
-    MCU_avrdude := usb1286
 else ifeq ($(MCU),atmega16u2)
     FUSE_UNLOCK := 0x3f
-    FUSE_EXT := 0xf0
+    FUSE_EXT := 0xf8
     FUSE_HIGH := 0xd3
     FUSE_LOW := 0xff
     FUSE_LOCK := 0x2f
     DEFINES += EEPROM_SIZE=512
-    BOOT_START_ADDR := 0x3000
-    MCU_avrdude := m16u2
+    BOOT_START_ADDR := 0x3800
+else ifeq ($(MCU),atmega8u2)
+    FUSE_UNLOCK := 0x3f
+    FUSE_EXT := 0xf8
+    FUSE_HIGH := 0xd3
+    FUSE_LOW := 0xff
+    FUSE_LOCK := 0x2f
+    DEFINES += EEPROM_SIZE=512
+    BOOT_START_ADDR := 0x1800
 else ifeq ($(MCU),atmega2560)
     FUSE_UNLOCK := 0x3f
     FUSE_EXT := 0xfc
@@ -101,7 +120,6 @@ else ifeq ($(MCU),atmega2560)
     FUSE_LOW := 0xff
     FUSE_LOCK := 0x2f
     DEFINES += EEPROM_SIZE=4096
-    MCU_avrdude := m2560
 else ifeq ($(MCU),atmega328p)
     FUSE_UNLOCK := 0x3f
     FUSE_EXT := 0x04
@@ -109,7 +127,6 @@ else ifeq ($(MCU),atmega328p)
     FUSE_LOW := 0xff
     FUSE_LOCK := 0x2f
     DEFINES += EEPROM_SIZE=1024
-    MCU_avrdude := m328p
 endif
 
 DEFINES += BOOT_START_ADDR

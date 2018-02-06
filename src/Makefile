@@ -4,8 +4,7 @@ include LUFAsources.mk
 include FirmwareSources.mk
 include Upload.mk
 
-#target/build location
-BUILD_DIR := build/
+#target location
 TARGET := $(BUILD_DIR)$(MAKECMDGOALS)
 
 #specify c/c++ compilers
@@ -48,8 +47,8 @@ LEN_APPEND := 0
 #common include files
 INCLUDE_FILES := -include "modules/core/src/Core.h"
 
-ifneq ($(MAKECMDGOALS),fw_16u2)
-    #unused on 16u2 firmware
+ifeq ($(filter fw_16u2 fw_8u2, $(MAKECMDGOALS)), )
+    #unused on xu2 firmware
     INCLUDE_FILES += -include "firmware/OpenDeck.h"
 endif
 
@@ -106,12 +105,12 @@ ifeq ($(findstring Microsoft,$(shell uname -r)), Microsoft)
 endif
 
 #targets
-fw_opendeck fw_leonardo fw_pro_micro fw_teensy2pp fw_mega fw_uno fw_16u2 boot_opendeck boot_leonardo boot_16u2 boot_teensy2pp: $(TARGET).elf
+fw_opendeck fw_leonardo fw_pro_micro fw_teensy2pp fw_mega fw_uno fw_16u2 fw_8u2 boot_opendeck boot_leonardo boot_16u2 boot_teensy2pp: $(TARGET).elf
 
 #determine if make clean should be run before compilation
 #first check if MCU file in build dir exists
 ifneq ("$(wildcard $(BUILD_DIR)MCU)","")
-    ifneq ($(shell cat $(BUILD_DIR)MCU), $(MCU_avrdude))
+    ifneq ($(shell cat $(BUILD_DIR)MCU), $(MCU))
         RUN_CLEAN := clean
     endif
 endif
@@ -130,7 +129,7 @@ $(TARGET).elf: $(RUN_CLEAN) $(LUFA_OBJS) $(CPP_OBJECTS)
 	@#convert hex to bin
 	@objcopy -I ihex "$(TARGET).hex" -O binary "$(TARGET).bin"
 	@#create a file with contents being mcu name (for upload process)
-	@echo $(MCU_avrdude) > $(BUILD_DIR)MCU
+	@echo $(MCU) > $(BUILD_DIR)MCU
 	@#display memory usage
 	@avr-size -C --mcu=$(MCU) "$(TARGET).elf"
 
