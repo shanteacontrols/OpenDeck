@@ -29,6 +29,7 @@ OPT := -O2
 ########################
 
 BUILD_DIR := build/
+TARGET := $(BUILD_DIR)$(MAKECMDGOALS)
 LEN_APPEND := 0
 
 INCLUDE_FILES := -include "modules/core/src/Core.h"
@@ -109,21 +110,21 @@ PATH_QUOTE := "
 endif
 
 #targets
-fw_opendeck fw_leonardo fw_pro_micro fw_teensy2pp fw_mega fw_uno fw_16u2 boot_opendeck boot_leonardo boot_16u2 boot_teensy2pp: $(BUILD_DIR)$(MAKECMDGOALS).elf
+fw_opendeck fw_leonardo fw_pro_micro fw_teensy2pp fw_mega fw_uno fw_16u2 boot_opendeck boot_leonardo boot_16u2 boot_teensy2pp: $(TARGET).elf
 
-$(BUILD_DIR)$(MAKECMDGOALS).elf: $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR)
-	@$(CXX) -o$(BUILD_DIR)$(MAKECMDGOALS).elf $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR) -mmcu=$(MCU) $(LDFLAGS) -Wl,-Map,$(BUILD_DIR)$(MAKECMDGOALS).map
+$(TARGET).elf: $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR)
+	@$(CXX) -o$(TARGET).elf $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR) -mmcu=$(MCU) $(LDFLAGS) -Wl,-Map,$(TARGET).map
 	@echo Finished building target: $@
-	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(BUILD_DIR)$(MAKECMDGOALS).elf" "$(BUILD_DIR)$(MAKECMDGOALS).hex"
+	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(TARGET).elf" "$(TARGET).hex"
 	@if [ "$(LEN_APPEND)" = "1" ]; then\
-		srec_cat $(BUILD_DIR)$(MAKECMDGOALS).hex -Intel -exclude $(FLASH_SIZE_START_ADDR) $(FLASH_SIZE_END_ADDR) -Little_Endian_Maximum $(FLASH_SIZE_START_ADDR) -fill 0xff -over $(BUILD_DIR)$(MAKECMDGOALS).hex -I -Output $(BUILD_DIR)$(MAKECMDGOALS).hex -Intel;\
-		srec_cat $(BUILD_DIR)$(MAKECMDGOALS).hex -Intel -Little_Endian_CRC16 -max-address $(BUILD_DIR)$(MAKECMDGOALS).hex -Intel -Cyclic_Redundancy_Check_16_XMODEM -Output $(BUILD_DIR)$(MAKECMDGOALS).hex -Intel;\
+		srec_cat $(TARGET).hex -Intel -exclude $(FLASH_SIZE_START_ADDR) $(FLASH_SIZE_END_ADDR) -Little_Endian_Maximum $(FLASH_SIZE_START_ADDR) -fill 0xff -over $(TARGET).hex -I -Output $(TARGET).hex -Intel;\
+		srec_cat $(TARGET).hex -Intel -Little_Endian_CRC16 -max-address $(TARGET).hex -Intel -Cyclic_Redundancy_Check_16_XMODEM -Output $(TARGET).hex -Intel;\
 	fi
-	@objcopy -I ihex "$(BUILD_DIR)$(MAKECMDGOALS).hex" -O binary "$(BUILD_DIR)$(MAKECMDGOALS).bin"
-	@avr-size -C --mcu=$(MCU) "$(BUILD_DIR)$(MAKECMDGOALS).elf"
+	@objcopy -I ihex "$(TARGET).hex" -O binary "$(TARGET).bin"
+	@avr-size -C --mcu=$(MCU) "$(TARGET).elf"
 	@if [ "$(UPLOAD)" = "1" ]; then\
 		$(WINBASH) $(PATH_QUOTE)$(AVR_DUDE_PATH)$(AVR_DUDE_BIN)$(PATH_QUOTE) -p $(MCU_avrdude) -c $(AVRDUDE_PROGRAMMER) -e -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m;\
-		$(WINBASH) $(PATH_QUOTE)$(AVR_DUDE_PATH)$(AVR_DUDE_BIN)$(PATH_QUOTE) -p $(MCU_avrdude) -c $(AVRDUDE_PROGRAMMER) -U flash:w:"$(BUILD_DIR)$(MAKECMDGOALS).hex" -U lock:w:$(FUSE_LOCK):m;\
+		$(WINBASH) $(PATH_QUOTE)$(AVR_DUDE_PATH)$(AVR_DUDE_BIN)$(PATH_QUOTE) -p $(MCU_avrdude) -c $(AVRDUDE_PROGRAMMER) -U flash:w:"$(TARGET).hex" -U lock:w:$(FUSE_LOCK):m;\
 	fi
 
 boot_mega:
