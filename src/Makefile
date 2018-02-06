@@ -36,6 +36,11 @@ ifneq ($(filter fw_%, $(MAKECMDGOALS)), )
 else
     #optimize for size for bootloader
     OPT := -Os
+    
+    #don't use cpp sources
+    CPP_OBJECTS_WDIR :=
+    #make sure to link .text at correct address in bootloader
+    LDFLAGS += -Wl,--section-start=.text=$(BOOT_START_ADDR)
 endif
 
 LEN_APPEND := 0
@@ -54,63 +59,56 @@ INCLUDE_DIRS := \
 -I"modules/"
 
 #custom linker script for 32u4/1286 boards
-ifeq ($(MCU),atmega32u4)
-    LDFLAGS += -T ld_32u4.x
+ifneq ($(filter atmega32u4 at90usb1286, $(MCU)), )
+    ifeq ($(MCU),atmega32u4)
+        LDFLAGS += -T ld_32u4.x
+    else ifeq ($(MCU),at90usb1286)
+        LDFLAGS += -T ld_1286.x
+    endif
     
     #append length only in firmware
     ifeq ($(findstring fw,$(MAKECMDGOALS)), fw)
         LEN_APPEND := 1
     endif
-else ifeq ($(MCU),at90usb1286)
-    LDFLAGS += -T ld_1286.x
-
-    #append length only in firmware
-    ifeq ($(findstring fw,$(MAKECMDGOALS)), fw)
-        LEN_APPEND := 1
-    endif
 endif
 
-ifneq ($(LUFA_OBJS),)
-    #only do this if lufa objects exist
-    LUFA_OBJS_WDIR := $(addprefix $(BUILD_DIR),$(LUFA_OBJS))
-else
-    LUFA_OBJS_WDIR :=
-endif
+#make sure all build files are located in build directory
+LUFA_OBJS := $(addprefix $(BUILD_DIR),$(LUFA_OBJS))
+CPP_OBJECTS := $(addprefix $(BUILD_DIR),$(CPP_OBJECTS))
 
-CPP_OBJECTS_WDIR := $(addprefix $(BUILD_DIR),$(CPP_OBJECTS))
+#also replace extension with .o
+LUFA_OBJS := $(LUFA_OBJS:.c=.o)
+CPP_OBJECTS := $(CPP_OBJECTS:.cpp=.o)
 
-ifeq ($(findstring boot,$(MAKECMDGOALS)), boot)
-    #don't use cpp sources
-    CPP_OBJECTS_WDIR :=
-    LDFLAGS += -Wl,--section-start=.text=$(BOOT_START_ADDR)
-endif
+#include generated dependency files to allow incremental build when only headers change
+-include $(CPP_OBJECTS:%.o=%.d)
 
 #user sources
-$(CPP_OBJECTS_WDIR): $(BUILD_DIR)%.o: %.cpp
+$(CPP_OBJECTS): $(BUILD_DIR)%.o: %.cpp
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) -mmcu=$(MCU) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -o "$@" "$<" 
 	@echo Finished building: $<
 
 #lufa sources
-$(LUFA_OBJS_WDIR): $(BUILD_DIR)%.o: %.c
+$(LUFA_OBJS): $(BUILD_DIR)%.o: %.c
 	@mkdir -p $(@D)
-	@$(CPP) $(CXXFLAGS) -std=gnu99 $(addprefix -D,$(DEFINES)) $(OPT) -mmcu=$(MCU) $(INCLUDE_DIRS) -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -o "$@" "$<" 
+	@$(CPP) $(CXXFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) -mmcu=$(MCU) $(INCLUDE_DIRS) -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -o "$@" "$<" 
 	@echo Finished building: $<
 
 #determine if we're running make on Windows subsystem for Linux
 #this is needed when running upload command since we can't access usb devices directly
 #instead, call upload command from windows
 ifeq ($(findstring Microsoft,$(shell uname -r)), Microsoft)
-WINBASH := cmd.exe /c
-#also, replace forward slash with backslash in path
-AVR_DUDE_PATH := $(subst /,\,$(AVR_DUDE_PATH))
-PATH_QUOTE := "
+    WINBASH := cmd.exe /c
+    #also, replace forward slash with backslash in path
+    AVR_DUDE_PATH := $(subst /,\,$(AVR_DUDE_PATH))
+    PATH_QUOTE := "
 endif
 
 #targets
 fw_opendeck fw_leonardo fw_pro_micro fw_teensy2pp fw_mega fw_uno fw_16u2 boot_opendeck boot_leonardo boot_16u2 boot_teensy2pp: $(TARGET).elf
 
-#determine if make clean should be run
+#determine if make clean should be run before compilation
 #first check if MCU file in build dir exists
 ifneq ("$(wildcard $(BUILD_DIR)MCU)","")
     ifneq ($(shell cat $(BUILD_DIR)MCU), $(MCU_avrdude))
@@ -118,9 +116,9 @@ ifneq ("$(wildcard $(BUILD_DIR)MCU)","")
     endif
 endif
 
-$(TARGET).elf: $(RUN_CLEAN) $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR)
-	@#compile first
-	@$(CXX) -o$(TARGET).elf $(LUFA_OBJS_WDIR) $(CPP_OBJECTS_WDIR) -mmcu=$(MCU) $(LDFLAGS) -Wl,-Map,$(TARGET).map
+$(TARGET).elf: $(RUN_CLEAN) $(LUFA_OBJS) $(CPP_OBJECTS)
+	@#link
+	@$(CXX) -o$(TARGET).elf $(LUFA_OBJS) $(CPP_OBJECTS) -mmcu=$(MCU) $(LDFLAGS) -Wl,-Map,$(TARGET).map
 	@echo Finished building target: $@
 	@#convet elf to hex
 	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(TARGET).elf" "$(TARGET).hex"
