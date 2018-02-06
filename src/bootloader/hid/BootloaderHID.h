@@ -58,9 +58,9 @@
 #elif defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO)
 #include "../../firmware/board/avr/variants/leonardo/pins/Pins.h"
 #include "../../firmware/board/avr/variants/leonardo/Hardware.h"
-#elif defined(BOARD_A_16u2)
-#include "../../firmware/board/avr/variants/16u2/Pins.h"
-#include "../../firmware/board/avr/variants/16u2/Hardware.h"
+#elif defined(BOARD_A_xu2)
+#include "../../firmware/board/avr/variants/xu2/Pins.h"
+#include "../../firmware/board/avr/variants/xu2/Hardware.h"
 #elif defined(BOARD_T_2PP)
 #include "../../firmware/board/avr/variants/teensy2pp/pins/Pins.h"
 #include "../../firmware/board/avr/variants/teensy2pp/Hardware.h"

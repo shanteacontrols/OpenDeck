@@ -46,7 +46,7 @@ typedef enum
 #elif defined(BOARD_T_2PP)
 #include "avr/variants/teensy2pp/Board.h"
 #define BOARD_ID    BOARD_T_2PP_ID
-#elif defined(BOARD_A_16u2)
-#include "avr/variants/16u2/Board.h"
+#elif defined(BOARD_A_xu2)
+#include "avr/variants/xu2/Board.h"
 //no id needed
 #endif
