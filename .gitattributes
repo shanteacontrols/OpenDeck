@@ -9,6 +9,9 @@
 *.txt   text
 *.map   text
 *.py    text
+*.tsi   text eol=crlf
+*.bat   text eol=crlf
+*.sh    text eol=lf
 
 #binary files
 *.bin   binary
@@ -19,3 +22,4 @@
 *.png   binary
 *.bmp   binary
 *.pdf   binary
+*.cdr   binary
