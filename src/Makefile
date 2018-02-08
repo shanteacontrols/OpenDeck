@@ -35,9 +35,7 @@ ifneq ($(filter fw_%, $(MAKECMDGOALS)), )
 else
     #optimize for size for bootloader
     OPT := -Os
-    
-    #don't use cpp sources
-    CPP_OBJECTS_WDIR :=
+
     #make sure to link .text at correct address in bootloader
     LDFLAGS += -Wl,--section-start=.text=$(BOOT_START_ADDR)
 endif
