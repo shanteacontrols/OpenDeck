@@ -243,6 +243,23 @@ void initSysEx()
 
         sysEx.addSection(DB_BLOCK_LED, section);
     }
+
+    {
+        //display block
+        //controller section
+        section.numberOfParameters = DISPLAY_CONTROLLERS;
+        section.minValue = 0;
+        section.maxValue = DISPLAY_CONTROLLERS-1;
+
+        sysEx.addSection(DB_BLOCK_DISPLAY, section);
+
+        //resolution section
+        section.numberOfParameters = DISPLAY_RESOLUTIONS;
+        section.minValue = 0;
+        section.maxValue = DISPLAY_RESOLUTIONS-1;
+
+        sysEx.addSection(DB_BLOCK_DISPLAY, section);
+    }
 }
 
 void globalInit()

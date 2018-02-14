@@ -18,23 +18,22 @@
 
 #pragma once
 
-#include "MIDI.h"
-#include "Buttons.h"
-#include "Encoders.h"
-#include "Analog.h"
-#include "LEDs.h"
-#include "Display.h"
-#include "ID.h"
-
-//define block names
-enum dbBlocks
+typedef enum
 {
-    DB_BLOCK_MIDI,      //0
-    DB_BLOCK_BUTTON,    //1
-    DB_BLOCK_ENCODER,   //2
-    DB_BLOCK_ANALOG,    //3
-    DB_BLOCK_LED,       //4
-    DB_BLOCK_DISPLAY,   //5
-    DB_BLOCK_ID,        //6
-    DB_BLOCKS
-};
+    displayControllerSection,
+    displayResolutionSection,
+    DISPLAY_SECTIONS
+} displaySection;
+
+typedef enum
+{
+    displayController_ssd1306,
+    DISPLAY_CONTROLLERS
+} displayController;
+
+typedef enum
+{
+    displayRes_128x32,
+    displayRes_128x64,
+    DISPLAY_RESOLUTIONS
+} displayResolution;
