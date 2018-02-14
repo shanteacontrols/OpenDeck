@@ -238,6 +238,27 @@ void Database::createLayout()
     }
 
     {
+        //display block
+        //controller section
+        section.numberOfParameters = DISPLAY_CONTROLLERS;
+        section.defaultValue = 0;
+        section.autoIncrement = false;
+        section.parameterType = BYTE_PARAMETER;
+        section.preserveOnPartialReset = 0;
+
+        DBMS::addSection(DB_BLOCK_DISPLAY, section);
+
+        //resolution section
+        section.numberOfParameters = DISPLAY_RESOLUTIONS;
+        section.defaultValue = 0;
+        section.autoIncrement = false;
+        section.parameterType = BYTE_PARAMETER;
+        section.preserveOnPartialReset = 0;
+
+        DBMS::addSection(DB_BLOCK_DISPLAY, section);
+    }
+
+    {
         //ID block
 
         section.numberOfParameters = ID_BYTES;
