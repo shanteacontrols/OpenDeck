@@ -28,6 +28,7 @@
             "includePath": [
                 "/usr/include",
                 "/usr/local/include",
+                "/usr/local/avr",
                 "${workspaceRoot}"
             ],
             "defines": [],
@@ -36,6 +37,7 @@
                 "path": [
                     "/usr/include",
                     "/usr/local/include",
+                    "/usr/local/avr",
                     "${workspaceRoot}"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
