@@ -16,3 +16,6 @@
 [submodule "src/modules/u8g2"]
 	path = src/modules/u8g2
 	url = git@github.com:olikraus/u8g2.git
+[submodule "src/modules/i2c"]
+	path = src/modules/i2c
+	url = git@github.com:paradajz/i2cmaster.git
