@@ -33,7 +33,8 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
     firmware/board/avr/variants/$(BOARD_DIR)/Encoders.cpp \
     firmware/board/avr/variants/$(BOARD_DIR)/Init.cpp \
     firmware/board/avr/variants/$(BOARD_DIR)/ISR.cpp \
-    firmware/board/avr/variants/$(BOARD_DIR)/LEDs.cpp
+    firmware/board/avr/variants/$(BOARD_DIR)/LEDs.cpp \
+    firmware/board/avr/display/u8g2_wrapper.cpp
 
     ifeq ($(BOARD_DIR),xu2)
         #xu2 uses different set of sources than other firmwares, overwrite
