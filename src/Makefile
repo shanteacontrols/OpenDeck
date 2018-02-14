@@ -92,16 +92,6 @@ $(LUFA_OBJS): $(BUILD_DIR)%.o: %.c
 	@$(CPP) $(CXXFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) -mmcu=$(MCU) $(INCLUDE_DIRS) -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -o "$@" "$<" 
 	@echo Finished building: $<
 
-#determine if we're running make on Windows subsystem for Linux
-#this is needed when running upload command since we can't access usb devices directly
-#instead, call upload command from windows
-ifeq ($(findstring Microsoft,$(shell uname -r)), Microsoft)
-    WINBASH := cmd.exe /c
-    #also, replace forward slash with backslash in path
-    AVR_DUDE_PATH := $(subst /,\,$(AVR_DUDE_PATH))
-    PATH_QUOTE := "
-endif
-
 #targets
 fw_opendeck fw_leonardo fw_pro_micro fw_teensy2pp fw_mega fw_uno fw_16u2 fw_8u2 boot_opendeck boot_leonardo boot_16u2 boot_teensy2pp: $(TARGET).elf
 
@@ -142,8 +132,8 @@ boot_mega:
 
 #firmware upload with avrdude
 upload:
-	@$(WINBASH) $(PATH_QUOTE)$(AVR_DUDE_BIN_PATH)$(PATH_QUOTE) -C $(AVR_DUDE_CONF_PATH) -p $(shell cat $(BUILD_DIR)MCU) -P /dev/$(PORT) -b 19200 -c $(AVRDUDE_PROGRAMMER) -e -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
-	@$(WINBASH) $(PATH_QUOTE)$(AVR_DUDE_BIN_PATH)$(PATH_QUOTE) -C $(AVR_DUDE_CONF_PATH) -p $(shell cat $(BUILD_DIR)MCU) -P /dev/$(PORT) -b 19200 -c $(AVRDUDE_PROGRAMMER) -U flash:w:$(BUILD_DIR)$(shell cat $(BUILD_DIR)TARGET).hex -U lock:w:$(FUSE_LOCK):m
+	@$(AVR_DUDE_BIN_PATH) -C $(AVR_DUDE_CONF_PATH) -p $(shell cat $(BUILD_DIR)MCU) -P /dev/$(PORT) -b 19200 -c $(AVRDUDE_PROGRAMMER) -e -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
+	@$(AVR_DUDE_BIN_PATH) -C $(AVR_DUDE_CONF_PATH) -p $(shell cat $(BUILD_DIR)MCU) -P /dev/$(PORT) -b 19200 -c $(AVRDUDE_PROGRAMMER) -U flash:w:$(BUILD_DIR)$(shell cat $(BUILD_DIR)TARGET).hex -U lock:w:$(FUSE_LOCK):m
 
 #lists all serial ports - used to find out where the programmer is connected
 ser_list:
