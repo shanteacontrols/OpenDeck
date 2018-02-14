@@ -35,7 +35,7 @@ U8X8::U8X8()
 
 }
 
-void U8X8::initDisplay()
+void U8X8::initDisplay(displayController controller, displayResolution resolution)
 {
     //setup defaults
     u8x8_SetupDefaults(&u8x8);
@@ -51,8 +51,10 @@ void U8X8::initDisplay()
 
     /* setup display info */
     u8x8_SetupMemory(&u8x8);
-
     u8x8_InitDisplay(&u8x8);
+
+    clearDisplay();
+    setPowerSave(0);
 }
 
 void U8X8::setI2CAddress(uint8_t adr)
@@ -88,13 +90,6 @@ void U8X8::fillDisplay()
 void U8X8::setPowerSave(uint8_t is_enable)
 {
     u8x8_SetPowerSave(&u8x8, is_enable);
-}
-
-void U8X8::begin()
-{
-    initDisplay();
-    clearDisplay();
-    setPowerSave(0);
 }
 
 void U8X8::setFlipMode(uint8_t mode)
@@ -223,3 +218,5 @@ void U8X8::setCursor(uint8_t x, uint8_t y)
     tx = x;
     ty = y;
 }
+
+U8X8 displayHw;

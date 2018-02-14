@@ -18,7 +18,6 @@
 
 //c++ wrapper based on original wrapper for arduino
 
-#include "../../Board.h"
 #include "u8g2/csrc/u8x8.h"
 #include "../../../database/blocks/Display.h"
 
@@ -28,9 +27,7 @@ class U8X8
     uint8_t tx, ty;
 
     U8X8();
-    void setupController(displayController controller);
-    void setupResolution(displayResolution resolution);
-    void initDisplay();
+    void initDisplay(displayController controller, displayResolution resolution);
     void setI2CAddress(uint8_t adr);
     uint8_t getCols();
     uint8_t getRows();
@@ -38,7 +35,6 @@ class U8X8
     void clearDisplay();
     void fillDisplay();
     void setPowerSave(uint8_t is_enable);
-    void begin();
     void setFlipMode(uint8_t mode);
     void refreshDisplay(void);
     void clearLine(uint8_t line);
@@ -68,8 +64,6 @@ class U8X8
 
     protected:
     u8x8_t u8x8;
-
-    private:
-    displayResolution resolution;
-    displayController controller;
 };
+
+extern U8X8 displayHw;
