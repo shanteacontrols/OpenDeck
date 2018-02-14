@@ -128,6 +128,8 @@ $(TARGET).elf: $(RUN_CLEAN) $(LUFA_OBJS) $(CPP_OBJECTS)
 	@objcopy -I ihex "$(TARGET).hex" -O binary "$(TARGET).bin"
 	@#create a file with contents being mcu name (for upload process)
 	@echo $(MCU) > $(BUILD_DIR)MCU
+	@#create a file with contents being target name (for upload process)
+	@echo $(MAKECMDGOALS) > $(BUILD_DIR)TARGET
 	@#display memory usage
 	@avr-size -C --mcu=$(MCU) "$(TARGET).elf"
 
@@ -140,8 +142,12 @@ boot_mega:
 
 #firmware upload with avrdude
 upload:
-	@$(WINBASH) $(PATH_QUOTE)$(AVR_DUDE_PATH)$(AVR_DUDE_BIN)$(PATH_QUOTE) -p $(shell cat $(BUILD_DIR)MCU) -c $(AVRDUDE_PROGRAMMER) -e -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
-	@$(WINBASH) $(PATH_QUOTE)$(AVR_DUDE_PATH)$(AVR_DUDE_BIN)$(PATH_QUOTE) -p $(shell cat $(BUILD_DIR)MCU) -c $(AVRDUDE_PROGRAMMER) -U flash:w:$(shell find . -name "*.hex" | head -1) -U lock:w:$(FUSE_LOCK):m
+	@$(WINBASH) $(PATH_QUOTE)$(AVR_DUDE_BIN_PATH)$(PATH_QUOTE) -C $(AVR_DUDE_CONF_PATH) -p $(shell cat $(BUILD_DIR)MCU) -P /dev/$(PORT) -b 19200 -c $(AVRDUDE_PROGRAMMER) -e -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
+	@$(WINBASH) $(PATH_QUOTE)$(AVR_DUDE_BIN_PATH)$(PATH_QUOTE) -C $(AVR_DUDE_CONF_PATH) -p $(shell cat $(BUILD_DIR)MCU) -P /dev/$(PORT) -b 19200 -c $(AVRDUDE_PROGRAMMER) -U flash:w:$(BUILD_DIR)$(shell cat $(BUILD_DIR)TARGET).hex -U lock:w:$(FUSE_LOCK):m
+
+#lists all serial ports - used to find out where the programmer is connected
+ser_list:
+	dmesg | grep tty
 
 #other targets
 clean:
