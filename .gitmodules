@@ -22,3 +22,6 @@
 	path = src/modules/i2c
 	url = git@github.com:paradajz/i2cmaster.git
 	branch = master
+[submodule "src/modules/core"]
+	path = src/modules/core
+	url = git@github.com:paradajz/core.git
