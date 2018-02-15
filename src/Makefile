@@ -70,17 +70,17 @@ endif
 
 #make sure all build files are located in build directory
 C_SOURCES := $(addprefix $(BUILD_DIR),$(C_SOURCES))
-CPP_OBJECTS := $(addprefix $(BUILD_DIR),$(CPP_OBJECTS))
+CPP_SOURCES := $(addprefix $(BUILD_DIR),$(CPP_SOURCES))
 
 #also replace extension with .o
 C_SOURCES := $(C_SOURCES:.c=.o)
-CPP_OBJECTS := $(CPP_OBJECTS:.cpp=.o)
+CPP_SOURCES := $(CPP_SOURCES:.cpp=.o)
 
 #include generated dependency files to allow incremental build when only headers change
--include $(CPP_OBJECTS:%.o=%.d)
+-include $(CPP_SOURCES:%.o=%.d)
 
 #cpp sources
-$(CPP_OBJECTS): $(BUILD_DIR)%.o: %.cpp
+$(CPP_SOURCES): $(BUILD_DIR)%.o: %.cpp
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) -mmcu=$(MCU) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -o "$@" "$<" 
 	@echo Finished building: $<
@@ -102,9 +102,9 @@ ifneq ("$(wildcard $(BUILD_DIR)MCU)","")
     endif
 endif
 
-$(TARGET).elf: $(RUN_CLEAN) $(C_SOURCES) $(CPP_OBJECTS)
+$(TARGET).elf: $(RUN_CLEAN) $(C_SOURCES) $(CPP_SOURCES)
 	@#link
-	@$(CXX) -o$(TARGET).elf $(C_SOURCES) $(CPP_OBJECTS) -mmcu=$(MCU) $(LDFLAGS) -Wl,-Map,$(TARGET).map
+	@$(CXX) -o$(TARGET).elf $(C_SOURCES) $(CPP_SOURCES) -mmcu=$(MCU) $(LDFLAGS) -Wl,-Map,$(TARGET).map
 	@echo Finished building target: $@
 	@#convet elf to hex
 	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(TARGET).elf" "$(TARGET).hex"
