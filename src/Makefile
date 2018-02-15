@@ -57,9 +57,9 @@ INCLUDE_DIRS := \
 #custom linker script for 32u4/1286 boards
 ifneq ($(filter atmega32u4 at90usb1286, $(MCU)), )
     ifeq ($(MCU),atmega32u4)
-        LDFLAGS += -T ld_32u4.x
+        LDFLAGS += -T linker/ld_32u4.x
     else ifeq ($(MCU),at90usb1286)
-        LDFLAGS += -T ld_1286.x
+        LDFLAGS += -T linker/ld_1286.x
     endif
     #append length only in firmware
     ifeq ($(findstring fw,$(MAKECMDGOALS)), fw)
