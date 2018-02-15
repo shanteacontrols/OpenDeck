@@ -66,4 +66,4 @@ class U8X8
     u8x8_t u8x8;
 };
 
-extern U8X8 displayHw;
+extern U8X8 display_hw;

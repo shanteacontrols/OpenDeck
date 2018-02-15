@@ -239,7 +239,16 @@ void Database::createLayout()
 
     {
         //display block
-        //controller section
+        //features section
+        section.numberOfParameters = 16; //reserved for now, actual max DISPLAY_FEATURES
+        section.defaultValue = 0;
+        section.autoIncrement = false;
+        section.parameterType = BIT_PARAMETER;
+        section.preserveOnPartialReset = 0;
+
+        DBMS::addSection(DB_BLOCK_DISPLAY, section);
+
+        //hw section
         section.numberOfParameters = DISPLAY_CONTROLLERS;
         section.defaultValue = 0;
         section.autoIncrement = false;

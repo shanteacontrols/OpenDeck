@@ -21,3 +21,4 @@
 #include "analog/Analog.h"
 #include "digital/input/DigitalInput.h"
 #include "digital/output/leds/LEDs.h"
+#include "display/Display.h"

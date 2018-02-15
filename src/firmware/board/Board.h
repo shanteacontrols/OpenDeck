@@ -39,14 +39,12 @@ typedef enum
 #define BOARD_ID    BOARD_A_PRO_MICRO_ID
 #elif defined(BOARD_A_MEGA)
 #include "avr/variants/mega/Board.h"
-#include "avr/display/u8g2_wrapper.h"
 #define BOARD_ID    BOARD_A_MEGA_ID
 #elif defined(BOARD_A_UNO)
 #include "avr/variants/uno/Board.h"
 #define BOARD_ID    BOARD_A_UNO_ID
 #elif defined(BOARD_T_2PP)
 #include "avr/variants/teensy2pp/Board.h"
-#include "avr/display/u8g2_wrapper.h"
 #define BOARD_ID    BOARD_T_2PP_ID
 #elif defined(BOARD_A_xu2)
 #include "avr/variants/xu2/Board.h"

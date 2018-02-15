@@ -3,7 +3,7 @@
     "tasks": [
         {
             "label": "build opendeck",
-            "command": "make fw_opendeck",
+            "command": "make fw_mega",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -12,6 +12,14 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "build mega",
+            "command": "make fw_mega",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ]
         }
     ]
 }

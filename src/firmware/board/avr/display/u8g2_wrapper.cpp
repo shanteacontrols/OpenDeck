@@ -219,4 +219,4 @@ void U8X8::setCursor(uint8_t x, uint8_t y)
     ty = y;
 }
 
-U8X8 displayHw;
+U8X8 display_hw;

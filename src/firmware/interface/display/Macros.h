@@ -18,6 +18,9 @@
 
 #pragma once
 
-#define SW_VERSION_MAJOR        1
-#define SW_VERSION_MINOR        5
-#define SW_VERSION_REVISION     0
+///
+/// \brief Actual octave ranges from 0 to 11.
+/// This macro subtracts calculated octave by normalization value and displays
+/// normalized value on display.
+///
+#define normalizeOctave(octave, normalization)     ((octave)+(normalization))
