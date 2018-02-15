@@ -26,4 +26,4 @@ typedef enum
     ledLocalControlSection,
     ledSingleVelocityValueSection,
     LED_SECTIONS
-} ledSection;
+} ledSection_db_t;

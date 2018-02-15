@@ -37,7 +37,7 @@ class Display
 {
     public:
     Display();
-    void init(displayController controller, displayResolution resolution);
+    void init(displayController_t controller, displayResolution_t resolution);
     bool update();
     void displayWelcomeMessage();
     void setDirectWriteState(bool state);

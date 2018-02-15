@@ -31,7 +31,7 @@ Display::Display()
 ///
 /// \brief Initialize display driver and variables.
 ///
-void Display::init(displayController controller, displayResolution resolution)
+void Display::init(displayController_t controller, displayResolution_t resolution)
 {
     // display_hw.initDisplay(controller, resolution);
     // display_hw.setPowerSave(0);

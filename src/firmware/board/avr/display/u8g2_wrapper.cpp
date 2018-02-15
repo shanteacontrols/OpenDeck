@@ -35,7 +35,7 @@ U8X8::U8X8()
 
 }
 
-void U8X8::initDisplay(displayController controller, displayResolution resolution)
+void U8X8::initDisplay(displayController_t controller, displayResolution_t resolution)
 {
     //setup defaults
     u8x8_SetupDefaults(&u8x8);
