@@ -4,7 +4,7 @@ include FirmwareSources.mk
 include Upload.mk
 
 #target location
-TARGET := $(BUILD_DIR)$(MAKECMDGOALS)
+TARGET := build/$(MAKECMDGOALS)
 
 #specify c/c++ compilers
 CPP := avr-gcc
@@ -68,8 +68,8 @@ ifneq ($(filter atmega32u4 at90usb1286, $(MCU)), )
 endif
 
 #make sure all build files are located in build directory
-C_SOURCES := $(addprefix $(BUILD_DIR),$(C_SOURCES))
-CPP_SOURCES := $(addprefix $(BUILD_DIR),$(CPP_SOURCES))
+C_SOURCES := $(addprefix build/,$(C_SOURCES))
+CPP_SOURCES := $(addprefix build/,$(CPP_SOURCES))
 
 #also replace extension with .o
 C_SOURCES := $(C_SOURCES:.c=.o)
@@ -79,13 +79,13 @@ CPP_SOURCES := $(CPP_SOURCES:.cpp=.o)
 -include $(CPP_SOURCES:%.o=%.d)
 
 #cpp sources
-$(CPP_SOURCES): $(BUILD_DIR)%.o: %.cpp
+$(CPP_SOURCES): build/%.o: %.cpp
 	@mkdir -p $(@D)
 	@$(CXX) $(CXXFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) -mmcu=$(MCU) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -o "$@" "$<" 
 	@echo Finished building: $<
 
 #c sources
-$(C_SOURCES): $(BUILD_DIR)%.o: %.c
+$(C_SOURCES): build/%.o: %.c
 	@mkdir -p $(@D)
 	@$(CPP) $(CXXFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) -mmcu=$(MCU) $(INCLUDE_DIRS) -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -o "$@" "$<" 
 	@echo Finished building: $<
@@ -95,8 +95,8 @@ fw_opendeck fw_leonardo fw_pro_micro fw_teensy2pp fw_mega fw_uno fw_16u2 fw_8u2 
 
 #determine if make clean should be run before compilation
 #first check if MCU file in build dir exists
-ifneq ("$(wildcard $(BUILD_DIR)MCU)","")
-    ifneq ($(shell cat $(BUILD_DIR)MCU), $(MCU))
+ifneq ("$(wildcard build/MCU)","")
+    ifneq ($(shell cat build/MCU), $(MCU))
         RUN_CLEAN := clean
     endif
 endif
@@ -115,9 +115,9 @@ $(TARGET).elf: $(RUN_CLEAN) $(C_SOURCES) $(CPP_SOURCES)
 	@#convert hex to bin
 	@objcopy -I ihex "$(TARGET).hex" -O binary "$(TARGET).bin"
 	@#create a file with contents being mcu name (for upload process)
-	@echo $(MCU) > $(BUILD_DIR)MCU
+	@echo $(MCU) > build/MCU
 	@#create a file with contents being target name (for upload process)
-	@echo $(MAKECMDGOALS) > $(BUILD_DIR)TARGET
+	@echo $(MAKECMDGOALS) > build/TARGET
 	@#display memory usage
 	@avr-size -C --mcu=$(MCU) "$(TARGET).elf"
 
@@ -130,8 +130,8 @@ boot_mega:
 
 #firmware upload with avrdude
 upload:
-	@$(AVR_DUDE_BIN_PATH) -C $(AVR_DUDE_CONF_PATH) -p $(shell cat $(BUILD_DIR)MCU) -P /dev/$(PORT) -b 19200 -c $(AVRDUDE_PROGRAMMER) -e -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
-	@$(AVR_DUDE_BIN_PATH) -C $(AVR_DUDE_CONF_PATH) -p $(shell cat $(BUILD_DIR)MCU) -P /dev/$(PORT) -b 19200 -c $(AVRDUDE_PROGRAMMER) -U flash:w:$(BUILD_DIR)$(shell cat $(BUILD_DIR)TARGET).hex -U lock:w:$(FUSE_LOCK):m
+	@$(AVR_DUDE_BIN_PATH) -C $(AVR_DUDE_CONF_PATH) -p $(shell cat build/MCU) -P /dev/$(PORT) -b 19200 -c $(AVRDUDE_PROGRAMMER) -e -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
+	@$(AVR_DUDE_BIN_PATH) -C $(AVR_DUDE_CONF_PATH) -p $(shell cat build/MCU) -P /dev/$(PORT) -b 19200 -c $(AVRDUDE_PROGRAMMER) -U flash:w:build/$(shell cat build/TARGET).hex -U lock:w:$(FUSE_LOCK):m
 
 #lists all serial ports - used to find out where the programmer is connected
 ser_list:
@@ -140,7 +140,7 @@ ser_list:
 #other targets
 clean:
 	@echo Cleaning up.
-	@rm -rf $(BUILD_DIR)
+	@rm -rf build/
 
 #debugging
 print-%:
