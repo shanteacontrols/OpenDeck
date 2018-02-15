@@ -1,21 +1,28 @@
 [submodule "src/Firmware/core"]
 	path = src/modules/core
-	url = https://github.com/paradajz/avr-core.git
+	url = git@github.com:paradajz/core.git
+	branch = master
 [submodule "src/Firmware/midi"]
 	path = src/modules/midi
-	url = https://github.com/paradajz/midi-lib.git
+	url = git@github.com:paradajz/midi-lib.git
+	branch = master
 [submodule "src/Firmware/dbms"]
 	path = src/modules/dbms
-	url = https://github.com/paradajz/AVR-DB.git
+	url = git@github.com:paradajz/AVR-DB.git
+	branch = master
 [submodule "src/Firmware/sysex"]
 	path = src/modules/sysex
-	url = https://github.com/paradajz/sysex-conf.git
+	url = git@github.com:paradajz/sysex-conf.git
+	branch = master
 [submodule "src/Firmware/lufa"]
 	path = src/modules/lufa
-	url = https://github.com/abcminiuser/lufa.git
+	url = git@github.com:abcminiuser/lufa.git
+	branch = master
 [submodule "src/modules/u8g2"]
 	path = src/modules/u8g2
 	url = git@github.com:olikraus/u8g2.git
+	branch = master
 [submodule "src/modules/i2c"]
 	path = src/modules/i2c
 	url = git@github.com:paradajz/i2cmaster.git
+	branch = master
