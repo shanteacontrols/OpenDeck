@@ -16,7 +16,6 @@ HID_VENDOR_ID=0x1209 \
 HID_PRODUCT_ID=0x8473 \
 MIDI_VENDOR_ID=0x1209 \
 MIDI_PRODUCT_ID=0x8472 \
-STRING_BUFFER_SIZE=1 \
 MIDI_BAUD_RATE=31250
 
 #flash type specific
@@ -54,9 +53,13 @@ else ifeq ($(findstring pro_micro,$(MAKECMDGOALS)), pro_micro)
 else ifeq ($(findstring teensy2pp,$(MAKECMDGOALS)), teensy2pp)
     MCU := at90usb1286
     DEFINES += BOARD_T_2PP
+    DEFINES += STRING_BUFFER_SIZE=40
+    DEFINES += DISPLAY_SUPPORTED
 else ifeq ($(findstring mega,$(MAKECMDGOALS)), mega)
     MCU := atmega2560
     DEFINES += BOARD_A_MEGA
+    DEFINES += STRING_BUFFER_SIZE=40
+    DEFINES += DISPLAY_SUPPORTED
 else ifeq ($(findstring uno,$(MAKECMDGOALS)), uno)
     MCU := atmega328p
     DEFINES += BOARD_A_UNO

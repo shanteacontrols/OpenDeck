@@ -18,6 +18,18 @@
 
 #pragma once
 
-#define SW_VERSION_MAJOR        1
-#define SW_VERSION_MINOR        5
-#define SW_VERSION_REVISION     0
+const char eventCC_string[] PROGMEM = "CC";
+const char eventPC_string[] PROGMEM = "PC";
+const char eventMMCplay_string[] PROGMEM = "MMC Play";
+const char eventMMCstop_string[] PROGMEM = "MMC Stop";
+const char eventMMCpause_string[] PROGMEM = "MMC Pause";
+const char eventMMCrecord_string[] PROGMEM = "MMC Record";
+
+const char eventRTclock_string[] PROGMEM = "RealTime Clock";
+const char eventRTstart_string[] PROGMEM = "RealTime Start";
+const char eventRTcontinue_string[] PROGMEM = "RealTime Continue";
+const char eventRTasens_string[] PROGMEM = "RealTime ASens";
+const char eventRTsysrst_string[] PROGMEM = "RealTime SysRst";
+
+const char eventMIDIin_string[] PROGMEM = "In";
+const char eventMIDIout_string[] PROGMEM = "Out";

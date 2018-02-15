@@ -18,6 +18,8 @@
 
 #pragma once
 
-#define SW_VERSION_MAJOR        1
-#define SW_VERSION_MINOR        5
-#define SW_VERSION_REVISION     0
+const char deviceName_string[] PROGMEM = "OpenDeck";
+const char welcome_string[] PROGMEM = "Welcome!";
+const char firmware_updated[] PROGMEM = "Firmware updated!";
+const char dbInit_string[] PROGMEM = "First time init.";
+const char pleaseWait_string[] PROGMEM = "Please wait...";

@@ -20,10 +20,16 @@
 
 typedef enum
 {
-    displayControllerSection,
-    displayResolutionSection,
+    displayFeaturesSection,
+    displayHwSection,
     DISPLAY_SECTIONS
 } displaySection;
+
+typedef enum
+{
+    displayHwController,
+    displayHwResolution
+} displayHw;
 
 typedef enum
 {
@@ -37,3 +43,10 @@ typedef enum
     displayRes_128x64,
     DISPLAY_RESOLUTIONS
 } displayResolution;
+
+typedef enum
+{
+    displayFeatureEnable,
+    displayFeatureWelcomeMsg,
+    DISPLAY_FEATURES
+} displayFeature;

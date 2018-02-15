@@ -246,6 +246,13 @@ void initSysEx()
 
     {
         //display block
+        //features section
+        section.numberOfParameters = DISPLAY_FEATURES;
+        section.minValue = 0;
+        section.maxValue = DISPLAY_FEATURES-1;
+
+        sysEx.addSection(DB_BLOCK_DISPLAY, section);
+
         //controller section
         section.numberOfParameters = DISPLAY_CONTROLLERS;
         section.minValue = 0;
@@ -331,6 +338,12 @@ void globalInit()
     sei();
 
     leds.init();
+
+    #ifdef DISPLAY_SUPPORTED
+    if (database.read(DB_BLOCK_DISPLAY, displayFeaturesSection, displayFeatureEnable))
+        // display.init((displayController)database.read(DB_BLOCK_DISPLAY, displayHwSection, displayHwController), (displayResolution)database.read(DB_BLOCK_DISPLAY, displayHwSection, displayHwResolution));
+        display.init(displayController_ssd1306, displayRes_128x64);
+    #endif
 }
 
 bool onCustom(uint8_t value)
