@@ -33,30 +33,30 @@ Display::Display()
 ///
 void Display::init(displayController_t controller, displayResolution_t resolution)
 {
-    // display_hw.initDisplay(controller, resolution);
-    // display_hw.setPowerSave(0);
-    // display_hw.setFlipMode(1);
+    display_hw.initDisplay(controller, resolution);
+    display_hw.setPowerSave(0);
+    display_hw.setFlipMode(1);
 
-    // display_hw.setFont(u8x8_font_pressstart2p_r);
-    // display_hw.clear();
+    display_hw.setFont(u8x8_font_pressstart2p_r);
+    display_hw.clear();
 
-    // //init char arrays
-    // for (int i=0; i<LCD_HEIGHT_MAX; i++)
-    // {
-    //     for (int j=0; j<STRING_BUFFER_SIZE-2; j++)
-    //     {
-    //         lcdRowStillText[i][j] = ' ';
-    //         lcdRowTempText[i][j] = ' ';
-    //     }
+    //init char arrays
+    for (int i=0; i<LCD_HEIGHT_MAX; i++)
+    {
+        for (int j=0; j<STRING_BUFFER_SIZE-2; j++)
+        {
+            lcdRowStillText[i][j] = ' ';
+            lcdRowTempText[i][j] = ' ';
+        }
 
-    //     lcdRowStillText[i][STRING_BUFFER_SIZE-1] = '\0';
-    //     lcdRowTempText[i][STRING_BUFFER_SIZE-1] = '\0';
+        lcdRowStillText[i][STRING_BUFFER_SIZE-1] = '\0';
+        lcdRowTempText[i][STRING_BUFFER_SIZE-1] = '\0';
 
-    //     scrollEvent[i].size = 0;
-    //     scrollEvent[i].startIndex = 0;
-    //     scrollEvent[i].currentIndex = 0;
-    //     scrollEvent[i].direction = scroll_ltr;
-    // }
+        scrollEvent[i].size = 0;
+        scrollEvent[i].startIndex = 0;
+        scrollEvent[i].currentIndex = 0;
+        scrollEvent[i].direction = scroll_ltr;
+    }
 }
 
 ///
