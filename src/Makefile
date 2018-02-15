@@ -61,7 +61,6 @@ ifneq ($(filter atmega32u4 at90usb1286, $(MCU)), )
     else ifeq ($(MCU),at90usb1286)
         LDFLAGS += -T ld_1286.x
     endif
-    
     #append length only in firmware
     ifeq ($(findstring fw,$(MAKECMDGOALS)), fw)
         LEN_APPEND := 1
