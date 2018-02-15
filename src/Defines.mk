@@ -1,6 +1,3 @@
-#includes
-include BuildDir.mk
-
 #common defines
 DEFINES := \
 NDEBUG \
@@ -72,8 +69,8 @@ else ifeq ($(findstring 8u2,$(MAKECMDGOALS)), 8u2)
 else ifeq ($(MAKECMDGOALS),upload)
     #hack used to set MCU if only make upload target is called
     #check if MCU file exists
-    ifneq ("$(wildcard $(BUILD_DIR)MCU)","")
-        MCU := $(shell cat $(BUILD_DIR)MCU)
+    ifneq ("$(wildcard build/MCU)","")
+        MCU := $(shell cat build/MCU)
     else
         $(error Please run make for specific target first)
     endif
