@@ -23,7 +23,7 @@ typedef enum
     midiFeatureSection,
     midiChannelSection,
     MIDI_SECTIONS
-} midiSection;
+} midiSection_db_t;
 
 typedef enum
 {
@@ -32,7 +32,7 @@ typedef enum
     CCchannel,
     inputChannel,
     MIDI_CHANNELS
-} midiChannels;
+} midiChannelType_t;
 
 typedef enum
 {
@@ -41,4 +41,4 @@ typedef enum
     midiFeatureUSBconvert,
     midiFeatureDinEnabled,
     MIDI_FEATURES
-} midiFeatures;
+} midiFeature_t;

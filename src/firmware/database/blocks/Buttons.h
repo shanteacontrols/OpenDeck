@@ -25,4 +25,4 @@ typedef enum
     buttonMIDIidSection,
     buttonMIDIvelocitySection,
     BUTTON_SECTIONS
-} buttonSection;
+} buttonSection_db_t;

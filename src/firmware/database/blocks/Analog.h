@@ -27,4 +27,4 @@ typedef enum
     analogCClowerLimitSection,
     analogCCupperLimitSection,
     ANALOG_SECTIONS
-} analogSection;
+} analogSection_db_t;

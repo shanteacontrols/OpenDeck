@@ -23,30 +23,30 @@ typedef enum
     displayFeaturesSection,
     displayHwSection,
     DISPLAY_SECTIONS
-} displaySection;
+} displaySection_db_t;
 
 typedef enum
 {
     displayHwController,
     displayHwResolution
-} displayHw;
+} displayHw_db_t;
 
 typedef enum
 {
     displayController_ssd1306,
     DISPLAY_CONTROLLERS
-} displayController;
+} displayController_t;
 
 typedef enum
 {
     displayRes_128x32,
     displayRes_128x64,
     DISPLAY_RESOLUTIONS
-} displayResolution;
+} displayResolution_t;
 
 typedef enum
 {
     displayFeatureEnable,
     displayFeatureWelcomeMsg,
     DISPLAY_FEATURES
-} displayFeature;
+} displayFeature_t;

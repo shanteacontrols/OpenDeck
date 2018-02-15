@@ -25,4 +25,4 @@ typedef enum
     encoderEncodingModeSection,
     encoderMIDIidSection,
     ENCODER_SECTIONS
-} encoderSection;
+} encoderSection_db_t;
