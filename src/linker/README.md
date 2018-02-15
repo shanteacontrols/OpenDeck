@@ -1,0 +1,1 @@
+These are custom linker scripts used to created new section in .text called "applen" which stores length of application directly in firmware. This is used so that application CRC can be calculated and verified in bootloader.
