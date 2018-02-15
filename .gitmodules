@@ -1,7 +1,3 @@
-[submodule "src/Firmware/core"]
-	path = src/modules/core
-	url = git@github.com:paradajz/core.git
-	branch = master
 [submodule "src/Firmware/midi"]
 	path = src/modules/midi
 	url = git@github.com:paradajz/midi-lib.git
