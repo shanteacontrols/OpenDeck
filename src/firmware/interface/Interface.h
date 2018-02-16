@@ -21,4 +21,6 @@
 #include "analog/Analog.h"
 #include "digital/input/DigitalInput.h"
 #include "digital/output/leds/LEDs.h"
+#ifdef DISPLAY_SUPPORTED
 #include "display/Display.h"
+#endif

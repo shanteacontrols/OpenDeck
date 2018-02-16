@@ -18,8 +18,6 @@
 
 #pragma once
 
-#ifdef DISPLAY_SUPPORTED
-
 #include "../../board/Board.h"
 #include "../../board/avr/display/u8g2_wrapper.h"
 #include "Config.h"
@@ -117,5 +115,3 @@ class Display
 extern Display display;
 
 /// @}
-
-#endif
