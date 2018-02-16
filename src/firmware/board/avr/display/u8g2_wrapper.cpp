@@ -19,6 +19,7 @@
 //c++ wrapper based on original wrapper for arduino
 
 #include "u8g2_wrapper.h"
+#include "i2c/i2cmaster.h"
 
 uint8_t u8x8_gpio_and_delay(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, U8X8_UNUSED void *arg_ptr)
 {
@@ -27,7 +28,37 @@ uint8_t u8x8_gpio_and_delay(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, U8X8_UNU
 
 uint8_t u8x8_byte_hw_i2c(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr)
 {
-    return 0;
+    // uint8_t *array = (uint8_t *)arg_ptr;
+
+    switch(msg)
+    {
+    //     case U8X8_MSG_BYTE_SEND:
+    //     for (int i=0; i<arg_int; i++)
+    //     {
+    //         i2c_write(array[i]);
+    //     }
+    //     break;
+
+        case U8X8_MSG_BYTE_INIT:
+        i2c_init();
+        break;
+
+    //     case U8X8_MSG_BYTE_SET_DC:
+    //     break;
+
+    //     case U8X8_MSG_BYTE_START_TRANSFER:
+    //     i2c_start_wait((u8x8_GetI2CAddress(u8x8) >> 1) + I2C_WRITE);
+    //     break;
+
+    //     case U8X8_MSG_BYTE_END_TRANSFER:
+    //     i2c_stop();
+    //     break;
+
+    //     default:
+    //     return 0;
+    }
+
+    return 1;
 }
 
 U8X8::U8X8()
