@@ -16,8 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef DISPLAY_SUPPORTED
-
 #include "Display.h"
 #include "strings/Strings.h"
 
@@ -27,5 +25,3 @@ void Display::displayWelcomeMessage()
 {
     stringBuffer.appendText_p(welcome_string);
 }
-
-#endif

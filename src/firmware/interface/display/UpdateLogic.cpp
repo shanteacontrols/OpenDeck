@@ -16,8 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef DISPLAY_SUPPORTED
-
 #include "Display.h"
 
 ///
@@ -294,5 +292,3 @@ lcdTextType_t Display::getActiveTextType()
 }
 
 Display display;
-
-#endif
