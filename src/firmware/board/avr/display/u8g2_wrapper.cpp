@@ -28,7 +28,7 @@ uint8_t u8x8_gpio_and_delay(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, U8X8_UNU
 
 uint8_t u8x8_byte_hw_i2c(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr)
 {
-    // uint8_t *array = (uint8_t *)arg_ptr;
+    uint8_t *array = (uint8_t *)arg_ptr;
 
     switch(msg)
     {
