@@ -40,14 +40,16 @@ class Display
     void init(displayController_t controller, displayResolution_t resolution);
     bool update();
     void displayWelcomeMessage();
+    void displayVinfo(bool newFw);
+    void setTitle();
+    void displayMIDIevent(displayEventType_t type, midimessage_t message, uint8_t byte1, uint8_t byte2, uint8_t byte3);
+    void setRawNoteDisplay(bool state);
+    void setOctaveNormalization(int8_t value);
     void setDirectWriteState(bool state);
-    void setupHomeScreen();
-    void displayFirmwareUpdated();
     void clearAll();
     void clearRow(uint8_t row);
     void updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex);
     uint8_t getTextCenter(uint8_t textSize);
-
     lcdTextType_t getActiveTextType();
 
     private:
@@ -85,7 +87,7 @@ class Display
     /// \brief Array holding true of false value representing the change of character at specific location on LCD row.
     /// \warning This variables assume there can be no more than 32 characters per LCD row.
     ///
-    uint32_t        charChange[LCD_WIDTH_MAX];
+    uint32_t        charChange[LCD_HEIGHT_MAX];
 
     ///
     /// \brief Structure array holding scrolling information for all LCD rows.
@@ -98,7 +100,17 @@ class Display
     uint32_t        lastScrollTime;
 
     ///
-    /// \brief Holds state of direct LCD writing (true/enabled, false/disabled).
+    /// \brief Holds value by which actual octave is being subtracted when showing octave on display.
+    ///
+    int8_t          octaveNormalization;
+
+    ///
+    /// \brief If set to true, note number will be shown on display (0-127), otherwise, note and octave
+    /// will be displayed (i.e. C#4).
+    bool            rawNoteDisplay;
+
+    ///
+    /// \brief Holds true if direct LCD writing is enabled, false otherwise.
     ///
     bool            directWriteState;
 };
