@@ -24,7 +24,6 @@
 #include "../../board/avr/display/u8g2_wrapper.h"
 #include "Config.h"
 #include "DataTypes.h"
-#include "strings/Strings.h"
 #include "Macros.h"
 
 ///
