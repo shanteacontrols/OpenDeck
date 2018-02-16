@@ -84,7 +84,8 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
     ifneq ($(filter fw_mega fw_teensy2pp, $(MAKECMDGOALS)), )
         CPP_SOURCES += \
         firmware/board/avr/display/u8g2_wrapper.cpp \
-        firmware/interface/display/UpdateLogic.cpp
+        firmware/interface/display/UpdateLogic.cpp \
+        firmware/interface/display/TextBuild.cpp
 
         C_SOURCES += $(shell find modules/u8g2/csrc/ -name "*.c")
         #i2c for display communication
