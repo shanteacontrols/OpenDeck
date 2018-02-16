@@ -47,7 +47,7 @@
 
 ///
 /// \brief Array holding remapped values of LCD rows.
-/// Tto increase readability every second row is used.
+/// To increase readability every second row is used.
 ///
 const uint8_t rowMap[LCD_HEIGHT_MAX] =
 {
