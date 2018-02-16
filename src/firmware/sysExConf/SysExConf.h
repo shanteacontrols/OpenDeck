@@ -18,7 +18,17 @@
 
 #pragma once
 
-#include "midi/src/MIDI.h"
-#include "sysExConf/SysExConf.h"
+#include "sysex/src/SysEx.h"
+#include "CustomStrings.h"
 
-extern MIDI midi;
+class SysExConfig : public SysEx
+{
+    public:
+    SysExConfig();
+    static void init();
+
+    private:
+    static void createLayout();
+};
+
+extern SysExConfig sysEx;

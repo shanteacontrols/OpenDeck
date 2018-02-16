@@ -42,7 +42,7 @@ class Display
     void displayWelcomeMessage();
     void displayVinfo(bool newFw);
     void setTitle();
-    void displayMIDIevent(displayEventType_t type, midimessage_t message, uint8_t byte1, uint8_t byte2, uint8_t byte3);
+    void displayMIDIevent(displayEventType_t type, midiMessageType_t message, uint8_t byte1, uint8_t byte2, uint8_t byte3);
     void setRawNoteDisplay(bool state);
     void setOctaveNormalization(int8_t value);
     void setDirectWriteState(bool state);
