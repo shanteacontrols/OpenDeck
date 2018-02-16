@@ -240,10 +240,10 @@ void Database::createLayout()
     {
         //display block
         //features section
-        section.numberOfParameters = 16; //reserved for now, actual max DISPLAY_FEATURES
+        section.numberOfParameters = DISPLAY_FEATURES;
         section.defaultValue = 0;
         section.autoIncrement = false;
-        section.parameterType = BIT_PARAMETER;
+        section.parameterType = BYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
         DBMS::addSection(DB_BLOCK_DISPLAY, section);
