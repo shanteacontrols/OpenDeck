@@ -47,6 +47,22 @@ typedef enum
 typedef enum
 {
     displayFeatureEnable,
+    displayFeatureWelcomeMsgState,
     displayFeatureWelcomeMsg,
+    displayFeatureVInfoStartupState,
+    displayFeatureTitleState,
+    displayFeatureTitle,
+    displayFeatureMIDIevent,
+    displayFeatureMIDIeventTemp,
+    displayFeatureMIDIeventTime,
+    displayFeatureMIDInotesRaw,
+    displayFeatureOctaveNormalization,
     DISPLAY_FEATURES
 } displayFeature_t;
+
+typedef enum
+{
+    displayEventIn,
+    displayEventOut,
+    displayEventInOut
+} displayEventType_t;
