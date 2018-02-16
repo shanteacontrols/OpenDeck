@@ -85,6 +85,8 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         firmware/interface/display/UpdateLogic.cpp
 
         C_SOURCES += $(shell find modules/u8g2/csrc/ -name "*.c")
+        #i2c for display communication
+        C_SOURCES += modules/i2c/twimaster.c
     endif
 
     ifeq ($(BOARD_DIR),xu2)
