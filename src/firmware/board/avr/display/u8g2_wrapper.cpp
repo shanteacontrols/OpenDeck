@@ -43,11 +43,8 @@ uint8_t u8x8_byte_hw_i2c(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_p
         i2c_init();
         break;
 
-        case U8X8_MSG_BYTE_SET_DC:
-        break;
-
         case U8X8_MSG_BYTE_START_TRANSFER:
-        i2c_start_wait((u8x8_GetI2CAddress(u8x8) >> 1) + I2C_WRITE);
+        i2c_start_wait(u8x8_GetI2CAddress(u8x8) + I2C_WRITE);
         break;
 
         case U8X8_MSG_BYTE_END_TRANSFER:
