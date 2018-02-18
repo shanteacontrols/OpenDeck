@@ -21,7 +21,7 @@
 //common constants for all avr boards
 
 #define DIGITAL_VALUE_THRESHOLD         1000
-#define ANALOG_STEP_MIN_DIFF            6
+#define ANALOG_STEP_MIN_DIFF            8
 #define FSR_MIN_VALUE                   40
 #define FSR_MAX_VALUE                   340
 
@@ -36,7 +36,7 @@
 #define HYSTERESIS_THRESHOLD_HIGH       950
 #define HYSTERESIS_THRESHOLD_LOW        50
 #define HYSTERESIS_ADDITION             25
-#define HYSTERESIS_SUBTRACTION          5
+#define HYSTERESIS_SUBTRACTION          15
 
 ///
 /// \brief Location at which reboot type is written in EEPROM when initiating software reset.
