@@ -75,68 +75,92 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonM
             {
                 case buttonNote:
                 midi.sendNoteOn(note, velocity, noteChannel);
+                #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(displayEventOut, midiMessageNoteOn_display, note, velocity, noteChannel);
+                #endif
                 leds.noteToState(note, velocity, true);
                 break;
 
                 case buttonPC:
                 midi.sendProgramChange(note, pcChannel);
+                #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(displayEventOut, midiMessageProgramChange_display, note, 0, pcChannel);
+                #endif
                 break;
 
                 case buttonCC:
                 case buttonCCreset:
                 midi.sendControlChange(note, velocity, ccChannel);
+                #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, velocity, ccChannel);
+                #endif
                 leds.noteToState(note, velocity, true);
                 break;
 
                 case buttonMMCPlay:
                 mmcArray[4] = 0x02;
                 midi.sendSysEx(6, mmcArray, true);
+                #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(displayEventOut, midiMessageMMCplay_display, mmcArray[2], 0, 0);
+                #endif
                 break;
 
                 case buttonMMCStop:
                 mmcArray[4] = 0x01;
                 midi.sendSysEx(6, mmcArray, true);
+                #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(displayEventOut, midiMessageMMCstop_display, mmcArray[2], 0, 0);
+                #endif
                 break;
 
                 case buttonMMCPause:
                 mmcArray[4] = 0x09;
                 midi.sendSysEx(6, mmcArray, true);
+                #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(displayEventOut, midiMessageMMCpause_display, mmcArray[2], 0, 0);
+                #endif
                 break;
 
                 case buttonRealTimeClock:
                 midi.sendRealTime(midiMessageClock);
+                #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(displayEventOut, midiMessageClock_display, 0, 0, 0);
+                #endif
                 break;
 
                 case buttonRealTimeStart:
                 midi.sendRealTime(midiMessageStart);
+                #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(displayEventOut, midiMessageStart_display, 0, 0, 0);
+                #endif
                 break;
 
                 case buttonRealTimeContinue:
                 midi.sendRealTime(midiMessageContinue);
+                #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(displayEventOut, midiMessageContinue_display, 0, 0, 0);
+                #endif
                 break;
 
                 case buttonRealTimeStop:
                 midi.sendRealTime(midiMessageStop);
+                #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(displayEventOut, midiMessageStop_display, 0, 0, 0);
+                #endif
                 break;
 
                 case buttonRealTimeActiveSensing:
                 midi.sendRealTime(midiMessageActiveSensing);
+                #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(displayEventOut, midiMessageActiveSensing_display, 0, 0, 0);
+                #endif
                 break;
 
                 case buttonRealTimeSystemReset:
                 midi.sendRealTime(midiMessageSystemReset);
+                #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(displayEventOut, midiMessageSystemReset_display, 0, 0, 0);
+                #endif
                 break;
 
                 default:
@@ -166,13 +190,17 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonM
             {
                 case buttonNote:
                 midi.sendNoteOff(note, 0, noteChannel);
+                #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(displayEventOut, midi.getNoteOffMode() == noteOffType_standardNoteOff ? midiMessageNoteOff_display : midiMessageNoteOn_display, note, velocity, noteChannel);
+                #endif
                 leds.noteToState(note, 0, true);
                 break;
 
                 case buttonCCreset:
                 midi.sendControlChange(note, 0, ccChannel);
+                #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, 0, ccChannel);
+                #endif
                 leds.noteToState(note, 0, true);
                 break;
 
@@ -218,7 +246,9 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
                 {
                     case buttonNote:
                     midi.sendNoteOff(note, 0, noteChannel);
+                    #ifdef DISPLAY_SUPPORTED
                     display.displayMIDIevent(displayEventOut, midi.getNoteOffMode() == noteOffType_standardNoteOff ? midiMessageNoteOff_display : midiMessageNoteOn_display, note, velocity, noteChannel);
+                    #endif
                     leds.noteToState(note, 0, true);
                     break;
 
@@ -226,12 +256,16 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
                     //stop recording
                     mmcArray[4] = 0x07;
                     midi.sendSysEx(6, mmcArray, true);
+                    #ifdef DISPLAY_SUPPORTED
                     display.displayMIDIevent(displayEventOut, midiMessageMMCrecordOff_display, mmcArray[2], 0, 0);
+                    #endif
                     break;
 
                     case buttonCCreset:
                     midi.sendControlChange(note, 0, ccChannel);
+                    #ifdef DISPLAY_SUPPORTED
                     display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, 0, ccChannel);
+                    #endif
                     leds.noteToState(note, 0, true);
                     break;
 
@@ -261,7 +295,9 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
                 {
                     case buttonNote:
                     midi.sendNoteOn(note, velocity, noteChannel);
+                    #ifdef DISPLAY_SUPPORTED
                     display.displayMIDIevent(displayEventOut, midiMessageNoteOn_display, note, velocity, noteChannel);
+                    #endif
                     leds.noteToState(note, velocity, true);
                     break;
 
@@ -269,12 +305,16 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
                     //start recording
                     mmcArray[4] = 0x06;
                     midi.sendSysEx(6, mmcArray, true);
+                    #ifdef DISPLAY_SUPPORTED
                     display.displayMIDIevent(displayEventOut, midiMessageMMCrecordOn_display, mmcArray[2], 0, 0);
+                    #endif
                     break;
 
                     case buttonCCreset:
                     midi.sendControlChange(note, velocity, ccChannel);
+                    #ifdef DISPLAY_SUPPORTED
                     display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, velocity, ccChannel);
+                    #endif
                     leds.noteToState(note, velocity, true);
                     break;
 
