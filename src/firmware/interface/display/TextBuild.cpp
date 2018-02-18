@@ -168,7 +168,7 @@ void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t
 
     stringBuffer.startLine();
     stringBuffer.appendText_P((char*)pgm_read_word(&(eventNameArray[(uint8_t)message])));
-    stringBuffer.addSpaceToCharArray(display_hw.getColumns() - startColumn - stringBuffer.getSize());
+    stringBuffer.appendChar(' ', display_hw.getColumns() - startColumn - stringBuffer.getSize());
     stringBuffer.endLine();
     updateText(startRow, lcdtext_still, startColumn);
 
@@ -182,7 +182,7 @@ void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t
         stringBuffer.appendInt(byte2);
         stringBuffer.appendText(" CH");
         stringBuffer.appendInt(byte3);
-        stringBuffer.addSpaceToCharArray(display_hw.getColumns() - stringBuffer.getSize());
+        stringBuffer.appendChar(' ', display_hw.getColumns() - stringBuffer.getSize());
         stringBuffer.endLine();
         updateText(startRow+1, lcdtext_still, 0);
         break;
@@ -195,7 +195,7 @@ void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t
         stringBuffer.appendInt(byte2);
         stringBuffer.appendText(" CH");
         stringBuffer.appendInt(byte3);
-        stringBuffer.addSpaceToCharArray(display_hw.getColumns() - stringBuffer.getSize());
+        stringBuffer.appendChar(' ', display_hw.getColumns() - stringBuffer.getSize());
         stringBuffer.endLine();
         updateText(startRow+1, lcdtext_still, 0);
         break;
@@ -208,7 +208,7 @@ void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t
         stringBuffer.startLine();
         stringBuffer.appendText("CH");
         stringBuffer.appendInt(byte1);
-        stringBuffer.addSpaceToCharArray(display_hw.getColumns() - stringBuffer.getSize());
+        stringBuffer.appendChar(' ', display_hw.getColumns() - stringBuffer.getSize());
         stringBuffer.endLine();
         updateText(startRow+1, lcdtext_still, 0);
         break;
@@ -221,7 +221,7 @@ void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t
         case midiMessageSystemReset_display:
         case midiMessageSystemExclusive_display:
         stringBuffer.startLine();
-        stringBuffer.addSpaceToCharArray(display_hw.getColumns());
+        stringBuffer.appendChar(' ', display_hw.getColumns());
         stringBuffer.endLine();
         updateText(startRow+1, lcdtext_still, 0);
         break;
