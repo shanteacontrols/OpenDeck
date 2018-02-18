@@ -219,6 +219,7 @@ void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t
         case midiMessageStop_display:
         case midiMessageActiveSensing_display:
         case midiMessageSystemReset_display:
+        case midiMessageSystemExclusive_display:
         stringBuffer.startLine();
         stringBuffer.addSpaceToCharArray(display_hw.getColumns());
         stringBuffer.endLine();
