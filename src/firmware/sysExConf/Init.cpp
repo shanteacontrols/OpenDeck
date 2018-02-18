@@ -104,7 +104,9 @@ bool onCustom(uint8_t value)
 
     if (requestValid)
     {
+        #ifdef DISPLAY_SUPPORTED
         display.displayMIDIevent(displayEventIn, midiMessageSystemExclusive_display, 0, 0, 0);
+        #endif
         return true;
     }
 
@@ -182,7 +184,10 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
         break;
     }
 
+    #ifdef DISPLAY_SUPPORTED
     display.displayMIDIevent(displayEventIn, midiMessageSystemExclusive_display, 0, 0, 0);
+    #endif
+
     return returnValue;
 }
 
@@ -415,7 +420,10 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
 
     if (success)
     {
+        #ifdef DISPLAY_SUPPORTED
         display.displayMIDIevent(displayEventIn, midiMessageSystemExclusive_display, 0, 0, 0);
+        #endif
+
         return true;
     }
 
