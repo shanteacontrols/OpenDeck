@@ -18,27 +18,6 @@
 
 #pragma once
 
-typedef enum
-{
-    midiFeatureSection,
-    midiChannelSection,
-    MIDI_SECTIONS
-} midiSection_db_t;
-
-typedef enum
-{
-    midiChannelNote,
-    midiChannelPC,
-    midiChannelCC,
-    midiChannelInput,
-    MIDI_CHANNELS
-} midiChannelType_t;
-
-typedef enum
-{
-    midiFeatureStandardNoteOff,
-    midiFeatureRunningStatus,
-    midiFeatureUSBconvert,
-    midiFeatureDinEnabled,
-    MIDI_FEATURES
-} midiFeature_t;
+const char versionInfo_string[] PROGMEM = "Version info:";
+const char fwVersion_string[] PROGMEM = "FW: v";
+const char hwVersion_string[] PROGMEM = "HW: ";

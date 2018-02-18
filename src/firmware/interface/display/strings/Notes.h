@@ -49,19 +49,3 @@ PGM_P const noteNameArray[] PROGMEM =
     noteASharp_string,
     noteB_strig
 };
-
-const uint8_t noteNameArray_sizes[] PROGMEM =
-{
-    ARRAY_SIZE_CHAR(noteC_string),
-    ARRAY_SIZE_CHAR(noteCSharp_string),
-    ARRAY_SIZE_CHAR(noteD_string),
-    ARRAY_SIZE_CHAR(noteDSharp_string),
-    ARRAY_SIZE_CHAR(noteE_string),
-    ARRAY_SIZE_CHAR(noteF_string),
-    ARRAY_SIZE_CHAR(noteFSharp_string),
-    ARRAY_SIZE_CHAR(noteG_string),
-    ARRAY_SIZE_CHAR(noteGSharp_string),
-    ARRAY_SIZE_CHAR(noteA_string),
-    ARRAY_SIZE_CHAR(noteASharp_string),
-    ARRAY_SIZE_CHAR(noteB_strig)
-};

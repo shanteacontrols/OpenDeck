@@ -21,6 +21,9 @@
 #include "../../output/leds/LEDs.h"
 #include "sysex/src/SysEx.h"
 #include "../../../cinfo/CInfo.h"
+#ifdef DISPLAY_SUPPORTED
+#include "../../../display/Display.h"
+#endif
 
 const uint8_t   buttonDebounceCompare = 0b10000000;
 
@@ -55,6 +58,9 @@ bool Buttons::getButtonPressed(uint8_t buttonID)
 void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonMIDImessage_t midiMessage)
 {
     uint8_t note = database.read(DB_BLOCK_BUTTON, buttonMIDIidSection, buttonID);
+    uint8_t noteChannel = database.read(DB_BLOCK_MIDI, midiChannelSection, midiChannelNote);
+    uint8_t pcChannel = database.read(DB_BLOCK_MIDI, midiChannelSection, midiChannelPC);
+    uint8_t ccChannel = database.read(DB_BLOCK_MIDI, midiChannelSection, midiChannelCC);
     uint8_t velocity = database.read(DB_BLOCK_BUTTON, buttonMIDIvelocitySection, buttonID);
     mmcArray[2] = note; //use midi note as channel id for transport control
 
@@ -68,57 +74,69 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonM
             switch(midiMessage)
             {
                 case buttonNote:
-                midi.sendNoteOn(note, velocity, database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
+                midi.sendNoteOn(note, velocity, noteChannel);
+                display.displayMIDIevent(displayEventOut, midiMessageNoteOn_display, note, velocity, noteChannel);
                 leds.noteToState(note, velocity, true);
                 break;
 
                 case buttonPC:
-                midi.sendProgramChange(note, database.read(DB_BLOCK_MIDI, midiChannelSection, programChangeChannel));
+                midi.sendProgramChange(note, pcChannel);
+                display.displayMIDIevent(displayEventOut, midiMessageProgramChange_display, note, 0, pcChannel);
                 break;
 
                 case buttonCC:
                 case buttonCCreset:
-                midi.sendControlChange(note, velocity, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+                midi.sendControlChange(note, velocity, ccChannel);
+                display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, velocity, ccChannel);
                 leds.noteToState(note, velocity, true);
                 break;
 
                 case buttonMMCPlay:
                 mmcArray[4] = 0x02;
                 midi.sendSysEx(6, mmcArray, true);
+                display.displayMIDIevent(displayEventOut, midiMessageMMCplay_display, mmcArray[2], 0, 0);
                 break;
 
                 case buttonMMCStop:
                 mmcArray[4] = 0x01;
                 midi.sendSysEx(6, mmcArray, true);
+                display.displayMIDIevent(displayEventOut, midiMessageMMCstop_display, mmcArray[2], 0, 0);
                 break;
 
                 case buttonMMCPause:
                 mmcArray[4] = 0x09;
                 midi.sendSysEx(6, mmcArray, true);
+                display.displayMIDIevent(displayEventOut, midiMessageMMCpause_display, mmcArray[2], 0, 0);
                 break;
 
                 case buttonRealTimeClock:
                 midi.sendRealTime(midiMessageClock);
+                display.displayMIDIevent(displayEventOut, midiMessageClock_display, 0, 0, 0);
                 break;
 
                 case buttonRealTimeStart:
                 midi.sendRealTime(midiMessageStart);
+                display.displayMIDIevent(displayEventOut, midiMessageStart_display, 0, 0, 0);
                 break;
 
                 case buttonRealTimeContinue:
                 midi.sendRealTime(midiMessageContinue);
+                display.displayMIDIevent(displayEventOut, midiMessageContinue_display, 0, 0, 0);
                 break;
 
                 case buttonRealTimeStop:
                 midi.sendRealTime(midiMessageStop);
+                display.displayMIDIevent(displayEventOut, midiMessageStop_display, 0, 0, 0);
                 break;
 
                 case buttonRealTimeActiveSensing:
                 midi.sendRealTime(midiMessageActiveSensing);
+                display.displayMIDIevent(displayEventOut, midiMessageActiveSensing_display, 0, 0, 0);
                 break;
 
                 case buttonRealTimeSystemReset:
                 midi.sendRealTime(midiMessageSystemReset);
+                display.displayMIDIevent(displayEventOut, midiMessageSystemReset_display, 0, 0, 0);
                 break;
 
                 default:
@@ -147,12 +165,14 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonM
             switch(midiMessage)
             {
                 case buttonNote:
-                midi.sendNoteOff(note, 0, database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
+                midi.sendNoteOff(note, 0, noteChannel);
+                display.displayMIDIevent(displayEventOut, midi.getNoteOffMode() == noteOffType_standardNoteOff ? midiMessageNoteOff_display : midiMessageNoteOn_display, note, velocity, noteChannel);
                 leds.noteToState(note, 0, true);
                 break;
 
                 case buttonCCreset:
-                midi.sendControlChange(note, 0, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+                midi.sendControlChange(note, 0, ccChannel);
+                display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, 0, ccChannel);
                 leds.noteToState(note, 0, true);
                 break;
 
@@ -185,7 +205,8 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
         if (buttonState)
         {
             uint8_t note = database.read(DB_BLOCK_BUTTON, buttonMIDIidSection, buttonID);
-            uint8_t channel = database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel);
+            uint8_t noteChannel = database.read(DB_BLOCK_MIDI, midiChannelSection, midiChannelNote);
+            uint8_t ccChannel = database.read(DB_BLOCK_MIDI, midiChannelSection, midiChannelCC);
             uint8_t velocity = database.read(DB_BLOCK_BUTTON, buttonMIDIvelocitySection, buttonID);
             mmcArray[2] = note;
 
@@ -196,7 +217,8 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
                 switch(midiMessage)
                 {
                     case buttonNote:
-                    midi.sendNoteOff(note, 0, channel);
+                    midi.sendNoteOff(note, 0, noteChannel);
+                    display.displayMIDIevent(displayEventOut, midi.getNoteOffMode() == noteOffType_standardNoteOff ? midiMessageNoteOff_display : midiMessageNoteOn_display, note, velocity, noteChannel);
                     leds.noteToState(note, 0, true);
                     break;
 
@@ -204,10 +226,12 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
                     //stop recording
                     mmcArray[4] = 0x07;
                     midi.sendSysEx(6, mmcArray, true);
+                    display.displayMIDIevent(displayEventOut, midiMessageMMCrecordOff_display, mmcArray[2], 0, 0);
                     break;
 
                     case buttonCCreset:
-                    midi.sendControlChange(note, 0, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+                    midi.sendControlChange(note, 0, ccChannel);
+                    display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, 0, ccChannel);
                     leds.noteToState(note, 0, true);
                     break;
 
@@ -236,7 +260,8 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
                 switch(midiMessage)
                 {
                     case buttonNote:
-                    midi.sendNoteOn(note, velocity, channel);
+                    midi.sendNoteOn(note, velocity, noteChannel);
+                    display.displayMIDIevent(displayEventOut, midiMessageNoteOn_display, note, velocity, noteChannel);
                     leds.noteToState(note, velocity, true);
                     break;
 
@@ -244,10 +269,12 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
                     //start recording
                     mmcArray[4] = 0x06;
                     midi.sendSysEx(6, mmcArray, true);
+                    display.displayMIDIevent(displayEventOut, midiMessageMMCrecordOn_display, mmcArray[2], 0, 0);
                     break;
 
                     case buttonCCreset:
-                    midi.sendControlChange(note, velocity, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+                    midi.sendControlChange(note, velocity, ccChannel);
+                    display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, velocity, ccChannel);
                     leds.noteToState(note, velocity, true);
                     break;
 

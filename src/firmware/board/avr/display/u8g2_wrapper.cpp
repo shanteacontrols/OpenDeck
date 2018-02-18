@@ -21,6 +21,8 @@
 #include "u8g2_wrapper.h"
 #include "i2c/i2cmaster.h"
 
+uint8_t rows, columns;
+
 uint8_t u8x8_gpio_and_delay(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, U8X8_UNUSED void *arg_ptr)
 {
     return 0;
@@ -75,6 +77,17 @@ void U8X8::initDisplay(displayController_t controller, displayResolution_t resol
         u8x8.cad_cb = u8x8_cad_ssd13xx_i2c;
         u8x8.byte_cb = u8x8_byte_hw_i2c;
         u8x8.gpio_and_delay_cb = u8x8_gpio_and_delay;
+        rows = 4;
+        columns = 16;
+    }
+    else if ((resolution == displayRes_128x32) && (controller == displayController_ssd1306))
+    {
+        u8x8.display_cb = u8x8_d_ssd1306_128x32_univision;
+        u8x8.cad_cb = u8x8_cad_ssd13xx_i2c;
+        u8x8.byte_cb = u8x8_byte_hw_i2c;
+        u8x8.gpio_and_delay_cb = u8x8_gpio_and_delay;
+        rows = 2;
+        columns = 16;
     }
 
     /* setup display info */
@@ -90,14 +103,14 @@ void U8X8::setI2CAddress(uint8_t adr)
     u8x8_SetI2CAddress(&u8x8, adr);
 }
 
-uint8_t U8X8::getCols()
+uint8_t U8X8::getColumns()
 {
-    return u8x8_GetCols(&u8x8);
+    return columns;
 }
 
 uint8_t U8X8::getRows()
 {
-    return u8x8_GetRows(&u8x8);
+    return rows;
 }
 
 void U8X8::drawTile(uint8_t x, uint8_t y, uint8_t cnt, uint8_t *tile_ptr)
@@ -223,12 +236,6 @@ void U8X8::home()
 {
     tx = 0;
     ty = 0;
-}
-
-void U8X8::clear()
-{
-    clearDisplay();
-    home();
 }
 
 void U8X8::noDisplay()

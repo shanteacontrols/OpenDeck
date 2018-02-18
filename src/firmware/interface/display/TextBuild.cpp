@@ -18,10 +18,216 @@
 
 #include "Display.h"
 #include "strings/Strings.h"
+#include "../../Version.h"
 
 StringBuffer stringBuffer;
 
 void Display::displayWelcomeMessage()
 {
-    stringBuffer.appendText_p(welcome_string);
+    uint8_t charIndex;
+    uint8_t location = 0;
+    uint8_t startRow;
+
+    display_hw.clearDisplay();
+
+    switch(display_hw.getRows())
+    {
+        case 4:
+        startRow = 1;
+        break;
+
+        default:
+        startRow = 0;
+        break;
+    }
+
+    stringBuffer.startLine();
+    stringBuffer.appendText_P(deviceName_string);
+    stringBuffer.endLine();
+    location = getTextCenter(stringBuffer.getSize());
+    charIndex = 0;
+
+    while (stringBuffer.buffer[charIndex] != '\0')
+    {
+        display_hw.drawGlyph(location+charIndex, rowMap[resolution][startRow], stringBuffer.buffer[charIndex]);
+        charIndex++;
+    }
+
+    wait_ms(1000);
+
+    stringBuffer.startLine();
+    stringBuffer.appendText_P(welcome_string);
+    stringBuffer.endLine();
+    location = getTextCenter(stringBuffer.getSize());
+    charIndex = 0;
+
+    while (stringBuffer.buffer[charIndex] != '\0')
+    {
+        display_hw.drawGlyph(location+charIndex, rowMap[resolution][startRow+1], stringBuffer.buffer[charIndex]);
+        wait_ms(50);
+        charIndex++;
+    }
+
+    wait_ms(2000);
+}
+
+void Display::displayVinfo(bool newFw)
+{
+    uint8_t startRow;
+
+    display_hw.clearDisplay();
+
+    switch(display_hw.getRows())
+    {
+        case 4:
+        startRow = 1;
+        break;
+
+        default:
+        startRow = 0;
+        break;
+    }
+
+    stringBuffer.startLine();
+    stringBuffer.appendText_P(versionInfo_string);
+    stringBuffer.endLine();
+
+    updateText(startRow, lcdText_temp, getTextCenter(stringBuffer.getSize()));
+
+    stringBuffer.startLine();
+    stringBuffer.appendText_P(fwVersion_string);
+    stringBuffer.appendInt(SW_VERSION_MAJOR);
+    stringBuffer.appendText(".");
+    stringBuffer.appendInt(SW_VERSION_MINOR);
+    stringBuffer.appendText(".");
+    stringBuffer.appendInt(SW_VERSION_REVISION);
+    stringBuffer.endLine();
+
+    updateText(startRow+1, lcdText_temp, getTextCenter(stringBuffer.getSize()));
+
+    stringBuffer.startLine();
+    stringBuffer.appendText_P(hwVersion_string);
+
+    switch(BOARD_ID)
+    {
+        case BOARD_OPEN_DECK_ID:
+        stringBuffer.appendText("v:");
+        stringBuffer.appendInt(HARDWARE_VERSION_MAJOR);
+        stringBuffer.appendText(".");
+        stringBuffer.appendInt(HARDWARE_VERSION_MINOR);
+        stringBuffer.appendText(".");
+        stringBuffer.appendInt(HARDWARE_VERSION_REVISION);
+        stringBuffer.endLine();
+        break;
+
+        default:
+        stringBuffer.appendText_P((char*)pgm_read_word(&(boardNameArray[BOARD_ID])));
+        stringBuffer.endLine();
+        break;
+    }
+
+    updateText(startRow+2, lcdText_temp, getTextCenter(stringBuffer.getSize()));
+
+    wait_ms(2000);
+}
+
+void Display::displayHome()
+{
+    display_hw.clearDisplay();
+
+    uint8_t startRow;
+
+    switch(display_hw.getRows())
+    {
+        case 4:
+        startRow = 0;
+        break;
+
+        default:
+        startRow = 0;
+        break;
+    }
+
+    stringBuffer.startLine();
+    stringBuffer.appendText_P(eventMIDIin_string);
+    stringBuffer.endLine();
+
+    updateText(startRow, lcdtext_still, 0);
+
+    stringBuffer.startLine();
+    stringBuffer.appendText_P(eventMIDIout_string);
+    stringBuffer.endLine();
+
+    updateText(startRow+2, lcdtext_still, 0);
+}
+
+void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t message, uint16_t byte1, uint16_t byte2, uint8_t byte3)
+{
+    uint8_t startRow = (type == displayEventIn) ? 0 : 2;
+    uint8_t startColumn = (type == displayEventIn) ? 4 : 5;
+
+    stringBuffer.startLine();
+    stringBuffer.appendText_P((char*)pgm_read_word(&(eventNameArray[(uint8_t)message])));
+    stringBuffer.addSpaceToCharArray(display_hw.getColumns() - startColumn - stringBuffer.getSize());
+    stringBuffer.endLine();
+    updateText(startRow, lcdtext_still, startColumn);
+
+    switch(message)
+    {
+        case midiMessageNoteOff_display:
+        case midiMessageNoteOn_display:
+        stringBuffer.startLine();
+        stringBuffer.appendInt(byte1);
+        stringBuffer.appendText(" v");
+        stringBuffer.appendInt(byte2);
+        stringBuffer.appendText(" CH");
+        stringBuffer.appendInt(byte3);
+        stringBuffer.addSpaceToCharArray(display_hw.getColumns() - stringBuffer.getSize());
+        stringBuffer.endLine();
+        updateText(startRow+1, lcdtext_still, 0);
+        break;
+
+        case midiMessageControlChange_display:
+        case midiMessageNRPN_display:
+        stringBuffer.startLine();
+        stringBuffer.appendInt(byte1);
+        stringBuffer.appendText(" ");
+        stringBuffer.appendInt(byte2);
+        stringBuffer.appendText(" CH");
+        stringBuffer.appendInt(byte3);
+        stringBuffer.addSpaceToCharArray(display_hw.getColumns() - stringBuffer.getSize());
+        stringBuffer.endLine();
+        updateText(startRow+1, lcdtext_still, 0);
+        break;
+
+        case midiMessageMMCplay_display:
+        case midiMessageMMCstop_display:
+        case midiMessageMMCrecordOn_display:
+        case midiMessageMMCrecordOff_display:
+        case midiMessageMMCpause_display:
+        stringBuffer.startLine();
+        stringBuffer.appendText("CH");
+        stringBuffer.appendInt(byte1);
+        stringBuffer.addSpaceToCharArray(display_hw.getColumns() - stringBuffer.getSize());
+        stringBuffer.endLine();
+        updateText(startRow+1, lcdtext_still, 0);
+        break;
+
+        case midiMessageClock_display:
+        case midiMessageStart_display:
+        case midiMessageContinue_display:
+        case midiMessageStop_display:
+        case midiMessageActiveSensing_display:
+        case midiMessageSystemReset_display:
+        stringBuffer.startLine();
+        stringBuffer.addSpaceToCharArray(display_hw.getColumns());
+        stringBuffer.endLine();
+        updateText(startRow+1, lcdtext_still, 0);
+        break;
+
+        default:
+        break;
+    }
+
+
 }

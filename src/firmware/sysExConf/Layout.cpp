@@ -21,7 +21,8 @@
 
 void SysExConfig::createLayout()
 {
-    addBlocks(DB_BLOCKS);
+    //last db block is ID block which isn't needed
+    addBlocks(DB_BLOCKS-1);
 
     sysExSection section;
 

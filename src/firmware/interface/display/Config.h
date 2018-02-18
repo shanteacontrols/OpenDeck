@@ -47,12 +47,23 @@
 
 ///
 /// \brief Array holding remapped values of LCD rows.
-/// To increase readability every second row is used.
+/// Used to increase readability.
+/// Matched with displayResolution_t enum.
 ///
-const uint8_t rowMap[LCD_HEIGHT_MAX] =
+const uint8_t rowMap[DISPLAY_RESOLUTIONS][LCD_HEIGHT_MAX] =
 {
-    0,
-    1,
-    2,
-    3
+    //128x32
+    {
+        0,
+        2,
+        3,
+        4
+    },
+    //128x64
+    {
+        0,
+        2,
+        4,
+        6
+    }
 };

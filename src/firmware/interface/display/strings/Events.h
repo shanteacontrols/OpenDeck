@@ -18,18 +18,56 @@
 
 #pragma once
 
+const char eventNoteOff_string[] PROGMEM = "Note Off";
+const char eventNoteOn_string[] PROGMEM = "Note On";
 const char eventCC_string[] PROGMEM = "CC";
 const char eventPC_string[] PROGMEM = "PC";
+
+const char eventSysExConfig_string[] PROGMEM = "SysEx Conf";
+
+const char eventRTclock_string[] PROGMEM = "RT Clock";
+const char eventRTstart_string[] PROGMEM = "RT Start";
+const char eventRTcontinue_string[] PROGMEM = "RT Continue";
+const char eventRTstop_string[] PROGMEM = "RT Stop";
+const char eventRTasens_string[] PROGMEM = "RT ASens";
+const char eventRTsysrst_string[] PROGMEM = "RT SysRst";
+
 const char eventMMCplay_string[] PROGMEM = "MMC Play";
 const char eventMMCstop_string[] PROGMEM = "MMC Stop";
 const char eventMMCpause_string[] PROGMEM = "MMC Pause";
-const char eventMMCrecord_string[] PROGMEM = "MMC Record";
+const char eventMMCrecordOn_string[] PROGMEM = "MMC Record On";
+const char eventMMCrecordOff_string[] PROGMEM = "MMC Record Off";
 
-const char eventRTclock_string[] PROGMEM = "RealTime Clock";
-const char eventRTstart_string[] PROGMEM = "RealTime Start";
-const char eventRTcontinue_string[] PROGMEM = "RealTime Continue";
-const char eventRTasens_string[] PROGMEM = "RealTime ASens";
-const char eventRTsysrst_string[] PROGMEM = "RealTime SysRst";
+const char eventNRPN_string[] PROGMEM = "NRPN";
 
-const char eventMIDIin_string[] PROGMEM = "In";
-const char eventMIDIout_string[] PROGMEM = "Out";
+const char eventMIDIin_string[] PROGMEM = "In: ";
+const char eventMIDIout_string[] PROGMEM = "Out: ";
+
+//match with midiMessageTypeDisplay_t
+PGM_P const eventNameArray[] PROGMEM =
+{
+    eventNoteOff_string,
+    eventNoteOn_string,
+    eventCC_string,
+    eventPC_string,
+    NULL, //channel aftertouch
+    NULL, //poly aftertouch
+    NULL, //pitch bend
+    eventSysExConfig_string,
+    NULL, //sys common - Time Code Quarter Frame
+    NULL, //sys common - Song Position Pointer
+    NULL, //sys common - Song Select
+    NULL, //sys common - Tune Request
+    eventRTclock_string,
+    eventRTstart_string,
+    eventRTcontinue_string,
+    eventRTstop_string,
+    eventRTasens_string,
+    eventRTsysrst_string,
+    eventMMCplay_string,
+    eventMMCstop_string,
+    eventMMCpause_string,
+    eventMMCrecordOn_string,
+    eventMMCrecordOff_string,
+    eventNRPN_string
+};

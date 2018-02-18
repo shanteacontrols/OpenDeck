@@ -21,6 +21,7 @@
 #include "sysex/src/SysEx.h"
 #include "../cinfo/CInfo.h"
 #include "Variables.h"
+#include "../display/Display.h"
 
 void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
 {
@@ -62,27 +63,39 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
             midiValue = 127 - midiValue;
     }
 
+    uint8_t midiID = database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID);
+    uint8_t channel = database.read(DB_BLOCK_MIDI, midiChannelSection, midiChannelCC);
+    uint8_t sendVal = mapRange_uint8(midiValue, 0, 127, lowerCClimit_7bit, upperCClimit_7bit);
+
     switch(analogType)
     {
         case aType_potentiometer_cc:
         case aType_potentiometer_note:
 
         if (analogType == aType_potentiometer_cc)
-            midi.sendControlChange(database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID), mapRange_uint8(midiValue, 0, 127, lowerCClimit_7bit, upperCClimit_7bit), database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+        {
+            midi.sendControlChange(midiID, sendVal, channel);
+            display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, midiID, sendVal, channel);
+        }
         else
-            midi.sendNoteOn(database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID), mapRange_uint8(midiValue, 0, 127, lowerCClimit_7bit, upperCClimit_7bit), database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+        {
+            midi.sendNoteOn(midiID, sendVal, channel);
+            display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, midiID, sendVal, channel);
+        }
         break;
 
         case aType_NRPN_7:
         case aType_NRPN_14:
         encDec_14bit.value = database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID);
         encDec_14bit.split14bit();
-        midi.sendControlChange(99, encDec_14bit.high, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
-        midi.sendControlChange(98, encDec_14bit.low, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+        midi.sendControlChange(99, encDec_14bit.high, channel);
+        midi.sendControlChange(98, encDec_14bit.low, channel);
 
         if (analogType == aType_NRPN_7)
         {
-            midi.sendControlChange(6, mapRange_uint8(midiValue, 0, MIDI_7_BIT_VALUE_MAX, lowerCClimit_7bit, upperCClimit_7bit), database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+            uint8_t value = mapRange_uint8(midiValue, 0, MIDI_7_BIT_VALUE_MAX, lowerCClimit_7bit, upperCClimit_7bit);
+            midi.sendControlChange(6, value, channel);
+            display.displayMIDIevent(displayEventOut, midiMessageNRPN_display, encDec_14bit.value, value, channel);
         }
         else
         {
@@ -90,8 +103,9 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
             encDec_14bit.value = mapRange_uint32(midiValue, 0, MIDI_14_BIT_VALUE_MAX, lowerCClimit_14bit, upperCClimit_14bit);
             encDec_14bit.split14bit();
 
-            midi.sendControlChange(6, encDec_14bit.high, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
-            midi.sendControlChange(38, encDec_14bit.low, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+            midi.sendControlChange(6, encDec_14bit.high, channel);
+            midi.sendControlChange(38, encDec_14bit.low, channel);
+            display.displayMIDIevent(displayEventOut, midiMessageNRPN_display, database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID), encDec_14bit.value, channel);
         }
         break;
 
