@@ -42,12 +42,13 @@ void init()
     #endif
 
     midi.setOneByteParseDINstate(true);
+    midi.setInputChannel(database.read(DB_BLOCK_MIDI, midiChannelSection, midiChannelInput));
+    midi.setNoteOffMode((noteOffType_t)database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureStandardNoteOff));
+    midi.setRunningStatusState(database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureRunningStatus));
 
     database.init();
     board.init();
     sysEx.init();
-
-    midi.setInputChannel(database.read(DB_BLOCK_MIDI, midiChannelSection, inputChannel));
 
     #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
     if (board.checkNewRevision())
@@ -91,16 +92,22 @@ void init()
 
     leds.init();
 
-    #ifdef DISPLAY_SUPPORTED
-    if (database.read(DB_BLOCK_DISPLAY, displayFeaturesSection, displayFeatureEnable))
-        // display.init((displayController)database.read(DB_BLOCK_DISPLAY, displayHwSection, displayHwController), (displayResolution)database.read(DB_BLOCK_DISPLAY, displayHwSection, displayHwResolution));
-        display.init(displayController_ssd1306, displayRes_128x64);
-    #endif
+    // #ifdef DISPLAY_SUPPORTED
+    // if (database.read(DB_BLOCK_DISPLAY, displayFeaturesSection, displayFeatureEnable))
+    //     // display.init((displayController)database.read(DB_BLOCK_DISPLAY, displayHwSection, displayHwController), (displayResolution)database.read(DB_BLOCK_DISPLAY, displayHwSection, displayHwResolution));
+    //     display.init(displayController_ssd1306, displayRes_128x32);
+    // #endif
 }
 
 int main()
 {
     init();
+
+    #ifdef DISPLAY_SUPPORTED
+    display.init(displayController_ssd1306, displayRes_128x64);
+    // display.init(displayController_ssd1306, displayRes_128x32);
+    display.displayHome();
+    #endif
 
     while(1)
     {
@@ -207,5 +214,9 @@ int main()
         digitalInput.update();
         analog.update();
         leds.update();
+
+        #ifdef DISPLAY_SUPPORTED
+        display.update();
+        #endif
     }
 }

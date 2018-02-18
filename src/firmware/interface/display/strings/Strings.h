@@ -21,3 +21,5 @@
 #include "Events.h"
 #include "Misc.h"
 #include "Notes.h"
+#include "Version.h"
+#include "Boards.h"

@@ -33,10 +33,12 @@ void Display::init(displayController_t controller, displayResolution_t resolutio
 {
     display_hw.initDisplay(controller, resolution);
     display_hw.setPowerSave(0);
-    display_hw.setFlipMode(1);
+    display_hw.setFlipMode(0);
 
-    display_hw.setFont(u8x8_font_pressstart2p_r);
-    display_hw.clear();
+    this->resolution = resolution;
+
+    display_hw.setFont(u8x8_font_pxplustandynewtv_r);
+    display_hw.clearDisplay();
 
     //init char arrays
     for (int i=0; i<LCD_HEIGHT_MAX; i++)
@@ -55,6 +57,13 @@ void Display::init(displayController_t controller, displayResolution_t resolutio
         scrollEvent[i].currentIndex = 0;
         scrollEvent[i].direction = scroll_ltr;
     }
+
+    setDirectWriteState(true);
+    displayWelcomeMessage();
+    displayVinfo(false);
+    setDirectWriteState(false);
+
+    initDone = true;
 }
 
 ///
@@ -62,6 +71,9 @@ void Display::init(displayController_t controller, displayResolution_t resolutio
 ///
 bool Display::update()
 {
+    if (!initDone)
+        return false;
+
     if ((rTimeMs() - lastLCDupdateTime) < LCD_REFRESH_TIME)
         return false; //we don't need to update lcd in real time
 
@@ -91,12 +103,12 @@ bool Display::update()
         for (int j=0; j<string_len; j++)
         {
             if (BIT_READ(charChange[i], j))
-                display_hw.drawGlyph(j, rowMap[i], charPointer[j+scrollEvent[i].currentIndex]);
+                display_hw.drawGlyph(j, rowMap[resolution][i], charPointer[j+scrollEvent[i].currentIndex]);
         }
 
         //now fill remaining columns with spaces
         for (int j=string_len; j<LCD_WIDTH_MAX; j++)
-            display_hw.drawGlyph(j, rowMap[i], ' ');
+            display_hw.drawGlyph(j, rowMap[resolution][i], ' ');
 
         charChange[i] = 0;
     }
@@ -116,8 +128,7 @@ bool Display::update()
 ///
 void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex)
 {
-    #warning fix this
-    uint8_t size = 10;//strlen(stringBuffer);
+    uint8_t size = stringBuffer.getSize();
     uint8_t scrollSize = 0;
 
     if (size+startIndex >= STRING_BUFFER_SIZE-2)
@@ -126,8 +137,7 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
     if (directWriteState)
     {
         for (int j=0; j<size; j++)
-            display_hw.drawGlyph(j+startIndex, rowMap[row], ' ');
-            // display_hw.drawGlyph(j+startIndex, rowMap[row], stringBuffer[j]);
+            display_hw.drawGlyph(j+startIndex, rowMap[resolution][row], stringBuffer.buffer[j]);
     }
     else
     {
@@ -138,8 +148,7 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
             case lcdtext_still:
             for (int i=0; i<size; i++)
             {
-                // lcdRowStillText[row][startIndex+i] = stringBuffer[i];
-                lcdRowStillText[row][startIndex+i] = ' ';
+                lcdRowStillText[row][startIndex+i] = stringBuffer.buffer[i];
                 BIT_WRITE(charChange[row], startIndex+i, 1);
             }
 
@@ -180,8 +189,7 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
             lcdRowTempText[row][LCD_WIDTH_MAX-1] = '\0';
 
             for (int i=0; i<size; i++)
-                lcdRowTempText[row][startIndex+i] = ' ';
-                // lcdRowTempText[row][startIndex+i] = stringBuffer[i];
+                lcdRowTempText[row][startIndex+i] = stringBuffer.buffer[i];
 
             //make sure message is properly EOL'ed
             lcdRowTempText[row][startIndex+size] = '\0';
@@ -210,6 +218,7 @@ void Display::setDirectWriteState(bool state)
 {
     directWriteState = state;
 }
+
 ///
 /// \brief Calculates position on which text needs to be set on display to be in center of display row.
 /// @param [in] textSize    Size of text for which center position on display is being calculated.
@@ -217,7 +226,7 @@ void Display::setDirectWriteState(bool state)
 ///
 uint8_t Display::getTextCenter(uint8_t textSize)
 {
-    return LCD_WIDTH_MAX/2 - (textSize/2);
+    return display_hw.getColumns()/2 - (textSize/2);
 }
 
 ///

@@ -70,7 +70,7 @@ void Encoders::update()
             break;
         }
 
-        midi.sendControlChange(database.read(DB_BLOCK_ENCODER, encoderMIDIidSection, i), encoderValue, database.read(DB_BLOCK_MIDI, midiChannelSection, CCchannel));
+        midi.sendControlChange(database.read(DB_BLOCK_ENCODER, encoderMIDIidSection, i), encoderValue, database.read(DB_BLOCK_MIDI, midiChannelSection, midiChannelCC));
         if (sysEx.configurationEnabled())
         {
             if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_ENCODER)) > COMPONENT_INFO_TIMEOUT)

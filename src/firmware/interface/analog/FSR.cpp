@@ -22,6 +22,9 @@
 #include "sysex/src/SysEx.h"
 #include "../cinfo/CInfo.h"
 #include "Variables.h"
+#ifdef DISPLAY_SUPPORTED
+#include "../../interface/display/Display.h"
+#endif
 
 //use 1k resistor when connecting FSR between signal and ground
 
@@ -67,7 +70,9 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             //sensor is really pressed
             setFsrPressed(analogID, true);
             uint8_t note = database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID);
-            midi.sendNoteOn(note, calibratedPressure, database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
+            uint8_t channel = database.read(DB_BLOCK_MIDI, midiChannelSection, midiChannelNote);
+            midi.sendNoteOn(note, calibratedPressure, channel);
+            display.displayMIDIevent(displayEventOut, midiMessageNoteOn_display, note, calibratedPressure, channel);
             leds.noteToState(note, calibratedPressure, true);
             if (sysEx.configurationEnabled())
             {
@@ -89,7 +94,9 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
         {
             setFsrPressed(analogID, false);
             uint8_t note = database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID);
-            midi.sendNoteOff(note, 0, database.read(DB_BLOCK_MIDI, midiChannelSection, noteChannel));
+            uint8_t channel = database.read(DB_BLOCK_MIDI, midiChannelSection, midiChannelNote);
+            midi.sendNoteOff(note, 0, channel);
+            display.displayMIDIevent(displayEventOut, midiMessageNoteOff_display, note, calibratedPressure, channel);
             leds.noteToState(note, 0, true);
             if (sysEx.configurationEnabled())
             {

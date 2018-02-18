@@ -29,7 +29,7 @@ class U8X8
     U8X8();
     void initDisplay(displayController_t controller, displayResolution_t resolution);
     void setI2CAddress(uint8_t adr);
-    uint8_t getCols();
+    uint8_t getColumns();
     uint8_t getRows();
     void drawTile(uint8_t x, uint8_t y, uint8_t cnt, uint8_t *tile_ptr);
     void clearDisplay();

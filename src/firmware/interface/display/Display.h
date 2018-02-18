@@ -38,8 +38,8 @@ class Display
     bool update();
     void displayWelcomeMessage();
     void displayVinfo(bool newFw);
-    void setTitle();
-    void displayMIDIevent(displayEventType_t type, midiMessageType_t message, uint8_t byte1, uint8_t byte2, uint8_t byte3);
+    void displayHome();
+    void displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t message, uint16_t byte1, uint16_t byte2, uint8_t byte3);
     void setRawNoteDisplay(bool state);
     void setOctaveNormalization(int8_t value);
     void setDirectWriteState(bool state);
@@ -110,8 +110,19 @@ class Display
     /// \brief Holds true if direct LCD writing is enabled, false otherwise.
     ///
     bool            directWriteState;
+
+    ///
+    /// \brief Holds resolution of configured screen.
+    ///
+    displayResolution_t resolution;
+
+    ///
+    /// \brief Holds true if display has been initialized.
+    ///
+    bool            initDone;
 };
 
 extern Display display;
+extern StringBuffer stringBuffer;
 
 /// @}
