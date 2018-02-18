@@ -75,18 +75,18 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
         if (analogType == aType_potentiometer_cc)
         {
             midi.sendControlChange(midiID, sendVal, channel);
-            display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, midiID, sendVal, channel);
+            display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, midiID & 0x7F, sendVal, channel);
         }
         else
         {
             midi.sendNoteOn(midiID, sendVal, channel);
-            display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, midiID, sendVal, channel);
+            display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, midiID & 0x7F, sendVal, channel);
         }
         break;
 
         case aType_NRPN_7:
         case aType_NRPN_14:
-        encDec_14bit.value = database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID);
+        encDec_14bit.value = midiID;
         encDec_14bit.split14bit();
         midi.sendControlChange(99, encDec_14bit.high, channel);
         midi.sendControlChange(98, encDec_14bit.low, channel);
