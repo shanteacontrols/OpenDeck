@@ -128,16 +128,19 @@ int main()
                 case midiMessageNoteOn:
                 //we're using received note data to control LED color
                 leds.noteToState(data1, data2);
+                display.displayMIDIevent(displayEventIn, midiMessageNoteOn_display, data1, data2, database.read(DB_BLOCK_MIDI, midiChannelSection, midiChannelInput));
                 break;
 
                 case midiMessageNoteOff:
                 //always turn led off when note off is received
                 leds.noteToState(data1, 0);
+                display.displayMIDIevent(displayEventIn, midiMessageNoteOff_display, data1, data2, database.read(DB_BLOCK_MIDI, midiChannelSection, midiChannelInput));
                 break;
 
                 case midiMessageControlChange:
                 //control change is used to control led blinking
                 leds.ccToBlink(data1, data2);
+                display.displayMIDIevent(displayEventIn, midiMessageControlChange_display, data1, data2, database.read(DB_BLOCK_MIDI, midiChannelSection, midiChannelInput));
                 break;
 
                 default:
@@ -193,16 +196,19 @@ int main()
                 case midiMessageNoteOn:
                 //we're using received note data to control LED color
                 leds.noteToState(data1, data2);
+                display.displayMIDIevent(displayEventIn, midiMessageNoteOn_display, data1, data2, database.read(DB_BLOCK_MIDI, midiChannelSection, midiChannelInput));
                 break;
 
                 case midiMessageNoteOff:
                 //always turn led off when note off is received
                 leds.noteToState(data1, 0);
+                display.displayMIDIevent(displayEventIn, midiMessageNoteOff_display, data1, data2, database.read(DB_BLOCK_MIDI, midiChannelSection, midiChannelInput));
                 break;
 
                 case midiMessageControlChange:
                 //control change is used to control led blinking
                 leds.ccToBlink(data1, data2);
+                display.displayMIDIevent(displayEventIn, midiMessageControlChange_display, data1, data2, database.read(DB_BLOCK_MIDI, midiChannelSection, midiChannelInput));
                 break;
 
                 default:
