@@ -1,6 +1,6 @@
 /*
     OpenDeck MIDI platform firmware
-    Copyright (C) 2015-2017 Igor Petrovic
+    Copyright (C) 2015-2018 Igor Petrovic
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -229,6 +229,4 @@ void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t
         default:
         break;
     }
-
-
 }
