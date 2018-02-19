@@ -3,7 +3,7 @@
     "tasks": [
         {
             "label": "build opendeck",
-            "command": "make fw_uno",
+            "command": "make fw_opendeck",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
