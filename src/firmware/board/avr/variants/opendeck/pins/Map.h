@@ -85,25 +85,26 @@ const uint8_t muxInPinArray[] =
     MUX_2_IN_PIN
 };
 
-#define DM_ROW_8_BIT                4
-#define DM_ROW_7_BIT                5
-#define DM_ROW_6_BIT                6
-#define DM_ROW_5_BIT                7
-#define DM_ROW_4_BIT                3
-#define DM_ROW_3_BIT                2
-#define DM_ROW_2_BIT                1
 #define DM_ROW_1_BIT                0
+#define DM_ROW_2_BIT                1
+#define DM_ROW_3_BIT                2
+#define DM_ROW_4_BIT                3
+#define DM_ROW_5_BIT                7
+#define DM_ROW_6_BIT                6
+#define DM_ROW_7_BIT                5
+#define DM_ROW_8_BIT                4
 
+//row bits are stored in inverse order when performing read
 const uint8_t dmRowBitArray[] =
 {
-    DM_ROW_1_BIT,
-    DM_ROW_2_BIT,
-    DM_ROW_3_BIT,
-    DM_ROW_4_BIT,
-    DM_ROW_5_BIT,
-    DM_ROW_6_BIT,
+    DM_ROW_8_BIT,
     DM_ROW_7_BIT,
-    DM_ROW_8_BIT
+    DM_ROW_6_BIT,
+    DM_ROW_5_BIT,
+    DM_ROW_4_BIT,
+    DM_ROW_3_BIT,
+    DM_ROW_2_BIT,
+    DM_ROW_1_BIT
 };
 
 #define DM_COLUMN_1                 0
