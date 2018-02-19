@@ -23,9 +23,12 @@ MIDI midi;
 
 void init()
 {
+    //init usb first to avoid issues with host
     #if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO) || defined(BOARD_T_2PP)
     midi.setUSBMIDIstate(true);
     #endif
+
+    database.init();
 
     #if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO) || defined(BOARD_T_2PP)
     midi.setDINMIDIstate(database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureDinEnabled));
@@ -46,7 +49,6 @@ void init()
     midi.setNoteOffMode((noteOffType_t)database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureStandardNoteOff));
     midi.setRunningStatusState(database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureRunningStatus));
 
-    database.init();
     board.init();
     sysEx.init();
 
