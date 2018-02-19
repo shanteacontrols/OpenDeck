@@ -229,6 +229,4 @@ void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t
         default:
         break;
     }
-
-
 }
