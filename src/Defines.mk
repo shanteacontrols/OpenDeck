@@ -66,13 +66,19 @@ else ifeq ($(findstring 16u2,$(MAKECMDGOALS)), 16u2)
 else ifeq ($(findstring 8u2,$(MAKECMDGOALS)), 8u2)
     MCU := atmega8u2
     DEFINES += BOARD_A_xu2
-else ifeq ($(MAKECMDGOALS),upload)
+else ifeq ($(findstring upload,$(MAKECMDGOALS)), upload)
     #hack used to set MCU if only make upload target is called
     #check if MCU file exists
     ifneq ("$(wildcard build/MCU)","")
         MCU := $(shell cat build/MCU)
     else
         $(error Please run make for specific target first)
+    endif
+    #extra check for uploadboot - fw_opendeck only for now
+    ifeq ($(MAKECMDGOALS),uploadboot)
+        ifeq ($(filter fw_opendeck, $(shell cat build/TARGET)), )
+            $(error Available only for fw_opendeck target.)
+        endif
     endif
 endif
 

@@ -133,6 +133,10 @@ upload:
 	@$(AVR_DUDE_BIN_PATH) -C $(AVR_DUDE_CONF_PATH) -p $(shell cat build/MCU) -P /dev/$(PORT) -b 19200 -c $(AVRDUDE_PROGRAMMER) -e -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
 	@$(AVR_DUDE_BIN_PATH) -C $(AVR_DUDE_CONF_PATH) -p $(shell cat build/MCU) -P /dev/$(PORT) -b 19200 -c $(AVRDUDE_PROGRAMMER) -U flash:w:build/$(shell cat build/TARGET).hex -U lock:w:$(FUSE_LOCK):m
 
+#firmware update with bootloader
+uploadboot:
+	python3 ../bin/dfu/hid_bootloader_loader.py $(shell cat build/MCU) build/$(shell cat build/TARGET).hex
+
 #lists all serial ports - used to find out where the programmer is connected
 ser_list:
 	dmesg | grep tty
