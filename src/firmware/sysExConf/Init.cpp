@@ -194,6 +194,7 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
 bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newValue)
 {
     bool success = false;
+    bool writeToDb = true;
     encDec_14bit_t encDec_14bit;
 
     switch(block)
@@ -255,6 +256,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
         break;
 
         case DB_BLOCK_MIDI:
+        //some custom actions required here
         if (section == midiFeatureSection)
         {
             switch(index)
@@ -285,49 +287,48 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             case ledColorSection:
             //no writing to database
             leds.setColor(index, (ledColor_t)newValue);
+            success = true;
+            writeToDb = false;
             break;
 
             case ledBlinkSection:
             //no writing to database
             leds.setBlinkState(index, newValue);
+            success = true;
+            writeToDb = false;
             break;
 
             case ledHardwareParameterSection:
-            //this entire section needs specific value check
+            //this entire section needs specific value check since values differ
+            //depending on index
             switch(index)
             {
                 case ledHwParameterBlinkTime:
-                if ((newValue < BLINK_TIME_MIN) || (newValue > BLINK_TIME_MAX))
-                {
-                    success = false;
-                }
-                else
+                if ((newValue >= BLINK_TIME_MIN) && (newValue <= BLINK_TIME_MAX))
                 {
                     leds.setBlinkTime(newValue);
+                    success = true;
                 }
                 break;
 
                 case ledHwParameterFadeTime:
-                if ((newValue < FADE_TIME_MIN) || (newValue > FADE_TIME_MAX))
-                {
-                    success = false;
-                }
-                else
+                if ((newValue >= FADE_TIME_MIN) && (newValue <= FADE_TIME_MAX))
                 {
                     #ifdef BOARD_OPEN_DECK
                     leds.setFadeTime(newValue);
                     #endif
+                    success = true;
                 }
                 break;
 
                 case ledHwParameterStartUpRoutine:
-                if (newValue > 1)
-                    success = false;
+                if ((newValue <= 1) && (newValue >= 0))
+                    success = true;
                 break;
             }
 
-            //write to db if success is true
-            if (success)
+            //write to db if success is true and writing should take place
+            if (success && writeToDb)
                 success = database.update(block, section, index, newValue);
             break;
 
@@ -414,22 +415,60 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
         break;
 
         case DB_BLOCK_DISPLAY:
-        success = true;
-        if ((section == displayHwSection) || ((section == displayFeaturesSection) && (index == displayFeatureEnable) && newValue))
+        switch(section)
         {
-            display.init((displayController_t)database.read(DB_BLOCK_DISPLAY, displayHwSection, displayHwController), (displayResolution_t)database.read(DB_BLOCK_DISPLAY, displayHwSection, displayHwResolution));
-            display.displayHome();
-        }
-        else if ((section == displayFeaturesSection) && (index == displayFeatureMIDIeventRetention))
-        {
-            display.setRetentionState(newValue);
-        }
-        else if ((section == displayFeaturesSection) && (index == displayFeatureMIDIeventTime))
-        {
-            if ((newValue >= MIN_MESSAGE_RETENTION_TIME) && (newValue <= MAX_MESSAGE_RETENTION_TIME))
-                display.setRetentionTime(newValue * 1000);
-            else
-                success = false;
+            case displayHwSection:
+            switch(index)
+            {
+                case displayHwController:
+                if ((newValue <= DISPLAY_CONTROLLERS) && (newValue >= 0))
+                {
+                    display.init((displayController_t)newValue, (displayResolution_t)database.read(DB_BLOCK_DISPLAY, displayHwSection, displayHwResolution));
+                    display.displayHome();
+                    success = true;
+                }
+                break;
+
+                case displayHwResolution:
+                if ((newValue <= DISPLAY_RESOLUTIONS) && (newValue >= 0))
+                {
+                    display.init((displayController_t)database.read(DB_BLOCK_DISPLAY, displayHwSection, displayHwController), (displayResolution_t)newValue);
+                    display.displayHome();
+                    success = true;
+                }
+                break;
+
+                default:
+                break;
+            }
+            break;
+
+            case displayFeaturesSection:
+            switch(index)
+            {
+                case displayFeatureMIDIeventRetention:
+                if ((newValue <= 1) && (newValue >= 0))
+                {
+                    display.setRetentionState(newValue);
+                    success = true;
+                }
+                break;
+
+                case displayFeatureMIDIeventTime:
+                if ((newValue >= MIN_MESSAGE_RETENTION_TIME) && (newValue <= MAX_MESSAGE_RETENTION_TIME))
+                {
+                    display.setRetentionTime(newValue * 1000);
+                    success = true;
+                }
+                break;
+
+                default:
+                break;
+            }
+            break;
+
+            default:
+            break;
         }
 
         if (success)
@@ -437,6 +476,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
         break;
 
         default:
+        //rest of the blocks - no custom handling
         success = database.update(block, section, index, newValue);
         break;
     }
