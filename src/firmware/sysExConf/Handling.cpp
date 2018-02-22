@@ -179,6 +179,14 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
         }
         break;
 
+        case DB_BLOCK_DISPLAY:
+        #ifdef DISPLAY_SUPPORTED
+        returnValue = database.read(block, section, index);
+        #else
+        sysEx.setError(ERROR_NOT_SUPPORTED);
+        #endif
+        break;
+
         default:
         returnValue = database.read(block, section, index);
         break;
@@ -415,6 +423,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
         break;
 
         case DB_BLOCK_DISPLAY:
+        #ifdef DISPLAY_SUPPORTED
         switch(section)
         {
             case displayHwSection:
@@ -470,6 +479,9 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             default:
             break;
         }
+        #else
+        sysEx.setError(ERROR_NOT_SUPPORTED);
+        #endif
 
         if (success)
             success = database.update(block, section, index, newValue);
