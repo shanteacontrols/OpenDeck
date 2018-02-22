@@ -27,7 +27,7 @@ class U8X8
     uint8_t tx, ty;
 
     U8X8();
-    void initDisplay(displayController_t controller, displayResolution_t resolution);
+    bool initDisplay(displayController_t controller, displayResolution_t resolution);
     void setI2CAddress(uint8_t adr);
     uint8_t getColumns();
     uint8_t getRows();

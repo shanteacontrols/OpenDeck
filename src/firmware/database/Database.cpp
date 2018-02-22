@@ -17,6 +17,7 @@
 */
 
 #include "Database.h"
+#include "../interface/display/Config.h"
 
 ///
 /// \brief Default constructor.
@@ -47,6 +48,7 @@ void Database::init()
 void Database::factoryReset(initType_t type)
 {
     DBMS::initData(type);
+    writeCustomValues();
 }
 
 ///
@@ -64,6 +66,12 @@ bool Database::signatureValid()
     }
 
     return true;
+}
+
+void Database::writeCustomValues()
+{
+    //used to init custom data for display
+    database.update(DB_BLOCK_DISPLAY, displayFeaturesSection, displayFeatureMIDIeventTime, MIN_MESSAGE_RETENTION_TIME);
 }
 
 Database database;

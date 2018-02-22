@@ -19,6 +19,7 @@
 #include "Display.h"
 #include "strings/Strings.h"
 #include "../../Version.h"
+#include "Layout.h"
 
 StringBuffer stringBuffer;
 
@@ -163,8 +164,8 @@ void Display::displayHome()
 
 void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t message, uint16_t byte1, uint16_t byte2, uint8_t byte3)
 {
-    uint8_t startRow = (type == displayEventIn) ? 0 : 2;
-    uint8_t startColumn = (type == displayEventIn) ? 4 : 5;
+    uint8_t startRow = (type == displayEventIn) ? ROW_START_MIDI_IN_MESSAGE : ROW_START_MIDI_OUT_MESSAGE;
+    uint8_t startColumn = (type == displayEventIn) ? COLUMN_START_MIDI_IN_MESSAGE : COLUMN_START_MIDI_OUT_MESSAGE;
 
     stringBuffer.startLine();
     stringBuffer.appendText_P((char*)pgm_read_word(&(eventNameArray[(uint8_t)message])));
@@ -229,4 +230,45 @@ void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t
         default:
         break;
     }
+
+    lastMIDIMessageDisplayTime[type] = rTimeMs();
+    midiMessageDisplayed[type] = true;
+}
+
+void Display::clearMIDIevent(displayEventType_t type)
+{
+    switch(type)
+    {
+        case displayEventIn:
+        //first row
+        stringBuffer.startLine();
+        stringBuffer.appendChar(' ', display_hw.getColumns()-COLUMN_START_MIDI_IN_MESSAGE);
+        stringBuffer.endLine();
+        updateText(ROW_START_MIDI_IN_MESSAGE, lcdtext_still, COLUMN_START_MIDI_IN_MESSAGE);
+        //second row
+        stringBuffer.startLine();
+        stringBuffer.appendChar(' ', display_hw.getColumns());
+        stringBuffer.endLine();
+        updateText(ROW_START_MIDI_IN_MESSAGE+1, lcdtext_still, 0);
+        break;
+
+        case displayEventOut:
+        //first row
+        stringBuffer.startLine();
+        stringBuffer.appendChar(' ', display_hw.getColumns()-COLUMN_START_MIDI_OUT_MESSAGE);
+        stringBuffer.endLine();
+        updateText(ROW_START_MIDI_OUT_MESSAGE, lcdtext_still, COLUMN_START_MIDI_OUT_MESSAGE);
+        //second row
+        stringBuffer.startLine();
+        stringBuffer.appendChar(' ', display_hw.getColumns());
+        stringBuffer.endLine();
+        updateText(ROW_START_MIDI_OUT_MESSAGE+1, lcdtext_still, 0);
+        break;
+
+        default:
+        return;
+        break;
+    }
+
+    midiMessageDisplayed[type] = false;
 }

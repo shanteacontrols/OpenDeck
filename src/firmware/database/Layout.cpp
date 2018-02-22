@@ -249,16 +249,7 @@ void Database::createLayout()
         DBMS::addSection(DB_BLOCK_DISPLAY, section);
 
         //hw section
-        section.numberOfParameters = DISPLAY_CONTROLLERS;
-        section.defaultValue = 0;
-        section.autoIncrement = false;
-        section.parameterType = BYTE_PARAMETER;
-        section.preserveOnPartialReset = 0;
-
-        DBMS::addSection(DB_BLOCK_DISPLAY, section);
-
-        //resolution section
-        section.numberOfParameters = DISPLAY_RESOLUTIONS;
+        section.numberOfParameters = DISPLAY_HW_PARAMETERS;
         section.defaultValue = 0;
         section.autoIncrement = false;
         section.parameterType = BYTE_PARAMETER;

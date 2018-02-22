@@ -233,21 +233,14 @@ void SysExConfig::createLayout()
         //features section
         section.numberOfParameters = DISPLAY_FEATURES;
         section.minValue = 0;
-        section.maxValue = DISPLAY_FEATURES-1;
+        section.maxValue = 0;
 
         addSection(DB_BLOCK_DISPLAY, section);
 
-        //controller section
-        section.numberOfParameters = DISPLAY_CONTROLLERS;
+        //hw section
+        section.numberOfParameters = DISPLAY_HW_PARAMETERS;
         section.minValue = 0;
-        section.maxValue = DISPLAY_CONTROLLERS-1;
-
-        addSection(DB_BLOCK_DISPLAY, section);
-
-        //resolution section
-        section.numberOfParameters = DISPLAY_RESOLUTIONS;
-        section.minValue = 0;
-        section.maxValue = DISPLAY_RESOLUTIONS-1;
+        section.maxValue = DISPLAY_HW_PARAMETERS-1;
 
         addSection(DB_BLOCK_DISPLAY, section);
     }

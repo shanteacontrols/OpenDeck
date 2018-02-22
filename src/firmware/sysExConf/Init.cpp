@@ -413,6 +413,29 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
         }
         break;
 
+        case DB_BLOCK_DISPLAY:
+        success = true;
+        if ((section == displayHwSection) || ((section == displayFeaturesSection) && (index == displayFeatureEnable) && newValue))
+        {
+            display.init((displayController_t)database.read(DB_BLOCK_DISPLAY, displayHwSection, displayHwController), (displayResolution_t)database.read(DB_BLOCK_DISPLAY, displayHwSection, displayHwResolution));
+            display.displayHome();
+        }
+        else if ((section == displayFeaturesSection) && (index == displayFeatureMIDIeventRetention))
+        {
+            display.setRetentionState(newValue);
+        }
+        else if ((section == displayFeaturesSection) && (index == displayFeatureMIDIeventTime))
+        {
+            if ((newValue >= MIN_MESSAGE_RETENTION_TIME) && (newValue <= MAX_MESSAGE_RETENTION_TIME))
+                display.setRetentionTime(newValue * 1000);
+            else
+                success = false;
+        }
+
+        if (success)
+            success = database.update(block, section, index, newValue);
+        break;
+
         default:
         success = database.update(block, section, index, newValue);
         break;

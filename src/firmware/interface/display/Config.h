@@ -46,6 +46,16 @@
 #define LCD_HEIGHT_MAX                      4
 
 ///
+/// \brief Valid range in seconds of MIDI message retention time.
+/// @{
+///
+
+#define MIN_MESSAGE_RETENTION_TIME          1
+#define MAX_MESSAGE_RETENTION_TIME          5
+
+/// s
+
+///
 /// \brief Array holding remapped values of LCD rows.
 /// Used to increase readability.
 /// Matched with displayResolution_t enum.

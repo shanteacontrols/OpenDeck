@@ -17,6 +17,7 @@
 */
 
 #include "Display.h"
+#include "../../database/Database.h"
 
 ///
 /// \brief Default constructor.
@@ -29,41 +30,51 @@ Display::Display()
 ///
 /// \brief Initialize display driver and variables.
 ///
-void Display::init(displayController_t controller, displayResolution_t resolution)
+bool Display::init(displayController_t controller, displayResolution_t resolution)
 {
-    display_hw.initDisplay(controller, resolution);
-    display_hw.setPowerSave(0);
-    display_hw.setFlipMode(0);
-
-    this->resolution = resolution;
-
-    display_hw.setFont(u8x8_font_pxplustandynewtv_r);
-    display_hw.clearDisplay();
-
-    //init char arrays
-    for (int i=0; i<LCD_HEIGHT_MAX; i++)
+    if (display_hw.initDisplay(controller, resolution))
     {
-        for (int j=0; j<STRING_BUFFER_SIZE-2; j++)
+        display_hw.setPowerSave(0);
+        display_hw.setFlipMode(0);
+
+        this->resolution = resolution;
+
+        display_hw.setFont(u8x8_font_pxplustandynewtv_r);
+        display_hw.clearDisplay();
+
+        //init char arrays
+        for (int i=0; i<LCD_HEIGHT_MAX; i++)
         {
-            lcdRowStillText[i][j] = ' ';
-            lcdRowTempText[i][j] = ' ';
+            for (int j=0; j<STRING_BUFFER_SIZE-2; j++)
+            {
+                lcdRowStillText[i][j] = ' ';
+                lcdRowTempText[i][j] = ' ';
+            }
+
+            lcdRowStillText[i][STRING_BUFFER_SIZE-1] = '\0';
+            lcdRowTempText[i][STRING_BUFFER_SIZE-1] = '\0';
+
+            scrollEvent[i].size = 0;
+            scrollEvent[i].startIndex = 0;
+            scrollEvent[i].currentIndex = 0;
+            scrollEvent[i].direction = scroll_ltr;
         }
 
-        lcdRowStillText[i][STRING_BUFFER_SIZE-1] = '\0';
-        lcdRowTempText[i][STRING_BUFFER_SIZE-1] = '\0';
+        setDirectWriteState(true);
 
-        scrollEvent[i].size = 0;
-        scrollEvent[i].startIndex = 0;
-        scrollEvent[i].currentIndex = 0;
-        scrollEvent[i].direction = scroll_ltr;
+        if (database.read(DB_BLOCK_DISPLAY, displayFeaturesSection, displayFeatureWelcomeMsg))
+            displayWelcomeMessage();
+
+        if (database.read(DB_BLOCK_DISPLAY, displayFeaturesSection, displayFeatureVInfoMsg))
+            displayVinfo(false);
+
+        setDirectWriteState(false);
+
+        initDone = true;
+        return true;
     }
 
-    setDirectWriteState(true);
-    displayWelcomeMessage();
-    displayVinfo(false);
-    setDirectWriteState(false);
-
-    initDone = true;
+    return false;
 }
 
 ///
@@ -114,6 +125,17 @@ bool Display::update()
     }
 
     lastLCDupdateTime = rTimeMs();
+
+    //check if midi in/out messages need to be cleared
+    if (!retentionState)
+    {
+        for (int i=0; i<2; i++)
+        {
+            //0 = in, 1 = out
+            if ((rTimeMs() - lastMIDIMessageDisplayTime[i] > MIDImessageRetentionTime) && midiMessageDisplayed[i])
+                clearMIDIevent((displayEventType_t)i);
+        }
+    }
 
     return true;
 }
@@ -298,6 +320,30 @@ void Display::updateScrollStatus(uint8_t row)
 lcdTextType_t Display::getActiveTextType()
 {
     return activeTextType;
+}
+
+///
+/// \brief Updates message retention state.
+/// @param [in] state   New retention state.
+///
+void Display::setRetentionState(bool state)
+{
+    retentionState = state;
+}
+
+///
+/// \brief Sets new message retention time.
+/// @param [in] retentionTime New retention time.
+///
+void Display::setRetentionTime(uint32_t retentionTime)
+{
+    if (!retentionTime)
+        return;
+
+    MIDImessageRetentionTime = retentionTime;
+    //reset last update time
+    lastMIDIMessageDisplayTime[displayEventIn] = rTimeMs();
+    lastMIDIMessageDisplayTime[displayEventOut] = rTimeMs();
 }
 
 Display display;
