@@ -240,7 +240,7 @@ void SysExConfig::createLayout()
         //hw section
         section.numberOfParameters = DISPLAY_HW_PARAMETERS;
         section.newValueMin = 0;
-        section.newValueMax = DISPLAY_HW_PARAMETERS-1;
+        section.newValueMax = 0;
 
         addSection(DB_BLOCK_DISPLAY, section);
     }
