@@ -34,7 +34,7 @@ class Display
 {
     public:
     Display();
-    void init(displayController_t controller, displayResolution_t resolution);
+    bool init(displayController_t controller, displayResolution_t resolution);
     bool update();
     void displayWelcomeMessage();
     void displayVinfo(bool newFw);
@@ -48,13 +48,31 @@ class Display
     void updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex);
     uint8_t getTextCenter(uint8_t textSize);
     lcdTextType_t getActiveTextType();
+    void setRetentionState(bool state);
+    void setRetentionTime(uint32_t time);
 
     private:
     void updateScrollStatus(uint8_t row);
     void updateTempTextStatus();
+    void clearMIDIevent(displayEventType_t type);
 
     ///
-    /// \brief Holds time index LCD message was shown.
+    /// \brief Holds last time index MIDI message was shown for specific event type (in or out).
+    ///
+    uint32_t        lastMIDIMessageDisplayTime[2];
+
+    ///
+    /// \brief Holds true if MIDI input or output message is shown on display.
+    ///
+    bool            midiMessageDisplayed[2];
+
+    ///
+    /// \brief Holds time after which MIDI message should be cleared on display if retention is disabled.
+    ///
+    uint32_t        MIDImessageRetentionTime;
+
+    ///
+    /// \brief Holds last time index info message was shown.
     ///
     uint32_t        messageDisplayTime;
 
@@ -120,6 +138,13 @@ class Display
     /// \brief Holds true if display has been initialized.
     ///
     bool            initDone;
+
+    ///
+    /// \brief Holds message retention state.
+    /// If true, last MIDI message will be shown on display indefinately until it's
+    /// overwritten by a new one.
+    ///
+    bool            retentionState;
 };
 
 extern Display display;

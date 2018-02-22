@@ -94,22 +94,20 @@ void init()
 
     leds.init();
 
-    // #ifdef DISPLAY_SUPPORTED
-    // if (database.read(DB_BLOCK_DISPLAY, displayFeaturesSection, displayFeatureEnable))
-    //     // display.init((displayController)database.read(DB_BLOCK_DISPLAY, displayHwSection, displayHwController), (displayResolution)database.read(DB_BLOCK_DISPLAY, displayHwSection, displayHwResolution));
-    //     display.init(displayController_ssd1306, displayRes_128x32);
-    // #endif
+    #ifdef DISPLAY_SUPPORTED
+    if (database.read(DB_BLOCK_DISPLAY, displayFeaturesSection, displayFeatureEnable))
+    {
+        display.init((displayController_t)database.read(DB_BLOCK_DISPLAY, displayHwSection, displayHwController), (displayResolution_t)database.read(DB_BLOCK_DISPLAY, displayHwSection, displayHwResolution));
+        display.displayHome();
+        display.setRetentionState(database.read(DB_BLOCK_DISPLAY, displayFeaturesSection, displayFeatureMIDIeventRetention));
+        display.setRetentionTime(database.read(DB_BLOCK_DISPLAY, displayFeaturesSection, displayFeatureMIDIeventTime) * 1000);
+    }
+    #endif
 }
 
 int main()
 {
     init();
-
-    #ifdef DISPLAY_SUPPORTED
-    display.init(displayController_ssd1306, displayRes_128x64);
-    // display.init(displayController_ssd1306, displayRes_128x32);
-    display.displayHome();
-    #endif
 
     while(1)
     {

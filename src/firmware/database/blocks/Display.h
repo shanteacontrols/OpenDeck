@@ -28,7 +28,8 @@ typedef enum
 typedef enum
 {
     displayHwController,
-    displayHwResolution
+    displayHwResolution,
+    DISPLAY_HW_PARAMETERS
 } displayHw_db_t;
 
 typedef enum
@@ -39,23 +40,19 @@ typedef enum
 
 typedef enum
 {
-    displayRes_128x32,
     displayRes_128x64,
+    displayRes_128x32,
     DISPLAY_RESOLUTIONS
 } displayResolution_t;
 
 typedef enum
 {
     displayFeatureEnable,
-    displayFeatureWelcomeMsgState,
     displayFeatureWelcomeMsg,
-    displayFeatureVInfoStartupState,
-    displayFeatureTitleState,
-    displayFeatureTitle,
-    displayFeatureMIDIevent,
-    displayFeatureMIDIeventTemp,
+    displayFeatureVInfoMsg,
+    displayFeatureMIDIeventRetention,
+    displayFeatureMIDInotesAlternate,
     displayFeatureMIDIeventTime,
-    displayFeatureMIDInotesRaw,
     displayFeatureOctaveNormalization,
     DISPLAY_FEATURES
 } displayFeature_t;
@@ -64,5 +61,4 @@ typedef enum
 {
     displayEventIn,
     displayEventOut,
-    displayEventInOut
 } displayEventType_t;

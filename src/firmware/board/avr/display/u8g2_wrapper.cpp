@@ -65,8 +65,10 @@ U8X8::U8X8()
 
 }
 
-void U8X8::initDisplay(displayController_t controller, displayResolution_t resolution)
+bool U8X8::initDisplay(displayController_t controller, displayResolution_t resolution)
 {
+    bool success = false;
+
     //setup defaults
     u8x8_SetupDefaults(&u8x8);
 
@@ -79,6 +81,7 @@ void U8X8::initDisplay(displayController_t controller, displayResolution_t resol
         u8x8.gpio_and_delay_cb = u8x8_gpio_and_delay;
         rows = 4;
         columns = 16;
+        success = true;
     }
     else if ((resolution == displayRes_128x32) && (controller == displayController_ssd1306))
     {
@@ -88,14 +91,22 @@ void U8X8::initDisplay(displayController_t controller, displayResolution_t resol
         u8x8.gpio_and_delay_cb = u8x8_gpio_and_delay;
         rows = 2;
         columns = 16;
+        success = true;
     }
 
-    /* setup display info */
-    u8x8_SetupMemory(&u8x8);
-    u8x8_InitDisplay(&u8x8);
+    if (success)
+    {
+        /* setup display info */
+        u8x8_SetupMemory(&u8x8);
+        u8x8_InitDisplay(&u8x8);
 
-    clearDisplay();
-    setPowerSave(0);
+        clearDisplay();
+        setPowerSave(0);
+
+        return true;
+    }
+
+    return false;
 }
 
 void U8X8::setI2CAddress(uint8_t adr)
