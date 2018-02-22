@@ -94,9 +94,9 @@ $(C_SOURCES): build/%.o: %.c
 fw_opendeck fw_leonardo fw_pro_micro fw_teensy2pp fw_mega fw_uno fw_16u2 fw_8u2 boot_opendeck boot_leonardo boot_16u2 boot_teensy2pp: $(TARGET).elf
 
 #determine if make clean should be run before compilation
-#first check if MCU file in build dir exists
-ifneq ("$(wildcard build/MCU)","")
-    ifneq ($(shell cat build/MCU), $(MCU))
+#first check if TARGET file in build dir exists
+ifneq ("$(wildcard build/TARGET)","")
+    ifneq ($(shell cat build/TARGET), $(MAKECMDGOALS))
         RUN_CLEAN := clean
     endif
 endif
