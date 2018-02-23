@@ -7,6 +7,7 @@ OpenDeck is a platform suited both for prototyping and developing custom MIDI co
 * LEDs (single color or RGB)
 * Potentiometers
 * FSRs (force-sensitive resistors)
+* LCD/OLED displays (Arduino Mega and Teensy++ 2.0 only)
 
 OpenDeck supports sending of both 7-bit and 14-bit Non-Registered Part Numbers (NRPN), latching messages on buttons, various encoding modes for quadrature encoders, LED control using MIDI In, configurable MIDI channels etc. Full list of supported features can be found [here](https://github.com/paradajz/OpenDeck/wiki/Configurable-features).
 
@@ -23,7 +24,6 @@ OpenDeck firmware is compatible with official OpenDeck board, as well as various
 
 ## Coming soon
 
-* Support for LCD/OLED displays
 * Support for advanced I2C sensors
 
 ## Credits
