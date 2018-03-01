@@ -178,7 +178,20 @@ void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t
         case midiMessageNoteOff_display:
         case midiMessageNoteOn_display:
         stringBuffer.startLine();
-        stringBuffer.appendInt(byte1);
+
+        if (rawNoteDisplay)
+        {
+            stringBuffer.appendInt(byte1);
+        }
+        else
+        {
+            stringBuffer.appendText_P((char*)pgm_read_word(&(noteNameArray[midi.getTonicFromNote(byte1)])));
+        else
+        {
+            stringBuffer.appendText_P((char*)pgm_read_word(&(noteNameArray[midi.getTonicFromNote(byte1)])));
+            stringBuffer.appendInt(normalizeOctave(midi.getOctaveFromNote(byte1), octaveNormalization));
+        }
+
         stringBuffer.appendText(" v");
         stringBuffer.appendInt(byte2);
         stringBuffer.appendText(" CH");
