@@ -53,7 +53,7 @@ endif
 ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
     ifeq ($(BOARD_DIR),xu2)
         #xu2 uses different set of sources than other firmwares
-        CPP_SOURCES += \
+        SOURCES += \
         firmware/board/avr/variants/$(BOARD_DIR)/Board.cpp \
         firmware/board/avr/variants/$(BOARD_DIR)/ISR.cpp \
         firmware/board/avr/variants/$(BOARD_DIR)/main.cpp \
