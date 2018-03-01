@@ -1,6 +1,6 @@
 #includes
 include Defines.mk
-include FirmwareSources.mk
+include Sources.mk
 include Upload.mk
 
 #target location
@@ -67,28 +67,14 @@ ifneq ($(filter atmega32u4 at90usb1286, $(MCU)), )
     endif
 endif
 
-#make sure all build files are located in build directory
-C_SOURCES := $(addprefix build/,$(C_SOURCES))
-CPP_SOURCES := $(addprefix build/,$(CPP_SOURCES))
-
-#also replace extension with .o
-C_SOURCES := $(C_SOURCES:.c=.o)
-CPP_SOURCES := $(CPP_SOURCES:.cpp=.o)
+#make sure all objects are located in build directory
+OBJECTS := $(addprefix build/,$(SOURCES))
+#also make sure objects have .o extension
+OBJECTS := $(OBJECTS:.c=.o)
+OBJECTS := $(OBJECTS:.cpp=.o)
 
 #include generated dependency files to allow incremental build when only headers change
--include $(CPP_SOURCES:%.o=%.d)
-
-#cpp sources
-$(CPP_SOURCES): build/%.o: %.cpp
-	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) -mmcu=$(MCU) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -o "$@" "$<" 
-	@echo Finished building: $<
-
-#c sources
-$(C_SOURCES): build/%.o: %.c
-	@mkdir -p $(@D)
-	@$(CPP) $(CXXFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) -mmcu=$(MCU) $(INCLUDE_DIRS) -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -o "$@" "$<" 
-	@echo Finished building: $<
+-include $(OBJECTS:%.o=%.d)
 
 #targets
 fw_opendeck fw_leonardo fw_pro_micro fw_teensy2pp fw_mega fw_uno fw_16u2 fw_8u2 boot_opendeck boot_leonardo boot_16u2 boot_teensy2pp: $(TARGET).elf
@@ -101,11 +87,21 @@ ifneq ("$(wildcard build/TARGET)","")
     endif
 endif
 
-$(TARGET).elf: $(RUN_CLEAN) $(C_SOURCES) $(CPP_SOURCES)
+build/%.o: %.c
+	@mkdir -p $(@D)
+	@$(CPP) $(CXXFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) -mmcu=$(MCU) $(INCLUDE_DIRS) -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -o "$@" "$<" 
+	@echo Finished building: $<
+
+build/%.o: %.cpp
+	@mkdir -p $(@D)
+	@$(CXX) $(CXXFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) -mmcu=$(MCU) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -o "$@" "$<" 
+	@echo Finished building: $<
+
+$(TARGET).elf: $(RUN_CLEAN) $(OBJECTS)
 	@#link
-	@$(CXX) -o$(TARGET).elf $(C_SOURCES) $(CPP_SOURCES) -mmcu=$(MCU) $(LDFLAGS) -Wl,-Map,$(TARGET).map
+	@$(CXX) -o$(TARGET).elf $(OBJECTS) -mmcu=$(MCU) $(LDFLAGS) -Wl,-Map,$(TARGET).map
 	@echo Finished building target: $@
-	@#convet elf to hex
+	@#convert elf to hex
 	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(TARGET).elf" "$(TARGET).hex"
 	@#write firmware length at specified location and crc at the end of compiled binary if supported for target
 	@if [ "$(LEN_APPEND)" = "1" ]; then\
