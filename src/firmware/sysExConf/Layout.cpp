@@ -74,6 +74,13 @@ void SysExConfig::createLayout()
         section.newValueMax = 127;
 
         addSection(DB_BLOCK_BUTTON, section);
+
+        //midi channel section
+        section.numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
+        section.newValueMin = 1;
+        section.newValueMax = 16;
+
+        addSection(DB_BLOCK_BUTTON, section);
     }
 
     {
@@ -104,6 +111,13 @@ void SysExConfig::createLayout()
         section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
         section.newValueMin = 0;
         section.newValueMax = 127;
+
+        addSection(DB_BLOCK_ENCODER, section);
+
+        //midi channel section
+        section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
+        section.newValueMin = 1;
+        section.newValueMax = 16;
 
         addSection(DB_BLOCK_ENCODER, section);
     }
@@ -173,6 +187,13 @@ void SysExConfig::createLayout()
         section.newValueMax = 127;
 
         addSection(DB_BLOCK_ANALOG, section);
+
+        //midi channel section
+        section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
+        section.newValueMin = 1;
+        section.newValueMax = 16;
+
+        addSection(DB_BLOCK_ANALOG, section);
     }
 
     {
@@ -224,6 +245,13 @@ void SysExConfig::createLayout()
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
         section.newValueMin = 0;
         section.newValueMax = 1;
+
+        addSection(DB_BLOCK_LED, section);
+
+        //midi channel section
+        section.numberOfParameters = MAX_NUMBER_OF_LEDS;
+        section.newValueMin = 1;
+        section.newValueMax = 16;
 
         addSection(DB_BLOCK_LED, section);
     }

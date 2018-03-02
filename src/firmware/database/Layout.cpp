@@ -88,6 +88,15 @@ void Database::createLayout()
         section.preserveOnPartialReset = 0;
 
         DBMS::addSection(DB_BLOCK_BUTTON, section);
+
+        //midi channel section
+        section.numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
+        section.defaultValue = 1;
+        section.autoIncrement = false;
+        section.parameterType = HALFBYTE_PARAMETER;
+        section.preserveOnPartialReset = 0;
+
+        DBMS::addSection(DB_BLOCK_BUTTON, section);
     }
 
     {
@@ -125,6 +134,15 @@ void Database::createLayout()
         section.defaultValue = 0;
         section.autoIncrement = true;
         section.parameterType = BYTE_PARAMETER;
+        section.preserveOnPartialReset = 0;
+
+        DBMS::addSection(DB_BLOCK_ENCODER, section);
+
+        //midi channel section
+        section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
+        section.defaultValue = 1;
+        section.autoIncrement = false;
+        section.parameterType = HALFBYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
         DBMS::addSection(DB_BLOCK_ENCODER, section);
@@ -186,6 +204,15 @@ void Database::createLayout()
         section.preserveOnPartialReset = 0;
 
         DBMS::addSection(DB_BLOCK_ANALOG, section);
+
+        //midi channel section
+        section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
+        section.defaultValue = 1;
+        section.autoIncrement = false;
+        section.parameterType = HALFBYTE_PARAMETER;
+        section.preserveOnPartialReset = 0;
+
+        DBMS::addSection(DB_BLOCK_ANALOG, section);
     }
 
     {
@@ -232,6 +259,15 @@ void Database::createLayout()
         section.defaultValue = 127;
         section.autoIncrement = false;
         section.parameterType = BYTE_PARAMETER;
+        section.preserveOnPartialReset = 0;
+
+        DBMS::addSection(DB_BLOCK_LED, section);
+
+        //midi channel section
+        section.numberOfParameters = MAX_NUMBER_OF_LEDS;
+        section.defaultValue = 1;
+        section.autoIncrement = false;
+        section.parameterType = HALFBYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
         DBMS::addSection(DB_BLOCK_LED, section);
