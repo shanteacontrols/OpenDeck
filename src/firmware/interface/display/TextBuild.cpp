@@ -186,9 +186,6 @@ void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t
         else
         {
             stringBuffer.appendText_P((char*)pgm_read_word(&(noteNameArray[midi.getTonicFromNote(byte1)])));
-        else
-        {
-            stringBuffer.appendText_P((char*)pgm_read_word(&(noteNameArray[midi.getTonicFromNote(byte1)])));
             stringBuffer.appendInt(normalizeOctave(midi.getOctaveFromNote(byte1), octaveNormalization));
         }
 
