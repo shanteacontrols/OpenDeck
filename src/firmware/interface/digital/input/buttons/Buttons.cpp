@@ -76,7 +76,7 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonM
                 #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(displayEventOut, midiMessageNoteOn_display, note, velocity, channel);
                 #endif
-                leds.noteToState(note, velocity, true);
+                leds.noteToState(note, velocity, 0, true);
                 break;
 
                 case buttonPC:
@@ -92,7 +92,7 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonM
                 #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, velocity, channel);
                 #endif
-                leds.noteToState(note, velocity, true);
+                leds.noteToState(note, velocity, 0, true);
                 break;
 
                 case buttonMMCPlay:
@@ -191,7 +191,7 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonM
                 #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(displayEventOut, midi.getNoteOffMode() == noteOffType_standardNoteOff ? midiMessageNoteOff_display : midiMessageNoteOn_display, note, velocity, channel);
                 #endif
-                leds.noteToState(note, 0, true);
+                leds.noteToState(note, 0, 0, true);
                 break;
 
                 case buttonCCreset:
@@ -199,7 +199,7 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonM
                 #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, 0, channel);
                 #endif
-                leds.noteToState(note, 0, true);
+                leds.noteToState(note, 0, 0, true);
                 break;
 
                 default:
@@ -246,7 +246,7 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
                     #ifdef DISPLAY_SUPPORTED
                     display.displayMIDIevent(displayEventOut, midi.getNoteOffMode() == noteOffType_standardNoteOff ? midiMessageNoteOff_display : midiMessageNoteOn_display, note, velocity, channel);
                     #endif
-                    leds.noteToState(note, 0, true);
+                    leds.noteToState(note, 0, 0, true);
                     break;
 
                     case buttonMMCRecord:
@@ -263,7 +263,7 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
                     #ifdef DISPLAY_SUPPORTED
                     display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, 0, channel);
                     #endif
-                    leds.noteToState(note, 0, true);
+                    leds.noteToState(note, 0, 0, true);
                     break;
 
                     default:
@@ -295,7 +295,7 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
                     #ifdef DISPLAY_SUPPORTED
                     display.displayMIDIevent(displayEventOut, midiMessageNoteOn_display, note, velocity, channel);
                     #endif
-                    leds.noteToState(note, velocity, true);
+                    leds.noteToState(note, velocity, 0, true);
                     break;
 
                     case buttonMMCRecord:
@@ -312,7 +312,7 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
                     #ifdef DISPLAY_SUPPORTED
                     display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, velocity, channel);
                     #endif
-                    leds.noteToState(note, velocity, true);
+                    leds.noteToState(note, velocity, 0, true);
                     break;
 
                     default:

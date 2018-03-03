@@ -107,21 +107,21 @@ ledColor_t LEDs::velocityToColor(uint8_t receivedVelocity)
     return (ledColor_t)(receivedVelocity/16);
 }
 
-void LEDs::ccToBlink(uint8_t cc, uint8_t value)
+void LEDs::ccToBlink(uint8_t cc, uint8_t value, uint8_t channel)
 {
     bool blink = (bool)value;
 
     //match LED activation note with received cc
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
     {
-        if (database.read(DB_BLOCK_LED, ledActivationNoteSection, i) == cc)
+        if ((database.read(DB_BLOCK_LED, ledActivationNoteSection, i) == cc) && (database.read(DB_BLOCK_LED, ledMIDIchannelSection, i) == channel))
         {
             setBlinkState(i, blink);
         }
     }
 }
 
-void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool local)
+void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity, uint8_t receivedChannel, bool local)
 {
     ledColor_t color = velocityToColor(receivedVelocity);
 
@@ -141,8 +141,9 @@ void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity, bool loca
                 if (database.read(DB_BLOCK_LED, ledLocalControlSection, i))
                     setColor(i, color);
             }
-            else
+            else if (database.read(DB_BLOCK_LED, ledMIDIchannelSection, i) == receivedChannel)
             {
+                //channels must match here
                 setColor(i, color);
             }
         }

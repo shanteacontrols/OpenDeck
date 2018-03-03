@@ -75,7 +75,7 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(displayEventOut, midiMessageNoteOn_display, note, calibratedPressure, channel);
             #endif
-            leds.noteToState(note, calibratedPressure, true);
+            leds.noteToState(note, calibratedPressure, 0, true);
             if (sysEx.configurationEnabled())
             {
                 if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)
@@ -101,7 +101,7 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(displayEventOut, midiMessageNoteOff_display, note, calibratedPressure, channel);
             #endif
-            leds.noteToState(note, 0, true);
+            leds.noteToState(note, 0, 0, true);
             if (sysEx.configurationEnabled())
             {
                 if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)
