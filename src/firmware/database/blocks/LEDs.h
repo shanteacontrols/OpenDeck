@@ -25,5 +25,6 @@ typedef enum
     ledRGBenabledSection,
     ledLocalControlSection,
     ledSingleVelocityValueSection,
+    ledMIDIchannelSection,
     LED_SECTIONS
 } ledSection_db_t;

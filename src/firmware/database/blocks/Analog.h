@@ -26,5 +26,6 @@ typedef enum
     analogMIDIidSection,
     analogCClowerLimitSection,
     analogCCupperLimitSection,
+    analogMIDIchannelSection,
     ANALOG_SECTIONS
 } analogSection_db_t;

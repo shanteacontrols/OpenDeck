@@ -66,7 +66,7 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
     }
 
     uint8_t midiID = database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID);
-    uint8_t channel = database.read(DB_BLOCK_MIDI, midiChannelSection, midiChannelCC);
+    uint8_t channel = database.read(DB_BLOCK_ANALOG, analogMIDIchannelSection, analogID);
     uint8_t sendVal = mapRange_uint8(midiValue, 0, 127, lowerCClimit_7bit, upperCClimit_7bit);
 
     switch(analogType)

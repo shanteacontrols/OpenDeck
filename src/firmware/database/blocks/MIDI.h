@@ -27,15 +27,6 @@ typedef enum
 
 typedef enum
 {
-    midiChannelNote,
-    midiChannelPC,
-    midiChannelCC,
-    midiChannelInput,
-    MIDI_CHANNELS
-} midiChannelType_t;
-
-typedef enum
-{
     midiFeatureStandardNoteOff,
     midiFeatureRunningStatus,
     midiFeatureUSBconvert,
