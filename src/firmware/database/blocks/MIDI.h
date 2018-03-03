@@ -21,7 +21,6 @@
 typedef enum
 {
     midiFeatureSection,
-    midiChannelSection,
     MIDI_SECTIONS
 } midiSection_db_t;
 
