@@ -160,7 +160,7 @@ int main()
         if (midi.getDINMIDIstate())
         {
             //check for incoming MIDI messages on USART
-            if (!database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureUSBconvert))
+            if (!database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureThruEnabled))
             {
                 midi.read(dinInterface);
                 midiMessageType_t messageType = midi.getType(dinInterface);
@@ -200,8 +200,26 @@ int main()
             }
             else
             {
-                //dump everything from MIDI in to USB MIDI out
-                midi.read(dinInterface, THRU_FULL_USB);
+                switch(database.read(DB_BLOCK_MIDI, midiThruSection, midiThruInterface))
+                {
+                    case midiThruInterfaceUSB:
+                    //dump everything from MIDI in to USB MIDI out
+                    midi.read(dinInterface, THRU_FULL_USB);
+                    break;
+
+                    case midiThruInterfaceDIN:
+                    //dump everything from MIDI in to MIDI out
+                    midi.read(dinInterface, THRU_FULL_DIN);
+                    break;
+
+                    case midiThruInterfaceAll:
+                    //dump everything from MIDI in to USB MIDI out and MIDI out
+                    midi.read(dinInterface, THRU_FULL_ALL);
+                    break;
+
+                    default:
+                    break;
+                }
             }
         }
         #endif

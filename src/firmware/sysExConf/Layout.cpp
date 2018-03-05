@@ -35,6 +35,13 @@ void SysExConfig::createLayout()
         section.newValueMax = 1;
 
         addSection(DB_BLOCK_MIDI, section);
+
+        //midi thru section
+        section.numberOfParameters = MIDI_THRU_OPTIONS;
+        section.newValueMin = 0;
+        section.newValueMax = 0;
+
+        addSection(DB_BLOCK_MIDI, section);
     }
 
     {

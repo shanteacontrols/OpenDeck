@@ -271,14 +271,30 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             {
                 case midiFeatureRunningStatus:
                 midi.setRunningStatusState(newValue);
+                success = true;
                 break;
 
                 case midiFeatureStandardNoteOff:
                 newValue ? midi.setNoteOffMode(noteOffType_standardNoteOff) : midi.setNoteOffMode(noteOffType_noteOnZeroVel);
+                success = true;
                 break;
 
                 case midiFeatureDinEnabled:
                 midi.setDINMIDIstate(newValue);
+                success = true;
+                break;
+
+                default:
+                break;
+            }
+        }
+        else if (section == midiThruSection)
+        {
+            switch(index)
+            {
+                case midiThruInterface:
+                if ((newValue >=0) && (newValue < MIDI_THRU_INTERFACES))
+                    success = true;
                 break;
 
                 default:
@@ -286,7 +302,10 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             }
         }
 
-        success = database.update(block, section, index, newValue);
+        if (success)
+        {
+            success = database.update(block, section, index, newValue);
+        }
         break;
 
         case DB_BLOCK_LED:

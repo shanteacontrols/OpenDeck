@@ -39,6 +39,15 @@ void Database::createLayout()
         section.preserveOnPartialReset = 0;
 
         DBMS::addSection(DB_BLOCK_MIDI, section);
+
+        //midi thru section
+        section.numberOfParameters = MIDI_THRU_OPTIONS;
+        section.defaultValue = 0;
+        section.autoIncrement = false;
+        section.parameterType = HALFBYTE_PARAMETER;
+        section.preserveOnPartialReset = 0;
+
+        DBMS::addSection(DB_BLOCK_MIDI, section);
     }
 
     {
