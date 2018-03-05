@@ -34,7 +34,7 @@ else ifeq ($(findstring fw,$(MAKECMDGOALS)), fw)
     DBMS_MAX_SECTIONS=7 \
     DBMS_MAX_BLOCKS=7 \
     SYSEX_MAX_BLOCKS=6 \
-    SYSEX_MAX_SECTIONS=8
+    SYSEX_MAX_SECTIONS=10
 endif
 
 #board specific
