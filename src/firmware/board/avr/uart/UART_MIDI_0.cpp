@@ -83,12 +83,15 @@ int8_t UARTwrite(uint8_t data)
             UDR0 = data;
         }
 
+        MIDIsent = true;
+
         return 1;
     }
 
     while (RingBuffer_IsFull(&txBuffer));
     RingBuffer_Insert(&txBuffer, data);
     UCSR0B |= (1<<UDRIE0);
+    MIDIsent = true;
 
     return 1;
 }
@@ -105,6 +108,7 @@ int16_t UARTread()
     }
 
     uint8_t data = RingBuffer_Remove(&rxBuffer);
+    MIDIreceived = true;
     return data;
 }
 
