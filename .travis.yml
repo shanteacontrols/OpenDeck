@@ -15,7 +15,7 @@ install:
   - sudo apt-get install -y srecord
   
 script:
-  - make fw_opendeck
+  - make fw_opendeck && make fw_pro_micro && make fw_leonardo && make fw_uno && make fw_mega && make fw_16u2 && make fw_8u2 && make fw_teensy2pp && make boot_opendeck && make boot_leonardo && make boot_mega
 
 # disable the default submodule logic
 git:
