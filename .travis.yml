@@ -14,8 +14,9 @@ install:
   - PATH=/usr/local/avr/bin:${PATH}
   - sudo apt-get install -y srecord
 
-enc:
-  - PATH=/usr/local/avr/bin:${PATH}
+env:
+  global:
+    - PATH=/usr/local/avr/bin:${PATH}
   
 script:
   - make fw_16u2
