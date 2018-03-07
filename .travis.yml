@@ -1,0 +1,16 @@
+language: cpp
+
+before_install:
+  - sudo apt-get -qq update
+  
+install:
+  - sudo apt-get install -y avr-gcc
+  - sudo apt-get install -y srec_cat
+  
+script:
+  - make fw_opendeck
+  
+notifications:
+  email:
+    on_success: change
+    on_failure: change
