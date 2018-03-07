@@ -83,7 +83,9 @@ int8_t UARTwrite(uint8_t data)
             UDR0 = data;
         }
 
+        #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
         MIDIsent = true;
+        #endif
 
         return 1;
     }
@@ -91,7 +93,9 @@ int8_t UARTwrite(uint8_t data)
     while (RingBuffer_IsFull(&txBuffer));
     RingBuffer_Insert(&txBuffer, data);
     UCSR0B |= (1<<UDRIE0);
+    #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
     MIDIsent = true;
+    #endif
 
     return 1;
 }
@@ -108,7 +112,9 @@ int16_t UARTread()
     }
 
     uint8_t data = RingBuffer_Remove(&rxBuffer);
+    #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
     MIDIreceived = true;
+    #endif
     return data;
 }
 
