@@ -263,8 +263,6 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             break;
 
             case analogMIDIchannel_sysExSection:
-            //subtract channel by 1 (values in db are 0-15)
-            newValue--;
             success = database.update(block, analogMIDIchannelSection, index, newValue);
             break;
 
