@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/paradajz/OpenDeck.svg?branch=master)](https://travis-ci.org/paradajz/OpenDeck)
+
 # OpenDeck MIDI Platform
 
 OpenDeck is a platform suited both for prototyping and developing custom MIDI controllers. Platform uses class-compliant USB MIDI which makes it compatible with any MIDI software on any OS. Main part of the platform is board on which various components used to build a MIDI controller can be connected. OpenDeck supports the following components:
