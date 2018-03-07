@@ -10,7 +10,7 @@ before_install:
 install:
   - wget https://www.microchip.com/mymicrochip/filehandler.aspx?ddocname=en595059 -O avrtoolchain.tar.gz
   - tar xzf avrtoolchain.tar.gz
-  - sudo ln -s $HOME/build/$USER/avr8-gnu-toolchain-linux_x86_64 /usr/local/avr
+  - sudo ln -s /home/travis/build/paradajz/avr8-gnu-toolchain-linux_x86_64 /usr/local/avr
   - PATH=/usr/local/avr/bin:${PATH}
   - sudo apt-get install -y srecord
   
