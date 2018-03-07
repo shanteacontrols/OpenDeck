@@ -13,6 +13,9 @@ install:
   - sudo ln -s avr8-gnu-toolchain-linux_x86_64 /usr/local/avr
   - PATH=/usr/local/avr/bin:${PATH}
   - sudo apt-get install -y srecord
+
+enc:
+  - PATH=/usr/local/avr/bin:${PATH}
   
 script:
   - make fw_16u2
