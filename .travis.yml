@@ -14,7 +14,7 @@ install:
   - sudo apt-get install -y binutils-avr
   
 script:
-  - make fw_opendeck
+  - make fw_mega
 
 # disable the default submodule logic
 git:
