@@ -31,7 +31,8 @@ typedef enum
     analogLowerCClimitLSB_sysExSection,
     analogLowerCClimitMSB_sysExSection,
     analogUpperCClimitLSB_sysExSection,
-    analogUpperCClimitMSB_sysExSection
+    analogUpperCClimitMSB_sysExSection,
+    analogMIDIchannel_sysExSection,
 } analogSysExSection_t;
 
 SysExConfig::SysExConfig()
@@ -173,6 +174,10 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
                 returnValue = encDec_14bit.high;
             break;
 
+            case analogMIDIchannel_sysExSection:
+            returnValue = database.read(block, analogMIDIchannelSection, index);
+            break;
+
             default:
             returnValue = database.read(block, section, index);
             break;
@@ -252,9 +257,15 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             success = database.update(block, analogCCupperLimitSection, index, encDec_14bit.value);
             break;
 
-            case analogTypeSection:
+            case analogType_sysExSection:
             analog.debounceReset(index);
-            success = database.update(block, section, index, newValue);
+            success = database.update(block, analogTypeSection, index, newValue);
+            break;
+
+            case analogMIDIchannel_sysExSection:
+            //subtract channel by 1 (values in db are 0-15)
+            newValue--;
+            success = database.update(block, analogMIDIchannelSection, index, newValue);
             break;
 
             default:
