@@ -99,7 +99,7 @@ build/%.o: %.cpp
 
 $(TARGET).elf: $(RUN_CLEAN) $(OBJECTS)
 	@#link
-	$(CXX) -o$(TARGET).elf $(OBJECTS) -mmcu=$(MCU) $(LDFLAGS) -Wl,-Map,$(TARGET).map
+	@$(CXX) -o$(TARGET).elf $(OBJECTS) -mmcu=$(MCU) $(LDFLAGS) -Wl,-Map,$(TARGET).map
 	@echo Finished building target: $@
 	@#convert elf to hex
 	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(TARGET).elf" "$(TARGET).hex"
