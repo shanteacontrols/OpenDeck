@@ -14,7 +14,7 @@ install:
   - sudo apt-get install -y binutils-avr
   
 script:
-  - make fw_mega
+  - make fw_16u2
 
 # disable the default submodule logic
 git:
