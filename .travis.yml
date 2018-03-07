@@ -15,7 +15,7 @@ install:
   - sudo apt-get install -y srecord
   
 script:
-  - make fw_16u2
+  - make fw_opendeck
 
 # disable the default submodule logic
 git:
