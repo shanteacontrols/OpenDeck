@@ -1,6 +1,9 @@
 language: cpp
 
+# use sed to replace the SSH URL with the public URL, then init and update submodules
 before_install:
+  - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+  - git submodule update --init --recursive
   - sudo apt-get -qq update
   
 install:
@@ -9,6 +12,10 @@ install:
   
 script:
   - make fw_opendeck
+
+# disable the default submodule logic
+git:
+    submodules: false
   
 notifications:
   email:
