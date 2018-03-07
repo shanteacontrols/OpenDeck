@@ -11,7 +11,6 @@ install:
   - wget https://www.microchip.com/mymicrochip/filehandler.aspx?ddocname=en595059 -O avrtoolchain.tar.gz
   - tar xzf avrtoolchain.tar.gz
   - sudo ln -s avr8-gnu-toolchain-linux_x86_64 /usr/local/avr
-  - PATH=/usr/local/avr/bin:${PATH}
   - sudo apt-get install -y srecord
 
 env:
