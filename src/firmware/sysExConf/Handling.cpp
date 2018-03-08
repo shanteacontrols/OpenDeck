@@ -295,6 +295,8 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 //unused for now, just set to 0
                 newValue = 0;
                 success = true;
+                break;
+
                 default:
                 break;
             }
