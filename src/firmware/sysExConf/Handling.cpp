@@ -132,6 +132,11 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
             returnValue = leds.getBlinkState(index);
             break;
 
+            case ledMIDIchannelSection:
+            //channels start from 0 in db, start from 1 in sysex
+            returnValue = database.read(block, section, index) + 1;
+            break;
+
             default:
             returnValue = database.read(block, section, index);
             break;
@@ -175,13 +180,30 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
             break;
 
             case analogMIDIchannel_sysExSection:
-            returnValue = database.read(block, analogMIDIchannelSection, index);
+            //channels start from 0 in db, start from 1 in sysex
+            returnValue = database.read(block, analogMIDIchannelSection, index) + 1;
             break;
 
             default:
             returnValue = database.read(block, section, index);
             break;
         }
+        break;
+
+        case DB_BLOCK_BUTTON:
+        //channels start from 0 in db, start from 1 in sysex
+        if (section == buttonMIDIchannelSection)
+            returnValue = database.read(block, section, index) + 1;
+        else
+            returnValue = database.read(block, section, index);
+        break;
+
+        case DB_BLOCK_ENCODER:
+        //channels start from 0 in db, start from 1 in sysex
+        if (section == encoderMIDIchannelSection)
+            returnValue = database.read(block, section, index) + 1;
+        else
+            returnValue = database.read(block, section, index);
         break;
 
         case DB_BLOCK_DISPLAY:
@@ -263,7 +285,8 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             break;
 
             case analogMIDIchannel_sysExSection:
-            success = database.update(block, analogMIDIchannelSection, index, newValue);
+            //channels start from 0 in db, start from 1 in sysex
+            success = database.update(block, analogMIDIchannelSection, index, newValue-1);
             break;
 
             default:
@@ -273,7 +296,6 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
         break;
 
         case DB_BLOCK_MIDI:
-        //some custom actions required here
         if (section == midiFeatureSection)
         {
             switch(index)
@@ -448,6 +470,11 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             }
             break;
 
+            case ledMIDIchannelSection:
+            //channels start from 0 in db, start from 1 in sysex
+            success = database.update(block, section, index, newValue-1);
+            break;
+
             default:
             success = database.update(block, section, index, newValue);
             break;
@@ -517,6 +544,30 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
 
         if (success)
             success = database.update(block, section, index, newValue);
+        break;
+
+        case DB_BLOCK_BUTTON:
+        if (section == buttonMIDIchannelSection)
+        {
+            //channels start from 0 in db, start from 1 in sysex
+            success = database.update(block, section, index, newValue-1);
+        }
+        else
+        {
+            success = database.update(block, section, index, newValue);
+        }
+        break;
+
+        case DB_BLOCK_ENCODER:
+        if (section == encoderMIDIchannelSection)
+        {
+            //channels start from 0 in db, start from 1 in sysex
+            success = database.update(block, section, index, newValue-1);
+        }
+        else
+        {
+            success = database.update(block, section, index, newValue);
+        }
         break;
 
         default:

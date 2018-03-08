@@ -78,14 +78,14 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
         {
             midi.sendControlChange(midiID, sendVal, channel);
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, midiID & 0x7F, sendVal, channel);
+            display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, midiID & 0x7F, sendVal, channel+1);
             #endif
         }
         else
         {
             midi.sendNoteOn(midiID, sendVal, channel);
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, midiID & 0x7F, sendVal, channel);
+            display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, midiID & 0x7F, sendVal, channel+1);
             #endif
         }
         break;
@@ -102,7 +102,7 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
             uint8_t value = mapRange_uint8(midiValue, 0, MIDI_7_BIT_VALUE_MAX, lowerCClimit_7bit, upperCClimit_7bit);
             midi.sendControlChange(6, value, channel);
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageNRPN_display, encDec_14bit.value, value, channel);
+            display.displayMIDIevent(displayEventOut, midiMessageNRPN_display, encDec_14bit.value, value, channel+1);
             #endif
         }
         else
@@ -114,7 +114,7 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
             midi.sendControlChange(6, encDec_14bit.high, channel);
             midi.sendControlChange(38, encDec_14bit.low, channel);
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageNRPN_display, database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID), encDec_14bit.value, channel);
+            display.displayMIDIevent(displayEventOut, midiMessageNRPN_display, database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID), encDec_14bit.value, channel+1);
             #endif
         }
         break;

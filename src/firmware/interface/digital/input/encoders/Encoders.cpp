@@ -70,7 +70,14 @@ void Encoders::update()
             break;
         }
 
-        midi.sendControlChange(database.read(DB_BLOCK_ENCODER, encoderMIDIidSection, i), encoderValue, database.read(DB_BLOCK_ENCODER, encoderMIDIchannelSection, i));
+        uint8_t midiID = database.read(DB_BLOCK_ENCODER, encoderMIDIidSection, i);
+        uint8_t channel = database.read(DB_BLOCK_ENCODER, encoderMIDIchannelSection, i);
+
+        midi.sendControlChange(midiID, encoderValue, channel);
+        #ifdef DISPLAY_SUPPORTED
+        display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, midiID & 0x7F, encoderValue, channel+1);
+        #endif
+
         if (sysEx.configurationEnabled())
         {
             if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_ENCODER)) > COMPONENT_INFO_TIMEOUT)

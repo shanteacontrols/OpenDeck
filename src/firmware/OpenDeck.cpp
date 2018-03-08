@@ -48,6 +48,7 @@ void init()
     midi.setInputChannel(MIDI_CHANNEL_OMNI);
     midi.setNoteOffMode((noteOffType_t)database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureStandardNoteOff));
     midi.setRunningStatusState(database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureRunningStatus));
+    midi.setChannelSendZeroStart(true);
 
     board.init();
     sysEx.init();
@@ -130,7 +131,7 @@ int main()
                 //we're using received note data to control LED color
                 leds.noteToState(data1, data2, channel);
                 #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventIn, midiMessageNoteOn_display, data1, data2, channel);
+                display.displayMIDIevent(displayEventIn, midiMessageNoteOn_display, data1, data2, channel+1);
                 #endif
                 break;
 
@@ -138,7 +139,7 @@ int main()
                 //always turn led off when note off is received
                 leds.noteToState(data1, 0, channel);
                 #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventIn, midiMessageNoteOff_display, data1, data2, channel);
+                display.displayMIDIevent(displayEventIn, midiMessageNoteOff_display, data1, data2, channel+1);
                 #endif
                 break;
 
@@ -146,7 +147,7 @@ int main()
                 //control change is used to control led blinking
                 leds.ccToBlink(data1, data2, channel);
                 #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventIn, midiMessageControlChange_display, data1, data2, channel);
+                display.displayMIDIevent(displayEventIn, midiMessageControlChange_display, data1, data2, channel+1);
                 #endif
                 break;
 
@@ -174,7 +175,7 @@ int main()
                     //we're using received note data to control LED color
                     leds.noteToState(data1, data2, channel);
                     #ifdef DISPLAY_SUPPORTED
-                    display.displayMIDIevent(displayEventIn, midiMessageNoteOn_display, data1, data2, channel);
+                    display.displayMIDIevent(displayEventIn, midiMessageNoteOn_display, data1, data2, channel+1);
                     #endif
                     break;
 
@@ -182,7 +183,7 @@ int main()
                     //always turn led off when note off is received
                     leds.noteToState(data1, 0, channel);
                     #ifdef DISPLAY_SUPPORTED
-                    display.displayMIDIevent(displayEventIn, midiMessageNoteOff_display, data1, data2, channel);
+                    display.displayMIDIevent(displayEventIn, midiMessageNoteOff_display, data1, data2, channel+1);
                     #endif
                     break;
 
@@ -190,7 +191,7 @@ int main()
                     //control change is used to control led blinking
                     leds.ccToBlink(data1, data2, channel);
                     #ifdef DISPLAY_SUPPORTED
-                    display.displayMIDIevent(displayEventIn, midiMessageControlChange_display, data1, data2, channel);
+                    display.displayMIDIevent(displayEventIn, midiMessageControlChange_display, data1, data2, channel+1);
                     #endif
                     break;
 
@@ -243,7 +244,7 @@ int main()
                 //we're using received note data to control LED color
                 leds.noteToState(data1, data2, channel);
                 #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventIn, midiMessageNoteOn_display, data1, data2, channel);
+                display.displayMIDIevent(displayEventIn, midiMessageNoteOn_display, data1, data2, channel+1);
                 #endif
                 break;
 
@@ -251,7 +252,7 @@ int main()
                 //always turn led off when note off is received
                 leds.noteToState(data1, 0, channel);
                 #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventIn, midiMessageNoteOff_display, data1, data2, channel);
+                display.displayMIDIevent(displayEventIn, midiMessageNoteOff_display, data1, data2, channel+1);
                 #endif
                 break;
 
@@ -259,7 +260,7 @@ int main()
                 //control change is used to control led blinking
                 leds.ccToBlink(data1, data2, channel);
                 #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventIn, midiMessageControlChange_display, data1, data2, channel);
+                display.displayMIDIevent(displayEventIn, midiMessageControlChange_display, data1, data2, channel+1);
                 #endif
                 break;
 
