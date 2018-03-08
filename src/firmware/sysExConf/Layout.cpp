@@ -37,7 +37,7 @@ void SysExConfig::createLayout()
         addSection(SYSEX_BLOCK_MIDI, section);
 
         //midi thru section
-        section.numberOfParameters = MIDI_THRU_OPTIONS;
+        section.numberOfParameters = MIDI_MERGE_OPTIONS;
         section.newValueMin = 0;
         section.newValueMax = 0;
 

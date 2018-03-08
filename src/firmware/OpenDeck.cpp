@@ -161,7 +161,7 @@ int main()
         if (midi.getDINMIDIstate())
         {
             //check for incoming MIDI messages on USART
-            if (!database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureThruEnabled))
+            if (!database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
             {
                 midi.read(dinInterface);
                 midiMessageType_t messageType = midi.getType(dinInterface);
@@ -201,19 +201,19 @@ int main()
             }
             else
             {
-                switch(database.read(DB_BLOCK_MIDI, dbSection_midi_thru, midiThruInterface))
+                switch(database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeInterface))
                 {
-                    case midiThruInterfaceUSB:
+                    case midiMergeInterfaceUSB:
                     //dump everything from MIDI in to USB MIDI out
                     midi.read(dinInterface, THRU_FULL_USB);
                     break;
 
-                    case midiThruInterfaceDIN:
+                    case midiMergeInterfaceDIN:
                     //dump everything from MIDI in to MIDI out
                     midi.read(dinInterface, THRU_FULL_DIN);
                     break;
 
-                    case midiThruInterfaceAll:
+                    case midiMergeInterfaceAll:
                     //dump everything from MIDI in to USB MIDI out and MIDI out
                     midi.read(dinInterface, THRU_FULL_ALL);
                     break;

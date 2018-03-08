@@ -23,7 +23,7 @@
 typedef enum
 {
     sysExSection_midi_feature,
-    sysExSection_midi_thru,
+    sysExSection_midi_merge,
     SYSEX_SECTIONS_MIDI
 } sysExSection_midi_t;
 
@@ -31,5 +31,5 @@ typedef enum
 const uint8_t sysEx2DB_midi[SYSEX_SECTIONS_MIDI] =
 {
     dbSection_midi_feature,
-    dbSection_midi_thru,
+    dbSection_midi_merge,
 };

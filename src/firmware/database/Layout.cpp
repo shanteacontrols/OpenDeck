@@ -41,7 +41,7 @@ void Database::createLayout()
         DBMS::addSection(DB_BLOCK_MIDI, section);
 
         //midi thru section
-        section.numberOfParameters = MIDI_THRU_OPTIONS;
+        section.numberOfParameters = MIDI_MERGE_OPTIONS;
         section.defaultValue = 0;
         section.autoIncrement = false;
         section.parameterType = HALFBYTE_PARAMETER;

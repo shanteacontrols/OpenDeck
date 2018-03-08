@@ -21,7 +21,7 @@
 typedef enum
 {
     dbSection_midi_feature,
-    dbSection_midi_thru,
+    dbSection_midi_merge,
     DB_SECTIONS_MIDI
 } dbSection_midi_t;
 
@@ -30,23 +30,23 @@ typedef enum
 {
     midiFeatureStandardNoteOff,
     midiFeatureRunningStatus,
-    midiFeatureThruEnabled,
+    midiFeatureMergeEnabled,
     midiFeatureDinEnabled,
     MIDI_FEATURES
 } midiFeature_t;
 
 typedef enum
 {
-    midiThruInterface,
-    midiThruUSBchannel,
-    midiThruDINchannel,
-    MIDI_THRU_OPTIONS
-} midiThru_t;
+    midiMergeInterface,
+    midiMergeUSBchannel,
+    midiMergeDINchannel,
+    MIDI_MERGE_OPTIONS
+} midiMerge_t;
 
 typedef enum
 {
-    midiThruInterfaceUSB,
-    midiThruInterfaceDIN,
-    midiThruInterfaceAll,
-    MIDI_THRU_INTERFACES
-} midiThruInterface_t;
+    midiMergeInterfaceUSB,
+    midiMergeInterfaceDIN,
+    midiMergeInterfaceAll,
+    MIDI_MERGE_INTERFACES
+} midiMergeInterface_t;

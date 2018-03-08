@@ -273,7 +273,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 success = true;
                 break;
 
-                case midiFeatureThruEnabled:
+                case midiFeatureMergeEnabled:
                 success = true;
                 break;
 
@@ -281,12 +281,12 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 break;
             }
         }
-        else if (section == sysExSection_midi_thru)
+        else if (section == sysExSection_midi_merge)
         {
             switch(index)
             {
-                case midiThruInterface:
-                if ((newValue >=0) && (newValue < MIDI_THRU_INTERFACES))
+                case midiMergeInterface:
+                if ((newValue >=0) && (newValue < MIDI_MERGE_INTERFACES))
                     success = true;
                 break;
 
