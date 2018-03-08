@@ -292,8 +292,8 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
 
                 case midiMergeUSBchannel:
                 case midiMergeDINchannel:
-                //unused for now, just set to 0
-                newValue = 0;
+                //unused for now
+                writeToDb = false;
                 success = true;
                 break;
 
@@ -302,7 +302,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             }
         }
 
-        if (success)
+        if (success && writeToDb)
         {
             success = database.update(block, sysEx2DB_midi[section], index, newValue);
         }
