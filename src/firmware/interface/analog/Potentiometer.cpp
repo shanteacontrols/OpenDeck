@@ -114,7 +114,7 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
             midi.sendControlChange(6, encDec_14bit.high, channel);
             midi.sendControlChange(38, encDec_14bit.low, channel);
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageNRPN_display, database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID), encDec_14bit.value, channel+1);
+            display.displayMIDIevent(displayEventOut, midiMessageNRPN_display, database.read(DB_BLOCK_ANALOG, dbSection_analog_midiID, analogID), encDec_14bit.value, channel+1);
             #endif
         }
         break;

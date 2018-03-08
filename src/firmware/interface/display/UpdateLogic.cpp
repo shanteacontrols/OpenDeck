@@ -62,10 +62,10 @@ bool Display::init(displayController_t controller, displayResolution_t resolutio
 
         setDirectWriteState(true);
 
-        if (database.read(DB_BLOCK_DISPLAY, displayFeaturesSection, displayFeatureWelcomeMsg))
+        if (database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureWelcomeMsg))
             displayWelcomeMessage();
 
-        if (database.read(DB_BLOCK_DISPLAY, displayFeaturesSection, displayFeatureVInfoMsg))
+        if (database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureVInfoMsg))
             displayVinfo(false);
 
         setDirectWriteState(false);

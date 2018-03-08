@@ -96,12 +96,12 @@ void init()
     leds.init();
 
     #ifdef DISPLAY_SUPPORTED
-    if (database.read(DB_BLOCK_DISPLAY, displayFeaturesSection, displayFeatureEnable))
+    if (database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureEnable))
     {
-        display.init((displayController_t)database.read(DB_BLOCK_DISPLAY, displayHwSection, displayHwController), (displayResolution_t)database.read(DB_BLOCK_DISPLAY, displayHwSection, displayHwResolution));
+        display.init((displayController_t)database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwController), (displayResolution_t)database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwResolution));
         display.displayHome();
-        display.setRetentionState(database.read(DB_BLOCK_DISPLAY, displayFeaturesSection, displayFeatureMIDIeventRetention));
-        display.setRetentionTime(database.read(DB_BLOCK_DISPLAY, displayFeaturesSection, displayFeatureMIDIeventTime) * 1000);
+        display.setRetentionState(database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventRetention));
+        display.setRetentionTime(database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventTime) * 1000);
     }
     #endif
 }
