@@ -199,6 +199,20 @@ void SysExConfig::createLayout()
     {
         //led block
 
+        //led color test section
+        section.numberOfParameters = MAX_NUMBER_OF_LEDS;
+        section.newValueMin = 0;
+        section.newValueMax = LED_COLORS-1;
+
+        addSection(SYSEX_BLOCK_LEDS, section);
+
+        //led blink test section
+        section.numberOfParameters = MAX_NUMBER_OF_LEDS;
+        section.newValueMin = 0;
+        section.newValueMax = 1;
+
+        addSection(SYSEX_BLOCK_LEDS, section);
+
         //hardware parameters section
         section.numberOfParameters = LED_HARDWARE_PARAMETERS;
         section.newValueMin = 0;
@@ -231,20 +245,6 @@ void SysExConfig::createLayout()
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
         section.newValueMin = 1;
         section.newValueMax = 127;
-
-        addSection(SYSEX_BLOCK_LEDS, section);
-
-        //led color section
-        section.numberOfParameters = MAX_NUMBER_OF_LEDS;
-        section.newValueMin = 0;
-        section.newValueMax = LED_COLORS-1;
-
-        addSection(SYSEX_BLOCK_LEDS, section);
-
-        //led blink section
-        section.numberOfParameters = MAX_NUMBER_OF_LEDS;
-        section.newValueMin = 0;
-        section.newValueMax = 1;
 
         addSection(SYSEX_BLOCK_LEDS, section);
 
