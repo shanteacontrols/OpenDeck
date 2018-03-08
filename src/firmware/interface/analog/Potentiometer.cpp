@@ -27,7 +27,7 @@
 
 void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
 {
-    analogType_t analogType = (analogType_t)database.read(DB_BLOCK_ANALOG, analogTypeSection, analogID);
+    analogType_t analogType = (analogType_t)database.read(DB_BLOCK_ANALOG, dbSection_analog_type, analogID);
     uint16_t midiValue;
     uint16_t oldMIDIvalue;
     encDec_14bit_t encDec_14bit;
@@ -37,8 +37,8 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
     if (analogDiff < ANALOG_STEP_MIN_DIFF)
         return;
 
-    uint16_t lowerCClimit_14bit = database.read(DB_BLOCK_ANALOG, analogCClowerLimitSection, analogID);
-    uint16_t upperCClimit_14bit = database.read(DB_BLOCK_ANALOG, analogCCupperLimitSection, analogID);
+    uint16_t lowerCClimit_14bit = database.read(DB_BLOCK_ANALOG, dbSection_analog_lowerLimit, analogID);
+    uint16_t upperCClimit_14bit = database.read(DB_BLOCK_ANALOG, dbSection_analog_upperLimit, analogID);
 
     encDec_14bit.value = lowerCClimit_14bit;
     encDec_14bit.split14bit();
@@ -57,7 +57,7 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
         return;
 
     //invert CC data if configured
-    if (database.read(DB_BLOCK_ANALOG, analogInvertedSection, analogID))
+    if (database.read(DB_BLOCK_ANALOG, dbSection_analog_invert, analogID))
     {
         if (analogType == aType_NRPN_14)
             midiValue = 16383 - midiValue;
@@ -65,8 +65,8 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
             midiValue = 127 - midiValue;
     }
 
-    uint8_t midiID = database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID);
-    uint8_t channel = database.read(DB_BLOCK_ANALOG, analogMIDIchannelSection, analogID);
+    uint8_t midiID = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiID, analogID);
+    uint8_t channel = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiChannel, analogID);
     uint8_t sendVal = mapRange_uint8(midiValue, 0, 127, lowerCClimit_7bit, upperCClimit_7bit);
 
     switch(analogType)

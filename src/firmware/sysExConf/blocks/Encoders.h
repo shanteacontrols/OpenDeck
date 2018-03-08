@@ -18,18 +18,24 @@
 
 #pragma once
 
-#include "sysex/src/SysEx.h"
-#include "CustomStrings.h"
-#include "blocks/Blocks.h"
+#include "../../database/blocks/Encoders.h"
 
-class SysExConfig : public SysEx
+typedef enum
 {
-    public:
-    SysExConfig();
-    static void init();
+    sysExSection_encoders_enable,
+    sysExSection_encoders_invert,
+    sysExSection_encoders_mode,
+    sysExSection_encoders_midiID,
+    sysExSection_encoders_midiChannel,
+    SYSEX_SECTIONS_ENCODERS
+} sysExSection_encoders_t;
 
-    private:
-    static void createLayout();
+//map sysex sections to sections in db
+const uint8_t sysEx2DB_encoders[SYSEX_SECTIONS_ENCODERS] =
+{
+    dbSection_encoders_enable,
+    dbSection_encoders_invert,
+    dbSection_encoders_mode,
+    dbSection_encoders_midiID,
+    dbSection_encoders_midiChannel,
 };
-
-extern SysExConfig sysEx;

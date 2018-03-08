@@ -18,18 +18,18 @@
 
 #pragma once
 
-#include "sysex/src/SysEx.h"
-#include "CustomStrings.h"
-#include "blocks/Blocks.h"
+#include "../../database/blocks/MIDI.h"
 
-class SysExConfig : public SysEx
+typedef enum
 {
-    public:
-    SysExConfig();
-    static void init();
+    sysExSection_midi_feature,
+    sysExSection_midi_thru,
+    SYSEX_SECTIONS_MIDI
+} sysExSection_midi_t;
 
-    private:
-    static void createLayout();
+//map sysex sections to sections in db
+const uint8_t sysEx2DB_midi[SYSEX_SECTIONS_MIDI] =
+{
+    dbSection_midi_feature,
+    dbSection_midi_thru,
 };
-
-extern SysExConfig sysEx;

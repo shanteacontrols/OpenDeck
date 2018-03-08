@@ -18,14 +18,34 @@
 
 #pragma once
 
+#include "../../database/blocks/Analog.h"
+
 typedef enum
+{
+    sysExSection_analog_enable,
+    sysExSection_analog_invert,
+    sysExSection_analog_type,
+    sysExSection_analog_midiID_LSB,
+    sysExSection_analog_midiID_MSB,
+    sysExSection_analog_lowerLimit_LSB,
+    sysExSection_analog_lowerLimit_MSB,
+    sysExSection_analog_upperLimit_LSB,
+    sysExSection_analog_upperLimit_MSB,
+    sysExSection_analog_midiChannel,
+    SYSEX_SECTIONS_ANALOG
+} sysExSection_analog_t;
+
+//map sysex sections to sections in db
+const uint8_t sysEx2DB_analog[SYSEX_SECTIONS_ANALOG] =
 {
     dbSection_analog_enable,
     dbSection_analog_invert,
     dbSection_analog_type,
     dbSection_analog_midiID,
+    dbSection_analog_midiID,
+    dbSection_analog_lowerLimit,
     dbSection_analog_lowerLimit,
     dbSection_analog_upperLimit,
-    dbSection_analog_midiChannel,
-    DB_SECTIONS_ANALOG
-} dbSection_analog_t;
+    dbSection_analog_upperLimit,
+    dbSection_analog_midiChannel
+};

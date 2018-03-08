@@ -18,18 +18,30 @@
 
 #pragma once
 
-#include "sysex/src/SysEx.h"
-#include "CustomStrings.h"
-#include "blocks/Blocks.h"
+#include "../../database/blocks/LEDs.h"
 
-class SysExConfig : public SysEx
+typedef enum
 {
-    public:
-    SysExConfig();
-    static void init();
+    sysExSection_leds_testColor,
+    sysExSection_leds_testBlink,
+    sysExSection_leds_hw,
+    sysExSection_leds_activationNote,
+    sysExSection_leds_rgbEnable,
+    sysExSection_leds_localControl,
+    sysExSection_leds_activationVelocity,
+    sysExSection_leds_midiChannel,
+    SYSEX_SECTIONS_LEDS
+} sysExSection_leds_t;
 
-    private:
-    static void createLayout();
+//map sysex sections to sections in db
+const uint8_t sysEx2DB_leds[SYSEX_SECTIONS_LEDS] =
+{
+    0,
+    0,
+    dbSection_leds_hw,
+    dbSection_leds_activationNote,
+    dbSection_leds_rgbEnable,
+    dbSection_leds_localControl,
+    dbSection_leds_activationVelocity,
+    dbSection_leds_midiChannel,
 };
-
-extern SysExConfig sysEx;

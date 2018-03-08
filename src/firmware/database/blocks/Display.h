@@ -20,10 +20,10 @@
 
 typedef enum
 {
-    displayFeaturesSection,
-    displayHwSection,
-    DISPLAY_SECTIONS
-} displaySection_db_t;
+    dbSection_display_features,
+    dbSection_display_hw,
+    DB_SECTIONS_DISPLAY
+} dbSection_display_t;
 
 typedef enum
 {

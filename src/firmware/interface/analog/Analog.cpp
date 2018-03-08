@@ -39,13 +39,13 @@ void Analog::update()
         int16_t analogData = board.getAnalogValue(i);
 
         //don't process component if it's not enabled
-        if (!database.read(DB_BLOCK_ANALOG, analogEnabledSection, i))
+        if (!database.read(DB_BLOCK_ANALOG, dbSection_analog_enable, i))
             continue;
 
-        if (database.read(DB_BLOCK_ANALOG, analogTypeSection, i) != aType_button)
-        {
-            analogType_t type = (analogType_t)database.read(DB_BLOCK_ANALOG, analogTypeSection, i);
+        analogType_t type = (analogType_t)database.read(DB_BLOCK_ANALOG, dbSection_analog_type, i);
 
+        if (type != aType_button)
+        {
             switch(type)
             {
                 case aType_potentiometer_cc:

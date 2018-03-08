@@ -31,7 +31,7 @@ void init()
     database.init();
 
     #if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO) || defined(BOARD_T_2PP)
-    midi.setDINMIDIstate(database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureDinEnabled));
+    midi.setDINMIDIstate(database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled));
     #endif
 
     #ifdef BOARD_A_MEGA
@@ -46,8 +46,8 @@ void init()
 
     midi.setOneByteParseDINstate(true);
     midi.setInputChannel(MIDI_CHANNEL_OMNI);
-    midi.setNoteOffMode((noteOffType_t)database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureStandardNoteOff));
-    midi.setRunningStatusState(database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureRunningStatus));
+    midi.setNoteOffMode((noteOffType_t)database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureStandardNoteOff));
+    midi.setRunningStatusState(database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureRunningStatus));
     midi.setChannelSendZeroStart(true);
 
     board.init();
@@ -161,7 +161,7 @@ int main()
         if (midi.getDINMIDIstate())
         {
             //check for incoming MIDI messages on USART
-            if (!database.read(DB_BLOCK_MIDI, midiFeatureSection, midiFeatureThruEnabled))
+            if (!database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureThruEnabled))
             {
                 midi.read(dinInterface);
                 midiMessageType_t messageType = midi.getType(dinInterface);
@@ -201,7 +201,7 @@ int main()
             }
             else
             {
-                switch(database.read(DB_BLOCK_MIDI, midiThruSection, midiThruInterface))
+                switch(database.read(DB_BLOCK_MIDI, dbSection_midi_thru, midiThruInterface))
                 {
                     case midiThruInterfaceUSB:
                     //dump everything from MIDI in to USB MIDI out

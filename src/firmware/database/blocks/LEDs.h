@@ -20,11 +20,11 @@
 
 typedef enum
 {
-    ledHardwareParameterSection,
-    ledActivationNoteSection,
-    ledRGBenabledSection,
-    ledLocalControlSection,
-    ledSingleVelocityValueSection,
-    ledMIDIchannelSection,
-    LED_SECTIONS
-} ledSection_db_t;
+    dbSection_leds_hw,
+    dbSection_leds_activationNote,
+    dbSection_leds_rgbEnable,
+    dbSection_leds_localControl,
+    dbSection_leds_activationVelocity,
+    dbSection_leds_midiChannel,
+    DB_SECTIONS_LEDS
+} dbSection_leds_t;

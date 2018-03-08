@@ -18,18 +18,21 @@
 
 #pragma once
 
-#include "sysex/src/SysEx.h"
-#include "CustomStrings.h"
-#include "blocks/Blocks.h"
+#include "MIDI.h"
+#include "Buttons.h"
+#include "Encoders.h"
+#include "Analog.h"
+#include "LEDs.h"
+#include "Display.h"
 
-class SysExConfig : public SysEx
+//define block names
+enum sysExBlocks
 {
-    public:
-    SysExConfig();
-    static void init();
-
-    private:
-    static void createLayout();
+    SYSEX_BLOCK_MIDI,      //0
+    SYSEX_BLOCK_BUTTONS,   //1
+    SYSEX_BLOCK_ENCODERS,  //2
+    SYSEX_BLOCK_ANALOG,    //3
+    SYSEX_BLOCK_LEDS,      //4
+    SYSEX_BLOCK_DISPLAY,   //5
+    SYSEX_BLOCKS
 };
-
-extern SysExConfig sysEx;

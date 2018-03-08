@@ -30,10 +30,10 @@
 enum dbBlocks
 {
     DB_BLOCK_MIDI,      //0
-    DB_BLOCK_BUTTON,    //1
-    DB_BLOCK_ENCODER,   //2
+    DB_BLOCK_BUTTONS,   //1
+    DB_BLOCK_ENCODERS,  //2
     DB_BLOCK_ANALOG,    //3
-    DB_BLOCK_LED,       //4
+    DB_BLOCK_LEDS,      //4
     DB_BLOCK_DISPLAY,   //5
     DB_BLOCK_ID,        //6
     DB_BLOCKS

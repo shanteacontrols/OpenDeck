@@ -69,8 +69,8 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
         {
             //sensor is really pressed
             setFsrPressed(analogID, true);
-            uint8_t note = database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID);
-            uint8_t channel = database.read(DB_BLOCK_ANALOG, analogMIDIchannelSection, analogID);
+            uint8_t note = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiID, analogID);
+            uint8_t channel = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiChannel, analogID);
             midi.sendNoteOn(note, calibratedPressure, channel);
             #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(displayEventOut, midiMessageNoteOn_display, note, calibratedPressure, channel+1);
@@ -78,14 +78,14 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             leds.noteToState(note, calibratedPressure, 0, true);
             if (sysEx.configurationEnabled())
             {
-                if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)
+                if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTONS)) > COMPONENT_INFO_TIMEOUT)
                 {
                     sysEx.startResponse();
                     sysEx.addToResponse(COMPONENT_ID_STRING);
                     sysEx.addToResponse(DB_BLOCK_ANALOG);
                     sysEx.addToResponse(analogID);
                     sysEx.sendResponse();
-                    updateCinfoTime(DB_BLOCK_BUTTON);
+                    updateCinfoTime(DB_BLOCK_BUTTONS);
                 }
             }
         }
@@ -95,8 +95,8 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
         if (getFsrPressed(analogID))
         {
             setFsrPressed(analogID, false);
-            uint8_t note = database.read(DB_BLOCK_ANALOG, analogMIDIidSection, analogID);
-            uint8_t channel = database.read(DB_BLOCK_ANALOG, analogMIDIchannelSection, analogID);
+            uint8_t note = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiID, analogID);
+            uint8_t channel = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiChannel, analogID);
             midi.sendNoteOff(note, 0, channel);
             #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(displayEventOut, midiMessageNoteOff_display, note, calibratedPressure, channel+1);
@@ -104,14 +104,14 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             leds.noteToState(note, 0, 0, true);
             if (sysEx.configurationEnabled())
             {
-                if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)
+                if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTONS)) > COMPONENT_INFO_TIMEOUT)
                 {
                     sysEx.startResponse();
                     sysEx.addToResponse(COMPONENT_ID_STRING);
                     sysEx.addToResponse(DB_BLOCK_ANALOG);
                     sysEx.addToResponse(analogID);
                     sysEx.sendResponse();
-                    updateCinfoTime(DB_BLOCK_BUTTON);
+                    updateCinfoTime(DB_BLOCK_BUTTONS);
                 }
             }
         }

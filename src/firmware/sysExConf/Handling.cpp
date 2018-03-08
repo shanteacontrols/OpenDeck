@@ -20,21 +20,6 @@
 #include "../interface/Interface.h"
 #include "../Version.h"
 
-//use enum for analog sysex sections due to 7/14 bit number conversion
-typedef enum
-{
-    analogEnabled_sysExSection,
-    analogInverted_sysExSection,
-    analogType_sysExSection,
-    analogMIDIidLSB_sysExSection,
-    analogMIDIidMSB_sysExSection,
-    analogLowerCClimitLSB_sysExSection,
-    analogLowerCClimitMSB_sysExSection,
-    analogUpperCClimitLSB_sysExSection,
-    analogUpperCClimitMSB_sysExSection,
-    analogMIDIchannel_sysExSection,
-} analogSysExSection_t;
-
 SysExConfig::SysExConfig()
 {
     
@@ -121,94 +106,83 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
 
     switch(block)
     {
-        case DB_BLOCK_LED:
+        case SYSEX_BLOCK_LEDS:
         switch(section)
         {
-            case ledColorSection:
+            case sysExSection_leds_testColor:
             returnValue = leds.getColor(index);
             break;
 
-            case ledBlinkSection:
+            case sysExSection_leds_testBlink:
             returnValue = leds.getBlinkState(index);
             break;
 
-            case ledMIDIchannelSection:
+            case sysExSection_leds_midiChannel:
             //channels start from 0 in db, start from 1 in sysex
-            returnValue = database.read(block, section, index) + 1;
+            returnValue = database.read(block, sysEx2DB_leds[section], index) + 1;
             break;
 
             default:
-            returnValue = database.read(block, section, index);
+            returnValue = database.read(block, sysEx2DB_leds[section], index);
             break;
         }
         break;
 
-        case DB_BLOCK_ANALOG:
+        case SYSEX_BLOCK_ANALOG:
         switch(section)
         {
-            case analogMIDIidLSB_sysExSection:
-            case analogMIDIidMSB_sysExSection:
-            encDec_14bit.value = database.read(block, analogMIDIidSection, index);
+            case sysExSection_analog_midiID_LSB:
+            case sysExSection_analog_midiID_MSB:
+            case sysExSection_analog_lowerLimit_LSB:
+            case sysExSection_analog_lowerLimit_MSB:
+            case sysExSection_analog_upperLimit_LSB:
+            case sysExSection_analog_upperLimit_MSB:
+            encDec_14bit.value = database.read(block, sysEx2DB_analog[section], index);
             encDec_14bit.split14bit();
 
-            if (section == analogMIDIidLSB_sysExSection)
+            switch(section)
+            {
+                case sysExSection_analog_midiID_LSB:
+                case sysExSection_analog_lowerLimit_LSB:
+                case sysExSection_analog_upperLimit_LSB:
                 returnValue = encDec_14bit.low;
-            else
+                break;
+
+                default:
                 returnValue = encDec_14bit.high;
-            break;
+                break;
+            }
 
-            case analogLowerCClimitLSB_sysExSection:
-            case analogLowerCClimitMSB_sysExSection:
-            encDec_14bit.value = database.read(block, analogCClowerLimitSection, index);
-            encDec_14bit.split14bit();
-
-            if (section == analogLowerCClimitLSB_sysExSection)
-                returnValue = encDec_14bit.low;
-            else
-                returnValue = encDec_14bit.high;
-            break;
-
-            case analogUpperCClimitLSB_sysExSection:
-            case analogUpperCClimitMSB_sysExSection:
-            encDec_14bit.value = database.read(block, analogCCupperLimitSection, index);
-            encDec_14bit.split14bit();
-
-            if (section == analogUpperCClimitLSB_sysExSection)
-                returnValue = encDec_14bit.low;
-            else
-                returnValue = encDec_14bit.high;
-            break;
-
-            case analogMIDIchannel_sysExSection:
+            case sysExSection_analog_midiChannel:
             //channels start from 0 in db, start from 1 in sysex
-            returnValue = database.read(block, analogMIDIchannelSection, index) + 1;
+            returnValue = database.read(block, sysEx2DB_analog[section], index) + 1;
             break;
 
             default:
-            returnValue = database.read(block, section, index);
+            returnValue = database.read(block, sysEx2DB_analog[section], index);
             break;
         }
         break;
 
-        case DB_BLOCK_BUTTON:
+        case SYSEX_BLOCK_BUTTONS:
         //channels start from 0 in db, start from 1 in sysex
-        if (section == buttonMIDIchannelSection)
-            returnValue = database.read(block, section, index) + 1;
+        if (section == sysExSection_buttons_midiChannel)
+            returnValue = database.read(block, sysEx2DB_buttons[section], index) + 1;
         else
-            returnValue = database.read(block, section, index);
+            returnValue = database.read(block, sysEx2DB_buttons[section], index);
         break;
 
-        case DB_BLOCK_ENCODER:
+        case SYSEX_BLOCK_ENCODERS:
         //channels start from 0 in db, start from 1 in sysex
-        if (section == encoderMIDIchannelSection)
-            returnValue = database.read(block, section, index) + 1;
+        if (section == sysExSection_encoders_midiChannel)
+            returnValue = database.read(block, sysEx2DB_buttons[section], index) + 1;
         else
-            returnValue = database.read(block, section, index);
+            returnValue = database.read(block, sysEx2DB_buttons[section], index);
         break;
 
         case DB_BLOCK_DISPLAY:
         #ifdef DISPLAY_SUPPORTED
-        returnValue = database.read(block, section, index);
+        returnValue = database.read(block, sysEx2DB_display[section], index);
         #else
         sysEx.setError(ERROR_NOT_SUPPORTED);
         #endif
@@ -234,69 +208,53 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
 
     switch(block)
     {
-        case DB_BLOCK_ANALOG:
+        case SYSEX_BLOCK_ANALOG:
         switch(section)
         {
-            case analogMIDIidLSB_sysExSection:
-            case analogMIDIidMSB_sysExSection:
-            encDec_14bit.value = database.read(block, analogMIDIidSection, index);
+            case sysExSection_analog_midiID_LSB:
+            case sysExSection_analog_midiID_MSB:
+            case sysExSection_analog_lowerLimit_LSB:
+            case sysExSection_analog_lowerLimit_MSB:
+            case sysExSection_analog_upperLimit_LSB:
+            case sysExSection_analog_upperLimit_MSB:
+            encDec_14bit.value = database.read(block, sysEx2DB_analog[section], index);
             encDec_14bit.split14bit();
 
-            if (section == analogMIDIidLSB_sysExSection)
+            switch(section)
+            {
+                case sysExSection_analog_midiID_LSB:
+                case sysExSection_analog_lowerLimit_LSB:
+                case sysExSection_analog_upperLimit_LSB:
                 encDec_14bit.low = newValue;
-            else
+                break;
+
+                default:
                 encDec_14bit.high = newValue;
+                break;
+            }
 
             encDec_14bit.mergeTo14bit();
-            success = database.update(block, analogMIDIidSection, index, encDec_14bit.value);
+            success = database.update(block, sysEx2DB_analog[section], index, encDec_14bit.value);
             break;
 
-            case analogLowerCClimitLSB_sysExSection:
-            case analogLowerCClimitMSB_sysExSection:
-            encDec_14bit.value = database.read(block, analogCClowerLimitSection, index);
-            encDec_14bit.split14bit();
-
-            if (section == analogLowerCClimitLSB_sysExSection)
-                encDec_14bit.low = newValue;
-            else
-                encDec_14bit.high = newValue;
-
-            encDec_14bit.mergeTo14bit();
-            success = database.update(block, analogCClowerLimitSection, index, encDec_14bit.value);
-            break;
-
-            case analogUpperCClimitLSB_sysExSection:
-            case analogUpperCClimitMSB_sysExSection:
-            encDec_14bit.value = database.read(block, analogCCupperLimitSection, index);
-            encDec_14bit.split14bit();
-
-            if (section == analogUpperCClimitLSB_sysExSection)
-                encDec_14bit.low = newValue;
-            else
-                encDec_14bit.high = newValue;
-
-            encDec_14bit.mergeTo14bit();
-            success = database.update(block, analogCCupperLimitSection, index, encDec_14bit.value);
-            break;
-
-            case analogType_sysExSection:
+            case sysExSection_analog_type:
             analog.debounceReset(index);
-            success = database.update(block, analogTypeSection, index, newValue);
+            success = database.update(block, sysEx2DB_analog[section], index, newValue);
             break;
 
-            case analogMIDIchannel_sysExSection:
+            case sysExSection_analog_midiChannel:
             //channels start from 0 in db, start from 1 in sysex
-            success = database.update(block, analogMIDIchannelSection, index, newValue-1);
+            success = database.update(block, sysEx2DB_analog[section], index, newValue-1);
             break;
 
             default:
-            success = database.update(block, section, index, newValue);
+            success = database.update(block, sysEx2DB_analog[section], index, newValue);
             break;
         }
         break;
 
-        case DB_BLOCK_MIDI:
-        if (section == midiFeatureSection)
+        case SYSEX_BLOCK_MIDI:
+        if (section == sysExSection_midi_feature)
         {
             switch(index)
             {
@@ -323,7 +281,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 break;
             }
         }
-        else if (section == midiThruSection)
+        else if (section == sysExSection_midi_thru)
         {
             switch(index)
             {
@@ -339,30 +297,28 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
 
         if (success)
         {
-            success = database.update(block, section, index, newValue);
+            success = database.update(block, sysEx2DB_midi[section], index, newValue);
         }
         break;
 
-        case DB_BLOCK_LED:
+        case SYSEX_BLOCK_LEDS:
         switch(section)
         {
-            case ledColorSection:
+            case sysExSection_leds_testColor:
             //no writing to database
             leds.setColor(index, (ledColor_t)newValue);
             success = true;
             writeToDb = false;
             break;
 
-            case ledBlinkSection:
+            case sysExSection_leds_testBlink:
             //no writing to database
             leds.setBlinkState(index, newValue);
             success = true;
             writeToDb = false;
             break;
 
-            case ledHardwareParameterSection:
-            //this entire section needs specific value check since values differ
-            //depending on index
+            case sysExSection_leds_hw:
             switch(index)
             {
                 case ledHwParameterBlinkTime:
@@ -391,52 +347,52 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
 
             //write to db if success is true and writing should take place
             if (success && writeToDb)
-                success = database.update(block, section, index, newValue);
+                success = database.update(block, sysEx2DB_leds[section], index, newValue);
             break;
 
-            case ledRGBenabledSection:
+            case sysExSection_leds_rgbEnable:
             //make sure to turn all three leds off before setting new state
             leds.setColor(board.getRGBaddress(board.getRGBID(index), rgb_R), colorOff);
             leds.setColor(board.getRGBaddress(board.getRGBID(index), rgb_G), colorOff);
             leds.setColor(board.getRGBaddress(board.getRGBID(index), rgb_B), colorOff);
 
             //write rgb enabled bit to three leds
-            success = database.update(block, section, board.getRGBaddress(board.getRGBID(index), rgb_R), newValue);
+            success = database.update(block, sysEx2DB_leds[section], board.getRGBaddress(board.getRGBID(index), rgb_R), newValue);
 
             if (success)
             {
-                success = database.update(block, section, board.getRGBaddress(board.getRGBID(index), rgb_G), newValue);
+                success = database.update(block, sysEx2DB_leds[section], board.getRGBaddress(board.getRGBID(index), rgb_G), newValue);
 
                 if (success)
                 {
-                    success = database.update(block, section, board.getRGBaddress(board.getRGBID(index), rgb_B), newValue);
+                    success = database.update(block, sysEx2DB_leds[section], board.getRGBaddress(board.getRGBID(index), rgb_B), newValue);
                 }
             }
 
             if (newValue && success)
             {
                 //copy over note activation and local control settings from current led index to all three leds
-                success = database.update(block, ledActivationNoteSection, board.getRGBaddress(board.getRGBID(index), rgb_R), database.read(block, ledActivationNoteSection, index));
+                success = database.update(block, sysExSection_leds_activationNote, board.getRGBaddress(board.getRGBID(index), rgb_R), database.read(block, sysExSection_leds_activationNote, index));
 
                 if (success)
                 {
-                    success = database.update(block, ledActivationNoteSection, board.getRGBaddress(board.getRGBID(index), rgb_G), database.read(block, ledActivationNoteSection, index));
+                    success = database.update(block, sysExSection_leds_activationNote, board.getRGBaddress(board.getRGBID(index), rgb_G), database.read(block, sysExSection_leds_activationNote, index));
 
                     if (success)
                     {
-                        success = database.update(block, ledActivationNoteSection, board.getRGBaddress(board.getRGBID(index), rgb_B), database.read(block, ledActivationNoteSection, index));
+                        success = database.update(block, sysExSection_leds_activationNote, board.getRGBaddress(board.getRGBID(index), rgb_B), database.read(block, sysExSection_leds_activationNote, index));
 
                         if (success)
                         {
-                            success = database.update(block, ledLocalControlSection, board.getRGBaddress(board.getRGBID(index), rgb_R), database.read(block, ledLocalControlSection, index));
+                            success = database.update(block, sysExSection_leds_localControl, board.getRGBaddress(board.getRGBID(index), rgb_R), database.read(block, sysExSection_leds_localControl, index));
 
                             if (success)
                             {
-                                success = database.update(block, ledLocalControlSection, board.getRGBaddress(board.getRGBID(index), rgb_G), database.read(block, ledLocalControlSection, index));
+                                success = database.update(block, sysExSection_leds_localControl, board.getRGBaddress(board.getRGBID(index), rgb_G), database.read(block, sysExSection_leds_localControl, index));
 
                                 if (success)
                                 {
-                                    success = database.update(block, ledLocalControlSection, board.getRGBaddress(board.getRGBID(index), rgb_B), database.read(block, ledLocalControlSection, index));
+                                    success = database.update(block, sysExSection_leds_localControl, board.getRGBaddress(board.getRGBID(index), rgb_B), database.read(block, sysExSection_leds_localControl, index));
                                 }
                             }
                         }
@@ -445,53 +401,53 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             }
             break;
 
-            case ledActivationNoteSection:
-            case ledLocalControlSection:
+            case sysExSection_leds_activationNote:
+            case sysExSection_leds_localControl:
             //first, find out if RGB led is enabled for this led index
-            if (database.read(block, ledRGBenabledSection, index))
+            if (database.read(block, sysExSection_leds_rgbEnable, index))
             {
                 //rgb led enabled - copy these settings to all three leds
-                success = database.update(block, section, board.getRGBaddress(board.getRGBID(index), rgb_R), newValue);
+                success = database.update(block, sysEx2DB_leds[section], board.getRGBaddress(board.getRGBID(index), rgb_R), newValue);
 
                 if (success)
                 {
-                    success = database.update(block, section, board.getRGBaddress(board.getRGBID(index), rgb_G), newValue);
+                    success = database.update(block, sysEx2DB_leds[section], board.getRGBaddress(board.getRGBID(index), rgb_G), newValue);
 
                     if (success)
                     {
-                        success = database.update(block, section, board.getRGBaddress(board.getRGBID(index), rgb_B), newValue);
+                        success = database.update(block, sysEx2DB_leds[section], board.getRGBaddress(board.getRGBID(index), rgb_B), newValue);
                     }
                 }
             }
             else
             {
                 //apply to single led only
-                success = database.update(block, section, index, newValue);
+                success = database.update(block, sysEx2DB_leds[section], index, newValue);
             }
             break;
 
-            case ledMIDIchannelSection:
+            case sysExSection_leds_midiChannel:
             //channels start from 0 in db, start from 1 in sysex
-            success = database.update(block, section, index, newValue-1);
+            success = database.update(block, sysEx2DB_leds[section], index, newValue-1);
             break;
 
             default:
-            success = database.update(block, section, index, newValue);
+            success = database.update(block, sysEx2DB_leds[section], index, newValue);
             break;
         }
         break;
 
-        case DB_BLOCK_DISPLAY:
+        case SYSEX_BLOCK_DISPLAY:
         #ifdef DISPLAY_SUPPORTED
         switch(section)
         {
-            case displayHwSection:
+            case sysExSection_display_hw:
             switch(index)
             {
                 case displayHwController:
                 if ((newValue <= DISPLAY_CONTROLLERS) && (newValue >= 0))
                 {
-                    display.init((displayController_t)newValue, (displayResolution_t)database.read(DB_BLOCK_DISPLAY, displayHwSection, displayHwResolution));
+                    display.init((displayController_t)newValue, (displayResolution_t)database.read(DB_BLOCK_DISPLAY, sysEx2DB_display[section], displayHwResolution));
                     display.displayHome();
                     success = true;
                 }
@@ -500,7 +456,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 case displayHwResolution:
                 if ((newValue <= DISPLAY_RESOLUTIONS) && (newValue >= 0))
                 {
-                    display.init((displayController_t)database.read(DB_BLOCK_DISPLAY, displayHwSection, displayHwController), (displayResolution_t)newValue);
+                    display.init((displayController_t)database.read(DB_BLOCK_DISPLAY, sysEx2DB_display[section], displayHwController), (displayResolution_t)newValue);
                     display.displayHome();
                     success = true;
                 }
@@ -511,7 +467,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             }
             break;
 
-            case displayFeaturesSection:
+            case sysExSection_display_features:
             switch(index)
             {
                 case displayFeatureMIDIeventRetention:
@@ -543,30 +499,30 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
         #endif
 
         if (success)
-            success = database.update(block, section, index, newValue);
+            success = database.update(block, sysEx2DB_display[section], index, newValue);
         break;
 
-        case DB_BLOCK_BUTTON:
-        if (section == buttonMIDIchannelSection)
+        case SYSEX_BLOCK_BUTTONS:
+        if (section == sysExSection_buttons_midiChannel)
         {
             //channels start from 0 in db, start from 1 in sysex
-            success = database.update(block, section, index, newValue-1);
+            success = database.update(block, sysEx2DB_buttons[section], index, newValue-1);
         }
         else
         {
-            success = database.update(block, section, index, newValue);
+            success = database.update(block, sysEx2DB_buttons[section], index, newValue);
         }
         break;
 
-        case DB_BLOCK_ENCODER:
-        if (section == encoderMIDIchannelSection)
+        case SYSEX_BLOCK_ENCODERS:
+        if (section == sysExSection_encoders_midiChannel)
         {
             //channels start from 0 in db, start from 1 in sysex
-            success = database.update(block, section, index, newValue-1);
+            success = database.update(block, sysEx2DB_encoders[section], index, newValue-1);
         }
         else
         {
-            success = database.update(block, section, index, newValue);
+            success = database.update(block, sysEx2DB_encoders[section], index, newValue);
         }
         break;
 

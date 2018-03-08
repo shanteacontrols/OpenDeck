@@ -20,10 +20,10 @@
 
 typedef enum
 {
-    encoderEnabledSection,
-    encoderInvertedSection,
-    encoderEncodingModeSection,
-    encoderMIDIidSection,
-    encoderMIDIchannelSection,
-    ENCODER_SECTIONS
-} encoderSection_db_t;
+    dbSection_encoders_enable,
+    dbSection_encoders_invert,
+    dbSection_encoders_mode,
+    dbSection_encoders_midiID,
+    dbSection_encoders_midiChannel,
+    DB_SECTIONS_ENCODERS
+} dbSection_encoders_t;

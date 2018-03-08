@@ -71,7 +71,7 @@ bool Database::signatureValid()
 void Database::writeCustomValues()
 {
     //used to init custom data for display
-    database.update(DB_BLOCK_DISPLAY, displayFeaturesSection, displayFeatureMIDIeventTime, MIN_MESSAGE_RETENTION_TIME);
+    database.update(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventTime, MIN_MESSAGE_RETENTION_TIME);
 }
 
 Database database;

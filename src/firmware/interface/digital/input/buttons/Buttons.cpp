@@ -57,9 +57,9 @@ bool Buttons::getButtonPressed(uint8_t buttonID)
 
 void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonMIDImessage_t midiMessage)
 {
-    uint8_t note = database.read(DB_BLOCK_BUTTON, buttonMIDIidSection, buttonID);
-    uint8_t channel = database.read(DB_BLOCK_BUTTON, buttonMIDIchannelSection, buttonID);
-    uint8_t velocity = database.read(DB_BLOCK_BUTTON, buttonMIDIvelocitySection, buttonID);
+    uint8_t note = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, buttonID);
+    uint8_t channel = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiChannel, buttonID);
+    uint8_t velocity = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_velocity, buttonID);
     mmcArray[2] = note; //use midi note as channel id for transport control
 
     if (buttonState)
@@ -167,14 +167,14 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonM
 
             if (sysEx.configurationEnabled())
             {
-                if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)
+                if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTONS)) > COMPONENT_INFO_TIMEOUT)
                 {
                     sysEx.startResponse();
                     sysEx.addToResponse(COMPONENT_ID_STRING);
-                    sysEx.addToResponse(DB_BLOCK_BUTTON);
+                    sysEx.addToResponse(DB_BLOCK_BUTTONS);
                     sysEx.addToResponse(buttonID);
                     sysEx.sendResponse();
-                    updateCinfoTime(DB_BLOCK_BUTTON);
+                    updateCinfoTime(DB_BLOCK_BUTTONS);
                 }
             }
         }
@@ -208,14 +208,14 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonM
 
             if (sysEx.configurationEnabled())
             {
-                if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)
+                if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTONS)) > COMPONENT_INFO_TIMEOUT)
                 {
                     sysEx.startResponse();
                     sysEx.addToResponse(COMPONENT_ID_STRING);
-                    sysEx.addToResponse(DB_BLOCK_BUTTON);
+                    sysEx.addToResponse(DB_BLOCK_BUTTONS);
                     sysEx.addToResponse(buttonID);
                     sysEx.sendResponse();
-                    updateCinfoTime(DB_BLOCK_BUTTON);
+                    updateCinfoTime(DB_BLOCK_BUTTONS);
                 }
             }
 
@@ -230,9 +230,9 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
     {
         if (buttonState)
         {
-            uint8_t note = database.read(DB_BLOCK_BUTTON, buttonMIDIidSection, buttonID);
-            uint8_t channel = database.read(DB_BLOCK_BUTTON, buttonMIDIchannelSection, buttonID);
-            uint8_t velocity = database.read(DB_BLOCK_BUTTON, buttonMIDIvelocitySection, buttonID);
+            uint8_t note = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, buttonID);
+            uint8_t channel = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiChannel, buttonID);
+            uint8_t velocity = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_velocity, buttonID);
             mmcArray[2] = note;
 
             //button is pressed
@@ -272,14 +272,14 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
 
                 if (sysEx.configurationEnabled())
                 {
-                    if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)
+                    if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTONS)) > COMPONENT_INFO_TIMEOUT)
                     {
                         sysEx.startResponse();
                         sysEx.addToResponse(COMPONENT_ID_STRING);
-                        sysEx.addToResponse(DB_BLOCK_BUTTON);
+                        sysEx.addToResponse(DB_BLOCK_BUTTONS);
                         sysEx.addToResponse(buttonID);
                         sysEx.sendResponse();
-                        updateCinfoTime(DB_BLOCK_BUTTON);
+                        updateCinfoTime(DB_BLOCK_BUTTONS);
                     }
                 }
 
@@ -321,14 +321,14 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
 
                 if (sysEx.configurationEnabled())
                 {
-                    if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTON)) > COMPONENT_INFO_TIMEOUT)
+                    if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTONS)) > COMPONENT_INFO_TIMEOUT)
                     {
                         sysEx.startResponse();
                         sysEx.addToResponse(COMPONENT_ID_STRING);
-                        sysEx.addToResponse(DB_BLOCK_BUTTON);
+                        sysEx.addToResponse(DB_BLOCK_BUTTONS);
                         sysEx.addToResponse(buttonID);
                         sysEx.sendResponse();
-                        updateCinfoTime(DB_BLOCK_BUTTON);
+                        updateCinfoTime(DB_BLOCK_BUTTONS);
                     }
                 }
 
@@ -345,9 +345,8 @@ void Buttons::processButton(uint8_t buttonID, bool state, bool debounce)
 
     if (debounced)
     {
-        buttonType_t type = (buttonType_t)database.read(DB_BLOCK_BUTTON, buttonTypeSection, buttonID);
-
-        buttonMIDImessage_t midiMessage = (buttonMIDImessage_t)database.read(DB_BLOCK_BUTTON, buttonMIDImessageSection, buttonID);
+        buttonType_t type = (buttonType_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_type, buttonID);
+        buttonMIDImessage_t midiMessage = (buttonMIDImessage_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, buttonID);
 
         //overwrite type under certain conditions
         switch(midiMessage)
@@ -399,7 +398,7 @@ void Buttons::update()
         bool buttonState;
         uint8_t encoderPairIndex = board.getEncoderPair(i);
 
-        if (database.read(DB_BLOCK_ENCODER, encoderEnabledSection, encoderPairIndex))
+        if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, encoderPairIndex))
             buttonState = false;    //button is member of encoder pair, always set state to released
         else
             buttonState = board.getButtonState(i);

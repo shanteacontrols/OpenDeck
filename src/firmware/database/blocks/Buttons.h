@@ -20,10 +20,10 @@
 
 typedef enum
 {
-    buttonTypeSection,
-    buttonMIDImessageSection,
-    buttonMIDIidSection,
-    buttonMIDIvelocitySection,
-    buttonMIDIchannelSection,
-    BUTTON_SECTIONS
-} buttonSection_db_t;
+    dbSection_buttons_type,
+    dbSection_buttons_midiMessage,
+    dbSection_buttons_midiID,
+    dbSection_buttons_velocity,
+    dbSection_buttons_midiChannel,
+    DB_SECTIONS_BUTTONS
+} dbSection_buttons_t;

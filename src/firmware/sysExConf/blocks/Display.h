@@ -18,18 +18,18 @@
 
 #pragma once
 
-#include "sysex/src/SysEx.h"
-#include "CustomStrings.h"
-#include "blocks/Blocks.h"
+#include "../../database/blocks/Display.h"
 
-class SysExConfig : public SysEx
+typedef enum
 {
-    public:
-    SysExConfig();
-    static void init();
+    sysExSection_display_features,
+    sysExSection_display_hw,
+    SYSEX_SECTIONS_DISPLAY
+} sysExSection_display_t;
 
-    private:
-    static void createLayout();
+//map sysex sections to sections in db
+const uint8_t sysEx2DB_display[SYSEX_SECTIONS_DISPLAY] =
+{
+    dbSection_display_features,
+    dbSection_display_hw,
 };
-
-extern SysExConfig sysEx;

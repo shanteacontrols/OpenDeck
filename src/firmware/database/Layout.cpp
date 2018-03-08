@@ -60,7 +60,7 @@ void Database::createLayout()
         section.parameterType = BIT_PARAMETER;
         section.preserveOnPartialReset = 0;
 
-        DBMS::addSection(DB_BLOCK_BUTTON, section);
+        DBMS::addSection(DB_BLOCK_BUTTONS, section);
 
         //midi message type section
         section.numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
@@ -69,7 +69,7 @@ void Database::createLayout()
         section.parameterType = BYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
-        DBMS::addSection(DB_BLOCK_BUTTON, section);
+        DBMS::addSection(DB_BLOCK_BUTTONS, section);
 
         //midi id section
         section.numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
@@ -78,7 +78,7 @@ void Database::createLayout()
         section.parameterType = BYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
-        DBMS::addSection(DB_BLOCK_BUTTON, section);
+        DBMS::addSection(DB_BLOCK_BUTTONS, section);
 
         //midi velocity section
         section.numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
@@ -87,7 +87,7 @@ void Database::createLayout()
         section.parameterType = BYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
-        DBMS::addSection(DB_BLOCK_BUTTON, section);
+        DBMS::addSection(DB_BLOCK_BUTTONS, section);
 
         //midi channel section
         section.numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
@@ -96,7 +96,7 @@ void Database::createLayout()
         section.parameterType = HALFBYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
-        DBMS::addSection(DB_BLOCK_BUTTON, section);
+        DBMS::addSection(DB_BLOCK_BUTTONS, section);
     }
 
     {
@@ -109,7 +109,7 @@ void Database::createLayout()
         section.parameterType = BIT_PARAMETER;
         section.preserveOnPartialReset = 0;
 
-        DBMS::addSection(DB_BLOCK_ENCODER, section);
+        DBMS::addSection(DB_BLOCK_ENCODERS, section);
 
         //encoder inverted section
         section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
@@ -118,7 +118,7 @@ void Database::createLayout()
         section.parameterType = BIT_PARAMETER;
         section.preserveOnPartialReset = 0;
 
-        DBMS::addSection(DB_BLOCK_ENCODER, section);
+        DBMS::addSection(DB_BLOCK_ENCODERS, section);
 
         //encoding mode section
         section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
@@ -127,7 +127,7 @@ void Database::createLayout()
         section.parameterType = BYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
-        DBMS::addSection(DB_BLOCK_ENCODER, section);
+        DBMS::addSection(DB_BLOCK_ENCODERS, section);
 
         //midi id section
         section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
@@ -136,7 +136,7 @@ void Database::createLayout()
         section.parameterType = BYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
-        DBMS::addSection(DB_BLOCK_ENCODER, section);
+        DBMS::addSection(DB_BLOCK_ENCODERS, section);
 
         //midi channel section
         section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
@@ -145,7 +145,7 @@ void Database::createLayout()
         section.parameterType = HALFBYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
-        DBMS::addSection(DB_BLOCK_ENCODER, section);
+        DBMS::addSection(DB_BLOCK_ENCODERS, section);
     }
 
     {
@@ -225,7 +225,7 @@ void Database::createLayout()
         section.parameterType = BYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
-        DBMS::addSection(DB_BLOCK_LED, section);
+        DBMS::addSection(DB_BLOCK_LEDS, section);
 
         //activation id section
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
@@ -234,7 +234,7 @@ void Database::createLayout()
         section.parameterType = BYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
-        DBMS::addSection(DB_BLOCK_LED, section);
+        DBMS::addSection(DB_BLOCK_LEDS, section);
 
         //rgb enabled section
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
@@ -243,7 +243,7 @@ void Database::createLayout()
         section.parameterType = BIT_PARAMETER;
         section.preserveOnPartialReset = 0;
 
-        DBMS::addSection(DB_BLOCK_LED, section);
+        DBMS::addSection(DB_BLOCK_LEDS, section);
 
         //local led control enabled section
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
@@ -252,7 +252,7 @@ void Database::createLayout()
         section.parameterType = BIT_PARAMETER;
         section.preserveOnPartialReset = 0;
 
-        DBMS::addSection(DB_BLOCK_LED, section);
+        DBMS::addSection(DB_BLOCK_LEDS, section);
 
         //single velocity value section
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
@@ -261,7 +261,7 @@ void Database::createLayout()
         section.parameterType = BYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
-        DBMS::addSection(DB_BLOCK_LED, section);
+        DBMS::addSection(DB_BLOCK_LEDS, section);
 
         //midi channel section
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
@@ -270,7 +270,7 @@ void Database::createLayout()
         section.parameterType = HALFBYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
 
-        DBMS::addSection(DB_BLOCK_LED, section);
+        DBMS::addSection(DB_BLOCK_LEDS, section);
     }
 
     {

@@ -18,18 +18,24 @@
 
 #pragma once
 
-#include "sysex/src/SysEx.h"
-#include "CustomStrings.h"
-#include "blocks/Blocks.h"
+#include "../../database/blocks/Buttons.h"
 
-class SysExConfig : public SysEx
+typedef enum
 {
-    public:
-    SysExConfig();
-    static void init();
+    sysExSection_buttons_type,
+    sysExSection_buttons_midiMessage,
+    sysExSection_buttons_midiID,
+    sysExSection_buttons_velocity,
+    sysExSection_buttons_midiChannel,
+    SYSEX_SECTIONS_BUTTONS
+} sysExSection_buttons_t;
 
-    private:
-    static void createLayout();
+//map sysex sections to sections in db
+const uint8_t sysEx2DB_buttons[SYSEX_SECTIONS_BUTTONS] =
+{
+    dbSection_buttons_type,
+    dbSection_buttons_midiMessage,
+    dbSection_buttons_midiID,
+    dbSection_buttons_velocity,
+    dbSection_buttons_midiChannel
 };
-
-extern SysExConfig sysEx;

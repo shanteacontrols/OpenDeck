@@ -22,7 +22,7 @@
 void SysExConfig::createLayout()
 {
     //last db block is ID block which isn't needed
-    addBlocks(DB_BLOCKS-1);
+    addBlocks(SYSEX_BLOCKS-1);
 
     sysExSection section;
 
@@ -34,14 +34,14 @@ void SysExConfig::createLayout()
         section.newValueMin = 0;
         section.newValueMax = 1;
 
-        addSection(DB_BLOCK_MIDI, section);
+        addSection(SYSEX_BLOCK_MIDI, section);
 
         //midi thru section
         section.numberOfParameters = MIDI_THRU_OPTIONS;
         section.newValueMin = 0;
         section.newValueMax = 0;
 
-        addSection(DB_BLOCK_MIDI, section);
+        addSection(SYSEX_BLOCK_MIDI, section);
     }
 
     {
@@ -52,35 +52,35 @@ void SysExConfig::createLayout()
         section.newValueMin = 0;
         section.newValueMax = BUTTON_TYPES-1;
 
-        addSection(DB_BLOCK_BUTTON, section);
+        addSection(SYSEX_BLOCK_BUTTONS, section);
 
         //midi message type section
         section.numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
         section.newValueMin = 0;
         section.newValueMax = BUTTON_MESSAGE_TYPES-1;
 
-        addSection(DB_BLOCK_BUTTON, section);
+        addSection(SYSEX_BLOCK_BUTTONS, section);
 
         //midi id section
         section.numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
         section.newValueMin = 0;
         section.newValueMax = 127;
 
-        addSection(DB_BLOCK_BUTTON, section);
+        addSection(SYSEX_BLOCK_BUTTONS, section);
 
         //midi velocity section
         section.numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
         section.newValueMin = 1;
         section.newValueMax = 127;
 
-        addSection(DB_BLOCK_BUTTON, section);
+        addSection(SYSEX_BLOCK_BUTTONS, section);
 
         //midi channel section
         section.numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
         section.newValueMin = 1;
         section.newValueMax = 16;
 
-        addSection(DB_BLOCK_BUTTON, section);
+        addSection(SYSEX_BLOCK_BUTTONS, section);
     }
 
     {
@@ -91,35 +91,35 @@ void SysExConfig::createLayout()
         section.newValueMin = 0;
         section.newValueMax = 1;
 
-        addSection(DB_BLOCK_ENCODER, section);
+        addSection(SYSEX_BLOCK_ENCODERS, section);
 
         //encoder inverted section
         section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
         section.newValueMin = 0;
         section.newValueMax = 1;
 
-        addSection(DB_BLOCK_ENCODER, section);
+        addSection(SYSEX_BLOCK_ENCODERS, section);
 
         //encoding mode section
         section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
         section.newValueMin = 0;
         section.newValueMax = ENCODING_MODES-1;
 
-        addSection(DB_BLOCK_ENCODER, section);
+        addSection(SYSEX_BLOCK_ENCODERS, section);
 
         //midi id section
         section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
         section.newValueMin = 0;
         section.newValueMax = 127;
 
-        addSection(DB_BLOCK_ENCODER, section);
+        addSection(SYSEX_BLOCK_ENCODERS, section);
 
         //midi channel section
         section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
         section.newValueMin = 1;
         section.newValueMax = 16;
 
-        addSection(DB_BLOCK_ENCODER, section);
+        addSection(SYSEX_BLOCK_ENCODERS, section);
     }
 
     {
@@ -130,70 +130,70 @@ void SysExConfig::createLayout()
         section.newValueMin = 0;
         section.newValueMax = 1;
 
-        addSection(DB_BLOCK_ANALOG, section);
+        addSection(SYSEX_BLOCK_ANALOG, section);
 
         //analog inverted section
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
         section.newValueMin = 0;
         section.newValueMax = 1;
 
-        addSection(DB_BLOCK_ANALOG, section);
+        addSection(SYSEX_BLOCK_ANALOG, section);
 
         //analog type section
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
         section.newValueMin = 0;
         section.newValueMax = ANALOG_TYPES-1;
 
-        addSection(DB_BLOCK_ANALOG, section);
+        addSection(SYSEX_BLOCK_ANALOG, section);
 
         //midi id section, lsb
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
         section.newValueMin = 0;
         section.newValueMax = 127;
 
-        addSection(DB_BLOCK_ANALOG, section);
+        addSection(SYSEX_BLOCK_ANALOG, section);
 
         //midi id section, msb
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
         section.newValueMin = 0;
         section.newValueMax = 127;
 
-        addSection(DB_BLOCK_ANALOG, section);
+        addSection(SYSEX_BLOCK_ANALOG, section);
 
         //lower cc limit, lsb
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
         section.newValueMin = 0;
         section.newValueMax = 127;
 
-        addSection(DB_BLOCK_ANALOG, section);
+        addSection(SYSEX_BLOCK_ANALOG, section);
 
         //lower cc limit, msb
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
         section.newValueMin = 0;
         section.newValueMax = 127;
 
-        addSection(DB_BLOCK_ANALOG, section);
+        addSection(SYSEX_BLOCK_ANALOG, section);
 
         //upper cc limit, lsb
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
         section.newValueMin = 0;
         section.newValueMax = 127;
 
-        addSection(DB_BLOCK_ANALOG, section);
+        addSection(SYSEX_BLOCK_ANALOG, section);
 
         //upper cc limit, msb
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
         section.newValueMin = 0;
         section.newValueMax = 127;
 
-        addSection(DB_BLOCK_ANALOG, section);
+        addSection(SYSEX_BLOCK_ANALOG, section);
 
         //midi channel section
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
         section.newValueMin = 1;
         section.newValueMax = 16;
 
-        addSection(DB_BLOCK_ANALOG, section);
+        addSection(SYSEX_BLOCK_ANALOG, section);
     }
 
     {
@@ -204,56 +204,56 @@ void SysExConfig::createLayout()
         section.newValueMin = 0;
         section.newValueMax = 0;
 
-        addSection(DB_BLOCK_LED, section);
+        addSection(SYSEX_BLOCK_LEDS, section);
 
         //activation note section
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
         section.newValueMin = 0;
         section.newValueMax = 127;
 
-        addSection(DB_BLOCK_LED, section);
+        addSection(SYSEX_BLOCK_LEDS, section);
 
         //rgb enabled section
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
         section.newValueMin = 0;
         section.newValueMax = 1;
 
-        addSection(DB_BLOCK_LED, section);
+        addSection(SYSEX_BLOCK_LEDS, section);
 
         //local led control enabled section
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
         section.newValueMin = 0;
         section.newValueMax = 1;
 
-        addSection(DB_BLOCK_LED, section);
+        addSection(SYSEX_BLOCK_LEDS, section);
 
         //single led velocity value section
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
         section.newValueMin = 1;
         section.newValueMax = 127;
 
-        addSection(DB_BLOCK_LED, section);
+        addSection(SYSEX_BLOCK_LEDS, section);
 
         //led color section
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
         section.newValueMin = 0;
         section.newValueMax = LED_COLORS-1;
 
-        addSection(DB_BLOCK_LED, section);
+        addSection(SYSEX_BLOCK_LEDS, section);
 
         //led blink section
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
         section.newValueMin = 0;
         section.newValueMax = 1;
 
-        addSection(DB_BLOCK_LED, section);
+        addSection(SYSEX_BLOCK_LEDS, section);
 
         //midi channel section
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
         section.newValueMin = 1;
         section.newValueMax = 16;
 
-        addSection(DB_BLOCK_LED, section);
+        addSection(SYSEX_BLOCK_LEDS, section);
     }
 
     {
@@ -263,13 +263,13 @@ void SysExConfig::createLayout()
         section.newValueMin = 0;
         section.newValueMax = 0;
 
-        addSection(DB_BLOCK_DISPLAY, section);
+        addSection(SYSEX_BLOCK_DISPLAY, section);
 
         //hw section
         section.numberOfParameters = DISPLAY_HW_PARAMETERS;
         section.newValueMin = 0;
         section.newValueMax = 0;
 
-        addSection(DB_BLOCK_DISPLAY, section);
+        addSection(SYSEX_BLOCK_DISPLAY, section);
     }
 }

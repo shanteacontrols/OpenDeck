@@ -20,10 +20,11 @@
 
 typedef enum
 {
-    midiFeatureSection,
-    midiThruSection,
-    MIDI_SECTIONS
-} midiSection_db_t;
+    dbSection_midi_feature,
+    dbSection_midi_thru,
+    DB_SECTIONS_MIDI
+} dbSection_midi_t;
+
 
 typedef enum
 {
