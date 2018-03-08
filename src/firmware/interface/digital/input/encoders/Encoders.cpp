@@ -22,6 +22,9 @@
 #include "../../../../database/Database.h"
 #include "sysex/src/SysEx.h"
 #include "../../../cinfo/CInfo.h"
+#ifdef DISPLAY_SUPPORTED
+#include "../../../display/Display.h"
+#endif
 
 Encoders::Encoders()
 {
