@@ -8,7 +8,6 @@ before_install:
   - PATH=/usr/local/avr/bin:${PATH}
   - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
   - git submodule update --init --recursive
-  - sudo apt-get -qq update
   - cd src/
   
 install:  
