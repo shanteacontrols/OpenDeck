@@ -97,7 +97,7 @@ build/%.o: %.cpp
 	@$(CXX) $(CXXFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) -mmcu=$(MCU) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -o "$@" "$<" 
 	@echo Finished building: $<
 
-$(TARGET).elf: $(RUN_CLEAN) $(OBJECTS)
+$(TARGET).elf: $(RUN_CLEAN) target_print $(OBJECTS)
 	@#link
 	@$(CXX) -o$(TARGET).elf $(OBJECTS) -mmcu=$(MCU) $(LDFLAGS) -Wl,-Map,$(TARGET).map
 	@echo Finished building target: $@
@@ -141,6 +141,9 @@ ser_list:
 clean:
 	@echo Cleaning up.
 	@rm -rf build/
+
+target_print:
+	@echo Building target $(MAKECMDGOALS)
 
 #debugging
 print-%:
