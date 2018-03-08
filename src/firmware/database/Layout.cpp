@@ -91,7 +91,7 @@ void Database::createLayout()
 
         //midi channel section
         section.numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG;
-        section.defaultValue = 1;
+        section.defaultValue = 0;
         section.autoIncrement = false;
         section.parameterType = HALFBYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
@@ -140,7 +140,7 @@ void Database::createLayout()
 
         //midi channel section
         section.numberOfParameters = MAX_NUMBER_OF_ENCODERS;
-        section.defaultValue = 1;
+        section.defaultValue = 0;
         section.autoIncrement = false;
         section.parameterType = HALFBYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
@@ -207,7 +207,7 @@ void Database::createLayout()
 
         //midi channel section
         section.numberOfParameters = MAX_NUMBER_OF_ANALOG;
-        section.defaultValue = 1;
+        section.defaultValue = 0;
         section.autoIncrement = false;
         section.parameterType = HALFBYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
@@ -265,7 +265,7 @@ void Database::createLayout()
 
         //midi channel section
         section.numberOfParameters = MAX_NUMBER_OF_LEDS;
-        section.defaultValue = 1;
+        section.defaultValue = 0;
         section.autoIncrement = false;
         section.parameterType = HALFBYTE_PARAMETER;
         section.preserveOnPartialReset = 0;
