@@ -152,6 +152,7 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
                 returnValue = encDec_14bit.high;
                 break;
             }
+            break;
 
             case sysExSection_analog_midiChannel:
             //channels start from 0 in db, start from 1 in sysex
