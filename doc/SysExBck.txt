@@ -3,6 +3,10 @@
 //handshake
 F0 00 53 43 00 00 01 F7
 
+//disable data processing
+//used to avoid data sending during backup
+F0 00 53 43 00 00 64 F7
+
 //////// midi block start ////////
 
 //feature section
@@ -91,3 +95,6 @@ F0 00 53 43 00 7F 02 01 04 06 F7
 F0 00 53 43 00 7F 02 01 04 07 F7
 
 //////// led block end ////////
+
+//enabled data processing
+F0 00 53 43 00 00 65 F7

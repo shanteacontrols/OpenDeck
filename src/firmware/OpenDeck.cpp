@@ -20,6 +20,7 @@
 #include "Version.h"
 
 MIDI midi;
+bool processingEnabled;
 
 void init()
 {
@@ -104,6 +105,8 @@ void init()
         display.setRetentionTime(database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventTime) * 1000);
     }
     #endif
+
+    processingEnabled = true;
 }
 
 int main()
@@ -270,9 +273,12 @@ int main()
         }
         #endif
 
-        digitalInput.update();
-        analog.update();
-        leds.update();
+        if (processingEnabled)
+        {
+            digitalInput.update();
+            analog.update();
+            leds.update();
+        }
 
         #ifdef DISPLAY_SUPPORTED
         display.update();

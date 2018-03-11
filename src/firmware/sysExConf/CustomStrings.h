@@ -26,3 +26,5 @@
 #define FACTORY_RESET_STRING                0x44
 #define COMPONENT_ID_STRING                 0x49
 #define MAX_COMPONENTS_STRING               0x4D
+#define ENABLE_PROCESSING_STRING            0x65
+#define DISABLE_PROCESSING_STRING           0x64

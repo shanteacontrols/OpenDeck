@@ -22,3 +22,4 @@
 #include "sysExConf/SysExConf.h"
 
 extern MIDI midi;
+extern bool processingEnabled;

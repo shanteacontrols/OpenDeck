@@ -83,6 +83,16 @@ bool onCustom(uint8_t value)
         return true;
         break;
 
+        case ENABLE_PROCESSING_STRING:
+        processingEnabled = true;
+        return true;
+        break;
+
+        case DISABLE_PROCESSING_STRING:
+        processingEnabled = false;
+        return true;
+        break;
+
         default:
         requestValid = false;
         break;
@@ -573,6 +583,9 @@ void SysExConfig::init()
     addCustomRequest(REBOOT_APP_STRING);
     addCustomRequest(REBOOT_BTLDR_STRING);
     addCustomRequest(FACTORY_RESET_STRING);
+
+    addCustomRequest(ENABLE_PROCESSING_STRING);
+    addCustomRequest(DISABLE_PROCESSING_STRING);
 }
 
 SysExConfig sysEx;
