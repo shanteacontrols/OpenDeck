@@ -237,7 +237,7 @@ void Database::createLayout()
         DBMS::addSection(DB_BLOCK_LEDS, section);
 
         //rgb enabled section
-        section.numberOfParameters = MAX_NUMBER_OF_LEDS;
+        section.numberOfParameters = MAX_NUMBER_OF_RGB_LEDS;
         section.defaultValue = 0;
         section.autoIncrement = false;
         section.parameterType = BIT_PARAMETER;

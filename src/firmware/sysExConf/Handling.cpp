@@ -132,6 +132,10 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
             returnValue = database.read(block, sysEx2DB_leds[section], index) + 1;
             break;
 
+            case sysExSection_leds_rgbEnable:
+            returnValue = database.read(block, sysEx2DB_leds[section], board.getRGBID(index));
+            break;
+
             default:
             returnValue = database.read(block, sysEx2DB_leds[section], index);
             break;
@@ -374,43 +378,48 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             leds.setColor(board.getRGBaddress(board.getRGBID(index), rgb_G), colorOff);
             leds.setColor(board.getRGBaddress(board.getRGBID(index), rgb_B), colorOff);
 
-            //write rgb enabled bit to three leds
-            success = database.update(block, sysEx2DB_leds[section], board.getRGBaddress(board.getRGBID(index), rgb_R), newValue);
-
-            if (success)
-            {
-                success = database.update(block, sysEx2DB_leds[section], board.getRGBaddress(board.getRGBID(index), rgb_G), newValue);
-
-                if (success)
-                {
-                    success = database.update(block, sysEx2DB_leds[section], board.getRGBaddress(board.getRGBID(index), rgb_B), newValue);
-                }
-            }
+            //write rgb enabled bit to led
+            success = database.update(block, sysEx2DB_leds[section], board.getRGBID(index), newValue);
 
             if (newValue && success)
             {
-                //copy over note activation and local control settings from current led index to all three leds
-                success = database.update(block, sysExSection_leds_activationNote, board.getRGBaddress(board.getRGBID(index), rgb_R), database.read(block, sysExSection_leds_activationNote, index));
+                //copy over note activation local control and midi channel settings from current led index to all three leds
+                success = database.update(block, sysEx2DB_leds[sysExSection_leds_activationNote], board.getRGBaddress(board.getRGBID(index), rgb_R), database.read(block, sysEx2DB_leds[sysExSection_leds_activationNote], index));
 
                 if (success)
                 {
-                    success = database.update(block, sysExSection_leds_activationNote, board.getRGBaddress(board.getRGBID(index), rgb_G), database.read(block, sysExSection_leds_activationNote, index));
+                    success = database.update(block, sysEx2DB_leds[sysExSection_leds_activationNote], board.getRGBaddress(board.getRGBID(index), rgb_G), database.read(block, sysEx2DB_leds[sysExSection_leds_activationNote], index));
 
                     if (success)
                     {
-                        success = database.update(block, sysExSection_leds_activationNote, board.getRGBaddress(board.getRGBID(index), rgb_B), database.read(block, sysExSection_leds_activationNote, index));
+                        success = database.update(block, sysEx2DB_leds[sysExSection_leds_activationNote], board.getRGBaddress(board.getRGBID(index), rgb_B), database.read(block, sysEx2DB_leds[sysExSection_leds_activationNote], index));
 
                         if (success)
                         {
-                            success = database.update(block, sysExSection_leds_localControl, board.getRGBaddress(board.getRGBID(index), rgb_R), database.read(block, sysExSection_leds_localControl, index));
+                            success = database.update(block, sysEx2DB_leds[sysExSection_leds_localControl], board.getRGBaddress(board.getRGBID(index), rgb_R), database.read(block, sysEx2DB_leds[sysExSection_leds_localControl], index));
 
                             if (success)
                             {
-                                success = database.update(block, sysExSection_leds_localControl, board.getRGBaddress(board.getRGBID(index), rgb_G), database.read(block, sysExSection_leds_localControl, index));
+                                success = database.update(block, sysEx2DB_leds[sysExSection_leds_localControl], board.getRGBaddress(board.getRGBID(index), rgb_G), database.read(block, sysEx2DB_leds[sysExSection_leds_localControl], index));
 
                                 if (success)
                                 {
-                                    success = database.update(block, sysExSection_leds_localControl, board.getRGBaddress(board.getRGBID(index), rgb_B), database.read(block, sysExSection_leds_localControl, index));
+                                    success = database.update(block, sysEx2DB_leds[sysExSection_leds_localControl], board.getRGBaddress(board.getRGBID(index), rgb_B), database.read(block, sysEx2DB_leds[sysExSection_leds_localControl], index));
+
+                                    if (success)
+                                    {
+                                        success = database.update(block, sysEx2DB_leds[sysExSection_leds_midiChannel], board.getRGBaddress(board.getRGBID(index), rgb_R), database.read(block, sysEx2DB_leds[sysExSection_leds_midiChannel], index));
+
+                                        if (success)
+                                        {
+                                            success = database.update(block, sysEx2DB_leds[sysExSection_leds_midiChannel], board.getRGBaddress(board.getRGBID(index), rgb_G), database.read(block, sysEx2DB_leds[sysExSection_leds_midiChannel], index));
+
+                                            if (success)
+                                            {
+                                                success = database.update(block, sysEx2DB_leds[sysExSection_leds_midiChannel], board.getRGBaddress(board.getRGBID(index), rgb_B), database.read(block, sysEx2DB_leds[sysExSection_leds_midiChannel], index));
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -422,7 +431,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             case sysExSection_leds_activationNote:
             case sysExSection_leds_localControl:
             //first, find out if RGB led is enabled for this led index
-            if (database.read(block, sysExSection_leds_rgbEnable, index))
+            if (database.read(block, sysEx2DB_leds[sysExSection_leds_rgbEnable], board.getRGBID(index)))
             {
                 //rgb led enabled - copy these settings to all three leds
                 success = database.update(block, sysEx2DB_leds[section], board.getRGBaddress(board.getRGBID(index), rgb_R), newValue);
@@ -447,6 +456,22 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             case sysExSection_leds_midiChannel:
             //channels start from 0 in db, start from 1 in sysex
             success = database.update(block, sysEx2DB_leds[section], index, newValue-1);
+
+            if (database.read(block, sysEx2DB_leds[sysExSection_leds_rgbEnable], board.getRGBID(index)))
+            {
+                //rgb led enabled - copy these settings to all three leds
+                success = database.update(block, sysEx2DB_leds[section], board.getRGBaddress(board.getRGBID(index), rgb_R), newValue-1);
+
+                if (success)
+                {
+                    success = database.update(block, sysEx2DB_leds[section], board.getRGBaddress(board.getRGBID(index), rgb_G), newValue-1);
+
+                    if (success)
+                    {
+                        success = database.update(block, sysEx2DB_leds[section], board.getRGBaddress(board.getRGBID(index), rgb_B), newValue-1);
+                    }
+                }
+            }
             break;
 
             default:
