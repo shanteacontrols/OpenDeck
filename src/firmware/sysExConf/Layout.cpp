@@ -228,7 +228,7 @@ void SysExConfig::createLayout()
         addSection(SYSEX_BLOCK_LEDS, section);
 
         //rgb enabled section
-        section.numberOfParameters = MAX_NUMBER_OF_RGB_LEDS;
+        section.numberOfParameters = MAX_NUMBER_OF_LEDS;
         section.newValueMin = 0;
         section.newValueMax = 1;
 
