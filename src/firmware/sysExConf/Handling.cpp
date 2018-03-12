@@ -407,6 +407,12 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
 
             case sysExSection_leds_activationNote:
             case sysExSection_leds_localControl:
+            case sysExSection_leds_midiChannel:
+
+            //channels start from 0 in db, start from 1 in sysex
+            if (section == sysExSection_leds_midiChannel)
+                newValue--;
+
             //first, find out if RGB led is enabled for this led index
             if (database.read(block, sysEx2DB_leds[sysExSection_leds_rgbEnable], board.getRGBID(index)))
             {
@@ -423,27 +429,6 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             {
                 //apply to single led only
                 success = database.update(block, sysEx2DB_leds[section], index, newValue);
-            }
-            break;
-
-            case sysExSection_leds_midiChannel:
-            //channels start from 0 in db, start from 1 in sysex
-            success = database.update(block, sysEx2DB_leds[section], index, newValue-1);
-
-            if (database.read(block, sysEx2DB_leds[sysExSection_leds_rgbEnable], board.getRGBID(index)))
-            {
-                //rgb led enabled - copy these settings to all three leds
-                success = database.update(block, sysEx2DB_leds[section], board.getRGBaddress(board.getRGBID(index), rgb_R), newValue-1);
-
-                if (success)
-                {
-                    success = database.update(block, sysEx2DB_leds[section], board.getRGBaddress(board.getRGBID(index), rgb_G), newValue-1);
-
-                    if (success)
-                    {
-                        success = database.update(block, sysEx2DB_leds[section], board.getRGBaddress(board.getRGBID(index), rgb_B), newValue-1);
-                    }
-                }
             }
             break;
 
