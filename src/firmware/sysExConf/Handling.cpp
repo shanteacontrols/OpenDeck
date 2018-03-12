@@ -387,17 +387,17 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
 
                 for (int i=0; i<3; i++)
                 {
-                    success = database.update(block, sysEx2DB_leds[sysExSection_leds_activationNote], board.getRGBaddress(index, (rgbIndex_t)i), database.read(block, sysEx2DB_leds[sysExSection_leds_activationNote], index));
+                    success = database.update(block, sysEx2DB_leds[sysExSection_leds_activationNote], board.getRGBaddress(board.getRGBID(index), (rgbIndex_t)i), database.read(block, sysEx2DB_leds[sysExSection_leds_activationNote], index));
 
                     if (success)
                         break;
 
-                    success = database.update(block, sysEx2DB_leds[sysExSection_leds_localControl], board.getRGBaddress(index, (rgbIndex_t)i), database.read(block, sysEx2DB_leds[sysExSection_leds_localControl], index));
+                    success = database.update(block, sysEx2DB_leds[sysExSection_leds_localControl], board.getRGBaddress(board.getRGBID(index), (rgbIndex_t)i), database.read(block, sysEx2DB_leds[sysExSection_leds_localControl], index));
 
                     if (success)
                         break;
 
-                    success = database.update(block, sysEx2DB_leds[sysExSection_leds_midiChannel], board.getRGBaddress(index, (rgbIndex_t)i), database.read(block, sysEx2DB_leds[sysExSection_leds_midiChannel], index));
+                    success = database.update(block, sysEx2DB_leds[sysExSection_leds_midiChannel], board.getRGBaddress(board.getRGBID(index), (rgbIndex_t)i), database.read(block, sysEx2DB_leds[sysExSection_leds_midiChannel], index));
 
                     if (success)
                         break;
