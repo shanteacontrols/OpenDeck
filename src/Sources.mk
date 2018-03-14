@@ -67,6 +67,7 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         firmware/database/Database.cpp \
         firmware/database/Layout.cpp \
         modules/dbms/src/DBMS.cpp \
+        modules/dbms/src/memsrc/AVR.cpp \
         firmware/interface/analog/Analog.cpp \
         firmware/interface/analog/FSR.cpp \
         firmware/interface/analog/Potentiometer.cpp \
