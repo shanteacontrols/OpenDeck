@@ -40,8 +40,8 @@ class LEDs
     static ledColor_t getColor(uint8_t ledID);
     static void setBlinkState(uint8_t ledID, bool state);
     static bool getBlinkState(uint8_t ledID);
-    static void setBlinkTime(uint16_t blinkTime);
-    static void setFadeTime(uint8_t transitionSpeed);
+    static bool setBlinkTime(uint16_t blinkTime);
+    static bool setFadeTime(uint8_t transitionSpeed);
     static ledColor_t velocityToColor(uint8_t receivedVelocity);
     static void ccToBlink(uint8_t cc, uint8_t value, uint8_t channel);
     static void noteToState(uint8_t receivedNote, uint8_t receivedVelocity, uint8_t receivedChannel, bool local = false);

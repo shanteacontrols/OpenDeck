@@ -28,6 +28,9 @@ static uint32_t     ledBlinkTime,
 
 volatile int8_t     transitionCounter[MAX_NUMBER_OF_LEDS];
 
+#define BLINK_TIME_MIN_INT  (BLINK_TIME_MIN*100)
+#define BLINK_TIME_MAX_INT  (BLINK_TIME_MAX*100)
+
 
 LEDs::LEDs()
 {
@@ -36,13 +39,7 @@ LEDs::LEDs()
 
 void LEDs::init()
 {
-    if (!database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterBlinkTime))
-    {
-        //make sure to set default blink time
-        database.update(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterBlinkTime, BLINK_TIME_MIN);
-    }
-
-    setBlinkTime(database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterBlinkTime));
+    setBlinkTime(database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterBlinkTime)*100);
     #ifdef BOARD_OPEN_DECK
     setFadeTime(database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterFadeTime));
     #endif
@@ -264,8 +261,13 @@ bool LEDs::getBlinkState(uint8_t ledID)
     return BIT_READ(ledState[ledID], LED_BLINK_ON_BIT);
 }
 
-void LEDs::setFadeTime(uint8_t transitionSpeed)
+bool LEDs::setFadeTime(uint8_t transitionSpeed)
 {
+    if (transitionSpeed > FADE_TIME_MAX)
+    {
+        return false;
+    }
+
     //reset transition counter
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
@@ -274,12 +276,21 @@ void LEDs::setFadeTime(uint8_t transitionSpeed)
 
         pwmSteps = transitionSpeed;
     }
+
+    return true;
 }
 
-void LEDs::setBlinkTime(uint16_t blinkTime)
+bool LEDs::setBlinkTime(uint16_t blinkTime)
 {
-    ledBlinkTime = blinkTime*100;
+    if ((blinkTime < BLINK_TIME_MIN_INT) || (blinkTime > BLINK_TIME_MAX_INT))
+    {
+        return false;
+    }
+
+    ledBlinkTime = blinkTime;
     lastLEDblinkUpdateTime = 0;
+
+    return true;
 }
 
 void LEDs::handleLED(uint8_t ledNumber, bool state, bool rgbLED, rgbIndex_t index)
