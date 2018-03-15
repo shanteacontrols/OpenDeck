@@ -18,6 +18,54 @@
 
 #include "Database.h"
 #include "../interface/display/Config.h"
+#include <avr/eeprom.h>
+
+bool memoryRead(uint32_t address, sectionParameterType_t type, int32_t &value)
+{
+    switch(type)
+    {
+        case BIT_PARAMETER:
+        case BYTE_PARAMETER:
+        case HALFBYTE_PARAMETER:
+        value = eeprom_read_byte((uint8_t*)address);
+        break;
+
+        case WORD_PARAMETER:
+        value = eeprom_read_word((uint16_t*)address);
+        break;
+
+        default:
+        // case DWORD_PARAMETER:
+        value = eeprom_read_dword((uint32_t*)address);
+        break;
+    }
+
+    return true;
+}
+
+bool memoryWrite(uint32_t address, int32_t value, sectionParameterType_t type)
+{
+    switch(type)
+    {
+        case BIT_PARAMETER:
+        case BYTE_PARAMETER:
+        case HALFBYTE_PARAMETER:
+        eeprom_update_byte((uint8_t*)address, value);
+        break;
+
+        case WORD_PARAMETER:
+        if (address >= (EEPROM_SIZE-2))
+        eeprom_update_word((uint16_t*)address, value);
+        break;
+
+        default:
+        // case DWORD_PARAMETER:
+        eeprom_update_dword((uint32_t*)address, value);
+        break;
+    }
+
+    return true;
+}
 
 ///
 /// \brief Default constructor.
@@ -32,6 +80,9 @@ Database::Database()
 ///
 void Database::init()
 {
+    DBMS::init();
+    DBMS::setHandleRead(memoryRead);
+    DBMS::setHandleWrite(memoryWrite);
     createLayout();
 
     if (!signatureValid())
