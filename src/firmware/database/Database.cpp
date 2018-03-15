@@ -33,11 +33,10 @@ Database::Database()
 void Database::init()
 {
     createLayout();
-    DBMS::commitLayout();
 
     if (!signatureValid())
     {
-        DBMS::initData(initWipe);
+        DBMS::initData(initFull);
     }
 }
 
