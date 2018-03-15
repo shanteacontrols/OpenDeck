@@ -54,7 +54,6 @@ bool memoryWrite(uint32_t address, int32_t value, sectionParameterType_t type)
         break;
 
         case WORD_PARAMETER:
-        if (address >= (EEPROM_SIZE-2))
         eeprom_update_word((uint16_t*)address, value);
         break;
 
@@ -87,7 +86,7 @@ void Database::init()
 
     if (!signatureValid())
     {
-        DBMS::initData(initFull);
+        factoryReset(initFull);
     }
 }
 
