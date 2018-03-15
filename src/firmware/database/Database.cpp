@@ -99,6 +99,9 @@ void Database::init()
 ///
 void Database::factoryReset(initType_t type)
 {
+    if (type == initFull)
+        DBMS::clear();
+
     DBMS::initData(type);
     writeCustomValues();
 }
