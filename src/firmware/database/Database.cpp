@@ -19,6 +19,9 @@
 #include "Database.h"
 #include "../interface/display/Config.h"
 #include <avr/eeprom.h>
+#include "blocks/LEDs.h"
+#include "../interface/digital/output/leds/DataTypes.h"
+#include "../interface/digital/output/leds/Constants.h"
 
 bool memoryRead(uint32_t address, sectionParameterType_t type, int32_t &value)
 {
@@ -119,8 +122,9 @@ bool Database::signatureValid()
 
 void Database::writeCustomValues()
 {
-    //used to init custom data for display
+    //used to init custom data
     database.update(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventTime, MIN_MESSAGE_RETENTION_TIME);
+    database.update(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterBlinkTime, BLINK_TIME_MIN);
 }
 
 Database database;
