@@ -4,7 +4,7 @@
 	branch = master
 [submodule "src/Firmware/dbms"]
 	path = src/modules/dbms
-	url = git@github.com:paradajz/AVR-DB.git
+	url = git@github.com:paradajz/LESS-DB.git
 	branch = master
 [submodule "src/Firmware/sysex"]
 	path = src/modules/sysex
