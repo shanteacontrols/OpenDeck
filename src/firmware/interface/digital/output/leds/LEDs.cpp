@@ -39,7 +39,7 @@ LEDs::LEDs()
 
 void LEDs::init()
 {
-    setBlinkTime(database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterBlinkTime)*100);
+    setBlinkTime(database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterBlinkTime)*BLINK_TIME_SYSEX_MULTIPLIER);
     #ifdef BOARD_OPEN_DECK
     setFadeTime(database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterFadeTime));
     #endif

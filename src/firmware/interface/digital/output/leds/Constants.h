@@ -23,6 +23,8 @@
 #define BLINK_TIME_MIN                  0x02
 #define BLINK_TIME_MAX                  0x0F
 
+#define BLINK_TIME_SYSEX_MULTIPLIER     100
+
 #define FADE_TIME_MIN                   0x00
 #define FADE_TIME_MAX                   0x0A
 

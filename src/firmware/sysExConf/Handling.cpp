@@ -346,8 +346,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 case ledHwParameterBlinkTime:
                 if ((newValue >= BLINK_TIME_MIN) && (newValue <= BLINK_TIME_MAX))
                 {
-                    leds.setBlinkTime(newValue);
-                    success = true;
+                    success = leds.setBlinkTime((uint16_t)newValue*BLINK_TIME_SYSEX_MULTIPLIER);
                 }
                 break;
 
