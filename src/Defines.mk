@@ -109,7 +109,7 @@ else ifeq ($(MCU),atmega16u2)
     FUSE_HIGH := 0xd3
     FUSE_LOW := 0xff
     FUSE_LOCK := 0x2f
-    DEFINES += EEPROM_SIZE=512
+    EEPROM_SIZE := 512
     BOOT_START_ADDR := 0x3800
 else ifeq ($(MCU),atmega8u2)
     FUSE_UNLOCK := 0x3f
@@ -117,7 +117,7 @@ else ifeq ($(MCU),atmega8u2)
     FUSE_HIGH := 0xd3
     FUSE_LOW := 0xff
     FUSE_LOCK := 0x2f
-    DEFINES += EEPROM_SIZE=512
+    EEPROM_SIZE := 512
     BOOT_START_ADDR := 0x1800
 else ifeq ($(MCU),atmega2560)
     FUSE_UNLOCK := 0x3f
