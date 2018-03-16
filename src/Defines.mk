@@ -89,7 +89,7 @@ ifeq ($(MCU),atmega32u4)
     FUSE_HIGH := 0xd0
     FUSE_LOW := 0xff
     FUSE_LOCK := 0x2f
-    DEFINES += EEPROM_SIZE=1024
+    EEPROM_SIZE := 1024
     BOOT_START_ADDR := 0x7000
     FLASH_SIZE_START_ADDR := 0xAC
     FLASH_SIZE_END_ADDR := 0xB0
@@ -99,7 +99,7 @@ else ifeq ($(MCU),at90usb1286)
     FUSE_HIGH := 0xd2
     FUSE_LOW := 0xff
     FUSE_LOCK := 0x2f
-    DEFINES += EEPROM_SIZE=4096
+    EEPROM_SIZE := 4096
     BOOT_START_ADDR := 0x1F000
     FLASH_SIZE_START_ADDR := 0x98
     FLASH_SIZE_END_ADDR := 0x9C
@@ -125,14 +125,18 @@ else ifeq ($(MCU),atmega2560)
     FUSE_HIGH := 0xd6
     FUSE_LOW := 0xff
     FUSE_LOCK := 0x2f
-    DEFINES += EEPROM_SIZE=4096
+    EEPROM_SIZE := 4096
 else ifeq ($(MCU),atmega328p)
     FUSE_UNLOCK := 0x3f
     FUSE_EXT := 0x04
     FUSE_HIGH := 0xd6
     FUSE_LOW := 0xff
     FUSE_LOCK := 0x2f
-    DEFINES += EEPROM_SIZE=1024
+    EEPROM_SIZE := 1024
 endif
 
 DEFINES += BOOT_START_ADDR=$(BOOT_START_ADDR)
+DEFINES += EEPROM_SIZE=$(EEPROM_SIZE)
+#for database, total size is three bytes smaller than full eeprom
+#one byte for reboot selection and two for crc
+DEFINES += LESSDB_SIZE=$(shell echo $(EEPROM_SIZE)-3 | bc)
