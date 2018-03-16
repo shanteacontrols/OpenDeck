@@ -84,9 +84,9 @@ Database::Database()
 void Database::init()
 {
     DBMS::init();
-    DBMS::setHandleRead(memoryRead);
-    DBMS::setHandleWrite(memoryWrite);
-    database.commitLayout(dbLayout, DB_BLOCKS);
+    setHandleRead(memoryRead);
+    setHandleWrite(memoryWrite);
+    commitLayout(dbLayout, DB_BLOCKS);
 
     if (!signatureValid())
     {
@@ -103,7 +103,7 @@ void Database::factoryReset(initType_t type)
     if (type == initFull)
         DBMS::clear();
 
-    DBMS::initData(type);
+    initData(type);
     writeCustomValues();
 }
 
@@ -117,7 +117,7 @@ bool Database::signatureValid()
 
     for (int i=0; i<ID_BYTES; i++)
     {
-        if (DBMS::read(DB_BLOCK_ID, 0, i) != UNIQUE_ID)
+        if (read(DB_BLOCK_ID, 0, i) != UNIQUE_ID)
             return false;
     }
 
@@ -129,8 +129,8 @@ bool Database::signatureValid()
 ///
 void Database::writeCustomValues()
 {
-    database.update(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventTime, MIN_MESSAGE_RETENTION_TIME);
-    database.update(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterBlinkTime, BLINK_TIME_MIN);
+    update(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventTime, MIN_MESSAGE_RETENTION_TIME);
+    update(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterBlinkTime, BLINK_TIME_MIN);
 }
 
 Database database;
