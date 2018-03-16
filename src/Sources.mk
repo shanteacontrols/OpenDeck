@@ -65,7 +65,6 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         firmware/OpenDeck.cpp \
         modules/core/src/HAL/avr/reset/Reset.cpp \
         firmware/database/Database.cpp \
-        firmware/database/Layout.cpp \
         modules/dbms/src/DBMS.cpp \
         firmware/interface/analog/Analog.cpp \
         firmware/interface/analog/FSR.cpp \

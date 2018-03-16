@@ -36,7 +36,6 @@ class Database : public DBMS
     private:
     static bool signatureValid();
     static void writeCustomValues();
-    static void createLayout();
 };
 
 extern Database database;

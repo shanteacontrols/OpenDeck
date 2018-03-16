@@ -22,6 +22,7 @@
 #include "blocks/LEDs.h"
 #include "../interface/digital/output/leds/DataTypes.h"
 #include "../interface/digital/output/leds/Constants.h"
+#include "Layout.h"
 
 bool memoryRead(uint32_t address, sectionParameterType_t type, int32_t &value)
 {
@@ -85,7 +86,7 @@ void Database::init()
     DBMS::init();
     DBMS::setHandleRead(memoryRead);
     DBMS::setHandleWrite(memoryWrite);
-    createLayout();
+    database.commitLayout(dbLayout, DB_BLOCKS);
 
     if (!signatureValid())
     {
@@ -123,9 +124,11 @@ bool Database::signatureValid()
     return true;
 }
 
+///
+/// \brief Writes custom values to specific indexes which can't be generalized within database section.
+///
 void Database::writeCustomValues()
 {
-    //used to init custom data
     database.update(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventTime, MIN_MESSAGE_RETENTION_TIME);
     database.update(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterBlinkTime, BLINK_TIME_MIN);
 }

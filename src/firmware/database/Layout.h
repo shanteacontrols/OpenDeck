@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#pragma once
+
 #include "Database.h"
 #include "../board/Board.h"
 
@@ -370,11 +372,3 @@ dbBlock_t dbLayout[DB_BLOCKS] =
         .section = idSections,
     },
 };
-
-///
-/// \brief Creates database layout by defining blocks and sections.
-///
-void Database::createLayout()
-{
-    database.commitLayout(dbLayout, DB_BLOCKS);
-}
