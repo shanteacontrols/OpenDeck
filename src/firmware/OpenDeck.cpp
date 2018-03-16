@@ -24,7 +24,8 @@ bool processingEnabled;
 
 void init()
 {
-    //init usb first to avoid issues with host
+    board.init();
+
     #if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO) || defined(BOARD_T_2PP)
     midi.setUSBMIDIstate(true);
     #endif
@@ -51,7 +52,6 @@ void init()
     midi.setRunningStatusState(database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureRunningStatus));
     midi.setChannelSendZeroStart(true);
 
-    board.init();
     sysEx.init();
 
     #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
