@@ -27,9 +27,6 @@ class SysExConfig : public SysEx
     public:
     SysExConfig();
     static void init();
-
-    private:
-    static void createLayout();
 };
 
 extern SysExConfig sysEx;
