@@ -74,7 +74,6 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         firmware/interface/digital/input/buttons/Buttons.cpp \
         firmware/interface/digital/input/encoders/Encoders.cpp \
         firmware/interface/digital/output/leds/LEDs.cpp \
-        firmware/sysExConf/Layout.cpp \
         firmware/sysExConf/Handling.cpp \
         modules/midi/src/MIDI.cpp \
         modules/sysex/src/SysEx.cpp \
