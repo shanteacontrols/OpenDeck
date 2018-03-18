@@ -83,10 +83,9 @@ Database::Database()
 ///
 void Database::init()
 {
-    DBMS::init();
+    DBMS::init(dbLayout, DB_BLOCKS);
     setHandleRead(memoryRead);
     setHandleWrite(memoryWrite);
-    commitLayout(dbLayout, DB_BLOCKS);
 
     if (!signatureValid())
     {
