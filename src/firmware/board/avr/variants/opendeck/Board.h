@@ -46,25 +46,25 @@ class Board
     public:
     //init
     Board();
-    void init();
-    bool checkNewRevision();
+    static void init();
+    static bool checkNewRevision();
 
     //digital in
-    bool digitalInputDataAvailable();
+    static bool digitalInputDataAvailable();
     static void continueDigitalInReadout();
 
     //buttons
-    bool getButtonState(uint8_t buttonIndex);
+    static bool getButtonState(uint8_t buttonIndex);
 
     //analog
     bool analogDataAvailable();
-    int16_t getAnalogValue(uint8_t analogID);
+    static int16_t getAnalogValue(uint8_t analogID);
     static void continueADCreadout();
     static uint16_t scaleADC(uint16_t value, uint16_t maxValue);
 
     //encoders
     static uint8_t getEncoderPair(uint8_t buttonID);
-    int8_t getEncoderState(uint8_t encoderID);
+    static int8_t getEncoderState(uint8_t encoderID);
 
     //leds
     static uint8_t getRGBaddress(uint8_t rgbID, rgbIndex_t index);
