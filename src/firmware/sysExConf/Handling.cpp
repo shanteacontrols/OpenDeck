@@ -19,6 +19,7 @@
 #include "SysExConf.h"
 #include "../interface/Interface.h"
 #include "../Version.h"
+#include "Layout.h"
 
 SysExConfig::SysExConfig()
 {
@@ -551,7 +552,7 @@ void writeSysEx(uint8_t sysExArray[], uint8_t arraysize)
 
 void SysExConfig::init()
 {
-    createLayout();
+    SysEx::init(sysExLayout, SYSEX_BLOCKS);
 
     setHandleGet(onGet);
     setHandleSet(onSet);
