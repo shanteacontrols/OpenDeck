@@ -30,9 +30,7 @@ else ifeq ($(findstring fw,$(MAKECMDGOALS)), fw)
     USE_FLASH_DESCRIPTORS \
     INTERRUPT_CONTROL_ENDPOINT \
     MIDI_SYSEX_ARRAY_SIZE=45 \
-    RING_BUFFER_SIZE=50 \
-    SYSEX_MAX_BLOCKS=6 \
-    SYSEX_MAX_SECTIONS=10
+    RING_BUFFER_SIZE=50
 endif
 
 #board specific
