@@ -25,12 +25,12 @@ bool processingEnabled;
 void init()
 {
     board.init();
+    database.init();
+    sysEx.init();
 
     #if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO) || defined(BOARD_T_2PP)
     midi.setUSBMIDIstate(true);
     #endif
-
-    database.init();
 
     #if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO) || defined(BOARD_T_2PP)
     midi.setDINMIDIstate(database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled));
@@ -51,8 +51,6 @@ void init()
     midi.setNoteOffMode((noteOffType_t)database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureStandardNoteOff));
     midi.setRunningStatusState(database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureRunningStatus));
     midi.setChannelSendZeroStart(true);
-
-    sysEx.init();
 
     #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
     if (board.checkNewRevision())
