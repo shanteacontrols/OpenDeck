@@ -45,23 +45,23 @@ class Board
     public:
     //init
     Board();
-    void init();
-    bool checkNewRevision();
+    static void init();
+    static bool checkNewRevision();
 
     //digital in
-    bool digitalInputDataAvailable();
+    static bool digitalInputDataAvailable();
     static void continueDigitalInReadout();
 
     //encoders
     static uint8_t getEncoderPair(uint8_t buttonID);
-    int8_t getEncoderState(uint8_t encoderID);
+    static int8_t getEncoderState(uint8_t encoderID);
 
     //buttons
-    bool getButtonState(uint8_t buttonID);
+    static bool getButtonState(uint8_t buttonID);
 
     //analog
-    bool analogDataAvailable();
-    int16_t getAnalogValue(uint8_t analogID);
+    static bool analogDataAvailable();
+    static int16_t getAnalogValue(uint8_t analogID);
     static void continueADCreadout();
     static uint16_t scaleADC(uint16_t value, uint16_t maxValue);
 
@@ -69,7 +69,7 @@ class Board
     static uint8_t getRGBaddress(uint8_t rgbID, rgbIndex_t index);
     static uint8_t getRGBID(uint8_t ledID);
 
-    void reboot(rebootType_t type);
+    static void reboot(rebootType_t type);
 
     private:
     //init

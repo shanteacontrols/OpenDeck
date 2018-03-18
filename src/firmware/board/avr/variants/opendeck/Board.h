@@ -48,6 +48,7 @@ class Board
     Board();
     static void init();
     static bool checkNewRevision();
+    static void ledFlashStartup(bool fwUpdated);
 
     //digital in
     static bool digitalInputDataAvailable();

@@ -72,4 +72,29 @@ bool Board::checkNewRevision()
     return false;
 }
 
+void Board::ledFlashStartup(bool fwUpdated)
+{
+    for (int i=0; i<3; i++)
+    {
+        if (fwUpdated)
+        {
+            BTLDR_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+            BTLDR_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+            _delay_ms(500);
+            BTLDR_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+            BTLDR_LED_ON(LED_IN_PORT, LED_IN_PIN);
+            _delay_ms(500);
+        }
+        else
+        {
+            BTLDR_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+            BTLDR_LED_ON(LED_IN_PORT, LED_IN_PIN);
+            _delay_ms(200);
+            BTLDR_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+            BTLDR_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+            _delay_ms(200);
+        }
+    }
+}
+
 Board board;

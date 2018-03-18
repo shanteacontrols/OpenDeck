@@ -53,40 +53,7 @@ void init()
     midi.setChannelSendZeroStart(true);
 
     #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
-    if (board.checkNewRevision())
-    {
-        for (int i=0; i<3; i++)
-        {
-            BTLDR_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
-            BTLDR_LED_OFF(LED_IN_PORT, LED_IN_PIN);
-            //teensy has only one led - use longer delay to properly indicate
-            //updated fw
-            #ifdef BOARD_T_2PP
-            _delay_ms(500);
-            #else
-            _delay_ms(200);
-            #endif
-            BTLDR_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
-            BTLDR_LED_ON(LED_IN_PORT, LED_IN_PIN);
-            #ifdef BOARD_T_2PP
-            _delay_ms(500);
-            #else
-            _delay_ms(200);
-            #endif
-        }
-
-        BTLDR_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
-        BTLDR_LED_OFF(LED_IN_PORT, LED_IN_PIN);
-    }
-    else
-    {
-        BTLDR_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
-        BTLDR_LED_ON(LED_IN_PORT, LED_IN_PIN);
-        _delay_ms(200);
-        BTLDR_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
-        BTLDR_LED_OFF(LED_IN_PORT, LED_IN_PIN);
-        _delay_ms(200);
-    }
+    board.ledFlashStartup(board.checkNewRevision());
     #endif
 
     //enable global interrupts
