@@ -76,15 +76,18 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             display.displayMIDIevent(displayEventOut, midiMessageNoteOn_display, note, calibratedPressure, channel+1);
             #endif
             leds.noteToState(note, calibratedPressure, 0, true);
-            if (sysEx.configurationEnabled())
+            if (sysEx.isConfigurationEnabled())
             {
                 if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTONS)) > COMPONENT_INFO_TIMEOUT)
                 {
-                    sysEx.startResponse();
-                    sysEx.addToResponse(COMPONENT_ID_STRING);
-                    sysEx.addToResponse(DB_BLOCK_ANALOG);
-                    sysEx.addToResponse(analogID);
-                    sysEx.sendResponse();
+                    sysExParameter_t cInfoMessage[] =
+                    {
+                        COMPONENT_ID_STRING,
+                        DB_BLOCK_ANALOG,
+                        (sysExParameter_t)analogID
+                    };
+
+                    sysEx.sendCustomMessage(usbMessage.sysexArray, cInfoMessage, 3);
                     updateCinfoTime(DB_BLOCK_BUTTONS);
                 }
             }
@@ -102,15 +105,18 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             display.displayMIDIevent(displayEventOut, midiMessageNoteOff_display, note, calibratedPressure, channel+1);
             #endif
             leds.noteToState(note, 0, 0, true);
-            if (sysEx.configurationEnabled())
+            if (sysEx.isConfigurationEnabled())
             {
                 if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTONS)) > COMPONENT_INFO_TIMEOUT)
                 {
-                    sysEx.startResponse();
-                    sysEx.addToResponse(COMPONENT_ID_STRING);
-                    sysEx.addToResponse(DB_BLOCK_ANALOG);
-                    sysEx.addToResponse(analogID);
-                    sysEx.sendResponse();
+                    sysExParameter_t cInfoMessage[] =
+                    {
+                        COMPONENT_ID_STRING,
+                        DB_BLOCK_ANALOG,
+                        (sysExParameter_t)analogID
+                    };
+
+                    sysEx.sendCustomMessage(usbMessage.sysexArray, cInfoMessage, 3);
                     updateCinfoTime(DB_BLOCK_BUTTONS);
                 }
             }

@@ -123,15 +123,18 @@ void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
         return;
     }
 
-    if (sysEx.configurationEnabled())
+    if (sysEx.isConfigurationEnabled())
     {
         if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_ANALOG)) > COMPONENT_INFO_TIMEOUT)
         {
-            sysEx.startResponse();
-            sysEx.addToResponse(COMPONENT_ID_STRING);
-            sysEx.addToResponse(DB_BLOCK_ANALOG);
-            sysEx.addToResponse(analogID);
-            sysEx.sendResponse();
+            sysExParameter_t cInfoMessage[] =
+            {
+                COMPONENT_ID_STRING,
+                DB_BLOCK_ANALOG,
+                (sysExParameter_t)analogID
+            };
+
+            sysEx.sendCustomMessage(usbMessage.sysexArray, cInfoMessage, 3);
             updateCinfoTime(DB_BLOCK_ANALOG);
         }
     }

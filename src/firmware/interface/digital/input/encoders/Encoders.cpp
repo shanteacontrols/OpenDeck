@@ -81,15 +81,18 @@ void Encoders::update()
         display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, midiID & 0x7F, encoderValue, channel+1);
         #endif
 
-        if (sysEx.configurationEnabled())
+        if (sysEx.isConfigurationEnabled())
         {
             if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_ENCODERS)) > COMPONENT_INFO_TIMEOUT)
             {
-                sysEx.startResponse();
-                sysEx.addToResponse(COMPONENT_ID_STRING);
-                sysEx.addToResponse(DB_BLOCK_ENCODERS);
-                sysEx.addToResponse(i);
-                sysEx.sendResponse();
+                sysExParameter_t cInfoMessage[] =
+                {
+                    COMPONENT_ID_STRING,
+                    DB_BLOCK_ENCODERS,
+                    (sysExParameter_t)i
+                };
+
+                sysEx.sendCustomMessage(usbMessage.sysexArray, cInfoMessage, 3);
                 updateCinfoTime(DB_BLOCK_ENCODERS);
             }
         }
