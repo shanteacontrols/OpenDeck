@@ -4,14 +4,15 @@ GTEST_DIR := ../../../googletest/googletest
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
 # the compiler doesn't generate warnings in Google Test headers.
-CPPFLAGS += -isystem $(GTEST_DIR)/include --coverage
+CPPFLAGS += --coverage
+CPPFLAGS += -isystem $(GTEST_DIR)/include
+CPPFLAGS += -include "interface/AnalogStubs.h"
 
 #common include directories
 INCLUDE_DIRS := \
 -I"../modules/"
 
-DEFINES := \
-LESSDB_SIZE=1021
+DEFINES := 
 
 # Flags passed to the C++ compiler.
 CXXFLAGS += -g -pthread
@@ -19,7 +20,10 @@ ARFLAGS := r
 
 #all user sources
 SOURCES := $(shell find . -name "*.cpp")
-SOURCES += $(shell find ../firmware/interface/analog/ -name "*.cpp")
+SOURCES += ../firmware/interface/analog/Potentiometer.cpp
+SOURCES += ../firmware/interface/analog/Analog.cpp
+SOURCES += ../firmware/interface/analog/FSR.cpp
+SOURCES += ../firmware/interface/cinfo/CInfo.cpp
 
 #make sure all objects are located in build directory
 OBJECTS := $(addprefix build/,$(SOURCES))
@@ -38,7 +42,7 @@ Tests.out: $(OBJECTS) $(GTEST_HEADERS) build/gtest_main.a
 
 clean:
 	@echo Cleaning up.
-	@rm -rf *.o *.info *.gcda *.gcno *.a *.html *.png *.infoclear *.css build/ *.out
+	@rm -rf *.o *.info *.gcda *.gcno *.a *.html *.png *.infoclear *.css build/ firmware/ *.out
 
 # Builds gtest.a and gtest_main.a.
 
@@ -75,8 +79,8 @@ build/gtest_main.a: build/gtest-all.o build/gtest_main.o
 # function.
 build/%.o: %.cpp
 	@echo Building: $<
-	@mkdir -p $(@D)
-	@$(CXX) $(CPPFLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS) -std=c++11 $(CXXFLAGS) -c $< -o $@
+	mkdir -p $(@D)
+	$(CXX) $(CPPFLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS) -std=c++11 $(CXXFLAGS) -c $< -o $@
 
 #debugging
 print-%:
