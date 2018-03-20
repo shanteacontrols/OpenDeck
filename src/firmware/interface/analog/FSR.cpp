@@ -19,7 +19,6 @@
 #include "Analog.h"
 #include "../../board/Board.h"
 #include "../digital/output/leds/LEDs.h"
-#include "sysex/src/SysEx.h"
 #include "../cinfo/CInfo.h"
 #include "Variables.h"
 #ifdef DISPLAY_SUPPORTED
