@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include <inttypes.h>
-
 /*
     Encoder data formatting, uint16_t variable type
     0      1      2      3
