@@ -16,7 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#ifndef _INTERFACE_DIGITAL_INPUT_BUTTONS_
+#define _INTERFACE_DIGITAL_INPUT_BUTTONS_
 
 #include "DataTypes.h"
 #include "../../../../board/Board.h"
@@ -50,3 +51,4 @@ class Buttons
 extern Buttons buttons;
 
 /// @}
+#endif

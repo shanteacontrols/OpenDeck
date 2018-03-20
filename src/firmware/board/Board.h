@@ -16,7 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#ifndef _BOARD_
+#define _BOARD_
 
 typedef enum
 {
@@ -49,4 +50,5 @@ typedef enum
 #elif defined(BOARD_A_xu2)
 #include "avr/variants/xu2/Board.h"
 //no id needed
+#endif
 #endif

@@ -16,7 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#ifndef _INTERFACE_DIGITAL_OUTPUT_LEDS_
+#define _INTERFACE_DIGITAL_OUTPUT_LEDS_
 
 #include "DataTypes.h"
 #include "Constants.h"
@@ -54,4 +55,6 @@ class LEDs
 };
 
 extern LEDs leds;
+
 /// @}
+#endif
