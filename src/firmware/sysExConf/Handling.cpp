@@ -291,6 +291,11 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
 
                 case midiFeatureMergeEnabled:
                 success = true;
+                //when merging is enabled, parse serial input recursively to avoid latency
+                if (newValue)
+                    midi.setOneByteParseDINstate(false);
+                else
+                    midi.setOneByteParseDINstate(true);
                 break;
 
                 default:
