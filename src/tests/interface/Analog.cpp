@@ -27,5 +27,5 @@ class InterfaceAnalogTest : public ::testing::Test
 
 TEST_F(InterfaceAnalogTest, DebounceReset)
 {
-    analog.debounceReset(0);
+    analog.update();
 }
