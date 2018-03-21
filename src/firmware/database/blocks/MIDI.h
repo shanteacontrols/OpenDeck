@@ -32,6 +32,7 @@ typedef enum
     midiFeatureRunningStatus,
     midiFeatureMergeEnabled,
     midiFeatureDinEnabled,
+    midiFeatureDINvalidityCheck
     MIDI_FEATURES
 } midiFeature_t;
 
