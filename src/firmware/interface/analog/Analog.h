@@ -38,7 +38,7 @@ class Analog
 
     private:
     //data processing
-    static void checkPotentiometerValue(uint8_t analogID, uint16_t value);
+    static void checkPotentiometerValue(analogType_t analogType, uint8_t analogID, uint16_t value);
     static void checkFSRvalue(uint8_t analogID, uint16_t pressure);
     static bool fsrPressureStable(uint8_t analogID);
     static bool getFsrPressed(uint8_t fsrID);

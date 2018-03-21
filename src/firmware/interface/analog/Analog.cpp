@@ -52,7 +52,7 @@ void Analog::update()
                 case aType_potentiometer_note:
                 case aType_NRPN_7:
                 case aType_NRPN_14:
-                checkPotentiometerValue(i, analogData);
+                checkPotentiometerValue(type, i, analogData);
                 break;
 
                 case aType_fsr:

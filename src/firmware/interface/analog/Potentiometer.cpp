@@ -25,9 +25,8 @@
 #include "../display/Display.h"
 #endif
 
-void Analog::checkPotentiometerValue(uint8_t analogID, uint16_t value)
+void Analog::checkPotentiometerValue(analogType_t analogType, uint8_t analogID, uint16_t value)
 {
-    analogType_t analogType = (analogType_t)database.read(DB_BLOCK_ANALOG, dbSection_analog_type, analogID);
     uint16_t midiValue;
     uint16_t oldMIDIvalue;
     encDec_14bit_t encDec_14bit;
