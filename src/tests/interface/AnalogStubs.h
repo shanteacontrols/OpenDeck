@@ -28,7 +28,7 @@ typedef struct
     int32_t read(uint8_t block, uint8_t section, uint16_t index)
     {
         return 1;
-    }
+    };
 } database_t;
 
 typedef struct
