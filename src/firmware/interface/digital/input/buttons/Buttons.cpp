@@ -25,7 +25,7 @@
 #include "../../../display/Display.h"
 #endif
 
-const uint8_t   buttonDebounceCompare = 0b10000000;
+#define BUTTON_DEBOUNCE_COMPARE 0b11111000
 
 static uint8_t  mmcArray[] =  { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 }; //based on MIDI spec for transport control
 
@@ -440,10 +440,10 @@ bool Buttons::getPreviousButtonState(uint8_t buttonID)
 bool Buttons::buttonDebounced(uint8_t buttonID, bool buttonState)
 {
     //shift new button reading into previousButtonState
-    buttonDebounceCounter[buttonID] = (buttonDebounceCounter[buttonID] << (uint8_t)1) | (uint8_t)buttonState | buttonDebounceCompare;
+    buttonDebounceCounter[buttonID] = (buttonDebounceCounter[buttonID] << (uint8_t)1) | (uint8_t)buttonState | BUTTON_DEBOUNCE_COMPARE;
 
     //if button is debounced, return true
-    return ((buttonDebounceCounter[buttonID] == buttonDebounceCompare) || (buttonDebounceCounter[buttonID] == 0xFF));
+    return ((buttonDebounceCounter[buttonID] == BUTTON_DEBOUNCE_COMPARE) || (buttonDebounceCounter[buttonID] == 0xFF));
 }
 
 Buttons buttons;
