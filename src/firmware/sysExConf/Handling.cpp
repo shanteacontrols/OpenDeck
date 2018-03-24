@@ -298,6 +298,17 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                     midi.setOneByteParseDINstate(true);
                 break;
 
+                #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
+                case midiFeatureDINdoubleSpeed:
+                success = true;
+
+                if (newValue)
+                    board.initUART_MIDI(MIDI_BAUD_RATE_OD, true);
+                else
+                    board.initUART_MIDI(MIDI_BAUD_RATE_STD, true);
+                break;
+                #endif
+
                 default:
                 break;
             }
@@ -309,16 +320,6 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 case midiMergeToInterface:
                 if ((newValue >= 0) && (newValue < MIDI_MERGE_TO_INTERFACES))
                     success = true;
-                break;
-
-                case midiMergeFromInterface:
-                if ((newValue >= 0) && (newValue < MIDI_MERGE_FROM_INTERFACES))
-                    success = true;
-
-                if (newValue == midiMergeFromInterfaceOpenDeck)
-                    board.initUART_MIDI(MIDI_BAUD_RATE_OD);
-                else
-                    board.initUART_MIDI(MIDI_BAUD_RATE_STD);
                 break;
 
                 case midiMergeUSBchannel:

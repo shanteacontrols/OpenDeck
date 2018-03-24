@@ -106,9 +106,18 @@ int16_t UARTread()
 ///
 /// \brief Initializes UART peripheral used to send and receive MIDI data.
 ///
-void Board::initUART_MIDI(uint32_t baudRate)
+void Board::initUART_MIDI(uint32_t baudRate, bool reInit)
 {
     int32_t baud_count = ((F_CPU / 8) + (baudRate / 2)) / baudRate;
+
+    //clear registers first
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        UCSR1A = 0;
+        UCSR1B = 0;
+        UCSR1C = 0;
+        UBRR1 = 0;
+    }
 
     if ((baud_count & 1) && baud_count <= 4096)
     {
@@ -127,9 +136,12 @@ void Board::initUART_MIDI(uint32_t baudRate)
     //enable receiver, transmitter and receive interrupt
     UCSR1B = (1<<RXEN1) | (1<<TXEN1) | (1<<RXCIE1);
 
-    RingBuffer_InitBuffer(&rxBuffer);
-    RingBuffer_InitBuffer(&txBuffer);
+    if (!reInit)
+    {
+        RingBuffer_InitBuffer(&rxBuffer);
+        RingBuffer_InitBuffer(&txBuffer);
 
-    midi.handleUARTread(UARTread);
-    midi.handleUARTwrite(UARTwrite);
+        midi.handleUARTread(UARTread);
+        midi.handleUARTwrite(UARTwrite);
+    }
 }

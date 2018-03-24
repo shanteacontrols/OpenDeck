@@ -39,7 +39,7 @@ class Board
     public:
     Board();
     static void init();
-    static void initUART_MIDI(uint32_t baudRate);
+    static void initUART_MIDI(uint32_t baudRate, bool reInit = false)
 
     private:
     static void initUSB_MIDI();

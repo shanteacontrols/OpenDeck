@@ -32,13 +32,13 @@ typedef enum
     midiFeatureRunningStatus,
     midiFeatureMergeEnabled,
     midiFeatureDinEnabled,
+    midiFeatureDINdoubleSpeed,
     MIDI_FEATURES
 } midiFeature_t;
 
 typedef enum
 {
     midiMergeToInterface,
-    midiMergeFromInterface,
     midiMergeUSBchannel,
     midiMergeDINchannel,
     MIDI_MERGE_OPTIONS
@@ -51,10 +51,3 @@ typedef enum
     midiMergeToInterfaceAll,
     MIDI_MERGE_TO_INTERFACES
 } midiMergeToInterface_t;
-
-typedef enum
-{
-    midiMergeFromInterfaceStdMIDI,
-    midiMergeFromInterfaceOpenDeck,
-    MIDI_MERGE_FROM_INTERFACES
-} midiMergeFromInterface_t;

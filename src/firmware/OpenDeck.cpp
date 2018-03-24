@@ -47,7 +47,7 @@ void init()
     #endif
 
     //use recursive parsing when merging is active
-    if (database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiFeatureMergeEnabled))
+    if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
         midi.setOneByteParseDINstate(false);
     else
         midi.setOneByteParseDINstate(true);
@@ -58,16 +58,11 @@ void init()
     midi.setRunningStatusState(database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureRunningStatus));
     midi.setChannelSendZeroStart(true);
 
-    //uart is already init with 31250 baud rate, override with opendeck baud rate if necessarry
-    #if defined(BOARD_A_MEGA) && defined(BOARD_A_UNO)
-    //always use faster speed for serial link on these boards
-    board.initUART_MIDI(MIDI_BAUD_RATE_OD);
-    #else
-    if (database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeFromInterface) == midiMergeFromInterfaceOpenDeck)
-        board.initUART_MIDI(MIDI_BAUD_RATE_OD);
-    #endif
-
     #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
+    //uart is already init with 31250 baud rate, override with opendeck baud rate if necessarry
+    if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDINdoubleSpeed))
+        board.initUART_MIDI(MIDI_BAUD_RATE_OD, true);
+
     board.ledFlashStartup(board.checkNewRevision());
     #endif
 
