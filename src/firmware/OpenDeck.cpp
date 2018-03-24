@@ -46,7 +46,12 @@ void init()
     midi.setDINMIDIstate(true);
     #endif
 
-    midi.setOneByteParseDINstate(true);
+    //use recursive parsing when merging is active
+    if (database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiFeatureMergeEnabled))
+        midi.setOneByteParseDINstate(false);
+    else
+        midi.setOneByteParseDINstate(true);
+
     midi.setDINvalidityCheckState(true);
     midi.setInputChannel(MIDI_CHANNEL_OMNI);
     midi.setNoteOffMode((noteOffType_t)database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureStandardNoteOff));
