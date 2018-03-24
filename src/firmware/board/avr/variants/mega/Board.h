@@ -47,6 +47,7 @@ class Board
     Board();
     void init();
     bool checkNewRevision();
+    static void initUART_MIDI(uint32_t baudRate);
 
     //digital in
     bool digitalInputDataAvailable();
@@ -76,7 +77,6 @@ class Board
     static void initPins();
     static void initAnalog();
     static void initEncoders();
-    static void initUART_MIDI(uint16_t baudRate);
     static void configureTimers();
     static int8_t readEncoder(uint8_t encoderID, uint8_t pairState);
 };

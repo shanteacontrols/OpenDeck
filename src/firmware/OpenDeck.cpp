@@ -53,6 +53,15 @@ void init()
     midi.setRunningStatusState(database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureRunningStatus));
     midi.setChannelSendZeroStart(true);
 
+    //uart is already init with 31250 baud rate, override with opendeck baud rate if necessarry
+    #if defined(BOARD_A_MEGA) && defined(BOARD_A_UNO)
+    //always use faster speed for serial link on these boards
+    board.initUART_MIDI(MIDI_BAUD_RATE_OD);
+    #else
+    if (database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeFromInterface) == midiMergeFromInterfaceOpenDeck)
+        board.initUART_MIDI(MIDI_BAUD_RATE_OD);
+    #endif
+
     #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
     board.ledFlashStartup(board.checkNewRevision());
     #endif
@@ -170,19 +179,19 @@ int main()
             }
             else
             {
-                switch(database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeInterface))
+                switch(database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeToInterface))
                 {
-                    case midiMergeInterfaceUSB:
+                    case midiMergeToInterfaceUSB:
                     //dump everything from MIDI in to USB MIDI out
                     midi.read(dinInterface, THRU_FULL_USB);
                     break;
 
-                    case midiMergeInterfaceDIN:
+                    case midiMergeToInterfaceDIN:
                     //dump everything from MIDI in to MIDI out
                     midi.read(dinInterface, THRU_FULL_DIN);
                     break;
 
-                    case midiMergeInterfaceAll:
+                    case midiMergeToInterfaceAll:
                     //dump everything from MIDI in to USB MIDI out and MIDI out
                     midi.read(dinInterface, THRU_FULL_ALL);
                     break;

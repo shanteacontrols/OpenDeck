@@ -106,9 +106,9 @@ int16_t UARTread()
 ///
 /// \brief Initializes UART peripheral used to send and receive MIDI data.
 ///
-void Board::initUART_MIDI(uint16_t baudRate)
+void Board::initUART_MIDI(uint32_t baudRate)
 {
-    int16_t baud_count = ((F_CPU / 8) + (baudRate / 2)) / baudRate;
+    int32_t baud_count = ((F_CPU / 8) + (baudRate / 2)) / baudRate;
 
     if ((baud_count & 1) && baud_count <= 4096)
     {
