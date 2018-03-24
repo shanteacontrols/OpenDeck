@@ -48,7 +48,7 @@ class Board
     static void init();
     static bool checkNewRevision();
     static void ledFlashStartup(bool fwUpdated);
-    static void initUART_MIDI(uint32_t baudRate, bool reInit = false)
+    static void initUART_MIDI(uint32_t baudRate, bool reInit = false);
 
     //digital in
     static bool digitalInputDataAvailable();
