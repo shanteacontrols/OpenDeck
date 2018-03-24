@@ -52,7 +52,7 @@ void init()
     else
         midi.setOneByteParseDINstate(true);
 
-    midi.setDINvalidityCheckState(true);
+    midi.setDINvalidityCheckState(false);
     midi.setInputChannel(MIDI_CHANNEL_OMNI);
     midi.setNoteOffMode((noteOffType_t)database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureStandardNoteOff));
     midi.setRunningStatusState(database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureRunningStatus));
