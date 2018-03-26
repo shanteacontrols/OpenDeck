@@ -18,6 +18,6 @@
 
 #pragma once
 
-#define SW_VERSION_MAJOR        1
-#define SW_VERSION_MINOR        6
+#define SW_VERSION_MAJOR        2
+#define SW_VERSION_MINOR        0
 #define SW_VERSION_REVISION     0
