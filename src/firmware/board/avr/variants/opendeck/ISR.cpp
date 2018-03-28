@@ -62,16 +62,20 @@ inline void activateOutputColumn()
 
 inline void storeDigitalIn()
 {
+    setLow(SR_CLOCK_PORT, SR_CLOCK_PIN);
+    setLow(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
+    _NOP();
+
     digitalInBuffer[activeInColumn] = 0;
 
-    //pulse latch pin
-    pulseLowToHigh(SR_LATCH_PORT, SR_LATCH_PIN);
+    setHigh(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
 
     for (int i=0; i<8; i++)
     {
+        setLow(SR_CLOCK_PORT, SR_CLOCK_PIN);
+        _NOP();
         BIT_WRITE(digitalInBuffer[activeInColumn], dmRowBitArray[i], !readPin(SR_DIN_PORT, SR_DIN_PIN));
-        //pulse clock pin
-        pulseHighToLow(SR_CLK_PORT, SR_CLK_PIN);
+        setHigh(SR_CLOCK_PORT, SR_CLOCK_PIN);
     }
 }
 
