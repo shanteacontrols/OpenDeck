@@ -25,7 +25,7 @@
 #include "../../../display/Display.h"
 #endif
 
-#define BUTTON_DEBOUNCE_COMPARE 0b11111000
+#define BUTTON_DEBOUNCE_COMPARE 0b11111100
 
 static uint8_t  mmcArray[] =  { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 }; //based on MIDI spec for transport control
 
