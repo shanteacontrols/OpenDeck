@@ -29,11 +29,11 @@ int main(void)
     midi.setDINvalidityCheckState(false);
     midi.setInputChannel(MIDI_CHANNEL_OMNI);
 
-    setLow(LED_OUT_PORT, LED_OUT_PIN);
-    setLow(LED_IN_PORT, LED_IN_PIN);
+    MIDI_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+    MIDI_LED_ON(LED_IN_PORT, LED_IN_PIN);
     wait_ms(200);
-    setHigh(LED_OUT_PORT, LED_OUT_PIN);
-    setHigh(LED_IN_PORT, LED_IN_PIN);
+    MIDI_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+    MIDI_LED_OFF(LED_IN_PORT, LED_IN_PIN);
 
     sei();
 
