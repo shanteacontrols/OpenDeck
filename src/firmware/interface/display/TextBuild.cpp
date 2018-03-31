@@ -179,13 +179,13 @@ void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t
         case midiMessageNoteOn_display:
         stringBuffer.startLine();
 
-        if (rawNoteDisplay)
+        if (!alternateNoteDisplay)
         {
             stringBuffer.appendInt(byte1);
         }
         else
         {
-            stringBuffer.appendText_P((char*)pgm_read_word(&(noteNameArray[midi.getTonicFromNote(byte1)])));
+            stringBuffer.appendText_P((char*)pgm_read_word(&(noteNameArray[(uint8_t)midi.getTonicFromNote(byte1)])));
             stringBuffer.appendInt(normalizeOctave(midi.getOctaveFromNote(byte1), octaveNormalization));
         }
 
@@ -283,7 +283,12 @@ void Display::clearMIDIevent(displayEventType_t type)
     midiMessageDisplayed[type] = false;
 }
 
-void Display::setRawNoteDisplay(bool state)
+void Display::setAlternateNoteDisplay(bool state)
 {
-    rawNoteDisplay = state;
+    alternateNoteDisplay = state;
+}
+
+void Display::setOctaveNormalization(int8_t value)
+{
+    octaveNormalization = value;
 }

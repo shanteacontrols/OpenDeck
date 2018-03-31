@@ -40,7 +40,7 @@ class Display
     void displayVinfo(bool newFw);
     void displayHome();
     void displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t message, uint16_t byte1, uint16_t byte2, uint8_t byte3);
-    void setRawNoteDisplay(bool state);
+    void setAlternateNoteDisplay(bool state);
     void setOctaveNormalization(int8_t value);
     void setDirectWriteState(bool state);
     void clearAll();
@@ -122,7 +122,7 @@ class Display
     ///
     /// \brief If set to true, note number will be shown on display (0-127), otherwise, note and octave
     /// will be displayed (i.e. C#4).
-    bool            rawNoteDisplay;
+    bool            alternateNoteDisplay;
 
     ///
     /// \brief Holds true if direct LCD writing is enabled, false otherwise.

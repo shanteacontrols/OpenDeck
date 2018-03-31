@@ -24,7 +24,7 @@
 ///
 Display::Display()
 {
-    
+
 }
 
 ///
@@ -59,6 +59,8 @@ bool Display::init(displayController_t controller, displayResolution_t resolutio
             scrollEvent[i].currentIndex = 0;
             scrollEvent[i].direction = scroll_ltr;
         }
+
+        octaveNormalization = 0;
 
         initDone = true;
         return true;
@@ -319,6 +321,16 @@ lcdTextType_t Display::getActiveTextType()
 void Display::setRetentionState(bool state)
 {
     retentionState = state;
+
+    if (!state)
+    {
+        for (int i=0; i<2; i++)
+        {
+            //0 = in, 1 = out
+            //make sure events are cleared immediately in next call of update()
+            lastMIDIMessageDisplayTime[i] = 0;
+        }
+    }
 }
 
 ///
