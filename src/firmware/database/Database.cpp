@@ -130,6 +130,11 @@ void Database::writeCustomValues()
 {
     update(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventTime, MIN_MESSAGE_RETENTION_TIME);
     update(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterBlinkTime, BLINK_TIME_MIN);
+
+    #if defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
+    //always enable din midi (for now)
+    update(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled, true);
+    #endif
 }
 
 Database database;

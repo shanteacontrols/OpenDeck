@@ -25,9 +25,9 @@ int main(void)
 {
     board.init();
 
-    midi.setUSBMIDIstate(true);
-    midi.setDINMIDIstate(true);
     midi.setOneByteParseDINstate(false);
+    midi.setDINvalidityCheckState(false);
+    midi.setInputChannel(MIDI_CHANNEL_OMNI);
 
     setLow(LED_OUT_PORT, LED_OUT_PIN);
     setLow(LED_IN_PORT, LED_IN_PIN);

@@ -285,7 +285,6 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 break;
 
                 case midiFeatureDinEnabled:
-                midi.setDINMIDIstate(newValue);
                 success = true;
                 break;
 
