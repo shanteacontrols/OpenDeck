@@ -282,3 +282,8 @@ void Display::clearMIDIevent(displayEventType_t type)
 
     midiMessageDisplayed[type] = false;
 }
+
+void Display::setRawNoteDisplay(bool state)
+{
+    rawNoteDisplay = state;
+}
