@@ -60,16 +60,6 @@ bool Display::init(displayController_t controller, displayResolution_t resolutio
             scrollEvent[i].direction = scroll_ltr;
         }
 
-        setDirectWriteState(true);
-
-        if (database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureWelcomeMsg))
-            displayWelcomeMessage();
-
-        if (database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureVInfoMsg))
-            displayVinfo(false);
-
-        setDirectWriteState(false);
-
         initDone = true;
         return true;
     }
