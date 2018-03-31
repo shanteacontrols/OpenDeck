@@ -24,7 +24,7 @@
 volatile uint32_t rTime_ms;
 static uint8_t midiIn_timeout, midiOut_timeout;
 
-bool MIDIreceived, MIDIsent;
+volatile bool MIDIreceived, MIDIsent;
 
 const uint8_t ledRowPinArray[] =
 {

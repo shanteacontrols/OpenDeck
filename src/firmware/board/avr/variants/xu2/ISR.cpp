@@ -21,7 +21,7 @@
 volatile uint32_t rTime_ms;
 static uint8_t midiIn_timeout, midiOut_timeout;
 
-bool MIDIreceived, MIDIsent;
+volatile bool MIDIreceived, MIDIsent;
 
 ISR(TIMER0_COMPA_vect)
 {

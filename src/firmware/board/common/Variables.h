@@ -20,5 +20,5 @@
 
 #include <inttypes.h>
 
-extern bool MIDIreceived;
-extern bool MIDIsent;
+extern volatile bool MIDIreceived;
+extern volatile bool MIDIsent;

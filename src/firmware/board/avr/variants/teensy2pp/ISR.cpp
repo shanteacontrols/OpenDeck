@@ -23,7 +23,7 @@
 
 volatile uint32_t rTime_ms;
 
-bool MIDIreceived, MIDIsent;
+volatile bool MIDIreceived, MIDIsent;
 
 static uint8_t lastLEDstate[MAX_NUMBER_OF_LEDS];
 
