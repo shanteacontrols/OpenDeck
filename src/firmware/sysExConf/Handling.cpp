@@ -457,23 +457,50 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
         #ifdef DISPLAY_SUPPORTED
         switch(section)
         {
-            case sysExSection_display_hw:
+            case sysExSection_display_features:
             switch(index)
             {
-                case displayHwController:
-                if ((newValue <= DISPLAY_CONTROLLERS) && (newValue >= 0))
+                case displayFeatureEnable:
+                if ((newValue <= 1) && (newValue >= 0))
                 {
-                    display.init((displayController_t)newValue, (displayResolution_t)database.read(DB_BLOCK_DISPLAY, sysEx2DB_display[section], displayHwResolution));
-                    display.displayHome();
+                    success = true;
+
+                    if (newValue)
+                        display.init((displayController_t)database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwController), (displayResolution_t)database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwResolution));
+                    else //init with invalid configuration
+                        display.init(DISPLAY_CONTROLLERS, DISPLAY_RESOLUTIONS);
+                }
+                break;
+
+                case displayFeatureWelcomeMsg:
+                case displayFeatureVInfoMsg:
+                if ((newValue <= 1) && (newValue >= 0))
+                {
+                    success = true;
+                    //do nothing, these values are checked on startup
+                }
+                break;
+
+                case displayFeatureMIDIeventRetention:
+                if ((newValue <= 1) && (newValue >= 0))
+                {
+                    display.setRetentionState(newValue);
                     success = true;
                 }
                 break;
 
-                case displayHwResolution:
-                if ((newValue <= DISPLAY_RESOLUTIONS) && (newValue >= 0))
+                case displayFeatureMIDInotesAlternate:
+                if ((newValue <= 1) && (newValue >= 0))
                 {
-                    display.init((displayController_t)database.read(DB_BLOCK_DISPLAY, sysEx2DB_display[section], displayHwController), (displayResolution_t)newValue);
-                    display.displayHome();
+                    display.setAlternateNoteDisplay(newValue);
+                    success = true;
+                }
+                break;
+
+                case displayFeatureMIDIeventTime:
+                if ((newValue >= MIN_MESSAGE_RETENTION_TIME) && (newValue <= MAX_MESSAGE_RETENTION_TIME))
+                {
+                    display.setRetentionTime(newValue * 1000);
                     success = true;
                 }
                 break;
@@ -483,21 +510,29 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             }
             break;
 
-            case sysExSection_display_features:
+            case sysExSection_display_hw:
             switch(index)
             {
-                case displayFeatureMIDIeventRetention:
-                if ((newValue <= 1) && (newValue >= 0))
+                case displayHwController:
+                if ((newValue <= DISPLAY_CONTROLLERS) && (newValue >= 0))
                 {
-                    display.setRetentionState(newValue);
+                    if (display.init((displayController_t)newValue, (displayResolution_t)database.read(DB_BLOCK_DISPLAY, sysEx2DB_display[section], displayHwResolution)))
+                    {
+                        display.displayHome();
+                    }
+
                     success = true;
                 }
                 break;
 
-                case displayFeatureMIDIeventTime:
-                if ((newValue >= MIN_MESSAGE_RETENTION_TIME) && (newValue <= MAX_MESSAGE_RETENTION_TIME))
+                case displayHwResolution:
+                if ((newValue <= DISPLAY_RESOLUTIONS) && (newValue >= 0))
                 {
-                    display.setRetentionTime(newValue * 1000);
+                    if (display.init((displayController_t)database.read(DB_BLOCK_DISPLAY, sysEx2DB_display[section], displayHwController), (displayResolution_t)newValue))
+                    {
+                        display.displayHome();
+                    }
+
                     success = true;
                 }
                 break;
