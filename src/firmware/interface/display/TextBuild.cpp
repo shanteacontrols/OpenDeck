@@ -25,7 +25,7 @@ StringBuffer stringBuffer;
 
 void Display::displayWelcomeMessage()
 {
-    uint8_t charIndex;
+    uint8_t charIndex = 0;
     uint8_t location = 0;
     uint8_t startRow;
 
