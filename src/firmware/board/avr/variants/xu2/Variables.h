@@ -23,3 +23,5 @@
 extern MIDI             midi;
 extern volatile bool    MIDImessageReceived;
 extern volatile bool    MIDImessageSent;
+extern volatile uint8_t midiIn_timeout;
+extern volatile uint8_t midiOut_timeout;

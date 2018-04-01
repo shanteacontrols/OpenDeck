@@ -19,26 +19,12 @@
 #include "Board.h"
 
 volatile uint32_t rTime_ms;
-static uint8_t midiIn_timeout, midiOut_timeout;
+volatile uint8_t midiIn_timeout, midiOut_timeout;
 
 volatile bool MIDIreceived, MIDIsent;
 
 ISR(TIMER0_COMPA_vect)
 {
-    if (MIDIreceived)
-    {
-        MIDI_LED_ON(LED_IN_PORT, LED_IN_PIN);
-        MIDIreceived = false;
-        midiIn_timeout = MIDI_INDICATOR_TIMEOUT;
-    }
-
-    if (MIDIsent)
-    {
-        MIDI_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
-        MIDIsent = false;
-        midiOut_timeout = MIDI_INDICATOR_TIMEOUT;
-    }
-
     if (midiIn_timeout)
     {
         midiIn_timeout--;
