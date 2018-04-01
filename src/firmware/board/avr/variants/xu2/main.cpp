@@ -43,18 +43,20 @@ int main(void)
         {
             ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
             {
-                MIDI_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
                 midiOut_timeout = MIDI_INDICATOR_TIMEOUT;
             }
+
+            MIDI_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
         }
 
         if (midi.read(usbInterface, THRU_FULL_DIN))
         {
             ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
             {
-                MIDI_LED_ON(LED_IN_PORT, LED_IN_PIN);
                 midiIn_timeout = MIDI_INDICATOR_TIMEOUT;
             }
+
+            MIDI_LED_ON(LED_IN_PORT, LED_IN_PIN);
         }
     }
 }
