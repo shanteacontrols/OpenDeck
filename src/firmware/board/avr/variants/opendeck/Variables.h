@@ -21,7 +21,6 @@
 #include "Hardware.h"
 
 extern volatile uint8_t     digitalInBuffer[NUMBER_OF_BUTTON_COLUMNS];
-extern volatile uint8_t     digitalInBuffer_copy[NUMBER_OF_BUTTON_COLUMNS];
 extern volatile uint8_t     activeInColumn;
 extern volatile uint8_t     activeOutColumn;
 extern volatile uint8_t     analogSampleCounter;
