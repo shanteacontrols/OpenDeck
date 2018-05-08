@@ -22,5 +22,4 @@
 
 extern volatile uint8_t     digitalInBuffer[DIGITAL_BUFFER_SIZE];
 extern volatile uint8_t     digitalInBufferCounter;
-extern bool                 encodersProcessed;
 extern volatile uint8_t     analogSampleCounter;

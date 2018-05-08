@@ -19,7 +19,6 @@
 #include "Board.h"
 #include "Variables.h"
 
-bool                encodersProcessed;
 uint16_t            encoderData[MAX_NUMBER_OF_ENCODERS];
 
 void Board::initEncoders()
