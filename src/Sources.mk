@@ -86,7 +86,7 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         firmware/board/avr/variants/$(BOARD_DIR)/ISR.cpp \
         firmware/board/avr/variants/$(BOARD_DIR)/LEDs.cpp \
 
-        ifneq ($(filter fw_leonardo fw_pro_micro fw_opendeck fw_teensy2pp, $(MAKECMDGOALS)), )
+        ifneq ($(filter fw_leonardo fw_pro_micro fw_opendeck fw_teensy2pp fw_kodama, $(MAKECMDGOALS)), )
             #these variants all support usb midi and use uart1 for din midi
             SOURCES += \
             firmware/board/avr/usb/USB_MIDI.cpp \

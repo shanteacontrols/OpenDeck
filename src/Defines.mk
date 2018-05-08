@@ -44,6 +44,9 @@ else ifeq ($(findstring leonardo,$(MAKECMDGOALS)), leonardo)
 else ifeq ($(findstring pro_micro,$(MAKECMDGOALS)), pro_micro)
     MCU := atmega32u4
     DEFINES += BOARD_A_PRO_MICRO
+else ifeq ($(findstring kodama,$(MAKECMDGOALS)), kodama)
+    MCU := atmega32u4
+    DEFINES += BOARD_KODAMA
 else ifeq ($(findstring teensy2pp,$(MAKECMDGOALS)), teensy2pp)
     MCU := at90usb1286
     DEFINES += BOARD_T_2PP
