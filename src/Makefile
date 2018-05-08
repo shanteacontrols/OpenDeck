@@ -78,7 +78,19 @@ OBJECTS := $(OBJECTS:.cpp=.o)
 -include $(OBJECTS:%.o=%.d)
 
 #targets
-fw_opendeck fw_leonardo fw_pro_micro fw_teensy2pp fw_mega fw_uno fw_16u2 fw_8u2 fw_kodama boot_opendeck boot_leonardo boot_16u2 boot_teensy2pp: $(TARGET).elf
+fw_opendeck \
+fw_leonardo \
+fw_pro_micro \
+fw_teensy2pp \
+fw_mega \
+fw_uno \
+fw_16u2 \
+fw_8u2 \
+fw_kodama \
+boot_opendeck \
+boot_leonardo \
+boot_16u2 \
+boot_teensy2pp: $(TARGET).elf
 
 #determine if make clean should be run before compilation
 #first check if TARGET file in build dir exists
