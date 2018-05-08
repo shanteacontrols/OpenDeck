@@ -18,6 +18,10 @@
 
 #pragma once
 
+///
+/// \brief Pin definitions.
+/// @{
+
 #define SR_DIN_PORT                 PORTD
 #define SR_DIN_PIN                  5
 
@@ -89,3 +93,5 @@
 
 #define BTLDR_BUTTON_PORT           PORTB
 #define BTLDR_BUTTON_PIN            2
+
+/// @}

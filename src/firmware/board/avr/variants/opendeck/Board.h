@@ -36,11 +36,6 @@
 #include "../../../../interface/digital/output/leds/DataTypes.h"
 #include "Hardware.h"
 
-///
-/// \addtogroup board
-/// @{
-///
-
 class Board
 {
     public:
@@ -84,6 +79,7 @@ class Board
     static int8_t readEncoder(uint8_t encoderID, uint8_t pairState);
 };
 
+///
+/// \brief External definition of Board class instance.
+///
 extern Board board;
-
-/// @}

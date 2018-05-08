@@ -21,5 +21,14 @@
 #include "midi/src/MIDI.h"
 #include "sysExConf/SysExConf.h"
 
+///
+/// \brief External definition of MIDI class instance.
+///
 extern MIDI midi;
+
+///
+/// \brief External definition of processingEnabled variable.
+/// Used to prevent updating states of all components (analog, LEDs, encoders, buttons).
+/// This variable can be used in various modules so because of that it's defined as external.
+///
 extern bool processingEnabled;

@@ -28,11 +28,17 @@ const uint32_t appLength __attribute__ ((section (".applen"))) __attribute__((us
 ///
 #define APP_LENGTH_LOCATION         (uint32_t)0x000000AC
 
+///
+/// \brief Default constructor.
+///
 Board::Board()
 {
-    //default constructor
+
 }
 
+///
+/// \brief Performs software MCU reboot.
+///
 void Board::reboot(rebootType_t type)
 {
     switch(type)
@@ -52,6 +58,7 @@ void Board::reboot(rebootType_t type)
 ///
 /// \brief Checks if firmware has been updated.
 /// Firmware file has written CRC in last two flash addresses. Application stores last read CRC in EEPROM. If EEPROM and flash CRC differ, firmware has been updated.
+/// \returns True if firmware has been updated, false otherwise.
 ///
 bool Board::checkNewRevision()
 {
@@ -72,6 +79,12 @@ bool Board::checkNewRevision()
     return false;
 }
 
+///
+/// \brief Flashes integrated LEDs on board on startup.
+/// Pattern differs depending on whether firmware is updated or not.
+/// @param[in] fwUpdated    If set to true, "Firmware updated" pattern will be
+///                         used to flash the LEDs.
+///
 void Board::ledFlashStartup(bool fwUpdated)
 {
     for (int i=0; i<3; i++)

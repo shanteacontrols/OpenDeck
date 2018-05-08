@@ -21,7 +21,9 @@
 #include "Pins.h"
 #include "../Board.h"
 
-//match pins on pcb
+///
+/// brief Pin and index remapping used to match indexes on PCB silkscreen.
+/// @{
 
 #if HARDWARE_VERSION_MINOR == 1
 #define MUX_Y0                      8
@@ -127,3 +129,5 @@ const uint8_t dmColumnArray[] =
     DM_COLUMN_7,
     DM_COLUMN_8
 };
+
+/// @}
