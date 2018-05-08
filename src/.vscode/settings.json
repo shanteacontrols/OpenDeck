@@ -13,6 +13,10 @@
         "xmemory0": "cpp",
         "xtr1common": "cpp",
         "xutility": "cpp",
-        "iosfwd": "cpp"
+        "iosfwd": "cpp",
+        "atomic": "cpp",
+        "slist": "cpp",
+        "array": "cpp",
+        "*.tcc": "cpp"
     },
 }

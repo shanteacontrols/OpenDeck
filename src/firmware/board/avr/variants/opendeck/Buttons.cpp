@@ -16,14 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Board.h"
+#include "board/Board.h"
 #include "Variables.h"
 
-///
-/// \brief Returns last read button state for requested button index.
-/// @param [in] buttonIndex Index of button which should be read.
-/// \returns True if button is pressed, false otherwise.
-///
 bool Board::getButtonState(uint8_t buttonIndex)
 {
     uint8_t row = buttonIndex/NUMBER_OF_BUTTON_COLUMNS;

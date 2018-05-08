@@ -19,6 +19,11 @@
 #ifndef _BOARD_
 #define _BOARD_
 
+#include "interface/digital/output/leds/DataTypes.h"
+
+///
+/// \brief List of all supported boards.
+///
 typedef enum
 {
     BOARD_OPEN_DECK_ID,
@@ -55,4 +60,170 @@ typedef enum
 #include "avr/variants/xu2/Board.h"
 //no id needed
 #endif
+
+class Board
+{
+    public:
+    ///
+    /// \brief Default constructor.
+    ///
+    Board();
+
+    ///
+    /// \brief Perfoms initialization of MCU and all board peripherals.
+    ///
+    static void init();
+
+    ///
+    /// \brief Checks if firmware has been updated.
+    /// Firmware file has written CRC in last two flash addresses. Application stores last read CRC in EEPROM.
+    /// If EEPROM and flash CRC differ, firmware has been updated.
+    /// \returns True if firmware has been updated, false otherwise.
+    ///
+    static bool checkNewRevision();
+
+    ///
+    /// \brief Flashes integrated LEDs on board on startup.
+    /// Pattern differs depending on whether firmware is updated or not.
+    /// @param[in] fwUpdated    If set to true, "Firmware updated" pattern will be
+    ///                         used to flash the LEDs.
+    ///
+    static void ledFlashStartup(bool fwUpdated);
+
+    ///
+    /// \brief Initializes UART peripheral.
+    /// @param[in] baudRate UART speed.
+    ///
+    static void initUART_MIDI(uint32_t baudRate);
+
+    ///
+    /// \brief Checks if digital input data is avaiable (encoder and button data).
+    /// On boards which use input matrix data is read in ISR and stored into digitalInBuffer array.
+    /// Once all columns are read, data is considered available.
+    /// At this point, input matrix column variable is set to invalid value
+    /// to stop further data reading from ISR until continueDigitalInReadout
+    /// function is called.
+    /// \returns True if data is available, false otherwise.
+    ///
+    static bool digitalInputDataAvailable();
+
+    ///
+    /// \brief Resets active input matrix column so that readings in ISR can continue.
+    ///
+    static void continueDigitalInReadout();
+
+    ///
+    /// \brief Returns last read button state for requested button index.
+    /// @param [in] buttonIndex Index of button which should be read.
+    /// \returns True if button is pressed, false otherwise.
+    ///
+    static bool getButtonState(uint8_t buttonIndex);
+
+    ///
+    /// \brief Checks if data from multiplexers is available.
+    /// Data is read in ISR and stored into samples array.
+    /// Once all mux inputs are read, data is considered available.
+    /// At this point, analogSampleCounter variable is set to invalid value
+    /// to stop further data reading from ISR until continueADCreadout
+    /// function is called.
+    /// \returns True if data is available, false otherwise.
+    ///
+    bool analogDataAvailable();
+
+    ///
+    /// brief Checks for current analog value for specified analog index.
+    /// @param[in] analogID     Analog index for which ADC value is being checked.
+    /// \returns ADC value for requested analog index.
+    ///
+    static int16_t getAnalogValue(uint8_t analogID);
+
+    ///
+    /// \brief Resets active pad index and starts data acquisition from pads again.
+    ///
+    static void continueADCreadout();
+
+    ///
+    /// brief Scales specified ADC value from minimum of 0 to maximum value specified.
+    /// @param[in] value    ADC value which is being scaled.
+    /// @param[in] maxValue Maximum value to which ADC value should be scaled.
+    ///
+    static uint16_t scaleADC(uint16_t value, uint16_t maxValue);
+
+    ///
+    /// \brief Calculates encoder pair number based on provided button ID.
+    /// @param [in] buttonID   Button index from which encoder pair is being calculated.
+    /// \returns Calculated encoder pair number.
+    ///
+    static uint8_t getEncoderPair(uint8_t buttonID);
+
+    ///
+    /// \brief Checks state of requested encoder.
+    /// @param [in] encoderID   Encoder which is being checked.
+    /// \returns 0 if encoder hasn't been moved, 1 if it's moving in positive and -1 if it's
+    /// moving in negative direction.
+    ///
+    static int8_t getEncoderState(uint8_t encoderID);
+
+    ///
+    /// \brief Used to calculate index of R, G or B component of RGB LED.
+    /// @param [in] rgbID   Index of RGB LED.
+    /// @param [in] index   R, G or B component (enumerated type, see rgbIndex_t).
+    /// \returns Calculated index of R, G or B component of RGB LED.
+    ///
+    static uint8_t getRGBaddress(uint8_t rgbID, rgbIndex_t index);
+
+    ///
+    /// \brief Calculates RGB LED index based on provided single-color LED index.
+    /// @param [in] ledID   Index of single-color LED.
+    /// \returns Calculated index of RGB LED.
+    ///
+    static uint8_t getRGBID(uint8_t ledID);
+
+    ///
+    /// \brief Performs software MCU reboot.
+    ///
+    void reboot(rebootType_t type);
+
+    private:
+    ///
+    /// \brief Initializes all pins to correct states.
+    ///
+    static void initPins();
+
+    ///
+    /// \brief Initializes analog variables and ADC peripheral.
+    ///
+    static void initAnalog();
+
+    ///
+    /// \brief Initializes encoder values to default state.
+    ///
+    static void initEncoders();
+
+    ///
+    /// \brief Initializes USB peripheral and configures it as MIDI device.
+    ///
+    static void initUSB_MIDI();
+
+    ///
+    /// \brief Initializes main and PWM timers.
+    ///
+    static void configureTimers();
+
+    ///
+    /// \brief Checks state of requested encoder.
+    /// Internal function.
+    /// @param [in] encoderID   Encoder which is being checked.
+    /// @param [in] pairState   A and B signal readings from encoder placed into bits 0 and 1.
+    /// \returns 0 if encoder hasn't been moved, 1 if it's moving in positive and -1 if it's
+    /// moving in negative direction.
+    ///
+    static int8_t readEncoder(uint8_t encoderID, uint8_t pairState);
+};
+
+///
+/// \brief External definition of Board class instance.
+///
+extern Board board;
+
 #endif

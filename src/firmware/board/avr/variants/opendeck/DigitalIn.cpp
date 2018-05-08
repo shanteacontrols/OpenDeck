@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Board.h"
+#include "board/Board.h"
 #include "Variables.h"
 
 ///
@@ -29,23 +29,11 @@ volatile uint8_t    digitalInBuffer[NUMBER_OF_BUTTON_COLUMNS];
 ///
 volatile uint8_t    activeInColumn;
 
-///
-/// \brief Checks if data from button matrix is available.
-/// Matrix data is read in ISR and stored into digitalInBuffer array.
-/// Once all columns are read, data is considered available.
-/// At this point, input matrix column variable is set to invalid value
-/// to stop further data reading from ISR until continueDigitalInReadout
-/// function is called.
-/// \returns True if data is available, false otherwise.
-///
 bool Board::digitalInputDataAvailable()
 {
     return (activeInColumn == NUMBER_OF_BUTTON_COLUMNS);
 }
 
-///
-/// \brief Resets active input matrix column so that readings in ISR can continue.
-///
 void Board::continueDigitalInReadout()
 {
     activeInColumn = 0;

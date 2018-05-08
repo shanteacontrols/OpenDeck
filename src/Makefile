@@ -52,7 +52,8 @@ endif
 #common include directories
 INCLUDE_DIRS := \
 -I"modules/lufa/" \
--I"modules/"
+-I"modules/" \
+-I"firmware/"
 
 #custom linker script for 32u4/1286 boards
 ifneq ($(filter atmega32u4 at90usb1286, $(MCU)), )

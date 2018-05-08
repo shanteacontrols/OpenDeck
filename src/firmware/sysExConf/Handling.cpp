@@ -302,9 +302,9 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 success = true;
 
                 if (newValue)
-                    board.initUART_MIDI(MIDI_BAUD_RATE_OD, true);
+                    board.initUART_MIDI(MIDI_BAUD_RATE_OD);
                 else
-                    board.initUART_MIDI(MIDI_BAUD_RATE_STD, true);
+                    board.initUART_MIDI(MIDI_BAUD_RATE_STD);
                 break;
                 #endif
 

@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Board.h"
+#include "board/Board.h"
 
 ///
 /// \brief Placeholder variable used only to reserve space in linker section.
@@ -28,17 +28,11 @@ const uint32_t appLength __attribute__ ((section (".applen"))) __attribute__((us
 ///
 #define APP_LENGTH_LOCATION         (uint32_t)0x000000AC
 
-///
-/// \brief Default constructor.
-///
 Board::Board()
 {
 
 }
 
-///
-/// \brief Performs software MCU reboot.
-///
 void Board::reboot(rebootType_t type)
 {
     switch(type)
@@ -55,17 +49,8 @@ void Board::reboot(rebootType_t type)
     mcuReset();
 }
 
-///
-/// \brief Checks if firmware has been updated.
-/// Firmware file has written CRC in last two flash addresses. Application stores last read CRC in EEPROM. If EEPROM and flash CRC differ, firmware has been updated.
-/// \returns True if firmware has been updated, false otherwise.
-///
 bool Board::checkNewRevision()
 {
-    //current app crc is written in ".applen" linker section
-    //previous crc is stored into eeprom
-    //if two differ, app has changed
-
     uint32_t flash_size = pgm_read_dword(APP_LENGTH_LOCATION);
     uint16_t crc_eeprom = eeprom_read_word((uint16_t*)SW_CRC_LOCATION_EEPROM);
     uint16_t crc_flash = pgm_read_word(flash_size);
@@ -79,12 +64,6 @@ bool Board::checkNewRevision()
     return false;
 }
 
-///
-/// \brief Flashes integrated LEDs on board on startup.
-/// Pattern differs depending on whether firmware is updated or not.
-/// @param[in] fwUpdated    If set to true, "Firmware updated" pattern will be
-///                         used to flash the LEDs.
-///
 void Board::ledFlashStartup(bool fwUpdated)
 {
     for (int i=0; i<3; i++)

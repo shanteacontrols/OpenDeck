@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Board.h"
+#include "board/Board.h"
 #include "Variables.h"
 #include "../../../../interface/digital/output/leds/Variables.h"
 #include "../../../../interface/digital/output/leds/Helpers.h"

@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Board.h"
+#include "board/Board.h"
 #include "Hardware.h"
 
 ///
@@ -24,12 +24,6 @@
 ///
 volatile uint8_t    activeOutColumn;
 
-///
-/// \brief Used to calculate index of R, G or B component of RGB LED.
-/// @param [in] rgbID   Index of RGB LED.
-/// @param [in] index   R, G or B component (enumerated type, see rgbIndex_t).
-/// \returns Calculated index of R, G or B component of RGB LED.
-///
 uint8_t Board::getRGBaddress(uint8_t rgbID, rgbIndex_t index)
 {
     uint8_t column = rgbID % NUMBER_OF_LED_COLUMNS;
@@ -51,11 +45,6 @@ uint8_t Board::getRGBaddress(uint8_t rgbID, rgbIndex_t index)
     return 0;
 }
 
-///
-/// \brief Calculates RGB LED index based on provided single-color LED index.
-/// @param [in] ledID   Index of single-color LED.
-/// \returns Calculated index of RGB LED.
-///
 uint8_t Board::getRGBID(uint8_t ledID)
 {
     uint8_t row = ledID/NUMBER_OF_LED_COLUMNS;

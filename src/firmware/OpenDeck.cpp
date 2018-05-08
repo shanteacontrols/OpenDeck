@@ -47,7 +47,7 @@ void init()
     #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
     //uart is already init with 31250 baud rate, override with opendeck baud rate if necessarry
     if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDINdoubleSpeed))
-        board.initUART_MIDI(MIDI_BAUD_RATE_OD, true);
+        board.initUART_MIDI(MIDI_BAUD_RATE_OD);
 
     board.ledFlashStartup(board.checkNewRevision());
     #endif

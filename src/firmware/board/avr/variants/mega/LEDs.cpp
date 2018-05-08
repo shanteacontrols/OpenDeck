@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Board.h"
+#include "board/Board.h"
 
 uint8_t Board::getRGBaddress(uint8_t rgbID, rgbIndex_t index)
 {

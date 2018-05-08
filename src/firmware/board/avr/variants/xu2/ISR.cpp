@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Board.h"
+#include "board/Board.h"
 
 volatile uint32_t rTime_ms;
 volatile uint8_t midiIn_timeout, midiOut_timeout;

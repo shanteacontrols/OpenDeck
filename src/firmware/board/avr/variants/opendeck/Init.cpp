@@ -16,11 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Board.h"
+#include "board/Board.h"
 
-///
-/// \brief Perfoms initialization of MCU and all board peripherals.
-///
 void Board::init()
 {
     cli();
@@ -37,9 +34,6 @@ void Board::init()
     configureTimers();
 }
 
-///
-/// \brief Initializes all pins to correct states.
-///
 void Board::initPins()
 {
     //configure input matrix

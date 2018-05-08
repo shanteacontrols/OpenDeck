@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Board.h"
+#include "board/Board.h"
 #include "Variables.h"
 #include "Hardware.h"
 
@@ -103,9 +103,6 @@ inline void setMuxInput()
     BIT_READ(muxPinOrderArray[activeMuxInput], 3) ? setHigh(MUX_S3_PORT, MUX_S3_PIN) : setLow(MUX_S3_PORT, MUX_S3_PIN);
 }
 
-///
-/// \brief Initializes analog variables and ADC peripheral.
-///
 void Board::initAnalog()
 {
     disconnectDigitalInADC(MUX_1_IN_PIN);
@@ -128,34 +125,17 @@ void Board::initAnalog()
     adcInterruptEnable();
 }
 
-///
-/// \brief Checks if data from multiplexers is available.
-/// Data is read in ISR and stored into samples array.
-/// Once all mux inputs are read, data is considered available.
-/// At this point, analogSampleCounter variable is set to invalid value
-/// to stop further data reading from ISR until continueADCreadout
-/// function is called.
-/// \returns True if data is available, false otherwise.
-///
 bool Board::analogDataAvailable()
 {
     return (analogSampleCounter == NUMBER_OF_ANALOG_SAMPLES);
 }
 
-///
-/// \brief Resets active pad index and starts data acquisition from pads again.
-///
 void Board::continueADCreadout()
 {
     analogSampleCounter = 0;
     analogIndex = 0;
 }
 
-///
-/// brief Checks for current analog value for specified analog index.
-/// @param[in] analogID     Analog index for which ADC value is being checked.
-/// \returns ADC value for requested analog index.
-///
 int16_t Board::getAnalogValue(uint8_t analogID)
 {
     int16_t value;
@@ -238,11 +218,6 @@ int16_t Board::getAnalogValue(uint8_t analogID)
     }
 }
 
-///
-/// brief Scales specified ADC value from minimum of 0 to maximum value specified.
-/// @param[in] value    ADC value which is being scaled.
-/// @param[in] maxValue Maximum value to which ADC value should be scaled.
-///
 uint16_t Board::scaleADC(uint16_t value, uint16_t maxValue)
 {
     if (maxValue == 1023)

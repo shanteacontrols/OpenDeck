@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Board.h"
+#include "board/Board.h"
 #include "Variables.h"
 
 ///
@@ -24,9 +24,6 @@
 ///
 uint16_t            encoderData[MAX_NUMBER_OF_ENCODERS];
 
-///
-/// \brief Initializes encoder values to default state.
-///
 void Board::initEncoders()
 {
     for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
@@ -37,11 +34,6 @@ void Board::initEncoders()
     }
 }
 
-///
-/// \brief Calculates encoder pair number based on provided button ID.
-/// @param [in] buttonID   Button index from which encoder pair is being calculated.
-/// \returns Calculated encoder pair number.
-///
 uint8_t Board::getEncoderPair(uint8_t buttonID)
 {
     uint8_t row = buttonID/NUMBER_OF_BUTTON_COLUMNS;
@@ -53,12 +45,6 @@ uint8_t Board::getEncoderPair(uint8_t buttonID)
     return (row*NUMBER_OF_BUTTON_COLUMNS)/2 + column;
 }
 
-///
-/// \brief Checks state of requested encoder.
-/// @param [in] encoderID   Encoder which is being checked.
-/// \returns 0 if encoder hasn't been moved, 1 if it's moving in positive and -1 if it's
-/// moving in negative direction.
-///
 int8_t Board::getEncoderState(uint8_t encoderID)
 {
     uint8_t column = encoderID % NUMBER_OF_BUTTON_COLUMNS;
@@ -68,14 +54,6 @@ int8_t Board::getEncoderState(uint8_t encoderID)
     return readEncoder(encoderID, pairState);
 }
 
-///
-/// \brief Checks state of requested encoder.
-/// Internal function.
-/// @param [in] encoderID   Encoder which is being checked.
-/// @param [in] pairState   A and B signal readings from encoder placed into bits 0 and 1.
-/// \returns 0 if encoder hasn't been moved, 1 if it's moving in positive and -1 if it's
-/// moving in negative direction.
-///
 int8_t Board::readEncoder(uint8_t encoderID, uint8_t pairState)
 {
     //add new data
