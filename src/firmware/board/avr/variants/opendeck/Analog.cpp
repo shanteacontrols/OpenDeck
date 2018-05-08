@@ -148,7 +148,7 @@ bool Board::analogDataAvailable()
 void Board::continueADCreadout()
 {
     analogSampleCounter = 0;
-    analogBufferCounter = 0;
+    analogIndex = 0;
 }
 
 ///
@@ -269,8 +269,8 @@ uint16_t Board::scaleADC(uint16_t value, uint16_t maxValue)
 ///
 ISR(ADC_vect)
 {
-    analogBuffer[analogBufferCounter] += ADC;
-    analogBufferCounter++;
+    analogBuffer[analogIndex] += ADC;
+    analogIndex++;
     activeMuxInput++;
 
     bool switchMux = (activeMuxInput == NUMBER_OF_MUX_INPUTS);
@@ -283,7 +283,7 @@ ISR(ADC_vect)
         if (activeMux == NUMBER_OF_MUX)
         {
             activeMux = 0;
-            analogBufferCounter = 0;
+            analogIndex = 0;
             analogSampleCounter++;
         }
 
