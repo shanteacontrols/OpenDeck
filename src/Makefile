@@ -46,14 +46,14 @@ INCLUDE_FILES := -include "modules/core/src/Core.h"
 
 ifeq ($(filter fw_16u2 fw_8u2, $(MAKECMDGOALS)), )
     #unused on xu2 firmware
-    INCLUDE_FILES += -include "firmware/OpenDeck.h"
+    INCLUDE_FILES += -include "application/OpenDeck.h"
 endif
 
 #common include directories
 INCLUDE_DIRS := \
 -I"modules/lufa/" \
 -I"modules/" \
--I"firmware/"
+-I"application/"
 
 #custom linker script for 32u4/1286 boards
 ifneq ($(filter atmega32u4 at90usb1286, $(MCU)), )

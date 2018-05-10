@@ -49,21 +49,21 @@
 #include <LUFA/Drivers/USB/USB.h>
 #include <LUFA/Platform/Platform.h>
 
-#include "../../firmware/board/avr/variants/Common.h"
-#include "../../firmware/board/common/constants/Reboot.h"
+#include "board/avr/variants/Common.h"
+#include "board/common/constants/Reboot.h"
 
 #ifdef BOARD_OPEN_DECK
-#include "../../firmware/board/avr/variants/opendeck/pins/Pins.h"
-#include "../../firmware/board/avr/variants/opendeck/Hardware.h"
+#include "board/avr/variants/opendeck/pins/Pins.h"
+#include "board/avr/variants/opendeck/Hardware.h"
 #elif defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO)
-#include "../../firmware/board/avr/variants/leonardo/pins/Pins.h"
-#include "../../firmware/board/avr/variants/leonardo/Hardware.h"
+#include "board/avr/variants/leonardo/pins/Pins.h"
+#include "board/avr/variants/leonardo/Hardware.h"
 #elif defined(BOARD_A_xu2)
-#include "../../firmware/board/avr/variants/xu2/Pins.h"
-#include "../../firmware/board/avr/variants/xu2/Hardware.h"
+#include "board/avr/variants/xu2/Pins.h"
+#include "board/avr/variants/xu2/Hardware.h"
 #elif defined(BOARD_T_2PP)
-#include "../../firmware/board/avr/variants/teensy2pp/pins/Pins.h"
-#include "../../firmware/board/avr/variants/teensy2pp/Hardware.h"
+#include "board/avr/variants/teensy2pp/pins/Pins.h"
+#include "board/avr/variants/teensy2pp/Hardware.h"
 #endif
 
 /* Preprocessor Checks: */

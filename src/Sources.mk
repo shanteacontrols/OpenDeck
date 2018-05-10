@@ -43,7 +43,7 @@ ifeq ($(filter %mega %uno, $(MAKECMDGOALS)), )
     else
         #firmware
         SOURCES += \
-        firmware/board/avr/usb/Descriptors.c \
+        application/board/avr/usb/Descriptors.c \
         modules/lufa/LUFA/Drivers/USB/Class/Device/AudioClassDevice.c \
         modules/lufa/LUFA/Drivers/USB/Class/Device/MIDIClassDevice.c
     endif
@@ -54,55 +54,55 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
     ifeq ($(BOARD_DIR),xu2)
         #xu2 uses different set of sources than other firmwares
         SOURCES += \
-        firmware/board/avr/variants/$(BOARD_DIR)/Board.cpp \
-        firmware/board/avr/variants/$(BOARD_DIR)/ISR.cpp \
-        firmware/board/avr/variants/$(BOARD_DIR)/main.cpp \
-        firmware/board/avr/uart/UART_MIDI_1.cpp \
-        firmware/board/avr/usb/USB_MIDI.cpp \
+        application/board/avr/variants/$(BOARD_DIR)/Board.cpp \
+        application/board/avr/variants/$(BOARD_DIR)/ISR.cpp \
+        application/board/avr/variants/$(BOARD_DIR)/main.cpp \
+        application/board/avr/uart/UART_MIDI_1.cpp \
+        application/board/avr/usb/USB_MIDI.cpp \
         modules/midi/src/MIDI.cpp
     else
         SOURCES += \
-        firmware/OpenDeck.cpp \
+        application/OpenDeck.cpp \
         modules/core/src/HAL/avr/reset/Reset.cpp \
-        firmware/database/Database.cpp \
+        application/database/Database.cpp \
         modules/dbms/src/DBMS.cpp \
-        firmware/interface/analog/Analog.cpp \
-        firmware/interface/analog/FSR.cpp \
-        firmware/interface/analog/Potentiometer.cpp \
-        firmware/interface/cinfo/CInfo.cpp \
-        firmware/interface/digital/input/DigitalInput.cpp \
-        firmware/interface/digital/input/buttons/Buttons.cpp \
-        firmware/interface/digital/input/encoders/Encoders.cpp \
-        firmware/interface/digital/output/leds/LEDs.cpp \
-        firmware/sysExConf/Handling.cpp \
+        application/interface/analog/Analog.cpp \
+        application/interface/analog/FSR.cpp \
+        application/interface/analog/Potentiometer.cpp \
+        application/interface/cinfo/CInfo.cpp \
+        application/interface/digital/input/DigitalInput.cpp \
+        application/interface/digital/input/buttons/Buttons.cpp \
+        application/interface/digital/input/encoders/Encoders.cpp \
+        application/interface/digital/output/leds/LEDs.cpp \
+        application/sysExConf/Handling.cpp \
         modules/midi/src/MIDI.cpp \
         modules/sysex/src/SysEx.cpp \
-        firmware/board/avr/variants/$(BOARD_DIR)/Analog.cpp \
-        firmware/board/avr/variants/$(BOARD_DIR)/Board.cpp \
-        firmware/board/avr/variants/$(BOARD_DIR)/Buttons.cpp \
-        firmware/board/avr/variants/$(BOARD_DIR)/DigitalIn.cpp \
-        firmware/board/avr/variants/$(BOARD_DIR)/Encoders.cpp \
-        firmware/board/avr/variants/$(BOARD_DIR)/Init.cpp \
-        firmware/board/avr/variants/$(BOARD_DIR)/ISR.cpp \
-        firmware/board/avr/variants/$(BOARD_DIR)/LEDs.cpp \
+        application/board/avr/variants/$(BOARD_DIR)/Analog.cpp \
+        application/board/avr/variants/$(BOARD_DIR)/Board.cpp \
+        application/board/avr/variants/$(BOARD_DIR)/Buttons.cpp \
+        application/board/avr/variants/$(BOARD_DIR)/DigitalIn.cpp \
+        application/board/avr/variants/$(BOARD_DIR)/Encoders.cpp \
+        application/board/avr/variants/$(BOARD_DIR)/Init.cpp \
+        application/board/avr/variants/$(BOARD_DIR)/ISR.cpp \
+        application/board/avr/variants/$(BOARD_DIR)/LEDs.cpp \
 
         ifneq ($(filter fw_leonardo fw_pro_micro fw_opendeck fw_teensy2pp fw_kodama, $(MAKECMDGOALS)), )
             #these variants all support usb midi and use uart1 for din midi
             SOURCES += \
-            firmware/board/avr/usb/USB_MIDI.cpp \
-            firmware/board/avr/uart/UART_MIDI_1.cpp
+            application/board/avr/usb/USB_MIDI.cpp \
+            application/board/avr/uart/UART_MIDI_1.cpp
         else ifneq ($(filter fw_mega fw_uno, $(MAKECMDGOALS)), )
             #no usb midi, uart0 for din midi
             SOURCES += \
-            firmware/board/avr/uart/UART_MIDI_0.cpp
+            application/board/avr/uart/UART_MIDI_0.cpp
         endif
 
         #compile display only for mega and teensy at the moment
         ifneq ($(filter fw_mega fw_teensy2pp, $(MAKECMDGOALS)), )
             SOURCES += \
-            firmware/board/avr/display/u8g2_wrapper.cpp \
-            firmware/interface/display/UpdateLogic.cpp \
-            firmware/interface/display/TextBuild.cpp
+            application/board/avr/display/u8g2_wrapper.cpp \
+            application/interface/display/UpdateLogic.cpp \
+            application/interface/display/TextBuild.cpp
 
             #compile all sources in u8g2 dir for now
             SOURCES += $(shell find modules/u8g2/csrc/ -name "*.c")
