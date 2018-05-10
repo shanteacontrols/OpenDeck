@@ -26,11 +26,17 @@
 #include "../../../display/Display.h"
 #endif
 
+///
+/// \brief Default constructor.
+///
 Encoders::Encoders()
 {
-    //def const
+
 }
 
+///
+/// \brief Continuously checks state of all encoders.
+///
 void Encoders::update()
 {
     uint8_t encoderValue;

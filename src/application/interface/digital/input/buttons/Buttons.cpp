@@ -17,42 +17,122 @@
 */
 
 #include "Buttons.h"
-#include "../../../../database/Database.h"
-#include "../../output/leds/LEDs.h"
+#include "database/Database.h"
+#include "interface/digital/output/leds/LEDs.h"
 #include "sysex/src/SysEx.h"
-#include "../../../cinfo/CInfo.h"
+#include "interface/cinfo/CInfo.h"
 #ifdef DISPLAY_SUPPORTED
-#include "../../../display/Display.h"
+#include "interface/display/Display.h"
 #endif
 
-static uint8_t  mmcArray[] =  { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 }; //based on MIDI spec for transport control
+///
+/// \brief Array used for simpler building of transport control messages.
+/// Based on MIDI specification for transport control.
+///
+static uint8_t  mmcArray[] =  { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 };
 
-//variables
-static uint8_t  previousButtonState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1],
-                buttonPressed[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1],
-                buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG];
+///
+/// \brief Array holding debounce count for all buttons to avoid incorrect state detection.
+///
+uint8_t     buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG];
 
+uint8_t     previousButtonState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1],
+            buttonPressed[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1];
+
+///
+/// \brief Default constructor.
+///
 Buttons::Buttons()
 {
-    //def const
+
 }
 
-void Buttons::setButtonPressed(uint8_t buttonID, bool state)
+///
+/// \brief Continuously reads inputs from buttons and acts if necessary.
+///
+void Buttons::update()
 {
-    uint8_t arrayIndex = buttonID/8;
-    uint8_t buttonIndex = buttonID - 8*arrayIndex;
+    for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
+    {
+        bool buttonState;
+        uint8_t encoderPairIndex = board.getEncoderPair(i);
 
-    BIT_WRITE(buttonPressed[arrayIndex], buttonIndex, state);
+        if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, encoderPairIndex))
+            buttonState = false;    //button is member of encoder pair, always set state to released
+        else
+            buttonState = board.getButtonState(i);
+
+        processButton(i, buttonState);
+    }
 }
 
-bool Buttons::getButtonPressed(uint8_t buttonID)
+///
+/// \brief Handles changes in button states.
+/// @param [in] buttonID    Button index which has changed state.
+/// @param [in] state       Current button state.
+/// @param [in] debounce    If set to true, button must be debounced first.
+///                         False can can be used when there is no need to
+///                         debounce button, for instance when analog component
+///                         is configured as digital input.
+///
+void Buttons::processButton(uint8_t buttonID, bool state, bool debounce)
 {
-    uint8_t arrayIndex = buttonID/8;
-    uint8_t buttonIndex = buttonID - 8*arrayIndex;
+    bool debounced = debounce ? buttonDebounced(buttonID, state) : true;
 
-    return BIT_READ(buttonPressed[arrayIndex], buttonIndex);
+    if (debounced)
+    {
+        buttonType_t type = (buttonType_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_type, buttonID);
+        buttonMIDImessage_t midiMessage = (buttonMIDImessage_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, buttonID);
+
+        //overwrite type under certain conditions
+        switch(midiMessage)
+        {
+            case buttonPC:
+            case buttonMMCPlay:
+            case buttonMMCStop:
+            case buttonMMCPause:
+            case buttonCC:
+            case buttonRealTimeClock:
+            case buttonRealTimeStart:
+            case buttonRealTimeContinue:
+            case buttonRealTimeStop:
+            case buttonRealTimeActiveSensing:
+            case buttonRealTimeSystemReset:
+            type = buttonMomentary;
+            break;
+
+            case buttonMMCRecord:
+            type = buttonLatching;
+            break;
+
+            default:
+            break;
+        }
+
+        switch (type)
+        {
+            case buttonMomentary:
+            processMomentaryButton(buttonID, state, midiMessage);
+            break;
+
+            case buttonLatching:
+            processLatchingButton(buttonID, state, midiMessage);
+            break;
+
+            default:
+            break;
+        }
+
+        updateButtonState(buttonID, state);
+    }
 }
 
+///
+/// \brief Handles changes in button states for momentary button type.
+/// @param [in] buttonID    Button index which has changed state.
+/// @param [in] state       Current button state.
+/// @param [in] midiMessage Type of MIDI message which specified button sends.
+///
 void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonMIDImessage_t midiMessage)
 {
     uint8_t note = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, buttonID);
@@ -228,6 +308,12 @@ void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonM
     }
 }
 
+///
+/// \brief Handles changes in button states for latching button type.
+/// @param [in] buttonID    Button index which has changed state.
+/// @param [in] state       Current button state.
+/// @param [in] midiMessage Type of MIDI message which specified button sends.
+///
 void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMIDImessage_t midiMessage)
 {
     if (buttonState != getPreviousButtonState(buttonID))
@@ -349,74 +435,11 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
     }
 }
 
-void Buttons::processButton(uint8_t buttonID, bool state, bool debounce)
-{
-    bool debounced = debounce ? buttonDebounced(buttonID, state) : true;
-
-    if (debounced)
-    {
-        buttonType_t type = (buttonType_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_type, buttonID);
-        buttonMIDImessage_t midiMessage = (buttonMIDImessage_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, buttonID);
-
-        //overwrite type under certain conditions
-        switch(midiMessage)
-        {
-            case buttonPC:
-            case buttonMMCPlay:
-            case buttonMMCStop:
-            case buttonMMCPause:
-            case buttonCC:
-            case buttonRealTimeClock:
-            case buttonRealTimeStart:
-            case buttonRealTimeContinue:
-            case buttonRealTimeStop:
-            case buttonRealTimeActiveSensing:
-            case buttonRealTimeSystemReset:
-            type = buttonMomentary;
-            break;
-
-            case buttonMMCRecord:
-            type = buttonLatching;
-            break;
-
-            default:
-            break;
-        }
-
-        switch (type)
-        {
-            case buttonMomentary:
-            processMomentaryButton(buttonID, state, midiMessage);
-            break;
-
-            case buttonLatching:
-            processLatchingButton(buttonID, state, midiMessage);
-            break;
-
-            default:
-            break;
-        }
-
-        updateButtonState(buttonID, state);
-    }
-}
-
-void Buttons::update()
-{
-    for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
-    {
-        bool buttonState;
-        uint8_t encoderPairIndex = board.getEncoderPair(i);
-
-        if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, encoderPairIndex))
-            buttonState = false;    //button is member of encoder pair, always set state to released
-        else
-            buttonState = board.getButtonState(i);
-
-        processButton(i, buttonState);
-    }
-}
-
+///
+/// \brief Updates current state of button.
+/// @param [in] buttonID        Button for which state is being changed.
+/// @param [in] buttonState     New button state (true/pressed, false/released).
+///
 void Buttons::updateButtonState(uint8_t buttonID, uint8_t buttonState)
 {
     uint8_t arrayIndex = buttonID/8;
@@ -427,6 +450,12 @@ void Buttons::updateButtonState(uint8_t buttonID, uint8_t buttonState)
         BIT_WRITE(previousButtonState[arrayIndex], buttonIndex, buttonState);
 }
 
+///
+/// \brief Checks for last button state.
+/// Used for latching buttons only.
+/// @param [in] buttonID    Button index for which previous state is being checked.
+/// \returns True if last state was on/pressed, false otherwise.
+///
 bool Buttons::getPreviousButtonState(uint8_t buttonID)
 {
     uint8_t arrayIndex = buttonID/8;
@@ -435,6 +464,36 @@ bool Buttons::getPreviousButtonState(uint8_t buttonID)
     return BIT_READ(previousButtonState[arrayIndex], buttonIndex);
 }
 
+///
+/// \brief Updates current send state of button.
+/// @param [in] buttonID        Button for which state is being changed.
+/// @param [in] buttonState     New button state (true/pressed, false/released).
+///
+void Buttons::setButtonPressed(uint8_t buttonID, bool state)
+{
+    uint8_t arrayIndex = buttonID/8;
+    uint8_t buttonIndex = buttonID - 8*arrayIndex;
+
+    BIT_WRITE(buttonPressed[arrayIndex], buttonIndex, state);
+}
+
+bool Buttons::getButtonPressed(uint8_t buttonID)
+{
+    uint8_t arrayIndex = buttonID/8;
+    uint8_t buttonIndex = buttonID - 8*arrayIndex;
+
+    return BIT_READ(buttonPressed[arrayIndex], buttonIndex);
+}
+
+///
+/// \brief Checks if button reading is stable.
+/// Shift old value to the left, append new value and
+/// append DEBOUNCE_COMPARE with OR command. If final value is equal to 0xFF or
+/// DEBOUNCE_COMPARE, signal is debounced.
+/// @param [in] buttonID    Button index which is being checked.
+/// @param [in] buttonState Current button state.
+/// \returns                True if button reading is stable, false otherwise.
+///
 bool Buttons::buttonDebounced(uint8_t buttonID, bool buttonState)
 {
     //shift new button reading into previousButtonState

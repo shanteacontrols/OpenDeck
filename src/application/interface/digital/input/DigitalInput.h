@@ -21,6 +21,12 @@
 #include "buttons/Buttons.h"
 #include "encoders/Encoders.h"
 
+///
+/// \brief Grouped handling for both encoders and buttons.
+/// \defgroup interfaceDigitalIn Digital input
+/// \ingroup interface
+/// @{
+
 class DigitalInput
 {
     public:
@@ -28,4 +34,7 @@ class DigitalInput
     static void update();
 };
 
+///
+/// \brief External definition of DigitalInput class instance.
+///
 extern DigitalInput digitalInput;

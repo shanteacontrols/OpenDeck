@@ -18,13 +18,24 @@
 
 #pragma once
 
+///
+/// \ingroup interfaceButtons
+/// @{
+
+
+///
+/// \brief List of all possible button types.
+///
 typedef enum
 {
-    buttonMomentary,
-    buttonLatching,
-    BUTTON_TYPES
+    buttonMomentary,    ///< Event on press and release.
+    buttonLatching,     ///< Event between presses only.
+    BUTTON_TYPES        ///< TOtal number of button types.
 } buttonType_t;
 
+///
+/// \brief List of all possible MIDI messages buttons can send.
+///
 typedef enum
 {
     buttonNote,
@@ -43,3 +54,5 @@ typedef enum
     buttonRealTimeSystemReset,
     BUTTON_MESSAGE_TYPES
 } buttonMIDImessage_t;
+
+/// @}

@@ -22,10 +22,10 @@
 
 ///
 /// \brief Encoder handling.
-/// \defgroup encoders Encoders
-/// \ingroup interface
+/// \defgroup interfaceEncoders Encoders
+/// \ingroup interfaceDigitalIn
 /// @{
-///
+
 class Encoders
 {
     public:
@@ -33,5 +33,9 @@ class Encoders
     static void update();
 };
 
+///
+/// \brief External definition of Encoders class instance.
+///
 extern Encoders encoders;
+
 /// @}

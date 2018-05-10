@@ -24,10 +24,9 @@
 
 ///
 /// \brief Button handling.
-/// \defgroup buttons Buttons
-/// \ingroup interface
+/// \defgroup interfaceButtons Buttons
+/// \ingroup interfaceDigitalIn
 /// @{
-///
 
 class Buttons
 {
@@ -38,7 +37,6 @@ class Buttons
     static void processButton(uint8_t buttonID, bool state, bool debounce = true);
 
     private:
-    //data processing
     static bool getButtonPressed(uint8_t buttonID);
     static void setButtonPressed(uint8_t buttonID, bool state);
     static void processMomentaryButton(uint8_t buttonID, bool buttonState, buttonMIDImessage_t midiMessage = buttonNote);
@@ -48,6 +46,9 @@ class Buttons
     static bool buttonDebounced(uint8_t buttonID, bool buttonState);
 };
 
+///
+/// \brief External definition of Buttons class instance.
+///
 extern Buttons buttons;
 
 /// @}
