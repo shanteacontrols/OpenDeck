@@ -28,7 +28,7 @@ void init()
     database.init();
     sysEx.init();
 
-    #if !defined(BOARD_MEGA) && !defined(BOARD_A_UNO)
+    #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
     //use recursive parsing when merging is active
     if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
         midi.setOneByteParseDINstate(false);
@@ -89,7 +89,7 @@ int main()
 
     while(1)
     {
-        #if defined(BOARD_A_LEO) || defined(BOARD_OPEN_DECK) || defined(BOARD_A_PRO_MICRO) || defined(BOARD_T_2PP)
+        #ifdef USB_SUPPORTED
         if (midi.read(usbInterface))
         {
             //new message on usb

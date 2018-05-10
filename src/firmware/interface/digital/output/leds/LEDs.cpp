@@ -40,7 +40,7 @@ LEDs::LEDs()
 void LEDs::init()
 {
     setBlinkTime(database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterBlinkTime)*BLINK_TIME_SYSEX_MULTIPLIER);
-    #ifdef BOARD_OPEN_DECK
+    #ifdef LED_FADING_SUPPORTED
     setFadeTime(database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterFadeTime));
     #endif
 
@@ -74,14 +74,14 @@ void LEDs::startUpAnimation()
 {
     if (database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterStartUpRoutine))
     {
-        #ifdef BOARD_OPEN_DECK
+        #ifdef LED_FADING_SUPPORTED
         setFadeTime(1);
         #endif
         setAllOn();
         wait_ms(2000);
         setAllOff();
         wait_ms(2000);
-        #ifdef BOARD_OPEN_DECK
+        #ifdef LED_FADING_SUPPORTED
         setFadeTime(database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterFadeTime));
         #endif
     }

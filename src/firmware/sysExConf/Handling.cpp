@@ -369,7 +369,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 case ledHwParameterFadeTime:
                 if ((newValue >= FADE_TIME_MIN) && (newValue <= FADE_TIME_MAX))
                 {
-                    #ifdef BOARD_OPEN_DECK
+                    #ifdef LED_FADING_SUPPORTED
                     leds.setFadeTime(newValue);
                     #endif
                     success = true;

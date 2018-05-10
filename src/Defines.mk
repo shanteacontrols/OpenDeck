@@ -38,19 +38,25 @@ endif
 ifeq ($(findstring opendeck,$(MAKECMDGOALS)), opendeck)
     MCU := atmega32u4
     DEFINES += BOARD_OPEN_DECK
+    DEFINES += USB_SUPPORTED
+    DEFINES += LED_FADING_SUPPORTED
 else ifeq ($(findstring leonardo,$(MAKECMDGOALS)), leonardo)
     MCU := atmega32u4
     DEFINES += BOARD_A_LEO
+    DEFINES += USB_SUPPORTED
 else ifeq ($(findstring pro_micro,$(MAKECMDGOALS)), pro_micro)
     MCU := atmega32u4
     DEFINES += BOARD_A_PRO_MICRO
+    DEFINES += USB_SUPPORTED
 else ifeq ($(findstring kodama,$(MAKECMDGOALS)), kodama)
     MCU := atmega32u4
     DEFINES += BOARD_KODAMA
+    DEFINES += USB_SUPPORTED
 else ifeq ($(findstring teensy2pp,$(MAKECMDGOALS)), teensy2pp)
     MCU := at90usb1286
     DEFINES += BOARD_T_2PP
     DEFINES += STRING_BUFFER_SIZE=40
+    DEFINES += USB_SUPPORTED
     DEFINES += DISPLAY_SUPPORTED
 else ifeq ($(findstring mega,$(MAKECMDGOALS)), mega)
     MCU := atmega2560

@@ -23,6 +23,7 @@ const char arduinoMega_string[] PROGMEM = "Arduino Mega";
 const char arduinoProMicro_string[] PROGMEM = "Arduino PM";
 const char arduinoUno_string[] PROGMEM = "Arduino Uno";
 const char teensy2pp_string[] PROGMEM = "Teensy++ 2.0";
+const char kodama_string[] PROGMEM = "Kodama";
 
 //match with boardID_t enum
 PGM_P const boardNameArray[] PROGMEM =
@@ -32,15 +33,6 @@ PGM_P const boardNameArray[] PROGMEM =
     arduinoMega_string,
     arduinoProMicro_string,
     arduinoUno_string,
-    teensy2pp_string
-};
-
-const uint8_t boardNameArray_sizes[] PROGMEM =
-{
-    0,
-    ARRAY_SIZE_CHAR(arduinoLeonardo_string),
-    ARRAY_SIZE_CHAR(arduinoMega_string),
-    ARRAY_SIZE_CHAR(arduinoProMicro_string),
-    ARRAY_SIZE_CHAR(arduinoUno_string),
-    ARRAY_SIZE_CHAR(teensy2pp_string)
+    teensy2pp_string,
+    kodama_string
 };
