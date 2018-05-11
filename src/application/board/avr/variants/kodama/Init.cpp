@@ -70,7 +70,6 @@ void Board::initPins()
     setOutput(PORTF, 0);
     setOutput(PORTF, 1);
     setOutput(PORTF, 4);
-    setOutput(PORTF, 5);
 
     //make sure all unused pins are logic low
     setLow(PORTB, 0);
@@ -89,7 +88,6 @@ void Board::initPins()
     setLow(PORTF, 0);
     setLow(PORTF, 1);
     setLow(PORTF, 4);
-    setLow(PORTF, 5);
 }
 
 void Board::configureTimers()
