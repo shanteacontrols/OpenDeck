@@ -17,7 +17,7 @@
 */
 
 #include "board/Board.h"
-#include "pins/Map.h"
+#include "pins/Pins.h"
 
 void Board::initPins()
 {

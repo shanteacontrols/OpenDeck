@@ -17,7 +17,7 @@
 */
 
 #include "board/Board.h"
-#include "pins/Map.h"
+#include "pins/Pins.h"
 
 void Board::initPins()
 {
@@ -86,7 +86,7 @@ void Board::initAnalog()
     adcConfiguration.vref = ADC_VREF_AVCC;
 
     setUpADC(adcConfiguration);
-    setADCchannel(aInPinMap[0]);
+    setADCchannel(AI_1_PIN);
 
     _delay_ms(2);
 

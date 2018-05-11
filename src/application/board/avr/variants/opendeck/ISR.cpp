@@ -46,32 +46,6 @@ static uint8_t midiOut_timeout;
 
 /// @}
 
-///
-/// \brief Array holding LED row pins for easier access.
-///
-const uint8_t ledRowPinArray[] =
-{
-    LED_ROW_1_PIN,
-    LED_ROW_2_PIN,
-    LED_ROW_3_PIN,
-    LED_ROW_4_PIN,
-    LED_ROW_5_PIN,
-    LED_ROW_6_PIN
-};
-
-///
-/// \brief Array holding LED row ports for easier access.
-///
-volatile uint8_t *ledRowPortArray[] =
-{
-    &LED_ROW_1_PORT,
-    &LED_ROW_2_PORT,
-    &LED_ROW_3_PORT,
-    &LED_ROW_4_PORT,
-    &LED_ROW_5_PORT,
-    &LED_ROW_6_PORT
-};
-
 void Board::configureTimers()
 {
     //clear timer0 conf

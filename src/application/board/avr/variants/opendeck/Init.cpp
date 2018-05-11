@@ -17,7 +17,7 @@
 */
 
 #include "board/Board.h"
-#include "pins/Map.h"
+#include "pins/Pins.h"
 
 void Board::initAnalog()
 {
@@ -30,7 +30,7 @@ void Board::initAnalog()
     adcConfiguration.vref = ADC_VREF_AREF;
 
     setUpADC(adcConfiguration);
-    setADCchannel(muxInPinArray[0]);
+    setADCchannel(MUX_1_IN_PIN);
 
     _delay_ms(2);
 
