@@ -39,33 +39,44 @@ ifeq ($(findstring opendeck,$(MAKECMDGOALS)), opendeck)
     MCU := atmega32u4
     DEFINES += BOARD_OPEN_DECK
     DEFINES += USB_SUPPORTED
+    DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += LED_FADING_SUPPORTED
+    DEFINES += LED_INVERT
+    DEFINES += USE_MUX
+    DEFINES += IN_MATRIX
+    DEFINES += OUT_MATRIX
 else ifeq ($(findstring leonardo,$(MAKECMDGOALS)), leonardo)
     MCU := atmega32u4
     DEFINES += BOARD_A_LEO
     DEFINES += USB_SUPPORTED
+    DEFINES += DIN_MIDI_SUPPORTED
 else ifeq ($(findstring pro_micro,$(MAKECMDGOALS)), pro_micro)
     MCU := atmega32u4
     DEFINES += BOARD_A_PRO_MICRO
     DEFINES += USB_SUPPORTED
+    DEFINES += DIN_MIDI_SUPPORTED
 else ifeq ($(findstring kodama,$(MAKECMDGOALS)), kodama)
     MCU := atmega32u4
     DEFINES += BOARD_KODAMA
     DEFINES += USB_SUPPORTED
+    DEFINES += USE_MUX
 else ifeq ($(findstring teensy2pp,$(MAKECMDGOALS)), teensy2pp)
     MCU := at90usb1286
     DEFINES += BOARD_T_2PP
     DEFINES += STRING_BUFFER_SIZE=40
     DEFINES += USB_SUPPORTED
+    DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += DISPLAY_SUPPORTED
 else ifeq ($(findstring mega,$(MAKECMDGOALS)), mega)
     MCU := atmega2560
     DEFINES += BOARD_A_MEGA
     DEFINES += STRING_BUFFER_SIZE=40
     DEFINES += DISPLAY_SUPPORTED
+    DEFINES += DIN_MIDI_SUPPORTED
 else ifeq ($(findstring uno,$(MAKECMDGOALS)), uno)
     MCU := atmega328p
     DEFINES += BOARD_A_UNO
+    DEFINES += DIN_MIDI_SUPPORTED
 else ifeq ($(findstring 16u2,$(MAKECMDGOALS)), 16u2)
     MCU := atmega16u2
     DEFINES += BOARD_A_xu2
@@ -141,6 +152,7 @@ else ifeq ($(MCU),atmega328p)
     EEPROM_SIZE := 1024
 endif
 
+DEFINES += APP_LENGTH_LOCATION=$(FLASH_SIZE_START_ADDR)
 DEFINES += BOOT_START_ADDR=$(BOOT_START_ADDR)
 DEFINES += EEPROM_SIZE=$(EEPROM_SIZE)
 #for database, total size is three bytes smaller than full eeprom

@@ -23,9 +23,6 @@
 ///
 #define BUTTON_DEBOUNCE_COMPARE         0b11111100
 
-//uncomment if leds use reverse logic for setting on/off state
-#define LED_INVERT
-
 ///
 /// \brief Total number of analog multiplexers.
 ///

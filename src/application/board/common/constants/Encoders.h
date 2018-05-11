@@ -18,6 +18,10 @@
 
 #pragma once
 
+///
+/// \ingroup boardCommon
+/// @{
+
 /*
     Encoder data formatting, uint16_t variable type
     0      1      2      3
@@ -29,13 +33,33 @@
     3 - temp encoder state (2 readings of 2 encoder pairs)
 */
 
+///
+/// \brief Mask used to clear previous encoder reading.
+///
 #define ENCODER_CLEAR_TEMP_STATE_MASK       0xFFF0
+
+///
+/// \brief Mask used to clear counted pulses from encoder.
+///
 #define ENCODER_CLEAR_PULSES_MASK           0xFF0F
-#define ENCODER_CLEAR_MOVING_STATUS_MASK    0xF0FF
+
+///
+/// \brief Bit location for writing current encoder direction.
 #define ENCODER_DIRECTION_BIT               15
+
+///
+/// \brief Default amount of pulses written initially to every encoder.
+///
 #define ENCODER_DEFAULT_PULSE_COUNT_STATE   8
+
+///
+/// \brief Pulses encoder needs to generate in order to register movement.
+///
 #define PULSES_PER_STEP                     4
 
+///
+/// \brief Lookup table used to convert encoder reading to pulses.
+///
 const int8_t encoderLookUpTable[] =
 {
     0,
@@ -55,3 +79,5 @@ const int8_t encoderLookUpTable[] =
     1,
     0
 };
+
+/// @}

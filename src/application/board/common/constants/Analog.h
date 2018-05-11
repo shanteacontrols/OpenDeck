@@ -18,14 +18,6 @@
 
 #pragma once
 
-//power of 2
-#define NUMBER_OF_ANALOG_SAMPLES    1
-#define ANALOG_SAMPLE_SHIFT         0
+#include "board/Board.h"
 
-#define ADC_AVG_VALUE(value)        (value >> ANALOG_SAMPLE_SHIFT)
-
-typedef enum
-{
-    lowHysteresis,
-    highHysteresis
-} hysteresisType_t;
+#define ANALOG_BUFFER_SIZE  MAX_NUMBER_OF_ANALOG

@@ -17,21 +17,27 @@
 */
 
 #include "board/Board.h"
+#include "pins/Map.h"
 
-void Board::init()
+void Board::initAnalog()
 {
-    cli();
-    //disable watchdog
-    MCUSR &= ~(1 << WDRF);
-    wdt_disable();
-    initPins();
-    initAnalog();
-    initEncoders();
+    disconnectDigitalInADC(MUX_1_IN_PIN);
+    disconnectDigitalInADC(MUX_2_IN_PIN);
 
-    initUART_MIDI(MIDI_BAUD_RATE_STD);
-    initUSB_MIDI();
+    adcConf adcConfiguration;
 
-    configureTimers();
+    adcConfiguration.prescaler = ADC_PRESCALER_128;
+    adcConfiguration.vref = ADC_VREF_AREF;
+
+    setUpADC(adcConfiguration);
+    setADCchannel(muxInPinArray[0]);
+
+    _delay_ms(2);
+
+    for (int i=0; i<5; i++)
+        getADCvalue();  //few dummy reads to init ADC
+
+    adcInterruptEnable();
 }
 
 void Board::initPins()
@@ -86,6 +92,11 @@ void Board::initPins()
     setOutput(MUX_S2_PORT, MUX_S2_PIN);
     setOutput(MUX_S3_PORT, MUX_S3_PIN);
 
+    setLow(MUX_S0_PORT, MUX_S0_PIN);
+    setLow(MUX_S1_PORT, MUX_S1_PIN);
+    setLow(MUX_S2_PORT, MUX_S2_PIN);
+    setLow(MUX_S3_PORT, MUX_S3_PIN);
+
     //mux inputs
     setInput(MUX_1_IN_PORT, MUX_1_IN_PIN);
     setInput(MUX_2_IN_PORT, MUX_2_IN_PIN);
@@ -98,3 +109,29 @@ void Board::initPins()
     MIDI_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
 }
 
+void Board::ledFlashStartup(bool fwUpdated)
+{
+    for (int i=0; i<3; i++)
+    {
+        if (fwUpdated)
+        {
+            BTLDR_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+            BTLDR_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+            _delay_ms(200);
+            BTLDR_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+            BTLDR_LED_ON(LED_IN_PORT, LED_IN_PIN);
+            _delay_ms(200);
+        }
+        else
+        {
+            BTLDR_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+            BTLDR_LED_ON(LED_IN_PORT, LED_IN_PIN);
+            _delay_ms(200);
+            BTLDR_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+            BTLDR_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+            _delay_ms(200);
+        }
+    }
+}
+
+Board board;

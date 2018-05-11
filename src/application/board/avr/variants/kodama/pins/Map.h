@@ -19,7 +19,6 @@
 #pragma once
 
 #include "Pins.h"
-#include "../Board.h"
 
 const uint8_t muxInPinArray[] =
 {

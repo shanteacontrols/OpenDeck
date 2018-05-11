@@ -17,6 +17,7 @@
         "atomic": "cpp",
         "slist": "cpp",
         "array": "cpp",
-        "*.tcc": "cpp"
+        "*.tcc": "cpp",
+        "initializer_list": "c"
     },
 }

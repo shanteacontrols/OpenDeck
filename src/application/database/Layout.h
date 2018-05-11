@@ -19,7 +19,7 @@
 #pragma once
 
 #include "Database.h"
-#include "../board/Board.h"
+#include "board/Board.h"
 
 static dbSection_t midiSections[DB_SECTIONS_MIDI] =
 {

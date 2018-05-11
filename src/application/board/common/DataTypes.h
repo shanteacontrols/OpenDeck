@@ -18,10 +18,20 @@
 
 #pragma once
 
-#include <inttypes.h>
-
+///
+/// \brief List of all possible reboot types.
+///
 typedef enum
 {
-    rebootApp,
-    rebootBtldr
+    rebootApp,  ///< Reboot to application.
+    rebootBtldr ///< Reboot to bootloader.
 } rebootType_t;
+
+///
+/// \brief List of all possible hysteresis regions.
+///
+typedef enum
+{
+    lowHysteresis,
+    highHysteresis
+} hysteresisType_t;

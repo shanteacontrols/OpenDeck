@@ -54,9 +54,8 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
     ifeq ($(BOARD_DIR),xu2)
         #xu2 uses different set of sources than other firmwares
         SOURCES += \
-        application/board/avr/variants/$(BOARD_DIR)/Board.cpp \
+        application/board/avr/variants/$(BOARD_DIR)/xu2.cpp \
         application/board/avr/variants/$(BOARD_DIR)/ISR.cpp \
-        application/board/avr/variants/$(BOARD_DIR)/main.cpp \
         application/board/avr/uart/UART_MIDI_1.cpp \
         application/board/avr/usb/USB_MIDI.cpp \
         modules/midi/src/MIDI.cpp
@@ -77,14 +76,38 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         application/sysExConf/Handling.cpp \
         modules/midi/src/MIDI.cpp \
         modules/sysex/src/SysEx.cpp \
-        application/board/avr/variants/$(BOARD_DIR)/Analog.cpp \
-        application/board/avr/variants/$(BOARD_DIR)/Board.cpp \
-        application/board/avr/variants/$(BOARD_DIR)/Buttons.cpp \
-        application/board/avr/variants/$(BOARD_DIR)/DigitalIn.cpp \
-        application/board/avr/variants/$(BOARD_DIR)/Encoders.cpp \
         application/board/avr/variants/$(BOARD_DIR)/Init.cpp \
         application/board/avr/variants/$(BOARD_DIR)/ISR.cpp \
-        application/board/avr/variants/$(BOARD_DIR)/LEDs.cpp \
+        application/board/avr/variants/Common.cpp \
+        application/board/common/analog/input/Common.cpp \
+        application/board/common/digital/input/encoders/Common.cpp \
+
+        #board specific
+        ifneq ($(filter USE_MUX, $(DEFINES)), )
+        SOURCES += \
+        application/board/common/analog/input/Mux.cpp
+        endif
+
+        ifneq ($(filter IN_MATRIX, $(DEFINES)), )
+        SOURCES += \
+        application/board/common/digital/input/matrix/InMatrix.cpp \
+        application/board/common/digital/input/buttons/Matrix.cpp \
+        application/board/common/digital/input/encoders/Matrix.cpp
+        else
+        SOURCES += \
+        application/board/common/digital/input/direct/Direct.cpp \
+        application/board/common/digital/input/buttons/DirectIn.cpp \
+        application/board/common/digital/input/encoders/DirectIn.cpp
+        endif
+
+        ifneq ($(filter OUT_MATRIX, $(DEFINES)), )
+        SOURCES += \
+        application/board/common/digital/output/matrix/OutMatrix.cpp \
+        application/board/common/digital/output/leds/Matrix.cpp
+        else
+        SOURCES += \
+        application/board/common/digital/output/leds/DirectOut.cpp
+        endif
 
         ifneq ($(filter fw_leonardo fw_pro_micro fw_opendeck fw_teensy2pp fw_kodama, $(MAKECMDGOALS)), )
             #these variants all support usb midi and use uart1 for din midi

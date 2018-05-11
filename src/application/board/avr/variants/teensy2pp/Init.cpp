@@ -17,22 +17,7 @@
 */
 
 #include "board/Board.h"
-
-void Board::init()
-{
-    cli();
-    //disable watchdog
-    MCUSR &= ~(1 << WDRF);
-    wdt_disable();
-    initPins();
-    initAnalog();
-    initEncoders();
-
-    initUART_MIDI(MIDI_BAUD_RATE_STD);
-    initUSB_MIDI();
-
-    configureTimers();
-}
+#include "pins/Map.h"
 
 void Board::initPins()
 {
@@ -159,6 +144,24 @@ void Board::initPins()
     setLow(AI_8_PORT, AI_8_PIN);
 }
 
+void Board::initAnalog()
+{
+    adcConf adcConfiguration;
+
+    adcConfiguration.prescaler = ADC_PRESCALER_128;
+    adcConfiguration.vref = ADC_VREF_AVCC;
+
+    setUpADC(adcConfiguration);
+    setADCchannel(aInPinMap[0]);
+
+    _delay_ms(2);
+
+    for (int i=0; i<5; i++)
+        getADCvalue();  //few dummy reads to init ADC
+
+    adcInterruptEnable();
+}
+
 void Board::configureTimers()
 {
     //clear timer0 conf
@@ -172,3 +175,30 @@ void Board::configureTimers()
     OCR0A = 62;                     //250us
     TIMSK0 |= (1<<OCIE0A);          //compare match interrupt
 }
+
+void Board::ledFlashStartup(bool fwUpdated)
+{
+    for (int i=0; i<3; i++)
+    {
+        if (fwUpdated)
+        {
+            BTLDR_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+            BTLDR_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+            _delay_ms(500);
+            BTLDR_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+            BTLDR_LED_ON(LED_IN_PORT, LED_IN_PIN);
+            _delay_ms(500);
+        }
+        else
+        {
+            BTLDR_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+            BTLDR_LED_ON(LED_IN_PORT, LED_IN_PIN);
+            _delay_ms(200);
+            BTLDR_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+            BTLDR_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+            _delay_ms(200);
+        }
+    }
+}
+
+Board board;

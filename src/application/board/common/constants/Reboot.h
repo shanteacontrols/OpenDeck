@@ -18,5 +18,12 @@
 
 #pragma once
 
+///
+/// \brief Value written to special memory location indicating that firmware should load bootloader.
+///
 #define BTLDR_REBOOT_VALUE              0x47
+
+///
+/// \brief Value written to special memory location indicating that firmware should load application.
+///
 #define APP_REBOOT_VALUE                0xFF

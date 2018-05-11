@@ -20,6 +20,7 @@
 #define _BOARD_
 
 #include "interface/digital/output/leds/DataTypes.h"
+#include "common/DataTypes.h"
 
 ///
 /// \brief List of all supported boards.
@@ -35,29 +36,39 @@ typedef enum
     BOARD_KODAMA_ID
 } boardID_t;
 
+#ifdef __AVR__
+#include "avr/variants/Common.h"
+#endif
+
 #ifdef BOARD_OPEN_DECK
-#include "avr/variants/opendeck/Board.h"
 #define BOARD_ID    BOARD_OPEN_DECK_ID
+#include "avr/variants/opendeck/Hardware.h"
+#include "avr/variants/opendeck/Version.h"
 #elif defined(BOARD_A_LEO)
-#include "avr/variants/leonardo/Board.h"
 #define BOARD_ID    BOARD_A_LEO_ID
+#include "avr/variants/leonardo/Hardware.h"
+#include "avr/variants/leonardo/Version.h"
 #elif defined(BOARD_A_PRO_MICRO)
-#include "avr/variants/leonardo/Board.h"
 #define BOARD_ID    BOARD_A_PRO_MICRO_ID
+#include "avr/variants/leonardo/Hardware.h"
+#include "avr/variants/leonardo/Version.h"
 #elif defined(BOARD_KODAMA)
-#include "avr/variants/kodama/Board.h"
 #define BOARD_ID    BOARD_KODAMA_ID
+#include "avr/variants/kodama/Hardware.h"
+#include "avr/variants/kodama/Version.h"
 #elif defined(BOARD_A_MEGA)
-#include "avr/variants/mega/Board.h"
 #define BOARD_ID    BOARD_A_MEGA_ID
+#include "avr/variants/mega/Hardware.h"
+#include "avr/variants/mega/Version.h"
 #elif defined(BOARD_A_UNO)
-#include "avr/variants/uno/Board.h"
 #define BOARD_ID    BOARD_A_UNO_ID
+#include "avr/variants/uno/Hardware.h"
+#include "avr/variants/uno/Version.h"
 #elif defined(BOARD_T_2PP)
-#include "avr/variants/teensy2pp/Board.h"
 #define BOARD_ID    BOARD_T_2PP_ID
+#include "avr/variants/teensy2pp/Hardware.h"
+#include "avr/variants/teensy2pp/Version.h"
 #elif defined(BOARD_A_xu2)
-#include "avr/variants/xu2/Board.h"
 //no id needed
 #endif
 
@@ -67,7 +78,7 @@ class Board
     ///
     /// \brief Default constructor.
     ///
-    Board();
+    Board() {}
 
     ///
     /// \brief Perfoms initialization of MCU and all board peripherals.
@@ -89,6 +100,11 @@ class Board
     ///                         used to flash the LEDs.
     ///
     static void ledFlashStartup(bool fwUpdated);
+
+    ///
+    /// \brief Initializes USB peripheral and configures it as MIDI device.
+    ///
+    static void initUSB_MIDI();
 
     ///
     /// \brief Initializes UART peripheral.
@@ -150,6 +166,22 @@ class Board
     static uint16_t scaleADC(uint16_t value, uint16_t maxValue);
 
     ///
+    /// brief Checks if specified hysteresis is active for requested analog index.
+    /// @param[in] type     Hysteresis type. Enumerated type (see hysteresisType_t).
+    /// @param[in] analogID Analog index for which hysteresis state is being checked.
+    /// \returns True if hysteresis is currently active, false otherwise.
+    ///
+    static bool isHysteresisActive(hysteresisType_t type, uint8_t analogID);
+
+    ///
+    /// brief Enables or disables specific hysteresis type for specified analog index.
+    /// @param[in] type     Hysteresis type. Enumerated type (see hysteresisType_t).
+    /// @param[in] analogID Analog index for which hysteresis state is being changed.
+    /// @param[in] state    New hystersis state (true/enabled, false/disabled).
+    ///
+    static void updateHysteresisState(hysteresisType_t type, uint8_t analogID, bool state);
+
+    ///
     /// \brief Calculates encoder pair number based on provided button ID.
     /// @param [in] buttonID   Button index from which encoder pair is being calculated.
     /// \returns Calculated encoder pair number.
@@ -199,11 +231,6 @@ class Board
     /// \brief Initializes encoder values to default state.
     ///
     static void initEncoders();
-
-    ///
-    /// \brief Initializes USB peripheral and configures it as MIDI device.
-    ///
-    static void initUSB_MIDI();
 
     ///
     /// \brief Initializes main and PWM timers.

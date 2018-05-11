@@ -17,26 +17,22 @@
 */
 
 #include "board/Board.h"
-#include "Variables.h"
 #include "../../../../interface/digital/output/leds/Variables.h"
 #include "../../../../interface/digital/output/leds/Helpers.h"
+#include "pins/Map.h"
+#include "board/common/constants/LEDs.h"
+#include "board/common/digital/input/matrix/Variables.h"
+#include "board/common/analog/input/Variables.h"
+#include "board/common/digital/output/matrix/Variables.h"
+#include "board/common/indicators/Variables.h"
 
 ///
 /// \brief Implementation of core variable used to keep track of run time in milliseconds.
 ///
 volatile uint32_t rTime_ms;
 
-///
-/// \brief Variables indicating whether MIDI in/out LED indicators should be turned on.
-/// State of these variables is set to true externally when MIDI event happens.
-/// ISR checks if their state is true, and if it is, LED indicator is turned on, variable
-/// state is set to false and timeout countdown is started.
-/// @{
-
 volatile bool MIDIreceived;
 volatile bool MIDIsent;
-
-/// @}
 
 ///
 /// \brief Variables used to control the time MIDI in/out LED indicators on board are active.
@@ -361,4 +357,45 @@ ISR(TIMER0_COMPA_vect)
 
         updateStuff = 0;
     }
+}
+
+///
+/// \brief Configures one of 16 inputs/outputs on 4067 multiplexer.
+///
+inline void setMuxInput()
+{
+    BIT_READ(muxPinOrderArray[activeMuxInput], 0) ? setHigh(MUX_S0_PORT, MUX_S0_PIN) : setLow(MUX_S0_PORT, MUX_S0_PIN);
+    BIT_READ(muxPinOrderArray[activeMuxInput], 1) ? setHigh(MUX_S1_PORT, MUX_S1_PIN) : setLow(MUX_S1_PORT, MUX_S1_PIN);
+    BIT_READ(muxPinOrderArray[activeMuxInput], 2) ? setHigh(MUX_S2_PORT, MUX_S2_PIN) : setLow(MUX_S2_PORT, MUX_S2_PIN);
+    BIT_READ(muxPinOrderArray[activeMuxInput], 3) ? setHigh(MUX_S3_PORT, MUX_S3_PIN) : setLow(MUX_S3_PORT, MUX_S3_PIN);
+}
+
+///
+/// \brief ADC ISR used to read values from multiplexers.
+///
+ISR(ADC_vect)
+{
+    analogBuffer[analogIndex] += ADC;
+    analogIndex++;
+    activeMuxInput++;
+
+    bool switchMux = (activeMuxInput == NUMBER_OF_MUX_INPUTS);
+
+    if (switchMux)
+    {
+        activeMuxInput = 0;
+        activeMux++;
+
+        if (activeMux == NUMBER_OF_MUX)
+        {
+            activeMux = 0;
+            analogIndex = 0;
+            analogSampleCounter++;
+        }
+
+        setADCchannel(muxInPinArray[activeMux]);
+    }
+
+    //always set mux input
+    setMuxInput();
 }

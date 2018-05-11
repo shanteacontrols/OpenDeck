@@ -43,11 +43,7 @@ LEN_APPEND := 0
 
 #common include files
 INCLUDE_FILES := -include "modules/core/src/Core.h"
-
-ifeq ($(filter fw_16u2 fw_8u2, $(MAKECMDGOALS)), )
-    #unused on xu2 firmware
-    INCLUDE_FILES += -include "application/OpenDeck.h"
-endif
+INCLUDE_FILES += -include "application/OpenDeck.h"
 
 #common include directories
 INCLUDE_DIRS := \

@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "Pins.h"
 #include "../Hardware.h"
 
 const uint8_t aInPinMap[MAX_NUMBER_OF_ANALOG] =

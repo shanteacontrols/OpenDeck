@@ -16,8 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../../Board.h"
+#include "board/Board.h"
 #include "Descriptors.h"
+#include "board/common/indicators/Variables.h"
 
 ///
 /// \brief MIDI Class Device Mode Configuration and State Structure.

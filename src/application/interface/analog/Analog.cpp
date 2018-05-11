@@ -17,7 +17,7 @@
 */
 
 #include "Analog.h"
-#include "../../board/Board.h"
+#include "board/Board.h"
 #include "Variables.h"
 
 uint16_t    lastAnalogueValue[MAX_NUMBER_OF_ANALOG];

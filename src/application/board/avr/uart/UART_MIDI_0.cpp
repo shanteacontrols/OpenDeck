@@ -16,7 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../../Board.h"
+#include "board/Board.h"
+#include "board/common/indicators/Variables.h"
 
 ///
 /// \brief Buffer in which outgoing data is stored.

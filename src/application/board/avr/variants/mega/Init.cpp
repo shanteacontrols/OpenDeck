@@ -17,20 +17,7 @@
 */
 
 #include "board/Board.h"
-
-void Board::init()
-{    cli();
-    //disable watchdog
-    MCUSR &= ~(1 << WDRF);
-    wdt_disable();
-    initPins();
-    initAnalog();
-    initEncoders();
-
-    initUART_MIDI(MIDI_BAUD_RATE_OD);
-
-    configureTimers();
-}
+#include "pins/Map.h"
 
 void Board::initPins()
 {
@@ -229,6 +216,24 @@ void Board::initPins()
     setLow(AI_16_PORT, AI_16_PIN);
 }
 
+void Board::initAnalog()
+{
+    adcConf adcConfiguration;
+
+    adcConfiguration.prescaler = ADC_PRESCALER_128;
+    adcConfiguration.vref = ADC_VREF_AVCC;
+
+    setUpADC(adcConfiguration);
+    setADCchannel(AI_1_PIN);
+
+    _delay_ms(2);
+
+    for (int i=0; i<5; i++)
+        getADCvalue();  //few dummy reads to init ADC
+
+    adcInterruptEnable();
+}
+
 void Board::configureTimers()
 {
     //clear timer0 conf
@@ -258,3 +263,5 @@ void Board::configureTimers()
     OCR0A = 62;                     //250us
     TIMSK0 |= (1<<OCIE0A);          //compare match interrupt
 }
+
+Board board;

@@ -16,7 +16,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "board/Board.h"
+#include "Variables.h"
+#include "Hardware.h"
+#include "Pins.h"
+#include "board/common/constants/LEDs.h"
+#include "board/common/indicators/Variables.h"
 
 volatile uint32_t rTime_ms;
 volatile uint8_t midiIn_timeout, midiOut_timeout;

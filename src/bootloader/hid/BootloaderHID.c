@@ -38,10 +38,6 @@
 #include <util/crc16.h>
 
 #if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO)
-///
-/// \brief Location at which size of application is written in flash.
-///
-#define APP_LENGTH_LOCATION         (uint32_t)0xAC
 
 ///
 /// \brief Calculates CRC of entire flash.

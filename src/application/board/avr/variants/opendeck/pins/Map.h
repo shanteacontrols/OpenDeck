@@ -19,7 +19,6 @@
 #pragma once
 
 #include "Pins.h"
-#include "../Board.h"
 
 ///
 /// brief Pin and index remapping used to match indexes on PCB silkscreen.

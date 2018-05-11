@@ -20,7 +20,7 @@
 #define _INTERFACE_DIGITAL_INPUT_BUTTONS_
 
 #include "DataTypes.h"
-#include "../../../../board/Board.h"
+#include "board/Board.h"
 
 ///
 /// \brief Button handling.

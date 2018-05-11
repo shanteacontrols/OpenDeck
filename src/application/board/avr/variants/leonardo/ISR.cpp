@@ -17,9 +17,15 @@
 */
 
 #include "board/Board.h"
-#include "Variables.h"
+#include "pins/Map.h"
+#include "board/common/analog/input/Variables.h"
+#include "board/common/digital/input/Variables.h"
+#include "board/common/digital/input/direct/Variables.h"
+#include "board/common/digital/input/Variables.h"
 #include "../../../../interface/digital/output/leds/Variables.h"
 #include "../../../../interface/digital/output/leds/Helpers.h"
+#include "board/common/indicators/Variables.h"
+#include "board/common/constants/LEDs.h"
 
 volatile uint32_t rTime_ms;
 static uint8_t midiIn_timeout, midiOut_timeout;
@@ -151,7 +157,22 @@ ISR(TIMER0_COMPA_vect)
         else
             MIDI_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
 
-        if (digitalInBufferCounter < DIGITAL_BUFFER_SIZE)
+        if (digitalInBufferCounter < DIGITAL_IN_BUFFER_SIZE)
             storeDigitalIn();
     }
+}
+
+ISR(ADC_vect)
+{
+    analogBuffer[analogIndex] += ADC;
+    analogIndex++;
+
+    if (analogIndex == MAX_NUMBER_OF_ANALOG)
+    {
+        analogIndex = 0;
+        analogSampleCounter++;
+    }
+
+    //always set mux input
+    setADCchannel(aInPinMap[analogIndex]);
 }
