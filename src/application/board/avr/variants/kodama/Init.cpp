@@ -25,7 +25,7 @@ void Board::initPins()
     setOutput(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
     setOutput(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
 
-    setInput(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
+    setOutput(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
     setOutput(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
     setOutput(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 
