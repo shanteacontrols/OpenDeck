@@ -127,8 +127,21 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
             application/interface/display/UpdateLogic.cpp \
             application/interface/display/TextBuild.cpp
 
-            #compile all sources in u8g2 dir for now
-            SOURCES += $(shell find modules/u8g2/csrc/ -name "*.c")
+            #u8x8 sources
+            SOURCES += \
+            modules/u8g2/csrc/u8x8_string.c \
+            modules/u8g2/csrc/u8x8_setup.c \
+            modules/u8g2/csrc/u8x8_u8toa.c \
+            modules/u8g2/csrc/u8x8_8x8.c \
+            modules/u8g2/csrc/u8x8_u16toa.c \
+            modules/u8g2/csrc/u8x8_display.c \
+            modules/u8g2/csrc/u8x8_fonts.c \
+            modules/u8g2/csrc/u8x8_byte.c \
+            modules/u8g2/csrc/u8x8_cad.c \
+            modules/u8g2/csrc/u8x8_gpio.c \
+            modules/u8g2/csrc/u8x8_d_ssd1306_128x64_noname.c \
+            modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
+
             #i2c for display communication
             SOURCES += modules/i2c/twimaster.c
         endif
