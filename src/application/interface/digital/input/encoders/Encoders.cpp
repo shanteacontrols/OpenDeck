@@ -18,7 +18,7 @@
 
 #include "Encoders.h"
 #include "Constants.h"
-#include "../../../../board/Board.h"
+#include "board/Board.h"
 #include "../../../../database/Database.h"
 #include "sysex/src/SysEx.h"
 #include "../../../cinfo/CInfo.h"

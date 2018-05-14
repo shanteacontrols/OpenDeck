@@ -17,6 +17,7 @@
 */
 
 #include "Buttons.h"
+#include "board/Board.h"
 #include "database/Database.h"
 #include "interface/digital/output/leds/LEDs.h"
 #include "sysex/src/SysEx.h"
@@ -36,8 +37,15 @@ static uint8_t  mmcArray[] =  { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 };
 ///
 uint8_t     buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG];
 
-uint8_t     previousButtonState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1],
-            buttonPressed[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1];
+///
+/// \brief Array holding current state for all buttons.
+///
+uint8_t     buttonPressed[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1];
+
+///
+/// \brief Array holding last sent state for latching buttons only.
+///
+uint8_t     lastLatchingState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1];
 
 ///
 /// \brief Default constructor.
@@ -54,15 +62,79 @@ void Buttons::update()
 {
     for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
     {
-        bool buttonState;
+        bool state = board.getButtonState(i);
         uint8_t encoderPairIndex = board.getEncoderPair(i);
 
-        if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, encoderPairIndex))
-            buttonState = false;    //button is member of encoder pair, always set state to released
-        else
-            buttonState = board.getButtonState(i);
+        if (buttonDebounced(i, state) && !database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, encoderPairIndex))
+        {
+            bool process = false;
+            buttonType_t type = (buttonType_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_type, i);
 
-        processButton(i, buttonState);
+            //act on change of state only
+            if (state != getButtonState(i))
+            {
+                setButtonState(i, state);
+
+                //overwrite type under certain conditions
+                switch((buttonMIDImessage_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, i))
+                {
+                    case buttonPC:
+                    case buttonMMCPlay:
+                    case buttonMMCStop:
+                    case buttonMMCPause:
+                    case buttonCC:
+                    case buttonRealTimeClock:
+                    case buttonRealTimeStart:
+                    case buttonRealTimeContinue:
+                    case buttonRealTimeStop:
+                    case buttonRealTimeActiveSensing:
+                    case buttonRealTimeSystemReset:
+                    type = buttonMomentary;
+                    break;
+
+                    case buttonMMCRecord:
+                    type = buttonLatching;
+                    break;
+
+                    default:
+                    break;
+                }
+
+                switch(type)
+                {
+                    case buttonMomentary:
+                    //always process momentary buttons
+                    process = true;
+                    break;
+
+                    case buttonLatching:
+                    //act on press only
+                    if (state)
+                    {
+                        process = true;
+
+                        if (getLatchingState(i))
+                        {
+                            setLatchingState(i, false);
+                            //overwrite before processing
+                            state = false;
+                        }
+                        else
+                        {
+                            setLatchingState(i, true);
+                            state = true;
+                        }
+                    }
+                    break;
+
+                    default:
+                    break;
+                }
+            }
+
+            if (process)
+                processButton(i, state);
+        }
     }
 }
 
@@ -70,367 +142,169 @@ void Buttons::update()
 /// \brief Handles changes in button states.
 /// @param [in] buttonID    Button index which has changed state.
 /// @param [in] state       Current button state.
-/// @param [in] debounce    If set to true, button must be debounced first.
-///                         False can can be used when there is no need to
-///                         debounce button, for instance when analog component
-///                         is configured as digital input.
 ///
-void Buttons::processButton(uint8_t buttonID, bool state, bool debounce)
-{
-    bool debounced = debounce ? buttonDebounced(buttonID, state) : true;
-
-    if (debounced)
-    {
-        buttonType_t type = (buttonType_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_type, buttonID);
-        buttonMIDImessage_t midiMessage = (buttonMIDImessage_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, buttonID);
-
-        //overwrite type under certain conditions
-        switch(midiMessage)
-        {
-            case buttonPC:
-            case buttonMMCPlay:
-            case buttonMMCStop:
-            case buttonMMCPause:
-            case buttonCC:
-            case buttonRealTimeClock:
-            case buttonRealTimeStart:
-            case buttonRealTimeContinue:
-            case buttonRealTimeStop:
-            case buttonRealTimeActiveSensing:
-            case buttonRealTimeSystemReset:
-            type = buttonMomentary;
-            break;
-
-            case buttonMMCRecord:
-            type = buttonLatching;
-            break;
-
-            default:
-            break;
-        }
-
-        switch (type)
-        {
-            case buttonMomentary:
-            processMomentaryButton(buttonID, state, midiMessage);
-            break;
-
-            case buttonLatching:
-            processLatchingButton(buttonID, state, midiMessage);
-            break;
-
-            default:
-            break;
-        }
-
-        updateButtonState(buttonID, state);
-    }
-}
-
-///
-/// \brief Handles changes in button states for momentary button type.
-/// @param [in] buttonID    Button index which has changed state.
-/// @param [in] state       Current button state.
-/// @param [in] midiMessage Type of MIDI message which specified button sends.
-///
-void Buttons::processMomentaryButton(uint8_t buttonID, bool buttonState, buttonMIDImessage_t midiMessage)
+void Buttons::processButton(uint8_t buttonID, bool state)
 {
     uint8_t note = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, buttonID);
     uint8_t channel = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiChannel, buttonID);
     uint8_t velocity = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_velocity, buttonID);
+    buttonMIDImessage_t midiMessage = (buttonMIDImessage_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, buttonID);
     mmcArray[2] = note; //use midi note as channel id for transport control
 
-    if (buttonState)
+    if (state)
     {
-        //send note on only once
-        if (!getButtonPressed(buttonID))
+        switch(midiMessage)
         {
-            setButtonPressed(buttonID, true);
+            case buttonNote:
+            midi.sendNoteOn(note, velocity, channel);
+            #ifdef DISPLAY_SUPPORTED
+            display.displayMIDIevent(displayEventOut, midiMessageNoteOn_display, note, velocity, channel+1);
+            #endif
+            leds.noteToState(note, velocity, 0, true);
+            break;
 
-            switch(midiMessage)
-            {
-                case buttonNote:
-                midi.sendNoteOn(note, velocity, channel);
-                #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventOut, midiMessageNoteOn_display, note, velocity, channel+1);
-                #endif
-                leds.noteToState(note, velocity, 0, true);
-                break;
+            case buttonPC:
+            midi.sendProgramChange(note, channel);
+            #ifdef DISPLAY_SUPPORTED
+            display.displayMIDIevent(displayEventOut, midiMessageProgramChange_display, note, 0, channel+1);
+            #endif
+            break;
 
-                case buttonPC:
-                midi.sendProgramChange(note, channel);
-                #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventOut, midiMessageProgramChange_display, note, 0, channel+1);
-                #endif
-                break;
+            case buttonCC:
+            case buttonCCreset:
+            midi.sendControlChange(note, velocity, channel);
+            #ifdef DISPLAY_SUPPORTED
+            display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, velocity, channel+1);
+            #endif
+            leds.noteToState(note, velocity, 0, true);
+            break;
 
-                case buttonCC:
-                case buttonCCreset:
-                midi.sendControlChange(note, velocity, channel);
-                #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, velocity, channel+1);
-                #endif
-                leds.noteToState(note, velocity, 0, true);
-                break;
+            case buttonMMCPlay:
+            mmcArray[4] = 0x02;
+            midi.sendSysEx(6, mmcArray, true);
+            #ifdef DISPLAY_SUPPORTED
+            display.displayMIDIevent(displayEventOut, midiMessageMMCplay_display, mmcArray[2], 0, 0);
+            #endif
+            break;
 
-                case buttonMMCPlay:
-                mmcArray[4] = 0x02;
-                midi.sendSysEx(6, mmcArray, true);
-                #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventOut, midiMessageMMCplay_display, mmcArray[2], 0, 0);
-                #endif
-                break;
+            case buttonMMCStop:
+            mmcArray[4] = 0x01;
+            midi.sendSysEx(6, mmcArray, true);
+            #ifdef DISPLAY_SUPPORTED
+            display.displayMIDIevent(displayEventOut, midiMessageMMCstop_display, mmcArray[2], 0, 0);
+            #endif
+            break;
 
-                case buttonMMCStop:
-                mmcArray[4] = 0x01;
-                midi.sendSysEx(6, mmcArray, true);
-                #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventOut, midiMessageMMCstop_display, mmcArray[2], 0, 0);
-                #endif
-                break;
+            case buttonMMCPause:
+            mmcArray[4] = 0x09;
+            midi.sendSysEx(6, mmcArray, true);
+            #ifdef DISPLAY_SUPPORTED
+            display.displayMIDIevent(displayEventOut, midiMessageMMCpause_display, mmcArray[2], 0, 0);
+            #endif
+            break;
 
-                case buttonMMCPause:
-                mmcArray[4] = 0x09;
-                midi.sendSysEx(6, mmcArray, true);
-                #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventOut, midiMessageMMCpause_display, mmcArray[2], 0, 0);
-                #endif
-                break;
+            case buttonRealTimeClock:
+            midi.sendRealTime(midiMessageClock);
+            #ifdef DISPLAY_SUPPORTED
+            display.displayMIDIevent(displayEventOut, midiMessageClock_display, 0, 0, 0);
+            #endif
+            break;
 
-                case buttonRealTimeClock:
-                midi.sendRealTime(midiMessageClock);
-                #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventOut, midiMessageClock_display, 0, 0, 0);
-                #endif
-                break;
+            case buttonRealTimeStart:
+            midi.sendRealTime(midiMessageStart);
+            #ifdef DISPLAY_SUPPORTED
+            display.displayMIDIevent(displayEventOut, midiMessageStart_display, 0, 0, 0);
+            #endif
+            break;
 
-                case buttonRealTimeStart:
-                midi.sendRealTime(midiMessageStart);
-                #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventOut, midiMessageStart_display, 0, 0, 0);
-                #endif
-                break;
+            case buttonRealTimeContinue:
+            midi.sendRealTime(midiMessageContinue);
+            #ifdef DISPLAY_SUPPORTED
+            display.displayMIDIevent(displayEventOut, midiMessageContinue_display, 0, 0, 0);
+            #endif
+            break;
 
-                case buttonRealTimeContinue:
-                midi.sendRealTime(midiMessageContinue);
-                #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventOut, midiMessageContinue_display, 0, 0, 0);
-                #endif
-                break;
+            case buttonRealTimeStop:
+            midi.sendRealTime(midiMessageStop);
+            #ifdef DISPLAY_SUPPORTED
+            display.displayMIDIevent(displayEventOut, midiMessageStop_display, 0, 0, 0);
+            #endif
+            break;
 
-                case buttonRealTimeStop:
-                midi.sendRealTime(midiMessageStop);
-                #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventOut, midiMessageStop_display, 0, 0, 0);
-                #endif
-                break;
+            case buttonRealTimeActiveSensing:
+            midi.sendRealTime(midiMessageActiveSensing);
+            #ifdef DISPLAY_SUPPORTED
+            display.displayMIDIevent(displayEventOut, midiMessageActiveSensing_display, 0, 0, 0);
+            #endif
+            break;
 
-                case buttonRealTimeActiveSensing:
-                midi.sendRealTime(midiMessageActiveSensing);
-                #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventOut, midiMessageActiveSensing_display, 0, 0, 0);
-                #endif
-                break;
+            case buttonRealTimeSystemReset:
+            midi.sendRealTime(midiMessageSystemReset);
+            #ifdef DISPLAY_SUPPORTED
+            display.displayMIDIevent(displayEventOut, midiMessageSystemReset_display, 0, 0, 0);
+            #endif
+            break;
 
-                case buttonRealTimeSystemReset:
-                midi.sendRealTime(midiMessageSystemReset);
-                #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventOut, midiMessageSystemReset_display, 0, 0, 0);
-                #endif
-                break;
+            case buttonMMCRecord:
+            //start recording
+            mmcArray[4] = 0x06;
+            midi.sendSysEx(6, mmcArray, true);
+            #ifdef DISPLAY_SUPPORTED
+            display.displayMIDIevent(displayEventOut, midiMessageMMCrecordOn_display, mmcArray[2], 0, 0);
+            #endif
+            break;
 
-                default:
-                break;
-            }
-
-            if (sysEx.isConfigurationEnabled())
-            {
-                if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTONS)) > COMPONENT_INFO_TIMEOUT)
-                {
-                    sysExParameter_t cInfoMessage[] =
-                    {
-                        COMPONENT_ID_STRING,
-                        DB_BLOCK_BUTTONS,
-                        (sysExParameter_t)buttonID
-                    };
-
-                    sysEx.sendCustomMessage(usbMessage.sysexArray, cInfoMessage, 3);
-                    updateCinfoTime(DB_BLOCK_BUTTONS);
-                }
-            }
+            default:
+            break;
         }
     }
     else
     {
-        //button is released
-        if (getButtonPressed(buttonID))
+        switch(midiMessage)
         {
-            switch(midiMessage)
-            {
-                case buttonNote:
-                midi.sendNoteOff(note, 0, channel);
-                #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventOut, midi.getNoteOffMode() == noteOffType_standardNoteOff ? midiMessageNoteOff_display : midiMessageNoteOn_display, note, 0, channel+1);
-                #endif
-                leds.noteToState(note, 0, 0, true);
-                break;
+            case buttonNote:
+            midi.sendNoteOff(note, 0, channel);
+            #ifdef DISPLAY_SUPPORTED
+            display.displayMIDIevent(displayEventOut, midi.getNoteOffMode() == noteOffType_standardNoteOff ? midiMessageNoteOff_display : midiMessageNoteOn_display, note, 0, channel+1);
+            #endif
+            leds.noteToState(note, 0, 0, true);
+            break;
 
-                case buttonCCreset:
-                midi.sendControlChange(note, 0, channel);
-                #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, 0, channel+1);
-                #endif
-                leds.noteToState(note, 0, 0, true);
-                break;
+            case buttonCCreset:
+            midi.sendControlChange(note, 0, channel);
+            #ifdef DISPLAY_SUPPORTED
+            display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, 0, channel+1);
+            #endif
+            leds.noteToState(note, 0, 0, true);
+            break;
 
-                default:
-                break;
-            }
+            case buttonMMCRecord:
+            //stop recording
+            mmcArray[4] = 0x07;
+            midi.sendSysEx(6, mmcArray, true);
+            #ifdef DISPLAY_SUPPORTED
+            display.displayMIDIevent(displayEventOut, midiMessageMMCrecordOff_display, mmcArray[2], 0, 0);
+            #endif
+            break;
 
-            if (sysEx.isConfigurationEnabled())
-            {
-                if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTONS)) > COMPONENT_INFO_TIMEOUT)
-                {
-                    sysExParameter_t cInfoMessage[] =
-                    {
-                        COMPONENT_ID_STRING,
-                        DB_BLOCK_BUTTONS,
-                        (sysExParameter_t)buttonID
-                    };
-
-                    sysEx.sendCustomMessage(usbMessage.sysexArray, cInfoMessage, 3);
-                    updateCinfoTime(DB_BLOCK_BUTTONS);
-                }
-            }
-
-            setButtonPressed(buttonID, false);
+            default:
+            break;
         }
     }
-}
 
-///
-/// \brief Handles changes in button states for latching button type.
-/// @param [in] buttonID    Button index which has changed state.
-/// @param [in] state       Current button state.
-/// @param [in] midiMessage Type of MIDI message which specified button sends.
-///
-void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMIDImessage_t midiMessage)
-{
-    if (buttonState != getPreviousButtonState(buttonID))
+    if (sysEx.isConfigurationEnabled())
     {
-        if (buttonState)
+        if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTONS)) > COMPONENT_INFO_TIMEOUT)
         {
-            uint8_t note = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, buttonID);
-            uint8_t channel = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiChannel, buttonID);
-            uint8_t velocity = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_velocity, buttonID);
-            mmcArray[2] = note;
-
-            //button is pressed
-            //if a button has been already pressed
-            if (getButtonPressed(buttonID))
+            sysExParameter_t cInfoMessage[] =
             {
-                switch(midiMessage)
-                {
-                    case buttonNote:
-                    midi.sendNoteOff(note, 0, channel);
-                    #ifdef DISPLAY_SUPPORTED
-                    display.displayMIDIevent(displayEventOut, midi.getNoteOffMode() == noteOffType_standardNoteOff ? midiMessageNoteOff_display : midiMessageNoteOn_display, note, 0, channel+1);
-                    #endif
-                    leds.noteToState(note, 0, 0, true);
-                    break;
+                COMPONENT_ID_STRING,
+                DB_BLOCK_BUTTONS,
+                (sysExParameter_t)buttonID
+            };
 
-                    case buttonMMCRecord:
-                    //stop recording
-                    mmcArray[4] = 0x07;
-                    midi.sendSysEx(6, mmcArray, true);
-                    #ifdef DISPLAY_SUPPORTED
-                    display.displayMIDIevent(displayEventOut, midiMessageMMCrecordOff_display, mmcArray[2], 0, 0);
-                    #endif
-                    break;
-
-                    case buttonCCreset:
-                    midi.sendControlChange(note, 0, channel);
-                    #ifdef DISPLAY_SUPPORTED
-                    display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, 0, channel+1);
-                    #endif
-                    leds.noteToState(note, 0, 0, true);
-                    break;
-
-                    default:
-                    break;
-                }
-
-                if (sysEx.isConfigurationEnabled())
-                {
-                    if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTONS)) > COMPONENT_INFO_TIMEOUT)
-                    {
-                        sysExParameter_t cInfoMessage[] =
-                        {
-                            COMPONENT_ID_STRING,
-                            DB_BLOCK_BUTTONS,
-                            (sysExParameter_t)buttonID
-                        };
-
-                        sysEx.sendCustomMessage(usbMessage.sysexArray, cInfoMessage, 3);
-                        updateCinfoTime(DB_BLOCK_BUTTONS);
-                    }
-                }
-
-                //reset pressed state
-                setButtonPressed(buttonID, false);
-            }
-            else
-            {
-                switch(midiMessage)
-                {
-                    case buttonNote:
-                    midi.sendNoteOn(note, velocity, channel);
-                    #ifdef DISPLAY_SUPPORTED
-                    display.displayMIDIevent(displayEventOut, midiMessageNoteOn_display, note, velocity, channel+1);
-                    #endif
-                    leds.noteToState(note, velocity, 0, true);
-                    break;
-
-                    case buttonMMCRecord:
-                    //start recording
-                    mmcArray[4] = 0x06;
-                    midi.sendSysEx(6, mmcArray, true);
-                    #ifdef DISPLAY_SUPPORTED
-                    display.displayMIDIevent(displayEventOut, midiMessageMMCrecordOn_display, mmcArray[2], 0, 0);
-                    #endif
-                    break;
-
-                    case buttonCCreset:
-                    midi.sendControlChange(note, velocity, channel);
-                    #ifdef DISPLAY_SUPPORTED
-                    display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, velocity, channel+1);
-                    #endif
-                    leds.noteToState(note, velocity, 0, true);
-                    break;
-
-                    default:
-                    break;
-                }
-
-                if (sysEx.isConfigurationEnabled())
-                {
-                    if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTONS)) > COMPONENT_INFO_TIMEOUT)
-                    {
-                        sysExParameter_t cInfoMessage[] =
-                        {
-                            COMPONENT_ID_STRING,
-                            DB_BLOCK_BUTTONS,
-                            (sysExParameter_t)buttonID
-                        };
-
-                        sysEx.sendCustomMessage(usbMessage.sysexArray, cInfoMessage, 3);
-                        updateCinfoTime(DB_BLOCK_BUTTONS);
-                    }
-                }
-
-                //toggle buttonPressed flag to true
-                setButtonPressed(buttonID, true);
-            }
+            sysEx.sendCustomMessage(usbMessage.sysexArray, cInfoMessage, 3);
+            updateCinfoTime(DB_BLOCK_BUTTONS);
         }
     }
 }
@@ -438,38 +312,9 @@ void Buttons::processLatchingButton(uint8_t buttonID, bool buttonState, buttonMI
 ///
 /// \brief Updates current state of button.
 /// @param [in] buttonID        Button for which state is being changed.
-/// @param [in] buttonState     New button state (true/pressed, false/released).
+/// @param [in] state     New button state (true/pressed, false/released).
 ///
-void Buttons::updateButtonState(uint8_t buttonID, uint8_t buttonState)
-{
-    uint8_t arrayIndex = buttonID/8;
-    uint8_t buttonIndex = buttonID - 8*arrayIndex;
-
-    //update state if it's different than last one
-    if (BIT_READ(previousButtonState[arrayIndex], buttonIndex) != buttonState)
-        BIT_WRITE(previousButtonState[arrayIndex], buttonIndex, buttonState);
-}
-
-///
-/// \brief Checks for last button state.
-/// Used for latching buttons only.
-/// @param [in] buttonID    Button index for which previous state is being checked.
-/// \returns True if last state was on/pressed, false otherwise.
-///
-bool Buttons::getPreviousButtonState(uint8_t buttonID)
-{
-    uint8_t arrayIndex = buttonID/8;
-    uint8_t buttonIndex = buttonID - 8*arrayIndex;
-
-    return BIT_READ(previousButtonState[arrayIndex], buttonIndex);
-}
-
-///
-/// \brief Updates current send state of button.
-/// @param [in] buttonID        Button for which state is being changed.
-/// @param [in] buttonState     New button state (true/pressed, false/released).
-///
-void Buttons::setButtonPressed(uint8_t buttonID, bool state)
+void Buttons::setButtonState(uint8_t buttonID, uint8_t state)
 {
     uint8_t arrayIndex = buttonID/8;
     uint8_t buttonIndex = buttonID - 8*arrayIndex;
@@ -477,7 +322,12 @@ void Buttons::setButtonPressed(uint8_t buttonID, bool state)
     BIT_WRITE(buttonPressed[arrayIndex], buttonIndex, state);
 }
 
-bool Buttons::getButtonPressed(uint8_t buttonID)
+///
+/// \brief Checks for last button state.
+/// @param [in] buttonID    Button index for which previous state is being checked.
+/// \returns True if last state was on/pressed, false otherwise.
+///
+bool Buttons::getButtonState(uint8_t buttonID)
 {
     uint8_t arrayIndex = buttonID/8;
     uint8_t buttonIndex = buttonID - 8*arrayIndex;
@@ -486,18 +336,50 @@ bool Buttons::getButtonPressed(uint8_t buttonID)
 }
 
 ///
+/// \brief Updates current state of latching button.
+/// Used only for latching buttons where new state which should be sent differs
+/// from last one, for instance when sending MIDI note on on first press (latching
+/// state: true), and note off on second (latching state: false).
+/// State should be stored in variable because unlike momentary buttons, state of
+/// latching buttons doesn't necessarrily match current "real" state of button since events
+/// for latching buttons are sent only on presses.
+/// @param [in] buttonID        Button for which state is being changed.
+/// @param [in] state     New latching state.
+///
+void Buttons::setLatchingState(uint8_t buttonID, uint8_t state)
+{
+    uint8_t arrayIndex = buttonID/8;
+    uint8_t buttonIndex = buttonID - 8*arrayIndex;
+
+    BIT_WRITE(lastLatchingState[arrayIndex], buttonIndex, state);
+}
+
+///
+/// \brief Checks for last latching button state.
+/// @param [in] buttonID    Button index for which previous latching state is being checked.
+/// \returns True if last state was on/pressed, false otherwise.
+///
+bool Buttons::getLatchingState(uint8_t buttonID)
+{
+    uint8_t arrayIndex = buttonID/8;
+    uint8_t buttonIndex = buttonID - 8*arrayIndex;
+
+    return BIT_READ(lastLatchingState[arrayIndex], buttonIndex);
+}
+
+///
 /// \brief Checks if button reading is stable.
 /// Shift old value to the left, append new value and
 /// append DEBOUNCE_COMPARE with OR command. If final value is equal to 0xFF or
 /// DEBOUNCE_COMPARE, signal is debounced.
 /// @param [in] buttonID    Button index which is being checked.
-/// @param [in] buttonState Current button state.
+/// @param [in] state Current button state.
 /// \returns                True if button reading is stable, false otherwise.
 ///
-bool Buttons::buttonDebounced(uint8_t buttonID, bool buttonState)
+bool Buttons::buttonDebounced(uint8_t buttonID, bool state)
 {
     //shift new button reading into previousButtonState
-    buttonDebounceCounter[buttonID] = (buttonDebounceCounter[buttonID] << (uint8_t)1) | (uint8_t)buttonState | BUTTON_DEBOUNCE_COMPARE;
+    buttonDebounceCounter[buttonID] = (buttonDebounceCounter[buttonID] << (uint8_t)1) | (uint8_t)state | BUTTON_DEBOUNCE_COMPARE;
 
     //if button is debounced, return true
     return ((buttonDebounceCounter[buttonID] == BUTTON_DEBOUNCE_COMPARE) || (buttonDebounceCounter[buttonID] == 0xFF));

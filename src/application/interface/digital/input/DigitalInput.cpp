@@ -17,6 +17,7 @@
 */
 
 #include "DigitalInput.h"
+#include "board/Board.h"
 
 ///
 /// \brief Default constructor.

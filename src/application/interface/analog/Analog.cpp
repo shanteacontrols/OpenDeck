@@ -74,7 +74,7 @@ void Analog::update()
             }
 
             bool state = analogData > DIGITAL_VALUE_THRESHOLD;
-            buttons.processButton(i+MAX_NUMBER_OF_BUTTONS, state, false);
+            buttons.processButton(i+MAX_NUMBER_OF_BUTTONS, state);
         }
     }
 

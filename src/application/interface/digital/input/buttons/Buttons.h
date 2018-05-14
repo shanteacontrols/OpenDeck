@@ -20,7 +20,6 @@
 #define _INTERFACE_DIGITAL_INPUT_BUTTONS_
 
 #include "DataTypes.h"
-#include "board/Board.h"
 
 ///
 /// \brief Button handling.
@@ -34,16 +33,14 @@ class Buttons
     Buttons();
 
     static void update();
-    static void processButton(uint8_t buttonID, bool state, bool debounce = true);
+    static void processButton(uint8_t buttonID, bool state);
 
     private:
-    static bool getButtonPressed(uint8_t buttonID);
-    static void setButtonPressed(uint8_t buttonID, bool state);
-    static void processMomentaryButton(uint8_t buttonID, bool buttonState, buttonMIDImessage_t midiMessage = buttonNote);
-    static void processLatchingButton(uint8_t buttonID, bool buttonState, buttonMIDImessage_t midiMessage = buttonNote);
-    static void updateButtonState(uint8_t buttonID, uint8_t buttonState);
-    static bool getPreviousButtonState(uint8_t buttonID);
-    static bool buttonDebounced(uint8_t buttonID, bool buttonState);
+    static void setButtonState(uint8_t buttonID, uint8_t state);
+    static bool getButtonState(uint8_t buttonID);
+    static void setLatchingState(uint8_t buttonID, uint8_t state);
+    static bool getLatchingState(uint8_t buttonID);
+    static bool buttonDebounced(uint8_t buttonID, bool state);
 };
 
 ///
