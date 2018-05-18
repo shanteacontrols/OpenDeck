@@ -30,7 +30,7 @@
 volatile uint32_t rTime_ms;
 
 volatile bool MIDIreceived, MIDIsent;
-static uint8_t lastLEDstate[MAX_NUMBER_OF_LEDS];
+static uint8_t lastLEDstate[MAX_NUMBER_OF_LEDS] = { 255 };
 
 inline void storeDigitalIn()
 {
@@ -45,9 +45,11 @@ inline void storeDigitalIn()
     {
         setLow(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
         _NOP();
-        BIT_WRITE(digitalInBuffer[i], i, !readPin(SR_IN_DATA_PORT, SR_IN_DATA_PIN));
+        BIT_WRITE(digitalInBuffer[digitalInBufferCounter], i, !readPin(SR_IN_DATA_PORT, SR_IN_DATA_PIN));
         setHigh(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
     }
+
+    digitalInBufferCounter++;
 }
 
 inline void checkLEDs()
@@ -71,7 +73,7 @@ inline void checkLEDs()
 
         for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
         {
-            LED_ON(ledState[i]) ? setHigh(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN) : setLow(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
+            LED_ON(ledState[i]) ? setLow(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN) : setHigh(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
             pulseHighToLow(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
         }
 
@@ -90,6 +92,7 @@ ISR(TIMER0_COMPA_vect)
     if (updateStuff == 4)
     {
         rTime_ms++;
+        checkLEDs();
 
         if (digitalInBufferCounter < DIGITAL_IN_BUFFER_SIZE)
             storeDigitalIn();
