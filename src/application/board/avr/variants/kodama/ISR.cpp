@@ -41,15 +41,18 @@ inline void storeDigitalIn()
 
     setHigh(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
 
-    for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
+    for (int i=0; i<NUMBER_OF_IN_SR; i++)
     {
-        setLow(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
-        _NOP();
-        BIT_WRITE(digitalInBuffer[digitalInBufferCounter], i, !readPin(SR_IN_DATA_PORT, SR_IN_DATA_PIN));
-        setHigh(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
+        for (int j=0; j<8; j++)
+        {
+            setLow(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
+            _NOP();
+            BIT_WRITE(digitalInBuffer[i], j, !readPin(SR_IN_DATA_PORT, SR_IN_DATA_PIN));
+            setHigh(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
+        }
     }
 
-    digitalInBufferCounter++;
+    digitalInBufferCounter = DIGITAL_IN_BUFFER_SIZE;
 }
 
 inline void checkLEDs()
