@@ -30,7 +30,7 @@
 volatile uint32_t rTime_ms;
 
 volatile bool MIDIreceived, MIDIsent;
-static uint8_t lastLEDstate[MAX_NUMBER_OF_LEDS] = { 255 };
+static uint8_t lastLEDstate[MAX_NUMBER_OF_LEDS];
 
 inline void storeDigitalIn()
 {

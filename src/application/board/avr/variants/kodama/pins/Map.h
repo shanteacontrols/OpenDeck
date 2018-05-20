@@ -27,3 +27,20 @@ const uint8_t muxInPinArray[] =
     7,  //MUX_3_IN_PIN,
     13, //MUX_4_IN_PIN,
 };
+
+//12 leds on kodama board
+const uint8_t ledMapArray[12] =
+{
+    0,
+    14,
+    2,
+    1,
+    3,
+    4,
+    9,
+    8,
+    11,
+    10,
+    13,
+    12
+};

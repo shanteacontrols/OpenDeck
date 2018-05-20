@@ -18,6 +18,93 @@
 
 #include "board/Board.h"
 #include "pins/Map.h"
+#include "interface/digital/output/leds/Constants.h"
+#include "../../../../interface/digital/output/leds/Variables.h"
+
+void kodamaStartUpAnimation()
+{
+    //turn all leds on first
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+    {
+        BIT_SET(ledState[i], LED_ACTIVE_BIT);
+        BIT_SET(ledState[i], LED_STATE_BIT);
+    }
+
+    wait_ms(1000);
+
+    // for (int i=0; i<6; i++)
+    // {
+    //     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    //     {
+    //         BIT_CLEAR(ledState[ledMapArray[5-i]], LED_ACTIVE_BIT);
+    //         BIT_CLEAR(ledState[ledMapArray[5+i]], LED_STATE_BIT);
+
+    //         BIT_CLEAR(ledState[ledMapArray[6+i]], LED_ACTIVE_BIT);
+    //         BIT_CLEAR(ledState[ledMapArray[6+i]], LED_STATE_BIT);
+    //     }
+
+    //     wait_ms(75);
+    // }
+
+    // wait_ms(200);
+
+    // for (int i=0; i<6; i++)
+    // {
+    //     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    //     {
+    //         BIT_SET(ledState[ledMapArray[i]], LED_ACTIVE_BIT);
+    //         BIT_SET(ledState[ledMapArray[i]], LED_STATE_BIT);
+
+    //         BIT_SET(ledState[ledMapArray[11-i]], LED_ACTIVE_BIT);
+    //         BIT_SET(ledState[ledMapArray[11-i]], LED_STATE_BIT);
+    //     }
+
+    //     wait_ms(75);
+    // }
+
+    // wait_ms(300);
+
+    //v2
+    for (int i=0; i<12; i++)
+    {
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        {
+            BIT_CLEAR(ledState[ledMapArray[i]], LED_ACTIVE_BIT);
+            BIT_CLEAR(ledState[ledMapArray[i]], LED_STATE_BIT);
+        }
+
+        wait_ms(35);
+    }
+
+    for (int i=0; i<12; i++)
+    {
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        {
+            BIT_SET(ledState[ledMapArray[11-i]], LED_ACTIVE_BIT);
+            BIT_SET(ledState[ledMapArray[11-i]], LED_STATE_BIT);
+        }
+
+        wait_ms(35);
+    }
+
+    for (int i=0; i<12; i++)
+    {
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        {
+            BIT_CLEAR(ledState[ledMapArray[11-i]], LED_ACTIVE_BIT);
+            BIT_CLEAR(ledState[ledMapArray[11-i]], LED_STATE_BIT);
+        }
+
+        wait_ms(35);
+    }
+
+    //turn all off again
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+    {
+        BIT_CLEAR(ledState[i], LED_ACTIVE_BIT);
+        BIT_CLEAR(ledState[i], LED_STATE_BIT);
+    }
+}
 
 void Board::initPins()
 {
@@ -91,9 +178,7 @@ void Board::initAnalog()
     setUpADC(adcConfiguration);
     setADCchannel(muxInPinArray[0]);
 
-    _delay_ms(2);
-
-    for (int i=0; i<5; i++)
+    for (int i=0; i<3; i++)
         getADCvalue();  //few dummy reads to init ADC
 
     adcInterruptEnable();
@@ -131,6 +216,23 @@ void Board::configureTimers()
 void Board::ledFlashStartup(bool fwUpdated)
 {
     
+}
+
+void Board::initCustom()
+{
+    //init all outputs on shift register
+    setLow(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+    {
+        //active low logic
+        setHigh(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
+        pulseHighToLow(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+    }
+
+    setHigh(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+
+    startUpAnimation = kodamaStartUpAnimation;
 }
 
 Board board;

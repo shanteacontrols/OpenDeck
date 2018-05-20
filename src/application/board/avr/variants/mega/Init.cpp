@@ -226,9 +226,7 @@ void Board::initAnalog()
     setUpADC(adcConfiguration);
     setADCchannel(AI_1_PIN);
 
-    _delay_ms(2);
-
-    for (int i=0; i<5; i++)
+    for (int i=0; i<3; i++)
         getADCvalue();  //few dummy reads to init ADC
 
     adcInterruptEnable();
@@ -262,6 +260,16 @@ void Board::configureTimers()
     TCCR0B |= (1<<CS01)|(1<<CS00);  //prescaler 64
     OCR0A = 62;                     //250us
     TIMSK0 |= (1<<OCIE0A);          //compare match interrupt
+}
+
+void Board::ledFlashStartup(bool fwUpdated)
+{
+    
+}
+
+void Board::initCustom()
+{
+    
 }
 
 Board board;

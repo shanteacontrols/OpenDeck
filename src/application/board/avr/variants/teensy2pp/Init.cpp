@@ -154,9 +154,7 @@ void Board::initAnalog()
     setUpADC(adcConfiguration);
     setADCchannel(AI_1_PIN);
 
-    _delay_ms(2);
-
-    for (int i=0; i<5; i++)
+    for (int i=0; i<3; i++)
         getADCvalue();  //few dummy reads to init ADC
 
     adcInterruptEnable();
@@ -199,6 +197,11 @@ void Board::ledFlashStartup(bool fwUpdated)
             _delay_ms(200);
         }
     }
+}
+
+void Board::initCustom()
+{
+    
 }
 
 Board board;

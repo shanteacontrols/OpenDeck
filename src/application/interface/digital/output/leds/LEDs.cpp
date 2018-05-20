@@ -44,8 +44,13 @@ void LEDs::init()
     setFadeTime(database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterFadeTime));
     #endif
 
-    //run LED animation on start-up
-    startUpAnimation();
+    if (database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterStartUpRoutine))
+    {
+        if (board.startUpAnimation != NULL)
+            board.startUpAnimation();
+        else
+            startUpAnimation();
+    }
 }
 
 void LEDs::update()
@@ -72,19 +77,16 @@ void LEDs::update()
 
 void LEDs::startUpAnimation()
 {
-    if (database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterStartUpRoutine))
-    {
-        #ifdef LED_FADING_SUPPORTED
-        setFadeTime(1);
-        #endif
-        setAllOn();
-        wait_ms(2000);
-        setAllOff();
-        wait_ms(2000);
-        #ifdef LED_FADING_SUPPORTED
-        setFadeTime(database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterFadeTime));
-        #endif
-    }
+    #ifdef LED_FADING_SUPPORTED
+    setFadeTime(1);
+    #endif
+    setAllOn();
+    wait_ms(2000);
+    setAllOff();
+    wait_ms(2000);
+    #ifdef LED_FADING_SUPPORTED
+    setFadeTime(database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterFadeTime));
+    #endif
 }
 
 ledColor_t LEDs::velocityToColor(uint8_t receivedVelocity)

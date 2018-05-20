@@ -49,8 +49,9 @@ void init()
     if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDINdoubleSpeed))
         board.initUART_MIDI(MIDI_BAUD_RATE_OD);
 
-    board.ledFlashStartup(board.checkNewRevision());
     #endif
+
+    board.ledFlashStartup(board.checkNewRevision());
 
     //enable global interrupts
     sei();

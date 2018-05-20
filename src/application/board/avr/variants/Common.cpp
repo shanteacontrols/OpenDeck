@@ -44,11 +44,12 @@ void Board::init()
     #endif
 
     configureTimers();
+    initCustom();
 }
 
-#if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
 bool Board::checkNewRevision()
 {
+    #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
     uint32_t flash_size = pgm_read_dword(APP_LENGTH_LOCATION);
     uint16_t crc_eeprom = eeprom_read_word((uint16_t*)SW_CRC_LOCATION_EEPROM);
     uint16_t crc_flash = pgm_read_word(flash_size);
@@ -58,10 +59,10 @@ bool Board::checkNewRevision()
         eeprom_update_word((uint16_t*)SW_CRC_LOCATION_EEPROM, crc_flash);
         return true;
     }
+    #endif
 
     return false;
 }
-#endif
 
 void Board::reboot(rebootType_t type)
 {

@@ -83,7 +83,12 @@ class Board
     ///
     /// \brief Perfoms initialization of MCU and all board peripherals.
     ///
-    static void init();
+    void init();
+
+    ///
+    /// \brief Used to initialize board specific data, peripherals or anything else.
+    ///
+    void initCustom();
 
     ///
     /// \brief Checks if firmware has been updated.
@@ -100,6 +105,12 @@ class Board
     ///                         used to flash the LEDs.
     ///
     static void ledFlashStartup(bool fwUpdated);
+
+    ///
+    /// \brief Pointer to board-specific start-up animation function.
+    /// Disabled by default.
+    ///
+    void (*startUpAnimation)() = NULL;
 
     ///
     /// \brief Initializes USB peripheral and configures it as MIDI device.
