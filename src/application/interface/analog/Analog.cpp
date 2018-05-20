@@ -65,9 +65,6 @@ void Analog::update()
         }
         else
         {
-            //read raw value
-            analogData = board.getAnalogValue(i);
-
             if (analogData == -1)
             {
                 continue;
