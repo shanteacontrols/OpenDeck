@@ -91,10 +91,10 @@ else ifeq ($(findstring upload,$(MAKECMDGOALS)), upload)
     else
         $(error Please run make for specific target first)
     endif
-    #extra check for uploadboot - fw_opendeck only for now
+    #extra check for uploadboot - fw_opendeck and fw_kodama only for now
     ifeq ($(MAKECMDGOALS),uploadboot)
-        ifeq ($(filter fw_opendeck, $(shell cat build/TARGET)), )
-            $(error Available only for fw_opendeck target.)
+        ifeq ($(filter fw_opendeck fw_kodama, $(shell cat build/TARGET)), )
+            $(error Available only for OpenDeck and Kodama targets.)
         endif
     endif
 endif

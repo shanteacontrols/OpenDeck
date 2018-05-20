@@ -86,6 +86,7 @@ fw_kodama \
 boot_opendeck \
 boot_leonardo \
 boot_16u2 \
+boot_kodama \
 boot_teensy2pp: $(TARGET).elf
 
 #determine if make clean should be run before compilation

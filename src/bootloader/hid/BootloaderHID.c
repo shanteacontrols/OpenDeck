@@ -35,9 +35,14 @@
 
 #include "BootloaderHID.h"
 #include "core/src/HAL/avr/PinManipulation.h"
+#include "core/src/general/BitManipulation.h"
 #include <util/crc16.h>
 
-#if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO)
+#ifdef BOARD_KODAMA
+#include "board/avr/variants/kodama/pins/Pins.h"
+#endif
+
+#if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO) || defined(BOARD_KODAMA)
 
 ///
 /// \brief Calculates CRC of entire flash.
@@ -70,14 +75,40 @@ void Application_Jump_Check(void)
 {
     bool JumpToApplication = false;
 
+    #ifndef BOARD_KODAMA
     setInput(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
     setHigh(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+    #else
+    setInput(SR_IN_DATA_PORT, SR_IN_DATA_PIN);
+    setOutput(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
+    setOutput(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
+    #endif
 
     // add some delay before reading pin
     _delay_ms(5);
 
     //invert reading - pin uses pull-up
+    #ifndef BOARD_KODAMA
     bool hardwareTrigger = !readPin(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+    #else
+    uint16_t dInData = 0;
+    setLow(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
+    setLow(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
+    _NOP();
+    _NOP();
+
+    setHigh(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
+
+    for (int i=0; i<16; i++)
+    {
+        setLow(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
+        _NOP();
+        BIT_WRITE(dInData, i, !readPin(SR_IN_DATA_PORT, SR_IN_DATA_PIN));
+        setHigh(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
+    }
+
+    bool hardwareTrigger = BIT_READ(dInData, 0x03);
+    #endif
 
     //check if user wants to enter bootloader
     bool softwareTrigger = eeprom_read_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION) == BTLDR_REBOOT_VALUE;
@@ -144,12 +175,30 @@ static void SetupHardware(void)
     MCUCR = (1 << IVCE);
     MCUCR = (1 << IVSEL);
 
+    //indicate that we're in bootloader mode
+    #ifndef BOARD_KODAMA
     setOutput(LED_IN_PORT, LED_IN_PIN);
     setOutput(LED_OUT_PORT, LED_OUT_PIN);
 
-    //indicate that we're in bootloader mode
     BTLDR_LED_ON(LED_IN_PORT, LED_IN_PIN);
     BTLDR_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+    #else
+    setOutput(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
+    setOutput(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+    setOutput(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+
+    //init all outputs on shift register
+    setLow(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+
+    for (int i=0; i<16; i++)
+    {
+        //active low logic
+        setLow(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
+        pulseHighToLow(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+    }
+
+    setHigh(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+    #endif
 
     /* Initialize USB subsystem */
     USB_Init();
