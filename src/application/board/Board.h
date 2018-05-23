@@ -124,7 +124,7 @@ class Board
     static void initUART_MIDI(uint32_t baudRate);
 
     ///
-    /// \brief Checks if digital input data is avaiable (encoder and button data).
+    /// \brief Checks if digital input data is available (encoder and button data).
     /// On boards which use input matrix data is read in ISR and stored into digitalInBuffer array.
     /// Once all columns are read, data is considered available.
     /// At this point, input matrix column variable is set to invalid value
