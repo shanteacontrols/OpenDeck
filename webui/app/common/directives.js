@@ -46,7 +46,7 @@
     app.directive('setup', function() {
         return {
             scope: {},
-            templateUrl: '/webui/app/common/setup/setup.html',
+            templateUrl: '/OpenDeck/webui/app/common/setup/setup.html',
             link: function(scope, element, attrs) {
 
             }

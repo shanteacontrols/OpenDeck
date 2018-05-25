@@ -6,7 +6,7 @@
          return {
             restrict: 'E',
             replace: true,
-            templateUrl: '/webui/app/common/menu/items.html',
+            templateUrl: '/OpenDeck/webui/app/common/menu/items.html',
            link: function(scope, el, attrs) {
                  el.find('ul li a').click(function() {
                     if ($(this).hasClass('disabled')) return false;

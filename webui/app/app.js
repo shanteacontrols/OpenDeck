@@ -12,35 +12,35 @@
                 .hashPrefix('');
         $routeProvider
             .when("/", {
-                templateUrl: "/webui/app/midi/midi.html",
+                templateUrl: "/OpenDeck/webui/app/midi/midi.html",
                 controller: "midiCtrl"
             })
             .when("/midi/", {
-                templateUrl: "/webui/app/midi/midi.html",
+                templateUrl: "/OpenDeck/webui/app/midi/midi.html",
                 controller: "midiCtrl"
             })
             .when("/buttons/", {
-                templateUrl: "/webui/app/buttons/buttons.html",
+                templateUrl: "/OpenDeck/webui/app/buttons/buttons.html",
                 controller: "buttonsCtrl"
             })
             .when("/leds/", {
-                templateUrl: "/webui/app/leds/leds.html",
+                templateUrl: "/OpenDeck/webui/app/leds/leds.html",
                 controller: "ledsCtrl"
             })
             .when("/encoders/", {
-                templateUrl: "/webui/app/encoders/encoders.html",
+                templateUrl: "/OpenDeck/webui/app/encoders/encoders.html",
                 controller: "encodersCtrl"
             })
             .when("/analog/", {
-                templateUrl: "/webui/app/analog/analogs.html",
+                templateUrl: "/OpenDeck/webui/app/analog/analogs.html",
                 controller: "analogsCtrl"
             })
             .when("/display/", {
-                templateUrl: "/webui/app/display/display.html",
+                templateUrl: "/OpenDeck/webui/app/display/display.html",
                 controller: "displayCtrl"
             })
             .when("/test/", {
-                templateUrl: "/webui/app/test/test.html",
+                templateUrl: "/OpenDeck/webui/app/test/test.html",
                 controller: "testCtrl"
             })
             .otherwise({ redirectTo: "/" });
