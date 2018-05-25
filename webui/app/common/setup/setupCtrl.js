@@ -5,7 +5,7 @@
         $scope.restore = restore;
         $scope.openModal = openModal;
         function openModal(idx) {
-             $uibModal.open({ templateUrl: '/app/common/setup/info.html', size: 'lg', controller: 'infoCtrl', scope: $scope });
+             $uibModal.open({ templateUrl: '/webui/app/common/setup/info.html', size: 'lg', controller: 'infoCtrl', scope: $scope });
         }
         function backup() {
             repository.backup().then(function (d) {
