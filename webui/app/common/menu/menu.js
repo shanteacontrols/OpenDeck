@@ -25,7 +25,7 @@
          return {
             restrict: 'E',
             replace: true,
-            templateUrl: 'OpenDeck/webui/app/common/menu/menu.html'
+            templateUrl: '/OpenDeck/webui/app/common/menu/menu.html'
 
     }});
 
