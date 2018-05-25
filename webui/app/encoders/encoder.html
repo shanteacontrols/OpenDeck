@@ -1,0 +1,63 @@
+
+<div class="container modal-dialog modal-lg" ng-if="!loading">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" ng-click="$close()">&times;</button>
+        <h4 class="modal-title">Encoder {{idx + 1}}</h4>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-6">
+            <h3>Enabled</h3>
+        </div>
+        <div class="col-lg-1 col-lg-offset-1 col-md-1 col-md-offset-1 col-sm-4 col-xs-6">
+            <div class="switch">
+            <input id="enabled" ng-model="obj.enabled" class="toggle toggle-round-flat" type="checkbox">
+            <label for="enabled"></label>
+            <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Enables or disables encoder. All encoders are disabled by default. " data-placement="left">?</div>
+            </div>
+        </div>
+        </div><!-- /row -->
+        <div class="row">
+        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-6">
+            <h3>Invert state</h3>
+        </div>
+        <div class="col-lg-1 col-lg-offset-1 col-md-1 col-md-offset-1 col-sm-4 col-xs-6">
+            <div class="switch">
+            <input id="invertState" ng-model="obj.invertState" class="toggle toggle-round-flat" type="checkbox">
+            <label for="invertState"></label>
+            <div class="hint-mark" data-toggle="tooltip" data-container="body" title="When enabled, encoder will send inverted MIDI CC messages in different directions. Default option is disabled for all encoders. " data-placement="left">?</div>
+            </div>
+        </div>
+        </div><!-- /row -->
+        <div class="row">
+        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+            <h3>Encoding mode</h3>
+        </div>
+        <div class="col-lg-2 col-lg-offset-1 col-md-2 col-md-offset-1 col-sm-6 col-xs-12">
+            <div class="selectfield">
+            <select ng-model="obj.encodingMode" convert-to-number>
+                <option value="0" selected>7Fh01h</option>
+                <option value="1">3Fh41h</option>
+            </select>
+            <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Denotes encoder encoding mode. Default option is 7Fh01h for all encoders." data-placement="left">?</div>
+            </div>
+        </div>
+        </div><!-- /row -->
+        <div class="row">
+            <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
+            <h3>MIDI Channel</h3>
+            </div>
+            <div class="col-lg-6 col-lg-offset-1 col-md-6 col-sm-6 col-xs-11">
+                <r-slider value="obj.midiChannel" min="1" max="16" tooltip="MIDI channel for current component."></r-slider>
+            </div>
+        </div><!-- /row -->
+        <div class="row">
+        <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
+            <h3>MIDI ID</h3>
+        </div>
+        <div class="col-lg-6 col-lg-offset-1 col-md-6 col-sm-6 col-xs-11">
+            <r-slider value="obj.midiId" min="0" max="127" tooltip="Denotes the MIDI CC number for each encoder."></r-slider>
+        </div>
+        </div><!-- /row -->
+    </div>
+</div>

@@ -1,0 +1,69 @@
+  <div ng-if="!loading">
+    <div class="svg-bg"></div>
+          <h2 class="page-header">Features</h2>
+          <div class="">
+            <div class="row">
+              <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6">
+                <h3>Standard note off</h3>
+              </div>
+              <div class="col-lg-1 col-lg-offset-2 col-md-1 col-md-offset-2 col-sm-4 col-sm-offset-2 col-xs-6">
+                <div class="switch">
+                  <input id="standardNoteOff" ng-model="midiObj.standardNoteOff" class="toggle toggle-round-flat" type="checkbox">
+                  <label for="standardNoteOff"></label>
+                  <div class="hint-mark" data-toggle="tooltip" data-container="body" title="When disabled, Note On with velocity 0 will be sent as note off. If enabled, true Note Off event will be sent instead." data-placement="left">?</div>
+                </div>
+              </div>
+            </div><!-- /row -->
+            <div class="row">
+              <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6">
+                <h3>DIN MIDI</h3>
+              </div>
+              <div class="col-lg-1 col-lg-offset-2 col-md-1 col-md-offset-2 col-sm-4 col-sm-offset-2 col-xs-6">
+                <div class="switch">
+                  <input id="dinMIDIstate" ng-model="midiObj.dinMIDIstate" class="toggle toggle-round-flat" type="checkbox">
+                  <label for="dinMIDIstate"></label>
+                  <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Enable or disable DIN MIDI input and output." data-placement="left">?</div>
+                </div>
+              </div>
+            </div><!-- /row -->
+            <div class="row" ng-if="midiObj.dinMIDIstate==1">
+              <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6">
+                <h3>Running status</h3>
+              </div>
+              <div class="col-lg-1 col-lg-offset-2 col-md-1 col-md-offset-2 col-sm-4 col-sm-offset-2 col-xs-6">
+                <div class="switch">
+                  <input id="runningStatus" ng-model="midiObj.runningStatus" class="toggle toggle-round-flat" type="checkbox">
+                  <label for="runningStatus"></label>
+                  <div class="hint-mark" data-toggle="tooltip" data-container="body" title="This setting applies only to DIN MIDI out. This setting can cause issues on older MIDI gear so it's best to leave it disabled." data-placement="left">?</div>
+                </div>
+              </div>
+            </div><!-- /row -->
+            <div class="row" ng-if="midiObj.dinMIDIstate==1">
+              <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6">
+                <h3>MIDI merge</h3>
+              </div>
+              <div class="col-lg-1 col-lg-offset-2 col-md-1 col-md-offset-2 col-sm-4 col-sm-offset-2 col-xs-6">
+                <div class="switch">
+                  <input id="thruState" ng-model="midiObj.thruState" class="toggle toggle-round-flat" type="checkbox">
+                  <label for="thruState"></label>
+                  <div class="hint-mark" data-toggle="tooltip" data-container="body" title="When enabled, all data received via DIN MIDI can be forwarded to USB, DIN MIDI out or both interfaces." data-placement="left">?</div>
+                </div>
+              </div>
+            </div><!-- /row -->
+            <div class="row" ng-if="midiObj.thruState==1">
+              <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+              <h3>Merge to interface</h3>
+              </div>
+              <div class="col-lg-2 col-lg-offset-1 col-md-2 col-md-offset-1 col-sm-6 col-xs-12">
+              <div class="selectfield">
+                  <select ng-model="midiObj.thruInterface" convert-to-number>
+                  <option value="0">USB</option>
+                  <option value="1">DIN MIDI out</option>
+                  <option value="2">All</option>
+                  </select>
+                  <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Interface to which incoming MIDI data is forwarded to." data-placement="left">?</div>
+              </div>
+              </div>
+            </div><!-- /row -->
+          </div>
+  </div>

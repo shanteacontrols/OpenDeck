@@ -1,0 +1,105 @@
+  <div ng-if="!loading">
+  <div class="svg-bg"></div>
+
+        <!--Option box-->
+        <h2 class="page-header">Hardware parameters</h2>
+        <!--<div class="row">
+          <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
+            <h3>Total LED number</h3>
+          </div>
+          <div class="col-lg-6 col-md-6 col-sm-6 col-xs-11">
+             <r-slider  value="obj.totalLedNumber" min="0" max="48" tooltip="Sets total amount of LEDs. Doesn't need to be specified if start-up animation isn't used. Acceptable values for NEW_VALUE byte range between 0-47 (board supports 48 LEDs)."></r-slider>
+          </div>
+        </div> /row -->
+        <div class="row">
+          <div class="col-lg-4 col-md-5 col-sm-4 col-xs-6">
+            <h3>Blink time</h3>
+          </div>
+          <div class="col-lg-6 col-md-6 col-sm-6 col-xs-11">
+               <r-slider value="obj.blinkTime" min="2" max="15" tooltip="Sets LED blinking speed. Specified value gets multiplied by 100, ie. if selected value is 2, actual blinking speed is 200ms. "></r-slider>
+          </div>
+        </div><!-- /row -->
+        <div class="row">
+          <div class="col-lg-4 col-md-5 col-sm-4 col-xs-6">
+            <h3>Fade time</h3>
+          </div>
+          <div class="col-lg-6 col-md-6 col-sm-6 col-xs-11">
+              <r-slider value="obj.fadeTime" min="0" max="10" tooltip="Speed at which LEDs transition between on and off state. Default value is 0, which means fading is disabled by default."></r-slider>
+          </div>
+        </div><!-- /row -->
+        <!--<div class="row">
+          <div class="col-lg-4 col-md-5 col-sm-4 col-xs-6">
+            <h3>Start-up switch time</h3>
+          </div>
+          <div class="col-lg-6 col-md-6 col-sm-6 col-xs-11">
+            <r-slider  value="obj.startupSwitchTime" min="0" max="120" tooltip="Denotes the speed at which LEDs are turning on or off one by one in start-up animation. Specified value gets multiplied by 10, ie. if specified value is 10, LEDs get switched at 100 ms rate. Must be specified if start-up routine is used."></r-slider>
+          </div>
+        </div> /row -->
+        <div class="row">
+              <div class="col-lg-4 col-md-5 col-sm-4 col-xs-6">
+                <h3>Start-up routine</h3>
+              </div>
+                  <div class="col-lg-1 col-md-1 col-sm-4 col-xs-6">
+                <div class="switch">
+                  <input id="startupRoutine" ng-model="obj.startupRoutine" class="toggle toggle-round-flat" type="checkbox">
+                  <label for="startupRoutine"></label>
+                  <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Enables or disables LED animation. If animation is enabled, all LEDS will slowly turn on and off when board is powered." data-placement="left">?</div>
+                </div>
+
+              </div>
+         </div><!-- /row -->
+        <!--<div class="row">
+          <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
+            <h3>Start-up routine</h3>
+          </div>
+          <div class="col-lg-2 col-md-3 col-sm-5 col-xs-12">
+            <div class="selectfield sel-main">
+              <select ng-model="obj.startupRoutine" convert-to-number>
+                <option value="0" selected>Disabled</option>
+                <option value="1" selected>Animation 1</option>
+                <option value="2">Animation 2</option>
+                <option value="3">Animation 3</option>
+                <option value="4">Animation 4</option>
+                <option value="5">Animation 5</option>
+              </select>
+              <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Start-up animation. There are 5 animations available. Default routine is 0, which means that LED animation is disabled." data-placement="left">?</div>
+            </div>
+          </div>
+        </div> /row -->
+
+
+
+        <br>
+        <br>
+
+        <!--Option box-->
+        <h2 class="page-header">LEDs</h2>
+        <div class="row">
+
+        </div><!-- /row -->
+
+        <div class="row">
+          <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" style="margin-top: -20px;">
+          </div>
+          <div class="col-lg-6 col-md-8 col-sm-12 col-xs-12">
+            <form class="form-inline">
+              <div class="form-group">
+                <label for="email">Choose LED to configure: </label>
+                <input type="number" class="form-control input-number" ng-model="idx" id="number" placeholder="1-48" min="1" max="48">
+                <span class="form-group-btn">
+                  <button class="btn btn-default" type="submit" ng-click="openModal(idx-1)">edit</button>
+                </span>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <br>
+        <br>
+
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 left-40 led-group">
+            <span ng-repeat="obj in objects">
+              <a class="led-icon" data-placement="top" ng-class="{ enabled: obj.enabled }" blink-on-action idx="{{obj.idx}}" block="4" ng-click="openModal(obj.idx, obj)"></a><div class="button-id">{{obj.idx + 1}}</div>
+            </span>
+        </div>
+  </div>

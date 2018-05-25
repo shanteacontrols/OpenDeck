@@ -1,0 +1,73 @@
+
+    <div class="container modal-dialog modal-lg" ng-if="!loading">
+            <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" ng-click="$close()">&times;</button>
+            <h4 class="modal-title">Button {{idx + 1}}</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    <h3>Type</h3>
+                    </div>
+                    <div class="col-lg-2 col-lg-offset-1 col-md-2 col-md-offset-1 col-sm-6 col-xs-12">
+                    <div class="selectfield">
+                        <select ng-model="obj.type" convert-to-number>
+                        <option value="0">Momentary</option>
+                        <option value="1">Latching</option>
+                        </select>
+                        <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Denotes button type. Type can be momentary, which means that note off is sent as soon as button is released, or latching, which means that note off is sent on second button press. All buttons are configured as momentary by default. " data-placement="left">?</div>
+                    </div>
+                    </div>
+                </div><!-- /row -->
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    <h3>MIDI message</h3>
+                    </div>
+                    <div class="col-lg-2 col-lg-offset-1 col-md-2 col-md-offset-1 col-sm-6 col-xs-12">
+                    <div class="selectfield">
+                        <select ng-model="obj.midiMessage" convert-to-number>
+                        <option value="0">Note</option>
+                        <option value="1">Program change</option>
+                        <option value="2">CC</option>
+                        <option value="3">CC/0 off</option>
+                        <option value="4">MMC Stop</option>
+                        <option value="5">MMC Play</option>
+                        <option value="6">MMC Record</option>
+                        <option value="7">MMC Pause</option>
+                        <option value="8">Real Time Clock</option>
+                        <option value="9">Real Time Start</option>
+                        <option value="10">Real Time Continue</option>
+                        <option value="11">Real Time Stop</option>
+                        <option value="12">Real Time Active Sensing</option>
+                        <option value="13">Real Time System Reset</option>
+                        </select>
+                        <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Specifies which MIDI message the buttons send. Default option is Note. If Program Change message is selected, button will send program change event on successive presses (momentary/latching modes are ignored)." data-placement="left">?</div>
+                    </div>
+                    </div>
+                </div><!-- /row -->
+                <div class="row">
+                    <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
+                    <h3>MIDI Channel</h3>
+                    </div>
+                    <div class="col-lg-6 col-lg-offset-1 col-md-6 col-sm-6 col-xs-11">
+                        <r-slider value="obj.midiChannel" min="1" max="16" tooltip="MIDI channel for current component."></r-slider>
+                    </div>
+                </div><!-- /row -->
+                <div class="row">
+                    <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
+                    <h3>MIDI ID</h3>
+                    </div>
+                    <div class="col-lg-6 col-lg-offset-1 col-md-6 col-sm-6 col-xs-11">
+                        <r-slider value="obj.midiId" min="0" max="127" tooltip="Denotes note/program change MIDI number."></r-slider>
+                    </div>
+                </div><!-- /row -->
+                <div class="row">
+                    <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
+                    <h3>On velocity</h3>
+                    </div>
+                    <div class="col-lg-6 col-lg-offset-1 col-md-6 col-sm-6 col-xs-11">
+                        <r-slider value="obj.midiVelocity" min="0" max="127" tooltip="Velocity button sends when it's pressed"></r-slider>
+                    </div>
+                </div><!-- /row -->
+            </div>
+        </div>

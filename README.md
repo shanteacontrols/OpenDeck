@@ -24,6 +24,14 @@ OpenDeck firmware is compatible with official OpenDeck board, as well as various
 * Arduino Mega2560
 * Teensy++ 2.0
 
+## Web UI
+
+This repository also contains source code for OpenDeck Web configuration utility written using Angular framework by other developer. Web utility can run in any browser which supports WebMIDI specification (currently Google Chrome and Opera). Utility needs access to MIDI devices so that it can communicate with OpenDeck boards. All communication is done with custom SysEx protocol explained in detail in [Wiki section](https://github.com/paradajz/OpenDeck/wiki/SysEx-Configuration).
+
+File containing core app logic core.min.js was obsfucated and original source code was lost. Later, un-obsfucator was run on that file, however many variables and function names remain cryptic.
+
+As I don't do any Web development I won't be adding any new features to the app. If you, however, want to contribute to it I would be more than happy to accept any improvements, new features or fixes.
+
 ## Coming soon
 
 * Support for advanced I2C sensors

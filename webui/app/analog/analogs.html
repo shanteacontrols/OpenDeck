@@ -1,0 +1,29 @@
+    <div class="svg-bg"></div>
+
+        <!--Option box-->
+        <h2 class="page-header">Analog setup</h2>
+
+        <div class="row">
+          <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" style="margin-top: -20px;">
+          </div>
+          <div class="col-lg-6 col-md-8 col-sm-12 col-xs-12">
+            <form class="form-inline">
+              <div class="form-group">
+                <label for="email">Choose analog to configure: </label>
+                <input type="number" class="form-control input-number" id="idx" placeholder="1-32" min="1" max="32">
+                <span class="form-group-btn">
+                  <button class="btn btn-default" ng-click="openModal(idx-1)">edit</button>
+                </span>
+              </div>
+            </form>
+          </div>
+        </div><!--end row-->
+
+        <br>
+        <br>
+
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 left-40 analog-group">
+          <span ng-repeat="obj in objects">
+            <a class="analog-icon" data-placement="top" blink-on-action idx="{{obj.idx}}" block="3" ng-click="openModal(obj.idx)"></a><div class="button-id">{{obj.idx + 1}}</div>
+          </span>
+        </div>

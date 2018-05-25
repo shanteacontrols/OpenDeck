@@ -1,0 +1,111 @@
+  <div ng-if="!loading">
+    <div class="svg-bg"></div>
+          <h2 class="page-header">Hardware</h2>
+          <div class="">
+            <div class="row">
+              <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6">
+                <h3>Display enabled</h3>
+              </div>
+              <div class="col-lg-1 col-lg-offset-2 col-md-1 col-md-offset-2 col-sm-4 col-sm-offset-2 col-xs-6">
+                <div class="switch">
+                  <input id="displayEnabled" ng-model="displayObj.displayEnabled" class="toggle toggle-round-flat" type="checkbox">
+                  <label for="displayEnabled"></label>
+                  <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Enables or disables display." data-placement="left">?</div>
+                </div>
+              </div>
+            </div><!-- /row -->
+            <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    <h3>Display controller</h3>
+                </div>
+                <div class="col-lg-2 col-lg-offset-1 col-md-2 col-md-offset-1 col-sm-6 col-xs-12">
+                    <div class="selectfield">
+                    <select ng-model="displayObj.displayController" convert-to-number>
+                        <option value="0" selected>SSD1306</option>
+                    </select>
+                    <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Display controller." data-placement="left">?</div>
+                    </div>
+                </div>
+            </div><!-- /row -->
+            <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    <h3>Display resolution</h3>
+                </div>
+                <div class="col-lg-2 col-lg-offset-1 col-md-2 col-md-offset-1 col-sm-6 col-xs-12">
+                    <div class="selectfield">
+                    <select ng-model="displayObj.displayResolution" convert-to-number>
+                        <option value="0" selected>128x64</option>
+                        <option value="1">128x32</option>
+                    </select>
+                    <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Display resolution." data-placement="left">?</div>
+                    </div>
+                </div>
+            </div><!-- /row -->
+            <h2 class="page-header">Features</h2>
+            <div class="row">
+              <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6">
+                <h3>Welcome message on startup</h3>
+              </div>
+              <div class="col-lg-1 col-lg-offset-2 col-md-1 col-md-offset-2 col-sm-4 col-sm-offset-2 col-xs-6">
+                <div class="switch">
+                  <input id="displayWelcomeMsg" ng-model="displayObj.displayWelcomeMsg" class="toggle toggle-round-flat" type="checkbox">
+                  <label for="displayWelcomeMsg"></label>
+                  <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Enable or disable welcome message on display when the board is powered on." data-placement="left">?</div>
+                </div>
+              </div>
+            </div><!-- /row -->
+            <div class="row">
+              <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6">
+                <h3>Version info on startup</h3>
+              </div>
+              <div class="col-lg-1 col-lg-offset-2 col-md-1 col-md-offset-2 col-sm-4 col-sm-offset-2 col-xs-6">
+                <div class="switch">
+                  <input id="displayVInfoMsg" ng-model="displayObj.displayVInfoMsg" class="toggle toggle-round-flat" type="checkbox">
+                  <label for="displayVInfoMsg"></label>
+                  <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Enable or disable version info on display when the board is powered on. This info is shown after welcome message." data-placement="left">?</div>
+                </div>
+              </div>
+            </div><!-- /row -->
+            <div class="row">
+              <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6">
+                <h3>MIDI event retention</h3>
+              </div>
+              <div class="col-lg-1 col-lg-offset-2 col-md-1 col-md-offset-2 col-sm-4 col-sm-offset-2 col-xs-6">
+                <div class="switch">
+                  <input id="dataRetention" ng-model="displayObj.dataRetention" class="toggle toggle-round-flat" type="checkbox">
+                  <label for="dataRetention"></label>
+                  <div class="hint-mark" data-toggle="tooltip" data-container="body" title="If enabled, MIDI data displayed will never be cleared - new data will overwrite existing info. When disabled, data is cleared from display after timeout." data-placement="left">?</div>
+                </div>
+              </div>
+            </div><!-- /row -->
+            <div class="row">
+            <div class="col-lg-4 col-md-5 col-sm-4 col-xs-6">
+              <h3>Message retention time</h3>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-11">
+              <r-slider value="displayObj.retentionTime" min="1" max="5" tooltip="Timeout after last message on display will be cleared if data retention option is disabled."></r-slider>
+            </div>
+          </div>
+            <div class="row">
+              <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6">
+                <h3>Alternate note display</h3>
+              </div>
+              <div class="col-lg-1 col-lg-offset-2 col-md-1 col-md-offset-2 col-sm-4 col-sm-offset-2 col-xs-6">
+                <div class="switch">
+                  <input id="alternateNoteDisplay" ng-model="displayObj.alternateNoteDisplay" class="toggle toggle-round-flat" type="checkbox">
+                  <label for="alternateNoteDisplay"></label>
+                  <div class="hint-mark" data-toggle="tooltip" data-container="body" title="If enabled, MIDI note data will be displayed like C#4, where the number represents octave. If disabled, MIDI note number will be displayed instead." data-placement="left">?</div>
+                </div>
+              </div>
+            </div><!-- /row -->
+          </div>
+          <br>
+          <div class="row">
+            <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
+              <h3>Octave normalization value</h3>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-11">
+              <r-slider value="displayObj.octaveNormalization" min="0" max="8" tooltip="MIDI octave is calculated as current note number divided by 12, which gives range 0-10. Octave normalization shifts that range by specified value."></r-slider>
+            </div>
+          </div>
+  </div>

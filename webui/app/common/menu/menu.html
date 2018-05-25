@@ -1,0 +1,44 @@
+    <!--Navigation-->
+    <nav class="navbar navbar-inverse sidebar" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <div class="brand-wrapper">
+            <!-- Hamburger -->
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#side_nav">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar top-bar"></span>
+              <span class="icon-bar middle-bar"></span>
+              <span class="icon-bar bottom-bar"></span>
+            </button>
+            <!-- Brand -->
+            <div class="brand-name-wrapper">
+              <div class="navbar-brand">
+                <img src="images/logo-white.png" width="100%">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <items></items>
+
+          <div class="activity hidden-xs">
+              <div class="activity-header hidden-xs">Activity</div>
+              <div>
+                  <div class="activity-log hidden-xs" ng-controller="activityCtrl">
+                    <div class="btn-group btn-activity">
+                      <button type="button" class="btn" ng-click="toggleDisplayActivity()"><span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span></button>
+                      <button type="button" class="btn" ng-click="clear()"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+                    </div>
+                    <div class="scroll-div" ng-if="displayActivity">
+                      <p ng-repeat="activity in activities track by $index">{{activity}}</p>
+                    </div>
+                  </div>
+              </div>
+
+
+          <setup></setup>
+
+        </div>
+        </div>
+    </nav>
+    <!--/Navigation-->
