@@ -21,6 +21,7 @@
 
 #include "interface/digital/output/leds/DataTypes.h"
 #include "common/DataTypes.h"
+#include "dbms/src/DataTypes.h"
 
 ///
 /// \brief List of all supported boards.
@@ -226,6 +227,24 @@ class Board
     /// \brief Performs software MCU reboot.
     ///
     void reboot(rebootType_t type);
+
+    ///
+    /// \brief Used to read contents of memory provided by specific board.
+    /// @param [in] address Memory address from which to read from.
+    /// @param [in] type    Type of parameter which is being read. Defined in DBMS module.
+    /// @param [in] value   Pointer to variable in which read value is being stored.
+    /// \returns            True on success, false otherwise.
+    ///
+    static bool memoryRead(uint32_t address, sectionParameterType_t type, int32_t &value);
+
+    ///
+    /// \brief Used to write value to memory provided by specific board.
+    /// @param [in] address Memory address in which new value is being written.
+    /// @param [in] value   Value to write.
+    /// @param [in] type    Type of parameter which is being written. Defined in DBMS module.
+    /// \returns            True on success, false otherwise.
+    ///
+    static bool memoryWrite(uint32_t address, int32_t value, sectionParameterType_t type);
 
     private:
     ///
