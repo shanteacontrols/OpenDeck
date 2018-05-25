@@ -12,35 +12,35 @@
                 .hashPrefix('');
         $routeProvider
             .when("/", {
-                templateUrl: "/app/midi/midi.html",
+                templateUrl: "/webui/app/midi/midi.html",
                 controller: "midiCtrl"
             })
             .when("/midi/", {
-                templateUrl: "/app/midi/midi.html",
+                templateUrl: "/webui/app/midi/midi.html",
                 controller: "midiCtrl"
             })
             .when("/buttons/", {
-                templateUrl: "/app/buttons/buttons.html",
+                templateUrl: "/webui/app/buttons/buttons.html",
                 controller: "buttonsCtrl"
             })
             .when("/leds/", {
-                templateUrl: "/app/leds/leds.html",
+                templateUrl: "/webui/app/leds/leds.html",
                 controller: "ledsCtrl"
             })
             .when("/encoders/", {
-                templateUrl: "/app/encoders/encoders.html",
+                templateUrl: "/webui/app/encoders/encoders.html",
                 controller: "encodersCtrl"
             })
             .when("/analog/", {
-                templateUrl: "/app/analog/analogs.html",
+                templateUrl: "/webui/app/analog/analogs.html",
                 controller: "analogsCtrl"
             })
             .when("/display/", {
-                templateUrl: "/app/display/display.html",
+                templateUrl: "/webui/app/display/display.html",
                 controller: "displayCtrl"
             })
             .when("/test/", {
-                templateUrl: "/app/test/test.html",
+                templateUrl: "/webui/app/test/test.html",
                 controller: "testCtrl"
             })
             .otherwise({ redirectTo: "/" });
