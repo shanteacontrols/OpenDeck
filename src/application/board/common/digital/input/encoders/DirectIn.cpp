@@ -24,7 +24,7 @@ uint8_t Board::getEncoderPair(uint8_t buttonID)
     return buttonID/2;
 }
 
-int8_t Board::getEncoderState(uint8_t encoderID)
+int8_t Board::getEncoderState(uint8_t encoderID, uint8_t pulsesPerStep)
 {
     //first, find out array index of digital input buffer where data is stored for requested encoder
     uint8_t buttonID = encoderID*2;
@@ -33,5 +33,5 @@ int8_t Board::getEncoderState(uint8_t encoderID)
     uint8_t pairState = BIT_READ(digitalInBuffer[arrayIndex], 7-buttonID);
     pairState <<= 1;
     pairState |= BIT_READ(digitalInBuffer[arrayIndex], 6-buttonID);
-    return readEncoder(encoderID, pairState);
+    return readEncoder(encoderID, pairState, pulsesPerStep);
 }

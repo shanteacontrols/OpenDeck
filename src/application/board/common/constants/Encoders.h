@@ -53,11 +53,6 @@
 #define ENCODER_DEFAULT_PULSE_COUNT_STATE   8
 
 ///
-/// \brief Pulses encoder needs to generate in order to register movement.
-///
-#define PULSES_PER_STEP                     4
-
-///
 /// \brief Lookup table used to convert encoder reading to pulses.
 ///
 const int8_t encoderLookUpTable[] =

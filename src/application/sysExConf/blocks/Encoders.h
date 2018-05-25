@@ -27,6 +27,7 @@ typedef enum
     sysExSection_encoders_mode,
     sysExSection_encoders_midiID,
     sysExSection_encoders_midiChannel,
+    sysExSection_encoders_pulsesPerStep,
     SYSEX_SECTIONS_ENCODERS
 } sysExSection_encoders_t;
 
@@ -38,4 +39,5 @@ const uint8_t sysEx2DB_encoders[SYSEX_SECTIONS_ENCODERS] =
     dbSection_encoders_mode,
     dbSection_encoders_midiID,
     dbSection_encoders_midiChannel,
+    dbSection_encoders_pulsesPerStep,
 };

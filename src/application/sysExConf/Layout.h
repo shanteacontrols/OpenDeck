@@ -111,6 +111,13 @@ static sysExSection_t encoderSections[SYSEX_SECTIONS_ENCODERS] =
         .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
         .newValueMin = 1,
         .newValueMax = 16,
+    },
+
+    //pulses per step section
+    {
+        .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
+        .newValueMin = 2,
+        .newValueMax = 4,
     }
 };
 

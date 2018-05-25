@@ -34,7 +34,7 @@ void Board::initEncoders()
     }
 }
 
-int8_t Board::readEncoder(uint8_t encoderID, uint8_t pairState)
+int8_t Board::readEncoder(uint8_t encoderID, uint8_t pairState, uint8_t pulsesPerStep)
 {
     //add new data
     uint8_t newPairData = 0;
@@ -67,7 +67,7 @@ int8_t Board::readEncoder(uint8_t encoderID, uint8_t pairState)
     if (lastEncoderDirection != newEncoderDirection)
         return 0;
 
-    if (currentPulses % PULSES_PER_STEP)
+    if (currentPulses % pulsesPerStep)
         return 0;
 
     //clear current pulses

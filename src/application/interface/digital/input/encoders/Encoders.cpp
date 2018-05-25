@@ -46,7 +46,7 @@ void Encoders::update()
         if (!database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i))
             continue;
 
-        encoderPosition_t encoderState = (encoderPosition_t)board.getEncoderState(i);
+        encoderPosition_t encoderState = (encoderPosition_t)board.getEncoderState(i, database.read(DB_BLOCK_ENCODERS, dbSection_encoders_pulsesPerStep, i));
         if (encoderState == encStopped)
             continue;
 

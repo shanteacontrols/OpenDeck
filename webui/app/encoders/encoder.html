@@ -43,6 +43,17 @@
             </div>
         </div>
         </div><!-- /row -->
+        <div class="col-lg-2 col-lg-offset-1 col-md-2 col-md-offset-1 col-sm-6 col-xs-12">
+            <div class="selectfield">
+            <select ng-model="obj.pulsesPerStep" convert-to-number>
+                <option value="2" selected>3</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+            <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Amount of pulses encoder generates per step." data-placement="left">?</div>
+            </div>
+        </div>
+        </div><!-- /row -->
         <div class="row">
             <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
             <h3>MIDI Channel</h3>

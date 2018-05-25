@@ -30,11 +30,11 @@ uint8_t Board::getEncoderPair(uint8_t buttonID)
     return (row*NUMBER_OF_BUTTON_COLUMNS)/2 + column;
 }
 
-int8_t Board::getEncoderState(uint8_t encoderID)
+int8_t Board::getEncoderState(uint8_t encoderID, uint8_t pulsesPerStep)
 {
     uint8_t column = encoderID % NUMBER_OF_BUTTON_COLUMNS;
     uint8_t row  = (encoderID/NUMBER_OF_BUTTON_COLUMNS)*2;
     uint8_t pairState = (digitalInBuffer[column] >> row) & 0x03;
 
-    return readEncoder(encoderID, pairState);
+    return readEncoder(encoderID, pairState, pulsesPerStep);
 }
