@@ -102,7 +102,6 @@ input[type=number]::-webkit-outer-spin-button {
 .svg-bg:before {
   width: 380px;
   height: 480px;
-  background-image: url("../images/shantea-leaf.svg");
   background-repeat: no-repeat;
   opacity: .7;
   background-size: 95% 95% ;
