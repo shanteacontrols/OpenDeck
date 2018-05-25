@@ -191,9 +191,9 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
         case SYSEX_BLOCK_ENCODERS:
         //channels start from 0 in db, start from 1 in sysex
         if (section == sysExSection_encoders_midiChannel)
-            returnValue = database.read(block, sysEx2DB_buttons[section], index) + 1;
+            returnValue = database.read(block, sysEx2DB_encoders[section], index) + 1;
         else
-            returnValue = database.read(block, sysEx2DB_buttons[section], index);
+            returnValue = database.read(block, sysEx2DB_encoders[section], index);
         break;
 
         case DB_BLOCK_DISPLAY:
