@@ -47,6 +47,8 @@ F0 00 53 43 00 7F 02 01 02 02 F7
 F0 00 53 43 00 7F 02 01 02 03 F7
 //midi channel section
 F0 00 53 43 00 7F 02 01 02 04 F7
+//pulses per step section
+F0 00 53 43 00 7F 02 01 02 05 F7
 
 //////// encoder block end ////////
 
