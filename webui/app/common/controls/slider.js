@@ -5,7 +5,7 @@
 				return {
 					restrict : "E",
 					scope: { min: '=', max: '=', value: '=', tooltip: '@'},
-					templateUrl : '/app/common/controls/slider.html',
+					templateUrl : '/webui/app/common/controls/slider.html',
 					controller: function($scope) {   
 						$scope.debounce = 600;   
 						$scope.increment = function increment() {
