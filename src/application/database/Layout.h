@@ -122,7 +122,7 @@ static dbSection_t encoderSections[DB_SECTIONS_ENCODERS] =
     //encoding mode section
     {
         .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-        .parameterType = BYTE_PARAMETER,
+        .parameterType = HALFBYTE_PARAMETER,
         .preserveOnPartialReset = 0,
         .defaultValue = 0,
         .autoIncrement = false,
@@ -185,7 +185,7 @@ static dbSection_t analogSections[DB_SECTIONS_ANALOG] =
     //analog type section
     {
         .numberOfParameters = MAX_NUMBER_OF_ANALOG,
-        .parameterType = BYTE_PARAMETER,
+        .parameterType = HALFBYTE_PARAMETER,
         .preserveOnPartialReset = 0,
         .defaultValue = 0,
         .autoIncrement = false,
