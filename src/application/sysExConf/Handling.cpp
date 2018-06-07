@@ -42,7 +42,7 @@ bool onCustom(uint8_t value)
         sysEx.addToResponse(BOARD_ID);
         sysEx.addToResponse(HARDWARE_VERSION_MAJOR);
         sysEx.addToResponse(HARDWARE_VERSION_MINOR);
-        sysEx.addToResponse(HARDWARE_VERSION_REVISION);
+        sysEx.addToResponse(0);
         break;
 
         case FIRMWARE_HARDWARE_VERSION_STRING:
@@ -52,7 +52,7 @@ bool onCustom(uint8_t value)
         sysEx.addToResponse(BOARD_ID);
         sysEx.addToResponse(HARDWARE_VERSION_MAJOR);
         sysEx.addToResponse(HARDWARE_VERSION_MINOR);
-        sysEx.addToResponse(HARDWARE_VERSION_REVISION);
+        sysEx.addToResponse(0);
         break;
 
         case MAX_COMPONENTS_STRING:

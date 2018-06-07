@@ -25,6 +25,5 @@
 
 #define HARDWARE_VERSION_MAJOR      1
 #define HARDWARE_VERSION_MINOR      2
-#define HARDWARE_VERSION_REVISION   1
 
 /// @}

@@ -116,8 +116,7 @@ void Display::displayVinfo(bool newFw)
         stringBuffer.appendInt(HARDWARE_VERSION_MAJOR);
         stringBuffer.appendText(".");
         stringBuffer.appendInt(HARDWARE_VERSION_MINOR);
-        stringBuffer.appendText(".");
-        stringBuffer.appendInt(HARDWARE_VERSION_REVISION);
+        stringBuffer.appendText(".x");
         stringBuffer.endLine();
         break;
 

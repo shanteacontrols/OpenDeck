@@ -60,7 +60,7 @@
                     $scope.boardName = 'UNKNOWN BOARD';
                 }
 
-                $scope.hardwareVersion = 'v'+d[10]+'.'+d[11]+'.'+d[12];
+                $scope.hardwareVersion = 'v'+d[10]+'.'+d[11]+'.x';
             }
             finishLoading();
         });
