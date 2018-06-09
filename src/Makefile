@@ -119,7 +119,7 @@ $(TARGET).elf: $(RUN_CLEAN) target_print $(OBJECTS)
 		srec_cat $(TARGET).hex -Intel -Little_Endian_CRC16 -max-address $(TARGET).hex -Intel -Cyclic_Redundancy_Check_16_XMODEM -Output $(TARGET).hex -Intel;\
 	fi
 	@#convert hex to bin
-	@objcopy -I ihex "$(TARGET).hex" -O binary "$(TARGET).bin"
+	@avr-objcopy -I ihex "$(TARGET).hex" -O binary "$(TARGET).bin"
 	@#create a file with contents being mcu name (for upload process)
 	@echo $(MCU) > build/MCU
 	@#create a file with contents being target name (for upload process)
