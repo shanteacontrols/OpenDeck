@@ -141,7 +141,7 @@ upload:
 
 #firmware update with bootloader
 uploadboot:
-	python3 ../bin/dfu/hid_bootloader_loader.py $(shell cat build/MCU) build/$(shell cat build/TARGET).hex
+	python3 ../bin/dfu/src/hid_bootloader_loader.py $(shell cat build/MCU) build/$(shell cat build/TARGET).hex
 
 #lists all serial ports - used to find out where the programmer is connected
 ser_list:
