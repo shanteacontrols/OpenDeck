@@ -48,5 +48,10 @@ uint8_t Board::getRGBID(uint8_t ledID)
 
     uint8_t column = ledID % NUMBER_OF_BUTTON_COLUMNS;
 
-    return (row*NUMBER_OF_LED_COLUMNS)/3 + column;
+    uint8_t result = (row*NUMBER_OF_LED_COLUMNS)/3 + column;
+
+    if (result >= MAX_NUMBER_OF_RGB_LEDS)
+        return MAX_NUMBER_OF_RGB_LEDS-1;
+    else
+        return result;
 }
