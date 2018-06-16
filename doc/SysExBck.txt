@@ -98,5 +98,5 @@ F0 00 53 43 00 7F 02 01 04 07 F7
 
 //////// led block end ////////
 
-//enabled data processing
+//enable data processing
 F0 00 53 43 00 00 65 F7
