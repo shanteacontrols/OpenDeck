@@ -110,10 +110,11 @@ bool onCustom(uint8_t value)
     return false;
 }
 
-sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
+bool onGet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t &value)
 {
-    sysExParameter_t returnValue = 0;
+    bool success = true;
     encDec_14bit_t encDec_14bit;
+    int32_t readValue = 0;
 
     switch(block)
     {
@@ -121,24 +122,24 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
         switch(section)
         {
             case sysExSection_leds_testColor:
-            returnValue = leds.getColor(index);
+            readValue = leds.getColor(index);
             break;
 
             case sysExSection_leds_testBlink:
-            returnValue = leds.getBlinkState(index);
+            readValue = leds.getBlinkState(index);
             break;
 
             case sysExSection_leds_midiChannel:
             //channels start from 0 in db, start from 1 in sysex
-            returnValue = database.read(block, sysEx2DB_leds[section], index) + 1;
+            success = database.read(block, sysEx2DB_leds[section], index, readValue) + 1;
             break;
 
             case sysExSection_leds_rgbEnable:
-            returnValue = database.read(block, sysEx2DB_leds[section], board.getRGBID(index));
+            success = database.read(block, sysEx2DB_leds[section], board.getRGBID(index), readValue);
             break;
 
             default:
-            returnValue = database.read(block, sysEx2DB_leds[section], index);
+            success = database.read(block, sysEx2DB_leds[section], index, readValue);
             break;
         }
         break;
@@ -152,30 +153,35 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
             case sysExSection_analog_lowerLimit_MSB:
             case sysExSection_analog_upperLimit_LSB:
             case sysExSection_analog_upperLimit_MSB:
-            encDec_14bit.value = database.read(block, sysEx2DB_analog[section], index);
-            encDec_14bit.split14bit();
+            success = database.read(block, sysEx2DB_analog[section], index, readValue);
 
-            switch(section)
+            if (success)
             {
-                case sysExSection_analog_midiID_LSB:
-                case sysExSection_analog_lowerLimit_LSB:
-                case sysExSection_analog_upperLimit_LSB:
-                returnValue = encDec_14bit.low;
-                break;
+                encDec_14bit.value = readValue;
+                encDec_14bit.split14bit();
 
-                default:
-                returnValue = encDec_14bit.high;
-                break;
+                switch(section)
+                {
+                    case sysExSection_analog_midiID_LSB:
+                    case sysExSection_analog_lowerLimit_LSB:
+                    case sysExSection_analog_upperLimit_LSB:
+                    readValue = encDec_14bit.low;
+                    break;
+
+                    default:
+                    readValue = encDec_14bit.high;
+                    break;
+                }
             }
             break;
 
             case sysExSection_analog_midiChannel:
             //channels start from 0 in db, start from 1 in sysex
-            returnValue = database.read(block, sysEx2DB_analog[section], index) + 1;
+            success = database.read(block, sysEx2DB_analog[section], index, readValue) + 1;
             break;
 
             default:
-            returnValue = database.read(block, sysEx2DB_analog[section], index);
+            success = database.read(block, sysEx2DB_analog[section], index, readValue);
             break;
         }
         break;
@@ -183,29 +189,30 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
         case SYSEX_BLOCK_BUTTONS:
         //channels start from 0 in db, start from 1 in sysex
         if (section == sysExSection_buttons_midiChannel)
-            returnValue = database.read(block, sysEx2DB_buttons[section], index) + 1;
+            success = database.read(block, sysEx2DB_buttons[section], index, readValue) + 1;
         else
-            returnValue = database.read(block, sysEx2DB_buttons[section], index);
+            success = database.read(block, sysEx2DB_buttons[section], index, readValue);
         break;
 
         case SYSEX_BLOCK_ENCODERS:
         //channels start from 0 in db, start from 1 in sysex
         if (section == sysExSection_encoders_midiChannel)
-            returnValue = database.read(block, sysEx2DB_encoders[section], index) + 1;
+            success = database.read(block, sysEx2DB_encoders[section], index, readValue) + 1;
         else
-            returnValue = database.read(block, sysEx2DB_encoders[section], index);
+            success = database.read(block, sysEx2DB_encoders[section], index, readValue);
         break;
 
         case DB_BLOCK_DISPLAY:
         #ifdef DISPLAY_SUPPORTED
-        returnValue = database.read(block, sysEx2DB_display[section], index);
+        success = database.read(block, sysEx2DB_display[section], index, readValue);
         #else
         sysEx.setError(ERROR_NOT_SUPPORTED);
+        success = false;
         #endif
         break;
 
         default:
-        returnValue = database.read(block, section, index);
+        success = database.read(block, section, index, readValue);
         break;
     }
 
@@ -213,7 +220,16 @@ sysExParameter_t onGet(uint8_t block, uint8_t section, uint16_t index)
     display.displayMIDIevent(displayEventIn, midiMessageSystemExclusive_display, 0, 0, 0);
     #endif
 
-    return returnValue;
+    if (success)
+    {
+        value = readValue;
+        return true;
+    }
+    else
+    {
+        value = 0;
+        return false;
+    }
 }
 
 bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newValue)
