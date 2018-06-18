@@ -15,7 +15,8 @@
             NEW_VALUE: 10,
             MSG_LENGTH: 11,
             WRITE: 12,
-            NOT_SUPPORTED: 13
+            NOT_SUPPORTED: 13,
+            READ: 14
         }
 
         function getErrorCode(value) {
