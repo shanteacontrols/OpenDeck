@@ -49,8 +49,8 @@ void Analog::checkPotentiometerValue(analogType_t analogType, uint8_t analogID, 
 
     uint8_t upperCClimit_7bit = encDec_14bit.low;
 
-    midiValue = board.scaleADC(value, (analogType == aType_NRPN_14) ? MIDI_14_BIT_VALUE_MAX : MIDI_7_BIT_VALUE_MAX);
-    oldMIDIvalue = board.scaleADC(lastAnalogueValue[analogID], (analogType == aType_NRPN_14) ? MIDI_14_BIT_VALUE_MAX : MIDI_7_BIT_VALUE_MAX);
+    midiValue = board.scaleADC(value, ((analogType == aType_NRPN_14) || (analogType == aType_PitchBend)) ? MIDI_14_BIT_VALUE_MAX : MIDI_7_BIT_VALUE_MAX);
+    oldMIDIvalue = board.scaleADC(lastAnalogueValue[analogID], ((analogType == aType_NRPN_14) || (analogType == aType_PitchBend)) ? MIDI_14_BIT_VALUE_MAX : MIDI_7_BIT_VALUE_MAX);
 
     if (midiValue == oldMIDIvalue)
         return;
@@ -123,7 +123,7 @@ void Analog::checkPotentiometerValue(analogType_t analogType, uint8_t analogID, 
         case aType_PitchBend:
         //use mapRange_uint32 to avoid overflow issues
         encDec_14bit.value = mapRange_uint32(midiValue, 0, MIDI_14_BIT_VALUE_MAX, lowerCClimit_14bit, upperCClimit_14bit);
-        midi.sendPitchBend(encDec_14bit.value, channel);
+        midi.sendPitchBend(midiValue, channel);
         #ifdef DISPLAY_SUPPORTED
         display.displayMIDIevent(displayEventOut, midiMessagePitchBend_display, database.read(DB_BLOCK_ANALOG, dbSection_analog_midiID, analogID), encDec_14bit.value, channel+1);
         #endif
