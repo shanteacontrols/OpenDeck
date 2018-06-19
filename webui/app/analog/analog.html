@@ -55,7 +55,7 @@
                 <r-slider value="obj.midiChannel" min="1" max="16" tooltip="MIDI channel for current component."></r-slider>
             </div>
         </div><!-- /row -->
-        <div class="row" ng-if="obj.type<4">
+        <div class="row" ng-if="(obj.type<4) || (obj.type==6)">
             <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
             <h3>MIDI ID</h3>
             </div>
@@ -63,7 +63,7 @@
                 <r-slider value="obj.midiId_lsb" min="0" max="127" tooltip="Denotes MIDI CC number."></r-slider>
             </div>
         </div><!-- /row -->
-        <div class="row" ng-if="obj.type>3">
+        <div class="row" ng-if="(obj.type>3) && (obj.type|=6)">
             <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
             <h3>NPRN ID LSB</h3>
             </div>
@@ -71,7 +71,7 @@
                 <r-slider value="obj.midiId_lsb" min="0" max="127" tooltip="Denotes MIDI CC number."></r-slider>
             </div>
         </div><!-- /row -->
-        <div class="row" ng-if="obj.type>3">
+        <div class="row" ng-if="(obj.type>3) && (obj.type|=6)">
             <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
             <h3>NPRN ID MSB</h3>
             </div>
