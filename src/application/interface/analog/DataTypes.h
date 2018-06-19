@@ -34,6 +34,7 @@ typedef enum
     aType_NRPN_14,
     aType_NRPN_Inc,
     aType_NRPN_Dec,
+    aType_PitchBend,
     ANALOG_TYPES
 } analogType_t;
 

@@ -58,7 +58,7 @@ void Analog::checkPotentiometerValue(analogType_t analogType, uint8_t analogID, 
     //invert CC data if configured
     if (database.read(DB_BLOCK_ANALOG, dbSection_analog_invert, analogID))
     {
-        if (analogType == aType_NRPN_14)
+        if ((analogType == aType_NRPN_14) || (analogType == aType_PitchBend))
             midiValue = 16383 - midiValue;
         else
             midiValue = 127 - midiValue;
@@ -118,6 +118,15 @@ void Analog::checkPotentiometerValue(analogType_t analogType, uint8_t analogID, 
             display.displayMIDIevent(displayEventOut, midiMessageNRPN_display, database.read(DB_BLOCK_ANALOG, dbSection_analog_midiID, analogID), encDec_14bit.value, channel+1);
             #endif
         }
+        break;
+
+        case aType_PitchBend:
+        //use mapRange_uint32 to avoid overflow issues
+        encDec_14bit.value = mapRange_uint32(midiValue, 0, MIDI_14_BIT_VALUE_MAX, lowerCClimit_14bit, upperCClimit_14bit);
+        midi.sendPitchBend(encDec_14bit.value, channel);
+        #ifdef DISPLAY_SUPPORTED
+        display.displayMIDIevent(displayEventOut, midiMessagePitchBend_display, database.read(DB_BLOCK_ANALOG, dbSection_analog_midiID, analogID), encDec_14bit.value, channel+1);
+        #endif
         break;
 
         default:

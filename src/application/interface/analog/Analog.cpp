@@ -52,6 +52,7 @@ void Analog::update()
                 case aType_potentiometer_note:
                 case aType_NRPN_7:
                 case aType_NRPN_14:
+                case aType_PitchBend:
                 checkPotentiometerValue(type, i, analogData);
                 break;
 
