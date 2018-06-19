@@ -185,7 +185,7 @@ static dbSection_t analogSections[DB_SECTIONS_ANALOG] =
     //analog type section
     {
         .numberOfParameters = MAX_NUMBER_OF_ANALOG,
-        .parameterType = HALFBYTE_PARAMETER,
+        .parameterType = BYTE_PARAMETER,
         .preserveOnPartialReset = 0,
         .defaultValue = 0,
         .autoIncrement = false,
