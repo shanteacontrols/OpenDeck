@@ -173,7 +173,6 @@ void Buttons::processButton(uint8_t buttonID, bool state)
             case buttonPC:
             case buttonPCinc:
             case buttonPCdec:
-
             if (midiMessage != buttonPC)
             {
                 if (midiMessage == buttonPCinc)
