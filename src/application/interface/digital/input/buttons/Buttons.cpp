@@ -48,6 +48,11 @@ uint8_t     buttonPressed[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1];
 uint8_t     lastLatchingState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1];
 
 ///
+/// \brief Used for buttonPCinc/buttonPCdec messages when each button press sends incremented or decremented PC value.
+///
+uint8_t     lastPCvalue[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG];
+
+///
 /// \brief Default constructor.
 ///
 Buttons::Buttons()
@@ -79,6 +84,8 @@ void Buttons::update()
                 switch((buttonMIDImessage_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, i))
                 {
                     case buttonPC:
+                    case buttonPCinc:
+                    case buttonPCdec:
                     case buttonMMCPlay:
                     case buttonMMCStop:
                     case buttonMMCPause:
@@ -164,6 +171,25 @@ void Buttons::processButton(uint8_t buttonID, bool state)
             break;
 
             case buttonPC:
+            case buttonPCinc:
+            case buttonPCdec:
+
+            if (midiMessage != buttonPC)
+            {
+                if (midiMessage == buttonPCinc)
+                {
+                    if (lastPCvalue[buttonID] < 127)
+                        lastPCvalue[buttonID]++;
+                }
+                else
+                {
+                    if (lastPCvalue[buttonID] > 0)
+                        lastPCvalue[buttonID]--;
+                }
+
+                note = lastPCvalue[buttonID];
+            }
+
             midi.sendProgramChange(note, channel);
             #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(displayEventOut, midiMessageProgramChange_display, note, 0, channel+1);
