@@ -18,17 +18,4 @@
 
 #pragma once
 
-typedef enum
-{
-    encType7Fh01h,
-    encType3Fh41h,
-    encTypePC,
-    ENCODING_MODES
-} encoderType_t;
-
-typedef enum
-{
-    encStopped,
-    encMoveLeft,
-    encMoveRight,
-} encoderPosition_t;
+extern uint8_t     lastPCvalue[16];

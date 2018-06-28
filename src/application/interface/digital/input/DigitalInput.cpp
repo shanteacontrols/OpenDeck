@@ -18,6 +18,12 @@
 
 #include "DigitalInput.h"
 #include "board/Board.h"
+#include "Variables.h"
+
+///
+/// \brief Used for buttonPCinc/buttonPCdec messages when each button press/encoder rotation sends incremented or decremented PC value.
+///
+uint8_t     lastPCvalue[16];
 
 ///
 /// \brief Default constructor.

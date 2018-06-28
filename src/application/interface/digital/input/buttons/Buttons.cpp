@@ -22,6 +22,7 @@
 #include "interface/digital/output/leds/LEDs.h"
 #include "sysex/src/SysEx.h"
 #include "interface/cinfo/CInfo.h"
+#include "../Variables.h"
 #ifdef DISPLAY_SUPPORTED
 #include "interface/display/Display.h"
 #endif
@@ -46,11 +47,6 @@ uint8_t     buttonPressed[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1];
 /// \brief Array holding last sent state for latching buttons only.
 ///
 uint8_t     lastLatchingState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1];
-
-///
-/// \brief Used for buttonPCinc/buttonPCdec messages when each button press sends incremented or decremented PC value.
-///
-uint8_t     lastPCvalue[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG];
 
 ///
 /// \brief Default constructor.
@@ -177,16 +173,16 @@ void Buttons::processButton(uint8_t buttonID, bool state)
             {
                 if (midiMessage == buttonPCinc)
                 {
-                    if (lastPCvalue[buttonID] < 127)
-                        lastPCvalue[buttonID]++;
+                    if (lastPCvalue[channel] < 127)
+                        lastPCvalue[channel]++;
                 }
                 else
                 {
-                    if (lastPCvalue[buttonID] > 0)
-                        lastPCvalue[buttonID]--;
+                    if (lastPCvalue[channel] > 0)
+                        lastPCvalue[channel]--;
                 }
 
-                note = lastPCvalue[buttonID];
+                note = lastPCvalue[channel];
             }
 
             midi.sendProgramChange(note, channel);

@@ -22,6 +22,7 @@
 #include "../../../../database/Database.h"
 #include "sysex/src/SysEx.h"
 #include "../../../cinfo/CInfo.h"
+#include "../Variables.h"
 #ifdef DISPLAY_SUPPORTED
 #include "../../../display/Display.h"
 #endif
@@ -58,20 +59,39 @@ void Encoders::update()
                 encoderState = encMoveLeft;
         }
 
-        switch((encoderType_t)database.read(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i))
+        uint8_t midiID = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiID, i);
+        uint8_t channel = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i);
+        encoderType_t type = (encoderType_t)database.read(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i);
+
+        switch(type)
         {
-            case enc7Fh01h:
+            case encType7Fh01h:
             if (encoderState == encMoveLeft)
                 encoderValue = ENCODER_VALUE_LEFT_7FH01H;
             else
                 encoderValue = ENCODER_VALUE_RIGHT_7FH01H;
             break;
 
-            case enc3Fh41h:
+            case encType3Fh41h:
             if (encoderState == encMoveLeft)
                 encoderValue = ENCODER_VALUE_LEFT_3FH41H;
             else
                 encoderValue = ENCODER_VALUE_RIGHT_3FH41H;
+            break;
+
+            case encTypePC:
+            if (encoderState == encMoveLeft)
+            {
+                if (lastPCvalue[channel] < 127)
+                    lastPCvalue[channel]++;
+            }
+            else
+            {
+                if (lastPCvalue[channel] > 0)
+                    lastPCvalue[channel]--;
+            }
+
+            encoderValue = lastPCvalue[channel];
             break;
 
             default:
@@ -79,13 +99,20 @@ void Encoders::update()
             break;
         }
 
-        uint8_t midiID = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiID, i);
-        uint8_t channel = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i);
-
-        midi.sendControlChange(midiID, encoderValue, channel);
-        #ifdef DISPLAY_SUPPORTED
-        display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, midiID & 0x7F, encoderValue, channel+1);
-        #endif
+        if (type == encTypePC)
+        {
+            midi.sendProgramChange(encoderValue, channel);
+            #ifdef DISPLAY_SUPPORTED
+            display.displayMIDIevent(displayEventOut, midiMessageProgramChange_display, midiID & 0x7F, encoderValue, channel+1);
+            #endif
+        }
+        else
+        {
+            midi.sendControlChange(midiID, encoderValue, channel);
+            #ifdef DISPLAY_SUPPORTED
+            display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, midiID & 0x7F, encoderValue, channel+1);
+            #endif
+        }
 
         if (sysEx.isConfigurationEnabled())
         {

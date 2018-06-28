@@ -18,6 +18,12 @@
         "slist": "cpp",
         "array": "cpp",
         "*.tcc": "cpp",
-        "initializer_list": "c"
+        "initializer_list": "c",
+        "chrono": "cpp",
+        "functional": "cpp",
+        "istream": "cpp",
+        "ostream": "cpp",
+        "ratio": "cpp",
+        "tuple": "cpp"
     },
 }
