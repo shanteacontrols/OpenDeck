@@ -121,7 +121,7 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         endif
 
         #compile display only for mega and teensy at the moment
-        ifneq ($(filter fw_mega fw_teensy2pp, $(MAKECMDGOALS)), )
+        ifneq ($(filter DISPLAY_SUPPORTED, $(DEFINES)), )
             SOURCES += \
             application/board/avr/display/u8g2_wrapper.cpp \
             application/interface/display/UpdateLogic.cpp \
