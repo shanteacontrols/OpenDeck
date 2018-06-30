@@ -105,3 +105,8 @@ void Board::initUSB_MIDI()
     midi.handleUSBread(usbRead);
     midi.handleUSBwrite(usbWrite);
 }
+
+bool Board::isUSBconnected()
+{
+    return (USB_DeviceState == DEVICE_STATE_Configured);
+}

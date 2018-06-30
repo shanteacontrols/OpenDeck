@@ -119,6 +119,11 @@ class Board
     static void initUSB_MIDI();
 
     ///
+    /// \brief Checks if device has been successfully connected to host.
+    ///
+    static bool isUSBconnected();
+
+    ///
     /// \brief Initializes UART peripheral.
     /// @param[in] baudRate UART speed.
     ///
