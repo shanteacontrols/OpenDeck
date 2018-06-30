@@ -173,6 +173,10 @@ int main()
                     #endif
                     break;
 
+                    case midiMessageSystemExclusive:
+                    sysEx.handleMessage(midi.getSysExArray(dinInterface), midi.getSysExArrayLength(dinInterface));
+                    break;
+
                     default:
                     break;
                 }
