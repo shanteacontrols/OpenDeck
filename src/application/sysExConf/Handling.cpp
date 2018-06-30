@@ -94,6 +94,25 @@ bool onCustom(uint8_t value)
         return true;
         break;
 
+        case DAISY_CHAIN_MASTER_STRING:
+        //configure fast uart
+        board.initUART_MIDI(MIDI_BAUD_RATE_OD);
+        break;
+
+        case DAISY_CHAIN_SLAVE_INNER_STRING:
+        //configure fast uart
+        board.initUART_MIDI(MIDI_BAUD_RATE_OD);
+        //configure loopback on uart
+        board.setUARTloopbackState(true);
+        //configure special format for uart midi
+        break;
+
+        case DAISY_CHAIN_SLAVE_OUTER_STRING:
+        //configure fast uart
+        board.initUART_MIDI(MIDI_BAUD_RATE_OD);
+        //configure special format for uart midi
+        break;
+
         default:
         requestValid = false;
         break;
@@ -312,17 +331,6 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 else
                     midi.setOneByteParseDINstate(true);
                 break;
-
-                #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
-                case midiFeatureDINdoubleSpeed:
-                success = true;
-
-                if (newValue)
-                    board.initUART_MIDI(MIDI_BAUD_RATE_OD);
-                else
-                    board.initUART_MIDI(MIDI_BAUD_RATE_STD);
-                break;
-                #endif
 
                 default:
                 break;
@@ -632,6 +640,10 @@ void SysExConfig::init()
     addCustomRequest(REBOOT_APP_STRING);
     addCustomRequest(REBOOT_BTLDR_STRING);
     addCustomRequest(FACTORY_RESET_STRING);
+
+    addCustomRequest(DAISY_CHAIN_MASTER_STRING);
+    addCustomRequest(DAISY_CHAIN_SLAVE_INNER_STRING);
+    addCustomRequest(DAISY_CHAIN_SLAVE_OUTER_STRING);
 
     addCustomRequest(ENABLE_PROCESSING_STRING);
     addCustomRequest(DISABLE_PROCESSING_STRING);

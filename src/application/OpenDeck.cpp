@@ -44,13 +44,6 @@ void init()
     midi.setRunningStatusState(database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureRunningStatus));
     midi.setChannelSendZeroStart(true);
 
-    #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
-    //uart is already init with 31250 baud rate, override with opendeck baud rate if necessarry
-    if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDINdoubleSpeed))
-        board.initUART_MIDI(MIDI_BAUD_RATE_OD);
-
-    #endif
-
     board.ledFlashStartup(board.checkNewRevision());
 
     //enable global interrupts
@@ -87,6 +80,29 @@ void init()
 int main()
 {
     init();
+
+    #ifdef USB_SUPPORTED
+    //wait a bit before checking if usb is connected
+    wait_ms(1500);
+
+    if (board.isUSBconnected())
+    {
+        //this board is connected to usb, check if din is enabled
+        if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled) && !database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
+        {
+            //start daisy-chain auto-config
+            //format message as special request so that it's parsed on other boards
+            sysExParameter_t daisyChainMessage[] =
+            {
+                0x00,
+                0x00,
+                DAISY_CHAIN_MASTER_STRING,
+            };
+
+            sysEx.sendCustomMessage(usbMessage.sysexArray, daisyChainMessage, 3);
+        }
+    }
+    #endif
 
     while(1)
     {
