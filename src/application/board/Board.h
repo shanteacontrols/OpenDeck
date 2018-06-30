@@ -125,9 +125,16 @@ class Board
 
     ///
     /// \brief Initializes UART peripheral.
-    /// @param[in] baudRate UART speed.
+    /// @param [in] baudRate UART speed.
     ///
     static void initUART_MIDI(uint32_t baudRate);
+
+    ///
+    /// \brief Used to enable or disable UART loopback functionality.
+    /// Used to pass incoming UART data to TX channel immediately.
+    /// @param [in] state   New state of loopback functionality (true/enabled, false/disabled).
+    ///
+    static void setUARTloopbackState(bool state);
 
     ///
     /// \brief Checks if digital input data is available (encoder and button data).

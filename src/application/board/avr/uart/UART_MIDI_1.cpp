@@ -30,15 +30,29 @@ static RingBuff_t  txBuffer;
 static RingBuff_t  rxBuffer;
 
 ///
+/// \brief Flag determining whether or not UART loopback functionality is enabled.
+/// When enabled, all incoming UART traffic is immediately passed on to UART TX.
+///
+static bool        loopbackEnabled;
+
+///
 /// \brief ISR used to store incoming data from UART to buffer.
 ///
 ISR(USART1_RX_vect)
 {
     uint8_t data = UDR1;
 
-    if (!RingBuffer_IsFull(&rxBuffer))
+    if (!loopbackEnabled)
     {
-        RingBuffer_Insert(&rxBuffer, data);
+        if (!RingBuffer_IsFull(&rxBuffer))
+        {
+            RingBuffer_Insert(&rxBuffer, data);
+        }
+    }
+    else
+    {
+        RingBuffer_Insert(&txBuffer, data);
+        UCSR1B |= (1<<UDRIE1);
     }
 }
 
@@ -139,4 +153,9 @@ void Board::initUART_MIDI(uint32_t baudRate)
 
     midi.handleUARTread(UARTread);
     midi.handleUARTwrite(UARTwrite);
+}
+
+void Board::setUARTloopbackState(bool state)
+{
+    loopbackEnabled = state;
 }

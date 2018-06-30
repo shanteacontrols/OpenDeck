@@ -29,6 +29,12 @@ static RingBuff_t  txBuffer;
 ///
 static RingBuff_t  rxBuffer;
 
+///
+/// \brief Flag determining whether or not UART loopback functionality is enabled.
+/// When enabled, all incoming UART traffic is immediately passed on to UART TX.
+///
+static bool        loopbackEnabled;
+
 //some atmega models don't have number appended next to irq handler - assume 0
 #ifdef USART_RX_vect
 #define USART0_RX_vect USART_RX_vect
@@ -45,9 +51,17 @@ ISR(USART0_RX_vect)
 {
     uint8_t data = UDR0;
 
-    if (!RingBuffer_IsFull(&rxBuffer))
+    if (!loopbackEnabled)
     {
-        RingBuffer_Insert(&rxBuffer, data);
+        if (!RingBuffer_IsFull(&rxBuffer))
+        {
+            RingBuffer_Insert(&rxBuffer, data);
+        }
+    }
+    else
+    {
+        RingBuffer_Insert(&txBuffer, data);
+        UCSR0B |= (1<<UDRIE0);
     }
 }
 
@@ -154,4 +168,9 @@ void Board::initUART_MIDI(uint32_t baudRate)
 
     midi.handleUARTread(UARTread);
     midi.handleUARTwrite(UARTwrite);
+}
+
+void Board::setUARTloopbackState(bool state)
+{
+    loopbackEnabled = state;
 }
