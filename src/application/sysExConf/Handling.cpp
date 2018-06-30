@@ -29,6 +29,7 @@ SysExConfig::SysExConfig()
 bool onCustom(uint8_t value)
 {
     bool requestValid = true;
+    sysExParameter_t daisyChainMessage[1];
 
     switch(value)
     {
@@ -95,19 +96,30 @@ bool onCustom(uint8_t value)
         break;
 
         case DAISY_CHAIN_MASTER_STRING:
+        //received message from opendeck master
+        //send sysex to next board in the chain
+        daisyChainMessage[0] = DAISY_CHAIN_SLAVE_STRING;
+        sysEx.sendCustomMessage(usbMessage.sysexArray, daisyChainMessage, 1);
+        //wait until message is sent
+        while (!board.isTXempty());
         //configure fast uart
         board.initUART_MIDI(MIDI_BAUD_RATE_OD);
         break;
 
-        case DAISY_CHAIN_SLAVE_INNER_STRING:
-        //configure fast uart
-        board.initUART_MIDI(MIDI_BAUD_RATE_OD);
-        //configure loopback on uart
-        board.setUARTloopbackState(true);
-        //configure special format for uart midi
-        break;
-
-        case DAISY_CHAIN_SLAVE_OUTER_STRING:
+        case DAISY_CHAIN_SLAVE_STRING:
+        //received message from opendeck slave
+        //check if this board is master
+        if (!board.isUSBconnected())
+        {
+            //slave
+            //send sysex to next board in the chain
+            daisyChainMessage[0] = DAISY_CHAIN_SLAVE_STRING;
+            sysEx.sendCustomMessage(usbMessage.sysexArray, daisyChainMessage, 0);
+            //wait until message is sent
+            while (!board.isTXempty());
+            //configure loopback on uart
+            board.setUARTloopbackState(true);
+        }
         //configure fast uart
         board.initUART_MIDI(MIDI_BAUD_RATE_OD);
         //configure special format for uart midi
@@ -642,8 +654,7 @@ void SysExConfig::init()
     addCustomRequest(FACTORY_RESET_STRING);
 
     addCustomRequest(DAISY_CHAIN_MASTER_STRING);
-    addCustomRequest(DAISY_CHAIN_SLAVE_INNER_STRING);
-    addCustomRequest(DAISY_CHAIN_SLAVE_OUTER_STRING);
+    addCustomRequest(DAISY_CHAIN_SLAVE_STRING);
 
     addCustomRequest(ENABLE_PROCESSING_STRING);
     addCustomRequest(DISABLE_PROCESSING_STRING);
