@@ -130,11 +130,26 @@ class Board
     static void initUART_MIDI(uint32_t baudRate);
 
     ///
+    /// \brief Used to check whether or not incoming UART buffer is empty.
+    ///
+    static bool isRXempty();
+
+    ///
+    /// \brief Used to check whether or not outgoing UART buffer is empty.
+    ///
+    static bool isTXempty();
+
+    ///
     /// \brief Used to enable or disable UART loopback functionality.
     /// Used to pass incoming UART data to TX channel immediately.
     /// @param [in] state   New state of loopback functionality (true/enabled, false/disabled).
     ///
     static void setUARTloopbackState(bool state);
+
+    ///
+    /// \brief Checks whether or not UART loopback functionality is enabled.
+    ///
+    static bool getUARTloopbackState();
 
     ///
     /// \brief Checks if digital input data is available (encoder and button data).

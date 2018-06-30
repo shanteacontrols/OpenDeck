@@ -174,3 +174,18 @@ void Board::setUARTloopbackState(bool state)
 {
     loopbackEnabled = state;
 }
+
+bool Board::getUARTloopbackState()
+{
+    return loopbackEnabled;
+}
+
+bool Board::isRXempty()
+{
+    return RingBuffer_IsEmpty(&rxBuffer);
+}
+
+bool Board::isTXempty()
+{
+    return RingBuffer_IsEmpty(&txBuffer);
+}
