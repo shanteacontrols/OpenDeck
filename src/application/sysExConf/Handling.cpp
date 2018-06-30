@@ -99,7 +99,7 @@ bool onCustom(uint8_t value)
         //received message from opendeck master
         //send sysex to next board in the chain
         daisyChainMessage[0] = DAISY_CHAIN_SLAVE_STRING;
-        sysEx.sendCustomMessage(usbMessage.sysexArray, daisyChainMessage, 1);
+        sysEx.sendCustomMessage(usbMessage.sysexArray, daisyChainMessage, 1, false);
         //wait until message is sent
         while (!board.isTXempty());
         //configure fast uart
@@ -114,7 +114,7 @@ bool onCustom(uint8_t value)
             //slave
             //send sysex to next board in the chain
             daisyChainMessage[0] = DAISY_CHAIN_SLAVE_STRING;
-            sysEx.sendCustomMessage(usbMessage.sysexArray, daisyChainMessage, 0);
+            sysEx.sendCustomMessage(usbMessage.sysexArray, daisyChainMessage, 1, false);
             //wait until message is sent
             while (!board.isTXempty());
             //configure loopback on uart
