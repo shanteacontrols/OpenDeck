@@ -64,8 +64,11 @@ ISR(USART0_RX_vect)
     }
     else
     {
-        RingBuffer_Insert(&rxBuffer, data);
-        UCSR0B |= (1<<UDRIE0);
+        if (!RingBuffer_IsFull(&txBuffer))
+        {
+            RingBuffer_Insert(&txBuffer, data);
+            UCSR0B |= (1<<UDRIE0);
+        }
     }
 }
 

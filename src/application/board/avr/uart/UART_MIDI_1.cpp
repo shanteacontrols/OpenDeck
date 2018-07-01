@@ -53,8 +53,11 @@ ISR(USART1_RX_vect)
     }
     else
     {
-        RingBuffer_Insert(&rxBuffer, data);
-        UCSR1B |= (1<<UDRIE1);
+        if (!RingBuffer_IsFull(&txBuffer))
+        {
+            RingBuffer_Insert(&txBuffer, data);
+            UCSR1B |= (1<<UDRIE1);
+        }
     }
 }
 
