@@ -125,9 +125,13 @@ class Board
 
     ///
     /// \brief Initializes UART peripheral.
-    /// @param [in] baudRate UART speed.
+    /// @param [in] odFormat OpenDeck UART MIDI format. If set to true, UART MIDI data will
+    ///                      be formated as USB frame with two bytes appended before the start of frame (0xF1).
+    ///                      Used in daisy-chained setup to avoid parsing on master board.
     ///
-    static void initUART_MIDI(uint32_t baudRate);
+    static void initUART_MIDI(bool odFormat = false);
+
+    static void parseODuart();
 
     ///
     /// \brief Used to check whether or not incoming UART buffer is empty.

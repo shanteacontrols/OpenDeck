@@ -36,7 +36,7 @@ void Board::init()
     initEncoders();
 
     #ifdef DIN_MIDI_SUPPORTED
-    initUART_MIDI(MIDI_BAUD_RATE_STD);
+    initUART_MIDI();
     #endif
 
     #ifdef USB_SUPPORTED

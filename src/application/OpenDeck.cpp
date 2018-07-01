@@ -174,7 +174,7 @@ int main()
                     else
                     {
                         //master opendeck - dump everything from MIDI in to USB MIDI out
-                        midi.read(dinInterface, THRU_FULL_USB);
+                        board.parseODuart();
                     }
                 }
                 else

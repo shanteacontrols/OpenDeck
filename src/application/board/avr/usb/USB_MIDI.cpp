@@ -17,13 +17,13 @@
 */
 
 #include "board/Board.h"
-#include "Descriptors.h"
+#include "Variables.h"
 #include "board/common/indicators/Variables.h"
 
 ///
 /// \brief MIDI Class Device Mode Configuration and State Structure.
 ///
-static USB_ClassInfo_MIDI_Device_t MIDI_Interface;
+USB_ClassInfo_MIDI_Device_t MIDI_Interface;
 
 ///
 /// \brief Event handler for the USB_ConfigurationChanged event.

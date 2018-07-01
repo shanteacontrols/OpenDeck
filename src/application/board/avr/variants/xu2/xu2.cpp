@@ -38,8 +38,7 @@ int main(void)
     MIDI_LED_OFF(LED_IN_PORT, LED_IN_PIN);
     MIDI_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
 
-    //always use faster rate
-    Board::initUART_MIDI(MIDI_BAUD_RATE_OD);
+    Board::initUART_MIDI();
     Board::initUSB_MIDI();
 
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)

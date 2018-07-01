@@ -18,6 +18,10 @@
 
 #include "board/Board.h"
 #include "board/common/indicators/Variables.h"
+#if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
+#include "../usb/Variables.h"
+#endif
+
 
 ///
 /// \brief Buffer in which outgoing data is stored.
@@ -60,7 +64,7 @@ ISR(USART0_RX_vect)
     }
     else
     {
-        RingBuffer_Insert(&txBuffer, data);
+        RingBuffer_Insert(&rxBuffer, data);
         UCSR0B |= (1<<UDRIE0);
     }
 }
@@ -115,6 +119,28 @@ int8_t UARTwrite(uint8_t data)
     return 1;
 }
 
+#if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
+///
+/// \brief Writes to UART TX channel MIDI message formatted as USB packet.
+/// \returns Positive value on success. Since this function waits if
+/// outgoig buffer is full, result will always be success (1).
+///
+bool UARTwrite_odFormat(USBMIDIpacket_t& USBMIDIpacket)
+{
+    RingBuffer_Insert(&txBuffer, 0xF1);
+    RingBuffer_Insert(&txBuffer, USBMIDIpacket.Event);
+    RingBuffer_Insert(&txBuffer, USBMIDIpacket.Data1);
+    RingBuffer_Insert(&txBuffer, USBMIDIpacket.Data2);
+    RingBuffer_Insert(&txBuffer, USBMIDIpacket.Data3);
+    RingBuffer_Insert(&txBuffer, USBMIDIpacket.Event ^ USBMIDIpacket.Data1 ^ USBMIDIpacket.Data2 ^ USBMIDIpacket.Data3);
+
+    UCSR1B |= (1<<UDRIE1);
+    MIDIsent = true;
+
+    return true;
+}
+#endif
+
 ///
 /// \brief Reads a byte from incoming UART buffer.
 /// \returns Single byte on success, -1 is buffer is empty.
@@ -133,41 +159,59 @@ int16_t UARTread()
     return data;
 }
 
-void Board::initUART_MIDI(uint32_t baudRate)
+void Board::initUART_MIDI(bool odFormat)
 {
-    int32_t baud_count = ((F_CPU / 8) + (baudRate / 2)) / baudRate;
-
-    //clear registers first
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    if (!odFormat)
     {
-        UCSR0A = 0;
-        UCSR0B = 0;
-        UCSR0C = 0;
-        UBRR0 = 0;
-    }
+        int32_t baud_count = ((F_CPU / 8) + (MIDI_BAUD_RATE / 2)) / MIDI_BAUD_RATE;
 
-    if ((baud_count & 1) && baud_count <= 4096)
-    {
-        UCSR0A = (1<<U2X0); //double speed uart
-        UBRR0 = baud_count - 1;
+        //clear registers first
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        {
+            UCSR0A = 0;
+            UCSR0B = 0;
+            UCSR0C = 0;
+            UBRR0 = 0;
+        }
+
+        if ((baud_count & 1) && baud_count <= 4096)
+        {
+            UCSR0A = (1<<U2X0); //double speed uart
+            UBRR0 = baud_count - 1;
+        }
+        else
+        {
+            UCSR0A = 0;
+            UBRR0 = (baud_count >> 1) - 1;
+        }
+
+        //8 bit, no parity, 1 stop bit
+        UCSR0C = (1<<UCSZ01) | (1<<UCSZ00);
+
+        //enable receiver, transmitter and receive interrupt
+        UCSR0B = (1<<RXEN0) | (1<<TXEN0) | (1<<RXCIE0);
+
+        RingBuffer_InitBuffer(&rxBuffer);
+        RingBuffer_InitBuffer(&txBuffer);
+
+        midi.handleUARTread(UARTread);
+        midi.handleUARTwrite(UARTwrite);
     }
+    #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
     else
     {
-        UCSR0A = 0;
-        UBRR0 = (baud_count >> 1) - 1;
+        if (!isUSBconnected())
+        {
+            //slave board - no usb read necessary
+            midi.handleUSBread(NULL);
+            //use usb write to send to uart
+            midi.handleUSBwrite(UARTwrite_odFormat);
+        }
+
+        //no need for standard UART TX anymore
+        midi.handleUARTwrite(NULL);
     }
-
-    //8 bit, no parity, 1 stop bit
-    UCSR0C = (1<<UCSZ01) | (1<<UCSZ00);
-
-    //enable receiver, transmitter and receive interrupt
-    UCSR0B = (1<<RXEN0) | (1<<TXEN0) | (1<<RXCIE0);
-
-    RingBuffer_InitBuffer(&rxBuffer);
-    RingBuffer_InitBuffer(&txBuffer);
-
-    midi.handleUARTread(UARTread);
-    midi.handleUARTwrite(UARTwrite);
+    #endif
 }
 
 void Board::setUARTloopbackState(bool state)
@@ -189,3 +233,71 @@ bool Board::isTXempty()
 {
     return RingBuffer_IsEmpty(&txBuffer);
 }
+
+#if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
+void Board::parseODuart()
+{
+    USBMIDIpacket_t USBMIDIpacket;
+    int16_t data;
+
+    if (UARTread() == 0xF1)
+    {
+        //start of frame, use recursive parsing
+        for (int i=0; i<5; i++)
+        {
+            data = UARTread();
+
+            if (data == -1)
+                return;
+
+            switch(i)
+            {
+                case 0:
+                USBMIDIpacket.Event = data;
+                break;
+
+                case 1:
+                USBMIDIpacket.Data1 = data;
+                break;
+
+                case 2:
+                USBMIDIpacket.Data2 = data;
+                break;
+
+                case 3:
+                USBMIDIpacket.Data3 = data;
+                break;
+
+                case 4:
+                //xor byte, do nothing
+                break;
+            }
+        }
+
+        //everything fine so far
+        MIDIreceived = true;
+
+        uint8_t dataXOR = USBMIDIpacket.Event ^ USBMIDIpacket.Data1 ^ USBMIDIpacket.Data2 ^ USBMIDIpacket.Data3;
+
+        if (dataXOR == data)
+        {
+            if (USB_DeviceState != DEVICE_STATE_Configured)
+                return;
+
+            Endpoint_SelectEndpoint(MIDI_Interface.Config.DataINEndpoint.Address);
+
+            uint8_t ErrorCode;
+
+            if ((ErrorCode = Endpoint_Write_Stream_LE(&USBMIDIpacket, sizeof(USBMIDIpacket_t), NULL)) != ENDPOINT_RWSTREAM_NoError)
+                return;
+
+            if (!(Endpoint_IsReadWriteAllowed()))
+                Endpoint_ClearIN();
+
+            MIDI_Device_Flush(&MIDI_Interface);
+
+            MIDIsent = true;
+        }
+    }
+}
+#endif

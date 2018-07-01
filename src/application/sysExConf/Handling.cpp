@@ -26,9 +26,9 @@ SysExConfig::SysExConfig()
     
 }
 
-bool onCustom(uint8_t value)
+sysExRetType_t onCustom(uint8_t value)
 {
-    bool requestValid = true;
+    sysExRetType_t retVal = sysExRetSuccess;
     sysExParameter_t daisyChainMessage[1];
 
     switch(value)
@@ -67,14 +67,12 @@ bool onCustom(uint8_t value)
         leds.setAllOff();
         wait_ms(2500);
         board.reboot(rebootApp);
-        return true;
         break;
 
         case REBOOT_BTLDR_STRING:
         leds.setAllOff();
         wait_ms(2500);
         board.reboot(rebootBtldr);
-        return true;
         break;
 
         case FACTORY_RESET_STRING:
@@ -82,17 +80,14 @@ bool onCustom(uint8_t value)
         wait_ms(1500);
         database.factoryReset(initPartial);
         board.reboot(rebootApp);
-        return true;
         break;
 
         case ENABLE_PROCESSING_STRING:
         processingEnabled = true;
-        return true;
         break;
 
         case DISABLE_PROCESSING_STRING:
         processingEnabled = false;
-        return true;
         break;
 
         #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
@@ -103,8 +98,9 @@ bool onCustom(uint8_t value)
         sysEx.sendCustomMessage(usbMessage.sysexArray, daisyChainMessage, 1, false);
         //wait until message is sent
         while (!board.isTXempty());
-        //configure fast uart
-        board.initUART_MIDI(MIDI_BAUD_RATE_OD);
+        //configure opendeck uart format
+        board.initUART_MIDI(true);
+        retVal = sysExRetSilent;
         break;
 
         case DAISY_CHAIN_SLAVE_STRING:
@@ -121,26 +117,27 @@ bool onCustom(uint8_t value)
             //configure loopback on uart
             board.setUARTloopbackState(true);
         }
-        //configure fast uart
-        board.initUART_MIDI(MIDI_BAUD_RATE_OD);
+
+        //configure opendeck uart format
+        board.initUART_MIDI(true);
         //configure special format for uart midi
+        retVal = sysExRetSilent;
         break;
         #endif
 
         default:
-        requestValid = false;
+        retVal = sysExRetFail;
         break;
     }
 
-    if (requestValid)
+    if (retVal != sysExRetFail)
     {
         #ifdef DISPLAY_SUPPORTED
         display.displayMIDIevent(displayEventIn, midiMessageSystemExclusive_display, 0, 0, 0);
         #endif
-        return true;
     }
 
-    return false;
+    return retVal;
 }
 
 bool onGet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t &value)
