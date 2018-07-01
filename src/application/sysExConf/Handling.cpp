@@ -653,8 +653,8 @@ void SysExConfig::init()
     addCustomRequest(REBOOT_BTLDR_STRING);
     addCustomRequest(FACTORY_RESET_STRING);
 
-    addCustomRequest(DAISY_CHAIN_MASTER_STRING);
-    addCustomRequest(DAISY_CHAIN_SLAVE_STRING);
+    addCustomRequest(DAISY_CHAIN_MASTER_STRING, true);
+    addCustomRequest(DAISY_CHAIN_SLAVE_STRING, true);
 
     addCustomRequest(ENABLE_PROCESSING_STRING);
     addCustomRequest(DISABLE_PROCESSING_STRING);
