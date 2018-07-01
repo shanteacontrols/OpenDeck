@@ -95,6 +95,7 @@ bool onCustom(uint8_t value)
         return true;
         break;
 
+        #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
         case DAISY_CHAIN_MASTER_STRING:
         //received message from opendeck master
         //send sysex to next board in the chain
@@ -124,6 +125,7 @@ bool onCustom(uint8_t value)
         board.initUART_MIDI(MIDI_BAUD_RATE_OD);
         //configure special format for uart midi
         break;
+        #endif
 
         default:
         requestValid = false;
