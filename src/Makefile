@@ -28,13 +28,9 @@ CXXFLAGS := \
 LDFLAGS := -Wl,--gc-sections -mrelax -Wl,--start-group -Wl,-lm -Wl,--end-group
 
 #optimisation level
-ifneq ($(filter fw_%, $(MAKECMDGOALS)), )
-    #firmware
-    OPT := -O2
-else
-    #optimize for size for bootloader
-    OPT := -Os
+OPT := -Os
 
+ifneq ($(filter boot_%, $(MAKECMDGOALS)), )
     #make sure to link .text at correct address in bootloader
     LDFLAGS += -Wl,--section-start=.text=$(BOOT_START_ADDR)
 endif
