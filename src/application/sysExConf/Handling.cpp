@@ -26,9 +26,9 @@ SysExConfig::SysExConfig()
     
 }
 
-sysExRetType_t onCustom(uint8_t value)
+bool onCustom(uint8_t value)
 {
-    sysExRetType_t retVal = sysExRetSuccess;
+    bool retVal = true;
     sysExParameter_t daisyChainMessage[1];
 
     switch(value)
@@ -96,11 +96,10 @@ sysExRetType_t onCustom(uint8_t value)
         //send sysex to next board in the chain
         daisyChainMessage[0] = DAISY_CHAIN_SLAVE_STRING;
         sysEx.sendCustomMessage(usbMessage.sysexArray, daisyChainMessage, 1, false);
-        //wait until message is sent
-        while (!board.isTXempty());
         //configure opendeck uart format
         board.initUART_MIDI(true);
-        retVal = sysExRetSilent;
+        //make sure silent mode is enabled from now on
+        sysEx.setSilentMode(true);
         break;
 
         case DAISY_CHAIN_SLAVE_STRING:
@@ -112,25 +111,23 @@ sysExRetType_t onCustom(uint8_t value)
             //send sysex to next board in the chain
             daisyChainMessage[0] = DAISY_CHAIN_SLAVE_STRING;
             sysEx.sendCustomMessage(usbMessage.sysexArray, daisyChainMessage, 1, false);
-            //wait until message is sent
-            while (!board.isTXempty());
-            //configure loopback on uart
+            //inner slave - configure loopback on uart
             board.setUARTloopbackState(true);
         }
 
         //configure opendeck uart format
         board.initUART_MIDI(true);
-        //configure special format for uart midi
-        retVal = sysExRetSilent;
+        //make sure silent mode is enabled from now on
+        sysEx.setSilentMode(true);
         break;
         #endif
 
         default:
-        retVal = sysExRetFail;
+        retVal = false;
         break;
     }
 
-    if (retVal != sysExRetFail)
+    if (retVal)
     {
         #ifdef DISPLAY_SUPPORTED
         display.displayMIDIevent(displayEventIn, midiMessageSystemExclusive_display, 0, 0, 0);

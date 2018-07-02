@@ -203,6 +203,9 @@ void Board::initUART_MIDI(bool odFormat)
     #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
     else
     {
+        //wait until tx buffer is empty first
+        while (!isTXempty());
+
         if (!isUSBconnected())
         {
             //slave board - no usb read necessary

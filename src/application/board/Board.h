@@ -131,6 +131,9 @@ class Board
     ///
     static void initUART_MIDI(bool odFormat = false);
 
+    ///
+    /// \brief Used to check incoming UART data (MIDI data using custom OpenDeck format)
+    ///
     static void parseODuart();
 
     ///

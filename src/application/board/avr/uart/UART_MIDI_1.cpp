@@ -183,6 +183,9 @@ void Board::initUART_MIDI(bool odFormat)
     }
     else
     {
+        //wait until tx buffer is empty first
+        while (!isTXempty());
+
         if (!isUSBconnected())
         {
             //slave board - no usb read necessary
