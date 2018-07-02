@@ -11,7 +11,7 @@ OpenDeck is a platform suited both for prototyping and developing custom MIDI co
 * FSRs (force-sensitive resistors)
 * LCD/OLED displays (Arduino Mega and Teensy++ 2.0 only)
 
-OpenDeck supports sending of both 7-bit and 14-bit Non-Registered Part Numbers (NRPN), latching messages on buttons, various encoding modes for quadrature encoders, LED control using MIDI In, configurable MIDI channels for each component individually etc, daisy-chaining of boards etc. Full list of supported features can be found [here](https://github.com/paradajz/OpenDeck/wiki/Configurable-features).
+OpenDeck supports sending of both 7-bit and 14-bit Non-Registered Part Numbers (NRPN), latching messages on buttons, various encoding modes for quadrature encoders, LED control using MIDI In, configurable MIDI channels for each component individually, daisy-chaining of boards etc. Full list of supported features can be found [here](https://github.com/paradajz/OpenDeck/wiki/Configurable-features).
 
 All configuration is done using custom SysEx protocol explained in detail on [Wiki page](https://github.com/paradajz/OpenDeck/wiki/SysEx-Configuration) or
 using [Web interface](https://config.shanteacontrols.com/).
