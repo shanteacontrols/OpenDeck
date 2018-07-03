@@ -120,7 +120,7 @@ void Encoders::update()
             {
                 sysExParameter_t cInfoMessage[] =
                 {
-                    COMPONENT_ID_STRING,
+                    SYSEX_CM_COMPONENT_ID,
                     DB_BLOCK_ENCODERS,
                     (sysExParameter_t)i
                 };

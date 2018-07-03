@@ -19,7 +19,7 @@
 #pragma once
 
 #include "sysex/src/SysEx.h"
-#include "CustomStrings.h"
+#include "CustomIDs.h"
 #include "blocks/Blocks.h"
 
 class SysExConfig : public SysEx

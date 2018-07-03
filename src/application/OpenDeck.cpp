@@ -94,7 +94,7 @@ int main()
             //format message as special request so that it's parsed on other boards
             sysExParameter_t daisyChainMessage[] =
             {
-                DAISY_CHAIN_MASTER_STRING,
+                SYSEX_CR_DAISY_CHAIN_MASTER,
             };
 
             sysEx.sendCustomMessage(usbMessage.sysexArray, daisyChainMessage, 1, false);

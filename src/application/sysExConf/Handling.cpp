@@ -33,20 +33,20 @@ bool onCustom(uint8_t value)
 
     switch(value)
     {
-        case FIRMWARE_VERSION_STRING:
+        case SYSEX_CR_FIRMWARE_VERSION:
         sysEx.addToResponse(SW_VERSION_MAJOR);
         sysEx.addToResponse(SW_VERSION_MINOR);
         sysEx.addToResponse(SW_VERSION_REVISION);
         break;
 
-        case HARDWARE_VERSION_STRING:
+        case SYSEX_CR_HARDWARE_VERSION:
         sysEx.addToResponse(BOARD_ID);
         sysEx.addToResponse(HARDWARE_VERSION_MAJOR);
         sysEx.addToResponse(HARDWARE_VERSION_MINOR);
         sysEx.addToResponse(0);
         break;
 
-        case FIRMWARE_HARDWARE_VERSION_STRING:
+        case SYSEX_CR_FIRMWARE_HARDWARE_VERSION:
         sysEx.addToResponse(SW_VERSION_MAJOR);
         sysEx.addToResponse(SW_VERSION_MINOR);
         sysEx.addToResponse(SW_VERSION_REVISION);
@@ -56,45 +56,45 @@ bool onCustom(uint8_t value)
         sysEx.addToResponse(0);
         break;
 
-        case MAX_COMPONENTS_STRING:
-        sysEx.addToResponse(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG);
-        sysEx.addToResponse(MAX_NUMBER_OF_ENCODERS);
-        sysEx.addToResponse(MAX_NUMBER_OF_ANALOG);
-        sysEx.addToResponse(MAX_NUMBER_OF_LEDS);
-        break;
-
-        case REBOOT_APP_STRING:
+        case SYSEX_CR_REBOOT_APP:
         leds.setAllOff();
         wait_ms(2500);
         board.reboot(rebootApp);
         break;
 
-        case REBOOT_BTLDR_STRING:
+        case SYSEX_CR_REBOOT_BTLDR:
         leds.setAllOff();
         wait_ms(2500);
         board.reboot(rebootBtldr);
         break;
 
-        case FACTORY_RESET_STRING:
+        case SYSEX_CR_FACTORY_RESET:
         leds.setAllOff();
         wait_ms(1500);
         database.factoryReset(initPartial);
         board.reboot(rebootApp);
         break;
 
-        case ENABLE_PROCESSING_STRING:
+        case SYSEX_CR_MAX_COMPONENTS:
+        sysEx.addToResponse(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG);
+        sysEx.addToResponse(MAX_NUMBER_OF_ENCODERS);
+        sysEx.addToResponse(MAX_NUMBER_OF_ANALOG);
+        sysEx.addToResponse(MAX_NUMBER_OF_LEDS);
+        break;
+
+        case SYSEX_CR_ENABLE_PROCESSING:
         processingEnabled = true;
         break;
 
-        case DISABLE_PROCESSING_STRING:
+        case SYSEX_CR_DISABLE_PROCESSING:
         processingEnabled = false;
         break;
 
         #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
-        case DAISY_CHAIN_MASTER_STRING:
+        case SYSEX_CR_DAISY_CHAIN_MASTER:
         //received message from opendeck master
         //send sysex to next board in the chain
-        daisyChainMessage[0] = DAISY_CHAIN_SLAVE_STRING;
+        daisyChainMessage[0] = SYSEX_CR_DAISY_CHAIN_SLAVE;
         sysEx.sendCustomMessage(usbMessage.sysexArray, daisyChainMessage, 1, false);
         //configure opendeck uart format
         board.initUART_MIDI(true);
@@ -102,14 +102,14 @@ bool onCustom(uint8_t value)
         sysEx.setSilentMode(true);
         break;
 
-        case DAISY_CHAIN_SLAVE_STRING:
+        case SYSEX_CR_DAISY_CHAIN_SLAVE:
         //received message from opendeck slave
         //check if this board is master
         if (!board.isUSBconnected())
         {
             //slave
             //send sysex to next board in the chain
-            daisyChainMessage[0] = DAISY_CHAIN_SLAVE_STRING;
+            daisyChainMessage[0] = SYSEX_CR_DAISY_CHAIN_SLAVE;
             sysEx.sendCustomMessage(usbMessage.sysexArray, daisyChainMessage, 1, false);
             //inner slave - configure loopback on uart
             board.setUARTloopbackState(true);
@@ -640,20 +640,7 @@ void SysExConfig::init()
     setHandleSet(onSet);
     setHandleCustomRequest(onCustom);
     setHandleSysExWrite(writeSysEx);
-
-    addCustomRequest(FIRMWARE_VERSION_STRING);
-    addCustomRequest(HARDWARE_VERSION_STRING);
-    addCustomRequest(FIRMWARE_HARDWARE_VERSION_STRING);
-    addCustomRequest(MAX_COMPONENTS_STRING);
-    addCustomRequest(REBOOT_APP_STRING);
-    addCustomRequest(REBOOT_BTLDR_STRING);
-    addCustomRequest(FACTORY_RESET_STRING);
-
-    addCustomRequest(DAISY_CHAIN_MASTER_STRING, true);
-    addCustomRequest(DAISY_CHAIN_SLAVE_STRING, true);
-
-    addCustomRequest(ENABLE_PROCESSING_STRING);
-    addCustomRequest(DISABLE_PROCESSING_STRING);
+    setupCustomRequests(customRequests, NUMBER_OF_CUSTOM_REQUESTS);
 }
 
 SysExConfig sysEx;

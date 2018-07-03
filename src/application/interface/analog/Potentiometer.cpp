@@ -139,7 +139,7 @@ void Analog::checkPotentiometerValue(analogType_t analogType, uint8_t analogID, 
         {
             sysExParameter_t cInfoMessage[] =
             {
-                COMPONENT_ID_STRING,
+                SYSEX_CM_COMPONENT_ID,
                 DB_BLOCK_ANALOG,
                 (sysExParameter_t)analogID
             };

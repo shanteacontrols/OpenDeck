@@ -81,7 +81,7 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
                 {
                     sysExParameter_t cInfoMessage[] =
                     {
-                        COMPONENT_ID_STRING,
+                        SYSEX_CM_COMPONENT_ID,
                         DB_BLOCK_ANALOG,
                         (sysExParameter_t)analogID
                     };
@@ -110,7 +110,7 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
                 {
                     sysExParameter_t cInfoMessage[] =
                     {
-                        COMPONENT_ID_STRING,
+                        SYSEX_CM_COMPONENT_ID,
                         DB_BLOCK_ANALOG,
                         (sysExParameter_t)analogID
                     };

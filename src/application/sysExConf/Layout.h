@@ -308,3 +308,61 @@ sysExBlock_t sysExLayout[SYSEX_BLOCKS] =
         .section = displaySections,
     },
 };
+
+sysExCustomRequest_t customRequests[12] =
+{
+    {
+        .requestID = SYSEX_CR_FIRMWARE_VERSION,
+        .connOpenCheck = true
+    },
+
+    {
+        .requestID = SYSEX_CR_HARDWARE_VERSION,
+        .connOpenCheck = false
+    },
+
+    {
+        .requestID = SYSEX_CR_FIRMWARE_HARDWARE_VERSION,
+        .connOpenCheck = true
+    },
+
+    {
+        .requestID = SYSEX_CR_REBOOT_APP,
+        .connOpenCheck = true
+    },
+
+    {
+        .requestID = SYSEX_CR_REBOOT_BTLDR,
+        .connOpenCheck = true
+    },
+
+    {
+        .requestID = SYSEX_CR_FACTORY_RESET,
+        .connOpenCheck = true
+    },
+
+    {
+        .requestID = SYSEX_CR_MAX_COMPONENTS,
+        .connOpenCheck = true
+    },
+
+    {
+        .requestID = SYSEX_CR_ENABLE_PROCESSING,
+        .connOpenCheck = true
+    },
+
+    {
+        .requestID = SYSEX_CR_DISABLE_PROCESSING,
+        .connOpenCheck = true
+    },
+
+    {
+        .requestID = SYSEX_CR_DAISY_CHAIN_MASTER,
+        .connOpenCheck = false
+    },
+
+    {
+        .requestID = SYSEX_CR_DAISY_CHAIN_SLAVE,
+        .connOpenCheck = false
+    }
+};

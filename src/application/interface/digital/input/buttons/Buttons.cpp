@@ -319,7 +319,7 @@ void Buttons::processButton(uint8_t buttonID, bool state)
         {
             sysExParameter_t cInfoMessage[] =
             {
-                COMPONENT_ID_STRING,
+                SYSEX_CM_COMPONENT_ID,
                 DB_BLOCK_BUTTONS,
                 (sysExParameter_t)buttonID
             };
