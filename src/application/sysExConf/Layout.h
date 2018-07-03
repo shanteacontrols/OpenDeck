@@ -20,6 +20,7 @@
 
 #include "SysExConf.h"
 #include "../interface/Interface.h"
+#include "CustomIDs.h"
 
 static sysExSection_t midiSections[SYSEX_SECTIONS_MIDI] =
 {
@@ -309,7 +310,7 @@ sysExBlock_t sysExLayout[SYSEX_BLOCKS] =
     },
 };
 
-sysExCustomRequest_t customRequests[12] =
+sysExCustomRequest_t customRequests[NUMBER_OF_CUSTOM_REQUESTS] =
 {
     {
         .requestID = SYSEX_CR_FIRMWARE_VERSION,
