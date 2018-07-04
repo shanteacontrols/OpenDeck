@@ -103,7 +103,10 @@ int main()
 
     while(1)
     {
-        #ifdef USB_SUPPORTED
+        #if defined(USB_SUPPORTED) || defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
+        //note: mega/uno
+        //"fake" usbInterface - din data is stored as usb data so use usb callback to read the usb
+        //packet stored in midi object
         if (midi.read(usbInterface))
         {
             //new message on usb
@@ -204,52 +207,6 @@ int main()
                     default:
                     break;
                 }
-            }
-        }
-        #endif
-
-        #if defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
-        //"fake" usbInterface - din data is stored as usb data so use usb callback to read the usb
-        //packet stored in midi object
-        if (midi.read(usbInterface))
-        {
-            midiMessageType_t messageType = midi.getType(usbInterface);
-            uint8_t data1 = midi.getData1(usbInterface);
-            uint8_t data2 = midi.getData2(usbInterface);
-            uint8_t channel = midi.getChannel(usbInterface);
-
-            switch(messageType)
-            {
-                case midiMessageSystemExclusive:
-                sysEx.handleMessage(midi.getSysExArray(usbInterface), midi.getSysExArrayLength(usbInterface));
-                break;
-
-                case midiMessageNoteOn:
-                //we're using received note data to control LED color
-                leds.noteToState(data1, data2, channel);
-                #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventIn, midiMessageNoteOn_display, data1, data2, channel+1);
-                #endif
-                break;
-
-                case midiMessageNoteOff:
-                //always turn led off when note off is received
-                leds.noteToState(data1, 0, channel);
-                #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventIn, midiMessageNoteOff_display, data1, data2, channel+1);
-                #endif
-                break;
-
-                case midiMessageControlChange:
-                //control change is used to control led blinking
-                leds.ccToBlink(data1, data2, channel);
-                #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventIn, midiMessageControlChange_display, data1, data2, channel+1);
-                #endif
-                break;
-
-                default:
-                break;
             }
         }
         #endif
