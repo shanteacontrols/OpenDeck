@@ -166,49 +166,51 @@ bool Board::MIDIwrite_UART_OD(USBMIDIpacket_t& USBMIDIpacket)
 
 bool Board::MIDIread_UART_OD()
 {
-    int16_t data;
-
-    if (MIDIread_UART() == 0xF1)
+    if (RingBuffer_GetCount(&rxBuffer) >= 5)
     {
-        //start of frame, use recursive parsing
-        for (int i=0; i<5; i++)
+        int16_t data = MIDIread_UART();
+
+        if (data == 0xF1)
         {
-            data = MIDIread_UART();
-
-            while (data == -1);
-
-            switch(i)
+            //start of frame, read rest of the packet
+            for (int i=0; i<5; i++)
             {
-                case 0:
-                usbMIDIpacket.Event = data;
-                break;
+                data = MIDIread_UART();
 
-                case 1:
-                usbMIDIpacket.Data1 = data;
-                break;
+                switch(i)
+                {
+                    case 0:
+                    usbMIDIpacket.Event = data;
+                    break;
 
-                case 2:
-                usbMIDIpacket.Data2 = data;
-                break;
+                    case 1:
+                    usbMIDIpacket.Data1 = data;
+                    break;
 
-                case 3:
-                usbMIDIpacket.Data3 = data;
-                break;
+                    case 2:
+                    usbMIDIpacket.Data2 = data;
+                    break;
 
-                case 4:
-                //xor byte, do nothing
-                break;
+                    case 3:
+                    usbMIDIpacket.Data3 = data;
+                    break;
+
+                    case 4:
+                    //xor byte, do nothing
+                    break;
+                }
             }
+
+            //everything fine so far
+            #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO) && !defined(BOARD_A_xu2)
+            MIDIreceived = true;
+            #endif
+
+            //error check
+            uint8_t dataXOR = usbMIDIpacket.Event ^ usbMIDIpacket.Data1 ^ usbMIDIpacket.Data2 ^ usbMIDIpacket.Data3;
+
+            return (dataXOR == data);
         }
-
-        //everything fine so far
-        #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO) && !defined(BOARD_A_xu2)
-        MIDIreceived = true;
-        #endif
-
-        uint8_t dataXOR = usbMIDIpacket.Event ^ usbMIDIpacket.Data1 ^ usbMIDIpacket.Data2 ^ usbMIDIpacket.Data3;
-
-        return (dataXOR == data);
     }
 
     return false;
