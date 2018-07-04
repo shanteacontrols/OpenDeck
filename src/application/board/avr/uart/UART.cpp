@@ -166,7 +166,7 @@ bool Board::MIDIwrite_UART_OD(USBMIDIpacket_t& USBMIDIpacket)
 
 bool Board::MIDIread_UART_OD()
 {
-    if (RingBuffer_GetCount(&rxBuffer) >= 5)
+    if (RingBuffer_GetCount(&rxBuffer) >= 6)
     {
         int16_t data = MIDIread_UART();
 
