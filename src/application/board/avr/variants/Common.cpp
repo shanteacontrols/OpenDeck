@@ -36,11 +36,11 @@ void Board::init()
     initEncoders();
 
     #ifdef DIN_MIDI_SUPPORTED
-    initUART_MIDI();
+    initMIDI_UART();
     #endif
 
     #ifdef USB_SUPPORTED
-    initUSB_MIDI();
+    initMIDI_USB();
     #endif
 
     configureTimers();

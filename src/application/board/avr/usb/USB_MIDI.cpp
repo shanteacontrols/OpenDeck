@@ -17,13 +17,37 @@
 */
 
 #include "board/Board.h"
-#include "Variables.h"
+#include "Descriptors.h"
 #include "board/common/indicators/Variables.h"
 
 ///
 /// \brief MIDI Class Device Mode Configuration and State Structure.
 ///
 USB_ClassInfo_MIDI_Device_t MIDI_Interface;
+
+void Board::initMIDI_USB()
+{
+    MIDI_Interface.Config.StreamingInterfaceNumber  = INTERFACE_ID_AudioStream;
+
+    MIDI_Interface.Config.DataINEndpoint.Address    = MIDI_STREAM_IN_EPADDR;
+    MIDI_Interface.Config.DataINEndpoint.Size       = MIDI_STREAM_EPSIZE;
+    MIDI_Interface.Config.DataINEndpoint.Banks      = 1;
+
+    MIDI_Interface.Config.DataOUTEndpoint.Address   = MIDI_STREAM_OUT_EPADDR;
+    MIDI_Interface.Config.DataOUTEndpoint.Size      = MIDI_STREAM_EPSIZE;
+    MIDI_Interface.Config.DataOUTEndpoint.Banks     = 1;
+
+    USB_Init();
+    #ifndef BOARD_A_xu2
+    midi.handleUSBread(board.MIDIread_USB);
+    midi.handleUSBwrite(board.MIDIwrite_USB);
+    #endif
+}
+
+bool Board::isUSBconnected()
+{
+    return (USB_DeviceState == DEVICE_STATE_Configured);
+}
 
 ///
 /// \brief Event handler for the USB_ConfigurationChanged event.
@@ -39,7 +63,7 @@ void EVENT_USB_Device_ConfigurationChanged(void)
     ConfigSuccess &= Endpoint_ConfigureEndpoint(MIDI_STREAM_OUT_EPADDR, EP_TYPE_BULK, MIDI_STREAM_EPSIZE, 1);
 }
 
-bool usbRead(USBMIDIpacket_t& USBMIDIpacket)
+bool Board::MIDIread_USB(USBMIDIpacket_t& USBMIDIpacket)
 {
     //device must be connected and configured for the task to run
     if (USB_DeviceState != DEVICE_STATE_Configured)
@@ -67,7 +91,7 @@ bool usbRead(USBMIDIpacket_t& USBMIDIpacket)
     }
 }
 
-bool usbWrite(USBMIDIpacket_t& USBMIDIpacket)
+bool Board::MIDIwrite_USB(USBMIDIpacket_t& USBMIDIpacket)
 {
     if (USB_DeviceState != DEVICE_STATE_Configured)
         return false;
@@ -87,26 +111,4 @@ bool usbWrite(USBMIDIpacket_t& USBMIDIpacket)
     MIDIsent = true;
 
     return true;
-}
-
-void Board::initUSB_MIDI()
-{
-    MIDI_Interface.Config.StreamingInterfaceNumber  = INTERFACE_ID_AudioStream;
-
-    MIDI_Interface.Config.DataINEndpoint.Address    = MIDI_STREAM_IN_EPADDR;
-    MIDI_Interface.Config.DataINEndpoint.Size       = MIDI_STREAM_EPSIZE;
-    MIDI_Interface.Config.DataINEndpoint.Banks      = 1;
-
-    MIDI_Interface.Config.DataOUTEndpoint.Address   = MIDI_STREAM_OUT_EPADDR;
-    MIDI_Interface.Config.DataOUTEndpoint.Size      = MIDI_STREAM_EPSIZE;
-    MIDI_Interface.Config.DataOUTEndpoint.Banks     = 1;
-
-    USB_Init();
-    midi.handleUSBread(usbRead);
-    midi.handleUSBwrite(usbWrite);
-}
-
-bool Board::isUSBconnected()
-{
-    return (USB_DeviceState == DEVICE_STATE_Configured);
 }

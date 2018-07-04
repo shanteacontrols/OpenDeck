@@ -22,7 +22,7 @@
 #include "board/Board.h"
 #include "board/common/constants/LEDs.h"
 
-MIDI midi;
+USBMIDIpacket_t usbMIDIpacket;
 
 int main(void)
 {
@@ -38,21 +38,17 @@ int main(void)
     MIDI_LED_OFF(LED_IN_PORT, LED_IN_PIN);
     MIDI_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
 
-    Board::initUART_MIDI();
-    Board::initUSB_MIDI();
+    Board::initMIDI_USB();
+    Board::initMIDI_UART();
 
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
         //set timer0 to ctc, used to show midi tx/rx status using on-board leds
         TCCR0A |= (1<<WGM01);           //CTC mode
         TCCR0B |= (1<<CS01)|(1<<CS00);  //prescaler 64
-        OCR0A = 249;                     //1ms
+        OCR0A = 249;                    //1ms
         TIMSK0 |= (1<<OCIE0A);          //compare match interrupt
     }
-
-    midi.setOneByteParseDINstate(false);
-    midi.setDINvalidityCheckState(false);
-    midi.setInputChannel(MIDI_CHANNEL_OMNI);
 
     MIDI_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
     MIDI_LED_ON(LED_IN_PORT, LED_IN_PIN);
@@ -64,25 +60,11 @@ int main(void)
 
     while (1)
     {
-        if (midi.read(dinInterface, THRU_FULL_USB))
-        {
-            ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-            {
-                midiOut_timeout = MIDI_INDICATOR_TIMEOUT;
-            }
+        if (Board::MIDIread_USB(usbMIDIpacket))
+            Board::MIDIwrite_UART_OD(usbMIDIpacket);
 
-            MIDI_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
-        }
-
-        if (midi.read(usbInterface, THRU_FULL_DIN))
-        {
-            ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-            {
-                midiIn_timeout = MIDI_INDICATOR_TIMEOUT;
-            }
-
-            MIDI_LED_ON(LED_IN_PORT, LED_IN_PIN);
-        }
+        if (Board::MIDIread_UART_OD())
+            Board::MIDIwrite_USB(usbMIDIpacket);
     }
 }
 

@@ -56,9 +56,8 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         SOURCES += \
         application/board/avr/variants/$(BOARD_DIR)/xu2.cpp \
         application/board/avr/variants/$(BOARD_DIR)/ISR.cpp \
-        application/board/avr/uart/UART_MIDI_1.cpp \
-        application/board/avr/usb/USB_MIDI.cpp \
-        modules/midi/src/MIDI.cpp
+        application/board/avr/uart/UART.cpp \
+        application/board/avr/usb/USB_MIDI.cpp
     else
         SOURCES += \
         application/OpenDeck.cpp \
@@ -109,16 +108,14 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         application/board/common/digital/output/leds/DirectOut.cpp
         endif
 
-        ifneq ($(filter fw_leonardo fw_pro_micro fw_opendeck fw_teensy2pp fw_kodama, $(MAKECMDGOALS)), )
+        ifneq ($(filter USB_SUPPORTED, $(DEFINES)), )
             #these variants all support usb midi and use uart1 for din midi
             SOURCES += \
-            application/board/avr/usb/USB_MIDI.cpp \
-            application/board/avr/uart/UART_MIDI_1.cpp
-        else ifneq ($(filter fw_mega fw_uno, $(MAKECMDGOALS)), )
-            #no usb midi, uart0 for din midi
-            SOURCES += \
-            application/board/avr/uart/UART_MIDI_0.cpp
+            application/board/avr/usb/USB_MIDI.cpp
         endif
+
+        SOURCES += \
+        application/board/avr/uart/UART.cpp
 
         #compile display only for mega and teensy at the moment
         ifneq ($(filter DISPLAY_SUPPORTED, $(DEFINES)), )

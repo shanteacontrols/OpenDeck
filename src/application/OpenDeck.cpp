@@ -38,7 +38,6 @@ void init()
     midi.setOneByteParseDINstate(false);
     #endif
 
-    midi.setDINvalidityCheckState(false);
     midi.setInputChannel(MIDI_CHANNEL_OMNI);
     midi.setNoteOffMode((noteOffType_t)database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureStandardNoteOff));
     midi.setRunningStatusState(database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureRunningStatus));
@@ -174,7 +173,8 @@ int main()
                     else
                     {
                         //master opendeck - dump everything from MIDI in to USB MIDI out
-                        board.parseODuart();
+                        if (board.MIDIread_UART_OD())
+                            board.MIDIwrite_USB(usbMIDIpacket);
                     }
                 }
                 else
@@ -209,18 +209,19 @@ int main()
         #endif
 
         #if defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
-        //din interface here is actually translated usb traffic from 16u2
-        if (midi.read(dinInterface))
+        //"fake" usbInterface - din data is stored as usb data so use usb callback to read the usb
+        //packet stored in midi object
+        if (midi.read(usbInterface))
         {
-            midiMessageType_t messageType = midi.getType(dinInterface);
-            uint8_t data1 = midi.getData1(dinInterface);
-            uint8_t data2 = midi.getData2(dinInterface);
-            uint8_t channel = midi.getChannel(dinInterface);
+            midiMessageType_t messageType = midi.getType(usbInterface);
+            uint8_t data1 = midi.getData1(usbInterface);
+            uint8_t data2 = midi.getData2(usbInterface);
+            uint8_t channel = midi.getChannel(usbInterface);
 
             switch(messageType)
             {
                 case midiMessageSystemExclusive:
-                sysEx.handleMessage(midi.getSysExArray(dinInterface), midi.getSysExArrayLength(dinInterface));
+                sysEx.handleMessage(midi.getSysExArray(usbInterface), midi.getSysExArrayLength(usbInterface));
                 break;
 
                 case midiMessageNoteOn:

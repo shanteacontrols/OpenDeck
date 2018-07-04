@@ -22,6 +22,7 @@
 #include "interface/digital/output/leds/DataTypes.h"
 #include "common/DataTypes.h"
 #include "dbms/src/DataTypes.h"
+#include "midi/src/DataTypes.h"
 
 ///
 /// \brief List of all supported boards.
@@ -71,6 +72,7 @@ typedef enum
 #include "avr/variants/teensy2pp/Version.h"
 #elif defined(BOARD_A_xu2)
 //no id needed
+#include "avr/variants/xu2/Variables.h"
 #endif
 
 class Board
@@ -116,7 +118,7 @@ class Board
     ///
     /// \brief Initializes USB peripheral and configures it as MIDI device.
     ///
-    static void initUSB_MIDI();
+    static void initMIDI_USB();
 
     ///
     /// \brief Checks if device has been successfully connected to host.
@@ -124,17 +126,55 @@ class Board
     static bool isUSBconnected();
 
     ///
-    /// \brief Initializes UART peripheral.
-    /// @param [in] odFormat OpenDeck UART MIDI format. If set to true, UART MIDI data will
-    ///                      be formated as USB frame with two bytes appended before the start of frame (0xF1).
-    ///                      Used in daisy-chained setup to avoid parsing on master board.
+    /// \brief Initializes UART peripheral used to send and receive MIDI data.
     ///
-    static void initUART_MIDI(bool odFormat = false);
+    static void initMIDI_UART();
 
     ///
-    /// \brief Used to check incoming UART data (MIDI data using custom OpenDeck format)
+    /// \brief Configures OpenDeck UART MIDI format.
     ///
-    static void parseODuart();
+    static void setOD_UART();
+
+    ///
+    /// \brief Used to read MIDI data from UART interface.
+    /// \returns Single byte on success, -1 is buffer is empty.
+    ///
+    static int16_t MIDIread_UART();
+
+    ///
+    /// \brief Used to write MIDI data to UART interface.
+    /// @param [in] data   Byte of data to write.
+    /// \returns Positive value on success. Since this function waits until
+    /// outgoig buffer is full, result will always be success (1).
+    ///
+    static int8_t MIDIwrite_UART(uint8_t data);
+
+    ///
+    /// \brief Used to read MIDI data using custom OpenDeck format from UART interface.
+    /// \returns True if data is available, false otherwise.
+    ///
+    static bool MIDIread_UART_OD();
+
+    ///
+    /// \brief Used to write MIDI data using custom OpenDeck format to UART interface.
+    /// @param [in] USBMIDIpacket   Pointer to structure holding MIDI data to write.
+    /// \returns True on success, false otherwise.
+    ///
+    static bool MIDIwrite_UART_OD(USBMIDIpacket_t& USBMIDIpacket);
+
+    ///
+    /// \brief Used to read MIDI data from USB interface.
+    /// @param [in] USBMIDIpacket   Pointer to structure in which MIDI data is stored.
+    /// \returns True if data is available, false otherwise.
+    ///
+    static bool MIDIread_USB(USBMIDIpacket_t& USBMIDIpacket);
+
+    ///
+    /// \brief Used to write MIDI data to USB interface.
+    /// @param [in] USBMIDIpacket   Pointer to structure holding MIDI data to write.
+    /// \returns True if data is available, false otherwise.
+    ///
+    static bool MIDIwrite_USB(USBMIDIpacket_t& USBMIDIpacket);
 
     ///
     /// \brief Used to check whether or not incoming UART buffer is empty.

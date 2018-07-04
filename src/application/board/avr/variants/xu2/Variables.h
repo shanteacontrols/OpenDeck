@@ -18,7 +18,9 @@
 
 #pragma once
 
-#include "midi/src/MIDI.h"
+#include "midi/src/DataTypes.h"
 
 extern volatile uint8_t     midiIn_timeout;
 extern volatile uint8_t     midiOut_timeout;
+
+extern USBMIDIpacket_t      usbMIDIpacket;

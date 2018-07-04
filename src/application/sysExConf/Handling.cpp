@@ -29,7 +29,9 @@ SysExConfig::SysExConfig()
 bool onCustom(uint8_t value)
 {
     bool retVal = true;
+    #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
     sysExParameter_t daisyChainMessage[1];
+    #endif
 
     switch(value)
     {
@@ -97,7 +99,7 @@ bool onCustom(uint8_t value)
         daisyChainMessage[0] = SYSEX_CR_DAISY_CHAIN_SLAVE;
         sysEx.sendCustomMessage(usbMessage.sysexArray, daisyChainMessage, 1, false);
         //configure opendeck uart format
-        board.initUART_MIDI(true);
+        board.setOD_UART();
         //make sure silent mode is enabled from now on
         sysEx.setSilentMode(true);
         break;
@@ -116,7 +118,7 @@ bool onCustom(uint8_t value)
         }
 
         //configure opendeck uart format
-        board.initUART_MIDI(true);
+        board.setOD_UART();
         //make sure silent mode is enabled from now on
         sysEx.setSilentMode(true);
         break;

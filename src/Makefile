@@ -39,7 +39,10 @@ LEN_APPEND := 0
 
 #common include files
 INCLUDE_FILES := -include "modules/core/src/Core.h"
-INCLUDE_FILES += -include "application/OpenDeck.h"
+
+ifeq ($(filter xu2, $(BOARD_DIR)), )
+    INCLUDE_FILES += -include "application/OpenDeck.h"
+endif
 
 #common include directories
 INCLUDE_DIRS := \
