@@ -97,11 +97,13 @@ void Board::initMIDI_UART()
     RingBuffer_InitBuffer(&txBuffer);
 
     #ifndef BOARD_A_xu2
-    midi.handleUARTread(board.MIDIread_UART);
-    midi.handleUARTwrite(board.MIDIwrite_UART);
-    #elif defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
+    #if defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
     //enable od format immediately for these boards
     setOD_UART();
+    #else
+    midi.handleUARTread(board.MIDIread_UART);
+    midi.handleUARTwrite(board.MIDIwrite_UART);
+    #endif
     #endif
 }
 
