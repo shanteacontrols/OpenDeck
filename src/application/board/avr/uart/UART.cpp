@@ -5,18 +5,23 @@
 ///
 /// \brief Buffer in which outgoing data is stored.
 ///
-static RingBuff_t  txBuffer;
+static RingBuff_t   txBuffer;
 
 ///
 /// \brief Buffer in which incoming data is stored.
 ///
-static RingBuff_t  rxBuffer;
+static RingBuff_t   rxBuffer;
 
 ///
 /// \brief Flag determining whether or not UART loopback functionality is enabled.
 /// When enabled, all incoming UART traffic is immediately passed on to UART TX.
 ///
-static bool        loopbackEnabled;
+static bool         loopbackEnabled;
+
+///
+/// \brief Flag determining whether or not OpenDeck UART format is configured.
+///
+static bool         odUARTconfigured;
 
 ///
 /// \brief ISR used to store incoming data from UART to buffer.
@@ -245,24 +250,35 @@ bool Board::isTXempty()
 
 void Board::setOD_UART()
 {
-    #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO) && !defined(BOARD_A_xu2)
-    //wait until tx buffer is empty first
-    while (!isTXempty());
-    if (!isUSBconnected())
+    #ifdef BOARD_OPEN_DECK
+    if (isUSBconnected())
     {
-        //slave board - no usb read necessary
-        midi.handleUSBread(NULL);
-        //use usb write to send to uart
-        midi.handleUSBwrite(board.MIDIwrite_UART_OD);
+        //master board
+        midi.handleUSBread(board.MIDIread_USB_write_UART_OD);
+        midi.handleUSBwrite(board.MIDIwrite_USB);
+        midi.handleUARTread(NULL); //parsed internally
+        midi.handleUARTwrite(NULL);
     }
-    #endif
+    else
+    {
+        //slave
+        midi.handleUSBread(usbRead_od); //loopback used on inner slaves
+        midi.handleUSBwrite(board.MIDIwrite_UART_OD);
+        midi.handleUARTread(NULL);
+        midi.handleUARTwrite(NULL);
+    }
 
-    #ifndef BOARD_A_xu2
+    odUARTconfigured = true;
+    #elif defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
     midi.handleUSBread(usbRead_od);
     midi.handleUSBwrite(board.MIDIwrite_UART_OD);
     midi.handleUARTread(NULL);
-
-    //no need for standard UART TX anymore
     midi.handleUARTwrite(NULL);
+    odUARTconfigured = true;
     #endif
+}
+
+bool Board::getOD_UART()
+{
+    return odUARTconfigured;
 }

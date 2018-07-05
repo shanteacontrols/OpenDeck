@@ -136,6 +136,12 @@ class Board
     static void setOD_UART();
 
     ///
+    /// \brief Checks if OpenDeck UART format is configured.
+    /// \returns True if configured, false otherwise.
+    ///
+    static bool getOD_UART();
+
+    ///
     /// \brief Used to read MIDI data from UART interface.
     /// \returns Single byte on success, -1 is buffer is empty.
     ///
@@ -168,6 +174,14 @@ class Board
     /// \returns True if data is available, false otherwise.
     ///
     static bool MIDIread_USB(USBMIDIpacket_t& USBMIDIpacket);
+
+    ///
+    /// \brief Used to read MIDI data from USB interface and to immediately transfer received data
+    /// to UART interface in OpenDeck format.
+    /// @param [in] USBMIDIpacket   Pointer to structure holding MIDI data to write.
+    /// \returns True if data is available, false otherwise.
+    ///
+    static bool MIDIread_USB_write_UART_OD(USBMIDIpacket_t& USBMIDIpacket);
 
     ///
     /// \brief Used to write MIDI data to USB interface.

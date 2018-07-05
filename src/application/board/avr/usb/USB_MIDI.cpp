@@ -112,3 +112,14 @@ bool Board::MIDIwrite_USB(USBMIDIpacket_t& USBMIDIpacket)
 
     return true;
 }
+
+bool Board::MIDIread_USB_write_UART_OD(USBMIDIpacket_t& USBMIDIpacket)
+{
+    if (MIDIread_USB(USBMIDIpacket))
+    {
+        board.MIDIwrite_UART_OD(USBMIDIpacket);
+        return true;
+    }
+
+    return false;
+}

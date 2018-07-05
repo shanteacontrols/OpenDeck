@@ -114,7 +114,9 @@ int main()
             switch(messageType)
             {
                 case midiMessageSystemExclusive:
-                sysEx.handleMessage(midi.getSysExArray(usbInterface), midi.getSysExArrayLength(usbInterface));
+                //don't handle sysex on slave boards in daisy-chain setup
+                if (board.isUSBconnected())
+                    sysEx.handleMessage(midi.getSysExArray(usbInterface), midi.getSysExArrayLength(usbInterface));
                 break;
 
                 case midiMessageNoteOn:
