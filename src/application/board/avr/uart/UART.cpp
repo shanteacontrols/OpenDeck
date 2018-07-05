@@ -208,11 +208,6 @@ bool Board::MIDIread_UART_OD()
                 }
             }
 
-            //everything fine so far
-            #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO) && !defined(BOARD_A_xu2)
-            MIDIreceived = true;
-            #endif
-
             //error check
             uint8_t dataXOR = usbMIDIpacket.Event ^ usbMIDIpacket.Data1 ^ usbMIDIpacket.Data2 ^ usbMIDIpacket.Data3;
 
