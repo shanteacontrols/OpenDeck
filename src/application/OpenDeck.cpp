@@ -115,7 +115,9 @@ int main()
             {
                 case midiMessageSystemExclusive:
                 //don't handle sysex on slave boards in daisy-chain setup
+                #ifdef BOARD_OPEN_DECK
                 if (board.isUSBconnected())
+                #endif
                     sysEx.handleMessage(midi.getSysExArray(usbInterface), midi.getSysExArrayLength(usbInterface));
                 break;
 
