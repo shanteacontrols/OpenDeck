@@ -150,7 +150,7 @@ int main()
         #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
         if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled))
         {
-            //check for incoming MIDI messages on USART
+            //check for incoming MIDI messages on UART
             if (!database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
             {
                 //daisy-chained opendeck boards
