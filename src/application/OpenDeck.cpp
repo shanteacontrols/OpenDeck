@@ -28,15 +28,11 @@ void init()
     database.init();
     sysEx.init();
 
-    #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
     //use recursive parsing when merging is active
     if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
         midi.setOneByteParseDINstate(false);
     else
         midi.setOneByteParseDINstate(true);
-    #else
-    midi.setOneByteParseDINstate(false);
-    #endif
 
     midi.setInputChannel(MIDI_CHANNEL_OMNI);
     midi.setNoteOffMode((noteOffType_t)database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureStandardNoteOff));

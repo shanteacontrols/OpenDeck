@@ -320,8 +320,12 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             switch(index)
             {
                 case midiFeatureRunningStatus:
+                #if defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
+                sysEx.setError(ERROR_NOT_SUPPORTED);
+                #else
                 midi.setRunningStatusState(newValue);
                 success = true;
+                #endif
                 break;
 
                 case midiFeatureStandardNoteOff:
@@ -330,16 +334,24 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 break;
 
                 case midiFeatureDinEnabled:
+                #if defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
+                sysEx.setError(ERROR_NOT_SUPPORTED);
+                #else
                 success = true;
+                #endif
                 break;
 
                 case midiFeatureMergeEnabled:
+                #if defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
+                sysEx.setError(ERROR_NOT_SUPPORTED);
+                #else
                 success = true;
                 //when merging is enabled, parse serial input recursively to avoid latency
                 if (newValue)
                     midi.setOneByteParseDINstate(false);
                 else
                     midi.setOneByteParseDINstate(true);
+                #endif
                 break;
 
                 default:
@@ -348,6 +360,9 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
         }
         else if (section == sysExSection_midi_merge)
         {
+            #if defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
+            sysEx.setError(ERROR_NOT_SUPPORTED);
+            #else
             switch(index)
             {
                 case midiMergeToInterface:
@@ -365,6 +380,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 default:
                 break;
             }
+            #endif
         }
 
         if (success && writeToDb)
