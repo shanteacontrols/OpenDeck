@@ -100,7 +100,7 @@ endif
 
 #mcu specific
 ifeq ($(MCU),atmega32u4)
-    FUSE_UNLOCK := 0x3f
+    FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xc8
     FUSE_HIGH := 0xd0
     FUSE_LOW := 0xff
@@ -110,7 +110,7 @@ ifeq ($(MCU),atmega32u4)
     FLASH_SIZE_START_ADDR := 0xAC
     FLASH_SIZE_END_ADDR := 0xB0
 else ifeq ($(MCU),at90usb1286)
-    FUSE_UNLOCK := 0x3f
+    FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xf8
     FUSE_HIGH := 0xd2
     FUSE_LOW := 0xff
@@ -120,7 +120,7 @@ else ifeq ($(MCU),at90usb1286)
     FLASH_SIZE_START_ADDR := 0x98
     FLASH_SIZE_END_ADDR := 0x9C
 else ifeq ($(MCU),atmega16u2)
-    FUSE_UNLOCK := 0x3f
+    FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xf8
     FUSE_HIGH := 0xd3
     FUSE_LOW := 0xff
@@ -128,7 +128,7 @@ else ifeq ($(MCU),atmega16u2)
     EEPROM_SIZE := 512
     BOOT_START_ADDR := 0x3800
 else ifeq ($(MCU),atmega8u2)
-    FUSE_UNLOCK := 0x3f
+    FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xf8
     FUSE_HIGH := 0xd3
     FUSE_LOW := 0xff
@@ -136,14 +136,14 @@ else ifeq ($(MCU),atmega8u2)
     EEPROM_SIZE := 512
     BOOT_START_ADDR := 0x1800
 else ifeq ($(MCU),atmega2560)
-    FUSE_UNLOCK := 0x3f
+    FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xfc
     FUSE_HIGH := 0xd6
     FUSE_LOW := 0xff
     FUSE_LOCK := 0x2f
     EEPROM_SIZE := 4096
 else ifeq ($(MCU),atmega328p)
-    FUSE_UNLOCK := 0x3f
+    FUSE_UNLOCK := 0xff
     FUSE_EXT := 0x04
     FUSE_HIGH := 0xd6
     FUSE_LOW := 0xff
