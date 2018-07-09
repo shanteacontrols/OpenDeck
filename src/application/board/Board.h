@@ -127,8 +127,10 @@ class Board
 
     ///
     /// \brief Initializes UART peripheral used to send and receive MIDI data.
+    /// @param [in] resetOnly   When set to true, UART interface will be reset/deinitialized without
+    ///                         further configuration. Set to false by default.
     ///
-    static void initMIDI_UART();
+    static void initMIDI_UART(bool resetOnly = false);
 
     ///
     /// \brief Configures OpenDeck UART MIDI format.

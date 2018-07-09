@@ -68,10 +68,8 @@ ISR(USART_UDRE_vect)
     }
 }
 
-void Board::initMIDI_UART()
+void Board::initMIDI_UART(bool resetOnly)
 {
-    int32_t baud_count = ((F_CPU / 8) + (MIDI_BAUD_RATE / 2)) / MIDI_BAUD_RATE;
-
     //clear registers first
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
@@ -79,37 +77,47 @@ void Board::initMIDI_UART()
         UCSRB = 0;
         UCSRC = 0;
         UBRR = 0;
+
+        #ifndef BOARD_A_xu2
+        midi.handleUARTread(NULL);
+        midi.handleUARTwrite(NULL);
+        #endif
     }
 
-    if ((baud_count & 1) && baud_count <= 4096)
+    if (!resetOnly)
     {
-        UCSRA = (1<<U2X); //double speed uart
-        UBRR = baud_count - 1;
+        int32_t baud_count = ((F_CPU / 8) + (MIDI_BAUD_RATE / 2)) / MIDI_BAUD_RATE;
+
+        if ((baud_count & 1) && baud_count <= 4096)
+        {
+            UCSRA = (1<<U2X); //double speed uart
+            UBRR = baud_count - 1;
+        }
+        else
+        {
+            UCSRA = 0;
+            UBRR = (baud_count >> 1) - 1;
+        }
+
+        //8 bit, no parity, 1 stop bit
+        UCSRC = (1<<UCSZ1) | (1<<UCSZ0);
+
+        //enable receiver, transmitter and receive interrupt
+        UCSRB = (1<<RXEN) | (1<<TXEN) | (1<<RXCIE);
+
+        RingBuffer_InitBuffer(&rxBuffer);
+        RingBuffer_InitBuffer(&txBuffer);
+
+        #ifndef BOARD_A_xu2
+        #if defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
+        //enable od format immediately for these boards
+        setOD_UART();
+        #else
+        midi.handleUARTread(board.MIDIread_UART);
+        midi.handleUARTwrite(board.MIDIwrite_UART);
+        #endif
+        #endif
     }
-    else
-    {
-        UCSRA = 0;
-        UBRR = (baud_count >> 1) - 1;
-    }
-
-    //8 bit, no parity, 1 stop bit
-    UCSRC = (1<<UCSZ1) | (1<<UCSZ0);
-
-    //enable receiver, transmitter and receive interrupt
-    UCSRB = (1<<RXEN) | (1<<TXEN) | (1<<RXCIE);
-
-    RingBuffer_InitBuffer(&rxBuffer);
-    RingBuffer_InitBuffer(&txBuffer);
-
-    #ifndef BOARD_A_xu2
-    #if defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
-    //enable od format immediately for these boards
-    setOD_UART();
-    #else
-    midi.handleUARTread(board.MIDIread_UART);
-    midi.handleUARTwrite(board.MIDIwrite_UART);
-    #endif
-    #endif
 }
 
 int16_t Board::MIDIread_UART()

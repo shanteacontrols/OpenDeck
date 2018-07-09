@@ -337,6 +337,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 #if defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
                 sysEx.setError(ERROR_NOT_SUPPORTED);
                 #else
+                newValue ? board.initMIDI_UART() : board.initMIDI_UART(true);
                 success = true;
                 #endif
                 break;
