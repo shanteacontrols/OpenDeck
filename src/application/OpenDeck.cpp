@@ -34,8 +34,10 @@ void init()
     else
         midi.useRecursiveParsing(false);
 
+    #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO) && !defined(BOARD_A_xu2)
     if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled))
         board.initMIDI_UART();
+    #endif
 
     midi.setInputChannel(MIDI_CHANNEL_OMNI);
     midi.setNoteOffMode((noteOffType_t)database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureStandardNoteOff));
