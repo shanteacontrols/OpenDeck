@@ -195,18 +195,8 @@ int main()
                 switch(database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeToInterface))
                 {
                     case midiMergeToInterfaceUSB:
-                    //dump everything from MIDI in to USB MIDI out
+                    //dump everything from DIN MIDI in to USB MIDI out
                     midi.read(dinInterface, THRU_FULL_USB);
-                    break;
-
-                    case midiMergeToInterfaceDIN:
-                    //dump everything from MIDI in to MIDI out
-                    midi.read(dinInterface, THRU_FULL_DIN);
-                    break;
-
-                    case midiMergeToInterfaceAll:
-                    //dump everything from MIDI in to USB MIDI out and MIDI out
-                    midi.read(dinInterface, THRU_FULL_ALL);
                     break;
 
                     default:

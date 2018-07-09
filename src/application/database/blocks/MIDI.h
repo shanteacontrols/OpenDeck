@@ -47,6 +47,5 @@ typedef enum
 {
     midiMergeToInterfaceUSB,
     midiMergeToInterfaceDIN,
-    midiMergeToInterfaceAll,
     MIDI_MERGE_TO_INTERFACES
 } midiMergeToInterface_t;

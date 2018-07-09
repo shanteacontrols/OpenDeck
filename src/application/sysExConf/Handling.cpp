@@ -346,12 +346,20 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 #if defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
                 sysEx.setError(ERROR_NOT_SUPPORTED);
                 #else
-                success = true;
-                //when merging is enabled, parse serial input recursively to avoid latency
-                if (newValue)
-                    midi.useRecursiveParsing(true);
+                if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled))
+                {
+                    success = true;
+                    //when merging is enabled, parse serial input recursively to avoid latency
+                    if (newValue)
+                        midi.useRecursiveParsing(true);
+                    else
+                        midi.useRecursiveParsing(false);
+                }
                 else
-                    midi.useRecursiveParsing(false);
+                {
+                    //invalid configuration - trying to configure merge functionality while din midi is disabled
+                    sysEx.setError(ERROR_WRITE);
+                }
                 #endif
                 break;
 
@@ -367,8 +375,38 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             switch(index)
             {
                 case midiMergeToInterface:
-                if ((newValue >= 0) && (newValue < MIDI_MERGE_TO_INTERFACES))
-                    success = true;
+                if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled) && database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
+                {
+                    if ((newValue >= 0) && (newValue < MIDI_MERGE_TO_INTERFACES))
+                    {
+                        success = true;
+
+                        if (newValue == midiMergeToInterfaceDIN)
+                        {
+                            //enable loopback for din here
+                            board.setUARTloopbackState(true);
+                            //handle traffic directly in isr, don't use library for this
+                            midi.handleUARTread(NULL);
+                            midi.handleUARTwrite(NULL);
+                        }
+                        else
+                        {
+                            board.setUARTloopbackState(false);
+                            //use standard callbacks
+                            midi.handleUARTread(board.MIDIread_UART);
+                            midi.handleUARTwrite(board.MIDIwrite_UART);
+                        }
+                    }
+                    else
+                    {
+                        sysEx.setError(ERROR_NEW_VALUE);
+                    }
+                }
+                else
+                {
+                    //invalid configuration
+                    sysEx.setError(ERROR_WRITE);
+                }
                 break;
 
                 case midiMergeUSBchannel:
