@@ -29,7 +29,7 @@ elif [ $board == 3 ]
 then
     echo "Connect programmer to ATmega328P programming header on the Arduino Uno board and then press enter."
     read -n1 KEY
-    avrdude -C /etc/avrdude.conf -p atmega328p -P /dev/$port -b 19200 -c avrisp -e -U lock:w:0xff:m -U efuse:w:0x04:m -U hfuse:w:0xd6:m -U lfuse:w:0xff:m
+    avrdude -C /etc/avrdude.conf -p atmega328p -P /dev/$port -b 19200 -c avrisp -e -U lock:w:0xff:m -U efuse:w:0xfc:m -U hfuse:w:0xd6:m -U lfuse:w:0xff:m
     avrdude -C /etc/avrdude.conf -p atmega328p -P /dev/$port -b 19200 -c avrisp -U flash:w:../src/build/fw_uno.bin -U lock:w:0xef:m
 elif [ $board == 4 ]
 then

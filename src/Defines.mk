@@ -144,7 +144,7 @@ else ifeq ($(MCU),atmega2560)
     EEPROM_SIZE := 4096
 else ifeq ($(MCU),atmega328p)
     FUSE_UNLOCK := 0xff
-    FUSE_EXT := 0x04
+    FUSE_EXT := 0xfc
     FUSE_HIGH := 0xd6
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
