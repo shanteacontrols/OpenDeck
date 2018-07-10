@@ -20,6 +20,7 @@
 #include "pins/Map.h"
 #include "interface/digital/output/leds/Constants.h"
 #include "../../../../interface/digital/output/leds/Variables.h"
+#include "board/common/constants/LEDs.h"
 
 void kodamaStartUpAnimation()
 {
