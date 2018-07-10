@@ -62,11 +62,11 @@ inline void checkLEDs()
         {
             if (ledStateSingle)
             {
-                setHigh(*(dOutPortArray[i]), dOutPinArray[i]);
+                EXT_LED_ON(*(dOutPortArray[i]), dOutPinArray[i]);
             }
             else
             {
-                setLow(*(dOutPortArray[i]), dOutPinArray[i]);
+                EXT_LED_OFF(*(dOutPortArray[i]), dOutPinArray[i]);
             }
 
             lastLEDstate[i] = ledStateSingle;

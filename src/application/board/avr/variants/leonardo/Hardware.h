@@ -20,9 +20,6 @@
 
 #define BUTTON_DEBOUNCE_COMPARE 0b11111000
 
-//uncomment if leds use reverse logic for setting on/off state
-//#define LED_INVERT
-
 #ifdef BOARD_A_PRO_MICRO
 #define MAX_NUMBER_OF_ANALOG            4
 #else
@@ -32,10 +29,3 @@
 #define MAX_NUMBER_OF_LEDS              6
 #define MAX_NUMBER_OF_RGB_LEDS          (MAX_NUMBER_OF_LEDS/3)
 #define MAX_NUMBER_OF_ENCODERS          (MAX_NUMBER_OF_BUTTONS/2)
-
-//active low logic
-#define BTLDR_LED_ON(port, pin)         ((port) &= ~(1 << (pin)))
-#define MIDI_LED_ON(port, pin)          BTLDR_LED_ON(port, pin)
-
-#define BTLDR_LED_OFF(port, pin)        ((port) |= (1 << (pin)))
-#define MIDI_LED_OFF(port, pin)         BTLDR_LED_OFF(port, pin)

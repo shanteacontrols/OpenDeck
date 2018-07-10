@@ -20,9 +20,6 @@
 
 #define BUTTON_DEBOUNCE_COMPARE         0b11100000
 
-//uncomment if leds use reverse logic for setting on/off state
-// #define LED_INVERT
-
 #define NUMBER_OF_MUX                   4
 #define NUMBER_OF_MUX_INPUTS            16
 

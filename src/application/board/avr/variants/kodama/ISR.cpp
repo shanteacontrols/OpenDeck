@@ -37,7 +37,6 @@ inline void storeDigitalIn()
     setLow(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
     setLow(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
     _NOP();
-    _NOP();
 
     setHigh(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
 
@@ -76,7 +75,7 @@ inline void checkLEDs()
 
         for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
         {
-            LED_ON(ledState[i]) ? setLow(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN) : setHigh(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
+            LED_ON(ledState[i]) ? EXT_LED_ON(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN) : EXT_LED_OFF(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
             pulseHighToLow(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
         }
 

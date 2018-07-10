@@ -40,7 +40,7 @@ ifeq ($(findstring opendeck,$(MAKECMDGOALS)), opendeck)
     DEFINES += USB_SUPPORTED
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += LED_FADING_SUPPORTED
-    DEFINES += LED_INVERT
+    DEFINES += LED_EXT_INVERT
     DEFINES += USE_MUX
     DEFINES += IN_MATRIX
     DEFINES += OUT_MATRIX
@@ -49,7 +49,7 @@ else ifeq ($(findstring tannin,$(MAKECMDGOALS)), tannin)
     DEFINES += BOARD_TANNIN
     DEFINES += USB_SUPPORTED
     DEFINES += LED_FADING_SUPPORTED
-    DEFINES += LED_INVERT
+    DEFINES += LED_EXT_INVERT
     DEFINES += USE_MUX
     DEFINES += IN_MATRIX
     DEFINES += OUT_MATRIX
@@ -58,16 +58,19 @@ else ifeq ($(findstring leonardo,$(MAKECMDGOALS)), leonardo)
     DEFINES += BOARD_A_LEO
     DEFINES += USB_SUPPORTED
     DEFINES += DIN_MIDI_SUPPORTED
+    DEFINES += LED_INT_INVERT
 else ifeq ($(findstring pro_micro,$(MAKECMDGOALS)), pro_micro)
     MCU := atmega32u4
     DEFINES += BOARD_A_PRO_MICRO
     DEFINES += USB_SUPPORTED
     DEFINES += DIN_MIDI_SUPPORTED
+    DEFINES += LED_INT_INVERT
 else ifeq ($(findstring kodama,$(MAKECMDGOALS)), kodama)
     MCU := atmega32u4
     DEFINES += BOARD_KODAMA
     DEFINES += USB_SUPPORTED
     DEFINES += USE_MUX
+    DEFINES += LED_EXT_INVERT
 else ifeq ($(findstring teensy2pp,$(MAKECMDGOALS)), teensy2pp)
     MCU := at90usb1286
     DEFINES += BOARD_T_2PP
@@ -88,9 +91,11 @@ else ifeq ($(findstring uno,$(MAKECMDGOALS)), uno)
 else ifeq ($(findstring 16u2,$(MAKECMDGOALS)), 16u2)
     MCU := atmega16u2
     DEFINES += BOARD_A_xu2
+    DEFINES += LED_EXT_INVERT
 else ifeq ($(findstring 8u2,$(MAKECMDGOALS)), 8u2)
     MCU := atmega8u2
     DEFINES += BOARD_A_xu2
+    DEFINES += LED_EXT_INVERT
 else ifeq ($(findstring upload,$(MAKECMDGOALS)), upload)
     #hack used to set MCU if only make upload target is called
     #check if MCU file exists

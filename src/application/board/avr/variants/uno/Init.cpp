@@ -18,6 +18,7 @@
 
 #include "board/Board.h"
 #include "pins/Pins.h"
+#include "board/common/constants/LEDs.h"
 
 void Board::initPins()
 {
@@ -41,22 +42,22 @@ void Board::initPins()
 
 
     setOutput(DO_1_PORT, DO_1_PIN);
-    setLow(DO_1_PORT, DO_1_PIN);
+    EXT_LED_OFF(DO_1_PORT, DO_1_PIN);
 
     setOutput(DO_2_PORT, DO_2_PIN);
-    setLow(DO_2_PORT, DO_2_PIN);
+    EXT_LED_OFF(DO_2_PORT, DO_2_PIN);
 
     setOutput(DO_3_PORT, DO_3_PIN);
-    setLow(DO_3_PORT, DO_3_PIN);
+    EXT_LED_OFF(DO_3_PORT, DO_3_PIN);
 
     setOutput(DO_4_PORT, DO_4_PIN);
-    setLow(DO_4_PORT, DO_4_PIN);
+    EXT_LED_OFF(DO_4_PORT, DO_4_PIN);
 
     setOutput(DO_5_PORT, DO_5_PIN);
-    setLow(DO_5_PORT, DO_5_PIN);
+    EXT_LED_OFF(DO_5_PORT, DO_5_PIN);
 
     setOutput(DO_6_PORT, DO_6_PIN);
-    setLow(DO_6_PORT, DO_6_PIN);
+    EXT_LED_OFF(DO_6_PORT, DO_6_PIN);
 
 
     setInput(AI_1_PORT, AI_1_PIN);

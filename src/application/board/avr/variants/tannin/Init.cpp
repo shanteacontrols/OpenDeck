@@ -18,6 +18,7 @@
 
 #include "board/Board.h"
 #include "pins/Pins.h"
+#include "board/common/constants/LEDs.h"
 
 void Board::initAnalog()
 {
@@ -58,10 +59,10 @@ void Board::initPins()
     setOutput(LED_ROW_4_PORT, LED_ROW_4_PIN);
 
     //make sure to turn all rows off
-    setHigh(LED_ROW_1_PORT, LED_ROW_1_PIN);
-    setHigh(LED_ROW_2_PORT, LED_ROW_2_PIN);
-    setHigh(LED_ROW_3_PORT, LED_ROW_3_PIN);
-    setHigh(LED_ROW_4_PORT, LED_ROW_4_PIN);
+    EXT_LED_OFF(LED_ROW_1_PORT, LED_ROW_1_PIN);
+    EXT_LED_OFF(LED_ROW_2_PORT, LED_ROW_2_PIN);
+    EXT_LED_OFF(LED_ROW_3_PORT, LED_ROW_3_PIN);
+    EXT_LED_OFF(LED_ROW_4_PORT, LED_ROW_4_PIN);
 
     //decoder
     setOutput(DEC_LM_A0_PORT, DEC_LM_A0_PIN);

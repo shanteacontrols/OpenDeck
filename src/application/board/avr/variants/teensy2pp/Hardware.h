@@ -20,15 +20,8 @@
 
 #define BUTTON_DEBOUNCE_COMPARE 0b11111000
 
-//uncomment if leds use reverse logic for setting on/off state
-//#define LED_INVERT
-
 #define MAX_NUMBER_OF_ANALOG            8
 #define MAX_NUMBER_OF_BUTTONS           16
 #define MAX_NUMBER_OF_LEDS              16
 #define MAX_NUMBER_OF_RGB_LEDS          (MAX_NUMBER_OF_LEDS/3)
 #define MAX_NUMBER_OF_ENCODERS          (MAX_NUMBER_OF_BUTTONS/2)
-
-//active high logic
-#define BTLDR_LED_ON(port, pin)         ((port) |= (1 << (pin)))
-#define BTLDR_LED_OFF(port, pin)        ((port) &= ~(1 << (pin)))

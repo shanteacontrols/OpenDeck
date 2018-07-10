@@ -18,6 +18,7 @@
 
 #include "board/Board.h"
 #include "pins/Pins.h"
+#include "board/common/constants/LEDs.h"
 
 void Board::initAnalog()
 {
@@ -62,21 +63,12 @@ void Board::initPins()
     setOutput(LED_ROW_6_PORT, LED_ROW_6_PIN);
 
     //make sure to turn all rows off
-    #ifdef LED_INVERT
-    setHigh(LED_ROW_1_PORT, LED_ROW_1_PIN);
-    setHigh(LED_ROW_2_PORT, LED_ROW_2_PIN);
-    setHigh(LED_ROW_3_PORT, LED_ROW_3_PIN);
-    setHigh(LED_ROW_4_PORT, LED_ROW_4_PIN);
-    setHigh(LED_ROW_5_PORT, LED_ROW_5_PIN);
-    setHigh(LED_ROW_6_PORT, LED_ROW_6_PIN);
-    #else
-    setLow(LED_ROW_1_PORT, LED_ROW_1_PIN);
-    setLow(LED_ROW_2_PORT, LED_ROW_2_PIN);
-    setLow(LED_ROW_3_PORT, LED_ROW_3_PIN);
-    setLow(LED_ROW_4_PORT, LED_ROW_4_PIN);
-    setLow(LED_ROW_5_PORT, LED_ROW_5_PIN);
-    setLow(LED_ROW_6_PORT, LED_ROW_6_PIN);
-    #endif
+    EXT_LED_OFF(LED_ROW_1_PORT, LED_ROW_1_PIN);
+    EXT_LED_OFF(LED_ROW_2_PORT, LED_ROW_2_PIN);
+    EXT_LED_OFF(LED_ROW_3_PORT, LED_ROW_3_PIN);
+    EXT_LED_OFF(LED_ROW_4_PORT, LED_ROW_4_PIN);
+    EXT_LED_OFF(LED_ROW_5_PORT, LED_ROW_5_PIN);
+    EXT_LED_OFF(LED_ROW_6_PORT, LED_ROW_6_PIN);
 
     //decoder
     setOutput(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
@@ -103,8 +95,8 @@ void Board::initPins()
     setOutput(LED_IN_PORT, LED_IN_PIN);
     setOutput(LED_OUT_PORT, LED_OUT_PIN);
 
-    MIDI_LED_OFF(LED_IN_PORT, LED_IN_PIN);
-    MIDI_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+    INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+    INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
 }
 
 void Board::ledFlashStartup(bool fwUpdated)
@@ -113,20 +105,20 @@ void Board::ledFlashStartup(bool fwUpdated)
     {
         if (fwUpdated)
         {
-            BTLDR_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
-            BTLDR_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+            INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+            INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
             _delay_ms(200);
-            BTLDR_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
-            BTLDR_LED_ON(LED_IN_PORT, LED_IN_PIN);
+            INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+            INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
             _delay_ms(200);
         }
         else
         {
-            BTLDR_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
-            BTLDR_LED_ON(LED_IN_PORT, LED_IN_PIN);
+            INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+            INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
             _delay_ms(200);
-            BTLDR_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
-            BTLDR_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+            INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+            INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
             _delay_ms(200);
         }
     }

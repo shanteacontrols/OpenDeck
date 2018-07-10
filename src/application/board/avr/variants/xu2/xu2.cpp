@@ -18,7 +18,6 @@
 
 #include "Variables.h"
 #include "Pins.h"
-#include "Hardware.h"
 #include "board/Board.h"
 #include "board/common/constants/LEDs.h"
 
@@ -35,8 +34,8 @@ int main(void)
     setOutput(LED_IN_PORT, LED_IN_PIN);
     setOutput(LED_OUT_PORT, LED_OUT_PIN);
 
-    MIDI_LED_OFF(LED_IN_PORT, LED_IN_PIN);
-    MIDI_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+    INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+    INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
 
     Board::initMIDI_USB();
     Board::initMIDI_UART();
@@ -50,11 +49,11 @@ int main(void)
         TIMSK0 |= (1<<OCIE0A);          //compare match interrupt
     }
 
-    MIDI_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
-    MIDI_LED_ON(LED_IN_PORT, LED_IN_PIN);
+    INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+    INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
     wait_ms(200);
-    MIDI_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
-    MIDI_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+    INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+    INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
 
     sei();
 

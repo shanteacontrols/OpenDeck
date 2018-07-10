@@ -131,13 +131,7 @@ inline void ledRowsOff()
     TCCR4A &= ~(1<<COM4A1); //oc4a
 
     for (int i=0; i<NUMBER_OF_LED_ROWS; i++)
-    {
-        #ifdef LED_INVERT
-        setHigh(*(ledRowPortArray[i]), ledRowPinArray[i]);
-        #else
-        setLow(*(ledRowPortArray[i]), ledRowPinArray[i]);
-        #endif
-    }
+        EXT_LED_OFF(*(ledRowPortArray[i]), ledRowPinArray[i]);
 }
 
 ///
@@ -150,15 +144,11 @@ inline void ledRowOn(uint8_t rowNumber, uint8_t intensity)
     if (intensity == 255)
     {
         //max value, don't use pwm
-        #ifdef LED_INVERT
-        setLow(*(ledRowPortArray[rowNumber]), ledRowPinArray[rowNumber]);
-        #else
-        setHigh(*(ledRowPortArray[rowNumber]), ledRowPinArray[rowNumber]);
-        #endif
+        EXT_LED_ON(*(ledRowPortArray[rowNumber]), ledRowPinArray[rowNumber]);
     }
     else
     {
-        #ifdef LED_INVERT
+        #ifdef LED_EXT_INVERT
         intensity = 255 - intensity;
         #endif
 

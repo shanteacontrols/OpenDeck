@@ -27,4 +27,26 @@
 ///
 #define MIDI_INDICATOR_TIMEOUT              50
 
+///
+/// \brief Helper macros used for easier control of internal (on-board) and external LEDs.
+/// @{
+
+#ifdef LED_INT_INVERT
+#define INT_LED_ON(port, pin)         setLow(port, pin)
+#define INT_LED_OFF(port, pin)        setHigh(port, pin)
+#else
+#define INT_LED_ON(port, pin)         setHigh(port, pin)
+#define INT_LED_OFF(port, pin)        setLow(port, pin)
+#endif
+
+#ifdef LED_EXT_INVERT
+#define EXT_LED_ON(port, pin)         setLow(port, pin)
+#define EXT_LED_OFF(port, pin)        setHigh(port, pin)
+#else
+#define EXT_LED_ON(port, pin)         setHigh(port, pin)
+#define EXT_LED_OFF(port, pin)        setLow(port, pin)
+#endif
+
+/// @}
+
 /// @}

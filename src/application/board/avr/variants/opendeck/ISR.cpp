@@ -145,13 +145,7 @@ inline void ledRowsOff()
     TCCR1A &= ~(1<<COM1B1);
 
     for (int i=0; i<NUMBER_OF_LED_ROWS; i++)
-    {
-        #ifdef LED_INVERT
-        setHigh(*(ledRowPortArray[i]), ledRowPinArray[i]);
-        #else
-        setLow(*(ledRowPortArray[i]), ledRowPinArray[i]);
-        #endif
-    }
+        EXT_LED_OFF(*(ledRowPortArray[i]), ledRowPinArray[i]);
 }
 
 ///
@@ -164,15 +158,11 @@ inline void ledRowOn(uint8_t rowNumber, uint8_t intensity)
     if (intensity == 255)
     {
         //max value, don't use pwm
-        #ifdef LED_INVERT
-        setLow(*(ledRowPortArray[rowNumber]), ledRowPinArray[rowNumber]);
-        #else
-        setHigh(*(ledRowPortArray[rowNumber]), ledRowPinArray[rowNumber]);
-        #endif
+        EXT_LED_ON(*(ledRowPortArray[rowNumber]), ledRowPinArray[rowNumber]);
     }
     else
     {
-        #ifdef LED_INVERT
+        #ifdef LED_EXT_INVERT
         intensity = 255 - intensity;
         #endif
 
@@ -307,14 +297,14 @@ ISR(TIMER0_COMPA_vect)
 
         if (MIDIreceived)
         {
-            MIDI_LED_ON(LED_IN_PORT, LED_IN_PIN);
+            INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
             MIDIreceived = false;
             midiIn_timeout = MIDI_INDICATOR_TIMEOUT;
         }
 
         if (MIDIsent)
         {
-            MIDI_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+            INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
             MIDIsent = false;
             midiOut_timeout = MIDI_INDICATOR_TIMEOUT;
         }
@@ -322,12 +312,12 @@ ISR(TIMER0_COMPA_vect)
         if (midiIn_timeout)
             midiIn_timeout--;
         else
-            MIDI_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+            INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
 
         if (midiOut_timeout)
             midiOut_timeout--;
         else
-            MIDI_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+            INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
 
         updateStuff = 0;
     }

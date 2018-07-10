@@ -32,39 +32,6 @@ void kodamaStartUpAnimation()
 
     wait_ms(1000);
 
-    // for (int i=0; i<6; i++)
-    // {
-    //     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    //     {
-    //         BIT_CLEAR(ledState[ledMapArray[5-i]], LED_ACTIVE_BIT);
-    //         BIT_CLEAR(ledState[ledMapArray[5+i]], LED_STATE_BIT);
-
-    //         BIT_CLEAR(ledState[ledMapArray[6+i]], LED_ACTIVE_BIT);
-    //         BIT_CLEAR(ledState[ledMapArray[6+i]], LED_STATE_BIT);
-    //     }
-
-    //     wait_ms(75);
-    // }
-
-    // wait_ms(200);
-
-    // for (int i=0; i<6; i++)
-    // {
-    //     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    //     {
-    //         BIT_SET(ledState[ledMapArray[i]], LED_ACTIVE_BIT);
-    //         BIT_SET(ledState[ledMapArray[i]], LED_STATE_BIT);
-
-    //         BIT_SET(ledState[ledMapArray[11-i]], LED_ACTIVE_BIT);
-    //         BIT_SET(ledState[ledMapArray[11-i]], LED_STATE_BIT);
-    //     }
-
-    //     wait_ms(75);
-    // }
-
-    // wait_ms(300);
-
-    //v2
     for (int i=0; i<12; i++)
     {
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
@@ -225,8 +192,7 @@ void Board::initCustom()
 
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
     {
-        //active low logic
-        setHigh(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
+        EXT_LED_OFF(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
         pulseHighToLow(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
     }
 

@@ -20,9 +20,6 @@
 
 #define BUTTON_DEBOUNCE_COMPARE 0b11111000
 
-//uncomment if leds use reverse logic for setting on/off state
-//#define LED_INVERT
-
 #define MAX_NUMBER_OF_ANALOG            6
 #define MAX_NUMBER_OF_BUTTONS           6
 #define MAX_NUMBER_OF_LEDS              6

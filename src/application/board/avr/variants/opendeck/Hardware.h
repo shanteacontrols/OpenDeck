@@ -80,16 +80,3 @@
 /// pins, total number of encoders is total number of buttons divided by two.
 ///
 #define MAX_NUMBER_OF_ENCODERS          (MAX_NUMBER_OF_BUTTONS/2)
-
-///
-/// \brief Helper macros used for easier control of integrated LEDs.
-/// @{
-
-#define BTLDR_LED_ON(port, pin)         ((port) |= (1 << (pin)))
-#define MIDI_LED_ON(port, pin)          BTLDR_LED_ON(port, pin)
-
-#define BTLDR_LED_OFF(port, pin)        ((port) &= ~(1 << (pin)))
-#define MIDI_LED_OFF(port, pin)         BTLDR_LED_OFF(port, pin)
-
-
-/// @}

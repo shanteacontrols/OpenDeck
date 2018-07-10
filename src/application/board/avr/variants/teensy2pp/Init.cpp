@@ -18,6 +18,7 @@
 
 #include "board/Board.h"
 #include "pins/Pins.h"
+#include "board/common/constants/LEDs.h"
 
 void Board::initPins()
 {
@@ -71,52 +72,52 @@ void Board::initPins()
 
 
     setOutput(DO_1_PORT, DO_1_PIN);
-    setLow(DO_1_PORT, DO_1_PIN);
+    EXT_LED_OFF(DO_1_PORT, DO_1_PIN);
 
     setOutput(DO_2_PORT, DO_2_PIN);
-    setLow(DO_2_PORT, DO_2_PIN);
+    EXT_LED_OFF(DO_2_PORT, DO_2_PIN);
 
     setOutput(DO_3_PORT, DO_3_PIN);
-    setLow(DO_3_PORT, DO_3_PIN);
+    EXT_LED_OFF(DO_3_PORT, DO_3_PIN);
 
     setOutput(DO_4_PORT, DO_4_PIN);
-    setLow(DO_4_PORT, DO_4_PIN);
+    EXT_LED_OFF(DO_4_PORT, DO_4_PIN);
 
     setOutput(DO_5_PORT, DO_5_PIN);
-    setLow(DO_5_PORT, DO_5_PIN);
+    EXT_LED_OFF(DO_5_PORT, DO_5_PIN);
 
     setOutput(DO_6_PORT, DO_6_PIN);
-    setLow(DO_6_PORT, DO_6_PIN);
+    EXT_LED_OFF(DO_6_PORT, DO_6_PIN);
 
     setOutput(DO_7_PORT, DO_7_PIN);
-    setLow(DO_7_PORT, DO_7_PIN);
+    EXT_LED_OFF(DO_7_PORT, DO_7_PIN);
 
     setOutput(DO_8_PORT, DO_8_PIN);
-    setLow(DO_8_PORT, DO_8_PIN);
+    EXT_LED_OFF(DO_8_PORT, DO_8_PIN);
 
     setOutput(DO_9_PORT, DO_9_PIN);
-    setLow(DO_9_PORT, DO_9_PIN);
+    EXT_LED_OFF(DO_9_PORT, DO_9_PIN);
 
     setOutput(DO_10_PORT, DO_10_PIN);
-    setLow(DO_10_PORT, DO_10_PIN);
+    EXT_LED_OFF(DO_10_PORT, DO_10_PIN);
 
     setOutput(DO_11_PORT, DO_11_PIN);
-    setLow(DO_11_PORT, DO_11_PIN);
+    EXT_LED_OFF(DO_11_PORT, DO_11_PIN);
 
     setOutput(DO_12_PORT, DO_12_PIN);
-    setLow(DO_12_PORT, DO_12_PIN);
+    EXT_LED_OFF(DO_12_PORT, DO_12_PIN);
 
     setOutput(DO_13_PORT, DO_13_PIN);
-    setLow(DO_13_PORT, DO_13_PIN);
+    EXT_LED_OFF(DO_13_PORT, DO_13_PIN);
 
     setOutput(DO_14_PORT, DO_14_PIN);
-    setLow(DO_14_PORT, DO_14_PIN);
+    EXT_LED_OFF(DO_14_PORT, DO_14_PIN);
 
     setOutput(DO_15_PORT, DO_15_PIN);
-    setLow(DO_15_PORT, DO_15_PIN);
+    EXT_LED_OFF(DO_15_PORT, DO_15_PIN);
 
     setOutput(DO_16_PORT, DO_16_PIN);
-    setLow(DO_16_PORT, DO_16_PIN);
+    EXT_LED_OFF(DO_16_PORT, DO_16_PIN);
 
 
     setInput(AI_1_PORT, AI_1_PIN);
@@ -180,20 +181,20 @@ void Board::ledFlashStartup(bool fwUpdated)
     {
         if (fwUpdated)
         {
-            BTLDR_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
-            BTLDR_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+            INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+            INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
             _delay_ms(500);
-            BTLDR_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
-            BTLDR_LED_ON(LED_IN_PORT, LED_IN_PIN);
+            INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+            INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
             _delay_ms(500);
         }
         else
         {
-            BTLDR_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
-            BTLDR_LED_ON(LED_IN_PORT, LED_IN_PIN);
+            INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+            INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
             _delay_ms(200);
-            BTLDR_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
-            BTLDR_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+            INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+            INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
             _delay_ms(200);
         }
     }

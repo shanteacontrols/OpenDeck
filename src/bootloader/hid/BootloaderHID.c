@@ -37,12 +37,13 @@
 #include "core/src/HAL/avr/PinManipulation.h"
 #include "core/src/general/BitManipulation.h"
 #include <util/crc16.h>
+#include "board/common/constants/LEDs.h"
 
 #ifdef BOARD_KODAMA
 #include "board/avr/variants/kodama/pins/Pins.h"
 #endif
 
-#if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO) || defined(BOARD_KODAMA)
+#if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO) || defined(BOARD_KODAMA) || defined(BOARD_TANNIN)
 
 ///
 /// \brief Calculates CRC of entire flash.
@@ -180,8 +181,8 @@ static void SetupHardware(void)
     setOutput(LED_IN_PORT, LED_IN_PIN);
     setOutput(LED_OUT_PORT, LED_OUT_PIN);
 
-    BTLDR_LED_ON(LED_IN_PORT, LED_IN_PIN);
-    BTLDR_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+    INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
+    INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
     #else
     setOutput(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
     setOutput(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
@@ -255,11 +256,11 @@ void EVENT_USB_Device_ControlRequest(void)
                 while (1)
                 {
                     //indicate error by flashing leds
-                    BTLDR_LED_OFF(LED_IN_PORT, LED_IN_PIN);
-                    BTLDR_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+                    INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+                    INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
                     _delay_ms(500);
-                    BTLDR_LED_ON(LED_IN_PORT, LED_IN_PIN);
-                    BTLDR_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+                    INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
+                    INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
                     _delay_ms(500);
                 }
             }
