@@ -114,7 +114,7 @@ inline void storeDigitalIn()
     {
         setLow(SR_CLK_PORT, SR_CLK_PIN);
         _NOP();
-        BIT_WRITE(digitalInBuffer[activeInColumn], i, !readPin(SR_DIN_PORT, SR_DIN_PIN));
+        BIT_WRITE(digitalInBuffer[activeInColumn], 7-i, !readPin(SR_DIN_PORT, SR_DIN_PIN));
         setHigh(SR_CLK_PORT, SR_CLK_PIN);
     }
 }
