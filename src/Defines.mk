@@ -44,6 +44,15 @@ ifeq ($(findstring opendeck,$(MAKECMDGOALS)), opendeck)
     DEFINES += USE_MUX
     DEFINES += IN_MATRIX
     DEFINES += OUT_MATRIX
+else ifeq ($(findstring tannin,$(MAKECMDGOALS)), tannin)
+    MCU := atmega32u4
+    DEFINES += BOARD_TANNIN
+    DEFINES += USB_SUPPORTED
+    DEFINES += LED_FADING_SUPPORTED
+    DEFINES += LED_INVERT
+    DEFINES += USE_MUX
+    DEFINES += IN_MATRIX
+    DEFINES += OUT_MATRIX
 else ifeq ($(findstring leonardo,$(MAKECMDGOALS)), leonardo)
     MCU := atmega32u4
     DEFINES += BOARD_A_LEO

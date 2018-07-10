@@ -35,7 +35,8 @@ typedef enum
     BOARD_A_PRO_MICRO_ID,
     BOARD_A_UNO_ID,
     BOARD_T_2PP_ID,
-    BOARD_KODAMA_ID
+    BOARD_KODAMA_ID,
+    BOARD_TANNIN_ID
 } boardID_t;
 
 #ifdef __AVR__
@@ -70,6 +71,10 @@ typedef enum
 #define BOARD_ID    BOARD_T_2PP_ID
 #include "avr/variants/teensy2pp/Hardware.h"
 #include "avr/variants/teensy2pp/Version.h"
+#elif defined(BOARD_TANNIN)
+#define BOARD_ID    BOARD_TANNIN_ID
+#include "avr/variants/tannin/Hardware.h"
+#include "avr/variants/tannin/Version.h"
 #elif defined(BOARD_A_xu2)
 //no id needed
 #include "avr/variants/xu2/Variables.h"
