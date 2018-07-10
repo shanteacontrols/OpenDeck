@@ -97,17 +97,17 @@ else ifeq ($(findstring 8u2,$(MAKECMDGOALS)), 8u2)
     DEFINES += BOARD_A_xu2
     DEFINES += LED_EXT_INVERT
 else ifeq ($(findstring upload,$(MAKECMDGOALS)), upload)
-    #hack used to set MCU if only make upload target is called
+    #used to set MCU if make upload target is called
     #check if MCU file exists
     ifneq ("$(wildcard build/MCU)","")
         MCU := $(shell cat build/MCU)
     else
         $(error Please run make for specific target first)
     endif
-    #extra check for uploadboot - fw_opendeck and fw_kodama only for now
+    #only some targets are supported
     ifeq ($(MAKECMDGOALS),uploadboot)
-        ifeq ($(filter fw_opendeck fw_kodama, $(shell cat build/TARGET)), )
-            $(error Available only for OpenDeck and Kodama targets.)
+        ifeq ($(filter fw_opendeck fw_tannin fw_leonardo fw_pro_micro fw_kodama fw_teensy2pp, $(shell cat build/TARGET)), )
+            $(error Not available for current target.)
         endif
     endif
 endif
