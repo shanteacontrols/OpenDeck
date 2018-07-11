@@ -19,6 +19,103 @@
 #include "board/Board.h"
 #include "pins/Pins.h"
 #include "board/common/constants/LEDs.h"
+#include "interface/digital/output/leds/Constants.h"
+#include "../../../../interface/digital/output/leds/Variables.h"
+
+#define START_UP_ANIM_DELAY 120
+
+void tanninStartUpAnimation()
+{
+    //on sequence
+    BIT_SET(ledState[3], LED_ACTIVE_BIT);
+    BIT_SET(ledState[3], LED_STATE_BIT);
+    BIT_SET(ledState[19], LED_ACTIVE_BIT);
+    BIT_SET(ledState[19], LED_STATE_BIT);
+    wait_ms(START_UP_ANIM_DELAY);
+
+    BIT_SET(ledState[2], LED_ACTIVE_BIT);
+    BIT_SET(ledState[2], LED_STATE_BIT);
+    BIT_SET(ledState[18], LED_ACTIVE_BIT);
+    BIT_SET(ledState[18], LED_STATE_BIT);
+    wait_ms(START_UP_ANIM_DELAY);
+
+    BIT_SET(ledState[1], LED_ACTIVE_BIT);
+    BIT_SET(ledState[1], LED_STATE_BIT);
+    BIT_SET(ledState[17], LED_ACTIVE_BIT);
+    BIT_SET(ledState[17], LED_STATE_BIT);
+    BIT_SET(ledState[11], LED_ACTIVE_BIT);
+    BIT_SET(ledState[11], LED_STATE_BIT);
+    BIT_SET(ledState[27], LED_ACTIVE_BIT);
+    BIT_SET(ledState[27], LED_STATE_BIT);
+    wait_ms(START_UP_ANIM_DELAY);
+
+    BIT_SET(ledState[0], LED_ACTIVE_BIT);
+    BIT_SET(ledState[0], LED_STATE_BIT);
+    BIT_SET(ledState[16], LED_ACTIVE_BIT);
+    BIT_SET(ledState[16], LED_STATE_BIT);
+    BIT_SET(ledState[10], LED_ACTIVE_BIT);
+    BIT_SET(ledState[10], LED_STATE_BIT);
+    BIT_SET(ledState[26], LED_ACTIVE_BIT);
+    BIT_SET(ledState[26], LED_STATE_BIT);
+    wait_ms(START_UP_ANIM_DELAY);
+
+    BIT_SET(ledState[9], LED_ACTIVE_BIT);
+    BIT_SET(ledState[9], LED_STATE_BIT);
+    BIT_SET(ledState[25], LED_ACTIVE_BIT);
+    BIT_SET(ledState[25], LED_STATE_BIT);
+    wait_ms(START_UP_ANIM_DELAY);
+
+    BIT_SET(ledState[8], LED_ACTIVE_BIT);
+    BIT_SET(ledState[8], LED_STATE_BIT);
+    BIT_SET(ledState[24], LED_ACTIVE_BIT);
+    BIT_SET(ledState[24], LED_STATE_BIT);
+    wait_ms(2000);
+
+    //off sequence
+    BIT_CLEAR(ledState[0], LED_ACTIVE_BIT);
+    BIT_CLEAR(ledState[0], LED_STATE_BIT);
+    BIT_CLEAR(ledState[16], LED_ACTIVE_BIT);
+    BIT_CLEAR(ledState[16], LED_STATE_BIT);
+    wait_ms(START_UP_ANIM_DELAY);
+
+    BIT_CLEAR(ledState[1], LED_ACTIVE_BIT);
+    BIT_CLEAR(ledState[1], LED_STATE_BIT);
+    BIT_CLEAR(ledState[17], LED_ACTIVE_BIT);
+    BIT_CLEAR(ledState[17], LED_STATE_BIT);
+    wait_ms(START_UP_ANIM_DELAY);
+
+    BIT_CLEAR(ledState[2], LED_ACTIVE_BIT);
+    BIT_CLEAR(ledState[2], LED_STATE_BIT);
+    BIT_CLEAR(ledState[18], LED_ACTIVE_BIT);
+    BIT_CLEAR(ledState[18], LED_STATE_BIT);
+    BIT_CLEAR(ledState[8], LED_ACTIVE_BIT);
+    BIT_CLEAR(ledState[8], LED_STATE_BIT);
+    BIT_CLEAR(ledState[24], LED_ACTIVE_BIT);
+    BIT_CLEAR(ledState[24], LED_STATE_BIT);
+    wait_ms(START_UP_ANIM_DELAY);
+
+    BIT_CLEAR(ledState[3], LED_ACTIVE_BIT);
+    BIT_CLEAR(ledState[3], LED_STATE_BIT);
+    BIT_CLEAR(ledState[19], LED_ACTIVE_BIT);
+    BIT_CLEAR(ledState[19], LED_STATE_BIT);
+    BIT_CLEAR(ledState[9], LED_ACTIVE_BIT);
+    BIT_CLEAR(ledState[9], LED_STATE_BIT);
+    BIT_CLEAR(ledState[25], LED_ACTIVE_BIT);
+    BIT_CLEAR(ledState[25], LED_STATE_BIT);
+    wait_ms(START_UP_ANIM_DELAY);
+
+    BIT_CLEAR(ledState[10], LED_ACTIVE_BIT);
+    BIT_CLEAR(ledState[10], LED_STATE_BIT);
+    BIT_CLEAR(ledState[26], LED_ACTIVE_BIT);
+    BIT_CLEAR(ledState[26], LED_STATE_BIT);
+    wait_ms(START_UP_ANIM_DELAY);
+
+    BIT_CLEAR(ledState[11], LED_ACTIVE_BIT);
+    BIT_CLEAR(ledState[11], LED_STATE_BIT);
+    BIT_CLEAR(ledState[27], LED_ACTIVE_BIT);
+    BIT_CLEAR(ledState[27], LED_STATE_BIT);
+    wait_ms(2000);
+}
 
 void Board::initAnalog()
 {
@@ -92,7 +189,7 @@ void Board::ledFlashStartup(bool fwUpdated)
 
 void Board::initCustom()
 {
-    
+    startUpAnimation = tanninStartUpAnimation;
 }
 
 Board board;
