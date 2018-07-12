@@ -32,7 +32,7 @@ static uint8_t lastLEDstate[MAX_NUMBER_OF_LEDS];
 inline void storeDigitalIn()
 {
     for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
-        BIT_WRITE(digitalInBuffer[dIn_count][0], i, !readPin(*(dInPortArray[i]), dInPinArray[i]));
+        BIT_WRITE(digitalInBuffer[dIn_head][0], i, !readPin(*(dInPortArray[i]), dInPinArray[i]));
 }
 
 inline void checkLEDs()
@@ -79,10 +79,10 @@ ISR(TIMER0_COMPA_vect)
 
         if (dIn_count < DIGITAL_IN_BUFFER_SIZE)
         {
-            storeDigitalIn();
-
             if (++dIn_head == DIGITAL_IN_BUFFER_SIZE)
                 dIn_head = 0;
+
+            storeDigitalIn();
 
             dIn_count++;
         }

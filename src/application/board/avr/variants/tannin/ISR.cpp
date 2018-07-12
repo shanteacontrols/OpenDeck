@@ -102,22 +102,23 @@ inline void activateOutputColumn()
 ///
 inline void storeDigitalIn()
 {
-    setLow(SR_CLK_PORT, SR_CLK_PIN);
-    setLow(SR_LATCH_PORT, SR_LATCH_PIN);
-    _NOP();
-
-    setHigh(SR_LATCH_PORT, SR_LATCH_PIN);
-
     for (int i=0; i<NUMBER_OF_BUTTON_COLUMNS; i++)
     {
         activeInColumn = i;
         activateInputColumn();
+        _NOP();
+
+        setLow(SR_CLK_PORT, SR_CLK_PIN);
+        setLow(SR_LATCH_PORT, SR_LATCH_PIN);
+        _NOP();
+
+        setHigh(SR_LATCH_PORT, SR_LATCH_PIN);
 
         for (int j=0; j<8; j++)
         {
             setLow(SR_CLK_PORT, SR_CLK_PIN);
             _NOP();
-            BIT_WRITE(digitalInBuffer[dIn_count][i], j, !readPin(SR_DIN_PORT, SR_DIN_PIN));
+            BIT_WRITE(digitalInBuffer[dIn_head][i], 7-j, !readPin(SR_DIN_PORT, SR_DIN_PIN));
             setHigh(SR_CLK_PORT, SR_CLK_PIN);
         }
     }
@@ -262,13 +263,12 @@ ISR(TIMER0_COMPA_vect)
         activeOutColumn++;
         rTime_ms++;
 
-        //read input matrix
         if (dIn_count < DIGITAL_IN_BUFFER_SIZE)
         {
-            storeDigitalIn();
-
             if (++dIn_head == DIGITAL_IN_BUFFER_SIZE)
                 dIn_head = 0;
+
+            storeDigitalIn();
 
             dIn_count++;
         }

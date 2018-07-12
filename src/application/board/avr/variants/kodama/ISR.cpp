@@ -44,7 +44,7 @@ inline void storeDigitalIn()
         {
             setLow(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
             _NOP();
-            BIT_WRITE(digitalInBuffer[dIn_count][i], j, !readPin(SR_IN_DATA_PORT, SR_IN_DATA_PIN));
+            BIT_WRITE(digitalInBuffer[dIn_head][i], j, !readPin(SR_IN_DATA_PORT, SR_IN_DATA_PIN));
             setHigh(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
         }
     }
@@ -94,10 +94,10 @@ ISR(TIMER0_COMPA_vect)
 
         if (dIn_count < DIGITAL_IN_BUFFER_SIZE)
         {
-            storeDigitalIn();
-
             if (++dIn_head == DIGITAL_IN_BUFFER_SIZE)
                 dIn_head = 0;
+
+            storeDigitalIn();
 
             dIn_count++;
         }

@@ -40,7 +40,7 @@ inline void storeDigitalIn()
             if (buttonIndex >= MAX_NUMBER_OF_BUTTONS)
                 break; //done
 
-            BIT_WRITE(digitalInBuffer[dIn_count][i], j, !readPin(*(dInPortArray[buttonIndex]), dInPinArray[buttonIndex]));
+            BIT_WRITE(digitalInBuffer[dIn_head][i], j, !readPin(*(dInPortArray[buttonIndex]), dInPinArray[buttonIndex]));
         }
     }
 }
@@ -89,10 +89,10 @@ ISR(TIMER0_COMPA_vect)
 
         if (dIn_count < DIGITAL_IN_BUFFER_SIZE)
         {
-            storeDigitalIn();
-
             if (++dIn_head == DIGITAL_IN_BUFFER_SIZE)
                 dIn_head = 0;
+
+            storeDigitalIn();
 
             dIn_count++;
         }
