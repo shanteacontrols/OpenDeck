@@ -20,8 +20,6 @@
 #include "pins/Map.h"
 #include "board/common/analog/input/Variables.h"
 #include "board/common/digital/input/Variables.h"
-#include "board/common/digital/input/direct/Variables.h"
-#include "board/common/digital/input/Variables.h"
 #include "../../../../interface/digital/output/leds/Variables.h"
 #include "../../../../interface/digital/output/leds/Helpers.h"
 #include "board/common/indicators/Variables.h"
@@ -46,12 +44,10 @@ inline void storeDigitalIn()
         {
             setLow(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
             _NOP();
-            BIT_WRITE(digitalInBuffer[i], j, !readPin(SR_IN_DATA_PORT, SR_IN_DATA_PIN));
+            BIT_WRITE(digitalInBuffer[dIn_count][i], j, !readPin(SR_IN_DATA_PORT, SR_IN_DATA_PIN));
             setHigh(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
         }
     }
-
-    digitalInBufferCounter = DIGITAL_IN_BUFFER_SIZE;
 }
 
 inline void checkLEDs()
@@ -96,8 +92,15 @@ ISR(TIMER0_COMPA_vect)
         rTime_ms++;
         checkLEDs();
 
-        if (digitalInBufferCounter < DIGITAL_IN_BUFFER_SIZE)
+        if (dIn_count < DIGITAL_IN_BUFFER_SIZE)
+        {
             storeDigitalIn();
+
+            if (++dIn_head == DIGITAL_IN_BUFFER_SIZE)
+                dIn_head = 0;
+
+            dIn_count++;
+        }
 
         updateStuff = 0;
     }

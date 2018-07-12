@@ -21,7 +21,7 @@
 #include "../../../../interface/digital/output/leds/Helpers.h"
 #include "pins/Map.h"
 #include "board/common/constants/LEDs.h"
-#include "board/common/digital/input/matrix/Variables.h"
+#include "board/common/digital/input/Variables.h"
 #include "board/common/analog/input/Variables.h"
 #include "board/common/digital/output/matrix/Variables.h"
 #include "board/common/indicators/Variables.h"
@@ -106,16 +106,20 @@ inline void storeDigitalIn()
     setLow(SR_LATCH_PORT, SR_LATCH_PIN);
     _NOP();
 
-    digitalInBuffer[activeInColumn] = 0;
-
     setHigh(SR_LATCH_PORT, SR_LATCH_PIN);
 
-    for (int i=0; i<8; i++)
+    for (int i=0; i<NUMBER_OF_BUTTON_COLUMNS; i++)
     {
-        setLow(SR_CLK_PORT, SR_CLK_PIN);
-        _NOP();
-        BIT_WRITE(digitalInBuffer[activeInColumn], 7-i, !readPin(SR_DIN_PORT, SR_DIN_PIN));
-        setHigh(SR_CLK_PORT, SR_CLK_PIN);
+        activeInColumn = i;
+        activateInputColumn();
+
+        for (int j=0; j<8; j++)
+        {
+            setLow(SR_CLK_PORT, SR_CLK_PIN);
+            _NOP();
+            BIT_WRITE(digitalInBuffer[dIn_count][i], j, !readPin(SR_DIN_PORT, SR_DIN_PIN));
+            setHigh(SR_CLK_PORT, SR_CLK_PIN);
+        }
     }
 }
 
@@ -259,16 +263,14 @@ ISR(TIMER0_COMPA_vect)
         rTime_ms++;
 
         //read input matrix
-        if (activeInColumn < NUMBER_OF_BUTTON_COLUMNS)
+        if (dIn_count < DIGITAL_IN_BUFFER_SIZE)
         {
-            for (int i=0; i<NUMBER_OF_BUTTON_COLUMNS; i++)
-            {
-                activeInColumn = i;
-                activateInputColumn();
-                storeDigitalIn();
-            }
+            storeDigitalIn();
 
-            activeInColumn = NUMBER_OF_BUTTON_COLUMNS;
+            if (++dIn_head == DIGITAL_IN_BUFFER_SIZE)
+                dIn_head = 0;
+
+            dIn_count++;
         }
 
         updateStuff = 0;

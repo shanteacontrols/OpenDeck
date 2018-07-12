@@ -20,8 +20,6 @@
 #include "pins/Map.h"
 #include "board/common/analog/input/Variables.h"
 #include "board/common/digital/input/Variables.h"
-#include "board/common/digital/input/direct/Variables.h"
-#include "board/common/digital/input/Variables.h"
 #include "../../../../interface/digital/output/leds/Variables.h"
 #include "../../../../interface/digital/output/leds/Helpers.h"
 #include "board/common/indicators/Variables.h"
@@ -33,19 +31,8 @@ static uint8_t lastLEDstate[MAX_NUMBER_OF_LEDS];
 
 inline void storeDigitalIn()
 {
-    uint8_t data = 0;
-
-    //clear old data
-    digitalInBuffer[digitalInBufferCounter] = 0;
-
     for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
-    {
-        data <<= 1;
-        data |= !readPin(*(dInPortArray[i]), dInPinArray[i]); //invert reading because of pull-up configuration
-    }
-
-    digitalInBuffer[digitalInBufferCounter] = data;
-    digitalInBufferCounter++;
+        BIT_WRITE(digitalInBuffer[dIn_count][0], i, !readPin(*(dInPortArray[i]), dInPinArray[i]));
 }
 
 inline void checkLEDs()
@@ -90,8 +77,15 @@ ISR(TIMER0_COMPA_vect)
         rTime_ms++;
         updateStuff = 0;
 
-        if (digitalInBufferCounter < DIGITAL_IN_BUFFER_SIZE)
+        if (dIn_count < DIGITAL_IN_BUFFER_SIZE)
+        {
             storeDigitalIn();
+
+            if (++dIn_head == DIGITAL_IN_BUFFER_SIZE)
+                dIn_head = 0;
+
+            dIn_count++;
+        }
     }
 }
 

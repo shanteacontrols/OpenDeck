@@ -43,15 +43,10 @@ DigitalInput::DigitalInput()
 void DigitalInput::update()
 {
     if (!board.digitalInputDataAvailable())
-    {
         return;
-    }
-    else
-    {
-        buttons.update();
-        encoders.update();
-        board.continueDigitalInReadout();
-    }
+
+    buttons.update();
+    encoders.update();
 }
 
 DigitalInput digitalInput;

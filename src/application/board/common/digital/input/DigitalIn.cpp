@@ -22,20 +22,48 @@
 ///
 /// \brief Array used to store readings from digital input matrix.
 ///
-volatile uint8_t    digitalInBuffer[DIGITAL_IN_BUFFER_SIZE];
+volatile uint8_t    digitalInBuffer[DIGITAL_IN_BUFFER_SIZE][DIGITAL_IN_ARRAY_SIZE];
+
+#ifdef IN_MATRIX
+///
+/// \brief Holds value of currently active input matrix column.
+///
+volatile uint8_t    activeInColumn;
+#endif
 
 ///
-/// \brief Holds counts of elements currently stored in digital input buffer.
+/// \brief Holds "head" index position in ring buffer.
 ///
-volatile uint8_t    digitalInBufferCounter;
+volatile uint8_t    dIn_head;
+
+///
+/// \brief Holds "tail" index position in ring buffer.
+///
+volatile uint8_t    dIn_tail;
+
+///
+/// \brief Holds current number of elements stored in ring buffer.
+///
+volatile uint8_t    dIn_count;
+
+///
+/// \brief Holds ring buffer index which is currently being processed by interface objects.
+///
+uint8_t             curentReadPos;
 
 
 bool Board::digitalInputDataAvailable()
 {
-    return (digitalInBufferCounter == DIGITAL_IN_BUFFER_SIZE);
-}
+    if (dIn_count)
+    {
+        if (++dIn_tail == DIGITAL_IN_BUFFER_SIZE)
+            dIn_tail = 0;
 
-void Board::continueDigitalInReadout()
-{
-    digitalInBufferCounter = 0;
+        curentReadPos = dIn_tail;
+        dIn_count--;
+
+        return true;
+    }
+
+    return false;
 }

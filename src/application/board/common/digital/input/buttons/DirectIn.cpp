@@ -17,12 +17,13 @@
 */
 
 #include "board/Board.h"
-#include "../direct/Variables.h"
+#include "../Variables.h"
+#include "board/common/constants/Buttons.h"
 
 bool Board::getButtonState(uint8_t buttonID)
 {
     uint8_t arrayIndex = buttonID/8;
     uint8_t buttonIndex = buttonID - 8*arrayIndex;
 
-    return BIT_READ(digitalInBuffer[arrayIndex], BUTTON_INDEX_SUBST-buttonIndex);
+    return BIT_READ(digitalInBuffer[curentReadPos][arrayIndex], BUTTON_INDEX_SUBST-buttonIndex);
 }

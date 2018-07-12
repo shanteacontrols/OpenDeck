@@ -80,6 +80,7 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         application/board/avr/variants/Common.cpp \
         application/board/common/analog/input/Common.cpp \
         application/board/common/digital/input/encoders/Common.cpp \
+        application/board/common/digital/input/DigitalIn.cpp \
 
         #board specific
         ifneq ($(filter USE_MUX, $(DEFINES)), )
@@ -89,12 +90,10 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
 
         ifneq ($(filter IN_MATRIX, $(DEFINES)), )
         SOURCES += \
-        application/board/common/digital/input/matrix/InMatrix.cpp \
         application/board/common/digital/input/buttons/Matrix.cpp \
         application/board/common/digital/input/encoders/Matrix.cpp
         else
         SOURCES += \
-        application/board/common/digital/input/direct/Direct.cpp \
         application/board/common/digital/input/buttons/DirectIn.cpp \
         application/board/common/digital/input/encoders/DirectIn.cpp
         endif

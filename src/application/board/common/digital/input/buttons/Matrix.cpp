@@ -17,12 +17,12 @@
 */
 
 #include "board/Board.h"
-#include "board/common/digital/input/matrix/Variables.h"
+#include "board/common/digital/input/Variables.h"
 
 bool Board::getButtonState(uint8_t buttonIndex)
 {
     uint8_t row = buttonIndex/NUMBER_OF_BUTTON_COLUMNS;
     uint8_t column = buttonIndex % NUMBER_OF_BUTTON_COLUMNS;
 
-    return BIT_READ(digitalInBuffer[column], row);
+    return BIT_READ(digitalInBuffer[curentReadPos][column], row);
 }

@@ -221,19 +221,10 @@ class Board
 
     ///
     /// \brief Checks if digital input data is available (encoder and button data).
-    /// On boards which use input matrix data is read in ISR and stored into digitalInBuffer array.
-    /// Once all columns are read, data is considered available.
-    /// At this point, input matrix column variable is set to invalid value
-    /// to stop further data reading from ISR until continueDigitalInReadout
-    /// function is called.
+    /// Digital input data is read in ISR and stored into ring buffer.
     /// \returns True if data is available, false otherwise.
     ///
     static bool digitalInputDataAvailable();
-
-    ///
-    /// \brief Resets active input matrix column so that readings in ISR can continue.
-    ///
-    static void continueDigitalInReadout();
 
     ///
     /// \brief Returns last read button state for requested button index.
