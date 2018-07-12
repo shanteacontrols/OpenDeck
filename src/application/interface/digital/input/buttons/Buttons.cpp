@@ -98,7 +98,7 @@ void Buttons::update()
 {
     for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
     {
-        if (digitalInput.isEncoderEnabled(board.getEncoderPair(i)))
+        if (encoders.isEncoderEnabled(board.getEncoderPair(i)))
             continue;
 
         bool state = board.getButtonState(i);

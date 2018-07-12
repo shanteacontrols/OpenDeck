@@ -33,7 +33,6 @@ class DigitalInput
     DigitalInput();
     static void init();
     static void update();
-    static bool isEncoderEnabled(uint8_t encoderID);
 };
 
 ///

@@ -309,7 +309,8 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             break;
 
             default:
-            success = database.update(block, sysEx2DB_analog[section], index, newValue);
+            if (database.update(block, sysEx2DB_analog[section], index, newValue))
+                analog.init();
             break;
         }
         break;
@@ -653,6 +654,9 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
         else
         {
             success = database.update(block, sysEx2DB_buttons[section], index, newValue);
+
+            if (success && (section == sysExSection_buttons_type))
+                buttons.init();
         }
         break;
 
@@ -665,6 +669,9 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
         else
         {
             success = database.update(block, sysEx2DB_encoders[section], index, newValue);
+
+            if (success && ((section == sysExSection_encoders_enable) || (section == sysExSection_encoders_invert)))
+                encoders.init();
         }
         break;
 

@@ -32,7 +32,12 @@
 ///
 /// \brief Array holding invert state for all encoders.
 ///
-uint8_t encoderInverted[MAX_NUMBER_OF_ENCODERS/8+1];
+uint8_t     encoderInverted[MAX_NUMBER_OF_ENCODERS/8+1];
+
+///
+/// \brief Array holding state for all encoders (whether they're enabled or disabled).
+///
+uint8_t     encoderEnabled[MAX_NUMBER_OF_ENCODERS/8+1];
 
 ///
 /// \brief Checks if encoder is inverted.
@@ -66,6 +71,7 @@ void Encoders::init()
         uint8_t arrayIndex = i/8;
         uint8_t encoderIndex = i - 8*arrayIndex;
 
+        BIT_WRITE(encoderEnabled[arrayIndex], encoderIndex, database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i));
         BIT_WRITE(encoderInverted[arrayIndex], encoderIndex, database.read(DB_BLOCK_ENCODERS, dbSection_encoders_invert, i));
     }
 }
@@ -79,7 +85,7 @@ void Encoders::update()
 
     for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
     {
-        if (!digitalInput.isEncoderEnabled(i))
+        if (!isEncoderEnabled(i))
             continue;
 
         encoderPosition_t encoderState = (encoderPosition_t)board.getEncoderState(i, database.read(DB_BLOCK_ENCODERS, dbSection_encoders_pulsesPerStep, i));
@@ -165,6 +171,19 @@ void Encoders::update()
             }
         }
     }
+}
+
+///
+/// \brief Checks if encoder is enabled or disabled.
+/// @param [in] encoderID    Index of encoder which is being checked.
+/// \returns True if encoder is enabled, false otherwise.
+///
+bool Encoders::isEncoderEnabled(uint8_t encoderID)
+{
+    uint8_t arrayIndex = encoderID/8;
+    uint8_t encoderIndex = encoderID - 8*arrayIndex;
+
+    return BIT_READ(encoderEnabled[arrayIndex], encoderIndex);
 }
 
 Encoders encoders;
