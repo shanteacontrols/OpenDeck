@@ -33,11 +33,11 @@ class Analog
 {
     public:
     Analog();
+    static void init();
     static void update();
     static void debounceReset(uint16_t index);
 
     private:
-    //data processing
     static void checkPotentiometerValue(analogType_t analogType, uint8_t analogID, uint16_t value);
     static void checkFSRvalue(uint8_t analogID, uint16_t pressure);
     static bool fsrPressureStable(uint8_t analogID);

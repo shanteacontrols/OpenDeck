@@ -26,6 +26,26 @@
 #ifdef DISPLAY_SUPPORTED
 #include "../../../display/Display.h"
 #endif
+#include "../DigitalInput.h"
+
+
+///
+/// \brief Array holding invert state for all encoders.
+///
+uint8_t encoderInverted[MAX_NUMBER_OF_ENCODERS/8+1];
+
+///
+/// \brief Checks if encoder is inverted.
+/// @param [in] encoderID    Index of encoder which is being checked.
+/// \returns True if encoder is inverted, false otherwise.
+///
+inline bool isEncoderInverted(uint8_t encoderID)
+{
+    uint8_t arrayIndex = encoderID/8;
+    uint8_t encoderIndex = encoderID - 8*arrayIndex;
+
+    return BIT_READ(encoderInverted[arrayIndex], encoderIndex);
+}
 
 ///
 /// \brief Default constructor.
@@ -33,6 +53,21 @@
 Encoders::Encoders()
 {
 
+}
+
+///
+/// \brief Used to store specific parameters from EEPROM to internal arrays for faster access.
+///
+void Encoders::init()
+{
+    //store some parameters from eeprom to ram for faster access
+    for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
+    {
+        uint8_t arrayIndex = i/8;
+        uint8_t encoderIndex = i - 8*arrayIndex;
+
+        BIT_WRITE(encoderInverted[arrayIndex], encoderIndex, database.read(DB_BLOCK_ENCODERS, dbSection_encoders_invert, i));
+    }
 }
 
 ///
@@ -44,14 +79,14 @@ void Encoders::update()
 
     for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
     {
-        if (!database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i))
+        if (!digitalInput.isEncoderEnabled(i))
             continue;
 
         encoderPosition_t encoderState = (encoderPosition_t)board.getEncoderState(i, database.read(DB_BLOCK_ENCODERS, dbSection_encoders_pulsesPerStep, i));
         if (encoderState == encStopped)
             continue;
 
-        if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_invert, i))
+        if (isEncoderInverted(i))
         {
             if (encoderState == encMoveLeft)
                 encoderState = encMoveRight;

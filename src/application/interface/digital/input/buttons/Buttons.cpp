@@ -26,6 +26,7 @@
 #ifdef DISPLAY_SUPPORTED
 #include "interface/display/Display.h"
 #endif
+#include "../DigitalInput.h"
 
 ///
 /// \brief Array used for simpler building of transport control messages.
@@ -36,17 +37,36 @@ static uint8_t  mmcArray[] =  { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 };
 ///
 /// \brief Array holding debounce count for all buttons to avoid incorrect state detection.
 ///
-uint8_t     buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG];
+uint8_t         buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG];
 
 ///
 /// \brief Array holding current state for all buttons.
 ///
-uint8_t     buttonPressed[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1];
+uint8_t         buttonPressed[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1];
 
 ///
 /// \brief Array holding last sent state for latching buttons only.
 ///
-uint8_t     lastLatchingState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1];
+uint8_t         lastLatchingState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1];
+
+///
+/// \brief Array holding button type (1 - latching, 0 - momentary).
+///
+uint8_t         latchingState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1];
+
+
+///
+/// \brief Used to retrieve button type.
+/// @param [in] buttonID    Button index which is being checked.
+/// \returns Button type for specifed index. See buttonType_t.
+///
+inline buttonType_t getButtonType(uint8_t buttonID)
+{
+    uint8_t arrayIndex = buttonID/8;
+    uint8_t buttonIndex = buttonID - 8*arrayIndex;
+
+    return (buttonType_t)BIT_READ(latchingState[arrayIndex], buttonIndex);
+}
 
 ///
 /// \brief Default constructor.
@@ -57,87 +77,104 @@ Buttons::Buttons()
 }
 
 ///
+/// \brief Used to store specific parameters from EEPROM to internal arrays for faster access.
+///
+void Buttons::init()
+{
+    //store some parameters from eeprom to ram for faster access
+    for (int i=0; i<MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG; i++)
+    {
+        uint8_t arrayIndex = i/8;
+        uint8_t buttonIndex = i - 8*arrayIndex;
+
+        BIT_WRITE(latchingState[arrayIndex], buttonIndex, (bool)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_type, i));
+    }
+}
+
+///
 /// \brief Continuously reads inputs from buttons and acts if necessary.
 ///
 void Buttons::update()
 {
     for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
     {
+        if (digitalInput.isEncoderEnabled(board.getEncoderPair(i)))
+            continue;
+
         bool state = board.getButtonState(i);
-        uint8_t encoderPairIndex = board.getEncoderPair(i);
 
-        if (buttonDebounced(i, state) && !database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, encoderPairIndex))
+        if (!buttonDebounced(i, state))
+            continue;
+
+        bool process = false;
+        buttonType_t type = getButtonType(i);
+
+        //act on change of state only
+        if (state != getButtonState(i))
         {
-            bool process = false;
-            buttonType_t type = (buttonType_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_type, i);
+            setButtonState(i, state);
 
-            //act on change of state only
-            if (state != getButtonState(i))
+            //overwrite type under certain conditions
+            switch((buttonMIDImessage_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, i))
             {
-                setButtonState(i, state);
+                case buttonPC:
+                case buttonPCinc:
+                case buttonPCdec:
+                case buttonMMCPlay:
+                case buttonMMCStop:
+                case buttonMMCPause:
+                case buttonCC:
+                case buttonRealTimeClock:
+                case buttonRealTimeStart:
+                case buttonRealTimeContinue:
+                case buttonRealTimeStop:
+                case buttonRealTimeActiveSensing:
+                case buttonRealTimeSystemReset:
+                type = buttonMomentary;
+                break;
 
-                //overwrite type under certain conditions
-                switch((buttonMIDImessage_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, i))
-                {
-                    case buttonPC:
-                    case buttonPCinc:
-                    case buttonPCdec:
-                    case buttonMMCPlay:
-                    case buttonMMCStop:
-                    case buttonMMCPause:
-                    case buttonCC:
-                    case buttonRealTimeClock:
-                    case buttonRealTimeStart:
-                    case buttonRealTimeContinue:
-                    case buttonRealTimeStop:
-                    case buttonRealTimeActiveSensing:
-                    case buttonRealTimeSystemReset:
-                    type = buttonMomentary;
-                    break;
+                case buttonMMCRecord:
+                type = buttonLatching;
+                break;
 
-                    case buttonMMCRecord:
-                    type = buttonLatching;
-                    break;
-
-                    default:
-                    break;
-                }
-
-                switch(type)
-                {
-                    case buttonMomentary:
-                    //always process momentary buttons
-                    process = true;
-                    break;
-
-                    case buttonLatching:
-                    //act on press only
-                    if (state)
-                    {
-                        process = true;
-
-                        if (getLatchingState(i))
-                        {
-                            setLatchingState(i, false);
-                            //overwrite before processing
-                            state = false;
-                        }
-                        else
-                        {
-                            setLatchingState(i, true);
-                            state = true;
-                        }
-                    }
-                    break;
-
-                    default:
-                    break;
-                }
+                default:
+                break;
             }
 
-            if (process)
-                processButton(i, state);
+            switch(type)
+            {
+                case buttonMomentary:
+                //always process momentary buttons
+                process = true;
+                break;
+
+                case buttonLatching:
+                //act on press only
+                if (state)
+                {
+                    process = true;
+
+                    if (getLatchingState(i))
+                    {
+                        setLatchingState(i, false);
+                        //overwrite before processing
+                        state = false;
+                    }
+                    else
+                    {
+                        setLatchingState(i, true);
+                        state = true;
+                    }
+                }
+                break;
+
+                default:
+                break;
+            }
         }
+
+        if (process)
+            processButton(i, state);
     }
 }
 

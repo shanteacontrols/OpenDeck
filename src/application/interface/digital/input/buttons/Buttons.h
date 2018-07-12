@@ -32,6 +32,7 @@ class Buttons
     public:
     Buttons();
 
+    static void init();
     static void update();
     static void processButton(uint8_t buttonID, bool state);
 

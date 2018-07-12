@@ -22,10 +22,44 @@
 
 uint16_t    lastAnalogueValue[MAX_NUMBER_OF_ANALOG];
 uint8_t     fsrPressed[MAX_NUMBER_OF_ANALOG/8+1];
+uint8_t     analogEnabled[MAX_NUMBER_OF_ANALOG/8+1];
+uint8_t     analogInverted[MAX_NUMBER_OF_ANALOG/8+1];
 
+
+///
+/// \brief Checks if analog component is enabled or disabled.
+/// @param [in] analogID    Index of analog component being checked.
+/// \returns True if component is enabled, false otherwise.
+///
+inline bool isAnalogEnabled(uint8_t analogID)
+{
+    uint8_t arrayIndex = analogID/8;
+    uint8_t analogIndex = analogID - 8*arrayIndex;
+
+    return BIT_READ(analogEnabled[arrayIndex], analogIndex);
+}
+
+///
+/// \brief Default constructor.
+///
 Analog::Analog()
 {
-    //def const
+
+}
+
+///
+/// \brief Used to store specific parameters from EEPROM to internal arrays for faster access.
+///
+void Analog::init()
+{
+    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+    {
+        uint8_t arrayIndex = i/8;
+        uint8_t analogIndex = i - 8*arrayIndex;
+
+        BIT_WRITE(analogEnabled[arrayIndex], analogIndex, database.read(DB_BLOCK_ANALOG, dbSection_analog_enable, i));
+        BIT_WRITE(analogInverted[arrayIndex], analogIndex, database.read(DB_BLOCK_ANALOG, dbSection_analog_invert, i));
+    }
 }
 
 void Analog::update()
@@ -39,7 +73,7 @@ void Analog::update()
         int16_t analogData = board.getAnalogValue(i);
 
         //don't process component if it's not enabled
-        if (!database.read(DB_BLOCK_ANALOG, dbSection_analog_enable, i))
+        if (!isAnalogEnabled(i))
             continue;
 
         analogType_t type = (analogType_t)database.read(DB_BLOCK_ANALOG, dbSection_analog_type, i);

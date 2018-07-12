@@ -27,6 +27,8 @@ void init()
     board.init();
     database.init();
     sysEx.init();
+    digitalInput.init();
+    analog.init();
 
     //use recursive parsing when merging is active
     if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
