@@ -263,6 +263,10 @@ ISR(TIMER0_COMPA_vect)
         activeOutColumn++;
         rTime_ms++;
 
+        updateStuff = 0;
+    }
+    else if (updateStuff == 2)
+    {
         if (dIn_count < DIGITAL_IN_BUFFER_SIZE)
         {
             if (++dIn_head == DIGITAL_IN_BUFFER_SIZE)
@@ -272,8 +276,6 @@ ISR(TIMER0_COMPA_vect)
 
             dIn_count++;
         }
-
-        updateStuff = 0;
     }
 }
 
@@ -293,25 +295,13 @@ inline void setMuxInput()
 ///
 ISR(ADC_vect)
 {
-    analogBuffer[analogIndex] += ADC;
-    analogIndex++;
+    analogBuffer[activeMuxInput] += ADC;
     activeMuxInput++;
 
-    bool switchMux = (activeMuxInput == NUMBER_OF_MUX_INPUTS);
-
-    if (switchMux)
+    if (activeMuxInput == NUMBER_OF_MUX_INPUTS)
     {
         activeMuxInput = 0;
-        activeMux++;
-
-        if (activeMux == NUMBER_OF_MUX)
-        {
-            activeMux = 0;
-            analogIndex = 0;
-            analogSampleCounter++;
-        }
-
-        setADCchannel(activeMux);
+        analogSampleCounter++;
     }
 
     //always set mux input
