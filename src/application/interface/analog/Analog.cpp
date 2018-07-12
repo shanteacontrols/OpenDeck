@@ -70,12 +70,11 @@ void Analog::update()
     //check values
     for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
     {
-        int16_t analogData = board.getAnalogValue(i);
-
         //don't process component if it's not enabled
         if (!isAnalogEnabled(i))
             continue;
 
+        int16_t analogData = board.getAnalogValue(i);
         analogType_t type = (analogType_t)database.read(DB_BLOCK_ANALOG, dbSection_analog_type, i);
 
         if (type != aType_button)
