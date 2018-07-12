@@ -30,7 +30,6 @@ volatile uint8_t    digitalInBuffer[DIGITAL_IN_BUFFER_SIZE][DIGITAL_IN_ARRAY_SIZ
 ///
 uint8_t             digitalInBufferReadOnly[DIGITAL_IN_ARRAY_SIZE];
 
-
 #ifdef IN_MATRIX
 ///
 /// \brief Holds value of currently active input matrix column.
