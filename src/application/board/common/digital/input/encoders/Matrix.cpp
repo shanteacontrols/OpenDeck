@@ -34,7 +34,7 @@ int8_t Board::getEncoderState(uint8_t encoderID, uint8_t pulsesPerStep)
 {
     uint8_t column = encoderID % NUMBER_OF_BUTTON_COLUMNS;
     uint8_t row  = (encoderID/NUMBER_OF_BUTTON_COLUMNS)*2;
-    uint8_t pairState = (digitalInBuffer[curentReadPos][column] >> row) & 0x03;
+    uint8_t pairState = (digitalInBufferReadOnly[column] >> row) & 0x03;
 
     return readEncoder(encoderID, pairState, pulsesPerStep);
 }

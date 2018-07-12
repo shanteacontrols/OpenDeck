@@ -24,6 +24,13 @@
 ///
 volatile uint8_t    digitalInBuffer[DIGITAL_IN_BUFFER_SIZE][DIGITAL_IN_ARRAY_SIZE];
 
+///
+/// \brief Read only copy of digital input buffer.
+/// Used to avoid data overwrite from ISR.
+///
+uint8_t             digitalInBufferReadOnly[DIGITAL_IN_ARRAY_SIZE];
+
+
 #ifdef IN_MATRIX
 ///
 /// \brief Holds value of currently active input matrix column.
@@ -46,21 +53,21 @@ volatile uint8_t    dIn_tail;
 ///
 volatile uint8_t    dIn_count;
 
-///
-/// \brief Holds ring buffer index which is currently being processed by interface objects.
-///
-uint8_t             curentReadPos;
-
 
 bool Board::digitalInputDataAvailable()
 {
     if (dIn_count)
     {
-        if (++dIn_tail == DIGITAL_IN_BUFFER_SIZE)
-            dIn_tail = 0;
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        {
+            if (++dIn_tail == DIGITAL_IN_BUFFER_SIZE)
+                dIn_tail = 0;
 
-        curentReadPos = dIn_tail;
-        dIn_count--;
+            for (int i=0; i<DIGITAL_IN_ARRAY_SIZE; i++)
+                digitalInBufferReadOnly[i] = digitalInBuffer[dIn_tail][i];
+
+            dIn_count--;
+        }
 
         return true;
     }

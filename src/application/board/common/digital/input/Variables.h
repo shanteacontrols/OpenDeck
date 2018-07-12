@@ -22,10 +22,10 @@
 #include "board/common/constants/DigitalIn.h"
 
 extern volatile uint8_t     digitalInBuffer[DIGITAL_IN_BUFFER_SIZE][DIGITAL_IN_ARRAY_SIZE];
+extern uint8_t              digitalInBufferReadOnly[DIGITAL_IN_ARRAY_SIZE];
 #ifdef IN_MATRIX
 extern volatile uint8_t     activeInColumn;
 #endif
 extern volatile uint8_t     dIn_head;
 extern volatile uint8_t     dIn_tail;
 extern volatile uint8_t     dIn_count;
-extern uint8_t              curentReadPos;
