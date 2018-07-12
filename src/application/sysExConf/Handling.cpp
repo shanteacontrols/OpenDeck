@@ -309,7 +309,9 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             break;
 
             default:
-            if (database.update(block, sysEx2DB_analog[section], index, newValue))
+            success = database.update(block, sysEx2DB_analog[section], index, newValue);
+
+            if (success)
                 analog.init();
             break;
         }
