@@ -36,9 +36,7 @@ DigitalInput::DigitalInput()
 
 ///
 /// \brief Used to check if button and encoder data is available.
-/// Data source (pins) for both buttons and encoders is same. After reading
-/// stored inputs from board, futher reading must be started manually for
-/// board object. This small abstraction takes care of that.
+/// Data source (pins) for both buttons and encoders is same.
 ///
 void DigitalInput::update()
 {
