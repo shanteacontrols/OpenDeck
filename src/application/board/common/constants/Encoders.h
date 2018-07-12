@@ -22,40 +22,10 @@
 /// \ingroup boardCommon
 /// @{
 
-/*
-    Encoder data formatting, uint16_t variable type
-    0      1      2      3
-    0000 | 0000 | 0000 | 0000
-
-    0 - encoder direction (0/1 - left/right)
-    1 - encoderMoving (0/1/2 - stopped/left/right)
-    2 - counted pulses (default value is 8 to avoid issues with negative values)
-    3 - temp encoder state (2 readings of 2 encoder pairs)
-*/
-
-///
-/// \brief Mask used to clear previous encoder reading.
-///
-#define ENCODER_CLEAR_TEMP_STATE_MASK       0xFFF0
-
-///
-/// \brief Mask used to clear counted pulses from encoder.
-///
-#define ENCODER_CLEAR_PULSES_MASK           0xFF0F
-
-///
-/// \brief Bit location for writing current encoder direction.
-#define ENCODER_DIRECTION_BIT               15
-
-///
-/// \brief Default amount of pulses written initially to every encoder.
-///
-#define ENCODER_DEFAULT_PULSE_COUNT_STATE   8
-
 ///
 /// \brief Lookup table used to convert encoder reading to pulses.
 ///
-const int8_t encoderLookUpTable[] =
+const int8_t encoderLookUpTable[16] =
 {
     0,
     1,

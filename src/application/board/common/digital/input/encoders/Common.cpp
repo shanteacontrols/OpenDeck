@@ -20,64 +20,32 @@
 #include "board/common/constants/Encoders.h"
 
 ///
-/// \brief Array holding processed data from encoders.
+/// \brief Array holding last two readings from encoder pins.
 ///
-uint16_t            encoderData[MAX_NUMBER_OF_ENCODERS];
+uint8_t encoderData[MAX_NUMBER_OF_ENCODERS];
 
-void Board::initEncoders()
-{
-    for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
-    {
-        encoderData[i] |= ((uint16_t)0 << 8);
-        //set number of pulses to 8
-        encoderData[i] |= ((uint16_t)ENCODER_DEFAULT_PULSE_COUNT_STATE << 4);
-    }
-}
+///
+/// \brief Array holding current amount of pulses for all encoders.
+///
+int8_t  encoderPulses[MAX_NUMBER_OF_ENCODERS];
 
 int8_t Board::readEncoder(uint8_t encoderID, uint8_t pairState, uint8_t pulsesPerStep)
 {
+    int8_t returnValue = 0;
+
     //add new data
-    uint8_t newPairData = 0;
-    newPairData |= (((encoderData[encoderID] << 2) & 0x000F) | (uint16_t)pairState);
+    encoderData[encoderID] <<= 2;
+    encoderData[encoderID] |= pairState;
+    encoderData[encoderID] &= 0x0F;
 
-    //remove old data
-    encoderData[encoderID] &= ENCODER_CLEAR_TEMP_STATE_MASK;
+    encoderPulses[encoderID] += encoderLookUpTable[encoderData[encoderID]];
 
-    //shift in new data
-    encoderData[encoderID] |= (uint16_t)newPairData;
+    if (abs(encoderPulses[encoderID]) >= pulsesPerStep)
+    {
+        returnValue = (encoderPulses[encoderID] > 0) ? 1 : -1;
+        //reset count
+        encoderPulses[encoderID] = 0;
+    }
 
-    int8_t encRead = encoderLookUpTable[newPairData];
-
-    if (!encRead)
-        return 0;
-
-    bool newEncoderDirection = encRead > 0;
-    //get current number of pulses from encoderData
-    int8_t currentPulses = (encoderData[encoderID] >> 4) & 0x000F;
-    currentPulses += encRead;
-    //clear current pulses
-    encoderData[encoderID] &= ENCODER_CLEAR_PULSES_MASK;
-    //shift in new pulse count
-    encoderData[encoderID] |= (uint16_t)(currentPulses << 4);
-    //get last encoder direction
-    bool lastEncoderDirection = BIT_READ(encoderData[encoderID], ENCODER_DIRECTION_BIT);
-    //write new encoder direction
-    BIT_WRITE(encoderData[encoderID], ENCODER_DIRECTION_BIT, newEncoderDirection);
-
-    if (lastEncoderDirection != newEncoderDirection)
-        return 0;
-
-    if (currentPulses % pulsesPerStep)
-        return 0;
-
-    //clear current pulses
-    encoderData[encoderID] &= ENCODER_CLEAR_PULSES_MASK;
-
-    //set default pulse count
-    encoderData[encoderID] |= ((uint16_t)ENCODER_DEFAULT_PULSE_COUNT_STATE << 4);
-
-    if (newEncoderDirection)
-        return 1;
-    else
-        return -1;
+    return returnValue;
 }

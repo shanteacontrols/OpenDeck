@@ -33,7 +33,6 @@ void Board::init()
     wdt_disable();
     initPins();
     initAnalog();
-    initEncoders();
 
     #ifdef USB_SUPPORTED
     initMIDI_USB();

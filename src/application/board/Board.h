@@ -354,11 +354,6 @@ class Board
     static void initAnalog();
 
     ///
-    /// \brief Initializes encoder values to default state.
-    ///
-    static void initEncoders();
-
-    ///
     /// \brief Initializes main and PWM timers.
     ///
     static void configureTimers();
