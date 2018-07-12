@@ -52,7 +52,7 @@ void DigitalInput::init()
         uint8_t arrayIndex = i/8;
         uint8_t encoderIndex = i - 8*arrayIndex;
 
-        BIT_WRITE(encoderEnabled[arrayIndex], encoderIndex, 1);//database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i));
+        BIT_WRITE(encoderEnabled[arrayIndex], encoderIndex, database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i));
     }
 
     buttons.init();
