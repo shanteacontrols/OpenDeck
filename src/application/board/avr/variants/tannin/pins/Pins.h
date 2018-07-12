@@ -62,16 +62,16 @@
 #define LED_ROW_4_PIN               7
 
 #define MUX_S0_PORT                 PORTF
-#define MUX_S0_PIN                  7
+#define MUX_S0_PIN                  6
 
 #define MUX_S1_PORT                 PORTF
-#define MUX_S1_PIN                  4
+#define MUX_S1_PIN                  5
 
 #define MUX_S2_PORT                 PORTF
-#define MUX_S2_PIN                  5
+#define MUX_S2_PIN                  7
 
 #define MUX_S3_PORT                 PORTF
-#define MUX_S3_PIN                  6
+#define MUX_S3_PIN                  4
 
 #define MUX_1_IN_PORT               PORTF
 #define MUX_1_IN_PIN                1
