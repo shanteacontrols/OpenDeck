@@ -24,8 +24,9 @@ const char arduinoProMicro_string[] PROGMEM = "Arduino PM";
 const char arduinoUno_string[] PROGMEM = "Arduino Uno";
 const char teensy2pp_string[] PROGMEM = "Teensy++ 2.0";
 const char kodama_string[] PROGMEM = "Kodama";
+const char tannin_string[] PROGMEM = "Tannin";
 
-//match with boardID_t enum
+//match with list from BoardIDs.mk
 PGM_P const boardNameArray[] PROGMEM =
 {
     NULL, //opendeck board, no string
@@ -34,5 +35,7 @@ PGM_P const boardNameArray[] PROGMEM =
     arduinoProMicro_string,
     arduinoUno_string,
     teensy2pp_string,
-    kodama_string
+    kodama_string,
+    tannin_string,
+    NULL //xu2
 };
