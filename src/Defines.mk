@@ -36,7 +36,7 @@ endif
 #board specific
 ifeq ($(findstring opendeck,$(MAKECMDGOALS)), opendeck)
     MCU := atmega32u4
-    DEFINES += BOARD_OPEN_DECK
+    BOARD := BOARD_OPEN_DECK
     DEFINES += USB_SUPPORTED
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += LED_FADING_SUPPORTED
@@ -46,7 +46,7 @@ ifeq ($(findstring opendeck,$(MAKECMDGOALS)), opendeck)
     DEFINES += OUT_MATRIX
 else ifeq ($(findstring tannin,$(MAKECMDGOALS)), tannin)
     MCU := atmega32u4
-    DEFINES += BOARD_TANNIN
+    BOARD := BOARD_TANNIN
     DEFINES += USB_SUPPORTED
     DEFINES += LED_FADING_SUPPORTED
     DEFINES += LED_EXT_INVERT
@@ -55,46 +55,46 @@ else ifeq ($(findstring tannin,$(MAKECMDGOALS)), tannin)
     DEFINES += OUT_MATRIX
 else ifeq ($(findstring leonardo,$(MAKECMDGOALS)), leonardo)
     MCU := atmega32u4
-    DEFINES += BOARD_A_LEO
+    BOARD := BOARD_A_LEO
     DEFINES += USB_SUPPORTED
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += LED_INT_INVERT
 else ifeq ($(findstring pro_micro,$(MAKECMDGOALS)), pro_micro)
     MCU := atmega32u4
-    DEFINES += BOARD_A_PRO_MICRO
+    BOARD := BOARD_A_PRO_MICRO
     DEFINES += USB_SUPPORTED
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += LED_INT_INVERT
 else ifeq ($(findstring kodama,$(MAKECMDGOALS)), kodama)
     MCU := atmega32u4
-    DEFINES += BOARD_KODAMA
+    BOARD := BOARD_KODAMA
     DEFINES += USB_SUPPORTED
     DEFINES += USE_MUX
     DEFINES += LED_EXT_INVERT
 else ifeq ($(findstring teensy2pp,$(MAKECMDGOALS)), teensy2pp)
     MCU := at90usb1286
-    DEFINES += BOARD_T_2PP
+    BOARD := BOARD_T_2PP
     DEFINES += STRING_BUFFER_SIZE=40
     DEFINES += USB_SUPPORTED
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += DISPLAY_SUPPORTED
 else ifeq ($(findstring mega,$(MAKECMDGOALS)), mega)
     MCU := atmega2560
-    DEFINES += BOARD_A_MEGA
+    BOARD := BOARD_A_MEGA
     DEFINES += STRING_BUFFER_SIZE=40
     DEFINES += DISPLAY_SUPPORTED
     DEFINES += DIN_MIDI_SUPPORTED
 else ifeq ($(findstring uno,$(MAKECMDGOALS)), uno)
     MCU := atmega328p
-    DEFINES += BOARD_A_UNO
+    BOARD := BOARD_A_UNO
     DEFINES += DIN_MIDI_SUPPORTED
 else ifeq ($(findstring 16u2,$(MAKECMDGOALS)), 16u2)
     MCU := atmega16u2
-    DEFINES += BOARD_A_xu2
+    BOARD := BOARD_A_xu2
     DEFINES += LED_EXT_INVERT
 else ifeq ($(findstring 8u2,$(MAKECMDGOALS)), 8u2)
     MCU := atmega8u2
-    DEFINES += BOARD_A_xu2
+    BOARD := BOARD_A_xu2
     DEFINES += LED_EXT_INVERT
 else ifeq ($(findstring upload,$(MAKECMDGOALS)), upload)
     #used to set MCU if make upload target is called
@@ -171,3 +171,11 @@ DEFINES += EEPROM_SIZE=$(EEPROM_SIZE)
 #for database, total size is three bytes smaller than full eeprom
 #one byte for reboot selection and two for crc
 DEFINES += LESSDB_SIZE=$(shell echo $(EEPROM_SIZE)-3 | bc)
+DEFINES += $(BOARD)
+BOARD_ID := $(shell awk '/$(BOARD)/{print NR-5}' BoardIDs.mk)
+
+ifeq ($(BOARD_ID),)
+    $(error Board not added to BoardIDs.mk list)
+else
+    DEFINES += BOARD_ID=$(BOARD_ID)
+endif

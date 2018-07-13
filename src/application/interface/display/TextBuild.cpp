@@ -109,22 +109,17 @@ void Display::displayVinfo(bool newFw)
     stringBuffer.startLine();
     stringBuffer.appendText_P(hwVersion_string);
 
-    switch(BOARD_ID)
-    {
-        case BOARD_OPEN_DECK_ID:
-        stringBuffer.appendText("v:");
-        stringBuffer.appendInt(HARDWARE_VERSION_MAJOR);
-        stringBuffer.appendText(".");
-        stringBuffer.appendInt(HARDWARE_VERSION_MINOR);
-        stringBuffer.appendText(".x");
-        stringBuffer.endLine();
-        break;
-
-        default:
-        stringBuffer.appendText_P((char*)pgm_read_word(&(boardNameArray[BOARD_ID])));
-        stringBuffer.endLine();
-        break;
-    }
+    #ifdef BOARD_OPEN_DECK
+    stringBuffer.appendText("v:");
+    stringBuffer.appendInt(HARDWARE_VERSION_MAJOR);
+    stringBuffer.appendText(".");
+    stringBuffer.appendInt(HARDWARE_VERSION_MINOR);
+    stringBuffer.appendText(".x");
+    stringBuffer.endLine();
+    #else
+    stringBuffer.appendText_P((char*)pgm_read_word(&(boardNameArray[BOARD_ID])));
+    stringBuffer.endLine();
+    #endif
 
     updateText(startRow+2, lcdText_temp, getTextCenter(stringBuffer.getSize()));
 

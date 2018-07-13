@@ -24,60 +24,8 @@
 #include "dbms/src/DataTypes.h"
 #include "midi/src/DataTypes.h"
 
-///
-/// \brief List of all supported boards.
-///
-typedef enum
-{
-    BOARD_OPEN_DECK_ID,
-    BOARD_A_LEO_ID,
-    BOARD_A_MEGA_ID,
-    BOARD_A_PRO_MICRO_ID,
-    BOARD_A_UNO_ID,
-    BOARD_T_2PP_ID,
-    BOARD_KODAMA_ID,
-    BOARD_TANNIN_ID
-} boardID_t;
-
 #ifdef __AVR__
 #include "avr/variants/Common.h"
-#endif
-
-#ifdef BOARD_OPEN_DECK
-#define BOARD_ID    BOARD_OPEN_DECK_ID
-#include "avr/variants/opendeck/Hardware.h"
-#include "avr/variants/opendeck/Version.h"
-#elif defined(BOARD_A_LEO)
-#define BOARD_ID    BOARD_A_LEO_ID
-#include "avr/variants/leonardo/Hardware.h"
-#include "avr/variants/leonardo/Version.h"
-#elif defined(BOARD_A_PRO_MICRO)
-#define BOARD_ID    BOARD_A_PRO_MICRO_ID
-#include "avr/variants/leonardo/Hardware.h"
-#include "avr/variants/leonardo/Version.h"
-#elif defined(BOARD_KODAMA)
-#define BOARD_ID    BOARD_KODAMA_ID
-#include "avr/variants/kodama/Hardware.h"
-#include "avr/variants/kodama/Version.h"
-#elif defined(BOARD_A_MEGA)
-#define BOARD_ID    BOARD_A_MEGA_ID
-#include "avr/variants/mega/Hardware.h"
-#include "avr/variants/mega/Version.h"
-#elif defined(BOARD_A_UNO)
-#define BOARD_ID    BOARD_A_UNO_ID
-#include "avr/variants/uno/Hardware.h"
-#include "avr/variants/uno/Version.h"
-#elif defined(BOARD_T_2PP)
-#define BOARD_ID    BOARD_T_2PP_ID
-#include "avr/variants/teensy2pp/Hardware.h"
-#include "avr/variants/teensy2pp/Version.h"
-#elif defined(BOARD_TANNIN)
-#define BOARD_ID    BOARD_TANNIN_ID
-#include "avr/variants/tannin/Hardware.h"
-#include "avr/variants/tannin/Version.h"
-#elif defined(BOARD_A_xu2)
-//no id needed
-#include "avr/variants/xu2/Variables.h"
 #endif
 
 class Board

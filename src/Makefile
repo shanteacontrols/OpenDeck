@@ -37,19 +37,6 @@ endif
 
 LEN_APPEND := 0
 
-#common include files
-INCLUDE_FILES := -include "modules/core/src/Core.h"
-
-ifeq ($(filter xu2, $(BOARD_DIR)), )
-    INCLUDE_FILES += -include "application/OpenDeck.h"
-endif
-
-#common include directories
-INCLUDE_DIRS := \
--I"modules/lufa/" \
--I"modules/" \
--I"application/"
-
 #custom linker script for 32u4/1286 boards
 ifneq ($(filter atmega32u4 at90usb1286, $(MCU)), )
     ifeq ($(MCU),atmega32u4)

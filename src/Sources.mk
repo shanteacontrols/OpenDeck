@@ -9,6 +9,30 @@ else ifneq ($(filter fw_16u2 fw_8u2, $(MAKECMDGOALS)), )
     BOARD_DIR := xu2
 endif
 
+#include everywhere
+INCLUDE_FILES += -include "modules/core/src/Core.h"
+
+#OpenDeck.h not needed on xu2 variants
+ifeq ($(filter xu2, $(BOARD_DIR)), )
+    INCLUDE_FILES += -include "application/OpenDeck.h"
+endif
+
+#common include directories
+INCLUDE_DIRS := \
+-I"modules/lufa/" \
+-I"modules/" \
+-I"application/"
+
+#common board headers used on multiple places in application
+ifeq ($(findstring fw_,$(MAKECMDGOALS)), fw_)
+    ifeq ($(BOARD_DIR),xu2)
+        INCLUDE_FILES += -include "application/board/avr/variants/$(BOARD_DIR)/Variables.h"
+    else
+        INCLUDE_FILES += -include "application/board/avr/variants/$(BOARD_DIR)/Hardware.h"
+        INCLUDE_FILES += -include "application/board/avr/variants/$(BOARD_DIR)/Version.h"
+    endif
+endif
+
 SOURCES :=
 
 #lufa sources
