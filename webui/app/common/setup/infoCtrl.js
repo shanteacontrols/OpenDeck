@@ -55,6 +55,10 @@
                 {
                     $scope.boardName = 'Kodama';
                 }
+                else if (d[9] == 7)
+                {
+                    $scope.boardName = 'Tannin';
+                }
                 else
                 {
                     $scope.boardName = 'UNKNOWN BOARD';
