@@ -76,7 +76,6 @@
 
 ///
 /// \brief Maximum number of encoders.
-/// Since encoders are also connected in button matrix and encoders need two
-/// pins, total number of encoders is total number of buttons divided by two.
+/// Total number of encoders is total number of buttons divided by two.
 ///
 #define MAX_NUMBER_OF_ENCODERS          (MAX_NUMBER_OF_BUTTONS/2)

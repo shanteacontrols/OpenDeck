@@ -103,6 +103,16 @@
 #define NUMBER_OF_LED_TRANSITIONS           64
 
 ///
+/// \brief Main ISR vector name common for all AVR boards.
+///
+#define CORE_ISR                            TIMER0_COMPA_vect
+
+///
+/// \brief ADC ISR vector name common for all AVR boards.
+///
+#define ADC_ISR                             ADC_vect
+
+///
 /// \brief Array holding values needed to achieve more natural LED transition between states.
 ///
 const uint8_t ledTransitionScale[NUMBER_OF_LED_TRANSITIONS] =

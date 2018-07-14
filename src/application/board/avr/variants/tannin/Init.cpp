@@ -117,24 +117,6 @@ void tanninStartUpAnimation()
     wait_ms(2000);
 }
 
-void Board::initAnalog()
-{
-    disconnectDigitalInADC(MUX_1_IN_PIN);
-
-    adcConf adcConfiguration;
-
-    adcConfiguration.prescaler = ADC_PRESCALER_128;
-    adcConfiguration.vref = ADC_VREF_AREF;
-
-    setUpADC(adcConfiguration);
-    setADCchannel(MUX_1_IN_PIN);
-
-    for (int i=0; i<3; i++)
-        getADCvalue();  //few dummy reads to init ADC
-
-    adcInterruptEnable();
-}
-
 void Board::initPins()
 {
     //configure input matrix
@@ -180,6 +162,67 @@ void Board::initPins()
 
     //mux inputs
     setInput(MUX_1_IN_PORT, MUX_1_IN_PIN);
+}
+
+void Board::initAnalog()
+{
+    disconnectDigitalInADC(MUX_1_IN_PIN);
+
+    adcConf adcConfiguration;
+
+    adcConfiguration.prescaler = ADC_PRESCALER_128;
+    adcConfiguration.vref = ADC_VREF_AREF;
+
+    setUpADC(adcConfiguration);
+    setADCchannel(MUX_1_IN_PIN);
+
+    for (int i=0; i<3; i++)
+        getADCvalue();  //few dummy reads to init ADC
+
+    adcInterruptEnable();
+    startADCconversion();
+}
+
+void Board::configureTimers()
+{
+    //clear timer0 conf
+    TCCR0A = 0;
+    TCCR0B = 0;
+    TIMSK0 = 0;
+
+    //clear timer1 conf
+    TCCR1A = 0;
+    TCCR1B = 0;
+
+    //clear timer3 conf
+    TCCR3A = 0;
+    TCCR3B = 0;
+
+    //clear timer4 conf
+    TCCR4A = 0;
+    TCCR4B = 0;
+    TCCR4C = 0;
+    TCCR4D = 0;
+    TCCR4E = 0;
+
+    //set timer1, timer3 and timer4 to phase correct pwm mode
+    //timer 1
+    TCCR1A |= (1<<WGM10);           //phase correct PWM
+    TCCR1B |= (1<<CS10);            //prescaler 1
+    //timer 3
+    TCCR3A |= (1<<WGM30);           //phase correct PWM
+    TCCR3B |= (1<<CS30);            //prescaler 1
+    //timer 4
+    TCCR4A |= (1<<PWM4A);           //Pulse Width Modulator A Enable
+    TCCR4B |= (1<<CS40);            //prescaler 1
+    TCCR4C |= (1<<PWM4D);           //Pulse Width Modulator D Enable
+    TCCR4D |= (1<<WGM40);           //phase correct PWM
+
+    //set timer0 to ctc, used for millis/led matrix
+    TCCR0A |= (1<<WGM01);           //CTC mode
+    TCCR0B |= (1<<CS01)|(1<<CS00);  //prescaler 64
+    OCR0A = 124;                    //500us
+    TIMSK0 |= (1<<OCIE0A);          //compare match interrupt
 }
 
 void Board::ledFlashStartup(bool fwUpdated)

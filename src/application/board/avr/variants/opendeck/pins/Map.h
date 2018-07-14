@@ -18,7 +18,9 @@
 
 #pragma once
 
+#include "board/avr/DataTypes.h"
 #include "Pins.h"
+#include "../Hardware.h"
 
 ///
 /// brief Pin and index remapping used to match indexes on PCB silkscreen.
@@ -60,7 +62,7 @@
 #define MUX_Y15                     3
 #endif
 
-const uint8_t muxPinOrderArray[] =
+const uint8_t muxPinOrderArray[NUMBER_OF_MUX_INPUTS] =
 {
     MUX_Y0,
     MUX_Y1,
@@ -80,12 +82,6 @@ const uint8_t muxPinOrderArray[] =
     MUX_Y15
 };
 
-const uint8_t muxInPinArray[] =
-{
-    MUX_1_IN_PIN,
-    MUX_2_IN_PIN
-};
-
 #define DM_ROW_1_BIT                0
 #define DM_ROW_2_BIT                1
 #define DM_ROW_3_BIT                2
@@ -96,7 +92,7 @@ const uint8_t muxInPinArray[] =
 #define DM_ROW_8_BIT                4
 
 //row bits are stored in inverse order when performing read
-const uint8_t dmRowBitArray[] =
+const uint8_t dmRowBitArray[NUMBER_OF_BUTTON_ROWS] =
 {
     DM_ROW_8_BIT,
     DM_ROW_7_BIT,
@@ -117,7 +113,7 @@ const uint8_t dmRowBitArray[] =
 #define DM_COLUMN_7                 5
 #define DM_COLUMN_8                 6
 
-const uint8_t dmColumnArray[] =
+const uint8_t dmColumnArray[NUMBER_OF_BUTTON_COLUMNS] =
 {
     DM_COLUMN_1,
     DM_COLUMN_2,
@@ -129,30 +125,18 @@ const uint8_t dmColumnArray[] =
     DM_COLUMN_8
 };
 
-///
-/// \brief Array holding LED row pins for easier access.
-///
-const uint8_t ledRowPinArray[] =
-{
-    LED_ROW_1_PIN,
-    LED_ROW_2_PIN,
-    LED_ROW_3_PIN,
-    LED_ROW_4_PIN,
-    LED_ROW_5_PIN,
-    LED_ROW_6_PIN
-};
-
-///
-/// \brief Array holding LED row ports for easier access.
-///
-volatile uint8_t *ledRowPortArray[] =
-{
-    &LED_ROW_1_PORT,
-    &LED_ROW_2_PORT,
-    &LED_ROW_3_PORT,
-    &LED_ROW_4_PORT,
-    &LED_ROW_5_PORT,
-    &LED_ROW_6_PORT
-};
-
 /// @}
+
+///
+/// \brief Array holding ports and bits for all LED rows.
+///
+extern mcuPin_t ledRowPins[NUMBER_OF_LED_ROWS];
+
+///
+/// \brief Array holding ADC read pins/channels.
+///
+const uint8_t adcChannelArray[NUMBER_OF_MUX] =
+{
+    MUX_1_IN_PIN,
+    MUX_2_IN_PIN
+};

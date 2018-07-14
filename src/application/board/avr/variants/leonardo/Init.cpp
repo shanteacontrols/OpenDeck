@@ -88,6 +88,23 @@ void Board::initPins()
     INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
 }
 
+void Board::initAnalog()
+{
+    adcConf adcConfiguration;
+
+    adcConfiguration.prescaler = ADC_PRESCALER_128;
+    adcConfiguration.vref = ADC_VREF_AVCC;
+
+    setUpADC(adcConfiguration);
+    setADCchannel(AI_1_PIN);
+
+    for (int i=0; i<3; i++)
+        getADCvalue();  //few dummy reads to init ADC
+
+    adcInterruptEnable();
+    startADCconversion();
+}
+
 void Board::configureTimers()
 {
     //clear timer0 conf
@@ -126,24 +143,8 @@ void Board::configureTimers()
     //set timer0 to ctc, used for millis/led matrix
     TCCR0A |= (1<<WGM01);           //CTC mode
     TCCR0B |= (1<<CS01)|(1<<CS00);  //prescaler 64
-    OCR0A = 62;                     //250us
+    OCR0A = 124;                    //500us
     TIMSK0 |= (1<<OCIE0A);          //compare match interrupt
-}
-
-void Board::initAnalog()
-{
-    adcConf adcConfiguration;
-
-    adcConfiguration.prescaler = ADC_PRESCALER_128;
-    adcConfiguration.vref = ADC_VREF_AVCC;
-
-    setUpADC(adcConfiguration);
-    setADCchannel(AI_1_PIN);
-
-    for (int i=0; i<3; i++)
-        getADCvalue();  //few dummy reads to init ADC
-
-    adcInterruptEnable();
 }
 
 void Board::ledFlashStartup(bool fwUpdated)

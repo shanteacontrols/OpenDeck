@@ -18,10 +18,11 @@
 
 #pragma once
 
-#include "../Hardware.h"
+#include "board/avr/DataTypes.h"
 #include "Pins.h"
+#include "../Hardware.h"
 
-const uint8_t aInPinMap[MAX_NUMBER_OF_ANALOG] =
+const uint8_t adcChannelArray[MAX_NUMBER_OF_ANALOG]
 {
     AI_1_PIN,
     AI_2_PIN,
@@ -31,42 +32,12 @@ const uint8_t aInPinMap[MAX_NUMBER_OF_ANALOG] =
     AI_6_PIN
 };
 
-volatile uint8_t *dInPortArray[] =
-{
-    &DI_1_PORT,
-    &DI_2_PORT,
-    &DI_3_PORT,
-    &DI_4_PORT,
-    &DI_5_PORT,
-    &DI_6_PORT
-};
+///
+/// \brief Array holding ports and bits for all digital input pins.
+///
+extern mcuPin_t dInPins[MAX_NUMBER_OF_BUTTONS];
 
-const uint8_t dInPinArray[] =
-{
-    DI_1_PIN,
-    DI_2_PIN,
-    DI_3_PIN,
-    DI_4_PIN,
-    DI_5_PIN,
-    DI_6_PIN
-};
-
-volatile uint8_t *dOutPortArray[] =
-{
-    &DO_1_PORT,
-    &DO_2_PORT,
-    &DO_3_PORT,
-    &DO_4_PORT,
-    &DO_5_PORT,
-    &DO_6_PORT,
-};
-
-const uint8_t dOutPinArray[] =
-{
-    DO_1_PIN,
-    DO_2_PIN,
-    DO_3_PIN,
-    DO_4_PIN,
-    DO_5_PIN,
-    DO_6_PIN,
-};
+///
+/// \brief Array holding ports and bits for all digital output pins.
+///
+extern mcuPin_t dOutPins[MAX_NUMBER_OF_LEDS];

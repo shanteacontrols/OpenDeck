@@ -16,6 +16,4 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-extern volatile uint8_t     activeOutColumn;
+#include "Map.h"

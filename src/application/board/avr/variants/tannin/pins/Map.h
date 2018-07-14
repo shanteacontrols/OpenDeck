@@ -18,26 +18,19 @@
 
 #pragma once
 
+#include "board/avr/DataTypes.h"
 #include "Pins.h"
+#include "../Hardware.h"
 
 ///
-/// \brief Array holding LED row pins for easier access.
+/// \brief Array holding ports and bits for all LED rows.
 ///
-const uint8_t ledRowPinArray[] =
-{
-    LED_ROW_1_PIN,
-    LED_ROW_2_PIN,
-    LED_ROW_3_PIN,
-    LED_ROW_4_PIN,
-};
+extern mcuPin_t ledRowPins[NUMBER_OF_LED_ROWS];
 
 ///
-/// \brief Array holding LED row ports for easier access.
+/// \brief Array holding ADC read pins/channels.
 ///
-volatile uint8_t *ledRowPortArray[] =
+const uint8_t adcChannelArray[NUMBER_OF_MUX] =
 {
-    &LED_ROW_1_PORT,
-    &LED_ROW_2_PORT,
-    &LED_ROW_3_PORT,
-    &LED_ROW_4_PORT,
+    MUX_1_IN_PIN,
 };

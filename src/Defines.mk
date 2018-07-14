@@ -44,6 +44,7 @@ ifeq ($(findstring opendeck,$(MAKECMDGOALS)), opendeck)
     DEFINES += USE_MUX
     DEFINES += IN_MATRIX
     DEFINES += OUT_MATRIX
+    DEFINES += LED_INDICATORS
 else ifeq ($(findstring tannin,$(MAKECMDGOALS)), tannin)
     MCU := atmega32u4
     BOARD := BOARD_TANNIN
@@ -92,10 +93,12 @@ else ifeq ($(findstring 16u2,$(MAKECMDGOALS)), 16u2)
     MCU := atmega16u2
     BOARD := BOARD_A_xu2
     DEFINES += LED_EXT_INVERT
+    DEFINES += LED_INDICATORS
 else ifeq ($(findstring 8u2,$(MAKECMDGOALS)), 8u2)
     MCU := atmega8u2
     BOARD := BOARD_A_xu2
     DEFINES += LED_EXT_INVERT
+    DEFINES += LED_INDICATORS
 else ifeq ($(findstring upload,$(MAKECMDGOALS)), upload)
     #used to set MCU if make upload target is called
     #check if MCU file exists

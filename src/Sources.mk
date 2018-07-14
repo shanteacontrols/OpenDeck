@@ -21,7 +21,9 @@ endif
 INCLUDE_DIRS := \
 -I"modules/lufa/" \
 -I"modules/" \
--I"application/"
+-I"application/" \
+-I"application/board/avr/variants/$(BOARD_DIR)/"
+
 
 #common board headers used on multiple places in application
 ifeq ($(findstring fw_,$(MAKECMDGOALS)), fw_)
@@ -99,12 +101,15 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         application/sysExConf/Handling.cpp \
         modules/midi/src/MIDI.cpp \
         modules/sysex/src/SysEx.cpp \
-        application/board/avr/variants/$(BOARD_DIR)/Init.cpp \
-        application/board/avr/variants/$(BOARD_DIR)/ISR.cpp \
         application/board/avr/variants/Common.cpp \
+        application/board/avr/variants/ISR.cpp \
         application/board/common/analog/input/Common.cpp \
         application/board/common/digital/input/encoders/Common.cpp \
         application/board/common/digital/input/DigitalIn.cpp \
+        application/board/common/digital/output/DigitalOut.cpp \
+        application/board/avr/variants/$(BOARD_DIR)/HardwareControl.cpp \
+        application/board/avr/variants/$(BOARD_DIR)/Init.cpp \
+        application/board/avr/variants/$(BOARD_DIR)/pins/Map.cpp \
 
         #board specific
         ifneq ($(filter USE_MUX, $(DEFINES)), )
@@ -124,7 +129,6 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
 
         ifneq ($(filter OUT_MATRIX, $(DEFINES)), )
         SOURCES += \
-        application/board/common/digital/output/matrix/OutMatrix.cpp \
         application/board/common/digital/output/leds/Matrix.cpp
         else
         SOURCES += \

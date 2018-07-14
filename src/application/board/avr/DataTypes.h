@@ -18,30 +18,12 @@
 
 #pragma once
 
-#include "Pins.h"
-#include "../Hardware.h"
 
-const uint8_t adcChannelArray[NUMBER_OF_MUX] =
+///
+/// \brief Structure used to define single MCU pin.
+///
+typedef struct
 {
-    5,  //MUX_1_IN_PIN,
-    6,  //MUX_2_IN_PIN,
-    7,  //MUX_3_IN_PIN,
-    13, //MUX_4_IN_PIN,
-};
-
-//12 connected leds on kodama board
-const uint8_t ledMapArray[12] =
-{
-    0,
-    14,
-    2,
-    1,
-    3,
-    4,
-    9,
-    8,
-    11,
-    10,
-    13,
-    12
-};
+    uint8_t *port;
+    uint8_t pin;
+} mcuPin_t;

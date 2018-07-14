@@ -16,18 +16,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "board/Board.h"
 #include "pins/Map.h"
-#include "board/common/analog/input/Variables.h"
-#include "board/common/digital/input/Variables.h"
 #include "../../../../interface/digital/output/leds/Variables.h"
 #include "../../../../interface/digital/output/leds/Helpers.h"
-#include "board/common/indicators/Variables.h"
 #include "board/common/constants/LEDs.h"
+#include "board/common/digital/input/Variables.h"
+#include "board/common/digital/output/Variables.h"
 
-volatile uint32_t rTime_ms;
-
-static uint8_t lastLEDstate[MAX_NUMBER_OF_LEDS];
 
 inline void storeDigitalIn()
 {
@@ -40,7 +35,7 @@ inline void storeDigitalIn()
             if (buttonIndex >= MAX_NUMBER_OF_BUTTONS)
                 break; //done
 
-            BIT_WRITE(digitalInBuffer[dIn_head][i], j, !readPin(*(dInPortArray[buttonIndex]), dInPinArray[buttonIndex]));
+            BIT_WRITE(digitalInBuffer[dIn_head][i], j, !readPin(*dInPins[buttonIndex].port, dInPins[buttonIndex].pin));
         }
     }
 }
@@ -57,59 +52,14 @@ inline void checkLEDs()
         {
             if (ledStateSingle)
             {
-                EXT_LED_ON(*(dOutPortArray[i]), dOutPinArray[i]);
+                EXT_LED_ON(*dOutPins[i].port, dOutPins[i].pin);
             }
             else
             {
-                EXT_LED_OFF(*(dOutPortArray[i]), dOutPinArray[i]);
+                EXT_LED_OFF(*dOutPins[i].port, dOutPins[i].pin);
             }
 
             lastLEDstate[i] = ledStateSingle;
         }
     }
-}
-
-ISR(TIMER0_COMPA_vect)
-{
-    //update buttons and leds every 1ms
-    //update run timer every 1ms
-    //use this timer to start adc conversion every 250us
-
-    static uint8_t updateStuff = 0;
-    updateStuff++;
-
-    if (analogSampleCounter != NUMBER_OF_ANALOG_SAMPLES)
-        startADCconversion();
-
-    if (updateStuff == 4)
-    {
-        checkLEDs();
-        rTime_ms++;
-        updateStuff = 0;
-
-        if (dIn_count < DIGITAL_IN_BUFFER_SIZE)
-        {
-            if (++dIn_head == DIGITAL_IN_BUFFER_SIZE)
-                dIn_head = 0;
-
-            storeDigitalIn();
-
-            dIn_count++;
-        }
-    }
-}
-
-ISR(ADC_vect)
-{
-    analogBuffer[analogIndex] += ADC;
-    analogIndex++;
-
-    if (analogIndex == MAX_NUMBER_OF_ANALOG)
-    {
-        analogIndex = 0;
-        analogSampleCounter++;
-    }
-
-    //always set mux input
-    setADCchannel(analogIndex);
 }

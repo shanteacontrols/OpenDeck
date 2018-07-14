@@ -16,32 +16,27 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "Map.h"
 
-#include "Pins.h"
-#include "../Hardware.h"
-
-const uint8_t adcChannelArray[NUMBER_OF_MUX] =
+mcuPin_t ledRowPins[NUMBER_OF_LED_ROWS] =
 {
-    5,  //MUX_1_IN_PIN,
-    6,  //MUX_2_IN_PIN,
-    7,  //MUX_3_IN_PIN,
-    13, //MUX_4_IN_PIN,
-};
+    {
+        .port = (uint8_t*)LED_ROW_1_PORT,
+        .pin = LED_ROW_1_PIN,
+    },
 
-//12 connected leds on kodama board
-const uint8_t ledMapArray[12] =
-{
-    0,
-    14,
-    2,
-    1,
-    3,
-    4,
-    9,
-    8,
-    11,
-    10,
-    13,
-    12
+    {
+        .port = (uint8_t*)LED_ROW_2_PORT,
+        .pin = LED_ROW_2_PIN,
+    },
+
+    {
+        .port = (uint8_t*)LED_ROW_3_PORT,
+        .pin = LED_ROW_3_PIN,
+    },
+
+    {
+        .port = (uint8_t*)LED_ROW_4_PORT,
+        .pin = LED_ROW_4_PIN,
+    }
 };

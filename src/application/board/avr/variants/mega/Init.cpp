@@ -231,6 +231,7 @@ void Board::initAnalog()
         getADCvalue();  //few dummy reads to init ADC
 
     adcInterruptEnable();
+    startADCconversion();
 }
 
 void Board::configureTimers()
@@ -259,7 +260,7 @@ void Board::configureTimers()
     //set timer0 to ctc, used for millis/led matrix
     TCCR0A |= (1<<WGM01);           //CTC mode
     TCCR0B |= (1<<CS01)|(1<<CS00);  //prescaler 64
-    OCR0A = 62;                     //250us
+    OCR0A = 124;                    //500us
     TIMSK0 |= (1<<OCIE0A);          //compare match interrupt
 }
 

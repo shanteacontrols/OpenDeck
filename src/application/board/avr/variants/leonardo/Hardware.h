@@ -18,7 +18,7 @@
 
 #pragma once
 
-#define BUTTON_DEBOUNCE_COMPARE 0b11111000
+#define BUTTON_DEBOUNCE_COMPARE         0b11111000
 
 #ifdef BOARD_A_PRO_MICRO
 #define MAX_NUMBER_OF_ANALOG            4

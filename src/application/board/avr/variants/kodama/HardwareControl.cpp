@@ -16,19 +16,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "board/Board.h"
 #include "pins/Map.h"
-#include "board/common/analog/input/Variables.h"
-#include "board/common/digital/input/Variables.h"
 #include "../../../../interface/digital/output/leds/Variables.h"
 #include "../../../../interface/digital/output/leds/Helpers.h"
-#include "board/common/indicators/Variables.h"
 #include "board/common/constants/LEDs.h"
+#include "board/common/analog/input/Variables.h"
+#include "board/common/digital/input/Variables.h"
+#include "board/common/digital/output/Variables.h"
 
-volatile uint32_t rTime_ms;
-
-volatile bool MIDIreceived, MIDIsent;
-static uint8_t lastLEDstate[MAX_NUMBER_OF_LEDS];
 
 inline void storeDigitalIn()
 {
@@ -79,64 +74,10 @@ inline void checkLEDs()
     }
 }
 
-ISR(TIMER0_COMPA_vect)
-{
-    static uint8_t updateStuff = 0;
-    updateStuff++;
-
-    if (analogSampleCounter != NUMBER_OF_ANALOG_SAMPLES)
-        startADCconversion();
-
-    if (updateStuff == 4)
-    {
-        rTime_ms++;
-        checkLEDs();
-
-        if (dIn_count < DIGITAL_IN_BUFFER_SIZE)
-        {
-            if (++dIn_head == DIGITAL_IN_BUFFER_SIZE)
-                dIn_head = 0;
-
-            storeDigitalIn();
-
-            dIn_count++;
-        }
-
-        updateStuff = 0;
-    }
-}
-
 inline void setMuxInput()
 {
     BIT_READ(activeMuxInput, 0) ? setHigh(MUX_S0_PORT, MUX_S0_PIN) : setLow(MUX_S0_PORT, MUX_S0_PIN);
     BIT_READ(activeMuxInput, 1) ? setHigh(MUX_S1_PORT, MUX_S1_PIN) : setLow(MUX_S1_PORT, MUX_S1_PIN);
     BIT_READ(activeMuxInput, 2) ? setHigh(MUX_S2_PORT, MUX_S2_PIN) : setLow(MUX_S2_PORT, MUX_S2_PIN);
     BIT_READ(activeMuxInput, 3) ? setHigh(MUX_S3_PORT, MUX_S3_PIN) : setLow(MUX_S3_PORT, MUX_S3_PIN);
-}
-
-ISR(ADC_vect)
-{
-    analogBuffer[analogIndex] += ADC;
-    analogIndex++;
-    activeMuxInput++;
-
-    bool switchMux = (activeMuxInput == NUMBER_OF_MUX_INPUTS);
-
-    if (switchMux)
-    {
-        activeMuxInput = 0;
-        activeMux++;
-
-        if (activeMux == NUMBER_OF_MUX)
-        {
-            activeMux = 0;
-            analogIndex = 0;
-            analogSampleCounter++;
-        }
-
-        setADCchannel(muxInPinArray[activeMux]);
-    }
-
-    //always set mux input
-    setMuxInput();
 }

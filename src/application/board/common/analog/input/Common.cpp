@@ -161,4 +161,5 @@ void Board::continueADCreadout()
 {
     analogSampleCounter = 0;
     analogIndex = 0;
+    startADCconversion();
 }
