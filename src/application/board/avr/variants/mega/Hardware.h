@@ -18,7 +18,7 @@
 
 #pragma once
 
-#define BUTTON_DEBOUNCE_COMPARE 0b11111000
+#define BUTTON_DEBOUNCE_COMPARE         0b11111000
 
 #define MAX_NUMBER_OF_ANALOG            16
 #define MAX_NUMBER_OF_BUTTONS           32
