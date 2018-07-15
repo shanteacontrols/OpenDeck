@@ -17,6 +17,7 @@
 */
 
 #include "LEDs.h"
+#include "board/Board.h"
 
 static bool         blinkState;
 

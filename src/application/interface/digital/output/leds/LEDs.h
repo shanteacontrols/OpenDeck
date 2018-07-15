@@ -21,7 +21,6 @@
 
 #include "DataTypes.h"
 #include "Constants.h"
-#include "../../../../board/Board.h"
 
 ///
 /// \brief LED handling.

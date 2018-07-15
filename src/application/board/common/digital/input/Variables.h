@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "board/Board.h"
 #include "board/common/constants/DigitalIn.h"
 
 extern volatile uint8_t     digitalInBuffer[DIGITAL_IN_BUFFER_SIZE][DIGITAL_IN_ARRAY_SIZE];

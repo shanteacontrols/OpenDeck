@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "board/Board.h"
 #include "../Variables.h"
 #include "board/common/constants/Buttons.h"
 

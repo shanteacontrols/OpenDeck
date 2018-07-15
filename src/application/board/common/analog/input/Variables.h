@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "board/Board.h"
+#include "Hardware.h"
 
 extern uint8_t              activeMux;
 extern uint8_t              activeMuxInput;

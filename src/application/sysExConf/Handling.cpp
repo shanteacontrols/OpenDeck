@@ -16,10 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "SysExConf.h"
-#include "../interface/Interface.h"
 #include "../Version.h"
 #include "Layout.h"
+#include "board/Board.h"
 
 SysExConfig::SysExConfig()
 {

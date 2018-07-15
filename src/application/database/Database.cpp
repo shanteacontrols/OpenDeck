@@ -16,10 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Database.h"
 #include "../interface/display/Config.h"
-#include "blocks/LEDs.h"
-#include "../interface/digital/output/leds/DataTypes.h"
 #include "../interface/digital/output/leds/Constants.h"
 #include "Layout.h"
 

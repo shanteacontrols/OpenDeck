@@ -19,7 +19,6 @@
 #include "board/Board.h"
 #include "Common.h"
 #include "HardwareControl.cpp"
-#include "Hardware.h"
 #include "board/common/analog/input/Variables.h"
 #include "board/common/indicators/Variables.h"
 

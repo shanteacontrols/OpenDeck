@@ -17,7 +17,6 @@
 */
 
 #include "Analog.h"
-#include "../../board/Board.h"
 #include "sysex/src/SysEx.h"
 #include "../cinfo/CInfo.h"
 #include "Variables.h"

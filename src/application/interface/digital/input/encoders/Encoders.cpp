@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Encoders.h"
 #include "Constants.h"
 #include "board/Board.h"
 #include "../../../../database/Database.h"

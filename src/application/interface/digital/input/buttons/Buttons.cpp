@@ -16,9 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Buttons.h"
 #include "board/Board.h"
-#include "database/Database.h"
 #include "interface/digital/output/leds/LEDs.h"
 #include "sysex/src/SysEx.h"
 #include "interface/cinfo/CInfo.h"

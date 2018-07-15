@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "board/Board.h"
 #include "../Variables.h"
 
 uint8_t Board::getEncoderPair(uint8_t buttonID)

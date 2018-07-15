@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "board/Board.h"
 #include "board/common/digital/input/Variables.h"
 
 bool Board::getButtonState(uint8_t buttonIndex)

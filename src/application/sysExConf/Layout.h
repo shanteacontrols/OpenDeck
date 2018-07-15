@@ -20,7 +20,6 @@
 
 #include "SysExConf.h"
 #include "../interface/Interface.h"
-#include "CustomIDs.h"
 
 static sysExSection_t midiSections[SYSEX_SECTIONS_MIDI] =
 {

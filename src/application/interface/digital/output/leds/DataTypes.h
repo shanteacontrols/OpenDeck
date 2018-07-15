@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include <inttypes.h>
-
 typedef enum
 {
     rgb_R,
