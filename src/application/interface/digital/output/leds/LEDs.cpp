@@ -41,17 +41,23 @@ LEDs::LEDs()
 void LEDs::init()
 {
     setBlinkTime(database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterBlinkTime)*BLINK_TIME_SYSEX_MULTIPLIER);
-    #ifdef LED_FADING_SUPPORTED
-    setFadeTime(database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterFadeTime));
-    #endif
 
     if (database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterStartUpRoutine))
     {
+        //set to slowest fading speed for effect
+        #ifdef LED_FADING_SUPPORTED
+        setFadeTime(1);
+        #endif
+
         if (board.startUpAnimation != NULL)
             board.startUpAnimation();
         else
             startUpAnimation();
     }
+
+    #ifdef LED_FADING_SUPPORTED
+    setFadeTime(database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterFadeTime));
+    #endif
 }
 
 void LEDs::update()
