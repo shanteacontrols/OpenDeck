@@ -31,7 +31,6 @@ ifeq ($(findstring fw_,$(MAKECMDGOALS)), fw_)
         INCLUDE_FILES += -include "application/board/avr/variants/$(BOARD_DIR)/Variables.h"
     else
         INCLUDE_FILES += -include "application/board/avr/variants/$(BOARD_DIR)/Hardware.h"
-        INCLUDE_FILES += -include "application/board/avr/variants/$(BOARD_DIR)/Version.h"
     endif
 endif
 

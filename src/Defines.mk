@@ -45,6 +45,8 @@ ifeq ($(findstring opendeck,$(MAKECMDGOALS)), opendeck)
     DEFINES += IN_MATRIX
     DEFINES += OUT_MATRIX
     DEFINES += LED_INDICATORS
+    HARDWARE_VERSION_MAJOR := 1
+    HARDWARE_VERSION_MINOR := 2
 else ifeq ($(findstring tannin,$(MAKECMDGOALS)), tannin)
     MCU := atmega32u4
     BOARD := BOARD_TANNIN
@@ -54,24 +56,32 @@ else ifeq ($(findstring tannin,$(MAKECMDGOALS)), tannin)
     DEFINES += USE_MUX
     DEFINES += IN_MATRIX
     DEFINES += OUT_MATRIX
+    HARDWARE_VERSION_MAJOR := 3
+    HARDWARE_VERSION_MINOR := 0
 else ifeq ($(findstring leonardo,$(MAKECMDGOALS)), leonardo)
     MCU := atmega32u4
     BOARD := BOARD_A_LEO
     DEFINES += USB_SUPPORTED
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += LED_INT_INVERT
+    HARDWARE_VERSION_MAJOR := 1
+    HARDWARE_VERSION_MINOR := 0
 else ifeq ($(findstring pro_micro,$(MAKECMDGOALS)), pro_micro)
     MCU := atmega32u4
     BOARD := BOARD_A_PRO_MICRO
     DEFINES += USB_SUPPORTED
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += LED_INT_INVERT
+    HARDWARE_VERSION_MAJOR := 1
+    HARDWARE_VERSION_MINOR := 0
 else ifeq ($(findstring kodama,$(MAKECMDGOALS)), kodama)
     MCU := atmega32u4
     BOARD := BOARD_KODAMA
     DEFINES += USB_SUPPORTED
     DEFINES += USE_MUX
     DEFINES += LED_EXT_INVERT
+    HARDWARE_VERSION_MAJOR := 1
+    HARDWARE_VERSION_MINOR := 0
 else ifeq ($(findstring teensy2pp,$(MAKECMDGOALS)), teensy2pp)
     MCU := at90usb1286
     BOARD := BOARD_T_2PP
@@ -79,26 +89,36 @@ else ifeq ($(findstring teensy2pp,$(MAKECMDGOALS)), teensy2pp)
     DEFINES += USB_SUPPORTED
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += DISPLAY_SUPPORTED
+    HARDWARE_VERSION_MAJOR := 1
+    HARDWARE_VERSION_MINOR := 0
 else ifeq ($(findstring mega,$(MAKECMDGOALS)), mega)
     MCU := atmega2560
     BOARD := BOARD_A_MEGA
     DEFINES += STRING_BUFFER_SIZE=40
     DEFINES += DISPLAY_SUPPORTED
     DEFINES += DIN_MIDI_SUPPORTED
+    HARDWARE_VERSION_MAJOR := 1
+    HARDWARE_VERSION_MINOR := 0
 else ifeq ($(findstring uno,$(MAKECMDGOALS)), uno)
     MCU := atmega328p
     BOARD := BOARD_A_UNO
     DEFINES += DIN_MIDI_SUPPORTED
+    HARDWARE_VERSION_MAJOR := 1
+    HARDWARE_VERSION_MINOR := 0
 else ifeq ($(findstring 16u2,$(MAKECMDGOALS)), 16u2)
     MCU := atmega16u2
     BOARD := BOARD_A_xu2
     DEFINES += LED_EXT_INVERT
     DEFINES += LED_INDICATORS
+    HARDWARE_VERSION_MAJOR := 1
+    HARDWARE_VERSION_MINOR := 0
 else ifeq ($(findstring 8u2,$(MAKECMDGOALS)), 8u2)
     MCU := atmega8u2
     BOARD := BOARD_A_xu2
     DEFINES += LED_EXT_INVERT
     DEFINES += LED_INDICATORS
+    HARDWARE_VERSION_MAJOR := 1
+    HARDWARE_VERSION_MINOR := 0
 else ifeq ($(findstring upload,$(MAKECMDGOALS)), upload)
     #used to set MCU if make upload target is called
     #check if MCU file exists
@@ -182,3 +202,6 @@ ifeq ($(BOARD_ID),)
 else
     DEFINES += BOARD_ID=$(BOARD_ID)
 endif
+
+DEFINES += HARDWARE_VERSION_MAJOR=$(HARDWARE_VERSION_MAJOR)
+DEFINES += HARDWARE_VERSION_MINOR=$(HARDWARE_VERSION_MINOR)
