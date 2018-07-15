@@ -39,3 +39,5 @@ class DigitalInput
 /// \brief External definition of DigitalInput class instance.
 ///
 extern DigitalInput digitalInput;
+
+/// @}

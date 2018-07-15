@@ -136,7 +136,7 @@ ser_list:
 #other targets
 clean:
 	@echo Cleaning up.
-	@rm -rf build/
+	@rm -rf build/ ../Documentation/
 
 target_print:
 	@echo Building target $(MAKECMDGOALS)
