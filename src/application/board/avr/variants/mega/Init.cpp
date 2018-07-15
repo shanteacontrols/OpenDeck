@@ -249,14 +249,6 @@ void Board::configureTimers()
     TCCR3A = 0;
     TCCR3B = 0;
 
-    //set timer1, timer3 and timer4 to phase correct pwm mode
-    //timer 1
-    TCCR1A |= (1<<WGM10);           //phase correct PWM
-    TCCR1B |= (1<<CS10);            //prescaler 1
-    //timer 3
-    TCCR3A |= (1<<WGM30);           //phase correct PWM
-    TCCR3B |= (1<<CS30);            //prescaler 1
-
     //set timer0 to ctc, used for millis/led matrix
     TCCR0A |= (1<<WGM01);           //CTC mode
     TCCR0B |= (1<<CS01)|(1<<CS00);  //prescaler 64
