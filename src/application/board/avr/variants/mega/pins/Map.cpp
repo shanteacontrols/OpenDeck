@@ -21,162 +21,162 @@
 mcuPin_t dInPins[MAX_NUMBER_OF_BUTTONS] =
 {
     {
-        .port = (uint8_t*)DI_1_PORT,
+        .port = &DI_1_PORT,
         .pin = DI_1_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_2_PORT,
+        .port = &DI_2_PORT,
         .pin = DI_2_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_3_PORT,
+        .port = &DI_3_PORT,
         .pin = DI_3_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_4_PORT,
+        .port = &DI_4_PORT,
         .pin = DI_4_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_5_PORT,
+        .port = &DI_5_PORT,
         .pin = DI_5_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_6_PORT,
+        .port = &DI_6_PORT,
         .pin = DI_6_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_7_PORT,
+        .port = &DI_7_PORT,
         .pin = DI_7_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_8_PORT,
+        .port = &DI_8_PORT,
         .pin = DI_8_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_9_PORT,
+        .port = &DI_9_PORT,
         .pin = DI_9_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_10_PORT,
+        .port = &DI_10_PORT,
         .pin = DI_10_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_11_PORT,
+        .port = &DI_11_PORT,
         .pin = DI_11_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_12_PORT,
+        .port = &DI_12_PORT,
         .pin = DI_12_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_13_PORT,
+        .port = &DI_13_PORT,
         .pin = DI_13_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_14_PORT,
+        .port = &DI_14_PORT,
         .pin = DI_14_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_15_PORT,
+        .port = &DI_15_PORT,
         .pin = DI_15_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_16_PORT,
+        .port = &DI_16_PORT,
         .pin = DI_16_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_17_PORT,
+        .port = &DI_17_PORT,
         .pin = DI_17_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_18_PORT,
+        .port = &DI_18_PORT,
         .pin = DI_18_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_19_PORT,
+        .port = &DI_19_PORT,
         .pin = DI_19_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_20_PORT,
+        .port = &DI_20_PORT,
         .pin = DI_20_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_21_PORT,
+        .port = &DI_21_PORT,
         .pin = DI_21_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_22_PORT,
+        .port = &DI_22_PORT,
         .pin = DI_22_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_23_PORT,
+        .port = &DI_23_PORT,
         .pin = DI_23_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_24_PORT,
+        .port = &DI_24_PORT,
         .pin = DI_24_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_25_PORT,
+        .port = &DI_25_PORT,
         .pin = DI_25_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_26_PORT,
+        .port = &DI_26_PORT,
         .pin = DI_26_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_27_PORT,
+        .port = &DI_27_PORT,
         .pin = DI_27_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_28_PORT,
+        .port = &DI_28_PORT,
         .pin = DI_28_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_29_PORT,
+        .port = &DI_29_PORT,
         .pin = DI_29_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_30_PORT,
+        .port = &DI_30_PORT,
         .pin = DI_30_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_31_PORT,
+        .port = &DI_31_PORT,
         .pin = DI_31_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_32_PORT,
+        .port = &DI_32_PORT,
         .pin = DI_32_PIN,
     },
 };
@@ -184,82 +184,82 @@ mcuPin_t dInPins[MAX_NUMBER_OF_BUTTONS] =
 mcuPin_t dOutPins[MAX_NUMBER_OF_LEDS] =
 {
     {
-        .port = (uint8_t*)DO_1_PORT,
+        .port = &DO_1_PORT,
         .pin = DO_1_PIN,
     },
 
     {
-        .port = (uint8_t*)DO_2_PORT,
+        .port = &DO_2_PORT,
         .pin = DO_2_PIN,
     },
 
     {
-        .port = (uint8_t*)DO_3_PORT,
+        .port = &DO_3_PORT,
         .pin = DO_3_PIN,
     },
 
     {
-        .port = (uint8_t*)DO_4_PORT,
+        .port = &DO_4_PORT,
         .pin = DO_4_PIN,
     },
 
     {
-        .port = (uint8_t*)DO_5_PORT,
+        .port = &DO_5_PORT,
         .pin = DO_5_PIN,
     },
 
     {
-        .port = (uint8_t*)DO_6_PORT,
+        .port = &DO_6_PORT,
         .pin = DO_6_PIN,
     },
 
     {
-        .port = (uint8_t*)DO_7_PORT,
+        .port = &DO_7_PORT,
         .pin = DO_7_PIN,
     },
 
     {
-        .port = (uint8_t*)DO_8_PORT,
+        .port = &DO_8_PORT,
         .pin = DO_8_PIN,
     },
 
     {
-        .port = (uint8_t*)DO_9_PORT,
+        .port = &DO_9_PORT,
         .pin = DO_9_PIN,
     },
 
     {
-        .port = (uint8_t*)DO_10_PORT,
+        .port = &DO_10_PORT,
         .pin = DO_10_PIN,
     },
 
     {
-        .port = (uint8_t*)DO_11_PORT,
+        .port = &DO_11_PORT,
         .pin = DO_11_PIN,
     },
 
     {
-        .port = (uint8_t*)DO_12_PORT,
+        .port = &DO_12_PORT,
         .pin = DO_12_PIN,
     },
 
     {
-        .port = (uint8_t*)DO_13_PORT,
+        .port = &DO_13_PORT,
         .pin = DO_13_PIN,
     },
 
     {
-        .port = (uint8_t*)DO_14_PORT,
+        .port = &DO_14_PORT,
         .pin = DO_14_PIN,
     },
 
     {
-        .port = (uint8_t*)DO_15_PORT,
+        .port = &DO_15_PORT,
         .pin = DO_15_PIN,
     },
 
     {
-        .port = (uint8_t*)DO_16_PORT,
+        .port = &DO_16_PORT,
         .pin = DO_16_PIN,
     }
 };

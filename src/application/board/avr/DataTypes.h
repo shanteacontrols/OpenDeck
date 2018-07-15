@@ -24,6 +24,6 @@
 ///
 typedef struct
 {
-    uint8_t *port;
+    volatile uint8_t *port;
     uint8_t pin;
 } mcuPin_t;

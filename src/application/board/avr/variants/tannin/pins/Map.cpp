@@ -21,22 +21,22 @@
 mcuPin_t ledRowPins[NUMBER_OF_LED_ROWS] =
 {
     {
-        .port = (uint8_t*)LED_ROW_1_PORT,
+        .port = &LED_ROW_1_PORT,
         .pin = LED_ROW_1_PIN,
     },
 
     {
-        .port = (uint8_t*)LED_ROW_2_PORT,
+        .port = &LED_ROW_2_PORT,
         .pin = LED_ROW_2_PIN,
     },
 
     {
-        .port = (uint8_t*)LED_ROW_3_PORT,
+        .port = &LED_ROW_3_PORT,
         .pin = LED_ROW_3_PIN,
     },
 
     {
-        .port = (uint8_t*)LED_ROW_4_PORT,
+        .port = &LED_ROW_4_PORT,
         .pin = LED_ROW_4_PIN,
     }
 };

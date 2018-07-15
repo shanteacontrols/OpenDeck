@@ -46,9 +46,6 @@ inline void activateOutputColumn()
     BIT_READ(activeOutColumn, 0) ? setHigh(DEC_LM_A0_PORT, DEC_LM_A0_PIN) : setLow(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
     BIT_READ(activeOutColumn, 1) ? setHigh(DEC_LM_A1_PORT, DEC_LM_A1_PIN) : setLow(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
     BIT_READ(activeOutColumn, 2) ? setHigh(DEC_LM_A2_PORT, DEC_LM_A2_PIN) : setLow(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
-
-    if (++activeOutColumn == NUMBER_OF_LED_COLUMNS)
-        activeOutColumn = 0;
 }
 
 ///
@@ -158,6 +155,9 @@ inline void ledRowOn(uint8_t rowNumber, uint8_t intensity)
 ///
 inline void checkLEDs()
 {
+    ledRowsOff();
+    activateOutputColumn();
+
     //if there is an active LED in current column, turn on LED row
     //do fancy transitions here
     for (int i=0; i<NUMBER_OF_LED_ROWS; i++)
@@ -198,6 +198,9 @@ inline void checkLEDs()
             }
         }
     }
+
+    if (++activeOutColumn == NUMBER_OF_LED_COLUMNS)
+        activeOutColumn = 0;
 }
 
 ///

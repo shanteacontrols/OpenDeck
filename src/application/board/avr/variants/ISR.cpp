@@ -57,10 +57,6 @@ ISR(CORE_ISR)
 
     if (_1ms)
     {
-        #ifdef OUT_MATRIX
-        ledRowsOff();
-        activateOutputColumn();
-        #endif
         checkLEDs();
 
         rTime_ms++;

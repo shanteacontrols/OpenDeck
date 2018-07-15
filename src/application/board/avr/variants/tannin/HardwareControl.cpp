@@ -30,12 +30,9 @@
 ///
 inline void activateOutputColumn()
 {
-    BIT_READ(activeInColumn, 0) ? setHigh(DEC_LM_A0_PORT, DEC_LM_A0_PIN) : setLow(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
-    BIT_READ(activeInColumn, 1) ? setHigh(DEC_LM_A1_PORT, DEC_LM_A1_PIN) : setLow(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
-    BIT_READ(activeInColumn, 2) ? setHigh(DEC_LM_A2_PORT, DEC_LM_A2_PIN) : setLow(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
-
-    if (++activeInColumn >= NUMBER_OF_LED_COLUMNS)
-        activeInColumn = 0;
+    BIT_READ(activeOutColumn, 0) ? setHigh(DEC_LM_A0_PORT, DEC_LM_A0_PIN) : setLow(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
+    BIT_READ(activeOutColumn, 1) ? setHigh(DEC_LM_A1_PORT, DEC_LM_A1_PIN) : setLow(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
+    BIT_READ(activeOutColumn, 2) ? setHigh(DEC_LM_A2_PORT, DEC_LM_A2_PIN) : setLow(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
 }
 
 ///
@@ -43,12 +40,12 @@ inline void activateOutputColumn()
 ///
 inline void activateInputColumn()
 {
-    BIT_READ(activeOutColumn, 0) ? setHigh(DEC_DM_A0_PORT, DEC_DM_A0_PIN) : setLow(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
-    BIT_READ(activeOutColumn, 1) ? setHigh(DEC_DM_A1_PORT, DEC_DM_A1_PIN) : setLow(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
-    BIT_READ(activeOutColumn, 2) ? setHigh(DEC_DM_A2_PORT, DEC_DM_A2_PIN) : setLow(DEC_DM_A2_PORT, DEC_DM_A2_PIN);
+    BIT_READ(activeInColumn, 0) ? setHigh(DEC_DM_A0_PORT, DEC_DM_A0_PIN) : setLow(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
+    BIT_READ(activeInColumn, 1) ? setHigh(DEC_DM_A1_PORT, DEC_DM_A1_PIN) : setLow(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
+    BIT_READ(activeInColumn, 2) ? setHigh(DEC_DM_A2_PORT, DEC_DM_A2_PIN) : setLow(DEC_DM_A2_PORT, DEC_DM_A2_PIN);
 
-    if (++activeOutColumn == NUMBER_OF_LED_COLUMNS)
-        activeOutColumn = 0;
+    if (++activeInColumn == NUMBER_OF_BUTTON_COLUMNS)
+        activeInColumn = 0;
 }
 
 ///
@@ -157,11 +154,14 @@ inline void ledRowOn(uint8_t rowNumber, uint8_t intensity)
 ///
 inline void checkLEDs()
 {
+    ledRowsOff();
+    activateOutputColumn();
+
     //if there is an active LED in current column, turn on LED row
     //do fancy transitions here
     for (int i=0; i<NUMBER_OF_LED_ROWS; i++)
     {
-        uint8_t ledNumber = (activeOutColumn-1)+i*NUMBER_OF_LED_COLUMNS;
+        uint8_t ledNumber = activeOutColumn+i*NUMBER_OF_LED_COLUMNS;
         uint8_t ledStateSingle = LED_ON(ledState[ledNumber]);
 
         ledStateSingle *= (NUMBER_OF_LED_TRANSITIONS-1);
@@ -197,4 +197,7 @@ inline void checkLEDs()
             }
         }
     }
+
+    if (++activeOutColumn == NUMBER_OF_LED_COLUMNS)
+        activeOutColumn = 0;
 }

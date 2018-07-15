@@ -21,32 +21,32 @@
 mcuPin_t dInPins[MAX_NUMBER_OF_BUTTONS] =
 {
     {
-        .port = (uint8_t*)DI_1_PORT,
+        .port = &DI_1_PORT,
         .pin = DI_1_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_2_PORT,
+        .port = &DI_2_PORT,
         .pin = DI_2_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_3_PORT,
+        .port = &DI_3_PORT,
         .pin = DI_3_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_4_PORT,
+        .port = &DI_4_PORT,
         .pin = DI_4_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_5_PORT,
+        .port = &DI_5_PORT,
         .pin = DI_5_PIN,
     },
 
     {
-        .port = (uint8_t*)DI_6_PORT,
+        .port = &DI_6_PORT,
         .pin = DI_6_PIN,
     }
 };
@@ -54,32 +54,32 @@ mcuPin_t dInPins[MAX_NUMBER_OF_BUTTONS] =
 mcuPin_t dOutPins[MAX_NUMBER_OF_LEDS] =
 {
     {
-        .port = (uint8_t*)DO_1_PORT,
+        .port = &DO_1_PORT,
         .pin = DO_1_PIN,
     },
 
     {
-        .port = (uint8_t*)DO_2_PORT,
+        .port = &DO_2_PORT,
         .pin = DO_2_PIN,
     },
 
     {
-        .port = (uint8_t*)DO_3_PORT,
+        .port = &DO_3_PORT,
         .pin = DO_3_PIN,
     },
 
     {
-        .port = (uint8_t*)DO_4_PORT,
+        .port = &DO_4_PORT,
         .pin = DO_4_PIN,
     },
 
     {
-        .port = (uint8_t*)DO_5_PORT,
+        .port = &DO_5_PORT,
         .pin = DO_5_PIN,
     },
 
     {
-        .port = (uint8_t*)DO_6_PORT,
+        .port = &DO_6_PORT,
         .pin = DO_6_PIN,
     }
 };
