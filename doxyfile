@@ -886,6 +886,7 @@ EXCLUDE 			+= ./doc
 EXCLUDE 			+= ./scripts
 EXCLUDE 			+= ./webui
 EXCLUDE 			+= ./README.md
+EXCLUDE 			+= ./src/application/board/avr/linker/README.md
 EXCLUDE 			+= ./index.html
 EXCLUDE 			+= ./src/tests
 
