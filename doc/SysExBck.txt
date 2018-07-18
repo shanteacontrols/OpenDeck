@@ -1,7 +1,7 @@
 //send these commands to opendeck in order to backup entire configuration
 
-//handshake
-F0 00 53 43 00 00 01 F7
+//silent mode
+F0 00 53 43 00 00 04 F7
 
 //disable data processing
 //used to avoid data sending during backup
