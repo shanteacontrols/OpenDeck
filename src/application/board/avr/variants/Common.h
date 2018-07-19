@@ -182,3 +182,17 @@ const uint8_t ledTransitionScale[NUMBER_OF_LED_TRANSITIONS] =
     213,
     255
 };
+
+#ifdef LED_INDICATORS
+///
+/// \brief Variables used to control the time MIDI in/out LED indicators on board are active.
+/// When these LEDs need to be turned on, variables are set to value representing time in
+/// milliseconds during which they should be on. ISR decreases variable value by 1 every 1 millsecond.
+/// Once the variables have value 0, specific LED indicator is turned off.
+/// @{
+
+extern volatile uint8_t midiIn_timeout;
+extern volatile uint8_t midiOut_timeout;
+
+/// @}
+#endif

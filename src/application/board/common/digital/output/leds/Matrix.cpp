@@ -43,7 +43,7 @@ uint8_t Board::getRGBID(uint8_t ledID)
 {
     uint8_t row = ledID/NUMBER_OF_LED_COLUMNS;
 
-    uint8_t mod = row%3;    //RGB LED = 3 normal LEDs
+    uint8_t mod = row%3;
     row -= mod;
 
     uint8_t column = ledID % NUMBER_OF_BUTTON_COLUMNS;

@@ -20,7 +20,11 @@
 
 #include "midi/src/DataTypes.h"
 
-extern volatile uint8_t     midiIn_timeout;
-extern volatile uint8_t     midiOut_timeout;
 
+///
+/// \brief Structure holding USB MIDI data.
+/// Normally defined in MIDI module, however since MIDI module
+/// isn't compiled for xu2 boards, it is redefined here and globally
+/// included in all xu2 compiled files via Makefile.
+///
 extern USBMIDIpacket_t      usbMIDIpacket;

@@ -24,6 +24,9 @@
 #include "board/common/digital/output/Variables.h"
 
 
+///
+/// Acquires data by reading all inputs on specified digital input pins.
+///
 inline void storeDigitalIn()
 {
     for (int i=0; i<DIGITAL_IN_ARRAY_SIZE; i++)
@@ -40,10 +43,11 @@ inline void storeDigitalIn()
     }
 }
 
+///
+/// \brief Checks if any LED state has been changed and writes changed state to digital output pin.
+///
 inline void checkLEDs()
 {
-    //if there is an active LED in current column, turn on LED row
-    //do fancy transitions here
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
     {
         uint8_t ledStateSingle = LED_ON(ledState[i]);

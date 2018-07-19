@@ -20,11 +20,35 @@
 
 #include "board/common/constants/DigitalIn.h"
 
+///
+/// \brief Array used to store readings from digital input matrix.
+///
 extern volatile uint8_t     digitalInBuffer[DIGITAL_IN_BUFFER_SIZE][DIGITAL_IN_ARRAY_SIZE];
+
+///
+/// \brief Read only copy of digital input buffer.
+/// Used to avoid data overwrite from ISR.
+///
 extern uint8_t              digitalInBufferReadOnly[DIGITAL_IN_ARRAY_SIZE];
+
 #ifdef IN_MATRIX
+///
+/// \brief Holds value of currently active input matrix column.
+///
 extern volatile uint8_t     activeInColumn;
 #endif
+
+///
+/// \brief Holds "head" index position in ring buffer.
+///
 extern volatile uint8_t     dIn_head;
+
+///
+/// \brief Holds "tail" index position in ring buffer.
+///
 extern volatile uint8_t     dIn_tail;
+
+///
+/// \brief Holds current number of elements stored in ring buffer.
+///
 extern volatile uint8_t     dIn_count;

@@ -25,6 +25,9 @@
 #include "board/common/digital/output/Variables.h"
 
 
+///
+/// Acquires data by reading all inputs from two connected shift registers.
+///
 inline void storeDigitalIn()
 {
     setLow(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
@@ -45,6 +48,9 @@ inline void storeDigitalIn()
     }
 }
 
+///
+/// \brief Checks if any LED state has been changed and writes changed state to output shift registers.
+///
 inline void checkLEDs()
 {
     bool updateSR = false;
@@ -74,6 +80,9 @@ inline void checkLEDs()
     }
 }
 
+///
+/// \brief Configures one of 16 inputs/outputs on 4067 multiplexer.
+///
 inline void setMuxInput()
 {
     BIT_READ(activeMuxInput, 0) ? setHigh(MUX_S0_PORT, MUX_S0_PIN) : setLow(MUX_S0_PORT, MUX_S0_PIN);
