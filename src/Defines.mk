@@ -74,6 +74,7 @@ else ifeq ($(findstring pro_micro,$(MAKECMDGOALS)), pro_micro)
     DEFINES += LED_INT_INVERT
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
+    DEFINES += LED_INDICATORS
 else ifeq ($(findstring kodama,$(MAKECMDGOALS)), kodama)
     MCU := atmega32u4
     BOARD := BOARD_KODAMA

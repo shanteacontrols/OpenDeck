@@ -43,7 +43,7 @@ ISR(USART_RX_vect)
         {
             RingBuffer_Insert(&txBuffer, data);
             UCSRB |= (1<<UDRIE);
-            #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
+            #ifdef LED_INDICATORS
             MIDIsent = true;
             MIDIreceived = true;
             #endif
@@ -128,8 +128,10 @@ int16_t Board::MIDIread_UART()
     }
 
     uint8_t data = RingBuffer_Remove(&rxBuffer);
-    #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO) && !defined(BOARD_A_xu2)
+    #ifndef BOARD_A_xu2
+    #ifdef LED_INDICATORS
     MIDIreceived = true;
+    #endif
     #endif
     return data;
 }
@@ -145,7 +147,7 @@ int8_t Board::MIDIwrite_UART(uint8_t data)
             UDR = data;
         }
 
-        #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
+        #ifdef LED_INDICATORS
         MIDIsent = true;
         #endif
 
@@ -155,7 +157,7 @@ int8_t Board::MIDIwrite_UART(uint8_t data)
     while (RingBuffer_IsFull(&txBuffer));
     RingBuffer_Insert(&txBuffer, data);
     UCSRB |= (1<<UDRIE);
-    #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
+    #ifdef LED_INDICATORS
     MIDIsent = true;
     #endif
 
@@ -172,8 +174,10 @@ bool Board::MIDIwrite_UART_OD(USBMIDIpacket_t& USBMIDIpacket)
     RingBuffer_Insert(&txBuffer, USBMIDIpacket.Event ^ USBMIDIpacket.Data1 ^ USBMIDIpacket.Data2 ^ USBMIDIpacket.Data3);
 
     UCSRB |= (1<<UDRIE);
-    #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO) && !defined(BOARD_A_xu2)
+    #ifndef BOARD_A_xu2
+    #ifdef LED_INDICATORS
     MIDIsent = true;
+    #endif
     #endif
 
     return true;
