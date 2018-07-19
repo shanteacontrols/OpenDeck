@@ -109,14 +109,14 @@ else ifeq ($(findstring uno,$(MAKECMDGOALS)), uno)
 else ifeq ($(findstring 16u2,$(MAKECMDGOALS)), 16u2)
     MCU := atmega16u2
     BOARD := BOARD_A_xu2
-    DEFINES += LED_EXT_INVERT
+    DEFINES += LED_INT_INVERT
     DEFINES += LED_INDICATORS
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
 else ifeq ($(findstring 8u2,$(MAKECMDGOALS)), 8u2)
     MCU := atmega8u2
     BOARD := BOARD_A_xu2
-    DEFINES += LED_EXT_INVERT
+    DEFINES += LED_INT_INVERT
     DEFINES += LED_INDICATORS
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
