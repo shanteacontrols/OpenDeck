@@ -64,6 +64,7 @@ else ifeq ($(findstring leonardo,$(MAKECMDGOALS)), leonardo)
     DEFINES += USB_SUPPORTED
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += LED_INT_INVERT
+    DEFINES += LED_INDICATORS
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
 else ifeq ($(findstring pro_micro,$(MAKECMDGOALS)), pro_micro)

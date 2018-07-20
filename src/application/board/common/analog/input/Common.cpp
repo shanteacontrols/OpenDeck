@@ -19,23 +19,9 @@
 #include "board/Board.h"
 #include "Variables.h"
 
-///
-/// \brief Holds currently active analog index which is being read.
-/// Once all analog inputs are read, analog index is reset to 0.
-///
 uint8_t             analogIndex;
-
-///
-/// brief Holds currently active sample count.
-/// Once all analog inputs are read, sample count is increased.
-///
 volatile uint8_t    analogSampleCounter;
-
-///
-/// \brief Array in which analog samples are stored.
-///
 volatile int16_t    analogBuffer[MAX_NUMBER_OF_ANALOG];
-
 
 ///
 /// Due to non-linearity of standard potentiometers on their extremes (low and high values),

@@ -18,7 +18,14 @@
 #include "Hardware.h"
 
 #ifdef OUT_MATRIX
+///
+/// \brief Holds value of currently active output matrix column.
+///
 extern volatile uint8_t     activeOutColumn;
 #else
+///
+/// \brief Holds last LED state for all LEDs.
+/// Used in direct-out setups only where LED state is updated only when it changes.
+///
 extern uint8_t              lastLEDstate[MAX_NUMBER_OF_LEDS];
 #endif

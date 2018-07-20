@@ -25,7 +25,7 @@ uint8_t Board::getEncoderPair(uint8_t buttonID)
 
 int8_t Board::getEncoderState(uint8_t encoderID, uint8_t pulsesPerStep)
 {
-    //first, find out array index of digital input buffer where data is stored for requested encoder
+    //find array index of digital input buffer where data is stored for requested encoder
     uint8_t buttonID = encoderID*2;
     uint8_t arrayIndex = buttonID/8;
 

@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "../Common.h"
 #include "Variables.h"
 #include "Pins.h"
 #include "board/common/constants/LEDs.h"

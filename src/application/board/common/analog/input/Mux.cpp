@@ -19,12 +19,6 @@
 #include "board/Board.h"
 #include "Variables.h"
 
-///
-/// \brief Holds currently active multiplexer.
-///
-uint8_t             activeMux;
 
-///
-/// \brief Holds currently active multiplexer input.
-///
+uint8_t             activeMux;
 uint8_t             activeMuxInput;

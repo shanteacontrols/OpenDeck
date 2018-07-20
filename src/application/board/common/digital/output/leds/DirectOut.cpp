@@ -20,13 +20,12 @@
 
 uint8_t Board::getRGBaddress(uint8_t rgbID, rgbIndex_t index)
 {
-    //get RGB LED address for specified index
     return rgbID*3+(uint8_t)index;
 }
 
 uint8_t Board::getRGBID(uint8_t ledID)
 {
-    uint8_t result = ledID / 3;    //RGB LED = 3 normal LEDs
+    uint8_t result = ledID / 3;
 
     if (result >= MAX_NUMBER_OF_RGB_LEDS)
         return MAX_NUMBER_OF_RGB_LEDS-1;

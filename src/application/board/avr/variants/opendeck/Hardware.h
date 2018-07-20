@@ -21,7 +21,7 @@
 ///
 /// \brief Constant used to debounce button readings.
 ///
-#define BUTTON_DEBOUNCE_COMPARE         0b11111100
+#define BUTTON_DEBOUNCE_COMPARE         0b11110000
 
 ///
 /// \brief Total number of analog multiplexers.

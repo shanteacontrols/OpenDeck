@@ -28,22 +28,13 @@
 ///
 volatile uint32_t rTime_ms;
 
-///
-/// \brief Variables used to control the time MIDI in/out LED indicators on board are active.
-/// When these LEDs need to be turned on, variables are set to value representing time in
-/// milliseconds during which they should be on. ISR decreases variable value by 1 every 1 millsecond.
-/// Once the variables have value 0, specific LED indicator is turned off.
-/// @{
-
 #ifdef LED_INDICATORS
-static uint8_t  midiIn_timeout;
-static uint8_t  midiOut_timeout;
+volatile uint8_t    midiIn_timeout;
+volatile uint8_t    midiOut_timeout;
 #endif
 
-volatile bool   MIDIreceived;
-volatile bool   MIDIsent;
-
-/// @}
+volatile bool       MIDIreceived;
+volatile bool       MIDIsent;
 
 
 ///
