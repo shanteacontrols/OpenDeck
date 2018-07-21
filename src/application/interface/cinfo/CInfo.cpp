@@ -20,12 +20,25 @@
 
 uint32_t lastCinfoMsgTime[DB_BLOCKS];
 
-uint32_t getLastCinfoMsgTime(uint8_t block)
+bool sendCinfo(dbBlockID_t dbBlock, sysExParameter_t componentID)
 {
-    return lastCinfoMsgTime[block];
-}
+    if (sysEx.isConfigurationEnabled())
+    {
+        if ((rTimeMs() - lastCinfoMsgTime[dbBlock]) > COMPONENT_INFO_TIMEOUT)
+        {
+            sysExParameter_t cInfoMessage[] =
+            {
+                SYSEX_CM_COMPONENT_ID,
+                (sysExParameter_t)dbBlock,
+                (sysExParameter_t)componentID
+            };
 
-void updateCinfoTime(uint8_t block)
-{
-    lastCinfoMsgTime[block] = rTimeMs();
+            sysEx.sendCustomMessage(usbMessage.sysexArray, cInfoMessage, 3);
+            lastCinfoMsgTime[(uint8_t)dbBlock] = rTimeMs();
+        }
+
+        return true;
+    }
+
+    return false;
 }

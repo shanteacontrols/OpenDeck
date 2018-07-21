@@ -136,43 +136,47 @@ void Buttons::update()
                 type = buttonLatching;
                 break;
 
-                case buttonNone:
-                continue;
-                break;
-
                 default:
                 break;
             }
 
-            switch(type)
+            if (midiMessage != buttonNone)
             {
-                case buttonMomentary:
-                //always process momentary buttons
-                process = true;
-                break;
-
-                case buttonLatching:
-                //act on press only
-                if (state)
+                switch(type)
                 {
+                    case buttonMomentary:
+                    //always process momentary buttons
                     process = true;
+                    break;
 
-                    if (getLatchingState(i))
+                    case buttonLatching:
+                    //act on press only
+                    if (state)
                     {
-                        setLatchingState(i, false);
-                        //overwrite before processing
-                        state = false;
+                        process = true;
+
+                        if (getLatchingState(i))
+                        {
+                            setLatchingState(i, false);
+                            //overwrite before processing
+                            state = false;
+                        }
+                        else
+                        {
+                            setLatchingState(i, true);
+                            state = true;
+                        }
                     }
-                    else
-                    {
-                        setLatchingState(i, true);
-                        state = true;
-                    }
+                    break;
+
+                    default:
+                    break;
                 }
-                break;
-
-                default:
-                break;
+            }
+            else
+            {
+                process = false;
+                sendCinfo(DB_BLOCK_BUTTONS, i);
             }
         }
 
@@ -356,21 +360,7 @@ void Buttons::processButton(uint8_t buttonID, bool state, buttonMIDImessage_t mi
         }
     }
 
-    if (sysEx.isConfigurationEnabled())
-    {
-        if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTONS)) > COMPONENT_INFO_TIMEOUT)
-        {
-            sysExParameter_t cInfoMessage[] =
-            {
-                SYSEX_CM_COMPONENT_ID,
-                DB_BLOCK_BUTTONS,
-                (sysExParameter_t)buttonID
-            };
-
-            sysEx.sendCustomMessage(usbMessage.sysexArray, cInfoMessage, 3);
-            updateCinfoTime(DB_BLOCK_BUTTONS);
-        }
-    }
+    sendCinfo(DB_BLOCK_BUTTONS, buttonID);
 }
 
 ///

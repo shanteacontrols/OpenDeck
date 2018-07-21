@@ -154,21 +154,7 @@ void Encoders::update()
             #endif
         }
 
-        if (sysEx.isConfigurationEnabled())
-        {
-            if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_ENCODERS)) > COMPONENT_INFO_TIMEOUT)
-            {
-                sysExParameter_t cInfoMessage[] =
-                {
-                    SYSEX_CM_COMPONENT_ID,
-                    DB_BLOCK_ENCODERS,
-                    (sysExParameter_t)i
-                };
-
-                sysEx.sendCustomMessage(usbMessage.sysexArray, cInfoMessage, 3);
-                updateCinfoTime(DB_BLOCK_ENCODERS);
-            }
-        }
+        sendCinfo(DB_BLOCK_ENCODERS, i);
     }
 }
 

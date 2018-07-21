@@ -74,21 +74,7 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             display.displayMIDIevent(displayEventOut, midiMessageNoteOn_display, note, calibratedPressure, channel+1);
             #endif
             leds.noteToState(note, calibratedPressure, 0, true);
-            if (sysEx.isConfigurationEnabled())
-            {
-                if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTONS)) > COMPONENT_INFO_TIMEOUT)
-                {
-                    sysExParameter_t cInfoMessage[] =
-                    {
-                        SYSEX_CM_COMPONENT_ID,
-                        DB_BLOCK_ANALOG,
-                        (sysExParameter_t)analogID
-                    };
-
-                    sysEx.sendCustomMessage(usbMessage.sysexArray, cInfoMessage, 3);
-                    updateCinfoTime(DB_BLOCK_BUTTONS);
-                }
-            }
+            sendCinfo(DB_BLOCK_ANALOG, analogID);
         }
     }
     else
@@ -103,21 +89,7 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             display.displayMIDIevent(displayEventOut, midiMessageNoteOff_display, note, calibratedPressure, channel+1);
             #endif
             leds.noteToState(note, 0, 0, true);
-            if (sysEx.isConfigurationEnabled())
-            {
-                if ((rTimeMs() - getLastCinfoMsgTime(DB_BLOCK_BUTTONS)) > COMPONENT_INFO_TIMEOUT)
-                {
-                    sysExParameter_t cInfoMessage[] =
-                    {
-                        SYSEX_CM_COMPONENT_ID,
-                        DB_BLOCK_ANALOG,
-                        (sysExParameter_t)analogID
-                    };
-
-                    sysEx.sendCustomMessage(usbMessage.sysexArray, cInfoMessage, 3);
-                    updateCinfoTime(DB_BLOCK_BUTTONS);
-                }
-            }
+            sendCinfo(DB_BLOCK_ANALOG, analogID);
         }
     }
 

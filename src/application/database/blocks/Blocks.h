@@ -27,7 +27,7 @@
 #include "ID.h"
 
 //define block names
-enum dbBlocks
+typedef enum
 {
     DB_BLOCK_MIDI,      //0
     DB_BLOCK_BUTTONS,   //1
@@ -37,4 +37,4 @@ enum dbBlocks
     DB_BLOCK_DISPLAY,   //5
     DB_BLOCK_ID,        //6
     DB_BLOCKS
-};
+} dbBlockID_t;
