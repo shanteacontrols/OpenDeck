@@ -106,6 +106,7 @@ void Buttons::update()
 
         bool process = false;
         buttonType_t type = getButtonType(i);
+        buttonMIDImessage_t midiMessage = (buttonMIDImessage_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, i);
 
         //act on change of state only
         if (state != getButtonState(i))
@@ -113,7 +114,7 @@ void Buttons::update()
             setButtonState(i, state);
 
             //overwrite type under certain conditions
-            switch((buttonMIDImessage_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, i))
+            switch(midiMessage)
             {
                 case buttonPC:
                 case buttonPCinc:
@@ -172,7 +173,7 @@ void Buttons::update()
         }
 
         if (process)
-            processButton(i, state);
+            processButton(i, state, midiMessage);
     }
 }
 
@@ -180,14 +181,17 @@ void Buttons::update()
 /// \brief Handles changes in button states.
 /// @param [in] buttonID    Button index which has changed state.
 /// @param [in] state       Current button state.
+/// @param [in] midiMessage Type of MIDI message button should send.
 ///
-void Buttons::processButton(uint8_t buttonID, bool state)
+void Buttons::processButton(uint8_t buttonID, bool state, buttonMIDImessage_t midiMessage)
 {
     uint8_t note = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, buttonID);
     uint8_t channel = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiChannel, buttonID);
     uint8_t velocity = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_velocity, buttonID);
-    buttonMIDImessage_t midiMessage = (buttonMIDImessage_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, buttonID);
     mmcArray[2] = note; //use midi note as channel id for transport control
+
+    if (midiMessage == BUTTON_MESSAGE_TYPES)
+        midiMessage = (buttonMIDImessage_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, buttonID);
 
     if (state)
     {
