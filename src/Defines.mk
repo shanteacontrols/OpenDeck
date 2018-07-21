@@ -98,13 +98,11 @@ else ifeq ($(findstring mega,$(MAKECMDGOALS)), mega)
     BOARD := BOARD_A_MEGA
     DEFINES += STRING_BUFFER_SIZE=40
     DEFINES += DISPLAY_SUPPORTED
-    DEFINES += DIN_MIDI_SUPPORTED
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
 else ifeq ($(findstring uno,$(MAKECMDGOALS)), uno)
     MCU := atmega328p
     BOARD := BOARD_A_UNO
-    DEFINES += DIN_MIDI_SUPPORTED
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
 else ifeq ($(findstring 16u2,$(MAKECMDGOALS)), 16u2)
