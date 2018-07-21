@@ -136,6 +136,10 @@ void Buttons::update()
                 type = buttonLatching;
                 break;
 
+                case buttonNone:
+                continue;
+                break;
+
                 default:
                 break;
             }

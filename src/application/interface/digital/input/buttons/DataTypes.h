@@ -54,6 +54,7 @@ typedef enum
     buttonRealTimeSystemReset,
     buttonPCinc,
     buttonPCdec,
+    buttonNone,
     BUTTON_MESSAGE_TYPES
 } buttonMIDImessage_t;
 
