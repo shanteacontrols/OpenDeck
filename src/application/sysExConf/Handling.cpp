@@ -28,7 +28,7 @@ SysExConfig::SysExConfig()
 bool onCustom(uint8_t value)
 {
     bool retVal = true;
-    #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
+    #ifdef DIN_MIDI_SUPPORTED
     sysExParameter_t daisyChainMessage[1];
     #endif
 
@@ -91,7 +91,7 @@ bool onCustom(uint8_t value)
         processingEnabled = false;
         break;
 
-        #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
+        #ifdef DIN_MIDI_SUPPORTED
         case SYSEX_CR_DAISY_CHAIN_MASTER:
         //received message from opendeck master
         //send sysex to next board in the chain
@@ -322,7 +322,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             switch(index)
             {
                 case midiFeatureRunningStatus:
-                #if defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
+                #ifndef DIN_MIDI_SUPPORTED
                 sysEx.setError(ERROR_NOT_SUPPORTED);
                 #else
                 midi.setRunningStatusState(newValue);
@@ -336,7 +336,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 break;
 
                 case midiFeatureDinEnabled:
-                #if defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
+                #ifndef DIN_MIDI_SUPPORTED
                 sysEx.setError(ERROR_NOT_SUPPORTED);
                 #else
                 newValue ? board.initMIDI_UART() : board.initMIDI_UART(true);
@@ -345,7 +345,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 break;
 
                 case midiFeatureMergeEnabled:
-                #if defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
+                #ifndef DIN_MIDI_SUPPORTED
                 sysEx.setError(ERROR_NOT_SUPPORTED);
                 #else
                 if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled))
@@ -371,7 +371,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
         }
         else if (section == sysExSection_midi_merge)
         {
-            #if defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
+            #ifndef DIN_MIDI_SUPPORTED
             sysEx.setError(ERROR_NOT_SUPPORTED);
             #else
             switch(index)
