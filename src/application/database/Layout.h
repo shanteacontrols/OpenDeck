@@ -265,10 +265,10 @@ static dbSection_t ledSections[DB_SECTIONS_LEDS] =
         .address = 0
     },
 
-    //local led control enabled section
+    //led control type section
     {
         .numberOfParameters = MAX_NUMBER_OF_LEDS,
-        .parameterType = BIT_PARAMETER,
+        .parameterType = HALFBYTE_PARAMETER,
         .preserveOnPartialReset = 0,
         .defaultValue = 0,
         .autoIncrement = false,

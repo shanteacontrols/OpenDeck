@@ -45,3 +45,13 @@ typedef enum
     ledHwParameterStartUpRoutine,
     LED_HARDWARE_PARAMETERS
 } ledHardwareParameter_t;
+
+typedef enum
+{
+    ledControlMIDIin_noteCC,
+    ledControlMIDIin_CCnote
+    ledControlMIDIin_PC,
+    ledControlLocal_Note,
+    ledControlLocal_CC,
+    ledControlLocal_PC
+} ledControlType_t;
