@@ -49,7 +49,7 @@ typedef enum
 typedef enum
 {
     ledControlMIDIin_noteCC,
-    ledControlMIDIin_CCnote
+    ledControlMIDIin_CCnote,
     ledControlMIDIin_PC,
     ledControlLocal_Note,
     ledControlLocal_CC,
