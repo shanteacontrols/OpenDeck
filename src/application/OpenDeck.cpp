@@ -130,26 +130,14 @@ int main()
                 break;
 
                 case midiMessageNoteOn:
-                //we're using received note data to control LED color
-                leds.noteToState(data1, data2, channel);
+                case midiMessageNoteOff:
+                case midiMessageControlChange:
+                case midiMessageProgramChange:
+                if (messageType == midiMessageNoteOff)
+                    data2 = 0;
+                leds.midiToState(messageType, data1, data2, channel);
                 #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(displayEventIn, midiMessageNoteOn_display, data1, data2, channel+1);
-                #endif
-                break;
-
-                case midiMessageNoteOff:
-                //always turn led off when note off is received
-                leds.noteToState(data1, 0, channel);
-                #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventIn, midiMessageNoteOff_display, data1, data2, channel+1);
-                #endif
-                break;
-
-                case midiMessageControlChange:
-                //control change is used to control led blinking
-                leds.ccToBlink(data1, data2, channel);
-                #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventIn, midiMessageControlChange_display, data1, data2, channel+1);
                 #endif
                 break;
 

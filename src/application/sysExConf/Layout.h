@@ -231,11 +231,11 @@ static sysExSection_t ledSections[SYSEX_SECTIONS_LEDS] =
         .newValueMax = 1,
     },
 
-    //local led control enabled section
+    //led control type section
     {
         .numberOfParameters = MAX_NUMBER_OF_LEDS,
         .newValueMin = 0,
-        .newValueMax = 1,
+        .newValueMax = LED_CONTROL_TYPES-1,
     },
 
     //single led velocity value section

@@ -210,7 +210,7 @@ void Buttons::processButton(uint8_t buttonID, bool state, buttonMIDImessage_t mi
             #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(displayEventOut, midiMessageNoteOn_display, note, velocity, channel+1);
             #endif
-            leds.noteToState(note, velocity, 0, true);
+            leds.midiToState(midiMessageNoteOn, note, velocity, channel, true);
             break;
 
             case buttonPC:
@@ -233,6 +233,7 @@ void Buttons::processButton(uint8_t buttonID, bool state, buttonMIDImessage_t mi
             }
 
             midi.sendProgramChange(note, channel);
+            leds.midiToState(midiMessageProgramChange, note, 0, channel, true);
             #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(displayEventOut, midiMessageProgramChange_display, note, 0, channel+1);
             #endif
@@ -244,7 +245,7 @@ void Buttons::processButton(uint8_t buttonID, bool state, buttonMIDImessage_t mi
             #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, velocity, channel+1);
             #endif
-            leds.noteToState(note, velocity, 0, true);
+            leds.midiToState(midiMessageControlChange, note, velocity, channel, true);
             break;
 
             case buttonMMCPlay:
@@ -335,7 +336,7 @@ void Buttons::processButton(uint8_t buttonID, bool state, buttonMIDImessage_t mi
             #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(displayEventOut, midi.getNoteOffMode() == noteOffType_standardNoteOff ? midiMessageNoteOff_display : midiMessageNoteOn_display, note, 0, channel+1);
             #endif
-            leds.noteToState(note, 0, 0, true);
+            leds.midiToState(midiMessageNoteOff, note, 0, channel, true);
             break;
 
             case buttonCCreset:
@@ -343,7 +344,7 @@ void Buttons::processButton(uint8_t buttonID, bool state, buttonMIDImessage_t mi
             #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, 0, channel+1);
             #endif
-            leds.noteToState(note, 0, 0, true);
+            leds.midiToState(midiMessageControlChange, 0, channel, true);
             break;
 
             case buttonMMCRecord:

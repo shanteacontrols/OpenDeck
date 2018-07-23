@@ -73,7 +73,7 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(displayEventOut, midiMessageNoteOn_display, note, calibratedPressure, channel+1);
             #endif
-            leds.noteToState(note, calibratedPressure, 0, true);
+            leds.midiToState(midiMessageNoteOn, note, calibratedPressure, channel, true);
             sendCinfo(DB_BLOCK_ANALOG, analogID);
         }
     }
@@ -88,7 +88,7 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(displayEventOut, midiMessageNoteOff_display, note, calibratedPressure, channel+1);
             #endif
-            leds.noteToState(note, 0, 0, true);
+            leds.midiToState(midiMessageNoteOff, 0, channel, true);
             sendCinfo(DB_BLOCK_ANALOG, analogID);
         }
     }

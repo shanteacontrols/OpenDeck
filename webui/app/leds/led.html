@@ -41,14 +41,20 @@
         </div>
         </div><!-- /row -->
         <div class="row">
-        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-6">
-            <h3>Local control</h3>
+        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+            <h3>Control type</h3>
         </div>
-        <div class="col-lg-1 col-lg-offset-1 col-md-1 col-md-offset-1 col-sm-4 col-xs-6">
-            <div class="switch">
-            <input id="localLedControl" ng-model="obj.localLedControl" class="toggle toggle-round-flat" type="checkbox">
-            <label for="localLedControl"></label>
-            <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Enables or disables local LED control. When enabled, LEDs are controlled by buttons or FSR sensors connected to board. Activation note assigned to specific LED is converted to MIDI Note sent by button." data-placement="left">?</div>
+        <div class="col-lg-2 col-lg-offset-1 col-md-2 col-md-offset-1 col-sm-6 col-xs-12">
+            <div class="selectfield">
+                <select ng-model="obj.ledControlType" convert-to-number>
+                    <option value="0">MIDI in - Note/CC</option>
+                    <option value="1">MIDI in - CC/Note</option>
+                    <option value="2">MIDI in - PC</option>
+                    <option value="3">Local - Note</option>
+                    <option value="4">Local - CC</option>
+                    <option value="5">Local - PC</option>
+                </select>
+                <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Specifies the way using which LED state is controlled." data-placement="left">?</div>
             </div>
         </div>
         </div><!-- /row -->

@@ -53,5 +53,6 @@ typedef enum
     ledControlMIDIin_PC,
     ledControlLocal_Note,
     ledControlLocal_CC,
-    ledControlLocal_PC
+    ledControlLocal_PC,
+    LED_CONTROL_TYPES
 } ledControlType_t;

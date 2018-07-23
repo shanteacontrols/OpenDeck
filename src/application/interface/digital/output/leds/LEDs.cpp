@@ -96,7 +96,7 @@ void LEDs::startUpAnimation()
     #endif
 }
 
-ledColor_t LEDs::velocityToColor(uint8_t receivedVelocity)
+ledColor_t LEDs::valueToColor(uint8_t receivedVelocity)
 {
     /*
         Velocity    Color       Color Index
@@ -113,45 +113,102 @@ ledColor_t LEDs::velocityToColor(uint8_t receivedVelocity)
     return (ledColor_t)(receivedVelocity/16);
 }
 
-void LEDs::ccToBlink(uint8_t cc, uint8_t value, uint8_t channel)
+void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local)
 {
-    bool blink = (bool)value;
-
-    //match LED activation note with received cc
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
     {
-        if ((database.read(DB_BLOCK_LEDS, dbSection_leds_activationNote, i) == cc) && (database.read(DB_BLOCK_LEDS, dbSection_leds_midiChannel, i) == channel))
+        bool setState = false;
+        bool setBlink = false;
+
+        //determine whether led state or blink state should be changed
+        if (local)
         {
-            setBlinkState(i, blink);
-        }
-    }
-}
-
-void LEDs::noteToState(uint8_t receivedNote, uint8_t receivedVelocity, uint8_t receivedChannel, bool local)
-{
-    ledColor_t color = velocityToColor(receivedVelocity);
-
-    //match LED activation note with its index
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-    {
-        if (database.read(DB_BLOCK_LEDS, dbSection_leds_activationNote, i) == receivedNote)
-        {
-            //change color if rgb led is disabled
-            //any color will do
-            if (!database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, i))
-                color = (database.read(DB_BLOCK_LEDS, dbSection_leds_activationVelocity, i) == receivedVelocity) ? colorRed : colorOff;
-
-            if (local)
+            switch(database.read(DB_BLOCK_LEDS, dbSection_leds_controlType, i))
             {
-                //if local is set to true, check if local led control is enabled for this led before changing state
-                if (database.read(DB_BLOCK_LEDS, dbSection_leds_localControl, i))
+                case ledControlLocal_Note:
+                if ((messageType == midiMessageNoteOn) || (messageType == midiMessageNoteOff))
+                    setState = true;
+                break;
+
+                case ledControlLocal_CC:
+                if (messageType == midiMessageControlChange)
+                    setState = true;
+                break;
+
+                case ledControlLocal_PC:
+                if (messageType == midiMessageProgramChange)
+                {
+                    setState = true;
+                    //2 byte message - set third byte to 127 so that color is never colorOff
+                    data2 = 127;
+                }
+                break;
+
+                default:
+                break;
+            }
+        }
+        else
+        {
+            switch(database.read(DB_BLOCK_LEDS, dbSection_leds_controlType, i))
+            {
+                case ledControlMIDIin_noteCC:
+                if ((messageType == midiMessageNoteOn) || (messageType == midiMessageNoteOff))
+                    setState = true;
+                else if (messageType == midiMessageControlChange)
+                    setBlink = true;
+                break;
+
+                case ledControlMIDIin_CCnote:
+                if ((messageType == midiMessageNoteOn) || (messageType == midiMessageNoteOff))
+                    setBlink = true;
+                else if (messageType == midiMessageControlChange)
+                    setState = true;
+                break;
+
+                case ledControlMIDIin_PC:
+                if (messageType == midiMessageProgramChange)
+                {
+                    setState = true;
+                    data2 = 127;
+                }
+                break;
+
+                default:
+                break;
+            }
+        }
+
+        if (setState)
+        {
+            //base color on last midi byte
+            ledColor_t color = valueToColor(data2);
+
+            //match LED activation ID with its index
+            if (database.read(DB_BLOCK_LEDS, dbSection_leds_activationID, i) == data1)
+            {
+                //on program change messages, third byte (data2) isn't present
+                //data2 is normally compared to activationValue
+                //in this case, use value from data1
+                if (messageType == midiMessageProgramChange)
+                    data2 = data1;
+
+                //change color if rgb led is disabled
+                //any color will do
+                if (!database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, i))
+                    color = (database.read(DB_BLOCK_LEDS, dbSection_leds_activationValue, i) == data2) ? colorRed : colorOff;
+
+                //finally, match channel
+                if (database.read(DB_BLOCK_LEDS, dbSection_leds_midiChannel, i) == channel)
                     setColor(i, color);
             }
-            else if (database.read(DB_BLOCK_LEDS, dbSection_leds_midiChannel, i) == receivedChannel)
-            {
-                //channels must match here
-                setColor(i, color);
-            }
+        }
+
+        if (setBlink)
+        {
+            //match LED activation note with received cc
+            if ((database.read(DB_BLOCK_LEDS, dbSection_leds_activationID, i) == data1) && (database.read(DB_BLOCK_LEDS, dbSection_leds_midiChannel, i) == channel))
+                setBlinkState(i, (bool)data2);
         }
     }
 }
