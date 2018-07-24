@@ -117,6 +117,10 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
 {
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
     {
+        //no point in checking if channel doesn't match
+        if (database.read(DB_BLOCK_LEDS, dbSection_leds_midiChannel, i) != channel)
+            continue;
+
         bool setState = false;
         bool setBlink = false;
 
@@ -174,41 +178,44 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
 
         if (setState)
         {
-            ledColor_t color;
-
-            //match LED activation ID with its index
+            //match LED activation ID with received ID
             if (database.read(DB_BLOCK_LEDS, dbSection_leds_activationID, i) == data1)
             {
+                ledColor_t color;
+
                 if (messageType == midiMessageProgramChange)
                 {
-                    //no need to check byte2 on program change
+                    //no need to check byte2 on program change, turn led on
+                    //any color will do
                     color = colorRed;
                 }
                 else
                 {
-                    //change color if rgb led is disabled
-                    //any color will do
-                    if (!database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, i))
-                        color = (database.read(DB_BLOCK_LEDS, dbSection_leds_activationValue, i) == data2) ? colorRed : colorOff;
-                    else
+                    //get rgb led color using data2 value (note velocity / cc value)
+                    if (database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, i))
                         color = valueToColor(data2);
+                    else
+                        color = (database.read(DB_BLOCK_LEDS, dbSection_leds_activationValue, i) == data2) ? colorRed : colorOff;
                 }
 
-                if (database.read(DB_BLOCK_LEDS, dbSection_leds_midiChannel, i) == channel)
-                    setColor(i, color);
+                setColor(i, color);
             }
             else if (messageType == midiMessageProgramChange)
             {
-                if (database.read(DB_BLOCK_LEDS, dbSection_leds_midiChannel, i) == channel)
-                    setColor(i, colorOff);
+                //when ID doesn't match and control type is program change, make sure to turn the led off
+                setColor(i, colorOff);
             }
         }
 
         if (setBlink)
         {
-            //match LED activation note with received cc
-            if ((database.read(DB_BLOCK_LEDS, dbSection_leds_activationID, i) == data1) && (database.read(DB_BLOCK_LEDS, dbSection_leds_midiChannel, i) == channel))
+            //match activation ID with received ID
+            if (database.read(DB_BLOCK_LEDS, dbSection_leds_activationID, i) == data1)
+            {
+                //turn blink on or off depending on data2 value
+                //any value other than 0 will turn blinking on
                 setBlinkState(i, (bool)data2);
+            }
         }
     }
 }
