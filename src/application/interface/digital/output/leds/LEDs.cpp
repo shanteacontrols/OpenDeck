@@ -137,11 +137,7 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
 
                 case ledControlLocal_PC:
                 if (messageType == midiMessageProgramChange)
-                {
                     setState = true;
-                    //2 byte message - set third byte to 127 so that color is never colorOff
-                    data2 = 127;
-                }
                 break;
 
                 default:
@@ -168,10 +164,7 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
 
                 case ledControlMIDIin_PC:
                 if (messageType == midiMessageProgramChange)
-                {
                     setState = true;
-                    data2 = 127;
-                }
                 break;
 
                 default:
@@ -181,26 +174,33 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
 
         if (setState)
         {
-            //base color on last midi byte
-            ledColor_t color = valueToColor(data2);
+            ledColor_t color;
 
             //match LED activation ID with its index
             if (database.read(DB_BLOCK_LEDS, dbSection_leds_activationID, i) == data1)
             {
-                //on program change messages, third byte (data2) isn't present
-                //data2 is normally compared to activationValue
-                //in this case, use value from data1
                 if (messageType == midiMessageProgramChange)
-                    data2 = data1;
+                {
+                    //no need to check byte2 on program change
+                    color = colorRed;
+                }
+                else
+                {
+                    //change color if rgb led is disabled
+                    //any color will do
+                    if (!database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, i))
+                        color = (database.read(DB_BLOCK_LEDS, dbSection_leds_activationValue, i) == data2) ? colorRed : colorOff;
+                    else
+                        color = valueToColor(data2);
+                }
 
-                //change color if rgb led is disabled
-                //any color will do
-                if (!database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, i))
-                    color = (database.read(DB_BLOCK_LEDS, dbSection_leds_activationValue, i) == data2) ? colorRed : colorOff;
-
-                //finally, match channel
                 if (database.read(DB_BLOCK_LEDS, dbSection_leds_midiChannel, i) == channel)
                     setColor(i, color);
+            }
+            else if (messageType == midiMessageProgramChange)
+            {
+                if (database.read(DB_BLOCK_LEDS, dbSection_leds_midiChannel, i) == channel)
+                    setColor(i, colorOff);
             }
         }
 
