@@ -22,14 +22,14 @@
 /// \brief Pin definitions.
 /// @{
 
-#define SR_DIN_PORT                 PORTD
-#define SR_DIN_PIN                  5
+#define SR_DIN_DATA_PORT            PORTD
+#define SR_DIN_DATA_PIN             5
 
-#define SR_CLK_PORT                 PORTD
-#define SR_CLK_PIN                  0
+#define SR_DIN_CLK_PORT             PORTD
+#define SR_DIN_CLK_PIN              0
 
-#define SR_LATCH_PORT               PORTD
-#define SR_LATCH_PIN                1
+#define SR_DIN_LATCH_PORT           PORTD
+#define SR_DIN_LATCH_PIN            1
 
 #define DEC_DM_A0_PORT              PORTB
 #define DEC_DM_A0_PIN               4

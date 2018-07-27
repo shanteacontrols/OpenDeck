@@ -76,9 +76,9 @@ void kodamaStartUpAnimation()
 
 void Board::initPins()
 {
-    setInput(SR_IN_DATA_PORT, SR_IN_DATA_PIN);
-    setOutput(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
-    setOutput(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
+    setInput(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN);
+    setOutput(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+    setOutput(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
 
     setOutput(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
     setOutput(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);

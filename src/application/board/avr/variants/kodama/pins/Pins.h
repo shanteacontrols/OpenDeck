@@ -18,14 +18,14 @@
 
 #pragma once
 
-#define SR_IN_DATA_PORT             PORTD
-#define SR_IN_DATA_PIN              3
+#define SR_DIN_DATA_PORT            PORTD
+#define SR_DIN_DATA_PIN             3
 
-#define SR_IN_CLK_PORT              PORTD
-#define SR_IN_CLK_PIN               4
+#define SR_DIN_CLK_PORT             PORTD
+#define SR_DIN_CLK_PIN              4
 
-#define SR_IN_LATCH_PORT            PORTD
-#define SR_IN_LATCH_PIN             5
+#define SR_DIN_LATCH_PORT           PORTD
+#define SR_DIN_LATCH_PIN            5
 
 #define SR_OUT_DATA_PORT            PORTD
 #define SR_OUT_DATA_PIN             2

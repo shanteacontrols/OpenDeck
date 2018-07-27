@@ -38,12 +38,9 @@
 #include "core/src/general/BitManipulation.h"
 #include <util/crc16.h>
 #include "board/common/constants/LEDs.h"
+#include "pins/Pins.h"
 
-#ifdef BOARD_KODAMA
-#include "board/avr/variants/kodama/pins/Pins.h"
-#endif
-
-#if defined(BOARD_OPEN_DECK) || defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO) || defined(BOARD_KODAMA) || defined(BOARD_TANNIN)
+#ifdef CRC_CHECK
 
 ///
 /// \brief Calculates CRC of entire flash.
@@ -52,7 +49,7 @@
 bool appCRCvalid()
 {
     uint16_t crc = 0x0000;
-    uint16_t lastAddress = pgm_read_word_near(APP_LENGTH_LOCATION);
+    int16_t lastAddress = pgm_read_word_near(APP_LENGTH_LOCATION);
 
     for (int i=0; i<lastAddress; i++)
     {
@@ -76,39 +73,55 @@ void Application_Jump_Check(void)
 {
     bool JumpToApplication = false;
 
-    #ifndef BOARD_KODAMA
+    #if defined(BOARD_TANNIN) || defined(BOARD_KODAMA)
+    setInput(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN);
+    setOutput(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+    setOutput(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+    #ifdef BOARD_TANNIN
+    //select column 6 in button matrix
+    setOutput(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
+    setOutput(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
+    setOutput(DEC_DM_A2_PORT, DEC_DM_A2_PIN);
+    setLow(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
+    setHigh(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
+    setHigh(DEC_DM_A2_PORT, DEC_DM_A2_PIN);
+    #endif
+    #else
     setInput(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
     setHigh(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
-    #else
-    setInput(SR_IN_DATA_PORT, SR_IN_DATA_PIN);
-    setOutput(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
-    setOutput(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
     #endif
 
-    // add some delay before reading pin
+    //add some delay before reading pin
     _delay_ms(5);
 
-    //invert reading - pin uses pull-up
-    #ifndef BOARD_KODAMA
-    bool hardwareTrigger = !readPin(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
-    #else
+    #if defined(BOARD_KODAMA) || defined(BOARD_TANNIN)
     uint16_t dInData = 0;
-    setLow(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
-    setLow(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
+    setLow(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+    setLow(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
     _NOP();
     _NOP();
 
-    setHigh(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
+    setHigh(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
 
+    #ifdef BOARD_KODAMA
     for (int i=0; i<16; i++)
+    #elif defined(BOARD_TANNIN)
+    for (int i=0; i<8; i++)
+    #endif
     {
-        setLow(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
+        setLow(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
         _NOP();
-        BIT_WRITE(dInData, i, !readPin(SR_IN_DATA_PORT, SR_IN_DATA_PIN));
-        setHigh(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
+        BIT_WRITE(dInData, i, !readPin(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN));
+        setHigh(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
     }
 
+    #ifdef BOARD_KODAMA
     bool hardwareTrigger = BIT_READ(dInData, 0x03);
+    #elif defined(BOARD_TANNIN)
+    bool hardwareTrigger = BIT_READ(dInData, 0x03);
+    #endif
+    #else
+    bool hardwareTrigger = !readPin(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
     #endif
 
     //check if user wants to enter bootloader
@@ -177,28 +190,21 @@ static void SetupHardware(void)
     MCUCR = (1 << IVSEL);
 
     //indicate that we're in bootloader mode
-    #ifndef BOARD_KODAMA
-    setOutput(LED_IN_PORT, LED_IN_PIN);
-    setOutput(LED_OUT_PORT, LED_OUT_PIN);
-
-    INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
-    INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
-    #else
-    setOutput(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
-    setOutput(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
-    setOutput(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
-
-    //init all outputs on shift register
+    #ifdef BOARD_KODAMA
     setLow(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 
     for (int i=0; i<16; i++)
     {
-        //active low logic
-        setLow(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
+        EXT_LED_ON(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
         pulseHighToLow(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
     }
 
     setHigh(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+    #elif defined (BOARD_OPEN_DECK)
+    setOutput(LED_IN_PORT, LED_IN_PIN);
+    setOutput(LED_OUT_PORT, LED_OUT_PIN);
+    INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
+    INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
     #endif
 
     /* Initialize USB subsystem */

@@ -121,9 +121,9 @@ void Board::initPins()
 {
     //configure input matrix
     //shift register
-    setInput(SR_DIN_PORT, SR_DIN_PIN);
-    setOutput(SR_CLK_PORT, SR_CLK_PIN);
-    setOutput(SR_LATCH_PORT, SR_LATCH_PIN);
+    setInput(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN);
+    setOutput(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+    setOutput(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
 
     //decoder
     setOutput(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
