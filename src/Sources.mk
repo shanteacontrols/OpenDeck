@@ -1,5 +1,10 @@
 #determine board variant from target
-BOARD_DIR := $(subst fw_,,$(MAKECMDGOALS))
+#cut out fw_ and boot_ from target name
+ifeq ($(findstring fw_,$(MAKECMDGOALS)), fw_)
+    BOARD_DIR := $(subst fw_,,$(MAKECMDGOALS))
+else ifeq ($(findstring boot_,$(MAKECMDGOALS)), boot_)
+    BOARD_DIR := $(subst boot_,,$(MAKECMDGOALS))
+endif
 
 ifeq ($(BOARD_DIR),pro_micro)
     #pro micro is just a leonardo variant
@@ -23,7 +28,6 @@ INCLUDE_DIRS := \
 -I"modules/" \
 -I"application/" \
 -I"application/board/avr/variants/$(BOARD_DIR)/"
-
 
 #common board headers used on multiple places in application
 ifeq ($(findstring fw_,$(MAKECMDGOALS)), fw_)
