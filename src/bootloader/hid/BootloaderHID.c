@@ -82,8 +82,8 @@ void Application_Jump_Check(void)
     setOutput(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
     setOutput(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
     setOutput(DEC_DM_A2_PORT, DEC_DM_A2_PIN);
-    setLow(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
-    setHigh(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
+    setHigh(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
+    setLow(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
     setHigh(DEC_DM_A2_PORT, DEC_DM_A2_PIN);
     #endif
     #else
@@ -118,7 +118,7 @@ void Application_Jump_Check(void)
     #ifdef BOARD_KODAMA
     bool hardwareTrigger = BIT_READ(dInData, 0x03);
     #elif defined(BOARD_TANNIN)
-    bool hardwareTrigger = BIT_READ(dInData, 0x03);
+    bool hardwareTrigger = BIT_READ(dInData, 0x07);
     #endif
     #else
     bool hardwareTrigger = !readPin(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
