@@ -45,6 +45,7 @@ ifeq ($(findstring opendeck,$(MAKECMDGOALS)), opendeck)
     DEFINES += IN_MATRIX
     DEFINES += OUT_MATRIX
     DEFINES += LED_INDICATORS
+    DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 2
 else ifeq ($(findstring tannin,$(MAKECMDGOALS)), tannin)
@@ -56,6 +57,7 @@ else ifeq ($(findstring tannin,$(MAKECMDGOALS)), tannin)
     DEFINES += USE_MUX
     DEFINES += IN_MATRIX
     DEFINES += OUT_MATRIX
+    DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 3
     HARDWARE_VERSION_MINOR := 0
 else ifeq ($(findstring leonardo,$(MAKECMDGOALS)), leonardo)
@@ -65,6 +67,7 @@ else ifeq ($(findstring leonardo,$(MAKECMDGOALS)), leonardo)
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += LED_INT_INVERT
     DEFINES += LED_INDICATORS
+    DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
 else ifeq ($(findstring pro_micro,$(MAKECMDGOALS)), pro_micro)
@@ -73,6 +76,7 @@ else ifeq ($(findstring pro_micro,$(MAKECMDGOALS)), pro_micro)
     DEFINES += USB_SUPPORTED
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += LED_INT_INVERT
+    DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
     DEFINES += LED_INDICATORS
@@ -82,6 +86,7 @@ else ifeq ($(findstring kodama,$(MAKECMDGOALS)), kodama)
     DEFINES += USB_SUPPORTED
     DEFINES += USE_MUX
     DEFINES += LED_EXT_INVERT
+    DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
 else ifeq ($(findstring teensy2pp,$(MAKECMDGOALS)), teensy2pp)
@@ -91,6 +96,7 @@ else ifeq ($(findstring teensy2pp,$(MAKECMDGOALS)), teensy2pp)
     DEFINES += USB_SUPPORTED
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += DISPLAY_SUPPORTED
+    DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
 else ifeq ($(findstring mega,$(MAKECMDGOALS)), mega)
