@@ -39,6 +39,30 @@ uint8_t     encoderInverted[MAX_NUMBER_OF_ENCODERS/8+1];
 uint8_t     encoderEnabled[MAX_NUMBER_OF_ENCODERS/8+1];
 
 ///
+/// \brief Holds pulses per step for all encoders.
+///
+uint8_t     pulsesPerStep[MAX_NUMBER_OF_ENCODERS];
+
+///
+/// \brief Array used for easier access to current encoder MIDI value in 7Fh01h and 3Fh41h modes.
+/// Matched with encoderType_t and encoderPosition_t
+///
+const uint8_t encValue[2][3] =
+{
+    {
+        0,
+        ENCODER_VALUE_LEFT_7FH01H,
+        ENCODER_VALUE_RIGHT_7FH01H
+    },
+
+    {
+        0,
+        ENCODER_VALUE_LEFT_3FH41H,
+        ENCODER_VALUE_RIGHT_3FH41H
+    }
+};
+
+///
 /// \brief Checks if encoder is inverted.
 /// @param [in] encoderID    Index of encoder which is being checked.
 /// \returns True if encoder is inverted, false otherwise.
@@ -72,6 +96,7 @@ void Encoders::init()
 
         BIT_WRITE(encoderEnabled[arrayIndex], encoderIndex, database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i));
         BIT_WRITE(encoderInverted[arrayIndex], encoderIndex, database.read(DB_BLOCK_ENCODERS, dbSection_encoders_invert, i));
+        pulsesPerStep[i] = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_pulsesPerStep, i);
     }
 }
 
@@ -87,7 +112,8 @@ void Encoders::update()
         if (!isEncoderEnabled(i))
             continue;
 
-        encoderPosition_t encoderState = (encoderPosition_t)board.getEncoderState(i, database.read(DB_BLOCK_ENCODERS, dbSection_encoders_pulsesPerStep, i));
+        encoderPosition_t encoderState = (encoderPosition_t)board.getEncoderState(i, pulsesPerStep[i]);
+
         if (encoderState == encStopped)
             continue;
 
@@ -106,17 +132,8 @@ void Encoders::update()
         switch(type)
         {
             case encType7Fh01h:
-            if (encoderState == encMoveLeft)
-                encoderValue = ENCODER_VALUE_LEFT_7FH01H;
-            else
-                encoderValue = ENCODER_VALUE_RIGHT_7FH01H;
-            break;
-
             case encType3Fh41h:
-            if (encoderState == encMoveLeft)
-                encoderValue = ENCODER_VALUE_LEFT_3FH41H;
-            else
-                encoderValue = ENCODER_VALUE_RIGHT_3FH41H;
+            encoderValue = encValue[(uint8_t)type][(uint8_t)encoderState];
             break;
 
             case encTypePC:

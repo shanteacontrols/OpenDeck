@@ -35,22 +35,27 @@ static uint8_t  mmcArray[] =  { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 };
 ///
 /// \brief Array holding debounce count for all buttons to avoid incorrect state detection.
 ///
-uint8_t         buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG];
+uint8_t                 buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG];
 
 ///
 /// \brief Array holding current state for all buttons.
 ///
-uint8_t         buttonPressed[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1];
+uint8_t                 buttonPressed[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1];
 
 ///
 /// \brief Array holding last sent state for latching buttons only.
 ///
-uint8_t         lastLatchingState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1];
+uint8_t                 lastLatchingState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1];
 
 ///
 /// \brief Array holding button type (1 - latching, 0 - momentary).
 ///
-uint8_t         latchingState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1];
+uint8_t                 latchingState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1];
+
+///
+/// \brief Holds message type the button sends.
+///
+buttonMIDImessage_t     buttonMessage[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG];
 
 
 ///
@@ -86,6 +91,7 @@ void Buttons::init()
         uint8_t buttonIndex = i - 8*arrayIndex;
 
         BIT_WRITE(latchingState[arrayIndex], buttonIndex, (bool)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_type, i));
+        buttonMessage[i] = (buttonMIDImessage_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, i);
     }
 }
 
@@ -106,7 +112,6 @@ void Buttons::update()
 
         bool process = false;
         buttonType_t type = getButtonType(i);
-        buttonMIDImessage_t midiMessage = (buttonMIDImessage_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, i);
 
         //act on change of state only
         if (state != getButtonState(i))
@@ -114,7 +119,7 @@ void Buttons::update()
             setButtonState(i, state);
 
             //overwrite type under certain conditions
-            switch(midiMessage)
+            switch(buttonMessage[i])
             {
                 case buttonPC:
                 case buttonPCinc:
@@ -140,7 +145,7 @@ void Buttons::update()
                 break;
             }
 
-            if (midiMessage != buttonNone)
+            if (buttonMessage[i] != buttonNone)
             {
                 switch(type)
                 {
@@ -181,7 +186,7 @@ void Buttons::update()
         }
 
         if (process)
-            processButton(i, state, midiMessage);
+            processButton(i, state, buttonMessage[i]);
     }
 }
 
@@ -199,7 +204,7 @@ void Buttons::processButton(uint8_t buttonID, bool state, buttonMIDImessage_t mi
     mmcArray[2] = note; //use midi note as channel id for transport control
 
     if (midiMessage == BUTTON_MESSAGE_TYPES)
-        midiMessage = (buttonMIDImessage_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, buttonID);
+        midiMessage = buttonMessage[buttonID];
 
     if (state)
     {

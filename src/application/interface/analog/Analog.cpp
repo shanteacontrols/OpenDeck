@@ -19,10 +19,11 @@
 #include "Analog.h"
 #include "Variables.h"
 
-uint16_t    lastAnalogueValue[MAX_NUMBER_OF_ANALOG];
-uint8_t     fsrPressed[MAX_NUMBER_OF_ANALOG/8+1];
-uint8_t     analogEnabled[MAX_NUMBER_OF_ANALOG/8+1];
-uint8_t     analogInverted[MAX_NUMBER_OF_ANALOG/8+1];
+uint16_t        lastAnalogueValue[MAX_NUMBER_OF_ANALOG];
+uint8_t         fsrPressed[MAX_NUMBER_OF_ANALOG/8+1];
+uint8_t         analogEnabled[MAX_NUMBER_OF_ANALOG/8+1];
+uint8_t         analogInverted[MAX_NUMBER_OF_ANALOG/8+1];
+analogType_t    analogType[MAX_NUMBER_OF_ANALOG];
 
 
 ///
@@ -58,6 +59,7 @@ void Analog::init()
 
         BIT_WRITE(analogEnabled[arrayIndex], analogIndex, database.read(DB_BLOCK_ANALOG, dbSection_analog_enable, i));
         BIT_WRITE(analogInverted[arrayIndex], analogIndex, database.read(DB_BLOCK_ANALOG, dbSection_analog_invert, i));
+        analogType[i] = (analogType_t)database.read(DB_BLOCK_ANALOG, dbSection_analog_type, i);
     }
 }
 
@@ -74,18 +76,17 @@ void Analog::update()
             continue;
 
         int16_t analogData = board.getAnalogValue(i);
-        analogType_t type = (analogType_t)database.read(DB_BLOCK_ANALOG, dbSection_analog_type, i);
 
-        if (type != aType_button)
+        if (analogType[i] != aType_button)
         {
-            switch(type)
+            switch(analogType[i])
             {
                 case aType_potentiometer_cc:
                 case aType_potentiometer_note:
                 case aType_NRPN_7:
                 case aType_NRPN_14:
                 case aType_PitchBend:
-                checkPotentiometerValue(type, i, analogData);
+                checkPotentiometerValue(analogType[i], i, analogData);
                 break;
 
                 case aType_fsr:

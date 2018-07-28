@@ -300,6 +300,8 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             case sysExSection_analog_type:
             analog.debounceReset(index);
             success = database.update(block, sysEx2DB_analog[section], index, newValue);
+            if (success)
+                analog.init();
             break;
 
             case sysExSection_analog_midiChannel:
@@ -511,6 +513,8 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                         break;
                 }
             }
+
+            leds.init(false);
             break;
 
             case sysExSection_leds_activationID:
@@ -537,6 +541,9 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             {
                 //apply to single led only
                 success = database.update(block, sysEx2DB_leds[section], index, newValue);
+
+                if (success && (section == sysExSection_leds_midiChannel))
+                    leds.init(false);
             }
             break;
 
@@ -656,7 +663,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
         {
             success = database.update(block, sysEx2DB_buttons[section], index, newValue);
 
-            if (success && (section == sysExSection_buttons_type))
+            if (success && ((section == sysExSection_buttons_type) || (section == sysExSection_buttons_midiMessage)))
                 buttons.init();
         }
         break;
@@ -671,7 +678,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
         {
             success = database.update(block, sysEx2DB_encoders[section], index, newValue);
 
-            if (success && ((section == sysExSection_encoders_enable) || (section == sysExSection_encoders_invert)))
+            if (success && ((section == sysExSection_encoders_enable) || (section == sysExSection_encoders_invert) || (section == sysExSection_encoders_pulsesPerStep)))
                 encoders.init();
         }
         break;

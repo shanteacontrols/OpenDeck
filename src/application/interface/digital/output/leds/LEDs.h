@@ -32,7 +32,7 @@ class LEDs
 {
     public:
     LEDs();
-    static void init();
+    static void init(bool startUp = true);
     static void update();
     static void setAllOn();
     static void setAllOff();

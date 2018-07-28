@@ -40,17 +40,22 @@ inline bool isAnalogInverted(uint8_t analogID)
 
 void Analog::checkPotentiometerValue(analogType_t analogType, uint8_t analogID, uint16_t value)
 {
+    if (abs(value - lastAnalogueValue[analogID]) < ANALOG_STEP_MIN_DIFF)
+        return;
+
     uint16_t midiValue;
     uint16_t oldMIDIvalue;
-    encDec_14bit_t encDec_14bit;
 
-    uint16_t analogDiff = abs(value - lastAnalogueValue[analogID]);
+    midiValue = board.scaleADC(value, ((analogType == aType_NRPN_14) || (analogType == aType_PitchBend)) ? MIDI_14_BIT_VALUE_MAX : MIDI_7_BIT_VALUE_MAX);
+    oldMIDIvalue = board.scaleADC(lastAnalogueValue[analogID], ((analogType == aType_NRPN_14) || (analogType == aType_PitchBend)) ? MIDI_14_BIT_VALUE_MAX : MIDI_7_BIT_VALUE_MAX);
 
-    if (analogDiff < ANALOG_STEP_MIN_DIFF)
+    if (midiValue == oldMIDIvalue)
         return;
 
     uint16_t lowerCClimit_14bit = database.read(DB_BLOCK_ANALOG, dbSection_analog_lowerLimit, analogID);
     uint16_t upperCClimit_14bit = database.read(DB_BLOCK_ANALOG, dbSection_analog_upperLimit, analogID);
+
+    encDec_14bit_t encDec_14bit;
 
     encDec_14bit.value = lowerCClimit_14bit;
     encDec_14bit.split14bit();
@@ -61,12 +66,6 @@ void Analog::checkPotentiometerValue(analogType_t analogType, uint8_t analogID, 
     encDec_14bit.split14bit();
 
     uint8_t upperCClimit_7bit = encDec_14bit.low;
-
-    midiValue = board.scaleADC(value, ((analogType == aType_NRPN_14) || (analogType == aType_PitchBend)) ? MIDI_14_BIT_VALUE_MAX : MIDI_7_BIT_VALUE_MAX);
-    oldMIDIvalue = board.scaleADC(lastAnalogueValue[analogID], ((analogType == aType_NRPN_14) || (analogType == aType_PitchBend)) ? MIDI_14_BIT_VALUE_MAX : MIDI_7_BIT_VALUE_MAX);
-
-    if (midiValue == oldMIDIvalue)
-        return;
 
     //invert CC data if configured
     if (isAnalogInverted(analogID))

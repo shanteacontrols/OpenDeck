@@ -29,6 +29,17 @@ static uint32_t     ledBlinkTime,
 
 volatile int8_t     transitionCounter[MAX_NUMBER_OF_LEDS];
 
+///
+/// \brief Array holding RGB enable state for all LEDs.
+///
+uint8_t             rgbLEDenabled[MAX_NUMBER_OF_LEDS/8+1];
+
+///
+/// \brief Array holding control channel for all LEDs.
+///
+uint8_t             ledControlChannel[MAX_NUMBER_OF_LEDS];
+
+
 #define BLINK_TIME_MIN_INT  (BLINK_TIME_MIN*100)
 #define BLINK_TIME_MAX_INT  (BLINK_TIME_MAX*100)
 
@@ -38,26 +49,52 @@ LEDs::LEDs()
     //def const
 }
 
-void LEDs::init()
+void LEDs::init(bool startUp)
 {
-    setBlinkTime(database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterBlinkTime)*BLINK_TIME_SYSEX_MULTIPLIER);
-
-    if (database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterStartUpRoutine))
+    if (startUp)
     {
-        //set to slowest fading speed for effect
-        #ifdef LED_FADING_SUPPORTED
-        setFadeTime(1);
-        #endif
+        setBlinkTime(database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterBlinkTime)*BLINK_TIME_SYSEX_MULTIPLIER);
 
-        if (board.startUpAnimation != NULL)
-            board.startUpAnimation();
-        else
-            startUpAnimation();
+        if (database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterStartUpRoutine))
+        {
+            //set to slowest fading speed for effect
+            #ifdef LED_FADING_SUPPORTED
+            setFadeTime(1);
+            #endif
+
+            if (board.startUpAnimation != NULL)
+                board.startUpAnimation();
+            else
+                startUpAnimation();
+        }
+
+        #ifdef LED_FADING_SUPPORTED
+        setFadeTime(database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterFadeTime));
+        #endif
     }
 
-    #ifdef LED_FADING_SUPPORTED
-    setFadeTime(database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterFadeTime));
-    #endif
+    //store some parameters from eeprom to ram for faster access
+    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+    {
+        uint8_t arrayIndex = i/8;
+        uint8_t ledIndex = i - 8*arrayIndex;
+
+        BIT_WRITE(rgbLEDenabled[arrayIndex], ledIndex, (bool)database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, i));
+        ledControlChannel[i] = database.read(DB_BLOCK_LEDS, dbSection_leds_midiChannel, i);
+    }
+}
+
+///
+/// \brief Checks if RGB led is enabled.
+/// @param [in] ledID    LED index which is being checked.
+/// \returns True if RGB LED is enabled.
+///
+inline bool isRGBLEDenabled(uint8_t ledID)
+{
+    uint8_t arrayIndex = ledID/8;
+    uint8_t ledIndex = ledID - 8*arrayIndex;
+
+    return BIT_READ(rgbLEDenabled[arrayIndex], ledIndex);
 }
 
 void LEDs::update()
@@ -118,7 +155,7 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
     {
         //no point in checking if channel doesn't match
-        if (database.read(DB_BLOCK_LEDS, dbSection_leds_midiChannel, i) != channel)
+        if (ledControlChannel[i] != channel)
             continue;
 
         bool setState = false;
@@ -192,7 +229,7 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
                 else
                 {
                     //get rgb led color using data2 value (note velocity / cc value)
-                    if (database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, i))
+                    if (isRGBLEDenabled(i))
                         color = valueToColor(data2);
                     else
                         color = (database.read(DB_BLOCK_LEDS, dbSection_leds_activationValue, i) == data2) ? colorRed : colorOff;
