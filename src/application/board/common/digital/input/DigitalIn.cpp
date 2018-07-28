@@ -35,16 +35,20 @@ volatile uint8_t    dIn_count;
 
 bool Board::digitalInputDataAvailable()
 {
-    if (dIn_count >= DIGITAL_IN_BUFFER_SIZE)
+    if (dIn_count)
     {
-        //ring buffer is full - this section is interrupt-safe currently
-        if (++dIn_tail == DIGITAL_IN_BUFFER_SIZE)
-            dIn_tail = 0;
+        #ifdef __AVR__
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        #endif
+        {
+            if (++dIn_tail == DIGITAL_IN_BUFFER_SIZE)
+                dIn_tail = 0;
 
-        for (int i=0; i<DIGITAL_IN_ARRAY_SIZE; i++)
-            digitalInBufferReadOnly[i] = digitalInBuffer[dIn_tail][i];
+            for (int i=0; i<DIGITAL_IN_ARRAY_SIZE; i++)
+                digitalInBufferReadOnly[i] = digitalInBuffer[dIn_tail][i];
 
-        dIn_count--;
+            dIn_count--;
+        }
 
         return true;
     }
