@@ -29,6 +29,12 @@ uint8_t encoderData[MAX_NUMBER_OF_ENCODERS];
 ///
 int8_t  encoderPulses[MAX_NUMBER_OF_ENCODERS];
 
+///
+/// \brief Array holding last encoder direction.
+///
+bool lastEncoderDirection[MAX_NUMBER_OF_ENCODERS];
+
+
 encoderPosition_t Board::readEncoder(uint8_t encoderID, uint8_t pairState, uint8_t pulsesPerStep)
 {
     encoderPosition_t returnValue = encStopped;
@@ -38,7 +44,26 @@ encoderPosition_t Board::readEncoder(uint8_t encoderID, uint8_t pairState, uint8
     encoderData[encoderID] |= pairState;
     encoderData[encoderID] &= 0x0F;
 
+    //no point in further checks if no movement is detected
+    if (!encoderLookUpTable[encoderData[encoderID]])
+        return returnValue;
+
     encoderPulses[encoderID] += encoderLookUpTable[encoderData[encoderID]];
+
+    bool newEncoderDirection = encoderLookUpTable[encoderData[encoderID]] > 0;
+
+    //get last encoder direction
+    bool lastDirection = lastEncoderDirection[encoderID];
+
+    //update new direction
+    lastEncoderDirection[encoderID] = newEncoderDirection;
+
+    //in order to detect single step, all pulse readings must have same direction
+    if (lastDirection != newEncoderDirection)
+    {
+        //reset encoder pulses to current lookup value
+        encoderPulses[encoderID] = encoderLookUpTable[encoderData[encoderID]];
+    }
 
     if (abs(encoderPulses[encoderID]) >= pulsesPerStep)
     {
