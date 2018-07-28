@@ -17,13 +17,14 @@
 */
 
 #include "../Variables.h"
+#include "interface/digital/input/encoders/DataTypes.h"
 
 uint8_t Board::getEncoderPair(uint8_t buttonID)
 {
     return buttonID/2;
 }
 
-int8_t Board::getEncoderState(uint8_t encoderID, uint8_t pulsesPerStep)
+encoderPosition_t Board::getEncoderState(uint8_t encoderID, uint8_t pulsesPerStep)
 {
     //find array index of digital input buffer where data is stored for requested encoder
     uint8_t buttonID = encoderID*2;
@@ -32,5 +33,6 @@ int8_t Board::getEncoderState(uint8_t encoderID, uint8_t pulsesPerStep)
     uint8_t pairState = BIT_READ(digitalInBufferReadOnly[arrayIndex], buttonID);
     pairState <<= 1;
     pairState |= BIT_READ(digitalInBufferReadOnly[arrayIndex], buttonID+1);
+
     return readEncoder(encoderID, pairState, pulsesPerStep);
 }

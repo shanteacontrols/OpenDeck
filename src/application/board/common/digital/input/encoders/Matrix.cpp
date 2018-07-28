@@ -29,7 +29,7 @@ uint8_t Board::getEncoderPair(uint8_t buttonID)
     return (row*NUMBER_OF_BUTTON_COLUMNS)/2 + column;
 }
 
-int8_t Board::getEncoderState(uint8_t encoderID, uint8_t pulsesPerStep)
+encoderPosition_t Board::getEncoderState(uint8_t encoderID, uint8_t pulsesPerStep)
 {
     uint8_t column = encoderID % NUMBER_OF_BUTTON_COLUMNS;
     uint8_t row  = (encoderID/NUMBER_OF_BUTTON_COLUMNS)*2;

@@ -29,9 +29,9 @@ uint8_t encoderData[MAX_NUMBER_OF_ENCODERS];
 ///
 int8_t  encoderPulses[MAX_NUMBER_OF_ENCODERS];
 
-int8_t Board::readEncoder(uint8_t encoderID, uint8_t pairState, uint8_t pulsesPerStep)
+encoderPosition_t Board::readEncoder(uint8_t encoderID, uint8_t pairState, uint8_t pulsesPerStep)
 {
-    int8_t returnValue = 0;
+    encoderPosition_t returnValue = encStopped;
 
     //add new data
     encoderData[encoderID] <<= 2;
@@ -42,7 +42,7 @@ int8_t Board::readEncoder(uint8_t encoderID, uint8_t pairState, uint8_t pulsesPe
 
     if (abs(encoderPulses[encoderID]) >= pulsesPerStep)
     {
-        returnValue = (encoderPulses[encoderID] > 0) ? 1 : -1;
+        returnValue = (encoderPulses[encoderID] > 0) ? encMoveLeft : encMoveRight;
         //reset count
         encoderPulses[encoderID] = 0;
     }
