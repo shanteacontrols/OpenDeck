@@ -29,8 +29,8 @@ int8_t Board::getEncoderState(uint8_t encoderID, uint8_t pulsesPerStep)
     uint8_t buttonID = encoderID*2;
     uint8_t arrayIndex = buttonID/8;
 
-    uint8_t pairState = BIT_READ(digitalInBufferReadOnly[arrayIndex], 7-buttonID);
+    uint8_t pairState = BIT_READ(digitalInBufferReadOnly[arrayIndex], buttonID);
     pairState <<= 1;
-    pairState |= BIT_READ(digitalInBufferReadOnly[arrayIndex], 6-buttonID);
+    pairState |= BIT_READ(digitalInBufferReadOnly[arrayIndex], buttonID+1);
     return readEncoder(encoderID, pairState, pulsesPerStep);
 }
