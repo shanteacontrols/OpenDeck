@@ -32,7 +32,7 @@ volatile int8_t     transitionCounter[MAX_NUMBER_OF_LEDS];
 ///
 /// \brief Array holding RGB enable state for all LEDs.
 ///
-uint8_t             rgbLEDenabled[MAX_NUMBER_OF_LEDS/8+1];
+uint8_t             rgbLEDenabled[MAX_NUMBER_OF_RGB_LEDS/8+1];
 
 ///
 /// \brief Array holding control channel for all LEDs.
@@ -75,12 +75,14 @@ void LEDs::init(bool startUp)
 
     //store some parameters from eeprom to ram for faster access
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+        ledControlChannel[i] = database.read(DB_BLOCK_LEDS, dbSection_leds_midiChannel, i);
+
+    for (int i=0; i<MAX_NUMBER_OF_RGB_LEDS; i++)
     {
         uint8_t arrayIndex = i/8;
         uint8_t ledIndex = i - 8*arrayIndex;
 
         BIT_WRITE(rgbLEDenabled[arrayIndex], ledIndex, (bool)database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, i));
-        ledControlChannel[i] = database.read(DB_BLOCK_LEDS, dbSection_leds_midiChannel, i);
     }
 }
 
@@ -161,10 +163,13 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
         bool setState = false;
         bool setBlink = false;
 
+        ledControlType_t controlType = database.read(DB_BLOCK_LEDS, dbSection_leds_controlType, i);
+
         //determine whether led state or blink state should be changed
+        //received MIDI message must match with defined control type
         if (local)
         {
-            switch(database.read(DB_BLOCK_LEDS, dbSection_leds_controlType, i))
+            switch(controlType)
             {
                 case ledControlLocal_Note:
                 if ((messageType == midiMessageNoteOn) || (messageType == midiMessageNoteOff))
@@ -187,7 +192,7 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
         }
         else
         {
-            switch(database.read(DB_BLOCK_LEDS, dbSection_leds_controlType, i))
+            switch(controlType)
             {
                 case ledControlMIDIin_noteCC:
                 if ((messageType == midiMessageNoteOn) || (messageType == midiMessageNoteOff))
@@ -222,14 +227,19 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
 
                 if (messageType == midiMessageProgramChange)
                 {
-                    //no need to check byte2 on program change, turn led on
-                    //any color will do
-                    color = colorRed;
+                    //byte2 doesn't exist on program change message
+                    //color depends on data1 if rgb led is enabled
+                    //otherwise just turn the led on - no activation value check
+                    if (isRGBLEDenabled(board.getRGBID(i)))
+                        color = valueToColor(data1);
+                    else
+                        color = colorRed; //any color is fine on single-color led
                 }
                 else
                 {
-                    //get rgb led color using data2 value (note velocity / cc value)
-                    if (isRGBLEDenabled(i))
+                    //use data2 value (note velocity / cc value) to set led color
+                    //on single color leds, match activation value with data2
+                    if (isRGBLEDenabled(board.getRGBID(i)))
                         color = valueToColor(data2);
                     else
                         color = (database.read(DB_BLOCK_LEDS, dbSection_leds_activationValue, i) == data2) ? colorRed : colorOff;
@@ -261,7 +271,7 @@ void LEDs::setBlinkState(uint8_t ledID, bool state)
 {
     uint8_t ledArray[3], leds = 0;
 
-    if (database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, board.getRGBID(ledID)))
+    if (isRGBLEDenabled(board.getRGBID(ledID)))
     {
         ledArray[0] = board.getRGBaddress(ledID, rgb_R);
         ledArray[1] = board.getRGBaddress(ledID, rgb_G);
@@ -311,7 +321,7 @@ void LEDs::setAllOff()
 
 void LEDs::setColor(uint8_t ledNumber, ledColor_t color)
 {
-    if (database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, board.getRGBID(ledNumber)))
+    if (isRGBLEDenabled(board.getRGBID(ledID)))
     {
         uint8_t led1 = board.getRGBaddress(ledNumber, rgb_R);
         uint8_t led2 = board.getRGBaddress(ledNumber, rgb_G);
