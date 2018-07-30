@@ -36,7 +36,7 @@ class LEDs
     static void update();
     static void setAllOn();
     static void setAllOff();
-    static void setColor(uint8_t ledNumber, ledColor_t color);
+    static void setColor(uint8_t ledID, ledColor_t color);
     static ledColor_t getColor(uint8_t ledID);
     static void setBlinkState(uint8_t ledID, bool state);
     static bool getBlinkState(uint8_t ledID);
@@ -46,8 +46,8 @@ class LEDs
 
     private:
     static ledColor_t valueToColor(uint8_t receivedVelocity);
-    static uint8_t getState(uint8_t ledNumber);
-    static void handleLED(uint8_t ledNumber, bool state, bool rgbLED = false, rgbIndex_t index = rgb_R);
+    static uint8_t getState(uint8_t ledID);
+    static void handleLED(uint8_t ledID, bool state, bool rgbLED = false, rgbIndex_t index = rgb_R);
 
     static void startUpAnimation();
 };

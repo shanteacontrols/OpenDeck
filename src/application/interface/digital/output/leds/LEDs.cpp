@@ -163,7 +163,7 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
         bool setState = false;
         bool setBlink = false;
 
-        ledControlType_t controlType = database.read(DB_BLOCK_LEDS, dbSection_leds_controlType, i);
+        ledControlType_t controlType = (ledControlType_t)database.read(DB_BLOCK_LEDS, dbSection_leds_controlType, i);
 
         //determine whether led state or blink state should be changed
         //received MIDI message must match with defined control type
@@ -319,13 +319,13 @@ void LEDs::setAllOff()
         setColor(i, colorOff);
 }
 
-void LEDs::setColor(uint8_t ledNumber, ledColor_t color)
+void LEDs::setColor(uint8_t ledID, ledColor_t color)
 {
     if (isRGBLEDenabled(board.getRGBID(ledID)))
     {
-        uint8_t led1 = board.getRGBaddress(ledNumber, rgb_R);
-        uint8_t led2 = board.getRGBaddress(ledNumber, rgb_G);
-        uint8_t led3 = board.getRGBaddress(ledNumber, rgb_B);
+        uint8_t led1 = board.getRGBaddress(ledID, rgb_R);
+        uint8_t led2 = board.getRGBaddress(ledID, rgb_G);
+        uint8_t led3 = board.getRGBaddress(ledID, rgb_B);
 
         handleLED(led1, BIT_READ(color, 0));
         handleLED(led2, BIT_READ(color, 1));
@@ -333,7 +333,7 @@ void LEDs::setColor(uint8_t ledNumber, ledColor_t color)
     }
     else
     {
-        handleLED(ledNumber, (bool)color);
+        handleLED(ledID, (bool)color);
     }
 }
 
@@ -371,9 +371,9 @@ ledColor_t LEDs::getColor(uint8_t ledID)
     }
 }
 
-uint8_t LEDs::getState(uint8_t ledNumber)
+uint8_t LEDs::getState(uint8_t ledID)
 {
-    return ledState[ledNumber];
+    return ledState[ledID];
 }
 
 bool LEDs::getBlinkState(uint8_t ledID)
@@ -413,7 +413,7 @@ bool LEDs::setBlinkTime(uint16_t blinkTime)
     return true;
 }
 
-void LEDs::handleLED(uint8_t ledNumber, bool state, bool rgbLED, rgbIndex_t index)
+void LEDs::handleLED(uint8_t ledID, bool state, bool rgbLED, rgbIndex_t index)
 {
     /*
 
@@ -430,7 +430,7 @@ void LEDs::handleLED(uint8_t ledNumber, bool state, bool rgbLED, rgbIndex_t inde
 
     */
 
-    uint8_t currentState = getState(ledNumber);
+    uint8_t currentState = getState(ledID);
 
     if (state)
     {
@@ -467,7 +467,7 @@ void LEDs::handleLED(uint8_t ledNumber, bool state, bool rgbLED, rgbIndex_t inde
         currentState = 0;
     }
 
-    ledState[ledNumber] = currentState;
+    ledState[ledID] = currentState;
 }
 
 LEDs leds;
