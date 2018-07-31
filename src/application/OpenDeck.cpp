@@ -215,10 +215,14 @@ int main()
             digitalInput.update();
             analog.update();
             leds.update();
-        }
 
-        #ifdef DISPLAY_SUPPORTED
-        display.update();
-        #endif
+            #ifdef DISPLAY_SUPPORTED
+            display.update();
+            #endif
+
+            #ifdef TOUCHSCREEN_SUPPORTED
+            touchscreen.update();
+            #endif
+        }
     }
 }

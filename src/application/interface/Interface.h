@@ -24,3 +24,6 @@
 #ifdef DISPLAY_SUPPORTED
 #include "display/Display.h"
 #endif
+#ifdef TOUCHSCREEN_SUPPORTED
+#include "display/touch/Touchscreen.h"
+#endif
