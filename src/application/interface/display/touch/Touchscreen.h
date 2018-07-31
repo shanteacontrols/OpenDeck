@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "DataTypes.h"
+
 ///
 /// \brief Touchscreen control.
 /// \defgroup interfaceLCDTouch Touchscreen
@@ -28,19 +30,19 @@ class Touchscreen
 {
     public:
     Touchscreen();
-    static void init();
+    static bool init(ts_t touchscreenType);
     static void update();
-    void handleRead(int16_t(*fptr)());
-    void handleWrite(int8_t(*fptr)(uint8_t data));
+    static void setImage(uint8_t imageID);
+    static void setIcon(uint16_t x, uint16_t y, uint16_t iconID);
+    static void setBrightness(backlightType_t type, int8_t value);
 
     private:
-    static void read();
-    static void parse();
     static void process(uint8_t buttonID, bool buttonState);
-    int16_t (*sendReadCallback)();
-    int8_t (*sendWriteCallback)(uint8_t data);
 };
 
+///
+/// \brief External definition of Touchscreen class instance.
+///
 extern Touchscreen touchscreen;
 
 /// @}

@@ -33,8 +33,10 @@ volatile uint8_t    midiIn_timeout;
 volatile uint8_t    midiOut_timeout;
 #endif
 
-volatile bool       MIDIreceived;
-volatile bool       MIDIsent;
+volatile bool       USBreceived;
+volatile bool       USBsent;
+volatile bool       UARTreceived;
+volatile bool       UARTsent;
 
 
 ///
@@ -53,10 +55,11 @@ ISR(CORE_ISR)
         rTime_ms++;
 
         #ifdef LED_INDICATORS
-        if (MIDIreceived)
+        if (USBreceived || UARTreceived)
         {
             INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
-            MIDIreceived = false;
+            USBreceived = false;
+            UARTreceived = false;
             midiIn_timeout = MIDI_INDICATOR_TIMEOUT;
         }
 
@@ -65,10 +68,11 @@ ISR(CORE_ISR)
         else
             INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
 
-        if (MIDIsent)
+        if (USBsent || UARTsent)
         {
             INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
-            MIDIsent = false;
+            USBsent = false;
+            UARTsent = false;
             midiOut_timeout = MIDI_INDICATOR_TIMEOUT;
         }
 

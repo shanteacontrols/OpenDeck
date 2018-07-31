@@ -86,7 +86,8 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         application/board/avr/variants/$(BOARD_DIR)/xu2.cpp \
         application/board/avr/variants/$(BOARD_DIR)/ISR.cpp \
         application/board/avr/uart/UART.cpp \
-        application/board/avr/usb/USB_MIDI.cpp
+        application/board/avr/usb/USB_MIDI.cpp \
+        application/interface/midi/OpenDeckFormat.cpp
     else
         SOURCES += \
         application/OpenDeck.cpp \
@@ -139,7 +140,6 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         endif
 
         ifneq ($(filter USB_SUPPORTED, $(DEFINES)), )
-            #these variants all support usb midi and use uart1 for din midi
             SOURCES += \
             application/board/avr/usb/USB_MIDI.cpp
         endif
@@ -147,7 +147,6 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         SOURCES += \
         application/board/avr/uart/UART.cpp
 
-        #compile display only for mega and teensy at the moment
         ifneq ($(filter DISPLAY_SUPPORTED, $(DEFINES)), )
             SOURCES += \
             application/board/avr/display/u8g2_wrapper.cpp \
@@ -171,6 +170,22 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
 
             #i2c for display communication
             SOURCES += modules/i2c/twimaster.c
+        endif
+
+        ifneq ($(filter TOUCHSCREEN_SUPPORTED, $(DEFINES)), )
+            SOURCES += \
+            application/interface/display/touch/Touchscreen.cpp \
+            application/interface/display/touch/model/sdw/SDW.cpp
+        endif
+
+        ifneq ($(filter UART_INIT, $(DEFINES)), )
+            SOURCES += \
+            application/interface/midi/OpenDeckFormat.cpp
+        endif
+
+        ifneq ($(filter DIN_MIDI_SUPPORTED, $(DEFINES)), )
+            SOURCES += \
+            application/interface/midi/STDFormat.cpp
         endif
     endif
 endif

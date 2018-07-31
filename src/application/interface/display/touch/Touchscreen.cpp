@@ -17,23 +17,60 @@
 */
 
 #include "Touchscreen.h"
+#include "Variables.h"
+#include "model/sdw/SDW.h"
+
+
+bool        (*displayUpdatePtr)();
+void        (*setImagePtr)(uint8_t imageID);
+void        (*setIconPtr)(uint16_t x, uint16_t y, uint16_t iconID);
+int16_t     (*dataReadPtr)();
+int8_t      (*dataWritePtr)(uint8_t data);
+uint8_t     displayRxBuffer[TOUCHSCREEN_RX_BUFFER_SIZE];
+uint8_t     bufferIndex_rx;
+uint8_t     activeButtonID;
+bool        activeButtonState;
 
 ///
 /// \brief Default constructor.
 ///
 Touchscreen::Touchscreen()
 {
-    sendReadCallback = NULL;
-    sendWriteCallback = NULL;
+    dataReadPtr = NULL;
+    dataWritePtr = NULL;
+    displayUpdatePtr = NULL;
+    setImagePtr = NULL;
+    setIconPtr = NULL;
 }
 
 ///
-/// \brief Continuously checks for data input from touch screen.
+/// \brief Initializes specified touchscreen.
+/// @param [in] touchscreenType Touchscreen type. See ts_t.
+/// \returns True on success, false otherwise.
+///
+bool Touchscreen::init(ts_t touchscreenType)
+{
+    switch(touchscreenType)
+    {
+        case ts_sdw:
+        sdw_init();
+        return true;
+
+        default:
+        return false;
+    }
+}
+
+///
+/// \brief Checks for incoming data from display.
 ///
 void Touchscreen::update()
 {
-    if (sendReadCallback == NULL)
+    if (displayUpdatePtr == NULL)
         return;
+
+    if ((*displayUpdatePtr)())
+        process(activeButtonID, activeButtonState);
 }
 
 ///
@@ -47,19 +84,29 @@ void Touchscreen::process(uint8_t buttonID, bool buttonState)
 }
 
 ///
-/// \brief Configures callback to handle reading from display.
-/// Handling function must return value -1 if no data is available.
+/// \brief Displays full-screen image on display.
+/// @param [in] imageID  Index of image to display.
 ///
-void SDW::handleRead(int16_t(*fptr)())
+void Touchscreen::setImage(uint8_t imageID)
 {
-    sendReadCallback = fptr;
+    if (setImagePtr == NULL)
+        return;
+
+    (*setImagePtr)(imageID);
 }
 
 ///
-/// \brief Configures callback to handle writing to display.
-/// Handling function must return value -1 if writing has failed.
+/// \brief Displays icon on display.
+/// @param [in] x       X coordinate of icon.
+/// @param [in] y       Y coordinate of icon.
+/// @param [in] iconID  Number of icon to display.
 ///
-void SDW::handleWrite(int8_t(*fptr)(uint8_t data))
+void Touchscreen::setIcon(uint16_t x, uint16_t y, uint16_t iconID)
 {
-    sendWriteCallback = fptr;
+    if (setIconPtr == NULL)
+        return;
+
+    (*setIconPtr)(x, y, iconID);
 }
+
+Touchscreen touchscreen;

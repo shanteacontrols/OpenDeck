@@ -80,93 +80,69 @@ class Board
     static bool isUSBconnected();
 
     ///
-    /// \brief Initializes UART peripheral used to send and receive MIDI data.
-    /// @param [in] resetOnly   When set to true, UART interface will be reset/deinitialized without
-    ///                         further configuration. Set to false by default.
+    /// \brief Deinitializes specified UART channel.
+    /// @param [in] channel UART channel on MCU.
     ///
-    static void initMIDI_UART(bool resetOnly = false);
+    static void resetUART(uint8_t channel);
 
     ///
-    /// \brief Configures OpenDeck UART MIDI format.
+    /// \brief Initializes UART peripheral.
+    /// @param [in] baudRate    UART speed (baudrate).
+    /// @param [in] channel     UART channel on MCU.
     ///
-    static void setOD_UART();
+    static void initUART(uint32_t baudRate, uint8_t channel);
 
     ///
-    /// \brief Checks if OpenDeck UART format is configured.
-    /// \returns True if configured, false otherwise.
-    ///
-    static bool getOD_UART();
-
-    ///
-    /// \brief Used to read MIDI data from UART interface.
+    /// \brief Used to read MIDI data from RX UART buffer.
+    /// @param [in] channel     UART channel on MCU.
     /// \returns Single byte on success, -1 is buffer is empty.
     ///
-    static int16_t MIDIread_UART();
+    static int16_t uartRead(uint8_t channel);
 
     ///
-    /// \brief Used to write MIDI data to UART interface.
-    /// @param [in] data   Byte of data to write.
+    /// \brief Used to write MIDI data to UART TX buffer.
+    /// This function calls uartTransmitStart() internally so there is no
+    /// need to call externally.
+    /// @param [in] channel     UART channel on MCU.
+    /// @param [in] data        Byte of data to write.
     /// \returns Positive value on success. Since this function waits until
     /// outgoig buffer is full, result will always be success (1).
     ///
-    static int8_t MIDIwrite_UART(uint8_t data);
+    static int8_t uartWrite(uint8_t channel, uint8_t data);
 
     ///
-    /// \brief Used to read MIDI data using custom OpenDeck format from UART interface.
-    /// \returns True if data is available, false otherwise.
+    /// \brief Starts the process of transmitting the data from UART TX buffer to UART interface.
+    /// @param [in] channel     UART channel on MCU.
     ///
-    static bool MIDIread_UART_OD();
-
-    ///
-    /// \brief Used to write MIDI data using custom OpenDeck format to UART interface.
-    /// @param [in] USBMIDIpacket   Pointer to structure holding MIDI data to write.
-    /// \returns True on success, false otherwise.
-    ///
-    static bool MIDIwrite_UART_OD(USBMIDIpacket_t& USBMIDIpacket);
+    static void uartTransmitStart(uint8_t channel);
 
     ///
     /// \brief Used to read MIDI data from USB interface.
     /// @param [in] USBMIDIpacket   Pointer to structure in which MIDI data is stored.
     /// \returns True if data is available, false otherwise.
     ///
-    static bool MIDIread_USB(USBMIDIpacket_t& USBMIDIpacket);
-
-    ///
-    /// \brief Used to read MIDI data from USB interface and to immediately transfer received data
-    /// to UART interface in OpenDeck format.
-    /// @param [in] USBMIDIpacket   Pointer to structure holding MIDI data to write.
-    /// \returns True if data is available, false otherwise.
-    ///
-    static bool MIDIread_USB_write_UART_OD(USBMIDIpacket_t& USBMIDIpacket);
+    static bool usbReadMIDI(USBMIDIpacket_t& USBMIDIpacket);
 
     ///
     /// \brief Used to write MIDI data to USB interface.
     /// @param [in] USBMIDIpacket   Pointer to structure holding MIDI data to write.
     /// \returns True if data is available, false otherwise.
     ///
-    static bool MIDIwrite_USB(USBMIDIpacket_t& USBMIDIpacket);
-
-    ///
-    /// \brief Used to check whether or not incoming UART buffer is empty.
-    ///
-    static bool isRXempty();
-
-    ///
-    /// \brief Used to check whether or not outgoing UART buffer is empty.
-    ///
-    static bool isTXempty();
+    static bool usbWriteMIDI(USBMIDIpacket_t& USBMIDIpacket);
 
     ///
     /// \brief Used to enable or disable UART loopback functionality.
     /// Used to pass incoming UART data to TX channel immediately.
+    /// @param [in] channel UART channel on MCU.
     /// @param [in] state   New state of loopback functionality (true/enabled, false/disabled).
     ///
-    static void setUARTloopbackState(bool state);
+    static void setUARTloopbackState(uint8_t channel, bool state);
 
     ///
     /// \brief Checks whether or not UART loopback functionality is enabled.
+    /// @param [in] channel UART channel on MCU.
     ///
-    static bool getUARTloopbackState();
+    static bool getUARTloopbackState(uint8_t channel);
 
     ///
     /// \brief Checks if digital input data is available (encoder and button data).

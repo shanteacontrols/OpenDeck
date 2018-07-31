@@ -1,291 +1,312 @@
 #include "board/Board.h"
 #include "board/common/indicators/Variables.h"
+#include "board/common/uart/Variables.h"
 #include "Constants.h"
 
-///
-/// \brief Buffer in which outgoing data is stored.
-///
-static RingBuff_t   txBuffer;
-
-///
-/// \brief Buffer in which incoming data is stored.
-///
-static RingBuff_t   rxBuffer;
+RingBuff_t   txBuffer[UART_INTERFACES];
+RingBuff_t   rxBuffer[UART_INTERFACES];
 
 ///
 /// \brief Flag determining whether or not UART loopback functionality is enabled.
 /// When enabled, all incoming UART traffic is immediately passed on to UART TX.
 ///
-static bool         loopbackEnabled;
+static bool  loopbackEnabled[UART_INTERFACES];
 
-///
-/// \brief Flag determining whether or not OpenDeck UART format is configured.
-///
-static bool         odUARTconfigured;
 
 ///
 /// \brief ISR used to store incoming data from UART to buffer.
-///
-ISR(USART_RX_vect)
-{
-    uint8_t data = UDR;
+/// @{
 
-    if (!loopbackEnabled)
+ISR(USART_RX_vect_0)
+{
+    uint8_t data = UDR_0;
+
+    if (!loopbackEnabled[0])
     {
-        if (!RingBuffer_IsFull(&rxBuffer))
+        if (!RingBuffer_IsFull(&rxBuffer[0]))
         {
-            RingBuffer_Insert(&rxBuffer, data);
+            RingBuffer_Insert(&rxBuffer[0], data);
+            UARTreceived = true;
         }
     }
     else
     {
-        if (!RingBuffer_IsFull(&txBuffer))
+        if (!RingBuffer_IsFull(&txBuffer[0]))
         {
-            RingBuffer_Insert(&txBuffer, data);
-            UCSRB |= (1<<UDRIE);
-            #ifdef LED_INDICATORS
-            MIDIsent = true;
-            MIDIreceived = true;
-            #endif
+            RingBuffer_Insert(&txBuffer[0], data);
+            UCSRB_0 |= (1<<UDRIE_0);
+            UARTsent = true;
+            UARTreceived = true;
         }
+    }
 }
+
+#if UART_INTERFACES > 1
+ISR(USART_RX_vect_1)
+{
+    uint8_t data = UDR_1;
+
+    if (!loopbackEnabled[1])
+    {
+        if (!RingBuffer_IsFull(&rxBuffer[1]))
+        {
+            RingBuffer_Insert(&rxBuffer[1], data);
+            UARTreceived = true;
+        }
+    }
+    else
+    {
+        if (!RingBuffer_IsFull(&txBuffer[1]))
+        {
+            RingBuffer_Insert(&txBuffer[1], data);
+            UCSRB_1 |= (1<<UDRIE_1);
+            UARTsent = true;
+            UARTreceived = true;
+        }
+    }
 }
+#endif
+
+/// @}
 
 ///
 /// \brief ISR used to write outgoing data in buffer to UART.
-///
-ISR(USART_UDRE_vect)
+/// @{
+
+ISR(USART_UDRE_vect_0)
 {
-    if (RingBuffer_IsEmpty(&txBuffer))
+    if (RingBuffer_IsEmpty(&txBuffer[0]))
     {
         //buffer is empty, disable transmit interrupt
-        UCSRB &= ~(1<<UDRIE);
+        UCSRB_0 &= ~(1<<UDRIE_0);
     }
     else
     {
-        uint8_t data = RingBuffer_Remove(&txBuffer);
-        UDR = data;
+        uint8_t data = RingBuffer_Remove(&txBuffer[0]);
+        UDR_0 = data;
+        UARTsent = true;
     }
 }
 
-void Board::initMIDI_UART(bool resetOnly)
+#if UART_INTERFACES > 1
+ISR(USART_UDRE_vect_1)
 {
-    //clear registers first
+    if (RingBuffer_IsEmpty(&txBuffer[1]))
+    {
+        //buffer is empty, disable transmit interrupt
+        UCSRB_1 &= ~(1<<UDRIE_1);
+    }
+    else
+    {
+        uint8_t data = RingBuffer_Remove(&txBuffer[1]);
+        UDR_1 = data;
+        UARTsent = true;
+    }
+}
+#endif
+
+/// @}
+
+void Board::resetUART(uint8_t channel)
+{
+    if (channel >= UART_INTERFACES)
+        return;
+
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
-        UCSRA = 0;
-        UCSRB = 0;
-        UCSRC = 0;
-        UBRR = 0;
+        switch(channel)
+        {
+            case 0:
+            UCSRA_0 = 0;
+            UCSRB_0 = 0;
+            UCSRC_0 = 0;
+            UBRR_0 = 0;
+            break;
 
-        #ifndef BOARD_A_xu2
-        midi.handleUARTread(NULL);
-        midi.handleUARTwrite(NULL);
-        #endif
+            #if UART_INTERFACES > 1
+            case 1:
+            UCSRA_1 = 0;
+            UCSRB_1 = 0;
+            UCSRC_1 = 0;
+            UBRR_1 = 0;
+            break;
+            #endif
+
+            default:
+            break;
+        }
     }
 
-    if (!resetOnly)
+    RingBuffer_InitBuffer(&rxBuffer[channel]);
+    RingBuffer_InitBuffer(&txBuffer[channel]);
+}
+
+void Board::initUART(uint32_t baudRate, uint8_t channel)
+{
+    if (channel >= UART_INTERFACES)
+        return;
+
+    resetUART(channel);
+
+    int32_t baud_count = ((F_CPU / 8) + (baudRate / 2)) / baudRate;
+
+    if ((baud_count & 1) && baud_count <= 4096)
     {
-        int32_t baud_count = ((F_CPU / 8) + (MIDI_BAUD_RATE / 2)) / MIDI_BAUD_RATE;
-
-        if ((baud_count & 1) && baud_count <= 4096)
+        switch(channel)
         {
-            UCSRA = (1<<U2X); //double speed uart
-            UBRR = baud_count - 1;
+            case 0:
+            UCSRA_0 = (1<<U2X_0); //double speed uart
+            UBRR_0 = baud_count - 1;
+            break;
+
+            #if UART_INTERFACES > 1
+            case 1:
+            UCSRA_1 = (1<<U2X_1); //double speed uart
+            UBRR_1 = baud_count - 1;
+            break;
+            #endif
+
+            default:
+            break;
         }
-        else
+    }
+    else
+    {
+        switch(channel)
         {
-            UCSRA = 0;
-            UBRR = (baud_count >> 1) - 1;
+            case 0:
+            UCSRA_0 = 0;
+            UBRR_0 = (baud_count >> 1) - 1;
+            break;
+
+            #if UART_INTERFACES > 1
+            case 1:
+            UCSRA_1 = 0;
+            UBRR_1 = (baud_count >> 1) - 1;
+            break;
+            #endif
+
+            default:
+            break;
         }
+    }
 
-        //8 bit, no parity, 1 stop bit
-        UCSRC = (1<<UCSZ1) | (1<<UCSZ0);
+    //8 bit, no parity, 1 stop bit
+    //enable receiver, transmitter and receive interrupt
+    switch(channel)
+    {
+        case 0:
+        UCSRC_0 = (1<<UCSZ1_0) | (1<<UCSZ0_0);
+        UCSRB_0 = (1<<RXEN_0) | (1<<TXEN_0) | (1<<RXCIE_0);
+        break;
 
-        //enable receiver, transmitter and receive interrupt
-        UCSRB = (1<<RXEN) | (1<<TXEN) | (1<<RXCIE);
-
-        RingBuffer_InitBuffer(&rxBuffer);
-        RingBuffer_InitBuffer(&txBuffer);
-
-        #ifndef BOARD_A_xu2
-        #if defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
-        //enable od format immediately for these boards
-        setOD_UART();
-        #else
-        midi.handleUARTread(board.MIDIread_UART);
-        midi.handleUARTwrite(board.MIDIwrite_UART);
+        #if UART_INTERFACES > 1
+        case 1:
+        UCSRC_1 = (1<<UCSZ1_1) | (1<<UCSZ0_1);
+        UCSRB_1 = (1<<RXEN_1) | (1<<TXEN_1) | (1<<RXCIE_1);
+        break;
         #endif
-        #endif
+
+        default:
+        break;
     }
 }
 
-int16_t Board::MIDIread_UART()
+int16_t Board::uartRead(uint8_t channel)
 {
-    if (RingBuffer_IsEmpty(&rxBuffer))
-    {
+    if (channel >= UART_INTERFACES)
         return -1;
-    }
 
-    uint8_t data = RingBuffer_Remove(&rxBuffer);
-    #ifndef BOARD_A_xu2
-    #ifdef LED_INDICATORS
-    MIDIreceived = true;
-    #endif
-    #endif
+    if (RingBuffer_IsEmpty(&rxBuffer[channel]))
+        return -1;
+
+    uint8_t data = RingBuffer_Remove(&rxBuffer[channel]);
+
     return data;
 }
 
-int8_t Board::MIDIwrite_UART(uint8_t data)
+int8_t Board::uartWrite(uint8_t channel, uint8_t data)
 {
+    if (channel >= UART_INTERFACES)
+        return -1;
+
     //if both the outgoing buffer and the UART data register are empty
     //write the byte to the data register directly
-    if (RingBuffer_IsEmpty(&txBuffer) && (UCSRA & (1<<UDRE)))
+    if (RingBuffer_IsEmpty(&txBuffer[channel]))
     {
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        switch(channel)
         {
-            UDR = data;
-        }
+            case 0:
+            if (UCSRA_0 & (1<<UDRE_0))
+            {
+                ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+                {
+                    UDR_0 = data;
+                }
+            }
+            break;
 
-        #ifdef LED_INDICATORS
-        MIDIsent = true;
-        #endif
+            #if UART_INTERFACES > 1
+            case 1:
+            if (UCSRA_1 & (1<<UDRE_1))
+            {
+                ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+                {
+                    UDR_1 = data;
+                }
+            }
+            break;
+            #endif
+
+            default:
+            return -1;
+        }
 
         return 1;
     }
 
-    while (RingBuffer_IsFull(&txBuffer));
-    RingBuffer_Insert(&txBuffer, data);
-    UCSRB |= (1<<UDRIE);
-    #ifdef LED_INDICATORS
-    MIDIsent = true;
-    #endif
+    while (RingBuffer_IsFull(&txBuffer[channel]));
+    RingBuffer_Insert(&txBuffer[channel], data);
+
+    uartTransmitStart(channel);
 
     return 1;
 }
 
-bool Board::MIDIwrite_UART_OD(USBMIDIpacket_t& USBMIDIpacket)
+void Board::uartTransmitStart(uint8_t channel)
 {
-    RingBuffer_Insert(&txBuffer, 0xF1);
-    RingBuffer_Insert(&txBuffer, USBMIDIpacket.Event);
-    RingBuffer_Insert(&txBuffer, USBMIDIpacket.Data1);
-    RingBuffer_Insert(&txBuffer, USBMIDIpacket.Data2);
-    RingBuffer_Insert(&txBuffer, USBMIDIpacket.Data3);
-    RingBuffer_Insert(&txBuffer, USBMIDIpacket.Event ^ USBMIDIpacket.Data1 ^ USBMIDIpacket.Data2 ^ USBMIDIpacket.Data3);
+    if (channel >= UART_INTERFACES)
+        return;
 
-    UCSRB |= (1<<UDRIE);
-    #ifndef BOARD_A_xu2
-    #ifdef LED_INDICATORS
-    MIDIsent = true;
-    #endif
-    #endif
-
-    return true;
-}
-
-bool Board::MIDIread_UART_OD()
-{
-    if (RingBuffer_GetCount(&rxBuffer) >= 6)
+    switch(channel)
     {
-        int16_t data = MIDIread_UART();
+        case 0:
+        UCSRB_0 |= (1<<UDRIE_0);
+        break;
 
-        if (data == 0xF1)
-        {
-            //start of frame, read rest of the packet
-            for (int i=0; i<5; i++)
-            {
-                data = MIDIread_UART();
+        #if UART_INTERFACES > 1
+        case 1:
+        UCSRB_1 |= (1<<UDRIE_1);
+        break;
+        #endif
 
-                switch(i)
-                {
-                    case 0:
-                    usbMIDIpacket.Event = data;
-                    break;
-
-                    case 1:
-                    usbMIDIpacket.Data1 = data;
-                    break;
-
-                    case 2:
-                    usbMIDIpacket.Data2 = data;
-                    break;
-
-                    case 3:
-                    usbMIDIpacket.Data3 = data;
-                    break;
-
-                    case 4:
-                    //xor byte, do nothing
-                    break;
-                }
-            }
-
-            //error check
-            uint8_t dataXOR = usbMIDIpacket.Event ^ usbMIDIpacket.Data1 ^ usbMIDIpacket.Data2 ^ usbMIDIpacket.Data3;
-
-            return (dataXOR == data);
-        }
+        default:
+        break;
     }
-
-    return false;
 }
 
-bool usbRead_od(USBMIDIpacket_t& USBMIDIpacket)
+void Board::setUARTloopbackState(uint8_t channel, bool state)
 {
-    return board.MIDIread_UART_OD();
+    if (channel >= UART_INTERFACES)
+        return;
+
+    loopbackEnabled[channel] = state;
 }
 
-void Board::setUARTloopbackState(bool state)
+bool Board::getUARTloopbackState(uint8_t channel)
 {
-    loopbackEnabled = state;
-}
+    if (channel >= UART_INTERFACES)
+        return false;
 
-bool Board::getUARTloopbackState()
-{
-    return loopbackEnabled;
-}
-
-bool Board::isRXempty()
-{
-    return RingBuffer_IsEmpty(&rxBuffer);
-}
-
-bool Board::isTXempty()
-{
-    return RingBuffer_IsEmpty(&txBuffer);
-}
-
-void Board::setOD_UART()
-{
-    #ifdef BOARD_OPEN_DECK
-    if (isUSBconnected())
-    {
-        //master board
-        midi.handleUSBread(board.MIDIread_USB_write_UART_OD);
-        midi.handleUSBwrite(board.MIDIwrite_USB);
-        midi.handleUARTread(NULL); //parsed internally
-        midi.handleUARTwrite(NULL);
-    }
-    else
-    {
-        //slave
-        midi.handleUSBread(usbRead_od); //loopback used on inner slaves
-        midi.handleUSBwrite(board.MIDIwrite_UART_OD);
-        midi.handleUARTread(NULL);
-        midi.handleUARTwrite(NULL);
-    }
-
-    odUARTconfigured = true;
-    #elif defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
-    midi.handleUSBread(usbRead_od);
-    midi.handleUSBwrite(board.MIDIwrite_UART_OD);
-    midi.handleUARTread(NULL);
-    midi.handleUARTwrite(NULL);
-    odUARTconfigured = true;
-    #endif
-}
-
-bool Board::getOD_UART()
-{
-    return odUARTconfigured;
+    return loopbackEnabled[channel];
 }

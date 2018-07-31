@@ -13,7 +13,8 @@ HID_VENDOR_ID=0x1209 \
 HID_PRODUCT_ID=0x8473 \
 MIDI_VENDOR_ID=0x1209 \
 MIDI_PRODUCT_ID=0x8472 \
-MIDI_BAUD_RATE=31250 \
+UART_BAUDRATE_MIDI_STD=31250 \
+UART_BAUDRATE_MIDI_OD=38400
 
 #flash type specific
 ifeq ($(findstring boot,$(MAKECMDGOALS)), boot)
@@ -30,7 +31,8 @@ else ifeq ($(findstring fw,$(MAKECMDGOALS)), fw)
     USE_FLASH_DESCRIPTORS \
     INTERRUPT_CONTROL_ENDPOINT \
     MIDI_SYSEX_ARRAY_SIZE=45 \
-    RING_BUFFER_SIZE=50
+    RING_BUFFER_SIZE=50 \
+    TOUCHSCREEN_RX_BUFFER_SIZE=20
 endif
 
 #board specific
@@ -38,7 +40,6 @@ ifeq ($(findstring opendeck,$(MAKECMDGOALS)), opendeck)
     MCU := atmega32u4
     BOARD := BOARD_OPEN_DECK
     DEFINES += USB_SUPPORTED
-    DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += LED_FADING_SUPPORTED
     DEFINES += LED_EXT_INVERT
     DEFINES += USE_MUX
@@ -48,6 +49,9 @@ ifeq ($(findstring opendeck,$(MAKECMDGOALS)), opendeck)
     DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 2
+    DEFINES += UART_INIT
+    DEFINES += DIN_MIDI_SUPPORTED
+    DEFINES += UART_MIDI_CHANNEL=0
 else ifeq ($(findstring tannin,$(MAKECMDGOALS)), tannin)
     MCU := atmega32u4
     BOARD := BOARD_TANNIN
@@ -64,22 +68,26 @@ else ifeq ($(findstring leonardo,$(MAKECMDGOALS)), leonardo)
     MCU := atmega32u4
     BOARD := BOARD_A_LEO
     DEFINES += USB_SUPPORTED
-    DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += LED_INT_INVERT
     DEFINES += LED_INDICATORS
     DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
+    DEFINES += UART_INIT
+    DEFINES += DIN_MIDI_SUPPORTED
+    DEFINES += UART_MIDI_CHANNEL=0
 else ifeq ($(findstring pro_micro,$(MAKECMDGOALS)), pro_micro)
     MCU := atmega32u4
     BOARD := BOARD_A_PRO_MICRO
     DEFINES += USB_SUPPORTED
-    DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += LED_INT_INVERT
     DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
     DEFINES += LED_INDICATORS
+    DEFINES += UART_INIT
+    DEFINES += DIN_MIDI_SUPPORTED
+    DEFINES += UART_MIDI_CHANNEL=0
 else ifeq ($(findstring kodama,$(MAKECMDGOALS)), kodama)
     MCU := atmega32u4
     BOARD := BOARD_KODAMA
@@ -94,23 +102,33 @@ else ifeq ($(findstring teensy2pp,$(MAKECMDGOALS)), teensy2pp)
     BOARD := BOARD_T_2PP
     DEFINES += STRING_BUFFER_SIZE=40
     DEFINES += USB_SUPPORTED
-    DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += DISPLAY_SUPPORTED
     DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
+    DEFINES += UART_INIT
+    DEFINES += DIN_MIDI_SUPPORTED
+    DEFINES += UART_MIDI_CHANNEL=0
 else ifeq ($(findstring mega,$(MAKECMDGOALS)), mega)
     MCU := atmega2560
     BOARD := BOARD_A_MEGA
     DEFINES += STRING_BUFFER_SIZE=40
     DEFINES += DISPLAY_SUPPORTED
+    DEFINES += TOUCHSCREEN_SUPPORTED
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
+    DEFINES += UART_INIT
+    DEFINES += DIN_MIDI_SUPPORTED
+    DEFINES += UART_USB_LINK_CHANNEL=0
+    DEFINES += UART_MIDI_CHANNEL=1
+    DEFINES += UART_TOUCHSCREEN_CHANNEL=1
 else ifeq ($(findstring uno,$(MAKECMDGOALS)), uno)
     MCU := atmega328p
     BOARD := BOARD_A_UNO
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
+    DEFINES += UART_INIT
+    DEFINES += UART_USB_LINK_CHANNEL=0
 else ifeq ($(findstring 16u2,$(MAKECMDGOALS)), 16u2)
     MCU := atmega16u2
     BOARD := BOARD_A_xu2
@@ -118,6 +136,8 @@ else ifeq ($(findstring 16u2,$(MAKECMDGOALS)), 16u2)
     DEFINES += LED_INDICATORS
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
+    DEFINES += UART_INIT
+    DEFINES += UART_USB_LINK_CHANNEL=0
 else ifeq ($(findstring 8u2,$(MAKECMDGOALS)), 8u2)
     MCU := atmega8u2
     BOARD := BOARD_A_xu2
@@ -125,6 +145,8 @@ else ifeq ($(findstring 8u2,$(MAKECMDGOALS)), 8u2)
     DEFINES += LED_INDICATORS
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
+    DEFINES += UART_INIT
+    DEFINES += UART_USB_LINK_CHANNEL=0
 else ifeq ($(findstring upload,$(MAKECMDGOALS)), upload)
     #used to set MCU if make upload target is called
     #check if MCU file exists
@@ -152,6 +174,7 @@ ifeq ($(MCU),atmega32u4)
     BOOT_START_ADDR := 0x7000
     FLASH_SIZE_START_ADDR := 0xAC
     FLASH_SIZE_END_ADDR := 0xB0
+    DEFINES += UART_INTERFACES=1
 else ifeq ($(MCU),at90usb1286)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xf8
@@ -162,6 +185,7 @@ else ifeq ($(MCU),at90usb1286)
     BOOT_START_ADDR := 0x1F000
     FLASH_SIZE_START_ADDR := 0x98
     FLASH_SIZE_END_ADDR := 0x9C
+    DEFINES += UART_INTERFACES=1
 else ifeq ($(MCU),atmega16u2)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xf8
@@ -170,6 +194,7 @@ else ifeq ($(MCU),atmega16u2)
     FUSE_LOCK := 0xef
     EEPROM_SIZE := 512
     BOOT_START_ADDR := 0x3800
+    DEFINES += UART_INTERFACES=1
 else ifeq ($(MCU),atmega8u2)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xf8
@@ -178,6 +203,7 @@ else ifeq ($(MCU),atmega8u2)
     FUSE_LOCK := 0xef
     EEPROM_SIZE := 512
     BOOT_START_ADDR := 0x1800
+    DEFINES += UART_INTERFACES=1
 else ifeq ($(MCU),atmega2560)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xfc
@@ -185,6 +211,7 @@ else ifeq ($(MCU),atmega2560)
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
     EEPROM_SIZE := 4096
+    DEFINES += UART_INTERFACES=2
 else ifeq ($(MCU),atmega328p)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xfc
@@ -192,6 +219,7 @@ else ifeq ($(MCU),atmega328p)
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
     EEPROM_SIZE := 1024
+    DEFINES += UART_INTERFACES=1
 endif
 
 DEFINES += APP_LENGTH_LOCATION=$(FLASH_SIZE_START_ADDR)

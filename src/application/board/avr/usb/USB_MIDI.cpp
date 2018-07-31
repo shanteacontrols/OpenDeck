@@ -39,8 +39,8 @@ void Board::initMIDI_USB()
 
     USB_Init();
     #ifndef BOARD_A_xu2
-    midi.handleUSBread(board.MIDIread_USB);
-    midi.handleUSBwrite(board.MIDIwrite_USB);
+    midi.handleUSBread(board.usbReadMIDI);
+    midi.handleUSBwrite(board.usbWriteMIDI);
     #endif
 }
 
@@ -63,7 +63,7 @@ void EVENT_USB_Device_ConfigurationChanged(void)
     ConfigSuccess &= Endpoint_ConfigureEndpoint(MIDI_STREAM_OUT_EPADDR, EP_TYPE_BULK, MIDI_STREAM_EPSIZE, 1);
 }
 
-bool Board::MIDIread_USB(USBMIDIpacket_t& USBMIDIpacket)
+bool Board::usbReadMIDI(USBMIDIpacket_t& USBMIDIpacket)
 {
     //device must be connected and configured for the task to run
     if (USB_DeviceState != DEVICE_STATE_Configured)
@@ -82,7 +82,7 @@ bool Board::MIDIread_USB(USBMIDIpacket_t& USBMIDIpacket)
         if (!(Endpoint_BytesInEndpoint()))
             Endpoint_ClearOUT();    //clear the endpoint ready for new packet
 
-        MIDIreceived = true;
+        USBreceived = true;
         return true;
     }
     else
@@ -91,7 +91,7 @@ bool Board::MIDIread_USB(USBMIDIpacket_t& USBMIDIpacket)
     }
 }
 
-bool Board::MIDIwrite_USB(USBMIDIpacket_t& USBMIDIpacket)
+bool Board::usbWriteMIDI(USBMIDIpacket_t& USBMIDIpacket)
 {
     if (USB_DeviceState != DEVICE_STATE_Configured)
         return false;
@@ -108,18 +108,7 @@ bool Board::MIDIwrite_USB(USBMIDIpacket_t& USBMIDIpacket)
 
     MIDI_Device_Flush(&MIDI_Interface);
 
-    MIDIsent = true;
+    USBsent = true;
 
     return true;
-}
-
-bool Board::MIDIread_USB_write_UART_OD(USBMIDIpacket_t& USBMIDIpacket)
-{
-    if (MIDIread_USB(USBMIDIpacket))
-    {
-        board.MIDIwrite_UART_OD(USBMIDIpacket);
-        return true;
-    }
-
-    return false;
 }

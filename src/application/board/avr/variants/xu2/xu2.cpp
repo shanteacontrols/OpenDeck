@@ -20,6 +20,7 @@
 #include "Pins.h"
 #include "board/Board.h"
 #include "board/common/constants/LEDs.h"
+#include "interface/midi/Handlers.h"
 
 USBMIDIpacket_t usbMIDIpacket;
 
@@ -38,7 +39,7 @@ int main(void)
     INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
 
     Board::initMIDI_USB();
-    Board::initMIDI_UART();
+    Board::initUART(UART_BAUDRATE_MIDI_OD, UART_USB_LINK_CHANNEL);
 
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
@@ -59,11 +60,9 @@ int main(void)
 
     while (1)
     {
-        if (Board::MIDIread_USB(usbMIDIpacket))
-            Board::MIDIwrite_UART_OD(usbMIDIpacket);
+        usbMIDItoUART_OD(usbMIDIpacket);
 
-        if (Board::MIDIread_UART_OD())
-            Board::MIDIwrite_USB(usbMIDIpacket);
+        if (uartReadMIDI_OD(UART_USB_LINK_CHANNEL))
+            Board::usbWriteMIDI(usbMIDIpacket);
     }
 }
-

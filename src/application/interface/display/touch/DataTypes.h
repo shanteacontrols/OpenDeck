@@ -19,16 +19,19 @@
 #pragma once
 
 ///
-/// \brief Variables indicating whether MIDI in/out LED indicators should be turned on.
-/// External definition, must be implemented for specific board in order to use it.
-/// State of these variables is set to true externally when MIDI event happens.
-/// Handling should check if their state is true, and if it is, LED indicator should
-/// be turned on, variable state should be set to false and timeout countdown should be started.
-/// @{
+/// \brief List of possible backlight types.
+///
+typedef enum
+{
+    backlightOff,
+    backlightMax,
+    backlightPwm
+} backlightType_t;
 
-extern volatile bool        USBreceived;
-extern volatile bool        USBsent;
-extern volatile bool        UARTreceived;
-extern volatile bool        UARTsent;
-
-/// @}
+///
+/// \brief List of all supported touchscreens.
+///
+typedef enum
+{
+    ts_sdw
+} ts_t;

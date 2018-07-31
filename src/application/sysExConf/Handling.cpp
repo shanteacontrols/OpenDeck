@@ -19,6 +19,8 @@
 #include "../Version.h"
 #include "Layout.h"
 #include "board/Board.h"
+#include "interface/midi/Handlers.h"
+
 
 SysExConfig::SysExConfig()
 {
@@ -28,7 +30,7 @@ SysExConfig::SysExConfig()
 bool onCustom(uint8_t value)
 {
     bool retVal = true;
-    #ifdef DIN_MIDI_SUPPORTED
+    #ifdef BOARD_OPEN_DECK
     sysExParameter_t daisyChainMessage[1];
     #endif
 
@@ -91,14 +93,14 @@ bool onCustom(uint8_t value)
         processingEnabled = false;
         break;
 
-        #ifdef DIN_MIDI_SUPPORTED
+        #ifdef BOARD_OPEN_DECK
         case SYSEX_CR_DAISY_CHAIN_MASTER:
         //received message from opendeck master
         //send sysex to next board in the chain
         daisyChainMessage[0] = SYSEX_CR_DAISY_CHAIN_SLAVE;
         sysEx.sendCustomMessage(usbMessage.sysexArray, daisyChainMessage, 1, false);
         //configure opendeck uart format
-        board.setOD_UART();
+        setupMIDIoverUART_OD(UART_MIDI_CHANNEL);
         //make sure silent mode is enabled from now on
         sysEx.setSilentMode(true);
         break;
@@ -113,11 +115,11 @@ bool onCustom(uint8_t value)
             daisyChainMessage[0] = SYSEX_CR_DAISY_CHAIN_SLAVE;
             sysEx.sendCustomMessage(usbMessage.sysexArray, daisyChainMessage, 1, false);
             //inner slave - configure loopback on uart
-            board.setUARTloopbackState(true);
+            board.setUARTloopbackState(UART_MIDI_CHANNEL, true);
         }
 
         //configure opendeck uart format
-        board.setOD_UART();
+        setupMIDIoverUART_OD(UART_MIDI_CHANNEL);
         //make sure silent mode is enabled from now on
         sysEx.setSilentMode(true);
         break;
@@ -341,7 +343,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 #ifndef DIN_MIDI_SUPPORTED
                 sysEx.setError(ERROR_NOT_SUPPORTED);
                 #else
-                newValue ? board.initMIDI_UART() : board.initMIDI_UART(true);
+                newValue ? board.initUART(UART_BAUDRATE_MIDI_STD, UART_MIDI_CHANNEL) : board.resetUART(UART_MIDI_CHANNEL);
                 success = true;
                 #endif
                 break;
@@ -388,17 +390,15 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                         if (newValue == midiMergeToInterfaceDIN)
                         {
                             //enable loopback for din here
-                            board.setUARTloopbackState(true);
+                            board.setUARTloopbackState(UART_MIDI_CHANNEL, true);
                             //handle traffic directly in isr, don't use library for this
                             midi.handleUARTread(NULL);
                             midi.handleUARTwrite(NULL);
                         }
                         else
                         {
-                            board.setUARTloopbackState(false);
-                            //use standard callbacks
-                            midi.handleUARTread(board.MIDIread_UART);
-                            midi.handleUARTwrite(board.MIDIwrite_UART);
+                            board.setUARTloopbackState(UART_MIDI_CHANNEL, false);
+                            setupMIDIoverUART(UART_MIDI_CHANNEL);
                         }
                     }
                     else

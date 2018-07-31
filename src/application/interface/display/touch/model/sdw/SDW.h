@@ -18,17 +18,13 @@
 
 #pragma once
 
-///
-/// \brief Variables indicating whether MIDI in/out LED indicators should be turned on.
-/// External definition, must be implemented for specific board in order to use it.
-/// State of these variables is set to true externally when MIDI event happens.
-/// Handling should check if their state is true, and if it is, LED indicator should
-/// be turned on, variable state should be set to false and timeout countdown should be started.
-/// @{
+#include "../../DataTypes.h"    //general data types
+#include "DataTypes.h"          //sdw-specific data types
 
-extern volatile bool        USBreceived;
-extern volatile bool        USBsent;
-extern volatile bool        UARTreceived;
-extern volatile bool        UARTsent;
-
-/// @}
+void sdw_init();
+void sdw_sendByte(uint8_t value, messageByteType_t messageByteType);
+bool sdw_parse();
+bool sdw_update();
+void sdw_setImage(uint8_t imageID);
+void sdw_setIcon(uint16_t x, uint16_t y, uint16_t iconID);
+void sdw_setBrightness(backlightType_t type, int8_t value);

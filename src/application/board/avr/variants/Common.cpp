@@ -38,11 +38,6 @@ void Board::init()
     initMIDI_USB();
     #endif
 
-    //enable uart for midi by default on these boards only
-    #if defined(BOARD_A_MEGA) || defined(BOARD_A_UNO) || defined(BOARD_A_xu2)
-    initMIDI_UART();
-    #endif
-
     configureTimers();
     initCustom();
 }

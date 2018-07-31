@@ -25,21 +25,21 @@
 volatile uint32_t rTime_ms;
 volatile uint8_t midiIn_timeout, midiOut_timeout;
 
-volatile bool MIDIreceived, MIDIsent;
+volatile bool USBreceived, USBsent, UARTreceived, UARTsent;
 
 ISR(TIMER0_COMPA_vect)
 {
-    if (MIDIreceived)
+    if (USBreceived)
     {
         INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
-        MIDIreceived = false;
+        USBreceived = false;
         midiIn_timeout = MIDI_INDICATOR_TIMEOUT;
     }
 
-    if (MIDIsent)
+    if (USBsent)
     {
         INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
-        MIDIsent = false;
+        USBsent = false;
         midiOut_timeout = MIDI_INDICATOR_TIMEOUT;
     }
 

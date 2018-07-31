@@ -19,6 +19,7 @@
 #include "board/Board.h"
 #include "interface/Interface.h"
 #include "Version.h"
+#include "interface/midi/Handlers.h"
 
 MIDI midi;
 bool processingEnabled;
@@ -31,15 +32,26 @@ void init()
     digitalInput.init();
     analog.init();
 
-    //use recursive parsing when merging is active
-    if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
-        midi.useRecursiveParsing(true);
-    else
-        midi.useRecursiveParsing(false);
+    #ifdef UART_INIT
 
-    #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO) && !defined(BOARD_A_xu2)
+    #ifdef DIN_MIDI_SUPPORTED
     if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled))
-        board.initMIDI_UART();
+    {
+        setupMIDIoverUART(UART_MIDI_CHANNEL);
+
+        //use recursive parsing when merging is active
+        if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
+            midi.useRecursiveParsing(true);
+        else
+            midi.useRecursiveParsing(false);
+    }
+    #endif
+
+    //enable uart-to-xu2 MCU link on these boards
+    #if defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
+    setupMIDIoverUART_OD(UART_USB_LINK_CHANNEL);
+    #endif
+
     #endif
 
     midi.setInputChannel(MIDI_CHANNEL_OMNI);
@@ -147,14 +159,15 @@ int main()
         }
         #endif
 
-        #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
+        #ifdef BOARD_OPEN_DECK
         if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled))
         {
             //check for incoming MIDI messages on UART
+            //merging is supported on opendeck board only at the moment
             if (!database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
             {
                 //daisy-chained opendeck boards
-                if (!board.getUARTloopbackState())
+                if (!board.getUARTloopbackState(UART_MIDI_CHANNEL))
                 {
                     if (!board.isUSBconnected())
                     {
@@ -172,8 +185,8 @@ int main()
                     else
                     {
                         //master opendeck - dump everything from MIDI in to USB MIDI out
-                        if (board.MIDIread_UART_OD())
-                            board.MIDIwrite_USB(usbMIDIpacket);
+                        if (uartReadMIDI_OD(UART_MIDI_CHANNEL))
+                            Board::usbWriteMIDI(usbMIDIpacket);
                     }
                 }
                 else
