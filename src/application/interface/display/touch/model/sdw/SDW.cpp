@@ -41,8 +41,6 @@ void sdw_init()
     setImagePtr = sdw_setImage;
     setIconPtr = sdw_setIcon;
     board.initUART(38400, UART_TOUCHSCREEN_CHANNEL);
-    dataReadPtr = uartReadSDW;
-    dataWritePtr = uartWriteSDW;
 }
 
 ///
@@ -56,31 +54,31 @@ void sdw_sendByte(uint8_t value, messageByteType_t messageByteType)
     {
         case messageStart:
         //write start byte before value
-        dataWritePtr(START_BYTE);
-        dataWritePtr(value);
+        uartWriteSDW(START_BYTE);
+        uartWriteSDW(value);
         break;
 
         case messageContent:
         //just write value
-        dataWritePtr(value);
+        uartWriteSDW(value);
         return;
 
         case messageSingleByte:
         //start byte, value, end bytes
-        dataWritePtr(START_BYTE);
-        dataWritePtr(value);
+        uartWriteSDW(START_BYTE);
+        uartWriteSDW(value);
 
         for (int i=0; i<END_CODES; i++)
-            dataWritePtr(endCode[i]);
+            uartWriteSDW(endCode[i]);
         break;
 
         case messageEnd:
         //value first
-        dataWritePtr(value);
+        uartWriteSDW(value);
 
         //send message end bytes
         for (int i=0; i<END_CODES; i++)
-            dataWritePtr(endCode[i]);
+            uartWriteSDW(endCode[i]);
         break;
 
         default:
@@ -123,10 +121,7 @@ bool sdw_parse()
 ///
 bool sdw_update()
 {
-    if (dataReadPtr == NULL)
-        return false;
-
-    int16_t data = dataReadPtr();
+    int16_t data = uartReadSDW();
 
     if (data == -1)
         return false;

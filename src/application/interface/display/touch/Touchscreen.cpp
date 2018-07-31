@@ -24,8 +24,6 @@
 bool        (*displayUpdatePtr)();
 void        (*setImagePtr)(uint8_t imageID);
 void        (*setIconPtr)(uint16_t x, uint16_t y, uint16_t iconID);
-int16_t     (*dataReadPtr)();
-int8_t      (*dataWritePtr)(uint8_t data);
 uint8_t     displayRxBuffer[TOUCHSCREEN_RX_BUFFER_SIZE];
 uint8_t     bufferIndex_rx;
 uint8_t     activeButtonID;
@@ -36,8 +34,6 @@ bool        activeButtonState;
 ///
 Touchscreen::Touchscreen()
 {
-    dataReadPtr = NULL;
-    dataWritePtr = NULL;
     displayUpdatePtr = NULL;
     setImagePtr = NULL;
     setIconPtr = NULL;

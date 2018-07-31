@@ -34,16 +34,6 @@ extern void         (*setImagePtr)(uint8_t imageID);
 extern void         (*setIconPtr)(uint16_t x, uint16_t y, uint16_t iconID);
 
 ///
-/// \brief Pointer to external function used to read data from display.
-///
-extern int16_t      (*dataReadPtr)();
-
-///
-/// \brief Pointer to external function used to write data to display.
-///
-extern int8_t       (*dataWritePtr)(uint8_t data);
-
-///
 /// \brief Buffer holding incoming SDW data.
 ///
 extern uint8_t      displayRxBuffer[TOUCHSCREEN_RX_BUFFER_SIZE];
