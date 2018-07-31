@@ -243,6 +243,8 @@ int8_t Board::uartWrite(uint8_t channel, uint8_t data)
                 {
                     UDR_0 = data;
                 }
+
+                return 1;
             }
             break;
 
@@ -254,15 +256,15 @@ int8_t Board::uartWrite(uint8_t channel, uint8_t data)
                 {
                     UDR_1 = data;
                 }
+
+                return 1;
             }
             break;
             #endif
 
             default:
-            return -1;
+            break;
         }
-
-        return 1;
     }
 
     while (RingBuffer_IsFull(&txBuffer[channel]));
