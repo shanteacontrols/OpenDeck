@@ -19,6 +19,7 @@
 #include "Touchscreen.h"
 #include "Variables.h"
 #include "model/sdw/SDW.h"
+#include "interface/digital/input/buttons/Buttons.h"
 
 
 bool        (*displayUpdatePtr)();
@@ -76,7 +77,7 @@ void Touchscreen::update()
 ///
 void Touchscreen::process(uint8_t buttonID, bool buttonState)
 {
-
+    buttons.processButton(activeButtonID, buttonState);
 }
 
 ///
