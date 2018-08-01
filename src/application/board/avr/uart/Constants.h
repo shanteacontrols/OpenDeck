@@ -19,8 +19,11 @@
 #pragma once
 
 ///
-/// \brief Common register names for UART channel 0.
+/// \brief Common register names for MCUs with single UART channel.
 /// @{
+
+#if defined(__AVR_ATmega16U2__) || defined(__AVR_ATmega8U2__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__) \
+|| defined(__AVR_ATmega32U4__) || defined(__AVR_AT90USB1286__)
 
 #ifdef UCSR0A
 #define UCSRA_0 UCSR0A
@@ -116,71 +119,133 @@
 #define USART_UDRE_vect_0 USART_UDRE_vect
 #endif
 
+#endif
+
 /// @}
 
 ///
-/// \brief Common register names for UART channel 1.
+/// \brief Common register names for MCUs with multiple UART channels.
 /// @{
 
 #ifdef __AVR_ATmega2560__
 
-#ifdef UCSR1A
+#ifdef UCSR0A
+#define UCSRA_0 UCSR0A
+#endif
+
+#if defined UCSR1A
 #define UCSRA_1 UCSR1A
 #endif
 
-#ifdef UCSR1B
+#ifdef UCSR0B
+#define UCSRB_0 UCSR0B
+#endif
+
+#if defined UCSR1B
 #define UCSRB_1 UCSR1B
 #endif
 
-#ifdef UCSR1C
+#ifdef UCSR0C
+#define UCSRC_0 UCSR0C
+#endif
+
+#if defined UCSR1C
 #define UCSRC_1 UCSR1C
 #endif
 
-#ifdef UDRE1
+#ifdef UDRE0
+#define UDRE_0 UDRE0
+#endif
+
+#if defined UDRE1
 #define UDRE_1 UDRE1
 #endif
 
-#ifdef UDR1
+#ifdef UDR0
+#define UDR_0 UDR0
+#endif
+
+#if defined UDR1
 #define UDR_1 UDR1
 #endif
 
-#ifdef UDRIE1
+#ifdef UDRIE0
+#define UDRIE_0 UDRIE0
+#endif
+
+#if defined UDRIE1
 #define UDRIE_1 UDRIE1
 #endif
 
-#ifdef UBRR1
+#ifdef UBRR0
+#define UBRR_0 UBRR0
+#endif
+
+#if defined UBRR1
 #define UBRR_1 UBRR1
 #endif
 
-#ifdef U2X1
+#ifdef U2X0
+#define U2X_0 U2X0
+#endif
+
+#if defined U2X1
 #define U2X_1 U2X1
 #endif
 
-#ifdef UCSZ10
+#ifdef UCSZ00
+#define UCSZ0_0 UCSZ00
+#endif
+
+#if defined UCSZ10
 #define UCSZ0_1 UCSZ10
 #endif
 
-#ifdef UCSZ11
+#ifdef UCSZ01
+#define UCSZ1_0 UCSZ01
+#endif
+
+#if defined UCSZ11
 #define UCSZ1_1 UCSZ11
 #endif
 
-#ifdef RXEN1
+#ifdef RXEN0
+#define RXEN_0 RXEN0
+#endif
+
+#if defined RXEN1
 #define RXEN_1 RXEN1
 #endif
 
-#ifdef TXEN1
+#ifdef TXEN0
+#define TXEN_0 TXEN0
+#endif
+
+#if defined TXEN1
 #define TXEN_1 TXEN1
 #endif
 
-#ifdef RXCIE1
+#ifdef RXCIE0
+#define RXCIE_0 RXCIE0
+#endif
+
+#if defined RXCIE1
 #define RXCIE_1 RXCIE1
 #endif
 
-#ifdef USART1_RX_vect
+#ifdef USART0_RX_vect
+#define USART_RX_vect_0 USART0_RX_vect
+#endif
+
+#if defined USART1_RX_vect
 #define USART_RX_vect_1 USART1_RX_vect
 #endif
 
-#ifdef USART1_UDRE_vect
+#ifdef USART0_UDRE_vect
+#define USART_UDRE_vect_0 USART0_UDRE_vect
+#endif
+
+#if defined USART1_UDRE_vect
 #define USART_UDRE_vect_1 USART1_UDRE_vect
 #endif
 
