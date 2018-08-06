@@ -77,7 +77,7 @@ void Touchscreen::update()
 ///
 void Touchscreen::process(uint8_t buttonID, bool buttonState)
 {
-    buttons.processButton(activeButtonID, buttonState);
+    buttons.processButton(buttonID, buttonState);
 }
 
 ///
