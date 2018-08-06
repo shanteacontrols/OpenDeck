@@ -67,7 +67,7 @@ void Touchscreen::update()
         return;
 
     if ((*displayUpdatePtr)())
-        process(activeButtonID, activeButtonState);
+        process(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+activeButtonID, activeButtonState);
 }
 
 ///

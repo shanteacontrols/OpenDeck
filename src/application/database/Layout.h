@@ -48,7 +48,7 @@ static dbSection_t buttonSections[DB_SECTIONS_BUTTONS] =
 {
     //type section
     {
-        .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG,
+        .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS,
         .parameterType = BIT_PARAMETER,
         .preserveOnPartialReset = 0,
         .defaultValue = 0,
@@ -58,7 +58,7 @@ static dbSection_t buttonSections[DB_SECTIONS_BUTTONS] =
 
     //midi message type section
     {
-        .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG,
+        .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS,
         .parameterType = BYTE_PARAMETER,
         .preserveOnPartialReset = 0,
         .defaultValue = 0,
@@ -68,7 +68,7 @@ static dbSection_t buttonSections[DB_SECTIONS_BUTTONS] =
 
     //midi id section
     {
-        .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG,
+        .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS,
         .parameterType = BYTE_PARAMETER,
         .preserveOnPartialReset = 0,
         .defaultValue = 0,
@@ -78,7 +78,7 @@ static dbSection_t buttonSections[DB_SECTIONS_BUTTONS] =
 
     //midi velocity section
     {
-        .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG,
+        .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS,
         .parameterType = BYTE_PARAMETER,
         .preserveOnPartialReset = 0,
         .defaultValue = 127,
@@ -88,7 +88,7 @@ static dbSection_t buttonSections[DB_SECTIONS_BUTTONS] =
 
     //midi channel section
     {
-        .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG,
+        .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS,
         .parameterType = HALFBYTE_PARAMETER,
         .preserveOnPartialReset = 0,
         .defaultValue = 0,

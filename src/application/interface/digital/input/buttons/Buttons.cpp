@@ -35,27 +35,27 @@ static uint8_t  mmcArray[] =  { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 };
 ///
 /// \brief Array holding debounce count for all buttons to avoid incorrect state detection.
 ///
-uint8_t                 buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG];
+uint8_t                 buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS];
 
 ///
 /// \brief Array holding current state for all buttons.
 ///
-uint8_t                 buttonPressed[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1];
+uint8_t                 buttonPressed[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS)/8+1];
 
 ///
 /// \brief Array holding last sent state for latching buttons only.
 ///
-uint8_t                 lastLatchingState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1];
+uint8_t                 lastLatchingState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS)/8+1];
 
 ///
 /// \brief Array holding button type (1 - latching, 0 - momentary).
 ///
-uint8_t                 latchingState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG)/8+1];
+uint8_t                 latchingState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS)/8+1];
 
 ///
 /// \brief Holds message type the button sends.
 ///
-buttonMIDImessage_t     buttonMessage[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG];
+buttonMIDImessage_t     buttonMessage[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS];
 
 
 ///
@@ -85,7 +85,7 @@ Buttons::Buttons()
 void Buttons::init()
 {
     //store some parameters from eeprom to ram for faster access
-    for (int i=0; i<MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG; i++)
+    for (int i=0; i<MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS; i++)
     {
         uint8_t arrayIndex = i/8;
         uint8_t buttonIndex = i - 8*arrayIndex;

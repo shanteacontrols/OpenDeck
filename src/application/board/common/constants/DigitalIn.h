@@ -40,3 +40,10 @@
 /// is incremented (if there is space left).
 ///
 #define DIGITAL_IN_BUFFER_SIZE  5
+
+///
+/// \brief If touchscreen isn't supported, set MAX_TOUCHSCREEN_BUTTONS to zero.
+///
+#ifndef TOUCHSCREEN_SUPPORTED
+#define MAX_TOUCHSCREEN_BUTTONS 0
+#endif

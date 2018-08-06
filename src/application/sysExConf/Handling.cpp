@@ -79,7 +79,7 @@ bool onCustom(uint8_t value)
         break;
 
         case SYSEX_CR_MAX_COMPONENTS:
-        sysEx.addToResponse(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG);
+        sysEx.addToResponse(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS);
         sysEx.addToResponse(MAX_NUMBER_OF_ENCODERS);
         sysEx.addToResponse(MAX_NUMBER_OF_ANALOG);
         sysEx.addToResponse(MAX_NUMBER_OF_LEDS);

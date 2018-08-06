@@ -42,35 +42,35 @@ static sysExSection_t buttonSections[SYSEX_SECTIONS_BUTTONS] =
 {
     //type section
     {
-        .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG,
+        .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS,
         .newValueMin = 0,
         .newValueMax = BUTTON_TYPES-1,
     },
 
     //midi message type section
     {
-        .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG,
+        .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS,
         .newValueMin = 0,
         .newValueMax = BUTTON_MESSAGE_TYPES-1,
     },
 
     //midi id section
     {
-        .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG,
+        .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS,
         .newValueMin = 0,
         .newValueMax = 127,
     },
 
     //midi velocity section
     {
-        .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG,
+        .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS,
         .newValueMin = 1,
         .newValueMax = 127,
     },
 
     //midi channel section
     {
-        .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG,
+        .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS,
         .newValueMin = 1,
         .newValueMax = 16,
     }
