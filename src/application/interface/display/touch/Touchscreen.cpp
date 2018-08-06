@@ -23,12 +23,13 @@
 
 
 bool        (*displayUpdatePtr)();
-void        (*setImagePtr)(uint8_t imageID);
-void        (*setIconPtr)(uint16_t x, uint16_t y, uint16_t iconID);
+void        (*setPagePtr)(uint8_t pageID);
 uint8_t     displayRxBuffer[TOUCHSCREEN_RX_BUFFER_SIZE];
 uint8_t     bufferIndex_rx;
 uint8_t     activeButtonID;
 bool        activeButtonState;
+uint8_t     activePage;
+
 
 ///
 /// \brief Default constructor.
@@ -36,8 +37,7 @@ bool        activeButtonState;
 Touchscreen::Touchscreen()
 {
     displayUpdatePtr = NULL;
-    setImagePtr = NULL;
-    setIconPtr = NULL;
+    setPagePtr = NULL;
 }
 
 ///
@@ -81,29 +81,25 @@ void Touchscreen::process(uint8_t buttonID, bool buttonState)
 }
 
 ///
-/// \brief Displays full-screen image on display.
-/// @param [in] imageID  Index of image to display.
+/// \brief Switches to requested page on display
+/// @param [in] pageID  Index of page to display.
 ///
-void Touchscreen::setImage(uint8_t imageID)
+void Touchscreen::setPage(uint8_t pageID)
 {
-    if (setImagePtr == NULL)
+    if (setPagePtr == NULL)
         return;
 
-    (*setImagePtr)(imageID);
+    (*setPagePtr)(pageID);
+    activePage = pageID;
 }
 
 ///
-/// \brief Displays icon on display.
-/// @param [in] x       X coordinate of icon.
-/// @param [in] y       Y coordinate of icon.
-/// @param [in] iconID  Number of icon to display.
+/// \brief Used to retrieve currently active page on display.
+/// \returns Active display page.
 ///
-void Touchscreen::setIcon(uint16_t x, uint16_t y, uint16_t iconID)
+uint8_t Touchscreen::getPage()
 {
-    if (setIconPtr == NULL)
-        return;
-
-    (*setIconPtr)(x, y, iconID);
+    return activePage;
 }
 
 Touchscreen touchscreen;

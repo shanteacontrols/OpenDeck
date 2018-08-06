@@ -32,8 +32,8 @@ class Touchscreen
     Touchscreen();
     static bool init(ts_t touchscreenType);
     static void update();
-    static void setImage(uint8_t imageID);
-    static void setIcon(uint16_t x, uint16_t y, uint16_t iconID);
+    static void setPage(uint8_t pageID);
+    static uint8_t getPage();
     static void setBrightness(backlightType_t type, int8_t value);
 
     private:

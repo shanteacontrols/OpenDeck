@@ -25,6 +25,5 @@ void sdw_init();
 void sdw_sendByte(uint8_t value, messageByteType_t messageByteType);
 bool sdw_parse();
 bool sdw_update();
-void sdw_setImage(uint8_t imageID);
-void sdw_setIcon(uint16_t x, uint16_t y, uint16_t iconID);
+void sdw_setPage(uint8_t pageID);
 void sdw_setBrightness(backlightType_t type, int8_t value);

@@ -38,8 +38,7 @@ void sdw_init()
 {
     bufferIndex_rx = 0;
     displayUpdatePtr = sdw_update;
-    setImagePtr = sdw_setImage;
-    setIconPtr = sdw_setIcon;
+    setPagePtr = sdw_setPage;
     board.initUART(38400, UART_TOUCHSCREEN_CHANNEL);
 }
 
@@ -149,31 +148,14 @@ bool sdw_update()
 }
 
 ///
-/// \brief Displays full-screen image on display.
-/// @param [in] imageID  Index of image to display.
+/// \brief Switches to requested page on display
+/// @param [in] pageID  Index of page to display.
 ///
-void sdw_setImage(uint8_t imageID)
+void sdw_setPage(uint8_t pageID)
 {
     sdw_sendByte(PICTURE_DISPLAY, messageStart);
-    sdw_sendByte(HIGH_BYTE(imageID), messageContent);
-    sdw_sendByte(LOW_BYTE(imageID), messageEnd);
-}
-
-///
-/// \brief Displays icon on display.
-/// @param [in] x   X coordinate of icon.
-/// @param [in] y   Y coordinate of icon.
-/// @param [in] id  Number of icon to display.
-///
-void sdw_setIcon(uint16_t x, uint16_t y, uint16_t iconID)
-{
-    sdw_sendByte(CUSTOM_ICON_DISPLAY, messageStart);
-    sdw_sendByte(HIGH_BYTE(x), messageContent);
-    sdw_sendByte(LOW_BYTE(x), messageContent);
-    sdw_sendByte(HIGH_BYTE(y), messageContent);
-    sdw_sendByte(LOW_BYTE(y), messageContent);
-    sdw_sendByte(HIGH_BYTE(iconID), messageContent);
-    sdw_sendByte(LOW_BYTE(iconID), messageEnd);
+    sdw_sendByte(HIGH_BYTE(pageID), messageContent);
+    sdw_sendByte(LOW_BYTE(pageID), messageEnd);
 }
 
 ///

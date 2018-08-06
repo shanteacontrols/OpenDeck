@@ -24,14 +24,9 @@
 extern bool         (*displayUpdatePtr)();
 
 ///
-/// \brief Pointer to model-specific setImage() function.
+/// \brief Pointer to model-specific setPage() function.
 ///
-extern void         (*setImagePtr)(uint8_t imageID);
-
-///
-/// \brief Pointer to model-specific setIcon() function.
-///
-extern void         (*setIconPtr)(uint16_t x, uint16_t y, uint16_t iconID);
+extern void         (*setPagePtr)(uint8_t pageID);
 
 ///
 /// \brief Buffer holding incoming SDW data.
@@ -56,3 +51,8 @@ extern uint8_t      activeButtonID;
 /// there is an incoming message.
 ///
 extern bool         activeButtonState;
+
+///
+/// \brief Holds currently active page on display.
+///
+extern uint8_t      activePage;
