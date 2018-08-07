@@ -79,3 +79,8 @@
 /// Total number of encoders is total number of buttons divided by two.
 ///
 #define MAX_NUMBER_OF_ENCODERS          (MAX_NUMBER_OF_BUTTONS/2)
+
+///
+/// \brief If touchscreen isn't supported, set MAX_TOUCHSCREEN_BUTTONS to zero.
+///
+#define MAX_TOUCHSCREEN_BUTTONS         0
