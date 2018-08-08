@@ -108,9 +108,7 @@ ISR(ADC_ISR)
         analogIndex++;
         #ifdef USE_MUX
         activeMuxInput++;
-        #endif
 
-        #ifdef USE_MUX
         bool switchMux = (activeMuxInput == NUMBER_OF_MUX_INPUTS);
 
         if (switchMux)
@@ -133,15 +131,16 @@ ISR(ADC_ISR)
             #endif
 
             #ifdef USE_MUX
+            //switch to next mux once all mux inputs are read
             setADCchannel(adcChannelArray[activeMux]);
-            #else
-            setADCchannel(adcChannelArray[analogIndex]);
             #endif
         }
 
+        //always switch to next read pin
         #ifdef USE_MUX
-        //always set mux input
         setMuxInput();
+        #else
+        setADCchannel(adcChannelArray[analogIndex]);
         #endif
     }
 
