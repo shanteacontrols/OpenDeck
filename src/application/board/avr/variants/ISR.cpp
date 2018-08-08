@@ -114,10 +114,10 @@ ISR(ADC_ISR)
         bool switchMux = (activeMuxInput == NUMBER_OF_MUX_INPUTS);
 
         if (switchMux)
-        {
         #else
         if (analogIndex == MAX_NUMBER_OF_ANALOG)
         #endif
+        {
             #ifdef USE_MUX
             activeMuxInput = 0;
             activeMux++;
@@ -137,9 +137,7 @@ ISR(ADC_ISR)
             #else
             setADCchannel(adcChannelArray[analogIndex]);
             #endif
-        #ifdef USE_MUX
         }
-        #endif
 
         #ifdef USE_MUX
         //always set mux input
