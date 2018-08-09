@@ -20,7 +20,9 @@
 
 #include "analog/Analog.h"
 #include "digital/input/DigitalInput.h"
+#ifdef LEDS_SUPPORTED
 #include "digital/output/leds/LEDs.h"
+#endif
 #ifdef DISPLAY_SUPPORTED
 #include "display/Display.h"
 #endif

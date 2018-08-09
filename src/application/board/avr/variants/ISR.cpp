@@ -50,7 +50,9 @@ ISR(CORE_ISR)
 
     if (_1ms)
     {
+        #ifdef LEDS_SUPPORTED
         checkLEDs();
+        #endif
 
         rTime_ms++;
 

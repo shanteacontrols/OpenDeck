@@ -20,6 +20,7 @@
 
 #include "SysExConf.h"
 #include "../interface/Interface.h"
+#include "interface/digital/output/leds/DataTypes.h"
 
 static sysExSection_t midiSections[SYSEX_SECTIONS_MIDI] =
 {

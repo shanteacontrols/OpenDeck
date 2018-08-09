@@ -60,20 +60,26 @@ bool onCustom(uint8_t value)
         break;
 
         case SYSEX_CR_REBOOT_APP:
+        #ifdef LEDS_SUPPORTED
         leds.setAllOff();
         wait_ms(2500);
+        #endif
         board.reboot(rebootApp);
         break;
 
         case SYSEX_CR_REBOOT_BTLDR:
+        #ifdef LEDS_SUPPORTED
         leds.setAllOff();
         wait_ms(2500);
+        #endif
         board.reboot(rebootBtldr);
         break;
 
         case SYSEX_CR_FACTORY_RESET:
+        #ifdef LEDS_SUPPORTED
         leds.setAllOff();
         wait_ms(1500);
+        #endif
         database.factoryReset(initPartial);
         board.reboot(rebootApp);
         break;
@@ -149,6 +155,7 @@ bool onGet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t &val
     switch(block)
     {
         case SYSEX_BLOCK_LEDS:
+        #ifdef LEDS_SUPPORTED
         switch(section)
         {
             case sysExSection_leds_testColor:
@@ -172,6 +179,10 @@ bool onGet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t &val
             success = database.read(block, sysEx2DB_leds[section], index, readValue);
             break;
         }
+        #else
+        sysEx.setError(ERROR_NOT_SUPPORTED);
+        success = false;
+        #endif
         break;
 
         case SYSEX_BLOCK_ANALOG:
@@ -433,6 +444,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
         break;
 
         case SYSEX_BLOCK_LEDS:
+        #ifdef LEDS_SUPPORTED
         switch(section)
         {
             case sysExSection_leds_testColor:
@@ -551,6 +563,10 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             success = database.update(block, sysEx2DB_leds[section], index, newValue);
             break;
         }
+        #else
+        sysEx.setError(ERROR_NOT_SUPPORTED);
+        success = false;
+        #endif
         break;
 
         case SYSEX_BLOCK_DISPLAY:

@@ -101,7 +101,6 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         application/interface/digital/input/DigitalInput.cpp \
         application/interface/digital/input/buttons/Buttons.cpp \
         application/interface/digital/input/encoders/Encoders.cpp \
-        application/interface/digital/output/leds/LEDs.cpp \
         application/sysExConf/Handling.cpp \
         modules/midi/src/MIDI.cpp \
         modules/sysex/src/SysEx.cpp \
@@ -110,10 +109,23 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         application/board/common/analog/input/Common.cpp \
         application/board/common/digital/input/encoders/Common.cpp \
         application/board/common/digital/input/DigitalIn.cpp \
-        application/board/common/digital/output/DigitalOut.cpp \
         application/board/avr/variants/$(BOARD_DIR)/HardwareControl.cpp \
         application/board/avr/variants/$(BOARD_DIR)/Init.cpp \
-        application/board/avr/variants/$(BOARD_DIR)/pins/Map.cpp \
+        application/board/avr/variants/$(BOARD_DIR)/pins/Map.cpp
+
+        ifneq ($(filter LEDS_SUPPORTED, $(DEFINES)), )
+        SOURCES += \
+        application/interface/digital/output/leds/LEDs.cpp \
+        application/board/common/digital/output/DigitalOut.cpp
+
+            ifneq ($(filter OUT_MATRIX, $(DEFINES)), )
+            SOURCES += \
+            application/board/common/digital/output/leds/Matrix.cpp
+            else
+            SOURCES += \
+            application/board/common/digital/output/leds/DirectOut.cpp
+            endif
+        endif
 
         #board specific
         ifneq ($(filter USE_MUX, $(DEFINES)), )
@@ -129,14 +141,6 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         SOURCES += \
         application/board/common/digital/input/buttons/DirectIn.cpp \
         application/board/common/digital/input/encoders/DirectIn.cpp
-        endif
-
-        ifneq ($(filter OUT_MATRIX, $(DEFINES)), )
-        SOURCES += \
-        application/board/common/digital/output/leds/Matrix.cpp
-        else
-        SOURCES += \
-        application/board/common/digital/output/leds/DirectOut.cpp
         endif
 
         ifneq ($(filter USB_SUPPORTED, $(DEFINES)), )

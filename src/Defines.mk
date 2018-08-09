@@ -52,6 +52,7 @@ ifeq ($(findstring opendeck,$(MAKECMDGOALS)), opendeck)
     DEFINES += UART_INIT
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += UART_MIDI_CHANNEL=0
+    DEFINES += LEDS_SUPPORTED
 else ifeq ($(findstring tannin,$(MAKECMDGOALS)), tannin)
     MCU := atmega32u4
     BOARD := BOARD_TANNIN
@@ -64,6 +65,7 @@ else ifeq ($(findstring tannin,$(MAKECMDGOALS)), tannin)
     DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 3
     HARDWARE_VERSION_MINOR := 0
+    DEFINES += LEDS_SUPPORTED
 else ifeq ($(findstring leonardo,$(MAKECMDGOALS)), leonardo)
     MCU := atmega32u4
     BOARD := BOARD_A_LEO
@@ -76,6 +78,7 @@ else ifeq ($(findstring leonardo,$(MAKECMDGOALS)), leonardo)
     DEFINES += UART_INIT
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += UART_MIDI_CHANNEL=0
+    DEFINES += LEDS_SUPPORTED
 else ifeq ($(findstring pro_micro,$(MAKECMDGOALS)), pro_micro)
     MCU := atmega32u4
     BOARD := BOARD_A_PRO_MICRO
@@ -88,6 +91,7 @@ else ifeq ($(findstring pro_micro,$(MAKECMDGOALS)), pro_micro)
     DEFINES += UART_INIT
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += UART_MIDI_CHANNEL=0
+    DEFINES += LEDS_SUPPORTED
 else ifeq ($(findstring kodama,$(MAKECMDGOALS)), kodama)
     MCU := atmega32u4
     BOARD := BOARD_KODAMA
@@ -97,6 +101,7 @@ else ifeq ($(findstring kodama,$(MAKECMDGOALS)), kodama)
     DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
+    DEFINES += LEDS_SUPPORTED
 else ifeq ($(findstring teensy2pp,$(MAKECMDGOALS)), teensy2pp)
     MCU := at90usb1286
     BOARD := BOARD_T_2PP
@@ -109,6 +114,7 @@ else ifeq ($(findstring teensy2pp,$(MAKECMDGOALS)), teensy2pp)
     DEFINES += UART_INIT
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += UART_MIDI_CHANNEL=0
+    DEFINES += LEDS_SUPPORTED
 else ifeq ($(findstring mega,$(MAKECMDGOALS)), mega)
     MCU := atmega2560
     BOARD := BOARD_A_MEGA
@@ -122,6 +128,7 @@ else ifeq ($(findstring mega,$(MAKECMDGOALS)), mega)
     DEFINES += UART_USB_LINK_CHANNEL=0
     DEFINES += UART_MIDI_CHANNEL=1
     DEFINES += UART_TOUCHSCREEN_CHANNEL=1
+    DEFINES += LEDS_SUPPORTED
 else ifeq ($(findstring uno,$(MAKECMDGOALS)), uno)
     MCU := atmega328p
     BOARD := BOARD_A_UNO
@@ -129,6 +136,7 @@ else ifeq ($(findstring uno,$(MAKECMDGOALS)), uno)
     HARDWARE_VERSION_MINOR := 0
     DEFINES += UART_INIT
     DEFINES += UART_USB_LINK_CHANNEL=0
+    DEFINES += LEDS_SUPPORTED
 else ifeq ($(findstring 16u2,$(MAKECMDGOALS)), 16u2)
     MCU := atmega16u2
     BOARD := BOARD_A_xu2

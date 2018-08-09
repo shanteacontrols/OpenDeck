@@ -17,7 +17,9 @@
 */
 
 #include "Analog.h"
+#ifdef LEDS_SUPPORTED
 #include "../digital/output/leds/LEDs.h"
+#endif
 #include "../cinfo/CInfo.h"
 #include "Variables.h"
 #ifdef DISPLAY_SUPPORTED
@@ -73,7 +75,9 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(displayEventOut, midiMessageNoteOn_display, note, calibratedPressure, channel+1);
             #endif
+            #ifdef LEDS_SUPPORTED
             leds.midiToState(midiMessageNoteOn, note, calibratedPressure, channel, true);
+            #endif
             sendCinfo(DB_BLOCK_ANALOG, analogID);
         }
     }
@@ -88,7 +92,9 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(displayEventOut, midiMessageNoteOff_display, note, calibratedPressure, channel+1);
             #endif
+            #ifdef LEDS_SUPPORTED
             leds.midiToState(midiMessageNoteOff, 0, channel, true);
+            #endif
             sendCinfo(DB_BLOCK_ANALOG, analogID);
         }
     }

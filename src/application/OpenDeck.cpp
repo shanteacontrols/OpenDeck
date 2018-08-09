@@ -64,7 +64,9 @@ void init()
     //enable global interrupts
     sei();
 
+    #ifdef LEDS_SUPPORTED
     leds.init();
+    #endif
 
     #ifdef DISPLAY_SUPPORTED
     if (database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureEnable))
@@ -127,9 +129,11 @@ int main()
         {
             //new message on usb
             midiMessageType_t messageType = midi.getType(usbInterface);
+            #if defined(LEDS_SUPPORTED) || defined(DISPLAY_SUPPORTED)
             uint8_t data1 = midi.getData1(usbInterface);
             uint8_t data2 = midi.getData2(usbInterface);
             uint8_t channel = midi.getChannel(usbInterface);
+            #endif
 
             switch(messageType)
             {
@@ -147,7 +151,9 @@ int main()
                 case midiMessageProgramChange:
                 if (messageType == midiMessageNoteOff)
                     data2 = 0;
+                #ifdef LEDS_SUPPORTED
                 leds.midiToState(messageType, data1, data2, channel);
+                #endif
                 #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(displayEventIn, midiMessageNoteOn_display, data1, data2, channel+1);
                 #endif
@@ -214,7 +220,9 @@ int main()
         {
             digitalInput.update();
             analog.update();
+            #ifdef LEDS_SUPPORTED
             leds.update();
+            #endif
 
             #ifdef DISPLAY_SUPPORTED
             display.update();

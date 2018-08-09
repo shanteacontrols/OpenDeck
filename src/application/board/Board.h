@@ -19,7 +19,9 @@
 #ifndef _BOARD_
 #define _BOARD_
 
+#ifdef LEDS_SUPPORTED
 #include "interface/digital/output/leds/DataTypes.h"
+#endif
 #include "interface/digital/input/encoders/DataTypes.h"
 #include "common/DataTypes.h"
 #include "dbms/src/DataTypes.h"
@@ -219,6 +221,7 @@ class Board
     ///
     static encoderPosition_t getEncoderState(uint8_t encoderID, uint8_t pulsesPerStep);
 
+    #ifdef LEDS_SUPPORTED
     ///
     /// \brief Used to calculate index of R, G or B component of RGB LED.
     /// @param [in] rgbID   Index of RGB LED.
@@ -233,6 +236,7 @@ class Board
     /// \returns Calculated index of RGB LED.
     ///
     static uint8_t getRGBID(uint8_t ledID);
+    #endif
 
     ///
     /// \brief Performs software MCU reboot.

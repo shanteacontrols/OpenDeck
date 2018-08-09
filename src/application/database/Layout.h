@@ -20,6 +20,7 @@
 
 #include "Database.h"
 #include "board/Board.h"
+#include "interface/digital/output/leds/DataTypes.h"
 
 static dbSection_t midiSections[DB_SECTIONS_MIDI] =
 {

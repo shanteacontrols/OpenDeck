@@ -17,7 +17,10 @@
 */
 
 #include "board/Board.h"
+#include "database/Database.h"
+#ifdef LEDS_SUPPORTED
 #include "interface/digital/output/leds/LEDs.h"
+#endif
 #include "sysex/src/SysEx.h"
 #include "interface/cinfo/CInfo.h"
 #include "../Variables.h"
@@ -215,7 +218,9 @@ void Buttons::processButton(uint8_t buttonID, bool state, buttonMIDImessage_t mi
             #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(displayEventOut, midiMessageNoteOn_display, note, velocity, channel+1);
             #endif
+            #ifdef LEDS_SUPPORTED
             leds.midiToState(midiMessageNoteOn, note, velocity, channel, true);
+            #endif
             break;
 
             case buttonPC:
@@ -238,7 +243,9 @@ void Buttons::processButton(uint8_t buttonID, bool state, buttonMIDImessage_t mi
             }
 
             midi.sendProgramChange(note, channel);
+            #ifdef LEDS_SUPPORTED
             leds.midiToState(midiMessageProgramChange, note, 0, channel, true);
+            #endif
             #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(displayEventOut, midiMessageProgramChange_display, note, 0, channel+1);
             #endif
@@ -250,7 +257,9 @@ void Buttons::processButton(uint8_t buttonID, bool state, buttonMIDImessage_t mi
             #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, velocity, channel+1);
             #endif
+            #ifdef LEDS_SUPPORTED
             leds.midiToState(midiMessageControlChange, note, velocity, channel, true);
+            #endif
             break;
 
             case buttonMMCPlay:
@@ -341,7 +350,9 @@ void Buttons::processButton(uint8_t buttonID, bool state, buttonMIDImessage_t mi
             #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(displayEventOut, midi.getNoteOffMode() == noteOffType_standardNoteOff ? midiMessageNoteOff_display : midiMessageNoteOn_display, note, 0, channel+1);
             #endif
+            #ifdef LEDS_SUPPORTED
             leds.midiToState(midiMessageNoteOff, note, 0, channel, true);
+            #endif
             break;
 
             case buttonCCreset:
@@ -349,7 +360,9 @@ void Buttons::processButton(uint8_t buttonID, bool state, buttonMIDImessage_t mi
             #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, 0, channel+1);
             #endif
+            #ifdef LEDS_SUPPORTED
             leds.midiToState(midiMessageControlChange, 0, channel, true);
+            #endif
             break;
 
             case buttonMMCRecord:
