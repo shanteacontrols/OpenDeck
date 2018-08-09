@@ -149,8 +149,10 @@ int main()
                 case midiMessageNoteOff:
                 case midiMessageControlChange:
                 case midiMessageProgramChange:
+                #if defined(LEDS_SUPPORTED) || defined(DISPLAY_SUPPORTED)
                 if (messageType == midiMessageNoteOff)
                     data2 = 0;
+                #endif
                 #ifdef LEDS_SUPPORTED
                 leds.midiToState(messageType, data1, data2, channel);
                 #endif
