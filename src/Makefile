@@ -75,6 +75,7 @@ boot_16u2 \
 boot_kodama \
 fw_tannin \
 boot_tannin \
+fw_bergamot \
 boot_teensy2pp: $(TARGET).elf
 
 #make clean should be run before compilation if:

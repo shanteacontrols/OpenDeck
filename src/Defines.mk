@@ -102,6 +102,16 @@ else ifeq ($(findstring kodama,$(MAKECMDGOALS)), kodama)
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
     DEFINES += LEDS_SUPPORTED
+else ifeq ($(findstring bergamot,$(MAKECMDGOALS)), bergamot)
+    MCU := atmega32u4
+    BOARD := BOARD_BERGAMOT
+    DEFINES += USB_SUPPORTED
+    DEFINES += USE_MUX
+    DEFINES += CRC_CHECK
+    HARDWARE_VERSION_MAJOR := 1
+    HARDWARE_VERSION_MINOR := 0
+    DEFINES += TOUCHSCREEN_SUPPORTED
+    DEFINES += UART_TOUCHSCREEN_CHANNEL=1
 else ifeq ($(findstring teensy2pp,$(MAKECMDGOALS)), teensy2pp)
     MCU := at90usb1286
     BOARD := BOARD_T_2PP

@@ -59,6 +59,10 @@
                 {
                     $scope.boardName = 'Tannin';
                 }
+                else if (d[9] == 9)
+                {
+                    $scope.boardName = 'Bergamot';
+                }
                 else
                 {
                     $scope.boardName = 'UNKNOWN BOARD';
