@@ -210,19 +210,35 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
         {
             switch(controlType)
             {
-                case ledControlLocal_Note:
+                case ledControlLocal_NoteStateOnly:
                 if ((messageType == midiMessageNoteOn) || (messageType == midiMessageNoteOff))
                     setState = true;
                 break;
 
-                case ledControlLocal_CC:
+                case ledControlLocal_CCStateOnly:
                 if (messageType == midiMessageControlChange)
                     setState = true;
                 break;
 
-                case ledControlLocal_PC:
+                case ledControlLocal_PCStateOnly:
                 if (messageType == midiMessageProgramChange)
                     setState = true;
+                break;
+
+                case ledControlMIDIin_noteStateBlink:
+                if ((messageType == midiMessageNoteOn) || (messageType == midiMessageNoteOff))
+                {
+                    setState = true;
+                    setBlink = true;
+                }
+                break;
+
+                case ledControlMIDIin_CCStateBlink:
+                if (messageType == midiMessageControlChange)
+                {
+                    setState = true;
+                    setBlink = true;
+                }
                 break;
 
                 default:
@@ -233,21 +249,37 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
         {
             switch(controlType)
             {
-                case ledControlMIDIin_noteCC:
+                case ledControlMIDIin_noteStateCCblink:
                 if ((messageType == midiMessageNoteOn) || (messageType == midiMessageNoteOff))
                     setState = true;
                 else if (messageType == midiMessageControlChange)
                     setBlink = true;
                 break;
 
-                case ledControlMIDIin_CCnote:
+                case ledControlMIDIin_CCstateNoteBlink:
                 if ((messageType == midiMessageNoteOn) || (messageType == midiMessageNoteOff))
                     setBlink = true;
                 else if (messageType == midiMessageControlChange)
                     setState = true;
                 break;
 
-                case ledControlMIDIin_PC:
+                case ledControlMIDIin_noteStateBlink:
+                if ((messageType == midiMessageNoteOn) || (messageType == midiMessageNoteOff))
+                {
+                    setState = true;
+                    setBlink = true;
+                }
+                break;
+
+                case ledControlMIDIin_CCStateBlink:
+                if (messageType == midiMessageControlChange)
+                {
+                    setState = true;
+                    setBlink = true;
+                }
+                break;
+
+                case ledControlMIDIin_PCStateOnly:
                 if (messageType == midiMessageProgramChange)
                     setState = true;
                 break;
@@ -257,13 +289,13 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
             }
         }
 
+        ledColor_t color = colorOff;
+
         if (setState)
         {
             //match LED activation ID with received ID
             if (database.read(DB_BLOCK_LEDS, dbSection_leds_activationID, i) == data1)
             {
-                ledColor_t color;
-
                 if (messageType == midiMessageProgramChange)
                 {
                     //byte2 doesn't exist on program change message
@@ -277,6 +309,7 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
                 else
                 {
                     //use data2 value (note velocity / cc value) to set led color
+                    //and possibly blink speed (depending on configuration)
                     //on single color leds, match activation value with data2
                     if (isRGBLEDenabled(board.getRGBID(i)))
                         color = valueToColor(data2);
@@ -298,14 +331,24 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
             //match activation ID with received ID
             if (database.read(DB_BLOCK_LEDS, dbSection_leds_activationID, i) == data1)
             {
-                //blink speed depends on data2 value
-                setBlinkState(i, data2, true);
+                if (setState)
+                {
+                    //single message is being used to set both state and blink value
+                    data2 = (data2 - ((uint8_t)color*16)) / 2;
+
+                    setBlinkState(i, data2, true);
+                }
+                else
+                {
+                    //blink speed depends on data2 value
+                    setBlinkState(i, valueToBlinkSpeed(data2), true);
+                }
             }
         }
     }
 }
 
-void LEDs::setBlinkState(uint8_t ledID, uint8_t state, bool internal)
+void LEDs::setBlinkState(uint8_t ledID, uint8_t state, bool internalCall)
 {
     uint8_t ledArray[3], leds = 0;
 
@@ -341,16 +384,8 @@ void LEDs::setBlinkState(uint8_t ledID, uint8_t state, bool internal)
             BIT_WRITE(ledState[ledArray[i]], LED_STATE_BIT, BIT_READ(ledState[i], LED_ACTIVE_BIT));
         }
 
-        //also make sure to set blink time
-        if (!internal)
-        {
-            if (state)
-                state = 3; //set to 500ms in this case
-        }
-        else
-        {
+        if (!internalCall)
             state = valueToBlinkSpeed(state);
-        }
 
         setBlinkTime(ledID, state);
     }

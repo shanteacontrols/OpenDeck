@@ -47,12 +47,16 @@
         <div class="col-lg-2 col-lg-offset-1 col-md-2 col-md-offset-1 col-sm-6 col-xs-12">
             <div class="selectfield">
                 <select ng-model="obj.ledControlType" convert-to-number>
-                    <option value="0">MIDI in - Note/CC</option>
-                    <option value="1">Local - Note</option>
-                    <option value="2">MIDI in - CC/Note</option>
-                    <option value="3">Local - CC</option>
-                    <option value="4">MIDI in - PC</option>
-                    <option value="5">Local - PC</option>
+                    <option value="0">MIDI - Note+CC</option>
+                    <option value="1">Local - Note/S</option>
+                    <option value="2">MIDI - CC+Note</option>
+                    <option value="3">Local - CC/S</option>
+                    <option value="4">MIDI - PC/S</option>
+                    <option value="5">Local - PC/S</option>
+                    <option value="6">MIDI - Note/S+B</option>
+                    <option value="7">Local - Note/S+B</option>
+                    <option value="8">MIDI - CC/S+B</option>
+                    <option value="9">Local - CC/S+B</option>
                 </select>
                 <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Specifies the way using which LED state is controlled." data-placement="left">?</div>
             </div>
