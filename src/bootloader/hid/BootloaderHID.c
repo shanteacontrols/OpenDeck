@@ -200,7 +200,7 @@ static void SetupHardware(void)
     }
 
     setHigh(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
-    #elif defined (BOARD_OPEN_DECK)
+    #elif defined (LED_INDICATORS)
     setOutput(LED_IN_PORT, LED_IN_PIN);
     setOutput(LED_OUT_PORT, LED_OUT_PIN);
     INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
