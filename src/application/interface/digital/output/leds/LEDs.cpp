@@ -344,21 +344,23 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
             {
                 if (setState)
                 {
+                    uint8_t blinkSpeed = (blinkSpeed_t)blinkSpeed_noBlink;
+
                     if (data2)
                     {
                         //single message is being used to set both state and blink value
                         //first reduce data2 to range 0-15
                         //append 1 so that first value is blinking one
                         //turn off blinking only on higher range
-                        data2 = 1 + (data2 - ((uint8_t)color*16));
+                        blinkSpeed = 1 + (data2 - ((uint8_t)color*16));
 
                         //make sure data2 is in range
                         //when it's not turn off blinking
-                        if (data2 >= BLINK_SPEEDS)
-                            data2 = 0;
+                        if (blinkSpeed >= BLINK_SPEEDS)
+                            blinkSpeed = (blinkSpeed_t)blinkSpeed_noBlink;
                     }
 
-                    setBlinkState(i, (blinkSpeed_t)data2);
+                    setBlinkState(i, (blinkSpeed_t)blinkSpeed);
                 }
                 else
                 {
@@ -403,7 +405,7 @@ void LEDs::setBlinkState(uint8_t ledID, blinkSpeed_t state)
         else
         {
             BIT_CLEAR(ledState[ledArray[i]], LED_BLINK_ON_BIT);
-            BIT_WRITE(ledState[ledArray[i]], LED_STATE_BIT, BIT_READ(ledState[i], LED_ACTIVE_BIT));
+            BIT_WRITE(ledState[ledArray[i]], LED_STATE_BIT, BIT_READ(ledState[ledArray[i]], LED_ACTIVE_BIT));
         }
 
         setBlinkTime(ledID, state);
