@@ -19,13 +19,22 @@
 #include "LEDs.h"
 #include "board/Board.h"
 
-static bool         blinkState;
-
 volatile uint8_t    pwmSteps;
 uint8_t             ledState[MAX_NUMBER_OF_LEDS];
 
-static uint32_t     ledBlinkTime,
-                    lastLEDblinkUpdateTime;
+///
+/// \brief Array holding time after which LEDs should blink and current blink time count.
+/// Lower 8 bits contain current time which is incremented by 1 every 125ms.
+/// Upper 8 bits contain LED blink time. Once lower 8 bits is equal to upper 8
+/// bits, LED should change blink state. See valueToBlinkSpeed function for mapping of
+/// MIDI data to blink time.
+///
+uint16_t            blinkTimer[MAX_NUMBER_OF_LEDS];
+
+///
+/// \brief Holds last time in miliseconds when LED blinking has been updated.
+///
+uint32_t            lastLEDblinkUpdateTime;
 
 volatile int8_t     transitionCounter[MAX_NUMBER_OF_LEDS];
 
@@ -39,9 +48,12 @@ uint8_t             rgbLEDenabled[MAX_NUMBER_OF_RGB_LEDS/8+1];
 ///
 uint8_t             ledControlChannel[MAX_NUMBER_OF_LEDS];
 
-
-#define BLINK_TIME_MIN_INT  (BLINK_TIME_MIN*100)
-#define BLINK_TIME_MAX_INT  (BLINK_TIME_MAX*100)
+inline void setBlinkTime(uint8_t ledID, uint8_t blinkTime)
+{
+    //clear current blink time and counter
+    blinkTimer[ledID] = blinkTime;
+    blinkTimer[ledID] <<= 8;
+}
 
 
 LEDs::LEDs()
@@ -53,8 +65,6 @@ void LEDs::init(bool startUp)
 {
     if (startUp)
     {
-        setBlinkTime(database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterBlinkTime)*BLINK_TIME_SYSEX_MULTIPLIER);
-
         if (database.read(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterStartUpRoutine))
         {
             //set to slowest fading speed for effect
@@ -101,22 +111,34 @@ inline bool isRGBLEDenabled(uint8_t ledID)
 
 void LEDs::update()
 {
-    if ((rTimeMs() - lastLEDblinkUpdateTime) >= ledBlinkTime)
+    //update blink states every 125ms - minimum blink time
+    if ((rTimeMs() - lastLEDblinkUpdateTime) >= 125)
     {
-        //time to update blinking leds
-        //change blinkBit state and write it into ledState variable if LED is in blink state
         for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
         {
             if (BIT_READ(ledState[i], LED_BLINK_ON_BIT))
             {
-                if (blinkState)
-                    BIT_SET(ledState[i], LED_STATE_BIT);
-                else
-                    BIT_CLEAR(ledState[i], LED_STATE_BIT);
+                uint8_t blinkCounter = blinkTimer[i] & (uint16_t)0xFF;
+                blinkCounter++;
+
+                if ((blinkTimer[i] >> 8) == blinkCounter)
+                {
+                    if (BIT_READ(ledState[i], LED_STATE_BIT))
+                        BIT_CLEAR(ledState[i], LED_STATE_BIT);
+                    else
+                        BIT_SET(ledState[i], LED_STATE_BIT);
+
+                    blinkCounter = 0;
+                }
+
+                //reset current blink count
+                blinkTimer[i] &= 0xFF00;
+
+                //update new count
+                blinkTimer[i] |= blinkCounter;
             }
         }
 
-        blinkState = !blinkState;
         lastLEDblinkUpdateTime = rTimeMs();
     }
 }
@@ -135,10 +157,10 @@ void LEDs::startUpAnimation()
     #endif
 }
 
-ledColor_t LEDs::valueToColor(uint8_t receivedVelocity)
+ledColor_t LEDs::valueToColor(uint8_t value)
 {
     /*
-        Velocity    Color       Color Index
+        MIDI value  Color       Color index
         0-15        Off         0
         16-31       Red         1
         32-47       Green       2
@@ -149,7 +171,24 @@ ledColor_t LEDs::valueToColor(uint8_t receivedVelocity)
         112-127     White       7
     */
 
-    return (ledColor_t)(receivedVelocity/16);
+    return (ledColor_t)(value/16);
+}
+
+uint8_t LEDs::valueToBlinkSpeed(uint8_t value)
+{
+    /*
+        MIDI value  Blink speed  Blink speed index
+        0-15        0/disabled   0
+        16-31       250ms        1
+        32-47       375ms        2
+        48-63       500ms        3
+        64-79       625ms        4
+        80-95       750ms        5
+        96-111      875ms        6
+        112-127     10000ms      7
+    */
+
+    return value/16;
 }
 
 void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local)
@@ -259,15 +298,14 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
             //match activation ID with received ID
             if (database.read(DB_BLOCK_LEDS, dbSection_leds_activationID, i) == data1)
             {
-                //turn blink on or off depending on data2 value
-                //any value other than 0 will turn blinking on
-                setBlinkState(i, (bool)data2);
+                //blink speed depends on data2 value
+                setBlinkState(i, data2, true);
             }
         }
     }
 }
 
-void LEDs::setBlinkState(uint8_t ledID, bool state)
+void LEDs::setBlinkState(uint8_t ledID, uint8_t state, bool internal)
 {
     uint8_t ledArray[3], leds = 0;
 
@@ -290,7 +328,7 @@ void LEDs::setBlinkState(uint8_t ledID, bool state)
 
     for (int i=0; i<leds; i++)
     {
-        if (state)
+        if ((bool)state)
         {
             BIT_SET(ledState[ledArray[i]], LED_BLINK_ON_BIT);
             //this will turn the led immediately no matter how little time it's
@@ -302,6 +340,19 @@ void LEDs::setBlinkState(uint8_t ledID, bool state)
             BIT_CLEAR(ledState[ledArray[i]], LED_BLINK_ON_BIT);
             BIT_WRITE(ledState[ledArray[i]], LED_STATE_BIT, BIT_READ(ledState[i], LED_ACTIVE_BIT));
         }
+
+        //also make sure to set blink time
+        if (!internal)
+        {
+            if (state)
+                state = 3; //set to 500ms in this case
+        }
+        else
+        {
+            state = valueToBlinkSpeed(state);
+        }
+
+        setBlinkTime(ledID, state);
     }
 }
 
@@ -396,19 +447,6 @@ bool LEDs::setFadeTime(uint8_t transitionSpeed)
 
         pwmSteps = transitionSpeed;
     }
-
-    return true;
-}
-
-bool LEDs::setBlinkTime(uint16_t blinkTime)
-{
-    if ((blinkTime < BLINK_TIME_MIN_INT) || (blinkTime > BLINK_TIME_MAX_INT))
-    {
-        return false;
-    }
-
-    ledBlinkTime = blinkTime;
-    lastLEDblinkUpdateTime = 0;
 
     return true;
 }

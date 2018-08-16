@@ -175,6 +175,18 @@ bool onGet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t &val
             success = database.read(block, sysEx2DB_leds[section], board.getRGBID(index), readValue);
             break;
 
+            case sysExSection_leds_hw:
+            if (!index)
+            {
+                sysEx.setError(ERROR_INDEX);
+                success = false;
+            }
+            else
+            {
+                success = database.read(block, sysEx2DB_leds[section], index, readValue);
+            }
+            break;
+
             default:
             success = database.read(block, sysEx2DB_leds[section], index, readValue);
             break;
@@ -464,11 +476,9 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             case sysExSection_leds_hw:
             switch(index)
             {
-                case ledHwParameterBlinkTime:
-                if ((newValue >= BLINK_TIME_MIN) && (newValue <= BLINK_TIME_MAX))
-                {
-                    success = leds.setBlinkTime((uint16_t)newValue*BLINK_TIME_SYSEX_MULTIPLIER);
-                }
+                case 0:
+                sysEx.setError(ERROR_INDEX);
+                success = false;
                 break;
 
                 case ledHwParameterFadeTime:

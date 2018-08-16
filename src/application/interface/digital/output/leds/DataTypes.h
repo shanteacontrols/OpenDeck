@@ -40,7 +40,7 @@ typedef enum
 
 typedef enum
 {
-    ledHwParameterBlinkTime,
+    ledHwParameter_reserved_1,
     ledHwParameterFadeTime,
     ledHwParameterStartUpRoutine,
     LED_HARDWARE_PARAMETERS

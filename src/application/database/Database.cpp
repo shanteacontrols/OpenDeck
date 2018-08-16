@@ -81,8 +81,6 @@ void Database::writeCustomValues()
     update(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventTime, MIN_MESSAGE_RETENTION_TIME);
     update(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwController, DISPLAY_CONTROLLERS);
     update(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwResolution, DISPLAY_RESOLUTIONS);
-
-    update(DB_BLOCK_LEDS, dbSection_leds_hw, ledHwParameterBlinkTime, BLINK_TIME_MIN);
 }
 
 Database database;
