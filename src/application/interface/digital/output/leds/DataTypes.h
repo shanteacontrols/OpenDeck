@@ -60,3 +60,19 @@ typedef enum
     ledControlLocal_CCStateBlink,
     LED_CONTROL_TYPES
 } ledControlType_t;
+
+typedef enum
+{
+    blinkSpeed_noBlink,
+    blinkSpeed_100ms,
+    blinkSpeed_200ms,
+    blinkSpeed_300ms,
+    blinkSpeed_400ms,
+    blinkSpeed_500ms,
+    blinkSpeed_600ms,
+    blinkSpeed_700ms,
+    blinkSpeed_800ms,
+    blinkSpeed_900ms,
+    blinkSpeed_1000ms,
+    BLINK_SPEEDS
+} blinkSpeed_t;

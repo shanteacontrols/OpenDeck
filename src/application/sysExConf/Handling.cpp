@@ -468,7 +468,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
 
             case sysExSection_leds_testBlink:
             //no writing to database
-            leds.setBlinkState(index, newValue ? 127 : 0);
+            leds.setBlinkState(index, newValue ? blinkSpeed_500ms : blinkSpeed_noBlink);
             success = true;
             writeToDb = false;
             break;

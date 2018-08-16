@@ -24,7 +24,7 @@ uint8_t             ledState[MAX_NUMBER_OF_LEDS];
 
 ///
 /// \brief Array holding time after which LEDs should blink and current blink time count.
-/// Lower 8 bits contain current time which is incremented by 1 every 125ms.
+/// Lower 8 bits contain current time which is incremented by 1 every 100ms.
 /// Upper 8 bits contain LED blink time. Once lower 8 bits is equal to upper 8
 /// bits, LED should change blink state. See valueToBlinkSpeed function for mapping of
 /// MIDI data to blink time.
@@ -111,8 +111,8 @@ inline bool isRGBLEDenabled(uint8_t ledID)
 
 void LEDs::update()
 {
-    //update blink states every 125ms - minimum blink time
-    if ((rTimeMs() - lastLEDblinkUpdateTime) >= 125)
+    //update blink states every 100ms - minimum blink time
+    if ((rTimeMs() - lastLEDblinkUpdateTime) >= 100)
     {
         for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
         {
@@ -174,21 +174,28 @@ ledColor_t LEDs::valueToColor(uint8_t value)
     return (ledColor_t)(value/16);
 }
 
-uint8_t LEDs::valueToBlinkSpeed(uint8_t value)
+blinkSpeed_t LEDs::valueToBlinkSpeed(uint8_t value)
 {
     /*
         MIDI value  Blink speed  Blink speed index
-        0-15        0/disabled   0
-        16-31       250ms        1
-        32-47       375ms        2
-        48-63       500ms        3
-        64-79       625ms        4
-        80-95       750ms        5
-        96-111      875ms        6
-        112-127     10000ms      7
+        0-9        0/disabled   0
+        10-19      100ms        1
+        20-29      200ms        2
+        30-39      300ms        3
+        40-49      400ms        4
+        50-59      500ms        5
+        60-69      600ms        6
+        70-79      700ms        7
+        80-89      800ms        8
+        90-99      900ms        9
+        100-109    1000ms       10
+        110-127    1000ms       11
     */
 
-    return value/16;
+    if (value >= 120)
+        value = 119;
+
+    return (blinkSpeed_t)(value/10);
 }
 
 void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local)
@@ -329,23 +336,33 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
             {
                 if (setState)
                 {
-                    //single message is being used to set both state and blink value
-                    //make sure data2 has value 0-7 (possible number of blink states)
-                    data2 = (data2 - ((uint8_t)color*16)) / 2;
+                    if (data2)
+                    {
+                        //single message is being used to set both state and blink value
+                        //first reduce data2 to range 0-15
+                        //append 1 so that first value is blinking one
+                        //turn off blinking only on higher range
+                        data2 = 1 + (data2 - ((uint8_t)color*16));
 
-                    setBlinkState(i, data2, true);
+                        //make sure data2 is in range
+                        //when it's not turn off blinking
+                        if (data2 >= BLINK_SPEEDS)
+                            data2 = 0;
+                    }
+
+                    setBlinkState(i, (blinkSpeed_t)data2);
                 }
                 else
                 {
                     //blink speed depends on data2 value
-                    setBlinkState(i, valueToBlinkSpeed(data2), true);
+                    setBlinkState(i, valueToBlinkSpeed(data2));
                 }
             }
         }
     }
 }
 
-void LEDs::setBlinkState(uint8_t ledID, uint8_t state, bool internalCall)
+void LEDs::setBlinkState(uint8_t ledID, blinkSpeed_t state)
 {
     uint8_t ledArray[3], leds = 0;
 
@@ -380,9 +397,6 @@ void LEDs::setBlinkState(uint8_t ledID, uint8_t state, bool internalCall)
             BIT_CLEAR(ledState[ledArray[i]], LED_BLINK_ON_BIT);
             BIT_WRITE(ledState[ledArray[i]], LED_STATE_BIT, BIT_READ(ledState[i], LED_ACTIVE_BIT));
         }
-
-        if (!internalCall)
-            state = valueToBlinkSpeed(state);
 
         setBlinkTime(ledID, state);
     }
