@@ -330,6 +330,7 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
                 if (setState)
                 {
                     //single message is being used to set both state and blink value
+                    //make sure data2 has value 0-7 (possible number of blink states)
                     data2 = (data2 - ((uint8_t)color*16)) / 2;
 
                     setBlinkState(i, data2, true);
