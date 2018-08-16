@@ -317,7 +317,15 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
                 {
                     //use data2 value (note velocity / cc value) to set led color
                     //and possibly blink speed (depending on configuration)
-                    color = valueToColor(data2);
+                    //when note/cc are used to control both state and blinking ignore activation velocity
+                    if (isRGBLEDenabled(board.getRGBID(i)) || (setState && setBlink))
+                    {
+                        color = valueToColor(data2);
+                    }
+                    else
+                    {
+                        color = (database.read(DB_BLOCK_LEDS, dbSection_leds_activationValue, i) == data2) ? colorRed : colorOff;
+                    }
                 }
 
                 setColor(i, color);
