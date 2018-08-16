@@ -375,12 +375,13 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
 void LEDs::setBlinkState(uint8_t ledID, blinkSpeed_t state)
 {
     uint8_t ledArray[3], leds = 0;
+    uint8_t rgbIndex = board.getRGBID(ledID);
 
-    if (isRGBLEDenabled(board.getRGBID(ledID)))
+    if (isRGBLEDenabled(rgbIndex))
     {
-        ledArray[0] = board.getRGBaddress(ledID, rgb_R);
-        ledArray[1] = board.getRGBaddress(ledID, rgb_G);
-        ledArray[2] = board.getRGBaddress(ledID, rgb_B);
+        ledArray[0] = board.getRGBaddress(rgbIndex, rgb_R);
+        ledArray[1] = board.getRGBaddress(rgbIndex, rgb_G);
+        ledArray[2] = board.getRGBaddress(rgbIndex, rgb_B);
 
         leds = 3;
     }
@@ -428,11 +429,13 @@ void LEDs::setAllOff()
 
 void LEDs::setColor(uint8_t ledID, ledColor_t color)
 {
-    if (isRGBLEDenabled(board.getRGBID(ledID)))
+    uint8_t rgbIndex = board.getRGBID(ledID);
+
+    if (isRGBLEDenabled(rgbIndex))
     {
-        uint8_t led1 = board.getRGBaddress(ledID, rgb_R);
-        uint8_t led2 = board.getRGBaddress(ledID, rgb_G);
-        uint8_t led3 = board.getRGBaddress(ledID, rgb_B);
+        uint8_t led1 = board.getRGBaddress(rgbIndex, rgb_R);
+        uint8_t led2 = board.getRGBaddress(rgbIndex, rgb_G);
+        uint8_t led3 = board.getRGBaddress(rgbIndex, rgb_B);
 
         handleLED(led1, BIT_READ(color, 0));
         handleLED(led2, BIT_READ(color, 1));
@@ -462,9 +465,10 @@ ledColor_t LEDs::getColor(uint8_t ledID)
         else
         {
             //rgb led
-            uint8_t led1 = getState(board.getRGBaddress(ledID, rgb_R));
-            uint8_t led2 = getState(board.getRGBaddress(ledID, rgb_G));
-            uint8_t led3 = getState(board.getRGBaddress(ledID, rgb_B));
+            uint8_t rgbIndex = board.getRGBID(ledID);
+            uint8_t led1 = getState(board.getRGBaddress(rgbIndex, rgb_R));
+            uint8_t led2 = getState(board.getRGBaddress(rgbIndex, rgb_G));
+            uint8_t led3 = getState(board.getRGBaddress(rgbIndex, rgb_B));
 
             uint8_t color = 0;
             color |= BIT_READ(led1, LED_RGB_B_BIT);
