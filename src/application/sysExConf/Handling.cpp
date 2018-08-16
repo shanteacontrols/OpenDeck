@@ -521,22 +521,23 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 {
                     success = database.update(block, sysEx2DB_leds[sysExSection_leds_activationID], board.getRGBaddress(board.getRGBID(index), (rgbIndex_t)i), database.read(block, sysEx2DB_leds[sysExSection_leds_activationID], index));
 
-                    if (success)
+                    if (!success)
                         break;
 
                     success = database.update(block, sysEx2DB_leds[sysExSection_leds_controlType], board.getRGBaddress(board.getRGBID(index), (rgbIndex_t)i), database.read(block, sysEx2DB_leds[sysExSection_leds_controlType], index));
 
-                    if (success)
+                    if (!success)
                         break;
 
                     success = database.update(block, sysEx2DB_leds[sysExSection_leds_midiChannel], board.getRGBaddress(board.getRGBID(index), (rgbIndex_t)i), database.read(block, sysEx2DB_leds[sysExSection_leds_midiChannel], index));
 
-                    if (success)
+                    if (!success)
                         break;
                 }
             }
 
-            leds.init(false);
+            if (success)
+                leds.init(false);
             break;
 
             case sysExSection_leds_activationID:
