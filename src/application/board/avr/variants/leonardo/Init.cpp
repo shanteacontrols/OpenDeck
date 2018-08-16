@@ -40,6 +40,13 @@ void Board::initPins()
     setInput(DI_6_PORT, DI_6_PIN);
     setHigh(DI_6_PORT, DI_6_PIN);
 
+    #ifdef BOARD_A_LEO
+    setInput(DI_7_PORT, DI_7_PIN);
+    setHigh(DI_7_PORT, DI_7_PIN);
+
+    setInput(DI_8_PORT, DI_8_PIN);
+    setHigh(DI_8_PORT, DI_8_PIN);
+    #endif
 
     setOutput(DO_1_PORT, DO_1_PIN);
     EXT_LED_OFF(DO_1_PORT, DO_1_PIN);

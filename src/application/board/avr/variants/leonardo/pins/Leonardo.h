@@ -36,6 +36,12 @@
 #define DI_6_PORT           PORTE
 #define DI_6_PIN            6
 
+#define DI_7_PORT           PORTB
+#define DI_7_PIN            1
+
+#define DI_8_PORT           PORTB
+#define DI_8_PIN            3
+
 
 #define DO_1_PORT           PORTB
 #define DO_1_PIN            4

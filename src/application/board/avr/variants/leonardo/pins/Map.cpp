@@ -48,7 +48,19 @@ mcuPin_t dInPins[MAX_NUMBER_OF_BUTTONS] =
     {
         .port = &DI_6_PORT,
         .pin = DI_6_PIN,
+    },
+
+    #ifdef BOARD_A_LEO
+    {
+        .port = &DI_7_PORT,
+        .pin = DI_7_PIN,
+    },
+
+    {
+        .port = &DI_8_PORT,
+        .pin = DI_8_PIN,
     }
+    #endif
 };
 
 mcuPin_t dOutPins[MAX_NUMBER_OF_LEDS] =

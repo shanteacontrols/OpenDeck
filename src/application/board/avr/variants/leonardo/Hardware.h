@@ -35,7 +35,11 @@
 ///
 /// \brief Maximum number of buttons.
 ///
+#ifdef BOARD_A_PRO_MICRO
 #define MAX_NUMBER_OF_BUTTONS           6
+#else
+#define MAX_NUMBER_OF_BUTTONS           8
+#endif
 
 ///
 /// \brief Maximum number of LEDs.
