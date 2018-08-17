@@ -167,8 +167,11 @@ bool onGet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t &val
             break;
 
             case sysExSection_leds_midiChannel:
+            success = database.read(block, sysEx2DB_leds[section], index, readValue);
+
             //channels start from 0 in db, start from 1 in sysex
-            success = database.read(block, sysEx2DB_leds[section], index, readValue) + 1;
+            if (success)
+                readValue++;
             break;
 
             case sysExSection_leds_rgbEnable:
@@ -229,8 +232,11 @@ bool onGet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t &val
             break;
 
             case sysExSection_analog_midiChannel:
+            success = database.read(block, sysEx2DB_analog[section], index, readValue);
+
             //channels start from 0 in db, start from 1 in sysex
-            success = database.read(block, sysEx2DB_analog[section], index, readValue) + 1;
+            if (success)
+                readValue++;
             break;
 
             default:
@@ -240,19 +246,19 @@ bool onGet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t &val
         break;
 
         case SYSEX_BLOCK_BUTTONS:
+        success = database.read(block, sysEx2DB_buttons[section], index, readValue);
+
         //channels start from 0 in db, start from 1 in sysex
-        if (section == sysExSection_buttons_midiChannel)
-            success = database.read(block, sysEx2DB_buttons[section], index, readValue) + 1;
-        else
-            success = database.read(block, sysEx2DB_buttons[section], index, readValue);
+        if ((section == sysExSection_buttons_midiChannel) && success)
+            readValue++;
         break;
 
         case SYSEX_BLOCK_ENCODERS:
+        success = database.read(block, sysEx2DB_encoders[section], index, readValue);
+
         //channels start from 0 in db, start from 1 in sysex
-        if (section == sysExSection_encoders_midiChannel)
-            success = database.read(block, sysEx2DB_encoders[section], index, readValue) + 1;
-        else
-            success = database.read(block, sysEx2DB_encoders[section], index, readValue);
+        if ((section == sysExSection_encoders_midiChannel) && success)
+            readValue++;
         break;
 
         case DB_BLOCK_DISPLAY:
@@ -325,19 +331,19 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             case sysExSection_analog_type:
             analog.debounceReset(index);
             success = database.update(block, sysEx2DB_analog[section], index, newValue);
+
             if (success)
                 analog.init();
             break;
 
-            case sysExSection_analog_midiChannel:
-            //channels start from 0 in db, start from 1 in sysex
-            success = database.update(block, sysEx2DB_analog[section], index, newValue-1);
-            break;
-
             default:
+            //channels start from 0 in db, start from 1 in sysex
+            if (section == sysExSection_analog_midiChannel)
+                newValue--;
+
             success = database.update(block, sysEx2DB_analog[section], index, newValue);
 
-            if (success)
+            if (success && ((section == sysExSection_analog_enable) || (section == sysExSection_analog_invert)))
                 analog.init();
             break;
         }
@@ -450,9 +456,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
         }
 
         if (success && writeToDb)
-        {
             success = database.update(block, sysEx2DB_midi[section], index, newValue);
-        }
         break;
 
         case SYSEX_BLOCK_LEDS:
@@ -564,10 +568,10 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             {
                 //apply to single led only
                 success = database.update(block, sysEx2DB_leds[section], index, newValue);
-
-                if (success && (section == sysExSection_leds_midiChannel))
-                    leds.init(false);
             }
+
+            if (success && (section == sysExSection_leds_midiChannel))
+                leds.init(false);
             break;
 
             default:
@@ -681,33 +685,25 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
         break;
 
         case SYSEX_BLOCK_BUTTONS:
+        //channels start from 0 in db, start from 1 in sysex
         if (section == sysExSection_buttons_midiChannel)
-        {
-            //channels start from 0 in db, start from 1 in sysex
-            success = database.update(block, sysEx2DB_buttons[section], index, newValue-1);
-        }
-        else
-        {
-            success = database.update(block, sysEx2DB_buttons[section], index, newValue);
+            newValue--;
 
-            if (success && ((section == sysExSection_buttons_type) || (section == sysExSection_buttons_midiMessage)))
-                buttons.init();
-        }
+        success = database.update(block, sysEx2DB_buttons[section], index, newValue);
+
+        if (success && ((section == sysExSection_buttons_type) || (section == sysExSection_buttons_midiMessage)))
+            buttons.init();
         break;
 
         case SYSEX_BLOCK_ENCODERS:
+        //channels start from 0 in db, start from 1 in sysex
         if (section == sysExSection_encoders_midiChannel)
-        {
-            //channels start from 0 in db, start from 1 in sysex
-            success = database.update(block, sysEx2DB_encoders[section], index, newValue-1);
-        }
-        else
-        {
-            success = database.update(block, sysEx2DB_encoders[section], index, newValue);
+            newValue--;
 
-            if (success && ((section == sysExSection_encoders_enable) || (section == sysExSection_encoders_invert) || (section == sysExSection_encoders_pulsesPerStep)))
-                encoders.init();
-        }
+        success = database.update(block, sysEx2DB_encoders[section], index, newValue);
+
+        if (success && ((section == sysExSection_encoders_enable) || (section == sysExSection_encoders_invert) || (section == sysExSection_encoders_pulsesPerStep)))
+            encoders.init();
         break;
 
         default:
