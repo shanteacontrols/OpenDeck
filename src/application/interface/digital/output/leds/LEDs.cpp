@@ -20,23 +20,17 @@
 #include "board/Board.h"
 
 volatile uint8_t    pwmSteps;
+volatile int8_t     transitionCounter[MAX_NUMBER_OF_LEDS];
+
+///
+/// \brief Array holding current LED status for all LEDs.
+///
 uint8_t             ledState[MAX_NUMBER_OF_LEDS];
 
 ///
-/// \brief Array holding time after which LEDs should blink and current blink time count.
-/// Lower 8 bits contain current time which is incremented by 1 every 100ms.
-/// Upper 8 bits contain LED blink time. Once lower 8 bits is equal to upper 8
-/// bits, LED should change blink state. See valueToBlinkSpeed function for mapping of
-/// MIDI data to blink time.
+/// \brief Array holding time after which LEDs should blink.
 ///
-uint16_t            blinkTimer[MAX_NUMBER_OF_LEDS];
-
-///
-/// \brief Holds last time in miliseconds when LED blinking has been updated.
-///
-uint32_t            lastLEDblinkUpdateTime;
-
-volatile int8_t     transitionCounter[MAX_NUMBER_OF_LEDS];
+uint8_t             blinkTimer[MAX_NUMBER_OF_LEDS];
 
 ///
 /// \brief Array holding RGB enable state for all LEDs.
@@ -48,17 +42,13 @@ uint8_t             rgbLEDenabled[MAX_NUMBER_OF_RGB_LEDS/8+1];
 ///
 uint8_t             ledControlChannel[MAX_NUMBER_OF_LEDS];
 
-inline void setBlinkTime(uint8_t ledID, uint8_t blinkTime)
-{
-    //clear current blink time and counter
-    blinkTimer[ledID] = blinkTime;
-    blinkTimer[ledID] <<= 8;
-}
 
-
+///
+/// \brief Default constructor.
+///
 LEDs::LEDs()
 {
-    //def const
+
 }
 
 void LEDs::init(bool startUp)
@@ -111,36 +101,43 @@ inline bool isRGBLEDenabled(uint8_t ledID)
 
 void LEDs::update()
 {
+    //holds last time in miliseconds when LED blinking has been updated
+    static uint32_t lastLEDblinkUpdateTime = 0;
+
+    //holds blink state for each blink speed so that leds are in sync
+    static bool blinkState[BLINK_SPEEDS] = { false };
+
+    //array used to determine when the blink state for specific blink rate should be changed
+    static uint8_t blinkCounter[BLINK_SPEEDS] = { false };
+
     //update blink states every 100ms - minimum blink time
-    if ((rTimeMs() - lastLEDblinkUpdateTime) >= 100)
+    if ((rTimeMs() - lastLEDblinkUpdateTime) < 100)
+        return;
+
+    //change the blink state for specific blink rate
+    for (int i=0; i<BLINK_SPEEDS; i++)
     {
-        for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+        //i equals blink rate enum in this case
+        if (++blinkCounter[i] >= i)
         {
-            if (BIT_READ(ledState[i], LED_BLINK_ON_BIT))
+            blinkCounter[i] = 0;
+            blinkState[i] = !blinkState[i];
+
+            //assign changed state to all leds which have this speed
+            for (int j=0; j<MAX_NUMBER_OF_LEDS; j++)
             {
-                uint8_t blinkCounter = blinkTimer[i] & (uint16_t)0xFF;
-                blinkCounter++;
+                if (!BIT_READ(ledState[j], LED_BLINK_ON_BIT))
+                    continue;
 
-                if ((blinkTimer[i] >> 8) == blinkCounter)
-                {
-                    if (BIT_READ(ledState[i], LED_STATE_BIT))
-                        BIT_CLEAR(ledState[i], LED_STATE_BIT);
-                    else
-                        BIT_SET(ledState[i], LED_STATE_BIT);
+                if (blinkTimer[j] != i)
+                    continue;
 
-                    blinkCounter = 0;
-                }
-
-                //reset current blink count
-                blinkTimer[i] &= 0xFF00;
-
-                //update new count
-                blinkTimer[i] |= blinkCounter;
+                BIT_WRITE(ledState[j], LED_STATE_BIT, blinkState[i]);
             }
         }
-
-        lastLEDblinkUpdateTime = rTimeMs();
     }
+
+    lastLEDblinkUpdateTime = rTimeMs();
 }
 
 void LEDs::startUpAnimation()
@@ -178,18 +175,18 @@ blinkSpeed_t LEDs::valueToBlinkSpeed(uint8_t value)
 {
     /*
         MIDI value  Blink speed  Blink speed index
-        0-9        0/disabled   0
-        10-19      100ms        1
-        20-29      200ms        2
-        30-39      300ms        3
-        40-49      400ms        4
-        50-59      500ms        5
-        60-69      600ms        6
-        70-79      700ms        7
-        80-89      800ms        8
-        90-99      900ms        9
-        100-109    1000ms       10
-        110-127    1000ms       11
+        0-9        0/disabled    0
+        10-19      100ms         1
+        20-29      200ms         2
+        30-39      300ms         3
+        40-49      400ms         4
+        50-59      500ms         5
+        60-69      600ms         6
+        70-79      700ms         7
+        80-89      800ms         8
+        90-99      900ms         9
+        100-109    1000ms        10
+        110-127    1000ms        11
     */
 
     if (value >= 120)
@@ -409,7 +406,7 @@ void LEDs::setBlinkState(uint8_t ledID, blinkSpeed_t state)
             BIT_WRITE(ledState[ledArray[i]], LED_STATE_BIT, BIT_READ(ledState[ledArray[i]], LED_ACTIVE_BIT));
         }
 
-        setBlinkTime(ledID, state);
+        blinkTimer[ledID] = (uint8_t)state;
     }
 }
 
