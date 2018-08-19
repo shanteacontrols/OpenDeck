@@ -111,7 +111,8 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         application/board/common/digital/input/DigitalIn.cpp \
         application/board/avr/variants/$(BOARD_DIR)/HardwareControl.cpp \
         application/board/avr/variants/$(BOARD_DIR)/Init.cpp \
-        application/board/avr/variants/$(BOARD_DIR)/pins/Map.cpp
+        application/board/avr/variants/$(BOARD_DIR)/pins/Map.cpp \
+        application/interface/midi/OpenDeckFormat.cpp
 
         ifneq ($(filter LEDS_SUPPORTED, $(DEFINES)), )
         SOURCES += \
@@ -180,11 +181,6 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
             SOURCES += \
             application/interface/display/touch/Touchscreen.cpp \
             application/interface/display/touch/model/sdw/SDW.cpp
-        endif
-
-        ifneq ($(filter UART_INIT, $(DEFINES)), )
-            SOURCES += \
-            application/interface/midi/OpenDeckFormat.cpp
         endif
 
         ifneq ($(filter DIN_MIDI_SUPPORTED, $(DEFINES)), )

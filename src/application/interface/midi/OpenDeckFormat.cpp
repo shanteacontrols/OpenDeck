@@ -66,12 +66,14 @@ void setupMIDIoverUART_OD(uint8_t channel)
         midi.handleUARTread(NULL);
         midi.handleUARTwrite(NULL);
     }
-    #elif defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
+    #else
+    #ifndef USB_SUPPORTED
     board.initUART(UART_BAUDRATE_MIDI_OD, uartChannel_OD);
     midi.handleUSBread(usbRead_OD);
     midi.handleUSBwrite(usbWrite_OD);
     midi.handleUARTread(NULL);
     midi.handleUARTwrite(NULL);
+    #endif
     #endif
 }
 

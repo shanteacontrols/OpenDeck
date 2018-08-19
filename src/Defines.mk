@@ -39,7 +39,6 @@ endif
 ifeq ($(findstring opendeck,$(MAKECMDGOALS)), opendeck)
     MCU := atmega32u4
     BOARD := BOARD_OPEN_DECK
-    DEFINES += USB_SUPPORTED
     DEFINES += LED_FADING_SUPPORTED
     DEFINES += LED_EXT_INVERT
     DEFINES += USE_MUX
@@ -49,14 +48,12 @@ ifeq ($(findstring opendeck,$(MAKECMDGOALS)), opendeck)
     DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 2
-    DEFINES += UART_INIT
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += UART_MIDI_CHANNEL=0
     DEFINES += LEDS_SUPPORTED
 else ifeq ($(findstring tannin,$(MAKECMDGOALS)), tannin)
     MCU := atmega32u4
     BOARD := BOARD_TANNIN
-    DEFINES += USB_SUPPORTED
     DEFINES += LED_FADING_SUPPORTED
     DEFINES += LED_EXT_INVERT
     DEFINES += USE_MUX
@@ -69,33 +66,28 @@ else ifeq ($(findstring tannin,$(MAKECMDGOALS)), tannin)
 else ifeq ($(findstring leonardo,$(MAKECMDGOALS)), leonardo)
     MCU := atmega32u4
     BOARD := BOARD_A_LEO
-    DEFINES += USB_SUPPORTED
     DEFINES += LED_INT_INVERT
     DEFINES += LED_INDICATORS
     DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
-    DEFINES += UART_INIT
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += UART_MIDI_CHANNEL=0
     DEFINES += LEDS_SUPPORTED
 else ifeq ($(findstring pro_micro,$(MAKECMDGOALS)), pro_micro)
     MCU := atmega32u4
     BOARD := BOARD_A_PRO_MICRO
-    DEFINES += USB_SUPPORTED
     DEFINES += LED_INT_INVERT
     DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
     DEFINES += LED_INDICATORS
-    DEFINES += UART_INIT
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += UART_MIDI_CHANNEL=0
     DEFINES += LEDS_SUPPORTED
 else ifeq ($(findstring kodama,$(MAKECMDGOALS)), kodama)
     MCU := atmega32u4
     BOARD := BOARD_KODAMA
-    DEFINES += USB_SUPPORTED
     DEFINES += USE_MUX
     DEFINES += LED_EXT_INVERT
     DEFINES += CRC_CHECK
@@ -105,7 +97,6 @@ else ifeq ($(findstring kodama,$(MAKECMDGOALS)), kodama)
 else ifeq ($(findstring bergamot,$(MAKECMDGOALS)), bergamot)
     MCU := atmega32u4
     BOARD := BOARD_BERGAMOT
-    DEFINES += USB_SUPPORTED
     DEFINES += USE_MUX
     DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 1
@@ -116,12 +107,10 @@ else ifeq ($(findstring teensy2pp,$(MAKECMDGOALS)), teensy2pp)
     MCU := at90usb1286
     BOARD := BOARD_T_2PP
     DEFINES += STRING_BUFFER_SIZE=40
-    DEFINES += USB_SUPPORTED
     DEFINES += DISPLAY_SUPPORTED
     DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
-    DEFINES += UART_INIT
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += UART_MIDI_CHANNEL=0
     DEFINES += LEDS_SUPPORTED
@@ -133,7 +122,6 @@ else ifeq ($(findstring mega,$(MAKECMDGOALS)), mega)
     DEFINES += TOUCHSCREEN_SUPPORTED
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
-    DEFINES += UART_INIT
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += UART_USB_LINK_CHANNEL=0
     DEFINES += UART_MIDI_CHANNEL=1
@@ -144,7 +132,6 @@ else ifeq ($(findstring uno,$(MAKECMDGOALS)), uno)
     BOARD := BOARD_A_UNO
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
-    DEFINES += UART_INIT
     DEFINES += UART_USB_LINK_CHANNEL=0
     DEFINES += LEDS_SUPPORTED
 else ifeq ($(findstring 16u2,$(MAKECMDGOALS)), 16u2)
@@ -154,7 +141,6 @@ else ifeq ($(findstring 16u2,$(MAKECMDGOALS)), 16u2)
     DEFINES += LED_INDICATORS
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
-    DEFINES += UART_INIT
     DEFINES += UART_USB_LINK_CHANNEL=0
 else ifeq ($(findstring 8u2,$(MAKECMDGOALS)), 8u2)
     MCU := atmega8u2
@@ -163,7 +149,6 @@ else ifeq ($(findstring 8u2,$(MAKECMDGOALS)), 8u2)
     DEFINES += LED_INDICATORS
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
-    DEFINES += UART_INIT
     DEFINES += UART_USB_LINK_CHANNEL=0
 else ifeq ($(findstring upload,$(MAKECMDGOALS)), upload)
     #used to set MCU if make upload target is called
@@ -193,6 +178,7 @@ ifeq ($(MCU),atmega32u4)
     FLASH_SIZE_START_ADDR := 0xAC
     FLASH_SIZE_END_ADDR := 0xB0
     DEFINES += UART_INTERFACES=1
+    DEFINES += USB_SUPPORTED
 else ifeq ($(MCU),at90usb1286)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xf8
@@ -204,6 +190,7 @@ else ifeq ($(MCU),at90usb1286)
     FLASH_SIZE_START_ADDR := 0x98
     FLASH_SIZE_END_ADDR := 0x9C
     DEFINES += UART_INTERFACES=1
+    DEFINES += USB_SUPPORTED
 else ifeq ($(MCU),atmega16u2)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xf8
@@ -213,6 +200,7 @@ else ifeq ($(MCU),atmega16u2)
     EEPROM_SIZE := 512
     BOOT_START_ADDR := 0x3800
     DEFINES += UART_INTERFACES=1
+    DEFINES += USB_SUPPORTED
 else ifeq ($(MCU),atmega8u2)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xf8
@@ -222,6 +210,7 @@ else ifeq ($(MCU),atmega8u2)
     EEPROM_SIZE := 512
     BOOT_START_ADDR := 0x1800
     DEFINES += UART_INTERFACES=1
+    DEFINES += USB_SUPPORTED
 else ifeq ($(MCU),atmega2560)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xfc

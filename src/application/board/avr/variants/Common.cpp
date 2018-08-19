@@ -44,7 +44,7 @@ void Board::init()
 
 bool Board::checkNewRevision()
 {
-    #if !defined(BOARD_A_MEGA) && !defined(BOARD_A_UNO)
+    #ifdef CRC_CHECK
     uint32_t flash_size = pgm_read_dword(APP_LENGTH_LOCATION);
     uint16_t crc_eeprom = eeprom_read_word((uint16_t*)SW_CRC_LOCATION_EEPROM);
     uint16_t crc_flash = pgm_read_word(flash_size);

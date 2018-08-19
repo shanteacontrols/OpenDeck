@@ -32,8 +32,6 @@ void init()
     digitalInput.init();
     analog.init();
 
-    #ifdef UART_INIT
-
     #ifdef DIN_MIDI_SUPPORTED
     if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled))
     {
@@ -47,11 +45,9 @@ void init()
     }
     #endif
 
-    //enable uart-to-xu2 MCU link on these boards
-    #if defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
+    //enable uart-to-usb link when usb isn't supported directly
+    #ifndef USB_SUPPORTED
     setupMIDIoverUART_OD(UART_USB_LINK_CHANNEL);
-    #endif
-
     #endif
 
     midi.setInputChannel(MIDI_CHANNEL_OMNI);
@@ -121,7 +117,6 @@ int main()
 
     while(1)
     {
-        #if defined(USB_SUPPORTED) || defined(BOARD_A_MEGA) || defined(BOARD_A_UNO)
         //note: mega/uno
         //"fake" usbInterface - din data is stored as usb data so use usb callback to read the usb
         //packet stored in midi object
@@ -165,7 +160,6 @@ int main()
                 break;
             }
         }
-        #endif
 
         #ifdef BOARD_OPEN_DECK
         if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled))
