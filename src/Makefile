@@ -37,12 +37,14 @@ endif
 
 LEN_APPEND := 0
 
-#custom linker script for 32u4/1286 boards
-ifneq ($(filter atmega32u4 at90usb1286, $(MCU)), )
+#custom linker script
+ifneq ($(filter atmega32u4 at90usb1286 atmega2560, $(MCU)), )
     ifeq ($(MCU),atmega32u4)
         LDFLAGS += -T application/board/avr/linker/ld_32u4.x
     else ifeq ($(MCU),at90usb1286)
         LDFLAGS += -T application/board/avr/linker/ld_1286.x
+    else ifeq ($(MCU),atmega2560)
+        LDFLAGS += -T application/board/avr/linker/ld_2560.x
     endif
     #append length only in firmware
     ifeq ($(findstring fw,$(MAKECMDGOALS)), fw)
