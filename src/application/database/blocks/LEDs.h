@@ -20,7 +20,7 @@
 
 typedef enum
 {
-    dbSection_leds_hw,
+    dbSection_leds_global,
     dbSection_leds_activationID,
     dbSection_leds_rgbEnable,
     dbSection_leds_controlType,

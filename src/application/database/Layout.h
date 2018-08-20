@@ -236,9 +236,9 @@ static dbSection_t analogSections[DB_SECTIONS_ANALOG] =
 
 static dbSection_t ledSections[DB_SECTIONS_LEDS] =
 {
-    //hardware parameters section
+    //global parameters section
     {
-        .numberOfParameters = LED_HARDWARE_PARAMETERS,
+        .numberOfParameters = LED_GLOBAL_PARAMETERS,
         .parameterType = BYTE_PARAMETER,
         .preserveOnPartialReset = 0,
         .defaultValue = 0,

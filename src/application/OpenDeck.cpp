@@ -21,8 +21,9 @@
 #include "Version.h"
 #include "interface/midi/Handlers.h"
 
-MIDI midi;
-bool processingEnabled;
+MIDI    midi;
+bool    processingEnabled;
+int8_t  midiClockCounter;
 
 void init()
 {
@@ -88,6 +89,7 @@ void init()
     #endif
 
     processingEnabled = true;
+    midiClockCounter = -1;
 }
 
 int main()
@@ -154,6 +156,26 @@ int main()
                 #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(displayEventIn, midiMessageNoteOn_display, data1, data2, channel+1);
                 #endif
+                break;
+
+                case midiMessageClock:
+                if (++midiClockCounter > 48)
+                    midiClockCounter = 0;
+                break;
+
+                case midiMessageStart:
+                midiClockCounter = 0;
+                break;
+
+                case midiMessageStop:
+                //stop blinking on all leds if blinking is controlled via midi clock on transport stop
+                if (leds.getBlinkType() == blinkType_midiClock)
+                {
+                    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+                        leds.setBlinkState(i, blinkSpeed_noBlink);
+                }
+
+                midiClockCounter = -1;
                 break;
 
                 default:

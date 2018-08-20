@@ -24,11 +24,17 @@
 ///
 /// \brief External definition of MIDI class instance.
 ///
-extern MIDI midi;
+extern MIDI     midi;
 
 ///
 /// \brief External definition of processingEnabled variable.
 /// Used to prevent updating states of all components (analog, LEDs, encoders, buttons).
 /// This variable can be used in various modules so because of that it's defined as external.
 ///
-extern bool processingEnabled;
+extern bool     processingEnabled;
+
+///
+/// \brief Holds current count of MIDI clock pulses received via USB MIDI interface.
+/// When its value is -1, MIDI clock isn't running (intial state or MIDI transport stop has been received).
+///
+extern int8_t   midiClockCounter;

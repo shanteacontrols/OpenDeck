@@ -40,11 +40,11 @@ typedef enum
 
 typedef enum
 {
-    ledHwParameter_reserved_1,
-    ledHwParameterFadeTime,
-    ledHwParameterStartUpRoutine,
-    LED_HARDWARE_PARAMETERS
-} ledHardwareParameter_t;
+    ledGlobalParam_blinkMIDIclock,
+    ledGlobalParam_fadeSpeed,
+    ledGlobalParam_startUpRoutineState,
+    LED_GLOBAL_PARAMETERS
+} ledGlobalParam_t;
 
 typedef enum
 {
@@ -76,3 +76,9 @@ typedef enum
     blinkSpeed_1000ms,
     BLINK_SPEEDS
 } blinkSpeed_t;
+
+typedef enum
+{
+    blinkType_timer,
+    blinkType_midiClock
+} blinkType_t;

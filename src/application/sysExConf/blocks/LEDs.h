@@ -24,7 +24,7 @@ typedef enum
 {
     sysExSection_leds_testColor,
     sysExSection_leds_testBlink,
-    sysExSection_leds_hw,
+    sysExSection_leds_global,
     sysExSection_leds_activationID,
     sysExSection_leds_rgbEnable,
     sysExSection_leds_controlType,
@@ -38,7 +38,7 @@ const uint8_t sysEx2DB_leds[SYSEX_SECTIONS_LEDS] =
 {
     0,
     0,
-    dbSection_leds_hw,
+    dbSection_leds_global,
     dbSection_leds_activationID,
     dbSection_leds_rgbEnable,
     dbSection_leds_controlType,

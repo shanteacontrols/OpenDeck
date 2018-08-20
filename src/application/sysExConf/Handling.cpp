@@ -178,18 +178,6 @@ bool onGet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t &val
             success = database.read(block, sysEx2DB_leds[section], board.getRGBID(index), readValue);
             break;
 
-            case sysExSection_leds_hw:
-            if (!index)
-            {
-                sysEx.setError(ERROR_INDEX);
-                success = false;
-            }
-            else
-            {
-                success = database.read(block, sysEx2DB_leds[section], index, readValue);
-            }
-            break;
-
             default:
             success = database.read(block, sysEx2DB_leds[section], index, readValue);
             break;
@@ -477,15 +465,23 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             writeToDb = false;
             break;
 
-            case sysExSection_leds_hw:
+            case sysExSection_leds_global:
             switch(index)
             {
-                case 0:
-                sysEx.setError(ERROR_INDEX);
-                success = false;
+                case ledGlobalParam_blinkMIDIclock:
+                if ((newValue <= 1) && (newValue >= 0))
+                {
+                    success = true;
+                    leds.setBlinkType((blinkType_t)newValue);
+                }
                 break;
 
-                case ledHwParameterFadeTime:
+                case ledGlobalParam_startUpRoutineState:
+                if ((newValue <= 1) && (newValue >= 0))
+                    success = true;
+                break;
+
+                case ledGlobalParam_fadeSpeed:
                 #ifdef LED_FADING_SUPPORTED
                 if ((newValue >= FADE_TIME_MIN) && (newValue <= FADE_TIME_MAX))
                 {
@@ -497,9 +493,7 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 #endif
                 break;
 
-                case ledHwParameterStartUpRoutine:
-                if ((newValue <= 1) && (newValue >= 0))
-                    success = true;
+                default:
                 break;
             }
 

@@ -211,9 +211,9 @@ static sysExSection_t ledSections[SYSEX_SECTIONS_LEDS] =
         .newValueMax = 1,
     },
 
-    //hardware parameters section
+    //global parameters section
     {
-        .numberOfParameters = LED_HARDWARE_PARAMETERS,
+        .numberOfParameters = LED_GLOBAL_PARAMETERS,
         .newValueMin = 0,
         .newValueMax = 0,
     },
