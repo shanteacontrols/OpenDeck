@@ -172,12 +172,20 @@ void LEDs::update()
         break;
 
         case blinkType_midiClock:
-        //midi clock isn't running
-        if (midiClockCounter == -1)
-            return;
-
         if (midiClockCounter == lastMIDIclockCount)
             return;
+
+        lastMIDIclockCount = midiClockCounter;
+
+        //midi clock isn't running
+        if (midiClockCounter == -1)
+        {
+            //make sure all leds are in sync next time the clock starts
+            for (int i=0; i<BLINK_SPEEDS; i++)
+                blinkState[i] = false;
+
+            return;
+        }
 
         //change led state once midi clock pulse count equals specified value for specific leds
         for (int i=0; i<BLINK_SPEEDS; i++)
@@ -198,8 +206,6 @@ void LEDs::update()
                 BIT_WRITE(ledState[j], LED_STATE_BIT, blinkState[i]);
             }
         }
-
-        lastMIDIclockCount = midiClockCounter;
         break;
 
         default:
