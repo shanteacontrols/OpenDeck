@@ -168,13 +168,6 @@ int main()
                 break;
 
                 case midiMessageStop:
-                //stop blinking on all leds if blinking is controlled via midi clock on transport stop
-                if (leds.getBlinkType() == blinkType_midiClock)
-                {
-                    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-                        leds.setBlinkState(i, blinkSpeed_noBlink);
-                }
-
                 midiClockCounter = -1;
                 break;
 
