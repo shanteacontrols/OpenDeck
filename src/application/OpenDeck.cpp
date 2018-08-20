@@ -159,7 +159,7 @@ int main()
                 break;
 
                 case midiMessageClock:
-                if (++midiClockCounter > 48)
+                if (++midiClockCounter >= 48)
                     midiClockCounter = 0;
                 break;
 

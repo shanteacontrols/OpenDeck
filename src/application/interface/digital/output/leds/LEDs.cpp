@@ -52,6 +52,7 @@ blinkType_t         ledBlinkType;
 ///
 const uint8_t       blinkMIDIclockCounts[BLINK_SPEEDS] =
 {
+    255, //no blinking
     2,
     3,
     4,
@@ -61,8 +62,7 @@ const uint8_t       blinkMIDIclockCounts[BLINK_SPEEDS] =
     18,
     24,
     36,
-    48,
-    255 //no blinking
+    48
 };
 
 
@@ -95,6 +95,8 @@ void LEDs::init(bool startUp)
         setFadeTime(database.read(DB_BLOCK_LEDS, dbSection_leds_global, ledGlobalParam_fadeSpeed));
         #endif
     }
+
+    ledBlinkType = (blinkType_t)database.read(DB_BLOCK_LEDS, dbSection_leds_global, ledGlobalParam_blinkMIDIclock);
 
     //store some parameters from eeprom to ram for faster access
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
@@ -180,24 +182,21 @@ void LEDs::update()
         //change led state once midi clock pulse count equals specified value for specific leds
         for (int i=0; i<BLINK_SPEEDS; i++)
         {
-            bool toggleState = false;
+            if (midiClockCounter % blinkMIDIclockCounts[i])
+                continue;
+
+            blinkState[i] = !blinkState[i];
 
             for (int j=0; j<MAX_NUMBER_OF_LEDS; j++)
             {
                 if (!BIT_READ(ledState[j], LED_BLINK_ON_BIT))
                     continue;
 
-                if (blinkMIDIclockCounts[blinkTimer[j]] % midiClockCounter)
+                if (blinkTimer[j] != i)
                     continue;
-
-                toggleState = true;
 
                 BIT_WRITE(ledState[j], LED_STATE_BIT, blinkState[i]);
             }
-
-            //toggle state only when needed
-            if (toggleState)
-                blinkState[i] = !blinkState[i];
         }
 
         lastMIDIclockCount = midiClockCounter;
@@ -398,7 +397,8 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
             else if (messageType == midiMessageProgramChange)
             {
                 //when ID doesn't match and control type is program change, make sure to turn the led off
-                setColor(i, colorOff);
+                color = colorOff;
+                setColor(i, color);
             }
         }
 
@@ -411,7 +411,7 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
                 {
                     uint8_t blinkSpeed = (blinkSpeed_t)blinkSpeed_noBlink;
 
-                    if (data2)
+                    if (data2 && (bool)color)
                     {
                         //single message is being used to set both state and blink value
                         //first reduce data2 to range 0-15
