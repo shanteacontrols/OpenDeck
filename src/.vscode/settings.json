@@ -26,6 +26,9 @@
         "ratio": "cpp",
         "tuple": "cpp",
         "optional": "cpp",
-        "system_error": "cpp"
+        "system_error": "cpp",
+        "deque": "cpp",
+        "vector": "cpp",
+        "bitset": "cpp"
     },
 }
