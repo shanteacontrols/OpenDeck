@@ -153,7 +153,7 @@ void LEDs::update()
     static uint32_t lastLEDblinkUpdateTime = 0;
 
     //holds blink state for each blink speed so that leds are in sync
-    static bool blinkState[BLINK_SPEEDS] = { false };
+    static bool blinkState[BLINK_SPEEDS] = { true };
 
     //array used to determine when the blink state for specific blink rate should be changed
     static uint8_t blinkCounter[BLINK_SPEEDS] = { 0 };
@@ -179,7 +179,7 @@ void LEDs::update()
             for (int i=0; i<BLINK_SPEEDS; i++)
             {
                 blinkCounter[i] = 0;
-                blinkState[i] = false;
+                blinkState[i] = true;
             }
         }
 
