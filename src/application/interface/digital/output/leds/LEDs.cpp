@@ -48,9 +48,14 @@ uint8_t             ledControlChannel[MAX_NUMBER_OF_LEDS];
 blinkType_t         ledBlinkType;
 
 ///
+/// \brief Pointer to array used to check if blinking LEDs should toggle state.
+///
+const uint8_t*      blinkResetArrayPtr;
+
+///
 /// \brief Array holding MIDI clock pulses after which LED state is toggled for all possible blink rates.
 ///
-const uint8_t       blinkMIDIclockCounts[BLINK_SPEEDS] =
+const uint8_t       blinkReset_midiClock[BLINK_SPEEDS] =
 {
     255, //no blinking
     2,
@@ -63,6 +68,24 @@ const uint8_t       blinkMIDIclockCounts[BLINK_SPEEDS] =
     24,
     36,
     48
+};
+
+///
+/// \brief Array holding time indexes (multipled by 100) after which LED state is toggled for all possible blink rates.
+///
+const uint8_t       blinkReset_timer[BLINK_SPEEDS] =
+{
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
 };
 
 
@@ -96,7 +119,7 @@ void LEDs::init(bool startUp)
         #endif
     }
 
-    ledBlinkType = (blinkType_t)database.read(DB_BLOCK_LEDS, dbSection_leds_global, ledGlobalParam_blinkMIDIclock);
+    setBlinkType((blinkType_t)database.read(DB_BLOCK_LEDS, dbSection_leds_global, ledGlobalParam_blinkMIDIclock));
 
     //store some parameters from eeprom to ram for faster access
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
@@ -133,10 +156,7 @@ void LEDs::update()
     static bool blinkState[BLINK_SPEEDS] = { false };
 
     //array used to determine when the blink state for specific blink rate should be changed
-    static uint8_t blinkCounter[BLINK_SPEEDS] = { false };
-
-    //holds last amount of midi clock pulses - update leds only when it changes
-    static int8_t lastMIDIclockCount = 0;
+    static uint8_t blinkCounter[BLINK_SPEEDS] = { 0 };
 
     switch(ledBlinkType)
     {
@@ -145,71 +165,51 @@ void LEDs::update()
         if ((rTimeMs() - lastLEDblinkUpdateTime) < 100)
             return;
 
-        //change the blink state for specific blink rate
-        for (int i=0; i<BLINK_SPEEDS; i++)
-        {
-            //i equals blink rate enum in this case
-            if (++blinkCounter[i] >= i)
-            {
-                blinkCounter[i] = 0;
-                blinkState[i] = !blinkState[i];
-
-                //assign changed state to all leds which have this speed
-                for (int j=0; j<MAX_NUMBER_OF_LEDS; j++)
-                {
-                    if (!BIT_READ(ledState[j], LED_BLINK_ON_BIT))
-                        continue;
-
-                    if (blinkTimer[j] != i)
-                        continue;
-
-                    BIT_WRITE(ledState[j], LED_STATE_BIT, blinkState[i]);
-                }
-            }
-        }
-
         lastLEDblinkUpdateTime = rTimeMs();
         break;
 
         case blinkType_midiClock:
-        if (midiClockCounter == lastMIDIclockCount)
+        if ((midiClockStatus == midiClockNoChange) || (midiClockStatus == midiClockStop))
             return;
 
-        lastMIDIclockCount = midiClockCounter;
-
-        //midi clock isn't running
-        if (midiClockCounter == -1)
+        if (midiClockStatus == midiClockReset)
         {
-            //make sure all leds are in sync next time the clock starts
+            //reset all counters in this case
+            //also make sure all leds are in sync again
             for (int i=0; i<BLINK_SPEEDS; i++)
-                blinkState[i] = false;
-
-            return;
-        }
-
-        //change led state once midi clock pulse count equals specified value for specific leds
-        for (int i=0; i<BLINK_SPEEDS; i++)
-        {
-            if (midiClockCounter % blinkMIDIclockCounts[i])
-                continue;
-
-            blinkState[i] = !blinkState[i];
-
-            for (int j=0; j<MAX_NUMBER_OF_LEDS; j++)
             {
-                if (!BIT_READ(ledState[j], LED_BLINK_ON_BIT))
-                    continue;
-
-                if (blinkTimer[j] != i)
-                    continue;
-
-                BIT_WRITE(ledState[j], LED_STATE_BIT, blinkState[i]);
+                blinkCounter[i] = 0;
+                blinkState[i] = false;
             }
         }
+
+        midiClockStatus = midiClockNoChange;
         break;
 
         default:
         return;
+    }
+
+    //change the blink state for specific blink rate
+    for (int i=0; i<BLINK_SPEEDS; i++)
+    {
+        if (++blinkCounter[i] < blinkResetArrayPtr[i])
+            continue;
+
+        blinkState[i] = !blinkState[i];
+        blinkCounter[i] = 0;
+
+        //assign changed state to all leds which have this speed
+        for (int j=0; j<MAX_NUMBER_OF_LEDS; j++)
+        {
+            if (!BIT_READ(ledState[j], LED_BLINK_ON_BIT))
+                continue;
+
+            if (blinkTimer[j] != i)
+                continue;
+
+            BIT_WRITE(ledState[j], LED_STATE_BIT, blinkState[i]);
+        }
     }
 }
 
@@ -470,8 +470,7 @@ void LEDs::setBlinkState(uint8_t ledID, blinkSpeed_t state)
         if ((bool)state)
         {
             BIT_SET(ledState[ledArray[i]], LED_BLINK_ON_BIT);
-            //this will turn the led immediately no matter how little time it's
-            //going to blink first time
+            //this will turn the led on immediately
             BIT_SET(ledState[ledArray[i]], LED_STATE_BIT);
         }
         else
@@ -641,6 +640,20 @@ void LEDs::handleLED(uint8_t ledID, bool state, bool rgbLED, rgbIndex_t index)
 
 void LEDs::setBlinkType(blinkType_t blinkType)
 {
+    switch(blinkType)
+    {
+        case blinkType_timer:
+        blinkResetArrayPtr = blinkReset_timer;
+        break;
+
+        case blinkType_midiClock:
+        blinkResetArrayPtr = blinkReset_midiClock;
+        break;
+
+        default:
+        return;
+    }
+
     ledBlinkType = blinkType;
 }
 

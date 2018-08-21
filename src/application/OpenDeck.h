@@ -34,7 +34,14 @@ extern MIDI     midi;
 extern bool     processingEnabled;
 
 ///
-/// \brief Holds current count of MIDI clock pulses received via USB MIDI interface.
-/// When its value is -1, MIDI clock isn't running (intial state or MIDI transport stop has been received).
+/// \brief Enumeration holding all possible MIDI clock states.
 ///
-extern int8_t   midiClockCounter;
+typedef enum
+{
+    midiClockStop,
+    midiClockNoChange,
+    midiClockChange,
+    midiClockReset
+} midiClockStatus_t;
+
+extern midiClockStatus_t midiClockStatus;

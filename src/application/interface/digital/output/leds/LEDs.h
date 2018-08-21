@@ -42,8 +42,8 @@ class LEDs
     static bool getBlinkState(uint8_t ledID);
     static bool setFadeTime(uint8_t transitionSpeed);
     static void midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local = false);
-    void setBlinkType(blinkType_t blinkType);
-    blinkType_t getBlinkType();
+    static void setBlinkType(blinkType_t blinkType);
+    static blinkType_t getBlinkType();
 
     private:
     static ledColor_t valueToColor(uint8_t receivedVelocity);

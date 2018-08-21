@@ -21,9 +21,9 @@
 #include "Version.h"
 #include "interface/midi/Handlers.h"
 
-MIDI    midi;
-bool    processingEnabled;
-int8_t  midiClockCounter;
+MIDI                midi;
+bool                processingEnabled;
+midiClockStatus_t   midiClockStatus;
 
 void init()
 {
@@ -89,7 +89,7 @@ void init()
     #endif
 
     processingEnabled = true;
-    midiClockCounter = -1;
+    midiClockStatus = midiClockStop;
 }
 
 int main()
@@ -159,16 +159,15 @@ int main()
                 break;
 
                 case midiMessageClock:
-                if (++midiClockCounter >= 48)
-                    midiClockCounter = 0;
+                midiClockStatus = midiClockChange;
                 break;
 
                 case midiMessageStart:
-                midiClockCounter = 0;
+                midiClockStatus = midiClockReset;
                 break;
 
                 case midiMessageStop:
-                midiClockCounter = -1;
+                midiClockStatus = midiClockStop;
                 break;
 
                 default:
