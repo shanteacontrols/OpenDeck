@@ -218,6 +218,8 @@ else ifeq ($(MCU),atmega2560)
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
     EEPROM_SIZE := 4096
+    FLASH_SIZE_START_ADDR := 0xE4
+    FLASH_SIZE_END_ADDR := 0xE8
     DEFINES += UART_INTERFACES=2
 else ifeq ($(MCU),atmega328p)
     FUSE_UNLOCK := 0xff
