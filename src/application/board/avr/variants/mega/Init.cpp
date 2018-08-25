@@ -19,6 +19,8 @@
 #include "board/Board.h"
 #include "pins/Pins.h"
 #include "board/common/constants/LEDs.h"
+#include "board/common/uart/Variables.h"
+#include "interface/midi/Constants.h"
 
 void Board::initPins()
 {
@@ -258,7 +260,21 @@ void Board::configureTimers()
 
 void Board::ledFlashStartup(bool fwUpdated)
 {
-    
+    //there are no indicator leds on atmega2560
+    //instead, send special command to USB link which will display indicator led animation
+    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], OD_FORMAT_INT_DATA_START);
+
+    if (fwUpdated)
+        RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], cmdFwUpdated);
+    else
+        RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], cmdFwNotUpdated);
+
+    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
+    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
+    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
+    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
+
+    Board::uartTransmitStart(UART_USB_LINK_CHANNEL);
 }
 
 void Board::initCustom()

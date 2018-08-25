@@ -19,6 +19,7 @@
 #pragma once
 
 #include "board/Board.h"
+#include "Constants.h"
 
 ///
 /// \brief Configures UART read/write handlers for MIDI module.
@@ -29,14 +30,14 @@ void setupMIDIoverUART(uint8_t channel);
 ///
 /// \brief Configures OpenDeck UART MIDI format on specified UART channel.
 /// OpenDeck UART MIDI format is a specially formatted MIDI message which
-/// is sent over UART and uses USB MIDI packet format with byte 0xF1 prepended
-/// before the message start and XOR of 4 USB packet bytes as the last byte. XOR byte
-/// is used for error checking.
+/// is sent over UART and uses USB MIDI packet format with byte value
+/// OD_FORMAT_MIDI_DATA_START prepended before the message start and XOR of
+/// 4 USB packet bytes as the last byte. XOR byte is used for error checking.
 /// This is used to avoid parsing of MIDI messages when using boards such as Arduino
 /// Mega or Arduino Uno which feature two separate MCUs - the main one and the other for
 /// USB communication. Using this format USB MCU can quickly forward the received message
-/// from UART to USB interface - first byte (0xF1) and last byte (XOR value) are removed
-/// from the output.
+/// from UART to USB interface - first byte (OD_FORMAT_MIDI_DATA_START) and last byte
+/// (XOR value) are removed from the output.
 /// @param [in] channel     UART channel on MCU.
 ///
 void setupMIDIoverUART_OD(uint8_t channel);

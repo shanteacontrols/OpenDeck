@@ -38,12 +38,11 @@ endif
 LEN_APPEND := 0
 
 #custom linker script
-ifneq ($(filter atmega32u4 at90usb1286 atmega2560, $(MCU)), )
-    LDFLAGS += -T application/board/avr/linker/$(MCU).x
-    #append length only in firmware
-    ifeq ($(findstring fw,$(MAKECMDGOALS)), fw)
-        LEN_APPEND := 1
-    endif
+LDFLAGS += -T application/board/avr/linker/$(MCU).x
+
+#append length only in firmware
+ifeq ($(findstring fw,$(MAKECMDGOALS)), fw)
+    LEN_APPEND := 1
 endif
 
 #make sure all objects are located in build directory

@@ -16,22 +16,25 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Variables.h"
-#include "board/Board.h"
-#include "interface/midi/Handlers.h"
+#pragma once
 
-int main(void)
+///
+/// \brief Value indicating start of MIDI data when OpenDeck MIDI format is used.
+///
+#define OD_FORMAT_MIDI_DATA_START   0xF1
+
+///
+/// \brief Value indicating start of internal data when OpenDeck MIDI format is used.
+/// Used to transfer internal data between main MCU and USB link.
+///
+#define OD_FORMAT_INT_DATA_START    0xF2
+
+///
+/// \brief List of all possible internal commands used in OpenDeck MIDI format.
+///
+typedef enum
 {
-    board.init();
-    board.initUART(UART_BAUDRATE_MIDI_OD, UART_USB_LINK_CHANNEL);
-
-    sei();
-
-    while (1)
-    {
-        usbMIDItoUART_OD(usbMIDIpacket);
-
-        if (uartReadMIDI_OD(UART_USB_LINK_CHANNEL))
-            board.usbWriteMIDI(usbMIDIpacket);
-    }
-}
+    cmdFwUpdated,       ///< Signal to USB link MCU that the firmware has been updated on main MCU.
+    cmdFwNotUpdated,    ///< Signal to USB link MCU that the firmware hasn't been updated on main MCU.
+    OD_FORMAT_COMMANDS
+} odFormatCMD_t;

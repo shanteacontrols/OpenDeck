@@ -83,8 +83,10 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
     ifeq ($(BOARD_DIR),xu2)
         #xu2 uses different set of sources than other firmwares
         SOURCES += \
+        application/board/avr/variants/Common.cpp \
         application/board/avr/variants/$(BOARD_DIR)/xu2.cpp \
         application/board/avr/variants/$(BOARD_DIR)/ISR.cpp \
+        application/board/avr/variants/$(BOARD_DIR)/Init.cpp \
         application/board/avr/uart/UART.cpp \
         application/board/avr/usb/USB_MIDI.cpp \
         application/interface/midi/OpenDeckFormat.cpp

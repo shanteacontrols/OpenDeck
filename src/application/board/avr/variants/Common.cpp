@@ -32,19 +32,26 @@ void Board::init()
     MCUSR &= ~(1 << WDRF);
     wdt_disable();
     initPins();
+
+    #ifndef BOARD_A_xu2
     initAnalog();
+    #endif
 
     #ifdef USB_SUPPORTED
     initMIDI_USB();
     #endif
 
     configureTimers();
+
+    #ifndef BOARD_A_xu2
     initCustom();
+    #endif
 }
+
+#ifndef BOARD_A_xu2
 
 bool Board::checkNewRevision()
 {
-    #ifdef CRC_CHECK
     uint32_t flash_size = pgm_read_dword(APP_LENGTH_LOCATION);
     uint16_t crc_eeprom = eeprom_read_word((uint16_t*)SW_CRC_LOCATION_EEPROM);
     uint16_t crc_flash = pgm_read_word(flash_size);
@@ -54,7 +61,6 @@ bool Board::checkNewRevision()
         eeprom_update_word((uint16_t*)SW_CRC_LOCATION_EEPROM, crc_flash);
         return true;
     }
-    #endif
 
     return false;
 }
@@ -141,3 +147,5 @@ bool Board::memoryWrite(uint32_t address, int32_t value, sectionParameterType_t 
 
     return true;
 }
+
+#endif

@@ -82,7 +82,7 @@ bool uartWriteMIDI_OD(uint8_t channel, USBMIDIpacket_t& USBMIDIpacket)
     if (channel >= UART_INTERFACES)
         return false;
 
-    RingBuffer_Insert(&txBuffer[channel], 0xF1);
+    RingBuffer_Insert(&txBuffer[channel], OD_FORMAT_MIDI_DATA_START);
     RingBuffer_Insert(&txBuffer[channel], USBMIDIpacket.Event);
     RingBuffer_Insert(&txBuffer[channel], USBMIDIpacket.Data1);
     RingBuffer_Insert(&txBuffer[channel], USBMIDIpacket.Data2);
@@ -102,8 +102,9 @@ bool uartReadMIDI_OD(uint8_t channel)
     if (RingBuffer_GetCount(&rxBuffer[channel]) >= 6)
     {
         int16_t data = board.uartRead(channel);
+        uint8_t dataXOR = 0;
 
-        if (data == 0xF1)
+        if (data == OD_FORMAT_MIDI_DATA_START)
         {
             //start of frame, read rest of the packet
             for (int i=0; i<5; i++)
@@ -135,9 +136,32 @@ bool uartReadMIDI_OD(uint8_t channel)
             }
 
             //error check
-            uint8_t dataXOR = usbMIDIpacket.Event ^ usbMIDIpacket.Data1 ^ usbMIDIpacket.Data2 ^ usbMIDIpacket.Data3;
+            dataXOR = usbMIDIpacket.Event ^ usbMIDIpacket.Data1 ^ usbMIDIpacket.Data2 ^ usbMIDIpacket.Data3;
+
 
             return (dataXOR == data);
+        }
+        else if (data == OD_FORMAT_INT_DATA_START)
+        {
+            odFormatCMD_t cmd = (odFormatCMD_t)board.uartRead(channel);
+
+            //ignore the rest of the buffer
+            for (int i=0; i<4; i++)
+                board.uartRead(channel);
+
+            switch(cmd)
+            {
+                case cmdFwUpdated:
+                Board::ledFlashStartup(true);
+                break;
+
+                case cmdFwNotUpdated:
+                Board::ledFlashStartup(false);
+                break;
+
+                default:
+                break;
+            }
         }
     }
 
