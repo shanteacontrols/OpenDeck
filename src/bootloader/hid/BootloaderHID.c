@@ -38,6 +38,8 @@
 #include "core/src/general/BitManipulation.h"
 #include <util/crc16.h>
 #include "board/common/constants/LEDs.h"
+#include "board/avr/variants/Common.h"
+#include "board/common/constants/Reboot.h"
 #include "pins/Pins.h"
 
 #ifdef CRC_CHECK

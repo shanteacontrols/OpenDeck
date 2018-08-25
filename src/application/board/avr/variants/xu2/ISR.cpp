@@ -18,7 +18,7 @@
 
 #include "../Common.h"
 #include "Variables.h"
-#include "Pins.h"
+#include "pins/Pins.h"
 #include "board/common/constants/LEDs.h"
 #include "board/common/indicators/Variables.h"
 

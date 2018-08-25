@@ -49,23 +49,6 @@
 #include <LUFA/Drivers/USB/USB.h>
 #include <LUFA/Platform/Platform.h>
 
-#include "board/avr/variants/Common.h"
-#include "board/common/constants/Reboot.h"
-
-#ifdef BOARD_OPEN_DECK
-#include "board/avr/variants/opendeck/pins/Pins.h"
-#include "board/avr/variants/opendeck/Hardware.h"
-#elif defined(BOARD_A_LEO) || defined(BOARD_A_PRO_MICRO)
-#include "board/avr/variants/leonardo/pins/Pins.h"
-#include "board/avr/variants/leonardo/Hardware.h"
-#elif defined(BOARD_A_xu2)
-#include "board/avr/variants/xu2/Pins.h"
-#include "board/avr/variants/xu2/Hardware.h"
-#elif defined(BOARD_T_2PP)
-#include "board/avr/variants/teensy2pp/pins/Pins.h"
-#include "board/avr/variants/teensy2pp/Hardware.h"
-#endif
-
 /* Preprocessor Checks: */
 #if !defined(__OPTIMIZE_SIZE__)
 #error This bootloader requires that it be optimized for size, not speed, to fit into the target device. Change optimization settings and try again.

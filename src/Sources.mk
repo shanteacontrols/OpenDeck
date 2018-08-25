@@ -9,7 +9,7 @@ endif
 ifeq ($(BOARD_DIR),pro_micro)
     #pro micro is just a leonardo variant
     BOARD_DIR := leonardo
-else ifneq ($(filter fw_16u2 fw_8u2, $(MAKECMDGOALS)), )
+else ifneq ($(filter %16u2 %8u2, $(MAKECMDGOALS)), )
     #16u2 and 8u2 are basically same
     BOARD_DIR := xu2
 endif
