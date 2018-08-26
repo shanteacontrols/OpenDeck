@@ -83,6 +83,7 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
     ifeq ($(BOARD_DIR),xu2)
         #xu2 uses different set of sources than other firmwares
         SOURCES += \
+        modules/core/src/HAL/avr/reset/Reset.cpp \
         application/board/avr/variants/Common.cpp \
         application/board/avr/variants/$(BOARD_DIR)/xu2.cpp \
         application/board/avr/variants/$(BOARD_DIR)/ISR.cpp \

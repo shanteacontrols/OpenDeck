@@ -48,6 +48,22 @@ void Board::init()
     #endif
 }
 
+void Board::reboot(rebootType_t type)
+{
+    switch(type)
+    {
+        case rebootApp:
+        eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, APP_REBOOT_VALUE);
+        break;
+
+        case rebootBtldr:
+        eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, BTLDR_REBOOT_VALUE);
+        break;
+    }
+
+    mcuReset();
+}
+
 #ifndef BOARD_A_xu2
 
 bool Board::checkNewRevision()
@@ -63,22 +79,6 @@ bool Board::checkNewRevision()
     }
 
     return false;
-}
-
-void Board::reboot(rebootType_t type)
-{
-    switch(type)
-    {
-        case rebootApp:
-        eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, APP_REBOOT_VALUE);
-        break;
-
-        case rebootBtldr:
-        eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, BTLDR_REBOOT_VALUE);
-        break;
-    }
-
-    mcuReset();
 }
 
 uint16_t Board::scaleADC(uint16_t value, uint16_t maxValue)

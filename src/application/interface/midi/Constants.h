@@ -36,5 +36,6 @@ typedef enum
 {
     cmdFwUpdated,       ///< Signal to USB link MCU that the firmware has been updated on main MCU.
     cmdFwNotUpdated,    ///< Signal to USB link MCU that the firmware hasn't been updated on main MCU.
+    cmdBtldrReboot,     ///< Signal to USB link MCU to reboot to bootloader mode.
     OD_FORMAT_COMMANDS
 } odFormatCMD_t;

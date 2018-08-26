@@ -152,11 +152,15 @@ bool uartReadMIDI_OD(uint8_t channel)
             switch(cmd)
             {
                 case cmdFwUpdated:
-                Board::ledFlashStartup(true);
+                board.ledFlashStartup(true);
                 break;
 
                 case cmdFwNotUpdated:
-                Board::ledFlashStartup(false);
+                board.ledFlashStartup(false);
+                break;
+
+                case cmdBtldrReboot:
+                board.reboot(rebootBtldr);
                 break;
 
                 default:
