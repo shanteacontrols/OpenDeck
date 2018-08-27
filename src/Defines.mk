@@ -194,13 +194,13 @@ else ifeq ($(MCU),at90usb1286)
 else ifeq ($(MCU),atmega16u2)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xf8
-    FUSE_HIGH := 0xd3
+    FUSE_HIGH := 0xd1
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
     EEPROM_SIZE := 512
     FLASH_SIZE_START_ADDR := 0x74
     FLASH_SIZE_END_ADDR := 0x78
-    BOOT_START_ADDR := 0x3800
+    BOOT_START_ADDR := 0x3000
     DEFINES += UART_INTERFACES=1
     DEFINES += USB_SUPPORTED
 else ifeq ($(MCU),atmega8u2)
