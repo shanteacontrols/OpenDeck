@@ -111,12 +111,6 @@ $(TARGET).elf: $(RUN_CLEAN) target_print $(OBJECTS)
 	@#display memory usage
 	@avr-size -C --mcu=$(MCU) "$(TARGET).elf"
 
-#use existing makefile for mega bootloader
-boot_mega: target_print
-	@cd bootloader/stk500v2 && $(MAKE) mega2560 --no-print-directory
-	@cp bootloader/stk500v2/stk500boot_v2_mega2560.hex build/boot_mega.hex
-	@cd bootloader/stk500v2 && $(MAKE) clean --no-print-directory
-
 #firmware upload with avrdude
 upload:
 	@$(AVR_DUDE_BIN_PATH) -C $(AVR_DUDE_CONF_PATH) -p $(shell cat build/MCU) -P /dev/$(PORT) -b 19200 -c $(AVRDUDE_PROGRAMMER) -e -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
