@@ -108,16 +108,11 @@ $(TARGET).elf: $(RUN_CLEAN) target_print $(OBJECTS)
 	fi
 	@#convert hex to bin
 	@avr-objcopy -I ihex "$(TARGET).hex" -O binary "$(TARGET).bin"
-	@#create a file with contents being mcu name (for upload process)
-	@echo $(MCU) > build/MCU
-	@#create a file with contents being target name (for upload process)
-	@echo $(MAKECMDGOALS) > build/TARGET
 	@#display memory usage
 	@avr-size -C --mcu=$(MCU) "$(TARGET).elf"
 
 #use existing makefile for mega bootloader
-boot_mega:
-	@mkdir -p build
+boot_mega: target_print
 	@cd bootloader/stk500v2 && $(MAKE) mega2560 --no-print-directory
 	@cp bootloader/stk500v2/stk500boot_v2_mega2560.hex build/boot_mega.hex
 	@cd bootloader/stk500v2 && $(MAKE) clean --no-print-directory
@@ -142,6 +137,11 @@ clean:
 
 target_print:
 	@echo Building target $(MAKECMDGOALS)
+	@mkdir -p build
+	@#create a file with contents being mcu name (for upload process)
+	@echo $(MCU) > build/MCU
+	@#create a file with contents being target name (for upload process)
+	@echo $(MAKECMDGOALS) > build/TARGET
 
 #debugging
 print-%:
