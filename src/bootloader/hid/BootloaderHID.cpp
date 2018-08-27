@@ -41,6 +41,8 @@
 #include "board/avr/variants/Common.h"
 #include "board/common/constants/Reboot.h"
 #include "pins/Pins.h"
+#include "board/common/indicators/Variables.h"
+#include "board/Board.h"
 
 #ifdef CRC_CHECK
 
@@ -69,6 +71,8 @@ bool appCRCvalid()
 /// started via a forced watchdog reset.
 ///
 static bool RunBootloader = true;
+
+volatile bool UARTreceived, UARTsent;
 
 ///
 /// \brief Checks if application should be run.
@@ -196,6 +200,10 @@ static void setupHardware(void)
 
     //initialize USB subsystem
     USB_Init();
+
+    #ifdef BOARD_A_xu2
+    Board::initUART(38400, 0);
+    #endif
 }
 
 ///

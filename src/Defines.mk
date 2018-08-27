@@ -14,7 +14,8 @@ HID_PRODUCT_ID=0x8473 \
 MIDI_VENDOR_ID=0x1209 \
 MIDI_PRODUCT_ID=0x8472 \
 UART_BAUDRATE_MIDI_STD=31250 \
-UART_BAUDRATE_MIDI_OD=38400
+UART_BAUDRATE_MIDI_OD=38400 \
+RING_BUFFER_SIZE=50
 
 #flash type specific
 ifeq ($(findstring boot,$(MAKECMDGOALS)), boot)
@@ -31,7 +32,6 @@ else ifeq ($(findstring fw,$(MAKECMDGOALS)), fw)
     USE_FLASH_DESCRIPTORS \
     INTERRUPT_CONTROL_ENDPOINT \
     MIDI_SYSEX_ARRAY_SIZE=45 \
-    RING_BUFFER_SIZE=50 \
     TOUCHSCREEN_RX_BUFFER_SIZE=20
 endif
 
@@ -194,7 +194,7 @@ else ifeq ($(MCU),at90usb1286)
 else ifeq ($(MCU),atmega16u2)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xf8
-    FUSE_HIGH := 0xd1
+    FUSE_HIGH := 0xd0
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
     EEPROM_SIZE := 512

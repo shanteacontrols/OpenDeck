@@ -65,10 +65,16 @@ ifeq ($(filter %mega %uno, $(MAKECMDGOALS)), )
     ifeq ($(findstring boot,$(MAKECMDGOALS)), boot)
         #bootloader
         SOURCES += \
-        bootloader/hid/BootloaderHID.c \
+        bootloader/hid/BootloaderHID.cpp \
         bootloader/hid/Descriptors.c \
         modules/lufa/LUFA/Drivers/USB/Class/Common/HIDParser.c \
         modules/lufa/LUFA/Drivers/USB/Class/Device/HIDClassDevice.c
+
+        ifeq ($(BOARD_DIR),xu2)
+            #on bootloader mode for xu2, compile uart to transfer received files to main MCU
+            SOURCES += \
+            application/board/avr/uart/UART.cpp
+        endif
     else
         #firmware
         SOURCES += \
