@@ -28,41 +28,28 @@
   this software.
 */
 
-/** \file
- *
- *  Header file for BootloaderHID.c.
- */
+#pragma once
 
-#ifndef _BOOTLOADERHID_H_
-#define _BOOTLOADERHID_H_
-
-/* Includes: */
 #include <avr/io.h>
 #include <avr/wdt.h>
 #include <avr/boot.h>
 #include <avr/power.h>
 #include <avr/interrupt.h>
 #include <stdbool.h>
-
 #include "Descriptors.h"
-
 #include <LUFA/Drivers/USB/USB.h>
 #include <LUFA/Platform/Platform.h>
 
-/* Preprocessor Checks: */
 #if !defined(__OPTIMIZE_SIZE__)
 #error This bootloader requires that it be optimized for size, not speed, to fit into the target device. Change optimization settings and try again.
 #endif
 
-/* Macros: */
-/** Bootloader special address to start the user application */
+///
+/// \brief Bootloader special address to start the user application.
+///
 #define COMMAND_STARTAPPLICATION        0xFFFF
 
-/* Function Prototypes: */
-static void SetupHardware(void);
-
-void Application_Jump_Check(void) ATTR_INIT_SECTION(3);
-
+static void initPins();
+static void setupHardware(void);
+static bool checkApplicationRun(void);
 void EVENT_USB_Device_ConfigurationChanged(void);
-
-#endif

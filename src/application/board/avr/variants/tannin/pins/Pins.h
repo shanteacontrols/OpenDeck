@@ -76,4 +76,6 @@
 #define MUX_1_IN_PORT               PORTF
 #define MUX_1_IN_PIN                1
 
+#define BTLDR_BUTTON_INDEX          0x07
+
 /// @}

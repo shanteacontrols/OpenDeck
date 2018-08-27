@@ -59,3 +59,5 @@
 
 #define MUX_4_IN_PORT               PORTB
 #define MUX_4_IN_PIN                6
+
+#define BTLDR_BUTTON_INDEX          0x03
