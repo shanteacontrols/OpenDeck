@@ -24,6 +24,7 @@
 #ifdef VARIANT_MEGA
 #undef SPM_PAGESIZE
 #define SPM_PAGESIZE            256
+#undef BOOT_START_ADDR
 #define BOOT_START_ADDR         0x3F800
 #elif defined(VARIANT_UNO)
 #undef SPM_PAGESIZE
