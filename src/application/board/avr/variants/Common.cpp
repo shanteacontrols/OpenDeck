@@ -63,19 +63,6 @@ void Board::reboot(rebootType_t type)
         break;
     }
 
-    #ifndef USB_SUPPORTED
-    //also signal to usb link to reboot to btldr mode
-    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], OD_FORMAT_INT_DATA_START);
-    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], cmdBtldrReboot);
-    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
-    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
-    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
-    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
-    Board::uartTransmitStart(UART_USB_LINK_CHANNEL);
-    //wait until message is sent before resetting the mcu
-    while (!RingBuffer_IsEmpty(&txBuffer[UART_USB_LINK_CHANNEL]));
-    #endif
-
     mcuReset();
 }
 

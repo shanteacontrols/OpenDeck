@@ -24,12 +24,12 @@
 #define LOW_BYTE(value)  ((value) & 0xFF)
 #define HIGH_BYTE(value) (((value) >> 8) & 0xFF)
 
-int16_t uartReadSDW()
+bool uartReadSDW(uint8_t &data)
 {
-    return board.uartRead(UART_TOUCHSCREEN_CHANNEL);
+    return board.uartRead(UART_TOUCHSCREEN_CHANNEL, data);
 }
 
-int8_t uartWriteSDW(uint8_t data)
+bool uartWriteSDW(uint8_t data)
 {
     return board.uartWrite(UART_TOUCHSCREEN_CHANNEL, data);
 }
@@ -120,9 +120,9 @@ bool sdw_parse()
 ///
 bool sdw_update()
 {
-    int16_t data = uartReadSDW();
+    uint8_t data = 0;
 
-    if (data == -1)
+    if (!uartReadSDW(data))
         return false;
 
     bool parse = false;

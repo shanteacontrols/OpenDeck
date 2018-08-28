@@ -43,9 +43,10 @@
 #include "pins/Pins.h"
 #include "board/common/indicators/Variables.h"
 #include "board/Board.h"
+#include "board/common/uart/Variables.h"
+#include "interface/midi/Constants.h"
 
 #ifdef CRC_CHECK
-
 ///
 /// \brief Calculates CRC of entire flash.
 /// \return True if CRC is valid, that is, if it matches CRC written in last flash address.
@@ -62,7 +63,6 @@ bool appCRCvalid()
 
     return (crc == pgm_read_word_near(lastAddress));
 }
-
 #endif
 
 ///
@@ -72,7 +72,31 @@ bool appCRCvalid()
 ///
 static bool RunBootloader = true;
 
+//implementation of external variables used so that UART module can be compiled
+//variables are unused in bootloader
 volatile bool UARTreceived, UARTsent;
+
+///
+/// \brief Array holding page size in bytes for all boards.
+/// This info is normally accessible via SPM_PAGESIZE symbol, however,
+/// on boards where one MCU updates the other, the page size information for
+/// target MCU isn't available in this way. Because of this, main MCU sends its
+/// board info via UART to USB link MCU. Once received, page size can be extracted
+/// via this array.
+///
+const uint16_t spmPageSizeArray[] =
+{
+    128,    //BOARD_OPEN_DECK
+    128,    //BOARD_A_LEO
+    256,    //BOARD_A_MEGA
+    128,    //BOARD_A_PRO_MICRO
+    128,    //BOARD_A_UNO
+    256,    //BOARD_T_2PP
+    128,    //BOARD_KODAMA
+    128,    //BOARD_TANNIN
+    128,    //BOARD_A_xu2
+    128,    //BOARD_BERGAMOT
+};
 
 ///
 /// \brief Checks if application should be run.
@@ -141,6 +165,19 @@ bool checkApplicationRun()
 }
 
 ///
+/// \brief Run user application.
+///
+void runApplication()
+{
+    //disable watchdog
+    MCUSR &= ~(1 << WDRF);
+    wdt_disable();
+
+    //run app
+    ((void (*)(void))0x0000)();
+}
+
+///
 /// \brief Main program entry point.
 /// This routine configures the hardware required by the bootloader, then continuously
 /// runs the bootloader processing routine until instructed to soft-exit.
@@ -153,14 +190,7 @@ int main(void)
     initPins();
 
     if (checkApplicationRun())
-    {
-        //disable watchdog
-        MCUSR &= ~(1 << WDRF);
-        wdt_disable();
-
-        //run app
-        ((void (*)(void))0x0000)();
-    }
+        runApplication();
 
     //setup hardware required for the bootloader
     setupHardware();
@@ -170,11 +200,18 @@ int main(void)
 
     while (RunBootloader)
     {
+        #ifdef USB_SUPPORTED
         USB_USBTask();
+        #else
+        if (!RingBuffer_IsEmpty(&rxBuffer[UART_USB_LINK_CHANNEL]))
+            EVENT_UART_Device_ControlRequest();
+        #endif
     }
 
+    #ifdef USB_SUPPORTED
     //disconnect from the host - USB interface will be reset later along with the AVR
     USB_Detach();
+    #endif
 
     //enable the watchdog and force a timeout to reset the AVR
     wdt_enable(WDTO_250MS);
@@ -195,14 +232,27 @@ static void setupHardware(void)
     clock_prescale_set(clock_div_1);
 
     //relocate the interrupt vector table to the bootloader section
-    MCUCR = (1 << IVCE);
-    MCUCR = (1 << IVSEL);
+    MCUCR = (1<<IVCE);
+    MCUCR = (1<<IVSEL);
 
+    #ifdef USB_SUPPORTED
     //initialize USB subsystem
     USB_Init();
+    #endif
 
-    #ifdef BOARD_A_xu2
-    Board::initUART(38400, 0);
+    #if defined(BOARD_A_xu2) || !defined(USB_SUPPORTED)
+    Board::initUART(UART_BAUDRATE_MIDI_OD, UART_USB_LINK_CHANNEL);
+
+    #ifndef USB_SUPPORTED
+    // make sure USB link goes to bootloader mode as well
+    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], OD_FORMAT_INT_DATA_START);
+    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], cmdBtldrReboot);
+    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], BOARD_ID);
+    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
+    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
+    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
+    Board::uartTransmitStart(UART_USB_LINK_CHANNEL);
+    #endif
     #endif
 }
 
@@ -223,6 +273,10 @@ static void initPins()
     }
 
     setHigh(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+    #elif defined(BOARD_A_MEGA)
+    //make sure internal led is turned off
+    setOutput(PORTB, 7);
+    setLow(PORTB, 7);
     #elif defined (LED_INDICATORS)
     setOutput(LED_IN_PORT, LED_IN_PIN);
     setOutput(LED_OUT_PORT, LED_OUT_PIN);
@@ -252,6 +306,7 @@ static void initPins()
     #endif
 }
 
+#ifdef USB_SUPPORTED
 ///
 /// \brief Event handler for the USB_ConfigurationChanged event.
 /// This configures the device's endpoints ready to relay data to and from the attached USB host.
@@ -261,6 +316,7 @@ void EVENT_USB_Device_ConfigurationChanged(void)
     //setup HID Report Endpoint
     Endpoint_ConfigureEndpoint(HID_IN_EPADDR, EP_TYPE_INTERRUPT, HID_IN_EPSIZE, 1);
 }
+#endif
 
 ///
 /// \brief Event handler for the USB_ControlRequest event.
@@ -268,15 +324,34 @@ void EVENT_USB_Device_ConfigurationChanged(void)
 /// from the USB host before passing along unhandled control requests to the
 /// library for processing internally.
 ///
+#ifdef USB_SUPPORTED
 void EVENT_USB_Device_ControlRequest(void)
+#else
+void EVENT_UART_Device_ControlRequest(void)
+#endif
 {
+    uint16_t PageAddress;
+    uint8_t temp = 0;
+
+    #ifdef USB_SUPPORTED
     //ignore any requests that aren't directed to the HID interface
     if ((USB_ControlRequest.bmRequestType & (CONTROL_REQTYPE_TYPE | CONTROL_REQTYPE_RECIPIENT)) !=
         (REQTYPE_CLASS | REQREC_INTERFACE))
     {
         return;
     }
+    #else
+    //target MCU
+    //page address is two bytes long
+    while (RingBuffer_GetCount(&rxBuffer[UART_USB_LINK_CHANNEL]) < 2);
 
+    board.uartRead(UART_USB_LINK_CHANNEL, temp);
+    PageAddress = temp;
+    board.uartRead(UART_USB_LINK_CHANNEL, temp);
+    PageAddress |= ((uint16_t)temp << (uint16_t)8);
+    #endif
+
+    #ifdef USB_SUPPORTED
     //process HID specific control requests
     switch (USB_ControlRequest.bRequest)
     {
@@ -285,50 +360,60 @@ void EVENT_USB_Device_ControlRequest(void)
 
         //wait until the command has been sent by the host
         while (!(Endpoint_IsOUTReceived()));
-
         //read in the write destination address
-        #if (FLASHEND > 0xFFFF)
-        uint32_t PageAddress = ((uint32_t)Endpoint_Read_16_LE() << 8);
-        #else
-        uint16_t PageAddress = Endpoint_Read_16_LE();
-        #endif
+        PageAddress = Endpoint_Read_16_LE();
+    #endif
 
         //check if the command is a program page command, or a start application command
-        #if (FLASHEND > 0xFFFF)
-        if ((uint16_t)(PageAddress >> 8) == COMMAND_STARTAPPLICATION)
-        #else
         if (PageAddress == COMMAND_STARTAPPLICATION)
-        #endif
         {
-            #ifdef CRC_CHECK
-            if (!appCRCvalid())
-            {
-                while (1)
-                {
-                    //indicate error by flashing indicator leds
-                    #ifdef LED_INDICATORS
-                    INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
-                    INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
-                    _delay_ms(500);
-                    INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
-                    INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
-                    _delay_ms(500);
-                    #endif
-                }
-            }
-            #endif
+            // #ifdef CRC_CHECK
+            // if (!appCRCvalid())
+            // {
+            //     while (1)
+            //     {
+            //         //indicate error by flashing indicator leds
+            //         #ifdef LED_INDICATORS
+            //         INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+            //         INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+            //         _delay_ms(500);
+            //         INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
+            //         INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+            //         _delay_ms(500);
+            //         #endif
+            //     }
+            // }
+            // #endif
 
+            #if !defined(USB_SUPPORTED) || defined(BOARD_A_xu2)
+            runApplication();
+            #else
             RunBootloader = false;
+            #endif
         }
         else if (PageAddress < BOOT_START_ADDR)
         {
+            #ifdef BOARD_A_xu2
+            //send the page info to target MCU
+            RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], (PageAddress >> 0) & 0xFF);
+            RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], (PageAddress >> 8) & 0xFF);
+            Board::uartTransmitStart(UART_USB_LINK_CHANNEL);
+            #else
             //erase the given FLASH page, ready to be programmed
             boot_page_erase(PageAddress);
             boot_spm_busy_wait();
+            #endif
+
+            #ifndef BOARD_A_xu2
+            const uint16_t spmPageSize = SPM_PAGESIZE;
+            #else
+            const uint16_t spmPageSize = spmPageSizeArray[eeprom_read_byte((uint8_t*)BOARD_INFO_LOCATION_EEPROM)];
+            #endif
 
             //write each of the FLASH page's bytes in sequence
-            for (uint8_t PageWord = 0; PageWord < (SPM_PAGESIZE / 2); PageWord++)
+            for (uint8_t PageWord=0; PageWord<(spmPageSize/2); PageWord++)
             {
+                #ifdef USB_SUPPORTED
                 //check if endpoint is empty - if so clear it and wait until ready for next packet
                 if (!(Endpoint_BytesInEndpoint()))
                 {
@@ -336,21 +421,46 @@ void EVENT_USB_Device_ControlRequest(void)
                     while (!(Endpoint_IsOUTReceived()));
                 }
 
+                #ifndef BOARD_A_xu2
                 //write the next data word to the FLASH page
                 boot_page_fill(PageAddress + ((uint16_t)PageWord << 1), Endpoint_Read_16_LE());
+                #else
+                uint16_t dataWord = Endpoint_Read_16_LE();
+                RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], dataWord >> 8U);
+                RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], dataWord & 0xFF);
+                Board::uartTransmitStart(UART_USB_LINK_CHANNEL);
+                #endif
+                #else //no usb
+                uint16_t dataWord = 0;
+                temp = 0;
+
+                board.uartRead(UART_USB_LINK_CHANNEL, temp);
+                dataWord = temp;
+                dataWord <<= 8;
+                board.uartRead(UART_USB_LINK_CHANNEL, temp);
+                dataWord |= temp;
+
+                //write the next data word to the FLASH page
+                boot_page_fill(PageAddress + ((uint16_t)PageWord << 1), dataWord);
+                #endif
             }
 
+            #ifndef BOARD_A_xu2
             //write the filled FLASH page to memory
             boot_page_write(PageAddress);
             boot_spm_busy_wait();
 
             //re-enable RWW section
             boot_rww_enable();
+            #endif
         }
 
+        #ifdef USB_SUPPORTED
         Endpoint_ClearOUT();
-
         Endpoint_ClearStatusStage();
         break;
+        #endif
+    #ifdef USB_SUPPORTED
     }
+    #endif
 }

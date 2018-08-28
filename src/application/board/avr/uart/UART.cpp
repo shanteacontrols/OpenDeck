@@ -212,23 +212,25 @@ void Board::initUART(uint32_t baudRate, uint8_t channel)
     }
 }
 
-int16_t Board::uartRead(uint8_t channel)
+bool Board::uartRead(uint8_t channel, uint8_t &data)
 {
+    data = 0;
+
     if (channel >= UART_INTERFACES)
-        return -1;
+        return false;
 
     if (RingBuffer_IsEmpty(&rxBuffer[channel]))
-        return -1;
+        return false;
 
-    uint8_t data = RingBuffer_Remove(&rxBuffer[channel]);
+    data = RingBuffer_Remove(&rxBuffer[channel]);
 
-    return data;
+    return true;
 }
 
-int8_t Board::uartWrite(uint8_t channel, uint8_t data)
+bool Board::uartWrite(uint8_t channel, uint8_t data)
 {
     if (channel >= UART_INTERFACES)
-        return -1;
+        return false;
 
     //if both the outgoing buffer and the UART data register are empty
     //write the byte to the data register directly
@@ -244,7 +246,7 @@ int8_t Board::uartWrite(uint8_t channel, uint8_t data)
                     UDR_0 = data;
                 }
 
-                return 1;
+                return true;
             }
             break;
 
@@ -257,7 +259,7 @@ int8_t Board::uartWrite(uint8_t channel, uint8_t data)
                     UDR_1 = data;
                 }
 
-                return 1;
+                return true;
             }
             break;
             #endif
@@ -272,7 +274,7 @@ int8_t Board::uartWrite(uint8_t channel, uint8_t data)
 
     uartTransmitStart(channel);
 
-    return 1;
+    return true;
 }
 
 void Board::uartTransmitStart(uint8_t channel)

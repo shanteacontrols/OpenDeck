@@ -21,18 +21,19 @@
 
 ///
 /// \brief Internal function used as an callback for MIDI module for reading single byte of MIDI data from UART interface.
-/// \returns -1 if no bytes are available, otherwise received byte.
+/// @param [in,out] data        Pointer to variable in which read data is being stored.
+/// \returns False if no bytes are available, true otherwise.
 ///
-int16_t uartReadMIDI()
+bool uartReadMIDI(uint8_t &data)
 {
-    return board.uartRead(UART_MIDI_CHANNEL);
+    return board.uartRead(UART_MIDI_CHANNEL, data);
 }
 
 ///
 /// \brief Internal function used as an callback for MIDI module for writing single byte of MIDI data to UART interface.
-/// \returns -1 if no bytes are available, otherwise received byte.
+/// \returns True on success, false otherwise.
 ///
-int8_t uartWriteMIDI(uint8_t data)
+bool uartWriteMIDI(uint8_t data)
 {
     return board.uartWrite(UART_MIDI_CHANNEL, data);
 }

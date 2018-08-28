@@ -84,6 +84,15 @@ ifeq ($(filter %mega %uno, $(MAKECMDGOALS)), )
     endif
 endif
 
+#hid bootloader on non-usb mcus
+ifeq ($(findstring boot,$(MAKECMDGOALS)), boot)
+    ifeq ($(filter USB_SUPPORTED, $(DEFINES)), )
+        SOURCES := \
+        bootloader/hid/BootloaderHID.cpp \
+        application/board/avr/uart/UART.cpp
+    endif
+endif
+
 #only for firmware
 ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
     ifeq ($(BOARD_DIR),xu2)

@@ -36,9 +36,14 @@
 #include <avr/power.h>
 #include <avr/interrupt.h>
 #include <stdbool.h>
+
+#ifdef USB_SUPPORTED
 #include "Descriptors.h"
 #include <LUFA/Drivers/USB/USB.h>
 #include <LUFA/Platform/Platform.h>
+#else
+#include <LUFA/Common/Common.h>
+#endif
 
 #if !defined(__OPTIMIZE_SIZE__)
 #error This bootloader requires that it be optimized for size, not speed, to fit into the target device. Change optimization settings and try again.
@@ -53,3 +58,9 @@ static void initPins();
 static void setupHardware(void);
 static bool checkApplicationRun(void);
 void EVENT_USB_Device_ConfigurationChanged(void);
+
+#ifndef USB_SUPPORTED
+void EVENT_UART_Device_ControlRequest();
+#endif
+
+void runApplication();

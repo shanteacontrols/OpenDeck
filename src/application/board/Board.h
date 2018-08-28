@@ -96,21 +96,22 @@ class Board
 
     ///
     /// \brief Used to read MIDI data from RX UART buffer.
-    /// @param [in] channel     UART channel on MCU.
-    /// \returns Single byte on success, -1 is buffer is empty.
+    /// @param [in]     channel     UART channel on MCU.
+    /// @param [in,out] data        Pointer to variable in which read data is being stored.
+    /// \returns False if buffer is empty, true otherwise.
     ///
-    static int16_t uartRead(uint8_t channel);
+    static bool uartRead(uint8_t channel, uint8_t &data);
 
     ///
     /// \brief Used to write MIDI data to UART TX buffer.
     /// This function calls uartTransmitStart() internally so there is no
-    /// need to call externally.
+    /// need to call it externally.
     /// @param [in] channel     UART channel on MCU.
     /// @param [in] data        Byte of data to write.
-    /// \returns Positive value on success. Since this function waits until
+    /// \returns True on success. Since this function waits until
     /// outgoig buffer is full, result will always be success (1).
     ///
-    static int8_t uartWrite(uint8_t channel, uint8_t data);
+    static bool uartWrite(uint8_t channel, uint8_t data);
 
     ///
     /// \brief Starts the process of transmitting the data from UART TX buffer to UART interface.

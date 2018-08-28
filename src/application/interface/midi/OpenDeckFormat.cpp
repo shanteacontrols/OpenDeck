@@ -101,7 +101,8 @@ bool uartReadMIDI_OD(uint8_t channel)
 
     if (RingBuffer_GetCount(&rxBuffer[channel]) >= 6)
     {
-        int16_t data = board.uartRead(channel);
+        uint8_t data = 0;
+        board.uartRead(channel, data);
         uint8_t dataXOR = 0;
 
         if (data == OD_FORMAT_MIDI_DATA_START)
@@ -109,7 +110,7 @@ bool uartReadMIDI_OD(uint8_t channel)
             //start of frame, read rest of the packet
             for (int i=0; i<5; i++)
             {
-                data = board.uartRead(channel);
+                board.uartRead(channel, data);
 
                 switch(i)
                 {
@@ -138,18 +139,18 @@ bool uartReadMIDI_OD(uint8_t channel)
             //error check
             dataXOR = usbMIDIpacket.Event ^ usbMIDIpacket.Data1 ^ usbMIDIpacket.Data2 ^ usbMIDIpacket.Data3;
 
-
             return (dataXOR == data);
         }
         else if (data == OD_FORMAT_INT_DATA_START)
         {
-            odFormatCMD_t cmd = (odFormatCMD_t)board.uartRead(channel);
+            uint8_t cmd = 0;
+            board.uartRead(channel, cmd);
 
             //ignore the rest of the buffer
             for (int i=0; i<4; i++)
-                board.uartRead(channel);
+                board.uartRead(channel, data);
 
-            switch(cmd)
+            switch((odFormatCMD_t)cmd)
             {
                 case cmdFwUpdated:
                 board.ledFlashStartup(true);
@@ -161,6 +162,10 @@ bool uartReadMIDI_OD(uint8_t channel)
 
                 case cmdBtldrReboot:
                 board.reboot(rebootBtldr);
+                #ifdef BOARD_A_xu2
+                //make sure the HID bootloader knows which MCU is updating
+                eeprom_write_byte((uint8_t*)BOARD_INFO_LOCATION_EEPROM, data);
+                #endif
                 break;
 
                 default:

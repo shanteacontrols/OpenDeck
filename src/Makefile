@@ -57,21 +57,22 @@ OBJECTS := $(OBJECTS:.cpp=.o)
 #targets
 fw_opendeck \
 fw_leonardo \
-fw_pro_micro \
-fw_teensy2pp \
 fw_mega \
+fw_pro_micro \
 fw_uno \
+fw_teensy2pp \
+fw_kodama \
+fw_tannin \
+fw_bergamot \
 fw_16u2 \
 fw_8u2 \
-fw_kodama \
 boot_opendeck \
 boot_leonardo \
-boot_16u2 \
+boot_mega \
+boot_teensy2pp \
 boot_kodama \
-fw_tannin \
 boot_tannin \
-fw_bergamot \
-boot_teensy2pp: $(TARGET).elf
+boot_16u2: $(TARGET).elf
 
 #make clean should be run before compilation if:
 #1: build/TARGET file doesn't exist
