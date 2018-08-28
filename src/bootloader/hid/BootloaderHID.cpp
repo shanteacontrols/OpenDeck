@@ -77,28 +77,6 @@ static bool RunBootloader = true;
 volatile bool UARTreceived, UARTsent;
 
 ///
-/// \brief Array holding page size in bytes for all boards.
-/// This info is normally accessible via SPM_PAGESIZE symbol, however,
-/// on boards where one MCU updates the other, the page size information for
-/// target MCU isn't available in this way. Because of this, main MCU sends its
-/// board info via UART to USB link MCU. Once received, page size can be extracted
-/// via this array.
-///
-const uint16_t spmPageSizeArray[] =
-{
-    128,    //BOARD_OPEN_DECK
-    128,    //BOARD_A_LEO
-    256,    //BOARD_A_MEGA
-    128,    //BOARD_A_PRO_MICRO
-    128,    //BOARD_A_UNO
-    256,    //BOARD_T_2PP
-    128,    //BOARD_KODAMA
-    128,    //BOARD_TANNIN
-    128,    //BOARD_A_xu2
-    128,    //BOARD_BERGAMOT
-};
-
-///
 /// \brief Checks if application should be run.
 /// This function performs two checks: hardware and software bootloader entry.
 /// Hardware bootloader entry is possible if the specific board has defined button
@@ -215,8 +193,7 @@ int main(void)
 
     //enable the watchdog and force a timeout to reset the AVR
     wdt_enable(WDTO_250MS);
-
-    for (;;);
+    while(1);
 }
 
 ///
@@ -247,7 +224,7 @@ static void setupHardware(void)
     // make sure USB link goes to bootloader mode as well
     RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], OD_FORMAT_INT_DATA_START);
     RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], cmdBtldrReboot);
-    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], BOARD_ID);
+    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
     RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
     RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
     RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
@@ -370,24 +347,6 @@ void EVENT_UART_Device_ControlRequest(void)
         //check if the command is a program page command, or a start application command
         if (PageAddress == COMMAND_STARTAPPLICATION)
         {
-            // #ifdef CRC_CHECK
-            // if (!appCRCvalid())
-            // {
-            //     while (1)
-            //     {
-            //         //indicate error by flashing indicator leds
-            //         #ifdef LED_INDICATORS
-            //         INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
-            //         INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
-            //         _delay_ms(500);
-            //         INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
-            //         INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
-            //         _delay_ms(500);
-            //         #endif
-            //     }
-            // }
-            // #endif
-
             #if !defined(USB_SUPPORTED) || defined(BOARD_A_xu2)
             runApplication();
             #else
@@ -398,6 +357,7 @@ void EVENT_UART_Device_ControlRequest(void)
         {
             #ifdef BOARD_A_xu2
             //send the page info to target MCU
+            //lsb first
             RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], (PageAddress >> 0) & 0xFF);
             RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], (PageAddress >> 8) & 0xFF);
             Board::uartTransmitStart(UART_USB_LINK_CHANNEL);
@@ -407,14 +367,8 @@ void EVENT_UART_Device_ControlRequest(void)
             boot_spm_busy_wait();
             #endif
 
-            #ifndef BOARD_A_xu2
-            const uint16_t spmPageSize = SPM_PAGESIZE;
-            #else
-            const uint16_t spmPageSize = spmPageSizeArray[eeprom_read_byte((uint8_t*)BOARD_INFO_LOCATION_EEPROM)];
-            #endif
-
             //write each of the FLASH page's bytes in sequence
-            for (uint8_t PageWord=0; PageWord<(spmPageSize/2); PageWord++)
+            for (int PageWord=0; PageWord<SPM_PAGESIZE/2; PageWord++)
             {
                 #ifdef USB_SUPPORTED
                 //check if endpoint is empty - if so clear it and wait until ready for next packet
@@ -429,20 +383,16 @@ void EVENT_UART_Device_ControlRequest(void)
                 boot_page_fill(PageAddress + ((uint16_t)PageWord << 1), Endpoint_Read_16_LE());
                 #else
                 uint16_t dataWord = Endpoint_Read_16_LE();
-                RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], dataWord >> 8U);
-                RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], dataWord & 0xFF);
+                RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], (dataWord >> 0) & 0xFF);
+                RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], (dataWord >> 8) & 0xFF);
                 Board::uartTransmitStart(UART_USB_LINK_CHANNEL);
                 #endif
-                #else //no usb
-                uint16_t dataWord = 0;
-                temp = 0;
-
+                #else
+                //no usb
                 board.uartRead(UART_USB_LINK_CHANNEL, temp);
-                dataWord = temp;
-                dataWord <<= 8;
+                uint16_t dataWord = temp;
                 board.uartRead(UART_USB_LINK_CHANNEL, temp);
-                dataWord |= temp;
-
+                dataWord |= ((uint16_t)temp << (uint16_t)8);
                 //write the next data word to the FLASH page
                 boot_page_fill(PageAddress + ((uint16_t)PageWord << 1), dataWord);
                 #endif

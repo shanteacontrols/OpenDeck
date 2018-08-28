@@ -29,12 +29,16 @@ INCLUDE_DIRS := \
 -I"application/" \
 -I"application/board/avr/variants/$(BOARD_DIR)/"
 
-#common board headers used on multiple places in application
+#common headers
 ifeq ($(findstring fw_,$(MAKECMDGOALS)), fw_)
     ifeq ($(BOARD_DIR),xu2)
         INCLUDE_FILES += -include "application/board/avr/variants/$(BOARD_DIR)/Variables.h"
     else
         INCLUDE_FILES += -include "application/board/avr/variants/$(BOARD_DIR)/Hardware.h"
+    endif
+else
+    ifeq ($(BOARD_DIR),xu2)
+        INCLUDE_FILES += -include "bootloader/hid/Redef.h"
     endif
 endif
 

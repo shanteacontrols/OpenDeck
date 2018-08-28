@@ -98,13 +98,6 @@
 #define SW_CRC_LOCATION_EEPROM          (EEPROM_SIZE - 3)
 
 ///
-/// \brief Location at which board ID is written into EEPROM.
-/// Used on boards where main MCU has no native USB support while in bootloader mode
-/// so that USB link MCU is informed about flash page size of target MCU.
-///
-#define BOARD_INFO_LOCATION_EEPROM      (EEPROM_SIZE - 4)
-
-///
 /// \brief Total number of states between fully off and fully on for LEDs.
 ///
 #define NUMBER_OF_LED_TRANSITIONS           64

@@ -244,8 +244,7 @@ DEFINES += EEPROM_SIZE=$(EEPROM_SIZE)
 #for database, total size is four bytes smaller than full eeprom
 #one byte for reboot selection
 #two for crc
-#one for board ID
-DEFINES += LESSDB_SIZE=$(shell echo $(EEPROM_SIZE)-4 | bc)
+DEFINES += LESSDB_SIZE=$(shell echo $(EEPROM_SIZE)- | bc)
 DEFINES += $(BOARD)
 BOARD_ID := $(shell awk '/$(BOARD)/{print NR-5}' BoardIDs.mk)
 
@@ -257,3 +256,18 @@ endif
 
 DEFINES += HARDWARE_VERSION_MAJOR=$(HARDWARE_VERSION_MAJOR)
 DEFINES += HARDWARE_VERSION_MINOR=$(HARDWARE_VERSION_MINOR)
+
+#append VARIANT to DEFINES only if specified during build
+#make sure it's specifed in the following format:
+#VARIANT_%
+ifneq ($(VARIANT),)
+    ifeq ($(findstring VARIANT_,$(VARIANT)), VARIANT_)
+        DEFINES += $(VARIANT)
+    else
+        $(error Wront VARIANT format. Please specify variant in the following manner: "VARIANT=VARIANT_string")
+    endif
+else ifeq ($(findstring boot_16u2,$(MAKECMDGOALS)), boot_16u2)
+    ifeq ($(VARIANT),)
+        $(error Variant must be specified for this target)
+    endif
+endif
