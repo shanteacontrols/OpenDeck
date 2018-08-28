@@ -331,7 +331,10 @@ void EVENT_UART_Device_ControlRequest(void)
 #endif
 {
     uint16_t PageAddress;
+
+    #if !defined(USB_SUPPORTED)
     uint8_t temp = 0;
+    #endif
 
     #ifdef USB_SUPPORTED
     //ignore any requests that aren't directed to the HID interface
