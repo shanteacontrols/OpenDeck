@@ -162,10 +162,6 @@ bool uartReadMIDI_OD(uint8_t channel)
 
                 case cmdBtldrReboot:
                 board.reboot(rebootBtldr);
-                #ifdef BOARD_A_xu2
-                //make sure the HID bootloader knows which MCU is updating
-                eeprom_write_byte((uint8_t*)BOARD_INFO_LOCATION_EEPROM, data);
-                #endif
                 break;
 
                 default:
