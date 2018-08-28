@@ -28,11 +28,13 @@ from intelhex import IntelHex
 
 # Device information table
 device_info_map = dict()
+device_info_map['atmega2560']  = {'page_size': 256, 'flash_kb': 256}
 device_info_map['at90usb1287'] = {'page_size': 256, 'flash_kb': 128}
 device_info_map['at90usb1286'] = {'page_size': 256, 'flash_kb': 128}
 device_info_map['at90usb647']  = {'page_size': 256, 'flash_kb': 64}
 device_info_map['at90usb646']  = {'page_size': 256, 'flash_kb': 64}
 device_info_map['atmega32u4']  = {'page_size': 128, 'flash_kb': 32}
+device_info_map['atmega328p']  = {'page_size': 128, 'flash_kb': 32}
 device_info_map['atmega32u2']  = {'page_size': 128, 'flash_kb': 32}
 device_info_map['atmega16u4']  = {'page_size': 128, 'flash_kb': 16}
 device_info_map['atmega16u2']  = {'page_size': 128, 'flash_kb': 16}
