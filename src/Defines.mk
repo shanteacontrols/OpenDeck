@@ -244,7 +244,7 @@ DEFINES += EEPROM_SIZE=$(EEPROM_SIZE)
 #for database, total size is four bytes smaller than full eeprom
 #one byte for reboot selection
 #two for crc
-DEFINES += LESSDB_SIZE=$(shell echo $(EEPROM_SIZE)- | bc)
+DEFINES += LESSDB_SIZE=$(shell echo $(EEPROM_SIZE)-3 | bc)
 DEFINES += $(BOARD)
 BOARD_ID := $(shell awk '/$(BOARD)/{print NR-5}' BoardIDs.mk)
 
