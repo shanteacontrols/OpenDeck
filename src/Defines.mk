@@ -218,12 +218,13 @@ else ifeq ($(MCU),atmega8u2)
 else ifeq ($(MCU),atmega2560)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xfc
-    FUSE_HIGH := 0xd6
+    FUSE_HIGH := 0xd4
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
     EEPROM_SIZE := 4096
     FLASH_SIZE_START_ADDR := 0xE4
     FLASH_SIZE_END_ADDR := 0xE8
+    BOOT_START_ADDR := 0x3F800
     DEFINES += UART_INTERFACES=2
 else ifeq ($(MCU),atmega328p)
     FUSE_UNLOCK := 0xff
@@ -240,9 +241,11 @@ endif
 DEFINES += APP_LENGTH_LOCATION=$(FLASH_SIZE_START_ADDR)
 DEFINES += BOOT_START_ADDR=$(BOOT_START_ADDR)
 DEFINES += EEPROM_SIZE=$(EEPROM_SIZE)
-#for database, total size is three bytes smaller than full eeprom
-#one byte for reboot selection and two for crc
-DEFINES += LESSDB_SIZE=$(shell echo $(EEPROM_SIZE)-3 | bc)
+#for database, total size is four bytes smaller than full eeprom
+#one byte for reboot selection
+#two for crc
+#one for board ID
+DEFINES += LESSDB_SIZE=$(shell echo $(EEPROM_SIZE)-4 | bc)
 DEFINES += $(BOARD)
 BOARD_ID := $(shell awk '/$(BOARD)/{print NR-5}' BoardIDs.mk)
 
