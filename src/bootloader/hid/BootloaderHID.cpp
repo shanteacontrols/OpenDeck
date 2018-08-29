@@ -181,7 +181,7 @@ int main(void)
         #ifdef USB_SUPPORTED
         USB_USBTask();
         #else
-        if (!RingBuffer_IsEmpty(&rxBuffer[UART_USB_LINK_CHANNEL]))
+        if (RingBuffer_GetCount(&rxBuffer[UART_USB_LINK_CHANNEL]) > 2)
             EVENT_UART_Device_ControlRequest();
         #endif
     }
@@ -323,12 +323,11 @@ void EVENT_UART_Device_ControlRequest(void)
     #else
     //target MCU
     //page address is two bytes long
-    while (RingBuffer_GetCount(&rxBuffer[UART_USB_LINK_CHANNEL]) < 2);
-
     board.uartRead(UART_USB_LINK_CHANNEL, temp);
     PageAddress = temp;
+    PageAddress <<= 8;
     board.uartRead(UART_USB_LINK_CHANNEL, temp);
-    PageAddress |= ((uint16_t)temp << (uint16_t)8);
+    PageAddress |= (uint16_t)temp;
     #endif
 
     #ifdef USB_SUPPORTED
@@ -344,10 +343,29 @@ void EVENT_UART_Device_ControlRequest(void)
         PageAddress = Endpoint_Read_16_LE();
     #endif
 
+        #ifdef BOARD_A_xu2
+        //send the page info to target MCU
+        //msb first
+        board.uartWrite(UART_USB_LINK_CHANNEL, (PageAddress >> (uint16_t)8) & (uint16_t)0xFF);
+        board.uartWrite(UART_USB_LINK_CHANNEL, (PageAddress >> (uint16_t)0) & (uint16_t)0xFF);
+        #endif
+
         //check if the command is a program page command, or a start application command
         if (PageAddress == COMMAND_STARTAPPLICATION)
         {
+            #ifdef BOARD_A_MEGA
+            while(1)
+            {
+                setHigh(PORTB, 7);
+                _delay_ms(500);
+                setLow(PORTB, 7);
+                _delay_ms(500);
+            }
+            #endif
+
             #if !defined(USB_SUPPORTED) || defined(BOARD_A_xu2)
+            //wait until TX buffer is empty
+            while (RingBuffer_GetCount(&txBuffer[UART_USB_LINK_CHANNEL]));
             runApplication();
             #else
             RunBootloader = false;
@@ -355,13 +373,7 @@ void EVENT_UART_Device_ControlRequest(void)
         }
         else if (PageAddress < BOOT_START_ADDR)
         {
-            #ifdef BOARD_A_xu2
-            //send the page info to target MCU
-            //lsb first
-            RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], (PageAddress >> 0) & 0xFF);
-            RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], (PageAddress >> 8) & 0xFF);
-            Board::uartTransmitStart(UART_USB_LINK_CHANNEL);
-            #else
+            #ifndef BOARD_A_xu2
             //erase the given FLASH page, ready to be programmed
             boot_page_erase(PageAddress);
             boot_spm_busy_wait();
@@ -383,16 +395,15 @@ void EVENT_UART_Device_ControlRequest(void)
                 boot_page_fill(PageAddress + ((uint16_t)PageWord << 1), Endpoint_Read_16_LE());
                 #else
                 uint16_t dataWord = Endpoint_Read_16_LE();
-                RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], (dataWord >> 0) & 0xFF);
-                RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], (dataWord >> 8) & 0xFF);
-                Board::uartTransmitStart(UART_USB_LINK_CHANNEL);
+                board.uartWrite(UART_USB_LINK_CHANNEL, (dataWord >> (uint16_t)8) & (uint16_t)0xFF);
+                board.uartWrite(UART_USB_LINK_CHANNEL, (dataWord >> (uint16_t)0) & (uint16_t)0xFF);
                 #endif
                 #else
                 //no usb
                 board.uartRead(UART_USB_LINK_CHANNEL, temp);
-                uint16_t dataWord = temp;
+                uint16_t dataWord = (uint16_t)temp << (uint16_t)8;
                 board.uartRead(UART_USB_LINK_CHANNEL, temp);
-                dataWord |= ((uint16_t)temp << (uint16_t)8);
+                dataWord |= (uint16_t)temp;
                 //write the next data word to the FLASH page
                 boot_page_fill(PageAddress + ((uint16_t)PageWord << 1), dataWord);
                 #endif
