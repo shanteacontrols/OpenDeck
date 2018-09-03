@@ -112,7 +112,7 @@ void Encoders::update()
         if (!isEncoderEnabled(i))
             continue;
 
-        encoderPosition_t encoderState = (encoderPosition_t)board.getEncoderState(i, pulsesPerStep[i]);
+        encoderPosition_t encoderState = board.getEncoderState(i, pulsesPerStep[i]);
 
         if (encoderState == encStopped)
             continue;
