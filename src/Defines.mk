@@ -102,7 +102,7 @@ else ifeq ($(findstring bergamot,$(MAKECMDGOALS)), bergamot)
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
     DEFINES += TOUCHSCREEN_SUPPORTED
-    DEFINES += UART_TOUCHSCREEN_CHANNEL=1
+    DEFINES += UART_TOUCHSCREEN_CHANNEL=0
 else ifeq ($(findstring teensy2pp,$(MAKECMDGOALS)), teensy2pp)
     MCU := at90usb1286
     BOARD := BOARD_T_2PP
