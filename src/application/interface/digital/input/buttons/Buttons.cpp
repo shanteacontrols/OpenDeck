@@ -189,7 +189,7 @@ void Buttons::update()
         }
 
         if (process)
-            processButton(i, state, buttonMessage[i]);
+            processButton(i, state, true);
     }
 }
 
@@ -197,21 +197,28 @@ void Buttons::update()
 /// \brief Handles changes in button states.
 /// @param [in] buttonID    Button index which has changed state.
 /// @param [in] state       Current button state.
-/// @param [in] midiMessage Type of MIDI message button should send.
+/// @param [in] internal    Specifies whether this function is called internally or from other source.
+///                         Set to false by default.
 ///
-void Buttons::processButton(uint8_t buttonID, bool state, buttonMIDImessage_t midiMessage)
+void Buttons::processButton(uint8_t buttonID, bool state, bool internal)
 {
+    if (!internal)
+    {
+        //external call
+        if (state != getButtonState(buttonID))
+            setButtonState(buttonID, state);
+        else
+            return;
+    }
+
     uint8_t note = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, buttonID);
     uint8_t channel = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiChannel, buttonID);
     uint8_t velocity = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_velocity, buttonID);
     mmcArray[2] = note; //use midi note as channel id for transport control
 
-    if (midiMessage == BUTTON_MESSAGE_TYPES)
-        midiMessage = buttonMessage[buttonID];
-
     if (state)
     {
-        switch(midiMessage)
+        switch(buttonMessage[buttonID])
         {
             case buttonNote:
             midi.sendNoteOn(note, velocity, channel);
@@ -226,9 +233,9 @@ void Buttons::processButton(uint8_t buttonID, bool state, buttonMIDImessage_t mi
             case buttonPC:
             case buttonPCinc:
             case buttonPCdec:
-            if (midiMessage != buttonPC)
+            if (buttonMessage[buttonID] != buttonPC)
             {
-                if (midiMessage == buttonPCinc)
+                if (buttonMessage[buttonID] == buttonPCinc)
                 {
                     if (lastPCvalue[channel] < 127)
                         lastPCvalue[channel]++;
@@ -343,7 +350,7 @@ void Buttons::processButton(uint8_t buttonID, bool state, buttonMIDImessage_t mi
     }
     else
     {
-        switch(midiMessage)
+        switch(buttonMessage[buttonID])
         {
             case buttonNote:
             midi.sendNoteOff(note, 0, channel);

@@ -34,7 +34,7 @@ class Buttons
 
     static void init();
     static void update();
-    static void processButton(uint8_t buttonID, bool state, buttonMIDImessage_t midiMessage = BUTTON_MESSAGE_TYPES);
+    static void processButton(uint8_t buttonID, bool state, bool internal = false);
 
     private:
     static void setButtonState(uint8_t buttonID, uint8_t state);
