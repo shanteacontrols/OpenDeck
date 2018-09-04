@@ -22,7 +22,7 @@
 
 
 ///
-/// Acquires data by reading all inputs from two connected shift registers.
+/// Acquires data by reading all inputs from connected shift register.
 ///
 inline void storeDigitalIn()
 {
@@ -32,15 +32,12 @@ inline void storeDigitalIn()
 
     setHigh(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
 
-    for (int i=0; i<NUMBER_OF_IN_SR; i++)
+    for (int i=0; i<NUMBER_OF_IN_SR_INPUTS; i++)
     {
-        for (int j=0; j<8; j++)
-        {
-            setLow(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
-            _NOP();
-            BIT_WRITE(digitalInBuffer[dIn_head][i], j, !readPin(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN));
-            setHigh(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
-        }
+        setLow(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+        _NOP();
+        BIT_WRITE(digitalInBuffer[dIn_head][0], 7-i, !readPin(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN));
+        setHigh(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
     }
 }
 
