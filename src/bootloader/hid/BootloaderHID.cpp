@@ -90,6 +90,9 @@ bool checkApplicationRun()
 {
     bool jumpToApplication = false;
 
+    //add some delay before reading the pins to avoid incorrect state detection
+    _delay_ms(100);
+
     #if defined(BOARD_KODAMA) || defined(BOARD_TANNIN)
     //these boards use input shift registers
     //read 8 inputs and then read only specific input used as an
@@ -147,10 +150,6 @@ bool checkApplicationRun()
 ///
 void runApplication()
 {
-    //disable watchdog
-    MCUSR &= ~(1 << WDRF);
-    wdt_disable();
-
     //run app
     ((void (*)(void))0x0000)();
 }
@@ -164,6 +163,10 @@ int main(void)
 {
     //clear reset source
     MCUSR &= ~(1 << EXTRF);
+
+    //disable watchdog
+    MCUSR &= ~(1 << WDRF);
+    wdt_disable();
 
     initPins();
 
