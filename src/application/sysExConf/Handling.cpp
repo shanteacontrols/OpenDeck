@@ -60,28 +60,20 @@ bool onCustom(uint8_t value)
         break;
 
         case SYSEX_CR_REBOOT_APP:
-        #ifdef LEDS_SUPPORTED
-        leds.setAllOff();
-        wait_ms(2500);
-        #endif
-        board.reboot(rebootApp);
-        break;
-
+        case SYSEX_CR_FACTORY_RESET:
         case SYSEX_CR_REBOOT_BTLDR:
         #ifdef LEDS_SUPPORTED
         leds.setAllOff();
         wait_ms(2500);
         #endif
-        board.reboot(rebootBtldr);
-        break;
 
-        case SYSEX_CR_FACTORY_RESET:
-        #ifdef LEDS_SUPPORTED
-        leds.setAllOff();
-        wait_ms(1500);
-        #endif
-        database.factoryReset(initPartial);
-        board.reboot(rebootApp);
+        if (value == SYSEX_CR_FACTORY_RESET)
+            database.factoryReset(initPartial);
+
+        if (value == SYSEX_CR_REBOOT_BTLDR)
+            board.reboot(rebootBtldr);
+        else
+            board.reboot(rebootApp);
         break;
 
         case SYSEX_CR_MAX_COMPONENTS:
