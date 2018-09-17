@@ -113,83 +113,7 @@ void Buttons::update()
         if (!buttonDebounced(i, state))
             continue;
 
-        bool process = false;
-        buttonType_t type = getButtonType(i);
-
-        //act on change of state only
-        if (state != getButtonState(i))
-        {
-            setButtonState(i, state);
-
-            //overwrite type under certain conditions
-            switch(buttonMessage[i])
-            {
-                case buttonPC:
-                case buttonPCinc:
-                case buttonPCdec:
-                case buttonMMCPlay:
-                case buttonMMCStop:
-                case buttonMMCPause:
-                case buttonCC:
-                case buttonRealTimeClock:
-                case buttonRealTimeStart:
-                case buttonRealTimeContinue:
-                case buttonRealTimeStop:
-                case buttonRealTimeActiveSensing:
-                case buttonRealTimeSystemReset:
-                type = buttonMomentary;
-                break;
-
-                case buttonMMCRecord:
-                type = buttonLatching;
-                break;
-
-                default:
-                break;
-            }
-
-            if (buttonMessage[i] != buttonNone)
-            {
-                switch(type)
-                {
-                    case buttonMomentary:
-                    //always process momentary buttons
-                    process = true;
-                    break;
-
-                    case buttonLatching:
-                    //act on press only
-                    if (state)
-                    {
-                        process = true;
-
-                        if (getLatchingState(i))
-                        {
-                            setLatchingState(i, false);
-                            //overwrite before processing
-                            state = false;
-                        }
-                        else
-                        {
-                            setLatchingState(i, true);
-                            state = true;
-                        }
-                    }
-                    break;
-
-                    default:
-                    break;
-                }
-            }
-            else
-            {
-                process = false;
-                sendCinfo(DB_BLOCK_BUTTONS, i);
-            }
-        }
-
-        if (process)
-            processButton(i, state, true);
+        processButton(i, state);
     }
 }
 
@@ -197,20 +121,87 @@ void Buttons::update()
 /// \brief Handles changes in button states.
 /// @param [in] buttonID    Button index which has changed state.
 /// @param [in] state       Current button state.
-/// @param [in] internal    Specifies whether this function is called internally or from other source.
-///                         Set to false by default.
 ///
-void Buttons::processButton(uint8_t buttonID, bool state, bool internal)
+void Buttons::processButton(uint8_t buttonID, bool state)
 {
-    if (!internal)
+    //act on change of state only
+    if (state == getButtonState(buttonID))
+        return;
+
+    setButtonState(buttonID, state);
+
+    //don't process buttonNone type of message
+    if (buttonMessage[buttonID] != buttonNone)
     {
-        //external call
-        if (state != getButtonState(buttonID))
-            setButtonState(buttonID, state);
-        else
-            return;
+        buttonType_t type = getButtonType(buttonID);
+
+        //overwrite type under certain conditions
+        switch(buttonMessage[buttonID])
+        {
+            case buttonPC:
+            case buttonPCinc:
+            case buttonPCdec:
+            case buttonMMCPlay:
+            case buttonMMCStop:
+            case buttonMMCPause:
+            case buttonCC:
+            case buttonRealTimeClock:
+            case buttonRealTimeStart:
+            case buttonRealTimeContinue:
+            case buttonRealTimeStop:
+            case buttonRealTimeActiveSensing:
+            case buttonRealTimeSystemReset:
+            type = buttonMomentary;
+            break;
+
+            case buttonMMCRecord:
+            type = buttonLatching;
+            break;
+
+            default:
+            break;
+        }
+
+        bool sendMIDI = true;
+
+        if (type == buttonLatching)
+        {
+            //act on press only
+            if (state)
+            {
+                if (getLatchingState(buttonID))
+                {
+                    setLatchingState(buttonID, false);
+                    //overwrite before processing
+                    state = false;
+                }
+                else
+                {
+                    setLatchingState(buttonID, true);
+                    state = true;
+                }
+            }
+            else
+            {
+                sendMIDI = false;
+            }
+        }
+
+        if (sendMIDI)
+            sendMessage(buttonID, state);
     }
 
+    sendCinfo(DB_BLOCK_BUTTONS, buttonID);
+}
+
+///
+/// \brief Used to send MIDI message from specified button.
+/// Used internally once the button state has been changed and processed.
+/// @param [in] buttonID    Button ID which sends the message.
+/// @param [in] state       Button state (true/pressed, false/released).
+///
+void Buttons::sendMessage(uint8_t buttonID, bool state)
+{
     uint8_t note = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, buttonID);
     uint8_t channel = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiChannel, buttonID);
     uint8_t velocity = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_velocity, buttonID);
@@ -385,8 +376,6 @@ void Buttons::processButton(uint8_t buttonID, bool state, bool internal)
             break;
         }
     }
-
-    sendCinfo(DB_BLOCK_BUTTONS, buttonID);
 }
 
 ///
