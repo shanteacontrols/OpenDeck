@@ -19,9 +19,14 @@
 #pragma once
 
 ///
-/// \brief Value above which digital input connected to analog input is considered pressed.
+/// \brief Value above which buton connected to analog input is considered pressed.
 ///
-#define DIGITAL_VALUE_THRESHOLD         1000
+#define ADC_DIGITAL_VALUE_THRESHOLD_ON  1000
+
+///
+/// \brief Value below which button connected to analog input is considered released.
+///
+#define ADC_DIGITAL_VALUE_THRESHOLD_OFF 600
 
 ///
 /// \brief Minimum difference between two raw ADC readings to consider that value has been changed.

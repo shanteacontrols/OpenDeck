@@ -99,12 +99,29 @@ void Analog::update()
         }
         else
         {
-            if (analogData == -1)
+            bool state;
+
+            //use hysteresis here to avoid jumping of values
+            //regular button debouncing would add additional delays (analog readout is already slower than digital)
+            if (buttons.getButtonState(i+MAX_NUMBER_OF_BUTTONS))
             {
-                continue;
+                //button pressed
+                //set state to released only if value is below ADC_DIGITAL_VALUE_THRESHOLD_OFF
+                if (analogData < ADC_DIGITAL_VALUE_THRESHOLD_OFF)
+                    state = false;
+                else
+                    state = true;
+            }
+            else
+            {
+                //button released
+                //set state to pressed only if value is above ADC_DIGITAL_VALUE_THRESHOLD_ON
+                if (analogData > ADC_DIGITAL_VALUE_THRESHOLD_ON)
+                    state = true;
+                else
+                    state = false;
             }
 
-            bool state = analogData > DIGITAL_VALUE_THRESHOLD;
             buttons.processButton(i+MAX_NUMBER_OF_BUTTONS, state);
         }
     }
