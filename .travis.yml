@@ -6,6 +6,7 @@ before_install:
   - tar xzf avrtoolchain.tar.gz
   - sudo ln -s $(pwd)/avr8-gnu-toolchain-linux_x86_64 /usr/local/avr
   - PATH=/usr/local/avr/bin:${PATH}
+  - export MAKEFLAGS=-j$(nproc)
   - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
   - git submodule update --init --recursive
   - cd src/

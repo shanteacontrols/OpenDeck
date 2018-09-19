@@ -19,7 +19,8 @@
                         // >> therefore any modifications to PATH aren't available
                         "executable": "C://WINDOWS//System32//wsl.exe",
                         "args": [
-                           "PATH=/usr/local/avr/bin:${PATH}"
+                           "PATH=/usr/local/avr/bin:${PATH}",
+                           "MAKEFLAGS=-j$(nproc)"
                         ]
                     }
                 }
@@ -37,7 +38,8 @@
                     "shell": {
                         "executable": "C://WINDOWS//System32//wsl.exe",
                         "args": [
-                           "PATH=/usr/local/avr/bin:${PATH}"
+                           "PATH=/usr/local/avr/bin:${PATH}",
+                           "MAKEFLAGS=-j$(nproc)"
                         ]
                     }
                 }
@@ -55,7 +57,8 @@
                     "shell": {
                         "executable": "C://WINDOWS//System32//wsl.exe",
                         "args": [
-                           "PATH=/usr/local/avr/bin:${PATH}"
+                           "PATH=/usr/local/avr/bin:${PATH}",
+                           "MAKEFLAGS=-j$(nproc)"
                         ]
                     }
                 }
@@ -73,7 +76,8 @@
                     "shell": {
                         "executable": "C://WINDOWS//System32//wsl.exe",
                         "args": [
-                           "PATH=/usr/local/avr/bin:${PATH}"
+                           "PATH=/usr/local/avr/bin:${PATH}",
+                           "MAKEFLAGS=-j$(nproc)"
                         ]
                     }
                 }
@@ -92,7 +96,7 @@
                         "executable": "C://WINDOWS//System32//wsl.exe",
                         "args": [
                            "PATH=/usr/local/avr/bin:${PATH}",
-                           "LANG=C"
+                           "MAKEFLAGS=-j$(nproc)"
                         ]
                     }
                 }
@@ -111,7 +115,7 @@
                         "executable": "C://WINDOWS//System32//wsl.exe",
                         "args": [
                            "PATH=/usr/local/avr/bin:${PATH}",
-                           "LANG=C"
+                           "MAKEFLAGS=-j$(nproc)"
                         ]
                     }
                 }
@@ -130,7 +134,7 @@
                         "executable": "C://WINDOWS//System32//wsl.exe",
                         "args": [
                            "PATH=/usr/local/avr/bin:${PATH}",
-                           "LANG=C"
+                           "MAKEFLAGS=-j$(nproc)"
                         ]
                     }
                 }
