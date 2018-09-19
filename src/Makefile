@@ -74,13 +74,6 @@ boot_kodama \
 boot_tannin \
 boot_16u2: $(TARGET).elf
 
-#make clean should be run before compilation if:
-#1: build/TARGET file doesn't exist
-#2: target specified in build/TARGET differs from current
-ifneq ($(shell cat build/TARGET 2>/dev/null), $(MAKECMDGOALS))
-    RUN_CLEAN := clean
-endif
-
 #use windows binary on wsl since HID access isn't possible in wsl
 ifeq ($(findstring Microsoft,$(shell uname -r)), Microsoft)
     UPLOAD_BIN := @cmd.exe /c "..\bin\dfu\loader\hid_bootloader_loader_win.exe"
@@ -96,7 +89,7 @@ build/%.o: %.cpp
 	@$(CXX) $(CXXFLAGS) -std=c++11 $(addprefix -D,$(DEFINES)) $(OPT) -mmcu=$(MCU) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -o "$@" "$<" 
 	@echo Finished building: $<
 
-$(TARGET).elf: $(RUN_CLEAN) target_print $(OBJECTS)
+$(TARGET).elf: target_print $(OBJECTS)
 	@#link
 	@$(CXX) -o$(TARGET).elf $(OBJECTS) -mmcu=$(MCU) $(LDFLAGS) -Wl,-Map,$(TARGET).map
 	@echo Finished building target: $@
