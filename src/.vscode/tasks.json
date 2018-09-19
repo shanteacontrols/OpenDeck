@@ -2,8 +2,8 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build opendeck",
-            "command": "LANG=C make fw_opendeck",
+            "label": "build opendeck fw",
+            "command": "make fw_opendeck",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -11,23 +11,130 @@
             "group": {
                 "kind": "build",
                 "isDefault": true
+            },
+            "windows": {
+                "options": {
+                    "shell": {
+                        //needed on windows since tasks don't source .bashrc profile
+                        // >> therefore any modifications to PATH aren't available
+                        "executable": "C://WINDOWS//System32//wsl.exe",
+                        "args": [
+                           "PATH=/usr/local/avr/bin:${PATH}"
+                        ]
+                    }
+                }
             }
         },
         {
-            "label": "build mega",
-            "command": "LANG=C make fw_mega",
+            "label": "build pro micro fw",
+            "command": "make fw_pro_micro",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
-            ]
+            ],
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "C://WINDOWS//System32//wsl.exe",
+                        "args": [
+                           "PATH=/usr/local/avr/bin:${PATH}"
+                        ]
+                    }
+                }
+            },
         },
         {
-            "label": "build all",
-            "command": "LANG=C make fw_opendeck && make fw_pro_micro && make fw_leonardo && make fw_uno && make fw_mega && make fw_16u2 && make fw_8u2 && make fw_teensy2pp && make boot_opendeck && make boot_leonardo && make boot_kodama && make fw_tannin && make fw_kodama && make fw_bergamot",
+            "label": "build uno fw",
+            "command": "make fw_uno",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
-            ]
+            ],
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "C://WINDOWS//System32//wsl.exe",
+                        "args": [
+                           "PATH=/usr/local/avr/bin:${PATH}"
+                        ]
+                    }
+                }
+            },
+        },
+        {
+            "label": "build leonardo fw",
+            "command": "make fw_leonardo",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "C://WINDOWS//System32//wsl.exe",
+                        "args": [
+                           "PATH=/usr/local/avr/bin:${PATH}"
+                        ]
+                    }
+                }
+            },
+        },
+        {
+            "label": "build mega fw",
+            "command": "make fw_mega",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "C://WINDOWS//System32//wsl.exe",
+                        "args": [
+                           "PATH=/usr/local/avr/bin:${PATH}",
+                           "LANG=C"
+                        ]
+                    }
+                }
+            },
+        },
+        {
+            "label": "build bergamot fw",
+            "command": "make fw_bergamot",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "C://WINDOWS//System32//wsl.exe",
+                        "args": [
+                           "PATH=/usr/local/avr/bin:${PATH}",
+                           "LANG=C"
+                        ]
+                    }
+                }
+            },
+        },
+        {
+            "label": "build 16u2 fw",
+            "command": "make fw_16u2",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "C://WINDOWS//System32//wsl.exe",
+                        "args": [
+                           "PATH=/usr/local/avr/bin:${PATH}",
+                           "LANG=C"
+                        ]
+                    }
+                }
+            },
         }
     ]
 }
