@@ -43,5 +43,5 @@
 #define MUX_1_IN_PIN                1
 
 #define BTLDR_BUTTON_PORT           PORTF
-#define BTLDR_BUTTON_PIN            1
+#define BTLDR_BUTTON_PIN            0
 
