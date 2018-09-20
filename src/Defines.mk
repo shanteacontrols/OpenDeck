@@ -160,7 +160,7 @@ else ifeq ($(findstring upload,$(MAKECMDGOALS)), upload)
     endif
     #only some targets are supported
     ifeq ($(MAKECMDGOALS),uploadboot)
-        ifeq ($(filter fw_opendeck fw_tannin fw_leonardo fw_pro_micro fw_kodama fw_teensy2pp, $(shell cat build/TARGET)), )
+        ifeq ($(filter fw_opendeck fw_tannin fw_leonardo fw_pro_micro fw_kodama fw_teensy2pp fw_bergamot, $(shell cat build/TARGET)), )
             $(error Not available for current target.)
         endif
     endif
