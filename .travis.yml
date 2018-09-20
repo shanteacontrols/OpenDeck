@@ -29,6 +29,7 @@ script:
   - make clean && make fw_tannin
   - make clean && make fw_kodama
   - make clean && make fw_bergamot
+  - make clean && make boot_bergamot
 
 # disable the default submodule logic
 git:

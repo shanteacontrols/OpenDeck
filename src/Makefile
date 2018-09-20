@@ -72,6 +72,7 @@ boot_mega \
 boot_teensy2pp \
 boot_kodama \
 boot_tannin \
+boot_bergamot \
 boot_16u2: $(TARGET).elf
 
 #use windows binary on wsl since HID access isn't possible in wsl
