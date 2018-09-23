@@ -23,6 +23,7 @@ typedef enum
     encType7Fh01h,
     encType3Fh41h,
     encTypePC,
+    encTypeCC,
     ENCODING_MODES
 } encoderType_t;
 

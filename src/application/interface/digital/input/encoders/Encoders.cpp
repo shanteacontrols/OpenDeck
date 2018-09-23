@@ -151,6 +151,23 @@ void Encoders::update()
             encoderValue = lastPCvalue[channel];
             break;
 
+            case encTypeCC:
+            static uint8_t ccValue[MAX_NUMBER_OF_ENCODERS] = { 0 };
+
+            if (encoderState == encMoveLeft)
+            {
+                if (ccValue[i])
+                    ccValue[i]--;
+            }
+            else
+            {
+                if (ccValue[i] < 127)
+                    ccValue[i]++;
+            }
+
+            encoderValue = ccValue[i];
+            break;
+
             default:
             continue;
             break;
