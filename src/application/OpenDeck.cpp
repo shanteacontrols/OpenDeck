@@ -90,6 +90,11 @@ void init()
 
     processingEnabled = true;
     midiClockStatus = midiClockStop;
+
+    #ifdef BOARD_BERGAMOT
+    touchscreen.init(ts_sdw);
+    touchscreen.setPage(1);
+    #endif
 }
 
 int main()
