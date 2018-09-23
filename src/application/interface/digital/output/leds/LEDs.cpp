@@ -33,16 +33,6 @@ uint8_t             ledState[MAX_NUMBER_OF_LEDS];
 uint8_t             blinkTimer[MAX_NUMBER_OF_LEDS];
 
 ///
-/// \brief Array holding RGB enable state for all LEDs.
-///
-uint8_t             rgbLEDenabled[MAX_NUMBER_OF_RGB_LEDS/8+1];
-
-///
-/// \brief Array holding control channel for all LEDs.
-///
-uint8_t             ledControlChannel[MAX_NUMBER_OF_LEDS];
-
-///
 /// \brief Holds currently active LED blink type.
 ///
 blinkType_t         ledBlinkType;
@@ -120,31 +110,6 @@ void LEDs::init(bool startUp)
     }
 
     setBlinkType((blinkType_t)database.read(DB_BLOCK_LEDS, dbSection_leds_global, ledGlobalParam_blinkMIDIclock));
-
-    //store some parameters from eeprom to ram for faster access
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-        ledControlChannel[i] = database.read(DB_BLOCK_LEDS, dbSection_leds_midiChannel, i);
-
-    for (int i=0; i<MAX_NUMBER_OF_RGB_LEDS; i++)
-    {
-        uint8_t arrayIndex = i/8;
-        uint8_t ledIndex = i - 8*arrayIndex;
-
-        BIT_WRITE(rgbLEDenabled[arrayIndex], ledIndex, (bool)database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, i));
-    }
-}
-
-///
-/// \brief Checks if RGB led is enabled.
-/// @param [in] ledID    LED index which is being checked.
-/// \returns True if RGB LED is enabled.
-///
-inline bool isRGBLEDenabled(uint8_t ledID)
-{
-    uint8_t arrayIndex = ledID/8;
-    uint8_t ledIndex = ledID - 8*arrayIndex;
-
-    return BIT_READ(rgbLEDenabled[arrayIndex], ledIndex);
 }
 
 void LEDs::update()
@@ -273,7 +238,7 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
     for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
     {
         //no point in checking if channel doesn't match
-        if (ledControlChannel[i] != channel)
+        if (database.read(DB_BLOCK_LEDS, dbSection_leds_midiChannel, i) != channel)
             continue;
 
         bool setState = false;
@@ -367,6 +332,7 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
         }
 
         ledColor_t color = colorOff;
+        bool rgbEnabled = database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, board.getRGBID(i));
 
         if (setState)
         {
@@ -378,7 +344,7 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
                     //byte2 doesn't exist on program change message
                     //color depends on data1 if rgb led is enabled
                     //otherwise just turn the led on - no activation value check
-                    if (isRGBLEDenabled(board.getRGBID(i)))
+                    if (rgbEnabled)
                         color = valueToColor(data1);
                     else
                         color = colorRed; //any color is fine on single-color led
@@ -388,7 +354,7 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
                     //use data2 value (note velocity / cc value) to set led color
                     //and possibly blink speed (depending on configuration)
                     //when note/cc are used to control both state and blinking ignore activation velocity
-                    if (isRGBLEDenabled(board.getRGBID(i)) || (setState && setBlink))
+                    if (rgbEnabled || (setState && setBlink))
                     {
                         color = valueToColor(data2);
                     }
@@ -448,7 +414,7 @@ void LEDs::setBlinkState(uint8_t ledID, blinkSpeed_t state)
     uint8_t ledArray[3], leds = 0;
     uint8_t rgbIndex = board.getRGBID(ledID);
 
-    if (isRGBLEDenabled(rgbIndex))
+    if (database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, ledID))
     {
         ledArray[0] = board.getRGBaddress(rgbIndex, rgb_R);
         ledArray[1] = board.getRGBaddress(rgbIndex, rgb_G);
@@ -501,7 +467,7 @@ void LEDs::setColor(uint8_t ledID, ledColor_t color)
 {
     uint8_t rgbIndex = board.getRGBID(ledID);
 
-    if (isRGBLEDenabled(rgbIndex))
+    if (database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, ledID))
     {
         uint8_t led1 = board.getRGBaddress(rgbIndex, rgb_R);
         uint8_t led2 = board.getRGBaddress(rgbIndex, rgb_G);

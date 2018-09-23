@@ -311,9 +311,6 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             case sysExSection_analog_type:
             analog.debounceReset(index);
             success = database.update(block, sysEx2DB_analog[section], index, newValue);
-
-            if (success)
-                analog.init();
             break;
 
             default:
@@ -322,9 +319,6 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 newValue--;
 
             success = database.update(block, sysEx2DB_analog[section], index, newValue);
-
-            if (success && ((section == sysExSection_analog_enable) || (section == sysExSection_analog_invert)))
-                analog.init();
             break;
         }
         break;
@@ -525,9 +519,6 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                         break;
                 }
             }
-
-            if (success)
-                leds.init(false);
             break;
 
             case sysExSection_leds_activationID:
@@ -555,9 +546,6 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
                 //apply to single led only
                 success = database.update(block, sysEx2DB_leds[section], index, newValue);
             }
-
-            if (success && (section == sysExSection_leds_midiChannel))
-                leds.init(false);
             break;
 
             default:
@@ -676,9 +664,6 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             newValue--;
 
         success = database.update(block, sysEx2DB_buttons[section], index, newValue);
-
-        if (success && ((section == sysExSection_buttons_type) || (section == sysExSection_buttons_midiMessage)))
-            buttons.init();
         break;
 
         case SYSEX_BLOCK_ENCODERS:
@@ -687,9 +672,6 @@ bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newV
             newValue--;
 
         success = database.update(block, sysEx2DB_encoders[section], index, newValue);
-
-        if (success && ((section == sysExSection_encoders_enable) || (section == sysExSection_encoders_invert) || (section == sysExSection_encoders_pulsesPerStep)))
-            encoders.init();
         break;
 
         default:

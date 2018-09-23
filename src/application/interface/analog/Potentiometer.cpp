@@ -25,19 +25,6 @@
 #endif
 
 
-///
-/// \brief Checks if analog component is inverted.
-/// @param [in] analogID    Index of analog component being checked.
-/// \returns True if component is inverted, false otherwise.
-///
-inline bool isAnalogInverted(uint8_t analogID)
-{
-    uint8_t arrayIndex = analogID/8;
-    uint8_t analogIndex = analogID - 8*arrayIndex;
-
-    return BIT_READ(analogInverted[arrayIndex], analogIndex);
-}
-
 void Analog::checkPotentiometerValue(analogType_t analogType, uint8_t analogID, uint16_t value)
 {
     if (abs(value - lastAnalogueValue[analogID]) < ANALOG_STEP_MIN_DIFF)
@@ -68,7 +55,7 @@ void Analog::checkPotentiometerValue(analogType_t analogType, uint8_t analogID, 
     uint8_t upperCClimit_7bit = encDec_14bit.low;
 
     //invert CC data if configured
-    if (isAnalogInverted(analogID))
+    if (database.read(DB_BLOCK_ANALOG, dbSection_analog_invert, analogID))
     {
         if ((analogType == aType_NRPN_14) || (analogType == aType_PitchBend))
             midiValue = 16383 - midiValue;

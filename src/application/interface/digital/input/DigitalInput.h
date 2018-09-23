@@ -31,7 +31,6 @@ class DigitalInput
 {
     public:
     DigitalInput();
-    static void init();
     static void update();
 };
 

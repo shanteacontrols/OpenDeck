@@ -33,7 +33,6 @@ class Analog
 {
     public:
     Analog();
-    static void init();
     static void update();
     static void debounceReset(uint16_t index);
 

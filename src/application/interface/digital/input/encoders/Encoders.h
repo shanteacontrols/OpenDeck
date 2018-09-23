@@ -30,9 +30,7 @@ class Encoders
 {
     public:
     Encoders();
-    static void init();
     static void update();
-    static bool isEncoderEnabled(uint8_t encoderID);
 };
 
 ///

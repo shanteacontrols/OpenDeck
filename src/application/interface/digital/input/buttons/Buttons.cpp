@@ -50,29 +50,6 @@ uint8_t                 buttonPressed[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALO
 ///
 uint8_t                 lastLatchingState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS)/8+1];
 
-///
-/// \brief Array holding button type (1 - latching, 0 - momentary).
-///
-uint8_t                 latchingState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS)/8+1];
-
-///
-/// \brief Holds message type the button sends.
-///
-buttonMIDImessage_t     buttonMessage[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS];
-
-
-///
-/// \brief Used to retrieve button type.
-/// @param [in] buttonID    Button index which is being checked.
-/// \returns Button type for specifed index. See buttonType_t.
-///
-inline buttonType_t getButtonType(uint8_t buttonID)
-{
-    uint8_t arrayIndex = buttonID/8;
-    uint8_t buttonIndex = buttonID - 8*arrayIndex;
-
-    return (buttonType_t)BIT_READ(latchingState[arrayIndex], buttonIndex);
-}
 
 ///
 /// \brief Default constructor.
@@ -83,29 +60,13 @@ Buttons::Buttons()
 }
 
 ///
-/// \brief Used to store specific parameters from EEPROM to internal arrays for faster access.
-///
-void Buttons::init()
-{
-    //store some parameters from eeprom to ram for faster access
-    for (int i=0; i<MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS; i++)
-    {
-        uint8_t arrayIndex = i/8;
-        uint8_t buttonIndex = i - 8*arrayIndex;
-
-        BIT_WRITE(latchingState[arrayIndex], buttonIndex, (bool)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_type, i));
-        buttonMessage[i] = (buttonMIDImessage_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, i);
-    }
-}
-
-///
 /// \brief Continuously reads inputs from buttons and acts if necessary.
 ///
 void Buttons::update()
 {
     for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
     {
-        if (encoders.isEncoderEnabled(board.getEncoderPair(i)))
+        if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, board.getEncoderPair(i)))
             continue;
 
         bool state = board.getButtonState(i);
@@ -130,13 +91,15 @@ void Buttons::processButton(uint8_t buttonID, bool state)
 
     setButtonState(buttonID, state);
 
+    buttonMIDImessage_t buttonMessage = (buttonMIDImessage_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, buttonID);
+
     //don't process buttonNone type of message
-    if (buttonMessage[buttonID] != buttonNone)
+    if (buttonMessage != buttonNone)
     {
-        buttonType_t type = getButtonType(buttonID);
+        buttonType_t type = (buttonType_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_type, buttonID);
 
         //overwrite type under certain conditions
-        switch(buttonMessage[buttonID])
+        switch(buttonMessage)
         {
             case buttonPC:
             case buttonPCinc:
@@ -188,7 +151,7 @@ void Buttons::processButton(uint8_t buttonID, bool state)
         }
 
         if (sendMIDI)
-            sendMessage(buttonID, state);
+            sendMessage(buttonID, state, buttonMessage);
     }
 
     sendCinfo(DB_BLOCK_BUTTONS, buttonID);
@@ -197,19 +160,24 @@ void Buttons::processButton(uint8_t buttonID, bool state)
 ///
 /// \brief Used to send MIDI message from specified button.
 /// Used internally once the button state has been changed and processed.
-/// @param [in] buttonID    Button ID which sends the message.
-/// @param [in] state       Button state (true/pressed, false/released).
+/// @param [in] buttonID        Button ID which sends the message.
+/// @param [in] state           Button state (true/pressed, false/released).
+/// @param [in] buttonMessage   Type of MIDI message to send. If unspecified, message type is read from database.
 ///
-void Buttons::sendMessage(uint8_t buttonID, bool state)
+void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMIDImessage_t buttonMessage)
 {
     uint8_t note = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, buttonID);
     uint8_t channel = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiChannel, buttonID);
     uint8_t velocity = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_velocity, buttonID);
+
+    if (buttonMessage == BUTTON_MESSAGE_TYPES)
+        buttonMessage = (buttonMIDImessage_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, buttonID);
+
     mmcArray[2] = note; //use midi note as channel id for transport control
 
     if (state)
     {
-        switch(buttonMessage[buttonID])
+        switch(buttonMessage)
         {
             case buttonNote:
             midi.sendNoteOn(note, velocity, channel);
@@ -224,9 +192,9 @@ void Buttons::sendMessage(uint8_t buttonID, bool state)
             case buttonPC:
             case buttonPCinc:
             case buttonPCdec:
-            if (buttonMessage[buttonID] != buttonPC)
+            if (buttonMessage != buttonPC)
             {
-                if (buttonMessage[buttonID] == buttonPCinc)
+                if (buttonMessage == buttonPCinc)
                 {
                     if (lastPCvalue[channel] < 127)
                         lastPCvalue[channel]++;
@@ -341,7 +309,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state)
     }
     else
     {
-        switch(buttonMessage[buttonID])
+        switch(buttonMessage)
         {
             case buttonNote:
             midi.sendNoteOff(note, 0, channel);
@@ -412,8 +380,8 @@ bool Buttons::getButtonState(uint8_t buttonID)
 /// State should be stored in variable because unlike momentary buttons, state of
 /// latching buttons doesn't necessarrily match current "real" state of button since events
 /// for latching buttons are sent only on presses.
-/// @param [in] buttonID        Button for which state is being changed.
-/// @param [in] state     New latching state.
+/// @param [in] buttonID    Button for which state is being changed.
+/// @param [in] state       New latching state.
 ///
 void Buttons::setLatchingState(uint8_t buttonID, uint8_t state)
 {

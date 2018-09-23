@@ -37,16 +37,6 @@ DigitalInput::DigitalInput()
 }
 
 ///
-/// \brief Used to store specific parameters from EEPROM to internal arrays for faster access.
-///
-void DigitalInput::init()
-{
-    //store some parameters from eeprom to ram for faster access
-    buttons.init();
-    encoders.init();
-}
-
-///
 /// \brief Used to check if button and encoder data is available.
 /// Data source (pins) for both buttons and encoders is same.
 ///

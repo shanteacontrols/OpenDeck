@@ -32,13 +32,12 @@ class Buttons
     public:
     Buttons();
 
-    static void init();
     static void update();
     static void processButton(uint8_t buttonID, bool state);
     static bool getButtonState(uint8_t buttonID);
 
     private:
-    static void sendMessage(uint8_t buttonID, bool state);
+    static void sendMessage(uint8_t buttonID, bool state, buttonMIDImessage_t buttonMessage = BUTTON_MESSAGE_TYPES);
     static void setButtonState(uint8_t buttonID, uint8_t state);
     static void setLatchingState(uint8_t buttonID, uint8_t state);
     static bool getLatchingState(uint8_t buttonID);

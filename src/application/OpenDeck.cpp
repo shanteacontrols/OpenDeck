@@ -30,8 +30,6 @@ void init()
     board.init();
     database.init();
     sysEx.init();
-    digitalInput.init();
-    analog.init();
 
     #ifdef DIN_MIDI_SUPPORTED
     if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled))
