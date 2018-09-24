@@ -10,6 +10,8 @@ echo "3 - ATmega328P on Uno"
 echo "4 - ATmega2560 on Mega"
 echo "5 - ATmega32u4 on Leonardo"
 echo "6 - ATmega32u4 on Pro Micro"
+echo "7 - AT90USB1286 on Teensy++ 2.0"
+echo "8 - ATmega32u4 on OpenDeck"
 
 read board
 
@@ -49,6 +51,18 @@ then
     read -n1 KEY
     avrdude -p atmega32u4 -P /dev/$port -b 19200 -c avrisp -e -U lock:w:0xff:m -U efuse:w:0xc8:m -U hfuse:w:0xd0:m -U lfuse:w:0xff:m
     avrdude -p atmega32u4 -P /dev/$port -b 19200 -c avrisp -U flash:w:../src/build/fw_pro_micro.bin -U lock:w:0xef:m
+elif [ $board == 7 ]
+then
+    echo "Connect programmer to the Teensy++ 2.0 board and then press enter."
+    read -n1 KEY
+    avrdude -p at90usb1286 -P /dev/$port -b 19200 -c avrisp -e -U lock:w:0xff:m -U efuse:w:0xf8:m -U hfuse:w:0xd2:m -U lfuse:w:0xff:m
+    avrdude -p at90usb1286 -P /dev/$port -b 19200 -c avrisp -U flash:w:../src/build/fw_teensy2pp.bin -U lock:w:0xef:m
+elif [ $board == 8 ]
+then
+    echo "Connect programmer to the programming header on OpenDeck board and then press enter."
+    read -n1 KEY
+    avrdude -p atmega32u4 -P /dev/$port -b 19200 -c avrisp -e -U lock:w:0xff:m -U efuse:w:0xc8:m -U hfuse:w:0xd0:m -U lfuse:w:0xff:m
+    avrdude -p atmega32u4 -P /dev/$port -b 19200 -c avrisp -U flash:w:../src/build/fw_opendeck.bin -U lock:w:0xef:m
 else
     echo "Incorrect board number selected."
 fi
