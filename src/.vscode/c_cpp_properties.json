@@ -2,12 +2,14 @@
     "configurations": [
         {
             "name": "Linux",
+            "defines": [],
             "intelliSenseMode": "gcc-x64",
+            "compileCommands": "${workspaceRoot}/compile_commands.json",
+            "compilerPath": "/usr/local/avr/bin/avr-g++",
             "includePath": [
                 "/usr/local/include",
                 "/usr/local/avr"
             ],
-            "compileCommands": "${workspaceRoot}/compile_commands.json",
             "browse": {
                 "path": [
                     "/usr/local/include",
@@ -17,7 +19,6 @@
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
             },
-            "compilerPath": "/usr/bin/gcc",
             "cStandard": "c11",
             "cppStandard": "c++17"
         },
@@ -26,7 +27,7 @@
             "defines": [],
             "intelliSenseMode": "gcc-x64",
             "compileCommands": "${workspaceRoot}/compile_commands.json",
-            "compilerPath": "/usr/local/bin/avr-g++",
+            "compilerPath": "/usr/local/avr/bin/avr-g++",
             "includePath": [
                 "/usr/local/include",
                 "/usr/local/avr"
