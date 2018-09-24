@@ -3,3 +3,4 @@ bin/compiled/board/16u2/*
 bin/compiled/board/leonardo/*
 bin/compiled/board/16u2/mega/*
 bin/compiled/board/16u2/uno/*
+.DS_Store
