@@ -4,7 +4,7 @@ language: cpp
 before_install:
   - wget http://www.microchip.com/mymicrochip/filehandler.aspx?ddocname=en605750 -O avrtoolchain.tar.gz
   - tar xzf avrtoolchain.tar.gz
-  - sudo ln -s $(pwd)/avr8-gnu-toolchain-linux_x86_64 /usr/local/avr
+  - sudo ln -s $(pwd)/avr8-gnu-toolchain-linux_x86_64/ /usr/local/avr
   - PATH=/usr/local/avr/bin:${PATH}
   - export MAKEFLAGS=-j$(nproc)
   - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
