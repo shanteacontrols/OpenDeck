@@ -225,13 +225,12 @@ static void setupHardware(void)
 
     #ifndef USB_SUPPORTED
     // make sure USB link goes to bootloader mode as well
-    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], OD_FORMAT_INT_DATA_START);
-    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], cmdBtldrReboot);
-    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
-    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
-    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
-    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
-    Board::uartTransmitStart(UART_USB_LINK_CHANNEL);
+    Board::uartWrite(UART_USB_LINK_CHANNEL, OD_FORMAT_INT_DATA_START);
+    Board::uartWrite(UART_USB_LINK_CHANNEL, cmdBtldrReboot);
+    Board::uartWrite(UART_USB_LINK_CHANNEL, 0x00);
+    Board::uartWrite(UART_USB_LINK_CHANNEL, 0x00);
+    Board::uartWrite(UART_USB_LINK_CHANNEL, 0x00);
+    Board::uartWrite(UART_USB_LINK_CHANNEL, 0x00);
     #endif
     #endif
 }
@@ -326,10 +325,10 @@ void EVENT_UART_Device_ControlRequest(void)
     #else
     //target MCU
     //page address is two bytes long
-    board.uartRead(UART_USB_LINK_CHANNEL, temp);
+    Board::uartRead(UART_USB_LINK_CHANNEL, temp);
     PageAddress = temp;
     PageAddress <<= 8;
-    board.uartRead(UART_USB_LINK_CHANNEL, temp);
+    Board::uartRead(UART_USB_LINK_CHANNEL, temp);
     PageAddress |= (uint16_t)temp;
     #endif
 
@@ -349,8 +348,8 @@ void EVENT_UART_Device_ControlRequest(void)
         #ifdef BOARD_A_xu2
         //send the page info to target MCU
         //msb first
-        board.uartWrite(UART_USB_LINK_CHANNEL, (PageAddress >> (uint16_t)8) & (uint16_t)0xFF);
-        board.uartWrite(UART_USB_LINK_CHANNEL, (PageAddress >> (uint16_t)0) & (uint16_t)0xFF);
+        Board::uartWrite(UART_USB_LINK_CHANNEL, (PageAddress >> (uint16_t)8) & (uint16_t)0xFF);
+        Board::uartWrite(UART_USB_LINK_CHANNEL, (PageAddress >> (uint16_t)0) & (uint16_t)0xFF);
         #endif
 
         //check if the command is a program page command, or a start application command
@@ -366,13 +365,11 @@ void EVENT_UART_Device_ControlRequest(void)
             }
             #endif
 
-            #if !defined(USB_SUPPORTED) || defined(BOARD_A_xu2)
+            #if defined(BOARD_A_xu2)
             //wait until TX buffer is empty
             while (RingBuffer_GetCount(&txBuffer[UART_USB_LINK_CHANNEL]));
-            runApplication();
-            #else
-            RunBootloader = false;
             #endif
+            RunBootloader = false;
         }
         else if (PageAddress < BOOT_START_ADDR)
         {
@@ -398,14 +395,14 @@ void EVENT_UART_Device_ControlRequest(void)
                 boot_page_fill(PageAddress + ((uint16_t)PageWord << 1), Endpoint_Read_16_LE());
                 #else
                 uint16_t dataWord = Endpoint_Read_16_LE();
-                board.uartWrite(UART_USB_LINK_CHANNEL, (dataWord >> (uint16_t)8) & (uint16_t)0xFF);
-                board.uartWrite(UART_USB_LINK_CHANNEL, (dataWord >> (uint16_t)0) & (uint16_t)0xFF);
+                Board::uartWrite(UART_USB_LINK_CHANNEL, (dataWord >> (uint16_t)8) & (uint16_t)0xFF);
+                Board::uartWrite(UART_USB_LINK_CHANNEL, (dataWord >> (uint16_t)0) & (uint16_t)0xFF);
                 #endif
                 #else
                 //no usb
-                board.uartRead(UART_USB_LINK_CHANNEL, temp);
+                Board::uartRead(UART_USB_LINK_CHANNEL, temp);
                 uint16_t dataWord = (uint16_t)temp << (uint16_t)8;
-                board.uartRead(UART_USB_LINK_CHANNEL, temp);
+                Board::uartRead(UART_USB_LINK_CHANNEL, temp);
                 dataWord |= (uint16_t)temp;
                 //write the next data word to the FLASH page
                 boot_page_fill(PageAddress + ((uint16_t)PageWord << 1), dataWord);
