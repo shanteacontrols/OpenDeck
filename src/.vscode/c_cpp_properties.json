@@ -43,6 +43,28 @@
             },
             "cStandard": "c11",
             "cppStandard": "c++17"
+        },
+        {
+            "name": "WSL",
+            "defines": [],
+            "intelliSenseMode": "gcc-x64",
+            "compileCommands": "${workspaceRoot}/compile_commands.json",
+            "compilerPath": "/usr/local/avr/bin/avr-g++",
+            "includePath": [
+                "/usr/local/include",
+                "/usr/local/avr"
+            ],
+            "browse": {
+                "path": [
+                    "/usr/local/include",
+                    "/usr/local/avr",
+                    "${workspaceRoot}"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            },
+            "cStandard": "c11",
+            "cppStandard": "c++17"
         }
     ],
     "version": 4
