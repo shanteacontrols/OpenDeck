@@ -63,4 +63,17 @@ void EVENT_USB_Device_ConfigurationChanged(void);
 void EVENT_UART_Device_ControlRequest();
 #endif
 
+#if !defined(USB_SUPPORTED) || defined(BOARD_A_xu2)
+//magic sequence used to signal that the usb link has new flash page for target mcu
+const uint8_t hidUploadStart[] =
+{
+    0x08,
+    0x04,
+    0x07,
+    0x02,
+    0x84,
+    0x72
+};
+#endif
+
 void runApplication();

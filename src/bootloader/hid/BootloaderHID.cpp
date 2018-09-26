@@ -184,8 +184,22 @@ int main(void)
         #ifdef USB_SUPPORTED
         USB_USBTask();
         #else
-        if (RingBuffer_GetCount(&rxBuffer[UART_USB_LINK_CHANNEL]) > 2)
-            EVENT_UART_Device_ControlRequest();
+        static uint8_t hidUploadStartCounter = 0;
+
+        if (RingBuffer_Remove(&rxBuffer[UART_USB_LINK_CHANNEL]) == hidUploadStart[hidUploadStartCounter])
+        {
+            hidUploadStartCounter++;
+
+            if (hidUploadStartCounter == 6)
+            {
+                EVENT_UART_Device_ControlRequest();
+                hidUploadStartCounter = 0;
+            }
+        }
+        else
+        {
+            hidUploadStartCounter = 0;
+        }
         #endif
     }
 
@@ -346,6 +360,9 @@ void EVENT_UART_Device_ControlRequest(void)
     #endif
 
         #ifdef BOARD_A_xu2
+        //send magic sequence first
+        for (int i=0; i<6; i++)
+            Board::uartWrite(UART_USB_LINK_CHANNEL, hidUploadStart[i]);
         //send the page info to target MCU
         //msb first
         Board::uartWrite(UART_USB_LINK_CHANNEL, (PageAddress >> (uint16_t)8) & (uint16_t)0xFF);
