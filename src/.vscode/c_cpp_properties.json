@@ -6,14 +6,9 @@
             "intelliSenseMode": "gcc-x64",
             "compileCommands": "${workspaceRoot}/compile_commands.json",
             "compilerPath": "/usr/local/avr/bin/avr-g++",
-            "includePath": [
-                "/usr/local/include",
-                "/usr/local/avr"
-            ],
             "browse": {
                 "path": [
-                    "/usr/local/include",
-                    "/usr/local/avr",
+                    "/usr/local/avr/avr/include",
                     "${workspaceRoot}"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
@@ -28,14 +23,9 @@
             "intelliSenseMode": "gcc-x64",
             "compileCommands": "${workspaceRoot}/compile_commands.json",
             "compilerPath": "/usr/local/avr/bin/avr-g++",
-            "includePath": [
-                "/usr/local/include",
-                "/usr/local/avr"
-            ],
             "browse": {
                 "path": [
-                    "/usr/local/include",
-                    "/usr/local/avr",
+                    "/usr/local/avr/avr/include",
                     "${workspaceRoot}"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
@@ -50,14 +40,9 @@
             "intelliSenseMode": "gcc-x64",
             "compileCommands": "${workspaceRoot}/compile_commands.json",
             "compilerPath": "/usr/local/avr/bin/avr-g++",
-            "includePath": [
-                "/usr/local/include",
-                "/usr/local/avr"
-            ],
             "browse": {
                 "path": [
-                    "/usr/local/include",
-                    "/usr/local/avr",
+                    "/usr/local/avr/avr/include",
                     "${workspaceRoot}"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
