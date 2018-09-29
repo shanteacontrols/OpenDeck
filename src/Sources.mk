@@ -36,10 +36,6 @@ ifeq ($(findstring fw_,$(MAKECMDGOALS)), fw_)
     else
         INCLUDE_FILES += -include "application/board/avr/variants/$(BOARD_DIR)/Hardware.h"
     endif
-else
-    ifeq ($(BOARD_DIR),xu2)
-        INCLUDE_FILES += -include "bootloader/hid/Redef.h"
-    endif
 endif
 
 SOURCES :=

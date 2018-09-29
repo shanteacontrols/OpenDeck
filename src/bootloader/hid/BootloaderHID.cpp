@@ -45,6 +45,7 @@
 #include "board/Board.h"
 #include "board/common/uart/Variables.h"
 #include "interface/midi/Constants.h"
+#include "Redef.h"
 
 #ifdef CRC_CHECK
 ///

@@ -20,7 +20,7 @@
 
 //redefine SPM_PAGESIZE and BOOT_START_ADDR depending on variant
 
-#ifdef BOARD_xu2
+#ifdef BOARD_A_xu2
 #ifdef VARIANT_MEGA
 #undef SPM_PAGESIZE
 #define SPM_PAGESIZE            256
