@@ -31,6 +31,11 @@ void init()
     database.init();
     sysEx.init();
 
+    //enable uart-to-usb link when usb isn't supported directly
+    #ifndef USB_SUPPORTED
+    setupMIDIoverUART_OD(UART_USB_LINK_CHANNEL);
+    #endif
+
     #ifdef DIN_MIDI_SUPPORTED
     if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled))
     {
@@ -42,11 +47,6 @@ void init()
         else
             midi.useRecursiveParsing(false);
     }
-    #endif
-
-    //enable uart-to-usb link when usb isn't supported directly
-    #ifndef USB_SUPPORTED
-    setupMIDIoverUART_OD(UART_USB_LINK_CHANNEL);
     #endif
 
     midi.setInputChannel(MIDI_CHANNEL_OMNI);
