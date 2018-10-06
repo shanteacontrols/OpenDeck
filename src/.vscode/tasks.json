@@ -139,6 +139,23 @@
                     }
                 }
             },
+        },
+        {
+            "label": "make clean",
+            "command": "make clean",
+            "type": "shell",
+            "problemMatcher": [],
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "C://WINDOWS//System32//wsl.exe",
+                        "args": [
+                           "PATH=/usr/local/avr/bin:${PATH}",
+                           "MAKEFLAGS=-j4"
+                        ]
+                    }
+                }
+            },
         }
     ]
 }
