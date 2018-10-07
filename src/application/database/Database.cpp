@@ -16,31 +16,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../interface/display/Config.h"
-#include "../interface/digital/output/leds/Constants.h"
-#include "Layout.h"
-
-///
-/// \brief Default constructor.
-///
-Database::Database()
-{
-    
-}
+#include "interface/display/Config.h"
+#include "interface/digital/output/leds/Constants.h"
+#include "Layout.cpp"
 
 ///
 /// \brief Initializes database.
 ///
 void Database::init()
 {
-    DBMS::init(dbLayout, DB_BLOCKS);
-    setHandleRead(board.memoryRead);
-    setHandleWrite(board.memoryWrite);
+    setLayout(dbLayout, DB_BLOCKS);
 
     if (!signatureValid())
-    {
         factoryReset(initFull);
-    }
 }
 
 ///
@@ -50,7 +38,7 @@ void Database::init()
 void Database::factoryReset(initType_t type)
 {
     if (type == initFull)
-        DBMS::clear();
+        clear();
 
     initData(type);
     writeCustomValues();
@@ -82,5 +70,3 @@ void Database::writeCustomValues()
     update(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwController, DISPLAY_CONTROLLERS);
     update(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwResolution, DISPLAY_RESOLUTIONS);
 }
-
-Database database;

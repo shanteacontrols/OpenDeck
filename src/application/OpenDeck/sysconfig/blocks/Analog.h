@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "../../database/blocks/Analog.h"
+#include "database/blocks/Analog.h"
 
 typedef enum
 {

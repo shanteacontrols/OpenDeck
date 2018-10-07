@@ -18,6 +18,7 @@
 
 #include "../Variables.h"
 #include "interface/digital/input/encoders/DataTypes.h"
+#include "core/src/general/BitManipulation.h"
 
 uint8_t Board::getEncoderPair(uint8_t buttonID)
 {

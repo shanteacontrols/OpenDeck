@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <avr/io.h>
+
 #define SR_DIN_DATA_PORT            PORTD
 #define SR_DIN_DATA_PIN             3
 

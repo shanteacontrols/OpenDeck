@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "database/blocks/Display.h"
+
 ///
 /// \brief Length of temporary (message) text on display in milliseconds.
 ///

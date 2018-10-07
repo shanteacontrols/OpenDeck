@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <avr/io.h>
+
 #define LED_OUT_PORT        PORTD
 #define LED_OUT_PIN         5
 

@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "core/src/general/RingBuffer.h"
+
 ///
 /// \brief Buffer in which outgoing UART data is stored.
 ///

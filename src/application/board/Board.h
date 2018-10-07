@@ -134,6 +134,21 @@ class Board
     static bool usbWriteMIDI(USBMIDIpacket_t& USBMIDIpacket);
 
     ///
+    /// \brief Used to read MIDI data using custom OpenDeck format from UART interface.
+    /// @param [in] channel     UART channel on MCU.
+    /// \returns True if data is available, false otherwise.
+    ///
+    static bool uartReadMIDI_OD(uint8_t channel, USBMIDIpacket_t& USBMIDIpacket);
+
+    ///
+    /// \brief Used to write MIDI data using custom OpenDeck format to UART interface.
+    /// @param [in] channel     UART channel on MCU.
+    /// @param [in] USBMIDIpacket   Pointer to structure holding MIDI data to write.
+    /// \returns True on success, false otherwise.
+    ///
+    static bool uartWriteMIDI_OD(uint8_t channel, USBMIDIpacket_t& USBMIDIpacket);
+
+    ///
     /// \brief Used to enable or disable UART loopback functionality.
     /// Used to pass incoming UART data to TX channel immediately.
     /// @param [in] channel UART channel on MCU.
@@ -237,12 +252,20 @@ class Board
     /// \returns Calculated index of RGB LED.
     ///
     static uint8_t getRGBID(uint8_t ledID);
+
+    ///
+    /// \brief Sets LED transition speed.
+    /// @param [in] transitionSpeed Transition speed.
+    /// \returns    True on success (transition speed is in range).
+    ///             See board/common/constants/LEDs.h for range.
+    ///
+    static bool setLEDfadeSpeed(uint8_t transitionSpeed);
     #endif
 
     ///
     /// \brief Performs software MCU reboot.
     ///
-    void reboot(rebootType_t type);
+    static void reboot(rebootType_t type);
 
     ///
     /// \brief Used to read contents of memory provided by specific board.
@@ -288,10 +311,5 @@ class Board
     ///
     static encoderPosition_t readEncoder(uint8_t encoderID, uint8_t pairState, uint8_t pulsesPerStep);
 };
-
-///
-/// \brief External definition of Board class instance.
-///
-extern Board board;
 
 #endif

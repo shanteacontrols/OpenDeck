@@ -17,7 +17,9 @@
 */
 
 #include "Display.h"
-#include "../../database/Database.h"
+#include "database/Database.h"
+#include "core/src/general/Timing.h"
+#include "core/src/general/BitManipulation.h"
 
 ///
 /// \brief Default constructor.
@@ -347,5 +349,3 @@ void Display::setRetentionTime(uint32_t retentionTime)
     lastMIDIMessageDisplayTime[displayEventIn] = rTimeMs();
     lastMIDIMessageDisplayTime[displayEventOut] = rTimeMs();
 }
-
-Display display;

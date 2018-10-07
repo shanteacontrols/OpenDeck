@@ -17,75 +17,9 @@
 */
 
 #include "LEDs.h"
-#include "board/Board.h"
-
-volatile uint8_t    pwmSteps;
-volatile int8_t     transitionCounter[MAX_NUMBER_OF_LEDS];
-
-///
-/// \brief Array holding current LED status for all LEDs.
-///
-uint8_t             ledState[MAX_NUMBER_OF_LEDS];
-
-///
-/// \brief Array holding time after which LEDs should blink.
-///
-uint8_t             blinkTimer[MAX_NUMBER_OF_LEDS];
-
-///
-/// \brief Holds currently active LED blink type.
-///
-blinkType_t         ledBlinkType;
-
-///
-/// \brief Pointer to array used to check if blinking LEDs should toggle state.
-///
-const uint8_t*      blinkResetArrayPtr;
-
-///
-/// \brief Array holding MIDI clock pulses after which LED state is toggled for all possible blink rates.
-///
-const uint8_t       blinkReset_midiClock[BLINK_SPEEDS] =
-{
-    255, //no blinking
-    2,
-    3,
-    4,
-    6,
-    9,
-    12,
-    18,
-    24,
-    36,
-    48
-};
-
-///
-/// \brief Array holding time indexes (multipled by 100) after which LED state is toggled for all possible blink rates.
-///
-const uint8_t       blinkReset_timer[BLINK_SPEEDS] =
-{
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10
-};
-
-
-///
-/// \brief Default constructor.
-///
-LEDs::LEDs()
-{
-
-}
+#include "board/common/digital/output/Variables.h"
+#include "core/src/general/Timing.h"
+#include "core/src/general/BitManipulation.h"
 
 void LEDs::init(bool startUp)
 {
@@ -110,18 +44,15 @@ void LEDs::init(bool startUp)
     }
 
     setBlinkType((blinkType_t)database.read(DB_BLOCK_LEDS, dbSection_leds_global, ledGlobalParam_blinkMIDIclock));
+
+    for (int i=0; i<BLINK_SPEEDS; i++)
+        blinkState[i] = true;
 }
 
-void LEDs::update()
+void LEDs::checkBlinking(bool forceChange)
 {
     //holds last time in miliseconds when LED blinking has been updated
     static uint32_t lastLEDblinkUpdateTime = 0;
-
-    //holds blink state for each blink speed so that leds are in sync
-    static bool blinkState[BLINK_SPEEDS] = { true };
-
-    //array used to determine when the blink state for specific blink rate should be changed
-    static uint8_t blinkCounter[BLINK_SPEEDS] = { 0 };
 
     switch(ledBlinkType)
     {
@@ -134,21 +65,8 @@ void LEDs::update()
         break;
 
         case blinkType_midiClock:
-        if ((midiClockStatus == midiClockNoChange) || (midiClockStatus == midiClockStop))
+        if (!forceChange)
             return;
-
-        if (midiClockStatus == midiClockReset)
-        {
-            //reset all counters in this case
-            //also make sure all leds are in sync again
-            for (int i=0; i<BLINK_SPEEDS; i++)
-            {
-                blinkCounter[i] = 0;
-                blinkState[i] = true;
-            }
-        }
-
-        midiClockStatus = midiClockNoChange;
         break;
 
         default:
@@ -530,21 +448,7 @@ bool LEDs::getBlinkState(uint8_t ledID)
 
 bool LEDs::setFadeTime(uint8_t transitionSpeed)
 {
-    if (transitionSpeed > FADE_TIME_MAX)
-    {
-        return false;
-    }
-
-    //reset transition counter
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    {
-        for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-            transitionCounter[i] = 0;
-
-        pwmSteps = transitionSpeed;
-    }
-
-    return true;
+    return board.setLEDfadeSpeed(transitionSpeed);
 }
 
 void LEDs::handleLED(uint8_t ledID, bool state, bool rgbLED, rgbIndex_t index)
@@ -628,4 +532,13 @@ blinkType_t LEDs::getBlinkType()
     return ledBlinkType;
 }
 
-LEDs leds;
+void LEDs::resetBlinking()
+{
+    //reset all counters in this case
+    //also make sure all leds are in sync again
+    for (int i=0; i<BLINK_SPEEDS; i++)
+    {
+        blinkCounter[i] = 0;
+        blinkState[i] = true;
+    }
+}

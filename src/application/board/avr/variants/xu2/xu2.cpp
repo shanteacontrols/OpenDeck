@@ -16,22 +16,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <avr/interrupt.h>
 #include "Variables.h"
 #include "board/Board.h"
-#include "interface/midi/Handlers.h"
 
 int main(void)
 {
+    Board board;
     board.init();
     board.initUART(UART_BAUDRATE_MIDI_OD, UART_USB_LINK_CHANNEL);
 
     sei();
 
+    USBMIDIpacket_t USBMIDIpacket;
+
     while (1)
     {
-        usbMIDItoUART_OD(usbMIDIpacket);
+        if (board.usbReadMIDI(USBMIDIpacket))
+            board.uartWriteMIDI_OD(UART_USB_LINK_CHANNEL, USBMIDIpacket);
 
-        if (uartReadMIDI_OD(UART_USB_LINK_CHANNEL))
-            board.usbWriteMIDI(usbMIDIpacket);
+        if (board.uartReadMIDI_OD(UART_USB_LINK_CHANNEL, USBMIDIpacket))
+            board.usbWriteMIDI(USBMIDIpacket);
     }
 }

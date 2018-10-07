@@ -16,8 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _DATABASE_
-#define _DATABASE_
+#pragma once
 
 #include "dbms/src/DBMS.h"
 #include "blocks/Blocks.h"
@@ -30,16 +29,14 @@
 class Database : public DBMS
 {
     public:
-    Database();
-    static void init();
-    static void factoryReset(initType_t type);
+    Database(bool (*readCallback)(uint32_t address, sectionParameterType_t type, int32_t &value), bool (*writeCallback)(uint32_t address, int32_t value, sectionParameterType_t type)) :
+    DBMS(readCallback, writeCallback)
+    {}
+
+    void init();
+    void factoryReset(initType_t type);
 
     private:
-    static bool signatureValid();
-    static void writeCustomValues();
+    bool signatureValid();
+    void writeCustomValues();
 };
-
-extern Database database;
-
-/// @}
-#endif

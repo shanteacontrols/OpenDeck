@@ -18,11 +18,12 @@
 
 #pragma once
 
-#include "../../board/Board.h"
-#include "../../board/avr/display/u8g2_wrapper.h"
+#include "board/Board.h"
+#include "board/avr/display/u8g2_wrapper.h"
 #include "Config.h"
 #include "DataTypes.h"
 #include "Macros.h"
+#include "core/src/general/Strings.h"
 
 ///
 /// \brief LCD control.
@@ -145,9 +146,8 @@ class Display
     /// overwritten by a new one.
     ///
     bool            retentionState;
-};
 
-extern Display display;
-extern StringBuffer stringBuffer;
+    StringBuffer stringBuffer;
+};
 
 /// @}

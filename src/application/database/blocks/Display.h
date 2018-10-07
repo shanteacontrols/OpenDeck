@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <inttypes.h>
+
 typedef enum
 {
     dbSection_display_features,

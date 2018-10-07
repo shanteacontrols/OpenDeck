@@ -16,8 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <util/atomic.h>
 #include "board/Board.h"
 #include "Variables.h"
+#include "core/src/general/BitManipulation.h"
+#include "core/src/HAL/avr/adc/ADC.h"
+
 
 uint8_t             analogIndex;
 volatile uint8_t    analogSampleCounter;

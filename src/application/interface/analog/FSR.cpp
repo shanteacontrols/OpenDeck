@@ -17,14 +17,8 @@
 */
 
 #include "Analog.h"
-#ifdef LEDS_SUPPORTED
-#include "../digital/output/leds/LEDs.h"
-#endif
-#include "../cinfo/CInfo.h"
-#include "Variables.h"
-#ifdef DISPLAY_SUPPORTED
-#include "../../interface/display/Display.h"
-#endif
+#include "core/src/general/BitManipulation.h"
+#include "core/src/general/Misc.h"
 
 //use 1k resistor when connecting FSR between signal and ground
 
@@ -78,7 +72,9 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             #ifdef LEDS_SUPPORTED
             leds.midiToState(midiMessageNoteOn, note, calibratedPressure, channel, true);
             #endif
-            sendCinfo(DB_BLOCK_ANALOG, analogID);
+
+            if (cinfoHandler != nullptr)
+                (*cinfoHandler)(DB_BLOCK_ANALOG, analogID);
         }
     }
     else
@@ -95,7 +91,9 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             #ifdef LEDS_SUPPORTED
             leds.midiToState(midiMessageNoteOff, 0, channel, true);
             #endif
-            sendCinfo(DB_BLOCK_ANALOG, analogID);
+
+            if (cinfoHandler != nullptr)
+                (*cinfoHandler)(DB_BLOCK_ANALOG, analogID);
         }
     }
 

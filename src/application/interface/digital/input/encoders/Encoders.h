@@ -18,7 +18,14 @@
 
 #pragma once
 
+#include "board/Board.h"
+#include "database/Database.h"
+#include "midi/src/MIDI.h"
+#ifdef DISPLAY_SUPPORTED
+#include "interface/display/Display.h"
+#endif
 #include "DataTypes.h"
+#include "sysex/src/DataTypes.h"
 
 ///
 /// \brief Encoder handling.
@@ -29,13 +36,30 @@
 class Encoders
 {
     public:
-    Encoders();
-    static void update();
-};
+    #ifdef DISPLAY_SUPPORTED
+    Encoders(Board &board, Database &database, MIDI &midi, Display &display) :
+    #else
+    Encoders(Board &board, Database &database, MIDI &midi) :
+    #endif
+    board(board),
+    database(database),
+    midi(midi)
+    #ifdef DISPLAY_SUPPORTED
+    ,display(display)
+    #endif
+    {}
 
-///
-/// \brief External definition of Encoders class instance.
-///
-extern Encoders encoders;
+    void update();
+    void setCinfoHandler(bool(*fptr)(dbBlockID_t dbBlock, sysExParameter_t componentID));
+
+    private:
+    bool (*cinfoHandler)(dbBlockID_t dbBlock, sysExParameter_t componentID);
+    Board       &board;
+    Database    &database;
+    MIDI        &midi;
+    #ifdef DISPLAY_SUPPORTED
+    Display     &display;
+    #endif
+};
 
 /// @}

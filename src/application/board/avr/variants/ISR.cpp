@@ -16,11 +16,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <avr/cpufunc.h>
 #include "board/Board.h"
 #include "Common.h"
 #include "HardwareControl.cpp"
 #include "board/common/analog/input/Variables.h"
 #include "board/common/indicators/Variables.h"
+#include "core/src/HAL/avr/PinManipulation.h"
+#include "core/src/HAL/avr/adc/ADC.h"
 
 
 ///

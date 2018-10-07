@@ -5,3 +5,4 @@ bin/compiled/board/16u2/mega/*
 bin/compiled/board/16u2/uno/*
 .DS_Store
 src/compile_commands.json
+Documentation/*

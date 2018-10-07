@@ -20,7 +20,11 @@
 #include "pins/Pins.h"
 #include "board/common/constants/LEDs.h"
 #include "interface/digital/output/leds/Constants.h"
-#include "../../../../interface/digital/output/leds/Variables.h"
+#include "board/common/digital/output/Variables.h"
+#include "core/src/general/BitManipulation.h"
+#include "core/src/general/Timing.h"
+#include "core/src/HAL/avr/PinManipulation.h"
+#include "core/src/HAL/avr/adc/ADC.h"
 
 #define START_UP_ANIM_DELAY 120
 
@@ -234,5 +238,3 @@ void Board::initCustom()
 {
     startUpAnimation = tanninStartUpAnimation;
 }
-
-Board board;

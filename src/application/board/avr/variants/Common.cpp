@@ -16,11 +16,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <avr/eeprom.h>
+#include <avr/pgmspace.h>
+#include <avr/wdt.h>
 #include "board/Board.h"
 #include "Common.h"
 #include "board/common/constants/Reboot.h"
 #include "board/common/uart/Variables.h"
-#include "interface/midi/Constants.h"
+#include "board/common/uart/ODformat.h"
+#include "midi/src/Constants.h"
+#include "core/src/HAL/avr/reset/Reset.h"
+#include "core/src/general/Misc.h"
 
 ///
 /// \brief Placeholder variable used only to reserve space in linker section.

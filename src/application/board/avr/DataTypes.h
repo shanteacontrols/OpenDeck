@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <inttypes.h>
 
 ///
 /// \brief Structure used to define single MCU pin.

@@ -16,48 +16,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "board/Board.h"
-#include "database/Database.h"
-#ifdef LEDS_SUPPORTED
-#include "interface/digital/output/leds/LEDs.h"
-#endif
-#include "sysex/src/SysEx.h"
-#include "interface/cinfo/CInfo.h"
-#include "../Variables.h"
-#ifdef DISPLAY_SUPPORTED
-#include "interface/display/Display.h"
-#endif
-#include "../DigitalInput.h"
+#include "Buttons.h"
+#include "interface/digital/input/Common.h"
+#include "core/src/general/BitManipulation.h"
 
 ///
 /// \brief Array used for simpler building of transport control messages.
 /// Based on MIDI specification for transport control.
 ///
 static uint8_t  mmcArray[] =  { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 };
-
-///
-/// \brief Array holding debounce count for all buttons to avoid incorrect state detection.
-///
-uint8_t                 buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS];
-
-///
-/// \brief Array holding current state for all buttons.
-///
-uint8_t                 buttonPressed[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS)/8+1];
-
-///
-/// \brief Array holding last sent state for latching buttons only.
-///
-uint8_t                 lastLatchingState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS)/8+1];
-
-
-///
-/// \brief Default constructor.
-///
-Buttons::Buttons()
-{
-
-}
 
 ///
 /// \brief Continuously reads inputs from buttons and acts if necessary.
@@ -154,7 +121,8 @@ void Buttons::processButton(uint8_t buttonID, bool state)
             sendMessage(buttonID, state, buttonMessage);
     }
 
-    sendCinfo(DB_BLOCK_BUTTONS, buttonID);
+    if (cinfoHandler != nullptr)
+        (*cinfoHandler)(DB_BLOCK_BUTTONS, buttonID);
 }
 
 ///
@@ -422,4 +390,19 @@ bool Buttons::buttonDebounced(uint8_t buttonID, bool state)
     return ((buttonDebounceCounter[buttonID] == BUTTON_DEBOUNCE_COMPARE) || (buttonDebounceCounter[buttonID] == 0xFF));
 }
 
-Buttons buttons;
+bool Buttons::getStateFromAnalogValue(uint16_t adcValue)
+{
+    //button pressed
+    //set state to released only if value is below ADC_DIGITAL_VALUE_THRESHOLD_OFF
+    if (adcValue < ADC_DIGITAL_VALUE_THRESHOLD_OFF)
+        return false;
+    else if (adcValue > ADC_DIGITAL_VALUE_THRESHOLD_ON)
+        return true;
+    else
+        return false;
+}
+
+void Buttons::setCinfoHandler(bool(*fptr)(dbBlockID_t dbBlock, sysExParameter_t componentID))
+{
+    cinfoHandler = fptr;
+}

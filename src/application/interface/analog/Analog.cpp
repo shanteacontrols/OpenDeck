@@ -17,18 +17,7 @@
 */
 
 #include "Analog.h"
-#include "Variables.h"
-
-uint16_t        lastAnalogueValue[MAX_NUMBER_OF_ANALOG];
-uint8_t         fsrPressed[MAX_NUMBER_OF_ANALOG/8+1];
-
-///
-/// \brief Default constructor.
-///
-Analog::Analog()
-{
-
-}
+#include "core/src/general/BitManipulation.h"
 
 void Analog::update()
 {
@@ -67,30 +56,8 @@ void Analog::update()
         }
         else
         {
-            bool state;
-
-            //use hysteresis here to avoid jumping of values
-            //regular button debouncing would add additional delays (analog readout is already slower than digital)
-            if (buttons.getButtonState(i+MAX_NUMBER_OF_BUTTONS))
-            {
-                //button pressed
-                //set state to released only if value is below ADC_DIGITAL_VALUE_THRESHOLD_OFF
-                if (analogData < ADC_DIGITAL_VALUE_THRESHOLD_OFF)
-                    state = false;
-                else
-                    state = true;
-            }
-            else
-            {
-                //button released
-                //set state to pressed only if value is above ADC_DIGITAL_VALUE_THRESHOLD_ON
-                if (analogData > ADC_DIGITAL_VALUE_THRESHOLD_ON)
-                    state = true;
-                else
-                    state = false;
-            }
-
-            buttons.processButton(i+MAX_NUMBER_OF_BUTTONS, state);
+            if (buttonHandler != nullptr)
+                (*buttonHandler)(i, analogData);
         }
     }
 
@@ -107,4 +74,15 @@ void Analog::debounceReset(uint16_t index)
     BIT_CLEAR(fsrPressed[arrayIndex], fsrIndex);
 }
 
-Analog analog;
+///
+/// \param fptr [in]    Pointer to function.
+///
+void Analog::setButtonHandler(void(*fptr)(uint8_t adcIndex, uint16_t adcValue))
+{
+    buttonHandler = fptr;
+}
+
+void Analog::setCinfoHandler(bool(*fptr)(dbBlockID_t dbBlock, sysExParameter_t componentID))
+{
+    cinfoHandler = fptr;
+}

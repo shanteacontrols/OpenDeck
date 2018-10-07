@@ -19,7 +19,8 @@
 #include "pins/Map.h"
 #include "board/common/analog/input/Variables.h"
 #include "board/common/digital/input/Variables.h"
-
+#include "core/src/HAL/avr/PinManipulation.h"
+#include "core/src/general/BitManipulation.h"
 
 ///
 /// Acquires data by reading all inputs from connected shift register.

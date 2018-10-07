@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "../../database/blocks/LEDs.h"
+#include "database/blocks/LEDs.h"
 
 typedef enum
 {

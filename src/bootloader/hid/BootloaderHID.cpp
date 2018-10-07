@@ -33,10 +33,11 @@
  *  Main source file for the HID class bootloader. This file contains the complete bootloader logic.
  */
 
+#include <util/crc16.h>
+#include <avr/cpufunc.h>
 #include "BootloaderHID.h"
 #include "core/src/HAL/avr/PinManipulation.h"
 #include "core/src/general/BitManipulation.h"
-#include <util/crc16.h>
 #include "board/common/constants/LEDs.h"
 #include "board/avr/variants/Common.h"
 #include "board/common/constants/Reboot.h"
@@ -44,7 +45,7 @@
 #include "board/common/indicators/Variables.h"
 #include "board/Board.h"
 #include "board/common/uart/Variables.h"
-#include "interface/midi/Constants.h"
+#include "board/common/uart/ODformat.h"
 #include "Redef.h"
 
 #ifdef CRC_CHECK

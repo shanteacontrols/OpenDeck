@@ -18,9 +18,26 @@
 
 #pragma once
 
-#include "../../../../board/Board.h"
+#include "database/blocks/Encoders.h"
 
-extern volatile uint8_t     pwmSteps,
-                            ledState[MAX_NUMBER_OF_LEDS];
+typedef enum
+{
+    sysExSection_encoders_enable,
+    sysExSection_encoders_invert,
+    sysExSection_encoders_mode,
+    sysExSection_encoders_midiID,
+    sysExSection_encoders_midiChannel,
+    sysExSection_encoders_pulsesPerStep,
+    SYSEX_SECTIONS_ENCODERS
+} sysExSection_encoders_t;
 
-extern volatile int8_t      transitionCounter[MAX_NUMBER_OF_LEDS];
+//map sysex sections to sections in db
+const uint8_t sysEx2DB_encoders[SYSEX_SECTIONS_ENCODERS] =
+{
+    dbSection_encoders_enable,
+    dbSection_encoders_invert,
+    dbSection_encoders_mode,
+    dbSection_encoders_midiID,
+    dbSection_encoders_midiChannel,
+    dbSection_encoders_pulsesPerStep,
+};

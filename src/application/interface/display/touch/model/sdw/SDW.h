@@ -18,12 +18,6 @@
 
 #pragma once
 
-#include "../../DataTypes.h"    //general data types
-#include "DataTypes.h"          //sdw-specific data types
+#include "interface/display/touch/Touchscreen.h"
 
-void sdw_init();
-void sdw_sendByte(uint8_t value, messageByteType_t messageByteType);
-bool sdw_parse();
-bool sdw_update();
 void sdw_setPage(uint8_t pageID);
-void sdw_setBrightness(backlightType_t type, int8_t value);

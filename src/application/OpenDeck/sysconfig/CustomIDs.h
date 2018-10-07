@@ -45,3 +45,8 @@
 /// \brief Custom ID used when sending info about components to host.
 ///
 #define SYSEX_CM_COMPONENT_ID               0x49
+
+///
+/// \brief Minimum time difference in milliseconds between sending two identical component info messages.
+///
+#define COMPONENT_INFO_TIMEOUT              500 //ms

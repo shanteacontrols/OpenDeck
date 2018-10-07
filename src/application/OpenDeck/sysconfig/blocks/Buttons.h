@@ -18,18 +18,24 @@
 
 #pragma once
 
-#include "../../database/blocks/Display.h"
+#include "database/blocks/Buttons.h"
 
 typedef enum
 {
-    sysExSection_display_features,
-    sysExSection_display_hw,
-    SYSEX_SECTIONS_DISPLAY
-} sysExSection_display_t;
+    sysExSection_buttons_type,
+    sysExSection_buttons_midiMessage,
+    sysExSection_buttons_midiID,
+    sysExSection_buttons_velocity,
+    sysExSection_buttons_midiChannel,
+    SYSEX_SECTIONS_BUTTONS
+} sysExSection_buttons_t;
 
 //map sysex sections to sections in db
-const uint8_t sysEx2DB_display[SYSEX_SECTIONS_DISPLAY] =
+const uint8_t sysEx2DB_buttons[SYSEX_SECTIONS_BUTTONS] =
 {
-    dbSection_display_features,
-    dbSection_display_hw,
+    dbSection_buttons_type,
+    dbSection_buttons_midiMessage,
+    dbSection_buttons_midiID,
+    dbSection_buttons_velocity,
+    dbSection_buttons_midiChannel
 };

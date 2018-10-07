@@ -14,14 +14,6 @@ else ifneq ($(filter %16u2 %8u2, $(MAKECMDGOALS)), )
     BOARD_DIR := xu2
 endif
 
-#include everywhere
-INCLUDE_FILES += -include "modules/core/src/Core.h"
-
-#OpenDeck.h not needed on xu2 variants
-ifeq ($(filter xu2, $(BOARD_DIR)), )
-    INCLUDE_FILES += -include "application/OpenDeck.h"
-endif
-
 #common include directories
 INCLUDE_DIRS := \
 -I"modules/lufa/" \
@@ -104,22 +96,22 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         application/board/avr/variants/$(BOARD_DIR)/ISR.cpp \
         application/board/avr/variants/$(BOARD_DIR)/Init.cpp \
         application/board/avr/uart/UART.cpp \
-        application/board/avr/usb/USB_MIDI.cpp \
-        application/interface/midi/OpenDeckFormat.cpp
+        application/board/avr/uart/OpenDeckMIDIFormat.cpp \
+        application/board/avr/usb/USB_MIDI.cpp
     else
         SOURCES += \
-        application/OpenDeck.cpp \
+        application/main.cpp \
+        application/OpenDeck/OpenDeck.cpp \
         modules/core/src/HAL/avr/reset/Reset.cpp \
         application/database/Database.cpp \
         modules/dbms/src/DBMS.cpp \
         application/interface/analog/Analog.cpp \
         application/interface/analog/FSR.cpp \
         application/interface/analog/Potentiometer.cpp \
-        application/interface/cinfo/CInfo.cpp \
-        application/interface/digital/input/DigitalInput.cpp \
+        application/interface/digital/input/Common.cpp \
         application/interface/digital/input/buttons/Buttons.cpp \
         application/interface/digital/input/encoders/Encoders.cpp \
-        application/sysExConf/Handling.cpp \
+        application/OpenDeck/sysconfig/SysConfig.cpp \
         modules/midi/src/MIDI.cpp \
         modules/sysex/src/SysEx.cpp \
         application/board/avr/variants/Common.cpp \
@@ -127,15 +119,15 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         application/board/common/analog/input/Common.cpp \
         application/board/common/digital/input/encoders/Common.cpp \
         application/board/common/digital/input/DigitalIn.cpp \
-        application/board/avr/variants/$(BOARD_DIR)/HardwareControl.cpp \
         application/board/avr/variants/$(BOARD_DIR)/Init.cpp \
         application/board/avr/variants/$(BOARD_DIR)/pins/Map.cpp \
-        application/interface/midi/OpenDeckFormat.cpp
+        application/board/avr/uart/OpenDeckMIDIFormat.cpp
 
         ifneq ($(filter LEDS_SUPPORTED, $(DEFINES)), )
         SOURCES += \
         application/interface/digital/output/leds/LEDs.cpp \
-        application/board/common/digital/output/DigitalOut.cpp
+        application/board/common/digital/output/DigitalOut.cpp \
+        application/board/common/digital/output/leds/Common.cpp
 
             ifneq ($(filter OUT_MATRIX, $(DEFINES)), )
             SOURCES += \
@@ -199,11 +191,6 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
             SOURCES += \
             application/interface/display/touch/Touchscreen.cpp \
             application/interface/display/touch/model/sdw/SDW.cpp
-        endif
-
-        ifneq ($(filter DIN_MIDI_SUPPORTED, $(DEFINES)), )
-            SOURCES += \
-            application/interface/midi/STDFormat.cpp
         endif
     endif
 endif

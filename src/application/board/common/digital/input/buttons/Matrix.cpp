@@ -17,6 +17,7 @@
 */
 
 #include "board/common/digital/input/Variables.h"
+#include "core/src/general/BitManipulation.h"
 
 bool Board::getButtonState(uint8_t buttonIndex)
 {

@@ -20,7 +20,9 @@
 #include "pins/Pins.h"
 #include "board/common/constants/LEDs.h"
 #include "board/common/uart/Variables.h"
-#include "interface/midi/Constants.h"
+#include "board/common/uart/ODformat.h"
+#include "core/src/HAL/avr/PinManipulation.h"
+#include "core/src/HAL/avr/adc/ADC.h"
 
 void Board::initPins()
 {
@@ -281,5 +283,3 @@ void Board::initCustom()
 {
     
 }
-
-Board board;

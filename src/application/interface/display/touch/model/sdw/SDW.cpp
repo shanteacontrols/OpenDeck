@@ -17,30 +17,12 @@
 */
 
 #include "SDW.h"
-#include "../../Variables.h"
+#include "DataTypes.h"
 #include "Commands.h"
 #include "board/Board.h"
 
 #define LOW_BYTE(value)  ((value) & 0xFF)
 #define HIGH_BYTE(value) (((value) >> 8) & 0xFF)
-
-bool uartReadSDW(uint8_t &data)
-{
-    return board.uartRead(UART_TOUCHSCREEN_CHANNEL, data);
-}
-
-bool uartWriteSDW(uint8_t data)
-{
-    return board.uartWrite(UART_TOUCHSCREEN_CHANNEL, data);
-}
-
-void sdw_init()
-{
-    bufferIndex_rx = 0;
-    displayUpdatePtr = sdw_update;
-    setPagePtr = sdw_setPage;
-    board.initUART(38400, UART_TOUCHSCREEN_CHANNEL);
-}
 
 ///
 /// \brief Sends data to display.
@@ -53,31 +35,31 @@ void sdw_sendByte(uint8_t value, messageByteType_t messageByteType)
     {
         case messageStart:
         //write start byte before value
-        uartWriteSDW(START_BYTE);
-        uartWriteSDW(value);
+        Board::uartWrite(UART_TOUCHSCREEN_CHANNEL, START_BYTE);
+        Board::uartWrite(UART_TOUCHSCREEN_CHANNEL, value);
         break;
 
         case messageContent:
         //just write value
-        uartWriteSDW(value);
+        Board::uartWrite(UART_TOUCHSCREEN_CHANNEL, value);
         return;
 
         case messageSingleByte:
         //start byte, value, end bytes
-        uartWriteSDW(START_BYTE);
-        uartWriteSDW(value);
+        Board::uartWrite(UART_TOUCHSCREEN_CHANNEL, START_BYTE);
+        Board::uartWrite(UART_TOUCHSCREEN_CHANNEL, value);
 
         for (int i=0; i<END_CODES; i++)
-            uartWriteSDW(endCode[i]);
+            Board::uartWrite(UART_TOUCHSCREEN_CHANNEL, endCode[i]);
         break;
 
         case messageEnd:
         //value first
-        uartWriteSDW(value);
+        Board::uartWrite(UART_TOUCHSCREEN_CHANNEL, value);
 
         //send message end bytes
         for (int i=0; i<END_CODES; i++)
-            uartWriteSDW(endCode[i]);
+            Board::uartWrite(UART_TOUCHSCREEN_CHANNEL, endCode[i]);
         break;
 
         default:
@@ -86,43 +68,14 @@ void sdw_sendByte(uint8_t value, messageByteType_t messageByteType)
 }
 
 ///
-/// \brief Parses incoming data from display.
-/// \returns True if received message is correct, false otherwise.
-///
-bool sdw_parse()
-{
-    //by now, we have complete message
-    if (displayRxBuffer[0] != START_BYTE)
-    {
-        //message is invalid, reset buffer counter and return
-        bufferIndex_rx = 0;
-        return false;
-    }
-
-    if ((displayRxBuffer[COMMAND_ID_INDEX] == BUTTON_ON_ID) || (displayRxBuffer[COMMAND_ID_INDEX] == BUTTON_OFF_ID))
-    {
-        //button press event
-        activeButtonState = false;
-
-        if (displayRxBuffer[COMMAND_ID_INDEX] == BUTTON_ON_ID)
-            activeButtonState = true;
-
-        activeButtonID = displayRxBuffer[BUTTON_INDEX_2];
-        return true;
-    }
-
-    return false;
-}
-
-///
 /// \brief Checks for incoming data from display.
 /// \returns True if there is incoming data, false otherwise.
 ///
-bool sdw_update()
+bool sdw_update(Touchscreen &base)
 {
     uint8_t data = 0;
 
-    if (!uartReadSDW(data))
+    if (!Board::uartRead(UART_TOUCHSCREEN_CHANNEL, data))
         return false;
 
     bool parse = false;
@@ -130,7 +83,7 @@ bool sdw_update()
     if (data == START_BYTE)
     {
         //reset buffer index, this is a new message
-        bufferIndex_rx = 0;
+        base.bufferIndex_rx = 0;
     }
     else if (data == endCode[END_CODES-1])
     {
@@ -138,11 +91,33 @@ bool sdw_update()
         parse = true;
     }
 
-    displayRxBuffer[bufferIndex_rx] = data;
-    bufferIndex_rx++;
+    base.displayRxBuffer[base.bufferIndex_rx] = data;
+    base.bufferIndex_rx++;
 
     if (parse)
-        return sdw_parse();
+    {
+        //by now, we have complete message
+        if (base.displayRxBuffer[0] != START_BYTE)
+        {
+            //message is invalid, reset buffer counter and return
+            base.bufferIndex_rx = 0;
+            return false;
+        }
+
+        if ((base.displayRxBuffer[COMMAND_ID_INDEX] == BUTTON_ON_ID) || (base.displayRxBuffer[COMMAND_ID_INDEX] == BUTTON_OFF_ID))
+        {
+            //button press event
+            base.activeButtonState = false;
+
+            if (base.displayRxBuffer[COMMAND_ID_INDEX] == BUTTON_ON_ID)
+                base.activeButtonState = true;
+
+            base.activeButtonID = base.displayRxBuffer[BUTTON_INDEX_2];
+            return true;
+        }
+
+        return false;
+    }
 
     return false;
 }
@@ -194,4 +169,12 @@ void sdw_setBrightness(backlightType_t type, int8_t value)
         default:
         return;
     }
+}
+
+void sdw_init(Touchscreen &base)
+{
+    base.bufferIndex_rx = 0;
+    base.displayUpdatePtr = sdw_update;
+    base.setPagePtr = sdw_setPage;
+    Board::initUART(38400, UART_TOUCHSCREEN_CHANNEL);
 }

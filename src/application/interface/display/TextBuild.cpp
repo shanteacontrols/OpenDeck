@@ -20,8 +20,8 @@
 #include "strings/Strings.h"
 #include "../../Version.h"
 #include "Layout.h"
-
-StringBuffer stringBuffer;
+#include "midi/src/MIDI.h"
+#include "core/src/general/Timing.h"
 
 void Display::displayWelcomeMessage()
 {
@@ -179,8 +179,8 @@ void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t
         }
         else
         {
-            stringBuffer.appendText_P((char*)pgm_read_word(&(noteNameArray[(uint8_t)midi.getTonicFromNote(byte1)])));
-            stringBuffer.appendInt(normalizeOctave(midi.getOctaveFromNote(byte1), octaveNormalization));
+            stringBuffer.appendText_P((char*)pgm_read_word(&(noteNameArray[(uint8_t)MIDI::getTonicFromNote(byte1)])));
+            stringBuffer.appendInt(normalizeOctave(MIDI::getOctaveFromNote(byte1), octaveNormalization));
         }
 
         stringBuffer.appendText(" v");

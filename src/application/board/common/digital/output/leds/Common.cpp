@@ -16,32 +16,35 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include <util/atomic.h>
+#include "board/Board.h"
+#include "board/common/digital/output/Variables.h"
+#include "board/common/constants/LEDs.h"
 
-#include "midi/src/MIDI.h"
-#include "sysExConf/SysExConf.h"
 
-///
-/// \brief External definition of MIDI class instance.
-///
-extern MIDI     midi;
-
-///
-/// \brief External definition of processingEnabled variable.
-/// Used to prevent updating states of all components (analog, LEDs, encoders, buttons).
-/// This variable can be used in various modules so because of that it's defined as external.
-///
-extern bool     processingEnabled;
+volatile uint8_t    pwmSteps;
+volatile int8_t     transitionCounter[MAX_NUMBER_OF_LEDS];
 
 ///
-/// \brief Enumeration holding all possible MIDI clock states.
+/// \brief Array holding current LED status for all LEDs.
 ///
-typedef enum
+uint8_t             ledState[MAX_NUMBER_OF_LEDS];
+
+bool Board::setLEDfadeSpeed(uint8_t transitionSpeed)
 {
-    midiClockStop,
-    midiClockNoChange,
-    midiClockChange,
-    midiClockReset
-} midiClockStatus_t;
+    if (transitionSpeed > FADE_TIME_MAX)
+    {
+        return false;
+    }
 
-extern midiClockStatus_t midiClockStatus;
+    //reset transition counter
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+            transitionCounter[i] = 0;
+
+        pwmSteps = transitionSpeed;
+    }
+
+    return true;
+}

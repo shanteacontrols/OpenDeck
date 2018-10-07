@@ -17,27 +17,16 @@
 */
 
 #include "Touchscreen.h"
-#include "Variables.h"
 #include "model/sdw/SDW.h"
-#include "interface/digital/input/buttons/Buttons.h"
-
-
-bool        (*displayUpdatePtr)();
-void        (*setPagePtr)(uint8_t pageID);
-uint8_t     displayRxBuffer[TOUCHSCREEN_RX_BUFFER_SIZE];
-uint8_t     bufferIndex_rx;
-uint8_t     activeButtonID;
-bool        activeButtonState;
-uint8_t     activePage;
-
 
 ///
 /// \brief Default constructor.
 ///
 Touchscreen::Touchscreen()
 {
-    displayUpdatePtr = NULL;
-    setPagePtr = NULL;
+    displayUpdatePtr = nullptr;
+    setPagePtr = nullptr;
+    buttonHandler = nullptr;
 }
 
 ///
@@ -50,7 +39,7 @@ bool Touchscreen::init(ts_t touchscreenType)
     switch(touchscreenType)
     {
         case ts_sdw:
-        sdw_init();
+        sdw_init(*this);
         return true;
 
         default:
@@ -63,21 +52,14 @@ bool Touchscreen::init(ts_t touchscreenType)
 ///
 void Touchscreen::update()
 {
-    if (displayUpdatePtr == NULL)
+    if (displayUpdatePtr == nullptr)
         return;
 
-    if ((*displayUpdatePtr)())
-        process(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+activeButtonID, activeButtonState);
-}
-
-///
-/// \brief Used to process touch event (button press).
-/// @param [in] buttonID    Button index on display which was pressed.
-/// @param [in] buttonState State of the button (true/pressed, false/released).
-///
-void Touchscreen::process(uint8_t buttonID, bool buttonState)
-{
-    buttons.processButton(buttonID, buttonState);
+    if ((*displayUpdatePtr)(*this))
+    {
+        if (buttonHandler != nullptr)
+            (*buttonHandler)(activeButtonID, activeButtonState);
+    }
 }
 
 ///
@@ -86,7 +68,7 @@ void Touchscreen::process(uint8_t buttonID, bool buttonState)
 ///
 void Touchscreen::setPage(uint8_t pageID)
 {
-    if (setPagePtr == NULL)
+    if (setPagePtr == nullptr)
         return;
 
     (*setPagePtr)(pageID);
@@ -102,4 +84,10 @@ uint8_t Touchscreen::getPage()
     return activePage;
 }
 
-Touchscreen touchscreen;
+///
+/// \param fptr [in]    Pointer to function.
+///
+void Touchscreen::setButtonHandler(void(*fptr)(uint8_t index, bool state))
+{
+    buttonHandler = fptr;
+}

@@ -19,6 +19,8 @@
 #include "board/Board.h"
 #include "pins/Map.h"
 #include "board/common/constants/LEDs.h"
+#include "core/src/HAL/avr/PinManipulation.h"
+#include "core/src/HAL/avr/adc/ADC.h"
 
 void Board::initPins()
 {
@@ -127,5 +129,3 @@ void Board::initCustom()
 {
 
 }
-
-Board board;

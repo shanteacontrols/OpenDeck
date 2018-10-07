@@ -16,9 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <util/delay.h>
 #include "board/Board.h"
 #include "pins/Pins.h"
 #include "board/common/constants/LEDs.h"
+#include "core/src/HAL/avr/PinManipulation.h"
+#include "core/src/HAL/avr/adc/ADC.h"
 
 void Board::initPins()
 {
@@ -170,5 +173,3 @@ void Board::initCustom()
 {
 
 }
-
-Board board;

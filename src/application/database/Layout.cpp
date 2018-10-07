@@ -16,8 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
 #include "Database.h"
 #include "board/Board.h"
 #include "interface/digital/output/leds/DataTypes.h"
@@ -332,7 +330,7 @@ static dbSection_t idSections[1] =
     },
 };
 
-dbBlock_t dbLayout[DB_BLOCKS] =
+static dbBlock_t dbLayout[DB_BLOCKS] =
 {
     //midi block
     {

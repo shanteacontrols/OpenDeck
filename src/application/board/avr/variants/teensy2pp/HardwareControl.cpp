@@ -17,12 +17,12 @@
 */
 
 #include "pins/Map.h"
-#include "../../../../interface/digital/output/leds/Variables.h"
-#include "../../../../interface/digital/output/leds/Helpers.h"
+#include "interface/digital/output/leds/Helpers.h"
 #include "board/common/constants/LEDs.h"
 #include "board/common/digital/input/Variables.h"
 #include "board/common/digital/output/Variables.h"
-
+#include "core/src/HAL/avr/PinManipulation.h"
+#include "core/src/general/BitManipulation.h"
 
 ///
 /// Acquires data by reading all inputs on specified digital input pins.

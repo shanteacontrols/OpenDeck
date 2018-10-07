@@ -16,6 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef __AVR__
+#include <util/atomic.h>
+#endif
 #include "Variables.h"
 
 

@@ -17,13 +17,7 @@
 */
 
 #include "Analog.h"
-#include "sysex/src/SysEx.h"
-#include "../cinfo/CInfo.h"
-#include "Variables.h"
-#ifdef DISPLAY_SUPPORTED
-#include "../display/Display.h"
-#endif
-
+#include "core/src/general/Misc.h"
 
 void Analog::checkPotentiometerValue(analogType_t analogType, uint8_t analogID, uint16_t value)
 {
@@ -132,7 +126,8 @@ void Analog::checkPotentiometerValue(analogType_t analogType, uint8_t analogID, 
         return;
     }
 
-    sendCinfo(DB_BLOCK_ANALOG, analogID);
+    if (cinfoHandler != nullptr)
+        (*cinfoHandler)(DB_BLOCK_ANALOG, analogID);
 
     //update values
     lastAnalogueValue[analogID] = value;

@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <inttypes.h>
+
 ///
 /// \brief List of possible backlight types.
 ///

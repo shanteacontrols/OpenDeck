@@ -16,11 +16,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <util/atomic.h>
 #include "board/Board.h"
 #include "pins/Map.h"
 #include "interface/digital/output/leds/Constants.h"
-#include "../../../../interface/digital/output/leds/Variables.h"
+#include "board/common/digital/output/Variables.h"
 #include "board/common/constants/LEDs.h"
+#include "core/src/general/BitManipulation.h"
+#include "core/src/general/Timing.h"
+#include "core/src/HAL/avr/PinManipulation.h"
+#include "core/src/HAL/avr/adc/ADC.h"
 
 void kodamaStartUpAnimation()
 {
@@ -202,5 +207,3 @@ void Board::initCustom()
 
     startUpAnimation = kodamaStartUpAnimation;
 }
-
-Board board;

@@ -38,10 +38,6 @@ void Board::initMIDI_USB()
     MIDI_Interface.Config.DataOUTEndpoint.Banks     = 1;
 
     USB_Init();
-    #ifndef BOARD_A_xu2
-    midi.handleUSBread(board.usbReadMIDI);
-    midi.handleUSBwrite(board.usbWriteMIDI);
-    #endif
 }
 
 bool Board::isUSBconnected()

@@ -16,10 +16,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <util/atomic.h>
+#include <util/delay.h>
 #include "board/Board.h"
 #include "pins/Pins.h"
 #include "board/common/constants/LEDs.h"
 #include "Variables.h"
+#include "core/src/HAL/avr/PinManipulation.h"
 
 USBMIDIpacket_t usbMIDIpacket;
 
@@ -71,5 +74,3 @@ void Board::ledFlashStartup(bool fwUpdated)
         }
     }
 }
-
-Board board;

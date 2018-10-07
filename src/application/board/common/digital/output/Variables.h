@@ -29,3 +29,7 @@ extern volatile uint8_t     activeOutColumn;
 ///
 extern uint8_t              lastLEDstate[MAX_NUMBER_OF_LEDS];
 #endif
+
+extern volatile int8_t      transitionCounter[MAX_NUMBER_OF_LEDS];
+extern volatile uint8_t     pwmSteps;
+extern uint8_t              ledState[MAX_NUMBER_OF_LEDS];

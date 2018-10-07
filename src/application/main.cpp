@@ -16,37 +16,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "DigitalInput.h"
-#include "board/Board.h"
-#include "Variables.h"
-#include "database/Database.h"
+#include "OpenDeck/OpenDeck.h"
 
-///
-/// \brief Used for buttonPCinc/buttonPCdec messages when each button press/encoder rotation sends incremented or decremented PC value.
-/// 16 entries in array are used for 16 MIDI channels.
-///
-uint8_t     lastPCvalue[16];
-
-
-///
-/// \brief Default constructor.
-///
-DigitalInput::DigitalInput()
+int main()
 {
-    
+    OpenDeck openDeck;
+    openDeck.init();
+
+    while(1)
+    {
+        openDeck.update();
+    }
 }
-
-///
-/// \brief Used to check if button and encoder data is available.
-/// Data source (pins) for both buttons and encoders is same.
-///
-void DigitalInput::update()
-{
-    if (!board.digitalInputDataAvailable())
-        return;
-
-    buttons.update();
-    encoders.update();
-}
-
-DigitalInput digitalInput;

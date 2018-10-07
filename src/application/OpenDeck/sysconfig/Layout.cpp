@@ -16,11 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-#include "SysExConf.h"
-#include "../interface/Interface.h"
+#include "sysex/src/DataTypes.h"
+#include "OpenDeck/sysconfig/blocks/MIDI.h"
 #include "interface/digital/output/leds/DataTypes.h"
+#include "interface/digital/input/buttons/DataTypes.h"
+#include "interface/digital/input/encoders/DataTypes.h"
+#include "interface/analog/DataTypes.h"
 
 static sysExSection_t midiSections[SYSEX_SECTIONS_MIDI] =
 {
@@ -310,7 +311,7 @@ sysExBlock_t sysExLayout[SYSEX_BLOCKS] =
     },
 };
 
-sysExCustomRequest_t customRequests[NUMBER_OF_CUSTOM_REQUESTS] =
+static sysExCustomRequest_t customRequests[NUMBER_OF_CUSTOM_REQUESTS] =
 {
     {
         .requestID = SYSEX_CR_FIRMWARE_VERSION,

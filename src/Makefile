@@ -10,18 +10,26 @@ CPP := avr-gcc
 CXX := avr-g++
 
 #common compiler flags
-CXXFLAGS := \
+COMMON_FLAGS := \
 -funsigned-char \
 -funsigned-bitfields \
+-ffunction-sections \
 -fdata-sections \
 -ffunction-sections \
--fpack-struct \
 -fshort-enums \
 -mrelax \
 -Wall \
 -c \
 -fno-jump-tables \
 -fno-strict-aliasing
+
+#c only
+CFLAGS := \
+-fpack-struct
+
+#cpp only
+CPPFLAGS := \
+-std=c++11
 
 #common linker flags
 LDFLAGS := -Wl,--gc-sections -mrelax -Wl,--start-group -Wl,-lm -Wl,--end-group
@@ -81,12 +89,12 @@ endif
 
 build/%.o: %.c
 	@mkdir -p $(@D)
-	@$(CPP) $(CXXFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) -mmcu=$(MCU) $(INCLUDE_DIRS) -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -o "$@" "$<" 
+	@$(CPP) $(COMMON_FLAGS) $(CFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) -mmcu=$(MCU) $(INCLUDE_DIRS) -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -o "$@" "$<" 
 	@echo Finished building: $<
 
 build/%.o: %.cpp
 	@mkdir -p $(@D)
-	@$(CXX) $(CXXFLAGS) -std=c++11 $(addprefix -D,$(DEFINES)) $(OPT) -mmcu=$(MCU) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -o "$@" "$<" 
+	@$(CXX) $(COMMON_FLAGS) $(CPPFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) -mmcu=$(MCU) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -o "$@" "$<" 
 	@echo Finished building: $<
 
 $(TARGET).elf: target_print $(OBJECTS)

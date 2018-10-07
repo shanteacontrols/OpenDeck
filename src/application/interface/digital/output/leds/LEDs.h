@@ -16,9 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _INTERFACE_DIGITAL_OUTPUT_LEDS_
-#define _INTERFACE_DIGITAL_OUTPUT_LEDS_
+#pragma once
 
+#include "board/Board.h"
+#include "database/Database.h"
 #include "DataTypes.h"
 #include "Constants.h"
 
@@ -31,30 +32,86 @@
 class LEDs
 {
     public:
-    LEDs();
-    static void init(bool startUp = true);
-    static void update();
-    static void setAllOn();
-    static void setAllOff();
-    static void setColor(uint8_t ledID, ledColor_t color);
-    static ledColor_t getColor(uint8_t ledID);
-    static void setBlinkState(uint8_t ledID, blinkSpeed_t value);
-    static bool getBlinkState(uint8_t ledID);
-    static bool setFadeTime(uint8_t transitionSpeed);
-    static void midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local = false);
-    static void setBlinkType(blinkType_t blinkType);
-    static blinkType_t getBlinkType();
+    LEDs(Board &board, Database &database) : board(board), database(database) {}
+    void init(bool startUp = true);
+    void checkBlinking(bool forceChange = false);
+    void setAllOn();
+    void setAllOff();
+    void setColor(uint8_t ledID, ledColor_t color);
+    ledColor_t getColor(uint8_t ledID);
+    void setBlinkState(uint8_t ledID, blinkSpeed_t value);
+    bool getBlinkState(uint8_t ledID);
+    bool setFadeTime(uint8_t transitionSpeed);
+    void midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local = false);
+    void setBlinkType(blinkType_t blinkType);
+    blinkType_t getBlinkType();
+    void resetBlinking();
 
     private:
-    static ledColor_t valueToColor(uint8_t receivedVelocity);
-    static blinkSpeed_t valueToBlinkSpeed(uint8_t value);
-    static uint8_t getState(uint8_t ledID);
-    static void handleLED(uint8_t ledID, bool state, bool rgbLED = false, rgbIndex_t index = rgb_R);
+    ledColor_t valueToColor(uint8_t receivedVelocity);
+    blinkSpeed_t valueToBlinkSpeed(uint8_t value);
+    uint8_t getState(uint8_t ledID);
+    void handleLED(uint8_t ledID, bool state, bool rgbLED = false, rgbIndex_t index = rgb_R);
 
-    static void startUpAnimation();
+    void startUpAnimation();
+
+    Board       &board;
+    Database    &database;
+
+    ///
+    /// \brief Array holding time after which LEDs should blink.
+    ///
+    uint8_t             blinkTimer[MAX_NUMBER_OF_LEDS];
+
+    ///
+    /// \brief Holds currently active LED blink type.
+    ///
+    blinkType_t         ledBlinkType;
+
+    ///
+    /// \brief Pointer to array used to check if blinking LEDs should toggle state.
+    ///
+    const uint8_t*      blinkResetArrayPtr;
+
+    ///
+    /// \brief Array holding MIDI clock pulses after which LED state is toggled for all possible blink rates.
+    ///
+    const uint8_t       blinkReset_midiClock[BLINK_SPEEDS] =
+    {
+        255, //no blinking
+        2,
+        3,
+        4,
+        6,
+        9,
+        12,
+        18,
+        24,
+        36,
+        48
+    };
+
+    ///
+    /// \brief Array holding time indexes (multipled by 100) after which LED state is toggled for all possible blink rates.
+    ///
+    const uint8_t       blinkReset_timer[BLINK_SPEEDS] =
+    {
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+    };
+
+    //array used to determine when the blink state for specific blink rate should be changed
+    uint8_t blinkCounter[BLINK_SPEEDS];
+
+    //holds blink state for each blink speed so that leds are in sync
+    bool blinkState[BLINK_SPEEDS];
 };
-
-extern LEDs leds;
-
-/// @}
-#endif

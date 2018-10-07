@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <avr/io.h>
+
 #define DI_1_PORT           PORTD
 #define DI_1_PIN            1
 

@@ -30,19 +30,24 @@ class Touchscreen
 {
     public:
     Touchscreen();
-    static bool init(ts_t touchscreenType);
-    static void update();
-    static void setPage(uint8_t pageID);
-    static uint8_t getPage();
-    static void setBrightness(backlightType_t type, int8_t value);
+    bool init(ts_t touchscreenType);
+    void update();
+    void setPage(uint8_t pageID);
+    uint8_t getPage();
+    void setButtonHandler(void(*fptr)(uint8_t index, bool state));
 
-    private:
-    static void process(uint8_t buttonID, bool buttonState);
+    friend void sdw_init(Touchscreen &base);
+    friend bool sdw_update(Touchscreen &base);
+
+    protected:
+    void        (*buttonHandler)(uint8_t index, bool state);
+    bool        (*displayUpdatePtr)(Touchscreen &instance);
+    void        (*setPagePtr)(uint8_t pageID);
+    uint8_t     displayRxBuffer[TOUCHSCREEN_RX_BUFFER_SIZE];
+    uint8_t     bufferIndex_rx;
+    uint8_t     activeButtonID;
+    bool        activeButtonState;
+    uint8_t     activePage;
 };
-
-///
-/// \brief External definition of Touchscreen class instance.
-///
-extern Touchscreen touchscreen;
 
 /// @}

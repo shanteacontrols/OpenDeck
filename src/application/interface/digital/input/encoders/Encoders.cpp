@@ -16,16 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Encoders.h"
 #include "Constants.h"
-#include "board/Board.h"
-#include "../../../../database/Database.h"
-#include "sysex/src/SysEx.h"
-#include "../../../cinfo/CInfo.h"
-#include "../Variables.h"
-#ifdef DISPLAY_SUPPORTED
-#include "../../../display/Display.h"
-#endif
-#include "../DigitalInput.h"
+#include "interface/digital/input/Common.h"
 
 ///
 /// \brief Array used for easier access to current encoder MIDI value in 7Fh01h and 3Fh41h modes.
@@ -45,14 +38,6 @@ const uint8_t encValue[2][3] =
         ENCODER_VALUE_RIGHT_3FH41H
     }
 };
-
-///
-/// \brief Default constructor.
-///
-Encoders::Encoders()
-{
-
-}
 
 ///
 /// \brief Continuously checks state of all encoders.
@@ -142,8 +127,12 @@ void Encoders::update()
             #endif
         }
 
-        sendCinfo(DB_BLOCK_ENCODERS, i);
+        if (cinfoHandler != nullptr)
+            (*cinfoHandler)(DB_BLOCK_ENCODERS, i);
     }
 }
 
-Encoders encoders;
+void Encoders::setCinfoHandler(bool(*fptr)(dbBlockID_t dbBlock, sysExParameter_t componentID))
+{
+    cinfoHandler = fptr;
+}
