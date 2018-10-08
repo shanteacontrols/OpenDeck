@@ -706,16 +706,19 @@ bool SysConfig::isProcessingEnabled()
 #ifdef DIN_MIDI_SUPPORTED
 void SysConfig::setupMIDIoverUART(uint8_t channel)
 {
-    board.initUART(UART_BAUDRATE_MIDI_STD, UART_MIDI_CHANNEL);
+    static uint8_t storedChannel = 0;
+    storedChannel = channel;
+
+    board.initUART(UART_BAUDRATE_MIDI_STD, storedChannel);
 
     midi.handleUARTread([](uint8_t &data)
     {
-        return Board::uartRead(UART_MIDI_CHANNEL, data);
+        return Board::uartRead(storedChannel, data);
     });
 
     midi.handleUARTwrite([](uint8_t data)
     {
-        return Board::uartWrite(UART_MIDI_CHANNEL, data);
+        return Board::uartWrite(storedChannel, data);
     });
 }
 #endif
