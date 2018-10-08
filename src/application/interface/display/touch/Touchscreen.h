@@ -29,7 +29,7 @@
 class Touchscreen
 {
     public:
-    Touchscreen();
+    Touchscreen() {}
     bool init(ts_t touchscreenType);
     void update();
     void setPage(uint8_t pageID);
@@ -40,14 +40,15 @@ class Touchscreen
     friend bool sdw_update(Touchscreen &base);
 
     protected:
-    void        (*buttonHandler)(uint8_t index, bool state);
-    bool        (*displayUpdatePtr)(Touchscreen &instance);
-    void        (*setPagePtr)(uint8_t pageID);
-    uint8_t     displayRxBuffer[TOUCHSCREEN_RX_BUFFER_SIZE];
-    uint8_t     bufferIndex_rx;
-    uint8_t     activeButtonID;
-    bool        activeButtonState;
-    uint8_t     activePage;
+    void        (*buttonHandler)(uint8_t index, bool state) = nullptr;
+    bool        (*displayUpdatePtr)(Touchscreen &instance) = nullptr;
+    void        (*setPagePtr)(uint8_t pageID) = nullptr;
+
+    uint8_t     displayRxBuffer[TOUCHSCREEN_RX_BUFFER_SIZE] = {};
+    uint8_t     bufferIndex_rx = 0;
+    uint8_t     activeButtonID = 0;
+    bool        activeButtonState = false;
+    uint8_t     activePage = 0;
 };
 
 /// @}

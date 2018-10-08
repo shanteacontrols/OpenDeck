@@ -22,14 +22,6 @@
 #include "core/src/general/BitManipulation.h"
 
 ///
-/// \brief Default constructor.
-///
-Display::Display()
-{
-
-}
-
-///
 /// \brief Initialize display driver and variables.
 ///
 bool Display::init(displayController_t controller, displayResolution_t resolution)
@@ -61,8 +53,6 @@ bool Display::init(displayController_t controller, displayResolution_t resolutio
             scrollEvent[i].currentIndex = 0;
             scrollEvent[i].direction = scroll_ltr;
         }
-
-        octaveNormalization = 0;
 
         initDone = true;
         return true;
@@ -146,6 +136,7 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
 {
     uint8_t size = stringBuffer.getSize();
     uint8_t scrollSize = 0;
+    char* string = stringBuffer.getString();
 
     if (size+startIndex >= STRING_BUFFER_SIZE-2)
         size = STRING_BUFFER_SIZE-2-startIndex; //trim string
@@ -153,7 +144,7 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
     if (directWriteState)
     {
         for (int j=0; j<size; j++)
-            display_hw.drawGlyph(j+startIndex, rowMap[resolution][row], stringBuffer.buffer[j]);
+            display_hw.drawGlyph(j+startIndex, rowMap[resolution][row], string[j]);
     }
     else
     {
@@ -164,7 +155,7 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
             case lcdtext_still:
             for (int i=0; i<size; i++)
             {
-                lcdRowStillText[row][startIndex+i] = stringBuffer.buffer[i];
+                lcdRowStillText[row][startIndex+i] = string[i];
                 BIT_WRITE(charChange[row], startIndex+i, 1);
             }
 
@@ -205,7 +196,7 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
             lcdRowTempText[row][LCD_WIDTH_MAX-1] = '\0';
 
             for (int i=0; i<size; i++)
-                lcdRowTempText[row][startIndex+i] = stringBuffer.buffer[i];
+                lcdRowTempText[row][startIndex+i] = string[i];
 
             //make sure message is properly EOL'ed
             lcdRowTempText[row][startIndex+size] = '\0';

@@ -52,26 +52,25 @@ class LEDs
     blinkSpeed_t valueToBlinkSpeed(uint8_t value);
     uint8_t getState(uint8_t ledID);
     void handleLED(uint8_t ledID, bool state, bool rgbLED = false, rgbIndex_t index = rgb_R);
-
     void startUpAnimation();
 
-    Board       &board;
-    Database    &database;
+    Board               &board;
+    Database            &database;
 
     ///
     /// \brief Array holding time after which LEDs should blink.
     ///
-    uint8_t             blinkTimer[MAX_NUMBER_OF_LEDS];
+    uint8_t             blinkTimer[MAX_NUMBER_OF_LEDS] = {};
 
     ///
     /// \brief Holds currently active LED blink type.
     ///
-    blinkType_t         ledBlinkType;
+    blinkType_t         ledBlinkType = blinkType_timer;
 
     ///
     /// \brief Pointer to array used to check if blinking LEDs should toggle state.
     ///
-    const uint8_t*      blinkResetArrayPtr;
+    const uint8_t*      blinkResetArrayPtr = nullptr;
 
     ///
     /// \brief Array holding MIDI clock pulses after which LED state is toggled for all possible blink rates.
@@ -109,9 +108,18 @@ class LEDs
         10
     };
 
-    //array used to determine when the blink state for specific blink rate should be changed
-    uint8_t blinkCounter[BLINK_SPEEDS];
+    ///
+    /// \brief Array used to determine when the blink state for specific blink rate should be changed.
+    ///
+    uint8_t             blinkCounter[BLINK_SPEEDS] = {};
 
-    //holds blink state for each blink speed so that leds are in sync
-    bool blinkState[BLINK_SPEEDS];
+    ///
+    /// \brief Holds last time in miliseconds when LED blinking has been updated.
+    ///
+    uint32_t            lastLEDblinkUpdateTime = 0;
+
+    ///
+    // \brief Holds blink state for each blink speed so that leds are in sync.
+    ///
+    bool                blinkState[BLINK_SPEEDS] = {};
 };

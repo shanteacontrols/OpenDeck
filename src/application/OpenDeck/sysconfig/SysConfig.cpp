@@ -694,7 +694,6 @@ void SysConfig::onWrite(uint8_t sysExArray[], uint8_t arraysize)
 
 void SysConfig::init()
 {
-    processingEnabled = true;
     setLayout(sysExLayout, SYSEX_BLOCKS);
     setupCustomRequests(customRequests, NUMBER_OF_CUSTOM_REQUESTS);
 }

@@ -21,12 +21,6 @@
 #include "core/src/general/BitManipulation.h"
 
 ///
-/// \brief Array used for simpler building of transport control messages.
-/// Based on MIDI specification for transport control.
-///
-static uint8_t  mmcArray[] =  { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 };
-
-///
 /// \brief Continuously reads inputs from buttons and acts if necessary.
 ///
 void Buttons::update()
@@ -321,10 +315,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMIDImessage_t butt
 ///
 void Buttons::setButtonState(uint8_t buttonID, uint8_t state)
 {
-    uint8_t arrayIndex = buttonID/8;
-    uint8_t buttonIndex = buttonID - 8*arrayIndex;
-
-    BIT_WRITE(buttonPressed[arrayIndex], buttonIndex, state);
+    buttonPressed[buttonID] = state;
 }
 
 ///
@@ -334,10 +325,7 @@ void Buttons::setButtonState(uint8_t buttonID, uint8_t state)
 ///
 bool Buttons::getButtonState(uint8_t buttonID)
 {
-    uint8_t arrayIndex = buttonID/8;
-    uint8_t buttonIndex = buttonID - 8*arrayIndex;
-
-    return BIT_READ(buttonPressed[arrayIndex], buttonIndex);
+    return buttonPressed[buttonID];
 }
 
 ///
@@ -353,10 +341,7 @@ bool Buttons::getButtonState(uint8_t buttonID)
 ///
 void Buttons::setLatchingState(uint8_t buttonID, uint8_t state)
 {
-    uint8_t arrayIndex = buttonID/8;
-    uint8_t buttonIndex = buttonID - 8*arrayIndex;
-
-    BIT_WRITE(lastLatchingState[arrayIndex], buttonIndex, state);
+    lastLatchingState[buttonID] = state;
 }
 
 ///
@@ -366,10 +351,7 @@ void Buttons::setLatchingState(uint8_t buttonID, uint8_t state)
 ///
 bool Buttons::getLatchingState(uint8_t buttonID)
 {
-    uint8_t arrayIndex = buttonID/8;
-    uint8_t buttonIndex = buttonID - 8*arrayIndex;
-
-    return BIT_READ(lastLatchingState[arrayIndex], buttonIndex);
+    return lastLatchingState[buttonID];
 }
 
 ///

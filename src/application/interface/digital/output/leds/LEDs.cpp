@@ -51,8 +51,8 @@ void LEDs::init(bool startUp)
 
 void LEDs::checkBlinking(bool forceChange)
 {
-    //holds last time in miliseconds when LED blinking has been updated
-    static uint32_t lastLEDblinkUpdateTime = 0;
+    if (blinkResetArrayPtr == nullptr)
+        return;
 
     switch(ledBlinkType)
     {

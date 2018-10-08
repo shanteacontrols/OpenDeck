@@ -33,31 +33,25 @@ volatile int16_t    analogBuffer[MAX_NUMBER_OF_ANALOG];
 /// low or high hysteresis values should be used.
 /// @{
 
-static uint8_t      lowHysteresisActive[MAX_NUMBER_OF_ANALOG/8+1];
-static uint8_t      highHysteresisActive[MAX_NUMBER_OF_ANALOG/8+1];
+static uint8_t      lowHysteresisActive[MAX_NUMBER_OF_ANALOG];
+static uint8_t      highHysteresisActive[MAX_NUMBER_OF_ANALOG];
 
 /// @}
 
 bool Board::isHysteresisActive(hysteresisType_t type, uint8_t analogID)
 {
-    uint8_t arrayIndex = analogID/8;
-    uint8_t analogIndex = analogID - 8*arrayIndex;
-
     if (type == lowHysteresis)
-        return BIT_READ(lowHysteresisActive[arrayIndex], analogIndex);
+        return lowHysteresisActive[analogID];
     else
-        return BIT_READ(highHysteresisActive[arrayIndex], analogIndex);
+        return highHysteresisActive[analogID];
 }
 
 void Board::updateHysteresisState(hysteresisType_t type, uint8_t analogID, bool state)
 {
-    uint8_t arrayIndex = analogID/8;
-    uint8_t analogIndex = analogID - 8*arrayIndex;
-
     if (type == lowHysteresis)
-        BIT_WRITE(lowHysteresisActive[arrayIndex], analogIndex, state);
+        lowHysteresisActive[analogID] = state;
     else
-        BIT_WRITE(highHysteresisActive[arrayIndex], analogIndex, state);
+        highHysteresisActive[analogID] = state;
 }
 
 int16_t Board::getAnalogValue(uint8_t analogID)

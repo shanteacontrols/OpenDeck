@@ -22,7 +22,7 @@
 
 //use 1k resistor when connecting FSR between signal and ground
 
-inline int16_t calibratePressure(int16_t value, pressureType_t type)
+int16_t Analog::calibratePressure(int16_t value, pressureType_t type)
 {
     switch(type)
     {
@@ -39,18 +39,12 @@ inline int16_t calibratePressure(int16_t value, pressureType_t type)
 
 bool Analog::getFsrPressed(uint8_t fsrID)
 {
-    uint8_t arrayIndex = fsrID/8;
-    uint8_t fsrIndex = fsrID - 8*arrayIndex;
-
-    return BIT_READ(fsrPressed[arrayIndex], fsrIndex);
+    return fsrPressed[fsrID];
 }
 
 void Analog::setFsrPressed(uint8_t fsrID, bool state)
 {
-    uint8_t arrayIndex = fsrID/8;
-    uint8_t fsrIndex = fsrID - 8*arrayIndex;
-
-    BIT_WRITE(fsrPressed[arrayIndex], fsrIndex, state);
+    fsrPressed[fsrID] = state;
 }
 
 void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)

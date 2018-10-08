@@ -105,7 +105,7 @@ class SysConfig : public SysEx
     ///
     /// Used to prevent updating states of all components (analog, LEDs, encoders, buttons).
     ///
-    bool     processingEnabled;
+    bool     processingEnabled = true;
 
     bool onGet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t &value);
     bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newValue);

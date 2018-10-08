@@ -62,10 +62,7 @@ class Analog
     #ifdef DISPLAY_SUPPORTED
     ,display(display)
     #endif
-    {
-        buttonHandler = nullptr;
-        cinfoHandler = nullptr;
-    }
+    {}
 
     void update();
     void debounceReset(uint16_t index);
@@ -80,6 +77,7 @@ class Analog
     void setFsrPressed(uint8_t fsrID, bool state);
     bool getFsrDebounceTimerStarted(uint8_t fsrID);
     void setFsrDebounceTimerStarted(uint8_t fsrID, bool state);
+    int16_t calibratePressure(int16_t value, pressureType_t type);
 
     Board       &board;
     Database    &database;
@@ -91,10 +89,10 @@ class Analog
     Display     &display;
     #endif
 
-    void        (*buttonHandler)(uint8_t adcIndex, uint16_t adcValue);
-    bool        (*cinfoHandler)(dbBlockID_t dbBlock, sysExParameter_t componentID);
-    uint16_t    lastAnalogueValue[MAX_NUMBER_OF_ANALOG];
-    uint8_t     fsrPressed[MAX_NUMBER_OF_ANALOG/8+1];
+    void        (*buttonHandler)(uint8_t adcIndex, uint16_t adcValue) = nullptr;
+    bool        (*cinfoHandler)(dbBlockID_t dbBlock, sysExParameter_t componentID) = nullptr;
+    uint16_t    lastAnalogueValue[MAX_NUMBER_OF_ANALOG] = {};
+    uint8_t     fsrPressed[MAX_NUMBER_OF_ANALOG] = {};
 };
 
 /// @}

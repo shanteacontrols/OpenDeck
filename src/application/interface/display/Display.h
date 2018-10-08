@@ -34,7 +34,7 @@
 class Display
 {
     public:
-    Display();
+    Display() {}
     bool init(displayController_t controller, displayResolution_t resolution);
     bool update();
     void displayWelcomeMessage();
@@ -60,94 +60,97 @@ class Display
     ///
     /// \brief Holds last time index MIDI message was shown for specific event type (in or out).
     ///
-    uint32_t        lastMIDIMessageDisplayTime[2];
+    uint32_t            lastMIDIMessageDisplayTime[2] = {};
 
     ///
     /// \brief Holds true if MIDI input or output message is shown on display.
     ///
-    bool            midiMessageDisplayed[2];
+    bool                midiMessageDisplayed[2] = {};
 
     ///
     /// \brief Holds time after which MIDI message should be cleared on display if retention is disabled.
     ///
-    uint32_t        MIDImessageRetentionTime;
+    uint32_t            MIDImessageRetentionTime = 0;
 
     ///
     /// \brief Holds last time index info message was shown.
     ///
-    uint32_t        messageDisplayTime;
+    uint32_t            messageDisplayTime = 0;
 
     ///
     /// \brief Holds last time LCD was updated.
     /// LCD isn't updated in real-time but after defined amount of time (see LCD_REFRESH_TIME).
     ///
-    uint32_t        lastLCDupdateTime;
+    uint32_t            lastLCDupdateTime = 0;
 
     ///
     /// \brief Holds active text type on display.
     /// Enumerated type (see lcdTextType_t enumeration).
     ///
-    lcdTextType_t   activeTextType;
+    lcdTextType_t       activeTextType = lcdtext_still;
 
     ///
     /// \brief Array holding still LCD text for each LCD row.
     ///
-    char            lcdRowStillText[LCD_HEIGHT_MAX][STRING_BUFFER_SIZE];
+    char                lcdRowStillText[LCD_HEIGHT_MAX][STRING_BUFFER_SIZE] = {};
 
     ///
     /// \brief Array holding temp LCD text for each LCD row.
     ///
-    char            lcdRowTempText[LCD_HEIGHT_MAX][STRING_BUFFER_SIZE];
+    char                lcdRowTempText[LCD_HEIGHT_MAX][STRING_BUFFER_SIZE] = {};
 
     ///
     /// \brief Array holding true of false value representing the change of character at specific location on LCD row.
     /// \warning This variables assume there can be no more than 32 characters per LCD row.
     ///
-    uint32_t        charChange[LCD_HEIGHT_MAX];
+    uint32_t            charChange[LCD_HEIGHT_MAX] = {};
 
     ///
     /// \brief Structure array holding scrolling information for all LCD rows.
     ///
-    scrollEvent_t   scrollEvent[LCD_HEIGHT_MAX];
+    scrollEvent_t       scrollEvent[LCD_HEIGHT_MAX] = {};
 
     ///
     /// \brief Holds last time text has been scrolled on display.
     ///
-    uint32_t        lastScrollTime;
+    uint32_t            lastScrollTime = 0;
 
     ///
     /// \brief Holds value by which actual octave is being subtracted when showing octave on display.
     ///
-    int8_t          octaveNormalization;
+    int8_t              octaveNormalization = 0;
 
     ///
     /// \brief If set to true, note number will be shown on display (0-127), otherwise, note and octave
     /// will be displayed (i.e. C#4).
-    bool            alternateNoteDisplay;
+    bool                alternateNoteDisplay = true;
 
     ///
     /// \brief Holds true if direct LCD writing is enabled, false otherwise.
     ///
-    bool            directWriteState;
+    bool                directWriteState = false;
 
     ///
     /// \brief Holds resolution of configured screen.
     ///
-    displayResolution_t resolution;
+    displayResolution_t resolution = DISPLAY_RESOLUTIONS;
 
     ///
     /// \brief Holds true if display has been initialized.
     ///
-    bool            initDone;
+    bool                initDone = false;
 
     ///
     /// \brief Holds message retention state.
     /// If true, last MIDI message will be shown on display indefinately until it's
     /// overwritten by a new one.
     ///
-    bool            retentionState;
+    bool                retentionState = false;
 
-    StringBuffer stringBuffer;
+    ///
+    /// \brief StringBuffer instance used for easier string building.
+    ///
+    StringBuffer        stringBuffer = StringBuffer();
 };
 
 /// @}

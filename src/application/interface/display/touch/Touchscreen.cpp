@@ -20,16 +20,6 @@
 #include "model/sdw/SDW.h"
 
 ///
-/// \brief Default constructor.
-///
-Touchscreen::Touchscreen()
-{
-    displayUpdatePtr = nullptr;
-    setPagePtr = nullptr;
-    buttonHandler = nullptr;
-}
-
-///
 /// \brief Initializes specified touchscreen.
 /// @param [in] touchscreenType Touchscreen type. See ts_t.
 /// \returns True on success, false otherwise.

@@ -22,4 +22,4 @@
 /// \brief Used for buttonPCinc/buttonPCdec messages when each button press/encoder rotation sends incremented or decremented PC value.
 /// 16 entries in array are used for 16 MIDI channels.
 ///
-uint8_t     lastPCvalue[16];
+uint8_t     lastPCvalue[16] = {};

@@ -26,6 +26,7 @@
 #endif
 #include "DataTypes.h"
 #include "sysex/src/DataTypes.h"
+#include "Constants.h"
 
 ///
 /// \brief Encoder handling.
@@ -53,13 +54,33 @@ class Encoders
     void setCinfoHandler(bool(*fptr)(dbBlockID_t dbBlock, sysExParameter_t componentID));
 
     private:
-    bool (*cinfoHandler)(dbBlockID_t dbBlock, sysExParameter_t componentID);
-    Board       &board;
-    Database    &database;
-    MIDI        &midi;
+    Board           &board;
+    Database        &database;
+    MIDI            &midi;
     #ifdef DISPLAY_SUPPORTED
-    Display     &display;
+    Display         &display;
     #endif
+
+    bool            (*cinfoHandler)(dbBlockID_t dbBlock, sysExParameter_t componentID) = nullptr;
+
+    ///
+    /// \brief Array used for easier access to current encoder MIDI value in 7Fh01h and 3Fh41h modes.
+    /// Matched with encoderType_t and encoderPosition_t
+    ///
+    const uint8_t   encValue[2][3] =
+    {
+        {
+            0,
+            ENCODER_VALUE_LEFT_7FH01H,
+            ENCODER_VALUE_RIGHT_7FH01H
+        },
+
+        {
+            0,
+            ENCODER_VALUE_LEFT_3FH41H,
+            ENCODER_VALUE_RIGHT_3FH41H
+        }
+    };
 };
 
 /// @}

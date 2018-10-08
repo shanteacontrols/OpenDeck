@@ -33,7 +33,7 @@ int8_t  encoderPulses[MAX_NUMBER_OF_ENCODERS];
 ///
 /// \brief Array holding last encoder direction.
 ///
-bool lastEncoderDirection[MAX_NUMBER_OF_ENCODERS];
+bool    lastEncoderDirection[MAX_NUMBER_OF_ENCODERS];
 
 
 encoderPosition_t Board::readEncoder(uint8_t encoderID, uint8_t pairState, uint8_t pulsesPerStep)

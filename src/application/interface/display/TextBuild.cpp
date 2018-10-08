@@ -42,15 +42,18 @@ void Display::displayWelcomeMessage()
         break;
     }
 
+    char* string;
+
     stringBuffer.startLine();
     stringBuffer.appendText_P(deviceName_string);
     stringBuffer.endLine();
     location = getTextCenter(stringBuffer.getSize());
     charIndex = 0;
+    string = stringBuffer.getString();
 
-    while (stringBuffer.buffer[charIndex] != '\0')
+    while (string[charIndex] != '\0')
     {
-        display_hw.drawGlyph(location+charIndex, rowMap[resolution][startRow], stringBuffer.buffer[charIndex]);
+        display_hw.drawGlyph(location+charIndex, rowMap[resolution][startRow], string[charIndex]);
         charIndex++;
     }
 
@@ -61,10 +64,11 @@ void Display::displayWelcomeMessage()
     stringBuffer.endLine();
     location = getTextCenter(stringBuffer.getSize());
     charIndex = 0;
+    string = stringBuffer.getString();
 
-    while (stringBuffer.buffer[charIndex] != '\0')
+    while (string[charIndex] != '\0')
     {
-        display_hw.drawGlyph(location+charIndex, rowMap[resolution][startRow+1], stringBuffer.buffer[charIndex]);
+        display_hw.drawGlyph(location+charIndex, rowMap[resolution][startRow+1], string[charIndex]);
         wait_ms(50);
         charIndex++;
     }

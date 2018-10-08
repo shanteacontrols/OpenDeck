@@ -17,27 +17,7 @@
 */
 
 #include "Encoders.h"
-#include "Constants.h"
 #include "interface/digital/input/Common.h"
-
-///
-/// \brief Array used for easier access to current encoder MIDI value in 7Fh01h and 3Fh41h modes.
-/// Matched with encoderType_t and encoderPosition_t
-///
-const uint8_t encValue[2][3] =
-{
-    {
-        0,
-        ENCODER_VALUE_LEFT_7FH01H,
-        ENCODER_VALUE_RIGHT_7FH01H
-    },
-
-    {
-        0,
-        ENCODER_VALUE_LEFT_3FH41H,
-        ENCODER_VALUE_RIGHT_3FH41H
-    }
-};
 
 ///
 /// \brief Continuously checks state of all encoders.

@@ -61,9 +61,7 @@ class Buttons
     #ifdef DISPLAY_SUPPORTED
     ,display(display)
     #endif
-    {
-        cinfoHandler = nullptr;
-    }
+    {}
 
     void update();
     bool getStateFromAnalogValue(uint16_t adcValue);
@@ -72,7 +70,6 @@ class Buttons
     void setCinfoHandler(bool(*fptr)(dbBlockID_t dbBlock, sysExParameter_t componentID));
 
     private:
-    bool (*cinfoHandler)(dbBlockID_t dbBlock, sysExParameter_t componentID);
     void sendMessage(uint8_t buttonID, bool state, buttonMIDImessage_t buttonMessage = BUTTON_MESSAGE_TYPES);
     void setButtonState(uint8_t buttonID, uint8_t state);
     void setLatchingState(uint8_t buttonID, uint8_t state);
@@ -89,20 +86,28 @@ class Buttons
     Display     &display;
     #endif
 
+    bool        (*cinfoHandler)(dbBlockID_t dbBlock, sysExParameter_t componentID) = nullptr;
+
     ///
     /// \brief Array holding debounce count for all buttons to avoid incorrect state detection.
     ///
-    uint8_t                 buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS];
+    uint8_t     buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS] = {};
 
     ///
     /// \brief Array holding current state for all buttons.
     ///
-    uint8_t                 buttonPressed[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS)/8+1];
+    uint8_t     buttonPressed[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS] = {};
 
     ///
     /// \brief Array holding last sent state for latching buttons only.
     ///
-    uint8_t                 lastLatchingState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS)/8+1];
+    uint8_t     lastLatchingState[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS] = {};
+
+    ///
+    /// \brief Array used for simpler building of transport control messages.
+    /// Based on MIDI specification for transport control.
+    ///
+    uint8_t     mmcArray[6] =  { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 };
 };
 
 /// @}
