@@ -50,14 +50,14 @@ PGM_P const eventNameArray[] PROGMEM =
     eventNoteOn_string,
     eventCC_string,
     eventPC_string,
-    NULL, //channel aftertouch
-    NULL, //poly aftertouch
-    NULL, //pitch bend
+    nullptr, //channel aftertouch
+    nullptr, //poly aftertouch
+    nullptr, //pitch bend
     eventSysExConfig_string,
-    NULL, //sys common - Time Code Quarter Frame
-    NULL, //sys common - Song Position Pointer
-    NULL, //sys common - Song Select
-    NULL, //sys common - Tune Request
+    nullptr, //sys common - Time Code Quarter Frame
+    nullptr, //sys common - Song Position Pointer
+    nullptr, //sys common - Song Select
+    nullptr, //sys common - Tune Request
     eventRTclock_string,
     eventRTstart_string,
     eventRTcontinue_string,

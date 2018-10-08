@@ -29,7 +29,7 @@ const char tannin_string[] PROGMEM = "Tannin";
 //match with list from BoardIDs.mk
 PGM_P const boardNameArray[] PROGMEM =
 {
-    NULL, //opendeck board, no string
+    nullptr, //opendeck board, no string
     arduinoLeonardo_string,
     arduinoMega_string,
     arduinoProMicro_string,
@@ -37,5 +37,5 @@ PGM_P const boardNameArray[] PROGMEM =
     teensy2pp_string,
     kodama_string,
     tannin_string,
-    NULL //xu2
+    nullptr //xu2
 };

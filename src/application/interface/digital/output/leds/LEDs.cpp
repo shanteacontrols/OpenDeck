@@ -32,7 +32,7 @@ void LEDs::init(bool startUp)
             setFadeTime(1);
             #endif
 
-            if (board.startUpAnimation != NULL)
+            if (board.startUpAnimation != nullptr)
                 board.startUpAnimation();
             else
                 startUpAnimation();

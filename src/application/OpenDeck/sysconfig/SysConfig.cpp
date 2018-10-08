@@ -390,8 +390,8 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, sysExParam
                             //enable loopback for din here
                             board.setUARTloopbackState(UART_MIDI_CHANNEL, true);
                             //handle traffic directly in isr, don't use library for this
-                            midi.handleUARTread(NULL);
-                            midi.handleUARTwrite(NULL);
+                            midi.handleUARTread(nullptr);
+                            midi.handleUARTwrite(nullptr);
                         }
                         else
                         {
@@ -747,8 +747,8 @@ void SysConfig::setupMIDIoverUART_OD(uint8_t channel)
         });
 
         midi.handleUSBwrite(board.usbWriteMIDI);
-        midi.handleUARTread(NULL); //parsed internally
-        midi.handleUARTwrite(NULL);
+        midi.handleUARTread(nullptr); //parsed internally
+        midi.handleUARTwrite(nullptr);
     }
     else
     {
@@ -765,8 +765,8 @@ void SysConfig::setupMIDIoverUART_OD(uint8_t channel)
         });
 
         //no need for uart handlers
-        midi.handleUARTread(NULL);
-        midi.handleUARTwrite(NULL);
+        midi.handleUARTread(nullptr);
+        midi.handleUARTwrite(nullptr);
     }
     #else
     #ifndef USB_SUPPORTED
@@ -781,8 +781,8 @@ void SysConfig::setupMIDIoverUART_OD(uint8_t channel)
         return Board::uartWriteMIDI_OD(storedChannel, USBMIDIpacket);
     });
 
-    midi.handleUARTread(NULL);
-    midi.handleUARTwrite(NULL);
+    midi.handleUARTread(nullptr);
+    midi.handleUARTwrite(nullptr);
     #endif
     #endif
 }

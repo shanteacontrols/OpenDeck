@@ -69,7 +69,7 @@ class Board
     /// \brief Pointer to board-specific start-up animation function.
     /// Disabled by default.
     ///
-    void (*startUpAnimation)() = NULL;
+    void (*startUpAnimation)() = nullptr;
 
     ///
     /// \brief Initializes USB peripheral and configures it as MIDI device.
