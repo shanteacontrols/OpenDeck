@@ -19,7 +19,6 @@
 #include "board/Board.h"
 #include "pins/Pins.h"
 #include "board/common/constants/LEDs.h"
-#include "board/common/uart/Variables.h"
 #include "board/common/uart/ODformat.h"
 #include "core/src/HAL/avr/PinManipulation.h"
 #include "core/src/HAL/avr/adc/ADC.h"
@@ -122,19 +121,17 @@ void Board::ledFlashStartup(bool fwUpdated)
 {
     //there are no indicator leds on atmega328p
     //instead, send special command to USB link which will display indicator led animation
-    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], OD_FORMAT_INT_DATA_START);
+    uartWrite(UART_USB_LINK_CHANNEL, OD_FORMAT_INT_DATA_START);
 
     if (fwUpdated)
-        RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], cmdFwUpdated);
+        uartWrite(UART_USB_LINK_CHANNEL, cmdFwUpdated);
     else
-        RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], cmdFwNotUpdated);
+        uartWrite(UART_USB_LINK_CHANNEL, cmdFwNotUpdated);
 
-    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
-    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
-    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
-    RingBuffer_Insert(&txBuffer[UART_USB_LINK_CHANNEL], 0x00);
-
-    Board::uartTransmitStart(UART_USB_LINK_CHANNEL);
+    uartWrite(UART_USB_LINK_CHANNEL, 0x00);
+    uartWrite(UART_USB_LINK_CHANNEL, 0x00);
+    uartWrite(UART_USB_LINK_CHANNEL, 0x00);
+    uartWrite(UART_USB_LINK_CHANNEL, 0x00);
 }
 
 void Board::initCustom()

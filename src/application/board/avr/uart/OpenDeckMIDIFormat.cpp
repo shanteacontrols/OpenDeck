@@ -25,14 +25,12 @@ bool Board::uartWriteMIDI_OD(uint8_t channel, USBMIDIpacket_t& USBMIDIpacket)
     if (channel >= UART_INTERFACES)
         return false;
 
-    RingBuffer_Insert(&txBuffer[channel], OD_FORMAT_MIDI_DATA_START);
-    RingBuffer_Insert(&txBuffer[channel], USBMIDIpacket.Event);
-    RingBuffer_Insert(&txBuffer[channel], USBMIDIpacket.Data1);
-    RingBuffer_Insert(&txBuffer[channel], USBMIDIpacket.Data2);
-    RingBuffer_Insert(&txBuffer[channel], USBMIDIpacket.Data3);
-    RingBuffer_Insert(&txBuffer[channel], USBMIDIpacket.Event ^ USBMIDIpacket.Data1 ^ USBMIDIpacket.Data2 ^ USBMIDIpacket.Data3);
-
-    uartTransmitStart(channel);
+    uartWrite(channel, OD_FORMAT_MIDI_DATA_START);
+    uartWrite(channel, USBMIDIpacket.Event);
+    uartWrite(channel, USBMIDIpacket.Data1);
+    uartWrite(channel, USBMIDIpacket.Data2);
+    uartWrite(channel, USBMIDIpacket.Data3);
+    uartWrite(channel, USBMIDIpacket.Event ^ USBMIDIpacket.Data1 ^ USBMIDIpacket.Data2 ^ USBMIDIpacket.Data3);
 
     return true;
 }
@@ -53,7 +51,7 @@ bool Board::uartReadMIDI_OD(uint8_t channel, USBMIDIpacket_t& USBMIDIpacket)
             //start of frame, read rest of the packet
             for (int i=0; i<5; i++)
             {
-                Board::uartRead(channel, data);
+                uartRead(channel, data);
 
                 switch(i)
                 {
