@@ -18,6 +18,7 @@
 
 #include "OpenDeck.h"
 #include "core/src/general/Timing.h"
+#include "interface/CInfo.h"
 
 #ifdef __AVR__
 #include <util/atomic.h>
@@ -28,25 +29,8 @@ extern "C" void __cxa_pure_virtual()
 }
 #endif
 
-static SysConfig    *sysConfRef = nullptr;
-static Buttons      *buttonsRef = nullptr;
 
-static bool sendCInfoCallback(dbBlockID_t dbBlock, sysExParameter_t componentID)
-{
-    return sysConfRef->sendCInfo(dbBlock, componentID);
-}
-
-static void analogButtonCallback(uint8_t analogIndex, uint16_t adcValue)
-{
-    buttonsRef->processButton(analogIndex+MAX_NUMBER_OF_BUTTONS, buttonsRef->getStateFromAnalogValue(adcValue));
-}
-
-#ifdef TOUCHSCREEN_SUPPORTED
-static void touchButtonCallback(uint8_t index, bool state)
-{
-    buttonsRef->processButton(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+index, state);
-}
-#endif
+cinfoHandler_t cinfoHandler;
 
 void OpenDeck::init()
 {
@@ -141,14 +125,27 @@ void OpenDeck::init()
     }
     #endif
 
+    static SysConfig *sysConfRef = nullptr;
+    static Buttons   *buttonsRef = nullptr;
+
     sysConfRef = &sysConfig;
     buttonsRef = &buttons;
-    buttons.setCinfoHandler(sendCInfoCallback);
-    encoders.setCinfoHandler(sendCInfoCallback);
-    analog.setCinfoHandler(sendCInfoCallback);
-    analog.setButtonHandler(analogButtonCallback);
+
+    cinfoHandler = [](dbBlockID_t dbBlock, sysExParameter_t componentID)
+    {
+        return sysConfRef->sendCInfo(dbBlock, componentID);
+    };
+
+    analog.setButtonHandler([](uint8_t analogIndex, uint16_t adcValue)
+    {
+        buttonsRef->processButton(analogIndex+MAX_NUMBER_OF_BUTTONS, buttonsRef->getStateFromAnalogValue(adcValue));
+    });
+
     #ifdef TOUCHSCREEN_SUPPORTED
-    touchscreen.setButtonHandler(touchButtonCallback);
+    touchscreen.setButtonHandler([](uint8_t index, bool state)
+    {
+        buttonsRef->processButton(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+index, state);
+    });
     #endif
 }
 

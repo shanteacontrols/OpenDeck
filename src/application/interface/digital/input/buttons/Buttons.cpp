@@ -19,6 +19,7 @@
 #include "Buttons.h"
 #include "interface/digital/input/Common.h"
 #include "core/src/general/BitManipulation.h"
+#include "interface/CInfo.h"
 
 ///
 /// \brief Continuously reads inputs from buttons and acts if necessary.
@@ -382,9 +383,4 @@ bool Buttons::getStateFromAnalogValue(uint16_t adcValue)
         return true;
     else
         return false;
-}
-
-void Buttons::setCinfoHandler(bool(*fptr)(dbBlockID_t dbBlock, sysExParameter_t componentID))
-{
-    cinfoHandler = fptr;
 }

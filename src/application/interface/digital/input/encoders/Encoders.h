@@ -51,7 +51,6 @@ class Encoders
     {}
 
     void update();
-    void setCinfoHandler(bool(*fptr)(dbBlockID_t dbBlock, sysExParameter_t componentID));
 
     private:
     Board           &board;
@@ -60,8 +59,6 @@ class Encoders
     #ifdef DISPLAY_SUPPORTED
     Display         &display;
     #endif
-
-    bool            (*cinfoHandler)(dbBlockID_t dbBlock, sysExParameter_t componentID) = nullptr;
 
     ///
     /// \brief Array used for easier access to current encoder MIDI value in 7Fh01h and 3Fh41h modes.

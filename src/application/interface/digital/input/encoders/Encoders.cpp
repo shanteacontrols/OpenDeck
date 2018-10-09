@@ -18,6 +18,7 @@
 
 #include "Encoders.h"
 #include "interface/digital/input/Common.h"
+#include "interface/CInfo.h"
 
 ///
 /// \brief Continuously checks state of all encoders.
@@ -110,9 +111,4 @@ void Encoders::update()
         if (cinfoHandler != nullptr)
             (*cinfoHandler)(DB_BLOCK_ENCODERS, i);
     }
-}
-
-void Encoders::setCinfoHandler(bool(*fptr)(dbBlockID_t dbBlock, sysExParameter_t componentID))
-{
-    cinfoHandler = fptr;
 }

@@ -67,7 +67,6 @@ class Buttons
     bool getStateFromAnalogValue(uint16_t adcValue);
     void processButton(uint8_t buttonID, bool state);
     bool getButtonState(uint8_t buttonID);
-    void setCinfoHandler(bool(*fptr)(dbBlockID_t dbBlock, sysExParameter_t componentID));
 
     private:
     void sendMessage(uint8_t buttonID, bool state, buttonMIDImessage_t buttonMessage = BUTTON_MESSAGE_TYPES);
@@ -85,8 +84,6 @@ class Buttons
     #ifdef DISPLAY_SUPPORTED
     Display     &display;
     #endif
-
-    bool        (*cinfoHandler)(dbBlockID_t dbBlock, sysExParameter_t componentID) = nullptr;
 
     ///
     /// \brief Array holding debounce count for all buttons to avoid incorrect state detection.

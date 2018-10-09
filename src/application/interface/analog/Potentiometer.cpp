@@ -18,6 +18,7 @@
 
 #include "Analog.h"
 #include "core/src/general/Misc.h"
+#include "interface/CInfo.h"
 
 void Analog::checkPotentiometerValue(analogType_t analogType, uint8_t analogID, uint16_t value)
 {

@@ -81,8 +81,3 @@ void Analog::setButtonHandler(void(*fptr)(uint8_t adcIndex, uint16_t adcValue))
 {
     buttonHandler = fptr;
 }
-
-void Analog::setCinfoHandler(bool(*fptr)(dbBlockID_t dbBlock, sysExParameter_t componentID))
-{
-    cinfoHandler = fptr;
-}

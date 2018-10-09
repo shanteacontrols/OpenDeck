@@ -67,7 +67,6 @@ class Analog
     void update();
     void debounceReset(uint16_t index);
     void setButtonHandler(void(*fptr)(uint8_t adcIndex, uint16_t adcValue));
-    void setCinfoHandler(bool(*fptr)(dbBlockID_t dbBlock, sysExParameter_t componentID));
 
     private:
     void checkPotentiometerValue(analogType_t analogType, uint8_t analogID, uint16_t value);
@@ -90,7 +89,6 @@ class Analog
     #endif
 
     void        (*buttonHandler)(uint8_t adcIndex, uint16_t adcValue) = nullptr;
-    bool        (*cinfoHandler)(dbBlockID_t dbBlock, sysExParameter_t componentID) = nullptr;
     uint16_t    lastAnalogueValue[MAX_NUMBER_OF_ANALOG] = {};
     uint8_t     fsrPressed[MAX_NUMBER_OF_ANALOG] = {};
 };

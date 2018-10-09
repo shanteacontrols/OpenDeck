@@ -19,6 +19,7 @@
 #include "Analog.h"
 #include "core/src/general/BitManipulation.h"
 #include "core/src/general/Misc.h"
+#include "interface/CInfo.h"
 
 //use 1k resistor when connecting FSR between signal and ground
 
