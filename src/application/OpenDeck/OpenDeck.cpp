@@ -236,14 +236,12 @@ void OpenDeck::checkMIDI()
         }
     }
 
-    #ifdef BOARD_OPEN_DECK
     if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled))
     {
-        //check for incoming MIDI messages on UART
-        //merging is supported on opendeck board only at the moment
+        #ifdef BOARD_OPEN_DECK
+        //daisy-chained opendeck boards
         if (!database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
         {
-            //daisy-chained opendeck boards
             if (!board.getUARTloopbackState(UART_MIDI_CHANNEL))
             {
                 if (!board.isUSBconnected())
@@ -273,6 +271,9 @@ void OpenDeck::checkMIDI()
             }
         }
         else
+        #else
+        if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
+        #endif
         {
             switch(database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeToInterface))
             {
@@ -286,7 +287,6 @@ void OpenDeck::checkMIDI()
             }
         }
     }
-    #endif
 }
 
 void OpenDeck::update()
