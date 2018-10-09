@@ -52,11 +52,9 @@ bool Board::isUSBconnected()
 ///
 void EVENT_USB_Device_ConfigurationChanged(void)
 {
-    bool ConfigSuccess = true;
-
     /* Setup MIDI Data Endpoints */
-    ConfigSuccess &= Endpoint_ConfigureEndpoint(MIDI_STREAM_IN_EPADDR, EP_TYPE_BULK, MIDI_STREAM_EPSIZE, 1);
-    ConfigSuccess &= Endpoint_ConfigureEndpoint(MIDI_STREAM_OUT_EPADDR, EP_TYPE_BULK, MIDI_STREAM_EPSIZE, 1);
+    Endpoint_ConfigureEndpoint(MIDI_STREAM_IN_EPADDR, EP_TYPE_BULK, MIDI_STREAM_EPSIZE, 1);
+    Endpoint_ConfigureEndpoint(MIDI_STREAM_OUT_EPADDR, EP_TYPE_BULK, MIDI_STREAM_EPSIZE, 1);
 }
 
 bool Board::usbReadMIDI(USBMIDIpacket_t& USBMIDIpacket)
