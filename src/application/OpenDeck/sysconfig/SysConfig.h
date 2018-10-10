@@ -96,6 +96,11 @@ class SysConfig : public SysEx
     ///
     void setupMIDIoverUART();
 
+    ///
+    /// \brief Configures USB read/write handlers for MIDI module.
+    ///
+    void setupMIDIoverUSB();
+
     #ifdef DIN_MIDI_SUPPORTED
     void configureMIDImerge(midiMergeType_t mergeType);
     #endif

@@ -37,6 +37,7 @@ void OpenDeck::init()
     board.init();
     database.init();
     sysConfig.init();
+    sysConfig.configureMIDI();
 
     board.ledFlashStartup(board.checkNewRevision());
 
@@ -76,8 +77,6 @@ void OpenDeck::init()
     touchscreen.init(ts_sdw);
     touchscreen.setPage(1);
     #endif
-
-    sysConfig.configureMIDI();
 
     static SysConfig *sysConfRef = nullptr;
     static Buttons   *buttonsRef = nullptr;
@@ -190,43 +189,43 @@ void OpenDeck::checkMIDI()
     if (midi.read(usbInterface))
         processMessage(usbInterface);
 
-    #ifdef DIN_MIDI_SUPPORTED
-    if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled))
-    {
-        if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
-        {
-            switch(database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeType))
-            {
-                case midiMergeDINtoUSB:
-                //dump everything from DIN MIDI in to USB MIDI out
-                midi.read(dinInterface, THRU_FULL_USB);
-                break;
+    // #ifdef DIN_MIDI_SUPPORTED
+    // if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled))
+    // {
+    //     if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
+    //     {
+    //         switch(database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeType))
+    //         {
+    //             case midiMergeDINtoUSB:
+    //             //dump everything from DIN MIDI in to USB MIDI out
+    //             midi.read(dinInterface, THRU_FULL_USB);
+    //             break;
 
-                // case midiMergeDINtoDIN:
-                //loopback is automatically configured here
-                // break;
+    //             // case midiMergeDINtoDIN:
+    //             //loopback is automatically configured here
+    //             // break;
 
-                // case midiMergeODmaster:
-                //auto configured
-                // break;
+    //             // case midiMergeODmaster:
+    //             //auto configured
+    //             // break;
 
-                case midiMergeODslave:
-                //all merging takes place on virtual usb interface (usb-like format via uart, usb midi handlers)
-                if (midi.read(usbInterface))
-                    processMessage(usbInterface);
-                break;
+    //             case midiMergeODslave:
+    //             //all merging takes place on virtual usb interface (usb-like format via uart, usb midi handlers)
+    //             if (midi.read(usbInterface))
+    //                 processMessage(usbInterface);
+    //             break;
 
-                default:
-                break;
-            }
-        }
-        else
-        {
-            if (midi.read(dinInterface))
-                processMessage(dinInterface);
-        }
-    }
-    #endif
+    //             default:
+    //             break;
+    //         }
+    //     }
+    //     else
+    //     {
+    //         if (midi.read(dinInterface))
+    //             processMessage(dinInterface);
+    //     }
+    // }
+    // #endif
 }
 
 void OpenDeck::update()
