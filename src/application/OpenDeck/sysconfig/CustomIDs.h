@@ -37,7 +37,7 @@
 ///
 /// \brief Total number of custom requests.
 ///
-#define NUMBER_OF_CUSTOM_REQUESTS           11
+#define NUMBER_OF_CUSTOM_REQUESTS           9
 
 ///
 /// \brief Custom ID used when sending info about components to host.
