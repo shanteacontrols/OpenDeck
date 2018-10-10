@@ -52,13 +52,16 @@
             </div><!-- /row -->
             <div class="row" ng-if="midiObj.thruState==1">
               <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-              <h3>Merge to interface</h3>
+              <h3>Merge type</h3>
               </div>
               <div class="col-lg-2 col-lg-offset-1 col-md-2 col-md-offset-1 col-sm-6 col-xs-12">
               <div class="selectfield">
                   <select ng-model="midiObj.thruInterface" convert-to-number>
-                  <option value="0">USB</option>
-                  <option value="1">DIN MIDI out</option>
+                  <option value="0">DIN to USB</option>
+                  <option value="1">DIN to DIN</option>
+                  <option value="2">OpenDeck: Master</option>
+                  <option value="3">OpenDeck: Inner slave</option>
+                  <option value="4">OpenDeck: Outer slave</option>
                   </select>
                   <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Interface to which incoming MIDI data is forwarded to." data-placement="left">?</div>
               </div>

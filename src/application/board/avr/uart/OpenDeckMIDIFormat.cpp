@@ -19,13 +19,14 @@
 #include "board/Board.h"
 #include "board/common/uart/ODformat.h"
 #include "board/common/uart/Variables.h"
+#include "board/common/indicators/Variables.h"
 
-bool Board::uartWriteMIDI_OD(uint8_t channel, USBMIDIpacket_t& USBMIDIpacket)
+bool Board::uartWriteMIDI_OD(uint8_t channel, USBMIDIpacket_t& USBMIDIpacket, bool internalCMD)
 {
     if (channel >= UART_INTERFACES)
         return false;
 
-    uartWrite(channel, OD_FORMAT_MIDI_DATA_START);
+    uartWrite(channel, internalCMD ? OD_FORMAT_INT_DATA_START : OD_FORMAT_MIDI_DATA_START);
     uartWrite(channel, USBMIDIpacket.Event);
     uartWrite(channel, USBMIDIpacket.Data1);
     uartWrite(channel, USBMIDIpacket.Data2);
@@ -104,6 +105,16 @@ bool Board::uartReadMIDI_OD(uint8_t channel, USBMIDIpacket_t& USBMIDIpacket)
                 case cmdBtldrReboot:
                 reboot(rebootBtldr);
                 break;
+
+                #ifndef USB_SUPPORTED
+                case cmdUsbStateConnected:
+                usbLinkState = true;
+                break;
+
+                case cmdUsbStateNotConnected:
+                usbLinkState = false;
+                break;
+                #endif
 
                 default:
                 break;

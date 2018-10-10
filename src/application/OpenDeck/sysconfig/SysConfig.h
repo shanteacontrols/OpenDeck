@@ -62,29 +62,8 @@ class SysConfig : public SysEx
     {}
 
     void init();
-
     bool isProcessingEnabled();
-
-    ///
-    /// \brief Configures UART read/write handlers for MIDI module.
-    /// @param [in] channel     UART channel on MCU.
-    ///
-    void setupMIDIoverUART(uint8_t channel);
-
-    ///
-    /// \brief Configures OpenDeck UART MIDI format on specified UART channel.
-    /// OpenDeck UART MIDI format is a specially formatted MIDI message which
-    /// is sent over UART and uses USB MIDI packet format with byte value
-    /// OD_FORMAT_MIDI_DATA_START prepended before the message start and XOR of
-    /// 4 USB packet bytes as the last byte. XOR byte is used for error checking.
-    /// This is used to avoid parsing of MIDI messages when using boards such as Arduino
-    /// Mega or Arduino Uno which feature two separate MCUs - the main one and the other for
-    /// USB communication. Using this format USB MCU can quickly forward the received message
-    /// from UART to USB interface - first byte (OD_FORMAT_MIDI_DATA_START) and last byte
-    /// (XOR value) are removed from the output.
-    /// @param [in] channel     UART channel on MCU.
-    ///
-    void setupMIDIoverUART_OD(uint8_t channel);
+    void configureMIDI();
 
     bool sendCInfo(dbBlockID_t dbBlock, sysExParameter_t componentID);
 
@@ -111,6 +90,31 @@ class SysConfig : public SysEx
     bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newValue);
     bool onCustomRequest(uint8_t value);
     void onWrite(uint8_t *sysExArray, uint8_t size);
+
+    ///
+    /// \brief Configures UART read/write handlers for MIDI module.
+    /// @param [in] channel     UART channel on MCU.
+    ///
+    void setupMIDIoverUART(uint8_t channel);
+
+    ///
+    /// \brief Configures OpenDeck UART MIDI format on specified UART channel.
+    /// OpenDeck UART MIDI format is a specially formatted MIDI message which
+    /// is sent over UART and uses USB MIDI packet format with byte value
+    /// OD_FORMAT_MIDI_DATA_START prepended before the message start and XOR of
+    /// 4 USB packet bytes as the last byte. XOR byte is used for error checking.
+    /// This is used to avoid parsing of MIDI messages when using boards such as Arduino
+    /// Mega or Arduino Uno which feature two separate MCUs - the main one and the other for
+    /// USB communication. Using this format USB MCU can quickly forward the received message
+    /// from UART to USB interface - first byte (OD_FORMAT_MIDI_DATA_START) and last byte
+    /// (XOR value) are removed from the output.
+    /// @param [in] channel     UART channel on MCU.
+    ///
+    void setupMIDIoverUART_OD(uint8_t channel);
+
+    #ifdef DIN_MIDI_SUPPORTED
+    void configureMIDImerge(midiMergeType_t mergeType);
+    #endif
 
     uint32_t lastCinfoMsgTime[DB_BLOCKS];
 };

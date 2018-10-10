@@ -35,35 +35,8 @@ cinfoHandler_t cinfoHandler;
 void OpenDeck::init()
 {
     board.init();
-    #ifdef USB_SUPPORTED
-    #ifndef BOARD_A_xu2
-    midi.handleUSBread(Board::usbReadMIDI);
-    midi.handleUSBwrite(Board::usbWriteMIDI);
-    #endif
-    #endif
     database.init();
-
     sysConfig.init();
-
-    //enable uart-to-usb link when usb isn't supported directly
-    #ifndef USB_SUPPORTED
-    sysConfig.setupMIDIoverUART_OD(UART_USB_LINK_CHANNEL);
-    #endif
-
-    #ifdef DIN_MIDI_SUPPORTED
-    if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled))
-    {
-        sysConfig.setupMIDIoverUART(UART_MIDI_CHANNEL);
-
-        //use recursive parsing when merging is active
-        midi.useRecursiveParsing(database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled));
-    }
-    #endif
-
-    midi.setInputChannel(MIDI_CHANNEL_OMNI);
-    midi.setNoteOffMode((noteOffType_t)database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureStandardNoteOff));
-    midi.setRunningStatusState(database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureRunningStatus));
-    midi.setChannelSendZeroStart(true);
 
     board.ledFlashStartup(board.checkNewRevision());
 
@@ -104,26 +77,7 @@ void OpenDeck::init()
     touchscreen.setPage(1);
     #endif
 
-    #ifdef USB_SUPPORTED
-    //wait a bit before checking if usb is connected
-    wait_ms(1500);
-
-    if (board.isUSBconnected())
-    {
-        //this board is connected to usb, check if din is enabled
-        if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled) && !database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
-        {
-            //start daisy-chain auto-config
-            //format message as special request so that it's parsed on other boards
-            sysExParameter_t daisyChainMessage[] =
-            {
-                SYSEX_CR_DAISY_CHAIN_MASTER,
-            };
-
-            sysConfig.sendCustomMessage(midi.usbMessage.sysexArray, daisyChainMessage, 1, false);
-        }
-    }
-    #endif
+    sysConfig.configureMIDI();
 
     static SysConfig *sysConfRef = nullptr;
     static Buttons   *buttonsRef = nullptr;
@@ -176,17 +130,14 @@ void OpenDeck::checkComponents()
 
 void OpenDeck::checkMIDI()
 {
-    //note: mega/uno
-    //"fake" usbInterface - din data is stored as usb data so use usb callback to read the usb
-    //packet stored in midi object
-    if (midi.read(usbInterface))
+    auto processMessage = [this](midiInterfaceType_t interface)
     {
-        //new message on usb
-        midiMessageType_t messageType = midi.getType(usbInterface);
+        //new message
+        midiMessageType_t messageType = midi.getType(interface);
         #if defined(LEDS_SUPPORTED) || defined(DISPLAY_SUPPORTED)
-        uint8_t data1 = midi.getData1(usbInterface);
-        uint8_t data2 = midi.getData2(usbInterface);
-        uint8_t channel = midi.getChannel(usbInterface);
+        uint8_t data1 = midi.getData1(interface);
+        uint8_t data2 = midi.getData2(interface);
+        uint8_t channel = midi.getChannel(interface);
         #endif
 
         switch(messageType)
@@ -196,7 +147,7 @@ void OpenDeck::checkMIDI()
             #ifdef BOARD_OPEN_DECK
             if (board.isUSBconnected())
             #endif
-                sysConfig.handleMessage(midi.getSysExArray(usbInterface), midi.getSysExArrayLength(usbInterface));
+                sysConfig.handleMessage(midi.getSysExArray(interface), midi.getSysExArrayLength(interface));
             break;
 
             case midiMessageNoteOn:
@@ -231,59 +182,58 @@ void OpenDeck::checkMIDI()
             default:
             break;
         }
-    }
+    };
 
+    //note: mega/uno
+    //"fake" usbInterface - din data is stored as usb data so use usb callback to read the usb
+    //packet stored in midi object
+    if (midi.read(usbInterface))
+        processMessage(usbInterface);
+
+    #ifdef DIN_MIDI_SUPPORTED
     if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled))
     {
-        #ifdef BOARD_OPEN_DECK
-        //daisy-chained opendeck boards
-        if (!database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
-        {
-            if (!board.getUARTloopbackState(UART_MIDI_CHANNEL))
-            {
-                if (!board.isUSBconnected())
-                {
-                    //in this case, board is slave, check only for sysex from master
-                    if (midi.read(dinInterface))
-                    {
-                        midiMessageType_t messageType = midi.getType(dinInterface);
-
-                        if (messageType == midiMessageSystemExclusive)
-                        {
-                            sysConfig.handleMessage(midi.getSysExArray(dinInterface), midi.getSysExArrayLength(dinInterface));
-                        }
-                    }
-                }
-                else
-                {
-                    //master opendeck - dump everything from MIDI in to USB MIDI out
-                    USBMIDIpacket_t USBMIDIpacket;
-                    if (Board::uartReadMIDI_OD(UART_MIDI_CHANNEL, USBMIDIpacket))
-                        Board::usbWriteMIDI(USBMIDIpacket);
-                }
-            }
-            else
-            {
-                //all incoming data is forwarded automatically (inner slave)
-            }
-        }
-        else
-        #else
         if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
-        #endif
         {
-            switch(database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeToInterface))
+            USBMIDIpacket_t USBMIDIpacket;
+
+            switch(database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeType))
             {
-                case midiMergeToInterfaceUSB:
+                case midiMergeDINtoUSB:
                 //dump everything from DIN MIDI in to USB MIDI out
                 midi.read(dinInterface, THRU_FULL_USB);
+                break;
+
+                // case midiMergeDINtoDIN:
+                //loopback is automatically configured here
+                // break;
+
+                case midiMergeODmaster:
+                //master opendeck - dump everything from MIDI in to USB MIDI out
+                if (Board::uartReadMIDI_OD(UART_MIDI_CHANNEL, USBMIDIpacket))
+                    #ifdef USB_SUPPORTED
+                    Board::usbWriteMIDI(USBMIDIpacket);
+                    #else
+                    Board::uartWriteMIDI_OD(UART_USB_LINK_CHANNEL, USBMIDIpacket);
+                    #endif
+                break;
+
+                case midiMergeODouterSlave:
+                if (midi.read(dinInterface))
+                    processMessage(dinInterface);
                 break;
 
                 default:
                 break;
             }
         }
+        else
+        {
+            if (midi.read(dinInterface))
+                processMessage(dinInterface);
+        }
     }
+    #endif
 }
 
 void OpenDeck::update()

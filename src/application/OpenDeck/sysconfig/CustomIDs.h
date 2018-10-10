@@ -31,8 +31,6 @@
 #define SYSEX_CR_MAX_COMPONENTS             0x4D
 #define SYSEX_CR_ENABLE_PROCESSING          0x65
 #define SYSEX_CR_DISABLE_PROCESSING         0x64
-#define SYSEX_CR_DAISY_CHAIN_MASTER         0x6D
-#define SYSEX_CR_DAISY_CHAIN_SLAVE          0x73
 
 /// @}
 

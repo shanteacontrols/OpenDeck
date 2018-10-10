@@ -32,3 +32,10 @@ extern volatile bool        UARTreceived;
 extern volatile bool        UARTsent;
 
 /// @}
+
+#ifndef USB_SUPPORTED
+///
+/// \brief Flag signaling whether or not USB link is connected to host.
+///
+extern bool                 usbLinkState;
+#endif

@@ -142,11 +142,13 @@ class Board
 
     ///
     /// \brief Used to write MIDI data using custom OpenDeck format to UART interface.
-    /// @param [in] channel     UART channel on MCU.
+    /// @param [in] channel         UART channel on MCU.
     /// @param [in] USBMIDIpacket   Pointer to structure holding MIDI data to write.
+    /// @param [in] internalCMD     Flag signaling whether the packet is USB data (true) or internal command
+    ///                             used for communication between target MCU and USB link (false).
     /// \returns True on success, false otherwise.
     ///
-    static bool uartWriteMIDI_OD(uint8_t channel, USBMIDIpacket_t& USBMIDIpacket);
+    static bool uartWriteMIDI_OD(uint8_t channel, USBMIDIpacket_t& USBMIDIpacket, bool internalCMD = false);
 
     ///
     /// \brief Used to enable or disable UART loopback functionality.

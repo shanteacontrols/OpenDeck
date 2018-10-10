@@ -37,7 +37,7 @@ typedef enum
 
 typedef enum
 {
-    midiMergeToInterface,
+    midiMergeType,
     midiMergeUSBchannel,
     midiMergeDINchannel,
     MIDI_MERGE_OPTIONS
@@ -45,7 +45,10 @@ typedef enum
 
 typedef enum
 {
-    midiMergeToInterfaceUSB,
-    midiMergeToInterfaceDIN,
-    MIDI_MERGE_TO_INTERFACES
-} midiMergeToInterface_t;
+    midiMergeDINtoUSB,
+    midiMergeDINtoDIN,
+    midiMergeODmaster,
+    midiMergeODinnerSlave,
+    midiMergeODouterSlave,
+    MIDI_MERGE_TYPES
+} midiMergeType_t;

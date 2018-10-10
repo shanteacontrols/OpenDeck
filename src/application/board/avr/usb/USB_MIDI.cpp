@@ -17,9 +17,16 @@
 */
 
 #include "board/Board.h"
-#include "Descriptors.h"
 #include "board/common/indicators/Variables.h"
+#ifdef USB_SUPPORTED
+#include "Descriptors.h"
+#endif
 
+#ifndef USB_SUPPORTED
+bool    usbLinkState;
+#endif
+
+#ifdef USB_SUPPORTED
 ///
 /// \brief MIDI Class Device Mode Configuration and State Structure.
 ///
@@ -38,11 +45,6 @@ void Board::initMIDI_USB()
     MIDI_Interface.Config.DataOUTEndpoint.Banks     = 1;
 
     USB_Init();
-}
-
-bool Board::isUSBconnected()
-{
-    return (USB_DeviceState == DEVICE_STATE_Configured);
 }
 
 ///
@@ -105,4 +107,14 @@ bool Board::usbWriteMIDI(USBMIDIpacket_t& USBMIDIpacket)
     USBsent = true;
 
     return true;
+}
+#endif
+
+bool Board::isUSBconnected()
+{
+    #ifdef USB_SUPPORTED
+    return (USB_DeviceState == DEVICE_STATE_Configured);
+    #else
+    return usbLinkState;
+    #endif
 }

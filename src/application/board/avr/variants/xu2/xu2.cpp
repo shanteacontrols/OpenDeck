@@ -19,6 +19,7 @@
 #include <avr/interrupt.h>
 #include "Variables.h"
 #include "board/Board.h"
+#include "board/common/uart/ODformat.h"
 
 int main(void)
 {
@@ -37,5 +38,19 @@ int main(void)
 
         if (board.uartReadMIDI_OD(UART_USB_LINK_CHANNEL, USBMIDIpacket))
             board.usbWriteMIDI(USBMIDIpacket);
+
+        static bool lastUSBstate = false;
+        bool usbState = board.isUSBconnected();
+
+        if (usbState != lastUSBstate)
+        {
+            USBMIDIpacket.Event = usbState ? cmdUsbStateConnected : cmdUsbStateNotConnected;
+            USBMIDIpacket.Data1 = 0;
+            USBMIDIpacket.Data2 = 0;
+            USBMIDIpacket.Data3 = 0;
+
+            board.uartWriteMIDI_OD(UART_USB_LINK_CHANNEL, USBMIDIpacket, true);
+            lastUSBstate = usbState;
+        }
     }
 }

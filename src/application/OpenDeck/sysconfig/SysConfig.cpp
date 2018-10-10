@@ -25,9 +25,6 @@
 bool SysConfig::onCustomRequest(uint8_t value)
 {
     bool retVal = true;
-    #ifdef BOARD_OPEN_DECK
-    sysExParameter_t daisyChainMessage[1];
-    #endif
 
     switch(value)
     {
@@ -85,38 +82,6 @@ bool SysConfig::onCustomRequest(uint8_t value)
         case SYSEX_CR_DISABLE_PROCESSING:
         processingEnabled = false;
         break;
-
-        #ifdef BOARD_OPEN_DECK
-        case SYSEX_CR_DAISY_CHAIN_MASTER:
-        //received message from opendeck master
-        //send sysex to next board in the chain
-        daisyChainMessage[0] = SYSEX_CR_DAISY_CHAIN_SLAVE;
-        sendCustomMessage(midi.usbMessage.sysexArray, daisyChainMessage, 1, false);
-        //configure opendeck uart format
-        setupMIDIoverUART_OD(UART_MIDI_CHANNEL);
-        //make sure silent mode is enabled from now on
-        setSilentMode(true);
-        break;
-
-        case SYSEX_CR_DAISY_CHAIN_SLAVE:
-        //received message from opendeck slave
-        //check if this board is master
-        if (!board.isUSBconnected())
-        {
-            //slave
-            //send sysex to next board in the chain
-            daisyChainMessage[0] = SYSEX_CR_DAISY_CHAIN_SLAVE;
-            sendCustomMessage(midi.usbMessage.sysexArray, daisyChainMessage, 1, false);
-            //inner slave - configure loopback on uart
-            board.setUARTloopbackState(UART_MIDI_CHANNEL, true);
-        }
-
-        //configure opendeck uart format
-        setupMIDIoverUART_OD(UART_MIDI_CHANNEL);
-        //make sure silent mode is enabled from now on
-        setSilentMode(true);
-        break;
-        #endif
 
         default:
         retVal = false;
@@ -341,7 +306,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, sysExParam
                 #ifndef DIN_MIDI_SUPPORTED
                 setError(ERROR_NOT_SUPPORTED);
                 #else
-                newValue ? board.initUART(UART_BAUDRATE_MIDI_STD, UART_MIDI_CHANNEL) : board.resetUART(UART_MIDI_CHANNEL);
+                newValue ? setupMIDIoverUART(UART_MIDI_CHANNEL) : board.resetUART(UART_MIDI_CHANNEL);
                 success = true;
                 #endif
                 break;
@@ -353,7 +318,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, sysExParam
                 if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled))
                 {
                     success = true;
-                    //when merging is enabled, parse serial input recursively to avoid latency
+                    //use recursive parsing when merging is active
                     midi.useRecursiveParsing(newValue);
                 }
                 else
@@ -375,26 +340,13 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, sysExParam
             #else
             switch(index)
             {
-                case midiMergeToInterface:
+                case midiMergeType:
                 if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled) && database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
                 {
-                    if ((newValue >= 0) && (newValue < MIDI_MERGE_TO_INTERFACES))
+                    if ((newValue >= 0) && (newValue < MIDI_MERGE_TYPES))
                     {
                         success = true;
-
-                        if (newValue == midiMergeToInterfaceDIN)
-                        {
-                            //enable loopback for din here
-                            board.setUARTloopbackState(UART_MIDI_CHANNEL, true);
-                            //handle traffic directly in isr, don't use library for this
-                            midi.handleUARTread(nullptr);
-                            midi.handleUARTwrite(nullptr);
-                        }
-                        else
-                        {
-                            board.setUARTloopbackState(UART_MIDI_CHANNEL, false);
-                            setupMIDIoverUART(UART_MIDI_CHANNEL);
-                        }
+                        configureMIDImerge((midiMergeType_t)newValue);
                     }
                     else
                     {
@@ -808,3 +760,67 @@ bool SysConfig::sendCInfo(dbBlockID_t dbBlock, sysExParameter_t componentID)
 
     return false;
 }
+
+void SysConfig::configureMIDI()
+{
+    #ifdef DIN_MIDI_SUPPORTED
+    if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled))
+    {
+        setupMIDIoverUART(UART_MIDI_CHANNEL);
+
+        //use recursive parsing when merging is active
+        midi.useRecursiveParsing(database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled));
+
+        if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
+            configureMIDImerge((midiMergeType_t)database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeType));
+    }
+    #endif
+
+    midi.setInputChannel(MIDI_CHANNEL_OMNI);
+    midi.setNoteOffMode((noteOffType_t)database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureStandardNoteOff));
+    midi.setRunningStatusState(database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureRunningStatus));
+    midi.setChannelSendZeroStart(true);
+
+    #ifdef USB_SUPPORTED
+    #ifndef BOARD_A_xu2
+    midi.handleUSBread(Board::usbReadMIDI);
+    midi.handleUSBwrite(Board::usbWriteMIDI);
+    #endif
+    #else
+    //enable uart-to-usb link when usb isn't supported directly
+    setupMIDIoverUART_OD(UART_USB_LINK_CHANNEL);
+    #endif
+}
+
+#ifdef DIN_MIDI_SUPPORTED
+void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
+{
+    switch(mergeType)
+    {
+        case midiMergeODmaster:
+        case midiMergeODinnerSlave:
+        //configure opendeck format
+        setupMIDIoverUART_OD(UART_MIDI_CHANNEL);
+
+        if (mergeType == midiMergeODinnerSlave)
+        {
+            //handle traffic directly in isr, don't use library for this
+            Board::setUARTloopbackState(UART_MIDI_CHANNEL, true);
+            midi.handleUARTread(nullptr);
+            midi.handleUARTwrite(nullptr);
+        }
+        break;
+
+        case midiMergeDINtoDIN:
+        Board::setUARTloopbackState(UART_MIDI_CHANNEL, true);
+        break;
+
+        case midiMergeDINtoUSB:
+        setupMIDIoverUART(UART_MIDI_CHANNEL);
+        break;
+
+        default:
+        break;
+    }
+}
+#endif

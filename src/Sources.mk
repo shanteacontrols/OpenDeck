@@ -154,10 +154,8 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         application/board/common/digital/input/encoders/DirectIn.cpp
         endif
 
-        ifneq ($(filter USB_SUPPORTED, $(DEFINES)), )
-            SOURCES += \
-            application/board/avr/usb/USB_MIDI.cpp
-        endif
+        SOURCES += \
+        application/board/avr/usb/USB_MIDI.cpp
 
         SOURCES += \
         application/board/avr/uart/UART.cpp
