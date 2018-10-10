@@ -195,8 +195,6 @@ void OpenDeck::checkMIDI()
     {
         if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
         {
-            USBMIDIpacket_t USBMIDIpacket;
-
             switch(database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeType))
             {
                 case midiMergeDINtoUSB:
@@ -208,19 +206,14 @@ void OpenDeck::checkMIDI()
                 //loopback is automatically configured here
                 // break;
 
-                case midiMergeODmaster:
-                //master opendeck - dump everything from MIDI in to USB MIDI out
-                if (Board::uartReadMIDI_OD(UART_MIDI_CHANNEL, USBMIDIpacket))
-                    #ifdef USB_SUPPORTED
-                    Board::usbWriteMIDI(USBMIDIpacket);
-                    #else
-                    Board::uartWriteMIDI_OD(UART_USB_LINK_CHANNEL, USBMIDIpacket);
-                    #endif
-                break;
+                // case midiMergeODmaster:
+                //auto configured
+                // break;
 
-                case midiMergeODouterSlave:
-                if (midi.read(dinInterface))
-                    processMessage(dinInterface);
+                case midiMergeODslave:
+                //all merging takes place on virtual usb interface (usb-like format via uart, usb midi handlers)
+                if (midi.read(usbInterface))
+                    processMessage(usbInterface);
                 break;
 
                 default:
