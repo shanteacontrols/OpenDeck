@@ -902,17 +902,22 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
 
 void SysConfig::sendDaisyChainRequest()
 {
-    sysExParameter_t daisyChainMessage[1];
-
-    //disable sending of this message on main/usb channel
-    midi.handleUSBwrite(nullptr);
-    midi.handleUARTwrite([](uint8_t data)
+    //send the message directly in custom request sysex format
+    const uint8_t daisyChainSysEx[8] =
     {
-        return Board::uartWrite(UART_MIDI_CHANNEL, data);
-    });
+        0xF0,
+        SYS_EX_M_ID_0,
+        SYS_EX_M_ID_1,
+        SYS_EX_M_ID_2,
+        REQUEST,
+        0x00,
+        SYSEX_CR_DAISY_CHAIN,
+        0xF7
+    };
 
-    daisyChainMessage[0] = SYSEX_CR_DAISY_CHAIN;
-    sendCustomMessage(midi.usbMessage.sysexArray, daisyChainMessage, 1, false);
+    for (int i=0; i<8; i++)
+        board.uartWrite(UART_MIDI_CHANNEL, daisyChainSysEx[i]);
+
     while (!board.isUARTtxEmpty(UART_MIDI_CHANNEL));
 }
 
