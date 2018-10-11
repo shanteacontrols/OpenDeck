@@ -4,8 +4,9 @@
 set -e
 
 mkdir -p ../bin/compiled
+mkdir -p ../bin/compiled/opendeck
 
-make clean && make fw_opendeck && cp build/fw_opendeck.hex ../bin/compiled/fw_opendeck.hex && cp build/fw_opendeck.bin ../bin/compiled/fw_opendeck.bin
+make clean && make fw_opendeck && cp build/fw_opendeck.hex ../bin/compiled/opendeck/fw_opendeck.hex && cp build/fw_opendeck.bin ../bin/compiled/opendeck/FLASH.bin
 make clean && make fw_pro_micro && cp build/fw_pro_micro.bin ../bin/compiled/fw_pro_micro.bin
 make clean && make fw_leonardo && cp build/fw_leonardo.bin ../bin/compiled/fw_leonardo.bin
 make clean && make fw_uno && cp build/fw_uno.bin ../bin/compiled/fw_uno.bin
