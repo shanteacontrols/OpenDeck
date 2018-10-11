@@ -30,6 +30,11 @@
 #define MIDI_INDICATOR_TIMEOUT      50
 
 ///
+/// \brief Time in milliseconds for single startup animation cycle on built-in LED indicators.
+///
+#define LED_INDICATOR_STARTUP_DELAY 150
+
+///
 /// \brief Helper macros used for easier control of internal (on-board) and external LEDs.
 /// @{
 

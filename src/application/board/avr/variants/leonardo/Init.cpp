@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <util/atomic.h>
 #include <util/delay.h>
 #include "board/Board.h"
 #include "pins/Pins.h"
@@ -146,25 +147,29 @@ void Board::configureTimers()
 
 void Board::ledFlashStartup(bool fwUpdated)
 {
-    for (int i=0; i<3; i++)
+    //block interrupts here to avoid received midi traffic messing with indicator leds animation
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
-        if (fwUpdated)
+        for (int i=0; i<3; i++)
         {
-            INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
-            INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
-            _delay_ms(200);
-            INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
-            INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
-            _delay_ms(200);
-        }
-        else
-        {
-            INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
-            INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
-            _delay_ms(200);
-            INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
-            INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
-            _delay_ms(200);
+            if (fwUpdated)
+            {
+                INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+                INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+                _delay_ms(LED_INDICATOR_STARTUP_DELAY);
+                INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+                INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
+                _delay_ms(LED_INDICATOR_STARTUP_DELAY);
+            }
+            else
+            {
+                INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+                INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
+                _delay_ms(LED_INDICATOR_STARTUP_DELAY);
+                INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+                INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+                _delay_ms(LED_INDICATOR_STARTUP_DELAY);
+            }
         }
     }
 }

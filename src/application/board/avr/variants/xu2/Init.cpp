@@ -57,19 +57,19 @@ void Board::ledFlashStartup(bool fwUpdated)
             {
                 INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
                 INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
-                _delay_ms(200);
+                _delay_ms(LED_INDICATOR_STARTUP_DELAY);
                 INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
                 INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
-                _delay_ms(200);
+                _delay_ms(LED_INDICATOR_STARTUP_DELAY);
             }
             else
             {
                 INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
                 INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
-                _delay_ms(200);
+                _delay_ms(LED_INDICATOR_STARTUP_DELAY);
                 INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
                 INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
-                _delay_ms(200);
+                _delay_ms(LED_INDICATOR_STARTUP_DELAY);
             }
         }
     }
