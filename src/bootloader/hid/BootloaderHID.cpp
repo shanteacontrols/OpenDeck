@@ -272,6 +272,10 @@ static void initPins()
     //make sure internal led is turned off
     setOutput(PORTB, 7);
     setLow(PORTB, 7);
+    #elif defined(BOARD_T_2PP)
+    //only one led
+    setOutput(LED_IN_PORT, LED_IN_PIN);
+    INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
     #elif defined (LED_INDICATORS)
     setOutput(LED_IN_PORT, LED_IN_PIN);
     setOutput(LED_OUT_PORT, LED_OUT_PIN);
