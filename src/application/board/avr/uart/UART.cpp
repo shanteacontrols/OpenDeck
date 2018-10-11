@@ -1,3 +1,21 @@
+/*
+    OpenDeck MIDI platform firmware
+    Copyright (C) 2015-2018 Igor Petrovic
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "board/Board.h"
 #include "board/common/indicators/Variables.h"
 #include "board/common/uart/Variables.h"
@@ -11,6 +29,11 @@ RingBuff_t   rxBuffer[UART_INTERFACES];
 /// When enabled, all incoming UART traffic is immediately passed on to UART TX.
 ///
 static bool  loopbackEnabled[UART_INTERFACES];
+
+///
+/// \brief Flag signaling that the transmission is done.
+///
+static bool  txDone[UART_INTERFACES];
 
 
 ///
@@ -102,6 +125,18 @@ ISR(USART_UDRE_vect_1)
         UDR_1 = data;
         UARTsent = true;
     }
+}
+#endif
+
+ISR(USART_TX_vect_0)
+{
+    txDone[0] = true;
+}
+
+#if UART_INTERFACES > 1
+ISR(USART_TX_vect_1)
+{
+    txDone[1] = true;
 }
 #endif
 
@@ -197,13 +232,13 @@ void Board::initUART(uint32_t baudRate, uint8_t channel)
     {
         case 0:
         UCSRC_0 = (1<<UCSZ1_0) | (1<<UCSZ0_0);
-        UCSRB_0 = (1<<RXEN_0) | (1<<TXEN_0) | (1<<RXCIE_0);
+        UCSRB_0 = (1<<RXEN_0) | (1<<TXEN_0) | (1<<RXCIE_0) | (1<<TXCIE_0);
         break;
 
         #if UART_INTERFACES > 1
         case 1:
         UCSRC_1 = (1<<UCSZ1_1) | (1<<UCSZ0_1);
-        UCSRB_1 = (1<<RXEN_1) | (1<<TXEN_1) | (1<<RXCIE_1);
+        UCSRB_1 = (1<<RXEN_1) | (1<<TXEN_1) | (1<<RXCIE_1) | (1<<TXCIE_1);
         break;
         #endif
 
@@ -244,6 +279,7 @@ bool Board::uartWrite(uint8_t channel, uint8_t data)
                 ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
                 {
                     UDR_0 = data;
+                    txDone[0] = false;
                 }
 
                 return true;
@@ -257,6 +293,7 @@ bool Board::uartWrite(uint8_t channel, uint8_t data)
                 ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
                 {
                     UDR_1 = data;
+                    txDone[1] = false;
                 }
 
                 return true;
@@ -281,6 +318,8 @@ void Board::uartTransmitStart(uint8_t channel)
 {
     if (channel >= UART_INTERFACES)
         return;
+
+    txDone[channel] = false;
 
     switch(channel)
     {
@@ -320,5 +359,5 @@ bool Board::isUARTtxEmpty(uint8_t channel)
     if (channel >= UART_INTERFACES)
         return false;
 
-    return (RingBuffer_GetCount(&txBuffer[channel]) == 0);
+    return txDone[channel];
 }

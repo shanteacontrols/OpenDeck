@@ -103,12 +103,26 @@
 #define RXCIE_0 RXCIE1
 #endif
 
+#ifdef TXCIE0
+#define TXCIE_0 TXCIE0
+#elif defined TXCIE1
+#define TXCIE_0 TXCIE1
+#endif
+
 #ifdef USART0_RX_vect
 #define USART_RX_vect_0 USART0_RX_vect
 #elif defined USART1_RX_vect
 #define USART_RX_vect_0 USART1_RX_vect
 #elif defined USART_RX_vect
 #define USART_RX_vect_0 USART_RX_vect
+#endif
+
+#ifdef USART0_TX_vect
+#define USART_TX_vect_0 USART0_TX_vect
+#elif defined USART1_TX_vect
+#define USART_TX_vect_0 USART1_TX_vect
+#elif defined USART_TX_vect
+#define USART_TX_vect_0 USART_TX_vect
 #endif
 
 #ifdef USART0_UDRE_vect
@@ -233,12 +247,28 @@
 #define RXCIE_1 RXCIE1
 #endif
 
+#ifdef TXCIE0
+#define TXCIE_0 TXCIE0
+#endif
+
+#if defined TXCIE1
+#define TXCIE_1 TXCIE1
+#endif
+
 #ifdef USART0_RX_vect
 #define USART_RX_vect_0 USART0_RX_vect
 #endif
 
 #if defined USART1_RX_vect
 #define USART_RX_vect_1 USART1_RX_vect
+#endif
+
+#ifdef USART0_TX_vect
+#define USART_TX_vect_0 USART0_TX_vect
+#endif
+
+#if defined USART1_TX_vect
+#define USART_TX_vect_1 USART1_TX_vect
 #endif
 
 #ifdef USART0_UDRE_vect
