@@ -89,7 +89,7 @@ F0 00 53 43 00 7F 02 01 04 02 F7
 F0 00 53 43 00 7F 02 01 04 03 F7
 //rgb enable section
 F0 00 53 43 00 7F 02 01 04 04 F7
-//local control section
+//control type section
 F0 00 53 43 00 7F 02 01 04 05 F7
 //activation velocity section
 F0 00 53 43 00 7F 02 01 04 06 F7
