@@ -335,6 +335,10 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, sysExParam
                     success = true;
                     //use recursive parsing when merging is active
                     midi.useRecursiveParsing(newValue);
+
+                    //make sure everything is in correct state
+                    if (!newValue)
+                        setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true);
                 }
                 else
                 {
