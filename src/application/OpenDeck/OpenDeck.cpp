@@ -37,14 +37,14 @@ void OpenDeck::init()
     board.init();
     database.init();
     sysConfig.init();
-    sysConfig.configureMIDI();
-
-    board.ledFlashStartup(board.checkNewRevision());
 
     #ifdef __AVR__
     //enable global interrupts
     sei();
     #endif
+
+    sysConfig.configureMIDI();
+    board.ledFlashStartup(board.checkNewRevision());
 
     #ifdef LEDS_SUPPORTED
     leds.init();
@@ -142,11 +142,7 @@ void OpenDeck::checkMIDI()
         switch(messageType)
         {
             case midiMessageSystemExclusive:
-            //don't handle sysex on slave boards in daisy-chain setup
-            #ifdef BOARD_OPEN_DECK
-            if (board.isUSBconnected())
-            #endif
-                sysConfig.handleMessage(midi.getSysExArray(interface), midi.getSysExArrayLength(interface));
+            sysConfig.handleMessage(midi.getSysExArray(interface), midi.getSysExArrayLength(interface));
             break;
 
             case midiMessageNoteOn:
@@ -189,43 +185,44 @@ void OpenDeck::checkMIDI()
     if (midi.read(usbInterface))
         processMessage(usbInterface);
 
-    // #ifdef DIN_MIDI_SUPPORTED
-    // if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled))
-    // {
-    //     if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
-    //     {
-    //         switch(database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeType))
-    //         {
-    //             case midiMergeDINtoUSB:
-    //             //dump everything from DIN MIDI in to USB MIDI out
-    //             midi.read(dinInterface, THRU_FULL_USB);
-    //             break;
+    #ifdef DIN_MIDI_SUPPORTED
+    if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled))
+    {
+        if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
+        {
+            switch(database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeType))
+            {
+                case midiMergeDINtoUSB:
+                //dump everything from DIN MIDI in to USB MIDI out
+                midi.read(dinInterface, THRU_FULL_USB);
+                break;
 
-    //             // case midiMergeDINtoDIN:
-    //             //loopback is automatically configured here
-    //             // break;
+                // case midiMergeDINtoDIN:
+                //loopback is automatically configured here
+                // break;
 
-    //             // case midiMergeODmaster:
-    //             //auto configured
-    //             // break;
+                // case midiMergeODmaster:
+                //already configured
+                // break;
 
-    //             case midiMergeODslave:
-    //             //all merging takes place on virtual usb interface (usb-like format via uart, usb midi handlers)
-    //             if (midi.read(usbInterface))
-    //                 processMessage(usbInterface);
-    //             break;
+                case midiMergeODslave:
+                //handle the traffic regulary until slave is properly configured
+                //(upon receiving message from master)
+                if (midi.read(dinInterface))
+                    processMessage(dinInterface);
+                break;
 
-    //             default:
-    //             break;
-    //         }
-    //     }
-    //     else
-    //     {
-    //         if (midi.read(dinInterface))
-    //             processMessage(dinInterface);
-    //     }
-    // }
-    // #endif
+                default:
+                break;
+            }
+        }
+        else
+        {
+            if (midi.read(dinInterface))
+                processMessage(dinInterface);
+        }
+    }
+    #endif
 }
 
 void OpenDeck::update()

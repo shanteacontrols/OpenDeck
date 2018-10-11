@@ -314,3 +314,11 @@ bool Board::getUARTloopbackState(uint8_t channel)
 
     return loopbackEnabled[channel];
 }
+
+bool Board::isUARTtxEmpty(uint8_t channel)
+{
+    if (channel >= UART_INTERFACES)
+        return false;
+
+    return (RingBuffer_GetCount(&txBuffer[channel]) == 0);
+}

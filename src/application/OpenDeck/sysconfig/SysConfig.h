@@ -94,7 +94,7 @@ class SysConfig : public SysEx
     ///
     /// \brief Configures UART read/write handlers for MIDI module.
     ///
-    void setupMIDIoverUART();
+    void setupMIDIoverUART(uint32_t baudRate, bool initRX, bool initTX);
 
     ///
     /// \brief Configures USB read/write handlers for MIDI module.
@@ -103,6 +103,7 @@ class SysConfig : public SysEx
 
     #ifdef DIN_MIDI_SUPPORTED
     void configureMIDImerge(midiMergeType_t mergeType);
+    void sendDaisyChainRequest();
     #endif
 
     uint32_t lastCinfoMsgTime[DB_BLOCKS];

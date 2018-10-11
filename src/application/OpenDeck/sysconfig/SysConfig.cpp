@@ -75,6 +75,21 @@ bool SysConfig::onCustomRequest(uint8_t value)
         addToResponse(MAX_NUMBER_OF_LEDS);
         break;
 
+        #ifdef DIN_MIDI_SUPPORTED
+        case SYSEX_CR_DAISY_CHAIN:
+        //received message from opendeck board in daisy chain configuration
+        //check if this board is master
+        if ((midiMergeType_t)database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeType) == midiMergeODslave)
+        {
+            //slave
+            //send sysex to next board in the chain on uart channel
+            sendDaisyChainRequest();
+            //now configure daisy-chain configuration
+            configureMIDImerge(midiMergeODslave);
+        }
+        break;
+        #endif
+
         case SYSEX_CR_ENABLE_PROCESSING:
         processingEnabled = true;
         break;
@@ -306,7 +321,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, sysExParam
                 #ifndef DIN_MIDI_SUPPORTED
                 setError(ERROR_NOT_SUPPORTED);
                 #else
-                newValue ? setupMIDIoverUART() : board.resetUART(UART_MIDI_CHANNEL);
+                newValue ? setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true) : board.resetUART(UART_MIDI_CHANNEL);
                 success = true;
                 #endif
                 break;
@@ -346,7 +361,11 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, sysExParam
                     if ((newValue >= 0) && (newValue < MIDI_MERGE_TYPES))
                     {
                         success = true;
-                        configureMIDImerge((midiMergeType_t)newValue);
+
+                        if ((midiMergeType_t)newValue == midiMergeODslave)
+                            setupMIDIoverUART(UART_BAUDRATE_MIDI_OD, true, false); //init only uart read interface for now
+                        else
+                            configureMIDImerge((midiMergeType_t)newValue);
                     }
                     else
                     {
@@ -653,19 +672,33 @@ bool SysConfig::isProcessingEnabled()
 }
 
 #ifdef DIN_MIDI_SUPPORTED
-void SysConfig::setupMIDIoverUART()
+void SysConfig::setupMIDIoverUART(uint32_t baudRate, bool initRX, bool initTX)
 {
-    board.initUART(UART_BAUDRATE_MIDI_STD, UART_MIDI_CHANNEL);
+    board.initUART(baudRate, UART_MIDI_CHANNEL);
 
-    midi.handleUARTread([](uint8_t &data)
+    if (initRX)
     {
-        return Board::uartRead(UART_MIDI_CHANNEL, data);
-    });
+        midi.handleUARTread([](uint8_t &data)
+        {
+            return Board::uartRead(UART_MIDI_CHANNEL, data);
+        });
+    }
+    else
+    {
+        midi.handleUARTread(nullptr);
+    }
 
-    midi.handleUARTwrite([](uint8_t data)
+    if (initTX)
     {
-        return Board::uartWrite(UART_MIDI_CHANNEL, data);
-    });
+        midi.handleUARTwrite([](uint8_t data)
+        {
+            return Board::uartWrite(UART_MIDI_CHANNEL, data);
+        });
+    }
+    else
+    {
+        midi.handleUARTwrite(nullptr);
+    }
 }
 #endif
 
@@ -680,12 +713,20 @@ void SysConfig::setupMIDIoverUSB()
 
     midi.handleUSBread([](USBMIDIpacket_t& USBMIDIpacket)
     {
-        return Board::uartReadMIDI_OD(UART_USB_LINK_CHANNEL, USBMIDIpacket);
+        odPacketType_t odPacketType;
+
+        if (Board::uartReadOD(UART_USB_LINK_CHANNEL, USBMIDIpacket, odPacketType))
+        {
+            if (odPacketType == packetMIDI)
+                return true;
+        }
+
+        return false;
     });
 
     midi.handleUSBwrite([](USBMIDIpacket_t& USBMIDIpacket)
     {
-        return Board::uartWriteMIDI_OD(UART_USB_LINK_CHANNEL, USBMIDIpacket);
+        return Board::uartWriteOD(UART_USB_LINK_CHANNEL, USBMIDIpacket, packetMIDI);
     });
     #endif
 }
@@ -728,10 +769,20 @@ void SysConfig::configureMIDI()
         //use recursive parsing when merging is active
         midi.useRecursiveParsing(database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled));
 
+        //only configure master
         if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
-            configureMIDImerge((midiMergeType_t)database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeType));
+        {
+            midiMergeType_t type = (midiMergeType_t)database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeType);
+
+            if (type == midiMergeODslave)
+                setupMIDIoverUART(UART_BAUDRATE_MIDI_OD, true, false); //init only uart read interface for now
+            else
+                configureMIDImerge(type);
+        }
         else
-            setupMIDIoverUART();
+        {
+            setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true);
+        }
     }
     else
     {
@@ -750,32 +801,39 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
         case midiMergeODmaster:
         board.setUARTloopbackState(UART_MIDI_CHANNEL, false);
         board.initUART(UART_BAUDRATE_MIDI_OD, UART_MIDI_CHANNEL);
-        //read usb midi data and forward it to uart in od format
-        //also use it to forward all incoming data from other boards to usb
-        //write standard usb midi data
+        //before enabling master configuration, send slave request to other boards
+        sendDaisyChainRequest();
+
         midi.handleUSBread([](USBMIDIpacket_t& USBMIDIpacket)
         {
             //dump everything from MIDI in to USB MIDI out
             USBMIDIpacket_t slavePacket;
+            odPacketType_t packetType;
 
-            if (Board::uartReadMIDI_OD(UART_MIDI_CHANNEL, slavePacket))
-                #ifdef USB_SUPPORTED
-                Board::usbWriteMIDI(slavePacket);
-                #else
-                Board::uartWriteMIDI_OD(UART_USB_LINK_CHANNEL, slavePacket);
-                #endif
+            //use this function to forward all incoming data from other boards to usb
+            if (Board::uartReadOD(UART_MIDI_CHANNEL, slavePacket, packetType))
+            {
+                if (packetType == packetMIDI)
+                {
+                    #ifdef USB_SUPPORTED
+                    Board::usbWriteMIDI(slavePacket);
+                    #else
+                    Board::uartWriteOD(UART_USB_LINK_CHANNEL, slavePacket, packetMIDI);
+                    #endif
+                }
+            }
 
+            //read usb midi data and forward it to uart in od format
             #ifdef USB_SUPPORTED
             if (Board::usbReadMIDI(USBMIDIpacket))
             {
-                Board::uartWriteMIDI_OD(UART_MIDI_CHANNEL, USBMIDIpacket);
-                return true;
+                return Board::uartWriteOD(UART_MIDI_CHANNEL, USBMIDIpacket, packetMIDI_dc_m);
             }
             #else
-            if (Board::uartReadMIDI_OD(UART_USB_LINK_CHANNEL, USBMIDIpacket))
+            if (Board::uartReadOD(UART_USB_LINK_CHANNEL, USBMIDIpacket, packetType))
             {
-                Board::uartWriteMIDI_OD(UART_MIDI_CHANNEL, USBMIDIpacket);
-                return true;
+                if (packetType == packetMIDI)
+                    return Board::uartWriteOD(UART_MIDI_CHANNEL, USBMIDIpacket, packetMIDI_dc_m);
             }
             #endif
 
@@ -787,7 +845,7 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
         #else
         midi.handleUSBwrite([](USBMIDIpacket_t& USBMIDIpacket)
         {
-            return Board::uartWriteMIDI_OD(UART_USB_LINK_CHANNEL, USBMIDIpacket);
+            return Board::uartWriteOD(UART_USB_LINK_CHANNEL, USBMIDIpacket, packetMIDI);
         });
         #endif
         //unused
@@ -796,25 +854,26 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
         break;
 
         case midiMergeODslave:
-        board.initUART(UART_BAUDRATE_MIDI_OD, UART_MIDI_CHANNEL);
         board.setUARTloopbackState(UART_MIDI_CHANNEL, false);
+        board.initUART(UART_BAUDRATE_MIDI_OD, UART_MIDI_CHANNEL);
+        //forward all incoming messages to other boards
         midi.handleUSBread([](USBMIDIpacket_t& USBMIDIpacket)
         {
-            if (Board::uartReadMIDI_OD(UART_MIDI_CHANNEL, USBMIDIpacket))
+            odPacketType_t packetType;
+
+            if (Board::uartReadOD(UART_MIDI_CHANNEL, USBMIDIpacket, packetType))
             {
-                Board::uartWriteMIDI_OD(UART_MIDI_CHANNEL, USBMIDIpacket);
-                return true;
+                if (packetType != packetIntCMD)
+                    return Board::uartWriteOD(UART_MIDI_CHANNEL, USBMIDIpacket, packetType);
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         });
 
         //write data to uart (opendeck format)
         midi.handleUSBwrite([](USBMIDIpacket_t& USBMIDIpacket)
         {
-            return Board::uartWriteMIDI_OD(UART_MIDI_CHANNEL, USBMIDIpacket);
+            return Board::uartWriteOD(UART_MIDI_CHANNEL, USBMIDIpacket, packetMIDI);
         });
 
         //no need for uart handlers
@@ -823,8 +882,9 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
         break;
 
         case midiMergeDINtoDIN:
+        board.initUART(UART_BAUDRATE_MIDI_STD, UART_MIDI_CHANNEL);
         //handle traffic directly in isr
-        Board::setUARTloopbackState(UART_MIDI_CHANNEL, true);
+        board.setUARTloopbackState(UART_MIDI_CHANNEL, true);
         //no need for uart handlers
         midi.handleUARTread(nullptr);
         midi.handleUARTwrite(nullptr);
@@ -832,11 +892,28 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
 
         case midiMergeDINtoUSB:
         setupMIDIoverUSB();
-        setupMIDIoverUART();
+        setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true);
         break;
 
         default:
         break;
     }
 }
+
+void SysConfig::sendDaisyChainRequest()
+{
+    sysExParameter_t daisyChainMessage[1];
+
+    //disable sending of this message on main/usb channel
+    midi.handleUSBwrite(nullptr);
+    midi.handleUARTwrite([](uint8_t data)
+    {
+        return Board::uartWrite(UART_MIDI_CHANNEL, data);
+    });
+
+    daisyChainMessage[0] = SYSEX_CR_DAISY_CHAIN;
+    sendCustomMessage(midi.usbMessage.sysexArray, daisyChainMessage, 1, false);
+    while (!board.isUARTtxEmpty(UART_MIDI_CHANNEL));
+}
+
 #endif

@@ -26,6 +26,7 @@
 #include "common/DataTypes.h"
 #include "dbms/src/DataTypes.h"
 #include "midi/src/DataTypes.h"
+#include "board/common/uart/ODformat.h"
 
 #ifdef __AVR__
 #include "avr/variants/Common.h"
@@ -134,21 +135,22 @@ class Board
     static bool usbWriteMIDI(USBMIDIpacket_t& USBMIDIpacket);
 
     ///
-    /// \brief Used to read MIDI data using custom OpenDeck format from UART interface.
-    /// @param [in] channel     UART channel on MCU.
+    /// \brief Used to read data using custom OpenDeck format from UART interface.
+    /// @param [in] channel         UART channel on MCU.
+    /// @param [in] USBMIDIpacket   Pointer to structure holding MIDI data being read.
+    /// @param [in] packetType      Pointer to variable in which read packet type is being stored.
     /// \returns True if data is available, false otherwise.
     ///
-    static bool uartReadMIDI_OD(uint8_t channel, USBMIDIpacket_t& USBMIDIpacket);
+    static bool uartReadOD(uint8_t channel, USBMIDIpacket_t& USBMIDIpacket, odPacketType_t& packetType);
 
     ///
-    /// \brief Used to write MIDI data using custom OpenDeck format to UART interface.
+    /// \brief Used to write data using custom OpenDeck format to UART interface.
     /// @param [in] channel         UART channel on MCU.
     /// @param [in] USBMIDIpacket   Pointer to structure holding MIDI data to write.
-    /// @param [in] internalCMD     Flag signaling whether the packet is USB data (true) or internal command
-    ///                             used for communication between target MCU and USB link (false).
+    /// @param [in] packetType      Type of OpenDeck packet to send.
     /// \returns True on success, false otherwise.
     ///
-    static bool uartWriteMIDI_OD(uint8_t channel, USBMIDIpacket_t& USBMIDIpacket, bool internalCMD = false);
+    static bool uartWriteOD(uint8_t channel, USBMIDIpacket_t& USBMIDIpacket, odPacketType_t packetType);
 
     ///
     /// \brief Used to enable or disable UART loopback functionality.
@@ -163,6 +165,13 @@ class Board
     /// @param [in] channel UART channel on MCU.
     ///
     static bool getUARTloopbackState(uint8_t channel);
+
+    ///
+    /// \brief Checks if all data on specified UART channel has been sent.
+    /// @param [in] channel UART channel on MCU.
+    /// \returns True if there is no more data to transmit, false otherwise.
+    ///
+    static bool isUARTtxEmpty(uint8_t channel);
 
     ///
     /// \brief Checks if digital input data is available (encoder and button data).

@@ -30,14 +30,18 @@ int main(void)
     sei();
 
     USBMIDIpacket_t USBMIDIpacket;
+    odPacketType_t  packetType;
 
     while (1)
     {
         if (board.usbReadMIDI(USBMIDIpacket))
-            board.uartWriteMIDI_OD(UART_USB_LINK_CHANNEL, USBMIDIpacket);
+            board.uartWriteOD(UART_USB_LINK_CHANNEL, USBMIDIpacket, packetMIDI);
 
-        if (board.uartReadMIDI_OD(UART_USB_LINK_CHANNEL, USBMIDIpacket))
-            board.usbWriteMIDI(USBMIDIpacket);
+        if (board.uartReadOD(UART_USB_LINK_CHANNEL, USBMIDIpacket, packetType))
+        {
+            if (packetType != packetIntCMD)
+                board.usbWriteMIDI(USBMIDIpacket);
+        }
 
         static bool lastUSBstate = false;
         bool usbState = board.isUSBconnected();
@@ -49,7 +53,7 @@ int main(void)
             USBMIDIpacket.Data2 = 0;
             USBMIDIpacket.Data3 = 0;
 
-            board.uartWriteMIDI_OD(UART_USB_LINK_CHANNEL, USBMIDIpacket, true);
+            board.uartWriteOD(UART_USB_LINK_CHANNEL, USBMIDIpacket, packetIntCMD);
             lastUSBstate = usbState;
         }
     }

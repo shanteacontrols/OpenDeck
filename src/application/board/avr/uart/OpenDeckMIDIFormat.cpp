@@ -17,16 +17,15 @@
 */
 
 #include "board/Board.h"
-#include "board/common/uart/ODformat.h"
 #include "board/common/uart/Variables.h"
 #include "board/common/indicators/Variables.h"
 
-bool Board::uartWriteMIDI_OD(uint8_t channel, USBMIDIpacket_t& USBMIDIpacket, bool internalCMD)
+bool Board::uartWriteOD(uint8_t channel, USBMIDIpacket_t& USBMIDIpacket, odPacketType_t packetType)
 {
     if (channel >= UART_INTERFACES)
         return false;
 
-    uartWrite(channel, internalCMD ? OD_FORMAT_INT_DATA_START : OD_FORMAT_MIDI_DATA_START);
+    uartWrite(channel, (uint8_t)packetType);
     uartWrite(channel, USBMIDIpacket.Event);
     uartWrite(channel, USBMIDIpacket.Data1);
     uartWrite(channel, USBMIDIpacket.Data2);
@@ -36,8 +35,10 @@ bool Board::uartWriteMIDI_OD(uint8_t channel, USBMIDIpacket_t& USBMIDIpacket, bo
     return true;
 }
 
-bool Board::uartReadMIDI_OD(uint8_t channel, USBMIDIpacket_t& USBMIDIpacket)
+bool Board::uartReadOD(uint8_t channel, USBMIDIpacket_t& USBMIDIpacket, odPacketType_t& packetType)
 {
+    packetType = packetInvalid;
+
     if (channel >= UART_INTERFACES)
         return false;
 
@@ -47,8 +48,10 @@ bool Board::uartReadMIDI_OD(uint8_t channel, USBMIDIpacket_t& USBMIDIpacket)
         uartRead(channel, data);
         uint8_t dataXOR = 0;
 
-        if (data == OD_FORMAT_MIDI_DATA_START)
+        if ((data == OD_FORMAT_MIDI_DATA_START) || (data == OD_FORMAT_MIDI_DATA_MASTER_START))
         {
+            packetType = (odPacketType_t)data;
+
             //start of frame, read rest of the packet
             for (int i=0; i<5; i++)
             {
@@ -119,6 +122,9 @@ bool Board::uartReadMIDI_OD(uint8_t channel, USBMIDIpacket_t& USBMIDIpacket)
                 default:
                 break;
             }
+
+            packetType = packetIntCMD;
+            return true;
         }
     }
 
