@@ -356,5 +356,10 @@ static sysExCustomRequest_t customRequests[NUMBER_OF_CUSTOM_REQUESTS] =
     {
         .requestID = SYSEX_CR_DISABLE_PROCESSING,
         .connOpenCheck = true
+    },
+
+    {
+        .requestID = SYSEX_CR_DAISY_CHAIN,
+        .connOpenCheck = false
     }
 };

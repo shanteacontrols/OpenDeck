@@ -31,13 +31,14 @@
 #define SYSEX_CR_MAX_COMPONENTS             0x4D
 #define SYSEX_CR_ENABLE_PROCESSING          0x65
 #define SYSEX_CR_DISABLE_PROCESSING         0x64
+#define SYSEX_CR_DAISY_CHAIN                0x6D
 
 /// @}
 
 ///
 /// \brief Total number of custom requests.
 ///
-#define NUMBER_OF_CUSTOM_REQUESTS           9
+#define NUMBER_OF_CUSTOM_REQUESTS           10
 
 ///
 /// \brief Custom ID used when sending info about components to host.
