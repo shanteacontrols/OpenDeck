@@ -32,7 +32,7 @@
 class LEDs
 {
     public:
-    LEDs(Board &board, Database &database) : board(board), database(database) {}
+    LEDs(Database &database) : database(database) {}
     void init(bool startUp = true);
     void checkBlinking(bool forceChange = false);
     void setAllOn();
@@ -54,7 +54,6 @@ class LEDs
     void handleLED(uint8_t ledID, bool state, bool rgbLED = false, rgbIndex_t index = rgb_R);
     void startUpAnimation();
 
-    Board               &board;
     Database            &database;
 
     ///

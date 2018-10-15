@@ -26,215 +26,218 @@
 #include "core/src/HAL/avr/PinManipulation.h"
 #include "core/src/HAL/avr/adc/ADC.h"
 
-#define START_UP_ANIM_DELAY 120
-
-void tanninStartUpAnimation()
+namespace Board
 {
-    //on sequence
-    BIT_SET(ledState[3], LED_ACTIVE_BIT);
-    BIT_SET(ledState[3], LED_STATE_BIT);
-    BIT_SET(ledState[19], LED_ACTIVE_BIT);
-    BIT_SET(ledState[19], LED_STATE_BIT);
-    wait_ms(START_UP_ANIM_DELAY);
+    namespace detail
+    {
+        void initPins()
+        {
+            //configure input matrix
+            //shift register
+            setInput(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN);
+            setOutput(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+            setOutput(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
 
-    BIT_SET(ledState[2], LED_ACTIVE_BIT);
-    BIT_SET(ledState[2], LED_STATE_BIT);
-    BIT_SET(ledState[18], LED_ACTIVE_BIT);
-    BIT_SET(ledState[18], LED_STATE_BIT);
-    wait_ms(START_UP_ANIM_DELAY);
+            //decoder
+            setOutput(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
+            setOutput(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
+            setOutput(DEC_DM_A1_PORT, DEC_DM_A2_PIN);
 
-    BIT_SET(ledState[1], LED_ACTIVE_BIT);
-    BIT_SET(ledState[1], LED_STATE_BIT);
-    BIT_SET(ledState[17], LED_ACTIVE_BIT);
-    BIT_SET(ledState[17], LED_STATE_BIT);
-    BIT_SET(ledState[11], LED_ACTIVE_BIT);
-    BIT_SET(ledState[11], LED_STATE_BIT);
-    BIT_SET(ledState[27], LED_ACTIVE_BIT);
-    BIT_SET(ledState[27], LED_STATE_BIT);
-    wait_ms(START_UP_ANIM_DELAY);
+            //configure led matrix
+            //rows
+            setOutput(LED_ROW_1_PORT, LED_ROW_1_PIN);
+            setOutput(LED_ROW_2_PORT, LED_ROW_2_PIN);
+            setOutput(LED_ROW_3_PORT, LED_ROW_3_PIN);
+            setOutput(LED_ROW_4_PORT, LED_ROW_4_PIN);
 
-    BIT_SET(ledState[0], LED_ACTIVE_BIT);
-    BIT_SET(ledState[0], LED_STATE_BIT);
-    BIT_SET(ledState[16], LED_ACTIVE_BIT);
-    BIT_SET(ledState[16], LED_STATE_BIT);
-    BIT_SET(ledState[10], LED_ACTIVE_BIT);
-    BIT_SET(ledState[10], LED_STATE_BIT);
-    BIT_SET(ledState[26], LED_ACTIVE_BIT);
-    BIT_SET(ledState[26], LED_STATE_BIT);
-    wait_ms(START_UP_ANIM_DELAY);
+            //make sure to turn all rows off
+            EXT_LED_OFF(LED_ROW_1_PORT, LED_ROW_1_PIN);
+            EXT_LED_OFF(LED_ROW_2_PORT, LED_ROW_2_PIN);
+            EXT_LED_OFF(LED_ROW_3_PORT, LED_ROW_3_PIN);
+            EXT_LED_OFF(LED_ROW_4_PORT, LED_ROW_4_PIN);
 
-    BIT_SET(ledState[9], LED_ACTIVE_BIT);
-    BIT_SET(ledState[9], LED_STATE_BIT);
-    BIT_SET(ledState[25], LED_ACTIVE_BIT);
-    BIT_SET(ledState[25], LED_STATE_BIT);
-    wait_ms(START_UP_ANIM_DELAY);
+            //decoder
+            setOutput(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
+            setOutput(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
+            setOutput(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
 
-    BIT_SET(ledState[8], LED_ACTIVE_BIT);
-    BIT_SET(ledState[8], LED_STATE_BIT);
-    BIT_SET(ledState[24], LED_ACTIVE_BIT);
-    BIT_SET(ledState[24], LED_STATE_BIT);
-    wait_ms(2000);
+            //configure analog
+            //select pins
+            setOutput(MUX_S0_PORT, MUX_S0_PIN);
+            setOutput(MUX_S1_PORT, MUX_S1_PIN);
+            setOutput(MUX_S2_PORT, MUX_S2_PIN);
+            setOutput(MUX_S3_PORT, MUX_S3_PIN);
 
-    //off sequence
-    BIT_CLEAR(ledState[0], LED_ACTIVE_BIT);
-    BIT_CLEAR(ledState[0], LED_STATE_BIT);
-    BIT_CLEAR(ledState[16], LED_ACTIVE_BIT);
-    BIT_CLEAR(ledState[16], LED_STATE_BIT);
-    wait_ms(START_UP_ANIM_DELAY);
+            setLow(MUX_S0_PORT, MUX_S0_PIN);
+            setLow(MUX_S1_PORT, MUX_S1_PIN);
+            setLow(MUX_S2_PORT, MUX_S2_PIN);
+            setLow(MUX_S3_PORT, MUX_S3_PIN);
 
-    BIT_CLEAR(ledState[1], LED_ACTIVE_BIT);
-    BIT_CLEAR(ledState[1], LED_STATE_BIT);
-    BIT_CLEAR(ledState[17], LED_ACTIVE_BIT);
-    BIT_CLEAR(ledState[17], LED_STATE_BIT);
-    wait_ms(START_UP_ANIM_DELAY);
+            //mux inputs
+            setInput(MUX_1_IN_PORT, MUX_1_IN_PIN);
+        }
 
-    BIT_CLEAR(ledState[2], LED_ACTIVE_BIT);
-    BIT_CLEAR(ledState[2], LED_STATE_BIT);
-    BIT_CLEAR(ledState[18], LED_ACTIVE_BIT);
-    BIT_CLEAR(ledState[18], LED_STATE_BIT);
-    BIT_CLEAR(ledState[8], LED_ACTIVE_BIT);
-    BIT_CLEAR(ledState[8], LED_STATE_BIT);
-    BIT_CLEAR(ledState[24], LED_ACTIVE_BIT);
-    BIT_CLEAR(ledState[24], LED_STATE_BIT);
-    wait_ms(START_UP_ANIM_DELAY);
+        void initAnalog()
+        {
+            disconnectDigitalInADC(MUX_1_IN_PIN);
 
-    BIT_CLEAR(ledState[3], LED_ACTIVE_BIT);
-    BIT_CLEAR(ledState[3], LED_STATE_BIT);
-    BIT_CLEAR(ledState[19], LED_ACTIVE_BIT);
-    BIT_CLEAR(ledState[19], LED_STATE_BIT);
-    BIT_CLEAR(ledState[9], LED_ACTIVE_BIT);
-    BIT_CLEAR(ledState[9], LED_STATE_BIT);
-    BIT_CLEAR(ledState[25], LED_ACTIVE_BIT);
-    BIT_CLEAR(ledState[25], LED_STATE_BIT);
-    wait_ms(START_UP_ANIM_DELAY);
+            adcConf adcConfiguration;
 
-    BIT_CLEAR(ledState[10], LED_ACTIVE_BIT);
-    BIT_CLEAR(ledState[10], LED_STATE_BIT);
-    BIT_CLEAR(ledState[26], LED_ACTIVE_BIT);
-    BIT_CLEAR(ledState[26], LED_STATE_BIT);
-    wait_ms(START_UP_ANIM_DELAY);
+            adcConfiguration.prescaler = ADC_PRESCALER_128;
+            adcConfiguration.vref = ADC_VREF_AREF;
 
-    BIT_CLEAR(ledState[11], LED_ACTIVE_BIT);
-    BIT_CLEAR(ledState[11], LED_STATE_BIT);
-    BIT_CLEAR(ledState[27], LED_ACTIVE_BIT);
-    BIT_CLEAR(ledState[27], LED_STATE_BIT);
-    wait_ms(2000);
-}
+            setUpADC(adcConfiguration);
+            setADCchannel(MUX_1_IN_PIN);
 
-void Board::initPins()
-{
-    //configure input matrix
-    //shift register
-    setInput(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN);
-    setOutput(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
-    setOutput(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+            for (int i=0; i<3; i++)
+                getADCvalue();  //few dummy reads to init ADC
 
-    //decoder
-    setOutput(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
-    setOutput(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
-    setOutput(DEC_DM_A1_PORT, DEC_DM_A2_PIN);
+            adcInterruptEnable();
+            startADCconversion();
+        }
 
-    //configure led matrix
-    //rows
-    setOutput(LED_ROW_1_PORT, LED_ROW_1_PIN);
-    setOutput(LED_ROW_2_PORT, LED_ROW_2_PIN);
-    setOutput(LED_ROW_3_PORT, LED_ROW_3_PIN);
-    setOutput(LED_ROW_4_PORT, LED_ROW_4_PIN);
+        void configureTimers()
+        {
+            //clear timer0 conf
+            TCCR0A = 0;
+            TCCR0B = 0;
+            TIMSK0 = 0;
 
-    //make sure to turn all rows off
-    EXT_LED_OFF(LED_ROW_1_PORT, LED_ROW_1_PIN);
-    EXT_LED_OFF(LED_ROW_2_PORT, LED_ROW_2_PIN);
-    EXT_LED_OFF(LED_ROW_3_PORT, LED_ROW_3_PIN);
-    EXT_LED_OFF(LED_ROW_4_PORT, LED_ROW_4_PIN);
+            //clear timer1 conf
+            TCCR1A = 0;
+            TCCR1B = 0;
 
-    //decoder
-    setOutput(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
-    setOutput(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
-    setOutput(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
+            //clear timer3 conf
+            TCCR3A = 0;
+            TCCR3B = 0;
 
-    //configure analog
-    //select pins
-    setOutput(MUX_S0_PORT, MUX_S0_PIN);
-    setOutput(MUX_S1_PORT, MUX_S1_PIN);
-    setOutput(MUX_S2_PORT, MUX_S2_PIN);
-    setOutput(MUX_S3_PORT, MUX_S3_PIN);
+            //clear timer4 conf
+            TCCR4A = 0;
+            TCCR4B = 0;
+            TCCR4C = 0;
+            TCCR4D = 0;
+            TCCR4E = 0;
 
-    setLow(MUX_S0_PORT, MUX_S0_PIN);
-    setLow(MUX_S1_PORT, MUX_S1_PIN);
-    setLow(MUX_S2_PORT, MUX_S2_PIN);
-    setLow(MUX_S3_PORT, MUX_S3_PIN);
+            //set timer1, timer3 and timer4 to phase correct pwm mode
+            //timer 1
+            TCCR1A |= (1<<WGM10);           //phase correct PWM
+            TCCR1B |= (1<<CS10);            //prescaler 1
+            //timer 3
+            TCCR3A |= (1<<WGM30);           //phase correct PWM
+            TCCR3B |= (1<<CS30);            //prescaler 1
+            //timer 4
+            TCCR4A |= (1<<PWM4A);           //Pulse Width Modulator A Enable
+            TCCR4B |= (1<<CS40);            //prescaler 1
+            TCCR4C |= (1<<PWM4D);           //Pulse Width Modulator D Enable
+            TCCR4D |= (1<<WGM40);           //phase correct PWM
 
-    //mux inputs
-    setInput(MUX_1_IN_PORT, MUX_1_IN_PIN);
-}
+            //set timer0 to ctc, used for millis/led matrix
+            TCCR0A |= (1<<WGM01);           //CTC mode
+            TCCR0B |= (1<<CS01)|(1<<CS00);  //prescaler 64
+            OCR0A = 124;                    //500us
+            TIMSK0 |= (1<<OCIE0A);          //compare match interrupt
+        }
+    }
 
-void Board::initAnalog()
-{
-    disconnectDigitalInADC(MUX_1_IN_PIN);
+    void ledFlashStartup(bool fwUpdated)
+    {
+        
+    }
 
-    adcConf adcConfiguration;
+    bool startUpAnimation()
+    {
+        #define START_UP_ANIM_DELAY 120
 
-    adcConfiguration.prescaler = ADC_PRESCALER_128;
-    adcConfiguration.vref = ADC_VREF_AREF;
+        //on sequence
+        BIT_SET(ledState[3], LED_ACTIVE_BIT);
+        BIT_SET(ledState[3], LED_STATE_BIT);
+        BIT_SET(ledState[19], LED_ACTIVE_BIT);
+        BIT_SET(ledState[19], LED_STATE_BIT);
+        wait_ms(START_UP_ANIM_DELAY);
 
-    setUpADC(adcConfiguration);
-    setADCchannel(MUX_1_IN_PIN);
+        BIT_SET(ledState[2], LED_ACTIVE_BIT);
+        BIT_SET(ledState[2], LED_STATE_BIT);
+        BIT_SET(ledState[18], LED_ACTIVE_BIT);
+        BIT_SET(ledState[18], LED_STATE_BIT);
+        wait_ms(START_UP_ANIM_DELAY);
 
-    for (int i=0; i<3; i++)
-        getADCvalue();  //few dummy reads to init ADC
+        BIT_SET(ledState[1], LED_ACTIVE_BIT);
+        BIT_SET(ledState[1], LED_STATE_BIT);
+        BIT_SET(ledState[17], LED_ACTIVE_BIT);
+        BIT_SET(ledState[17], LED_STATE_BIT);
+        BIT_SET(ledState[11], LED_ACTIVE_BIT);
+        BIT_SET(ledState[11], LED_STATE_BIT);
+        BIT_SET(ledState[27], LED_ACTIVE_BIT);
+        BIT_SET(ledState[27], LED_STATE_BIT);
+        wait_ms(START_UP_ANIM_DELAY);
 
-    adcInterruptEnable();
-    startADCconversion();
-}
+        BIT_SET(ledState[0], LED_ACTIVE_BIT);
+        BIT_SET(ledState[0], LED_STATE_BIT);
+        BIT_SET(ledState[16], LED_ACTIVE_BIT);
+        BIT_SET(ledState[16], LED_STATE_BIT);
+        BIT_SET(ledState[10], LED_ACTIVE_BIT);
+        BIT_SET(ledState[10], LED_STATE_BIT);
+        BIT_SET(ledState[26], LED_ACTIVE_BIT);
+        BIT_SET(ledState[26], LED_STATE_BIT);
+        wait_ms(START_UP_ANIM_DELAY);
 
-void Board::configureTimers()
-{
-    //clear timer0 conf
-    TCCR0A = 0;
-    TCCR0B = 0;
-    TIMSK0 = 0;
+        BIT_SET(ledState[9], LED_ACTIVE_BIT);
+        BIT_SET(ledState[9], LED_STATE_BIT);
+        BIT_SET(ledState[25], LED_ACTIVE_BIT);
+        BIT_SET(ledState[25], LED_STATE_BIT);
+        wait_ms(START_UP_ANIM_DELAY);
 
-    //clear timer1 conf
-    TCCR1A = 0;
-    TCCR1B = 0;
+        BIT_SET(ledState[8], LED_ACTIVE_BIT);
+        BIT_SET(ledState[8], LED_STATE_BIT);
+        BIT_SET(ledState[24], LED_ACTIVE_BIT);
+        BIT_SET(ledState[24], LED_STATE_BIT);
+        wait_ms(2000);
 
-    //clear timer3 conf
-    TCCR3A = 0;
-    TCCR3B = 0;
+        //off sequence
+        BIT_CLEAR(ledState[0], LED_ACTIVE_BIT);
+        BIT_CLEAR(ledState[0], LED_STATE_BIT);
+        BIT_CLEAR(ledState[16], LED_ACTIVE_BIT);
+        BIT_CLEAR(ledState[16], LED_STATE_BIT);
+        wait_ms(START_UP_ANIM_DELAY);
 
-    //clear timer4 conf
-    TCCR4A = 0;
-    TCCR4B = 0;
-    TCCR4C = 0;
-    TCCR4D = 0;
-    TCCR4E = 0;
+        BIT_CLEAR(ledState[1], LED_ACTIVE_BIT);
+        BIT_CLEAR(ledState[1], LED_STATE_BIT);
+        BIT_CLEAR(ledState[17], LED_ACTIVE_BIT);
+        BIT_CLEAR(ledState[17], LED_STATE_BIT);
+        wait_ms(START_UP_ANIM_DELAY);
 
-    //set timer1, timer3 and timer4 to phase correct pwm mode
-    //timer 1
-    TCCR1A |= (1<<WGM10);           //phase correct PWM
-    TCCR1B |= (1<<CS10);            //prescaler 1
-    //timer 3
-    TCCR3A |= (1<<WGM30);           //phase correct PWM
-    TCCR3B |= (1<<CS30);            //prescaler 1
-    //timer 4
-    TCCR4A |= (1<<PWM4A);           //Pulse Width Modulator A Enable
-    TCCR4B |= (1<<CS40);            //prescaler 1
-    TCCR4C |= (1<<PWM4D);           //Pulse Width Modulator D Enable
-    TCCR4D |= (1<<WGM40);           //phase correct PWM
+        BIT_CLEAR(ledState[2], LED_ACTIVE_BIT);
+        BIT_CLEAR(ledState[2], LED_STATE_BIT);
+        BIT_CLEAR(ledState[18], LED_ACTIVE_BIT);
+        BIT_CLEAR(ledState[18], LED_STATE_BIT);
+        BIT_CLEAR(ledState[8], LED_ACTIVE_BIT);
+        BIT_CLEAR(ledState[8], LED_STATE_BIT);
+        BIT_CLEAR(ledState[24], LED_ACTIVE_BIT);
+        BIT_CLEAR(ledState[24], LED_STATE_BIT);
+        wait_ms(START_UP_ANIM_DELAY);
 
-    //set timer0 to ctc, used for millis/led matrix
-    TCCR0A |= (1<<WGM01);           //CTC mode
-    TCCR0B |= (1<<CS01)|(1<<CS00);  //prescaler 64
-    OCR0A = 124;                    //500us
-    TIMSK0 |= (1<<OCIE0A);          //compare match interrupt
-}
+        BIT_CLEAR(ledState[3], LED_ACTIVE_BIT);
+        BIT_CLEAR(ledState[3], LED_STATE_BIT);
+        BIT_CLEAR(ledState[19], LED_ACTIVE_BIT);
+        BIT_CLEAR(ledState[19], LED_STATE_BIT);
+        BIT_CLEAR(ledState[9], LED_ACTIVE_BIT);
+        BIT_CLEAR(ledState[9], LED_STATE_BIT);
+        BIT_CLEAR(ledState[25], LED_ACTIVE_BIT);
+        BIT_CLEAR(ledState[25], LED_STATE_BIT);
+        wait_ms(START_UP_ANIM_DELAY);
 
-void Board::ledFlashStartup(bool fwUpdated)
-{
-    
-}
+        BIT_CLEAR(ledState[10], LED_ACTIVE_BIT);
+        BIT_CLEAR(ledState[10], LED_STATE_BIT);
+        BIT_CLEAR(ledState[26], LED_ACTIVE_BIT);
+        BIT_CLEAR(ledState[26], LED_STATE_BIT);
+        wait_ms(START_UP_ANIM_DELAY);
 
-void Board::initCustom()
-{
-    startUpAnimation = tanninStartUpAnimation;
+        BIT_CLEAR(ledState[11], LED_ACTIVE_BIT);
+        BIT_CLEAR(ledState[11], LED_STATE_BIT);
+        BIT_CLEAR(ledState[27], LED_ACTIVE_BIT);
+        BIT_CLEAR(ledState[27], LED_STATE_BIT);
+        wait_ms(2000);
+
+        return true;
+    }
 }

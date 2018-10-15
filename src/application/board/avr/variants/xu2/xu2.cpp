@@ -17,43 +17,41 @@
 */
 
 #include <avr/interrupt.h>
-#include "Variables.h"
 #include "board/Board.h"
 #include "board/common/uart/ODformat.h"
 
 int main(void)
 {
-    Board board;
-    board.init();
-    board.initUART(UART_BAUDRATE_MIDI_OD, UART_USB_LINK_CHANNEL);
+    Board::init();
+    Board::initUART(UART_BAUDRATE_MIDI_OD, UART_USB_LINK_CHANNEL);
 
     sei();
 
     USBMIDIpacket_t USBMIDIpacket;
-    odPacketType_t  packetType;
+    Board::odPacketType_t  packetType;
 
     while (1)
     {
-        if (board.usbReadMIDI(USBMIDIpacket))
-            board.uartWriteOD(UART_USB_LINK_CHANNEL, USBMIDIpacket, packetMIDI);
+        if (Board::usbReadMIDI(USBMIDIpacket))
+            Board::uartWriteOD(UART_USB_LINK_CHANNEL, USBMIDIpacket, Board::odPacketType_t::packetMIDI);
 
-        if (board.uartReadOD(UART_USB_LINK_CHANNEL, USBMIDIpacket, packetType))
+        if (Board::uartReadOD(UART_USB_LINK_CHANNEL, USBMIDIpacket, packetType))
         {
-            if (packetType != packetIntCMD)
-                board.usbWriteMIDI(USBMIDIpacket);
+            if (packetType != Board::odPacketType_t::packetIntCMD)
+                Board::usbWriteMIDI(USBMIDIpacket);
         }
 
         static bool lastUSBstate = false;
-        bool usbState = board.isUSBconnected();
+        bool usbState = Board::isUSBconnected();
 
         if (usbState != lastUSBstate)
         {
-            USBMIDIpacket.Event = usbState ? cmdUsbStateConnected : cmdUsbStateNotConnected;
+            USBMIDIpacket.Event = usbState ? (uint8_t)Board::odFormatCMD_t::cmdUsbStateConnected : (uint8_t)Board::odFormatCMD_t::cmdUsbStateNotConnected;
             USBMIDIpacket.Data1 = 0;
             USBMIDIpacket.Data2 = 0;
             USBMIDIpacket.Data3 = 0;
 
-            board.uartWriteOD(UART_USB_LINK_CHANNEL, USBMIDIpacket, packetIntCMD);
+            Board::uartWriteOD(UART_USB_LINK_CHANNEL, USBMIDIpacket, Board::odPacketType_t::packetIntCMD);
             lastUSBstate = usbState;
         }
     }

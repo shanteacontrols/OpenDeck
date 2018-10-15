@@ -18,31 +18,33 @@
 
 #pragma once
 
-///
-/// \ingroup boardCommon
-/// @{
+#include <inttypes.h>
 
-///
-/// \brief Lookup table used to convert encoder reading to pulses.
-///
-const int8_t encoderLookUpTable[16] =
+namespace Board
 {
-    0,
-    1,
-    -1,
-    2,
-    -1,
-    0,
-    -2,
-    1,
-    1,
-    -2,
-    0,
-    -1,
-    2,
-    -1,
-    1,
-    0
-};
-
-/// @}
+    namespace detail
+    {
+        ///
+        /// \brief Lookup table used to convert encoder reading to pulses.
+        ///
+        const int8_t encoderLookUpTable[16] =
+        {
+            0,
+            1,
+            -1,
+            2,
+            -1,
+            0,
+            -2,
+            1,
+            1,
+            -2,
+            0,
+            -1,
+            2,
+            -1,
+            1,
+            0
+        };
+    }
+}

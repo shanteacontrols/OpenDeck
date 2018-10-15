@@ -16,4 +16,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Map.h"
+#pragma once
+
+#include <inttypes.h>
+
+namespace Board
+{
+    namespace detail
+    {
+        void initMIDI_USB();
+    }
+}

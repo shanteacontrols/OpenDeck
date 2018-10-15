@@ -32,10 +32,8 @@ void LEDs::init(bool startUp)
             setFadeTime(1);
             #endif
 
-            if (board.startUpAnimation != nullptr)
-                board.startUpAnimation();
-            else
-                startUpAnimation();
+            if (!Board::startUpAnimation())
+                LEDs::startUpAnimation();
         }
 
         #ifdef LED_FADING_SUPPORTED
@@ -85,13 +83,13 @@ void LEDs::checkBlinking(bool forceChange)
         //assign changed state to all leds which have this speed
         for (int j=0; j<MAX_NUMBER_OF_LEDS; j++)
         {
-            if (!BIT_READ(ledState[j], LED_BLINK_ON_BIT))
+            if (!BIT_READ(Board::ledState[j], LED_BLINK_ON_BIT))
                 continue;
 
             if (blinkTimer[j] != i)
                 continue;
 
-            BIT_WRITE(ledState[j], LED_STATE_BIT, blinkState[i]);
+            BIT_WRITE(Board::ledState[j], LED_STATE_BIT, blinkState[i]);
         }
     }
 }
@@ -250,7 +248,7 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
         }
 
         ledColor_t color = colorOff;
-        bool rgbEnabled = database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, board.getRGBID(i));
+        bool rgbEnabled = database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, Board::getRGBID(i));
 
         if (setState)
         {
@@ -330,13 +328,13 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
 void LEDs::setBlinkState(uint8_t ledID, blinkSpeed_t state)
 {
     uint8_t ledArray[3], leds = 0;
-    uint8_t rgbIndex = board.getRGBID(ledID);
+    uint8_t rgbIndex = Board::getRGBID(ledID);
 
     if (database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, ledID))
     {
-        ledArray[0] = board.getRGBaddress(rgbIndex, rgb_R);
-        ledArray[1] = board.getRGBaddress(rgbIndex, rgb_G);
-        ledArray[2] = board.getRGBaddress(rgbIndex, rgb_B);
+        ledArray[0] = Board::getRGBaddress(rgbIndex, rgb_R);
+        ledArray[1] = Board::getRGBaddress(rgbIndex, rgb_G);
+        ledArray[2] = Board::getRGBaddress(rgbIndex, rgb_B);
 
         leds = 3;
     }
@@ -353,14 +351,14 @@ void LEDs::setBlinkState(uint8_t ledID, blinkSpeed_t state)
     {
         if ((bool)state)
         {
-            BIT_SET(ledState[ledArray[i]], LED_BLINK_ON_BIT);
+            BIT_SET(Board::ledState[ledArray[i]], LED_BLINK_ON_BIT);
             //this will turn the led on immediately
-            BIT_SET(ledState[ledArray[i]], LED_STATE_BIT);
+            BIT_SET(Board::ledState[ledArray[i]], LED_STATE_BIT);
         }
         else
         {
-            BIT_CLEAR(ledState[ledArray[i]], LED_BLINK_ON_BIT);
-            BIT_WRITE(ledState[ledArray[i]], LED_STATE_BIT, BIT_READ(ledState[ledArray[i]], LED_ACTIVE_BIT));
+            BIT_CLEAR(Board::ledState[ledArray[i]], LED_BLINK_ON_BIT);
+            BIT_WRITE(Board::ledState[ledArray[i]], LED_STATE_BIT, BIT_READ(Board::ledState[ledArray[i]], LED_ACTIVE_BIT));
         }
 
         blinkTimer[ledID] = (uint8_t)state;
@@ -383,13 +381,13 @@ void LEDs::setAllOff()
 
 void LEDs::setColor(uint8_t ledID, ledColor_t color)
 {
-    uint8_t rgbIndex = board.getRGBID(ledID);
+    uint8_t rgbIndex = Board::getRGBID(ledID);
 
     if (database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, ledID))
     {
-        uint8_t led1 = board.getRGBaddress(rgbIndex, rgb_R);
-        uint8_t led2 = board.getRGBaddress(rgbIndex, rgb_G);
-        uint8_t led3 = board.getRGBaddress(rgbIndex, rgb_B);
+        uint8_t led1 = Board::getRGBaddress(rgbIndex, rgb_R);
+        uint8_t led2 = Board::getRGBaddress(rgbIndex, rgb_G);
+        uint8_t led3 = Board::getRGBaddress(rgbIndex, rgb_B);
 
         handleLED(led1, BIT_READ(color, 0));
         handleLED(led2, BIT_READ(color, 1));
@@ -419,10 +417,10 @@ ledColor_t LEDs::getColor(uint8_t ledID)
         else
         {
             //rgb led
-            uint8_t rgbIndex = board.getRGBID(ledID);
-            uint8_t led1 = getState(board.getRGBaddress(rgbIndex, rgb_R));
-            uint8_t led2 = getState(board.getRGBaddress(rgbIndex, rgb_G));
-            uint8_t led3 = getState(board.getRGBaddress(rgbIndex, rgb_B));
+            uint8_t rgbIndex = Board::getRGBID(ledID);
+            uint8_t led1 = getState(Board::getRGBaddress(rgbIndex, rgb_R));
+            uint8_t led2 = getState(Board::getRGBaddress(rgbIndex, rgb_G));
+            uint8_t led3 = getState(Board::getRGBaddress(rgbIndex, rgb_B));
 
             uint8_t color = 0;
             color |= BIT_READ(led1, LED_RGB_B_BIT);
@@ -438,24 +436,24 @@ ledColor_t LEDs::getColor(uint8_t ledID)
 
 uint8_t LEDs::getState(uint8_t ledID)
 {
-    return ledState[ledID];
+    return Board::ledState[ledID];
 }
 
 bool LEDs::getBlinkState(uint8_t ledID)
 {
-    return BIT_READ(ledState[ledID], LED_BLINK_ON_BIT);
+    return BIT_READ(Board::ledState[ledID], LED_BLINK_ON_BIT);
 }
 
 bool LEDs::setFadeTime(uint8_t transitionSpeed)
 {
-    return board.setLEDfadeSpeed(transitionSpeed);
+    return Board::setLEDfadeSpeed(transitionSpeed);
 }
 
 void LEDs::handleLED(uint8_t ledID, bool state, bool rgbLED, rgbIndex_t index)
 {
     /*
 
-    LED state is stored into one byte (ledState). The bits have following meaning (7 being the MSB bit):
+    LED state is stored into one byte (Board::ledState). The bits have following meaning (7 being the MSB bit):
 
     7: B index of RGB LED
     6: G index of RGB LED
@@ -505,7 +503,7 @@ void LEDs::handleLED(uint8_t ledID, bool state, bool rgbLED, rgbIndex_t index)
         currentState = 0;
     }
 
-    ledState[ledID] = currentState;
+    Board::ledState[ledID] = currentState;
 }
 
 void LEDs::setBlinkType(blinkType_t blinkType)

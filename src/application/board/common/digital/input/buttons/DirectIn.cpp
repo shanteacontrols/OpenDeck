@@ -19,10 +19,15 @@
 #include "../Variables.h"
 #include "core/src/general/BitManipulation.h"
 
-bool Board::getButtonState(uint8_t buttonID)
+namespace Board
 {
-    uint8_t arrayIndex = buttonID/8;
-    uint8_t buttonIndex = buttonID - 8*arrayIndex;
+    bool getButtonState(uint8_t buttonID)
+    {
+        using namespace Board::detail;
 
-    return BIT_READ(digitalInBufferReadOnly[arrayIndex], buttonIndex);
+        uint8_t arrayIndex = buttonID/8;
+        uint8_t buttonIndex = buttonID - 8*arrayIndex;
+
+        return BIT_READ(digitalInBufferReadOnly[arrayIndex], buttonIndex);
+    }
 }

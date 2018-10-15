@@ -25,22 +25,26 @@
 #include "core/src/HAL/avr/PinManipulation.h"
 #include "core/src/HAL/avr/adc/ADC.h"
 
-
 ///
 /// \brief Implementation of core variable used to keep track of run time in milliseconds.
 ///
 volatile uint32_t rTime_ms;
 
-#ifdef LED_INDICATORS
-volatile uint8_t    midiIn_timeout;
-volatile uint8_t    midiOut_timeout;
-#endif
+namespace Board
+{
+    namespace detail
+    {
+        #ifdef LED_INDICATORS
+        volatile uint8_t    midiIn_timeout;
+        volatile uint8_t    midiOut_timeout;
+        #endif
 
-volatile bool       USBreceived;
-volatile bool       USBsent;
-volatile bool       UARTreceived;
-volatile bool       UARTsent;
-
+        volatile bool       USBreceived;
+        volatile bool       USBsent;
+        volatile bool       UARTreceived;
+        volatile bool       UARTsent;
+    }
+}
 
 ///
 /// \brief Main interrupt service routine.
@@ -48,6 +52,9 @@ volatile bool       UARTsent;
 ///
 ISR(CORE_ISR)
 {
+    using namespace Board;
+    using namespace Board::detail;
+
     static bool _1ms = true;
     _1ms = !_1ms;
 
@@ -106,6 +113,8 @@ ISR(ADC_ISR)
 {
     //always ignore first reading
     static bool ignoreFirst = true;
+
+    using namespace Board::detail;
 
     if (!ignoreFirst)
     {

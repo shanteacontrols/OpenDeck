@@ -20,12 +20,18 @@
 
 #include "core/src/general/RingBuffer.h"
 
-///
-/// \brief Buffer in which outgoing UART data is stored.
-///
-extern RingBuff_t   txBuffer[UART_INTERFACES];
+namespace Board
+{
+    namespace detail
+    {
+        ///
+        /// \brief Buffer in which outgoing UART data is stored.
+        ///
+        extern RingBuff_t   txBuffer[UART_INTERFACES];
 
-///
-/// \brief Buffer in which incoming UART data is stored.
-///
-extern RingBuff_t   rxBuffer[UART_INTERFACES];
+        ///
+        /// \brief Buffer in which incoming UART data is stored.
+        ///
+        extern RingBuff_t   rxBuffer[UART_INTERFACES];
+    }
+}

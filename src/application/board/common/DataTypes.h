@@ -18,20 +18,16 @@
 
 #pragma once
 
-///
-/// \brief List of all possible reboot types.
-///
-typedef enum
-{
-    rebootApp,  ///< Reboot to application.
-    rebootBtldr ///< Reboot to bootloader.
-} rebootType_t;
+#include <inttypes.h>
 
-///
-/// \brief List of all possible hysteresis regions.
-///
-typedef enum
+namespace Board
 {
-    lowHysteresis,
-    highHysteresis
-} hysteresisType_t;
+    ///
+    /// \brief List of all possible reboot types.
+    ///
+    enum class rebootType_t: uint8_t
+    {
+        rebootApp,  ///< Reboot to application.
+        rebootBtldr ///< Reboot to bootloader.
+    };
+}

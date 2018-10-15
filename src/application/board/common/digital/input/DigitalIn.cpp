@@ -21,40 +21,44 @@
 #endif
 #include "Variables.h"
 
-
-volatile uint8_t    digitalInBuffer[DIGITAL_IN_BUFFER_SIZE][DIGITAL_IN_ARRAY_SIZE];
-
-uint8_t             digitalInBufferReadOnly[DIGITAL_IN_ARRAY_SIZE];
-
-#ifdef IN_MATRIX
-volatile uint8_t    activeInColumn;
-#endif
-
-
-volatile uint8_t    dIn_head;
-volatile uint8_t    dIn_tail;
-volatile uint8_t    dIn_count;
-
-
-bool Board::digitalInputDataAvailable()
+namespace Board
 {
-    if (dIn_count)
+    namespace detail
     {
-        #ifdef __AVR__
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        volatile uint8_t    digitalInBuffer[DIGITAL_IN_BUFFER_SIZE][DIGITAL_IN_ARRAY_SIZE];
+        uint8_t             digitalInBufferReadOnly[DIGITAL_IN_ARRAY_SIZE];
+
+        #ifdef IN_MATRIX
+        volatile uint8_t    activeInColumn;
         #endif
-        {
-            if (++dIn_tail == DIGITAL_IN_BUFFER_SIZE)
-                dIn_tail = 0;
 
-            for (int i=0; i<DIGITAL_IN_ARRAY_SIZE; i++)
-                digitalInBufferReadOnly[i] = digitalInBuffer[dIn_tail][i];
-
-            dIn_count--;
-        }
-
-        return true;
+        volatile uint8_t    dIn_head;
+        volatile uint8_t    dIn_tail;
+        volatile uint8_t    dIn_count;
     }
 
-    return false;
+    bool digitalInputDataAvailable()
+    {
+        using namespace Board::detail;
+
+        if (dIn_count)
+        {
+            #ifdef __AVR__
+            ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+            #endif
+            {
+                if (++dIn_tail == DIGITAL_IN_BUFFER_SIZE)
+                    dIn_tail = 0;
+
+                for (int i=0; i<DIGITAL_IN_ARRAY_SIZE; i++)
+                    digitalInBufferReadOnly[i] = digitalInBuffer[dIn_tail][i];
+
+                dIn_count--;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
 }

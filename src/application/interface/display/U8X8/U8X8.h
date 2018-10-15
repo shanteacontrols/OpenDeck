@@ -16,15 +16,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "u8g2/csrc/u8x8.h"
+#include "database/blocks/Display.h"
 
-#include "midi/src/DataTypes.h"
-
-
-///
-/// \brief Structure holding USB MIDI data.
-/// Normally defined in MIDI module, however since MIDI module
-/// isn't compiled for xu2 boards, it is redefined here and globally
-/// included in all xu2 compiled files via Makefile.
-///
-extern USBMIDIpacket_t      usbMIDIpacket;
+namespace U8X8
+{
+    bool initDisplay(displayController_t controller, displayResolution_t resolution);
+    uint8_t getColumns();
+    uint8_t getRows();
+    void clearDisplay();
+    void setPowerSave(uint8_t is_enable);
+    void setFlipMode(uint8_t mode);
+    void setFont(const uint8_t *font_8x8);
+    void drawGlyph(uint8_t x, uint8_t y, uint8_t encoding);
+}

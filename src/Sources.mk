@@ -23,9 +23,7 @@ INCLUDE_DIRS := \
 
 #common headers
 ifeq ($(findstring fw_,$(MAKECMDGOALS)), fw_)
-    ifeq ($(BOARD_DIR),xu2)
-        INCLUDE_FILES += -include "application/board/avr/variants/$(BOARD_DIR)/Variables.h"
-    else
+    ifneq ($(BOARD_DIR),xu2)
         INCLUDE_FILES += -include "application/board/avr/variants/$(BOARD_DIR)/Hardware.h"
     endif
 endif
@@ -94,7 +92,6 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         application/board/avr/variants/Common.cpp \
         application/board/avr/variants/$(BOARD_DIR)/xu2.cpp \
         application/board/avr/variants/$(BOARD_DIR)/ISR.cpp \
-        application/board/avr/variants/$(BOARD_DIR)/Init.cpp \
         application/board/avr/uart/UART.cpp \
         application/board/avr/uart/OpenDeckMIDIFormat.cpp \
         application/board/avr/usb/USB_MIDI.cpp
@@ -119,8 +116,6 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
         application/board/common/analog/input/Common.cpp \
         application/board/common/digital/input/encoders/Common.cpp \
         application/board/common/digital/input/DigitalIn.cpp \
-        application/board/avr/variants/$(BOARD_DIR)/Init.cpp \
-        application/board/avr/variants/$(BOARD_DIR)/pins/Map.cpp \
         application/board/avr/uart/OpenDeckMIDIFormat.cpp
 
         ifneq ($(filter LEDS_SUPPORTED, $(DEFINES)), )
@@ -162,7 +157,7 @@ ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
 
         ifneq ($(filter DISPLAY_SUPPORTED, $(DEFINES)), )
             SOURCES += \
-            application/board/avr/display/u8g2_wrapper.cpp \
+            application/interface/display/U8X8/U8X8.cpp \
             application/interface/display/UpdateLogic.cpp \
             application/interface/display/TextBuild.cpp
 

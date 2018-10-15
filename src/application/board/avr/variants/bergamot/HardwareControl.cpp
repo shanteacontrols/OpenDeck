@@ -22,33 +22,39 @@
 #include "core/src/HAL/avr/PinManipulation.h"
 #include "core/src/general/BitManipulation.h"
 
-///
-/// Acquires data by reading all inputs from connected shift register.
-///
-inline void storeDigitalIn()
+namespace Board
 {
-    setLow(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
-    setLow(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
-    _NOP();
-
-    setHigh(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
-
-    for (int i=0; i<NUMBER_OF_IN_SR_INPUTS; i++)
+    namespace detail
     {
-        setLow(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
-        _NOP();
-        BIT_WRITE(digitalInBuffer[dIn_head][0], 7-i, !readPin(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN));
-        setHigh(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
-    }
-}
+        ///
+        /// Acquires data by reading all inputs from connected shift register.
+        ///
+        inline void storeDigitalIn()
+        {
+            setLow(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+            setLow(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+            _NOP();
 
-///
-/// \brief Configures one of 16 inputs/outputs on 4067 multiplexer.
-///
-inline void setMuxInput()
-{
-    BIT_READ(activeMuxInput, 0) ? setHigh(MUX_S0_PORT, MUX_S0_PIN) : setLow(MUX_S0_PORT, MUX_S0_PIN);
-    BIT_READ(activeMuxInput, 1) ? setHigh(MUX_S1_PORT, MUX_S1_PIN) : setLow(MUX_S1_PORT, MUX_S1_PIN);
-    BIT_READ(activeMuxInput, 2) ? setHigh(MUX_S2_PORT, MUX_S2_PIN) : setLow(MUX_S2_PORT, MUX_S2_PIN);
-    BIT_READ(activeMuxInput, 3) ? setHigh(MUX_S3_PORT, MUX_S3_PIN) : setLow(MUX_S3_PORT, MUX_S3_PIN);
+            setHigh(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+
+            for (int i=0; i<NUMBER_OF_IN_SR_INPUTS; i++)
+            {
+                setLow(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+                _NOP();
+                BIT_WRITE(digitalInBuffer[dIn_head][0], 7-i, !readPin(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN));
+                setHigh(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+            }
+        }
+
+        ///
+        /// \brief Configures one of 16 inputs/outputs on 4067 multiplexer.
+        ///
+        inline void setMuxInput()
+        {
+            BIT_READ(activeMuxInput, 0) ? setHigh(MUX_S0_PORT, MUX_S0_PIN) : setLow(MUX_S0_PORT, MUX_S0_PIN);
+            BIT_READ(activeMuxInput, 1) ? setHigh(MUX_S1_PORT, MUX_S1_PIN) : setLow(MUX_S1_PORT, MUX_S1_PIN);
+            BIT_READ(activeMuxInput, 2) ? setHigh(MUX_S2_PORT, MUX_S2_PIN) : setLow(MUX_S2_PORT, MUX_S2_PIN);
+            BIT_READ(activeMuxInput, 3) ? setHigh(MUX_S3_PORT, MUX_S3_PIN) : setLow(MUX_S3_PORT, MUX_S3_PIN);
+        }
+    }
 }

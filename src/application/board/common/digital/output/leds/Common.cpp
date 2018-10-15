@@ -17,34 +17,40 @@
 */
 
 #include <util/atomic.h>
-#include "board/Board.h"
 #include "board/common/digital/output/Variables.h"
 #include "board/common/constants/LEDs.h"
 
-
-volatile uint8_t    pwmSteps;
-volatile int8_t     transitionCounter[MAX_NUMBER_OF_LEDS];
-
-///
-/// \brief Array holding current LED status for all LEDs.
-///
-uint8_t             ledState[MAX_NUMBER_OF_LEDS];
-
-bool Board::setLEDfadeSpeed(uint8_t transitionSpeed)
+namespace Board
 {
-    if (transitionSpeed > FADE_TIME_MAX)
+    namespace detail
     {
-        return false;
+        volatile uint8_t    pwmSteps;
+        volatile int8_t     transitionCounter[MAX_NUMBER_OF_LEDS];
     }
 
-    //reset transition counter
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    ///
+    /// \brief Array holding current LED status for all LEDs.
+    ///
+    uint8_t             ledState[MAX_NUMBER_OF_LEDS];
+
+    bool setLEDfadeSpeed(uint8_t transitionSpeed)
     {
-        for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
-            transitionCounter[i] = 0;
+        using namespace Board::detail;
 
-        pwmSteps = transitionSpeed;
+        if (transitionSpeed > FADE_TIME_MAX)
+        {
+            return false;
+        }
+
+        //reset transition counter
+        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        {
+            for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+                transitionCounter[i] = 0;
+
+            pwmSteps = transitionSpeed;
+        }
+
+        return true;
     }
-
-    return true;
 }

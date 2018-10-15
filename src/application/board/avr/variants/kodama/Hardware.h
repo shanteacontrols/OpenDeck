@@ -18,70 +18,75 @@
 
 #pragma once
 
+namespace Board
+{
+    namespace detail
+    {
+        ///
+        /// \brief Constant used to debounce button readings.
+        ///
+        #define BUTTON_DEBOUNCE_COMPARE         0b00000000
 
-///
-/// \brief Constant used to debounce button readings.
-///
-#define BUTTON_DEBOUNCE_COMPARE         0b00000000
+        ///
+        /// \brief Total number of analog multiplexers.
+        ///
+        #define NUMBER_OF_MUX                   4
 
-///
-/// \brief Total number of analog multiplexers.
-///
-#define NUMBER_OF_MUX                   4
+        ///
+        /// \brief Total number of inputs on single analog multiplexer.
+        ///
+        #define NUMBER_OF_MUX_INPUTS            16
 
-///
-/// \brief Total number of inputs on single analog multiplexer.
-///
-#define NUMBER_OF_MUX_INPUTS            16
+        ///
+        /// \brief Total number of connected input shift register.
+        ///
+        #define NUMBER_OF_IN_SR                 2
 
-///
-/// \brief Total number of connected input shift register.
-///
-#define NUMBER_OF_IN_SR                 2
+        ///
+        /// \brief Total number of inputs on single input shift register.
+        ///
+        #define NUMBER_OF_IN_SR_INPUTS          8
 
-///
-/// \brief Total number of inputs on single input shift register.
-///
-#define NUMBER_OF_IN_SR_INPUTS          8
+        ///
+        /// \brief Total number of connected output shift register.
+        ///
+        #define NUMBER_OF_OUT_SR                2
 
-///
-/// \brief Total number of connected output shift register.
-///
-#define NUMBER_OF_OUT_SR                2
+        ///
+        /// \brief Total number of outputs on single output shift register.
+        ///
+        #define NUMBER_OF_OUT_SR_INPUTS         8
+    }
 
-///
-/// \brief Total number of outputs on single output shift register.
-///
-#define NUMBER_OF_OUT_SR_INPUTS         8
+    ///
+    /// brief Total number of analog components.
+    ///
+    #define MAX_NUMBER_OF_ANALOG            (NUMBER_OF_MUX*NUMBER_OF_MUX_INPUTS)
 
-///
-/// brief Total number of analog components.
-///
-#define MAX_NUMBER_OF_ANALOG            (NUMBER_OF_MUX*NUMBER_OF_MUX_INPUTS)
+    ///
+    /// \brief Maximum number of buttons.
+    ///
+    #define MAX_NUMBER_OF_BUTTONS           (NUMBER_OF_IN_SR*NUMBER_OF_IN_SR_INPUTS)
 
-///
-/// \brief Maximum number of buttons.
-///
-#define MAX_NUMBER_OF_BUTTONS           (NUMBER_OF_IN_SR*NUMBER_OF_IN_SR_INPUTS)
+    ///
+    /// \brief Maximum number of LEDs.
+    ///
+    #define MAX_NUMBER_OF_LEDS              (NUMBER_OF_OUT_SR*NUMBER_OF_OUT_SR_INPUTS)
 
-///
-/// \brief Maximum number of LEDs.
-///
-#define MAX_NUMBER_OF_LEDS              (NUMBER_OF_OUT_SR*NUMBER_OF_OUT_SR_INPUTS)
+    ///
+    /// \brief Maximum number of RGB LEDs.
+    /// One RGB LED requires three standard LED connections.
+    ///
+    #define MAX_NUMBER_OF_RGB_LEDS          (MAX_NUMBER_OF_LEDS/3)
 
-///
-/// \brief Maximum number of RGB LEDs.
-/// One RGB LED requires three standard LED connections.
-///
-#define MAX_NUMBER_OF_RGB_LEDS          (MAX_NUMBER_OF_LEDS/3)
+    ///
+    /// \brief Maximum number of encoders.
+    /// Total number of encoders is total number of buttons divided by two.
+    ///
+    #define MAX_NUMBER_OF_ENCODERS          (MAX_NUMBER_OF_BUTTONS/2)
 
-///
-/// \brief Maximum number of encoders.
-/// Total number of encoders is total number of buttons divided by two.
-///
-#define MAX_NUMBER_OF_ENCODERS          (MAX_NUMBER_OF_BUTTONS/2)
-
-///
-/// \brief If touchscreen isn't supported, set MAX_TOUCHSCREEN_BUTTONS to zero.
-///
-#define MAX_TOUCHSCREEN_BUTTONS         0
+    ///
+    /// \brief If touchscreen isn't supported, set MAX_TOUCHSCREEN_BUTTONS to zero.
+    ///
+    #define MAX_TOUCHSCREEN_BUTTONS         0
+}

@@ -28,10 +28,10 @@ void Buttons::update()
 {
     for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
     {
-        if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, board.getEncoderPair(i)))
+        if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, Board::getEncoderPair(i)))
             continue;
 
-        bool state = board.getButtonState(i);
+        bool state = Board::getButtonState(i);
 
         if (!buttonDebounced(i, state))
             continue;

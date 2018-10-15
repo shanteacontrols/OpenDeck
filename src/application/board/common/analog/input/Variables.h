@@ -16,33 +16,39 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Hardware.h"
+#include <inttypes.h>
 
-#ifdef USE_MUX
-///
-/// \brief Holds currently active multiplexer.
-///
-extern uint8_t              activeMux;
+namespace Board
+{
+    namespace detail
+    {
+        #ifdef USE_MUX
+        ///
+        /// \brief Holds currently active multiplexer.
+        ///
+        extern uint8_t              activeMux;
 
-///
-/// \brief Holds currently active multiplexer input.
-///
-extern uint8_t              activeMuxInput;
-#endif
+        ///
+        /// \brief Holds currently active multiplexer input.
+        ///
+        extern uint8_t              activeMuxInput;
+        #endif
 
-///
-/// \brief Holds currently active analog index which is being read.
-/// Once all analog inputs are read, analog index is reset to 0.
-///
-extern uint8_t              analogIndex;
+        ///
+        /// \brief Holds currently active analog index which is being read.
+        /// Once all analog inputs are read, analog index is reset to 0.
+        ///
+        extern uint8_t              analogIndex;
 
-///
-/// brief Holds currently active sample count.
-/// Once all analog inputs are read, sample count is increased.
-///
-extern volatile uint8_t     analogSampleCounter;
+        ///
+        /// brief Holds currently active sample count.
+        /// Once all analog inputs are read, sample count is increased.
+        ///
+        extern volatile uint8_t     analogSampleCounter;
 
-///
-/// \brief Array in which analog samples are stored.
-///
-extern volatile int16_t     analogBuffer[MAX_NUMBER_OF_ANALOG];
+        ///
+        /// \brief Array in which analog samples are stored.
+        ///
+        extern volatile int16_t     analogBuffer[MAX_NUMBER_OF_ANALOG];
+    }
+}

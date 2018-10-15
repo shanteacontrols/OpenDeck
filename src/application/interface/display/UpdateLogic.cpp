@@ -26,15 +26,15 @@
 ///
 bool Display::init(displayController_t controller, displayResolution_t resolution)
 {
-    if (display_hw.initDisplay(controller, resolution))
+    if (U8X8::initDisplay(controller, resolution))
     {
-        display_hw.setPowerSave(0);
-        display_hw.setFlipMode(0);
+        U8X8::setPowerSave(0);
+        U8X8::setFlipMode(0);
 
         this->resolution = resolution;
 
-        display_hw.setFont(u8x8_font_pxplustandynewtv_r);
-        display_hw.clearDisplay();
+        U8X8::setFont(u8x8_font_pxplustandynewtv_r);
+        U8X8::clearDisplay();
 
         //init char arrays
         for (int i=0; i<LCD_HEIGHT_MAX; i++)
@@ -98,12 +98,12 @@ bool Display::update()
         for (int j=0; j<string_len; j++)
         {
             if (BIT_READ(charChange[i], j))
-                display_hw.drawGlyph(j, rowMap[resolution][i], charPointer[j+scrollEvent[i].currentIndex]);
+                U8X8::drawGlyph(j, rowMap[resolution][i], charPointer[j+scrollEvent[i].currentIndex]);
         }
 
         //now fill remaining columns with spaces
         for (int j=string_len; j<LCD_WIDTH_MAX; j++)
-            display_hw.drawGlyph(j, rowMap[resolution][i], ' ');
+            U8X8::drawGlyph(j, rowMap[resolution][i], ' ');
 
         charChange[i] = 0;
     }
@@ -144,7 +144,7 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
     if (directWriteState)
     {
         for (int j=0; j<size; j++)
-            display_hw.drawGlyph(j+startIndex, rowMap[resolution][row], string[j]);
+            U8X8::drawGlyph(j+startIndex, rowMap[resolution][row], string[j]);
     }
     else
     {
@@ -233,7 +233,7 @@ void Display::setDirectWriteState(bool state)
 ///
 uint8_t Display::getTextCenter(uint8_t textSize)
 {
-    return display_hw.getColumns()/2 - (textSize/2);
+    return U8X8::getColumns()/2 - (textSize/2);
 }
 
 ///

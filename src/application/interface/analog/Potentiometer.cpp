@@ -28,8 +28,8 @@ void Analog::checkPotentiometerValue(analogType_t analogType, uint8_t analogID, 
     uint16_t midiValue;
     uint16_t oldMIDIvalue;
 
-    midiValue = board.scaleADC(value, ((analogType == aType_NRPN_14) || (analogType == aType_PitchBend)) ? MIDI_14_BIT_VALUE_MAX : MIDI_7_BIT_VALUE_MAX);
-    oldMIDIvalue = board.scaleADC(lastAnalogueValue[analogID], ((analogType == aType_NRPN_14) || (analogType == aType_PitchBend)) ? MIDI_14_BIT_VALUE_MAX : MIDI_7_BIT_VALUE_MAX);
+    midiValue = Board::scaleADC(value, ((analogType == aType_NRPN_14) || (analogType == aType_PitchBend)) ? MIDI_14_BIT_VALUE_MAX : MIDI_7_BIT_VALUE_MAX);
+    oldMIDIvalue = Board::scaleADC(lastAnalogueValue[analogID], ((analogType == aType_NRPN_14) || (analogType == aType_PitchBend)) ? MIDI_14_BIT_VALUE_MAX : MIDI_7_BIT_VALUE_MAX);
 
     if (midiValue == oldMIDIvalue)
         return;

@@ -24,36 +24,42 @@
 #include "core/src/HAL/avr/PinManipulation.h"
 #include "core/src/general/BitManipulation.h"
 
-///
-/// Acquires data by reading all inputs on specified digital input pins.
-///
-inline void storeDigitalIn()
+namespace Board
 {
-    for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
-        BIT_WRITE(digitalInBuffer[dIn_head][0], i, !readPin(*dInPins[i].port, dInPins[i].pin));
-}
-
-///
-/// \brief Checks if any LED state has been changed and writes changed state to digital output pin.
-///
-inline void checkLEDs()
-{
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+    namespace detail
     {
-        uint8_t ledStateSingle = LED_ON(ledState[i]);
-
-        if (ledStateSingle != lastLEDstate[i])
+        ///
+        /// Acquires data by reading all inputs on specified digital input pins.
+        ///
+        inline void storeDigitalIn()
         {
-            if (ledStateSingle)
-            {
-                EXT_LED_ON(*dOutPins[i].port, dOutPins[i].pin);
-            }
-            else
-            {
-                EXT_LED_OFF(*dOutPins[i].port, dOutPins[i].pin);
-            }
+            for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
+                BIT_WRITE(digitalInBuffer[dIn_head][0], i, !readPin(*dInPins[i].port, dInPins[i].pin));
+        }
 
-            lastLEDstate[i] = ledStateSingle;
+        ///
+        /// \brief Checks if any LED state has been changed and writes changed state to digital output pin.
+        ///
+        inline void checkLEDs()
+        {
+            for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+            {
+                uint8_t ledStateSingle = LED_ON(ledState[i]);
+
+                if (ledStateSingle != lastLEDstate[i])
+                {
+                    if (ledStateSingle)
+                    {
+                        EXT_LED_ON(*dOutPins[i].port, dOutPins[i].pin);
+                    }
+                    else
+                    {
+                        EXT_LED_OFF(*dOutPins[i].port, dOutPins[i].pin);
+                    }
+
+                    lastLEDstate[i] = ledStateSingle;
+                }
+            }
         }
     }
 }

@@ -16,4 +16,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Map.h"
+#pragma once
+
+#include <inttypes.h>
+#include "interface/digital/input/encoders/DataTypes.h"
+
+namespace Board
+{
+    namespace detail
+    {
+        encoderPosition_t readEncoder(uint8_t encoderID, uint8_t pairState, uint8_t pulsesPerStep);
+    }
+}

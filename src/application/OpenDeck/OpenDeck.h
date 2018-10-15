@@ -39,50 +39,50 @@ class OpenDeck
 
     database(Board::memoryRead, Board::memoryWrite)
     #ifdef LEDS_SUPPORTED
-    ,leds(board, database)
+    ,leds(database)
     #endif
     #ifdef LEDS_SUPPORTED
     #ifdef DISPLAY_SUPPORTED
-    ,analog(board, database, midi, leds, display)
+    ,analog(database, midi, leds, display)
     #else
-    ,analog(board, database, midi, leds)
+    ,analog(database, midi, leds)
     #endif
     #else
     #ifdef DISPLAY_SUPPORTED
-    ,analog(board, database, midi, display)
+    ,analog(database, midi, display)
     #else
-    ,analog(board, database, midi)
+    ,analog(database, midi)
     #endif
     #endif
     #ifdef LEDS_SUPPORTED
     #ifdef DISPLAY_SUPPORTED
-    ,buttons(board, database, midi, leds, display)
+    ,buttons(database, midi, leds, display)
     #else
-    ,buttons(board, database, midi, leds)
+    ,buttons(database, midi, leds)
     #endif
     #else
     #ifdef DISPLAY_SUPPORTED
-    ,buttons(board, database, midi, display)
+    ,buttons(database, midi, display)
     #else
-    ,buttons(board, database, midi)
+    ,buttons(database, midi)
     #endif
     #endif
     #ifdef DISPLAY_SUPPORTED
-    ,encoders(board, database, midi, display)
+    ,encoders(database, midi, display)
     #else
-    ,encoders(board, database, midi)
+    ,encoders(database, midi)
     #endif
     #ifdef LEDS_SUPPORTED
     #ifdef DISPLAY_SUPPORTED
-    ,sysConfig(board, database, midi, buttons, encoders, analog, leds, display)
+    ,sysConfig(database, midi, buttons, encoders, analog, leds, display)
     #else
-    ,sysConfig(board, database, midi, buttons, encoders, analog, leds)
+    ,sysConfig(database, midi, buttons, encoders, analog, leds)
     #endif
     #else
     #ifdef DISPLAY_SUPPORTED
-    ,sysConfig(board, database, midi, buttons, encoders, analog, display)
+    ,sysConfig(database, midi, buttons, encoders, analog, display)
     #else
-    ,sysConfig(board, database, midi, buttons, encoders, analog)
+    ,sysConfig(database, midi, buttons, encoders, analog)
     #endif
     #endif
     {}
@@ -93,7 +93,6 @@ class OpenDeck
     void checkComponents();
 
     private:
-    Board               board;
     MIDI                midi;
     Database            database;
     #ifdef LEDS_SUPPORTED

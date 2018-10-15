@@ -42,18 +42,17 @@ class Analog
     public:
     #ifdef LEDS_SUPPORTED
     #ifndef DISPLAY_SUPPORTED
-    Analog(Board &board, Database &database, MIDI &midi, LEDs &leds) :
+    Analog(Database &database, MIDI &midi, LEDs &leds) :
     #else
-    Analog(Board &board, Database &database, MIDI &midi, LEDs &leds, Display &display) :
+    Analog(Database &database, MIDI &midi, LEDs &leds, Display &display) :
     #endif
     #else
     #ifdef DISPLAY_SUPPORTED
-    Analog(Board &board, Database &database, MIDI &midi, Display &display) :
+    Analog(Database &database, MIDI &midi, Display &display) :
     #else
-    Analog(Board &board, Database &database, MIDI &midi) :
+    Analog(Database &database, MIDI &midi) :
     #endif
     #endif
-    board(board),
     database(database),
     midi(midi)
     #ifdef LEDS_SUPPORTED
@@ -78,7 +77,6 @@ class Analog
     void setFsrDebounceTimerStarted(uint8_t fsrID, bool state);
     int16_t calibratePressure(int16_t value, pressureType_t type);
 
-    Board       &board;
     Database    &database;
     MIDI        &midi;
     #ifdef LEDS_SUPPORTED

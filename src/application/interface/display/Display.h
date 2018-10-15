@@ -19,7 +19,7 @@
 #pragma once
 
 #include "board/Board.h"
-#include "board/avr/display/u8g2_wrapper.h"
+#include "U8X8/U8X8.h"
 #include "Config.h"
 #include "DataTypes.h"
 #include "Macros.h"

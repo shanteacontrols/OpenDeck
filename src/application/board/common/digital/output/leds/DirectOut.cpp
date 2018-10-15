@@ -16,19 +16,23 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "board/Board.h"
+#include <inttypes.h>
+#include "interface/digital/output/leds/DataTypes.h"
 
-uint8_t Board::getRGBaddress(uint8_t rgbID, rgbIndex_t index)
+namespace Board
 {
-    return rgbID*3+(uint8_t)index;
-}
+    uint8_t getRGBaddress(uint8_t rgbID, rgbIndex_t index)
+    {
+        return rgbID*3+(uint8_t)index;
+    }
 
-uint8_t Board::getRGBID(uint8_t ledID)
-{
-    uint8_t result = ledID / 3;
+    uint8_t getRGBID(uint8_t ledID)
+    {
+        uint8_t result = ledID / 3;
 
-    if (result >= MAX_NUMBER_OF_RGB_LEDS)
-        return MAX_NUMBER_OF_RGB_LEDS-1;
-    else
-        return result;
+        if (result >= MAX_NUMBER_OF_RGB_LEDS)
+            return MAX_NUMBER_OF_RGB_LEDS-1;
+        else
+            return result;
+    }
 }

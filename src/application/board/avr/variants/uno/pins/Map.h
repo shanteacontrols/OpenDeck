@@ -20,24 +20,91 @@
 
 #include "board/avr/DataTypes.h"
 #include "Pins.h"
-#include "../Hardware.h"
 
-const uint8_t adcChannelArray[MAX_NUMBER_OF_ANALOG]
+namespace Board
 {
-    AI_1_PIN,
-    AI_2_PIN,
-    AI_3_PIN,
-    AI_4_PIN,
-    AI_5_PIN,
-    AI_6_PIN
-};
+    namespace detail
+    {
+        const uint8_t adcChannelArray[MAX_NUMBER_OF_ANALOG]
+        {
+            AI_1_PIN,
+            AI_2_PIN,
+            AI_3_PIN,
+            AI_4_PIN,
+            AI_5_PIN,
+            AI_6_PIN
+        };
 
-///
-/// \brief Array holding ports and bits for all digital input pins.
-///
-extern mcuPin_t dInPins[MAX_NUMBER_OF_BUTTONS];
+        ///
+        /// \brief Array holding ports and bits for all digital input pins.
+        ///
+        const mcuPin_t dInPins[MAX_NUMBER_OF_BUTTONS] =
+        {
+            {
+                .port = &DI_1_PORT,
+                .pin = DI_1_PIN,
+            },
 
-///
-/// \brief Array holding ports and bits for all digital output pins.
-///
-extern mcuPin_t dOutPins[MAX_NUMBER_OF_LEDS];
+            {
+                .port = &DI_2_PORT,
+                .pin = DI_2_PIN,
+            },
+
+            {
+                .port = &DI_3_PORT,
+                .pin = DI_3_PIN,
+            },
+
+            {
+                .port = &DI_4_PORT,
+                .pin = DI_4_PIN,
+            },
+
+            {
+                .port = &DI_5_PORT,
+                .pin = DI_5_PIN,
+            },
+
+            {
+                .port = &DI_6_PORT,
+                .pin = DI_6_PIN,
+            }
+        };
+
+        ///
+        /// \brief Array holding ports and bits for all digital output pins.
+        ///
+        const mcuPin_t dOutPins[MAX_NUMBER_OF_LEDS] =
+        {
+            {
+                .port = &DO_1_PORT,
+                .pin = DO_1_PIN,
+            },
+
+            {
+                .port = &DO_2_PORT,
+                .pin = DO_2_PIN,
+            },
+
+            {
+                .port = &DO_3_PORT,
+                .pin = DO_3_PIN,
+            },
+
+            {
+                .port = &DO_4_PORT,
+                .pin = DO_4_PIN,
+            },
+
+            {
+                .port = &DO_5_PORT,
+                .pin = DO_5_PIN,
+            },
+
+            {
+                .port = &DO_6_PORT,
+                .pin = DO_6_PIN,
+            }
+        };
+    }
+}

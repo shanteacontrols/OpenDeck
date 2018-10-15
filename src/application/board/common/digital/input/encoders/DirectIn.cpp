@@ -16,24 +16,29 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Common.h"
 #include "../Variables.h"
-#include "interface/digital/input/encoders/DataTypes.h"
 #include "core/src/general/BitManipulation.h"
 
-uint8_t Board::getEncoderPair(uint8_t buttonID)
+namespace Board
 {
-    return buttonID/2;
-}
+    uint8_t getEncoderPair(uint8_t buttonID)
+    {
+        return buttonID/2;
+    }
 
-encoderPosition_t Board::getEncoderState(uint8_t encoderID, uint8_t pulsesPerStep)
-{
-    //find array index of digital input buffer where data is stored for requested encoder
-    uint8_t buttonID = encoderID*2;
-    uint8_t arrayIndex = buttonID/8;
+    encoderPosition_t getEncoderState(uint8_t encoderID, uint8_t pulsesPerStep)
+    {
+        using namespace Board::detail;
 
-    uint8_t pairState = BIT_READ(digitalInBufferReadOnly[arrayIndex], buttonID);
-    pairState <<= 1;
-    pairState |= BIT_READ(digitalInBufferReadOnly[arrayIndex], buttonID+1);
+        //find array index of digital input buffer where data is stored for requested encoder
+        uint8_t buttonID = encoderID*2;
+        uint8_t arrayIndex = buttonID/8;
 
-    return readEncoder(encoderID, pairState, pulsesPerStep);
+        uint8_t pairState = BIT_READ(digitalInBufferReadOnly[arrayIndex], buttonID);
+        pairState <<= 1;
+        pairState |= BIT_READ(digitalInBufferReadOnly[arrayIndex], buttonID+1);
+
+        return readEncoder(encoderID, pairState, pulsesPerStep);
+    }
 }

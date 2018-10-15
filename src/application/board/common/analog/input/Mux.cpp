@@ -16,9 +16,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "board/Board.h"
 #include "Variables.h"
 
-
-uint8_t             activeMux;
-uint8_t             activeMuxInput;
+namespace Board
+{
+    namespace detail
+    {
+        uint8_t activeMux;
+        uint8_t activeMuxInput;
+    }
+}

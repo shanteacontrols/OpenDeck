@@ -41,18 +41,17 @@ class Buttons
     public:
     #ifdef LEDS_SUPPORTED
     #ifdef DISPLAY_SUPPORTED
-    Buttons(Board &board, Database &database, MIDI &midi, LEDs &leds, Display &display) :
+    Buttons(Database &database, MIDI &midi, LEDs &leds, Display &display) :
     #else
-    Buttons(Board &board, Database &database, MIDI &midi, LEDs &leds) :
+    Buttons(Database &database, MIDI &midi, LEDs &leds) :
     #endif
     #else
     #ifdef DISPLAY_SUPPORTED
-    Buttons(Board &board, Database &database, MIDI &midi, Display &display) :
+    Buttons(Database &database, MIDI &midi, Display &display) :
     #else
-    Buttons(Board &board, Database &database, MIDI &midi) :
+    Buttons(Database &database, MIDI &midi) :
     #endif
     #endif
-    board(board),
     database(database),
     midi(midi)
     #ifdef LEDS_SUPPORTED
@@ -75,7 +74,6 @@ class Buttons
     bool getLatchingState(uint8_t buttonID);
     bool buttonDebounced(uint8_t buttonID, bool state);
 
-    Board       &board;
     Database    &database;
     MIDI        &midi;
     #ifdef LEDS_SUPPORTED

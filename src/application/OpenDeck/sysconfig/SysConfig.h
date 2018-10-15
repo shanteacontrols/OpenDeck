@@ -36,18 +36,17 @@ class SysConfig : public SysEx
     public:
     #ifdef LEDS_SUPPORTED
     #ifdef DISPLAY_SUPPORTED
-    SysConfig(Board &board, Database &database, MIDI &midi, Buttons &buttons, Encoders &encoders, Analog &analog, LEDs &leds, Display &display) :
+    SysConfig(Database &database, MIDI &midi, Buttons &buttons, Encoders &encoders, Analog &analog, LEDs &leds, Display &display) :
     #else
-    SysConfig(Board &board, Database &database, MIDI &midi, Buttons &buttons, Encoders &encoders, Analog &analog, LEDs &leds) :
+    SysConfig(Database &database, MIDI &midi, Buttons &buttons, Encoders &encoders, Analog &analog, LEDs &leds) :
     #endif
     #else
     #ifdef DISPLAY_SUPPORTED
-    SysConfig(Board &board, Database &database, MIDI &midi, Buttons &buttons, Encoders &encoders, Analog &analog, Display &display) :
+    SysConfig(Database &database, MIDI &midi, Buttons &buttons, Encoders &encoders, Analog &analog, Display &display) :
     #else
-    SysConfig(Board &board, Database &database, MIDI &midi, Buttons &buttons, Encoders &encoders, Analog &analog) :
+    SysConfig(Database &database, MIDI &midi, Buttons &buttons, Encoders &encoders, Analog &analog) :
     #endif
     #endif
-    board(board),
     database(database),
     midi(midi),
     buttons(buttons),
@@ -68,7 +67,6 @@ class SysConfig : public SysEx
     bool sendCInfo(dbBlockID_t dbBlock, sysExParameter_t componentID);
 
     private:
-    Board       &board;
     Database    &database;
     MIDI        &midi;
     Buttons     &buttons;

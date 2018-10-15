@@ -17,18 +17,25 @@
 */
 
 #include "../Common.h"
-#include "Variables.h"
 #include "pins/Pins.h"
 #include "board/common/constants/LEDs.h"
 #include "board/common/indicators/Variables.h"
 
 volatile uint32_t rTime_ms;
-volatile uint8_t midiIn_timeout, midiOut_timeout;
 
-volatile bool USBreceived, USBsent, UARTreceived, UARTsent;
+namespace Board
+{
+    namespace detail
+    {
+        volatile uint8_t midiIn_timeout, midiOut_timeout;
+        volatile bool USBreceived, USBsent, UARTreceived, UARTsent;
+    }
+}
 
 ISR(TIMER0_COMPA_vect)
 {
+    using namespace Board::detail;
+
     if (USBreceived)
     {
         INT_LED_ON(LED_IN_PORT, LED_IN_PIN);

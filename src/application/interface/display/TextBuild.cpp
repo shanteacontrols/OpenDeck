@@ -29,9 +29,9 @@ void Display::displayWelcomeMessage()
     uint8_t location = 0;
     uint8_t startRow;
 
-    display_hw.clearDisplay();
+    U8X8::clearDisplay();
 
-    switch(display_hw.getRows())
+    switch(U8X8::getRows())
     {
         case 4:
         startRow = 1;
@@ -53,7 +53,7 @@ void Display::displayWelcomeMessage()
 
     while (string[charIndex] != '\0')
     {
-        display_hw.drawGlyph(location+charIndex, rowMap[resolution][startRow], string[charIndex]);
+        U8X8::drawGlyph(location+charIndex, rowMap[resolution][startRow], string[charIndex]);
         charIndex++;
     }
 
@@ -68,7 +68,7 @@ void Display::displayWelcomeMessage()
 
     while (string[charIndex] != '\0')
     {
-        display_hw.drawGlyph(location+charIndex, rowMap[resolution][startRow+1], string[charIndex]);
+        U8X8::drawGlyph(location+charIndex, rowMap[resolution][startRow+1], string[charIndex]);
         wait_ms(50);
         charIndex++;
     }
@@ -80,9 +80,9 @@ void Display::displayVinfo(bool newFw)
 {
     uint8_t startRow;
 
-    display_hw.clearDisplay();
+    U8X8::clearDisplay();
 
-    switch(display_hw.getRows())
+    switch(U8X8::getRows())
     {
         case 4:
         startRow = 1;
@@ -132,11 +132,11 @@ void Display::displayVinfo(bool newFw)
 
 void Display::displayHome()
 {
-    display_hw.clearDisplay();
+    U8X8::clearDisplay();
 
     uint8_t startRow;
 
-    switch(display_hw.getRows())
+    switch(U8X8::getRows())
     {
         case 4:
         startRow = 0;
@@ -167,7 +167,7 @@ void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t
 
     stringBuffer.startLine();
     stringBuffer.appendText_P((char*)pgm_read_word(&(eventNameArray[(uint8_t)message])));
-    stringBuffer.appendChar(' ', display_hw.getColumns() - startColumn - stringBuffer.getSize());
+    stringBuffer.appendChar(' ', U8X8::getColumns() - startColumn - stringBuffer.getSize());
     stringBuffer.endLine();
     updateText(startRow, lcdtext_still, startColumn);
 
@@ -191,7 +191,7 @@ void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t
         stringBuffer.appendInt(byte2);
         stringBuffer.appendText(" CH");
         stringBuffer.appendInt(byte3);
-        stringBuffer.appendChar(' ', display_hw.getColumns() - stringBuffer.getSize());
+        stringBuffer.appendChar(' ', U8X8::getColumns() - stringBuffer.getSize());
         stringBuffer.endLine();
         updateText(startRow+1, lcdtext_still, 0);
         break;
@@ -204,7 +204,7 @@ void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t
         stringBuffer.appendInt(byte2);
         stringBuffer.appendText(" CH");
         stringBuffer.appendInt(byte3);
-        stringBuffer.appendChar(' ', display_hw.getColumns() - stringBuffer.getSize());
+        stringBuffer.appendChar(' ', U8X8::getColumns() - stringBuffer.getSize());
         stringBuffer.endLine();
         updateText(startRow+1, lcdtext_still, 0);
         break;
@@ -217,7 +217,7 @@ void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t
         stringBuffer.startLine();
         stringBuffer.appendText("CH");
         stringBuffer.appendInt(byte1);
-        stringBuffer.appendChar(' ', display_hw.getColumns() - stringBuffer.getSize());
+        stringBuffer.appendChar(' ', U8X8::getColumns() - stringBuffer.getSize());
         stringBuffer.endLine();
         updateText(startRow+1, lcdtext_still, 0);
         break;
@@ -230,7 +230,7 @@ void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t
         case midiMessageSystemReset_display:
         case midiMessageSystemExclusive_display:
         stringBuffer.startLine();
-        stringBuffer.appendChar(' ', display_hw.getColumns());
+        stringBuffer.appendChar(' ', U8X8::getColumns());
         stringBuffer.endLine();
         updateText(startRow+1, lcdtext_still, 0);
         break;
@@ -250,12 +250,12 @@ void Display::clearMIDIevent(displayEventType_t type)
         case displayEventIn:
         //first row
         stringBuffer.startLine();
-        stringBuffer.appendChar(' ', display_hw.getColumns()-COLUMN_START_MIDI_IN_MESSAGE);
+        stringBuffer.appendChar(' ', U8X8::getColumns()-COLUMN_START_MIDI_IN_MESSAGE);
         stringBuffer.endLine();
         updateText(ROW_START_MIDI_IN_MESSAGE, lcdtext_still, COLUMN_START_MIDI_IN_MESSAGE);
         //second row
         stringBuffer.startLine();
-        stringBuffer.appendChar(' ', display_hw.getColumns());
+        stringBuffer.appendChar(' ', U8X8::getColumns());
         stringBuffer.endLine();
         updateText(ROW_START_MIDI_IN_MESSAGE+1, lcdtext_still, 0);
         break;
@@ -263,12 +263,12 @@ void Display::clearMIDIevent(displayEventType_t type)
         case displayEventOut:
         //first row
         stringBuffer.startLine();
-        stringBuffer.appendChar(' ', display_hw.getColumns()-COLUMN_START_MIDI_OUT_MESSAGE);
+        stringBuffer.appendChar(' ', U8X8::getColumns()-COLUMN_START_MIDI_OUT_MESSAGE);
         stringBuffer.endLine();
         updateText(ROW_START_MIDI_OUT_MESSAGE, lcdtext_still, COLUMN_START_MIDI_OUT_MESSAGE);
         //second row
         stringBuffer.startLine();
-        stringBuffer.appendChar(' ', display_hw.getColumns());
+        stringBuffer.appendChar(' ', U8X8::getColumns());
         stringBuffer.endLine();
         updateText(ROW_START_MIDI_OUT_MESSAGE+1, lcdtext_still, 0);
         break;

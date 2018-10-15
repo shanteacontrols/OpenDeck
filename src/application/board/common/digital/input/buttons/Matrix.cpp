@@ -19,10 +19,15 @@
 #include "board/common/digital/input/Variables.h"
 #include "core/src/general/BitManipulation.h"
 
-bool Board::getButtonState(uint8_t buttonIndex)
+namespace Board
 {
-    uint8_t row = buttonIndex/NUMBER_OF_BUTTON_COLUMNS;
-    uint8_t column = buttonIndex % NUMBER_OF_BUTTON_COLUMNS;
+    bool getButtonState(uint8_t buttonIndex)
+    {
+        using namespace Board::detail;
 
-    return BIT_READ(digitalInBufferReadOnly[column], row);
+        uint8_t row = buttonIndex/NUMBER_OF_BUTTON_COLUMNS;
+        uint8_t column = buttonIndex % NUMBER_OF_BUTTON_COLUMNS;
+
+        return BIT_READ(digitalInBufferReadOnly[column], row);
+    }
 }

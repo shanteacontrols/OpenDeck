@@ -18,47 +18,53 @@
 
 #pragma once
 
-///
-/// \brief Constant used to debounce button readings.
-///
-#define BUTTON_DEBOUNCE_COMPARE         0b11110000
+namespace Board
+{
+    namespace detail
+    {
+        ///
+        /// \brief Constant used to debounce button readings.
+        ///
+        #define BUTTON_DEBOUNCE_COMPARE         0b11110000
+    }
 
-///
-/// brief Total number of analog components.
-///
-#ifdef BOARD_A_PRO_MICRO
-#define MAX_NUMBER_OF_ANALOG            4
-#else
-#define MAX_NUMBER_OF_ANALOG            6
-#endif
+    ///
+    /// brief Total number of analog components.
+    ///
+    #ifdef BOARD_A_PRO_MICRO
+    #define MAX_NUMBER_OF_ANALOG            4
+    #else
+    #define MAX_NUMBER_OF_ANALOG            6
+    #endif
 
-///
-/// \brief Maximum number of buttons.
-///
-#ifdef BOARD_A_PRO_MICRO
-#define MAX_NUMBER_OF_BUTTONS           6
-#else
-#define MAX_NUMBER_OF_BUTTONS           8
-#endif
+    ///
+    /// \brief Maximum number of buttons.
+    ///
+    #ifdef BOARD_A_PRO_MICRO
+    #define MAX_NUMBER_OF_BUTTONS           6
+    #else
+    #define MAX_NUMBER_OF_BUTTONS           8
+    #endif
 
-///
-/// \brief Maximum number of LEDs.
-///
-#define MAX_NUMBER_OF_LEDS              6
+    ///
+    /// \brief Maximum number of LEDs.
+    ///
+    #define MAX_NUMBER_OF_LEDS              6
 
-///
-/// \brief Maximum number of RGB LEDs.
-/// One RGB LED requires three standard LED connections.
-///
-#define MAX_NUMBER_OF_RGB_LEDS          (MAX_NUMBER_OF_LEDS/3)
+    ///
+    /// \brief Maximum number of RGB LEDs.
+    /// One RGB LED requires three standard LED connections.
+    ///
+    #define MAX_NUMBER_OF_RGB_LEDS          (MAX_NUMBER_OF_LEDS/3)
 
-///
-/// \brief Maximum number of encoders.
-/// Total number of encoders is total number of buttons divided by two.
-///
-#define MAX_NUMBER_OF_ENCODERS          (MAX_NUMBER_OF_BUTTONS/2)
+    ///
+    /// \brief Maximum number of encoders.
+    /// Total number of encoders is total number of buttons divided by two.
+    ///
+    #define MAX_NUMBER_OF_ENCODERS          (MAX_NUMBER_OF_BUTTONS/2)
 
-///
-/// \brief If touchscreen isn't supported, set MAX_TOUCHSCREEN_BUTTONS to zero.
-///
-#define MAX_TOUCHSCREEN_BUTTONS         0
+    ///
+    /// \brief If touchscreen isn't supported, set MAX_TOUCHSCREEN_BUTTONS to zero.
+    ///
+    #define MAX_TOUCHSCREEN_BUTTONS         0
+}

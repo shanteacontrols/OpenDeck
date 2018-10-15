@@ -13,11 +13,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "board/Board.h"
 #include "Variables.h"
 
-#ifdef OUT_MATRIX
-volatile uint8_t    activeOutColumn;
-#else
-uint8_t             lastLEDstate[MAX_NUMBER_OF_LEDS];
-#endif
+namespace Board
+{
+    namespace detail
+    {
+        #ifdef OUT_MATRIX
+        volatile uint8_t    activeOutColumn;
+        #else
+        uint8_t             lastLEDstate[MAX_NUMBER_OF_LEDS];
+        #endif
+    }
+}

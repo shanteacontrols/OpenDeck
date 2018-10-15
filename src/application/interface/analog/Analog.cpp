@@ -21,7 +21,7 @@
 
 void Analog::update()
 {
-    if (!board.analogDataAvailable())
+    if (!Board::analogDataAvailable())
         return;
 
     //check values
@@ -31,7 +31,7 @@ void Analog::update()
         if (!database.read(DB_BLOCK_ANALOG, dbSection_analog_enable, i))
             continue;
 
-        int16_t analogData = board.getAnalogValue(i);
+        int16_t analogData = Board::getAnalogValue(i);
         analogType_t type = (analogType_t)database.read(DB_BLOCK_ANALOG, dbSection_analog_type, i);
 
         if (type != aType_button)
@@ -61,7 +61,7 @@ void Analog::update()
         }
     }
 
-    board.continueADCreadout();
+    Board::continueADCreadout();
 }
 
 void Analog::debounceReset(uint16_t index)

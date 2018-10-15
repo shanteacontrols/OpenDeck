@@ -38,11 +38,10 @@ class Encoders
 {
     public:
     #ifdef DISPLAY_SUPPORTED
-    Encoders(Board &board, Database &database, MIDI &midi, Display &display) :
+    Encoders(Database &database, MIDI &midi, Display &display) :
     #else
-    Encoders(Board &board, Database &database, MIDI &midi) :
+    Encoders(Database &database, MIDI &midi) :
     #endif
-    board(board),
     database(database),
     midi(midi)
     #ifdef DISPLAY_SUPPORTED
@@ -53,7 +52,6 @@ class Encoders
     void update();
 
     private:
-    Board           &board;
     Database        &database;
     MIDI            &midi;
     #ifdef DISPLAY_SUPPORTED

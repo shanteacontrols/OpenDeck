@@ -15,21 +15,28 @@
 
 #pragma once
 
-#include "Hardware.h"
+#include <inttypes.h>
 
-#ifdef OUT_MATRIX
-///
-/// \brief Holds value of currently active output matrix column.
-///
-extern volatile uint8_t     activeOutColumn;
-#else
-///
-/// \brief Holds last LED state for all LEDs.
-/// Used in direct-out setups only where LED state is updated only when it changes.
-///
-extern uint8_t              lastLEDstate[MAX_NUMBER_OF_LEDS];
-#endif
+namespace Board
+{
+    namespace detail
+    {
+        #ifdef OUT_MATRIX
+        ///
+        /// \brief Holds value of currently active output matrix column.
+        ///
+        extern volatile uint8_t     activeOutColumn;
+        #else
+        ///
+        /// \brief Holds last LED state for all LEDs.
+        /// Used in direct-out setups only where LED state is updated only when it changes.
+        ///
+        extern uint8_t              lastLEDstate[MAX_NUMBER_OF_LEDS];
+        #endif
 
-extern volatile int8_t      transitionCounter[MAX_NUMBER_OF_LEDS];
-extern volatile uint8_t     pwmSteps;
-extern uint8_t              ledState[MAX_NUMBER_OF_LEDS];
+        extern volatile int8_t      transitionCounter[MAX_NUMBER_OF_LEDS];
+        extern volatile uint8_t     pwmSteps;
+    }
+
+    extern uint8_t              ledState[MAX_NUMBER_OF_LEDS];
+}

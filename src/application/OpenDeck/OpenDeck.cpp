@@ -34,7 +34,7 @@ cinfoHandler_t cinfoHandler;
 
 void OpenDeck::init()
 {
-    board.init();
+    Board::init();
     database.init();
     sysConfig.init();
 
@@ -44,7 +44,7 @@ void OpenDeck::init()
     #endif
 
     sysConfig.configureMIDI();
-    board.ledFlashStartup(board.checkNewRevision());
+    Board::ledFlashStartup(Board::checkNewRevision());
 
     #ifdef LEDS_SUPPORTED
     leds.init();
@@ -106,7 +106,7 @@ void OpenDeck::checkComponents()
 {
     if (sysConfig.isProcessingEnabled())
     {
-        if (board.digitalInputDataAvailable())
+        if (Board::digitalInputDataAvailable())
         {
             buttons.update();
             encoders.update();

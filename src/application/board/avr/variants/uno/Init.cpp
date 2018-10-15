@@ -23,118 +23,126 @@
 #include "core/src/HAL/avr/PinManipulation.h"
 #include "core/src/HAL/avr/adc/ADC.h"
 
-void Board::initPins()
+namespace Board
 {
-    setInput(DI_1_PORT, DI_1_PIN);
-    setHigh(DI_1_PORT, DI_1_PIN);
+    namespace detail
+    {
+        void initPins()
+        {
+            setInput(DI_1_PORT, DI_1_PIN);
+            setHigh(DI_1_PORT, DI_1_PIN);
 
-    setInput(DI_2_PORT, DI_2_PIN);
-    setHigh(DI_2_PORT, DI_2_PIN);
+            setInput(DI_2_PORT, DI_2_PIN);
+            setHigh(DI_2_PORT, DI_2_PIN);
 
-    setInput(DI_3_PORT, DI_3_PIN);
-    setHigh(DI_3_PORT, DI_3_PIN);
+            setInput(DI_3_PORT, DI_3_PIN);
+            setHigh(DI_3_PORT, DI_3_PIN);
 
-    setInput(DI_4_PORT, DI_4_PIN);
-    setHigh(DI_4_PORT, DI_4_PIN);
+            setInput(DI_4_PORT, DI_4_PIN);
+            setHigh(DI_4_PORT, DI_4_PIN);
 
-    setInput(DI_5_PORT, DI_5_PIN);
-    setHigh(DI_5_PORT, DI_5_PIN);
+            setInput(DI_5_PORT, DI_5_PIN);
+            setHigh(DI_5_PORT, DI_5_PIN);
 
-    setInput(DI_6_PORT, DI_6_PIN);
-    setHigh(DI_6_PORT, DI_6_PIN);
-
-
-    setOutput(DO_1_PORT, DO_1_PIN);
-    EXT_LED_OFF(DO_1_PORT, DO_1_PIN);
-
-    setOutput(DO_2_PORT, DO_2_PIN);
-    EXT_LED_OFF(DO_2_PORT, DO_2_PIN);
-
-    setOutput(DO_3_PORT, DO_3_PIN);
-    EXT_LED_OFF(DO_3_PORT, DO_3_PIN);
-
-    setOutput(DO_4_PORT, DO_4_PIN);
-    EXT_LED_OFF(DO_4_PORT, DO_4_PIN);
-
-    setOutput(DO_5_PORT, DO_5_PIN);
-    EXT_LED_OFF(DO_5_PORT, DO_5_PIN);
-
-    setOutput(DO_6_PORT, DO_6_PIN);
-    EXT_LED_OFF(DO_6_PORT, DO_6_PIN);
+            setInput(DI_6_PORT, DI_6_PIN);
+            setHigh(DI_6_PORT, DI_6_PIN);
 
 
-    setInput(AI_1_PORT, AI_1_PIN);
-    setLow(AI_1_PORT, AI_1_PIN);
+            setOutput(DO_1_PORT, DO_1_PIN);
+            EXT_LED_OFF(DO_1_PORT, DO_1_PIN);
 
-    setInput(AI_2_PORT, AI_2_PIN);
-    setLow(AI_2_PORT, AI_2_PIN);
+            setOutput(DO_2_PORT, DO_2_PIN);
+            EXT_LED_OFF(DO_2_PORT, DO_2_PIN);
 
-    setInput(AI_3_PORT, AI_3_PIN);
-    setLow(AI_3_PORT, AI_3_PIN);
+            setOutput(DO_3_PORT, DO_3_PIN);
+            EXT_LED_OFF(DO_3_PORT, DO_3_PIN);
 
-    setInput(AI_4_PORT, AI_4_PIN);
-    setLow(AI_4_PORT, AI_4_PIN);
+            setOutput(DO_4_PORT, DO_4_PIN);
+            EXT_LED_OFF(DO_4_PORT, DO_4_PIN);
 
-    setInput(AI_5_PORT, AI_5_PIN);
-    setLow(AI_5_PORT, AI_5_PIN);
+            setOutput(DO_5_PORT, DO_5_PIN);
+            EXT_LED_OFF(DO_5_PORT, DO_5_PIN);
 
-    setInput(AI_6_PORT, AI_6_PIN);
-    setLow(AI_6_PORT, AI_6_PIN);
-}
+            setOutput(DO_6_PORT, DO_6_PIN);
+            EXT_LED_OFF(DO_6_PORT, DO_6_PIN);
 
-void Board::initAnalog()
-{
-    adcConf adcConfiguration;
 
-    adcConfiguration.prescaler = ADC_PRESCALER_128;
-    adcConfiguration.vref = ADC_VREF_AVCC;
+            setInput(AI_1_PORT, AI_1_PIN);
+            setLow(AI_1_PORT, AI_1_PIN);
 
-    setUpADC(adcConfiguration);
-    setADCchannel(AI_1_PIN);
+            setInput(AI_2_PORT, AI_2_PIN);
+            setLow(AI_2_PORT, AI_2_PIN);
 
-    for (int i=0; i<3; i++)
-        getADCvalue();  //few dummy reads to init ADC
+            setInput(AI_3_PORT, AI_3_PIN);
+            setLow(AI_3_PORT, AI_3_PIN);
 
-    adcInterruptEnable();
-    startADCconversion();
-}
+            setInput(AI_4_PORT, AI_4_PIN);
+            setLow(AI_4_PORT, AI_4_PIN);
 
-void Board::configureTimers()
-{
-    //clear timer0 conf
-    TCCR0A = 0;
-    TCCR0B = 0;
-    TIMSK0 = 0;
+            setInput(AI_5_PORT, AI_5_PIN);
+            setLow(AI_5_PORT, AI_5_PIN);
 
-    //clear timer1 conf
-    TCCR1A = 0;
-    TCCR1B = 0;
+            setInput(AI_6_PORT, AI_6_PIN);
+            setLow(AI_6_PORT, AI_6_PIN);
+        }
 
-    //set timer0 to ctc, used for millis/led matrix
-    TCCR0A |= (1<<WGM01);           //CTC mode
-    TCCR0B |= (1<<CS01)|(1<<CS00);  //prescaler 64
-    OCR0A = 124;                    //500us
-    TIMSK0 |= (1<<OCIE0A);          //compare match interrupt
-}
+        void initAnalog()
+        {
+            adcConf adcConfiguration;
 
-void Board::ledFlashStartup(bool fwUpdated)
-{
-    //there are no indicator leds on atmega328p
-    //instead, send special command to USB link which will display indicator led animation
-    uartWrite(UART_USB_LINK_CHANNEL, OD_FORMAT_INT_DATA_START);
+            adcConfiguration.prescaler = ADC_PRESCALER_128;
+            adcConfiguration.vref = ADC_VREF_AVCC;
 
-    if (fwUpdated)
-        uartWrite(UART_USB_LINK_CHANNEL, cmdFwUpdated);
-    else
-        uartWrite(UART_USB_LINK_CHANNEL, cmdFwNotUpdated);
+            setUpADC(adcConfiguration);
+            setADCchannel(AI_1_PIN);
 
-    uartWrite(UART_USB_LINK_CHANNEL, 0x00);
-    uartWrite(UART_USB_LINK_CHANNEL, 0x00);
-    uartWrite(UART_USB_LINK_CHANNEL, 0x00);
-    uartWrite(UART_USB_LINK_CHANNEL, 0x00);
-}
+            for (int i=0; i<3; i++)
+                getADCvalue();  //few dummy reads to init ADC
 
-void Board::initCustom()
-{
-    
+            adcInterruptEnable();
+            startADCconversion();
+        }
+
+        void configureTimers()
+        {
+            //clear timer0 conf
+            TCCR0A = 0;
+            TCCR0B = 0;
+            TIMSK0 = 0;
+
+            //clear timer1 conf
+            TCCR1A = 0;
+            TCCR1B = 0;
+
+            //set timer0 to ctc, used for millis/led matrix
+            TCCR0A |= (1<<WGM01);           //CTC mode
+            TCCR0B |= (1<<CS01)|(1<<CS00);  //prescaler 64
+            OCR0A = 124;                    //500us
+            TIMSK0 |= (1<<OCIE0A);          //compare match interrupt
+        }
+    }
+
+    void ledFlashStartup(bool fwUpdated)
+    {
+        using namespace Board::detail;
+
+        //there are no indicator leds on atmega328p
+        //instead, send special command to USB link which will display indicator led animation
+        uartWrite(UART_USB_LINK_CHANNEL, OD_FORMAT_INT_DATA_START);
+
+        if (fwUpdated)
+            uartWrite(UART_USB_LINK_CHANNEL, (uint8_t)odFormatCMD_t::cmdFwUpdated);
+        else
+            uartWrite(UART_USB_LINK_CHANNEL, (uint8_t)odFormatCMD_t::cmdFwNotUpdated);
+
+        uartWrite(UART_USB_LINK_CHANNEL, 0x00);
+        uartWrite(UART_USB_LINK_CHANNEL, 0x00);
+        uartWrite(UART_USB_LINK_CHANNEL, 0x00);
+        uartWrite(UART_USB_LINK_CHANNEL, 0x00);
+    }
+
+    bool startUpAnimation()
+    {
+        return false;
+    }
 }

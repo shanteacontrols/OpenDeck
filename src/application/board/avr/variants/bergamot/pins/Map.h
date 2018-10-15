@@ -19,9 +19,14 @@
 #pragma once
 
 #include "Pins.h"
-#include "../Hardware.h"
 
-const uint8_t adcChannelArray[NUMBER_OF_MUX] =
+namespace Board
 {
-    MUX_1_IN_PIN
-};
+    namespace detail
+    {
+        const uint8_t adcChannelArray[NUMBER_OF_MUX] =
+        {
+            MUX_1_IN_PIN
+        };
+    }
+}

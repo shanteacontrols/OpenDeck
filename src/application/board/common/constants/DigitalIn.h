@@ -18,25 +18,29 @@
 
 #pragma once
 
-#include "board/Board.h"
+namespace Board
+{
+    namespace detail
+    {
+        ///
+        /// \brief Size of array used to store all digital input readings.
+        /// Values are stored in byte array - one bit represents single digital input value.
+        ///
+        #ifndef IN_MATRIX
+        #if ((MAX_NUMBER_OF_BUTTONS % 8) != 0)
+        #define DIGITAL_IN_ARRAY_SIZE   ((MAX_NUMBER_OF_BUTTONS / 8) + 1)
+        #else
+        #define DIGITAL_IN_ARRAY_SIZE   (MAX_NUMBER_OF_BUTTONS / 8)
+        #endif
+        #else
+        #define DIGITAL_IN_ARRAY_SIZE   NUMBER_OF_BUTTON_COLUMNS
+        #endif
 
-///
-/// \brief Size of array used to store all digital input readings.
-/// Values are stored in byte array - one bit represents single digital input value.
-///
-#ifndef IN_MATRIX
-#if ((MAX_NUMBER_OF_BUTTONS % 8) != 0)
-#define DIGITAL_IN_ARRAY_SIZE   ((MAX_NUMBER_OF_BUTTONS / 8) + 1)
-#else
-#define DIGITAL_IN_ARRAY_SIZE   (MAX_NUMBER_OF_BUTTONS / 8)
-#endif
-#else
-#define DIGITAL_IN_ARRAY_SIZE   NUMBER_OF_BUTTON_COLUMNS
-#endif
-
-///
-/// \brief Size of ring buffer used to store all digital input readings.
-/// Once digital input array is full (all inputs are read), index within ring buffer
-/// is incremented (if there is space left).
-///
-#define DIGITAL_IN_BUFFER_SIZE  5
+        ///
+        /// \brief Size of ring buffer used to store all digital input readings.
+        /// Once digital input array is full (all inputs are read), index within ring buffer
+        /// is incremented (if there is space left).
+        ///
+        #define DIGITAL_IN_BUFFER_SIZE  5
+    }
+}

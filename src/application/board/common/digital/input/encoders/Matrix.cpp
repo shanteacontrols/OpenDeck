@@ -16,24 +16,30 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Common.h"
 #include "board/common/digital/input/Variables.h"
 
-uint8_t Board::getEncoderPair(uint8_t buttonID)
+namespace Board
 {
-    uint8_t row = buttonID/NUMBER_OF_BUTTON_COLUMNS;
-    uint8_t column = buttonID % NUMBER_OF_BUTTON_COLUMNS;
+    uint8_t getEncoderPair(uint8_t buttonID)
+    {
+        uint8_t row = buttonID/NUMBER_OF_BUTTON_COLUMNS;
+        uint8_t column = buttonID % NUMBER_OF_BUTTON_COLUMNS;
 
-    if (row%2)
-        row -= 1;   //uneven row, get info from previous (even) row
+        if (row%2)
+            row -= 1;   //uneven row, get info from previous (even) row
 
-    return (row*NUMBER_OF_BUTTON_COLUMNS)/2 + column;
-}
+        return (row*NUMBER_OF_BUTTON_COLUMNS)/2 + column;
+    }
 
-encoderPosition_t Board::getEncoderState(uint8_t encoderID, uint8_t pulsesPerStep)
-{
-    uint8_t column = encoderID % NUMBER_OF_BUTTON_COLUMNS;
-    uint8_t row  = (encoderID/NUMBER_OF_BUTTON_COLUMNS)*2;
-    uint8_t pairState = (digitalInBufferReadOnly[column] >> row) & 0x03;
+    encoderPosition_t getEncoderState(uint8_t encoderID, uint8_t pulsesPerStep)
+    {
+        using namespace Board::detail;
 
-    return readEncoder(encoderID, pairState, pulsesPerStep);
+        uint8_t column = encoderID % NUMBER_OF_BUTTON_COLUMNS;
+        uint8_t row  = (encoderID/NUMBER_OF_BUTTON_COLUMNS)*2;
+        uint8_t pairState = (digitalInBufferReadOnly[column] >> row) & 0x03;
+
+        return readEncoder(encoderID, pairState, pulsesPerStep);
+    }
 }
