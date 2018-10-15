@@ -23,7 +23,7 @@ namespace Board
 {
     uint8_t getRGBaddress(uint8_t rgbID, rgbIndex_t index)
     {
-        return rgbID*3+(uint8_t)index;
+        return rgbID*3+static_cast<uint8_t>(index);
     }
 
     uint8_t getRGBID(uint8_t ledID)

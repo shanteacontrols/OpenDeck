@@ -28,7 +28,7 @@ int main(void)
     sei();
 
     USBMIDIpacket_t USBMIDIpacket;
-    Board::odPacketType_t  packetType;
+    Board::odPacketType_t packetType;
 
     while (1)
     {
@@ -46,7 +46,7 @@ int main(void)
 
         if (usbState != lastUSBstate)
         {
-            USBMIDIpacket.Event = usbState ? (uint8_t)Board::odFormatCMD_t::cmdUsbStateConnected : (uint8_t)Board::odFormatCMD_t::cmdUsbStateNotConnected;
+            USBMIDIpacket.Event = usbState ? static_cast<uint8_t>(Board::odFormatCMD_t::cmdUsbStateConnected) : static_cast<uint8_t>(Board::odFormatCMD_t::cmdUsbStateNotConnected);
             USBMIDIpacket.Data1 = 0;
             USBMIDIpacket.Data2 = 0;
             USBMIDIpacket.Data3 = 0;

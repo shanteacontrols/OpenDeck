@@ -273,9 +273,9 @@ namespace Board
         uartWrite(UART_USB_LINK_CHANNEL, OD_FORMAT_INT_DATA_START);
 
         if (fwUpdated)
-            uartWrite(UART_USB_LINK_CHANNEL, (uint8_t)odFormatCMD_t::cmdFwUpdated);
+            uartWrite(UART_USB_LINK_CHANNEL, static_cast<uint8_t>(odFormatCMD_t::cmdFwUpdated));
         else
-            uartWrite(UART_USB_LINK_CHANNEL, (uint8_t)odFormatCMD_t::cmdFwNotUpdated);
+            uartWrite(UART_USB_LINK_CHANNEL, static_cast<uint8_t>(odFormatCMD_t::cmdFwNotUpdated));
 
         uartWrite(UART_USB_LINK_CHANNEL, 0x00);
         uartWrite(UART_USB_LINK_CHANNEL, 0x00);

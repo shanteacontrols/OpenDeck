@@ -47,13 +47,13 @@ void Encoders::update()
 
         uint8_t midiID = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiID, i);
         uint8_t channel = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i);
-        encoderType_t type = (encoderType_t)database.read(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i);
+        encoderType_t type = static_cast<encoderType_t>(database.read(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i));
 
         switch(type)
         {
             case encType7Fh01h:
             case encType3Fh41h:
-            encoderValue = encValue[(uint8_t)type][(uint8_t)encoderState];
+            encoderValue = encValue[static_cast<uint8_t>(type)][static_cast<uint8_t>(encoderState)];
             break;
 
             case encTypePC:

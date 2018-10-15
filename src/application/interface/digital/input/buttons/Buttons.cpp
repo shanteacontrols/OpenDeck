@@ -53,12 +53,12 @@ void Buttons::processButton(uint8_t buttonID, bool state)
 
     setButtonState(buttonID, state);
 
-    buttonMIDImessage_t buttonMessage = (buttonMIDImessage_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, buttonID);
+    buttonMIDImessage_t buttonMessage = static_cast<buttonMIDImessage_t>(database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, buttonID));
 
     //don't process buttonNone type of message
     if (buttonMessage != buttonNone)
     {
-        buttonType_t type = (buttonType_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_type, buttonID);
+        buttonType_t type = static_cast<buttonType_t>(database.read(DB_BLOCK_BUTTONS, dbSection_buttons_type, buttonID));
 
         //overwrite type under certain conditions
         switch(buttonMessage)
@@ -134,7 +134,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMIDImessage_t butt
     uint8_t velocity = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_velocity, buttonID);
 
     if (buttonMessage == BUTTON_MESSAGE_TYPES)
-        buttonMessage = (buttonMIDImessage_t)database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, buttonID);
+        buttonMessage = static_cast<buttonMIDImessage_t>(database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, buttonID));
 
     mmcArray[2] = note; //use midi note as channel id for transport control
 

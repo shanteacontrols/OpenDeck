@@ -81,7 +81,7 @@ bool SysConfig::onCustomRequest(uint8_t value)
         case SYSEX_CR_DAISY_CHAIN:
         //received message from opendeck board in daisy chain configuration
         //check if this board is master
-        if ((midiMergeType_t)database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeType) == midiMergeODslave)
+        if (static_cast<midiMergeType_t>(database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeType)) == midiMergeODslave)
         {
             //slave
             //send sysex to next board in the chain on uart channel
@@ -368,10 +368,10 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, sysExParam
                     {
                         success = true;
 
-                        if ((midiMergeType_t)newValue == midiMergeODslave)
+                        if (static_cast<midiMergeType_t>(newValue) == midiMergeODslave)
                             setupMIDIoverUART(UART_BAUDRATE_MIDI_OD, true, false); //init only uart read interface for now
                         else
-                            configureMIDImerge((midiMergeType_t)newValue);
+                            configureMIDImerge(static_cast<midiMergeType_t>(newValue));
                     }
                     else
                     {
@@ -408,7 +408,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, sysExParam
         {
             case sysExSection_leds_testColor:
             //no writing to database
-            leds.setColor(index, (ledColor_t)newValue);
+            leds.setColor(index, static_cast<ledColor_t>(newValue));
             success = true;
             writeToDb = false;
             break;
@@ -427,7 +427,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, sysExParam
                 if ((newValue <= 1) && (newValue >= 0))
                 {
                     success = true;
-                    leds.setBlinkType((blinkType_t)newValue);
+                    leds.setBlinkType(static_cast<blinkType_t>(newValue));
                 }
                 break;
 
@@ -472,17 +472,17 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, sysExParam
 
                 for (int i=0; i<3; i++)
                 {
-                    success = database.update(block, sysEx2DB_leds[sysExSection_leds_activationID], Board::getRGBaddress(Board::getRGBID(index), (rgbIndex_t)i), database.read(block, sysEx2DB_leds[sysExSection_leds_activationID], index));
+                    success = database.update(block, sysEx2DB_leds[sysExSection_leds_activationID], Board::getRGBaddress(Board::getRGBID(index), static_cast<rgbIndex_t>(i)), database.read(block, sysEx2DB_leds[sysExSection_leds_activationID], index));
 
                     if (!success)
                         break;
 
-                    success = database.update(block, sysEx2DB_leds[sysExSection_leds_controlType], Board::getRGBaddress(Board::getRGBID(index), (rgbIndex_t)i), database.read(block, sysEx2DB_leds[sysExSection_leds_controlType], index));
+                    success = database.update(block, sysEx2DB_leds[sysExSection_leds_controlType], Board::getRGBaddress(Board::getRGBID(index), static_cast<rgbIndex_t>(i)), database.read(block, sysEx2DB_leds[sysExSection_leds_controlType], index));
 
                     if (!success)
                         break;
 
-                    success = database.update(block, sysEx2DB_leds[sysExSection_leds_midiChannel], Board::getRGBaddress(Board::getRGBID(index), (rgbIndex_t)i), database.read(block, sysEx2DB_leds[sysExSection_leds_midiChannel], index));
+                    success = database.update(block, sysEx2DB_leds[sysExSection_leds_midiChannel], Board::getRGBaddress(Board::getRGBID(index), static_cast<rgbIndex_t>(i)), database.read(block, sysEx2DB_leds[sysExSection_leds_midiChannel], index));
 
                     if (!success)
                         break;
@@ -504,7 +504,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, sysExParam
                 //rgb led enabled - copy these settings to all three leds
                 for (int i=0; i<3; i++)
                 {
-                    success = database.update(block, sysEx2DB_leds[section], Board::getRGBaddress(Board::getRGBID(index), (rgbIndex_t)i), newValue);
+                    success = database.update(block, sysEx2DB_leds[section], Board::getRGBaddress(Board::getRGBID(index), static_cast<rgbIndex_t>(i)), newValue);
 
                     if (!success)
                         break;
@@ -540,7 +540,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, sysExParam
                     success = true;
 
                     if (newValue)
-                        display.init((displayController_t)database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwController), (displayResolution_t)database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwResolution));
+                        display.init(static_cast<displayController_t>(database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwController)), static_cast<displayResolution_t>(database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwResolution)));
                     else //init with invalid configuration
                         display.init(DISPLAY_CONTROLLERS, DISPLAY_RESOLUTIONS);
                 }
@@ -590,7 +590,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, sysExParam
                 case displayHwController:
                 if ((newValue <= DISPLAY_CONTROLLERS) && (newValue >= 0))
                 {
-                    if (display.init((displayController_t)newValue, (displayResolution_t)database.read(DB_BLOCK_DISPLAY, sysEx2DB_display[section], displayHwResolution)))
+                    if (display.init(static_cast<displayController_t>(newValue), static_cast<displayResolution_t>(database.read(DB_BLOCK_DISPLAY, sysEx2DB_display[section], displayHwResolution))))
                     {
                         display.displayHome();
                     }
@@ -602,7 +602,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, sysExParam
                 case displayHwResolution:
                 if ((newValue <= DISPLAY_RESOLUTIONS) && (newValue >= 0))
                 {
-                    if (display.init((displayController_t)database.read(DB_BLOCK_DISPLAY, sysEx2DB_display[section], displayHwController), (displayResolution_t)newValue))
+                    if (display.init(static_cast<displayController_t>(database.read(DB_BLOCK_DISPLAY, sysEx2DB_display[section], displayHwController)), static_cast<displayResolution_t>(newValue)))
                     {
                         display.displayHome();
                     }
@@ -746,12 +746,12 @@ bool SysConfig::sendCInfo(dbBlockID_t dbBlock, sysExParameter_t componentID)
             sysExParameter_t cInfoMessage[] =
             {
                 SYSEX_CM_COMPONENT_ID,
-                (sysExParameter_t)dbBlock,
-                (sysExParameter_t)componentID
+                static_cast<sysExParameter_t>(dbBlock),
+                static_cast<sysExParameter_t>(componentID)
             };
 
             sendCustomMessage(midi.usbMessage.sysexArray, cInfoMessage, 3);
-            lastCinfoMsgTime[(uint8_t)dbBlock] = rTimeMs();
+            lastCinfoMsgTime[static_cast<uint8_t>(dbBlock)] = rTimeMs();
         }
 
         return true;
@@ -763,7 +763,7 @@ bool SysConfig::sendCInfo(dbBlockID_t dbBlock, sysExParameter_t componentID)
 void SysConfig::configureMIDI()
 {
     midi.setInputChannel(MIDI_CHANNEL_OMNI);
-    midi.setNoteOffMode((noteOffType_t)database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureStandardNoteOff));
+    midi.setNoteOffMode(static_cast<noteOffType_t>(database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureStandardNoteOff)));
     midi.setRunningStatusState(database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureRunningStatus));
     midi.setChannelSendZeroStart(true);
 
@@ -778,7 +778,7 @@ void SysConfig::configureMIDI()
         //only configure master
         if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
         {
-            midiMergeType_t type = (midiMergeType_t)database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeType);
+            midiMergeType_t type = static_cast<midiMergeType_t>(database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeType));
 
             if (type == midiMergeODslave)
                 setupMIDIoverUART(UART_BAUDRATE_MIDI_OD, true, false); //init only uart read interface for now

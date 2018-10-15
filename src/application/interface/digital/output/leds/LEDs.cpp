@@ -41,7 +41,7 @@ void LEDs::init(bool startUp)
         #endif
     }
 
-    setBlinkType((blinkType_t)database.read(DB_BLOCK_LEDS, dbSection_leds_global, ledGlobalParam_blinkMIDIclock));
+    setBlinkType(static_cast<blinkType_t>(database.read(DB_BLOCK_LEDS, dbSection_leds_global, ledGlobalParam_blinkMIDIclock)));
 
     for (int i=0; i<BLINK_SPEEDS; i++)
         blinkState[i] = true;
@@ -146,7 +146,7 @@ blinkSpeed_t LEDs::valueToBlinkSpeed(uint8_t value)
     if (value >= 120)
         value = 119;
 
-    return (blinkSpeed_t)(value/10);
+    return static_cast<blinkSpeed_t>(value/10);
 }
 
 void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local)
@@ -160,7 +160,7 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
         bool setState = false;
         bool setBlink = false;
 
-        ledControlType_t controlType = (ledControlType_t)database.read(DB_BLOCK_LEDS, dbSection_leds_controlType, i);
+        ledControlType_t controlType = static_cast<ledControlType_t>(database.read(DB_BLOCK_LEDS, dbSection_leds_controlType, i));
 
         //determine whether led state or blink state should be changed
         //received MIDI message must match with defined control type
@@ -297,7 +297,7 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
             {
                 if (setState)
                 {
-                    uint8_t blinkSpeed = (blinkSpeed_t)blinkSpeed_noBlink;
+                    uint8_t blinkSpeed = static_cast<blinkSpeed_t>(blinkSpeed_noBlink);
 
                     if (data2 && (bool)color)
                     {
@@ -305,15 +305,15 @@ void LEDs::midiToState(midiMessageType_t messageType, uint8_t data1, uint8_t dat
                         //first reduce data2 to range 0-15
                         //append 1 so that first value is blinking one
                         //turn off blinking only on higher range
-                        blinkSpeed = 1 + (data2 - ((uint8_t)color*16));
+                        blinkSpeed = 1 + (data2 - (static_cast<uint8_t>(color*16)));
 
                         //make sure data2 is in range
                         //when it's not turn off blinking
                         if (blinkSpeed >= BLINK_SPEEDS)
-                            blinkSpeed = (blinkSpeed_t)blinkSpeed_noBlink;
+                            blinkSpeed = static_cast<blinkSpeed_t>(blinkSpeed_noBlink);
                     }
 
-                    setBlinkState(i, (blinkSpeed_t)blinkSpeed);
+                    setBlinkState(i, static_cast<blinkSpeed_t>(blinkSpeed));
                 }
                 else
                 {
@@ -349,7 +349,7 @@ void LEDs::setBlinkState(uint8_t ledID, blinkSpeed_t state)
 
     for (int i=0; i<leds; i++)
     {
-        if ((bool)state)
+        if (static_cast<bool>(state))
         {
             BIT_SET(Board::ledState[ledArray[i]], LED_BLINK_ON_BIT);
             //this will turn the led on immediately
@@ -361,7 +361,7 @@ void LEDs::setBlinkState(uint8_t ledID, blinkSpeed_t state)
             BIT_WRITE(Board::ledState[ledArray[i]], LED_STATE_BIT, BIT_READ(Board::ledState[ledArray[i]], LED_ACTIVE_BIT));
         }
 
-        blinkTimer[ledID] = (uint8_t)state;
+        blinkTimer[ledID] = static_cast<uint8_t>(state);
     }
 }
 
@@ -429,7 +429,7 @@ ledColor_t LEDs::getColor(uint8_t ledID)
             color <<= 1;
             color |= BIT_READ(led3, LED_RGB_R_BIT);
 
-            return (ledColor_t)color;
+            return static_cast<ledColor_t>(color);
         }
     }
 }

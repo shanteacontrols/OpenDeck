@@ -53,7 +53,7 @@ void OpenDeck::init()
     #ifdef DISPLAY_SUPPORTED
     if (database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureEnable))
     {
-        if (display.init((displayController_t)database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwController), (displayResolution_t)database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwResolution)))
+        if (display.init(static_cast<displayController_t>(database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwController)), static_cast<displayResolution_t>(database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwResolution))))
         {
             display.setDirectWriteState(true);
 

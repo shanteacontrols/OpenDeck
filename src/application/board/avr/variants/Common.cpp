@@ -79,11 +79,11 @@ namespace Board
         switch(type)
         {
             case rebootType_t::rebootApp:
-            eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, APP_REBOOT_VALUE);
+            eeprom_write_byte(reinterpret_cast<uint8_t*>(REBOOT_VALUE_EEPROM_LOCATION), APP_REBOOT_VALUE);
             break;
 
             case rebootType_t::rebootBtldr:
-            eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, BTLDR_REBOOT_VALUE);
+            eeprom_write_byte(reinterpret_cast<uint8_t*>(REBOOT_VALUE_EEPROM_LOCATION), BTLDR_REBOOT_VALUE);
             break;
         }
 
@@ -95,12 +95,12 @@ namespace Board
     bool checkNewRevision()
     {
         uint32_t flash_size = pgm_read_dword(APP_LENGTH_LOCATION);
-        uint16_t crc_eeprom = eeprom_read_word((uint16_t*)SW_CRC_LOCATION_EEPROM);
+        uint16_t crc_eeprom = eeprom_read_word(reinterpret_cast<uint16_t*>(SW_CRC_LOCATION_EEPROM));
         uint16_t crc_flash = pgm_read_word(flash_size);
 
         if (crc_eeprom != crc_flash)
         {
-            eeprom_update_word((uint16_t*)SW_CRC_LOCATION_EEPROM, crc_flash);
+            eeprom_update_word(reinterpret_cast<uint16_t*>(SW_CRC_LOCATION_EEPROM), crc_flash);
             return true;
         }
 
@@ -135,16 +135,16 @@ namespace Board
             case BIT_PARAMETER:
             case BYTE_PARAMETER:
             case HALFBYTE_PARAMETER:
-            value = eeprom_read_byte((uint8_t*)address);
+            value = eeprom_read_byte(reinterpret_cast<uint8_t*>(address));
             break;
 
             case WORD_PARAMETER:
-            value = eeprom_read_word((uint16_t*)address);
+            value = eeprom_read_word(reinterpret_cast<uint16_t*>(address));
             break;
 
             default:
             // case DWORD_PARAMETER:
-            value = eeprom_read_dword((uint32_t*)address);
+            value = eeprom_read_dword(reinterpret_cast<uint32_t*>(address));
             break;
         }
 
@@ -158,16 +158,16 @@ namespace Board
             case BIT_PARAMETER:
             case BYTE_PARAMETER:
             case HALFBYTE_PARAMETER:
-            eeprom_update_byte((uint8_t*)address, value);
+            eeprom_update_byte(reinterpret_cast<uint8_t*>(address), value);
             break;
 
             case WORD_PARAMETER:
-            eeprom_update_word((uint16_t*)address, value);
+            eeprom_update_word(reinterpret_cast<uint16_t*>(address), value);
             break;
 
             default:
             // case DWORD_PARAMETER:
-            eeprom_update_dword((uint32_t*)address, value);
+            eeprom_update_dword(reinterpret_cast<uint32_t*>(address), value);
             break;
         }
 

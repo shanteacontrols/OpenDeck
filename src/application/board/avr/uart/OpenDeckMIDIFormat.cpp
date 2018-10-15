@@ -27,7 +27,7 @@ namespace Board
         if (channel >= UART_INTERFACES)
             return false;
 
-        uartWrite(channel, (uint8_t)packetType);
+        uartWrite(channel, static_cast<uint8_t>(packetType));
         uartWrite(channel, USBMIDIpacket.Event);
         uartWrite(channel, USBMIDIpacket.Data1);
         uartWrite(channel, USBMIDIpacket.Data2);
@@ -54,7 +54,7 @@ namespace Board
 
             if ((data == OD_FORMAT_MIDI_DATA_START) || (data == OD_FORMAT_MIDI_DATA_MASTER_START))
             {
-                packetType = (odPacketType_t)data;
+                packetType = static_cast<odPacketType_t>(data);
 
                 //start of frame, read rest of the packet
                 for (int i=0; i<5; i++)
@@ -99,7 +99,7 @@ namespace Board
                 for (int i=0; i<4; i++)
                     uartRead(channel, data);
 
-                switch((odFormatCMD_t)cmd)
+                switch(static_cast<odFormatCMD_t>(cmd))
                 {
                     case odFormatCMD_t::cmdFwUpdated:
                     ledFlashStartup(true);

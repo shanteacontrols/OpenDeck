@@ -121,7 +121,7 @@ void Display::displayVinfo(bool newFw)
     stringBuffer.appendText(".x");
     stringBuffer.endLine();
     #else
-    stringBuffer.appendText_P((char*)pgm_read_word(&(boardNameArray[BOARD_ID])));
+    stringBuffer.appendText_P(reinterpret_cast<char*>(pgm_read_word(&(boardNameArray[BOARD_ID]))));
     stringBuffer.endLine();
     #endif
 
@@ -166,7 +166,7 @@ void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t
     uint8_t startColumn = (type == displayEventIn) ? COLUMN_START_MIDI_IN_MESSAGE : COLUMN_START_MIDI_OUT_MESSAGE;
 
     stringBuffer.startLine();
-    stringBuffer.appendText_P((char*)pgm_read_word(&(eventNameArray[(uint8_t)message])));
+    stringBuffer.appendText_P(reinterpret_cast<char*>(pgm_read_word(&(eventNameArray[static_cast<uint8_t>(message)]))));
     stringBuffer.appendChar(' ', U8X8::getColumns() - startColumn - stringBuffer.getSize());
     stringBuffer.endLine();
     updateText(startRow, lcdtext_still, startColumn);
@@ -183,7 +183,7 @@ void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t
         }
         else
         {
-            stringBuffer.appendText_P((char*)pgm_read_word(&(noteNameArray[(uint8_t)MIDI::getTonicFromNote(byte1)])));
+            stringBuffer.appendText_P(reinterpret_cast<char*>(pgm_read_word(&(noteNameArray[static_cast<uint8_t>(MIDI::getTonicFromNote(byte1))]))));
             stringBuffer.appendInt(normalizeOctave(MIDI::getOctaveFromNote(byte1), octaveNormalization));
         }
 

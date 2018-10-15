@@ -117,7 +117,7 @@ bool Display::update()
         {
             //0 = in, 1 = out
             if ((rTimeMs() - lastMIDIMessageDisplayTime[i] > MIDImessageRetentionTime) && midiMessageDisplayed[i])
-                clearMIDIevent((displayEventType_t)i);
+                clearMIDIevent(static_cast<displayEventType_t>(i));
         }
     }
 
@@ -206,7 +206,7 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
 
             //update all characters on display
             for (int i=0; i<LCD_HEIGHT_MAX; i++)
-                charChange[i] = (uint32_t)0xFFFFFFFF;
+                charChange[i] = static_cast<uint32_t>(0xFFFFFFFF);
             break;
 
             default:
@@ -250,7 +250,7 @@ void Display::updateTempTextStatus()
 
             //make sure all characters are updated once temp text is removed
             for (int j=0; j<LCD_HEIGHT_MAX; j++)
-                charChange[j] = (uint32_t)0xFFFFFFFF;
+                charChange[j] = static_cast<uint32_t>(0xFFFFFFFF);
         }
     }
 }

@@ -32,7 +32,7 @@ void Analog::update()
             continue;
 
         int16_t analogData = Board::getAnalogValue(i);
-        analogType_t type = (analogType_t)database.read(DB_BLOCK_ANALOG, dbSection_analog_type, i);
+        analogType_t type = static_cast<analogType_t>(database.read(DB_BLOCK_ANALOG, dbSection_analog_type, i));
 
         if (type != aType_button)
         {
