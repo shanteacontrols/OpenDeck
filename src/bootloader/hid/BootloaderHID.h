@@ -44,36 +44,21 @@
 #else
 #include <LUFA/Common/Common.h>
 #endif
+#include "core/src/general/Misc.h"
+#include "Config.h"
 
 #if !defined(__OPTIMIZE_SIZE__)
 #error This bootloader requires that it be optimized for size, not speed, to fit into the target device. Change optimization settings and try again.
 #endif
 
-///
-/// \brief Bootloader special address to start the user application.
-///
-#define COMMAND_STARTAPPLICATION        0xFFFF
-
-static void initPins();
-static void setupHardware(void);
-static bool checkApplicationRun(void);
-void EVENT_USB_Device_ConfigurationChanged(void);
-
-#ifndef USB_SUPPORTED
+#ifdef USB_SUPPORTED
+void EVENT_USB_Device_ControlRequest();
+void EVENT_USB_Device_ConfigurationChanged();
+#else
 void EVENT_UART_Device_ControlRequest();
 #endif
 
-#if !defined(USB_SUPPORTED) || defined(BOARD_A_xu2)
-//magic sequence used to signal that the usb link has new flash page for target mcu
-const uint8_t hidUploadStart[] =
+namespace bootloader
 {
-    0x08,
-    0x04,
-    0x07,
-    0x02,
-    0x84,
-    0x72
-};
-#endif
-
-void runApplication();
+    bool appCRCvalid();
+}

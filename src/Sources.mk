@@ -14,26 +14,28 @@ else ifneq ($(filter %16u2 %8u2, $(MAKECMDGOALS)), )
     BOARD_DIR := xu2
 endif
 
-#common include directories
+#common include dirs
 INCLUDE_DIRS := \
 -I"modules/lufa/" \
 -I"modules/" \
+-I"application/board/avr/variants/$(BOARD_DIR)/" \
 -I"application/" \
--I"application/board/avr/variants/$(BOARD_DIR)/"
 
-#common headers
 ifeq ($(findstring fw_,$(MAKECMDGOALS)), fw_)
     ifneq ($(BOARD_DIR),xu2)
         INCLUDE_FILES += -include "application/board/avr/variants/$(BOARD_DIR)/Hardware.h"
     endif
+else
+    #bootloader only
+    INCLUDE_DIRS += \
+    -I"bootloader/hid/"
 endif
 
 SOURCES :=
 
 #lufa sources
-#no lufa for mega or uno
-ifeq ($(filter %mega %uno, $(MAKECMDGOALS)), )
-    #common for bootloader and firmware
+ifneq ($(filter USB_SUPPORTED, $(DEFINES)), )
+    #common for bootloader and application
     SOURCES += \
     modules/lufa/LUFA/Drivers/USB/Core/AVR8/Device_AVR8.c \
     modules/lufa/LUFA/Drivers/USB/Core/AVR8/EndpointStream_AVR8.c \
@@ -51,22 +53,15 @@ ifeq ($(filter %mega %uno, $(MAKECMDGOALS)), )
     modules/lufa/LUFA/Drivers/USB/Core/Events.c \
     modules/lufa/LUFA/Drivers/USB/Core/USBTask.c
 
-    #additional sources differ for firmware and bootloader
+    #additional sources differ for application and bootloader
     ifeq ($(findstring boot,$(MAKECMDGOALS)), boot)
         #bootloader
         SOURCES += \
-        bootloader/hid/BootloaderHID.cpp \
         bootloader/hid/Descriptors.c \
         modules/lufa/LUFA/Drivers/USB/Class/Common/HIDParser.c \
         modules/lufa/LUFA/Drivers/USB/Class/Device/HIDClassDevice.c
-
-        ifeq ($(BOARD_DIR),xu2)
-            #on bootloader mode for xu2, compile uart to transfer received files to main MCU
-            SOURCES += \
-            application/board/avr/uart/UART.cpp
-        endif
     else
-        #firmware
+        #application
         SOURCES += \
         application/board/avr/usb/Descriptors.c \
         modules/lufa/LUFA/Drivers/USB/Class/Device/AudioClassDevice.c \
@@ -74,19 +69,30 @@ ifeq ($(filter %mega %uno, $(MAKECMDGOALS)), )
     endif
 endif
 
-#hid bootloader on non-usb mcus
 ifeq ($(findstring boot,$(MAKECMDGOALS)), boot)
-    ifeq ($(filter USB_SUPPORTED, $(DEFINES)), )
-        SOURCES := \
-        bootloader/hid/BootloaderHID.cpp \
+    #bootloader sources
+    #common
+    SOURCES += \
+    bootloader/hid/BootloaderHID.cpp
+
+    ifneq ($(filter USB_SUPPORTED, $(DEFINES)), )
+        ifeq ($(BOARD_DIR),xu2)
+            SOURCES += \
+            bootloader/hid/variant/xu2.cpp \
+            application/board/avr/uart/UART.cpp
+        else
+            SOURCES += \
+            bootloader/hid/variant/NativeUSB.cpp
+        endif
+    else
+        SOURCES += \
+        bootloader/hid/variant/NoUSB.cpp \
         application/board/avr/uart/UART.cpp
     endif
-endif
-
-#only for firmware
-ifneq ($(findstring boot,$(MAKECMDGOALS)), boot)
+else
+    #application sources
     ifeq ($(BOARD_DIR),xu2)
-        #xu2 uses different set of sources than other firmwares
+        #fw for xu2 uses different set of sources than other targets
         SOURCES += \
         modules/core/src/HAL/avr/reset/Reset.cpp \
         application/board/avr/variants/Common.cpp \

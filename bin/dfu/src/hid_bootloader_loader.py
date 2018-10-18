@@ -60,7 +60,7 @@ def send_page_data(hid_device, address, data):
     # Bootloader page data should be the HID Report ID (always zero) followed
     # by the starting address to program, then one device's flash page worth
     # of data
-    output_report_data = bytearray(65)
+    output_report_data = bytearray(256+3)
     output_report_data[0] = 0
     output_report_data[1] = address & 0xFF
     output_report_data[2] = address >> 8

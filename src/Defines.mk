@@ -45,7 +45,6 @@ ifeq ($(findstring opendeck,$(MAKECMDGOALS)), opendeck)
     DEFINES += IN_MATRIX
     DEFINES += OUT_MATRIX
     DEFINES += LED_INDICATORS
-    DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 2
     DEFINES += DIN_MIDI_SUPPORTED
@@ -59,7 +58,6 @@ else ifeq ($(findstring tannin,$(MAKECMDGOALS)), tannin)
     DEFINES += USE_MUX
     DEFINES += IN_MATRIX
     DEFINES += OUT_MATRIX
-    DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 3
     HARDWARE_VERSION_MINOR := 0
     DEFINES += LEDS_SUPPORTED
@@ -68,7 +66,6 @@ else ifeq ($(findstring leonardo,$(MAKECMDGOALS)), leonardo)
     BOARD := BOARD_A_LEO
     DEFINES += LED_INT_INVERT
     DEFINES += LED_INDICATORS
-    DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
     DEFINES += DIN_MIDI_SUPPORTED
@@ -78,7 +75,6 @@ else ifeq ($(findstring pro_micro,$(MAKECMDGOALS)), pro_micro)
     MCU := atmega32u4
     BOARD := BOARD_A_PRO_MICRO
     DEFINES += LED_INT_INVERT
-    DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
     DEFINES += LED_INDICATORS
@@ -90,7 +86,6 @@ else ifeq ($(findstring kodama,$(MAKECMDGOALS)), kodama)
     BOARD := BOARD_KODAMA
     DEFINES += USE_MUX
     DEFINES += LED_EXT_INVERT
-    DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
     DEFINES += LEDS_SUPPORTED
@@ -98,7 +93,6 @@ else ifeq ($(findstring bergamot,$(MAKECMDGOALS)), bergamot)
     MCU := atmega32u4
     BOARD := BOARD_BERGAMOT
     DEFINES += USE_MUX
-    DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
     DEFINES += TOUCHSCREEN_SUPPORTED
@@ -108,7 +102,6 @@ else ifeq ($(findstring teensy2pp,$(MAKECMDGOALS)), teensy2pp)
     BOARD := BOARD_T_2PP
     DEFINES += STRING_BUFFER_SIZE=40
     DEFINES += DISPLAY_SUPPORTED
-    DEFINES += CRC_CHECK
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
     DEFINES += DIN_MIDI_SUPPORTED
@@ -229,12 +222,13 @@ else ifeq ($(MCU),atmega2560)
 else ifeq ($(MCU),atmega328p)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xfc
-    FUSE_HIGH := 0xd6
+    FUSE_HIGH := 0xd2
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
     EEPROM_SIZE := 1024
     FLASH_SIZE_START_ADDR := 0x68
     FLASH_SIZE_END_ADDR := 0x6C
+    BOOT_START_ADDR := 0x7800
     DEFINES += UART_INTERFACES=1
 endif
 

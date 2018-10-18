@@ -19,3 +19,7 @@ make clean && make boot_leonardo
 make clean && make boot_teensy2pp
 make clean && make boot_kodama
 make clean && make boot_bergamot
+make clean && make boot_mega
+make clean && make boot_uno
+make clean && make boot_16u2 VARIANT=VARIANT_MEGA
+make clean && make boot_16u2 VARIANT=VARIANT_UNO

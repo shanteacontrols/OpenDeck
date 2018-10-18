@@ -29,5 +29,7 @@
 #elif defined(VARIANT_UNO)
 #undef SPM_PAGESIZE
 #define SPM_PAGESIZE            128
+#undef BOOT_START_ADDR
+#define BOOT_START_ADDR         0x7800
 #endif
 #endif
