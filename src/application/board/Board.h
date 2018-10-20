@@ -148,8 +148,6 @@ namespace Board
     ///
     bool isUARTtxEmpty(uint8_t channel);
 
-    bool btldrPageAvailable();
-
     ///
     /// \brief Checks if digital input data is available (encoder and button data).
     /// Digital input data is read in ISR and stored into ring buffer.

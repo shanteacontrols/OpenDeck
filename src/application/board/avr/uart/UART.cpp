@@ -22,7 +22,6 @@
 
 namespace
 {
-    bool pageAvailable;
     ///
     /// \brief Flag determining whether or not UART loopback functionality is enabled.
     /// When enabled, all incoming UART traffic is immediately passed on to UART TX.
@@ -203,7 +202,7 @@ namespace Board
             return false;
 
         //if both the outgoing buffer and the UART data register are empty
-        // write the byte to the data register directly
+        //write the byte to the data register directly
         if (RingBuffer_IsEmpty(&txBuffer[channel]))
         {
             switch(channel)
@@ -270,13 +269,6 @@ namespace Board
             return false;
 
         return txDone[channel];
-    }
-
-    bool btldrPageAvailable()
-    {
-        bool temp = pageAvailable;
-        pageAvailable = false;
-        return temp;
     }
 }
 
