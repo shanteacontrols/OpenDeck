@@ -1,0 +1,16 @@
+#!/bin/bash
+
+#used to create hex file containing both the bootloader and application
+#example for opendeck: ./combine_fwbtldr opendeck
+#variant (second command line argument) can be specified only as "UNO" or "MEGA"
+#used only for 16u2 target, ignored otherwise
+#example: ./combine_fwbtldr 16u2 UNO
+
+make clean && make boot_$1 VARIANT=VARIANT_$2
+cp build/boot_$1.hex boot_$1.hex
+make clean && make fw_$1
+cp build/fw_$1.hex fw_$1.hex
+rm build/fw_$1.hex
+#copy merged hex to build/ so that make upload command can work immediately after this script
+srec_cat fw_$1.hex -intel boot_$1.hex -intel -o build/fw_$1.hex -intel
+rm fw_$1.hex boot_$1.hex
