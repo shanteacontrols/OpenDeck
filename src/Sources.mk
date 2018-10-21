@@ -28,7 +28,7 @@ ifeq ($(findstring fw_,$(MAKECMDGOALS)), fw_)
 else
     #bootloader only
     INCLUDE_DIRS += \
-    -I"bootloader/hid/"
+    -I"bootloader/mcu/"
 endif
 
 SOURCES :=
@@ -57,7 +57,7 @@ ifneq ($(filter USB_SUPPORTED, $(DEFINES)), )
     ifeq ($(findstring boot,$(MAKECMDGOALS)), boot)
         #bootloader
         SOURCES += \
-        bootloader/hid/Descriptors.c \
+        bootloader/mcu/Descriptors.c \
         modules/lufa/LUFA/Drivers/USB/Class/Common/HIDParser.c \
         modules/lufa/LUFA/Drivers/USB/Class/Device/HIDClassDevice.c
     else
@@ -73,20 +73,20 @@ ifeq ($(findstring boot,$(MAKECMDGOALS)), boot)
     #bootloader sources
     #common
     SOURCES += \
-    bootloader/hid/BootloaderHID.cpp
+    bootloader/mcu/BootloaderHID.cpp
 
     ifneq ($(filter USB_SUPPORTED, $(DEFINES)), )
         ifeq ($(BOARD_DIR),xu2)
             SOURCES += \
-            bootloader/hid/variant/xu2.cpp \
+            bootloader/mcu/variant/xu2.cpp \
             application/board/avr/uart/UART.cpp
         else
             SOURCES += \
-            bootloader/hid/variant/NativeUSB.cpp
+            bootloader/mcu/variant/NativeUSB.cpp
         endif
     else
         SOURCES += \
-        bootloader/hid/variant/NoUSB.cpp \
+        bootloader/mcu/variant/NoUSB.cpp \
         application/board/avr/uart/UART.cpp
     endif
 else

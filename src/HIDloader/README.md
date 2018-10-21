@@ -1,1 +1,0 @@
-Firmware update on OpenDeck boards is based on [LUFA HID bootloader](https://github.com/abcminiuser/lufa/tree/master/Bootloaders/HID). This directory contains slighty modified version of the Python script found in LUFA HID repository (changed VID/PID and added support for Arduino Mega/Uno).
