@@ -75,8 +75,3 @@ void EVENT_USB_Device_ConfigurationChanged();
 #else
 void EVENT_UART_Device_ControlRequest();
 #endif
-
-namespace bootloader
-{
-    bool appCRCvalid();
-}

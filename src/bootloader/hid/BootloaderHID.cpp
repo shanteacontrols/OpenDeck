@@ -122,6 +122,21 @@ namespace
         #endif
     }
 
+        ///
+        /// \brief Calculates CRC of entire flash.
+        /// \return True if CRC is valid, that is, if it matches CRC written in last flash address.
+        ///
+        bool appCRCvalid()
+        {
+            uint16_t crc = 0x0000;
+            int16_t lastAddress = pgm_read_word(APP_LENGTH_LOCATION);
+
+            for (int i=0; i<lastAddress; i++)
+                crc = _crc_xmodem_update(crc, pgm_read_byte(i));
+
+            return (crc == pgm_read_word(lastAddress));
+        }
+
     ///
     /// \brief Checks if application should be run.
     /// This function performs two checks: hardware and software bootloader entry.
@@ -186,7 +201,7 @@ namespace
             jumpToApplication = true;
 
         //don't run the user application if the reset vector is blank (no app loaded)
-        bool applicationValid = (pgm_read_word(0) != 0xFFFF);
+        bool applicationValid = (pgm_read_word(0) != 0xFFFF) && appCRCvalid();
 
         return (jumpToApplication && applicationValid);
     }
@@ -210,23 +225,6 @@ namespace
 namespace bootloader
 {
     bool RunBootloader = true;
-
-    #ifndef BOARD_A_xu2
-    ///
-    /// \brief Calculates CRC of entire flash.
-    /// \return True if CRC is valid, that is, if it matches CRC written in last flash address.
-    ///
-    bool appCRCvalid()
-    {
-        uint16_t crc = 0x0000;
-        int16_t lastAddress = pgm_read_word(APP_LENGTH_LOCATION);
-
-        for (int i=0; i<lastAddress; i++)
-            crc = _crc_xmodem_update(crc, pgm_read_byte(i));
-
-        return (crc == pgm_read_word(lastAddress));
-    }
-    #endif
 }
 
 namespace Board
