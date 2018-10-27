@@ -62,7 +62,7 @@ then
     echo "Connect programmer to the programming header on OpenDeck board and then press enter."
     read -n1 KEY
     avrdude -p atmega32u4 -P /dev/$port -b 19200 -c avrisp -e -U lock:w:0xff:m -U efuse:w:0xc8:m -U hfuse:w:0xd0:m -U lfuse:w:0xff:m
-    avrdude -p atmega32u4 -P /dev/$port -b 19200 -c avrisp -U flash:w:../bin/compiled/fw_opendeck.hex -U lock:w:0xef:m
+    avrdude -p atmega32u4 -P /dev/$port -b 19200 -c avrisp -U flash:w:../bin/compiled/opendeck/fw_opendeck.hex -U lock:w:0xef:m
 else
     echo "Incorrect board number selected."
 fi
