@@ -52,17 +52,17 @@ class Encoders
     void update();
 
     private:
-    Database        &database;
-    MIDI            &midi;
+    Database            &database;
+    MIDI                &midi;
     #ifdef DISPLAY_SUPPORTED
-    Display         &display;
+    Display             &display;
     #endif
 
     ///
     /// \brief Array used for easier access to current encoder MIDI value in 7Fh01h and 3Fh41h modes.
     /// Matched with encoderType_t and encoderPosition_t
     ///
-    const uint8_t   encValue[2][3] =
+    const uint8_t       encValue[2][3] =
     {
         {
             0,
@@ -76,6 +76,30 @@ class Encoders
             ENCODER_VALUE_RIGHT_3FH41H
         }
     };
+
+    ///
+    /// \brief Holds current CC value for all encoders.
+    /// Used only if encoder is configured in CC mode.
+    ///
+    uint8_t             ccValue[MAX_NUMBER_OF_ENCODERS] = { 0 };
+
+    ///
+    /// \brief Array holding last movement time for all encoders.
+    ///
+    uint32_t            lastMovementTime[MAX_NUMBER_OF_ENCODERS] = {};
+
+    ///
+    /// \brief Holds last encoder direction.
+    ///
+    encoderPosition_t   lastEncoderDirection[MAX_NUMBER_OF_ENCODERS] = {};
+
+    ///
+    /// \brief Used to detect constant rotation in single direction.
+    /// Once two consecutive movements in same direction are detected,
+    /// all further movements are assumed to have same direction until
+    /// encoder stops moving for DEBOUNCE_RESET_TIME milliseconds.
+    ///
+    int8_t              debounceCounter[MAX_NUMBER_OF_ENCODERS] = {};
 };
 
 /// @}

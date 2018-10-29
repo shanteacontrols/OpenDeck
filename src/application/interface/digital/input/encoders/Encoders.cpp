@@ -16,9 +16,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdlib.h>
 #include "Encoders.h"
 #include "interface/digital/input/Common.h"
 #include "interface/CInfo.h"
+#include "core/src/general/Timing.h"
 
 ///
 /// \brief Continuously checks state of all encoders.
@@ -35,80 +37,103 @@ void Encoders::update()
         encoderPosition_t encoderState = Board::getEncoderState(i, database.read(DB_BLOCK_ENCODERS, dbSection_encoders_pulsesPerStep, i));
 
         if (encoderState == encStopped)
-            continue;
-
-        if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_invert, i))
         {
-            if (encoderState == encMoveLeft)
-                encoderState = encMoveRight;
-             else
-                encoderState = encMoveLeft;
-        }
-
-        uint8_t midiID = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiID, i);
-        uint8_t channel = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i);
-        encoderType_t type = static_cast<encoderType_t>(database.read(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i));
-
-        switch(type)
-        {
-            case encType7Fh01h:
-            case encType3Fh41h:
-            encoderValue = encValue[static_cast<uint8_t>(type)][static_cast<uint8_t>(encoderState)];
-            break;
-
-            case encTypePC:
-            if (encoderState == encMoveLeft)
-            {
-                if (lastPCvalue[channel] < 127)
-                    lastPCvalue[channel]++;
-            }
-            else
-            {
-                if (lastPCvalue[channel] > 0)
-                    lastPCvalue[channel]--;
-            }
-
-            encoderValue = lastPCvalue[channel];
-            break;
-
-            case encTypeCC:
-            static uint8_t ccValue[MAX_NUMBER_OF_ENCODERS] = { 0 };
-
-            if (encoderState == encMoveLeft)
-            {
-                if (ccValue[i])
-                    ccValue[i]--;
-            }
-            else
-            {
-                if (ccValue[i] < 127)
-                    ccValue[i]++;
-            }
-
-            encoderValue = ccValue[i];
-            break;
-
-            default:
-            continue;
-            break;
-        }
-
-        if (type == encTypePC)
-        {
-            midi.sendProgramChange(encoderValue, channel);
-            #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageProgramChange_display, midiID & 0x7F, encoderValue, channel+1);
-            #endif
+            //disable debounce mode if encoder isn't moving for more than
+            //DEBOUNCE_RESET_TIME milliseconds
+            if ((rTimeMs() - lastMovementTime[i]) > DEBOUNCE_RESET_TIME)
+                debounceCounter[i] = 0;
         }
         else
         {
-            midi.sendControlChange(midiID, encoderValue, channel);
-            #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, midiID & 0x7F, encoderValue, channel+1);
-            #endif
-        }
+            if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_invert, i))
+            {
+                if (encoderState == encMoveLeft)
+                    encoderState = encMoveRight;
+                else
+                    encoderState = encMoveLeft;
+            }
 
-        if (cinfoHandler != nullptr)
-            (*cinfoHandler)(DB_BLOCK_ENCODERS, i);
+            if (abs(debounceCounter[i]) != 2)
+            {
+                if (encoderState == encMoveLeft)
+                    debounceCounter[i]--;
+                else
+                    debounceCounter[i]++;
+            }
+
+            if (abs(debounceCounter[i]) == 2)
+            {
+                //from now on, use the previous direction until encoder stops
+                if (debounceCounter[i])
+                    encoderState = debounceCounter[i] > 0 ? encMoveRight : encMoveLeft;
+            }
+
+            lastMovementTime[i] = rTimeMs();
+            lastEncoderDirection[i] = encoderState;
+
+            uint8_t midiID = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiID, i);
+            uint8_t channel = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i);
+            encoderType_t type = static_cast<encoderType_t>(database.read(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i));
+
+            switch(type)
+            {
+                case encType7Fh01h:
+                case encType3Fh41h:
+                encoderValue = encValue[static_cast<uint8_t>(type)][static_cast<uint8_t>(encoderState)];
+                break;
+
+                case encTypePC:
+                if (encoderState == encMoveLeft)
+                {
+                    if (lastPCvalue[channel] < 127)
+                        lastPCvalue[channel]++;
+                }
+                else
+                {
+                    if (lastPCvalue[channel] > 0)
+                        lastPCvalue[channel]--;
+                }
+
+                encoderValue = lastPCvalue[channel];
+                break;
+
+                case encTypeCC:
+                if (encoderState == encMoveLeft)
+                {
+                    if (ccValue[i])
+                        ccValue[i]--;
+                }
+                else
+                {
+                    if (ccValue[i] < 127)
+                        ccValue[i]++;
+                }
+
+                encoderValue = ccValue[i];
+                break;
+
+                default:
+                continue;
+                break;
+            }
+
+            if (type == encTypePC)
+            {
+                midi.sendProgramChange(encoderValue, channel);
+                #ifdef DISPLAY_SUPPORTED
+                display.displayMIDIevent(displayEventOut, midiMessageProgramChange_display, midiID & 0x7F, encoderValue, channel+1);
+                #endif
+            }
+            else
+            {
+                midi.sendControlChange(midiID, encoderValue, channel);
+                #ifdef DISPLAY_SUPPORTED
+                display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, midiID & 0x7F, encoderValue, channel+1);
+                #endif
+            }
+
+            if (cinfoHandler != nullptr)
+                (*cinfoHandler)(DB_BLOCK_ENCODERS, i);
+        }
     }
 }

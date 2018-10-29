@@ -23,3 +23,8 @@
 
 #define ENCODER_VALUE_LEFT_3FH41H   63
 #define ENCODER_VALUE_RIGHT_3FH41H  65
+
+///
+/// \brief Time in milliseconds after which debounce mode is reset if encoder isn't moving.
+///
+#define DEBOUNCE_RESET_TIME     50
