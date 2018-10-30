@@ -41,7 +41,10 @@ void Encoders::update()
             //disable debounce mode if encoder isn't moving for more than
             //DEBOUNCE_RESET_TIME milliseconds
             if ((rTimeMs() - lastMovementTime[i]) > DEBOUNCE_RESET_TIME)
+            {
+                debounceDirection[i] = encStopped;
                 debounceCounter[i] = 0;
+            }
         }
         else
         {
@@ -53,23 +56,15 @@ void Encoders::update()
                     encoderState = encMoveLeft;
             }
 
-            if (abs(debounceCounter[i]) != 2)
-            {
-                if (encoderState == encMoveLeft)
-                    debounceCounter[i]--;
-                else
-                    debounceCounter[i]++;
-            }
+            debounceCounter[i] = (debounceCounter[i] << 1) | (encoderState == encMoveRight) | ENCODER_DEBOUNCE_COMPARE;
 
-            if (abs(debounceCounter[i]) == 2)
-            {
-                //from now on, use the previous direction until encoder stops
-                if (debounceCounter[i])
-                    encoderState = debounceCounter[i] > 0 ? encMoveRight : encMoveLeft;
-            }
+            if ((debounceCounter[i] == ENCODER_DEBOUNCE_COMPARE) || (debounceCounter[i] == 0xFF))
+                debounceDirection[i] = debounceCounter[i] == 0xFF ? encMoveRight : encMoveLeft;
+
+            if (debounceDirection[i] != encStopped)
+                encoderState = debounceDirection[i];
 
             lastMovementTime[i] = rTimeMs();
-            lastEncoderDirection[i] = encoderState;
 
             uint8_t midiID = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiID, i);
             uint8_t channel = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i);

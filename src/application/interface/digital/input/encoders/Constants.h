@@ -28,3 +28,8 @@
 /// \brief Time in milliseconds after which debounce mode is reset if encoder isn't moving.
 ///
 #define DEBOUNCE_RESET_TIME     50
+
+///
+/// \brief Constant used to debounce encoder movement.
+///
+#define ENCODER_DEBOUNCE_COMPARE         0b11111100

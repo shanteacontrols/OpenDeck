@@ -89,17 +89,18 @@ class Encoders
     uint32_t            lastMovementTime[MAX_NUMBER_OF_ENCODERS] = {};
 
     ///
-    /// \brief Holds last encoder direction.
+    /// \brief Array holding debounced encoder direction for all encoders.
     ///
-    encoderPosition_t   lastEncoderDirection[MAX_NUMBER_OF_ENCODERS] = {};
+    encoderPosition_t   debounceDirection[MAX_NUMBER_OF_ENCODERS] = {};
 
     ///
     /// \brief Used to detect constant rotation in single direction.
     /// Once two consecutive movements in same direction are detected,
     /// all further movements are assumed to have same direction until
-    /// encoder stops moving for DEBOUNCE_RESET_TIME milliseconds.
+    /// encoder stops moving for DEBOUNCE_RESET_TIME milliseconds *or*
+    /// two new consecutive movements are made in the opposite direction.
     ///
-    int8_t              debounceCounter[MAX_NUMBER_OF_ENCODERS] = {};
+    uint8_t             debounceCounter[MAX_NUMBER_OF_ENCODERS] = {};
 };
 
 /// @}
