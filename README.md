@@ -32,7 +32,7 @@ UI is hosted in this repository and can be run via [this link](https://paradajz.
 
 ***Important:** UI is compatible only with latest available OpenDeck firmware. If older firmware is used, UI tends to crash when it tries to request parameters which aren't available in older firmwares.*
 
-File containing core app logic core.min.js was obsfucated and original source code was lost. Later, un-obsfucator was run on that file, however many variables and function names remain cryptic.
+File containing core app logic core.min.js was obfuscated and original source code was lost. Later, un-obfuscator was run on that file, however many variables and function names remain cryptic.
 
 As I don't do any Web development I won't be adding any new features to the app. If you, however, want to contribute to it I would be more than happy to accept any improvements, new features or fixes.
 
