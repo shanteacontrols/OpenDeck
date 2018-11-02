@@ -5,15 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(gdb) Launch",
+            "name": "[Debug] GTest/Database",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/tests/Tests.out",
+            "program": "${workspaceFolder}/build/database.out",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": true,
+            "externalConsole": false,
             "MIMode": "gdb",
             "setupCommands": [
                 {

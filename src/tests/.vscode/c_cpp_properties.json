@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "name": "default",
+            "defines": [],
+            "intelliSenseMode": "gcc-x64",
+            "compileCommands": "${workspaceRoot}/compile_commands.json",
+            "compilerPath": "/usr/local/avr/bin/avr-g++",
+            "browse": {
+                "path": [
+                    "/usr/local/avr/avr/include",
+                    "${workspaceRoot}"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            },
+            "cStandard": "c99",
+            "cppStandard": "c++11"
+        }
+    ],
+    "version": 4
+}

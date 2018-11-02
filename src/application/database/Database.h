@@ -35,8 +35,8 @@ class Database : public DBMS
 
     void init();
     void factoryReset(initType_t type);
+    bool signatureValid();
 
     private:
-    bool signatureValid();
     void writeCustomValues();
 };

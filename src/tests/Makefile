@@ -1,86 +1,49 @@
-# root of Google Test, relative to where this file is.
-GTEST_DIR := ../../../googletest/googletest
+include GTest.mk
+include Defines.mk
+include Sources.mk
 
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
 # the compiler doesn't generate warnings in Google Test headers.
-CPPFLAGS += --coverage
-CPPFLAGS += -isystem $(GTEST_DIR)/include
-CPPFLAGS += -include "interface/AnalogStubs.h"
-
-#common include directories
-INCLUDE_DIRS := \
--I"../modules/"
-
-DEFINES := 
+CPPFLAGS += -isystem $(GTEST_DIR)/include -isystem $(GTEST_DIR) --coverage
 
 # Flags passed to the C++ compiler.
 CXXFLAGS += -g -pthread
 ARFLAGS := r
 
-#all user sources
-SOURCES := $(shell find . -name "*.cpp")
-SOURCES += ../firmware/interface/analog/Potentiometer.cpp
-SOURCES += ../firmware/interface/analog/Analog.cpp
-SOURCES += ../firmware/interface/analog/FSR.cpp
-SOURCES += ../firmware/interface/cinfo/CInfo.cpp
+TESTS := database
 
-#make sure all objects are located in build directory
-OBJECTS := $(addprefix build/,$(SOURCES))
-#also make sure objects have .o extension
-OBJECTS := $(OBJECTS:.cpp=.o)
+TESTS_EXT := $(addprefix build/,$(TESTS))
+TESTS_EXT := $(addsuffix .out,$(TESTS_EXT))
 
-# All Google Test headers.  Usually you shouldn't change this
-# definition.
-GTEST_HEADERS := $(GTEST_DIR)/include/gtest/*.h \
-                $(GTEST_DIR)/include/gtest/internal/*.h
+.DEFAULT_GOAL := all
 
-Tests.out: $(OBJECTS) $(GTEST_HEADERS) build/gtest_main.a
-	@echo Creating executable...
-	@$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
-	@echo Executable $@ created.
+all: $(TESTS_EXT)
 
 clean:
 	@echo Cleaning up.
-	@rm -rf *.o *.info *.gcda *.gcno *.a *.html *.png *.infoclear *.css build/ firmware/ *.out
+	@rm -rf build/
 
-# Builds gtest.a and gtest_main.a.
-
-# Usually you shouldn't tweak such internal variables, indicated by a
-# trailing _.
-GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
-
-# For simplicity and to avoid depending on Google Test's
-# implementation details, the dependencies specified below are
-# conservative and not optimized.  This is fine as Google Test
-# compiles fast and for ordinary users its source rarely changes.
-build/gtest-all.o: $(GTEST_SRCS_)
-	@echo Building: $<
+build/%.o: %.cpp $(GTEST_HEADERS)
 	@mkdir -p $(@D)
-	@$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c $(GTEST_DIR)/src/gtest-all.cc -o build/gtest-all.o
+	@echo Building $<
+	@$(CXX) $(CPPFLAGS) -std=c++11 $(addprefix -D,$(DEFINES)) $(CXXFLAGS) $(INCLUDE_DIRS) $(INCLUDE_FILES) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
-build/gtest_main.o: $(GTEST_SRCS_)
-	@echo Building: $<
-	@mkdir -p $(@D)
-	@$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c $(GTEST_DIR)/src/gtest_main.cc -o build/gtest_main.o
+build/database.out: $(OBJECTS_database) build/gtest_main.a
+	@echo Linking.
+	@$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+	@echo Created executable: $@
 
-build/gtest.a: build/gtest-all.o
-	@echo Building: $<
-	@mkdir -p $(@D)
-	@$(AR) $(ARFLAGS) $@ $^
+exec:
+	@echo Running all compiled tests.
+	@chmod +x runtests.sh && ./runtests.sh
 
-build/gtest_main.a: build/gtest-all.o build/gtest_main.o
-	@echo Building: $<
-	@mkdir -p $(@D)
-	@$(AR) $(ARFLAGS) $@ $^
-
-# A test should link with either gtest.a or
-# gtest_main.a, depending on whether it defines its own main()
-# function.
-build/%.o: %.cpp
-	@echo Building: $<
-	mkdir -p $(@D)
-	$(CXX) $(CPPFLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS) -std=c++11 $(CXXFLAGS) -c $< -o $@
+coverage:
+	@echo Creating coverage report.
+	@lcov --directory build/ --capture --output-file build/coverage.info > /dev/null 2>&1
+	@lcov --remove build/coverage.info '/usr/*' '*crypto*' '*gtest*' '*stubs*' '*tests*' '*googletest*' --output-file build/coverage.info 2>&1
+	@lcov --list build/coverage.info > /dev/null 2>&1
+	@genhtml -o build/ build/coverage.info > /dev/null 2>&1
 
 #debugging
 print-%:

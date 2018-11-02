@@ -32,7 +32,7 @@ static dbSection_t midiSections[DB_SECTIONS_MIDI] =
         .address = 0
     },
 
-    //midi thru section
+    //midi merge section
     {
         .numberOfParameters = MIDI_MERGE_OPTIONS,
         .parameterType = HALFBYTE_PARAMETER,

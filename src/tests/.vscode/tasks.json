@@ -1,0 +1,41 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "[Make] Database",
+            "command": "make TESTS=database",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "C://WINDOWS//System32//wsl.exe",
+                        "args": [
+                           "PATH=/usr/local/avr/bin:${PATH}",
+                           "MAKEFLAGS=-j4"
+                        ]
+                    }
+                }
+            },
+        },
+        {
+            "label": "[Make] Clean",
+            "command": "make clean",
+            "type": "shell",
+            "problemMatcher": [],
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "C://WINDOWS//System32//wsl.exe",
+                        "args": [
+                           "PATH=/usr/local/avr/bin:${PATH}",
+                           "MAKEFLAGS=-j4"
+                        ]
+                    }
+                }
+            },
+        }
+    ]
+}
