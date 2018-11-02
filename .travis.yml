@@ -9,14 +9,15 @@ before_install:
   - export MAKEFLAGS=-j$(nproc)
   - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
   - git submodule update --init --recursive
-  - cd src/
-  - chmod +x BuildAll.sh
 
 install:
   - sudo apt-get install -y srecord
 
 script:
-  - ./BuildAll.sh
+  - cd src/
+  - chmod +x BuildAll.sh && ./BuildAll.sh
+  - cd tests/
+  - chmod +x BuildTests.sh && ./BuildTests.sh
 
 # disable the default submodule logic
 git:

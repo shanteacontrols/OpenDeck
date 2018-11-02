@@ -36,7 +36,7 @@ build/database.out: $(OBJECTS_database) build/gtest_main.a
 
 exec:
 	@echo Running all compiled tests.
-	@chmod +x runtests.sh && ./runtests.sh
+	@chmod +x RunTests.sh && ./RunTests.sh
 
 coverage:
 	@echo Creating coverage report.

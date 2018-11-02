@@ -25,3 +25,6 @@
 [submodule "src/modules/core"]
 	path = src/modules/core
 	url = https://github.com/paradajz/core.git
+[submodule "src/modules/googletest"]
+	path = src/modules/googletest
+	url = git@github.com:google/googletest.git
