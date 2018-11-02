@@ -5,7 +5,7 @@ include Sources.mk
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
 # the compiler doesn't generate warnings in Google Test headers.
-CPPFLAGS += -isystem $(GTEST_DIR)/include -isystem $(GTEST_DIR) --coverage
+CPPFLAGS += -isystem $(GTEST_DIR)/include -isystem $(GTEST_DIR) --coverage -std=c++11
 
 # Flags passed to the C++ compiler.
 CXXFLAGS += -g -pthread
@@ -27,7 +27,7 @@ clean:
 build/%.o: %.cpp $(GTEST_HEADERS)
 	@mkdir -p $(@D)
 	@echo Building $<
-	@$(CXX) $(CPPFLAGS) -std=c++11 $(addprefix -D,$(DEFINES)) $(CXXFLAGS) $(INCLUDE_DIRS) $(INCLUDE_FILES) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	@$(CXX) $(CPPFLAGS) $(addprefix -D,$(DEFINES)) $(CXXFLAGS) $(INCLUDE_DIRS) $(INCLUDE_FILES) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
 build/database.out: $(OBJECTS_database) build/gtest_main.a
 	@echo Linking.
