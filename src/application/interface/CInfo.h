@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "dbms/src/DataTypes.h"
+#include "database/blocks/Blocks.h"
 #include "sysex/src/DataTypes.h"
 
 typedef bool (*cinfoHandler_t)(dbBlockID_t dbBlock, sysExParameter_t componentID);
