@@ -41,7 +41,7 @@ exec:
 coverage:
 	@echo Creating coverage report.
 	@lcov --directory build/ --capture --output-file build/coverage.info > /dev/null 2>&1
-	@lcov --remove build/coverage.info '/usr/*' '*crypto*' '*gtest*' '*stubs*' '*tests*' '*googletest*' --output-file build/coverage.info 2>&1
+	@lcov --remove build/coverage.info '/usr/*' '*crypto*' '*gtest*' '*stubs*' '*modules*' '*tests*' '*googletest*' --output-file build/coverage.info 2>&1
 	@lcov --list build/coverage.info > /dev/null 2>&1
 	@genhtml -o build/ build/coverage.info > /dev/null 2>&1
 
