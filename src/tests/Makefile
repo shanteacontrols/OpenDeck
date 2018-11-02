@@ -11,7 +11,7 @@ CPPFLAGS += -isystem $(GTEST_DIR)/include -isystem $(GTEST_DIR) --coverage -std=
 CXXFLAGS += -g -pthread
 ARFLAGS := r
 
-TESTS := database
+TESTS := database encoders
 
 TESTS_EXT := $(addprefix build/,$(TESTS))
 TESTS_EXT := $(addsuffix .out,$(TESTS_EXT))
@@ -30,6 +30,11 @@ build/%.o: %.cpp $(GTEST_HEADERS)
 	@$(CXX) $(CPPFLAGS) $(addprefix -D,$(DEFINES)) $(CXXFLAGS) $(INCLUDE_DIRS) $(INCLUDE_FILES) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
 build/database.out: $(OBJECTS_database) build/gtest_main.a
+	@echo Linking.
+	@$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+	@echo Created executable: $@
+
+build/encoders.out: $(OBJECTS_encoders) build/gtest_main.a
 	@echo Linking.
 	@$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 	@echo Created executable: $@
