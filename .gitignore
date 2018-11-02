@@ -2,3 +2,4 @@
 .DS_Store
 src/compile_commands.json
 Documentation/*
+*compile_commands.json
