@@ -36,17 +36,15 @@ void Encoders::update()
 
         encoderPosition_t encoderState = Board::getEncoderState(i, database.read(DB_BLOCK_ENCODERS, dbSection_encoders_pulsesPerStep, i));
 
-        if (encoderState == encStopped)
+        //disable debounce mode if encoder isn't moving for more than
+        //DEBOUNCE_RESET_TIME milliseconds
+        if ((rTimeMs() - lastMovementTime[i]) > DEBOUNCE_RESET_TIME)
         {
-            //disable debounce mode if encoder isn't moving for more than
-            //DEBOUNCE_RESET_TIME milliseconds
-            if ((rTimeMs() - lastMovementTime[i]) > DEBOUNCE_RESET_TIME)
-            {
-                debounceDirection[i] = encStopped;
-                debounceCounter[i] = 0;
-            }
+            debounceCounter[i] = 0;
+            debounceDirection[i] = encStopped;
         }
-        else
+
+        if (encoderState != encStopped)
         {
             if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_invert, i))
             {
@@ -56,15 +54,25 @@ void Encoders::update()
                     encoderState = encMoveLeft;
             }
 
-            debounceCounter[i] = (debounceCounter[i] << 1) | (encoderState == encMoveRight) | ENCODER_DEBOUNCE_COMPARE;
+            if (debounceCounter[i] != ENCODER_DEBOUNCE_COUNT)
+            {
+                if (encoderState != lastDirection[i])
+                    debounceCounter[i] = 0;
 
-            if ((debounceCounter[i] == ENCODER_DEBOUNCE_COMPARE) || (debounceCounter[i] == 0xFF))
-                debounceDirection[i] = debounceCounter[i] == 0xFF ? encMoveRight : encMoveLeft;
+                debounceCounter[i]++;
+
+                if (debounceCounter[i] == ENCODER_DEBOUNCE_COUNT)
+                {
+                    debounceCounter[i] = 0;
+                    debounceDirection[i] = encoderState;
+                }
+            }
+
+            lastDirection[i] = encoderState;
+            lastMovementTime[i] = rTimeMs();
 
             if (debounceDirection[i] != encStopped)
                 encoderState = debounceDirection[i];
-
-            lastMovementTime[i] = rTimeMs();
 
             uint8_t midiID = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiID, i);
             uint8_t channel = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i);

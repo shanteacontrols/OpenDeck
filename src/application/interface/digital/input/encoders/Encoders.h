@@ -59,25 +59,6 @@ class Encoders
     #endif
 
     ///
-    /// \brief Array used for easier access to current encoder MIDI value in 7Fh01h and 3Fh41h modes.
-    /// Matched with encoderType_t and encoderPosition_t
-    ///
-    const uint8_t       encValue[2][3] =
-    {
-        {
-            0,
-            ENCODER_VALUE_LEFT_7FH01H,
-            ENCODER_VALUE_RIGHT_7FH01H
-        },
-
-        {
-            0,
-            ENCODER_VALUE_LEFT_3FH41H,
-            ENCODER_VALUE_RIGHT_3FH41H
-        }
-    };
-
-    ///
     /// \brief Holds current CC value for all encoders.
     /// Used only if encoder is configured in CC mode.
     ///
@@ -89,16 +70,22 @@ class Encoders
     uint32_t            lastMovementTime[MAX_NUMBER_OF_ENCODERS] = {};
 
     ///
-    /// \brief Array holding debounced encoder direction for all encoders.
+    /// \brief Array holding previous encoder direction for all encoders.
+    ///
+    encoderPosition_t   lastDirection[MAX_NUMBER_OF_ENCODERS] = {};
+
+    ///
+    /// \brief Array holding current debounced direction for all encoders.
     ///
     encoderPosition_t   debounceDirection[MAX_NUMBER_OF_ENCODERS] = {};
 
     ///
     /// \brief Used to detect constant rotation in single direction.
-    /// Once two consecutive movements in same direction are detected,
+    /// Once n consecutive movements in same direction are detected,
     /// all further movements are assumed to have same direction until
     /// encoder stops moving for DEBOUNCE_RESET_TIME milliseconds *or*
-    /// two new consecutive movements are made in the opposite direction.
+    /// n new consecutive movements are made in the opposite direction.
+    /// n = ENCODER_DEBOUNCE_COUNT (defined in Constants.h)
     ///
     uint8_t             debounceCounter[MAX_NUMBER_OF_ENCODERS] = {};
 };

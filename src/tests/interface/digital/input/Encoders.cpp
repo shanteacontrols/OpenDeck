@@ -10,7 +10,8 @@
 
 uint8_t controlValue[MAX_MIDI_MESSAGES];
 uint8_t messageCounter;
-encoderPosition_t encoderPosition;
+encoderPosition_t encoderPosition[MAX_MIDI_MESSAGES];
+uint8_t encoderResultCounter;
 
 void MIDI::sendControlChange(uint8_t inControlNumber, uint8_t inControlValue, uint8_t inChannel)
 {
@@ -52,7 +53,7 @@ namespace Board
 {
     encoderPosition_t getEncoderState(uint8_t encoderID, uint8_t pulsesPerStep)
     {
-        return encoderPosition;
+        return encoderPosition[encoderResultCounter];
     }
 }
 
@@ -71,39 +72,192 @@ TEST_F(EncodersTest, Debounce)
         EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i, encType7Fh01h), true);
     }
 
-    encoderPosition = encMoveLeft;
+    encoderResultCounter = 0;
     messageCounter = 0;
     rTime_ms = 0;
 
+    encoderPosition[encoderResultCounter] = encMoveLeft;
+
     encoders.update();
 
-    //verify that all received values are 127 (left movement = value 127)
+    //verify that all received values are correct
     for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
-        EXPECT_EQ(controlValue[i], 127);
+        EXPECT_EQ(controlValue[i], encValue[static_cast<uint8_t>(encType7Fh01h)][static_cast<uint8_t>(encMoveLeft)]);
 
     EXPECT_EQ(messageCounter, MAX_NUMBER_OF_ENCODERS);
 
     //reset values
     messageCounter = 0;
     //set new direction
-    //time hasn't changed - debouncer should override/ignore this value
-    encoderPosition = encMoveRight;
+    encoderPosition[encoderResultCounter] = encMoveRight;
 
     encoders.update();
 
     for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
-        EXPECT_EQ(controlValue[i], 127);
+        EXPECT_EQ(controlValue[i], encValue[static_cast<uint8_t>(encType7Fh01h)][static_cast<uint8_t>(encMoveRight)]);
 
     EXPECT_EQ(messageCounter, MAX_NUMBER_OF_ENCODERS);
 
-    //two consecutives values in row should reset the debouncer (change direction)
-    messageCounter = 0;
+    //test the scenario where the values alternate between last position
+    //(right) and different position (left)
+    //after four consecutive values debouncer should ignore all futher
+    //changes in direction until encoder slows down
 
-    encoders.update();
+    encoderPosition_t encoderPositionTest1[MAX_MIDI_MESSAGES] =
+    {
+        encMoveRight,
+        encMoveRight,
+        encMoveRight,
+        encMoveRight,
+        encMoveLeft,
+        encMoveRight,
+        encMoveLeft,
+        encMoveLeft,
+        encMoveLeft,
+        encMoveRight,
+        encMoveRight,
+        encMoveRight,
+        encMoveLeft,
+        encMoveRight,
+        encMoveRight,
+        encMoveRight,
+        encMoveLeft,
+        encMoveLeft,
+        encMoveLeft,
+        encMoveRight,
+        encMoveRight,
+        encMoveLeft,
+        encMoveRight,
+        encMoveLeft,
+        encMoveLeft,
+        encMoveLeft,
+        encMoveRight,
+        encMoveRight,
+        encMoveRight,
+        encMoveRight,
+        encMoveLeft,
+        encMoveRight
+    };
 
-    //verify that all received values are 1 (right movement = value 1)
-    for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
-        EXPECT_EQ(controlValue[i], 1);
+    for (int i=0; i<MAX_MIDI_MESSAGES; i++)
+        encoderPosition[i] = encoderPositionTest1[i];
 
-    EXPECT_EQ(messageCounter, MAX_NUMBER_OF_ENCODERS);
+    rTime_ms += DEBOUNCE_RESET_TIME+1;
+
+    //all values should be right position
+    //call ::update n times (MAX_MIDI_MESSAGES)
+    //each call retrieves encoder position from test array
+    //after each call switch to next value from test array
+    for (int i=0; i<MAX_MIDI_MESSAGES; i++)
+    {
+        messageCounter = 0;
+        encoders.update();
+
+        for (int j=0; j<MAX_MIDI_MESSAGES; j++)
+            EXPECT_EQ(controlValue[j], encValue[(uint8_t)encType7Fh01h][(uint8_t)encMoveRight]);
+
+        encoderResultCounter++;
+    }
+
+    //perform the same test again but with time difference
+    //returned values should match the values in test array:
+    //debouncer should not be initiated
+    encoderResultCounter = 0;
+    rTime_ms = DEBOUNCE_RESET_TIME+1;
+
+    for (int i=0; i<MAX_MIDI_MESSAGES; i++)
+    {
+        messageCounter = 0;
+        encoders.update();
+
+        for (int j=0; j<MAX_MIDI_MESSAGES; j++)
+            EXPECT_EQ(controlValue[i], encValue[(uint8_t)encType7Fh01h][encoderPosition[encoderResultCounter]]);
+
+        encoderResultCounter++;
+        rTime_ms += DEBOUNCE_RESET_TIME+1;
+    }
+
+    //test the following scenario:
+    //1) debouncer becomes initated and starts ignoring the changes in direction
+    //2) after n values (16) encoder starts spinning in opposite direction more than
+    // DEBOUNCE_COUNT times
+    //test whether the debouncer registered the valid change
+
+    encoderPosition_t encoderPositionTest2[MAX_MIDI_MESSAGES] =
+    {
+        encMoveRight,
+        encMoveRight,
+        encMoveRight,
+        encMoveRight,
+        encMoveLeft,
+        encMoveRight,
+        encMoveLeft,
+        encMoveLeft,
+        encMoveLeft,
+        encMoveRight,
+        encMoveRight,
+        encMoveRight,
+        encMoveLeft,
+        encMoveRight,
+        encMoveRight,
+        encMoveRight,
+        encMoveLeft,
+        encMoveLeft,
+        encMoveLeft,
+        encMoveLeft,
+        encMoveRight,
+        encMoveRight,
+        encMoveLeft,
+        encMoveRight,
+        encMoveLeft,
+        encMoveLeft,
+        encMoveLeft,
+        encMoveLeft,
+        encMoveRight,
+        encMoveRight,
+        encMoveRight,
+        encMoveLeft,
+    };
+ 
+    for (int i=0; i<MAX_MIDI_MESSAGES; i++)
+        encoderPosition[i] = encoderPositionTest2[i];
+
+    encoderResultCounter = 0;
+    rTime_ms += DEBOUNCE_RESET_TIME+1;
+
+    for (int i=0; i<16; i++)
+    {
+        messageCounter = 0;
+        encoders.update();
+
+        for (int j=0; j<MAX_MIDI_MESSAGES; j++)
+            EXPECT_EQ(controlValue[j], encValue[(uint8_t)encType7Fh01h][(uint8_t)encMoveRight]);
+
+        encoderResultCounter++;
+    }
+
+    for (int i=16; i<19; i++)
+    {
+        //first three values should still be right direction
+        messageCounter = 0;
+        encoders.update();
+
+        for (int j=0; j<MAX_MIDI_MESSAGES; j++)
+            EXPECT_EQ(controlValue[j], encValue[(uint8_t)encType7Fh01h][(uint8_t)encMoveRight]);
+
+        encoderResultCounter++;
+    }
+
+    //from now on, debouncer should be initiated and all other values should be left
+    for (int i=19; i<MAX_MIDI_MESSAGES; i++)
+    {
+        //first three values should still be right direction
+        messageCounter = 0;
+        encoders.update();
+
+        for (int j=0; j<MAX_MIDI_MESSAGES; j++)
+            EXPECT_EQ(controlValue[j], encValue[(uint8_t)encType7Fh01h][(uint8_t)encMoveLeft]);
+
+        encoderResultCounter++;
+    }
 }
