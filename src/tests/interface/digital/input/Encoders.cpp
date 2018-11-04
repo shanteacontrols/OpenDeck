@@ -6,7 +6,7 @@
 #include "../../../../application/database/Database.h"
 #include "../../../stubs/database/DB_ReadWrite.h"
 
-#define MAX_MIDI_MESSAGES   MAX_NUMBER_OF_ENCODERS
+#define MAX_MIDI_MESSAGES   32
 
 uint8_t controlValue[MAX_MIDI_MESSAGES];
 uint8_t messageCounter;
@@ -153,7 +153,7 @@ TEST_F(EncodersTest, Debounce)
         messageCounter = 0;
         encoders.update();
 
-        for (int j=0; j<MAX_MIDI_MESSAGES; j++)
+        for (int j=0; j<MAX_NUMBER_OF_ENCODERS; j++)
             EXPECT_EQ(controlValue[j], encValue[(uint8_t)encType7Fh01h][(uint8_t)encMoveRight]);
 
         encoderResultCounter++;
@@ -170,8 +170,8 @@ TEST_F(EncodersTest, Debounce)
         messageCounter = 0;
         encoders.update();
 
-        for (int j=0; j<MAX_MIDI_MESSAGES; j++)
-            EXPECT_EQ(controlValue[i], encValue[(uint8_t)encType7Fh01h][encoderPosition[encoderResultCounter]]);
+        for (int j=0; j<MAX_NUMBER_OF_ENCODERS; j++)
+            EXPECT_EQ(controlValue[j], encValue[(uint8_t)encType7Fh01h][encoderPosition[encoderResultCounter]]);
 
         encoderResultCounter++;
         rTime_ms += DEBOUNCE_RESET_TIME+1;
@@ -230,7 +230,7 @@ TEST_F(EncodersTest, Debounce)
         messageCounter = 0;
         encoders.update();
 
-        for (int j=0; j<MAX_MIDI_MESSAGES; j++)
+        for (int j=0; j<MAX_NUMBER_OF_ENCODERS; j++)
             EXPECT_EQ(controlValue[j], encValue[(uint8_t)encType7Fh01h][(uint8_t)encMoveRight]);
 
         encoderResultCounter++;
@@ -242,7 +242,7 @@ TEST_F(EncodersTest, Debounce)
         messageCounter = 0;
         encoders.update();
 
-        for (int j=0; j<MAX_MIDI_MESSAGES; j++)
+        for (int j=0; j<MAX_NUMBER_OF_ENCODERS; j++)
             EXPECT_EQ(controlValue[j], encValue[(uint8_t)encType7Fh01h][(uint8_t)encMoveRight]);
 
         encoderResultCounter++;
@@ -255,7 +255,7 @@ TEST_F(EncodersTest, Debounce)
         messageCounter = 0;
         encoders.update();
 
-        for (int j=0; j<MAX_MIDI_MESSAGES; j++)
+        for (int j=0; j<MAX_NUMBER_OF_ENCODERS; j++)
             EXPECT_EQ(controlValue[j], encValue[(uint8_t)encType7Fh01h][(uint8_t)encMoveLeft]);
 
         encoderResultCounter++;
