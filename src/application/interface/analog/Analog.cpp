@@ -67,11 +67,7 @@ void Analog::update()
 void Analog::debounceReset(uint16_t index)
 {
     lastAnalogueValue[index] = 0;
-
-    uint8_t arrayIndex = index/8;
-    uint8_t fsrIndex = index - 8*arrayIndex;
-
-    BIT_CLEAR(fsrPressed[arrayIndex], fsrIndex);
+    fsrPressed[index] = false;
 }
 
 ///
