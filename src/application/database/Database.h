@@ -35,8 +35,32 @@ class Database : public DBMS
 
     void init();
     void factoryReset(initType_t type);
-    bool signatureValid();
+    uint8_t getSupportedPresets();
+    bool setPreset(uint8_t preset);
+    uint8_t getPreset();
+    uint16_t getDBsize();
+    bool isSignatureValid();
+    void setPresetPreserveState(bool state);
+    bool getPresetPreserveState();
 
     private:
     void writeCustomValues();
+    uint16_t getDbUID();
+    void setDbUID(uint16_t uid);
+
+    ///
+    /// \brief Holds total memory usage for the entire database layout (system block included).
+    ///
+    uint16_t    totalMemoryUsage;
+
+    ///
+    /// \brief Total size of system block.
+    /// Used to set correct offset in database for user layout.
+    ///
+    uint16_t    systemBlockUsage;
+
+    ///
+    /// \brief Holds currently active preset.
+    ///
+    uint8_t     activePreset = 0;
 };

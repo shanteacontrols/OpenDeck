@@ -18,23 +18,22 @@
 
 #pragma once
 
-#include "MIDI.h"
 #include "Buttons.h"
 #include "Encoders.h"
 #include "Analog.h"
 #include "LEDs.h"
 #include "Display.h"
-#include "ID.h"
+#include "Global.h"
+#include "System.h"
 
 //define block names
 typedef enum
 {
-    DB_BLOCK_MIDI,      //0
+    DB_BLOCK_GLOBAL,    //0
     DB_BLOCK_BUTTONS,   //1
     DB_BLOCK_ENCODERS,  //2
     DB_BLOCK_ANALOG,    //3
     DB_BLOCK_LEDS,      //4
     DB_BLOCK_DISPLAY,   //5
-    DB_BLOCK_ID,        //6
     DB_BLOCKS
 } dbBlockID_t;

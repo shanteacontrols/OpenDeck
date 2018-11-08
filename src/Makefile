@@ -13,7 +13,6 @@ CXX := avr-g++
 COMMON_FLAGS := \
 -funsigned-char \
 -funsigned-bitfields \
--ffunction-sections \
 -fdata-sections \
 -ffunction-sections \
 -fshort-enums \
@@ -21,7 +20,8 @@ COMMON_FLAGS := \
 -Wall \
 -c \
 -fno-jump-tables \
--fno-strict-aliasing
+-fno-strict-aliasing \
+-flto
 
 #c only
 CFLAGS := \
@@ -29,10 +29,11 @@ CFLAGS := \
 
 #cpp only
 CPPFLAGS := \
--std=c++11
+-std=c++11 \
+-fno-exceptions
 
 #common linker flags
-LDFLAGS := -Wl,--gc-sections -mrelax -Wl,--start-group -Wl,-lm -Wl,--end-group
+LDFLAGS := -Wl,--gc-sections -flto -mrelax -Wl,--start-group -Wl,-lm -Wl,--end-group
 
 #optimisation level
 OPT := -Os

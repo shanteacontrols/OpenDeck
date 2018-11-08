@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "MIDI.h"
+#include "Global.h"
 #include "Buttons.h"
 #include "Encoders.h"
 #include "Analog.h"
@@ -28,7 +28,7 @@
 //define block names
 enum sysExBlocks
 {
-    SYSEX_BLOCK_MIDI,      //0
+    SYSEX_BLOCK_GLOBAL,    //0
     SYSEX_BLOCK_BUTTONS,   //1
     SYSEX_BLOCK_ENCODERS,  //2
     SYSEX_BLOCK_ANALOG,    //3

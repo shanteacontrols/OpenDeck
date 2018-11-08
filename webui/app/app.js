@@ -5,19 +5,19 @@
 
     app.config(config);
     app.run(run);
-        
+
     function config($routeProvider, $locationProvider) {
         $locationProvider
                 .html5Mode({ enabled: false, requireBase: false })
                 .hashPrefix('');
         $routeProvider
             .when("/", {
-                templateUrl: "/OpenDeck/webui/app/midi/midi.html",
-                controller: "midiCtrl"
+                templateUrl: "/OpenDeck/webui/app/global/global.html",
+                controller: "globalCtrl"
             })
-            .when("/midi/", {
-                templateUrl: "/OpenDeck/webui/app/midi/midi.html",
-                controller: "midiCtrl"
+            .when("/global/", {
+                templateUrl: "/OpenDeck/webui/app/global/global.html",
+                controller: "globalCtrl"
             })
             .when("/buttons/", {
                 templateUrl: "/OpenDeck/webui/app/buttons/buttons.html",
@@ -39,29 +39,25 @@
                 templateUrl: "/OpenDeck/webui/app/display/display.html",
                 controller: "displayCtrl"
             })
-            .when("/test/", {
-                templateUrl: "/OpenDeck/webui/app/test/test.html",
-                controller: "testCtrl"
-            })
             .otherwise({ redirectTo: "/" });
     };
    function run($rootScope, system) {
         $rootScope.loading = true;
         system.connect().then(function() {
-			
-			$rootScope.$on('connected', function() {
-				system.handshake().then(function(d) {
-					$rootScope.loading = false;
-					safeApply();
-				});
-			});
-			$rootScope.$on('disconnected', function() {
-					 $rootScope.loading = true;
-					safeApply();
-			});
-			
-			$rootScope.loading = false;
-			safeApply();
+            
+            $rootScope.$on('connected', function() {
+                system.handshake().then(function(d) {
+                    $rootScope.loading = false;
+                    safeApply();
+                });
+            });
+            $rootScope.$on('disconnected', function() {
+                     $rootScope.loading = true;
+                    safeApply();
+            });
+            
+            $rootScope.loading = false;
+            safeApply();
         });
 
         var safeApply = function() {

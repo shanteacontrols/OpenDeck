@@ -127,12 +127,16 @@ void Encoders::update()
                 display.displayMIDIevent(displayEventOut, midiMessageProgramChange_display, midiID & 0x7F, encoderValue, channel+1);
                 #endif
             }
-            else
+            else if (type != encTypePresetChange)
             {
                 midi.sendControlChange(midiID, encoderValue, channel);
                 #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, midiID & 0x7F, encoderValue, channel+1);
                 #endif
+            }
+            else
+            {
+                database.setPreset(database.getPreset() + (encoderState == encMoveRight) ? 1 : -1);
             }
 
             if (cinfoHandler != nullptr)

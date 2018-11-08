@@ -33,10 +33,8 @@ class EncodersTest : public ::testing::Test
 
         //init checks - no point in running further tests if these conditions fail
         database.init();
-        EXPECT_EQ(database.getDBsize() < LESSDB_SIZE, true);
-
-        //confirm that signature is valid after database initialization
-        EXPECT_EQ(database.signatureValid(), true);
+        EXPECT_TRUE(database.getDBsize() < LESSDB_SIZE);
+        EXPECT_TRUE(database.isSignatureValid());
     }
 
     virtual void TearDown()

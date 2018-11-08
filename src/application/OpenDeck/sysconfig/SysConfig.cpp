@@ -77,11 +77,15 @@ bool SysConfig::onCustomRequest(uint8_t value)
         addToResponse(MAX_NUMBER_OF_LEDS);
         break;
 
+        case SYSEX_CR_SUPPORTED_PRESETS:
+        addToResponse(database.getSupportedPresets());
+        break;
+
         #ifdef DIN_MIDI_SUPPORTED
         case SYSEX_CR_DAISY_CHAIN:
         //received message from opendeck board in daisy chain configuration
         //check if this board is master
-        if (static_cast<midiMergeType_t>(database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeType)) == midiMergeODslave)
+        if (static_cast<midiMergeType_t>(database.read(DB_BLOCK_GLOBAL, dbSection_global_midiMerge, midiMergeType)) == midiMergeODslave)
         {
             //slave
             //send sysex to next board in the chain on uart channel
@@ -123,6 +127,27 @@ bool SysConfig::onGet(uint8_t block, uint8_t section, uint16_t index, sysExParam
 
     switch(block)
     {
+        case SYSEX_BLOCK_GLOBAL:
+        switch(section)
+        {
+            case sysExSection_global_midiFeature:
+            case sysExSection_global_midiMerge:
+            success = database.read(block, section, index, readValue);
+            break;
+
+            case sysExSection_global_presets:
+            if (index == systemGlobal_ActivePreset)
+                readValue = database.getPreset();
+            else if (index == systemGlobal_presetPreserve)
+                readValue = database.getPresetPreserveState();
+            break;
+
+            default:
+            success = false;
+            break;
+        }
+        break;
+
         case SYSEX_BLOCK_LEDS:
         #ifdef LEDS_SUPPORTED
         switch(section)
@@ -256,6 +281,133 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, sysExParam
 
     switch(block)
     {
+        case SYSEX_BLOCK_GLOBAL:
+        if (section == sysExSection_global_midiFeature)
+        {
+            switch(index)
+            {
+                case midiFeatureRunningStatus:
+                #ifndef DIN_MIDI_SUPPORTED
+                setError(ERROR_NOT_SUPPORTED);
+                #else
+                midi.setRunningStatusState(newValue);
+                success = true;
+                #endif
+                break;
+
+                case midiFeatureStandardNoteOff:
+                newValue ? midi.setNoteOffMode(noteOffType_standardNoteOff) : midi.setNoteOffMode(noteOffType_noteOnZeroVel);
+                success = true;
+                break;
+
+                case midiFeatureDinEnabled:
+                #ifndef DIN_MIDI_SUPPORTED
+                setError(ERROR_NOT_SUPPORTED);
+                #else
+                newValue ? setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true) : Board::resetUART(UART_MIDI_CHANNEL);
+                success = true;
+                #endif
+                break;
+
+                case midiFeatureMergeEnabled:
+                #ifndef DIN_MIDI_SUPPORTED
+                setError(ERROR_NOT_SUPPORTED);
+                #else
+                if (database.read(DB_BLOCK_GLOBAL, dbSection_global_midiFeatures, midiFeatureDinEnabled))
+                {
+                    success = true;
+                    //use recursive parsing when merging is active
+                    midi.useRecursiveParsing(newValue);
+
+                    //make sure everything is in correct state
+                    if (!newValue)
+                        setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true);
+                }
+                else
+                {
+                    //invalid configuration - trying to configure merge functionality while din midi is disabled
+                    setError(ERROR_WRITE);
+                }
+                #endif
+                break;
+
+                default:
+                break;
+            }
+        }
+        else if (section == sysExSection_global_midiMerge)
+        {
+            #ifndef DIN_MIDI_SUPPORTED
+            setError(ERROR_NOT_SUPPORTED);
+            #else
+            switch(index)
+            {
+                case midiMergeType:
+                if (database.read(DB_BLOCK_GLOBAL, dbSection_global_midiFeatures, midiFeatureDinEnabled) && database.read(DB_BLOCK_GLOBAL, dbSection_global_midiFeatures, midiFeatureMergeEnabled))
+                {
+                    if ((newValue >= 0) && (newValue < MIDI_MERGE_TYPES))
+                    {
+                        success = true;
+
+                        if (static_cast<midiMergeType_t>(newValue) == midiMergeODslave)
+                            setupMIDIoverUART(UART_BAUDRATE_MIDI_OD, true, false); //init only uart read interface for now
+                        else
+                            configureMIDImerge(static_cast<midiMergeType_t>(newValue));
+                    }
+                    else
+                    {
+                        setError(ERROR_NEW_VALUE);
+                    }
+                }
+                else
+                {
+                    //invalid configuration
+                    setError(ERROR_WRITE);
+                }
+                break;
+
+                case midiMergeUSBchannel:
+                case midiMergeDINchannel:
+                //unused for now
+                writeToDb = false;
+                success = true;
+                break;
+
+                default:
+                break;
+            }
+            #endif
+        }
+        else if (section == sysExSection_global_presets)
+        {
+            if (index == systemGlobal_ActivePreset)
+            {
+                if (newValue < database.getSupportedPresets())
+                {
+                    database.setPreset(newValue);
+                    success = true;
+                    writeToDb = false;
+                }
+                else
+                {
+                    setError(ERROR_NOT_SUPPORTED);
+                }
+            }
+            else if (index == systemGlobal_presetPreserve)
+            {
+                if ((newValue <= 1) && (newValue >= 0))
+                {
+                    database.setPresetPreserveState(newValue);
+                    success = true;
+                    writeToDb = false;
+                }
+            }
+        }
+
+        if (success && writeToDb)
+            success = database.update(block, sysEx2DB_midi[section], index, newValue);
+        break;
+
         case SYSEX_BLOCK_ANALOG:
         switch(section)
         {
@@ -298,108 +450,6 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, sysExParam
             success = database.update(block, sysEx2DB_analog[section], index, newValue);
             break;
         }
-        break;
-
-        case SYSEX_BLOCK_MIDI:
-        if (section == sysExSection_midi_feature)
-        {
-            switch(index)
-            {
-                case midiFeatureRunningStatus:
-                #ifndef DIN_MIDI_SUPPORTED
-                setError(ERROR_NOT_SUPPORTED);
-                #else
-                midi.setRunningStatusState(newValue);
-                success = true;
-                #endif
-                break;
-
-                case midiFeatureStandardNoteOff:
-                newValue ? midi.setNoteOffMode(noteOffType_standardNoteOff) : midi.setNoteOffMode(noteOffType_noteOnZeroVel);
-                success = true;
-                break;
-
-                case midiFeatureDinEnabled:
-                #ifndef DIN_MIDI_SUPPORTED
-                setError(ERROR_NOT_SUPPORTED);
-                #else
-                newValue ? setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true) : Board::resetUART(UART_MIDI_CHANNEL);
-                success = true;
-                #endif
-                break;
-
-                case midiFeatureMergeEnabled:
-                #ifndef DIN_MIDI_SUPPORTED
-                setError(ERROR_NOT_SUPPORTED);
-                #else
-                if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled))
-                {
-                    success = true;
-                    //use recursive parsing when merging is active
-                    midi.useRecursiveParsing(newValue);
-
-                    //make sure everything is in correct state
-                    if (!newValue)
-                        setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true);
-                }
-                else
-                {
-                    //invalid configuration - trying to configure merge functionality while din midi is disabled
-                    setError(ERROR_WRITE);
-                }
-                #endif
-                break;
-
-                default:
-                break;
-            }
-        }
-        else if (section == sysExSection_midi_merge)
-        {
-            #ifndef DIN_MIDI_SUPPORTED
-            setError(ERROR_NOT_SUPPORTED);
-            #else
-            switch(index)
-            {
-                case midiMergeType:
-                if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled) && database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
-                {
-                    if ((newValue >= 0) && (newValue < MIDI_MERGE_TYPES))
-                    {
-                        success = true;
-
-                        if (static_cast<midiMergeType_t>(newValue) == midiMergeODslave)
-                            setupMIDIoverUART(UART_BAUDRATE_MIDI_OD, true, false); //init only uart read interface for now
-                        else
-                            configureMIDImerge(static_cast<midiMergeType_t>(newValue));
-                    }
-                    else
-                    {
-                        setError(ERROR_NEW_VALUE);
-                    }
-                }
-                else
-                {
-                    //invalid configuration
-                    setError(ERROR_WRITE);
-                }
-                break;
-
-                case midiMergeUSBchannel:
-                case midiMergeDINchannel:
-                //unused for now
-                writeToDb = false;
-                success = true;
-                break;
-
-                default:
-                break;
-            }
-            #endif
-        }
-
-        if (success && writeToDb)
-            success = database.update(block, sysEx2DB_midi[section], index, newValue);
         break;
 
         case SYSEX_BLOCK_LEDS:
@@ -763,22 +813,22 @@ bool SysConfig::sendCInfo(dbBlockID_t dbBlock, sysExParameter_t componentID)
 void SysConfig::configureMIDI()
 {
     midi.setInputChannel(MIDI_CHANNEL_OMNI);
-    midi.setNoteOffMode(static_cast<noteOffType_t>(database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureStandardNoteOff)));
-    midi.setRunningStatusState(database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureRunningStatus));
+    midi.setNoteOffMode(static_cast<noteOffType_t>(database.read(DB_BLOCK_GLOBAL, dbSection_global_midiFeatures, midiFeatureStandardNoteOff)));
+    midi.setRunningStatusState(database.read(DB_BLOCK_GLOBAL, dbSection_global_midiFeatures, midiFeatureRunningStatus));
     midi.setChannelSendZeroStart(true);
 
     setupMIDIoverUSB();
 
     #ifdef DIN_MIDI_SUPPORTED
-    if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled))
+    if (database.read(DB_BLOCK_GLOBAL, dbSection_global_midiFeatures, midiFeatureDinEnabled))
     {
         //use recursive parsing when merging is active
-        midi.useRecursiveParsing(database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled));
+        midi.useRecursiveParsing(database.read(DB_BLOCK_GLOBAL, dbSection_global_midiFeatures, midiFeatureMergeEnabled));
 
         //only configure master
-        if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
+        if (database.read(DB_BLOCK_GLOBAL, dbSection_global_midiFeatures, midiFeatureMergeEnabled))
         {
-            midiMergeType_t type = static_cast<midiMergeType_t>(database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeType));
+            midiMergeType_t type = static_cast<midiMergeType_t>(database.read(DB_BLOCK_GLOBAL, dbSection_global_midiMerge, midiMergeType));
 
             if (type == midiMergeODslave)
                 setupMIDIoverUART(UART_BAUDRATE_MIDI_OD, true, false); //init only uart read interface for now

@@ -5,10 +5,10 @@ include Sources.mk
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
 # the compiler doesn't generate warnings in Google Test headers.
-CPPFLAGS += -isystem $(GTEST_DIR)/include -isystem $(GTEST_DIR) --coverage -std=c++11
+CPPFLAGS := -isystem $(GTEST_DIR)/include -isystem $(GTEST_DIR) --coverage -std=c++11 -Og
 
 # Flags passed to the C++ compiler.
-CXXFLAGS += -g -pthread
+CXXFLAGS := -g -pthread -Og
 ARFLAGS := r
 
 TESTS := database encoders

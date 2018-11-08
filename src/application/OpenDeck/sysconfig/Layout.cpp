@@ -17,13 +17,13 @@
 */
 
 #include "sysex/src/DataTypes.h"
-#include "OpenDeck/sysconfig/blocks/MIDI.h"
+#include "OpenDeck/sysconfig/blocks/Global.h"
 #include "interface/digital/output/leds/DataTypes.h"
 #include "interface/digital/input/buttons/DataTypes.h"
 #include "interface/digital/input/encoders/DataTypes.h"
 #include "interface/analog/DataTypes.h"
 
-static sysExSection_t midiSections[SYSEX_SECTIONS_MIDI] =
+static sysExSection_t globalSections[SYSEX_SECTIONS_GLOBAL] =
 {
     //midi feature section
     {
@@ -32,12 +32,19 @@ static sysExSection_t midiSections[SYSEX_SECTIONS_MIDI] =
         .newValueMax = 1,
     },
 
-    //midi thru section
+    //midi merge section
     {
         .numberOfParameters = MIDI_MERGE_OPTIONS,
         .newValueMin = 0,
         .newValueMax = 0,
-    }
+    },
+
+    //global settings section
+    {
+        .numberOfParameters = SYSTEM_OPTIONS,
+        .newValueMin = 0,
+        .newValueMax = 0,
+    },
 };
 
 static sysExSection_t buttonSections[SYSEX_SECTIONS_BUTTONS] =
@@ -274,10 +281,10 @@ static sysExSection_t displaySections[SYSEX_SECTIONS_DISPLAY] =
 
 sysExBlock_t sysExLayout[SYSEX_BLOCKS] =
 {
-    //midi block
+    //global block
     {
-        .numberOfSections = SYSEX_SECTIONS_MIDI,
-        .section = midiSections,
+        .numberOfSections = SYSEX_SECTIONS_GLOBAL,
+        .section = globalSections,
     },
 
     //buttons block
@@ -308,7 +315,7 @@ sysExBlock_t sysExLayout[SYSEX_BLOCKS] =
     {
         .numberOfSections = SYSEX_SECTIONS_DISPLAY,
         .section = displaySections,
-    },
+    }
 };
 
 static sysExCustomRequest_t customRequests[NUMBER_OF_CUSTOM_REQUESTS] =
@@ -361,5 +368,10 @@ static sysExCustomRequest_t customRequests[NUMBER_OF_CUSTOM_REQUESTS] =
     {
         .requestID = SYSEX_CR_DAISY_CHAIN,
         .connOpenCheck = false
-    }
+    },
+
+    {
+        .requestID = SYSEX_CR_SUPPORTED_PRESETS,
+        .connOpenCheck = true
+    },
 };

@@ -19,8 +19,33 @@
 #include "Database.h"
 #include "board/Board.h"
 #include "interface/digital/output/leds/DataTypes.h"
+#include "blocks/System.h"
 
-static dbSection_t midiSections[DB_SECTIONS_MIDI] =
+//not user accessible
+static dbSection_t systemSections[DB_SECTIONS_SYSTEM] =
+{
+    //uid section
+    {
+        .numberOfParameters = 1,
+        .parameterType = WORD_PARAMETER,
+        .preserveOnPartialReset = 0,
+        .defaultValue = 0,
+        .autoIncrement = false,
+        .address = 0
+    },
+
+    //settings
+    {
+        .numberOfParameters = SYSTEM_OPTIONS,
+        .parameterType = BYTE_PARAMETER,
+        .preserveOnPartialReset = false,
+        .defaultValue = 0,
+        .autoIncrement = false,
+        .address = 0
+    }
+};
+
+static dbSection_t globalSections[DB_SECTIONS_GLOBAL] =
 {
     //midi feature section
     {
@@ -318,25 +343,20 @@ static dbSection_t displaySections[DB_SECTIONS_DISPLAY] =
     }
 };
 
-static dbSection_t idSections[1] =
+static dbBlock_t dbLayout[DB_BLOCKS+1] =
 {
-    {
-        .numberOfParameters = ID_BYTES,
-        .parameterType = BYTE_PARAMETER,
-        .preserveOnPartialReset = 0,
-        .defaultValue = UNIQUE_ID,
-        .autoIncrement = false,
-        .address = 0
-    },
-};
-
-static dbBlock_t dbLayout[DB_BLOCKS] =
-{
-    //midi block
+    //system block
     {
         .address = 0,
-        .numberOfSections = DB_SECTIONS_MIDI,
-        .section = midiSections,
+        .numberOfSections = DB_SECTIONS_SYSTEM,
+        .section = systemSections,
+    },
+
+    //global block
+    {
+        .address = 0,
+        .numberOfSections = DB_SECTIONS_GLOBAL,
+        .section = globalSections,
     },
 
     //buttons block
@@ -372,12 +392,5 @@ static dbBlock_t dbLayout[DB_BLOCKS] =
         .address = 0,
         .numberOfSections = DB_SECTIONS_DISPLAY,
         .section = displaySections,
-    },
-
-    //id block
-    {
-        .address = 0,
-        .numberOfSections = 1,
-        .section = idSections,
-    },
+    }
 };

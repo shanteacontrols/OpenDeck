@@ -196,6 +196,16 @@ void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t
         updateText(startRow+1, lcdtext_still, 0);
         break;
 
+        case midiMessageProgramChange_display:
+        stringBuffer.startLine();
+        stringBuffer.appendInt(byte1);
+        stringBuffer.appendText(" CH");
+        stringBuffer.appendInt(byte3);
+        stringBuffer.appendChar(' ', U8X8::getColumns() - stringBuffer.getSize());
+        stringBuffer.endLine();
+        updateText(startRow+1, lcdtext_still, 0);
+        break;
+
         case midiMessageControlChange_display:
         case midiMessageNRPN_display:
         stringBuffer.startLine();

@@ -133,8 +133,8 @@ void OpenDeck::checkMIDI()
     {
         //new message
         midiMessageType_t messageType = midi.getType(interface);
-        #if defined(LEDS_SUPPORTED) || defined(DISPLAY_SUPPORTED)
         uint8_t data1 = midi.getData1(interface);
+        #if defined(LEDS_SUPPORTED) || defined(DISPLAY_SUPPORTED)
         uint8_t data2 = midi.getData2(interface);
         uint8_t channel = midi.getChannel(interface);
         #endif
@@ -157,8 +157,31 @@ void OpenDeck::checkMIDI()
             leds.midiToState(messageType, data1, data2, channel);
             #endif
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventIn, midiMessageNoteOn_display, data1, data2, channel+1);
+            switch(messageType)
+            {
+                case midiMessageNoteOn:
+                display.displayMIDIevent(displayEventIn, midiMessageNoteOn_display, data1, data2, channel+1);
+                break;
+
+                case midiMessageNoteOff:
+                display.displayMIDIevent(displayEventIn, midiMessageNoteOff_display, data1, data2, channel+1);
+                break;
+
+                case midiMessageControlChange:
+                display.displayMIDIevent(displayEventIn, midiMessageControlChange_display, data1, data2, channel+1);
+                break;
+
+                case midiMessageProgramChange:
+                display.displayMIDIevent(displayEventIn, midiMessageProgramChange_display, data1, data2, channel+1);
+                break;
+
+                default:
+                break;
+            }
             #endif
+
+            if (messageType == midiMessageProgramChange)
+                database.setPreset(data1);
             break;
 
             case midiMessageClock:
@@ -186,11 +209,11 @@ void OpenDeck::checkMIDI()
         processMessage(usbInterface);
 
     #ifdef DIN_MIDI_SUPPORTED
-    if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureDinEnabled))
+    if (database.read(DB_BLOCK_GLOBAL, dbSection_global_midiFeatures, midiFeatureDinEnabled))
     {
-        if (database.read(DB_BLOCK_MIDI, dbSection_midi_feature, midiFeatureMergeEnabled))
+        if (database.read(DB_BLOCK_GLOBAL, dbSection_global_midiFeatures, midiFeatureMergeEnabled))
         {
-            switch(database.read(DB_BLOCK_MIDI, dbSection_midi_merge, midiMergeType))
+            switch(database.read(DB_BLOCK_GLOBAL, dbSection_global_midiMerge, midiMergeType))
             {
                 case midiMergeDINtoUSB:
                 //dump everything from DIN MIDI in to USB MIDI out

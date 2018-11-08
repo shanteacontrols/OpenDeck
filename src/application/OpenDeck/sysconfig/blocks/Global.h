@@ -18,36 +18,20 @@
 
 #pragma once
 
-typedef enum
-{
-    dbSection_midi_feature,
-    dbSection_midi_merge,
-    DB_SECTIONS_MIDI
-} dbSection_midi_t;
-
+#include "database/blocks/Global.h"
 
 typedef enum
 {
-    midiFeatureStandardNoteOff,
-    midiFeatureRunningStatus,
-    midiFeatureMergeEnabled,
-    midiFeatureDinEnabled,
-    MIDI_FEATURES
-} midiFeature_t;
+    sysExSection_global_midiFeature,
+    sysExSection_global_midiMerge,
+    sysExSection_global_presets,
+    SYSEX_SECTIONS_GLOBAL
+} sysExSection_global_t;
 
-typedef enum
+//map sysex sections to sections in db
+const uint8_t sysEx2DB_midi[SYSEX_SECTIONS_GLOBAL] =
 {
-    midiMergeType,
-    midiMergeUSBchannel,
-    midiMergeDINchannel,
-    MIDI_MERGE_OPTIONS
-} midiMerge_t;
-
-typedef enum
-{
-    midiMergeDINtoUSB,
-    midiMergeDINtoDIN,
-    midiMergeODmaster,
-    midiMergeODslave,
-    MIDI_MERGE_TYPES
-} midiMergeType_t;
+    sysExSection_global_midiFeature,
+    sysExSection_global_midiMerge,
+    0 //unused
+};

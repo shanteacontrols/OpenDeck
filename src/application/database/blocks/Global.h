@@ -18,5 +18,35 @@
 
 #pragma once
 
-#define UNIQUE_ID       33
-#define ID_BYTES        10
+typedef enum
+{
+    dbSection_global_midiFeatures,
+    dbSection_global_midiMerge,
+    DB_SECTIONS_GLOBAL
+} dbSection_global_t;
+
+typedef enum
+{
+    midiFeatureStandardNoteOff,
+    midiFeatureRunningStatus,
+    midiFeatureMergeEnabled,
+    midiFeatureDinEnabled,
+    MIDI_FEATURES
+} midiFeature_t;
+
+typedef enum
+{
+    midiMergeType,
+    midiMergeUSBchannel,
+    midiMergeDINchannel,
+    MIDI_MERGE_OPTIONS
+} midiMerge_t;
+
+typedef enum
+{
+    midiMergeDINtoUSB,
+    midiMergeDINtoDIN,
+    midiMergeODmaster,
+    midiMergeODslave,
+    MIDI_MERGE_TYPES
+} midiMergeType_t;

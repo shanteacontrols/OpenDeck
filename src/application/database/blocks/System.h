@@ -18,18 +18,16 @@
 
 #pragma once
 
-#include "database/blocks/MIDI.h"
+typedef enum
+{
+    dbSection_system_uid,
+    dbSection_system_settings,
+    DB_SECTIONS_SYSTEM
+} dbSection_system_t;
 
 typedef enum
 {
-    sysExSection_midi_feature,
-    sysExSection_midi_merge,
-    SYSEX_SECTIONS_MIDI
-} sysExSection_midi_t;
-
-//map sysex sections to sections in db
-const uint8_t sysEx2DB_midi[SYSEX_SECTIONS_MIDI] =
-{
-    dbSection_midi_feature,
-    dbSection_midi_merge,
-};
+    systemGlobal_ActivePreset,
+    systemGlobal_presetPreserve,
+    SYSTEM_OPTIONS
+} systemGlobal_db_t;

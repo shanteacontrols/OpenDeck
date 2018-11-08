@@ -55,6 +55,7 @@ typedef enum
     buttonPCinc,
     buttonPCdec,
     buttonNone,
+    buttonChangePreset,
     BUTTON_MESSAGE_TYPES
 } buttonMIDImessage_t;
 

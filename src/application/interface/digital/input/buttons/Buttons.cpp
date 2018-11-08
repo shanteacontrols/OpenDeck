@@ -60,6 +60,8 @@ void Buttons::processButton(uint8_t buttonID, bool state)
     {
         buttonType_t type = static_cast<buttonType_t>(database.read(DB_BLOCK_BUTTONS, dbSection_buttons_type, buttonID));
 
+        bool sendMIDI = true;
+
         //overwrite type under certain conditions
         switch(buttonMessage)
         {
@@ -83,11 +85,14 @@ void Buttons::processButton(uint8_t buttonID, bool state)
             type = buttonLatching;
             break;
 
+            case buttonChangePreset:
+            type = buttonMomentary;
+            sendMIDI = false;
+            break;
+
             default:
             break;
         }
-
-        bool sendMIDI = true;
 
         if (type == buttonLatching)
         {
@@ -113,7 +118,14 @@ void Buttons::processButton(uint8_t buttonID, bool state)
         }
 
         if (sendMIDI)
+        {
             sendMessage(buttonID, state, buttonMessage);
+        }
+        else
+        {
+            if (buttonMessage == buttonChangePreset)
+                database.setPreset(database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, buttonID));
+        }
     }
 
     if (cinfoHandler != nullptr)

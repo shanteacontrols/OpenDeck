@@ -24,6 +24,7 @@ typedef enum
     encType3Fh41h,
     encTypePC,
     encTypeCC,
+    encTypePresetChange,
     ENCODING_MODES
 } encoderType_t;
 
