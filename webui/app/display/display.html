@@ -77,14 +77,14 @@
                 </div>
               </div>
             </div><!-- /row -->
-            <div class="row">
             <div class="row" ng-if="displayObj.dataRetention != 1">
-              <h3>Message retention time</h3>
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-11">
-              <r-slider value="displayObj.retentionTime" min="1" max="5" tooltip="Timeout after last message on display will be cleared if data retention option is disabled."></r-slider>
-            </div>
-          </div>
+                <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
+                <h3>Message retention time</h3>
+                </div>
+                <div class="col-lg-6 col-lg-offset-1 col-md-6 col-sm-6 col-xs-11">
+                    <r-slider value="displayObj.retentionTime" min="0" max="127" tooltip="Timeout after last message on display will be cleared if data retention option is disabled."></r-slider>
+                </div>
+            </div><!-- /row -->
           <div class="row">
             <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6">
               <h3>Alternate note display</h3>
