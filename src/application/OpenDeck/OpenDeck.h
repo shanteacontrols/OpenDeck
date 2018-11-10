@@ -67,10 +67,18 @@ class OpenDeck
     ,buttons(database, midi)
     #endif
     #endif
+    #ifdef LEDS_SUPPORTED
+    #ifdef DISPLAY_SUPPORTED
+    ,encoders(database, midi, leds, display)
+    #else
+    ,encoders(database, midi, leds)
+    #endif
+    #else
     #ifdef DISPLAY_SUPPORTED
     ,encoders(database, midi, display)
     #else
     ,encoders(database, midi)
+    #endif
     #endif
     #ifdef LEDS_SUPPORTED
     #ifdef DISPLAY_SUPPORTED

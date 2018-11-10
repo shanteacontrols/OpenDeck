@@ -20,7 +20,6 @@ ifeq ($(BOARD_TYPE), opendeck)
     HARDWARE_VERSION_MINOR := 2
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += UART_MIDI_CHANNEL=0
-    DEFINES += LEDS_SUPPORTED
 else ifeq ($(BOARD_TYPE), tannin)
     MCU := atmega32u4
     BOARD := BOARD_TANNIN
@@ -31,7 +30,6 @@ else ifeq ($(BOARD_TYPE), tannin)
     DEFINES += OUT_MATRIX
     HARDWARE_VERSION_MAJOR := 3
     HARDWARE_VERSION_MINOR := 0
-    DEFINES += LEDS_SUPPORTED
 else ifeq ($(BOARD_TYPE), leonardo)
     MCU := atmega32u4
     BOARD := BOARD_A_LEO
@@ -41,7 +39,6 @@ else ifeq ($(BOARD_TYPE), leonardo)
     HARDWARE_VERSION_MINOR := 0
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += UART_MIDI_CHANNEL=0
-    DEFINES += LEDS_SUPPORTED
 else ifeq ($(BOARD_TYPE), pro_micro)
     MCU := atmega32u4
     BOARD := BOARD_A_PRO_MICRO
@@ -51,7 +48,6 @@ else ifeq ($(BOARD_TYPE), pro_micro)
     DEFINES += LED_INDICATORS
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += UART_MIDI_CHANNEL=0
-    DEFINES += LEDS_SUPPORTED
 else ifeq ($(BOARD_TYPE), kodama)
     MCU := atmega32u4
     BOARD := BOARD_KODAMA
@@ -59,7 +55,6 @@ else ifeq ($(BOARD_TYPE), kodama)
     DEFINES += LED_EXT_INVERT
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
-    DEFINES += LEDS_SUPPORTED
 else ifeq ($(BOARD_TYPE), bergamot)
     MCU := atmega32u4
     BOARD := BOARD_BERGAMOT
@@ -76,7 +71,6 @@ else ifeq ($(BOARD_TYPE), teensy2pp)
     HARDWARE_VERSION_MINOR := 0
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += UART_MIDI_CHANNEL=0
-    DEFINES += LEDS_SUPPORTED
 else ifeq ($(BOARD_TYPE), mega)
     MCU := atmega2560
     BOARD := BOARD_A_MEGA
@@ -88,14 +82,12 @@ else ifeq ($(BOARD_TYPE), mega)
     DEFINES += UART_USB_LINK_CHANNEL=0
     DEFINES += UART_MIDI_CHANNEL=1
     DEFINES += UART_TOUCHSCREEN_CHANNEL=1
-    DEFINES += LEDS_SUPPORTED
 else ifeq ($(BOARD_TYPE), uno)
     MCU := atmega328p
     BOARD := BOARD_A_UNO
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
     DEFINES += UART_USB_LINK_CHANNEL=0
-    DEFINES += LEDS_SUPPORTED
 else ifeq ($(BOARD_TYPE), 16u2)
     MCU := atmega16u2
     BOARD := BOARD_A_xu2

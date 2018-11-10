@@ -136,7 +136,14 @@ void Encoders::update()
             }
             else
             {
-                database.setPreset(database.getPreset() + (encoderState == encMoveRight) ? 1 : -1);
+                uint8_t preset = database.getPreset() + (encoderState == encMoveRight) ? 1 : -1;
+
+                #ifdef LEDS_SUPPORTED
+                if (database.setPreset(preset))
+                {
+                    leds.midiToState(midiMessageProgramChange, preset, 0, 1);
+                }
+                #endif
             }
 
             if (cinfoHandler != nullptr)

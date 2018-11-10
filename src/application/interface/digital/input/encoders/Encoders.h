@@ -21,6 +21,9 @@
 #include "board/Board.h"
 #include "database/Database.h"
 #include "midi/src/MIDI.h"
+#ifdef LEDS_SUPPORTED
+#include "interface/digital/output/leds/LEDs.h"
+#endif
 #ifdef DISPLAY_SUPPORTED
 #include "interface/display/Display.h"
 #endif
@@ -37,13 +40,24 @@
 class Encoders
 {
     public:
+    #ifdef LEDS_SUPPORTED
+    #ifdef DISPLAY_SUPPORTED
+    Encoders(Database &database, MIDI &midi, LEDs &leds, Display &display) :
+    #else
+    Encoders(Database &database, MIDI &midi, LEDs &leds) :
+    #endif
+    #else
     #ifdef DISPLAY_SUPPORTED
     Encoders(Database &database, MIDI &midi, Display &display) :
     #else
     Encoders(Database &database, MIDI &midi) :
     #endif
+    #endif
     database(database),
     midi(midi)
+    #ifdef LEDS_SUPPORTED
+    ,leds(leds)
+    #endif
     #ifdef DISPLAY_SUPPORTED
     ,display(display)
     #endif
@@ -54,6 +68,9 @@ class Encoders
     private:
     Database            &database;
     MIDI                &midi;
+    #ifdef LEDS_SUPPORTED
+    LEDs        &leds;
+    #endif
     #ifdef DISPLAY_SUPPORTED
     Display             &display;
     #endif
