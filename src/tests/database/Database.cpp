@@ -209,6 +209,13 @@ TEST_F(DatabaseTest, Presets)
         EXPECT_EQ(database.setPreset(0), true);
         EXPECT_EQ(database.read(DB_BLOCK_ANALOG, dbSection_analog_midiID, 5), 5);
     }
+
+    //enable preset preservation, perform factory reset and verify that preservation is disabled
+    database.setPresetPreserveState(true);
+    EXPECT_TRUE(database.getPresetPreserveState());
+    database.factoryReset(initFull);
+    database.init();
+    EXPECT_FALSE(database.getPresetPreserveState());
 }
 
 TEST_F(DatabaseTest, FactoryReset)
