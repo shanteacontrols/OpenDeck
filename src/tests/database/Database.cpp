@@ -231,3 +231,20 @@ TEST_F(DatabaseTest, FactoryReset)
     database.setPresetPreserveState(true);
     EXPECT_TRUE(database.getPresetPreserveState());
 }
+
+TEST_F(DatabaseTest, LEDs)
+{
+    database.init();
+    database.factoryReset(initFull);
+
+    //regression test
+    //by default, rgb state should be disabled
+    for (int i=0; i<MAX_NUMBER_OF_RGB_LEDS; i++)
+        EXPECT_FALSE(database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, i));
+
+    EXPECT_TRUE(database.update(DB_BLOCK_LEDS, dbSection_leds_controlType, 0, ledControlLocal_PCStateOnly));
+
+    //rgb state shouldn't change
+    for (int i=0; i<MAX_NUMBER_OF_RGB_LEDS; i++)
+        EXPECT_FALSE(database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, i));
+}
