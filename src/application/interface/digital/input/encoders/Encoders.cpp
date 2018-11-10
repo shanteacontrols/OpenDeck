@@ -116,7 +116,6 @@ void Encoders::update()
                 break;
 
                 default:
-                continue;
                 break;
             }
 
@@ -136,12 +135,17 @@ void Encoders::update()
             }
             else
             {
-                uint8_t preset = database.getPreset() + (encoderState == encMoveRight) ? 1 : -1;
+                uint8_t preset = database.getPreset();
+                preset += (encoderState == encMoveRight) ? 1 : -1;
 
                 #ifdef LEDS_SUPPORTED
                 if (database.setPreset(preset))
                 {
-                    leds.midiToState(midiMessageProgramChange, preset, 0, 1);
+                    leds.midiToState(midiMessageProgramChange, preset, 0, 0, true);
+
+                    #ifdef DISPLAY_SUPPORTED
+                    display.displayMIDIevent(displayEventIn, messagePresetChange_display, preset, 0, 0);
+                    #endif
                 }
                 #endif
             }

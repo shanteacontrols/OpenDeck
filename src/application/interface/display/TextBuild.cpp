@@ -160,7 +160,7 @@ void Display::displayHome()
     updateText(startRow+2, lcdtext_still, 0);
 }
 
-void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t message, uint16_t byte1, uint16_t byte2, uint8_t byte3)
+void Display::displayMIDIevent(displayEventType_t type, messageTypeDisplay_t message, uint16_t byte1, uint16_t byte2, uint8_t byte3)
 {
     uint8_t startRow = (type == displayEventIn) ? ROW_START_MIDI_IN_MESSAGE : ROW_START_MIDI_OUT_MESSAGE;
     uint8_t startColumn = (type == displayEventIn) ? COLUMN_START_MIDI_IN_MESSAGE : COLUMN_START_MIDI_OUT_MESSAGE;
@@ -241,6 +241,14 @@ void Display::displayMIDIevent(displayEventType_t type, midiMessageTypeDisplay_t
         case midiMessageSystemExclusive_display:
         stringBuffer.startLine();
         stringBuffer.appendChar(' ', U8X8::getColumns());
+        stringBuffer.endLine();
+        updateText(startRow+1, lcdtext_still, 0);
+        break;
+
+        case messagePresetChange_display:
+        stringBuffer.startLine();
+        stringBuffer.appendInt(byte1);
+        stringBuffer.appendChar(' ', U8X8::getColumns() - stringBuffer.getSize());
         stringBuffer.endLine();
         updateText(startRow+1, lcdtext_still, 0);
         break;

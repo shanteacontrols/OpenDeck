@@ -40,10 +40,12 @@ const char eventMMCrecordOff_string[] PROGMEM = "MMC Record Off";
 
 const char eventNRPN_string[] PROGMEM = "NRPN";
 
+const char eventPresetChange_string[] PROGMEM = "Preset";
+
 const char eventMIDIin_string[] PROGMEM = "In: ";
 const char eventMIDIout_string[] PROGMEM = "Out: ";
 
-//match with midiMessageTypeDisplay_t
+//match with messageTypeDisplay_t
 PGM_P const eventNameArray[] PROGMEM =
 {
     eventNoteOff_string,
@@ -69,5 +71,6 @@ PGM_P const eventNameArray[] PROGMEM =
     eventMMCpause_string,
     eventMMCrecordOn_string,
     eventMMCrecordOff_string,
-    eventNRPN_string
+    eventNRPN_string,
+    eventPresetChange_string
 };

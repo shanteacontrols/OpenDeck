@@ -130,7 +130,11 @@ void Buttons::processButton(uint8_t buttonID, bool state)
                 #ifdef LEDS_SUPPORTED
                 if (database.setPreset(preset))
                 {
-                    leds.midiToState(midiMessageProgramChange, preset, 0, 1);
+                    leds.midiToState(midiMessageProgramChange, preset, 0, 0, true);
+
+                    #ifdef DISPLAY_SUPPORTED
+                    display.displayMIDIevent(displayEventIn, messagePresetChange_display, preset, 0, 0);
+                    #endif
                 }
                 #endif
             }

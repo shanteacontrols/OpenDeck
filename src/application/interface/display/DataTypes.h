@@ -77,5 +77,6 @@ typedef enum
     midiMessageMMCpause_display,
     midiMessageMMCrecordOn_display,
     midiMessageMMCrecordOff_display,
-    midiMessageNRPN_display
-} midiMessageTypeDisplay_t;
+    midiMessageNRPN_display,
+    messagePresetChange_display
+} messageTypeDisplay_t;
