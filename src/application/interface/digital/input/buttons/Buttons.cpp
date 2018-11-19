@@ -184,16 +184,16 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMIDImessage_t butt
             {
                 if (buttonMessage == buttonPCinc)
                 {
-                    if (lastPCvalue[channel] < 127)
-                        lastPCvalue[channel]++;
+                    if (digitalInputCommon::detail::lastPCvalue[channel] < 127)
+                        digitalInputCommon::detail::lastPCvalue[channel]++;
                 }
                 else
                 {
-                    if (lastPCvalue[channel] > 0)
-                        lastPCvalue[channel]--;
+                    if (digitalInputCommon::detail::lastPCvalue[channel] > 0)
+                        digitalInputCommon::detail::lastPCvalue[channel]--;
                 }
 
-                note = lastPCvalue[channel];
+                note = digitalInputCommon::detail::lastPCvalue[channel];
             }
 
             midi.sendProgramChange(note, channel);

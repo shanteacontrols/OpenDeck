@@ -88,16 +88,16 @@ void Encoders::update()
                 case encTypePC:
                 if (encoderState == encMoveLeft)
                 {
-                    if (lastPCvalue[channel] < 127)
-                        lastPCvalue[channel]++;
+                    if (digitalInputCommon::detail::lastPCvalue[channel] < 127)
+                        digitalInputCommon::detail::lastPCvalue[channel]++;
                 }
                 else
                 {
-                    if (lastPCvalue[channel] > 0)
-                        lastPCvalue[channel]--;
+                    if (digitalInputCommon::detail::lastPCvalue[channel] > 0)
+                        digitalInputCommon::detail::lastPCvalue[channel]--;
                 }
 
-                encoderValue = lastPCvalue[channel];
+                encoderValue = digitalInputCommon::detail::lastPCvalue[channel];
                 break;
 
                 case encTypeCC:
