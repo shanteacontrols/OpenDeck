@@ -18,9 +18,13 @@
 
 #include "OpenDeck/OpenDeck.h"
 
+namespace
+{
+   OpenDeck openDeck;
+}
+
 int main()
 {
-    OpenDeck openDeck;
     openDeck.init();
 
     while(1)
