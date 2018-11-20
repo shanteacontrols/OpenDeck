@@ -77,6 +77,7 @@ void Encoders::update()
             uint8_t midiID = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiID, i);
             uint8_t channel = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i);
             encoderType_t type = static_cast<encoderType_t>(database.read(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i));
+            bool validType = true;
 
             switch(type)
             {
@@ -116,38 +117,42 @@ void Encoders::update()
                 break;
 
                 default:
+                validType = false;
                 break;
             }
 
-            if (type == encTypePC)
+            if (validType)
             {
-                midi.sendProgramChange(encoderValue, channel);
-                #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventOut, midiMessageProgramChange_display, midiID & 0x7F, encoderValue, channel+1);
-                #endif
-            }
-            else if (type != encTypePresetChange)
-            {
-                midi.sendControlChange(midiID, encoderValue, channel);
-                #ifdef DISPLAY_SUPPORTED
-                display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, midiID & 0x7F, encoderValue, channel+1);
-                #endif
-            }
-            else
-            {
-                uint8_t preset = database.getPreset();
-                preset += (encoderState == encMoveRight) ? 1 : -1;
-
-                #ifdef LEDS_SUPPORTED
-                if (database.setPreset(preset))
+                if (type == encTypePC)
                 {
-                    leds.midiToState(midiMessageProgramChange, preset, 0, 0, true);
-
+                    midi.sendProgramChange(encoderValue, channel);
                     #ifdef DISPLAY_SUPPORTED
-                    display.displayMIDIevent(displayEventIn, messagePresetChange_display, preset, 0, 0);
+                    display.displayMIDIevent(displayEventOut, midiMessageProgramChange_display, midiID & 0x7F, encoderValue, channel+1);
                     #endif
                 }
-                #endif
+                else if (type != encTypePresetChange)
+                {
+                    midi.sendControlChange(midiID, encoderValue, channel);
+                    #ifdef DISPLAY_SUPPORTED
+                    display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, midiID & 0x7F, encoderValue, channel+1);
+                    #endif
+                }
+                else
+                {
+                    uint8_t preset = database.getPreset();
+                    preset += (encoderState == encMoveRight) ? 1 : -1;
+
+                    #ifdef LEDS_SUPPORTED
+                    if (database.setPreset(preset))
+                    {
+                        leds.midiToState(midiMessageProgramChange, preset, 0, 0, true);
+
+                        #ifdef DISPLAY_SUPPORTED
+                        display.displayMIDIevent(displayEventIn, messagePresetChange_display, preset, 0, 0);
+                        #endif
+                    }
+                    #endif
+                }
             }
 
             if (cinfoHandler != nullptr)
