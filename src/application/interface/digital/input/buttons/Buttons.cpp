@@ -125,9 +125,9 @@ void Buttons::processButton(uint8_t buttonID, bool state)
         {
             if (buttonMessage == buttonChangePreset)
             {
+                #ifdef LEDS_SUPPORTED
                 uint8_t preset = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, buttonID);
 
-                #ifdef LEDS_SUPPORTED
                 if (database.setPreset(preset))
                 {
                     leds.midiToState(midiMessageProgramChange, preset, 0, 0, true);
