@@ -27,6 +27,7 @@
 #include "board/common/uart/ODformat.h"
 #include "midi/src/Constants.h"
 #include "core/src/HAL/avr/reset/Reset.h"
+#include "core/src/HAL/avr/Misc.h"
 #include "core/src/general/Misc.h"
 #include "Init.cpp"
 
@@ -94,9 +95,14 @@ namespace Board
 
     bool checkNewRevision()
     {
-        uint32_t flash_size = pgm_read_dword(APP_LENGTH_LOCATION);
         uint16_t crc_eeprom = eeprom_read_word(reinterpret_cast<uint16_t*>(SW_CRC_LOCATION_EEPROM));
-        uint16_t crc_flash = pgm_read_word(flash_size);
+        #if (FLASHEND > 0xFFFF)
+        uint32_t lastAddress = pgm_read_dword_far(pgmGetFarAddress(APP_LENGTH_LOCATION));
+        uint16_t crc_flash = pgm_read_word_far(pgmGetFarAddress(lastAddress));
+        #else
+        uint32_t lastAddress = pgm_read_dword(APP_LENGTH_LOCATION);
+        uint16_t crc_flash = pgm_read_word(lastAddress);
+        #endif
 
         if (crc_eeprom != crc_flash)
         {

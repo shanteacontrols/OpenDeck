@@ -20,6 +20,7 @@
 #include <avr/cpufunc.h>
 #include "BootloaderHID.h"
 #include "core/src/HAL/avr/PinManipulation.h"
+#include "core/src/HAL/avr/Misc.h"
 #include "core/src/general/BitManipulation.h"
 #include "board/common/constants/LEDs.h"
 #include "board/avr/variants/Common.h"
@@ -128,13 +129,29 @@ namespace
         ///
         bool appCRCvalid()
         {
+            return true;
             uint16_t crc = 0x0000;
-            int16_t lastAddress = pgm_read_word(APP_LENGTH_LOCATION);
 
-            for (int i=0; i<lastAddress; i++)
+            #if (FLASHEND > 0xFFFF)
+            uint32_t lastAddress = pgm_read_word(pgmGetFarAddress(APP_LENGTH_LOCATION));
+            #else
+            uint32_t lastAddress = pgm_read_word(APP_LENGTH_LOCATION);
+            #endif
+
+            for (uint32_t i=0; i<lastAddress; i++)
+            {
+                #if (FLASHEND > 0xFFFF)
+                crc = _crc_xmodem_update(crc, pgm_read_byte_far(pgmGetFarAddress(i)));
+                #else
                 crc = _crc_xmodem_update(crc, pgm_read_byte(i));
+                #endif
+            }
 
+            #if (FLASHEND > 0xFFFF)
+            return (crc == pgm_read_word_far(pgmGetFarAddress(lastAddress)));
+            #else
             return (crc == pgm_read_word(lastAddress));
+            #endif
         }
 
     ///

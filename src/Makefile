@@ -20,8 +20,7 @@ COMMON_FLAGS := \
 -Wall \
 -c \
 -fno-jump-tables \
--fno-strict-aliasing \
--flto
+-fno-strict-aliasing
 
 #c only
 CFLAGS := \
@@ -33,7 +32,7 @@ CPPFLAGS := \
 -fno-exceptions
 
 #common linker flags
-LDFLAGS := -Wl,--gc-sections -flto -mrelax -Wl,--start-group -Wl,-lm -Wl,--end-group
+LDFLAGS := -Wl,--gc-sections -mrelax -Wl,--start-group -Wl,-lm -Wl,--end-group
 
 #optimisation level
 OPT := -Os
@@ -41,6 +40,12 @@ OPT := -Os
 ifneq ($(filter boot_%, $(MAKECMDGOALS)), )
     #make sure to link .text at correct address in bootloader
     LDFLAGS += -Wl,--section-start=.text=$(BOOT_START_ADDR)
+endif
+
+#use link time optimisations only on opendeck board due to the heavy memory constrains
+ifeq ($(MAKECMDGOALS), fw_opendeck)
+    COMMON_FLAGS += -flto
+    LDFLAGS += -flto
 endif
 
 LEN_APPEND := 0
