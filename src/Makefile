@@ -81,6 +81,7 @@ fw_16u2 \
 fw_8u2 \
 boot_opendeck \
 boot_leonardo \
+boot_pro_micro \
 boot_mega \
 boot_uno \
 boot_teensy2pp \

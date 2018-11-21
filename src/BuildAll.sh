@@ -17,6 +17,7 @@ make clean && make fw_kodama
 make clean && make fw_bergamot
 make clean && make boot_opendeck
 make clean && make boot_leonardo
+make clean && make boot_pro_micro
 make clean && make boot_teensy2pp
 make clean && make boot_kodama
 make clean && make boot_bergamot
