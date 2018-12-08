@@ -19,6 +19,7 @@
 #include "Common.h"
 #include "../Variables.h"
 #include "core/src/general/BitManipulation.h"
+#include "board/Board.h"
 
 namespace Board
 {
@@ -31,13 +32,11 @@ namespace Board
     {
         using namespace Board::detail;
 
-        //find array index of digital input buffer where data is stored for requested encoder
         uint8_t buttonID = encoderID*2;
-        uint8_t arrayIndex = buttonID/8;
 
-        uint8_t pairState = BIT_READ(digitalInBufferReadOnly[arrayIndex], buttonID);
+        uint8_t pairState = Board::getButtonState(buttonID);
         pairState <<= 1;
-        pairState |= BIT_READ(digitalInBufferReadOnly[arrayIndex], buttonID+1);
+        pairState |= Board::getButtonState(buttonID+1);
 
         return readEncoder(encoderID, pairState, pulsesPerStep);
     }
