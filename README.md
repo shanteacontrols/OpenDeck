@@ -47,4 +47,4 @@ As I don't do any Web development I won't be adding any new features to the app.
 
 ## Licence
 
-All code is available under GNU GPL v3 licence.
+All code is available under Apache Licence v2.0.
