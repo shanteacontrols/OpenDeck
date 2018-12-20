@@ -17,7 +17,7 @@
 */
 
 #include "U8X8.h"
-#include "i2c/i2cmaster.h"
+#include "core/src/HAL/avr/i2c/I2C.h"
 
 namespace
 {
@@ -48,19 +48,19 @@ namespace U8X8
             {
                 case U8X8_MSG_BYTE_SEND:
                 for (int i=0; i<arg_int; i++)
-                    i2c_write(array[i]);
+                    I2C::write(array[i]);
                 break;
 
                 case U8X8_MSG_BYTE_INIT:
-                i2c_init();
+                I2C::enable();
                 break;
 
                 case U8X8_MSG_BYTE_START_TRANSFER:
-                i2c_start_wait(u8x8_GetI2CAddress(u8x8) + I2C_WRITE);
+                I2C::startComm(u8x8_GetI2CAddress(u8x8), I2C::i2cTransfer_t::write);
                 break;
 
                 case U8X8_MSG_BYTE_END_TRANSFER:
-                i2c_stop();
+                I2C::stopComm();
                 break;
 
                 default:

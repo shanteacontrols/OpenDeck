@@ -183,7 +183,7 @@ else
             modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
 
             #i2c for display communication
-            SOURCES += modules/i2c/twimaster.c
+            SOURCES += modules/core/src/HAL/avr/i2c/I2C.cpp
         endif
 
         ifneq ($(filter TOUCHSCREEN_SUPPORTED, $(DEFINES)), )

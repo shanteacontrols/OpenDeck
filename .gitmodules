@@ -18,10 +18,6 @@
 	path = src/modules/u8g2
 	url = https://github.com/olikraus/u8g2.git
 	branch = master
-[submodule "src/modules/i2c"]
-	path = src/modules/i2c
-	url = https://github.com/paradajz/i2cmaster.git
-	branch = master
 [submodule "src/modules/core"]
 	path = src/modules/core
 	url = https://github.com/paradajz/core.git
