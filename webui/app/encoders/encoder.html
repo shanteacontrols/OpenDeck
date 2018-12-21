@@ -30,6 +30,18 @@
         </div>
         </div><!-- /row -->
         <div class="row">
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-6">
+                <h3>Acceleration</h3>
+            </div>
+            <div class="col-lg-1 col-lg-offset-1 col-md-1 col-md-offset-1 col-sm-4 col-xs-6">
+                <div class="switch">
+                <input id="acceleration" ng-model="obj.acceleration" class="toggle toggle-round-flat" type="checkbox">
+                <label for="acceleration"></label>
+                <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Enables or disables faster sending of values in CC, Pitch bend or NRPN mode." data-placement="left">?</div>
+                </div>
+            </div>
+            </div><!-- /row -->
+        <div class="row">
         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
             <h3>Encoding mode</h3>
         </div>
@@ -41,6 +53,9 @@
                 <option value="2">Program change</option>
                 <option value="3">Continuous controller</option>
                 <option value="4">Change preset</option>
+                <option value="5">Pitch bend</option>
+                <option value="6">NRPN 7-bit</option>
+                <option value="7">NRPN 14-bit</option>
             </select>
             <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Denotes encoder encoding mode. Default option is 7Fh01h for all encoders." data-placement="left">?</div>
             </div>
