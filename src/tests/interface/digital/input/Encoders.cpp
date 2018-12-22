@@ -24,6 +24,11 @@ void MIDI::sendProgramChange(uint8_t inProgramNumber, uint8_t inChannel)
 
 }
 
+void MIDI::sendPitchBend(uint16_t inPitchValue, uint8_t inChannel)
+{
+
+}
+
 class EncodersTest : public ::testing::Test
 {
     protected:
