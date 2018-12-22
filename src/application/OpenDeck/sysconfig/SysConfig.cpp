@@ -238,9 +238,24 @@ bool SysConfig::onGet(uint8_t block, uint8_t section, uint16_t index, sysExParam
         case SYSEX_BLOCK_ENCODERS:
         success = database.read(block, sysEx2DB_encoders[section], index, readValue);
 
-        //channels start from 0 in db, start from 1 in sysex
-        if ((section == sysExSection_encoders_midiChannel) && success)
-            readValue++;
+        if (success)
+        {
+            if ((section == sysExSection_encoders_midiID_lsb) || (section == sysExSection_encoders_midiID_msb))
+            {
+                encDec_14bit.value = readValue;
+                encDec_14bit.split14bit();
+
+                if (section == sysExSection_encoders_midiID_lsb)
+                    readValue = encDec_14bit.low;
+                else
+                    readValue = encDec_14bit.high;
+            }
+            else if (section == sysExSection_encoders_midiChannel)
+            {
+                //channels start from 0 in db, start from 1 in sysex
+                readValue++;
+            }
+        }
         break;
 
         case DB_BLOCK_DISPLAY:

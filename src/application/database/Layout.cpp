@@ -156,7 +156,7 @@ static dbSection_t encoderSections[DB_SECTIONS_ENCODERS] =
     //midi id section
     {
         .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-        .parameterType = BYTE_PARAMETER,
+        .parameterType = WORD_PARAMETER,
         .preserveOnPartialReset = 0,
         .defaultValue = 0,
         .autoIncrement = true,

@@ -108,7 +108,7 @@ static sysExSection_t encoderSections[SYSEX_SECTIONS_ENCODERS] =
         .newValueMax = ENCODING_MODES-1,
     },
 
-    //midi id section
+    //midi id section, lsb
     {
         .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
         .newValueMin = 0,
@@ -134,7 +134,14 @@ static sysExSection_t encoderSections[SYSEX_SECTIONS_ENCODERS] =
         .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
         .newValueMin = 0,
         .newValueMax = 1,
-    }
+    },
+
+    //midi id section, msb
+    {
+        .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
+        .newValueMin = 0,
+        .newValueMax = 127,
+    },
 };
 
 static sysExSection_t analogSections[SYSEX_SECTIONS_ANALOG] =

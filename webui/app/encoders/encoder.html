@@ -84,13 +84,29 @@
                 <r-slider value="obj.midiChannel" min="1" max="16" tooltip="MIDI channel for current component."></r-slider>
             </div>
         </div><!-- /row -->
-        <div class="row" ng-if="obj.encodingMode != 2">
+        <div class="row" ng-if="(obj.encodingMode != 2) && (obj.encodingMode<6)">
         <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
             <h3>MIDI ID</h3>
         </div>
         <div class="col-lg-6 col-lg-offset-1 col-md-6 col-sm-6 col-xs-11">
-            <r-slider value="obj.midiId" min="0" max="127" tooltip="Denotes the MIDI CC number for each encoder."></r-slider>
+            <r-slider value="obj.midiId_lsb" min="0" max="127" tooltip="Denotes the MIDI CC number for each encoder."></r-slider>
         </div>
+        </div><!-- /row -->
+        <div class="row" ng-if="obj.encodingMode>5">
+            <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
+            <h3>NPRN ID LSB</h3>
+            </div>
+            <div class="col-lg-6 col-lg-offset-1 col-md-6 col-sm-6 col-xs-11">
+                <r-slider value="obj.midiId_lsb" min="0" max="127" tooltip="Denotes MIDI CC number."></r-slider>
+            </div>
+        </div><!-- /row -->
+        <div class="row" ng-if="obj.encodingMode>5">
+            <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
+            <h3>NPRN ID MSB</h3>
+            </div>
+            <div class="col-lg-6 col-lg-offset-1 col-md-6 col-sm-6 col-xs-11">
+                <r-slider value="obj.midiId_msb" min="0" max="127" tooltip="Denotes MIDI CC number."></r-slider>
+            </div>
         </div><!-- /row -->
     </div>
 </div>

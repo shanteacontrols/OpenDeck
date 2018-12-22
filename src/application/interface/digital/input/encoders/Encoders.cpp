@@ -98,6 +98,7 @@ void Encoders::update()
             bool validType = true;
             uint16_t encoderValue;
             uint8_t steps = (encoderSpeed[i] > 0) ? encoderSpeed[i] : 1;
+            encDec_14bit_t encDec_14bit;
 
             switch(type)
             {
@@ -123,8 +124,9 @@ void Encoders::update()
 
                 case encTypeCC:
                 case encTypePitchBend:
-
-                if ((type == encTypePitchBend) && (steps > 1))
+                case encTypeNRPN7bit:
+                case encTypeNRPN14bit:
+                if (((type == encTypePitchBend) || (type == encTypeNRPN14bit)) && (steps > 1))
                     steps <<= 2;
 
                 if (encoderState == encMoveLeft)
@@ -136,7 +138,7 @@ void Encoders::update()
                 }
                 else
                 {
-                    int16_t limit = (type == encTypeCC) ? 127 : 16383;
+                    int16_t limit = ((type == encTypeCC) || (type == encTypeNRPN7bit)) ? 127 : 16383;
 
                     midiValue[i] += steps;
 
@@ -166,6 +168,31 @@ void Encoders::update()
                     midi.sendPitchBend(encoderValue, channel);
                     #ifdef DISPLAY_SUPPORTED
                     display.displayMIDIevent(displayEventOut, midiMessagePitchBend_display, midiID & 0x7F, encoderValue, channel+1);
+                    #endif
+                }
+                else if ((type == encTypeNRPN7bit) || (type == encTypeNRPN14bit))
+                {
+                    encDec_14bit.value = midiID;
+                    encDec_14bit.split14bit();
+                    midi.sendControlChange(99, encDec_14bit.high, channel);
+                    midi.sendControlChange(98, encDec_14bit.low, channel);
+
+                    if (type == encTypeNRPN7bit)
+                    {
+                        midi.sendControlChange(6, encoderValue, channel);
+                    }
+                    else
+                    {
+                        //use mapRange_uint32 to avoid overflow issues
+                        encDec_14bit.value = encoderValue;
+                        encDec_14bit.split14bit();
+
+                        midi.sendControlChange(6, encDec_14bit.high, channel);
+                        midi.sendControlChange(38, encDec_14bit.low, channel);
+                    }
+
+                    #ifdef DISPLAY_SUPPORTED
+                    display.displayMIDIevent(displayEventOut, midiMessageNRPN_display, midiID, encoderValue, channel+1);
                     #endif
                 }
                 else if (type != encTypePresetChange)
