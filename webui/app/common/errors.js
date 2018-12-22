@@ -9,7 +9,7 @@
             WISH:4,
             AMMOUNT:5,
             BLOCK:6,
-            SELECTION:7,
+            SECTION:7,
             PART: 8,
             INDEX: 9,
             NEW_VALUE: 10,
@@ -30,8 +30,5 @@
         return {
             getErrorCode: getErrorCode
         }
-           
-                    
-	});
-	
+    });
 })(angular.module('app'));
