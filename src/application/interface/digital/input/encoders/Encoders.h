@@ -63,7 +63,9 @@ class Encoders
     #endif
     {}
 
+    void init();
     void update();
+    void resetValue(uint8_t encoderID);
 
     private:
     Database            &database;
@@ -76,15 +78,19 @@ class Encoders
     #endif
 
     ///
-    /// \brief Holds current CC value for all encoders.
-    /// Used only if encoder is configured in CC mode.
+    /// \brief Holds current MIDI value for all encoders.
     ///
-    uint8_t             ccValue[MAX_NUMBER_OF_ENCODERS] = { 0 };
+    int16_t             midiValue[MAX_NUMBER_OF_ENCODERS] = { 0 };
 
     ///
     /// \brief Array holding last movement time for all encoders.
     ///
     uint32_t            lastMovementTime[MAX_NUMBER_OF_ENCODERS] = {};
+
+    ///
+    /// \brief Array holding current speed (in steps) for all encoders.
+    ///
+    uint8_t             encoderSpeed[MAX_NUMBER_OF_ENCODERS] = {};
 
     ///
     /// \brief Array holding previous encoder direction for all encoders.

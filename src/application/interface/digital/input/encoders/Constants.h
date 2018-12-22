@@ -39,6 +39,24 @@ limitations under the License.
 #define ENCODER_DEBOUNCE_COUNT  4
 
 ///
+/// \brief Used to achieve linear encoder acceleration on fast movement.
+/// Every time fast movement is detected, amount of steps is increased by this value.
+/// Used only in CC/Pitch bend/NRPN modes. In Pitch bend/NRPN modes, this value is multiplied
+/// by 4 due to a larger value range.
+///
+#define ENCODER_SPEED_CHANGE    3
+
+///
+/// \brief Maximum value by which MIDI value is increased during acceleration.
+///
+#define ENCODER_MAX_SPEED       100
+
+///
+/// \brief Time threshold in milliseconds between two encoder steps used to detect fast movement.
+///
+#define SPEED_TIMEOUT           140
+
+///
 /// \brief Array used for easier access to current encoder MIDI value in 7Fh01h and 3Fh41h modes.
 /// Matched with encoderType_t and encoderPosition_t
 ///

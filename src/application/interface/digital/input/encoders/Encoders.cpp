@@ -21,14 +21,22 @@ limitations under the License.
 #include "interface/digital/input/Common.h"
 #include "interface/CInfo.h"
 #include "core/src/general/Timing.h"
+#include "core/src/general/Misc.h"
+
+///
+/// \brief Initializes values for all encoders to their defaults.
+///
+void Encoders::init()
+{
+    for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
+        resetValue(i);
+}
 
 ///
 /// \brief Continuously checks state of all encoders.
 ///
 void Encoders::update()
 {
-    uint8_t encoderValue;
-
     for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
     {
         if (!database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i))
@@ -68,6 +76,16 @@ void Encoders::update()
                 }
             }
 
+            if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_acceleration, i))
+            {
+                //when time difference between two movements is smaller than SPEED_TIMEOUT,
+                //start accelerating
+                if ((rTimeMs() - lastMovementTime[i]) < SPEED_TIMEOUT)
+                    encoderSpeed[i] = CONSTRAIN(encoderSpeed[i]+ENCODER_SPEED_CHANGE, 0, ENCODER_MAX_SPEED);
+                else
+                    encoderSpeed[i] = 0;
+            }
+
             lastDirection[i] = encoderState;
             lastMovementTime[i] = rTimeMs();
 
@@ -78,6 +96,8 @@ void Encoders::update()
             uint8_t channel = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i);
             encoderType_t type = static_cast<encoderType_t>(database.read(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i));
             bool validType = true;
+            uint16_t encoderValue;
+            uint8_t steps = (encoderSpeed[i] > 0) ? encoderSpeed[i] : 1;
 
             switch(type)
             {
@@ -102,18 +122,29 @@ void Encoders::update()
                 break;
 
                 case encTypeCC:
+                case encTypePitchBend:
+
+                if ((type == encTypePitchBend) && (steps > 1))
+                    steps <<= 2;
+
                 if (encoderState == encMoveLeft)
                 {
-                    if (ccValue[i])
-                        ccValue[i]--;
+                    midiValue[i] -= steps;
+
+                    if (midiValue[i] < 0)
+                        midiValue[i] = 0;
                 }
                 else
                 {
-                    if (ccValue[i] < 127)
-                        ccValue[i]++;
+                    int16_t limit = (type == encTypeCC) ? 127 : 16383;
+
+                    midiValue[i] += steps;
+
+                    if (midiValue[i] > limit)
+                        midiValue[i] = limit;
                 }
 
-                encoderValue = ccValue[i];
+                encoderValue = midiValue[i];
                 break;
 
                 default:
@@ -128,6 +159,13 @@ void Encoders::update()
                     midi.sendProgramChange(encoderValue, channel);
                     #ifdef DISPLAY_SUPPORTED
                     display.displayMIDIevent(displayEventOut, midiMessageProgramChange_display, midiID & 0x7F, encoderValue, channel+1);
+                    #endif
+                }
+                else if (type == encTypePitchBend)
+                {
+                    midi.sendPitchBend(encoderValue, channel);
+                    #ifdef DISPLAY_SUPPORTED
+                    display.displayMIDIevent(displayEventOut, midiMessagePitchBend_display, midiID & 0x7F, encoderValue, channel+1);
                     #endif
                 }
                 else if (type != encTypePresetChange)
@@ -159,4 +197,15 @@ void Encoders::update()
                 (*cinfoHandler)(DB_BLOCK_ENCODERS, i);
         }
     }
+}
+
+///
+/// \brief Sets the MIDI value of specified encoder to default.
+///
+void Encoders::resetValue(uint8_t encoderID)
+{
+    if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_mode, encoderID) == encTypePitchBend)
+        midiValue[encoderID] = 8192;
+    else
+        midiValue[encoderID] = 0;
 }

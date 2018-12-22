@@ -181,6 +181,16 @@ static dbSection_t encoderSections[DB_SECTIONS_ENCODERS] =
         .defaultValue = 4,
         .autoIncrement = false,
         .address = 0
+    },
+
+    //acceleration section
+    {
+        .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
+        .parameterType = BIT_PARAMETER,
+        .preserveOnPartialReset = 0,
+        .defaultValue = 0,
+        .autoIncrement = false,
+        .address = 0
     }
 };
 

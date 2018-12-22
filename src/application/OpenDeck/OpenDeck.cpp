@@ -50,6 +50,8 @@ void OpenDeck::init()
     leds.init();
     #endif
 
+    encoders.init();
+
     #ifdef DISPLAY_SUPPORTED
     if (database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureEnable))
     {

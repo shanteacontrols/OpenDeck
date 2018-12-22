@@ -127,6 +127,13 @@ static sysExSection_t encoderSections[SYSEX_SECTIONS_ENCODERS] =
         .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
         .newValueMin = 2,
         .newValueMax = 4,
+    },
+
+    //acceleration section
+    {
+        .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
+        .newValueMin = 0,
+        .newValueMax = 1,
     }
 };
 

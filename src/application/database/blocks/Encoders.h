@@ -26,5 +26,6 @@ typedef enum
     dbSection_encoders_midiID,
     dbSection_encoders_midiChannel,
     dbSection_encoders_pulsesPerStep,
+    dbSection_encoders_acceleration,
     DB_SECTIONS_ENCODERS
 } dbSection_encoders_t;

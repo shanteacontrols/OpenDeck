@@ -691,6 +691,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, sysExParam
             newValue--;
 
         success = database.update(block, sysEx2DB_encoders[section], index, newValue);
+        encoders.resetValue(index);
         break;
 
         default:

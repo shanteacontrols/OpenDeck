@@ -25,6 +25,9 @@ typedef enum
     encTypePC,
     encTypeCC,
     encTypePresetChange,
+    encTypePitchBend,
+    encTypeNRPN7bit,
+    encTypeNRPN14bit,
     ENCODING_MODES
 } encoderType_t;
 
