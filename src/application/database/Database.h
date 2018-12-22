@@ -33,7 +33,7 @@ class Database : public DBMS
     DBMS(readCallback, writeCallback)
     {}
 
-    void init();
+    bool init();
     void factoryReset(initType_t type);
     uint8_t getSupportedPresets();
     bool setPreset(uint8_t preset);

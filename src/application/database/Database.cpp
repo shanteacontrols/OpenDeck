@@ -37,10 +37,13 @@ limitations under the License.
 ///
 /// \brief Initializes database.
 ///
-void Database::init()
+bool Database::init()
 {
     setStartAddress(0);
-    DBMS::setLayout(dbLayout, DB_BLOCKS+1);
+
+    if (!DBMS::setLayout(dbLayout, DB_BLOCKS+1))
+        return false;
+
     totalMemoryUsage = DBMS::getDBsize();
     systemBlockUsage = dbLayout[1].address;
 
@@ -64,6 +67,8 @@ void Database::init()
 
         setPreset(activePreset);
     }
+
+    return true;
 }
 
 ///

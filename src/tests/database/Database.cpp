@@ -10,7 +10,7 @@ class DatabaseTest : public ::testing::Test
     virtual void SetUp()
     {
         //init checks - no point in running further tests if these conditions fail
-        database.init();
+        EXPECT_TRUE(database.init());
         EXPECT_TRUE(database.getDBsize() < LESSDB_SIZE);
         EXPECT_TRUE(database.isSignatureValid());
     }
