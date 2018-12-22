@@ -23,7 +23,7 @@ limitations under the License.
 /// @{
 
 #define SW_VERSION_MAJOR        3
-#define SW_VERSION_MINOR        1
-#define SW_VERSION_REVISION     2
+#define SW_VERSION_MINOR        2
+#define SW_VERSION_REVISION     0
 
 /// @}
