@@ -331,7 +331,10 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMIDImessage_t butt
 ///
 void Buttons::setButtonState(uint8_t buttonID, uint8_t state)
 {
-    buttonPressed[buttonID] = state;
+    uint8_t arrayIndex = buttonID/8;
+    uint8_t buttonIndex = buttonID - 8*arrayIndex;
+
+    BIT_WRITE(buttonPressed[arrayIndex], buttonIndex, state);
 }
 
 ///
@@ -341,7 +344,10 @@ void Buttons::setButtonState(uint8_t buttonID, uint8_t state)
 ///
 bool Buttons::getButtonState(uint8_t buttonID)
 {
-    return buttonPressed[buttonID];
+    uint8_t arrayIndex = buttonID/8;
+    uint8_t buttonIndex = buttonID - 8*arrayIndex;
+
+    return BIT_READ(buttonPressed[arrayIndex], buttonIndex);
 }
 
 ///
@@ -357,7 +363,10 @@ bool Buttons::getButtonState(uint8_t buttonID)
 ///
 void Buttons::setLatchingState(uint8_t buttonID, uint8_t state)
 {
-    lastLatchingState[buttonID] = state;
+    uint8_t arrayIndex = buttonID/8;
+    uint8_t buttonIndex = buttonID - 8*arrayIndex;
+
+    BIT_WRITE(lastLatchingState[arrayIndex], buttonIndex, state);
 }
 
 ///
@@ -367,7 +376,10 @@ void Buttons::setLatchingState(uint8_t buttonID, uint8_t state)
 ///
 bool Buttons::getLatchingState(uint8_t buttonID)
 {
-    return lastLatchingState[buttonID];
+    uint8_t arrayIndex = buttonID/8;
+    uint8_t buttonIndex = buttonID - 8*arrayIndex;
+
+    return BIT_READ(lastLatchingState[arrayIndex], buttonIndex);
 }
 
 ///

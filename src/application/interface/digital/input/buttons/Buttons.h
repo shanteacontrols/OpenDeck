@@ -91,12 +91,12 @@ class Buttons
     ///
     /// \brief Array holding current state for all buttons.
     ///
-    uint8_t     buttonPressed[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS] = {};
+    uint8_t     buttonPressed[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS)/8+1] = {};
 
     ///
     /// \brief Array holding last sent state for latching buttons only.
     ///
-    uint8_t     lastLatchingState[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS] = {};
+    uint8_t     lastLatchingState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS)/8+1] = {};
 
     ///
     /// \brief Array used for simpler building of transport control messages.
