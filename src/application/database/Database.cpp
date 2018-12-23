@@ -112,6 +112,9 @@ bool Database::setPreset(uint8_t preset)
         update(0, dbSection_system_settings, systemGlobal_ActivePreset, preset);
     )
 
+    if (presetChangeHandler != nullptr)
+        presetChangeHandler(preset);
+
     return true;
 }
 
@@ -236,4 +239,12 @@ void Database::setDbUID(uint16_t uid)
     (
         update(0, dbSection_system_uid, 0, uid);
     )
+}
+
+///
+/// \brief Sets callback used to indicate that the preset has been changed.
+///
+void Database::setPresetChangeHandler(void (*presetChangeHandler)(uint8_t preset))
+{
+    this->presetChangeHandler = presetChangeHandler;
 }

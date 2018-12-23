@@ -655,11 +655,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, sysExParam
                 case displayHwController:
                 if ((newValue <= DISPLAY_CONTROLLERS) && (newValue >= 0))
                 {
-                    if (display.init(static_cast<displayController_t>(newValue), static_cast<displayResolution_t>(database.read(DB_BLOCK_DISPLAY, sysEx2DB_display[section], displayHwResolution))))
-                    {
-                        display.displayHome();
-                    }
-
+                    display.init(static_cast<displayController_t>(newValue), static_cast<displayResolution_t>(database.read(DB_BLOCK_DISPLAY, sysEx2DB_display[section], displayHwResolution)));
                     success = true;
                 }
                 break;
@@ -667,11 +663,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, sysExParam
                 case displayHwResolution:
                 if ((newValue <= DISPLAY_RESOLUTIONS) && (newValue >= 0))
                 {
-                    if (display.init(static_cast<displayController_t>(database.read(DB_BLOCK_DISPLAY, sysEx2DB_display[section], displayHwController)), static_cast<displayResolution_t>(newValue)))
-                    {
-                        display.displayHome();
-                    }
-
+                    display.init(static_cast<displayController_t>(database.read(DB_BLOCK_DISPLAY, sysEx2DB_display[section], displayHwController)), static_cast<displayResolution_t>(newValue));
                     success = true;
                 }
                 break;

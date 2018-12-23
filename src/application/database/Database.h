@@ -42,11 +42,17 @@ class Database : public DBMS
     bool isSignatureValid();
     void setPresetPreserveState(bool state);
     bool getPresetPreserveState();
+    void setPresetChangeHandler(void (*presetChangeHandler)(uint8_t preset));
 
     private:
     void writeCustomValues();
     uint16_t getDbUID();
     void setDbUID(uint16_t uid);
+
+    ///
+    /// \brief User-specified callback called when preset is changed.
+    ///
+    void        (*presetChangeHandler)(uint8_t preset) = nullptr;
 
     ///
     /// \brief Holds total memory usage for the entire database layout (system block included).

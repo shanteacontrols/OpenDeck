@@ -207,16 +207,7 @@ void Encoders::update()
                     uint8_t preset = database.getPreset();
                     preset += (encoderState == encMoveRight) ? 1 : -1;
 
-                    #ifdef LEDS_SUPPORTED
-                    if (database.setPreset(preset))
-                    {
-                        leds.midiToState(midiMessageProgramChange, preset, 0, 0, true);
-
-                        #ifdef DISPLAY_SUPPORTED
-                        display.displayMIDIevent(displayEventIn, messagePresetChange_display, preset, 0, 0);
-                        #endif
-                    }
-                    #endif
+                    database.setPreset(preset);
                 }
             }
 

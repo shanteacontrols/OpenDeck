@@ -118,7 +118,7 @@ void OpenDeck::init()
     #ifdef DISPLAY_SUPPORTED
     if (database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureEnable))
     {
-        if (display.init(static_cast<displayController_t>(database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwController)), static_cast<displayResolution_t>(database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwResolution))))
+        if (display.init(static_cast<displayController_t>(database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwController)), static_cast<displayResolution_t>(database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwResolution)), false))
         {
             display.setDirectWriteState(true);
 
@@ -159,6 +159,21 @@ void OpenDeck::init()
         buttons.processButton(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+index, state);
     });
     #endif
+
+    database.setPresetChangeHandler([](uint8_t preset)
+    {
+        #ifdef LEDS_SUPPORTED
+        leds.midiToState(midiMessageProgramChange, preset, 0, 0, true);
+        #endif
+
+        #ifdef DISPLAY_SUPPORTED
+        display.init(static_cast<displayController_t>(database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwController)), static_cast<displayResolution_t>(database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwResolution)));
+        display.setRetentionState(database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventRetention));
+        display.setRetentionTime(database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventTime) * 1000);
+        display.setAlternateNoteDisplay(database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDInotesAlternate));
+        display.displayMIDIevent(displayEventIn, messagePresetChange_display, preset, 0, 0);
+        #endif
+    });
 }
 
 void OpenDeck::checkComponents()

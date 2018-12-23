@@ -35,7 +35,7 @@ class Display
 {
     public:
     Display() {}
-    bool init(displayController_t controller, displayResolution_t resolution);
+    bool init(displayController_t controller, displayResolution_t resolution, bool setHome = true);
     bool update();
     void displayWelcomeMessage();
     void displayVinfo(bool newFw);

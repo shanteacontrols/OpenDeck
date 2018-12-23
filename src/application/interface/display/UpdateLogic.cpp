@@ -24,8 +24,11 @@ limitations under the License.
 ///
 /// \brief Initialize display driver and variables.
 ///
-bool Display::init(displayController_t controller, displayResolution_t resolution)
+bool Display::init(displayController_t controller, displayResolution_t resolution, bool setHome)
 {
+    if (initDone)
+        U8X8::clearDisplay();
+
     if (U8X8::initDisplay(controller, resolution))
     {
         U8X8::setPowerSave(0);
@@ -55,6 +58,10 @@ bool Display::init(displayController_t controller, displayResolution_t resolutio
         }
 
         initDone = true;
+
+        if (setHome)
+            displayHome();
+
         return true;
     }
 
