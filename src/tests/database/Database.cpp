@@ -178,12 +178,6 @@ TEST_F(DatabaseTest, ReadInitialValues)
         EXPECT_EQ(database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDInotesAlternate), 0);
         EXPECT_EQ(database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventTime), MIN_MESSAGE_RETENTION_TIME);
         EXPECT_EQ(database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureOctaveNormalization), 0);
-
-        //hw section
-        //this section uses custom values
-        //all values should be set to 0
-        EXPECT_EQ(database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwController), DISPLAY_CONTROLLERS);
-        EXPECT_EQ(database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwResolution), DISPLAY_RESOLUTIONS);
     }
 }
 

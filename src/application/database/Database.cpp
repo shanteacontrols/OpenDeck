@@ -129,8 +129,6 @@ uint8_t Database::getPreset()
 void Database::writeCustomValues()
 {
     update(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventTime, MIN_MESSAGE_RETENTION_TIME);
-    update(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwController, DISPLAY_CONTROLLERS);
-    update(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwResolution, DISPLAY_RESOLUTIONS);
 }
 
 ///

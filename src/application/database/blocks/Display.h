@@ -36,12 +36,14 @@ typedef enum
 
 typedef enum
 {
+    displayController_invalid,
     displayController_ssd1306,
     DISPLAY_CONTROLLERS
 } displayController_t;
 
 typedef enum
 {
+    displayRes_invalid,
     displayRes_128x64,
     displayRes_128x32,
     DISPLAY_RESOLUTIONS

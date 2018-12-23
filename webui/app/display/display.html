@@ -20,7 +20,8 @@
                 <div class="col-lg-2 col-lg-offset-1 col-md-2 col-md-offset-1 col-sm-6 col-xs-12">
                     <div class="selectfield">
                     <select ng-model="displayObj.displayController" convert-to-number>
-                        <option value="0" selected>SSD1306</option>
+                        <option value="0" selected>Invalid</option>
+                        <option value="1">SSD1306</option>
                     </select>
                     <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Display controller." data-placement="left">?</div>
                     </div>
@@ -33,8 +34,9 @@
                 <div class="col-lg-2 col-lg-offset-1 col-md-2 col-md-offset-1 col-sm-6 col-xs-12">
                     <div class="selectfield">
                     <select ng-model="displayObj.displayResolution" convert-to-number>
-                        <option value="0" selected>128x64</option>
-                        <option value="1">128x32</option>
+                        <option value="0" selected>Invalid</option>
+                        <option value="1">128x64</option>
+                        <option value="2">128x32</option>
                     </select>
                     <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Display resolution." data-placement="left">?</div>
                     </div>
