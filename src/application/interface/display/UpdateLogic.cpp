@@ -339,7 +339,7 @@ void Display::setRetentionState(bool state)
 ///
 void Display::setRetentionTime(uint32_t retentionTime)
 {
-    if (!retentionTime)
+    if ((retentionTime < MIN_MESSAGE_RETENTION_TIME) || (retentionTime > MAX_MESSAGE_RETENTION_TIME))
         return;
 
     MIDImessageRetentionTime = retentionTime;
