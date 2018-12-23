@@ -6,12 +6,13 @@
 #include "../../../../application/database/Database.h"
 #include "../../../stubs/database/DB_ReadWrite.h"
 
+//this represents theoretical maximum amount of encoders
+//this test is run for all board variants
+//make sure that the default is largest amount of encoders
 #define MAX_MIDI_MESSAGES   32
 
 uint8_t controlValue[MAX_MIDI_MESSAGES];
 uint8_t messageCounter;
-encoderPosition_t encoderPosition[MAX_MIDI_MESSAGES];
-uint8_t encoderResultCounter;
 
 void MIDI::sendControlChange(uint8_t inControlNumber, uint8_t inControlValue, uint8_t inChannel)
 {
@@ -54,9 +55,19 @@ class EncodersTest : public ::testing::Test
 
 namespace Board
 {
+    namespace detail
+    {
+        encoderPosition_t encoderPosition[MAX_MIDI_MESSAGES];
+    }
+
+    void setEncoderState(uint8_t encoderID, encoderPosition_t position)
+    {
+        detail::encoderPosition[encoderID] = position;
+    }
+
     encoderPosition_t getEncoderState(uint8_t encoderID, uint8_t pulsesPerStep)
     {
-        return encoderPosition[encoderResultCounter];
+        return detail::encoderPosition[encoderID];
     }
 }
 
@@ -75,11 +86,11 @@ TEST_F(EncodersTest, Debounce)
         EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i, encType7Fh01h), true);
     }
 
-    encoderResultCounter = 0;
     messageCounter = 0;
     rTime_ms = 0;
 
-    encoderPosition[encoderResultCounter] = encMoveLeft;
+    for (int i=0; i<MAX_MIDI_MESSAGES; i++)
+        Board::setEncoderState(i, encMoveLeft);
 
     encoders.update();
 
@@ -91,8 +102,10 @@ TEST_F(EncodersTest, Debounce)
 
     //reset values
     messageCounter = 0;
+
     //set new direction
-    encoderPosition[encoderResultCounter] = encMoveRight;
+    for (int i=0; i<MAX_MIDI_MESSAGES; i++)
+        Board::setEncoderState(i, encMoveRight);
 
     encoders.update();
 
@@ -142,9 +155,6 @@ TEST_F(EncodersTest, Debounce)
         encMoveRight
     };
 
-    for (int i=0; i<MAX_MIDI_MESSAGES; i++)
-        encoderPosition[i] = encoderPositionTest1[i];
-
     rTime_ms += DEBOUNCE_RESET_TIME+1;
 
     //all values should be right position
@@ -154,29 +164,33 @@ TEST_F(EncodersTest, Debounce)
     for (int i=0; i<MAX_MIDI_MESSAGES; i++)
     {
         messageCounter = 0;
+
+        for (int j=0; j<MAX_MIDI_MESSAGES; j++)
+            Board::setEncoderState(j, encoderPositionTest1[i]);
+
         encoders.update();
 
         for (int j=0; j<MAX_NUMBER_OF_ENCODERS; j++)
             EXPECT_EQ(controlValue[j], encValue[(uint8_t)encType7Fh01h][(uint8_t)encMoveRight]);
-
-        encoderResultCounter++;
     }
 
     //perform the same test again but with time difference
     //returned values should match the values in test array:
     //debouncer should not be initiated
-    encoderResultCounter = 0;
     rTime_ms = DEBOUNCE_RESET_TIME+1;
 
     for (int i=0; i<MAX_MIDI_MESSAGES; i++)
     {
         messageCounter = 0;
+
+        for (int j=0; j<MAX_MIDI_MESSAGES; j++)
+            Board::setEncoderState(j, encoderPositionTest1[i]);
+
         encoders.update();
 
         for (int j=0; j<MAX_NUMBER_OF_ENCODERS; j++)
-            EXPECT_EQ(controlValue[j], encValue[(uint8_t)encType7Fh01h][encoderPosition[encoderResultCounter]]);
+            EXPECT_EQ(controlValue[j], encValue[(uint8_t)encType7Fh01h][encoderPositionTest1[i]]);
 
-        encoderResultCounter++;
         rTime_ms += DEBOUNCE_RESET_TIME+1;
     }
 
@@ -222,33 +236,33 @@ TEST_F(EncodersTest, Debounce)
         encMoveLeft,
     };
  
-    for (int i=0; i<MAX_MIDI_MESSAGES; i++)
-        encoderPosition[i] = encoderPositionTest2[i];
-
-    encoderResultCounter = 0;
     rTime_ms += DEBOUNCE_RESET_TIME+1;
 
     for (int i=0; i<16; i++)
     {
         messageCounter = 0;
+
+        for (int j=0; j<MAX_MIDI_MESSAGES; j++)
+            Board::setEncoderState(j, encoderPositionTest2[i]);
+
         encoders.update();
 
         for (int j=0; j<MAX_NUMBER_OF_ENCODERS; j++)
             EXPECT_EQ(controlValue[j], encValue[(uint8_t)encType7Fh01h][(uint8_t)encMoveRight]);
-
-        encoderResultCounter++;
     }
 
     for (int i=16; i<19; i++)
     {
         //first three values should still be right direction
         messageCounter = 0;
+
+        for (int j=0; j<MAX_MIDI_MESSAGES; j++)
+            Board::setEncoderState(j, encoderPositionTest2[i]);
+
         encoders.update();
 
         for (int j=0; j<MAX_NUMBER_OF_ENCODERS; j++)
             EXPECT_EQ(controlValue[j], encValue[(uint8_t)encType7Fh01h][(uint8_t)encMoveRight]);
-
-        encoderResultCounter++;
     }
 
     //from now on, debouncer should be initiated and all other values should be left
@@ -256,11 +270,81 @@ TEST_F(EncodersTest, Debounce)
     {
         //first three values should still be right direction
         messageCounter = 0;
+
+        for (int j=0; j<MAX_MIDI_MESSAGES; j++)
+            Board::setEncoderState(j, encoderPositionTest2[i]);
+
         encoders.update();
 
         for (int j=0; j<MAX_NUMBER_OF_ENCODERS; j++)
             EXPECT_EQ(controlValue[j], encValue[(uint8_t)encType7Fh01h][(uint8_t)encMoveLeft]);
+    }
+}
 
-        encoderResultCounter++;
+TEST_F(EncodersTest, Acceleration)
+{
+    //set known state
+    for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
+    {
+        //enable all encoders
+        EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i, 1), true);
+
+        //disable invert state
+        EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_invert, i, 0), true);
+
+        //set type of message to encTypeCC
+        EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i, encTypeCC), true);
+
+        //enable acceleration
+        EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_acceleration, i, true), true);
+    }
+
+    //all encoders should move in the same direction
+
+    for (int i=0; i<MAX_MIDI_MESSAGES; i++)
+        Board::setEncoderState(i, encMoveRight);
+
+    rTime_ms = 1;
+    uint16_t lastValue = 0;
+
+    //run update several times, each time increasing the run time by 1
+    //encoder state is same every time (right direction)
+    //this will cause acceleration to kick in
+    //verify the outputed values
+    //acceleration works by appending ENCODER_SPEED_CHANGE+previous value to
+    //to current encoder midi value
+    for (int i=1; i<=3; i++)
+    {
+        messageCounter = 0;
+        encoders.update();
+        rTime_ms++;
+
+        uint16_t compareValue = lastValue + (ENCODER_SPEED_CHANGE*i);
+
+        if (compareValue > 127)
+            compareValue = 127;
+
+        for (int j=0; j<MAX_NUMBER_OF_ENCODERS; j++)
+            EXPECT_EQ(controlValue[j], compareValue);
+
+        lastValue = controlValue[0];
+    }
+
+    //now run update again but with time difference between movements being
+    //just enough so that encoder doesn't accelerate
+    //in this case, existing values should be increased only by 1
+    for (int i=1; i<=3; i++)
+    {
+        rTime_ms += SPEED_TIMEOUT;
+
+        messageCounter = 0;
+        encoders.update();
+
+        uint16_t compareValue = lastValue + 1;
+
+        for (int j=0; j<MAX_NUMBER_OF_ENCODERS; j++)
+            EXPECT_EQ(controlValue[j], compareValue);
+
+        lastValue = controlValue[0];
     }
 }
