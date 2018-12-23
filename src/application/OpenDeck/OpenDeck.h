@@ -35,85 +35,10 @@ limitations under the License.
 class OpenDeck
 {
     public:
-    OpenDeck() :
-
-    database(Board::memoryRead, Board::memoryWrite)
-    #ifdef LEDS_SUPPORTED
-    ,leds(database)
-    #endif
-    #ifdef LEDS_SUPPORTED
-    #ifdef DISPLAY_SUPPORTED
-    ,analog(database, midi, leds, display)
-    #else
-    ,analog(database, midi, leds)
-    #endif
-    #else
-    #ifdef DISPLAY_SUPPORTED
-    ,analog(database, midi, display)
-    #else
-    ,analog(database, midi)
-    #endif
-    #endif
-    #ifdef LEDS_SUPPORTED
-    #ifdef DISPLAY_SUPPORTED
-    ,buttons(database, midi, leds, display)
-    #else
-    ,buttons(database, midi, leds)
-    #endif
-    #else
-    #ifdef DISPLAY_SUPPORTED
-    ,buttons(database, midi, display)
-    #else
-    ,buttons(database, midi)
-    #endif
-    #endif
-    #ifdef LEDS_SUPPORTED
-    #ifdef DISPLAY_SUPPORTED
-    ,encoders(database, midi, leds, display)
-    #else
-    ,encoders(database, midi, leds)
-    #endif
-    #else
-    #ifdef DISPLAY_SUPPORTED
-    ,encoders(database, midi, display)
-    #else
-    ,encoders(database, midi)
-    #endif
-    #endif
-    #ifdef LEDS_SUPPORTED
-    #ifdef DISPLAY_SUPPORTED
-    ,sysConfig(database, midi, buttons, encoders, analog, leds, display)
-    #else
-    ,sysConfig(database, midi, buttons, encoders, analog, leds)
-    #endif
-    #else
-    #ifdef DISPLAY_SUPPORTED
-    ,sysConfig(database, midi, buttons, encoders, analog, display)
-    #else
-    ,sysConfig(database, midi, buttons, encoders, analog)
-    #endif
-    #endif
-    {}
+    OpenDeck() {}
 
     void init();
     void update();
     void checkMIDI();
     void checkComponents();
-
-    private:
-    MIDI                midi;
-    Database            database;
-    #ifdef LEDS_SUPPORTED
-    LEDs                leds;
-    #endif
-    Analog              analog;
-    Buttons             buttons;
-    Encoders            encoders;
-    #ifdef DISPLAY_SUPPORTED
-    Display             display;
-    #endif
-    #ifdef TOUCHSCREEN_SUPPORTED
-    Touchscreen         touchscreen;
-    #endif
-    SysConfig           sysConfig;
 };

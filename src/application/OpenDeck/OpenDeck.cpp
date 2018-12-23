@@ -29,6 +29,69 @@ extern "C" void __cxa_pure_virtual()
 }
 #endif
 
+Database database(Board::memoryRead, Board::memoryWrite);
+MIDI midi;
+#ifdef DISPLAY_SUPPORTED
+Display display;
+#endif
+#ifdef TOUCHSCREEN_SUPPORTED
+Touchscreen         touchscreen;
+#endif
+#ifdef LEDS_SUPPORTED
+LEDs leds(database);
+#endif
+#ifdef LEDS_SUPPORTED
+#ifdef DISPLAY_SUPPORTED
+Analog analog(database, midi, leds, display);
+#else
+Analog analog(database, midi, leds);
+#endif
+#else
+#ifdef DISPLAY_SUPPORTED
+Analog analog(database, midi, display);
+#else
+Analog analog(database, midi);
+#endif
+#endif
+#ifdef LEDS_SUPPORTED
+#ifdef DISPLAY_SUPPORTED
+Buttons buttons(database, midi, leds, display);
+#else
+Buttons buttons(database, midi, leds);
+#endif
+#else
+#ifdef DISPLAY_SUPPORTED
+Buttons buttons(database, midi, display);
+#else
+Buttons buttons(database, midi);
+#endif
+#endif
+#ifdef LEDS_SUPPORTED
+#ifdef DISPLAY_SUPPORTED
+Encoders encoders(database, midi, leds, display);
+#else
+Encoders encoders(database, midi, leds);
+#endif
+#else
+#ifdef DISPLAY_SUPPORTED
+Encoders encoders(database, midi, display);
+#else
+Encoders encoders(database, midi);
+#endif
+#endif
+#ifdef LEDS_SUPPORTED
+#ifdef DISPLAY_SUPPORTED
+SysConfig sysConfig(database, midi, buttons, encoders, analog, leds, display);
+#else
+SysConfig sysConfig(database, midi, buttons, encoders, analog, leds);
+#endif
+#else
+#ifdef DISPLAY_SUPPORTED
+SysConfig sysConfig(database, midi, buttons, encoders, analog, display);
+#else
+SysConfig sysConfig(database, midi, buttons, encoders, analog);
+#endif
+#endif
 
 cinfoHandler_t cinfoHandler;
 
@@ -80,26 +143,20 @@ void OpenDeck::init()
     touchscreen.setPage(1);
     #endif
 
-    static SysConfig *sysConfRef = nullptr;
-    static Buttons   *buttonsRef = nullptr;
-
-    sysConfRef = &sysConfig;
-    buttonsRef = &buttons;
-
     cinfoHandler = [](dbBlockID_t dbBlock, sysExParameter_t componentID)
     {
-        return sysConfRef->sendCInfo(dbBlock, componentID);
+        return sysConfig.sendCInfo(dbBlock, componentID);
     };
 
     analog.setButtonHandler([](uint8_t analogIndex, uint16_t adcValue)
     {
-        buttonsRef->processButton(analogIndex+MAX_NUMBER_OF_BUTTONS, buttonsRef->getStateFromAnalogValue(adcValue));
+        buttons.processButton(analogIndex+MAX_NUMBER_OF_BUTTONS, buttons.getStateFromAnalogValue(adcValue));
     });
 
     #ifdef TOUCHSCREEN_SUPPORTED
     touchscreen.setButtonHandler([](uint8_t index, bool state)
     {
-        buttonsRef->processButton(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+index, state);
+        buttons.processButton(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+index, state);
     });
     #endif
 }
