@@ -73,6 +73,7 @@ class Buttons
     void setLatchingState(uint8_t buttonID, uint8_t state);
     bool getLatchingState(uint8_t buttonID);
     bool buttonDebounced(uint8_t buttonID, bool state);
+    void customHook(uint8_t buttonID, bool state);
 
     Database    &database;
     MIDI        &midi;

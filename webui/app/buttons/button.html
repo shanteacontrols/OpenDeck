@@ -44,12 +44,13 @@
                         <option value="13">Real Time System Reset</option>
                         <option value="16">None</option>
                         <option value="17">Preset change</option>
+                        <option value="18">Custom hook</option>
                         </select>
                         <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Specifies which MIDI message the buttons send. Default option is Note. If Program Change message is selected, button will send program change event on successive presses (momentary/latching modes are ignored)." data-placement="left">?</div>
                     </div>
                     </div>
                 </div><!-- /row -->
-                <div class="row">
+                <div class="row" ng-if="obj.midiMessage != 18">
                     <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
                     <h3>MIDI Channel</h3>
                     </div>
@@ -57,7 +58,7 @@
                         <r-slider value="obj.midiChannel" min="1" max="16" tooltip="MIDI channel for current component."></r-slider>
                     </div>
                 </div><!-- /row -->
-                <div class="row" ng-if="((obj.midiMessage != 14) && (obj.midiMessage != 15))">
+                <div class="row" ng-if="((obj.midiMessage != 14) && (obj.midiMessage != 15) && (obj.midiMessage != 18))">
                     <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
                     <h3>MIDI ID</h3>
                     </div>
@@ -65,7 +66,7 @@
                         <r-slider value="obj.midiId" min="0" max="127" tooltip="Denotes note/program change MIDI number."></r-slider>
                     </div>
                 </div><!-- /row -->
-                <div class="row">
+                <div class="row" ng-if="obj.midiMessage != 18">
                     <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
                     <h3>On velocity</h3>
                     </div>

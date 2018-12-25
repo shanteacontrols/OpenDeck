@@ -121,13 +121,14 @@ void Buttons::processButton(uint8_t buttonID, bool state)
         {
             sendMessage(buttonID, state, buttonMessage);
         }
-        else
+        else if (buttonMessage == buttonChangePreset)
         {
-            if (buttonMessage == buttonChangePreset)
-            {
-                uint8_t preset = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, buttonID);
-                database.setPreset(preset);
-            }
+            uint8_t preset = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, buttonID);
+            database.setPreset(preset);
+        }
+        else if (buttonMessage == buttonCustomHook)
+        {
+            customHook(buttonID, state);
         }
     }
 

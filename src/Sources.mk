@@ -113,6 +113,7 @@ else
         application/interface/analog/Potentiometer.cpp \
         application/interface/digital/input/Common.cpp \
         application/interface/digital/input/buttons/Buttons.cpp \
+        application/interface/digital/input/buttons/Hooks.cpp \
         application/interface/digital/input/encoders/Encoders.cpp \
         application/OpenDeck/sysconfig/SysConfig.cpp \
         modules/midi/src/MIDI.cpp \
