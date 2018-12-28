@@ -21,50 +21,68 @@ limitations under the License.
 #include "Pins.h"
 #include "board/avr/DataTypes.h"
 
+///
+/// brief Pin and index remapping used to match indexes on PCB silkscreen.
+/// @{
+
+#if HARDWARE_VERSION_MINOR == 1
+#define MUX_Y0                      8
+#define MUX_Y1                      9
+#define MUX_Y2                      10
+#define MUX_Y3                      11
+#define MUX_Y4                      12
+#define MUX_Y5                      13
+#define MUX_Y6                      14
+#define MUX_Y7                      15
+#define MUX_Y8                      7
+#define MUX_Y9                      6
+#define MUX_Y10                     5
+#define MUX_Y11                     4
+#define MUX_Y12                     3
+#define MUX_Y13                     2
+#define MUX_Y14                     1
+#define MUX_Y15                     0
+#elif HARDWARE_VERSION_MINOR == 2
+#define MUX_Y0                      8
+#define MUX_Y1                      9
+#define MUX_Y2                      10
+#define MUX_Y3                      11
+#define MUX_Y4                      12
+#define MUX_Y5                      13
+#define MUX_Y6                      14
+#define MUX_Y7                      15
+#define MUX_Y8                      4
+#define MUX_Y9                      5
+#define MUX_Y10                     7
+#define MUX_Y11                     6
+#define MUX_Y12                     0
+#define MUX_Y13                     1
+#define MUX_Y14                     2
+#define MUX_Y15                     3
+#endif
+
+#define DM_ROW_1_BIT                0
+#define DM_ROW_2_BIT                1
+#define DM_ROW_3_BIT                2
+#define DM_ROW_4_BIT                3
+#define DM_ROW_5_BIT                7
+#define DM_ROW_6_BIT                6
+#define DM_ROW_7_BIT                5
+#define DM_ROW_8_BIT                4
+
+#define DM_COLUMN_1                 0
+#define DM_COLUMN_2                 7
+#define DM_COLUMN_3                 2
+#define DM_COLUMN_4                 1
+#define DM_COLUMN_5                 4
+#define DM_COLUMN_6                 3
+#define DM_COLUMN_7                 5
+#define DM_COLUMN_8                 6
+
 namespace Board
 {
     namespace detail
     {
-        ///
-        /// brief Pin and index remapping used to match indexes on PCB silkscreen.
-        /// @{
-
-        #if HARDWARE_VERSION_MINOR == 1
-        #define MUX_Y0                      8
-        #define MUX_Y1                      9
-        #define MUX_Y2                      10
-        #define MUX_Y3                      11
-        #define MUX_Y4                      12
-        #define MUX_Y5                      13
-        #define MUX_Y6                      14
-        #define MUX_Y7                      15
-        #define MUX_Y8                      7
-        #define MUX_Y9                      6
-        #define MUX_Y10                     5
-        #define MUX_Y11                     4
-        #define MUX_Y12                     3
-        #define MUX_Y13                     2
-        #define MUX_Y14                     1
-        #define MUX_Y15                     0
-        #elif HARDWARE_VERSION_MINOR == 2
-        #define MUX_Y0                      8
-        #define MUX_Y1                      9
-        #define MUX_Y2                      10
-        #define MUX_Y3                      11
-        #define MUX_Y4                      12
-        #define MUX_Y5                      13
-        #define MUX_Y6                      14
-        #define MUX_Y7                      15
-        #define MUX_Y8                      4
-        #define MUX_Y9                      5
-        #define MUX_Y10                     7
-        #define MUX_Y11                     6
-        #define MUX_Y12                     0
-        #define MUX_Y13                     1
-        #define MUX_Y14                     2
-        #define MUX_Y15                     3
-        #endif
-
         const uint8_t muxPinOrderArray[NUMBER_OF_MUX_INPUTS] =
         {
             MUX_Y0,
@@ -85,15 +103,6 @@ namespace Board
             MUX_Y15
         };
 
-        #define DM_ROW_1_BIT                0
-        #define DM_ROW_2_BIT                1
-        #define DM_ROW_3_BIT                2
-        #define DM_ROW_4_BIT                3
-        #define DM_ROW_5_BIT                7
-        #define DM_ROW_6_BIT                6
-        #define DM_ROW_7_BIT                5
-        #define DM_ROW_8_BIT                4
-
         //row bits are stored in inverse order when performing read
         const uint8_t dmRowBitArray[NUMBER_OF_BUTTON_ROWS] =
         {
@@ -107,15 +116,6 @@ namespace Board
             DM_ROW_1_BIT
         };
 
-        #define DM_COLUMN_1                 0
-        #define DM_COLUMN_2                 7
-        #define DM_COLUMN_3                 2
-        #define DM_COLUMN_4                 1
-        #define DM_COLUMN_5                 4
-        #define DM_COLUMN_6                 3
-        #define DM_COLUMN_7                 5
-        #define DM_COLUMN_8                 6
-
         const uint8_t dmColumnArray[NUMBER_OF_BUTTON_COLUMNS] =
         {
             DM_COLUMN_1,
@@ -127,8 +127,6 @@ namespace Board
             DM_COLUMN_7,
             DM_COLUMN_8
         };
-
-        /// @}
 
         ///
         /// \brief Array holding ADC read pins/channels.
@@ -176,3 +174,5 @@ namespace Board
         };
     }
 }
+
+/// @}

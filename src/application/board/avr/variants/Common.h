@@ -20,104 +20,104 @@ limitations under the License.
 
 #include <avr/interrupt.h>
 
+///
+/// \brief Value above which buton connected to analog input is considered pressed.
+///
+#define ADC_DIGITAL_VALUE_THRESHOLD_ON  1000
+
+///
+/// \brief Value below which button connected to analog input is considered released.
+///
+#define ADC_DIGITAL_VALUE_THRESHOLD_OFF 600
+
+///
+/// \brief Minimum difference between two raw ADC readings to consider that value has been changed.
+///
+#define ANALOG_STEP_MIN_DIFF            6
+
+///
+/// \brief Minimum raw ADC reading for FSR sensors.
+///
+#define FSR_MIN_VALUE                   40
+
+///
+/// \brief Maximum raw ADC reading for FSR sensors.
+///
+#define FSR_MAX_VALUE                   340
+
+///
+/// \brief Maxmimum raw ADC reading for aftertouch on FSR sensors.
+///
+#define AFTERTOUCH_MAX_VALUE            600
+
+///
+/// \brief Maxmimum raw ADC value.
+///
+#define ADC_MAX_VALUE                   1023
+
+///
+/// \brief Total number of raw ADC readings taken for single analog component.
+/// Must be power of 2 value because bit shifting is used to calculate average value.
+///
+#define NUMBER_OF_ANALOG_SAMPLES        1
+
+///
+/// \brief Number of bits to shift to get average ADC value.
+/// Must correspond with NUMBER_OF_ANALOG_SAMPLES constant.
+///
+#define ANALOG_SAMPLE_SHIFT             0
+
+///
+/// \brief Raw ADC reading above which analog component is considered to be in higher hysteresis region.
+///
+#define HYSTERESIS_THRESHOLD_HIGH       970
+
+///
+/// \brief Raw ADC reading below which analog component is considered to be in lower hysteresis region.
+///
+#define HYSTERESIS_THRESHOLD_LOW        50
+
+///
+/// \brief Value which is added to raw ADC reading if analog component is in higher hysteresis region.
+///
+#define HYSTERESIS_ADDITION             20
+
+///
+/// \brief Value which is subtracted from raw ADC reading if analog component is in lower hysteresis region.
+///
+#define HYSTERESIS_SUBTRACTION          15
+
+///
+/// \brief Location at which reboot type is written in EEPROM when initiating software reset.
+/// See Reboot.h
+///
+#define REBOOT_VALUE_EEPROM_LOCATION    (EEPROM_SIZE - 1)
+
+///
+/// \brief Location at which compiled binary CRC is written in EEPROM.
+/// CRC takes two bytes.
+///
+#define SW_CRC_LOCATION_EEPROM          (EEPROM_SIZE - 3)
+
+///
+/// \brief Total number of states between fully off and fully on for LEDs.
+///
+#define NUMBER_OF_LED_TRANSITIONS       64
+
+///
+/// \brief Main ISR vector name common for all AVR boards.
+///
+#define CORE_ISR                        TIMER0_COMPA_vect
+
+///
+/// \brief ADC ISR vector name common for all AVR boards.
+///
+#define ADC_ISR                         ADC_vect
+
 namespace Board
 {
-    ///
-    /// \brief Value above which buton connected to analog input is considered pressed.
-    ///
-    #define ADC_DIGITAL_VALUE_THRESHOLD_ON  1000
-
-    ///
-    /// \brief Value below which button connected to analog input is considered released.
-    ///
-    #define ADC_DIGITAL_VALUE_THRESHOLD_OFF 600
-
-    ///
-    /// \brief Minimum difference between two raw ADC readings to consider that value has been changed.
-    ///
-    #define ANALOG_STEP_MIN_DIFF            6
-
-    ///
-    /// \brief Minimum raw ADC reading for FSR sensors.
-    ///
-    #define FSR_MIN_VALUE                   40
-
-    ///
-    /// \brief Maximum raw ADC reading for FSR sensors.
-    ///
-    #define FSR_MAX_VALUE                   340
-
-    ///
-    /// \brief Maxmimum raw ADC reading for aftertouch on FSR sensors.
-    ///
-    #define AFTERTOUCH_MAX_VALUE            600
-
-    ///
-    /// \brief Maxmimum raw ADC value.
-    ///
-    #define ADC_MAX_VALUE                   1023
-
     namespace detail
     {
-        ///
-        /// \brief Total number of raw ADC readings taken for single analog component.
-        /// Must be power of 2 value because bit shifting is used to calculate average value.
-        ///
-        #define NUMBER_OF_ANALOG_SAMPLES        1
-
-        ///
-        /// \brief Number of bits to shift to get average ADC value.
-        /// Must correspond with NUMBER_OF_ANALOG_SAMPLES constant.
-        ///
-        #define ANALOG_SAMPLE_SHIFT             0
-
-        ///
-        /// \brief Raw ADC reading above which analog component is considered to be in higher hysteresis region.
-        ///
-        #define HYSTERESIS_THRESHOLD_HIGH       970
-
-        ///
-        /// \brief Raw ADC reading below which analog component is considered to be in lower hysteresis region.
-        ///
-        #define HYSTERESIS_THRESHOLD_LOW        50
-
-        ///
-        /// \brief Value which is added to raw ADC reading if analog component is in higher hysteresis region.
-        ///
-        #define HYSTERESIS_ADDITION             20
-
-        ///
-        /// \brief Value which is subtracted from raw ADC reading if analog component is in lower hysteresis region.
-        ///
-        #define HYSTERESIS_SUBTRACTION          15
-
-        ///
-        /// \brief Location at which reboot type is written in EEPROM when initiating software reset.
-        /// See Reboot.h
-        ///
-        #define REBOOT_VALUE_EEPROM_LOCATION    (EEPROM_SIZE - 1)
-
-        ///
-        /// \brief Location at which compiled binary CRC is written in EEPROM.
-        /// CRC takes two bytes.
-        ///
-        #define SW_CRC_LOCATION_EEPROM          (EEPROM_SIZE - 3)
-
-        ///
-        /// \brief Total number of states between fully off and fully on for LEDs.
-        ///
-        #define NUMBER_OF_LED_TRANSITIONS       64
-
-        ///
-        /// \brief Main ISR vector name common for all AVR boards.
-        ///
-        #define CORE_ISR                        TIMER0_COMPA_vect
-
-        ///
-        /// \brief ADC ISR vector name common for all AVR boards.
-        ///
-        #define ADC_ISR                         ADC_vect
-
         ///
         /// \brief Array holding values needed to achieve more natural LED transition between states.
         ///

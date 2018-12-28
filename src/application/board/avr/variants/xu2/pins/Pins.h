@@ -20,14 +20,8 @@ limitations under the License.
 
 #include <avr/io.h>
 
-namespace Board
-{
-    namespace detail
-    {
-        #define LED_OUT_PORT        PORTD
-        #define LED_OUT_PIN         5
+#define LED_OUT_PORT        PORTD
+#define LED_OUT_PIN         5
 
-        #define LED_IN_PORT         PORTD
-        #define LED_IN_PIN          4
-    }
-}
+#define LED_IN_PORT         PORTD
+#define LED_IN_PIN          4

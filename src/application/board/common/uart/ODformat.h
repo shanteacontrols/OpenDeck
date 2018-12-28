@@ -17,25 +17,25 @@
 
 #include <inttypes.h>
 
+///
+/// \brief Value indicating start of MIDI data when OpenDeck MIDI format is used.
+///
+#define OD_FORMAT_MIDI_DATA_START           0xF1
+
+///
+/// \brief Value indicating start of internal data when OpenDeck MIDI format is used.
+/// Used to transfer internal data between main MCU and USB link.
+///
+#define OD_FORMAT_INT_DATA_START            0xF2
+
+///
+/// \brief Value indicating that origin of MIDI message is OpenDeck master in daisy-chain configuration.
+/// Since all the messages are forwarded between slaves, avoid routing message from master back to USB master (filter out).
+///
+#define OD_FORMAT_MIDI_DATA_MASTER_START    0xF3
+
 namespace Board
 {
-    ///
-    /// \brief Value indicating start of MIDI data when OpenDeck MIDI format is used.
-    ///
-    #define OD_FORMAT_MIDI_DATA_START           0xF1
-
-    ///
-    /// \brief Value indicating start of internal data when OpenDeck MIDI format is used.
-    /// Used to transfer internal data between main MCU and USB link.
-    ///
-    #define OD_FORMAT_INT_DATA_START            0xF2
-
-    ///
-    /// \brief Value indicating that origin of MIDI message is OpenDeck master in daisy-chain configuration.
-    /// Since all the messages are forwarded between slaves, avoid routing message from master back to USB master (filter out).
-    ///
-    #define OD_FORMAT_MIDI_DATA_MASTER_START    0xF3
-
     ///
     /// \brief List of all possible internal commands used in OpenDeck MIDI format.
     ///
