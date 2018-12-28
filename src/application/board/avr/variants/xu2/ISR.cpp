@@ -16,6 +16,7 @@ limitations under the License.
 
 */
 
+#include <avr/interrupt.h>
 #include "../Common.h"
 #include "pins/Pins.h"
 #include "board/common/constants/LEDs.h"

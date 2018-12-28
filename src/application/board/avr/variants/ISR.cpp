@@ -16,6 +16,7 @@ limitations under the License.
 
 */
 
+#include <avr/interrupt.h>
 #include <avr/cpufunc.h>
 #include "board/Board.h"
 #include "Common.h"
@@ -50,7 +51,7 @@ namespace Board
 /// \brief Main interrupt service routine.
 /// Used to control I/O on board and to update current run time.
 ///
-ISR(CORE_ISR)
+ISR(TIMER0_COMPA_vect)
 {
     using namespace Board;
     using namespace Board::detail;
@@ -109,7 +110,7 @@ ISR(CORE_ISR)
 ///
 /// \brief ADC ISR used to read values from multiplexers.
 ///
-ISR(ADC_ISR)
+ISR(ADC_vect)
 {
     //always ignore first reading
     static bool ignoreFirst = true;

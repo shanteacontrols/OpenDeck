@@ -18,7 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#include <avr/interrupt.h>
+#include <inttypes.h>
 
 ///
 /// \brief Value above which buton connected to analog input is considered pressed.
@@ -110,16 +110,6 @@ limitations under the License.
 /// \brief Total number of states between fully off and fully on for LEDs.
 ///
 #define NUMBER_OF_LED_TRANSITIONS       64
-
-///
-/// \brief Main ISR vector name common for all AVR boards.
-///
-#define CORE_ISR                        TIMER0_COMPA_vect
-
-///
-/// \brief ADC ISR vector name common for all AVR boards.
-///
-#define ADC_ISR                         ADC_vect
 
 namespace Board
 {

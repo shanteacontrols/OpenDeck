@@ -18,6 +18,8 @@ limitations under the License.
 
 #pragma once
 
+#include <inttypes.h>
+
 namespace Board
 {
     namespace detail

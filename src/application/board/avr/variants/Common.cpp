@@ -19,6 +19,7 @@ limitations under the License.
 #include <avr/eeprom.h>
 #include <avr/pgmspace.h>
 #include <avr/wdt.h>
+#include <avr/interrupt.h>
 #include "board/Board.h"
 #include "../usb/USB_MIDI.h"
 #include "Common.h"
