@@ -32,8 +32,15 @@ limitations under the License.
 
 ///
 /// \brief Minimum difference between two raw ADC readings to consider that value has been changed.
+/// Used when calculating 7-bit MIDI value.
 ///
-#define ANALOG_STEP_MIN_DIFF            6
+#define ANALOG_STEP_MIN_DIFF_7_BIT      6
+
+///
+/// \brief Minimum difference between two raw ADC readings to consider that value has been changed.
+/// Used when calculating 14-bit MIDI value.
+///
+#define ANALOG_STEP_MIN_DIFF_14_BIT     4
 
 ///
 /// \brief Minimum raw ADC reading for FSR sensors.
