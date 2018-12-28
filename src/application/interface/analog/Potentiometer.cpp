@@ -39,8 +39,8 @@ void Analog::checkPotentiometerValue(analogType_t analogType, uint8_t analogID, 
     if (abs(value - lastAnalogueValue[analogID]) < stepDiff)
         return;
 
-    uint16_t midiValue = Board::scaleADC(value, maxLimit);
-    uint16_t oldMIDIvalue = Board::scaleADC(lastAnalogueValue[analogID], maxLimit);
+    uint16_t midiValue = mapRange_uint32(value, 0, ADC_MAX_VALUE, 0, maxLimit);
+    uint16_t oldMIDIvalue = mapRange_uint32(lastAnalogueValue[analogID], 0, ADC_MAX_VALUE, 0, maxLimit);
 
     if (midiValue == oldMIDIvalue)
         return;

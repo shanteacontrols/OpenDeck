@@ -114,27 +114,6 @@ namespace Board
         return false;
     }
 
-    uint16_t scaleADC(uint16_t value, uint16_t maxValue)
-    {
-        if (maxValue == ADC_MAX_VALUE)
-        {
-            return value;
-        }
-        else if (maxValue == MIDI_7_BIT_VALUE_MAX)
-        {
-            return value >> 3;
-        }
-        else if (maxValue == MIDI_14_BIT_VALUE_MAX)
-        {
-            return value << 4;
-        }
-        else
-        {
-            //use mapRange_uint32 to avoid overflow issues
-            return mapRange_uint32(value, 0, ADC_MAX_VALUE, 0, maxValue);
-        }
-    }
-
     bool memoryRead(uint32_t address, sectionParameterType_t type, int32_t &value)
     {
         switch(type)

@@ -11,7 +11,7 @@ CPPFLAGS := -isystem $(GTEST_DIR)/include -isystem $(GTEST_DIR) --coverage -std=
 CXXFLAGS := -g -pthread -Og
 ARFLAGS := r
 
-TESTS := database encoders
+TESTS := database encoders pots
 
 TESTS_EXT := $(addprefix build/,$(TESTS))
 TESTS_EXT := $(addsuffix .out,$(TESTS_EXT))
@@ -35,6 +35,11 @@ build/database.out: $(OBJECTS_database) build/gtest_main.a
 	@echo Created executable: $@
 
 build/encoders.out: $(OBJECTS_encoders) build/gtest_main.a
+	@echo Linking.
+	@$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+	@echo Created executable: $@
+
+build/pots.out: $(OBJECTS_pots) build/gtest_main.a
 	@echo Linking.
 	@$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 	@echo Created executable: $@

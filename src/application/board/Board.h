@@ -186,13 +186,6 @@ namespace Board
     void continueADCreadout();
 
     ///
-    /// brief Scales specified ADC value from minimum of 0 to maximum value specified.
-    /// @param[in] value    ADC value which is being scaled.
-    /// @param[in] maxValue Maximum value to which ADC value should be scaled.
-    ///
-    uint16_t scaleADC(uint16_t value, uint16_t maxValue);
-
-    ///
     /// \brief Calculates encoder pair number based on provided button ID.
     /// @param [in] buttonID   Button index from which encoder pair is being calculated.
     /// \returns Calculated encoder pair number.
