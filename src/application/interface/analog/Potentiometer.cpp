@@ -36,8 +36,16 @@ void Analog::checkPotentiometerValue(analogType_t analogType, uint8_t analogID, 
         stepDiff = ANALOG_STEP_MIN_DIFF_7_BIT;
     }
 
+    bool direction = value > lastAnalogueValue[analogID];
+
+    //when potentiometer changes direction, use double step difference to avoid jumping of values
+    if (direction != lastDirection[analogID])
+        stepDiff *= 2;
+
     if (abs(value - lastAnalogueValue[analogID]) < stepDiff)
         return;
+
+    lastDirection[analogID] = direction;
 
     uint16_t midiValue = mapRange_uint32(value, 0, ADC_MAX_VALUE, 0, maxLimit);
     uint16_t oldMIDIvalue = mapRange_uint32(lastAnalogueValue[analogID], 0, ADC_MAX_VALUE, 0, maxLimit);

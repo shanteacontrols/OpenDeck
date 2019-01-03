@@ -89,6 +89,7 @@ class Analog
     void        (*buttonHandler)(uint8_t adcIndex, uint16_t adcValue) = nullptr;
     uint16_t    lastAnalogueValue[MAX_NUMBER_OF_ANALOG] = {};
     uint8_t     fsrPressed[MAX_NUMBER_OF_ANALOG] = {};
+    bool        lastDirection[MAX_NUMBER_OF_ANALOG] = {};
 };
 
 /// @}
