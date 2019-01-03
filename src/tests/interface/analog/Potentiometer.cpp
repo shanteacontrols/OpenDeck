@@ -10,7 +10,7 @@
 //this represents theoretical maximum amount of analog components
 //this test is run for all board variants
 //make sure that the default is largest amount of analog components
-#define MAX_MIDI_MESSAGES   32
+#define MAX_MIDI_MESSAGES   48
 
 uint8_t ccValue[MAX_MIDI_MESSAGES];
 uint8_t ccMessageCounter;
