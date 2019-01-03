@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build opendeck fw",
+            "label": "[Make][FW] OpenDeck",
             "command": "make fw_opendeck LANG=C",
             "type": "shell",
             "problemMatcher": [
@@ -27,7 +27,7 @@
             }
         },
         {
-            "label": "build pro micro fw",
+            "label": "[Make][FW] Arduino Pro Micro",
             "command": "make fw_pro_micro LANG=C",
             "type": "shell",
             "problemMatcher": [
@@ -46,7 +46,7 @@
             },
         },
         {
-            "label": "build uno fw",
+            "label": "[Make][FW] Arduino Uno",
             "command": "make fw_uno LANG=C",
             "type": "shell",
             "problemMatcher": [
@@ -65,7 +65,7 @@
             },
         },
         {
-            "label": "build leonardo fw",
+            "label": "[Make][FW] Arduino Leonardo",
             "command": "make fw_leonardo LANG=C",
             "type": "shell",
             "problemMatcher": [
@@ -84,7 +84,7 @@
             },
         },
         {
-            "label": "build mega fw",
+            "label": "[Make][FW] Arduino Mega",
             "command": "make fw_mega LANG=C",
             "type": "shell",
             "problemMatcher": [
@@ -103,7 +103,7 @@
             },
         },
         {
-            "label": "build bergamot fw",
+            "label": "[Make][FW] Bergamot",
             "command": "make fw_bergamot LANG=C",
             "type": "shell",
             "problemMatcher": [
@@ -122,7 +122,7 @@
             },
         },
         {
-            "label": "build 16u2 fw",
+            "label": "[Make][FW] Arduino 16u2",
             "command": "make fw_16u2 LANG=C",
             "type": "shell",
             "problemMatcher": [
@@ -141,8 +141,82 @@
             },
         },
         {
-            "label": "make clean",
+            "label": "[Make][FW] Clean",
             "command": "make clean",
+            "type": "shell",
+            "problemMatcher": [],
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "C://WINDOWS//System32//wsl.exe",
+                        "args": [
+                           "PATH=/usr/local/avr/bin:${PATH}",
+                           "MAKEFLAGS=-j4"
+                        ]
+                    }
+                }
+            },
+        },
+        {
+            "label": "[Make][GTest] Database",
+            "command": "cd tests && make TESTS=database",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "C://WINDOWS//System32//wsl.exe",
+                        "args": [
+                           "PATH=/usr/local/avr/bin:${PATH}",
+                           "MAKEFLAGS=-j4"
+                        ]
+                    }
+                }
+            },
+        },
+        {
+            "label": "[Make][GTest] Encoders",
+            "command": "cd tests && make TESTS=encoders",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "C://WINDOWS//System32//wsl.exe",
+                        "args": [
+                           "PATH=/usr/local/avr/bin:${PATH}",
+                           "MAKEFLAGS=-j4"
+                        ]
+                    }
+                }
+            },
+        },
+        {
+            "label": "[Make][GTest] Pots",
+            "command": "cd tests && make TESTS=pots",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "C://WINDOWS//System32//wsl.exe",
+                        "args": [
+                           "PATH=/usr/local/avr/bin:${PATH}",
+                           "MAKEFLAGS=-j4"
+                        ]
+                    }
+                }
+            },
+        },
+        {
+            "label": "[Make][GTest] Clean",
+            "command": "cd tests && make clean",
             "type": "shell",
             "problemMatcher": [],
             "windows": {

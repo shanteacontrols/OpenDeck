@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "[Debug] GTest/Database",
+            "name": "[Debug][GTest] Database",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/database.out",
+            "program": "${workspaceFolder}/tests/build/database.out",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -22,13 +22,13 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "[Make] Database"
+            "preLaunchTask": "[Make][GTest] Database"
         },
         {
-            "name": "[Debug] GTest/Encoders",
+            "name": "[Debug][GTest] Encoders",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/encoders.out",
+            "program": "${workspaceFolder}/tests/build/encoders.out",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -42,13 +42,13 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "[Make] Encoders"
+            "preLaunchTask": "[Make][GTest] Encoders"
         },
         {
-            "name": "[Debug] GTest/Pots",
+            "name": "[Debug][GTest] Pots",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/pots.out",
+            "program": "${workspaceFolder}/tests/build/pots.out",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -62,7 +62,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "[Make] Pots"
+            "preLaunchTask": "[Make][GTest] Pots"
         }
     ]
 }

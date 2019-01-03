@@ -1,7 +1,7 @@
 // Workspace settings
 {
     "files.exclude": {
-        "*build*": true,
+        "**/build*": true,
         "bin/": true
     },
     "C_Cpp.intelliSenseEngine": "Default",
