@@ -1,0 +1,10 @@
+// Workspace settings
+{
+    "files.exclude": {
+        "**/vendor*": true,
+        "**/fonts*": true,
+    },
+    "editor.renderWhitespace": "all",
+    "terminal.integrated.shell.windows": "C:\\Windows\\sysnative\\wsl.exe",
+    "diffEditor.ignoreTrimWhitespace": false
+}
