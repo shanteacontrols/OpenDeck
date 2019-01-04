@@ -30,7 +30,7 @@
         function openModal(idx, obj) {
              $scope.idx = idx;
             //  $scope.obj = obj;
-             $uibModal.open({ templateUrl: '/OpenDeck/webui/app/leds/led.html', size: 'lg', controller: 'ledCtrl', scope: $scope });
+             $uibModal.open({ templateUrl: 'webui/app/leds/led.html', size: 'lg', controller: 'ledCtrl', scope: $scope });
         }
     });
 

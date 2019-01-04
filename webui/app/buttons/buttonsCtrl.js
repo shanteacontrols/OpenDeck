@@ -5,7 +5,7 @@
         $scope.openModal = openModal;
         function openModal(idx) {
              $scope.idx = idx;
-             $uibModal.open({ templateUrl: '/OpenDeck/webui/app/buttons/button.html', size: 'lg', controller: 'buttonCtrl', scope: $scope });
+             $uibModal.open({ templateUrl: 'webui/app/buttons/button.html', size: 'lg', controller: 'buttonCtrl', scope: $scope });
         }
         $scope.objects = [];
         repository.getCollection(6).then(function(d) {

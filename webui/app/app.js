@@ -12,31 +12,31 @@
                 .hashPrefix('');
         $routeProvider
             .when("/", {
-                templateUrl: "/OpenDeck/webui/app/global/global.html",
+                templateUrl: "webui/app/global/global.html",
                 controller: "globalCtrl"
             })
             .when("/global/", {
-                templateUrl: "/OpenDeck/webui/app/global/global.html",
+                templateUrl: "webui/app/global/global.html",
                 controller: "globalCtrl"
             })
             .when("/buttons/", {
-                templateUrl: "/OpenDeck/webui/app/buttons/buttons.html",
+                templateUrl: "webui/app/buttons/buttons.html",
                 controller: "buttonsCtrl"
             })
             .when("/leds/", {
-                templateUrl: "/OpenDeck/webui/app/leds/leds.html",
+                templateUrl: "webui/app/leds/leds.html",
                 controller: "ledsCtrl"
             })
             .when("/encoders/", {
-                templateUrl: "/OpenDeck/webui/app/encoders/encoders.html",
+                templateUrl: "webui/app/encoders/encoders.html",
                 controller: "encodersCtrl"
             })
             .when("/analog/", {
-                templateUrl: "/OpenDeck/webui/app/analog/analogs.html",
+                templateUrl: "webui/app/analog/analogs.html",
                 controller: "analogsCtrl"
             })
             .when("/display/", {
-                templateUrl: "/OpenDeck/webui/app/display/display.html",
+                templateUrl: "webui/app/display/display.html",
                 controller: "displayCtrl"
             })
             .otherwise({ redirectTo: "/" });
