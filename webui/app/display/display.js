@@ -1,16 +1,16 @@
 (function (app) {
     'use strict';
 
-    app.controller('displayCtrl', function($rootScope, $scope, repository, meta) {
+    app.controller('displayCtrl', function ($rootScope, $scope, repository, meta) {
         $scope.loading = true;
-        repository.get(meta.display).then(function(e) {
-             $scope.displayObj = e;
-             $scope.$watchCollection('displayObj', function(newValue, oldValue) {
+        repository.get(meta.display).then(function (e) {
+            $scope.displayObj = e;
+            $scope.$watchCollection('displayObj', function (newValue, oldValue) {
                 if (oldValue && newValue) {
                     for (var prop in $scope.displayObj) {
-                        if(newValue[prop] !== oldValue[prop]) {
+                        if (newValue[prop] !== oldValue[prop]) {
                             repository.set(meta.display, prop, newValue[prop]);
-                    }
+                        }
                     }
                 }
             });
@@ -20,5 +20,5 @@
             }
         });
     });
-    
+
 })(angular.module('app'));

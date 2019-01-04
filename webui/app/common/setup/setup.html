@@ -1,11 +1,11 @@
-  <div class="btn-group btn-system" ng-controller="setupCtrl">
+<div class="btn-group btn-system" ng-controller="setupCtrl">
     <button type="button" class="btn" ng-click="backup()"><span class="glyphicon glyphicon-save" aria-hidden="true"></span></button>
     <button type="button" class="btn"><span class="glyphicon glyphicon-open" aria-hidden="true"></span>
-        <input type="file" name="file" class="upload" onchange="angular.element(this).scope().restore(this.files)"/>
+        <input type="file" name="file" class="upload" onchange="angular.element(this).scope().restore(this.files)" />
     </button>
 
-    <span data-toggle="modal"  data-target="#infoModal">
-        <button type="button" class="btn" ng-click="openModal()"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></button>
+    <span data-toggle="modal" data-target="#infoModal">
+        <button type="button" class="btn" ng-click="openModal()"><span class="glyphicon glyphicon-info-sign"
+                aria-hidden="true"></span></button>
     </span>
-  </div>
-
+</div>

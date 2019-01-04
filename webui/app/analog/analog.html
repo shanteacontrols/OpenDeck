@@ -1,55 +1,58 @@
 <div class="container modal-dialog modal-lg" ng-if="!loading">
     <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" ng-click="$close()">&times;</button>
-    <h4 class="modal-title">Analog {{idx + 1}}</h4>
+        <button type="button" class="close" data-dismiss="modal" ng-click="$close()">&times;</button>
+        <h4 class="modal-title">Analog {{idx + 1}}</h4>
     </div>
     <div class="modal-body">
         <div class="row">
             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-6">
-            <h3>Enabled</h3>
+                <h3>Enabled</h3>
             </div>
             <div class="col-lg-1 col-lg-offset-1 col-md-1 col-md-offset-1 col-sm-4 col-xs-6">
-            <div class="switch">
-                <input id="enabled" ng-model="obj.enabled" class="toggle toggle-round-flat" type="checkbox">
-                <label for="enabled"></label>
-                <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Enables or disables analog input. By default, all analog inputs are disabled." data-placement="left">?</div>
-            </div>
+                <div class="switch">
+                    <input id="enabled" ng-model="obj.enabled" class="toggle toggle-round-flat" type="checkbox">
+                    <label for="enabled"></label>
+                    <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Enables or disables analog input. By default, all analog inputs are disabled."
+                        data-placement="left">?</div>
+                </div>
             </div>
         </div><!-- /row -->
         <div class="row">
             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-6">
-            <h3>Invert</h3>
+                <h3>Invert</h3>
             </div>
             <div class="col-lg-1 col-lg-offset-1 col-md-1 col-md-offset-1 col-sm-4 col-xs-6">
-            <div class="switch">
-                <input id="invertState" ng-model="obj.invertState" class="toggle toggle-round-flat" type="checkbox">
-                <label for="invertState"></label>
-                <div class="hint-mark" data-toggle="tooltip" data-container="body" title="When enabled, analog input will send inverted MIDI CC messages in each direction. By default, this option is disabled for all analog inputs." data-placement="left">?</div>
-            </div>
+                <div class="switch">
+                    <input id="invertState" ng-model="obj.invertState" class="toggle toggle-round-flat" type="checkbox">
+                    <label for="invertState"></label>
+                    <div class="hint-mark" data-toggle="tooltip" data-container="body" title="When enabled, analog input will send inverted MIDI CC messages in each direction. By default, this option is disabled for all analog inputs."
+                        data-placement="left">?</div>
+                </div>
             </div>
         </div><!-- /row -->
         <div class="row">
             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-            <h3>Type</h3>
+                <h3>Type</h3>
             </div>
             <div class="col-lg-2 col-lg-offset-1 col-md-2 col-md-offset-1 col-sm-6 col-xs-12">
-            <div class="selectfield">
-                <select ng-model="obj.type" convert-to-number>
-                <option value="0" selected>Pot./CC</option>
-                <option value="1" selected>Pot./Note</option>
-                <option value="2">FSR</option>
-                <option value="3">Button</option>
-                <option value="4">NRPN 7-bit</option>
-                <option value="5">NRPN 14-bit</option>
-                <option value="6">Pitch Bend</option>
-                </select>
-                <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Analog inputs can behave differently based on selected type." data-placement="left">?</div>
-            </div>
+                <div class="selectfield">
+                    <select ng-model="obj.type" convert-to-number>
+                        <option value="0" selected>Pot./CC</option>
+                        <option value="1" selected>Pot./Note</option>
+                        <option value="2">FSR</option>
+                        <option value="3">Button</option>
+                        <option value="4">NRPN 7-bit</option>
+                        <option value="5">NRPN 14-bit</option>
+                        <option value="6">Pitch Bend</option>
+                    </select>
+                    <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Analog inputs can behave differently based on selected type."
+                        data-placement="left">?</div>
+                </div>
             </div>
         </div><!-- /row -->
         <div class="row">
             <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
-            <h3>MIDI Channel</h3>
+                <h3>MIDI Channel</h3>
             </div>
             <div class="col-lg-6 col-lg-offset-1 col-md-6 col-sm-6 col-xs-11">
                 <r-slider value="obj.midiChannel" min="1" max="16" tooltip="MIDI channel for current component."></r-slider>
@@ -57,7 +60,7 @@
         </div><!-- /row -->
         <div class="row" ng-if="obj.type<4">
             <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
-            <h3>MIDI ID</h3>
+                <h3>MIDI ID</h3>
             </div>
             <div class="col-lg-6 col-lg-offset-1 col-md-6 col-sm-6 col-xs-11">
                 <r-slider value="obj.midiId_lsb" min="0" max="127" tooltip="Denotes MIDI CC number."></r-slider>
@@ -65,7 +68,7 @@
         </div><!-- /row -->
         <div class="row" ng-if="(obj.type>3) && (obj.type!=6)">
             <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
-            <h3>NPRN ID LSB</h3>
+                <h3>NPRN ID LSB</h3>
             </div>
             <div class="col-lg-6 col-lg-offset-1 col-md-6 col-sm-6 col-xs-11">
                 <r-slider value="obj.midiId_lsb" min="0" max="127" tooltip="Denotes MIDI CC number."></r-slider>
@@ -73,7 +76,7 @@
         </div><!-- /row -->
         <div class="row" ng-if="(obj.type>3) && (obj.type!=6)">
             <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
-            <h3>NPRN ID MSB</h3>
+                <h3>NPRN ID MSB</h3>
             </div>
             <div class="col-lg-6 col-lg-offset-1 col-md-6 col-sm-6 col-xs-11">
                 <r-slider value="obj.midiId_msb" min="0" max="127" tooltip="Denotes MIDI CC number."></r-slider>
@@ -81,7 +84,7 @@
         </div><!-- /row -->
         <div class="row" ng-if="obj.type<5">
             <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
-            <h3>Lower CC limit</h3>
+                <h3>Lower CC limit</h3>
             </div>
             <div class="col-lg-6 col-lg-offset-1 col-md-6 col-sm-6 col-xs-11">
                 <r-slider value="obj.lowerCC_lsb" min="0" max="127" tooltip="Denotes minimum CC value. Default value is 0. If any other value is specified, CC range gets scaled. "></r-slider>
@@ -89,7 +92,7 @@
         </div><!-- /row -->
         <div class="row" ng-if="obj.type>4">
             <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
-            <h3>Lower CC limit / LSB</h3>
+                <h3>Lower CC limit / LSB</h3>
             </div>
             <div class="col-lg-6 col-lg-offset-1 col-md-6 col-sm-6 col-xs-11">
                 <r-slider value="obj.lowerCC_lsb" min="0" max="127" tooltip="Denotes minimum CC value. Default value is 0. If any other value is specified, CC range gets scaled. "></r-slider>
@@ -97,7 +100,7 @@
         </div><!-- /row -->
         <div class="row" ng-if="obj.type>4">
             <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
-            <h3>Lower CC limit / MSB</h3>
+                <h3>Lower CC limit / MSB</h3>
             </div>
             <div class="col-lg-6 col-lg-offset-1 col-md-6 col-sm-6 col-xs-11">
                 <r-slider value="obj.lowerCC_msb" min="0" max="127" tooltip="Denotes minimum CC value. Default value is 0. If any other value is specified, CC range gets scaled. "></r-slider>
@@ -105,25 +108,25 @@
         </div><!-- /row -->
         <div class="row" ng-if="obj.type<5">
             <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
-            <h3>Upper CC limit</h3>
+                <h3>Upper CC limit</h3>
             </div>
             <div class="col-lg-6 col-lg-offset-1 col-md-6 col-sm-6 col-xs-11">
                 <r-slider value="obj.upperCC_lsb" min="0" max="127" tooltip="Denotes maximum CC value. Default value is 127. If any other value is specified, CC range gets scaled."></r-slider>
             </div>
         </div><!-- /row -->
         <div class="row" ng-if="obj.type>4">
-        <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
-            <h3>Upper CC limit / LSB</h3>
-        </div>
-        <div class="col-lg-6 col-lg-offset-1 col-md-6 col-sm-6 col-xs-11">
+            <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
+                <h3>Upper CC limit / LSB</h3>
+            </div>
+            <div class="col-lg-6 col-lg-offset-1 col-md-6 col-sm-6 col-xs-11">
                 <r-slider value="obj.upperCC_lsb" min="0" max="127" tooltip="Denotes maximum CC value. Default value is 127. If any other value is specified, CC range gets scaled."></r-slider>
             </div>
         </div>
         <div class="row" ng-if="obj.type>4">
-        <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
-            <h3>Upper CC limit / MSB</h3>
-        </div>
-        <div class="col-lg-6 col-lg-offset-1 col-md-6 col-sm-6 col-xs-11">
+            <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
+                <h3>Upper CC limit / MSB</h3>
+            </div>
+            <div class="col-lg-6 col-lg-offset-1 col-md-6 col-sm-6 col-xs-11">
                 <r-slider value="obj.upperCC_msb" min="0" max="127" tooltip="Denotes maximum CC value. Default value is 127. If any other value is specified, CC range gets scaled."></r-slider>
             </div>
         </div>

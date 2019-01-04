@@ -1,15 +1,15 @@
 (function (app) {
     'use strict';
 
-    app.factory('errors', function() {
+    app.factory('errors', function () {
         // p: [block, section, index]
         var errorCodes = {
             STATUS: 2,
             HANDSHAKE: 3,
-            WISH:4,
-            AMMOUNT:5,
-            BLOCK:6,
-            SECTION:7,
+            WISH: 4,
+            AMMOUNT: 5,
+            BLOCK: 6,
+            SECTION: 7,
             PART: 8,
             INDEX: 9,
             NEW_VALUE: 10,
@@ -20,9 +20,9 @@
         }
 
         function getErrorCode(value) {
-            for( var prop in errorCodes) {
-                if(errorCodes.hasOwnProperty(prop)) {
-                    if(errorCodes[ prop ] === value)
+            for (var prop in errorCodes) {
+                if (errorCodes.hasOwnProperty(prop)) {
+                    if (errorCodes[prop] === value)
                         return prop;
                 }
             }
