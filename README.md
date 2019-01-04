@@ -28,13 +28,15 @@ OpenDeck firmware is compatible with official OpenDeck board, as well as various
 
 This repository also contains source code for OpenDeck Web configuration utility written using Angular framework by other developer. Web utility can run in any browser which supports WebMIDI specification (currently Google Chrome and Opera). Utility needs access to MIDI devices so that it can communicate with OpenDeck boards. All communication is done with custom SysEx protocol explained in detail in [Wiki section](https://github.com/paradajz/OpenDeck/wiki/SysEx-Configuration).
 
-UI is hosted in this repository and can be run via [this link](https://paradajz.github.io/OpenDeck).
+Latest version of the UI is always available on [this link](https://paradajz.github.io/OpenDeck). The UI available on this link is hosted on GitHub (via this repository, master branch) and it's compatible only with latest available OpenDeck firmware. If older firmware is used with latest UI, UI tends to crash when it tries to request parameters which aren't available in older firmwares.
 
-***Important:** UI is compatible only with latest available OpenDeck firmware. If older firmware is used, UI tends to crash when it tries to request parameters which aren't available in older firmwares.*
+Older versions of the UI are also available and can be accessed in a following manner:
 
-File containing core app logic core.min.js was obfuscated and original source code was lost. Later, un-obfuscator was run on that file, however many variables and function names remain cryptic.
+https://shanteacontrols.com/config/<OpenDeck_Version>
 
-As I don't do any Web development I won't be adding any new features to the app. If you, however, want to contribute to it I would be more than happy to accept any improvements, new features or fixes.
+For example, to run the UI for OpenDeck firmware v3.0.0, use the following link:
+
+https://shanteacontrols.com/config/v3.0.0
 
 ## Coming soon
 
