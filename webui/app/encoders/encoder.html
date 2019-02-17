@@ -19,7 +19,7 @@
         </div><!-- /row -->
         <div class="row">
             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-6">
-                <h3>Invert state</h3>
+                <h3>Invert direction</h3>
             </div>
             <div class="col-lg-1 col-lg-offset-1 col-md-1 col-md-offset-1 col-sm-4 col-xs-6">
                 <div class="switch">
@@ -54,14 +54,14 @@
             <div class="col-lg-2 col-lg-offset-1 col-md-2 col-md-offset-1 col-sm-6 col-xs-12">
                 <div class="selectfield">
                     <select ng-model="obj.encodingMode" convert-to-number>
-                        <option value="0" selected>7Fh01h</option>
-                        <option value="1">3Fh41h</option>
+                        <option value="0" selected>CC/7Fh01h</option>
+                        <option value="1">CC/3Fh41h</option>
                         <option value="2">Program change</option>
-                        <option value="3">Continuous controller</option>
+                        <option value="3">CC/Continuous</option>
                         <option value="4">Change preset</option>
                         <option value="5">Pitch bend</option>
-                        <option value="6">NRPN 7-bit</option>
-                        <option value="7">NRPN 14-bit</option>
+                        <option value="6">NRPN/7-bit</option>
+                        <option value="7">NRPN/14-bit</option>
                     </select>
                     <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Denotes encoder encoding mode. Default option is 7Fh01h for all encoders."
                         data-placement="left">?</div>
