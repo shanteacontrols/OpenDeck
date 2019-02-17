@@ -34,10 +34,14 @@
             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-6">
                 <h3>Acceleration</h3>
             </div>
-            <div class="col-lg-1 col-lg-offset-1 col-md-1 col-md-offset-1 col-sm-4 col-xs-6">
-                <div class="switch">
-                    <input id="acceleration" ng-model="obj.acceleration" class="toggle toggle-round-flat" type="checkbox">
-                    <label for="acceleration"></label>
+            <div class="col-lg-2 col-lg-offset-1 col-md-2 col-md-offset-1 col-sm-6 col-xs-12">
+                <div class="selectfield">
+                    <select ng-model="obj.acceleration" convert-to-number>
+                        <option value="0" selected>Disabled</option>
+                        <option value="1">Slow</option>
+                        <option value="2">Medium</option>
+                        <option value="3">Fast</option>
+                    </select>
                     <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Enables or disables faster sending of values in CC, Pitch bend or NRPN mode."
                         data-placement="left">?</div>
                 </div>

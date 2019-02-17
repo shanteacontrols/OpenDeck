@@ -76,12 +76,14 @@ void Encoders::update()
                 }
             }
 
-            if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_acceleration, i))
+            uint8_t encAcceleration = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_acceleration, i);
+
+            if (encAcceleration)
             {
                 //when time difference between two movements is smaller than SPEED_TIMEOUT,
                 //start accelerating
                 if ((rTimeMs() - lastMovementTime[i]) < SPEED_TIMEOUT)
-                    encoderSpeed[i] = CONSTRAIN(encoderSpeed[i]+ENCODER_SPEED_CHANGE, 0, ENCODER_MAX_SPEED);
+                    encoderSpeed[i] = CONSTRAIN(encoderSpeed[i]+encoderSpeedChange[encAcceleration], 0, encoderMaxAccSpeed[encAcceleration]);
                 else
                     encoderSpeed[i] = 0;
             }

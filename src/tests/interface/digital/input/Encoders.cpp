@@ -283,6 +283,8 @@ TEST_F(EncodersTest, Debounce)
 
 TEST_F(EncodersTest, Acceleration)
 {
+    #define ENCODER_SPEED_CHANGE    3
+
     //set known state
     for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
     {
@@ -296,7 +298,7 @@ TEST_F(EncodersTest, Acceleration)
         EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i, encTypeCC), true);
 
         //enable acceleration
-        EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_acceleration, i, true), true);
+        EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_acceleration, i, ENCODER_SPEED_CHANGE), true);
     }
 
     //all encoders should move in the same direction

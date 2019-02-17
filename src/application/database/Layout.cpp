@@ -186,7 +186,7 @@ static dbSection_t encoderSections[DB_SECTIONS_ENCODERS] =
     //acceleration section
     {
         .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-        .parameterType = BIT_PARAMETER,
+        .parameterType = HALFBYTE_PARAMETER,
         .preserveOnPartialReset = 0,
         .defaultValue = 0,
         .autoIncrement = false,

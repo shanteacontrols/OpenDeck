@@ -21,6 +21,7 @@
 #include "interface/digital/output/leds/DataTypes.h"
 #include "interface/digital/input/buttons/DataTypes.h"
 #include "interface/digital/input/encoders/DataTypes.h"
+#include "interface/digital/input/encoders/Constants.h"
 #include "interface/analog/DataTypes.h"
 
 static sysExSection_t globalSections[SYSEX_SECTIONS_GLOBAL] =
@@ -133,7 +134,7 @@ static sysExSection_t encoderSections[SYSEX_SECTIONS_ENCODERS] =
     {
         .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
         .newValueMin = 0,
-        .newValueMax = 1,
+        .newValueMax = MAX_ENCODER_ACCELERATION_OPTIONS,
     },
 
     //midi id section, msb

@@ -39,17 +39,38 @@ limitations under the License.
 #define ENCODER_DEBOUNCE_COUNT  4
 
 ///
+/// \brief Maximum amount of encoder acceleration options.
+/// 0 - disabled
+/// 1 - slow acceleration
+/// 2 - medium acceleration
+/// 3 - fast acceleration
+///
+#define MAX_ENCODER_ACCELERATION_OPTIONS 4
+
+///
 /// \brief Used to achieve linear encoder acceleration on fast movement.
 /// Every time fast movement is detected, amount of steps is increased by this value.
 /// Used only in CC/Pitch bend/NRPN modes. In Pitch bend/NRPN modes, this value is multiplied
 /// by 4 due to a larger value range.
 ///
-#define ENCODER_SPEED_CHANGE    3
+const uint8_t encoderSpeedChange[MAX_ENCODER_ACCELERATION_OPTIONS] = 
+{
+    0,  //acceleration disabled
+    1,
+    2,
+    3
+};
 
 ///
 /// \brief Maximum value by which MIDI value is increased during acceleration.
 ///
-#define ENCODER_MAX_SPEED       100
+const uint8_t encoderMaxAccSpeed[MAX_ENCODER_ACCELERATION_OPTIONS] =
+{
+    0,  //acceleration disabled
+    5,
+    10,
+    100
+};
 
 ///
 /// \brief Time threshold in milliseconds between two encoder steps used to detect fast movement.
