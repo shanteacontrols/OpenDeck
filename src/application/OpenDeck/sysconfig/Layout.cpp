@@ -143,6 +143,13 @@ static sysExSection_t encoderSections[SYSEX_SECTIONS_ENCODERS] =
         .newValueMin = 0,
         .newValueMax = 127,
     },
+
+    //remote sync section
+    {
+        .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
+        .newValueMin = 0,
+        .newValueMax = 1,
+    },
 };
 
 static sysExSection_t analogSections[SYSEX_SECTIONS_ANALOG] =

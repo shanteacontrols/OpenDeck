@@ -208,10 +208,8 @@ void OpenDeck::checkMIDI()
         //new message
         midiMessageType_t messageType = midi.getType(interface);
         uint8_t data1 = midi.getData1(interface);
-        #if defined(LEDS_SUPPORTED) || defined(DISPLAY_SUPPORTED)
         uint8_t data2 = midi.getData2(interface);
         uint8_t channel = midi.getChannel(interface);
-        #endif
 
         switch(messageType)
         {
@@ -256,6 +254,26 @@ void OpenDeck::checkMIDI()
 
             if (messageType == midiMessageProgramChange)
                 database.setPreset(data1);
+
+            if (messageType == midiMessageControlChange)
+            {
+                for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
+                {
+                    if (!database.read(DB_BLOCK_ENCODERS, dbSection_encoders_remoteSync, i))
+                        continue;
+
+                    if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i) != (uint8_t)encTypeCC)
+                        continue;
+
+                    if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i) != channel)
+                        continue;
+
+                    if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiID, i) != data1)
+                        continue;
+
+                    encoders.setValue(i, data2);
+                }
+            }
             break;
 
             case midiMessageClock:

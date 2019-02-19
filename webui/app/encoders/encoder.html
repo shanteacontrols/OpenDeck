@@ -68,6 +68,19 @@
                 </div>
             </div>
         </div><!-- /row -->
+        <div class="row" ng-if="(obj.encodingMode==3)">
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-6">
+                <h3>Remote CC sync</h3>
+            </div>
+            <div class="col-lg-1 col-lg-offset-1 col-md-1 col-md-offset-1 col-sm-4 col-xs-6">
+                <div class="switch">
+                    <input id="remoteCCsync" ng-model="obj.remoteCCsync" class="toggle toggle-round-flat" type="checkbox">
+                    <label for="remoteCCsync"></label>
+                    <div class="hint-mark" data-toggle="tooltip" data-container="body" title="When enabled, received CC value will be assigned to encoder value if the MIDI channel and ID match."
+                        data-placement="left">?</div>
+                </div>
+            </div>
+        </div><!-- /row -->
         <div class="row">
             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                 <h3>Pulses per step</h3>

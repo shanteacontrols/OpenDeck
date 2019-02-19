@@ -27,5 +27,6 @@ typedef enum
     dbSection_encoders_midiChannel,
     dbSection_encoders_pulsesPerStep,
     dbSection_encoders_acceleration,
+    dbSection_encoders_remoteSync,
     DB_SECTIONS_ENCODERS
 } dbSection_encoders_t;

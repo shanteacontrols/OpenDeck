@@ -229,3 +229,8 @@ void Encoders::resetValue(uint8_t encoderID)
     else
         midiValue[encoderID] = 0;
 }
+
+void Encoders::setValue(uint8_t encoderID, uint16_t value)
+{
+    midiValue[encoderID] = value;
+}

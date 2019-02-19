@@ -66,6 +66,7 @@ class Encoders
     void init();
     void update();
     void resetValue(uint8_t encoderID);
+    void setValue(uint8_t encoderID, uint16_t value);
 
     private:
     Database            &database;
