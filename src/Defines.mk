@@ -159,6 +159,19 @@ else ifeq ($(findstring upload,$(MAKECMDGOALS)), upload)
             $(error Not available for current target.)
         endif
     endif
+else ifeq ($(BOARD_DIR), mega6mux)
+    MCU := atmega2560
+    BOARD := BOARD_A_MEGA6MUX
+    DEFINES += STRING_BUFFER_SIZE=40
+    DEFINES += DISPLAY_SUPPORTED
+    HARDWARE_VERSION_MAJOR := 1
+    HARDWARE_VERSION_MINOR := 0
+    DEFINES += DIN_MIDI_SUPPORTED
+    DEFINES += UART_USB_LINK_CHANNEL=0
+    DEFINES += UART_MIDI_CHANNEL=1
+    DEFINES += UART_TOUCHSCREEN_CHANNEL=1
+    DEFINES += LEDS_SUPPORTED
+    DEFINES += USE_MUX
 endif
 
 #mcu specific

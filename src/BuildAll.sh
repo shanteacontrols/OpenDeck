@@ -9,6 +9,7 @@ make clean && make fw_pro_micro
 make clean && make fw_leonardo
 make clean && make fw_uno
 make clean && make fw_mega
+make clean && make fw_mega6mux
 make clean && make fw_16u2
 make clean && make fw_8u2
 make clean && make fw_teensy2pp
