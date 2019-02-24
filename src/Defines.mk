@@ -20,6 +20,7 @@ MIDI_SYSEX_ARRAY_SIZE=45
 
 #flash type specific
 ifeq ($(findstring boot,$(MAKECMDGOALS)), boot)
+    BOARD_DIR := $(subst boot_,,$(MAKECMDGOALS))
     DEFINES += \
     ORDERED_EP_CONFIG \
     NO_SOF_EVENTS \
@@ -29,6 +30,7 @@ ifeq ($(findstring boot,$(MAKECMDGOALS)), boot)
     NO_DEVICE_REMOTE_WAKEUP \
     NO_DEVICE_SELF_POWER
 else ifeq ($(findstring fw,$(MAKECMDGOALS)), fw)
+    BOARD_DIR := $(subst fw_,,$(MAKECMDGOALS))
     DEFINES += \
     USE_FLASH_DESCRIPTORS \
     INTERRUPT_CONTROL_ENDPOINT \
@@ -36,7 +38,7 @@ else ifeq ($(findstring fw,$(MAKECMDGOALS)), fw)
 endif
 
 #board specific
-ifeq ($(findstring opendeck,$(MAKECMDGOALS)), opendeck)
+ifeq ($(BOARD_DIR), opendeck)
     MCU := atmega32u4
     BOARD := BOARD_OPEN_DECK
     DEFINES += LED_FADING_SUPPORTED
@@ -50,7 +52,7 @@ ifeq ($(findstring opendeck,$(MAKECMDGOALS)), opendeck)
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += UART_MIDI_CHANNEL=0
     DEFINES += LEDS_SUPPORTED
-else ifeq ($(findstring tannin,$(MAKECMDGOALS)), tannin)
+else ifeq ($(BOARD_DIR), tannin)
     MCU := atmega32u4
     BOARD := BOARD_TANNIN
     DEFINES += LED_FADING_SUPPORTED
@@ -61,7 +63,7 @@ else ifeq ($(findstring tannin,$(MAKECMDGOALS)), tannin)
     HARDWARE_VERSION_MAJOR := 3
     HARDWARE_VERSION_MINOR := 0
     DEFINES += LEDS_SUPPORTED
-else ifeq ($(findstring leonardo,$(MAKECMDGOALS)), leonardo)
+else ifeq ($(BOARD_DIR), leonardo)
     MCU := atmega32u4
     BOARD := BOARD_A_LEO
     DEFINES += LED_INT_INVERT
@@ -71,7 +73,7 @@ else ifeq ($(findstring leonardo,$(MAKECMDGOALS)), leonardo)
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += UART_MIDI_CHANNEL=0
     DEFINES += LEDS_SUPPORTED
-else ifeq ($(findstring pro_micro,$(MAKECMDGOALS)), pro_micro)
+else ifeq ($(BOARD_DIR), pro_micro)
     MCU := atmega32u4
     BOARD := BOARD_A_PRO_MICRO
     DEFINES += LED_INT_INVERT
@@ -81,7 +83,7 @@ else ifeq ($(findstring pro_micro,$(MAKECMDGOALS)), pro_micro)
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += UART_MIDI_CHANNEL=0
     DEFINES += LEDS_SUPPORTED
-else ifeq ($(findstring kodama,$(MAKECMDGOALS)), kodama)
+else ifeq ($(BOARD_DIR), kodama)
     MCU := atmega32u4
     BOARD := BOARD_KODAMA
     DEFINES += USE_MUX
@@ -89,7 +91,7 @@ else ifeq ($(findstring kodama,$(MAKECMDGOALS)), kodama)
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
     DEFINES += LEDS_SUPPORTED
-else ifeq ($(findstring bergamot,$(MAKECMDGOALS)), bergamot)
+else ifeq ($(BOARD_DIR), bergamot)
     MCU := atmega32u4
     BOARD := BOARD_BERGAMOT
     DEFINES += USE_MUX
@@ -97,7 +99,7 @@ else ifeq ($(findstring bergamot,$(MAKECMDGOALS)), bergamot)
     HARDWARE_VERSION_MINOR := 0
     DEFINES += TOUCHSCREEN_SUPPORTED
     DEFINES += UART_TOUCHSCREEN_CHANNEL=0
-else ifeq ($(findstring teensy2pp,$(MAKECMDGOALS)), teensy2pp)
+else ifeq ($(BOARD_DIR), teensy2pp)
     MCU := at90usb1286
     BOARD := BOARD_T_2PP
     DEFINES += STRING_BUFFER_SIZE=40
@@ -107,7 +109,7 @@ else ifeq ($(findstring teensy2pp,$(MAKECMDGOALS)), teensy2pp)
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += UART_MIDI_CHANNEL=0
     DEFINES += LEDS_SUPPORTED
-else ifeq ($(findstring mega,$(MAKECMDGOALS)), mega)
+else ifeq ($(BOARD_DIR), mega)
     MCU := atmega2560
     BOARD := BOARD_A_MEGA
     DEFINES += STRING_BUFFER_SIZE=40
@@ -120,14 +122,14 @@ else ifeq ($(findstring mega,$(MAKECMDGOALS)), mega)
     DEFINES += UART_MIDI_CHANNEL=1
     DEFINES += UART_TOUCHSCREEN_CHANNEL=1
     DEFINES += LEDS_SUPPORTED
-else ifeq ($(findstring uno,$(MAKECMDGOALS)), uno)
+else ifeq ($(BOARD_DIR), uno)
     MCU := atmega328p
     BOARD := BOARD_A_UNO
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
     DEFINES += UART_USB_LINK_CHANNEL=0
     DEFINES += LEDS_SUPPORTED
-else ifeq ($(findstring 16u2,$(MAKECMDGOALS)), 16u2)
+else ifeq ($(BOARD_DIR), 16u2)
     MCU := atmega16u2
     BOARD := BOARD_A_xu2
     DEFINES += LED_INT_INVERT
@@ -135,7 +137,7 @@ else ifeq ($(findstring 16u2,$(MAKECMDGOALS)), 16u2)
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
     DEFINES += UART_USB_LINK_CHANNEL=0
-else ifeq ($(findstring 8u2,$(MAKECMDGOALS)), 8u2)
+else ifeq ($(BOARD_DIR), 8u2)
     MCU := atmega8u2
     BOARD := BOARD_A_xu2
     DEFINES += LED_INT_INVERT

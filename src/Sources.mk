@@ -1,11 +1,3 @@
-#determine board variant from target
-#cut out fw_ and boot_ from target name
-ifeq ($(findstring fw_,$(MAKECMDGOALS)), fw_)
-    BOARD_DIR := $(subst fw_,,$(MAKECMDGOALS))
-else ifeq ($(findstring boot_,$(MAKECMDGOALS)), boot_)
-    BOARD_DIR := $(subst boot_,,$(MAKECMDGOALS))
-endif
-
 ifeq ($(BOARD_DIR),pro_micro)
     #pro micro is just a leonardo variant
     BOARD_DIR := leonardo
