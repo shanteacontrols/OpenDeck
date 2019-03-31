@@ -90,10 +90,7 @@ void Analog::checkPotentiometerValue(analogType_t analogType, uint8_t analogID, 
 
     //invert MIDI data if configured
     if (database.read(DB_BLOCK_ANALOG, dbSection_analog_invert, analogID))
-    {
-        if ((analogType == aType_NRPN_14) || (analogType == aType_PitchBend))
-            scaledMIDIvalue = maxLimit - scaledMIDIvalue;
-    }
+        scaledMIDIvalue = maxLimit - scaledMIDIvalue;
 
     switch(analogType)
     {
