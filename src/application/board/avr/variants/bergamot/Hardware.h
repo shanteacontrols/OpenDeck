@@ -73,4 +73,4 @@ limitations under the License.
 ///
 /// \brief Maximum number of supported touchscreen buttons.
 ///
-#define MAX_TOUCHSCREEN_BUTTONS         64
+#define MAX_TOUCHSCREEN_BUTTONS         80
