@@ -3,3 +3,4 @@
 src/compile_commands.json
 Documentation/*
 *compile_commands.json
+*ipch*
