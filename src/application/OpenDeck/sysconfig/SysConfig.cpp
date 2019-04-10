@@ -336,7 +336,19 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, sysExParam
 
                     //make sure everything is in correct state
                     if (!newValue)
+                    {
                         setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true);
+                    }
+                    else
+                    {
+                        //restore active settings
+                        midiMergeType_t mergeType = static_cast<midiMergeType_t>(database.read(DB_BLOCK_GLOBAL, dbSection_global_midiMerge, midiMergeType));
+
+                        if (mergeType == midiMergeODslave)
+                            setupMIDIoverUART(UART_BAUDRATE_MIDI_OD, true, false); //init only uart read interface for now
+                        else
+                            configureMIDImerge(mergeType);
+                    }
                 }
                 else
                 {
