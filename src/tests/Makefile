@@ -20,7 +20,14 @@ TESTS_EXT := $(addsuffix .out,$(TESTS_EXT))
 
 all: $(TESTS_EXT)
 
+#doesn't remove gtest sources
 clean:
+	@echo Cleaning up.
+	@if [ "$(wildcard build/)" != "" ]; then\
+		find ./build ! -name 'gtest_main.a' ! -name 'gtest-all.o' ! -name 'gtest_main.o' -type f -exec rm -f {} +;\
+	fi
+
+clean-all:
 	@echo Cleaning up.
 	@rm -rf build/
 
