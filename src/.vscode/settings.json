@@ -2,7 +2,12 @@
 {
     "files.exclude": {
         "**/build*": true,
-        "bin/": true
+        "bin/": true,
+        "**/compile_commands.json": true,
+        "**/combine_fwbtldr": true,
+        "**/Build*": true,
+        "**/ipch*": true,
+        "**/RunTests.sh*": true
     },
     "C_Cpp.intelliSenseEngine": "Default",
     "C_Cpp.intelliSenseEngineFallback": "Disabled",
