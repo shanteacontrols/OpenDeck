@@ -186,3 +186,12 @@ else
         endif
     endif
 endif
+
+#make sure all objects are located in build directory
+OBJECTS := $(addprefix build/,$(SOURCES))
+#also make sure objects have .o extension
+OBJECTS := $(OBJECTS:.c=.o)
+OBJECTS := $(OBJECTS:.cpp=.o)
+
+#include generated dependency files to allow incremental build when only headers change
+-include $(OBJECTS:%.o=%.d)
