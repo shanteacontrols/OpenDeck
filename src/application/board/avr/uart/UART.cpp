@@ -70,12 +70,22 @@ namespace Board
         RingBuff_t   rxBuffer[UART_INTERFACES];
     }
 
+    void setUARTloopbackState(uint8_t channel, bool state)
+    {
+        if (channel >= UART_INTERFACES)
+            return;
+
+        loopbackEnabled[channel] = state;
+    }
+
     void resetUART(uint8_t channel)
     {
         using namespace Board::detail;
 
         if (channel >= UART_INTERFACES)
             return;
+
+        setUARTloopbackState(channel, false);
 
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
         {
@@ -245,14 +255,6 @@ namespace Board
         uartTransmitStart(channel);
 
         return true;
-    }
-
-    void setUARTloopbackState(uint8_t channel, bool state)
-    {
-        if (channel >= UART_INTERFACES)
-            return;
-
-        loopbackEnabled[channel] = state;
     }
 
     bool getUARTloopbackState(uint8_t channel)
