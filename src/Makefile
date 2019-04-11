@@ -113,7 +113,11 @@ build/%.o: %.cpp
 	@$(CXX) $(COMMON_FLAGS) $(CPPFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) -mmcu=$(MCU) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 	@echo Finished building: $<
 
-$(TARGET).elf: target_print $(OBJECTS)
+$(TARGET).elf: $(OBJECTS)
+	@#create a file with contents being mcu name (for upload process)
+	@echo $(MCU) > build/MCU
+	@#create a file with contents being target name (for upload process)
+	@echo $(MAKECMDGOALS) > build/TARGET
 	@#link
 	@$(CXX) -o$(TARGET).elf $(OBJECTS) -mmcu=$(MCU) $(LDFLAGS) -Wl,-Map,$(TARGET).map
 	@echo Finished building target: $@
@@ -147,14 +151,6 @@ ser_list:
 clean:
 	@echo Cleaning up.
 	@rm -rf build/ ../Documentation/
-
-target_print:
-	@echo Building target $(MAKECMDGOALS)
-	@mkdir -p build
-	@#create a file with contents being mcu name (for upload process)
-	@echo $(MCU) > build/MCU
-	@#create a file with contents being target name (for upload process)
-	@echo $(MAKECMDGOALS) > build/TARGET
 
 #debugging
 print-%:
