@@ -1,7 +1,7 @@
 ifeq ($(BOARD_DIR),pro_micro)
     #pro micro is just a leonardo variant
     BOARD_DIR := leonardo
-else ifneq ($(filter %16u2 %8u2, $(MAKECMDGOALS)), )
+else ifneq ($(filter %16u2 %8u2, $(TARGETNAME)), )
     #16u2 and 8u2 are basically same
     BOARD_DIR := xu2
 endif
@@ -13,7 +13,7 @@ INCLUDE_DIRS := \
 -I"application/board/avr/variants/$(BOARD_DIR)/" \
 -I"application/" \
 
-ifeq ($(findstring fw_,$(MAKECMDGOALS)), fw_)
+ifeq ($(findstring fw_,$(TARGETNAME)), fw_)
     ifneq ($(BOARD_DIR),xu2)
         INCLUDE_FILES += -include "application/board/avr/variants/$(BOARD_DIR)/Hardware.h"
     endif
@@ -46,7 +46,7 @@ ifneq ($(filter USB_SUPPORTED, $(DEFINES)), )
     modules/lufa/LUFA/Drivers/USB/Core/USBTask.c
 
     #additional sources differ for application and bootloader
-    ifeq ($(findstring boot,$(MAKECMDGOALS)), boot)
+    ifeq ($(findstring boot,$(TARGETNAME)), boot)
         #bootloader
         SOURCES += \
         bootloader/mcu/Descriptors.c \
@@ -61,7 +61,7 @@ ifneq ($(filter USB_SUPPORTED, $(DEFINES)), )
     endif
 endif
 
-ifeq ($(findstring boot,$(MAKECMDGOALS)), boot)
+ifeq ($(findstring boot,$(TARGETNAME)), boot)
     #bootloader sources
     #common
     SOURCES += \

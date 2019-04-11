@@ -19,8 +19,8 @@ RING_BUFFER_SIZE=50 \
 MIDI_SYSEX_ARRAY_SIZE=45
 
 #flash type specific
-ifeq ($(findstring boot,$(MAKECMDGOALS)), boot)
-    BOARD_DIR := $(subst boot_,,$(MAKECMDGOALS))
+ifeq ($(findstring boot,$(TARGETNAME)), boot)
+    BOARD_DIR := $(subst boot_,,$(TARGETNAME))
     DEFINES += \
     ORDERED_EP_CONFIG \
     NO_SOF_EVENTS \
@@ -29,8 +29,8 @@ ifeq ($(findstring boot,$(MAKECMDGOALS)), boot)
     DEVICE_STATE_AS_GPIOR \
     NO_DEVICE_REMOTE_WAKEUP \
     NO_DEVICE_SELF_POWER
-else ifeq ($(findstring fw,$(MAKECMDGOALS)), fw)
-    BOARD_DIR := $(subst fw_,,$(MAKECMDGOALS))
+else ifeq ($(findstring fw,$(TARGETNAME)), fw)
+    BOARD_DIR := $(subst fw_,,$(TARGETNAME))
     DEFINES += \
     USE_FLASH_DESCRIPTORS \
     INTERRUPT_CONTROL_ENDPOINT \
@@ -145,7 +145,7 @@ else ifeq ($(BOARD_DIR), 8u2)
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
     DEFINES += UART_USB_LINK_CHANNEL=0
-else ifeq ($(findstring upload,$(MAKECMDGOALS)), upload)
+else ifeq ($(findstring upload,$(TARGETNAME)), upload)
     #used to set MCU if make upload target is called
     #check if MCU file exists
     ifneq ("$(wildcard build/MCU)","")
@@ -154,7 +154,7 @@ else ifeq ($(findstring upload,$(MAKECMDGOALS)), upload)
         $(error Please run make for specific target first)
     endif
     #only some targets are supported
-    ifeq ($(MAKECMDGOALS),uploadboot)
+    ifeq ($(TARGETNAME),uploadboot)
         ifeq ($(filter fw_opendeck fw_tannin fw_leonardo fw_pro_micro fw_kodama fw_teensy2pp fw_bergamot fw_mega fw_uno, $(shell cat build/TARGET)), )
             $(error Not available for current target.)
         endif
@@ -275,7 +275,7 @@ ifneq ($(VARIANT),)
     else
         $(error Wront VARIANT format. Please specify variant in the following manner: "VARIANT=VARIANT_string")
     endif
-else ifeq ($(findstring boot_16u2,$(MAKECMDGOALS)), boot_16u2)
+else ifeq ($(findstring boot_16u2,$(TARGETNAME)), boot_16u2)
     ifeq ($(VARIANT),)
         $(error Variant must be specified for this target)
     endif

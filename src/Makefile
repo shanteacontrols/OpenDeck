@@ -1,10 +1,16 @@
+TARGETNAME := fw_opendeck
+
+ifneq ($(findstring $(TARGETNAME), $(shell cat targets.txt)), $(TARGETNAME))
+    $(error Target doesn't exist)
+endif
+
+TARGET := build/$(TARGETNAME)
+.DEFAULT_GOAL := $(TARGET).elf
+
 #includes
 #important - do not change the order of inclusion!
 include Defines.mk
 include Sources.mk
-
-#target location
-TARGET := build/$(MAKECMDGOALS)
 
 #specify c/c++ compilers
 CPP := avr-gcc
@@ -38,13 +44,13 @@ LDFLAGS := -Wl,--gc-sections -mrelax -Wl,--start-group -Wl,-lm -Wl,--end-group
 #optimisation level
 OPT := -Os
 
-ifneq ($(filter boot_%, $(MAKECMDGOALS)), )
+ifneq ($(filter boot_%, $(TARGETNAME)), )
     #make sure to link .text at correct address in bootloader
     LDFLAGS += -Wl,--section-start=.text=$(BOOT_START_ADDR)
 endif
 
 #use link time optimisations only on opendeck board due to the heavy memory constrains
-ifeq ($(MAKECMDGOALS), fw_opendeck)
+ifeq ($(TARGETNAME), fw_opendeck)
     COMMON_FLAGS += -flto
     LDFLAGS += -flto
 endif
@@ -55,33 +61,9 @@ LEN_APPEND := 0
 LDFLAGS += -T application/board/avr/linker/$(MCU).x
 
 #append length only in firmware
-ifeq ($(findstring fw,$(MAKECMDGOALS)), fw)
+ifeq ($(findstring fw,$(TARGETNAME)), fw)
     LEN_APPEND := 1
 endif
-
-#targets
-fw_opendeck \
-fw_leonardo \
-fw_mega \
-fw_pro_micro \
-fw_uno \
-fw_teensy2pp \
-fw_kodama \
-fw_tannin \
-fw_bergamot \
-fw_16u2 \
-fw_8u2 \
-boot_opendeck \
-boot_leonardo \
-boot_pro_micro \
-boot_mega \
-boot_uno \
-boot_teensy2pp \
-boot_kodama \
-boot_tannin \
-boot_bergamot \
-fw_mega6mux \
-boot_16u2: $(TARGET).elf
 
 #use windows binary on wsl since HID access isn't possible in wsl
 ifeq ($(findstring Microsoft,$(shell uname -r)), Microsoft)
@@ -108,7 +90,7 @@ $(TARGET).elf: $(OBJECTS)
 	@#create a file with contents being mcu name (for upload process)
 	@echo $(MCU) > build/MCU
 	@#create a file with contents being target name (for upload process)
-	@echo $(MAKECMDGOALS) > build/TARGET
+	@echo $(TARGETNAME) > build/TARGET
 	@#link
 	@$(CXX) -o$(TARGET).elf $(OBJECTS) -mmcu=$(MCU) $(LDFLAGS) -Wl,-Map,$(TARGET).map
 	@echo Finished building target: $@
