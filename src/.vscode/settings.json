@@ -14,5 +14,6 @@
     "editor.renderWhitespace": "all",
     "terminal.integrated.shell.windows": "C:\\Windows\\sysnative\\wsl.exe",
     "C_Cpp.autoAddFileAssociations": false,
-    "diffEditor.ignoreTrimWhitespace": false
+    "diffEditor.ignoreTrimWhitespace": false,
+    "git.detectSubmodules": false
 }
