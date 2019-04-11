@@ -48,5 +48,6 @@ typedef enum
     midiMergeDINtoDIN,
     midiMergeODmaster,
     midiMergeODslave,
+    midiMergeODslaveInitial,
     MIDI_MERGE_TYPES
 } midiMergeType_t;

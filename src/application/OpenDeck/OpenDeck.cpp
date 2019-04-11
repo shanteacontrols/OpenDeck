@@ -320,7 +320,7 @@ void OpenDeck::checkMIDI()
                 //already configured
                 // break;
 
-                case midiMergeODslave:
+                case midiMergeODslaveInitial:
                 //handle the traffic regulary until slave is properly configured
                 //(upon receiving message from master)
                 if (midi.read(dinInterface))
