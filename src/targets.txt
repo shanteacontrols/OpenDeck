@@ -1,0 +1,23 @@
+fw_opendeck
+fw_leonardo
+fw_mega
+fw_pro_micro
+fw_uno
+fw_teensy2pp
+fw_kodama
+fw_tannin
+fw_bergamot
+fw_16u2
+fw_8u2
+fw_mega6mux
+boot_opendeck
+boot_leonardo
+boot_pro_micro
+boot_mega
+boot_uno
+boot_teensy2pp
+boot_kodama
+boot_tannin
+boot_bergamot
+boot_16u2 VARIANT=VARIANT_MEGA
+boot_16u2 VARIANT=VARIANT_UNO
