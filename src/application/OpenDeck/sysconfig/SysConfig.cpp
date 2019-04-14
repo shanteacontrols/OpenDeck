@@ -963,12 +963,10 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
         break;
 
         case midiMergeDINtoDIN:
-        Board::initUART(UART_BAUDRATE_MIDI_STD, UART_MIDI_CHANNEL);
-        //handle traffic directly in isr
+        //forward all incoming DIN MIDI data to DIN MIDI out
+        //also send OpenDeck-generated traffic to DIN MIDI out
+        setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, false, true);
         Board::setUARTloopbackState(UART_MIDI_CHANNEL, true);
-        //no need for uart handlers
-        midi.handleUARTread(nullptr);
-        midi.handleUARTwrite(nullptr);
         break;
 
         case midiMergeDINtoUSB:
