@@ -15,9 +15,9 @@ install:
 
 script:
   - cd src/
-  - chmod +x BuildAll.sh && ./BuildAll.sh
+  - chmod +x ../scripts/build_fwbtldr_all.sh && ../scripts/build_fwbtldr_all.sh
   - cd tests/
-  - chmod +x BuildTests.sh && ./BuildTests.sh
+  - chmod +x ../../scripts/build_execute_tests.sh && ../../scripts/build_execute_tests.sh
 
 # disable the default submodule logic
 git:

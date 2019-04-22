@@ -1,10 +1,10 @@
 #!/bin/bash
 
 #used to create hex file containing both the bootloader and application
-#example for opendeck: ./combine_fwbtldr opendeck
+#example for opendeck: ./build_single_combine_fw_btldr.sh opendeck
 #variant (second command line argument) can be specified only as "UNO" or "MEGA"
 #used only for 16u2 target, ignored otherwise
-#example: ./combine_fwbtldr 16u2 UNO
+#example: ./build_single_combine_fw_btldr 16u2 UNO
 
 #build bootloader first
 make clean && make TARGETNAME=boot_$1 VARIANT=VARIANT_$2

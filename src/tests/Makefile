@@ -53,7 +53,7 @@ build/pots.out: $(OBJECTS_pots) build/gtest_main.a
 
 exec:
 	@echo Running all compiled tests.
-	@chmod +x RunTests.sh && ./RunTests.sh
+	@chmod +x ../../scripts/execute_tests.sh && ../../scripts/execute_tests.sh
 
 coverage:
 	@echo Creating coverage report.
