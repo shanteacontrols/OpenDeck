@@ -2,8 +2,8 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "[Make][FW] OpenDeck",
-            "command": "make fw_opendeck LANG=C",
+            "label": "[FW/BTLDR] Build",
+            "command": "compiledb -d . make TARGETNAME=${input:target} LANG=C",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -11,151 +11,13 @@
             "group": {
                 "kind": "build",
                 "isDefault": true
-            },
-            "windows": {
-                "options": {
-                    "shell": {
-                        //needed on windows since tasks don't source .bashrc profile
-                        // >> therefore any modifications to PATH aren't available
-                        "executable": "C://WINDOWS//System32//wsl.exe",
-                        "args": [
-                           "PATH=/usr/local/avr/bin:${PATH}",
-                           "MAKEFLAGS=-j4"
-                        ]
-                    }
-                }
             }
         },
         {
-            "label": "[Make][FW] Arduino Pro Micro",
-            "command": "make fw_pro_micro LANG=C",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "windows": {
-                "options": {
-                    "shell": {
-                        "executable": "C://WINDOWS//System32//wsl.exe",
-                        "args": [
-                           "PATH=/usr/local/avr/bin:${PATH}",
-                           "MAKEFLAGS=-j4"
-                        ]
-                    }
-                }
-            },
-        },
-        {
-            "label": "[Make][FW] Arduino Uno",
-            "command": "make fw_uno LANG=C",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "windows": {
-                "options": {
-                    "shell": {
-                        "executable": "C://WINDOWS//System32//wsl.exe",
-                        "args": [
-                           "PATH=/usr/local/avr/bin:${PATH}",
-                           "MAKEFLAGS=-j4"
-                        ]
-                    }
-                }
-            },
-        },
-        {
-            "label": "[Make][FW] Arduino Leonardo",
-            "command": "make fw_leonardo LANG=C",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "windows": {
-                "options": {
-                    "shell": {
-                        "executable": "C://WINDOWS//System32//wsl.exe",
-                        "args": [
-                           "PATH=/usr/local/avr/bin:${PATH}",
-                           "MAKEFLAGS=-j4"
-                        ]
-                    }
-                }
-            },
-        },
-        {
-            "label": "[Make][FW] Arduino Mega",
-            "command": "make fw_mega LANG=C",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "windows": {
-                "options": {
-                    "shell": {
-                        "executable": "C://WINDOWS//System32//wsl.exe",
-                        "args": [
-                           "PATH=/usr/local/avr/bin:${PATH}",
-                           "MAKEFLAGS=-j4"
-                        ]
-                    }
-                }
-            },
-        },
-        {
-            "label": "[Make][FW] Bergamot",
-            "command": "make fw_bergamot LANG=C",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "windows": {
-                "options": {
-                    "shell": {
-                        "executable": "C://WINDOWS//System32//wsl.exe",
-                        "args": [
-                           "PATH=/usr/local/avr/bin:${PATH}",
-                           "MAKEFLAGS=-j4"
-                        ]
-                    }
-                }
-            },
-        },
-        {
-            "label": "[Make][FW] Arduino 16u2",
-            "command": "make fw_16u2 LANG=C",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "windows": {
-                "options": {
-                    "shell": {
-                        "executable": "C://WINDOWS//System32//wsl.exe",
-                        "args": [
-                           "PATH=/usr/local/avr/bin:${PATH}",
-                           "MAKEFLAGS=-j4"
-                        ]
-                    }
-                }
-            },
-        },
-        {
-            "label": "[Make][FW] Clean",
+            "label": "[FW/BTLDR] Clean",
             "command": "make clean",
             "type": "shell",
-            "problemMatcher": [],
-            "windows": {
-                "options": {
-                    "shell": {
-                        "executable": "C://WINDOWS//System32//wsl.exe",
-                        "args": [
-                           "PATH=/usr/local/avr/bin:${PATH}",
-                           "MAKEFLAGS=-j4"
-                        ]
-                    }
-                }
-            },
+            "problemMatcher": []
         },
         {
             "label": "[Make][GTest] Database",
@@ -230,6 +92,39 @@
                     }
                 }
             },
+        }
+    ],
+    "inputs": [
+        {
+            "id": "target",
+            "type": "pickString",
+            "default": "fw_opendeck",
+            "description": "Select target for which to build:",
+            "options": [
+                "fw_opendeck",
+                "fw_leonardo",
+                "fw_mega",
+                "fw_pro_micro",
+                "fw_uno",
+                "fw_teensy2pp",
+                "fw_kodama",
+                "fw_tannin",
+                "fw_bergamot",
+                "fw_16u2",
+                "fw_8u2",
+                "fw_mega6mux",
+                "boot_opendeck",
+                "boot_leonardo",
+                "boot_pro_micro",
+                "boot_mega",
+                "boot_uno",
+                "boot_teensy2pp",
+                "boot_kodama",
+                "boot_tannin",
+                "boot_bergamot",
+                "boot_16u2 VARIANT=VARIANT_MEGA",
+                "boot_16u2 VARIANT=VARIANT_UNO"
+            ]
         }
     ]
 }
