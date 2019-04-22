@@ -1,6 +1,7 @@
 include GTest.mk
 include Defines.mk
 include Sources.mk
+-include Objects.mk
 
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
@@ -36,20 +37,8 @@ build/%.o: %.cpp $(GTEST_HEADERS)
 	@echo Building $<
 	@$(CXX) $(CPPFLAGS) $(addprefix -D,$(DEFINES)) $(CXXFLAGS) $(INCLUDE_DIRS) $(INCLUDE_FILES) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
-build/database.out: $(OBJECTS_database) build/gtest_main.a
-	@echo Linking.
-	@$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
-	@echo Created executable: $@
-
-build/encoders.out: $(OBJECTS_encoders) build/gtest_main.a
-	@echo Linking.
-	@$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
-	@echo Created executable: $@
-
-build/pots.out: $(OBJECTS_pots) build/gtest_main.a
-	@echo Linking.
-	@$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
-	@echo Created executable: $@
+pre-build:
+	@chmod +x ../../scripts/gen_tests_targets.sh && ../../scripts/gen_tests_targets.sh
 
 exec:
 	@echo Running all compiled tests.

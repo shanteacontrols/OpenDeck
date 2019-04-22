@@ -26,22 +26,7 @@ application/interface/analog/Analog.cpp \
 application/interface/analog/Potentiometer.cpp \
 application/interface/analog/FSR.cpp \
 application/database/Database.cpp \
-interface/analog/Potentiometer.cpp \
-
-#make sure all objects are located in build directory
-#also make sure objects have .o extension
-
-OBJECTS_database := $(addprefix build/,$(SOURCES_database))
-OBJECTS_database := $(OBJECTS_database:.c=.o)
-OBJECTS_database := $(OBJECTS_database:.cpp=.o)
-
-OBJECTS_encoders := $(addprefix build/,$(SOURCES_encoders))
-OBJECTS_encoders := $(OBJECTS_encoders:.c=.o)
-OBJECTS_encoders := $(OBJECTS_encoders:.cpp=.o)
-
-OBJECTS_pots := $(addprefix build/,$(SOURCES_pots))
-OBJECTS_pots := $(OBJECTS_pots:.c=.o)
-OBJECTS_pots := $(OBJECTS_pots:.cpp=.o)
+interface/analog/Potentiometer.cpp
 
 #common include dirs
 INCLUDE_DIRS := \

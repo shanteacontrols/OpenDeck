@@ -3,6 +3,8 @@
 #exit on error
 set -e
 
+make pre-build
+
 #tests
 echo "Running tests for OpenDeck board"
 make clean && make all BOARD_TYPE=opendeck && make exec
