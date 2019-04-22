@@ -20,78 +20,24 @@
             "problemMatcher": []
         },
         {
-            "label": "[Make][GTest] Database",
-            "command": "cd tests && make TESTS=database",
+            "label": "[Tests] Build",
+            "command": "cd tests && make TESTS=${input:test}",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
-            ],
-            "windows": {
-                "options": {
-                    "shell": {
-                        "executable": "C://WINDOWS//System32//wsl.exe",
-                        "args": [
-                           "PATH=/usr/local/avr/bin:${PATH}",
-                           "MAKEFLAGS=-j4"
-                        ]
-                    }
-                }
-            },
+            ]
         },
         {
-            "label": "[Make][GTest] Encoders",
-            "command": "cd tests && make TESTS=encoders",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "windows": {
-                "options": {
-                    "shell": {
-                        "executable": "C://WINDOWS//System32//wsl.exe",
-                        "args": [
-                           "PATH=/usr/local/avr/bin:${PATH}",
-                           "MAKEFLAGS=-j4"
-                        ]
-                    }
-                }
-            },
-        },
-        {
-            "label": "[Make][GTest] Pots",
-            "command": "cd tests && make TESTS=pots",
-            "type": "shell",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "windows": {
-                "options": {
-                    "shell": {
-                        "executable": "C://WINDOWS//System32//wsl.exe",
-                        "args": [
-                           "PATH=/usr/local/avr/bin:${PATH}",
-                           "MAKEFLAGS=-j4"
-                        ]
-                    }
-                }
-            },
-        },
-        {
-            "label": "[Make][GTest] Clean",
+            "label": "[Tests] Clean",
             "command": "cd tests && make clean",
             "type": "shell",
-            "problemMatcher": [],
-            "windows": {
-                "options": {
-                    "shell": {
-                        "executable": "C://WINDOWS//System32//wsl.exe",
-                        "args": [
-                           "PATH=/usr/local/avr/bin:${PATH}",
-                           "MAKEFLAGS=-j4"
-                        ]
-                    }
-                }
-            },
+            "problemMatcher": []
+        },
+        {
+            "label": "[Tests] Run compiled",
+            "command": "cd tests && make exec",
+            "type": "shell",
+            "problemMatcher": []
         }
     ],
     "inputs": [
@@ -124,6 +70,17 @@
                 "boot_bergamot",
                 "boot_16u2 VARIANT=VARIANT_MEGA",
                 "boot_16u2 VARIANT=VARIANT_UNO"
+            ]
+        },
+        {
+            "id": "test",
+            "type": "pickString",
+            "default": "database",
+            "description": "Select test to build:",
+            "options": [
+                "database",
+                "encoders",
+                "pots"
             ]
         }
     ]

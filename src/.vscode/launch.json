@@ -5,16 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "[Debug][GTest] Database",
+            "name": "Test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/tests/build/database.out",
+            "program": "${workspaceFolder}/tests/build/test.out",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
-            "MIMode": "gdb",
+            "MIMode": "lldb",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -22,47 +22,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "[Make][GTest] Database"
-        },
-        {
-            "name": "[Debug][GTest] Encoders",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/tests/build/encoders.out",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ],
-            "preLaunchTask": "[Make][GTest] Encoders"
-        },
-        {
-            "name": "[Debug][GTest] Pots",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/tests/build/pots.out",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ],
-            "preLaunchTask": "[Make][GTest] Pots"
+            "preLaunchTask": "[Tests] Build"
         }
     ]
 }
