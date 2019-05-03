@@ -21,7 +21,7 @@
         },
         {
             "label": "[Tests] Build",
-            "command": "cd tests && make TESTS=${input:test}",
+            "command": "cd tests && make pre-build && make TESTS=${input:test}",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
