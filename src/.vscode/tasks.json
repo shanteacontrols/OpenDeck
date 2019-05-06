@@ -38,6 +38,12 @@
             "command": "cd tests && make exec",
             "type": "shell",
             "problemMatcher": []
+        },
+        {
+            "label": "[VSCode] Update intellisense",
+            "command": "chmod +x ../scripts/vscode_intellisense.sh && ../scripts/vscode_intellisense.sh ${input:target}",
+            "type": "shell",
+            "problemMatcher": []
         }
     ],
     "inputs": [
