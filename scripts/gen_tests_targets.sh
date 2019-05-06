@@ -24,5 +24,4 @@ do
     printf '\t%s\n' '@echo Linking' >> Objects.mk
     printf '\t%s\n' '@$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@' >> Objects.mk
     printf '\t%s\n' '@echo Created executable: $@' >> Objects.mk
-    printf '\t%s\n\n' '@cp build/'${test}'.out build/test.out' >> Objects.mk
 done
