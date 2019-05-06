@@ -11,13 +11,38 @@
             "group": {
                 "kind": "build",
                 "isDefault": true
+            },
+            "windows": {
+                "options": {
+                    "shell": {
+                        //needed on windows since tasks don't source .bashrc profile
+                        // >> therefore any modifications to PATH aren't available
+                        "executable": "C://WINDOWS//System32//wsl.exe",
+                        "args": [
+                           "PATH=/usr/local/avr/bin:~/.local/bin:${PATH}",
+                           "MAKEFLAGS=-j8"
+                        ]
+                    }
+                }
             }
         },
         {
             "label": "[FW/BTLDR] Clean",
             "command": "make clean",
             "type": "shell",
-            "problemMatcher": []
+            "problemMatcher": [],
+            "windows": {
+                "options": {
+                    "shell": {
+                        //needed on windows since tasks don't source .bashrc profile
+                        // >> therefore any modifications to PATH aren't available
+                        "executable": "C://WINDOWS//System32//wsl.exe",
+                        "args": [
+                           "PATH=/usr/local/avr/bin:~/.local/bin:${PATH}",
+                        ]
+                    }
+                }
+            }
         },
         {
             "label": "[Tests] Build",
@@ -25,25 +50,75 @@
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
-            ]
+            ],
+            "windows": {
+                "options": {
+                    "shell": {
+                        //needed on windows since tasks don't source .bashrc profile
+                        // >> therefore any modifications to PATH aren't available
+                        "executable": "C://WINDOWS//System32//wsl.exe",
+                        "args": [
+                           "PATH=/usr/local/avr/bin:~/.local/bin:${PATH}",
+                           "MAKEFLAGS=-j8"
+                        ]
+                    }
+                }
+            }
         },
         {
             "label": "[Tests] Clean",
             "command": "cd tests && make clean",
             "type": "shell",
-            "problemMatcher": []
+            "problemMatcher": [],
+            "windows": {
+                "options": {
+                    "shell": {
+                        //needed on windows since tasks don't source .bashrc profile
+                        // >> therefore any modifications to PATH aren't available
+                        "executable": "C://WINDOWS//System32//wsl.exe",
+                        "args": [
+                           "PATH=/usr/local/avr/bin:~/.local/bin:${PATH}",
+                        ]
+                    }
+                }
+            }
         },
         {
             "label": "[Tests] Run compiled",
             "command": "cd tests && make exec",
             "type": "shell",
-            "problemMatcher": []
+            "problemMatcher": [],
+            "windows": {
+                "options": {
+                    "shell": {
+                        //needed on windows since tasks don't source .bashrc profile
+                        // >> therefore any modifications to PATH aren't available
+                        "executable": "C://WINDOWS//System32//wsl.exe",
+                        "args": [
+                           "PATH=/usr/local/avr/bin:~/.local/bin:${PATH}",
+                        ]
+                    }
+                }
+            }
         },
         {
             "label": "[VSCode] Update intellisense",
-            "command": "chmod +x ../scripts/vscode_intellisense.sh && ../scripts/vscode_intellisense.sh ${input:target}",
+            "command": "../scripts/vscode_intellisense.sh ${input:target}",
             "type": "shell",
-            "problemMatcher": []
+            "problemMatcher": [],
+            "windows": {
+                "options": {
+                    "shell": {
+                        //needed on windows since tasks don't source .bashrc profile
+                        // >> therefore any modifications to PATH aren't available
+                        "executable": "C://WINDOWS//System32//wsl.exe",
+                        "args": [
+                           "PATH=/usr/local/avr/bin:~/.local/bin:${PATH}",
+                           "MAKEFLAGS=-j8"
+                        ]
+                    }
+                }
+            }
         }
     ],
     "inputs": [
