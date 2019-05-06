@@ -33,5 +33,5 @@ INCLUDE_DIRS := \
 -I"../application/" \
 -I"../modules/"
 
-INCLUDE_FILES += -include "../application/board/avr/variants/$(BOARD_TYPE)/Hardware.h"
+INCLUDE_FILES += -include "../application/board/avr/variants/$(subst fw_,,$(TARGETNAME))/Hardware.h"
 INCLUDE_FILES += -isystem "stubs/avr"

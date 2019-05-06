@@ -4,10 +4,10 @@
 DEFINES := \
 MIDI_SYSEX_ARRAY_SIZE=45
 
-BOARD_TYPE := opendeck
+TARGETNAME := fw_opendeck
 
 #board specific
-ifeq ($(BOARD_TYPE), opendeck)
+ifeq ($(TARGETNAME), fw_opendeck)
     MCU := atmega32u4
     BOARD := BOARD_OPEN_DECK
     DEFINES += LED_FADING_SUPPORTED
@@ -20,7 +20,7 @@ ifeq ($(BOARD_TYPE), opendeck)
     HARDWARE_VERSION_MINOR := 2
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += UART_MIDI_CHANNEL=0
-else ifeq ($(BOARD_TYPE), tannin)
+else ifeq ($(TARGETNAME), fw_tannin)
     MCU := atmega32u4
     BOARD := BOARD_TANNIN
     DEFINES += LED_FADING_SUPPORTED
@@ -30,7 +30,7 @@ else ifeq ($(BOARD_TYPE), tannin)
     DEFINES += OUT_MATRIX
     HARDWARE_VERSION_MAJOR := 3
     HARDWARE_VERSION_MINOR := 0
-else ifeq ($(BOARD_TYPE), leonardo)
+else ifeq ($(TARGETNAME), fw_leonardo)
     MCU := atmega32u4
     BOARD := BOARD_A_LEO
     DEFINES += LED_INT_INVERT
@@ -39,7 +39,7 @@ else ifeq ($(BOARD_TYPE), leonardo)
     HARDWARE_VERSION_MINOR := 0
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += UART_MIDI_CHANNEL=0
-else ifeq ($(BOARD_TYPE), pro_micro)
+else ifeq ($(TARGETNAME), fw_pro_micro)
     MCU := atmega32u4
     BOARD := BOARD_A_PRO_MICRO
     DEFINES += LED_INT_INVERT
@@ -48,14 +48,14 @@ else ifeq ($(BOARD_TYPE), pro_micro)
     DEFINES += LED_INDICATORS
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += UART_MIDI_CHANNEL=0
-else ifeq ($(BOARD_TYPE), kodama)
+else ifeq ($(TARGETNAME), fw_kodama)
     MCU := atmega32u4
     BOARD := BOARD_KODAMA
     DEFINES += USE_MUX
     DEFINES += LED_EXT_INVERT
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
-else ifeq ($(BOARD_TYPE), bergamot)
+else ifeq ($(TARGETNAME), fw_bergamot)
     MCU := atmega32u4
     BOARD := BOARD_BERGAMOT
     DEFINES += USE_MUX
@@ -63,7 +63,7 @@ else ifeq ($(BOARD_TYPE), bergamot)
     HARDWARE_VERSION_MINOR := 0
     DEFINES += TOUCHSCREEN_SUPPORTED
     DEFINES += UART_TOUCHSCREEN_CHANNEL=0
-else ifeq ($(BOARD_TYPE), teensy2pp)
+else ifeq ($(TARGETNAME), fw_teensy2pp)
     MCU := at90usb1286
     BOARD := BOARD_T_2PP
     DEFINES += STRING_BUFFER_SIZE=40
@@ -71,7 +71,7 @@ else ifeq ($(BOARD_TYPE), teensy2pp)
     HARDWARE_VERSION_MINOR := 0
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += UART_MIDI_CHANNEL=0
-else ifeq ($(BOARD_TYPE), mega)
+else ifeq ($(TARGETNAME), fw_mega)
     MCU := atmega2560
     BOARD := BOARD_A_MEGA
     DEFINES += STRING_BUFFER_SIZE=40
@@ -82,13 +82,13 @@ else ifeq ($(BOARD_TYPE), mega)
     DEFINES += UART_USB_LINK_CHANNEL=0
     DEFINES += UART_MIDI_CHANNEL=1
     DEFINES += UART_TOUCHSCREEN_CHANNEL=1
-else ifeq ($(BOARD_TYPE), uno)
+else ifeq ($(TARGETNAME), fw_uno)
     MCU := atmega328p
     BOARD := BOARD_A_UNO
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
     DEFINES += UART_USB_LINK_CHANNEL=0
-else ifeq ($(BOARD_TYPE), 16u2)
+else ifeq ($(TARGETNAME), fw_16u2)
     MCU := atmega16u2
     BOARD := BOARD_A_xu2
     DEFINES += LED_INT_INVERT
@@ -96,7 +96,7 @@ else ifeq ($(BOARD_TYPE), 16u2)
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
     DEFINES += UART_USB_LINK_CHANNEL=0
-else ifeq ($(BOARD_TYPE), 8u2)
+else ifeq ($(TARGETNAME), fw_8u2)
     MCU := atmega8u2
     BOARD := BOARD_A_xu2
     DEFINES += LED_INT_INVERT
@@ -104,7 +104,7 @@ else ifeq ($(BOARD_TYPE), 8u2)
     HARDWARE_VERSION_MAJOR := 1
     HARDWARE_VERSION_MINOR := 0
     DEFINES += UART_USB_LINK_CHANNEL=0
-else ifeq ($(BOARD_TYPE), mega6mux)
+else ifeq ($(TARGETNAME), fw_mega6mux)
     MCU := atmega2560
     BOARD := BOARD_A_MEGA6MUX
     DEFINES += STRING_BUFFER_SIZE=40
@@ -115,6 +115,8 @@ else ifeq ($(BOARD_TYPE), mega6mux)
     DEFINES += UART_MIDI_CHANNEL=1
     DEFINES += UART_TOUCHSCREEN_CHANNEL=1
     DEFINES += USE_MUX
+else
+    $(error Invalid target specified)
 endif
 
 #mcu specific
