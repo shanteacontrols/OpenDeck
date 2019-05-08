@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#note: must be run in src in order to work
+
 #exit on error
 set -e
 
@@ -21,17 +23,23 @@ make clean && make TARGETNAME=fw_teensy2pp && cp build/fw_teensy2pp.hex ../bin/c
 make clean && make TARGETNAME=fw_16u2 && cp build/fw_16u2.hex ../bin/compiled/arduino+teensy/fw/fw_16u2.hex
 make clean && make TARGETNAME=fw_8u2 && cp build/fw_8u2.hex ../bin/compiled/arduino+teensy/fw/fw_8u2.hex
 
-. ./combine_fwbtldr leonardo
+../scripts/build_fwbtldr_single_combine.sh leonardo
 cp build/fw_leonardo.hex ../bin/compiled/arduino+teensy/fw+boot/fw_boot_leonardo.hex
-. ./combine_fwbtldr pro_micro
+
+../scripts/build_fwbtldr_single_combine.sh pro_micro
 cp build/fw_pro_micro.hex ../bin/compiled/arduino+teensy/fw+boot/fw_boot_pro_micro.hex
-. ./combine_fwbtldr uno
+
+../scripts/build_fwbtldr_single_combine.sh uno
 cp build/fw_uno.hex ../bin/compiled/arduino+teensy/fw+boot/fw_boot_uno.hex
-. ./combine_fwbtldr mega
+
+../scripts/build_fwbtldr_single_combine.sh mega
 cp build/fw_mega.hex ../bin/compiled/arduino+teensy/fw+boot/fw_boot_mega.hex
-. ./combine_fwbtldr teensy2pp
+
+../scripts/build_fwbtldr_single_combine.sh teensy2pp
 cp build/fw_teensy2pp.hex ../bin/compiled/arduino+teensy/fw+boot/fw_boot_teensy2pp.hex
-. ./combine_fwbtldr 16u2 MEGA
+
+../scripts/build_fwbtldr_single_combine.sh 16u2 MEGA
 cp build/fw_16u2.hex ../bin/compiled/arduino+teensy/fw+boot/fw_boot_16u2_mega.hex
-. ./combine_fwbtldr 16u2 UNO
+
+../scripts/build_fwbtldr_single_combine.sh 16u2 UNO
 cp build/fw_16u2.hex ../bin/compiled/arduino+teensy/fw+boot/fw_boot_16u2_uno.hex
