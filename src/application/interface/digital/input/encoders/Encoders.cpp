@@ -185,7 +185,6 @@ void Encoders::update()
                     }
                     else
                     {
-                        //use mapRange_uint32 to avoid overflow issues
                         encDec_14bit.value = encoderValue;
                         encDec_14bit.split14bit();
 
