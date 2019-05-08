@@ -58,6 +58,11 @@ limitations under the License.
 #define AFTERTOUCH_MAX_VALUE            600
 
 ///
+/// \brief Minimum raw ADC value.
+///
+#define ADC_MIN_VALUE                   0
+
+///
 /// \brief Maxmimum raw ADC value.
 ///
 #define ADC_MAX_VALUE                   1023
