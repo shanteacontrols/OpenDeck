@@ -68,14 +68,14 @@ class Analog
     void setButtonHandler(void(*fptr)(uint8_t adcIndex, uint16_t adcValue));
 
     private:
-    void checkPotentiometerValue(analogType_t analogType, uint8_t analogID, uint16_t value);
+    void checkPotentiometerValue(analogType_t analogType, uint8_t analogID, uint32_t value);
     void checkFSRvalue(uint8_t analogID, uint16_t pressure);
     bool fsrPressureStable(uint8_t analogID);
     bool getFsrPressed(uint8_t fsrID);
     void setFsrPressed(uint8_t fsrID, bool state);
     bool getFsrDebounceTimerStarted(uint8_t fsrID);
     void setFsrDebounceTimerStarted(uint8_t fsrID, bool state);
-    int16_t calibratePressure(int16_t value, pressureType_t type);
+    uint32_t calibratePressure(uint32_t value, pressureType_t type);
 
     Database    &database;
     MIDI        &midi;
@@ -86,10 +86,17 @@ class Analog
     Display     &display;
     #endif
 
-    void        (*buttonHandler)(uint8_t adcIndex, uint16_t adcValue) = nullptr;
-    uint16_t    lastAnalogueValue[MAX_NUMBER_OF_ANALOG] = {};
-    uint8_t     fsrPressed[MAX_NUMBER_OF_ANALOG] = {};
-    bool        lastDirection[MAX_NUMBER_OF_ANALOG] = {};
+    enum class potDirection_t : uint8_t
+    {
+        initial,
+        left,
+        right
+    };
+
+    void            (*buttonHandler)(uint8_t adcIndex, uint16_t adcValue) = nullptr;
+    uint16_t        lastAnalogueValue[MAX_NUMBER_OF_ANALOG] = {};
+    uint8_t         fsrPressed[MAX_NUMBER_OF_ANALOG] = {};
+    potDirection_t  lastDirection[MAX_NUMBER_OF_ANALOG] = {};
 };
 
 /// @}

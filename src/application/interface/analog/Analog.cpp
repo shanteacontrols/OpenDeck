@@ -66,6 +66,7 @@ void Analog::update()
 
 void Analog::debounceReset(uint16_t index)
 {
+    lastDirection[index] = potDirection_t::initial;
     lastAnalogueValue[index] = 0;
     fsrPressed[index] = false;
 }

@@ -23,15 +23,15 @@ limitations under the License.
 
 //use 1k resistor when connecting FSR between signal and ground
 
-int16_t Analog::calibratePressure(int16_t value, pressureType_t type)
+uint32_t Analog::calibratePressure(uint32_t value, pressureType_t type)
 {
     switch(type)
     {
         case velocity:
-        return mapRange_uint16(CONSTRAIN(value, FSR_MIN_VALUE, FSR_MAX_VALUE), FSR_MIN_VALUE, FSR_MAX_VALUE, 0, 127);
+        return mapRange(CONSTRAIN(value, static_cast<uint32_t>(FSR_MIN_VALUE), static_cast<uint32_t>(FSR_MAX_VALUE)), static_cast<uint32_t>(FSR_MIN_VALUE), static_cast<uint32_t>(FSR_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
 
         case aftertouch:
-        return mapRange_uint16(CONSTRAIN(value, FSR_MIN_VALUE, AFTERTOUCH_MAX_VALUE), FSR_MIN_VALUE, AFTERTOUCH_MAX_VALUE, 0, 127);
+        return mapRange(CONSTRAIN(value, static_cast<uint32_t>(FSR_MIN_VALUE), static_cast<uint32_t>(AFTERTOUCH_MAX_VALUE)), static_cast<uint32_t>(FSR_MIN_VALUE), static_cast<uint32_t>(AFTERTOUCH_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
 
         default:
         return 0;
@@ -50,7 +50,7 @@ void Analog::setFsrPressed(uint8_t fsrID, bool state)
 
 void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
 {
-    uint8_t calibratedPressure = calibratePressure(pressure, velocity);
+    auto calibratedPressure = calibratePressure(pressure, velocity);
 
     if (calibratedPressure > 0)
     {
