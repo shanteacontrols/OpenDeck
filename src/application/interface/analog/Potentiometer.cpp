@@ -36,7 +36,8 @@ void Analog::checkPotentiometerValue(analogType_t analogType, uint8_t analogID, 
         stepDiff = ANALOG_STEP_MIN_DIFF_7_BIT;
     }
 
-    potDirection_t direction = value > lastAnalogueValue[analogID] ? potDirection_t::left : potDirection_t::right;
+    //if the first read value is 0, mark it as increasing since the lastAnalogueValue is initialized to value 0 for all pots
+    potDirection_t direction = value >= lastAnalogueValue[analogID] ? potDirection_t::increasing : potDirection_t::decreasing;
 
     if (lastDirection[analogID] != potDirection_t::initial)
     {

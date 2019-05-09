@@ -89,8 +89,8 @@ class Analog
     enum class potDirection_t : uint8_t
     {
         initial,
-        left,
-        right
+        decreasing,
+        increasing
     };
 
     void            (*buttonHandler)(uint8_t adcIndex, uint16_t adcValue) = nullptr;
