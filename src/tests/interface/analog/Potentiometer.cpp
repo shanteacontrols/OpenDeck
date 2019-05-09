@@ -12,6 +12,29 @@
 //make sure that the default is largest amount of analog components
 #define MAX_MIDI_MESSAGES   96
 
+namespace Board
+{
+    namespace detail
+    {
+        uint32_t adcReturnValue;
+    }
+
+    int16_t getAnalogValue(uint8_t analogID)
+    {
+        return detail::adcReturnValue;
+    }
+
+    void continueADCreadout()
+    {
+
+    }
+
+    bool analogDataAvailable()
+    {
+        return true;
+    }
+}
+
 namespace MIDIstub
 {
     namespace detail
@@ -75,29 +98,6 @@ class PotentiometerTest : public ::testing::Test
     MIDI midi;
     Analog analog = Analog(database, midi);
 };
-
-namespace Board
-{
-    namespace detail
-    {
-        uint32_t adcReturnValue;
-    }
-
-    int16_t getAnalogValue(uint8_t analogID)
-    {
-        return detail::adcReturnValue;
-    }
-
-    void continueADCreadout()
-    {
-
-    }
-
-    bool analogDataAvailable()
-    {
-        return true;
-    }
-}
 
 TEST_F(PotentiometerTest, CCtest)
 {
