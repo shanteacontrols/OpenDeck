@@ -39,12 +39,16 @@ void Analog::checkPotentiometerValue(analogType_t analogType, uint8_t analogID, 
     //if the first read value is 0, mark it as increasing since the lastAnalogueValue is initialized to value 0 for all pots
     potDirection_t direction = value >= lastAnalogueValue[analogID] ? potDirection_t::increasing : potDirection_t::decreasing;
 
+    //don't perform these checks on initial value readout
     if (lastDirection[analogID] != potDirection_t::initial)
     {
-        //don't perform these checks on initial value readout
         //when potentiometer changes direction, use double step difference to avoid jumping of values
+        //but only in 14bit mode
         if (direction != lastDirection[analogID])
-            stepDiff *= 2;
+        {
+            if ((analogType == aType_NRPN_14) || (analogType == aType_PitchBend))
+                stepDiff *= 2;
+        }
 
         if (abs(static_cast<uint16_t>(value) - lastAnalogueValue[analogID]) < stepDiff)
             return;
