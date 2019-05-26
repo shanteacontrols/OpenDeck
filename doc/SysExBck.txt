@@ -7,12 +7,14 @@ F0 00 53 43 00 00 04 F7
 //used to avoid data sending during backup
 F0 00 53 43 00 00 64 F7
 
-//////// midi block start ////////
+//////// global block start ////////
 
-//feature section
+//midi features section
 F0 00 53 43 00 7F 02 01 00 00 F7
 //midi merge section
 F0 00 53 43 00 7F 02 01 00 01 F7
+//presets section
+F0 00 53 43 00 7F 02 01 00 02 F7
 
 //////// midi block end ////////
 
@@ -43,12 +45,18 @@ F0 00 53 43 00 7F 02 01 02 00 F7
 F0 00 53 43 00 7F 02 01 02 01 F7
 //mode section
 F0 00 53 43 00 7F 02 01 02 02 F7
-//midi id section
+//midi id section / LSB
 F0 00 53 43 00 7F 02 01 02 03 F7
 //midi channel section
 F0 00 53 43 00 7F 02 01 02 04 F7
 //pulses per step section
 F0 00 53 43 00 7F 02 01 02 05 F7
+//acceleration section
+F0 00 53 43 00 7F 02 01 02 06 F7
+//midi id section / MSB
+F0 00 53 43 00 7F 02 01 02 07 F7
+//remote sync section
+F0 00 53 43 00 7F 02 01 02 08 F7
 
 //////// encoder block end ////////
 
@@ -62,17 +70,17 @@ F0 00 53 43 00 7F 02 01 03 00 F7
 F0 00 53 43 00 7F 02 01 03 01 F7
 //type section
 F0 00 53 43 00 7F 02 01 03 02 F7
-//midi id lsb section
+//midi id section / LSB
 F0 00 53 43 00 7F 02 01 03 03 F7
-//midi id msb section
+//midi id section / MSB
 F0 00 53 43 00 7F 02 01 03 04 F7
-//lower limit lsb section
+//lower limit section / LSB
 F0 00 53 43 00 7F 02 01 03 05 F7
-//lower limit msb section
+//lower limit section / MSB
 F0 00 53 43 00 7F 02 01 03 06 F7
-//upper limit lsb section
+//upper limit section / LSB
 F0 00 53 43 00 7F 02 01 03 07 F7
-//upper limit msb section
+//upper limit section / MSB
 F0 00 53 43 00 7F 02 01 03 08 F7
 //midi channel section
 F0 00 53 43 00 7F 02 01 03 09 F7
@@ -83,9 +91,9 @@ F0 00 53 43 00 7F 02 01 03 09 F7
 
 //////// led block start ////////
 
-//hardware parameters section
+//global section
 F0 00 53 43 00 7F 02 01 04 02 F7
-//activation note section
+//activation id section
 F0 00 53 43 00 7F 02 01 04 03 F7
 //rgb enable section
 F0 00 53 43 00 7F 02 01 04 04 F7
