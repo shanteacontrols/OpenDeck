@@ -39,8 +39,8 @@ class OpenDeck
     public:
     OpenDeck() {}
 
-    void init();
-    void update();
-    void checkMIDI();
-    void checkComponents();
+    static void init();
+    static void update();
+    static void checkMIDI();
+    static void checkComponents();
 };
