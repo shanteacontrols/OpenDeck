@@ -2,6 +2,7 @@
 DEFINES := \
 NDEBUG \
 ARCH=ARCH_AVR8 \
+__AVR__ \
 F_CPU=16000000UL \
 F_USB=16000000UL \
 BOARD=BOARD_NONE \
@@ -176,6 +177,7 @@ ifeq ($(MCU),atmega32u4)
     FLASH_SIZE_END_ADDR := 0xB0
     DEFINES += UART_INTERFACES=1
     DEFINES += USB_SUPPORTED
+    DEFINES += __AVR_ATmega32U4__
 else ifeq ($(MCU),at90usb1286)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xf8
@@ -188,6 +190,7 @@ else ifeq ($(MCU),at90usb1286)
     FLASH_SIZE_END_ADDR := 0x9C
     DEFINES += UART_INTERFACES=1
     DEFINES += USB_SUPPORTED
+    DEFINES += __AVR_AT90USB1286__
 else ifeq ($(MCU),atmega16u2)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xf8
@@ -200,6 +203,7 @@ else ifeq ($(MCU),atmega16u2)
     BOOT_START_ADDR := 0x3000
     DEFINES += UART_INTERFACES=1
     DEFINES += USB_SUPPORTED
+    DEFINES += __AVR_ATmega16U2__
 else ifeq ($(MCU),atmega8u2)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xf8
@@ -212,6 +216,7 @@ else ifeq ($(MCU),atmega8u2)
     BOOT_START_ADDR := 0x1800
     DEFINES += UART_INTERFACES=1
     DEFINES += USB_SUPPORTED
+    DEFINES += __AVR_ATmega8U2__
 else ifeq ($(MCU),atmega2560)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xfc
@@ -223,6 +228,7 @@ else ifeq ($(MCU),atmega2560)
     FLASH_SIZE_END_ADDR := 0xE8
     BOOT_START_ADDR := 0x3F000
     DEFINES += UART_INTERFACES=2
+    DEFINES += __AVR_ATmega2560__
 else ifeq ($(MCU),atmega328p)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xfc
@@ -234,6 +240,7 @@ else ifeq ($(MCU),atmega328p)
     FLASH_SIZE_END_ADDR := 0x6C
     BOOT_START_ADDR := 0x7800
     DEFINES += UART_INTERFACES=1
+    DEFINES += __AVR_ATmega328P__
 endif
 
 DEFINES += APP_LENGTH_LOCATION=$(FLASH_SIZE_START_ADDR)
