@@ -18,17 +18,12 @@ limitations under the License.
 
 #include "OpenDeck/OpenDeck.h"
 
-namespace
-{
-   OpenDeck openDeck;
-}
-
 int main()
 {
-    openDeck.init();
+    OpenDeck::init();
 
     while(1)
     {
-        openDeck.update();
+        OpenDeck::update();
     }
 }
