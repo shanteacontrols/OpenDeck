@@ -37,19 +37,11 @@ void LEDs::init(bool startUp)
 {
     if (startUp)
     {
-        if (database.read(DB_BLOCK_LEDS, dbSection_leds_global, ledGlobalParam_startUpRoutineState))
-        {
-            //set to slowest fading speed for effect
-            #ifdef LED_FADING_SUPPORTED
-            setFadeTime(1);
-            #endif
+        if (database.read(DB_BLOCK_LEDS, dbSection_leds_global, static_cast<uint16_t>(setting_t::useStartupAnimation)))
+            startUpAnimation();
 
-            if (!Board::startUpAnimation())
-                LEDs::startUpAnimation();
-        }
-
-        #ifdef LED_FADING_SUPPORTED
-        setFadeTime(database.read(DB_BLOCK_LEDS, dbSection_leds_global, ledGlobalParam_fadeSpeed));
+        #ifdef LED_FADING
+        setFadeTime(database.read(DB_BLOCK_LEDS, dbSection_leds_global, static_cast<uint16_t>(setting_t::fadeSpeed)));
         #endif
     }
 
