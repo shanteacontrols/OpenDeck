@@ -35,7 +35,10 @@ MIDI midi;
 Display display;
 #endif
 #ifdef TOUCHSCREEN_SUPPORTED
-Touchscreen         touchscreen;
+//assume sdw only for now
+#include "interface/display/touch/model/sdw/SDW.h"
+SDW sdw;
+Interface::Touchscreen touchscreen(sdw);
 #endif
 #ifdef LEDS_SUPPORTED
 LEDs leds(database);
@@ -138,9 +141,11 @@ void OpenDeck::init()
     }
     #endif
 
+    #ifdef TOUCHSCREEN_SUPPORTED
     #ifdef BOARD_BERGAMOT
-    touchscreen.init(ts_sdw);
-    touchscreen.setPage(1);
+    touchscreen.init();
+    touchscreen.setScreen(1);
+    #endif
     #endif
 
     cinfoHandler = [](dbBlockID_t dbBlock, sysExParameter_t componentID)

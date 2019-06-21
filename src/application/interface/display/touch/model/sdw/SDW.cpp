@@ -17,49 +17,66 @@ limitations under the License.
 */
 
 #include "SDW.h"
-#include "DataTypes.h"
 #include "Commands.h"
 #include "board/Board.h"
 
 #define LOW_BYTE(value)  ((value) & 0xFF)
 #define HIGH_BYTE(value) (((value) >> 8) & 0xFF)
 
+bool SDW::init()
+{
+    bufferIndex_rx = 0;
+    Board::UART::init(38400, UART_TOUCHSCREEN_CHANNEL);
+    return true;
+}
+
+///
+/// \brief Switches to requested page on display
+/// @param [in] pageID  Index of page to display.
+///
+void SDW::setScreen(uint8_t screenID)
+{
+    sendMessage(PICTURE_DISPLAY, messageByteType_t::start);
+    sendMessage(HIGH_BYTE(screenID), messageByteType_t::content);
+    sendMessage(LOW_BYTE(screenID), messageByteType_t::end);
+}
+
 ///
 /// \brief Sends data to display.
 /// @param [in] value           Byte value.
 /// @param [in] messageByteType Type of data to send. Enumerated type. See messageByteType_t.
 ///
-void sdw_sendByte(uint8_t value, messageByteType_t messageByteType)
+void SDW::sendMessage(uint8_t value, messageByteType_t messageByteType)
 {
     switch(messageByteType)
     {
-        case messageStart:
+        case messageByteType_t::start:
         //write start byte before value
-        Board::uartWrite(UART_TOUCHSCREEN_CHANNEL, START_BYTE);
-        Board::uartWrite(UART_TOUCHSCREEN_CHANNEL, value);
+        Board::UART::write(UART_TOUCHSCREEN_CHANNEL, START_BYTE);
+        Board::UART::write(UART_TOUCHSCREEN_CHANNEL, value);
         break;
 
-        case messageContent:
+        case messageByteType_t::content:
         //just write value
-        Board::uartWrite(UART_TOUCHSCREEN_CHANNEL, value);
+        Board::UART::write(UART_TOUCHSCREEN_CHANNEL, value);
         return;
 
-        case messageSingleByte:
+        case messageByteType_t::singleByte:
         //start byte, value, end bytes
-        Board::uartWrite(UART_TOUCHSCREEN_CHANNEL, START_BYTE);
-        Board::uartWrite(UART_TOUCHSCREEN_CHANNEL, value);
+        Board::UART::write(UART_TOUCHSCREEN_CHANNEL, START_BYTE);
+        Board::UART::write(UART_TOUCHSCREEN_CHANNEL, value);
 
         for (int i=0; i<END_CODES; i++)
-            Board::uartWrite(UART_TOUCHSCREEN_CHANNEL, endCode[i]);
+            Board::UART::write(UART_TOUCHSCREEN_CHANNEL, endCode[i]);
         break;
 
-        case messageEnd:
+        case messageByteType_t::end:
         //value first
-        Board::uartWrite(UART_TOUCHSCREEN_CHANNEL, value);
+        Board::UART::write(UART_TOUCHSCREEN_CHANNEL, value);
 
         //send message end bytes
         for (int i=0; i<END_CODES; i++)
-            Board::uartWrite(UART_TOUCHSCREEN_CHANNEL, endCode[i]);
+            Board::UART::write(UART_TOUCHSCREEN_CHANNEL, endCode[i]);
         break;
 
         default:
@@ -71,11 +88,11 @@ void sdw_sendByte(uint8_t value, messageByteType_t messageByteType)
 /// \brief Checks for incoming data from display.
 /// \returns True if there is incoming data, false otherwise.
 ///
-bool sdw_update(Touchscreen &base)
+bool SDW::update(uint8_t buttonID, bool state)
 {
     uint8_t data = 0;
 
-    if (!Board::uartRead(UART_TOUCHSCREEN_CHANNEL, data))
+    if (!Board::UART::read(UART_TOUCHSCREEN_CHANNEL, data))
         return false;
 
     bool parse = false;
@@ -83,7 +100,7 @@ bool sdw_update(Touchscreen &base)
     if (data == START_BYTE)
     {
         //reset buffer index, this is a new message
-        base.bufferIndex_rx = 0;
+        bufferIndex_rx = 0;
     }
     else if (data == endCode[END_CODES-1])
     {
@@ -91,28 +108,28 @@ bool sdw_update(Touchscreen &base)
         parse = true;
     }
 
-    base.displayRxBuffer[base.bufferIndex_rx] = data;
-    base.bufferIndex_rx++;
+    displayRxBuffer[bufferIndex_rx] = data;
+    bufferIndex_rx++;
 
     if (parse)
     {
         //by now, we have complete message
-        if (base.displayRxBuffer[0] != START_BYTE)
+        if (displayRxBuffer[0] != START_BYTE)
         {
             //message is invalid, reset buffer counter and return
-            base.bufferIndex_rx = 0;
+            bufferIndex_rx = 0;
             return false;
         }
 
-        if ((base.displayRxBuffer[COMMAND_ID_INDEX] == BUTTON_ON_ID) || (base.displayRxBuffer[COMMAND_ID_INDEX] == BUTTON_OFF_ID))
+        if ((displayRxBuffer[COMMAND_ID_INDEX] == BUTTON_ON_ID) || (displayRxBuffer[COMMAND_ID_INDEX] == BUTTON_OFF_ID))
         {
             //button press event
-            base.activeButtonState = false;
+            state = false;
 
-            if (base.displayRxBuffer[COMMAND_ID_INDEX] == BUTTON_ON_ID)
-                base.activeButtonState = true;
+            if (displayRxBuffer[COMMAND_ID_INDEX] == BUTTON_ON_ID)
+                state = true;
 
-            base.activeButtonID = base.displayRxBuffer[BUTTON_INDEX_2];
+            buttonID = displayRxBuffer[BUTTON_INDEX_2];
             return true;
         }
 
@@ -120,61 +137,4 @@ bool sdw_update(Touchscreen &base)
     }
 
     return false;
-}
-
-///
-/// \brief Switches to requested page on display
-/// @param [in] pageID  Index of page to display.
-///
-void sdw_setPage(uint8_t pageID)
-{
-    sdw_sendByte(PICTURE_DISPLAY, messageStart);
-    sdw_sendByte(HIGH_BYTE(pageID), messageContent);
-    sdw_sendByte(LOW_BYTE(pageID), messageEnd);
-}
-
-///
-/// \brief Sets display brightness.
-/// @param [in] type    Backlight type.
-/// @param [in] value   Brightness value. Ignore for backlightOff and backlightMax backlight type.
-///
-void sdw_setBrightness(backlightType_t type, int8_t value)
-{
-    switch(type)
-    {
-        case backlightOff:
-        sdw_sendByte(BACKLIGHT_OFF, messageSingleByte);
-        break;
-
-        case backlightMax:
-        sdw_sendByte(BACKLIGHT_ON_MAX, messageSingleByte);
-        break;
-
-        case backlightPwm:
-        sdw_sendByte(BACKLIGHT_ON_MAX, messageStart);
-
-        //check if value is valid
-        if (value > PWM_BACKLIGHT_MAX)
-        {
-            value = PWM_BACKLIGHT_MAX;
-        }
-        else if (value < 0)
-        {
-            value = 0;
-        }
-
-        sdw_sendByte(value, messageEnd);
-        break;
-
-        default:
-        return;
-    }
-}
-
-void sdw_init(Touchscreen &base)
-{
-    base.bufferIndex_rx = 0;
-    base.displayUpdatePtr = sdw_update;
-    base.setPagePtr = sdw_setPage;
-    Board::initUART(38400, UART_TOUCHSCREEN_CHANNEL);
 }

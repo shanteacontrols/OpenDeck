@@ -18,13 +18,4 @@ limitations under the License.
 
 #pragma once
 
-///
-/// \brief Enumeration holding different byte types for display messages.
-///
-typedef enum
-{
-    messageStart,
-    messageContent,
-    messageSingleByte,
-    messageEnd
-} messageByteType_t;
+#define TOUCHSCREEN_RX_BUFFER_SIZE 20

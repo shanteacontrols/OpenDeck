@@ -20,20 +20,10 @@ limitations under the License.
 
 #include <inttypes.h>
 
-///
-/// \brief List of possible backlight types.
-///
-typedef enum
+class ITouchscreen
 {
-    backlightOff,
-    backlightMax,
-    backlightPwm
-} backlightType_t;
-
-///
-/// \brief List of all supported touchscreens.
-///
-typedef enum
-{
-    ts_sdw
-} ts_t;
+    public:
+    virtual bool init() = 0;
+    virtual void setScreen(uint8_t screenID) = 0;
+    virtual bool update(uint8_t buttonID, bool state) = 0;
+};

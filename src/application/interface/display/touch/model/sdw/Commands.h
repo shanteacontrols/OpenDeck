@@ -62,12 +62,4 @@ limitations under the License.
 
 #define READ_DATA                   0x91
 
-const uint8_t endCode[END_CODES] =
-{
-    END_CODE1,
-    END_CODE2,
-    END_CODE3,
-    END_CODE4
-};
-
 /// @}

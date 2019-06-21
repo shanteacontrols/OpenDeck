@@ -17,61 +17,43 @@ limitations under the License.
 */
 
 #include "Touchscreen.h"
-#include "model/sdw/SDW.h"
 
-///
-/// \brief Initializes specified touchscreen.
-/// @param [in] touchscreenType Touchscreen type. See ts_t.
-/// \returns True on success, false otherwise.
-///
-bool Touchscreen::init(ts_t touchscreenType)
+using namespace Interface;
+
+bool Touchscreen::init()
 {
-    switch(touchscreenType)
-    {
-        case ts_sdw:
-        sdw_init(*this);
-        return true;
-
-        default:
-        return false;
-    }
+    return hwa.init();
 }
 
-///
-/// \brief Checks for incoming data from display.
-///
 void Touchscreen::update()
 {
-    if (displayUpdatePtr == nullptr)
-        return;
+    uint8_t buttonID = 0;
+    bool state = false;
 
-    if ((*displayUpdatePtr)(*this))
+    if (hwa.update(buttonID, state))
     {
         if (buttonHandler != nullptr)
-            (*buttonHandler)(activeButtonID, activeButtonState);
+            (*buttonHandler)(buttonID, state);
     }
 }
 
 ///
-/// \brief Switches to requested page on display
-/// @param [in] pageID  Index of page to display.
+/// \brief Switches to requested screen on display
+/// @param [in] screenID  Index of screen to display.
 ///
-void Touchscreen::setPage(uint8_t pageID)
+void Touchscreen::setScreen(uint8_t screenID)
 {
-    if (setPagePtr == nullptr)
-        return;
-
-    (*setPagePtr)(pageID);
-    activePage = pageID;
+    hwa.setScreen(screenID);
+    activeScreenID = screenID;
 }
 
 ///
-/// \brief Used to retrieve currently active page on display.
-/// \returns Active display page.
+/// \brief Used to retrieve currently active screen on display.
+/// \returns Active display screen.
 ///
-uint8_t Touchscreen::getPage()
+uint8_t Touchscreen::activeScreen()
 {
-    return activePage;
+    return activeScreenID;
 }
 
 ///
