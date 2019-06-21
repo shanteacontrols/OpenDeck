@@ -330,7 +330,7 @@ void LEDs::setBlinkState(uint8_t ledID, blinkSpeed_t state)
     uint8_t ledArray[3], leds = 0;
     uint8_t rgbIndex = Board::interface::digital::output::getRGBID(ledID);
 
-    if (database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, ledID))
+    if (database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, rgbIndex))
     {
         ledArray[0] = Board::interface::digital::output::getRGBaddress(rgbIndex, rgbIndex_t::r);
         ledArray[1] = Board::interface::digital::output::getRGBaddress(rgbIndex, rgbIndex_t::g);
@@ -383,7 +383,7 @@ void LEDs::setColor(uint8_t ledID, color_t color)
 {
     uint8_t rgbIndex = Board::interface::digital::output::getRGBID(ledID);
 
-    if (database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, ledID))
+    if (database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, rgbIndex))
     {
         uint8_t led1 = Board::interface::digital::output::getRGBaddress(rgbIndex, rgbIndex_t::r);
         uint8_t led2 = Board::interface::digital::output::getRGBaddress(rgbIndex, rgbIndex_t::g);
