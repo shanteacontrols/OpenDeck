@@ -1,8 +1,9 @@
 #include <gtest/gtest.h>
 #include "../stubs/database/DB_ReadWrite.h"
-#include "../../application/database/Database.h"
-#include "../../application/interface/digital/output/leds/DataTypes.h"
-#include "../../application/interface/display/Config.h"
+#include "database/Database.h"
+#include "interface/digital/output/leds/LEDs.h"
+#include "interface/display/Config.h"
+#include "board/Board.h"
 
 class DatabaseTest : public ::testing::Test
 {
@@ -11,7 +12,6 @@ class DatabaseTest : public ::testing::Test
     {
         //init checks - no point in running further tests if these conditions fail
         EXPECT_TRUE(database.init());
-        EXPECT_TRUE(database.getDBsize() < LESSDB_SIZE);
         EXPECT_TRUE(database.isSignatureValid());
     }
 
@@ -20,13 +20,13 @@ class DatabaseTest : public ::testing::Test
         
     }
 
-    Database database = Database(DatabaseStub::memoryRead, DatabaseStub::memoryWrite);
+    Database database = Database(DatabaseStub::read, DatabaseStub::write, EEPROM_SIZE-3);
 };
 
 TEST_F(DatabaseTest, ReadInitialValues)
 {
     //verify default values
-    database.factoryReset(initFull);
+    database.factoryReset(LESSDB::factoryResetType_t::full);
 
     for (int i=0; i<database.getSupportedPresets(); i++)
     {
@@ -137,10 +137,11 @@ TEST_F(DatabaseTest, ReadInitialValues)
         for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
             EXPECT_EQ(database.read(DB_BLOCK_ANALOG, dbSection_analog_midiChannel, i), 0);
 
+        #ifdef LEDS_SUPPORTED
         //LED block
         //global section
         //all values should be set to 0
-        for (int i=0; i<LED_GLOBAL_PARAMETERS; i++)
+        for (int i=0; i<static_cast<uint8_t>(Interface::digital::output::LEDs::setting_t::AMOUNT); i++)
             EXPECT_EQ(database.read(DB_BLOCK_LEDS, dbSection_leds_global, i), 0);
 
         //activation id section
@@ -150,7 +151,7 @@ TEST_F(DatabaseTest, ReadInitialValues)
 
         //rgb enable section
         //all values should be set to 0
-        for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+        for (int i=0; i<MAX_NUMBER_OF_RGB_LEDS; i++)
             EXPECT_EQ(database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, i), 0);
 
         //control type section
@@ -167,7 +168,9 @@ TEST_F(DatabaseTest, ReadInitialValues)
         //all values should be set to 0
         for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
             EXPECT_EQ(database.read(DB_BLOCK_LEDS, dbSection_leds_midiChannel, i), 0);
+        #endif
 
+        #ifdef DISPLAY_SUPPORTED
         //display block
         //feature section
         //this section uses custom values
@@ -178,13 +181,14 @@ TEST_F(DatabaseTest, ReadInitialValues)
         EXPECT_EQ(database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDInotesAlternate), 0);
         EXPECT_EQ(database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventTime), MIN_MESSAGE_RETENTION_TIME);
         EXPECT_EQ(database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureOctaveNormalization), 0);
+        #endif
     }
 }
 
 TEST_F(DatabaseTest, Presets)
 {
     database.init();
-    database.factoryReset(initFull);
+    database.factoryReset(LESSDB::factoryResetType_t::full);
 
     //verify that first preset is active
     EXPECT_EQ(database.getPreset(), 0);
@@ -207,7 +211,7 @@ TEST_F(DatabaseTest, Presets)
     //enable preset preservation, perform factory reset and verify that preservation is disabled
     database.setPresetPreserveState(true);
     EXPECT_TRUE(database.getPresetPreserveState());
-    database.factoryReset(initFull);
+    database.factoryReset(LESSDB::factoryResetType_t::full);
     database.init();
     EXPECT_FALSE(database.getPresetPreserveState());
 }
@@ -215,37 +219,45 @@ TEST_F(DatabaseTest, Presets)
 TEST_F(DatabaseTest, FactoryReset)
 {
     database.init();
-    database.factoryReset(initFull);
+    database.factoryReset(LESSDB::factoryResetType_t::full);
 
     //change random values
     EXPECT_TRUE(database.update(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, 5, 1));
     EXPECT_TRUE(database.update(DB_BLOCK_ENCODERS, dbSection_analog_midiChannel, 2, 11));
-    EXPECT_TRUE(database.update(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwController, displayController_ssd1306));
 
-    database.factoryReset(initFull);
+    #ifdef DISPLAY_SUPPORTED
+    EXPECT_TRUE(database.update(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwController, displayController_ssd1306));
+    #endif
+
+    database.factoryReset(LESSDB::factoryResetType_t::full);
 
     //expect default values
     EXPECT_TRUE(database.update(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, 5, 5));
     EXPECT_TRUE(database.update(DB_BLOCK_ENCODERS, dbSection_analog_midiChannel, 2, 0));
+
+    #ifdef DISPLAY_SUPPORTED
     EXPECT_TRUE(database.update(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwController, DISPLAY_CONTROLLERS));
+    #endif
 
     database.setPresetPreserveState(true);
     EXPECT_TRUE(database.getPresetPreserveState());
 }
 
+#ifdef LEDS_SUPPORTED
 TEST_F(DatabaseTest, LEDs)
 {
     database.init();
-    database.factoryReset(initFull);
+    database.factoryReset(LESSDB::factoryResetType_t::full);
 
     //regression test
     //by default, rgb state should be disabled
     for (int i=0; i<MAX_NUMBER_OF_RGB_LEDS; i++)
         EXPECT_FALSE(database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, i));
 
-    EXPECT_TRUE(database.update(DB_BLOCK_LEDS, dbSection_leds_controlType, 0, ledControlLocal_PCStateOnly));
+    EXPECT_TRUE(database.update(DB_BLOCK_LEDS, dbSection_leds_controlType, 0, static_cast<int32_t>(Interface::digital::output::LEDs::controlType_t::localPCforStateNoBlink)));
 
     //rgb state shouldn't change
     for (int i=0; i<MAX_NUMBER_OF_RGB_LEDS; i++)
         EXPECT_FALSE(database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, i));
 }
+#endif

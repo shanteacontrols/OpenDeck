@@ -8,7 +8,11 @@ fi
 
 tests=$($grep -Eo 'SOURCES_.+\b' Sources.mk | cut -c 9- | tr '\n' ' ')
 
-printf "" > Objects.mk
+echo TESTS=$tests > Objects.mk
+printf '%s\n' 'TESTS_EXT := $(addprefix build/,$(TESTS))' >> Objects.mk
+printf '%s\n\n' 'TESTS_EXT := $(addsuffix .out,$(TESTS_EXT))' >> Objects.mk
+printf '%s\n' '.DEFAULT_GOAL := all' >> Objects.mk
+printf '%s\n\n' 'all: $(TESTS_EXT)' >> Objects.mk
 
 for test in $tests
 do
@@ -22,6 +26,6 @@ for test in $tests
 do
     printf '%s\n' 'build/'${test}'.out: $(OBJECTS_'${test}') build/gtest_main.a' >> Objects.mk
     printf '\t%s\n' '@echo Linking' >> Objects.mk
-    printf '\t%s\n' '@$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@' >> Objects.mk
+    printf '\t%s\n' '@$(CXX) $(COMMON_FLAGS) $(CPP_FLAGS) -lpthread $^ -o $@' >> Objects.mk
     printf '\t%s\n' '@echo Created executable: $@' >> Objects.mk
 done

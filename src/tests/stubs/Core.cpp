@@ -1,3 +1,12 @@
 #include "core/src/general/Timing.h"
 
-volatile uint32_t rTime_ms;
+namespace core
+{
+    namespace timing
+    {
+        namespace detail
+        {
+            volatile uint32_t rTime_ms;
+        }
+    }
+}

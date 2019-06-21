@@ -3,23 +3,21 @@ include Defines.mk
 include Sources.mk
 -include Objects.mk
 
-# Flags passed to the preprocessor.
-# Set Google Test's header directory as a system directory, such that
-# the compiler doesn't generate warnings in Google Test headers.
-CPPFLAGS := -isystem $(GTEST_DIR)/include -isystem $(GTEST_DIR) --coverage -std=c++11 -Og
+#passed to both c and c++ compiler
+COMMON_FLAGS := \
+-isystem $(GTEST_DIR)/include \
+-isystem $(GTEST_DIR) \
+--coverage \
+-Og \
+-g \
+-pthread \
+-Wall
 
-# Flags passed to the C++ compiler.
-CXXFLAGS := -g -pthread -Og
-ARFLAGS := r
+#c++ compiler only
+CPP_FLAGS := -std=c++11
 
-TESTS := database encoders pots
-
-TESTS_EXT := $(addprefix build/,$(TESTS))
-TESTS_EXT := $(addsuffix .out,$(TESTS_EXT))
-
-.DEFAULT_GOAL := all
-
-all: $(TESTS_EXT)
+#c compiler only
+C_FLAGS := -std=c11
 
 #doesn't remove gtest sources
 clean:
@@ -32,10 +30,15 @@ clean-all:
 	@echo Cleaning up.
 	@rm -rf build/
 
+build/%.o: %.c $(GTEST_HEADERS)
+	@mkdir -p $(@D)
+	@echo Building $<
+	@gcc $(COMMON_FLAGS) $(C_FLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS) $(INCLUDE_FILES) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+
 build/%.o: %.cpp $(GTEST_HEADERS)
 	@mkdir -p $(@D)
 	@echo Building $<
-	@$(CXX) $(CPPFLAGS) $(addprefix -D,$(DEFINES)) $(CXXFLAGS) $(INCLUDE_DIRS) $(INCLUDE_FILES) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	@$(CXX) $(COMMON_FLAGS) $(CPP_FLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS) $(INCLUDE_FILES) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
 pre-build:
 	@chmod +x ../../scripts/gen_tests_targets.sh && ../../scripts/gen_tests_targets.sh
