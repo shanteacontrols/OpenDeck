@@ -38,6 +38,6 @@ namespace Interface
                 ///
                 static uint8_t lastPCvalue[16];
             };
-        }
-    }
-}
+        }    // namespace input
+    }        // namespace digital
+}    // namespace Interface

@@ -21,12 +21,12 @@ limitations under the License.
 
 namespace U8X8
 {
-    bool initDisplay(displayController_t controller, displayResolution_t resolution);
+    bool    initDisplay(displayController_t controller, displayResolution_t resolution);
     uint8_t getColumns();
     uint8_t getRows();
-    void clearDisplay();
-    void setPowerSave(uint8_t is_enable);
-    void setFlipMode(uint8_t mode);
-    void setFont(const uint8_t *font_8x8);
-    void drawGlyph(uint8_t x, uint8_t y, uint8_t encoding);
-}
+    void    clearDisplay();
+    void    setPowerSave(uint8_t is_enable);
+    void    setFlipMode(uint8_t mode);
+    void    setFont(const uint8_t* font_8x8);
+    void    drawGlyph(uint8_t x, uint8_t y, uint8_t encoding);
+}    // namespace U8X8

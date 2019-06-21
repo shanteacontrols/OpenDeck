@@ -36,8 +36,7 @@ typedef enum
 } sysExSection_analog_t;
 
 //map sysex sections to sections in db
-const uint8_t sysEx2DB_analog[SYSEX_SECTIONS_ANALOG] =
-{
+const uint8_t sysEx2DB_analog[SYSEX_SECTIONS_ANALOG] = {
     dbSection_analog_enable,
     dbSection_analog_invert,
     dbSection_analog_type,

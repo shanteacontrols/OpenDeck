@@ -28,7 +28,7 @@ bool Touchscreen::init()
 void Touchscreen::update()
 {
     uint8_t buttonID = 0;
-    bool state = false;
+    bool    state = false;
 
     if (hwa.update(buttonID, state))
     {
@@ -59,7 +59,7 @@ uint8_t Touchscreen::activeScreen()
 ///
 /// \param fptr [in]    Pointer to function.
 ///
-void Touchscreen::setButtonHandler(void(*fptr)(uint8_t index, bool state))
+void Touchscreen::setButtonHandler(void (*fptr)(uint8_t index, bool state))
 {
     buttonHandler = fptr;
 }

@@ -37,7 +37,8 @@ limitations under the License.
 
 extern "C" void __cxa_pure_virtual()
 {
-    while (1);
+    while (1)
+        ;
 }
 
 namespace core
@@ -50,9 +51,9 @@ namespace core
             /// \brief Implementation of core variable used to keep track of run time in milliseconds.
             ///
             volatile uint32_t rTime_ms;
-        }
-    }
-}
+        }    // namespace detail
+    }        // namespace timing
+}    // namespace core
 
 namespace Board
 {
@@ -61,8 +62,8 @@ namespace Board
         ///
         /// \brief Placeholder variable used only to reserve space in linker section.
         ///
-        const uint32_t appLength __attribute__ ((section (".applen"))) __attribute__((used)) = 0;
-    }
+        const uint32_t appLength __attribute__((section(".applen"))) __attribute__((used)) = 0;
+    }    // namespace
 
     void init()
     {
@@ -76,21 +77,21 @@ namespace Board
         ///
         setup::pins();
 
-        #ifndef BOARD_A_xu2
+#ifndef BOARD_A_xu2
         ///
         /// \brief Initializes analog variables and ADC peripheral.
         ///
         setup::adc();
-        #else
+#else
         UART::init(UART_BAUDRATE_MIDI_OD, UART_USB_LINK_CHANNEL);
-        #endif
+#endif
 
-        #ifdef USB_SUPPORTED
+#ifdef USB_SUPPORTED
         ///
         /// \brief Initializes USB peripheral and configures it as MIDI device.
         ///
         setup::usb();
-        #endif
+#endif
 
         ///
         /// \brief Initializes main and PWM timers.
@@ -100,13 +101,13 @@ namespace Board
 
     void reboot(rebootType_t type)
     {
-        switch(type)
+        switch (type)
         {
-            case rebootType_t::rebootApp:
+        case rebootType_t::rebootApp:
             eeprom_write_byte(reinterpret_cast<uint8_t*>(REBOOT_VALUE_EEPROM_LOCATION), APP_REBOOT_VALUE);
             break;
 
-            case rebootType_t::rebootBtldr:
+        case rebootType_t::rebootBtldr:
             eeprom_write_byte(reinterpret_cast<uint8_t*>(REBOOT_VALUE_EEPROM_LOCATION), BTLDR_REBOOT_VALUE);
             break;
         }
@@ -114,17 +115,17 @@ namespace Board
         core::avr::reset::mcuReset();
     }
 
-    #ifndef BOARD_A_xu2
+#ifndef BOARD_A_xu2
     bool checkNewRevision()
     {
         uint16_t crc_eeprom = eeprom_read_word(reinterpret_cast<uint16_t*>(SW_CRC_LOCATION_EEPROM));
-        #if (FLASHEND > 0xFFFF)
+#if (FLASHEND > 0xFFFF)
         uint32_t lastAddress = pgm_read_dword_far(core::avr::pgmGetFarAddress(APP_LENGTH_LOCATION));
         uint16_t crc_flash = pgm_read_word_far(core::avr::pgmGetFarAddress(lastAddress));
-        #else
+#else
         uint32_t lastAddress = pgm_read_dword(APP_LENGTH_LOCATION);
         uint16_t crc_flash = pgm_read_word(lastAddress);
-        #endif
+#endif
 
         if (crc_eeprom != crc_flash)
         {
@@ -137,21 +138,21 @@ namespace Board
 
     namespace eeprom
     {
-        bool read(uint32_t address, LESSDB::sectionParameterType_t type, int32_t &value)
+        bool read(uint32_t address, LESSDB::sectionParameterType_t type, int32_t& value)
         {
-            switch(type)
+            switch (type)
             {
-                case LESSDB::sectionParameterType_t::bit:
-                case LESSDB::sectionParameterType_t::byte:
-                case LESSDB::sectionParameterType_t::halfByte:
+            case LESSDB::sectionParameterType_t::bit:
+            case LESSDB::sectionParameterType_t::byte:
+            case LESSDB::sectionParameterType_t::halfByte:
                 value = eeprom_read_byte(reinterpret_cast<uint8_t*>(address));
                 break;
 
-                case LESSDB::sectionParameterType_t::word:
+            case LESSDB::sectionParameterType_t::word:
                 value = eeprom_read_word(reinterpret_cast<uint16_t*>(address));
                 break;
 
-                default:
+            default:
                 // case LESSDB::sectionParameterType_t::dword:
                 value = eeprom_read_dword(reinterpret_cast<uint32_t*>(address));
                 break;
@@ -162,19 +163,19 @@ namespace Board
 
         bool write(uint32_t address, int32_t value, LESSDB::sectionParameterType_t type)
         {
-            switch(type)
+            switch (type)
             {
-                case LESSDB::sectionParameterType_t::bit:
-                case LESSDB::sectionParameterType_t::byte:
-                case LESSDB::sectionParameterType_t::halfByte:
+            case LESSDB::sectionParameterType_t::bit:
+            case LESSDB::sectionParameterType_t::byte:
+            case LESSDB::sectionParameterType_t::halfByte:
                 eeprom_update_byte(reinterpret_cast<uint8_t*>(address), value);
                 break;
 
-                case LESSDB::sectionParameterType_t::word:
+            case LESSDB::sectionParameterType_t::word:
                 eeprom_update_word(reinterpret_cast<uint16_t*>(address), value);
                 break;
 
-                default:
+            default:
                 // case LESSDB::sectionParameterType_t::dword:
                 eeprom_update_dword(reinterpret_cast<uint32_t*>(address), value);
                 break;
@@ -182,9 +183,9 @@ namespace Board
 
             return true;
         }
-    }
-    #endif
-}
+    }    // namespace eeprom
+#endif
+}    // namespace Board
 
 #ifdef ADC
 ///
@@ -209,15 +210,15 @@ ISR(TIMER0_COMPA_vect)
     {
         core::timing::detail::rTime_ms++;
 
-        #ifdef LEDS_SUPPORTED
+#ifdef LEDS_SUPPORTED
         Board::interface::digital::output::detail::checkDigitalOutputs();
-        #endif
-        #ifdef LED_INDICATORS
+#endif
+#ifdef LED_INDICATORS
         Board::interface::digital::output::detail::checkIndicators();
-        #endif
+#endif
     }
 
-    #ifndef BOARD_A_xu2
+#ifndef BOARD_A_xu2
     Board::interface::digital::input::detail::checkDigitalInputs();
-    #endif
+#endif
 }

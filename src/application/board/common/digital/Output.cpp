@@ -41,20 +41,19 @@ namespace
     volatile uint8_t midiOut_timeout;
 
     /// @}
-}
+}    // namespace
 #endif
 
 #ifndef BOARD_A_xu2
 namespace
 {
-    volatile uint8_t    pwmSteps;
-    volatile int8_t     transitionCounter[MAX_NUMBER_OF_LEDS];
+    volatile uint8_t pwmSteps;
+    volatile int8_t  transitionCounter[MAX_NUMBER_OF_LEDS];
 
     ///
     /// \brief Array holding values needed to achieve more natural LED transition between states.
     ///
-    const uint8_t ledTransitionScale[NUMBER_OF_LED_TRANSITIONS] =
-    {
+    const uint8_t ledTransitionScale[NUMBER_OF_LED_TRANSITIONS] = {
         0,
         0,
         0,
@@ -121,13 +120,13 @@ namespace
         255
     };
 
-    #ifdef NUMBER_OF_LED_COLUMNS
+#ifdef NUMBER_OF_LED_COLUMNS
     ///
     /// \brief Holds value of currently active output matrix column.
     ///
-    volatile uint8_t     activeOutColumn;
-    #endif
-}
+    volatile uint8_t activeOutColumn;
+#endif
+}    // namespace
 #endif
 
 namespace Board
@@ -138,8 +137,8 @@ namespace Board
         {
             namespace output
             {
-                #ifndef BOARD_A_xu2
-                #ifdef LEDS_SUPPORTED
+#ifndef BOARD_A_xu2
+#ifdef LEDS_SUPPORTED
                 bool setLEDfadeSpeed(uint8_t transitionSpeed)
                 {
                     if (transitionSpeed > FADE_TIME_MAX)
@@ -147,12 +146,12 @@ namespace Board
                         return false;
                     }
 
-                    //reset transition counter
-                    #ifdef __AVR__
+//reset transition counter
+#ifdef __AVR__
                     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-                    #endif
+#endif
                     {
-                        for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+                        for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
                             transitionCounter[i] = 0;
 
                         pwmSteps = transitionSpeed;
@@ -163,60 +162,60 @@ namespace Board
 
                 uint8_t getRGBaddress(uint8_t rgbID, Interface::digital::output::LEDs::rgbIndex_t index)
                 {
-                    #ifdef NUMBER_OF_BUTTON_COLUMNS
+#ifdef NUMBER_OF_BUTTON_COLUMNS
                     uint8_t column = rgbID % NUMBER_OF_LED_COLUMNS;
-                    uint8_t row  = (rgbID/NUMBER_OF_BUTTON_COLUMNS)*3;
-                    uint8_t address = column + NUMBER_OF_LED_COLUMNS*row;
+                    uint8_t row = (rgbID / NUMBER_OF_BUTTON_COLUMNS) * 3;
+                    uint8_t address = column + NUMBER_OF_LED_COLUMNS * row;
 
-                    switch(index)
+                    switch (index)
                     {
-                        case Interface::digital::output::LEDs::rgbIndex_t::r:
+                    case Interface::digital::output::LEDs::rgbIndex_t::r:
                         return address;
 
-                        case Interface::digital::output::LEDs::rgbIndex_t::g:
-                        return address + NUMBER_OF_LED_COLUMNS*1;
+                    case Interface::digital::output::LEDs::rgbIndex_t::g:
+                        return address + NUMBER_OF_LED_COLUMNS * 1;
 
-                        case Interface::digital::output::LEDs::rgbIndex_t::b:
-                        return address + NUMBER_OF_LED_COLUMNS*2;
+                    case Interface::digital::output::LEDs::rgbIndex_t::b:
+                        return address + NUMBER_OF_LED_COLUMNS * 2;
                     }
 
                     return 0;
-                    #else
-                    return rgbID*3+static_cast<uint8_t>(index);
-                    #endif
+#else
+                    return rgbID * 3 + static_cast<uint8_t>(index);
+#endif
                 }
 
                 uint8_t getRGBID(uint8_t ledID)
                 {
-                    #ifdef NUMBER_OF_BUTTON_COLUMNS
-                    uint8_t row = ledID/NUMBER_OF_LED_COLUMNS;
+#ifdef NUMBER_OF_BUTTON_COLUMNS
+                    uint8_t row = ledID / NUMBER_OF_LED_COLUMNS;
 
-                    uint8_t mod = row%3;
+                    uint8_t mod = row % 3;
                     row -= mod;
 
                     uint8_t column = ledID % NUMBER_OF_BUTTON_COLUMNS;
 
-                    uint8_t result = (row*NUMBER_OF_LED_COLUMNS)/3 + column;
+                    uint8_t result = (row * NUMBER_OF_LED_COLUMNS) / 3 + column;
 
                     if (result >= MAX_NUMBER_OF_RGB_LEDS)
-                        return MAX_NUMBER_OF_RGB_LEDS-1;
+                        return MAX_NUMBER_OF_RGB_LEDS - 1;
                     else
                         return result;
-                    #else
+#else
                     uint8_t result = ledID / 3;
 
                     if (result >= MAX_NUMBER_OF_RGB_LEDS)
-                        return MAX_NUMBER_OF_RGB_LEDS-1;
+                        return MAX_NUMBER_OF_RGB_LEDS - 1;
                     else
                         return result;
-                    #endif
+#endif
                 }
-                #endif
-                #endif
+#endif
+#endif
 
                 namespace detail
                 {
-                    #ifdef LED_INDICATORS
+#ifdef LED_INDICATORS
                     void checkIndicators()
                     {
                         if (Board::USB::trafficIndicator.received || Board::UART::trafficIndicator.received)
@@ -245,10 +244,10 @@ namespace Board
                         else
                             INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
                     }
-                    #endif
+#endif
 
-                    #ifndef BOARD_A_xu2
-                    #ifdef NUMBER_OF_LED_COLUMNS
+#ifndef BOARD_A_xu2
+#ifdef NUMBER_OF_LED_COLUMNS
                     ///
                     /// \brief Switches to next LED matrix column.
                     ///
@@ -262,9 +261,9 @@ namespace Board
                     namespace
                     {
                         Board::mcuPin_t pin;
-                        uint8_t ledNumber;
-                        uint8_t ledStateSingle;
-                    }
+                        uint8_t         ledNumber;
+                        uint8_t         ledStateSingle;
+                    }    // namespace
 
                     ///
                     /// \brief Turns all rows in LED matrix off.
@@ -272,14 +271,14 @@ namespace Board
                     inline void ledRowsOff()
                     {
                         //turn off PWM
-                        TCCR1A &= ~(1<<COM1C1);
-                        TCCR4C &= ~(1<<COM4D1);
-                        TCCR1A &= ~(1<<COM1A1);
-                        TCCR4A &= ~(1<<COM4A1);
-                        TCCR3A &= ~(1<<COM3A1);
-                        TCCR1A &= ~(1<<COM1B1);
+                        TCCR1A &= ~(1 << COM1C1);
+                        TCCR4C &= ~(1 << COM4D1);
+                        TCCR1A &= ~(1 << COM1A1);
+                        TCCR4A &= ~(1 << COM4A1);
+                        TCCR3A &= ~(1 << COM3A1);
+                        TCCR1A &= ~(1 << COM1B1);
 
-                        for (int i=0; i<NUMBER_OF_LED_ROWS; i++)
+                        for (int i = 0; i < NUMBER_OF_LED_ROWS; i++)
                         {
                             pin = Board::map::led(i);
                             EXT_LED_OFF(*pin.port, pin.pin);
@@ -302,44 +301,44 @@ namespace Board
                         }
                         else
                         {
-                            #ifdef LED_EXT_INVERT
+#ifdef LED_EXT_INVERT
                             intensity = 255 - intensity;
-                            #endif
+#endif
 
                             switch (rowNumber)
                             {
-                                //turn off pwm if intensity is max
-                                case 0:
+                            //turn off pwm if intensity is max
+                            case 0:
                                 OCR1C = intensity;
-                                TCCR1A |= (1<<COM1C1);
+                                TCCR1A |= (1 << COM1C1);
                                 break;
 
-                                case 1:
+                            case 1:
                                 OCR4D = intensity;
-                                TCCR4C |= (1<<COM4D1);
+                                TCCR4C |= (1 << COM4D1);
                                 break;
 
-                                case 2:
+                            case 2:
                                 OCR1A = intensity;
-                                TCCR1A |= (1<<COM1A1);
+                                TCCR1A |= (1 << COM1A1);
                                 break;
 
-                                case 3:
+                            case 3:
                                 OCR4A = intensity;
-                                TCCR4A |= (1<<COM4A1);
+                                TCCR4A |= (1 << COM4A1);
                                 break;
 
-                                case 4:
+                            case 4:
                                 OCR3A = intensity;
-                                TCCR3A |= (1<<COM3A1);
+                                TCCR3A |= (1 << COM3A1);
                                 break;
 
-                                case 5:
+                            case 5:
                                 OCR1B = intensity;
-                                TCCR1A |= (1<<COM1B1);
+                                TCCR1A |= (1 << COM1B1);
                                 break;
 
-                                default:
+                            default:
                                 break;
                             }
                         }
@@ -352,12 +351,12 @@ namespace Board
 
                         //if there is an active LED in current column, turn on LED row
                         //do fancy transitions here
-                        for (int i=0; i<NUMBER_OF_LED_ROWS; i++)
+                        for (int i = 0; i < NUMBER_OF_LED_ROWS; i++)
                         {
-                            ledNumber = activeOutColumn+i*NUMBER_OF_LED_COLUMNS;
+                            ledNumber = activeOutColumn + i * NUMBER_OF_LED_COLUMNS;
                             ledStateSingle = LED_ON(Interface::digital::output::LEDs::getLEDstate(ledNumber));
 
-                            ledStateSingle *= (NUMBER_OF_LED_TRANSITIONS-1);
+                            ledStateSingle *= (NUMBER_OF_LED_TRANSITIONS - 1);
 
                             //don't bother with pwm if it's disabled
                             if (!pwmSteps && ledStateSingle)
@@ -394,14 +393,14 @@ namespace Board
                         if (++activeOutColumn == NUMBER_OF_LED_COLUMNS)
                             activeOutColumn = 0;
                     }
-                    #else
+#else
                     namespace
                     {
                         uint8_t lastLEDstate[MAX_NUMBER_OF_LEDS];
                         uint8_t ledStateSingle;
-                    }
+                    }    // namespace
 
-                    #ifdef NUMBER_OF_OUT_SR
+#ifdef NUMBER_OF_OUT_SR
                     ///
                     /// \brief Checks if any LED state has been changed and writes changed state to output shift registers.
                     ///
@@ -409,7 +408,7 @@ namespace Board
                     {
                         bool updateSR = false;
 
-                        for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+                        for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
                         {
                             ledStateSingle = LED_ON(Interface::digital::output::LEDs::getLEDstate(i));
 
@@ -424,7 +423,7 @@ namespace Board
                         {
                             setLow(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 
-                            for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+                            for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
                             {
                                 LED_ON(Interface::digital::output::LEDs::getLEDstate(i)) ? EXT_LED_ON(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN) : EXT_LED_OFF(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
                                 pulseHighToLow(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
@@ -433,7 +432,7 @@ namespace Board
                             setHigh(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
                         }
                     }
-                    #else
+#else
                     namespace
                     {
                         Board::mcuPin_t pin;
@@ -441,7 +440,7 @@ namespace Board
 
                     void checkDigitalOutputs()
                     {
-                        for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+                        for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
                         {
                             ledStateSingle = LED_ON(Interface::digital::output::LEDs::getLEDstate(i));
                             pin = Board::map::led(i);
@@ -457,11 +456,11 @@ namespace Board
                             }
                         }
                     }
-                    #endif
-                    #endif
-                    #endif
-                }
-            }
-        }
-    }
-}
+#endif
+#endif
+#endif
+                }    // namespace detail
+            }        // namespace output
+        }            // namespace digital
+    }                // namespace interface
+}    // namespace Board

@@ -28,11 +28,11 @@ limitations under the License.
 //define block names
 enum sysExBlocks
 {
-    SYSEX_BLOCK_GLOBAL,    //0
-    SYSEX_BLOCK_BUTTONS,   //1
-    SYSEX_BLOCK_ENCODERS,  //2
-    SYSEX_BLOCK_ANALOG,    //3
-    SYSEX_BLOCK_LEDS,      //4
-    SYSEX_BLOCK_DISPLAY,   //5
+    SYSEX_BLOCK_GLOBAL,      //0
+    SYSEX_BLOCK_BUTTONS,     //1
+    SYSEX_BLOCK_ENCODERS,    //2
+    SYSEX_BLOCK_ANALOG,      //3
+    SYSEX_BLOCK_LEDS,        //4
+    SYSEX_BLOCK_DISPLAY,     //5
     SYSEX_BLOCKS
 };

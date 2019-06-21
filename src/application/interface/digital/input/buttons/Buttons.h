@@ -81,28 +81,32 @@ namespace Interface
                     AMOUNT
                 };
 
-                #ifdef LEDS_SUPPORTED
-                #ifdef DISPLAY_SUPPORTED
-                Buttons(Database &database, MIDI &midi, Interface::digital::output::LEDs &leds, Display &display, ComponentInfo& cInfo) :
-                #else
-                Buttons(Database &database, MIDI &midi, Interface::digital::output::LEDs &leds, ComponentInfo& cInfo) :
-                #endif
-                #else
-                #ifdef DISPLAY_SUPPORTED
-                Buttons(Database &database, MIDI &midi, Display &display, ComponentInfo& cInfo) :
-                #else
-                Buttons(Database &database, MIDI &midi, ComponentInfo& cInfo) :
-                #endif
-                #endif
-                database(database),
-                midi(midi)
-                #ifdef LEDS_SUPPORTED
-                ,leds(leds)
-                #endif
-                #ifdef DISPLAY_SUPPORTED
-                ,display(display)
-                #endif
-                ,cInfo(cInfo)
+#ifdef LEDS_SUPPORTED
+#ifdef DISPLAY_SUPPORTED
+                Buttons(Database& database, MIDI& midi, Interface::digital::output::LEDs& leds, Display& display, ComponentInfo& cInfo)
+                    :
+#else
+                Buttons(Database& database, MIDI& midi, Interface::digital::output::LEDs& leds, ComponentInfo& cInfo)
+                    :
+#endif
+#else
+#ifdef DISPLAY_SUPPORTED
+                Buttons(Database& database, MIDI& midi, Display& display, ComponentInfo& cInfo)
+                    :
+#else
+                Buttons(Database& database, MIDI& midi, ComponentInfo& cInfo)
+                    :
+#endif
+#endif
+                    database(database)
+                    , midi(midi)
+#ifdef LEDS_SUPPORTED
+                    , leds(leds)
+#endif
+#ifdef DISPLAY_SUPPORTED
+                    , display(display)
+#endif
+                    , cInfo(cInfo)
                 {}
 
                 void update();
@@ -118,39 +122,39 @@ namespace Interface
                 bool buttonDebounced(uint8_t buttonID, bool state);
                 void customHook(uint8_t buttonID, bool state);
 
-                Database    &database;
-                MIDI        &midi;
-                #ifdef LEDS_SUPPORTED
-                Interface::digital::output::LEDs &leds;
-                #endif
-                #ifdef DISPLAY_SUPPORTED
-                Display     &display;
-                #endif
+                Database& database;
+                MIDI&     midi;
+#ifdef LEDS_SUPPORTED
+                Interface::digital::output::LEDs& leds;
+#endif
+#ifdef DISPLAY_SUPPORTED
+                Display& display;
+#endif
                 ComponentInfo& cInfo;
 
                 ///
                 /// \brief Array holding debounce count for all buttons to avoid incorrect state detection.
                 ///
-                uint8_t     buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS] = {};
+                uint8_t buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS] = {};
 
                 ///
                 /// \brief Array holding current state for all buttons.
                 ///
-                uint8_t     buttonPressed[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS)/8+1] = {};
+                uint8_t buttonPressed[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS) / 8 + 1] = {};
 
                 ///
                 /// \brief Array holding last sent state for latching buttons only.
                 ///
-                uint8_t     lastLatchingState[(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS)/8+1] = {};
+                uint8_t lastLatchingState[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS) / 8 + 1] = {};
 
                 ///
                 /// \brief Array used for simpler building of transport control messages.
                 /// Based on MIDI specification for transport control.
                 ///
-                uint8_t     mmcArray[6] =  { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 };
+                uint8_t mmcArray[6] = { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 };
             };
 
             /// @}
-        }
-    }
-}
+        }    // namespace input
+    }        // namespace digital
+}    // namespace Interface

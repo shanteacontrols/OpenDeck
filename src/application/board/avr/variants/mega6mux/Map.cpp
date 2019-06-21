@@ -25,21 +25,19 @@ namespace Board
     {
         namespace
         {
-            const uint8_t adcChannelArray[NUMBER_OF_MUX] =
-            {
-                0,  //MUX_1_IN_PIN,
-                1,  //MUX_2_IN_PIN,
-                2,  //MUX_3_IN_PIN,
-                3,  //MUX_4_IN_PIN,
-                4,  //MUX_5_IN_PIN,
-                5,  //MUX_6_IN_PIN,
+            const uint8_t adcChannelArray[NUMBER_OF_MUX] = {
+                0,    //MUX_1_IN_PIN,
+                1,    //MUX_2_IN_PIN,
+                2,    //MUX_3_IN_PIN,
+                3,    //MUX_4_IN_PIN,
+                4,    //MUX_5_IN_PIN,
+                5,    //MUX_6_IN_PIN,
             };
 
             ///
             /// \brief Array holding ports and bits for all digital input pins.
             ///
-            const mcuPin_t dInPins[MAX_NUMBER_OF_BUTTONS] =
-            {
+            const mcuPin_t dInPins[MAX_NUMBER_OF_BUTTONS] = {
                 {
                     .port = &DI_1_PORT,
                     .pin = DI_1_PIN,
@@ -194,8 +192,7 @@ namespace Board
             ///
             /// \brief Array holding ports and bits for all digital output pins.
             ///
-            mcuPin_t dOutPins[MAX_NUMBER_OF_LEDS] =
-            {
+            mcuPin_t dOutPins[MAX_NUMBER_OF_LEDS] = {
                 {
                     .port = &DO_1_PORT,
                     .pin = DO_1_PIN,
@@ -316,7 +313,7 @@ namespace Board
                     .pin = DO_24_PIN,
                 }
             };
-        }
+        }    // namespace
 
         uint8_t adcChannel(uint8_t index)
         {
@@ -337,5 +334,5 @@ namespace Board
         {
             return dOutPins[index];
         }
-    }
-}
+    }    // namespace map
+}    // namespace Board

@@ -34,30 +34,34 @@ limitations under the License.
 class SysConfig : public SysExConf
 {
     public:
-    #ifdef LEDS_SUPPORTED
-    #ifdef DISPLAY_SUPPORTED
-    SysConfig(Database &database, MIDI &midi, Interface::digital::input::Buttons &buttons, Interface::digital::input::Encoders &encoders, Interface::analog::Analog &analog, Interface::digital::output::LEDs &leds, Interface::Display &display) :
-    #else
-    SysConfig(Database &database, MIDI &midi, Interface::digital::input::Buttons &buttons, Interface::digital::input::Encoders &encoders, Interface::analog::Analog &analog, Interface::digital::output::LEDs &leds) :
-    #endif
-    #else
-    #ifdef DISPLAY_SUPPORTED
-    SysConfig(Database &database, MIDI &midi, Interface::digital::input::Buttons &buttons, Interface::digital::input::Encoders &encoders, Interface::analog::Analog &analog, Display &display) :
-    #else
-    SysConfig(Database &database, MIDI &midi, Interface::digital::input::Buttons &buttons, Interface::digital::input::Encoders &encoders, Interface::analog::Analog &analog) :
-    #endif
-    #endif
-    database(database),
-    midi(midi),
-    buttons(buttons),
-    encoders(encoders),
-    analog(analog)
-    #ifdef LEDS_SUPPORTED
-    ,leds(leds)
-    #endif
-    #ifdef DISPLAY_SUPPORTED
-    ,display(display)
-    #endif
+#ifdef LEDS_SUPPORTED
+#ifdef DISPLAY_SUPPORTED
+    SysConfig(Database& database, MIDI& midi, Interface::digital::input::Buttons& buttons, Interface::digital::input::Encoders& encoders, Interface::analog::Analog& analog, Interface::digital::output::LEDs& leds, Interface::Display& display)
+        :
+#else
+    SysConfig(Database& database, MIDI& midi, Interface::digital::input::Buttons& buttons, Interface::digital::input::Encoders& encoders, Interface::analog::Analog& analog, Interface::digital::output::LEDs& leds)
+        :
+#endif
+#else
+#ifdef DISPLAY_SUPPORTED
+    SysConfig(Database& database, MIDI& midi, Interface::digital::input::Buttons& buttons, Interface::digital::input::Encoders& encoders, Interface::analog::Analog& analog, Display& display)
+        :
+#else
+    SysConfig(Database& database, MIDI& midi, Interface::digital::input::Buttons& buttons, Interface::digital::input::Encoders& encoders, Interface::analog::Analog& analog)
+        :
+#endif
+#endif
+        database(database)
+        , midi(midi)
+        , buttons(buttons)
+        , encoders(encoders)
+        , analog(analog)
+#ifdef LEDS_SUPPORTED
+        , leds(leds)
+#endif
+#ifdef DISPLAY_SUPPORTED
+        , display(display)
+#endif
     {}
 
     void init();
@@ -67,27 +71,27 @@ class SysConfig : public SysExConf
     bool sendCInfo(dbBlockID_t dbBlock, SysExConf::sysExParameter_t componentID);
 
     private:
-    Database &database;
-    MIDI &midi;
-    Interface::digital::input::Buttons &buttons;
-    Interface::digital::input::Encoders &encoders;
-    Interface::analog::Analog &analog;
-    #ifdef LEDS_SUPPORTED
-    Interface::digital::output::LEDs &leds;
-    #endif
-    #ifdef DISPLAY_SUPPORTED
-    Interface::Display &display;
-    #endif
+    Database&                            database;
+    MIDI&                                midi;
+    Interface::digital::input::Buttons&  buttons;
+    Interface::digital::input::Encoders& encoders;
+    Interface::analog::Analog&           analog;
+#ifdef LEDS_SUPPORTED
+    Interface::digital::output::LEDs& leds;
+#endif
+#ifdef DISPLAY_SUPPORTED
+    Interface::Display& display;
+#endif
 
     ///
     /// Used to prevent updating states of all components (analog, LEDs, encoders, buttons).
     ///
-    bool     processingEnabled = true;
+    bool processingEnabled = true;
 
-    bool onGet(uint8_t block, uint8_t section, uint16_t index, SysExConf::sysExParameter_t &value) override;
+    bool onGet(uint8_t block, uint8_t section, uint16_t index, SysExConf::sysExParameter_t& value) override;
     bool onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf::sysExParameter_t newValue) override;
     bool onCustomRequest(uint8_t value) override;
-    void onWrite(uint8_t *sysExArray, uint8_t size) override;
+    void onWrite(uint8_t* sysExArray, uint8_t size) override;
 
     ///
     /// \brief Configures UART read/write handlers for MIDI module.
@@ -99,10 +103,10 @@ class SysConfig : public SysExConf
     ///
     void setupMIDIoverUSB();
 
-    #ifdef DIN_MIDI_SUPPORTED
+#ifdef DIN_MIDI_SUPPORTED
     void configureMIDImerge(midiMergeType_t mergeType);
     void sendDaisyChainRequest();
-    #endif
+#endif
 
     uint32_t lastCinfoMsgTime[DB_BLOCKS];
 };

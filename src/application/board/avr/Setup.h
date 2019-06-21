@@ -27,23 +27,23 @@ namespace Board
         ///
         void pins();
 
-        #ifndef BOARD_A_xu2
+#ifndef BOARD_A_xu2
         ///
         /// \brief Initializes analog variables and ADC peripheral.
         ///
         void adc();
-        #endif
+#endif
 
-        #ifdef USB_SUPPORTED
+#ifdef USB_SUPPORTED
         ///
         /// \brief Initializes USB peripheral and configures it as MIDI device.
         ///
         void usb();
-        #endif
+#endif
 
         ///
         /// \brief Initializes main and PWM timers.
         ///
         void timers();
-    }
-}
+    }    // namespace setup
+}    // namespace Board

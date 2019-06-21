@@ -25,31 +25,29 @@ namespace Board
     {
         namespace
         {
-            const uint8_t adcChannelArray[MAX_NUMBER_OF_ANALOG] =
-            {
-                0,  //AI_1_PIN, ADC0
-                1,  //AI_2_PIN, ADC1
-                2,  //AI_3_PIN, ADC2
-                3,  //AI_4_PIN, ADC3
-                4,  //AI_5_PIN, ADC4
-                5,  //AI_6_PIN, ADC5
-                6,  //AI_7_PIN, ADC6
-                7,  //AI_8_PIN, ADC7
-                8,  //AI_9_PIN, ADC8
-                9,  //AI_10_PIN, ADC9
-                10, //AI_11_PIN, ADC10
-                11, //AI_12_PIN, ADC11
-                12, //AI_13_PIN, ADC12
-                13, //AI_14_PIN, ADC13
-                14, //AI_15_PIN, ADC14
-                15, //AI_16_PIN, ADC15
+            const uint8_t adcChannelArray[MAX_NUMBER_OF_ANALOG] = {
+                0,     //AI_1_PIN, ADC0
+                1,     //AI_2_PIN, ADC1
+                2,     //AI_3_PIN, ADC2
+                3,     //AI_4_PIN, ADC3
+                4,     //AI_5_PIN, ADC4
+                5,     //AI_6_PIN, ADC5
+                6,     //AI_7_PIN, ADC6
+                7,     //AI_8_PIN, ADC7
+                8,     //AI_9_PIN, ADC8
+                9,     //AI_10_PIN, ADC9
+                10,    //AI_11_PIN, ADC10
+                11,    //AI_12_PIN, ADC11
+                12,    //AI_13_PIN, ADC12
+                13,    //AI_14_PIN, ADC13
+                14,    //AI_15_PIN, ADC14
+                15,    //AI_16_PIN, ADC15
             };
 
             ///
             /// \brief Array holding ports and bits for all digital input pins.
             ///
-            const mcuPin_t dInPins[MAX_NUMBER_OF_BUTTONS] =
-            {
+            const mcuPin_t dInPins[MAX_NUMBER_OF_BUTTONS] = {
                 {
                     .port = &DI_1_PORT,
                     .pin = DI_1_PIN,
@@ -214,8 +212,7 @@ namespace Board
             ///
             /// \brief Array holding ports and bits for all digital output pins.
             ///
-            mcuPin_t dOutPins[MAX_NUMBER_OF_LEDS] =
-            {
+            mcuPin_t dOutPins[MAX_NUMBER_OF_LEDS] = {
                 {
                     .port = &DO_1_PORT,
                     .pin = DO_1_PIN,
@@ -296,7 +293,7 @@ namespace Board
                     .pin = DO_16_PIN,
                 }
             };
-        }
+        }    // namespace
 
         uint8_t adcChannel(uint8_t index)
         {
@@ -312,5 +309,5 @@ namespace Board
         {
             return dOutPins[index];
         }
-    }
-}
+    }    // namespace map
+}    // namespace Board

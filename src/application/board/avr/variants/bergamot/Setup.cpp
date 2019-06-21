@@ -89,8 +89,8 @@ namespace Board
             adc::setup(adcConfiguration);
             adc::setChannel(Board::map::adcChannel(0));
 
-            for (int i=0; i<3; i++)
-                adc::read();  //few dummy reads to init ADC
+            for (int i = 0; i < 3; i++)
+                adc::read();    //few dummy reads to init ADC
 
             adc::enableInterrupt();
             adc::startConversion();
@@ -119,15 +119,14 @@ namespace Board
             TCCR4E = 0;
 
             //set timer0 to ctc
-            TCCR0A |= (1<<WGM01);           //CTC mode
-            TCCR0B |= (1<<CS01)|(1<<CS00);  //prescaler 64
-            OCR0A = 124;                    //500us
-            TIMSK0 |= (1<<OCIE0A);          //compare match interrupt
+            TCCR0A |= (1 << WGM01);                 //CTC mode
+            TCCR0B |= (1 << CS01) | (1 << CS00);    //prescaler 64
+            OCR0A = 124;                            //500us
+            TIMSK0 |= (1 << OCIE0A);                //compare match interrupt
         }
-    }
+    }    // namespace setup
 
     void ledFlashStartup(bool fwUpdated)
     {
-        
     }
-}
+}    // namespace Board

@@ -27,8 +27,7 @@ using namespace Interface::digital::input;
 ///
 void Buttons::customHook(uint8_t buttonID, bool state)
 {
-    switch(buttonID)
+    switch (buttonID)
     {
-        
     }
 }

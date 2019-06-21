@@ -20,7 +20,7 @@ limitations under the License.
 #include "Commands.h"
 #include "board/Board.h"
 
-#define LOW_BYTE(value)  ((value) & 0xFF)
+#define LOW_BYTE(value) ((value) & (0xFF))
 #define HIGH_BYTE(value) (((value) >> 8) & 0xFF)
 
 bool SDW::init()
@@ -48,38 +48,38 @@ void SDW::setScreen(uint8_t screenID)
 ///
 void SDW::sendMessage(uint8_t value, messageByteType_t messageByteType)
 {
-    switch(messageByteType)
+    switch (messageByteType)
     {
-        case messageByteType_t::start:
+    case messageByteType_t::start:
         //write start byte before value
         Board::UART::write(UART_TOUCHSCREEN_CHANNEL, START_BYTE);
         Board::UART::write(UART_TOUCHSCREEN_CHANNEL, value);
         break;
 
-        case messageByteType_t::content:
+    case messageByteType_t::content:
         //just write value
         Board::UART::write(UART_TOUCHSCREEN_CHANNEL, value);
         return;
 
-        case messageByteType_t::singleByte:
+    case messageByteType_t::singleByte:
         //start byte, value, end bytes
         Board::UART::write(UART_TOUCHSCREEN_CHANNEL, START_BYTE);
         Board::UART::write(UART_TOUCHSCREEN_CHANNEL, value);
 
-        for (int i=0; i<END_CODES; i++)
+        for (int i = 0; i < END_CODES; i++)
             Board::UART::write(UART_TOUCHSCREEN_CHANNEL, endCode[i]);
         break;
 
-        case messageByteType_t::end:
+    case messageByteType_t::end:
         //value first
         Board::UART::write(UART_TOUCHSCREEN_CHANNEL, value);
 
         //send message end bytes
-        for (int i=0; i<END_CODES; i++)
+        for (int i = 0; i < END_CODES; i++)
             Board::UART::write(UART_TOUCHSCREEN_CHANNEL, endCode[i]);
         break;
 
-        default:
+    default:
         break;
     }
 }
@@ -102,7 +102,7 @@ bool SDW::update(uint8_t buttonID, bool state)
         //reset buffer index, this is a new message
         bufferIndex_rx = 0;
     }
-    else if (data == endCode[END_CODES-1])
+    else if (data == endCode[END_CODES - 1])
     {
         //this is last byte, start parsing
         parse = true;

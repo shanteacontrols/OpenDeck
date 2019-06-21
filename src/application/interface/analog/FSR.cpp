@@ -27,15 +27,15 @@ using namespace Interface::analog;
 
 uint32_t Analog::calibratePressure(uint32_t value, pressureType_t type)
 {
-    switch(type)
+    switch (type)
     {
-        case pressureType_t::velocity:
+    case pressureType_t::velocity:
         return core::misc::mapRange(CONSTRAIN(value, static_cast<uint32_t>(FSR_MIN_VALUE), static_cast<uint32_t>(FSR_MAX_VALUE)), static_cast<uint32_t>(FSR_MIN_VALUE), static_cast<uint32_t>(FSR_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
 
-        case pressureType_t::aftertouch:
+    case pressureType_t::aftertouch:
         return core::misc::mapRange(CONSTRAIN(value, static_cast<uint32_t>(FSR_MIN_VALUE), static_cast<uint32_t>(AFTERTOUCH_MAX_VALUE)), static_cast<uint32_t>(FSR_MIN_VALUE), static_cast<uint32_t>(AFTERTOUCH_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
 
-        default:
+    default:
         return 0;
     }
 }
@@ -63,12 +63,12 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             uint8_t note = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiID, analogID);
             uint8_t channel = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiChannel, analogID);
             midi.sendNoteOn(note, calibratedPressure, channel);
-            #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, note, calibratedPressure, channel+1);
-            #endif
-            #ifdef LEDS_SUPPORTED
+#ifdef DISPLAY_SUPPORTED
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, note, calibratedPressure, channel + 1);
+#endif
+#ifdef LEDS_SUPPORTED
             leds.midiToState(MIDI::messageType_t::noteOn, note, calibratedPressure, channel, true);
-            #endif
+#endif
 
             cInfo.send(DB_BLOCK_ANALOG, analogID);
         }
@@ -81,12 +81,12 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             uint8_t note = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiID, analogID);
             uint8_t channel = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiChannel, analogID);
             midi.sendNoteOff(note, 0, channel);
-            #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOff, note, calibratedPressure, channel+1);
-            #endif
-            #ifdef LEDS_SUPPORTED
+#ifdef DISPLAY_SUPPORTED
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOff, note, calibratedPressure, channel + 1);
+#endif
+#ifdef LEDS_SUPPORTED
             leds.midiToState(MIDI::messageType_t::noteOff, 0, channel, true);
-            #endif
+#endif
 
             cInfo.send(DB_BLOCK_ANALOG, analogID);
         }

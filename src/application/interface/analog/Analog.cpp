@@ -28,32 +28,32 @@ void Analog::update()
         return;
 
     //check values
-    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         //don't process component if it's not enabled
         if (!database.read(DB_BLOCK_ANALOG, dbSection_analog_enable, i))
             continue;
 
         int16_t analogData = Board::interface::analog::readValue(i);
-        type_t type = static_cast<type_t>(database.read(DB_BLOCK_ANALOG, dbSection_analog_type, i));
+        type_t  type = static_cast<type_t>(database.read(DB_BLOCK_ANALOG, dbSection_analog_type, i));
 
         if (type != type_t::button)
         {
-            switch(type)
+            switch (type)
             {
-                case type_t::potentiometerControlChange:
-                case type_t::potentiometerNote:
-                case type_t::nrpn7b:
-                case type_t::nrpn14b:
-                case type_t::pitchBend:
+            case type_t::potentiometerControlChange:
+            case type_t::potentiometerNote:
+            case type_t::nrpn7b:
+            case type_t::nrpn14b:
+            case type_t::pitchBend:
                 checkPotentiometerValue(type, i, analogData);
                 break;
 
-                case type_t::fsr:
+            case type_t::fsr:
                 checkFSRvalue(i, analogData);
                 break;
 
-                default:
+            default:
                 break;
             }
         }
@@ -77,7 +77,7 @@ void Analog::debounceReset(uint16_t index)
 ///
 /// \param fptr [in]    Pointer to function.
 ///
-void Analog::setButtonHandler(void(*fptr)(uint8_t adcIndex, uint16_t adcValue))
+void Analog::setButtonHandler(void (*fptr)(uint8_t adcIndex, uint16_t adcValue))
 {
     buttonHandler = fptr;
 }

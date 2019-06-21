@@ -24,8 +24,7 @@ limitations under the License.
 /// \brief Common register names for MCUs with single UART channel.
 /// @{
 
-#if defined(__AVR_ATmega16U2__) || defined(__AVR_ATmega8U2__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__) \
-|| defined(__AVR_ATmega32U4__) || defined(__AVR_AT90USB1286__)
+#if defined(__AVR_ATmega16U2__) || defined(__AVR_ATmega8U2__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__) || defined(__AVR_ATmega32U4__) || defined(__AVR_AT90USB1286__)
 
 #ifdef UCSR0A
 #define UCSRA_0 UCSR0A

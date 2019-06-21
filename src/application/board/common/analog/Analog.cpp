@@ -28,14 +28,14 @@ using namespace core::avr;
 
 namespace
 {
-    uint8_t             analogIndex;
-    volatile uint8_t    analogSampleCounter;
-    volatile int16_t    analogBuffer[MAX_NUMBER_OF_ANALOG];
-    #ifdef NUMBER_OF_MUX
+    uint8_t          analogIndex;
+    volatile uint8_t analogSampleCounter;
+    volatile int16_t analogBuffer[MAX_NUMBER_OF_ANALOG];
+#ifdef NUMBER_OF_MUX
     uint8_t activeMux;
     uint8_t activeMuxInput;
-    #endif
-}
+#endif
+}    // namespace
 
 namespace Board
 {
@@ -47,9 +47,9 @@ namespace Board
             {
                 int16_t value;
 
-                #ifdef __AVR__
+#ifdef __AVR__
                 ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-                #endif
+#endif
                 {
                     value = analogBuffer[analogID] >> ANALOG_SAMPLE_SHIFT;
                     analogBuffer[analogID] = 0;
@@ -72,7 +72,7 @@ namespace Board
 
             namespace detail
             {
-                #ifdef NUMBER_OF_MUX
+#ifdef NUMBER_OF_MUX
                 ///
                 /// \brief Configures one of 16 inputs/outputs on 4067 multiplexer.
                 ///
@@ -83,7 +83,7 @@ namespace Board
                     BIT_READ(Board::map::muxChannel(activeMuxInput), 2) ? setHigh(MUX_S2_PORT, MUX_S2_PIN) : setLow(MUX_S2_PORT, MUX_S2_PIN);
                     BIT_READ(Board::map::muxChannel(activeMuxInput), 3) ? setHigh(MUX_S3_PORT, MUX_S3_PIN) : setLow(MUX_S3_PORT, MUX_S3_PIN);
                 }
-                #endif
+#endif
 
                 void update()
                 {
@@ -94,42 +94,42 @@ namespace Board
                     {
                         analogBuffer[analogIndex] += ADC;
                         analogIndex++;
-                        #ifdef NUMBER_OF_MUX
+#ifdef NUMBER_OF_MUX
                         activeMuxInput++;
 
                         bool switchMux = (activeMuxInput == NUMBER_OF_MUX_INPUTS);
 
                         if (switchMux)
-                        #else
+#else
                         if (analogIndex == MAX_NUMBER_OF_ANALOG)
-                        #endif
+#endif
                         {
-                            #ifdef NUMBER_OF_MUX
+#ifdef NUMBER_OF_MUX
                             activeMuxInput = 0;
                             activeMux++;
 
                             if (activeMux == NUMBER_OF_MUX)
                             {
                                 activeMux = 0;
-                            #endif
+#endif
                                 analogIndex = 0;
                                 analogSampleCounter++;
-                            #ifdef NUMBER_OF_MUX
+#ifdef NUMBER_OF_MUX
                             }
-                            #endif
+#endif
 
-                            #ifdef NUMBER_OF_MUX
+#ifdef NUMBER_OF_MUX
                             //switch to next mux once all mux inputs are read
                             adc::setChannel(Board::map::adcChannel(activeMux));
-                            #endif
+#endif
                         }
 
-                        //always switch to next read pin
-                        #ifdef NUMBER_OF_MUX
+//always switch to next read pin
+#ifdef NUMBER_OF_MUX
                         setMuxInput();
-                        #else
+#else
                         adc::setChannel(Board::map::adcChannel(analogIndex));
-                        #endif
+#endif
                     }
 
                     ignoreFirst = !ignoreFirst;
@@ -137,7 +137,7 @@ namespace Board
                     if (analogSampleCounter != NUMBER_OF_ANALOG_SAMPLES)
                         adc::startConversion();
                 }
-            }
-        }
-    }
-}
+            }    // namespace detail
+        }        // namespace analog
+    }            // namespace interface
+}    // namespace Board

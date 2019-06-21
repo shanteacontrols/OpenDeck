@@ -104,8 +104,8 @@ namespace Board
             adc::setup(adcConfiguration);
             adc::setChannel(MUX_1_IN_PIN);
 
-            for (int i=0; i<3; i++)
-                adc::read();  //few dummy reads to init ADC
+            for (int i = 0; i < 3; i++)
+                adc::read();    //few dummy reads to init ADC
 
             adc::enableInterrupt();
             adc::startConversion();
@@ -135,31 +135,31 @@ namespace Board
 
             //set timer1, timer3 and timer4 to phase correct pwm mode
             //timer 1
-            TCCR1A |= (1<<WGM10);           //phase correct PWM
-            TCCR1B |= (1<<CS10);            //prescaler 1
+            TCCR1A |= (1 << WGM10);    //phase correct PWM
+            TCCR1B |= (1 << CS10);     //prescaler 1
             //timer 3
-            TCCR3A |= (1<<WGM30);           //phase correct PWM
-            TCCR3B |= (1<<CS30);            //prescaler 1
+            TCCR3A |= (1 << WGM30);    //phase correct PWM
+            TCCR3B |= (1 << CS30);     //prescaler 1
             //timer 4
-            TCCR4A |= (1<<PWM4A);           //Pulse Width Modulator A Enable
-            TCCR4B |= (1<<CS40);            //prescaler 1
-            TCCR4C |= (1<<PWM4D);           //Pulse Width Modulator D Enable
-            TCCR4D |= (1<<WGM40);           //phase correct PWM
+            TCCR4A |= (1 << PWM4A);    //Pulse Width Modulator A Enable
+            TCCR4B |= (1 << CS40);     //prescaler 1
+            TCCR4C |= (1 << PWM4D);    //Pulse Width Modulator D Enable
+            TCCR4D |= (1 << WGM40);    //phase correct PWM
 
             //set timer0 to ctc, used for millis/led matrix
-            TCCR0A |= (1<<WGM01);           //CTC mode
-            TCCR0B |= (1<<CS01)|(1<<CS00);  //prescaler 64
-            OCR0A = 124;                    //500us
-            TIMSK0 |= (1<<OCIE0A);          //compare match interrupt
+            TCCR0A |= (1 << WGM01);                 //CTC mode
+            TCCR0B |= (1 << CS01) | (1 << CS00);    //prescaler 64
+            OCR0A = 124;                            //500us
+            TIMSK0 |= (1 << OCIE0A);                //compare match interrupt
         }
-    }
+    }    // namespace setup
 
     void ledFlashStartup(bool fwUpdated)
     {
         //block interrupts here to avoid received midi traffic messing with indicator leds animation
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
         {
-            for (int i=0; i<3; i++)
+            for (int i = 0; i < 3; i++)
             {
                 if (fwUpdated)
                 {
@@ -185,4 +185,4 @@ namespace Board
         INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
         INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
     }
-}
+}    // namespace Board

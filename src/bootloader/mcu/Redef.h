@@ -23,13 +23,13 @@ limitations under the License.
 #ifdef BOARD_A_xu2
 #ifdef VARIANT_MEGA
 #undef SPM_PAGESIZE
-#define SPM_PAGESIZE            256
+#define SPM_PAGESIZE 256
 #undef BOOT_START_ADDR
-#define BOOT_START_ADDR         0x3F000
+#define BOOT_START_ADDR 0x3F000
 #elif defined(VARIANT_UNO)
 #undef SPM_PAGESIZE
-#define SPM_PAGESIZE            128
+#define SPM_PAGESIZE 128
 #undef BOOT_START_ADDR
-#define BOOT_START_ADDR         0x7800
+#define BOOT_START_ADDR 0x7800
 #endif
 #endif

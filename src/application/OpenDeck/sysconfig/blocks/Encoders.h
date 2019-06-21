@@ -35,8 +35,7 @@ typedef enum
 } sysExSection_encoders_t;
 
 //map sysex sections to sections in db
-const uint8_t sysEx2DB_encoders[SYSEX_SECTIONS_ENCODERS] =
-{
+const uint8_t sysEx2DB_encoders[SYSEX_SECTIONS_ENCODERS] = {
     dbSection_encoders_enable,
     dbSection_encoders_invert,
     dbSection_encoders_mode,

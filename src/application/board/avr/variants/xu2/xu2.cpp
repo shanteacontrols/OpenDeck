@@ -23,8 +23,8 @@ limitations under the License.
 namespace
 {
     MIDI::USBMIDIpacket_t USBMIDIpacket;
-    odPacketType_t packetType;
-}
+    odPacketType_t        packetType;
+}    // namespace
 
 int main(void)
 {

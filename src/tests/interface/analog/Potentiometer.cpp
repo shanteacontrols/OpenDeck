@@ -27,14 +27,13 @@ namespace Board
 
             void continueReadout()
             {
-
             }
 
             bool isDataAvailable()
             {
                 return true;
             }
-        }
+        }    // namespace analog
 
         namespace digital
         {
@@ -54,25 +53,25 @@ namespace Board
                 {
                     return true;
                 }
-            }
-        }
-    }
-}
+            }    // namespace output
+        }        // namespace digital
+    }            // namespace interface
+}    // namespace Board
 
 namespace MIDIstub
 {
     namespace detail
     {
-        uint32_t messageCounter = 0;
+        uint32_t              messageCounter = 0;
         MIDI::USBMIDIpacket_t midiPacket[MAX_NUMBER_OF_ANALOG];
-    }
+    }    // namespace detail
 
     void reset()
     {
         using namespace detail;
         messageCounter = 0;
     }
-}
+}    // namespace MIDIstub
 
 bool midiDataHandler(MIDI::USBMIDIpacket_t& USBMIDIpacket)
 {
@@ -90,41 +89,40 @@ class PotentiometerTest : public ::testing::Test
         EXPECT_TRUE(database.init());
         EXPECT_TRUE(database.isSignatureValid());
         midi.handleUSBwrite(midiDataHandler);
-        #ifdef DISPLAY_SUPPORTED
+#ifdef DISPLAY_SUPPORTED
         EXPECT_TRUE(display.init(displayController_ssd1306, displayRes_128x64));
-        #endif
+#endif
     }
 
     virtual void TearDown()
     {
-        
     }
 
-    Database database = Database(DatabaseStub::read, DatabaseStub::write, EEPROM_SIZE-3);
-    MIDI midi;
+    Database      database = Database(DatabaseStub::read, DatabaseStub::write, EEPROM_SIZE - 3);
+    MIDI          midi;
     ComponentInfo cInfo;
 
-    #ifdef LEDS_SUPPORTED
+#ifdef LEDS_SUPPORTED
     Interface::digital::output::LEDs leds = Interface::digital::output::LEDs(database);
-    #endif
+#endif
 
-    #ifdef DISPLAY_SUPPORTED
+#ifdef DISPLAY_SUPPORTED
     Interface::Display display;
-    #endif
+#endif
 
-    #ifdef LEDS_SUPPORTED
-    #ifndef DISPLAY_SUPPORTED
+#ifdef LEDS_SUPPORTED
+#ifndef DISPLAY_SUPPORTED
     Interface::analog::Analog analog = Interface::analog::Analog(database, midi, leds, cInfo);
-    #else
+#else
     Interface::analog::Analog analog = Interface::analog::Analog(database, midi, leds, display, cInfo);
-    #endif
-    #else
-    #ifdef DISPLAY_SUPPORTED
+#endif
+#else
+#ifdef DISPLAY_SUPPORTED
     Interface::analog::Analog analog = Interface::analog::Analog(database, midi, display, cInfo);
-    #else
+#else
     Interface::analog::Analog analog = Interface::analog::Analog(database, midi, cInfo);
-    #endif
-    #endif
+#endif
+#endif
 };
 
 TEST_F(PotentiometerTest, CCtest)
@@ -132,7 +130,7 @@ TEST_F(PotentiometerTest, CCtest)
     using namespace Interface::analog;
 
     //set known state
-    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         //enable all analog components
         EXPECT_EQ(database.update(DB_BLOCK_ANALOG, dbSection_analog_enable, i, 1), true);
@@ -161,13 +159,13 @@ TEST_F(PotentiometerTest, CCtest)
     expectedValue = core::misc::mapRange(Board::detail::adcReturnValue, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
     analog.update();
 
-    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
         EXPECT_EQ(MIDIstub::detail::midiPacket[i].Data3, expectedValue);
 
     EXPECT_EQ(MIDIstub::detail::messageCounter, MAX_NUMBER_OF_ANALOG);
 
     //reset all values
-    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
         analog.debounceReset(i);
 
     //try with max value
@@ -176,7 +174,7 @@ TEST_F(PotentiometerTest, CCtest)
     MIDIstub::reset();
     analog.update();
 
-    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
         EXPECT_EQ(MIDIstub::detail::midiPacket[i].Data3, MIDI_7_BIT_VALUE_MAX);
 
     EXPECT_EQ(MIDIstub::detail::messageCounter, MAX_NUMBER_OF_ANALOG);
@@ -187,7 +185,7 @@ TEST_F(PotentiometerTest, PitchBendTest)
     using namespace Interface::analog;
 
     //set known state
-    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         //enable all analog components
         EXPECT_EQ(database.update(DB_BLOCK_ANALOG, dbSection_analog_enable, i, 1), true);
@@ -216,7 +214,7 @@ TEST_F(PotentiometerTest, PitchBendTest)
     expectedValue = core::misc::mapRange(Board::detail::adcReturnValue, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_14_BIT_VALUE_MAX));
     analog.update();
 
-    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         MIDI::encDec_14bit_t pitchBendValue;
         pitchBendValue.low = MIDIstub::detail::midiPacket[i].Data2;
@@ -237,7 +235,7 @@ TEST_F(PotentiometerTest, PitchBendTest)
     Board::detail::adcReturnValue = ADC_MAX_VALUE;
     analog.update();
 
-    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         MIDI::encDec_14bit_t pitchBendValue;
         pitchBendValue.low = MIDIstub::detail::midiPacket[i].Data2;
@@ -252,7 +250,7 @@ TEST_F(PotentiometerTest, ScalingAndInversion)
     using namespace Interface::analog;
 
     //set known state
-    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         //enable all analog components
         EXPECT_EQ(database.update(DB_BLOCK_ANALOG, dbSection_analog_enable, i, 1), true);
@@ -273,7 +271,7 @@ TEST_F(PotentiometerTest, ScalingAndInversion)
         EXPECT_EQ(database.update(DB_BLOCK_ANALOG, dbSection_analog_midiChannel, i, 1), true);
     }
 
-    for (uint32_t i=ADC_MAX_VALUE+1; i-- > 0; )
+    for (uint32_t i = ADC_MAX_VALUE + 1; i-- > 0;)
     {
         MIDIstub::reset();
         Board::detail::adcReturnValue = i;
@@ -282,7 +280,7 @@ TEST_F(PotentiometerTest, ScalingAndInversion)
         analog.update();
         EXPECT_EQ(MIDIstub::detail::messageCounter, MAX_NUMBER_OF_ANALOG);
 
-        for (int j=0; j<MAX_NUMBER_OF_ANALOG; j++)
+        for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
             EXPECT_EQ(MIDIstub::detail::midiPacket[j].Data3, expectedValue);
             //reset debouncing state for easier testing - otherwise Board::detail::adcReturnValue
@@ -292,14 +290,14 @@ TEST_F(PotentiometerTest, ScalingAndInversion)
     }
 
     //now enable inversion
-    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         //enable inversion for all analog components
         EXPECT_EQ(database.update(DB_BLOCK_ANALOG, dbSection_analog_invert, i, 1), true);
         analog.debounceReset(i);
     }
 
-    for (uint32_t i=ADC_MAX_VALUE+1; i-- > 0; )
+    for (uint32_t i = ADC_MAX_VALUE + 1; i-- > 0;)
     {
         MIDIstub::reset();
         Board::detail::adcReturnValue = i;
@@ -308,7 +306,7 @@ TEST_F(PotentiometerTest, ScalingAndInversion)
         analog.update();
         EXPECT_EQ(MIDIstub::detail::messageCounter, MAX_NUMBER_OF_ANALOG);
 
-        for (int j=0; j<MAX_NUMBER_OF_ANALOG; j++)
+        for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
             EXPECT_EQ(MIDIstub::detail::midiPacket[j].Data3, expectedValue);
             analog.debounceReset(j);
@@ -316,7 +314,7 @@ TEST_F(PotentiometerTest, ScalingAndInversion)
     }
 
     //now do the same thing for pitch bend analog type
-    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         //disable invert state
         EXPECT_EQ(database.update(DB_BLOCK_ANALOG, dbSection_analog_invert, i, 0), true);
@@ -327,7 +325,7 @@ TEST_F(PotentiometerTest, ScalingAndInversion)
         analog.debounceReset(i);
     }
 
-    for (uint32_t i=ADC_MAX_VALUE+1; i-- > 0; )
+    for (uint32_t i = ADC_MAX_VALUE + 1; i-- > 0;)
     {
         MIDIstub::reset();
         Board::detail::adcReturnValue = i;
@@ -336,7 +334,7 @@ TEST_F(PotentiometerTest, ScalingAndInversion)
         analog.update();
         EXPECT_EQ(MIDIstub::detail::messageCounter, MAX_NUMBER_OF_ANALOG);
 
-        for (int j=0; j<MAX_NUMBER_OF_ANALOG; j++)
+        for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
             MIDI::encDec_14bit_t pitchBendValue;
             pitchBendValue.low = MIDIstub::detail::midiPacket[j].Data2;
@@ -348,13 +346,13 @@ TEST_F(PotentiometerTest, ScalingAndInversion)
     }
 
     //now enable inversion
-    for (uint32_t i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+    for (uint32_t i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         EXPECT_EQ(database.update(DB_BLOCK_ANALOG, dbSection_analog_invert, i, 1), true);
         analog.debounceReset(i);
     }
 
-    for (uint32_t i=ADC_MAX_VALUE+1; i-- > 0; )
+    for (uint32_t i = ADC_MAX_VALUE + 1; i-- > 0;)
     {
         MIDIstub::reset();
         Board::detail::adcReturnValue = i;
@@ -363,7 +361,7 @@ TEST_F(PotentiometerTest, ScalingAndInversion)
         analog.update();
         EXPECT_EQ(MIDIstub::detail::messageCounter, MAX_NUMBER_OF_ANALOG);
 
-        for (int j=0; j<MAX_NUMBER_OF_ANALOG; j++)
+        for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
             MIDI::encDec_14bit_t pitchBendValue;
             pitchBendValue.low = MIDIstub::detail::midiPacket[j].Data2;
@@ -377,12 +375,12 @@ TEST_F(PotentiometerTest, ScalingAndInversion)
     //try with scaled upper value
     //still using pitch bend message type
 
-    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
         analog.debounceReset(i);
 
     const uint32_t scaledUpperValue = 100;
 
-    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         EXPECT_EQ(database.update(DB_BLOCK_ANALOG, dbSection_analog_invert, i, 0), true);
         EXPECT_EQ(database.update(DB_BLOCK_ANALOG, dbSection_analog_upperLimit, i, scaledUpperValue), true);
@@ -394,7 +392,7 @@ TEST_F(PotentiometerTest, ScalingAndInversion)
     analog.update();
     EXPECT_EQ(MIDIstub::detail::messageCounter, MAX_NUMBER_OF_ANALOG);
 
-    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         MIDI::encDec_14bit_t pitchBendValue;
         pitchBendValue.low = MIDIstub::detail::midiPacket[i].Data2;
@@ -409,7 +407,7 @@ TEST_F(PotentiometerTest, DebouncingSetup)
     //verify that the step diff is properly configured
     //don't allow step difference which would result in scenario where total number
     //of generated values would be less than 127
-    ASSERT_TRUE((ADC_MAX_VALUE/ANALOG_STEP_MIN_DIFF_7_BIT) >= 127);
+    ASSERT_TRUE((ADC_MAX_VALUE / ANALOG_STEP_MIN_DIFF_7_BIT) >= 127);
 }
 
 TEST_F(PotentiometerTest, Debouncing)
@@ -417,7 +415,7 @@ TEST_F(PotentiometerTest, Debouncing)
     using namespace Interface::analog;
 
     //set known state
-    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         //enable all analog components
         EXPECT_EQ(database.update(DB_BLOCK_ANALOG, dbSection_analog_enable, i, 1), true);
@@ -446,7 +444,7 @@ TEST_F(PotentiometerTest, Debouncing)
     expectedValue = core::misc::mapRange(Board::detail::adcReturnValue, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
     analog.update();
 
-    for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
         EXPECT_EQ(MIDIstub::detail::midiPacket[i].Data3, expectedValue);
 
     EXPECT_EQ(MIDIstub::detail::messageCounter, MAX_NUMBER_OF_ANALOG);
@@ -461,7 +459,7 @@ TEST_F(PotentiometerTest, Debouncing)
     //now test using different raw adc value which results in same MIDI value
     MIDIstub::reset();
 
-    if ((ADC_MAX_VALUE/ANALOG_STEP_MIN_DIFF_7_BIT) > 127)
+    if ((ADC_MAX_VALUE / ANALOG_STEP_MIN_DIFF_7_BIT) > 127)
     {
         //it is possible that internally, ANALOG_STEP_MIN_DIFF_7_BIT is defined in a way
         //which would still result in the same MIDI value being generated
@@ -479,8 +477,7 @@ TEST_F(PotentiometerTest, Debouncing)
         {
             Board::detail::adcReturnValue += 1;
             newMIDIvalue = core::misc::mapRange(Board::detail::adcReturnValue, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
-        }
-        while (newMIDIvalue == expectedValue);
+        } while (newMIDIvalue == expectedValue);
 
         expectedValue = newMIDIvalue;
 
@@ -489,12 +486,12 @@ TEST_F(PotentiometerTest, Debouncing)
         analog.update();
         EXPECT_EQ(MIDIstub::detail::messageCounter, MAX_NUMBER_OF_ANALOG);
 
-        for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+        for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
             EXPECT_EQ(MIDIstub::detail::midiPacket[i].Data3, expectedValue);
     }
     else
     {
-        Board::detail::adcReturnValue += (ANALOG_STEP_MIN_DIFF_7_BIT-1);
+        Board::detail::adcReturnValue += (ANALOG_STEP_MIN_DIFF_7_BIT - 1);
         //verify that the newly generated value is indeed the same as the last one
         EXPECT_EQ(expectedValue, core::misc::mapRange(Board::detail::adcReturnValue, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX)));
         analog.update();
@@ -510,14 +507,14 @@ TEST_F(PotentiometerTest, Debouncing)
         //values should be sent now
         EXPECT_EQ(MIDIstub::detail::messageCounter, MAX_NUMBER_OF_ANALOG);
 
-        for (int i=0; i<MAX_NUMBER_OF_ANALOG; i++)
+        for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
             EXPECT_EQ(MIDIstub::detail::midiPacket[i].Data3, expectedValue);
     }
 
     //verify that the debouncing works in both ways
     //change the direction
 
-    for (int i=0; i<ANALOG_STEP_MIN_DIFF_7_BIT-1; i++)
+    for (int i = 0; i < ANALOG_STEP_MIN_DIFF_7_BIT - 1; i++)
     {
         MIDIstub::reset();
         Board::detail::adcReturnValue -= 1;

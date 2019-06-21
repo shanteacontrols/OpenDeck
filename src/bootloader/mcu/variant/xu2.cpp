@@ -40,16 +40,17 @@ void EVENT_USB_Device_ControlRequest(void)
     //process HID specific control requests
     switch (USB_ControlRequest.bRequest)
     {
-        case HID_REQ_SetReport:
+    case HID_REQ_SetReport:
         Endpoint_ClearSETUP();
 
         //wait until the command has been sent by the host
-        while (!(Endpoint_IsOUTReceived()));
+        while (!(Endpoint_IsOUTReceived()))
+            ;
         //read in the write destination address
         PageAddress = Endpoint_Read_16_LE();
 
         //send magic sequence first
-        for (int i=0; i<6; i++)
+        for (int i = 0; i < 6; i++)
             Board::UART::write(UART_USB_LINK_CHANNEL, bootloader::hidUploadStart[i]);
 
         Board::UART::write(UART_USB_LINK_CHANNEL, LSB_WORD(PageAddress));
@@ -57,19 +58,21 @@ void EVENT_USB_Device_ControlRequest(void)
 
         if (PageAddress == COMMAND_STARTAPPLICATION)
         {
-            while (!Board::UART::isTxEmpty(UART_USB_LINK_CHANNEL));
+            while (!Board::UART::isTxEmpty(UART_USB_LINK_CHANNEL))
+                ;
             bootloader::RunBootloader = false;
         }
         else if (PageAddress < BOOT_START_ADDR)
         {
             //write each of the FLASH page's bytes in sequence
-            for (int PageWord=0; PageWord<SPM_PAGESIZE/2; PageWord++)
+            for (int PageWord = 0; PageWord < SPM_PAGESIZE / 2; PageWord++)
             {
                 //check if endpoint is empty - if so clear it and wait until ready for next packet
                 if (!(Endpoint_BytesInEndpoint()))
                 {
                     Endpoint_ClearOUT();
-                    while (!(Endpoint_IsOUTReceived()));
+                    while (!(Endpoint_IsOUTReceived()))
+                        ;
                 }
 
                 uint16_t dataWord = Endpoint_Read_16_LE();

@@ -24,58 +24,58 @@ limitations under the License.
 /// @{
 
 #if HARDWARE_VERSION_MINOR == 1
-#define MUX_Y0                      8
-#define MUX_Y1                      9
-#define MUX_Y2                      10
-#define MUX_Y3                      11
-#define MUX_Y4                      12
-#define MUX_Y5                      13
-#define MUX_Y6                      14
-#define MUX_Y7                      15
-#define MUX_Y8                      7
-#define MUX_Y9                      6
-#define MUX_Y10                     5
-#define MUX_Y11                     4
-#define MUX_Y12                     3
-#define MUX_Y13                     2
-#define MUX_Y14                     1
-#define MUX_Y15                     0
+#define MUX_Y0 8
+#define MUX_Y1 9
+#define MUX_Y2 10
+#define MUX_Y3 11
+#define MUX_Y4 12
+#define MUX_Y5 13
+#define MUX_Y6 14
+#define MUX_Y7 15
+#define MUX_Y8 7
+#define MUX_Y9 6
+#define MUX_Y10 5
+#define MUX_Y11 4
+#define MUX_Y12 3
+#define MUX_Y13 2
+#define MUX_Y14 1
+#define MUX_Y15 0
 #elif HARDWARE_VERSION_MINOR == 2
-#define MUX_Y0                      8
-#define MUX_Y1                      9
-#define MUX_Y2                      10
-#define MUX_Y3                      11
-#define MUX_Y4                      12
-#define MUX_Y5                      13
-#define MUX_Y6                      14
-#define MUX_Y7                      15
-#define MUX_Y8                      4
-#define MUX_Y9                      5
-#define MUX_Y10                     7
-#define MUX_Y11                     6
-#define MUX_Y12                     0
-#define MUX_Y13                     1
-#define MUX_Y14                     2
-#define MUX_Y15                     3
+#define MUX_Y0 8
+#define MUX_Y1 9
+#define MUX_Y2 10
+#define MUX_Y3 11
+#define MUX_Y4 12
+#define MUX_Y5 13
+#define MUX_Y6 14
+#define MUX_Y7 15
+#define MUX_Y8 4
+#define MUX_Y9 5
+#define MUX_Y10 7
+#define MUX_Y11 6
+#define MUX_Y12 0
+#define MUX_Y13 1
+#define MUX_Y14 2
+#define MUX_Y15 3
 #endif
 
-#define DM_ROW_1_BIT                0
-#define DM_ROW_2_BIT                1
-#define DM_ROW_3_BIT                2
-#define DM_ROW_4_BIT                3
-#define DM_ROW_5_BIT                7
-#define DM_ROW_6_BIT                6
-#define DM_ROW_7_BIT                5
-#define DM_ROW_8_BIT                4
+#define DM_ROW_1_BIT 0
+#define DM_ROW_2_BIT 1
+#define DM_ROW_3_BIT 2
+#define DM_ROW_4_BIT 3
+#define DM_ROW_5_BIT 7
+#define DM_ROW_6_BIT 6
+#define DM_ROW_7_BIT 5
+#define DM_ROW_8_BIT 4
 
-#define DM_COLUMN_1                 0
-#define DM_COLUMN_2                 7
-#define DM_COLUMN_3                 2
-#define DM_COLUMN_4                 1
-#define DM_COLUMN_5                 4
-#define DM_COLUMN_6                 3
-#define DM_COLUMN_7                 5
-#define DM_COLUMN_8                 6
+#define DM_COLUMN_1 0
+#define DM_COLUMN_2 7
+#define DM_COLUMN_3 2
+#define DM_COLUMN_4 1
+#define DM_COLUMN_5 4
+#define DM_COLUMN_6 3
+#define DM_COLUMN_7 5
+#define DM_COLUMN_8 6
 
 namespace Board
 {
@@ -83,8 +83,7 @@ namespace Board
     {
         namespace
         {
-            const uint8_t muxPinOrderArray[NUMBER_OF_MUX_INPUTS] =
-            {
+            const uint8_t muxPinOrderArray[NUMBER_OF_MUX_INPUTS] = {
                 MUX_Y0,
                 MUX_Y1,
                 MUX_Y2,
@@ -104,8 +103,7 @@ namespace Board
             };
 
             //row bits are stored in inverse order when performing read
-            const uint8_t dmRowBitArray[NUMBER_OF_BUTTON_ROWS] =
-            {
+            const uint8_t dmRowBitArray[NUMBER_OF_BUTTON_ROWS] = {
                 DM_ROW_8_BIT,
                 DM_ROW_7_BIT,
                 DM_ROW_6_BIT,
@@ -116,8 +114,7 @@ namespace Board
                 DM_ROW_1_BIT
             };
 
-            const uint8_t dmColumnArray[NUMBER_OF_BUTTON_COLUMNS] =
-            {
+            const uint8_t dmColumnArray[NUMBER_OF_BUTTON_COLUMNS] = {
                 DM_COLUMN_1,
                 DM_COLUMN_2,
                 DM_COLUMN_3,
@@ -131,8 +128,7 @@ namespace Board
             ///
             /// \brief Array holding ADC read pins/channels.
             ///
-            const uint8_t adcChannelArray[NUMBER_OF_MUX] =
-            {
+            const uint8_t adcChannelArray[NUMBER_OF_MUX] = {
                 MUX_1_IN_PIN,
                 MUX_2_IN_PIN
             };
@@ -140,8 +136,7 @@ namespace Board
             ///
             /// \brief Array of mcuPin_t structure holding port/pin for every LED row for easier access.
             ///
-            const mcuPin_t ledRowPins[NUMBER_OF_LED_ROWS] =
-            {
+            const mcuPin_t ledRowPins[NUMBER_OF_LED_ROWS] = {
                 {
                     .port = &LED_ROW_1_PORT,
                     .pin = LED_ROW_1_PIN,
@@ -172,7 +167,7 @@ namespace Board
                     .pin = LED_ROW_6_PIN,
                 }
             };
-        }
+        }    // namespace
 
         uint8_t adcChannel(uint8_t index)
         {
@@ -198,7 +193,7 @@ namespace Board
         {
             return ledRowPins[index];
         }
-    }
-}
+    }    // namespace map
+}    // namespace Board
 
 /// @}

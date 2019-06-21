@@ -29,15 +29,13 @@ bool SysConfig::onCustomRequest(uint8_t value)
 
     bool retVal = true;
 
-    auto appendSW = [this]()
-    {
+    auto appendSW = [this]() {
         addToResponse(SW_VERSION_MAJOR);
         addToResponse(SW_VERSION_MINOR);
         addToResponse(SW_VERSION_REVISION);
     };
 
-    auto appendHW = [this]()
-    {
+    auto appendHW = [this]() {
         addToResponse((FW_UID >> 24) & static_cast<uint32_t>(0xFF));
         addToResponse((FW_UID >> 16) & static_cast<uint32_t>(0xFF));
         addToResponse((FW_UID >> 8) & static_cast<uint32_t>(0xFF));
@@ -47,28 +45,28 @@ bool SysConfig::onCustomRequest(uint8_t value)
         addToResponse(0);
     };
 
-    switch(value)
+    switch (value)
     {
-        case SYSEX_CR_FIRMWARE_VERSION:
+    case SYSEX_CR_FIRMWARE_VERSION:
         appendSW();
         break;
 
-        case SYSEX_CR_HARDWARE_VERSION:
+    case SYSEX_CR_HARDWARE_VERSION:
         appendHW();
         break;
 
-        case SYSEX_CR_FIRMWARE_HARDWARE_VERSION:
+    case SYSEX_CR_FIRMWARE_HARDWARE_VERSION:
         appendSW();
         appendHW();
         break;
 
-        case SYSEX_CR_REBOOT_APP:
-        case SYSEX_CR_FACTORY_RESET:
-        case SYSEX_CR_REBOOT_BTLDR:
-        #ifdef LEDS_SUPPORTED
+    case SYSEX_CR_REBOOT_APP:
+    case SYSEX_CR_FACTORY_RESET:
+    case SYSEX_CR_REBOOT_BTLDR:
+#ifdef LEDS_SUPPORTED
         leds.setAllOff();
         core::timing::waitMs(2500);
-        #endif
+#endif
 
         if (value == SYSEX_CR_FACTORY_RESET)
             database.factoryReset(LESSDB::factoryResetType_t::partial);
@@ -79,19 +77,19 @@ bool SysConfig::onCustomRequest(uint8_t value)
             Board::reboot(rebootType_t::rebootApp);
         break;
 
-        case SYSEX_CR_MAX_COMPONENTS:
-        addToResponse(MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS);
+    case SYSEX_CR_MAX_COMPONENTS:
+        addToResponse(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS);
         addToResponse(MAX_NUMBER_OF_ENCODERS);
         addToResponse(MAX_NUMBER_OF_ANALOG);
         addToResponse(MAX_NUMBER_OF_LEDS);
         break;
 
-        case SYSEX_CR_SUPPORTED_PRESETS:
+    case SYSEX_CR_SUPPORTED_PRESETS:
         addToResponse(database.getSupportedPresets());
         break;
 
-        #ifdef DIN_MIDI_SUPPORTED
-        case SYSEX_CR_DAISY_CHAIN:
+#ifdef DIN_MIDI_SUPPORTED
+    case SYSEX_CR_DAISY_CHAIN:
         //received message from opendeck board in daisy chain configuration
         //check if this board is master
         if (static_cast<midiMergeType_t>(database.read(DB_BLOCK_GLOBAL, dbSection_global_midiMerge, midiMergeType)) == midiMergeODslave)
@@ -103,73 +101,73 @@ bool SysConfig::onCustomRequest(uint8_t value)
             configureMIDImerge(midiMergeODslave);
         }
         break;
-        #endif
+#endif
 
-        case SYSEX_CR_ENABLE_PROCESSING:
+    case SYSEX_CR_ENABLE_PROCESSING:
         processingEnabled = true;
         break;
 
-        case SYSEX_CR_DISABLE_PROCESSING:
+    case SYSEX_CR_DISABLE_PROCESSING:
         processingEnabled = false;
         break;
 
-        default:
+    default:
         retVal = false;
         break;
     }
 
     if (retVal)
     {
-        #ifdef DISPLAY_SUPPORTED
+#ifdef DISPLAY_SUPPORTED
         display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::systemExclusive, 0, 0, 0);
-        #endif
+#endif
     }
 
     return retVal;
 }
 
-bool SysConfig::onGet(uint8_t block, uint8_t section, uint16_t index, SysExConf::sysExParameter_t &value)
+bool SysConfig::onGet(uint8_t block, uint8_t section, uint16_t index, SysExConf::sysExParameter_t& value)
 {
-    bool success = true;
+    bool                 success = true;
     MIDI::encDec_14bit_t encDec_14bit;
-    int32_t readValue = 0;
+    int32_t              readValue = 0;
 
-    switch(block)
+    switch (block)
     {
-        case SYSEX_BLOCK_GLOBAL:
-        switch(section)
+    case SYSEX_BLOCK_GLOBAL:
+        switch (section)
         {
-            case sysExSection_global_midiFeature:
-            case sysExSection_global_midiMerge:
+        case sysExSection_global_midiFeature:
+        case sysExSection_global_midiMerge:
             success = database.read(block, section, index, readValue);
             break;
 
-            case sysExSection_global_presets:
+        case sysExSection_global_presets:
             if (index == systemGlobal_ActivePreset)
                 readValue = database.getPreset();
             else if (index == systemGlobal_presetPreserve)
                 readValue = database.getPresetPreserveState();
             break;
 
-            default:
+        default:
             success = false;
             break;
         }
         break;
 
-        case SYSEX_BLOCK_LEDS:
-        #ifdef LEDS_SUPPORTED
-        switch(section)
+    case SYSEX_BLOCK_LEDS:
+#ifdef LEDS_SUPPORTED
+        switch (section)
         {
-            case sysExSection_leds_testColor:
+        case sysExSection_leds_testColor:
             readValue = static_cast<int32_t>(leds.getColor(index));
             break;
 
-            case sysExSection_leds_testBlink:
+        case sysExSection_leds_testBlink:
             readValue = leds.getBlinkState(index);
             break;
 
-            case sysExSection_leds_midiChannel:
+        case sysExSection_leds_midiChannel:
             success = database.read(block, sysEx2DB_leds[section], index, readValue);
 
             //channels start from 0 in db, start from 1 in sysex
@@ -177,29 +175,29 @@ bool SysConfig::onGet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
                 readValue++;
             break;
 
-            case sysExSection_leds_rgbEnable:
+        case sysExSection_leds_rgbEnable:
             success = database.read(block, sysEx2DB_leds[section], Board::interface::digital::output::getRGBID(index), readValue);
             break;
 
-            default:
+        default:
             success = database.read(block, sysEx2DB_leds[section], index, readValue);
             break;
         }
-        #else
+#else
         setError(SysExConf::status_t::errorNotSupported);
         success = false;
-        #endif
+#endif
         break;
 
-        case SYSEX_BLOCK_ANALOG:
-        switch(section)
+    case SYSEX_BLOCK_ANALOG:
+        switch (section)
         {
-            case sysExSection_analog_midiID_LSB:
-            case sysExSection_analog_midiID_MSB:
-            case sysExSection_analog_lowerLimit_LSB:
-            case sysExSection_analog_lowerLimit_MSB:
-            case sysExSection_analog_upperLimit_LSB:
-            case sysExSection_analog_upperLimit_MSB:
+        case sysExSection_analog_midiID_LSB:
+        case sysExSection_analog_midiID_MSB:
+        case sysExSection_analog_lowerLimit_LSB:
+        case sysExSection_analog_lowerLimit_MSB:
+        case sysExSection_analog_upperLimit_LSB:
+        case sysExSection_analog_upperLimit_MSB:
             success = database.read(block, sysEx2DB_analog[section], index, readValue);
 
             if (success)
@@ -207,22 +205,22 @@ bool SysConfig::onGet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
                 encDec_14bit.value = readValue;
                 encDec_14bit.split14bit();
 
-                switch(section)
+                switch (section)
                 {
-                    case sysExSection_analog_midiID_LSB:
-                    case sysExSection_analog_lowerLimit_LSB:
-                    case sysExSection_analog_upperLimit_LSB:
+                case sysExSection_analog_midiID_LSB:
+                case sysExSection_analog_lowerLimit_LSB:
+                case sysExSection_analog_upperLimit_LSB:
                     readValue = encDec_14bit.low;
                     break;
 
-                    default:
+                default:
                     readValue = encDec_14bit.high;
                     break;
                 }
             }
             break;
 
-            case sysExSection_analog_midiChannel:
+        case sysExSection_analog_midiChannel:
             success = database.read(block, sysEx2DB_analog[section], index, readValue);
 
             //channels start from 0 in db, start from 1 in sysex
@@ -230,13 +228,13 @@ bool SysConfig::onGet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
                 readValue++;
             break;
 
-            default:
+        default:
             success = database.read(block, sysEx2DB_analog[section], index, readValue);
             break;
         }
         break;
 
-        case SYSEX_BLOCK_BUTTONS:
+    case SYSEX_BLOCK_BUTTONS:
         success = database.read(block, sysEx2DB_buttons[section], index, readValue);
 
         //channels start from 0 in db, start from 1 in sysex
@@ -244,7 +242,7 @@ bool SysConfig::onGet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
             readValue++;
         break;
 
-        case SYSEX_BLOCK_ENCODERS:
+    case SYSEX_BLOCK_ENCODERS:
         success = database.read(block, sysEx2DB_encoders[section], index, readValue);
 
         if (success)
@@ -267,23 +265,23 @@ bool SysConfig::onGet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
         }
         break;
 
-        case SYSEX_BLOCK_DISPLAY:
-        #ifdef DISPLAY_SUPPORTED
+    case SYSEX_BLOCK_DISPLAY:
+#ifdef DISPLAY_SUPPORTED
         success = database.read(block, sysEx2DB_display[section], index, readValue);
-        #else
+#else
         setError(SysExConf::status_t::errorNotSupported);
         success = false;
-        #endif
+#endif
         break;
 
-        default:
+    default:
         success = database.read(block, section, index, readValue);
         break;
     }
 
-    #ifdef DISPLAY_SUPPORTED
+#ifdef DISPLAY_SUPPORTED
     display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::systemExclusive, 0, 0, 0);
-    #endif
+#endif
 
     if (success)
     {
@@ -299,44 +297,44 @@ bool SysConfig::onGet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
 
 bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf::sysExParameter_t newValue)
 {
-    bool success = false;
-    bool writeToDb = true;
+    bool                 success = false;
+    bool                 writeToDb = true;
     MIDI::encDec_14bit_t encDec_14bit;
 
-    switch(block)
+    switch (block)
     {
-        case SYSEX_BLOCK_GLOBAL:
+    case SYSEX_BLOCK_GLOBAL:
         if (section == sysExSection_global_midiFeature)
         {
-            switch(index)
+            switch (index)
             {
-                case midiFeatureRunningStatus:
-                #ifndef DIN_MIDI_SUPPORTED
+            case midiFeatureRunningStatus:
+#ifndef DIN_MIDI_SUPPORTED
                 setError(SysExConf::status_t::errorNotSupported);
-                #else
+#else
                 midi.setRunningStatusState(newValue);
                 success = true;
-                #endif
+#endif
                 break;
 
-                case midiFeatureStandardNoteOff:
+            case midiFeatureStandardNoteOff:
                 newValue ? midi.setNoteOffMode(MIDI::noteOffType_t::standardNoteOff) : midi.setNoteOffMode(MIDI::noteOffType_t::noteOnZeroVel);
                 success = true;
                 break;
 
-                case midiFeatureDinEnabled:
-                #ifndef DIN_MIDI_SUPPORTED
+            case midiFeatureDinEnabled:
+#ifndef DIN_MIDI_SUPPORTED
                 setError(SysExConf::status_t::errorNotSupported);
-                #else
+#else
                 newValue ? setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true) : Board::UART::reset(UART_MIDI_CHANNEL);
                 success = true;
-                #endif
+#endif
                 break;
 
-                case midiFeatureMergeEnabled:
-                #ifndef DIN_MIDI_SUPPORTED
+            case midiFeatureMergeEnabled:
+#ifndef DIN_MIDI_SUPPORTED
                 setError(SysExConf::status_t::errorNotSupported);
-                #else
+#else
                 if (database.read(DB_BLOCK_GLOBAL, dbSection_global_midiFeatures, midiFeatureDinEnabled))
                 {
                     success = true;
@@ -364,21 +362,21 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
                     //invalid configuration - trying to configure merge functionality while din midi is disabled
                     setError(SysExConf::status_t::errorWrite);
                 }
-                #endif
+#endif
                 break;
 
-                default:
+            default:
                 break;
             }
         }
         else if (section == sysExSection_global_midiMerge)
         {
-            #ifndef DIN_MIDI_SUPPORTED
+#ifndef DIN_MIDI_SUPPORTED
             setError(SysExConf::status_t::errorNotSupported);
-            #else
-            switch(index)
+#else
+            switch (index)
             {
-                case midiMergeType:
+            case midiMergeType:
                 if (database.read(DB_BLOCK_GLOBAL, dbSection_global_midiFeatures, midiFeatureDinEnabled) && database.read(DB_BLOCK_GLOBAL, dbSection_global_midiFeatures, midiFeatureMergeEnabled))
                 {
                     if ((newValue >= 0) && (newValue < MIDI_MERGE_TYPES))
@@ -402,17 +400,17 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
                 }
                 break;
 
-                case midiMergeUSBchannel:
-                case midiMergeDINchannel:
+            case midiMergeUSBchannel:
+            case midiMergeDINchannel:
                 //unused for now
                 writeToDb = false;
                 success = true;
                 break;
 
-                default:
+            default:
                 break;
             }
-            #endif
+#endif
         }
         else if (section == sysExSection_global_presets)
         {
@@ -444,27 +442,27 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
             success = database.update(block, sysEx2DB_midi[section], index, newValue);
         break;
 
-        case SYSEX_BLOCK_ANALOG:
-        switch(section)
+    case SYSEX_BLOCK_ANALOG:
+        switch (section)
         {
-            case sysExSection_analog_midiID_LSB:
-            case sysExSection_analog_midiID_MSB:
-            case sysExSection_analog_lowerLimit_LSB:
-            case sysExSection_analog_lowerLimit_MSB:
-            case sysExSection_analog_upperLimit_LSB:
-            case sysExSection_analog_upperLimit_MSB:
+        case sysExSection_analog_midiID_LSB:
+        case sysExSection_analog_midiID_MSB:
+        case sysExSection_analog_lowerLimit_LSB:
+        case sysExSection_analog_lowerLimit_MSB:
+        case sysExSection_analog_upperLimit_LSB:
+        case sysExSection_analog_upperLimit_MSB:
             encDec_14bit.value = database.read(block, sysEx2DB_analog[section], index);
             encDec_14bit.split14bit();
 
-            switch(section)
+            switch (section)
             {
-                case sysExSection_analog_midiID_LSB:
-                case sysExSection_analog_lowerLimit_LSB:
-                case sysExSection_analog_upperLimit_LSB:
+            case sysExSection_analog_midiID_LSB:
+            case sysExSection_analog_lowerLimit_LSB:
+            case sysExSection_analog_upperLimit_LSB:
                 encDec_14bit.low = newValue;
                 break;
 
-                default:
+            default:
                 encDec_14bit.high = newValue;
                 break;
             }
@@ -473,12 +471,12 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
             success = database.update(block, sysEx2DB_analog[section], index, encDec_14bit.value);
             break;
 
-            case sysExSection_analog_type:
+        case sysExSection_analog_type:
             analog.debounceReset(index);
             success = database.update(block, sysEx2DB_analog[section], index, newValue);
             break;
 
-            default:
+        default:
             //channels start from 0 in db, start from 1 in sysex
             if (section == sysExSection_analog_midiChannel)
                 newValue--;
@@ -488,28 +486,28 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
         }
         break;
 
-        case SYSEX_BLOCK_LEDS:
-        #ifdef LEDS_SUPPORTED
-        switch(section)
+    case SYSEX_BLOCK_LEDS:
+#ifdef LEDS_SUPPORTED
+        switch (section)
         {
-            case sysExSection_leds_testColor:
+        case sysExSection_leds_testColor:
             //no writing to database
             leds.setColor(index, static_cast<Interface::digital::output::LEDs::color_t>(newValue));
             success = true;
             writeToDb = false;
             break;
 
-            case sysExSection_leds_testBlink:
+        case sysExSection_leds_testBlink:
             //no writing to database
             leds.setBlinkState(index, newValue ? Interface::digital::output::LEDs::blinkSpeed_t::s500ms : Interface::digital::output::LEDs::blinkSpeed_t::noBlink);
             success = true;
             writeToDb = false;
             break;
 
-            case sysExSection_leds_global:
-            switch(static_cast<Interface::digital::output::LEDs::setting_t>(index))
+        case sysExSection_leds_global:
+            switch (static_cast<Interface::digital::output::LEDs::setting_t>(index))
             {
-                case Interface::digital::output::LEDs::setting_t::blinkWithMIDIclock:
+            case Interface::digital::output::LEDs::setting_t::blinkWithMIDIclock:
                 if ((newValue <= 1) && (newValue >= 0))
                 {
                     success = true;
@@ -517,24 +515,24 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
                 }
                 break;
 
-                case Interface::digital::output::LEDs::setting_t::useStartupAnimation:
+            case Interface::digital::output::LEDs::setting_t::useStartupAnimation:
                 if ((newValue <= 1) && (newValue >= 0))
                     success = true;
                 break;
 
-                case Interface::digital::output::LEDs::setting_t::fadeSpeed:
-                #ifdef LED_FADING
+            case Interface::digital::output::LEDs::setting_t::fadeSpeed:
+#ifdef LED_FADING
                 if ((newValue >= FADE_TIME_MIN) && (newValue <= FADE_TIME_MAX))
                 {
                     leds.setFadeTime(newValue);
                     success = true;
                 }
-                #else
+#else
                 setError(SysExConf::status_t::errorNotSupported);
-                #endif
+#endif
                 break;
 
-                default:
+            default:
                 break;
             }
 
@@ -543,7 +541,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
                 success = database.update(block, sysEx2DB_leds[section], index, newValue);
             break;
 
-            case sysExSection_leds_rgbEnable:
+        case sysExSection_leds_rgbEnable:
             //make sure to turn all three leds off before setting new state
             leds.setColor(Board::interface::digital::output::getRGBaddress(Board::interface::digital::output::getRGBID(index), Interface::digital::output::LEDs::rgbIndex_t::r), Interface::digital::output::LEDs::color_t::off);
             leds.setColor(Board::interface::digital::output::getRGBaddress(Board::interface::digital::output::getRGBID(index), Interface::digital::output::LEDs::rgbIndex_t::g), Interface::digital::output::LEDs::color_t::off);
@@ -556,7 +554,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
             {
                 //copy over note activation local control and midi channel settings to all three leds from the current led index
 
-                for (int i=0; i<3; i++)
+                for (int i = 0; i < 3; i++)
                 {
                     success = database.update(block, sysEx2DB_leds[sysExSection_leds_activationID], Board::interface::digital::output::getRGBaddress(Board::interface::digital::output::getRGBID(index), static_cast<Interface::digital::output::LEDs::rgbIndex_t>(i)), database.read(block, sysEx2DB_leds[sysExSection_leds_activationID], index));
 
@@ -576,9 +574,9 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
             }
             break;
 
-            case sysExSection_leds_activationID:
-            case sysExSection_leds_controlType:
-            case sysExSection_leds_midiChannel:
+        case sysExSection_leds_activationID:
+        case sysExSection_leds_controlType:
+        case sysExSection_leds_midiChannel:
 
             //channels start from 0 in db, start from 1 in sysex
             if (section == sysExSection_leds_midiChannel)
@@ -588,7 +586,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
             if (database.read(block, sysEx2DB_leds[sysExSection_leds_rgbEnable], Board::interface::digital::output::getRGBID(index)))
             {
                 //rgb led enabled - copy these settings to all three leds
-                for (int i=0; i<3; i++)
+                for (int i = 0; i < 3; i++)
                 {
                     success = database.update(block, sysEx2DB_leds[section], Board::interface::digital::output::getRGBaddress(Board::interface::digital::output::getRGBID(index), static_cast<Interface::digital::output::LEDs::rgbIndex_t>(i)), newValue);
 
@@ -603,37 +601,37 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
             }
             break;
 
-            default:
+        default:
             success = database.update(block, sysEx2DB_leds[section], index, newValue);
             break;
         }
-        #else
+#else
         setError(SysExConf::status_t::errorNotSupported);
         success = false;
-        #endif
+#endif
         break;
 
-        case SYSEX_BLOCK_DISPLAY:
-        #ifdef DISPLAY_SUPPORTED
-        switch(section)
+    case SYSEX_BLOCK_DISPLAY:
+#ifdef DISPLAY_SUPPORTED
+        switch (section)
         {
-            case sysExSection_display_features:
-            switch(index)
+        case sysExSection_display_features:
+            switch (index)
             {
-                case displayFeatureEnable:
+            case displayFeatureEnable:
                 if ((newValue <= 1) && (newValue >= 0))
                 {
                     success = true;
 
                     if (newValue)
                         display.init(static_cast<displayController_t>(database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwController)), static_cast<displayResolution_t>(database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwResolution)));
-                    else //init with invalid configuration
+                    else    //init with invalid configuration
                         display.init(DISPLAY_CONTROLLERS, DISPLAY_RESOLUTIONS);
                 }
                 break;
 
-                case displayFeatureWelcomeMsg:
-                case displayFeatureVInfoMsg:
+            case displayFeatureWelcomeMsg:
+            case displayFeatureVInfoMsg:
                 if ((newValue <= 1) && (newValue >= 0))
                 {
                     success = true;
@@ -641,7 +639,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
                 }
                 break;
 
-                case displayFeatureMIDIeventRetention:
+            case displayFeatureMIDIeventRetention:
                 if ((newValue <= 1) && (newValue >= 0))
                 {
                     display.setRetentionState(newValue);
@@ -649,7 +647,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
                 }
                 break;
 
-                case displayFeatureMIDInotesAlternate:
+            case displayFeatureMIDInotesAlternate:
                 if ((newValue <= 1) && (newValue >= 0))
                 {
                     display.setAlternateNoteDisplay(newValue);
@@ -657,7 +655,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
                 }
                 break;
 
-                case displayFeatureMIDIeventTime:
+            case displayFeatureMIDIeventTime:
                 if ((newValue >= MIN_MESSAGE_RETENTION_TIME) && (newValue <= MAX_MESSAGE_RETENTION_TIME))
                 {
                     display.setRetentionTime(newValue * 1000);
@@ -665,15 +663,15 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
                 }
                 break;
 
-                default:
+            default:
                 break;
             }
             break;
 
-            case sysExSection_display_hw:
-            switch(index)
+        case sysExSection_display_hw:
+            switch (index)
             {
-                case displayHwController:
+            case displayHwController:
                 if ((newValue <= DISPLAY_CONTROLLERS) && (newValue >= 0))
                 {
                     display.init(static_cast<displayController_t>(newValue), static_cast<displayResolution_t>(database.read(DB_BLOCK_DISPLAY, sysEx2DB_display[section], displayHwResolution)));
@@ -681,7 +679,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
                 }
                 break;
 
-                case displayHwResolution:
+            case displayHwResolution:
                 if ((newValue <= DISPLAY_RESOLUTIONS) && (newValue >= 0))
                 {
                     display.init(static_cast<displayController_t>(database.read(DB_BLOCK_DISPLAY, sysEx2DB_display[section], displayHwController)), static_cast<displayResolution_t>(newValue));
@@ -689,23 +687,23 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
                 }
                 break;
 
-                default:
+            default:
                 break;
             }
             break;
 
-            default:
+        default:
             break;
         }
-        #else
+#else
         setError(SysExConf::status_t::errorNotSupported);
-        #endif
+#endif
 
         if (success)
             success = database.update(block, sysEx2DB_display[section], index, newValue);
         break;
 
-        case SYSEX_BLOCK_BUTTONS:
+    case SYSEX_BLOCK_BUTTONS:
         //channels start from 0 in db, start from 1 in sysex
         if (section == sysExSection_buttons_midiChannel)
             newValue--;
@@ -713,7 +711,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
         success = database.update(block, sysEx2DB_buttons[section], index, newValue);
         break;
 
-        case SYSEX_BLOCK_ENCODERS:
+    case SYSEX_BLOCK_ENCODERS:
         //channels start from 0 in db, start from 1 in sysex
         if (section == sysExSection_encoders_midiChannel)
             newValue--;
@@ -722,7 +720,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
         encoders.resetValue(index);
         break;
 
-        default:
+    default:
         //rest of the blocks - no custom handling
         success = database.update(block, section, index, newValue);
         break;
@@ -730,9 +728,9 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
 
     if (success)
     {
-        #ifdef DISPLAY_SUPPORTED
+#ifdef DISPLAY_SUPPORTED
         display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::systemExclusive, 0, 0, 0);
-        #endif
+#endif
 
         return true;
     }
@@ -763,8 +761,7 @@ void SysConfig::setupMIDIoverUART(uint32_t baudRate, bool initRX, bool initTX)
 
     if (initRX)
     {
-        midi.handleUARTread([](uint8_t &data)
-        {
+        midi.handleUARTread([](uint8_t& data) {
             return Board::UART::read(UART_MIDI_CHANNEL, data);
         });
     }
@@ -775,8 +772,7 @@ void SysConfig::setupMIDIoverUART(uint32_t baudRate, bool initRX, bool initTX)
 
     if (initTX)
     {
-        midi.handleUARTwrite([](uint8_t data)
-        {
+        midi.handleUARTwrite([](uint8_t data) {
             return Board::UART::write(UART_MIDI_CHANNEL, data);
         });
     }
@@ -789,15 +785,14 @@ void SysConfig::setupMIDIoverUART(uint32_t baudRate, bool initRX, bool initTX)
 
 void SysConfig::setupMIDIoverUSB()
 {
-    #ifdef USB_SUPPORTED
+#ifdef USB_SUPPORTED
     midi.handleUSBread(Board::USB::readMIDI);
     midi.handleUSBwrite(Board::USB::writeMIDI);
-    #else
+#else
     //enable uart-to-usb link when usb isn't supported directly
     Board::UART::init(UART_BAUDRATE_MIDI_OD, UART_USB_LINK_CHANNEL);
 
-    midi.handleUSBread([](MIDI::USBMIDIpacket_t& USBMIDIpacket)
-    {
+    midi.handleUSBread([](MIDI::USBMIDIpacket_t& USBMIDIpacket) {
         odPacketType_t odPacketType;
 
         if (OpenDeckMIDIformat::read(UART_USB_LINK_CHANNEL, USBMIDIpacket, odPacketType))
@@ -809,11 +804,10 @@ void SysConfig::setupMIDIoverUSB()
         return false;
     });
 
-    midi.handleUSBwrite([](MIDI::USBMIDIpacket_t& USBMIDIpacket)
-    {
+    midi.handleUSBwrite([](MIDI::USBMIDIpacket_t& USBMIDIpacket) {
         return OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, USBMIDIpacket, odPacketType_t::packetMIDI);
     });
-    #endif
+#endif
 }
 
 bool SysConfig::sendCInfo(dbBlockID_t dbBlock, SysExConf::sysExParameter_t componentID)
@@ -822,8 +816,7 @@ bool SysConfig::sendCInfo(dbBlockID_t dbBlock, SysExConf::sysExParameter_t compo
     {
         if ((core::timing::currentRunTimeMs() - lastCinfoMsgTime[dbBlock]) > COMPONENT_INFO_TIMEOUT)
         {
-            SysExConf::sysExParameter_t cInfoMessage[] =
-            {
+            SysExConf::sysExParameter_t cInfoMessage[] = {
                 SYSEX_CM_COMPONENT_ID,
                 static_cast<SysExConf::sysExParameter_t>(dbBlock),
                 static_cast<SysExConf::sysExParameter_t>(componentID)
@@ -848,7 +841,7 @@ void SysConfig::configureMIDI()
 
     setupMIDIoverUSB();
 
-    #ifdef DIN_MIDI_SUPPORTED
+#ifdef DIN_MIDI_SUPPORTED
     if (database.read(DB_BLOCK_GLOBAL, dbSection_global_midiFeatures, midiFeatureDinEnabled))
     {
         //use recursive parsing when merging is active
@@ -860,7 +853,7 @@ void SysConfig::configureMIDI()
             midiMergeType_t type = static_cast<midiMergeType_t>(database.read(DB_BLOCK_GLOBAL, dbSection_global_midiMerge, midiMergeType));
 
             if (type == midiMergeODslave)
-                setupMIDIoverUART(UART_BAUDRATE_MIDI_OD, true, false); //init only uart read interface for now
+                setupMIDIoverUART(UART_BAUDRATE_MIDI_OD, true, false);    //init only uart read interface for now
             else
                 configureMIDImerge(type);
         }
@@ -875,75 +868,72 @@ void SysConfig::configureMIDI()
         midi.handleUARTread(nullptr);
         midi.handleUARTwrite(nullptr);
     }
-    #endif
+#endif
 }
 
 #ifdef DIN_MIDI_SUPPORTED
 void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
 {
-    switch(mergeType)
+    switch (mergeType)
     {
-        case midiMergeODmaster:
+    case midiMergeODmaster:
         Board::UART::setLoopbackState(UART_MIDI_CHANNEL, false);
         Board::UART::init(UART_BAUDRATE_MIDI_OD, UART_MIDI_CHANNEL);
         //before enabling master configuration, send slave request to other boards
         sendDaisyChainRequest();
 
-        midi.handleUSBread([](MIDI::USBMIDIpacket_t& USBMIDIpacket)
-        {
+        midi.handleUSBread([](MIDI::USBMIDIpacket_t& USBMIDIpacket) {
             //dump everything from MIDI in to USB MIDI out
             MIDI::USBMIDIpacket_t slavePacket;
-            odPacketType_t packetType;
+            odPacketType_t        packetType;
 
             //use this function to forward all incoming data from other boards to usb
             if (OpenDeckMIDIformat::read(UART_MIDI_CHANNEL, slavePacket, packetType))
             {
                 if (packetType == odPacketType_t::packetMIDI)
                 {
-                    #ifdef USB_SUPPORTED
+#ifdef USB_SUPPORTED
                     Board::USB::writeMIDI(slavePacket);
-                    #else
+#else
                     OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, slavePacket, odPacketType_t::packetMIDI);
-                    #endif
+#endif
                 }
             }
 
-            //read usb midi data and forward it to uart in od format
-            #ifdef USB_SUPPORTED
+//read usb midi data and forward it to uart in od format
+#ifdef USB_SUPPORTED
             if (Board::USB::readMIDI(USBMIDIpacket))
             {
                 return OpenDeckMIDIformat::write(UART_MIDI_CHANNEL, USBMIDIpacket, odPacketType_t::packetMIDI_dc_m);
             }
-            #else
+#else
             if (OpenDeckMIDIformat::read(UART_USB_LINK_CHANNEL, USBMIDIpacket, packetType))
             {
                 if (packetType == odPacketType_t::packetMIDI)
                     return OpenDeckMIDIformat::write(UART_MIDI_CHANNEL, USBMIDIpacket, odPacketType_t::packetMIDI_dc_m);
             }
-            #endif
+#endif
 
             return false;
         });
 
-        #ifdef USB_SUPPORTED
+#ifdef USB_SUPPORTED
         midi.handleUSBwrite(Board::USB::writeMIDI);
-        #else
-        midi.handleUSBwrite([](MIDI::USBMIDIpacket_t& USBMIDIpacket)
-        {
+#else
+        midi.handleUSBwrite([](MIDI::USBMIDIpacket_t& USBMIDIpacket) {
             return OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, USBMIDIpacket, odPacketType_t::packetMIDI);
         });
-        #endif
+#endif
         //unused
         midi.handleUARTread(nullptr);
         midi.handleUARTwrite(nullptr);
         break;
 
-        case midiMergeODslave:
+    case midiMergeODslave:
         Board::UART::setLoopbackState(UART_MIDI_CHANNEL, false);
         Board::UART::init(UART_BAUDRATE_MIDI_OD, UART_MIDI_CHANNEL);
         //forward all incoming messages to other boards
-        midi.handleUSBread([](MIDI::USBMIDIpacket_t& USBMIDIpacket)
-        {
+        midi.handleUSBread([](MIDI::USBMIDIpacket_t& USBMIDIpacket) {
             odPacketType_t packetType;
 
             if (OpenDeckMIDIformat::read(UART_MIDI_CHANNEL, USBMIDIpacket, packetType))
@@ -956,8 +946,7 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
         });
 
         //write data to uart (opendeck format)
-        midi.handleUSBwrite([](MIDI::USBMIDIpacket_t& USBMIDIpacket)
-        {
+        midi.handleUSBwrite([](MIDI::USBMIDIpacket_t& USBMIDIpacket) {
             return OpenDeckMIDIformat::write(UART_MIDI_CHANNEL, USBMIDIpacket, odPacketType_t::packetMIDI);
         });
 
@@ -966,24 +955,24 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
         midi.handleUARTwrite(nullptr);
         break;
 
-        case midiMergeODslaveInitial:
+    case midiMergeODslaveInitial:
         //init only uart read interface for now
         setupMIDIoverUART(UART_BAUDRATE_MIDI_OD, true, false);
         break;
 
-        case midiMergeDINtoDIN:
+    case midiMergeDINtoDIN:
         //forward all incoming DIN MIDI data to DIN MIDI out
         //also send OpenDeck-generated traffic to DIN MIDI out
         setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, false, true);
         Board::UART::setLoopbackState(UART_MIDI_CHANNEL, true);
         break;
 
-        case midiMergeDINtoUSB:
+    case midiMergeDINtoUSB:
         setupMIDIoverUSB();
         setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true);
         break;
 
-        default:
+    default:
         break;
     }
 }
@@ -991,8 +980,7 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
 void SysConfig::sendDaisyChainRequest()
 {
     //send the message directly in custom request sysex format
-    const uint8_t daisyChainSysEx[8] =
-    {
+    const uint8_t daisyChainSysEx[8] = {
         0xF0,
         SYS_EX_CONF_M_ID_0,
         SYS_EX_CONF_M_ID_1,
@@ -1003,10 +991,11 @@ void SysConfig::sendDaisyChainRequest()
         0xF7
     };
 
-    for (int i=0; i<8; i++)
+    for (int i = 0; i < 8; i++)
         Board::UART::write(UART_MIDI_CHANNEL, daisyChainSysEx[i]);
 
-    while (!Board::UART::isTxEmpty(UART_MIDI_CHANNEL));
+    while (!Board::UART::isTxEmpty(UART_MIDI_CHANNEL))
+        ;
 }
 
 #endif

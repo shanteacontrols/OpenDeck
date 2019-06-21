@@ -26,12 +26,12 @@ limitations under the License.
 ///
 #ifndef NUMBER_OF_BUTTON_COLUMNS
 #if ((MAX_NUMBER_OF_BUTTONS % 8) != 0)
-#define DIGITAL_IN_ARRAY_SIZE   ((MAX_NUMBER_OF_BUTTONS / 8) + 1)
+#define DIGITAL_IN_ARRAY_SIZE ((MAX_NUMBER_OF_BUTTONS / 8) + 1)
 #else
-#define DIGITAL_IN_ARRAY_SIZE   (MAX_NUMBER_OF_BUTTONS / 8)
+#define DIGITAL_IN_ARRAY_SIZE (MAX_NUMBER_OF_BUTTONS / 8)
 #endif
 #else
-#define DIGITAL_IN_ARRAY_SIZE   NUMBER_OF_BUTTON_COLUMNS
+#define DIGITAL_IN_ARRAY_SIZE NUMBER_OF_BUTTON_COLUMNS
 #endif
 
 ///
@@ -39,5 +39,5 @@ limitations under the License.
 /// Once digital input array is full (all inputs are read), index within ring buffer
 /// is incremented (if there is space left).
 ///
-#define DIGITAL_IN_BUFFER_SIZE  5
+#define DIGITAL_IN_BUFFER_SIZE 5
 #endif

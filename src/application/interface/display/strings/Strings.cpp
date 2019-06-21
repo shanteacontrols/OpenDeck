@@ -4,12 +4,12 @@
 
 #ifdef __AVR__
 #include <avr/pgmspace.h>
-#define stringArrayType_t   const char* const
+#define stringArrayType_t const char* const
 #define DEREFERENCE_ARRAY &
 #else
 #define PGM_P const char*
-#define strcpy_P    strcpy
-#define stringArrayType_t   const char*
+#define strcpy_P strcpy
+#define stringArrayType_t const char*
 #define pgm_read_word
 #define PROGMEM
 #define DEREFERENCE_ARRAY
@@ -63,8 +63,7 @@ namespace
     const char noteB_strig[] PROGMEM = "B";
 
     //match with messageTypeDisplay_t
-    stringArrayType_t eventNameArray[] PROGMEM =
-    {
+    stringArrayType_t eventNameArray[] PROGMEM = {
         eventNoteOff_string,
         eventNoteOn_string,
         eventCC_string,
@@ -73,10 +72,10 @@ namespace
         eventAT_string,
         eventPB_string,
         eventSysExConfig_string,
-        nullptr, //sys common - Time Code Quarter Frame
-        nullptr, //sys common - Song Position Pointer
-        nullptr, //sys common - Song Select
-        nullptr, //sys common - Tune Request
+        nullptr,    //sys common - Time Code Quarter Frame
+        nullptr,    //sys common - Song Position Pointer
+        nullptr,    //sys common - Song Select
+        nullptr,    //sys common - Tune Request
         eventRTclock_string,
         eventRTstart_string,
         eventRTcontinue_string,
@@ -92,8 +91,7 @@ namespace
         eventPresetChange_string
     };
 
-    stringArrayType_t noteNameArray[] PROGMEM =
-    {
+    stringArrayType_t noteNameArray[] PROGMEM = {
         noteC_string,
         noteCSharp_string,
         noteD_string,
@@ -109,30 +107,30 @@ namespace
     };
 
     char tempBuffer[50];
-}
+}    // namespace
 
 const char* Strings::board()
 {
-    #ifdef BOARD_OPEN_DECK
+#ifdef BOARD_OPEN_DECK
     strcpy_P(tempBuffer, opendeck_string);
     return tempBuffer;
-    #elif defined(BOARD_A_LEO)
+#elif defined(BOARD_A_LEO)
     strcpy_P(tempBuffer, arduinoLeonardo_string);
-    #elif defined(BOARD_A_MEGA)
+#elif defined(BOARD_A_MEGA)
     strcpy_P(tempBuffer, arduinoMega_string);
-    #elif defined(BOARD_A_PRO_MICRO)
+#elif defined(BOARD_A_PRO_MICRO)
     strcpy_P(tempBuffer, arduinoProMicro_string);
-    #elif defined(BOARD_A_UNO)
+#elif defined(BOARD_A_UNO)
     strcpy_P(tempBuffer, arduinoUno_string);
-    #elif defined(BOARD_T_2PP)
+#elif defined(BOARD_T_2PP)
     strcpy_P(tempBuffer, teensy2pp_string);
-    #elif defined(BOARD_KODAMA)
+#elif defined(BOARD_KODAMA)
     strcpy_P(tempBuffer, kodama_string);
-    #elif defined(BOARD_BERGAMOT)
+#elif defined(BOARD_BERGAMOT)
     strcpy_P(tempBuffer, bergamot_string);
-    #else
+#else
     strcpy_P(tempBuffer, unknown_string);
-    #endif
+#endif
 
     return tempBuffer;
 }

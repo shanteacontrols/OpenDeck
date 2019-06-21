@@ -44,7 +44,7 @@ namespace Board
         /// @param [in,out] data        Pointer to variable in which read data is being stored.
         /// \returns False if buffer is empty, true otherwise.
         ///
-        bool read(uint8_t channel, uint8_t &data);
+        bool read(uint8_t channel, uint8_t& data);
 
         ///
         /// \brief Used to write MIDI data to UART TX buffer.
@@ -87,5 +87,5 @@ namespace Board
         /// \brief Used to indicate whether or not UART event has occured (packet sent or received).
         ///
         extern trafficIndicator_t trafficIndicator;
-    }
-}
+    }    // namespace UART
+}    // namespace Board

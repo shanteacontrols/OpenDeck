@@ -26,8 +26,7 @@ limitations under the License.
 namespace
 {
     //not user accessible
-    LESSDB::section_t systemSections[DB_SECTIONS_SYSTEM] =
-    {
+    LESSDB::section_t systemSections[DB_SECTIONS_SYSTEM] = {
         //uid section
         {
             .numberOfParameters = 1,
@@ -35,8 +34,7 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        },
+            .address = 0 },
 
         //settings
         {
@@ -45,12 +43,10 @@ namespace
             .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        }
+            .address = 0 }
     };
 
-    LESSDB::section_t globalSections[DB_SECTIONS_GLOBAL] =
-    {
+    LESSDB::section_t globalSections[DB_SECTIONS_GLOBAL] = {
         //midi feature section
         {
             .numberOfParameters = MIDI_FEATURES,
@@ -58,8 +54,7 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        },
+            .address = 0 },
 
         //midi merge section
         {
@@ -68,65 +63,57 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        }
+            .address = 0 }
     };
 
-    LESSDB::section_t buttonSections[DB_SECTIONS_BUTTONS] =
-    {
+    LESSDB::section_t buttonSections[DB_SECTIONS_BUTTONS] = {
         //type section
         {
-            .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS,
+            .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
             .parameterType = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        },
+            .address = 0 },
 
         //midi message type section
         {
-            .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS,
+            .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
             .parameterType = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        },
+            .address = 0 },
 
         //midi id section
         {
-            .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS,
+            .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
             .parameterType = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = true,
-            .address = 0
-        },
+            .address = 0 },
 
         //midi velocity section
         {
-            .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS,
+            .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
             .parameterType = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = 0,
             .defaultValue = 127,
             .autoIncrement = false,
-            .address = 0
-        },
+            .address = 0 },
 
         //midi channel section
         {
-            .numberOfParameters = MAX_NUMBER_OF_BUTTONS+MAX_NUMBER_OF_ANALOG+MAX_TOUCHSCREEN_BUTTONS,
+            .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
             .parameterType = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        }
+            .address = 0 }
     };
 
-    LESSDB::section_t encoderSections[DB_SECTIONS_ENCODERS] =
-    {
+    LESSDB::section_t encoderSections[DB_SECTIONS_ENCODERS] = {
         //encoder enabled section
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
@@ -134,8 +121,7 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        },
+            .address = 0 },
 
         //encoder inverted section
         {
@@ -144,8 +130,7 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        },
+            .address = 0 },
 
         //encoding mode section
         {
@@ -154,8 +139,7 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        },
+            .address = 0 },
 
         //midi id section
         {
@@ -164,8 +148,7 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = true,
-            .address = 0
-        },
+            .address = 0 },
 
         //midi channel section
         {
@@ -174,8 +157,7 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        },
+            .address = 0 },
 
         //pulses per step section
         {
@@ -184,8 +166,7 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 4,
             .autoIncrement = false,
-            .address = 0
-        },
+            .address = 0 },
 
         //acceleration section
         {
@@ -194,8 +175,7 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        },
+            .address = 0 },
 
         //remote sync section
         {
@@ -204,12 +184,10 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        }
+            .address = 0 }
     };
 
-    LESSDB::section_t analogSections[DB_SECTIONS_ANALOG] =
-    {
+    LESSDB::section_t analogSections[DB_SECTIONS_ANALOG] = {
         //analog enabled section
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
@@ -217,8 +195,7 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        },
+            .address = 0 },
 
         //analog inverted section
         {
@@ -227,8 +204,7 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        },
+            .address = 0 },
 
         //analog type section
         {
@@ -237,8 +213,7 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        },
+            .address = 0 },
 
         //midi id section
         {
@@ -247,8 +222,7 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = true,
-            .address = 0
-        },
+            .address = 0 },
 
         //lower cc limit
         {
@@ -257,8 +231,7 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        },
+            .address = 0 },
 
         //upper cc limit
         {
@@ -267,8 +240,7 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 16383,
             .autoIncrement = false,
-            .address = 0
-        },
+            .address = 0 },
 
         //midi channel section
         {
@@ -277,13 +249,11 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        }
+            .address = 0 }
     };
 
-    #ifdef LEDS_SUPPORTED
-    LESSDB::section_t ledSections[DB_SECTIONS_LEDS] =
-    {
+#ifdef LEDS_SUPPORTED
+    LESSDB::section_t ledSections[DB_SECTIONS_LEDS] = {
         //global parameters section
         {
             .numberOfParameters = static_cast<int16_t>(Interface::digital::output::LEDs::setting_t::AMOUNT),
@@ -291,8 +261,7 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        },
+            .address = 0 },
 
         //activation id section
         {
@@ -301,8 +270,7 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = true,
-            .address = 0
-        },
+            .address = 0 },
 
         //rgb enabled section
         {
@@ -311,8 +279,7 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        },
+            .address = 0 },
 
         //led control type section
         {
@@ -321,8 +288,7 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        },
+            .address = 0 },
 
         //single velocity value section
         {
@@ -331,8 +297,7 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 127,
             .autoIncrement = false,
-            .address = 0
-        },
+            .address = 0 },
 
         //midi channel section
         {
@@ -341,14 +306,12 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        }
+            .address = 0 }
     };
-    #endif
+#endif
 
-    #ifdef DISPLAY_SUPPORTED
-    LESSDB::section_t displaySections[DB_SECTIONS_DISPLAY] =
-    {
+#ifdef DISPLAY_SUPPORTED
+    LESSDB::section_t displaySections[DB_SECTIONS_DISPLAY] = {
         //features section
         {
             .numberOfParameters = DISPLAY_FEATURES,
@@ -356,8 +319,7 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        },
+            .address = 0 },
 
         //hw section
         {
@@ -366,13 +328,11 @@ namespace
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
             .autoIncrement = false,
-            .address = 0
-        }
+            .address = 0 }
     };
-    #endif
+#endif
 
-    LESSDB::block_t dbLayout[DB_BLOCKS+1] =
-    {
+    LESSDB::block_t dbLayout[DB_BLOCKS + 1] = {
         //system block
         {
             .address = 0,
@@ -408,22 +368,22 @@ namespace
             .section = analogSections,
         },
 
-        #ifdef LEDS_SUPPORTED
+#ifdef LEDS_SUPPORTED
         //led block
         {
             .address = 0,
             .numberOfSections = DB_SECTIONS_LEDS,
             .section = ledSections,
         },
-        #endif
+#endif
 
-        #ifdef DISPLAY_SUPPORTED
+#ifdef DISPLAY_SUPPORTED
         //display block
         {
             .address = 0,
             .numberOfSections = DB_SECTIONS_DISPLAY,
             .section = displaySections,
         }
-        #endif
+#endif
     };
-}
+}    // namespace

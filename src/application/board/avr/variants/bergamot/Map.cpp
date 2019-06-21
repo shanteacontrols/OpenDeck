@@ -25,8 +25,7 @@ namespace Board
     {
         namespace
         {
-            const uint8_t adcChannelArray[NUMBER_OF_MUX] =
-            {
+            const uint8_t adcChannelArray[NUMBER_OF_MUX] = {
                 MUX_1_IN_PIN
             };
         }
@@ -40,5 +39,5 @@ namespace Board
         {
             return index;
         }
-    }
-}
+    }    // namespace map
+}    // namespace Board

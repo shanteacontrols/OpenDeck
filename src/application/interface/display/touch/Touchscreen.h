@@ -34,11 +34,11 @@ namespace Interface
         Touchscreen(ITouchscreen& hwa)
             : hwa(hwa)
         {}
-        bool init();
-        void update();
-        void setScreen(uint8_t screenID);
+        bool    init();
+        void    update();
+        void    setScreen(uint8_t screenID);
         uint8_t activeScreen();
-        void setButtonHandler(void(*fptr)(uint8_t index, bool state));
+        void    setButtonHandler(void (*fptr)(uint8_t index, bool state));
 
         private:
         ITouchscreen& hwa;
@@ -47,4 +47,4 @@ namespace Interface
     };
 
     /// @}
-}
+}    // namespace Interface

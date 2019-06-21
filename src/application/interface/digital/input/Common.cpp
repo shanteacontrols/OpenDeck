@@ -26,5 +26,5 @@ namespace Interface
         {
             uint8_t Common::lastPCvalue[16];
         }
-    }
-}
+    }    // namespace digital
+}    // namespace Interface

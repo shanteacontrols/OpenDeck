@@ -44,16 +44,16 @@ bool Display::init(displayController_t controller, displayResolution_t resolutio
         U8X8::clearDisplay();
 
         //init char arrays
-        for (int i=0; i<LCD_HEIGHT_MAX; i++)
+        for (int i = 0; i < LCD_HEIGHT_MAX; i++)
         {
-            for (int j=0; j<LCD_STRING_BUFFER_SIZE-2; j++)
+            for (int j = 0; j < LCD_STRING_BUFFER_SIZE - 2; j++)
             {
                 lcdRowStillText[i][j] = ' ';
                 lcdRowTempText[i][j] = ' ';
             }
 
-            lcdRowStillText[i][LCD_STRING_BUFFER_SIZE-1] = '\0';
-            lcdRowTempText[i][LCD_STRING_BUFFER_SIZE-1] = '\0';
+            lcdRowStillText[i][LCD_STRING_BUFFER_SIZE - 1] = '\0';
+            lcdRowTempText[i][LCD_STRING_BUFFER_SIZE - 1] = '\0';
 
             scrollEvent[i].size = 0;
             scrollEvent[i].startIndex = 0;
@@ -81,14 +81,14 @@ bool Display::update()
         return false;
 
     if ((core::timing::currentRunTimeMs() - lastLCDupdateTime) < LCD_REFRESH_TIME)
-        return false; //we don't need to update lcd in real time
+        return false;    //we don't need to update lcd in real time
 
     //use char pointer to point to line we're going to print
-    char *charPointer;
+    char* charPointer;
 
     updateTempTextStatus();
 
-    for (int i=0; i<LCD_HEIGHT_MAX; i++)
+    for (int i = 0; i < LCD_HEIGHT_MAX; i++)
     {
         if (activeTextType == lcdTextType_t::still)
         {
@@ -106,14 +106,14 @@ bool Display::update()
 
         int8_t string_len = strlen(charPointer) > LCD_WIDTH_MAX ? LCD_WIDTH_MAX : strlen(charPointer);
 
-        for (int j=0; j<string_len; j++)
+        for (int j = 0; j < string_len; j++)
         {
             if (BIT_READ(charChange[i], j))
-                U8X8::drawGlyph(j, rowMap[resolution][i], charPointer[j+scrollEvent[i].currentIndex]);
+                U8X8::drawGlyph(j, rowMap[resolution][i], charPointer[j + scrollEvent[i].currentIndex]);
         }
 
         //now fill remaining columns with spaces
-        for (int j=string_len; j<LCD_WIDTH_MAX; j++)
+        for (int j = string_len; j < LCD_WIDTH_MAX; j++)
             U8X8::drawGlyph(j, rowMap[resolution][i], ' ');
 
         charChange[i] = 0;
@@ -124,7 +124,7 @@ bool Display::update()
     //check if midi in/out messages need to be cleared
     if (!retentionState)
     {
-        for (int i=0; i<2; i++)
+        for (int i = 0; i < 2; i++)
         {
             //0 = in, 1 = out
             if ((core::timing::currentRunTimeMs() - lastMIDIMessageDisplayTime[i] > MIDImessageRetentionTime) && midiMessageDisplayed[i])
@@ -146,32 +146,32 @@ bool Display::update()
 void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex)
 {
     const char* string = stringBuilder.string();
-    uint8_t size = strlen(string);
-    uint8_t scrollSize = 0;
+    uint8_t     size = strlen(string);
+    uint8_t     scrollSize = 0;
 
-    if (size+startIndex >= LCD_STRING_BUFFER_SIZE-2)
-        size = LCD_STRING_BUFFER_SIZE-2-startIndex; //trim string
+    if (size + startIndex >= LCD_STRING_BUFFER_SIZE - 2)
+        size = LCD_STRING_BUFFER_SIZE - 2 - startIndex;    //trim string
 
     if (directWriteState)
     {
-        for (int j=0; j<size; j++)
-            U8X8::drawGlyph(j+startIndex, rowMap[resolution][row], string[j]);
+        for (int j = 0; j < size; j++)
+            U8X8::drawGlyph(j + startIndex, rowMap[resolution][row], string[j]);
     }
     else
     {
         bool scrollingEnabled = false;
 
-        switch(textType)
+        switch (textType)
         {
-            case lcdTextType_t::still:
-            for (int i=0; i<size; i++)
+        case lcdTextType_t::still:
+            for (int i = 0; i < size; i++)
             {
-                lcdRowStillText[row][startIndex+i] = string[i];
-                BIT_WRITE(charChange[row], startIndex+i, 1);
+                lcdRowStillText[row][startIndex + i] = string[i];
+                BIT_WRITE(charChange[row], startIndex + i, 1);
             }
 
             //scrolling is enabled only if some characters are found after LCD_WIDTH_MAX-1 index
-            for (int i=LCD_WIDTH_MAX; i<LCD_STRING_BUFFER_SIZE-1; i++)
+            for (int i = LCD_WIDTH_MAX; i < LCD_STRING_BUFFER_SIZE - 1; i++)
             {
                 if ((lcdRowStillText[row][i] != ' ') && (lcdRowStillText[row][i] != '\0'))
                 {
@@ -199,28 +199,28 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
             }
             break;
 
-            case lcdTextType_t::temp:
+        case lcdTextType_t::temp:
             //clear entire message first
-            for (int j=0; j<LCD_WIDTH_MAX-2; j++)
+            for (int j = 0; j < LCD_WIDTH_MAX - 2; j++)
                 lcdRowTempText[row][j] = ' ';
 
-            lcdRowTempText[row][LCD_WIDTH_MAX-1] = '\0';
+            lcdRowTempText[row][LCD_WIDTH_MAX - 1] = '\0';
 
-            for (int i=0; i<size; i++)
-                lcdRowTempText[row][startIndex+i] = string[i];
+            for (int i = 0; i < size; i++)
+                lcdRowTempText[row][startIndex + i] = string[i];
 
             //make sure message is properly EOL'ed
-            lcdRowTempText[row][startIndex+size] = '\0';
+            lcdRowTempText[row][startIndex + size] = '\0';
 
             activeTextType = lcdTextType_t::temp;
             messageDisplayTime = core::timing::currentRunTimeMs();
 
             //update all characters on display
-            for (int i=0; i<LCD_HEIGHT_MAX; i++)
+            for (int i = 0; i < LCD_HEIGHT_MAX; i++)
                 charChange[i] = static_cast<uint32_t>(0xFFFFFFFF);
             break;
 
-            default:
+        default:
             return;
         }
     }
@@ -244,7 +244,7 @@ void Display::setDirectWriteState(bool state)
 ///
 uint8_t Display::getTextCenter(uint8_t textSize)
 {
-    return U8X8::getColumns()/2 - (textSize/2);
+    return U8X8::getColumns() / 2 - (textSize / 2);
 }
 
 ///
@@ -260,7 +260,7 @@ void Display::updateTempTextStatus()
             activeTextType = lcdTextType_t::still;
 
             //make sure all characters are updated once temp text is removed
-            for (int j=0; j<LCD_HEIGHT_MAX; j++)
+            for (int j = 0; j < LCD_HEIGHT_MAX; j++)
                 charChange[j] = static_cast<uint32_t>(0xFFFFFFFF);
         }
     }
@@ -278,9 +278,9 @@ void Display::updateScrollStatus(uint8_t row)
     if ((core::timing::currentRunTimeMs() - lastScrollTime) < LCD_SCROLL_TIME)
         return;
 
-    switch(scrollEvent[row].direction)
+    switch (scrollEvent[row].direction)
     {
-        case scrollDirection_t::leftToRight:
+    case scrollDirection_t::leftToRight:
         //left to right
         scrollEvent[row].currentIndex++;
 
@@ -291,7 +291,7 @@ void Display::updateScrollStatus(uint8_t row)
         }
         break;
 
-        case scrollDirection_t::rightToLeft:
+    case scrollDirection_t::rightToLeft:
         //right to left
         scrollEvent[row].currentIndex--;
 
@@ -303,7 +303,7 @@ void Display::updateScrollStatus(uint8_t row)
         break;
     }
 
-    for (int i=scrollEvent[row].startIndex; i<LCD_WIDTH_MAX; i++)
+    for (int i = scrollEvent[row].startIndex; i < LCD_WIDTH_MAX; i++)
         BIT_WRITE(charChange[row], i, 1);
 
     lastScrollTime = core::timing::currentRunTimeMs();
@@ -328,7 +328,7 @@ void Display::setRetentionState(bool state)
 
     if (!state)
     {
-        for (int i=0; i<2; i++)
+        for (int i = 0; i < 2; i++)
         {
             //0 = in, 1 = out
             //make sure events are cleared immediately in next call of update()

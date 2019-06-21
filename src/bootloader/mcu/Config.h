@@ -23,7 +23,7 @@ limitations under the License.
 ///
 /// \brief Bootloader special address to start the user application.
 ///
-#define COMMAND_STARTAPPLICATION        0xFFFF
+#define COMMAND_STARTAPPLICATION 0xFFFF
 
 namespace bootloader
 {
@@ -34,12 +34,11 @@ namespace bootloader
     ///
     extern bool RunBootloader;
 
-    #if !defined(USB_SUPPORTED) || defined(BOARD_A_xu2)
+#if !defined(USB_SUPPORTED) || defined(BOARD_A_xu2)
     ///
     /// \brief Sequence used to signal that the USB link MCU has new flash page for target MCU.
     ///
-    const uint8_t hidUploadStart[] =
-    {
+    const uint8_t hidUploadStart[] = {
         0x08,
         0x04,
         0x07,
@@ -47,5 +46,5 @@ namespace bootloader
         0x84,
         0x72
     };
-    #endif
-}
+#endif
+}    // namespace bootloader

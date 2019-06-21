@@ -21,8 +21,8 @@ limitations under the License.
 #include "Constants.h"
 #include "core/src/general/RingBuffer.h"
 
-#define TX_BUFFER_SIZE  50
-#define RX_BUFFER_SIZE  50
+#define TX_BUFFER_SIZE 50
+#define RX_BUFFER_SIZE 50
 
 namespace
 {
@@ -30,12 +30,12 @@ namespace
     /// \brief Flag determining whether or not UART loopback functionality is enabled.
     /// When enabled, all incoming UART traffic is immediately passed on to UART TX.
     ///
-    bool  loopbackEnabled[UART_INTERFACES];
+    bool loopbackEnabled[UART_INTERFACES];
 
     ///
     /// \brief Flag signaling that the transmission is done.
     ///
-    bool  txDone[UART_INTERFACES];
+    bool txDone[UART_INTERFACES];
 
     ///
     /// \brief Buffer in which outgoing UART data is stored.
@@ -58,23 +58,23 @@ namespace
 
         txDone[channel] = false;
 
-        switch(channel)
+        switch (channel)
         {
-            case 0:
-            UCSRB_0 |= (1<<UDRIE_0);
+        case 0:
+            UCSRB_0 |= (1 << UDRIE_0);
             break;
 
-            #if UART_INTERFACES > 1
-            case 1:
-            UCSRB_1 |= (1<<UDRIE_1);
+#if UART_INTERFACES > 1
+        case 1:
+            UCSRB_1 |= (1 << UDRIE_1);
             break;
-            #endif
+#endif
 
-            default:
+        default:
             break;
         }
     }
-}
+}    // namespace
 
 namespace Board
 {
@@ -99,25 +99,25 @@ namespace Board
 
             ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
             {
-                switch(channel)
+                switch (channel)
                 {
-                    case 0:
+                case 0:
                     UCSRA_0 = 0;
                     UCSRB_0 = 0;
                     UCSRC_0 = 0;
                     UBRR_0 = 0;
                     break;
 
-                    #if UART_INTERFACES > 1
-                    case 1:
+#if UART_INTERFACES > 1
+                case 1:
                     UCSRA_1 = 0;
                     UCSRB_1 = 0;
                     UCSRC_1 = 0;
                     UBRR_1 = 0;
                     break;
-                    #endif
+#endif
 
-                    default:
+                default:
                     break;
                 }
             }
@@ -137,67 +137,67 @@ namespace Board
 
             if ((baud_count & 1) && baud_count <= 4096)
             {
-                switch(channel)
+                switch (channel)
                 {
-                    case 0:
-                    UCSRA_0 = (1<<U2X_0); //double speed uart
+                case 0:
+                    UCSRA_0 = (1 << U2X_0);    //double speed uart
                     UBRR_0 = baud_count - 1;
                     break;
 
-                    #if UART_INTERFACES > 1
-                    case 1:
-                    UCSRA_1 = (1<<U2X_1); //double speed uart
+#if UART_INTERFACES > 1
+                case 1:
+                    UCSRA_1 = (1 << U2X_1);    //double speed uart
                     UBRR_1 = baud_count - 1;
                     break;
-                    #endif
+#endif
 
-                    default:
+                default:
                     break;
                 }
             }
             else
             {
-                switch(channel)
+                switch (channel)
                 {
-                    case 0:
+                case 0:
                     UCSRA_0 = 0;
                     UBRR_0 = (baud_count >> 1) - 1;
                     break;
 
-                    #if UART_INTERFACES > 1
-                    case 1:
+#if UART_INTERFACES > 1
+                case 1:
                     UCSRA_1 = 0;
                     UBRR_1 = (baud_count >> 1) - 1;
                     break;
-                    #endif
+#endif
 
-                    default:
+                default:
                     break;
                 }
             }
 
             //8 bit, no parity, 1 stop bit
             //enable receiver, transmitter and receive interrupt
-            switch(channel)
+            switch (channel)
             {
-                case 0:
-                UCSRC_0 = (1<<UCSZ1_0) | (1<<UCSZ0_0);
-                UCSRB_0 = (1<<RXEN_0) | (1<<TXEN_0) | (1<<RXCIE_0) | (1<<TXCIE_0);
+            case 0:
+                UCSRC_0 = (1 << UCSZ1_0) | (1 << UCSZ0_0);
+                UCSRB_0 = (1 << RXEN_0) | (1 << TXEN_0) | (1 << RXCIE_0) | (1 << TXCIE_0);
                 break;
 
-                #if UART_INTERFACES > 1
-                case 1:
-                UCSRC_1 = (1<<UCSZ1_1) | (1<<UCSZ0_1);
-                UCSRB_1 = (1<<RXEN_1) | (1<<TXEN_1) | (1<<RXCIE_1) | (1<<TXCIE_1);
+#if UART_INTERFACES > 1
+            case 1:
+                UCSRC_1 = (1 << UCSZ1_1) | (1 << UCSZ0_1);
+                UCSRB_1 = (1 << RXEN_1) | (1 << TXEN_1) | (1 << RXCIE_1) | (1 << TXCIE_1);
                 break;
-                #endif
+#endif
 
-                default:
+            default:
                 break;
             }
         }
 
-        bool read(uint8_t channel, uint8_t &data)
+        bool read(uint8_t channel, uint8_t& data)
         {
             data = 0;
 
@@ -221,10 +221,10 @@ namespace Board
             //write the byte to the data register directly
             if (txBuffer[channel].isEmpty())
             {
-                switch(channel)
+                switch (channel)
                 {
-                    case 0:
-                    if (UCSRA_0 & (1<<UDRE_0))
+                case 0:
+                    if (UCSRA_0 & (1 << UDRE_0))
                     {
                         ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
                         {
@@ -236,9 +236,9 @@ namespace Board
                     }
                     break;
 
-                    #if UART_INTERFACES > 1
-                    case 1:
-                    if (UCSRA_1 & (1<<UDRE_1))
+#if UART_INTERFACES > 1
+                case 1:
+                    if (UCSRA_1 & (1 << UDRE_1))
                     {
                         ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
                         {
@@ -249,14 +249,15 @@ namespace Board
                         return true;
                     }
                     break;
-                    #endif
+#endif
 
-                    default:
+                default:
                     return false;
                 }
             }
 
-            while (txBuffer[channel].isFull());
+            while (txBuffer[channel].isFull())
+                ;
             txBuffer[channel].insert(data);
             uartTransmitStart(channel);
 
@@ -283,8 +284,8 @@ namespace Board
         {
             return rxBuffer[channel].count();
         }
-    }
-}
+    }    // namespace UART
+}    // namespace Board
 
 ///
 /// \brief ISR used to store incoming data from UART to buffer.
@@ -307,7 +308,7 @@ ISR(USART_RX_vect_0)
         if (!txBuffer[0].isFull())
         {
             txBuffer[0].insert(data);
-            UCSRB_0 |= (1<<UDRIE_0);
+            UCSRB_0 |= (1 << UDRIE_0);
             Board::UART::trafficIndicator.sent = true;
             Board::UART::trafficIndicator.received = true;
         }
@@ -332,7 +333,7 @@ ISR(USART_RX_vect_1)
         if (!txBuffer[1].isFull())
         {
             txBuffer[1].insert(data);
-            UCSRB_1 |= (1<<UDRIE_1);
+            UCSRB_1 |= (1 << UDRIE_1);
             Board::UART::trafficIndicator.sent = true;
             Board::UART::trafficIndicator.received = true;
         }
@@ -351,7 +352,7 @@ ISR(USART_UDRE_vect_0)
     if (txBuffer[0].isEmpty())
     {
         //buffer is empty, disable transmit interrupt
-        UCSRB_0 &= ~(1<<UDRIE_0);
+        UCSRB_0 &= ~(1 << UDRIE_0);
     }
     else
     {
@@ -367,7 +368,7 @@ ISR(USART_UDRE_vect_1)
     if (txBuffer[1].isEmpty())
     {
         //buffer is empty, disable transmit interrupt
-        UCSRB_1 &= ~(1<<UDRIE_1);
+        UCSRB_1 &= ~(1 << UDRIE_1);
     }
     else
     {

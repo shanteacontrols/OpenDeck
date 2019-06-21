@@ -13,7 +13,6 @@ namespace i2c
 
     inline void enable()
     {
-
     }
 
     inline bool write(uint8_t data)
@@ -28,7 +27,6 @@ namespace i2c
 
     inline void stopComm()
     {
-        
     }
-}
+}    // namespace i2c
 #endif

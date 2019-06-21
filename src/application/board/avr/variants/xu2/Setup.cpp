@@ -39,19 +39,19 @@ namespace Board
         void timers()
         {
             //set timer0 to ctc, used to show midi tx/rx status using on-board leds
-            TCCR0A |= (1<<WGM01);           //CTC mode
-            TCCR0B |= (1<<CS01)|(1<<CS00);  //prescaler 64
-            OCR0A = 249;                    //1ms
-            TIMSK0 |= (1<<OCIE0A);          //compare match interrupt
+            TCCR0A |= (1 << WGM01);                 //CTC mode
+            TCCR0B |= (1 << CS01) | (1 << CS00);    //prescaler 64
+            OCR0A = 249;                            //1ms
+            TIMSK0 |= (1 << OCIE0A);                //compare match interrupt
         }
-    }
+    }    // namespace setup
 
     void ledFlashStartup(bool fwUpdated)
     {
         //block interrupts here to avoid received midi traffic messing with indicator leds animation
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
         {
-            for (int i=0; i<3; i++)
+            for (int i = 0; i < 3; i++)
             {
                 if (fwUpdated)
                 {
@@ -74,4 +74,4 @@ namespace Board
             }
         }
     }
-}
+}    // namespace Board

@@ -8,5 +8,5 @@ namespace core
         {
             volatile uint32_t rTime_ms;
         }
-    }
-}
+    }    // namespace timing
+}    // namespace core

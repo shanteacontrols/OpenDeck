@@ -49,7 +49,6 @@ namespace Board
             setInput(DI_6_PORT, DI_6_PIN);
             setHigh(DI_6_PORT, DI_6_PIN);
 
-
             setOutput(DO_1_PORT, DO_1_PIN);
             EXT_LED_OFF(DO_1_PORT, DO_1_PIN);
 
@@ -67,7 +66,6 @@ namespace Board
 
             setOutput(DO_6_PORT, DO_6_PIN);
             EXT_LED_OFF(DO_6_PORT, DO_6_PIN);
-
 
             setInput(AI_1_PORT, AI_1_PIN);
             setLow(AI_1_PORT, AI_1_PIN);
@@ -100,8 +98,8 @@ namespace Board
             adc::setup(adcConfiguration);
             adc::setChannel(Board::map::adcChannel(0));
 
-            for (int i=0; i<3; i++)
-                adc::read();  //few dummy reads to init ADC
+            for (int i = 0; i < 3; i++)
+                adc::read();    //few dummy reads to init ADC
 
             adc::enableInterrupt();
             adc::startConversion();
@@ -119,12 +117,12 @@ namespace Board
             TCCR1B = 0;
 
             //set timer0 to ctc, used for millis/led matrix
-            TCCR0A |= (1<<WGM01);           //CTC mode
-            TCCR0B |= (1<<CS01)|(1<<CS00);  //prescaler 64
-            OCR0A = 124;                    //500us
-            TIMSK0 |= (1<<OCIE0A);          //compare match interrupt
+            TCCR0A |= (1 << WGM01);                 //CTC mode
+            TCCR0B |= (1 << CS01) | (1 << CS00);    //prescaler 64
+            OCR0A = 124;                            //500us
+            TIMSK0 |= (1 << OCIE0A);                //compare match interrupt
         }
-    }
+    }    // namespace setup
 
     void ledFlashStartup(bool fwUpdated)
     {
@@ -144,4 +142,4 @@ namespace Board
 
         OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, packet, odPacketType_t::packetIntCMD);
     }
-}
+}    // namespace Board

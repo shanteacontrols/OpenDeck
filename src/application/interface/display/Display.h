@@ -57,9 +57,9 @@ namespace Interface
         ///
         typedef struct
         {
-            uint8_t size;
-            uint8_t startIndex;
-            int8_t currentIndex;
+            uint8_t           size;
+            uint8_t           startIndex;
+            int8_t            currentIndex;
             scrollDirection_t direction;
         } scrollEvent_t;
 
@@ -104,102 +104,102 @@ namespace Interface
         };
 
         Display() {}
-        bool init(displayController_t controller, displayResolution_t resolution, bool setHome = true);
-        bool update();
-        void displayWelcomeMessage();
-        void displayVinfo(bool newFw);
-        void displayHome();
-        void displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, uint16_t byte2, uint8_t byte3);
-        void setAlternateNoteDisplay(bool state);
-        void setOctaveNormalization(int8_t value);
-        void setDirectWriteState(bool state);
-        void clearAll();
-        void clearRow(uint8_t row);
-        void updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex);
-        uint8_t getTextCenter(uint8_t textSize);
+        bool          init(displayController_t controller, displayResolution_t resolution, bool setHome = true);
+        bool          update();
+        void          displayWelcomeMessage();
+        void          displayVinfo(bool newFw);
+        void          displayHome();
+        void          displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, uint16_t byte2, uint8_t byte3);
+        void          setAlternateNoteDisplay(bool state);
+        void          setOctaveNormalization(int8_t value);
+        void          setDirectWriteState(bool state);
+        void          clearAll();
+        void          clearRow(uint8_t row);
+        void          updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex);
+        uint8_t       getTextCenter(uint8_t textSize);
         lcdTextType_t getActiveTextType();
-        void setRetentionState(bool state);
-        void setRetentionTime(uint32_t time);
+        void          setRetentionState(bool state);
+        void          setRetentionTime(uint32_t time);
 
         private:
         int8_t normalizeOctave(uint8_t octave, int8_t normalization);
-        void buildString(const char* text, ...);
-        void updateScrollStatus(uint8_t row);
-        void updateTempTextStatus();
-        void clearMIDIevent(eventType_t type);
+        void   buildString(const char* text, ...);
+        void   updateScrollStatus(uint8_t row);
+        void   updateTempTextStatus();
+        void   clearMIDIevent(eventType_t type);
 
         ///
         /// \brief Holds last time index MIDI message was shown for specific event type (in or out).
         ///
-        uint32_t            lastMIDIMessageDisplayTime[2] = {};
+        uint32_t lastMIDIMessageDisplayTime[2] = {};
 
         ///
         /// \brief Holds true if MIDI input or output message is shown on display.
         ///
-        bool                midiMessageDisplayed[2] = {};
+        bool midiMessageDisplayed[2] = {};
 
         ///
         /// \brief Holds time after which MIDI message should be cleared on display if retention is disabled.
         ///
-        uint32_t            MIDImessageRetentionTime = 0;
+        uint32_t MIDImessageRetentionTime = 0;
 
         ///
         /// \brief Holds last time index info message was shown.
         ///
-        uint32_t            messageDisplayTime = 0;
+        uint32_t messageDisplayTime = 0;
 
         ///
         /// \brief Holds last time LCD was updated.
         /// LCD isn't updated in real-time but after defined amount of time (see LCD_REFRESH_TIME).
         ///
-        uint32_t            lastLCDupdateTime = 0;
+        uint32_t lastLCDupdateTime = 0;
 
         ///
         /// \brief Holds active text type on display.
         /// Enumerated type (see lcdTextType_t enumeration).
         ///
-        lcdTextType_t       activeTextType = lcdTextType_t::still;
+        lcdTextType_t activeTextType = lcdTextType_t::still;
 
         ///
         /// \brief Array holding still LCD text for each LCD row.
         ///
-        char                lcdRowStillText[LCD_HEIGHT_MAX][LCD_STRING_BUFFER_SIZE] = {};
+        char lcdRowStillText[LCD_HEIGHT_MAX][LCD_STRING_BUFFER_SIZE] = {};
 
         ///
         /// \brief Array holding temp LCD text for each LCD row.
         ///
-        char                lcdRowTempText[LCD_HEIGHT_MAX][LCD_STRING_BUFFER_SIZE] = {};
+        char lcdRowTempText[LCD_HEIGHT_MAX][LCD_STRING_BUFFER_SIZE] = {};
 
         ///
         /// \brief Array holding true of false value representing the change of character at specific location on LCD row.
         /// \warning This variables assume there can be no more than 32 characters per LCD row.
         ///
-        uint32_t            charChange[LCD_HEIGHT_MAX] = {};
+        uint32_t charChange[LCD_HEIGHT_MAX] = {};
 
         ///
         /// \brief Structure array holding scrolling information for all LCD rows.
         ///
-        scrollEvent_t       scrollEvent[LCD_HEIGHT_MAX] = {};
+        scrollEvent_t scrollEvent[LCD_HEIGHT_MAX] = {};
 
         ///
         /// \brief Holds last time text has been scrolled on display.
         ///
-        uint32_t            lastScrollTime = 0;
+        uint32_t lastScrollTime = 0;
 
         ///
         /// \brief Holds value by which actual octave is being subtracted when showing octave on display.
         ///
-        int8_t              octaveNormalization = 0;
+        int8_t octaveNormalization = 0;
 
         ///
         /// \brief If set to true, note number will be shown on display (0-127), otherwise, note and octave
         /// will be displayed (i.e. C#4).
-        bool                alternateNoteDisplay = true;
+        bool alternateNoteDisplay = true;
 
         ///
         /// \brief Holds true if direct LCD writing is enabled, false otherwise.
         ///
-        bool                directWriteState = false;
+        bool directWriteState = false;
 
         ///
         /// \brief Holds resolution of configured screen.
@@ -209,14 +209,14 @@ namespace Interface
         ///
         /// \brief Holds true if display has been initialized.
         ///
-        bool                initDone = false;
+        bool initDone = false;
 
         ///
         /// \brief Holds message retention state.
         /// If true, last MIDI message will be shown on display indefinately until it's
         /// overwritten by a new one.
         ///
-        bool                retentionState = false;
+        bool retentionState = false;
 
         ///
         /// \brief Object used for easier string manipulation on display.
@@ -228,24 +228,21 @@ namespace Interface
         /// Used to increase readability.
         /// Matched with displayResolution_t enum.
         ///
-        const uint8_t rowMap[DISPLAY_RESOLUTIONS][LCD_HEIGHT_MAX] =
-        {
+        const uint8_t rowMap[DISPLAY_RESOLUTIONS][LCD_HEIGHT_MAX] = {
             //128x32
             {
                 0,
                 2,
                 3,
-                4
-            },
+                4 },
             //128x64
             {
                 0,
                 2,
                 4,
-                6
-            }
+                6 }
         };
     };
 
     /// @}
-}
+}    // namespace Interface

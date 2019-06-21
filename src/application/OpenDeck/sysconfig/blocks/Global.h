@@ -29,9 +29,8 @@ typedef enum
 } sysExSection_global_t;
 
 //map sysex sections to sections in db
-const uint8_t sysEx2DB_midi[SYSEX_SECTIONS_GLOBAL] =
-{
+const uint8_t sysEx2DB_midi[SYSEX_SECTIONS_GLOBAL] = {
     dbSection_global_midiFeatures,
     dbSection_global_midiMerge,
-    0 //unused
+    0    //unused
 };

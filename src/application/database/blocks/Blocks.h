@@ -29,15 +29,15 @@ limitations under the License.
 //define block names
 typedef enum
 {
-    DB_BLOCK_GLOBAL,    //0
-    DB_BLOCK_BUTTONS,   //1
-    DB_BLOCK_ENCODERS,  //2
-    DB_BLOCK_ANALOG,    //3
-    #ifdef LEDS_SUPPORTED
-    DB_BLOCK_LEDS,      //4
-    #endif
-    #ifdef DISPLAY_SUPPORTED
-    DB_BLOCK_DISPLAY,   //5
-    #endif
+    DB_BLOCK_GLOBAL,      //0
+    DB_BLOCK_BUTTONS,     //1
+    DB_BLOCK_ENCODERS,    //2
+    DB_BLOCK_ANALOG,      //3
+#ifdef LEDS_SUPPORTED
+    DB_BLOCK_LEDS,    //4
+#endif
+#ifdef DISPLAY_SUPPORTED
+    DB_BLOCK_DISPLAY,    //5
+#endif
     DB_BLOCKS
 } dbBlockID_t;

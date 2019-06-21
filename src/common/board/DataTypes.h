@@ -27,4 +27,4 @@ namespace Board
         bool received;
         bool sent;
     } trafficIndicator_t;
-}
+}    // namespace Board

@@ -25,9 +25,9 @@ using namespace core::avr;
 
 namespace
 {
-    u8x8_t u8x8;
+    u8x8_t  u8x8;
     uint8_t rows, columns;
-}
+}    // namespace
 
 namespace U8X8
 {
@@ -39,35 +39,33 @@ namespace U8X8
         u8x8_SetupDefaults(&u8x8);
 
         //i2c hw access
-        auto gpioDelay = [](u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, U8X8_UNUSED void *arg_ptr) -> uint8_t
-        {
+        auto gpioDelay = [](u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, U8X8_UNUSED void* arg_ptr) -> uint8_t {
             return 0;
         };
 
-        auto i2cHWA = [](u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr) -> uint8_t
-        {
-            uint8_t *array = (uint8_t *)arg_ptr;
+        auto i2cHWA = [](u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_ptr) -> uint8_t {
+            uint8_t* array = (uint8_t*)arg_ptr;
 
-            switch(msg)
+            switch (msg)
             {
-                case U8X8_MSG_BYTE_SEND:
-                for (int i=0; i<arg_int; i++)
+            case U8X8_MSG_BYTE_SEND:
+                for (int i = 0; i < arg_int; i++)
                     i2c::write(array[i]);
                 break;
 
-                case U8X8_MSG_BYTE_INIT:
+            case U8X8_MSG_BYTE_INIT:
                 i2c::enable();
                 break;
 
-                case U8X8_MSG_BYTE_START_TRANSFER:
+            case U8X8_MSG_BYTE_START_TRANSFER:
                 i2c::startComm(u8x8_GetI2CAddress(u8x8), i2c::transferType_t::write);
                 break;
 
-                case U8X8_MSG_BYTE_END_TRANSFER:
+            case U8X8_MSG_BYTE_END_TRANSFER:
                 i2c::stopComm();
                 break;
 
-                default:
+            default:
                 return 0;
             }
 
@@ -136,7 +134,7 @@ namespace U8X8
         u8x8_SetFlipMode(&u8x8, mode);
     }
 
-    void setFont(const uint8_t *font_8x8)
+    void setFont(const uint8_t* font_8x8)
     {
         u8x8_SetFont(&u8x8, font_8x8);
     }
@@ -145,4 +143,4 @@ namespace U8X8
     {
         u8x8_DrawGlyph(&u8x8, x, y, encoding);
     }
-}
+}    // namespace U8X8

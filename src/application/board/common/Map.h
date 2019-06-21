@@ -24,12 +24,12 @@ namespace Board
 {
     namespace map
     {
-        uint8_t adcChannel(uint8_t index);
-        uint8_t muxChannel(uint8_t index);
-        uint8_t inMatrixRow(uint8_t index);
-        uint8_t inMatrixColumn(uint8_t index);
-        uint8_t outMatrixRow(uint8_t index);
+        uint8_t         adcChannel(uint8_t index);
+        uint8_t         muxChannel(uint8_t index);
+        uint8_t         inMatrixRow(uint8_t index);
+        uint8_t         inMatrixColumn(uint8_t index);
+        uint8_t         outMatrixRow(uint8_t index);
         Board::mcuPin_t button(uint8_t index);
         Board::mcuPin_t led(uint8_t index);
-    }
-}
+    }    // namespace map
+}    // namespace Board

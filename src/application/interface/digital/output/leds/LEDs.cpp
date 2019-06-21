@@ -31,7 +31,7 @@ namespace
     /// \brief Array holding current LED status for all LEDs.
     ///
     uint8_t ledState[MAX_NUMBER_OF_LEDS];
-}
+}    // namespace
 
 void LEDs::init(bool startUp)
 {
@@ -40,14 +40,14 @@ void LEDs::init(bool startUp)
         if (database.read(DB_BLOCK_LEDS, dbSection_leds_global, static_cast<uint16_t>(setting_t::useStartupAnimation)))
             startUpAnimation();
 
-        #ifdef LED_FADING
+#ifdef LED_FADING
         setFadeTime(database.read(DB_BLOCK_LEDS, dbSection_leds_global, static_cast<uint16_t>(setting_t::fadeSpeed)));
-        #endif
+#endif
     }
 
     setBlinkType(static_cast<blinkType_t>(database.read(DB_BLOCK_LEDS, dbSection_leds_global, static_cast<uint16_t>(setting_t::blinkWithMIDIclock))));
 
-    for (int i=0; i<static_cast<uint8_t>(blinkSpeed_t::AMOUNT); i++)
+    for (int i = 0; i < static_cast<uint8_t>(blinkSpeed_t::AMOUNT); i++)
         blinkState[i] = true;
 }
 
@@ -56,9 +56,9 @@ void LEDs::checkBlinking(bool forceChange)
     if (blinkResetArrayPtr == nullptr)
         return;
 
-    switch(ledBlinkType)
+    switch (ledBlinkType)
     {
-        case blinkType_t::timer:
+    case blinkType_t::timer:
         //update blink states every 100ms - minimum blink time
         if ((core::timing::currentRunTimeMs() - lastLEDblinkUpdateTime) < 100)
             return;
@@ -66,17 +66,17 @@ void LEDs::checkBlinking(bool forceChange)
         lastLEDblinkUpdateTime = core::timing::currentRunTimeMs();
         break;
 
-        case blinkType_t::midiClock:
+    case blinkType_t::midiClock:
         if (!forceChange)
             return;
         break;
 
-        default:
+    default:
         return;
     }
 
     //change the blink state for specific blink rate
-    for (int i=0; i<static_cast<uint8_t>(blinkSpeed_t::AMOUNT); i++)
+    for (int i = 0; i < static_cast<uint8_t>(blinkSpeed_t::AMOUNT); i++)
     {
         if (++blinkCounter[i] < blinkResetArrayPtr[i])
             continue;
@@ -85,7 +85,7 @@ void LEDs::checkBlinking(bool forceChange)
         blinkCounter[i] = 0;
 
         //assign changed state to all leds which have this speed
-        for (int j=0; j<MAX_NUMBER_OF_LEDS; j++)
+        for (int j = 0; j < MAX_NUMBER_OF_LEDS; j++)
         {
             if (!BIT_READ(ledState[j], LED_BLINK_ON_BIT))
                 continue;
@@ -100,16 +100,16 @@ void LEDs::checkBlinking(bool forceChange)
 
 void LEDs::startUpAnimation()
 {
-    #ifdef LED_FADING
+#ifdef LED_FADING
     setFadeTime(1);
-    #endif
+#endif
     setAllOn();
     core::timing::waitMs(2000);
     setAllOff();
     core::timing::waitMs(2000);
-    #ifdef LED_FADING
+#ifdef LED_FADING
     setFadeTime(database.read(DB_BLOCK_LEDS, dbSection_leds_global, static_cast<uint16_t>(setting_t::fadeSpeed)));
-    #endif
+#endif
 }
 
 LEDs::color_t LEDs::valueToColor(uint8_t value)
@@ -126,7 +126,7 @@ LEDs::color_t LEDs::valueToColor(uint8_t value)
         112-127     White       7
     */
 
-    return (color_t)(value/16);
+    return (color_t)(value / 16);
 }
 
 LEDs::blinkSpeed_t LEDs::valueToBlinkSpeed(uint8_t value)
@@ -150,12 +150,12 @@ LEDs::blinkSpeed_t LEDs::valueToBlinkSpeed(uint8_t value)
     if (value >= 120)
         value = 119;
 
-    return static_cast<blinkSpeed_t>(value/10);
+    return static_cast<blinkSpeed_t>(value / 10);
 }
 
 void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local)
 {
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
     {
         //no point in checking if channel doesn't match
         if (database.read(DB_BLOCK_LEDS, dbSection_leds_midiChannel, i) != channel)
@@ -170,24 +170,24 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
         //received MIDI message must match with defined control type
         if (local)
         {
-            switch(controlType)
+            switch (controlType)
             {
-                case controlType_t::localNoteForStateNoBlink:
+            case controlType_t::localNoteForStateNoBlink:
                 if ((messageType == MIDI::messageType_t::noteOn) || (messageType == MIDI::messageType_t::noteOff))
                     setState = true;
                 break;
 
-                case controlType_t::localCCforStateNoBlink:
+            case controlType_t::localCCforStateNoBlink:
                 if (messageType == MIDI::messageType_t::controlChange)
                     setState = true;
                 break;
 
-                case controlType_t::localPCforStateNoBlink:
+            case controlType_t::localPCforStateNoBlink:
                 if (messageType == MIDI::messageType_t::programChange)
                     setState = true;
                 break;
 
-                case controlType_t::midiInNoteForStateAndBlink:
+            case controlType_t::midiInNoteForStateAndBlink:
                 if ((messageType == MIDI::messageType_t::noteOn) || (messageType == MIDI::messageType_t::noteOff))
                 {
                     setState = true;
@@ -195,7 +195,7 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
                 }
                 break;
 
-                case controlType_t::midiInCCforStateAndBlink:
+            case controlType_t::midiInCCforStateAndBlink:
                 if (messageType == MIDI::messageType_t::controlChange)
                 {
                     setState = true;
@@ -203,29 +203,29 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
                 }
                 break;
 
-                default:
+            default:
                 break;
             }
         }
         else
         {
-            switch(controlType)
+            switch (controlType)
             {
-                case controlType_t::midiInNoteForStateCCforBlink:
+            case controlType_t::midiInNoteForStateCCforBlink:
                 if ((messageType == MIDI::messageType_t::noteOn) || (messageType == MIDI::messageType_t::noteOff))
                     setState = true;
                 else if (messageType == MIDI::messageType_t::controlChange)
                     setBlink = true;
                 break;
 
-                case controlType_t::midiInCCforStateNoteForBlink:
+            case controlType_t::midiInCCforStateNoteForBlink:
                 if ((messageType == MIDI::messageType_t::noteOn) || (messageType == MIDI::messageType_t::noteOff))
                     setBlink = true;
                 else if (messageType == MIDI::messageType_t::controlChange)
                     setState = true;
                 break;
 
-                case controlType_t::midiInNoteForStateAndBlink:
+            case controlType_t::midiInNoteForStateAndBlink:
                 if ((messageType == MIDI::messageType_t::noteOn) || (messageType == MIDI::messageType_t::noteOff))
                 {
                     setState = true;
@@ -233,7 +233,7 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
                 }
                 break;
 
-                case controlType_t::midiInCCforStateAndBlink:
+            case controlType_t::midiInCCforStateAndBlink:
                 if (messageType == MIDI::messageType_t::controlChange)
                 {
                     setState = true;
@@ -241,12 +241,12 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
                 }
                 break;
 
-                case controlType_t::midiInPCforStateNoBlink:
+            case controlType_t::midiInPCforStateNoBlink:
                 if (messageType == MIDI::messageType_t::programChange)
                     setState = true;
                 break;
 
-                default:
+            default:
                 break;
             }
         }
@@ -267,7 +267,7 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
                     if (rgbEnabled)
                         color = valueToColor(data1);
                     else
-                        color = color_t::red; //any color is fine on single-color led
+                        color = color_t::red;    //any color is fine on single-color led
                 }
                 else
                 {
@@ -305,7 +305,7 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
                         //first reduce data2 to range 0-15
                         //append 1 so that first value is blinking one
                         //turn off blinking only on higher range
-                        blinkSpeed = 1 + (data2 - ((static_cast<uint8_t>(color)*16)));
+                        blinkSpeed = 1 + (data2 - ((static_cast<uint8_t>(color) * 16)));
 
                         //make sure data2 is in range
                         //when it's not turn off blinking
@@ -347,7 +347,7 @@ void LEDs::setBlinkState(uint8_t ledID, blinkSpeed_t state)
         leds = 1;
     }
 
-    for (int i=0; i<leds; i++)
+    for (int i = 0; i < leds; i++)
     {
         if (static_cast<bool>(state))
         {
@@ -368,14 +368,14 @@ void LEDs::setBlinkState(uint8_t ledID, blinkSpeed_t state)
 void LEDs::setAllOn()
 {
     //turn on all LEDs
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
         setColor(i, color_t::red);
 }
 
 void LEDs::setAllOff()
 {
     //turn off all LEDs
-    for (int i=0; i<MAX_NUMBER_OF_LEDS; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
         setColor(i, color_t::off);
 }
 
@@ -481,17 +481,17 @@ void LEDs::handleLED(uint8_t ledID, bool state, bool rgbLED, rgbIndex_t index)
 
         if (rgbLED)
         {
-            switch(index)
+            switch (index)
             {
-                case rgbIndex_t::r:
+            case rgbIndex_t::r:
                 BIT_WRITE(currentState, LED_RGB_R_BIT, state);
                 break;
 
-                case rgbIndex_t::g:
+            case rgbIndex_t::g:
                 BIT_WRITE(currentState, LED_RGB_G_BIT, state);
                 break;
 
-                case rgbIndex_t::b:
+            case rgbIndex_t::b:
                 BIT_WRITE(currentState, LED_RGB_B_BIT, state);
                 break;
             }
@@ -508,17 +508,17 @@ void LEDs::handleLED(uint8_t ledID, bool state, bool rgbLED, rgbIndex_t index)
 
 void LEDs::setBlinkType(blinkType_t blinkType)
 {
-    switch(blinkType)
+    switch (blinkType)
     {
-        case blinkType_t::timer:
+    case blinkType_t::timer:
         blinkResetArrayPtr = blinkReset_timer;
         break;
 
-        case blinkType_t::midiClock:
+    case blinkType_t::midiClock:
         blinkResetArrayPtr = blinkReset_midiClock;
         break;
 
-        default:
+    default:
         return;
     }
 
@@ -534,7 +534,7 @@ void LEDs::resetBlinking()
 {
     //reset all counters in this case
     //also make sure all leds are in sync again
-    for (int i=0; i<static_cast<uint8_t>(blinkSpeed_t::AMOUNT); i++)
+    for (int i = 0; i < static_cast<uint8_t>(blinkSpeed_t::AMOUNT); i++)
     {
         blinkCounter[i] = 0;
         blinkState[i] = true;

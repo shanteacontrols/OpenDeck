@@ -34,8 +34,7 @@ typedef enum
 } sysExSection_leds_t;
 
 //map sysex sections to sections in db
-const uint8_t sysEx2DB_leds[SYSEX_SECTIONS_LEDS] =
-{
+const uint8_t sysEx2DB_leds[SYSEX_SECTIONS_LEDS] = {
     0,
     0,
     dbSection_leds_global,

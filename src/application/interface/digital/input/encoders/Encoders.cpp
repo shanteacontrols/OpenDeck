@@ -30,7 +30,7 @@ using namespace Interface::digital::input;
 ///
 void Encoders::init()
 {
-    for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
         resetValue(i);
 }
 
@@ -39,7 +39,7 @@ void Encoders::init()
 ///
 void Encoders::update()
 {
-    for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
     {
         if (!database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i))
             continue;
@@ -85,7 +85,7 @@ void Encoders::update()
                 //when time difference between two movements is smaller than ENCODERS_SPEED_TIMEOUT,
                 //start accelerating
                 if ((core::timing::currentRunTimeMs() - lastMovementTime[i]) < ENCODERS_SPEED_TIMEOUT)
-                    encoderSpeed[i] = CONSTRAIN(encoderSpeed[i]+encoderSpeedChange[encAcceleration], 0, encoderMaxAccSpeed[encAcceleration]);
+                    encoderSpeed[i] = CONSTRAIN(encoderSpeed[i] + encoderSpeedChange[encAcceleration], 0, encoderMaxAccSpeed[encAcceleration]);
                 else
                     encoderSpeed[i] = 0;
             }
@@ -96,22 +96,22 @@ void Encoders::update()
             if (debounceDirection[i] != position_t::stopped)
                 encoderState = debounceDirection[i];
 
-            uint8_t midiID = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiID, i);
-            uint8_t channel = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i);
-            type_t type = static_cast<type_t>(database.read(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i));
-            bool validType = true;
-            uint16_t encoderValue;
-            uint8_t steps = (encoderSpeed[i] > 0) ? encoderSpeed[i] : 1;
+            uint8_t              midiID = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiID, i);
+            uint8_t              channel = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i);
+            type_t               type = static_cast<type_t>(database.read(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i));
+            bool                 validType = true;
+            uint16_t             encoderValue;
+            uint8_t              steps = (encoderSpeed[i] > 0) ? encoderSpeed[i] : 1;
             MIDI::encDec_14bit_t encDec_14bit;
 
-            switch(type)
+            switch (type)
             {
-                case type_t::t7Fh01h:
-                case type_t::t3Fh41h:
+            case type_t::t7Fh01h:
+            case type_t::t3Fh41h:
                 encoderValue = encValue[static_cast<uint8_t>(type)][static_cast<uint8_t>(encoderState)];
                 break;
 
-                case type_t::tProgramChange:
+            case type_t::tProgramChange:
                 if (encoderState == position_t::ccw)
                 {
                     if (Common::lastPCvalue[channel] < 127)
@@ -126,10 +126,10 @@ void Encoders::update()
                 encoderValue = Common::lastPCvalue[channel];
                 break;
 
-                case type_t::tControlChange:
-                case type_t::tPitchBend:
-                case type_t::tNRPN7bit:
-                case type_t::tNRPN14bit:
+            case type_t::tControlChange:
+            case type_t::tPitchBend:
+            case type_t::tNRPN7bit:
+            case type_t::tNRPN14bit:
                 if (((type == type_t::tPitchBend) || (type == type_t::tNRPN14bit)) && (steps > 1))
                     steps <<= 2;
 
@@ -153,7 +153,7 @@ void Encoders::update()
                 encoderValue = midiValue[i];
                 break;
 
-                default:
+            default:
                 validType = false;
                 break;
             }
@@ -163,16 +163,16 @@ void Encoders::update()
                 if (type == type_t::tProgramChange)
                 {
                     midi.sendProgramChange(encoderValue, channel);
-                    #ifdef DISPLAY_SUPPORTED
-                    display.displayMIDIevent(Display::eventType_t::out, Display::event_t::programChange, midiID & 0x7F, encoderValue, channel+1);
-                    #endif
+#ifdef DISPLAY_SUPPORTED
+                    display.displayMIDIevent(Display::eventType_t::out, Display::event_t::programChange, midiID & 0x7F, encoderValue, channel + 1);
+#endif
                 }
                 else if (type == type_t::tPitchBend)
                 {
                     midi.sendPitchBend(encoderValue, channel);
-                    #ifdef DISPLAY_SUPPORTED
-                    display.displayMIDIevent(Display::eventType_t::out, Display::event_t::pitchBend, midiID & 0x7F, encoderValue, channel+1);
-                    #endif
+#ifdef DISPLAY_SUPPORTED
+                    display.displayMIDIevent(Display::eventType_t::out, Display::event_t::pitchBend, midiID & 0x7F, encoderValue, channel + 1);
+#endif
                 }
                 else if ((type == type_t::tNRPN7bit) || (type == type_t::tNRPN14bit))
                 {
@@ -194,16 +194,16 @@ void Encoders::update()
                         midi.sendControlChange(38, encDec_14bit.low, channel);
                     }
 
-                    #ifdef DISPLAY_SUPPORTED
-                    display.displayMIDIevent(Display::eventType_t::out, Display::event_t::nrpn, midiID, encoderValue, channel+1);
-                    #endif
+#ifdef DISPLAY_SUPPORTED
+                    display.displayMIDIevent(Display::eventType_t::out, Display::event_t::nrpn, midiID, encoderValue, channel + 1);
+#endif
                 }
                 else if (type != type_t::tPresetChange)
                 {
                     midi.sendControlChange(midiID, encoderValue, channel);
-                    #ifdef DISPLAY_SUPPORTED
-                    display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, midiID & 0x7F, encoderValue, channel+1);
-                    #endif
+#ifdef DISPLAY_SUPPORTED
+                    display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, midiID & 0x7F, encoderValue, channel + 1);
+#endif
                 }
                 else
                 {

@@ -11,7 +11,7 @@ namespace
 {
     uint8_t controlValue[MAX_NUMBER_OF_ENCODERS];
     uint8_t messageCounter;
-}
+}    // namespace
 
 bool midiDataHandler(MIDI::USBMIDIpacket_t& USBMIDIpacket)
 {
@@ -30,41 +30,40 @@ class EncodersTest : public ::testing::Test
         EXPECT_TRUE(database.isSignatureValid());
         encoders.init();
         midi.handleUSBwrite(midiDataHandler);
-        #ifdef DISPLAY_SUPPORTED
+#ifdef DISPLAY_SUPPORTED
         EXPECT_TRUE(display.init(displayController_ssd1306, displayRes_128x64));
-        #endif
+#endif
     }
 
     virtual void TearDown()
     {
-        
     }
 
-    Database database = Database(DatabaseStub::read, DatabaseStub::write, EEPROM_SIZE-3);
-    MIDI midi;
+    Database      database = Database(DatabaseStub::read, DatabaseStub::write, EEPROM_SIZE - 3);
+    MIDI          midi;
     ComponentInfo cInfo;
 
-    #ifdef LEDS_SUPPORTED
+#ifdef LEDS_SUPPORTED
     Interface::digital::output::LEDs leds = Interface::digital::output::LEDs(database);
-    #endif
+#endif
 
-    #ifdef DISPLAY_SUPPORTED
+#ifdef DISPLAY_SUPPORTED
     Interface::Display display;
-    #endif
+#endif
 
-    #ifdef LEDS_SUPPORTED
-    #ifdef DISPLAY_SUPPORTED
+#ifdef LEDS_SUPPORTED
+#ifdef DISPLAY_SUPPORTED
     Interface::digital::input::Encoders encoders = Interface::digital::input::Encoders(database, midi, leds, display, cInfo);
-    #else
+#else
     Interface::digital::input::Encoders encoders = Interface::digital::input::Encoders(database, midi, leds, cInfo);
-    #endif
-    #else
-    #ifdef DISPLAY_SUPPORTED
+#endif
+#else
+#ifdef DISPLAY_SUPPORTED
     Interface::digital::input::Encoders encoders = Interface::digital::input::Encoders(database, midi, display, cInfo);
-    #else
+#else
     Interface::digital::input::Encoders encoders = Interface::digital::input::Encoders(database, midi, cInfo);
-    #endif
-    #endif
+#endif
+#endif
 };
 
 namespace Board
@@ -81,17 +80,16 @@ namespace Board
                 {
                     Encoders::position_t encoderPosition[MAX_NUMBER_OF_ENCODERS];
 
-                    int8_t stateCounter[MAX_NUMBER_OF_ENCODERS] = {};
+                    int8_t  stateCounter[MAX_NUMBER_OF_ENCODERS] = {};
                     uint8_t lastState[MAX_NUMBER_OF_ENCODERS] = {};
 
-                    const uint8_t stateArray[4] = 
-                    {
+                    const uint8_t stateArray[4] = {
                         0b01,
                         0b11,
                         0b10,
                         0b00
                     };
-                }
+                }    // namespace
 
                 uint8_t getEncoderPairState(uint8_t encoderID)
                 {
@@ -124,7 +122,7 @@ namespace Board
                     controlValue[encoderID] = 0;
                     encoderPosition[encoderID] = position;
                 }
-            }
+            }    // namespace input
 
             namespace output
             {
@@ -142,17 +140,17 @@ namespace Board
                 {
                     return true;
                 }
-            }
-        }
-    }
-}
+            }    // namespace output
+        }        // namespace digital
+    }            // namespace interface
+}    // namespace Board
 
 TEST_F(EncodersTest, StateDecoding)
 {
     using namespace Interface::digital::input;
 
     //set known state
-    for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
     {
         //enable all encoders
         EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i, 1), true);
@@ -229,7 +227,6 @@ TEST_F(EncodersTest, StateDecoding)
     state = 0b11;
     EXPECT_EQ(encoders.read(0, state), Encoders::position_t::cw);
 
-
     //counter-clockwise: 00, 01, 11, 10
     encoders.init();
 
@@ -287,9 +284,8 @@ TEST_F(EncodersTest, StateDecoding)
     state = 0b11;
     EXPECT_EQ(encoders.read(0, state), Encoders::position_t::ccw);
 
-
     //this time configure 4 pulses per step
-    for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
+    for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
         EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_pulsesPerStep, i, 4), true);
 
     encoders.init();
@@ -354,10 +350,9 @@ TEST_F(EncodersTest, Debounce)
 {
     using namespace Interface::digital::input;
 
-    auto debounceTest = [&](uint8_t pulsesPerStep)
-    {
+    auto debounceTest = [&](uint8_t pulsesPerStep) {
         //set known state
-        for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
+        for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
         {
             //enable all encoders
             EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i, 1), true);
@@ -375,34 +370,32 @@ TEST_F(EncodersTest, Debounce)
             EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i, 1), true);
         }
 
-        auto encValue = [this](Encoders::type_t type, Encoders::position_t position)
-        {
-            switch(type)
+        auto encValue = [this](Encoders::type_t type, Encoders::position_t position) {
+            switch (type)
             {
-                case Encoders::type_t::t7Fh01h:
+            case Encoders::type_t::t7Fh01h:
                 return position == Encoders::position_t::ccw ? 127 : position == Encoders::position_t::cw ? 1 : 0;
                 break;
 
-                case Encoders::type_t::t3Fh41h:
+            case Encoders::type_t::t3Fh41h:
                 return position == Encoders::position_t::ccw ? 63 : position == Encoders::position_t::cw ? 65 : 0;
                 break;
 
-                default:
+            default:
                 return 0;
             }
         };
 
-        auto verifyValue = [&](Encoders::position_t* value)
-        {
+        auto verifyValue = [&](Encoders::position_t* value) {
             bool success;
 
-            for (int i=0; i<4+1; i++)
+            for (int i = 0; i < 4 + 1; i++)
             {
                 success = false;
                 encoders.update();
 
                 //verify that all received values are correct
-                for (int j=0; j<MAX_NUMBER_OF_ENCODERS; j++)
+                for (int j = 0; j < MAX_NUMBER_OF_ENCODERS; j++)
                 {
                     if (controlValue[j] != encValue(Encoders::type_t::t7Fh01h, value[j]))
                     {
@@ -428,7 +421,7 @@ TEST_F(EncodersTest, Debounce)
         messageCounter = 0;
         encoders.init();
 
-        for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
+        for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
         {
             Board::interface::digital::input::setEncoderState(i, Encoders::position_t::ccw);
             testValue[i] = Encoders::position_t::ccw;
@@ -441,7 +434,7 @@ TEST_F(EncodersTest, Debounce)
         messageCounter = 0;
 
         // set new direction
-        for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
+        for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
         {
             Board::interface::digital::input::setEncoderState(i, Encoders::position_t::cw);
             testValue[i] = Encoders::position_t::cw;
@@ -455,10 +448,9 @@ TEST_F(EncodersTest, Debounce)
         //after four consecutive values debouncer should ignore all futher
         //changes in direction until encoder slows down
 
-        #define NUMBER_OF_TEST_VALUES   32
+#define NUMBER_OF_TEST_VALUES 32
 
-        Encoders::position_t encoderPositionTest1[NUMBER_OF_TEST_VALUES] =
-        {
+        Encoders::position_t encoderPositionTest1[NUMBER_OF_TEST_VALUES] = {
             Encoders::position_t::cw,
             Encoders::position_t::cw,
             Encoders::position_t::cw,
@@ -493,17 +485,17 @@ TEST_F(EncodersTest, Debounce)
             Encoders::position_t::cw
         };
 
-        core::timing::detail::rTime_ms += ENCODERS_DEBOUNCE_RESET_TIME+1;
+        core::timing::detail::rTime_ms += ENCODERS_DEBOUNCE_RESET_TIME + 1;
 
         // all values should be right position
         // call ::update n times (MAX_NUMBER_OF_ENCODERS)
         // each call retrieves encoder position from test array
         // after each call switch to next value from test array
-        for (int i=0; i<NUMBER_OF_TEST_VALUES; i++)
+        for (int i = 0; i < NUMBER_OF_TEST_VALUES; i++)
         {
             messageCounter = 0;
 
-            for (int j=0; j<MAX_NUMBER_OF_ENCODERS; j++)
+            for (int j = 0; j < MAX_NUMBER_OF_ENCODERS; j++)
             {
                 Board::interface::digital::input::setEncoderState(j, encoderPositionTest1[i]);
                 testValue[j] = Encoders::position_t::cw;
@@ -515,20 +507,20 @@ TEST_F(EncodersTest, Debounce)
         //perform the same test again but with time difference
         //returned values should match the values in test array:
         //debouncer should not be initiated
-        core::timing::detail::rTime_ms = ENCODERS_DEBOUNCE_RESET_TIME+1;
+        core::timing::detail::rTime_ms = ENCODERS_DEBOUNCE_RESET_TIME + 1;
 
-        for (int i=0; i<NUMBER_OF_TEST_VALUES; i++)
+        for (int i = 0; i < NUMBER_OF_TEST_VALUES; i++)
         {
             messageCounter = 0;
 
-            for (int j=0; j<MAX_NUMBER_OF_ENCODERS; j++)
+            for (int j = 0; j < MAX_NUMBER_OF_ENCODERS; j++)
             {
                 Board::interface::digital::input::setEncoderState(j, encoderPositionTest1[i]);
                 testValue[j] = encoderPositionTest1[i];
             }
 
             EXPECT_TRUE(verifyValue(testValue));
-            core::timing::detail::rTime_ms += ENCODERS_DEBOUNCE_RESET_TIME+1;
+            core::timing::detail::rTime_ms += ENCODERS_DEBOUNCE_RESET_TIME + 1;
         }
 
         //test the following scenario:
@@ -537,8 +529,7 @@ TEST_F(EncodersTest, Debounce)
         // DEBOUNCE_COUNT times
         //test whether the debouncer registered the valid change
 
-        Encoders::position_t encoderPositionTest2[NUMBER_OF_TEST_VALUES] =
-        {
+        Encoders::position_t encoderPositionTest2[NUMBER_OF_TEST_VALUES] = {
             Encoders::position_t::cw,
             Encoders::position_t::cw,
             Encoders::position_t::cw,
@@ -573,13 +564,13 @@ TEST_F(EncodersTest, Debounce)
             Encoders::position_t::ccw,
         };
 
-        core::timing::detail::rTime_ms += ENCODERS_DEBOUNCE_RESET_TIME+1;
+        core::timing::detail::rTime_ms += ENCODERS_DEBOUNCE_RESET_TIME + 1;
 
-        for (int i=0; i<16; i++)
+        for (int i = 0; i < 16; i++)
         {
             messageCounter = 0;
 
-            for (int j=0; j<MAX_NUMBER_OF_ENCODERS; j++)
+            for (int j = 0; j < MAX_NUMBER_OF_ENCODERS; j++)
             {
                 Board::interface::digital::input::setEncoderState(j, encoderPositionTest2[i]);
                 testValue[j] = Encoders::position_t::cw;
@@ -588,12 +579,12 @@ TEST_F(EncodersTest, Debounce)
             EXPECT_TRUE(verifyValue(testValue));
         }
 
-        for (int i=16; i<19; i++)
+        for (int i = 16; i < 19; i++)
         {
             //first three values should still be right direction
             messageCounter = 0;
 
-            for (int j=0; j<MAX_NUMBER_OF_ENCODERS; j++)
+            for (int j = 0; j < MAX_NUMBER_OF_ENCODERS; j++)
             {
                 Board::interface::digital::input::setEncoderState(j, encoderPositionTest2[i]);
                 testValue[j] = Encoders::position_t::cw;
@@ -603,11 +594,11 @@ TEST_F(EncodersTest, Debounce)
         }
 
         //from now on, debouncer should be initiated and all other values should be left
-        for (int i=19; i<MAX_NUMBER_OF_ENCODERS; i++)
+        for (int i = 19; i < MAX_NUMBER_OF_ENCODERS; i++)
         {
             messageCounter = 0;
 
-            for (int j=0; j<MAX_NUMBER_OF_ENCODERS; j++)
+            for (int j = 0; j < MAX_NUMBER_OF_ENCODERS; j++)
             {
                 Board::interface::digital::input::setEncoderState(j, encoderPositionTest2[i]);
                 testValue[j] = Encoders::position_t::ccw;
@@ -627,12 +618,10 @@ TEST_F(EncodersTest, Acceleration)
 {
     using namespace Interface::digital::input;
 
-    auto accelerationTest = [&](uint8_t pulsesPerStep)
-    {
-        #define ENCODER_SPEED_CHANGE    3
-
+    auto accelerationTest = [&](uint8_t pulsesPerStep) {
+#define ENCODER_SPEED_CHANGE 3
         //set known state
-        for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
+        for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
         {
             //enable all encoders
             EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i, 1), true);
@@ -656,18 +645,17 @@ TEST_F(EncodersTest, Acceleration)
         encoders.init();
 
         //all encoders should move in the same direction
-        for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
+        for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
             Board::interface::digital::input::setEncoderState(i, Encoders::position_t::cw);
 
         core::timing::detail::rTime_ms = 1;
 
         uint16_t lastValue = 0;
 
-        auto update = [&](uint8_t compareValue)
-        {
+        auto update = [&](uint8_t compareValue) {
             bool success;
 
-            for (int j=0; j<4+1; j++)
+            for (int j = 0; j < 4 + 1; j++)
             {
                 success = false;
                 encoders.update();
@@ -678,7 +666,7 @@ TEST_F(EncodersTest, Acceleration)
                 if (messageCounter == MAX_NUMBER_OF_ENCODERS)
                 {
                     //verify that all received values are correct
-                    for (int k=0; k<MAX_NUMBER_OF_ENCODERS; k++)
+                    for (int k = 0; k < MAX_NUMBER_OF_ENCODERS; k++)
                     {
                         if (controlValue[k] != compareValue)
                         {
@@ -708,18 +696,18 @@ TEST_F(EncodersTest, Acceleration)
         //verify the outputed values
         //acceleration works by appending ENCODER_SPEED_CHANGE+previous value to
         //to current encoder midi value
-        for (int i=1; i<=3; i++)
+        for (int i = 1; i <= 3; i++)
         {
             messageCounter = 0;
             core::timing::detail::rTime_ms++;
-            uint16_t compareValue = lastValue + (ENCODER_SPEED_CHANGE*i);
+            uint16_t compareValue = lastValue + (ENCODER_SPEED_CHANGE * i);
             update(compareValue);
         }
 
         //now run update again but with time difference between movements being
         //just enough so that encoder doesn't accelerate
         //in this case, existing values should be increased only by 1
-        for (int i=1; i<=3; i++)
+        for (int i = 1; i <= 3; i++)
         {
             messageCounter = 0;
             core::timing::detail::rTime_ms += ENCODERS_SPEED_TIMEOUT;

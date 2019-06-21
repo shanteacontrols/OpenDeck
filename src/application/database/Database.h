@@ -29,43 +29,43 @@ limitations under the License.
 class Database : public LESSDB
 {
     public:
-    Database(bool (&readCallback)(uint32_t address, sectionParameterType_t type, int32_t &value), bool (&writeCallback)(uint32_t address, int32_t value, sectionParameterType_t type), size_t maxSize) :
-    LESSDB(readCallback, writeCallback, maxSize)
+    Database(bool (&readCallback)(uint32_t address, sectionParameterType_t type, int32_t& value), bool (&writeCallback)(uint32_t address, int32_t value, sectionParameterType_t type), size_t maxSize)
+        : LESSDB(readCallback, writeCallback, maxSize)
     {}
 
-    bool init();
-    void factoryReset(LESSDB::factoryResetType_t type);
+    bool    init();
+    void    factoryReset(LESSDB::factoryResetType_t type);
     uint8_t getSupportedPresets();
-    bool setPreset(uint8_t preset);
+    bool    setPreset(uint8_t preset);
     uint8_t getPreset();
-    bool isSignatureValid();
-    void setPresetPreserveState(bool state);
-    bool getPresetPreserveState();
-    void setPresetChangeHandler(void (*presetChangeHandler)(uint8_t preset));
+    bool    isSignatureValid();
+    void    setPresetPreserveState(bool state);
+    bool    getPresetPreserveState();
+    void    setPresetChangeHandler(void (*presetChangeHandler)(uint8_t preset));
 
     private:
-    void writeCustomValues();
+    void     writeCustomValues();
     uint16_t getDbUID();
-    void setDbUID(uint16_t uid);
+    void     setDbUID(uint16_t uid);
 
     ///
     /// \brief User-specified callback called when preset is changed.
     ///
-    void        (*presetChangeHandler)(uint8_t preset) = nullptr;
+    void (*presetChangeHandler)(uint8_t preset) = nullptr;
 
     ///
     /// \brief Holds total memory usage for the entire database layout (system block included).
     ///
-    uint16_t    totalMemoryUsage;
+    uint16_t totalMemoryUsage;
 
     ///
     /// \brief Total size of system block.
     /// Used to set correct offset in database for user layout.
     ///
-    uint16_t    systemBlockUsage;
+    uint16_t systemBlockUsage;
 
     ///
     /// \brief Holds currently active preset.
     ///
-    uint8_t     activePreset = 0;
+    uint8_t activePreset = 0;
 };

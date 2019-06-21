@@ -26,7 +26,7 @@ namespace
     /// \brief MIDI Class Device Mode Configuration and State Structure.
     ///
     USB_ClassInfo_MIDI_Device_t MIDI_Interface;
-}
+}    // namespace
 
 ///
 /// \brief Event handler for the USB_ConfigurationChanged event.
@@ -46,19 +46,19 @@ namespace Board
     {
         void usb()
         {
-            MIDI_Interface.Config.StreamingInterfaceNumber  = INTERFACE_ID_AudioStream;
+            MIDI_Interface.Config.StreamingInterfaceNumber = INTERFACE_ID_AudioStream;
 
-            MIDI_Interface.Config.DataINEndpoint.Address    = MIDI_STREAM_IN_EPADDR;
-            MIDI_Interface.Config.DataINEndpoint.Size       = MIDI_STREAM_EPSIZE;
-            MIDI_Interface.Config.DataINEndpoint.Banks      = 1;
+            MIDI_Interface.Config.DataINEndpoint.Address = MIDI_STREAM_IN_EPADDR;
+            MIDI_Interface.Config.DataINEndpoint.Size = MIDI_STREAM_EPSIZE;
+            MIDI_Interface.Config.DataINEndpoint.Banks = 1;
 
-            MIDI_Interface.Config.DataOUTEndpoint.Address   = MIDI_STREAM_OUT_EPADDR;
-            MIDI_Interface.Config.DataOUTEndpoint.Size      = MIDI_STREAM_EPSIZE;
-            MIDI_Interface.Config.DataOUTEndpoint.Banks     = 1;
+            MIDI_Interface.Config.DataOUTEndpoint.Address = MIDI_STREAM_OUT_EPADDR;
+            MIDI_Interface.Config.DataOUTEndpoint.Size = MIDI_STREAM_EPSIZE;
+            MIDI_Interface.Config.DataOUTEndpoint.Banks = 1;
 
             USB_Init();
         }
-    }
+    }    // namespace setup
 
     namespace USB
     {
@@ -118,5 +118,5 @@ namespace Board
         {
             return (USB_DeviceState == DEVICE_STATE_Configured);
         }
-    }
-}
+    }    // namespace USB
+}    // namespace Board

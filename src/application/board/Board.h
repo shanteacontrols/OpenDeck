@@ -31,10 +31,10 @@ namespace Board
     ///
     /// \brief List of all possible reboot types.
     ///
-    enum class rebootType_t: uint8_t
+    enum class rebootType_t : uint8_t
     {
-        rebootApp,  ///< Reboot to application.
-        rebootBtldr ///< Reboot to bootloader.
+        rebootApp,     ///< Reboot to application.
+        rebootBtldr    ///< Reboot to bootloader.
     };
 
     ///
@@ -42,8 +42,8 @@ namespace Board
     ///
     typedef struct
     {
-        volatile uint8_t *port;
-        uint8_t pin;
+        volatile uint8_t* port;
+        uint8_t           pin;
     } mcuPin_t;
 
     ///
@@ -98,7 +98,7 @@ namespace Board
         /// \brief Used to indicate whether or not USB event has occured (packet sent or received).
         ///
         extern trafficIndicator_t trafficIndicator;
-    }
+    }    // namespace USB
 
     namespace interface
     {
@@ -133,9 +133,9 @@ namespace Board
                 /// \returns Pair state of the specified encoder (A and B signals stored in bits 0 and 1).
                 ///
                 uint8_t getEncoderPairState(uint8_t encoderID);
-            }
+            }    // namespace input
 
-            #ifdef LEDS_SUPPORTED
+#ifdef LEDS_SUPPORTED
             namespace output
             {
                 ///
@@ -160,9 +160,9 @@ namespace Board
                 ///             See board/common/constants/LEDs.h for range.
                 ///
                 bool setLEDfadeSpeed(uint8_t transitionSpeed);
-            }
-            #endif
-        }
+            }    // namespace output
+#endif
+        }    // namespace digital
 
         namespace analog
         {
@@ -188,8 +188,8 @@ namespace Board
             /// \brief Resets active pad index and starts data acquisition from pads again.
             ///
             void continueReadout();
-        }
-    }
+        }    // namespace analog
+    }        // namespace interface
 
     namespace eeprom
     {
@@ -200,7 +200,7 @@ namespace Board
         /// @param [in] value   Pointer to variable in which read value is being stored.
         /// \returns            True on success, false otherwise.
         ///
-        bool read(uint32_t address, LESSDB::sectionParameterType_t type, int32_t &value);
+        bool read(uint32_t address, LESSDB::sectionParameterType_t type, int32_t& value);
 
         ///
         /// \brief Used to write value to memory provided by specific board.
@@ -210,5 +210,5 @@ namespace Board
         /// \returns            True on success, false otherwise.
         ///
         bool write(uint32_t address, int32_t value, LESSDB::sectionParameterType_t type);
-    }
-};
+    }    // namespace eeprom
+};       // namespace Board

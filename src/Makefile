@@ -12,6 +12,8 @@ TARGET := build/$(TARGETNAME)
 include Defines.mk
 include Sources.mk
 
+CLANG-FORMAT := clang-format-8
+
 #specify c/c++ compilers
 CPP := avr-gcc
 CXX := avr-g++
@@ -128,6 +130,10 @@ clean:
 exe-scripts:
 	@echo Making all scripts executable
 	@find ../scripts -name '*.sh' -type f -exec chmod +x {} +;
+
+format:
+	@echo Checking code formatting...
+	@find . -regex '.*\.\(cpp\|hpp\|h\|cc\|cxx\)' -not -path "*modules*" -not -name "*Constants.h" -not -name "*Commands.h" -not -name "*Pins.h" -not -name "*Hardware.h" -not -name "*Version.h" -not -name "*CustomIDs.h" -not -name "*Config.h" -not -name "*Descriptors.*" -exec $(CLANG-FORMAT) -i {} \;
 
 #debugging
 print-%:

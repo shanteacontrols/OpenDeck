@@ -37,8 +37,8 @@ namespace Board
                     /// \brief Checks if indicator LEDs need to be turned on or off.
                     ///
                     void checkIndicators();
-                }
-            }
-        }
-    }
-}
+                }    // namespace detail
+            }        // namespace output
+        }            // namespace digital
+    }                // namespace interface
+}    // namespace Board

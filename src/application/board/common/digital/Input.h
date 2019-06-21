@@ -32,8 +32,8 @@ namespace Board
                     /// \brief Continuously reads all digital inputs.
                     ///
                     void checkDigitalInputs();
-                }
-            }
-        }
-    }
-}
+                }    // namespace detail
+            }        // namespace input
+        }            // namespace digital
+    }                // namespace interface
+}    // namespace Board

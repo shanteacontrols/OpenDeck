@@ -40,4 +40,4 @@ namespace OpenDeckMIDIformat
     /// \returns True on success, false otherwise.
     ///
     bool write(uint8_t channel, MIDI::USBMIDIpacket_t& USBMIDIpacket, odPacketType_t packetType);
-}
+}    // namespace OpenDeckMIDIformat

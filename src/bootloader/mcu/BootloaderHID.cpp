@@ -36,45 +36,45 @@ namespace
     ///
     void pins()
     {
-        //indicate that we're in bootloader mode by turning on specific leds
-        //if the board uses indicator leds for midi traffic, turn them both on
-        #ifdef BOARD_KODAMA
+//indicate that we're in bootloader mode by turning on specific leds
+//if the board uses indicator leds for midi traffic, turn them both on
+#ifdef BOARD_KODAMA
         setLow(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 
-        for (int i=0; i<16; i++)
+        for (int i = 0; i < 16; i++)
         {
             EXT_LED_ON(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
             pulseHighToLow(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
         }
 
         setHigh(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
-        //make sure internal led is turned off for mega/uno
-        #elif defined(BOARD_A_MEGA)
+//make sure internal led is turned off for mega/uno
+#elif defined(BOARD_A_MEGA)
         setOutput(PORTB, 7);
         setLow(PORTB, 7);
-        #elif defined(BOARD_A_UNO)
+#elif defined(BOARD_A_UNO)
         setOutput(PORTB, 5);
         setLow(PORTB, 5);
-        #elif defined(BOARD_T_2PP)
+#elif defined(BOARD_T_2PP)
         //only one led
         setOutput(LED_IN_PORT, LED_IN_PIN);
         INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
-        #elif defined (LED_INDICATORS)
+#elif defined(LED_INDICATORS)
         setOutput(LED_IN_PORT, LED_IN_PIN);
         setOutput(LED_OUT_PORT, LED_OUT_PIN);
         INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
         INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
-        #endif
+#endif
 
-        //configure bootloader entry pins
-        #if defined(BOARD_KODAMA)
+//configure bootloader entry pins
+#if defined(BOARD_KODAMA)
         setInput(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN);
         setOutput(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
         setOutput(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
-        #elif defined (BTLDR_BUTTON_PORT)
+#elif defined(BTLDR_BUTTON_PORT)
         setInput(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
         setHigh(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
-        #endif
+#endif
     }
 
     ///
@@ -86,18 +86,18 @@ namespace
         clock_prescale_set(clock_div_1);
 
         //relocate the interrupt vector table to the bootloader section
-        MCUCR = (1<<IVCE);
-        MCUCR = (1<<IVSEL);
+        MCUCR = (1 << IVCE);
+        MCUCR = (1 << IVSEL);
 
-        #ifdef USB_SUPPORTED
+#ifdef USB_SUPPORTED
         //initialize USB subsystem
         USB_Init();
-        #endif
+#endif
 
-        #if defined(BOARD_A_xu2) || !defined(USB_SUPPORTED)
+#if defined(BOARD_A_xu2) || !defined(USB_SUPPORTED)
         Board::UART::init(UART_BAUDRATE_MIDI_OD, UART_USB_LINK_CHANNEL);
 
-        #ifndef USB_SUPPORTED
+#ifndef USB_SUPPORTED
         // make sure USB link goes to bootloader mode as well
         MIDI::USBMIDIpacket_t packet;
 
@@ -107,40 +107,40 @@ namespace
         packet.Data3 = 0x00;
 
         OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, packet, odPacketType_t::packetIntCMD);
-        #endif
-        #endif
+#endif
+#endif
     }
 
-        ///
-        /// \brief Calculates CRC of entire flash.
-        /// \return True if CRC is valid, that is, if it matches CRC written in last flash address.
-        ///
-        bool appCRCvalid()
+    ///
+    /// \brief Calculates CRC of entire flash.
+    /// \return True if CRC is valid, that is, if it matches CRC written in last flash address.
+    ///
+    bool appCRCvalid()
+    {
+        return true;
+        uint16_t crc = 0x0000;
+
+#if (FLASHEND > 0xFFFF)
+        uint32_t lastAddress = pgm_read_word(core::avr::pgmGetFarAddress(APP_LENGTH_LOCATION));
+#else
+        uint32_t lastAddress = pgm_read_word(APP_LENGTH_LOCATION);
+#endif
+
+        for (uint32_t i = 0; i < lastAddress; i++)
         {
-            return true;
-            uint16_t crc = 0x0000;
-
-            #if (FLASHEND > 0xFFFF)
-            uint32_t lastAddress = pgm_read_word(core::avr::pgmGetFarAddress(APP_LENGTH_LOCATION));
-            #else
-            uint32_t lastAddress = pgm_read_word(APP_LENGTH_LOCATION);
-            #endif
-
-            for (uint32_t i=0; i<lastAddress; i++)
-            {
-                #if (FLASHEND > 0xFFFF)
-                crc = _crc_xmodem_update(crc, pgm_read_byte_far(core::avr::pgmGetFarAddress(i)));
-                #else
-                crc = _crc_xmodem_update(crc, pgm_read_byte(i));
-                #endif
-            }
-
-            #if (FLASHEND > 0xFFFF)
-            return (crc == pgm_read_word_far(core::avr::pgmGetFarAddress(lastAddress)));
-            #else
-            return (crc == pgm_read_word(lastAddress));
-            #endif
+#if (FLASHEND > 0xFFFF)
+            crc = _crc_xmodem_update(crc, pgm_read_byte_far(core::avr::pgmGetFarAddress(i)));
+#else
+            crc = _crc_xmodem_update(crc, pgm_read_byte(i));
+#endif
         }
+
+#if (FLASHEND > 0xFFFF)
+        return (crc == pgm_read_word_far(core::avr::pgmGetFarAddress(lastAddress)));
+#else
+        return (crc == pgm_read_word(lastAddress));
+#endif
+    }
 
     ///
     /// \brief Checks if application should be run.
@@ -159,7 +159,7 @@ namespace
         //add some delay before reading the pins to avoid incorrect state detection
         _delay_ms(100);
 
-        #if defined(BOARD_KODAMA)
+#if defined(BOARD_KODAMA)
         uint16_t dInData = 0;
         setLow(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
         setLow(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
@@ -169,7 +169,7 @@ namespace
         setHigh(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
 
         //this board has two shift registers - 16 inputs in total
-        for (int i=0; i<16; i++)
+        for (int i = 0; i < 16; i++)
         {
             setLow(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
             _NOP();
@@ -178,14 +178,14 @@ namespace
         }
 
         bool hardwareTrigger = BIT_READ(dInData, BTLDR_BUTTON_INDEX);
-        #else
-        #ifdef BTLDR_BUTTON_PORT
-        bool hardwareTrigger = !readPin(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
-        #else
+#else
+#ifdef BTLDR_BUTTON_PORT
+        bool           hardwareTrigger = !readPin(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+#else
         //no hardware entry possible in this case
         bool hardwareTrigger = false;
-        #endif
-        #endif
+#endif
+#endif
 
         //check if user wants to enter bootloader
         bool softwareTrigger = eeprom_read_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION) == BTLDR_REBOOT_VALUE;
@@ -210,14 +210,13 @@ namespace
     {
         //run app
         // ((void (*)(void))0x0000)();
-        __asm__ __volatile__ (
+        __asm__ __volatile__(
             // Jump to RST vector
             "clr r30\n"
             "clr r31\n"
-            "ijmp\n"
-            );
+            "ijmp\n");
     }
-}
+}    // namespace
 
 namespace bootloader
 {
@@ -251,12 +250,13 @@ int main(void)
 
     while (bootloader::RunBootloader)
     {
-        #ifdef USB_SUPPORTED
+#ifdef USB_SUPPORTED
         USB_USBTask();
-        #else
+#else
         static uint8_t pageStartCnt = 0;
-        uint8_t data;
-        while (!Board::UART::read(UART_USB_LINK_CHANNEL, data));
+        uint8_t        data;
+        while (!Board::UART::read(UART_USB_LINK_CHANNEL, data))
+            ;
 
         if (pageStartCnt < 6)
         {
@@ -269,24 +269,24 @@ int main(void)
                     EVENT_UART_Device_ControlRequest();
                     pageStartCnt = 0;
                 }
-
             }
             else
             {
                 pageStartCnt = 0;
             }
         }
-        #endif
+#endif
     }
 
-    #ifdef USB_SUPPORTED
+#ifdef USB_SUPPORTED
     //disconnect from the host - USB interface will be reset later along with the AVR
     USB_Detach();
-    #endif
+#endif
 
     //enable the watchdog and force a timeout to reset the AVR
     wdt_enable(WDTO_250MS);
-    while(1);
+    while (1)
+        ;
 }
 
 #ifdef USB_SUPPORTED

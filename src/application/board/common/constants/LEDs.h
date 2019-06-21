@@ -25,7 +25,7 @@ limitations under the License.
 ///
 /// \brief Time in milliseconds during which MIDI event indicators on board are on when MIDI event happens.
 ///
-#define MIDI_INDICATOR_TIMEOUT      50
+#define MIDI_INDICATOR_TIMEOUT 50
 
 ///
 /// \brief Time in milliseconds for single startup animation cycle on built-in LED indicators.
@@ -37,23 +37,22 @@ limitations under the License.
 /// @{
 
 #ifdef LED_INT_INVERT
-#define INT_LED_ON(port, pin)       setLow(port, pin)
-#define INT_LED_OFF(port, pin)      setHigh(port, pin)
+#define INT_LED_ON(port, pin) setLow(port, pin)
+#define INT_LED_OFF(port, pin) setHigh(port, pin)
 #else
-#define INT_LED_ON(port, pin)       setHigh(port, pin)
-#define INT_LED_OFF(port, pin)      setLow(port, pin)
+#define INT_LED_ON(port, pin) setHigh(port, pin)
+#define INT_LED_OFF(port, pin) setLow(port, pin)
 #endif
 
 #ifdef LED_EXT_INVERT
-#define EXT_LED_ON(port, pin)       setLow(port, pin)
-#define EXT_LED_OFF(port, pin)      setHigh(port, pin)
+#define EXT_LED_ON(port, pin) setLow(port, pin)
+#define EXT_LED_OFF(port, pin) setHigh(port, pin)
 #else
-#define EXT_LED_ON(port, pin)       setHigh(port, pin)
-#define EXT_LED_OFF(port, pin)      setLow(port, pin)
+#define EXT_LED_ON(port, pin) setHigh(port, pin)
+#define EXT_LED_OFF(port, pin) setLow(port, pin)
 #endif
 
 /// @}
 
-
-#define FADE_TIME_MIN               0
-#define FADE_TIME_MAX               10
+#define FADE_TIME_MIN 0
+#define FADE_TIME_MAX 10

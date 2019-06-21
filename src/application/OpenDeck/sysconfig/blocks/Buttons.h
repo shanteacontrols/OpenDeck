@@ -31,8 +31,7 @@ typedef enum
 } sysExSection_buttons_t;
 
 //map sysex sections to sections in db
-const uint8_t sysEx2DB_buttons[SYSEX_SECTIONS_BUTTONS] =
-{
+const uint8_t sysEx2DB_buttons[SYSEX_SECTIONS_BUTTONS] = {
     dbSection_buttons_type,
     dbSection_buttons_midiMessage,
     dbSection_buttons_midiID,

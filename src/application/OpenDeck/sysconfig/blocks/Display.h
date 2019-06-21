@@ -28,8 +28,7 @@ typedef enum
 } sysExSection_display_t;
 
 //map sysex sections to sections in db
-const uint8_t sysEx2DB_display[SYSEX_SECTIONS_DISPLAY] =
-{
+const uint8_t sysEx2DB_display[SYSEX_SECTIONS_DISPLAY] = {
     dbSection_display_features,
     dbSection_display_hw,
 };

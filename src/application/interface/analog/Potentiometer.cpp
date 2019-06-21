@@ -65,18 +65,16 @@ void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32
 
     lastDirection[analogID] = direction;
 
-    uint16_t lowerLimit = database.read(DB_BLOCK_ANALOG, dbSection_analog_lowerLimit, analogID);
-    uint16_t upperLimit = database.read(DB_BLOCK_ANALOG, dbSection_analog_upperLimit, analogID);
-    uint16_t midiID = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiID, analogID);
-    uint8_t channel = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiChannel, analogID);
+    uint16_t             lowerLimit = database.read(DB_BLOCK_ANALOG, dbSection_analog_lowerLimit, analogID);
+    uint16_t             upperLimit = database.read(DB_BLOCK_ANALOG, dbSection_analog_upperLimit, analogID);
+    uint16_t             midiID = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiID, analogID);
+    uint8_t              channel = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiChannel, analogID);
     MIDI::encDec_14bit_t encDec_14bit;
 
-    if
-    (
-        (analogType == type_t::potentiometerControlChange) || 
-        (analogType == type_t::potentiometerNote) || 
-        (analogType == type_t::nrpn7b)
-    )
+    if (
+        (analogType == type_t::potentiometerControlChange) ||
+        (analogType == type_t::potentiometerNote) ||
+        (analogType == type_t::nrpn7b))
     {
         //use 7-bit MIDI ID and limits
         encDec_14bit.value = midiID;
@@ -102,28 +100,28 @@ void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32
     if (database.read(DB_BLOCK_ANALOG, dbSection_analog_invert, analogID))
         scaledMIDIvalue = maxLimit - scaledMIDIvalue;
 
-    switch(analogType)
+    switch (analogType)
     {
-        case type_t::potentiometerControlChange:
-        case type_t::potentiometerNote:
+    case type_t::potentiometerControlChange:
+    case type_t::potentiometerNote:
         if (analogType == type_t::potentiometerControlChange)
         {
             midi.sendControlChange(midiID, scaledMIDIvalue, channel);
-            #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, midiID, scaledMIDIvalue, channel+1);
-            #endif
+#ifdef DISPLAY_SUPPORTED
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, midiID, scaledMIDIvalue, channel + 1);
+#endif
         }
         else
         {
             midi.sendNoteOn(midiID, scaledMIDIvalue, channel);
-            #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, midiID, scaledMIDIvalue, channel+1);
-            #endif
+#ifdef DISPLAY_SUPPORTED
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, midiID, scaledMIDIvalue, channel + 1);
+#endif
         }
         break;
 
-        case type_t::nrpn7b:
-        case type_t::nrpn14b:
+    case type_t::nrpn7b:
+    case type_t::nrpn14b:
         //when nrpn is used, MIDI ID is split into two messages
         //first message contains higher byte
         encDec_14bit.value = midiID;
@@ -146,19 +144,19 @@ void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32
             midi.sendControlChange(38, encDec_14bit.low, channel);
         }
 
-        #ifdef DISPLAY_SUPPORTED
-        display.displayMIDIevent(Display::eventType_t::out, Display::event_t::nrpn, midiID, scaledMIDIvalue, channel+1);
-        #endif
+#ifdef DISPLAY_SUPPORTED
+        display.displayMIDIevent(Display::eventType_t::out, Display::event_t::nrpn, midiID, scaledMIDIvalue, channel + 1);
+#endif
         break;
 
-        case type_t::pitchBend:
+    case type_t::pitchBend:
         midi.sendPitchBend(scaledMIDIvalue, channel);
-        #ifdef DISPLAY_SUPPORTED
-        display.displayMIDIevent(Display::eventType_t::out, Display::event_t::pitchBend, midiID, scaledMIDIvalue, channel+1);
-        #endif
+#ifdef DISPLAY_SUPPORTED
+        display.displayMIDIevent(Display::eventType_t::out, Display::event_t::pitchBend, midiID, scaledMIDIvalue, channel + 1);
+#endif
         break;
 
-        default:
+    default:
         return;
     }
 

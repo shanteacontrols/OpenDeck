@@ -39,11 +39,12 @@ void EVENT_USB_Device_ControlRequest(void)
     //process HID specific control requests
     switch (USB_ControlRequest.bRequest)
     {
-        case HID_REQ_SetReport:
+    case HID_REQ_SetReport:
         Endpoint_ClearSETUP();
 
         //wait until the command has been sent by the host
-        while (!(Endpoint_IsOUTReceived()));
+        while (!(Endpoint_IsOUTReceived()))
+            ;
         //read in the write destination address
         PageAddress = Endpoint_Read_16_LE();
 
@@ -59,13 +60,14 @@ void EVENT_USB_Device_ControlRequest(void)
             boot_spm_busy_wait();
 
             //write each of the FLASH page's bytes in sequence
-            for (int PageWord=0; PageWord<SPM_PAGESIZE/2; PageWord++)
+            for (int PageWord = 0; PageWord < SPM_PAGESIZE / 2; PageWord++)
             {
                 //check if endpoint is empty - if so clear it and wait until ready for next packet
                 if (!(Endpoint_BytesInEndpoint()))
                 {
                     Endpoint_ClearOUT();
-                    while (!(Endpoint_IsOUTReceived()));
+                    while (!(Endpoint_IsOUTReceived()))
+                        ;
                 }
 
                 //write the next data word to the FLASH page

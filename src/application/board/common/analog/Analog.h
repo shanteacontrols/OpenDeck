@@ -30,7 +30,7 @@ namespace Board
                 /// \brief Continously reads values from all analog components.
                 ///
                 void update();
-            }
-        }
-    }
-}
+            }    // namespace detail
+        }        // namespace analog
+    }            // namespace interface
+}    // namespace Board

@@ -25,8 +25,7 @@ namespace Board
     {
         namespace
         {
-            const uint8_t adcChannelArray[MAX_NUMBER_OF_ANALOG]
-            {
+            const uint8_t adcChannelArray[MAX_NUMBER_OF_ANALOG]{
                 AI_1_PIN,
                 AI_2_PIN,
                 AI_3_PIN,
@@ -38,8 +37,7 @@ namespace Board
             ///
             /// \brief Array holding ports and bits for all digital input pins.
             ///
-            const mcuPin_t dInPins[MAX_NUMBER_OF_BUTTONS] =
-            {
+            const mcuPin_t dInPins[MAX_NUMBER_OF_BUTTONS] = {
                 {
                     .port = &DI_1_PORT,
                     .pin = DI_1_PIN,
@@ -74,8 +72,7 @@ namespace Board
             ///
             /// \brief Array holding ports and bits for all digital output pins.
             ///
-            const mcuPin_t dOutPins[MAX_NUMBER_OF_LEDS] =
-            {
+            const mcuPin_t dOutPins[MAX_NUMBER_OF_LEDS] = {
                 {
                     .port = &DO_1_PORT,
                     .pin = DO_1_PIN,
@@ -106,7 +103,7 @@ namespace Board
                     .pin = DO_6_PIN,
                 }
             };
-        }
+        }    // namespace
 
         uint8_t adcChannel(uint8_t index)
         {
@@ -122,5 +119,5 @@ namespace Board
         {
             return dOutPins[index];
         }
-    }
-}
+    }    // namespace map
+}    // namespace Board

@@ -54,29 +54,29 @@ namespace OpenDeckMIDIformat
                 packetType = static_cast<odPacketType_t>(data);
 
                 //start of frame, read rest of the packet
-                for (int i=0; i<5; i++)
+                for (int i = 0; i < 5; i++)
                 {
                     Board::UART::read(channel, data);
 
-                    switch(i)
+                    switch (i)
                     {
-                        case 0:
+                    case 0:
                         USBMIDIpacket.Event = data;
                         break;
 
-                        case 1:
+                    case 1:
                         USBMIDIpacket.Data1 = data;
                         break;
 
-                        case 2:
+                    case 2:
                         USBMIDIpacket.Data2 = data;
                         break;
 
-                        case 3:
+                    case 3:
                         USBMIDIpacket.Data3 = data;
                         break;
 
-                        case 4:
+                    case 4:
                         //xor byte, do nothing
                         break;
                     }
@@ -93,24 +93,24 @@ namespace OpenDeckMIDIformat
                 Board::UART::read(channel, cmd);
 
                 //ignore the rest of the buffer
-                for (int i=0; i<4; i++)
+                for (int i = 0; i < 4; i++)
                     Board::UART::read(channel, data);
 
-                switch(static_cast<odFormatCMD_t>(cmd))
+                switch (static_cast<odFormatCMD_t>(cmd))
                 {
-                    case odFormatCMD_t::cmdFwUpdated:
+                case odFormatCMD_t::cmdFwUpdated:
                     Board::ledFlashStartup(true);
                     break;
 
-                    case odFormatCMD_t::cmdFwNotUpdated:
+                case odFormatCMD_t::cmdFwNotUpdated:
                     Board::ledFlashStartup(false);
                     break;
 
-                    case odFormatCMD_t::cmdBtldrReboot:
+                case odFormatCMD_t::cmdBtldrReboot:
                     Board::reboot(Board::rebootType_t::rebootBtldr);
                     break;
 
-                    default:
+                default:
                     break;
                 }
 
@@ -121,4 +121,4 @@ namespace OpenDeckMIDIformat
 
         return false;
     }
-}
+}    // namespace OpenDeckMIDIformat
