@@ -18,8 +18,7 @@ limitations under the License.
 
 #include "SysConfig.h"
 #include "Version.h"
-#include "Layout.cpp"
-#include "board/common/constants/LEDs.h"
+#include "Layout.h"
 #include "core/src/general/Timing.h"
 
 bool SysConfig::onCustomRequest(uint8_t value)
