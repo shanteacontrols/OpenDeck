@@ -267,7 +267,7 @@ bool SysConfig::onGet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
         }
         break;
 
-        case DB_BLOCK_DISPLAY:
+        case SYSEX_BLOCK_DISPLAY:
         #ifdef DISPLAY_SUPPORTED
         success = database.read(block, sysEx2DB_display[section], index, readValue);
         #else
