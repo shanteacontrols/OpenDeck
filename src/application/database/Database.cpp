@@ -131,7 +131,9 @@ uint8_t Database::getPreset()
 ///
 void Database::writeCustomValues()
 {
+    #ifdef DISPLAY_SUPPORTED
     update(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventTime, MIN_MESSAGE_RETENTION_TIME);
+    #endif
 }
 
 ///
