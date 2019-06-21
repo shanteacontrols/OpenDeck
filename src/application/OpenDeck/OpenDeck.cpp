@@ -20,19 +20,11 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 #include "interface/CInfo.h"
 
-#ifdef __AVR__
-#include <util/atomic.h>
-
-extern "C" void __cxa_pure_virtual()
-{
-    while (1);
-}
-#endif
-
-Database database(Board::memoryRead, Board::memoryWrite);
+ComponentInfo cinfo;
+Database database(Board::eeprom::read, Board::eeprom::write, EEPROM_SIZE-3);
 MIDI midi;
 #ifdef DISPLAY_SUPPORTED
-Display display;
+Interface::Display display;
 #endif
 #ifdef TOUCHSCREEN_SUPPORTED
 //assume sdw only for now
@@ -41,45 +33,45 @@ SDW sdw;
 Interface::Touchscreen touchscreen(sdw);
 #endif
 #ifdef LEDS_SUPPORTED
-LEDs leds(database);
+Interface::digital::output::LEDs leds(database);
 #endif
 #ifdef LEDS_SUPPORTED
 #ifdef DISPLAY_SUPPORTED
-Analog analog(database, midi, leds, display);
+Interface::analog::Analog analog(database, midi, leds, display, cinfo);
 #else
-Analog analog(database, midi, leds);
+Interface::analog::Analog analog(database, midi, leds, cinfo);
 #endif
 #else
 #ifdef DISPLAY_SUPPORTED
-Analog analog(database, midi, display);
+Interface::analog::Analog analog(database, midi, display, cinfo);
 #else
-Analog analog(database, midi);
-#endif
-#endif
-#ifdef LEDS_SUPPORTED
-#ifdef DISPLAY_SUPPORTED
-Buttons buttons(database, midi, leds, display);
-#else
-Buttons buttons(database, midi, leds);
-#endif
-#else
-#ifdef DISPLAY_SUPPORTED
-Buttons buttons(database, midi, display);
-#else
-Buttons buttons(database, midi);
+Interface::analog::Analog analog(database, midi, cinfo);
 #endif
 #endif
 #ifdef LEDS_SUPPORTED
 #ifdef DISPLAY_SUPPORTED
-Encoders encoders(database, midi, leds, display);
+Interface::digital::input::Buttons buttons(database, midi, leds, display, cinfo);
 #else
-Encoders encoders(database, midi, leds);
+Interface::digital::input::Buttons buttons(database, midi, leds, cinfo);
 #endif
 #else
 #ifdef DISPLAY_SUPPORTED
-Encoders encoders(database, midi, display);
+Interface::digital::input::Buttons buttons(database, midi, display, cinfo);
 #else
-Encoders encoders(database, midi);
+Interface::digital::input::Buttons buttons(database, midi, cinfo);
+#endif
+#endif
+#ifdef LEDS_SUPPORTED
+#ifdef DISPLAY_SUPPORTED
+Interface::digital::input::Encoders encoders(database, midi, leds, display, cinfo);
+#else
+Interface::digital::input::Encoders encoders(database, midi, leds, cinfo);
+#endif
+#else
+#ifdef DISPLAY_SUPPORTED
+Interface::digital::input::Encoders encoders(database, midi, display, cinfo);
+#else
+Interface::digital::input::Encoders encoders(database, midi, cinfo);
 #endif
 #endif
 #ifdef LEDS_SUPPORTED
@@ -95,8 +87,6 @@ SysConfig sysConfig(database, midi, buttons, encoders, analog, display);
 SysConfig sysConfig(database, midi, buttons, encoders, analog);
 #endif
 #endif
-
-cinfoHandler_t cinfoHandler;
 
 void OpenDeck::init()
 {
@@ -148,10 +138,10 @@ void OpenDeck::init()
     #endif
     #endif
 
-    cinfoHandler = [](dbBlockID_t dbBlock, sysExParameter_t componentID)
+    cinfo.registerHandler([](dbBlockID_t dbBlock, SysExConf::sysExParameter_t componentID)
     {
         return sysConfig.sendCInfo(dbBlock, componentID);
-    };
+    });
 
     analog.setButtonHandler([](uint8_t analogIndex, uint16_t adcValue)
     {
@@ -168,7 +158,7 @@ void OpenDeck::init()
     database.setPresetChangeHandler([](uint8_t preset)
     {
         #ifdef LEDS_SUPPORTED
-        leds.midiToState(midiMessageProgramChange, preset, 0, 0, true);
+        leds.midiToState(MIDI::messageType_t::programChange, preset, 0, 0, true);
         #endif
 
         #ifdef DISPLAY_SUPPORTED
@@ -176,7 +166,7 @@ void OpenDeck::init()
         display.setRetentionState(database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventRetention));
         display.setRetentionTime(database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventTime) * 1000);
         display.setAlternateNoteDisplay(database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDInotesAlternate));
-        display.displayMIDIevent(displayEventIn, messagePresetChange_display, preset, 0, 0);
+        display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::presetChange, preset, 0, 0);
         #endif
     });
 }
@@ -185,7 +175,7 @@ void OpenDeck::checkComponents()
 {
     if (sysConfig.isProcessingEnabled())
     {
-        if (Board::digitalInputDataAvailable())
+        if (Board::interface::digital::input::isDataAvailable())
         {
             buttons.update();
             encoders.update();
@@ -208,26 +198,26 @@ void OpenDeck::checkComponents()
 
 void OpenDeck::checkMIDI()
 {
-    auto processMessage = [this](midiInterfaceType_t interface)
+    auto processMessage = [](MIDI::interface_t interface)
     {
         //new message
-        midiMessageType_t messageType = midi.getType(interface);
+        auto messageType = midi.getType(interface);
         uint8_t data1 = midi.getData1(interface);
         uint8_t data2 = midi.getData2(interface);
         uint8_t channel = midi.getChannel(interface);
 
         switch(messageType)
         {
-            case midiMessageSystemExclusive:
+            case MIDI::messageType_t::systemExclusive:
             sysConfig.handleMessage(midi.getSysExArray(interface), midi.getSysExArrayLength(interface));
             break;
 
-            case midiMessageNoteOn:
-            case midiMessageNoteOff:
-            case midiMessageControlChange:
-            case midiMessageProgramChange:
+            case MIDI::messageType_t::noteOn:
+            case MIDI::messageType_t::noteOff:
+            case MIDI::messageType_t::controlChange:
+            case MIDI::messageType_t::programChange:
             #if defined(LEDS_SUPPORTED) || defined(DISPLAY_SUPPORTED)
-            if (messageType == midiMessageNoteOff)
+            if (messageType == MIDI::messageType_t::noteOff)
                 data2 = 0;
             #endif
             #ifdef LEDS_SUPPORTED
@@ -236,20 +226,20 @@ void OpenDeck::checkMIDI()
             #ifdef DISPLAY_SUPPORTED
             switch(messageType)
             {
-                case midiMessageNoteOn:
-                display.displayMIDIevent(displayEventIn, midiMessageNoteOn_display, data1, data2, channel+1);
+                case MIDI::messageType_t::noteOn:
+                display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::noteOn, data1, data2, channel+1);
                 break;
 
-                case midiMessageNoteOff:
-                display.displayMIDIevent(displayEventIn, midiMessageNoteOff_display, data1, data2, channel+1);
+                case MIDI::messageType_t::noteOff:
+                display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::noteOff, data1, data2, channel+1);
                 break;
 
-                case midiMessageControlChange:
-                display.displayMIDIevent(displayEventIn, midiMessageControlChange_display, data1, data2, channel+1);
+                case MIDI::messageType_t::controlChange:
+                display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::controlChange, data1, data2, channel+1);
                 break;
 
-                case midiMessageProgramChange:
-                display.displayMIDIevent(displayEventIn, midiMessageProgramChange_display, data1, data2, channel+1);
+                case MIDI::messageType_t::programChange:
+                display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::programChange, data1, data2, channel+1);
                 break;
 
                 default:
@@ -257,17 +247,17 @@ void OpenDeck::checkMIDI()
             }
             #endif
 
-            if (messageType == midiMessageProgramChange)
+            if (messageType == MIDI::messageType_t::programChange)
                 database.setPreset(data1);
 
-            if (messageType == midiMessageControlChange)
+            if (messageType == MIDI::messageType_t::controlChange)
             {
                 for (int i=0; i<MAX_NUMBER_OF_ENCODERS; i++)
                 {
                     if (!database.read(DB_BLOCK_ENCODERS, dbSection_encoders_remoteSync, i))
                         continue;
 
-                    if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i) != (uint8_t)encTypeCC)
+                    if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i) != static_cast<int32_t>(Interface::digital::input::Encoders::type_t::tControlChange))
                         continue;
 
                     if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i) != channel)
@@ -281,13 +271,13 @@ void OpenDeck::checkMIDI()
             }
             break;
 
-            case midiMessageClock:
+            case MIDI::messageType_t::sysRealTimeClock:
             #ifdef LEDS_SUPPORTED
             leds.checkBlinking(true);
             #endif
             break;
 
-            case midiMessageStart:
+            case MIDI::messageType_t::sysRealTimeStart:
             #ifdef LEDS_SUPPORTED
             leds.resetBlinking();
             leds.checkBlinking(true);
@@ -300,10 +290,10 @@ void OpenDeck::checkMIDI()
     };
 
     //note: mega/uno
-    //"fake" usbInterface - din data is stored as usb data so use usb callback to read the usb
+    //"fake" usb interface - din data is stored as usb data so use usb callback to read the usb
     //packet stored in midi object
-    if (midi.read(usbInterface))
-        processMessage(usbInterface);
+    if (midi.read(MIDI::interface_t::usb))
+        processMessage(MIDI::interface_t::usb);
 
     #ifdef DIN_MIDI_SUPPORTED
     if (database.read(DB_BLOCK_GLOBAL, dbSection_global_midiFeatures, midiFeatureDinEnabled))
@@ -314,7 +304,7 @@ void OpenDeck::checkMIDI()
             {
                 case midiMergeDINtoUSB:
                 //dump everything from DIN MIDI in to USB MIDI out
-                midi.read(dinInterface, THRU_FULL_USB);
+                midi.read(MIDI::interface_t::din, MIDI::filterMode_t::fullUSB);
                 break;
 
                 // case midiMergeDINtoDIN:
@@ -328,8 +318,8 @@ void OpenDeck::checkMIDI()
                 case midiMergeODslaveInitial:
                 //handle the traffic regulary until slave is properly configured
                 //(upon receiving message from master)
-                if (midi.read(dinInterface))
-                    processMessage(dinInterface);
+                if (midi.read(MIDI::interface_t::din))
+                    processMessage(MIDI::interface_t::din);
                 break;
 
                 default:
@@ -338,8 +328,8 @@ void OpenDeck::checkMIDI()
         }
         else
         {
-            if (midi.read(dinInterface))
-                processMessage(dinInterface);
+            if (midi.read(MIDI::interface_t::din))
+                processMessage(MIDI::interface_t::din);
         }
     }
     #endif

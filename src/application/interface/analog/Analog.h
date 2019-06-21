@@ -18,7 +18,6 @@ limitations under the License.
 
 #pragma once
 
-#include "board/Board.h"
 #include "database/Database.h"
 #include "midi/src/MIDI.h"
 #ifdef LEDS_SUPPORTED
@@ -27,76 +26,103 @@ limitations under the License.
 #ifdef DISPLAY_SUPPORTED
 #include "interface/display/Display.h"
 #endif
-#include "DataTypes.h"
-#include "sysex/src/DataTypes.h"
+#include "interface/CInfo.h"
 
-///
-/// \brief Analog components handling.
-/// \defgroup analog Analog
-/// \ingroup interface
-/// @{
-///
-
-class Analog
+namespace Interface
 {
-    public:
-    #ifdef LEDS_SUPPORTED
-    #ifndef DISPLAY_SUPPORTED
-    Analog(Database &database, MIDI &midi, LEDs &leds) :
-    #else
-    Analog(Database &database, MIDI &midi, LEDs &leds, Display &display) :
-    #endif
-    #else
-    #ifdef DISPLAY_SUPPORTED
-    Analog(Database &database, MIDI &midi, Display &display) :
-    #else
-    Analog(Database &database, MIDI &midi) :
-    #endif
-    #endif
-    database(database),
-    midi(midi)
-    #ifdef LEDS_SUPPORTED
-    ,leds(leds)
-    #endif
-    #ifdef DISPLAY_SUPPORTED
-    ,display(display)
-    #endif
-    {}
-
-    void update();
-    void debounceReset(uint16_t index);
-    void setButtonHandler(void(*fptr)(uint8_t adcIndex, uint16_t adcValue));
-
-    private:
-    void checkPotentiometerValue(analogType_t analogType, uint8_t analogID, uint32_t value);
-    void checkFSRvalue(uint8_t analogID, uint16_t pressure);
-    bool fsrPressureStable(uint8_t analogID);
-    bool getFsrPressed(uint8_t fsrID);
-    void setFsrPressed(uint8_t fsrID, bool state);
-    bool getFsrDebounceTimerStarted(uint8_t fsrID);
-    void setFsrDebounceTimerStarted(uint8_t fsrID, bool state);
-    uint32_t calibratePressure(uint32_t value, pressureType_t type);
-
-    Database    &database;
-    MIDI        &midi;
-    #ifdef LEDS_SUPPORTED
-    LEDs        &leds;
-    #endif
-    #ifdef DISPLAY_SUPPORTED
-    Display     &display;
-    #endif
-
-    enum class potDirection_t : uint8_t
+    namespace analog
     {
-        initial,
-        decreasing,
-        increasing
-    };
+        ///
+        /// \brief Analog components handling.
+        /// \defgroup analog Analog
+        /// \ingroup interface
+        /// @{
+        ///
 
-    void            (*buttonHandler)(uint8_t adcIndex, uint16_t adcValue) = nullptr;
-    uint16_t        lastAnalogueValue[MAX_NUMBER_OF_ANALOG] = {};
-    uint8_t         fsrPressed[MAX_NUMBER_OF_ANALOG] = {};
-    potDirection_t  lastDirection[MAX_NUMBER_OF_ANALOG] = {};
-};
+        class Analog
+        {
+            public:
+            #ifdef LEDS_SUPPORTED
+            #ifndef DISPLAY_SUPPORTED
+            Analog(Database &database, MIDI &midi, Interface::digital::output::LEDs &leds, ComponentInfo& cInfo) :
+            #else
+            Analog(Database &database, MIDI &midi, Interface::digital::output::LEDs &leds, Display &display, ComponentInfo& cInfo) :
+            #endif
+            #else
+            #ifdef DISPLAY_SUPPORTED
+            Analog(Database &database, MIDI &midi, Display &display, ComponentInfo& cInfo) :
+            #else
+            Analog(Database &database, MIDI &midi, ComponentInfo& cInfo) :
+            #endif
+            #endif
+            database(database),
+            midi(midi)
+            #ifdef LEDS_SUPPORTED
+            ,leds(leds)
+            #endif
+            #ifdef DISPLAY_SUPPORTED
+            ,display(display)
+            #endif
+            ,cInfo(cInfo)
+            {}
 
-/// @}
+            enum class type_t : uint8_t
+            {
+                potentiometerControlChange,
+                potentiometerNote,
+                fsr,
+                button,
+                nrpn7b,
+                nrpn14b,
+                pitchBend,
+                AMOUNT
+            };
+
+            enum class pressureType_t : uint8_t
+            {
+                velocity,
+                aftertouch
+            };
+
+            void update();
+            void debounceReset(uint16_t index);
+            void setButtonHandler(void(*fptr)(uint8_t adcIndex, uint16_t adcValue));
+
+            private:
+
+            enum class potDirection_t : uint8_t
+            {
+                initial,
+                decreasing,
+                increasing
+            };
+
+            uint16_t getHysteresisValue(uint8_t analogID, int16_t value);
+            void checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32_t value);
+            void checkFSRvalue(uint8_t analogID, uint16_t pressure);
+            bool fsrPressureStable(uint8_t analogID);
+            bool getFsrPressed(uint8_t fsrID);
+            void setFsrPressed(uint8_t fsrID, bool state);
+            bool getFsrDebounceTimerStarted(uint8_t fsrID);
+            void setFsrDebounceTimerStarted(uint8_t fsrID, bool state);
+            uint32_t calibratePressure(uint32_t value, pressureType_t type);
+
+            Database    &database;
+            MIDI        &midi;
+            #ifdef LEDS_SUPPORTED
+            Interface::digital::output::LEDs &leds;
+            #endif
+            #ifdef DISPLAY_SUPPORTED
+            Display     &display;
+            #endif
+            ComponentInfo& cInfo;
+
+            void            (*buttonHandler)(uint8_t adcIndex, uint16_t adcValue) = nullptr;
+            uint16_t        lastAnalogueValue[MAX_NUMBER_OF_ANALOG] = {};
+            uint8_t         fsrPressed[MAX_NUMBER_OF_ANALOG] = {};
+            potDirection_t  lastDirection[MAX_NUMBER_OF_ANALOG] = {};
+        };
+
+        /// @}
+    }
+}

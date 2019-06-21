@@ -17,9 +17,10 @@ limitations under the License.
 */
 
 #include "Buttons.h"
-#include "interface/digital/input/Common.h"
+#include "board/Board.h"
 #include "core/src/general/BitManipulation.h"
-#include "interface/CInfo.h"
+
+using namespace Interface::digital::input;
 
 ///
 /// \brief Continuously reads inputs from buttons and acts if necessary.
@@ -28,10 +29,10 @@ void Buttons::update()
 {
     for (int i=0; i<MAX_NUMBER_OF_BUTTONS; i++)
     {
-        if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, Board::getEncoderPair(i)))
+        if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, Board::interface::digital::input::getEncoderPair(i)))
             continue;
 
-        bool state = Board::getButtonState(i);
+        bool state = Board::interface::digital::input::getButtonState(i);
 
         if (!buttonDebounced(i, state))
             continue;
@@ -53,40 +54,40 @@ void Buttons::processButton(uint8_t buttonID, bool state)
 
     setButtonState(buttonID, state);
 
-    buttonMIDImessage_t buttonMessage = static_cast<buttonMIDImessage_t>(database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, buttonID));
+    messageType_t buttonMessage = static_cast<messageType_t>(database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, buttonID));
 
-    //don't process buttonNone type of message
-    if (buttonMessage != buttonNone)
+    //don't process messageType_t::none type of message
+    if (buttonMessage != messageType_t::none)
     {
-        buttonType_t type = static_cast<buttonType_t>(database.read(DB_BLOCK_BUTTONS, dbSection_buttons_type, buttonID));
+        type_t type = static_cast<type_t>(database.read(DB_BLOCK_BUTTONS, dbSection_buttons_type, buttonID));
 
         bool sendMIDI = true;
 
         //overwrite type under certain conditions
         switch(buttonMessage)
         {
-            case buttonPC:
-            case buttonPCinc:
-            case buttonPCdec:
-            case buttonMMCPlay:
-            case buttonMMCStop:
-            case buttonMMCPause:
-            case buttonCC:
-            case buttonRealTimeClock:
-            case buttonRealTimeStart:
-            case buttonRealTimeContinue:
-            case buttonRealTimeStop:
-            case buttonRealTimeActiveSensing:
-            case buttonRealTimeSystemReset:
-            type = buttonMomentary;
+            case messageType_t::programChange:
+            case messageType_t::programChangeInc:
+            case messageType_t::programChangeDec:
+            case messageType_t::mmcPlay:
+            case messageType_t::mmcStop:
+            case messageType_t::mmcPause:
+            case messageType_t::controlChange:
+            case messageType_t::realTimeClock:
+            case messageType_t::realTimeStart:
+            case messageType_t::realTimeContinue:
+            case messageType_t::realTimeStop:
+            case messageType_t::realTimeActiveSensing:
+            case messageType_t::realTimeSystemReset:
+            type = type_t::momentary;
             break;
 
-            case buttonMMCRecord:
-            type = buttonLatching;
+            case messageType_t::mmcRecord:
+            type = type_t::latching;
             break;
 
-            case buttonChangePreset:
-            type = buttonMomentary;
+            case messageType_t::presetOpenDeck:
+            type = type_t::momentary;
             sendMIDI = false;
             break;
 
@@ -94,7 +95,7 @@ void Buttons::processButton(uint8_t buttonID, bool state)
             break;
         }
 
-        if (type == buttonLatching)
+        if (type == type_t::latching)
         {
             //act on press only
             if (state)
@@ -121,19 +122,18 @@ void Buttons::processButton(uint8_t buttonID, bool state)
         {
             sendMessage(buttonID, state, buttonMessage);
         }
-        else if (buttonMessage == buttonChangePreset)
+        else if (buttonMessage == messageType_t::presetOpenDeck)
         {
             uint8_t preset = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, buttonID);
             database.setPreset(preset);
         }
-        else if (buttonMessage == buttonCustomHook)
+        else if (buttonMessage == messageType_t::customHook)
         {
             customHook(buttonID, state);
         }
     }
 
-    if (cinfoHandler != nullptr)
-        (*cinfoHandler)(DB_BLOCK_BUTTONS, buttonID);
+    cInfo.send(DB_BLOCK_BUTTONS, buttonID);
 }
 
 ///
@@ -143,14 +143,14 @@ void Buttons::processButton(uint8_t buttonID, bool state)
 /// @param [in] state           Button state (true/pressed, false/released).
 /// @param [in] buttonMessage   Type of MIDI message to send. If unspecified, message type is read from database.
 ///
-void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMIDImessage_t buttonMessage)
+void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMessage)
 {
     uint8_t note = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, buttonID);
     uint8_t channel = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiChannel, buttonID);
     uint8_t velocity = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_velocity, buttonID);
 
-    if (buttonMessage == BUTTON_MESSAGE_TYPES)
-        buttonMessage = static_cast<buttonMIDImessage_t>(database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, buttonID));
+    if (buttonMessage == messageType_t::AMOUNT)
+        buttonMessage = static_cast<messageType_t>(database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, buttonID));
 
     mmcArray[2] = note; //use midi note as channel id for transport control
 
@@ -158,127 +158,127 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMIDImessage_t butt
     {
         switch(buttonMessage)
         {
-            case buttonNote:
+            case messageType_t::note:
             midi.sendNoteOn(note, velocity, channel);
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageNoteOn_display, note, velocity, channel+1);
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, note, velocity, channel+1);
             #endif
             #ifdef LEDS_SUPPORTED
-            leds.midiToState(midiMessageNoteOn, note, velocity, channel, true);
+            leds.midiToState(MIDI::messageType_t::noteOn, note, velocity, channel, true);
             #endif
             break;
 
-            case buttonPC:
-            case buttonPCinc:
-            case buttonPCdec:
-            if (buttonMessage != buttonPC)
+            case messageType_t::programChange:
+            case messageType_t::programChangeInc:
+            case messageType_t::programChangeDec:
+            if (buttonMessage != messageType_t::programChange)
             {
-                if (buttonMessage == buttonPCinc)
+                if (buttonMessage == messageType_t::programChangeInc)
                 {
-                    if (digitalInputCommon::detail::lastPCvalue[channel] < 127)
-                        digitalInputCommon::detail::lastPCvalue[channel]++;
+                    if (Common::lastPCvalue[channel] < 127)
+                        Common::lastPCvalue[channel]++;
                 }
                 else
                 {
-                    if (digitalInputCommon::detail::lastPCvalue[channel] > 0)
-                        digitalInputCommon::detail::lastPCvalue[channel]--;
+                    if (Common::lastPCvalue[channel] > 0)
+                        Common::lastPCvalue[channel]--;
                 }
 
-                note = digitalInputCommon::detail::lastPCvalue[channel];
+                note = Common::lastPCvalue[channel];
             }
 
             midi.sendProgramChange(note, channel);
             #ifdef LEDS_SUPPORTED
-            leds.midiToState(midiMessageProgramChange, note, 0, channel, true);
+            leds.midiToState(MIDI::messageType_t::programChange, note, 0, channel, true);
             #endif
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageProgramChange_display, note, 0, channel+1);
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::programChange, note, 0, channel+1);
             #endif
             break;
 
-            case buttonCC:
-            case buttonCCreset:
+            case messageType_t::controlChange:
+            case messageType_t::controlChangeReset:
             midi.sendControlChange(note, velocity, channel);
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, velocity, channel+1);
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, note, velocity, channel+1);
             #endif
             #ifdef LEDS_SUPPORTED
-            leds.midiToState(midiMessageControlChange, note, velocity, channel, true);
+            leds.midiToState(MIDI::messageType_t::controlChange, note, velocity, channel, true);
             #endif
             break;
 
-            case buttonMMCPlay:
+            case messageType_t::mmcPlay:
             mmcArray[4] = 0x02;
             midi.sendSysEx(6, mmcArray, true);
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageMMCplay_display, mmcArray[2], 0, 0);
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::mmcPlay, mmcArray[2], 0, 0);
             #endif
             break;
 
-            case buttonMMCStop:
+            case messageType_t::mmcStop:
             mmcArray[4] = 0x01;
             midi.sendSysEx(6, mmcArray, true);
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageMMCstop_display, mmcArray[2], 0, 0);
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::mmcStop, mmcArray[2], 0, 0);
             #endif
             break;
 
-            case buttonMMCPause:
+            case messageType_t::mmcPause:
             mmcArray[4] = 0x09;
             midi.sendSysEx(6, mmcArray, true);
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageMMCpause_display, mmcArray[2], 0, 0);
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::mmcPause, mmcArray[2], 0, 0);
             #endif
             break;
 
-            case buttonRealTimeClock:
-            midi.sendRealTime(midiMessageClock);
+            case messageType_t::realTimeClock:
+            midi.sendRealTime(MIDI::messageType_t::sysRealTimeClock);
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageClock_display, 0, 0, 0);
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::sysRealTimeClock, 0, 0, 0);
             #endif
             break;
 
-            case buttonRealTimeStart:
-            midi.sendRealTime(midiMessageStart);
+            case messageType_t::realTimeStart:
+            midi.sendRealTime(MIDI::messageType_t::sysRealTimeStart);
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageStart_display, 0, 0, 0);
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::sysRealTimeStart, 0, 0, 0);
             #endif
             break;
 
-            case buttonRealTimeContinue:
-            midi.sendRealTime(midiMessageContinue);
+            case messageType_t::realTimeContinue:
+            midi.sendRealTime(MIDI::messageType_t::sysRealTimeContinue);
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageContinue_display, 0, 0, 0);
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::sysRealTimeContinue, 0, 0, 0);
             #endif
             break;
 
-            case buttonRealTimeStop:
-            midi.sendRealTime(midiMessageStop);
+            case messageType_t::realTimeStop:
+            midi.sendRealTime(MIDI::messageType_t::sysRealTimeStop);
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageStop_display, 0, 0, 0);
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::sysRealTimeStop, 0, 0, 0);
             #endif
             break;
 
-            case buttonRealTimeActiveSensing:
-            midi.sendRealTime(midiMessageActiveSensing);
+            case messageType_t::realTimeActiveSensing:
+            midi.sendRealTime(MIDI::messageType_t::sysRealTimeActiveSensing);
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageActiveSensing_display, 0, 0, 0);
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::sysRealTimeActiveSensing, 0, 0, 0);
             #endif
             break;
 
-            case buttonRealTimeSystemReset:
-            midi.sendRealTime(midiMessageSystemReset);
+            case messageType_t::realTimeSystemReset:
+            midi.sendRealTime(MIDI::messageType_t::sysRealTimeSystemReset);
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageSystemReset_display, 0, 0, 0);
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::sysRealTimeSystemReset, 0, 0, 0);
             #endif
             break;
 
-            case buttonMMCRecord:
+            case messageType_t::mmcRecord:
             //start recording
             mmcArray[4] = 0x06;
             midi.sendSysEx(6, mmcArray, true);
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageMMCrecordOn_display, mmcArray[2], 0, 0);
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::mmcRecordOn, mmcArray[2], 0, 0);
             #endif
             break;
 
@@ -290,32 +290,32 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMIDImessage_t butt
     {
         switch(buttonMessage)
         {
-            case buttonNote:
+            case messageType_t::note:
             midi.sendNoteOff(note, 0, channel);
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midi.getNoteOffMode() == noteOffType_standardNoteOff ? midiMessageNoteOff_display : midiMessageNoteOn_display, note, 0, channel+1);
+            display.displayMIDIevent(Display::eventType_t::out, midi.getNoteOffMode() == MIDI::noteOffType_t::standardNoteOff ? Display::event_t::noteOff : Display::event_t::noteOn, note, 0, channel+1);
             #endif
             #ifdef LEDS_SUPPORTED
-            leds.midiToState(midiMessageNoteOff, note, 0, channel, true);
+            leds.midiToState(MIDI::messageType_t::noteOff, note, 0, channel, true);
             #endif
             break;
 
-            case buttonCCreset:
+            case messageType_t::controlChangeReset:
             midi.sendControlChange(note, 0, channel);
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageControlChange_display, note, 0, channel+1);
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, note, 0, channel+1);
             #endif
             #ifdef LEDS_SUPPORTED
-            leds.midiToState(midiMessageControlChange, 0, channel, true);
+            leds.midiToState(MIDI::messageType_t::controlChange, 0, channel, true);
             #endif
             break;
 
-            case buttonMMCRecord:
+            case messageType_t::mmcRecord:
             //stop recording
             mmcArray[4] = 0x07;
             midi.sendSysEx(6, mmcArray, true);
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageMMCrecordOff_display, mmcArray[2], 0, 0);
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::mmcRecordOff, mmcArray[2], 0, 0);
             #endif
             break;
 

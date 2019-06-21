@@ -28,9 +28,9 @@ limitations under the License.
 #define SYSTEM_BLOCK_ENTER(code)                \
 {                                               \
     setStartAddress(0);                         \
-    DBMS::setLayout(dbLayout, DB_BLOCKS+1);     \
+    LESSDB::setLayout(dbLayout, DB_BLOCKS+1);   \
     code                                        \
-    DBMS::setLayout(&dbLayout[1], DB_BLOCKS);   \
+    LESSDB::setLayout(&dbLayout[1], DB_BLOCKS); \
     setStartAddress(systemBlockUsage + ((totalMemoryUsage - systemBlockUsage) * activePreset)); \
 }
 
@@ -41,15 +41,15 @@ bool Database::init()
 {
     setStartAddress(0);
 
-    if (!DBMS::setLayout(dbLayout, DB_BLOCKS+1))
+    if (!LESSDB::setLayout(dbLayout, DB_BLOCKS+1))
         return false;
 
-    totalMemoryUsage = DBMS::getDBsize();
+    totalMemoryUsage = LESSDB::currentDBusage();
     systemBlockUsage = dbLayout[1].address;
 
     if (!isSignatureValid())
     {
-        factoryReset(initFull);
+        factoryReset(LESSDB::factoryResetType_t::full);
     }
     else
     {
@@ -73,13 +73,13 @@ bool Database::init()
 
 ///
 /// \brief Performs factory reset of data in database.
-/// @param [in] type Factory reset type. See initType_t enumeration.
+/// @param [in] type Factory reset type. See LESSDB::factoryResetType_t enumeration.
 ///
-void Database::factoryReset(initType_t type)
+void Database::factoryReset(LESSDB::factoryResetType_t type)
 {
     SYSTEM_BLOCK_ENTER
     (
-        if (type == initFull)
+        if (type == LESSDB::factoryResetType_t::full)
             clear();
 
         setDbUID(getDbUID());
@@ -142,17 +142,7 @@ void Database::writeCustomValues()
 ///
 uint8_t Database::getSupportedPresets()
 {
-    return (LESSDB_SIZE - systemBlockUsage) / (totalMemoryUsage - systemBlockUsage);
-}
-
-///
-/// \brief Retrieves total memory usage of entire database.
-/// \returns Memory usage in bytes.
-///
-uint16_t Database::getDBsize()
-{
-    uint16_t usage = getSupportedPresets() * (totalMemoryUsage - systemBlockUsage);
-    return usage;
+    return (dbSize() - systemBlockUsage) / (totalMemoryUsage - systemBlockUsage);
 }
 
 ///
@@ -222,7 +212,7 @@ uint16_t Database::getDbUID()
             for (int j=0; j<dbLayout[i].numberOfSections; j++)
             {
                 signature += dbLayout[i].section[i].numberOfParameters;
-                signature += dbLayout[i].section[i].parameterType;
+                signature += static_cast<uint16_t>(dbLayout[i].section[i].parameterType);
             }
         }
     )

@@ -16,12 +16,14 @@ limitations under the License.
 
 */
 
+#include <string.h>
 #include "Display.h"
 #include "strings/Strings.h"
 #include "../../Version.h"
-#include "Layout.h"
 #include "midi/src/MIDI.h"
 #include "core/src/general/Timing.h"
+
+using namespace Interface;
 
 void Display::displayWelcomeMessage()
 {
@@ -42,14 +44,10 @@ void Display::displayWelcomeMessage()
         break;
     }
 
-    char* string;
-
-    stringBuffer.startLine();
-    stringBuffer.appendText_P(deviceName_string);
-    stringBuffer.endLine();
-    location = getTextCenter(stringBuffer.getSize());
+    stringBuilder.overwrite("OpenDeck");
+    location = getTextCenter(strlen(stringBuilder.string()));
     charIndex = 0;
-    string = stringBuffer.getString();
+    const char* string = stringBuilder.string();
 
     while (string[charIndex] != '\0')
     {
@@ -57,23 +55,20 @@ void Display::displayWelcomeMessage()
         charIndex++;
     }
 
-    wait_ms(1000);
+    core::timing::waitMs(1000);
 
-    stringBuffer.startLine();
-    stringBuffer.appendText_P(welcome_string);
-    stringBuffer.endLine();
-    location = getTextCenter(stringBuffer.getSize());
+    stringBuilder.overwrite("Welcome!");
+    location = getTextCenter(strlen(stringBuilder.string()));
     charIndex = 0;
-    string = stringBuffer.getString();
 
     while (string[charIndex] != '\0')
     {
         U8X8::drawGlyph(location+charIndex, rowMap[resolution][startRow+1], string[charIndex]);
-        wait_ms(50);
+        core::timing::waitMs(50);
         charIndex++;
     }
 
-    wait_ms(2000);
+    core::timing::waitMs(2000);
 }
 
 void Display::displayVinfo(bool newFw)
@@ -93,41 +88,21 @@ void Display::displayVinfo(bool newFw)
         break;
     }
 
-    stringBuffer.startLine();
-    stringBuffer.appendText_P(versionInfo_string);
-    stringBuffer.endLine();
+    stringBuilder.overwrite("Version info:");
+    updateText(startRow, lcdTextType_t::temp, getTextCenter(strlen(stringBuilder.string())));
 
-    updateText(startRow, lcdText_temp, getTextCenter(stringBuffer.getSize()));
-
-    stringBuffer.startLine();
-    stringBuffer.appendText_P(fwVersion_string);
-    stringBuffer.appendInt(SW_VERSION_MAJOR);
-    stringBuffer.appendText(".");
-    stringBuffer.appendInt(SW_VERSION_MINOR);
-    stringBuffer.appendText(".");
-    stringBuffer.appendInt(SW_VERSION_REVISION);
-    stringBuffer.endLine();
-
-    updateText(startRow+1, lcdText_temp, getTextCenter(stringBuffer.getSize()));
-
-    stringBuffer.startLine();
-    stringBuffer.appendText_P(hwVersion_string);
+    stringBuilder.overwrite("FW: v%d.%d.%d", SW_VERSION_MAJOR, SW_VERSION_MINOR, SW_VERSION_REVISION);
+    updateText(startRow+1, lcdTextType_t::temp, getTextCenter(strlen(stringBuilder.string())));
 
     #ifdef BOARD_OPEN_DECK
-    stringBuffer.appendText("v:");
-    stringBuffer.appendInt(HARDWARE_VERSION_MAJOR);
-    stringBuffer.appendText(".");
-    stringBuffer.appendInt(HARDWARE_VERSION_MINOR);
-    stringBuffer.appendText(".x");
-    stringBuffer.endLine();
+    stringBuilder.overwrite("HW: v%d.%d", HARDWARE_VERSION_MAJOR, HARDWARE_VERSION_MINOR);
     #else
-    stringBuffer.appendText_P(reinterpret_cast<char*>(pgm_read_word(&(boardNameArray[BOARD_ID]))));
-    stringBuffer.endLine();
+    stringBuilder.overwrite("HW: %s", Strings::board());
     #endif
 
-    updateText(startRow+2, lcdText_temp, getTextCenter(stringBuffer.getSize()));
+    updateText(startRow+2, lcdTextType_t::temp, getTextCenter(strlen(stringBuilder.string())));
 
-    wait_ms(2000);
+    core::timing::waitMs(2000);
 }
 
 void Display::displayHome()
@@ -147,148 +122,106 @@ void Display::displayHome()
         break;
     }
 
-    stringBuffer.startLine();
-    stringBuffer.appendText_P(eventMIDIin_string);
-    stringBuffer.endLine();
+    stringBuilder.overwrite("In: ");
+    updateText(startRow, lcdTextType_t::still, 0);
 
-    updateText(startRow, lcdtext_still, 0);
-
-    stringBuffer.startLine();
-    stringBuffer.appendText_P(eventMIDIout_string);
-    stringBuffer.endLine();
-
-    updateText(startRow+2, lcdtext_still, 0);
+    stringBuilder.overwrite("Out: ");
+    updateText(startRow+2, lcdTextType_t::still, 0);
 }
 
-void Display::displayMIDIevent(displayEventType_t type, messageTypeDisplay_t message, uint16_t byte1, uint16_t byte2, uint8_t byte3)
+void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, uint16_t byte2, uint8_t byte3)
 {
-    uint8_t startRow = (type == displayEventIn) ? ROW_START_MIDI_IN_MESSAGE : ROW_START_MIDI_OUT_MESSAGE;
-    uint8_t startColumn = (type == displayEventIn) ? COLUMN_START_MIDI_IN_MESSAGE : COLUMN_START_MIDI_OUT_MESSAGE;
+    uint8_t startRow = (type == Display::eventType_t::in) ? ROW_START_MIDI_IN_MESSAGE : ROW_START_MIDI_OUT_MESSAGE;
+    uint8_t startColumn = (type == Display::eventType_t::in) ? COLUMN_START_MIDI_IN_MESSAGE : COLUMN_START_MIDI_OUT_MESSAGE;
 
-    stringBuffer.startLine();
-    stringBuffer.appendText_P(reinterpret_cast<char*>(pgm_read_word(&(eventNameArray[static_cast<uint8_t>(message)]))));
-    stringBuffer.appendChar(' ', U8X8::getColumns() - startColumn - stringBuffer.getSize());
-    stringBuffer.endLine();
-    updateText(startRow, lcdtext_still, startColumn);
+    stringBuilder.overwrite("%s", Strings::midiMessage(event));
+    stringBuilder.fillUntil(U8X8::getColumns() - startColumn - strlen(stringBuilder.string()));
+    updateText(startRow, lcdTextType_t::still, startColumn);
 
-    switch(message)
+    switch(event)
     {
-        case midiMessageNoteOff_display:
-        case midiMessageNoteOn_display:
-        stringBuffer.startLine();
+        case event_t::noteOff:
+        case event_t::noteOn:
 
         if (!alternateNoteDisplay)
-        {
-            stringBuffer.appendInt(byte1);
-        }
+            stringBuilder.overwrite("%d", byte1);
         else
-        {
-            stringBuffer.appendText_P(reinterpret_cast<char*>(pgm_read_word(&(noteNameArray[static_cast<uint8_t>(MIDI::getTonicFromNote(byte1))]))));
-            stringBuffer.appendInt(normalizeOctave(MIDI::getOctaveFromNote(byte1), octaveNormalization));
-        }
+            stringBuilder.overwrite("%s%d", Strings::note(MIDI::getTonicFromNote(byte1)), normalizeOctave(MIDI::getOctaveFromNote(byte1), octaveNormalization));
 
-        stringBuffer.appendText(" v");
-        stringBuffer.appendInt(byte2);
-        stringBuffer.appendText(" CH");
-        stringBuffer.appendInt(byte3);
-        stringBuffer.appendChar(' ', U8X8::getColumns() - stringBuffer.getSize());
-        stringBuffer.endLine();
-        updateText(startRow+1, lcdtext_still, 0);
+        stringBuilder.append(" v%d CH%d", byte2, byte3);
+        stringBuilder.fillUntil(U8X8::getColumns() - strlen(stringBuilder.string()));
+        updateText(startRow+1, lcdTextType_t::still, 0);
         break;
 
-        case midiMessageProgramChange_display:
-        stringBuffer.startLine();
-        stringBuffer.appendInt(byte1);
-        stringBuffer.appendText(" CH");
-        stringBuffer.appendInt(byte3);
-        stringBuffer.appendChar(' ', U8X8::getColumns() - stringBuffer.getSize());
-        stringBuffer.endLine();
-        updateText(startRow+1, lcdtext_still, 0);
+        case event_t::programChange:
+        stringBuilder.overwrite("%d CH%d", byte1, byte3);
+        stringBuilder.fillUntil(U8X8::getColumns() - strlen(stringBuilder.string()));
+        updateText(startRow+1, lcdTextType_t::still, 0);
         break;
 
-        case midiMessageControlChange_display:
-        case midiMessageNRPN_display:
-        stringBuffer.startLine();
-        stringBuffer.appendInt(byte1);
-        stringBuffer.appendText(" ");
-        stringBuffer.appendInt(byte2);
-        stringBuffer.appendText(" CH");
-        stringBuffer.appendInt(byte3);
-        stringBuffer.appendChar(' ', U8X8::getColumns() - stringBuffer.getSize());
-        stringBuffer.endLine();
-        updateText(startRow+1, lcdtext_still, 0);
+        case event_t::controlChange:
+        case event_t::nrpn:
+        stringBuilder.overwrite("%d %d CH%d", byte1, byte2, byte3);
+        stringBuilder.fillUntil(U8X8::getColumns() - strlen(stringBuilder.string()));
+        updateText(startRow+1, lcdTextType_t::still, 0);
         break;
 
-        case midiMessageMMCplay_display:
-        case midiMessageMMCstop_display:
-        case midiMessageMMCrecordOn_display:
-        case midiMessageMMCrecordOff_display:
-        case midiMessageMMCpause_display:
-        stringBuffer.startLine();
-        stringBuffer.appendText("CH");
-        stringBuffer.appendInt(byte1);
-        stringBuffer.appendChar(' ', U8X8::getColumns() - stringBuffer.getSize());
-        stringBuffer.endLine();
-        updateText(startRow+1, lcdtext_still, 0);
+        case event_t::mmcPlay:
+        case event_t::mmcStop:
+        case event_t::mmcRecordOn:
+        case event_t::mmcRecordOff:
+        case event_t::mmcPause:
+        stringBuilder.overwrite("CH%d", byte1);
+        stringBuilder.fillUntil(U8X8::getColumns() - strlen(stringBuilder.string()));
+        updateText(startRow+1, lcdTextType_t::still, 0);
         break;
 
-        case midiMessageClock_display:
-        case midiMessageStart_display:
-        case midiMessageContinue_display:
-        case midiMessageStop_display:
-        case midiMessageActiveSensing_display:
-        case midiMessageSystemReset_display:
-        case midiMessageSystemExclusive_display:
-        stringBuffer.startLine();
-        stringBuffer.appendChar(' ', U8X8::getColumns());
-        stringBuffer.endLine();
-        updateText(startRow+1, lcdtext_still, 0);
+        case event_t::sysRealTimeClock:
+        case event_t::sysRealTimeStart:
+        case event_t::sysRealTimeContinue:
+        case event_t::sysRealTimeStop:
+        case event_t::sysRealTimeActiveSensing:
+        case event_t::sysRealTimeSystemReset:
+        case event_t::systemExclusive:
+        stringBuilder.overwrite("");
+        stringBuilder.fillUntil(U8X8::getColumns());
+        updateText(startRow+1, lcdTextType_t::still, 0);
         break;
 
-        case messagePresetChange_display:
-        stringBuffer.startLine();
-        stringBuffer.appendInt(byte1);
-        stringBuffer.appendChar(' ', U8X8::getColumns() - stringBuffer.getSize());
-        stringBuffer.endLine();
-        updateText(startRow+1, lcdtext_still, 0);
+        case event_t::presetChange:
+        stringBuilder.overwrite("%d", byte1);
+        stringBuilder.fillUntil(U8X8::getColumns() - strlen(stringBuilder.string()));
+        updateText(startRow+1, lcdTextType_t::still, 0);
         break;
 
         default:
         break;
     }
 
-    lastMIDIMessageDisplayTime[type] = rTimeMs();
+    lastMIDIMessageDisplayTime[type] = core::timing::currentRunTimeMs();
     midiMessageDisplayed[type] = true;
 }
 
-void Display::clearMIDIevent(displayEventType_t type)
+void Display::clearMIDIevent(eventType_t type)
 {
     switch(type)
     {
-        case displayEventIn:
+        case eventType_t::in:
         //first row
-        stringBuffer.startLine();
-        stringBuffer.appendChar(' ', U8X8::getColumns()-COLUMN_START_MIDI_IN_MESSAGE);
-        stringBuffer.endLine();
-        updateText(ROW_START_MIDI_IN_MESSAGE, lcdtext_still, COLUMN_START_MIDI_IN_MESSAGE);
+        stringBuilder.fillUntil(U8X8::getColumns()-COLUMN_START_MIDI_IN_MESSAGE);
+        updateText(ROW_START_MIDI_IN_MESSAGE, lcdTextType_t::still, COLUMN_START_MIDI_IN_MESSAGE);
         //second row
-        stringBuffer.startLine();
-        stringBuffer.appendChar(' ', U8X8::getColumns());
-        stringBuffer.endLine();
-        updateText(ROW_START_MIDI_IN_MESSAGE+1, lcdtext_still, 0);
+        stringBuilder.fillUntil(U8X8::getColumns());
+        updateText(ROW_START_MIDI_IN_MESSAGE+1, lcdTextType_t::still, 0);
         break;
 
-        case displayEventOut:
+        case eventType_t::out:
         //first row
-        stringBuffer.startLine();
-        stringBuffer.appendChar(' ', U8X8::getColumns()-COLUMN_START_MIDI_OUT_MESSAGE);
-        stringBuffer.endLine();
-        updateText(ROW_START_MIDI_OUT_MESSAGE, lcdtext_still, COLUMN_START_MIDI_OUT_MESSAGE);
+        stringBuilder.fillUntil(U8X8::getColumns()-COLUMN_START_MIDI_OUT_MESSAGE);
+        updateText(ROW_START_MIDI_OUT_MESSAGE, lcdTextType_t::still, COLUMN_START_MIDI_OUT_MESSAGE);
         //second row
-        stringBuffer.startLine();
-        stringBuffer.appendChar(' ', U8X8::getColumns());
-        stringBuffer.endLine();
-        updateText(ROW_START_MIDI_OUT_MESSAGE+1, lcdtext_still, 0);
+        stringBuilder.fillUntil(U8X8::getColumns());
+        updateText(ROW_START_MIDI_OUT_MESSAGE+1, lcdTextType_t::still, 0);
         break;
 
         default:

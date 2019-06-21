@@ -17,9 +17,11 @@ limitations under the License.
 */
 
 #include "Analog.h"
+#include "board/Board.h"
 #include "core/src/general/BitManipulation.h"
 #include "core/src/general/Misc.h"
-#include "interface/CInfo.h"
+
+using namespace Interface::analog;
 
 //use 1k resistor when connecting FSR between signal and ground
 
@@ -27,11 +29,11 @@ uint32_t Analog::calibratePressure(uint32_t value, pressureType_t type)
 {
     switch(type)
     {
-        case velocity:
-        return mapRange(CONSTRAIN(value, static_cast<uint32_t>(FSR_MIN_VALUE), static_cast<uint32_t>(FSR_MAX_VALUE)), static_cast<uint32_t>(FSR_MIN_VALUE), static_cast<uint32_t>(FSR_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
+        case pressureType_t::velocity:
+        return core::misc::mapRange(CONSTRAIN(value, static_cast<uint32_t>(FSR_MIN_VALUE), static_cast<uint32_t>(FSR_MAX_VALUE)), static_cast<uint32_t>(FSR_MIN_VALUE), static_cast<uint32_t>(FSR_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
 
-        case aftertouch:
-        return mapRange(CONSTRAIN(value, static_cast<uint32_t>(FSR_MIN_VALUE), static_cast<uint32_t>(AFTERTOUCH_MAX_VALUE)), static_cast<uint32_t>(FSR_MIN_VALUE), static_cast<uint32_t>(AFTERTOUCH_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
+        case pressureType_t::aftertouch:
+        return core::misc::mapRange(CONSTRAIN(value, static_cast<uint32_t>(FSR_MIN_VALUE), static_cast<uint32_t>(AFTERTOUCH_MAX_VALUE)), static_cast<uint32_t>(FSR_MIN_VALUE), static_cast<uint32_t>(AFTERTOUCH_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
 
         default:
         return 0;
@@ -50,7 +52,7 @@ void Analog::setFsrPressed(uint8_t fsrID, bool state)
 
 void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
 {
-    auto calibratedPressure = calibratePressure(pressure, velocity);
+    auto calibratedPressure = calibratePressure(pressure, pressureType_t::velocity);
 
     if (calibratedPressure > 0)
     {
@@ -62,14 +64,13 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             uint8_t channel = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiChannel, analogID);
             midi.sendNoteOn(note, calibratedPressure, channel);
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageNoteOn_display, note, calibratedPressure, channel+1);
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, note, calibratedPressure, channel+1);
             #endif
             #ifdef LEDS_SUPPORTED
-            leds.midiToState(midiMessageNoteOn, note, calibratedPressure, channel, true);
+            leds.midiToState(MIDI::messageType_t::noteOn, note, calibratedPressure, channel, true);
             #endif
 
-            if (cinfoHandler != nullptr)
-                (*cinfoHandler)(DB_BLOCK_ANALOG, analogID);
+            cInfo.send(DB_BLOCK_ANALOG, analogID);
         }
     }
     else
@@ -81,14 +82,13 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             uint8_t channel = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiChannel, analogID);
             midi.sendNoteOff(note, 0, channel);
             #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(displayEventOut, midiMessageNoteOff_display, note, calibratedPressure, channel+1);
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOff, note, calibratedPressure, channel+1);
             #endif
             #ifdef LEDS_SUPPORTED
-            leds.midiToState(midiMessageNoteOff, 0, channel, true);
+            leds.midiToState(MIDI::messageType_t::noteOff, 0, channel, true);
             #endif
 
-            if (cinfoHandler != nullptr)
-                (*cinfoHandler)(DB_BLOCK_ANALOG, analogID);
+            cInfo.send(DB_BLOCK_ANALOG, analogID);
         }
     }
 

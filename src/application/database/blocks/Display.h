@@ -60,9 +60,3 @@ typedef enum
     displayFeatureOctaveNormalization,
     DISPLAY_FEATURES
 } displayFeature_t;
-
-typedef enum
-{
-    displayEventIn,
-    displayEventOut,
-} displayEventType_t;

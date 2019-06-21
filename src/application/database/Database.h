@@ -18,7 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#include "dbms/src/DBMS.h"
+#include "dbms/src/LESSDB.h"
 #include "blocks/Blocks.h"
 
 ///
@@ -26,19 +26,18 @@ limitations under the License.
 /// @{
 ///
 
-class Database : public DBMS
+class Database : public LESSDB
 {
     public:
-    Database(bool (*readCallback)(uint32_t address, sectionParameterType_t type, int32_t &value), bool (*writeCallback)(uint32_t address, int32_t value, sectionParameterType_t type)) :
-    DBMS(readCallback, writeCallback)
+    Database(bool (&readCallback)(uint32_t address, sectionParameterType_t type, int32_t &value), bool (&writeCallback)(uint32_t address, int32_t value, sectionParameterType_t type), size_t maxSize) :
+    LESSDB(readCallback, writeCallback, maxSize)
     {}
 
     bool init();
-    void factoryReset(initType_t type);
+    void factoryReset(LESSDB::factoryResetType_t type);
     uint8_t getSupportedPresets();
     bool setPreset(uint8_t preset);
     uint8_t getPreset();
-    uint16_t getDBsize();
     bool isSignatureValid();
     void setPresetPreserveState(bool state);
     bool getPresetPreserveState();

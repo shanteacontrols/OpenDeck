@@ -17,7 +17,11 @@ limitations under the License.
 */
 
 #include "U8X8.h"
-#include "core/src/HAL/avr/i2c/I2C.h"
+
+#ifdef __AVR__
+#include "core/src/avr/I2C.h"
+using namespace core::avr;
+#endif
 
 namespace
 {
@@ -48,19 +52,19 @@ namespace U8X8
             {
                 case U8X8_MSG_BYTE_SEND:
                 for (int i=0; i<arg_int; i++)
-                    I2C::write(array[i]);
+                    i2c::write(array[i]);
                 break;
 
                 case U8X8_MSG_BYTE_INIT:
-                I2C::enable();
+                i2c::enable();
                 break;
 
                 case U8X8_MSG_BYTE_START_TRANSFER:
-                I2C::startComm(u8x8_GetI2CAddress(u8x8), I2C::i2cTransfer_t::write);
+                i2c::startComm(u8x8_GetI2CAddress(u8x8), i2c::transferType_t::write);
                 break;
 
                 case U8X8_MSG_BYTE_END_TRANSFER:
-                I2C::stopComm();
+                i2c::stopComm();
                 break;
 
                 default:

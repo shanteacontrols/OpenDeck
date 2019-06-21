@@ -18,6 +18,7 @@ limitations under the License.
 
 #pragma once
 
+#if !defined(BOARD_A_xu2)
 #include "database/Database.h"
 #include "interface/analog/Analog.h"
 #ifdef LEDS_SUPPORTED
@@ -29,8 +30,9 @@ limitations under the License.
 #ifdef TOUCHSCREEN_SUPPORTED
 #include "interface/display/touch/Touchscreen.h"
 #endif
-#include "midi/src/MIDI.h"
 #include "sysconfig/SysConfig.h"
+#endif
+#include "midi/src/MIDI.h"
 
 class OpenDeck
 {

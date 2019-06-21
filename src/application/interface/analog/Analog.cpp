@@ -17,11 +17,14 @@ limitations under the License.
 */
 
 #include "Analog.h"
+#include "board/Board.h"
 #include "core/src/general/BitManipulation.h"
+
+using namespace Interface::analog;
 
 void Analog::update()
 {
-    if (!Board::analogDataAvailable())
+    if (!Board::interface::analog::isDataAvailable())
         return;
 
     //check values
@@ -31,22 +34,22 @@ void Analog::update()
         if (!database.read(DB_BLOCK_ANALOG, dbSection_analog_enable, i))
             continue;
 
-        int16_t analogData = Board::getAnalogValue(i);
-        analogType_t type = static_cast<analogType_t>(database.read(DB_BLOCK_ANALOG, dbSection_analog_type, i));
+        int16_t analogData = Board::interface::analog::readValue(i);
+        type_t type = static_cast<type_t>(database.read(DB_BLOCK_ANALOG, dbSection_analog_type, i));
 
-        if (type != aType_button)
+        if (type != type_t::button)
         {
             switch(type)
             {
-                case aType_potentiometer_cc:
-                case aType_potentiometer_note:
-                case aType_NRPN_7:
-                case aType_NRPN_14:
-                case aType_PitchBend:
+                case type_t::potentiometerControlChange:
+                case type_t::potentiometerNote:
+                case type_t::nrpn7b:
+                case type_t::nrpn14b:
+                case type_t::pitchBend:
                 checkPotentiometerValue(type, i, analogData);
                 break;
 
-                case aType_fsr:
+                case type_t::fsr:
                 checkFSRvalue(i, analogData);
                 break;
 
@@ -61,7 +64,7 @@ void Analog::update()
         }
     }
 
-    Board::continueADCreadout();
+    Board::interface::analog::continueReadout();
 }
 
 void Analog::debounceReset(uint16_t index)

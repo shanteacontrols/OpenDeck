@@ -20,14 +20,24 @@ limitations under the License.
 
 #include <inttypes.h>
 
-namespace digitalInputCommon
+namespace Interface
 {
-    namespace detail
+    namespace digital
     {
-        ///
-        /// \brief Used for buttonPCinc/buttonPCdec messages when each button press/encoder rotation sends incremented or decremented PC value.
-        /// 16 entries in array are used for 16 MIDI channels.
-        ///
-        extern uint8_t     lastPCvalue[16];
+        namespace input
+        {
+            class Common
+            {
+                public:
+                Common() {}
+
+                protected:
+                ///
+                /// \brief Used for Buttons::messageType_t::programChangeInc/Buttons::messageType_t::programChangeDec messages when each button press/encoder rotation sends incremented or decremented PC value.
+                /// 16 entries in array are used for 16 MIDI channels.
+                ///
+                static uint8_t lastPCvalue[16];
+            };
+        }
     }
 }

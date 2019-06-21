@@ -18,7 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#include "sysex/src/SysEx.h"
+#include "sysex/src/SysExConf.h"
 #include "CustomIDs.h"
 #include "blocks/Blocks.h"
 #include "board/Board.h"
@@ -31,20 +31,20 @@ limitations under the License.
 #include "interface/digital/output/leds/LEDs.h"
 #endif
 
-class SysConfig : public SysEx
+class SysConfig : public SysExConf
 {
     public:
     #ifdef LEDS_SUPPORTED
     #ifdef DISPLAY_SUPPORTED
-    SysConfig(Database &database, MIDI &midi, Buttons &buttons, Encoders &encoders, Analog &analog, LEDs &leds, Display &display) :
+    SysConfig(Database &database, MIDI &midi, Interface::digital::input::Buttons &buttons, Interface::digital::input::Encoders &encoders, Interface::analog::Analog &analog, Interface::digital::output::LEDs &leds, Interface::Display &display) :
     #else
-    SysConfig(Database &database, MIDI &midi, Buttons &buttons, Encoders &encoders, Analog &analog, LEDs &leds) :
+    SysConfig(Database &database, MIDI &midi, Interface::digital::input::Buttons &buttons, Interface::digital::input::Encoders &encoders, Interface::analog::Analog &analog, Interface::digital::output::LEDs &leds) :
     #endif
     #else
     #ifdef DISPLAY_SUPPORTED
-    SysConfig(Database &database, MIDI &midi, Buttons &buttons, Encoders &encoders, Analog &analog, Display &display) :
+    SysConfig(Database &database, MIDI &midi, Interface::digital::input::Buttons &buttons, Interface::digital::input::Encoders &encoders, Interface::analog::Analog &analog, Display &display) :
     #else
-    SysConfig(Database &database, MIDI &midi, Buttons &buttons, Encoders &encoders, Analog &analog) :
+    SysConfig(Database &database, MIDI &midi, Interface::digital::input::Buttons &buttons, Interface::digital::input::Encoders &encoders, Interface::analog::Analog &analog) :
     #endif
     #endif
     database(database),
@@ -64,19 +64,19 @@ class SysConfig : public SysEx
     bool isProcessingEnabled();
     void configureMIDI();
 
-    bool sendCInfo(dbBlockID_t dbBlock, sysExParameter_t componentID);
+    bool sendCInfo(dbBlockID_t dbBlock, SysExConf::sysExParameter_t componentID);
 
     private:
-    Database    &database;
-    MIDI        &midi;
-    Buttons     &buttons;
-    Encoders    &encoders;
-    Analog      &analog;
+    Database &database;
+    MIDI &midi;
+    Interface::digital::input::Buttons &buttons;
+    Interface::digital::input::Encoders &encoders;
+    Interface::analog::Analog &analog;
     #ifdef LEDS_SUPPORTED
-    LEDs        &leds;
+    Interface::digital::output::LEDs &leds;
     #endif
     #ifdef DISPLAY_SUPPORTED
-    Display     &display;
+    Interface::Display &display;
     #endif
 
     ///
@@ -84,10 +84,10 @@ class SysConfig : public SysEx
     ///
     bool     processingEnabled = true;
 
-    bool onGet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t &value);
-    bool onSet(uint8_t block, uint8_t section, uint16_t index, sysExParameter_t newValue);
-    bool onCustomRequest(uint8_t value);
-    void onWrite(uint8_t *sysExArray, uint8_t size);
+    bool onGet(uint8_t block, uint8_t section, uint16_t index, SysExConf::sysExParameter_t &value) override;
+    bool onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf::sysExParameter_t newValue) override;
+    bool onCustomRequest(uint8_t value) override;
+    void onWrite(uint8_t *sysExArray, uint8_t size) override;
 
     ///
     /// \brief Configures UART read/write handlers for MIDI module.

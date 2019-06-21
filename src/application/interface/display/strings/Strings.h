@@ -18,8 +18,16 @@ limitations under the License.
 
 #pragma once
 
-#include "Events.h"
-#include "Misc.h"
-#include "Notes.h"
-#include "Version.h"
-#include "Boards.h"
+#include <inttypes.h>
+#include "interface/display/Display.h"
+#include "midi/src/MIDI.h"
+
+class Strings
+{
+    public:
+    Strings() = default;
+
+    static const char* board();
+    static const char* midiMessage(Interface::Display::event_t event);
+    static const char* note(MIDI::note_t note);
+};

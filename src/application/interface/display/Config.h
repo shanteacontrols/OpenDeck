@@ -21,6 +21,11 @@ limitations under the License.
 #include "database/blocks/Display.h"
 
 ///
+/// \brief Size of buffer used to build text string on display in bytes.
+///
+#define LCD_STRING_BUFFER_SIZE              40
+
+///
 /// \brief Length of temporary (message) text on display in milliseconds.
 ///
 #define LCD_MESSAGE_DURATION                1500
@@ -55,27 +60,10 @@ limitations under the License.
 #define MIN_MESSAGE_RETENTION_TIME          1
 #define MAX_MESSAGE_RETENTION_TIME          5
 
-/// s
+/// @}
 
-///
-/// \brief Array holding remapped values of LCD rows.
-/// Used to increase readability.
-/// Matched with displayResolution_t enum.
-///
-const uint8_t rowMap[DISPLAY_RESOLUTIONS][LCD_HEIGHT_MAX] =
-{
-    //128x32
-    {
-        0,
-        2,
-        3,
-        4
-    },
-    //128x64
-    {
-        0,
-        2,
-        4,
-        6
-    }
-};
+#define COLUMN_START_MIDI_IN_MESSAGE        4
+#define COLUMN_START_MIDI_OUT_MESSAGE       5
+
+#define ROW_START_MIDI_IN_MESSAGE           0
+#define ROW_START_MIDI_OUT_MESSAGE          2

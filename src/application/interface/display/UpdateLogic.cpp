@@ -16,10 +16,14 @@ limitations under the License.
 
 */
 
+#include <string.h>
+#include <stdio.h>
 #include "Display.h"
 #include "database/Database.h"
 #include "core/src/general/Timing.h"
 #include "core/src/general/BitManipulation.h"
+
+using namespace Interface;
 
 ///
 /// \brief Initialize display driver and variables.
@@ -42,19 +46,19 @@ bool Display::init(displayController_t controller, displayResolution_t resolutio
         //init char arrays
         for (int i=0; i<LCD_HEIGHT_MAX; i++)
         {
-            for (int j=0; j<STRING_BUFFER_SIZE-2; j++)
+            for (int j=0; j<LCD_STRING_BUFFER_SIZE-2; j++)
             {
                 lcdRowStillText[i][j] = ' ';
                 lcdRowTempText[i][j] = ' ';
             }
 
-            lcdRowStillText[i][STRING_BUFFER_SIZE-1] = '\0';
-            lcdRowTempText[i][STRING_BUFFER_SIZE-1] = '\0';
+            lcdRowStillText[i][LCD_STRING_BUFFER_SIZE-1] = '\0';
+            lcdRowTempText[i][LCD_STRING_BUFFER_SIZE-1] = '\0';
 
             scrollEvent[i].size = 0;
             scrollEvent[i].startIndex = 0;
             scrollEvent[i].currentIndex = 0;
-            scrollEvent[i].direction = scroll_ltr;
+            scrollEvent[i].direction = scrollDirection_t::leftToRight;
         }
 
         initDone = true;
@@ -76,7 +80,7 @@ bool Display::update()
     if (!initDone)
         return false;
 
-    if ((rTimeMs() - lastLCDupdateTime) < LCD_REFRESH_TIME)
+    if ((core::timing::currentRunTimeMs() - lastLCDupdateTime) < LCD_REFRESH_TIME)
         return false; //we don't need to update lcd in real time
 
     //use char pointer to point to line we're going to print
@@ -86,7 +90,7 @@ bool Display::update()
 
     for (int i=0; i<LCD_HEIGHT_MAX; i++)
     {
-        if (activeTextType == lcdtext_still)
+        if (activeTextType == lcdTextType_t::still)
         {
             //scrolling is possible only with still text
             updateScrollStatus(i);
@@ -115,7 +119,7 @@ bool Display::update()
         charChange[i] = 0;
     }
 
-    lastLCDupdateTime = rTimeMs();
+    lastLCDupdateTime = core::timing::currentRunTimeMs();
 
     //check if midi in/out messages need to be cleared
     if (!retentionState)
@@ -123,8 +127,8 @@ bool Display::update()
         for (int i=0; i<2; i++)
         {
             //0 = in, 1 = out
-            if ((rTimeMs() - lastMIDIMessageDisplayTime[i] > MIDImessageRetentionTime) && midiMessageDisplayed[i])
-                clearMIDIevent(static_cast<displayEventType_t>(i));
+            if ((core::timing::currentRunTimeMs() - lastMIDIMessageDisplayTime[i] > MIDImessageRetentionTime) && midiMessageDisplayed[i])
+                clearMIDIevent(static_cast<eventType_t>(i));
         }
     }
 
@@ -134,19 +138,19 @@ bool Display::update()
 ///
 /// \brief Updates text to be shown on display.
 /// This function only updates internal buffers with received text, actual updating is done in update() function.
-/// Text isn't passed directly, instead, value in stringBuffer is used.
+/// Text isn't passed directly, instead, value from string builder is used.
 /// @param [in] row             Row which is being updated.
 /// @param [in] textType        Type of text to be shown on display (enumerated type). See lcdTextType_t enumeration.
 /// @param [in] startIndex      Index on which received text should on specified row.
 ///
 void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex)
 {
-    uint8_t size = stringBuffer.getSize();
+    const char* string = stringBuilder.string();
+    uint8_t size = strlen(string);
     uint8_t scrollSize = 0;
-    char* string = stringBuffer.getString();
 
-    if (size+startIndex >= STRING_BUFFER_SIZE-2)
-        size = STRING_BUFFER_SIZE-2-startIndex; //trim string
+    if (size+startIndex >= LCD_STRING_BUFFER_SIZE-2)
+        size = LCD_STRING_BUFFER_SIZE-2-startIndex; //trim string
 
     if (directWriteState)
     {
@@ -159,7 +163,7 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
 
         switch(textType)
         {
-            case lcdtext_still:
+            case lcdTextType_t::still:
             for (int i=0; i<size; i++)
             {
                 lcdRowStillText[row][startIndex+i] = string[i];
@@ -167,7 +171,7 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
             }
 
             //scrolling is enabled only if some characters are found after LCD_WIDTH_MAX-1 index
-            for (int i=LCD_WIDTH_MAX; i<STRING_BUFFER_SIZE-1; i++)
+            for (int i=LCD_WIDTH_MAX; i<LCD_STRING_BUFFER_SIZE-1; i++)
             {
                 if ((lcdRowStillText[row][i] != ' ') && (lcdRowStillText[row][i] != '\0'))
                 {
@@ -182,20 +186,20 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
                 scrollEvent[row].size = scrollSize;
                 scrollEvent[row].startIndex = startIndex;
                 scrollEvent[row].currentIndex = 0;
-                scrollEvent[row].direction = scroll_ltr;
+                scrollEvent[row].direction = scrollDirection_t::leftToRight;
 
-                lastScrollTime = rTimeMs();
+                lastScrollTime = core::timing::currentRunTimeMs();
             }
             else if (!scrollingEnabled && scrollEvent[row].size)
             {
                 scrollEvent[row].size = 0;
                 scrollEvent[row].startIndex = 0;
                 scrollEvent[row].currentIndex = 0;
-                scrollEvent[row].direction = scroll_ltr;
+                scrollEvent[row].direction = scrollDirection_t::leftToRight;
             }
             break;
 
-            case lcdText_temp:
+            case lcdTextType_t::temp:
             //clear entire message first
             for (int j=0; j<LCD_WIDTH_MAX-2; j++)
                 lcdRowTempText[row][j] = ' ';
@@ -208,8 +212,8 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
             //make sure message is properly EOL'ed
             lcdRowTempText[row][startIndex+size] = '\0';
 
-            activeTextType = lcdText_temp;
-            messageDisplayTime = rTimeMs();
+            activeTextType = lcdTextType_t::temp;
+            messageDisplayTime = core::timing::currentRunTimeMs();
 
             //update all characters on display
             for (int i=0; i<LCD_HEIGHT_MAX; i++)
@@ -248,12 +252,12 @@ uint8_t Display::getTextCenter(uint8_t textSize)
 ///
 void Display::updateTempTextStatus()
 {
-    if (activeTextType == lcdText_temp)
+    if (activeTextType == lcdTextType_t::temp)
     {
         //temp text - check if temp text should be removed
-        if ((rTimeMs() - messageDisplayTime) > LCD_MESSAGE_DURATION)
+        if ((core::timing::currentRunTimeMs() - messageDisplayTime) > LCD_MESSAGE_DURATION)
         {
-            activeTextType = lcdtext_still;
+            activeTextType = lcdTextType_t::still;
 
             //make sure all characters are updated once temp text is removed
             for (int j=0; j<LCD_HEIGHT_MAX; j++)
@@ -271,30 +275,30 @@ void Display::updateScrollStatus(uint8_t row)
     if (!scrollEvent[row].size)
         return;
 
-    if ((rTimeMs() - lastScrollTime) < LCD_SCROLL_TIME)
+    if ((core::timing::currentRunTimeMs() - lastScrollTime) < LCD_SCROLL_TIME)
         return;
 
     switch(scrollEvent[row].direction)
     {
-        case scroll_ltr:
+        case scrollDirection_t::leftToRight:
         //left to right
         scrollEvent[row].currentIndex++;
 
         if (scrollEvent[row].currentIndex == scrollEvent[row].size)
         {
             //switch direction
-            scrollEvent[row].direction = scroll_rtl;
+            scrollEvent[row].direction = scrollDirection_t::rightToLeft;
         }
         break;
 
-        case scroll_rtl:
+        case scrollDirection_t::rightToLeft:
         //right to left
         scrollEvent[row].currentIndex--;
 
         if (scrollEvent[row].currentIndex == 0)
         {
             //switch direction
-            scrollEvent[row].direction = scroll_ltr;
+            scrollEvent[row].direction = scrollDirection_t::leftToRight;
         }
         break;
     }
@@ -302,14 +306,14 @@ void Display::updateScrollStatus(uint8_t row)
     for (int i=scrollEvent[row].startIndex; i<LCD_WIDTH_MAX; i++)
         BIT_WRITE(charChange[row], i, 1);
 
-    lastScrollTime = rTimeMs();
+    lastScrollTime = core::timing::currentRunTimeMs();
 }
 
 ///
 /// \brief Checks for currently active text type on display.
 /// \returns Active text type (enumerated type). See lcdTextType_t enumeration.
 ///
-lcdTextType_t Display::getActiveTextType()
+Display::lcdTextType_t Display::getActiveTextType()
 {
     return activeTextType;
 }
@@ -344,6 +348,14 @@ void Display::setRetentionTime(uint32_t retentionTime)
 
     MIDImessageRetentionTime = retentionTime;
     //reset last update time
-    lastMIDIMessageDisplayTime[displayEventIn] = rTimeMs();
-    lastMIDIMessageDisplayTime[displayEventOut] = rTimeMs();
+    lastMIDIMessageDisplayTime[eventType_t::in] = core::timing::currentRunTimeMs();
+    lastMIDIMessageDisplayTime[eventType_t::out] = core::timing::currentRunTimeMs();
+}
+
+///
+/// \brief Adds normalization to a given octave.
+///
+int8_t Display::normalizeOctave(uint8_t octave, int8_t normalization)
+{
+    return static_cast<int8_t>(octave) + normalization;
 }

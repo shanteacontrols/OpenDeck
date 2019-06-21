@@ -19,12 +19,30 @@ limitations under the License.
 #pragma once
 
 #include "database/blocks/Blocks.h"
-#include "sysex/src/DataTypes.h"
+#include "sysex/src/SysExConf.h"
 
-typedef bool (*cinfoHandler_t)(dbBlockID_t dbBlock, sysExParameter_t componentID);
+class ComponentInfo
+{
+    public:
+    typedef bool (*cinfoHandler_t)(dbBlockID_t dbBlock, SysExConf::sysExParameter_t componentID);
 
-///
-/// \brief Common handler used to identify currently active component during SysEx configuration.
-/// Must be implemented externally.
-///
-extern cinfoHandler_t cinfoHandler;
+    ComponentInfo() {}
+
+    void registerHandler(cinfoHandler_t handler)
+    {
+        this->handler = handler;
+    }
+
+    void send(dbBlockID_t block, SysExConf::sysExParameter_t id)
+    {
+        if (handler != nullptr)
+            handler(block, id);
+    }
+
+    private:
+    ///
+    /// \brief Common handler used to identify currently active component during SysEx configuration.
+    /// Must be implemented externally.
+    ///
+    cinfoHandler_t handler = nullptr;
+};
