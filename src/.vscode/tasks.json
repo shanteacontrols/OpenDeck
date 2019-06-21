@@ -135,7 +135,6 @@
                 "fw_uno",
                 "fw_teensy2pp",
                 "fw_kodama",
-                "fw_tannin",
                 "fw_bergamot",
                 "fw_16u2",
                 "fw_8u2",
@@ -147,7 +146,6 @@
                 "boot_uno",
                 "boot_teensy2pp",
                 "boot_kodama",
-                "boot_tannin",
                 "boot_bergamot",
                 "boot_16u2 VARIANT=VARIANT_MEGA",
                 "boot_16u2 VARIANT=VARIANT_UNO"

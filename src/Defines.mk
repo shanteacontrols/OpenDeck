@@ -52,17 +52,6 @@ ifeq ($(BOARD_DIR), opendeck)
     DEFINES += DIN_MIDI_SUPPORTED
     DEFINES += UART_MIDI_CHANNEL=0
     DEFINES += LEDS_SUPPORTED
-else ifeq ($(BOARD_DIR), tannin)
-    MCU := atmega32u4
-    BOARD := BOARD_TANNIN
-    DEFINES += LED_FADING_SUPPORTED
-    DEFINES += LED_EXT_INVERT
-    DEFINES += USE_MUX
-    DEFINES += IN_MATRIX
-    DEFINES += OUT_MATRIX
-    HARDWARE_VERSION_MAJOR := 3
-    HARDWARE_VERSION_MINOR := 0
-    DEFINES += LEDS_SUPPORTED
 else ifeq ($(BOARD_DIR), leonardo)
     MCU := atmega32u4
     BOARD := BOARD_A_LEO
@@ -155,7 +144,7 @@ else ifeq ($(findstring upload,$(TARGETNAME)), upload)
     endif
     #only some targets are supported
     ifeq ($(TARGETNAME),uploadboot)
-        ifeq ($(filter fw_opendeck fw_tannin fw_leonardo fw_pro_micro fw_kodama fw_teensy2pp fw_bergamot fw_mega fw_uno, $(shell cat build/TARGET)), )
+        ifeq ($(filter fw_opendeck fw_leonardo fw_pro_micro fw_kodama fw_teensy2pp fw_bergamot fw_mega fw_uno, $(shell cat build/TARGET)), )
             $(error Not available for current target.)
         endif
     endif
