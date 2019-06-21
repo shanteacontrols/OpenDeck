@@ -49,8 +49,8 @@ ifneq ($(filter boot_%, $(TARGETNAME)), )
     LDFLAGS += -Wl,--section-start=.text=$(BOOT_START_ADDR)
 endif
 
-#use link time optimisations only on opendeck board due to the heavy memory constrains
-ifeq ($(TARGETNAME), fw_opendeck)
+#use link time optimisations only on 32u4 MCU due to the heavy memory constrains
+ifeq ($(MCU), atmega32u4)
     COMMON_FLAGS += -flto
     LDFLAGS += -flto
 endif
