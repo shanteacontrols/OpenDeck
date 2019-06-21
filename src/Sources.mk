@@ -13,11 +13,9 @@ INCLUDE_DIRS := \
 -I"application/board/avr/variants/$(BOARD_DIR)/" \
 -I"application/" \
 
-ifeq ($(findstring fw_,$(TARGETNAME)), fw_)
-    ifneq ($(BOARD_DIR),xu2)
-        INCLUDE_FILES += -include "application/board/avr/variants/$(BOARD_DIR)/Hardware.h"
-    endif
-else
+INCLUDE_FILES += -include "application/board/avr/variants/$(BOARD_DIR)/Hardware.h"
+
+ifeq ($(findstring boot_,$(TARGETNAME)), boot_)
     #bootloader only
     INCLUDE_DIRS += \
     -I"bootloader/mcu/"
