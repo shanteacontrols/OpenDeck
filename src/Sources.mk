@@ -69,7 +69,7 @@ ifeq ($(findstring boot,$(TARGETNAME)), boot)
         ifeq ($(BOARD_DIR),xu2)
             SOURCES += \
             bootloader/mcu/variant/xu2.cpp \
-            application/board/avr/uart/UART.cpp
+            common/board/avr/uart/UART.cpp
         else
             SOURCES += \
             bootloader/mcu/variant/NativeUSB.cpp
@@ -77,86 +77,45 @@ ifeq ($(findstring boot,$(TARGETNAME)), boot)
     else
         SOURCES += \
         bootloader/mcu/variant/NoUSB.cpp \
-        application/board/avr/uart/UART.cpp
+        common/board/avr/uart/UART.cpp \
+        common/OpenDeckMIDIformat/OpenDeckMIDIformat.cpp
     endif
 else
     #application sources
     ifeq ($(BOARD_DIR),xu2)
         #fw for xu2 uses different set of sources than other targets
         SOURCES += \
-        modules/core/src/HAL/avr/reset/Reset.cpp \
-        application/board/avr/variants/Common.cpp \
-        application/board/avr/variants/$(BOARD_DIR)/xu2.cpp \
-        application/board/avr/variants/$(BOARD_DIR)/ISR.cpp \
-        application/board/avr/uart/UART.cpp \
-        application/board/avr/uart/OpenDeckMIDIFormat.cpp \
-        application/board/avr/usb/USB_MIDI.cpp
+        application/board/common/digital/Output.cpp
+
+        SOURCES += $(shell find ./application/board/avr -maxdepth 1 -type f -name "*.cpp")
+        SOURCES += $(shell find ./application/board/avr/usb -type f -name "*.cpp")
+        SOURCES += $(shell find ./application/board/avr/variants/$(BOARD_DIR) -type f -name "*.cpp")
+        SOURCES += $(shell find ./common/OpenDeckMIDIformat -type f -name "*.cpp")
+        SOURCES += $(shell find ./common/board/avr -type f -name "*.cpp")
     else
-        SOURCES += \
-        application/main.cpp \
-        application/OpenDeck/OpenDeck.cpp \
-        modules/core/src/HAL/avr/reset/Reset.cpp \
-        application/database/Database.cpp \
-        modules/dbms/src/DBMS.cpp \
-        application/interface/analog/Analog.cpp \
-        application/interface/analog/FSR.cpp \
-        application/interface/analog/Potentiometer.cpp \
-        application/interface/digital/input/Common.cpp \
-        application/interface/digital/input/buttons/Buttons.cpp \
-        application/interface/digital/input/buttons/Hooks.cpp \
-        application/interface/digital/input/encoders/Encoders.cpp \
-        application/OpenDeck/sysconfig/SysConfig.cpp \
-        modules/midi/src/MIDI.cpp \
-        modules/sysex/src/SysEx.cpp \
-        application/board/avr/variants/Common.cpp \
-        application/board/avr/variants/ISR.cpp \
-        application/board/common/analog/input/Common.cpp \
-        application/board/common/digital/input/encoders/Common.cpp \
-        application/board/common/digital/input/DigitalIn.cpp \
-        application/board/avr/uart/OpenDeckMIDIFormat.cpp
+        SOURCES += $(shell find ./application -maxdepth 1 -type f -name "*.cpp")
+        SOURCES += $(shell find ./application/database -type f -name "*.cpp")
+        SOURCES += $(shell find ./application/OpenDeck -type f -name "*.cpp")
+        SOURCES += $(shell find ./application/interface/analog -type f -name "*.cpp")
+        SOURCES += $(shell find ./application/interface/digital -type f -name "*.cpp")
+        SOURCES += $(shell find ./application/board/common/digital -type f -name "*.cpp")
+        SOURCES += $(shell find ./application/board/common/analog -type f -name "*.cpp")
+        SOURCES += $(shell find ./application/board/avr -maxdepth 1 -type f -name "*.cpp")
+        SOURCES += $(shell find ./application/board/avr/variants/$(BOARD_DIR) -type f -name "*.cpp")
+        SOURCES += $(shell find ./modules/sysex/src -maxdepth 1 -type f -name "*.cpp")
+        SOURCES += $(shell find ./modules/midi/src -maxdepth 1 -type f -name "*.cpp")
+        SOURCES += $(shell find ./modules/dbms/src -maxdepth 1 -type f -name "*.cpp")
+        SOURCES += $(shell find ./common/OpenDeckMIDIformat -type f -name "*.cpp")
+        SOURCES += $(shell find ./common/board/avr -type f -name "*.cpp")
 
-        ifneq ($(filter LEDS_SUPPORTED, $(DEFINES)), )
-        SOURCES += \
-        application/interface/digital/output/leds/LEDs.cpp \
-        application/board/common/digital/output/DigitalOut.cpp \
-        application/board/common/digital/output/leds/Common.cpp
-
-            ifneq ($(filter OUT_MATRIX, $(DEFINES)), )
-            SOURCES += \
-            application/board/common/digital/output/leds/Matrix.cpp
-            else
-            SOURCES += \
-            application/board/common/digital/output/leds/DirectOut.cpp
-            endif
+        ifneq ($(filter USB_SUPPORTED, $(DEFINES)), )
+            SOURCES += $(shell find ./application/board/avr/usb -type f -name "*.cpp")
         endif
 
-        #board specific
-        ifneq ($(filter USE_MUX, $(DEFINES)), )
-        SOURCES += \
-        application/board/common/analog/input/Mux.cpp
-        endif
-
-        ifneq ($(filter IN_MATRIX, $(DEFINES)), )
-        SOURCES += \
-        application/board/common/digital/input/buttons/Matrix.cpp \
-        application/board/common/digital/input/encoders/Matrix.cpp
-        else
-        SOURCES += \
-        application/board/common/digital/input/buttons/DirectIn.cpp \
-        application/board/common/digital/input/encoders/DirectIn.cpp
-        endif
-
-        SOURCES += \
-        application/board/avr/usb/USB_MIDI.cpp
-
-        SOURCES += \
-        application/board/avr/uart/UART.cpp
-
-        ifneq ($(filter DISPLAY_SUPPORTED, $(DEFINES)), )
-            SOURCES += \
-            application/interface/display/U8X8/U8X8.cpp \
-            application/interface/display/UpdateLogic.cpp \
-            application/interface/display/TextBuild.cpp
+        ifneq ($(shell cat application/board/avr/variants/$(BOARD_DIR)/Hardware.h | grep DISPLAY_SUPPORTED), )
+            SOURCES += $(shell find ./application/interface/display -maxdepth 1 -type f -name "*.cpp")
+            SOURCES += $(shell find ./application/interface/display/U8X8 -maxdepth 1 -type f -name "*.cpp")
+            SOURCES += $(shell find ./application/interface/display/strings -maxdepth 1 -type f -name "*.cpp")
 
             #u8x8 sources
             SOURCES += \
@@ -172,15 +131,10 @@ else
             modules/u8g2/csrc/u8x8_gpio.c \
             modules/u8g2/csrc/u8x8_d_ssd1306_128x64_noname.c \
             modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
-
-            #i2c for display communication
-            SOURCES += modules/core/src/HAL/avr/i2c/I2C.cpp
         endif
 
-        ifneq ($(filter TOUCHSCREEN_SUPPORTED, $(DEFINES)), )
-            SOURCES += \
-            application/interface/display/touch/Touchscreen.cpp \
-            application/interface/display/touch/model/sdw/SDW.cpp
+        ifneq ($(shell cat application/board/avr/variants/$(BOARD_DIR)/Hardware.h | grep TOUCHSCREEN_SUPPORTED), )
+            SOURCES += $(shell find ./application/interface/display/touch -type f -name "*.cpp")
         endif
     endif
 endif
