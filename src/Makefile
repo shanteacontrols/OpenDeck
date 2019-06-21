@@ -125,6 +125,10 @@ clean:
 	@echo Cleaning up.
 	@rm -rf build/ ../Documentation/
 
+exe-scripts:
+	@echo Making all scripts executable
+	@find ../scripts -name '*.sh' -type f -exec chmod +x {} +;
+
 #debugging
 print-%:
 	@echo '$*=$($*)'
