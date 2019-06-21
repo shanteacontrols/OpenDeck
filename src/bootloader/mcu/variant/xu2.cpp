@@ -28,9 +28,6 @@ limitations under the License.
 ///
 void EVENT_USB_Device_ControlRequest(void)
 {
-    using namespace Board;
-    using namespace Board::detail;
-
     //ignore any requests that aren't directed to the HID interface
     if ((USB_ControlRequest.bmRequestType & (CONTROL_REQTYPE_TYPE | CONTROL_REQTYPE_RECIPIENT)) !=
         (REQTYPE_CLASS | REQREC_INTERFACE))
@@ -53,14 +50,14 @@ void EVENT_USB_Device_ControlRequest(void)
 
         //send magic sequence first
         for (int i=0; i<6; i++)
-            Board::uartWrite(UART_USB_LINK_CHANNEL, bootloader::hidUploadStart[i]);
+            Board::UART::write(UART_USB_LINK_CHANNEL, bootloader::hidUploadStart[i]);
 
-        Board::uartWrite(UART_USB_LINK_CHANNEL, LSB_WORD(PageAddress));
-        Board::uartWrite(UART_USB_LINK_CHANNEL, MSB_WORD(PageAddress));
+        Board::UART::write(UART_USB_LINK_CHANNEL, LSB_WORD(PageAddress));
+        Board::UART::write(UART_USB_LINK_CHANNEL, MSB_WORD(PageAddress));
 
         if (PageAddress == COMMAND_STARTAPPLICATION)
         {
-            while (!Board::isUARTtxEmpty(UART_USB_LINK_CHANNEL));
+            while (!Board::UART::isTxEmpty(UART_USB_LINK_CHANNEL));
             bootloader::RunBootloader = false;
         }
         else if (PageAddress < BOOT_START_ADDR)
@@ -76,8 +73,8 @@ void EVENT_USB_Device_ControlRequest(void)
                 }
 
                 uint16_t dataWord = Endpoint_Read_16_LE();
-                Board::uartWrite(UART_USB_LINK_CHANNEL, LSB_WORD(dataWord));
-                Board::uartWrite(UART_USB_LINK_CHANNEL, MSB_WORD(dataWord));
+                Board::UART::write(UART_USB_LINK_CHANNEL, LSB_WORD(dataWord));
+                Board::UART::write(UART_USB_LINK_CHANNEL, MSB_WORD(dataWord));
             }
         }
 

@@ -19,6 +19,27 @@ limitations under the License.
 #pragma once
 
 ///
+/// \brief Holds current version of hardware.
+/// Can be overriden during build process to compile
+/// the firmware for different hardware revision of the board.
+/// @{
+
+#ifndef HARDWARE_VERSION_MAJOR
+#define HARDWARE_VERSION_MAJOR  1
+#endif
+
+#ifndef HARDWARE_VERSION_MINOR
+#define HARDWARE_VERSION_MINOR  0
+#endif
+
+/// @}
+
+///
+/// \brief Defines UART channel used for communication with USB link.
+///
+#define UART_USB_LINK_CHANNEL   0
+
+///
 /// \brief Constant used to debounce button readings.
 ///
 #define BUTTON_DEBOUNCE_COMPARE         0b11110000
@@ -32,6 +53,11 @@ limitations under the License.
 /// \brief Maximum number of buttons.
 ///
 #define MAX_NUMBER_OF_BUTTONS           6
+
+///
+/// \brief Indicates that the board supports LEDs.
+///
+#define LEDS_SUPPORTED
 
 ///
 /// \brief Maximum number of LEDs.

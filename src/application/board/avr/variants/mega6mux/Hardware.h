@@ -19,6 +19,38 @@ limitations under the License.
 #pragma once
 
 ///
+/// \brief Holds current version of hardware.
+/// Can be overriden during build process to compile
+/// the firmware for different hardware revision of the board.
+/// @{
+
+#ifndef HARDWARE_VERSION_MAJOR
+#define HARDWARE_VERSION_MAJOR  1
+#endif
+
+#ifndef HARDWARE_VERSION_MINOR
+#define HARDWARE_VERSION_MINOR  0
+#endif
+
+/// @}
+
+
+///
+/// \brief Indicates that the board DIN MIDI.
+///
+#define DIN_MIDI_SUPPORTED
+
+///
+/// \brief Defines UART channel used for DIN MIDI.
+///
+#define UART_MIDI_CHANNEL   1
+
+///
+/// \brief Defines UART channel used for communication with USB link.
+///
+#define UART_USB_LINK_CHANNEL   0
+
+///
 /// \brief Constant used to debounce button readings.
 ///
 #define BUTTON_DEBOUNCE_COMPARE         0b11110000
@@ -44,6 +76,11 @@ limitations under the License.
 #define MAX_NUMBER_OF_BUTTONS           30
 
 ///
+/// \brief Indicates that the board supports LEDs.
+///
+#define LEDS_SUPPORTED
+
+///
 /// \brief Maximum number of LEDs.
 ///
 #define MAX_NUMBER_OF_LEDS              24
@@ -59,6 +96,11 @@ limitations under the License.
 /// Total number of encoders is total number of buttons divided by two.
 ///
 #define MAX_NUMBER_OF_ENCODERS          (MAX_NUMBER_OF_BUTTONS/2)
+
+///
+/// \brief Indicates that the board supports display interface.
+///
+#define DISPLAY_SUPPORTED
 
 ///
 /// \brief Maximum number of supported touchscreen buttons.

@@ -19,6 +19,23 @@ limitations under the License.
 #pragma once
 
 ///
+/// \brief Holds current version of hardware.
+/// Can be overriden during build process to compile
+/// the firmware for different hardware revision of the board.
+/// @{
+
+#ifndef HARDWARE_VERSION_MAJOR
+#define HARDWARE_VERSION_MAJOR  1
+#endif
+
+#ifndef HARDWARE_VERSION_MINOR
+#define HARDWARE_VERSION_MINOR  0
+#endif
+
+/// @}
+
+
+///
 /// \brief Constant used to debounce button readings.
 ///
 #define BUTTON_DEBOUNCE_COMPARE         0b00000000
@@ -64,9 +81,19 @@ limitations under the License.
 #define MAX_NUMBER_OF_BUTTONS           (NUMBER_OF_IN_SR*NUMBER_OF_IN_SR_INPUTS)
 
 ///
+/// \brief Indicates that the board supports LEDs.
+///
+#define LEDS_SUPPORTED
+
+///
 /// \brief Maximum number of LEDs.
 ///
 #define MAX_NUMBER_OF_LEDS              (NUMBER_OF_OUT_SR*NUMBER_OF_OUT_SR_INPUTS)
+
+///
+/// \brief Use inverted logic when controlling external LEDs (high/off, low/on).
+///
+#define LED_EXT_INVERT
 
 ///
 /// \brief Maximum number of RGB LEDs.

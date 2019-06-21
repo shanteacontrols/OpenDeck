@@ -18,7 +18,9 @@ limitations under the License.
 
 #pragma once
 
-#include "core/src/HAL/avr/PinManipulation.h"
+#ifdef __AVR__
+#include "core/src/avr/PinManipulation.h"
+#endif
 
 ///
 /// \brief Time in milliseconds during which MIDI event indicators on board are on when MIDI event happens.
@@ -51,6 +53,7 @@ limitations under the License.
 #endif
 
 /// @}
+
 
 #define FADE_TIME_MIN               0
 #define FADE_TIME_MAX               10

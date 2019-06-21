@@ -19,6 +19,33 @@ limitations under the License.
 #pragma once
 
 ///
+/// \brief Holds current version of hardware.
+/// Can be overriden during build process to compile
+/// the firmware for different hardware revision of the board.
+/// @{
+
+#ifndef HARDWARE_VERSION_MAJOR
+#define HARDWARE_VERSION_MAJOR  1
+#endif
+
+#ifndef HARDWARE_VERSION_MINOR
+#define HARDWARE_VERSION_MINOR  0
+#endif
+
+/// @}
+
+
+///
+/// \brief Indicates that the board DIN MIDI.
+///
+#define DIN_MIDI_SUPPORTED
+
+///
+/// \brief Defines UART channel used for DIN MIDI.
+///
+#define UART_MIDI_CHANNEL   0
+
+///
 /// \brief Constant used to debounce button readings.
 ///
 #define BUTTON_DEBOUNCE_COMPARE         0b11110000
@@ -42,9 +69,24 @@ limitations under the License.
 #endif
 
 ///
+/// \brief Indicates that the board supports LEDs.
+///
+#define LEDS_SUPPORTED
+
+///
 /// \brief Maximum number of LEDs.
 ///
 #define MAX_NUMBER_OF_LEDS              6
+
+///
+/// \brief Use integrated LED indicators.
+///
+#define LED_INDICATORS
+
+///
+/// \brief Use inverted logic when controlling integrated LEDs (high/off, low/on).
+///
+#define LED_INT_INVERT
 
 ///
 /// \brief Maximum number of RGB LEDs.

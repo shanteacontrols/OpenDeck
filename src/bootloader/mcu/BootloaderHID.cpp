@@ -19,25 +19,22 @@ limitations under the License.
 #include <util/crc16.h>
 #include <avr/cpufunc.h>
 #include "BootloaderHID.h"
-#include "core/src/HAL/avr/PinManipulation.h"
-#include "core/src/HAL/avr/Misc.h"
+#include "core/src/avr/PinManipulation.h"
+#include "core/src/avr/Misc.h"
 #include "core/src/general/BitManipulation.h"
 #include "board/common/constants/LEDs.h"
-#include "board/avr/variants/Common.h"
 #include "board/common/constants/Reboot.h"
-#include "pins/Pins.h"
-#include "board/common/indicators/Variables.h"
+#include "Pins.h"
 #include "board/Board.h"
-#include "board/common/uart/Variables.h"
-#include "board/common/uart/ODformat.h"
 #include "Redef.h"
+#include "../../common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
 
 namespace
 {
     ///
     /// \brief Initializes all pins needed in bootloader mode.
     ///
-    void initPins()
+    void pins()
     {
         //indicate that we're in bootloader mode by turning on specific leds
         //if the board uses indicator leds for midi traffic, turn them both on
@@ -70,24 +67,13 @@ namespace
         #endif
 
         //configure bootloader entry pins
-        #if defined(BOARD_TANNIN) || defined(BOARD_KODAMA)
+        #if defined(BOARD_KODAMA)
         setInput(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN);
         setOutput(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
         setOutput(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
-        #ifdef BOARD_TANNIN
-        //select column 6 in button matrix
-        setOutput(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
-        setOutput(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
-        setOutput(DEC_DM_A2_PORT, DEC_DM_A2_PIN);
-        setHigh(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
-        setLow(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
-        setHigh(DEC_DM_A2_PORT, DEC_DM_A2_PIN);
-        #endif
-        #else
-        #ifdef BTLDR_BUTTON_PORT
+        #elif defined (BTLDR_BUTTON_PORT)
         setInput(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
         setHigh(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
-        #endif
         #endif
     }
 
@@ -109,16 +95,18 @@ namespace
         #endif
 
         #if defined(BOARD_A_xu2) || !defined(USB_SUPPORTED)
-        Board::initUART(UART_BAUDRATE_MIDI_OD, UART_USB_LINK_CHANNEL);
+        Board::UART::init(UART_BAUDRATE_MIDI_OD, UART_USB_LINK_CHANNEL);
 
         #ifndef USB_SUPPORTED
         // make sure USB link goes to bootloader mode as well
-        Board::uartWrite(UART_USB_LINK_CHANNEL, OD_FORMAT_INT_DATA_START);
-        Board::uartWrite(UART_USB_LINK_CHANNEL, static_cast<uint8_t>(Board::odFormatCMD_t::cmdBtldrReboot));
-        Board::uartWrite(UART_USB_LINK_CHANNEL, 0x00);
-        Board::uartWrite(UART_USB_LINK_CHANNEL, 0x00);
-        Board::uartWrite(UART_USB_LINK_CHANNEL, 0x00);
-        Board::uartWrite(UART_USB_LINK_CHANNEL, 0x00);
+        MIDI::USBMIDIpacket_t packet;
+
+        packet.Event = 0x00;
+        packet.Data1 = 0x00;
+        packet.Data2 = 0x00;
+        packet.Data3 = 0x00;
+
+        OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, packet, odPacketType_t::packetIntCMD);
         #endif
         #endif
     }
@@ -133,7 +121,7 @@ namespace
             uint16_t crc = 0x0000;
 
             #if (FLASHEND > 0xFFFF)
-            uint32_t lastAddress = pgm_read_word(pgmGetFarAddress(APP_LENGTH_LOCATION));
+            uint32_t lastAddress = pgm_read_word(core::avr::pgmGetFarAddress(APP_LENGTH_LOCATION));
             #else
             uint32_t lastAddress = pgm_read_word(APP_LENGTH_LOCATION);
             #endif
@@ -141,14 +129,14 @@ namespace
             for (uint32_t i=0; i<lastAddress; i++)
             {
                 #if (FLASHEND > 0xFFFF)
-                crc = _crc_xmodem_update(crc, pgm_read_byte_far(pgmGetFarAddress(i)));
+                crc = _crc_xmodem_update(crc, pgm_read_byte_far(core::avr::pgmGetFarAddress(i)));
                 #else
                 crc = _crc_xmodem_update(crc, pgm_read_byte(i));
                 #endif
             }
 
             #if (FLASHEND > 0xFFFF)
-            return (crc == pgm_read_word_far(pgmGetFarAddress(lastAddress)));
+            return (crc == pgm_read_word_far(core::avr::pgmGetFarAddress(lastAddress)));
             #else
             return (crc == pgm_read_word(lastAddress));
             #endif
@@ -171,10 +159,7 @@ namespace
         //add some delay before reading the pins to avoid incorrect state detection
         _delay_ms(100);
 
-        #if defined(BOARD_KODAMA) || defined(BOARD_TANNIN)
-        //these boards use input shift registers
-        //read 8 inputs and then read only specific input used as an
-        //hardware bootloader entry button
+        #if defined(BOARD_KODAMA)
         uint16_t dInData = 0;
         setLow(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
         setLow(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
@@ -183,13 +168,8 @@ namespace
 
         setHigh(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
 
-        #ifdef BOARD_KODAMA
         //this board has two shift registers - 16 inputs in total
         for (int i=0; i<16; i++)
-        #elif defined(BOARD_TANNIN)
-        //single register
-        for (int i=0; i<8; i++)
-        #endif
         {
             setLow(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
             _NOP();
@@ -244,16 +224,6 @@ namespace bootloader
     bool RunBootloader = true;
 }
 
-namespace Board
-{
-    namespace detail
-    {
-        //implementation of external variables used so that UART module can be compiled
-        //variables are unused in bootloader
-        volatile bool UARTreceived, UARTsent;
-    }
-}
-
 ///
 /// \brief Main program entry point.
 /// This routine configures the hardware required by the bootloader, then continuously
@@ -268,7 +238,7 @@ int main(void)
     MCUSR &= ~(1 << WDRF);
     wdt_disable();
 
-    initPins();
+    pins();
 
     if (checkApplicationRun())
         runApplication();
@@ -279,9 +249,6 @@ int main(void)
     //enable global interrupts so that the USB stack can function
     GlobalInterruptEnable();
 
-    using namespace Board;
-    using namespace Board::detail;
-
     while (bootloader::RunBootloader)
     {
         #ifdef USB_SUPPORTED
@@ -289,7 +256,7 @@ int main(void)
         #else
         static uint8_t pageStartCnt = 0;
         uint8_t data;
-        while (!Board::uartRead(UART_USB_LINK_CHANNEL, data));
+        while (!Board::UART::read(UART_USB_LINK_CHANNEL, data));
 
         if (pageStartCnt < 6)
         {

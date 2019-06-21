@@ -16,14 +16,18 @@ limitations under the License.
 
 */
 
-#include "USB_MIDI.h"
-#include "board/common/indicators/Variables.h"
-#ifdef USB_SUPPORTED
 #include "Descriptors.h"
-#endif
-#include "midi/src/DataTypes.h"
+#include "midi/src/MIDI.h"
+#include "board/Board.h"
 
-#ifdef USB_SUPPORTED
+namespace
+{
+    ///
+    /// \brief MIDI Class Device Mode Configuration and State Structure.
+    ///
+    USB_ClassInfo_MIDI_Device_t MIDI_Interface;
+}
+
 ///
 /// \brief Event handler for the USB_ConfigurationChanged event.
 /// This is fired when the host set the current configuration
@@ -35,23 +39,12 @@ void EVENT_USB_Device_ConfigurationChanged(void)
     Endpoint_ConfigureEndpoint(MIDI_STREAM_IN_EPADDR, EP_TYPE_BULK, MIDI_STREAM_EPSIZE, 1);
     Endpoint_ConfigureEndpoint(MIDI_STREAM_OUT_EPADDR, EP_TYPE_BULK, MIDI_STREAM_EPSIZE, 1);
 }
-#endif
 
 namespace Board
 {
-    namespace detail
+    namespace setup
     {
-        #ifndef USB_SUPPORTED
-        bool    usbLinkState;
-        #endif
-
-        #ifdef USB_SUPPORTED
-        ///
-        /// \brief MIDI Class Device Mode Configuration and State Structure.
-        ///
-        USB_ClassInfo_MIDI_Device_t MIDI_Interface;
-
-        void initMIDI_USB()
+        void usb()
         {
             MIDI_Interface.Config.StreamingInterfaceNumber  = INTERFACE_ID_AudioStream;
 
@@ -65,72 +58,65 @@ namespace Board
 
             USB_Init();
         }
-        #endif
     }
 
-    #ifdef USB_SUPPORTED
-    bool usbReadMIDI(USBMIDIpacket_t& USBMIDIpacket)
+    namespace USB
     {
-        using namespace Board::detail;
+        trafficIndicator_t trafficIndicator;
 
-        //device must be connected and configured for the task to run
-        if (USB_DeviceState != DEVICE_STATE_Configured)
-            return false;
-
-        //select the MIDI OUT stream
-        Endpoint_SelectEndpoint(MIDI_STREAM_OUT_EPADDR);
-
-        //check if a MIDI command has been received
-        if (Endpoint_IsOUTReceived())
+        bool readMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
         {
-            //read the MIDI event packet from the endpoint
-            Endpoint_Read_Stream_LE(&USBMIDIpacket, sizeof(USBMIDIpacket), NULL);
+            //device must be connected and configured for the task to run
+            if (USB_DeviceState != DEVICE_STATE_Configured)
+                return false;
 
-            //if the endpoint is now empty, clear the bank
-            if (!(Endpoint_BytesInEndpoint()))
-                Endpoint_ClearOUT();    //clear the endpoint ready for new packet
+            //select the MIDI OUT stream
+            Endpoint_SelectEndpoint(MIDI_STREAM_OUT_EPADDR);
 
-            USBreceived = true;
+            //check if a MIDI command has been received
+            if (Endpoint_IsOUTReceived())
+            {
+                //read the MIDI event packet from the endpoint
+                Endpoint_Read_Stream_LE(&USBMIDIpacket, sizeof(USBMIDIpacket), NULL);
+
+                //if the endpoint is now empty, clear the bank
+                if (!(Endpoint_BytesInEndpoint()))
+                    Endpoint_ClearOUT();    //clear the endpoint ready for new packet
+
+                trafficIndicator.received = true;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        bool writeMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
+        {
+            if (USB_DeviceState != DEVICE_STATE_Configured)
+                return false;
+
+            Endpoint_SelectEndpoint(MIDI_Interface.Config.DataINEndpoint.Address);
+
+            uint8_t ErrorCode;
+
+            if ((ErrorCode = Endpoint_Write_Stream_LE(&USBMIDIpacket, sizeof(MIDI::USBMIDIpacket_t), NULL)) != ENDPOINT_RWSTREAM_NoError)
+                return false;
+
+            if (!(Endpoint_IsReadWriteAllowed()))
+                Endpoint_ClearIN();
+
+            MIDI_Device_Flush(&MIDI_Interface);
+
+            trafficIndicator.sent = true;
+
             return true;
         }
-        else
+
+        bool isUSBconnected()
         {
-            return false;
+            return (USB_DeviceState == DEVICE_STATE_Configured);
         }
-    }
-
-    bool usbWriteMIDI(USBMIDIpacket_t& USBMIDIpacket)
-    {
-        using namespace Board::detail;
-
-        if (USB_DeviceState != DEVICE_STATE_Configured)
-            return false;
-
-        Endpoint_SelectEndpoint(MIDI_Interface.Config.DataINEndpoint.Address);
-
-        uint8_t ErrorCode;
-
-        if ((ErrorCode = Endpoint_Write_Stream_LE(&USBMIDIpacket, sizeof(USBMIDIpacket_t), NULL)) != ENDPOINT_RWSTREAM_NoError)
-            return false;
-
-        if (!(Endpoint_IsReadWriteAllowed()))
-            Endpoint_ClearIN();
-
-        MIDI_Device_Flush(&MIDI_Interface);
-
-        USBsent = true;
-
-        return true;
-    }
-    #endif
-
-    bool isUSBconnected()
-    {
-        #ifdef USB_SUPPORTED
-        return (USB_DeviceState == DEVICE_STATE_Configured);
-        #else
-        using namespace Board::detail;
-        return usbLinkState;
-        #endif
     }
 }

@@ -18,11 +18,13 @@ limitations under the License.
 
 #pragma once
 
+#ifndef BOARD_A_xu2
+
 ///
 /// \brief Size of array used to store all digital input readings.
 /// Values are stored in byte array - one bit represents single digital input value.
 ///
-#ifndef IN_MATRIX
+#ifndef NUMBER_OF_BUTTON_COLUMNS
 #if ((MAX_NUMBER_OF_BUTTONS % 8) != 0)
 #define DIGITAL_IN_ARRAY_SIZE   ((MAX_NUMBER_OF_BUTTONS / 8) + 1)
 #else
@@ -38,3 +40,4 @@ limitations under the License.
 /// is incremented (if there is space left).
 ///
 #define DIGITAL_IN_BUFFER_SIZE  5
+#endif
