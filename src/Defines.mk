@@ -244,7 +244,7 @@ DEFINES += EEPROM_SIZE=$(EEPROM_SIZE)
 #two for crc
 DEFINES += LESSDB_SIZE=$(shell echo $(EEPROM_SIZE)-3 | bc)
 DEFINES += $(BOARD)
-BOARD_ID := $(shell awk '/$(BOARD)/{print NR-5}' BoardIDs.mk | head -n 1)
+DEFINES += FW_UID=$(shell ../scripts/fw_uid_gen.sh $(TARGETNAME))
 
 ifeq ($(BOARD_ID),)
     $(error Board not added to BoardIDs.mk list)

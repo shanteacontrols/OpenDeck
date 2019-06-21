@@ -12,42 +12,27 @@
         system.version().then(function (d) {
             $scope.firmwareVersion = 'v' + d[6] + '.' + d[7] + '.' + d[8];
 
-            //dirty hack - unless firmware version is 1.5.0 or above,
-            //use hardcoded board version since those versions run only
-            //on single board
-            if ((d[6] == 1) && (d[7] < 5)) {
-                $scope.hardwareVersion = 'v1.2.0';
+            //determine board variant
+            if ((d[9] == 1) && (d[10] == 91) && (d[11] == 42) && (d[12] == 85))
                 $scope.boardName = 'OpenDeck';
-            } else {
-                //determine board variant
-                //0 - opendeck
-                //1 - leonardo
-                //2 - mega
-                //3 - pro micro
-                if (d[9] == 0) {
-                    $scope.boardName = 'OpenDeck';
-                } else if (d[9] == 1) {
-                    $scope.boardName = 'Arduino Leonardo';
-                } else if (d[9] == 2) {
-                    $scope.boardName = 'Arduino Mega';
-                } else if (d[9] == 3) {
-                    $scope.boardName = 'Arduino Pro Micro';
-                } else if (d[9] == 4) {
-                    $scope.boardName = 'Arduino Uno';
-                } else if (d[9] == 5) {
-                    $scope.boardName = 'Teensy++ 2.0';
-                } else if (d[9] == 6) {
-                    $scope.boardName = 'Kodama';
-                } else if (d[9] == 7) {
-                    $scope.boardName = 'Tannin';
-                } else if (d[9] == 9) {
-                    $scope.boardName = 'Bergamot';
-                } else {
-                    $scope.boardName = 'UNKNOWN BOARD';
-                }
+            else if ((d[9] == 1) && (d[10] == 52) && (d[11] == 50) && (d[12] == 124))
+                $scope.boardName = 'Arduino Leonardo';
+            else if ((d[9] == 1) && (d[10] == 117) && (d[11] == 127) && (d[12] == 95))
+                $scope.boardName = 'Arduino Mega';
+            else if ((d[9] == 1) && (d[10] == 46) && (d[11] == 56) && (d[12] == 29))
+                $scope.boardName = 'Arduino Pro Micro';
+            else if ((d[9] == 1) && (d[10] == 11) && (d[11] == 120) && (d[12] == 50))
+                $scope.boardName = 'Arduino Uno';
+            else if ((d[9] == 1) && (d[10] == 100) && (d[11] == 8) && (d[12] == 4))
+                $scope.boardName = 'Teensy++ 2.0';
+            else if ((d[9] == 1) && (d[10] == 92) && (d[11] == 80) && (d[12] == 109))
+                $scope.boardName = 'Kodama';
+            else if ((d[9] == 1) && (d[10] == 44) && (d[11] == 68) && (d[12] == 62))
+                $scope.boardName = 'Bergamot';
+            else
+                $scope.boardName = 'UNKNOWN BOARD';
 
-                $scope.hardwareVersion = 'v' + d[10] + '.' + d[11] + '.x';
-            }
+            $scope.hardwareVersion = 'v' + d[13] + '.' + d[14] + '.x';
             finishLoading();
         });
 

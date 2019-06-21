@@ -28,29 +28,37 @@ bool SysConfig::onCustomRequest(uint8_t value)
 
     bool retVal = true;
 
+    auto appendSW = [this]()
+    {
+        addToResponse(SW_VERSION_MAJOR);
+        addToResponse(SW_VERSION_MINOR);
+        addToResponse(SW_VERSION_REVISION);
+    };
+
+    auto appendHW = [this]()
+    {
+        addToResponse((FW_UID >> 24) & static_cast<uint32_t>(0xFF));
+        addToResponse((FW_UID >> 16) & static_cast<uint32_t>(0xFF));
+        addToResponse((FW_UID >> 8) & static_cast<uint32_t>(0xFF));
+        addToResponse(FW_UID & static_cast<uint32_t>(0xFF));
+        addToResponse(HARDWARE_VERSION_MAJOR);
+        addToResponse(HARDWARE_VERSION_MINOR);
+        addToResponse(0);
+    };
+
     switch(value)
     {
         case SYSEX_CR_FIRMWARE_VERSION:
-        addToResponse(SW_VERSION_MAJOR);
-        addToResponse(SW_VERSION_MINOR);
-        addToResponse(SW_VERSION_REVISION);
+        appendSW();
         break;
 
         case SYSEX_CR_HARDWARE_VERSION:
-        addToResponse(BOARD_ID);
-        addToResponse(HARDWARE_VERSION_MAJOR);
-        addToResponse(HARDWARE_VERSION_MINOR);
-        addToResponse(0);
+        appendHW();
         break;
 
         case SYSEX_CR_FIRMWARE_HARDWARE_VERSION:
-        addToResponse(SW_VERSION_MAJOR);
-        addToResponse(SW_VERSION_MINOR);
-        addToResponse(SW_VERSION_REVISION);
-        addToResponse(BOARD_ID);
-        addToResponse(HARDWARE_VERSION_MAJOR);
-        addToResponse(HARDWARE_VERSION_MINOR);
-        addToResponse(0);
+        appendSW();
+        appendHW();
         break;
 
         case SYSEX_CR_REBOOT_APP:
