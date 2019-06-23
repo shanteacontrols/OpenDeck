@@ -35,7 +35,7 @@ limitations under the License.
 /// @}
 
 ///
-/// \brief Indicates that the board DIN MIDI.
+/// \brief Indicates that the board supports DIN MIDI.
 ///
 #define DIN_MIDI_SUPPORTED
 
