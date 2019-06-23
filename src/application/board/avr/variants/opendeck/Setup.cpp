@@ -91,24 +91,22 @@ namespace Board
 
         void adc()
         {
-            using namespace core::avr;
+            core::CORE_ARCH::adc::disconnectDigitalIn(MUX_1_IN_PIN);
+            core::CORE_ARCH::adc::disconnectDigitalIn(MUX_2_IN_PIN);
 
-            adc::disconnectDigitalIn(MUX_1_IN_PIN);
-            adc::disconnectDigitalIn(MUX_2_IN_PIN);
+            core::CORE_ARCH::adc::conf_t adcConfiguration;
 
-            adc::conf_t adcConfiguration;
+            adcConfiguration.prescaler = core::CORE_ARCH::adc::prescaler_t::p128;
+            adcConfiguration.vref = core::CORE_ARCH::adc::vRef_t::aref;
 
-            adcConfiguration.prescaler = adc::prescaler_t::p128;
-            adcConfiguration.vref = adc::vRef_t::aref;
-
-            adc::setup(adcConfiguration);
-            adc::setChannel(MUX_1_IN_PIN);
+            core::CORE_ARCH::adc::setup(adcConfiguration);
+            core::CORE_ARCH::adc::setChannel(MUX_1_IN_PIN);
 
             for (int i = 0; i < 3; i++)
-                adc::read();    //few dummy reads to init ADC
+                core::CORE_ARCH::adc::read();    //few dummy reads to init ADC
 
-            adc::enableInterrupt();
-            adc::startConversion();
+            core::CORE_ARCH::adc::enableInterrupt();
+            core::CORE_ARCH::adc::startConversion();
         }
 
         void timers()

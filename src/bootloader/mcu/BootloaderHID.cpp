@@ -124,7 +124,7 @@ namespace
         uint16_t crc = 0x0000;
 
 #if (FLASHEND > 0xFFFF)
-        uint32_t lastAddress = pgm_read_word(core::avr::pgmGetFarAddress(APP_LENGTH_LOCATION));
+        uint32_t lastAddress = pgm_read_word(core::CORE_ARCH::pgmGetFarAddress(APP_LENGTH_LOCATION));
 #else
         uint32_t lastAddress = pgm_read_word(APP_LENGTH_LOCATION);
 #endif
@@ -132,14 +132,14 @@ namespace
         for (uint32_t i = 0; i < lastAddress; i++)
         {
 #if (FLASHEND > 0xFFFF)
-            crc = _crc_xmodem_update(crc, pgm_read_byte_far(core::avr::pgmGetFarAddress(i)));
+            crc = _crc_xmodem_update(crc, pgm_read_byte_far(core::CORE_ARCH::pgmGetFarAddress(i)));
 #else
             crc = _crc_xmodem_update(crc, pgm_read_byte(i));
 #endif
         }
 
 #if (FLASHEND > 0xFFFF)
-        return (crc == pgm_read_word_far(core::avr::pgmGetFarAddress(lastAddress)));
+        return (crc == pgm_read_word_far(core::CORE_ARCH::pgmGetFarAddress(lastAddress)));
 #else
         return (crc == pgm_read_word(lastAddress));
 #endif
