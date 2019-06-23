@@ -2,7 +2,7 @@ language: cpp
 
 # use sed to replace the SSH URL with the public URL, then init and update submodules
 before_install:
-  - wget http://www.microchip.com/mymicrochip/filehandler.aspx?ddocname=en605750 -O avrtoolchain.tar.gz
+  - wget https://www.microchip.com/mymicrochip/filehandler.aspx?ddocname=en607660 -O avrtoolchain.tar.gz
   - tar xzf avrtoolchain.tar.gz
   - sudo ln -s $(pwd)/avr8-gnu-toolchain-linux_x86_64/ /usr/local/avr
   - PATH=/usr/local/avr/bin:${PATH}
