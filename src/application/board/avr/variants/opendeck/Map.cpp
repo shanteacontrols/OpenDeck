@@ -168,7 +168,37 @@ namespace Board
                 }
             };
 
-            Board::mcuPin_t pin;
+            const core::CORE_ARCH::pins::pwmChannel_t pwmChannels[NUMBER_OF_LED_ROWS] = {
+                { .timer = &TCCR1A,
+                  .compareL = &OCR1CL,
+                  .compareH = &OCR1CH,
+                  .channel = COM1C1 },
+
+                { .timer = &TCCR4C,
+                  .compareL = &OCR4D,
+                  .compareH = nullptr,
+                  .channel = COM4D1 },
+
+                { .timer = &TCCR1A,
+                  .compareL = &OCR1AL,
+                  .compareH = &OCR1AH,
+                  .channel = COM1A1 },
+
+                { .timer = &TCCR4A,
+                  .compareL = &OCR4A,
+                  .compareH = nullptr,
+                  .channel = COM3A1 },
+
+                { .timer = &TCCR3A,
+                  .compareL = &OCR3AL,
+                  .compareH = &OCR3AH,
+                  .channel = COM1C1 },
+
+                { .timer = &TCCR1A,
+                  .compareL = &OCR1BL,
+                  .compareH = &OCR1BH,
+                  .channel = COM1B1 }
+            };
         }    // namespace
 
         uint8_t adcChannel(uint8_t index)
@@ -196,95 +226,9 @@ namespace Board
             return ledRowPins[index];
         }
 
-        void ledRowOn(uint8_t row, uint8_t intensity)
+        core::CORE_ARCH::pins::pwmChannel_t pwmChannel(uint8_t index)
         {
-            if (intensity == 255)
-            {
-                pin = Board::map::led(row);
-
-                //max value, don't use pwm
-                EXT_LED_ON(*pin.port, pin.pin);
-            }
-            else
-            {
-#ifdef LED_EXT_INVERT
-                intensity = 255 - intensity;
-#endif
-
-                switch (row)
-                {
-                case 0:
-                    OCR1C = intensity;
-                    TCCR1A |= (1 << COM1C1);
-                    break;
-
-                case 1:
-                    OCR4D = intensity;
-                    TCCR4C |= (1 << COM4D1);
-                    break;
-
-                case 2:
-                    OCR1A = intensity;
-                    TCCR1A |= (1 << COM1A1);
-                    break;
-
-                case 3:
-                    OCR4A = intensity;
-                    TCCR4A |= (1 << COM4A1);
-                    break;
-
-                case 4:
-                    OCR3A = intensity;
-                    TCCR3A |= (1 << COM3A1);
-                    break;
-
-                case 5:
-                    OCR1B = intensity;
-                    TCCR1A |= (1 << COM1B1);
-                    break;
-
-                default:
-                    break;
-                }
-            }
-        }
-
-        void ledRowOff(uint8_t row)
-        {
-            //turn off pwm first
-            switch (row)
-            {
-            case 0:
-                TCCR1A &= ~(1 << COM1C1);
-                break;
-
-            case 1:
-                TCCR4C &= ~(1 << COM4D1);
-                break;
-
-            case 2:
-                TCCR1A &= ~(1 << COM1A1);
-                break;
-
-            case 3:
-                TCCR4A &= ~(1 << COM4A1);
-                break;
-
-            case 4:
-                TCCR3A &= ~(1 << COM3A1);
-                break;
-
-            case 5:
-                TCCR1A &= ~(1 << COM1B1);
-                break;
-
-            default:
-                return;
-                break;
-            }
-
-            pin = Board::map::led(row);
-            EXT_LED_OFF(*pin.port, pin.pin);
+            return pwmChannels[index];
         }
     }    // namespace map
 }    // namespace Board

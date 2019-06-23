@@ -265,10 +265,56 @@ namespace Board
                         uint8_t                         ledStateSingle;
                     }    // namespace
 
+                    ///
+                    /// \brief Used to turn the given LED row off.
+                    ///
+                    inline void ledRowOff(uint8_t row)
+                    {
+#ifdef LED_FADING
+                        //turn off pwm
+                        core::CORE_ARCH::pins::pwmOff(Board::map::pwmChannel(row));
+#endif
+
+                        pin = Board::map::led(row);
+                        EXT_LED_OFF(*pin.port, pin.pin);
+                    }
+
+                    ///
+                    /// \brief Used to turn the given LED row on.
+                    /// If led fading is supported on board, intensity must be specified as well.
+                    ///
+                    inline void ledRowOn(uint8_t row
+#ifdef LED_FADING
+                                         ,
+                                         uint8_t intensity
+#endif
+                    )
+                    {
+#ifdef LED_FADING
+                        if (intensity == 255)
+#endif
+                        {
+                            pin = Board::map::led(row);
+
+                            //max value, don't use pwm
+                            EXT_LED_ON(*pin.port, pin.pin);
+                        }
+#ifdef LED_FADING
+                        else
+                        {
+#ifdef LED_EXT_INVERT
+                            intensity = 255 - intensity;
+#endif
+
+                            core::CORE_ARCH::pins::pwmOn(Board::map::pwmChannel(row), intensity);
+                        }
+#endif
+                    }
+
                     void checkDigitalOutputs()
                     {
                         for (int i = 0; i < NUMBER_OF_LED_ROWS; i++)
-                            Board::map::ledRowOff(i);
+                            ledRowOff(i);
 
                         activateOutputColumn();
 
@@ -284,20 +330,20 @@ namespace Board
                             //don't bother with pwm if it's disabled
                             if (!pwmSteps && ledStateSingle)
                             {
-                                Board::map::ledRowOn(i
+                                ledRowOn(i
 #ifdef LED_FADING
-                                                     ,
-                                                     255
+                                         ,
+                                         255
 #endif
                                 );
                             }
                             else
                             {
                                 if (ledTransitionScale[transitionCounter[ledNumber]])
-                                    Board::map::ledRowOn(i
+                                    ledRowOn(i
 #ifdef LED_FADING
-                                                         ,
-                                                         ledTransitionScale[transitionCounter[ledNumber]]
+                                             ,
+                                             ledTransitionScale[transitionCounter[ledNumber]]
 #endif
                                     );
 
@@ -354,7 +400,7 @@ namespace Board
 
                         if (updateSR)
                         {
-                            core::CORE_ARCH::pins::CORE_AVR_PIN_SET_LOW(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+                            CORE_AVR_PIN_SET_LOW(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 
                             for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
                             {
@@ -365,7 +411,7 @@ namespace Board
                                 CORE_AVR_PIN_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
                             }
 
-                            core::CORE_ARCH::pins::CORE_AVR_PIN_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+                            CORE_AVR_PIN_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
                         }
                     }
 #else
