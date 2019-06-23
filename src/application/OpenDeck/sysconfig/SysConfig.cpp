@@ -793,11 +793,11 @@ void SysConfig::setupMIDIoverUSB()
     Board::UART::init(UART_BAUDRATE_MIDI_OD, UART_USB_LINK_CHANNEL);
 
     midi.handleUSBread([](MIDI::USBMIDIpacket_t& USBMIDIpacket) {
-        odPacketType_t odPacketType;
+        OpenDeckMIDIformat::packetType_t odPacketType;
 
         if (OpenDeckMIDIformat::read(UART_USB_LINK_CHANNEL, USBMIDIpacket, odPacketType))
         {
-            if (odPacketType == odPacketType_t::packetMIDI)
+            if (odPacketType == OpenDeckMIDIformat::packetType_t::midi)
                 return true;
         }
 
@@ -805,7 +805,7 @@ void SysConfig::setupMIDIoverUSB()
     });
 
     midi.handleUSBwrite([](MIDI::USBMIDIpacket_t& USBMIDIpacket) {
-        return OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, USBMIDIpacket, odPacketType_t::packetMIDI);
+        return OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::midi);
     });
 #endif
 }
@@ -884,18 +884,18 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
 
         midi.handleUSBread([](MIDI::USBMIDIpacket_t& USBMIDIpacket) {
             //dump everything from MIDI in to USB MIDI out
-            MIDI::USBMIDIpacket_t slavePacket;
-            odPacketType_t        packetType;
+            MIDI::USBMIDIpacket_t            slavePacket;
+            OpenDeckMIDIformat::packetType_t packetType;
 
             //use this function to forward all incoming data from other boards to usb
             if (OpenDeckMIDIformat::read(UART_MIDI_CHANNEL, slavePacket, packetType))
             {
-                if (packetType == odPacketType_t::packetMIDI)
+                if (packetType == OpenDeckMIDIformat::packetType_t::midi)
                 {
 #ifdef USB_SUPPORTED
                     Board::USB::writeMIDI(slavePacket);
 #else
-                    OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, slavePacket, odPacketType_t::packetMIDI);
+                    OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, slavePacket, OpenDeckMIDIformat::packetType_t::midi);
 #endif
                 }
             }
@@ -904,13 +904,13 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
 #ifdef USB_SUPPORTED
             if (Board::USB::readMIDI(USBMIDIpacket))
             {
-                return OpenDeckMIDIformat::write(UART_MIDI_CHANNEL, USBMIDIpacket, odPacketType_t::packetMIDI_dc_m);
+                return OpenDeckMIDIformat::write(UART_MIDI_CHANNEL, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::midiDaisyChain);
             }
 #else
             if (OpenDeckMIDIformat::read(UART_USB_LINK_CHANNEL, USBMIDIpacket, packetType))
             {
-                if (packetType == odPacketType_t::packetMIDI)
-                    return OpenDeckMIDIformat::write(UART_MIDI_CHANNEL, USBMIDIpacket, odPacketType_t::packetMIDI_dc_m);
+                if (packetType == OpenDeckMIDIformat::packetType_t::midi)
+                    return OpenDeckMIDIformat::write(UART_MIDI_CHANNEL, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::midiDaisyChain);
             }
 #endif
 
@@ -921,7 +921,7 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
         midi.handleUSBwrite(Board::USB::writeMIDI);
 #else
         midi.handleUSBwrite([](MIDI::USBMIDIpacket_t& USBMIDIpacket) {
-            return OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, USBMIDIpacket, odPacketType_t::packetMIDI);
+            return OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::midi);
         });
 #endif
         //unused
@@ -934,11 +934,11 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
         Board::UART::init(UART_BAUDRATE_MIDI_OD, UART_MIDI_CHANNEL);
         //forward all incoming messages to other boards
         midi.handleUSBread([](MIDI::USBMIDIpacket_t& USBMIDIpacket) {
-            odPacketType_t packetType;
+            OpenDeckMIDIformat::packetType_t packetType;
 
             if (OpenDeckMIDIformat::read(UART_MIDI_CHANNEL, USBMIDIpacket, packetType))
             {
-                if (packetType != odPacketType_t::packetIntCMD)
+                if (packetType != OpenDeckMIDIformat::packetType_t::internalCommand)
                     return OpenDeckMIDIformat::write(UART_MIDI_CHANNEL, USBMIDIpacket, packetType);
             }
 
@@ -947,7 +947,7 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
 
         //write data to uart (opendeck format)
         midi.handleUSBwrite([](MIDI::USBMIDIpacket_t& USBMIDIpacket) {
-            return OpenDeckMIDIformat::write(UART_MIDI_CHANNEL, USBMIDIpacket, odPacketType_t::packetMIDI);
+            return OpenDeckMIDIformat::write(UART_MIDI_CHANNEL, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::midi);
         });
 
         //no need for uart handlers

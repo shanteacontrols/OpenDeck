@@ -109,7 +109,7 @@ namespace
         packet.Data2 = 0x00;
         packet.Data3 = 0x00;
 
-        OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, packet, odPacketType_t::packetIntCMD);
+        OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, packet, OpenDeckMIDIformat::packetType_t::internalCommand);
 #endif
 #endif
     }

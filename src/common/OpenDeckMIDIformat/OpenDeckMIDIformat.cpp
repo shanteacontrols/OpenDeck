@@ -21,7 +21,7 @@ limitations under the License.
 
 namespace OpenDeckMIDIformat
 {
-    bool write(uint8_t channel, MIDI::USBMIDIpacket_t& USBMIDIpacket, odPacketType_t packetType)
+    bool write(uint8_t channel, MIDI::USBMIDIpacket_t& USBMIDIpacket, packetType_t packetType)
     {
         if (channel >= UART_INTERFACES)
             return false;
@@ -36,9 +36,9 @@ namespace OpenDeckMIDIformat
         return true;
     }
 
-    bool read(uint8_t channel, MIDI::USBMIDIpacket_t& USBMIDIpacket, odPacketType_t& packetType)
+    bool read(uint8_t channel, MIDI::USBMIDIpacket_t& USBMIDIpacket, packetType_t& packetType)
     {
-        packetType = odPacketType_t::packetInvalid;
+        packetType = packetType_t::invalid;
 
         if (channel >= UART_INTERFACES)
             return false;
@@ -49,9 +49,9 @@ namespace OpenDeckMIDIformat
             Board::UART::read(channel, data);
             uint8_t dataXOR = 0;
 
-            if ((data == static_cast<uint8_t>(odPacketType_t::packetMIDI)) || (data == static_cast<uint8_t>(odPacketType_t::packetMIDI_dc_m)))
+            if ((data == static_cast<uint8_t>(packetType_t::midi)) || (data == static_cast<uint8_t>(packetType_t::midiDaisyChain)))
             {
-                packetType = static_cast<odPacketType_t>(data);
+                packetType = static_cast<packetType_t>(data);
 
                 //start of frame, read rest of the packet
                 for (int i = 0; i < 5; i++)
@@ -87,7 +87,7 @@ namespace OpenDeckMIDIformat
 
                 return (dataXOR == data);
             }
-            else if (data == static_cast<uint8_t>(odPacketType_t::packetIntCMD))
+            else if (data == static_cast<uint8_t>(packetType_t::internalCommand))
             {
                 uint8_t cmd = 0;
                 Board::UART::read(channel, cmd);
@@ -96,17 +96,17 @@ namespace OpenDeckMIDIformat
                 for (int i = 0; i < 4; i++)
                     Board::UART::read(channel, data);
 
-                switch (static_cast<odFormatCMD_t>(cmd))
+                switch (static_cast<command_t>(cmd))
                 {
-                case odFormatCMD_t::cmdFwUpdated:
+                case command_t::fwUpdated:
                     Board::ledFlashStartup(true);
                     break;
 
-                case odFormatCMD_t::cmdFwNotUpdated:
+                case command_t::fwNotUpdated:
                     Board::ledFlashStartup(false);
                     break;
 
-                case odFormatCMD_t::cmdBtldrReboot:
+                case command_t::btldrReboot:
                     Board::reboot(Board::rebootType_t::rebootBtldr);
                     break;
 
@@ -114,7 +114,7 @@ namespace OpenDeckMIDIformat
                     break;
                 }
 
-                packetType = odPacketType_t::packetIntCMD;
+                packetType = packetType_t::internalCommand;
                 return true;
             }
         }

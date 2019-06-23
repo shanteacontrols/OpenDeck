@@ -22,8 +22,8 @@ limitations under the License.
 
 namespace
 {
-    MIDI::USBMIDIpacket_t USBMIDIpacket;
-    odPacketType_t        packetType;
+    MIDI::USBMIDIpacket_t            USBMIDIpacket;
+    OpenDeckMIDIformat::packetType_t packetType;
 }    // namespace
 
 int main(void)
@@ -35,11 +35,11 @@ int main(void)
     while (1)
     {
         if (Board::USB::readMIDI(USBMIDIpacket))
-            OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, USBMIDIpacket, odPacketType_t::packetMIDI);
+            OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::midi);
 
         if (OpenDeckMIDIformat::read(UART_USB_LINK_CHANNEL, USBMIDIpacket, packetType))
         {
-            if (packetType != odPacketType_t::packetIntCMD)
+            if (packetType != OpenDeckMIDIformat::packetType_t::internalCommand)
                 Board::USB::writeMIDI(USBMIDIpacket);
         }
     }
