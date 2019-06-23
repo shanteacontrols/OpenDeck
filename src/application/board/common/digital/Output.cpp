@@ -162,9 +162,9 @@ namespace Board
 
                 uint8_t getRGBaddress(uint8_t rgbID, Interface::digital::output::LEDs::rgbIndex_t index)
                 {
-#ifdef NUMBER_OF_BUTTON_COLUMNS
+#ifdef NUMBER_OF_LED_COLUMNS
                     uint8_t column = rgbID % NUMBER_OF_LED_COLUMNS;
-                    uint8_t row = (rgbID / NUMBER_OF_BUTTON_COLUMNS) * 3;
+                    uint8_t row = (rgbID / NUMBER_OF_LED_COLUMNS) * 3;
                     uint8_t address = column + NUMBER_OF_LED_COLUMNS * row;
 
                     switch (index)
@@ -187,13 +187,13 @@ namespace Board
 
                 uint8_t getRGBID(uint8_t ledID)
                 {
-#ifdef NUMBER_OF_BUTTON_COLUMNS
+#ifdef NUMBER_OF_LED_COLUMNS
                     uint8_t row = ledID / NUMBER_OF_LED_COLUMNS;
 
                     uint8_t mod = row % 3;
                     row -= mod;
 
-                    uint8_t column = ledID % NUMBER_OF_BUTTON_COLUMNS;
+                    uint8_t column = ledID % NUMBER_OF_LED_COLUMNS;
 
                     uint8_t result = (row * NUMBER_OF_LED_COLUMNS) / 3 + column;
 
