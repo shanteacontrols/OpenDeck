@@ -24,15 +24,51 @@ namespace Board
 {
     namespace map
     {
-        uint8_t         adcChannel(uint8_t index);
-        uint8_t         muxChannel(uint8_t index);
-        uint8_t         inMatrixRow(uint8_t index);
-        uint8_t         inMatrixColumn(uint8_t index);
-        uint8_t         outMatrixRow(uint8_t index);
+        ///
+        /// \brief Used to retrieve real ADC channel for an given index.
+        ///
+        uint8_t adcChannel(uint8_t index);
+
+        ///
+        /// \brief Used to retrieve real analog multiplexer channel for an given index.
+        ///
+        uint8_t muxChannel(uint8_t index);
+
+        ///
+        /// \brief Used to retrieve real row address in an input matrix for an given index.
+        ///
+        uint8_t inMatrixRow(uint8_t index);
+
+        ///
+        /// \brief Used to retrieve real column address in an input matrix for an given index.
+        ///
+        uint8_t inMatrixColumn(uint8_t index);
+
+        ///
+        /// \brief Used to retrieve real column address in an output matrix for an given index.
+        ///
+        uint8_t outMatrixRow(uint8_t index);
+
+        ///
+        /// \brief Used to retrieve button port and pin channel for an given index.
+        ///
         Board::mcuPin_t button(uint8_t index);
+
+        ///
+        /// \brief Used to retrieve LED port and pin channel for an given index.
+        ///
         Board::mcuPin_t led(uint8_t index);
-        void            ledRowOff(uint8_t row);
-        void            ledRowOn(uint8_t row
+
+        ///
+        /// \brief Used to turn the specified LED row off.
+        ///
+        void ledRowOff(uint8_t row);
+
+        ///
+        /// \brief Used to turn the specified LED row on.
+        /// If led fading is supported on board, intensitry must be specified as well.
+        ///
+        void ledRowOn(uint8_t row
 #ifdef LED_FADING
                       ,
                       uint8_t intensity
