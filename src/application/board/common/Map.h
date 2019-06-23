@@ -31,5 +31,12 @@ namespace Board
         uint8_t         outMatrixRow(uint8_t index);
         Board::mcuPin_t button(uint8_t index);
         Board::mcuPin_t led(uint8_t index);
+        void            ledRowOff(uint8_t row);
+        void            ledRowOn(uint8_t row
+#ifdef LED_FADING
+                      ,
+                      uint8_t intensity
+#endif
+        );
     }    // namespace map
 }    // namespace Board
