@@ -45,11 +45,6 @@ namespace Board
         uint8_t inMatrixColumn(uint8_t index);
 
         ///
-        /// \brief Used to retrieve real column address in an output matrix for an given index.
-        ///
-        uint8_t outMatrixRow(uint8_t index);
-
-        ///
         /// \brief Used to retrieve button port and pin channel for an given index.
         ///
         Board::mcuPin_t button(uint8_t index);
