@@ -33,24 +33,24 @@ namespace Board
         {
             //configure input matrix
             //shift register
-            setInput(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN);
-            setOutput(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
-            setOutput(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+            CORE_AVR_PIN_SET_INPUT(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
 
             //decoder
-            setOutput(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
-            setOutput(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
-            setOutput(DEC_DM_A1_PORT, DEC_DM_A2_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DEC_DM_A1_PORT, DEC_DM_A2_PIN);
 
             //configure led matrix
             //rows
 
-            setOutput(LED_ROW_1_PORT, LED_ROW_1_PIN);
-            setOutput(LED_ROW_2_PORT, LED_ROW_2_PIN);
-            setOutput(LED_ROW_3_PORT, LED_ROW_3_PIN);
-            setOutput(LED_ROW_4_PORT, LED_ROW_4_PIN);
-            setOutput(LED_ROW_5_PORT, LED_ROW_5_PIN);
-            setOutput(LED_ROW_6_PORT, LED_ROW_6_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(LED_ROW_1_PORT, LED_ROW_1_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(LED_ROW_2_PORT, LED_ROW_2_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(LED_ROW_3_PORT, LED_ROW_3_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(LED_ROW_4_PORT, LED_ROW_4_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(LED_ROW_5_PORT, LED_ROW_5_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(LED_ROW_6_PORT, LED_ROW_6_PIN);
 
             //make sure to turn all rows off
             EXT_LED_OFF(LED_ROW_1_PORT, LED_ROW_1_PIN);
@@ -61,29 +61,29 @@ namespace Board
             EXT_LED_OFF(LED_ROW_6_PORT, LED_ROW_6_PIN);
 
             //decoder
-            setOutput(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
-            setOutput(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
-            setOutput(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
 
             //configure analog
             //select pins
-            setOutput(MUX_S0_PORT, MUX_S0_PIN);
-            setOutput(MUX_S1_PORT, MUX_S1_PIN);
-            setOutput(MUX_S2_PORT, MUX_S2_PIN);
-            setOutput(MUX_S3_PORT, MUX_S3_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(MUX_S0_PORT, MUX_S0_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(MUX_S1_PORT, MUX_S1_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(MUX_S2_PORT, MUX_S2_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(MUX_S3_PORT, MUX_S3_PIN);
 
-            setLow(MUX_S0_PORT, MUX_S0_PIN);
-            setLow(MUX_S1_PORT, MUX_S1_PIN);
-            setLow(MUX_S2_PORT, MUX_S2_PIN);
-            setLow(MUX_S3_PORT, MUX_S3_PIN);
+            CORE_AVR_PIN_SET_LOW(MUX_S0_PORT, MUX_S0_PIN);
+            CORE_AVR_PIN_SET_LOW(MUX_S1_PORT, MUX_S1_PIN);
+            CORE_AVR_PIN_SET_LOW(MUX_S2_PORT, MUX_S2_PIN);
+            CORE_AVR_PIN_SET_LOW(MUX_S3_PORT, MUX_S3_PIN);
 
             //mux inputs
-            setInput(MUX_1_IN_PORT, MUX_1_IN_PIN);
-            setInput(MUX_2_IN_PORT, MUX_2_IN_PIN);
+            CORE_AVR_PIN_SET_INPUT(MUX_1_IN_PORT, MUX_1_IN_PIN);
+            CORE_AVR_PIN_SET_INPUT(MUX_2_IN_PORT, MUX_2_IN_PIN);
 
             //bootloader/midi leds
-            setOutput(LED_IN_PORT, LED_IN_PIN);
-            setOutput(LED_OUT_PORT, LED_OUT_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(LED_IN_PORT, LED_IN_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(LED_OUT_PORT, LED_OUT_PIN);
 
             INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
             INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);

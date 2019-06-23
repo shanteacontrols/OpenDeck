@@ -31,197 +31,197 @@ namespace Board
     {
         void pins()
         {
-            setInput(DI_1_PORT, DI_1_PIN);
-            setHigh(DI_1_PORT, DI_1_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_1_PORT, DI_1_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_1_PORT, DI_1_PIN);
 
-            setInput(DI_2_PORT, DI_2_PIN);
-            setHigh(DI_2_PORT, DI_2_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_2_PORT, DI_2_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_2_PORT, DI_2_PIN);
 
-            setInput(DI_3_PORT, DI_3_PIN);
-            setHigh(DI_3_PORT, DI_3_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_3_PORT, DI_3_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_3_PORT, DI_3_PIN);
 
-            setInput(DI_4_PORT, DI_4_PIN);
-            setHigh(DI_4_PORT, DI_4_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_4_PORT, DI_4_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_4_PORT, DI_4_PIN);
 
-            setInput(DI_5_PORT, DI_5_PIN);
-            setHigh(DI_5_PORT, DI_5_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_5_PORT, DI_5_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_5_PORT, DI_5_PIN);
 
-            setInput(DI_6_PORT, DI_6_PIN);
-            setHigh(DI_6_PORT, DI_6_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_6_PORT, DI_6_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_6_PORT, DI_6_PIN);
 
-            setInput(DI_7_PORT, DI_7_PIN);
-            setHigh(DI_7_PORT, DI_7_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_7_PORT, DI_7_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_7_PORT, DI_7_PIN);
 
-            setInput(DI_8_PORT, DI_8_PIN);
-            setHigh(DI_8_PORT, DI_8_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_8_PORT, DI_8_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_8_PORT, DI_8_PIN);
 
-            setInput(DI_9_PORT, DI_9_PIN);
-            setHigh(DI_9_PORT, DI_9_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_9_PORT, DI_9_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_9_PORT, DI_9_PIN);
 
-            setInput(DI_10_PORT, DI_10_PIN);
-            setHigh(DI_10_PORT, DI_10_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_10_PORT, DI_10_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_10_PORT, DI_10_PIN);
 
-            setInput(DI_11_PORT, DI_11_PIN);
-            setHigh(DI_11_PORT, DI_11_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_11_PORT, DI_11_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_11_PORT, DI_11_PIN);
 
-            setInput(DI_12_PORT, DI_12_PIN);
-            setHigh(DI_12_PORT, DI_12_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_12_PORT, DI_12_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_12_PORT, DI_12_PIN);
 
-            setInput(DI_13_PORT, DI_13_PIN);
-            setHigh(DI_13_PORT, DI_13_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_13_PORT, DI_13_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_13_PORT, DI_13_PIN);
 
-            setInput(DI_14_PORT, DI_14_PIN);
-            setHigh(DI_14_PORT, DI_14_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_14_PORT, DI_14_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_14_PORT, DI_14_PIN);
 
-            setInput(DI_15_PORT, DI_15_PIN);
-            setHigh(DI_15_PORT, DI_15_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_15_PORT, DI_15_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_15_PORT, DI_15_PIN);
 
-            setInput(DI_16_PORT, DI_16_PIN);
-            setHigh(DI_16_PORT, DI_16_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_16_PORT, DI_16_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_16_PORT, DI_16_PIN);
 
-            setInput(DI_17_PORT, DI_17_PIN);
-            setHigh(DI_17_PORT, DI_17_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_17_PORT, DI_17_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_17_PORT, DI_17_PIN);
 
-            setInput(DI_18_PORT, DI_18_PIN);
-            setHigh(DI_18_PORT, DI_18_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_18_PORT, DI_18_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_18_PORT, DI_18_PIN);
 
-            setInput(DI_19_PORT, DI_19_PIN);
-            setHigh(DI_19_PORT, DI_19_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_19_PORT, DI_19_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_19_PORT, DI_19_PIN);
 
-            setInput(DI_20_PORT, DI_20_PIN);
-            setHigh(DI_20_PORT, DI_20_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_20_PORT, DI_20_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_20_PORT, DI_20_PIN);
 
-            setInput(DI_21_PORT, DI_21_PIN);
-            setHigh(DI_21_PORT, DI_21_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_21_PORT, DI_21_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_21_PORT, DI_21_PIN);
 
-            setInput(DI_22_PORT, DI_22_PIN);
-            setHigh(DI_22_PORT, DI_22_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_22_PORT, DI_22_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_22_PORT, DI_22_PIN);
 
-            setInput(DI_23_PORT, DI_23_PIN);
-            setHigh(DI_23_PORT, DI_23_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_23_PORT, DI_23_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_23_PORT, DI_23_PIN);
 
-            setInput(DI_24_PORT, DI_24_PIN);
-            setHigh(DI_24_PORT, DI_24_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_24_PORT, DI_24_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_24_PORT, DI_24_PIN);
 
-            setInput(DI_25_PORT, DI_25_PIN);
-            setHigh(DI_25_PORT, DI_25_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_25_PORT, DI_25_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_25_PORT, DI_25_PIN);
 
-            setInput(DI_26_PORT, DI_26_PIN);
-            setHigh(DI_26_PORT, DI_26_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_26_PORT, DI_26_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_26_PORT, DI_26_PIN);
 
-            setInput(DI_27_PORT, DI_27_PIN);
-            setHigh(DI_27_PORT, DI_27_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_27_PORT, DI_27_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_27_PORT, DI_27_PIN);
 
-            setInput(DI_28_PORT, DI_28_PIN);
-            setHigh(DI_28_PORT, DI_28_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_28_PORT, DI_28_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_28_PORT, DI_28_PIN);
 
-            setInput(DI_29_PORT, DI_29_PIN);
-            setHigh(DI_29_PORT, DI_29_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_29_PORT, DI_29_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_29_PORT, DI_29_PIN);
 
-            setInput(DI_30_PORT, DI_30_PIN);
-            setHigh(DI_30_PORT, DI_30_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_30_PORT, DI_30_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_30_PORT, DI_30_PIN);
 
-            setOutput(MUX_S0_PORT, MUX_S0_PIN);
-            setLow(MUX_S0_PORT, MUX_S0_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(MUX_S0_PORT, MUX_S0_PIN);
+            CORE_AVR_PIN_SET_LOW(MUX_S0_PORT, MUX_S0_PIN);
 
-            setOutput(MUX_S1_PORT, MUX_S1_PIN);
-            setLow(MUX_S1_PORT, MUX_S1_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(MUX_S1_PORT, MUX_S1_PIN);
+            CORE_AVR_PIN_SET_LOW(MUX_S1_PORT, MUX_S1_PIN);
 
-            setOutput(MUX_S2_PORT, MUX_S2_PIN);
-            setLow(MUX_S2_PORT, MUX_S2_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(MUX_S2_PORT, MUX_S2_PIN);
+            CORE_AVR_PIN_SET_LOW(MUX_S2_PORT, MUX_S2_PIN);
 
-            setOutput(MUX_S3_PORT, MUX_S3_PIN);
-            setLow(MUX_S3_PORT, MUX_S3_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(MUX_S3_PORT, MUX_S3_PIN);
+            CORE_AVR_PIN_SET_LOW(MUX_S3_PORT, MUX_S3_PIN);
 
-            setOutput(DO_1_PORT, DO_1_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_1_PORT, DO_1_PIN);
             EXT_LED_OFF(DO_1_PORT, DO_1_PIN);
 
-            setOutput(DO_2_PORT, DO_2_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_2_PORT, DO_2_PIN);
             EXT_LED_OFF(DO_2_PORT, DO_2_PIN);
 
-            setOutput(DO_3_PORT, DO_3_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_3_PORT, DO_3_PIN);
             EXT_LED_OFF(DO_3_PORT, DO_3_PIN);
 
-            setOutput(DO_4_PORT, DO_4_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_4_PORT, DO_4_PIN);
             EXT_LED_OFF(DO_4_PORT, DO_4_PIN);
 
-            setOutput(DO_5_PORT, DO_5_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_5_PORT, DO_5_PIN);
             EXT_LED_OFF(DO_5_PORT, DO_5_PIN);
 
-            setOutput(DO_6_PORT, DO_6_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_6_PORT, DO_6_PIN);
             EXT_LED_OFF(DO_6_PORT, DO_6_PIN);
 
-            setOutput(DO_7_PORT, DO_7_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_7_PORT, DO_7_PIN);
             EXT_LED_OFF(DO_7_PORT, DO_7_PIN);
 
-            setOutput(DO_8_PORT, DO_8_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_8_PORT, DO_8_PIN);
             EXT_LED_OFF(DO_8_PORT, DO_8_PIN);
 
-            setOutput(DO_9_PORT, DO_9_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_9_PORT, DO_9_PIN);
             EXT_LED_OFF(DO_9_PORT, DO_9_PIN);
 
-            setOutput(DO_10_PORT, DO_10_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_10_PORT, DO_10_PIN);
             EXT_LED_OFF(DO_10_PORT, DO_10_PIN);
 
-            setOutput(DO_11_PORT, DO_11_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_11_PORT, DO_11_PIN);
             EXT_LED_OFF(DO_11_PORT, DO_11_PIN);
 
-            setOutput(DO_12_PORT, DO_12_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_12_PORT, DO_12_PIN);
             EXT_LED_OFF(DO_12_PORT, DO_12_PIN);
 
-            setOutput(DO_13_PORT, DO_13_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_13_PORT, DO_13_PIN);
             EXT_LED_OFF(DO_13_PORT, DO_13_PIN);
 
-            setOutput(DO_14_PORT, DO_14_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_14_PORT, DO_14_PIN);
             EXT_LED_OFF(DO_14_PORT, DO_14_PIN);
 
-            setOutput(DO_15_PORT, DO_15_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_15_PORT, DO_15_PIN);
             EXT_LED_OFF(DO_15_PORT, DO_15_PIN);
 
-            setOutput(DO_16_PORT, DO_16_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_16_PORT, DO_16_PIN);
             EXT_LED_OFF(DO_16_PORT, DO_16_PIN);
 
-            setOutput(DO_17_PORT, DO_17_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_17_PORT, DO_17_PIN);
             EXT_LED_OFF(DO_17_PORT, DO_17_PIN);
 
-            setOutput(DO_18_PORT, DO_18_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_18_PORT, DO_18_PIN);
             EXT_LED_OFF(DO_18_PORT, DO_18_PIN);
 
-            setOutput(DO_19_PORT, DO_19_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_19_PORT, DO_19_PIN);
             EXT_LED_OFF(DO_19_PORT, DO_19_PIN);
 
-            setOutput(DO_20_PORT, DO_20_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_20_PORT, DO_20_PIN);
             EXT_LED_OFF(DO_20_PORT, DO_20_PIN);
 
-            setOutput(DO_21_PORT, DO_21_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_21_PORT, DO_21_PIN);
             EXT_LED_OFF(DO_21_PORT, DO_21_PIN);
 
-            setOutput(DO_22_PORT, DO_22_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_22_PORT, DO_22_PIN);
             EXT_LED_OFF(DO_22_PORT, DO_22_PIN);
 
-            setOutput(DO_23_PORT, DO_23_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_23_PORT, DO_23_PIN);
             EXT_LED_OFF(DO_23_PORT, DO_23_PIN);
 
-            setOutput(DO_24_PORT, DO_24_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_24_PORT, DO_24_PIN);
             EXT_LED_OFF(DO_24_PORT, DO_24_PIN);
 
-            setInput(MUX_1_IN_PORT, MUX_1_IN_PIN);
-            setLow(MUX_1_IN_PORT, MUX_1_IN_PIN);
+            CORE_AVR_PIN_SET_INPUT(MUX_1_IN_PORT, MUX_1_IN_PIN);
+            CORE_AVR_PIN_SET_LOW(MUX_1_IN_PORT, MUX_1_IN_PIN);
 
-            setInput(MUX_2_IN_PORT, MUX_2_IN_PIN);
-            setLow(MUX_2_IN_PORT, MUX_2_IN_PIN);
+            CORE_AVR_PIN_SET_INPUT(MUX_2_IN_PORT, MUX_2_IN_PIN);
+            CORE_AVR_PIN_SET_LOW(MUX_2_IN_PORT, MUX_2_IN_PIN);
 
-            setInput(MUX_3_IN_PORT, MUX_3_IN_PIN);
-            setLow(MUX_3_IN_PORT, MUX_3_IN_PIN);
+            CORE_AVR_PIN_SET_INPUT(MUX_3_IN_PORT, MUX_3_IN_PIN);
+            CORE_AVR_PIN_SET_LOW(MUX_3_IN_PORT, MUX_3_IN_PIN);
 
-            setInput(MUX_4_IN_PORT, MUX_4_IN_PIN);
-            setLow(MUX_4_IN_PORT, MUX_4_IN_PIN);
+            CORE_AVR_PIN_SET_INPUT(MUX_4_IN_PORT, MUX_4_IN_PIN);
+            CORE_AVR_PIN_SET_LOW(MUX_4_IN_PORT, MUX_4_IN_PIN);
 
-            setInput(MUX_5_IN_PORT, MUX_5_IN_PIN);
-            setLow(MUX_5_IN_PORT, MUX_5_IN_PIN);
+            CORE_AVR_PIN_SET_INPUT(MUX_5_IN_PORT, MUX_5_IN_PIN);
+            CORE_AVR_PIN_SET_LOW(MUX_5_IN_PORT, MUX_5_IN_PIN);
 
-            setInput(MUX_6_IN_PORT, MUX_6_IN_PIN);
-            setLow(MUX_6_IN_PORT, MUX_6_IN_PIN);
+            CORE_AVR_PIN_SET_INPUT(MUX_6_IN_PORT, MUX_6_IN_PIN);
+            CORE_AVR_PIN_SET_LOW(MUX_6_IN_PORT, MUX_6_IN_PIN);
         }
 
         void adc()

@@ -30,73 +30,73 @@ namespace Board
     {
         void pins()
         {
-            setInput(DI_1_PORT, DI_1_PIN);
-            setHigh(DI_1_PORT, DI_1_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_1_PORT, DI_1_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_1_PORT, DI_1_PIN);
 
-            setInput(DI_2_PORT, DI_2_PIN);
-            setHigh(DI_2_PORT, DI_2_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_2_PORT, DI_2_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_2_PORT, DI_2_PIN);
 
-            setInput(DI_3_PORT, DI_3_PIN);
-            setHigh(DI_3_PORT, DI_3_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_3_PORT, DI_3_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_3_PORT, DI_3_PIN);
 
-            setInput(DI_4_PORT, DI_4_PIN);
-            setHigh(DI_4_PORT, DI_4_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_4_PORT, DI_4_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_4_PORT, DI_4_PIN);
 
-            setInput(DI_5_PORT, DI_5_PIN);
-            setHigh(DI_5_PORT, DI_5_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_5_PORT, DI_5_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_5_PORT, DI_5_PIN);
 
-            setInput(DI_6_PORT, DI_6_PIN);
-            setHigh(DI_6_PORT, DI_6_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_6_PORT, DI_6_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_6_PORT, DI_6_PIN);
 
 #ifdef BOARD_A_LEO
-            setInput(DI_7_PORT, DI_7_PIN);
-            setHigh(DI_7_PORT, DI_7_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_7_PORT, DI_7_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_7_PORT, DI_7_PIN);
 
-            setInput(DI_8_PORT, DI_8_PIN);
-            setHigh(DI_8_PORT, DI_8_PIN);
+            CORE_AVR_PIN_SET_INPUT(DI_8_PORT, DI_8_PIN);
+            CORE_AVR_PIN_SET_HIGH(DI_8_PORT, DI_8_PIN);
 #endif
 
-            setOutput(DO_1_PORT, DO_1_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_1_PORT, DO_1_PIN);
             EXT_LED_OFF(DO_1_PORT, DO_1_PIN);
 
-            setOutput(DO_2_PORT, DO_2_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_2_PORT, DO_2_PIN);
             EXT_LED_OFF(DO_2_PORT, DO_2_PIN);
 
-            setOutput(DO_3_PORT, DO_3_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_3_PORT, DO_3_PIN);
             EXT_LED_OFF(DO_3_PORT, DO_3_PIN);
 
-            setOutput(DO_4_PORT, DO_4_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_4_PORT, DO_4_PIN);
             EXT_LED_OFF(DO_4_PORT, DO_4_PIN);
 
-            setOutput(DO_5_PORT, DO_5_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_5_PORT, DO_5_PIN);
             EXT_LED_OFF(DO_5_PORT, DO_5_PIN);
 
-            setOutput(DO_6_PORT, DO_6_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(DO_6_PORT, DO_6_PIN);
             EXT_LED_OFF(DO_6_PORT, DO_6_PIN);
 
-            setInput(AI_1_PORT, AI_1_PIN);
-            setLow(AI_1_PORT, AI_1_PIN);
+            CORE_AVR_PIN_SET_INPUT(AI_1_PORT, AI_1_PIN);
+            CORE_AVR_PIN_SET_LOW(AI_1_PORT, AI_1_PIN);
 
-            setInput(AI_2_PORT, AI_2_PIN);
-            setLow(AI_2_PORT, AI_2_PIN);
+            CORE_AVR_PIN_SET_INPUT(AI_2_PORT, AI_2_PIN);
+            CORE_AVR_PIN_SET_LOW(AI_2_PORT, AI_2_PIN);
 
-            setInput(AI_3_PORT, AI_3_PIN);
-            setLow(AI_3_PORT, AI_3_PIN);
+            CORE_AVR_PIN_SET_INPUT(AI_3_PORT, AI_3_PIN);
+            CORE_AVR_PIN_SET_LOW(AI_3_PORT, AI_3_PIN);
 
-            setInput(AI_4_PORT, AI_4_PIN);
-            setLow(AI_4_PORT, AI_4_PIN);
+            CORE_AVR_PIN_SET_INPUT(AI_4_PORT, AI_4_PIN);
+            CORE_AVR_PIN_SET_LOW(AI_4_PORT, AI_4_PIN);
 
 #ifdef BOARD_A_LEO
-            setInput(AI_5_PORT, AI_5_PIN);
-            setLow(AI_5_PORT, AI_5_PIN);
+            CORE_AVR_PIN_SET_INPUT(AI_5_PORT, AI_5_PIN);
+            CORE_AVR_PIN_SET_LOW(AI_5_PORT, AI_5_PIN);
 
-            setInput(AI_6_PORT, AI_6_PIN);
-            setLow(AI_6_PORT, AI_6_PIN);
+            CORE_AVR_PIN_SET_INPUT(AI_6_PORT, AI_6_PIN);
+            CORE_AVR_PIN_SET_LOW(AI_6_PORT, AI_6_PIN);
 #endif
 
             //bootloader/midi leds
-            setOutput(LED_IN_PORT, LED_IN_PIN);
-            setOutput(LED_OUT_PORT, LED_OUT_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(LED_IN_PORT, LED_IN_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(LED_OUT_PORT, LED_OUT_PIN);
 
             INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
             INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);

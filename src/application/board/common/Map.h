@@ -20,6 +20,10 @@ limitations under the License.
 
 #include "board/Board.h"
 
+#ifdef __AVR__
+#include "core/src/avr/PinManipulation.h"
+#endif
+
 namespace Board
 {
     namespace map
@@ -47,27 +51,16 @@ namespace Board
         ///
         /// \brief Used to retrieve button port and pin channel for an given index.
         ///
-        Board::mcuPin_t button(uint8_t index);
+        core::CORE_ARCH::pins::mcuPin_t button(uint8_t index);
 
         ///
         /// \brief Used to retrieve LED port and pin channel for an given index.
         ///
-        Board::mcuPin_t led(uint8_t index);
+        core::CORE_ARCH::pins::mcuPin_t led(uint8_t index);
 
         ///
-        /// \brief Used to turn the specified LED row off.
+        /// \brief Used to retrieve all the registers needed to control PWM channel for an given index.
         ///
-        void ledRowOff(uint8_t row);
-
-        ///
-        /// \brief Used to turn the specified LED row on.
-        /// If led fading is supported on board, intensitry must be specified as well.
-        ///
-        void ledRowOn(uint8_t row
-#ifdef LED_FADING
-                      ,
-                      uint8_t intensity
-#endif
-        );
+        core::CORE_ARCH::pins::pwmChannel_t pwmChannel(uint8_t index);
     }    // namespace map
 }    // namespace Board

@@ -29,8 +29,8 @@ namespace Board
         void pins()
         {
             //bootloader/midi leds
-            setOutput(LED_IN_PORT, LED_IN_PIN);
-            setOutput(LED_OUT_PORT, LED_OUT_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(LED_IN_PORT, LED_IN_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(LED_OUT_PORT, LED_OUT_PIN);
 
             INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
             INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);

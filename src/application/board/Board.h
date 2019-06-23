@@ -38,15 +38,6 @@ namespace Board
     };
 
     ///
-    /// \brief Structure used to define single MCU pin.
-    ///
-    typedef struct
-    {
-        volatile uint8_t* port;
-        uint8_t           pin;
-    } mcuPin_t;
-
-    ///
     /// \brief Perfoms initialization of MCU and all board peripherals.
     ///
     void init();

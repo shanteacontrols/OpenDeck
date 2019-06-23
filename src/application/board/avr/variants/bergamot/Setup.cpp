@@ -27,52 +27,52 @@ namespace Board
     {
         void pins()
         {
-            setInput(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN);
-            setOutput(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
-            setOutput(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+            CORE_AVR_PIN_SET_INPUT(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
 
-            setOutput(MUX_S0_PORT, MUX_S0_PIN);
-            setOutput(MUX_S1_PORT, MUX_S1_PIN);
-            setOutput(MUX_S2_PORT, MUX_S2_PIN);
-            setOutput(MUX_S3_PORT, MUX_S3_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(MUX_S0_PORT, MUX_S0_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(MUX_S1_PORT, MUX_S1_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(MUX_S2_PORT, MUX_S2_PIN);
+            CORE_AVR_PIN_SET_OUTPUT(MUX_S3_PORT, MUX_S3_PIN);
 
-            setInput(MUX_1_IN_PORT, MUX_1_IN_PIN);
+            CORE_AVR_PIN_SET_INPUT(MUX_1_IN_PORT, MUX_1_IN_PIN);
 
-            setInput(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+            CORE_AVR_PIN_SET_INPUT(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
 
             //unused pins
-            setOutput(PORTB, 0);
-            setOutput(PORTB, 4);
-            setOutput(PORTB, 5);
-            setOutput(PORTB, 6);
-            setOutput(PORTB, 7);
+            CORE_AVR_PIN_SET_OUTPUT(PORTB, 0);
+            CORE_AVR_PIN_SET_OUTPUT(PORTB, 4);
+            CORE_AVR_PIN_SET_OUTPUT(PORTB, 5);
+            CORE_AVR_PIN_SET_OUTPUT(PORTB, 6);
+            CORE_AVR_PIN_SET_OUTPUT(PORTB, 7);
 
-            setOutput(PORTC, 6);
-            setOutput(PORTC, 7);
+            CORE_AVR_PIN_SET_OUTPUT(PORTC, 6);
+            CORE_AVR_PIN_SET_OUTPUT(PORTC, 7);
 
-            setOutput(PORTD, 0);
-            setOutput(PORTD, 1);
-            setOutput(PORTD, 5);
+            CORE_AVR_PIN_SET_OUTPUT(PORTD, 0);
+            CORE_AVR_PIN_SET_OUTPUT(PORTD, 1);
+            CORE_AVR_PIN_SET_OUTPUT(PORTD, 5);
 
-            setOutput(PORTE, 2);
-            setOutput(PORTE, 6);
+            CORE_AVR_PIN_SET_OUTPUT(PORTE, 2);
+            CORE_AVR_PIN_SET_OUTPUT(PORTE, 6);
 
             //make sure all unused pins are logic low
-            setLow(PORTB, 0);
-            setLow(PORTB, 4);
-            setLow(PORTB, 5);
-            setLow(PORTB, 6);
-            setLow(PORTB, 7);
+            CORE_AVR_PIN_SET_LOW(PORTB, 0);
+            CORE_AVR_PIN_SET_LOW(PORTB, 4);
+            CORE_AVR_PIN_SET_LOW(PORTB, 5);
+            CORE_AVR_PIN_SET_LOW(PORTB, 6);
+            CORE_AVR_PIN_SET_LOW(PORTB, 7);
 
-            setLow(PORTC, 6);
-            setLow(PORTC, 7);
+            CORE_AVR_PIN_SET_LOW(PORTC, 6);
+            CORE_AVR_PIN_SET_LOW(PORTC, 7);
 
-            setLow(PORTD, 0);
-            setLow(PORTD, 1);
-            setLow(PORTD, 5);
+            CORE_AVR_PIN_SET_LOW(PORTD, 0);
+            CORE_AVR_PIN_SET_LOW(PORTD, 1);
+            CORE_AVR_PIN_SET_LOW(PORTD, 5);
 
-            setLow(PORTE, 2);
-            setLow(PORTE, 6);
+            CORE_AVR_PIN_SET_LOW(PORTE, 2);
+            CORE_AVR_PIN_SET_LOW(PORTE, 6);
         }
 
         void adc()

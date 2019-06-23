@@ -123,29 +123,29 @@ namespace Board
 #if defined(SR_DIN_CLK_PORT) && defined(SR_DIN_LATCH_PORT) && defined(SR_DIN_DATA_PORT) && !defined(NUMBER_OF_BUTTON_COLUMNS) && !defined(NUMBER_OF_BUTTON_ROWS)
                     inline void storeDigitalIn()
                     {
-                        setLow(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
-                        setLow(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+                        CORE_AVR_PIN_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+                        CORE_AVR_PIN_SET_LOW(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
                         _NOP();
 
-                        setHigh(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+                        CORE_AVR_PIN_SET_HIGH(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
 
                         for (int j = 0; j < NUMBER_OF_IN_SR; j++)
                         {
                             for (int i = 0; i < NUMBER_OF_IN_SR_INPUTS; i++)
                             {
-                                setLow(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+                                CORE_AVR_PIN_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
                                 _NOP();
-                                BIT_WRITE(digitalInBuffer[dIn_head][0], 7 - i, !readPin(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN));
-                                setHigh(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+                                BIT_WRITE(digitalInBuffer[dIn_head][0], 7 - i, !CORE_AVR_PIN_READ(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN));
+                                CORE_AVR_PIN_SET_HIGH(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
                             }
                         }
                     }
 #elif defined(NUMBER_OF_BUTTON_COLUMNS) && defined(NUMBER_OF_BUTTON_ROWS)
                     inline void activateInputColumn()
                     {
-                        BIT_READ(Board::map::inMatrixColumn(activeInColumn), 0) ? setHigh(DEC_DM_A0_PORT, DEC_DM_A0_PIN) : setLow(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
-                        BIT_READ(Board::map::inMatrixColumn(activeInColumn), 1) ? setHigh(DEC_DM_A1_PORT, DEC_DM_A1_PIN) : setLow(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
-                        BIT_READ(Board::map::inMatrixColumn(activeInColumn), 2) ? setHigh(DEC_DM_A2_PORT, DEC_DM_A2_PIN) : setLow(DEC_DM_A2_PORT, DEC_DM_A2_PIN);
+                        BIT_READ(Board::map::inMatrixColumn(activeInColumn), 0) ? CORE_AVR_PIN_SET_HIGH(DEC_DM_A0_PORT, DEC_DM_A0_PIN) : CORE_AVR_PIN_SET_LOW(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
+                        BIT_READ(Board::map::inMatrixColumn(activeInColumn), 1) ? CORE_AVR_PIN_SET_HIGH(DEC_DM_A1_PORT, DEC_DM_A1_PIN) : CORE_AVR_PIN_SET_LOW(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
+                        BIT_READ(Board::map::inMatrixColumn(activeInColumn), 2) ? CORE_AVR_PIN_SET_HIGH(DEC_DM_A2_PORT, DEC_DM_A2_PIN) : CORE_AVR_PIN_SET_LOW(DEC_DM_A2_PORT, DEC_DM_A2_PIN);
 
                         if (++activeInColumn == NUMBER_OF_BUTTON_COLUMNS)
                             activeInColumn = 0;
@@ -162,25 +162,25 @@ namespace Board
                             activateInputColumn();
                             _NOP();
 
-                            setLow(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
-                            setLow(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+                            CORE_AVR_PIN_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+                            CORE_AVR_PIN_SET_LOW(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
                             _NOP();
 
-                            setHigh(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+                            CORE_AVR_PIN_SET_HIGH(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
 
                             for (int j = 0; j < NUMBER_OF_BUTTON_ROWS; j++)
                             {
-                                setLow(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+                                CORE_AVR_PIN_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
                                 _NOP();
-                                BIT_WRITE(digitalInBuffer[dIn_head][i], Board::map::inMatrixRow(j), !readPin(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN));
-                                setHigh(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+                                BIT_WRITE(digitalInBuffer[dIn_head][i], Board::map::inMatrixRow(j), !CORE_AVR_PIN_READ(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN));
+                                CORE_AVR_PIN_SET_HIGH(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
                             }
                         }
                     }
 #else
                     namespace
                     {
-                        Board::mcuPin_t pin;
+                        core::CORE_ARCH::pins::mcuPin_t pin;
                     }
 
                     inline void storeDigitalIn()
@@ -196,7 +196,7 @@ namespace Board
 
                                 pin = Board::map::button(buttonIndex);
 
-                                BIT_WRITE(digitalInBuffer[dIn_head][i], j, !readPin(*pin.port, pin.pin));
+                                BIT_WRITE(digitalInBuffer[dIn_head][i], j, !CORE_AVR_PIN_READ(*pin.port, pin.pin));
                             }
                         }
                     }

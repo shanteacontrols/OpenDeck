@@ -39,7 +39,7 @@ namespace Board
             ///
             /// \brief Array holding ports and bits for all digital input pins.
             ///
-            const mcuPin_t dInPins[MAX_NUMBER_OF_BUTTONS] = {
+            const core::CORE_ARCH::pins::mcuPin_t dInPins[MAX_NUMBER_OF_BUTTONS] = {
                 {
                     .port = &DI_1_PORT,
                     .pin = DI_1_PIN,
@@ -86,7 +86,7 @@ namespace Board
             ///
             /// \brief Array holding ports and bits for all digital output pins.
             ///
-            const mcuPin_t dOutPins[MAX_NUMBER_OF_LEDS] = {
+            const core::CORE_ARCH::pins::mcuPin_t dOutPins[MAX_NUMBER_OF_LEDS] = {
                 {
                     .port = &DO_1_PORT,
                     .pin = DO_1_PIN,
@@ -124,12 +124,12 @@ namespace Board
             return adcChannelArray[index];
         }
 
-        Board::mcuPin_t button(uint8_t index)
+        core::CORE_ARCH::pins::mcuPin_t button(uint8_t index)
         {
             return dInPins[index];
         }
 
-        Board::mcuPin_t led(uint8_t index)
+        core::CORE_ARCH::pins::mcuPin_t led(uint8_t index)
         {
             return dOutPins[index];
         }

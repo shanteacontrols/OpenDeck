@@ -39,41 +39,44 @@ namespace
 //indicate that we're in bootloader mode by turning on specific leds
 //if the board uses indicator leds for midi traffic, turn them both on
 #ifdef BOARD_KODAMA
-        setLow(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+        CORE_AVR_PIN_SET_LOW(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 
         for (int i = 0; i < 16; i++)
         {
             EXT_LED_ON(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
-            pulseHighToLow(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+            CORE_AVR_PIN_SET_HIGH(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+            _NOP();
+            _NOP();
+            CORE_AVR_PIN_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
         }
 
-        setHigh(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+        CORE_AVR_PIN_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 //make sure internal led is turned off for mega/uno
 #elif defined(BOARD_A_MEGA)
-        setOutput(PORTB, 7);
-        setLow(PORTB, 7);
+        CORE_AVR_PIN_SET_OUTPUT(PORTB, 7);
+        CORE_AVR_PIN_SET_LOW(PORTB, 7);
 #elif defined(BOARD_A_UNO)
-        setOutput(PORTB, 5);
-        setLow(PORTB, 5);
+        CORE_AVR_PIN_SET_OUTPUT(PORTB, 5);
+        CORE_AVR_PIN_SET_LOW(PORTB, 5);
 #elif defined(BOARD_T_2PP)
         //only one led
-        setOutput(LED_IN_PORT, LED_IN_PIN);
+        CORE_AVR_PIN_SET_OUTPUT(LED_IN_PORT, LED_IN_PIN);
         INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
 #elif defined(LED_INDICATORS)
-        setOutput(LED_IN_PORT, LED_IN_PIN);
-        setOutput(LED_OUT_PORT, LED_OUT_PIN);
+        CORE_AVR_PIN_SET_OUTPUT(LED_IN_PORT, LED_IN_PIN);
+        CORE_AVR_PIN_SET_OUTPUT(LED_OUT_PORT, LED_OUT_PIN);
         INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
         INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
 #endif
 
 //configure bootloader entry pins
 #if defined(BOARD_KODAMA)
-        setInput(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN);
-        setOutput(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
-        setOutput(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+        CORE_AVR_PIN_SET_INPUT(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN);
+        CORE_AVR_PIN_SET_OUTPUT(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+        CORE_AVR_PIN_SET_OUTPUT(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
 #elif defined(BTLDR_BUTTON_PORT)
-        setInput(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
-        setHigh(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+        CORE_AVR_PIN_SET_INPUT(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+        CORE_AVR_PIN_SET_HIGH(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
 #endif
     }
 
@@ -161,26 +164,26 @@ namespace
 
 #if defined(BOARD_KODAMA)
         uint16_t dInData = 0;
-        setLow(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
-        setLow(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+        CORE_AVR_PIN_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+        CORE_AVR_PIN_SET_LOW(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
         _NOP();
         _NOP();
 
-        setHigh(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+        CORE_AVR_PIN_SET_HIGH(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
 
         //this board has two shift registers - 16 inputs in total
         for (int i = 0; i < 16; i++)
         {
-            setLow(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+            CORE_AVR_PIN_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
             _NOP();
-            BIT_WRITE(dInData, i, !readPin(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN));
-            setHigh(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+            BIT_WRITE(dInData, i, !CORE_AVR_PIN_READ(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN));
+            CORE_AVR_PIN_SET_HIGH(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
         }
 
         bool hardwareTrigger = BIT_READ(dInData, BTLDR_BUTTON_INDEX);
 #else
 #ifdef BTLDR_BUTTON_PORT
-        bool           hardwareTrigger = !readPin(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+        bool           hardwareTrigger = !CORE_AVR_PIN_READ(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
 #else
         //no hardware entry possible in this case
         bool hardwareTrigger = false;

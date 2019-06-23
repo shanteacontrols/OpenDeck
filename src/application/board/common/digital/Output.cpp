@@ -253,16 +253,16 @@ namespace Board
                     ///
                     inline void activateOutputColumn()
                     {
-                        BIT_READ(activeOutColumn, 0) ? setHigh(DEC_LM_A0_PORT, DEC_LM_A0_PIN) : setLow(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
-                        BIT_READ(activeOutColumn, 1) ? setHigh(DEC_LM_A1_PORT, DEC_LM_A1_PIN) : setLow(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
-                        BIT_READ(activeOutColumn, 2) ? setHigh(DEC_LM_A2_PORT, DEC_LM_A2_PIN) : setLow(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
+                        BIT_READ(activeOutColumn, 0) ? CORE_AVR_PIN_SET_HIGH(DEC_LM_A0_PORT, DEC_LM_A0_PIN) : CORE_AVR_PIN_SET_LOW(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
+                        BIT_READ(activeOutColumn, 1) ? CORE_AVR_PIN_SET_HIGH(DEC_LM_A1_PORT, DEC_LM_A1_PIN) : CORE_AVR_PIN_SET_LOW(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
+                        BIT_READ(activeOutColumn, 2) ? CORE_AVR_PIN_SET_HIGH(DEC_LM_A2_PORT, DEC_LM_A2_PIN) : CORE_AVR_PIN_SET_LOW(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
                     }
 
                     namespace
                     {
-                        Board::mcuPin_t pin;
-                        uint8_t         ledNumber;
-                        uint8_t         ledStateSingle;
+                        core::CORE_ARCH::pins::mcuPin_t pin;
+                        uint8_t                         ledNumber;
+                        uint8_t                         ledStateSingle;
                     }    // namespace
 
                     void checkDigitalOutputs()
@@ -354,21 +354,24 @@ namespace Board
 
                         if (updateSR)
                         {
-                            setLow(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+                            core::CORE_ARCH::pins::CORE_AVR_PIN_SET_LOW(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 
                             for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
                             {
                                 LED_ON(Interface::digital::output::LEDs::getLEDstate(i)) ? EXT_LED_ON(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN) : EXT_LED_OFF(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
-                                pulseHighToLow(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+                                CORE_AVR_PIN_SET_HIGH(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+                                _NOP();
+                                _NOP();
+                                CORE_AVR_PIN_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
                             }
 
-                            setHigh(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+                            core::CORE_ARCH::pins::CORE_AVR_PIN_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
                         }
                     }
 #else
                     namespace
                     {
-                        Board::mcuPin_t pin;
+                        core::CORE_ARCH::pins::mcuPin_t pin;
                     }
 
                     void checkDigitalOutputs()

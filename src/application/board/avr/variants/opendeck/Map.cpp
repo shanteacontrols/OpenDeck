@@ -136,7 +136,7 @@ namespace Board
             ///
             /// \brief Array of mcuPin_t structure holding port/pin for every LED row for easier access.
             ///
-            const mcuPin_t ledRowPins[NUMBER_OF_LED_ROWS] = {
+            const core::CORE_ARCH::pins::mcuPin_t ledRowPins[NUMBER_OF_LED_ROWS] = {
                 {
                     .port = &LED_ROW_1_PORT,
                     .pin = LED_ROW_1_PIN,
@@ -191,7 +191,7 @@ namespace Board
             return dmColumnArray[index];
         }
 
-        Board::mcuPin_t led(uint8_t index)
+        core::CORE_ARCH::pins::mcuPin_t led(uint8_t index)
         {
             return ledRowPins[index];
         }
