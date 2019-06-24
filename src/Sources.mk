@@ -10,10 +10,10 @@ endif
 INCLUDE_DIRS := \
 -I"modules/lufa/" \
 -I"modules/" \
--I"application/board/avr/variants/$(BOARD_DIR)/" \
+-I"application/board/$(ARCH)/variants/$(BOARD_DIR)/" \
 -I"application/" \
 
-INCLUDE_FILES += -include "application/board/avr/variants/$(BOARD_DIR)/Hardware.h"
+INCLUDE_FILES += -include "application/board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h"
 
 ifeq ($(findstring boot_,$(TARGETNAME)), boot_)
     #bootloader only
@@ -21,41 +21,41 @@ ifeq ($(findstring boot_,$(TARGETNAME)), boot_)
     -I"bootloader/mcu/"
 endif
 
-SOURCES :=
-
-#lufa sources
-ifneq ($(filter USB_SUPPORTED, $(DEFINES)), )
-    #common for bootloader and application
-    SOURCES += \
-    modules/lufa/LUFA/Drivers/USB/Core/AVR8/Device_AVR8.c \
-    modules/lufa/LUFA/Drivers/USB/Core/AVR8/EndpointStream_AVR8.c \
-    modules/lufa/LUFA/Drivers/USB/Core/AVR8/Endpoint_AVR8.c \
-    modules/lufa/LUFA/Drivers/USB/Core/AVR8/PipeStream_AVR8.c \
-    modules/lufa/LUFA/Drivers/USB/Core/AVR8/Pipe_AVR8.c \
-    modules/lufa/LUFA/Drivers/USB/Core/AVR8/Template/Template_Endpoint_Control_R.c \
-    modules/lufa/LUFA/Drivers/USB/Core/AVR8/Template/Template_Endpoint_Control_W.c \
-    modules/lufa/LUFA/Drivers/USB/Core/AVR8/Template/Template_Endpoint_RW.c \
-    modules/lufa/LUFA/Drivers/USB/Core/AVR8/Template/Template_Pipe_RW.c \
-    modules/lufa/LUFA/Drivers/USB/Core/AVR8/USBController_AVR8.c \
-    modules/lufa/LUFA/Drivers/USB/Core/AVR8/USBInterrupt_AVR8.c \
-    modules/lufa/LUFA/Drivers/USB/Core/ConfigDescriptors.c \
-    modules/lufa/LUFA/Drivers/USB/Core/DeviceStandardReq.c \
-    modules/lufa/LUFA/Drivers/USB/Core/Events.c \
-    modules/lufa/LUFA/Drivers/USB/Core/USBTask.c
-
-    #additional sources differ for application and bootloader
-    ifeq ($(findstring boot,$(TARGETNAME)), boot)
-        #bootloader
+#lufa sources for avr
+ifeq ($(ARCH), avr)
+    ifneq ($(filter USB_SUPPORTED, $(DEFINES)), )
+        #common for bootloader and application
         SOURCES += \
-        bootloader/mcu/Descriptors.c \
-        modules/lufa/LUFA/Drivers/USB/Class/Common/HIDParser.c \
-        modules/lufa/LUFA/Drivers/USB/Class/Device/HIDClassDevice.c
-    else
-        #application
-        SOURCES += \
-        application/board/avr/usb/Descriptors.c \
-        modules/lufa/LUFA/Drivers/USB/Class/Device/AudioClassDevice.c \
-        modules/lufa/LUFA/Drivers/USB/Class/Device/MIDIClassDevice.c
+        modules/lufa/LUFA/Drivers/USB/Core/AVR8/Device_AVR8.c \
+        modules/lufa/LUFA/Drivers/USB/Core/AVR8/EndpointStream_AVR8.c \
+        modules/lufa/LUFA/Drivers/USB/Core/AVR8/Endpoint_AVR8.c \
+        modules/lufa/LUFA/Drivers/USB/Core/AVR8/PipeStream_AVR8.c \
+        modules/lufa/LUFA/Drivers/USB/Core/AVR8/Pipe_AVR8.c \
+        modules/lufa/LUFA/Drivers/USB/Core/AVR8/Template/Template_Endpoint_Control_R.c \
+        modules/lufa/LUFA/Drivers/USB/Core/AVR8/Template/Template_Endpoint_Control_W.c \
+        modules/lufa/LUFA/Drivers/USB/Core/AVR8/Template/Template_Endpoint_RW.c \
+        modules/lufa/LUFA/Drivers/USB/Core/AVR8/Template/Template_Pipe_RW.c \
+        modules/lufa/LUFA/Drivers/USB/Core/AVR8/USBController_AVR8.c \
+        modules/lufa/LUFA/Drivers/USB/Core/AVR8/USBInterrupt_AVR8.c \
+        modules/lufa/LUFA/Drivers/USB/Core/ConfigDescriptors.c \
+        modules/lufa/LUFA/Drivers/USB/Core/DeviceStandardReq.c \
+        modules/lufa/LUFA/Drivers/USB/Core/Events.c \
+        modules/lufa/LUFA/Drivers/USB/Core/USBTask.c
+
+        #additional sources differ for application and bootloader
+        ifeq ($(findstring boot,$(TARGETNAME)), boot)
+            #bootloader
+            SOURCES += \
+            bootloader/mcu/Descriptors.c \
+            modules/lufa/LUFA/Drivers/USB/Class/Common/HIDParser.c \
+            modules/lufa/LUFA/Drivers/USB/Class/Device/HIDClassDevice.c
+        else
+            #application
+            SOURCES += \
+            application/board/avr/usb/Descriptors.c \
+            modules/lufa/LUFA/Drivers/USB/Class/Device/AudioClassDevice.c \
+            modules/lufa/LUFA/Drivers/USB/Class/Device/MIDIClassDevice.c
+        endif
     endif
 endif
 
@@ -69,7 +69,7 @@ ifeq ($(findstring boot,$(TARGETNAME)), boot)
         ifeq ($(BOARD_DIR),xu2)
             SOURCES += \
             bootloader/mcu/variant/xu2.cpp \
-            common/board/avr/uart/UART.cpp
+            common/board/$(ARCH)/uart/UART.cpp
         else
             SOURCES += \
             bootloader/mcu/variant/NativeUSB.cpp
@@ -77,7 +77,7 @@ ifeq ($(findstring boot,$(TARGETNAME)), boot)
     else
         SOURCES += \
         bootloader/mcu/variant/NoUSB.cpp \
-        common/board/avr/uart/UART.cpp \
+        common/board/$(ARCH)/uart/UART.cpp \
         common/OpenDeckMIDIformat/OpenDeckMIDIformat.cpp
     endif
 else
@@ -87,11 +87,11 @@ else
         SOURCES += \
         application/board/common/digital/Output.cpp
 
-        SOURCES += $(shell find ./application/board/avr -maxdepth 1 -type f -name "*.cpp")
-        SOURCES += $(shell find ./application/board/avr/usb -type f -name "*.cpp")
-        SOURCES += $(shell find ./application/board/avr/variants/$(BOARD_DIR) -type f -name "*.cpp")
+        SOURCES += $(shell find ./application/board/$(ARCH) -maxdepth 1 -type f -name "*.cpp")
+        SOURCES += $(shell find ./application/board/$(ARCH)/usb -type f -name "*.cpp")
+        SOURCES += $(shell find ./application/board/$(ARCH)/variants/$(BOARD_DIR) -type f -name "*.cpp")
         SOURCES += $(shell find ./common/OpenDeckMIDIformat -type f -name "*.cpp")
-        SOURCES += $(shell find ./common/board/avr -type f -name "*.cpp")
+        SOURCES += $(shell find ./common/board/$(ARCH) -type f -name "*.cpp")
     else
         SOURCES += $(shell find ./application -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell find ./application/database -type f -name "*.cpp")
@@ -100,19 +100,19 @@ else
         SOURCES += $(shell find ./application/interface/digital -type f -name "*.cpp")
         SOURCES += $(shell find ./application/board/common/digital -type f -name "*.cpp")
         SOURCES += $(shell find ./application/board/common/analog -type f -name "*.cpp")
-        SOURCES += $(shell find ./application/board/avr -maxdepth 1 -type f -name "*.cpp")
-        SOURCES += $(shell find ./application/board/avr/variants/$(BOARD_DIR) -type f -name "*.cpp")
+        SOURCES += $(shell find ./application/board/$(ARCH) -maxdepth 1 -type f -name "*.cpp")
+        SOURCES += $(shell find ./application/board/$(ARCH)/variants/$(BOARD_DIR) -type f -name "*.cpp")
         SOURCES += $(shell find ./modules/sysex/src -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell find ./modules/midi/src -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell find ./modules/dbms/src -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell find ./common/OpenDeckMIDIformat -type f -name "*.cpp")
-        SOURCES += $(shell find ./common/board/avr -type f -name "*.cpp")
+        SOURCES += $(shell find ./common/board/$(ARCH) -type f -name "*.cpp")
 
         ifneq ($(filter USB_SUPPORTED, $(DEFINES)), )
-            SOURCES += $(shell find ./application/board/avr/usb -type f -name "*.cpp")
+            SOURCES += $(shell find ./application/board/$(ARCH)/usb -type f -name "*.cpp")
         endif
 
-        ifneq ($(shell cat application/board/avr/variants/$(BOARD_DIR)/Hardware.h | grep DISPLAY_SUPPORTED), )
+        ifneq ($(shell cat application/board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep DISPLAY_SUPPORTED), )
             SOURCES += $(shell find ./application/interface/display -maxdepth 1 -type f -name "*.cpp")
             SOURCES += $(shell find ./application/interface/display/U8X8 -maxdepth 1 -type f -name "*.cpp")
             SOURCES += $(shell find ./application/interface/display/strings -maxdepth 1 -type f -name "*.cpp")

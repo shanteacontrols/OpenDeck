@@ -15,8 +15,15 @@ include Sources.mk
 CLANG-FORMAT := clang-format-8
 
 #specify c/c++ compilers
-CPP := avr-gcc
-CXX := avr-g++
+ifeq ($(ARCH),avr)
+    CPP := avr-gcc
+    CXX := avr-g++
+else ifeq ($(ARCH),arm)
+    CPP := arm-none-eabi-gcc
+    CXX := arm-none-eabi-g++
+else
+    $(error Unsupported architecture)
+endif
 
 #common compiler flags
 COMMON_FLAGS := \
@@ -60,7 +67,7 @@ endif
 LEN_APPEND := 0
 
 #custom linker script
-LDFLAGS += -T common/board/avr/linker/$(MCU).x
+LDFLAGS += -T common/board/$(ARCH)/linker/$(MCU).x
 
 #append length only in firmware
 ifeq ($(findstring fw,$(TARGETNAME)), fw)

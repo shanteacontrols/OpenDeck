@@ -1,15 +1,7 @@
 #common defines
+
 DEFINES := \
 NDEBUG \
-ARCH=ARCH_AVR8 \
-__AVR__ \
-F_CPU=16000000UL \
-F_USB=16000000UL \
-BOARD=BOARD_NONE \
-USE_STATIC_OPTIONS=0 \
-USB_DEVICE_ONLY \
-FIXED_CONTROL_ENDPOINT_SIZE=8 \
-FIXED_NUM_CONFIGURATIONS=1 \
 HID_VENDOR_ID=0x1209 \
 HID_PRODUCT_ID=0x8473 \
 MIDI_VENDOR_ID=0x1209 \
@@ -20,21 +12,8 @@ UART_BAUDRATE_MIDI_OD=38400
 #flash type specific
 ifeq ($(findstring boot,$(TARGETNAME)), boot)
     BOARD_DIR := $(subst boot_,,$(TARGETNAME))
-    DEFINES += \
-    APP_BOOT \
-    ORDERED_EP_CONFIG \
-    NO_SOF_EVENTS \
-    USE_RAM_DESCRIPTORS \
-    NO_INTERNAL_SERIAL \
-    DEVICE_STATE_AS_GPIOR \
-    NO_DEVICE_REMOTE_WAKEUP \
-    NO_DEVICE_SELF_POWER
 else ifeq ($(findstring fw,$(TARGETNAME)), fw)
     BOARD_DIR := $(subst fw_,,$(TARGETNAME))
-    DEFINES += \
-    APP_FW \
-    USE_FLASH_DESCRIPTORS \
-    INTERRUPT_CONTROL_ENDPOINT
 endif
 
 #board specific
@@ -89,6 +68,7 @@ endif
 
 #mcu specific
 ifeq ($(MCU),atmega32u4)
+    ARCH := avr
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xc8
     FUSE_HIGH := 0xd0
@@ -102,6 +82,7 @@ ifeq ($(MCU),atmega32u4)
     DEFINES += USB_SUPPORTED
     DEFINES += __AVR_ATmega32U4__
 else ifeq ($(MCU),at90usb1286)
+    ARCH := avr
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xf8
     FUSE_HIGH := 0xd2
@@ -115,6 +96,7 @@ else ifeq ($(MCU),at90usb1286)
     DEFINES += USB_SUPPORTED
     DEFINES += __AVR_AT90USB1286__
 else ifeq ($(MCU),atmega16u2)
+    ARCH := avr
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xf8
     FUSE_HIGH := 0xd0
@@ -128,6 +110,7 @@ else ifeq ($(MCU),atmega16u2)
     DEFINES += USB_SUPPORTED
     DEFINES += __AVR_ATmega16U2__
 else ifeq ($(MCU),atmega8u2)
+    ARCH := avr
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xf8
     FUSE_HIGH := 0xd3
@@ -141,6 +124,7 @@ else ifeq ($(MCU),atmega8u2)
     DEFINES += USB_SUPPORTED
     DEFINES += __AVR_ATmega8U2__
 else ifeq ($(MCU),atmega2560)
+    ARCH := avr
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xfc
     FUSE_HIGH := 0xd2
@@ -153,6 +137,7 @@ else ifeq ($(MCU),atmega2560)
     DEFINES += UART_INTERFACES=2
     DEFINES += __AVR_ATmega2560__
 else ifeq ($(MCU),atmega328p)
+    ARCH := avr
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xfc
     FUSE_HIGH := 0xd2
@@ -166,11 +151,41 @@ else ifeq ($(MCU),atmega328p)
     DEFINES += __AVR_ATmega328P__
 endif
 
-DEFINES += APP_LENGTH_LOCATION=$(FLASH_SIZE_START_ADDR)
-DEFINES += BOOT_START_ADDR=$(BOOT_START_ADDR)
-DEFINES += EEPROM_SIZE=$(EEPROM_SIZE)
-DEFINES += $(BOARD)
+ifeq ($(ARCH),avr)
+    #common for all avr targets
+    DEFINES += \
+    ARCH=ARCH_AVR8 \
+    __AVR__ \
+    F_CPU=16000000UL \
+    F_USB=16000000UL \
+    BOARD=BOARD_NONE \
+    USE_STATIC_OPTIONS=0 \
+    USB_DEVICE_ONLY \
+    FIXED_CONTROL_ENDPOINT_SIZE=8 \
+    FIXED_NUM_CONFIGURATIONS=1
 
+    DEFINES += APP_LENGTH_LOCATION=$(FLASH_SIZE_START_ADDR)
+    DEFINES += BOOT_START_ADDR=$(BOOT_START_ADDR)
+    DEFINES += EEPROM_SIZE=$(EEPROM_SIZE)
+
+    #flash type specific
+    ifeq ($(findstring boot,$(TARGETNAME)), boot)
+        DEFINES += \
+        ORDERED_EP_CONFIG \
+        NO_SOF_EVENTS \
+        USE_RAM_DESCRIPTORS \
+        NO_INTERNAL_SERIAL \
+        DEVICE_STATE_AS_GPIOR \
+        NO_DEVICE_REMOTE_WAKEUP \
+        NO_DEVICE_SELF_POWER
+    else ifeq ($(findstring fw,$(TARGETNAME)), fw)
+        DEFINES += \
+        USE_FLASH_DESCRIPTORS \
+        INTERRUPT_CONTROL_ENDPOINT
+    endif
+endif
+
+DEFINES += $(BOARD)
 DEFINES += FW_UID=$(shell ../scripts/fw_uid_gen.sh $(TARGETNAME))
 
 ifneq ($(HARDWARE_VERSION_MAJOR), )
