@@ -85,7 +85,7 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOff, note, calibratedPressure, channel + 1);
 #endif
 #ifdef LEDS_SUPPORTED
-            leds.midiToState(MIDI::messageType_t::noteOff, 0, channel, true);
+            leds.midiToState(MIDI::messageType_t::noteOff, note, 0, channel, true);
 #endif
 
             cInfo.send(DB_BLOCK_ANALOG, analogID);

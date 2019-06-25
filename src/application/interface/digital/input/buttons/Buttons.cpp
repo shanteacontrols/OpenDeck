@@ -306,7 +306,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, note, 0, channel + 1);
 #endif
 #ifdef LEDS_SUPPORTED
-            leds.midiToState(MIDI::messageType_t::controlChange, 0, channel, true);
+            leds.midiToState(MIDI::messageType_t::controlChange, note, 0, channel, true);
 #endif
             break;
 
