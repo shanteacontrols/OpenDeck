@@ -216,7 +216,7 @@ void OpenDeck::checkMIDI()
                 data2 = 0;
 #endif
 #ifdef LEDS_SUPPORTED
-            leds.midiToState(messageType, data1, data2, channel);
+            leds.midiToState(messageType, data1, data2, channel, false);
 #endif
 #ifdef DISPLAY_SUPPORTED
             switch (messageType)

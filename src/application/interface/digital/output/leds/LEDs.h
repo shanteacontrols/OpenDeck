@@ -115,7 +115,7 @@ namespace Interface
                 void           setBlinkState(uint8_t ledID, blinkSpeed_t value);
                 bool           getBlinkState(uint8_t ledID);
                 bool           setFadeTime(uint8_t transitionSpeed);
-                void           midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local = false);
+                void           midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local);
                 void           setBlinkType(blinkType_t blinkType);
                 blinkType_t    getBlinkType();
                 void           resetBlinking();
