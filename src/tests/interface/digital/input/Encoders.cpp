@@ -43,26 +43,14 @@ class EncodersTest : public ::testing::Test
     MIDI          midi;
     ComponentInfo cInfo;
 
-#ifdef LEDS_SUPPORTED
-    Interface::digital::output::LEDs leds = Interface::digital::output::LEDs(database);
-#endif
-
 #ifdef DISPLAY_SUPPORTED
     Interface::Display display;
 #endif
 
-#ifdef LEDS_SUPPORTED
-#ifdef DISPLAY_SUPPORTED
-    Interface::digital::input::Encoders encoders = Interface::digital::input::Encoders(database, midi, leds, display, cInfo);
-#else
-    Interface::digital::input::Encoders encoders = Interface::digital::input::Encoders(database, midi, leds, cInfo);
-#endif
-#else
 #ifdef DISPLAY_SUPPORTED
     Interface::digital::input::Encoders encoders = Interface::digital::input::Encoders(database, midi, display, cInfo);
 #else
     Interface::digital::input::Encoders encoders = Interface::digital::input::Encoders(database, midi, cInfo);
-#endif
 #endif
 };
 

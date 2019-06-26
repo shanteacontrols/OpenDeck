@@ -45,15 +45,6 @@ namespace Interface
             class Encoders : public Common
             {
                 public:
-#ifdef LEDS_SUPPORTED
-#ifdef DISPLAY_SUPPORTED
-                Encoders(Database& database, MIDI& midi, Interface::digital::output::LEDs& leds, Display& display, ComponentInfo& cInfo)
-                    :
-#else
-                Encoders(Database& database, MIDI& midi, Interface::digital::output::LEDs& leds, ComponentInfo& cInfo)
-                    :
-#endif
-#else
 #ifdef DISPLAY_SUPPORTED
                 Encoders(Database& database, MIDI& midi, Display& display, ComponentInfo& cInfo)
                     :
@@ -61,12 +52,8 @@ namespace Interface
                 Encoders(Database& database, MIDI& midi, ComponentInfo& cInfo)
                     :
 #endif
-#endif
                     database(database)
                     , midi(midi)
-#ifdef LEDS_SUPPORTED
-                    , leds(leds)
-#endif
 #ifdef DISPLAY_SUPPORTED
                     , display(display)
 #endif
@@ -102,9 +89,6 @@ namespace Interface
                 private:
                 Database& database;
                 MIDI&     midi;
-#ifdef LEDS_SUPPORTED
-                Interface::digital::output::LEDs& leds;
-#endif
 #ifdef DISPLAY_SUPPORTED
                 Display& display;
 #endif

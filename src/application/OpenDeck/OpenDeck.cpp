@@ -61,18 +61,10 @@ Interface::digital::input::Buttons  buttons(database, midi, display, cinfo);
 Interface::digital::input::Buttons  buttons(database, midi, cinfo);
 #endif
 #endif
-#ifdef LEDS_SUPPORTED
-#ifdef DISPLAY_SUPPORTED
-Interface::digital::input::Encoders encoders(database, midi, leds, display, cinfo);
-#else
-Interface::digital::input::Encoders encoders(database, midi, leds, cinfo);
-#endif
-#else
 #ifdef DISPLAY_SUPPORTED
 Interface::digital::input::Encoders encoders(database, midi, display, cinfo);
 #else
 Interface::digital::input::Encoders encoders(database, midi, cinfo);
-#endif
 #endif
 #ifdef LEDS_SUPPORTED
 #ifdef DISPLAY_SUPPORTED
