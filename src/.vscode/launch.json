@@ -15,7 +15,7 @@
             "externalConsole": false,
             "linux": {
                 "cwd": "${workspaceFolder}",
-                "MIMode": "gdb"
+                "MIMode": "lldb"
             },
             "osx": {
                 "cwd": "${workspaceFolder}",

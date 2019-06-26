@@ -26,6 +26,6 @@ for test in $tests
 do
     printf '%s\n' 'build/'${test}'.out: $(OBJECTS_'${test}') build/gtest_main.a' >> Objects.mk
     printf '\t%s\n' '@echo Linking' >> Objects.mk
-    printf '\t%s\n' '@$(CXX) $(COMMON_FLAGS) $(CPP_FLAGS) -lpthread $^ -o $@' >> Objects.mk
+    printf '\t%s\n' '@$(CXX) $(LDFLAGS) $(COMMON_FLAGS) $(CPP_FLAGS) $^ -o $@' >> Objects.mk
     printf '\t%s\n' '@echo Created executable: $@' >> Objects.mk
 done

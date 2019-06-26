@@ -1,17 +1,21 @@
 language: cpp
 
-# use sed to replace the SSH URL with the public URL, then init and update submodules
 before_install:
   - wget https://www.microchip.com/mymicrochip/filehandler.aspx?ddocname=en607660 -O avrtoolchain.tar.gz
-  - tar xzf avrtoolchain.tar.gz
-  - sudo ln -s $(pwd)/avr8-gnu-toolchain-linux_x86_64/ /usr/local/avr
-  - PATH=/usr/local/avr/bin:${PATH}
-  - export MAKEFLAGS=-j$(nproc)
-  - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+  - wget https://apt.llvm.org/llvm-snapshot.gpg.key
+  - sudo apt-key add llvm-snapshot.gpg.key
+  - sudo add-apt-repository 'deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main'
+  - sudo apt update
   - git submodule update --init --recursive
 
 install:
-  - sudo apt-get install -y srecord
+  - tar xzf avrtoolchain.tar.gz
+  - sudo ln -s $(pwd)/avr8-gnu-toolchain-linux_x86_64/ /usr/local/avr
+  - PATH=/usr/local/avr/bin:${PATH}
+  - sudo apt-get install -y srecord clang-8 clang-format-8
+  - export MAKEFLAGS=-j$(nproc)
+  - export CPP=clang-8
+  - export CXX=clang++-8
 
 script:
   - cd src/

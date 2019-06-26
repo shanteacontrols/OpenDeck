@@ -3,21 +3,33 @@ include Defines.mk
 include Sources.mk
 -include Objects.mk
 
+CPP := clang
+CXX := clang++
+
 #passed to both c and c++ compiler
 COMMON_FLAGS := \
 -isystem $(GTEST_DIR)/include \
 -isystem $(GTEST_DIR) \
---coverage \
+-fprofile-arcs \
+-ftest-coverage \
 -Og \
 -g \
 -pthread \
 -Wall
 
 #c++ compiler only
-CPP_FLAGS := -std=c++11
+CPP_FLAGS := \
+-std=c++11
 
 #c compiler only
-C_FLAGS := -std=c11
+C_FLAGS := \
+-std=c11
+
+#linker
+LDFLAGS := \
+-lgcov \
+--coverage \
+-lpthread
 
 #doesn't remove gtest sources
 clean:
@@ -33,7 +45,7 @@ clean-all:
 build/%.o: %.c $(GTEST_HEADERS)
 	@mkdir -p $(@D)
 	@echo Building $<
-	@gcc $(COMMON_FLAGS) $(C_FLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS) $(INCLUDE_FILES) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	@$(CPP) $(COMMON_FLAGS) $(C_FLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS) $(INCLUDE_FILES) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
 build/%.o: %.cpp $(GTEST_HEADERS)
 	@mkdir -p $(@D)
