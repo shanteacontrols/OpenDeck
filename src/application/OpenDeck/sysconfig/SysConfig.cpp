@@ -709,6 +709,14 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
             newValue--;
 
         success = database.update(block, sysEx2DB_buttons[section], index, newValue);
+
+        if (success)
+        {
+            if (
+                (section == sysExSection_buttons_type) ||
+                (section == sysExSection_buttons_midiMessage))
+                buttons.reset(index);
+        }
         break;
 
     case SYSEX_BLOCK_ENCODERS:
