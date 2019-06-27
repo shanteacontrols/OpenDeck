@@ -154,6 +154,8 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
 
     mmcArray[2] = note;    //use midi note as channel id for transport control
 
+    bool send = true;
+
     if (state)
     {
         switch (buttonMessage)
@@ -177,23 +179,30 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
                 {
                     if (Common::lastPCvalue[channel] < 127)
                         Common::lastPCvalue[channel]++;
+                    else
+                        send = false;
                 }
                 else
                 {
                     if (Common::lastPCvalue[channel] > 0)
                         Common::lastPCvalue[channel]--;
+                    else
+                        send = false;
                 }
 
                 note = Common::lastPCvalue[channel];
             }
 
-            midi.sendProgramChange(note, channel);
+            if (send)
+            {
+                midi.sendProgramChange(note, channel);
 #ifdef LEDS_SUPPORTED
-            leds.midiToState(MIDI::messageType_t::programChange, note, 0, channel, true);
+                leds.midiToState(MIDI::messageType_t::programChange, note, 0, channel, true);
 #endif
 #ifdef DISPLAY_SUPPORTED
-            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::programChange, note, 0, channel + 1);
+                display.displayMIDIevent(Display::eventType_t::out, Display::event_t::programChange, note, 0, channel + 1);
 #endif
+            }
             break;
 
         case messageType_t::controlChange:

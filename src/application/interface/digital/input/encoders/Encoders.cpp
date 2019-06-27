@@ -116,11 +116,15 @@ void Encoders::update()
                 {
                     if (Common::lastPCvalue[channel] < 127)
                         Common::lastPCvalue[channel]++;
+                    else
+                        validType = false;
                 }
                 else
                 {
                     if (Common::lastPCvalue[channel] > 0)
                         Common::lastPCvalue[channel]--;
+                    else
+                        validType = false;
                 }
 
                 encoderValue = Common::lastPCvalue[channel];
