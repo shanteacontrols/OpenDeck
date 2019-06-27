@@ -24,7 +24,7 @@ namespace Interface
     {
         namespace input
         {
-            uint8_t Common::lastPCvalue[16];
+            int8_t Common::lastPCvalue[16];
         }
     }    // namespace digital
 }    // namespace Interface

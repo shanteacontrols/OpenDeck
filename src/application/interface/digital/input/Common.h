@@ -36,7 +36,7 @@ namespace Interface
                 /// \brief Used for Buttons::messageType_t::programChangeInc/Buttons::messageType_t::programChangeDec messages when each button press/encoder rotation sends incremented or decremented PC value.
                 /// 16 entries in array are used for 16 MIDI channels.
                 ///
-                static uint8_t lastPCvalue[16];
+                static int8_t lastPCvalue[16];
             };
         }    // namespace input
     }        // namespace digital
