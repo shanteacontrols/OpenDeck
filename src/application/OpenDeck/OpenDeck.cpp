@@ -20,24 +20,25 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 #include "interface/CInfo.h"
 
-ComponentInfo cinfo;
-Database      database(Board::eeprom::read, Board::eeprom::write, EEPROM_SIZE - 3);
-MIDI          midi;
+// clang-format off
+ComponentInfo                       cinfo;
+Database                            database(Board::eeprom::read, Board::eeprom::write, EEPROM_SIZE - 3);
+MIDI                                midi;
 #ifdef DISPLAY_SUPPORTED
-Interface::Display display;
+Interface::Display                  display;
 #endif
 #ifdef TOUCHSCREEN_SUPPORTED
 //assume sdw only for now
 #include "interface/display/touch/model/sdw/SDW.h"
-SDW                    sdw;
-Interface::Touchscreen touchscreen(sdw);
+SDW                                 sdw;
+Interface::Touchscreen              touchscreen(sdw);
 #endif
 #ifdef LEDS_SUPPORTED
-Interface::digital::output::LEDs leds(database);
+Interface::digital::output::LEDs    leds(database);
 #endif
 #ifdef LEDS_SUPPORTED
 #ifdef DISPLAY_SUPPORTED
-Interface::analog::Analog analog(database, midi, leds, display, cinfo);
+Interface::analog::Analog           analog(database, midi, leds, display, cinfo);
 #else
 Interface::analog::Analog           analog(database, midi, leds, cinfo);
 #endif
@@ -50,7 +51,7 @@ Interface::analog::Analog           analog(database, midi, cinfo);
 #endif
 #ifdef LEDS_SUPPORTED
 #ifdef DISPLAY_SUPPORTED
-Interface::digital::input::Buttons buttons(database, midi, leds, display, cinfo);
+Interface::digital::input::Buttons  buttons(database, midi, leds, display, cinfo);
 #else
 Interface::digital::input::Buttons  buttons(database, midi, leds, cinfo);
 #endif
@@ -68,7 +69,7 @@ Interface::digital::input::Encoders encoders(database, midi, cinfo);
 #endif
 #ifdef LEDS_SUPPORTED
 #ifdef DISPLAY_SUPPORTED
-SysConfig sysConfig(database, midi, buttons, encoders, analog, leds, display);
+SysConfig                           sysConfig(database, midi, buttons, encoders, analog, leds, display);
 #else
 SysConfig                           sysConfig(database, midi, buttons, encoders, analog, leds);
 #endif
@@ -79,6 +80,7 @@ SysConfig                           sysConfig(database, midi, buttons, encoders,
 SysConfig                           sysConfig(database, midi, buttons, encoders, analog);
 #endif
 #endif
+// clang-format on
 
 void OpenDeck::init()
 {
