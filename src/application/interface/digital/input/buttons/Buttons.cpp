@@ -412,3 +412,14 @@ bool Buttons::getStateFromAnalogValue(uint16_t adcValue)
     else
         return false;
 }
+
+///
+/// \brief Resets the current state of the specified button.
+/// @param [in] buttonID    Button for which to reset state.
+///
+void Buttons::reset(uint8_t buttonID)
+{
+    buttonDebounceCounter[buttonID] = 0;
+    setButtonState(buttonID, false);
+    setLatchingState(buttonID, false);
+}

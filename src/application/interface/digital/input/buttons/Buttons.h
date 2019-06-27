@@ -113,6 +113,7 @@ namespace Interface
                 bool getStateFromAnalogValue(uint16_t adcValue);
                 void processButton(uint8_t buttonID, bool state);
                 bool getButtonState(uint8_t buttonID);
+                void reset(uint8_t buttonID);
 
                 private:
                 void sendMessage(uint8_t buttonID, bool state, messageType_t buttonMessage = messageType_t::AMOUNT);
