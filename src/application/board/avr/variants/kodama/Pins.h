@@ -51,15 +51,15 @@ limitations under the License.
 #define MUX_S3_PIN                  2
 
 #define MUX_1_IN_PORT               PORTF
-#define MUX_1_IN_PIN                5
+#define MUX_1_IN_PIN                7
 
 #define MUX_2_IN_PORT               PORTF
 #define MUX_2_IN_PIN                6
 
 #define MUX_3_IN_PORT               PORTF
-#define MUX_3_IN_PIN                7
+#define MUX_3_IN_PIN                5
 
-#define MUX_4_IN_PORT               PORTB
-#define MUX_4_IN_PIN                6
+#define MUX_4_IN_PORT               PORTF
+#define MUX_4_IN_PIN                4
 
 #define BTLDR_BUTTON_INDEX          0x03

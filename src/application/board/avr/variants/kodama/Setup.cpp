@@ -53,6 +53,7 @@ namespace Board
             CORE_AVR_PIN_SET_OUTPUT(PORTB, 0);
             CORE_AVR_PIN_SET_OUTPUT(PORTB, 4);
             CORE_AVR_PIN_SET_OUTPUT(PORTB, 5);
+            CORE_AVR_PIN_SET_OUTPUT(PORTB, 6);
             CORE_AVR_PIN_SET_OUTPUT(PORTB, 7);
 
             CORE_AVR_PIN_SET_OUTPUT(PORTC, 6);
@@ -65,12 +66,12 @@ namespace Board
 
             CORE_AVR_PIN_SET_OUTPUT(PORTF, 0);
             CORE_AVR_PIN_SET_OUTPUT(PORTF, 1);
-            CORE_AVR_PIN_SET_OUTPUT(PORTF, 4);
 
             //make sure all unused pins are logic low
             CORE_AVR_PIN_SET_LOW(PORTB, 0);
             CORE_AVR_PIN_SET_LOW(PORTB, 4);
             CORE_AVR_PIN_SET_LOW(PORTB, 5);
+            CORE_AVR_PIN_SET_LOW(PORTB, 6);
             CORE_AVR_PIN_SET_LOW(PORTB, 7);
 
             CORE_AVR_PIN_SET_LOW(PORTC, 6);
@@ -83,7 +84,6 @@ namespace Board
 
             CORE_AVR_PIN_SET_LOW(PORTF, 0);
             CORE_AVR_PIN_SET_LOW(PORTF, 1);
-            CORE_AVR_PIN_SET_LOW(PORTF, 4);
 
             //init all outputs on shift register
             CORE_AVR_PIN_SET_LOW(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
