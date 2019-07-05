@@ -73,6 +73,7 @@ namespace Interface
                     tPitchBend,
                     tNRPN7bit,
                     tNRPN14bit,
+                    tControlChange14bit,
                     AMOUNT
                 };
 

@@ -103,6 +103,7 @@ void Encoders::update()
             uint16_t             encoderValue;
             uint8_t              steps = (encoderSpeed[i] > 0) ? encoderSpeed[i] : 1;
             MIDI::encDec_14bit_t encDec_14bit;
+            bool                 use14bit = false;
 
             switch (type)
             {
@@ -134,7 +135,11 @@ void Encoders::update()
             case type_t::tPitchBend:
             case type_t::tNRPN7bit:
             case type_t::tNRPN14bit:
-                if (((type == type_t::tPitchBend) || (type == type_t::tNRPN14bit)) && (steps > 1))
+            case type_t::tControlChange14bit:
+                if ((type == type_t::tPitchBend) || (type == type_t::tNRPN14bit) || (type == type_t::tControlChange14bit))
+                    use14bit = true;
+
+                if (use14bit && (steps > 1))
                     steps <<= 2;
 
                 if (encoderState == position_t::ccw)
@@ -146,7 +151,7 @@ void Encoders::update()
                 }
                 else
                 {
-                    int16_t limit = ((type == type_t::tControlChange) || (type == type_t::tNRPN7bit)) ? 127 : 16383;
+                    int16_t limit = use14bit ? 16383 : 127;
 
                     midiValue[i] += steps;
 
@@ -178,10 +183,11 @@ void Encoders::update()
                     display.displayMIDIevent(Display::eventType_t::out, Display::event_t::pitchBend, midiID & 0x7F, encoderValue, channel + 1);
 #endif
                 }
-                else if ((type == type_t::tNRPN7bit) || (type == type_t::tNRPN14bit))
+                else if ((type == type_t::tNRPN7bit) || (type == type_t::tNRPN14bit) || (type == type_t::tControlChange14bit))
                 {
                     encDec_14bit.value = midiID;
                     encDec_14bit.split14bit();
+
                     midi.sendControlChange(99, encDec_14bit.high, channel);
                     midi.sendControlChange(98, encDec_14bit.low, channel);
 
@@ -191,15 +197,28 @@ void Encoders::update()
                     }
                     else
                     {
+                        midiID = encDec_14bit.low;
+
                         encDec_14bit.value = encoderValue;
                         encDec_14bit.split14bit();
 
-                        midi.sendControlChange(6, encDec_14bit.high, channel);
-                        midi.sendControlChange(38, encDec_14bit.low, channel);
+                        if (type == type_t::tControlChange14bit)
+                        {
+                            if (midiID >= 32)
+                                break;    //not allowed
+
+                            midi.sendControlChange(midiID, encDec_14bit.high, channel);
+                            midi.sendControlChange(midiID + 32, encDec_14bit.low, channel);
+                        }
+                        else
+                        {
+                            midi.sendControlChange(6, encDec_14bit.high, channel);
+                            midi.sendControlChange(38, encDec_14bit.low, channel);
+                        }
                     }
 
 #ifdef DISPLAY_SUPPORTED
-                    display.displayMIDIevent(Display::eventType_t::out, Display::event_t::nrpn, midiID, encoderValue, channel + 1);
+                    display.displayMIDIevent(Display::eventType_t::out, (type == type_t::tControlChange14bit) ? Display::event_t::controlChange : Display::event_t::nrpn, midiID, encoderValue, channel + 1);
 #endif
                 }
                 else if (type != type_t::tPresetChange)

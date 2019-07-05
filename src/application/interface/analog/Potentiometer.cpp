@@ -26,8 +26,12 @@ void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32
 {
     uint16_t maxLimit;
     uint16_t stepDiff;
+    bool     use14bit = false;
 
-    if ((analogType == type_t::nrpn14b) || (analogType == type_t::pitchBend))
+    if ((analogType == type_t::nrpn14b) || (analogType == type_t::pitchBend) || (analogType == type_t::cc14bit))
+        use14bit = true;
+
+    if (use14bit)
     {
         maxLimit = MIDI_14_BIT_VALUE_MAX;
         stepDiff = ANALOG_STEP_MIN_DIFF_14_BIT;
@@ -48,7 +52,7 @@ void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32
         //but only in 14bit mode
         if (direction != lastDirection[analogID])
         {
-            if ((analogType == type_t::nrpn14b) || (analogType == type_t::pitchBend))
+            if (use14bit)
                 stepDiff *= 2;
         }
 
@@ -71,10 +75,7 @@ void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32
     uint8_t              channel = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiChannel, analogID);
     MIDI::encDec_14bit_t encDec_14bit;
 
-    if (
-        (analogType == type_t::potentiometerControlChange) ||
-        (analogType == type_t::potentiometerNote) ||
-        (analogType == type_t::nrpn7b))
+    if (!use14bit)
     {
         //use 7-bit MIDI ID and limits
         encDec_14bit.value = midiID;
@@ -122,12 +123,18 @@ void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32
 
     case type_t::nrpn7b:
     case type_t::nrpn14b:
-        //when nrpn is used, MIDI ID is split into two messages
+    case type_t::cc14bit:
+        //when nrpn/cc14bit is used, MIDI ID is split into two messages
         //first message contains higher byte
+
         encDec_14bit.value = midiID;
         encDec_14bit.split14bit();
-        midi.sendControlChange(99, encDec_14bit.high, channel);
-        midi.sendControlChange(98, encDec_14bit.low, channel);
+
+        if (analogType != type_t::cc14bit)
+        {
+            midi.sendControlChange(99, encDec_14bit.high, channel);
+            midi.sendControlChange(98, encDec_14bit.low, channel);
+        }
 
         if (analogType == type_t::nrpn7b)
         {
@@ -135,17 +142,30 @@ void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32
         }
         else
         {
-            //send 14-bit NRPN value in another two messages
+            midiID = encDec_14bit.low;
+
+            //send 14-bit value in another two messages
             //first message contains higher byte
             encDec_14bit.value = scaledMIDIvalue;
             encDec_14bit.split14bit();
 
-            midi.sendControlChange(6, encDec_14bit.high, channel);
-            midi.sendControlChange(38, encDec_14bit.low, channel);
+            if (analogType == type_t::cc14bit)
+            {
+                if (midiID >= 32)
+                    break;    //not allowed
+
+                midi.sendControlChange(midiID, encDec_14bit.high, channel);
+                midi.sendControlChange(midiID + 32, encDec_14bit.low, channel);
+            }
+            else
+            {
+                midi.sendControlChange(6, encDec_14bit.high, channel);
+                midi.sendControlChange(38, encDec_14bit.low, channel);
+            }
         }
 
 #ifdef DISPLAY_SUPPORTED
-        display.displayMIDIevent(Display::eventType_t::out, Display::event_t::nrpn, midiID, scaledMIDIvalue, channel + 1);
+        display.displayMIDIevent(Display::eventType_t::out, (analogType == type_t::cc14bit) ? Display::event_t::controlChange : Display::event_t::nrpn, midiID, scaledMIDIvalue, channel + 1);
 #endif
         break;
 

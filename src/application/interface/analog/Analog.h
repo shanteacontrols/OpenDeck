@@ -79,6 +79,7 @@ namespace Interface
                 nrpn7b,
                 nrpn14b,
                 pitchBend,
+                cc14bit,
                 AMOUNT
             };
 

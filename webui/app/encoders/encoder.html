@@ -57,7 +57,8 @@
                         <option value="0" selected>CC/7Fh01h</option>
                         <option value="1">CC/3Fh41h</option>
                         <option value="2">Program change</option>
-                        <option value="3">CC/Continuous</option>
+                        <option value="3">CC/Continuous 7-bit</option>
+                        <option value="8">CC/Continuous 14-bit</option>
                         <option value="4">Change preset</option>
                         <option value="5">Pitch bend</option>
                         <option value="6">NRPN/7-bit</option>
@@ -105,7 +106,7 @@
                 <r-slider value="obj.midiChannel" min="1" max="16" tooltip="MIDI channel for current component."></r-slider>
             </div>
         </div><!-- /row -->
-        <div class="row" ng-if="(obj.encodingMode != 2) && (obj.encodingMode<6)">
+        <div class="row" ng-if="(obj.encodingMode != 2) && (obj.encodingMode!=6) && (obj.encodingMode!=7)">
             <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
                 <h3>MIDI ID</h3>
             </div>
@@ -113,7 +114,7 @@
                 <r-slider value="obj.midiId_lsb" min="0" max="127" tooltip="Denotes the MIDI CC number for each encoder."></r-slider>
             </div>
         </div><!-- /row -->
-        <div class="row" ng-if="obj.encodingMode>5">
+        <div class="row" ng-if="(obj.encodingMode==6) || (obj.encodingMode==7)">
             <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
                 <h3>NPRN ID LSB</h3>
             </div>
@@ -121,7 +122,7 @@
                 <r-slider value="obj.midiId_lsb" min="0" max="127" tooltip="Denotes MIDI CC number."></r-slider>
             </div>
         </div><!-- /row -->
-        <div class="row" ng-if="obj.encodingMode>5">
+        <div class="row" ng-if="(obj.encodingMode==6) || (obj.encodingMode==7)">
             <div class="col-lg-4 col-md-5 col-sm-4 col-xs-12">
                 <h3>NPRN ID MSB</h3>
             </div>
