@@ -135,7 +135,7 @@ namespace Board
                             {
                                 CORE_AVR_PIN_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
                                 _NOP();
-                                BIT_WRITE(digitalInBuffer[dIn_head][0], 7 - i, !CORE_AVR_PIN_READ(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN));
+                                BIT_WRITE(digitalInBuffer[dIn_head][j], 7 - i, !CORE_AVR_PIN_READ(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN));
                                 CORE_AVR_PIN_SET_HIGH(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
                             }
                         }
