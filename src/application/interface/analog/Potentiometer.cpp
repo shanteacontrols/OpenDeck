@@ -151,7 +151,7 @@ void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32
 
             if (analogType == type_t::cc14bit)
             {
-                if (midiID >= 32)
+                if (midiID >= 96)
                     break;    //not allowed
 
                 midi.sendControlChange(midiID, encDec_14bit.high, channel);

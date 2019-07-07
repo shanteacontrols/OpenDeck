@@ -204,7 +204,7 @@ void Encoders::update()
 
                         if (type == type_t::tControlChange14bit)
                         {
-                            if (midiID >= 32)
+                            if (midiID >= 96)
                                 break;    //not allowed
 
                             midi.sendControlChange(midiID, encDec_14bit.high, channel);
