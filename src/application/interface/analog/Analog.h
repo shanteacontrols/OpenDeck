@@ -92,6 +92,8 @@ namespace Interface
             void update();
             void debounceReset(uint16_t index);
             void setButtonHandler(void (*fptr)(uint8_t adcIndex, uint16_t adcValue));
+            void enableExpFiltering();
+            void disableExpFiltering();
 
             private:
             enum class potDirection_t : uint8_t
@@ -125,6 +127,7 @@ namespace Interface
             uint16_t       lastAnalogueValue[MAX_NUMBER_OF_ANALOG] = {};
             uint8_t        fsrPressed[MAX_NUMBER_OF_ANALOG] = {};
             potDirection_t lastDirection[MAX_NUMBER_OF_ANALOG] = {};
+            bool           expFilterUsed = true;
         };
 
         /// @}

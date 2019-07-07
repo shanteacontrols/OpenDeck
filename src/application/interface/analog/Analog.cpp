@@ -37,6 +37,17 @@ void Analog::update()
         int16_t analogData = Board::interface::analog::readValue(i);
         type_t  type = static_cast<type_t>(database.read(DB_BLOCK_ANALOG, dbSection_analog_type, i));
 
+        if (expFilterUsed)
+        {
+            //normally use exponential filter (factor 0.5 for easier bitwise math), but not around the edges
+            if (analogData <= ANALOG_STEP_MIN_DIFF_7_BIT)
+                analogData = 0;
+            else if (analogData >= (ADC_MAX_VALUE - ANALOG_STEP_MIN_DIFF_7_BIT))
+                analogData = ADC_MAX_VALUE;
+            else
+                analogData = (analogData >> 1) + (lastAnalogueValue[i] >> 1);
+        }
+
         if (type != type_t::button)
         {
             switch (type)
@@ -81,4 +92,14 @@ void Analog::debounceReset(uint16_t index)
 void Analog::setButtonHandler(void (*fptr)(uint8_t adcIndex, uint16_t adcValue))
 {
     buttonHandler = fptr;
+}
+
+void Analog::enableExpFiltering()
+{
+    expFilterUsed = true;
+}
+
+void Analog::disableExpFiltering()
+{
+    expFilterUsed = false;
 }
