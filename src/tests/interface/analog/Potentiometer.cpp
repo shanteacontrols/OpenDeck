@@ -58,25 +58,34 @@ namespace Board
     }            // namespace interface
 }    // namespace Board
 
-namespace MIDIstub
+namespace testing
 {
-    namespace detail
-    {
-        uint32_t              messageCounter = 0;
-        MIDI::USBMIDIpacket_t midiPacket[MAX_NUMBER_OF_ANALOG];
-    }    // namespace detail
+    uint32_t              messageCounter = 0;
+    MIDI::USBMIDIpacket_t midiPacket[MAX_NUMBER_OF_ANALOG];
 
-    void reset()
+    void resetReceived()
     {
-        using namespace detail;
+        for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+        {
+            midiPacket[i].Event = 0;
+            midiPacket[i].Data1 = 0;
+            midiPacket[i].Data2 = 0;
+            midiPacket[i].Data3 = 0;
+        }
+
         messageCounter = 0;
     }
-}    // namespace MIDIstub
+}    // namespace testing
 
 bool midiDataHandler(MIDI::USBMIDIpacket_t& USBMIDIpacket)
 {
-    MIDIstub::detail::midiPacket[MIDIstub::detail::messageCounter] = USBMIDIpacket;
-    MIDIstub::detail::messageCounter++;
+    testing::midiPacket[testing::messageCounter].Event = USBMIDIpacket.Event;
+    testing::midiPacket[testing::messageCounter].Data1 = USBMIDIpacket.Data1;
+    testing::midiPacket[testing::messageCounter].Data2 = USBMIDIpacket.Data2;
+    testing::midiPacket[testing::messageCounter].Data3 = USBMIDIpacket.Data3;
+
+    testing::messageCounter++;
+
     return true;
 }
 
@@ -92,6 +101,8 @@ class PotentiometerTest : public ::testing::Test
 #ifdef DISPLAY_SUPPORTED
         EXPECT_TRUE(display.init(displayController_ssd1306, displayRes_128x64));
 #endif
+
+        analog.disableExpFiltering();
     }
 
     virtual void TearDown()
@@ -155,14 +166,18 @@ TEST_F(PotentiometerTest, CCtest)
 
     Board::detail::adcReturnValue = 1000;
 
-    MIDIstub::reset();
+    testing::resetReceived();
     expectedValue = core::misc::mapRange(Board::detail::adcReturnValue, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
     analog.update();
 
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
-        EXPECT_EQ(MIDIstub::detail::midiPacket[i].Data3, expectedValue);
+    {
+        uint8_t midiMessage = testing::midiPacket[i].Event << 4;
+        EXPECT_EQ(midiMessage, static_cast<uint8_t>(MIDI::messageType_t::controlChange));
+        EXPECT_EQ(testing::midiPacket[i].Data3, expectedValue);
+    }
 
-    EXPECT_EQ(MIDIstub::detail::messageCounter, MAX_NUMBER_OF_ANALOG);
+    EXPECT_EQ(testing::messageCounter, MAX_NUMBER_OF_ANALOG);
 
     //reset all values
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
@@ -171,13 +186,13 @@ TEST_F(PotentiometerTest, CCtest)
     //try with max value
     Board::detail::adcReturnValue = ADC_MAX_VALUE;
 
-    MIDIstub::reset();
+    testing::resetReceived();
     analog.update();
 
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
-        EXPECT_EQ(MIDIstub::detail::midiPacket[i].Data3, MIDI_7_BIT_VALUE_MAX);
+        EXPECT_EQ(testing::midiPacket[i].Data3, MIDI_7_BIT_VALUE_MAX);
 
-    EXPECT_EQ(MIDIstub::detail::messageCounter, MAX_NUMBER_OF_ANALOG);
+    EXPECT_EQ(testing::messageCounter, MAX_NUMBER_OF_ANALOG);
 }
 
 TEST_F(PotentiometerTest, PitchBendTest)
@@ -210,26 +225,28 @@ TEST_F(PotentiometerTest, PitchBendTest)
 
     Board::detail::adcReturnValue = 1000;
 
-    MIDIstub::reset();
+    testing::resetReceived();
     expectedValue = core::misc::mapRange(Board::detail::adcReturnValue, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_14_BIT_VALUE_MAX));
     analog.update();
 
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
+        uint8_t midiMessage = testing::midiPacket[i].Event << 4;
+        EXPECT_EQ(midiMessage, static_cast<uint8_t>(MIDI::messageType_t::pitchBend));
         MIDI::encDec_14bit_t pitchBendValue;
-        pitchBendValue.low = MIDIstub::detail::midiPacket[i].Data2;
-        pitchBendValue.high = MIDIstub::detail::midiPacket[i].Data3;
+        pitchBendValue.low = testing::midiPacket[i].Data2;
+        pitchBendValue.high = testing::midiPacket[i].Data3;
         pitchBendValue.mergeTo14bit();
         EXPECT_EQ(pitchBendValue.value, expectedValue);
     }
 
-    EXPECT_EQ(MIDIstub::detail::messageCounter, MAX_NUMBER_OF_ANALOG);
+    EXPECT_EQ(testing::messageCounter, MAX_NUMBER_OF_ANALOG);
 
     //call update again, verify no values have been sent
-    MIDIstub::reset();
+    testing::resetReceived();
 
     analog.update();
-    EXPECT_EQ(MIDIstub::detail::messageCounter, 0);
+    EXPECT_EQ(testing::messageCounter, 0);
 
     //try with max value
     Board::detail::adcReturnValue = ADC_MAX_VALUE;
@@ -238,8 +255,8 @@ TEST_F(PotentiometerTest, PitchBendTest)
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         MIDI::encDec_14bit_t pitchBendValue;
-        pitchBendValue.low = MIDIstub::detail::midiPacket[i].Data2;
-        pitchBendValue.high = MIDIstub::detail::midiPacket[i].Data3;
+        pitchBendValue.low = testing::midiPacket[i].Data2;
+        pitchBendValue.high = testing::midiPacket[i].Data3;
         pitchBendValue.mergeTo14bit();
         EXPECT_EQ(pitchBendValue.value, MIDI_14_BIT_VALUE_MAX);
     }
@@ -273,16 +290,16 @@ TEST_F(PotentiometerTest, ScalingAndInversion)
 
     for (uint32_t i = ADC_MAX_VALUE + 1; i-- > 0;)
     {
-        MIDIstub::reset();
+        testing::resetReceived();
         Board::detail::adcReturnValue = i;
         uint16_t expectedValue = core::misc::mapRange(i, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
 
         analog.update();
-        EXPECT_EQ(MIDIstub::detail::messageCounter, MAX_NUMBER_OF_ANALOG);
+        EXPECT_EQ(testing::messageCounter, MAX_NUMBER_OF_ANALOG);
 
         for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
-            EXPECT_EQ(MIDIstub::detail::midiPacket[j].Data3, expectedValue);
+            EXPECT_EQ(testing::midiPacket[j].Data3, expectedValue);
             //reset debouncing state for easier testing - otherwise Board::detail::adcReturnValue
             //won't be accepted in next analog.update() call
             analog.debounceReset(j);
@@ -299,16 +316,16 @@ TEST_F(PotentiometerTest, ScalingAndInversion)
 
     for (uint32_t i = ADC_MAX_VALUE + 1; i-- > 0;)
     {
-        MIDIstub::reset();
+        testing::resetReceived();
         Board::detail::adcReturnValue = i;
         uint32_t expectedValue = static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX) - core::misc::mapRange(i, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
 
         analog.update();
-        EXPECT_EQ(MIDIstub::detail::messageCounter, MAX_NUMBER_OF_ANALOG);
+        EXPECT_EQ(testing::messageCounter, MAX_NUMBER_OF_ANALOG);
 
         for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
-            EXPECT_EQ(MIDIstub::detail::midiPacket[j].Data3, expectedValue);
+            EXPECT_EQ(testing::midiPacket[j].Data3, expectedValue);
             analog.debounceReset(j);
         }
     }
@@ -327,18 +344,18 @@ TEST_F(PotentiometerTest, ScalingAndInversion)
 
     for (uint32_t i = ADC_MAX_VALUE + 1; i-- > 0;)
     {
-        MIDIstub::reset();
+        testing::resetReceived();
         Board::detail::adcReturnValue = i;
         auto expectedValue = core::misc::mapRange(i, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_14_BIT_VALUE_MAX));
 
         analog.update();
-        EXPECT_EQ(MIDIstub::detail::messageCounter, MAX_NUMBER_OF_ANALOG);
+        EXPECT_EQ(testing::messageCounter, MAX_NUMBER_OF_ANALOG);
 
         for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
             MIDI::encDec_14bit_t pitchBendValue;
-            pitchBendValue.low = MIDIstub::detail::midiPacket[j].Data2;
-            pitchBendValue.high = MIDIstub::detail::midiPacket[j].Data3;
+            pitchBendValue.low = testing::midiPacket[j].Data2;
+            pitchBendValue.high = testing::midiPacket[j].Data3;
             pitchBendValue.mergeTo14bit();
             EXPECT_EQ(pitchBendValue.value, expectedValue);
             analog.debounceReset(j);
@@ -354,18 +371,18 @@ TEST_F(PotentiometerTest, ScalingAndInversion)
 
     for (uint32_t i = ADC_MAX_VALUE + 1; i-- > 0;)
     {
-        MIDIstub::reset();
+        testing::resetReceived();
         Board::detail::adcReturnValue = i;
         uint16_t expectedValue = MIDI_14_BIT_VALUE_MAX - core::misc::mapRange(i, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_14_BIT_VALUE_MAX));
 
         analog.update();
-        EXPECT_EQ(MIDIstub::detail::messageCounter, MAX_NUMBER_OF_ANALOG);
+        EXPECT_EQ(testing::messageCounter, MAX_NUMBER_OF_ANALOG);
 
         for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
             MIDI::encDec_14bit_t pitchBendValue;
-            pitchBendValue.low = MIDIstub::detail::midiPacket[j].Data2;
-            pitchBendValue.high = MIDIstub::detail::midiPacket[j].Data3;
+            pitchBendValue.low = testing::midiPacket[j].Data2;
+            pitchBendValue.high = testing::midiPacket[j].Data3;
             pitchBendValue.mergeTo14bit();
             EXPECT_EQ(pitchBendValue.value, expectedValue);
             analog.debounceReset(j);
@@ -386,17 +403,17 @@ TEST_F(PotentiometerTest, ScalingAndInversion)
         EXPECT_EQ(database.update(DB_BLOCK_ANALOG, dbSection_analog_upperLimit, i, scaledUpperValue), true);
     }
 
-    MIDIstub::reset();
+    testing::resetReceived();
     Board::detail::adcReturnValue = ADC_MAX_VALUE;
     auto expectedValue = scaledUpperValue;
     analog.update();
-    EXPECT_EQ(MIDIstub::detail::messageCounter, MAX_NUMBER_OF_ANALOG);
+    EXPECT_EQ(testing::messageCounter, MAX_NUMBER_OF_ANALOG);
 
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         MIDI::encDec_14bit_t pitchBendValue;
-        pitchBendValue.low = MIDIstub::detail::midiPacket[i].Data2;
-        pitchBendValue.high = MIDIstub::detail::midiPacket[i].Data3;
+        pitchBendValue.low = testing::midiPacket[i].Data2;
+        pitchBendValue.high = testing::midiPacket[i].Data3;
         pitchBendValue.mergeTo14bit();
         EXPECT_EQ(pitchBendValue.value, expectedValue);
     }
@@ -439,25 +456,25 @@ TEST_F(PotentiometerTest, Debouncing)
     uint32_t expectedValue;
     uint32_t newMIDIvalue;
 
-    MIDIstub::reset();
+    testing::resetReceived();
     Board::detail::adcReturnValue = 0;
-    expectedValue = core::misc::mapRange(Board::detail::adcReturnValue, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
+    expectedValue = 0;
     analog.update();
 
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
-        EXPECT_EQ(MIDIstub::detail::midiPacket[i].Data3, expectedValue);
+        EXPECT_EQ(testing::midiPacket[i].Data3, expectedValue);
 
-    EXPECT_EQ(MIDIstub::detail::messageCounter, MAX_NUMBER_OF_ANALOG);
+    EXPECT_EQ(testing::messageCounter, MAX_NUMBER_OF_ANALOG);
 
     //try again with the same values
     //no values should be sent
-    MIDIstub::reset();
+    testing::resetReceived();
     analog.update();
 
-    EXPECT_EQ(MIDIstub::detail::messageCounter, 0);
+    EXPECT_EQ(testing::messageCounter, 0);
 
     //now test using different raw adc value which results in same MIDI value
-    MIDIstub::reset();
+    testing::resetReceived();
 
     if ((ADC_MAX_VALUE / ANALOG_STEP_MIN_DIFF_7_BIT) > 127)
     {
@@ -469,7 +486,7 @@ TEST_F(PotentiometerTest, Debouncing)
         EXPECT_EQ(expectedValue, core::misc::mapRange(Board::detail::adcReturnValue, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX)));
         analog.update();
         //no values should be sent since the resulting midi value is the same
-        EXPECT_EQ(MIDIstub::detail::messageCounter, 0);
+        EXPECT_EQ(testing::messageCounter, 0);
 
         //now increase the raw value until the newly generated midi value differs from the last one
         uint32_t newMIDIvalue;
@@ -482,12 +499,12 @@ TEST_F(PotentiometerTest, Debouncing)
         expectedValue = newMIDIvalue;
 
         //verify that the values have been sent now
-        MIDIstub::reset();
+        testing::resetReceived();
         analog.update();
-        EXPECT_EQ(MIDIstub::detail::messageCounter, MAX_NUMBER_OF_ANALOG);
+        EXPECT_EQ(testing::messageCounter, MAX_NUMBER_OF_ANALOG);
 
         for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
-            EXPECT_EQ(MIDIstub::detail::midiPacket[i].Data3, expectedValue);
+            EXPECT_EQ(testing::midiPacket[i].Data3, expectedValue);
     }
     else
     {
@@ -496,7 +513,7 @@ TEST_F(PotentiometerTest, Debouncing)
         EXPECT_EQ(expectedValue, core::misc::mapRange(Board::detail::adcReturnValue, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX)));
         analog.update();
         //no values should be sent since the resulting midi value is the same
-        EXPECT_EQ(MIDIstub::detail::messageCounter, 0);
+        EXPECT_EQ(testing::messageCounter, 0);
 
         Board::detail::adcReturnValue += 1;
         //verify that the newly generated value differs from the last one
@@ -505,10 +522,10 @@ TEST_F(PotentiometerTest, Debouncing)
         expectedValue = newMIDIvalue;
         analog.update();
         //values should be sent now
-        EXPECT_EQ(MIDIstub::detail::messageCounter, MAX_NUMBER_OF_ANALOG);
+        EXPECT_EQ(testing::messageCounter, MAX_NUMBER_OF_ANALOG);
 
         for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
-            EXPECT_EQ(MIDIstub::detail::midiPacket[i].Data3, expectedValue);
+            EXPECT_EQ(testing::midiPacket[i].Data3, expectedValue);
     }
 
     //verify that the debouncing works in both ways
@@ -516,15 +533,15 @@ TEST_F(PotentiometerTest, Debouncing)
 
     for (int i = 0; i < ANALOG_STEP_MIN_DIFF_7_BIT - 1; i++)
     {
-        MIDIstub::reset();
+        testing::resetReceived();
         Board::detail::adcReturnValue -= 1;
         analog.update();
-        EXPECT_EQ(MIDIstub::detail::messageCounter, 0);
+        EXPECT_EQ(testing::messageCounter, 0);
     }
 
     //this time, values should be sent
-    MIDIstub::reset();
+    testing::resetReceived();
     Board::detail::adcReturnValue -= 1;
     analog.update();
-    EXPECT_EQ(MIDIstub::detail::messageCounter, MAX_NUMBER_OF_ANALOG);
+    EXPECT_EQ(testing::messageCounter, MAX_NUMBER_OF_ANALOG);
 }
