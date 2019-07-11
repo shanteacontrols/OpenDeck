@@ -62,4 +62,4 @@ limitations under the License.
 #define MUX_4_IN_PORT               PORTF
 #define MUX_4_IN_PIN                4
 
-#define BTLDR_BUTTON_INDEX          0x03
+#define BTLDR_BUTTON_INDEX          12
