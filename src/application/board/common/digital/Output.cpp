@@ -402,13 +402,20 @@ namespace Board
                         {
                             CORE_AVR_PIN_SET_LOW(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 
-                            for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
+                            uint8_t ledIndex;
+
+                            for (int j = 0; j < NUMBER_OF_OUT_SR; j++)
                             {
-                                LED_ON(Interface::digital::output::LEDs::getLEDstate(i)) ? EXT_LED_ON(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN) : EXT_LED_OFF(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
-                                CORE_AVR_PIN_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
-                                _NOP();
-                                _NOP();
-                                CORE_AVR_PIN_SET_HIGH(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+                                for (int i = 0; i < NUMBER_OF_OUT_SR_INPUTS; i++)
+                                {
+                                    ledIndex = i + j * NUMBER_OF_OUT_SR_INPUTS;
+
+                                    LED_ON(Interface::digital::output::LEDs::getLEDstate(ledIndex)) ? EXT_LED_ON(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN) : EXT_LED_OFF(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
+                                    CORE_AVR_PIN_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+                                    _NOP();
+                                    _NOP();
+                                    CORE_AVR_PIN_SET_HIGH(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+                                }
                             }
 
                             CORE_AVR_PIN_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
