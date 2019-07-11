@@ -32,22 +32,44 @@ limitations under the License.
 namespace
 {
     ///
-    /// \brief Initializes all pins needed in bootloader mode.
+    /// \brief Initializes inputs used to check for hardware bootloader entry.
     ///
-    void pins()
+    void pinsBTLDRentry()
     {
-//indicate that we're in bootloader mode by turning on specific leds
-//if the board uses indicator leds for midi traffic, turn them both on
+//configure bootloader entry pins
+#if defined(BOARD_KODAMA)
+        CORE_AVR_PIN_SET_INPUT(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN);
+        CORE_AVR_PIN_SET_OUTPUT(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+        CORE_AVR_PIN_SET_OUTPUT(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+#elif defined(BTLDR_BUTTON_PORT)
+        CORE_AVR_PIN_SET_INPUT(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+        CORE_AVR_PIN_SET_HIGH(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+#endif
+    }
+
+    ///
+    /// \brief Initializes outputs used to indicate that bootloader mode is active.
+    ///
+    void pinsBTLDRindicate()
+    {
 #ifdef BOARD_KODAMA
+        //turn on all available LEDs
+        CORE_AVR_PIN_SET_OUTPUT(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
+        CORE_AVR_PIN_SET_OUTPUT(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+        CORE_AVR_PIN_SET_OUTPUT(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+
         CORE_AVR_PIN_SET_LOW(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 
-        for (int i = 0; i < 16; i++)
+        for (int i = 0; i < NUMBER_OF_OUT_SR; i++)
         {
-            EXT_LED_ON(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
-            CORE_AVR_PIN_SET_HIGH(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
-            _NOP();
-            _NOP();
-            CORE_AVR_PIN_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+            for (int j = 0; j < 8; j++)
+            {
+                EXT_LED_ON(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
+                CORE_AVR_PIN_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+                _NOP();
+                _NOP();
+                CORE_AVR_PIN_SET_HIGH(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+            }
         }
 
         CORE_AVR_PIN_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
@@ -68,16 +90,6 @@ namespace
         INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
         INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
 #endif
-
-//configure bootloader entry pins
-#if defined(BOARD_KODAMA)
-        CORE_AVR_PIN_SET_INPUT(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN);
-        CORE_AVR_PIN_SET_OUTPUT(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
-        CORE_AVR_PIN_SET_OUTPUT(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
-#elif defined(BTLDR_BUTTON_PORT)
-        CORE_AVR_PIN_SET_INPUT(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
-        CORE_AVR_PIN_SET_HIGH(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
-#endif
     }
 
     ///
@@ -85,6 +97,8 @@ namespace
     ///
     void setupHardware(void)
     {
+        pinsBTLDRindicate();
+
         //disable clock division
         clock_prescale_set(clock_div_1);
 
@@ -159,25 +173,30 @@ namespace
     {
         bool jumpToApplication = false;
 
+        pinsBTLDRentry();
+
         //add some delay before reading the pins to avoid incorrect state detection
         _delay_ms(100);
 
 #if defined(BOARD_KODAMA)
         uint16_t dInData = 0;
+
         CORE_AVR_PIN_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
         CORE_AVR_PIN_SET_LOW(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
-        _NOP();
         _NOP();
 
         CORE_AVR_PIN_SET_HIGH(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
 
-        //this board has two shift registers - 16 inputs in total
-        for (int i = 0; i < 16; i++)
+        for (int j = 0; j < NUMBER_OF_IN_SR; j++)
         {
-            CORE_AVR_PIN_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
-            _NOP();
-            BIT_WRITE(dInData, i, !CORE_AVR_PIN_READ(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN));
-            CORE_AVR_PIN_SET_HIGH(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+            for (int i = 0; i < NUMBER_OF_IN_SR_INPUTS; i++)
+            {
+                uint8_t index = (7 - i) + j * NUMBER_OF_OUT_SR_INPUTS;
+                CORE_AVR_PIN_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+                _NOP();
+                BIT_WRITE(dInData, index, !CORE_AVR_PIN_READ(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN));
+                CORE_AVR_PIN_SET_HIGH(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+            }
         }
 
         bool hardwareTrigger = BIT_READ(dInData, BTLDR_BUTTON_INDEX);
@@ -239,8 +258,6 @@ int main(void)
     //disable watchdog
     MCUSR &= ~(1 << WDRF);
     wdt_disable();
-
-    pins();
 
     if (checkApplicationRun())
         runApplication();
