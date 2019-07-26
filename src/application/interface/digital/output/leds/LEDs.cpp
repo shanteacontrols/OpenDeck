@@ -31,6 +31,25 @@ namespace
     /// \brief Array holding current LED status for all LEDs.
     ///
     uint8_t ledState[MAX_NUMBER_OF_LEDS];
+
+#ifdef BOARD_KODAMA
+    //12 connected leds on kodama board
+    const uint8_t ledMapArray[12] = {
+        3,
+        0,
+        1,
+        2,
+        14,
+        12,
+        13,
+        15,
+        6,
+        4,
+        5,
+        7
+    };
+#endif
+
 }    // namespace
 
 void LEDs::init(bool startUp)
@@ -100,6 +119,9 @@ void LEDs::checkBlinking(bool forceChange)
 
 void LEDs::startUpAnimation()
 {
+#ifdef BOARD_KODAMA
+    startUpAnimationBoardSpecific();
+#else
 #ifdef LED_FADING
     setFadeTime(1);
 #endif
@@ -109,6 +131,7 @@ void LEDs::startUpAnimation()
     core::timing::waitMs(2000);
 #ifdef LED_FADING
     setFadeTime(database.read(DB_BLOCK_LEDS, dbSection_leds_global, static_cast<uint16_t>(setting_t::fadeSpeed)));
+#endif
 #endif
 }
 
@@ -545,5 +568,50 @@ uint8_t LEDs::getLEDstate(uint8_t ledID)
 {
     return ledState[ledID];
 }
+
+#ifdef BOARD_KODAMA
+void LEDs::startUpAnimationBoardSpecific()
+{
+    //turn all leds on first
+    for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
+    {
+        BIT_SET(ledState[i], LED_ACTIVE_BIT);
+        BIT_SET(ledState[i], LED_STATE_BIT);
+    }
+
+    core::timing::waitMs(1000);
+
+    for (int i = 0; i < 12; i++)
+    {
+        BIT_CLEAR(ledState[ledMapArray[i]], LED_ACTIVE_BIT);
+        BIT_CLEAR(ledState[ledMapArray[i]], LED_STATE_BIT);
+
+        core::timing::waitMs(35);
+    }
+
+    for (int i = 0; i < 12; i++)
+    {
+        BIT_SET(ledState[ledMapArray[11 - i]], LED_ACTIVE_BIT);
+        BIT_SET(ledState[ledMapArray[11 - i]], LED_STATE_BIT);
+
+        core::timing::waitMs(35);
+    }
+
+    for (int i = 0; i < 12; i++)
+    {
+        BIT_CLEAR(ledState[ledMapArray[11 - i]], LED_ACTIVE_BIT);
+        BIT_CLEAR(ledState[ledMapArray[11 - i]], LED_STATE_BIT);
+
+        core::timing::waitMs(35);
+    }
+
+    //turn all off again
+    for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
+    {
+        BIT_CLEAR(ledState[i], LED_ACTIVE_BIT);
+        BIT_CLEAR(ledState[i], LED_STATE_BIT);
+    }
+}
+#endif
 
 #endif

@@ -127,6 +127,7 @@ namespace Interface
                 uint8_t      getState(uint8_t ledID);
                 void         handleLED(uint8_t ledID, bool state, bool rgbLED = false, rgbIndex_t index = rgbIndex_t::r);
                 void         startUpAnimation();
+                void         startUpAnimationBoardSpecific();
 
                 Database& database;
 
