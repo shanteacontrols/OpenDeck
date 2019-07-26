@@ -24,6 +24,6 @@ limitations under the License.
 
 #define SW_VERSION_MAJOR        4
 #define SW_VERSION_MINOR        0
-#define SW_VERSION_REVISION     3
+#define SW_VERSION_REVISION     4
 
 /// @}
