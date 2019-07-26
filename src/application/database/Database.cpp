@@ -74,11 +74,10 @@ bool Database::init()
 ///
 void Database::factoryReset(LESSDB::factoryResetType_t type)
 {
-    SYSTEM_BLOCK_ENTER(
-        if (type == LESSDB::factoryResetType_t::full)
-            clear();
+    if (type == LESSDB::factoryResetType_t::full)
+        clear();
 
-        setDbUID(getDbUID());)
+    setDbUID(getDbUID());
 
     for (int i = 0; i < getSupportedPresets(); i++)
     {
