@@ -113,20 +113,18 @@ namespace Interface
         void          setAlternateNoteDisplay(bool state);
         void          setOctaveNormalization(int8_t value);
         void          setDirectWriteState(bool state);
-        void          clearAll();
-        void          clearRow(uint8_t row);
-        void          updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex);
-        uint8_t       getTextCenter(uint8_t textSize);
         lcdTextType_t getActiveTextType();
         void          setRetentionState(bool state);
         void          setRetentionTime(uint32_t time);
 
         private:
-        int8_t normalizeOctave(uint8_t octave, int8_t normalization);
-        void   buildString(const char* text, ...);
-        void   updateScrollStatus(uint8_t row);
-        void   updateTempTextStatus();
-        void   clearMIDIevent(eventType_t type);
+        void    updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex);
+        uint8_t getTextCenter(uint8_t textSize);
+        int8_t  normalizeOctave(uint8_t octave, int8_t normalization);
+        void    buildString(const char* text, ...);
+        void    updateScrollStatus(uint8_t row);
+        void    updateTempTextStatus();
+        void    clearMIDIevent(eventType_t type);
 
         ///
         /// \brief Holds last time index MIDI message was shown for specific event type (in or out).

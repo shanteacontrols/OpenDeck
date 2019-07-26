@@ -145,6 +145,9 @@ bool Display::update()
 ///
 void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex)
 {
+    if (!initDone)
+        return;
+
     const char* string = stringBuilder.string();
     uint8_t     size = strlen(string);
     uint8_t     scrollSize = 0;

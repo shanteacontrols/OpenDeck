@@ -27,6 +27,9 @@ using namespace Interface;
 
 void Display::displayWelcomeMessage()
 {
+    if (!initDone)
+        return;
+
     uint8_t charIndex = 0;
     uint8_t location = 0;
     uint8_t startRow;
@@ -73,6 +76,9 @@ void Display::displayWelcomeMessage()
 
 void Display::displayVinfo(bool newFw)
 {
+    if (!initDone)
+        return;
+
     uint8_t startRow;
 
     U8X8::clearDisplay();
@@ -107,6 +113,9 @@ void Display::displayVinfo(bool newFw)
 
 void Display::displayHome()
 {
+    if (!initDone)
+        return;
+
     U8X8::clearDisplay();
 
     uint8_t startRow;
@@ -131,6 +140,9 @@ void Display::displayHome()
 
 void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, uint16_t byte2, uint8_t byte3)
 {
+    if (!initDone)
+        return;
+
     uint8_t startRow = (type == Display::eventType_t::in) ? ROW_START_MIDI_IN_MESSAGE : ROW_START_MIDI_OUT_MESSAGE;
     uint8_t startColumn = (type == Display::eventType_t::in) ? COLUMN_START_MIDI_IN_MESSAGE : COLUMN_START_MIDI_OUT_MESSAGE;
 
@@ -204,6 +216,9 @@ void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, 
 
 void Display::clearMIDIevent(eventType_t type)
 {
+    if (!initDone)
+        return;
+
     switch (type)
     {
     case eventType_t::in:
