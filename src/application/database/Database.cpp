@@ -87,6 +87,7 @@ void Database::factoryReset(LESSDB::factoryResetType_t type)
     }
 
     setPreset(0);
+    setPresetPreserveState(false);
 }
 
 ///
