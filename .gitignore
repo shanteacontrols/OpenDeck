@@ -5,3 +5,4 @@ Documentation/*
 *compile_commands.json
 *ipch*
 *Objects.mk*
+*.zip
