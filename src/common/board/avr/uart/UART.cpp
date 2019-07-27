@@ -206,12 +206,7 @@ namespace Board
             if (channel >= UART_INTERFACES)
                 return false;
 
-            if (rxBuffer[channel].isEmpty())
-                return false;
-
-            data = rxBuffer[channel].remove();
-
-            return true;
+            return rxBuffer[channel].remove(data);
         }
 
         bool write(uint8_t channel, uint8_t data)
@@ -219,37 +214,34 @@ namespace Board
             if (channel >= UART_INTERFACES)
                 return false;
 
-            //if both the outgoing buffer and the UART data register are empty
+            //if:
+            // *outgoing buffer is empty
+            // * UART data register is empty
+            // txDone is marked as true
             //write the byte to the data register directly
-            if (txBuffer[channel].isEmpty())
+            if (txDone[channel] && txBuffer[channel].isEmpty())
             {
                 switch (channel)
                 {
                 case 0:
-                    if (UCSRA_0 & (1 << UDRE_0))
+                    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
                     {
-                        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-                        {
-                            UDR_0 = data;
-                            txDone[0] = false;
-                        }
-
-                        return true;
+                        UDR_0 = data;
+                        txDone[0] = false;
                     }
+
+                    return true;
                     break;
 
 #if UART_INTERFACES > 1
                 case 1:
-                    if (UCSRA_1 & (1 << UDRE_1))
+                    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
                     {
-                        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-                        {
-                            UDR_1 = data;
-                            txDone[1] = false;
-                        }
-
-                        return true;
+                        UDR_1 = data;
+                        txDone[1] = false;
                     }
+
+                    return true;
                     break;
 #endif
 
@@ -258,9 +250,8 @@ namespace Board
                 }
             }
 
-            while (txBuffer[channel].isFull())
+            while (!txBuffer[channel].insert(data))
                 ;
-            txBuffer[channel].insert(data);
             uartTransmitStart(channel);
 
             return true;
@@ -299,17 +290,13 @@ ISR(USART_RX_vect_0)
 
     if (!loopbackEnabled[0])
     {
-        if (!rxBuffer[0].isFull())
-        {
-            rxBuffer[0].insert(data);
+        if (rxBuffer[0].insert(data))
             Board::UART::trafficIndicator.received = true;
-        }
     }
     else
     {
-        if (!txBuffer[0].isFull())
+        if (txBuffer[0].insert(data))
         {
-            txBuffer[0].insert(data);
             UCSRB_0 |= (1 << UDRIE_0);
             Board::UART::trafficIndicator.sent = true;
             Board::UART::trafficIndicator.received = true;
@@ -324,17 +311,13 @@ ISR(USART_RX_vect_1)
 
     if (!loopbackEnabled[1])
     {
-        if (!rxBuffer[1].isFull())
-        {
-            rxBuffer[1].insert(data);
+        if (rxBuffer[1].insert(data))
             Board::UART::trafficIndicator.received = true;
-        }
     }
     else
     {
-        if (!txBuffer[1].isFull())
+        if (txBuffer[1].insert(data))
         {
-            txBuffer[1].insert(data);
             UCSRB_1 |= (1 << UDRIE_1);
             Board::UART::trafficIndicator.sent = true;
             Board::UART::trafficIndicator.received = true;
@@ -351,32 +334,34 @@ ISR(USART_RX_vect_1)
 
 ISR(USART_UDRE_vect_0)
 {
-    if (txBuffer[0].isEmpty())
+    uint8_t data;
+
+    if (txBuffer[0].remove(data))
     {
-        //buffer is empty, disable transmit interrupt
-        UCSRB_0 &= ~(1 << UDRIE_0);
+        UDR_0 = data;
+        Board::UART::trafficIndicator.sent = true;
     }
     else
     {
-        uint8_t data = txBuffer[0].remove();
-        UDR_0 = data;
-        Board::UART::trafficIndicator.sent = true;
+        //buffer is empty, disable transmit interrupt
+        UCSRB_0 &= ~(1 << UDRIE_0);
     }
 }
 
 #if UART_INTERFACES > 1
 ISR(USART_UDRE_vect_1)
 {
-    if (txBuffer[1].isEmpty())
+    uint8_t data;
+
+    if (txBuffer[1].remove(data))
     {
-        //buffer is empty, disable transmit interrupt
-        UCSRB_1 &= ~(1 << UDRIE_1);
+        UDR_1 = data;
+        Board::UART::trafficIndicator.sent = true;
     }
     else
     {
-        uint8_t data = txBuffer[1].remove();
-        UDR_1 = data;
-        Board::UART::trafficIndicator.sent = true;
+        //buffer is empty, disable transmit interrupt
+        UCSRB_1 &= ~(1 << UDRIE_1);
     }
 }
 #endif
