@@ -90,6 +90,9 @@ modules/u8g2/csrc/u8x8_gpio.c \
 modules/u8g2/csrc/u8x8_d_ssd1306_128x64_noname.c \
 modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
 
+SOURCES_ringbuf := \
+misc/RingBuffer.cpp
+
 #common include dirs
 INCLUDE_DIRS := \
 -I"./" \
