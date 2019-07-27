@@ -22,6 +22,7 @@ limitations under the License.
 #include "core/src/avr/PinManipulation.h"
 #include "core/src/avr/Misc.h"
 #include "core/src/general/BitManipulation.h"
+#include "core/src/general/Timing.h"
 #include "board/common/constants/LEDs.h"
 #include "board/common/constants/Reboot.h"
 #include "Pins.h"
@@ -122,6 +123,11 @@ namespace
         packet.Data1 = 0x00;
         packet.Data2 = 0x00;
         packet.Data3 = 0x00;
+
+        //add some delay - it case of hardware btldr entry both MCUs will boot up in the same time
+        //so it's possible USB link MCU will miss this packet
+
+        core::timing::waitMs(1000);
 
         OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, packet, OpenDeckMIDIformat::packetType_t::internalCommand);
 #endif
