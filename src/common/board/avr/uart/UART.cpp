@@ -124,6 +124,8 @@ namespace Board
 
             rxBuffer[channel].reset();
             txBuffer[channel].reset();
+
+            txDone[channel] = true;
         }
 
         void init(uint32_t baudRate, uint8_t channel)
