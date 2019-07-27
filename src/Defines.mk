@@ -50,7 +50,9 @@ else ifeq ($(BOARD_DIR), 16u2)
 else ifeq ($(BOARD_DIR), 8u2)
     MCU := atmega8u2
     BOARD := BOARD_A_xu2
-else ifeq ($(findstring upload,$(TARGETNAME)), upload)
+endif
+
+ifeq ($(findstring upload,$(MAKECMDGOALS)), upload)
     #used to set MCU if make upload target is called
     #check if MCU file exists
     ifneq ("$(wildcard build/MCU)","")
