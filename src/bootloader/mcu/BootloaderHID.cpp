@@ -118,7 +118,7 @@ namespace
         // make sure USB link goes to bootloader mode as well
         MIDI::USBMIDIpacket_t packet;
 
-        packet.Event = 0x00;
+        packet.Event = static_cast<uint8_t>(OpenDeckMIDIformat::command_t::btldrReboot);
         packet.Data1 = 0x00;
         packet.Data2 = 0x00;
         packet.Data3 = 0x00;
