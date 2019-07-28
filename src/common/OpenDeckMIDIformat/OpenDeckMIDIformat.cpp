@@ -110,6 +110,10 @@ namespace OpenDeckMIDIformat
                     Board::reboot(Board::rebootType_t::rebootBtldr);
                     break;
 
+                case command_t::appReboot:
+                    Board::reboot(Board::rebootType_t::rebootApp);
+                    break;
+
                 default:
                     break;
                 }
