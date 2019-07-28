@@ -1,4 +1,5 @@
 vpath application/%.cpp ../
+vpath common/%.cpp ../
 vpath modules/%.cpp ../
 vpath modules/%.c ../
 
@@ -93,10 +94,15 @@ modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
 SOURCES_ringbuf := \
 misc/RingBuffer.cpp
 
+SOURCES_odmidi := \
+misc/ODMIDIformat.cpp \
+common/OpenDeckMIDIformat/OpenDeckMIDIformat.cpp
+
 #common include dirs
 INCLUDE_DIRS := \
 -I"./" \
 -I"../application/" \
+-I"../" \
 -I"../modules/" \
 -I"../application/board/avr/variants/$(subst fw_,,$(TARGETNAME))/" \
 -isystem "stubs/avr"
