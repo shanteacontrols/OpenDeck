@@ -12,6 +12,7 @@ INCLUDE_DIRS := \
 -I"modules/" \
 -I"application/board/$(ARCH)/variants/$(BOARD_DIR)/" \
 -I"application/" \
+-I"./" \
 
 INCLUDE_FILES += -include "application/board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h"
 

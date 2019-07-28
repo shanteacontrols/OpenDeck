@@ -34,6 +34,7 @@ limitations under the License.
 #include "board/common/digital/Input.h"
 #include "board/common/digital/Output.h"
 #include "board/common/analog/Analog.h"
+#include "common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
 
 extern "C" void __cxa_pure_virtual()
 {
@@ -105,6 +106,20 @@ namespace Board
         {
         case rebootType_t::rebootApp:
             eeprom_write_byte(reinterpret_cast<uint8_t*>(REBOOT_VALUE_EEPROM_LOCATION), APP_REBOOT_VALUE);
+#ifndef USB_SUPPORTED
+            //signal to usb link to reboot as well
+            //no need to do this for bootloader reboot - the bootloader already sends btldrReboot command to USB link
+            MIDI::USBMIDIpacket_t USBMIDIpacket;
+
+            USBMIDIpacket.Event = static_cast<uint8_t>(OpenDeckMIDIformat::command_t::appReboot);
+            USBMIDIpacket.Data1 = 0x00;
+            USBMIDIpacket.Data2 = 0x00;
+            USBMIDIpacket.Data3 = 0x00;
+
+            OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::internalCommand);
+            while (!Board::UART::isTxEmpty(UART_USB_LINK_CHANNEL))
+                ;
+#endif
             break;
 
         case rebootType_t::rebootBtldr:
