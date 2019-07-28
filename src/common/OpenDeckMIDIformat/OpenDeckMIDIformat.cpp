@@ -89,6 +89,8 @@ namespace OpenDeckMIDIformat
             }
             else if (data == static_cast<uint8_t>(packetType_t::internalCommand))
             {
+                packetType = packetType_t::internalCommand;
+
                 uint8_t cmd = 0;
                 Board::UART::read(channel, cmd);
 
@@ -118,7 +120,6 @@ namespace OpenDeckMIDIformat
                     break;
                 }
 
-                packetType = packetType_t::internalCommand;
                 return true;
             }
         }
