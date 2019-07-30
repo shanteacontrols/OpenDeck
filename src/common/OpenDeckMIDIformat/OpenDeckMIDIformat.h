@@ -35,7 +35,6 @@ namespace OpenDeckMIDIformat
 
     enum class packetType_t : uint8_t
     {
-        invalid = 0,
         midi = 0xF1,               ///< MIDI packet in OpenDeck format.
                                    ///< Indicates start of MIDI data when OpenDeck MIDI format is used.
         internalCommand = 0xF2,    ///< Internal command used for target MCU <> USB link communication.
