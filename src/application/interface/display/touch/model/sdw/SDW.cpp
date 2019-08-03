@@ -88,7 +88,7 @@ void SDW::sendMessage(uint8_t value, messageByteType_t messageByteType)
 /// \brief Checks for incoming data from display.
 /// \returns True if there is incoming data, false otherwise.
 ///
-bool SDW::update(uint8_t buttonID, bool state)
+bool SDW::update(uint8_t& buttonID, bool& state)
 {
     uint8_t data = 0;
 

@@ -25,5 +25,5 @@ class ITouchscreen
     public:
     virtual bool init() = 0;
     virtual void setScreen(uint8_t screenID) = 0;
-    virtual bool update(uint8_t buttonID, bool state) = 0;
+    virtual bool update(uint8_t& buttonID, bool& state) = 0;
 };

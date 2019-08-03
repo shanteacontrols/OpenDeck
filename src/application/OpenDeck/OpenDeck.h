@@ -18,6 +18,8 @@ limitations under the License.
 
 #pragma once
 
+#include "Hardware.h"
+
 #if !defined(BOARD_A_xu2)
 #include "database/Database.h"
 #include "interface/analog/Analog.h"
