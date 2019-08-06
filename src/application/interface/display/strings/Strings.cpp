@@ -23,7 +23,7 @@ namespace
     const char arduinoProMicro_string[] PROGMEM = "Arduino PM";
     const char arduinoUno_string[] PROGMEM = "Arduino Uno";
     const char teensy2pp_string[] PROGMEM = "Teensy++ 2.0";
-    const char kodama_string[] PROGMEM = "Kodama";
+    const char dubfocus_string[] PROGMEM = "DubFocus";
     const char bergamot_string[] PROGMEM = "Bergamot";
     const char unknown_string[] PROGMEM = "Unknown";
 
@@ -124,8 +124,8 @@ const char* Strings::board()
     strcpy_P(tempBuffer, arduinoUno_string);
 #elif defined(BOARD_T_2PP)
     strcpy_P(tempBuffer, teensy2pp_string);
-#elif defined(BOARD_KODAMA)
-    strcpy_P(tempBuffer, kodama_string);
+#elif defined(BOARD_DUBFOCUS)
+    strcpy_P(tempBuffer, dubfocus_string);
 #elif defined(BOARD_BERGAMOT)
     strcpy_P(tempBuffer, bergamot_string);
 #else

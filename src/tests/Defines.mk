@@ -16,9 +16,9 @@ else ifeq ($(TARGETNAME), fw_leonardo)
 else ifeq ($(TARGETNAME), fw_pro_micro)
     MCU := atmega32u4
     BOARD := BOARD_A_PRO_MICRO
-else ifeq ($(TARGETNAME), fw_kodama)
+else ifeq ($(TARGETNAME), fw_dubfocus)
     MCU := atmega32u4
-    BOARD := BOARD_KODAMA
+    BOARD := BOARD_DUBFOCUS
 else ifeq ($(TARGETNAME), fw_bergamot)
     MCU := atmega32u4
     BOARD := BOARD_BERGAMOT

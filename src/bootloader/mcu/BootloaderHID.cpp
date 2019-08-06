@@ -38,7 +38,7 @@ namespace
     void pinsBTLDRentry()
     {
 //configure bootloader entry pins
-#if defined(BOARD_KODAMA)
+#if defined(BOARD_DUBFOCUS)
         CORE_AVR_PIN_SET_INPUT(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN);
         CORE_AVR_PIN_SET_OUTPUT(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
         CORE_AVR_PIN_SET_OUTPUT(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
@@ -53,7 +53,7 @@ namespace
     ///
     void pinsBTLDRindicate()
     {
-#ifdef BOARD_KODAMA
+#ifdef BOARD_DUBFOCUS
         //turn on all available LEDs
         CORE_AVR_PIN_SET_OUTPUT(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
         CORE_AVR_PIN_SET_OUTPUT(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
@@ -184,7 +184,7 @@ namespace
         //add some delay before reading the pins to avoid incorrect state detection
         _delay_ms(100);
 
-#if defined(BOARD_KODAMA)
+#if defined(BOARD_DUBFOCUS)
         uint16_t dInData = 0;
 
         CORE_AVR_PIN_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);

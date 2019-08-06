@@ -25,8 +25,8 @@
                 $scope.boardName = 'Arduino Uno';
             else if ((d[9] == 1) && (d[10] == 100) && (d[11] == 8) && (d[12] == 4))
                 $scope.boardName = 'Teensy++ 2.0';
-            else if ((d[9] == 1) && (d[10] == 92) && (d[11] == 80) && (d[12] == 109))
-                $scope.boardName = 'Kodama';
+            else if ((d[9] == 1) && (d[10] == 5) && (d[11] == 75) && (d[12] == 68))
+                $scope.boardName = 'DubFocus';
             else if ((d[9] == 1) && (d[10] == 44) && (d[11] == 68) && (d[12] == 62))
                 $scope.boardName = 'Bergamot';
             else

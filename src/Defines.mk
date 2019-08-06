@@ -26,9 +26,9 @@ else ifeq ($(BOARD_DIR), leonardo)
 else ifeq ($(BOARD_DIR), pro_micro)
     MCU := atmega32u4
     BOARD := BOARD_A_PRO_MICRO
-else ifeq ($(BOARD_DIR), kodama)
+else ifeq ($(BOARD_DIR), dubfocus)
     MCU := atmega32u4
-    BOARD := BOARD_KODAMA
+    BOARD := BOARD_DUBFOCUS
 else ifeq ($(BOARD_DIR), bergamot)
     MCU := atmega32u4
     BOARD := BOARD_BERGAMOT
@@ -62,7 +62,7 @@ ifeq ($(findstring upload,$(MAKECMDGOALS)), upload)
     endif
     #only some targets are supported
     ifeq ($(TARGETNAME),uploadboot)
-        ifeq ($(filter fw_opendeck fw_leonardo fw_pro_micro fw_kodama fw_teensy2pp fw_bergamot fw_mega fw_uno, $(shell cat build/TARGET)), )
+        ifeq ($(filter fw_opendeck fw_leonardo fw_pro_micro fw_dubfocus fw_teensy2pp fw_bergamot fw_mega fw_uno, $(shell cat build/TARGET)), )
             $(error Not available for current target.)
         endif
     endif

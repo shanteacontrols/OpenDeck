@@ -32,8 +32,8 @@ namespace
     ///
     uint8_t ledState[MAX_NUMBER_OF_LEDS];
 
-#ifdef BOARD_KODAMA
-    //12 connected leds on kodama board
+#ifdef BOARD_DUBFOCUS
+    //12 connected leds on dubfocus board
     const uint8_t ledMapArray[12] = {
         3,
         0,
@@ -119,7 +119,7 @@ void LEDs::checkBlinking(bool forceChange)
 
 void LEDs::startUpAnimation()
 {
-#ifdef BOARD_KODAMA
+#ifdef BOARD_DUBFOCUS
     startUpAnimationBoardSpecific();
 #else
 #ifdef LED_FADING
@@ -569,7 +569,7 @@ uint8_t LEDs::getLEDstate(uint8_t ledID)
     return ledState[ledID];
 }
 
-#ifdef BOARD_KODAMA
+#ifdef BOARD_DUBFOCUS
 void LEDs::startUpAnimationBoardSpecific()
 {
     //turn all leds on first

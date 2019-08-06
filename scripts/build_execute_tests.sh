@@ -20,5 +20,5 @@ echo "Running tests for Teensy++ 2.0 board"
 make clean && make all TARGETNAME=fw_teensy2pp && make exec
 echo "Running tests for Bergamot board"
 make clean && make all TARGETNAME=fw_bergamot && make exec
-echo "Running tests for Kodama board"
-make clean && make all TARGETNAME=fw_kodama && make exec
+echo "Running tests for DubFocus board"
+make clean && make all TARGETNAME=fw_dubfocus && make exec
