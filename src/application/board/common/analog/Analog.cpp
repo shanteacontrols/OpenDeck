@@ -27,6 +27,7 @@ limitations under the License.
 
 namespace
 {
+    uint8_t          ignoreCounter;
     uint8_t          analogIndex;
     volatile bool    analogSamplingDone;
     volatile int16_t analogBuffer[MAX_NUMBER_OF_ANALOG];
@@ -86,11 +87,10 @@ namespace Board
 
                 void update()
                 {
-                    //always ignore first reading
-                    static bool ignoreFirst = true;
-
-                    if (!ignoreFirst)
+                    if (ignoreCounter++ == ADC_IGNORED_SAMPLES_COUNT)
                     {
+                        ignoreCounter = 0;
+
                         analogBuffer[analogIndex] += ADC;
                         analogIndex++;
 #ifdef NUMBER_OF_MUX

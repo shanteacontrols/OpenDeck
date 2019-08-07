@@ -68,6 +68,11 @@ limitations under the License.
 #define ADC_MAX_VALUE                   1023
 
 ///
+/// \brief Defines how many analog samples from the same input will be thrown away before storing the read value.
+///
+#define ADC_IGNORED_SAMPLES_COUNT       3
+
+///
 /// \brief Location at which reboot type is written in EEPROM when initiating software reset.
 /// See Reboot.h
 ///
