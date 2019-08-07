@@ -28,7 +28,7 @@ limitations under the License.
 namespace
 {
     uint8_t          analogIndex;
-    volatile uint8_t analogSampleCounter;
+    volatile bool    analogSamplingDone;
     volatile int16_t analogBuffer[MAX_NUMBER_OF_ANALOG];
 #ifdef NUMBER_OF_MUX
     uint8_t activeMux;
@@ -50,7 +50,7 @@ namespace Board
                 ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 #endif
                 {
-                    value = analogBuffer[analogID] >> ANALOG_SAMPLE_SHIFT;
+                    value = analogBuffer[analogID];
                     analogBuffer[analogID] = 0;
                 }
 
@@ -59,12 +59,12 @@ namespace Board
 
             bool isDataAvailable()
             {
-                return (analogSampleCounter == NUMBER_OF_ANALOG_SAMPLES);
+                return analogSamplingDone;
             }
 
             void continueReadout()
             {
-                analogSampleCounter = 0;
+                analogSamplingDone = false;
                 analogIndex = 0;
                 core::CORE_ARCH::adc::startConversion();
             }
@@ -112,7 +112,7 @@ namespace Board
                                 activeMux = 0;
 #endif
                                 analogIndex = 0;
-                                analogSampleCounter++;
+                                analogSamplingDone = true;
 #ifdef NUMBER_OF_MUX
                             }
 #endif
@@ -131,9 +131,7 @@ namespace Board
 #endif
                     }
 
-                    ignoreFirst = !ignoreFirst;
-
-                    if (analogSampleCounter != NUMBER_OF_ANALOG_SAMPLES)
+                    if (!analogSamplingDone)
                         core::CORE_ARCH::adc::startConversion();
                 }
             }    // namespace detail

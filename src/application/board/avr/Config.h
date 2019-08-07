@@ -68,18 +68,6 @@ limitations under the License.
 #define ADC_MAX_VALUE                   1023
 
 ///
-/// \brief Total number of raw ADC readings taken for single analog component.
-/// Must be power of 2 value because bit shifting is used to calculate average value.
-///
-#define NUMBER_OF_ANALOG_SAMPLES        1
-
-///
-/// \brief Number of bits to shift to get average ADC value.
-/// Must correspond with NUMBER_OF_ANALOG_SAMPLES constant.
-///
-#define ANALOG_SAMPLE_SHIFT             0
-
-///
 /// \brief Location at which reboot type is written in EEPROM when initiating software reset.
 /// See Reboot.h
 ///

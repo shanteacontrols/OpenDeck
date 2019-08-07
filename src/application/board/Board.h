@@ -161,7 +161,7 @@ namespace Board
             /// \brief Checks if data from multiplexers is available.
             /// Data is read in ISR and stored into samples array.
             /// Once all mux inputs are read, data is considered available.
-            /// At this point, analogSampleCounter variable is set to invalid value
+            /// At this point, analogSamplingDone variable is reset
             /// to stop further data reading from ISR until continueReadout
             /// function is called.
             /// \returns True if data is available, false otherwise.
