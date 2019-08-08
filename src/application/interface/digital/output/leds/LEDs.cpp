@@ -170,10 +170,13 @@ LEDs::blinkSpeed_t LEDs::valueToBlinkSpeed(uint8_t value)
         110-127    1000ms        11
     */
 
-    if (value >= 120)
-        value = 119;
+    uint8_t blinkValue = value / static_cast<uint8_t>(blinkSpeed_t::AMOUNT);
 
-    return static_cast<blinkSpeed_t>(value / 10);
+    //in case of overflow return highest allowed value
+    if (blinkValue >= static_cast<uint8_t>(blinkSpeed_t::AMOUNT))
+        return static_cast<blinkSpeed_t>(static_cast<uint8_t>(blinkSpeed_t::AMOUNT) - 1);
+    else
+        return static_cast<blinkSpeed_t>(blinkValue);
 }
 
 void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local)
