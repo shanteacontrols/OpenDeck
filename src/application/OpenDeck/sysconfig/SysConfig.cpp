@@ -335,7 +335,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
 #ifndef DIN_MIDI_SUPPORTED
                 setError(SysExConf::status_t::errorNotSupported);
 #else
-                if (database.read(DB_BLOCK_GLOBAL, dbSection_global_midiFeatures, midiFeatureDinEnabled))
+                if (database.read(DB_BLOCK_GLOBAL, dbSection_global_midiFeatures, midiFeatureDinEnabled) || !newValue)
                 {
                     success = true;
                     //use recursive parsing when merging is active
@@ -359,7 +359,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
                 }
                 else
                 {
-                    //invalid configuration - trying to configure merge functionality while din midi is disabled
+                    //invalid configuration - trying to enable merge functionality while din midi is disabled
                     setError(SysExConf::status_t::errorWrite);
                 }
 #endif
