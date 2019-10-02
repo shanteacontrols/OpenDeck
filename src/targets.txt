@@ -13,6 +13,7 @@ boot_opendeck
 boot_leonardo
 boot_pro_micro
 boot_mega
+boot_mega6mux
 boot_uno
 boot_teensy2pp
 boot_dubfocus
