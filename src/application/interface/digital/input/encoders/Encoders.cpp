@@ -162,6 +162,10 @@ void Encoders::update()
                 encoderValue = midiValue[i];
                 break;
 
+            case type_t::tPresetChange:
+                //nothing to do - valid type
+                break;
+
             default:
                 validType = false;
                 break;
