@@ -124,8 +124,12 @@ void Buttons::processButton(uint8_t buttonID, bool state)
         }
         else if (buttonMessage == messageType_t::presetOpenDeck)
         {
-            uint8_t preset = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, buttonID);
-            database.setPreset(preset);
+            //change preset only on press
+            if (state)
+            {
+                uint8_t preset = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, buttonID);
+                database.setPreset(preset);
+            }
         }
         else if (buttonMessage == messageType_t::customHook)
         {
