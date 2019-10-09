@@ -100,7 +100,7 @@ void Encoders::update()
             uint8_t              channel = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i);
             type_t               type = static_cast<type_t>(database.read(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i));
             bool                 validType = true;
-            uint16_t             encoderValue;
+            uint16_t             encoderValue = 0;
             uint8_t              steps = (encoderSpeed[i] > 0) ? encoderSpeed[i] : 1;
             MIDI::encDec_14bit_t encDec_14bit;
             bool                 use14bit = false;
