@@ -8,6 +8,7 @@ echo "3 - Arduino Uno"
 echo "4 - Arduino Leonardo"
 echo "5 - Arduino Pro Micro"
 echo "6 - Teensy++ 2.0"
+echo "7 - Arduino Mega6mux"
 
 read board
 
@@ -29,6 +30,9 @@ then
 elif [ $board == 6 ]
 then
     ../bin/dfu/hid_bootloader_loader_mac at90usb1286 ../bin/compiled/arduino+teensy/fw/fw_teensy2pp.hex
+elif [ $board == 7 ]
+then
+    ../bin/dfu/hid_bootloader_loader_mac atmega2560 ../bin/compiled/arduino+teensy/fw/fw_mega6mux.hex
 else
     echo "Incorrect board number selected."
 fi
