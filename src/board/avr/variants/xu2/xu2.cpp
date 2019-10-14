@@ -18,7 +18,7 @@ limitations under the License.
 
 #include <avr/interrupt.h>
 #include "board/Board.h"
-#include "../../../../../common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
+#include "common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
 
 namespace
 {

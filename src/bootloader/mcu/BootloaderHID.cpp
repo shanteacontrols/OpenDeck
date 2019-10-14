@@ -28,7 +28,7 @@ limitations under the License.
 #include "Pins.h"
 #include "board/Board.h"
 #include "Redef.h"
-#include "../../common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
+#include "common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
 
 namespace
 {

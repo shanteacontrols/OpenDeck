@@ -104,10 +104,10 @@ INCLUDE_DIRS := \
 -I"../application/" \
 -I"../" \
 -I"../modules/" \
--I"../application/board/avr/variants/$(subst fw_,,$(TARGETNAME))/" \
+-I"../board/avr/variants/$(subst fw_,,$(TARGETNAME))/" \
 -isystem "stubs/avr"
 
 INCLUDE_FILES += \
--include "../application/board/avr/variants/$(subst fw_,,$(TARGETNAME))/Hardware.h" \
+-include "../board/avr/variants/$(subst fw_,,$(TARGETNAME))/Hardware.h" \
 -include "stubs/Core.h" \
--include "../application/board/avr/Config.h"
+-include "../board/avr/Config.h"

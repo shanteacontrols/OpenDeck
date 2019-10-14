@@ -17,7 +17,7 @@ limitations under the License.
 */
 
 #include <util/atomic.h>
-#include "../../UART.h"
+#include "board/UART.h"
 #include "Constants.h"
 #include "core/src/general/RingBuffer.h"
 

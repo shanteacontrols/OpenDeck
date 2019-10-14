@@ -20,7 +20,7 @@ limitations under the License.
 #include "Version.h"
 #include "Layout.h"
 #include "core/src/general/Timing.h"
-#include "../../common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
+#include "common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
 #include "board/Board.h"
 
 bool SysConfig::onCustomRequest(uint8_t value)

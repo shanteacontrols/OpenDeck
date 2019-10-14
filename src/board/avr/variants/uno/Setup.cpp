@@ -23,7 +23,7 @@ limitations under the License.
 #include "board/common/constants/LEDs.h"
 #include "core/src/avr/PinManipulation.h"
 #include "core/src/avr/ADC.h"
-#include "../../../../../common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
+#include "common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
 
 namespace Board
 {
