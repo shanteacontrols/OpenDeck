@@ -1,8 +1,7 @@
 #slightly modified Defines.mk from src directory
 
 #common
-DEFINES := \
-F_CPU=16000000UL
+DEFINES :=
 
 TARGETNAME := fw_opendeck
 
