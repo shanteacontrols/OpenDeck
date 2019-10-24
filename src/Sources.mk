@@ -8,7 +8,6 @@ endif
 
 #common include dirs
 INCLUDE_DIRS := \
--I"modules/lufa/" \
 -I"modules/" \
 -I"board/$(ARCH)/variants/$(BOARD_DIR)/" \
 -I"application/" \
@@ -24,7 +23,10 @@ endif
 
 #lufa sources for avr
 ifeq ($(ARCH), avr)
-    ifneq ($(filter USB_SUPPORTED, $(DEFINES)), )
+    INCLUDE_DIRS += \
+    -I"modules/lufa/"
+
+    ifneq ($(shell cat board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
         #common for bootloader and application
         SOURCES += \
         modules/lufa/LUFA/Drivers/USB/Core/AVR8/Device_AVR8.c \
@@ -66,7 +68,7 @@ ifeq ($(findstring boot,$(TARGETNAME)), boot)
     SOURCES += \
     bootloader/mcu/BootloaderHID.cpp
 
-    ifneq ($(filter USB_SUPPORTED, $(DEFINES)), )
+    ifneq ($(shell cat board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
         ifeq ($(BOARD_DIR),xu2)
             SOURCES += \
             bootloader/mcu/variant/xu2.cpp \
@@ -108,7 +110,7 @@ else
         SOURCES += $(shell find ./modules/dbms/src -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell find ./common/OpenDeckMIDIformat -type f -name "*.cpp")
 
-        ifneq ($(filter USB_SUPPORTED, $(DEFINES)), )
+        ifneq ($(shell cat board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
             SOURCES += $(shell find ./board/$(ARCH)/usb -type f -name "*.cpp")
         endif
 

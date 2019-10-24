@@ -793,7 +793,7 @@ void SysConfig::setupMIDIoverUART(uint32_t baudRate, bool initRX, bool initTX)
 
 void SysConfig::setupMIDIoverUSB()
 {
-#ifdef USB_SUPPORTED
+#ifdef USB_MIDI_SUPPORTED
     midi.handleUSBread(Board::USB::readMIDI);
     midi.handleUSBwrite(Board::USB::writeMIDI);
 #else
@@ -900,7 +900,7 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
             {
                 if (packetType == OpenDeckMIDIformat::packetType_t::midi)
                 {
-#ifdef USB_SUPPORTED
+#ifdef USB_MIDI_SUPPORTED
                     Board::USB::writeMIDI(slavePacket);
 #else
                     OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, slavePacket, OpenDeckMIDIformat::packetType_t::midi);
@@ -909,7 +909,7 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
             }
 
 //read usb midi data and forward it to uart in od format
-#ifdef USB_SUPPORTED
+#ifdef USB_MIDI_SUPPORTED
             if (Board::USB::readMIDI(USBMIDIpacket))
             {
                 return OpenDeckMIDIformat::write(UART_MIDI_CHANNEL, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::midiDaisyChain);
@@ -925,7 +925,7 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
             return false;
         });
 
-#ifdef USB_SUPPORTED
+#ifdef USB_MIDI_SUPPORTED
         midi.handleUSBwrite(Board::USB::writeMIDI);
 #else
         midi.handleUSBwrite([](MIDI::USBMIDIpacket_t& USBMIDIpacket) {

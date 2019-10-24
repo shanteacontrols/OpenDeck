@@ -107,15 +107,15 @@ namespace
         MCUCR = (1 << IVCE);
         MCUCR = (1 << IVSEL);
 
-#ifdef USB_SUPPORTED
+#ifdef USB_MIDI_SUPPORTED
         //initialize USB subsystem
         USB_Init();
 #endif
 
-#if defined(BOARD_A_xu2) || !defined(USB_SUPPORTED)
+#if defined(BOARD_A_xu2) || !defined(USB_MIDI_SUPPORTED)
         Board::UART::init(UART_BAUDRATE_MIDI_OD, UART_USB_LINK_CHANNEL);
 
-#ifndef USB_SUPPORTED
+#ifndef USB_MIDI_SUPPORTED
         // make sure USB link goes to bootloader mode as well
         MIDI::USBMIDIpacket_t packet;
 
@@ -276,7 +276,7 @@ int main(void)
 
     while (bootloader::RunBootloader)
     {
-#ifdef USB_SUPPORTED
+#ifdef USB_MIDI_SUPPORTED
         USB_USBTask();
 #else
         static uint8_t pageStartCnt = 0;
@@ -304,7 +304,7 @@ int main(void)
 #endif
     }
 
-#ifdef USB_SUPPORTED
+#ifdef USB_MIDI_SUPPORTED
     //disconnect from the host - USB interface will be reset later along with the AVR
     USB_Detach();
 #endif
@@ -315,7 +315,7 @@ int main(void)
         ;
 }
 
-#ifdef USB_SUPPORTED
+#ifdef USB_MIDI_SUPPORTED
 ///
 /// \brief Event handler for the USB_ConfigurationChanged event.
 /// This configures the device's endpoints ready to relay data to and from the attached USB host.

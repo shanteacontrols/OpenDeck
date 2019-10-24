@@ -34,7 +34,7 @@ namespace Board
         void adc();
 #endif
 
-#ifdef USB_SUPPORTED
+#ifdef USB_MIDI_SUPPORTED
         ///
         /// \brief Initializes USB peripheral and configures it as MIDI device.
         ///

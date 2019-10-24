@@ -54,7 +54,7 @@ limitations under the License.
 #include <avr/power.h>
 #include <stdbool.h>
 
-#ifdef USB_SUPPORTED
+#ifdef USB_MIDI_SUPPORTED
 #include "Descriptors.h"
 #include <LUFA/Drivers/USB/USB.h>
 #include <LUFA/Platform/Platform.h>
@@ -68,7 +68,7 @@ limitations under the License.
 #error This bootloader requires that it be optimized for size, not speed, to fit into the target device. Change optimization settings and try again.
 #endif
 
-#ifdef USB_SUPPORTED
+#ifdef USB_MIDI_SUPPORTED
 void EVENT_USB_Device_ControlRequest();
 void EVENT_USB_Device_ConfigurationChanged();
 #else

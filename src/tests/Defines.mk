@@ -46,19 +46,15 @@ endif
 #mcu specific
 ifeq ($(MCU),atmega32u4)
     EEPROM_SIZE := 1024
-    DEFINES += USB_SUPPORTED
 else ifeq ($(MCU),at90usb1286)
     EEPROM_SIZE := 4096
     FLASH_SIZE_START_ADDR := 0x98
     FLASH_SIZE_END_ADDR := 0x9C
-    DEFINES += USB_SUPPORTED
 else ifeq ($(MCU),atmega16u2)
     EEPROM_SIZE := 512
     BOOT_START_ADDR := 0x3000
-    DEFINES += USB_SUPPORTED
 else ifeq ($(MCU),atmega8u2)
     EEPROM_SIZE := 512
-    DEFINES += USB_SUPPORTED
 else ifeq ($(MCU),atmega2560)
     EEPROM_SIZE := 4096
 else ifeq ($(MCU),atmega328p)

@@ -83,7 +83,7 @@ namespace Board
         UART::init(UART_BAUDRATE_MIDI_OD, UART_USB_LINK_CHANNEL);
 #endif
 
-#ifdef USB_SUPPORTED
+#ifdef USB_MIDI_SUPPORTED
         ///
         /// \brief Initializes USB peripheral and configures it as MIDI device.
         ///
@@ -102,7 +102,7 @@ namespace Board
         {
         case rebootType_t::rebootApp:
             eeprom_write_byte(reinterpret_cast<uint8_t*>(REBOOT_VALUE_EEPROM_LOCATION), APP_REBOOT_VALUE);
-#ifndef USB_SUPPORTED
+#ifndef USB_MIDI_SUPPORTED
             //signal to usb link to reboot as well
             //no need to do this for bootloader reboot - the bootloader already sends btldrReboot command to USB link
             MIDI::USBMIDIpacket_t USBMIDIpacket;

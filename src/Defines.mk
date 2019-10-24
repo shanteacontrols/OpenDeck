@@ -80,7 +80,6 @@ ifeq ($(MCU),atmega32u4)
     BOOT_START_ADDR := 0x7000
     FLASH_SIZE_START_ADDR := 0xAC
     FLASH_SIZE_END_ADDR := 0xB0
-    DEFINES += USB_SUPPORTED
     DEFINES += __AVR_ATmega32U4__
 else ifeq ($(MCU),at90usb1286)
     ARCH := avr
@@ -93,7 +92,6 @@ else ifeq ($(MCU),at90usb1286)
     BOOT_START_ADDR := 0x1F000
     FLASH_SIZE_START_ADDR := 0x98
     FLASH_SIZE_END_ADDR := 0x9C
-    DEFINES += USB_SUPPORTED
     DEFINES += __AVR_AT90USB1286__
 else ifeq ($(MCU),atmega16u2)
     ARCH := avr
@@ -106,7 +104,6 @@ else ifeq ($(MCU),atmega16u2)
     FLASH_SIZE_START_ADDR := 0x74
     FLASH_SIZE_END_ADDR := 0x78
     BOOT_START_ADDR := 0x3000
-    DEFINES += USB_SUPPORTED
     DEFINES += __AVR_ATmega16U2__
 else ifeq ($(MCU),atmega8u2)
     ARCH := avr
@@ -119,7 +116,6 @@ else ifeq ($(MCU),atmega8u2)
     FLASH_SIZE_START_ADDR := 0x74
     FLASH_SIZE_END_ADDR := 0x78
     BOOT_START_ADDR := 0x1800
-    DEFINES += USB_SUPPORTED
     DEFINES += __AVR_ATmega8U2__
 else ifeq ($(MCU),atmega2560)
     ARCH := avr

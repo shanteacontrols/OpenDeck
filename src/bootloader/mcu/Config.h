@@ -34,7 +34,7 @@ namespace bootloader
     ///
     extern bool RunBootloader;
 
-#if !defined(USB_SUPPORTED) || defined(BOARD_A_xu2)
+#if !defined(USB_MIDI_SUPPORTED) || defined(BOARD_A_xu2)
     ///
     /// \brief Sequence used to signal that the USB link MCU has new flash page for target MCU.
     ///
