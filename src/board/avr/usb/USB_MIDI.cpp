@@ -116,10 +116,5 @@ namespace Board
 
             return true;
         }
-
-        bool isUSBconnected()
-        {
-            return (USB_DeviceState == DEVICE_STATE_Configured);
-        }
     }    // namespace USB
 }    // namespace Board

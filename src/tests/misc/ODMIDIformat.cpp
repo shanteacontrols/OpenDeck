@@ -36,11 +36,6 @@ namespace Board
             EXPECT_TRUE(buffer.insert(data));
             return true;
         }
-
-        uint8_t bytesAvailableRx(uint8_t channel)
-        {
-            return buffer.count();
-        }
     }    // namespace UART
 }    // namespace Board
 

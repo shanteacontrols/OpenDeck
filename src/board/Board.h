@@ -75,11 +75,6 @@ namespace Board
     namespace USB
     {
         ///
-        /// \brief Checks if device has been successfully connected to host.
-        ///
-        bool isUSBconnected();
-
-        ///
         /// \brief Used to read MIDI data from USB interface.
         /// @param [in] USBMIDIpacket   Pointer to structure in which MIDI data is stored.
         /// \returns True if data is available, false otherwise.
@@ -135,24 +130,11 @@ namespace Board
         void setLoopbackState(uint8_t channel, bool state);
 
         ///
-        /// \brief Checks whether or not UART loopback functionality is enabled.
-        /// @param [in] channel UART channel on MCU.
-        ///
-        bool getLoopbackState(uint8_t channel);
-
-        ///
         /// \brief Checks if all data on specified UART channel has been sent.
         /// @param [in] channel UART channel on MCU.
         /// \returns True if there is no more data to transmit, false otherwise.
         ///
         bool isTxEmpty(uint8_t channel);
-
-        ///
-        /// \brief Checks how many bytes are stored in incoming buffer.
-        /// @param [in] channel UART channel on MCU.
-        /// \returns Number of available bytes.
-        ///
-        uint8_t bytesAvailableRx(uint8_t channel);
 
         namespace ll
         {

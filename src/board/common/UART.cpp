@@ -133,25 +133,12 @@ namespace Board
             return true;
         }
 
-        bool getLoopbackState(uint8_t channel)
-        {
-            if (channel >= UART_INTERFACES)
-                return false;
-
-            return loopbackEnabled[channel];
-        }
-
         bool isTxEmpty(uint8_t channel)
         {
             if (channel >= UART_INTERFACES)
                 return false;
 
             return txDone[channel];
-        }
-
-        uint8_t bytesAvailableRx(uint8_t channel)
-        {
-            return rxBuffer[channel].count();
         }
 
         namespace isr
