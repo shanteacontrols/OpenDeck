@@ -70,7 +70,7 @@ ifeq ($(findstring boot,$(TARGETNAME)), boot)
         ifeq ($(BOARD_DIR),xu2)
             SOURCES += \
             bootloader/mcu/variant/xu2.cpp \
-            board/$(ARCH)/uart/UART.cpp \
+            board/$(ARCH)/UART.cpp \
             board/common/digital/Output.cpp
         else
             SOURCES += \
@@ -79,7 +79,7 @@ ifeq ($(findstring boot,$(TARGETNAME)), boot)
     else
         SOURCES += \
         bootloader/mcu/variant/NoUSB.cpp \
-        board/$(ARCH)/uart/UART.cpp \
+        board/$(ARCH)/UART.cpp \
         common/OpenDeckMIDIformat/OpenDeckMIDIformat.cpp
     endif
 else
@@ -93,7 +93,6 @@ else
         SOURCES += $(shell find ./board/$(ARCH)/usb -type f -name "*.cpp")
         SOURCES += $(shell find ./board/$(ARCH)/variants/$(BOARD_DIR) -type f -name "*.cpp")
         SOURCES += $(shell find ./common/OpenDeckMIDIformat -type f -name "*.cpp")
-        SOURCES += $(shell find ./board/$(ARCH)/uart -type f -name "*.cpp")
     else
         SOURCES += $(shell find ./application -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell find ./application/database -type f -name "*.cpp")
@@ -108,7 +107,6 @@ else
         SOURCES += $(shell find ./modules/midi/src -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell find ./modules/dbms/src -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell find ./common/OpenDeckMIDIformat -type f -name "*.cpp")
-        SOURCES += $(shell find ./board/$(ARCH)/uart -type f -name "*.cpp")
 
         ifneq ($(filter USB_SUPPORTED, $(DEFINES)), )
             SOURCES += $(shell find ./board/$(ARCH)/usb -type f -name "*.cpp")
