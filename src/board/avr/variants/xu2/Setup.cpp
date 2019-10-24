@@ -27,7 +27,7 @@ namespace Board
 {
     namespace setup
     {
-        void pins()
+        void io()
         {
             //bootloader/midi leds
             CORE_IO_CONFIG(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN, core::io::pinMode_t::output);

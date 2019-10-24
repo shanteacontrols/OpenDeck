@@ -25,7 +25,7 @@ namespace Board
 {
     namespace setup
     {
-        void pins()
+        void io()
         {
             CORE_IO_CONFIG(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN, core::io::pinMode_t::input);
             CORE_IO_CONFIG(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN, core::io::pinMode_t::output);

@@ -29,7 +29,7 @@ namespace Board
 {
     namespace setup
     {
-        void pins()
+        void io()
         {
             CORE_IO_CONFIG(DI_1_PORT, DI_1_PIN, core::io::pinMode_t::input);
             CORE_IO_SET_HIGH(DI_1_PORT, DI_1_PIN);

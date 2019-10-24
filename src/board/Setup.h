@@ -25,7 +25,7 @@ namespace Board
         ///
         /// \brief Initializes all pins to correct states.
         ///
-        void pins();
+        void io();
 
 #ifndef BOARD_A_xu2
         ///

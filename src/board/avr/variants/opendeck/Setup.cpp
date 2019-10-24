@@ -29,7 +29,7 @@ namespace Board
 {
     namespace setup
     {
-        void pins()
+        void io()
         {
             //configure input matrix
             //shift register

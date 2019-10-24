@@ -72,7 +72,7 @@ namespace Board
         ///
         /// \brief Initializes all pins to correct states.
         ///
-        setup::pins();
+        setup::io();
 
 #ifndef BOARD_A_xu2
         ///
