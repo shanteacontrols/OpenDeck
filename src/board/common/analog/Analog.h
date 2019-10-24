@@ -27,9 +27,10 @@ namespace Board
             namespace detail
             {
                 ///
-                /// \brief Continously reads values from all analog components.
+                /// \brief Called in ADC ISR once the conversion is done.
+                /// @param [in] adcValue    Retrieved ADC value.
                 ///
-                void update();
+                void isrHandler(uint16_t adcValue);
             }    // namespace detail
         }        // namespace analog
     }            // namespace interface

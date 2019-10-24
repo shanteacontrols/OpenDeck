@@ -192,7 +192,7 @@ namespace Board
 ///
 ISR(ADC_vect)
 {
-    Board::interface::analog::detail::update();
+    Board::interface::analog::detail::isrHandler(ADC);
 }
 #endif
 

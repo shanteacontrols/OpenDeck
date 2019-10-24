@@ -82,13 +82,13 @@ namespace Board
                 }
 #endif
 
-                void update()
+                void isrHandler(uint16_t adcValue)
                 {
                     if (ignoreCounter++ == ADC_IGNORED_SAMPLES_COUNT)
                     {
                         ignoreCounter = 0;
 
-                        analogBuffer[analogIndex] += ADC;
+                        analogBuffer[analogIndex] += adcValue;
                         analogIndex++;
 #ifdef NUMBER_OF_MUX
                         activeMuxInput++;
