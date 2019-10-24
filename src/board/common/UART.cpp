@@ -17,6 +17,7 @@ limitations under the License.
 */
 
 #include "board/Board.h"
+#include "board/Internal.h"
 #include "core/src/general/RingBuffer.h"
 
 //generic UART driver, arch-independent
@@ -58,7 +59,7 @@ namespace
 
         txDone[channel] = false;
 
-        Board::UART::ll::enableDataEmptyInt(channel);
+        Board::detail::UART::ll::enableDataEmptyInt(channel);
     }
 }    // namespace
 
@@ -81,7 +82,7 @@ namespace Board
 
             setLoopbackState(channel, false);
 
-            ll::deInit(channel);
+            Board::detail::UART::ll::deInit(channel);
 
             rxBuffer[channel].reset();
             txBuffer[channel].reset();
@@ -95,7 +96,7 @@ namespace Board
                 return;
 
             deInit(channel);
-            ll::init(channel, baudRate);
+            Board::detail::UART::ll::init(channel, baudRate);
         }
 
         bool read(uint8_t channel, uint8_t& data)
@@ -121,7 +122,7 @@ namespace Board
             if (txDone[channel] && txBuffer[channel].isEmpty())
             {
                 txDone[channel] = false;
-                ll::directWrite(channel, data);
+                Board::detail::UART::ll::directWrite(channel, data);
                 return true;
             }
 
@@ -140,53 +141,59 @@ namespace Board
 
             return txDone[channel];
         }
+    }    // namespace UART
 
-        namespace isr
+    namespace detail
+    {
+        namespace UART
         {
-            void storeIncomingData(uint8_t channel, uint8_t data)
+            namespace isr
             {
-                if (!loopbackEnabled[channel])
+                void storeIncomingData(uint8_t channel, uint8_t data)
                 {
-                    if (rxBuffer[channel].insert(data))
+                    if (!loopbackEnabled[channel])
                     {
+                        if (rxBuffer[channel].insert(data))
+                        {
 #ifdef LED_INDICATORS
-                        Board::interface::digital::output::indicateMIDItraffic(MIDI::interface_t::din, Board::midiTrafficDirection_t::incoming);
+                            Board::detail::indicateMIDItraffic(MIDI::interface_t::din, Board::detail::midiTrafficDirection_t::incoming);
 #endif
+                        }
+                    }
+                    else
+                    {
+                        if (txBuffer[channel].insert(data))
+                        {
+                            Board::detail::UART::ll::enableDataEmptyInt(channel);
+#ifdef LED_INDICATORS
+                            Board::detail::indicateMIDItraffic(MIDI::interface_t::din, Board::detail::midiTrafficDirection_t::outgoing);
+                            Board::detail::indicateMIDItraffic(MIDI::interface_t::din, Board::detail::midiTrafficDirection_t::incoming);
+#endif
+                        }
                     }
                 }
-                else
+
+                bool getNextByteToSend(uint8_t channel, uint8_t& data)
                 {
-                    if (txBuffer[channel].insert(data))
+                    if (txBuffer[channel].remove(data))
                     {
-                        ll::enableDataEmptyInt(channel);
 #ifdef LED_INDICATORS
-                        Board::interface::digital::output::indicateMIDItraffic(MIDI::interface_t::din, Board::midiTrafficDirection_t::outgoing);
-                        Board::interface::digital::output::indicateMIDItraffic(MIDI::interface_t::din, Board::midiTrafficDirection_t::incoming);
+                        Board::detail::indicateMIDItraffic(MIDI::interface_t::din, Board::detail::midiTrafficDirection_t::outgoing);
 #endif
+                        return true;
+                    }
+                    else
+                    {
+                        Board::detail::UART::ll::disableDataEmptyInt(channel);
+                        return false;
                     }
                 }
-            }
 
-            bool getNextByteToSend(uint8_t channel, uint8_t& data)
-            {
-                if (txBuffer[channel].remove(data))
+                void indicateTxComplete(uint8_t channel)
                 {
-#ifdef LED_INDICATORS
-                    Board::interface::digital::output::indicateMIDItraffic(MIDI::interface_t::din, Board::midiTrafficDirection_t::outgoing);
-#endif
-                    return true;
+                    txDone[channel] = true;
                 }
-                else
-                {
-                    ll::disableDataEmptyInt(channel);
-                    return false;
-                }
-            }
-
-            void indicateTxComplete(uint8_t channel)
-            {
-                txDone[channel] = true;
-            }
-        }    // namespace isr
-    }        // namespace UART
+            }    // namespace isr
+        }        // namespace UART
+    }            // namespace detail
 }    // namespace Board

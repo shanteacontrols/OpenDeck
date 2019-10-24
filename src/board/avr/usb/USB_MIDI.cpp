@@ -19,6 +19,7 @@ limitations under the License.
 #include "Descriptors.h"
 #include "midi/src/MIDI.h"
 #include "board/Board.h"
+#include "board/Internal.h"
 
 namespace
 {
@@ -42,23 +43,26 @@ void EVENT_USB_Device_ConfigurationChanged(void)
 
 namespace Board
 {
-    namespace setup
+    namespace detail
     {
-        void usb()
+        namespace setup
         {
-            MIDI_Interface.Config.StreamingInterfaceNumber = INTERFACE_ID_AudioStream;
+            void usb()
+            {
+                MIDI_Interface.Config.StreamingInterfaceNumber = INTERFACE_ID_AudioStream;
 
-            MIDI_Interface.Config.DataINEndpoint.Address = MIDI_STREAM_IN_EPADDR;
-            MIDI_Interface.Config.DataINEndpoint.Size = MIDI_STREAM_EPSIZE;
-            MIDI_Interface.Config.DataINEndpoint.Banks = 1;
+                MIDI_Interface.Config.DataINEndpoint.Address = MIDI_STREAM_IN_EPADDR;
+                MIDI_Interface.Config.DataINEndpoint.Size = MIDI_STREAM_EPSIZE;
+                MIDI_Interface.Config.DataINEndpoint.Banks = 1;
 
-            MIDI_Interface.Config.DataOUTEndpoint.Address = MIDI_STREAM_OUT_EPADDR;
-            MIDI_Interface.Config.DataOUTEndpoint.Size = MIDI_STREAM_EPSIZE;
-            MIDI_Interface.Config.DataOUTEndpoint.Banks = 1;
+                MIDI_Interface.Config.DataOUTEndpoint.Address = MIDI_STREAM_OUT_EPADDR;
+                MIDI_Interface.Config.DataOUTEndpoint.Size = MIDI_STREAM_EPSIZE;
+                MIDI_Interface.Config.DataOUTEndpoint.Banks = 1;
 
-            USB_Init();
-        }
-    }    // namespace setup
+                USB_Init();
+            }
+        }    // namespace setup
+    }        // namespace detail
 
     namespace USB
     {
@@ -82,7 +86,7 @@ namespace Board
                     Endpoint_ClearOUT();    //clear the endpoint ready for new packet
 
 #ifdef LED_INDICATORS
-                Board::interface::digital::output::indicateMIDItraffic(MIDI::interface_t::usb, Board::midiTrafficDirection_t::incoming);
+                Board::detail::indicateMIDItraffic(MIDI::interface_t::usb, Board::detail::midiTrafficDirection_t::incoming);
 #endif
 
                 return true;
@@ -111,7 +115,7 @@ namespace Board
             MIDI_Device_Flush(&MIDI_Interface);
 
 #ifdef LED_INDICATORS
-            Board::interface::digital::output::indicateMIDItraffic(MIDI::interface_t::usb, Board::midiTrafficDirection_t::outgoing);
+            Board::detail::indicateMIDItraffic(MIDI::interface_t::usb, Board::detail::midiTrafficDirection_t::outgoing);
 #endif
 
             return true;

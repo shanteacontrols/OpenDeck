@@ -17,32 +17,35 @@ limitations under the License.
 */
 
 #include "Pins.h"
-#include "board/common/Map.h"
+#include "board/Internal.h"
 
 namespace Board
 {
-    namespace map
+    namespace detail
     {
-        namespace
+        namespace map
         {
-            const core::io::mcuPin_t aInPins[NUMBER_OF_MUX] = {
-                //port not used on avr mcus for adc channels
-                //adc channel doesn't have to match with adc pin
-                {
-                    .port = nullptr,
-                    .index = MUX_1_IN_PIN,
-                }
-            };
-        }    // namespace
+            namespace
+            {
+                const core::io::mcuPin_t aInPins[NUMBER_OF_MUX] = {
+                    //port not used on avr mcus for adc channels
+                    //adc channel doesn't have to match with adc pin
+                    {
+                        .port = nullptr,
+                        .index = MUX_1_IN_PIN,
+                    }
+                };
+            }    // namespace
 
-        core::io::mcuPin_t adcChannel(uint8_t index)
-        {
-            return aInPins[index];
-        }
+            core::io::mcuPin_t adcChannel(uint8_t index)
+            {
+                return aInPins[index];
+            }
 
-        uint8_t muxChannel(uint8_t index)
-        {
-            return index;
-        }
-    }    // namespace map
+            uint8_t muxChannel(uint8_t index)
+            {
+                return index;
+            }
+        }    // namespace map
+    }        // namespace detail
 }    // namespace Board

@@ -19,7 +19,7 @@ limitations under the License.
 #include "board/Board.h"
 #include "board/common/constants/LEDs.h"
 #include "board/common/digital/Output.h"
-#include "board/common/Map.h"
+#include "board/Internal.h"
 #include "core/src/general/Helpers.h"
 #include "core/src/general/Atomic.h"
 #include "Pins.h"
@@ -135,46 +135,49 @@ namespace
 
 namespace Board
 {
+    namespace detail
+    {
+#ifdef LED_INDICATORS
+        void indicateMIDItraffic(MIDI::interface_t source, midiTrafficDirection_t direction)
+        {
+            switch (source)
+            {
+            case MIDI::interface_t::din:
+                if (direction == midiTrafficDirection_t::incoming)
+                {
+                    INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
+                    midiInDINtimeout = MIDI_INDICATOR_TIMEOUT;
+                }
+                else
+                {
+                    INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+                    midiOutDINtimeout = MIDI_INDICATOR_TIMEOUT;
+                }
+                break;
+
+            case MIDI::interface_t::usb:
+                if (direction == midiTrafficDirection_t::incoming)
+                {
+                    INT_LED_ON(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
+                    midiInUSBtimeout = MIDI_INDICATOR_TIMEOUT;
+                }
+                else
+                {
+                    INT_LED_ON(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
+                    midiOutUSBtimeout = MIDI_INDICATOR_TIMEOUT;
+                }
+                break;
+            }
+        }
+#endif
+    }    // namespace detail
+
     namespace interface
     {
         namespace digital
         {
             namespace output
             {
-#ifdef LED_INDICATORS
-                void indicateMIDItraffic(MIDI::interface_t source, midiTrafficDirection_t direction)
-                {
-                    switch (source)
-                    {
-                    case MIDI::interface_t::din:
-                        if (direction == midiTrafficDirection_t::incoming)
-                        {
-                            INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-                            midiInDINtimeout = MIDI_INDICATOR_TIMEOUT;
-                        }
-                        else
-                        {
-                            INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-                            midiOutDINtimeout = MIDI_INDICATOR_TIMEOUT;
-                        }
-                        break;
-
-                    case MIDI::interface_t::usb:
-                        if (direction == midiTrafficDirection_t::incoming)
-                        {
-                            INT_LED_ON(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
-                            midiInUSBtimeout = MIDI_INDICATOR_TIMEOUT;
-                        }
-                        else
-                        {
-                            INT_LED_ON(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
-                            midiOutUSBtimeout = MIDI_INDICATOR_TIMEOUT;
-                        }
-                        break;
-                    }
-                }
-#endif
-
 #ifndef BOARD_A_xu2
 #ifdef LEDS_SUPPORTED
                 bool setLEDfadeSpeed(uint8_t transitionSpeed)
@@ -302,10 +305,10 @@ namespace Board
                     {
 #ifdef LED_FADING
                         //turn off pwm
-                        core::io::pwmOff(Board::map::pwmChannel(row));
+                        core::io::pwmOff(Board::detail::map::pwmChannel(row));
 #endif
 
-                        pin = Board::map::led(row);
+                        pin = Board::detail::map::led(row);
                         EXT_LED_OFF(*pin.port, pin.index);
                     }
 
@@ -324,7 +327,7 @@ namespace Board
                         if (intensity == 255)
 #endif
                         {
-                            pin = Board::map::led(row);
+                            pin = Board::detail::map::led(row);
 
                             //max value, don't use pwm
                             EXT_LED_ON(*pin.port, pin.index);
@@ -336,7 +339,7 @@ namespace Board
                             intensity = 255 - intensity;
 #endif
 
-                            core::io::pwmOn(Board::map::pwmChannel(row), intensity);
+                            core::io::pwmOn(Board::detail::map::pwmChannel(row), intensity);
                         }
 #endif
                     }
@@ -462,7 +465,7 @@ namespace Board
                         for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
                         {
                             ledStateSingle = LED_ON(Interface::digital::output::LEDs::getLEDstate(i));
-                            pin = Board::map::led(i);
+                            pin = Board::detail::map::led(i);
 
                             if (ledStateSingle != lastLEDstate[i])
                             {

@@ -22,7 +22,7 @@ limitations under the License.
 #include <stdio.h>
 #include <stdlib.h>
 #include "board/common/digital/Input.h"
-#include "board/common/Map.h"
+#include "board/Internal.h"
 #include "core/src/general/Helpers.h"
 #include "core/src/general/Atomic.h"
 #include "Pins.h"
@@ -142,9 +142,9 @@ namespace Board
 #elif defined(NUMBER_OF_BUTTON_COLUMNS) && defined(NUMBER_OF_BUTTON_ROWS)
                     inline void activateInputColumn()
                     {
-                        BIT_READ(Board::map::inMatrixColumn(activeInColumn), 0) ? CORE_IO_SET_HIGH(DEC_DM_A0_PORT, DEC_DM_A0_PIN) : CORE_IO_SET_LOW(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
-                        BIT_READ(Board::map::inMatrixColumn(activeInColumn), 1) ? CORE_IO_SET_HIGH(DEC_DM_A1_PORT, DEC_DM_A1_PIN) : CORE_IO_SET_LOW(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
-                        BIT_READ(Board::map::inMatrixColumn(activeInColumn), 2) ? CORE_IO_SET_HIGH(DEC_DM_A2_PORT, DEC_DM_A2_PIN) : CORE_IO_SET_LOW(DEC_DM_A2_PORT, DEC_DM_A2_PIN);
+                        BIT_READ(Board::detail::map::inMatrixColumn(activeInColumn), 0) ? CORE_IO_SET_HIGH(DEC_DM_A0_PORT, DEC_DM_A0_PIN) : CORE_IO_SET_LOW(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
+                        BIT_READ(Board::detail::map::inMatrixColumn(activeInColumn), 1) ? CORE_IO_SET_HIGH(DEC_DM_A1_PORT, DEC_DM_A1_PIN) : CORE_IO_SET_LOW(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
+                        BIT_READ(Board::detail::map::inMatrixColumn(activeInColumn), 2) ? CORE_IO_SET_HIGH(DEC_DM_A2_PORT, DEC_DM_A2_PIN) : CORE_IO_SET_LOW(DEC_DM_A2_PORT, DEC_DM_A2_PIN);
 
                         if (++activeInColumn == NUMBER_OF_BUTTON_COLUMNS)
                             activeInColumn = 0;
@@ -171,7 +171,7 @@ namespace Board
                             {
                                 CORE_IO_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
                                 _NOP();
-                                BIT_WRITE(digitalInBuffer[dIn_head][i], Board::map::inMatrixRow(j), !CORE_IO_READ(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN));
+                                BIT_WRITE(digitalInBuffer[dIn_head][i], Board::detail::map::inMatrixRow(j), !CORE_IO_READ(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN));
                                 CORE_IO_SET_HIGH(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
                             }
                         }
@@ -193,7 +193,7 @@ namespace Board
                                 if (buttonIndex >= MAX_NUMBER_OF_BUTTONS)
                                     break;    //done
 
-                                pin = Board::map::button(buttonIndex);
+                                pin = Board::detail::map::button(buttonIndex);
 
                                 BIT_WRITE(digitalInBuffer[dIn_head][i], j, !CORE_IO_READ(*pin.port, pin.index));
                             }

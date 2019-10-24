@@ -37,15 +37,6 @@ namespace Board
     };
 
     ///
-    /// \brief Specifies incoming or outgoing MIDI data traffic.
-    ///
-    enum class midiTrafficDirection_t : uint8_t
-    {
-        incoming,
-        outgoing
-    };
-
-    ///
     /// \brief Perfoms initialization of MCU and all board peripherals.
     ///
     void init();
@@ -135,74 +126,7 @@ namespace Board
         /// \returns True if there is no more data to transmit, false otherwise.
         ///
         bool isTxEmpty(uint8_t channel);
-
-        namespace ll
-        {
-            //low-level UART API, MCU specific
-
-            ///
-            /// \brief Enables the firing of interrupt once the UART data register is empty.
-            /// This effectively starts the process of transmitting the data from UART TX buffer to UART interface.
-            /// @param [in] channel     UART channel on MCU.
-            ///
-            void enableDataEmptyInt(uint8_t channel);
-
-            ///
-            /// \brief Disables the firing of interrupt once the UART data register is empty.
-            /// @param [in] channel     UART channel on MCU.
-            ///
-            void disableDataEmptyInt(uint8_t channel);
-
-            ///
-            /// \brief Performs low-level initialization of the specified UART channel.
-            /// @param [in] channel     UART channel on MCU.
-            /// @param [in] baudRate    UART speed (baudrate).
-            ///
-            void init(uint8_t channel, uint32_t baudRate);
-
-            ///
-            /// \brief Performs low-level deinitialization of the specified UART channel.
-            /// @param [in] channel UART channel on MCU.
-            ///
-            void deInit(uint8_t channel);
-
-            ///
-            /// \brief Performs direct writing of data to outgoing UART register.
-            /// @param [in] channel UART channel on MCU.
-            /// @param [in] data    Data to write.
-            ///
-            void directWrite(uint8_t channel, uint8_t data);
-        }    // namespace ll
-
-        namespace isr
-        {
-            ///
-            /// \brief Global ISR handler for all UART events.
-            /// @param [in] channel UART channel on MCU.
-            ///
-            void isrHandler(uint8_t channel);
-
-            ///
-            /// \brief Used to store incoming data from UART to buffer.
-            /// @param [in] channel UART channel on MCU.
-            /// @param [in] data    Received data.
-            ///
-            void storeIncomingData(uint8_t channel, uint8_t data);
-
-            ///
-            /// \brief Retrieves the next byte from the outgoing ring buffer.
-            /// @param [in] channel UART channel on MCU.
-            /// @param [in] data    Data to send.
-            ///
-            bool getNextByteToSend(uint8_t channel, uint8_t& data);
-
-            ///
-            /// \brief Used to indicate that the transmission is complete.
-            /// @param [in] channel UART channel on MCU.
-            ///
-            void indicateTxComplete(uint8_t channel);
-        }    // namespace isr
-    }        // namespace UART
+    }    // namespace UART
 
     namespace interface
     {
@@ -264,15 +188,6 @@ namespace Board
                 ///             See board/common/constants/LEDs.h for range.
                 ///
                 bool setLEDfadeSpeed(uint8_t transitionSpeed);
-#endif
-
-#ifdef LED_INDICATORS
-                ///
-                /// \brief Used to indicate that the MIDI event has occured using built-in LEDs on board.
-                /// @param [source]     Source of MIDI data. See MIDI::interface_t enumeration.
-                /// @param [direction]  Direction of MIDI data. See midiTrafficDirection_t enumeration.
-                ///
-                void indicateMIDItraffic(MIDI::interface_t source, midiTrafficDirection_t direction);
 #endif
             }    // namespace output
         }        // namespace digital

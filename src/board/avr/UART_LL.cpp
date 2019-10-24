@@ -17,120 +17,29 @@ limitations under the License.
 */
 
 #include "board/Board.h"
+#include "board/Internal.h"
 #include "core/src/arch/avr/UART.h"
 #include "core/src/arch/avr/Atomic.h"
 
 namespace Board
 {
-    namespace UART
+    namespace detail
     {
-        namespace ll
+        namespace UART
         {
-            void enableDataEmptyInt(uint8_t channel)
+            namespace ll
             {
-                switch (channel)
-                {
-                case 0:
-                    UCSRB_0 |= (1 << UDRIE_0);
-                    break;
-
-#if UART_INTERFACES > 1
-                case 1:
-                    UCSRB_1 |= (1 << UDRIE_1);
-                    break;
-#endif
-
-                default:
-                    break;
-                }
-            }
-
-            void disableDataEmptyInt(uint8_t channel)
-            {
-                switch (channel)
-                {
-                case 0:
-                    UCSRB_0 &= ~(1 << UDRIE_0);
-                    break;
-
-#if UART_INTERFACES > 1
-                case 1:
-                    UCSRB_1 &= ~(1 << UDRIE_1);
-                    break;
-#endif
-
-                default:
-                    break;
-                }
-            }
-
-            void deInit(uint8_t channel)
-            {
-                ATOMIC_SECTION
+                void enableDataEmptyInt(uint8_t channel)
                 {
                     switch (channel)
                     {
                     case 0:
-                        UCSRA_0 = 0;
-                        UCSRB_0 = 0;
-                        UCSRC_0 = 0;
-                        UBRR_0 = 0;
+                        UCSRB_0 |= (1 << UDRIE_0);
                         break;
 
 #if UART_INTERFACES > 1
                     case 1:
-                        UCSRA_1 = 0;
-                        UCSRB_1 = 0;
-                        UCSRC_1 = 0;
-                        UBRR_1 = 0;
-                        break;
-#endif
-
-                    default:
-                        break;
-                    }
-                }
-            }
-
-            void init(uint8_t channel, uint32_t baudRate)
-            {
-                deInit(channel);
-
-                int32_t baud_count = ((F_CPU / 8) + (baudRate / 2)) / baudRate;
-
-                if ((baud_count & 1) && baud_count <= 4096)
-                {
-                    switch (channel)
-                    {
-                    case 0:
-                        UCSRA_0 = (1 << U2X_0);    //double speed uart
-                        UBRR_0 = baud_count - 1;
-                        break;
-
-#if UART_INTERFACES > 1
-                    case 1:
-                        UCSRA_1 = (1 << U2X_1);    //double speed uart
-                        UBRR_1 = baud_count - 1;
-                        break;
-#endif
-
-                    default:
-                        break;
-                    }
-                }
-                else
-                {
-                    switch (channel)
-                    {
-                    case 0:
-                        UCSRA_0 = 0;
-                        UBRR_0 = (baud_count >> 1) - 1;
-                        break;
-
-#if UART_INTERFACES > 1
-                    case 1:
-                        UCSRA_1 = 0;
-                        UBRR_1 = (baud_count >> 1) - 1;
+                        UCSRB_1 |= (1 << UDRIE_1);
                         break;
 #endif
 
@@ -139,53 +48,148 @@ namespace Board
                     }
                 }
 
-                //8 bit, no parity, 1 stop bit
-                //enable receiver, transmitter and receive interrupt
-                switch (channel)
+                void disableDataEmptyInt(uint8_t channel)
                 {
-                case 0:
-                    UCSRC_0 = (1 << UCSZ1_0) | (1 << UCSZ0_0);
-                    UCSRB_0 = (1 << RXEN_0) | (1 << TXEN_0) | (1 << RXCIE_0) | (1 << TXCIE_0);
-                    break;
+                    switch (channel)
+                    {
+                    case 0:
+                        UCSRB_0 &= ~(1 << UDRIE_0);
+                        break;
 
 #if UART_INTERFACES > 1
-                case 1:
-                    UCSRC_1 = (1 << UCSZ1_1) | (1 << UCSZ0_1);
-                    UCSRB_1 = (1 << RXEN_1) | (1 << TXEN_1) | (1 << RXCIE_1) | (1 << TXCIE_1);
-                    break;
+                    case 1:
+                        UCSRB_1 &= ~(1 << UDRIE_1);
+                        break;
 #endif
 
-                default:
-                    break;
+                    default:
+                        break;
+                    }
                 }
-            }
 
-            void directWrite(uint8_t channel, uint8_t data)
-            {
-                switch (channel)
+                void deInit(uint8_t channel)
                 {
-                case 0:
                     ATOMIC_SECTION
                     {
-                        UDR_0 = data;
-                    }
-                    break;
+                        switch (channel)
+                        {
+                        case 0:
+                            UCSRA_0 = 0;
+                            UCSRB_0 = 0;
+                            UCSRC_0 = 0;
+                            UBRR_0 = 0;
+                            break;
 
 #if UART_INTERFACES > 1
-                case 1:
-                    ATOMIC_SECTION
-                    {
-                        UDR_1 = data;
-                    }
-                    break;
+                        case 1:
+                            UCSRA_1 = 0;
+                            UCSRB_1 = 0;
+                            UCSRC_1 = 0;
+                            UBRR_1 = 0;
+                            break;
 #endif
 
-                default:
-                    break;
+                        default:
+                            break;
+                        }
+                    }
                 }
-            }
-        }    // namespace ll
-    }        // namespace UART
+
+                void init(uint8_t channel, uint32_t baudRate)
+                {
+                    deInit(channel);
+
+                    int32_t baud_count = ((F_CPU / 8) + (baudRate / 2)) / baudRate;
+
+                    if ((baud_count & 1) && baud_count <= 4096)
+                    {
+                        switch (channel)
+                        {
+                        case 0:
+                            UCSRA_0 = (1 << U2X_0);    //double speed uart
+                            UBRR_0 = baud_count - 1;
+                            break;
+
+#if UART_INTERFACES > 1
+                        case 1:
+                            UCSRA_1 = (1 << U2X_1);    //double speed uart
+                            UBRR_1 = baud_count - 1;
+                            break;
+#endif
+
+                        default:
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        switch (channel)
+                        {
+                        case 0:
+                            UCSRA_0 = 0;
+                            UBRR_0 = (baud_count >> 1) - 1;
+                            break;
+
+#if UART_INTERFACES > 1
+                        case 1:
+                            UCSRA_1 = 0;
+                            UBRR_1 = (baud_count >> 1) - 1;
+                            break;
+#endif
+
+                        default:
+                            break;
+                        }
+                    }
+
+                    //8 bit, no parity, 1 stop bit
+                    //enable receiver, transmitter and receive interrupt
+                    switch (channel)
+                    {
+                    case 0:
+                        UCSRC_0 = (1 << UCSZ1_0) | (1 << UCSZ0_0);
+                        UCSRB_0 = (1 << RXEN_0) | (1 << TXEN_0) | (1 << RXCIE_0) | (1 << TXCIE_0);
+                        break;
+
+#if UART_INTERFACES > 1
+                    case 1:
+                        UCSRC_1 = (1 << UCSZ1_1) | (1 << UCSZ0_1);
+                        UCSRB_1 = (1 << RXEN_1) | (1 << TXEN_1) | (1 << RXCIE_1) | (1 << TXCIE_1);
+                        break;
+#endif
+
+                    default:
+                        break;
+                    }
+                }
+
+                void directWrite(uint8_t channel, uint8_t data)
+                {
+                    switch (channel)
+                    {
+                    case 0:
+                        ATOMIC_SECTION
+                        {
+                            UDR_0 = data;
+                        }
+                        break;
+
+#if UART_INTERFACES > 1
+                    case 1:
+                        ATOMIC_SECTION
+                        {
+                            UDR_1 = data;
+                        }
+                        break;
+#endif
+
+                    default:
+                        break;
+                    }
+                }
+            }    // namespace ll
+        }        // namespace UART
+    }            // namespace detail
 }    // namespace Board
 
 ///
@@ -195,14 +199,14 @@ namespace Board
 ISR(USART_RX_vect_0)
 {
     uint8_t data = UDR_0;
-    Board::UART::isr::storeIncomingData(0, data);
+    Board::detail::UART::isr::storeIncomingData(0, data);
 }
 
 #if UART_INTERFACES > 1
 ISR(USART_RX_vect_1)
 {
     uint8_t data = UDR_1;
-    Board::UART::isr::storeIncomingData(1, data);
+    Board::detail::UART::isr::storeIncomingData(1, data);
 }
 #endif
 
@@ -216,7 +220,7 @@ ISR(USART_UDRE_vect_0)
 {
     uint8_t data;
 
-    if (Board::UART::isr::getNextByteToSend(0, data))
+    if (Board::detail::UART::isr::getNextByteToSend(0, data))
         UDR_0 = data;
 }
 
@@ -225,7 +229,7 @@ ISR(USART_UDRE_vect_1)
 {
     uint8_t data;
 
-    if (Board::UART::isr::getNextByteToSend(1, data))
+    if (Board::detail::UART::isr::getNextByteToSend(1, data))
         UDR_1 = data;
 }
 #endif
@@ -238,13 +242,13 @@ ISR(USART_UDRE_vect_1)
 
 ISR(USART_TX_vect_0)
 {
-    Board::UART::isr::indicateTxComplete(0);
+    Board::detail::UART::isr::indicateTxComplete(0);
 }
 
 #if UART_INTERFACES > 1
 ISR(USART_TX_vect_1)
 {
-    Board::UART::isr::indicateTxComplete(1);
+    Board::detail::UART::isr::indicateTxComplete(1);
 }
 #endif
 

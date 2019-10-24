@@ -25,27 +25,30 @@ limitations under the License.
 
 namespace Board
 {
-    namespace setup
+    namespace detail
     {
-        void io()
+        namespace setup
         {
-            //bootloader/midi leds
-            CORE_IO_CONFIG(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN, core::io::pinMode_t::output);
-            CORE_IO_CONFIG(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN, core::io::pinMode_t::output);
+            void io()
+            {
+                //bootloader/midi leds
+                CORE_IO_CONFIG(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN, core::io::pinMode_t::output);
+                CORE_IO_CONFIG(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN, core::io::pinMode_t::output);
 
-            INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-            INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-        }
+                INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
+                INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+            }
 
-        void timers()
-        {
-            //set timer0 to ctc, used to show midi tx/rx status using on-board leds
-            TCCR0A |= (1 << WGM01);                 //CTC mode
-            TCCR0B |= (1 << CS01) | (1 << CS00);    //prescaler 64
-            OCR0A = 249;                            //1ms
-            TIMSK0 |= (1 << OCIE0A);                //compare match interrupt
-        }
-    }    // namespace setup
+            void timers()
+            {
+                //set timer0 to ctc, used to show midi tx/rx status using on-board leds
+                TCCR0A |= (1 << WGM01);                 //CTC mode
+                TCCR0B |= (1 << CS01) | (1 << CS00);    //prescaler 64
+                OCR0A = 249;                            //1ms
+                TIMSK0 |= (1 << OCIE0A);                //compare match interrupt
+            }
+        }    // namespace setup
+    }        // namespace detail
 
     void ledFlashStartup(bool fwUpdated)
     {

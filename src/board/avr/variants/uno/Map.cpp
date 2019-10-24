@@ -17,132 +17,135 @@ limitations under the License.
 */
 
 #include "Pins.h"
-#include "board/common/Map.h"
+#include "board/Internal.h"
 
 namespace Board
 {
-    namespace map
+    namespace detail
     {
-        namespace
+        namespace map
         {
-            const core::io::mcuPin_t aInPins[MAX_NUMBER_OF_ANALOG] = {
-                //port not used on avr mcus for adc channels
-                //adc channel doesn't have to match with adc pin
-                {
-                    .port = nullptr,
-                    .index = AI_1_PIN,
-                },
+            namespace
+            {
+                const core::io::mcuPin_t aInPins[MAX_NUMBER_OF_ANALOG] = {
+                    //port not used on avr mcus for adc channels
+                    //adc channel doesn't have to match with adc pin
+                    {
+                        .port = nullptr,
+                        .index = AI_1_PIN,
+                    },
 
-                {
-                    .port = nullptr,
-                    .index = AI_2_PIN,
-                },
+                    {
+                        .port = nullptr,
+                        .index = AI_2_PIN,
+                    },
 
-                {
-                    .port = nullptr,
-                    .index = AI_3_PIN,
-                },
+                    {
+                        .port = nullptr,
+                        .index = AI_3_PIN,
+                    },
 
-                {
-                    .port = nullptr,
-                    .index = AI_4_PIN,
-                },
+                    {
+                        .port = nullptr,
+                        .index = AI_4_PIN,
+                    },
 
-                {
-                    .port = nullptr,
-                    .index = AI_5_PIN,
-                },
+                    {
+                        .port = nullptr,
+                        .index = AI_5_PIN,
+                    },
 
-                {
-                    .port = nullptr,
-                    .index = AI_6_PIN,
-                }
-            };
+                    {
+                        .port = nullptr,
+                        .index = AI_6_PIN,
+                    }
+                };
 
-            ///
-            /// \brief Array holding ports and bits for all digital input pins.
-            ///
-            const core::io::mcuPin_t dInPins[MAX_NUMBER_OF_BUTTONS] = {
-                {
-                    .port = &DI_1_PORT,
-                    .index = DI_1_PIN,
-                },
+                ///
+                /// \brief Array holding ports and bits for all digital input pins.
+                ///
+                const core::io::mcuPin_t dInPins[MAX_NUMBER_OF_BUTTONS] = {
+                    {
+                        .port = &DI_1_PORT,
+                        .index = DI_1_PIN,
+                    },
 
-                {
-                    .port = &DI_2_PORT,
-                    .index = DI_2_PIN,
-                },
+                    {
+                        .port = &DI_2_PORT,
+                        .index = DI_2_PIN,
+                    },
 
-                {
-                    .port = &DI_3_PORT,
-                    .index = DI_3_PIN,
-                },
+                    {
+                        .port = &DI_3_PORT,
+                        .index = DI_3_PIN,
+                    },
 
-                {
-                    .port = &DI_4_PORT,
-                    .index = DI_4_PIN,
-                },
+                    {
+                        .port = &DI_4_PORT,
+                        .index = DI_4_PIN,
+                    },
 
-                {
-                    .port = &DI_5_PORT,
-                    .index = DI_5_PIN,
-                },
+                    {
+                        .port = &DI_5_PORT,
+                        .index = DI_5_PIN,
+                    },
 
-                {
-                    .port = &DI_6_PORT,
-                    .index = DI_6_PIN,
-                }
-            };
+                    {
+                        .port = &DI_6_PORT,
+                        .index = DI_6_PIN,
+                    }
+                };
 
-            ///
-            /// \brief Array holding ports and bits for all digital output pins.
-            ///
-            const core::io::mcuPin_t dOutPins[MAX_NUMBER_OF_LEDS] = {
-                {
-                    .port = &DO_1_PORT,
-                    .index = DO_1_PIN,
-                },
+                ///
+                /// \brief Array holding ports and bits for all digital output pins.
+                ///
+                const core::io::mcuPin_t dOutPins[MAX_NUMBER_OF_LEDS] = {
+                    {
+                        .port = &DO_1_PORT,
+                        .index = DO_1_PIN,
+                    },
 
-                {
-                    .port = &DO_2_PORT,
-                    .index = DO_2_PIN,
-                },
+                    {
+                        .port = &DO_2_PORT,
+                        .index = DO_2_PIN,
+                    },
 
-                {
-                    .port = &DO_3_PORT,
-                    .index = DO_3_PIN,
-                },
+                    {
+                        .port = &DO_3_PORT,
+                        .index = DO_3_PIN,
+                    },
 
-                {
-                    .port = &DO_4_PORT,
-                    .index = DO_4_PIN,
-                },
+                    {
+                        .port = &DO_4_PORT,
+                        .index = DO_4_PIN,
+                    },
 
-                {
-                    .port = &DO_5_PORT,
-                    .index = DO_5_PIN,
-                },
+                    {
+                        .port = &DO_5_PORT,
+                        .index = DO_5_PIN,
+                    },
 
-                {
-                    .port = &DO_6_PORT,
-                    .index = DO_6_PIN,
-                }
-            };
-        }    // namespace
+                    {
+                        .port = &DO_6_PORT,
+                        .index = DO_6_PIN,
+                    }
+                };
+            }    // namespace
 
-        core::io::mcuPin_t adcChannel(uint8_t index)
-        {
-            return aInPins[index];
-        }
+            core::io::mcuPin_t adcChannel(uint8_t index)
+            {
+                return aInPins[index];
+            }
 
-        core::io::mcuPin_t button(uint8_t index)
-        {
-            return dInPins[index];
-        }
+            core::io::mcuPin_t button(uint8_t index)
+            {
+                return dInPins[index];
+            }
 
-        core::io::mcuPin_t led(uint8_t index)
-        {
-            return dOutPins[index];
-        }
-    }    // namespace map
+            core::io::mcuPin_t led(uint8_t index)
+            {
+                return dOutPins[index];
+            }
+        }    // namespace map
+    }        // namespace detail
 }    // namespace Board

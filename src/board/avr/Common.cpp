@@ -18,6 +18,7 @@ limitations under the License.
 
 #include <avr/eeprom.h>
 #include "board/Board.h"
+#include "board/Internal.h"
 #include "board/common/constants/Reboot.h"
 #include "board/common/constants/LEDs.h"
 #include "midi/src/Constants.h"
@@ -26,7 +27,6 @@ limitations under the License.
 #include "core/src/arch/avr/Misc.h"
 #include "core/src/general/IO.h"
 #include "core/src/general/Helpers.h"
-#include "board/Setup.h"
 #include "board/common/digital/Input.h"
 #include "board/common/digital/Output.h"
 #include "board/common/analog/Analog.h"
@@ -69,31 +69,19 @@ namespace Board
         MCUSR &= ~(1 << WDRF);
         wdt_disable();
 
-        ///
-        /// \brief Initializes all pins to correct states.
-        ///
-        setup::io();
+        detail::setup::io();
 
 #ifndef BOARD_A_xu2
-        ///
-        /// \brief Initializes analog variables and ADC peripheral.
-        ///
-        setup::adc();
+        detail::setup::adc();
 #else
         UART::init(UART_USB_LINK_CHANNEL, UART_BAUDRATE_MIDI_OD);
 #endif
 
 #ifdef USB_MIDI_SUPPORTED
-        ///
-        /// \brief Initializes USB peripheral and configures it as MIDI device.
-        ///
-        setup::usb();
+        detail::setup::usb();
 #endif
 
-        ///
-        /// \brief Initializes main and PWM timers.
-        ///
-        setup::timers();
+        detail::setup::timers();
     }
 
     void reboot(rebootType_t type)
