@@ -35,6 +35,11 @@ limitations under the License.
 /// @}
 
 ///
+/// \brief Defines total number of available UART interfaces on board.
+///
+#define UART_INTERFACES                 1
+
+///
 /// \brief Defines UART channel used for communication with USB link.
 ///
 #define UART_USB_LINK_CHANNEL   0

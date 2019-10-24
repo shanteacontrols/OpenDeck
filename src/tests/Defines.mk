@@ -27,6 +27,9 @@ else ifeq ($(TARGETNAME), fw_teensy2pp)
 else ifeq ($(TARGETNAME), fw_mega)
     MCU := atmega2560
     BOARD := BOARD_A_MEGA
+else ifeq ($(TARGETNAME), fw_mega6mux)
+    MCU := atmega2560
+    BOARD := BOARD_A_MEGA6MUX
 else ifeq ($(TARGETNAME), fw_uno)
     MCU := atmega328p
     BOARD := BOARD_A_UNO
@@ -36,9 +39,6 @@ else ifeq ($(TARGETNAME), fw_16u2)
 else ifeq ($(TARGETNAME), fw_8u2)
     MCU := atmega8u2
     BOARD := BOARD_A_xu2
-else ifeq ($(TARGETNAME), fw_mega6mux)
-    MCU := atmega2560
-    BOARD := BOARD_A_MEGA6MUX
 else
     $(error Invalid target specified)
 endif
@@ -46,29 +46,23 @@ endif
 #mcu specific
 ifeq ($(MCU),atmega32u4)
     EEPROM_SIZE := 1024
-    DEFINES += UART_INTERFACES=1
     DEFINES += USB_SUPPORTED
 else ifeq ($(MCU),at90usb1286)
     EEPROM_SIZE := 4096
     FLASH_SIZE_START_ADDR := 0x98
     FLASH_SIZE_END_ADDR := 0x9C
-    DEFINES += UART_INTERFACES=1
     DEFINES += USB_SUPPORTED
 else ifeq ($(MCU),atmega16u2)
     EEPROM_SIZE := 512
     BOOT_START_ADDR := 0x3000
-    DEFINES += UART_INTERFACES=1
     DEFINES += USB_SUPPORTED
 else ifeq ($(MCU),atmega8u2)
     EEPROM_SIZE := 512
-    DEFINES += UART_INTERFACES=1
     DEFINES += USB_SUPPORTED
 else ifeq ($(MCU),atmega2560)
     EEPROM_SIZE := 4096
-    DEFINES += UART_INTERFACES=2
 else ifeq ($(MCU),atmega328p)
     EEPROM_SIZE := 1024
-    DEFINES += UART_INTERFACES=1
 endif
 
 DEFINES += APP_LENGTH_LOCATION=$(FLASH_SIZE_START_ADDR)

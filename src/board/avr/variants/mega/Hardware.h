@@ -34,6 +34,10 @@ limitations under the License.
 
 /// @}
 
+///
+/// \brief Defines total number of available UART interfaces on board.
+///
+#define UART_INTERFACES                 2
 
 ///
 /// \brief Indicates that the board supports DIN MIDI.

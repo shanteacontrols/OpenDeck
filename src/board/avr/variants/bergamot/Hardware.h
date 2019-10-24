@@ -35,6 +35,11 @@ limitations under the License.
 /// @}
 
 ///
+/// \brief Defines total number of available UART interfaces on board.
+///
+#define UART_INTERFACES                 1
+
+///
 /// \brief Constant used to debounce button readings.
 ///
 #define BUTTON_DEBOUNCE_COMPARE         0b00000000
