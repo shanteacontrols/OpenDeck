@@ -25,17 +25,34 @@ namespace Board
     {
         namespace
         {
-            const uint8_t adcChannelArray[NUMBER_OF_MUX] = {
-                7,    //MUX_1_IN_PIN,
-                6,    //MUX_2_IN_PIN,
-                5,    //MUX_3_IN_PIN,
-                4,    //MUX_4_IN_PIN,
+            const core::io::mcuPin_t aInPins[NUMBER_OF_MUX] = {
+                //port not used on avr mcus for adc channels
+                //adc channel doesn't have to match with adc pin
+                {
+                    .port = nullptr,
+                    .index = 7,
+                },
+
+                {
+                    .port = nullptr,
+                    .index = 6,
+                },
+
+                {
+                    .port = nullptr,
+                    .index = 5,
+                },
+
+                {
+                    .port = nullptr,
+                    .index = 4,
+                }
             };
         }
 
-        uint8_t adcChannel(uint8_t index)
+        core::io::mcuPin_t adcChannel(uint8_t index)
         {
-            return adcChannelArray[index];
+            return aInPins[index];
         }
 
         uint8_t muxChannel(uint8_t index)

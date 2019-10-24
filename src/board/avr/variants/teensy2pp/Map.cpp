@@ -25,15 +25,48 @@ namespace Board
     {
         namespace
         {
-            const uint8_t adcChannelArray[MAX_NUMBER_OF_ANALOG] = {
-                AI_1_PIN,
-                AI_2_PIN,
-                AI_3_PIN,
-                AI_4_PIN,
-                AI_5_PIN,
-                AI_6_PIN,
-                AI_7_PIN,
-                AI_8_PIN
+            const core::io::mcuPin_t aInPins[MAX_NUMBER_OF_ANALOG] = {
+                //port not used on avr mcus for adc channels
+                //adc channel doesn't have to match with adc pin
+                {
+                    .port = nullptr,
+                    .index = AI_1_PIN,
+                },
+
+                {
+                    .port = nullptr,
+                    .index = AI_2_PIN,
+                },
+
+                {
+                    .port = nullptr,
+                    .index = AI_3_PIN,
+                },
+
+                {
+                    .port = nullptr,
+                    .index = AI_4_PIN,
+                },
+
+                {
+                    .port = nullptr,
+                    .index = AI_5_PIN,
+                },
+
+                {
+                    .port = nullptr,
+                    .index = AI_6_PIN,
+                },
+
+                {
+                    .port = nullptr,
+                    .index = AI_7_PIN,
+                },
+
+                {
+                    .port = nullptr,
+                    .index = AI_8_PIN,
+                }
             };
 
             ///
@@ -207,9 +240,9 @@ namespace Board
             };
         }    // namespace
 
-        uint8_t adcChannel(uint8_t index)
+        core::io::mcuPin_t adcChannel(uint8_t index)
         {
-            return adcChannelArray[index];
+            return aInPins[index];
         }
 
         core::io::mcuPin_t button(uint8_t index)

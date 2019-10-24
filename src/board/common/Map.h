@@ -26,11 +26,6 @@ namespace Board
     namespace map
     {
         ///
-        /// \brief Used to retrieve real ADC channel for an given index.
-        ///
-        uint8_t adcChannel(uint8_t index);
-
-        ///
         /// \brief Used to retrieve real analog multiplexer channel for an given index.
         ///
         uint8_t muxChannel(uint8_t index);
@@ -46,12 +41,17 @@ namespace Board
         uint8_t inMatrixColumn(uint8_t index);
 
         ///
-        /// \brief Used to retrieve button port and pin channel for an given index.
+        /// \brief Used to retrieve ADC port and pin for a given ADC channel.
+        ///
+        core::io::mcuPin_t adcChannel(uint8_t index);
+
+        ///
+        /// \brief Used to retrieve button port and pin for a given button index.
         ///
         core::io::mcuPin_t button(uint8_t index);
 
         ///
-        /// \brief Used to retrieve LED port and pin channel for an given index.
+        /// \brief Used to retrieve LED port and pin for a given LED index.
         ///
         core::io::mcuPin_t led(uint8_t index);
 

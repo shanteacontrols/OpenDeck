@@ -101,10 +101,10 @@ namespace Board
 
         void adc()
         {
-            core::adc::disconnectDigitalIn(Board::map::adcChannel(0));
-            core::adc::disconnectDigitalIn(Board::map::adcChannel(1));
-            core::adc::disconnectDigitalIn(Board::map::adcChannel(2));
-            core::adc::disconnectDigitalIn(Board::map::adcChannel(3));
+            core::adc::disconnectDigitalIn(Board::map::adcChannel(0).index);
+            core::adc::disconnectDigitalIn(Board::map::adcChannel(1).index);
+            core::adc::disconnectDigitalIn(Board::map::adcChannel(2).index);
+            core::adc::disconnectDigitalIn(Board::map::adcChannel(3).index);
 
             core::adc::conf_t adcConfiguration;
 
@@ -112,7 +112,7 @@ namespace Board
             adcConfiguration.vref = core::adc::vRef_t::aref;
 
             core::adc::setup(adcConfiguration);
-            core::adc::setChannel(Board::map::adcChannel(0));
+            core::adc::setChannel(Board::map::adcChannel(0).index);
 
             for (int i = 0; i < 3; i++)
                 core::adc::read();    //few dummy reads to init ADC
