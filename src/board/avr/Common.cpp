@@ -26,7 +26,7 @@ limitations under the License.
 #include "core/src/arch/avr/Misc.h"
 #include "core/src/general/IO.h"
 #include "core/src/general/Helpers.h"
-#include "Setup.h"
+#include "board/Setup.h"
 #include "board/common/digital/Input.h"
 #include "board/common/digital/Output.h"
 #include "board/common/analog/Analog.h"

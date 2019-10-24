@@ -18,7 +18,6 @@ limitations under the License.
 
 #include <util/delay.h>
 #include "board/Board.h"
-#include "board/avr/Setup.h"
 #include "Pins.h"
 #include "core/src/general/IO.h"
 #include "core/src/general/ADC.h"
