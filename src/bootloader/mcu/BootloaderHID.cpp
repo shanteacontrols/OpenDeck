@@ -113,7 +113,7 @@ namespace
 #endif
 
 #if defined(BOARD_A_xu2) || !defined(USB_MIDI_SUPPORTED)
-        Board::UART::init(UART_BAUDRATE_MIDI_OD, UART_USB_LINK_CHANNEL);
+        Board::UART::init(UART_USB_LINK_CHANNEL, UART_BAUDRATE_MIDI_OD);
 
 #ifndef USB_MIDI_SUPPORTED
         // make sure USB link goes to bootloader mode as well

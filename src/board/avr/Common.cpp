@@ -80,7 +80,7 @@ namespace Board
         ///
         setup::adc();
 #else
-        UART::init(UART_BAUDRATE_MIDI_OD, UART_USB_LINK_CHANNEL);
+        UART::init(UART_USB_LINK_CHANNEL, UART_BAUDRATE_MIDI_OD);
 #endif
 
 #ifdef USB_MIDI_SUPPORTED

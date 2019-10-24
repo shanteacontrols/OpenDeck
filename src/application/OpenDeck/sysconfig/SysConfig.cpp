@@ -326,7 +326,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
 #ifndef DIN_MIDI_SUPPORTED
                 setError(SysExConf::status_t::errorNotSupported);
 #else
-                newValue ? setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true) : Board::UART::reset(UART_MIDI_CHANNEL);
+                newValue ? setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true) : Board::UART::deInit(UART_MIDI_CHANNEL);
                 success = true;
 #endif
                 break;
@@ -765,7 +765,7 @@ bool SysConfig::isProcessingEnabled()
 #ifdef DIN_MIDI_SUPPORTED
 void SysConfig::setupMIDIoverUART(uint32_t baudRate, bool initRX, bool initTX)
 {
-    Board::UART::init(baudRate, UART_MIDI_CHANNEL);
+    Board::UART::init(UART_MIDI_CHANNEL, baudRate);
 
     if (initRX)
     {
@@ -798,7 +798,7 @@ void SysConfig::setupMIDIoverUSB()
     midi.handleUSBwrite(Board::USB::writeMIDI);
 #else
     //enable uart-to-usb link when usb isn't supported directly
-    Board::UART::init(UART_BAUDRATE_MIDI_OD, UART_USB_LINK_CHANNEL);
+    Board::UART::init(UART_USB_LINK_CHANNEL, UART_BAUDRATE_MIDI_OD);
 
     midi.handleUSBread([](MIDI::USBMIDIpacket_t& USBMIDIpacket) {
         OpenDeckMIDIformat::packetType_t odPacketType;
@@ -872,7 +872,7 @@ void SysConfig::configureMIDI()
     }
     else
     {
-        Board::UART::reset(UART_MIDI_CHANNEL);
+        Board::UART::deInit(UART_MIDI_CHANNEL);
         midi.handleUARTread(nullptr);
         midi.handleUARTwrite(nullptr);
     }
@@ -886,7 +886,7 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
     {
     case midiMergeODmaster:
         Board::UART::setLoopbackState(UART_MIDI_CHANNEL, false);
-        Board::UART::init(UART_BAUDRATE_MIDI_OD, UART_MIDI_CHANNEL);
+        Board::UART::init(UART_MIDI_CHANNEL, UART_BAUDRATE_MIDI_OD);
         //before enabling master configuration, send slave request to other boards
         sendDaisyChainRequest();
 
@@ -939,7 +939,7 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
 
     case midiMergeODslave:
         Board::UART::setLoopbackState(UART_MIDI_CHANNEL, false);
-        Board::UART::init(UART_BAUDRATE_MIDI_OD, UART_MIDI_CHANNEL);
+        Board::UART::init(UART_MIDI_CHANNEL, UART_BAUDRATE_MIDI_OD);
         //forward all incoming messages to other boards
         midi.handleUSBread([](MIDI::USBMIDIpacket_t& USBMIDIpacket) {
             OpenDeckMIDIformat::packetType_t packetType;

@@ -72,7 +72,8 @@ ifeq ($(findstring boot,$(TARGETNAME)), boot)
         ifeq ($(BOARD_DIR),xu2)
             SOURCES += \
             bootloader/mcu/variant/xu2.cpp \
-            board/$(ARCH)/UART.cpp \
+            board/$(ARCH)/UART_LL.cpp \
+            board/common/UART.cpp \
             board/common/digital/Output.cpp
         else
             SOURCES += \
@@ -81,7 +82,8 @@ ifeq ($(findstring boot,$(TARGETNAME)), boot)
     else
         SOURCES += \
         bootloader/mcu/variant/NoUSB.cpp \
-        board/$(ARCH)/UART.cpp \
+        board/$(ARCH)/UART_LL.cpp \
+        board/common/UART.cpp \
         common/OpenDeckMIDIformat/OpenDeckMIDIformat.cpp
     endif
 else
@@ -89,22 +91,22 @@ else
     ifeq ($(BOARD_DIR),xu2)
         #fw for xu2 uses different set of sources than other targets
         SOURCES += \
-        board/common/digital/Output.cpp
+        board/common/digital/Output.cpp \
+        board/common/UART.cpp
 
         SOURCES += $(shell find ./board/$(ARCH) -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell find ./board/$(ARCH)/usb -type f -name "*.cpp")
         SOURCES += $(shell find ./board/$(ARCH)/variants/$(BOARD_DIR) -type f -name "*.cpp")
         SOURCES += $(shell find ./common/OpenDeckMIDIformat -type f -name "*.cpp")
     else
+        SOURCES += $(shell find ./board/common -type f -name "*.cpp")
+        SOURCES += $(shell find ./board/$(ARCH) -maxdepth 1 -type f -name "*.cpp")
+        SOURCES += $(shell find ./board/$(ARCH)/variants/$(BOARD_DIR) -type f -name "*.cpp")
         SOURCES += $(shell find ./application -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell find ./application/database -type f -name "*.cpp")
         SOURCES += $(shell find ./application/OpenDeck -type f -name "*.cpp")
         SOURCES += $(shell find ./application/interface/analog -type f -name "*.cpp")
         SOURCES += $(shell find ./application/interface/digital -type f -name "*.cpp")
-        SOURCES += $(shell find ./board/common/digital -type f -name "*.cpp")
-        SOURCES += $(shell find ./board/common/analog -type f -name "*.cpp")
-        SOURCES += $(shell find ./board/$(ARCH) -maxdepth 1 -type f -name "*.cpp")
-        SOURCES += $(shell find ./board/$(ARCH)/variants/$(BOARD_DIR) -type f -name "*.cpp")
         SOURCES += $(shell find ./modules/sysex/src -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell find ./modules/midi/src -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell find ./modules/dbms/src -maxdepth 1 -type f -name "*.cpp")

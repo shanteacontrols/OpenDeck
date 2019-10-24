@@ -26,7 +26,7 @@ limitations under the License.
 bool SDW::init()
 {
     bufferIndex_rx = 0;
-    Board::UART::init(38400, UART_TOUCHSCREEN_CHANNEL);
+    Board::UART::init(UART_TOUCHSCREEN_CHANNEL, 38400);
     return true;
 }
 

@@ -97,17 +97,17 @@ namespace Board
     namespace UART
     {
         ///
+        /// \brief Initializes UART peripheral.
+        /// @param [in] channel     UART channel on MCU.
+        /// @param [in] baudRate    UART speed (baudrate).
+        ///
+        void init(uint8_t channel, uint32_t baudRate);
+
+        ///
         /// \brief Deinitializes specified UART channel.
         /// @param [in] channel UART channel on MCU.
         ///
-        void reset(uint8_t channel);
-
-        ///
-        /// \brief Initializes UART peripheral.
-        /// @param [in] baudRate    UART speed (baudrate).
-        /// @param [in] channel     UART channel on MCU.
-        ///
-        void init(uint32_t baudRate, uint8_t channel);
+        void deInit(uint8_t channel);
 
         ///
         /// \brief Used to read MIDI data from RX UART buffer.
@@ -153,7 +153,68 @@ namespace Board
         /// \returns Number of available bytes.
         ///
         uint8_t bytesAvailableRx(uint8_t channel);
-    }    // namespace UART
+
+        namespace ll
+        {
+            //low-level UART API, MCU specific
+
+            ///
+            /// \brief Enables the firing of interrupt once the UART data register is empty.
+            /// This effectively starts the process of transmitting the data from UART TX buffer to UART interface.
+            /// @param [in] channel     UART channel on MCU.
+            ///
+            void enableDataEmptyInt(uint8_t channel);
+
+            ///
+            /// \brief Disables the firing of interrupt once the UART data register is empty.
+            /// @param [in] channel     UART channel on MCU.
+            ///
+            void disableDataEmptyInt(uint8_t channel);
+
+            ///
+            /// \brief Performs low-level initialization of the specified UART channel.
+            /// @param [in] channel     UART channel on MCU.
+            /// @param [in] baudRate    UART speed (baudrate).
+            ///
+            void init(uint8_t channel, uint32_t baudRate);
+
+            ///
+            /// \brief Performs low-level deinitialization of the specified UART channel.
+            /// @param [in] channel UART channel on MCU.
+            ///
+            void deInit(uint8_t channel);
+
+            ///
+            /// \brief Performs direct writing of data to outgoing UART register.
+            /// @param [in] channel UART channel on MCU.
+            /// @param [in] data    Data to write.
+            ///
+            void directWrite(uint8_t channel, uint8_t data);
+        }    // namespace ll
+
+        namespace isr
+        {
+            ///
+            /// \brief Used to store incoming data from UART to buffer.
+            /// @param [in] channel UART channel on MCU.
+            /// @param [in] data    Received data.
+            ///
+            void storeIncomingData(uint8_t channel, uint8_t data);
+
+            ///
+            /// \brief Retrieves the next byte from the outgoing ring buffer.
+            /// @param [in] channel UART channel on MCU.
+            /// @param [in] data    Data to send.
+            ///
+            bool getNextByteToSend(uint8_t channel, uint8_t& data);
+
+            ///
+            /// \brief Used to indicate that the transmission is complete.
+            /// @param [in] channel UART channel on MCU.
+            ///
+            void indicateTxComplete(uint8_t channel);
+        }    // namespace isr
+    }        // namespace UART
 
     namespace interface
     {
