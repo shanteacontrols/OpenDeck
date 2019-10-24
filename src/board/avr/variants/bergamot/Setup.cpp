@@ -18,8 +18,8 @@ limitations under the License.
 
 #include "board/common/Map.h"
 #include "Pins.h"
-#include "core/src/avr/PinManipulation.h"
-#include "core/src/avr/ADC.h"
+#include "core/src/general/IO.h"
+#include "core/src/general/ADC.h"
 
 namespace Board
 {
@@ -27,71 +27,71 @@ namespace Board
     {
         void pins()
         {
-            CORE_AVR_PIN_SET_INPUT(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN);
-            CORE_AVR_PIN_SET_OUTPUT(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
-            CORE_AVR_PIN_SET_OUTPUT(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+            CORE_IO_CONFIG(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN, core::io::pinMode_t::input);
+            CORE_IO_CONFIG(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN, core::io::pinMode_t::output);
+            CORE_IO_CONFIG(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN, core::io::pinMode_t::output);
 
-            CORE_AVR_PIN_SET_OUTPUT(MUX_S0_PORT, MUX_S0_PIN);
-            CORE_AVR_PIN_SET_OUTPUT(MUX_S1_PORT, MUX_S1_PIN);
-            CORE_AVR_PIN_SET_OUTPUT(MUX_S2_PORT, MUX_S2_PIN);
-            CORE_AVR_PIN_SET_OUTPUT(MUX_S3_PORT, MUX_S3_PIN);
+            CORE_IO_CONFIG(MUX_S0_PORT, MUX_S0_PIN, core::io::pinMode_t::output);
+            CORE_IO_CONFIG(MUX_S1_PORT, MUX_S1_PIN, core::io::pinMode_t::output);
+            CORE_IO_CONFIG(MUX_S2_PORT, MUX_S2_PIN, core::io::pinMode_t::output);
+            CORE_IO_CONFIG(MUX_S3_PORT, MUX_S3_PIN, core::io::pinMode_t::output);
 
-            CORE_AVR_PIN_SET_INPUT(MUX_1_IN_PORT, MUX_1_IN_PIN);
+            CORE_IO_CONFIG(MUX_1_IN_PORT, MUX_1_IN_PIN, core::io::pinMode_t::input);
 
-            CORE_AVR_PIN_SET_INPUT(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+            CORE_IO_CONFIG(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN, core::io::pinMode_t::input);
 
             //unused pins
-            CORE_AVR_PIN_SET_OUTPUT(PORTB, 0);
-            CORE_AVR_PIN_SET_OUTPUT(PORTB, 4);
-            CORE_AVR_PIN_SET_OUTPUT(PORTB, 5);
-            CORE_AVR_PIN_SET_OUTPUT(PORTB, 6);
-            CORE_AVR_PIN_SET_OUTPUT(PORTB, 7);
+            CORE_IO_CONFIG(PORTB, 0, core::io::pinMode_t::output);
+            CORE_IO_CONFIG(PORTB, 4, core::io::pinMode_t::output);
+            CORE_IO_CONFIG(PORTB, 5, core::io::pinMode_t::output);
+            CORE_IO_CONFIG(PORTB, 6, core::io::pinMode_t::output);
+            CORE_IO_CONFIG(PORTB, 7, core::io::pinMode_t::output);
 
-            CORE_AVR_PIN_SET_OUTPUT(PORTC, 6);
-            CORE_AVR_PIN_SET_OUTPUT(PORTC, 7);
+            CORE_IO_CONFIG(PORTC, 6, core::io::pinMode_t::output);
+            CORE_IO_CONFIG(PORTC, 7, core::io::pinMode_t::output);
 
-            CORE_AVR_PIN_SET_OUTPUT(PORTD, 0);
-            CORE_AVR_PIN_SET_OUTPUT(PORTD, 1);
-            CORE_AVR_PIN_SET_OUTPUT(PORTD, 5);
+            CORE_IO_CONFIG(PORTD, 0, core::io::pinMode_t::output);
+            CORE_IO_CONFIG(PORTD, 1, core::io::pinMode_t::output);
+            CORE_IO_CONFIG(PORTD, 5, core::io::pinMode_t::output);
 
-            CORE_AVR_PIN_SET_OUTPUT(PORTE, 2);
-            CORE_AVR_PIN_SET_OUTPUT(PORTE, 6);
+            CORE_IO_CONFIG(PORTE, 2, core::io::pinMode_t::output);
+            CORE_IO_CONFIG(PORTE, 6, core::io::pinMode_t::output);
 
             //make sure all unused pins are logic low
-            CORE_AVR_PIN_SET_LOW(PORTB, 0);
-            CORE_AVR_PIN_SET_LOW(PORTB, 4);
-            CORE_AVR_PIN_SET_LOW(PORTB, 5);
-            CORE_AVR_PIN_SET_LOW(PORTB, 6);
-            CORE_AVR_PIN_SET_LOW(PORTB, 7);
+            CORE_IO_SET_LOW(PORTB, 0);
+            CORE_IO_SET_LOW(PORTB, 4);
+            CORE_IO_SET_LOW(PORTB, 5);
+            CORE_IO_SET_LOW(PORTB, 6);
+            CORE_IO_SET_LOW(PORTB, 7);
 
-            CORE_AVR_PIN_SET_LOW(PORTC, 6);
-            CORE_AVR_PIN_SET_LOW(PORTC, 7);
+            CORE_IO_SET_LOW(PORTC, 6);
+            CORE_IO_SET_LOW(PORTC, 7);
 
-            CORE_AVR_PIN_SET_LOW(PORTD, 0);
-            CORE_AVR_PIN_SET_LOW(PORTD, 1);
-            CORE_AVR_PIN_SET_LOW(PORTD, 5);
+            CORE_IO_SET_LOW(PORTD, 0);
+            CORE_IO_SET_LOW(PORTD, 1);
+            CORE_IO_SET_LOW(PORTD, 5);
 
-            CORE_AVR_PIN_SET_LOW(PORTE, 2);
-            CORE_AVR_PIN_SET_LOW(PORTE, 6);
+            CORE_IO_SET_LOW(PORTE, 2);
+            CORE_IO_SET_LOW(PORTE, 6);
         }
 
         void adc()
         {
-            core::CORE_ARCH::adc::disconnectDigitalIn(Board::map::adcChannel(0));
+            core::adc::disconnectDigitalIn(Board::map::adcChannel(0));
 
-            core::CORE_ARCH::adc::conf_t adcConfiguration;
+            core::adc::conf_t adcConfiguration;
 
-            adcConfiguration.prescaler = core::CORE_ARCH::adc::prescaler_t::p128;
-            adcConfiguration.vref = core::CORE_ARCH::adc::vRef_t::aref;
+            adcConfiguration.prescaler = core::adc::prescaler_t::p128;
+            adcConfiguration.vref = core::adc::vRef_t::aref;
 
-            core::CORE_ARCH::adc::setup(adcConfiguration);
-            core::CORE_ARCH::adc::setChannel(Board::map::adcChannel(0));
+            core::adc::setup(adcConfiguration);
+            core::adc::setChannel(Board::map::adcChannel(0));
 
             for (int i = 0; i < 3; i++)
-                core::CORE_ARCH::adc::read();    //few dummy reads to init ADC
+                core::adc::read();    //few dummy reads to init ADC
 
-            core::CORE_ARCH::adc::enableInterrupt();
-            core::CORE_ARCH::adc::startConversion();
+            core::adc::enableInterrupt();
+            core::adc::startConversion();
         }
 
         void timers()

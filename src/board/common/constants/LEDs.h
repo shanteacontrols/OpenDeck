@@ -18,9 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#ifdef __AVR__
-#include "core/src/avr/PinManipulation.h"
-#endif
+#include "core/src/general/IO.h"
 
 ///
 /// \brief Time in milliseconds during which MIDI event indicators on board are on when MIDI event happens.
@@ -37,19 +35,19 @@ limitations under the License.
 /// @{
 
 #ifdef LED_INT_INVERT
-#define INT_LED_ON(port, pin) CORE_AVR_PIN_SET_LOW(port, pin)
-#define INT_LED_OFF(port, pin) CORE_AVR_PIN_SET_HIGH(port, pin)
+#define INT_LED_ON(port, pin) CORE_IO_SET_LOW(port, pin)
+#define INT_LED_OFF(port, pin) CORE_IO_SET_HIGH(port, pin)
 #else
-#define INT_LED_ON(port, pin) CORE_AVR_PIN_SET_HIGH(port, pin)
-#define INT_LED_OFF(port, pin) CORE_AVR_PIN_SET_LOW(port, pin)
+#define INT_LED_ON(port, pin) CORE_IO_SET_HIGH(port, pin)
+#define INT_LED_OFF(port, pin) CORE_IO_SET_LOW(port, pin)
 #endif
 
 #ifdef LED_EXT_INVERT
-#define EXT_LED_ON(port, pin) CORE_AVR_PIN_SET_LOW(port, pin)
-#define EXT_LED_OFF(port, pin) CORE_AVR_PIN_SET_HIGH(port, pin)
+#define EXT_LED_ON(port, pin) CORE_IO_SET_LOW(port, pin)
+#define EXT_LED_OFF(port, pin) CORE_IO_SET_HIGH(port, pin)
 #else
-#define EXT_LED_ON(port, pin) CORE_AVR_PIN_SET_HIGH(port, pin)
-#define EXT_LED_OFF(port, pin) CORE_AVR_PIN_SET_LOW(port, pin)
+#define EXT_LED_ON(port, pin) CORE_IO_SET_HIGH(port, pin)
+#define EXT_LED_OFF(port, pin) CORE_IO_SET_LOW(port, pin)
 #endif
 
 /// @}

@@ -18,7 +18,7 @@ limitations under the License.
 
 #include "Analog.h"
 #include "board/Board.h"
-#include "core/src/general/Misc.h"
+#include "core/src/general/Helpers.h"
 
 using namespace Interface::analog;
 

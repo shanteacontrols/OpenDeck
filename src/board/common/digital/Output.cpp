@@ -20,7 +20,8 @@ limitations under the License.
 #include "board/common/constants/LEDs.h"
 #include "board/common/digital/Output.h"
 #include "board/common/Map.h"
-#include "core/src/general/BitManipulation.h"
+#include "core/src/general/Helpers.h"
+#include "core/src/general/Atomic.h"
 #include "Pins.h"
 #include "interface/digital/output/leds/Helpers.h"
 #ifndef BOARD_A_xu2
@@ -146,10 +147,8 @@ namespace Board
                         return false;
                     }
 
-//reset transition counter
-#ifdef __AVR__
-                    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-#endif
+                    //reset transition counter
+                    ATOMIC_SECTION
                     {
                         for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
                             transitionCounter[i] = 0;
@@ -253,16 +252,16 @@ namespace Board
                     ///
                     inline void activateOutputColumn()
                     {
-                        BIT_READ(activeOutColumn, 0) ? CORE_AVR_PIN_SET_HIGH(DEC_LM_A0_PORT, DEC_LM_A0_PIN) : CORE_AVR_PIN_SET_LOW(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
-                        BIT_READ(activeOutColumn, 1) ? CORE_AVR_PIN_SET_HIGH(DEC_LM_A1_PORT, DEC_LM_A1_PIN) : CORE_AVR_PIN_SET_LOW(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
-                        BIT_READ(activeOutColumn, 2) ? CORE_AVR_PIN_SET_HIGH(DEC_LM_A2_PORT, DEC_LM_A2_PIN) : CORE_AVR_PIN_SET_LOW(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
+                        BIT_READ(activeOutColumn, 0) ? CORE_IO_SET_HIGH(DEC_LM_A0_PORT, DEC_LM_A0_PIN) : CORE_IO_SET_LOW(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
+                        BIT_READ(activeOutColumn, 1) ? CORE_IO_SET_HIGH(DEC_LM_A1_PORT, DEC_LM_A1_PIN) : CORE_IO_SET_LOW(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
+                        BIT_READ(activeOutColumn, 2) ? CORE_IO_SET_HIGH(DEC_LM_A2_PORT, DEC_LM_A2_PIN) : CORE_IO_SET_LOW(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
                     }
 
                     namespace
                     {
-                        core::CORE_ARCH::pins::mcuPin_t pin;
-                        uint8_t                         ledNumber;
-                        uint8_t                         ledStateSingle;
+                        core::io::mcuPin_t pin;
+                        uint8_t            ledNumber;
+                        uint8_t            ledStateSingle;
                     }    // namespace
 
                     ///
@@ -272,11 +271,11 @@ namespace Board
                     {
 #ifdef LED_FADING
                         //turn off pwm
-                        core::CORE_ARCH::pins::pwmOff(Board::map::pwmChannel(row));
+                        core::io::pwmOff(Board::map::pwmChannel(row));
 #endif
 
                         pin = Board::map::led(row);
-                        EXT_LED_OFF(*pin.port, pin.pin);
+                        EXT_LED_OFF(*pin.port, pin.index);
                     }
 
                     ///
@@ -297,7 +296,7 @@ namespace Board
                             pin = Board::map::led(row);
 
                             //max value, don't use pwm
-                            EXT_LED_ON(*pin.port, pin.pin);
+                            EXT_LED_ON(*pin.port, pin.index);
                         }
 #ifdef LED_FADING
                         else
@@ -306,7 +305,7 @@ namespace Board
                             intensity = 255 - intensity;
 #endif
 
-                            core::CORE_ARCH::pins::pwmOn(Board::map::pwmChannel(row), intensity);
+                            core::io::pwmOn(Board::map::pwmChannel(row), intensity);
                         }
 #endif
                     }
@@ -400,7 +399,7 @@ namespace Board
 
                         if (updateSR)
                         {
-                            CORE_AVR_PIN_SET_LOW(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+                            CORE_IO_SET_LOW(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 
                             uint8_t ledIndex;
 
@@ -411,20 +410,20 @@ namespace Board
                                     ledIndex = i + j * NUMBER_OF_OUT_SR_INPUTS;
 
                                     LED_ON(Interface::digital::output::LEDs::getLEDstate(ledIndex)) ? EXT_LED_ON(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN) : EXT_LED_OFF(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
-                                    CORE_AVR_PIN_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+                                    CORE_IO_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
                                     _NOP();
                                     _NOP();
-                                    CORE_AVR_PIN_SET_HIGH(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+                                    CORE_IO_SET_HIGH(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
                                 }
                             }
 
-                            CORE_AVR_PIN_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+                            CORE_IO_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
                         }
                     }
 #else
                     namespace
                     {
-                        core::CORE_ARCH::pins::mcuPin_t pin;
+                        core::io::mcuPin_t pin;
                     }
 
                     void checkDigitalOutputs()
@@ -437,9 +436,9 @@ namespace Board
                             if (ledStateSingle != lastLEDstate[i])
                             {
                                 if (ledStateSingle)
-                                    EXT_LED_ON(*pin.port, pin.pin);
+                                    EXT_LED_ON(*pin.port, pin.index);
                                 else
-                                    EXT_LED_OFF(*pin.port, pin.pin);
+                                    EXT_LED_OFF(*pin.port, pin.index);
 
                                 lastLEDstate[i] = ledStateSingle;
                             }

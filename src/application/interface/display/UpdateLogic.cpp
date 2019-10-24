@@ -21,7 +21,7 @@ limitations under the License.
 #include "Display.h"
 #include "database/Database.h"
 #include "core/src/general/Timing.h"
-#include "core/src/general/BitManipulation.h"
+#include "core/src/general/Helpers.h"
 
 using namespace Interface;
 

@@ -18,6 +18,7 @@ limitations under the License.
 
 #include "OpenDeck.h"
 #include "core/src/general/Timing.h"
+#include "core/src/general/Interrupt.h"
 #include "interface/CInfo.h"
 
 // clang-format off
@@ -88,10 +89,7 @@ void OpenDeck::init()
     database.init();
     sysConfig.init();
 
-#ifdef __AVR__
-    //enable global interrupts
-    sei();
-#endif
+    ENABLE_INTERRUPTS();
 
     sysConfig.configureMIDI();
     Board::ledFlashStartup(Board::checkNewRevision());

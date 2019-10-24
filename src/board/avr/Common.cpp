@@ -17,19 +17,15 @@ limitations under the License.
 */
 
 #include <avr/eeprom.h>
-#include <avr/pgmspace.h>
-#include <avr/wdt.h>
-#include <avr/interrupt.h>
-#include <util/delay.h>
 #include "board/Board.h"
 #include "board/common/constants/Reboot.h"
 #include "board/common/constants/LEDs.h"
 #include "midi/src/Constants.h"
-#include "core/src/avr/Reset.h"
-#include "core/src/avr/ADC.h"
-#include "core/src/avr/Misc.h"
-#include "core/src/avr/PinManipulation.h"
-#include "core/src/general/Misc.h"
+#include "core/src/arch/avr/Reset.h"
+#include "core/src/general/ADC.h"
+#include "core/src/arch/avr/Misc.h"
+#include "core/src/general/IO.h"
+#include "core/src/general/Helpers.h"
 #include "Setup.h"
 #include "board/common/digital/Input.h"
 #include "board/common/digital/Output.h"
@@ -127,7 +123,7 @@ namespace Board
             break;
         }
 
-        core::CORE_ARCH::reset::mcuReset();
+        core::reset::mcuReset();
     }
 
 #ifndef BOARD_A_xu2
@@ -135,8 +131,8 @@ namespace Board
     {
         uint16_t crc_eeprom = eeprom_read_word(reinterpret_cast<uint16_t*>(SW_CRC_LOCATION_EEPROM));
 #if (FLASHEND > 0xFFFF)
-        uint32_t lastAddress = pgm_read_dword_far(core::CORE_ARCH::pgmGetFarAddress(APP_LENGTH_LOCATION));
-        uint16_t crc_flash = pgm_read_word_far(core::CORE_ARCH::pgmGetFarAddress(lastAddress));
+        uint32_t lastAddress = pgm_read_dword_far(core::misc::pgmGetFarAddress(APP_LENGTH_LOCATION));
+        uint16_t crc_flash = pgm_read_word_far(core::misc::pgmGetFarAddress(lastAddress));
 #else
         uint32_t lastAddress = pgm_read_dword(APP_LENGTH_LOCATION);
         uint16_t crc_flash = pgm_read_word(lastAddress);

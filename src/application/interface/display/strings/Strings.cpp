@@ -1,19 +1,7 @@
 #include "Strings.h"
 #include <string.h>
 #include <stdio.h>
-
-#ifdef __AVR__
-#include <avr/pgmspace.h>
-#define stringArrayType_t const char* const
-#define DEREFERENCE_ARRAY &
-#else
-#define PGM_P const char*
-#define strcpy_P strcpy
-#define stringArrayType_t const char*
-#define pgm_read_word
-#define PROGMEM
-#define DEREFERENCE_ARRAY
-#endif
+#include "core/src/general/Helpers.h"
 
 namespace
 {
@@ -63,7 +51,7 @@ namespace
     const char noteB_strig[] PROGMEM = "B";
 
     //match with messageTypeDisplay_t
-    stringArrayType_t eventNameArray[] PROGMEM = {
+    STRING_PROGMEM_ARRAY(eventNameArray) = {
         eventNoteOff_string,
         eventNoteOn_string,
         eventCC_string,
@@ -91,7 +79,7 @@ namespace
         eventPresetChange_string
     };
 
-    stringArrayType_t noteNameArray[] PROGMEM = {
+    STRING_PROGMEM_ARRAY(noteNameArray) = {
         noteC_string,
         noteCSharp_string,
         noteD_string,
@@ -137,12 +125,12 @@ const char* Strings::board()
 
 const char* Strings::midiMessage(Interface::Display::event_t event)
 {
-    strcpy_P(tempBuffer, (PGM_P)pgm_read_word(DEREFERENCE_ARRAY(eventNameArray[static_cast<uint8_t>(event)])));
+    strcpy_P(tempBuffer, READ_PROGMEM_ARRAY(eventNameArray[static_cast<uint8_t>(event)]));
     return tempBuffer;
 }
 
 const char* Strings::note(MIDI::note_t note)
 {
-    strcpy_P(tempBuffer, (PGM_P)pgm_read_word(DEREFERENCE_ARRAY(noteNameArray[static_cast<uint8_t>(note)])));
+    strcpy_P(tempBuffer, READ_PROGMEM_ARRAY(noteNameArray[static_cast<uint8_t>(note)]));
     return tempBuffer;
 }

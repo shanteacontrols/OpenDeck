@@ -19,9 +19,9 @@ limitations under the License.
 #include <util/crc16.h>
 #include <avr/cpufunc.h>
 #include "BootloaderHID.h"
-#include "core/src/avr/PinManipulation.h"
-#include "core/src/avr/Misc.h"
-#include "core/src/general/BitManipulation.h"
+#include "core/src/general/IO.h"
+#include "core/src/arch/avr/Misc.h"
+#include "core/src/general/Helpers.h"
 #include "core/src/general/Timing.h"
 #include "board/common/constants/LEDs.h"
 #include "board/common/constants/Reboot.h"
@@ -39,12 +39,12 @@ namespace
     {
 //configure bootloader entry pins
 #if defined(BOARD_DUBFOCUS)
-        CORE_AVR_PIN_SET_INPUT(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN);
-        CORE_AVR_PIN_SET_OUTPUT(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
-        CORE_AVR_PIN_SET_OUTPUT(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+        CORE_IO_CONFIG(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN, core::io::pinMode_t::input);
+        CORE_IO_CONFIG(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN, core::io::pinMode_t::output);
+        CORE_IO_CONFIG(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN, core::io::pinMode_t::output);
 #elif defined(BTLDR_BUTTON_PORT)
-        CORE_AVR_PIN_SET_INPUT(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
-        CORE_AVR_PIN_SET_HIGH(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+        CORE_IO_CONFIG(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN, core::io::pinMode_t::input);
+        CORE_IO_SET_HIGH(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
 #endif
     }
 
@@ -55,39 +55,39 @@ namespace
     {
 #ifdef BOARD_DUBFOCUS
         //turn on all available LEDs
-        CORE_AVR_PIN_SET_OUTPUT(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
-        CORE_AVR_PIN_SET_OUTPUT(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
-        CORE_AVR_PIN_SET_OUTPUT(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+        CORE_IO_CONFIG(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN, core::io::pinMode_t::output);
+        CORE_IO_CONFIG(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN, core::io::pinMode_t::output);
+        CORE_IO_CONFIG(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN, core::io::pinMode_t::output);
 
-        CORE_AVR_PIN_SET_LOW(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+        CORE_IO_SET_LOW(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 
         for (int i = 0; i < NUMBER_OF_OUT_SR; i++)
         {
             for (int j = 0; j < 8; j++)
             {
                 EXT_LED_ON(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
-                CORE_AVR_PIN_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+                CORE_IO_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
                 _NOP();
                 _NOP();
-                CORE_AVR_PIN_SET_HIGH(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+                CORE_IO_SET_HIGH(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
             }
         }
 
-        CORE_AVR_PIN_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+        CORE_IO_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 //make sure internal led is turned off for mega/uno
 #elif defined(BOARD_A_MEGA)
-        CORE_AVR_PIN_SET_OUTPUT(PORTB, 7);
-        CORE_AVR_PIN_SET_LOW(PORTB, 7);
+        CORE_IO_CONFIG(PORTB, 7, core::io::pinMode_t::output);
+        CORE_IO_SET_LOW(PORTB, 7);
 #elif defined(BOARD_A_UNO)
-        CORE_AVR_PIN_SET_OUTPUT(PORTB, 5);
-        CORE_AVR_PIN_SET_LOW(PORTB, 5);
+        CORE_IO_CONFIG(PORTB, 5, core::io::pinMode_t::output);
+        CORE_IO_SET_LOW(PORTB, 5);
 #elif defined(BOARD_T_2PP)
         //only one led
-        CORE_AVR_PIN_SET_OUTPUT(LED_IN_PORT, LED_IN_PIN);
+        CORE_IO_CONFIG(LED_IN_PORT, LED_IN_PIN, core::io::pinMode_t::output);
         INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
 #elif defined(LED_INDICATORS)
-        CORE_AVR_PIN_SET_OUTPUT(LED_IN_PORT, LED_IN_PIN);
-        CORE_AVR_PIN_SET_OUTPUT(LED_OUT_PORT, LED_OUT_PIN);
+        CORE_IO_CONFIG(LED_IN_PORT, LED_IN_PIN, core::io::pinMode_t::output);
+        CORE_IO_CONFIG(LED_OUT_PORT, LED_OUT_PIN, core::io::pinMode_t::output);
         INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
         INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
 #endif
@@ -144,7 +144,7 @@ namespace
         uint16_t crc = 0x0000;
 
 #if (FLASHEND > 0xFFFF)
-        uint32_t lastAddress = pgm_read_word(core::CORE_ARCH::pgmGetFarAddress(APP_LENGTH_LOCATION));
+        uint32_t lastAddress = pgm_read_word(core::misc::pgmGetFarAddress(APP_LENGTH_LOCATION));
 #else
         uint32_t lastAddress = pgm_read_word(APP_LENGTH_LOCATION);
 #endif
@@ -152,14 +152,14 @@ namespace
         for (uint32_t i = 0; i < lastAddress; i++)
         {
 #if (FLASHEND > 0xFFFF)
-            crc = _crc_xmodem_update(crc, pgm_read_byte_far(core::CORE_ARCH::pgmGetFarAddress(i)));
+            crc = _crc_xmodem_update(crc, pgm_read_byte_far(core::misc::pgmGetFarAddress(i)));
 #else
             crc = _crc_xmodem_update(crc, pgm_read_byte(i));
 #endif
         }
 
 #if (FLASHEND > 0xFFFF)
-        return (crc == pgm_read_word_far(core::CORE_ARCH::pgmGetFarAddress(lastAddress)));
+        return (crc == pgm_read_word_far(core::misc::pgmGetFarAddress(lastAddress)));
 #else
         return (crc == pgm_read_word(lastAddress));
 #endif
@@ -187,28 +187,28 @@ namespace
 #if defined(BOARD_DUBFOCUS)
         uint16_t dInData = 0;
 
-        CORE_AVR_PIN_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
-        CORE_AVR_PIN_SET_LOW(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+        CORE_IO_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+        CORE_IO_SET_LOW(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
         _NOP();
 
-        CORE_AVR_PIN_SET_HIGH(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+        CORE_IO_SET_HIGH(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
 
         for (int j = 0; j < NUMBER_OF_IN_SR; j++)
         {
             for (int i = 0; i < NUMBER_OF_IN_SR_INPUTS; i++)
             {
                 uint8_t index = (7 - i) + j * NUMBER_OF_OUT_SR_INPUTS;
-                CORE_AVR_PIN_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+                CORE_IO_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
                 _NOP();
-                BIT_WRITE(dInData, index, !CORE_AVR_PIN_READ(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN));
-                CORE_AVR_PIN_SET_HIGH(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+                BIT_WRITE(dInData, index, !CORE_IO_READ(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN));
+                CORE_IO_SET_HIGH(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
             }
         }
 
         bool hardwareTrigger = BIT_READ(dInData, BTLDR_BUTTON_INDEX);
 #else
 #ifdef BTLDR_BUTTON_PORT
-        bool           hardwareTrigger = !CORE_AVR_PIN_READ(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+        bool           hardwareTrigger = !CORE_IO_READ(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
 #else
         //no hardware entry possible in this case
         bool hardwareTrigger = false;

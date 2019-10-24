@@ -109,5 +109,4 @@ INCLUDE_DIRS := \
 
 INCLUDE_FILES += \
 -include "../board/avr/variants/$(subst fw_,,$(TARGETNAME))/Hardware.h" \
--include "stubs/Core.h" \
 -include "../board/avr/Config.h"

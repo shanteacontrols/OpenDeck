@@ -16,10 +16,9 @@ limitations under the License.
 
 */
 
-#ifdef __AVR__
-#include "core/src/avr/ADC.h"
-#endif
-#include "core/src/general/BitManipulation.h"
+#include "core/src/general/ADC.h"
+#include "core/src/general/Helpers.h"
+#include "core/src/general/Atomic.h"
 #include "board/Board.h"
 #include "board/common/Map.h"
 #include "Pins.h"
@@ -47,9 +46,7 @@ namespace Board
             {
                 int16_t value;
 
-#ifdef __AVR__
-                ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-#endif
+                ATOMIC_SECTION
                 {
                     value = analogBuffer[analogID];
                     analogBuffer[analogID] = 0;
@@ -67,7 +64,7 @@ namespace Board
             {
                 analogSamplingDone = false;
                 analogIndex = 0;
-                core::CORE_ARCH::adc::startConversion();
+                core::adc::startConversion();
             }
 
             namespace detail
@@ -78,10 +75,10 @@ namespace Board
                 ///
                 inline void setMuxInput()
                 {
-                    BIT_READ(Board::map::muxChannel(activeMuxInput), 0) ? CORE_AVR_PIN_SET_HIGH(MUX_S0_PORT, MUX_S0_PIN) : CORE_AVR_PIN_SET_LOW(MUX_S0_PORT, MUX_S0_PIN);
-                    BIT_READ(Board::map::muxChannel(activeMuxInput), 1) ? CORE_AVR_PIN_SET_HIGH(MUX_S1_PORT, MUX_S1_PIN) : CORE_AVR_PIN_SET_LOW(MUX_S1_PORT, MUX_S1_PIN);
-                    BIT_READ(Board::map::muxChannel(activeMuxInput), 2) ? CORE_AVR_PIN_SET_HIGH(MUX_S2_PORT, MUX_S2_PIN) : CORE_AVR_PIN_SET_LOW(MUX_S2_PORT, MUX_S2_PIN);
-                    BIT_READ(Board::map::muxChannel(activeMuxInput), 3) ? CORE_AVR_PIN_SET_HIGH(MUX_S3_PORT, MUX_S3_PIN) : CORE_AVR_PIN_SET_LOW(MUX_S3_PORT, MUX_S3_PIN);
+                    BIT_READ(Board::map::muxChannel(activeMuxInput), 0) ? CORE_IO_SET_HIGH(MUX_S0_PORT, MUX_S0_PIN) : CORE_IO_SET_LOW(MUX_S0_PORT, MUX_S0_PIN);
+                    BIT_READ(Board::map::muxChannel(activeMuxInput), 1) ? CORE_IO_SET_HIGH(MUX_S1_PORT, MUX_S1_PIN) : CORE_IO_SET_LOW(MUX_S1_PORT, MUX_S1_PIN);
+                    BIT_READ(Board::map::muxChannel(activeMuxInput), 2) ? CORE_IO_SET_HIGH(MUX_S2_PORT, MUX_S2_PIN) : CORE_IO_SET_LOW(MUX_S2_PORT, MUX_S2_PIN);
+                    BIT_READ(Board::map::muxChannel(activeMuxInput), 3) ? CORE_IO_SET_HIGH(MUX_S3_PORT, MUX_S3_PIN) : CORE_IO_SET_LOW(MUX_S3_PORT, MUX_S3_PIN);
                 }
 #endif
 
@@ -119,7 +116,7 @@ namespace Board
 
 #ifdef NUMBER_OF_MUX
                             //switch to next mux once all mux inputs are read
-                            core::CORE_ARCH::adc::setChannel(Board::map::adcChannel(activeMux));
+                            core::adc::setChannel(Board::map::adcChannel(activeMux));
 #endif
                         }
 
@@ -127,12 +124,12 @@ namespace Board
 #ifdef NUMBER_OF_MUX
                         setMuxInput();
 #else
-                        core::CORE_ARCH::adc::setChannel(Board::map::adcChannel(analogIndex));
+                        core::adc::setChannel(Board::map::adcChannel(analogIndex));
 #endif
                     }
 
                     if (!analogSamplingDone)
-                        core::CORE_ARCH::adc::startConversion();
+                        core::adc::startConversion();
                 }
             }    // namespace detail
         }        // namespace analog

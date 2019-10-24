@@ -23,6 +23,5 @@ limitations under the License.
 #include "constants/Reboot.h"
 
 #ifdef __AVR__
-#include <util/atomic.h>
 #include "board/avr/Config.h"
 #endif

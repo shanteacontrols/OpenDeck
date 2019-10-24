@@ -19,10 +19,7 @@ limitations under the License.
 #pragma once
 
 #include "board/Board.h"
-
-#ifdef __AVR__
-#include "core/src/avr/PinManipulation.h"
-#endif
+#include "core/src/general/IO.h"
 
 namespace Board
 {
@@ -51,16 +48,16 @@ namespace Board
         ///
         /// \brief Used to retrieve button port and pin channel for an given index.
         ///
-        core::CORE_ARCH::pins::mcuPin_t button(uint8_t index);
+        core::io::mcuPin_t button(uint8_t index);
 
         ///
         /// \brief Used to retrieve LED port and pin channel for an given index.
         ///
-        core::CORE_ARCH::pins::mcuPin_t led(uint8_t index);
+        core::io::mcuPin_t led(uint8_t index);
 
         ///
         /// \brief Used to retrieve all the registers needed to control PWM channel for an given index.
         ///
-        core::CORE_ARCH::pins::pwmChannel_t pwmChannel(uint8_t index);
+        core::io::pwmChannel_t pwmChannel(uint8_t index);
     }    // namespace map
 }    // namespace Board

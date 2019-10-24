@@ -16,9 +16,8 @@ limitations under the License.
 
 */
 
-#include <util/atomic.h>
 #include "board/UART.h"
-#include "Constants.h"
+#include "core/src/arch/avr/UART.h"
 #include "core/src/general/RingBuffer.h"
 
 #define TX_BUFFER_SIZE 50
@@ -97,7 +96,7 @@ namespace Board
 
             setLoopbackState(channel, false);
 
-            ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+            ATOMIC_SECTION
             {
                 switch (channel)
                 {
@@ -224,7 +223,7 @@ namespace Board
                 switch (channel)
                 {
                 case 0:
-                    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+                    ATOMIC_SECTION
                     {
                         UDR_0 = data;
                         txDone[0] = false;
@@ -235,7 +234,7 @@ namespace Board
 
 #if UART_INTERFACES > 1
                 case 1:
-                    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+                    ATOMIC_SECTION
                     {
                         UDR_1 = data;
                         txDone[1] = false;

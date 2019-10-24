@@ -5,7 +5,7 @@
 #include "database/Database.h"
 #include "midi/src/MIDI.h"
 #include "core/src/general/Timing.h"
-#include "core/src/general/Misc.h"
+#include "core/src/general/Helpers.h"
 #include "stubs/database/DB_ReadWrite.h"
 #include "board/Board.h"
 

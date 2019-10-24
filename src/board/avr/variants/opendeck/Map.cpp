@@ -136,39 +136,39 @@ namespace Board
             ///
             /// \brief Array of mcuPin_t structure holding port/pin for every LED row for easier access.
             ///
-            const core::CORE_ARCH::pins::mcuPin_t ledRowPins[NUMBER_OF_LED_ROWS] = {
+            const core::io::mcuPin_t ledRowPins[NUMBER_OF_LED_ROWS] = {
                 {
                     .port = &LED_ROW_1_PORT,
-                    .pin = LED_ROW_1_PIN,
+                    .index = LED_ROW_1_PIN,
                 },
 
                 {
                     .port = &LED_ROW_2_PORT,
-                    .pin = LED_ROW_2_PIN,
+                    .index = LED_ROW_2_PIN,
                 },
 
                 {
                     .port = &LED_ROW_3_PORT,
-                    .pin = LED_ROW_3_PIN,
+                    .index = LED_ROW_3_PIN,
                 },
 
                 {
                     .port = &LED_ROW_4_PORT,
-                    .pin = LED_ROW_4_PIN,
+                    .index = LED_ROW_4_PIN,
                 },
 
                 {
                     .port = &LED_ROW_5_PORT,
-                    .pin = LED_ROW_5_PIN,
+                    .index = LED_ROW_5_PIN,
                 },
 
                 {
                     .port = &LED_ROW_6_PORT,
-                    .pin = LED_ROW_6_PIN,
+                    .index = LED_ROW_6_PIN,
                 }
             };
 
-            const core::CORE_ARCH::pins::pwmChannel_t pwmChannels[NUMBER_OF_LED_ROWS] = {
+            const core::io::pwmChannel_t pwmChannels[NUMBER_OF_LED_ROWS] = {
                 { .timer = &TCCR1A,
                   .compareL = &OCR1CL,
                   .compareH = &OCR1CH,
@@ -221,12 +221,12 @@ namespace Board
             return dmColumnArray[index];
         }
 
-        core::CORE_ARCH::pins::mcuPin_t led(uint8_t index)
+        core::io::mcuPin_t led(uint8_t index)
         {
             return ledRowPins[index];
         }
 
-        core::CORE_ARCH::pins::pwmChannel_t pwmChannel(uint8_t index)
+        core::io::pwmChannel_t pwmChannel(uint8_t index)
         {
             return pwmChannels[index];
         }

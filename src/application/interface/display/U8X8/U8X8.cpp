@@ -17,10 +17,7 @@ limitations under the License.
 */
 
 #include "U8X8.h"
-
-#ifdef __AVR__
-#include "core/src/avr/I2C.h"
-#endif
+#include "core/src/general/I2C.h"
 
 namespace
 {
@@ -49,19 +46,19 @@ namespace U8X8
             {
             case U8X8_MSG_BYTE_SEND:
                 for (int i = 0; i < arg_int; i++)
-                    core::CORE_ARCH::i2c::write(array[i]);
+                    core::i2c::write(array[i]);
                 break;
 
             case U8X8_MSG_BYTE_INIT:
-                core::CORE_ARCH::i2c::enable();
+                core::i2c::enable();
                 break;
 
             case U8X8_MSG_BYTE_START_TRANSFER:
-                core::CORE_ARCH::i2c::startComm(u8x8_GetI2CAddress(u8x8), core::CORE_ARCH::i2c::transferType_t::write);
+                core::i2c::startComm(u8x8_GetI2CAddress(u8x8), core::i2c::transferType_t::write);
                 break;
 
             case U8X8_MSG_BYTE_END_TRANSFER:
-                core::CORE_ARCH::i2c::stopComm();
+                core::i2c::stopComm();
                 break;
 
             default:

@@ -16,9 +16,9 @@ limitations under the License.
 
 */
 
-#include <avr/interrupt.h>
 #include "board/Board.h"
 #include "common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
+#include "core/src/general/Interrupt.h"
 
 namespace
 {
@@ -30,7 +30,7 @@ int main(void)
 {
     Board::init();
 
-    sei();
+    ENABLE_INTERRUPTS();
 
     while (1)
     {

@@ -20,7 +20,8 @@ limitations under the License.
 #include "board/Board.h"
 #include "Pins.h"
 #include "board/common/constants/LEDs.h"
-#include "core/src/avr/PinManipulation.h"
+#include "core/src/general/IO.h"
+#include "core/src/general/Atomic.h"
 
 namespace Board
 {
@@ -29,8 +30,8 @@ namespace Board
         void pins()
         {
             //bootloader/midi leds
-            CORE_AVR_PIN_SET_OUTPUT(LED_IN_PORT, LED_IN_PIN);
-            CORE_AVR_PIN_SET_OUTPUT(LED_OUT_PORT, LED_OUT_PIN);
+            CORE_IO_CONFIG(LED_IN_PORT, LED_IN_PIN, core::io::pinMode_t::output);
+            CORE_IO_CONFIG(LED_OUT_PORT, LED_OUT_PIN, core::io::pinMode_t::output);
 
             INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
             INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
@@ -49,7 +50,7 @@ namespace Board
     void ledFlashStartup(bool fwUpdated)
     {
         //block interrupts here to avoid received midi traffic messing with indicator leds animation
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+        ATOMIC_SECTION
         {
             for (int i = 0; i < 3; i++)
             {

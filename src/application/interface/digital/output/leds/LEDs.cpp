@@ -21,7 +21,7 @@ limitations under the License.
 #include "LEDs.h"
 #include "board/Board.h"
 #include "core/src/general/Timing.h"
-#include "core/src/general/BitManipulation.h"
+#include "core/src/general/Helpers.h"
 
 using namespace Interface::digital::output;
 

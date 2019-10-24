@@ -52,7 +52,6 @@ limitations under the License.
 #include <avr/wdt.h>
 #include <avr/boot.h>
 #include <avr/power.h>
-#include <avr/interrupt.h>
 #include <stdbool.h>
 
 #ifdef USB_SUPPORTED
@@ -62,7 +61,7 @@ limitations under the License.
 #else
 #include <LUFA/Common/Common.h>
 #endif
-#include "core/src/general/Misc.h"
+#include "core/src/general/Helpers.h"
 #include "Config.h"
 
 #if !defined(__OPTIMIZE_SIZE__)
