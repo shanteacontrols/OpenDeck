@@ -195,6 +195,12 @@ namespace Board
         namespace isr
         {
             ///
+            /// \brief Global ISR handler for all UART events.
+            /// @param [in] channel UART channel on MCU.
+            ///
+            void isrHandler(uint8_t channel);
+
+            ///
             /// \brief Used to store incoming data from UART to buffer.
             /// @param [in] channel UART channel on MCU.
             /// @param [in] data    Received data.
