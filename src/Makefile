@@ -67,7 +67,7 @@ endif
 LEN_APPEND := 0
 
 #custom linker script
-LDFLAGS += -T board/$(ARCH)/linker/$(MCU).x
+LDFLAGS += -T board/$(ARCH)/linker/$(MCU).ld
 
 #append length only in firmware
 ifeq ($(findstring fw,$(TARGETNAME)), fw)
