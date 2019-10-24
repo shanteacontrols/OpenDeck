@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/paradajz/OpenDeck.svg?branch=master)](https://travis-ci.org/paradajz/OpenDeck)
+[![Build Status](https://github.com/paradajz/OpenDeck/workflows/Build+Test/badge.svg?branch=master)](https://github.com/paradajz/OpenDeck/actions)
 
 # OpenDeck MIDI Platform
 

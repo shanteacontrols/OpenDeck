@@ -1,0 +1,65 @@
+name: Build+Test
+
+on: [push]
+
+jobs:
+  build:
+    name: Build FW+Bootloaders
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Pull the repository and submodules
+        uses: actions/checkout@v1
+        with:
+          submodules: true
+      - name: Prepare build env
+        run: |
+          wget https://www.microchip.com/mymicrochip/filehandler.aspx?ddocname=en607660 -O avrtoolchain.tar.gz
+          wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/8-2019q3/RC1.1/gcc-arm-none-eabi-8-2019-q3-update-linux.tar.bz2 -O armtoolchain.tar.bz2
+          sudo apt-get install -y srecord
+          tar xzf avrtoolchain.tar.gz
+          tar xjf armtoolchain.tar.bz2
+      - name: Build
+        run: |
+          PATH=$(pwd)/avr8-gnu-toolchain-linux_x86_64/bin:$(pwd)/gcc-arm-none-eabi-8-2019-q3-update/bin:${PATH}
+          cd src/
+          ../scripts/build_fwbtldr_all.sh
+  test:
+    name: Run tests
+    runs-on: ubuntu-18.04
+    steps:
+       - name: Pull the repository and submodules
+         uses: actions/checkout@v1
+         with:
+          submodules: true
+       - name: Prepare build env
+         run: |
+           wget https://apt.llvm.org/llvm-snapshot.gpg.key
+           sudo apt-key add llvm-snapshot.gpg.key
+           sudo add-apt-repository 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main'
+           sudo apt update
+           sudo apt-get install -y clang-9
+       - name: Build
+         run: |
+           CPP=clang-9
+           CXX=clang++-9
+           cd src/tests/
+           ../../scripts/build_execute_tests.sh
+  format:
+    name: Code formatting
+    runs-on: ubuntu-18.04
+    steps:
+       - name: Pull the repository
+         uses: actions/checkout@v1
+         with:
+          submodules: true
+       - name: Prepare env
+         run: |
+           wget https://apt.llvm.org/llvm-snapshot.gpg.key
+           sudo apt-key add llvm-snapshot.gpg.key
+           sudo add-apt-repository 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main'
+           sudo apt update
+           sudo apt-get install -y clang-format-9
+       - name: Format
+         run: |
+           cd src
+           make format CF_FAIL_ON_DIFF=1 CLANG_FORMAT=clang-format-9
