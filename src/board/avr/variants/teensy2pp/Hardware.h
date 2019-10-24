@@ -52,7 +52,7 @@ limitations under the License.
 ///
 /// \brief Defines UART channel used for DIN MIDI.
 ///
-#define UART_MIDI_CHANNEL   0
+#define UART_MIDI_CHANNEL               0
 
 ///
 /// \brief Constant used to debounce button readings.

@@ -47,12 +47,12 @@ limitations under the License.
 ///
 /// \brief Defines UART channel used for DIN MIDI.
 ///
-#define UART_MIDI_CHANNEL   1
+#define UART_MIDI_CHANNEL               1
 
 ///
 /// \brief Defines UART channel used for communication with USB link.
 ///
-#define UART_USB_LINK_CHANNEL   0
+#define UART_USB_LINK_CHANNEL           0
 
 ///
 /// \brief Constant used to debounce button readings.
@@ -104,7 +104,7 @@ limitations under the License.
 ///
 /// \brief Defines UART channel used for touchscreen.
 ///
-#define UART_TOUCHSCREEN_CHANNEL    UART_MIDI_CHANNEL
+#define UART_TOUCHSCREEN_CHANNEL        UART_MIDI_CHANNEL
 
 ///
 /// \brief Maximum number of supported touchscreen buttons.

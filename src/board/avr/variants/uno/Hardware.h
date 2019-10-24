@@ -42,7 +42,7 @@ limitations under the License.
 ///
 /// \brief Defines UART channel used for communication with USB link.
 ///
-#define UART_USB_LINK_CHANNEL   0
+#define UART_USB_LINK_CHANNEL           0
 
 ///
 /// \brief Constant used to debounce button readings.

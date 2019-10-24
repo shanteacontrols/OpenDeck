@@ -104,7 +104,7 @@ limitations under the License.
 ///
 /// \brief Defines UART channel used for touchscreen.
 ///
-#define UART_TOUCHSCREEN_CHANNEL    0
+#define UART_TOUCHSCREEN_CHANNEL        0
 
 ///
 /// \brief Maximum number of supported touchscreen buttons.
