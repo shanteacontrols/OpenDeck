@@ -12,7 +12,10 @@ TARGET := build/$(TARGETNAME)
 include Defines.mk
 include Sources.mk
 
-CLANG-FORMAT := clang-format-8
+CLANG_FORMAT := clang-format
+
+#when set to 1, format target will fail if there are any changes to the repository after formatting
+CF_FAIL_ON_DIFF := 0
 
 #specify c/c++ compilers
 ifeq ($(ARCH),avr)
@@ -140,7 +143,20 @@ exe-scripts:
 
 format:
 	@echo Checking code formatting...
-	@find . -regex '.*\.\(cpp\|hpp\|h\|cc\|cxx\)' -not -path "*modules*" -not -name "*Constants.h" -not -name "*Commands.h" -not -name "*Pins.h" -not -name "*Hardware.h" -not -name "*Version.h" -not -name "*CustomIDs.h" -not -name "*Config.h" -not -name "*Descriptors.*" -exec $(CLANG-FORMAT) -i {} \;
+	@find . -regex '.*\.\(cpp\|hpp\|h\|cc\|cxx\)' \
+	-not -path "*modules*" \
+	-not -name "*Constants.h" \
+	-not -name "*Commands.h" \
+	-not -name "*Pins.h" \
+	-not -name "*Hardware.h" \
+	-not -name "*Version.h" \
+	-not -name "*CustomIDs.h" \
+	-not -name "*Config.h" \
+	-not -name "*Descriptors.*" \
+	-exec $(CLANG_FORMAT) -i {} \;
+ifeq ($(CF_FAIL_ON_DIFF), 1)
+	git diff -s --exit-code
+endif
 
 #debugging
 print-%:
