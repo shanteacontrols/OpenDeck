@@ -188,6 +188,12 @@ ifneq ($(HARDWARE_VERSION_MINOR), )
     DEFINES += HARDWARE_VERSION_MINOR=$(HARDWARE_VERSION_MINOR)
 endif
 
+ifeq ($(findstring boot,$(TARGETNAME)), boot)
+    DEFINES += FW_BOOT
+else
+    DEFINES += FW_APP
+endif
+
 #append VARIANT to DEFINES only if specified during build
 #make sure it's specifed in the following format:
 #VARIANT_%
