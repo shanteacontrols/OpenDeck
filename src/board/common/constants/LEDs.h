@@ -18,8 +18,6 @@ limitations under the License.
 
 #pragma once
 
-#include "core/src/general/IO.h"
-
 ///
 /// \brief Time in milliseconds during which MIDI event indicators on board are on when MIDI event happens.
 ///

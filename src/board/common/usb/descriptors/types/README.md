@@ -1,0 +1,1 @@
+This directory contains cherry-picked data types and helper macros from LUFA framework. These files are used for non-AVR MCUs in order for code to have common USB descriptor structures for all architectures.

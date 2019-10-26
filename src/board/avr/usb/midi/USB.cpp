@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#include "Descriptors.h"
+#include "board/common/usb/descriptors/Descriptors.h"
 #include "midi/src/MIDI.h"
 #include "board/Board.h"
 #include "board/Internal.h"
@@ -34,11 +34,55 @@ namespace
 /// This is fired when the host set the current configuration
 /// of the USB device after enumeration - the device endpoints are configured and the MIDI management task started.
 ///
-void EVENT_USB_Device_ConfigurationChanged(void)
+extern "C" void EVENT_USB_Device_ConfigurationChanged(void)
 {
     /* Setup MIDI Data Endpoints */
     Endpoint_ConfigureEndpoint(MIDI_STREAM_IN_EPADDR, EP_TYPE_BULK, MIDI_STREAM_EPSIZE, 1);
     Endpoint_ConfigureEndpoint(MIDI_STREAM_OUT_EPADDR, EP_TYPE_BULK, MIDI_STREAM_EPSIZE, 1);
+}
+
+/** This function is called by the library when in device mode, and must be overridden (see library "USB Descriptors"
+ *  documentation) by the application code so that the address and size of a requested descriptor can be given
+ *  to the USB library. When the device receives a Get Descriptor request on the control endpoint, this function
+ *  is called so that the descriptor details can be passed back and the appropriate descriptor sent back to the
+ *  USB host.
+ */
+extern "C" uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue, const uint16_t wIndex, const void** const DescriptorAddress)
+{
+    const uint8_t DescriptorType = (wValue >> 8);
+    const uint8_t DescriptorNumber = (wValue & 0xFF);
+
+    const void* Address = NULL;
+    uint16_t    Size = NO_DESCRIPTOR;
+
+    switch (DescriptorType)
+    {
+    case DTYPE_Device:
+        Address = USBgetDeviceDescriptor(&Size);
+        break;
+
+    case DTYPE_Configuration:
+        Address = USBgetCfgDescriptor(&Size);
+        break;
+
+    case DTYPE_String:
+        switch (DescriptorNumber)
+        {
+        case STRING_ID_Language:
+            Address = USBgetLanguageString(&Size);
+            break;
+        case STRING_ID_Manufacturer:
+            Address = USBgetManufacturerString(&Size);
+            break;
+        case STRING_ID_Product:
+            Address = USBgetProductString(&Size);
+            break;
+        }
+        break;
+    }
+
+    *DescriptorAddress = Address;
+    return Size;
 }
 
 namespace Board
