@@ -3,7 +3,7 @@
     "tasks": [
         {
             "label": "[FW/BTLDR] Build",
-            "command": "compiledb -d . make TARGETNAME=${input:target} LANG=C",
+            "command": "compiledb -d . make TARGETNAME=${input:target} LANG=C DEBUG=${input:debug}",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -163,6 +163,16 @@
                 "buttons",
                 "ringbuf",
                 "odmidi"
+            ]
+        },
+        {
+            "id": "debug",
+            "type": "pickString",
+            "default": "database",
+            "description": "Build debug version? (0/no, 1/yes)",
+            "options": [
+                "0",
+                "1"
             ]
         }
     ]
