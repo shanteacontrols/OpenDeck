@@ -160,7 +160,7 @@
                 "database",
                 "encoders",
                 "pots",
-                "buttons"
+                "buttons",
                 "ringbuf",
                 "odmidi"
             ]
