@@ -27,6 +27,7 @@ limitations under the License.
 #include "core/src/arch/avr/Misc.h"
 #include "core/src/general/IO.h"
 #include "core/src/general/Helpers.h"
+#include "core/src/general/Interrupt.h"
 #include "common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
 
 extern "C" void __cxa_pure_virtual()
@@ -61,7 +62,8 @@ namespace Board
 
     void init()
     {
-        cli();
+        DISABLE_INTERRUPTS();
+
         //disable watchdog
         MCUSR &= ~(1 << WDRF);
         wdt_disable();
@@ -79,6 +81,7 @@ namespace Board
 #endif
 
         detail::setup::timers();
+        ENABLE_INTERRUPTS();
     }
 
     void reboot(rebootType_t type)

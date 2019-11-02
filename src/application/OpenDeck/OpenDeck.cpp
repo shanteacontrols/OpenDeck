@@ -89,8 +89,6 @@ void OpenDeck::init()
     database.init();
     sysConfig.init();
 
-    ENABLE_INTERRUPTS();
-
     sysConfig.configureMIDI();
     Board::io::ledFlashStartup(Board::checkNewRevision());
 
