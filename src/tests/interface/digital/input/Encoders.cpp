@@ -349,7 +349,7 @@ TEST_F(EncodersTest, Debounce)
             EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i, 1), true);
         }
 
-        auto encValue = [this](Encoders::type_t type, Encoders::position_t position) {
+        auto encValue = [](Encoders::type_t type, Encoders::position_t position) {
             switch (type)
             {
             case Encoders::type_t::t7Fh01h:
