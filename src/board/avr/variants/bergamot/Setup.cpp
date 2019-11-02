@@ -17,6 +17,7 @@ limitations under the License.
 */
 
 #include "board/Internal.h"
+#include "board/common/io/Helpers.h"
 #include "Pins.h"
 #include "core/src/general/IO.h"
 #include "core/src/general/ADC.h"
@@ -126,8 +127,4 @@ namespace Board
             }
         }    // namespace setup
     }        // namespace detail
-
-    void ledFlashStartup(bool fwUpdated)
-    {
-    }
 }    // namespace Board

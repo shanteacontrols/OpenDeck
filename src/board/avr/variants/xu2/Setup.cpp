@@ -16,12 +16,10 @@ limitations under the License.
 
 */
 
-#include <util/delay.h>
-#include "board/Board.h"
+#include "board/Internal.h"
+#include "board/common/io/Helpers.h"
 #include "Pins.h"
-#include "board/common/constants/LEDs.h"
 #include "core/src/general/IO.h"
-#include "core/src/general/Atomic.h"
 
 namespace Board
 {
@@ -49,36 +47,4 @@ namespace Board
             }
         }    // namespace setup
     }        // namespace detail
-
-    void ledFlashStartup(bool fwUpdated)
-    {
-        //block interrupts here to avoid received midi traffic messing with indicator leds animation
-        ATOMIC_SECTION
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                if (fwUpdated)
-                {
-                    INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-                    INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-                    _delay_ms(LED_INDICATOR_STARTUP_DELAY);
-                    INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-                    INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-                    _delay_ms(LED_INDICATOR_STARTUP_DELAY);
-                }
-                else
-                {
-                    INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-                    INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-                    _delay_ms(LED_INDICATOR_STARTUP_DELAY);
-                    INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-                    INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-                    _delay_ms(LED_INDICATOR_STARTUP_DELAY);
-                }
-            }
-        }
-
-        INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-        INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-    }
 }    // namespace Board

@@ -16,13 +16,10 @@ limitations under the License.
 
 */
 
-#include <util/delay.h>
-#include "board/Board.h"
-#include "Pins.h"
 #include "board/Internal.h"
-#include "board/common/constants/LEDs.h"
+#include "board/common/io/Helpers.h"
+#include "Pins.h"
 #include "core/src/general/IO.h"
-#include "core/src/general/Atomic.h"
 #include "core/src/general/ADC.h"
 
 namespace Board
@@ -186,29 +183,4 @@ namespace Board
             }
         }    // namespace setup
     }        // namespace detail
-
-    void ledFlashStartup(bool fwUpdated)
-    {
-        //block interrupts here to avoid received midi traffic messing with indicator leds animation
-        ATOMIC_SECTION
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                if (fwUpdated)
-                {
-                    INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
-                    _delay_ms(500);
-                    INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
-                    _delay_ms(500);
-                }
-                else
-                {
-                    INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
-                    _delay_ms(200);
-                    INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
-                    _delay_ms(200);
-                }
-            }
-        }
-    }
 }    // namespace Board

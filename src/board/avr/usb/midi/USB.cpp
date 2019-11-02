@@ -130,7 +130,7 @@ namespace Board
                     Endpoint_ClearOUT();    //clear the endpoint ready for new packet
 
 #ifdef LED_INDICATORS
-                Board::detail::indicateMIDItraffic(MIDI::interface_t::usb, Board::detail::midiTrafficDirection_t::incoming);
+                Board::detail::io::indicateMIDItraffic(MIDI::interface_t::usb, Board::detail::midiTrafficDirection_t::incoming);
 #endif
 
                 return true;
@@ -159,7 +159,7 @@ namespace Board
             MIDI_Device_Flush(&MIDI_Interface);
 
 #ifdef LED_INDICATORS
-            Board::detail::indicateMIDItraffic(MIDI::interface_t::usb, Board::detail::midiTrafficDirection_t::outgoing);
+            Board::detail::io::indicateMIDItraffic(MIDI::interface_t::usb, Board::detail::midiTrafficDirection_t::outgoing);
 #endif
 
             return true;

@@ -176,7 +176,7 @@ bool SysConfig::onGet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
             break;
 
         case sysExSection_leds_rgbEnable:
-            success = database.read(block, sysEx2DB_leds[section], Board::interface::digital::output::getRGBID(index), readValue);
+            success = database.read(block, sysEx2DB_leds[section], Board::io::getRGBID(index), readValue);
             break;
 
         default:
@@ -543,12 +543,12 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
 
         case sysExSection_leds_rgbEnable:
             //make sure to turn all three leds off before setting new state
-            leds.setColor(Board::interface::digital::output::getRGBaddress(Board::interface::digital::output::getRGBID(index), Interface::digital::output::LEDs::rgbIndex_t::r), Interface::digital::output::LEDs::color_t::off);
-            leds.setColor(Board::interface::digital::output::getRGBaddress(Board::interface::digital::output::getRGBID(index), Interface::digital::output::LEDs::rgbIndex_t::g), Interface::digital::output::LEDs::color_t::off);
-            leds.setColor(Board::interface::digital::output::getRGBaddress(Board::interface::digital::output::getRGBID(index), Interface::digital::output::LEDs::rgbIndex_t::b), Interface::digital::output::LEDs::color_t::off);
+            leds.setColor(Board::io::getRGBaddress(Board::io::getRGBID(index), Interface::digital::output::LEDs::rgbIndex_t::r), Interface::digital::output::LEDs::color_t::off);
+            leds.setColor(Board::io::getRGBaddress(Board::io::getRGBID(index), Interface::digital::output::LEDs::rgbIndex_t::g), Interface::digital::output::LEDs::color_t::off);
+            leds.setColor(Board::io::getRGBaddress(Board::io::getRGBID(index), Interface::digital::output::LEDs::rgbIndex_t::b), Interface::digital::output::LEDs::color_t::off);
 
             //write rgb enabled bit to led
-            success = database.update(block, sysEx2DB_leds[section], Board::interface::digital::output::getRGBID(index), newValue);
+            success = database.update(block, sysEx2DB_leds[section], Board::io::getRGBID(index), newValue);
 
             if (newValue && success)
             {
@@ -556,17 +556,17 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
 
                 for (int i = 0; i < 3; i++)
                 {
-                    success = database.update(block, sysEx2DB_leds[sysExSection_leds_activationID], Board::interface::digital::output::getRGBaddress(Board::interface::digital::output::getRGBID(index), static_cast<Interface::digital::output::LEDs::rgbIndex_t>(i)), database.read(block, sysEx2DB_leds[sysExSection_leds_activationID], index));
+                    success = database.update(block, sysEx2DB_leds[sysExSection_leds_activationID], Board::io::getRGBaddress(Board::io::getRGBID(index), static_cast<Interface::digital::output::LEDs::rgbIndex_t>(i)), database.read(block, sysEx2DB_leds[sysExSection_leds_activationID], index));
 
                     if (!success)
                         break;
 
-                    success = database.update(block, sysEx2DB_leds[sysExSection_leds_controlType], Board::interface::digital::output::getRGBaddress(Board::interface::digital::output::getRGBID(index), static_cast<Interface::digital::output::LEDs::rgbIndex_t>(i)), database.read(block, sysEx2DB_leds[sysExSection_leds_controlType], index));
+                    success = database.update(block, sysEx2DB_leds[sysExSection_leds_controlType], Board::io::getRGBaddress(Board::io::getRGBID(index), static_cast<Interface::digital::output::LEDs::rgbIndex_t>(i)), database.read(block, sysEx2DB_leds[sysExSection_leds_controlType], index));
 
                     if (!success)
                         break;
 
-                    success = database.update(block, sysEx2DB_leds[sysExSection_leds_midiChannel], Board::interface::digital::output::getRGBaddress(Board::interface::digital::output::getRGBID(index), static_cast<Interface::digital::output::LEDs::rgbIndex_t>(i)), database.read(block, sysEx2DB_leds[sysExSection_leds_midiChannel], index));
+                    success = database.update(block, sysEx2DB_leds[sysExSection_leds_midiChannel], Board::io::getRGBaddress(Board::io::getRGBID(index), static_cast<Interface::digital::output::LEDs::rgbIndex_t>(i)), database.read(block, sysEx2DB_leds[sysExSection_leds_midiChannel], index));
 
                     if (!success)
                         break;
@@ -583,12 +583,12 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
                 newValue--;
 
             //first, find out if RGB led is enabled for this led index
-            if (database.read(block, sysEx2DB_leds[sysExSection_leds_rgbEnable], Board::interface::digital::output::getRGBID(index)))
+            if (database.read(block, sysEx2DB_leds[sysExSection_leds_rgbEnable], Board::io::getRGBID(index)))
             {
                 //rgb led enabled - copy these settings to all three leds
                 for (int i = 0; i < 3; i++)
                 {
-                    success = database.update(block, sysEx2DB_leds[section], Board::interface::digital::output::getRGBaddress(Board::interface::digital::output::getRGBID(index), static_cast<Interface::digital::output::LEDs::rgbIndex_t>(i)), newValue);
+                    success = database.update(block, sysEx2DB_leds[section], Board::io::getRGBaddress(Board::io::getRGBID(index), static_cast<Interface::digital::output::LEDs::rgbIndex_t>(i)), newValue);
 
                     if (!success)
                         break;

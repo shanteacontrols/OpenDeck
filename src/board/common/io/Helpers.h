@@ -19,16 +19,6 @@ limitations under the License.
 #pragma once
 
 ///
-/// \brief Time in milliseconds during which MIDI event indicators on board are on when MIDI event happens.
-///
-#define MIDI_INDICATOR_TIMEOUT 50
-
-///
-/// \brief Time in milliseconds for single startup animation cycle on built-in LED indicators.
-///
-#define LED_INDICATOR_STARTUP_DELAY 150
-
-///
 /// \brief Helper macros used for easier control of internal (on-board) and external LEDs.
 /// @{
 
@@ -49,6 +39,3 @@ limitations under the License.
 #endif
 
 /// @}
-
-#define FADE_TIME_MIN 0
-#define FADE_TIME_MAX 10

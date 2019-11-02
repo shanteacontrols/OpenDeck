@@ -73,7 +73,7 @@ ifeq ($(findstring boot,$(TARGETNAME)), boot)
             bootloader/mcu/variant/xu2.cpp \
             board/$(ARCH)/UART_LL.cpp \
             board/common/UART.cpp \
-            board/common/digital/Output.cpp
+            board/common/io/Indicators.cpp
         else
             SOURCES += \
             bootloader/mcu/variant/NativeUSB.cpp
@@ -101,13 +101,11 @@ else
     ifeq ($(BOARD_DIR),xu2)
         #fw for xu2 uses different set of sources than other targets
         SOURCES += \
-        board/common/digital/Output.cpp \
+        board/common/io/Indicators.cpp \
         board/common/UART.cpp
-
     else
         SOURCES += $(shell find ./board/common -maxdepth 1 -type f -name "*.cpp")
-        SOURCES += $(shell find ./board/common/analog -type f -name "*.cpp")
-        SOURCES += $(shell find ./board/common/digital -type f -name "*.cpp")
+        SOURCES += $(shell find ./board/common/io -type f -name "*.cpp")
         SOURCES += $(shell find ./application -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell find ./application/database -type f -name "*.cpp")
         SOURCES += $(shell find ./application/OpenDeck -type f -name "*.cpp")

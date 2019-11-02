@@ -20,16 +20,13 @@ limitations under the License.
 #include "board/Board.h"
 #include "board/Internal.h"
 #include "board/common/constants/Reboot.h"
-#include "board/common/constants/LEDs.h"
+#include "board/common/io/Helpers.h"
 #include "midi/src/Constants.h"
 #include "core/src/arch/avr/Reset.h"
 #include "core/src/general/ADC.h"
 #include "core/src/arch/avr/Misc.h"
 #include "core/src/general/IO.h"
 #include "core/src/general/Helpers.h"
-#include "board/common/digital/Input.h"
-#include "board/common/digital/Output.h"
-#include "board/common/analog/Analog.h"
 #include "common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
 
 extern "C" void __cxa_pure_virtual()
@@ -192,7 +189,7 @@ namespace Board
 ///
 ISR(ADC_vect)
 {
-    Board::interface::analog::detail::isrHandler(ADC);
+    Board::detail::io::adcISRHandler(ADC);
 }
 #endif
 
@@ -210,14 +207,14 @@ ISR(TIMER0_COMPA_vect)
         core::timing::detail::rTime_ms++;
 
 #ifdef LEDS_SUPPORTED
-        Board::interface::digital::output::detail::checkDigitalOutputs();
+        Board::detail::io::checkDigitalOutputs();
 #endif
 #ifdef LED_INDICATORS
-        Board::interface::digital::output::detail::checkIndicators();
+        Board::detail::io::checkIndicators();
 #endif
     }
 
 #ifndef BOARD_A_xu2
-    Board::interface::digital::input::detail::checkDigitalInputs();
+    Board::detail::io::checkDigitalInputs();
 #endif
 }

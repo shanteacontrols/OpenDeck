@@ -43,7 +43,7 @@ void Encoders::update()
         if (!database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i))
             continue;
 
-        position_t encoderState = read(i, Board::interface::digital::input::getEncoderPairState(i));
+        position_t encoderState = read(i, Board::io::getEncoderPairState(i));
 
         //disable debounce mode if encoder isn't moving for more than
         //ENCODERS_DEBOUNCE_RESET_TIME milliseconds

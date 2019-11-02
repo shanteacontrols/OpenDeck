@@ -18,8 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#include "constants/DigitalIn.h"
-#include "constants/LEDs.h"
+#include "constants/IO.h"
 #include "constants/Reboot.h"
 
 #ifdef __AVR__

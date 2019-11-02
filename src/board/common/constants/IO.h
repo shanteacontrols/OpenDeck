@@ -18,8 +18,6 @@ limitations under the License.
 
 #pragma once
 
-#ifndef BOARD_A_xu2
-
 ///
 /// \brief Size of array used to store all digital input readings.
 /// Values are stored in byte array - one bit represents single digital input value.
@@ -40,4 +38,16 @@ limitations under the License.
 /// is incremented (if there is space left).
 ///
 #define DIGITAL_IN_BUFFER_SIZE 5
-#endif
+
+///
+/// \brief Time in milliseconds during which MIDI event indicators on board are on when MIDI event happens.
+///
+#define MIDI_INDICATOR_TIMEOUT 50
+
+///
+/// \brief Time in milliseconds for single startup animation cycle on built-in LED indicators.
+///
+#define LED_INDICATOR_STARTUP_DELAY 150
+
+#define FADE_TIME_MIN 0
+#define FADE_TIME_MAX 10

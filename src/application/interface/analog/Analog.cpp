@@ -24,7 +24,7 @@ using namespace Interface::analog;
 
 void Analog::update()
 {
-    if (!Board::interface::analog::isDataAvailable())
+    if (!Board::io::isAnalogDataAvailable())
         return;
 
     //check values
@@ -34,7 +34,7 @@ void Analog::update()
         if (!database.read(DB_BLOCK_ANALOG, dbSection_analog_enable, i))
             continue;
 
-        int16_t analogData = Board::interface::analog::readValue(i);
+        int16_t analogData = Board::io::getAnalogValue(i);
         type_t  type = static_cast<type_t>(database.read(DB_BLOCK_ANALOG, dbSection_analog_type, i));
 
         if (expFilterUsed)
@@ -76,7 +76,7 @@ void Analog::update()
         }
     }
 
-    Board::interface::analog::continueReadout();
+    Board::io::continueAnalogReadout();
 }
 
 void Analog::debounceReset(uint16_t index)

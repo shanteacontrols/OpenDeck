@@ -129,42 +129,33 @@ class ButtonsTest : public ::testing::Test
 
 namespace Board
 {
-    namespace interface
+    namespace io
     {
-        namespace digital
+        uint8_t getEncoderPair(uint8_t buttonID)
         {
-            namespace input
-            {
-                uint8_t getEncoderPair(uint8_t buttonID)
-                {
-                    return 0;
-                }
+            return 0;
+        }
 
-                bool getButtonState(uint8_t buttonIndex)
-                {
-                    return testing::buttonState[buttonIndex];
-                }
-            }    // namespace input
+        bool getButtonState(uint8_t buttonIndex)
+        {
+            return testing::buttonState[buttonIndex];
+        }
 
-            namespace output
-            {
-                uint8_t getRGBID(uint8_t ledID)
-                {
-                    return 0;
-                }
+        uint8_t getRGBID(uint8_t ledID)
+        {
+            return 0;
+        }
 
-                uint8_t getRGBaddress(uint8_t rgbID, Interface::digital::output::LEDs::rgbIndex_t index)
-                {
-                    return 0;
-                }
+        uint8_t getRGBaddress(uint8_t rgbID, Interface::digital::output::LEDs::rgbIndex_t index)
+        {
+            return 0;
+        }
 
-                bool setLEDfadeSpeed(uint8_t transitionSpeed)
-                {
-                    return true;
-                }
-            }    // namespace output
-        }        // namespace digital
-    }            // namespace interface
+        bool setLEDfadeSpeed(uint8_t transitionSpeed)
+        {
+            return true;
+        }
+    }    // namespace io
 }    // namespace Board
 
 TEST_F(ButtonsTest, Debouncing)

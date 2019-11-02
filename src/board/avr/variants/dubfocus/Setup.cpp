@@ -16,13 +16,11 @@ limitations under the License.
 
 */
 
-#include <util/delay.h>
-#include "board/Board.h"
+#include "board/Internal.h"
+#include "board/common/io/Helpers.h"
 #include "Pins.h"
 #include "core/src/general/IO.h"
 #include "core/src/general/ADC.h"
-#include "board/common/constants/LEDs.h"
-#include "board/Internal.h"
 
 namespace Board
 {
@@ -153,8 +151,4 @@ namespace Board
             }
         }    // namespace setup
     }        // namespace detail
-
-    void ledFlashStartup(bool fwUpdated)
-    {
-    }
 }    // namespace Board

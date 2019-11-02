@@ -15,9 +15,12 @@ namespace testing
 
 namespace Board
 {
-    void ledFlashStartup(bool fwUpdated)
+    namespace io
     {
-    }
+        void ledFlashStartup(bool fwUpdated)
+        {
+        }
+    }    // namespace io
 
     void reboot(Board::rebootType_t type)
     {

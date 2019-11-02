@@ -16,46 +16,37 @@ namespace Board
         uint32_t adcReturnValue;
     }
 
-    namespace interface
+    namespace io
     {
-        namespace analog
+        int16_t getAnalogValue(uint8_t analogID)
         {
-            int16_t readValue(uint8_t analogID)
-            {
-                return detail::adcReturnValue;
-            }
+            return detail::adcReturnValue;
+        }
 
-            void continueReadout()
-            {
-            }
-
-            bool isDataAvailable()
-            {
-                return true;
-            }
-        }    // namespace analog
-
-        namespace digital
+        void continueAnalogReadout()
         {
-            namespace output
-            {
-                uint8_t getRGBID(uint8_t ledID)
-                {
-                    return 0;
-                }
+        }
 
-                uint8_t getRGBaddress(uint8_t rgbID, Interface::digital::output::LEDs::rgbIndex_t index)
-                {
-                    return 0;
-                }
+        bool isAnalogDataAvailable()
+        {
+            return true;
+        }
 
-                bool setLEDfadeSpeed(uint8_t transitionSpeed)
-                {
-                    return true;
-                }
-            }    // namespace output
-        }        // namespace digital
-    }            // namespace interface
+        uint8_t getRGBID(uint8_t ledID)
+        {
+            return 0;
+        }
+
+        uint8_t getRGBaddress(uint8_t rgbID, Interface::digital::output::LEDs::rgbIndex_t index)
+        {
+            return 0;
+        }
+
+        bool setLEDfadeSpeed(uint8_t transitionSpeed)
+        {
+            return true;
+        }
+    }    // namespace io
 }    // namespace Board
 
 namespace testing

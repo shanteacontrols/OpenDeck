@@ -199,14 +199,14 @@ namespace Board
 ISR(USART_RX_vect_0)
 {
     uint8_t data = UDR_0;
-    Board::detail::UART::isr::storeIncomingData(0, data);
+    Board::detail::UART::storeIncomingData(0, data);
 }
 
 #if UART_INTERFACES > 1
 ISR(USART_RX_vect_1)
 {
     uint8_t data = UDR_1;
-    Board::detail::UART::isr::storeIncomingData(1, data);
+    Board::detail::UART::storeIncomingData(1, data);
 }
 #endif
 
@@ -220,7 +220,7 @@ ISR(USART_UDRE_vect_0)
 {
     uint8_t data;
 
-    if (Board::detail::UART::isr::getNextByteToSend(0, data))
+    if (Board::detail::UART::getNextByteToSend(0, data))
         UDR_0 = data;
 }
 
@@ -229,7 +229,7 @@ ISR(USART_UDRE_vect_1)
 {
     uint8_t data;
 
-    if (Board::detail::UART::isr::getNextByteToSend(1, data))
+    if (Board::detail::UART::getNextByteToSend(1, data))
         UDR_1 = data;
 }
 #endif
@@ -242,13 +242,13 @@ ISR(USART_UDRE_vect_1)
 
 ISR(USART_TX_vect_0)
 {
-    Board::detail::UART::isr::indicateTxComplete(0);
+    Board::detail::UART::indicateTxComplete(0);
 }
 
 #if UART_INTERFACES > 1
 ISR(USART_TX_vect_1)
 {
-    Board::detail::UART::isr::indicateTxComplete(1);
+    Board::detail::UART::indicateTxComplete(1);
 }
 #endif
 

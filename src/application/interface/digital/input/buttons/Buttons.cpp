@@ -29,10 +29,10 @@ void Buttons::update()
 {
     for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
     {
-        if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, Board::interface::digital::input::getEncoderPair(i)))
+        if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, Board::io::getEncoderPair(i)))
             continue;
 
-        bool state = Board::interface::digital::input::getButtonState(i);
+        bool state = Board::io::getButtonState(i);
 
         if (!buttonDebounced(i, state))
             continue;

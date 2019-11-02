@@ -278,7 +278,7 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
         }
 
         auto color = color_t::off;
-        bool rgbEnabled = database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, Board::interface::digital::output::getRGBID(i));
+        bool rgbEnabled = database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, Board::io::getRGBID(i));
 
         if (setState)
         {
@@ -354,13 +354,13 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
 void LEDs::setBlinkState(uint8_t ledID, blinkSpeed_t state)
 {
     uint8_t ledArray[3], leds = 0;
-    uint8_t rgbIndex = Board::interface::digital::output::getRGBID(ledID);
+    uint8_t rgbIndex = Board::io::getRGBID(ledID);
 
     if (database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, rgbIndex))
     {
-        ledArray[0] = Board::interface::digital::output::getRGBaddress(rgbIndex, rgbIndex_t::r);
-        ledArray[1] = Board::interface::digital::output::getRGBaddress(rgbIndex, rgbIndex_t::g);
-        ledArray[2] = Board::interface::digital::output::getRGBaddress(rgbIndex, rgbIndex_t::b);
+        ledArray[0] = Board::io::getRGBaddress(rgbIndex, rgbIndex_t::r);
+        ledArray[1] = Board::io::getRGBaddress(rgbIndex, rgbIndex_t::g);
+        ledArray[2] = Board::io::getRGBaddress(rgbIndex, rgbIndex_t::b);
 
         leds = 3;
     }
@@ -407,13 +407,13 @@ void LEDs::setAllOff()
 
 void LEDs::setColor(uint8_t ledID, color_t color)
 {
-    uint8_t rgbIndex = Board::interface::digital::output::getRGBID(ledID);
+    uint8_t rgbIndex = Board::io::getRGBID(ledID);
 
     if (database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, rgbIndex))
     {
-        uint8_t led1 = Board::interface::digital::output::getRGBaddress(rgbIndex, rgbIndex_t::r);
-        uint8_t led2 = Board::interface::digital::output::getRGBaddress(rgbIndex, rgbIndex_t::g);
-        uint8_t led3 = Board::interface::digital::output::getRGBaddress(rgbIndex, rgbIndex_t::b);
+        uint8_t led1 = Board::io::getRGBaddress(rgbIndex, rgbIndex_t::r);
+        uint8_t led2 = Board::io::getRGBaddress(rgbIndex, rgbIndex_t::g);
+        uint8_t led3 = Board::io::getRGBaddress(rgbIndex, rgbIndex_t::b);
 
         handleLED(led1, BIT_READ(static_cast<uint8_t>(color), 0));
         handleLED(led2, BIT_READ(static_cast<uint8_t>(color), 1));
@@ -443,10 +443,10 @@ LEDs::color_t LEDs::getColor(uint8_t ledID)
         else
         {
             //rgb led
-            uint8_t rgbIndex = Board::interface::digital::output::getRGBID(ledID);
-            uint8_t led1 = getState(Board::interface::digital::output::getRGBaddress(rgbIndex, rgbIndex_t::r));
-            uint8_t led2 = getState(Board::interface::digital::output::getRGBaddress(rgbIndex, rgbIndex_t::g));
-            uint8_t led3 = getState(Board::interface::digital::output::getRGBaddress(rgbIndex, rgbIndex_t::b));
+            uint8_t rgbIndex = Board::io::getRGBID(ledID);
+            uint8_t led1 = getState(Board::io::getRGBaddress(rgbIndex, rgbIndex_t::r));
+            uint8_t led2 = getState(Board::io::getRGBaddress(rgbIndex, rgbIndex_t::g));
+            uint8_t led3 = getState(Board::io::getRGBaddress(rgbIndex, rgbIndex_t::b));
 
             uint8_t color = 0;
             color |= BIT_READ(led1, LED_RGB_B_BIT);
@@ -472,7 +472,7 @@ bool LEDs::getBlinkState(uint8_t ledID)
 
 bool LEDs::setFadeTime(uint8_t transitionSpeed)
 {
-    return Board::interface::digital::output::setLEDfadeSpeed(transitionSpeed);
+    return Board::io::setLEDfadeSpeed(transitionSpeed);
 }
 
 void LEDs::handleLED(uint8_t ledID, bool state, bool rgbLED, rgbIndex_t index)

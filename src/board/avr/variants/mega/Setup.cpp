@@ -16,14 +16,11 @@ limitations under the License.
 
 */
 
-#include <util/delay.h>
-#include "board/Board.h"
-#include "Pins.h"
 #include "board/Internal.h"
-#include "board/common/constants/LEDs.h"
+#include "board/common/io/Helpers.h"
+#include "Pins.h"
 #include "core/src/general/IO.h"
 #include "core/src/general/ADC.h"
-#include "common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
 
 namespace Board
 {
@@ -266,23 +263,4 @@ namespace Board
             }
         }    // namespace setup
     }        // namespace detail
-
-    void ledFlashStartup(bool fwUpdated)
-    {
-        //there are no indicator leds on atmega2560
-        //instead, send special command to USB link which will display indicator led animation
-
-        MIDI::USBMIDIpacket_t packet;
-
-        if (fwUpdated)
-            packet.Event = static_cast<uint8_t>(OpenDeckMIDIformat::command_t::fwUpdated);
-        else
-            packet.Event = static_cast<uint8_t>(OpenDeckMIDIformat::command_t::fwNotUpdated);
-
-        packet.Data1 = 0x00;
-        packet.Data2 = 0x00;
-        packet.Data3 = 0x00;
-
-        OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, packet, OpenDeckMIDIformat::packetType_t::internalCommand);
-    }
 }    // namespace Board

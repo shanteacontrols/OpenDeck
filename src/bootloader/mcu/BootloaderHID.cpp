@@ -23,7 +23,7 @@ limitations under the License.
 #include "core/src/arch/avr/Misc.h"
 #include "core/src/general/Helpers.h"
 #include "core/src/general/Timing.h"
-#include "board/common/constants/LEDs.h"
+#include "board/common/io/Helpers.h"
 #include "board/common/constants/Reboot.h"
 #include "Pins.h"
 #include "board/Board.h"

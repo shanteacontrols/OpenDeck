@@ -56,81 +56,72 @@ class EncodersTest : public ::testing::Test
 
 namespace Board
 {
-    namespace interface
+    namespace io
     {
-        namespace digital
+        using namespace Interface::digital::input;
+
+        namespace
         {
-            namespace input
+            Encoders::position_t encoderPosition[MAX_NUMBER_OF_ENCODERS];
+
+            int8_t  stateCounter[MAX_NUMBER_OF_ENCODERS] = {};
+            uint8_t lastState[MAX_NUMBER_OF_ENCODERS] = {};
+
+            const uint8_t stateArray[4] = {
+                0b01,
+                0b11,
+                0b10,
+                0b00
+            };
+        }    // namespace
+
+        uint8_t getEncoderPairState(uint8_t encoderID)
+        {
+            uint8_t returnValue = 0;
+
+            if (encoderPosition[encoderID] == Encoders::position_t::ccw)
             {
-                using namespace Interface::digital::input;
+                returnValue = stateArray[stateCounter[encoderID]];
 
-                namespace
-                {
-                    Encoders::position_t encoderPosition[MAX_NUMBER_OF_ENCODERS];
-
-                    int8_t  stateCounter[MAX_NUMBER_OF_ENCODERS] = {};
-                    uint8_t lastState[MAX_NUMBER_OF_ENCODERS] = {};
-
-                    const uint8_t stateArray[4] = {
-                        0b01,
-                        0b11,
-                        0b10,
-                        0b00
-                    };
-                }    // namespace
-
-                uint8_t getEncoderPairState(uint8_t encoderID)
-                {
-                    uint8_t returnValue = 0;
-
-                    if (encoderPosition[encoderID] == Encoders::position_t::ccw)
-                    {
-                        returnValue = stateArray[stateCounter[encoderID]];
-
-                        if (++stateCounter[encoderID] >= 4)
-                            stateCounter[encoderID] = 0;
-                    }
-                    else if (encoderPosition[encoderID] == Encoders::position_t::cw)
-                    {
-                        if (--stateCounter[encoderID] < 0)
-                            stateCounter[encoderID] = 3;
-
-                        returnValue = stateArray[stateCounter[encoderID]];
-                    }
-
-                    if (returnValue == lastState[encoderID])
-                        return getEncoderPairState(encoderID);
-
-                    lastState[encoderID] = returnValue;
-                    return returnValue;
-                }
-
-                void setEncoderState(uint8_t encoderID, Encoders::position_t position)
-                {
-                    controlValue[encoderID] = 0;
-                    encoderPosition[encoderID] = position;
-                }
-            }    // namespace input
-
-            namespace output
+                if (++stateCounter[encoderID] >= 4)
+                    stateCounter[encoderID] = 0;
+            }
+            else if (encoderPosition[encoderID] == Encoders::position_t::cw)
             {
-                uint8_t getRGBID(uint8_t ledID)
-                {
-                    return 0;
-                }
+                if (--stateCounter[encoderID] < 0)
+                    stateCounter[encoderID] = 3;
 
-                uint8_t getRGBaddress(uint8_t rgbID, Interface::digital::output::LEDs::rgbIndex_t index)
-                {
-                    return 0;
-                }
+                returnValue = stateArray[stateCounter[encoderID]];
+            }
 
-                bool setLEDfadeSpeed(uint8_t transitionSpeed)
-                {
-                    return true;
-                }
-            }    // namespace output
-        }        // namespace digital
-    }            // namespace interface
+            if (returnValue == lastState[encoderID])
+                return getEncoderPairState(encoderID);
+
+            lastState[encoderID] = returnValue;
+            return returnValue;
+        }
+
+        void setEncoderState(uint8_t encoderID, Encoders::position_t position)
+        {
+            controlValue[encoderID] = 0;
+            encoderPosition[encoderID] = position;
+        }
+
+        uint8_t getRGBID(uint8_t ledID)
+        {
+            return 0;
+        }
+
+        uint8_t getRGBaddress(uint8_t rgbID, Interface::digital::output::LEDs::rgbIndex_t index)
+        {
+            return 0;
+        }
+
+        bool setLEDfadeSpeed(uint8_t transitionSpeed)
+        {
+            return true;
+        }
+    }    // namespace io
 }    // namespace Board
 
 TEST_F(EncodersTest, StateDecoding)
@@ -411,7 +402,7 @@ TEST_F(EncodersTest, Debounce)
 
         for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
         {
-            Board::interface::digital::input::setEncoderState(i, Encoders::position_t::ccw);
+            Board::io::setEncoderState(i, Encoders::position_t::ccw);
             testValue[i] = Encoders::position_t::ccw;
         }
 
@@ -424,7 +415,7 @@ TEST_F(EncodersTest, Debounce)
         // set new direction
         for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
         {
-            Board::interface::digital::input::setEncoderState(i, Encoders::position_t::cw);
+            Board::io::setEncoderState(i, Encoders::position_t::cw);
             testValue[i] = Encoders::position_t::cw;
         }
 
@@ -485,7 +476,7 @@ TEST_F(EncodersTest, Debounce)
 
             for (int j = 0; j < MAX_NUMBER_OF_ENCODERS; j++)
             {
-                Board::interface::digital::input::setEncoderState(j, encoderPositionTest1[i]);
+                Board::io::setEncoderState(j, encoderPositionTest1[i]);
                 testValue[j] = Encoders::position_t::cw;
             }
 
@@ -503,7 +494,7 @@ TEST_F(EncodersTest, Debounce)
 
             for (int j = 0; j < MAX_NUMBER_OF_ENCODERS; j++)
             {
-                Board::interface::digital::input::setEncoderState(j, encoderPositionTest1[i]);
+                Board::io::setEncoderState(j, encoderPositionTest1[i]);
                 testValue[j] = encoderPositionTest1[i];
             }
 
@@ -560,7 +551,7 @@ TEST_F(EncodersTest, Debounce)
 
             for (int j = 0; j < MAX_NUMBER_OF_ENCODERS; j++)
             {
-                Board::interface::digital::input::setEncoderState(j, encoderPositionTest2[i]);
+                Board::io::setEncoderState(j, encoderPositionTest2[i]);
                 testValue[j] = Encoders::position_t::cw;
             }
 
@@ -574,7 +565,7 @@ TEST_F(EncodersTest, Debounce)
 
             for (int j = 0; j < MAX_NUMBER_OF_ENCODERS; j++)
             {
-                Board::interface::digital::input::setEncoderState(j, encoderPositionTest2[i]);
+                Board::io::setEncoderState(j, encoderPositionTest2[i]);
                 testValue[j] = Encoders::position_t::cw;
             }
 
@@ -588,7 +579,7 @@ TEST_F(EncodersTest, Debounce)
 
             for (int j = 0; j < MAX_NUMBER_OF_ENCODERS; j++)
             {
-                Board::interface::digital::input::setEncoderState(j, encoderPositionTest2[i]);
+                Board::io::setEncoderState(j, encoderPositionTest2[i]);
                 testValue[j] = Encoders::position_t::ccw;
             }
 
@@ -634,7 +625,7 @@ TEST_F(EncodersTest, Acceleration)
 
         //all encoders should move in the same direction
         for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
-            Board::interface::digital::input::setEncoderState(i, Encoders::position_t::cw);
+            Board::io::setEncoderState(i, Encoders::position_t::cw);
 
         core::timing::detail::rTime_ms = 1;
 

@@ -109,35 +109,32 @@ namespace Board
                 void directWrite(uint8_t channel, uint8_t data);
             }    // namespace ll
 
-            namespace isr
-            {
-                ///
-                /// \brief Global ISR handler for all UART events.
-                /// @param [in] channel UART channel on MCU.
-                ///
-                void isrHandler(uint8_t channel);
+            ///
+            /// \brief Global ISR handler for all UART events.
+            /// @param [in] channel UART channel on MCU.
+            ///
+            void isrHandler(uint8_t channel);
 
-                ///
-                /// \brief Used to store incoming data from UART to buffer.
-                /// @param [in] channel UART channel on MCU.
-                /// @param [in] data    Received data.
-                ///
-                void storeIncomingData(uint8_t channel, uint8_t data);
+            ///
+            /// \brief Used to store incoming data from UART to buffer.
+            /// @param [in] channel UART channel on MCU.
+            /// @param [in] data    Received data.
+            ///
+            void storeIncomingData(uint8_t channel, uint8_t data);
 
-                ///
-                /// \brief Retrieves the next byte from the outgoing ring buffer.
-                /// @param [in] channel UART channel on MCU.
-                /// @param [in] data    Data to send.
-                ///
-                bool getNextByteToSend(uint8_t channel, uint8_t& data);
+            ///
+            /// \brief Retrieves the next byte from the outgoing ring buffer.
+            /// @param [in] channel UART channel on MCU.
+            /// @param [in] data    Data to send.
+            ///
+            bool getNextByteToSend(uint8_t channel, uint8_t& data);
 
-                ///
-                /// \brief Used to indicate that the transmission is complete.
-                /// @param [in] channel UART channel on MCU.
-                ///
-                void indicateTxComplete(uint8_t channel);
-            }    // namespace isr
-        }        // namespace UART
+            ///
+            /// \brief Used to indicate that the transmission is complete.
+            /// @param [in] channel UART channel on MCU.
+            ///
+            void indicateTxComplete(uint8_t channel);
+        }    // namespace UART
 
         namespace map
         {
@@ -184,13 +181,37 @@ namespace Board
 #endif
         }    // namespace map
 
+        namespace io
+        {
+            ///
+            /// \brief Called in ADC ISR once the conversion is done.
+            /// @param [in] adcValue    Retrieved ADC value.
+            ///
+            void adcISRHandler(uint16_t adcValue);
+
+            ///
+            /// \brief Continuously reads all digital inputs.
+            ///
+            void checkDigitalInputs();
+
+            ///
+            /// \brief Checks if digital outputs need to be updated (state and PWM control).
+            ///
+            void checkDigitalOutputs();
+
 #ifdef LED_INDICATORS
-        ///
-        /// \brief Used to indicate that the MIDI event has occured using built-in LEDs on board.
-        /// @param [source]     Source of MIDI data. See MIDI::interface_t enumeration.
-        /// @param [direction]  Direction of MIDI data. See midiTrafficDirection_t enumeration.
-        ///
-        void indicateMIDItraffic(MIDI::interface_t source, midiTrafficDirection_t direction);
+            ///
+            /// \brief Used to indicate that the MIDI event has occured using built-in LEDs on board.
+            /// @param [source]     Source of MIDI data. See MIDI::interface_t enumeration.
+            /// @param [direction]  Direction of MIDI data. See midiTrafficDirection_t enumeration.
+            ///
+            void indicateMIDItraffic(MIDI::interface_t source, midiTrafficDirection_t direction);
+
+            ///
+            /// \brief Checks if indicator LEDs need to be turned on or off.
+            ///
+            void checkIndicators();
 #endif
-    }    // namespace detail
+        }    // namespace io
+    }        // namespace detail
 }    // namespace Board

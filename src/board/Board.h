@@ -55,14 +55,6 @@ namespace Board
     ///
     bool checkNewRevision();
 
-    ///
-    /// \brief Flashes integrated LEDs on board on startup.
-    /// Pattern differs depending on whether firmware is updated or not.
-    /// @param[in] fwUpdated    If set to true, "Firmware updated" pattern will be
-    ///                         used to flash the LEDs.
-    ///
-    void ledFlashStartup(bool fwUpdated);
-
     namespace USB
     {
         ///
@@ -128,96 +120,92 @@ namespace Board
         bool isTxEmpty(uint8_t channel);
     }    // namespace UART
 
-    namespace interface
+    namespace io
     {
-        namespace digital
-        {
-            namespace input
-            {
-                ///
-                /// \brief Checks if digital input data is available (encoder and button data).
-                /// Digital input data is read in ISR and stored into ring buffer.
-                /// \returns True if data is available, false otherwise.
-                ///
-                bool isDataAvailable();
+        ///
+        /// \brief Flashes integrated LEDs on board on startup.
+        /// Pattern differs depending on whether firmware is updated or not.
+        /// @param[in] fwUpdated    If set to true, "Firmware updated" pattern will be
+        ///                         used to flash the LEDs.
+        ///
+        void ledFlashStartup(bool fwUpdated);
 
-                ///
-                /// \brief Returns last read button state for requested button index.
-                /// @param [in] buttonIndex Index of button which should be read.
-                /// \returns True if button is pressed, false otherwise.
-                ///
-                bool getButtonState(uint8_t buttonIndex);
+        ///
+        /// \brief Checks if digital input data is available (encoder and button data).
+        /// Digital input data is read in ISR and stored into ring buffer.
+        /// \returns True if data is available, false otherwise.
+        ///
+        bool isInputDataAvailable();
 
-                ///
-                /// \brief Calculates encoder pair number based on provided button ID.
-                /// @param [in] buttonID   Button index from which encoder pair is being calculated.
-                /// \returns Calculated encoder pair number.
-                ///
-                uint8_t getEncoderPair(uint8_t buttonID);
+        ///
+        /// \brief Returns last read button state for requested button index.
+        /// @param [in] buttonIndex Index of button which should be read.
+        /// \returns True if button is pressed, false otherwise.
+        ///
+        bool getButtonState(uint8_t buttonIndex);
 
-                ///
-                /// \brief Checks state of requested encoder.
-                /// @param [in] encoderID       Encoder which is being checked.
-                /// \returns Pair state of the specified encoder (A and B signals stored in bits 0 and 1).
-                ///
-                uint8_t getEncoderPairState(uint8_t encoderID);
-            }    // namespace input
+        ///
+        /// \brief Calculates encoder pair number based on provided button ID.
+        /// @param [in] buttonID   Button index from which encoder pair is being calculated.
+        /// \returns Calculated encoder pair number.
+        ///
+        uint8_t getEncoderPair(uint8_t buttonID);
 
-            namespace output
-            {
+        ///
+        /// \brief Checks state of requested encoder.
+        /// @param [in] encoderID       Encoder which is being checked.
+        /// \returns Pair state of the specified encoder (A and B signals stored in bits 0 and 1).
+        ///
+        uint8_t getEncoderPairState(uint8_t encoderID);
+
 #ifdef LEDS_SUPPORTED
-                ///
-                /// \brief Used to calculate index of R, G or B component of RGB LED.
-                /// @param [in] rgbID   Index of RGB LED.
-                /// @param [in] index   R, G or B component (enumerated type, see rgbIndex_t).
-                /// \returns Calculated index of R, G or B component of RGB LED.
-                ///
-                uint8_t getRGBaddress(uint8_t rgbID, Interface::digital::output::LEDs::rgbIndex_t index);
+        ///
+        /// \brief Used to calculate index of R, G or B component of RGB LED.
+        /// @param [in] rgbID   Index of RGB LED.
+        /// @param [in] index   R, G or B component (enumerated type, see rgbIndex_t).
+        /// \returns Calculated index of R, G or B component of RGB LED.
+        ///
+        uint8_t getRGBaddress(uint8_t rgbID, Interface::digital::output::LEDs::rgbIndex_t index);
 
-                ///
-                /// \brief Calculates RGB LED index based on provided single-color LED index.
-                /// @param [in] ledID   Index of single-color LED.
-                /// \returns Calculated index of RGB LED.
-                ///
-                uint8_t getRGBID(uint8_t ledID);
+        ///
+        /// \brief Calculates RGB LED index based on provided single-color LED index.
+        /// @param [in] ledID   Index of single-color LED.
+        /// \returns Calculated index of RGB LED.
+        ///
+        uint8_t getRGBID(uint8_t ledID);
 
-                ///
-                /// \brief Sets LED transition speed.
-                /// @param [in] transitionSpeed Transition speed.
-                /// \returns    True on success (transition speed is in range).
-                ///             See board/common/constants/LEDs.h for range.
-                ///
-                bool setLEDfadeSpeed(uint8_t transitionSpeed);
+        ///
+        /// \brief Sets LED transition speed.
+        /// @param [in] transitionSpeed Transition speed.
+        /// \returns    True on success (transition speed is in range).
+        ///             See board/common/constants/IO.h for range.
+        ///
+        bool setLEDfadeSpeed(uint8_t transitionSpeed);
 #endif
-            }    // namespace output
-        }        // namespace digital
 
-        namespace analog
-        {
-            ///
-            /// \brief Checks if data from multiplexers is available.
-            /// Data is read in ISR and stored into samples array.
-            /// Once all mux inputs are read, data is considered available.
-            /// At this point, analogSamplingDone variable is reset
-            /// to stop further data reading from ISR until continueReadout
-            /// function is called.
-            /// \returns True if data is available, false otherwise.
-            ///
-            bool isDataAvailable();
+        ///
+        /// \brief Checks if data from multiplexers is available.
+        /// Data is read in ISR and stored into samples array.
+        /// Once all mux inputs are read, data is considered available.
+        /// At this point, analogSamplingDone variable is reset
+        /// to stop further data reading from ISR until continueAnalogReadout
+        /// function is called.
+        /// \returns True if data is available, false otherwise.
+        ///
+        bool isAnalogDataAvailable();
 
-            ///
-            /// brief Checks for current analog value for specified analog index.
-            /// @param[in] analogID     Analog index for which ADC value is being checked.
-            /// \returns ADC value for requested analog index.
-            ///
-            int16_t readValue(uint8_t analogID);
+        ///
+        /// brief Checks for current analog value for specified analog index.
+        /// @param[in] analogID     Analog index for which ADC value is being checked.
+        /// \returns ADC value for requested analog index.
+        ///
+        int16_t getAnalogValue(uint8_t analogID);
 
-            ///
-            /// \brief Resets active pad index and starts data acquisition from pads again.
-            ///
-            void continueReadout();
-        }    // namespace analog
-    }        // namespace interface
+        ///
+        /// \brief Resets the analog sampling procedure.
+        ///
+        void continueAnalogReadout();
+    }    // namespace io
 
     namespace eeprom
     {

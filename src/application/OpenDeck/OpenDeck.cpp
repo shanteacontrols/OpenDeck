@@ -92,7 +92,7 @@ void OpenDeck::init()
     ENABLE_INTERRUPTS();
 
     sysConfig.configureMIDI();
-    Board::ledFlashStartup(Board::checkNewRevision());
+    Board::io::ledFlashStartup(Board::checkNewRevision());
 
 #ifdef LEDS_SUPPORTED
     leds.init();
@@ -163,7 +163,7 @@ void OpenDeck::checkComponents()
 {
     if (sysConfig.isProcessingEnabled())
     {
-        if (Board::interface::digital::input::isDataAvailable())
+        if (Board::io::isInputDataAvailable())
         {
             buttons.update();
             encoders.update();
