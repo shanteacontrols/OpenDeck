@@ -211,6 +211,16 @@ namespace Board
             /// \brief Checks if indicator LEDs need to be turned on or off.
             ///
             void checkIndicators();
+
+            ///
+            /// \brief Enables the checking of LED indicators in ISR.
+            ///
+            void enableIndicators();
+
+            ///
+            /// \brief Disables the checking of LED indicators in ISR.
+            ///
+            void disableIndicators();
 #endif
         }    // namespace io
     }        // namespace detail
