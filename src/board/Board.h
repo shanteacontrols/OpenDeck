@@ -43,7 +43,7 @@ namespace Board
 
     ///
     /// \brief Performs software MCU reboot.
-    /// @param [type]   Type of reset to perform. See rebootType_t enumeration.
+    /// @param [in] type    Type of reset to perform. See rebootType_t enumeration.
     ///
     void reboot(rebootType_t type);
 
