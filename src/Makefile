@@ -144,6 +144,7 @@ exe-scripts:
 format:
 	@echo Checking code formatting...
 	@find . -regex '.*\.\(cpp\|hpp\|h\|cc\|cxx\)' \
+	-not -path "*gen*" \
 	-not -path "*modules*" \
 	-not -name "*Constants.h" \
 	-not -name "*Commands.h" \
