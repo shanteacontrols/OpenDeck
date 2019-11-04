@@ -138,7 +138,7 @@ namespace
 #endif
 
         pin = Board::detail::map::led(row);
-        EXT_LED_OFF(*pin.port, pin.index);
+        EXT_LED_OFF(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
     }
 
     ///
@@ -159,7 +159,7 @@ namespace
             pin = Board::detail::map::led(row);
 
             //max value, don't use pwm
-            EXT_LED_ON(*pin.port, pin.index);
+            EXT_LED_ON(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
         }
 #ifdef LED_FADING
         else
@@ -371,9 +371,9 @@ namespace Board
                     if (ledStateSingle != lastLEDstate[i])
                     {
                         if (ledStateSingle)
-                            EXT_LED_ON(*pin.port, pin.index);
+                            EXT_LED_ON(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
                         else
-                            EXT_LED_OFF(*pin.port, pin.index);
+                            EXT_LED_OFF(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
 
                         lastLEDstate[i] = ledStateSingle;
                     }

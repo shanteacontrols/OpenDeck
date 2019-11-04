@@ -111,7 +111,7 @@ namespace
 
                 pin = Board::detail::map::button(buttonIndex);
 
-                BIT_WRITE(digitalInBuffer[dIn_head][i], j, !CORE_IO_READ(*pin.port, pin.index));
+                BIT_WRITE(digitalInBuffer[dIn_head][i], j, !CORE_IO_READ(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin)));
             }
         }
     }
