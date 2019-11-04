@@ -36,6 +36,22 @@ namespace Board
         rebootBtldr    ///< Reboot to bootloader.
     };
 
+#ifdef UID_BITS
+    ///
+    /// \brief Structure holding unique ID for MCU.
+    ///
+    typedef struct
+    {
+        uint8_t uid[UID_BITS / 8];
+    } uniqueID_t;
+
+    ///
+    /// \brief Retrieves MCU-specific unique ID number.
+    /// @param [in] uid Reference to structure in which retrieved UID will be stored.
+    ///
+    void uniqueID(uniqueID_t& uid);
+#endif
+
     ///
     /// \brief Perfoms initialization of MCU and all board peripherals.
     ///
