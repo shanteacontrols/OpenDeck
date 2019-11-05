@@ -4,66 +4,56 @@
 DEFINES :=
 
 TARGETNAME := fw_opendeck
+BOARD_DIR := $(subst fw_,,$(TARGETNAME))
+
+#determine the architecture by directory in which the board dir is located
+ifeq ($(findstring avr,$(shell find ../ -type d -name *$(BOARD_DIR))), avr)
+    ARCH := avr
+else ifeq ($(findstring stm32,$(shell find . -type d -name *$(BOARD_DIR))), stm32)
+    ARCH := stm32
+endif
 
 #board specific
-ifeq ($(TARGETNAME), fw_opendeck)
+ifneq ($(shell cat ../board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep atmega32u4), )
     MCU := atmega32u4
-    BOARD := BOARD_OPEN_DECK
-else ifeq ($(TARGETNAME), fw_leonardo)
-    MCU := atmega32u4
-    BOARD := BOARD_A_LEO
-else ifeq ($(TARGETNAME), fw_pro_micro)
-    MCU := atmega32u4
-    BOARD := BOARD_A_PRO_MICRO
-else ifeq ($(TARGETNAME), fw_dubfocus)
-    MCU := atmega32u4
-    BOARD := BOARD_DUBFOCUS
-else ifeq ($(TARGETNAME), fw_bergamot)
-    MCU := atmega32u4
-    BOARD := BOARD_BERGAMOT
-else ifeq ($(TARGETNAME), fw_teensy2pp)
+else ifneq ($(shell cat ../board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep at90usb1286), )
     MCU := at90usb1286
-    BOARD := BOARD_T_2PP
-else ifeq ($(TARGETNAME), fw_mega)
-    MCU := atmega2560
-    BOARD := BOARD_A_MEGA
-else ifeq ($(TARGETNAME), fw_mega6mux)
-    MCU := atmega2560
-    BOARD := BOARD_A_MEGA6MUX
-else ifeq ($(TARGETNAME), fw_uno)
-    MCU := atmega328p
-    BOARD := BOARD_A_UNO
-else ifeq ($(TARGETNAME), fw_16u2)
+else ifneq ($(shell cat ../board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep atmega16u2), )
     MCU := atmega16u2
-    BOARD := BOARD_A_xu2
-else ifeq ($(TARGETNAME), fw_8u2)
+else ifneq ($(shell cat ../board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep atmega8u2), )
     MCU := atmega8u2
-    BOARD := BOARD_A_xu2
-else
-    $(error Invalid target specified)
+else ifneq ($(shell cat ../board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep atmega2560), )
+    MCU := atmega2560
+else ifneq ($(shell cat ../board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep atmega328p), )
+    MCU := atmega328p
+else ifneq ($(shell cat ../board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep stm32f407), )
+    MCU := stm32f407
 endif
 
 #mcu specific
 ifeq ($(MCU),atmega32u4)
     EEPROM_SIZE := 1024
+    FLASH_SIZE_START_ADDR := 0xAC
 else ifeq ($(MCU),at90usb1286)
     EEPROM_SIZE := 4096
     FLASH_SIZE_START_ADDR := 0x98
-    FLASH_SIZE_END_ADDR := 0x9C
 else ifeq ($(MCU),atmega16u2)
     EEPROM_SIZE := 512
-    BOOT_START_ADDR := 0x3000
+    FLASH_SIZE_START_ADDR := 0x74
 else ifeq ($(MCU),atmega8u2)
     EEPROM_SIZE := 512
+    FLASH_SIZE_START_ADDR := 0x74
 else ifeq ($(MCU),atmega2560)
     EEPROM_SIZE := 4096
+    FLASH_SIZE_START_ADDR := 0xE4
 else ifeq ($(MCU),atmega328p)
     EEPROM_SIZE := 1024
+    FLASH_SIZE_START_ADDR := 0x68
 endif
 
 DEFINES += APP_LENGTH_LOCATION=$(FLASH_SIZE_START_ADDR)
 DEFINES += EEPROM_SIZE=$(EEPROM_SIZE)
-DEFINES += $(BOARD)
+DEFINES += OD_BOARD_$(shell echo $(BOARD_DIR) | tr 'a-z' 'A-Z')
 
 ifneq ($(HARDWARE_VERSION_MAJOR), )
     DEFINES += HARDWARE_VERSION_MAJOR=$(HARDWARE_VERSION_MAJOR)

@@ -35,6 +35,11 @@ limitations under the License.
 /// @}
 
 ///
+/// \brief Specifies which MCU this board variant uses.
+///
+#define MCU                             "atmega32u4"
+
+///
 /// \brief Indicates that the board supports USB MIDI.
 ///
 #define USB_MIDI_SUPPORTED
@@ -62,20 +67,12 @@ limitations under the License.
 ///
 /// brief Total number of analog components.
 ///
-#ifdef BOARD_A_PRO_MICRO
-#define MAX_NUMBER_OF_ANALOG            4
-#else
 #define MAX_NUMBER_OF_ANALOG            6
-#endif
 
 ///
 /// \brief Maximum number of buttons.
 ///
-#ifdef BOARD_A_PRO_MICRO
-#define MAX_NUMBER_OF_BUTTONS           6
-#else
 #define MAX_NUMBER_OF_BUTTONS           8
-#endif
 
 ///
 /// \brief Indicates that the board supports LEDs.

@@ -70,7 +70,7 @@ namespace Board
 
         detail::setup::io();
 
-#ifndef BOARD_A_xu2
+#if !defined(OD_BOARD_16U2) && !defined(OD_BOARD_8U2)
         detail::setup::adc();
 #else
         UART::init(UART_USB_LINK_CHANNEL, UART_BAUDRATE_MIDI_OD);
@@ -114,7 +114,7 @@ namespace Board
         core::reset::mcuReset();
     }
 
-#ifndef BOARD_A_xu2
+#if !defined(OD_BOARD_16U2) && !defined(OD_BOARD_8U2)
     bool checkNewRevision()
     {
         uint16_t crc_eeprom = eeprom_read_word(reinterpret_cast<uint16_t*>(SW_CRC_LOCATION_EEPROM));
@@ -217,7 +217,7 @@ ISR(TIMER0_COMPA_vect)
 #endif
     }
 
-#ifndef BOARD_A_xu2
+#if !defined(OD_BOARD_16U2) && !defined(OD_BOARD_8U2)
     Board::detail::io::checkDigitalInputs();
 #endif
 }

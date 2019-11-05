@@ -20,43 +20,11 @@ else ifeq ($(findstring fw,$(TARGETNAME)), fw)
     BOARD_DIR := $(subst fw_,,$(TARGETNAME))
 endif
 
-#board specific
-ifeq ($(BOARD_DIR), opendeck)
-    MCU := atmega32u4
-    BOARD := BOARD_OPEN_DECK
-else ifeq ($(BOARD_DIR), leonardo)
-    MCU := atmega32u4
-    BOARD := BOARD_A_LEO
-else ifeq ($(BOARD_DIR), pro_micro)
-    MCU := atmega32u4
-    BOARD := BOARD_A_PRO_MICRO
-else ifeq ($(BOARD_DIR), dubfocus)
-    MCU := atmega32u4
-    BOARD := BOARD_DUBFOCUS
-else ifeq ($(BOARD_DIR), bergamot)
-    MCU := atmega32u4
-    BOARD := BOARD_BERGAMOT
-else ifeq ($(BOARD_DIR), teensy2pp)
-    MCU := at90usb1286
-    BOARD := BOARD_T_2PP
-else ifeq ($(BOARD_DIR), mega)
-    MCU := atmega2560
-    BOARD := BOARD_A_MEGA
-else ifeq ($(BOARD_DIR), mega6mux)
-    MCU := atmega2560
-    BOARD := BOARD_A_MEGA6MUX
-else ifeq ($(BOARD_DIR), uno)
-    MCU := atmega328p
-    BOARD := BOARD_A_UNO
-else ifeq ($(BOARD_DIR), 16u2)
-    MCU := atmega16u2
-    BOARD := BOARD_A_xu2
-else ifeq ($(BOARD_DIR), 8u2)
-    MCU := atmega8u2
-    BOARD := BOARD_A_xu2
-else ifeq ($(BOARD_DIR), discovery)
-    MCU := stm32f407
-    BOARD := BOARD_STM32_DISCOVERY
+#determine the architecture by directory in which the board dir is located
+ifeq ($(findstring avr,$(shell find . -type d -name *$(BOARD_DIR))), avr)
+    ARCH := avr
+else ifeq ($(findstring stm32,$(shell find . -type d -name *$(BOARD_DIR))), stm32)
+    ARCH := stm32
 endif
 
 ifeq ($(findstring upload,$(MAKECMDGOALS)), upload)
@@ -69,15 +37,30 @@ ifeq ($(findstring upload,$(MAKECMDGOALS)), upload)
     endif
     #only some targets are supported
     ifeq ($(TARGETNAME),uploadboot)
-        ifeq ($(filter fw_opendeck fw_leonardo fw_pro_micro fw_dubfocus fw_teensy2pp fw_bergamot fw_mega fw_uno, $(shell cat build/TARGET)), )
+        ifeq ($(filter fw_opendeck fw_leonardo fw_promicro fw_dubfocus fw_teensy2pp fw_bergamot fw_mega fw_uno, $(shell cat build/TARGET)), )
             $(error Not available for current target.)
         endif
     endif
+else
+#determine MCU from MCU define in board-specific Hardware.h file
+ifneq ($(shell cat board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep atmega32u4), )
+    MCU := atmega32u4
+else ifneq ($(shell cat board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep at90usb1286), )
+    MCU := at90usb1286
+else ifneq ($(shell cat board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep atmega16u2), )
+    MCU := atmega16u2
+else ifneq ($(shell cat board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep atmega8u2), )
+    MCU := atmega8u2
+else ifneq ($(shell cat board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep atmega2560), )
+    MCU := atmega2560
+else ifneq ($(shell cat board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep atmega328p), )
+    MCU := atmega328p
+else ifneq ($(shell cat board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep stm32f407), )
+    MCU := stm32f407
+endif
 endif
 
-#mcu specific
-ifeq ($(MCU),atmega32u4)
-    ARCH := avr
+ifeq ($(MCU), atmega32u4)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xc8
     FUSE_HIGH := 0xd0
@@ -88,8 +71,7 @@ ifeq ($(MCU),atmega32u4)
     FLASH_SIZE_START_ADDR := 0xAC
     FLASH_SIZE_END_ADDR := 0xB0
     DEFINES += __AVR_ATmega32U4__
-else ifeq ($(MCU),at90usb1286)
-    ARCH := avr
+else ifeq ($(MCU), at90usb1286)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xf8
     FUSE_HIGH := 0xd2
@@ -100,8 +82,7 @@ else ifeq ($(MCU),at90usb1286)
     FLASH_SIZE_START_ADDR := 0x98
     FLASH_SIZE_END_ADDR := 0x9C
     DEFINES += __AVR_AT90USB1286__
-else ifeq ($(MCU),atmega16u2)
-    ARCH := avr
+else ifeq ($(MCU), atmega16u2)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xf8
     FUSE_HIGH := 0xd0
@@ -112,8 +93,7 @@ else ifeq ($(MCU),atmega16u2)
     FLASH_SIZE_END_ADDR := 0x78
     BOOT_START_ADDR := 0x3000
     DEFINES += __AVR_ATmega16U2__
-else ifeq ($(MCU),atmega8u2)
-    ARCH := avr
+else ifeq ($(MCU), atmega8u2)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xf8
     FUSE_HIGH := 0xd3
@@ -124,8 +104,7 @@ else ifeq ($(MCU),atmega8u2)
     FLASH_SIZE_END_ADDR := 0x78
     BOOT_START_ADDR := 0x1800
     DEFINES += __AVR_ATmega8U2__
-else ifeq ($(MCU),atmega2560)
-    ARCH := avr
+else ifeq ($(MCU), atmega2560)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xfc
     FUSE_HIGH := 0xd2
@@ -136,8 +115,7 @@ else ifeq ($(MCU),atmega2560)
     FLASH_SIZE_END_ADDR := 0xE8
     BOOT_START_ADDR := 0x3F000
     DEFINES += __AVR_ATmega2560__
-else ifeq ($(MCU),atmega328p)
-    ARCH := avr
+else ifeq ($(MCU), atmega328p)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xfc
     FUSE_HIGH := 0xd2
@@ -148,8 +126,7 @@ else ifeq ($(MCU),atmega328p)
     FLASH_SIZE_END_ADDR := 0x6C
     BOOT_START_ADDR := 0x7800
     DEFINES += __AVR_ATmega328P__
-else ifeq ($(MCU),stm32f407)
-    ARCH := stm32
+else ifeq ($(MCU), stm32f407)
     EEPROM_SIZE := 16384
     CPU := cortex-m4
     FPU := fpv4-sp-d16
@@ -194,7 +171,7 @@ else ifeq ($(ARCH),stm32)
     UID_BITS=96
 endif
 
-DEFINES += $(BOARD)
+DEFINES += OD_BOARD_$(shell echo $(BOARD_DIR) | tr 'a-z' 'A-Z')
 DEFINES += FW_UID=$(shell ../scripts/fw_uid_gen.sh $(TARGETNAME))
 DEFINES += EEPROM_SIZE=$(EEPROM_SIZE)
 

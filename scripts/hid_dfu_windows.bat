@@ -20,7 +20,7 @@ IF "%board%"=="1" (
 ) ELSE IF "%board%"=="4" (
     ..\bin\dfu\hid_bootloader_loader_win.exe atmega32u4 ..\bin\compiled\arduino+teensy\fw\fw_leonardo.hex
 ) ELSE IF "%board%"=="5" (
-    ..\bin\dfu\hid_bootloader_loader_win.exe atmega32u4 ..\bin\compiled\arduino+teensy\fw\fw_pro_micro.hex
+    ..\bin\dfu\hid_bootloader_loader_win.exe atmega32u4 ..\bin\compiled\arduino+teensy\fw\fw_promicro.hex
 ) ELSE IF "%board%"=="6" (
     ..\bin\dfu\hid_bootloader_loader_win.exe at90usb1286 ..\bin\compiled\arduino+teensy\fw\fw_teensy2pp.hex
 ) ELSE (

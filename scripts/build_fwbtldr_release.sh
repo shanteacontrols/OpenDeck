@@ -15,7 +15,7 @@ mkdir -p ../bin/compiled/arduino+teensy/fw+boot
 
 make clean && make TARGETNAME=fw_opendeck && cp build/fw_opendeck.hex ../bin/compiled/opendeck/fw_opendeck.hex && cp build/fw_opendeck.bin ../bin/compiled/opendeck/FLASH.bin
 
-make clean && make TARGETNAME=fw_pro_micro && cp build/fw_pro_micro.hex ../bin/compiled/arduino+teensy/fw/fw_pro_micro.hex
+make clean && make TARGETNAME=fw_promicro && cp build/fw_promicro.hex ../bin/compiled/arduino+teensy/fw/fw_promicro.hex
 make clean && make TARGETNAME=fw_leonardo && cp build/fw_leonardo.hex ../bin/compiled/arduino+teensy/fw/fw_leonardo.hex
 make clean && make TARGETNAME=fw_uno && cp build/fw_uno.hex ../bin/compiled/arduino+teensy/fw/fw_uno.hex
 make clean && make TARGETNAME=fw_mega && cp build/fw_mega.hex ../bin/compiled/arduino+teensy/fw/fw_mega.hex
@@ -27,8 +27,8 @@ make clean && make TARGETNAME=fw_8u2 && cp build/fw_8u2.hex ../bin/compiled/ardu
 ../scripts/build_fwbtldr_single_combine.sh leonardo
 cp build/fw_leonardo.hex ../bin/compiled/arduino+teensy/fw+boot/fw_boot_leonardo.hex
 
-../scripts/build_fwbtldr_single_combine.sh pro_micro
-cp build/fw_pro_micro.hex ../bin/compiled/arduino+teensy/fw+boot/fw_boot_pro_micro.hex
+../scripts/build_fwbtldr_single_combine.sh promicro
+cp build/fw_promicro.hex ../bin/compiled/arduino+teensy/fw+boot/fw_boot_promicro.hex
 
 ../scripts/build_fwbtldr_single_combine.sh uno
 cp build/fw_uno.hex ../bin/compiled/arduino+teensy/fw+boot/fw_boot_uno.hex

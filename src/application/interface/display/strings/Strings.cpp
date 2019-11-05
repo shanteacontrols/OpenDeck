@@ -6,21 +6,21 @@
 namespace
 {
     const char boardName_string[] PROGMEM =
-#ifdef BOARD_OPEN_DECK
+#ifdef OD_BOARD_OPENDECK
         "OpenDeck";
-#elif defined(BOARD_A_LEO)
+#elif defined(OD_BOARD_LEONARDO)
         "Arduino Leo";
-#elif defined(BOARD_A_MEGA)
+#elif defined(OD_BOARD_MEGA)
         "Arduino Mega";
-#elif defined(BOARD_A_PRO_MICRO)
+#elif defined(OD_BOARD_PROMICRO)
         "Arduino PM";
-#elif defined(BOARD_A_UNO)
+#elif defined(OD_BOARD_UNO)
         "Arduino Uno";
-#elif defined(BOARD_T_2PP)
+#elif defined(OD_BOARD_TEENSY2PP)
         "Teensy++ 2.0";
-#elif defined(BOARD_DUBFOCUS)
+#elif defined(OD_BOARD_DUBFOCUS)
         "DubFocus";
-#elif defined(BOARD_BERGAMOT)
+#elif defined(OD_BOARD_BERGAMOT)
         "Bergamot";
 #else
         "Unknown";

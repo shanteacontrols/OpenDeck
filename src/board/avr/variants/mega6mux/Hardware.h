@@ -35,6 +35,11 @@ limitations under the License.
 /// @}
 
 ///
+/// \brief Specifies which MCU this board variant uses.
+///
+#define MCU                             "atmega2560"
+
+///
 /// \brief Defines total number of available UART interfaces on board.
 ///
 #define UART_INTERFACES                 2

@@ -48,12 +48,6 @@ namespace Board
                 CORE_IO_CONFIG(DI_6_PORT, DI_6_PIN, core::io::pinMode_t::input);
                 CORE_IO_SET_HIGH(DI_6_PORT, DI_6_PIN);
 
-                CORE_IO_CONFIG(DI_7_PORT, DI_7_PIN, core::io::pinMode_t::input);
-                CORE_IO_SET_HIGH(DI_7_PORT, DI_7_PIN);
-
-                CORE_IO_CONFIG(DI_8_PORT, DI_8_PIN, core::io::pinMode_t::input);
-                CORE_IO_SET_HIGH(DI_8_PORT, DI_8_PIN);
-
                 CORE_IO_CONFIG(DO_1_PORT, DO_1_PIN, core::io::pinMode_t::output);
                 EXT_LED_OFF(DO_1_PORT, DO_1_PIN);
 
@@ -83,12 +77,6 @@ namespace Board
 
                 CORE_IO_CONFIG(AI_4_PORT, AI_4_PIN, core::io::pinMode_t::input);
                 CORE_IO_SET_LOW(AI_4_PORT, AI_4_PIN);
-
-                CORE_IO_CONFIG(AI_5_PORT, AI_5_PIN, core::io::pinMode_t::input);
-                CORE_IO_SET_LOW(AI_5_PORT, AI_5_PIN);
-
-                CORE_IO_CONFIG(AI_6_PORT, AI_6_PIN, core::io::pinMode_t::input);
-                CORE_IO_SET_LOW(AI_6_PORT, AI_6_PIN);
 
                 //bootloader/midi leds
                 CORE_IO_CONFIG(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN, core::io::pinMode_t::output);

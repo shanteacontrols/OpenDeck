@@ -8,8 +8,10 @@ make pre-build
 #tests
 echo "Running tests for OpenDeck board"
 make clean && make all TARGETNAME=fw_opendeck && make exec
-echo "Running tests for Leonardo/Pro Micro board"
+echo "Running tests for Leonardo board"
 make clean && make all TARGETNAME=fw_leonardo && make exec
+echo "Running tests for Pro Micro board"
+make clean && make all TARGETNAME=fw_promicro && make exec
 echo "Running tests for Uno board"
 make clean && make all TARGETNAME=fw_uno && make exec
 echo "Running tests for Mega board"

@@ -122,7 +122,7 @@ void OpenDeck::init()
 #endif
 
 #ifdef TOUCHSCREEN_SUPPORTED
-#ifdef BOARD_BERGAMOT
+#ifdef OD_BOARD_BERGAMOT
     touchscreen.init();
     touchscreen.setScreen(1);
 #endif

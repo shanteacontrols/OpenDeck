@@ -37,7 +37,7 @@ limitations under the License.
 ///
 /// \brief Specifies which MCU this board variant uses.
 ///
-#define MCU                             "stm32f407"
+#define MCU                             "atmega8u2"
 
 ///
 /// \brief Indicates that the board supports USB MIDI.
@@ -47,42 +47,12 @@ limitations under the License.
 ///
 /// \brief Defines total number of available UART interfaces on board.
 ///
-#define UART_INTERFACES                 1
+#define UART_INTERFACES         1
 
 ///
-/// \brief Indicates that the board supports DIN MIDI.
+/// \brief Defines UART channel used for communication with main MCU.
 ///
-#define DIN_MIDI_SUPPORTED
-
-///
-/// \brief Defines UART channel used for DIN MIDI.
-///
-#define UART_MIDI_CHANNEL               0
-
-///
-/// \brief Constant used to debounce button readings.
-///
-#define BUTTON_DEBOUNCE_COMPARE         0b11110000
-
-///
-/// brief Total number of analog components.
-///
-#define MAX_NUMBER_OF_ANALOG            8
-
-///
-/// \brief Maximum number of buttons.
-///
-#define MAX_NUMBER_OF_BUTTONS           18
-
-///
-/// \brief Indicates that the board supports LEDs.
-///
-#define LEDS_SUPPORTED
-
-///
-/// \brief Maximum number of LEDs.
-///
-#define MAX_NUMBER_OF_LEDS              16
+#define UART_USB_LINK_CHANNEL   0
 
 ///
 /// \brief Use integrated LED indicators.
@@ -90,18 +60,6 @@ limitations under the License.
 #define LED_INDICATORS
 
 ///
-/// \brief Maximum number of RGB LEDs.
-/// One RGB LED requires three standard LED connections.
+/// \brief Use inverted logic when controlling integrated LEDs (high/off, low/on).
 ///
-#define MAX_NUMBER_OF_RGB_LEDS          (MAX_NUMBER_OF_LEDS/3)
-
-///
-/// \brief Maximum number of encoders.
-/// Total number of encoders is total number of buttons divided by two.
-///
-#define MAX_NUMBER_OF_ENCODERS          (MAX_NUMBER_OF_BUTTONS/2)
-
-///
-/// \brief Maximum number of supported touchscreen buttons.
-///
-#define MAX_TOUCHSCREEN_BUTTONS         0
+#define LED_INT_INVERT

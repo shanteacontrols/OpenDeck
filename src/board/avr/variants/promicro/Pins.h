@@ -38,12 +38,6 @@ limitations under the License.
 #define DI_6_PORT               PORTE
 #define DI_6_PIN                6
 
-#define DI_7_PORT               PORTB
-#define DI_7_PIN                1
-
-#define DI_8_PORT               PORTB
-#define DI_8_PIN                3
-
 
 #define DO_1_PORT               PORTB
 #define DO_1_PIN                4
@@ -55,13 +49,13 @@ limitations under the License.
 #define DO_3_PIN                6
 
 #define DO_4_PORT               PORTB
-#define DO_4_PIN                7
+#define DO_4_PIN                2
 
-#define DO_5_PORT               PORTD
-#define DO_5_PIN                6
+#define DO_5_PORT               PORTB
+#define DO_5_PIN                3
 
-#define DO_6_PORT               PORTC
-#define DO_6_PIN                7
+#define DO_6_PORT               PORTB
+#define DO_6_PIN                1
 
 
 #define AI_1_PORT               PORTF
@@ -75,12 +69,6 @@ limitations under the License.
 
 #define AI_4_PORT               PORTF
 #define AI_4_PIN                4
-
-#define AI_5_PORT               PORTF
-#define AI_5_PIN                1
-
-#define AI_6_PORT               PORTF
-#define AI_6_PIN                0
 
 
 #define LED_MIDI_IN_DIN_PORT    PORTD

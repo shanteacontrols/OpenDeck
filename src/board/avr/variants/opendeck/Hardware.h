@@ -35,6 +35,11 @@ limitations under the License.
 /// @}
 
 ///
+/// \brief Specifies which MCU this board variant uses.
+///
+#define MCU                             "atmega32u4"
+
+///
 /// \brief Indicates that the board supports USB MIDI.
 ///
 #define USB_MIDI_SUPPORTED

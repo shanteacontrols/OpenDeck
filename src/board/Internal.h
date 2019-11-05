@@ -49,7 +49,7 @@ namespace Board
             ///
             void io();
 
-#ifndef BOARD_A_xu2
+#if !defined(OD_BOARD_16U2) && !defined(OD_BOARD_8U2)
             ///
             /// \brief Initializes analog variables and ADC peripheral.
             ///

@@ -20,7 +20,7 @@ limitations under the License.
 
 #include "Hardware.h"
 
-#if !defined(BOARD_A_xu2)
+#if !defined(OD_BOARD_16U2) && !defined(OD_BOARD_8U2)
 #include "database/Database.h"
 #include "interface/analog/Analog.h"
 #ifdef LEDS_SUPPORTED

@@ -38,7 +38,7 @@ namespace
     void pinsBTLDRentry()
     {
 //configure bootloader entry pins
-#if defined(BOARD_DUBFOCUS)
+#if defined(OD_BOARD_DUBFOCUS)
         CORE_IO_CONFIG(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN, core::io::pinMode_t::input);
         CORE_IO_CONFIG(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN, core::io::pinMode_t::output);
         CORE_IO_CONFIG(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN, core::io::pinMode_t::output);
@@ -53,7 +53,7 @@ namespace
     ///
     void pinsBTLDRindicate()
     {
-#ifdef BOARD_DUBFOCUS
+#ifdef OD_BOARD_DUBFOCUS
         //turn on all available LEDs
         CORE_IO_CONFIG(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN, core::io::pinMode_t::output);
         CORE_IO_CONFIG(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN, core::io::pinMode_t::output);
@@ -75,13 +75,13 @@ namespace
 
         CORE_IO_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 //make sure internal led is turned off for mega/uno
-#elif defined(BOARD_A_MEGA)
+#elif defined(OD_BOARD_MEGA)
         CORE_IO_CONFIG(PORTB, 7, core::io::pinMode_t::output);
         CORE_IO_SET_LOW(PORTB, 7);
-#elif defined(BOARD_A_UNO)
+#elif defined(OD_BOARD_UNO)
         CORE_IO_CONFIG(PORTB, 5, core::io::pinMode_t::output);
         CORE_IO_SET_LOW(PORTB, 5);
-#elif defined(BOARD_T_2PP)
+#elif defined(OD_BOARD_TEENSY2PP)
         //only one led
         CORE_IO_CONFIG(LED_IN_PORT, LED_IN_PIN, core::io::pinMode_t::output);
         INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
@@ -112,7 +112,7 @@ namespace
         USB_Init();
 #endif
 
-#if defined(BOARD_A_xu2) || !defined(USB_MIDI_SUPPORTED)
+#if (defined(OD_BOARD_16U2) || defined(OD_BOARD_8U2)) || !defined(USB_MIDI_SUPPORTED)
         Board::UART::init(UART_USB_LINK_CHANNEL, UART_BAUDRATE_MIDI_OD);
 
 #ifndef USB_MIDI_SUPPORTED
@@ -184,7 +184,7 @@ namespace
         //add some delay before reading the pins to avoid incorrect state detection
         _delay_ms(100);
 
-#if defined(BOARD_DUBFOCUS)
+#if defined(OD_BOARD_DUBFOCUS)
         uint16_t dInData = 0;
 
         CORE_IO_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);

@@ -62,7 +62,7 @@ then
     echo "Connect programmer to the Arduino Pro Micro board and then press enter."
     read -n1 KEY
     avrdude -p atmega32u4 -P /dev/$port -b 19200 -c avrisp -e -V -u -U lock:w:0xff:m -U efuse:w:0xc8:m -U hfuse:w:0xd0:m -U lfuse:w:0xff:m
-    avrdude -p atmega32u4 -P /dev/$port -b 19200 -c avrisp -U flash:w:../bin/compiled/arduino+teensy/fw+boot/fw_boot_pro_micro.hex
+    avrdude -p atmega32u4 -P /dev/$port -b 19200 -c avrisp -U flash:w:../bin/compiled/arduino+teensy/fw+boot/fw_boot_promicro.hex
     avrdude -p atmega32u4 -P /dev/$port -b 19200 -c avrisp -V -u -U lock:w:0xef:m
 elif [ $board == 8 ]
 then

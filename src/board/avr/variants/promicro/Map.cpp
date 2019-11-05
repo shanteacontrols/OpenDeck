@@ -31,33 +31,23 @@ namespace Board
                     //port not used on avr mcus for adc channels
                     //adc channel doesn't have to match with adc pin
                     {
-                        .port = nullptr,
+                        .port = 0,
                         .index = AI_1_PIN,
                     },
 
                     {
-                        .port = nullptr,
+                        .port = 0,
                         .index = AI_2_PIN,
                     },
 
                     {
-                        .port = nullptr,
+                        .port = 0,
                         .index = AI_3_PIN,
                     },
 
                     {
-                        .port = nullptr,
+                        .port = 0,
                         .index = AI_4_PIN,
-                    },
-
-                    {
-                        .port = nullptr,
-                        .index = AI_5_PIN,
-                    },
-
-                    {
-                        .port = nullptr,
-                        .index = AI_6_PIN,
                     }
                 };
 
@@ -93,16 +83,6 @@ namespace Board
                     {
                         .port = &DI_6_PORT,
                         .index = DI_6_PIN,
-                    },
-
-                    {
-                        .port = &DI_7_PORT,
-                        .index = DI_7_PIN,
-                    },
-
-                    {
-                        .port = &DI_8_PORT,
-                        .index = DI_8_PIN,
                     }
                 };
 

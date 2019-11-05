@@ -26,7 +26,7 @@ then
     ../bin/dfu/hid_bootloader_loader_mac atmega32u4 ../bin/compiled/arduino+teensy/fw/fw_leonardo.hex
 elif [ $board == 5 ]
 then
-    ../bin/dfu/hid_bootloader_loader_mac atmega32u4 ../bin/compiled/arduino+teensy/fw/fw_pro_micro.hex
+    ../bin/dfu/hid_bootloader_loader_mac atmega32u4 ../bin/compiled/arduino+teensy/fw/fw_promicro.hex
 elif [ $board == 6 ]
 then
     ../bin/dfu/hid_bootloader_loader_mac at90usb1286 ../bin/compiled/arduino+teensy/fw/fw_teensy2pp.hex

@@ -1,17 +1,9 @@
-ifeq ($(BOARD_DIR),pro_micro)
-    #pro micro is just a leonardo variant
-    BOARD_DIR := leonardo
-else ifneq ($(filter %16u2 %8u2, $(TARGETNAME)), )
-    #16u2 and 8u2 are basically same
-    BOARD_DIR := xu2
-endif
-
 #common include dirs
 INCLUDE_DIRS := \
 -I"modules/" \
 -I"board/$(ARCH)/variants/$(BOARD_DIR)/" \
 -I"application/" \
--I"./" \
+-I"./"
 
 INCLUDE_FILES += -include "board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h"
 
@@ -84,7 +76,7 @@ ifeq ($(findstring boot,$(TARGETNAME)), boot)
     bootloader/mcu/BootloaderHID.cpp
 
     ifneq ($(shell cat board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
-        ifeq ($(BOARD_DIR),xu2)
+        ifneq ($(filter %16u2 %8u2, $(TARGETNAME)), )
             SOURCES += \
             bootloader/mcu/variant/xu2.cpp \
             board/$(ARCH)/UART_LL.cpp \
@@ -114,11 +106,12 @@ else
         SOURCES += $(shell find ./board/common/usb -type f -name "*.c")
     endif
 
-    ifeq ($(BOARD_DIR),xu2)
+    ifneq ($(filter %16u2 %8u2, $(TARGETNAME)), )
         #fw for xu2 uses different set of sources than other targets
         SOURCES += \
         board/common/io/Indicators.cpp \
-        board/common/UART.cpp
+        board/common/UART.cpp \
+        usb-link/USBlink.cpp
     else
         SOURCES += $(shell find ./board/common -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell find ./board/common/io -type f -name "*.cpp")

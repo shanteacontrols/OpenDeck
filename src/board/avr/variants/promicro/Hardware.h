@@ -37,7 +37,12 @@ limitations under the License.
 ///
 /// \brief Specifies which MCU this board variant uses.
 ///
-#define MCU                             "atmega328p"
+#define MCU                             "atmega32u4"
+
+///
+/// \brief Indicates that the board supports USB MIDI.
+///
+#define USB_MIDI_SUPPORTED
 
 ///
 /// \brief Defines total number of available UART interfaces on board.
@@ -45,9 +50,14 @@ limitations under the License.
 #define UART_INTERFACES                 1
 
 ///
-/// \brief Defines UART channel used for communication with USB link.
+/// \brief Indicates that the board supports DIN MIDI.
 ///
-#define UART_USB_LINK_CHANNEL           0
+#define DIN_MIDI_SUPPORTED
+
+///
+/// \brief Defines UART channel used for DIN MIDI.
+///
+#define UART_MIDI_CHANNEL               0
 
 ///
 /// \brief Constant used to debounce button readings.
@@ -57,7 +67,7 @@ limitations under the License.
 ///
 /// brief Total number of analog components.
 ///
-#define MAX_NUMBER_OF_ANALOG            6
+#define MAX_NUMBER_OF_ANALOG            4
 
 ///
 /// \brief Maximum number of buttons.
@@ -73,6 +83,16 @@ limitations under the License.
 /// \brief Maximum number of LEDs.
 ///
 #define MAX_NUMBER_OF_LEDS              6
+
+///
+/// \brief Use integrated LED indicators.
+///
+#define LED_INDICATORS
+
+///
+/// \brief Use inverted logic when controlling integrated LEDs (high/off, low/on).
+///
+#define LED_INT_INVERT
 
 ///
 /// \brief Maximum number of RGB LEDs.
