@@ -52,6 +52,14 @@ void SystemClock_Config(void);
 /* Private function prototypes -----------------------------------------------*/
 USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status);
 
+void Error_Handler(void)
+{
+  while(1)
+  {
+    
+  }
+}
+
 /* USER CODE END PFP */
 
 /* Private functions ---------------------------------------------------------*/

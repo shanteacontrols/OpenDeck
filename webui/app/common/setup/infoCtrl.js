@@ -29,6 +29,8 @@
                 $scope.boardName = 'DubFocus';
             else if ((d[9] == 1) && (d[10] == 44) && (d[11] == 68) && (d[12] == 62))
                 $scope.boardName = 'Bergamot';
+            else if ((d[9] == 1) && (d[10] == 109) && (d[11] == 54) && (d[12] == 20))
+                $scope.boardName = 'STM32F4 Discovery';
             else
                 $scope.boardName = 'UNKNOWN BOARD';
 

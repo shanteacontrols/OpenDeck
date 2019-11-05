@@ -1,4 +1,5 @@
 fw_opendeck
+fw_discovery
 fw_leonardo
 fw_mega
 fw_pro_micro

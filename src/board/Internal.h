@@ -178,6 +178,11 @@ namespace Board
             /// \brief Used to retrieve actual UART interface on board for a given UART channel index.
             ///
             USART_TypeDef* uartInterface(uint8_t channel);
+
+            ///
+            /// \brief Used to retrieve timer instance used for main timer interrupt.
+            ///
+            TIM_TypeDef* mainTimerInstance();
 #endif
         }    // namespace map
 

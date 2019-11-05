@@ -35,3 +35,4 @@ Documentation/*
 **/gen/**/Makefile
 **/gen/**/Makefile
 **/gen/**/main.c
+*.cortex-debug*

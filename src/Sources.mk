@@ -21,7 +21,7 @@ ifeq ($(findstring boot_,$(TARGETNAME)), boot_)
     -I"bootloader/mcu/"
 endif
 
-#lufa sources for avr
+#architecture specific
 ifeq ($(ARCH), avr)
     INCLUDE_DIRS += \
     -I"modules/lufa/"
@@ -59,6 +59,22 @@ ifeq ($(ARCH), avr)
             modules/lufa/LUFA/Drivers/USB/Class/Device/MIDIClassDevice.c
         endif
     endif
+else ifeq ($(ARCH),stm32)
+    SOURCES += $(shell find ./board/stm32/gen/$(MCU)/Drivers/STM32F4xx_HAL_Driver/Src -name "*.c")
+    SOURCES += $(shell find ./board/stm32/gen/$(MCU)/Middlewares/ST/STM32_USB_Device_Library/Core/Src -name "*.c")
+    SOURCES += \
+    ./board/stm32/gen/$(MCU)/startup_stm32f407xx.s \
+    ./board/stm32/gen/$(MCU)/Src/system_stm32f4xx.c \
+    ./board/stm32/gen/$(MCU)/Src/stm32f4xx_hal_msp.c \
+    ./board/stm32/gen/$(MCU)/Src/usbd_conf.c
+
+    INCLUDE_DIRS += \
+    -I"./board/stm32/gen/$(MCU)/Inc" \
+    -I"./board/stm32/gen/$(MCU)/Drivers/STM32F4xx_HAL_Driver/Inc" \
+    -I"./board/stm32/gen/$(MCU)/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy" \
+    -I"./board/stm32/gen/$(MCU)/Drivers/CMSIS/Device/ST/STM32F4xx/Include" \
+    -I"./board/stm32/gen/$(MCU)/Drivers/CMSIS/Include" \
+    -I"./board/stm32/gen/$(MCU)/Middlewares/ST/STM32_USB_Device_Library/Core/Inc"
 endif
 
 ifeq ($(findstring boot,$(TARGETNAME)), boot)
@@ -147,6 +163,7 @@ OBJECTS := $(addprefix build/,$(SOURCES))
 #also make sure objects have .o extension
 OBJECTS := $(OBJECTS:.c=.o)
 OBJECTS := $(OBJECTS:.cpp=.o)
+OBJECTS := $(OBJECTS:.s=.o)
 
 #include generated dependency files to allow incremental build when only headers change
 -include $(OBJECTS:%.o=%.d)

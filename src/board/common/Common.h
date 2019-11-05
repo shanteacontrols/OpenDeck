@@ -23,4 +23,6 @@ limitations under the License.
 
 #ifdef __AVR__
 #include "board/avr/Config.h"
+#elif defined(__STM32__)
+#include "board/stm32/Config.h"
 #endif

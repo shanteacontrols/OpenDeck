@@ -1,13 +1,17 @@
 #common defines
 
 DEFINES := \
-NDEBUG \
 HID_VENDOR_ID=0x1209 \
 HID_PRODUCT_ID=0x8473 \
 UART_BAUDRATE_MIDI_STD=31250 \
 UART_BAUDRATE_MIDI_OD=38400 \
-FIXED_CONTROL_ENDPOINT_SIZE=8 \
 FIXED_NUM_CONFIGURATIONS=1
+
+ifeq ($(DEBUG), 1)
+    DEFINES += DEBUG
+else
+    DEFINES += NDEBUG
+endif
 
 #flash type specific
 ifeq ($(findstring boot,$(TARGETNAME)), boot)
@@ -50,6 +54,9 @@ else ifeq ($(BOARD_DIR), 16u2)
 else ifeq ($(BOARD_DIR), 8u2)
     MCU := atmega8u2
     BOARD := BOARD_A_xu2
+else ifeq ($(BOARD_DIR), discovery)
+    MCU := stm32f407
+    BOARD := BOARD_STM32_DISCOVERY
 endif
 
 ifeq ($(findstring upload,$(MAKECMDGOALS)), upload)
@@ -141,6 +148,13 @@ else ifeq ($(MCU),atmega328p)
     FLASH_SIZE_END_ADDR := 0x6C
     BOOT_START_ADDR := 0x7800
     DEFINES += __AVR_ATmega328P__
+else ifeq ($(MCU),stm32f407)
+    ARCH := stm32
+    EEPROM_SIZE := 16384
+    CPU := cortex-m4
+    FPU := fpv4-sp-d16
+    FLOAT-ABI := hard
+    DEFINES += STM32F407xx
 endif
 
 ifeq ($(ARCH),avr)
@@ -152,11 +166,11 @@ ifeq ($(ARCH),avr)
     F_USB=16000000UL \
     BOARD=BOARD_NONE \
     USE_STATIC_OPTIONS=0 \
-    USB_DEVICE_ONLY
+    USB_DEVICE_ONLY \
+    FIXED_CONTROL_ENDPOINT_SIZE=8
 
     DEFINES += APP_LENGTH_LOCATION=$(FLASH_SIZE_START_ADDR)
     DEFINES += BOOT_START_ADDR=$(BOOT_START_ADDR)
-    DEFINES += EEPROM_SIZE=$(EEPROM_SIZE)
 
     #flash type specific
     ifeq ($(findstring boot,$(TARGETNAME)), boot)
@@ -172,10 +186,17 @@ ifeq ($(ARCH),avr)
         USE_FLASH_DESCRIPTORS \
         INTERRUPT_CONTROL_ENDPOINT
     endif
+else ifeq ($(ARCH),stm32)
+    DEFINES += \
+    __STM32__ \
+    USE_HAL_DRIVER \
+    FIXED_CONTROL_ENDPOINT_SIZE=64 \
+    UID_BITS=96
 endif
 
 DEFINES += $(BOARD)
 DEFINES += FW_UID=$(shell ../scripts/fw_uid_gen.sh $(TARGETNAME))
+DEFINES += EEPROM_SIZE=$(EEPROM_SIZE)
 
 ifneq ($(HARDWARE_VERSION_MAJOR), )
     DEFINES += HARDWARE_VERSION_MAJOR=$(HARDWARE_VERSION_MAJOR)

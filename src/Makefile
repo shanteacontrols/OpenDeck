@@ -17,65 +17,96 @@ CLANG_FORMAT := clang-format
 #when set to 1, format target will fail if there are any changes to the repository after formatting
 CF_FAIL_ON_DIFF := 0
 
-#specify c/c++ compilers
-ifeq ($(ARCH),avr)
-    CPP := avr-gcc
-    CXX := avr-g++
-else ifeq ($(ARCH),arm)
-    CPP := arm-none-eabi-gcc
-    CXX := arm-none-eabi-g++
-else
-    $(error Unsupported architecture)
-endif
-
 #common compiler flags
 COMMON_FLAGS := \
--funsigned-char \
--funsigned-bitfields \
+-Wall \
 -fdata-sections \
 -ffunction-sections \
+-fmessage-length=0 \
+-funsigned-char \
+-funsigned-bitfields \
 -fshort-enums \
--mrelax \
--Wall \
--c \
 -fno-jump-tables \
 -fno-strict-aliasing
 
 #c only
 CFLAGS := \
--fpack-struct
+-std=c11
 
 #cpp only
 CPPFLAGS := \
 -std=c++11 \
--fno-exceptions
+-fno-rtti \
+-fno-exceptions \
+-fpermissive
 
 #common linker flags
-LDFLAGS := -Wl,--gc-sections -mrelax -Wl,--start-group -Wl,-lm -Wl,--end-group
+LDFLAGS := \
+-Wl,--gc-sections \
+-Wl,-Map="$(TARGET).map",--cref
 
-#optimisation level
-OPT := -Os
+ifeq ($(ARCH),avr)
+    ifneq ($(filter boot_%, $(TARGETNAME)), )
+        #make sure to link .text at correct address in bootloader
+        LDFLAGS += -Wl,--section-start=.text=$(BOOT_START_ADDR)
+    endif
 
-ifneq ($(filter boot_%, $(TARGETNAME)), )
-    #make sure to link .text at correct address in bootloader
-    LDFLAGS += -Wl,--section-start=.text=$(BOOT_START_ADDR)
+    #use link time optimisations only on 32u4 MCU due to the heavy memory constrains
+    ifeq ($(MCU), atmega32u4)
+        COMMON_FLAGS += -flto
+        LDFLAGS += -flto
+    endif
+
+    #append length only in firmware
+    ifeq ($(findstring fw,$(TARGETNAME)), fw)
+        LEN_APPEND := 1
+    endif
+
+    CPP := avr-gcc
+    CXX := avr-g++
+    OPT := -Os
+
+    CFLAGS += \
+    -fpack-struct
+
+    COMMON_FLAGS += \
+    -mrelax \
+    -mmcu=$(MCU)
+
+    LDFLAGS += \
+    -mrelax \
+    -mmcu=$(MCU)
+else ifeq ($(ARCH),stm32)
+    CPP := arm-none-eabi-gcc
+    CXX := arm-none-eabi-g++
+    ASM := arm-none-eabi-gcc -x assembler-with-cpp
+    OPT := -O2
+
+    COMMON_FLAGS += \
+    -mcpu=$(CPU) \
+    -mthumb \
+    -mfpu=$(FPU) \
+    -mfloat-abi=$(FLOAT-ABI)
+
+    LDFLAGS += \
+    -mcpu=$(CPU) \
+    -mthumb \
+    -mfpu=$(FPU) \
+    -mfloat-abi=$(FLOAT-ABI) \
+    -specs=nano.specs \
+    -specs=nosys.specs
+
+    ifeq ($(DEBUG), 1)
+        COMMON_FLAGS += -g -gdwarf-2
+        LDFLAGS += -g -gdwarf-2
+        OPT := -Og
+    endif
+else
+    $(error Unsupported architecture)
 endif
-
-#use link time optimisations only on 32u4 MCU due to the heavy memory constrains
-ifeq ($(MCU), atmega32u4)
-    COMMON_FLAGS += -flto
-    LDFLAGS += -flto
-endif
-
-LEN_APPEND := 0
 
 #custom linker script
 LDFLAGS += -T board/$(ARCH)/linker/$(MCU).ld
-
-#append length only in firmware
-ifeq ($(findstring fw,$(TARGETNAME)), fw)
-    LEN_APPEND := 1
-endif
 
 #use windows binary on wsl since HID access isn't possible in wsl
 ifeq ($(findstring Microsoft,$(shell uname -r)), Microsoft)
@@ -90,12 +121,17 @@ endif
 
 build/%.o: %.c
 	@mkdir -p $(@D)
-	@$(CPP) $(COMMON_FLAGS) $(CFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) -mmcu=$(MCU) $(INCLUDE_DIRS) -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	@$(CPP) $(COMMON_FLAGS) $(CFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 	@echo Finished building: $<
 
 build/%.o: %.cpp
 	@mkdir -p $(@D)
-	@$(CXX) $(COMMON_FLAGS) $(CPPFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) -mmcu=$(MCU) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	@$(CXX) $(COMMON_FLAGS) $(CPPFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	@echo Finished building: $<
+
+build/%.o: %.s
+	@mkdir -p $(@D)
+	@$(ASM) $(COMMON_FLAGS) $(CFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 	@echo Finished building: $<
 
 $(TARGET).elf: $(OBJECTS)
@@ -104,8 +140,9 @@ $(TARGET).elf: $(OBJECTS)
 	@#create a file with contents being target name (for upload process)
 	@echo $(TARGETNAME) > build/TARGET
 	@#link
-	@$(CXX) -o$(TARGET).elf $(OBJECTS) -mmcu=$(MCU) $(LDFLAGS) -Wl,-Map,$(TARGET).map
+	@$(CXX) -o$(TARGET).elf $(OBJECTS) $(LDFLAGS)
 	@echo Finished building target: $@
+ifeq ($(ARCH), avr)
 	@#convert elf to hex
 	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(TARGET).elf" "$(TARGET).hex"
 	@#write firmware length at specified location and crc at the end of compiled binary if supported for target
@@ -117,12 +154,25 @@ $(TARGET).elf: $(OBJECTS)
 	@avr-objcopy -I ihex "$(TARGET).hex" -O binary "$(TARGET).bin"
 	@#display memory usage
 	@avr-size -C --mcu=$(MCU) "$(TARGET).elf"
+else
+	@arm-none-eabi-size "$(TARGET).elf"
+endif
 
 #firmware upload with avrdude
 upload:
 	@avrdude -p $(shell cat build/MCU) -P /dev/$(PORT) -b 19200 -c avrisp -e -V -u -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
 	@avrdude -p $(shell cat build/MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:build/$(shell cat build/TARGET).hex
 	@avrdude -p $(shell cat build/MCU) -P /dev/$(PORT) -b 19200 -c avrisp -V -u -U lock:w:$(FUSE_LOCK):m
+
+flash:
+	arm-none-eabi-gdb -nx --batch \
+	-ex 'target extended-remote /dev/$(PORT)' \
+	-ex 'monitor swdp_scan' \
+	-ex 'attach 1' \
+	-ex 'load' \
+	-ex 'compare-sections' \
+	-ex 'kill' \
+	build/$(shell cat build/TARGET).elf
 
 #firmware update with bootloader
 uploadboot:
