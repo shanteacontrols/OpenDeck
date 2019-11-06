@@ -220,9 +220,9 @@ TEST_F(DatabaseTest, FactoryReset)
     database.init();
     database.factoryReset(LESSDB::factoryResetType_t::full);
 
-    //change random values
-    EXPECT_TRUE(database.update(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, 5, 1));
-    EXPECT_TRUE(database.update(DB_BLOCK_ENCODERS, dbSection_analog_midiChannel, 2, 11));
+    //change several values
+    EXPECT_TRUE(database.update(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, 0, 114));
+    EXPECT_TRUE(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, 0, 11));
 
 #ifdef DISPLAY_SUPPORTED
     EXPECT_TRUE(database.update(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwController, displayController_ssd1306));
@@ -231,8 +231,8 @@ TEST_F(DatabaseTest, FactoryReset)
     database.factoryReset(LESSDB::factoryResetType_t::full);
 
     //expect default values
-    EXPECT_TRUE(database.update(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, 5, 5));
-    EXPECT_TRUE(database.update(DB_BLOCK_ENCODERS, dbSection_analog_midiChannel, 2, 0));
+    EXPECT_TRUE(database.update(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, 0, 0));
+    EXPECT_TRUE(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, 0, 0));
 
 #ifdef DISPLAY_SUPPORTED
     EXPECT_TRUE(database.update(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwController, DISPLAY_CONTROLLERS));
