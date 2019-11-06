@@ -202,9 +202,9 @@ TEST_F(DatabaseTest, Presets)
     {
         //try setting value in preset 1, switch back to preset 0 and verify preset 0 still contains default value
         EXPECT_EQ(database.setPreset(1), true);
-        EXPECT_TRUE(database.update(DB_BLOCK_ANALOG, dbSection_analog_midiID, 5, 1));
+        EXPECT_TRUE(database.update(DB_BLOCK_ANALOG, dbSection_analog_midiID, 0, 127));
         EXPECT_EQ(database.setPreset(0), true);
-        EXPECT_EQ(database.read(DB_BLOCK_ANALOG, dbSection_analog_midiID, 5), 5);
+        EXPECT_EQ(database.read(DB_BLOCK_ANALOG, dbSection_analog_midiID, 0), 0);
     }
 
     //enable preset preservation, perform factory reset and verify that preservation is disabled
