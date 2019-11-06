@@ -21,6 +21,13 @@ limitations under the License.
 //redefine SPM_PAGESIZE and BOOT_START_ADDR depending on variant
 
 #if defined(OD_BOARD_16U2) || defined(OD_BOARD_8U2)
+
+#ifdef OD_BOARD_16U2
+#if !defined(VARIANT_MEGA) && !defined(VARIANT_UNO)
+#error Variant must be specified for this target. Allowed variants are VARIANT_MEGA and VARIANT_UNO
+#endif
+#endif
+
 #ifdef VARIANT_MEGA
 #undef SPM_PAGESIZE
 #define SPM_PAGESIZE 256

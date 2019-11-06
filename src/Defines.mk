@@ -198,8 +198,4 @@ ifneq ($(VARIANT),)
     else
         $(error Wront VARIANT format. Please specify variant in the following manner: "VARIANT=VARIANT_string")
     endif
-else ifeq ($(findstring boot_16u2,$(TARGETNAME)), boot_16u2)
-    ifeq ($(VARIANT),)
-        $(error Variant must be specified for this target)
-    endif
 endif
