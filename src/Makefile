@@ -114,11 +114,11 @@ LDFLAGS += -T board/$(ARCH)/linker/$(MCU).ld
 
 #use windows binary on wsl since HID access isn't possible in wsl
 ifeq ($(findstring Microsoft,$(shell uname -r)), Microsoft)
-    UPLOAD_BIN := @cmd.exe /c "..\bin\dfu\hid_bootloader_loader_win.exe"
+    FLASH_BIN := @cmd.exe /c "..\bin\dfu\hid_bootloader_loader_win.exe"
 else ifeq ($(shell uname), Linux)
-    UPLOAD_BIN := @ ../bin/dfu/hid_bootloader_loader_linux
+    FLASH_BIN := @ ../bin/dfu/hid_bootloader_loader_linux
 else ifeq ($(shell uname), Darwin)
-    UPLOAD_BIN := @ ../bin/dfu/hid_bootloader_loader_mac
+    FLASH_BIN := @ ../bin/dfu/hid_bootloader_loader_mac
 else
     $(error Unsupported platform)
 endif
@@ -162,13 +162,12 @@ else
 	@arm-none-eabi-size "$(TARGET).elf"
 endif
 
-#firmware upload with avrdude
-upload:
+flash:
+ifeq ($(ARCH), avr)
 	@avrdude -p $(shell cat build/MCU) -P /dev/$(PORT) -b 19200 -c avrisp -e -V -u -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
 	@avrdude -p $(shell cat build/MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:build/$(shell cat build/TARGET).hex
 	@avrdude -p $(shell cat build/MCU) -P /dev/$(PORT) -b 19200 -c avrisp -V -u -U lock:w:$(FUSE_LOCK):m
-
-flash:
+else
 	arm-none-eabi-gdb -nx --batch \
 	-ex 'target extended-remote /dev/$(PORT)' \
 	-ex 'monitor swdp_scan' \
@@ -177,10 +176,11 @@ flash:
 	-ex 'compare-sections' \
 	-ex 'kill' \
 	build/$(shell cat build/TARGET).elf
+endif
 
 #firmware update with bootloader
-uploadboot:
-	$(UPLOAD_BIN) $(shell cat build/MCU) build/$(shell cat build/TARGET).hex
+flashboot:
+	$(FLASH_BIN) $(shell cat build/MCU) build/$(shell cat build/TARGET).hex
 
 #lists all serial ports - used to find out where the programmer is connected
 ser_list:
