@@ -1,4 +1,8 @@
-TARGETNAME := fw_opendeck
+ifeq (,$(wildcard build/TARGET))
+    TARGETNAME := fw_opendeck
+else
+    TARGETNAME := $(shell cat build/TARGET)
+endif
 
 ifneq ($(findstring $(TARGETNAME), $(shell cat targets.txt)), $(TARGETNAME))
     $(error Target doesn't exist)
