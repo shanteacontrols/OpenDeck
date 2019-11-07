@@ -149,6 +149,9 @@ namespace Board
 
                 CORE_IO_CONFIG(AI_8_PORT, AI_8_PIN, core::io::pinMode_t::input);
                 CORE_IO_SET_LOW(AI_8_PORT, AI_8_PIN);
+
+                CORE_IO_CONFIG(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN, core::io::pinMode_t::input);
+                CORE_IO_SET_HIGH(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
             }
 
             void adc()

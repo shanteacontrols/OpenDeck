@@ -1,13 +1,13 @@
 /*
              LUFA Library
-     Copyright (C) Dean Camera, 2017.
+     Copyright (C) Dean Camera, 2015.
 
   dean [at] fourwalledcubicle [dot] com
            www.lufa-lib.org
 */
 
 /*
-  Copyright 2017  Dean Camera (dean [at] fourwalledcubicle [dot] com)
+  Copyright 2015  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
   Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
@@ -28,15 +28,31 @@
   this software.
 */
 
-/** \file
- *
- *  USB Device Descriptors, for library use when in USB device mode. Descriptors are special
- *  computer-readable structures which the host requests upon device enumeration, to determine
- *  the device's capabilities and functions.
- */
+/*
 
+Copyright 2015-2019 Igor Petrovic
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+*/
+
+#include <string.h>
+#include <stdio.h>
 #include "Descriptors.h"
-#include "Redef.h"
+#include "../Descriptors.h"
+#include "UserConstants.h"
+#include "core/src/general/Helpers.h"
+#include "board/common/Common.h"
 
 /** HID class report descriptor. This is a special descriptor constructed with values from the
  *  USBIF HID class specification to describe the reports and capabilities of the HID device. This
@@ -74,13 +90,13 @@ const USB_Descriptor_Device_t DeviceDescriptor =
 
     .Endpoint0Size          = FIXED_CONTROL_ENDPOINT_SIZE,
 
-    .VendorID               = HID_VENDOR_ID,
-    .ProductID              = HID_PRODUCT_ID,
+    .VendorID               = USB_VENDOR_ID,
+    .ProductID              = USB_PRODUCT_ID,
     .ReleaseNumber          = VERSION_BCD(0,0,1),
 
-    .ManufacturerStrIndex   = NO_DESCRIPTOR,
-    .ProductStrIndex        = NO_DESCRIPTOR,
-    .SerialNumStrIndex      = NO_DESCRIPTOR,
+    .ManufacturerStrIndex   = STRING_ID_Manufacturer,
+    .ProductStrIndex        = STRING_ID_Product,
+    .SerialNumStrIndex      = STRING_ID_UID,
 
     .NumberOfConfigurations = FIXED_NUM_CONFIGURATIONS
 };
@@ -145,44 +161,92 @@ const USB_Descriptor_Configuration_t ConfigurationDescriptor =
         },
 };
 
-/** This function is called by the library when in device mode, and must be overridden (see library "USB Descriptors"
- *  documentation) by the application code so that the address and size of a requested descriptor can be given
- *  to the USB library. When the device receives a Get Descriptor request on the control endpoint, this function
- *  is called so that the descriptor details can be passed back and the appropriate descriptor sent back to the
- *  USB host.
+/** Language descriptor structure. This descriptor, located in FLASH memory, is returned when the host requests
+ *  the string descriptor with index 0 (the first index). It is actually an array of 16-bit integers, which indicate
+ *  via the language ID table available at USB.org what languages the device supports for its string descriptors.
  */
-uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
-                                    const uint16_t wIndex,
-                                    const void** const DescriptorAddress)
+const USB_Descriptor_String_t LanguageString = USB_STRING_DESCRIPTOR_ARRAY(LANGUAGE_ID_ENG);
+
+/** Manufacturer descriptor string. This is a Unicode string containing the manufacturer's details in human readable
+ *  form, and is read out upon request by the host when the appropriate string ID is requested, listed in the Device
+ *  Descriptor.
+ */
+const USB_Descriptor_String_t ManufacturerString = USB_STRING_DESCRIPTOR(USB_MANUFACTURER);
+
+/** Product descriptor string. This is a Unicode string containing the product's details in human readable form,
+ *  and is read out upon request by the host when the appropriate string ID is requested, listed in the Device
+ *  Descriptor.
+ */
+const USB_Descriptor_String_t ProductString = USB_STRING_DESCRIPTOR(USB_PRODUCT);
+
+const USB_Descriptor_Configuration_t* USBgetCfgDescriptor(uint16_t* size)
 {
-    const uint8_t DescriptorType   = (wValue >> 8);
-
-    const void* Address = NULL;
-    uint16_t    Size    = NO_DESCRIPTOR;
-
-    /* If/Else If chain compiles slightly smaller than a switch case */
-    if (DescriptorType == DTYPE_Device)
-    {
-        Address = &DeviceDescriptor;
-        Size    = sizeof(USB_Descriptor_Device_t);
-    }
-    else if (DescriptorType == DTYPE_Configuration)
-    {
-        Address = &ConfigurationDescriptor;
-        Size    = sizeof(USB_Descriptor_Configuration_t);
-    }
-    else if (DescriptorType == HID_DTYPE_HID)
-    {
-        Address = &ConfigurationDescriptor.HID_VendorHID;
-        Size    = sizeof(USB_HID_Descriptor_HID_t);
-    }
-    else if (DescriptorType == HID_DTYPE_Report)
-    {
-        Address = &HIDReport;
-        Size    = sizeof(HIDReport);
-    }
-
-    *DescriptorAddress = Address;
-    return Size;
+    *size = sizeof(USB_Descriptor_Configuration_t);
+    return &ConfigurationDescriptor;
 }
 
+const USB_Descriptor_Device_t* USBgetDeviceDescriptor(uint16_t* size)
+{
+    *size = sizeof(USB_Descriptor_Device_t);
+    return &DeviceDescriptor;
+}
+
+const USB_Descriptor_String_t* USBgetLanguageString(uint16_t* size)
+{
+    *size = LanguageString.Header.Size;
+    return &LanguageString;
+}
+
+const USB_Descriptor_String_t* USBgetManufacturerString(uint16_t* size)
+{
+    *size = ManufacturerString.Header.Size;
+    return &ManufacturerString;
+}
+
+const USB_Descriptor_String_t* USBgetProductString(uint16_t* size)
+{
+    *size = ProductString.Header.Size;
+    return &ProductString;
+}
+
+const USB_Descriptor_HIDReport_Datatype_t* USBgetHIDreport(uint16_t* size)
+{
+    *size = sizeof(HIDReport);
+    return HIDReport;
+}
+
+const USB_HID_Descriptor_HID_t* USBgetHIDdescriptor(uint16_t* size)
+{
+    *size = sizeof(USB_HID_Descriptor_HID_t);
+    return &ConfigurationDescriptor.HID_VendorHID;
+}
+
+#ifdef UID_BITS
+USB_Descriptor_UID_String_t SignatureDescriptorInternal;
+
+const USB_Descriptor_UID_String_t* USBgetSerialIDString(uint16_t* size, uint8_t uid[])
+{
+    SignatureDescriptorInternal.Header.Type = DTYPE_String;
+    SignatureDescriptorInternal.Header.Size = USB_STRING_LEN(UID_BITS / 4);
+
+    uint8_t uidIndex = 0;
+
+    for (int i = 0; i < UID_BITS / 4; i++)
+    {
+        uint8_t uidByte = uid[uidIndex];
+
+        if (i & 0x01)
+        {
+            uidByte >>= 4;
+            uidIndex++;
+        }
+
+        uidByte &= 0x0F;
+
+        SignatureDescriptorInternal.UnicodeString[i] = (uidByte >= 10) ? (('A' - 10) + uidByte) : ('0' + uidByte);
+    }
+
+    *size = SignatureDescriptorInternal.Header.Size;
+    return &SignatureDescriptorInternal;
+}
+#endif

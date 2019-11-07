@@ -16,8 +16,12 @@ limitations under the License.
 
 */
 
-#include "../BootloaderHID.h"
+#include <avr/boot.h>
+#include "core/src/general/Helpers.h"
 #include "board/Board.h"
+#include "Variant.h"
+#include "../Config.h"
+#include "board/common/usb/descriptors/hid/Redef.h"
 
 void EVENT_UART_Device_ControlRequest()
 {

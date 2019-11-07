@@ -16,8 +16,10 @@ limitations under the License.
 
 */
 
-#include "../BootloaderHID.h"
+#include <LUFA/Drivers/USB/USB.h>
+#include <LUFA/Platform/Platform.h>
 #include "board/Board.h"
+#include "../Config.h"
 
 ///
 /// \brief Event handler for the USB_ControlRequest event.
@@ -25,7 +27,7 @@ limitations under the License.
 /// from the USB host before passing along unhandled control requests to the
 /// library for processing internally.
 ///
-void EVENT_USB_Device_ControlRequest(void)
+extern "C" void EVENT_USB_Device_ControlRequest(void)
 {
     uint16_t PageAddress;
 

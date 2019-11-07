@@ -153,8 +153,10 @@ namespace Board
                 {
                     if (rxBuffer[channel].insert(data))
                     {
+#ifdef FW_APP
 #ifdef LED_INDICATORS
                         Board::detail::io::indicateMIDItraffic(MIDI::interface_t::din, Board::detail::midiTrafficDirection_t::incoming);
+#endif
 #endif
                     }
                 }
@@ -163,9 +165,11 @@ namespace Board
                     if (txBuffer[channel].insert(data))
                     {
                         Board::detail::UART::ll::enableDataEmptyInt(channel);
+#ifdef FW_APP
 #ifdef LED_INDICATORS
                         Board::detail::io::indicateMIDItraffic(MIDI::interface_t::din, Board::detail::midiTrafficDirection_t::outgoing);
                         Board::detail::io::indicateMIDItraffic(MIDI::interface_t::din, Board::detail::midiTrafficDirection_t::incoming);
+#endif
 #endif
                     }
                 }
@@ -175,8 +179,10 @@ namespace Board
             {
                 if (txBuffer[channel].remove(data))
                 {
+#ifdef FW_APP
 #ifdef LED_INDICATORS
                     Board::detail::io::indicateMIDItraffic(MIDI::interface_t::din, Board::detail::midiTrafficDirection_t::outgoing);
+#endif
 #endif
                     return true;
                 }

@@ -221,6 +221,9 @@ namespace Board
 
                 CORE_IO_CONFIG(MUX_6_IN_PORT, MUX_6_IN_PIN, core::io::pinMode_t::input);
                 CORE_IO_SET_LOW(MUX_6_IN_PORT, MUX_6_IN_PIN);
+
+                CORE_IO_CONFIG(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN, core::io::pinMode_t::input);
+                CORE_IO_SET_HIGH(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
             }
 
             void adc()

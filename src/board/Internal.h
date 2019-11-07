@@ -227,6 +227,20 @@ namespace Board
             ///
             void disableIndicators();
 #endif
+
+#ifdef FW_BOOT
+            ///
+            /// \brief Reads the state of the button responsible for hardware bootloader entry.
+            /// \returns True if pressed, false otherwise. If bootloader button doesn't exist,
+            ///          function will return false.
+            ///
+            bool isBtldrButtonActive();
+
+            ///
+            /// \brief Initializes outputs used to indicate that bootloader mode is active.
+            ///
+            void indicateBtldr();
+#endif
         }    // namespace io
     }        // namespace detail
 }    // namespace Board

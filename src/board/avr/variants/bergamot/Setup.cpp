@@ -76,6 +76,9 @@ namespace Board
 
                 CORE_IO_SET_LOW(PORTE, 2);
                 CORE_IO_SET_LOW(PORTE, 6);
+
+                CORE_IO_CONFIG(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN, core::io::pinMode_t::input);
+                CORE_IO_SET_HIGH(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
             }
 
             void adc()

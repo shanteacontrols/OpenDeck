@@ -41,7 +41,6 @@ ifeq ($(ARCH), avr)
         ifeq ($(findstring boot,$(TARGETNAME)), boot)
             #bootloader
             SOURCES += \
-            bootloader/mcu/Descriptors.c \
             modules/lufa/LUFA/Drivers/USB/Class/Common/HIDParser.c \
             modules/lufa/LUFA/Drivers/USB/Class/Device/HIDClassDevice.c
         else
@@ -73,15 +72,21 @@ ifeq ($(findstring boot,$(TARGETNAME)), boot)
     #bootloader sources
     #common
     SOURCES += \
-    bootloader/mcu/BootloaderHID.cpp
+    bootloader/mcu/main.cpp \
+    board/$(ARCH)/Common.cpp \
+    board/$(ARCH)/variants/$(BOARD_DIR)/Setup.cpp \
+    board/common/io/Bootloader.cpp
 
     ifneq ($(shell cat board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
+        SOURCES += $(shell find ./board/common/usb/descriptors/hid -type f -name "*.cpp")
+        SOURCES += $(shell find ./board/common/usb/descriptors/hid -type f -name "*.c")
+        SOURCES += $(shell find ./board/$(ARCH)/usb/hid -type f -name "*.cpp")
+
         ifneq ($(filter %16u2 %8u2, $(TARGETNAME)), )
             SOURCES += \
             bootloader/mcu/variant/xu2.cpp \
             board/$(ARCH)/UART_LL.cpp \
-            board/common/UART.cpp \
-            board/common/io/Indicators.cpp
+            board/common/UART.cpp
         else
             SOURCES += \
             bootloader/mcu/variant/NativeUSB.cpp
@@ -101,9 +106,9 @@ else
     SOURCES += $(shell find ./common/OpenDeckMIDIformat -type f -name "*.cpp")
 
     ifneq ($(shell cat board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
-        SOURCES += $(shell find ./board/$(ARCH)/usb -type f -name "*.cpp")
-        SOURCES += $(shell find ./board/common/usb -type f -name "*.cpp")
-        SOURCES += $(shell find ./board/common/usb -type f -name "*.c")
+        SOURCES += $(shell find ./board/$(ARCH)/usb/midi -type f -name "*.cpp")
+        SOURCES += $(shell find ./board/common/usb/descriptors/midi -type f -name "*.cpp")
+        SOURCES += $(shell find ./board/common/usb/descriptors/midi -type f -name "*.c")
     endif
 
     ifneq ($(filter %16u2 %8u2, $(TARGETNAME)), )
@@ -114,7 +119,7 @@ else
         usb-link/USBlink.cpp
     else
         SOURCES += $(shell find ./board/common -maxdepth 1 -type f -name "*.cpp")
-        SOURCES += $(shell find ./board/common/io -type f -name "*.cpp")
+        SOURCES += $(shell find ./board/common/io -type f -name "*.cpp" ! -name "*Bootloader*")
         SOURCES += $(shell find ./application -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell find ./application/database -type f -name "*.cpp")
         SOURCES += $(shell find ./application/OpenDeck -type f -name "*.cpp")

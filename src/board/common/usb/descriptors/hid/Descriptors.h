@@ -1,13 +1,13 @@
 /*
              LUFA Library
-     Copyright (C) Dean Camera, 2017.
+     Copyright (C) Dean Camera, 2015.
 
   dean [at] fourwalledcubicle [dot] com
            www.lufa-lib.org
 */
 
 /*
-  Copyright 2017  Dean Camera (dean [at] fourwalledcubicle [dot] com)
+  Copyright 2015  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
   Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
@@ -28,18 +28,16 @@
   this software.
 */
 
-/** \file
- *
- *  Header file for Descriptors.c.
- */
+#pragma once
 
-#ifndef _DESCRIPTORS_H_
-#define _DESCRIPTORS_H_
+#include "board/common/usb/Arch.h"
 
-/* Includes: */
-#include <LUFA/Drivers/USB/USB.h>
+/** Endpoint address of the HID data IN endpoint. */
+#define HID_IN_EPADDR               (ENDPOINT_DIR_IN | 1)
 
-/* Type Defines: */
+/** Size in bytes of the HID reporting IN endpoint. */
+#define HID_IN_EPSIZE               64
+
 /** Type define for the device configuration descriptor structure. This must be defined in the
  *  application code, as the configuration descriptor contains several sub-descriptors which
  *  vary between devices, and which describe the device's usage to the host.
@@ -63,17 +61,18 @@ enum InterfaceDescriptors_t
     INTERFACE_ID_GenericHID = 0, /**< GenericHID interface descriptor ID */
 };
 
-/* Macros: */
-/** Endpoint address of the HID data IN endpoint. */
-#define HID_IN_EPADDR                (ENDPOINT_DIR_IN | 1)
-
-/** Size in bytes of the HID reporting IN endpoint. */
-#define HID_IN_EPSIZE                64
-
-/* Function Prototypes: */
-uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
-                                    const uint16_t wIndex,
-                                    const void** const DescriptorAddress)
-                                    ATTR_WARN_UNUSED_RESULT ATTR_NON_NULL_PTR_ARG(3);
-
+/** Enum for the device string descriptor IDs within the device. Each string descriptor should
+*  have a unique ID index associated with it, which can be used to refer to the string from
+*  other descriptors.
+*/
+enum StringDescriptors_t
+{
+    STRING_ID_Language = 0,     /**< Supported Languages string descriptor ID (must be zero) */
+    STRING_ID_Manufacturer = 1, /**< Manufacturer string ID */
+    STRING_ID_Product = 2,      /**< Product string ID */
+#ifdef __AVR__
+    STRING_ID_UID = 0           /**< Unique ID isn't supported on AVR MCUs */
+#else
+    STRING_ID_UID = 3           /**< Unique serial number string ID */
 #endif
+};

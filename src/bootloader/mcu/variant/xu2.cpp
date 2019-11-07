@@ -16,9 +16,12 @@ limitations under the License.
 
 */
 
-#include "../BootloaderHID.h"
+#include <LUFA/Drivers/USB/USB.h>
+#include <LUFA/Platform/Platform.h>
 #include "board/Board.h"
-#include "Redef.h"
+#include "board/common/usb/descriptors/hid/Redef.h"
+#include "../Config.h"
+#include "core/src/general/Helpers.h"
 
 ///
 /// \brief Event handler for the USB_ControlRequest event.
@@ -26,7 +29,7 @@ limitations under the License.
 /// from the USB host before passing along unhandled control requests to the
 /// library for processing internally.
 ///
-void EVENT_USB_Device_ControlRequest(void)
+extern "C" void EVENT_USB_Device_ControlRequest(void)
 {
     //ignore any requests that aren't directed to the HID interface
     if ((USB_ControlRequest.bmRequestType & (CONTROL_REQTYPE_TYPE | CONTROL_REQTYPE_RECIPIENT)) !=

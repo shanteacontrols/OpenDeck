@@ -221,6 +221,9 @@ namespace Board
 
                 CORE_IO_CONFIG(AI_16_PORT, AI_16_PIN, core::io::pinMode_t::input);
                 CORE_IO_SET_LOW(AI_16_PORT, AI_16_PIN);
+
+                CORE_IO_CONFIG(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN, core::io::pinMode_t::input);
+                CORE_IO_SET_HIGH(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
             }
 
             void adc()

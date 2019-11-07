@@ -16,7 +16,9 @@ limitations under the License.
 
 */
 
+#include <avr/power.h>
 #include <avr/eeprom.h>
+#include <util/crc16.h>
 #include "board/Board.h"
 #include "board/Internal.h"
 #include "board/common/constants/Reboot.h"
@@ -58,6 +60,88 @@ namespace Board
         /// \brief Placeholder variable used only to reserve space in linker section.
         ///
         const uint32_t appLength __attribute__((section(".applen"))) __attribute__((used)) = 0;
+
+#ifdef FW_BOOT
+        ///
+        /// \brief Calculates CRC of entire flash.
+        /// \return True if CRC is valid, that is, if it matches CRC written in last flash address.
+        ///
+        bool appCRCvalid()
+        {
+            return true;
+            uint16_t crc = 0x0000;
+
+#if (FLASHEND > 0xFFFF)
+            uint32_t lastAddress = pgm_read_word(core::misc::pgmGetFarAddress(APP_LENGTH_LOCATION));
+#else
+            uint32_t lastAddress = pgm_read_word(APP_LENGTH_LOCATION);
+#endif
+
+            for (uint32_t i = 0; i < lastAddress; i++)
+            {
+#if (FLASHEND > 0xFFFF)
+                crc = _crc_xmodem_update(crc, pgm_read_byte_far(core::misc::pgmGetFarAddress(i)));
+#else
+                crc = _crc_xmodem_update(crc, pgm_read_byte(i));
+#endif
+            }
+
+#if (FLASHEND > 0xFFFF)
+            return (crc == pgm_read_word_far(core::misc::pgmGetFarAddress(lastAddress)));
+#else
+            return (crc == pgm_read_word(lastAddress));
+#endif
+        }
+
+        ///
+        /// \brief Checks if application should be run.
+        /// This function performs two checks: hardware and software bootloader entry.
+        /// Hardware bootloader entry is possible if the specific board has defined button
+        /// which should be pressed before the MCU is turned on. If it is, bootloader is
+        /// entered.
+        /// Software bootloader entry is possible by writing special value to special EEPROM
+        /// address before the application is rebooted.
+        /// \returns True if application should be run, false if bootloader should be run.
+        ///
+        bool checkApplicationRun()
+        {
+            bool jumpToApplication = false;
+
+            //add some delay before reading the pins to avoid incorrect state detection
+            _delay_ms(100);
+
+            bool hardwareTrigger = Board::detail::io::isBtldrButtonActive();
+
+            //check if user wants to enter bootloader
+            bool softwareTrigger = eeprom_read_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION) == BTLDR_REBOOT_VALUE;
+
+            //reset value in eeprom after reading
+            eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, APP_REBOOT_VALUE);
+
+            //jump to app only if both software and hardware triggers aren't activated
+            if (!hardwareTrigger && !softwareTrigger)
+                jumpToApplication = true;
+
+            //don't run the user application if the reset vector is blank (no app loaded)
+            bool applicationValid = (pgm_read_word(0) != 0xFFFF) && appCRCvalid();
+
+            return (jumpToApplication && applicationValid);
+        }
+
+        ///
+        /// \brief Run user application.
+        ///
+        void runApplication()
+        {
+            //run app
+            // ((void (*)(void))0x0000)();
+            __asm__ __volatile__(
+                // Jump to RST vector
+                "clr r30\n"
+                "clr r31\n"
+                "ijmp\n");
+        }
+#endif
     }    // namespace
 
     void init()
@@ -68,8 +152,12 @@ namespace Board
         MCUSR &= ~(1 << WDRF);
         wdt_disable();
 
+        //disable clock division
+        clock_prescale_set(clock_div_1);
+
         detail::setup::io();
 
+#ifdef FW_APP
 #if !defined(OD_BOARD_16U2) && !defined(OD_BOARD_8U2)
         detail::setup::adc();
 #else
@@ -81,6 +169,27 @@ namespace Board
 #endif
 
         detail::setup::timers();
+#else
+        //clear reset source
+        MCUSR &= ~(1 << EXTRF);
+
+        if (checkApplicationRun())
+        {
+            runApplication();
+        }
+        else
+        {
+            //relocate the interrupt vector table to the bootloader section
+            MCUCR = (1 << IVCE);
+            MCUCR = (1 << IVSEL);
+
+            detail::io::indicateBtldr();
+#ifdef USB_MIDI_SUPPORTED
+            detail::setup::usb();
+#endif
+        }
+#endif
+
         ENABLE_INTERRUPTS();
     }
 
@@ -186,6 +295,7 @@ namespace Board
 #endif
 }    // namespace Board
 
+#ifdef FW_APP
 #ifdef ADC
 ///
 /// \brief ADC ISR used to read values from multiplexers.
@@ -194,6 +304,7 @@ ISR(ADC_vect)
 {
     Board::detail::io::adcISRHandler(ADC);
 }
+#endif
 #endif
 
 ///
@@ -209,15 +320,21 @@ ISR(TIMER0_COMPA_vect)
     {
         core::timing::detail::rTime_ms++;
 
+#ifdef FW_APP
+#if !defined(OD_BOARD_16U2) && !defined(OD_BOARD_8U2)
 #ifdef LEDS_SUPPORTED
         Board::detail::io::checkDigitalOutputs();
+#endif
 #endif
 #ifdef LED_INDICATORS
         Board::detail::io::checkIndicators();
 #endif
+#endif
     }
 
+#ifdef FW_APP
 #if !defined(OD_BOARD_16U2) && !defined(OD_BOARD_8U2)
     Board::detail::io::checkDigitalInputs();
+#endif
 #endif
 }

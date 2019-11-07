@@ -202,8 +202,10 @@ namespace Board
 
             if (returnValue)
             {
+#ifdef FW_APP
 #ifdef LED_INDICATORS
                 Board::detail::io::indicateMIDItraffic(MIDI::interface_t::usb, Board::detail::midiTrafficDirection_t::incoming);
+#endif
 #endif
             }
 
