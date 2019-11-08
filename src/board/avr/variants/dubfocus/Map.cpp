@@ -28,27 +28,12 @@ namespace Board
             namespace
             {
                 const core::io::mcuPin_t aInPins[NUMBER_OF_MUX] = {
-                    //port not used on avr mcus for adc channels
+                    //port not used on avr mcus for adc channels, use any port
                     //adc channel doesn't have to match with adc pin
-                    {
-                        .port = nullptr,
-                        .index = 7,
-                    },
-
-                    {
-                        .port = nullptr,
-                        .index = 6,
-                    },
-
-                    {
-                        .port = nullptr,
-                        .index = 5,
-                    },
-
-                    {
-                        .port = nullptr,
-                        .index = 4,
-                    }
+                    CORE_IO_MCU_PIN_DEF(PORTF, 7),
+                    CORE_IO_MCU_PIN_DEF(PORTF, 6),
+                    CORE_IO_MCU_PIN_DEF(PORTF, 5),
+                    CORE_IO_MCU_PIN_DEF(PORTF, 4)
                 };
             }
 

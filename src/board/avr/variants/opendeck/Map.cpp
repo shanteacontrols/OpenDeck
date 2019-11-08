@@ -131,52 +131,22 @@ namespace Board
                 /// \brief Array holding ADC read pins/channels.
                 ///
                 const core::io::mcuPin_t aInPins[NUMBER_OF_MUX] = {
-                    //port not used on avr mcus for adc channels
+                    //port not used on avr mcus for adc channels, use any port
                     //adc channel doesn't have to match with adc pin
-                    {
-                        .port = nullptr,
-                        .index = MUX_1_IN_PIN,
-                    },
-
-                    {
-                        .port = nullptr,
-                        .index = MUX_2_IN_PIN,
-                    }
+                    CORE_IO_MCU_PIN_DEF(MUX_1_IN_PORT, MUX_1_IN_PIN),
+                    CORE_IO_MCU_PIN_DEF(MUX_2_IN_PORT, MUX_2_IN_PIN)
                 };
 
                 ///
                 /// \brief Array of mcuPin_t structure holding port/pin for every LED row for easier access.
                 ///
                 const core::io::mcuPin_t ledRowPins[NUMBER_OF_LED_ROWS] = {
-                    {
-                        .port = &LED_ROW_1_PORT,
-                        .index = LED_ROW_1_PIN,
-                    },
-
-                    {
-                        .port = &LED_ROW_2_PORT,
-                        .index = LED_ROW_2_PIN,
-                    },
-
-                    {
-                        .port = &LED_ROW_3_PORT,
-                        .index = LED_ROW_3_PIN,
-                    },
-
-                    {
-                        .port = &LED_ROW_4_PORT,
-                        .index = LED_ROW_4_PIN,
-                    },
-
-                    {
-                        .port = &LED_ROW_5_PORT,
-                        .index = LED_ROW_5_PIN,
-                    },
-
-                    {
-                        .port = &LED_ROW_6_PORT,
-                        .index = LED_ROW_6_PIN,
-                    }
+                    CORE_IO_MCU_PIN_DEF(LED_ROW_1_PORT, LED_ROW_1_PIN),
+                    CORE_IO_MCU_PIN_DEF(LED_ROW_2_PORT, LED_ROW_2_PIN),
+                    CORE_IO_MCU_PIN_DEF(LED_ROW_3_PORT, LED_ROW_3_PIN),
+                    CORE_IO_MCU_PIN_DEF(LED_ROW_4_PORT, LED_ROW_4_PIN),
+                    CORE_IO_MCU_PIN_DEF(LED_ROW_5_PORT, LED_ROW_5_PIN),
+                    CORE_IO_MCU_PIN_DEF(LED_ROW_6_PORT, LED_ROW_6_PIN)
                 };
 
                 const core::io::pwmChannel_t pwmChannels[NUMBER_OF_LED_ROWS] = {
