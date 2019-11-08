@@ -62,8 +62,6 @@ namespace Board
 
     namespace USB
     {
-        trafficIndicator_t trafficIndicator;
-
         bool readMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
         {
             //device must be connected and configured for the task to run
@@ -83,7 +81,10 @@ namespace Board
                 if (!(Endpoint_BytesInEndpoint()))
                     Endpoint_ClearOUT();    //clear the endpoint ready for new packet
 
-                trafficIndicator.received = true;
+#ifdef LED_INDICATORS
+                Board::interface::digital::output::indicateMIDItraffic(MIDI::interface_t::usb, Board::midiTrafficDirection_t::incoming);
+#endif
+
                 return true;
             }
             else
@@ -109,7 +110,9 @@ namespace Board
 
             MIDI_Device_Flush(&MIDI_Interface);
 
-            trafficIndicator.sent = true;
+#ifdef LED_INDICATORS
+            Board::interface::digital::output::indicateMIDItraffic(MIDI::interface_t::usb, Board::midiTrafficDirection_t::outgoing);
+#endif
 
             return true;
         }

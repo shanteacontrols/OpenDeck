@@ -86,10 +86,10 @@ namespace
         CORE_IO_CONFIG(LED_IN_PORT, LED_IN_PIN, core::io::pinMode_t::output);
         INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
 #elif defined(LED_INDICATORS)
-        CORE_IO_CONFIG(LED_IN_PORT, LED_IN_PIN, core::io::pinMode_t::output);
-        CORE_IO_CONFIG(LED_OUT_PORT, LED_OUT_PIN, core::io::pinMode_t::output);
-        INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
-        INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
+        CORE_IO_CONFIG(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN, core::io::pinMode_t::output);
+        CORE_IO_CONFIG(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN, core::io::pinMode_t::output);
+        INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
+        INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
 #endif
     }
 

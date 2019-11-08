@@ -20,8 +20,14 @@ limitations under the License.
 
 #include <avr/io.h>
 
-#define LED_OUT_PORT        PORTD
-#define LED_OUT_PIN         5
+#define LED_MIDI_IN_DIN_PORT        PORTD
+#define LED_MIDI_IN_DIN_PIN         5
 
-#define LED_IN_PORT         PORTD
-#define LED_IN_PIN          4
+#define LED_MIDI_OUT_DIN_PORT       PORTD
+#define LED_MIDI_OUT_DIN_PIN        4
+
+#define LED_MIDI_IN_USB_PORT        LED_MIDI_IN_DIN_PORT
+#define LED_MIDI_IN_USB_PIN         LED_MIDI_IN_DIN_PIN
+
+#define LED_MIDI_OUT_USB_PORT       LED_MIDI_OUT_DIN_PORT
+#define LED_MIDI_OUT_USB_PIN        LED_MIDI_OUT_DIN_PIN

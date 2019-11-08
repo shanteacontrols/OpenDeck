@@ -33,6 +33,7 @@ limitations under the License.
 #define SR_DIN_LATCH_PORT           PORTD
 #define SR_DIN_LATCH_PIN            1
 
+
 #define DEC_DM_A0_PORT              PORTB
 #define DEC_DM_A0_PIN               4
 
@@ -42,6 +43,7 @@ limitations under the License.
 #define DEC_DM_A2_PORT              PORTD
 #define DEC_DM_A2_PIN               4
 
+
 #define DEC_LM_A0_PORT              PORTB
 #define DEC_LM_A0_PIN               1
 
@@ -50,6 +52,7 @@ limitations under the License.
 
 #define DEC_LM_A2_PORT              PORTB
 #define DEC_LM_A2_PIN               3
+
 
 #define LED_ROW_1_PORT              PORTB
 #define LED_ROW_1_PIN               7
@@ -69,6 +72,7 @@ limitations under the License.
 #define LED_ROW_6_PORT              PORTB
 #define LED_ROW_6_PIN               6
 
+
 #define MUX_S0_PORT                 PORTF
 #define MUX_S0_PIN                  5
 
@@ -81,17 +85,26 @@ limitations under the License.
 #define MUX_S3_PORT                 PORTF
 #define MUX_S3_PIN                  6
 
+
 #define MUX_1_IN_PORT               PORTF
 #define MUX_1_IN_PIN                0
 
 #define MUX_2_IN_PORT               PORTF
 #define MUX_2_IN_PIN                1
 
-#define LED_IN_PORT                 PORTE
-#define LED_IN_PIN                  6
 
-#define LED_OUT_PORT                PORTE
-#define LED_OUT_PIN                 2
+#define LED_MIDI_IN_DIN_PORT        PORTE
+#define LED_MIDI_IN_DIN_PIN         6
+
+#define LED_MIDI_OUT_DIN_PORT       PORTE
+#define LED_MIDI_OUT_DIN_PIN        2
+
+#define LED_MIDI_IN_USB_PORT        LED_MIDI_IN_DIN_PORT
+#define LED_MIDI_IN_USB_PIN         LED_MIDI_IN_DIN_PIN
+
+#define LED_MIDI_OUT_USB_PORT       LED_MIDI_OUT_DIN_PORT
+#define LED_MIDI_OUT_USB_PIN        LED_MIDI_OUT_DIN_PIN
+
 
 #define BTLDR_BUTTON_PORT           PORTB
 #define BTLDR_BUTTON_PIN            2

@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#include "board/UART.h"
+#include "board/Board.h"
 #include "core/src/arch/avr/UART.h"
 #include "core/src/general/RingBuffer.h"
 
@@ -79,8 +79,6 @@ namespace Board
 {
     namespace UART
     {
-        trafficIndicator_t trafficIndicator;
-
         void setLoopbackState(uint8_t channel, bool state)
         {
             if (channel >= UART_INTERFACES)
@@ -290,15 +288,21 @@ ISR(USART_RX_vect_0)
     if (!loopbackEnabled[0])
     {
         if (rxBuffer[0].insert(data))
-            Board::UART::trafficIndicator.received = true;
+        {
+#ifdef LED_INDICATORS
+            Board::interface::digital::output::indicateMIDItraffic(MIDI::interface_t::din, Board::midiTrafficDirection_t::incoming);
+#endif
+        }
     }
     else
     {
         if (txBuffer[0].insert(data))
         {
             UCSRB_0 |= (1 << UDRIE_0);
-            Board::UART::trafficIndicator.sent = true;
-            Board::UART::trafficIndicator.received = true;
+#ifdef LED_INDICATORS
+            Board::interface::digital::output::indicateMIDItraffic(MIDI::interface_t::din, Board::midiTrafficDirection_t::outgoing);
+            Board::interface::digital::output::indicateMIDItraffic(MIDI::interface_t::din, Board::midiTrafficDirection_t::incoming);
+#endif
         }
     }
 }
@@ -311,15 +315,21 @@ ISR(USART_RX_vect_1)
     if (!loopbackEnabled[1])
     {
         if (rxBuffer[1].insert(data))
-            Board::UART::trafficIndicator.received = true;
+        {
+#ifdef LED_INDICATORS
+            Board::interface::digital::output::indicateMIDItraffic(MIDI::interface_t::din, Board::midiTrafficDirection_t::incoming);
+#endif
+        }
     }
     else
     {
         if (txBuffer[1].insert(data))
         {
+#ifdef LED_INDICATORS
             UCSRB_1 |= (1 << UDRIE_1);
-            Board::UART::trafficIndicator.sent = true;
-            Board::UART::trafficIndicator.received = true;
+            Board::interface::digital::output::indicateMIDItraffic(MIDI::interface_t::din, Board::midiTrafficDirection_t::outgoing);
+            Board::interface::digital::output::indicateMIDItraffic(MIDI::interface_t::din, Board::midiTrafficDirection_t::incoming);
+#endif
         }
     }
 }
@@ -338,7 +348,9 @@ ISR(USART_UDRE_vect_0)
     if (txBuffer[0].remove(data))
     {
         UDR_0 = data;
-        Board::UART::trafficIndicator.sent = true;
+#ifdef LED_INDICATORS
+        Board::interface::digital::output::indicateMIDItraffic(MIDI::interface_t::din, Board::midiTrafficDirection_t::outgoing);
+#endif
     }
     else
     {
@@ -355,7 +367,9 @@ ISR(USART_UDRE_vect_1)
     if (txBuffer[1].remove(data))
     {
         UDR_1 = data;
-        Board::UART::trafficIndicator.sent = true;
+#ifdef LED_INDICATORS
+        Board::interface::digital::output::indicateMIDItraffic(MIDI::interface_t::din, Board::midiTrafficDirection_t::outgoing);
+#endif
     }
     else
     {

@@ -30,11 +30,11 @@ namespace Board
         void pins()
         {
             //bootloader/midi leds
-            CORE_IO_CONFIG(LED_IN_PORT, LED_IN_PIN, core::io::pinMode_t::output);
-            CORE_IO_CONFIG(LED_OUT_PORT, LED_OUT_PIN, core::io::pinMode_t::output);
+            CORE_IO_CONFIG(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN, core::io::pinMode_t::output);
+            CORE_IO_CONFIG(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN, core::io::pinMode_t::output);
 
-            INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
-            INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+            INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
+            INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
         }
 
         void timers()
@@ -56,23 +56,26 @@ namespace Board
             {
                 if (fwUpdated)
                 {
-                    INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
-                    INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+                    INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+                    INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
                     _delay_ms(LED_INDICATOR_STARTUP_DELAY);
-                    INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
-                    INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
+                    INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+                    INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
                     _delay_ms(LED_INDICATOR_STARTUP_DELAY);
                 }
                 else
                 {
-                    INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
-                    INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
+                    INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+                    INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
                     _delay_ms(LED_INDICATOR_STARTUP_DELAY);
-                    INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
-                    INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+                    INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+                    INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
                     _delay_ms(LED_INDICATOR_STARTUP_DELAY);
                 }
             }
         }
+
+        INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+        INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
     }
 }    // namespace Board

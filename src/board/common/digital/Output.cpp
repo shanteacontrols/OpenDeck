@@ -38,8 +38,11 @@ namespace
     /// Once the variables have value 0, specific LED indicator is turned off.
     /// @{
 
-    volatile uint8_t midiIn_timeout;
-    volatile uint8_t midiOut_timeout;
+    volatile uint8_t midiInDINtimeout;
+    volatile uint8_t midiOutDINtimeout;
+
+    volatile uint8_t midiInUSBtimeout;
+    volatile uint8_t midiOutUSBtimeout;
 
     /// @}
 }    // namespace
@@ -138,6 +141,40 @@ namespace Board
         {
             namespace output
             {
+#ifdef LED_INDICATORS
+                void indicateMIDItraffic(MIDI::interface_t source, midiTrafficDirection_t direction)
+                {
+                    switch (source)
+                    {
+                    case MIDI::interface_t::din:
+                        if (direction == midiTrafficDirection_t::incoming)
+                        {
+                            INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
+                            midiInDINtimeout = MIDI_INDICATOR_TIMEOUT;
+                        }
+                        else
+                        {
+                            INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+                            midiOutDINtimeout = MIDI_INDICATOR_TIMEOUT;
+                        }
+                        break;
+
+                    case MIDI::interface_t::usb:
+                        if (direction == midiTrafficDirection_t::incoming)
+                        {
+                            INT_LED_ON(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
+                            midiInUSBtimeout = MIDI_INDICATOR_TIMEOUT;
+                        }
+                        else
+                        {
+                            INT_LED_ON(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
+                            midiOutUSBtimeout = MIDI_INDICATOR_TIMEOUT;
+                        }
+                        break;
+                    }
+                }
+#endif
+
 #ifndef BOARD_A_xu2
 #ifdef LEDS_SUPPORTED
                 bool setLEDfadeSpeed(uint8_t transitionSpeed)
@@ -217,31 +254,25 @@ namespace Board
 #ifdef LED_INDICATORS
                     void checkIndicators()
                     {
-                        if (Board::USB::trafficIndicator.received || Board::UART::trafficIndicator.received)
-                        {
-                            INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
-                            Board::USB::trafficIndicator.received = false;
-                            Board::UART::trafficIndicator.received = false;
-                            midiIn_timeout = MIDI_INDICATOR_TIMEOUT;
-                        }
-
-                        if (midiIn_timeout)
-                            midiIn_timeout--;
+                        if (midiInDINtimeout)
+                            midiInDINtimeout--;
                         else
-                            INT_LED_OFF(LED_IN_PORT, LED_IN_PIN);
+                            INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
 
-                        if (Board::USB::trafficIndicator.sent || Board::UART::trafficIndicator.sent)
-                        {
-                            INT_LED_ON(LED_OUT_PORT, LED_OUT_PIN);
-                            Board::USB::trafficIndicator.sent = false;
-                            Board::UART::trafficIndicator.sent = false;
-                            midiOut_timeout = MIDI_INDICATOR_TIMEOUT;
-                        }
-
-                        if (midiOut_timeout)
-                            midiOut_timeout--;
+                        if (midiOutDINtimeout)
+                            midiOutDINtimeout--;
                         else
-                            INT_LED_OFF(LED_OUT_PORT, LED_OUT_PIN);
+                            INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+
+                        if (midiInUSBtimeout)
+                            midiInUSBtimeout--;
+                        else
+                            INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
+
+                        if (midiOutUSBtimeout)
+                            midiOutUSBtimeout--;
+                        else
+                            INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
                     }
 #endif
 

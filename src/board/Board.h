@@ -24,7 +24,6 @@ limitations under the License.
 #include "dbms/src/LESSDB.h"
 #include "midi/src/MIDI.h"
 #include "common/Common.h"
-#include "UART.h"
 
 namespace Board
 {
@@ -35,6 +34,15 @@ namespace Board
     {
         rebootApp,     ///< Reboot to application.
         rebootBtldr    ///< Reboot to bootloader.
+    };
+
+    ///
+    /// \brief Specifies incoming or outgoing MIDI data traffic.
+    ///
+    enum class midiTrafficDirection_t : uint8_t
+    {
+        incoming,
+        outgoing
     };
 
     ///
@@ -84,12 +92,68 @@ namespace Board
         /// \returns True if data is available, false otherwise.
         ///
         bool writeMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket);
+    }    // namespace USB
+
+    namespace UART
+    {
+        ///
+        /// \brief Deinitializes specified UART channel.
+        /// @param [in] channel UART channel on MCU.
+        ///
+        void reset(uint8_t channel);
 
         ///
-        /// \brief Used to indicate whether or not USB event has occured (packet sent or received).
+        /// \brief Initializes UART peripheral.
+        /// @param [in] baudRate    UART speed (baudrate).
+        /// @param [in] channel     UART channel on MCU.
         ///
-        extern trafficIndicator_t trafficIndicator;
-    }    // namespace USB
+        void init(uint32_t baudRate, uint8_t channel);
+
+        ///
+        /// \brief Used to read MIDI data from RX UART buffer.
+        /// @param [in]     channel     UART channel on MCU.
+        /// @param [in,out] data        Pointer to variable in which read data is being stored.
+        /// \returns False if buffer is empty, true otherwise.
+        ///
+        bool read(uint8_t channel, uint8_t& data);
+
+        ///
+        /// \brief Used to write MIDI data to UART TX buffer.
+        /// @param [in] channel     UART channel on MCU.
+        /// @param [in] data        Byte of data to write.
+        /// \returns True on success. Since this function waits until
+        /// outgoig buffer is full, result will always be success (1).
+        ///
+        bool write(uint8_t channel, uint8_t data);
+
+        ///
+        /// \brief Used to enable or disable UART loopback functionality.
+        /// Used to pass incoming UART data to TX channel immediately.
+        /// @param [in] channel UART channel on MCU.
+        /// @param [in] state   New state of loopback functionality (true/enabled, false/disabled).
+        ///
+        void setLoopbackState(uint8_t channel, bool state);
+
+        ///
+        /// \brief Checks whether or not UART loopback functionality is enabled.
+        /// @param [in] channel UART channel on MCU.
+        ///
+        bool getLoopbackState(uint8_t channel);
+
+        ///
+        /// \brief Checks if all data on specified UART channel has been sent.
+        /// @param [in] channel UART channel on MCU.
+        /// \returns True if there is no more data to transmit, false otherwise.
+        ///
+        bool isTxEmpty(uint8_t channel);
+
+        ///
+        /// \brief Checks how many bytes are stored in incoming buffer.
+        /// @param [in] channel UART channel on MCU.
+        /// \returns Number of available bytes.
+        ///
+        uint8_t bytesAvailableRx(uint8_t channel);
+    }    // namespace UART
 
     namespace interface
     {
@@ -126,9 +190,9 @@ namespace Board
                 uint8_t getEncoderPairState(uint8_t encoderID);
             }    // namespace input
 
-#ifdef LEDS_SUPPORTED
             namespace output
             {
+#ifdef LEDS_SUPPORTED
                 ///
                 /// \brief Used to calculate index of R, G or B component of RGB LED.
                 /// @param [in] rgbID   Index of RGB LED.
@@ -151,9 +215,18 @@ namespace Board
                 ///             See board/common/constants/LEDs.h for range.
                 ///
                 bool setLEDfadeSpeed(uint8_t transitionSpeed);
-            }    // namespace output
 #endif
-        }    // namespace digital
+
+#ifdef LED_INDICATORS
+                ///
+                /// \brief Used to indicate that the MIDI event has occured using built-in LEDs on board.
+                /// @param [source]     Source of MIDI data. See MIDI::interface_t enumeration.
+                /// @param [direction]  Direction of MIDI data. See midiTrafficDirection_t enumeration.
+                ///
+                void indicateMIDItraffic(MIDI::interface_t source, midiTrafficDirection_t direction);
+#endif
+            }    // namespace output
+        }        // namespace digital
 
         namespace analog
         {

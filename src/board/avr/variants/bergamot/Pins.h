@@ -29,6 +29,7 @@ limitations under the License.
 #define SR_DIN_LATCH_PORT           PORTD
 #define SR_DIN_LATCH_PIN            4
 
+
 #define MUX_S0_PORT                 PORTF
 #define MUX_S0_PIN                  6
 
@@ -41,8 +42,10 @@ limitations under the License.
 #define MUX_S3_PORT                 PORTF
 #define MUX_S3_PIN                  4
 
+
 #define MUX_1_IN_PORT               PORTF
 #define MUX_1_IN_PIN                1
+
 
 #define BTLDR_BUTTON_PORT           PORTF
 #define BTLDR_BUTTON_PIN            0

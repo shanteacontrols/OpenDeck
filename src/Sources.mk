@@ -70,7 +70,8 @@ ifeq ($(findstring boot,$(TARGETNAME)), boot)
         ifeq ($(BOARD_DIR),xu2)
             SOURCES += \
             bootloader/mcu/variant/xu2.cpp \
-            board/$(ARCH)/uart/UART.cpp
+            board/$(ARCH)/uart/UART.cpp \
+            board/common/digital/Output.cpp
         else
             SOURCES += \
             bootloader/mcu/variant/NativeUSB.cpp
