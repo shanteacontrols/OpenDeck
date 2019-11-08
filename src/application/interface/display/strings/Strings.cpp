@@ -5,15 +5,26 @@
 
 namespace
 {
-    const char opendeck_string[] PROGMEM = "OpenDeck";
-    const char arduinoLeonardo_string[] PROGMEM = "Arduino Leo";
-    const char arduinoMega_string[] PROGMEM = "Arduino Mega";
-    const char arduinoProMicro_string[] PROGMEM = "Arduino PM";
-    const char arduinoUno_string[] PROGMEM = "Arduino Uno";
-    const char teensy2pp_string[] PROGMEM = "Teensy++ 2.0";
-    const char dubfocus_string[] PROGMEM = "DubFocus";
-    const char bergamot_string[] PROGMEM = "Bergamot";
-    const char unknown_string[] PROGMEM = "Unknown";
+    const char boardName_string[] PROGMEM =
+#ifdef BOARD_OPEN_DECK
+        "OpenDeck";
+#elif defined(BOARD_A_LEO)
+        "Arduino Leo";
+#elif defined(BOARD_A_MEGA)
+        "Arduino Mega";
+#elif defined(BOARD_A_PRO_MICRO)
+        "Arduino PM";
+#elif defined(BOARD_A_UNO)
+        "Arduino Uno";
+#elif defined(BOARD_T_2PP)
+        "Teensy++ 2.0";
+#elif defined(BOARD_DUBFOCUS)
+        "DubFocus";
+#elif defined(BOARD_BERGAMOT)
+        "Bergamot";
+#else
+        "Unknown";
+#endif
 
     const char eventNoteOff_string[] PROGMEM = "Note Off";
     const char eventNoteOn_string[] PROGMEM = "Note On";
@@ -99,27 +110,7 @@ namespace
 
 const char* Strings::board()
 {
-#ifdef BOARD_OPEN_DECK
-    strcpy_P(tempBuffer, opendeck_string);
-    return tempBuffer;
-#elif defined(BOARD_A_LEO)
-    strcpy_P(tempBuffer, arduinoLeonardo_string);
-#elif defined(BOARD_A_MEGA)
-    strcpy_P(tempBuffer, arduinoMega_string);
-#elif defined(BOARD_A_PRO_MICRO)
-    strcpy_P(tempBuffer, arduinoProMicro_string);
-#elif defined(BOARD_A_UNO)
-    strcpy_P(tempBuffer, arduinoUno_string);
-#elif defined(BOARD_T_2PP)
-    strcpy_P(tempBuffer, teensy2pp_string);
-#elif defined(BOARD_DUBFOCUS)
-    strcpy_P(tempBuffer, dubfocus_string);
-#elif defined(BOARD_BERGAMOT)
-    strcpy_P(tempBuffer, bergamot_string);
-#else
-    strcpy_P(tempBuffer, unknown_string);
-#endif
-
+    strcpy_P(tempBuffer, boardName_string);
     return tempBuffer;
 }
 
