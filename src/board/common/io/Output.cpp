@@ -22,7 +22,6 @@ limitations under the License.
 #include "core/src/general/Helpers.h"
 #include "core/src/general/Atomic.h"
 #include "Pins.h"
-#include "interface/digital/output/leds/Helpers.h"
 #include "interface/digital/output/leds/LEDs.h"
 
 namespace
@@ -30,7 +29,21 @@ namespace
 #if !defined(NUMBER_OF_OUT_SR) || defined(NUMBER_OF_LED_COLUMNS)
     core::io::mcuPin_t pin;
 #endif
-    uint8_t ledStateSingle;
+
+    ///
+    /// \brief Variables holding calculated current LED index and state.
+    /// Used only to avoid stack usage in interrupt.
+    /// @{
+
+#if defined(NUMBER_OF_LED_COLUMNS) || defined(NUMBER_OF_OUT_SR)
+    uint8_t ledIndex;
+#endif
+#ifdef NUMBER_OF_LED_COLUMNS
+    bool ledStateSingle;
+#endif
+    /// @}
+
+    uint8_t ledState[MAX_NUMBER_OF_LEDS];
 
 #ifdef LED_FADING
     volatile uint8_t pwmSteps;
@@ -108,10 +121,12 @@ namespace
 #endif
 
 #ifndef NUMBER_OF_LED_COLUMNS
-    uint8_t lastLEDstate[MAX_NUMBER_OF_LEDS];
+    ///
+    /// \brief Used to indicate whether or not outputs should be updated.
+    /// Set to true in ::writeState if the new state differs from the current one.
+    ///
+    volatile bool updateOutputs = false;
 #else
-    uint8_t ledNumber;
-
     ///
     /// \brief Holds value of currently active output matrix column.
     ///
@@ -179,6 +194,17 @@ namespace Board
 {
     namespace io
     {
+        void writeLEDstate(uint8_t ledID, bool state)
+        {
+            ATOMIC_SECTION
+            {
+                ledState[ledID] = state;
+#ifndef NUMBER_OF_LED_COLUMNS
+                updateOutputs = true;
+#endif
+            }
+        }
+
 #ifdef LED_FADING
         bool setLEDfadeSpeed(uint8_t transitionSpeed)
         {
@@ -268,10 +294,8 @@ namespace Board
                 //do fancy transitions here
                 for (int i = 0; i < NUMBER_OF_LED_ROWS; i++)
                 {
-                    ledNumber = activeOutColumn + i * NUMBER_OF_LED_COLUMNS;
-                    ledStateSingle = LED_ON(Interface::digital::output::LEDs::getLEDstate(ledNumber));
-
-                    ledStateSingle *= (NUMBER_OF_LED_TRANSITIONS - 1);
+                    ledIndex = activeOutColumn + i * NUMBER_OF_LED_COLUMNS;
+                    ledStateSingle = ledState[ledIndex] * (NUMBER_OF_LED_TRANSITIONS - 1);
 
                     //don't bother with pwm if it's disabled
                     if (!pwmSteps && ledStateSingle)
@@ -285,31 +309,31 @@ namespace Board
                     }
                     else
                     {
-                        if (ledTransitionScale[transitionCounter[ledNumber]])
+                        if (ledTransitionScale[transitionCounter[ledIndex]])
                             ledRowOn(i
 #ifdef LED_FADING
                                      ,
-                                     ledTransitionScale[transitionCounter[ledNumber]]
+                                     ledTransitionScale[transitionCounter[ledIndex]]
 #endif
                             );
 
-                        if (transitionCounter[ledNumber] != ledStateSingle)
+                        if (transitionCounter[ledIndex] != ledStateSingle)
                         {
                             //fade up
-                            if (transitionCounter[ledNumber] < ledStateSingle)
+                            if (transitionCounter[ledIndex] < ledStateSingle)
                             {
-                                transitionCounter[ledNumber] += pwmSteps;
+                                transitionCounter[ledIndex] += pwmSteps;
 
-                                if (transitionCounter[ledNumber] > ledStateSingle)
-                                    transitionCounter[ledNumber] = ledStateSingle;
+                                if (transitionCounter[ledIndex] > ledStateSingle)
+                                    transitionCounter[ledIndex] = ledStateSingle;
                             }
                             else
                             {
                                 //fade down
-                                transitionCounter[ledNumber] -= pwmSteps;
+                                transitionCounter[ledIndex] -= pwmSteps;
 
-                                if (transitionCounter[ledNumber] < 0)
-                                    transitionCounter[ledNumber] = 0;
+                                if (transitionCounter[ledIndex] < 0)
+                                    transitionCounter[ledIndex] = 0;
                             }
                         }
                     }
@@ -324,24 +348,9 @@ namespace Board
             ///
             void checkDigitalOutputs()
             {
-                bool updateSR = false;
-
-                for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
-                {
-                    ledStateSingle = LED_ON(Interface::digital::output::LEDs::getLEDstate(i));
-
-                    if (ledStateSingle != lastLEDstate[i])
-                    {
-                        lastLEDstate[i] = ledStateSingle;
-                        updateSR = true;
-                    }
-                }
-
-                if (updateSR)
+                if (updateOutputs)
                 {
                     CORE_IO_SET_LOW(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
-
-                    uint8_t ledIndex;
 
                     for (int j = 0; j < NUMBER_OF_OUT_SR; j++)
                     {
@@ -349,7 +358,7 @@ namespace Board
                         {
                             ledIndex = i + j * NUMBER_OF_OUT_SR_INPUTS;
 
-                            LED_ON(Interface::digital::output::LEDs::getLEDstate(ledIndex)) ? EXT_LED_ON(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN) : EXT_LED_OFF(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
+                            ledState[ledIndex] ? EXT_LED_ON(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN) : EXT_LED_OFF(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
                             CORE_IO_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
                             _NOP();
                             _NOP();
@@ -358,25 +367,25 @@ namespace Board
                     }
 
                     CORE_IO_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+                    updateOutputs = false;
                 }
             }
 #else
             void checkDigitalOutputs()
             {
-                for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
+                if (updateOutputs)
                 {
-                    ledStateSingle = LED_ON(Interface::digital::output::LEDs::getLEDstate(i));
-                    pin = Board::detail::map::led(i);
-
-                    if (ledStateSingle != lastLEDstate[i])
+                    for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
                     {
-                        if (ledStateSingle)
+                        pin = Board::detail::map::led(i);
+
+                        if (ledState[i])
                             EXT_LED_ON(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
                         else
                             EXT_LED_OFF(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
-
-                        lastLEDstate[i] = ledStateSingle;
                     }
+
+                    updateOutputs = false;
                 }
             }
 #endif

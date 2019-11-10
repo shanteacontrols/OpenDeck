@@ -176,6 +176,13 @@ namespace Board
 
 #ifdef LEDS_SUPPORTED
         ///
+        /// \brief Used to turn LED connected to the board on or off.
+        /// @param [in] ledID   LED for which to change state.
+        /// @param [in] state   New LED state (true/on, false/off).
+        ///
+        void writeLEDstate(uint8_t ledID, bool state);
+
+        ///
         /// \brief Used to calculate index of R, G or B component of RGB LED.
         /// @param [in] rgbID   Index of RGB LED.
         /// @param [in] index   R, G or B component (enumerated type, see rgbIndex_t).

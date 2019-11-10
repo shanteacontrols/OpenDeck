@@ -46,6 +46,10 @@ namespace Board
         {
             return true;
         }
+
+        void writeLEDstate(uint8_t ledID, bool state)
+        {
+        }
     }    // namespace io
 }    // namespace Board
 

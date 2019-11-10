@@ -25,32 +25,8 @@ limitations under the License.
 
 using namespace Interface::digital::output;
 
-namespace
-{
-    ///
-    /// \brief Array holding current LED status for all LEDs.
-    ///
-    uint8_t ledState[MAX_NUMBER_OF_LEDS];
-
-#ifdef OD_BOARD_DUBFOCUS
-    //12 connected leds on dubfocus board
-    const uint8_t ledMapArray[12] = {
-        3,
-        0,
-        1,
-        2,
-        14,
-        12,
-        13,
-        15,
-        6,
-        4,
-        5,
-        7
-    };
-#endif
-
-}    // namespace
+#define LED_ON_MASK ((0x01 << static_cast<uint8_t>(ledBit_t::active)) | (0x01 << static_cast<uint8_t>(ledBit_t::state)))
+#define LED_ON(state) ((state & LED_ON_MASK) == LED_ON_MASK)
 
 void LEDs::init(bool startUp)
 {
@@ -106,22 +82,19 @@ void LEDs::checkBlinking(bool forceChange)
         //assign changed state to all leds which have this speed
         for (int j = 0; j < MAX_NUMBER_OF_LEDS; j++)
         {
-            if (!BIT_READ(ledState[j], LED_BLINK_ON_BIT))
+            if (!getState(j, ledBit_t::blinkOn))
                 continue;
 
             if (blinkTimer[j] != i)
                 continue;
 
-            BIT_WRITE(ledState[j], LED_STATE_BIT, blinkState[i]);
+            updateState(j, ledBit_t::state, blinkState[i]);
         }
     }
 }
 
-void LEDs::startUpAnimation()
+__attribute__((weak)) void LEDs::startUpAnimation()
 {
-#ifdef OD_BOARD_DUBFOCUS
-    startUpAnimationBoardSpecific();
-#else
 #ifdef LED_FADING
     setFadeTime(1);
 #endif
@@ -131,7 +104,6 @@ void LEDs::startUpAnimation()
     core::timing::waitMs(2000);
 #ifdef LED_FADING
     setFadeTime(database.read(DB_BLOCK_LEDS, dbSection_leds_global, static_cast<uint16_t>(setting_t::fadeSpeed)));
-#endif
 #endif
 }
 
@@ -377,14 +349,14 @@ void LEDs::setBlinkState(uint8_t ledID, blinkSpeed_t state)
     {
         if (static_cast<bool>(state))
         {
-            BIT_SET(ledState[ledArray[i]], LED_BLINK_ON_BIT);
+            updateState(ledArray[i], ledBit_t::blinkOn, true, false);
             //this will turn the led on immediately
-            BIT_SET(ledState[ledArray[i]], LED_STATE_BIT);
+            updateState(ledArray[i], ledBit_t::state, true);
         }
         else
         {
-            BIT_CLEAR(ledState[ledArray[i]], LED_BLINK_ON_BIT);
-            BIT_WRITE(ledState[ledArray[i]], LED_STATE_BIT, BIT_READ(ledState[ledArray[i]], LED_ACTIVE_BIT));
+            updateState(ledArray[i], ledBit_t::blinkOn, false, false);
+            updateState(ledArray[i], ledBit_t::state, getState(ledArray[i], ledBit_t::active));
         }
 
         blinkTimer[ledID] = static_cast<uint8_t>(state);
@@ -402,7 +374,7 @@ void LEDs::setAllOff()
 {
     //turn off all LEDs
     for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
-        setColor(i, color_t::off);
+        resetState(i);
 }
 
 void LEDs::setColor(uint8_t ledID, color_t color)
@@ -411,31 +383,31 @@ void LEDs::setColor(uint8_t ledID, color_t color)
 
     if (database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, rgbIndex))
     {
-        uint8_t led1 = Board::io::getRGBaddress(rgbIndex, rgbIndex_t::r);
-        uint8_t led2 = Board::io::getRGBaddress(rgbIndex, rgbIndex_t::g);
-        uint8_t led3 = Board::io::getRGBaddress(rgbIndex, rgbIndex_t::b);
+        //rgb led is composed of three standard LEDs
+        //get indexes of individual LEDs first
+        uint8_t rLED = Board::io::getRGBaddress(rgbIndex, rgbIndex_t::r);
+        uint8_t gLED = Board::io::getRGBaddress(rgbIndex, rgbIndex_t::g);
+        uint8_t bLED = Board::io::getRGBaddress(rgbIndex, rgbIndex_t::b);
 
-        handleLED(led1, BIT_READ(static_cast<uint8_t>(color), 0));
-        handleLED(led2, BIT_READ(static_cast<uint8_t>(color), 1));
-        handleLED(led3, BIT_READ(static_cast<uint8_t>(color), 2));
+        handleLED(rLED, BIT_READ(static_cast<bool>(color), static_cast<uint8_t>(rgbIndex_t::r)), true, rgbIndex_t::r);
+        handleLED(gLED, BIT_READ(static_cast<bool>(color), static_cast<uint8_t>(rgbIndex_t::g)), true, rgbIndex_t::g);
+        handleLED(bLED, BIT_READ(static_cast<bool>(color), static_cast<uint8_t>(rgbIndex_t::b)), true, rgbIndex_t::b);
     }
     else
     {
-        handleLED(ledID, (bool)color);
+        handleLED(ledID, (bool)color, false);
     }
 }
 
 LEDs::color_t LEDs::getColor(uint8_t ledID)
 {
-    uint8_t state = getState(ledID);
-
-    if (!BIT_READ(state, LED_ACTIVE_BIT))
+    if (!getState(ledID, ledBit_t::active))
     {
         return color_t::off;
     }
     else
     {
-        if (!BIT_READ(state, LED_RGB_BIT))
+        if (!getState(ledID, ledBit_t::rgb))
         {
             //single color led
             return color_t::red;
@@ -444,30 +416,22 @@ LEDs::color_t LEDs::getColor(uint8_t ledID)
         {
             //rgb led
             uint8_t rgbIndex = Board::io::getRGBID(ledID);
-            uint8_t led1 = getState(Board::io::getRGBaddress(rgbIndex, rgbIndex_t::r));
-            uint8_t led2 = getState(Board::io::getRGBaddress(rgbIndex, rgbIndex_t::g));
-            uint8_t led3 = getState(Board::io::getRGBaddress(rgbIndex, rgbIndex_t::b));
 
             uint8_t color = 0;
-            color |= BIT_READ(led1, LED_RGB_B_BIT);
+            color |= getState(Board::io::getRGBaddress(rgbIndex, rgbIndex_t::b), ledBit_t::rgb_b);
             color <<= 1;
-            color |= BIT_READ(led2, LED_RGB_G_BIT);
+            color |= getState(Board::io::getRGBaddress(rgbIndex, rgbIndex_t::g), ledBit_t::rgb_g);
             color <<= 1;
-            color |= BIT_READ(led3, LED_RGB_R_BIT);
+            color |= getState(Board::io::getRGBaddress(rgbIndex, rgbIndex_t::r), ledBit_t::rgb_r);
 
             return static_cast<color_t>(color);
         }
     }
 }
 
-uint8_t LEDs::getState(uint8_t ledID)
-{
-    return ledState[ledID];
-}
-
 bool LEDs::getBlinkState(uint8_t ledID)
 {
-    return BIT_READ(ledState[ledID], LED_BLINK_ON_BIT);
+    return getState(ledID, ledBit_t::blinkOn);
 }
 
 bool LEDs::setFadeTime(uint8_t transitionSpeed)
@@ -477,59 +441,45 @@ bool LEDs::setFadeTime(uint8_t transitionSpeed)
 
 void LEDs::handleLED(uint8_t ledID, bool state, bool rgbLED, rgbIndex_t index)
 {
-    /*
-
-    LED state is stored into one byte (ledState). The bits have following meaning (7 being the MSB bit):
-
-    7: B index of RGB LED
-    6: G index of RGB LED
-    5: R index of RGB LED
-    4: RGB enabled
-    3: Blink bit (timer changes this bit)
-    2: LED is active (either it blinks or it's constantly on), this bit is OR function between bit 0 and 1
-    1: LED blinks
-    0: LED is constantly turned on
-
-    */
-
-    uint8_t currentState = getState(ledID);
-
     if (state)
     {
         //turn on the led
         //if led was already active, clear the on bits before setting new state
-        if (BIT_READ(currentState, LED_ACTIVE_BIT))
-            currentState = 0;
+        // if (BIT_READ(ledState[ledID], static_cast<uint8_t>(ledBit_t::blinkOn)))
+        //     resetState(ledID);
 
-        BIT_SET(currentState, LED_ACTIVE_BIT);
-        BIT_SET(currentState, LED_STATE_BIT);
-        BIT_WRITE(currentState, LED_RGB_BIT, rgbLED);
+        updateState(ledID, ledBit_t::active, true, false);
+        updateState(ledID, ledBit_t::state, true, false);
 
         if (rgbLED)
         {
+            updateState(ledID, ledBit_t::rgb, true, false);
+
             switch (index)
             {
             case rgbIndex_t::r:
-                BIT_WRITE(currentState, LED_RGB_R_BIT, state);
+                updateState(ledID, ledBit_t::rgb_r, state, true);
                 break;
 
             case rgbIndex_t::g:
-                BIT_WRITE(currentState, LED_RGB_G_BIT, state);
+                updateState(ledID, ledBit_t::rgb_g, state, true);
                 break;
 
             case rgbIndex_t::b:
-                BIT_WRITE(currentState, LED_RGB_B_BIT, state);
+                updateState(ledID, ledBit_t::rgb_b, state, true);
                 break;
             }
+        }
+        else
+        {
+            updateState(ledID, ledBit_t::rgb, false);
         }
     }
     else
     {
         //turn off the led
-        currentState = 0;
+        resetState(ledID);
     }
-
-    ledState[ledID] = currentState;
 }
 
 void LEDs::setBlinkType(blinkType_t blinkType)
@@ -567,54 +517,24 @@ void LEDs::resetBlinking()
     }
 }
 
-uint8_t LEDs::getLEDstate(uint8_t ledID)
+void LEDs::updateState(uint8_t index, ledBit_t bit, bool state, bool setOnBoard)
 {
-    return ledState[ledID];
+    BIT_WRITE(ledState[index], static_cast<uint8_t>(bit), state);
+
+    if (setOnBoard)
+        Board::io::writeLEDstate(index, LED_ON(ledState[index]));
 }
 
-#ifdef OD_BOARD_DUBFOCUS
-void LEDs::startUpAnimationBoardSpecific()
+bool LEDs::getState(uint8_t index, ledBit_t bit)
 {
-    //turn all leds on first
-    for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
-    {
-        BIT_SET(ledState[i], LED_ACTIVE_BIT);
-        BIT_SET(ledState[i], LED_STATE_BIT);
-    }
-
-    core::timing::waitMs(1000);
-
-    for (int i = 0; i < 12; i++)
-    {
-        BIT_CLEAR(ledState[ledMapArray[i]], LED_ACTIVE_BIT);
-        BIT_CLEAR(ledState[ledMapArray[i]], LED_STATE_BIT);
-
-        core::timing::waitMs(35);
-    }
-
-    for (int i = 0; i < 12; i++)
-    {
-        BIT_SET(ledState[ledMapArray[11 - i]], LED_ACTIVE_BIT);
-        BIT_SET(ledState[ledMapArray[11 - i]], LED_STATE_BIT);
-
-        core::timing::waitMs(35);
-    }
-
-    for (int i = 0; i < 12; i++)
-    {
-        BIT_CLEAR(ledState[ledMapArray[11 - i]], LED_ACTIVE_BIT);
-        BIT_CLEAR(ledState[ledMapArray[11 - i]], LED_STATE_BIT);
-
-        core::timing::waitMs(35);
-    }
-
-    //turn all off again
-    for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
-    {
-        BIT_CLEAR(ledState[i], LED_ACTIVE_BIT);
-        BIT_CLEAR(ledState[i], LED_STATE_BIT);
-    }
+    return BIT_READ(ledState[index], static_cast<uint8_t>(bit));
 }
-#endif
+
+void LEDs::resetState(uint8_t index)
+{
+    ledState[index] = 0;
+    //we have just cleared all the bits - the state to write is off
+    Board::io::writeLEDstate(index, false);
+}
 
 #endif

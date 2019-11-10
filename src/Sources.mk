@@ -124,10 +124,17 @@ else
         SOURCES += $(shell find ./application/database -type f -name "*.cpp")
         SOURCES += $(shell find ./application/OpenDeck -type f -name "*.cpp")
         SOURCES += $(shell find ./application/interface/analog -type f -name "*.cpp")
-        SOURCES += $(shell find ./application/interface/digital -type f -name "*.cpp")
+        SOURCES += $(shell find ./application/interface/digital/input/ -type f -name "*.cpp")
+        SOURCES += $(shell find ./application/interface/digital/output/leds/ -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell find ./modules/sysex/src -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell find ./modules/midi/src -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell find ./modules/dbms/src -maxdepth 1 -type f -name "*.cpp")
+
+        #if a file named $(BOARD_DIR).cpp exists in ./application/interface/digital/output/leds/startup directory
+        #add it to the sources
+        ifneq (,$(wildcard ./application/interface/digital/output/leds/startup/$(BOARD_DIR).cpp))
+            SOURCES += ./application/interface/digital/output/leds/startup/$(BOARD_DIR).cpp
+        endif
 
         ifneq ($(shell cat board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep DISPLAY_SUPPORTED), )
             SOURCES += $(shell find ./application/interface/display -maxdepth 1 -type f -name "*.cpp")

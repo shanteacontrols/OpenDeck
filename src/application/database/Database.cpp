@@ -17,7 +17,6 @@ limitations under the License.
 */
 
 #include "interface/display/Config.h"
-#include "interface/digital/output/leds/Constants.h"
 #include "Layout.h"
 
 ///

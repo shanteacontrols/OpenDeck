@@ -19,7 +19,6 @@ limitations under the License.
 #pragma once
 
 #include "database/Database.h"
-#include "Constants.h"
 #include "midi/src/MIDI.h"
 
 namespace Interface
@@ -106,30 +105,46 @@ namespace Interface
                     midiClock
                 };
 
-                void           init(bool startUp = true);
-                void           checkBlinking(bool forceChange = false);
-                void           setAllOn();
-                void           setAllOff();
-                void           setColor(uint8_t ledID, color_t color);
-                color_t        getColor(uint8_t ledID);
-                void           setBlinkState(uint8_t ledID, blinkSpeed_t value);
-                bool           getBlinkState(uint8_t ledID);
-                bool           setFadeTime(uint8_t transitionSpeed);
-                void           midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local);
-                void           setBlinkType(blinkType_t blinkType);
-                blinkType_t    getBlinkType();
-                void           resetBlinking();
-                static uint8_t getLEDstate(uint8_t ledID);
+                void        init(bool startUp = true);
+                void        checkBlinking(bool forceChange = false);
+                void        setAllOn();
+                void        setAllOff();
+                void        setColor(uint8_t ledID, color_t color);
+                color_t     getColor(uint8_t ledID);
+                void        setBlinkState(uint8_t ledID, blinkSpeed_t value);
+                bool        getBlinkState(uint8_t ledID);
+                bool        setFadeTime(uint8_t transitionSpeed);
+                void        midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local);
+                void        setBlinkType(blinkType_t blinkType);
+                blinkType_t getBlinkType();
+                void        resetBlinking();
 
                 private:
+                enum class ledBit_t : uint8_t
+                {
+                    active,     ///< LED is active (either it blinks or it's constantly on), this bit is OR function between blinkOn and state
+                    blinkOn,    ///< LED blinks
+                    state,      ///< LED is in constant state
+                    rgb,        ///< RGB enabled
+                    rgb_r,      ///< R index of RGB LED
+                    rgb_g,      ///< G index of RGB LED
+                    rgb_b       ///< B index of RGB LED
+                };
+
+                void         updateState(uint8_t index, ledBit_t bit, bool state, bool setOnBoard = true);
+                bool         getState(uint8_t index, ledBit_t bit);
+                void         resetState(uint8_t index);
                 color_t      valueToColor(uint8_t receivedVelocity);
                 blinkSpeed_t valueToBlinkSpeed(uint8_t value);
-                uint8_t      getState(uint8_t ledID);
-                void         handleLED(uint8_t ledID, bool state, bool rgbLED = false, rgbIndex_t index = rgbIndex_t::r);
+                void         handleLED(uint8_t ledID, bool state, bool rgbLED, rgbIndex_t index = rgbIndex_t::r);
                 void         startUpAnimation();
-                void         startUpAnimationBoardSpecific();
 
                 Database& database;
+
+                ///
+                /// \brief Array holding current LED status for all LEDs.
+                ///
+                uint8_t ledState[MAX_NUMBER_OF_LEDS];
 
                 ///
                 /// \brief Array holding time after which LEDs should blink.

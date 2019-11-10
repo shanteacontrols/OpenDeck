@@ -20,6 +20,10 @@ namespace Board
         void ledFlashStartup(bool fwUpdated)
         {
         }
+
+        void writeLEDstate(uint8_t ledID, bool state)
+        {
+        }
     }    // namespace io
 
     void reboot(Board::rebootType_t type)
