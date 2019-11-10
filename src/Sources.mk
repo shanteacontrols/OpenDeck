@@ -26,10 +26,6 @@ ifeq ($(ARCH), avr)
         modules/lufa/LUFA/Drivers/USB/Core/AVR8/Endpoint_AVR8.c \
         modules/lufa/LUFA/Drivers/USB/Core/AVR8/PipeStream_AVR8.c \
         modules/lufa/LUFA/Drivers/USB/Core/AVR8/Pipe_AVR8.c \
-        modules/lufa/LUFA/Drivers/USB/Core/AVR8/Template/Template_Endpoint_Control_R.c \
-        modules/lufa/LUFA/Drivers/USB/Core/AVR8/Template/Template_Endpoint_Control_W.c \
-        modules/lufa/LUFA/Drivers/USB/Core/AVR8/Template/Template_Endpoint_RW.c \
-        modules/lufa/LUFA/Drivers/USB/Core/AVR8/Template/Template_Pipe_RW.c \
         modules/lufa/LUFA/Drivers/USB/Core/AVR8/USBController_AVR8.c \
         modules/lufa/LUFA/Drivers/USB/Core/AVR8/USBInterrupt_AVR8.c \
         modules/lufa/LUFA/Drivers/USB/Core/ConfigDescriptors.c \
