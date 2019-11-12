@@ -110,7 +110,7 @@ else
 endif
 
 #custom linker script
-LDFLAGS += -T board/$(ARCH)/linker/$(MCU).ld
+LDFLAGS += -T board/$(ARCH)/variants/$(MCU)/$(MCU).ld
 
 #use windows binary on wsl since HID access isn't possible in wsl
 ifeq ($(findstring Microsoft,$(shell uname -r)), Microsoft)
@@ -139,8 +139,6 @@ build/%.o: %.s
 	@echo Finished building: $<
 
 $(TARGET).elf: $(OBJECTS)
-	@#create a file with contents being mcu name (for upload process)
-	@echo $(MCU) > build/MCU
 	@#create a file with contents being target name (for upload process)
 	@echo $(TARGETNAME) > build/TARGET
 	@#link
@@ -164,9 +162,9 @@ endif
 
 flash:
 ifeq ($(ARCH), avr)
-	@avrdude -p $(shell cat build/MCU) -P /dev/$(PORT) -b 19200 -c avrisp -e -V -u -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
-	@avrdude -p $(shell cat build/MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:build/$(shell cat build/TARGET).hex
-	@avrdude -p $(shell cat build/MCU) -P /dev/$(PORT) -b 19200 -c avrisp -V -u -U lock:w:$(FUSE_LOCK):m
+	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -e -V -u -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
+	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:build/$(TARGETNAME).hex
+	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -V -u -U lock:w:$(FUSE_LOCK):m
 else
 	arm-none-eabi-gdb -nx --batch \
 	-ex 'target extended-remote /dev/$(PORT)' \
@@ -175,12 +173,12 @@ else
 	-ex 'load' \
 	-ex 'compare-sections' \
 	-ex 'kill' \
-	build/$(shell cat build/TARGET).elf
+	build/$(TARGETNAME).elf
 endif
 
 #firmware update with bootloader
 flashboot:
-	$(FLASH_BIN) $(shell cat build/MCU) build/$(shell cat build/TARGET).hex
+	$(FLASH_BIN) $(MCU) build/$(TARGETNAME).hex
 
 #lists all serial ports - used to find out where the programmer is connected
 ser_list:
@@ -207,6 +205,7 @@ format:
 	-not -name "*Version.h" \
 	-not -name "*CustomIDs.h" \
 	-not -name "*Config.h" \
+	-not -name "*MCU.h" \
 	-not -name "*Descriptors.*" \
 	-exec $(CLANG_FORMAT) -i {} \;
 ifeq ($(CF_FAIL_ON_DIFF), 1)

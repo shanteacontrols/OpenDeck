@@ -1,11 +1,11 @@
 #common include dirs
 INCLUDE_DIRS := \
 -I"modules/" \
--I"board/$(ARCH)/variants/$(BOARD_DIR)/" \
+-I"board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/" \
 -I"application/" \
 -I"./"
 
-INCLUDE_FILES += -include "board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h"
+INCLUDE_FILES += -include "board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h"
 
 ifeq ($(findstring boot_,$(TARGETNAME)), boot_)
     #bootloader only
@@ -18,7 +18,7 @@ ifeq ($(ARCH), avr)
     INCLUDE_DIRS += \
     -I"modules/lufa/"
 
-    ifneq ($(shell cat board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
+    ifneq ($(shell cat board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
         #common for bootloader and application
         SOURCES += \
         modules/lufa/LUFA/Drivers/USB/Core/AVR8/Device_AVR8.c \
@@ -70,10 +70,10 @@ ifeq ($(findstring boot,$(TARGETNAME)), boot)
     SOURCES += \
     bootloader/mcu/main.cpp \
     board/$(ARCH)/Common.cpp \
-    board/$(ARCH)/variants/$(BOARD_DIR)/Setup.cpp \
+    board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Setup.cpp \
     board/common/io/Bootloader.cpp
 
-    ifneq ($(shell cat board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
+    ifneq ($(shell cat board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
         SOURCES += $(shell find ./board/common/usb/descriptors/hid -type f -name "*.cpp")
         SOURCES += $(shell find ./board/common/usb/descriptors/hid -type f -name "*.c")
         SOURCES += $(shell find ./board/$(ARCH)/usb/hid -type f -name "*.cpp")
@@ -98,10 +98,10 @@ else
     #application sources
     #common for all targets
     SOURCES += $(shell find ./board/$(ARCH) -maxdepth 1 -type f -name "*.cpp")
-    SOURCES += $(shell find ./board/$(ARCH)/variants/$(BOARD_DIR) -type f -name "*.cpp")
+    SOURCES += $(shell find ./board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR) -type f -name "*.cpp")
     SOURCES += $(shell find ./common/OpenDeckMIDIformat -type f -name "*.cpp")
 
-    ifneq ($(shell cat board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
+    ifneq ($(shell cat board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
         SOURCES += $(shell find ./board/$(ARCH)/usb/midi -type f -name "*.cpp")
         SOURCES += $(shell find ./board/common/usb/descriptors/midi -type f -name "*.cpp")
         SOURCES += $(shell find ./board/common/usb/descriptors/midi -type f -name "*.c")
@@ -132,7 +132,7 @@ else
             SOURCES += ./application/interface/digital/output/leds/startup/$(BOARD_DIR).cpp
         endif
 
-        ifneq ($(shell cat board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep DISPLAY_SUPPORTED), )
+        ifneq ($(shell cat board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h | grep DISPLAY_SUPPORTED), )
             SOURCES += $(shell find ./application/interface/display -maxdepth 1 -type f -name "*.cpp")
             SOURCES += $(shell find ./application/interface/display/U8X8 -maxdepth 1 -type f -name "*.cpp")
             SOURCES += $(shell find ./application/interface/display/strings -maxdepth 1 -type f -name "*.cpp")
@@ -153,7 +153,7 @@ else
             modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
         endif
 
-        ifneq ($(shell cat board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep TOUCHSCREEN_SUPPORTED), )
+        ifneq ($(shell cat board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h | grep TOUCHSCREEN_SUPPORTED), )
             SOURCES += $(shell find ./application/interface/display/touch -type f -name "*.cpp")
         endif
     endif

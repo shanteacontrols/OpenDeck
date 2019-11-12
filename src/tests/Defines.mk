@@ -7,28 +7,10 @@ TARGETNAME := fw_opendeck
 BOARD_DIR := $(subst fw_,,$(TARGETNAME))
 
 #determine the architecture by directory in which the board dir is located
-ifeq ($(findstring avr,$(shell find ../ -type d -name *$(BOARD_DIR))), avr)
-    ARCH := avr
-else ifeq ($(findstring stm32,$(shell find . -type d -name *$(BOARD_DIR))), stm32)
-    ARCH := stm32
-endif
+ARCH := $(shell find ../board/ -type d ! -path *build -name *$(BOARD_DIR) | cut -c 10- | cut -d/ -f1 | head -n 1)
 
-#board specific
-ifneq ($(shell cat ../board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep atmega32u4), )
-    MCU := atmega32u4
-else ifneq ($(shell cat ../board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep at90usb1286), )
-    MCU := at90usb1286
-else ifneq ($(shell cat ../board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep atmega16u2), )
-    MCU := atmega16u2
-else ifneq ($(shell cat ../board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep atmega8u2), )
-    MCU := atmega8u2
-else ifneq ($(shell cat ../board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep atmega2560), )
-    MCU := atmega2560
-else ifneq ($(shell cat ../board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep atmega328p), )
-    MCU := atmega328p
-else ifneq ($(shell cat ../board/$(ARCH)/variants/$(BOARD_DIR)/Hardware.h | grep stm32f407), )
-    MCU := stm32f407
-endif
+#determine MCU by directory in which the board dir is located
+MCU := $(shell find ../board/ -type d -name *$(BOARD_DIR) | cut -c 10- | cut -d/ -f3 | head -n 1)
 
 #mcu specific
 ifeq ($(MCU),atmega32u4)
