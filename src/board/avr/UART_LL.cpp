@@ -16,6 +16,9 @@ limitations under the License.
 
 */
 
+#ifdef UART_INTERFACES
+#if UART_INTERFACES > 0
+
 #include "board/Board.h"
 #include "board/Internal.h"
 #include "core/src/arch/avr/UART.h"
@@ -253,3 +256,6 @@ ISR(USART_TX_vect_1)
 #endif
 
 /// @}
+
+#endif
+#endif

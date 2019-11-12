@@ -16,6 +16,9 @@ limitations under the License.
 
 */
 
+#ifdef UART_INTERFACES
+#if UART_INTERFACES > 0
+
 #include "board/Board.h"
 #include "board/Internal.h"
 #include "core/src/general/Atomic.h"
@@ -131,3 +134,6 @@ namespace Board
         }    // namespace UART
     }        // namespace detail
 }    // namespace Board
+
+#endif
+#endif

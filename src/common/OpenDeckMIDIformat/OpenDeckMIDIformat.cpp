@@ -16,6 +16,9 @@ limitations under the License.
 
 */
 
+#ifdef UART_INTERFACES
+#if UART_INTERFACES > 0
+
 #include "OpenDeckMIDIformat.h"
 #include "board/Board.h"
 
@@ -189,3 +192,6 @@ namespace OpenDeckMIDIformat
         return false;
     }
 }    // namespace OpenDeckMIDIformat
+
+#endif
+#endif

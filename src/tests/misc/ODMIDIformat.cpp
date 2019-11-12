@@ -1,3 +1,6 @@
+#ifdef UART_INTERFACES
+#if UART_INTERFACES > 0
+
 #include <gtest/gtest.h>
 #include "board/Board.h"
 #include "common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
@@ -156,3 +159,6 @@ TEST(ODMIDIformat, ManualPacketBuilding)
     EXPECT_EQ(receivedPacketType, OpenDeckMIDIformat::packetType_t::internalCommand);
     testing::rebootType = Board::rebootType_t::rebootBtldr;
 }
+
+#endif
+#endif
