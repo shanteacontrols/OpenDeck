@@ -105,3 +105,8 @@ limitations under the License.
 /// \brief Maximum number of supported touchscreen buttons.
 ///
 #define MAX_TOUCHSCREEN_BUTTONS         0
+
+///
+/// \brief Total available bytes for data in EEPROM.
+///
+#define EEPROM_SIZE                     8190

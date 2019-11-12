@@ -63,3 +63,8 @@ limitations under the License.
 /// \brief Use inverted logic when controlling integrated LEDs (high/off, low/on).
 ///
 #define LED_INT_INVERT
+
+///
+/// \brief Total available bytes for data in EEPROM.
+///
+#define EEPROM_SIZE             512

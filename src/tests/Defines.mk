@@ -32,27 +32,20 @@ endif
 
 #mcu specific
 ifeq ($(MCU),atmega32u4)
-    EEPROM_SIZE := 1024
     FLASH_SIZE_START_ADDR := 0xAC
 else ifeq ($(MCU),at90usb1286)
-    EEPROM_SIZE := 4096
     FLASH_SIZE_START_ADDR := 0x98
 else ifeq ($(MCU),atmega16u2)
-    EEPROM_SIZE := 512
     FLASH_SIZE_START_ADDR := 0x74
 else ifeq ($(MCU),atmega8u2)
-    EEPROM_SIZE := 512
     FLASH_SIZE_START_ADDR := 0x74
 else ifeq ($(MCU),atmega2560)
-    EEPROM_SIZE := 4096
     FLASH_SIZE_START_ADDR := 0xE4
 else ifeq ($(MCU),atmega328p)
-    EEPROM_SIZE := 1024
     FLASH_SIZE_START_ADDR := 0x68
 endif
 
 DEFINES += APP_LENGTH_LOCATION=$(FLASH_SIZE_START_ADDR)
-DEFINES += EEPROM_SIZE=$(EEPROM_SIZE)
 DEFINES += OD_BOARD_$(shell echo $(BOARD_DIR) | tr 'a-z' 'A-Z')
 
 ifneq ($(HARDWARE_VERSION_MAJOR), )

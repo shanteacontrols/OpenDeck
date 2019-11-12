@@ -64,7 +64,6 @@ ifeq ($(MCU), atmega32u4)
     FUSE_HIGH := 0xd0
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
-    EEPROM_SIZE := 1024
     BOOT_START_ADDR := 0x7000
     FLASH_SIZE_START_ADDR := 0xAC
     FLASH_SIZE_END_ADDR := 0xB0
@@ -75,7 +74,6 @@ else ifeq ($(MCU), at90usb1286)
     FUSE_HIGH := 0xd2
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
-    EEPROM_SIZE := 4096
     BOOT_START_ADDR := 0x1F000
     FLASH_SIZE_START_ADDR := 0x98
     FLASH_SIZE_END_ADDR := 0x9C
@@ -86,7 +84,6 @@ else ifeq ($(MCU), atmega16u2)
     FUSE_HIGH := 0xd0
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
-    EEPROM_SIZE := 512
     FLASH_SIZE_START_ADDR := 0x74
     FLASH_SIZE_END_ADDR := 0x78
     BOOT_START_ADDR := 0x3000
@@ -97,7 +94,6 @@ else ifeq ($(MCU), atmega8u2)
     FUSE_HIGH := 0xd3
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
-    EEPROM_SIZE := 512
     FLASH_SIZE_START_ADDR := 0x74
     FLASH_SIZE_END_ADDR := 0x78
     BOOT_START_ADDR := 0x1800
@@ -108,7 +104,6 @@ else ifeq ($(MCU), atmega2560)
     FUSE_HIGH := 0xd2
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
-    EEPROM_SIZE := 4096
     FLASH_SIZE_START_ADDR := 0xE4
     FLASH_SIZE_END_ADDR := 0xE8
     BOOT_START_ADDR := 0x3F000
@@ -119,13 +114,11 @@ else ifeq ($(MCU), atmega328p)
     FUSE_HIGH := 0xd2
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
-    EEPROM_SIZE := 1024
     FLASH_SIZE_START_ADDR := 0x68
     FLASH_SIZE_END_ADDR := 0x6C
     BOOT_START_ADDR := 0x7800
     DEFINES += __AVR_ATmega328P__
 else ifeq ($(MCU), stm32f407)
-    EEPROM_SIZE := 16384
     CPU := cortex-m4
     FPU := fpv4-sp-d16
     FLOAT-ABI := hard
@@ -171,7 +164,6 @@ endif
 
 DEFINES += OD_BOARD_$(shell echo $(BOARD_DIR) | tr 'a-z' 'A-Z')
 DEFINES += FW_UID=$(shell ../scripts/fw_uid_gen.sh $(TARGETNAME))
-DEFINES += EEPROM_SIZE=$(EEPROM_SIZE)
 
 ifneq ($(HARDWARE_VERSION_MAJOR), )
     DEFINES += HARDWARE_VERSION_MAJOR=$(HARDWARE_VERSION_MAJOR)
