@@ -27,10 +27,6 @@ COMMON_FLAGS := \
 -fdata-sections \
 -ffunction-sections \
 -fmessage-length=0 \
--funsigned-char \
--funsigned-bitfields \
--fshort-enums \
--fno-jump-tables \
 -fno-strict-aliasing
 
 #c only
@@ -75,7 +71,11 @@ ifeq ($(ARCH),avr)
 
     COMMON_FLAGS += \
     -mrelax \
-    -mmcu=$(MCU)
+    -mmcu=$(MCU) \
+    -funsigned-char \
+    -funsigned-bitfields \
+    -fshort-enums \
+    -fno-jump-tables
 
     LDFLAGS += \
     -mrelax \
