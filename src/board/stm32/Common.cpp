@@ -21,6 +21,8 @@ limitations under the License.
 #include "stm32f4xx_hal.h"
 #include "core/src/general/Timing.h"
 #include "core/src/general/Reset.h"
+#include "core/src/general/Interrupt.h"
+#include "eeprom/EEPROM.h"
 
 namespace core
 {
@@ -123,6 +125,11 @@ extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
     Board::detail::io::checkDigitalInputs();
 }
 
+namespace
+{
+    EmuEEPROM emuEEPROM(Board::detail::map::eepromFlashPage1(), Board::detail::map::eepromFlashPage2());
+}    // namespace
+
 namespace Board
 {
     void init()
@@ -134,11 +141,13 @@ namespace Board
         detail::setup::io();
         detail::setup::adc();
 
+        emuEEPROM.init();
+
+        detail::setup::timers();
+
 #ifdef USB_MIDI_SUPPORTED
         detail::setup::usb();
 #endif
-
-        detail::setup::timers();
     }
 
     void reboot(rebootType_t type)
@@ -168,36 +177,24 @@ namespace Board
 
     namespace eeprom
     {
-        namespace
-        {
-            uint8_t memoryArray[EEPROM_SIZE];
-        }
-
         bool read(uint32_t address, LESSDB::sectionParameterType_t type, int32_t& value)
         {
+            uint16_t tempData;
+
             switch (type)
             {
             case LESSDB::sectionParameterType_t::bit:
             case LESSDB::sectionParameterType_t::byte:
             case LESSDB::sectionParameterType_t::halfByte:
-                value = memoryArray[address];
-                break;
-
             case LESSDB::sectionParameterType_t::word:
-                value = memoryArray[address + 1];
-                value <<= 8;
-                value |= memoryArray[address + 0];
+                if (emuEEPROM.read(address, tempData) != EmuEEPROM::readStatus_t::ok)
+                    return false;
+                else
+                    value = tempData;
                 break;
 
             default:
-                // case LESSDB::sectionParameterType_t::dword:
-                value = memoryArray[address + 3];
-                value <<= 8;
-                value |= memoryArray[address + 2];
-                value <<= 8;
-                value |= memoryArray[address + 1];
-                value <<= 8;
-                value |= memoryArray[address + 0];
+                return false;
                 break;
             }
 
@@ -206,25 +203,21 @@ namespace Board
 
         bool write(uint32_t address, int32_t value, LESSDB::sectionParameterType_t type)
         {
+            uint16_t tempData;
+
             switch (type)
             {
             case LESSDB::sectionParameterType_t::bit:
             case LESSDB::sectionParameterType_t::byte:
             case LESSDB::sectionParameterType_t::halfByte:
-                memoryArray[address] = value;
-                break;
-
             case LESSDB::sectionParameterType_t::word:
-                memoryArray[address + 0] = (value >> 0) & (uint16_t)0xFF;
-                memoryArray[address + 1] = (value >> 8) & (uint16_t)0xFF;
+                tempData = value;
+                if (emuEEPROM.write(address, tempData) != EmuEEPROM::writeStatus_t::ok)
+                    return false;
                 break;
 
             default:
-                // case LESSDB::sectionParameterType_t::dword:
-                memoryArray[address + 0] = (value >> 0) & (uint32_t)0xFF;
-                memoryArray[address + 1] = (value >> 8) & (uint32_t)0xFF;
-                memoryArray[address + 2] = (value >> 16) & (uint32_t)0xFF;
-                memoryArray[address + 3] = (value >> 24) & (uint32_t)0xFF;
+                return false;
                 break;
             }
 

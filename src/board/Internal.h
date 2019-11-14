@@ -22,6 +22,10 @@ limitations under the License.
 #include "midi/src/MIDI.h"
 #include "core/src/general/IO.h"
 
+#ifdef __STM32__
+#include "board/stm32/eeprom/EEPROM.h"
+#endif
+
 //for internal board usage only - do not include/call in application directly
 
 namespace Board
@@ -183,6 +187,15 @@ namespace Board
             /// \brief Used to retrieve timer instance used for main timer interrupt.
             ///
             TIM_TypeDef* mainTimerInstance();
+
+            ///
+            /// \brief Used to retrieve descriptors for flash pages used for EEPROM emulation.
+            /// @ {
+
+            EmuEEPROM::pageDescriptor_t& eepromFlashPage1();
+            EmuEEPROM::pageDescriptor_t& eepromFlashPage2();
+
+            /// }
 #endif
         }    // namespace map
 

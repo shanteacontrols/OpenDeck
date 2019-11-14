@@ -248,6 +248,16 @@ namespace Board
                         .index = DO_16_PIN,
                     }
                 };
+
+                EmuEEPROM::pageDescriptor_t flashPage1 = {
+                    .startAddress = EEPROM_PAGE1_START_ADDRESS,
+                    .sector = EEPROM_PAGE1_SECTOR
+                };
+
+                EmuEEPROM::pageDescriptor_t flashPage2 = {
+                    .startAddress = EEPROM_PAGE2_START_ADDRESS,
+                    .sector = EEPROM_PAGE2_SECTOR
+                };
             }    // namespace
 
             core::io::mcuPin_t adcChannel(uint8_t index)
@@ -284,6 +294,16 @@ namespace Board
             TIM_TypeDef* mainTimerInstance()
             {
                 return TIM7;
+            }
+
+            EmuEEPROM::pageDescriptor_t& eepromFlashPage1()
+            {
+                return flashPage1;
+            }
+
+            EmuEEPROM::pageDescriptor_t& eepromFlashPage2()
+            {
+                return flashPage2;
             }
         }    // namespace map
     }        // namespace detail

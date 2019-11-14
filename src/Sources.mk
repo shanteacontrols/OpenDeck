@@ -49,6 +49,7 @@ ifeq ($(ARCH), avr)
 else ifeq ($(ARCH),stm32)
     SOURCES += $(shell find ./board/stm32/gen/$(MCU)/Drivers/STM32F4xx_HAL_Driver/Src -name "*.c")
     SOURCES += $(shell find ./board/stm32/gen/$(MCU)/Middlewares/ST/STM32_USB_Device_Library/Core/Src -name "*.c")
+    SOURCES += $(shell find ./board/stm32/eeprom -name "*.cpp")
     SOURCES += \
     ./board/stm32/gen/$(MCU)/startup_stm32f407xx.s \
     ./board/stm32/gen/$(MCU)/Src/system_stm32f4xx.c \
