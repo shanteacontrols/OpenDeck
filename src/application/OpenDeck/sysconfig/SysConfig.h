@@ -88,10 +88,10 @@ class SysConfig : public SysExConf
     ///
     bool processingEnabled = true;
 
-    bool onGet(uint8_t block, uint8_t section, uint16_t index, SysExConf::sysExParameter_t& value) override;
-    bool onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf::sysExParameter_t newValue) override;
-    bool onCustomRequest(uint8_t value) override;
-    void onWrite(uint8_t* sysExArray, uint8_t size) override;
+    bool onGet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t& value) override;
+    bool onSet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t newValue) override;
+    bool onCustomRequest(size_t value) override;
+    void onWrite(uint8_t* sysExArray, size_t size) override;
 
     ///
     /// \brief Configures UART read/write handlers for MIDI module.

@@ -23,7 +23,7 @@ limitations under the License.
 #include "common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
 #include "board/Board.h"
 
-bool SysConfig::onCustomRequest(uint8_t value)
+bool SysConfig::onCustomRequest(size_t value)
 {
     using namespace Board;
 
@@ -126,7 +126,7 @@ bool SysConfig::onCustomRequest(uint8_t value)
     return retVal;
 }
 
-bool SysConfig::onGet(uint8_t block, uint8_t section, uint16_t index, SysExConf::sysExParameter_t& value)
+bool SysConfig::onGet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t& value)
 {
     bool                 success = true;
     MIDI::encDec_14bit_t encDec_14bit;
@@ -295,7 +295,7 @@ bool SysConfig::onGet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
     }
 }
 
-bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf::sysExParameter_t newValue)
+bool SysConfig::onSet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t newValue)
 {
     bool                 success = false;
     bool                 writeToDb = true;
@@ -746,7 +746,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, uint16_t index, SysExConf:
     return false;
 }
 
-void SysConfig::onWrite(uint8_t sysExArray[], uint8_t arraysize)
+void SysConfig::onWrite(uint8_t sysExArray[], size_t arraysize)
 {
     midi.sendSysEx(arraysize, sysExArray, true);
 }

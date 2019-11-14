@@ -34,7 +34,7 @@ class Database : public LESSDB
     {}
 
     bool    init();
-    void    factoryReset(LESSDB::factoryResetType_t type);
+    bool    factoryReset(LESSDB::factoryResetType_t type);
     uint8_t getSupportedPresets();
     bool    setPreset(uint8_t preset);
     uint8_t getPreset();
@@ -56,7 +56,7 @@ class Database : public LESSDB
     ///
     /// \brief Holds total memory usage for the entire database layout (system block included).
     ///
-    uint16_t totalMemoryUsage;
+    uint32_t totalMemoryUsage;
 
     ///
     /// \brief Total size of system block.

@@ -256,7 +256,7 @@ namespace
     LESSDB::section_t ledSections[DB_SECTIONS_LEDS] = {
         //global parameters section
         {
-            .numberOfParameters = static_cast<int16_t>(Interface::digital::output::LEDs::setting_t::AMOUNT),
+            .numberOfParameters = static_cast<size_t>(Interface::digital::output::LEDs::setting_t::AMOUNT),
             .parameterType = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = 0,
             .defaultValue = 0,
@@ -335,55 +335,49 @@ namespace
     LESSDB::block_t dbLayout[DB_BLOCKS + 1] = {
         //system block
         {
-            .address = 0,
             .numberOfSections = DB_SECTIONS_SYSTEM,
             .section = systemSections,
-        },
+            .address = 0 },
 
         //global block
         {
-            .address = 0,
             .numberOfSections = DB_SECTIONS_GLOBAL,
             .section = globalSections,
-        },
+            .address = 0 },
 
         //buttons block
         {
-            .address = 0,
             .numberOfSections = DB_SECTIONS_BUTTONS,
             .section = buttonSections,
-        },
+            .address = 0 },
 
         //encoder block
         {
-            .address = 0,
             .numberOfSections = DB_SECTIONS_ENCODERS,
             .section = encoderSections,
+            .address = 0,
         },
 
         //analog block
         {
-            .address = 0,
             .numberOfSections = DB_SECTIONS_ANALOG,
             .section = analogSections,
-        },
+            .address = 0 },
 
 #ifdef LEDS_SUPPORTED
         //led block
         {
-            .address = 0,
             .numberOfSections = DB_SECTIONS_LEDS,
             .section = ledSections,
-        },
+            .address = 0 },
 #endif
 
 #ifdef DISPLAY_SUPPORTED
         //display block
         {
-            .address = 0,
             .numberOfSections = DB_SECTIONS_DISPLAY,
             .section = displaySections,
-        }
+            .address = 0 }
 #endif
     };
 }    // namespace

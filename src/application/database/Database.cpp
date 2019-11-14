@@ -47,7 +47,7 @@ bool Database::init()
 
     if (!isSignatureValid())
     {
-        factoryReset(LESSDB::factoryResetType_t::full);
+        return factoryReset(LESSDB::factoryResetType_t::full);
     }
     else
     {
@@ -71,10 +71,13 @@ bool Database::init()
 /// \brief Performs factory reset of data in database.
 /// @param [in] type Factory reset type. See LESSDB::factoryResetType_t enumeration.
 ///
-void Database::factoryReset(LESSDB::factoryResetType_t type)
+bool Database::factoryReset(LESSDB::factoryResetType_t type)
 {
     if (type == LESSDB::factoryResetType_t::full)
-        clear();
+    {
+        if (!clear())
+            return false;
+    }
 
     setDbUID(getDbUID());
 
@@ -87,6 +90,8 @@ void Database::factoryReset(LESSDB::factoryResetType_t type)
 
     setPreset(0);
     setPresetPreserveState(false);
+
+    return true;
 }
 
 ///
