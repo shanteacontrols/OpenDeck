@@ -25,7 +25,7 @@ ARCH := $(shell find board/ -type d ! -path *build -name *$(BOARD_DIR) | cut -c 
 MCU := $(shell find board/ -type d -name *$(BOARD_DIR) | cut -c 7- | cut -d/ -f3 | head -n 1)
 
 ifeq ($(TARGETNAME),uploadboot)
-    ifeq ($(filter fw_opendeck fw_leonardo fw_promicro fw_dubfocus fw_teensy2pp fw_bergamot fw_mega fw_uno, $(shell cat build/TARGET)), )
+    ifeq ($(filter fw_opendeck fw_leonardo fw_promicro fw_dubfocus fw_teensy2pp fw_bergamot fw_mega fw_uno, $(shell cat $(BUILD_BASE)/TARGET)), )
         $(error Not available for current target.)
     endif
 endif

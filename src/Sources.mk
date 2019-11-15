@@ -161,7 +161,7 @@ else
 endif
 
 #make sure all objects are located in build directory
-OBJECTS := $(addprefix build/,$(SOURCES))
+OBJECTS := $(addprefix $(BUILD_DIR)/,$(SOURCES))
 #also make sure objects have .o extension
 OBJECTS := $(OBJECTS:.c=.o)
 OBJECTS := $(OBJECTS:.cpp=.o)

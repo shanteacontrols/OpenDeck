@@ -1,14 +1,23 @@
-ifeq (,$(wildcard build/TARGET))
-    TARGETNAME := fw_opendeck
-else
-    TARGETNAME := $(shell cat build/TARGET)
+BUILD_DIR_BASE := ./build/
+
+TARGETNAME := fw_opendeck
+
+ifneq (,$(wildcard $(BUILD_DIR_BASE)/TARGET))
+    TARGETNAME := $(shell cat $(BUILD_DIR_BASE)/TARGET)
+    DEBUG := $(shell cat $(BUILD_DIR_BASE)/DEBUG)
 endif
 
 ifneq ($(findstring $(TARGETNAME), $(shell cat targets.txt)), $(TARGETNAME))
     $(error Target doesn't exist)
 endif
 
-TARGET := build/$(TARGETNAME)
+ifeq ($(DEBUG),1)
+    BUILD_DIR := $(BUILD_DIR_BASE)/$(TARGETNAME)/$(VARIANT)/debug
+else
+    BUILD_DIR := $(BUILD_DIR_BASE)/$(TARGETNAME)/$(VARIANT)/release
+endif
+
+TARGET := $(BUILD_DIR)/$(TARGETNAME)
 .DEFAULT_GOAL := $(TARGET).elf
 
 #includes
@@ -123,24 +132,24 @@ else
     $(error Unsupported platform)
 endif
 
-build/%.o: %.c
+$(BUILD_DIR)/%.o: %.c
 	@mkdir -p $(@D)
 	@$(CPP) $(COMMON_FLAGS) $(CFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 	@echo Finished building: $<
 
-build/%.o: %.cpp
+$(BUILD_DIR)/%.o: %.cpp
 	@mkdir -p $(@D)
 	@$(CXX) $(COMMON_FLAGS) $(CPPFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 	@echo Finished building: $<
 
-build/%.o: %.s
+$(BUILD_DIR)/%.o: %.s
 	@mkdir -p $(@D)
 	@$(ASM) $(COMMON_FLAGS) $(CFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 	@echo Finished building: $<
 
 $(TARGET).elf: $(OBJECTS)
-	@#create a file with contents being target name (for upload process)
-	@echo $(TARGETNAME) > build/TARGET
+	@echo $(TARGETNAME) > $(BUILD_DIR_BASE)/TARGET
+	@echo $(DEBUG) > $(BUILD_DIR_BASE)/DEBUG
 	@#link
 	@$(CXX) -o$(TARGET).elf $(OBJECTS) $(LDFLAGS)
 	@echo Finished building target: $@
@@ -163,7 +172,7 @@ endif
 flash:
 ifeq ($(ARCH), avr)
 	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -e -V -u -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
-	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:build/$(TARGETNAME).hex
+	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:$(TARGET).hex
 	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -V -u -U lock:w:$(FUSE_LOCK):m
 else
 	arm-none-eabi-gdb -nx --batch \
@@ -173,7 +182,7 @@ else
 	-ex 'load' \
 	-ex 'compare-sections' \
 	-ex 'kill' \
-	build/$(TARGETNAME).elf
+	$(TARGET).elf
 endif
 
 #firmware update with bootloader
