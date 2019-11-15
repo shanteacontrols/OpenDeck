@@ -1,0 +1,8 @@
+#ifndef UNITY_CONFIG_H
+#define UNITY_CONFIG_H
+
+#define UNITY_EXCLUDE_FLOAT_H
+#define UNITY_EXCLUDE_DOUBLE_H
+#define UNITY_EXCLUDE_FLOAT_PRINT_H
+
+#endif

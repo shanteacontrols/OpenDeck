@@ -1,4 +1,5 @@
-#include <gtest/gtest.h>
+#include "unity/src/unity.h"
+#include "unity/Helpers.h"
 #include "interface/digital/input/encoders/Encoders.h"
 #include "interface/digital/output/leds/LEDs.h"
 #include "interface/CInfo.h"
@@ -9,36 +10,6 @@
 
 namespace
 {
-    uint8_t controlValue[MAX_NUMBER_OF_ENCODERS];
-    uint8_t messageCounter;
-}    // namespace
-
-bool midiDataHandler(MIDI::USBMIDIpacket_t& USBMIDIpacket)
-{
-    controlValue[messageCounter] = USBMIDIpacket.Data3;
-    messageCounter++;
-    return true;
-}
-
-class EncodersTest : public ::testing::Test
-{
-    protected:
-    virtual void SetUp()
-    {
-        //init checks - no point in running further tests if these conditions fail
-        EXPECT_TRUE(database.init());
-        EXPECT_TRUE(database.isSignatureValid());
-        encoders.init();
-        midi.handleUSBwrite(midiDataHandler);
-#ifdef DISPLAY_SUPPORTED
-        EXPECT_TRUE(display.init(displayController_ssd1306, displayRes_128x64));
-#endif
-    }
-
-    virtual void TearDown()
-    {
-    }
-
     Database      database = Database(DatabaseStub::read, DatabaseStub::write, EEPROM_SIZE - 3);
     MIDI          midi;
     ComponentInfo cInfo;
@@ -52,7 +23,17 @@ class EncodersTest : public ::testing::Test
 #else
     Interface::digital::input::Encoders encoders = Interface::digital::input::Encoders(database, midi, cInfo);
 #endif
-};
+
+    uint8_t controlValue[MAX_NUMBER_OF_ENCODERS];
+    uint8_t messageCounter;
+
+    bool midiDataHandler(MIDI::USBMIDIpacket_t& USBMIDIpacket)
+    {
+        controlValue[messageCounter] = USBMIDIpacket.Data3;
+        messageCounter++;
+        return true;
+    }
+}    // namespace
 
 namespace Board
 {
@@ -128,7 +109,19 @@ namespace Board
     }    // namespace io
 }    // namespace Board
 
-TEST_F(EncodersTest, StateDecoding)
+TEST_SETUP()
+{
+    //init checks - no point in running further tests if these conditions fail
+    TEST_ASSERT(database.init() == true);
+    TEST_ASSERT(database.isSignatureValid() == true);
+    encoders.init();
+    midi.handleUSBwrite(midiDataHandler);
+#ifdef DISPLAY_SUPPORTED
+    TEST_ASSERT(display.init(displayController_ssd1306, displayRes_128x64) == true);
+#endif
+}
+
+TEST_CASE(StateDecoding)
 {
     using namespace Interface::digital::input;
 
@@ -136,16 +129,16 @@ TEST_F(EncodersTest, StateDecoding)
     for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
     {
         //enable all encoders
-        EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i, 1), true);
+        TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i, 1) == true);
 
         //disable invert state
-        EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_invert, i, 0), true);
+        TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_invert, i, 0) == true);
 
         //set type of message to Encoders::type_t::t7Fh01h
-        EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i, static_cast<int32_t>(Encoders::type_t::t7Fh01h)), true);
+        TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i, static_cast<int32_t>(Encoders::type_t::t7Fh01h)) == true);
 
         //set single pulse per step
-        EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_pulsesPerStep, i, 1), true);
+        TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_pulsesPerStep, i, 1) == true);
     }
 
     uint8_t state;
@@ -157,119 +150,119 @@ TEST_F(EncodersTest, StateDecoding)
     encoders.init();
 
     state = 0b00;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::stopped);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::stopped);
 
     state = 0b10;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::cw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::cw);
 
     state = 0b11;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::cw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::cw);
 
     state = 0b01;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::cw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::cw);
 
     encoders.init();
 
     state = 0b10;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::stopped);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::stopped);
 
     state = 0b11;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::cw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::cw);
 
     state = 0b01;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::cw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::cw);
 
     state = 0b00;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::cw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::cw);
 
     encoders.init();
 
     state = 0b11;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::stopped);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::stopped);
 
     state = 0b01;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::cw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::cw);
 
     state = 0b00;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::cw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::cw);
 
     state = 0b10;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::cw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::cw);
 
     encoders.init();
 
     state = 0b01;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::stopped);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::stopped);
 
     state = 0b00;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::cw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::cw);
 
     state = 0b10;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::cw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::cw);
 
     state = 0b11;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::cw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::cw);
 
     //counter-clockwise: 00, 01, 11, 10
     encoders.init();
 
     state = 0b00;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::stopped);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::stopped);
 
     state = 0b01;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::ccw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::ccw);
 
     state = 0b11;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::ccw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::ccw);
 
     state = 0b10;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::ccw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::ccw);
 
     encoders.init();
 
     state = 0b01;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::stopped);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::stopped);
 
     state = 0b11;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::ccw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::ccw);
 
     state = 0b10;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::ccw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::ccw);
 
     state = 0b00;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::ccw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::ccw);
 
     encoders.init();
 
     state = 0b11;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::stopped);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::stopped);
 
     state = 0b10;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::ccw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::ccw);
 
     state = 0b00;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::ccw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::ccw);
 
     state = 0b01;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::ccw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::ccw);
 
     encoders.init();
 
     state = 0b10;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::stopped);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::stopped);
 
     state = 0b00;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::ccw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::ccw);
 
     state = 0b01;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::ccw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::ccw);
 
     state = 0b11;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::ccw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::ccw);
 
     //this time configure 4 pulses per step
     for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
-        EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_pulsesPerStep, i, 4), true);
+        TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_pulsesPerStep, i, 4) == true);
 
     encoders.init();
 
@@ -277,59 +270,59 @@ TEST_F(EncodersTest, StateDecoding)
 
     //initial state doesn't count as pulse, 4 more needed
     state = 0b00;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::stopped);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::stopped);
 
     //1
     state = 0b10;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::stopped);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::stopped);
 
     //2
     state = 0b11;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::stopped);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::stopped);
 
     //3
     state = 0b01;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::stopped);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::stopped);
 
     //4
     //pulse should be registered
     state = 0b00;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::cw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::cw);
 
     //1
     state = 0b10;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::stopped);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::stopped);
 
     //2
     state = 0b11;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::stopped);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::stopped);
 
     //3
     state = 0b01;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::stopped);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::stopped);
 
     //4
     state = 0b00;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::cw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::cw);
 
     //now move to opposite direction
     //don't start from 0b00 state again
     //counter-clockwise: 01, 11, 10, 00
 
     state = 0b01;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::stopped);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::stopped);
 
     state = 0b11;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::stopped);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::stopped);
 
     state = 0b10;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::stopped);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::stopped);
 
     state = 0b00;
-    EXPECT_EQ(encoders.read(0, state), Encoders::position_t::ccw);
+    TEST_ASSERT(encoders.read(0, state) == Encoders::position_t::ccw);
 }
 
-TEST_F(EncodersTest, Debounce)
+TEST_CASE(Debounce)
 {
     using namespace Interface::digital::input;
 
@@ -338,19 +331,19 @@ TEST_F(EncodersTest, Debounce)
         for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
         {
             //enable all encoders
-            EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i, 1), true);
+            TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i, 1) == true);
 
             //disable invert state
-            EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_invert, i, 0), true);
+            TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_invert, i, 0) == true);
 
             //set type of message to Encoders::type_t::t7Fh01h
-            EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i, static_cast<int32_t>(Encoders::type_t::t7Fh01h)), true);
+            TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i, static_cast<int32_t>(Encoders::type_t::t7Fh01h)) == true);
 
             //pulses per step
-            EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_pulsesPerStep, i, pulsesPerStep), true);
+            TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_pulsesPerStep, i, pulsesPerStep) == true);
 
             //midi channel
-            EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i, 1), true);
+            TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i, 1) == true);
         }
 
         auto encValue = [](Encoders::type_t type, Encoders::position_t position) {
@@ -410,8 +403,8 @@ TEST_F(EncodersTest, Debounce)
             testValue[i] = Encoders::position_t::ccw;
         }
 
-        EXPECT_TRUE(verifyValue(testValue));
-        EXPECT_EQ(messageCounter, MAX_NUMBER_OF_ENCODERS);
+        TEST_ASSERT(verifyValue(testValue) == true);
+        TEST_ASSERT(messageCounter == MAX_NUMBER_OF_ENCODERS);
 
         //reset values
         messageCounter = 0;
@@ -423,8 +416,8 @@ TEST_F(EncodersTest, Debounce)
             testValue[i] = Encoders::position_t::cw;
         }
 
-        EXPECT_TRUE(verifyValue(testValue));
-        EXPECT_EQ(messageCounter, MAX_NUMBER_OF_ENCODERS);
+        TEST_ASSERT(verifyValue(testValue) == true);
+        TEST_ASSERT(messageCounter == MAX_NUMBER_OF_ENCODERS);
 
         //test the scenario where the values alternate between last position
         //(right) and different position (left)
@@ -484,7 +477,7 @@ TEST_F(EncodersTest, Debounce)
                 testValue[j] = Encoders::position_t::cw;
             }
 
-            EXPECT_TRUE(verifyValue(testValue));
+            TEST_ASSERT(verifyValue(testValue) == true);
         }
 
         //perform the same test again but with time difference
@@ -502,7 +495,7 @@ TEST_F(EncodersTest, Debounce)
                 testValue[j] = encoderPositionTest1[i];
             }
 
-            EXPECT_TRUE(verifyValue(testValue));
+            TEST_ASSERT(verifyValue(testValue) == true);
             core::timing::detail::rTime_ms += ENCODERS_DEBOUNCE_RESET_TIME + 1;
         }
 
@@ -559,7 +552,7 @@ TEST_F(EncodersTest, Debounce)
                 testValue[j] = Encoders::position_t::cw;
             }
 
-            EXPECT_TRUE(verifyValue(testValue));
+            TEST_ASSERT(verifyValue(testValue) == true);
         }
 
         for (int i = 16; i < 19; i++)
@@ -573,7 +566,7 @@ TEST_F(EncodersTest, Debounce)
                 testValue[j] = Encoders::position_t::cw;
             }
 
-            EXPECT_TRUE(verifyValue(testValue));
+            TEST_ASSERT(verifyValue(testValue) == true);
         }
 
         //from now on, debouncer should be initiated and all other values should be left
@@ -587,7 +580,7 @@ TEST_F(EncodersTest, Debounce)
                 testValue[j] = Encoders::position_t::ccw;
             }
 
-            EXPECT_TRUE(verifyValue(testValue));
+            TEST_ASSERT(verifyValue(testValue) == true);
         }
     };
 
@@ -597,7 +590,7 @@ TEST_F(EncodersTest, Debounce)
     debounceTest(2);
 }
 
-TEST_F(EncodersTest, Acceleration)
+TEST_CASE(Acceleration)
 {
     using namespace Interface::digital::input;
 
@@ -607,22 +600,22 @@ TEST_F(EncodersTest, Acceleration)
         for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
         {
             //enable all encoders
-            EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i, 1), true);
+            TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i, 1) == true);
 
             //disable invert state
-            EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_invert, i, 0), true);
+            TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_invert, i, 0) == true);
 
             //set type of message to Encoders::type_t::tControlChange
-            EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i, static_cast<int32_t>(Encoders::type_t::tControlChange)), true);
+            TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i, static_cast<int32_t>(Encoders::type_t::tControlChange)) == true);
 
             //enable acceleration
-            EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_acceleration, i, ENCODER_SPEED_CHANGE), true);
+            TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_acceleration, i, ENCODER_SPEED_CHANGE) == true);
 
             //pulses per step
-            EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_pulsesPerStep, i, pulsesPerStep), true);
+            TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_pulsesPerStep, i, pulsesPerStep) == true);
 
             //midi channel
-            EXPECT_EQ(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i, 1), true);
+            TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i, 1) == true);
         }
 
         encoders.init();
@@ -670,7 +663,7 @@ TEST_F(EncodersTest, Acceleration)
                 }
             }
 
-            EXPECT_TRUE(success);
+            TEST_ASSERT(success == true);
         };
 
         //run update several times, each time increasing the run time by 1

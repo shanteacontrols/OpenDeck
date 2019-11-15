@@ -36,3 +36,5 @@ Documentation/*
 **/gen/**/Makefile
 **/gen/**/main.c
 *.cortex-debug*
+**/tests/gen/*
+*.profraw

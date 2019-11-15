@@ -1,0 +1,10 @@
+fw_opendeck
+fw_leonardo
+fw_mega
+fw_promicro
+fw_uno
+fw_teensy2pp
+fw_dubfocus
+fw_bergamot
+fw_mega6mux
+fw_jamiel

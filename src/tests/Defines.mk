@@ -3,7 +3,6 @@
 #common
 DEFINES :=
 
-TARGETNAME := fw_opendeck
 BOARD_DIR := $(subst fw_,,$(TARGETNAME))
 
 #determine the architecture by directory in which the board dir is located

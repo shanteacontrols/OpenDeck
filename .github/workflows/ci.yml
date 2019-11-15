@@ -37,13 +37,14 @@ jobs:
            sudo apt-key add llvm-snapshot.gpg.key
            sudo add-apt-repository 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main'
            sudo apt update
-           sudo apt-get install -y clang-9
+           sudo apt-get install -y clang-9 ctags
        - name: Build
          run: |
            CPP=clang-9
            CXX=clang++-9
            cd src/tests/
-           ../../scripts/build_execute_tests.sh
+           ../../scripts/build_tests_all.sh
+           make exec
   format:
     name: Code formatting
     runs-on: ubuntu-18.04

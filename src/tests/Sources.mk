@@ -3,14 +3,15 @@ vpath common/%.cpp ../
 vpath modules/%.cpp ../
 vpath modules/%.c ../
 
-SOURCES_database := \
-database/Database.cpp \
+TEST_FRAMEWORK_SOURCES := \
+modules/unity/src/unity.c
+
+SOURCES_test_Database := \
 modules/dbms/src/LESSDB.cpp \
 stubs/database/DB_ReadWrite.cpp \
 application/database/Database.cpp
 
-SOURCES_buttons := \
-interface/digital/input/Buttons.cpp \
+SOURCES_test_Buttons := \
 stubs/Core.cpp \
 stubs/database/DB_ReadWrite.cpp \
 modules/dbms/src/LESSDB.cpp \
@@ -37,14 +38,13 @@ modules/u8g2/csrc/u8x8_gpio.c \
 modules/u8g2/csrc/u8x8_d_ssd1306_128x64_noname.c \
 modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
 
-SOURCES_encoders := \
+SOURCES_test_Encoders := \
 stubs/Core.cpp \
 stubs/database/DB_ReadWrite.cpp \
 modules/dbms/src/LESSDB.cpp \
 application/interface/digital/input/encoders/Encoders.cpp \
 application/interface/digital/input/Common.cpp \
 application/database/Database.cpp \
-interface/digital/input/Encoders.cpp \
 modules/midi/src/MIDI.cpp \
 application/interface/display/U8X8/U8X8.cpp \
 application/interface/display/UpdateLogic.cpp \
@@ -63,7 +63,7 @@ modules/u8g2/csrc/u8x8_gpio.c \
 modules/u8g2/csrc/u8x8_d_ssd1306_128x64_noname.c \
 modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
 
-SOURCES_pots := \
+SOURCES_test_Potentiometer := \
 stubs/Core.cpp \
 stubs/database/DB_ReadWrite.cpp \
 modules/dbms/src/LESSDB.cpp \
@@ -72,7 +72,6 @@ application/interface/analog/Potentiometer.cpp \
 application/interface/analog/FSR.cpp \
 application/interface/digital/output/leds/LEDs.cpp \
 application/database/Database.cpp \
-interface/analog/Potentiometer.cpp \
 modules/midi/src/MIDI.cpp \
 application/interface/display/U8X8/U8X8.cpp \
 application/interface/display/UpdateLogic.cpp \
@@ -91,11 +90,9 @@ modules/u8g2/csrc/u8x8_gpio.c \
 modules/u8g2/csrc/u8x8_d_ssd1306_128x64_noname.c \
 modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
 
-SOURCES_ringbuf := \
-misc/RingBuffer.cpp
+SOURCES_test_RingBuffer := \
 
-SOURCES_odmidi := \
-misc/ODMIDIformat.cpp \
+SOURCES_test_ODMIDIformat := \
 common/OpenDeckMIDIformat/OpenDeckMIDIformat.cpp
 
 #common include dirs

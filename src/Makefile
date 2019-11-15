@@ -216,6 +216,7 @@ format:
 	-not -name "*Config.h" \
 	-not -name "*MCU.h" \
 	-not -name "*Descriptors.*" \
+	-not -name "*catch*" \
 	-exec $(CLANG_FORMAT) -i {} \;
 ifeq ($(CF_FAIL_ON_DIFF), 1)
 	git diff -s --exit-code
