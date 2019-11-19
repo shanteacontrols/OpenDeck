@@ -103,7 +103,7 @@ namespace Interface
             presetChange
         };
 
-        Display() {}
+        Display() = default;
         bool          init(displayController_t controller, displayResolution_t resolution, bool setHome = true);
         bool          update();
         void          displayWelcomeMessage();

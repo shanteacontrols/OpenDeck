@@ -54,12 +54,12 @@ void Buttons::processButton(uint8_t buttonID, bool state)
 
     setButtonState(buttonID, state);
 
-    messageType_t buttonMessage = static_cast<messageType_t>(database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, buttonID));
+    auto buttonMessage = static_cast<messageType_t>(database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, buttonID));
 
     //don't process messageType_t::none type of message
     if (buttonMessage != messageType_t::none)
     {
-        type_t type = static_cast<type_t>(database.read(DB_BLOCK_BUTTONS, dbSection_buttons_type, buttonID));
+        auto type = static_cast<type_t>(database.read(DB_BLOCK_BUTTONS, dbSection_buttons_type, buttonID));
 
         bool sendMIDI = true;
 

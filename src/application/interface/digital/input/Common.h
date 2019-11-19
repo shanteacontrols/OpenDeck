@@ -29,7 +29,7 @@ namespace Interface
             class Common
             {
                 public:
-                Common() {}
+                Common() = default;
 
                 protected:
                 ///

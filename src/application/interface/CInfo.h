@@ -24,9 +24,9 @@ limitations under the License.
 class ComponentInfo
 {
     public:
-    typedef bool (*cinfoHandler_t)(dbBlockID_t dbBlock, SysExConf::sysExParameter_t componentID);
+    using cinfoHandler_t = bool (*)(dbBlockID_t, SysExConf::sysExParameter_t);
 
-    ComponentInfo() {}
+    ComponentInfo() = default;
 
     void registerHandler(cinfoHandler_t handler)
     {

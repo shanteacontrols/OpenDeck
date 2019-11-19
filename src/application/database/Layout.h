@@ -31,7 +31,7 @@ namespace
         {
             .numberOfParameters = 1,
             .parameterType = LESSDB::sectionParameterType_t::word,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = false,
             .address = 0 },
@@ -51,7 +51,7 @@ namespace
         {
             .numberOfParameters = MIDI_FEATURES,
             .parameterType = LESSDB::sectionParameterType_t::bit,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = false,
             .address = 0 },
@@ -60,7 +60,7 @@ namespace
         {
             .numberOfParameters = MIDI_MERGE_OPTIONS,
             .parameterType = LESSDB::sectionParameterType_t::halfByte,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = false,
             .address = 0 }
@@ -71,7 +71,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
             .parameterType = LESSDB::sectionParameterType_t::bit,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = false,
             .address = 0 },
@@ -80,7 +80,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
             .parameterType = LESSDB::sectionParameterType_t::byte,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = false,
             .address = 0 },
@@ -89,7 +89,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
             .parameterType = LESSDB::sectionParameterType_t::byte,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = true,
             .address = 0 },
@@ -98,7 +98,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
             .parameterType = LESSDB::sectionParameterType_t::byte,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 127,
             .autoIncrement = false,
             .address = 0 },
@@ -107,7 +107,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
             .parameterType = LESSDB::sectionParameterType_t::halfByte,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = false,
             .address = 0 }
@@ -118,7 +118,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
             .parameterType = LESSDB::sectionParameterType_t::bit,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = false,
             .address = 0 },
@@ -127,7 +127,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
             .parameterType = LESSDB::sectionParameterType_t::bit,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = false,
             .address = 0 },
@@ -136,7 +136,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
             .parameterType = LESSDB::sectionParameterType_t::halfByte,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = false,
             .address = 0 },
@@ -145,7 +145,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
             .parameterType = LESSDB::sectionParameterType_t::word,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = true,
             .address = 0 },
@@ -154,7 +154,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
             .parameterType = LESSDB::sectionParameterType_t::halfByte,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = false,
             .address = 0 },
@@ -163,7 +163,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
             .parameterType = LESSDB::sectionParameterType_t::halfByte,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 4,
             .autoIncrement = false,
             .address = 0 },
@@ -172,7 +172,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
             .parameterType = LESSDB::sectionParameterType_t::halfByte,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = false,
             .address = 0 },
@@ -181,7 +181,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
             .parameterType = LESSDB::sectionParameterType_t::bit,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = false,
             .address = 0 }
@@ -192,7 +192,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
             .parameterType = LESSDB::sectionParameterType_t::bit,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = false,
             .address = 0 },
@@ -201,7 +201,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
             .parameterType = LESSDB::sectionParameterType_t::bit,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = false,
             .address = 0 },
@@ -210,7 +210,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
             .parameterType = LESSDB::sectionParameterType_t::halfByte,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = false,
             .address = 0 },
@@ -219,7 +219,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
             .parameterType = LESSDB::sectionParameterType_t::word,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = true,
             .address = 0 },
@@ -228,7 +228,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
             .parameterType = LESSDB::sectionParameterType_t::word,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = false,
             .address = 0 },
@@ -237,7 +237,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
             .parameterType = LESSDB::sectionParameterType_t::word,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 16383,
             .autoIncrement = false,
             .address = 0 },
@@ -246,7 +246,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
             .parameterType = LESSDB::sectionParameterType_t::halfByte,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = false,
             .address = 0 }
@@ -258,7 +258,7 @@ namespace
         {
             .numberOfParameters = static_cast<size_t>(Interface::digital::output::LEDs::setting_t::AMOUNT),
             .parameterType = LESSDB::sectionParameterType_t::byte,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = false,
             .address = 0 },
@@ -267,7 +267,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_LEDS,
             .parameterType = LESSDB::sectionParameterType_t::byte,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = true,
             .address = 0 },
@@ -276,7 +276,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_RGB_LEDS,
             .parameterType = LESSDB::sectionParameterType_t::bit,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = false,
             .address = 0 },
@@ -285,7 +285,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_LEDS,
             .parameterType = LESSDB::sectionParameterType_t::halfByte,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = false,
             .address = 0 },
@@ -294,7 +294,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_LEDS,
             .parameterType = LESSDB::sectionParameterType_t::byte,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 127,
             .autoIncrement = false,
             .address = 0 },
@@ -303,7 +303,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_LEDS,
             .parameterType = LESSDB::sectionParameterType_t::halfByte,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue = 0,
             .autoIncrement = false,
             .address = 0 }

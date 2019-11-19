@@ -162,7 +162,7 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
         bool setState = false;
         bool setBlink = false;
 
-        controlType_t controlType = static_cast<controlType_t>(database.read(DB_BLOCK_LEDS, dbSection_leds_controlType, i));
+        auto controlType = static_cast<controlType_t>(database.read(DB_BLOCK_LEDS, dbSection_leds_controlType, i));
 
         //determine whether led state or blink state should be changed
         //received MIDI message must match with defined control type
@@ -295,7 +295,7 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
             {
                 if (setState)
                 {
-                    uint8_t blinkSpeed = static_cast<uint8_t>(blinkSpeed_t::noBlink);
+                    auto blinkSpeed = static_cast<uint8_t>(blinkSpeed_t::noBlink);
 
                     if (data2 && static_cast<bool>(color))
                     {

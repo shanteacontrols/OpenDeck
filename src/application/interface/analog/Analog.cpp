@@ -35,7 +35,7 @@ void Analog::update()
             continue;
 
         int16_t analogData = Board::io::getAnalogValue(i);
-        type_t  type = static_cast<type_t>(database.read(DB_BLOCK_ANALOG, dbSection_analog_type, i));
+        auto    type = static_cast<type_t>(database.read(DB_BLOCK_ANALOG, dbSection_analog_type, i));
 
         if (expFilterUsed)
         {

@@ -40,7 +40,7 @@ namespace U8X8
         };
 
         auto i2cHWA = [](u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_ptr) -> uint8_t {
-            uint8_t* array = (uint8_t*)arg_ptr;
+            auto* array = (uint8_t*)arg_ptr;
 
             switch (msg)
             {

@@ -97,7 +97,7 @@ void Encoders::update()
 
             uint8_t              midiID = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiID, i);
             uint8_t              channel = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i);
-            type_t               type = static_cast<type_t>(database.read(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i));
+            auto                 type = static_cast<type_t>(database.read(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i));
             bool                 validType = true;
             uint16_t             encoderValue = 0;
             uint8_t              steps = (encoderSpeed[i] > 0) ? encoderSpeed[i] : 1;
