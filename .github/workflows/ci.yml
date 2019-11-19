@@ -42,8 +42,8 @@ jobs:
          run: |
            CPP=clang-9
            CXX=clang++-9
-           cd src/tests/
-           ../../scripts/build_tests_all.sh
+           cd tests/
+           ../scripts/build_tests_all.sh
            make exec
   format:
     name: Code formatting

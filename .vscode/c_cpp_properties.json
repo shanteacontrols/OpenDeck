@@ -4,7 +4,7 @@
             "name": "default",
             "defines": [],
             "intelliSenseMode": "gcc-x64",
-            "compileCommands": "${workspaceRoot}/compile_commands.json",
+            "compileCommands": "${workspaceRoot}/src/compile_commands.json",
             "compilerPath": "/usr/local/avr/bin/avr-g++",
             "browse": {
                 "path": [

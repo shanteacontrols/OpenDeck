@@ -47,8 +47,8 @@ $(BUILD_DIR)/%.o: %.cpp
 	@$(CXX) $(COMMON_FLAGS) $(CPP_FLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS) $(INCLUDE_FILES) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
 pre-build:
-	@chmod +x ../../scripts/gen_test_targets.sh && ../../scripts/gen_test_targets.sh
-	@chmod +x ../../scripts/gen_test_runners.sh && ../../scripts/gen_test_runners.sh
+	@chmod +x ../scripts/gen_test_targets.sh && ../scripts/gen_test_targets.sh
+	@chmod +x ../scripts/gen_test_runners.sh && ../scripts/gen_test_runners.sh
 
 exec:
 	@echo Running all compiled tests.
@@ -64,7 +64,7 @@ coverage:
 	@echo ***Generated HTML coverage report in $(BUILD_DIR_BASE)/coverage.html***
 
 format:
-	@make -C ../ format --no-print-directory
+	@make -C ../src format --no-print-directory
 
 #debugging
 print-%:

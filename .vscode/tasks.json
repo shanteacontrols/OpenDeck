@@ -3,7 +3,7 @@
     "tasks": [
         {
             "label": "[FW/BTLDR] Build",
-            "command": "compiledb -d . make TARGETNAME=${input:target} LANG=C DEBUG=${input:debug}",
+            "command": "cd ./src && compiledb -d . make TARGETNAME=${input:target} LANG=C DEBUG=${input:debug}",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -28,7 +28,7 @@
         },
         {
             "label": "[FW/BTLDR] Clean",
-            "command": "make clean",
+            "command": "cd ./src && make clean",
             "type": "shell",
             "problemMatcher": [],
             "windows": {
@@ -46,7 +46,7 @@
         },
         {
             "label": "[Tests] Build",
-            "command": "cd tests && make pre-build && make TESTS=${input:test} && cp build/${input:test}.out build/test.out",
+            "command": "cd ./tests && make pre-build && make TARGETNAME=${input:target} TESTS=${input:test} && cp build/${input:target}/${input:test}.out build/test.out",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -67,7 +67,7 @@
         },
         {
             "label": "[Tests] Clean",
-            "command": "cd tests && make clean",
+            "command": "cd ./tests && make clean",
             "type": "shell",
             "problemMatcher": [],
             "windows": {
@@ -85,7 +85,7 @@
         },
         {
             "label": "[Tests] Run compiled",
-            "command": "cd tests && make exec",
+            "command": "cd ./tests && make exec",
             "type": "shell",
             "problemMatcher": [],
             "windows": {
@@ -103,7 +103,7 @@
         },
         {
             "label": "[VSCode] Update intellisense",
-            "command": "../scripts/vscode_intellisense.sh ${input:target}",
+            "command": "./scripts/vscode_intellisense.sh ${input:target}",
             "type": "shell",
             "problemMatcher": [],
             "windows": {
@@ -158,12 +158,12 @@
             "default": "database",
             "description": "Select test to build:",
             "options": [
-                "database",
-                "encoders",
-                "pots",
-                "buttons",
-                "ringbuf",
-                "odmidi"
+                "test_Database",
+                "test_Encoders",
+                "test_Potentiometer",
+                "test_Buttons",
+                "test_RingBuffer",
+                "test_ODMIDIformat"
             ]
         },
         {
