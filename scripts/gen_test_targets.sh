@@ -1,11 +1,5 @@
 #!/bin/bash
 
-if [ "$(uname)" == "Darwin" ]; then
-    grep=ggrep
-elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-    grep=grep
-fi
-
 tests=$(find ./src -maxdepth 1 -name "test_*" -type f | sed 's/\.[^.]*$//' | cut -d/ -f3)
 
 echo TESTS=$tests > Objects.mk

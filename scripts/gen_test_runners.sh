@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ "$(uname)" == "Darwin" ]; then
+    grep=ggrep
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    grep=grep
+fi
+
 mkdir -p gen/runners
 mkdir -p gen/main
 
@@ -22,12 +28,12 @@ do
     #tries to call functions which aren't preset in any source file
     #for that reason, to avoid compile errors, define each found test with
     #__attribute__((weak)) to make sure the test actually exists
-    grep -oP '(?<=TEST_CASE\()(.*)(?=\))' gen/runners/table | sed 's/$/() {}/' | sed 's/^/__attribute__((weak)) void /' > gen/runners/runner_${test}.cpp
+    $grep -oP '(?<=TEST_CASE\()(.*)(?=\))' gen/runners/table | sed 's/$/() {}/' | sed 's/^/__attribute__((weak)) void /' > gen/runners/runner_${test}.cpp
 
     printf '%s\n' 'void TESTS_EXECUTE() {' >> gen/runners/runner_${test}.cpp
 
-    grep -oP '(?<=TEST_CASE\()(.*)(?=\))' gen/runners/table | sed 's/$/);/' | sed 's/^/RUN_TEST(/' >> gen/runners/runner_${test}.cpp
-    grep -oP '(?<=TEST_CASE\()(.*)(?=\))' gen/runners/table | sed 's/$/();/' | sed 's/^/void /' >> gen/runners/runner_${test}.h
+    $grep -oP '(?<=TEST_CASE\()(.*)(?=\))' gen/runners/table | sed 's/$/);/' | sed 's/^/RUN_TEST(/' >> gen/runners/runner_${test}.cpp
+    $grep -oP '(?<=TEST_CASE\()(.*)(?=\))' gen/runners/table | sed 's/$/();/' | sed 's/^/void /' >> gen/runners/runner_${test}.h
 
     printf '%s\n' '}' >> gen/runners/runner_${test}.cpp
 
