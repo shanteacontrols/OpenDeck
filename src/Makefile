@@ -206,7 +206,6 @@ format:
 	@echo Checking code formatting...
 	@find . -regex '.*\.\(cpp\|hpp\|h\|cc\|cxx\)' \
 	-not -path "*gen*" \
-	-not -path "*modules*" \
 	-not -name "*Constants.h" \
 	-not -name "*Commands.h" \
 	-not -name "*Pins.h" \
@@ -216,7 +215,6 @@ format:
 	-not -name "*Config.h" \
 	-not -name "*MCU.h" \
 	-not -name "*Descriptors.*" \
-	-not -name "*catch*" \
 	-exec $(CLANG_FORMAT) -i {} \;
 ifeq ($(CF_FAIL_ON_DIFF), 1)
 	git diff -s --exit-code

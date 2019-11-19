@@ -1,7 +1,7 @@
 vpath application/%.cpp ../src
 vpath common/%.cpp ../src
-vpath modules/%.cpp ../src
-vpath modules/%.c ../src
+vpath modules/%.cpp ../
+vpath modules/%.c ../
 
 TEST_FRAMEWORK_SOURCES := \
 modules/unity/src/unity.c
@@ -100,7 +100,7 @@ INCLUDE_DIRS := \
 -I"./" \
 -I"../src/application/" \
 -I"../src/" \
--I"../src/modules/" \
+-I"../modules/" \
 -I"../src/board/avr/variants/$(MCU)/$(subst fw_,,$(TARGETNAME))/" \
 -isystem "stubs/avr"
 

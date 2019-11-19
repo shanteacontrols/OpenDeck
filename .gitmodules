@@ -1,29 +1,29 @@
 [submodule "src/Firmware/midi"]
-	path = src/modules/midi
+	path = modules/midi
 	url = https://github.com/paradajz/midi-lib.git
 	branch = master
 [submodule "src/Firmware/dbms"]
-	path = src/modules/dbms
+	path = modules/dbms
 	url = https://github.com/paradajz/LESS-DB.git
 	branch = master
 [submodule "src/Firmware/sysex"]
-	path = src/modules/sysex
+	path = modules/sysex
 	url = https://github.com/paradajz/sysex-conf.git
 	branch = master
 [submodule "src/Firmware/lufa"]
-	path = src/modules/lufa
+	path = modules/lufa
 	url = https://github.com/abcminiuser/lufa.git
 	branch = master
 [submodule "src/modules/u8g2"]
-	path = src/modules/u8g2
+	path = modules/u8g2
 	url = https://github.com/olikraus/u8g2.git
 	branch = master
 [submodule "src/modules/core"]
-	path = src/modules/core
+	path = modules/core
 	url = https://github.com/paradajz/core.git
 [submodule "wiki"]
 	path = wiki
 	url = https://github.com/paradajz/OpenDeck.wiki.git
 [submodule "src/modules/unity"]
-	path = src/modules/unity
+	path = modules/unity
 	url = https://github.com/ThrowTheSwitch/Unity.git

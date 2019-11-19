@@ -1,6 +1,9 @@
+vpath modules/%.cpp ../
+vpath modules/%.c ../
+
 #common include dirs
 INCLUDE_DIRS := \
--I"modules/" \
+-I"../modules/" \
 -I"board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/" \
 -I"application/" \
 -I"./"
@@ -16,7 +19,7 @@ endif
 #architecture specific
 ifeq ($(ARCH), avr)
     INCLUDE_DIRS += \
-    -I"modules/lufa/"
+    -I"../modules/lufa/"
 
     ifneq ($(shell cat board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
         #common for bootloader and application
@@ -123,9 +126,9 @@ else
         SOURCES += $(shell find ./application/interface/analog -type f -name "*.cpp")
         SOURCES += $(shell find ./application/interface/digital/input/ -type f -name "*.cpp")
         SOURCES += $(shell find ./application/interface/digital/output/leds/ -maxdepth 1 -type f -name "*.cpp")
-        SOURCES += $(shell find ./modules/sysex/src -maxdepth 1 -type f -name "*.cpp")
-        SOURCES += $(shell find ./modules/midi/src -maxdepth 1 -type f -name "*.cpp")
-        SOURCES += $(shell find ./modules/dbms/src -maxdepth 1 -type f -name "*.cpp")
+        SOURCES += $(shell find ../modules/sysex/src -maxdepth 1 -type f -name "*.cpp")
+        SOURCES += $(shell find ../modules/midi/src -maxdepth 1 -type f -name "*.cpp")
+        SOURCES += $(shell find ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp")
 
         #if a file named $(BOARD_DIR).cpp exists in ./application/interface/digital/output/leds/startup directory
         #add it to the sources
