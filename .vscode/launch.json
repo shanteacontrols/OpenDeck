@@ -15,24 +15,11 @@
             "externalConsole": false,
             "linux": {
                 "cwd": "${workspaceFolder}",
-                "MIMode": "lldb"
+                "MIMode": "gdb"
             },
             "osx": {
                 "cwd": "${workspaceFolder}",
                 "MIMode": "lldb"
-            },
-            "windows": {
-                "cwd": ".",
-                "MIMode": "gdb",
-                "pipeTransport": {
-                    "pipeCwd": "${workspaceFolder}",
-                    "pipeProgram": "c:\\windows\\sysnative\\bash.exe",
-                    "pipeArgs": ["-c"],
-                    "debuggerPath": "/usr/bin/gdb"
-                },
-                "sourceFileMap": {
-                    "/mnt/c": "C:\\"
-                }
             },
             "setupCommands": [
                 {
