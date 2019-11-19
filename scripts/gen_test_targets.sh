@@ -1,6 +1,6 @@
 #!/bin/bash
 
-tests=$(find ./src -maxdepth 1 -name "test_*" -type f | sed 's/\.[^.]*$//' | cut -d/ -f3)
+tests=$(find ./src -maxdepth 1 -name "test_*" -type d | cut -d/ -f3)
 
 echo TESTS=$tests > Objects.mk
 printf '%s\n' 'TESTS_EXT := $(addprefix $(BUILD_DIR)/,$(TESTS))' >> Objects.mk
@@ -14,8 +14,9 @@ printf '%s\n\n' 'TEST_FRAMEWORK_OBJECTS := $(TEST_FRAMEWORK_OBJECTS:.cpp=.o)' >>
 
 for test in $tests
 do
+    printf '%s\n' '-include src/'${test}'/Sources.mk' >> Objects.mk
     printf '%s\n' 'SOURCES_'${test}' += gen/main/main_'${test}'.cpp' >> Objects.mk
-    printf '%s\n' 'SOURCES_'${test}' += src/'${test}'.cpp' >> Objects.mk
+    printf '%s\n' 'SOURCES_'${test}' += $(shell find ./src/'${test}'/ -type f -name "*.cpp")' >> Objects.mk
     printf '%s\n' 'OBJECTS_'${test}' := $(addprefix $(BUILD_DIR)/,$(SOURCES_'${test}'))' >> Objects.mk
     printf '%s\n' 'OBJECTS_'${test}' := $(OBJECTS_'${test}':.c=.o)' >> Objects.mk
     printf '%s\n' 'OBJECTS_'${test}' := $(OBJECTS_'${test}':.cpp=.o)' >> Objects.mk

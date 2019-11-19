@@ -9,7 +9,7 @@ fi
 mkdir -p gen/runners
 mkdir -p gen/main
 
-tests=$(find ./src -maxdepth 1 -name "test_*" -type f | sed 's/\.[^.]*$//' | cut -d/ -f3)
+tests=$(find ./src -maxdepth 1 -name "test_*" -type d | cut -d/ -f3)
 
 #use ctags to generate list of tests to be run by RUN_TEST unity macro
 #this works by filtering all functions defined with TEST_CASE macro
@@ -18,7 +18,7 @@ for test in $tests
 do
     printf '%s\n\n' '#pragma once' > gen/runners/runner_${test}.h
 
-    find . -type f -name ''${test}'.cpp' -exec ctags -x --c-kinds=f {} ';' > gen/runners/table
+    find ./src/${test} -type f -regex '.*\.\(cpp\|c\)' -exec ctags -x --c-kinds=f {} ';' > gen/runners/table
 
     #some test functions, depending on the target, aren't actually compiled
     #ie. this parsing will find test functions for ODMIDIformat tests but some

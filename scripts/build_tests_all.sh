@@ -6,7 +6,7 @@ set -e
 #build all possible firmare/bootloader binaries
 targets=targets.txt
 
-make clean-all
+make clean
 make pre-build
 
 while IFS= read -r line || [[ -n $line ]]
