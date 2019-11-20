@@ -30,7 +30,7 @@ CLANG_FORMAT := clang-format
 #when set to 1, format target will fail if there are any changes to the repository after formatting
 CF_FAIL_ON_DIFF := 0
 
-#common compiler flags
+#passed to both c and c++ compiler
 COMMON_FLAGS := \
 -Wall \
 -fdata-sections \
@@ -38,16 +38,16 @@ COMMON_FLAGS := \
 -fmessage-length=0 \
 -fno-strict-aliasing
 
-#c only
-CFLAGS := \
--std=c11
-
-#cpp only
-CPPFLAGS := \
+#c++ compiler only
+CPP_FLAGS := \
 -std=c++11 \
 -fno-rtti \
 -fno-exceptions \
 -fpermissive
+
+#c compiler only
+C_FLAGS := \
+-std=c11
 
 #common linker flags
 LDFLAGS := \
@@ -71,11 +71,11 @@ ifeq ($(ARCH),avr)
         LEN_APPEND := 1
     endif
 
-    CPP := avr-gcc
-    CXX := avr-g++
+    C_COMPILER := avr-gcc
+    CPP_COMPILER := avr-g++
     OPT := -Os
 
-    CFLAGS += \
+    C_FLAGS += \
     -fpack-struct
 
     COMMON_FLAGS += \
@@ -90,9 +90,9 @@ ifeq ($(ARCH),avr)
     -mrelax \
     -mmcu=$(MCU)
 else ifeq ($(ARCH),stm32)
-    CPP := arm-none-eabi-gcc
-    CXX := arm-none-eabi-g++
-    ASM := arm-none-eabi-gcc -x assembler-with-cpp
+    C_COMPILER := arm-none-eabi-gcc
+    CPP_COMPILER := arm-none-eabi-g++
+    ASSEMBLER := arm-none-eabi-gcc -x assembler-with-cpp
     OPT := -O2
 
     COMMON_FLAGS += \
@@ -132,26 +132,11 @@ else
     $(error Unsupported platform)
 endif
 
-$(BUILD_DIR)/%.c.o: %.c
-	@mkdir -p $(@D)
-	@$(CPP) $(COMMON_FLAGS) $(CFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
-	@echo Finished building: $<
-
-$(BUILD_DIR)/%.cpp.o: %.cpp
-	@mkdir -p $(@D)
-	@$(CXX) $(COMMON_FLAGS) $(CPPFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
-	@echo Finished building: $<
-
-$(BUILD_DIR)/%.s.o: %.s
-	@mkdir -p $(@D)
-	@$(ASM) $(COMMON_FLAGS) $(CFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
-	@echo Finished building: $<
-
 $(TARGET).elf: $(OBJECTS)
 	@echo $(TARGETNAME) > $(BUILD_DIR_BASE)/TARGET
 	@echo $(DEBUG) > $(BUILD_DIR_BASE)/DEBUG
 	@#link
-	@$(CXX) -o$(TARGET).elf $(OBJECTS) $(LDFLAGS)
+	@$(CPP_COMPILER) -o$(TARGET).elf $(OBJECTS) $(LDFLAGS)
 	@echo Finished building target: $@
 ifeq ($(ARCH), avr)
 	@#convert elf to hex
@@ -168,6 +153,21 @@ ifeq ($(ARCH), avr)
 else
 	@arm-none-eabi-size "$(TARGET).elf"
 endif
+
+$(BUILD_DIR)/%.c.o: %.c
+	@mkdir -p $(@D)
+	@$(C_COMPILER) $(COMMON_FLAGS) $(C_FLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	@echo Finished building: $<
+
+$(BUILD_DIR)/%.cpp.o: %.cpp
+	@mkdir -p $(@D)
+	@$(CPP_COMPILER) $(COMMON_FLAGS) $(CPP_FLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	@echo Finished building: $<
+
+$(BUILD_DIR)/%.s.o: %.s
+	@mkdir -p $(@D)
+	@$(ASSEMBLER) $(COMMON_FLAGS) $(C_FLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	@echo Finished building: $<
 
 flash:
 ifeq ($(ARCH), avr)
@@ -187,20 +187,7 @@ endif
 
 #firmware update with bootloader
 flashboot:
-	$(FLASH_BIN) $(MCU) build/$(TARGETNAME).hex
-
-#lists all serial ports - used to find out where the programmer is connected
-ser_list:
-	dmesg | grep tty
-
-#other targets
-clean:
-	@echo Cleaning up.
-	@rm -rf build/ ../Documentation/
-
-exe-scripts:
-	@echo Making all scripts executable
-	@find ../scripts -name '*.sh' -type f -exec chmod +x {} +;
+	$(FLASH_BIN) $(MCU) $(TARGET).hex
 
 format:
 	@echo Checking code formatting...
@@ -219,6 +206,10 @@ format:
 ifeq ($(CF_FAIL_ON_DIFF), 1)
 	git diff -s --exit-code
 endif
+
+clean:
+	@echo Cleaning up.
+	@rm -rf $(BUILD_DIR_BASE)/ ../Documentation/
 
 #debugging
 print-%:

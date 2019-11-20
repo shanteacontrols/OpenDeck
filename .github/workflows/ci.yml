@@ -40,8 +40,8 @@ jobs:
            sudo apt-get install -y clang-9 ctags
        - name: Build
          run: |
-           CPP=clang-9
-           CXX=clang++-9
+           C_COMPILER=clang-9
+           CPP_COMPILER=clang++-9
            cd tests/
            ../scripts/build_tests_all.sh
            make exec

@@ -6,8 +6,8 @@ include Defines.mk
 include Sources.mk
 -include Objects.mk
 
-CPP := clang
-CXX := clang++
+C_COMPILER := clang
+CPP_COMPILER := clang++
 LLVM_PROFDATA := llvm-profdata-9
 LLVM_COV := llvm-cov-9
 
@@ -32,19 +32,15 @@ C_FLAGS := \
 #linker
 LDFLAGS :=
 
-clean:
-	@echo Cleaning up.
-	@rm -rf $(BUILD_DIR_BASE)/
-
 $(BUILD_DIR)/%.c.o: %.c
 	@mkdir -p $(@D)
 	@echo Building $<
-	@$(CPP) $(COMMON_FLAGS) $(C_FLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS) $(INCLUDE_FILES) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	@$(C_COMPILER) $(COMMON_FLAGS) $(C_FLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS) $(INCLUDE_FILES) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
 $(BUILD_DIR)/%.cpp.o: %.cpp
 	@mkdir -p $(@D)
 	@echo Building $<
-	@$(CXX) $(COMMON_FLAGS) $(CPP_FLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS) $(INCLUDE_FILES) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	@$(CPP_COMPILER) $(COMMON_FLAGS) $(CPP_FLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS) $(INCLUDE_FILES) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
 pre-build:
 	@chmod +x ../scripts/gen_test_targets.sh && ../scripts/gen_test_targets.sh
@@ -65,6 +61,11 @@ coverage:
 
 format:
 	@make -C ../src format --no-print-directory
+
+clean:
+	@echo Cleaning up.
+	@rm -rf $(BUILD_DIR_BASE)/
+	@rm -rf gen/
 
 #debugging
 print-%:
