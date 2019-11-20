@@ -9,8 +9,7 @@ printf '%s\n' '.DEFAULT_GOAL := all' >> Objects.mk
 printf '%s\n\n' 'all: $(TESTS_EXT)' >> Objects.mk
 
 printf '%s\n' 'TEST_FRAMEWORK_OBJECTS := $(addprefix $(BUILD_DIR)/,$(TEST_FRAMEWORK_SOURCES))' >> Objects.mk
-printf '%s\n' 'TEST_FRAMEWORK_OBJECTS := $(TEST_FRAMEWORK_OBJECTS:.c=.o)' >> Objects.mk
-printf '%s\n\n' 'TEST_FRAMEWORK_OBJECTS := $(TEST_FRAMEWORK_OBJECTS:.cpp=.o)' >> Objects.mk
+printf '%s\n\n' 'TEST_FRAMEWORK_OBJECTS := $(addsuffix .o,$(TEST_FRAMEWORK_OBJECTS))' >> Objects.mk
 
 for test in $tests
 do
@@ -18,8 +17,7 @@ do
     printf '%s\n' 'SOURCES_'${test}' += gen/main/main_'${test}'.cpp' >> Objects.mk
     printf '%s\n' 'SOURCES_'${test}' += $(shell find ./src/'${test}'/ -type f -name "*.cpp")' >> Objects.mk
     printf '%s\n' 'OBJECTS_'${test}' := $(addprefix $(BUILD_DIR)/,$(SOURCES_'${test}'))' >> Objects.mk
-    printf '%s\n' 'OBJECTS_'${test}' := $(OBJECTS_'${test}':.c=.o)' >> Objects.mk
-    printf '%s\n' 'OBJECTS_'${test}' := $(OBJECTS_'${test}':.cpp=.o)' >> Objects.mk
+    printf '%s\n' 'OBJECTS_'${test}' := $(addsuffix .o,$(OBJECTS_'${test}'))' >> Objects.mk
     printf '%s\n\n' '-include $(OBJECTS_'${test}':%.o=%.d)' >> Objects.mk
 done
 

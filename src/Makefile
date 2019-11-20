@@ -132,17 +132,17 @@ else
     $(error Unsupported platform)
 endif
 
-$(BUILD_DIR)/%.o: %.c
+$(BUILD_DIR)/%.c.o: %.c
 	@mkdir -p $(@D)
 	@$(CPP) $(COMMON_FLAGS) $(CFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 	@echo Finished building: $<
 
-$(BUILD_DIR)/%.o: %.cpp
+$(BUILD_DIR)/%.cpp.o: %.cpp
 	@mkdir -p $(@D)
 	@$(CXX) $(COMMON_FLAGS) $(CPPFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 	@echo Finished building: $<
 
-$(BUILD_DIR)/%.o: %.s
+$(BUILD_DIR)/%.s.o: %.s
 	@mkdir -p $(@D)
 	@$(ASM) $(COMMON_FLAGS) $(CFLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 	@echo Finished building: $<

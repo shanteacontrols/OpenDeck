@@ -36,12 +36,12 @@ clean:
 	@echo Cleaning up.
 	@rm -rf $(BUILD_DIR_BASE)/
 
-$(BUILD_DIR)/%.o: %.c
+$(BUILD_DIR)/%.c.o: %.c
 	@mkdir -p $(@D)
 	@echo Building $<
 	@$(CPP) $(COMMON_FLAGS) $(C_FLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS) $(INCLUDE_FILES) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
-$(BUILD_DIR)/%.o: %.cpp
+$(BUILD_DIR)/%.cpp.o: %.cpp
 	@mkdir -p $(@D)
 	@echo Building $<
 	@$(CXX) $(COMMON_FLAGS) $(CPP_FLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS) $(INCLUDE_FILES) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"

@@ -166,9 +166,7 @@ endif
 #make sure all objects are located in build directory
 OBJECTS := $(addprefix $(BUILD_DIR)/,$(SOURCES))
 #also make sure objects have .o extension
-OBJECTS := $(OBJECTS:.c=.o)
-OBJECTS := $(OBJECTS:.cpp=.o)
-OBJECTS := $(OBJECTS:.s=.o)
+OBJECTS := $(addsuffix .o,$(OBJECTS))
 
 #include generated dependency files to allow incremental build when only headers change
 -include $(OBJECTS:%.o=%.d)
