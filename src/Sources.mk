@@ -50,22 +50,17 @@ ifeq ($(ARCH), avr)
         endif
     endif
 else ifeq ($(ARCH),stm32)
-    SOURCES += $(shell find ./board/stm32/gen/$(MCU)/Drivers/STM32F4xx_HAL_Driver/Src -name "*.c")
+    SOURCES += $(shell find ./board/stm32/gen/$(MCU)/Drivers/STM32*_HAL_Driver/Src -name "*.c")
     SOURCES += $(shell find ./board/stm32/gen/$(MCU)/Middlewares/ST/STM32_USB_Device_Library/Core/Src -name "*.c")
+    SOURCES += $(shell find ./board/stm32/gen/$(MCU)/Src -name "system_*.c")
+    SOURCES += $(shell find ./board/stm32/gen/$(MCU)/Src -name "*_hal_msp.c")
+    SOURCES += $(shell find ./board/stm32/gen/$(MCU) -name "startup_*.s")
     SOURCES += $(shell find ./board/stm32/eeprom -name "*.cpp")
-    SOURCES += \
-    ./board/stm32/gen/$(MCU)/startup_stm32f407xx.s \
-    ./board/stm32/gen/$(MCU)/Src/system_stm32f4xx.c \
-    ./board/stm32/gen/$(MCU)/Src/stm32f4xx_hal_msp.c \
-    ./board/stm32/gen/$(MCU)/Src/usbd_conf.c
+    SOURCES += ./board/stm32/gen/$(MCU)/Src/usbd_conf.c
 
-    INCLUDE_DIRS += \
-    -I"./board/stm32/gen/$(MCU)/Inc" \
-    -I"./board/stm32/gen/$(MCU)/Drivers/STM32F4xx_HAL_Driver/Inc" \
-    -I"./board/stm32/gen/$(MCU)/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy" \
-    -I"./board/stm32/gen/$(MCU)/Drivers/CMSIS/Device/ST/STM32F4xx/Include" \
-    -I"./board/stm32/gen/$(MCU)/Drivers/CMSIS/Include" \
-    -I"./board/stm32/gen/$(MCU)/Middlewares/ST/STM32_USB_Device_Library/Core/Inc"
+    INCLUDE_DIRS += $(addprefix -I,$(shell find ./board/stm32/gen/$(MCU)/Drivers -type d -not -path "*Src*"))
+    INCLUDE_DIRS += $(addprefix -I,$(shell find ./board/stm32/gen/$(MCU)/Inc -type d -not -path "*Src*"))
+    INCLUDE_DIRS += -I"./board/stm32/gen/$(MCU)/Middlewares/ST/STM32_USB_Device_Library/Core/Inc"
 endif
 
 ifeq ($(findstring boot,$(TARGETNAME)), boot)

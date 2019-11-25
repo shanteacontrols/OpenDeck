@@ -97,15 +97,11 @@ else ifeq ($(ARCH),stm32)
 
     COMMON_FLAGS += \
     -mcpu=$(CPU) \
-    -mthumb \
-    -mfpu=$(FPU) \
-    -mfloat-abi=$(FLOAT-ABI)
+    -mthumb
 
     LDFLAGS += \
     -mcpu=$(CPU) \
     -mthumb \
-    -mfpu=$(FPU) \
-    -mfloat-abi=$(FLOAT-ABI) \
     -specs=nano.specs \
     -specs=nosys.specs
 
@@ -113,6 +109,16 @@ else ifeq ($(ARCH),stm32)
         COMMON_FLAGS += -g -gdwarf-2
         LDFLAGS += -g -gdwarf-2
         OPT := -Og
+    endif
+
+    ifneq ($(FPU),)
+        COMMON_FLAGS += -mfpu=$(FPU)
+        LDFLAGS += -mfpu=$(FPU)
+    endif
+
+    ifneq ($(FLOAT-ABI),)
+        COMMON_FLAGS += -mfloat-abi=$(FLOAT-ABI)
+        LDFLAGS += -mfloat-abi=$(FLOAT-ABI)
     endif
 else
     $(error Unsupported architecture)
