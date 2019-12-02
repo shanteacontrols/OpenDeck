@@ -31,12 +31,15 @@ namespace Interface
                 public:
                 Common() = default;
 
+                bool    pcIncrement(uint8_t channel);
+                bool    pcDecrement(uint8_t channel);
+                uint8_t program(uint8_t channel);
+
                 protected:
                 ///
-                /// \brief Used for Buttons::messageType_t::programChangeInc/Buttons::messageType_t::programChangeDec messages when each button press/encoder rotation sends incremented or decremented PC value.
-                /// 16 entries in array are used for 16 MIDI channels.
+                /// \brief Holds current program change value for all 16 MIDI channels.
                 ///
-                static int8_t lastPCvalue[16];
+                static uint8_t pcValue[16];
             };
         }    // namespace input
     }        // namespace digital

@@ -24,7 +24,44 @@ namespace Interface
     {
         namespace input
         {
-            int8_t Common::lastPCvalue[16];
+            uint8_t Common::pcValue[16] = {};
+
+            bool Common::pcIncrement(uint8_t channel)
+            {
+                if (channel >= 16)
+                    return false;
+
+                if (pcValue[channel] < 127)
+                {
+                    pcValue[channel]++;
+                    return true;
+                }
+
+                return false;
+            }
+
+            bool Common::pcDecrement(uint8_t channel)
+            {
+                if (channel >= 16)
+                    return false;
+
+                if (pcValue[channel] > 0)
+                {
+                    pcValue[channel]--;
+                    return true;
+                }
+
+                return false;
+            }
+
+            uint8_t Common::program(uint8_t channel)
+            {
+                if (channel >= 16)
+                    return false;
+
+                return pcValue[channel];
+            }
         }
-    }    // namespace digital
+        }    // namespace input
+    }        // namespace digital
 }    // namespace Interface

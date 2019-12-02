@@ -107,10 +107,7 @@ namespace Interface
                     , display(display)
 #endif
                     , cInfo(cInfo)
-                {
-                    for (int i = 0; i < 16; i++)
-                        Common::lastPCvalue[i] = -1;
-                }
+                {}
 
                 void update();
                 bool getStateFromAnalogValue(uint16_t adcValue);

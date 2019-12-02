@@ -114,20 +114,16 @@ void Encoders::update()
             case type_t::tProgramChange:
                 if (encoderState == position_t::ccw)
                 {
-                    if (Common::lastPCvalue[channel] < 127)
-                        Common::lastPCvalue[channel]++;
-                    else
+                    if (!Common::pcIncrement(channel))
                         validType = false;
                 }
                 else
                 {
-                    if (Common::lastPCvalue[channel] > 0)
-                        Common::lastPCvalue[channel]--;
-                    else
+                    if (!Common::pcDecrement(channel))
                         validType = false;
                 }
 
-                encoderValue = Common::lastPCvalue[channel];
+                encoderValue = Common::program(channel);
                 break;
 
             case type_t::tControlChange:

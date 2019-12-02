@@ -181,20 +181,16 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
             {
                 if (buttonMessage == messageType_t::programChangeInc)
                 {
-                    if (Common::lastPCvalue[channel] < 127)
-                        Common::lastPCvalue[channel]++;
-                    else
+                    if (!Common::pcIncrement(channel))
                         send = false;
                 }
                 else
                 {
-                    if (Common::lastPCvalue[channel] > 0)
-                        Common::lastPCvalue[channel]--;
-                    else
+                    if (!Common::pcDecrement(channel))
                         send = false;
                 }
 
-                note = Common::lastPCvalue[channel];
+                note = Common::program(channel);
             }
 
             if (send)
