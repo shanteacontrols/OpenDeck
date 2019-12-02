@@ -121,9 +121,9 @@ else
         SOURCES += $(shell find ./application/interface/analog -type f -name "*.cpp")
         SOURCES += $(shell find ./application/interface/digital/input/ -type f -name "*.cpp")
         SOURCES += $(shell find ./application/interface/digital/output/leds/ -maxdepth 1 -type f -name "*.cpp")
-        SOURCES += $(shell find ../modules/sysex/src -maxdepth 1 -type f -name "*.cpp")
-        SOURCES += $(shell find ../modules/midi/src -maxdepth 1 -type f -name "*.cpp")
-        SOURCES += $(shell find ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp")
+        SOURCES += $(shell find ../modules/sysex/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
+        SOURCES += $(shell find ../modules/midi/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
+        SOURCES += $(shell find ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
 
         #if a file named $(BOARD_DIR).cpp exists in ./application/interface/digital/output/leds/startup directory
         #add it to the sources
