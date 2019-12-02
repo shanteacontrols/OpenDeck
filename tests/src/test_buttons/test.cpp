@@ -361,12 +361,7 @@ TEST_CASE(ProgramChange)
 
     configurePCbutton(0, 0, true);
 
-    //verify that the received program change was 0 for button 0
-    stateChangeRegister(true);
-    verifyProgramChange(0, 0, 0);
-    stateChangeRegister(false);
-
-    //after this, verify that the received program change was 1 for button 0
+    //verify that the received program change was 1 for button 0
     stateChangeRegister(true);
     verifyProgramChange(0, 0, 1);
     stateChangeRegister(false);
@@ -374,6 +369,11 @@ TEST_CASE(ProgramChange)
     //after this, verify that the received program change was 2 for button 0
     stateChangeRegister(true);
     verifyProgramChange(0, 0, 2);
+    stateChangeRegister(false);
+
+    //after this, verify that the received program change was 3 for button 0
+    stateChangeRegister(true);
+    verifyProgramChange(0, 0, 3);
     stateChangeRegister(false);
 
     //now, revert all buttons back to default
@@ -384,11 +384,11 @@ TEST_CASE(ProgramChange)
 
     //verify that the program change is continuing to increase
     stateChangeRegister(true);
-    verifyProgramChange(4, 0, 3);
+    verifyProgramChange(4, 0, 4);
     stateChangeRegister(false);
 
     stateChangeRegister(true);
-    verifyProgramChange(4, 0, 4);
+    verifyProgramChange(4, 0, 5);
     stateChangeRegister(false);
 
     //now configure two buttons to send program change/inc
@@ -396,9 +396,9 @@ TEST_CASE(ProgramChange)
 
     stateChangeRegister(true);
     //program change should be increased by 1, first by button 0
-    verifyProgramChange(0, 0, 5);
+    verifyProgramChange(0, 0, 6);
     //then by button 4
-    verifyProgramChange(4, 0, 6);
+    verifyProgramChange(4, 0, 7);
     stateChangeRegister(false);
 
     //configure another button to programChangeInc, but on other channel
@@ -406,11 +406,11 @@ TEST_CASE(ProgramChange)
 
     stateChangeRegister(true);
     //program change should be increased by 1, first by button 0
-    verifyProgramChange(0, 0, 7);
+    verifyProgramChange(0, 0, 8);
     //then by button 4
-    verifyProgramChange(4, 0, 8);
+    verifyProgramChange(4, 0, 9);
     //program change should be sent on channel 4 by button 1
-    verifyProgramChange(1, 4, 0);
+    verifyProgramChange(1, 4, 1);
     stateChangeRegister(false);
 
     //revert to default again
@@ -421,6 +421,11 @@ TEST_CASE(ProgramChange)
 
     stateChangeRegister(true);
     //program change should decrease by 1
+    verifyProgramChange(0, 0, 8);
+    stateChangeRegister(false);
+
+    stateChangeRegister(true);
+    //program change should decrease by 1 again
     verifyProgramChange(0, 0, 7);
     stateChangeRegister(false);
 
