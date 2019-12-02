@@ -180,6 +180,8 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
                     setState = true;
                 break;
 
+            //set state for program change control type regardless of local/midi in setting
+            case controlType_t::midiInPCforStateNoBlink:
             case controlType_t::localPCforStateNoBlink:
                 if (messageType == MIDI::messageType_t::programChange)
                     setState = true;
@@ -239,7 +241,9 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
                 }
                 break;
 
+            //set state for program change control type regardless of local/midi in setting
             case controlType_t::midiInPCforStateNoBlink:
+            case controlType_t::localPCforStateNoBlink:
                 if (messageType == MIDI::messageType_t::programChange)
                     setState = true;
                 break;

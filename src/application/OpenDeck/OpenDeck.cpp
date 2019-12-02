@@ -202,6 +202,9 @@ void OpenDeck::checkMIDI()
         case MIDI::messageType_t::noteOff:
         case MIDI::messageType_t::controlChange:
         case MIDI::messageType_t::programChange:
+            if (messageType == MIDI::messageType_t::programChange)
+                digitalInputCommon.setProgram(channel, data1);
+
 #if defined(LEDS_SUPPORTED) || defined(DISPLAY_SUPPORTED)
             if (messageType == MIDI::messageType_t::noteOff)
                 data2 = 0;
