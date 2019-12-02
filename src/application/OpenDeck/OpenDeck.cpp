@@ -156,6 +156,12 @@ void OpenDeck::init()
         display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::presetChange, preset, 0, 0);
 #endif
     });
+
+#ifdef LEDS_SUPPORTED
+    // on startup, indicate current program for all channels (if any leds have program change assigned as control mode)
+    for (int i = 0; i < 16; i++)
+        leds.midiToState(MIDI::messageType_t::programChange, 0, 0, i, false);
+#endif
 }
 
 void OpenDeck::checkComponents()
