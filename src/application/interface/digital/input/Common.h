@@ -34,6 +34,7 @@ namespace Interface
                 bool    pcIncrement(uint8_t channel);
                 bool    pcDecrement(uint8_t channel);
                 uint8_t program(uint8_t channel);
+                bool    setProgram(uint8_t channel, uint8_t program);
 
                 protected:
                 ///

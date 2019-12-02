@@ -61,7 +61,18 @@ namespace Interface
 
                 return pcValue[channel];
             }
-        }
+
+            bool Common::setProgram(uint8_t channel, uint8_t program)
+            {
+                if (channel >= 16)
+                    return false;
+
+                if (program > 127)
+                    return false;
+
+                pcValue[channel] = program;
+                return true;
+            }
         }    // namespace input
     }        // namespace digital
 }    // namespace Interface
