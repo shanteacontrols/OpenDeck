@@ -25,6 +25,7 @@ limitations under the License.
 ComponentInfo                       cinfo;
 Database                            database(Board::eeprom::read, Board::eeprom::write, EEPROM_SIZE - 3);
 MIDI                                midi;
+Interface::digital::input::Common   digitalInputCommon;
 #ifdef DISPLAY_SUPPORTED
 Interface::Display                  display;
 #endif
