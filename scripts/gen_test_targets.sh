@@ -8,8 +8,8 @@ printf '%s\n\n' 'TESTS_EXT := $(addsuffix .out,$(TESTS_EXT))' >> Objects.mk
 printf '%s\n' '.DEFAULT_GOAL := all' >> Objects.mk
 printf '%s\n\n' 'all: $(TESTS_EXT)' >> Objects.mk
 
-printf '%s\n' 'TEST_FRAMEWORK_OBJECTS := $(addprefix $(BUILD_DIR)/,$(TEST_FRAMEWORK_SOURCES))' >> Objects.mk
-printf '%s\n\n' 'TEST_FRAMEWORK_OBJECTS := $(addsuffix .o,$(TEST_FRAMEWORK_OBJECTS))' >> Objects.mk
+printf '%s\n' 'COMMON_OBJECTS := $(addprefix $(BUILD_DIR_BASE)/,$(COMMON_SOURCES))' >> Objects.mk
+printf '%s\n\n' 'COMMON_OBJECTS := $(addsuffix .o,$(COMMON_OBJECTS))' >> Objects.mk
 
 for test in $tests
 do
@@ -23,7 +23,7 @@ done
 
 for test in $tests
 do
-    printf '%s\n' '$(BUILD_DIR)/'${test}'.out: $(OBJECTS_'${test}') $(TEST_FRAMEWORK_OBJECTS)' >> Objects.mk
+    printf '%s\n' '$(BUILD_DIR)/'${test}'.out: $(OBJECTS_'${test}') $(COMMON_OBJECTS)' >> Objects.mk
     printf '\t%s\n' '@echo Linking' >> Objects.mk
     printf '\t%s\n' '@$(CPP_COMPILER) $(LDFLAGS) $(COMMON_FLAGS) $(CPP_FLAGS) $^ -o $@' >> Objects.mk
     printf '\t%s\n\n' '@echo Created executable: $@' >> Objects.mk
