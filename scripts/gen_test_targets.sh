@@ -3,10 +3,8 @@
 tests=$(find ./src -maxdepth 1 -name "test_*" -type d | cut -d/ -f3)
 
 echo TESTS := $tests > Objects.mk
-printf '%s\n' 'TESTS_EXT := $(addprefix $(BUILD_DIR)/,$(TESTS))' >> Objects.mk
-printf '%s\n\n' 'TESTS_EXT := $(addsuffix .out,$(TESTS_EXT))' >> Objects.mk
 printf '%s\n' '.DEFAULT_GOAL := all' >> Objects.mk
-printf '%s\n\n' 'all: $(TESTS_EXT)' >> Objects.mk
+printf '%s\n\n' 'all: $(addsuffix .out,$(addprefix $(BUILD_DIR)/,$(TESTS)))' >> Objects.mk
 
 printf '%s\n' 'COMMON_OBJECTS := $(addprefix $(BUILD_DIR_BASE)/,$(COMMON_SOURCES))' >> Objects.mk
 printf '%s\n\n' 'COMMON_OBJECTS := $(addsuffix .o,$(COMMON_OBJECTS))' >> Objects.mk
