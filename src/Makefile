@@ -141,9 +141,8 @@ endif
 $(TARGET).elf: $(OBJECTS)
 	@echo $(TARGETNAME) > $(BUILD_DIR_BASE)/TARGET
 	@echo $(DEBUG) > $(BUILD_DIR_BASE)/DEBUG
-	@#link
+	@echo Creating executable: $@
 	@$(CPP_COMPILER) -o$(TARGET).elf $(OBJECTS) $(LDFLAGS)
-	@echo Finished building target: $@
 ifeq ($(ARCH), avr)
 	@#convert elf to hex
 	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(TARGET).elf" "$(TARGET).hex"
@@ -162,18 +161,18 @@ endif
 
 $(BUILD_DIR)/%.c.o: %.c
 	@mkdir -p $(@D)
+	@echo Building: $<
 	@$(C_COMPILER) $(COMMON_FLAGS) $(C_FLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
-	@echo Finished building: $<
 
 $(BUILD_DIR)/%.cpp.o: %.cpp
 	@mkdir -p $(@D)
+	@echo Building: $<
 	@$(CPP_COMPILER) $(COMMON_FLAGS) $(CPP_FLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
-	@echo Finished building: $<
 
 $(BUILD_DIR)/%.s.o: %.s
 	@mkdir -p $(@D)
+	@echo Building: $<
 	@$(ASSEMBLER) $(COMMON_FLAGS) $(C_FLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
-	@echo Finished building: $<
 
 flash:
 ifeq ($(ARCH), avr)
