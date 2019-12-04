@@ -22,7 +22,5 @@ done
 for test in $tests
 do
     printf '%s\n' '$(BUILD_DIR)/'${test}'.out: $(OBJECTS_'${test}') $(COMMON_OBJECTS)' >> Objects.mk
-    printf '\t%s\n' '@echo Linking' >> Objects.mk
-    printf '\t%s\n' '@$(CPP_COMPILER) $(LDFLAGS) $(COMMON_FLAGS) $(CPP_FLAGS) $^ -o $@' >> Objects.mk
-    printf '\t%s\n\n' '@echo Created executable: $@' >> Objects.mk
+    printf '\t%s\n\n' '$(LINK_OBJECTS)' >> Objects.mk
 done

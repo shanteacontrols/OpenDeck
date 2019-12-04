@@ -42,6 +42,11 @@ $(BUILD_DIR)/%.cpp.o $(BUILD_DIR_BASE)/%.cpp.o: %.cpp
 	@echo Building $<
 	@$(CPP_COMPILER) $(COMMON_FLAGS) $(CPP_FLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS) $(INCLUDE_FILES) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
+define LINK_OBJECTS
+	@echo Creating executable: $@
+	@$(CPP_COMPILER) $(LDFLAGS) $(COMMON_FLAGS) $(CPP_FLAGS) $^ -o $@
+endef
+
 pre-build:
 	@chmod +x ../scripts/gen_test_targets.sh && ../scripts/gen_test_targets.sh
 	@chmod +x ../scripts/gen_test_runners.sh && ../scripts/gen_test_runners.sh
