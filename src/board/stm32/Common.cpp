@@ -105,26 +105,6 @@ extern "C" void SysTick_Handler(void)
     HAL_IncTick();
 }
 
-extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
-{
-    static bool _1ms = true;
-    _1ms = !_1ms;
-
-    if (_1ms)
-    {
-        core::timing::detail::rTime_ms++;
-
-#ifdef LEDS_SUPPORTED
-        Board::detail::io::checkDigitalOutputs();
-#endif
-#ifdef LED_INDICATORS
-        Board::detail::io::checkIndicators();
-#endif
-    }
-
-    Board::detail::io::checkDigitalInputs();
-}
-
 namespace
 {
     EmuEEPROM emuEEPROM(Board::detail::map::eepromFlashPage1(), Board::detail::map::eepromFlashPage2());
@@ -132,6 +112,32 @@ namespace
 
 namespace Board
 {
+    namespace detail
+    {
+        namespace isrHandling
+        {
+            void mainTimer()
+            {
+                static bool _1ms = true;
+                _1ms = !_1ms;
+
+                if (_1ms)
+                {
+                    core::timing::detail::rTime_ms++;
+
+#ifdef LEDS_SUPPORTED
+                    Board::detail::io::checkDigitalOutputs();
+#endif
+#ifdef LED_INDICATORS
+                    Board::detail::io::checkIndicators();
+#endif
+                }
+
+                Board::detail::io::checkDigitalInputs();
+            }
+        }    // namespace isrHandling
+    }        // namespace detail
+
     void init()
     {
         //Reset of all peripherals, Initializes the Flash interface and the Systick

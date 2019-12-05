@@ -41,7 +41,8 @@ extern "C" void USART3_IRQHandler(void)
 
 extern "C" void TIM7_IRQHandler(void)
 {
-    HAL_TIM_IRQHandler(&htim7);
+    __HAL_TIM_CLEAR_IT(&htim7, TIM_IT_UPDATE);
+    Board::detail::isrHandling::mainTimer();
 }
 
 extern "C" void ADC_IRQHandler(void)

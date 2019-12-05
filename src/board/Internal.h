@@ -257,6 +257,11 @@ namespace Board
             /// @param [in] adcValue    Retrieved ADC value.
             ///
             void adc(uint16_t adcValue);
+
+            ///
+            /// \brief Global ISR handler for main timer.
+            ///
+            void mainTimer();
         }    // namespace isrHandling
     }        // namespace detail
 }    // namespace Board
