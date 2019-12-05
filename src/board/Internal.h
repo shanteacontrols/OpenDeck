@@ -114,12 +114,6 @@ namespace Board
             }    // namespace ll
 
             ///
-            /// \brief Global ISR handler for all UART events.
-            /// @param [in] channel UART channel on MCU.
-            ///
-            void isrHandler(uint8_t channel);
-
-            ///
             /// \brief Used to store incoming data from UART to buffer.
             /// @param [in] channel UART channel on MCU.
             /// @param [in] data    Received data.
@@ -202,12 +196,6 @@ namespace Board
         namespace io
         {
             ///
-            /// \brief Called in ADC ISR once the conversion is done.
-            /// @param [in] adcValue    Retrieved ADC value.
-            ///
-            void adcISRHandler(uint16_t adcValue);
-
-            ///
             /// \brief Continuously reads all digital inputs.
             ///
             void checkDigitalInputs();
@@ -255,5 +243,20 @@ namespace Board
             void indicateBtldr();
 #endif
         }    // namespace io
+
+        namespace isrHandling
+        {
+            ///
+            /// \brief Global ISR handler for all UART events.
+            /// @param [in] channel UART channel on MCU.
+            ///
+            void uart(uint8_t channel);
+
+            ///
+            /// \brief Called in ADC ISR once the conversion is done.
+            /// @param [in] adcValue    Retrieved ADC value.
+            ///
+            void adc(uint16_t adcValue);
+        }    // namespace isrHandling
     }        // namespace detail
 }    // namespace Board

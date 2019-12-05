@@ -36,7 +36,7 @@ namespace
 
 extern "C" void USART3_IRQHandler(void)
 {
-    Board::detail::UART::isrHandler(0);
+    Board::detail::isrHandling::uart(0);
 }
 
 extern "C" void TIM7_IRQHandler(void)

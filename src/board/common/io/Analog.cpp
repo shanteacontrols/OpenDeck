@@ -78,9 +78,9 @@ namespace Board
 
     namespace detail
     {
-        namespace io
+        namespace isrHandling
         {
-            void adcISRHandler(uint16_t adcValue)
+            void adc(uint16_t adcValue)
             {
                 if (ignoreCounter++ == ADC_IGNORED_SAMPLES_COUNT)
                 {
@@ -129,6 +129,6 @@ namespace Board
                 if (!analogSamplingDone)
                     core::adc::startConversion();
             }
-        }    // namespace io
+        }    // namespace isrHandling
     }        // namespace detail
 }    // namespace Board

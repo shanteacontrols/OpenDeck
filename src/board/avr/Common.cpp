@@ -302,7 +302,7 @@ namespace Board
 ///
 ISR(ADC_vect)
 {
-    Board::detail::io::adcISRHandler(ADC);
+    Board::detail::isrHandling::adc(ADC);
 }
 #endif
 #endif

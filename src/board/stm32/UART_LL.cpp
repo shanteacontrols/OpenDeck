@@ -87,8 +87,11 @@ namespace Board
                     uartHandler[channel].Instance->DR = data;
                 }
             }    // namespace ll
+        }        // namespace UART
 
-            void isrHandler(uint8_t channel)
+        namespace isrHandling
+        {
+            void uart(uint8_t channel)
             {
                 uint32_t isrflags = READ_REG(uartHandler[channel].Instance->SR);
                 uint32_t cr1its = READ_REG(uartHandler[channel].Instance->CR1);
@@ -131,7 +134,7 @@ namespace Board
                     }
                 }
             }
-        }    // namespace UART
+        }    // namespace isrHandling
     }        // namespace detail
 }    // namespace Board
 
