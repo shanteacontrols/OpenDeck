@@ -130,11 +130,9 @@ namespace Board
                 ///
                 /// \brief Array holding ADC read pins/channels.
                 ///
-                const core::io::mcuPin_t aInPins[NUMBER_OF_MUX] = {
-                    //port not used on avr mcus for adc channels, use any port
-                    //adc channel doesn't have to match with adc pin
-                    CORE_IO_MCU_PIN_DEF(MUX_1_IN_PORT, MUX_1_IN_PIN),
-                    CORE_IO_MCU_PIN_DEF(MUX_2_IN_PORT, MUX_2_IN_PIN)
+                uint8_t aInChannels[NUMBER_OF_MUX] = {
+                    MUX_1_IN_PIN,
+                    MUX_2_IN_PIN
                 };
 
                 ///
@@ -182,9 +180,9 @@ namespace Board
                 };
             }    // namespace
 
-            core::io::mcuPin_t adcChannel(uint8_t index)
+            uint32_t adcChannel(uint8_t index)
             {
-                return aInPins[index];
+                return aInChannels[index];
             }
 
             uint8_t muxChannel(uint8_t index)

@@ -154,7 +154,7 @@ namespace Board
             ///
             /// \brief Used to retrieve ADC port and pin for a given ADC channel.
             ///
-            core::io::mcuPin_t adcChannel(uint8_t index);
+            uint32_t adcChannel(uint8_t index);
 
             ///
             /// \brief Used to retrieve button port and pin for a given button index.

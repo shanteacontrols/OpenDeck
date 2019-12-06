@@ -27,19 +27,17 @@ namespace Board
         {
             namespace
             {
-                const core::io::mcuPin_t aInPins[NUMBER_OF_MUX] = {
-                    //port not used on avr mcus for adc channels, use any port
-                    //adc channel doesn't have to match with adc pin
-                    CORE_IO_MCU_PIN_DEF(PORTF, 7),
-                    CORE_IO_MCU_PIN_DEF(PORTF, 6),
-                    CORE_IO_MCU_PIN_DEF(PORTF, 5),
-                    CORE_IO_MCU_PIN_DEF(PORTF, 4)
+                uint8_t aInChannels[NUMBER_OF_MUX] = {
+                    7,
+                    6,
+                    5,
+                    4
                 };
             }
 
-            core::io::mcuPin_t adcChannel(uint8_t index)
+            uint32_t adcChannel(uint8_t index)
             {
-                return aInPins[index];
+                return aInChannels[index];
             }
 
             uint8_t muxChannel(uint8_t index)

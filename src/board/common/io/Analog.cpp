@@ -114,7 +114,7 @@ namespace Board
 
 #ifdef NUMBER_OF_MUX
                         //switch to next mux once all mux inputs are read
-                        core::adc::setChannel(Board::detail::map::adcChannel(activeMux).index);
+                        core::adc::setChannel(Board::detail::map::adcChannel(activeMux));
 #endif
                     }
 
@@ -122,7 +122,7 @@ namespace Board
 #ifdef NUMBER_OF_MUX
                     setMuxInput();
 #else
-                    core::adc::setChannel(Board::detail::map::adcChannel(analogIndex).index);
+                    core::adc::setChannel(Board::detail::map::adcChannel(analogIndex));
 #endif
                 }
 

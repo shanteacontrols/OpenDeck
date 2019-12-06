@@ -162,7 +162,7 @@ namespace Board
                 adcConfiguration.vref = core::adc::vRef_t::avcc;
 
                 core::adc::setup(adcConfiguration);
-                core::adc::setChannel(Board::detail::map::adcChannel(0).index);
+                core::adc::setChannel(Board::detail::map::adcChannel(0));
 
                 for (int i = 0; i < 3; i++)
                     core::adc::read();    //few dummy reads to init ADC

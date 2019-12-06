@@ -27,46 +27,15 @@ namespace Board
         {
             namespace
             {
-                const core::io::mcuPin_t aInPins[MAX_NUMBER_OF_ANALOG] = {
-                    {
-                        .port = AI_1_PORT,
-                        .index = AI_1_PIN,
-                    },
-
-                    {
-                        .port = AI_2_PORT,
-                        .index = AI_2_PIN,
-                    },
-
-                    {
-                        .port = AI_3_PORT,
-                        .index = AI_3_PIN,
-                    },
-
-                    {
-                        .port = AI_4_PORT,
-                        .index = AI_4_PIN,
-                    },
-
-                    {
-                        .port = AI_5_PORT,
-                        .index = AI_5_PIN,
-                    },
-
-                    {
-                        .port = AI_6_PORT,
-                        .index = AI_6_PIN,
-                    },
-
-                    {
-                        .port = AI_7_PORT,
-                        .index = AI_7_PIN,
-                    },
-
-                    {
-                        .port = AI_8_PORT,
-                        .index = AI_8_PIN,
-                    }
+                const uint32_t aInChannels[MAX_NUMBER_OF_ANALOG] = {
+                    ADC_CHANNEL_1,
+                    ADC_CHANNEL_2,
+                    ADC_CHANNEL_3,
+                    ADC_CHANNEL_8,
+                    ADC_CHANNEL_9,
+                    ADC_CHANNEL_11,
+                    ADC_CHANNEL_12,
+                    ADC_CHANNEL_14,
                 };
 
                 ///
@@ -260,9 +229,9 @@ namespace Board
                 };
             }    // namespace
 
-            core::io::mcuPin_t adcChannel(uint8_t index)
+            uint32_t adcChannel(uint8_t index)
             {
-                return aInPins[index];
+                return aInChannels[index];
             }
 
             core::io::mcuPin_t button(uint8_t index)
