@@ -216,7 +216,7 @@ namespace Board
                 hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
                 HAL_ADC_Init(&hadc1);
 
-                sConfig.Channel = ADC_CHANNEL_1;
+                sConfig.Channel = map::adcChannel(0);
                 sConfig.Rank = 1;
                 sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
                 HAL_ADC_ConfigChannel(&hadc1, &sConfig);
