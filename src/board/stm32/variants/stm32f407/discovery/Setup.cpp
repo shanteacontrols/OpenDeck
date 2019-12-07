@@ -32,6 +32,39 @@ namespace
     ADC_HandleTypeDef hadc1;
 }    // namespace
 
+namespace core
+{
+    namespace adc
+    {
+        void startConversion()
+        {
+            /* Clear regular group conversion flag and overrun flag */
+            /* (To ensure of no unknown state from potential previous ADC operations) */
+            ADC1->SR = ~(ADC_FLAG_EOC | ADC_FLAG_OVR);
+
+            /* Enable end of conversion interrupt for regular group */
+            ADC1->CR1 |= (ADC_IT_EOC | ADC_IT_OVR);
+
+            /* Enable the selected ADC software conversion for regular group */
+            ADC1->CR2 |= (uint32_t)ADC_CR2_SWSTART;
+        }
+
+        void setChannel(uint32_t adcChannel)
+        {
+            /* Clear the old SQx bits for the selected rank */
+            ADC1->SQR3 &= ~ADC_SQR3_RK(ADC_SQR3_SQ1, 1);
+
+            /* Set the SQx bits for the selected rank */
+            ADC1->SQR3 |= ADC_SQR3_RK(adcChannel, 1);
+        }
+
+        uint16_t read()
+        {
+            return hadc1.Instance->DR;
+        }
+    }    // namespace adc
+}    // namespace core
+
 //UART3 on this board maps to UART channel 0 in application
 
 extern "C" void USART3_IRQHandler(void)
@@ -47,7 +80,7 @@ extern "C" void TIM7_IRQHandler(void)
 
 extern "C" void ADC_IRQHandler(void)
 {
-    HAL_ADC_IRQHandler(&hadc1);
+    Board::detail::isrHandling::adc(hadc1.Instance->DR);
 }
 
 namespace Board
@@ -216,10 +249,16 @@ namespace Board
                 hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
                 HAL_ADC_Init(&hadc1);
 
-                sConfig.Channel = map::adcChannel(0);
-                sConfig.Rank = 1;
-                sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
-                HAL_ADC_ConfigChannel(&hadc1, &sConfig);
+                for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+                {
+                    sConfig.Channel = map::adcChannel(i);
+                    sConfig.Rank = 1;
+                    sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
+                    HAL_ADC_ConfigChannel(&hadc1, &sConfig);
+                }
+
+                //set first channel
+                core::adc::setChannel(map::adcChannel(0));
 
                 HAL_ADC_Start_IT(&hadc1);
             }
