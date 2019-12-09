@@ -198,15 +198,9 @@ format:
 	@echo Checking code formatting...
 	@find . -regex '.*\.\(cpp\|hpp\|h\|cc\|cxx\)' \
 	-not -path "*gen*" \
-	-not -name "*Constants.h" \
-	-not -name "*Commands.h" \
 	-not -name "*Pins.h" \
 	-not -name "*Hardware.h" \
-	-not -name "*Version.h" \
-	-not -name "*CustomIDs.h" \
-	-not -name "*Config.h" \
 	-not -name "*MCU.h" \
-	-not -name "*Descriptors.*" \
 	-exec $(CLANG_FORMAT) -style=file -i {} \;
 ifeq ($(CF_FAIL_ON_DIFF), 1)
 	git diff -s --exit-code

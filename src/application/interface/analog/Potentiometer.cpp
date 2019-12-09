@@ -60,7 +60,7 @@ void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32
             return;
     }
 
-    auto midiValue = core::misc::mapRange(value, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
+    auto midiValue    = core::misc::mapRange(value, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
     auto oldMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(lastAnalogueValue[analogID]), static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
 
     //this will allow value 0 as the first sent value
@@ -71,8 +71,8 @@ void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32
 
     uint16_t             lowerLimit = database.read(DB_BLOCK_ANALOG, dbSection_analog_lowerLimit, analogID);
     uint16_t             upperLimit = database.read(DB_BLOCK_ANALOG, dbSection_analog_upperLimit, analogID);
-    uint16_t             midiID = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiID, analogID);
-    uint8_t              channel = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiChannel, analogID);
+    uint16_t             midiID     = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiID, analogID);
+    uint8_t              channel    = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiChannel, analogID);
     MIDI::encDec_14bit_t encDec_14bit;
 
     if (!use14bit)

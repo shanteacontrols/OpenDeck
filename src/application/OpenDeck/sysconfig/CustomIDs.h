@@ -22,31 +22,31 @@ limitations under the License.
 /// \brief Custom requests for SysEx protocol.
 /// @{
 
-#define SYSEX_CR_FIRMWARE_VERSION           0x56
-#define SYSEX_CR_HARDWARE_VERSION           0x42
-#define SYSEX_CR_FIRMWARE_HARDWARE_VERSION  0x43
-#define SYSEX_CR_REBOOT_APP                 0x7F
-#define SYSEX_CR_REBOOT_BTLDR               0x55
-#define SYSEX_CR_FACTORY_RESET              0x44
-#define SYSEX_CR_MAX_COMPONENTS             0x4D
-#define SYSEX_CR_ENABLE_PROCESSING          0x65
-#define SYSEX_CR_DISABLE_PROCESSING         0x64
-#define SYSEX_CR_DAISY_CHAIN                0x6D
-#define SYSEX_CR_SUPPORTED_PRESETS          0x50
+#define SYSEX_CR_FIRMWARE_VERSION          0x56
+#define SYSEX_CR_HARDWARE_VERSION          0x42
+#define SYSEX_CR_FIRMWARE_HARDWARE_VERSION 0x43
+#define SYSEX_CR_REBOOT_APP                0x7F
+#define SYSEX_CR_REBOOT_BTLDR              0x55
+#define SYSEX_CR_FACTORY_RESET             0x44
+#define SYSEX_CR_MAX_COMPONENTS            0x4D
+#define SYSEX_CR_ENABLE_PROCESSING         0x65
+#define SYSEX_CR_DISABLE_PROCESSING        0x64
+#define SYSEX_CR_DAISY_CHAIN               0x6D
+#define SYSEX_CR_SUPPORTED_PRESETS         0x50
 
 /// @}
 
 ///
 /// \brief Total number of custom requests.
 ///
-#define NUMBER_OF_CUSTOM_REQUESTS           11
+#define NUMBER_OF_CUSTOM_REQUESTS 11
 
 ///
 /// \brief Custom ID used when sending info about components to host.
 ///
-#define SYSEX_CM_COMPONENT_ID               0x49
+#define SYSEX_CM_COMPONENT_ID 0x49
 
 ///
 /// \brief Minimum time difference in milliseconds between sending two identical component info messages.
 ///
-#define COMPONENT_INFO_TIMEOUT              500 //ms
+#define COMPONENT_INFO_TIMEOUT 500    //ms

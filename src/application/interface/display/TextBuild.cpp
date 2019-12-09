@@ -31,7 +31,7 @@ void Display::displayWelcomeMessage()
         return;
 
     uint8_t charIndex = 0;
-    uint8_t location = 0;
+    uint8_t location  = 0;
     uint8_t startRow;
 
     U8X8::clearDisplay();
@@ -48,8 +48,8 @@ void Display::displayWelcomeMessage()
     }
 
     stringBuilder.overwrite("OpenDeck");
-    location = getTextCenter(strlen(stringBuilder.string()));
-    charIndex = 0;
+    location           = getTextCenter(strlen(stringBuilder.string()));
+    charIndex          = 0;
     const char* string = stringBuilder.string();
 
     while (string[charIndex] != '\0')
@@ -61,7 +61,7 @@ void Display::displayWelcomeMessage()
     core::timing::waitMs(1000);
 
     stringBuilder.overwrite("Welcome!");
-    location = getTextCenter(strlen(stringBuilder.string()));
+    location  = getTextCenter(strlen(stringBuilder.string()));
     charIndex = 0;
 
     while (string[charIndex] != '\0')
@@ -143,7 +143,7 @@ void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, 
     if (!initDone)
         return;
 
-    uint8_t startRow = (type == Display::eventType_t::in) ? ROW_START_MIDI_IN_MESSAGE : ROW_START_MIDI_OUT_MESSAGE;
+    uint8_t startRow    = (type == Display::eventType_t::in) ? ROW_START_MIDI_IN_MESSAGE : ROW_START_MIDI_OUT_MESSAGE;
     uint8_t startColumn = (type == Display::eventType_t::in) ? COLUMN_START_MIDI_IN_MESSAGE : COLUMN_START_MIDI_OUT_MESSAGE;
 
     stringBuilder.overwrite("%s", Strings::midiMessage(event));
@@ -211,7 +211,7 @@ void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, 
     }
 
     lastMIDIMessageDisplayTime[type] = core::timing::currentRunTimeMs();
-    midiMessageDisplayed[type] = true;
+    midiMessageDisplayed[type]       = true;
 }
 
 void Display::clearMIDIevent(eventType_t type)

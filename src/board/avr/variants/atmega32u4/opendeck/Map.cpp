@@ -24,16 +24,16 @@ limitations under the License.
 /// @{
 
 #if HARDWARE_VERSION_MINOR == 1
-#define MUX_Y0 8
-#define MUX_Y1 9
-#define MUX_Y2 10
-#define MUX_Y3 11
-#define MUX_Y4 12
-#define MUX_Y5 13
-#define MUX_Y6 14
-#define MUX_Y7 15
-#define MUX_Y8 7
-#define MUX_Y9 6
+#define MUX_Y0  8
+#define MUX_Y1  9
+#define MUX_Y2  10
+#define MUX_Y3  11
+#define MUX_Y4  12
+#define MUX_Y5  13
+#define MUX_Y6  14
+#define MUX_Y7  15
+#define MUX_Y8  7
+#define MUX_Y9  6
 #define MUX_Y10 5
 #define MUX_Y11 4
 #define MUX_Y12 3
@@ -41,16 +41,16 @@ limitations under the License.
 #define MUX_Y14 1
 #define MUX_Y15 0
 #elif HARDWARE_VERSION_MINOR == 2
-#define MUX_Y0 8
-#define MUX_Y1 9
-#define MUX_Y2 10
-#define MUX_Y3 11
-#define MUX_Y4 12
-#define MUX_Y5 13
-#define MUX_Y6 14
-#define MUX_Y7 15
-#define MUX_Y8 4
-#define MUX_Y9 5
+#define MUX_Y0  8
+#define MUX_Y1  9
+#define MUX_Y2  10
+#define MUX_Y3  11
+#define MUX_Y4  12
+#define MUX_Y5  13
+#define MUX_Y6  14
+#define MUX_Y7  15
+#define MUX_Y8  4
+#define MUX_Y9  5
 #define MUX_Y10 7
 #define MUX_Y11 6
 #define MUX_Y12 0
@@ -148,35 +148,47 @@ namespace Board
                 };
 
                 const core::io::pwmChannel_t pwmChannels[NUMBER_OF_LED_ROWS] = {
-                    { .timer = &TCCR1A,
-                      .compareL = &OCR1CL,
-                      .compareH = &OCR1CH,
-                      .channel = COM1C1 },
+                    {
+                        .timer    = &TCCR1A,
+                        .compareL = &OCR1CL,
+                        .compareH = &OCR1CH,
+                        .channel  = COM1C1,
+                    },
 
-                    { .timer = &TCCR4C,
-                      .compareL = &OCR4D,
-                      .compareH = nullptr,
-                      .channel = COM4D1 },
+                    {
+                        .timer    = &TCCR4C,
+                        .compareL = &OCR4D,
+                        .compareH = nullptr,
+                        .channel  = COM4D1,
+                    },
 
-                    { .timer = &TCCR1A,
-                      .compareL = &OCR1AL,
-                      .compareH = &OCR1AH,
-                      .channel = COM1A1 },
+                    {
+                        .timer    = &TCCR1A,
+                        .compareL = &OCR1AL,
+                        .compareH = &OCR1AH,
+                        .channel  = COM1A1,
+                    },
 
-                    { .timer = &TCCR4A,
-                      .compareL = &OCR4A,
-                      .compareH = nullptr,
-                      .channel = COM3A1 },
+                    {
+                        .timer    = &TCCR4A,
+                        .compareL = &OCR4A,
+                        .compareH = nullptr,
+                        .channel  = COM3A1,
+                    },
 
-                    { .timer = &TCCR3A,
-                      .compareL = &OCR3AL,
-                      .compareH = &OCR3AH,
-                      .channel = COM1C1 },
+                    {
+                        .timer    = &TCCR3A,
+                        .compareL = &OCR3AL,
+                        .compareH = &OCR3AH,
+                        .channel  = COM1C1,
+                    },
 
-                    { .timer = &TCCR1A,
-                      .compareL = &OCR1BL,
-                      .compareH = &OCR1BH,
-                      .channel = COM1B1 }
+                    {
+                        .timer    = &TCCR1A,
+                        .compareL = &OCR1BL,
+                        .compareH = &OCR1BH,
+                        .channel  = COM1B1,
+                    }
                 };
             }    // namespace
 

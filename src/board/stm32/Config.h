@@ -23,7 +23,7 @@ limitations under the License.
 ///
 /// \brief Value above which buton connected to analog input is considered pressed.
 ///
-#define ADC_DIGITAL_VALUE_THRESHOLD_ON  4000
+#define ADC_DIGITAL_VALUE_THRESHOLD_ON 4000
 
 ///
 /// \brief Value below which button connected to analog input is considered released.
@@ -34,62 +34,62 @@ limitations under the License.
 /// \brief Minimum difference between two raw ADC readings to consider that value has been changed.
 /// Used when calculating 7-bit MIDI value.
 ///
-#define ANALOG_STEP_MIN_DIFF_7_BIT      24
+#define ANALOG_STEP_MIN_DIFF_7_BIT 24
 
 ///
 /// \brief Minimum difference between two raw ADC readings to consider that value has been changed.
 /// Used when calculating 14-bit MIDI value.
 ///
-#define ANALOG_STEP_MIN_DIFF_14_BIT     1
+#define ANALOG_STEP_MIN_DIFF_14_BIT 1
 
 ///
 /// \brief Minimum raw ADC reading for FSR sensors.
 ///
-#define FSR_MIN_VALUE                   160
+#define FSR_MIN_VALUE 160
 
 ///
 /// \brief Maximum raw ADC reading for FSR sensors.
 ///
-#define FSR_MAX_VALUE                   1360
+#define FSR_MAX_VALUE 1360
 
 ///
 /// \brief Maxmimum raw ADC reading for aftertouch on FSR sensors.
 ///
-#define AFTERTOUCH_MAX_VALUE            2400
+#define AFTERTOUCH_MAX_VALUE 2400
 
 ///
 /// \brief Minimum raw ADC value.
 ///
-#define ADC_MIN_VALUE                   0
+#define ADC_MIN_VALUE 0
 
 ///
 /// \brief Maxmimum raw ADC value.
 ///
-#define ADC_MAX_VALUE                   4095
+#define ADC_MAX_VALUE 4095
 
 ///
 /// \brief Defines how many analog samples from the same input will be thrown away before storing the read value.
 ///
-#define ADC_IGNORED_SAMPLES_COUNT       3
+#define ADC_IGNORED_SAMPLES_COUNT 3
 
 ///
 /// \brief Location at which reboot type is written in EEPROM when initiating software reset.
 /// See Reboot.h
 ///
-#define REBOOT_VALUE_EEPROM_LOCATION    (EEPROM_SIZE - 1)
+#define REBOOT_VALUE_EEPROM_LOCATION (EEPROM_SIZE - 1)
 
 ///
 /// \brief Location at which compiled binary CRC is written in EEPROM.
 /// CRC takes two bytes.
 ///
-#define SW_CRC_LOCATION_EEPROM          (EEPROM_SIZE - 3)
+#define SW_CRC_LOCATION_EEPROM (EEPROM_SIZE - 3)
 
 ///
 /// \brief Total number of states between fully off and fully on for LEDs.
 ///
-#define NUMBER_OF_LED_TRANSITIONS       64
+#define NUMBER_OF_LED_TRANSITIONS 64
 
 ///
 /// \brief Maximum number of registered timer callbacks (checked every 0.5 milliseconds).
 ///
-#define MAX_TIMER_CALLBACKS             5
+#define MAX_TIMER_CALLBACKS 5

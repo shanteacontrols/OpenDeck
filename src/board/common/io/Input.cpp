@@ -125,12 +125,12 @@ namespace Board
         bool getButtonState(uint8_t buttonID)
         {
 #ifdef NUMBER_OF_BUTTON_COLUMNS
-            uint8_t row = buttonID / NUMBER_OF_BUTTON_COLUMNS;
+            uint8_t row    = buttonID / NUMBER_OF_BUTTON_COLUMNS;
             uint8_t column = buttonID % NUMBER_OF_BUTTON_COLUMNS;
 
             return BIT_READ(digitalInBufferReadOnly[column], row);
 #else
-            uint8_t arrayIndex = buttonID / 8;
+            uint8_t arrayIndex  = buttonID / 8;
             uint8_t buttonIndex = buttonID - 8 * arrayIndex;
 
             return BIT_READ(digitalInBufferReadOnly[arrayIndex], buttonIndex);
@@ -140,7 +140,7 @@ namespace Board
         uint8_t getEncoderPair(uint8_t buttonID)
         {
 #ifdef NUMBER_OF_BUTTON_COLUMNS
-            uint8_t row = buttonID / NUMBER_OF_BUTTON_COLUMNS;
+            uint8_t row    = buttonID / NUMBER_OF_BUTTON_COLUMNS;
             uint8_t column = buttonID % NUMBER_OF_BUTTON_COLUMNS;
 
             if (row % 2)
@@ -155,8 +155,8 @@ namespace Board
         uint8_t getEncoderPairState(uint8_t encoderID)
         {
 #ifdef NUMBER_OF_BUTTON_COLUMNS
-            uint8_t column = encoderID % NUMBER_OF_BUTTON_COLUMNS;
-            uint8_t row = (encoderID / NUMBER_OF_BUTTON_COLUMNS) * 2;
+            uint8_t column    = encoderID % NUMBER_OF_BUTTON_COLUMNS;
+            uint8_t row       = (encoderID / NUMBER_OF_BUTTON_COLUMNS) * 2;
             uint8_t pairState = (digitalInBufferReadOnly[column] >> row) & 0x03;
 #else
             uint8_t buttonID = encoderID * 2;

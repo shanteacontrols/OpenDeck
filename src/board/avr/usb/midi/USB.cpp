@@ -49,11 +49,11 @@ extern "C" void EVENT_USB_Device_ConfigurationChanged(void)
  */
 extern "C" uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue, const uint16_t wIndex, const void** const DescriptorAddress)
 {
-    const uint8_t DescriptorType = (wValue >> 8);
+    const uint8_t DescriptorType   = (wValue >> 8);
     const uint8_t DescriptorNumber = (wValue & 0xFF);
 
     const void* Address = NULL;
-    uint16_t    Size = NO_DESCRIPTOR;
+    uint16_t    Size    = NO_DESCRIPTOR;
 
     switch (DescriptorType)
     {
@@ -96,12 +96,12 @@ namespace Board
                 MIDI_Interface.Config.StreamingInterfaceNumber = INTERFACE_ID_AudioStream;
 
                 MIDI_Interface.Config.DataINEndpoint.Address = MIDI_STREAM_IN_EPADDR;
-                MIDI_Interface.Config.DataINEndpoint.Size = MIDI_STREAM_EPSIZE;
-                MIDI_Interface.Config.DataINEndpoint.Banks = 1;
+                MIDI_Interface.Config.DataINEndpoint.Size    = MIDI_STREAM_EPSIZE;
+                MIDI_Interface.Config.DataINEndpoint.Banks   = 1;
 
                 MIDI_Interface.Config.DataOUTEndpoint.Address = MIDI_STREAM_OUT_EPADDR;
-                MIDI_Interface.Config.DataOUTEndpoint.Size = MIDI_STREAM_EPSIZE;
-                MIDI_Interface.Config.DataOUTEndpoint.Banks = 1;
+                MIDI_Interface.Config.DataOUTEndpoint.Size    = MIDI_STREAM_EPSIZE;
+                MIDI_Interface.Config.DataOUTEndpoint.Banks   = 1;
 
                 USB_Init();
             }

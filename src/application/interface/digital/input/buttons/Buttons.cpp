@@ -87,7 +87,7 @@ void Buttons::processButton(uint8_t buttonID, bool state)
             break;
 
         case messageType_t::presetOpenDeck:
-            type = type_t::momentary;
+            type     = type_t::momentary;
             sendMIDI = false;
             break;
 
@@ -149,8 +149,8 @@ void Buttons::processButton(uint8_t buttonID, bool state)
 ///
 void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMessage)
 {
-    uint8_t note = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, buttonID);
-    uint8_t channel = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiChannel, buttonID);
+    uint8_t note     = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, buttonID);
+    uint8_t channel  = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiChannel, buttonID);
     uint8_t velocity = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_velocity, buttonID);
 
     if (buttonMessage == messageType_t::AMOUNT)
@@ -341,7 +341,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
 ///
 void Buttons::setButtonState(uint8_t buttonID, uint8_t state)
 {
-    uint8_t arrayIndex = buttonID / 8;
+    uint8_t arrayIndex  = buttonID / 8;
     uint8_t buttonIndex = buttonID - 8 * arrayIndex;
 
     BIT_WRITE(buttonPressed[arrayIndex], buttonIndex, state);
@@ -354,7 +354,7 @@ void Buttons::setButtonState(uint8_t buttonID, uint8_t state)
 ///
 bool Buttons::getButtonState(uint8_t buttonID)
 {
-    uint8_t arrayIndex = buttonID / 8;
+    uint8_t arrayIndex  = buttonID / 8;
     uint8_t buttonIndex = buttonID - 8 * arrayIndex;
 
     return BIT_READ(buttonPressed[arrayIndex], buttonIndex);
@@ -373,7 +373,7 @@ bool Buttons::getButtonState(uint8_t buttonID)
 ///
 void Buttons::setLatchingState(uint8_t buttonID, uint8_t state)
 {
-    uint8_t arrayIndex = buttonID / 8;
+    uint8_t arrayIndex  = buttonID / 8;
     uint8_t buttonIndex = buttonID - 8 * arrayIndex;
 
     BIT_WRITE(lastLatchingState[arrayIndex], buttonIndex, state);
@@ -386,7 +386,7 @@ void Buttons::setLatchingState(uint8_t buttonID, uint8_t state)
 ///
 bool Buttons::getLatchingState(uint8_t buttonID)
 {
-    uint8_t arrayIndex = buttonID / 8;
+    uint8_t arrayIndex  = buttonID / 8;
     uint8_t buttonIndex = buttonID - 8 * arrayIndex;
 
     return BIT_READ(lastLatchingState[arrayIndex], buttonIndex);

@@ -20,7 +20,7 @@ limitations under the License.
 
 #include "board/common/usb/Arch.h"
 
-#define USB_VENDOR_ID       0x1209
-#define USB_PRODUCT_ID      0x8472
-#define USB_MANUFACTURER    UNICODE_STRING("Shantea Controls")
-#define USB_PRODUCT         UNICODE_STRING("OpenDeck")
+#define USB_VENDOR_ID    0x1209
+#define USB_PRODUCT_ID   0x8472
+#define USB_MANUFACTURER UNICODE_STRING("Shantea Controls")
+#define USB_PRODUCT      UNICODE_STRING("OpenDeck")

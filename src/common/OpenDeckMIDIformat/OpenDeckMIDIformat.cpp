@@ -40,7 +40,7 @@ namespace OpenDeckMIDIformat
         };
 
         uint8_t incomingBytesCount = 0;
-        uint8_t readBytes[6] = {};
+        uint8_t readBytes[6]       = {};
         uint8_t tempArray[5];
 
         ///

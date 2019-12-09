@@ -119,6 +119,7 @@ namespace Board
             void mainTimer()
             {
                 static bool _1ms = true;
+
                 _1ms = !_1ms;
 
                 if (_1ms)

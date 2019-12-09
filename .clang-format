@@ -1,10 +1,8 @@
-Standard: Cpp11
-Cpp11BracedListStyle: false
-CommentPragmas: '^\/\/\/'
 AccessModifierOffset: 0
 AlignAfterOpenBracket: Align
-AlignConsecutiveAssignments: false
+AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
+AlignConsecutiveMacros: true
 AlignEscapedNewlines: Left
 AlignOperands: true
 AlignTrailingComments: true
@@ -12,15 +10,41 @@ AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortBlocksOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: Empty
-AllowShortIfStatementsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: false
+BinPackArguments: false
+BinPackParameters: false
+BraceWrapping:
+  AfterCaseLabel:         true
+  AfterClass:             true
+  AfterControlStatement:  true
+  AfterEnum:              true
+  AfterExternBlock:       true
+  AfterFunction:          true
+  AfterNamespace:         true
+  AfterStruct:            true
+  AfterUnion:             true
+  BeforeCatch:            true
+  BeforeElse:             true
+  IndentBraces:           false
+  SplitEmptyFunction:     false
+BreakBeforeBraces: Custom
+BreakConstructorInitializers: BeforeComma
+ColumnLimit: 0
 CompactNamespaces: false
+ContinuationIndentWidth: 4
+Cpp11BracedListStyle: false
 DerivePointerAlignment: false
+FixNamespaceComments: true
 IncludeBlocks: Preserve
 IndentCaseLabels: false
 IndentPPDirectives: None
 IndentWidth: 4
 KeepEmptyLinesAtTheStartOfBlocks: false
+Language: Cpp
+MaxEmptyLinesToKeep: 1
 NamespaceIndentation: All
 PointerAlignment: Left
 ReflowComments: true
@@ -28,32 +52,14 @@ SortIncludes: false
 SpaceAfterCStyleCast: false
 SpaceAfterTemplateKeyword: false
 SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatements
 SpaceInEmptyParentheses: false
 SpacesBeforeTrailingComments: 4
 SpacesInAngles: false
-SpacesInCStyleCastParentheses: false
 SpacesInContainerLiterals: false
+SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
-SpaceBeforeParens: ControlStatements
+Standard: Cpp11
 TabWidth: 4
 UseTab: Never
-BreakBeforeBraces: Custom
-BraceWrapping:
-  AfterClass:      true
-  AfterControlStatement: true
-  AfterEnum:       true
-  AfterFunction:   true
-  AfterNamespace:  true
-  AfterStruct:     true
-  AfterUnion:      true
-  BeforeCatch:     true
-  BeforeElse:      true
-  IndentBraces:    false
-  SplitEmptyFunction: false
-ColumnLimit: 0
-BreakConstructorInitializers: BeforeComma
-AlwaysBreakBeforeMultilineStrings: false
-ContinuationIndentWidth: 4
-FixNamespaceComments: true
-MaxEmptyLinesToKeep: 1

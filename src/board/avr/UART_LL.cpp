@@ -80,7 +80,7 @@ namespace Board
                             UCSRA_0 = 0;
                             UCSRB_0 = 0;
                             UCSRC_0 = 0;
-                            UBRR_0 = 0;
+                            UBRR_0  = 0;
                             break;
 
 #if UART_INTERFACES > 1
@@ -88,7 +88,7 @@ namespace Board
                             UCSRA_1 = 0;
                             UCSRB_1 = 0;
                             UCSRC_1 = 0;
-                            UBRR_1 = 0;
+                            UBRR_1  = 0;
                             break;
 #endif
 
@@ -110,13 +110,13 @@ namespace Board
                         {
                         case 0:
                             UCSRA_0 = (1 << U2X_0);    //double speed uart
-                            UBRR_0 = baud_count - 1;
+                            UBRR_0  = baud_count - 1;
                             break;
 
 #if UART_INTERFACES > 1
                         case 1:
                             UCSRA_1 = (1 << U2X_1);    //double speed uart
-                            UBRR_1 = baud_count - 1;
+                            UBRR_1  = baud_count - 1;
                             break;
 #endif
 
@@ -130,13 +130,13 @@ namespace Board
                         {
                         case 0:
                             UCSRA_0 = 0;
-                            UBRR_0 = (baud_count >> 1) - 1;
+                            UBRR_0  = (baud_count >> 1) - 1;
                             break;
 
 #if UART_INTERFACES > 1
                         case 1:
                             UCSRA_1 = 0;
-                            UBRR_1 = (baud_count >> 1) - 1;
+                            UBRR_1  = (baud_count >> 1) - 1;
                             break;
 #endif
 

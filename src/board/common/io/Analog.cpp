@@ -56,7 +56,7 @@ namespace Board
 
             ATOMIC_SECTION
             {
-                value = analogBuffer[analogID];
+                value                  = analogBuffer[analogID];
                 analogBuffer[analogID] = 0;
             }
 
@@ -71,7 +71,8 @@ namespace Board
         void continueAnalogReadout()
         {
             analogSamplingDone = false;
-            analogIndex = 0;
+            analogIndex        = 0;
+
             core::adc::startConversion();
         }
     }    // namespace io
@@ -106,7 +107,7 @@ namespace Board
                         {
                             activeMux = 0;
 #endif
-                            analogIndex = 0;
+                            analogIndex        = 0;
                             analogSamplingDone = true;
 #ifdef NUMBER_OF_MUX
                         }

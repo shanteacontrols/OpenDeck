@@ -32,22 +32,22 @@ namespace
         //midi feature section
         {
             .numberOfParameters = MIDI_FEATURES,
-            .newValueMin = 0,
-            .newValueMax = 1,
+            .newValueMin        = 0,
+            .newValueMax        = 1,
         },
 
         //midi merge section
         {
             .numberOfParameters = MIDI_MERGE_OPTIONS,
-            .newValueMin = 0,
-            .newValueMax = 0,
+            .newValueMin        = 0,
+            .newValueMax        = 0,
         },
 
         //global settings section
         {
             .numberOfParameters = SYSTEM_OPTIONS,
-            .newValueMin = 0,
-            .newValueMax = 0,
+            .newValueMin        = 0,
+            .newValueMax        = 0,
         },
     };
 
@@ -55,36 +55,36 @@ namespace
         //type section
         {
             .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
-            .newValueMin = 0,
-            .newValueMax = static_cast<SysExConf::sysExParameter_t>(Interface::digital::input::Buttons::type_t::AMOUNT) - 1,
+            .newValueMin        = 0,
+            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(Interface::digital::input::Buttons::type_t::AMOUNT) - 1,
         },
 
         //midi message type section
         {
             .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
-            .newValueMin = 0,
-            .newValueMax = static_cast<SysExConf::sysExParameter_t>(Interface::digital::input::Buttons::messageType_t::AMOUNT) - 1,
+            .newValueMin        = 0,
+            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(Interface::digital::input::Buttons::messageType_t::AMOUNT) - 1,
         },
 
         //midi id section
         {
             .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
-            .newValueMin = 0,
-            .newValueMax = 127,
+            .newValueMin        = 0,
+            .newValueMax        = 127,
         },
 
         //midi velocity section
         {
             .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
-            .newValueMin = 1,
-            .newValueMax = 127,
+            .newValueMin        = 1,
+            .newValueMax        = 127,
         },
 
         //midi channel section
         {
             .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
-            .newValueMin = 1,
-            .newValueMax = 16,
+            .newValueMin        = 1,
+            .newValueMax        = 16,
         }
     };
 
@@ -92,64 +92,64 @@ namespace
         //encoder enabled section
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .newValueMin = 0,
-            .newValueMax = 1,
+            .newValueMin        = 0,
+            .newValueMax        = 1,
         },
 
         //encoder inverted section
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .newValueMin = 0,
-            .newValueMax = 1,
+            .newValueMin        = 0,
+            .newValueMax        = 1,
         },
 
         //encoding mode section
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .newValueMin = 0,
-            .newValueMax = static_cast<SysExConf::sysExParameter_t>(Interface::digital::input::Encoders::type_t::AMOUNT) - 1,
+            .newValueMin        = 0,
+            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(Interface::digital::input::Encoders::type_t::AMOUNT) - 1,
         },
 
         //midi id section, lsb
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .newValueMin = 0,
-            .newValueMax = 127,
+            .newValueMin        = 0,
+            .newValueMax        = 127,
         },
 
         //midi channel section
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .newValueMin = 1,
-            .newValueMax = 16,
+            .newValueMin        = 1,
+            .newValueMax        = 16,
         },
 
         //pulses per step section
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .newValueMin = 2,
-            .newValueMax = 4,
+            .newValueMin        = 2,
+            .newValueMax        = 4,
         },
 
         //acceleration section
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .newValueMin = 0,
-            .newValueMax = ENCODERS_MAX_ACCELERATION_OPTIONS,
+            .newValueMin        = 0,
+            .newValueMax        = ENCODERS_MAX_ACCELERATION_OPTIONS,
         },
 
         //midi id section, msb
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .newValueMin = 0,
-            .newValueMax = 127,
+            .newValueMin        = 0,
+            .newValueMax        = 127,
         },
 
         //remote sync section
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .newValueMin = 0,
-            .newValueMax = 1,
+            .newValueMin        = 0,
+            .newValueMax        = 1,
         },
     };
 
@@ -157,71 +157,71 @@ namespace
         //analog enabled section
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
-            .newValueMin = 0,
-            .newValueMax = 1,
+            .newValueMin        = 0,
+            .newValueMax        = 1,
         },
 
         //analog inverted section
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
-            .newValueMin = 0,
-            .newValueMax = 1,
+            .newValueMin        = 0,
+            .newValueMax        = 1,
         },
 
         //analog type section
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
-            .newValueMin = 0,
-            .newValueMax = static_cast<SysExConf::sysExParameter_t>(Interface::analog::Analog::type_t::AMOUNT) - 1,
+            .newValueMin        = 0,
+            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(Interface::analog::Analog::type_t::AMOUNT) - 1,
         },
 
         //midi id section, lsb
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
-            .newValueMin = 0,
-            .newValueMax = 127,
+            .newValueMin        = 0,
+            .newValueMax        = 127,
         },
 
         //midi id section, msb
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
-            .newValueMin = 0,
-            .newValueMax = 127,
+            .newValueMin        = 0,
+            .newValueMax        = 127,
         },
 
         //lower cc limit, lsb
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
-            .newValueMin = 0,
-            .newValueMax = 127,
+            .newValueMin        = 0,
+            .newValueMax        = 127,
         },
 
         //lower cc limit, msb
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
-            .newValueMin = 0,
-            .newValueMax = 127,
+            .newValueMin        = 0,
+            .newValueMax        = 127,
         },
 
         //upper cc limit, lsb
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
-            .newValueMin = 0,
-            .newValueMax = 127,
+            .newValueMin        = 0,
+            .newValueMax        = 127,
         },
 
         //upper cc limit, msb
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
-            .newValueMin = 0,
-            .newValueMax = 127,
+            .newValueMin        = 0,
+            .newValueMax        = 127,
         },
 
         //midi channel section
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
-            .newValueMin = 1,
-            .newValueMax = 16,
+            .newValueMin        = 1,
+            .newValueMax        = 16,
         }
     };
 
@@ -229,57 +229,57 @@ namespace
         //led color test section
         {
             .numberOfParameters = MAX_NUMBER_OF_LEDS,
-            .newValueMin = 0,
-            .newValueMax = static_cast<SysExConf::sysExParameter_t>(Interface::digital::output::LEDs::color_t::AMOUNT) - 1,
+            .newValueMin        = 0,
+            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(Interface::digital::output::LEDs::color_t::AMOUNT) - 1,
         },
 
         //led blink test section
         {
             .numberOfParameters = MAX_NUMBER_OF_LEDS,
-            .newValueMin = 0,
-            .newValueMax = 1,
+            .newValueMin        = 0,
+            .newValueMax        = 1,
         },
 
         //global parameters section
         {
             .numberOfParameters = static_cast<SysExConf::sysExParameter_t>(Interface::digital::output::LEDs::setting_t::AMOUNT),
-            .newValueMin = 0,
-            .newValueMax = 0,
+            .newValueMin        = 0,
+            .newValueMax        = 0,
         },
 
         //activation note section
         {
             .numberOfParameters = MAX_NUMBER_OF_LEDS,
-            .newValueMin = 0,
-            .newValueMax = 127,
+            .newValueMin        = 0,
+            .newValueMax        = 127,
         },
 
         //rgb enabled section
         {
             .numberOfParameters = MAX_NUMBER_OF_LEDS,
-            .newValueMin = 0,
-            .newValueMax = 1,
+            .newValueMin        = 0,
+            .newValueMax        = 1,
         },
 
         //led control type section
         {
             .numberOfParameters = MAX_NUMBER_OF_LEDS,
-            .newValueMin = 0,
-            .newValueMax = static_cast<SysExConf::sysExParameter_t>(Interface::digital::output::LEDs::controlType_t::AMOUNT) - 1,
+            .newValueMin        = 0,
+            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(Interface::digital::output::LEDs::controlType_t::AMOUNT) - 1,
         },
 
         //single led velocity value section
         {
             .numberOfParameters = MAX_NUMBER_OF_LEDS,
-            .newValueMin = 1,
-            .newValueMax = 127,
+            .newValueMin        = 1,
+            .newValueMax        = 127,
         },
 
         //midi channel section
         {
             .numberOfParameters = MAX_NUMBER_OF_LEDS,
-            .newValueMin = 1,
-            .newValueMax = 16,
+            .newValueMin        = 1,
+            .newValueMax        = 16,
         }
     };
 
@@ -287,15 +287,15 @@ namespace
         //features section
         {
             .numberOfParameters = DISPLAY_FEATURES,
-            .newValueMin = 0,
-            .newValueMax = 0,
+            .newValueMin        = 0,
+            .newValueMax        = 0,
         },
 
         //hw section
         {
             .numberOfParameters = DISPLAY_HW_PARAMETERS,
-            .newValueMin = 0,
-            .newValueMax = 0,
+            .newValueMin        = 0,
+            .newValueMax        = 0,
         }
     };
 
@@ -303,72 +303,94 @@ namespace
         //global block
         {
             .numberOfSections = SYSEX_SECTIONS_GLOBAL,
-            .section = globalSections,
+            .section          = globalSections,
         },
 
         //buttons block
         {
             .numberOfSections = SYSEX_SECTIONS_BUTTONS,
-            .section = buttonSections,
+            .section          = buttonSections,
         },
 
         //encoder block
         {
             .numberOfSections = SYSEX_SECTIONS_ENCODERS,
-            .section = encoderSections,
+            .section          = encoderSections,
         },
 
         //analog block
         {
             .numberOfSections = SYSEX_SECTIONS_ANALOG,
-            .section = analogSections,
+            .section          = analogSections,
         },
 
         //led block
         {
             .numberOfSections = SYSEX_SECTIONS_LEDS,
-            .section = ledSections,
+            .section          = ledSections,
         },
 
         //display block
         {
             .numberOfSections = SYSEX_SECTIONS_DISPLAY,
-            .section = displaySections,
+            .section          = displaySections,
         }
     };
 
     SysExConf::customRequest_t customRequests[NUMBER_OF_CUSTOM_REQUESTS] = {
-        { .requestID = SYSEX_CR_FIRMWARE_VERSION,
-          .connOpenCheck = true },
+        {
+            .requestID     = SYSEX_CR_FIRMWARE_VERSION,
+            .connOpenCheck = true,
+        },
 
-        { .requestID = SYSEX_CR_HARDWARE_VERSION,
-          .connOpenCheck = false },
+        {
+            .requestID     = SYSEX_CR_HARDWARE_VERSION,
+            .connOpenCheck = false,
+        },
 
-        { .requestID = SYSEX_CR_FIRMWARE_HARDWARE_VERSION,
-          .connOpenCheck = true },
+        {
+            .requestID     = SYSEX_CR_FIRMWARE_HARDWARE_VERSION,
+            .connOpenCheck = true,
+        },
 
-        { .requestID = SYSEX_CR_REBOOT_APP,
-          .connOpenCheck = true },
+        {
+            .requestID     = SYSEX_CR_REBOOT_APP,
+            .connOpenCheck = true,
+        },
 
-        { .requestID = SYSEX_CR_REBOOT_BTLDR,
-          .connOpenCheck = true },
+        {
+            .requestID     = SYSEX_CR_REBOOT_BTLDR,
+            .connOpenCheck = true,
+        },
 
-        { .requestID = SYSEX_CR_FACTORY_RESET,
-          .connOpenCheck = true },
+        {
+            .requestID     = SYSEX_CR_FACTORY_RESET,
+            .connOpenCheck = true,
+        },
 
-        { .requestID = SYSEX_CR_MAX_COMPONENTS,
-          .connOpenCheck = true },
+        {
+            .requestID     = SYSEX_CR_MAX_COMPONENTS,
+            .connOpenCheck = true,
+        },
 
-        { .requestID = SYSEX_CR_ENABLE_PROCESSING,
-          .connOpenCheck = true },
+        {
+            .requestID     = SYSEX_CR_ENABLE_PROCESSING,
+            .connOpenCheck = true,
+        },
 
-        { .requestID = SYSEX_CR_DISABLE_PROCESSING,
-          .connOpenCheck = true },
+        {
+            .requestID     = SYSEX_CR_DISABLE_PROCESSING,
+            .connOpenCheck = true,
+        },
 
-        { .requestID = SYSEX_CR_DAISY_CHAIN,
-          .connOpenCheck = false },
+        {
+            .requestID     = SYSEX_CR_DAISY_CHAIN,
+            .connOpenCheck = false,
+        },
 
-        { .requestID = SYSEX_CR_SUPPORTED_PRESETS,
-          .connOpenCheck = true },
+        {
+            .requestID     = SYSEX_CR_SUPPORTED_PRESETS,
+            .connOpenCheck = true,
+        },
     };
 }    // namespace

@@ -27,22 +27,23 @@ limitations under the License.
 #endif
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-const USB_Descriptor_Configuration_t*       USBgetCfgDescriptor(uint16_t* size);
-const USB_Descriptor_Device_t*              USBgetDeviceDescriptor(uint16_t* size);
-const USB_Descriptor_String_t*              USBgetLanguageString(uint16_t* size);
-const USB_Descriptor_String_t*              USBgetManufacturerString(uint16_t* size);
-const USB_Descriptor_String_t*              USBgetProductString(uint16_t* size);
+    const USB_Descriptor_Configuration_t* USBgetCfgDescriptor(uint16_t* size);
+    const USB_Descriptor_Device_t*        USBgetDeviceDescriptor(uint16_t* size);
+    const USB_Descriptor_String_t*        USBgetLanguageString(uint16_t* size);
+    const USB_Descriptor_String_t*        USBgetManufacturerString(uint16_t* size);
+    const USB_Descriptor_String_t*        USBgetProductString(uint16_t* size);
 
 #ifdef UID_BITS
-const USB_Descriptor_UID_String_t*          USBgetSerialIDString(uint16_t* size, uint8_t uid[]);
+    const USB_Descriptor_UID_String_t* USBgetSerialIDString(uint16_t* size, uint8_t uid[]);
 #endif
 
 #ifdef FW_BOOT
-const USB_Descriptor_HIDReport_Datatype_t*  USBgetHIDreport(uint16_t* size);
-const USB_HID_Descriptor_HID_t*             USBgetHIDdescriptor(uint16_t* size);
+    const USB_Descriptor_HIDReport_Datatype_t* USBgetHIDreport(uint16_t* size);
+    const USB_HID_Descriptor_HID_t*            USBgetHIDdescriptor(uint16_t* size);
 #endif
 
 #ifdef __cplusplus

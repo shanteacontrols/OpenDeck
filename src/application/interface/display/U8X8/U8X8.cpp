@@ -71,23 +71,23 @@ namespace U8X8
         //setup specific callbacks depending on controller/resolution
         if ((resolution == displayRes_128x64) && (controller == displayController_ssd1306))
         {
-            u8x8.display_cb = u8x8_d_ssd1306_128x64_noname;
-            u8x8.cad_cb = u8x8_cad_ssd13xx_i2c;
-            u8x8.byte_cb = i2cHWA;
+            u8x8.display_cb        = u8x8_d_ssd1306_128x64_noname;
+            u8x8.cad_cb            = u8x8_cad_ssd13xx_i2c;
+            u8x8.byte_cb           = i2cHWA;
             u8x8.gpio_and_delay_cb = gpioDelay;
-            rows = 4;
-            columns = 16;
-            success = true;
+            rows                   = 4;
+            columns                = 16;
+            success                = true;
         }
         else if ((resolution == displayRes_128x32) && (controller == displayController_ssd1306))
         {
-            u8x8.display_cb = u8x8_d_ssd1306_128x32_univision;
-            u8x8.cad_cb = u8x8_cad_ssd13xx_i2c;
-            u8x8.byte_cb = i2cHWA;
+            u8x8.display_cb        = u8x8_d_ssd1306_128x32_univision;
+            u8x8.cad_cb            = u8x8_cad_ssd13xx_i2c;
+            u8x8.byte_cb           = i2cHWA;
             u8x8.gpio_and_delay_cb = gpioDelay;
-            rows = 2;
-            columns = 16;
-            success = true;
+            rows                   = 2;
+            columns                = 16;
+            success                = true;
         }
 
         if (success)

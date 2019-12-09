@@ -101,20 +101,20 @@ namespace Board
 
                 /* Initializes the CPU, AHB and APB busses clocks */
                 RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-                RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
-                RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-                RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-                RCC_OscInitStruct.PLL.PLLM = 4;
-                RCC_OscInitStruct.PLL.PLLN = 168;
-                RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-                RCC_OscInitStruct.PLL.PLLQ = 7;
+                RCC_OscInitStruct.HSEState       = RCC_HSE_BYPASS;
+                RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
+                RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
+                RCC_OscInitStruct.PLL.PLLM       = 4;
+                RCC_OscInitStruct.PLL.PLLN       = 168;
+                RCC_OscInitStruct.PLL.PLLP       = RCC_PLLP_DIV2;
+                RCC_OscInitStruct.PLL.PLLQ       = 7;
 
                 HAL_RCC_OscConfig(&RCC_OscInitStruct);
 
                 /* Initializes the CPU, AHB and APB busses clocks */
-                RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
-                RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-                RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV2;
+                RCC_ClkInitStruct.ClockType      = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+                RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+                RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV2;
                 RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
                 RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
@@ -235,24 +235,24 @@ namespace Board
             {
                 ADC_ChannelConfTypeDef sConfig = { 0 };
 
-                hadc1.Instance = ADC1;
-                hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
-                hadc1.Init.Resolution = ADC_RESOLUTION_12B;
-                hadc1.Init.ScanConvMode = DISABLE;
-                hadc1.Init.ContinuousConvMode = DISABLE;
+                hadc1.Instance                   = ADC1;
+                hadc1.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV2;
+                hadc1.Init.Resolution            = ADC_RESOLUTION_12B;
+                hadc1.Init.ScanConvMode          = DISABLE;
+                hadc1.Init.ContinuousConvMode    = DISABLE;
                 hadc1.Init.DiscontinuousConvMode = DISABLE;
-                hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-                hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-                hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-                hadc1.Init.NbrOfConversion = 1;
+                hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+                hadc1.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
+                hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+                hadc1.Init.NbrOfConversion       = 1;
                 hadc1.Init.DMAContinuousRequests = DISABLE;
-                hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+                hadc1.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
                 HAL_ADC_Init(&hadc1);
 
                 for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
                 {
-                    sConfig.Channel = map::adcChannel(i);
-                    sConfig.Rank = 1;
+                    sConfig.Channel      = map::adcChannel(i);
+                    sConfig.Rank         = 1;
                     sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
                     HAL_ADC_ConfigChannel(&hadc1, &sConfig);
                 }
@@ -267,15 +267,15 @@ namespace Board
             {
                 TIM_MasterConfigTypeDef sMasterConfig = { 0 };
 
-                htim7.Instance = TIM7;
-                htim7.Init.Prescaler = 0;
-                htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
-                htim7.Init.Period = 0;
+                htim7.Instance               = TIM7;
+                htim7.Init.Prescaler         = 0;
+                htim7.Init.CounterMode       = TIM_COUNTERMODE_UP;
+                htim7.Init.Period            = 0;
                 htim7.Init.AutoReloadPreload = 41999;
                 HAL_TIM_Base_Init(&htim7);
 
                 sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-                sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+                sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
                 HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig);
 
                 HAL_TIM_Base_Start_IT(&htim7);

@@ -26,40 +26,40 @@ namespace
         "Unknown";
 #endif
 
-    const char eventNoteOff_string[] PROGMEM = "Note Off";
-    const char eventNoteOn_string[] PROGMEM = "Note On";
-    const char eventCC_string[] PROGMEM = "CC";
-    const char eventPC_string[] PROGMEM = "PC";
-    const char eventCHAT_string[] PROGMEM = "CH AT";
-    const char eventAT_string[] PROGMEM = "AT";
-    const char eventPB_string[] PROGMEM = "Pitch Bend";
-    const char eventSysExConfig_string[] PROGMEM = "SysEx Conf";
-    const char eventRTclock_string[] PROGMEM = "RT Clock";
-    const char eventRTstart_string[] PROGMEM = "RT Start";
-    const char eventRTcontinue_string[] PROGMEM = "RT Continue";
-    const char eventRTstop_string[] PROGMEM = "RT Stop";
-    const char eventRTasens_string[] PROGMEM = "RT ASens";
-    const char eventRTsysrst_string[] PROGMEM = "RT SysRst";
-    const char eventMMCplay_string[] PROGMEM = "MMC Play";
-    const char eventMMCstop_string[] PROGMEM = "MMC Stop";
-    const char eventMMCpause_string[] PROGMEM = "MMC Pause";
-    const char eventMMCrecordOn_string[] PROGMEM = "MMC Record On";
+    const char eventNoteOff_string[] PROGMEM      = "Note Off";
+    const char eventNoteOn_string[] PROGMEM       = "Note On";
+    const char eventCC_string[] PROGMEM           = "CC";
+    const char eventPC_string[] PROGMEM           = "PC";
+    const char eventCHAT_string[] PROGMEM         = "CH AT";
+    const char eventAT_string[] PROGMEM           = "AT";
+    const char eventPB_string[] PROGMEM           = "Pitch Bend";
+    const char eventSysExConfig_string[] PROGMEM  = "SysEx Conf";
+    const char eventRTclock_string[] PROGMEM      = "RT Clock";
+    const char eventRTstart_string[] PROGMEM      = "RT Start";
+    const char eventRTcontinue_string[] PROGMEM   = "RT Continue";
+    const char eventRTstop_string[] PROGMEM       = "RT Stop";
+    const char eventRTasens_string[] PROGMEM      = "RT ASens";
+    const char eventRTsysrst_string[] PROGMEM     = "RT SysRst";
+    const char eventMMCplay_string[] PROGMEM      = "MMC Play";
+    const char eventMMCstop_string[] PROGMEM      = "MMC Stop";
+    const char eventMMCpause_string[] PROGMEM     = "MMC Pause";
+    const char eventMMCrecordOn_string[] PROGMEM  = "MMC Record On";
     const char eventMMCrecordOff_string[] PROGMEM = "MMC Record Off";
-    const char eventNRPN_string[] PROGMEM = "NRPN";
+    const char eventNRPN_string[] PROGMEM         = "NRPN";
     const char eventPresetChange_string[] PROGMEM = "Preset";
 
-    const char noteC_string[] PROGMEM = "C";
+    const char noteC_string[] PROGMEM      = "C";
     const char noteCSharp_string[] PROGMEM = "C#";
-    const char noteD_string[] PROGMEM = "D";
+    const char noteD_string[] PROGMEM      = "D";
     const char noteDSharp_string[] PROGMEM = "D#";
-    const char noteE_string[] PROGMEM = "E";
-    const char noteF_string[] PROGMEM = "F";
+    const char noteE_string[] PROGMEM      = "E";
+    const char noteF_string[] PROGMEM      = "F";
     const char noteFSharp_string[] PROGMEM = "F#";
-    const char noteG_string[] PROGMEM = "G";
+    const char noteG_string[] PROGMEM      = "G";
     const char noteGSharp_string[] PROGMEM = "G#";
-    const char noteA_string[] PROGMEM = "A";
+    const char noteA_string[] PROGMEM      = "A";
     const char noteASharp_string[] PROGMEM = "A#";
-    const char noteB_strig[] PROGMEM = "B";
+    const char noteB_strig[] PROGMEM       = "B";
 
     //match with messageTypeDisplay_t
     STRING_PROGMEM_ARRAY(eventNameArray) = {

@@ -29,284 +29,314 @@ namespace
     LESSDB::section_t systemSections[DB_SECTIONS_SYSTEM] = {
         //uid section
         {
-            .numberOfParameters = 1,
-            .parameterType = LESSDB::sectionParameterType_t::word,
+            .numberOfParameters     = 1,
+            .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 },
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
 
         //settings
         {
-            .numberOfParameters = SYSTEM_OPTIONS,
-            .parameterType = LESSDB::sectionParameterType_t::byte,
+            .numberOfParameters     = SYSTEM_OPTIONS,
+            .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 }
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        }
     };
 
     LESSDB::section_t globalSections[DB_SECTIONS_GLOBAL] = {
         //midi feature section
         {
-            .numberOfParameters = MIDI_FEATURES,
-            .parameterType = LESSDB::sectionParameterType_t::bit,
+            .numberOfParameters     = MIDI_FEATURES,
+            .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 },
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
 
         //midi merge section
         {
-            .numberOfParameters = MIDI_MERGE_OPTIONS,
-            .parameterType = LESSDB::sectionParameterType_t::halfByte,
+            .numberOfParameters     = MIDI_MERGE_OPTIONS,
+            .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 }
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        }
     };
 
     LESSDB::section_t buttonSections[DB_SECTIONS_BUTTONS] = {
         //type section
         {
-            .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
-            .parameterType = LESSDB::sectionParameterType_t::bit,
+            .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
+            .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 },
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
 
         //midi message type section
         {
-            .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
-            .parameterType = LESSDB::sectionParameterType_t::byte,
+            .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
+            .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 },
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
 
         //midi id section
         {
-            .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
-            .parameterType = LESSDB::sectionParameterType_t::byte,
+            .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
+            .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = true,
-            .address = 0 },
+            .defaultValue           = 0,
+            .autoIncrement          = true,
+            .address                = 0,
+        },
 
         //midi velocity section
         {
-            .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
-            .parameterType = LESSDB::sectionParameterType_t::byte,
+            .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
+            .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
-            .defaultValue = 127,
-            .autoIncrement = false,
-            .address = 0 },
+            .defaultValue           = 127,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
 
         //midi channel section
         {
-            .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
-            .parameterType = LESSDB::sectionParameterType_t::halfByte,
+            .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
+            .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 }
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        }
     };
 
     LESSDB::section_t encoderSections[DB_SECTIONS_ENCODERS] = {
         //encoder enabled section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .parameterType = LESSDB::sectionParameterType_t::bit,
+            .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
+            .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 },
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
 
         //encoder inverted section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .parameterType = LESSDB::sectionParameterType_t::bit,
+            .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
+            .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 },
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
 
         //encoding mode section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .parameterType = LESSDB::sectionParameterType_t::halfByte,
+            .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
+            .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 },
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
 
         //midi id section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .parameterType = LESSDB::sectionParameterType_t::word,
+            .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
+            .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = true,
-            .address = 0 },
+            .defaultValue           = 0,
+            .autoIncrement          = true,
+            .address                = 0,
+        },
 
         //midi channel section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .parameterType = LESSDB::sectionParameterType_t::halfByte,
+            .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
+            .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 },
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
 
         //pulses per step section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .parameterType = LESSDB::sectionParameterType_t::halfByte,
+            .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
+            .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
-            .defaultValue = 4,
-            .autoIncrement = false,
-            .address = 0 },
+            .defaultValue           = 4,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
 
         //acceleration section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .parameterType = LESSDB::sectionParameterType_t::halfByte,
+            .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
+            .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 },
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
 
         //remote sync section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .parameterType = LESSDB::sectionParameterType_t::bit,
+            .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
+            .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 }
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        }
     };
 
     LESSDB::section_t analogSections[DB_SECTIONS_ANALOG] = {
         //analog enabled section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG,
-            .parameterType = LESSDB::sectionParameterType_t::bit,
+            .numberOfParameters     = MAX_NUMBER_OF_ANALOG,
+            .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 },
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
 
         //analog inverted section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG,
-            .parameterType = LESSDB::sectionParameterType_t::bit,
+            .numberOfParameters     = MAX_NUMBER_OF_ANALOG,
+            .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 },
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
 
         //analog type section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG,
-            .parameterType = LESSDB::sectionParameterType_t::halfByte,
+            .numberOfParameters     = MAX_NUMBER_OF_ANALOG,
+            .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 },
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
 
         //midi id section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG,
-            .parameterType = LESSDB::sectionParameterType_t::word,
+            .numberOfParameters     = MAX_NUMBER_OF_ANALOG,
+            .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = true,
-            .address = 0 },
+            .defaultValue           = 0,
+            .autoIncrement          = true,
+            .address                = 0,
+        },
 
         //lower cc limit
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG,
-            .parameterType = LESSDB::sectionParameterType_t::word,
+            .numberOfParameters     = MAX_NUMBER_OF_ANALOG,
+            .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 },
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
 
         //upper cc limit
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG,
-            .parameterType = LESSDB::sectionParameterType_t::word,
+            .numberOfParameters     = MAX_NUMBER_OF_ANALOG,
+            .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
-            .defaultValue = 16383,
-            .autoIncrement = false,
-            .address = 0 },
+            .defaultValue           = 16383,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
 
         //midi channel section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG,
-            .parameterType = LESSDB::sectionParameterType_t::halfByte,
+            .numberOfParameters     = MAX_NUMBER_OF_ANALOG,
+            .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 }
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        }
     };
 
 #ifdef LEDS_SUPPORTED
     LESSDB::section_t ledSections[DB_SECTIONS_LEDS] = {
         //global parameters section
         {
-            .numberOfParameters = static_cast<size_t>(Interface::digital::output::LEDs::setting_t::AMOUNT),
-            .parameterType = LESSDB::sectionParameterType_t::byte,
+            .numberOfParameters     = static_cast<size_t>(Interface::digital::output::LEDs::setting_t::AMOUNT),
+            .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 },
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
 
         //activation id section
         {
-            .numberOfParameters = MAX_NUMBER_OF_LEDS,
-            .parameterType = LESSDB::sectionParameterType_t::byte,
+            .numberOfParameters     = MAX_NUMBER_OF_LEDS,
+            .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = true,
-            .address = 0 },
+            .defaultValue           = 0,
+            .autoIncrement          = true,
+            .address                = 0,
+        },
 
         //rgb enabled section
         {
-            .numberOfParameters = MAX_NUMBER_OF_RGB_LEDS,
-            .parameterType = LESSDB::sectionParameterType_t::bit,
+            .numberOfParameters     = MAX_NUMBER_OF_RGB_LEDS,
+            .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 },
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
 
         //led control type section
         {
-            .numberOfParameters = MAX_NUMBER_OF_LEDS,
-            .parameterType = LESSDB::sectionParameterType_t::halfByte,
+            .numberOfParameters     = MAX_NUMBER_OF_LEDS,
+            .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 },
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
 
         //single velocity value section
         {
-            .numberOfParameters = MAX_NUMBER_OF_LEDS,
-            .parameterType = LESSDB::sectionParameterType_t::byte,
+            .numberOfParameters     = MAX_NUMBER_OF_LEDS,
+            .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
-            .defaultValue = 127,
-            .autoIncrement = false,
-            .address = 0 },
+            .defaultValue           = 127,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
 
         //midi channel section
         {
-            .numberOfParameters = MAX_NUMBER_OF_LEDS,
-            .parameterType = LESSDB::sectionParameterType_t::halfByte,
+            .numberOfParameters     = MAX_NUMBER_OF_LEDS,
+            .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 }
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        }
     };
 #endif
 
@@ -314,21 +344,23 @@ namespace
     LESSDB::section_t displaySections[DB_SECTIONS_DISPLAY] = {
         //features section
         {
-            .numberOfParameters = DISPLAY_FEATURES,
-            .parameterType = LESSDB::sectionParameterType_t::byte,
+            .numberOfParameters     = DISPLAY_FEATURES,
+            .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = 0,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 },
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
 
         //hw section
         {
-            .numberOfParameters = DISPLAY_HW_PARAMETERS,
-            .parameterType = LESSDB::sectionParameterType_t::byte,
+            .numberOfParameters     = DISPLAY_HW_PARAMETERS,
+            .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = 0,
-            .defaultValue = 0,
-            .autoIncrement = false,
-            .address = 0 }
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        }
     };
 #endif
 
@@ -336,48 +368,54 @@ namespace
         //system block
         {
             .numberOfSections = DB_SECTIONS_SYSTEM,
-            .section = systemSections,
-            .address = 0 },
+            .section          = systemSections,
+            .address          = 0,
+        },
 
         //global block
         {
             .numberOfSections = DB_SECTIONS_GLOBAL,
-            .section = globalSections,
-            .address = 0 },
+            .section          = globalSections,
+            .address          = 0,
+        },
 
         //buttons block
         {
             .numberOfSections = DB_SECTIONS_BUTTONS,
-            .section = buttonSections,
-            .address = 0 },
+            .section          = buttonSections,
+            .address          = 0,
+        },
 
         //encoder block
         {
             .numberOfSections = DB_SECTIONS_ENCODERS,
-            .section = encoderSections,
-            .address = 0,
+            .section          = encoderSections,
+            .address          = 0,
         },
 
         //analog block
         {
             .numberOfSections = DB_SECTIONS_ANALOG,
-            .section = analogSections,
-            .address = 0 },
+            .section          = analogSections,
+            .address          = 0,
+        },
 
 #ifdef LEDS_SUPPORTED
         //led block
         {
             .numberOfSections = DB_SECTIONS_LEDS,
-            .section = ledSections,
-            .address = 0 },
+            .section          = ledSections,
+            .address          = 0,
+        },
 #endif
 
 #ifdef DISPLAY_SUPPORTED
         //display block
         {
             .numberOfSections = DB_SECTIONS_DISPLAY,
-            .section = displaySections,
-            .address = 0 }
+            .section          = displaySections,
+            .address          = 0,
+        }
 #endif
     };
 }    // namespace

@@ -59,7 +59,7 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
         {
             //sensor is really pressed
             setFsrPressed(analogID, true);
-            uint8_t note = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiID, analogID);
+            uint8_t note    = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiID, analogID);
             uint8_t channel = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiChannel, analogID);
             midi.sendNoteOn(note, calibratedPressure, channel);
 #ifdef DISPLAY_SUPPORTED
@@ -77,7 +77,7 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
         if (getFsrPressed(analogID))
         {
             setFsrPressed(analogID, false);
-            uint8_t note = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiID, analogID);
+            uint8_t note    = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiID, analogID);
             uint8_t channel = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiChannel, analogID);
             midi.sendNoteOff(note, 0, channel);
 #ifdef DISPLAY_SUPPORTED

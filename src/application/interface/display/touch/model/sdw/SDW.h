@@ -52,5 +52,5 @@ class SDW : public ITouchscreen
     void sendMessage(uint8_t value, messageByteType_t messageByteType);
 
     uint8_t displayRxBuffer[TOUCHSCREEN_RX_BUFFER_SIZE] = {};
-    uint8_t bufferIndex_rx = 0;
+    uint8_t bufferIndex_rx                              = 0;
 };

@@ -229,8 +229,8 @@ namespace Board
         uint8_t getRGBaddress(uint8_t rgbID, Interface::digital::output::LEDs::rgbIndex_t index)
         {
 #ifdef NUMBER_OF_LED_COLUMNS
-            uint8_t column = rgbID % NUMBER_OF_LED_COLUMNS;
-            uint8_t row = (rgbID / NUMBER_OF_LED_COLUMNS) * 3;
+            uint8_t column  = rgbID % NUMBER_OF_LED_COLUMNS;
+            uint8_t row     = (rgbID / NUMBER_OF_LED_COLUMNS) * 3;
             uint8_t address = column + NUMBER_OF_LED_COLUMNS * row;
 
             switch (index)
@@ -294,7 +294,7 @@ namespace Board
                 //do fancy transitions here
                 for (int i = 0; i < NUMBER_OF_LED_ROWS; i++)
                 {
-                    ledIndex = activeOutColumn + i * NUMBER_OF_LED_COLUMNS;
+                    ledIndex       = activeOutColumn + i * NUMBER_OF_LED_COLUMNS;
                     ledStateSingle = ledState[ledIndex] * (NUMBER_OF_LED_TRANSITIONS - 1);
 
                     //don't bother with pwm if it's disabled

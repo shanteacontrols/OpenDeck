@@ -133,7 +133,7 @@ EmuEEPROM::readStatus_t EmuEEPROM::read(uint16_t address, uint16_t& data)
 
     //take into account 4-byte page header
     uint32_t pageStartAddress = (uint32_t)(EEPROM_START_ADDRESS + (uint32_t)(validPage * EEPROM_PAGE_SIZE)) + 4;
-    uint32_t pageEndAddress = (uint32_t)(EEPROM_START_ADDRESS + (uint32_t)(validPage * EEPROM_PAGE_SIZE)) + EEPROM_PAGE_SIZE - 2;
+    uint32_t pageEndAddress   = (uint32_t)(EEPROM_START_ADDRESS + (uint32_t)(validPage * EEPROM_PAGE_SIZE)) + EEPROM_PAGE_SIZE - 2;
 
     /* Check each active page address starting from end */
     while (pageEndAddress > pageStartAddress)
@@ -145,7 +145,7 @@ EmuEEPROM::readStatus_t EmuEEPROM::read(uint16_t address, uint16_t& data)
         if (addressValue == address)
         {
             /* Get content of Address-2 which is variable value */
-            data = (*(volatile uint16_t*)(pageEndAddress - 2));
+            data   = (*(volatile uint16_t*)(pageEndAddress - 2));
             status = readStatus_t::ok;
             break;
         }
@@ -248,7 +248,7 @@ EmuEEPROM::writeStatus_t EmuEEPROM::writeInternal(uint16_t address, uint16_t dat
 
     //take into account 4-byte page header
     uint32_t pageStartAddress = (uint32_t)(EEPROM_START_ADDRESS + (uint32_t)(validPage * EEPROM_PAGE_SIZE)) + 4;
-    uint32_t pageEndAddress = (uint32_t)(EEPROM_START_ADDRESS + (uint32_t)(validPage * EEPROM_PAGE_SIZE)) + EEPROM_PAGE_SIZE - 2;
+    uint32_t pageEndAddress   = (uint32_t)(EEPROM_START_ADDRESS + (uint32_t)(validPage * EEPROM_PAGE_SIZE)) + EEPROM_PAGE_SIZE - 2;
 
     /* Check each active page address starting from begining */
     while (pageStartAddress < pageEndAddress)
@@ -284,7 +284,7 @@ EmuEEPROM::writeStatus_t EmuEEPROM::pageTransfer()
         return writeStatus_t::noPage;
 
     uint32_t newPageAddress = EEPROM_START_ADDRESS;
-    uint16_t oldPageSector = 0;
+    uint16_t oldPageSector  = 0;
 
     if (validPage == 1)
     {
@@ -338,11 +338,11 @@ bool EmuEEPROM::erasePageLL(uint16_t page)
 {
     FLASH_EraseInitTypeDef pEraseInit = {};
 
-    pEraseInit.Banks = FLASH_BANK_1;
-    pEraseInit.NbSectors = 1;
-    pEraseInit.Sector = page;
+    pEraseInit.Banks        = FLASH_BANK_1;
+    pEraseInit.NbSectors    = 1;
+    pEraseInit.Sector       = page;
     pEraseInit.VoltageRange = EEPROM_VOLTAGE_RANGE;
-    pEraseInit.TypeErase = FLASH_TYPEERASE_SECTORS;
+    pEraseInit.TypeErase    = FLASH_TYPEERASE_SECTORS;
 
     uint32_t          eraseStatus;
     HAL_StatusTypeDef halStatus = HAL_FLASH_Unlock();

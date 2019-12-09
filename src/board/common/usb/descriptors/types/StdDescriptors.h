@@ -47,7 +47,7 @@ limitations under the License.
  *  for string descriptor indexes, or may be use as a return value for GetDescriptor when the specified
  *  descriptor does not exist.
  */
-#define NO_DESCRIPTOR           0
+#define NO_DESCRIPTOR 0
 
 /** String descriptor index for the device's unique serial number string descriptor within the device.
  *  This unique serial number is used by the host to associate resources to the device (such as drivers or COM port
@@ -55,12 +55,12 @@ limitations under the License.
  *  a unique serial number internally, and setting the device descriptors serial number string index to this value
  *  will cause it to use the internal serial number.
  */
-#define USE_INTERNAL_SERIAL     0xDC
+#define USE_INTERNAL_SERIAL 0xDC
 
 /** String language ID for the English language. Should be used in \ref USB_Descriptor_String_t descriptors
  *  to indicate that the English language is supported by the device in its string descriptors.
  */
-#define LANGUAGE_ID_ENG         0x0409
+#define LANGUAGE_ID_ENG 0x0409
 
 /** Macro to encode a given major/minor/revision version number into Binary Coded Decimal format for descriptor
  *  fields requiring BCD encoding, such as the USB version number in the standard device descriptor.
@@ -81,14 +81,21 @@ limitations under the License.
  *
  *  \param[in] ...  Characters to initialize a USB String Descriptor structure with.
  */
-#define USB_STRING_DESCRIPTOR_ARRAY(...)  { .Header = {.Size = sizeof(USB_Descriptor_Header_t) + sizeof((uint16_t[]){__VA_ARGS__}), .Type = DTYPE_String}, .UnicodeString = {__VA_ARGS__} }
+#define USB_STRING_DESCRIPTOR_ARRAY(...)                                                   \
+    {                                                                                      \
+        .Header = {                                                                        \
+            .Size = sizeof(USB_Descriptor_Header_t) + sizeof((uint16_t[]){ __VA_ARGS__ }), \
+            .Type = DTYPE_String                                                           \
+        },                                                                                 \
+        .UnicodeString = { __VA_ARGS__ }                                                   \
+    }
 
 /** Macro to calculate the Unicode length of a string with a given number of Unicode characters.
  *  Should be used in string descriptor's headers for giving the string descriptor's byte length.
  *
  *  \param[in] UnicodeChars  Number of Unicode characters in the string text.
  */
-#define USB_STRING_LEN(UnicodeChars)      (sizeof(USB_Descriptor_Header_t) + ((UnicodeChars) << 1))
+#define USB_STRING_LEN(UnicodeChars) (sizeof(USB_Descriptor_Header_t) + ((UnicodeChars) << 1))
 
 /** Convenience macro to easily create \ref USB_Descriptor_String_t instances from a wide character string.
  *
@@ -96,7 +103,14 @@ limitations under the License.
  *
  *  \param[in] String  String to initialize a USB String Descriptor structure with.
  */
-#define USB_STRING_DESCRIPTOR(String)     { .Header = {.Size = sizeof(USB_Descriptor_Header_t) + (sizeof(String) - 2), .Type = DTYPE_String}, .UnicodeString = String }
+#define USB_STRING_DESCRIPTOR(String)                                       \
+    {                                                                       \
+        .Header = {                                                         \
+            .Size = sizeof(USB_Descriptor_Header_t) + (sizeof(String) - 2), \
+            .Type = DTYPE_String                                            \
+        },                                                                  \
+        .UnicodeString = String                                             \
+    }
 
 /** Can be masked with other endpoint descriptor attributes for a \ref USB_Descriptor_Endpoint_t descriptor's
  *  \c Attributes value to indicate that the specified endpoint is not synchronized.
@@ -228,47 +242,21 @@ typedef struct
 {
     USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
 
-    uint16_t USBSpecification; /**< BCD of the supported USB specification.
+    uint16_t USBSpecification;       /**< BCD of the supported USB specification.
                                 *
                                 *   \see \ref VERSION_BCD() utility macro.
                                 */
-    uint8_t  Class; /**< USB device class. */
-    uint8_t  SubClass; /**< USB device subclass. */
-    uint8_t  Protocol; /**< USB device protocol. */
-
-    uint8_t  Endpoint0Size; /**< Size of the control (address 0) endpoint's bank in bytes. */
-
-    uint16_t VendorID; /**< Vendor ID for the USB product. */
-    uint16_t ProductID; /**< Unique product ID for the USB product. */
-    uint16_t ReleaseNumber; /**< Product release (version) number.
-                                *
-                                *   \see \ref VERSION_BCD() utility macro.
-                                */
-    uint8_t  ManufacturerStrIndex; /**< String index for the manufacturer's name. The
-                                    *   host will request this string via a separate
-                                    *   control request for the string descriptor.
-                                    *
-                                    *   \note If no string supplied, use \ref NO_DESCRIPTOR.
-                                    */
-    uint8_t  ProductStrIndex; /**< String index for the product name/details.
-                                *
-                                *  \see ManufacturerStrIndex structure entry.
-                                */
-    uint8_t  SerialNumStrIndex; /**< String index for the product's globally unique hexadecimal
-                                    *   serial number, in uppercase Unicode ASCII.
-                                    *
-                                    *  \note On some microcontroller models, there is an embedded serial number
-                                    *        in the chip which can be used for the device serial number.
-                                    *        To use this serial number, set this to \c USE_INTERNAL_SERIAL.
-                                    *        On unsupported devices, this will evaluate to \ref NO_DESCRIPTOR
-                                    *        and will cause the host to generate a pseudo-unique value for the
-                                    *        device upon insertion.
-                                    *
-                                    *  \see \c ManufacturerStrIndex structure entry.
-                                    */
-    uint8_t  NumberOfConfigurations; /**< Total number of configurations supported by
-                                        *   the device.
-                                        */
+    uint8_t  Class;                  /**< USB device class. */
+    uint8_t  SubClass;               /**< USB device subclass. */
+    uint8_t  Protocol;               /**< USB device protocol. */
+    uint8_t  Endpoint0Size;          /**< Size of the control (address 0) endpoint's bank in bytes. */
+    uint16_t VendorID;               /**< Vendor ID for the USB product. */
+    uint16_t ProductID;              /**< Unique product ID for the USB product. */
+    uint16_t ReleaseNumber;          /**< Product release (version) number. */
+    uint8_t  ManufacturerStrIndex;   /**< String index for the manufacturer's name. */
+    uint8_t  ProductStrIndex;        /**< String index for the product name/details. */
+    uint8_t  SerialNumStrIndex;      /**< String index for the product's globally unique hexadecimal serial number, in uppercase Unicode ASCII. */
+    uint8_t  NumberOfConfigurations; /**< Total number of configurations supported by the device. */
 } ATTR_PACKED USB_Descriptor_Device_t;
 
 /** \brief Standard USB String Descriptor (LUFA naming conventions).
@@ -315,14 +303,14 @@ typedef struct
 /** Enum for the possible standard descriptor types, as given in each descriptor's header. */
 enum USB_DescriptorTypes_t
 {
-    DTYPE_Device = 0x01,               /**< Indicates that the descriptor is a device descriptor. */
-    DTYPE_Configuration = 0x02,        /**< Indicates that the descriptor is a configuration descriptor. */
-    DTYPE_String = 0x03,               /**< Indicates that the descriptor is a string descriptor. */
-    DTYPE_Interface = 0x04,            /**< Indicates that the descriptor is an interface descriptor. */
-    DTYPE_Endpoint = 0x05,             /**< Indicates that the descriptor is an endpoint descriptor. */
-    DTYPE_DeviceQualifier = 0x06,      /**< Indicates that the descriptor is a device qualifier descriptor. */
-    DTYPE_Other = 0x07,                /**< Indicates that the descriptor is of other type. */
-    DTYPE_InterfacePower = 0x08,       /**< Indicates that the descriptor is an interface power descriptor. */
+    DTYPE_Device               = 0x01, /**< Indicates that the descriptor is a device descriptor. */
+    DTYPE_Configuration        = 0x02, /**< Indicates that the descriptor is a configuration descriptor. */
+    DTYPE_String               = 0x03, /**< Indicates that the descriptor is a string descriptor. */
+    DTYPE_Interface            = 0x04, /**< Indicates that the descriptor is an interface descriptor. */
+    DTYPE_Endpoint             = 0x05, /**< Indicates that the descriptor is an endpoint descriptor. */
+    DTYPE_DeviceQualifier      = 0x06, /**< Indicates that the descriptor is a device qualifier descriptor. */
+    DTYPE_Other                = 0x07, /**< Indicates that the descriptor is of other type. */
+    DTYPE_InterfacePower       = 0x08, /**< Indicates that the descriptor is an interface power descriptor. */
     DTYPE_InterfaceAssociation = 0x0B, /**< Indicates that the descriptor is an interface association descriptor. */
 };
 

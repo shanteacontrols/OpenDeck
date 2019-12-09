@@ -229,7 +229,7 @@ namespace Board
         uint16_t crc_eeprom = eeprom_read_word(reinterpret_cast<uint16_t*>(SW_CRC_LOCATION_EEPROM));
 #if (FLASHEND > 0xFFFF)
         uint32_t lastAddress = pgm_read_dword_far(core::misc::pgmGetFarAddress(APP_LENGTH_LOCATION));
-        uint16_t crc_flash = pgm_read_word_far(core::misc::pgmGetFarAddress(lastAddress));
+        uint16_t crc_flash   = pgm_read_word_far(core::misc::pgmGetFarAddress(lastAddress));
 #else
         uint32_t lastAddress = pgm_read_dword(APP_LENGTH_LOCATION);
         uint16_t crc_flash = pgm_read_word(lastAddress);
@@ -314,6 +314,7 @@ ISR(ADC_vect)
 ISR(TIMER0_COMPA_vect)
 {
     static bool _1ms = true;
+
     _1ms = !_1ms;
 
     if (_1ms)

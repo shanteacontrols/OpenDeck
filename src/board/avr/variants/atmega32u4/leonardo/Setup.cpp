@@ -106,7 +106,7 @@ namespace Board
                 core::adc::conf_t adcConfiguration;
 
                 adcConfiguration.prescaler = core::adc::prescaler_t::p128;
-                adcConfiguration.vref = core::adc::vRef_t::avcc;
+                adcConfiguration.vref      = core::adc::vRef_t::avcc;
 
                 core::adc::setup(adcConfiguration);
                 core::adc::setChannel(AI_1_PIN);

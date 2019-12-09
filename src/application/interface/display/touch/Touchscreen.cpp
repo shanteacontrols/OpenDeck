@@ -28,7 +28,7 @@ bool Touchscreen::init()
 void Touchscreen::update()
 {
     uint8_t buttonID = 0;
-    bool    state = false;
+    bool    state    = false;
 
     if (hwa.update(buttonID, state))
     {

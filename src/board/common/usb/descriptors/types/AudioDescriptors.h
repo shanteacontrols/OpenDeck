@@ -89,22 +89,22 @@ typedef struct
 
 enum Audio_Descriptor_ClassSubclassProtocol_t
 {
-    AUDIO_CSCP_AudioClass = 0x01,             /**< Descriptor Class value indicating that the device or
+    AUDIO_CSCP_AudioClass             = 0x01, /**< Descriptor Class value indicating that the device or
                                                         *   interface belongs to the USB Audio 1.0 class.
                                                         */
-    AUDIO_CSCP_ControlSubclass = 0x01,        /**< Descriptor Subclass value indicating that the device or
+    AUDIO_CSCP_ControlSubclass        = 0x01, /**< Descriptor Subclass value indicating that the device or
                                                         *   interface belongs to the Audio Control subclass.
                                                         */
-    AUDIO_CSCP_ControlProtocol = 0x00,        /**< Descriptor Protocol value indicating that the device or
+    AUDIO_CSCP_ControlProtocol        = 0x00, /**< Descriptor Protocol value indicating that the device or
                                                         *   interface belongs to the Audio Control protocol.
                                                         */
     AUDIO_CSCP_AudioStreamingSubclass = 0x02, /**< Descriptor Subclass value indicating that the device or
                                                         *   interface belongs to the MIDI Streaming subclass.
                                                         */
-    AUDIO_CSCP_MIDIStreamingSubclass = 0x03,  /**< Descriptor Subclass value indicating that the device or
+    AUDIO_CSCP_MIDIStreamingSubclass  = 0x03, /**< Descriptor Subclass value indicating that the device or
                                                         *   interface belongs to the Audio streaming subclass.
                                                         */
-    AUDIO_CSCP_StreamingProtocol = 0x00,      /**< Descriptor Protocol value indicating that the device or
+    AUDIO_CSCP_StreamingProtocol      = 0x00, /**< Descriptor Protocol value indicating that the device or
                                                         *   interface belongs to the Streaming Audio protocol.
                                                         */
 };
@@ -113,27 +113,27 @@ enum Audio_Descriptor_ClassSubclassProtocol_t
 enum AUDIO_DescriptorTypes_t
 {
     AUDIO_DTYPE_CSInterface = 0x24, /**< Audio class specific Interface functional descriptor. */
-    AUDIO_DTYPE_CSEndpoint = 0x25,  /**< Audio class specific Endpoint functional descriptor. */
+    AUDIO_DTYPE_CSEndpoint  = 0x25, /**< Audio class specific Endpoint functional descriptor. */
 };
 
 /** Audio class specific interface description subtypes, for the Audio Control interface. */
 enum Audio_CSInterface_AC_SubTypes_t
 {
-    AUDIO_DSUBTYPE_CSInterface_Header = 0x01,         /**< Audio class specific control interface header. */
-    AUDIO_DSUBTYPE_CSInterface_InputTerminal = 0x02,  /**< Audio class specific control interface Input Terminal. */
+    AUDIO_DSUBTYPE_CSInterface_Header         = 0x01, /**< Audio class specific control interface header. */
+    AUDIO_DSUBTYPE_CSInterface_InputTerminal  = 0x02, /**< Audio class specific control interface Input Terminal. */
     AUDIO_DSUBTYPE_CSInterface_OutputTerminal = 0x03, /**< Audio class specific control interface Output Terminal. */
-    AUDIO_DSUBTYPE_CSInterface_Mixer = 0x04,          /**< Audio class specific control interface Mixer Unit. */
-    AUDIO_DSUBTYPE_CSInterface_Selector = 0x05,       /**< Audio class specific control interface Selector Unit. */
-    AUDIO_DSUBTYPE_CSInterface_Feature = 0x06,        /**< Audio class specific control interface Feature Unit. */
-    AUDIO_DSUBTYPE_CSInterface_Processing = 0x07,     /**< Audio class specific control interface Processing Unit. */
-    AUDIO_DSUBTYPE_CSInterface_Extension = 0x08,      /**< Audio class specific control interface Extension Unit. */
+    AUDIO_DSUBTYPE_CSInterface_Mixer          = 0x04, /**< Audio class specific control interface Mixer Unit. */
+    AUDIO_DSUBTYPE_CSInterface_Selector       = 0x05, /**< Audio class specific control interface Selector Unit. */
+    AUDIO_DSUBTYPE_CSInterface_Feature        = 0x06, /**< Audio class specific control interface Feature Unit. */
+    AUDIO_DSUBTYPE_CSInterface_Processing     = 0x07, /**< Audio class specific control interface Processing Unit. */
+    AUDIO_DSUBTYPE_CSInterface_Extension      = 0x08, /**< Audio class specific control interface Extension Unit. */
 };
 
 /** Audio class specific interface description subtypes, for the Audio Streaming interface. */
 enum Audio_CSInterface_AS_SubTypes_t
 {
-    AUDIO_DSUBTYPE_CSInterface_General = 0x01,        /**< Audio class specific streaming interface general descriptor. */
-    AUDIO_DSUBTYPE_CSInterface_FormatType = 0x02,     /**< Audio class specific streaming interface format type descriptor. */
+    AUDIO_DSUBTYPE_CSInterface_General        = 0x01, /**< Audio class specific streaming interface general descriptor. */
+    AUDIO_DSUBTYPE_CSInterface_FormatType     = 0x02, /**< Audio class specific streaming interface format type descriptor. */
     AUDIO_DSUBTYPE_CSInterface_FormatSpecific = 0x03, /**< Audio class specific streaming interface format information descriptor. */
 };
 

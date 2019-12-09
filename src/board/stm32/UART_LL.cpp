@@ -67,13 +67,13 @@ namespace Board
 
                     deInit(channel);
 
-                    uartHandler[channel].Instance = Board::detail::map::uartInterface(channel);
-                    uartHandler[channel].Init.BaudRate = baudRate;
-                    uartHandler[channel].Init.WordLength = UART_WORDLENGTH_8B;
-                    uartHandler[channel].Init.StopBits = UART_STOPBITS_1;
-                    uartHandler[channel].Init.Parity = UART_PARITY_NONE;
-                    uartHandler[channel].Init.Mode = UART_MODE_TX_RX;
-                    uartHandler[channel].Init.HwFlowCtl = UART_HWCONTROL_NONE;
+                    uartHandler[channel].Instance          = Board::detail::map::uartInterface(channel);
+                    uartHandler[channel].Init.BaudRate     = baudRate;
+                    uartHandler[channel].Init.WordLength   = UART_WORDLENGTH_8B;
+                    uartHandler[channel].Init.StopBits     = UART_STOPBITS_1;
+                    uartHandler[channel].Init.Parity       = UART_PARITY_NONE;
+                    uartHandler[channel].Init.Mode         = UART_MODE_TX_RX;
+                    uartHandler[channel].Init.HwFlowCtl    = UART_HWCONTROL_NONE;
                     uartHandler[channel].Init.OverSampling = UART_OVERSAMPLING_16;
 
                     HAL_UART_Init(&uartHandler[channel]);
@@ -93,9 +93,9 @@ namespace Board
         {
             void uart(uint8_t channel)
             {
-                uint32_t isrflags = READ_REG(uartHandler[channel].Instance->SR);
-                uint32_t cr1its = READ_REG(uartHandler[channel].Instance->CR1);
-                uint32_t errorflags = (isrflags & (uint32_t)(USART_SR_PE | USART_SR_FE | USART_SR_ORE | USART_SR_NE));
+                uint32_t isrflags     = READ_REG(uartHandler[channel].Instance->SR);
+                uint32_t cr1its       = READ_REG(uartHandler[channel].Instance->CR1);
+                uint32_t errorflags   = (isrflags & (uint32_t)(USART_SR_PE | USART_SR_FE | USART_SR_ORE | USART_SR_NE));
                 bool     verifyTxDone = true;
 
                 if (errorflags == RESET)

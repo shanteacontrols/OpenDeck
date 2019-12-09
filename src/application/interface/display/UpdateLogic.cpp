@@ -49,16 +49,16 @@ bool Display::init(displayController_t controller, displayResolution_t resolutio
             for (int j = 0; j < LCD_STRING_BUFFER_SIZE - 2; j++)
             {
                 lcdRowStillText[i][j] = ' ';
-                lcdRowTempText[i][j] = ' ';
+                lcdRowTempText[i][j]  = ' ';
             }
 
             lcdRowStillText[i][LCD_STRING_BUFFER_SIZE - 1] = '\0';
-            lcdRowTempText[i][LCD_STRING_BUFFER_SIZE - 1] = '\0';
+            lcdRowTempText[i][LCD_STRING_BUFFER_SIZE - 1]  = '\0';
 
-            scrollEvent[i].size = 0;
-            scrollEvent[i].startIndex = 0;
+            scrollEvent[i].size         = 0;
+            scrollEvent[i].startIndex   = 0;
             scrollEvent[i].currentIndex = 0;
-            scrollEvent[i].direction = scrollDirection_t::leftToRight;
+            scrollEvent[i].direction    = scrollDirection_t::leftToRight;
         }
 
         initDone = true;
@@ -148,8 +148,8 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
     if (!initDone)
         return;
 
-    const char* string = stringBuilder.string();
-    uint8_t     size = strlen(string);
+    const char* string     = stringBuilder.string();
+    uint8_t     size       = strlen(string);
     uint8_t     scrollSize = 0;
 
     if (size + startIndex >= LCD_STRING_BUFFER_SIZE - 2)
@@ -186,19 +186,19 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
             if (scrollingEnabled && !scrollEvent[row].size)
             {
                 //enable scrolling
-                scrollEvent[row].size = scrollSize;
-                scrollEvent[row].startIndex = startIndex;
+                scrollEvent[row].size         = scrollSize;
+                scrollEvent[row].startIndex   = startIndex;
                 scrollEvent[row].currentIndex = 0;
-                scrollEvent[row].direction = scrollDirection_t::leftToRight;
+                scrollEvent[row].direction    = scrollDirection_t::leftToRight;
 
                 lastScrollTime = core::timing::currentRunTimeMs();
             }
             else if (!scrollingEnabled && scrollEvent[row].size)
             {
-                scrollEvent[row].size = 0;
-                scrollEvent[row].startIndex = 0;
+                scrollEvent[row].size         = 0;
+                scrollEvent[row].startIndex   = 0;
                 scrollEvent[row].currentIndex = 0;
-                scrollEvent[row].direction = scrollDirection_t::leftToRight;
+                scrollEvent[row].direction    = scrollDirection_t::leftToRight;
             }
             break;
 
@@ -215,7 +215,7 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
             //make sure message is properly EOL'ed
             lcdRowTempText[row][startIndex + size] = '\0';
 
-            activeTextType = lcdTextType_t::temp;
+            activeTextType     = lcdTextType_t::temp;
             messageDisplayTime = core::timing::currentRunTimeMs();
 
             //update all characters on display
@@ -351,7 +351,7 @@ void Display::setRetentionTime(uint32_t retentionTime)
 
     MIDImessageRetentionTime = retentionTime;
     //reset last update time
-    lastMIDIMessageDisplayTime[eventType_t::in] = core::timing::currentRunTimeMs();
+    lastMIDIMessageDisplayTime[eventType_t::in]  = core::timing::currentRunTimeMs();
     lastMIDIMessageDisplayTime[eventType_t::out] = core::timing::currentRunTimeMs();
 }
 

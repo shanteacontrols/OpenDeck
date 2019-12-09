@@ -33,10 +33,10 @@
 #include "board/common/usb/Arch.h"
 
 /** Endpoint address of the HID data IN endpoint. */
-#define HID_IN_EPADDR               (ENDPOINT_DIR_IN | 1)
+#define HID_IN_EPADDR (ENDPOINT_DIR_IN | 1)
 
 /** Size in bytes of the HID reporting IN endpoint. */
-#define HID_IN_EPSIZE               64
+#define HID_IN_EPSIZE 64
 
 /** Type define for the device configuration descriptor structure. This must be defined in the
  *  application code, as the configuration descriptor contains several sub-descriptors which
@@ -47,9 +47,9 @@ typedef struct
     USB_Descriptor_Configuration_Header_t Config;
 
     // Generic HID Interface
-    USB_Descriptor_Interface_t            HID_Interface;
-    USB_HID_Descriptor_HID_t              HID_VendorHID;
-    USB_Descriptor_Endpoint_t             HID_ReportINEndpoint;
+    USB_Descriptor_Interface_t HID_Interface;
+    USB_HID_Descriptor_HID_t   HID_VendorHID;
+    USB_Descriptor_Endpoint_t  HID_ReportINEndpoint;
 } USB_Descriptor_Configuration_t;
 
 /** Enum for the device interface descriptor IDs within the device. Each interface descriptor
@@ -67,12 +67,12 @@ enum InterfaceDescriptors_t
 */
 enum StringDescriptors_t
 {
-    STRING_ID_Language = 0,     /**< Supported Languages string descriptor ID (must be zero) */
+    STRING_ID_Language     = 0, /**< Supported Languages string descriptor ID (must be zero) */
     STRING_ID_Manufacturer = 1, /**< Manufacturer string ID */
-    STRING_ID_Product = 2,      /**< Product string ID */
+    STRING_ID_Product      = 2, /**< Product string ID */
 #ifdef __AVR__
-    STRING_ID_UID = 0           /**< Unique ID isn't supported on AVR MCUs */
+    STRING_ID_UID = 0 /**< Unique ID isn't supported on AVR MCUs */
 #else
-    STRING_ID_UID = 3           /**< Unique serial number string ID */
+    STRING_ID_UID = 3 /**< Unique serial number string ID */
 #endif
 };

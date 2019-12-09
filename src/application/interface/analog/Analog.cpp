@@ -35,7 +35,7 @@ void Analog::update()
             continue;
 
         int16_t analogData = Board::io::getAnalogValue(i);
-        auto    type = static_cast<type_t>(database.read(DB_BLOCK_ANALOG, dbSection_analog_type, i));
+        auto    type       = static_cast<type_t>(database.read(DB_BLOCK_ANALOG, dbSection_analog_type, i));
 
         if (expFilterUsed)
         {
@@ -81,9 +81,9 @@ void Analog::update()
 
 void Analog::debounceReset(uint16_t index)
 {
-    lastDirection[index] = potDirection_t::initial;
+    lastDirection[index]     = potDirection_t::initial;
     lastAnalogueValue[index] = 0;
-    fsrPressed[index] = false;
+    fsrPressed[index]        = false;
 }
 
 ///

@@ -49,7 +49,7 @@ void Encoders::update()
         //ENCODERS_DEBOUNCE_RESET_TIME milliseconds
         if ((core::timing::currentRunTimeMs() - lastMovementTime[i]) > ENCODERS_DEBOUNCE_RESET_TIME)
         {
-            debounceCounter[i] = 0;
+            debounceCounter[i]   = 0;
             debounceDirection[i] = position_t::stopped;
         }
 
@@ -72,7 +72,7 @@ void Encoders::update()
 
                 if (debounceCounter[i] == ENCODERS_DEBOUNCE_COUNT)
                 {
-                    debounceCounter[i] = 0;
+                    debounceCounter[i]   = 0;
                     debounceDirection[i] = encoderState;
                 }
             }
@@ -89,20 +89,21 @@ void Encoders::update()
                     encoderSpeed[i] = 0;
             }
 
-            lastDirection[i] = encoderState;
+            lastDirection[i]    = encoderState;
             lastMovementTime[i] = core::timing::currentRunTimeMs();
 
             if (debounceDirection[i] != position_t::stopped)
                 encoderState = debounceDirection[i];
 
-            uint8_t              midiID = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiID, i);
-            uint8_t              channel = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i);
-            auto                 type = static_cast<type_t>(database.read(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i));
-            bool                 validType = true;
-            uint16_t             encoderValue = 0;
-            uint8_t              steps = (encoderSpeed[i] > 0) ? encoderSpeed[i] : 1;
+            uint8_t  midiID       = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiID, i);
+            uint8_t  channel      = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i);
+            auto     type         = static_cast<type_t>(database.read(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i));
+            bool     validType    = true;
+            uint16_t encoderValue = 0;
+            uint8_t  steps        = (encoderSpeed[i] > 0) ? encoderSpeed[i] : 1;
+            bool     use14bit     = false;
+
             MIDI::encDec_14bit_t encDec_14bit;
-            bool                 use14bit = false;
 
             switch (type)
             {
@@ -251,12 +252,12 @@ void Encoders::resetValue(uint8_t encoderID)
     else
         midiValue[encoderID] = 0;
 
-    lastMovementTime[encoderID] = 0;
-    encoderSpeed[encoderID] = 0;
+    lastMovementTime[encoderID]  = 0;
+    encoderSpeed[encoderID]      = 0;
     debounceDirection[encoderID] = position_t::stopped;
-    debounceCounter[encoderID] = 0;
-    encoderData[encoderID] = 0;
-    encoderPulses[encoderID] = 0;
+    debounceCounter[encoderID]   = 0;
+    encoderData[encoderID]       = 0;
+    encoderPulses[encoderID]     = 0;
 }
 
 void Encoders::setValue(uint8_t encoderID, uint16_t value)

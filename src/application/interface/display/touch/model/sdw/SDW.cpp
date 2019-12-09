@@ -20,7 +20,7 @@ limitations under the License.
 #include "Commands.h"
 #include "board/Board.h"
 
-#define LOW_BYTE(value) ((value) & (0xFF))
+#define LOW_BYTE(value)  ((value) & (0xFF))
 #define HIGH_BYTE(value) (((value) >> 8) & 0xFF)
 
 bool SDW::init()

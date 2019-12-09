@@ -297,7 +297,7 @@ bool SysConfig::onGet(uint8_t block, uint8_t section, size_t index, SysExConf::s
 
 bool SysConfig::onSet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t newValue)
 {
-    bool                 success = false;
+    bool                 success   = false;
     bool                 writeToDb = true;
     MIDI::encDec_14bit_t encDec_14bit;
 
@@ -404,7 +404,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, size_t index, SysExConf::s
             case midiMergeDINchannel:
                 //unused for now
                 writeToDb = false;
-                success = true;
+                success   = true;
                 break;
 
             default:
@@ -419,7 +419,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, size_t index, SysExConf::s
                 if (newValue < database.getSupportedPresets())
                 {
                     database.setPreset(newValue);
-                    success = true;
+                    success   = true;
                     writeToDb = false;
                 }
                 else
@@ -432,7 +432,7 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, size_t index, SysExConf::s
                 if ((newValue <= 1) && (newValue >= 0))
                 {
                     database.setPresetPreserveState(newValue);
-                    success = true;
+                    success   = true;
                     writeToDb = false;
                 }
             }
@@ -493,14 +493,14 @@ bool SysConfig::onSet(uint8_t block, uint8_t section, size_t index, SysExConf::s
         case sysExSection_leds_testColor:
             //no writing to database
             leds.setColor(index, static_cast<Interface::digital::output::LEDs::color_t>(newValue));
-            success = true;
+            success   = true;
             writeToDb = false;
             break;
 
         case sysExSection_leds_testBlink:
             //no writing to database
             leds.setBlinkState(index, newValue ? Interface::digital::output::LEDs::blinkSpeed_t::s500ms : Interface::digital::output::LEDs::blinkSpeed_t::noBlink);
-            success = true;
+            success   = true;
             writeToDb = false;
             break;
 

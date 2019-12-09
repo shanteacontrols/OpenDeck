@@ -101,10 +101,10 @@ namespace Board
             {
                 ATOMIC_SECTION
                 {
-                    midiInDINtimeout = 0;
-                    midiOutDINtimeout = 0;
-                    midiInUSBtimeout = 0;
-                    midiOutUSBtimeout = 0;
+                    midiInDINtimeout   = 0;
+                    midiOutDINtimeout  = 0;
+                    midiInUSBtimeout   = 0;
+                    midiOutUSBtimeout  = 0;
                     indicatorsDisabled = false;
                 }
             }

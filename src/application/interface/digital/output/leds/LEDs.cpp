@@ -25,7 +25,7 @@ limitations under the License.
 
 using namespace Interface::digital::output;
 
-#define LED_ON_MASK ((0x01 << static_cast<uint8_t>(ledBit_t::active)) | (0x01 << static_cast<uint8_t>(ledBit_t::state)))
+#define LED_ON_MASK   ((0x01 << static_cast<uint8_t>(ledBit_t::active)) | (0x01 << static_cast<uint8_t>(ledBit_t::state)))
 #define LED_ON(state) ((state & LED_ON_MASK) == LED_ON_MASK)
 
 void LEDs::init(bool startUp)
@@ -76,7 +76,7 @@ void LEDs::checkBlinking(bool forceChange)
         if (++blinkCounter[i] < blinkResetArrayPtr[i])
             continue;
 
-        blinkState[i] = !blinkState[i];
+        blinkState[i]   = !blinkState[i];
         blinkCounter[i] = 0;
 
         //assign changed state to all leds which have this speed
@@ -253,7 +253,7 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
             }
         }
 
-        auto color = color_t::off;
+        auto color      = color_t::off;
         bool rgbEnabled = database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, Board::io::getRGBID(i));
 
         if (setState)
@@ -517,7 +517,7 @@ void LEDs::resetBlinking()
     for (int i = 0; i < static_cast<uint8_t>(blinkSpeed_t::AMOUNT); i++)
     {
         blinkCounter[i] = 0;
-        blinkState[i] = true;
+        blinkState[i]   = true;
     }
 }
 

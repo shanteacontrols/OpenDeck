@@ -194,9 +194,9 @@ void OpenDeck::checkMIDI()
     auto processMessage = [](MIDI::interface_t interface) {
         //new message
         auto    messageType = midi.getType(interface);
-        uint8_t data1 = midi.getData1(interface);
-        uint8_t data2 = midi.getData2(interface);
-        uint8_t channel = midi.getChannel(interface);
+        uint8_t data1       = midi.getData1(interface);
+        uint8_t data2       = midi.getData2(interface);
+        uint8_t channel     = midi.getChannel(interface);
 
         switch (messageType)
         {

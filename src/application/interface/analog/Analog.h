@@ -124,10 +124,10 @@ namespace Interface
             ComponentInfo& cInfo;
 
             void (*buttonHandler)(uint8_t adcIndex, uint16_t adcValue) = nullptr;
-            uint16_t       lastAnalogueValue[MAX_NUMBER_OF_ANALOG] = {};
-            uint8_t        fsrPressed[MAX_NUMBER_OF_ANALOG] = {};
-            potDirection_t lastDirection[MAX_NUMBER_OF_ANALOG] = {};
-            bool           expFilterUsed = true;
+            uint16_t       lastAnalogueValue[MAX_NUMBER_OF_ANALOG]     = {};
+            uint8_t        fsrPressed[MAX_NUMBER_OF_ANALOG]            = {};
+            potDirection_t lastDirection[MAX_NUMBER_OF_ANALOG]         = {};
+            bool           expFilterUsed                               = true;
         };
 
         /// @}
