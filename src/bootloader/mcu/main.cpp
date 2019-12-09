@@ -16,15 +16,10 @@ limitations under the License.
 
 */
 
-#include <avr/io.h>
-#include <avr/wdt.h>
-#include <avr/boot.h>
-#include <avr/power.h>
 #ifdef USB_MIDI_SUPPORTED
 #include "board/common/usb/descriptors/Descriptors.h"
 #endif
 #include "Config.h"
-#include "core/src/arch/avr/Misc.h"
 #include "core/src/general/Helpers.h"
 #include "core/src/general/IO.h"
 #include "core/src/general/Reset.h"
