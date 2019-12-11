@@ -1,23 +1,41 @@
 #!/bin/bash
 
-#used to create hex file containing both the bootloader and application
-#example for opendeck: ./build_single_combine_fw_btldr.sh opendeck
-#variant (second command line argument) can be specified only as "UNO" or "MEGA"
-#used only for 16u2 target, ignored otherwise
-#example: ./build_single_combine_fw_btldr 16u2 UNO
+function usage
+{
+    echo -e "Used to create hex file containing both the bootloader and application\n"
+    echo -e "Usage: ./`basename "$0"` --target [--variant]\n"
+    echo -e "  --target=    \tBoard and firmware type to compile. See targets.txt for list of supported targets. Prefix in target is ignored (fw_ and boot_)"
+}
 
-#build bootloader first
-make clean && make TARGETNAME=boot_$1 VARIANT=VARIANT_$2
-#copy bootloader hex to current dir to avoid file being deleted after second make clean
-cp build/boot_$1.hex boot_$1.hex
+if [[ ("$*" == "--help") || ($# -eq 0) ]]
+then
+    usage
+    exit 1
+fi
+
+for i in $*; do
+    case "$i" in
+        --target=*)
+            TARGET=${i#--target=}
+            ;;
+    esac
+done
+
+VARIANT=$2
+
+boot_target=${TARGET/fw_/boot_}
+fw_target=${TARGET/boot_/fw_}
+
+make clean
+
+boot_dir=$(make TARGETNAME=$boot_target $VARIANT print-no-varname-BUILD_DIR)
+fw_dir=$(make TARGETNAME=$fw_target $VARIANT print-no-varname-BUILD_DIR)
+
+#build bootloader
+make TARGETNAME=$boot_target $2
+
 #build firmware
-make clean && make TARGETNAME=fw_$1
-#copy firmware hex to current dir
-cp build/fw_$1.hex fw_$1.hex
-#delete both hex and bin from build dir
-rm build/fw_$1.hex
-rm build/fw_$1.bin
-#merge fw and boot hex and copy resulting file to build/ so that make upload command can work immediately after this script
-srec_cat fw_$1.hex -intel boot_$1.hex -Intel -o build/fw_$1.hex -Intel
-#delete temporary files
-rm fw_$1.hex boot_$1.hex
+make TARGETNAME=$fw_target $2
+
+#merge fw and boot hex and copy resulting file to build directory so that make upload command can work immediately after this script
+srec_cat $fw_dir/$fw_target.hex -intel $boot_dir/$boot_target.hex -Intel -o $fw_dir/$fw_target.hex -Intel
