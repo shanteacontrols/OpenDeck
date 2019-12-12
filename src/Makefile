@@ -4,6 +4,7 @@ TARGETNAME := fw_opendeck
 
 ifneq (,$(wildcard $(BUILD_DIR_BASE)/TARGET))
     TARGETNAME := $(shell cat $(BUILD_DIR_BASE)/TARGET)
+    VARIANT := $(shell cat $(BUILD_DIR_BASE)/VARIANT)
     DEBUG := $(shell cat $(BUILD_DIR_BASE)/DEBUG)
 endif
 
@@ -140,6 +141,7 @@ endif
 
 $(TARGET).elf: $(OBJECTS)
 	@echo $(TARGETNAME) > $(BUILD_DIR_BASE)/TARGET
+	@echo $(VARIANT) > $(BUILD_DIR_BASE)/VARIANT
 	@echo $(DEBUG) > $(BUILD_DIR_BASE)/DEBUG
 	@echo Creating executable: $@
 	@$(CPP_COMPILER) -o$(TARGET).elf $(OBJECTS) $(LDFLAGS)
