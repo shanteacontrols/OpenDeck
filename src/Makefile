@@ -215,3 +215,6 @@ clean:
 #debugging
 print-%:
 	@echo '$*=$($*)'
+
+print-no-varname-%:
+	@echo '$($*)'
