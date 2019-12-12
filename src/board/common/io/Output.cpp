@@ -224,6 +224,11 @@ namespace Board
 
             return true;
         }
+#else
+        __attribute__((weak)) bool setLEDfadeSpeed(uint8_t transitionSpeed)
+        {
+            return false;
+        }
 #endif
 
         uint8_t getRGBaddress(uint8_t rgbID, Interface::digital::output::LEDs::rgbIndex_t index)
