@@ -61,12 +61,6 @@ ifeq ($(ARCH),avr)
         LDFLAGS += -Wl,--section-start=.text=$(BOOT_START_ADDR)
     endif
 
-    #use link time optimisations only on 32u4 MCU due to the heavy memory constrains
-    ifeq ($(MCU), atmega32u4)
-        COMMON_FLAGS += -flto
-        LDFLAGS += -flto
-    endif
-
     #append length only in firmware
     ifeq ($(findstring fw,$(TARGETNAME)), fw)
         LEN_APPEND := 1
@@ -85,11 +79,13 @@ ifeq ($(ARCH),avr)
     -funsigned-char \
     -funsigned-bitfields \
     -fshort-enums \
-    -fno-jump-tables
+    -fno-jump-tables \
+    -flto
 
     LDFLAGS += \
     -mrelax \
-    -mmcu=$(MCU)
+    -mmcu=$(MCU) \
+    -flto
 else ifeq ($(ARCH),stm32)
     C_COMPILER := arm-none-eabi-gcc
     CPP_COMPILER := arm-none-eabi-g++
