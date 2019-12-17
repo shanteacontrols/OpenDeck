@@ -35,12 +35,12 @@ namespace
     /// \brief Flag determining whether or not UART loopback functionality is enabled.
     /// When enabled, all incoming UART traffic is immediately passed on to UART TX.
     ///
-    bool loopbackEnabled[UART_INTERFACES];
+    volatile bool loopbackEnabled[UART_INTERFACES];
 
     ///
     /// \brief Flag signaling that the transmission is done.
     ///
-    bool txDone[UART_INTERFACES];
+    volatile bool txDone[UART_INTERFACES];
 
     ///
     /// \brief Buffer in which outgoing UART data is stored.
