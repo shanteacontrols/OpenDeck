@@ -65,6 +65,9 @@ namespace Board
             OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::internalCommand);
             while (!Board::UART::isTxEmpty(UART_USB_LINK_CHANNEL))
                 ;
+
+            //give some time to usb link to properly re-initialize so that everything is in sync
+            core::timing::waitMs(50);
 #endif
             break;
 
