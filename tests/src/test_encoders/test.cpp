@@ -46,7 +46,7 @@ namespace Board
             Encoders::position_t encoderPosition[MAX_NUMBER_OF_ENCODERS];
 
             int8_t  stateCounter[MAX_NUMBER_OF_ENCODERS] = {};
-            uint8_t lastState[MAX_NUMBER_OF_ENCODERS] = {};
+            uint8_t lastState[MAX_NUMBER_OF_ENCODERS]    = {};
 
             const uint8_t stateArray[4] = {
                 0b01,
@@ -84,7 +84,7 @@ namespace Board
 
         void setEncoderState(uint8_t encoderID, Encoders::position_t position)
         {
-            controlValue[encoderID] = 0;
+            controlValue[encoderID]    = 0;
             encoderPosition[encoderID] = position;
         }
 

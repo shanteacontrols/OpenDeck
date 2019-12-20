@@ -8,7 +8,7 @@
 #include "core/src/general/RingBuffer.h"
 
 #define TEST_MIDI_CHANNEL 0
-#define BUFFER_SIZE 50
+#define BUFFER_SIZE       50
 
 namespace
 {

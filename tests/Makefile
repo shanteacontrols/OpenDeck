@@ -10,6 +10,7 @@ C_COMPILER := clang
 CPP_COMPILER := clang++
 LLVM_PROFDATA := llvm-profdata-9
 LLVM_COV := llvm-cov-9
+CLANG_FORMAT := clang-format
 
 TEST_BINARIES := $(addprefix -object ,$(shell find $(BUILD_DIR_BASE) -name "*.out" 2>/dev/null))
 
@@ -65,7 +66,9 @@ coverage:
 	@echo ***Generated HTML coverage report in $(BUILD_DIR_BASE)/coverage.html***
 
 format:
-	@make -C ../src format --no-print-directory
+	@echo Checking code formatting...
+	@find . -regex '.*\.\(cpp\|hpp\|h\|cc\|cxx\)' \
+	-exec $(CLANG_FORMAT) -style=file -i {} \;
 
 clean:
 	@echo Cleaning up.

@@ -10,7 +10,7 @@
 
 namespace
 {
-    uint32_t              messageCounter = 0;
+    uint32_t              messageCounter                     = 0;
     bool                  buttonState[MAX_NUMBER_OF_BUTTONS] = {};
     MIDI::USBMIDIpacket_t midiPacket[MAX_NUMBER_OF_BUTTONS];
 
@@ -73,7 +73,7 @@ namespace
     void stateChangeRegister(bool state)
     {
         uint8_t debouncingState = BUTTON_DEBOUNCE_COMPARE;
-        messageCounter = 0;
+        messageCounter          = 0;
 
         for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
             setButtonState(i, state);

@@ -1,7 +1,7 @@
 #pragma once
 
 #define TEST_START_STRING "***Starting to run tests***"
-#define TEST_START_END "***Test run finished***"
+#define TEST_START_END    "***Test run finished***"
 
 #define TESTS_START()              \
     do                             \
@@ -19,7 +19,7 @@
         printf("\n");           \
     } while (0)
 
-#define TEST_SETUP() void setUp(void)
+#define TEST_SETUP()    void setUp(void)
 #define TEST_TEARDOWN() void tearDown(void)
 
 #define TEST_CASE(testName) \

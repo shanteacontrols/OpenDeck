@@ -226,7 +226,7 @@ TEST_CASE(PitchBendTest)
         uint8_t midiMessage = midiPacket[i].Event << 4;
         TEST_ASSERT(midiMessage == static_cast<uint8_t>(MIDI::messageType_t::pitchBend));
         MIDI::encDec_14bit_t pitchBendValue;
-        pitchBendValue.low = midiPacket[i].Data2;
+        pitchBendValue.low  = midiPacket[i].Data2;
         pitchBendValue.high = midiPacket[i].Data3;
         pitchBendValue.mergeTo14bit();
         TEST_ASSERT(pitchBendValue.value == expectedValue);
@@ -247,7 +247,7 @@ TEST_CASE(PitchBendTest)
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         MIDI::encDec_14bit_t pitchBendValue;
-        pitchBendValue.low = midiPacket[i].Data2;
+        pitchBendValue.low  = midiPacket[i].Data2;
         pitchBendValue.high = midiPacket[i].Data3;
         pitchBendValue.mergeTo14bit();
         TEST_ASSERT(pitchBendValue.value == MIDI_14_BIT_VALUE_MAX);
@@ -284,7 +284,7 @@ TEST_CASE(ScalingAndInversion)
     {
         resetReceived();
         Board::detail::adcReturnValue = i;
-        uint16_t expectedValue = core::misc::mapRange(i, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
+        uint16_t expectedValue        = core::misc::mapRange(i, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
 
         analog.update();
         TEST_ASSERT(messageCounter == MAX_NUMBER_OF_ANALOG);
@@ -310,7 +310,7 @@ TEST_CASE(ScalingAndInversion)
     {
         resetReceived();
         Board::detail::adcReturnValue = i;
-        uint32_t expectedValue = static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX) - core::misc::mapRange(i, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
+        uint32_t expectedValue        = static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX) - core::misc::mapRange(i, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
 
         analog.update();
         TEST_ASSERT(messageCounter == MAX_NUMBER_OF_ANALOG);
@@ -338,7 +338,7 @@ TEST_CASE(ScalingAndInversion)
     {
         resetReceived();
         Board::detail::adcReturnValue = i;
-        auto expectedValue = core::misc::mapRange(i, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_14_BIT_VALUE_MAX));
+        auto expectedValue            = core::misc::mapRange(i, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_14_BIT_VALUE_MAX));
 
         analog.update();
         TEST_ASSERT(messageCounter == MAX_NUMBER_OF_ANALOG);
@@ -346,7 +346,7 @@ TEST_CASE(ScalingAndInversion)
         for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
             MIDI::encDec_14bit_t pitchBendValue;
-            pitchBendValue.low = midiPacket[j].Data2;
+            pitchBendValue.low  = midiPacket[j].Data2;
             pitchBendValue.high = midiPacket[j].Data3;
             pitchBendValue.mergeTo14bit();
             TEST_ASSERT(pitchBendValue.value == expectedValue);
@@ -365,7 +365,7 @@ TEST_CASE(ScalingAndInversion)
     {
         resetReceived();
         Board::detail::adcReturnValue = i;
-        uint16_t expectedValue = MIDI_14_BIT_VALUE_MAX - core::misc::mapRange(i, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_14_BIT_VALUE_MAX));
+        uint16_t expectedValue        = MIDI_14_BIT_VALUE_MAX - core::misc::mapRange(i, static_cast<uint32_t>(ADC_MIN_VALUE), static_cast<uint32_t>(ADC_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_14_BIT_VALUE_MAX));
 
         analog.update();
         TEST_ASSERT(messageCounter == MAX_NUMBER_OF_ANALOG);
@@ -373,7 +373,7 @@ TEST_CASE(ScalingAndInversion)
         for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
             MIDI::encDec_14bit_t pitchBendValue;
-            pitchBendValue.low = midiPacket[j].Data2;
+            pitchBendValue.low  = midiPacket[j].Data2;
             pitchBendValue.high = midiPacket[j].Data3;
             pitchBendValue.mergeTo14bit();
             TEST_ASSERT(pitchBendValue.value == expectedValue);
@@ -397,14 +397,14 @@ TEST_CASE(ScalingAndInversion)
 
     resetReceived();
     Board::detail::adcReturnValue = ADC_MAX_VALUE;
-    auto expectedValue = scaledUpperValue;
+    auto expectedValue            = scaledUpperValue;
     analog.update();
     TEST_ASSERT(messageCounter == MAX_NUMBER_OF_ANALOG);
 
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         MIDI::encDec_14bit_t pitchBendValue;
-        pitchBendValue.low = midiPacket[i].Data2;
+        pitchBendValue.low  = midiPacket[i].Data2;
         pitchBendValue.high = midiPacket[i].Data3;
         pitchBendValue.mergeTo14bit();
         TEST_ASSERT(pitchBendValue.value == expectedValue);
@@ -450,7 +450,7 @@ TEST_CASE(Debouncing)
 
     resetReceived();
     Board::detail::adcReturnValue = 0;
-    expectedValue = 0;
+    expectedValue                 = 0;
     analog.update();
 
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
