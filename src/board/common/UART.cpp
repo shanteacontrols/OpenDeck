@@ -26,8 +26,8 @@ limitations under the License.
 
 //generic UART driver, arch-independent
 
-#define TX_BUFFER_SIZE 50
-#define RX_BUFFER_SIZE 50
+#define TX_BUFFER_SIZE 64
+#define RX_BUFFER_SIZE 64
 
 namespace
 {
