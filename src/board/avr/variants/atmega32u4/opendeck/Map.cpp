@@ -173,14 +173,14 @@ namespace Board
                         .timer    = &TCCR4A,
                         .compareL = &OCR4A,
                         .compareH = nullptr,
-                        .channel  = COM3A1,
+                        .channel  = COM4A1,
                     },
 
                     {
                         .timer    = &TCCR3A,
                         .compareL = &OCR3AL,
                         .compareH = &OCR3AH,
-                        .channel  = COM1C1,
+                        .channel  = COM3A1,
                     },
 
                     {
