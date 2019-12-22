@@ -149,45 +149,45 @@ namespace Board
 
                 const core::io::pwmChannel_t pwmChannels[NUMBER_OF_LED_ROWS] = {
                     {
-                        .timer    = &TCCR1A,
-                        .compareL = &OCR1CL,
-                        .compareH = &OCR1CH,
-                        .channel  = COM1C1,
+                        .controlRegister = &TCCR1A,
+                        .compareValueL   = &OCR1CL,
+                        .compareValueH   = &OCR1CH,
+                        .compareOutMode  = (1 << COM1C1),
                     },
 
                     {
-                        .timer    = &TCCR4C,
-                        .compareL = &OCR4D,
-                        .compareH = nullptr,
-                        .channel  = COM4D1,
+                        .controlRegister = &TCCR4C,
+                        .compareValueL   = &OCR4D,
+                        .compareValueH   = nullptr,
+                        .compareOutMode  = (1 << COM4D1),
                     },
 
                     {
-                        .timer    = &TCCR1A,
-                        .compareL = &OCR1AL,
-                        .compareH = &OCR1AH,
-                        .channel  = COM1A1,
+                        .controlRegister = &TCCR1A,
+                        .compareValueL   = &OCR1AL,
+                        .compareValueH   = &OCR1AH,
+                        .compareOutMode  = (1 << COM1A1),
                     },
 
                     {
-                        .timer    = &TCCR4A,
-                        .compareL = &OCR4A,
-                        .compareH = nullptr,
-                        .channel  = COM4A1,
+                        .controlRegister = &TCCR4A,
+                        .compareValueL   = &OCR4A,
+                        .compareValueH   = nullptr,
+                        .compareOutMode  = (1 << COM4A1),
                     },
 
                     {
-                        .timer    = &TCCR3A,
-                        .compareL = &OCR3AL,
-                        .compareH = &OCR3AH,
-                        .channel  = COM3A1,
+                        .controlRegister = &TCCR3A,
+                        .compareValueL   = &OCR3AL,
+                        .compareValueH   = &OCR3AH,
+                        .compareOutMode  = (1 << COM3A1),
                     },
 
                     {
-                        .timer    = &TCCR1A,
-                        .compareL = &OCR1BL,
-                        .compareH = &OCR1BH,
-                        .channel  = COM1B1,
+                        .controlRegister = &TCCR1A,
+                        .compareValueL   = &OCR1BL,
+                        .compareValueH   = &OCR1BH,
+                        .compareOutMode  = (1 << COM1B1),
                     }
                 };
             }    // namespace
