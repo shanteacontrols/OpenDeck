@@ -33,6 +33,8 @@
                 $scope.boardName = 'STM32F4 Discovery';
             else if ((d[9] == 1) && (d[10] == 78) && (d[11] == 126) && (d[12] == 38))
                 $scope.boardName = 'Jamiel';
+            else if ((d[9] == 1) && (d[10] == 72) && (d[11] == 89) && (d[12] == 112))
+                $scope.boardName = 'Jose';
             else
                 $scope.boardName = 'UNKNOWN BOARD';
 

@@ -11,6 +11,7 @@ fw_16u2
 fw_8u2
 fw_mega6mux
 fw_jamiel
+fw_jose
 boot_opendeck
 boot_leonardo
 boot_promicro
@@ -23,3 +24,4 @@ boot_bergamot
 boot_16u2 VARIANT=VARIANT_MEGA
 boot_16u2 VARIANT=VARIANT_UNO
 boot_jamiel
+boot_jose
