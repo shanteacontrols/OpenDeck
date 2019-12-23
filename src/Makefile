@@ -1,4 +1,4 @@
-BUILD_DIR_BASE := ./build/
+BUILD_DIR_BASE := ./build
 
 TARGETNAME := fw_opendeck
 
