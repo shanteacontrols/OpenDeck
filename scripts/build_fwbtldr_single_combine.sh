@@ -28,8 +28,8 @@ fw_target=${TARGET/boot_/fw_}
 
 make clean
 
-boot_dir=$(make TARGETNAME=$boot_target $VARIANT print-no-varname-BUILD_DIR)
-fw_dir=$(make TARGETNAME=$fw_target $VARIANT print-no-varname-BUILD_DIR)
+boot_dir=$(make TARGETNAME=$boot_target $VARIANT print-BUILD_DIR)
+fw_dir=$(make TARGETNAME=$fw_target $VARIANT print-BUILD_DIR)
 
 #build bootloader
 make TARGETNAME=$boot_target $2
