@@ -3,10 +3,19 @@
 #exit on error
 set -e
 
-#build all possible firmare/bootloader binaries
-targets=targets.txt
+TARGETS=targets.txt
+
+for i in $*; do
+    case "$i" in
+        --release)
+            TARGETS=targets_release.txt
+            ;;
+    esac
+done
+
+make clean
 
 while IFS= read -r line || [[ -n $line ]]
 do
-    make clean && make TARGETNAME=$line
-done < "$targets"
+    make TARGETNAME=$line
+done < "$TARGETS"
