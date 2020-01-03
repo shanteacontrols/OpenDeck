@@ -22,7 +22,7 @@ jobs:
         run: |
           PATH=$(pwd)/avr8-gnu-toolchain-linux_x86_64/bin:$(pwd)/gcc-arm-none-eabi-9-2019-q4-major/bin:${PATH}
           cd src/
-          ../scripts/build_fwbtldr_all.sh
+          ../scripts/build_targets.sh
   test:
     name: Run tests
     runs-on: ubuntu-18.04
