@@ -1,0 +1,8 @@
+fw_opendeck
+fw_leonardo
+fw_mega
+fw_promicro
+fw_uno
+fw_teensy2pp
+fw_bergamot
+fw_16u2
