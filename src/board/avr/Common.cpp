@@ -36,10 +36,6 @@ limitations under the License.
 #include "board/common/constants/Bootloader.h"
 #include "bootloader/mcu/Config.h"
 
-#ifdef FW_BOOT
-#include "board/common/usb/descriptors/hid/Redef.h"
-#endif
-
 extern "C" void __cxa_pure_virtual()
 {
     while (1)
@@ -65,7 +61,7 @@ namespace Board
         detail::setup::io();
 
 #ifdef FW_APP
-#if !defined(OD_BOARD_16U2) && !defined(OD_BOARD_8U2)
+#ifndef USB_LINK_MCU
         detail::setup::adc();
 #else
         UART::init(UART_USB_LINK_CHANNEL, UART_BAUDRATE_MIDI_OD);
@@ -201,7 +197,7 @@ namespace Board
         void erasePage(uint32_t address)
         {
             //don't do anything on USB link MCU
-#if !defined(OD_BOARD_16U2) && !defined(OD_BOARD_8U2)
+#ifndef USB_LINK_MCU
             boot_page_erase(address);
             boot_spm_busy_wait();
 #endif
@@ -209,7 +205,7 @@ namespace Board
 
         void fillPage(uint32_t address, uint16_t data)
         {
-#if !defined(OD_BOARD_16U2) && !defined(OD_BOARD_8U2)
+#ifndef USB_LINK_MCU
             boot_page_fill(address, data);
 #else
             //mark the start of bootloader packets
@@ -218,9 +214,9 @@ namespace Board
                 Board::UART::write(UART_USB_LINK_CHANNEL, COMMAND_START_FLASHING_UART);
 
             //on USB link MCU, forward the received flash via UART to main MCU
-            //send address only when necessary (address first, SPM_PAGESIZE bytes next)
+            //send address only when necessary (address first, BTLDR_FLASH_PAGE_SIZE bytes next)
 
-            if (!(address % SPM_PAGESIZE))
+            if (!(address % BTLDR_FLASH_PAGE_SIZE))
             {
                 uint16_t lowAddress  = address & 0xFFFF;
                 uint16_t highAddress = address >> 16;
@@ -240,7 +236,7 @@ namespace Board
         void writePage(uint32_t address)
         {
             //don't do anything on USB link MCU
-#if !defined(OD_BOARD_16U2) && !defined(OD_BOARD_8U2)
+#ifndef USB_LINK_MCU
             //write the filled FLASH page to memory
             boot_page_write(address);
             boot_spm_busy_wait();
@@ -252,7 +248,7 @@ namespace Board
 
         void applyFw()
         {
-#if defined(OD_BOARD_16U2) || defined(OD_BOARD_8U2)
+#ifdef USB_LINK_MCU
             //make sure USB link sends the "start application" instruction to the main MCU
 
             uint16_t lowAddress  = COMMAND_STARTAPPLICATION & 0xFFFF;
@@ -361,7 +357,7 @@ ISR(TIMER0_COMPA_vect)
         core::timing::detail::rTime_ms++;
 
 #ifdef FW_APP
-#if !defined(OD_BOARD_16U2) && !defined(OD_BOARD_8U2)
+#ifndef USB_LINK_MCU
 #ifdef LEDS_SUPPORTED
         Board::detail::io::checkDigitalOutputs();
 #endif
@@ -373,7 +369,7 @@ ISR(TIMER0_COMPA_vect)
     }
 
 #ifdef FW_APP
-#if !defined(OD_BOARD_16U2) && !defined(OD_BOARD_8U2)
+#ifndef USB_LINK_MCU
     Board::detail::io::checkDigitalInputs();
 #endif
 #endif

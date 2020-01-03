@@ -93,7 +93,7 @@ namespace Board
                 }
                 else
                 {
-#if defined(OD_BOARD_16U2) || defined(OD_BOARD_8U2) || !defined(USB_MIDI_SUPPORTED)
+#if defined(USB_LINK_MCU) || !defined(USB_MIDI_SUPPORTED)
                     Board::UART::init(UART_USB_LINK_CHANNEL, UART_BAUDRATE_MIDI_OD);
 
 #ifndef USB_MIDI_SUPPORTED

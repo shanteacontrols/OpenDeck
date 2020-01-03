@@ -64,7 +64,7 @@ namespace Board
             ///
             void io();
 
-#if !defined(OD_BOARD_16U2) && !defined(OD_BOARD_8U2)
+#ifndef USB_LINK_MCU
             ///
             /// \brief Initializes analog variables and ADC peripheral.
             ///

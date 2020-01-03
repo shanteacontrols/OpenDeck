@@ -18,6 +18,8 @@ limitations under the License.
 
 #pragma once
 
+#include <avr/io.h>
+
 ///
 /// \brief Common defines for all variants based on this MCU.
 /// @{
@@ -26,5 +28,11 @@ limitations under the License.
 /// \brief Total available bytes for data in EEPROM.
 ///
 #define EEPROM_SIZE 1024
+
+///
+/// \brief Size of single flash page in bytes.
+/// Used in bootloader mode when updating firmware.
+///
+#define BTLDR_FLASH_PAGE_SIZE SPM_PAGESIZE
 
 /// @}

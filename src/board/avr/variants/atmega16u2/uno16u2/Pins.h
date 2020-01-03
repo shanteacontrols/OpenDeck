@@ -18,25 +18,16 @@ limitations under the License.
 
 #pragma once
 
-//redefine SPM_PAGESIZE and BOOT_START_ADDR depending on variant
+#include <avr/io.h>
 
-#if defined(OD_BOARD_16U2) || defined(OD_BOARD_8U2)
+#define LED_MIDI_IN_DIN_PORT        PORTD
+#define LED_MIDI_IN_DIN_PIN         5
 
-#ifdef OD_BOARD_16U2
-#if !defined(VARIANT_MEGA) && !defined(VARIANT_UNO)
-#error Variant must be specified for this target. Allowed variants are VARIANT_MEGA and VARIANT_UNO
-#endif
-#endif
+#define LED_MIDI_OUT_DIN_PORT       PORTD
+#define LED_MIDI_OUT_DIN_PIN        4
 
-#ifdef VARIANT_MEGA
-#undef SPM_PAGESIZE
-#define SPM_PAGESIZE 256
-#undef BOOT_START_ADDR
-#define BOOT_START_ADDR 0x3F000
-#elif defined(VARIANT_UNO)
-#undef SPM_PAGESIZE
-#define SPM_PAGESIZE 128
-#undef BOOT_START_ADDR
-#define BOOT_START_ADDR 0x7000
-#endif
-#endif
+#define LED_MIDI_IN_USB_PORT        LED_MIDI_IN_DIN_PORT
+#define LED_MIDI_IN_USB_PIN         LED_MIDI_IN_DIN_PIN
+
+#define LED_MIDI_OUT_USB_PORT       LED_MIDI_OUT_DIN_PORT
+#define LED_MIDI_OUT_USB_PIN        LED_MIDI_OUT_DIN_PIN

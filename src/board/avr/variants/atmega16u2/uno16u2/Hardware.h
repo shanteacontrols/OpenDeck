@@ -65,3 +65,6 @@ limitations under the License.
 /// \brief Used to specify that this is USB link MCU used only as link between PC and main MCU.
 ///
 #define USB_LINK_MCU
+
+#undef BTLDR_FLASH_PAGE_SIZE
+#define BTLDR_FLASH_PAGE_SIZE 256

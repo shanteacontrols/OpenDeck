@@ -4,7 +4,6 @@ TARGETNAME := fw_opendeck
 
 ifneq (,$(wildcard $(BUILD_DIR_BASE)/TARGET))
     TARGETNAME := $(shell cat $(BUILD_DIR_BASE)/TARGET)
-    VARIANT := $(shell cat $(BUILD_DIR_BASE)/VARIANT)
     DEBUG := $(shell cat $(BUILD_DIR_BASE)/DEBUG)
 endif
 
@@ -13,9 +12,9 @@ ifneq ($(findstring $(TARGETNAME), $(shell cat targets.txt)), $(TARGETNAME))
 endif
 
 ifeq ($(DEBUG),1)
-    BUILD_DIR := $(BUILD_DIR_BASE)/$(TARGETNAME)/$(VARIANT)/debug
+    BUILD_DIR := $(BUILD_DIR_BASE)/$(TARGETNAME)/debug
 else
-    BUILD_DIR := $(BUILD_DIR_BASE)/$(TARGETNAME)/$(VARIANT)/release
+    BUILD_DIR := $(BUILD_DIR_BASE)/$(TARGETNAME)/release
 endif
 
 TARGET := $(BUILD_DIR)/$(TARGETNAME)
@@ -137,7 +136,6 @@ endif
 
 $(TARGET).elf: $(OBJECTS)
 	@echo $(TARGETNAME) > $(BUILD_DIR_BASE)/TARGET
-	@echo $(VARIANT) > $(BUILD_DIR_BASE)/VARIANT
 	@echo $(DEBUG) > $(BUILD_DIR_BASE)/DEBUG
 	@echo Creating executable: $@
 	@$(CPP_COMPILER) -o$(TARGET).elf $(OBJECTS) $(LDFLAGS)
@@ -160,7 +158,7 @@ endif
 $(BUILD_DIR)/%.c.o: %.c
 	@mkdir -p $(@D)
 	@echo Building: $<
-	@$(C_COMPILER) $(COMMON_FLAGS) $(C_FLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	@$(C_COMPILER) $(COMMON_FLAGS) $(C_FLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
 $(BUILD_DIR)/%.cpp.o: %.cpp
 	@mkdir -p $(@D)

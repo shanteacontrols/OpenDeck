@@ -20,7 +20,6 @@ limitations under the License.
 #include "core/src/general/Helpers.h"
 #include "board/Board.h"
 #include "updater/Updater.h"
-#include "board/common/usb/descriptors/hid/Redef.h"
 
 class BTLDRWriter : public IBTLDRWriter
 {
@@ -49,7 +48,7 @@ class BTLDRWriter : public IBTLDRWriter
 namespace
 {
     BTLDRWriter         btldrWriter;
-    Bootloader::Updater updater(btldrWriter, false, SPM_PAGESIZE, COMMAND_STARTAPPLICATION);
+    Bootloader::Updater updater(btldrWriter, false, BTLDR_FLASH_PAGE_SIZE, COMMAND_STARTAPPLICATION);
 }    // namespace
 
 namespace Board

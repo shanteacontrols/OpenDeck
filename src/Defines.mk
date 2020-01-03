@@ -150,14 +150,3 @@ ifeq ($(findstring boot,$(TARGETNAME)), boot)
 else
     DEFINES += FW_APP
 endif
-
-#append VARIANT to DEFINES only if specified during build
-#make sure it's specifed in the following format:
-#VARIANT_%
-ifneq ($(VARIANT),)
-    ifeq ($(findstring VARIANT_,$(VARIANT)), VARIANT_)
-        DEFINES += $(VARIANT)
-    else
-        $(error Wront VARIANT format. Please specify variant in the following manner: "VARIANT=VARIANT_string")
-    endif
-endif
