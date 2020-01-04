@@ -1,5 +1,13 @@
 #!/bin/bash
 
+run_dir="src"
+
+if [[ $(basename "`pwd`") != $run_dir ]]
+then
+    echo This script must be run from $run_dir directory!
+    exit 1
+fi
+
 function usage
 {
     echo -e "Used to create hex file containing both the bootloader and application\n"

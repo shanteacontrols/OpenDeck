@@ -1,5 +1,13 @@
 #!/bin/bash
 
+run_dir="tests"
+
+if [[ $(basename "`pwd`") != $run_dir ]]
+then
+    echo This script must be run from $run_dir directory!
+    exit 1
+fi
+
 if [ "$(uname)" == "Darwin" ]; then
     find=gfind
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
