@@ -1,6 +1,12 @@
 #!/bin/bash
 
-tests=$(find ./src -maxdepth 1 -name "test_*" -type d | cut -d/ -f3)
+if [ "$(uname)" == "Darwin" ]; then
+    find=gfind
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    find=find
+fi
+
+tests=$($find ./src -maxdepth 1 -name "test_*" -type d | cut -d/ -f3)
 
 echo TESTS := $tests > Objects.mk
 printf '%s\n' '.DEFAULT_GOAL := all' >> Objects.mk
@@ -13,7 +19,7 @@ for test in $tests
 do
     printf '%s\n' '-include src/'${test}'/Sources.mk' >> Objects.mk
     printf '%s\n' 'SOURCES_'${test}' += gen/main/main_'${test}'.cpp' >> Objects.mk
-    printf '%s\n' 'SOURCES_'${test}' += $(shell find ./src/'${test}'/ -type f -name "*.cpp")' >> Objects.mk
+    printf '%s\n' 'SOURCES_'${test}' += $(shell find ./src/'${test}' -type f -name "*.cpp")' >> Objects.mk
     printf '%s\n' 'OBJECTS_'${test}' := $(addprefix $(BUILD_DIR)/,$(SOURCES_'${test}'))' >> Objects.mk
     printf '%s\n' 'OBJECTS_'${test}' := $(addsuffix .o,$(OBJECTS_'${test}'))' >> Objects.mk
     printf '%s\n\n' '-include $(OBJECTS_'${test}':%.o=%.d)' >> Objects.mk

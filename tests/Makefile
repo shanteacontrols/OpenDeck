@@ -2,6 +2,14 @@ TARGETNAME := fw_opendeck
 BUILD_DIR_BASE := ./build
 BUILD_DIR := $(BUILD_DIR_BASE)/$(TARGETNAME)
 
+ifeq ($(shell uname), Linux)
+    FIND := find
+else ifeq ($(shell uname), Darwin)
+    FIND := gfind
+else
+    $(error Unsupported platform)
+endif
+
 include Defines.mk
 include Sources.mk
 -include Objects.mk
@@ -12,7 +20,7 @@ LLVM_PROFDATA := llvm-profdata-9
 LLVM_COV := llvm-cov-9
 CLANG_FORMAT := clang-format
 
-TEST_BINARIES := $(addprefix -object ,$(shell find $(BUILD_DIR_BASE) -name "*.out" 2>/dev/null))
+TEST_BINARIES := $(addprefix -object ,$(shell $(FIND) $(BUILD_DIR_BASE) -name "*.out" 2>/dev/null))
 
 #passed to both c and c++ compiler
 COMMON_FLAGS := \
@@ -56,7 +64,7 @@ exec:
 	@echo Running all compiled tests.
 	@rm -rf $(wildcard $(BUILD_DIR_BASE)/*.profraw)
 	@export LLVM_PROFILE_FILE="$(BUILD_DIR_BASE)/test-%p.profraw" && \
-	find $(BUILD_DIR_BASE)/ -type f -name "*.out" -printf 'Running %p\n' -exec {} \;
+	$(FIND) $(BUILD_DIR_BASE) -type f -name "*.out" -printf 'Running %p\n' -exec {} \;
 
 coverage:
 	@echo Creating coverage report.
@@ -67,7 +75,7 @@ coverage:
 
 format:
 	@echo Checking code formatting...
-	@find . -regex '.*\.\(cpp\|hpp\|h\|cc\|cxx\)' \
+	@$(FIND) . -regex '.*\.\(cpp\|hpp\|h\|cc\|cxx\)' \
 	-exec $(CLANG_FORMAT) -style=file -i {} \;
 
 clean:

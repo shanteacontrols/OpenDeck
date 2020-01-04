@@ -50,22 +50,22 @@ ifeq ($(ARCH), avr)
         endif
     endif
 else ifeq ($(ARCH),stm32)
-    SOURCES += $(shell find ./board/stm32/gen/$(MCU)/Drivers/STM32*_HAL_Driver/Src -name "*.c")
-    SOURCES += $(shell find ./board/stm32/gen/$(MCU)/Middlewares/ST/STM32_USB_Device_Library/Core/Src -name "*.c")
-    SOURCES += $(shell find ./board/stm32/gen/$(MCU)/Src -name "system_*.c")
-    SOURCES += $(shell find ./board/stm32/gen/$(MCU)/Src -name "*_hal_msp.c")
-    SOURCES += $(shell find ./board/stm32/gen/$(MCU) -name "startup_*.s")
-    SOURCES += $(shell find ./board/stm32/eeprom -name "*.cpp")
+    SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU)/Drivers/STM32*_HAL_Driver/Src -name "*.c")
+    SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU)/Middlewares/ST/STM32_USB_Device_Library/Core/Src -name "*.c")
+    SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU)/Src -name "system_*.c")
+    SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU)/Src -name "*_hal_msp.c")
+    SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU) -name "startup_*.s")
+    SOURCES += $(shell $(FIND) ./board/stm32/eeprom -name "*.cpp")
     SOURCES += ./board/stm32/gen/$(MCU)/Src/usbd_conf.c
 
-    INCLUDE_DIRS += $(addprefix -I,$(shell find ./board/stm32/gen/$(MCU)/Drivers -type d -not -path "*Src*"))
-    INCLUDE_DIRS += $(addprefix -I,$(shell find ./board/stm32/gen/$(MCU)/Inc -type d -not -path "*Src*"))
+    INCLUDE_DIRS += $(addprefix -I,$(shell $(FIND) ./board/stm32/gen/$(MCU)/Drivers -type d -not -path "*Src*"))
+    INCLUDE_DIRS += $(addprefix -I,$(shell $(FIND) ./board/stm32/gen/$(MCU)/Inc -type d -not -path "*Src*"))
     INCLUDE_DIRS += -I"./board/stm32/gen/$(MCU)/Middlewares/ST/STM32_USB_Device_Library/Core/Inc"
 endif
 
 #common for both bootloader and application
-SOURCES += $(shell find ./board/common -maxdepth 1 -type f -name "*.cpp")
-SOURCES += $(shell find ./board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR) -type f -name "*.cpp")
+SOURCES += $(shell $(FIND) ./board/common -maxdepth 1 -type f -name "*.cpp")
+SOURCES += $(shell $(FIND) ./board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR) -type f -name "*.cpp")
 
 ifeq ($(findstring boot,$(TARGETNAME)), boot)
     #bootloader sources
@@ -78,9 +78,9 @@ ifeq ($(findstring boot,$(TARGETNAME)), boot)
     SOURCES += $(shell find ./bootloader/mcu -type f -name "*.cpp")
 
     ifneq ($(shell cat board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
-        SOURCES += $(shell find ./board/common/usb/descriptors/hid -type f -name "*.cpp")
-        SOURCES += $(shell find ./board/common/usb/descriptors/hid -type f -name "*.c")
-        SOURCES += $(shell find ./board/$(ARCH)/usb/hid -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/hid -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/hid -type f -name "*.c")
+        SOURCES += $(shell $(FIND) ./board/$(ARCH)/usb/hid -type f -name "*.cpp")
 
         ifneq ($(filter %16u2 %8u2, $(TARGETNAME)), )
             #for USB link MCUs, compile UART as well - needed to communicate with main MCU
@@ -91,18 +91,18 @@ ifeq ($(findstring boot,$(TARGETNAME)), boot)
         SOURCES += \
         board/$(ARCH)/UART_LL.cpp
 
-        SOURCES += $(shell find ./common/OpenDeckMIDIformat -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./common/OpenDeckMIDIformat -type f -name "*.cpp")
     endif
 else
     #application sources
     #common for all targets
-    SOURCES += $(shell find ./board/$(ARCH) -maxdepth 1 -type f -name "*.cpp")
-    SOURCES += $(shell find ./common/OpenDeckMIDIformat -type f -name "*.cpp")
+    SOURCES += $(shell $(FIND) ./board/$(ARCH) -maxdepth 1 -type f -name "*.cpp")
+    SOURCES += $(shell $(FIND) ./common/OpenDeckMIDIformat -type f -name "*.cpp")
 
     ifneq ($(shell cat board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
-        SOURCES += $(shell find ./board/$(ARCH)/usb/midi -type f -name "*.cpp")
-        SOURCES += $(shell find ./board/common/usb/descriptors/midi -type f -name "*.cpp")
-        SOURCES += $(shell find ./board/common/usb/descriptors/midi -type f -name "*.c")
+        SOURCES += $(shell $(FIND) ./board/$(ARCH)/usb/midi -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/midi -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/midi -type f -name "*.c")
     endif
 
     ifneq ($(filter %16u2 %8u2, $(TARGETNAME)), )
@@ -111,16 +111,16 @@ else
         board/common/io/Indicators.cpp \
         usb-link/USBlink.cpp
     else
-        SOURCES += $(shell find ./board/common/io -type f -name "*.cpp" ! -name "*Bootloader*")
-        SOURCES += $(shell find ./application -maxdepth 1 -type f -name "*.cpp")
-        SOURCES += $(shell find ./application/database -type f -name "*.cpp")
-        SOURCES += $(shell find ./application/OpenDeck -type f -name "*.cpp")
-        SOURCES += $(shell find ./application/interface/analog -type f -name "*.cpp")
-        SOURCES += $(shell find ./application/interface/digital/input -type f -name "*.cpp")
-        SOURCES += $(shell find ./application/interface/digital/output/leds -maxdepth 1 -type f -name "*.cpp")
-        SOURCES += $(shell find ../modules/sysex/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
-        SOURCES += $(shell find ../modules/midi/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
-        SOURCES += $(shell find ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
+        SOURCES += $(shell $(FIND) ./board/common/io -type f -name "*.cpp" ! -name "*Bootloader*")
+        SOURCES += $(shell $(FIND) ./application -maxdepth 1 -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./application/database -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./application/OpenDeck -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./application/interface/analog -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./application/interface/digital/input -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./application/interface/digital/output/leds -maxdepth 1 -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ../modules/sysex/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
+        SOURCES += $(shell $(FIND) ../modules/midi/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
+        SOURCES += $(shell $(FIND) ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
 
         #if a file named $(BOARD_DIR).cpp exists in ./application/interface/digital/output/leds/startup directory
         #add it to the sources
@@ -129,9 +129,9 @@ else
         endif
 
         ifneq ($(shell cat board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h | grep DISPLAY_SUPPORTED), )
-            SOURCES += $(shell find ./application/interface/display -maxdepth 1 -type f -name "*.cpp")
-            SOURCES += $(shell find ./application/interface/display/U8X8 -maxdepth 1 -type f -name "*.cpp")
-            SOURCES += $(shell find ./application/interface/display/strings -maxdepth 1 -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./application/interface/display -maxdepth 1 -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./application/interface/display/U8X8 -maxdepth 1 -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./application/interface/display/strings -maxdepth 1 -type f -name "*.cpp")
 
             #u8x8 sources
             SOURCES += \
@@ -150,7 +150,7 @@ else
         endif
 
         ifneq ($(shell cat board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h | grep TOUCHSCREEN_SUPPORTED), )
-            SOURCES += $(shell find ./application/interface/display/touch -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./application/interface/display/touch -type f -name "*.cpp")
         endif
     endif
 endif

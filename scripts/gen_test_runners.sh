@@ -2,8 +2,10 @@
 
 if [ "$(uname)" == "Darwin" ]; then
     grep=ggrep
+    find=gfind
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     grep=grep
+    find=find
 fi
 
 mkdir -p gen/runners
@@ -18,7 +20,7 @@ for test in $tests
 do
     printf '%s\n\n' '#pragma once' > gen/runners/runner_${test}.h
 
-    find ./src/${test} -type f -regex '.*\.\(cpp\|c\)' -exec ctags -x --c-kinds=f {} ';' > gen/runners/table
+    $find ./src/${test} -type f -regex '.*\.\(cpp\|c\)' -exec ctags -x --c-kinds=f {} ';' > gen/runners/table
 
     #some test functions, depending on the target, aren't actually compiled
     #ie. this parsing will find test functions for ODMIDIformat tests but some

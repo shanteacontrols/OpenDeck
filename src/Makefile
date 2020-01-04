@@ -20,6 +20,14 @@ endif
 TARGET := $(BUILD_DIR)/$(TARGETNAME)
 .DEFAULT_GOAL := $(TARGET).elf
 
+ifeq ($(shell uname), Linux)
+    FIND := find
+else ifeq ($(shell uname), Darwin)
+    FIND := gfind
+else
+    $(error Unsupported platform)
+endif
+
 #includes
 #important - do not change the order of inclusion!
 include Defines.mk
@@ -192,7 +200,7 @@ flashboot:
 
 format:
 	@echo Checking code formatting...
-	@find . -regex '.*\.\(cpp\|hpp\|h\|cc\|cxx\)' \
+	@$(FIND) . -regex '.*\.\(cpp\|hpp\|h\|cc\|cxx\)' \
 	-not -path "*gen*" \
 	-not -name "*Pins.h" \
 	-not -name "*Hardware.h" \
