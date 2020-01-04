@@ -19,10 +19,10 @@ else ifeq ($(findstring fw,$(TARGETNAME)), fw)
 endif
 
 #determine the architecture by directory in which the board dir is located
-ARCH := $(shell find board/ -type d ! -path *build -name *$(BOARD_DIR) | cut -d/ -f2 | head -n 1)
+ARCH := $(shell find board -type d ! -path *build -name *$(BOARD_DIR) | cut -d/ -f2 | head -n 1)
 
 #determine MCU by directory in which the board dir is located
-MCU := $(shell find board/ -type d -name *$(BOARD_DIR) | cut -d/ -f4 | head -n 1)
+MCU := $(shell find board -type d -name *$(BOARD_DIR) | cut -d/ -f4 | head -n 1)
 
 ifeq ($(TARGETNAME),uploadboot)
     ifeq ($(filter fw_opendeck fw_leonardo fw_promicro fw_dubfocus fw_teensy2pp fw_bergamot fw_mega fw_uno, $(shell cat $(BUILD_BASE)/TARGET)), )

@@ -6,10 +6,10 @@ DEFINES :=
 BOARD_DIR := $(subst fw_,,$(TARGETNAME))
 
 #determine the architecture by directory in which the board dir is located
-ARCH := $(shell find ../src/board/ -type d ! -path *build -name *$(BOARD_DIR) | cut -d/ -f4 | head -n 1)
+ARCH := $(shell find ../src/board -type d ! -path *build -name *$(BOARD_DIR) | cut -d/ -f4 | head -n 1)
 
 #determine MCU by directory in which the board dir is located
-MCU := $(shell find ../src/board/ -type d -name *$(BOARD_DIR) | cut -d/ -f6 | head -n 1)
+MCU := $(shell find ../src/board -type d -name *$(BOARD_DIR) | cut -d/ -f6 | head -n 1)
 
 #mcu specific
 ifeq ($(MCU),atmega32u4)
