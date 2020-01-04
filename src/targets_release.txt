@@ -1,11 +1,11 @@
 fw_opendeck
 fw_leonardo
-fw_mega
+fw_mega2560
 fw_promicro
 fw_uno
 fw_teensy2pp
 fw_bergamot
-fw_jose
+fw_mega2560_jose
 fw_8u2
 fw_mega16u2
 fw_uno16u2

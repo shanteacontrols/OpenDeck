@@ -17,7 +17,7 @@
                 $scope.boardName = 'OpenDeck';
             else if ((d[9] == 1) && (d[10] == 52) && (d[11] == 50) && (d[12] == 124))
                 $scope.boardName = 'Arduino Leonardo';
-            else if ((d[9] == 1) && (d[10] == 117) && (d[11] == 127) && (d[12] == 95))
+            else if ((d[9] == 1) && (d[10] == 52) && (d[11] == 110) && (d[12] == 58))
                 $scope.boardName = 'Arduino Mega';
             else if ((d[9] == 1) && (d[10] == 46) && (d[11] == 56) && (d[12] == 29))
                 $scope.boardName = 'Arduino Pro Micro';
@@ -33,7 +33,7 @@
                 $scope.boardName = 'STM32F4 Discovery';
             else if ((d[9] == 1) && (d[10] == 78) && (d[11] == 126) && (d[12] == 38))
                 $scope.boardName = 'Jamiel';
-            else if ((d[9] == 1) && (d[10] == 72) && (d[11] == 89) && (d[12] == 112))
+            else if ((d[9] == 1) && (d[10] == 69) && (d[11] == 56) && (d[12] == 9))
                 $scope.boardName = 'Jose';
             else
                 $scope.boardName = 'UNKNOWN BOARD';

@@ -1,7 +1,7 @@
 fw_opendeck
 fw_discovery
 fw_leonardo
-fw_mega
+fw_mega2560
 fw_promicro
 fw_uno
 fw_teensy2pp
@@ -10,14 +10,14 @@ fw_bergamot
 fw_mega16u2
 fw_uno16u2
 fw_8u2
-fw_mega6mux
+fw_mega2560_6mux
 fw_jamiel
-fw_jose
+fw_mega2560_jose
 boot_opendeck
 boot_leonardo
 boot_promicro
-boot_mega
-boot_mega6mux
+boot_mega2560
+boot_mega2560_6mux
 boot_uno
 boot_teensy2pp
 boot_dubfocus
@@ -25,4 +25,4 @@ boot_bergamot
 boot_mega16u2
 boot_uno16u2
 boot_jamiel
-boot_jose
+boot_mega2560_jose
