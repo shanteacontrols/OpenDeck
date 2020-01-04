@@ -1,10 +1,10 @@
-fw_opendeck
+fw_bergamot
+fw_dubfocus
+fw_jamiel
 fw_leonardo
 fw_mega2560
-fw_promicro
-fw_uno
-fw_teensy2pp
-fw_dubfocus
-fw_bergamot
 fw_mega2560_6mux
-fw_jamiel
+fw_opendeck
+fw_promicro
+fw_teensy2pp
+fw_uno
