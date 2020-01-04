@@ -5,4 +5,7 @@ fw_promicro
 fw_uno
 fw_teensy2pp
 fw_bergamot
-fw_16u2
+fw_jose
+fw_8u2
+fw_mega16u2
+fw_uno16u2
