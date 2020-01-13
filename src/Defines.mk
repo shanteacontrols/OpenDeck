@@ -131,7 +131,9 @@ else ifeq ($(ARCH),stm32)
     __STM32__ \
     USE_HAL_DRIVER \
     FIXED_CONTROL_ENDPOINT_SIZE=64 \
-    UID_BITS=96
+    UID_BITS=96 \
+    DEVICE_FS=0 \
+    DEVICE_HS=1
 endif
 
 DEFINES += OD_BOARD_$(shell echo $(BOARD_DIR) | tr 'a-z' 'A-Z')

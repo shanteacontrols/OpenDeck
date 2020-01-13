@@ -14,6 +14,7 @@ Documentation/*
 **/gen/**/usb_device.c
 **/gen/**/usbd_desc.h
 **/gen/**/usbd_desc.c
+**/gen/**/usbd_conf.h
 **/gen/**/cmsis_armcc.h
 **/gen/**/cmsis_iccarm.h
 **/gen/**/core_armv8mbl.h

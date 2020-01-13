@@ -61,6 +61,7 @@ else ifeq ($(ARCH),stm32)
     INCLUDE_DIRS += $(addprefix -I,$(shell $(FIND) ./board/stm32/gen/$(MCU)/Drivers -type d -not -path "*Src*"))
     INCLUDE_DIRS += $(addprefix -I,$(shell $(FIND) ./board/stm32/gen/$(MCU)/Inc -type d -not -path "*Src*"))
     INCLUDE_DIRS += -I"./board/stm32/gen/$(MCU)/Middlewares/ST/STM32_USB_Device_Library/Core/Inc"
+    INCLUDE_DIRS += -I"./board/stm32/variants/$(MCU)"
 endif
 
 #common for both bootloader and application
