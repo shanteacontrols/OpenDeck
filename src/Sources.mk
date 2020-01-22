@@ -83,14 +83,16 @@ ifeq ($(findstring boot,$(TARGETNAME)), boot)
         SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/hid -type f -name "*.c")
         SOURCES += $(shell $(FIND) ./board/$(ARCH)/usb/hid -type f -name "*.cpp")
 
-        ifneq ($(filter %16u2 %8u2, $(TARGETNAME)), )
+        ifneq ($(shell cat board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h | grep USB_LINK_MCU), )
             #for USB link MCUs, compile UART as well - needed to communicate with main MCU
             SOURCES += \
-            board/$(ARCH)/UART_LL.cpp
+            board/$(ARCH)/uart/UART.cpp \
+            board/common/uart/UART.cpp
         endif
     else
         SOURCES += \
-        board/$(ARCH)/UART_LL.cpp
+        board/$(ARCH)/uart/UART.cpp \
+        board/common/uart/UART.cpp
 
         SOURCES += $(shell $(FIND) ./common/OpenDeckMIDIformat -type f -name "*.cpp")
     endif
@@ -104,6 +106,12 @@ else
         SOURCES += $(shell $(FIND) ./board/$(ARCH)/usb/midi -type f -name "*.cpp")
         SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/midi -type f -name "*.cpp")
         SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/midi -type f -name "*.c")
+    endif
+
+    ifneq ($(shell cat board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h | grep UART_INTERFACES), )
+        SOURCES += \
+        board/$(ARCH)/uart/UART.cpp \
+        board/common/uart/UART.cpp
     endif
 
     ifneq ($(filter %16u2 %8u2, $(TARGETNAME)), )
