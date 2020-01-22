@@ -30,18 +30,10 @@ namespace Board
             void indicate()
             {
 #if defined(LED_INDICATORS)
-                CORE_IO_CONFIG(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN, core::io::pinMode_t::output);
-                CORE_IO_CONFIG(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN, core::io::pinMode_t::output);
                 INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
                 INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-#endif
-
-#if defined(NUMBER_OF_OUT_SR) && !defined(NUMBER_OF_LED_COLUMNS)
+#elif defined(NUMBER_OF_OUT_SR) && !defined(NUMBER_OF_LED_COLUMNS)
                 //turn on all available LEDs
-                CORE_IO_CONFIG(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN, core::io::pinMode_t::output);
-                CORE_IO_CONFIG(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN, core::io::pinMode_t::output);
-                CORE_IO_CONFIG(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN, core::io::pinMode_t::output);
-
                 CORE_IO_SET_LOW(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 
                 for (int i = 0; i < NUMBER_OF_OUT_SR; i++)
@@ -57,16 +49,8 @@ namespace Board
                 }
 
                 CORE_IO_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
-//make sure internal led is turned off for mega/uno
-#elif defined(OD_BOARD_MEGA)
-                CORE_IO_CONFIG(PORTB, 7, core::io::pinMode_t::output);
-                CORE_IO_SET_LOW(PORTB, 7);
-#elif defined(OD_BOARD_UNO)
-                CORE_IO_CONFIG(PORTB, 5, core::io::pinMode_t::output);
-                CORE_IO_SET_LOW(PORTB, 5);
 #elif defined(OD_BOARD_TEENSY2PP)
                 //only one led
-                CORE_IO_CONFIG(LED_IN_PORT, LED_IN_PIN, core::io::pinMode_t::output);
                 INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
 #endif
             }
