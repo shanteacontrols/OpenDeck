@@ -67,20 +67,23 @@ namespace core
 
 //UART3 on this board maps to UART channel 0 in application
 
+#ifdef FW_APP
+//not needed in bootloader
 extern "C" void USART3_IRQHandler(void)
 {
     Board::detail::isrHandling::uart(0);
 }
 
+extern "C" void ADC_IRQHandler(void)
+{
+    Board::detail::isrHandling::adc(hadc1.Instance->DR);
+}
+#endif
+
 extern "C" void TIM7_IRQHandler(void)
 {
     __HAL_TIM_CLEAR_IT(&htim7, TIM_IT_UPDATE);
     Board::detail::isrHandling::mainTimer();
-}
-
-extern "C" void ADC_IRQHandler(void)
-{
-    Board::detail::isrHandling::adc(hadc1.Instance->DR);
 }
 
 namespace Board

@@ -117,15 +117,19 @@ namespace Board
                 {
                     core::timing::detail::rTime_ms++;
 
+#ifdef FW_APP
 #ifdef LEDS_SUPPORTED
                     Board::detail::io::checkDigitalOutputs();
 #endif
+#endif
+
 #ifdef LED_INDICATORS
                     Board::detail::io::checkIndicators();
 #endif
                 }
-
+#ifdef FW_APP
                 Board::detail::io::checkDigitalInputs();
+#endif
             }
         }    // namespace isrHandling
 
@@ -155,9 +159,11 @@ namespace Board
 
         detail::setup::clocks();
         detail::setup::io();
-        detail::setup::adc();
 
+#ifdef FW_APP
+        detail::setup::adc();
         emuEEPROM.init();
+#endif
 
         detail::setup::timers();
 
