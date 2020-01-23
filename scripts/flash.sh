@@ -18,6 +18,8 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     port_list=$(ls -l /dev/serial/by-id | egrep -o '\btty\w+')
 fi
 
+make="make --no-print-directory -C src"
+
 echo "Please select serial port on which ArduinoISP is connected:"
 echo $port_list | cat -n
 read port
@@ -34,7 +36,7 @@ filename=$(echo "$boards" | head -n $board_nr | tail -n 1)
 make_target=fw_$(echo $filename | cut -d . -f1)
 path=$($find bin/compiled/fw_boot -type f -name $filename)
 
-unlock_fuse=$(make -C src TARGETNAME=$make_target print-FUSE_UNLOCK)
+unlock_fuse=$($make TARGETNAME=$make_target print-FUSE_UNLOCK)
 
 #specified target might not exist - verify
 if [[ ($? -ne 0) ]]
@@ -42,12 +44,12 @@ then
     exit 1
 fi
 
-lock_fuse=$(make -C src TARGETNAME=$make_target print-FUSE_LOCK)
-low_fuse=$(make -C src TARGETNAME=$make_target print-FUSE_LOW)
-high_fuse=$(make -C src TARGETNAME=$make_target print-FUSE_HIGH)
-ext_fuse=$(make -C src TARGETNAME=$make_target print-FUSE_EXT)
+lock_fuse=$($make TARGETNAME=$make_target print-FUSE_LOCK)
+low_fuse=$($make TARGETNAME=$make_target print-FUSE_LOW)
+high_fuse=$($make TARGETNAME=$make_target print-FUSE_HIGH)
+ext_fuse=$($make TARGETNAME=$make_target print-FUSE_EXT)
 
-mcu=$(make -C src TARGETNAME=$make_target print-MCU)
+mcu=$($make TARGETNAME=$make_target print-MCU)
 
 echo "Connect programmer to programming header on the board and then press enter."
 read -n1 KEY
