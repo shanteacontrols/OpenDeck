@@ -52,4 +52,9 @@ limitations under the License.
 ///
 #define EEPROM_VOLTAGE_RANGE        (uint8_t)FLASH_VOLTAGE_RANGE_3
 
+///
+/// \brief Size of single firmware packet in bootloader mode.
+///
+#define BTLDR_FLASH_PAGE_SIZE 1024
+
 /// @}

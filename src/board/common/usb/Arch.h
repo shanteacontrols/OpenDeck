@@ -24,8 +24,12 @@ limitations under the License.
 
 #define UNICODE_STRING(string) L##string
 #else
+#ifdef FW_APP
 #include "descriptors/types/AudioDescriptors.h"
 #include "descriptors/types/MIDIDescriptors.h"
+#else
+#include "descriptors/types/HIDDescriptors.h"
+#endif
 
 #define UNICODE_STRING(string) u##string
 #endif

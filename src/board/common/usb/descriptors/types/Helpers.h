@@ -107,3 +107,21 @@ limitations under the License.
  *  \note See \ref Group_EndpointManagement and \ref Group_PipeManagement for endpoint/pipe functions.
  */
 #define EP_TYPE_INTERRUPT 0x03
+
+/** Concatenates the given input into a single token, via the C Preprocessor.
+ *
+ *  \param[in] x  First item to concatenate.
+ *  \param[in] y  Second item to concatenate.
+ *
+ *  \return Concatenated version of the input.
+ */
+#define CONCAT(x, y) x##y
+
+/** Concatenates the given input into a single token after macro expansion, via the C Preprocessor.
+ *
+ *  \param[in] x  First item to concatenate.
+ *  \param[in] y  Second item to concatenate.
+ *
+ *  \return Concatenated version of the expanded input.
+ */
+#define CONCAT_EXPANDED(x, y) CONCAT(x, y)
