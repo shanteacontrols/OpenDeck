@@ -160,6 +160,8 @@ ifeq ($(ARCH), avr)
 	@#display memory usage
 	@avr-size -C --mcu=$(MCU) "$(TARGET).elf"
 else
+	@#convert elf to hex
+	@arm-none-eabi-objcopy -O ihex $(TARGET).elf $(TARGET).hex
 	@arm-none-eabi-size "$(TARGET).elf"
 endif
 
