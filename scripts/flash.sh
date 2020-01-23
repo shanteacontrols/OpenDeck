@@ -15,7 +15,7 @@ if [ "$(uname)" == "Darwin" ]; then
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     grep=grep
     find=find
-    port_list=$(ls /dev/tty.* | sort | cut -d / -f3)
+    port_list=$(ls -l /dev/serial/by-id | egrep -o '\btty\w+')
 fi
 
 echo "Please select serial port on which ArduinoISP is connected:"
