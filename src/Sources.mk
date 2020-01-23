@@ -40,7 +40,6 @@ ifeq ($(ARCH), avr)
         ifeq ($(findstring boot,$(TARGETNAME)), boot)
             #bootloader
             SOURCES += \
-            modules/lufa/LUFA/Drivers/USB/Class/Common/HIDParser.c \
             modules/lufa/LUFA/Drivers/USB/Class/Device/HIDClassDevice.c
         else
             #application
