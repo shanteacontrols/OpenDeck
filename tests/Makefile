@@ -1,6 +1,9 @@
+.DEFAULT_GOAL := test
+
 TARGETNAME := fw_opendeck
 BUILD_DIR_BASE := ./build
 BUILD_DIR := $(BUILD_DIR_BASE)/$(TARGETNAME)
+SCRIPTS_DIR := ../scripts
 
 ifeq ($(shell uname), Linux)
     FIND := find
@@ -14,13 +17,18 @@ include Defines.mk
 include Sources.mk
 -include Objects.mk
 
-C_COMPILER := clang
-CPP_COMPILER := clang++
+C_COMPILER := clang-9
+CPP_COMPILER := clang++-9
 LLVM_PROFDATA := llvm-profdata-9
 LLVM_COV := llvm-cov-9
-CLANG_FORMAT := clang-format
+CLANG_FORMAT := clang-format-9
 
 TEST_BINARIES := $(addprefix -object ,$(shell $(FIND) $(BUILD_DIR_BASE) -name "*.out" 2>/dev/null))
+
+#do not allow overriding this variable via command-line
+override undefine TESTS_EXPANDED
+
+FW_ROOT_DIR := ../src
 
 #passed to both c and c++ compiler
 COMMON_FLAGS := \
@@ -44,12 +52,12 @@ LDFLAGS :=
 $(BUILD_DIR)/%.c.o $(BUILD_DIR_BASE)/%.c.o: %.c
 	@mkdir -p $(@D)
 	@echo Building: $<
-	@$(C_COMPILER) $(COMMON_FLAGS) $(C_FLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS) $(INCLUDE_FILES) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	@$(C_COMPILER) $(COMMON_FLAGS) $(C_FLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS_COMMON) $(INCLUDE_FILES_COMMON) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
 $(BUILD_DIR)/%.cpp.o $(BUILD_DIR_BASE)/%.cpp.o: %.cpp
 	@mkdir -p $(@D)
 	@echo Building: $<
-	@$(CPP_COMPILER) $(COMMON_FLAGS) $(CPP_FLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS) $(INCLUDE_FILES) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	@$(CPP_COMPILER) $(COMMON_FLAGS) $(CPP_FLAGS) $(addprefix -D,$(DEFINES)) $(INCLUDE_DIRS_COMMON) $(INCLUDE_FILES_COMMON) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
 define LINK_OBJECTS
 	@echo Creating executable: $@
@@ -57,8 +65,8 @@ define LINK_OBJECTS
 endef
 
 pre-build:
-	@chmod +x ../scripts/gen_test_targets.sh && ../scripts/gen_test_targets.sh
-	@chmod +x ../scripts/gen_test_runners.sh && ../scripts/gen_test_runners.sh
+	@chmod +x $(SCRIPTS_DIR)/gen_test_targets.sh && $(SCRIPTS_DIR)/gen_test_targets.sh
+	@chmod +x $(SCRIPTS_DIR)/gen_test_runners.sh && $(SCRIPTS_DIR)/gen_test_runners.sh
 
 exec:
 	@echo Running all compiled tests.

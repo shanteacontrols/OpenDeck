@@ -21,7 +21,7 @@
         },
         {
             "label": "[Tests] Build",
-            "command": "cd ./tests && make pre-build && make TARGETNAME=${input:target} TESTS=${input:test} && cp build/${input:target}/${input:test}.out build/test.out",
+            "command": "cd ./tests && make pre-build && make TARGETNAME=${input:target} TESTS=${input:test} && cp $(../scripts/test_dir_get.sh ${input:target} ${input:test})/${input:test}.out build/test.out",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -84,12 +84,12 @@
             "default": "database",
             "description": "Select test to build:",
             "options": [
-                "test_buttons",
-                "test_database",
-                "test_encoders",
-                "test_odmidi",
-                "test_potentiometer",
-                "test_ringbuffer"
+                "buttons",
+                "database",
+                "encoders",
+                "odmidi",
+                "potentiometer",
+                "ringbuffer"
             ]
         },
         {

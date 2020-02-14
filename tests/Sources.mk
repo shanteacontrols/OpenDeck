@@ -22,7 +22,7 @@ modules/u8g2/csrc/u8x8_d_ssd1306_128x64_noname.c \
 modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
 
 #common include dirs
-INCLUDE_DIRS := \
+INCLUDE_DIRS_COMMON := \
 -I"./" \
 -I"../src/application/" \
 -I"../src/" \
@@ -30,6 +30,6 @@ INCLUDE_DIRS := \
 -I"../src/board/avr/variants/$(MCU)/$(subst fw_,,$(TARGETNAME))/" \
 -isystem "stubs/avr"
 
-INCLUDE_FILES += \
+INCLUDE_FILES_COMMON += \
 -include "../src/board/avr/variants/$(MCU)/$(subst fw_,,$(TARGETNAME))/Hardware.h" \
 -include "../src/board/avr/Config.h"
