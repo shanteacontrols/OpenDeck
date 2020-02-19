@@ -161,8 +161,8 @@ namespace Board
         detail::setup::io();
 
 #ifdef FW_APP
-        detail::setup::adc();
         emuEEPROM.init();
+        detail::setup::adc();
 #endif
 
         detail::setup::timers();
