@@ -90,8 +90,6 @@ void OpenDeck::init()
     database.init();
     sysConfig.init();
 
-    sysConfig.configureMIDI();
-
 #ifdef LEDS_SUPPORTED
     leds.init();
 #endif

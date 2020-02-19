@@ -755,6 +755,7 @@ void SysConfig::init()
 {
     setLayout(sysExLayout, SYSEX_BLOCKS);
     setupCustomRequests(customRequests, NUMBER_OF_CUSTOM_REQUESTS);
+    configureMIDI();
 }
 
 bool SysConfig::isProcessingEnabled()

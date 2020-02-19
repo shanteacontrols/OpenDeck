@@ -66,8 +66,6 @@ class SysConfig : public SysExConf
 
     void init();
     bool isProcessingEnabled();
-    void configureMIDI();
-
     bool sendCInfo(dbBlockID_t dbBlock, SysExConf::sysExParameter_t componentID);
 
     private:
@@ -88,6 +86,7 @@ class SysConfig : public SysExConf
     ///
     bool processingEnabled = true;
 
+    void configureMIDI();
     bool onGet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t& value) override;
     bool onSet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t newValue) override;
     bool onCustomRequest(size_t value) override;
