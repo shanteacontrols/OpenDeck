@@ -91,7 +91,6 @@ void OpenDeck::init()
     sysConfig.init();
 
     sysConfig.configureMIDI();
-    Board::io::ledFlashStartup(Board::checkNewRevision());
 
 #ifdef LEDS_SUPPORTED
     leds.init();
@@ -162,6 +161,8 @@ void OpenDeck::init()
     for (int i = 0; i < 16; i++)
         leds.midiToState(MIDI::messageType_t::programChange, 0, 0, i, false);
 #endif
+
+    Board::io::ledFlashStartup(Board::checkNewRevision());
 }
 
 void OpenDeck::checkComponents()
