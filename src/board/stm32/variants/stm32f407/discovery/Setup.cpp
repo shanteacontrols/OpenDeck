@@ -94,7 +94,6 @@ namespace Board
         {
             void clocks()
             {
-                //system clock config - use 168MHz
                 RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
                 RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
@@ -111,7 +110,6 @@ namespace Board
                 RCC_OscInitStruct.PLL.PLLN       = 168;
                 RCC_OscInitStruct.PLL.PLLP       = RCC_PLLP_DIV2;
                 RCC_OscInitStruct.PLL.PLLQ       = 7;
-
                 HAL_RCC_OscConfig(&RCC_OscInitStruct);
 
                 /* Initializes the CPU, AHB and APB busses clocks */
@@ -120,7 +118,6 @@ namespace Board
                 RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV2;
                 RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
                 RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
-
                 HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2);
             }
 
@@ -268,18 +265,14 @@ namespace Board
 
             void timers()
             {
-                TIM_MasterConfigTypeDef sMasterConfig = { 0 };
-
                 htim7.Instance               = TIM7;
                 htim7.Init.Prescaler         = 0;
                 htim7.Init.CounterMode       = TIM_COUNTERMODE_UP;
-                htim7.Init.Period            = 0;
-                htim7.Init.AutoReloadPreload = 41999;
+                htim7.Init.Period            = 41999;
+                htim7.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+                htim7.Init.RepetitionCounter = 0;
+                htim7.Init.AutoReloadPreload = 0;
                 HAL_TIM_Base_Init(&htim7);
-
-                sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-                sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
-                HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig);
 
                 HAL_TIM_Base_Start_IT(&htim7);
             }
