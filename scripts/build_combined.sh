@@ -39,7 +39,8 @@ fi
 fw_dir=$(make TARGETNAME="$fw_target" print-BUILD_DIR)
 
 #always build release fw type when running this script
-combined_dir=$(make print-BUILD_DIR_BASE)/fw_boot_$board/release
+combined_dir=$(make print-BUILD_DIR_BASE)/merged_$board/release
+combined_filename="$combined_dir"/merged_"$board".hex
 
 #build bootloader
 echo Building "$boot_target"...
@@ -51,5 +52,5 @@ make TARGETNAME="$fw_target"
 
 echo Merging bootloader and firmware...
 mkdir -p "$combined_dir"
-srec_cat "$fw_dir"/"$fw_target".hex -intel "$boot_dir"/"$boot_target".hex -Intel -o "$combined_dir"/fw_boot_"$board".hex -Intel
-echo Firmware merged: "$combined_dir"/fw_boot_"$board".hex
+srec_cat "$fw_dir"/"$fw_target".hex -intel "$boot_dir"/"$boot_target".hex -Intel -o "$combined_filename" -Intel
+echo Firmware merged: "$combined_filename"

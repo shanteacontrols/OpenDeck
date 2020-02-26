@@ -33,6 +33,10 @@ endif
 include Defines.mk
 include Sources.mk
 
+# shell script "build_combined.sh" can generate binary with combined firmware and bootloader
+# if this file exists, use it when running flash target
+MERGED_TARGET := $(shell $(FIND) -name "*merged_$(BOARD_DIR).hex")
+
 CLANG_FORMAT := clang-format
 
 #when set to 1, format target will fail if there are any changes to the repository after formatting
@@ -183,7 +187,11 @@ $(BUILD_DIR)/%.s.o: %.s
 flash:
 ifeq ($(ARCH), avr)
 	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -e -V -u -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
+ifneq (,$(MERGED_TARGET))
+	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:$(MERGED_TARGET)
+else
 	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:$(TARGET).hex
+endif
 	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -V -u -U lock:w:$(FUSE_LOCK):m
 else
 	arm-none-eabi-gdb -nx --batch \

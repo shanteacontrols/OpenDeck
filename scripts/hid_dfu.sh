@@ -20,13 +20,13 @@ fi
 echo "Info: In case of errors please run this script with super-user rights."
 echo "Please select the board for which you want to update firmware:"
 
-boards=$($find bin/compiled -type f -not -path "*boot*" -name "*.hex" -printf '%f\n' | cut -f 1 -d '.' | sort)
+boards=$($find bin/compiled -type f -not -path "*merged*" -name "*.hex" -printf '%f\n' | cut -f 1 -d '.' | sort)
 echo "$boards" | tr " " "\n" | cat -n
 printf "Board number: "
 read -r board_nr
 
 filename=$(echo "$boards" | head -n "$board_nr" | tail -n 1)
-path=$($find -type f -not -path "*boot*" -name "${filename}.hex")
+path=$($find -type f -not -path "*merged*" -name "${filename}.hex")
 mcu=$(echo "$path" | cut -d / -f6)
 
 "$dfu" "$mcu" "$path"

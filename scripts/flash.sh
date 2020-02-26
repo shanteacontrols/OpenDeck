@@ -27,14 +27,14 @@ port=$(echo "$port_list" | head -n "$port" | tail -n 1)
 
 echo "Please select board you want to flash and then press enter:"
 
-boards=$($find bin/compiled -type f -name "*.hex" -path "*fw_boot*" -printf '%f\n' | sort)
+boards=$($find bin/compiled -type f -name "*.hex" -path "*merged*" -printf '%f\n' | sort)
 echo "$boards" | cut -d . -f1 | cat -n
 printf "Board number: "
 read -r board_nr
 
 filename=$(echo "$boards" | head -n "$board_nr" | tail -n 1)
 make_target=fw_$(echo "$filename" | cut -d . -f1)
-path=$($find bin/compiled/fw_boot -type f -name "$filename")
+path=$($find bin/compiled/merged -type f -name "$filename")
 
 unlock_fuse=$($make TARGETNAME="$make_target" print-FUSE_UNLOCK)
 result=$?

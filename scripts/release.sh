@@ -25,9 +25,9 @@ copy()
                 continue
             fi
         else
-            #in this case received name is fw_boot_<board>
-            #drop _boot from name so that make target is valid
-            make_target=${make_target/boot_/}
+            #in this case received name is merged_<board>
+            #replace merged with fw so that make target is valid
+            make_target=${make_target/merged/fw}
         fi
 
         board=${make_target/fw_/}
@@ -50,5 +50,5 @@ copy "${binaries[@]}" "fw"
 #now also copy merged app+bootloader to bin/compiled
 cat targets_release.txt | while read -r line ; do ../scripts/build_combined.sh "$line" ; done
 
-binaries=$(find build -type f -name "fw_boot*.hex")
-copy "${binaries[@]}" "fw_boot"
+binaries=$(find build -type f -name "merged*.hex")
+copy "${binaries[@]}" "merged"
