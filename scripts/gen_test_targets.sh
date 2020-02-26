@@ -8,18 +8,20 @@ then
     exit 1
 fi
 
-if [ "$(uname)" == "Darwin" ]; then
+if [ "$(uname)" == "Darwin" ]
+then
     find="gfind"
-elif [ "$(uname -s)" == "Linux" ]; then
+elif [ "$(uname -s)" == "Linux" ]
+then
     find="find"
 fi
 
 #find all directories containing test source
 #to do so, only take into account directories which contain Makefile
-tests=$(find ./src -type f -name Makefile -print0 | xargs -0 dirname | xargs -n 1 basename)
+tests=$(find ./src -type f -name Makefile -print0 | xargs -0 dirname | xargs -n 1 basename | tr "\n" " ")
 
 {
-    printf '%s ' 'TESTS := '${tests}'' > Objects.mk
+    printf '%s ' "TESTS := ${tests}" > Objects.mk
     printf '%s\n' '' >> Objects.mk
 }
 

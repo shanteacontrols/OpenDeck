@@ -2,7 +2,7 @@
 
 run_dir="src"
 
-if [[ $(basename "`pwd`") != $run_dir ]]
+if [[ $(basename "$(pwd)") != "$run_dir" ]]
 then
     echo This script must be run from $run_dir directory!
     exit 1
@@ -13,7 +13,7 @@ set -e
 
 TARGETS=targets.txt
 
-for i in $*; do
+for i in "$@"; do
     case "$i" in
         --release)
             TARGETS=targets_release.txt
@@ -25,5 +25,6 @@ make clean
 
 while IFS= read -r line || [[ -n $line ]]
 do
-    make TARGETNAME=$line
+    printf '\n%s\n' "***Building $line***"
+    make TARGETNAME="$line"
 done < "$TARGETS"
