@@ -36,17 +36,6 @@ namespace Board
         rebootBtldr    ///< Reboot to bootloader.
     };
 
-    ///
-    /// \brief List of all possible bootloader triggers.
-    ///
-    enum class btldrTrigger_t : uint8_t
-    {
-        software,
-        hardware,
-        all,
-        none
-    };
-
 #ifdef UID_BITS
     ///
     /// \brief Structure holding unique ID for MCU.
@@ -244,6 +233,11 @@ namespace Board
     namespace eeprom
     {
         ///
+        /// \brief Initializes and prepares non-volatile storage on board.
+        ///
+        void init();
+
+        ///
         /// \brief Used to read contents of memory provided by specific board,
         /// @param [in] address Memory address from which to read from.
         /// @param [in] type    Type of parameter which is being read. Defined in DBMS module.
@@ -268,11 +262,6 @@ namespace Board
         /// \brief Handler called upon receiving bootloader packet.
         ///
         void packetHandler(uint32_t data) __attribute__((weak));
-
-        ///
-        /// \brief Checks if any of the bootloader entry triggers are active.
-        ///
-        btldrTrigger_t btldrTrigger();
 
         void checkPackets();
         void erasePage(uint32_t address);

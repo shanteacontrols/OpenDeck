@@ -50,7 +50,7 @@ namespace Board
         /// \brief Calculates CRC of entire flash.
         /// \return True if CRC is valid, that is, if it matches CRC written in last flash address.
         ///
-        bool appCRCvalid();
+        bool isAppCRCvalid();
 
         namespace setup
         {
@@ -268,6 +268,22 @@ namespace Board
 
         namespace bootloader
         {
+            ///
+            /// \brief List of all possible bootloader triggers.
+            ///
+            enum class btldrTrigger_t : uint8_t
+            {
+                software,
+                hardware,
+                all,
+                none
+            };
+
+            ///
+            /// \brief Checks if any of the bootloader entry triggers are active.
+            ///
+            btldrTrigger_t btldrTrigger();
+
             ///
             /// \brief Checks if bootloader mode should be triggered because of software trigger.
             /// \returns True if bootloader mode was triggered from application, false otherwise.
