@@ -82,6 +82,55 @@ extern "C" uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue, const uint
     return Size;
 }
 
+#ifdef FW_BOOT
+///
+/// \brief Event handler for the USB_ControlRequest event.
+/// This is used to catch and process control requests sent to the device
+/// from the USB host before passing along unhandled control requests to the
+/// library for processing internally.
+///
+extern "C" void EVENT_USB_Device_ControlRequest(void)
+{
+    //ignore any requests that aren't directed to the HID interface
+    if ((USB_ControlRequest.bmRequestType & (CONTROL_REQTYPE_TYPE | CONTROL_REQTYPE_RECIPIENT)) !=
+        (REQTYPE_CLASS | REQREC_INTERFACE))
+    {
+        return;
+    }
+
+    //we are reading 2 bytes at the time
+    uint32_t size = USB_ControlRequest.wLength / 2;
+
+    //process HID specific control requests
+    switch (USB_ControlRequest.bRequest)
+    {
+    case HID_REQ_SetReport:
+        Endpoint_ClearSETUP();
+
+        //wait until the command has been sent by the host
+        while (!(Endpoint_IsOUTReceived()))
+            ;
+
+        for (uint32_t i = 0; i < size; i++)
+        {
+            //check if endpoint is empty - if so clear it and wait until ready for next packet
+            if (!(Endpoint_BytesInEndpoint()))
+            {
+                Endpoint_ClearOUT();
+                while (!(Endpoint_IsOUTReceived()))
+                    ;
+            }
+
+            Board::bootloader::packetHandler(Endpoint_Read_16_LE());
+        }
+
+        Endpoint_ClearOUT();
+        Endpoint_ClearStatusStage();
+        break;
+    }
+}
+#endif
+
 namespace Board
 {
     namespace detail

@@ -19,18 +19,26 @@ limitations under the License.
 #include <avr/power.h>
 #include <avr/eeprom.h>
 #include <util/crc16.h>
+#include <avr/wdt.h>
+#include <avr/boot.h>
 #include "board/Board.h"
 #include "board/Internal.h"
 #include "board/common/constants/Reboot.h"
 #include "board/common/io/Helpers.h"
 #include "midi/src/Constants.h"
-#include "core/src/arch/avr/Reset.h"
 #include "core/src/general/ADC.h"
 #include "core/src/arch/avr/Misc.h"
 #include "core/src/general/IO.h"
 #include "core/src/general/Helpers.h"
 #include "core/src/general/Interrupt.h"
-#include "common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
+#include "core/src/general/Timing.h"
+#include "core/src/general/Reset.h"
+#include "board/common/constants/Bootloader.h"
+#include "bootloader/mcu/Config.h"
+
+#ifdef FW_BOOT
+#include "board/common/usb/descriptors/hid/Redef.h"
+#endif
 
 extern "C" void __cxa_pure_virtual()
 {
@@ -38,115 +46,14 @@ extern "C" void __cxa_pure_virtual()
         ;
 }
 
-namespace core
-{
-    namespace timing
-    {
-        namespace detail
-        {
-            ///
-            /// \brief Implementation of core variable used to keep track of run time in milliseconds.
-            ///
-            volatile uint32_t rTime_ms;
-        }    // namespace detail
-    }        // namespace timing
-}    // namespace core
-
 namespace Board
 {
-    namespace
-    {
-        ///
-        /// \brief Placeholder variable used only to reserve space in linker section.
-        ///
-        const uint32_t appLength __attribute__((section(".applen"))) __attribute__((used)) = 0;
-
-#ifdef FW_BOOT
-        ///
-        /// \brief Calculates CRC of entire flash.
-        /// \return True if CRC is valid, that is, if it matches CRC written in last flash address.
-        ///
-        bool appCRCvalid()
-        {
-            return true;
-            uint16_t crc = 0x0000;
-
-#if (FLASHEND > 0xFFFF)
-            uint32_t lastAddress = pgm_read_word(core::misc::pgmGetFarAddress(APP_LENGTH_LOCATION));
-#else
-            uint32_t lastAddress = pgm_read_word(APP_LENGTH_LOCATION);
-#endif
-
-            for (uint32_t i = 0; i < lastAddress; i++)
-            {
-#if (FLASHEND > 0xFFFF)
-                crc = _crc_xmodem_update(crc, pgm_read_byte_far(core::misc::pgmGetFarAddress(i)));
-#else
-                crc = _crc_xmodem_update(crc, pgm_read_byte(i));
-#endif
-            }
-
-#if (FLASHEND > 0xFFFF)
-            return (crc == pgm_read_word_far(core::misc::pgmGetFarAddress(lastAddress)));
-#else
-            return (crc == pgm_read_word(lastAddress));
-#endif
-        }
-
-        ///
-        /// \brief Checks if application should be run.
-        /// This function performs two checks: hardware and software bootloader entry.
-        /// Hardware bootloader entry is possible if the specific board has defined button
-        /// which should be pressed before the MCU is turned on. If it is, bootloader is
-        /// entered.
-        /// Software bootloader entry is possible by writing special value to special EEPROM
-        /// address before the application is rebooted.
-        /// \returns True if application should be run, false if bootloader should be run.
-        ///
-        bool checkApplicationRun()
-        {
-            bool jumpToApplication = false;
-
-            //add some delay before reading the pins to avoid incorrect state detection
-            _delay_ms(100);
-
-            bool hardwareTrigger = Board::detail::io::isBtldrButtonActive();
-
-            //check if user wants to enter bootloader
-            bool softwareTrigger = eeprom_read_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION) == BTLDR_REBOOT_VALUE;
-
-            //reset value in eeprom after reading
-            eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, APP_REBOOT_VALUE);
-
-            //jump to app only if both software and hardware triggers aren't activated
-            if (!hardwareTrigger && !softwareTrigger)
-                jumpToApplication = true;
-
-            //don't run the user application if the reset vector is blank (no app loaded)
-            bool applicationValid = (pgm_read_word(0) != 0xFFFF) && appCRCvalid();
-
-            return (jumpToApplication && applicationValid);
-        }
-
-        ///
-        /// \brief Run user application.
-        ///
-        void runApplication()
-        {
-            //run app
-            // ((void (*)(void))0x0000)();
-            __asm__ __volatile__(
-                // Jump to RST vector
-                "clr r30\n"
-                "clr r31\n"
-                "ijmp\n");
-        }
-#endif
-    }    // namespace
-
     void init()
     {
         DISABLE_INTERRUPTS();
+
+        //clear reset source
+        MCUSR &= ~(1 << EXTRF);
 
         //disable watchdog
         MCUSR &= ~(1 << WDRF);
@@ -170,60 +77,17 @@ namespace Board
 
         detail::setup::timers();
 #else
-        //clear reset source
-        MCUSR &= ~(1 << EXTRF);
+        detail::setup::bootloader();
 
-        if (checkApplicationRun())
-        {
-            runApplication();
-        }
-        else
-        {
-            //relocate the interrupt vector table to the bootloader section
-            MCUCR = (1 << IVCE);
-            MCUCR = (1 << IVSEL);
-
-            detail::io::indicateBtldr();
-#ifdef USB_MIDI_SUPPORTED
-            detail::setup::usb();
-#endif
-        }
+        //relocate the interrupt vector table to the bootloader section
+        //note: if this point is reached, bootloader is active
+        MCUCR                = (1 << IVCE);
+        MCUCR                = (1 << IVSEL);
 #endif
 
         ENABLE_INTERRUPTS();
     }
 
-    void reboot(rebootType_t type)
-    {
-        switch (type)
-        {
-        case rebootType_t::rebootApp:
-            eeprom_write_byte(reinterpret_cast<uint8_t*>(REBOOT_VALUE_EEPROM_LOCATION), APP_REBOOT_VALUE);
-#ifndef USB_MIDI_SUPPORTED
-            //signal to usb link to reboot as well
-            //no need to do this for bootloader reboot - the bootloader already sends btldrReboot command to USB link
-            MIDI::USBMIDIpacket_t USBMIDIpacket;
-
-            USBMIDIpacket.Event = static_cast<uint8_t>(OpenDeckMIDIformat::command_t::appReboot);
-            USBMIDIpacket.Data1 = 0x00;
-            USBMIDIpacket.Data2 = 0x00;
-            USBMIDIpacket.Data3 = 0x00;
-
-            OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::internalCommand);
-            while (!Board::UART::isTxEmpty(UART_USB_LINK_CHANNEL))
-                ;
-#endif
-            break;
-
-        case rebootType_t::rebootBtldr:
-            eeprom_write_byte(reinterpret_cast<uint8_t*>(REBOOT_VALUE_EEPROM_LOCATION), BTLDR_REBOOT_VALUE);
-            break;
-        }
-
-        core::reset::mcuReset();
-    }
-
-#if !defined(OD_BOARD_16U2) && !defined(OD_BOARD_8U2)
     bool checkNewRevision()
     {
         uint16_t crc_eeprom = eeprom_read_word(reinterpret_cast<uint16_t*>(SW_CRC_LOCATION_EEPROM));
@@ -232,7 +96,7 @@ namespace Board
         uint16_t crc_flash   = pgm_read_word_far(core::misc::pgmGetFarAddress(lastAddress));
 #else
         uint32_t lastAddress = pgm_read_dword(APP_LENGTH_LOCATION);
-        uint16_t crc_flash = pgm_read_word(lastAddress);
+        uint16_t crc_flash   = pgm_read_word(lastAddress);
 #endif
 
         if (crc_eeprom != crc_flash)
@@ -292,7 +156,182 @@ namespace Board
             return true;
         }
     }    // namespace eeprom
+
+#ifdef FW_BOOT
+    namespace bootloader
+    {
+        void checkPackets()
+        {
+#ifndef USB_MIDI_SUPPORTED
+            static bool    btldrInProgress;
+            static uint8_t byteCount;
+            static uint8_t lower;
+            static uint8_t upper;
+            uint8_t        data;
+
+            if (Board::UART::read(UART_USB_LINK_CHANNEL, data))
+            {
+                if (!btldrInProgress)
+                {
+                    if (data == COMMAND_START_FLASHING_UART)
+                        btldrInProgress = true;
+                }
+                else
+                {
+                    if (!byteCount)
+                    {
+                        lower = data;
+                        byteCount++;
+                    }
+                    else
+                    {
+                        byteCount = 0;
+                        upper     = data;
+
+                        uint16_t word = GET_WORD(lower, upper);
+                        packetHandler(word);
+                    }
+                }
+            }
+#else
+            //nothing, lufa will fire interrupt once packet from usb is received
 #endif
+        }
+
+        void erasePage(uint32_t address)
+        {
+            //don't do anything on USB link MCU
+#if !defined(OD_BOARD_16U2) && !defined(OD_BOARD_8U2)
+            boot_page_erase(address);
+            boot_spm_busy_wait();
+#endif
+        }
+
+        void fillPage(uint32_t address, uint16_t data)
+        {
+#if !defined(OD_BOARD_16U2) && !defined(OD_BOARD_8U2)
+            boot_page_fill(address, data);
+#else
+            //mark the start of bootloader packets
+            //used to avoid possible junk coming on main mcu uart as first byte
+            if (!address)
+                Board::UART::write(UART_USB_LINK_CHANNEL, COMMAND_START_FLASHING_UART);
+
+            //on USB link MCU, forward the received flash via UART to main MCU
+            //send address only when necessary (address first, SPM_PAGESIZE bytes next)
+
+            if (!(address % SPM_PAGESIZE))
+            {
+                uint16_t lowAddress  = address & 0xFFFF;
+                uint16_t highAddress = address >> 16;
+
+                Board::UART::write(UART_USB_LINK_CHANNEL, LSB_WORD(lowAddress));
+                Board::UART::write(UART_USB_LINK_CHANNEL, MSB_WORD(lowAddress));
+
+                Board::UART::write(UART_USB_LINK_CHANNEL, LSB_WORD(highAddress));
+                Board::UART::write(UART_USB_LINK_CHANNEL, MSB_WORD(highAddress));
+            }
+
+            Board::UART::write(UART_USB_LINK_CHANNEL, LSB_WORD(data));
+            Board::UART::write(UART_USB_LINK_CHANNEL, MSB_WORD(data));
+#endif
+        }
+
+        void writePage(uint32_t address)
+        {
+            //don't do anything on USB link MCU
+#if !defined(OD_BOARD_16U2) && !defined(OD_BOARD_8U2)
+            //write the filled FLASH page to memory
+            boot_page_write(address);
+            boot_spm_busy_wait();
+
+            //re-enable RWW section
+            boot_rww_enable();
+#endif
+        }
+
+        void applyFw()
+        {
+#if defined(OD_BOARD_16U2) || defined(OD_BOARD_8U2)
+            //make sure USB link sends the "start application" instruction to the main MCU
+
+            uint16_t lowAddress  = COMMAND_STARTAPPLICATION & 0xFFFF;
+            uint16_t highAddress = COMMAND_STARTAPPLICATION >> 16;
+
+            Board::UART::write(UART_USB_LINK_CHANNEL, LSB_WORD(lowAddress));
+            Board::UART::write(UART_USB_LINK_CHANNEL, MSB_WORD(lowAddress));
+
+            Board::UART::write(UART_USB_LINK_CHANNEL, LSB_WORD(highAddress));
+            Board::UART::write(UART_USB_LINK_CHANNEL, MSB_WORD(highAddress));
+
+            while (!Board::UART::isTxEmpty(UART_USB_LINK_CHANNEL))
+                ;
+#endif
+
+            core::reset::mcuReset();
+        }
+    }    // namespace bootloader
+#endif
+
+    namespace detail
+    {
+        void runApplication()
+        {
+            __asm__ __volatile__(
+                // Jump to RST vector
+                "clr r30\n"
+                "clr r31\n"
+                "ijmp\n");
+        }
+
+        bool appCRCvalid()
+        {
+            if (pgm_read_word(0) == 0xFFFF)
+                return false;
+
+            return true;
+            uint16_t crc = 0x0000;
+
+#if (FLASHEND > 0xFFFF)
+            uint32_t lastAddress = pgm_read_word(core::misc::pgmGetFarAddress(APP_LENGTH_LOCATION));
+#else
+            uint32_t lastAddress = pgm_read_word(APP_LENGTH_LOCATION);
+#endif
+
+            for (uint32_t i = 0; i < lastAddress; i++)
+            {
+#if (FLASHEND > 0xFFFF)
+                crc = _crc_xmodem_update(crc, pgm_read_byte_far(core::misc::pgmGetFarAddress(i)));
+#else
+                crc = _crc_xmodem_update(crc, pgm_read_byte(i));
+#endif
+            }
+
+#if (FLASHEND > 0xFFFF)
+            return (crc == pgm_read_word_far(core::misc::pgmGetFarAddress(lastAddress)));
+#else
+            return (crc == pgm_read_word(lastAddress));
+#endif
+        }
+
+        namespace bootloader
+        {
+            bool isSWtriggerActive()
+            {
+                return eeprom_read_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION) == BTLDR_REBOOT_VALUE;
+            }
+
+            void enableSWtrigger()
+            {
+                eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, BTLDR_REBOOT_VALUE);
+            }
+
+            void clearSWtrigger()
+            {
+                eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, APP_REBOOT_VALUE);
+            }
+        }    // namespace bootloader
+    }        // namespace detail
 }    // namespace Board
 
 #ifdef FW_APP

@@ -63,14 +63,19 @@ else ifeq ($(ARCH),stm32)
     INCLUDE_DIRS += -I"./board/stm32/gen/$(MCU)/Middlewares/ST/STM32_USB_Device_Library/Core/Inc"
 endif
 
+#common for both bootloader and application
+SOURCES += $(shell find ./board/common -maxdepth 1 -type f -name "*.cpp")
+SOURCES += $(shell find ./board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR) -type f -name "*.cpp")
+
 ifeq ($(findstring boot,$(TARGETNAME)), boot)
     #bootloader sources
     #common
     SOURCES += \
-    bootloader/mcu/main.cpp \
     board/$(ARCH)/Common.cpp \
-    board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Setup.cpp \
-    board/common/io/Bootloader.cpp
+    board/common/bootloader/Bootloader.cpp \
+    board/common/io/Indicators.cpp
+
+    SOURCES += $(shell find ./bootloader/mcu -type f -name "*.cpp")
 
     ifneq ($(shell cat board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
         SOURCES += $(shell find ./board/common/usb/descriptors/hid -type f -name "*.cpp")
@@ -78,26 +83,20 @@ ifeq ($(findstring boot,$(TARGETNAME)), boot)
         SOURCES += $(shell find ./board/$(ARCH)/usb/hid -type f -name "*.cpp")
 
         ifneq ($(filter %16u2 %8u2, $(TARGETNAME)), )
+            #for USB link MCUs, compile UART as well - needed to communicate with main MCU
             SOURCES += \
-            bootloader/mcu/variant/xu2.cpp \
-            board/$(ARCH)/UART_LL.cpp \
-            board/common/UART.cpp
-        else
-            SOURCES += \
-            bootloader/mcu/variant/NativeUSB.cpp
+            board/$(ARCH)/UART_LL.cpp
         endif
     else
         SOURCES += \
-        bootloader/mcu/variant/NoUSB.cpp \
-        board/$(ARCH)/UART_LL.cpp \
-        board/common/UART.cpp \
-        common/OpenDeckMIDIformat/OpenDeckMIDIformat.cpp
+        board/$(ARCH)/UART_LL.cpp
+
+        SOURCES += $(shell find ./common/OpenDeckMIDIformat -type f -name "*.cpp")
     endif
 else
     #application sources
     #common for all targets
     SOURCES += $(shell find ./board/$(ARCH) -maxdepth 1 -type f -name "*.cpp")
-    SOURCES += $(shell find ./board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR) -type f -name "*.cpp")
     SOURCES += $(shell find ./common/OpenDeckMIDIformat -type f -name "*.cpp")
 
     ifneq ($(shell cat board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
@@ -110,10 +109,8 @@ else
         #fw for xu2 uses different set of sources than other targets
         SOURCES += \
         board/common/io/Indicators.cpp \
-        board/common/UART.cpp \
         usb-link/USBlink.cpp
     else
-        SOURCES += $(shell find ./board/common -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell find ./board/common/io -type f -name "*.cpp" ! -name "*Bootloader*")
         SOURCES += $(shell find ./application -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell find ./application/database -type f -name "*.cpp")

@@ -22,6 +22,7 @@ limitations under the License.
 #include "board/Board.h"
 #include "board/Internal.h"
 #include "core/src/general/RingBuffer.h"
+#include "core/src/general/Helpers.h"
 
 //generic UART driver, arch-independent
 
@@ -168,6 +169,7 @@ namespace Board
                     if (txBuffer[channel].insert(data))
                     {
                         Board::detail::UART::ll::enableDataEmptyInt(channel);
+
 #ifdef FW_APP
 #ifdef LED_INDICATORS
                         Board::detail::io::indicateMIDItraffic(MIDI::interface_t::din, Board::detail::midiTrafficDirection_t::outgoing);

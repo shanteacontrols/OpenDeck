@@ -16,66 +16,59 @@ limitations under the License.
 
 */
 
-#ifdef USB_MIDI_SUPPORTED
-#include "board/common/usb/descriptors/Descriptors.h"
-#endif
 #include "Config.h"
 #include "core/src/general/Helpers.h"
-#include "core/src/general/IO.h"
-#include "core/src/general/Reset.h"
-#include "core/src/general/Helpers.h"
-#include "core/src/general/Timing.h"
-#include "board/common/io/Helpers.h"
-#include "board/common/constants/Reboot.h"
-#include "Pins.h"
 #include "board/Board.h"
+#include "updater/Updater.h"
 #include "board/common/usb/descriptors/hid/Redef.h"
-#include "common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
-#include "variant/Variant.h"
 
-namespace bootloader
+class BTLDRWriter : public IBTLDRWriter
 {
-    bool RunBootloader = true;
-}
+    public:
+    void erasePage(uint32_t address) override
+    {
+        Board::bootloader::erasePage(address);
+    }
 
-///
-/// \brief Main program entry point.
-/// This routine configures the hardware required by the bootloader, then continuously
-/// runs the bootloader processing routine until instructed to soft-exit.
-///
-int main(void)
+    void fillPage(uint32_t address, uint16_t data) override
+    {
+        Board::bootloader::fillPage(address, data);
+    }
+
+    void writePage(uint32_t address) override
+    {
+        Board::bootloader::writePage(address);
+    }
+
+    void apply() override
+    {
+        Board::bootloader::applyFw();
+    }
+};
+
+namespace
+{
+    BTLDRWriter         btldrWriter;
+    Bootloader::Updater updater(btldrWriter, false, SPM_PAGESIZE, COMMAND_STARTAPPLICATION);
+}    // namespace
+
+namespace Board
+{
+    namespace bootloader
+    {
+        void packetHandler(uint32_t data)
+        {
+            updater.feed(data);
+        }
+    }    // namespace bootloader
+}    // namespace Board
+
+int main()
 {
     Board::init();
 
-    while (bootloader::RunBootloader)
+    while (1)
     {
-#ifdef USB_MIDI_SUPPORTED
-        USB_USBTask();
-#else
-        static uint8_t pageStartCnt = 0;
-        uint8_t        data;
-        while (!Board::UART::read(UART_USB_LINK_CHANNEL, data))
-            ;
-
-        if (pageStartCnt < 6)
-        {
-            if (data == bootloader::hidUploadStart[pageStartCnt])
-            {
-                pageStartCnt++;
-
-                if (pageStartCnt == 6)
-                {
-                    EVENT_UART_Device_ControlRequest();
-                    pageStartCnt = 0;
-                }
-            }
-            else
-            {
-                pageStartCnt = 0;
-            }
-        }
-#endif
+        Board::bootloader::checkPackets();
     }
-
-    core::reset::mcuReset();
 }

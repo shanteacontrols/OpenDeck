@@ -53,6 +53,7 @@ limitations under the License.
 #include "UserConstants.h"
 #include "core/src/general/Helpers.h"
 #include "board/common/Common.h"
+#include "Redef.h"
 
 /** HID class report descriptor. This is a special descriptor constructed with values from the
  *  USBIF HID class specification to describe the reports and capabilities of the HID device. This

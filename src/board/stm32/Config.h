@@ -73,12 +73,6 @@ limitations under the License.
 #define ADC_IGNORED_SAMPLES_COUNT 3
 
 ///
-/// \brief Location at which reboot type is written in EEPROM when initiating software reset.
-/// See Reboot.h
-///
-#define REBOOT_VALUE_EEPROM_LOCATION (EEPROM_SIZE - 1)
-
-///
 /// \brief Location at which compiled binary CRC is written in EEPROM.
 /// CRC takes two bytes.
 ///

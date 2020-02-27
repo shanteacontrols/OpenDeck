@@ -60,10 +60,10 @@ def send_page_data(hid_device, address, data):
     # Bootloader page data should be the HID Report ID (always zero) followed
     # by the starting address to program, then one device's flash page worth
     # of data
-    output_report_data = bytearray(256+3)
+    output_report_data = bytearray(1024)
     output_report_data[0] = 0
-    output_report_data[1] = address & 0xFF
-    output_report_data[2] = address >> 8
+    output_report_data[1] = (address >> 0) & 0xFF
+    output_report_data[2] = (address >> 8) & 0xFF
     output_report_data[3 : ] = data
 
     hid_device.write(output_report_data)
@@ -91,18 +91,12 @@ def program_device(hex_data, device_info):
 
             print("Writing address 0x%04X-0x%04X" % (current_page_range[0], current_page_range[-1]), flush=True)
 
-            # Devices with more than 64KB of flash should shift down the page
-            # address so that it is 16-bit (page size is guaranteed to be
-            # >= 256 bytes so no non-zero address bits are discarded)
-            if device_info['flash_kb'] < 64:
-                send_page_data(hid_device, addr, page_data)
-            else:
-                send_page_data(hid_device, addr >> 8, page_data)
+            send_page_data(hid_device, addr, page_data)
 
         # Once programming is complete, start the application via a dummy page
-        # program to the page address 0xFFFF
+        # program to the page address 0xFFFFFFFF
         print("Programming complete, starting application.", flush=True)
-        send_page_data(hid_device, 0xFFFF, [0] * device_info['page_size'])
+        send_page_data(hid_device, 0xFFFFFFFF, [0] * device_info['page_size'])
 
     finally:
         hid_device.close()

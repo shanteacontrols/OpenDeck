@@ -37,6 +37,6 @@ limitations under the License.
 #undef SPM_PAGESIZE
 #define SPM_PAGESIZE 128
 #undef BOOT_START_ADDR
-#define BOOT_START_ADDR 0x7800
+#define BOOT_START_ADDR 0x7000
 #endif
 #endif

@@ -41,6 +41,17 @@ namespace Board
             outgoing
         };
 
+        ///
+        /// \brief Run user application.
+        ///
+        void runApplication();
+
+        ///
+        /// \brief Calculates CRC of entire flash.
+        /// \return True if CRC is valid, that is, if it matches CRC written in last flash address.
+        ///
+        bool appCRCvalid();
+
         namespace setup
         {
             ///
@@ -71,6 +82,11 @@ namespace Board
             /// \brief Initializes all used timers on board.
             ///
             void timers();
+
+            ///
+            /// \brief Used to setup bootloader if needed.
+            ///
+            void bootloader();
         }    // namespace setup
 
         namespace UART
@@ -228,20 +244,6 @@ namespace Board
             ///
             void disableIndicators();
 #endif
-
-#ifdef FW_BOOT
-            ///
-            /// \brief Reads the state of the button responsible for hardware bootloader entry.
-            /// \returns True if pressed, false otherwise. If bootloader button doesn't exist,
-            ///          function will return false.
-            ///
-            bool isBtldrButtonActive();
-
-            ///
-            /// \brief Initializes outputs used to indicate that bootloader mode is active.
-            ///
-            void indicateBtldr();
-#endif
         }    // namespace io
 
         namespace isrHandling
@@ -263,5 +265,37 @@ namespace Board
             ///
             void mainTimer();
         }    // namespace isrHandling
+
+        namespace bootloader
+        {
+            ///
+            /// \brief Checks if bootloader mode should be triggered because of software trigger.
+            /// \returns True if bootloader mode was triggered from application, false otherwise.
+            ///
+            bool isSWtriggerActive();
+
+            ///
+            /// \brief Reads the state of the button responsible for hardware bootloader entry.
+            /// \returns True if pressed, false otherwise. If bootloader button doesn't exist,
+            ///          function will return false.
+            ///
+            bool isHWtriggerActive();
+
+            ///
+            /// \brief Configures the MCU to run bootloader on next reset.
+            ///
+            void enableSWtrigger();
+
+            ///
+            /// \brief Clears configured software bootloader trigger so that bootloader
+            /// isn't run on next reset.
+            ///
+            void clearSWtrigger();
+
+            ///
+            /// \brief Initializes outputs used to indicate that bootloader mode is active.
+            ///
+            void indicate();
+        }    // namespace bootloader
     }        // namespace detail
 }    // namespace Board

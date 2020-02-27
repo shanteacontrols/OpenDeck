@@ -88,3 +88,8 @@ limitations under the License.
 /// \brief Total number of states between fully off and fully on for LEDs.
 ///
 #define NUMBER_OF_LED_TRANSITIONS 64
+
+///
+/// \brief Location at which reboot type is written in EEPROM when initiating software reset.
+///
+#define REBOOT_VALUE_EEPROM_LOCATION (EEPROM_SIZE - 1)

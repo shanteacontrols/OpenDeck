@@ -36,6 +36,17 @@ namespace Board
         rebootBtldr    ///< Reboot to bootloader.
     };
 
+    ///
+    /// \brief List of all possible bootloader triggers.
+    ///
+    enum class btldrTrigger_t : uint8_t
+    {
+        software,
+        hardware,
+        all,
+        none
+    };
+
 #ifdef UID_BITS
     ///
     /// \brief Structure holding unique ID for MCU.
@@ -250,4 +261,23 @@ namespace Board
         ///
         bool write(uint32_t address, int32_t value, LESSDB::sectionParameterType_t type);
     }    // namespace eeprom
+
+    namespace bootloader
+    {
+        ///
+        /// \brief Handler called upon receiving bootloader packet.
+        ///
+        void packetHandler(uint32_t data) __attribute__((weak));
+
+        ///
+        /// \brief Checks if any of the bootloader entry triggers are active.
+        ///
+        btldrTrigger_t btldrTrigger();
+
+        void checkPackets();
+        void erasePage(uint32_t address);
+        void fillPage(uint32_t address, uint16_t data);
+        void writePage(uint32_t address);
+        void applyFw();
+    }    // namespace bootloader
 };       // namespace Board

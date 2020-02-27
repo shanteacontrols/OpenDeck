@@ -24,20 +24,6 @@ limitations under the License.
 #include "core/src/general/Interrupt.h"
 #include "eeprom/EEPROM.h"
 
-namespace core
-{
-    namespace timing
-    {
-        namespace detail
-        {
-            ///
-            /// \brief Implementation of core variable used to keep track of run time in milliseconds.
-            ///
-            volatile uint32_t rTime_ms;
-        }    // namespace detail
-    }        // namespace timing
-}    // namespace core
-
 extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 //This function handles USB On The Go FS global interrupt.
@@ -108,6 +94,11 @@ extern "C" void SysTick_Handler(void)
 namespace
 {
     EmuEEPROM emuEEPROM(Board::detail::map::eepromFlashPage1(), Board::detail::map::eepromFlashPage2());
+
+    ///
+    /// \brief Variable used to specify whether to enter bootloader or application.
+    ///
+    uint32_t fwEntryType __attribute__((section(".noinit"))) __attribute__((used));
 }    // namespace
 
 namespace Board
@@ -137,6 +128,24 @@ namespace Board
                 Board::detail::io::checkDigitalInputs();
             }
         }    // namespace isrHandling
+
+        namespace bootloader
+        {
+            bool isSWtriggerActive()
+            {
+                return fwEntryType == BTLDR_REBOOT_VALUE;
+            }
+
+            void enableSWtrigger()
+            {
+                fwEntryType = BTLDR_REBOOT_VALUE;
+            }
+
+            void clearSWtrigger()
+            {
+                fwEntryType = APP_REBOOT_VALUE;
+            }
+        }    // namespace bootloader
     }        // namespace detail
 
     void init()
@@ -155,11 +164,6 @@ namespace Board
 #ifdef USB_MIDI_SUPPORTED
         detail::setup::usb();
 #endif
-    }
-
-    void reboot(rebootType_t type)
-    {
-        core::reset::mcuReset();
     }
 
     bool checkNewRevision()

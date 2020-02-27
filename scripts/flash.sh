@@ -40,7 +40,7 @@ elif [ $board == 4 ]
 then
     echo "Connect programmer to ATmega328P programming header on the Arduino Uno board and then press enter."
     read -n1 KEY
-    avrdude -p atmega328p -P /dev/$port -b 19200 -c avrisp -e -V -u -U lock:w:0xff:m -U efuse:w:0xfc:m -U hfuse:w:0xd2:m -U lfuse:w:0xff:m
+    avrdude -p atmega328p -P /dev/$port -b 19200 -c avrisp -e -V -u -U lock:w:0xff:m -U efuse:w:0xfc:m -U hfuse:w:0xd0:m -U lfuse:w:0xff:m
     avrdude -p atmega328p -P /dev/$port -b 19200 -c avrisp -U flash:w:../bin/compiled/arduino+teensy/fw+boot/fw_boot_uno.hex
     avrdude -p atmega328p -P /dev/$port -b 19200 -c avrisp -V -u -U lock:w:0xef:m
 elif [ $board == 5 ]

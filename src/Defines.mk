@@ -83,12 +83,12 @@ else ifeq ($(MCU), atmega2560)
 else ifeq ($(MCU), atmega328p)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xfc
-    FUSE_HIGH := 0xd2
+    FUSE_HIGH := 0xd0
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
     FLASH_SIZE_START_ADDR := 0x68
     FLASH_SIZE_END_ADDR := 0x6C
-    BOOT_START_ADDR := 0x7800
+    BOOT_START_ADDR := 0x7000
     DEFINES += __AVR_ATmega328P__
 else ifeq ($(MCU), stm32f407)
     CPU := cortex-m4
@@ -107,7 +107,8 @@ ifeq ($(ARCH),avr)
     BOARD=BOARD_NONE \
     USE_STATIC_OPTIONS=0 \
     USB_DEVICE_ONLY \
-    FIXED_CONTROL_ENDPOINT_SIZE=8
+    FIXED_CONTROL_ENDPOINT_SIZE=8 \
+    INTERRUPT_CONTROL_ENDPOINT
 
     DEFINES += APP_LENGTH_LOCATION=$(FLASH_SIZE_START_ADDR)
     DEFINES += BOOT_START_ADDR=$(BOOT_START_ADDR)
@@ -123,8 +124,7 @@ ifeq ($(ARCH),avr)
         NO_DEVICE_SELF_POWER
     else ifeq ($(findstring fw,$(TARGETNAME)), fw)
         DEFINES += \
-        USE_FLASH_DESCRIPTORS \
-        INTERRUPT_CONTROL_ENDPOINT
+        USE_FLASH_DESCRIPTORS
     endif
 else ifeq ($(ARCH),stm32)
     DEFINES += \
