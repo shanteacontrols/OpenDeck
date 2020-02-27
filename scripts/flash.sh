@@ -32,6 +32,12 @@ fi
 
 make="make --no-print-directory -C src"
 
+if [[ "$port_list" == "" ]]
+then
+    echo "ERROR: No ports found. Please connect ArduinoISP before running the script."
+    exit 1
+fi
+
 echo "Please select serial port on which ArduinoISP is connected:"
 echo "$port_list" | cat -n
 read -r port
