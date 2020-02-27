@@ -57,6 +57,8 @@ echo "$boards" | cut -d . -f1 | cat -n
 printf "Board number: "
 read -r board_nr
 
+echo "Please wait..."
+
 filename=$(echo "$boards" | head -n "$board_nr" | tail -n 1)
 make_target=fw_$(echo "$filename" | cut -d . -f1)
 path=$($find bin/compiled/merged -type f -name "$filename")
