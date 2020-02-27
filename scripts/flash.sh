@@ -23,6 +23,13 @@ fi
 if [ "$(uname)" == "Darwin" ]
 then
     find="gfind"
+
+    if [[ "$(command -v gfind)" == "" ]]
+    then
+        echo "ERROR: GNU find not installed (gfind)"
+        exit 1
+    fi
+
     port_list=$($find /dev -name "cu.*" -ls 2>/dev/null | sort | cut -d / -f3 | grep -v Bluetooth)
 elif [ "$(uname -s)" == "Linux" ]
 then

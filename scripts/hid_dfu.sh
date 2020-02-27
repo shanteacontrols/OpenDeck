@@ -10,6 +10,13 @@ fi
 
 if [ "$(uname)" == "Darwin" ]; then
     find="gfind"
+
+    if [[ "$(command -v gfind)" == "" ]]
+    then
+        echo "ERROR: GNU find not installed (gfind)"
+        exit 1
+    fi
+
     dfu="bin/dfu/hid_bootloader_loader_mac"
 elif [ "$(uname -s)" == "Linux" ]
 then
