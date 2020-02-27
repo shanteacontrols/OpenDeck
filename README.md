@@ -31,17 +31,11 @@ This repository also contains source code for OpenDeck Web configuration utility
 
 Latest version of the UI is always available on [this link](https://paradajz.github.io/OpenDeck). The UI available on this link is hosted on GitHub (via this repository, master branch) and it's compatible only with latest available OpenDeck firmware. If older firmware is used with latest UI, UI tends to crash when it tries to request parameters which aren't available in older firmwares.
 
-Older versions of the UI are also available and can be accessed in a following manner:
-
-https://shanteacontrols.com/config/<OpenDeck_Version>
-
-For example, to run the UI for OpenDeck firmware v3.0.0, use the following link:
-
-https://shanteacontrols.com/config/v3.0.0
+Older versions of the UI are also available and can be downloaded from [releases](https://github.com/paradajz/OpenDeck/releases) page.
 
 ## Coming soon
 
-* Support for advanced I2C sensors
+* Official support for STM32 boards
 
 ## Credits
 
