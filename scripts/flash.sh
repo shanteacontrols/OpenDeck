@@ -8,6 +8,18 @@ then
     exit 1
 fi
 
+if [[ "$(command -v make)" == "" ]]
+then
+    echo "ERROR: make not installed"
+    exit 1
+fi
+
+if [[ "$(command -v avrdude)" == "" ]]
+then
+    echo "ERROR: avrdude not installed"
+    exit 1
+fi
+
 if [ "$(uname)" == "Darwin" ]
 then
     find="gfind"

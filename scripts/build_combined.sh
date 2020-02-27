@@ -21,6 +21,18 @@ then
     exit 1
 fi
 
+if [[ "$(command -v make)" == "" ]]
+then
+    echo "ERROR: make not installed"
+    exit 1
+fi
+
+if [[ "$(command -v srec_cat)" == "" ]]
+then
+    echo "ERROR: srecord not installed"
+    exit 1
+fi
+
 TARGET=$1
 
 boot_target=${TARGET/fw_/boot_}
