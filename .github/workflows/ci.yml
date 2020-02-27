@@ -64,3 +64,5 @@ jobs:
          run: |
            cd src
            make format CF_FAIL_ON_DIFF=1 CLANG_FORMAT=clang-format-9
+           cd ../tests
+           make format CF_FAIL_ON_DIFF=1 CLANG_FORMAT=clang-format-9
