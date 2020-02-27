@@ -23,11 +23,11 @@ fi
 if [ "$(uname)" == "Darwin" ]
 then
     find="gfind"
-    port_list=$(find /dev -name "cu.*" -ls 2>/dev/null | sort | cut -d / -f3 | grep -v Bluetooth)
+    port_list=$($find /dev -name "cu.*" -ls 2>/dev/null | sort | cut -d / -f3 | grep -v Bluetooth)
 elif [ "$(uname -s)" == "Linux" ]
 then
     find="find"
-    port_list=$(find /dev/serial/by-id/ -type l -ls | grep -Eo '\btty\w+')
+    port_list=$($find /dev/serial/by-id/ -type l -ls | grep -Eo '\btty\w+')
 fi
 
 make="make --no-print-directory -C src"
