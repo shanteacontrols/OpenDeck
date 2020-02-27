@@ -23,6 +23,7 @@ OpenDeck firmware is compatible with official OpenDeck board, as well as various
 * Arduino Pro Micro
 * Arduino Mega2560
 * Teensy++ 2.0
+* STM32F4 Discovery (experimental)
 
 ## Web UI
 
