@@ -32,15 +32,15 @@ void LEDs::init(bool startUp)
 {
     if (startUp)
     {
-        if (database.read(DB_BLOCK_LEDS, dbSection_leds_global, static_cast<uint16_t>(setting_t::useStartupAnimation)))
+        if (database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::useStartupAnimation)))
             startUpAnimation();
 
 #ifdef LED_FADING
-        setFadeTime(database.read(DB_BLOCK_LEDS, dbSection_leds_global, static_cast<uint16_t>(setting_t::fadeSpeed)));
+        setFadeTime(database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::fadeSpeed)));
 #endif
     }
 
-    setBlinkType(static_cast<blinkType_t>(database.read(DB_BLOCK_LEDS, dbSection_leds_global, static_cast<uint16_t>(setting_t::blinkWithMIDIclock))));
+    setBlinkType(static_cast<blinkType_t>(database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::blinkWithMIDIclock))));
 
     for (int i = 0; i < static_cast<uint8_t>(blinkSpeed_t::AMOUNT); i++)
         blinkState[i] = true;
@@ -103,7 +103,7 @@ __attribute__((weak)) void LEDs::startUpAnimation()
     setAllOff();
     core::timing::waitMs(2000);
 #ifdef LED_FADING
-    setFadeTime(database.read(DB_BLOCK_LEDS, dbSection_leds_global, static_cast<uint16_t>(setting_t::fadeSpeed)));
+    setFadeTime(database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::fadeSpeed)));
 #endif
 }
 
@@ -156,13 +156,13 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
     for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
     {
         //no point in checking if channel doesn't match
-        if (database.read(DB_BLOCK_LEDS, dbSection_leds_midiChannel, i) != channel)
+        if (database.read(Database::Section::leds_t::midiChannel, i) != channel)
             continue;
 
         bool setState = false;
         bool setBlink = false;
 
-        auto controlType = static_cast<controlType_t>(database.read(DB_BLOCK_LEDS, dbSection_leds_controlType, i));
+        auto controlType = static_cast<controlType_t>(database.read(Database::Section::leds_t::controlType, i));
 
         //determine whether led state or blink state should be changed
         //received MIDI message must match with defined control type
@@ -254,12 +254,12 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
         }
 
         auto color      = color_t::off;
-        bool rgbEnabled = database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, Board::io::getRGBID(i));
+        bool rgbEnabled = database.read(Database::Section::leds_t::rgbEnable, Board::io::getRGBID(i));
 
         if (setState)
         {
             //match activation ID with received ID
-            if (database.read(DB_BLOCK_LEDS, dbSection_leds_activationID, i) == data1)
+            if (database.read(Database::Section::leds_t::activationID, i) == data1)
             {
                 if (messageType == MIDI::messageType_t::programChange)
                 {
@@ -279,7 +279,7 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
                     if (rgbEnabled || (setState && setBlink))
                         color = valueToColor(data2);
                     else
-                        color = (database.read(DB_BLOCK_LEDS, dbSection_leds_activationValue, i) == data2) ? color_t::red : color_t::off;
+                        color = (database.read(Database::Section::leds_t::activationValue, i) == data2) ? color_t::red : color_t::off;
                 }
 
                 setColor(i, color);
@@ -295,7 +295,7 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
         if (setBlink)
         {
             //match activation ID with received ID
-            if (database.read(DB_BLOCK_LEDS, dbSection_leds_activationID, i) == data1)
+            if (database.read(Database::Section::leds_t::activationID, i) == data1)
             {
                 if (setState)
                 {
@@ -332,7 +332,7 @@ void LEDs::setBlinkState(uint8_t ledID, blinkSpeed_t state)
     uint8_t ledArray[3], leds = 0;
     uint8_t rgbIndex = Board::io::getRGBID(ledID);
 
-    if (database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, rgbIndex))
+    if (database.read(Database::Section::leds_t::rgbEnable, rgbIndex))
     {
         ledArray[0] = Board::io::getRGBaddress(rgbIndex, rgbIndex_t::r);
         ledArray[1] = Board::io::getRGBaddress(rgbIndex, rgbIndex_t::g);
@@ -385,7 +385,7 @@ void LEDs::setColor(uint8_t ledID, color_t color)
 {
     uint8_t rgbIndex = Board::io::getRGBID(ledID);
 
-    if (database.read(DB_BLOCK_LEDS, dbSection_leds_rgbEnable, rgbIndex))
+    if (database.read(Database::Section::leds_t::rgbEnable, rgbIndex))
     {
         //rgb led is composed of three standard LEDs
         //get indexes of individual LEDs first

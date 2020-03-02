@@ -17,10 +17,24 @@ limitations under the License.
 */
 
 #include "u8g2/csrc/u8x8.h"
-#include "database/blocks/Display.h"
 
 namespace U8X8
 {
+    enum class displayController_t : uint8_t
+    {
+        invalid,
+        ssd1306,
+        AMOUNT
+    };
+
+    enum displayResolution_t : uint8_t
+    {
+        invalid,
+        _128x64,
+        _128x32,
+        AMOUNT
+    };
+
     bool    initDisplay(displayController_t controller, displayResolution_t resolution);
     uint8_t getColumns();
     uint8_t getRows();

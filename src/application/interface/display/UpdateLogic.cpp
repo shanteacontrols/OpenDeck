@@ -28,45 +28,67 @@ using namespace Interface;
 ///
 /// \brief Initialize display driver and variables.
 ///
-bool Display::init(displayController_t controller, displayResolution_t resolution, bool setHome)
+bool Display::init(bool startupInfo)
 {
     if (initDone)
         U8X8::clearDisplay();
 
-    if (U8X8::initDisplay(controller, resolution))
+    if (database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::enable)))
     {
-        U8X8::setPowerSave(0);
-        U8X8::setFlipMode(0);
+        auto controller = static_cast<U8X8::displayController_t>(database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::controller)));
+        auto resolution = static_cast<U8X8::displayResolution_t>(database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::resolution)));
 
-        this->resolution = resolution;
-
-        U8X8::setFont(u8x8_font_pxplustandynewtv_r);
-        U8X8::clearDisplay();
-
-        //init char arrays
-        for (int i = 0; i < LCD_HEIGHT_MAX; i++)
+        if (U8X8::initDisplay(controller, resolution))
         {
-            for (int j = 0; j < LCD_STRING_BUFFER_SIZE - 2; j++)
+            U8X8::setPowerSave(0);
+            U8X8::setFlipMode(0);
+
+            this->resolution = resolution;
+
+            U8X8::setFont(u8x8_font_pxplustandynewtv_r);
+            U8X8::clearDisplay();
+
+            //init char arrays
+            for (int i = 0; i < LCD_HEIGHT_MAX; i++)
             {
-                lcdRowStillText[i][j] = ' ';
-                lcdRowTempText[i][j]  = ' ';
+                for (int j = 0; j < LCD_STRING_BUFFER_SIZE - 2; j++)
+                {
+                    lcdRowStillText[i][j] = ' ';
+                    lcdRowTempText[i][j]  = ' ';
+                }
+
+                lcdRowStillText[i][LCD_STRING_BUFFER_SIZE - 1] = '\0';
+                lcdRowTempText[i][LCD_STRING_BUFFER_SIZE - 1]  = '\0';
+
+                scrollEvent[i].size         = 0;
+                scrollEvent[i].startIndex   = 0;
+                scrollEvent[i].currentIndex = 0;
+                scrollEvent[i].direction    = scrollDirection_t::leftToRight;
             }
 
-            lcdRowStillText[i][LCD_STRING_BUFFER_SIZE - 1] = '\0';
-            lcdRowTempText[i][LCD_STRING_BUFFER_SIZE - 1]  = '\0';
+            initDone = true;
 
-            scrollEvent[i].size         = 0;
-            scrollEvent[i].startIndex   = 0;
-            scrollEvent[i].currentIndex = 0;
-            scrollEvent[i].direction    = scrollDirection_t::leftToRight;
-        }
-
-        initDone = true;
-
-        if (setHome)
             displayHome();
 
-        return true;
+            if (startupInfo)
+            {
+                setDirectWriteState(true);
+
+                if (database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::welcomeMsg)))
+                    displayWelcomeMessage();
+
+                if (database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::vInfoMsg)))
+                    displayVinfo(false);
+
+                setDirectWriteState(false);
+            }
+
+            setRetentionState(database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::MIDIeventRetention)));
+            setAlternateNoteDisplay(database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::MIDInotesAlternate)));
+            setRetentionTime(database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::MIDIeventTime) * 1000));
+
+            return true;
+        }
     }
 
     return false;

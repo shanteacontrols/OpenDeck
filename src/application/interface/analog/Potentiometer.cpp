@@ -69,10 +69,10 @@ void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32
 
     lastDirection[analogID] = direction;
 
-    uint16_t             lowerLimit = database.read(DB_BLOCK_ANALOG, dbSection_analog_lowerLimit, analogID);
-    uint16_t             upperLimit = database.read(DB_BLOCK_ANALOG, dbSection_analog_upperLimit, analogID);
-    uint16_t             midiID     = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiID, analogID);
-    uint8_t              channel    = database.read(DB_BLOCK_ANALOG, dbSection_analog_midiChannel, analogID);
+    uint16_t             lowerLimit = database.read(Database::Section::analog_t::lowerLimit, analogID);
+    uint16_t             upperLimit = database.read(Database::Section::analog_t::upperLimit, analogID);
+    uint16_t             midiID     = database.read(Database::Section::analog_t::midiID, analogID);
+    uint8_t              channel    = database.read(Database::Section::analog_t::midiChannel, analogID);
     MIDI::encDec_14bit_t encDec_14bit;
 
     if (!use14bit)
@@ -101,14 +101,14 @@ void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32
     {
         scaledMIDIvalue = core::misc::mapRange(midiValue, static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(upperLimit), static_cast<uint32_t>(lowerLimit));
 
-        if (!database.read(DB_BLOCK_ANALOG, dbSection_analog_invert, analogID))
+        if (!database.read(Database::Section::analog_t::invert, analogID))
             scaledMIDIvalue = upperLimit - (scaledMIDIvalue - lowerLimit);
     }
     else
     {
         scaledMIDIvalue = core::misc::mapRange(midiValue, static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(lowerLimit), static_cast<uint32_t>(upperLimit));
 
-        if (database.read(DB_BLOCK_ANALOG, dbSection_analog_invert, analogID))
+        if (database.read(Database::Section::analog_t::invert, analogID))
             scaledMIDIvalue = upperLimit - (scaledMIDIvalue - lowerLimit);
     }
 
@@ -191,7 +191,7 @@ void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32
         return;
     }
 
-    cInfo.send(DB_BLOCK_ANALOG, analogID);
+    cInfo.send(Database::block_t::analog, analogID);
 
     //update values
     lastAnalogueValue[analogID] = value;

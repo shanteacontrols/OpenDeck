@@ -18,8 +18,6 @@ limitations under the License.
 
 #pragma once
 
-#include "database/blocks/Display.h"
-
 ///
 /// \brief Size of buffer used to build text string on display in bytes.
 ///

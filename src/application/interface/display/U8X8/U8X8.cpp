@@ -69,7 +69,7 @@ namespace U8X8
         };
 
         //setup specific callbacks depending on controller/resolution
-        if ((resolution == displayRes_128x64) && (controller == displayController_ssd1306))
+        if ((resolution == displayResolution_t::_128x64) && (controller == displayController_t::ssd1306))
         {
             u8x8.display_cb        = u8x8_d_ssd1306_128x64_noname;
             u8x8.cad_cb            = u8x8_cad_ssd13xx_i2c;
@@ -79,7 +79,7 @@ namespace U8X8
             columns                = 16;
             success                = true;
         }
-        else if ((resolution == displayRes_128x32) && (controller == displayController_ssd1306))
+        else if ((resolution == displayResolution_t::_128x32) && (controller == displayController_t::ssd1306))
         {
             u8x8.display_cb        = u8x8_d_ssd1306_128x32_univision;
             u8x8.cad_cb            = u8x8_cad_ssd13xx_i2c;

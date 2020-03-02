@@ -21,12 +21,14 @@ limitations under the License.
 #include "Database.h"
 #include "board/Board.h"
 #include "interface/digital/output/leds/LEDs.h"
-#include "blocks/System.h"
+#include "interface/display/Display.h"
+#include "OpenDeck/sysconfig/SysConfig.h"
+#include "interface/display/Config.h"
 
 namespace
 {
     //not user accessible
-    LESSDB::section_t systemSections[DB_SECTIONS_SYSTEM] = {
+    LESSDB::section_t systemSections[static_cast<uint8_t>(SectionPrivate::system_t::AMOUNT)] = {
         //uid section
         {
             .numberOfParameters     = 1,
@@ -37,9 +39,9 @@ namespace
             .address                = 0,
         },
 
-        //settings
+        //presets
         {
-            .numberOfParameters     = SYSTEM_OPTIONS,
+            .numberOfParameters     = static_cast<uint8_t>(SysConfig::presetSetting_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -48,10 +50,10 @@ namespace
         }
     };
 
-    LESSDB::section_t globalSections[DB_SECTIONS_GLOBAL] = {
+    LESSDB::section_t globalSections[static_cast<uint8_t>(Database::Section::global_t::AMOUNT)] = {
         //midi feature section
         {
-            .numberOfParameters     = MIDI_FEATURES,
+            .numberOfParameters     = static_cast<uint8_t>(SysConfig::midiFeature_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -61,7 +63,7 @@ namespace
 
         //midi merge section
         {
-            .numberOfParameters     = MIDI_MERGE_OPTIONS,
+            .numberOfParameters     = static_cast<uint8_t>(SysConfig::midiMerge_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -70,7 +72,7 @@ namespace
         }
     };
 
-    LESSDB::section_t buttonSections[DB_SECTIONS_BUTTONS] = {
+    LESSDB::section_t buttonSections[static_cast<uint8_t>(Database::Section::button_t::AMOUNT)] = {
         //type section
         {
             .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
@@ -122,7 +124,7 @@ namespace
         }
     };
 
-    LESSDB::section_t encoderSections[DB_SECTIONS_ENCODERS] = {
+    LESSDB::section_t encoderSections[static_cast<uint8_t>(Database::Section::encoder_t::AMOUNT)] = {
         //encoder enabled section
         {
             .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
@@ -204,7 +206,7 @@ namespace
         }
     };
 
-    LESSDB::section_t analogSections[DB_SECTIONS_ANALOG] = {
+    LESSDB::section_t analogSections[static_cast<uint8_t>(Database::Section::analog_t::AMOUNT)] = {
         //analog enabled section
         {
             .numberOfParameters     = MAX_NUMBER_OF_ANALOG,
@@ -276,8 +278,7 @@ namespace
         }
     };
 
-#ifdef LEDS_SUPPORTED
-    LESSDB::section_t ledSections[DB_SECTIONS_LEDS] = {
+    LESSDB::section_t ledSections[static_cast<uint8_t>(Database::Section::leds_t::AMOUNT)] = {
         //global parameters section
         {
             .numberOfParameters     = static_cast<size_t>(Interface::digital::output::LEDs::setting_t::AMOUNT),
@@ -338,13 +339,11 @@ namespace
             .address                = 0,
         }
     };
-#endif
 
-#ifdef DISPLAY_SUPPORTED
-    LESSDB::section_t displaySections[DB_SECTIONS_DISPLAY] = {
+    LESSDB::section_t displaySections[static_cast<uint8_t>(Database::Section::display_t::AMOUNT)] = {
         //features section
         {
-            .numberOfParameters     = DISPLAY_FEATURES,
+            .numberOfParameters     = static_cast<uint8_t>(Interface::Display::feature_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = 0,
             .defaultValue           = 0,
@@ -352,9 +351,9 @@ namespace
             .address                = 0,
         },
 
-        //hw section
+        //setting section
         {
-            .numberOfParameters     = DISPLAY_HW_PARAMETERS,
+            .numberOfParameters     = static_cast<uint8_t>(Interface::Display::setting_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = 0,
             .defaultValue           = 0,
@@ -362,60 +361,55 @@ namespace
             .address                = 0,
         }
     };
-#endif
 
-    LESSDB::block_t dbLayout[DB_BLOCKS + 1] = {
+    LESSDB::block_t dbLayout[static_cast<uint8_t>(Database::block_t::AMOUNT) + 1] = {
         //system block
         {
-            .numberOfSections = DB_SECTIONS_SYSTEM,
+            .numberOfSections = static_cast<uint8_t>(SectionPrivate::system_t::AMOUNT),
             .section          = systemSections,
             .address          = 0,
         },
 
         //global block
         {
-            .numberOfSections = DB_SECTIONS_GLOBAL,
+            .numberOfSections = static_cast<uint8_t>(Database::Section::global_t::AMOUNT),
             .section          = globalSections,
             .address          = 0,
         },
 
         //buttons block
         {
-            .numberOfSections = DB_SECTIONS_BUTTONS,
+            .numberOfSections = static_cast<uint8_t>(Database::Section::button_t::AMOUNT),
             .section          = buttonSections,
             .address          = 0,
         },
 
         //encoder block
         {
-            .numberOfSections = DB_SECTIONS_ENCODERS,
+            .numberOfSections = static_cast<uint8_t>(Database::Section::encoder_t::AMOUNT),
             .section          = encoderSections,
             .address          = 0,
         },
 
         //analog block
         {
-            .numberOfSections = DB_SECTIONS_ANALOG,
+            .numberOfSections = static_cast<uint8_t>(Database::Section::analog_t::AMOUNT),
             .section          = analogSections,
             .address          = 0,
         },
 
-#ifdef LEDS_SUPPORTED
         //led block
         {
-            .numberOfSections = DB_SECTIONS_LEDS,
+            .numberOfSections = static_cast<uint8_t>(Database::Section::leds_t::AMOUNT),
             .section          = ledSections,
             .address          = 0,
         },
-#endif
 
-#ifdef DISPLAY_SUPPORTED
         //display block
         {
-            .numberOfSections = DB_SECTIONS_DISPLAY,
+            .numberOfSections = static_cast<uint8_t>(Database::Section::display_t::AMOUNT),
             .section          = displaySections,
             .address          = 0,
         }
-#endif
     };
 }    // namespace

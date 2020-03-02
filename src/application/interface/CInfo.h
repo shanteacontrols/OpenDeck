@@ -18,13 +18,12 @@ limitations under the License.
 
 #pragma once
 
-#include "database/blocks/Blocks.h"
 #include "sysex/src/SysExConf.h"
 
 class ComponentInfo
 {
     public:
-    using cinfoHandler_t = bool (*)(dbBlockID_t, SysExConf::sysExParameter_t);
+    using cinfoHandler_t = bool (*)(Database::block_t, SysExConf::sysExParameter_t);
 
     ComponentInfo() = default;
 
@@ -33,7 +32,7 @@ class ComponentInfo
         this->handler = handler;
     }
 
-    void send(dbBlockID_t block, SysExConf::sysExParameter_t id)
+    void send(Database::block_t block, SysExConf::sysExParameter_t id)
     {
         if (handler != nullptr)
             handler(block, id);

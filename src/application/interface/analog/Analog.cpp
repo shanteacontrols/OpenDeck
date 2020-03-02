@@ -31,11 +31,11 @@ void Analog::update()
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         //don't process component if it's not enabled
-        if (!database.read(DB_BLOCK_ANALOG, dbSection_analog_enable, i))
+        if (!database.read(Database::Section::analog_t::enable, i))
             continue;
 
         int16_t analogData = Board::io::getAnalogValue(i);
-        auto    type       = static_cast<type_t>(database.read(DB_BLOCK_ANALOG, dbSection_analog_type, i));
+        auto    type       = static_cast<type_t>(database.read(Database::Section::analog_t::type, i));
 
         if (expFilterUsed)
         {

@@ -22,6 +22,7 @@ limitations under the License.
 #include "U8X8/U8X8.h"
 #include "Config.h"
 #include "core/src/general/StringBuilder.h"
+#include "database/Database.h"
 
 namespace Interface
 {
@@ -103,8 +104,30 @@ namespace Interface
             presetChange
         };
 
-        Display() = default;
-        bool          init(displayController_t controller, displayResolution_t resolution, bool setHome = true);
+        enum class setting_t : uint8_t
+        {
+            controller,
+            resolution,
+            MIDIeventTime,
+            octaveNormalization,
+            AMOUNT
+        };
+
+        enum class feature_t : uint8_t
+        {
+            enable,
+            welcomeMsg,
+            vInfoMsg,
+            MIDIeventRetention,
+            MIDInotesAlternate,
+            AMOUNT
+        };
+
+        Display(Database& database)
+            : database(database)
+        {}
+
+        bool          init(bool startupInfo);
         bool          update();
         void          displayWelcomeMessage();
         void          displayVinfo(bool newFw);
@@ -125,6 +148,8 @@ namespace Interface
         void    updateScrollStatus(uint8_t row);
         void    updateTempTextStatus();
         void    clearMIDIevent(eventType_t type);
+
+        Database& database;
 
         ///
         /// \brief Holds last time index MIDI message was shown for specific event type (in or out).
@@ -202,7 +227,7 @@ namespace Interface
         ///
         /// \brief Holds resolution of configured screen.
         ///
-        displayResolution_t resolution = DISPLAY_RESOLUTIONS;
+        U8X8::displayResolution_t resolution = U8X8::displayResolution_t::AMOUNT;
 
         ///
         /// \brief Holds true if display has been initialized.
@@ -226,19 +251,21 @@ namespace Interface
         /// Used to increase readability.
         /// Matched with displayResolution_t enum.
         ///
-        const uint8_t rowMap[DISPLAY_RESOLUTIONS][LCD_HEIGHT_MAX] = {
+        const uint8_t rowMap[static_cast<uint8_t>(U8X8::displayResolution_t::AMOUNT)][LCD_HEIGHT_MAX] = {
             //128x32
             {
                 0,
                 2,
                 3,
-                4 },
+                4,
+            },
             //128x64
             {
                 0,
                 2,
                 4,
-                6 }
+                6,
+            }
         };
     };
 

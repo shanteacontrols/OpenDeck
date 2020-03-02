@@ -40,7 +40,7 @@ void Encoders::update()
 {
     for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
     {
-        if (!database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i))
+        if (!database.read(Database::Section::encoder_t::enable, i))
             continue;
 
         position_t encoderState = read(i, Board::io::getEncoderPairState(i));
@@ -55,7 +55,7 @@ void Encoders::update()
 
         if (encoderState != position_t::stopped)
         {
-            if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_invert, i))
+            if (database.read(Database::Section::encoder_t::invert, i))
             {
                 if (encoderState == position_t::ccw)
                     encoderState = position_t::cw;
@@ -77,7 +77,7 @@ void Encoders::update()
                 }
             }
 
-            uint8_t encAcceleration = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_acceleration, i);
+            uint8_t encAcceleration = database.read(Database::Section::encoder_t::acceleration, i);
 
             if (encAcceleration)
             {
@@ -95,9 +95,9 @@ void Encoders::update()
             if (debounceDirection[i] != position_t::stopped)
                 encoderState = debounceDirection[i];
 
-            uint8_t  midiID       = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiID, i);
-            uint8_t  channel      = database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i);
-            auto     type         = static_cast<type_t>(database.read(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i));
+            uint8_t  midiID       = database.read(Database::Section::encoder_t::midiID, i);
+            uint8_t  channel      = database.read(Database::Section::encoder_t::midiChannel, i);
+            auto     type         = static_cast<type_t>(database.read(Database::Section::encoder_t::mode, i));
             bool     validType    = true;
             uint16_t encoderValue = 0;
             uint8_t  steps        = (encoderSpeed[i] > 0) ? encoderSpeed[i] : 1;
@@ -237,7 +237,7 @@ void Encoders::update()
                 }
             }
 
-            cInfo.send(DB_BLOCK_ENCODERS, i);
+            cInfo.send(Database::block_t::encoders, i);
         }
     }
 }
@@ -247,7 +247,7 @@ void Encoders::update()
 ///
 void Encoders::resetValue(uint8_t encoderID)
 {
-    if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_mode, encoderID) == static_cast<int32_t>(type_t::tPitchBend))
+    if (database.read(Database::Section::encoder_t::mode, encoderID) == static_cast<int32_t>(type_t::tPitchBend))
         midiValue[encoderID] = 8192;
     else
         midiValue[encoderID] = 0;
@@ -293,7 +293,7 @@ Encoders::position_t Encoders::read(uint8_t encoderID, uint8_t pairState)
 
     encoderPulses[encoderID] += encoderLookUpTable[encoderData[encoderID] & 0x0F];
 
-    if (abs(encoderPulses[encoderID]) >= database.read(DB_BLOCK_ENCODERS, dbSection_encoders_pulsesPerStep, encoderID))
+    if (abs(encoderPulses[encoderID]) >= database.read(Database::Section::encoder_t::pulsesPerStep, encoderID))
     {
         returnValue = (encoderPulses[encoderID] > 0) ? position_t::ccw : position_t::cw;
         //reset count

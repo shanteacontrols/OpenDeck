@@ -19,39 +19,38 @@
 #pragma once
 
 #include "sysex/src/SysExConf.h"
-#include "OpenDeck/sysconfig/blocks/Global.h"
 #include "interface/digital/output/leds/LEDs.h"
-#include "interface/digital/input/buttons/Buttons.h"
 #include "interface/digital/input/encoders/Encoders.h"
 #include "interface/digital/input/encoders/Constants.h"
 #include "interface/analog/Analog.h"
+#include "interface/display/Display.h"
 
 namespace
 {
-    SysExConf::section_t globalSections[SYSEX_SECTIONS_GLOBAL] = {
+    SysExConf::section_t globalSections[static_cast<uint8_t>(SysConfig::Section::global_t::AMOUNT)] = {
         //midi feature section
         {
-            .numberOfParameters = MIDI_FEATURES,
+            .numberOfParameters = static_cast<uint8_t>(SysConfig::midiFeature_t::AMOUNT),
             .newValueMin        = 0,
             .newValueMax        = 1,
         },
 
         //midi merge section
         {
-            .numberOfParameters = MIDI_MERGE_OPTIONS,
+            .numberOfParameters = static_cast<uint8_t>(SysConfig::midiMerge_t::AMOUNT),
             .newValueMin        = 0,
             .newValueMax        = 0,
         },
 
-        //global settings section
+        //preset section
         {
-            .numberOfParameters = SYSTEM_OPTIONS,
+            .numberOfParameters = static_cast<uint8_t>(SysConfig::presetSetting_t::AMOUNT),
             .newValueMin        = 0,
             .newValueMax        = 0,
         },
     };
 
-    SysExConf::section_t buttonSections[SYSEX_SECTIONS_BUTTONS] = {
+    SysExConf::section_t buttonSections[static_cast<uint8_t>(SysConfig::Section::button_t::AMOUNT)] = {
         //type section
         {
             .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
@@ -88,7 +87,7 @@ namespace
         }
     };
 
-    SysExConf::section_t encoderSections[SYSEX_SECTIONS_ENCODERS] = {
+    SysExConf::section_t encoderSections[static_cast<uint8_t>(SysConfig::Section::encoder_t::AMOUNT)] = {
         //encoder enabled section
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
@@ -153,7 +152,7 @@ namespace
         },
     };
 
-    SysExConf::section_t analogSections[SYSEX_SECTIONS_ANALOG] = {
+    SysExConf::section_t analogSections[static_cast<uint8_t>(SysConfig::Section::analog_t::AMOUNT)] = {
         //analog enabled section
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
@@ -225,7 +224,7 @@ namespace
         }
     };
 
-    SysExConf::section_t ledSections[SYSEX_SECTIONS_LEDS] = {
+    SysExConf::section_t ledSections[static_cast<uint8_t>(SysConfig::Section::leds_t::AMOUNT)] = {
         //led color test section
         {
             .numberOfParameters = MAX_NUMBER_OF_LEDS,
@@ -283,56 +282,56 @@ namespace
         }
     };
 
-    SysExConf::section_t displaySections[SYSEX_SECTIONS_DISPLAY] = {
+    SysExConf::section_t displaySections[static_cast<uint8_t>(SysConfig::Section::display_t::AMOUNT)] = {
         //features section
         {
-            .numberOfParameters = DISPLAY_FEATURES,
+            .numberOfParameters = static_cast<uint8_t>(Interface::Display::feature_t::AMOUNT),
             .newValueMin        = 0,
-            .newValueMax        = 0,
+            .newValueMax        = 1,
         },
 
         //settings section
         {
-            .numberOfParameters = DISPLAY_HW_PARAMETERS,
+            .numberOfParameters = static_cast<uint8_t>(Interface::Display::setting_t::AMOUNT),
             .newValueMin        = 0,
             .newValueMax        = 0,
         }
     };
 
-    SysExConf::block_t sysExLayout[SYSEX_BLOCKS] = {
+    SysExConf::block_t sysExLayout[static_cast<uint8_t>(SysConfig::block_t::AMOUNT)] = {
         //global block
         {
-            .numberOfSections = SYSEX_SECTIONS_GLOBAL,
+            .numberOfSections = static_cast<uint8_t>(SysConfig::Section::global_t::AMOUNT),
             .section          = globalSections,
         },
 
         //buttons block
         {
-            .numberOfSections = SYSEX_SECTIONS_BUTTONS,
+            .numberOfSections = static_cast<uint8_t>(SysConfig::Section::button_t::AMOUNT),
             .section          = buttonSections,
         },
 
         //encoder block
         {
-            .numberOfSections = SYSEX_SECTIONS_ENCODERS,
+            .numberOfSections = static_cast<uint8_t>(SysConfig::Section::encoder_t::AMOUNT),
             .section          = encoderSections,
         },
 
         //analog block
         {
-            .numberOfSections = SYSEX_SECTIONS_ANALOG,
+            .numberOfSections = static_cast<uint8_t>(SysConfig::Section::analog_t::AMOUNT),
             .section          = analogSections,
         },
 
         //led block
         {
-            .numberOfSections = SYSEX_SECTIONS_LEDS,
+            .numberOfSections = static_cast<uint8_t>(SysConfig::Section::leds_t::AMOUNT),
             .section          = ledSections,
         },
 
         //display block
         {
-            .numberOfSections = SYSEX_SECTIONS_DISPLAY,
+            .numberOfSections = static_cast<uint8_t>(SysConfig::Section::display_t::AMOUNT),
             .section          = displaySections,
         }
     };

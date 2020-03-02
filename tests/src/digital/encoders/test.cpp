@@ -15,7 +15,7 @@ namespace
     ComponentInfo cInfo;
 
 #ifdef DISPLAY_SUPPORTED
-    Interface::Display display;
+    Interface::Display display(database);
 #endif
 
 #ifdef DISPLAY_SUPPORTED
@@ -116,9 +116,6 @@ TEST_SETUP()
     TEST_ASSERT(database.isSignatureValid() == true);
     encoders.init();
     midi.handleUSBwrite(midiDataHandler);
-#ifdef DISPLAY_SUPPORTED
-    TEST_ASSERT(display.init(displayController_ssd1306, displayRes_128x64) == true);
-#endif
 }
 
 TEST_CASE(StateDecoding)
@@ -129,16 +126,16 @@ TEST_CASE(StateDecoding)
     for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
     {
         //enable all encoders
-        TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i, 1) == true);
+        TEST_ASSERT(database.update(Database::Section::encoder_t::enable, i, 1) == true);
 
         //disable invert state
-        TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_invert, i, 0) == true);
+        TEST_ASSERT(database.update(Database::Section::encoder_t::invert, i, 0) == true);
 
         //set type of message to Encoders::type_t::t7Fh01h
-        TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i, static_cast<int32_t>(Encoders::type_t::t7Fh01h)) == true);
+        TEST_ASSERT(database.update(Database::Section::encoder_t::mode, i, static_cast<int32_t>(Encoders::type_t::t7Fh01h)) == true);
 
         //set single pulse per step
-        TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_pulsesPerStep, i, 1) == true);
+        TEST_ASSERT(database.update(Database::Section::encoder_t::pulsesPerStep, i, 1) == true);
     }
 
     uint8_t state;
@@ -262,7 +259,7 @@ TEST_CASE(StateDecoding)
 
     //this time configure 4 pulses per step
     for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
-        TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_pulsesPerStep, i, 4) == true);
+        TEST_ASSERT(database.update(Database::Section::encoder_t::pulsesPerStep, i, 4) == true);
 
     encoders.init();
 
@@ -331,19 +328,19 @@ TEST_CASE(Debounce)
         for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
         {
             //enable all encoders
-            TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i, 1) == true);
+            TEST_ASSERT(database.update(Database::Section::encoder_t::enable, i, 1) == true);
 
             //disable invert state
-            TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_invert, i, 0) == true);
+            TEST_ASSERT(database.update(Database::Section::encoder_t::invert, i, 0) == true);
 
             //set type of message to Encoders::type_t::t7Fh01h
-            TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i, static_cast<int32_t>(Encoders::type_t::t7Fh01h)) == true);
+            TEST_ASSERT(database.update(Database::Section::encoder_t::mode, i, static_cast<int32_t>(Encoders::type_t::t7Fh01h)) == true);
 
             //pulses per step
-            TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_pulsesPerStep, i, pulsesPerStep) == true);
+            TEST_ASSERT(database.update(Database::Section::encoder_t::pulsesPerStep, i, pulsesPerStep) == true);
 
             //midi channel
-            TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i, 1) == true);
+            TEST_ASSERT(database.update(Database::Section::encoder_t::midiChannel, i, 1) == true);
         }
 
         auto encValue = [](Encoders::type_t type, Encoders::position_t position) {
@@ -600,22 +597,22 @@ TEST_CASE(Acceleration)
         for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
         {
             //enable all encoders
-            TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_enable, i, 1) == true);
+            TEST_ASSERT(database.update(Database::Section::encoder_t::enable, i, 1) == true);
 
             //disable invert state
-            TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_invert, i, 0) == true);
+            TEST_ASSERT(database.update(Database::Section::encoder_t::invert, i, 0) == true);
 
             //set type of message to Encoders::type_t::tControlChange
-            TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i, static_cast<int32_t>(Encoders::type_t::tControlChange)) == true);
+            TEST_ASSERT(database.update(Database::Section::encoder_t::mode, i, static_cast<int32_t>(Encoders::type_t::tControlChange)) == true);
 
             //enable acceleration
-            TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_acceleration, i, ENCODER_SPEED_CHANGE) == true);
+            TEST_ASSERT(database.update(Database::Section::encoder_t::acceleration, i, ENCODER_SPEED_CHANGE) == true);
 
             //pulses per step
-            TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_pulsesPerStep, i, pulsesPerStep) == true);
+            TEST_ASSERT(database.update(Database::Section::encoder_t::pulsesPerStep, i, pulsesPerStep) == true);
 
             //midi channel
-            TEST_ASSERT(database.update(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i, 1) == true);
+            TEST_ASSERT(database.update(Database::Section::encoder_t::midiChannel, i, 1) == true);
         }
 
         encoders.init();

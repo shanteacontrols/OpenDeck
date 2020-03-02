@@ -16,20 +16,31 @@ limitations under the License.
 
 */
 
-#include "interface/display/Config.h"
+#include <inttypes.h>
+
+namespace SectionPrivate
+{
+    enum class system_t : uint8_t
+    {
+        uid,
+        presets,
+        AMOUNT
+    };
+}
+
 #include "Layout.h"
 
 ///
 /// \brief Helper macro for easier entry and exit from system block.
 /// Important: ::init must called before trying to use this macro.
 ///
-#define SYSTEM_BLOCK_ENTER(code)                                                                    \
-    {                                                                                               \
-        setStartAddress(0);                                                                         \
-        LESSDB::setLayout(dbLayout, DB_BLOCKS + 1);                                                 \
-        code                                                                                        \
-            LESSDB::setLayout(&dbLayout[1], DB_BLOCKS);                                             \
-        setStartAddress(systemBlockUsage + ((totalMemoryUsage - systemBlockUsage) * activePreset)); \
+#define SYSTEM_BLOCK_ENTER(code)                                                    \
+    {                                                                               \
+        setStartAddress(0);                                                         \
+        LESSDB::setLayout(dbLayout, static_cast<uint8_t>(block_t::AMOUNT) + 1);     \
+        code                                                                        \
+            LESSDB::setLayout(&dbLayout[1], static_cast<uint8_t>(block_t::AMOUNT)); \
+        setStartAddress(systemBlockUsage + (presetMemoryUsage * activePreset));     \
     }
 
 ///
@@ -39,11 +50,12 @@ bool Database::init()
 {
     setStartAddress(0);
 
-    if (!LESSDB::setLayout(dbLayout, DB_BLOCKS + 1))
+    if (!LESSDB::setLayout(dbLayout, static_cast<uint8_t>(block_t::AMOUNT) + 1))
         return false;
 
-    totalMemoryUsage = LESSDB::currentDBusage();
-    systemBlockUsage = dbLayout[1].address;
+    systemBlockUsage  = dbLayout[1].address;
+    presetMemoryUsage = LESSDB::currentDBusage() - systemBlockUsage;
+    supportedPresets  = (dbSize() - systemBlockUsage) / presetMemoryUsage;
 
     if (!isSignatureValid())
     {
@@ -54,7 +66,9 @@ bool Database::init()
         if (getPresetPreserveState())
         {
             SYSTEM_BLOCK_ENTER(
-                activePreset = read(0, dbSection_system_settings, systemGlobal_ActivePreset);)
+                activePreset = read(0,
+                                    static_cast<uint8_t>(SectionPrivate::system_t::presets),
+                                    static_cast<size_t>(SysConfig::presetSetting_t::activePreset));)
         }
         else
         {
@@ -80,16 +94,14 @@ bool Database::factoryReset(LESSDB::factoryResetType_t type)
     }
 
     setDbUID(getDbUID());
+    setPresetPreserveState(false);
 
-    for (int i = 0; i < getSupportedPresets(); i++)
+    for (int i = supportedPresets - 1; i >= 0; i--)
     {
         setPreset(i);
         initData(type);
         writeCustomValues();
     }
-
-    setPreset(0);
-    setPresetPreserveState(false);
 
     return true;
 }
@@ -101,13 +113,16 @@ bool Database::factoryReset(LESSDB::factoryResetType_t type)
 ///
 bool Database::setPreset(uint8_t preset)
 {
-    if (preset >= getSupportedPresets())
+    if (preset >= supportedPresets)
         return false;
 
     activePreset = preset;
 
     SYSTEM_BLOCK_ENTER(
-        update(0, dbSection_system_settings, systemGlobal_ActivePreset, preset);)
+        update(0,
+               static_cast<uint8_t>(SectionPrivate::system_t::presets),
+               static_cast<size_t>(SysConfig::presetSetting_t::activePreset),
+               preset);)
 
     if (presetChangeHandler != nullptr)
         presetChangeHandler(preset);
@@ -129,7 +144,7 @@ uint8_t Database::getPreset()
 void Database::writeCustomValues()
 {
 #ifdef DISPLAY_SUPPORTED
-    update(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventTime, MIN_MESSAGE_RETENTION_TIME);
+    update(Database::Section::display_t::setting, static_cast<size_t>(Interface::Display::setting_t::MIDIeventTime), MIN_MESSAGE_RETENTION_TIME);
 #endif
 }
 
@@ -139,7 +154,7 @@ void Database::writeCustomValues()
 ///
 uint8_t Database::getSupportedPresets()
 {
-    return (dbSize() - systemBlockUsage) / (totalMemoryUsage - systemBlockUsage);
+    return supportedPresets;
 }
 
 ///
@@ -150,7 +165,10 @@ uint8_t Database::getSupportedPresets()
 void Database::setPresetPreserveState(bool state)
 {
     SYSTEM_BLOCK_ENTER(
-        update(0, dbSection_system_settings, systemGlobal_presetPreserve, state);)
+        update(0,
+               static_cast<uint8_t>(SectionPrivate::system_t::presets),
+               static_cast<size_t>(SysConfig::presetSetting_t::presetPreserve),
+               state);)
 }
 
 ///
@@ -162,7 +180,9 @@ bool Database::getPresetPreserveState()
     bool returnValue;
 
     SYSTEM_BLOCK_ENTER(
-        returnValue = read(0, dbSection_system_settings, systemGlobal_presetPreserve);)
+        returnValue = read(0,
+                           static_cast<uint8_t>(SectionPrivate::system_t::presets),
+                           static_cast<size_t>(SysConfig::presetSetting_t::presetPreserve));)
 
     return returnValue;
 }
@@ -176,7 +196,9 @@ bool Database::isSignatureValid()
     uint16_t signature;
 
     SYSTEM_BLOCK_ENTER(
-        signature = read(0, dbSection_system_uid, 0);)
+        signature = read(0,
+                         static_cast<uint8_t>(SectionPrivate::system_t::uid),
+                         0);)
 
     return getDbUID() == signature;
 }
@@ -195,15 +217,15 @@ uint16_t Database::getDbUID()
 
     uint16_t signature = 0;
 
-    SYSTEM_BLOCK_ENTER(
-        //get unique database signature based on its blocks/sections
-        for (int i = 0; i < DB_BLOCKS + 1; i++) {
-            for (int j = 0; j < dbLayout[i].numberOfSections; j++)
-            {
-                signature += static_cast<uint16_t>(dbLayout[i].section[j].numberOfParameters);
-                signature += static_cast<uint16_t>(dbLayout[i].section[j].parameterType);
-            }
-        })
+    //get unique database signature based on its blocks/sections
+    for (int i = 0; i < static_cast<uint8_t>(block_t::AMOUNT) + 1; i++)
+    {
+        for (int j = 0; j < dbLayout[i].numberOfSections; j++)
+        {
+            signature += static_cast<uint16_t>(dbLayout[i].section[j].numberOfParameters);
+            signature += static_cast<uint16_t>(dbLayout[i].section[j].parameterType);
+        }
+    }
 
     return signature ^ DB_UID_BASE;
 }
@@ -216,7 +238,7 @@ uint16_t Database::getDbUID()
 void Database::setDbUID(uint16_t uid)
 {
     SYSTEM_BLOCK_ENTER(
-        update(0, dbSection_system_uid, 0, uid);)
+        update(0, static_cast<uint8_t>(SectionPrivate::system_t::uid), 0, uid);)
 }
 
 ///

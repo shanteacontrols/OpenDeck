@@ -29,7 +29,7 @@ void Buttons::update()
 {
     for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
     {
-        if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_enable, Board::io::getEncoderPair(i)))
+        if (database.read(Database::Section::encoder_t::enable, Board::io::getEncoderPair(i)))
             continue;
 
         bool state = Board::io::getButtonState(i);
@@ -54,12 +54,12 @@ void Buttons::processButton(uint8_t buttonID, bool state)
 
     setButtonState(buttonID, state);
 
-    auto buttonMessage = static_cast<messageType_t>(database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, buttonID));
+    auto buttonMessage = static_cast<messageType_t>(database.read(Database::Section::button_t::midiMessage, buttonID));
 
     //don't process messageType_t::none type of message
     if (buttonMessage != messageType_t::none)
     {
-        auto type = static_cast<type_t>(database.read(DB_BLOCK_BUTTONS, dbSection_buttons_type, buttonID));
+        auto type = static_cast<type_t>(database.read(Database::Section::button_t::type, buttonID));
 
         bool sendMIDI = true;
 
@@ -127,7 +127,7 @@ void Buttons::processButton(uint8_t buttonID, bool state)
             //change preset only on press
             if (state)
             {
-                uint8_t preset = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, buttonID);
+                uint8_t preset = database.read(Database::Section::button_t::midiID, buttonID);
                 database.setPreset(preset);
             }
         }
@@ -137,7 +137,7 @@ void Buttons::processButton(uint8_t buttonID, bool state)
         }
     }
 
-    cInfo.send(DB_BLOCK_BUTTONS, buttonID);
+    cInfo.send(Database::block_t::buttons, buttonID);
 }
 
 ///
@@ -149,12 +149,12 @@ void Buttons::processButton(uint8_t buttonID, bool state)
 ///
 void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMessage)
 {
-    uint8_t note     = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiID, buttonID);
-    uint8_t channel  = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiChannel, buttonID);
-    uint8_t velocity = database.read(DB_BLOCK_BUTTONS, dbSection_buttons_velocity, buttonID);
+    uint8_t note     = database.read(Database::Section::button_t::midiID, buttonID);
+    uint8_t channel  = database.read(Database::Section::button_t::midiChannel, buttonID);
+    uint8_t velocity = database.read(Database::Section::button_t::velocity, buttonID);
 
     if (buttonMessage == messageType_t::AMOUNT)
-        buttonMessage = static_cast<messageType_t>(database.read(DB_BLOCK_BUTTONS, dbSection_buttons_midiMessage, buttonID));
+        buttonMessage = static_cast<messageType_t>(database.read(Database::Section::button_t::midiMessage, buttonID));
 
     mmcArray[2] = note;    //use midi note as channel id for transport control
 

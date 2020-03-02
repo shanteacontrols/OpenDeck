@@ -49,7 +49,7 @@ namespace
 #endif
 
 #ifdef DISPLAY_SUPPORTED
-    Interface::Display display;
+    Interface::Display display(database);
 #endif
 
 #ifdef LEDS_SUPPORTED
@@ -118,9 +118,6 @@ TEST_SETUP()
     TEST_ASSERT(database.isSignatureValid() == true);
     TEST_ASSERT(database.factoryReset(LESSDB::factoryResetType_t::full) == true);
     midi.handleUSBwrite(midiDataHandler);
-#ifdef DISPLAY_SUPPORTED
-    TEST_ASSERT(display.init(displayController_ssd1306, displayRes_128x64) == true);
-#endif
 
     analog.disableExpFiltering();
 
@@ -136,22 +133,22 @@ TEST_CASE(CCtest)
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         //enable all analog components
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_enable, i, 1) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::enable, i, 1) == true);
 
         //disable invert state
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_invert, i, 0) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::invert, i, 0) == true);
 
         //configure all analog components as potentiometers with CC MIDI message
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_type, i, static_cast<int32_t>(Analog::type_t::potentiometerControlChange)) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::type, i, static_cast<int32_t>(Analog::type_t::potentiometerControlChange)) == true);
 
         //set all lower limits to 0
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_lowerLimit, i, 0) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
 
         //set all upper limits to MIDI_7_BIT_VALUE_MAX
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_upperLimit, i, MIDI_7_BIT_VALUE_MAX) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::upperLimit, i, MIDI_7_BIT_VALUE_MAX) == true);
 
         //midi channel
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_midiChannel, i, 1) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
     }
 
     uint16_t expectedValue;
@@ -195,22 +192,22 @@ TEST_CASE(PitchBendTest)
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         //enable all analog components
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_enable, i, 1) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::enable, i, 1) == true);
 
         //disable invert state
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_invert, i, 0) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::invert, i, 0) == true);
 
         //configure all analog components as potentiometers with Pitch Bend MIDI message
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_type, i, static_cast<int32_t>(Analog::type_t::pitchBend)) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::type, i, static_cast<int32_t>(Analog::type_t::pitchBend)) == true);
 
         //set all lower limits to 0
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_lowerLimit, i, 0) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
 
         //set all upper limits to MIDI_14_BIT_VALUE_MAX
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_upperLimit, i, MIDI_14_BIT_VALUE_MAX) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::upperLimit, i, MIDI_14_BIT_VALUE_MAX) == true);
 
         //midi channel
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_midiChannel, i, 1) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
     }
 
     uint16_t expectedValue;
@@ -262,22 +259,22 @@ TEST_CASE(ScalingAndInversion)
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         //enable all analog components
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_enable, i, 1) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::enable, i, 1) == true);
 
         //disable invert state
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_invert, i, 0) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::invert, i, 0) == true);
 
         //configure all analog components as potentiometers with CC MIDI message
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_type, i, static_cast<int32_t>(Analog::type_t::potentiometerControlChange)) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::type, i, static_cast<int32_t>(Analog::type_t::potentiometerControlChange)) == true);
 
         //set all lower limits to 0
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_lowerLimit, i, 0) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
 
         //set all upper limits to MIDI_14_BIT_VALUE_MAX
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_upperLimit, i, MIDI_14_BIT_VALUE_MAX) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::upperLimit, i, MIDI_14_BIT_VALUE_MAX) == true);
 
         //midi channel
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_midiChannel, i, 1) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
     }
 
     for (uint32_t i = ADC_MAX_VALUE + 1; i-- > 0;)
@@ -302,7 +299,7 @@ TEST_CASE(ScalingAndInversion)
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         //enable inversion for all analog components
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_invert, i, 1) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::invert, i, 1) == true);
         analog.debounceReset(i);
     }
 
@@ -326,10 +323,10 @@ TEST_CASE(ScalingAndInversion)
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         //disable invert state
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_invert, i, 0) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::invert, i, 0) == true);
 
         //configure all analog components as potentiometers with Pitch Bend MIDI message
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_type, i, static_cast<int32_t>(Analog::type_t::pitchBend)) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::type, i, static_cast<int32_t>(Analog::type_t::pitchBend)) == true);
 
         analog.debounceReset(i);
     }
@@ -357,7 +354,7 @@ TEST_CASE(ScalingAndInversion)
     //now enable inversion
     for (uint32_t i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_invert, i, 1) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::invert, i, 1) == true);
         analog.debounceReset(i);
     }
 
@@ -391,8 +388,8 @@ TEST_CASE(ScalingAndInversion)
 
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_invert, i, 0) == true);
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_upperLimit, i, scaledUpperValue) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::invert, i, 0) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::upperLimit, i, scaledUpperValue) == true);
     }
 
     resetReceived();
@@ -427,22 +424,22 @@ TEST_CASE(Debouncing)
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         //enable all analog components
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_enable, i, 1) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::enable, i, 1) == true);
 
         //disable invert state
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_invert, i, 0) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::invert, i, 0) == true);
 
         //configure all analog components as potentiometers with CC MIDI message
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_type, i, static_cast<int32_t>(Analog::type_t::potentiometerControlChange)) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::type, i, static_cast<int32_t>(Analog::type_t::potentiometerControlChange)) == true);
 
         //set all lower limits to 0
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_lowerLimit, i, 0) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
 
         //set all upper limits to MIDI_14_BIT_VALUE_MAX
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_upperLimit, i, MIDI_14_BIT_VALUE_MAX) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::upperLimit, i, MIDI_14_BIT_VALUE_MAX) == true);
 
         //midi channel
-        TEST_ASSERT(database.update(DB_BLOCK_ANALOG, dbSection_analog_midiChannel, i, 1) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
     }
 
     uint32_t expectedValue;

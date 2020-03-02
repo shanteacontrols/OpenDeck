@@ -27,7 +27,7 @@ Database                            database(Board::eeprom::read, Board::eeprom:
 MIDI                                midi;
 Interface::digital::input::Common   digitalInputCommon;
 #ifdef DISPLAY_SUPPORTED
-Interface::Display                  display;
+Interface::Display                  display(database);
 #endif
 #ifdef TOUCHSCREEN_SUPPORTED
 //assume sdw only for now
@@ -97,26 +97,7 @@ void OpenDeck::init()
     encoders.init();
 
 #ifdef DISPLAY_SUPPORTED
-    if (database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureEnable))
-    {
-        if (display.init(static_cast<displayController_t>(database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwController)), static_cast<displayResolution_t>(database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwResolution)), false))
-        {
-            display.setDirectWriteState(true);
-
-            if (database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureWelcomeMsg))
-                display.displayWelcomeMessage();
-
-            if (database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureVInfoMsg))
-                display.displayVinfo(false);
-
-            display.setDirectWriteState(false);
-
-            display.displayHome();
-            display.setRetentionState(database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventRetention));
-            display.setRetentionTime(database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventTime) * 1000);
-            display.setAlternateNoteDisplay(database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDInotesAlternate));
-        }
-    }
+    display.init(true);
 #endif
 
 #ifdef TOUCHSCREEN_SUPPORTED
@@ -126,7 +107,7 @@ void OpenDeck::init()
 #endif
 #endif
 
-    cinfo.registerHandler([](dbBlockID_t dbBlock, SysExConf::sysExParameter_t componentID) {
+    cinfo.registerHandler([](Database::block_t dbBlock, SysExConf::sysExParameter_t componentID) {
         return sysConfig.sendCInfo(dbBlock, componentID);
     });
 
@@ -146,11 +127,8 @@ void OpenDeck::init()
 #endif
 
 #ifdef DISPLAY_SUPPORTED
-        display.init(static_cast<displayController_t>(database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwController)), static_cast<displayResolution_t>(database.read(DB_BLOCK_DISPLAY, dbSection_display_hw, displayHwResolution)));
-        display.setRetentionState(database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventRetention));
-        display.setRetentionTime(database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDIeventTime) * 1000);
-        display.setAlternateNoteDisplay(database.read(DB_BLOCK_DISPLAY, dbSection_display_features, displayFeatureMIDInotesAlternate));
-        display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::presetChange, preset, 0, 0);
+        if (display.init(false))
+            display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::presetChange, preset, 0, 0);
 #endif
     });
 
@@ -248,16 +226,16 @@ void OpenDeck::checkMIDI()
             {
                 for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
                 {
-                    if (!database.read(DB_BLOCK_ENCODERS, dbSection_encoders_remoteSync, i))
+                    if (!database.read(Database::Section::encoder_t::remoteSync, i))
                         continue;
 
-                    if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_mode, i) != static_cast<int32_t>(Interface::digital::input::Encoders::type_t::tControlChange))
+                    if (database.read(Database::Section::encoder_t::mode, i) != static_cast<int32_t>(Interface::digital::input::Encoders::type_t::tControlChange))
                         continue;
 
-                    if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiChannel, i) != channel)
+                    if (database.read(Database::Section::encoder_t::midiChannel, i) != channel)
                         continue;
 
-                    if (database.read(DB_BLOCK_ENCODERS, dbSection_encoders_midiID, i) != data1)
+                    if (database.read(Database::Section::encoder_t::midiID, i) != data1)
                         continue;
 
                     encoders.setValue(i, data2);
@@ -290,26 +268,28 @@ void OpenDeck::checkMIDI()
         processMessage(MIDI::interface_t::usb);
 
 #ifdef DIN_MIDI_SUPPORTED
-    if (database.read(DB_BLOCK_GLOBAL, dbSection_global_midiFeatures, midiFeatureDinEnabled))
+    if (sysConfig.isMIDIfeatureEnabled(SysConfig::midiFeature_t::dinEnabled))
     {
-        if (database.read(DB_BLOCK_GLOBAL, dbSection_global_midiFeatures, midiFeatureMergeEnabled))
+        if (sysConfig.isMIDIfeatureEnabled(SysConfig::midiFeature_t::mergeEnabled))
         {
-            switch (database.read(DB_BLOCK_GLOBAL, dbSection_global_midiMerge, midiMergeType))
+            auto mergeType = sysConfig.midiMergeType();
+
+            switch (mergeType)
             {
-            case midiMergeDINtoUSB:
+            case SysConfig::midiMergeType_t::DINtoUSB:
                 //dump everything from DIN MIDI in to USB MIDI out
                 midi.read(MIDI::interface_t::din, MIDI::filterMode_t::fullUSB);
                 break;
 
-                // case midiMergeDINtoDIN:
+                // case SysConfig::midiMergeType_t::DINtoDIN:
                 //loopback is automatically configured here
                 // break;
 
-                // case midiMergeODmaster:
+                // case SysConfig::midiMergeType_t::odMaster:
                 //already configured
                 // break;
 
-            case midiMergeODslaveInitial:
+            case SysConfig::midiMergeType_t::odSlaveInitial:
                 //handle the traffic regulary until slave is properly configured
                 //(upon receiving message from master)
                 if (midi.read(MIDI::interface_t::din))
