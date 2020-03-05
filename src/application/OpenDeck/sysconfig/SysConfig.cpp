@@ -84,70 +84,87 @@ Database::Section::display_t SysConfig::dbSection(Section::display_t section)
     return sysEx2DB_display[static_cast<uint8_t>(section)];
 }
 
-bool SysConfig::onCustomRequest(size_t value)
+void SysConfig::handleSysEx(const uint8_t* array, size_t size)
+{
+    sysExConf.handleMessage(array, size);
+}
+
+SysConfig::result_t SysConfig::SysExDataHandler::customRequest(size_t request, CustomResponse& customResponse)
 {
     using namespace Board;
 
-    bool retVal = true;
+    auto result = SysConfig::result_t::ok;
 
-    auto appendSW = [this]() {
-        addToResponse(SW_VERSION_MAJOR);
-        addToResponse(SW_VERSION_MINOR);
-        addToResponse(SW_VERSION_REVISION);
+    auto appendSW = [&customResponse]() {
+        customResponse.append(SW_VERSION_MAJOR);
+        customResponse.append(SW_VERSION_MINOR);
+        customResponse.append(SW_VERSION_REVISION);
     };
 
-    auto appendHW = [this]() {
-        addToResponse((FW_UID >> 24) & static_cast<uint32_t>(0xFF));
-        addToResponse((FW_UID >> 16) & static_cast<uint32_t>(0xFF));
-        addToResponse((FW_UID >> 8) & static_cast<uint32_t>(0xFF));
-        addToResponse(FW_UID & static_cast<uint32_t>(0xFF));
-        addToResponse(HARDWARE_VERSION_MAJOR);
-        addToResponse(HARDWARE_VERSION_MINOR);
-        addToResponse(0);
+    auto appendHW = [&customResponse]() {
+        customResponse.append((FW_UID >> 24) & static_cast<uint32_t>(0xFF));
+        customResponse.append((FW_UID >> 16) & static_cast<uint32_t>(0xFF));
+        customResponse.append((FW_UID >> 8) & static_cast<uint32_t>(0xFF));
+        customResponse.append(FW_UID & static_cast<uint32_t>(0xFF));
+        customResponse.append(HARDWARE_VERSION_MAJOR);
+        customResponse.append(HARDWARE_VERSION_MINOR);
+        customResponse.append(0);
     };
 
-    switch (value)
+    switch (request)
     {
     case SYSEX_CR_FIRMWARE_VERSION:
+    {
         appendSW();
-        break;
+    }
+    break;
 
     case SYSEX_CR_HARDWARE_VERSION:
+    {
         appendHW();
-        break;
+    }
+    break;
 
     case SYSEX_CR_FIRMWARE_HARDWARE_VERSION:
+    {
         appendSW();
         appendHW();
-        break;
+    }
+    break;
 
     case SYSEX_CR_REBOOT_APP:
     case SYSEX_CR_FACTORY_RESET:
     case SYSEX_CR_REBOOT_BTLDR:
+    {
 #ifdef LEDS_SUPPORTED
-        leds.setAllOff();
+        sysConfig.leds.setAllOff();
         core::timing::waitMs(2500);
 #endif
 
-        if (value == SYSEX_CR_FACTORY_RESET)
-            database.factoryReset(LESSDB::factoryResetType_t::partial);
+        if (request == SYSEX_CR_FACTORY_RESET)
+            sysConfig.database.factoryReset(LESSDB::factoryResetType_t::partial);
 
-        if (value == SYSEX_CR_REBOOT_BTLDR)
+        if (request == SYSEX_CR_REBOOT_BTLDR)
             Board::reboot(rebootType_t::rebootBtldr);
         else
             Board::reboot(rebootType_t::rebootApp);
-        break;
+    }
+    break;
 
     case SYSEX_CR_MAX_COMPONENTS:
-        addToResponse(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS);
-        addToResponse(MAX_NUMBER_OF_ENCODERS);
-        addToResponse(MAX_NUMBER_OF_ANALOG);
-        addToResponse(MAX_NUMBER_OF_LEDS);
-        break;
+    {
+        customResponse.append(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS);
+        customResponse.append(MAX_NUMBER_OF_ENCODERS);
+        customResponse.append(MAX_NUMBER_OF_ANALOG);
+        customResponse.append(MAX_NUMBER_OF_LEDS);
+    }
+    break;
 
     case SYSEX_CR_SUPPORTED_PRESETS:
-        addToResponse(database.getSupportedPresets());
-        break;
+    {
+        customResponse.append(sysConfig.database.getSupportedPresets());
+    }
+    break;
 
 #ifdef DIN_MIDI_SUPPORTED
     case SYSEX_CR_DAISY_CHAIN:
@@ -155,50 +172,52 @@ bool SysConfig::onCustomRequest(size_t value)
         //received message from opendeck board in daisy chain configuration
         //check if this board is master
 
-        if (midiMergeType() == midiMergeType_t::odSlave)
+        if (sysConfig.midiMergeType() == midiMergeType_t::odSlave)
         {
             //slave
             //send sysex to next board in the chain on uart channel
-            sendDaisyChainRequest();
+            sysConfig.sendDaisyChainRequest();
             //now configure daisy-chain configuration
-            configureMIDImerge(midiMergeType_t::odSlave);
+            sysConfig.configureMIDImerge(midiMergeType_t::odSlave);
         }
     }
     break;
 #endif
 
     case SYSEX_CR_ENABLE_PROCESSING:
-        processingEnabled = true;
-        break;
+    {
+        sysConfig.processingEnabled = true;
+    }
+    break;
 
     case SYSEX_CR_DISABLE_PROCESSING:
-        processingEnabled = false;
-        break;
+    {
+        sysConfig.processingEnabled = false;
+    }
+    break;
 
     default:
-        retVal = false;
-        break;
+    {
+        result = SysConfig::result_t::error;
+    }
+    break;
     }
 
-    if (retVal)
+    if (result == SysConfig::result_t::ok)
     {
 #ifdef DISPLAY_SUPPORTED
-        display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::systemExclusive, 0, 0, 0);
+        sysConfig.display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::systemExclusive, 0, 0, 0);
 #endif
     }
 
-    return retVal;
-}
-
-void SysConfig::onWrite(uint8_t sysExArray[], size_t arraysize)
-{
-    midi.sendSysEx(arraysize, sysExArray, true);
+    return result;
 }
 
 void SysConfig::init()
 {
-    setLayout(sysExLayout, static_cast<uint8_t>(block_t::AMOUNT));
-    setupCustomRequests(customRequests, NUMBER_OF_CUSTOM_REQUESTS);
+    sysExConf.setLayout(sysExLayout, static_cast<uint8_t>(block_t::AMOUNT));
+    sysExConf.setupCustomRequests(customRequests, NUMBER_OF_CUSTOM_REQUESTS);
+
     configureMIDI();
 }
 
@@ -265,7 +284,7 @@ void SysConfig::setupMIDIoverUSB()
 
 bool SysConfig::sendCInfo(Database::block_t dbBlock, SysExConf::sysExParameter_t componentID)
 {
-    if (isConfigurationEnabled())
+    if (sysExConf.isConfigurationEnabled())
     {
         if ((core::timing::currentRunTimeMs() - lastCinfoMsgTime[static_cast<uint8_t>(dbBlock)]) > COMPONENT_INFO_TIMEOUT)
         {
@@ -275,7 +294,7 @@ bool SysConfig::sendCInfo(Database::block_t dbBlock, SysExConf::sysExParameter_t
                 static_cast<SysExConf::sysExParameter_t>(componentID)
             };
 
-            sendCustomMessage(midi.usbMessage.sysexArray, cInfoMessage, 3);
+            sysExConf.sendCustomMessage(cInfoMessage, 3);
             lastCinfoMsgTime[static_cast<uint8_t>(dbBlock)] = core::timing::currentRunTimeMs();
         }
 
@@ -332,6 +351,7 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
     switch (mergeType)
     {
     case midiMergeType_t::odMaster:
+    {
         Board::UART::setLoopbackState(UART_MIDI_CHANNEL, false);
         Board::UART::init(UART_MIDI_CHANNEL, UART_BAUDRATE_MIDI_OD);
         //before enabling master configuration, send slave request to other boards
@@ -382,9 +402,11 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
         //unused
         midi.handleUARTread(nullptr);
         midi.handleUARTwrite(nullptr);
-        break;
+    }
+    break;
 
     case midiMergeType_t::odSlave:
+    {
         Board::UART::setLoopbackState(UART_MIDI_CHANNEL, false);
         Board::UART::init(UART_MIDI_CHANNEL, UART_BAUDRATE_MIDI_OD);
         //forward all incoming messages to other boards
@@ -408,24 +430,31 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
         //no need for uart handlers
         midi.handleUARTread(nullptr);
         midi.handleUARTwrite(nullptr);
-        break;
+    }
+    break;
 
     case midiMergeType_t::odSlaveInitial:
+    {
         //init only uart read interface for now
         setupMIDIoverUART(UART_BAUDRATE_MIDI_OD, true, false);
-        break;
+    }
+    break;
 
     case midiMergeType_t::DINtoDIN:
+    {
         //forward all incoming DIN MIDI data to DIN MIDI out
         //also send OpenDeck-generated traffic to DIN MIDI out
         setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, false, true);
         Board::UART::setLoopbackState(UART_MIDI_CHANNEL, true);
-        break;
+    }
+    break;
 
     case midiMergeType_t::DINtoUSB:
+    {
         setupMIDIoverUSB();
         setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true);
-        break;
+    }
+    break;
 
     default:
         break;
@@ -437,9 +466,9 @@ void SysConfig::sendDaisyChainRequest()
     //send the message directly in custom request sysex format
     const uint8_t daisyChainSysEx[8] = {
         0xF0,
-        SYS_EX_CONF_M_ID_0,
-        SYS_EX_CONF_M_ID_1,
-        SYS_EX_CONF_M_ID_2,
+        SYSEX_MANUFACTURER_ID_0,
+        SYSEX_MANUFACTURER_ID_1,
+        SYSEX_MANUFACTURER_ID_2,
         static_cast<uint8_t>(SysExConf::status_t::request),
         0x00,
         SYSEX_CR_DAISY_CHAIN,

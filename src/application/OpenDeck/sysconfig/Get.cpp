@@ -1,58 +1,72 @@
 #include "SysConfig.h"
 
-bool SysConfig::onGet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t& value)
+SysConfig::result_t SysConfig::SysExDataHandler::get(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t& value)
 {
     auto sysExBlock = static_cast<SysConfig::block_t>(block);
-    bool success    = false;
+    auto result     = SysConfig::result_t::notSupported;
 
     switch (sysExBlock)
     {
     case SysConfig::block_t::global:
-        success = onGetGlobal(static_cast<SysConfig::Section::global_t>(section), index, value);
-        break;
+    {
+        result = sysConfig.onGetGlobal(static_cast<SysConfig::Section::global_t>(section), index, value);
+    }
+    break;
 
     case SysConfig::block_t::buttons:
-        success = onGetButtons(static_cast<SysConfig::Section::button_t>(section), index, value);
-        break;
+    {
+        result = sysConfig.onGetButtons(static_cast<SysConfig::Section::button_t>(section), index, value);
+    }
+    break;
 
     case SysConfig::block_t::encoders:
-        success = onGetEncoders(static_cast<SysConfig::Section::encoder_t>(section), index, value);
-        break;
+    {
+        result = sysConfig.onGetEncoders(static_cast<SysConfig::Section::encoder_t>(section), index, value);
+    }
+    break;
 
     case SysConfig::block_t::analog:
-        success = onGetAnalog(static_cast<SysConfig::Section::analog_t>(section), index, value);
-        break;
+    {
+        result = sysConfig.onGetAnalog(static_cast<SysConfig::Section::analog_t>(section), index, value);
+    }
+    break;
 
     case SysConfig::block_t::leds:
-        success = onGetLEDs(static_cast<SysConfig::Section::leds_t>(section), index, value);
-        break;
+    {
+        result = sysConfig.onGetLEDs(static_cast<SysConfig::Section::leds_t>(section), index, value);
+    }
+    break;
 
     case SysConfig::block_t::display:
-        success = onGetDisplay(static_cast<SysConfig::Section::display_t>(section), index, value);
-        break;
+    {
+        result = sysConfig.onGetDisplay(static_cast<SysConfig::Section::display_t>(section), index, value);
+    }
+    break;
 
     default:
         break;
     }
 
 #ifdef DISPLAY_SUPPORTED
-    display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::systemExclusive, 0, 0, 0);
+    sysConfig.display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::systemExclusive, 0, 0, 0);
 #endif
 
-    return success;
+    return result;
 }
 
-bool SysConfig::onGetGlobal(Section::global_t section, size_t index, SysExConf::sysExParameter_t& value)
+SysConfig::result_t SysConfig::onGetGlobal(Section::global_t section, size_t index, SysExConf::sysExParameter_t& value)
 {
     int32_t readValue = 0;
-    bool    success   = false;
+    auto    result    = SysConfig::result_t::error;
 
     switch (section)
     {
     case Section::global_t::midiFeature:
     case Section::global_t::midiMerge:
-        success = database.read(dbSection(section), index, readValue);
-        break;
+    {
+        result = database.read(dbSection(section), index, readValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
+    }
+    break;
 
     case Section::global_t::presets:
     {
@@ -61,51 +75,53 @@ bool SysConfig::onGetGlobal(Section::global_t section, size_t index, SysExConf::
         switch (setting)
         {
         case presetSetting_t::activePreset:
+        {
             readValue = database.getPreset();
-            success   = true;
-            break;
+            result    = SysConfig::result_t::ok;
+        }
+        break;
 
         case presetSetting_t::presetPreserve:
+        {
             readValue = database.getPresetPreserveState();
-            success   = true;
-            break;
+            result    = SysConfig::result_t::ok;
+        }
+        break;
 
         default:
-            success = false;
             break;
         }
     }
     break;
 
     default:
-        success = false;
         break;
     }
 
     value = readValue;
-    return success;
+    return result;
 }
 
-bool SysConfig::onGetButtons(Section::button_t section, size_t index, SysExConf::sysExParameter_t& value)
+SysConfig::result_t SysConfig::onGetButtons(Section::button_t section, size_t index, SysExConf::sysExParameter_t& value)
 {
     int32_t readValue;
-    bool    success = database.read(dbSection(section), index, readValue);
+    auto    result = database.read(dbSection(section), index, readValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
 
     //channels start from 0 in db, start from 1 in sysex
-    if ((section == Section::button_t::midiChannel) && success)
+    if ((section == Section::button_t::midiChannel) && (result == SysConfig::result_t::ok))
         readValue++;
 
     value = readValue;
-    return success;
+    return result;
 }
 
-bool SysConfig::onGetEncoders(Section::encoder_t section, size_t index, SysExConf::sysExParameter_t& value)
+SysConfig::result_t SysConfig::onGetEncoders(Section::encoder_t section, size_t index, SysExConf::sysExParameter_t& value)
 {
     int32_t              readValue;
-    bool                 success = database.read(dbSection(section), index, readValue);
+    auto                 result = database.read(dbSection(section), index, readValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
     MIDI::encDec_14bit_t encDec_14bit;
 
-    if (success)
+    if (result == SysConfig::result_t::ok)
     {
         if ((section == Section::encoder_t::midiID) || (section == Section::encoder_t::midiID_msb))
         {
@@ -125,13 +141,13 @@ bool SysConfig::onGetEncoders(Section::encoder_t section, size_t index, SysExCon
     }
 
     value = readValue;
-    return success;
+    return result;
 }
 
-bool SysConfig::onGetAnalog(Section::analog_t section, size_t index, SysExConf::sysExParameter_t& value)
+SysConfig::result_t SysConfig::onGetAnalog(Section::analog_t section, size_t index, SysExConf::sysExParameter_t& value)
 {
     int32_t              readValue;
-    bool                 success = database.read(dbSection(section), index, readValue);
+    auto                 result = database.read(dbSection(section), index, readValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
     MIDI::encDec_14bit_t encDec_14bit;
 
     switch (section)
@@ -142,7 +158,8 @@ bool SysConfig::onGetAnalog(Section::analog_t section, size_t index, SysExConf::
     case Section::analog_t::lowerLimit_MSB:
     case Section::analog_t::upperLimit:
     case Section::analog_t::upperLimit_MSB:
-        if (success)
+    {
+        if (result == SysConfig::result_t::ok)
         {
             encDec_14bit.value = readValue;
             encDec_14bit.split14bit();
@@ -152,81 +169,96 @@ bool SysConfig::onGetAnalog(Section::analog_t section, size_t index, SysExConf::
             case Section::analog_t::midiID:
             case Section::analog_t::lowerLimit:
             case Section::analog_t::upperLimit:
+            {
                 readValue = encDec_14bit.low;
-                break;
+            }
+            break;
 
             default:
+            {
                 readValue = encDec_14bit.high;
-                break;
+            }
+            break;
             }
         }
-        break;
+    }
+    break;
 
     case Section::analog_t::midiChannel:
+    {
         //channels start from 0 in db, start from 1 in sysex
-        if (success)
+        if (result == SysConfig::result_t::ok)
             readValue++;
-        break;
+    }
+    break;
 
     default:
         break;
     }
 
     value = readValue;
-    return success;
+    return result;
 }
 
-bool SysConfig::onGetLEDs(Section::leds_t section, size_t index, SysExConf::sysExParameter_t& value)
+SysConfig::result_t SysConfig::onGetLEDs(Section::leds_t section, size_t index, SysExConf::sysExParameter_t& value)
 {
 #ifdef LEDS_SUPPORTED
     int32_t readValue;
-    bool    success = true;
+    auto    result = SysConfig::result_t::ok;
 
     switch (section)
     {
     case Section::leds_t::testColor:
+    {
         readValue = static_cast<int32_t>(leds.getColor(index));
-        break;
+    }
+    break;
 
     case Section::leds_t::testBlink:
+    {
         readValue = leds.getBlinkState(index);
-        break;
+    }
+    break;
 
     case Section::leds_t::midiChannel:
-        success = database.read(dbSection(section), index, readValue);
+    {
+        result = database.read(dbSection(section), index, readValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
 
         //channels start from 0 in db, start from 1 in sysex
-        if (success)
+        if (result == SysConfig::result_t::ok)
             readValue++;
-        break;
+    }
+    break;
 
     case Section::leds_t::rgbEnable:
-        success = database.read(dbSection(section), Board::io::getRGBID(index), readValue);
-        break;
+    {
+        result = database.read(dbSection(section), Board::io::getRGBID(index), readValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
+    }
+    break;
 
     default:
-        success = database.read(dbSection(section), index, readValue);
-        break;
+    {
+        result = database.read(dbSection(section), index, readValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
+    }
+    break;
     }
 
     value = readValue;
-    return success;
+    return result;
 #else
-    setError(SysExConf::status_t::errorNotSupported);
-    return false;
+    return SysConfig::result_t::notSupported;
 #endif
 }
 
-bool SysConfig::onGetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t& value)
+SysConfig::result_t SysConfig::onGetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t& value)
 {
 #ifdef DISPLAY_SUPPORTED
     int32_t readValue;
-    bool    success = database.read(dbSection(section), index, readValue);
+    auto    result = database.read(dbSection(section), index, readValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
 
     value = readValue;
-    return success;
+    return result;
 #else
-    setError(SysExConf::status_t::errorNotSupported);
-    return false;
+    return SysConfig::result_t::notSupported;
 #endif
 }

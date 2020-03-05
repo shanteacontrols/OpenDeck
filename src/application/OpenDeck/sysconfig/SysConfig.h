@@ -29,8 +29,9 @@ limitations under the License.
 #ifdef LEDS_SUPPORTED
 #include "interface/digital/output/leds/LEDs.h"
 #endif
+#include "Constants.h"
 
-class SysConfig : public SysExConf
+class SysConfig
 {
     public:
 #ifdef LEDS_SUPPORTED
@@ -50,7 +51,12 @@ class SysConfig : public SysExConf
         :
 #endif
 #endif
-        database(database)
+        sysExConf(
+            sysExDataHandler,
+            sysExMID,
+            SysExConf::paramSize_t::_7bit,
+            SysExConf::nrOfParam_t::_32)
+        , database(database)
         , midi(midi)
         , buttons(buttons)
         , encoders(encoders)
@@ -61,6 +67,7 @@ class SysConfig : public SysExConf
 #ifdef DISPLAY_SUPPORTED
         , display(display)
 #endif
+        , sysExDataHandler(*this)
     {}
 
     enum class block_t : uint8_t
@@ -182,12 +189,43 @@ class SysConfig : public SysExConf
     };
 
     void            init();
+    void            handleSysEx(const uint8_t* array, size_t size);
     bool            isProcessingEnabled();
     bool            sendCInfo(Database::block_t dbBlock, SysExConf::sysExParameter_t componentID);
     bool            isMIDIfeatureEnabled(midiFeature_t feature);
     midiMergeType_t midiMergeType();
 
     private:
+    using result_t = SysExConf::DataHandler::result_t;
+
+    class SysExDataHandler : public SysExConf::DataHandler
+    {
+        public:
+        SysExDataHandler(SysConfig& sysConfig)
+            : sysConfig(sysConfig)
+        {}
+
+        result_t get(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t& value) override;
+        result_t set(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t newValue) override;
+        result_t customRequest(size_t request, CustomResponse& customResponse) override;
+
+        void sendResponse(uint8_t* array, size_t size) override
+        {
+            sysConfig.midi.sendSysEx(size, array, true);
+        }
+
+        private:
+        SysConfig& sysConfig;
+    };
+
+    const SysExConf::manufacturerID_t sysExMID = {
+        SYSEX_MANUFACTURER_ID_0,
+        SYSEX_MANUFACTURER_ID_1,
+        SYSEX_MANUFACTURER_ID_2
+    };
+
+    SysExConf sysExConf;
+
     Database&                            database;
     MIDI&                                midi;
     Interface::digital::input::Buttons&  buttons;
@@ -200,16 +238,18 @@ class SysConfig : public SysExConf
     Interface::Display& display;
 #endif
 
+    SysExDataHandler sysExDataHandler;
+
     ///
     /// Used to prevent updating states of all components (analog, LEDs, encoders, buttons).
     ///
     bool processingEnabled = true;
 
     void configureMIDI();
-    bool onGet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t& value) override;
-    bool onSet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t newValue) override;
-    bool onCustomRequest(size_t value) override;
-    void onWrite(uint8_t* sysExArray, size_t size) override;
+    bool onGet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t& value);
+    bool onSet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t newValue);
+    bool onCustomRequest(size_t value);
+    void onWrite(uint8_t* sysExArray, size_t size);
 
     ///
     /// \brief Configures UART read/write handlers for MIDI module.
@@ -293,17 +333,17 @@ class SysConfig : public SysExConf
     Database::Section::leds_t    dbSection(Section::leds_t section);
     Database::Section::display_t dbSection(Section::display_t section);
 
-    bool onGetGlobal(Section::global_t section, size_t index, SysExConf::sysExParameter_t& value);
-    bool onGetButtons(Section::button_t section, size_t index, SysExConf::sysExParameter_t& value);
-    bool onGetEncoders(Section::encoder_t section, size_t index, SysExConf::sysExParameter_t& value);
-    bool onGetAnalog(Section::analog_t section, size_t index, SysExConf::sysExParameter_t& value);
-    bool onGetLEDs(Section::leds_t section, size_t index, SysExConf::sysExParameter_t& value);
-    bool onGetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t& value);
+    result_t onGetGlobal(Section::global_t section, size_t index, SysExConf::sysExParameter_t& value);
+    result_t onGetButtons(Section::button_t section, size_t index, SysExConf::sysExParameter_t& value);
+    result_t onGetEncoders(Section::encoder_t section, size_t index, SysExConf::sysExParameter_t& value);
+    result_t onGetAnalog(Section::analog_t section, size_t index, SysExConf::sysExParameter_t& value);
+    result_t onGetLEDs(Section::leds_t section, size_t index, SysExConf::sysExParameter_t& value);
+    result_t onGetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t& value);
 
-    bool onSetGlobal(Section::global_t section, size_t index, SysExConf::sysExParameter_t newValue);
-    bool onSetButtons(Section::button_t section, size_t index, SysExConf::sysExParameter_t newValue);
-    bool onSetEncoders(Section::encoder_t section, size_t index, SysExConf::sysExParameter_t newValue);
-    bool onSetAnalog(Section::analog_t section, size_t index, SysExConf::sysExParameter_t newValue);
-    bool onSetLEDs(Section::leds_t section, size_t index, SysExConf::sysExParameter_t newValue);
-    bool onSetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t newValue);
+    result_t onSetGlobal(Section::global_t section, size_t index, SysExConf::sysExParameter_t newValue);
+    result_t onSetButtons(Section::button_t section, size_t index, SysExConf::sysExParameter_t newValue);
+    result_t onSetEncoders(Section::encoder_t section, size_t index, SysExConf::sysExParameter_t newValue);
+    result_t onSetAnalog(Section::analog_t section, size_t index, SysExConf::sysExParameter_t newValue);
+    result_t onSetLEDs(Section::leds_t section, size_t index, SysExConf::sysExParameter_t newValue);
+    result_t onSetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t newValue);
 };

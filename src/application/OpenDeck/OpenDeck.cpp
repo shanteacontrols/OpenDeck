@@ -178,7 +178,7 @@ void OpenDeck::checkMIDI()
         switch (messageType)
         {
         case MIDI::messageType_t::systemExclusive:
-            sysConfig.handleMessage(midi.getSysExArray(interface), midi.getSysExArrayLength(interface));
+            sysConfig.handleSysEx(midi.getSysExArray(interface), midi.getSysExArrayLength(interface));
             break;
 
         case MIDI::messageType_t::noteOn:
