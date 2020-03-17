@@ -17,7 +17,7 @@
                 $scope.boardName = 'OpenDeck';
             else if ((d[9] == 1) && (d[10] == 52) && (d[11] == 50) && (d[12] == 124))
                 $scope.boardName = 'Arduino Leonardo';
-            else if ((d[9] == 1) && (d[10] == 52) && (d[11] == 110) && (d[12] == 58))
+            else if ((d[9] == 1) && (d[10] == 92) && (d[11] == 110) && (d[12] == 58))
                 $scope.boardName = 'Arduino Mega';
             else if ((d[9] == 1) && (d[10] == 46) && (d[11] == 56) && (d[12] == 29))
                 $scope.boardName = 'Arduino Pro Micro';
