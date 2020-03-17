@@ -28,22 +28,22 @@ namespace Board
             namespace
             {
                 uint8_t aInChannels[MAX_NUMBER_OF_ANALOG] = {
-                    AI_1_PIN,
-                    AI_2_PIN,
-                    AI_3_PIN,
-                    AI_4_PIN,
-                    AI_5_PIN,
-                    AI_6_PIN,
-                    AI_7_PIN,
-                    AI_8_PIN,
-                    AI_9_PIN,
-                    AI_10_PIN,
-                    AI_11_PIN,
-                    AI_12_PIN,
-                    AI_13_PIN,
-                    AI_14_PIN,
-                    AI_15_PIN,
-                    AI_16_PIN
+                    0,     //AI_1_PIN, ADC0
+                    1,     //AI_2_PIN, ADC1
+                    2,     //AI_3_PIN, ADC2
+                    3,     //AI_4_PIN, ADC3
+                    4,     //AI_5_PIN, ADC4
+                    5,     //AI_6_PIN, ADC5
+                    6,     //AI_7_PIN, ADC6
+                    7,     //AI_8_PIN, ADC7
+                    8,     //AI_9_PIN, ADC8
+                    9,     //AI_10_PIN, ADC9
+                    10,    //AI_11_PIN, ADC10
+                    11,    //AI_12_PIN, ADC11
+                    12,    //AI_13_PIN, ADC12
+                    13,    //AI_14_PIN, ADC13
+                    14,    //AI_15_PIN, ADC14
+                    15,    //AI_16_PIN, ADC15
                 };
 
                 ///
