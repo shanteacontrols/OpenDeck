@@ -15,10 +15,10 @@ set -e
 targets=targets.txt
 
 make clean
-make pre-build
 
 while IFS= read -r line || [[ -n $line ]]
 do
     printf '\n%s\n' "***Building tests for $line***"
+    make pre-build TARGETNAME="$line"
     make TARGETNAME="$line"
 done < "$targets"

@@ -18,8 +18,10 @@ then
     find="find"
 fi
 
-mkdir -p gen/runners
-mkdir -p gen/main
+# first argument should be directory in which generated files should be stored
+
+GEN_DIR=$1
+mkdir -p "$GEN_DIR"/runners
 
 #find all directories containing test source
 #to do so, only take into account directories which contain Makefile
@@ -30,25 +32,25 @@ tests=$(find ./src -type f -name Makefile -print0 | xargs -0 dirname | xargs -n 
 
 for test in $tests
 do
-    printf '%s\n\n' '#pragma once' > gen/runners/runner_"${test}".h
+    printf '%s\n\n' '#pragma once' > "$GEN_DIR"/runners/runner_"${test}".h
 
-    $find "$(find src -type d -name "*${test}")" -type f -regex '.*\.\(cpp\|c\)' -exec ctags -x --c-kinds=f {} ';' > gen/runners/table
+    $find "$(find src -type d -name "*${test}")" -type f -regex '.*\.\(cpp\|c\)' -exec ctags -x --c-kinds=f {} ';' > "$GEN_DIR"/runners/table
 
     #make sure all tests can be compiled even when certain functions are behind #ifdef
 
     {
-        $grep -oP '(?<=TEST_CASE\()(.*)(?=\))' gen/runners/table | sed 's/$/() {}/' | sed 's/^/__attribute__((weak)) void /'
+        $grep -oP '(?<=TEST_CASE\()(.*)(?=\))' "$GEN_DIR"/runners/table | sed 's/$/() {}/' | sed 's/^/__attribute__((weak)) void /'
         printf '%s\n' 'void TESTS_EXECUTE() {'
-        $grep -oP '(?<=TEST_CASE\()(.*)(?=\))' gen/runners/table | sed 's/$/);/' | sed 's/^/RUN_TEST(/'
+        $grep -oP '(?<=TEST_CASE\()(.*)(?=\))' "$GEN_DIR"/runners/table | sed 's/$/);/' | sed 's/^/RUN_TEST(/'
         printf '%s\n' '}'
-    } > gen/runners/runner_"${test}".cpp
+    } > "$GEN_DIR"/runners/runner_"${test}".cpp
 
-    $grep -oP '(?<=TEST_CASE\()(.*)(?=\))' gen/runners/table | sed 's/$/();/' | sed 's/^/void /' >> gen/runners/runner_"${test}".h
+    $grep -oP '(?<=TEST_CASE\()(.*)(?=\))' "$GEN_DIR"/runners/table | sed 's/$/();/' | sed 's/^/void /' >> "$GEN_DIR"/runners/runner_"${test}".h
 
     {
-        printf '%s\n' "#include \"gen/runners/runner_${test}.h\""
+        printf '%s\n' "#include \"$GEN_DIR/runners/runner_${test}.h\""
         printf '%s\n\n' '#include "unity/src/unity.h"'
-        printf '%s\n' "#include \"gen/runners/runner_${test}.cpp\""
-        printf '%s' '#include "unity/main.cpp"'
-    } > gen/main/main_"${test}".cpp
+        printf '%s\n' "#include \"$GEN_DIR/runners/runner_${test}.cpp\""
+        cat unity/main.cpp
+    } > "$GEN_DIR"/"${test}".cpp
 done

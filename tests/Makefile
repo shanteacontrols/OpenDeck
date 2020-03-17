@@ -3,6 +3,7 @@
 TARGETNAME := fw_opendeck
 BUILD_DIR_BASE := ./build
 BUILD_DIR := $(BUILD_DIR_BASE)/$(TARGETNAME)
+GEN_DIR := test_run
 SCRIPTS_DIR := ../scripts
 
 ifeq ($(shell uname), Linux)
@@ -13,7 +14,7 @@ else
     $(error Unsupported platform)
 endif
 
-include Defines.mk
+-include Defines.mk
 include Sources.mk
 -include Objects.mk
 
@@ -37,6 +38,10 @@ COMMON_FLAGS := \
 -Og \
 -g \
 -Wall
+
+#common defines
+DEFINES := \
+UNITY_INCLUDE_CONFIG_H
 
 #c++ compiler only
 CPP_FLAGS := \
@@ -65,8 +70,8 @@ define LINK_OBJECTS
 endef
 
 pre-build:
-	@chmod +x $(SCRIPTS_DIR)/gen_test_targets.sh && $(SCRIPTS_DIR)/gen_test_targets.sh
-	@chmod +x $(SCRIPTS_DIR)/gen_test_runners.sh && $(SCRIPTS_DIR)/gen_test_runners.sh
+	@chmod +x $(SCRIPTS_DIR)/gen_test_targets.sh && $(SCRIPTS_DIR)/gen_test_targets.sh $(GEN_DIR)/$(TARGETNAME)
+	@chmod +x $(SCRIPTS_DIR)/gen_test_runners.sh && $(SCRIPTS_DIR)/gen_test_runners.sh $(GEN_DIR)/$(TARGETNAME)
 
 exec:
 	@echo Running all compiled tests.
@@ -87,7 +92,7 @@ format:
 clean:
 	@echo Cleaning up.
 	@rm -rf $(BUILD_DIR_BASE)/
-	@rm -rf gen/
+	@rm -rf $(GEN_DIR)/
 
 #debugging
 print-%:

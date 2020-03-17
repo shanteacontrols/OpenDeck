@@ -24,6 +24,7 @@ modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
 #common include dirs
 INCLUDE_DIRS_COMMON := \
 -I"./" \
+-I"./unity" \
 -I"../src/application/" \
 -I"../src/" \
 -I"../modules/" \
