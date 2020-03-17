@@ -70,9 +70,7 @@ pre-build:
 
 exec:
 	@echo Running all compiled tests.
-	@rm -rf $(wildcard $(BUILD_DIR_BASE)/*.profraw)
-	@export LLVM_PROFILE_FILE="$(BUILD_DIR_BASE)/test-%p.profraw" && \
-	$(FIND) $(BUILD_DIR_BASE) -type f -name "*.out" -printf 'Running %p\n' -exec {} \;
+	@chmod +x $(SCRIPTS_DIR)/tests_exec.sh && $(SCRIPTS_DIR)/tests_exec.sh $(BUILD_DIR_BASE)
 
 coverage:
 	@echo Creating coverage report.
