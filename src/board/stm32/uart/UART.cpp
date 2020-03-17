@@ -80,6 +80,9 @@ namespace Board
 
                     //enable transmission done interrupt
                     __HAL_UART_ENABLE_IT(&uartHandler[channel], UART_IT_TC);
+
+                    //enable data not empty interrupt
+                    __HAL_UART_ENABLE_IT(&uartHandler[channel], UART_IT_RXNE);
                 }
 
                 void directWrite(uint8_t channel, uint8_t data)
@@ -94,6 +97,7 @@ namespace Board
             void uart(uint8_t channel)
             {
                 uint32_t isrflags     = READ_REG(uartHandler[channel].Instance->SR);
+                uint8_t  data         = uartHandler[channel].Instance->DR;
                 uint32_t cr1its       = READ_REG(uartHandler[channel].Instance->CR1);
                 uint32_t errorflags   = (isrflags & (uint32_t)(USART_SR_PE | USART_SR_FE | USART_SR_ORE | USART_SR_NE));
                 bool     verifyTxDone = true;
@@ -103,8 +107,6 @@ namespace Board
                     //transmitting
                     if (((isrflags & USART_SR_TXE) != RESET) && ((cr1its & USART_CR1_TXEIE) != RESET))
                     {
-                        uint8_t data;
-
                         if (Board::detail::UART::getNextByteToSend(channel, data))
                         {
                             uartHandler[channel].Instance->DR = data;
@@ -117,10 +119,7 @@ namespace Board
                     {
                         //receiving
                         if (((isrflags & USART_SR_RXNE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET))
-                        {
-                            uint8_t data = uartHandler[channel].Instance->DR;
                             Board::detail::UART::storeIncomingData(channel, data);
-                        }
                     }
 
                     if (verifyTxDone)
