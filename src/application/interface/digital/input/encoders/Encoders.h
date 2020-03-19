@@ -81,6 +81,15 @@ namespace Interface
                     cw,
                 };
 
+                enum class acceleration_t : uint8_t
+                {
+                    disabled,
+                    slow,
+                    medium,
+                    fast,
+                    AMOUNT
+                };
+
                 void       init();
                 void       update();
                 void       resetValue(uint8_t encoderID);
@@ -168,7 +177,7 @@ namespace Interface
                 /// Used only in CC/Pitch bend/NRPN modes. In Pitch bend/NRPN modes, this value is multiplied
                 /// by 4 due to a larger value range.
                 ///
-                const uint8_t encoderSpeedChange[ENCODERS_MAX_ACCELERATION_OPTIONS] = {
+                const uint8_t encoderSpeedChange[static_cast<uint8_t>(Interface::digital::input::Encoders::acceleration_t::AMOUNT)] = {
                     0,    //acceleration disabled
                     1,
                     2,
@@ -178,7 +187,7 @@ namespace Interface
                 ///
                 /// \brief Maximum value by which MIDI value is increased during acceleration.
                 ///
-                const uint8_t encoderMaxAccSpeed[ENCODERS_MAX_ACCELERATION_OPTIONS] = {
+                const uint8_t encoderMaxAccSpeed[static_cast<uint8_t>(Interface::digital::input::Encoders::acceleration_t::AMOUNT)] = {
                     0,    //acceleration disabled
                     5,
                     10,

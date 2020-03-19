@@ -33,15 +33,6 @@ limitations under the License.
 #define ENCODERS_DEBOUNCE_COUNT 4
 
 ///
-/// \brief Maximum amount of encoder acceleration options.
-/// 0 - disabled
-/// 1 - slow acceleration
-/// 2 - medium acceleration
-/// 3 - fast acceleration
-///
-#define ENCODERS_MAX_ACCELERATION_OPTIONS 4
-
-///
 /// \brief Time threshold in milliseconds between two encoder steps used to detect fast movement.
 ///
 #define ENCODERS_SPEED_TIMEOUT 140

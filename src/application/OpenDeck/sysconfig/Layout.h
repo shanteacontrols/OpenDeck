@@ -135,7 +135,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
             .newValueMin        = 0,
-            .newValueMax        = ENCODERS_MAX_ACCELERATION_OPTIONS,
+            .newValueMax        = static_cast<uint8_t>(Interface::digital::input::Encoders::acceleration_t::AMOUNT) - 1,
         },
 
         //midi id section, msb
