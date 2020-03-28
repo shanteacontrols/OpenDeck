@@ -12,7 +12,7 @@ function usage
 {
     echo -e "Used to create hex file containing both the bootloader and application\n"
     echo -e "Usage: ./$(basename "$0") target\n"
-    echo -e "target    \tBoard and firmware type to compile. See targets.txt for list of supported targets. Prefix in target is ignored (fw_ and boot_)"
+    echo -e "target    \tBoard and firmware type to compile. See targets.json for list of supported targets."
 }
 
 if [[ ("$*" == "--help") || ($# -eq 0) ]]

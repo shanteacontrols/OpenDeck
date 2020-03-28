@@ -1,0 +1,142 @@
+[
+    {
+        "name": "fw_8u2",
+        "release": false,
+        "test": false
+    },
+    {
+        "name": "fw_bergamot",
+        "release": true,
+        "test": true
+    },
+    {
+        "name": "fw_discovery",
+        "release": false,
+        "test": false
+    },
+    {
+        "name": "fw_dubfocus",
+        "release": true,
+        "test": true
+    },
+    {
+        "name": "fw_jamiel",
+        "release": true,
+        "test": true
+    },
+    {
+        "name": "fw_leonardo",
+        "release": true,
+        "test": true
+    },
+    {
+        "name": "fw_mega16u2",
+        "release": true,
+        "test": false
+    },
+    {
+        "name": "fw_mega2560",
+        "release": true,
+        "test": true
+    },
+    {
+        "name": "fw_mega2560_6mux",
+        "release": true,
+        "test": true
+    },
+    {
+        "name": "fw_mega2560_jose",
+        "release": true,
+        "test": true
+    },
+    {
+        "name": "fw_promicro",
+        "release": true,
+        "test": true
+    },
+    {
+        "name": "fw_teensy2pp",
+        "release": true,
+        "test": true
+    },
+    {
+        "name": "fw_uno",
+        "release": true,
+        "test": true
+    },
+    {
+        "name": "fw_uno16u2",
+        "release": true,
+        "test": false
+    },
+    {
+        "name": "fw_arrival",
+        "release": true,
+        "test": true
+    },
+    {
+        "name": "boot_bergamot",
+        "release": false,
+        "test": false
+    },
+    {
+        "name": "boot_dubfocus",
+        "release": false,
+        "test": false
+    },
+    {
+        "name": "boot_jamiel",
+        "release": false,
+        "test": false
+    },
+    {
+        "name": "boot_leonardo",
+        "release": false,
+        "test": false
+    },
+    {
+        "name": "boot_mega16u2",
+        "release": false,
+        "test": false
+    },
+    {
+        "name": "boot_mega2560",
+        "release": false,
+        "test": false
+    },
+    {
+        "name": "boot_mega2560_6mux",
+        "release": false,
+        "test": false
+    },
+    {
+        "name": "boot_mega2560_jose",
+        "release": false,
+        "test": false
+    },
+    {
+        "name": "boot_promicro",
+        "release": false,
+        "test": false
+    },
+    {
+        "name": "boot_teensy2pp",
+        "release": false,
+        "test": false
+    },
+    {
+        "name": "boot_uno",
+        "release": false,
+        "test": false
+    },
+    {
+        "name": "boot_uno16u2",
+        "release": false,
+        "test": false
+    },
+    {
+        "name": "boot_arrival",
+        "release": false,
+        "test": false
+    }
+]

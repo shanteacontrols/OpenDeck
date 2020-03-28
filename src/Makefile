@@ -1,4 +1,4 @@
-BUILD_DIR_BASE := ./build
+include Toolchain.mk
 
 TARGETNAME := fw_opendeck
 
@@ -7,7 +7,7 @@ ifneq (,$(wildcard $(BUILD_DIR_BASE)/TARGET))
     DEBUG := $(shell cat $(BUILD_DIR_BASE)/DEBUG)
 endif
 
-ifneq ($(findstring $(TARGETNAME), $(shell cat targets.txt)), $(TARGETNAME))
+ifneq ($(findstring $(TARGETNAME), $(shell jq ".[] | .name" ../targets.json)), $(TARGETNAME))
     $(error Target doesn't exist)
 endif
 
@@ -20,14 +20,6 @@ endif
 TARGET := $(BUILD_DIR)/$(TARGETNAME)
 .DEFAULT_GOAL := $(TARGET).elf
 
-ifeq ($(shell uname), Linux)
-    FIND := find
-else ifeq ($(shell uname), Darwin)
-    FIND := gfind
-else
-    $(error Unsupported platform)
-endif
-
 #includes
 #important - do not change the order of inclusion!
 include Defines.mk
@@ -36,8 +28,6 @@ include Sources.mk
 # shell script "build_combined.sh" can generate binary with combined firmware and bootloader
 # if this file exists, use it when running flash target
 MERGED_TARGET := $(shell $(FIND) -name "*merged_$(BOARD_DIR).hex")
-
-CLANG_FORMAT := clang-format
 
 #when set to 1, format target will fail if there are any changes to the repository after formatting
 CF_FAIL_ON_DIFF := 0
@@ -61,6 +51,10 @@ CPP_FLAGS := \
 C_FLAGS := \
 -std=c11
 
+#assembler only
+ASM_FLAGS := \
+ -x assembler-with-cpp
+
 #common linker flags
 LDFLAGS := \
 -Wl,--gc-sections \
@@ -77,8 +71,9 @@ ifeq ($(ARCH),avr)
         LEN_APPEND := 1
     endif
 
-    C_COMPILER := avr-gcc
-    CPP_COMPILER := avr-g++
+    C_COMPILER := $(C_COMPILER_AVR)
+    CPP_COMPILER := $(CPP_COMPILER_AVR)
+    FLASH_BIN := $(FLASH_BIN_AVR)
     OPT := -Os
 
     C_FLAGS += \
@@ -98,9 +93,10 @@ ifeq ($(ARCH),avr)
     -mmcu=$(MCU) \
     -flto
 else ifeq ($(ARCH),stm32)
-    C_COMPILER := arm-none-eabi-gcc
-    CPP_COMPILER := arm-none-eabi-g++
-    ASSEMBLER := arm-none-eabi-gcc -x assembler-with-cpp
+    C_COMPILER := $(C_COMPILER_ARM)
+    CPP_COMPILER := $(CPP_COMPILER_ARM)
+    ASSEMBLER := $(C_COMPILER_ARM)
+    FLASH_BIN := $(FLASH_BIN_ARM)
     OPT := -O2
 
     COMMON_FLAGS += \
@@ -134,17 +130,6 @@ endif
 
 #custom linker script
 LDFLAGS += -T board/$(ARCH)/variants/$(MCU)/$(MCU).ld
-
-#use windows binary on wsl since HID access isn't possible in wsl
-ifeq ($(findstring Microsoft,$(shell uname -r)), Microsoft)
-    FLASH_BIN := @cmd.exe /c "..\bin\dfu\hid_bootloader_loader_win.exe"
-else ifeq ($(shell uname), Linux)
-    FLASH_BIN := @ ../bin/dfu/hid_bootloader_loader_linux
-else ifeq ($(shell uname), Darwin)
-    FLASH_BIN := @ ../bin/dfu/hid_bootloader_loader_mac
-else
-    $(error Unsupported platform)
-endif
 
 $(TARGET).elf: $(OBJECTS)
 	@echo $(TARGETNAME) > $(BUILD_DIR_BASE)/TARGET
@@ -182,19 +167,19 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 $(BUILD_DIR)/%.s.o: %.s
 	@mkdir -p $(@D)
 	@echo Building: $<
-	@$(ASSEMBLER) $(COMMON_FLAGS) $(C_FLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	@$(ASSEMBLER) $(COMMON_FLAGS) $(C_FLAGS) $(ASM_FLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
 flash:
 ifeq ($(ARCH), avr)
-	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -e -V -u -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
+	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -e -V -u -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
 ifneq (,$(MERGED_TARGET))
-	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:$(MERGED_TARGET)
+	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:$(MERGED_TARGET)
 else
-	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:$(TARGET).hex
+	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:$(TARGET).hex
 endif
-	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -V -u -U lock:w:$(FUSE_LOCK):m
+	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -V -u -U lock:w:$(FUSE_LOCK):m
 else
-	arm-none-eabi-gdb -nx --batch \
+	$(FLASH_BIN) -nx --batch \
 	-ex 'target extended-remote /dev/$(PORT)' \
 	-ex 'monitor swdp_scan' \
 	-ex 'attach 1' \
@@ -206,7 +191,7 @@ endif
 
 #firmware update with bootloader
 flashboot:
-	$(FLASH_BIN) $(MCU) $(TARGET).hex
+	$(DFU_BIN) $(MCU) $(TARGET).hex
 
 format:
 	@echo Checking code formatting...
