@@ -291,7 +291,7 @@ namespace
             .newValueMax        = 0,
         },
 
-        //hw section
+        //settings section
         {
             .numberOfParameters = DISPLAY_HW_PARAMETERS,
             .newValueMin        = 0,
