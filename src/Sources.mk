@@ -13,7 +13,7 @@ INCLUDE_FILES += -include "board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(BOARD_D
 ifeq ($(BOOT),1)
     #bootloader only
     INCLUDE_DIRS += \
-    -I"bootloader/mcu/"
+    -I"bootloader/"
 endif
 
 #architecture specific
@@ -70,7 +70,7 @@ ifeq ($(BOOT),1)
         SOURCES += board/$(ARCH)/common/ISR.cpp
     endif
 
-    SOURCES += $(shell find ./bootloader/mcu -type f -name "*.cpp")
+    SOURCES += $(shell find ./bootloader -type f -name "*.cpp")
 
     ifneq ($(shell cat board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
         SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/midi -type f -name "*.cpp")
