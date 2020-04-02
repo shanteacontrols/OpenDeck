@@ -59,7 +59,7 @@ limitations under the License.
  *  and endpoints. The descriptor is read out by the USB host during the enumeration process when selecting
  *  a configuration so that the host may correctly communicate with the USB device.
  */
-const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
+const USB_Descriptor_Configuration_t ConfigurationDescriptor =
 {
     .Config =
     {
@@ -239,7 +239,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
  *  number of device configurations. The descriptor is read out by the USB host when the enumeration
  *  process begins.
  */
-const USB_Descriptor_Device_t PROGMEM DeviceDescriptor =
+const USB_Descriptor_Device_t DeviceDescriptor =
 {
     .Header                 = {.Size = sizeof(USB_Descriptor_Device_t), .Type = DTYPE_Device},
 
@@ -265,19 +265,19 @@ const USB_Descriptor_Device_t PROGMEM DeviceDescriptor =
  *  the string descriptor with index 0 (the first index). It is actually an array of 16-bit integers, which indicate
  *  via the language ID table available at USB.org what languages the device supports for its string descriptors.
  */
-const USB_Descriptor_String_t PROGMEM LanguageString = USB_STRING_DESCRIPTOR_ARRAY(LANGUAGE_ID_ENG);
+const USB_Descriptor_String_t LanguageString = USB_STRING_DESCRIPTOR_ARRAY(LANGUAGE_ID_ENG);
 
 /** Manufacturer descriptor string. This is a Unicode string containing the manufacturer's details in human readable
  *  form, and is read out upon request by the host when the appropriate string ID is requested, listed in the Device
  *  Descriptor.
  */
-const USB_Descriptor_String_t PROGMEM ManufacturerString = USB_STRING_DESCRIPTOR(USB_MANUFACTURER);
+const USB_Descriptor_String_t ManufacturerString = USB_STRING_DESCRIPTOR(USB_MANUFACTURER);
 
 /** Product descriptor string. This is a Unicode string containing the product's details in human readable form,
  *  and is read out upon request by the host when the appropriate string ID is requested, listed in the Device
  *  Descriptor.
  */
-const USB_Descriptor_String_t PROGMEM ProductString = USB_STRING_DESCRIPTOR(USB_PRODUCT);
+const USB_Descriptor_String_t ProductString = USB_STRING_DESCRIPTOR(USB_PRODUCT);
 
 const USB_Descriptor_Configuration_t* USBgetCfgDescriptor(uint16_t* size)
 {
@@ -293,19 +293,19 @@ const USB_Descriptor_Device_t* USBgetDeviceDescriptor(uint16_t* size)
 
 const USB_Descriptor_String_t* USBgetLanguageString(uint16_t* size)
 {
-    *size = READ_PROGMEM_BYTE(LanguageString.Header.Size);
+    *size = LanguageString.Header.Size;
     return &LanguageString;
 }
 
 const USB_Descriptor_String_t* USBgetManufacturerString(uint16_t* size)
 {
-    *size = READ_PROGMEM_BYTE(ManufacturerString.Header.Size);
+    *size = ManufacturerString.Header.Size;
     return &ManufacturerString;
 }
 
 const USB_Descriptor_String_t* USBgetProductString(uint16_t* size)
 {
-    *size = READ_PROGMEM_BYTE(ProductString.Header.Size);
+    *size = ProductString.Header.Size;
     return &ProductString;
 }
 
