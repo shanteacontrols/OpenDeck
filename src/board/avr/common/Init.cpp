@@ -114,7 +114,6 @@ namespace Board
             if (pgm_read_word(0) == 0xFFFF)
                 return false;
 
-            return true;
             uint16_t crc = 0x0000;
 
 #if (FLASHEND > 0xFFFF)
