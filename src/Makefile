@@ -163,6 +163,8 @@ ifeq ($(ARCH), avr)
 else
 	@#convert elf to hex
 	@arm-none-eabi-objcopy -O ihex $(TARGET).elf $(TARGET).hex
+	@#convert hex to bin
+	@arm-none-eabi-objcopy -I ihex "$(TARGET).hex" -O binary "$(TARGET).bin"
 	@arm-none-eabi-size "$(TARGET).elf"
 endif
 
