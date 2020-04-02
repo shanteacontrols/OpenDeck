@@ -55,7 +55,6 @@ endif
 
 #common for both bootloader and application
 SOURCES += $(shell $(FIND) ./board/common -maxdepth 1 -type f -name "*.cpp")
-SOURCES += $(shell $(FIND) ./board/$(ARCH)/common -type f -name "*.cpp")
 SOURCES += $(shell $(FIND) ./board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(BOARD_DIR) -type f -name "*.cpp")
 
 ifeq ($(BOOT),1)
@@ -63,7 +62,13 @@ ifeq ($(BOOT),1)
     #common
     SOURCES += \
     board/common/bootloader/Bootloader.cpp \
-    board/common/io/Indicators.cpp
+    board/common/io/Indicators.cpp \
+    board/$(ARCH)/common/Bootloader.cpp \
+    board/$(ARCH)/common/Init.cpp
+
+    ifeq ($(ARCH),stm32)
+        SOURCES += board/$(ARCH)/common/ISR.cpp
+    endif
 
     SOURCES += $(shell find ./bootloader/mcu -type f -name "*.cpp")
 
@@ -88,6 +93,7 @@ ifeq ($(BOOT),1)
 else
     #application sources
     #common for all targets
+    SOURCES += $(shell $(FIND) ./board/$(ARCH)/common -type f -name "*.cpp")
     SOURCES += $(shell $(FIND) ./common/OpenDeckMIDIformat -type f -name "*.cpp")
 
     ifneq ($(shell cat board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
