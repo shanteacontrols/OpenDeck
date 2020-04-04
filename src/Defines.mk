@@ -31,10 +31,10 @@ ifeq ($(MCU), atmega32u4)
 else ifeq ($(MCU), at90usb1286)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xf8
-    FUSE_HIGH := 0xd2
+    FUSE_HIGH := 0xd0
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
-    BOOT_START_ADDR := 0x1F000
+    BOOT_START_ADDR := 0x1E000
     FLASH_SIZE_START_ADDR := 0x98
     FLASH_SIZE_END_ADDR := 0x9C
     DEFINES += __AVR_AT90USB1286__
