@@ -43,7 +43,7 @@
             "device": "STM32F407",
             "BMPGDBSerialPort": "/dev/ttyACM1",
             "targetId": 1,
-            "preLaunchTask": "[FW/BTLDR] Build"
+            "preLaunchTask": "[FW/STM32FDiscovery/Debug] Build"
         },
         {
             "runToMain": true,
@@ -58,7 +58,7 @@
             "device": "STM32F407",
             "BMPGDBSerialPort": "/dev/ttyACM0",
             "targetId": 1,
-            "preLaunchTask": "[FW/BTLDR] Build"
+            "preLaunchTask": "[BTLDR/STM32FDiscovery/Debug] Build"
         }
     ]
 }

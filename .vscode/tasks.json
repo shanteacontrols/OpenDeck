@@ -14,6 +14,30 @@
             }
         },
         {
+            "label": "[FW/STM32FDiscovery/Debug] Build",
+            "command": "cd ./src && compiledb -d . make TARGETNAME=fw_discovery LANG=C DEBUG=1",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "[BTLDR/STM32FDiscovery/Debug] Build",
+            "command": "cd ./src && compiledb -d . make TARGETNAME=boot_discovery LANG=C DEBUG=1",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
             "label": "[FW/BTLDR] Clean",
             "command": "cd ./src && make clean",
             "type": "shell",
