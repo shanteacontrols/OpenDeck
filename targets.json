@@ -19,6 +19,12 @@
             "test": false
         },
         {
+            "name": "cardamom",
+            "bootloader": false,
+            "release": false,
+            "test": false
+        },
+        {
             "name": "dubfocus",
             "bootloader": true,
             "release": true,

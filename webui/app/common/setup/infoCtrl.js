@@ -37,6 +37,8 @@
                 $scope.boardName = 'Jose';
             else if ((d[9] == 1) && (d[10] == 73) && (d[11] == 70) && (d[12] == 126))
                 $scope.boardName = 'Arrival';
+            else if ((d[9] == 1) && (d[10] == 57) && (d[11] == 88) && (d[12] == 9))
+                $scope.boardName = 'Cardamom';
             else
                 $scope.boardName = 'UNKNOWN BOARD';
 

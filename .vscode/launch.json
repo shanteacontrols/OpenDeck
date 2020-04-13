@@ -59,6 +59,36 @@
             "BMPGDBSerialPort": "/dev/ttyACM0",
             "targetId": 1,
             "preLaunchTask": "[BTLDR/STM32FDiscovery/Debug] Build"
+        },
+        {
+            "runToMain": true,
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "bmp",
+            "cwd": "${workspaceRoot}",
+            "executable": "./src/build/fw_cardamom/debug/fw_cardamom.elf",
+            "name": "[Cardamom/FW] Debug (BMP)",
+            "interface": "swd",
+            "svdFile": "${workspaceFolder}/misc/STM32F40x.svd",
+            "device": "STM32F405",
+            "BMPGDBSerialPort": "/dev/ttyACM0",
+            "targetId": 1,
+            "preLaunchTask": "[FW/Cardamom/Debug] Build"
+        },
+        {
+            "runToMain": true,
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "bmp",
+            "cwd": "${workspaceRoot}",
+            "executable": "./src/build/boot_cardamom/debug/boot_cardamom.elf",
+            "name": "[Cardamom/BTLDR] Debug (BMP)",
+            "interface": "swd",
+            "svdFile": "${workspaceFolder}/misc/STM32F40x.svd",
+            "device": "STM32F405",
+            "BMPGDBSerialPort": "/dev/ttyACM0",
+            "targetId": 1,
+            "preLaunchTask": "[BTLDR/Cardamom/Debug] Build"
         }
     ]
 }
