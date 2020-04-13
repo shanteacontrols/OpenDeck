@@ -78,4 +78,14 @@ namespace Board
 
         core::reset::mcuReset();
     }
+
+    namespace detail
+    {
+        void errorHandler()
+        {
+            while (1)
+            {
+            }
+        }
+    }    // namespace detail
 }    // namespace Board

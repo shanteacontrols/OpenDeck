@@ -56,6 +56,11 @@ namespace Board
         ///
         bool isAppCRCvalid();
 
+        ///
+        /// \brief Default error handler.
+        ///
+        void errorHandler();
+
         namespace setup
         {
             ///
