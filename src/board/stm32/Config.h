@@ -82,8 +82,3 @@ limitations under the License.
 /// \brief Total number of states between fully off and fully on for LEDs.
 ///
 #define NUMBER_OF_LED_TRANSITIONS 64
-
-///
-/// \brief Maximum number of registered timer callbacks (checked every 0.5 milliseconds).
-///
-#define MAX_TIMER_CALLBACKS 5
