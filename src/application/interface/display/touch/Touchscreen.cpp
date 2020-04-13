@@ -22,11 +22,15 @@ using namespace Interface;
 
 bool Touchscreen::init()
 {
-    return hwa.init();
+    initialized = hwa.init();
+    return initialized;
 }
 
 void Touchscreen::update()
 {
+    if (!initialized)
+        return;
+
     uint8_t buttonID = 0;
     bool    state    = false;
 

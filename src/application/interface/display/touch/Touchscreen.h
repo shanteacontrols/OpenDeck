@@ -45,6 +45,7 @@ namespace Interface
 
         void (*buttonHandler)(uint8_t index, bool state) = nullptr;
         uint8_t activeScreenID                           = 0;
+        bool    initialized                              = false;
     };
 
     /// @}
