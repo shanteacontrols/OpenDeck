@@ -23,7 +23,7 @@ limitations under the License.
 
 // clang-format off
 ComponentInfo                       cinfo;
-Database                            database(Board::eeprom::read, Board::eeprom::write, EEPROM_SIZE - 3);
+Database                            database(Board::eeprom::read, Board::eeprom::write, CONFIGURATION_SIZE);
 MIDI                                midi;
 Interface::digital::input::Common   digitalInputCommon;
 #ifdef DISPLAY_SUPPORTED
