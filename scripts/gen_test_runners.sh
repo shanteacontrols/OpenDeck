@@ -25,7 +25,7 @@ mkdir -p "$GEN_DIR"/runners
 
 #find all directories containing test source
 #to do so, only take into account directories which contain Makefile
-tests=$(find ./src -type f -name Makefile -print0 | xargs -0 dirname | xargs -n 1 basename | tr "\n" " ")
+tests=$($find ./src -type f -name Makefile -print0 | xargs -0 dirname | xargs -n 1 basename | tr "\n" " ")
 
 #use ctags to generate list of tests to be run by RUN_TEST unity macro
 #this works by filtering all functions defined with TEST_CASE macro
@@ -34,7 +34,7 @@ for test in $tests
 do
     printf '%s\n\n' '#pragma once' > "$GEN_DIR"/runners/runner_"${test}".h
 
-    $find "$(find src -type d -name "*${test}")" -type f -regex '.*\.\(cpp\|c\)' -exec ctags -x --c-kinds=f {} ';' > "$GEN_DIR"/runners/table
+    $find "$($find src -type d -name "*${test}")" -type f -regex '.*\.\(cpp\|c\)' -exec ctags -x --c-kinds=f {} ';' > "$GEN_DIR"/runners/table
 
     #make sure all tests can be compiled even when certain functions are behind #ifdef
 
@@ -53,4 +53,6 @@ do
         printf '%s\n' "#include \"$GEN_DIR/runners/runner_${test}.cpp\""
         cat unity/main.cpp
     } > "$GEN_DIR"/"${test}".cpp
+
+    rm "$GEN_DIR"/runners/table
 done

@@ -4,7 +4,7 @@ vpath modules/%.cpp ../
 vpath modules/%.c ../
 
 #common for all targets
-COMMON_SOURCES := \
+SOURCES_COMMON := \
 modules/unity/src/unity.c \
 modules/dbms/src/LESSDB.cpp \
 modules/midi/src/MIDI.cpp \

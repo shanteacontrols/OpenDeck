@@ -24,10 +24,18 @@ then
     exit 1
 fi
 
-# clean up all temporary profraw files
-find "$BIN_DIR" -type f -name "*.profraw" -exec rm {} \;
+if [ "$(uname)" == "Darwin" ]
+then
+    find="gfind"
+elif [ "$(uname -s)" == "Linux" ]
+then
+    find="find"
+fi
 
-BINARIES=$(find "$BIN_DIR" -type f -name "*.out")
+# clean up all temporary profraw files
+$find "$BIN_DIR" -type f -name "*.profraw" -exec rm {} \;
+
+BINARIES=$($find "$BIN_DIR" -type f -name "*.out")
 
 declare -i RESULT=0
 
