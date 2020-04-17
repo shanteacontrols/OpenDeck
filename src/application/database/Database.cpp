@@ -200,8 +200,8 @@ uint16_t Database::getDbUID()
         for (int i = 0; i < DB_BLOCKS + 1; i++) {
             for (int j = 0; j < dbLayout[i].numberOfSections; j++)
             {
-                signature += dbLayout[i].section[i].numberOfParameters;
-                signature += static_cast<uint16_t>(dbLayout[i].section[i].parameterType);
+                signature += static_cast<uint16_t>(dbLayout[i].section[j].numberOfParameters);
+                signature += static_cast<uint16_t>(dbLayout[i].section[j].parameterType);
             }
         })
 
