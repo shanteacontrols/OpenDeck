@@ -67,4 +67,4 @@ limitations under the License.
 #define USB_LINK_MCU
 
 #undef BTLDR_FLASH_PAGE_SIZE
-#define BTLDR_FLASH_PAGE_SIZE 256
+#define BTLDR_FLASH_PAGE_SIZE 128
