@@ -29,7 +29,19 @@ namespace Board
     {
         size_t pageSize(size_t index)
         {
-            return BTLDR_FLASH_PAGE_SIZE;
+            //normally, on avr, flash page size is constant for all page sizes
+            //and it's defined as SPM_PAGESIZE
+            //in the case of arduino mega board, USB link MCU is atmega16u2 and main MCU is atmega2560
+            //using SPM_PAGESIZE would use page size for 16u2 which is 128 bytes, when, in fact,
+            //atmega2560 is being flashed via atmega16u2
+            //therefore, in that case use atmega2560 page size which is 256 bytes
+            //on arduino uno, similar setup is used (atmega16u2 acts as USB link to main MCU which is atmega328p)
+            //however, both MCUs have same SPM_PAGESIZE which is 128
+#ifdef OD_BOARD_MEGA16U2
+            return 256;
+#else
+            return SPM_PAGESIZE;
+#endif
         }
 
         void erasePage(uint32_t address)

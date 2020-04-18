@@ -18,8 +18,6 @@ limitations under the License.
 
 #pragma once
 
-#include "../MCU.h"
-
 ///
 /// \brief Holds current version of hardware.
 /// Can be overriden during build process to compile
