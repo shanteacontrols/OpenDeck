@@ -48,7 +48,7 @@ COMMON_FLAGS := \
 -Wall
 
 #common defines
-DEFINES := \
+DEFINES_COMMON += \
 UNITY_INCLUDE_CONFIG_H
 
 #c++ compiler only

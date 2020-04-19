@@ -1,8 +1,5 @@
 #slightly modified Defines.mk from src directory
 
-#common
-DEFINES :=
-
 BOARD_DIR := $(subst fw_,,$(TARGETNAME))
 
 #determine the architecture by directory in which the board dir is located
@@ -26,13 +23,13 @@ else ifeq ($(MCU),atmega328p)
     FLASH_SIZE_START_ADDR := 0x68
 endif
 
-DEFINES += APP_LENGTH_LOCATION=$(FLASH_SIZE_START_ADDR)
-DEFINES += OD_BOARD_$(shell echo $(BOARD_DIR) | tr 'a-z' 'A-Z')
+DEFINES_COMMON += APP_LENGTH_LOCATION=$(FLASH_SIZE_START_ADDR)
+DEFINES_COMMON += OD_BOARD_$(shell echo $(BOARD_DIR) | tr 'a-z' 'A-Z')
 
 ifneq ($(HARDWARE_VERSION_MAJOR), )
-    DEFINES += HARDWARE_VERSION_MAJOR=$(HARDWARE_VERSION_MAJOR)
+    DEFINES_COMMON += HARDWARE_VERSION_MAJOR=$(HARDWARE_VERSION_MAJOR)
 endif
 
 ifneq ($(HARDWARE_VERSION_MINOR), )
-    DEFINES += HARDWARE_VERSION_MINOR=$(HARDWARE_VERSION_MINOR)
+    DEFINES_COMMON += HARDWARE_VERSION_MINOR=$(HARDWARE_VERSION_MINOR)
 endif
