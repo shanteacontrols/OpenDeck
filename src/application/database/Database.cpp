@@ -276,6 +276,8 @@ uint16_t Database::getDbUID()
         }
     }
 
+    signature += supportedPresets;
+
     return signature ^ uidBase;
 }
 
