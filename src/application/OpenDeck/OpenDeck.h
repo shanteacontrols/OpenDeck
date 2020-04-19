@@ -20,17 +20,6 @@ limitations under the License.
 
 #include "Hardware.h"
 
-#ifdef __AVR__
-//on avr, last eeprom address is used to specify which firmware to boot (app/bootloader)
-//before that, 2 bytes are used to store app CRC in order to check whether or not the app
-//has been updated
-#define CONFIGURATION_SIZE (EEPROM_SIZE - 3)
-#elif defined(__STM32__)
-//on stm32, eeprom is using flash pages
-//first 4 bytes are used for page status
-#define CONFIGURATION_SIZE (EEPROM_SIZE - 4)
-#endif
-
 #ifndef USB_LINK_MCU
 #include "database/Database.h"
 #include "interface/analog/Analog.h"

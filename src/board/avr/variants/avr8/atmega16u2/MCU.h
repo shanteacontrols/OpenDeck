@@ -25,11 +25,6 @@ limitations under the License.
 /// @{
 
 ///
-/// \brief Total available bytes for data in EEPROM.
-///
-#define EEPROM_SIZE 512
-
-///
 /// \brief Size of single flash page in bytes.
 /// Used in bootloader mode when updating firmware.
 ///

@@ -23,7 +23,7 @@ limitations under the License.
 #include "core/src/general/IO.h"
 
 #ifdef __STM32__
-#include "board/stm32/eeprom/EEPROM.h"
+#include "EmuEEPROM/src/EmuEEPROM.h"
 #endif
 
 #ifndef __AVR__
@@ -248,8 +248,8 @@ namespace Board
             /// \brief Used to retrieve descriptors for flash pages used for EEPROM emulation.
             /// @ {
 
-            EmuEEPROM::pageDescriptor_t& eepromFlashPage1();
-            EmuEEPROM::pageDescriptor_t& eepromFlashPage2();
+            EmuEEPROM::StorageAccess::pageDescriptor_t& eepromFlashPage1();
+            EmuEEPROM::StorageAccess::pageDescriptor_t& eepromFlashPage2();
 
             /// }
 #endif

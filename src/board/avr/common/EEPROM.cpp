@@ -17,13 +17,26 @@ limitations under the License.
 */
 
 #include <avr/eeprom.h>
+#include <avr/io.h>
 #include "board/Board.h"
 
 namespace Board
 {
     namespace eeprom
     {
-        bool read(uint32_t address, LESSDB::sectionParameterType_t type, int32_t& value)
+        uint32_t size()
+        {
+            //last eeprom address stores type of firmare to boot once in bootloader
+            //before that, 2 bytes are used to store application CRC
+            return (E2END - 2);
+        }
+
+        void init()
+        {
+            //nothing to do
+        }
+
+        bool read(uint32_t address, int32_t& value, LESSDB::sectionParameterType_t type)
         {
             switch (type)
             {
@@ -67,6 +80,30 @@ namespace Board
             }
 
             return true;
+        }
+
+        void clear(uint32_t start, uint32_t end)
+        {
+            for (uint32_t i = start; i < end; i++)
+                eeprom_update_byte(reinterpret_cast<uint8_t*>(i), 0);
+        }
+
+        size_t paramUsage(LESSDB::sectionParameterType_t type)
+        {
+            switch (type)
+            {
+            case LESSDB::sectionParameterType_t::word:
+                return 2;
+
+            case LESSDB::sectionParameterType_t::dword:
+                return 4;
+
+            case LESSDB::sectionParameterType_t::bit:
+            case LESSDB::sectionParameterType_t::halfByte:
+            case LESSDB::sectionParameterType_t::byte:
+            default:
+                return 1;
+            }
         }
     }    // namespace eeprom
 }    // namespace Board

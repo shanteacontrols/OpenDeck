@@ -28,8 +28,19 @@ limitations under the License.
 class Database : public LESSDB
 {
     public:
-    Database(bool (&readCallback)(uint32_t address, sectionParameterType_t type, int32_t& value), bool (&writeCallback)(uint32_t address, int32_t value, sectionParameterType_t type), size_t maxSize)
-        : LESSDB(readCallback, writeCallback, maxSize)
+    class Handlers
+    {
+        public:
+        Handlers() {}
+        virtual void presetChange(uint8_t preset) = 0;
+        virtual void factoryResetStart()          = 0;
+        virtual void factoryResetDone()           = 0;
+        virtual void initialized()                = 0;
+    };
+
+    Database(Handlers& handlers, LESSDB::StorageAccess& storageAccess)
+        : LESSDB(storageAccess)
+        , handlers(handlers)
     {}
 
     enum class block_t : uint8_t
@@ -139,9 +150,8 @@ class Database : public LESSDB
     bool    isSignatureValid();
     bool    setPreset(uint8_t preset);
     uint8_t getPreset();
-    void    setPresetPreserveState(bool state);
+    bool    setPresetPreserveState(bool state);
     bool    getPresetPreserveState();
-    void    setPresetChangeHandler(void (*presetChangeHandler)(uint8_t preset));
 
     private:
     block_t block(Section::global_t section)
@@ -174,25 +184,23 @@ class Database : public LESSDB
         return block_t::display;
     }
 
-    void     writeCustomValues();
+    bool     writeCustomValues();
     uint16_t getDbUID();
-    void     setDbUID(uint16_t uid);
+    bool     setDbUID(uint16_t uid);
+
+    Handlers& handlers;
 
     ///
-    /// \brief User-specified callback called when preset is changed.
-    ///
-    void (*presetChangeHandler)(uint8_t preset) = nullptr;
-
-    ///
-    /// \brief Holds total memory usage for single preset (without system block).
-    ///
-    uint32_t presetMemoryUsage;
-
-    ///
-    /// \brief Total size of system block.
+    /// \brief Address at which user data starts (after system block).
     /// Used to set correct offset in database for user layout.
     ///
-    uint32_t systemBlockUsage;
+    uint32_t userDataStartAddress;
+
+    ///
+    /// \brief Address at which next preset should start.
+    /// Used to calculate the start address of next preset.
+    ///
+    uint32_t lastPresetAddress;
 
     ///
     /// \brief Holds total number of supported presets.

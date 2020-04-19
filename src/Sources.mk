@@ -46,7 +46,8 @@ else ifeq ($(ARCH),stm32)
     SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/common -regex '.*\.\(s\|c\)')
     SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/$(MCU) -regex '.*\.\(s\|c\)')
     SOURCES += $(shell $(FIND) ./board/stm32/variants/$(MCU_FAMILY) -maxdepth 1 -name "*.cpp")
-    SOURCES += $(shell $(FIND) ./board/stm32/eeprom -name "*.cpp")
+    SOURCES += $(shell $(FIND) ./board/stm32/variants/$(MCU_FAMILY)/eeprom -name "*.cpp")
+    SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
 
     INCLUDE_DIRS += $(addprefix -I,$(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/common -type d -not -path "*Src*"))
     INCLUDE_DIRS += $(addprefix -I,$(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/$(MCU)/Drivers -type d -not -path "*Src*"))

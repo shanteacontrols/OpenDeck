@@ -3,10 +3,21 @@
 #include <inttypes.h>
 #include "dbms/src/LESSDB.h"
 
-namespace DatabaseStub
+class DBstorageMock : public LESSDB::StorageAccess
 {
-    extern uint8_t memoryArray[EEPROM_SIZE - 3];
+    public:
+    DBstorageMock() {}
 
-    bool read(uint32_t address, LESSDB::sectionParameterType_t type, int32_t& value);
-    bool write(uint32_t address, int32_t value, LESSDB::sectionParameterType_t type);
-}    // namespace DatabaseStub
+    void init() override
+    {
+    }
+
+    uint32_t size() override;
+    size_t   paramUsage(LESSDB::sectionParameterType_t type) override;
+    void     clear() override;
+    bool     read(uint32_t address, int32_t& value, LESSDB::sectionParameterType_t type) override;
+    bool     write(uint32_t address, int32_t value, LESSDB::sectionParameterType_t type) override;
+
+    private:
+    uint8_t memoryArray[EEPROM_SIZE - 3] = {};
+};

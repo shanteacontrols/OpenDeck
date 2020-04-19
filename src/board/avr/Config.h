@@ -19,6 +19,7 @@ limitations under the License.
 #pragma once
 
 #include <inttypes.h>
+#include <avr/io.h>
 
 ///
 /// \brief Value above which buton connected to analog input is considered pressed.
@@ -74,15 +75,14 @@ limitations under the License.
 
 ///
 /// \brief Location at which reboot type is written in EEPROM when initiating software reset.
-/// See Reboot.h
 ///
-#define REBOOT_VALUE_EEPROM_LOCATION (EEPROM_SIZE - 1)
+#define REBOOT_VALUE_EEPROM_LOCATION E2END
 
 ///
 /// \brief Location at which compiled binary CRC is written in EEPROM.
 /// CRC takes two bytes.
 ///
-#define SW_CRC_LOCATION_EEPROM (EEPROM_SIZE - 3)
+#define SW_CRC_LOCATION_EEPROM (E2END - 2)
 
 ///
 /// \brief Total number of states between fully off and fully on for LEDs.

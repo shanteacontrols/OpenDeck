@@ -19,11 +19,87 @@ limitations under the License.
 #include "OpenDeck.h"
 #include "core/src/general/Timing.h"
 #include "core/src/general/Interrupt.h"
+#include "core/src/general/Reset.h"
 #include "interface/CInfo.h"
+
+class DBhandlers : public Database::Handlers
+{
+    public:
+    DBhandlers() {}
+
+    void presetChange(uint8_t preset) override
+    {
+        if (presetChangeHandler != nullptr)
+            presetChangeHandler(preset);
+    }
+
+    void factoryResetStart() override
+    {
+        if (factoryResetStartHandler != nullptr)
+            factoryResetStartHandler();
+    }
+
+    void factoryResetDone() override
+    {
+        if (factoryResetDoneHandler != nullptr)
+            factoryResetDoneHandler();
+    }
+
+    void initialized() override
+    {
+        if (initHandler != nullptr)
+            initHandler();
+    }
+
+    //actions which these handlers should take depend on objects making
+    //up the entire system to be initialized
+    //therefore in interface we are calling these function pointers which
+    // are set in application once we have all objects ready
+    void (*presetChangeHandler)(uint8_t preset) = nullptr;
+    void (*factoryResetStartHandler)()          = nullptr;
+    void (*factoryResetDoneHandler)()           = nullptr;
+    void (*initHandler)()                       = nullptr;
+} dbHandlers;
+
+class StorageAccess : public LESSDB::StorageAccess
+{
+    public:
+    StorageAccess() {}
+
+    void init() override
+    {
+        Board::eeprom::init();
+    }
+
+    uint32_t size() override
+    {
+        return Board::eeprom::size();
+    }
+
+    void clear() override
+    {
+        Board::eeprom::clear(0, Board::eeprom::size());
+    }
+
+    bool read(uint32_t address, int32_t& value, LESSDB::sectionParameterType_t type) override
+    {
+        return Board::eeprom::read(address, value, type);
+    }
+
+    bool write(uint32_t address, int32_t value, LESSDB::sectionParameterType_t type) override
+    {
+        return Board::eeprom::write(address, value, type);
+    }
+
+    size_t paramUsage(LESSDB::sectionParameterType_t type) override
+    {
+        return Board::eeprom::paramUsage(type);
+    }
+} storageAccess;
 
 // clang-format off
 ComponentInfo                       cinfo;
-Database                            database(Board::eeprom::read, Board::eeprom::write, CONFIGURATION_SIZE);
+Database                            database(dbHandlers, storageAccess);
 MIDI                                midi;
 Interface::digital::input::Common   digitalInputCommon;
 #ifdef DISPLAY_SUPPORTED
@@ -82,11 +158,30 @@ SysConfig                           sysConfig(database, midi, buttons, encoders,
 SysConfig                           sysConfig(database, midi, buttons, encoders, analog);
 #endif
 #endif
-// clang-format on
+//clang-format on
 
 void OpenDeck::init()
 {
     Board::init();
+
+        dbHandlers.presetChangeHandler = [](uint8_t preset) {
+#ifdef LEDS_SUPPORTED
+        leds.midiToState(MIDI::messageType_t::programChange, preset, 0, 0, true);
+#endif
+
+#ifdef DISPLAY_SUPPORTED
+        if (display.init(false))
+            display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::presetChange, preset, 0, 0);
+#endif
+    };
+
+    dbHandlers.factoryResetStartHandler = []() {
+#ifdef LEDS_SUPPORTED
+        leds.setAllOff();
+        core::timing::waitMs(1000);
+#endif
+    };
+
     database.init();
     sysConfig.init();
 
@@ -121,22 +216,17 @@ void OpenDeck::init()
     });
 #endif
 
-    database.setPresetChangeHandler([](uint8_t preset) {
-#ifdef LEDS_SUPPORTED
-        leds.midiToState(MIDI::messageType_t::programChange, preset, 0, 0, true);
-#endif
-
-#ifdef DISPLAY_SUPPORTED
-        if (display.init(false))
-            display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::presetChange, preset, 0, 0);
-#endif
-    });
-
 #ifdef LEDS_SUPPORTED
     // on startup, indicate current program for all channels (if any leds have program change assigned as control mode)
     for (int i = 0; i < 16; i++)
         leds.midiToState(MIDI::messageType_t::programChange, 0, 0, i, false);
 #endif
+
+    //don't configure this handler before initializing database to avoid mcu reset if
+    //factory reset is needed initially
+    dbHandlers.factoryResetDoneHandler = []() {
+        core::reset::mcuReset();
+    };
 
     Board::io::ledFlashStartup(Board::checkNewRevision());
 }

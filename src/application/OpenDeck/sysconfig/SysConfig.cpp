@@ -132,18 +132,13 @@ SysConfig::result_t SysConfig::SysExDataHandler::customRequest(size_t request, C
     }
     break;
 
-    case SYSEX_CR_REBOOT_APP:
     case SYSEX_CR_FACTORY_RESET:
+        sysConfig.database.factoryReset(LESSDB::factoryResetType_t::partial);
+        break;
+
+    case SYSEX_CR_REBOOT_APP:
     case SYSEX_CR_REBOOT_BTLDR:
     {
-#ifdef LEDS_SUPPORTED
-        sysConfig.leds.setAllOff();
-        core::timing::waitMs(2500);
-#endif
-
-        if (request == SYSEX_CR_FACTORY_RESET)
-            sysConfig.database.factoryReset(LESSDB::factoryResetType_t::partial);
-
         if (request == SYSEX_CR_REBOOT_BTLDR)
             Board::reboot(rebootType_t::rebootBtldr);
         else

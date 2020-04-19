@@ -233,18 +233,35 @@ namespace Board
     namespace eeprom
     {
         ///
+        /// \brief Returns total available bytes to store in EEPROM memory.
+        ///
+        uint32_t size();
+
+        ///
         /// \brief Initializes and prepares non-volatile storage on board.
         ///
         void init();
 
         ///
+        /// \brief Used to wipe non-volatile memory on specified range.
+        /// @param [in] start   Starting address from which to erase.
+        /// @param [in] end     Last address to erase.
+        ///
+        void clear(uint32_t start, uint32_t end);
+
+        ///
+        /// \brief Returns amount of actual memory it takes to store provided parameter type.
+        ///
+        size_t paramUsage(LESSDB::sectionParameterType_t type);
+
+        ///
         /// \brief Used to read contents of memory provided by specific board,
         /// @param [in] address Memory address from which to read from.
-        /// @param [in] type    Type of parameter which is being read. Defined in DBMS module.
         /// @param [in] value   Pointer to variable in which read value is being stored.
+        /// @param [in] type    Type of parameter which is being read. Defined in DBMS module.
         /// \returns            True on success, false otherwise.
         ///
-        bool read(uint32_t address, LESSDB::sectionParameterType_t type, int32_t& value);
+        bool read(uint32_t address, int32_t& value, LESSDB::sectionParameterType_t type);
 
         ///
         /// \brief Used to write value to memory provided by specific board.

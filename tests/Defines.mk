@@ -10,20 +10,27 @@ MCU_FAMILY := $(shell $(FIND) ../src/board -type d -name *$(BOARD_DIR) | cut -d/
 #mcu specific
 ifeq ($(MCU),atmega32u4)
     FLASH_SIZE_START_ADDR := 0xAC
+    EEPROM_SIZE := 1024
 else ifeq ($(MCU),at90usb1286)
     FLASH_SIZE_START_ADDR := 0x98
+    EEPROM_SIZE := 4096
 else ifeq ($(MCU),atmega16u2)
     FLASH_SIZE_START_ADDR := 0x74
+    EEPROM_SIZE := 512
 else ifeq ($(MCU),atmega8u2)
     FLASH_SIZE_START_ADDR := 0x74
+    EEPROM_SIZE := 512
 else ifeq ($(MCU),atmega2560)
     FLASH_SIZE_START_ADDR := 0xE4
+    EEPROM_SIZE := 4096
 else ifeq ($(MCU),atmega328p)
     FLASH_SIZE_START_ADDR := 0x68
+    EEPROM_SIZE := 1024
 endif
 
 DEFINES_COMMON += APP_LENGTH_LOCATION=$(FLASH_SIZE_START_ADDR)
 DEFINES_COMMON += OD_BOARD_$(shell echo $(BOARD_DIR) | tr 'a-z' 'A-Z')
+DEFINES_COMMON += EEPROM_SIZE=$(EEPROM_SIZE)
 
 ifneq ($(HARDWARE_VERSION_MAJOR), )
     DEFINES_COMMON += HARDWARE_VERSION_MAJOR=$(HARDWARE_VERSION_MAJOR)

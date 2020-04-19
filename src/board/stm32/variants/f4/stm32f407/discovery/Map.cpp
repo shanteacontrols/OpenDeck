@@ -18,6 +18,7 @@ limitations under the License.
 
 #include "Pins.h"
 #include "board/Internal.h"
+#include "board/stm32/variants/f4/eeprom/Constants.h"
 
 namespace Board
 {
@@ -218,12 +219,12 @@ namespace Board
                     }
                 };
 
-                EmuEEPROM::pageDescriptor_t flashPage1 = {
+                EmuEEPROM::StorageAccess::pageDescriptor_t flashPage1 = {
                     .startAddress = EEPROM_PAGE1_START_ADDRESS,
                     .sector       = EEPROM_PAGE1_SECTOR
                 };
 
-                EmuEEPROM::pageDescriptor_t flashPage2 = {
+                EmuEEPROM::StorageAccess::pageDescriptor_t flashPage2 = {
                     .startAddress = EEPROM_PAGE2_START_ADDRESS,
                     .sector       = EEPROM_PAGE2_SECTOR
                 };
@@ -333,12 +334,12 @@ namespace Board
                 return TIM7;
             }
 
-            EmuEEPROM::pageDescriptor_t& eepromFlashPage1()
+            EmuEEPROM::StorageAccess::pageDescriptor_t& eepromFlashPage1()
             {
                 return flashPage1;
             }
 
-            EmuEEPROM::pageDescriptor_t& eepromFlashPage2()
+            EmuEEPROM::StorageAccess::pageDescriptor_t& eepromFlashPage2()
             {
                 return flashPage2;
             }

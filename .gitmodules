@@ -27,3 +27,6 @@
 [submodule "src/modules/unity"]
 	path = modules/unity
 	url = https://github.com/ThrowTheSwitch/Unity.git
+[submodule "modules/EmuEEPROM"]
+	path = modules/EmuEEPROM
+	url = https://github.com/paradajz/EmuEEPROM.git

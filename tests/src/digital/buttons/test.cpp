@@ -44,7 +44,47 @@ namespace
         return true;
     }
 
-    Database      database = Database(DatabaseStub::read, DatabaseStub::write, EEPROM_SIZE - 3);
+    class DBhandlers : public Database::Handlers
+    {
+        public:
+        DBhandlers() {}
+
+        void presetChange(uint8_t preset) override
+        {
+            if (presetChangeHandler != nullptr)
+                presetChangeHandler(preset);
+        }
+
+        void factoryResetStart() override
+        {
+            if (factoryResetStartHandler != nullptr)
+                factoryResetStartHandler();
+        }
+
+        void factoryResetDone() override
+        {
+            if (factoryResetDoneHandler != nullptr)
+                factoryResetDoneHandler();
+        }
+
+        void initialized() override
+        {
+            if (initHandler != nullptr)
+                initHandler();
+        }
+
+        //actions which these handlers should take depend on objects making
+        //up the entire system to be initialized
+        //therefore in interface we are calling these function pointers which
+        // are set in application once we have all objects ready
+        void (*presetChangeHandler)(uint8_t preset) = nullptr;
+        void (*factoryResetStartHandler)()          = nullptr;
+        void (*factoryResetDoneHandler)()           = nullptr;
+        void (*initHandler)()                       = nullptr;
+    } dbHandlers;
+
+    DBstorageMock dbStorageMock;
+    Database      database = Database(dbHandlers, dbStorageMock);
     MIDI          midi;
     ComponentInfo cInfo;
 

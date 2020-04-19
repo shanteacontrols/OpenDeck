@@ -17,6 +17,8 @@ limitations under the License.
 */
 
 #include <inttypes.h>
+#include "OpenDeck/sysconfig/Constants.h"
+#include "core/src/general/Helpers.h"
 
 namespace SectionPrivate
 {
@@ -40,7 +42,7 @@ namespace SectionPrivate
         LESSDB::setLayout(dbLayout, static_cast<uint8_t>(block_t::AMOUNT) + 1);     \
         code                                                                        \
             LESSDB::setLayout(&dbLayout[1], static_cast<uint8_t>(block_t::AMOUNT)); \
-        setStartAddress(systemBlockUsage + (presetMemoryUsage * activePreset));     \
+        setStartAddress(userDataStartAddress + (lastPresetAddress * activePreset)); \
     }
 
 ///
@@ -50,16 +52,43 @@ bool Database::init()
 {
     setStartAddress(0);
 
-    if (!LESSDB::setLayout(dbLayout, static_cast<uint8_t>(block_t::AMOUNT) + 1))
-        return false;
+    uint32_t systemBlockUsage = 0;
 
-    systemBlockUsage  = dbLayout[1].address;
-    presetMemoryUsage = LESSDB::currentDBusage() - systemBlockUsage;
-    supportedPresets  = (dbSize() - systemBlockUsage) / presetMemoryUsage;
+    //set only system block for now
+    if (!LESSDB::setLayout(dbLayout, 1))
+    {
+        return false;
+    }
+    else
+    {
+        systemBlockUsage     = LESSDB::currentDBsize();
+        userDataStartAddress = LESSDB::nextParameterAddress();
+
+        //now set the entire layout
+        if (!LESSDB::setLayout(dbLayout, static_cast<uint8_t>(block_t::AMOUNT) + 1))
+            return false;
+    }
+
+    lastPresetAddress = LESSDB::nextParameterAddress() - userDataStartAddress;
+
+    //limit the address space to 0xFFFF - 1
+    const uint32_t maxAddress = 0xFFFF - 1;
+    uint16_t       maxPresets = (maxAddress / LESSDB::lastParameterAddress()) - userDataStartAddress;
+
+    //get theoretical maximum of presets
+    supportedPresets = (LESSDB::dbSize() - systemBlockUsage) / (LESSDB::currentDBsize() - systemBlockUsage);
+
+    //limit by address space
+    supportedPresets = CONSTRAIN(supportedPresets, 0, maxPresets);
+
+    //limit by hardcoded limit
+    supportedPresets = CONSTRAIN(supportedPresets, 0, MAX_PRESETS);
+
+    bool returnValue = true;
 
     if (!isSignatureValid())
     {
-        return factoryReset(LESSDB::factoryResetType_t::full);
+        returnValue = factoryReset(LESSDB::factoryResetType_t::full);
     }
     else
     {
@@ -78,7 +107,10 @@ bool Database::init()
         setPreset(activePreset);
     }
 
-    return true;
+    if (returnValue)
+        handlers.initialized();
+
+    return returnValue;
 }
 
 ///
@@ -87,21 +119,30 @@ bool Database::init()
 ///
 bool Database::factoryReset(LESSDB::factoryResetType_t type)
 {
-    if (type == LESSDB::factoryResetType_t::full)
-    {
-        if (!clear())
-            return false;
-    }
+    handlers.factoryResetStart();
 
-    setDbUID(getDbUID());
-    setPresetPreserveState(false);
+    if (type == LESSDB::factoryResetType_t::full)
+        clear();
+
+    if (!setDbUID(getDbUID()))
+        return false;
+
+    if (!setPresetPreserveState(false))
+        return false;
 
     for (int i = supportedPresets - 1; i >= 0; i--)
     {
-        setPreset(i);
-        initData(type);
-        writeCustomValues();
+        if (!setPreset(i))
+            return false;
+
+        if (!initData(type))
+            return false;
+
+        if (!writeCustomValues())
+            return false;
     }
+
+    handlers.factoryResetDone();
 
     return true;
 }
@@ -118,16 +159,18 @@ bool Database::setPreset(uint8_t preset)
 
     activePreset = preset;
 
+    bool returnValue;
+
     SYSTEM_BLOCK_ENTER(
-        update(0,
-               static_cast<uint8_t>(SectionPrivate::system_t::presets),
-               static_cast<size_t>(SysConfig::presetSetting_t::activePreset),
-               preset);)
+        returnValue = update(0,
+                             static_cast<uint8_t>(SectionPrivate::system_t::presets),
+                             static_cast<size_t>(SysConfig::presetSetting_t::activePreset),
+                             preset);)
 
-    if (presetChangeHandler != nullptr)
-        presetChangeHandler(preset);
+    if (returnValue)
+        handlers.presetChange(preset);
 
-    return true;
+    return returnValue;
 }
 
 ///
@@ -141,11 +184,13 @@ uint8_t Database::getPreset()
 ///
 /// \brief Writes custom values to specific indexes which can't be generalized within database section.
 ///
-void Database::writeCustomValues()
+bool Database::writeCustomValues()
 {
 #ifdef DISPLAY_SUPPORTED
-    update(Database::Section::display_t::setting, static_cast<size_t>(Interface::Display::setting_t::MIDIeventTime), MIN_MESSAGE_RETENTION_TIME);
+    return update(Database::Section::display_t::setting, static_cast<size_t>(Interface::Display::setting_t::MIDIeventTime), MIN_MESSAGE_RETENTION_TIME);
 #endif
+
+    return true;
 }
 
 ///
@@ -162,13 +207,17 @@ uint8_t Database::getSupportedPresets()
 /// If preservation is enabled, configured preset will be loaded on board power on.
 /// Otherwise, first preset will be loaded instead.
 ///
-void Database::setPresetPreserveState(bool state)
+bool Database::setPresetPreserveState(bool state)
 {
+    bool returnValue;
+
     SYSTEM_BLOCK_ENTER(
-        update(0,
-               static_cast<uint8_t>(SectionPrivate::system_t::presets),
-               static_cast<size_t>(SysConfig::presetSetting_t::presetPreserve),
-               state);)
+        returnValue = update(0,
+                             static_cast<uint8_t>(SectionPrivate::system_t::presets),
+                             static_cast<size_t>(SysConfig::presetSetting_t::presetPreserve),
+                             state);)
+
+    return returnValue;
 }
 
 ///
@@ -210,10 +259,10 @@ bool Database::isSignatureValid()
 ///
 uint16_t Database::getDbUID()
 {
-///
-/// \brief Magic value with which calculated signature is XORed.
-///
-#define DB_UID_BASE 0x1701
+    ///
+    /// \brief Magic value with which calculated signature is XORed.
+    ///
+    const uint16_t uidBase = 0x1701;
 
     uint16_t signature = 0;
 
@@ -227,7 +276,7 @@ uint16_t Database::getDbUID()
         }
     }
 
-    return signature ^ DB_UID_BASE;
+    return signature ^ uidBase;
 }
 
 ///
@@ -235,16 +284,12 @@ uint16_t Database::getDbUID()
 /// UID is written to first two database locations.
 /// @param [in] uid Database UID to set.
 ///
-void Database::setDbUID(uint16_t uid)
+bool Database::setDbUID(uint16_t uid)
 {
-    SYSTEM_BLOCK_ENTER(
-        update(0, static_cast<uint8_t>(SectionPrivate::system_t::uid), 0, uid);)
-}
+    bool returnValue;
 
-///
-/// \brief Sets callback used to indicate that the preset has been changed.
-///
-void Database::setPresetChangeHandler(void (*presetChangeHandler)(uint8_t preset))
-{
-    this->presetChangeHandler = presetChangeHandler;
+    SYSTEM_BLOCK_ENTER(
+        returnValue = update(0, static_cast<uint8_t>(SectionPrivate::system_t::uid), 0, uid);)
+
+    return returnValue;
 }

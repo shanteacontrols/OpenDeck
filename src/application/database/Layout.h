@@ -25,6 +25,8 @@ limitations under the License.
 #include "OpenDeck/sysconfig/SysConfig.h"
 #include "interface/display/Config.h"
 
+#define MAX_PRESETS 10
+
 namespace
 {
     //not user accessible
