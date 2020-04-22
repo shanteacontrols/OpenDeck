@@ -83,6 +83,30 @@ namespace
         void (*initHandler)()                       = nullptr;
     } dbHandlers;
 
+    class LEDsHWA : public Interface::digital::output::LEDs::HWA
+    {
+        public:
+        LEDsHWA() {}
+
+        void setState(size_t index, bool state) override
+        {
+        }
+
+        size_t rgbSingleComponentIndex(size_t rgbIndex, Interface::digital::output::LEDs::rgbIndex_t rgbComponent) override
+        {
+            return 0;
+        }
+
+        size_t rgbIndex(size_t singleLEDindex) override
+        {
+            return 0;
+        }
+
+        void setFadeSpeed(size_t transitionSpeed) override
+        {
+        }
+    } ledsHWA;
+
     DBstorageMock dbStorageMock;
     Database      database = Database(dbHandlers, dbStorageMock);
     MIDI          midi;
@@ -92,22 +116,12 @@ namespace
     Interface::Display display(database);
 #endif
 
-#ifdef LEDS_SUPPORTED
-    Interface::digital::output::LEDs leds = Interface::digital::output::LEDs(database);
-#endif
+    Interface::digital::output::LEDs leds(ledsHWA, database);
 
-#ifdef LEDS_SUPPORTED
 #ifdef DISPLAY_SUPPORTED
     Interface::digital::input::Buttons buttons = Interface::digital::input::Buttons(database, midi, leds, display, cInfo);
 #else
     Interface::digital::input::Buttons buttons = Interface::digital::input::Buttons(database, midi, leds, cInfo);
-#endif
-#else
-#ifdef DISPLAY_SUPPORTED
-    Interface::digital::input::Buttons buttons = Interface::digital::input::Buttons(database, midi, display, cInfo);
-#else
-    Interface::digital::input::Buttons buttons = Interface::digital::input::Buttons(database, midi, cInfo);
-#endif
 #endif
 
     void stateChangeRegister(bool state)
@@ -158,25 +172,6 @@ namespace Board
         bool getButtonState(uint8_t buttonIndex)
         {
             return buttonState[buttonIndex];
-        }
-
-        uint8_t getRGBID(uint8_t ledID)
-        {
-            return 0;
-        }
-
-        uint8_t getRGBaddress(uint8_t rgbID, Interface::digital::output::LEDs::rgbIndex_t index)
-        {
-            return 0;
-        }
-
-        bool setLEDfadeSpeed(uint8_t transitionSpeed)
-        {
-            return true;
-        }
-
-        void writeLEDstate(uint8_t ledID, bool state)
-        {
         }
     }    // namespace io
 }    // namespace Board
@@ -676,7 +671,7 @@ TEST_CASE(NoMessages)
     TEST_ASSERT(messageCounter == 0);
 }
 
-#ifdef LEDS_SUPPORTED
+#if MAX_NUMBER_OF_LEDS > 0
 TEST_CASE(LocalLEDcontrol)
 {
     using namespace Interface::digital::input;

@@ -127,25 +127,6 @@ namespace Board
             controlValue[encoderID]    = 0;
             encoderPosition[encoderID] = position;
         }
-
-        uint8_t getRGBID(uint8_t ledID)
-        {
-            return 0;
-        }
-
-        uint8_t getRGBaddress(uint8_t rgbID, Interface::digital::output::LEDs::rgbIndex_t index)
-        {
-            return 0;
-        }
-
-        bool setLEDfadeSpeed(uint8_t transitionSpeed)
-        {
-            return true;
-        }
-
-        void writeLEDstate(uint8_t ledID, bool state)
-        {
-        }
     }    // namespace io
 }    // namespace Board
 

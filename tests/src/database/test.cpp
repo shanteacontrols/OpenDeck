@@ -173,7 +173,6 @@ TEST_CASE(ReadInitialValues)
         for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
             TEST_ASSERT(database.read(Database::Section::analog_t::midiChannel, i) == 0);
 
-#ifdef LEDS_SUPPORTED
         //LED block
         //global section
         //all values should be set to 0
@@ -204,7 +203,6 @@ TEST_CASE(ReadInitialValues)
         //all values should be set to 0
         for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
             TEST_ASSERT(database.read(Database::Section::leds_t::midiChannel, i) == 0);
-#endif
 
 #ifdef DISPLAY_SUPPORTED
         //display block
@@ -283,7 +281,7 @@ TEST_CASE(FactoryReset)
     TEST_ASSERT(database.getPresetPreserveState() == false);
 }
 
-#ifdef LEDS_SUPPORTED
+#if MAX_NUMBER_OF_LEDS > 0
 TEST_CASE(LEDs)
 {
     //regression test

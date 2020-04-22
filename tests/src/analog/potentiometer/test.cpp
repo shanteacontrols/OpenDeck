@@ -79,31 +79,45 @@ namespace
         void (*initHandler)()                       = nullptr;
     } dbHandlers;
 
+    class LEDsHWA : public Interface::digital::output::LEDs::HWA
+    {
+        public:
+        LEDsHWA() {}
+
+        void setState(size_t index, bool state) override
+        {
+        }
+
+        size_t rgbSingleComponentIndex(size_t rgbIndex, Interface::digital::output::LEDs::rgbIndex_t rgbComponent) override
+        {
+            return 0;
+        }
+
+        size_t rgbIndex(size_t singleLEDindex) override
+        {
+            return 0;
+        }
+
+        void setFadeSpeed(size_t transitionSpeed) override
+        {
+        }
+    } ledsHWA;
+
     DBstorageMock dbStorageMock;
     Database      database = Database(dbHandlers, dbStorageMock);
     MIDI          midi;
     ComponentInfo cInfo;
 
-#ifdef LEDS_SUPPORTED
-    Interface::digital::output::LEDs leds = Interface::digital::output::LEDs(database);
-#endif
+    Interface::digital::output::LEDs leds(ledsHWA, database);
 
 #ifdef DISPLAY_SUPPORTED
     Interface::Display display(database);
 #endif
 
-#ifdef LEDS_SUPPORTED
 #ifndef DISPLAY_SUPPORTED
     Interface::analog::Analog analog = Interface::analog::Analog(database, midi, leds, cInfo);
 #else
     Interface::analog::Analog analog = Interface::analog::Analog(database, midi, leds, display, cInfo);
-#endif
-#else
-#ifdef DISPLAY_SUPPORTED
-    Interface::analog::Analog analog = Interface::analog::Analog(database, midi, display, cInfo);
-#else
-    Interface::analog::Analog analog = Interface::analog::Analog(database, midi, cInfo);
-#endif
 #endif
 }    // namespace
 
@@ -128,25 +142,6 @@ namespace Board
         bool isAnalogDataAvailable()
         {
             return true;
-        }
-
-        uint8_t getRGBID(uint8_t ledID)
-        {
-            return 0;
-        }
-
-        uint8_t getRGBaddress(uint8_t rgbID, Interface::digital::output::LEDs::rgbIndex_t index)
-        {
-            return 0;
-        }
-
-        bool setLEDfadeSpeed(uint8_t transitionSpeed)
-        {
-            return true;
-        }
-
-        void writeLEDstate(uint8_t ledID, bool state)
-        {
         }
     }    // namespace io
 }    // namespace Board
