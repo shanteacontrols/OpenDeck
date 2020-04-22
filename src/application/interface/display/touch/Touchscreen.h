@@ -18,7 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#include "Interface.h"
+#include <inttypes.h>
 
 namespace Interface
 {
@@ -31,7 +31,16 @@ namespace Interface
     class Touchscreen
     {
         public:
-        Touchscreen(ITouchscreen& hwa)
+        class HWA
+        {
+            public:
+            virtual bool init()                                    = 0;
+            virtual void setScreen(uint8_t screenID)               = 0;
+            virtual bool update(uint8_t& buttonID, bool& state)    = 0;
+            virtual void setButtonState(uint8_t index, bool state) = 0;
+        };
+
+        Touchscreen(HWA& hwa)
             : hwa(hwa)
         {}
         bool    init();
@@ -42,7 +51,7 @@ namespace Interface
         void    setButtonState(uint8_t index, bool state);
 
         private:
-        ITouchscreen& hwa;
+        HWA& hwa;
 
         void (*buttonHandler)(uint8_t index, bool state) = nullptr;
         uint8_t activeScreenID                           = 0;

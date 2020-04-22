@@ -18,11 +18,11 @@ limitations under the License.
 
 #pragma once
 
-#include "interface/display/touch/Interface.h"
+#include "interface/display/touch/Touchscreen.h"
 #include "Config.h"
 #include "Commands.h"
 
-class SDW : public ITouchscreen
+class SDW : public Interface::Touchscreen::HWA
 {
     public:
     SDW() {}
