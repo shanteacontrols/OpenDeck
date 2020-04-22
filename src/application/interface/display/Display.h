@@ -18,7 +18,6 @@ limitations under the License.
 
 #pragma once
 
-#include "board/Board.h"
 #include "U8X8/U8X8.h"
 #include "Config.h"
 #include "core/src/general/StringBuilder.h"

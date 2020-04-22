@@ -19,7 +19,6 @@ limitations under the License.
 #pragma once
 
 #include "Database.h"
-#include "board/Board.h"
 #include "interface/digital/output/leds/LEDs.h"
 #include "interface/display/Display.h"
 #include "OpenDeck/sysconfig/SysConfig.h"

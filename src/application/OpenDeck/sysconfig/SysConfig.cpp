@@ -17,11 +17,11 @@ limitations under the License.
 */
 
 #include "SysConfig.h"
+#include "board/Board.h"
 #include "Version.h"
 #include "Layout.h"
 #include "core/src/general/Timing.h"
 #include "common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
-#include "board/Board.h"
 
 Database::block_t SysConfig::dbBlock(uint8_t index)
 {

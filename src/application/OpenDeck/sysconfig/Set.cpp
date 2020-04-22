@@ -1,4 +1,5 @@
 #include "SysConfig.h"
+#include "board/Board.h"
 
 SysExConf::DataHandler::result_t SysConfig::SysExDataHandler::set(uint8_t                     block,
                                                                   uint8_t                     section,

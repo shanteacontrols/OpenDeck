@@ -17,6 +17,7 @@ limitations under the License.
 */
 
 #include "OpenDeck.h"
+#include "board/Board.h"
 #include "core/src/general/Timing.h"
 #include "core/src/general/Interrupt.h"
 #include "core/src/general/Reset.h"

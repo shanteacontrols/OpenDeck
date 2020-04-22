@@ -19,7 +19,6 @@ limitations under the License.
 #include <string.h>
 #include <stdio.h>
 #include "Display.h"
-#include "database/Database.h"
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
 

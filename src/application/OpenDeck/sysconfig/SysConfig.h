@@ -20,7 +20,6 @@ limitations under the License.
 
 #include "sysex/src/SysExConf.h"
 #include "CustomIDs.h"
-#include "board/Board.h"
 #include "database/Database.h"
 #include "midi/src/MIDI.h"
 #include "interface/digital/input/buttons/Buttons.h"
