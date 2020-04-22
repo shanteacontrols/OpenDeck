@@ -151,7 +151,7 @@ SysConfig::result_t SysConfig::SysExDataHandler::customRequest(size_t request, C
         customResponse.append(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS);
         customResponse.append(MAX_NUMBER_OF_ENCODERS);
         customResponse.append(MAX_NUMBER_OF_ANALOG);
-        customResponse.append(MAX_NUMBER_OF_LEDS);
+        customResponse.append(MAX_NUMBER_OF_LEDS + MAX_TOUCHSCREEN_BUTTONS);
     }
     break;
 

@@ -78,7 +78,7 @@ void LEDs::checkBlinking(bool forceChange)
         blinkCounter[i] = 0;
 
         //assign changed state to all leds which have this speed
-        for (int j = 0; j < MAX_NUMBER_OF_LEDS; j++)
+        for (size_t j = 0; j < maxLEDs; j++)
         {
             if (!getState(j, ledBit_t::blinkOn))
                 continue;
@@ -151,7 +151,7 @@ LEDs::blinkSpeed_t LEDs::valueToBlinkSpeed(uint8_t value)
 
 void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local)
 {
-    for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
+    for (size_t i = 0; i < maxLEDs; i++)
     {
         //no point in checking if channel doesn't match
         if (database.read(Database::Section::leds_t::midiChannel, i) != channel)
@@ -368,14 +368,14 @@ void LEDs::setBlinkState(uint8_t ledID, blinkSpeed_t state)
 void LEDs::setAllOn()
 {
     //turn on all LEDs
-    for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
+    for (size_t i = 0; i < maxLEDs; i++)
         setColor(i, color_t::red);
 }
 
 void LEDs::setAllOff()
 {
     //turn off all LEDs
-    for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
+    for (size_t i = 0; i < maxLEDs; i++)
         resetState(i);
 }
 

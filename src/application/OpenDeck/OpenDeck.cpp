@@ -104,10 +104,8 @@ class HWALEDs : public Interface::digital::output::LEDs::HWA
 
     void setState(size_t index, bool state) override
     {
-#if MAX_NUMBER_OF_LEDS > 0
-
-        Board::io::writeLEDstate(index, state);
-#endif
+        if (stateHandler != nullptr)
+            stateHandler(index, state);
     }
 
     size_t rgbSingleComponentIndex(size_t rgbIndex, Interface::digital::output::LEDs::rgbIndex_t rgbComponent) override
@@ -153,6 +151,8 @@ class HWALEDs : public Interface::digital::output::LEDs::HWA
         Board::io::setLEDfadeSpeed(transitionSpeed);
 #endif
     }
+
+    void (*stateHandler)(size_t index, bool state) = nullptr;
 } hwaLEDs;
 
 // clang-format off
@@ -247,6 +247,23 @@ void OpenDeck::init()
     //factory reset is needed initially
     dbHandlers.factoryResetDoneHandler = []() {
         core::reset::mcuReset();
+    };
+
+    hwaLEDs.stateHandler = [](size_t index, bool state) {
+#if MAX_NUMBER_OF_LEDS > 0
+#if MAX_TOUCHSCREEN_BUTTONS != 0
+        if (index >= MAX_NUMBER_OF_LEDS)
+            touchscreen.setButtonState(MAX_NUMBER_OF_LEDS - index, state);
+        else
+            Board::io::writeLEDstate(index, state);
+#else
+        Board::io::writeLEDstate(index, state);
+#endif
+#else
+#ifdef TOUCHSCREEN_SUPPORTED
+        touchscreen.setButtonState(index, state);
+#endif
+#endif
     };
 
     Board::io::ledFlashStartup(Board::checkNewRevision());

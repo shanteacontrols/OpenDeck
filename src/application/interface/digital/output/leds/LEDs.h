@@ -152,18 +152,19 @@ namespace Interface
                 void         handleLED(uint8_t ledID, bool state, bool rgbLED, rgbIndex_t index = rgbIndex_t::r);
                 void         startUpAnimation();
 
-                HWA&      hwa;
-                Database& database;
+                HWA&                    hwa;
+                Database&               database;
+                static constexpr size_t maxLEDs = MAX_NUMBER_OF_LEDS + MAX_TOUCHSCREEN_BUTTONS;
 
                 ///
                 /// \brief Array holding current LED status for all LEDs.
                 ///
-                uint8_t ledState[MAX_NUMBER_OF_LEDS];
+                uint8_t ledState[maxLEDs] = {};
 
                 ///
                 /// \brief Array holding time after which LEDs should blink.
                 ///
-                uint8_t blinkTimer[MAX_NUMBER_OF_LEDS] = {};
+                uint8_t blinkTimer[maxLEDs] = {};
 
                 ///
                 /// \brief Holds currently active LED blink type.

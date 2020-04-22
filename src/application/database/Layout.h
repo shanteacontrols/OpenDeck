@@ -293,7 +293,7 @@ namespace
 
         //activation id section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_LEDS,
+            .numberOfParameters     = MAX_NUMBER_OF_LEDS + MAX_TOUCHSCREEN_BUTTONS,
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -303,7 +303,7 @@ namespace
 
         //rgb enabled section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_RGB_LEDS,
+            .numberOfParameters     = MAX_NUMBER_OF_RGB_LEDS + (MAX_TOUCHSCREEN_BUTTONS / 3),
             .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -313,7 +313,7 @@ namespace
 
         //led control type section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_LEDS,
+            .numberOfParameters     = MAX_NUMBER_OF_LEDS + MAX_TOUCHSCREEN_BUTTONS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -323,7 +323,7 @@ namespace
 
         //single velocity value section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_LEDS,
+            .numberOfParameters     = MAX_NUMBER_OF_LEDS + MAX_TOUCHSCREEN_BUTTONS,
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
             .defaultValue           = 127,
@@ -333,7 +333,7 @@ namespace
 
         //midi channel section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_LEDS,
+            .numberOfParameters     = MAX_NUMBER_OF_LEDS + MAX_TOUCHSCREEN_BUTTONS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,

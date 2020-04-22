@@ -227,14 +227,14 @@ namespace
     SysExConf::section_t ledSections[static_cast<uint8_t>(SysConfig::Section::leds_t::AMOUNT)] = {
         //led color test section
         {
-            .numberOfParameters = MAX_NUMBER_OF_LEDS,
+            .numberOfParameters = MAX_NUMBER_OF_LEDS + MAX_TOUCHSCREEN_BUTTONS,
             .newValueMin        = 0,
             .newValueMax        = static_cast<SysExConf::sysExParameter_t>(Interface::digital::output::LEDs::color_t::AMOUNT) - 1,
         },
 
         //led blink test section
         {
-            .numberOfParameters = MAX_NUMBER_OF_LEDS,
+            .numberOfParameters = MAX_NUMBER_OF_LEDS + MAX_TOUCHSCREEN_BUTTONS,
             .newValueMin        = 0,
             .newValueMax        = 1,
         },
@@ -248,35 +248,35 @@ namespace
 
         //activation note section
         {
-            .numberOfParameters = MAX_NUMBER_OF_LEDS,
+            .numberOfParameters = MAX_NUMBER_OF_LEDS + MAX_TOUCHSCREEN_BUTTONS,
             .newValueMin        = 0,
             .newValueMax        = 127,
         },
 
         //rgb enabled section
         {
-            .numberOfParameters = MAX_NUMBER_OF_LEDS,
+            .numberOfParameters = MAX_NUMBER_OF_LEDS + MAX_TOUCHSCREEN_BUTTONS,
             .newValueMin        = 0,
             .newValueMax        = 1,
         },
 
         //led control type section
         {
-            .numberOfParameters = MAX_NUMBER_OF_LEDS,
+            .numberOfParameters = MAX_NUMBER_OF_LEDS + MAX_TOUCHSCREEN_BUTTONS,
             .newValueMin        = 0,
             .newValueMax        = static_cast<SysExConf::sysExParameter_t>(Interface::digital::output::LEDs::controlType_t::AMOUNT) - 1,
         },
 
         //single led velocity value section
         {
-            .numberOfParameters = MAX_NUMBER_OF_LEDS,
+            .numberOfParameters = MAX_NUMBER_OF_LEDS + MAX_TOUCHSCREEN_BUTTONS,
             .newValueMin        = 1,
             .newValueMax        = 127,
         },
 
         //midi channel section
         {
-            .numberOfParameters = MAX_NUMBER_OF_LEDS,
+            .numberOfParameters = MAX_NUMBER_OF_LEDS + MAX_TOUCHSCREEN_BUTTONS,
             .newValueMin        = 1,
             .newValueMax        = 16,
         }
