@@ -202,7 +202,6 @@ SysConfig::result_t SysConfig::onGetAnalog(Section::analog_t section, size_t ind
 
 SysConfig::result_t SysConfig::onGetLEDs(Section::leds_t section, size_t index, SysExConf::sysExParameter_t& value)
 {
-#ifdef LEDS_SUPPORTED
     int32_t readValue;
     auto    result = SysConfig::result_t::ok;
 
@@ -232,7 +231,7 @@ SysConfig::result_t SysConfig::onGetLEDs(Section::leds_t section, size_t index, 
 
     case Section::leds_t::rgbEnable:
     {
-        result = database.read(dbSection(section), Board::io::getRGBID(index), readValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
+        result = database.read(dbSection(section), leds.rgbIndex(index), readValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
     }
     break;
 
@@ -245,9 +244,6 @@ SysConfig::result_t SysConfig::onGetLEDs(Section::leds_t section, size_t index, 
 
     value = readValue;
     return result;
-#else
-    return SysConfig::result_t::notSupported;
-#endif
 }
 
 SysConfig::result_t SysConfig::onGetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t& value)

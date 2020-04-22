@@ -169,9 +169,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
 #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, note, velocity, channel + 1);
 #endif
-#ifdef LEDS_SUPPORTED
             leds.midiToState(MIDI::messageType_t::noteOn, note, velocity, channel, true);
-#endif
             break;
 
         case messageType_t::programChange:
@@ -196,9 +194,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
             if (send)
             {
                 midi.sendProgramChange(note, channel);
-#ifdef LEDS_SUPPORTED
                 leds.midiToState(MIDI::messageType_t::programChange, note, 0, channel, true);
-#endif
 #ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(Display::eventType_t::out, Display::event_t::programChange, note, 0, channel + 1);
 #endif
@@ -211,9 +207,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
 #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, note, velocity, channel + 1);
 #endif
-#ifdef LEDS_SUPPORTED
             leds.midiToState(MIDI::messageType_t::controlChange, note, velocity, channel, true);
-#endif
             break;
 
         case messageType_t::mmcPlay:
@@ -304,9 +298,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
 #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, midi.getNoteOffMode() == MIDI::noteOffType_t::standardNoteOff ? Display::event_t::noteOff : Display::event_t::noteOn, note, 0, channel + 1);
 #endif
-#ifdef LEDS_SUPPORTED
             leds.midiToState(MIDI::messageType_t::noteOff, note, 0, channel, true);
-#endif
             break;
 
         case messageType_t::controlChangeReset:
@@ -314,9 +306,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
 #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, note, 0, channel + 1);
 #endif
-#ifdef LEDS_SUPPORTED
             leds.midiToState(MIDI::messageType_t::controlChange, note, 0, channel, true);
-#endif
             break;
 
         case messageType_t::mmcRecord:

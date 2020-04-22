@@ -23,9 +23,7 @@ limitations under the License.
 #ifndef USB_LINK_MCU
 #include "database/Database.h"
 #include "interface/analog/Analog.h"
-#ifdef LEDS_SUPPORTED
 #include "interface/digital/output/leds/LEDs.h"
-#endif
 #ifdef DISPLAY_SUPPORTED
 #include "interface/display/Display.h"
 #endif

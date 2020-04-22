@@ -48,6 +48,3 @@ limitations under the License.
 /// \brief Time in milliseconds for single startup animation cycle on built-in LED indicators.
 ///
 #define LED_INDICATOR_STARTUP_DELAY 150
-
-#define FADE_TIME_MIN 0
-#define FADE_TIME_MAX 10

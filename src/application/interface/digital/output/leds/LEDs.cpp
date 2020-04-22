@@ -16,10 +16,8 @@ limitations under the License.
 
 */
 
-#ifdef LEDS_SUPPORTED
-
 #include "LEDs.h"
-#include "board/Board.h"
+#include "Constants.h"
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
 
@@ -36,7 +34,7 @@ void LEDs::init(bool startUp)
             startUpAnimation();
 
 #ifdef LED_FADING
-        setFadeTime(database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::fadeSpeed)));
+        setFadeSpeed(database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::fadeSpeed)));
 #endif
     }
 
@@ -96,14 +94,14 @@ void LEDs::checkBlinking(bool forceChange)
 __attribute__((weak)) void LEDs::startUpAnimation()
 {
 #ifdef LED_FADING
-    setFadeTime(1);
+    setFadeSpeed(1);
 #endif
     setAllOn();
     core::timing::waitMs(2000);
     setAllOff();
     core::timing::waitMs(2000);
 #ifdef LED_FADING
-    setFadeTime(database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::fadeSpeed)));
+    setFadeSpeed(database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::fadeSpeed)));
 #endif
 }
 
@@ -254,7 +252,7 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
         }
 
         auto color      = color_t::off;
-        bool rgbEnabled = database.read(Database::Section::leds_t::rgbEnable, Board::io::getRGBID(i));
+        bool rgbEnabled = database.read(Database::Section::leds_t::rgbEnable, hwa.rgbIndex(i));
 
         if (setState)
         {
@@ -330,13 +328,13 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
 void LEDs::setBlinkState(uint8_t ledID, blinkSpeed_t state)
 {
     uint8_t ledArray[3], leds = 0;
-    uint8_t rgbIndex = Board::io::getRGBID(ledID);
+    uint8_t rgbIndex = hwa.rgbIndex(ledID);
 
     if (database.read(Database::Section::leds_t::rgbEnable, rgbIndex))
     {
-        ledArray[0] = Board::io::getRGBaddress(rgbIndex, rgbIndex_t::r);
-        ledArray[1] = Board::io::getRGBaddress(rgbIndex, rgbIndex_t::g);
-        ledArray[2] = Board::io::getRGBaddress(rgbIndex, rgbIndex_t::b);
+        ledArray[0] = hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::r);
+        ledArray[1] = hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::g);
+        ledArray[2] = hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::b);
 
         leds = 3;
     }
@@ -383,15 +381,15 @@ void LEDs::setAllOff()
 
 void LEDs::setColor(uint8_t ledID, color_t color)
 {
-    uint8_t rgbIndex = Board::io::getRGBID(ledID);
+    uint8_t rgbIndex = hwa.rgbIndex(ledID);
 
     if (database.read(Database::Section::leds_t::rgbEnable, rgbIndex))
     {
         //rgb led is composed of three standard LEDs
         //get indexes of individual LEDs first
-        uint8_t rLED = Board::io::getRGBaddress(rgbIndex, rgbIndex_t::r);
-        uint8_t gLED = Board::io::getRGBaddress(rgbIndex, rgbIndex_t::g);
-        uint8_t bLED = Board::io::getRGBaddress(rgbIndex, rgbIndex_t::b);
+        uint8_t rLED = hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::r);
+        uint8_t gLED = hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::g);
+        uint8_t bLED = hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::b);
 
         handleLED(rLED, BIT_READ(static_cast<bool>(color), static_cast<uint8_t>(rgbIndex_t::r)), true, rgbIndex_t::r);
         handleLED(gLED, BIT_READ(static_cast<bool>(color), static_cast<uint8_t>(rgbIndex_t::g)), true, rgbIndex_t::g);
@@ -419,14 +417,14 @@ LEDs::color_t LEDs::getColor(uint8_t ledID)
         else
         {
             //rgb led
-            uint8_t rgbIndex = Board::io::getRGBID(ledID);
+            uint8_t rgbIndex = hwa.rgbIndex(ledID);
 
             uint8_t color = 0;
-            color |= getState(Board::io::getRGBaddress(rgbIndex, rgbIndex_t::b), ledBit_t::rgb_b);
+            color |= getState(hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::b), ledBit_t::rgb_b);
             color <<= 1;
-            color |= getState(Board::io::getRGBaddress(rgbIndex, rgbIndex_t::g), ledBit_t::rgb_g);
+            color |= getState(hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::g), ledBit_t::rgb_g);
             color <<= 1;
-            color |= getState(Board::io::getRGBaddress(rgbIndex, rgbIndex_t::r), ledBit_t::rgb_r);
+            color |= getState(hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::r), ledBit_t::rgb_r);
 
             return static_cast<color_t>(color);
         }
@@ -438,9 +436,25 @@ bool LEDs::getBlinkState(uint8_t ledID)
     return getState(ledID, ledBit_t::blinkOn);
 }
 
-bool LEDs::setFadeTime(uint8_t transitionSpeed)
+size_t LEDs::rgbSingleComponentIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent)
 {
-    return Board::io::setLEDfadeSpeed(transitionSpeed);
+    return hwa.rgbSingleComponentIndex(rgbIndex, rgbComponent);
+}
+
+size_t LEDs::rgbIndex(size_t singleLEDindex)
+{
+    return hwa.rgbIndex(singleLEDindex);
+}
+
+bool LEDs::setFadeSpeed(uint8_t transitionSpeed)
+{
+    if ((transitionSpeed >= FADE_TIME_MIN) && (transitionSpeed <= FADE_TIME_MAX))
+    {
+        hwa.setFadeSpeed(transitionSpeed);
+        return true;
+    }
+
+    return false;
 }
 
 void LEDs::handleLED(uint8_t ledID, bool state, bool rgbLED, rgbIndex_t index)
@@ -448,9 +462,6 @@ void LEDs::handleLED(uint8_t ledID, bool state, bool rgbLED, rgbIndex_t index)
     if (state)
     {
         //turn on the led
-        //if led was already active, clear the on bits before setting new state
-        // if (BIT_READ(ledState[ledID], static_cast<uint8_t>(ledBit_t::blinkOn)))
-        //     resetState(ledID);
 
         updateState(ledID, ledBit_t::active, true, false);
         updateState(ledID, ledBit_t::state, true, false);
@@ -526,7 +537,7 @@ void LEDs::updateState(uint8_t index, ledBit_t bit, bool state, bool setOnBoard)
     BIT_WRITE(ledState[index], static_cast<uint8_t>(bit), state);
 
     if (setOnBoard)
-        Board::io::writeLEDstate(index, LED_ON(ledState[index]));
+        hwa.setState(index, LED_ON(ledState[index]));
 }
 
 bool LEDs::getState(uint8_t index, ledBit_t bit)
@@ -538,7 +549,5 @@ void LEDs::resetState(uint8_t index)
 {
     ledState[index] = 0;
     //we have just cleared all the bits - the state to write is off
-    Board::io::writeLEDstate(index, false);
+    hwa.setState(index, false);
 }
-
-#endif

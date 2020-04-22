@@ -26,44 +26,28 @@ limitations under the License.
 #include "interface/digital/input/buttons/Buttons.h"
 #include "interface/digital/input/encoders/Encoders.h"
 #include "interface/analog/Analog.h"
-#ifdef LEDS_SUPPORTED
 #include "interface/digital/output/leds/LEDs.h"
-#endif
 #include "Constants.h"
 
 class SysConfig
 {
     public:
-#ifdef LEDS_SUPPORTED
 #ifdef DISPLAY_SUPPORTED
     SysConfig(Database& database, MIDI& midi, Interface::digital::input::Buttons& buttons, Interface::digital::input::Encoders& encoders, Interface::analog::Analog& analog, Interface::digital::output::LEDs& leds, Interface::Display& display)
-        :
 #else
     SysConfig(Database& database, MIDI& midi, Interface::digital::input::Buttons& buttons, Interface::digital::input::Encoders& encoders, Interface::analog::Analog& analog, Interface::digital::output::LEDs& leds)
-        :
 #endif
-#else
-#ifdef DISPLAY_SUPPORTED
-    SysConfig(Database& database, MIDI& midi, Interface::digital::input::Buttons& buttons, Interface::digital::input::Encoders& encoders, Interface::analog::Analog& analog, Display& display)
-        :
-#else
-    SysConfig(Database& database, MIDI& midi, Interface::digital::input::Buttons& buttons, Interface::digital::input::Encoders& encoders, Interface::analog::Analog& analog)
-        :
-#endif
-#endif
-        sysExConf(
-            sysExDataHandler,
-            sysExMID,
-            SysExConf::paramSize_t::_7bit,
-            SysExConf::nrOfParam_t::_32)
+        : sysExConf(
+              sysExDataHandler,
+              sysExMID,
+              SysExConf::paramSize_t::_7bit,
+              SysExConf::nrOfParam_t::_32)
         , database(database)
         , midi(midi)
         , buttons(buttons)
         , encoders(encoders)
         , analog(analog)
-#ifdef LEDS_SUPPORTED
         , leds(leds)
-#endif
 #ifdef DISPLAY_SUPPORTED
         , display(display)
 #endif
@@ -231,9 +215,7 @@ class SysConfig
     Interface::digital::input::Buttons&  buttons;
     Interface::digital::input::Encoders& encoders;
     Interface::analog::Analog&           analog;
-#ifdef LEDS_SUPPORTED
-    Interface::digital::output::LEDs& leds;
-#endif
+    Interface::digital::output::LEDs&    leds;
 #ifdef DISPLAY_SUPPORTED
     Interface::Display& display;
 #endif

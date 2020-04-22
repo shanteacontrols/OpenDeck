@@ -20,9 +20,7 @@ limitations under the License.
 
 #include "database/Database.h"
 #include "midi/src/MIDI.h"
-#ifdef LEDS_SUPPORTED
 #include "interface/digital/output/leds/LEDs.h"
-#endif
 #ifdef DISPLAY_SUPPORTED
 #include "interface/display/Display.h"
 #endif
@@ -42,28 +40,14 @@ namespace Interface
         class Analog
         {
             public:
-#ifdef LEDS_SUPPORTED
-#ifndef DISPLAY_SUPPORTED
-            Analog(Database& database, MIDI& midi, Interface::digital::output::LEDs& leds, ComponentInfo& cInfo)
-                :
-#else
-            Analog(Database& database, MIDI& midi, Interface::digital::output::LEDs& leds, Display& display, ComponentInfo& cInfo)
-                :
-#endif
-#else
 #ifdef DISPLAY_SUPPORTED
-            Analog(Database& database, MIDI& midi, Display& display, ComponentInfo& cInfo)
-                :
+            Analog(Database& database, MIDI& midi, Interface::digital::output::LEDs& leds, Display& display, ComponentInfo& cInfo)
 #else
-            Analog(Database& database, MIDI& midi, ComponentInfo& cInfo)
-                :
+            Analog(Database& database, MIDI& midi, Interface::digital::output::LEDs& leds, ComponentInfo& cInfo)
 #endif
-#endif
-                database(database)
+                : database(database)
                 , midi(midi)
-#ifdef LEDS_SUPPORTED
                 , leds(leds)
-#endif
 #ifdef DISPLAY_SUPPORTED
                 , display(display)
 #endif
@@ -113,11 +97,9 @@ namespace Interface
             void     setFsrDebounceTimerStarted(uint8_t fsrID, bool state);
             uint32_t calibratePressure(uint32_t value, pressureType_t type);
 
-            Database& database;
-            MIDI&     midi;
-#ifdef LEDS_SUPPORTED
+            Database&                         database;
+            MIDI&                             midi;
             Interface::digital::output::LEDs& leds;
-#endif
 #ifdef DISPLAY_SUPPORTED
             Display& display;
 #endif

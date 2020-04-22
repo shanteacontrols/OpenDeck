@@ -36,10 +36,6 @@ namespace Interface
             class LEDs
             {
                 public:
-                LEDs(Database& database)
-                    : database(database)
-                {}
-
                 enum class rgbIndex_t : uint8_t
                 {
                     r,
@@ -105,6 +101,21 @@ namespace Interface
                     midiClock
                 };
 
+                class HWA
+                {
+                    public:
+                    HWA() {}
+                    virtual void   setState(size_t index, bool state)                                      = 0;
+                    virtual size_t rgbSingleComponentIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent) = 0;
+                    virtual size_t rgbIndex(size_t singleLEDindex)                                         = 0;
+                    virtual void   setFadeSpeed(size_t transitionSpeed)                                    = 0;
+                };
+
+                LEDs(HWA& hwa, Database& database)
+                    : hwa(hwa)
+                    , database(database)
+                {}
+
                 void        init(bool startUp = true);
                 void        checkBlinking(bool forceChange = false);
                 void        setAllOn();
@@ -113,7 +124,9 @@ namespace Interface
                 color_t     getColor(uint8_t ledID);
                 void        setBlinkState(uint8_t ledID, blinkSpeed_t value);
                 bool        getBlinkState(uint8_t ledID);
-                bool        setFadeTime(uint8_t transitionSpeed);
+                size_t      rgbSingleComponentIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent);
+                size_t      rgbIndex(size_t singleLEDindex);
+                bool        setFadeSpeed(uint8_t transitionSpeed);
                 void        midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local);
                 void        setBlinkType(blinkType_t blinkType);
                 blinkType_t getBlinkType();
@@ -139,6 +152,7 @@ namespace Interface
                 void         handleLED(uint8_t ledID, bool state, bool rgbLED, rgbIndex_t index = rgbIndex_t::r);
                 void         startUpAnimation();
 
+                HWA&      hwa;
                 Database& database;
 
                 ///

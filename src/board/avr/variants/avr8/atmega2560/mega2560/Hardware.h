@@ -70,11 +70,6 @@ limitations under the License.
 #define MAX_NUMBER_OF_BUTTONS           32
 
 ///
-/// \brief Indicates that the board supports LEDs.
-///
-#define LEDS_SUPPORTED
-
-///
 /// \brief Maximum number of LEDs.
 ///
 #define MAX_NUMBER_OF_LEDS              16

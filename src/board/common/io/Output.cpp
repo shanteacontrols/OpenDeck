@@ -206,13 +206,8 @@ namespace Board
         }
 
 #ifdef LED_FADING
-        bool setLEDfadeSpeed(uint8_t transitionSpeed)
+        void setLEDfadeSpeed(uint8_t transitionSpeed)
         {
-            if (transitionSpeed > FADE_TIME_MAX)
-            {
-                return false;
-            }
-
             //reset transition counter
             ATOMIC_SECTION
             {
@@ -221,17 +216,14 @@ namespace Board
 
                 pwmSteps = transitionSpeed;
             }
-
-            return true;
         }
 #else
-        __attribute__((weak)) bool setLEDfadeSpeed(uint8_t transitionSpeed)
+        __attribute__((weak)) void setLEDfadeSpeed(uint8_t transitionSpeed)
         {
-            return false;
         }
 #endif
 
-        uint8_t getRGBaddress(uint8_t rgbID, Interface::digital::output::LEDs::rgbIndex_t index)
+        uint8_t getRGBaddress(uint8_t rgbID, Board::io::rgbIndex_t index)
         {
 #ifdef NUMBER_OF_LED_COLUMNS
             uint8_t column  = rgbID % NUMBER_OF_LED_COLUMNS;
@@ -240,13 +232,13 @@ namespace Board
 
             switch (index)
             {
-            case Interface::digital::output::LEDs::rgbIndex_t::r:
+            case rgbIndex_t::r:
                 return address;
 
-            case Interface::digital::output::LEDs::rgbIndex_t::g:
+            case rgbIndex_t::g:
                 return address + NUMBER_OF_LED_COLUMNS * 1;
 
-            case Interface::digital::output::LEDs::rgbIndex_t::b:
+            case rgbIndex_t::b:
                 return address + NUMBER_OF_LED_COLUMNS * 2;
             }
 

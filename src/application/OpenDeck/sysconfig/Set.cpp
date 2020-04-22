@@ -342,7 +342,6 @@ SysConfig::result_t SysConfig::onSetAnalog(Section::analog_t section, size_t ind
 
 SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, SysExConf::sysExParameter_t newValue)
 {
-#ifdef LEDS_SUPPORTED
     auto result    = SysConfig::result_t::error;
     bool writeToDb = true;
 
@@ -392,11 +391,8 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
         case Interface::digital::output::LEDs::setting_t::fadeSpeed:
         {
 #ifdef LED_FADING
-            if ((newValue >= FADE_TIME_MIN) && (newValue <= FADE_TIME_MAX))
-            {
-                leds.setFadeTime(newValue);
+            if (leds.setFadeSpeed(newValue))
                 result = SysConfig::result_t::ok;
-            }
 #else
             result = SysConfig::result_t::notSupported;
 #endif
@@ -416,12 +412,12 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
     case Section::leds_t::rgbEnable:
     {
         //make sure to turn all three leds off before setting new state
-        leds.setColor(Board::io::getRGBaddress(Board::io::getRGBID(index), Interface::digital::output::LEDs::rgbIndex_t::r), Interface::digital::output::LEDs::color_t::off);
-        leds.setColor(Board::io::getRGBaddress(Board::io::getRGBID(index), Interface::digital::output::LEDs::rgbIndex_t::g), Interface::digital::output::LEDs::color_t::off);
-        leds.setColor(Board::io::getRGBaddress(Board::io::getRGBID(index), Interface::digital::output::LEDs::rgbIndex_t::b), Interface::digital::output::LEDs::color_t::off);
+        leds.setColor(leds.rgbSingleComponentIndex(leds.rgbIndex(index), Interface::digital::output::LEDs::rgbIndex_t::r), Interface::digital::output::LEDs::color_t::off);
+        leds.setColor(leds.rgbSingleComponentIndex(leds.rgbIndex(index), Interface::digital::output::LEDs::rgbIndex_t::g), Interface::digital::output::LEDs::color_t::off);
+        leds.setColor(leds.rgbSingleComponentIndex(leds.rgbIndex(index), Interface::digital::output::LEDs::rgbIndex_t::b), Interface::digital::output::LEDs::color_t::off);
 
         //write rgb enabled bit to led
-        result = database.update(dbSection(section), Board::io::getRGBID(index), newValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
+        result = database.update(dbSection(section), leds.rgbIndex(index), newValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
 
         if (newValue && (result == SysConfig::result_t::ok))
         {
@@ -430,7 +426,7 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
             for (int i = 0; i < 3; i++)
             {
                 result = database.update(dbSection(Section::leds_t::activationID),
-                                         Board::io::getRGBaddress(Board::io::getRGBID(index), static_cast<Interface::digital::output::LEDs::rgbIndex_t>(i)),
+                                         leds.rgbSingleComponentIndex(leds.rgbIndex(index), static_cast<Interface::digital::output::LEDs::rgbIndex_t>(i)),
                                          database.read(dbSection(Section::leds_t::activationID), index))
                              ? SysConfig::result_t::ok
                              : SysConfig::result_t::error;
@@ -439,7 +435,7 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
                     break;
 
                 result = database.update(dbSection(Section::leds_t::controlType),
-                                         Board::io::getRGBaddress(Board::io::getRGBID(index), static_cast<Interface::digital::output::LEDs::rgbIndex_t>(i)),
+                                         leds.rgbSingleComponentIndex(leds.rgbIndex(index), static_cast<Interface::digital::output::LEDs::rgbIndex_t>(i)),
                                          database.read(dbSection(Section::leds_t::controlType), index))
                              ? SysConfig::result_t::ok
                              : SysConfig::result_t::error;
@@ -448,7 +444,7 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
                     break;
 
                 result = database.update(dbSection(Section::leds_t::midiChannel),
-                                         Board::io::getRGBaddress(Board::io::getRGBID(index), static_cast<Interface::digital::output::LEDs::rgbIndex_t>(i)),
+                                         leds.rgbSingleComponentIndex(leds.rgbIndex(index), static_cast<Interface::digital::output::LEDs::rgbIndex_t>(i)),
                                          database.read(dbSection(Section::leds_t::midiChannel), index))
                              ? SysConfig::result_t::ok
                              : SysConfig::result_t::error;
@@ -469,13 +465,13 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
             newValue--;
 
         //first, find out if RGB led is enabled for this led index
-        if (database.read(dbSection(Section::leds_t::rgbEnable), Board::io::getRGBID(index)))
+        if (database.read(dbSection(Section::leds_t::rgbEnable), leds.rgbIndex(index)))
         {
             //rgb led enabled - copy these settings to all three leds
             for (int i = 0; i < 3; i++)
             {
                 result = database.update(dbSection(section),
-                                         Board::io::getRGBaddress(Board::io::getRGBID(index), static_cast<Interface::digital::output::LEDs::rgbIndex_t>(i)),
+                                         leds.rgbSingleComponentIndex(leds.rgbIndex(index), static_cast<Interface::digital::output::LEDs::rgbIndex_t>(i)),
                                          newValue)
                              ? SysConfig::result_t::ok
                              : SysConfig::result_t::error;
@@ -500,9 +496,6 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
     }
 
     return result;
-#else
-    return SysConfig::result_t::notSupported;
-#endif
 }
 
 SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t newValue)

@@ -20,9 +20,7 @@ limitations under the License.
 
 #include "database/Database.h"
 #include "midi/src/MIDI.h"
-#ifdef LEDS_SUPPORTED
 #include "interface/digital/output/leds/LEDs.h"
-#endif
 #ifdef DISPLAY_SUPPORTED
 #include "interface/display/Display.h"
 #endif
@@ -81,28 +79,14 @@ namespace Interface
                     AMOUNT
                 };
 
-#ifdef LEDS_SUPPORTED
 #ifdef DISPLAY_SUPPORTED
                 Buttons(Database& database, MIDI& midi, Interface::digital::output::LEDs& leds, Display& display, ComponentInfo& cInfo)
-                    :
 #else
                 Buttons(Database& database, MIDI& midi, Interface::digital::output::LEDs& leds, ComponentInfo& cInfo)
-                    :
 #endif
-#else
-#ifdef DISPLAY_SUPPORTED
-                Buttons(Database& database, MIDI& midi, Display& display, ComponentInfo& cInfo)
-                    :
-#else
-                Buttons(Database& database, MIDI& midi, ComponentInfo& cInfo)
-                    :
-#endif
-#endif
-                    database(database)
+                    : database(database)
                     , midi(midi)
-#ifdef LEDS_SUPPORTED
                     , leds(leds)
-#endif
 #ifdef DISPLAY_SUPPORTED
                     , display(display)
 #endif
@@ -123,11 +107,9 @@ namespace Interface
                 bool buttonDebounced(uint8_t buttonID, bool state);
                 void customHook(uint8_t buttonID, bool state);
 
-                Database& database;
-                MIDI&     midi;
-#ifdef LEDS_SUPPORTED
+                Database&                         database;
+                MIDI&                             midi;
                 Interface::digital::output::LEDs& leds;
-#endif
 #ifdef DISPLAY_SUPPORTED
                 Display& display;
 #endif

@@ -18,9 +18,6 @@ limitations under the License.
 
 #pragma once
 
-#ifdef LEDS_SUPPORTED
-#include "interface/digital/output/leds/LEDs.h"
-#endif
 #include "dbms/src/LESSDB.h"
 #include "midi/src/MIDI.h"
 #include "common/Common.h"
@@ -138,6 +135,13 @@ namespace Board
 
     namespace io
     {
+        enum class rgbIndex_t : uint8_t
+        {
+            r,
+            g,
+            b
+        };
+
         ///
         /// \brief Flashes integrated LEDs on board on startup.
         /// Pattern differs depending on whether firmware is updated or not.
@@ -174,7 +178,6 @@ namespace Board
         ///
         uint8_t getEncoderPairState(uint8_t encoderID);
 
-#ifdef LEDS_SUPPORTED
         ///
         /// \brief Used to turn LED connected to the board on or off.
         /// @param [in] ledID   LED for which to change state.
@@ -188,7 +191,7 @@ namespace Board
         /// @param [in] index   R, G or B component (enumerated type, see rgbIndex_t).
         /// \returns Calculated index of R, G or B component of RGB LED.
         ///
-        uint8_t getRGBaddress(uint8_t rgbID, Interface::digital::output::LEDs::rgbIndex_t index);
+        uint8_t getRGBaddress(uint8_t rgbID, rgbIndex_t index);
 
         ///
         /// \brief Calculates RGB LED index based on provided single-color LED index.
@@ -200,11 +203,8 @@ namespace Board
         ///
         /// \brief Sets LED transition speed.
         /// @param [in] transitionSpeed Transition speed.
-        /// \returns    True on success (transition speed is in range).
-        ///             See board/common/constants/IO.h for range.
         ///
-        bool setLEDfadeSpeed(uint8_t transitionSpeed);
-#endif
+        void setLEDfadeSpeed(uint8_t transitionSpeed);
 
         ///
         /// \brief Checks if data from multiplexers is available.

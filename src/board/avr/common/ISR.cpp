@@ -48,7 +48,7 @@ ISR(TIMER0_COMPA_vect)
 
 #ifdef FW_APP
 #ifndef USB_LINK_MCU
-#ifdef LEDS_SUPPORTED
+#if MAX_NUMBER_OF_LEDS > 0
         Board::detail::io::checkDigitalOutputs();
 #endif
 #endif

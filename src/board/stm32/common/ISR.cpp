@@ -105,7 +105,7 @@ namespace Board
                     core::timing::detail::rTime_ms++;
 
 #ifdef FW_APP
-#ifdef LEDS_SUPPORTED
+#if MAX_NUMBER_OF_LEDS > 0
                     Board::detail::io::checkDigitalOutputs();
 #endif
 #endif

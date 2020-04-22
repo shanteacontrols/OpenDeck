@@ -20,9 +20,6 @@ limitations under the License.
 
 #include "database/Database.h"
 #include "midi/src/MIDI.h"
-#ifdef LEDS_SUPPORTED
-#include "interface/digital/output/leds/LEDs.h"
-#endif
 #ifdef DISPLAY_SUPPORTED
 #include "interface/display/Display.h"
 #endif

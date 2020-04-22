@@ -90,11 +90,6 @@ limitations under the License.
 #define NUMBER_OF_BUTTON_ROWS           6
 
 ///
-/// \brief Indicates that the board supports LEDs.
-///
-#define LEDS_SUPPORTED
-
-///
 /// \brief LED fading is supported.
 ///
 #define LED_FADING

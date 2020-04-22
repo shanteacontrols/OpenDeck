@@ -97,6 +97,64 @@ class StorageAccess : public LESSDB::StorageAccess
     }
 } storageAccess;
 
+class HWALEDs : public Interface::digital::output::LEDs::HWA
+{
+    public:
+    HWALEDs() {}
+
+    void setState(size_t index, bool state) override
+    {
+#if MAX_NUMBER_OF_LEDS > 0
+
+        Board::io::writeLEDstate(index, state);
+#endif
+    }
+
+    size_t rgbSingleComponentIndex(size_t rgbIndex, Interface::digital::output::LEDs::rgbIndex_t rgbComponent) override
+    {
+#if MAX_NUMBER_OF_LEDS > 0
+        Board::io::rgbIndex_t boardRGBindex;
+
+        switch (rgbComponent)
+        {
+        case Interface::digital::output::LEDs::rgbIndex_t::r:
+            boardRGBindex = Board::io::rgbIndex_t::r;
+            break;
+
+        case Interface::digital::output::LEDs::rgbIndex_t::g:
+            boardRGBindex = Board::io::rgbIndex_t::r;
+            break;
+        case Interface::digital::output::LEDs::rgbIndex_t::b:
+            boardRGBindex = Board::io::rgbIndex_t::b;
+            break;
+
+        default:
+            return 0;
+        }
+
+        return Board::io::getRGBaddress(rgbIndex, boardRGBindex);
+#else
+        return 0;
+#endif
+    }
+
+    size_t rgbIndex(size_t singleLEDindex) override
+    {
+#if MAX_NUMBER_OF_LEDS > 0
+        return Board::io::getRGBID(singleLEDindex);
+#else
+        return 0;
+#endif
+    }
+
+    void setFadeSpeed(size_t transitionSpeed) override
+    {
+#if MAX_NUMBER_OF_LEDS > 0
+        Board::io::setLEDfadeSpeed(transitionSpeed);
+#endif
+    }
+} hwaLEDs;
+
 // clang-format off
 ComponentInfo                       cinfo;
 Database                            database(dbHandlers, storageAccess);
@@ -111,52 +169,26 @@ Interface::Display                  display(database);
 SDW                                 sdw;
 Interface::Touchscreen              touchscreen(sdw);
 #endif
-#ifdef LEDS_SUPPORTED
-Interface::digital::output::LEDs    leds(database);
-#endif
-#ifdef LEDS_SUPPORTED
+Interface::digital::output::LEDs    leds(hwaLEDs, database);
 #ifdef DISPLAY_SUPPORTED
 Interface::analog::Analog           analog(database, midi, leds, display, cinfo);
 #else
 Interface::analog::Analog           analog(database, midi, leds, cinfo);
 #endif
-#else
-#ifdef DISPLAY_SUPPORTED
-Interface::analog::Analog           analog(database, midi, display, cinfo);
-#else
-Interface::analog::Analog           analog(database, midi, cinfo);
-#endif
-#endif
-#ifdef LEDS_SUPPORTED
 #ifdef DISPLAY_SUPPORTED
 Interface::digital::input::Buttons  buttons(database, midi, leds, display, cinfo);
 #else
 Interface::digital::input::Buttons  buttons(database, midi, leds, cinfo);
-#endif
-#else
-#ifdef DISPLAY_SUPPORTED
-Interface::digital::input::Buttons  buttons(database, midi, display, cinfo);
-#else
-Interface::digital::input::Buttons  buttons(database, midi, cinfo);
-#endif
 #endif
 #ifdef DISPLAY_SUPPORTED
 Interface::digital::input::Encoders encoders(database, midi, display, cinfo);
 #else
 Interface::digital::input::Encoders encoders(database, midi, cinfo);
 #endif
-#ifdef LEDS_SUPPORTED
 #ifdef DISPLAY_SUPPORTED
 SysConfig                           sysConfig(database, midi, buttons, encoders, analog, leds, display);
 #else
 SysConfig                           sysConfig(database, midi, buttons, encoders, analog, leds);
-#endif
-#else
-#ifdef DISPLAY_SUPPORTED
-SysConfig                           sysConfig(database, midi, buttons, encoders, analog, display);
-#else
-SysConfig                           sysConfig(database, midi, buttons, encoders, analog);
-#endif
 #endif
 //clang-format on
 
@@ -164,10 +196,8 @@ void OpenDeck::init()
 {
     Board::init();
 
-        dbHandlers.presetChangeHandler = [](uint8_t preset) {
-#ifdef LEDS_SUPPORTED
+    dbHandlers.presetChangeHandler = [](uint8_t preset) {
         leds.midiToState(MIDI::messageType_t::programChange, preset, 0, 0, true);
-#endif
 
 #ifdef DISPLAY_SUPPORTED
         if (display.init(false))
@@ -176,21 +206,14 @@ void OpenDeck::init()
     };
 
     dbHandlers.factoryResetStartHandler = []() {
-#ifdef LEDS_SUPPORTED
         leds.setAllOff();
         core::timing::waitMs(1000);
-#endif
     };
 
     database.init();
     sysConfig.init();
-
-#ifdef LEDS_SUPPORTED
     leds.init();
-#endif
-
     encoders.init();
-
 #ifdef DISPLAY_SUPPORTED
     display.init(true);
 #endif
@@ -216,11 +239,9 @@ void OpenDeck::init()
     });
 #endif
 
-#ifdef LEDS_SUPPORTED
     // on startup, indicate current program for all channels (if any leds have program change assigned as control mode)
     for (int i = 0; i < 16; i++)
         leds.midiToState(MIDI::messageType_t::programChange, 0, 0, i, false);
-#endif
 
     //don't configure this handler before initializing database to avoid mcu reset if
     //factory reset is needed initially
@@ -242,10 +263,7 @@ void OpenDeck::checkComponents()
         }
 
         analog.update();
-#ifdef LEDS_SUPPORTED
         leds.checkBlinking();
-#endif
-
 #ifdef DISPLAY_SUPPORTED
         display.update();
 #endif
@@ -278,13 +296,11 @@ void OpenDeck::checkMIDI()
             if (messageType == MIDI::messageType_t::programChange)
                 digitalInputCommon.setProgram(channel, data1);
 
-#if defined(LEDS_SUPPORTED) || defined(DISPLAY_SUPPORTED)
             if (messageType == MIDI::messageType_t::noteOff)
                 data2 = 0;
-#endif
-#ifdef LEDS_SUPPORTED
+
             leds.midiToState(messageType, data1, data2, channel, false);
-#endif
+
 #ifdef DISPLAY_SUPPORTED
             switch (messageType)
             {
@@ -334,16 +350,12 @@ void OpenDeck::checkMIDI()
             break;
 
         case MIDI::messageType_t::sysRealTimeClock:
-#ifdef LEDS_SUPPORTED
             leds.checkBlinking(true);
-#endif
             break;
 
         case MIDI::messageType_t::sysRealTimeStart:
-#ifdef LEDS_SUPPORTED
             leds.resetBlinking();
             leds.checkBlinking(true);
-#endif
             break;
 
         default:

@@ -85,11 +85,6 @@ limitations under the License.
 #define MAX_NUMBER_OF_BUTTONS           (NUMBER_OF_IN_SR*NUMBER_OF_IN_SR_INPUTS)
 
 ///
-/// \brief Indicates that the board supports LEDs.
-///
-#define LEDS_SUPPORTED
-
-///
 /// \brief Maximum number of LEDs.
 ///
 #define MAX_NUMBER_OF_LEDS              (NUMBER_OF_OUT_SR*NUMBER_OF_OUT_SR_INPUTS)
