@@ -39,6 +39,7 @@ namespace Interface
         void    setScreen(uint8_t screenID);
         uint8_t activeScreen();
         void    setButtonHandler(void (*fptr)(uint8_t index, bool state));
+        void    setButtonState(uint8_t index, bool state);
 
         private:
         ITouchscreen& hwa;

@@ -23,7 +23,8 @@ limitations under the License.
 class ITouchscreen
 {
     public:
-    virtual bool init()                                 = 0;
-    virtual void setScreen(uint8_t screenID)            = 0;
-    virtual bool update(uint8_t& buttonID, bool& state) = 0;
+    virtual bool init()                                    = 0;
+    virtual void setScreen(uint8_t screenID)               = 0;
+    virtual bool update(uint8_t& buttonID, bool& state)    = 0;
+    virtual void setButtonState(uint8_t index, bool state) = 0;
 };

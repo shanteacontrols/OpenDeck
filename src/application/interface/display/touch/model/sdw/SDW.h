@@ -29,6 +29,8 @@ class SDW : public ITouchscreen
     bool init() override;
     void setScreen(uint8_t screenID) override;
     bool update(uint8_t& buttonID, bool& state) override;
+    void setButtonState(uint8_t buttonID, bool state) override
+    {}
 
     private:
     ///

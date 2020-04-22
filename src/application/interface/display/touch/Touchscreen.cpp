@@ -67,3 +67,8 @@ void Touchscreen::setButtonHandler(void (*fptr)(uint8_t index, bool state))
 {
     buttonHandler = fptr;
 }
+
+void Touchscreen::setButtonState(uint8_t index, bool state)
+{
+    hwa.setButtonState(index, state);
+}
