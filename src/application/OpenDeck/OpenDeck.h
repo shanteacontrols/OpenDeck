@@ -18,8 +18,6 @@ limitations under the License.
 
 #pragma once
 
-#include "Hardware.h"
-
 #ifndef USB_LINK_MCU
 #include "database/Database.h"
 #include "interface/analog/Analog.h"
