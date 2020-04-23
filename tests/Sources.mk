@@ -28,7 +28,7 @@ INCLUDE_DIRS_COMMON := \
 -I"../src/application/" \
 -I"../src/" \
 -I"../modules/" \
--I"../src/board/avr/variants/$(MCU_FAMILY)/$(MCU)/$(subst fw_,,$(TARGETNAME))/"
+-I"../src/board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(subst fw_,,$(TARGETNAME))/"
 
 INCLUDE_FILES_COMMON += \
--include "../src/board/avr/variants/$(MCU_FAMILY)/$(MCU)/$(subst fw_,,$(TARGETNAME))/Hardware.h"
+-include "../src/board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(subst fw_,,$(TARGETNAME))/Hardware.h"
