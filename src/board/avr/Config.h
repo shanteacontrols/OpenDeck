@@ -22,53 +22,6 @@ limitations under the License.
 #include <avr/io.h>
 
 ///
-/// \brief Value above which buton connected to analog input is considered pressed.
-///
-#define ADC_DIGITAL_VALUE_THRESHOLD_ON 1000
-
-///
-/// \brief Value below which button connected to analog input is considered released.
-///
-#define ADC_DIGITAL_VALUE_THRESHOLD_OFF 600
-
-///
-/// \brief Minimum difference between two raw ADC readings to consider that value has been changed.
-/// Used when calculating 7-bit MIDI value.
-///
-#define ANALOG_STEP_MIN_DIFF_7_BIT 6
-
-///
-/// \brief Minimum difference between two raw ADC readings to consider that value has been changed.
-/// Used when calculating 14-bit MIDI value.
-///
-#define ANALOG_STEP_MIN_DIFF_14_BIT 1
-
-///
-/// \brief Minimum raw ADC reading for FSR sensors.
-///
-#define FSR_MIN_VALUE 40
-
-///
-/// \brief Maximum raw ADC reading for FSR sensors.
-///
-#define FSR_MAX_VALUE 340
-
-///
-/// \brief Maxmimum raw ADC reading for aftertouch on FSR sensors.
-///
-#define AFTERTOUCH_MAX_VALUE 600
-
-///
-/// \brief Minimum raw ADC value.
-///
-#define ADC_MIN_VALUE 0
-
-///
-/// \brief Maxmimum raw ADC value.
-///
-#define ADC_MAX_VALUE 1023
-
-///
 /// \brief Defines how many analog samples from the same input will be thrown away before storing the read value.
 ///
 #define ADC_IGNORED_SAMPLES_COUNT 3

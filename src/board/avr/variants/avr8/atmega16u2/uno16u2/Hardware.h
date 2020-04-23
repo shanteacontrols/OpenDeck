@@ -66,3 +66,8 @@ limitations under the License.
 
 #undef BTLDR_FLASH_PAGE_SIZE
 #define BTLDR_FLASH_PAGE_SIZE 128
+
+///
+/// \brief Specifies resolution of the ADC used on board.
+///
+#define ADC_10_BIT

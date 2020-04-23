@@ -172,9 +172,17 @@ Interface::Touchscreen              touchscreen(sdw);
 #endif
 Interface::digital::output::LEDs    leds(hwaLEDs, database);
 #ifdef DISPLAY_SUPPORTED
-Interface::analog::Analog           analog(database, midi, leds, display, cinfo);
+#ifdef ADC_10_BIT
+Interface::analog::Analog           analog(Interface::analog::Analog::adcType_t::adc10bit, database, midi, leds, display, cinfo);
 #else
-Interface::analog::Analog           analog(database, midi, leds, cinfo);
+Interface::analog::Analog           analog(Interface::analog::Analog::adcType_t::adc12bit, database, midi, leds, display, cinfo);
+#endif
+#else
+#ifdef ADC_10_BIT
+Interface::analog::Analog           analog(Interface::analog::Analog::adcType_t::adc10bit, database, midi, leds, cinfo);
+#else
+Interface::analog::Analog           analog(Interface::analog::Analog::adcType_t::adc12bit, database, midi, leds, cinfo);
+#endif
 #endif
 #ifdef DISPLAY_SUPPORTED
 Interface::digital::input::Buttons  buttons(database, midi, leds, display, cinfo);
@@ -230,8 +238,8 @@ void OpenDeck::init()
         return sysConfig.sendCInfo(dbBlock, componentID);
     });
 
-    analog.setButtonHandler([](uint8_t analogIndex, uint16_t adcValue) {
-        buttons.processButton(analogIndex + MAX_NUMBER_OF_BUTTONS, buttons.getStateFromAnalogValue(adcValue));
+    analog.setButtonHandler([](uint8_t analogIndex, bool value) {
+        buttons.processButton(analogIndex + MAX_NUMBER_OF_BUTTONS, value);
     });
 
 #ifdef TOUCHSCREEN_SUPPORTED

@@ -29,10 +29,10 @@ uint32_t Analog::calibratePressure(uint32_t value, pressureType_t type)
     switch (type)
     {
     case pressureType_t::velocity:
-        return core::misc::mapRange(CONSTRAIN(value, static_cast<uint32_t>(FSR_MIN_VALUE), static_cast<uint32_t>(FSR_MAX_VALUE)), static_cast<uint32_t>(FSR_MIN_VALUE), static_cast<uint32_t>(FSR_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
+        return core::misc::mapRange(CONSTRAIN(value, static_cast<uint32_t>(adcConfig.fsrMinValue), static_cast<uint32_t>(adcConfig.fsrMaxValue)), static_cast<uint32_t>(adcConfig.fsrMinValue), static_cast<uint32_t>(adcConfig.fsrMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
 
     case pressureType_t::aftertouch:
-        return core::misc::mapRange(CONSTRAIN(value, static_cast<uint32_t>(FSR_MIN_VALUE), static_cast<uint32_t>(AFTERTOUCH_MAX_VALUE)), static_cast<uint32_t>(FSR_MIN_VALUE), static_cast<uint32_t>(AFTERTOUCH_MAX_VALUE), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
+        return core::misc::mapRange(CONSTRAIN(value, static_cast<uint32_t>(adcConfig.fsrMinValue), static_cast<uint32_t>(adcConfig.aftertouchMaxValue)), static_cast<uint32_t>(adcConfig.fsrMinValue), static_cast<uint32_t>(adcConfig.aftertouchMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
 
     default:
         return 0;

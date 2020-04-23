@@ -90,3 +90,8 @@ limitations under the License.
 /// \brief Maximum number of supported touchscreen buttons.
 ///
 #define MAX_TOUCHSCREEN_BUTTONS         80
+
+///
+/// \brief Specifies resolution of the ADC used on board.
+///
+#define ADC_12_BIT

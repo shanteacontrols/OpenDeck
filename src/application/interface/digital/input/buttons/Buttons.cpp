@@ -400,18 +400,6 @@ bool Buttons::buttonDebounced(uint8_t buttonID, bool state)
     return ((buttonDebounceCounter[buttonID] == BUTTON_DEBOUNCE_COMPARE) || (buttonDebounceCounter[buttonID] == 0xFF));
 }
 
-bool Buttons::getStateFromAnalogValue(uint16_t adcValue)
-{
-    //button pressed
-    //set state to released only if value is below ADC_DIGITAL_VALUE_THRESHOLD_OFF
-    if (adcValue < ADC_DIGITAL_VALUE_THRESHOLD_OFF)
-        return false;
-    else if (adcValue > ADC_DIGITAL_VALUE_THRESHOLD_ON)
-        return true;
-    else
-        return false;
-}
-
 ///
 /// \brief Resets the current state of the specified button.
 /// @param [in] buttonID    Button for which to reset state.

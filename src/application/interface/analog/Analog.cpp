@@ -34,16 +34,16 @@ void Analog::update()
         if (!database.read(Database::Section::analog_t::enable, i))
             continue;
 
-        int16_t analogData = Board::io::getAnalogValue(i);
-        auto    type       = static_cast<type_t>(database.read(Database::Section::analog_t::type, i));
+        uint16_t analogData = Board::io::getAnalogValue(i);
+        auto     type       = static_cast<type_t>(database.read(Database::Section::analog_t::type, i));
 
         if (expFilterUsed)
         {
             //normally use exponential filter (factor 0.5 for easier bitwise math), but not around the edges
-            if (analogData <= ANALOG_STEP_MIN_DIFF_7_BIT)
+            if (analogData <= adcConfig.stepMinDiff7bit)
                 analogData = 0;
-            else if (analogData >= (ADC_MAX_VALUE - ANALOG_STEP_MIN_DIFF_7_BIT))
-                analogData = ADC_MAX_VALUE;
+            else if (analogData >= (adcConfig.adcMaxValue - adcConfig.stepMinDiff7bit))
+                analogData = adcConfig.adcMaxValue;
             else
                 analogData = (analogData >> 1) + (lastAnalogueValue[i] >> 1);
         }
@@ -72,7 +72,7 @@ void Analog::update()
         else
         {
             if (buttonHandler != nullptr)
-                (*buttonHandler)(i, analogData);
+                (*buttonHandler)(i, digitalStateFromAnalogValue(analogData));
         }
     }
 
@@ -89,9 +89,20 @@ void Analog::debounceReset(uint16_t index)
 ///
 /// \param fptr [in]    Pointer to function.
 ///
-void Analog::setButtonHandler(void (*fptr)(uint8_t adcIndex, uint16_t adcValue))
+void Analog::setButtonHandler(void (*fptr)(uint8_t adcIndex, bool state))
 {
     buttonHandler = fptr;
+}
+
+bool Analog::digitalStateFromAnalogValue(uint16_t adcValue)
+{
+    //set state to released only if value is below digitalValueThresholdOff
+    if (adcValue < adcConfig.digitalValueThresholdOff)
+        return false;
+    else if (adcValue > adcConfig.digitalValueThresholdOn)
+        return true;
+    else
+        return false;
 }
 
 void Analog::enableExpFiltering()
@@ -102,4 +113,9 @@ void Analog::enableExpFiltering()
 void Analog::disableExpFiltering()
 {
     expFilterUsed = false;
+}
+
+Interface::analog::Analog::adcConfig_t& Analog::config()
+{
+    return adcConfig;
 }

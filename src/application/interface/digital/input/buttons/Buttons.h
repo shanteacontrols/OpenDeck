@@ -94,7 +94,6 @@ namespace Interface
                 {}
 
                 void update();
-                bool getStateFromAnalogValue(uint16_t adcValue);
                 void processButton(uint8_t buttonID, bool state);
                 bool getButtonState(uint8_t buttonID);
                 void reset(uint8_t buttonID);

@@ -100,3 +100,8 @@ limitations under the License.
 /// \brief If touchscreen isn't supported, set MAX_TOUCHSCREEN_BUTTONS to zero.
 ///
 #define MAX_TOUCHSCREEN_BUTTONS         0
+
+///
+/// \brief Specifies resolution of the ADC used on board.
+///
+#define ADC_10_BIT

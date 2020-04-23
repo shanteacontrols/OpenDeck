@@ -63,3 +63,8 @@ limitations under the License.
 /// \brief Used to specify that this is USB link MCU used only as link between PC and main MCU.
 ///
 #define USB_LINK_MCU
+
+///
+/// \brief Specifies resolution of the ADC used on board.
+///
+#define ADC_10_BIT
