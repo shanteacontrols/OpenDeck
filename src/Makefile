@@ -113,7 +113,8 @@ else ifeq ($(ARCH),stm32)
 
     COMMON_FLAGS += \
     -mcpu=$(CPU) \
-    -mthumb
+    -mthumb \
+    -mno-unaligned-access
 
     LDFLAGS += \
     -mcpu=$(CPU) \
