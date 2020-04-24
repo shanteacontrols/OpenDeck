@@ -2,8 +2,8 @@
 #include "unity/Helpers.h"
 #include "stubs/database/DB_ReadWrite.h"
 #include "database/Database.h"
-#include "interface/digital/output/leds/LEDs.h"
-#include "interface/display/Config.h"
+#include "io/leds/LEDs.h"
+#include "io/display/Config.h"
 #include "board/Board.h"
 #include "OpenDeck/sysconfig/SysConfig.h"
 

@@ -19,7 +19,7 @@ limitations under the License.
 #pragma once
 
 #include <inttypes.h>
-#include "interface/display/Display.h"
+#include "io/display/Display.h"
 #include "midi/src/MIDI.h"
 
 class Strings

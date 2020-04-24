@@ -4,12 +4,12 @@ vpath common/%.cpp ../src
 SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) := \
 stubs/Core.cpp \
 stubs/database/DB_ReadWrite.cpp \
-application/interface/analog/Analog.cpp \
-application/interface/analog/Potentiometer.cpp \
-application/interface/analog/FSR.cpp \
-application/interface/digital/output/leds/LEDs.cpp \
 application/database/Database.cpp \
-application/interface/display/U8X8/U8X8.cpp \
-application/interface/display/UpdateLogic.cpp \
-application/interface/display/TextBuild.cpp \
-application/interface/display/strings/Strings.cpp
+application/io/analog/Analog.cpp \
+application/io/analog/Potentiometer.cpp \
+application/io/analog/FSR.cpp \
+application/io/leds/LEDs.cpp \
+application/io/display/U8X8/U8X8.cpp \
+application/io/display/UpdateLogic.cpp \
+application/io/display/TextBuild.cpp \
+application/io/display/strings/Strings.cpp

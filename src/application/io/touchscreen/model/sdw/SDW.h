@@ -18,7 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#include "interface/display/touch/Touchscreen.h"
+#include "io/touchscreen/Touchscreen.h"
 #include "Config.h"
 #include "Commands.h"
 

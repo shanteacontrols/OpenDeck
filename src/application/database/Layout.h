@@ -19,10 +19,10 @@ limitations under the License.
 #pragma once
 
 #include "Database.h"
-#include "interface/digital/output/leds/LEDs.h"
-#include "interface/display/Display.h"
+#include "io/leds/LEDs.h"
+#include "io/display/Display.h"
 #include "OpenDeck/sysconfig/SysConfig.h"
-#include "interface/display/Config.h"
+#include "io/display/Config.h"
 
 #define MAX_PRESETS 10
 

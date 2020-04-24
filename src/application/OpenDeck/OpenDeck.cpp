@@ -21,7 +21,7 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 #include "core/src/general/Interrupt.h"
 #include "core/src/general/Reset.h"
-#include "interface/CInfo.h"
+#include "io/common/CInfo.h"
 
 class DBhandlers : public Database::Handlers
 {
@@ -166,7 +166,7 @@ Interface::Display                  display(database);
 #endif
 #ifdef TOUCHSCREEN_SUPPORTED
 //assume sdw only for now
-#include "interface/display/touch/model/sdw/SDW.h"
+#include "io/touchscreen/model/sdw/SDW.h"
 SDW                                 sdw;
 Interface::Touchscreen              touchscreen(sdw);
 #endif

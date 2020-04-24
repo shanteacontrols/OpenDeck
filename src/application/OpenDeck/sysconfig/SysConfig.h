@@ -22,10 +22,10 @@ limitations under the License.
 #include "CustomIDs.h"
 #include "database/Database.h"
 #include "midi/src/MIDI.h"
-#include "interface/digital/input/buttons/Buttons.h"
-#include "interface/digital/input/encoders/Encoders.h"
-#include "interface/analog/Analog.h"
-#include "interface/digital/output/leds/LEDs.h"
+#include "io/buttons/Buttons.h"
+#include "io/encoders/Encoders.h"
+#include "io/analog/Analog.h"
+#include "io/leds/LEDs.h"
 #include "Constants.h"
 
 class SysConfig

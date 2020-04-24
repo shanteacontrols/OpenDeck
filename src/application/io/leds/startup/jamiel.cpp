@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#include "interface/digital/output/leds/LEDs.h"
+#include "io/leds/LEDs.h"
 #include "core/src/general/Timing.h"
 
 using namespace Interface::digital::output;

@@ -20,11 +20,11 @@ limitations under the License.
 
 #include "database/Database.h"
 #include "midi/src/MIDI.h"
-#include "interface/digital/output/leds/LEDs.h"
+#include "io/leds/LEDs.h"
 #ifdef DISPLAY_SUPPORTED
-#include "interface/display/Display.h"
+#include "io/display/Display.h"
 #endif
-#include "interface/CInfo.h"
+#include "io/common/CInfo.h"
 
 namespace Interface
 {

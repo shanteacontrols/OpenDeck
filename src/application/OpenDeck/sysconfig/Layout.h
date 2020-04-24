@@ -19,11 +19,11 @@
 #pragma once
 
 #include "sysex/src/SysExConf.h"
-#include "interface/digital/output/leds/LEDs.h"
-#include "interface/digital/input/encoders/Encoders.h"
-#include "interface/digital/input/encoders/Constants.h"
-#include "interface/analog/Analog.h"
-#include "interface/display/Display.h"
+#include "io/leds/LEDs.h"
+#include "io/encoders/Encoders.h"
+#include "io/encoders/Constants.h"
+#include "io/analog/Analog.h"
+#include "io/display/Display.h"
 
 namespace
 {

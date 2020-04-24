@@ -18,7 +18,7 @@ limitations under the License.
 
 #include "Encoders.h"
 #include "board/Board.h"
-#include "interface/CInfo.h"
+#include "io/common/CInfo.h"
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
 
