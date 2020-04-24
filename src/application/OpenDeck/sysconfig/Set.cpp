@@ -52,8 +52,8 @@ SysExConf::DataHandler::result_t SysConfig::SysExDataHandler::set(uint8_t       
     }
 
 #ifdef DISPLAY_SUPPORTED
-    sysConfig.display.displayMIDIevent(Interface::Display::eventType_t::in,
-                                       Interface::Display::event_t::systemExclusive,
+    sysConfig.display.displayMIDIevent(IO::Display::eventType_t::in,
+                                       IO::Display::event_t::systemExclusive,
                                        0,
                                        0,
                                        0);
@@ -351,7 +351,7 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
     case Section::leds_t::testColor:
     {
         //no writing to database
-        leds.setColor(index, static_cast<Interface::digital::output::LEDs::color_t>(newValue));
+        leds.setColor(index, static_cast<IO::LEDs::color_t>(newValue));
         result    = SysConfig::result_t::ok;
         writeToDb = false;
     }
@@ -360,7 +360,7 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
     case Section::leds_t::testBlink:
     {
         //no writing to database
-        leds.setBlinkState(index, newValue ? Interface::digital::output::LEDs::blinkSpeed_t::s500ms : Interface::digital::output::LEDs::blinkSpeed_t::noBlink);
+        leds.setBlinkState(index, newValue ? IO::LEDs::blinkSpeed_t::s500ms : IO::LEDs::blinkSpeed_t::noBlink);
         result    = SysConfig::result_t::ok;
         writeToDb = false;
     }
@@ -368,28 +368,28 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
 
     case Section::leds_t::global:
     {
-        auto ledSetting = static_cast<Interface::digital::output::LEDs::setting_t>(index);
+        auto ledSetting = static_cast<IO::LEDs::setting_t>(index);
 
         switch (ledSetting)
         {
-        case Interface::digital::output::LEDs::setting_t::blinkWithMIDIclock:
+        case IO::LEDs::setting_t::blinkWithMIDIclock:
         {
             if ((newValue <= 1) && (newValue >= 0))
             {
                 result = SysConfig::result_t::ok;
-                leds.setBlinkType(static_cast<Interface::digital::output::LEDs::blinkType_t>(newValue));
+                leds.setBlinkType(static_cast<IO::LEDs::blinkType_t>(newValue));
             }
         }
         break;
 
-        case Interface::digital::output::LEDs::setting_t::useStartupAnimation:
+        case IO::LEDs::setting_t::useStartupAnimation:
         {
             if ((newValue <= 1) && (newValue >= 0))
                 result = SysConfig::result_t::ok;
         }
         break;
 
-        case Interface::digital::output::LEDs::setting_t::fadeSpeed:
+        case IO::LEDs::setting_t::fadeSpeed:
         {
 #ifdef LED_FADING
             if (leds.setFadeSpeed(newValue))
@@ -413,9 +413,9 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
     case Section::leds_t::rgbEnable:
     {
         //make sure to turn all three leds off before setting new state
-        leds.setColor(leds.rgbSingleComponentIndex(leds.rgbIndex(index), Interface::digital::output::LEDs::rgbIndex_t::r), Interface::digital::output::LEDs::color_t::off);
-        leds.setColor(leds.rgbSingleComponentIndex(leds.rgbIndex(index), Interface::digital::output::LEDs::rgbIndex_t::g), Interface::digital::output::LEDs::color_t::off);
-        leds.setColor(leds.rgbSingleComponentIndex(leds.rgbIndex(index), Interface::digital::output::LEDs::rgbIndex_t::b), Interface::digital::output::LEDs::color_t::off);
+        leds.setColor(leds.rgbSingleComponentIndex(leds.rgbIndex(index), IO::LEDs::rgbIndex_t::r), IO::LEDs::color_t::off);
+        leds.setColor(leds.rgbSingleComponentIndex(leds.rgbIndex(index), IO::LEDs::rgbIndex_t::g), IO::LEDs::color_t::off);
+        leds.setColor(leds.rgbSingleComponentIndex(leds.rgbIndex(index), IO::LEDs::rgbIndex_t::b), IO::LEDs::color_t::off);
 
         //write rgb enabled bit to led
         result = database.update(dbSection(section), leds.rgbIndex(index), newValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
@@ -427,7 +427,7 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
             for (int i = 0; i < 3; i++)
             {
                 result = database.update(dbSection(Section::leds_t::activationID),
-                                         leds.rgbSingleComponentIndex(leds.rgbIndex(index), static_cast<Interface::digital::output::LEDs::rgbIndex_t>(i)),
+                                         leds.rgbSingleComponentIndex(leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
                                          database.read(dbSection(Section::leds_t::activationID), index))
                              ? SysConfig::result_t::ok
                              : SysConfig::result_t::error;
@@ -436,7 +436,7 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
                     break;
 
                 result = database.update(dbSection(Section::leds_t::controlType),
-                                         leds.rgbSingleComponentIndex(leds.rgbIndex(index), static_cast<Interface::digital::output::LEDs::rgbIndex_t>(i)),
+                                         leds.rgbSingleComponentIndex(leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
                                          database.read(dbSection(Section::leds_t::controlType), index))
                              ? SysConfig::result_t::ok
                              : SysConfig::result_t::error;
@@ -445,7 +445,7 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
                     break;
 
                 result = database.update(dbSection(Section::leds_t::midiChannel),
-                                         leds.rgbSingleComponentIndex(leds.rgbIndex(index), static_cast<Interface::digital::output::LEDs::rgbIndex_t>(i)),
+                                         leds.rgbSingleComponentIndex(leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
                                          database.read(dbSection(Section::leds_t::midiChannel), index))
                              ? SysConfig::result_t::ok
                              : SysConfig::result_t::error;
@@ -472,7 +472,7 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
             for (int i = 0; i < 3; i++)
             {
                 result = database.update(dbSection(section),
-                                         leds.rgbSingleComponentIndex(leds.rgbIndex(index), static_cast<Interface::digital::output::LEDs::rgbIndex_t>(i)),
+                                         leds.rgbSingleComponentIndex(leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
                                          newValue)
                              ? SysConfig::result_t::ok
                              : SysConfig::result_t::error;
@@ -508,23 +508,23 @@ SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t i
     {
     case Section::display_t::features:
     {
-        auto feature = static_cast<Interface::Display::feature_t>(index);
+        auto feature = static_cast<IO::Display::feature_t>(index);
 
         switch (feature)
         {
-        case Interface::Display::feature_t::enable:
+        case IO::Display::feature_t::enable:
         {
             init = true;
         }
         break;
 
-        case Interface::Display::feature_t::MIDIeventRetention:
+        case IO::Display::feature_t::MIDIeventRetention:
         {
             display.setRetentionState(newValue);
         }
         break;
 
-        case Interface::Display::feature_t::MIDInotesAlternate:
+        case IO::Display::feature_t::MIDInotesAlternate:
         {
             display.setAlternateNoteDisplay(newValue);
         }
@@ -538,11 +538,11 @@ SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t i
 
     case Section::display_t::setting:
     {
-        auto setting = static_cast<Interface::Display::setting_t>(index);
+        auto setting = static_cast<IO::Display::setting_t>(index);
 
         switch (setting)
         {
-        case Interface::Display::setting_t::controller:
+        case IO::Display::setting_t::controller:
         {
             if ((newValue <= static_cast<uint8_t>(U8X8::displayController_t::AMOUNT)) && (newValue >= 0))
             {
@@ -551,7 +551,7 @@ SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t i
         }
         break;
 
-        case Interface::Display::setting_t::resolution:
+        case IO::Display::setting_t::resolution:
         {
             if ((newValue <= static_cast<uint8_t>(U8X8::displayResolution_t::AMOUNT)) && (newValue >= 0))
             {
@@ -560,7 +560,7 @@ SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t i
         }
         break;
 
-        case Interface::Display::setting_t::MIDIeventTime:
+        case IO::Display::setting_t::MIDIeventTime:
         {
             if ((newValue >= MIN_MESSAGE_RETENTION_TIME) && (newValue <= MAX_MESSAGE_RETENTION_TIME))
             {
@@ -569,7 +569,7 @@ SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t i
         }
         break;
 
-        case Interface::Display::setting_t::octaveNormalization:
+        case IO::Display::setting_t::octaveNormalization:
         {
             display.setOctaveNormalization(newValue);
         }

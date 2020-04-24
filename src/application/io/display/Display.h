@@ -23,7 +23,7 @@ limitations under the License.
 #include "core/src/general/StringBuilder.h"
 #include "database/Database.h"
 
-namespace Interface
+namespace IO
 {
     ///
     /// \brief LCD control.
@@ -269,4 +269,4 @@ namespace Interface
     };
 
     /// @}
-}    // namespace Interface
+}    // namespace IO

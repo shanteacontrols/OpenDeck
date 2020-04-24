@@ -22,7 +22,7 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
 
-using namespace Interface;
+using namespace IO;
 
 ///
 /// \brief Initialize display driver and variables.

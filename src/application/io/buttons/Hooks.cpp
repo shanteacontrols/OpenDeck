@@ -18,7 +18,7 @@ limitations under the License.
 
 #include "Buttons.h"
 
-using namespace Interface::digital::input;
+using namespace IO;
 
 ///
 /// \brief Custom user-defined button action.

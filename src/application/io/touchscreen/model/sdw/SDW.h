@@ -22,7 +22,7 @@ limitations under the License.
 #include "Config.h"
 #include "Commands.h"
 
-class SDW : public Interface::Touchscreen::HWA
+class SDW : public IO::Touchscreen::HWA
 {
     public:
     SDW() {}

@@ -22,7 +22,7 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
 
-using namespace Interface::digital::input;
+using namespace IO;
 
 ///
 /// \brief Initializes values for all encoders to their defaults.

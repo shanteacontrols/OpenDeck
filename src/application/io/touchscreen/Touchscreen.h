@@ -20,7 +20,7 @@ limitations under the License.
 
 #include <inttypes.h>
 
-namespace Interface
+namespace IO
 {
     ///
     /// \brief Touchscreen control.
@@ -59,4 +59,4 @@ namespace Interface
     };
 
     /// @}
-}    // namespace Interface
+}    // namespace IO

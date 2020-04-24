@@ -187,7 +187,7 @@ uint8_t Database::getPreset()
 bool Database::writeCustomValues()
 {
 #ifdef DISPLAY_SUPPORTED
-    return update(Database::Section::display_t::setting, static_cast<size_t>(Interface::Display::setting_t::MIDIeventTime), MIN_MESSAGE_RETENTION_TIME);
+    return update(Database::Section::display_t::setting, static_cast<size_t>(IO::Display::setting_t::MIDIeventTime), MIN_MESSAGE_RETENTION_TIME);
 #endif
 
     return true;

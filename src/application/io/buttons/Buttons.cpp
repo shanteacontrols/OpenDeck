@@ -20,7 +20,7 @@ limitations under the License.
 #include "board/Board.h"
 #include "core/src/general/Helpers.h"
 
-using namespace Interface::digital::input;
+using namespace IO;
 
 ///
 /// \brief Continuously reads inputs from buttons and acts if necessary.

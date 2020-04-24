@@ -69,7 +69,7 @@ namespace
         void (*initHandler)()                       = nullptr;
     } dbHandlers;
 
-    class LEDsHWA : public Interface::digital::output::LEDs::HWA
+    class LEDsHWA : public IO::LEDs::HWA
     {
         public:
         LEDsHWA() {}
@@ -78,7 +78,7 @@ namespace
         {
         }
 
-        size_t rgbSingleComponentIndex(size_t rgbIndex, Interface::digital::output::LEDs::rgbIndex_t rgbComponent) override
+        size_t rgbSingleComponentIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
         {
             return 0;
         }
@@ -98,23 +98,23 @@ namespace
     MIDI          midi;
     ComponentInfo cInfo;
 
-    Interface::digital::output::LEDs leds(ledsHWA, database);
+    IO::LEDs leds(ledsHWA, database);
 
 #ifdef DISPLAY_SUPPORTED
-    Interface::Display display(database);
+    IO::Display display(database);
 #endif
 
 #ifdef DISPLAY_SUPPORTED
 #ifdef ADC_10_BIT
-    Interface::analog::Analog analog(Interface::analog::Analog::adcType_t::adc10bit, database, midi, leds, display, cInfo);
+    IO::Analog analog(IO::Analog::adcType_t::adc10bit, database, midi, leds, display, cInfo);
 #else
-    Interface::analog::Analog analog(Interface::analog::Analog::adcType_t::adc12bit, database, midi, leds, display, cInfo);
+    IO::Analog analog(IO::Analog::adcType_t::adc12bit, database, midi, leds, display, cInfo);
 #endif
 #else
 #ifdef ADC_10_BIT
-    Interface::analog::Analog analog(Interface::analog::Analog::adcType_t::adc10bit, database, midi, leds, cInfo);
+    IO::Analog analog(IO::Analog::adcType_t::adc10bit, database, midi, leds, cInfo);
 #else
-    Interface::analog::Analog analog(Interface::analog::Analog::adcType_t::adc12bit, database, midi, leds, cInfo);
+    IO::Analog analog(IO::Analog::adcType_t::adc12bit, database, midi, leds, cInfo);
 #endif
 #endif
 }    // namespace
@@ -162,7 +162,7 @@ TEST_SETUP()
 
 TEST_CASE(CCtest)
 {
-    using namespace Interface::analog;
+    using namespace IO;
 
     //set known state
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
@@ -249,7 +249,7 @@ TEST_CASE(CCtest)
 
 TEST_CASE(PitchBendTest)
 {
-    using namespace Interface::analog;
+    using namespace IO;
 
     //set known state
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
@@ -378,7 +378,7 @@ TEST_CASE(PitchBendTest)
 
 TEST_CASE(Inversion)
 {
-    using namespace Interface::analog;
+    using namespace IO;
 
     //set known state
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
@@ -561,7 +561,7 @@ TEST_CASE(Inversion)
 
 TEST_CASE(Scaling)
 {
-    using namespace Interface::analog;
+    using namespace IO;
 
     const uint32_t scaledUpperLower = 11;
     const uint32_t scaledUpperValue = 100;

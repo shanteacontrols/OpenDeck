@@ -83,7 +83,7 @@ namespace
         void (*initHandler)()                       = nullptr;
     } dbHandlers;
 
-    class LEDsHWA : public Interface::digital::output::LEDs::HWA
+    class LEDsHWA : public IO::LEDs::HWA
     {
         public:
         LEDsHWA() {}
@@ -92,7 +92,7 @@ namespace
         {
         }
 
-        size_t rgbSingleComponentIndex(size_t rgbIndex, Interface::digital::output::LEDs::rgbIndex_t rgbComponent) override
+        size_t rgbSingleComponentIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
         {
             return 0;
         }
@@ -113,15 +113,15 @@ namespace
     ComponentInfo cInfo;
 
 #ifdef DISPLAY_SUPPORTED
-    Interface::Display display(database);
+    IO::Display display(database);
 #endif
 
-    Interface::digital::output::LEDs leds(ledsHWA, database);
+    IO::LEDs leds(ledsHWA, database);
 
 #ifdef DISPLAY_SUPPORTED
-    Interface::digital::input::Buttons buttons = Interface::digital::input::Buttons(database, midi, leds, display, cInfo);
+    IO::Buttons buttons = IO::Buttons(database, midi, leds, display, cInfo);
 #else
-    Interface::digital::input::Buttons buttons = Interface::digital::input::Buttons(database, midi, leds, cInfo);
+    IO::Buttons buttons = IO::Buttons(database, midi, leds, cInfo);
 #endif
 
     void stateChangeRegister(bool state)
@@ -189,7 +189,7 @@ TEST_SETUP()
 
 TEST_CASE(Debouncing)
 {
-    using namespace Interface::digital::input;
+    using namespace IO;
 
     //set known state
     for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
@@ -219,7 +219,7 @@ TEST_CASE(Debouncing)
 
 TEST_CASE(Note)
 {
-    using namespace Interface::digital::input;
+    using namespace IO;
 
     auto test = [&](uint8_t channel, uint8_t velocityValue) {
         //set known state
@@ -301,7 +301,7 @@ TEST_CASE(Note)
 
 TEST_CASE(ProgramChange)
 {
-    using namespace Interface::digital::input;
+    using namespace IO;
 
     auto testProgramChange = [&](uint8_t channel) {
         //set known state
@@ -525,7 +525,7 @@ TEST_CASE(ProgramChange)
 
 TEST_CASE(ControlChange)
 {
-    using namespace Interface::digital::input;
+    using namespace IO;
 
     auto controlChangeTest = [&](uint8_t controlValue) {
         //set known state
@@ -634,7 +634,7 @@ TEST_CASE(ControlChange)
 
 TEST_CASE(NoMessages)
 {
-    using namespace Interface::digital::input;
+    using namespace IO;
 
     //configure all buttons to messageType_t::none so that midi messages aren't sent
 
@@ -674,8 +674,8 @@ TEST_CASE(NoMessages)
 #if MAX_NUMBER_OF_LEDS > 0
 TEST_CASE(LocalLEDcontrol)
 {
-    using namespace Interface::digital::input;
-    using namespace Interface::digital::output;
+    using namespace IO;
+    using namespace IO;
 
     for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
     {

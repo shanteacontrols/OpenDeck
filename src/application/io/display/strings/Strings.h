@@ -28,6 +28,6 @@ class Strings
     Strings() = default;
 
     static const char* board();
-    static const char* midiMessage(Interface::Display::event_t event);
+    static const char* midiMessage(IO::Display::event_t event);
     static const char* note(MIDI::note_t note);
 };

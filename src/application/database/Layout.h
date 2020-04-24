@@ -282,7 +282,7 @@ namespace
     LESSDB::section_t ledSections[static_cast<uint8_t>(Database::Section::leds_t::AMOUNT)] = {
         //global parameters section
         {
-            .numberOfParameters     = static_cast<size_t>(Interface::digital::output::LEDs::setting_t::AMOUNT),
+            .numberOfParameters     = static_cast<size_t>(IO::LEDs::setting_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -344,7 +344,7 @@ namespace
     LESSDB::section_t displaySections[static_cast<uint8_t>(Database::Section::display_t::AMOUNT)] = {
         //features section
         {
-            .numberOfParameters     = static_cast<uint8_t>(Interface::Display::feature_t::AMOUNT),
+            .numberOfParameters     = static_cast<uint8_t>(IO::Display::feature_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = 0,
             .defaultValue           = 0,
@@ -354,7 +354,7 @@ namespace
 
         //setting section
         {
-            .numberOfParameters     = static_cast<uint8_t>(Interface::Display::setting_t::AMOUNT),
+            .numberOfParameters     = static_cast<uint8_t>(IO::Display::setting_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = 0,
             .defaultValue           = 0,

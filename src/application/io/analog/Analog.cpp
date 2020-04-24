@@ -20,7 +20,7 @@ limitations under the License.
 #include "board/Board.h"
 #include "core/src/general/Helpers.h"
 
-using namespace Interface::analog;
+using namespace IO;
 
 void Analog::update()
 {
@@ -115,7 +115,7 @@ void Analog::disableExpFiltering()
     expFilterUsed = false;
 }
 
-Interface::analog::Analog::adcConfig_t& Analog::config()
+IO::Analog::adcConfig_t& Analog::config()
 {
     return adcConfig;
 }

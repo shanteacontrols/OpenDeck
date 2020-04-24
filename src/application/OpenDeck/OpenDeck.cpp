@@ -98,7 +98,7 @@ class StorageAccess : public LESSDB::StorageAccess
     }
 } storageAccess;
 
-class HWALEDs : public Interface::digital::output::LEDs::HWA
+class HWALEDs : public IO::LEDs::HWA
 {
     public:
     HWALEDs() {}
@@ -109,21 +109,21 @@ class HWALEDs : public Interface::digital::output::LEDs::HWA
             stateHandler(index, state);
     }
 
-    size_t rgbSingleComponentIndex(size_t rgbIndex, Interface::digital::output::LEDs::rgbIndex_t rgbComponent) override
+    size_t rgbSingleComponentIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
     {
 #if MAX_NUMBER_OF_LEDS > 0
         Board::io::rgbIndex_t boardRGBindex;
 
         switch (rgbComponent)
         {
-        case Interface::digital::output::LEDs::rgbIndex_t::r:
+        case IO::LEDs::rgbIndex_t::r:
             boardRGBindex = Board::io::rgbIndex_t::r;
             break;
 
-        case Interface::digital::output::LEDs::rgbIndex_t::g:
+        case IO::LEDs::rgbIndex_t::g:
             boardRGBindex = Board::io::rgbIndex_t::r;
             break;
-        case Interface::digital::output::LEDs::rgbIndex_t::b:
+        case IO::LEDs::rgbIndex_t::b:
             boardRGBindex = Board::io::rgbIndex_t::b;
             break;
 
@@ -160,39 +160,39 @@ class HWALEDs : public Interface::digital::output::LEDs::HWA
 ComponentInfo                       cinfo;
 Database                            database(dbHandlers, storageAccess);
 MIDI                                midi;
-Interface::digital::input::Common   digitalInputCommon;
+IO::Common                          digitalInputCommon;
 #ifdef DISPLAY_SUPPORTED
-Interface::Display                  display(database);
+IO::Display                         display(database);
 #endif
 #ifdef TOUCHSCREEN_SUPPORTED
 //assume sdw only for now
 #include "io/touchscreen/model/sdw/SDW.h"
 SDW                                 sdw;
-Interface::Touchscreen              touchscreen(sdw);
+IO::Touchscreen                     touchscreen(sdw);
 #endif
-Interface::digital::output::LEDs    leds(hwaLEDs, database);
+IO::LEDs                            leds(hwaLEDs, database);
 #ifdef DISPLAY_SUPPORTED
 #ifdef ADC_10_BIT
-Interface::analog::Analog           analog(Interface::analog::Analog::adcType_t::adc10bit, database, midi, leds, display, cinfo);
+IO::Analog                          analog(IO::Analog::adcType_t::adc10bit, database, midi, leds, display, cinfo);
 #else
-Interface::analog::Analog           analog(Interface::analog::Analog::adcType_t::adc12bit, database, midi, leds, display, cinfo);
+IO::Analog                          analog(IO::Analog::adcType_t::adc12bit, database, midi, leds, display, cinfo);
 #endif
 #else
 #ifdef ADC_10_BIT
-Interface::analog::Analog           analog(Interface::analog::Analog::adcType_t::adc10bit, database, midi, leds, cinfo);
+IO::Analog                          analog(IO::Analog::adcType_t::adc10bit, database, midi, leds, cinfo);
 #else
-Interface::analog::Analog           analog(Interface::analog::Analog::adcType_t::adc12bit, database, midi, leds, cinfo);
+IO::Analog                          analog(IO::Analog::adcType_t::adc12bit, database, midi, leds, cinfo);
 #endif
 #endif
 #ifdef DISPLAY_SUPPORTED
-Interface::digital::input::Buttons  buttons(database, midi, leds, display, cinfo);
+IO::Buttons                         buttons(database, midi, leds, display, cinfo);
 #else
-Interface::digital::input::Buttons  buttons(database, midi, leds, cinfo);
+IO::Buttons                         buttons(database, midi, leds, cinfo);
 #endif
 #ifdef DISPLAY_SUPPORTED
-Interface::digital::input::Encoders encoders(database, midi, display, cinfo);
+IO::Encoders                        encoders(database, midi, display, cinfo);
 #else
-Interface::digital::input::Encoders encoders(database, midi, cinfo);
+IO::Encoders                        encoders(database, midi, cinfo);
 #endif
 #ifdef DISPLAY_SUPPORTED
 SysConfig                           sysConfig(database, midi, buttons, encoders, analog, leds, display);
@@ -210,7 +210,7 @@ void OpenDeck::init()
 
 #ifdef DISPLAY_SUPPORTED
         if (display.init(false))
-            display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::presetChange, preset, 0, 0);
+            display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::presetChange, preset, 0, 0);
 #endif
     };
 
@@ -331,19 +331,19 @@ void OpenDeck::checkMIDI()
             switch (messageType)
             {
             case MIDI::messageType_t::noteOn:
-                display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::noteOn, data1, data2, channel + 1);
+                display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::noteOn, data1, data2, channel + 1);
                 break;
 
             case MIDI::messageType_t::noteOff:
-                display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::noteOff, data1, data2, channel + 1);
+                display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::noteOff, data1, data2, channel + 1);
                 break;
 
             case MIDI::messageType_t::controlChange:
-                display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::controlChange, data1, data2, channel + 1);
+                display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::controlChange, data1, data2, channel + 1);
                 break;
 
             case MIDI::messageType_t::programChange:
-                display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::programChange, data1, data2, channel + 1);
+                display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::programChange, data1, data2, channel + 1);
                 break;
 
             default:
@@ -361,7 +361,7 @@ void OpenDeck::checkMIDI()
                     if (!database.read(Database::Section::encoder_t::remoteSync, i))
                         continue;
 
-                    if (database.read(Database::Section::encoder_t::mode, i) != static_cast<int32_t>(Interface::digital::input::Encoders::type_t::tControlChange))
+                    if (database.read(Database::Section::encoder_t::mode, i) != static_cast<int32_t>(IO::Encoders::type_t::tControlChange))
                         continue;
 
                     if (database.read(Database::Section::encoder_t::midiChannel, i) != channel)

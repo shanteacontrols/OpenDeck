@@ -18,61 +18,55 @@ limitations under the License.
 
 #include "Common.h"
 
-namespace Interface
+namespace IO
 {
-    namespace digital
+    uint8_t Common::pcValue[16] = {};
+
+    bool Common::pcIncrement(uint8_t channel)
     {
-        namespace input
+        if (channel >= 16)
+            return false;
+
+        if (pcValue[channel] < 127)
         {
-            uint8_t Common::pcValue[16] = {};
+            pcValue[channel]++;
+            return true;
+        }
 
-            bool Common::pcIncrement(uint8_t channel)
-            {
-                if (channel >= 16)
-                    return false;
+        return false;
+    }
 
-                if (pcValue[channel] < 127)
-                {
-                    pcValue[channel]++;
-                    return true;
-                }
+    bool Common::pcDecrement(uint8_t channel)
+    {
+        if (channel >= 16)
+            return false;
 
-                return false;
-            }
+        if (pcValue[channel] > 0)
+        {
+            pcValue[channel]--;
+            return true;
+        }
 
-            bool Common::pcDecrement(uint8_t channel)
-            {
-                if (channel >= 16)
-                    return false;
+        return false;
+    }
 
-                if (pcValue[channel] > 0)
-                {
-                    pcValue[channel]--;
-                    return true;
-                }
+    uint8_t Common::program(uint8_t channel)
+    {
+        if (channel >= 16)
+            return false;
 
-                return false;
-            }
+        return pcValue[channel];
+    }
 
-            uint8_t Common::program(uint8_t channel)
-            {
-                if (channel >= 16)
-                    return false;
+    bool Common::setProgram(uint8_t channel, uint8_t program)
+    {
+        if (channel >= 16)
+            return false;
 
-                return pcValue[channel];
-            }
+        if (program > 127)
+            return false;
 
-            bool Common::setProgram(uint8_t channel, uint8_t program)
-            {
-                if (channel >= 16)
-                    return false;
-
-                if (program > 127)
-                    return false;
-
-                pcValue[channel] = program;
-                return true;
-            }
-        }    // namespace input
-    }        // namespace digital
-}    // namespace Interface
+        pcValue[channel] = program;
+        return true;
+    }
+}    // namespace IO

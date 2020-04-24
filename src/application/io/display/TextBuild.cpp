@@ -23,7 +23,7 @@ limitations under the License.
 #include "midi/src/MIDI.h"
 #include "core/src/general/Timing.h"
 
-using namespace Interface;
+using namespace IO;
 
 void Display::displayWelcomeMessage()
 {

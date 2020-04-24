@@ -20,28 +20,22 @@ limitations under the License.
 
 #include <inttypes.h>
 
-namespace Interface
+namespace IO
 {
-    namespace digital
+    class Common
     {
-        namespace input
-        {
-            class Common
-            {
-                public:
-                Common() = default;
+        public:
+        Common() = default;
 
-                bool    pcIncrement(uint8_t channel);
-                bool    pcDecrement(uint8_t channel);
-                uint8_t program(uint8_t channel);
-                bool    setProgram(uint8_t channel, uint8_t program);
+        bool    pcIncrement(uint8_t channel);
+        bool    pcDecrement(uint8_t channel);
+        uint8_t program(uint8_t channel);
+        bool    setProgram(uint8_t channel, uint8_t program);
 
-                protected:
-                ///
-                /// \brief Holds current program change value for all 16 MIDI channels.
-                ///
-                static uint8_t pcValue[16];
-            };
-        }    // namespace input
-    }        // namespace digital
-}    // namespace Interface
+        protected:
+        ///
+        /// \brief Holds current program change value for all 16 MIDI channels.
+        ///
+        static uint8_t pcValue[16];
+    };
+}    // namespace IO

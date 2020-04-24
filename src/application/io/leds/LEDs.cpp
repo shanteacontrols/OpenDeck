@@ -21,7 +21,7 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
 
-using namespace Interface::digital::output;
+using namespace IO;
 
 #define LED_ON_MASK   ((0x01 << static_cast<uint8_t>(ledBit_t::active)) | (0x01 << static_cast<uint8_t>(ledBit_t::state)))
 #define LED_ON(state) ((state & LED_ON_MASK) == LED_ON_MASK)

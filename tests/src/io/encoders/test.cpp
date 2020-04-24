@@ -55,13 +55,13 @@ namespace
     ComponentInfo cInfo;
 
 #ifdef DISPLAY_SUPPORTED
-    Interface::Display display(database);
+    IO::Display display(database);
 #endif
 
 #ifdef DISPLAY_SUPPORTED
-    Interface::digital::input::Encoders encoders = Interface::digital::input::Encoders(database, midi, display, cInfo);
+    IO::Encoders encoders = IO::Encoders(database, midi, display, cInfo);
 #else
-    Interface::digital::input::Encoders encoders = Interface::digital::input::Encoders(database, midi, cInfo);
+    IO::Encoders encoders = IO::Encoders(database, midi, cInfo);
 #endif
 
     uint8_t controlValue[MAX_NUMBER_OF_ENCODERS];
@@ -79,7 +79,7 @@ namespace Board
 {
     namespace io
     {
-        using namespace Interface::digital::input;
+        using namespace IO;
 
         namespace
         {
@@ -141,7 +141,7 @@ TEST_SETUP()
 
 TEST_CASE(StateDecoding)
 {
-    using namespace Interface::digital::input;
+    using namespace IO;
 
     //set known state
     for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
@@ -342,7 +342,7 @@ TEST_CASE(StateDecoding)
 
 TEST_CASE(Debounce)
 {
-    using namespace Interface::digital::input;
+    using namespace IO;
 
     auto debounceTest = [&](uint8_t pulsesPerStep) {
         //set known state
@@ -610,7 +610,7 @@ TEST_CASE(Debounce)
 
 TEST_CASE(Acceleration)
 {
-    using namespace Interface::digital::input;
+    using namespace IO;
 
     auto accelerationTest = [&](uint8_t pulsesPerStep) {
 #define ENCODER_SPEED_CHANGE 3

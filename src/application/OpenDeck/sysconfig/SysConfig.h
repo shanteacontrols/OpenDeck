@@ -32,9 +32,9 @@ class SysConfig
 {
     public:
 #ifdef DISPLAY_SUPPORTED
-    SysConfig(Database& database, MIDI& midi, Interface::digital::input::Buttons& buttons, Interface::digital::input::Encoders& encoders, Interface::analog::Analog& analog, Interface::digital::output::LEDs& leds, Interface::Display& display)
+    SysConfig(Database& database, MIDI& midi, IO::Buttons& buttons, IO::Encoders& encoders, IO::Analog& analog, IO::LEDs& leds, IO::Display& display)
 #else
-    SysConfig(Database& database, MIDI& midi, Interface::digital::input::Buttons& buttons, Interface::digital::input::Encoders& encoders, Interface::analog::Analog& analog, Interface::digital::output::LEDs& leds)
+    SysConfig(Database& database, MIDI& midi, IO::Buttons& buttons, IO::Encoders& encoders, IO::Analog& analog, IO::LEDs& leds)
 #endif
         : sysExConf(
               sysExDataHandler,
@@ -209,14 +209,14 @@ class SysConfig
 
     SysExConf sysExConf;
 
-    Database&                            database;
-    MIDI&                                midi;
-    Interface::digital::input::Buttons&  buttons;
-    Interface::digital::input::Encoders& encoders;
-    Interface::analog::Analog&           analog;
-    Interface::digital::output::LEDs&    leds;
+    Database&     database;
+    MIDI&         midi;
+    IO::Buttons&  buttons;
+    IO::Encoders& encoders;
+    IO::Analog&   analog;
+    IO::LEDs&     leds;
 #ifdef DISPLAY_SUPPORTED
-    Interface::Display& display;
+    IO::Display& display;
 #endif
 
     SysExDataHandler sysExDataHandler;

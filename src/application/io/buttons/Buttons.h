@@ -27,116 +27,110 @@ limitations under the License.
 #include "io/common/Common.h"
 #include "io/common/CInfo.h"
 
-namespace Interface
+namespace IO
 {
-    namespace digital
+    ///
+    /// \brief Button handling.
+    /// \defgroup interfaceButtons Buttons
+    /// \ingroup interfaceDigitalIn
+    /// @{
+
+    class Buttons : public Common
     {
-        namespace input
+        public:
+        ///
+        /// \brief List of all possible button types.
+        ///
+        enum class type_t : uint8_t
         {
-            ///
-            /// \brief Button handling.
-            /// \defgroup interfaceButtons Buttons
-            /// \ingroup interfaceDigitalIn
-            /// @{
+            momentary,    ///< Event on press and release.
+            latching,     ///< Event between presses only.
+            AMOUNT        ///< Total number of button types.
+        };
 
-            class Buttons : public Common
-            {
-                public:
-                ///
-                /// \brief List of all possible button types.
-                ///
-                enum class type_t : uint8_t
-                {
-                    momentary,    ///< Event on press and release.
-                    latching,     ///< Event between presses only.
-                    AMOUNT        ///< Total number of button types.
-                };
-
-                ///
-                /// \brief List of all possible MIDI messages buttons can send.
-                ///
-                enum class messageType_t : uint8_t
-                {
-                    note,
-                    programChange,
-                    controlChange,
-                    controlChangeReset,
-                    mmcStop,
-                    mmcPlay,
-                    mmcRecord,
-                    mmcPause,
-                    realTimeClock,
-                    realTimeStart,
-                    realTimeContinue,
-                    realTimeStop,
-                    realTimeActiveSensing,
-                    realTimeSystemReset,
-                    programChangeInc,
-                    programChangeDec,
-                    none,
-                    presetOpenDeck,
-                    customHook,
-                    AMOUNT
-                };
+        ///
+        /// \brief List of all possible MIDI messages buttons can send.
+        ///
+        enum class messageType_t : uint8_t
+        {
+            note,
+            programChange,
+            controlChange,
+            controlChangeReset,
+            mmcStop,
+            mmcPlay,
+            mmcRecord,
+            mmcPause,
+            realTimeClock,
+            realTimeStart,
+            realTimeContinue,
+            realTimeStop,
+            realTimeActiveSensing,
+            realTimeSystemReset,
+            programChangeInc,
+            programChangeDec,
+            none,
+            presetOpenDeck,
+            customHook,
+            AMOUNT
+        };
 
 #ifdef DISPLAY_SUPPORTED
-                Buttons(Database& database, MIDI& midi, Interface::digital::output::LEDs& leds, Display& display, ComponentInfo& cInfo)
+        Buttons(Database& database, MIDI& midi, IO::LEDs& leds, Display& display, ComponentInfo& cInfo)
 #else
-                Buttons(Database& database, MIDI& midi, Interface::digital::output::LEDs& leds, ComponentInfo& cInfo)
+        Buttons(Database& database, MIDI& midi, IO::LEDs& leds, ComponentInfo& cInfo)
 #endif
-                    : database(database)
-                    , midi(midi)
-                    , leds(leds)
+            : database(database)
+            , midi(midi)
+            , leds(leds)
 #ifdef DISPLAY_SUPPORTED
-                    , display(display)
+            , display(display)
 #endif
-                    , cInfo(cInfo)
-                {}
+            , cInfo(cInfo)
+        {}
 
-                void update();
-                void processButton(uint8_t buttonID, bool state);
-                bool getButtonState(uint8_t buttonID);
-                void reset(uint8_t buttonID);
+        void update();
+        void processButton(uint8_t buttonID, bool state);
+        bool getButtonState(uint8_t buttonID);
+        void reset(uint8_t buttonID);
 
-                private:
-                void sendMessage(uint8_t buttonID, bool state, messageType_t buttonMessage = messageType_t::AMOUNT);
-                void setButtonState(uint8_t buttonID, uint8_t state);
-                void setLatchingState(uint8_t buttonID, uint8_t state);
-                bool getLatchingState(uint8_t buttonID);
-                bool buttonDebounced(uint8_t buttonID, bool state);
-                void customHook(uint8_t buttonID, bool state);
+        private:
+        void sendMessage(uint8_t buttonID, bool state, messageType_t buttonMessage = messageType_t::AMOUNT);
+        void setButtonState(uint8_t buttonID, uint8_t state);
+        void setLatchingState(uint8_t buttonID, uint8_t state);
+        bool getLatchingState(uint8_t buttonID);
+        bool buttonDebounced(uint8_t buttonID, bool state);
+        void customHook(uint8_t buttonID, bool state);
 
-                Database&                         database;
-                MIDI&                             midi;
-                Interface::digital::output::LEDs& leds;
+        Database& database;
+        MIDI&     midi;
+        IO::LEDs& leds;
 #ifdef DISPLAY_SUPPORTED
-                Display& display;
+        Display& display;
 #endif
-                ComponentInfo& cInfo;
+        ComponentInfo& cInfo;
 
-                ///
-                /// \brief Array holding debounce count for all buttons to avoid incorrect state detection.
-                ///
-                uint8_t buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS] = {};
+        ///
+        /// \brief Array holding debounce count for all buttons to avoid incorrect state detection.
+        ///
+        uint8_t buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS] = {};
 
-                ///
-                /// \brief Array holding current state for all buttons.
-                ///
-                uint8_t buttonPressed[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS) / 8 + 1] = {};
+        ///
+        /// \brief Array holding current state for all buttons.
+        ///
+        uint8_t buttonPressed[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS) / 8 + 1] = {};
 
-                ///
-                /// \brief Array holding last sent state for latching buttons only.
-                ///
-                uint8_t lastLatchingState[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS) / 8 + 1] = {};
+        ///
+        /// \brief Array holding last sent state for latching buttons only.
+        ///
+        uint8_t lastLatchingState[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS) / 8 + 1] = {};
 
-                ///
-                /// \brief Array used for simpler building of transport control messages.
-                /// Based on MIDI specification for transport control.
-                ///
-                uint8_t mmcArray[6] = { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 };
-            };
+        ///
+        /// \brief Array used for simpler building of transport control messages.
+        /// Based on MIDI specification for transport control.
+        ///
+        uint8_t mmcArray[6] = { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 };
+    };
 
-            /// @}
-        }    // namespace input
-    }        // namespace digital
-}    // namespace Interface
+    /// @}
+}    // namespace IO

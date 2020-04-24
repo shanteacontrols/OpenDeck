@@ -176,7 +176,7 @@ TEST_CASE(ReadInitialValues)
         //LED block
         //global section
         //all values should be set to 0
-        for (int i = 0; i < static_cast<uint8_t>(Interface::digital::output::LEDs::setting_t::AMOUNT); i++)
+        for (int i = 0; i < static_cast<uint8_t>(IO::LEDs::setting_t::AMOUNT); i++)
             TEST_ASSERT(database.read(Database::Section::leds_t::global, i) == 0);
 
         //activation id section
@@ -207,16 +207,16 @@ TEST_CASE(ReadInitialValues)
 #ifdef DISPLAY_SUPPORTED
         //display block
         //feature section
-        TEST_ASSERT(database.read(Database::Section::display_t::features, static_cast<size_t>(Interface::Display::feature_t::enable)) == 0);
-        TEST_ASSERT(database.read(Database::Section::display_t::features, static_cast<size_t>(Interface::Display::feature_t::welcomeMsg)) == 0);
-        TEST_ASSERT(database.read(Database::Section::display_t::features, static_cast<size_t>(Interface::Display::feature_t::vInfoMsg)) == 0);
-        TEST_ASSERT(database.read(Database::Section::display_t::features, static_cast<size_t>(Interface::Display::feature_t::MIDIeventRetention)) == 0);
-        TEST_ASSERT(database.read(Database::Section::display_t::features, static_cast<size_t>(Interface::Display::feature_t::MIDInotesAlternate)) == 0);
+        TEST_ASSERT(database.read(Database::Section::display_t::features, static_cast<size_t>(IO::Display::feature_t::enable)) == 0);
+        TEST_ASSERT(database.read(Database::Section::display_t::features, static_cast<size_t>(IO::Display::feature_t::welcomeMsg)) == 0);
+        TEST_ASSERT(database.read(Database::Section::display_t::features, static_cast<size_t>(IO::Display::feature_t::vInfoMsg)) == 0);
+        TEST_ASSERT(database.read(Database::Section::display_t::features, static_cast<size_t>(IO::Display::feature_t::MIDIeventRetention)) == 0);
+        TEST_ASSERT(database.read(Database::Section::display_t::features, static_cast<size_t>(IO::Display::feature_t::MIDInotesAlternate)) == 0);
 
-        int32_t eventTime = database.read(Database::Section::display_t::setting, static_cast<size_t>(Interface::Display::setting_t::MIDIeventTime));
+        int32_t eventTime = database.read(Database::Section::display_t::setting, static_cast<size_t>(IO::Display::setting_t::MIDIeventTime));
 
         TEST_ASSERT(eventTime == MIN_MESSAGE_RETENTION_TIME);
-        TEST_ASSERT(database.read(Database::Section::display_t::setting, static_cast<size_t>(Interface::Display::setting_t::octaveNormalization)) == 0);
+        TEST_ASSERT(database.read(Database::Section::display_t::setting, static_cast<size_t>(IO::Display::setting_t::octaveNormalization)) == 0);
 #endif
     }
 }
@@ -261,7 +261,7 @@ TEST_CASE(FactoryReset)
 
 #ifdef DISPLAY_SUPPORTED
     TEST_ASSERT(database.update(Database::Section::display_t::setting,
-                                static_cast<size_t>(Interface::Display::setting_t::controller),
+                                static_cast<size_t>(IO::Display::setting_t::controller),
                                 static_cast<size_t>(U8X8::displayController_t::ssd1306)) == true);
 #endif
 
@@ -275,7 +275,7 @@ TEST_CASE(FactoryReset)
 
 #ifdef DISPLAY_SUPPORTED
     TEST_ASSERT(database.read(Database::Section::display_t::setting,
-                              static_cast<size_t>(Interface::Display::setting_t::controller)) == static_cast<int32_t>(U8X8::displayController_t::invalid));
+                              static_cast<size_t>(IO::Display::setting_t::controller)) == static_cast<int32_t>(U8X8::displayController_t::invalid));
 #endif
 
     TEST_ASSERT(database.getPresetPreserveState() == false);
@@ -289,7 +289,7 @@ TEST_CASE(LEDs)
     for (int i = 0; i < MAX_NUMBER_OF_RGB_LEDS; i++)
         TEST_ASSERT(database.read(Database::Section::leds_t::rgbEnable, i) == false);
 
-    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(Interface::digital::output::LEDs::controlType_t::localPCforStateNoBlink)) == true);
+    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(IO::LEDs::controlType_t::localPCforStateNoBlink)) == true);
 
     //rgb state shouldn't change
     for (int i = 0; i < MAX_NUMBER_OF_RGB_LEDS; i++)

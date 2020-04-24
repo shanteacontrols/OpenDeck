@@ -18,7 +18,7 @@ limitations under the License.
 
 #include "Touchscreen.h"
 
-using namespace Interface;
+using namespace IO;
 
 bool Touchscreen::init()
 {

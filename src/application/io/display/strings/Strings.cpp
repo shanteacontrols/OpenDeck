@@ -114,7 +114,7 @@ const char* Strings::board()
     return tempBuffer;
 }
 
-const char* Strings::midiMessage(Interface::Display::event_t event)
+const char* Strings::midiMessage(IO::Display::event_t event)
 {
     strcpy_P(tempBuffer, READ_PROGMEM_ARRAY(eventNameArray[static_cast<uint8_t>(event)]));
     return tempBuffer;

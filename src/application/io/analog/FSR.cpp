@@ -20,7 +20,7 @@ limitations under the License.
 #include "board/Board.h"
 #include "core/src/general/Helpers.h"
 
-using namespace Interface::analog;
+using namespace IO;
 
 //use 1k resistor when connecting FSR between signal and ground
 

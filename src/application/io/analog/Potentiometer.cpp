@@ -20,7 +20,7 @@ limitations under the License.
 #include "board/Board.h"
 #include "core/src/general/Helpers.h"
 
-using namespace Interface::analog;
+using namespace IO;
 
 void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32_t value)
 {

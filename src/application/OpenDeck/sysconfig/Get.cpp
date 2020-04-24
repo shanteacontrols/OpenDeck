@@ -48,7 +48,7 @@ SysConfig::result_t SysConfig::SysExDataHandler::get(uint8_t block, uint8_t sect
     }
 
 #ifdef DISPLAY_SUPPORTED
-    sysConfig.display.displayMIDIevent(Interface::Display::eventType_t::in, Interface::Display::event_t::systemExclusive, 0, 0, 0);
+    sysConfig.display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::systemExclusive, 0, 0, 0);
 #endif
 
     return result;

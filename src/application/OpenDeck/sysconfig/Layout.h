@@ -55,14 +55,14 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
             .newValueMin        = 0,
-            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(Interface::digital::input::Buttons::type_t::AMOUNT) - 1,
+            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(IO::Buttons::type_t::AMOUNT) - 1,
         },
 
         //midi message type section
         {
             .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS,
             .newValueMin        = 0,
-            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(Interface::digital::input::Buttons::messageType_t::AMOUNT) - 1,
+            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(IO::Buttons::messageType_t::AMOUNT) - 1,
         },
 
         //midi id section
@@ -106,7 +106,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
             .newValueMin        = 0,
-            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(Interface::digital::input::Encoders::type_t::AMOUNT) - 1,
+            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(IO::Encoders::type_t::AMOUNT) - 1,
         },
 
         //midi id section, lsb
@@ -134,7 +134,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
             .newValueMin        = 0,
-            .newValueMax        = static_cast<uint8_t>(Interface::digital::input::Encoders::acceleration_t::AMOUNT) - 1,
+            .newValueMax        = static_cast<uint8_t>(IO::Encoders::acceleration_t::AMOUNT) - 1,
         },
 
         //midi id section, msb
@@ -171,7 +171,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
             .newValueMin        = 0,
-            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(Interface::analog::Analog::type_t::AMOUNT) - 1,
+            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(IO::Analog::type_t::AMOUNT) - 1,
         },
 
         //midi id section, lsb
@@ -229,7 +229,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_LEDS + MAX_TOUCHSCREEN_BUTTONS,
             .newValueMin        = 0,
-            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(Interface::digital::output::LEDs::color_t::AMOUNT) - 1,
+            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(IO::LEDs::color_t::AMOUNT) - 1,
         },
 
         //led blink test section
@@ -241,7 +241,7 @@ namespace
 
         //global parameters section
         {
-            .numberOfParameters = static_cast<SysExConf::sysExParameter_t>(Interface::digital::output::LEDs::setting_t::AMOUNT),
+            .numberOfParameters = static_cast<SysExConf::sysExParameter_t>(IO::LEDs::setting_t::AMOUNT),
             .newValueMin        = 0,
             .newValueMax        = 0,
         },
@@ -264,7 +264,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_LEDS + MAX_TOUCHSCREEN_BUTTONS,
             .newValueMin        = 0,
-            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(Interface::digital::output::LEDs::controlType_t::AMOUNT) - 1,
+            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(IO::LEDs::controlType_t::AMOUNT) - 1,
         },
 
         //single led velocity value section
@@ -285,14 +285,14 @@ namespace
     SysExConf::section_t displaySections[static_cast<uint8_t>(SysConfig::Section::display_t::AMOUNT)] = {
         //features section
         {
-            .numberOfParameters = static_cast<uint8_t>(Interface::Display::feature_t::AMOUNT),
+            .numberOfParameters = static_cast<uint8_t>(IO::Display::feature_t::AMOUNT),
             .newValueMin        = 0,
             .newValueMax        = 1,
         },
 
         //settings section
         {
-            .numberOfParameters = static_cast<uint8_t>(Interface::Display::setting_t::AMOUNT),
+            .numberOfParameters = static_cast<uint8_t>(IO::Display::setting_t::AMOUNT),
             .newValueMin        = 0,
             .newValueMax        = 0,
         }

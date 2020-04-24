@@ -19,7 +19,7 @@ limitations under the License.
 #include "io/leds/LEDs.h"
 #include "core/src/general/Timing.h"
 
-using namespace Interface::digital::output;
+using namespace IO;
 
 #define CONNECTED_LEDS 12
 
