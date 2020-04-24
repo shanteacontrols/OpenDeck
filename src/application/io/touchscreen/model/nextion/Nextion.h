@@ -6,6 +6,16 @@
 class Nextion : public IO::Touchscreen::Model
 {
     public:
+    typedef struct
+    {
+        uint16_t xPos;
+        uint16_t yPos;
+        uint16_t width;
+        uint16_t height;
+        uint16_t onPage;
+        uint16_t offPage;
+    } icon_t;
+
     Nextion(IO::Touchscreen::Model::HWA& hwa)
         : hwa(hwa)
     {}
@@ -17,4 +27,6 @@ class Nextion : public IO::Touchscreen::Model
 
     private:
     IO::Touchscreen::Model::HWA& hwa;
+
+    bool getIcon(size_t index, icon_t& icon);
 };

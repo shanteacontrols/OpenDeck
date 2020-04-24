@@ -1,0 +1,1 @@
+A JSON file named the same way as the target supporting touchscreens should be placed here. Using that file, define the coordinates of on/off icons on display which can be used in the same way as LED indicators.
