@@ -22,10 +22,13 @@ limitations under the License.
 #include "Config.h"
 #include "Commands.h"
 
-class SDW : public IO::Touchscreen::HWA
+class SDW : public IO::Touchscreen::Model
 {
     public:
-    SDW() {}
+    SDW(IO::Touchscreen::Model::HWA& hwa)
+        : hwa(hwa)
+    {}
+
     bool init() override;
     void setScreen(uint8_t screenID) override;
     bool update(uint8_t& buttonID, bool& state) override;
@@ -33,6 +36,8 @@ class SDW : public IO::Touchscreen::HWA
     {}
 
     private:
+    IO::Touchscreen::Model::HWA& hwa;
+
     ///
     /// \brief Enumeration holding different byte types for display messages.
     ///

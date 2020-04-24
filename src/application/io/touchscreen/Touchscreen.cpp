@@ -22,7 +22,7 @@ using namespace IO;
 
 bool Touchscreen::init()
 {
-    initialized = hwa.init();
+    initialized = model.init();
     return initialized;
 }
 
@@ -34,7 +34,7 @@ void Touchscreen::update()
     uint8_t buttonID = 0;
     bool    state    = false;
 
-    if (hwa.update(buttonID, state))
+    if (model.update(buttonID, state))
     {
         if (buttonHandler != nullptr)
             (*buttonHandler)(buttonID, state);
@@ -47,7 +47,7 @@ void Touchscreen::update()
 ///
 void Touchscreen::setScreen(uint8_t screenID)
 {
-    hwa.setScreen(screenID);
+    model.setScreen(screenID);
     activeScreenID = screenID;
 }
 
@@ -70,5 +70,5 @@ void Touchscreen::setButtonHandler(void (*fptr)(uint8_t index, bool state))
 
 void Touchscreen::setButtonState(uint8_t index, bool state)
 {
-    hwa.setButtonState(index, state);
+    model.setButtonState(index, state);
 }

@@ -19,6 +19,7 @@ limitations under the License.
 #pragma once
 
 #include <inttypes.h>
+#include <stdlib.h>
 
 namespace IO
 {
@@ -31,18 +32,27 @@ namespace IO
     class Touchscreen
     {
         public:
-        class HWA
+        class Model
         {
             public:
+            class HWA
+            {
+                public:
+                virtual bool init()                              = 0;
+                virtual bool write(uint8_t* buffer, size_t size) = 0;
+                virtual bool read(uint8_t* buffer, size_t& size);
+            };
+
             virtual bool init()                                    = 0;
             virtual void setScreen(uint8_t screenID)               = 0;
             virtual bool update(uint8_t& buttonID, bool& state)    = 0;
             virtual void setButtonState(uint8_t index, bool state) = 0;
         };
 
-        Touchscreen(HWA& hwa)
-            : hwa(hwa)
+        Touchscreen(Model& model)
+            : model(model)
         {}
+
         bool    init();
         void    update();
         void    setScreen(uint8_t screenID);
@@ -51,7 +61,7 @@ namespace IO
         void    setButtonState(uint8_t index, bool state);
 
         private:
-        HWA& hwa;
+        Model& model;
 
         void (*buttonHandler)(uint8_t index, bool state) = nullptr;
         uint8_t activeScreenID                           = 0;

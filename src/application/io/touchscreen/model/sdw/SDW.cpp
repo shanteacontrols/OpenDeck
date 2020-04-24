@@ -18,7 +18,6 @@ limitations under the License.
 
 #include "SDW.h"
 #include "Commands.h"
-#include "board/Board.h"
 
 #define LOW_BYTE(value)  ((value) & (0xFF))
 #define HIGH_BYTE(value) (((value) >> 8) & 0xFF)
@@ -26,7 +25,7 @@ limitations under the License.
 bool SDW::init()
 {
     bufferIndex_rx = 0;
-    Board::UART::init(UART_TOUCHSCREEN_CHANNEL, 38400);
+    hwa.init();
     return true;
 }
 
@@ -48,40 +47,50 @@ void SDW::setScreen(uint8_t screenID)
 ///
 void SDW::sendMessage(uint8_t value, messageByteType_t messageByteType)
 {
+    uint8_t data[10];
+    size_t  txSize = 0;
+
+    auto append = [&](uint8_t value) {
+        data[txSize] = value;
+        txSize++;
+    };
+
     switch (messageByteType)
     {
     case messageByteType_t::start:
         //write start byte before value
-        Board::UART::write(UART_TOUCHSCREEN_CHANNEL, START_BYTE);
-        Board::UART::write(UART_TOUCHSCREEN_CHANNEL, value);
+        append(START_BYTE);
+        append(value);
         break;
 
     case messageByteType_t::content:
         //just write value
-        Board::UART::write(UART_TOUCHSCREEN_CHANNEL, value);
+        append(value);
         return;
 
     case messageByteType_t::singleByte:
         //start byte, value, end bytes
-        Board::UART::write(UART_TOUCHSCREEN_CHANNEL, START_BYTE);
-        Board::UART::write(UART_TOUCHSCREEN_CHANNEL, value);
+        append(START_BYTE);
+        append(value);
 
         for (int i = 0; i < END_CODES; i++)
-            Board::UART::write(UART_TOUCHSCREEN_CHANNEL, endCode[i]);
+            append(endCode[i]);
         break;
 
     case messageByteType_t::end:
         //value first
-        Board::UART::write(UART_TOUCHSCREEN_CHANNEL, value);
+        append(value);
 
         //send message end bytes
         for (int i = 0; i < END_CODES; i++)
-            Board::UART::write(UART_TOUCHSCREEN_CHANNEL, endCode[i]);
+            append(endCode[i]);
         break;
 
     default:
         break;
     }
+
+    hwa.write(data, txSize);
 }
 
 ///
@@ -90,9 +99,10 @@ void SDW::sendMessage(uint8_t value, messageByteType_t messageByteType)
 ///
 bool SDW::update(uint8_t& buttonID, bool& state)
 {
-    uint8_t data = 0;
+    uint8_t data   = 0;
+    size_t  rxSize = 0;
 
-    if (!Board::UART::read(UART_TOUCHSCREEN_CHANNEL, data))
+    if (!hwa.read(&data, rxSize))
         return false;
 
     bool parse = false;

@@ -156,6 +156,91 @@ class HWALEDs : public IO::LEDs::HWA
     void (*stateHandler)(size_t index, bool state) = nullptr;
 } hwaLEDs;
 
+#ifdef TOUCHSCREEN_SUPPORTED
+#ifdef OD_BOARD_BERGAMOT
+//bergamot uses SDW touchscreen display
+
+#include "io/touchscreen/model/sdw/SDW.h"
+
+class SDWHWA : public IO::Touchscreen::Model::HWA
+{
+    public:
+    SDWHWA() {}
+
+    bool init() override
+    {
+        Board::UART::init(UART_TOUCHSCREEN_CHANNEL, 38400);
+        return true;
+    }
+
+    bool write(uint8_t* buffer, size_t size)
+    {
+        for (size_t i = 0; i < size; i++)
+        {
+            if (!Board::UART::write(UART_TOUCHSCREEN_CHANNEL, buffer[i]))
+                return false;
+        }
+
+        return true;
+    }
+
+    bool read(uint8_t* buffer, size_t& size) override
+    {
+        uint8_t data;
+
+        if (!Board::UART::read(UART_TOUCHSCREEN_CHANNEL, data))
+            return false;
+
+        size      = 1;
+        buffer[0] = data;
+        return true;
+    }
+} sdwHWA;
+
+SDW touchscreenModel(sdwHWA);
+#else
+//nextion by default
+#include "io/touchscreen/model/nextion/Nextion.h"
+
+class NextionHWA : public IO::Touchscreen::Model::HWA
+{
+    public:
+    NextionHWA() {}
+
+    bool init() override
+    {
+        Board::UART::init(UART_TOUCHSCREEN_CHANNEL, 38400);
+        return true;
+    }
+
+    bool write(uint8_t* buffer, size_t size)
+    {
+        for (size_t i = 0; i < size; i++)
+        {
+            if (!Board::UART::write(UART_TOUCHSCREEN_CHANNEL, buffer[i]))
+                return false;
+        }
+
+        return true;
+    }
+
+    bool read(uint8_t* buffer, size_t& size) override
+    {
+        uint8_t data;
+
+        if (!Board::UART::read(UART_TOUCHSCREEN_CHANNEL, data))
+            return false;
+
+        size      = 1;
+        buffer[0] = data;
+        return true;
+    }
+} nextionHWA;
+
+Nextion touchscreenModel(nextionHWA);
+#endif
+#endif
+
 // clang-format off
 ComponentInfo                       cinfo;
 Database                            database(dbHandlers, storageAccess);
@@ -165,10 +250,7 @@ IO::Common                          digitalInputCommon;
 IO::Display                         display(database);
 #endif
 #ifdef TOUCHSCREEN_SUPPORTED
-//assume sdw only for now
-#include "io/touchscreen/model/sdw/SDW.h"
-SDW                                 sdw;
-IO::Touchscreen                     touchscreen(sdw);
+IO::Touchscreen                     touchscreen(touchscreenModel);
 #endif
 IO::LEDs                            leds(hwaLEDs, database);
 #ifdef DISPLAY_SUPPORTED

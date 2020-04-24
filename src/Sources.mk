@@ -124,6 +124,7 @@ else
         SOURCES += $(shell $(FIND) ./application/io/common -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell $(FIND) ./application/io/encoders -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell $(FIND) ./application/io/leds -maxdepth 1 -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./application/io/touchscreen -type f -name "*.cpp")
         SOURCES += $(shell $(FIND) ../modules/sysex/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
         SOURCES += $(shell $(FIND) ../modules/midi/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
         SOURCES += $(shell $(FIND) ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
@@ -151,10 +152,6 @@ else
             modules/u8g2/csrc/u8x8_gpio.c \
             modules/u8g2/csrc/u8x8_d_ssd1306_128x64_noname.c \
             modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
-        endif
-
-        ifneq ($(shell cat board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(BOARD_DIR)/Hardware.h | grep TOUCHSCREEN_SUPPORTED), )
-            SOURCES += $(shell $(FIND) ./application/io/touchscreen -type f -name "*.cpp")
         endif
     endif
 endif
