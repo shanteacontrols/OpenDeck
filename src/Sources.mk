@@ -119,23 +119,23 @@ else
         SOURCES += $(shell $(FIND) ./application -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell $(FIND) ./application/database -type f -name "*.cpp")
         SOURCES += $(shell $(FIND) ./application/OpenDeck -type f -name "*.cpp")
-        SOURCES += $(shell $(FIND) ./application/interface/analog -type f -name "*.cpp")
-        SOURCES += $(shell $(FIND) ./application/interface/digital/input -type f -name "*.cpp")
-        SOURCES += $(shell $(FIND) ./application/interface/digital/output/leds -maxdepth 1 -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./application/io/analog -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./application/io/buttons -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./application/io/common -maxdepth 1 -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./application/io/encoders -maxdepth 1 -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./application/io/leds -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell $(FIND) ../modules/sysex/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
         SOURCES += $(shell $(FIND) ../modules/midi/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
         SOURCES += $(shell $(FIND) ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
 
-        #if a file named $(BOARD_DIR).cpp exists in ./application/interface/digital/output/leds/startup directory
+        #if a file named $(BOARD_DIR).cpp exists in ./application/io/leds/startup directory
         #add it to the sources
-        ifneq (,$(wildcard ./application/interface/digital/output/leds/startup/$(BOARD_DIR).cpp))
-            SOURCES += ./application/interface/digital/output/leds/startup/$(BOARD_DIR).cpp
+        ifneq (,$(wildcard ./application/io/leds/startup/$(BOARD_DIR).cpp))
+            SOURCES += ./application/io/leds/startup/$(BOARD_DIR).cpp
         endif
 
         ifneq ($(shell cat board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(BOARD_DIR)/Hardware.h | grep DISPLAY_SUPPORTED), )
-            SOURCES += $(shell $(FIND) ./application/interface/display -maxdepth 1 -type f -name "*.cpp")
-            SOURCES += $(shell $(FIND) ./application/interface/display/U8X8 -maxdepth 1 -type f -name "*.cpp")
-            SOURCES += $(shell $(FIND) ./application/interface/display/strings -maxdepth 1 -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./application/io/display -type f -name "*.cpp")
 
             #u8x8 sources
             SOURCES += \
@@ -154,7 +154,7 @@ else
         endif
 
         ifneq ($(shell cat board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(BOARD_DIR)/Hardware.h | grep TOUCHSCREEN_SUPPORTED), )
-            SOURCES += $(shell $(FIND) ./application/interface/display/touch -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./application/io/touchscreen -type f -name "*.cpp")
         endif
     endif
 endif
