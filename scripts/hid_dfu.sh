@@ -2,7 +2,7 @@
 
 run_dir="OpenDeck"
 
-if [[ $(basename "$(pwd)") != "$run_dir" ]]
+if [[ $(basename "$(pwd)") != "$run_dir"* ]]
 then
     echo This script must be run from $run_dir directory!
     exit 1
