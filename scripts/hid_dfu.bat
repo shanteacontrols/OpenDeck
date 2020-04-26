@@ -12,17 +12,17 @@ echo 6 - Teensy++ 2.0
 set /p board=""
 
 IF "%board%"=="1" (
-    ..\bin\dfu\hid_bootloader_loader_win.exe atmega32u4 ..\bin\compiled\fw\opendeck.hex
+    ..\bin\dfu\hid_bootloader_loader_win.exe atmega32u4 ..\bin\compiled\fw\avr\atmega32u4\opendeck.hex
 ) ELSE IF "%board%"=="2" (
-    ..\bin\dfu\hid_bootloader_loader_win.exe atmega2560 ..\bin\compiled\fw\mega2560.hex
+    ..\bin\dfu\hid_bootloader_loader_win.exe atmega2560 ..\bin\compiled\fw\avr\atmega2560\mega2560.hex
 ) ELSE IF "%board%"=="3" (
-    ..\bin\dfu\hid_bootloader_loader_win.exe atmega328p ..\bin\compiled\fw\uno.hex
+    ..\bin\dfu\hid_bootloader_loader_win.exe atmega328p ..\bin\compiled\fw\avr\atmega328p\uno.hex
 ) ELSE IF "%board%"=="4" (
-    ..\bin\dfu\hid_bootloader_loader_win.exe atmega32u4 ..\bin\compiled\fw\leonardo.hex
+    ..\bin\dfu\hid_bootloader_loader_win.exe atmega32u4 ..\bin\compiled\fw\avr\atmega32u4\leonardo.hex
 ) ELSE IF "%board%"=="5" (
-    ..\bin\dfu\hid_bootloader_loader_win.exe atmega32u4 ..\bin\compiled\fw\promicro.hex
+    ..\bin\dfu\hid_bootloader_loader_win.exe atmega32u4 ..\bin\compiled\fw\avr\atmega32u4\promicro.hex
 ) ELSE IF "%board%"=="6" (
-    ..\bin\dfu\hid_bootloader_loader_win.exe at90usb1286 ..\bin\compiled\fw\teensy2pp.hex
+    ..\bin\dfu\hid_bootloader_loader_win.exe at90usb1286 ..\bin\compiled\fw\avr\at90usb1286\teensy2pp.hex
 ) ELSE (
     echo Incorrect board number selected.
 )
