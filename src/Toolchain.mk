@@ -11,17 +11,6 @@ endif
 #avoid find errors
 FIND := $(FIND) 2>/dev/null
 
-#use windows binary on wsl since HID access isn't possible in wsl
-ifeq ($(findstring Microsoft,$(shell uname -r)), Microsoft)
-    DFU_BIN := cmd.exe /c "..\bin\dfu\hid_bootloader_loader_win.exe"
-else ifeq ($(shell uname), Linux)
-    DFU_BIN := ../bin/dfu/hid_bootloader_loader_linux
-else ifeq ($(shell uname), Darwin)
-    DFU_BIN := ../bin/dfu/hid_bootloader_loader_mac
-else
-    $(error Unsupported platform)
-endif
-
 C_COMPILER_AVR := avr-gcc
 CPP_COMPILER_AVR := avr-g++
 FLASH_BIN_AVR := avrdude
@@ -36,7 +25,6 @@ undefine override REQ_PACKAGES
 REQ_PACKAGES := \
 git \
 $(FIND) \
-$(DFU_BIN) \
 jq \
 srec_cat \
 $(C_COMPILER_AVR) \

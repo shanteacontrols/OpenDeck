@@ -19,12 +19,7 @@ limitations under the License.
 #pragma once
 
 #include "board/common/usb/Arch.h"
-
-#ifdef FW_APP
 #include "midi/Descriptors.h"
-#elif defined FW_BOOT
-#include "hid/Descriptors.h"
-#endif
 
 #ifdef __cplusplus
 extern "C"
@@ -39,11 +34,6 @@ extern "C"
 
 #ifdef UID_BITS
     const USB_Descriptor_UID_String_t* USBgetSerialIDString(uint16_t* size, uint8_t uid[]);
-#endif
-
-#ifdef FW_BOOT
-    const USB_Descriptor_HIDReport_Datatype_t* USBgetHIDreport(uint16_t* size);
-    const USB_HID_Descriptor_HID_t*            USBgetHIDdescriptor(uint16_t* size);
 #endif
 
 #ifdef __cplusplus

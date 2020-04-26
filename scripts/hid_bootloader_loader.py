@@ -21,6 +21,16 @@
     IntelHex (https://pypi.python.org/pypi/IntelHex) libraries.
 """
 
+"""
+
+This is a modified HID bootloader script from LUFA repository. Changes from original script are:
+
+* VID/PID numbers are changed
+* Added support for Arduino Mega and Uno
+
+Igor Petrovic, 2020
+
+"""
 import sys
 import hid
 from intelhex import IntelHex

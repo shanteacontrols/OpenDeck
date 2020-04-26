@@ -258,15 +258,10 @@ namespace Board
 
     namespace bootloader
     {
-        ///
-        /// \brief Handler called upon receiving bootloader packet.
-        ///
-        void packetHandler(uint32_t data) __attribute__((weak));
-
-        void checkPackets();
-        void erasePage(uint32_t address);
-        void fillPage(uint32_t address, uint16_t data);
-        void writePage(uint32_t address);
-        void applyFw();
+        size_t pageSize(size_t index);
+        void   erasePage(uint32_t address);
+        void   fillPage(uint32_t address, uint16_t data);
+        void   writePage(uint32_t address);
+        void   applyFw();
     }    // namespace bootloader
 };       // namespace Board

@@ -19,6 +19,7 @@ limitations under the License.
 #pragma once
 
 #include <inttypes.h>
+#include <stdlib.h>
 #include "IBTLDRWriter.h"
 
 namespace Bootloader
@@ -26,23 +27,34 @@ namespace Bootloader
     class Updater
     {
         public:
-        Updater(IBTLDRWriter& writer, bool dwordAddress, const uint32_t pageSize, const uint32_t updateCompletePage)
+        Updater(IBTLDRWriter& writer, const uint16_t startValue)
             : writer(writer)
-            , addressBytes(dwordAddress ? 4 : 2)
-            , pageSize(pageSize)
-            , updateCompletePage(dwordAddress ? updateCompletePage : updateCompletePage & 0xFFFF)
+            , startValue(startValue)
         {}
 
-        void feed(uint16_t data);
+        void feed(uint8_t data);
         void reset();
 
         private:
-        uint8_t        pageBytesReceived = 0;
-        uint32_t       currentPage       = 0;
-        uint32_t       pageWord          = 0;
+        enum class receiveStage_t : uint8_t
+        {
+            start,
+            fwMetadata,
+            fwChunk
+        };
+
+        bool processStart(uint8_t data);
+        bool processFwMetadata(uint8_t data);
+        bool processFwChunk(uint8_t data);
+
+        receiveStage_t currentStage      = receiveStage_t::start;
+        size_t         currentPage       = 0;
+        uint16_t       receivedWord      = 0;
+        size_t         pageBytesReceived = 0;
+        uint32_t       fwBytesReceived   = 0;
+        uint32_t       fwSize            = 0;
+        uint8_t        byteCountReceived = 0;
         IBTLDRWriter&  writer;
-        const uint8_t  addressBytes;
-        const uint32_t pageSize;
-        const uint32_t updateCompletePage;
+        const uint32_t startValue;
     };
 }    // namespace Bootloader

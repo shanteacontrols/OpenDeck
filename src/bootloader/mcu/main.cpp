@@ -17,13 +17,21 @@ limitations under the License.
 */
 
 #include "Config.h"
-#include "core/src/general/Helpers.h"
 #include "board/Board.h"
 #include "updater/Updater.h"
+#if defined(USB_MIDI_SUPPORTED)
+#include "SysExParser/SysExParser.h"
+#include "application/OpenDeck/sysconfig/Constants.h"
+#endif
 
 class BTLDRWriter : public IBTLDRWriter
 {
     public:
+    size_t pageSize(size_t index) override
+    {
+        return Board::bootloader::pageSize(index);
+    }
+
     void erasePage(uint32_t address) override
     {
         Board::bootloader::erasePage(address);
@@ -47,20 +55,16 @@ class BTLDRWriter : public IBTLDRWriter
 
 namespace
 {
+#ifndef USB_LINK_MCU
     BTLDRWriter         btldrWriter;
-    Bootloader::Updater updater(btldrWriter, false, BTLDR_FLASH_PAGE_SIZE, COMMAND_STARTAPPLICATION);
-}    // namespace
+    Bootloader::Updater updater(btldrWriter, COMMAND_FW_UPDATE_START);
+#endif
 
-namespace Board
-{
-    namespace bootloader
-    {
-        void packetHandler(uint32_t data)
-        {
-            updater.feed(data);
-        }
-    }    // namespace bootloader
-}    // namespace Board
+#if defined(USB_MIDI_SUPPORTED)
+    MIDI::USBMIDIpacket_t usbMIDIpacket;
+    SysExParser           sysExParser;
+#endif
+}    // namespace
 
 int main()
 {
@@ -68,6 +72,38 @@ int main()
 
     while (1)
     {
-        Board::bootloader::checkPackets();
+#ifndef USB_MIDI_SUPPORTED
+        //read data from uart
+        uint8_t data = 0;
+
+        if (Board::UART::read(UART_USB_LINK_CHANNEL, data))
+        {
+            updater.feed(data);
+        }
+#else
+        if (Board::USB::readMIDI(usbMIDIpacket))
+        {
+            if (sysExParser.isValidMessage(usbMIDIpacket))
+            {
+                size_t  dataSize = sysExParser.dataBytes();
+                uint8_t data     = 0;
+
+                if (dataSize)
+                {
+                    for (size_t i = 0; i < dataSize; i++)
+                    {
+                        if (sysExParser.value(i, data))
+                        {
+#ifndef USB_LINK_MCU
+                            updater.feed(data);
+#else
+                            Board::UART::write(UART_USB_LINK_CHANNEL, data);
+#endif
+                        }
+                    }
+                }
+            }
+        }
+#endif
     }
 }

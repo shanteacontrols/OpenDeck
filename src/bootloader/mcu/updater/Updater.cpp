@@ -20,48 +20,129 @@ limitations under the License.
 
 using namespace Bootloader;
 
-void Updater::feed(uint16_t data)
+void Updater::feed(uint8_t data)
 {
-    if (pageBytesReceived < addressBytes)
+    //lower byte first, higher byte second
+
+    switch (currentStage)
     {
-        if (!pageBytesReceived)
-            currentPage = data;
-        else
-            currentPage |= ((uint32_t)data << 16);
+    case receiveStage_t::start:
+    {
+        if (processStart(data))
+            currentStage = receiveStage_t::fwMetadata;
+    }
+    break;
 
-        pageBytesReceived += 2;
+    case receiveStage_t::fwMetadata:
+    {
+        if (processFwMetadata(data))
+            currentStage = receiveStage_t::fwChunk;
+    }
+    break;
 
-        if (pageBytesReceived == addressBytes)
-        {
-            pageWord = 0;
+    case receiveStage_t::fwChunk:
+    {
+        if (processFwChunk(data))
+            reset();
+    }
+    break;
 
-            if (currentPage == updateCompletePage)
-            {
-                pageBytesReceived = 0;
-                currentPage       = 0;
-                writer.apply();
-                return;
-            }
+    default:
+        break;
+    }
+}
 
-            writer.erasePage(currentPage);
-        }
+bool Updater::processStart(uint8_t data)
+{
+    //first two received bytes must match the startValue
+
+    if (!byteCountReceived)
+    {
+        if ((startValue & 0xFF) == data)
+            byteCountReceived++;
     }
     else
     {
-        writer.fillPage(currentPage + (pageWord << 1), data);
-
-        if (++pageWord == (pageSize / 2))
+        if ((startValue >> 8 & 0xFF) != data)
         {
-            pageBytesReceived = 0;
-            pageWord          = 0;
-            writer.writePage(currentPage);
+            byteCountReceived = 0;
+            return false;
         }
+
+        byteCountReceived = 0;
+        return true;
     }
+
+    return false;
+}
+
+bool Updater::processFwMetadata(uint8_t data)
+{
+    //metadata consists of 4 bytes of total fw length
+
+    fwSize <<= (8 * byteCountReceived);
+    fwSize |= data;
+
+    if (byteCountReceived == 3)
+    {
+        byteCountReceived = 0;
+        return true;
+    }
+
+    byteCountReceived++;
+    return false;
+}
+
+bool Updater::processFwChunk(uint8_t data)
+{
+    if (!byteCountReceived)
+    {
+        receivedWord = data;
+        byteCountReceived++;
+        return false;
+    }
+    else
+    {
+        receivedWord      = (receivedWord << 8) | static_cast<uint16_t>(data);
+        byteCountReceived = 0;
+    }
+
+    size_t currentPageSize = writer.pageSize(currentPage);
+
+    if (!(pageBytesReceived % currentPageSize))
+        writer.erasePage(currentPage);
+
+    //we are operating with words (two bytes)
+    pageBytesReceived += 2;
+    fwBytesReceived += pageBytesReceived;
+
+    if (pageBytesReceived == currentPageSize)
+    {
+        pageBytesReceived = 0;
+        writer.writePage(currentPage);
+        currentPage++;
+    }
+    else
+    {
+        writer.fillPage(fwBytesReceived, receivedWord);
+    }
+
+    if (fwBytesReceived == fwSize)
+    {
+        writer.apply();
+        return true;
+    }
+
+    return false;
 }
 
 void Updater::reset()
 {
-    pageBytesReceived = 0;
+    currentStage      = receiveStage_t::start;
     currentPage       = 0;
-    pageWord          = 0;
+    receivedWord      = 0;
+    pageBytesReceived = 0;
+    fwBytesReceived   = 0;
+    fwSize            = 0;
+    byteCountReceived = 0;
 }

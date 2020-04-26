@@ -23,8 +23,9 @@ limitations under the License.
 class IBTLDRWriter
 {
     public:
-    virtual void erasePage(uint32_t address)               = 0;
-    virtual void fillPage(uint32_t address, uint16_t data) = 0;
-    virtual void writePage(uint32_t address)               = 0;
-    virtual void apply()                                   = 0;
+    virtual size_t pageSize(size_t index)                    = 0;
+    virtual void   erasePage(uint32_t address)               = 0;
+    virtual void   fillPage(uint32_t address, uint16_t data) = 0;
+    virtual void   writePage(uint32_t address)               = 0;
+    virtual void   apply()                                   = 0;
 };

@@ -19,6 +19,11 @@ limitations under the License.
 #pragma once
 
 ///
-/// \brief Bootloader special address to start the user application.
+/// \brief Word indicating that the firmware update process should start.
 ///
-#define COMMAND_STARTAPPLICATION 0xFFFFFFFF
+#define COMMAND_FW_UPDATE_START 0x5555
+
+///
+/// \brief Byte index in SysEx message on which firmware data starts.
+///
+#define SYSEX_FW_DATA_START_BYTE 4

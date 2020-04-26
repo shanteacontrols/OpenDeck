@@ -201,10 +201,6 @@ else
 	$(TARGET).elf
 endif
 
-#firmware update with bootloader
-flashboot:
-	$(DFU_BIN) $(MCU) $(TARGET).hex
-
 format:
 	@echo Checking code formatting...
 	@$(FIND) . -regex '.*\.\(cpp\|hpp\|h\|cc\|cxx\)' \
