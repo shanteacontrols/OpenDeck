@@ -1,7 +1,7 @@
 include Toolchain.mk
 
 BUILD_DIR_BASE := ./build
-TARGETNAME := opendeck
+TARGETNAME := mega2560
 
 ifneq (,$(wildcard $(BUILD_DIR_BASE)/TARGET))
     TARGETNAME := $(shell cat $(BUILD_DIR_BASE)/TARGET)

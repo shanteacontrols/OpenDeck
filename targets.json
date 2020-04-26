@@ -1,12 +1,6 @@
 {
     "targets": [
         {
-            "name": "opendeck",
-            "bootloader": true,
-            "release": true,
-            "test": true
-        },
-        {
             "name": "8u2",
             "bootloader": false,
             "release": false,

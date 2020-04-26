@@ -50,10 +50,9 @@
         {
             "id": "target",
             "type": "pickString",
-            "default": "opendeck",
+            "default": "mega2560",
             "description": "Select target for which to build:",
             "options": [
-                "opendeck",
                 "discovery",
                 "leonardo",
                 "mega2560",

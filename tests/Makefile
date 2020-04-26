@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := test
 
-TARGETNAME := opendeck
+TARGETNAME := mega2560
 BUILD_DIR_BASE := ./build
 BUILD_DIR := $(BUILD_DIR_BASE)/$(TARGETNAME)
 GEN_DIR := test_run
