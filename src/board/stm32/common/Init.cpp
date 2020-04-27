@@ -28,9 +28,6 @@ namespace Board
         //Reset of all peripherals, Initializes the Flash interface and the Systick
         HAL_Init();
 
-        __HAL_RCC_SYSCFG_CLK_ENABLE();
-        __HAL_RCC_PWR_CLK_ENABLE();
-
         detail::setup::clocks();
         detail::setup::io();
 
