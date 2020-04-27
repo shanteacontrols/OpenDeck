@@ -95,3 +95,13 @@ limitations under the License.
 /// \brief Specifies resolution of the ADC used on board.
 ///
 #define ADC_12_BIT
+
+///
+/// \brief Indicates that the board supports touchscreen interface.
+///
+#define TOUCHSCREEN_SUPPORTED
+
+///
+/// \brief Defines UART channel used for touchscreen.
+///
+#define UART_TOUCHSCREEN_CHANNEL 0
