@@ -138,7 +138,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     }
 }
 
-void HAL_UART_MspInit(UART_HandleTypeDef* huart)
+extern "C" void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 {
     uint8_t channel = 0;
 
@@ -156,7 +156,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     }
 }
 
-void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
+extern "C" void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 {
     uint8_t channel = 0;
 
