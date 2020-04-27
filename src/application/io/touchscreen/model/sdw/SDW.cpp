@@ -33,11 +33,13 @@ bool SDW::init()
 /// \brief Switches to requested page on display
 /// @param [in] pageID  Index of page to display.
 ///
-void SDW::setScreen(uint8_t screenID)
+bool SDW::setScreen(uint8_t screenID)
 {
     sendMessage(PICTURE_DISPLAY, messageByteType_t::start);
     sendMessage(HIGH_BYTE(screenID), messageByteType_t::content);
     sendMessage(LOW_BYTE(screenID), messageByteType_t::end);
+
+    return true;
 }
 
 ///
@@ -47,50 +49,40 @@ void SDW::setScreen(uint8_t screenID)
 ///
 void SDW::sendMessage(uint8_t value, messageByteType_t messageByteType)
 {
-    uint8_t data[10];
-    size_t  txSize = 0;
-
-    auto append = [&](uint8_t value) {
-        data[txSize] = value;
-        txSize++;
-    };
-
     switch (messageByteType)
     {
     case messageByteType_t::start:
         //write start byte before value
-        append(START_BYTE);
-        append(value);
+        hwa.write(START_BYTE);
+        hwa.write(value);
         break;
 
     case messageByteType_t::content:
         //just write value
-        append(value);
+        hwa.write(value);
         return;
 
     case messageByteType_t::singleByte:
         //start byte, value, end bytes
-        append(START_BYTE);
-        append(value);
+        hwa.write(START_BYTE);
+        hwa.write(value);
 
         for (int i = 0; i < END_CODES; i++)
-            append(endCode[i]);
+            hwa.write(endCode[i]);
         break;
 
     case messageByteType_t::end:
         //value first
-        append(value);
+        hwa.write(value);
 
         //send message end bytes
         for (int i = 0; i < END_CODES; i++)
-            append(endCode[i]);
+            hwa.write(endCode[i]);
         break;
 
     default:
         break;
     }
-
-    hwa.write(data, txSize);
 }
 
 ///
@@ -99,10 +91,9 @@ void SDW::sendMessage(uint8_t value, messageByteType_t messageByteType)
 ///
 bool SDW::update(uint8_t& buttonID, bool& state)
 {
-    uint8_t data   = 0;
-    size_t  rxSize = 0;
+    uint8_t data = 0;
 
-    if (!hwa.read(&data, rxSize))
+    if (!hwa.read(data))
         return false;
 
     bool parse = false;

@@ -173,27 +173,14 @@ class SDWHWA : public IO::Touchscreen::Model::HWA
         return true;
     }
 
-    bool write(uint8_t* buffer, size_t size)
+    bool write(uint8_t data)
     {
-        for (size_t i = 0; i < size; i++)
-        {
-            if (!Board::UART::write(UART_TOUCHSCREEN_CHANNEL, buffer[i]))
-                return false;
-        }
-
-        return true;
+        return Board::UART::write(UART_TOUCHSCREEN_CHANNEL, data);
     }
 
-    bool read(uint8_t* buffer, size_t& size) override
+    bool read(uint8_t& data) override
     {
-        uint8_t data;
-
-        if (!Board::UART::read(UART_TOUCHSCREEN_CHANNEL, data))
-            return false;
-
-        size      = 1;
-        buffer[0] = data;
-        return true;
+        return Board::UART::read(UART_TOUCHSCREEN_CHANNEL, data);
     }
 } sdwHWA;
 
@@ -209,31 +196,18 @@ class NextionHWA : public IO::Touchscreen::Model::HWA
 
     bool init() override
     {
-        Board::UART::init(UART_TOUCHSCREEN_CHANNEL, 38400);
+        Board::UART::init(UART_TOUCHSCREEN_CHANNEL, 230400);
         return true;
     }
 
-    bool write(uint8_t* buffer, size_t size)
+    bool write(uint8_t data)
     {
-        for (size_t i = 0; i < size; i++)
-        {
-            if (!Board::UART::write(UART_TOUCHSCREEN_CHANNEL, buffer[i]))
-                return false;
-        }
-
-        return true;
+        return Board::UART::write(UART_TOUCHSCREEN_CHANNEL, data);
     }
 
-    bool read(uint8_t* buffer, size_t& size) override
+    bool read(uint8_t& data) override
     {
-        uint8_t data;
-
-        if (!Board::UART::read(UART_TOUCHSCREEN_CHANNEL, data))
-            return false;
-
-        size      = 1;
-        buffer[0] = data;
-        return true;
+        return Board::UART::read(UART_TOUCHSCREEN_CHANNEL, data);
     }
 } nextionHWA;
 
@@ -310,10 +284,8 @@ void OpenDeck::init()
 #endif
 
 #ifdef TOUCHSCREEN_SUPPORTED
-#ifdef OD_BOARD_BERGAMOT
     touchscreen.init();
     touchscreen.setScreen(1);
-#endif
 #endif
 
     cinfo.registerHandler([](Database::block_t dbBlock, SysExConf::sysExParameter_t componentID) {

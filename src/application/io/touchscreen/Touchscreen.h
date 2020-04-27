@@ -38,13 +38,13 @@ namespace IO
             class HWA
             {
                 public:
-                virtual bool init()                              = 0;
-                virtual bool write(uint8_t* buffer, size_t size) = 0;
-                virtual bool read(uint8_t* buffer, size_t& size);
+                virtual bool init()              = 0;
+                virtual bool write(uint8_t data) = 0;
+                virtual bool read(uint8_t& data) = 0;
             };
 
             virtual bool init()                                    = 0;
-            virtual void setScreen(uint8_t screenID)               = 0;
+            virtual bool setScreen(uint8_t screenID)               = 0;
             virtual bool update(uint8_t& buttonID, bool& state)    = 0;
             virtual void setButtonState(uint8_t index, bool state) = 0;
         };
