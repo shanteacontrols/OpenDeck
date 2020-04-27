@@ -88,7 +88,11 @@ SysConfig::result_t SysConfig::onSetGlobal(Section::global_t section, size_t ind
 
         case SysConfig::midiFeature_t::standardNoteOff:
         {
-            newValue ? midi.setNoteOffMode(MIDI::noteOffType_t::standardNoteOff) : midi.setNoteOffMode(MIDI::noteOffType_t::noteOnZeroVel);
+            if (newValue)
+                midi.setNoteOffMode(MIDI::noteOffType_t::standardNoteOff);
+            else
+                midi.setNoteOffMode(MIDI::noteOffType_t::noteOnZeroVel);
+
             result = SysConfig::result_t::ok;
         }
         break;
@@ -98,7 +102,11 @@ SysConfig::result_t SysConfig::onSetGlobal(Section::global_t section, size_t ind
 #ifndef DIN_MIDI_SUPPORTED
             result = SysConfig::result_t::notSupported;
 #else
-            newValue ? setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true) : Board::UART::deInit(UART_MIDI_CHANNEL);
+            if (newValue)
+                setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true);
+            else
+                Board::UART::deInit(UART_MIDI_CHANNEL);
+
             result = SysConfig::result_t::ok;
 #endif
         }
