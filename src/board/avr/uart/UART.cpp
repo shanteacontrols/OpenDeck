@@ -70,8 +70,11 @@ namespace Board
                     }
                 }
 
-                void deInit(uint8_t channel)
+                bool deInit(uint8_t channel)
                 {
+                    if (channel >= UART_INTERFACES)
+                        return false;
+
                     ATOMIC_SECTION
                     {
                         switch (channel)
@@ -96,11 +99,17 @@ namespace Board
                             break;
                         }
                     }
+
+                    return true;
                 }
 
-                void init(uint8_t channel, uint32_t baudRate)
+                bool init(uint8_t channel, uint32_t baudRate)
                 {
-                    deInit(channel);
+                    if (channel >= UART_INTERFACES)
+                        return false;
+
+                    if (!deInit(channel))
+                        return false;
 
                     int32_t baud_count = ((F_CPU / 8) + (baudRate / 2)) / baudRate;
 
@@ -164,6 +173,8 @@ namespace Board
                     default:
                         break;
                     }
+
+                    return true;
                 }
 
                 void directWrite(uint8_t channel, uint8_t data)

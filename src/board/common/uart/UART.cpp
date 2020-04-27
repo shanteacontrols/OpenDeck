@@ -79,28 +79,35 @@ namespace Board
             loopbackEnabled[channel] = state;
         }
 
-        void deInit(uint8_t channel)
+        bool deInit(uint8_t channel)
         {
             if (channel >= UART_INTERFACES)
-                return;
+                return false;
 
             setLoopbackState(channel, false);
 
-            Board::detail::UART::ll::deInit(channel);
+            if (Board::detail::UART::ll::deInit(channel))
+            {
+                rxBuffer[channel].reset();
+                txBuffer[channel].reset();
 
-            rxBuffer[channel].reset();
-            txBuffer[channel].reset();
+                txDone[channel] = true;
 
-            txDone[channel] = true;
+                return true;
+            }
+
+            return false;
         }
 
-        void init(uint8_t channel, uint32_t baudRate)
+        bool init(uint8_t channel, uint32_t baudRate)
         {
             if (channel >= UART_INTERFACES)
-                return;
+                return false;
 
-            deInit(channel);
-            Board::detail::UART::ll::init(channel, baudRate);
+            if (deInit(channel))
+                return Board::detail::UART::ll::init(channel, baudRate);
+
+            return false;
         }
 
         bool read(uint8_t channel, uint8_t& data)

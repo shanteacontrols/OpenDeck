@@ -122,13 +122,13 @@ namespace Board
                 /// @param [in] channel     UART channel on MCU.
                 /// @param [in] baudRate    UART speed (baudrate).
                 ///
-                void init(uint8_t channel, uint32_t baudRate);
+                bool init(uint8_t channel, uint32_t baudRate);
 
                 ///
                 /// \brief Performs low-level deinitialization of the specified UART channel.
                 /// @param [in] channel UART channel on MCU.
                 ///
-                void deInit(uint8_t channel);
+                bool deInit(uint8_t channel);
 
                 ///
                 /// \brief Performs direct writing of data to outgoing UART register.

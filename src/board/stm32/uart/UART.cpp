@@ -52,20 +52,21 @@ namespace Board
                     __HAL_UART_DISABLE_IT(&uartHandler[channel], UART_IT_TXE);
                 }
 
-                void deInit(uint8_t channel)
+                bool deInit(uint8_t channel)
                 {
                     if (channel >= UART_INTERFACES)
-                        return;
+                        return false;
 
-                    HAL_UART_DeInit(&uartHandler[channel]);
+                    return HAL_UART_DeInit(&uartHandler[channel]) == HAL_OK;
                 }
 
-                void init(uint8_t channel, uint32_t baudRate)
+                bool init(uint8_t channel, uint32_t baudRate)
                 {
                     if (channel >= UART_INTERFACES)
-                        return;
+                        return false;
 
-                    deInit(channel);
+                    if (!deInit(channel))
+                        return false;
 
                     uartHandler[channel].Instance          = static_cast<USART_TypeDef*>(Board::detail::map::uartDescriptor(channel)->interface());
                     uartHandler[channel].Init.BaudRate     = baudRate;
@@ -76,13 +77,16 @@ namespace Board
                     uartHandler[channel].Init.HwFlowCtl    = UART_HWCONTROL_NONE;
                     uartHandler[channel].Init.OverSampling = UART_OVERSAMPLING_16;
 
-                    HAL_UART_Init(&uartHandler[channel]);
+                    if (HAL_UART_Init(&uartHandler[channel]) != HAL_OK)
+                        return false;
 
                     //enable transmission done interrupt
                     __HAL_UART_ENABLE_IT(&uartHandler[channel], UART_IT_TC);
 
                     //enable data not empty interrupt
                     __HAL_UART_ENABLE_IT(&uartHandler[channel], UART_IT_RXNE);
+
+                    return true;
                 }
 
                 void directWrite(uint8_t channel, uint8_t data)
