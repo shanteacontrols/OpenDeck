@@ -139,3 +139,11 @@ bool SDW::update(uint8_t& buttonID, bool& state)
 
     return false;
 }
+
+void SDW::setButtonState(uint8_t index, bool state)
+{
+    IO::Touchscreen::icon_t icon;
+
+    if (!IO::Touchscreen::getIcon(index, icon))
+        return;
+}
