@@ -21,6 +21,7 @@ class Nextion : public IO::Touchscreen::Model
     static const size_t                   bufferSize = 100;
     char                                  commandBuffer[bufferSize];
     core::RingBuffer<uint8_t, bufferSize> rxBuffer;
+    size_t                                endCounter = 0;
 
     bool getIcon(size_t index, IO::Touchscreen::icon_t& icon);
     bool writeCommand(const char* line, ...);

@@ -21,6 +21,56 @@ bool Nextion::update(uint8_t& buttonID, bool& state)
     if (hwa.read(data))
         rxBuffer.insert(data);
 
+    if (data == 0xFF)
+    {
+        endCounter++;
+    }
+    else
+    {
+        if (endCounter)
+            endCounter = 0;
+    }
+
+    if (endCounter == 3)
+    {
+        //new message received
+        endCounter = 0;
+
+        //handle only button messages for now
+        bool messageStart = true;
+
+        while (rxBuffer.count())
+        {
+            rxBuffer.remove(data);
+
+            if ((data == 0x65) && messageStart)
+            {
+                if (rxBuffer.count() == 6)
+                {
+                    //first data is page, don't care about that
+                    rxBuffer.remove(data);
+
+                    //next byte is component id
+                    rxBuffer.remove(buttonID);
+
+                    //1 - pressed, 0 - released
+                    rxBuffer.remove(data);
+
+                    state = data ? 1 : 0;
+
+                    rxBuffer.reset();
+                    return true;
+                }
+            }
+            else
+            {
+                rxBuffer.reset();
+            }
+
+            messageStart = false;
+        }
+    }
+
     return false;
 }
 
@@ -30,6 +80,8 @@ void Nextion::setButtonState(uint8_t index, bool state)
 
     if (!IO::Touchscreen::getIcon(index, icon))
         return;
+
+    writeCommand("picq %u,%u,%u,%u,%u", icon.xPos, icon.yPos, icon.width, icon.height, state ? 1 : 0);
 }
 
 bool Nextion::writeCommand(const char* line, ...)
@@ -55,8 +107,11 @@ bool Nextion::writeCommand(const char* line, ...)
 
 bool Nextion::endCommand()
 {
-    if (!hwa.write(0xFF))
-        return false;
+    for (int i = 0; i < 3; i++)
+    {
+        if (!hwa.write(0xFF))
+            return false;
+    }
 
     return true;
 }
