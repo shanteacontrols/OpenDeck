@@ -26,15 +26,10 @@ bool Nextion::update(uint8_t& buttonID, bool& state)
 
 void Nextion::setButtonState(uint8_t index, bool state)
 {
-    icon_t icon;
+    IO::Touchscreen::icon_t icon;
 
-    if (!getIcon(index, icon))
+    if (!IO::Touchscreen::getIcon(index, icon))
         return;
-}
-
-__attribute__((weak)) bool Nextion::getIcon(size_t index, icon_t& icon)
-{
-    return false;
 }
 
 bool Nextion::writeCommand(const char* line, ...)

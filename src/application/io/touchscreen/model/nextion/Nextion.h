@@ -7,16 +7,6 @@
 class Nextion : public IO::Touchscreen::Model
 {
     public:
-    typedef struct
-    {
-        uint16_t xPos;
-        uint16_t yPos;
-        uint16_t width;
-        uint16_t height;
-        uint16_t onPage;
-        uint16_t offPage;
-    } icon_t;
-
     Nextion(IO::Touchscreen::Model::HWA& hwa)
         : hwa(hwa)
     {}
@@ -32,7 +22,7 @@ class Nextion : public IO::Touchscreen::Model
     char                                  commandBuffer[bufferSize];
     core::RingBuffer<uint8_t, bufferSize> rxBuffer;
 
-    bool getIcon(size_t index, icon_t& icon);
+    bool getIcon(size_t index, IO::Touchscreen::icon_t& icon);
     bool writeCommand(const char* line, ...);
     bool endCommand();
 };

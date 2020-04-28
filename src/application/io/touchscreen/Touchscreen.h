@@ -49,20 +49,30 @@ namespace IO
             virtual void setButtonState(uint8_t index, bool state) = 0;
         };
 
+        typedef struct
+        {
+            uint16_t xPos;
+            uint16_t yPos;
+            uint16_t width;
+            uint16_t height;
+            uint16_t onPage;
+            uint16_t offPage;
+        } icon_t;
+
         Touchscreen(Model& model)
             : model(model)
         {}
 
-        bool    init();
-        void    update();
-        void    setScreen(uint8_t screenID);
-        uint8_t activeScreen();
-        void    setButtonHandler(void (*fptr)(uint8_t index, bool state));
-        void    setButtonState(uint8_t index, bool state);
+        bool        init();
+        void        update();
+        void        setScreen(uint8_t screenID);
+        uint8_t     activeScreen();
+        void        setButtonHandler(void (*fptr)(uint8_t index, bool state));
+        void        setButtonState(uint8_t index, bool state);
+        static bool getIcon(size_t index, icon_t& icon);
 
         private:
         Model& model;
-
         void (*buttonHandler)(uint8_t index, bool state) = nullptr;
         uint8_t activeScreenID                           = 0;
         bool    initialized                              = false;

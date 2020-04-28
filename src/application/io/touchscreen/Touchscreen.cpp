@@ -72,3 +72,8 @@ void Touchscreen::setButtonState(uint8_t index, bool state)
 {
     model.setButtonState(index, state);
 }
+
+__attribute__((weak)) bool Touchscreen::getIcon(size_t index, icon_t& icon)
+{
+    return false;
+}

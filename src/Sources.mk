@@ -138,8 +138,8 @@ else
         endif
 
         #same for touchscreen config file
-        ifneq (,$(wildcard ./application/io/touchscreen/model/nextion/coordinates/$(BOARD_DIR).cpp))
-            SOURCES += ./application/io/touchscreen/model/nextion/coordinates/$(BOARD_DIR).cpp
+        ifneq (,$(wildcard ./application/io/touchscreen/coordinates/$(BOARD_DIR).cpp))
+            SOURCES += ./application/io/touchscreen/coordinates/$(BOARD_DIR).cpp
         endif
 
         ifneq ($(shell cat board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(BOARD_DIR)/Hardware.h | grep DISPLAY_SUPPORTED), )
