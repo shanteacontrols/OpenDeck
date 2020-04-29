@@ -300,6 +300,10 @@ void OpenDeck::init()
     touchscreen.setButtonHandler([](size_t index, bool state) {
         buttons.processButton(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + index, state);
     });
+
+    touchscreen.setScreenChangeHandler([](size_t screenID) {
+        leds.refresh();
+    });
 #endif
 
     // on startup, indicate current program for all channels (if any leds have program change assigned as control mode)
