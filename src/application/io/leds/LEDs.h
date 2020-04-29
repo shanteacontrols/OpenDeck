@@ -116,6 +116,7 @@ namespace IO
         void        checkBlinking(bool forceChange = false);
         void        setAllOn();
         void        setAllOff();
+        void        refresh();
         void        setColor(uint8_t ledID, color_t color);
         color_t     getColor(uint8_t ledID);
         void        setBlinkState(uint8_t ledID, blinkSpeed_t value);

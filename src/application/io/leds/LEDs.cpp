@@ -379,6 +379,12 @@ void LEDs::setAllOff()
         resetState(i);
 }
 
+void LEDs::refresh()
+{
+    for (size_t i = 0; i < maxLEDs; i++)
+        hwa.setState(i, LED_ON(ledState[i]));
+}
+
 void LEDs::setColor(uint8_t ledID, color_t color)
 {
     uint8_t rgbIndex = hwa.rgbIndex(ledID);
