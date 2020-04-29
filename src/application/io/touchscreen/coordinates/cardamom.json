@@ -5,7 +5,7 @@
             "ypos": 50,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -15,7 +15,7 @@
             "ypos": 155,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -25,7 +25,7 @@
             "ypos": 260,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -35,7 +35,7 @@
             "ypos": 365,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -45,7 +45,7 @@
             "ypos": 470,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -55,7 +55,7 @@
             "ypos": 207,
             "width": 80,
             "height": 185,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -65,7 +65,7 @@
             "ypos": 50,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -75,7 +75,7 @@
             "ypos": 50,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -85,7 +85,7 @@
             "ypos": 50,
             "width": 160,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -95,7 +95,7 @@
             "ypos": 50,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -105,7 +105,7 @@
             "ypos": 50,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -115,7 +115,7 @@
             "ypos": 207,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -125,7 +125,7 @@
             "ypos": 207,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -135,7 +135,7 @@
             "ypos": 207,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -145,7 +145,7 @@
             "ypos": 207,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -155,7 +155,7 @@
             "ypos": 207,
             "width": 80,
             "height": 185,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -165,7 +165,7 @@
             "ypos": 312,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -175,7 +175,7 @@
             "ypos": 312,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -185,7 +185,7 @@
             "ypos": 312,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -195,7 +195,7 @@
             "ypos": 312,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -205,7 +205,7 @@
             "ypos": 470,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -215,7 +215,7 @@
             "ypos": 470,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -225,7 +225,7 @@
             "ypos": 470,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -235,7 +235,7 @@
             "ypos": 470,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -245,7 +245,7 @@
             "ypos": 470,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -255,7 +255,7 @@
             "ypos": 50,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -265,7 +265,7 @@
             "ypos": 155,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -275,7 +275,7 @@
             "ypos": 260,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -285,7 +285,7 @@
             "ypos": 365,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }
@@ -295,7 +295,7 @@
             "ypos": 470,
             "width": 80,
             "height": 80,
-            "res": {
+            "page": {
                 "on": 0,
                 "off": 1
             }

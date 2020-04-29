@@ -34,8 +34,8 @@ do
     yPos=$(jq '.indicators | .['${i}'] | .ypos' "$JSON_FILE")
     width=$(jq '.indicators | .['${i}'] | .width' "$JSON_FILE")
     height=$(jq '.indicators | .['${i}'] | .height' "$JSON_FILE")
-    onPage=$(jq '.indicators | .['${i}'] | .res | .on' "$JSON_FILE")
-    offPage=$(jq '.indicators | .['${i}'] | .res | .off' "$JSON_FILE")
+    onPage=$(jq '.indicators | .['${i}'] | .page | .on' "$JSON_FILE")
+    offPage=$(jq '.indicators | .['${i}'] | .page | .off' "$JSON_FILE")
 
     {
         printf "        %s\n" "{"
