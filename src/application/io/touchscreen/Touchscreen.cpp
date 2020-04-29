@@ -36,7 +36,11 @@ void Touchscreen::update()
 
     if (model.update(buttonID, state))
     {
-        isScreenChangeButton(buttonID, activeScreenID);
+        if (isScreenChangeButton(buttonID, activeScreenID))
+        {
+            if (screenHandler != nullptr)
+                screenHandler(activeScreenID);
+        }
 
         if (buttonHandler != nullptr)
             (*buttonHandler)(buttonID, state);
@@ -51,6 +55,9 @@ void Touchscreen::setScreen(size_t screenID)
 {
     model.setScreen(screenID);
     activeScreenID = screenID;
+
+    if (screenHandler != nullptr)
+        screenHandler(screenID);
 }
 
 ///
@@ -65,6 +72,11 @@ size_t Touchscreen::activeScreen()
 void Touchscreen::setButtonHandler(void (*fptr)(size_t index, bool state))
 {
     buttonHandler = fptr;
+}
+
+void Touchscreen::setScreenChangeHandler(void (*fptr)(size_t screenID))
+{
+    screenHandler = fptr;
 }
 
 void Touchscreen::setIconState(size_t index, bool state)

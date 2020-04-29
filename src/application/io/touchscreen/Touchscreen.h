@@ -74,12 +74,14 @@ namespace IO
         void   setScreen(size_t screenID);
         size_t activeScreen();
         void   setButtonHandler(void (*fptr)(size_t index, bool state));
+        void   setScreenChangeHandler(void (*fptr)(size_t screenID));
         void   setIconState(size_t index, bool state);
 
         private:
         Model& model;
 
         void (*buttonHandler)(size_t index, bool state) = nullptr;
+        void (*screenHandler)(size_t screenID)          = nullptr;
 
         static bool getIcon(size_t index, icon_t& icon);
         static bool isScreenChangeButton(size_t index, size_t& screenID);
