@@ -10,3 +10,4 @@ Documentation/*
 *.profraw
 **/cubemx/**/*
 !**/cubemx/**/*.ioc
+src/application/io/touchscreen/coordinates/*.cpp
