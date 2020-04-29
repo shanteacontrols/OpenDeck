@@ -36,6 +36,8 @@ void Touchscreen::update()
 
     if (model.update(buttonID, state))
     {
+        isPageButton(buttonID, activeScreenID);
+
         if (buttonHandler != nullptr)
             (*buttonHandler)(buttonID, state);
     }
@@ -82,6 +84,11 @@ void Touchscreen::setIconState(uint8_t index, bool state)
 }
 
 __attribute__((weak)) bool Touchscreen::getIcon(size_t index, icon_t& icon)
+{
+    return false;
+}
+
+__attribute__((weak)) bool Touchscreen::isPageButton(size_t index, uint16_t& page)
 {
     return false;
 }

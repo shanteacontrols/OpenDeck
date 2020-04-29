@@ -17,8 +17,10 @@ then
 fi
 
 declare -i total_indicators
+declare -i total_pageButtons
 
 total_indicators=$(jq '.indicators | length' "$JSON_FILE")
+total_pageButtons=$(jq '.pageButtons | length' "$JSON_FILE")
 
 {
     printf "%s\n\n" "#include \"io/touchscreen/Touchscreen.h\""
@@ -28,14 +30,17 @@ total_indicators=$(jq '.indicators | length' "$JSON_FILE")
     printf "%s\n" "#define PROGMEM"
     printf "%s\n\n" "#endif"
 
-    printf "%s\n\n" "#define TOTAL_ICONS $total_indicators"
+    printf "%s\n" "#define TOTAL_ICONS $total_indicators"
+    printf "%s\n\n" "#define TOTAL_PAGE_BUTTONS $total_pageButtons"
     printf "%s\n" "namespace"
     printf "%s\n" "{"
     printf "%s\n" "#ifdef __AVR__"
     printf "%s\n" "IO::Touchscreen::icon_t ramIcon;"
+    printf "%s\n" "IO::Touchscreen::pageButton_t ramPageButton;"
     printf "%s\n\n" "#endif"
-    printf "    %s\n" "const IO::Touchscreen::icon_t icons[TOTAL_ICONS] PROGMEM = {"
 } > "$OUT_FILE"
+
+printf "    %s\n" "const IO::Touchscreen::icon_t icons[TOTAL_ICONS] PROGMEM = {" >> "$OUT_FILE"
 
 for ((i=0; i<total_indicators; i++))
 do
@@ -59,11 +64,30 @@ do
 done
 
 {
+    printf "%s\n\n" "    };"
+} >> "$OUT_FILE"
+
+printf "    %s\n" "const IO::Touchscreen::pageButton_t pageButtons[TOTAL_PAGE_BUTTONS] PROGMEM = {" >> "$OUT_FILE"
+
+for ((i=0; i<total_pageButtons; i++))
+do
+    buttonIndex=$(jq '.pageButtons | .['${i}'] | .indexTS' "$JSON_FILE")
+    pageIndex=$(jq '.pageButtons | .['${i}'] | .page' "$JSON_FILE")
+
+    {
+        printf "        %s\n" "{"
+        printf "            %s\n" ".indexTS = $buttonIndex,"
+        printf "            %s\n" ".page = $pageIndex,"
+        printf "        %s\n" "},"
+    } >> "$OUT_FILE"
+done
+
+{
     printf "    %s\n" "};"
     printf "%s\n\n" "}"
 } >> "$OUT_FILE"
 
-#now generate icon fetching
+#now generate fetching
 {
     printf "%s\n" "bool IO::Touchscreen::getIcon(size_t index, icon_t& icon)"
     printf "%s\n" "{"
@@ -75,5 +99,29 @@ done
     printf "%s\n" "    icon = icons[index];"
     printf "%s\n\n" "#endif"
     printf "%s\n" "    return true;"
+    printf "%s\n\n" "}"
+} >> "$OUT_FILE"
+
+{
+    printf "%s\n" "bool IO::Touchscreen::isPageButton(size_t index, uint16_t& page)"
+    printf "%s\n" "{"
+    printf "%s\n" "    for (size_t i = 0; i < TOTAL_PAGE_BUTTONS; i++)"
+    printf "%s\n" "    {"
+    printf "%s\n" "#ifdef __AVR__"
+    printf "%s\n" "        memcpy_P(&ramPageButton, &pageButtons[i], sizeof(IO::Touchscreen::pageButton_t));"
+    printf "%s\n" "        if (ramPageButton.indexTS == index)"
+    printf "%s\n" "        {"
+    printf "%s\n" "            page = ramPageButton.page;"
+    printf "%s\n" "            return true;"
+    printf "%s\n" "        }"
+    printf "%s\n" "#else"
+    printf "%s\n" "        if (pageButtons[i].indexTS == index)"
+    printf "%s\n" "        {"
+    printf "%s\n" "            page = pageButtons[i].page;"
+    printf "%s\n" "            return true;"
+    printf "%s\n" "        }"
+    printf "%s\n" "#endif"
+    printf "%s\n\n" "    }"
+    printf "%s\n" "    return false;"
     printf "%s\n\n" "}"
 } >> "$OUT_FILE"

@@ -42,6 +42,12 @@ namespace IO
             uint16_t offPage;
         } icon_t;
 
+        typedef struct
+        {
+            uint16_t indexTS;
+            uint16_t page;
+        } pageButton_t;
+
         class Model
         {
             public:
@@ -73,11 +79,13 @@ namespace IO
         private:
         Model& model;
 
-        static bool getIcon(size_t index, icon_t& icon);
-
         void (*buttonHandler)(uint8_t index, bool state) = nullptr;
-        uint8_t activeScreenID                           = 0;
-        bool    initialized                              = false;
+
+        static bool getIcon(size_t index, icon_t& icon);
+        static bool isPageButton(size_t index, uint16_t& page);
+
+        uint16_t activeScreenID = 0;
+        bool     initialized    = false;
     };
 
     /// @}
