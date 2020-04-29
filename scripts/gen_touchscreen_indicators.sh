@@ -22,10 +22,19 @@ total_indicators=$(jq '.indicators | length' "$JSON_FILE")
 
 {
     printf "%s\n\n" "#include \"io/touchscreen/Touchscreen.h\""
+    printf "%s\n" "#ifdef __AVR__"
+    printf "%s\n" "#include <avr/pgmspace.h>"
+    printf "%s\n" "#else"
+    printf "%s\n" "#define PROGMEM"
+    printf "%s\n\n" "#endif"
+
     printf "%s\n\n" "#define TOTAL_ICONS $total_indicators"
     printf "%s\n" "namespace"
     printf "%s\n" "{"
-    printf "    %s\n" "const IO::Touchscreen::icon_t icons[TOTAL_ICONS] = {"
+    printf "%s\n" "#ifdef __AVR__"
+    printf "%s\n" "IO::Touchscreen::icon_t ramIcon;"
+    printf "%s\n\n" "#endif"
+    printf "    %s\n" "const IO::Touchscreen::icon_t icons[TOTAL_ICONS] PROGMEM = {"
 } > "$OUT_FILE"
 
 for ((i=0; i<total_indicators; i++))
@@ -58,8 +67,13 @@ done
 {
     printf "%s\n" "bool IO::Touchscreen::getIcon(size_t index, icon_t& icon)"
     printf "%s\n" "{"
-    printf "%s\n" "    if (index >= TOTAL_ICONS) return false;"
+    printf "%s\n\n" "    if (index >= TOTAL_ICONS) return false;"
+    printf "%s\n" "#ifdef __AVR__"
+    printf "%s\n" "    memcpy_P(&ramIcon, &icons[index], sizeof(IO::Touchscreen::icon_t));"
+    printf "%s\n" "    icon = ramIcon;"
+    printf "%s\n" "#else"
     printf "%s\n" "    icon = icons[index];"
+    printf "%s\n\n" "#endif"
     printf "%s\n" "    return true;"
     printf "%s\n\n" "}"
 } >> "$OUT_FILE"
