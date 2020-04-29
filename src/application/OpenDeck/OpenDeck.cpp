@@ -316,7 +316,7 @@ void OpenDeck::init()
 #if MAX_NUMBER_OF_LEDS > 0
 #if MAX_TOUCHSCREEN_BUTTONS != 0
         if (index >= MAX_NUMBER_OF_LEDS)
-            touchscreen.setButtonState(MAX_NUMBER_OF_LEDS - index, state);
+            touchscreen.setIconState(MAX_NUMBER_OF_LEDS - index, state);
         else
             Board::io::writeLEDstate(index, state);
 #else
@@ -324,7 +324,7 @@ void OpenDeck::init()
 #endif
 #else
 #ifdef TOUCHSCREEN_SUPPORTED
-        touchscreen.setButtonState(index, state);
+        touchscreen.setIconState(index, state);
 #endif
 #endif
     };

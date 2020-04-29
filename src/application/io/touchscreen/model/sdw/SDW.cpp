@@ -140,10 +140,24 @@ bool SDW::update(uint8_t& buttonID, bool& state)
     return false;
 }
 
-void SDW::setButtonState(uint8_t index, bool state)
+void SDW::setIconState(IO::Touchscreen::icon_t& icon, uint8_t buttonID, bool state)
 {
-    IO::Touchscreen::icon_t icon;
+    uint16_t iconPage = state ? icon.onPage : icon.offPage;
 
-    if (!IO::Touchscreen::getIcon(index, icon))
-        return;
+    sendMessage(PICTURE_CUT, messageByteType_t::start);
+    sendMessage(HIGH_BYTE(iconPage), messageByteType_t::content);
+    sendMessage(LOW_BYTE(iconPage), messageByteType_t::content);
+    sendMessage(HIGH_BYTE(icon.xPos), messageByteType_t::content);
+    sendMessage(LOW_BYTE(icon.xPos), messageByteType_t::content);
+    sendMessage(HIGH_BYTE(icon.yPos), messageByteType_t::content);
+    sendMessage(LOW_BYTE(icon.yPos), messageByteType_t::content);
+    sendMessage(HIGH_BYTE(icon.xPos + icon.width), messageByteType_t::content);
+    sendMessage(LOW_BYTE(icon.xPos + icon.width), messageByteType_t::content);
+    sendMessage(HIGH_BYTE(icon.yPos + icon.height), messageByteType_t::content);
+    sendMessage(LOW_BYTE(icon.yPos + icon.height), messageByteType_t::content);
+    sendMessage(HIGH_BYTE(icon.xPos), messageByteType_t::content);
+    sendMessage(LOW_BYTE(icon.xPos), messageByteType_t::content);
+    sendMessage(HIGH_BYTE(icon.yPos), messageByteType_t::content);
+    sendMessage(LOW_BYTE(icon.yPos), messageByteType_t::content);
+    sendMessage(0, messageByteType_t::end);
 }

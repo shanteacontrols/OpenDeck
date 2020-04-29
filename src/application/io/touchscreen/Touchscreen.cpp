@@ -68,9 +68,17 @@ void Touchscreen::setButtonHandler(void (*fptr)(uint8_t index, bool state))
     buttonHandler = fptr;
 }
 
-void Touchscreen::setButtonState(uint8_t index, bool state)
+void Touchscreen::setIconState(uint8_t index, bool state)
 {
-    model.setButtonState(index, state);
+    icon_t icon;
+
+    if (!getIcon(index, icon))
+        return;
+
+    if ((activeScreenID != icon.onPage) && (activeScreenID != icon.offPage))
+        return;    //don't allow setting icon on wrong screen
+
+    model.setIconState(icon, index, state);
 }
 
 __attribute__((weak)) bool Touchscreen::getIcon(size_t index, icon_t& icon)

@@ -32,6 +32,16 @@ namespace IO
     class Touchscreen
     {
         public:
+        typedef struct
+        {
+            uint16_t xPos;
+            uint16_t yPos;
+            uint16_t width;
+            uint16_t height;
+            uint16_t onPage;
+            uint16_t offPage;
+        } icon_t;
+
         class Model
         {
             public:
@@ -43,36 +53,28 @@ namespace IO
                 virtual bool read(uint8_t& data) = 0;
             };
 
-            virtual bool init()                                    = 0;
-            virtual bool setScreen(uint8_t screenID)               = 0;
-            virtual bool update(uint8_t& buttonID, bool& state)    = 0;
-            virtual void setButtonState(uint8_t index, bool state) = 0;
+            virtual bool init()                                                             = 0;
+            virtual bool setScreen(uint8_t screenID)                                        = 0;
+            virtual bool update(uint8_t& buttonID, bool& state)                             = 0;
+            virtual void setIconState(Touchscreen::icon_t& icon, uint8_t index, bool state) = 0;
         };
-
-        typedef struct
-        {
-            uint16_t xPos;
-            uint16_t yPos;
-            uint16_t width;
-            uint16_t height;
-            uint16_t onPage;
-            uint16_t offPage;
-        } icon_t;
 
         Touchscreen(Model& model)
             : model(model)
         {}
 
-        bool        init();
-        void        update();
-        void        setScreen(uint8_t screenID);
-        uint8_t     activeScreen();
-        void        setButtonHandler(void (*fptr)(uint8_t index, bool state));
-        void        setButtonState(uint8_t index, bool state);
-        static bool getIcon(size_t index, icon_t& icon);
+        bool    init();
+        void    update();
+        void    setScreen(uint8_t screenID);
+        uint8_t activeScreen();
+        void    setButtonHandler(void (*fptr)(uint8_t index, bool state));
+        void    setIconState(uint8_t index, bool state);
 
         private:
         Model& model;
+
+        static bool getIcon(size_t index, icon_t& icon);
+
         void (*buttonHandler)(uint8_t index, bool state) = nullptr;
         uint8_t activeScreenID                           = 0;
         bool    initialized                              = false;

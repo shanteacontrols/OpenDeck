@@ -74,13 +74,8 @@ bool Nextion::update(uint8_t& buttonID, bool& state)
     return false;
 }
 
-void Nextion::setButtonState(uint8_t index, bool state)
+void Nextion::setIconState(IO::Touchscreen::icon_t& icon, uint8_t buttonID, bool state)
 {
-    IO::Touchscreen::icon_t icon;
-
-    if (!IO::Touchscreen::getIcon(index, icon))
-        return;
-
     writeCommand("picq %u,%u,%u,%u,%u", icon.xPos, icon.yPos, icon.width, icon.height, state ? 1 : 0);
 }
 
