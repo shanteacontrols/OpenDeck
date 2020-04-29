@@ -38,15 +38,15 @@ namespace IO
             uint16_t yPos;
             uint16_t width;
             uint16_t height;
-            uint16_t onPage;
-            uint16_t offPage;
+            uint16_t onScreen;
+            uint16_t offScreen;
         } icon_t;
 
         typedef struct
         {
             uint16_t indexTS;
-            uint16_t page;
-        } pageButton_t;
+            uint16_t screen;
+        } screenButton_t;
 
         class Model
         {
@@ -59,33 +59,33 @@ namespace IO
                 virtual bool read(uint8_t& data) = 0;
             };
 
-            virtual bool init()                                                             = 0;
-            virtual bool setScreen(uint8_t screenID)                                        = 0;
-            virtual bool update(uint8_t& buttonID, bool& state)                             = 0;
-            virtual void setIconState(Touchscreen::icon_t& icon, uint8_t index, bool state) = 0;
+            virtual bool init()                                              = 0;
+            virtual bool setScreen(size_t screenID)                          = 0;
+            virtual bool update(size_t& buttonID, bool& state)               = 0;
+            virtual void setIconState(Touchscreen::icon_t& icon, bool state) = 0;
         };
 
         Touchscreen(Model& model)
             : model(model)
         {}
 
-        bool    init();
-        void    update();
-        void    setScreen(uint8_t screenID);
-        uint8_t activeScreen();
-        void    setButtonHandler(void (*fptr)(uint8_t index, bool state));
-        void    setIconState(uint8_t index, bool state);
+        bool   init();
+        void   update();
+        void   setScreen(size_t screenID);
+        size_t activeScreen();
+        void   setButtonHandler(void (*fptr)(size_t index, bool state));
+        void   setIconState(size_t index, bool state);
 
         private:
         Model& model;
 
-        void (*buttonHandler)(uint8_t index, bool state) = nullptr;
+        void (*buttonHandler)(size_t index, bool state) = nullptr;
 
         static bool getIcon(size_t index, icon_t& icon);
-        static bool isPageButton(size_t index, uint16_t& page);
+        static bool isScreenChangeButton(size_t index, size_t& screenID);
 
-        uint16_t activeScreenID = 0;
-        bool     initialized    = false;
+        size_t activeScreenID = 0;
+        bool   initialized    = false;
     };
 
     /// @}

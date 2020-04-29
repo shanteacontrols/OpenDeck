@@ -31,12 +31,12 @@ void Touchscreen::update()
     if (!initialized)
         return;
 
-    uint8_t buttonID = 0;
-    bool    state    = false;
+    size_t buttonID = 0;
+    bool   state    = false;
 
     if (model.update(buttonID, state))
     {
-        isPageButton(buttonID, activeScreenID);
+        isScreenChangeButton(buttonID, activeScreenID);
 
         if (buttonHandler != nullptr)
             (*buttonHandler)(buttonID, state);
@@ -47,7 +47,7 @@ void Touchscreen::update()
 /// \brief Switches to requested screen on display
 /// @param [in] screenID  Index of screen to display.
 ///
-void Touchscreen::setScreen(uint8_t screenID)
+void Touchscreen::setScreen(size_t screenID)
 {
     model.setScreen(screenID);
     activeScreenID = screenID;
@@ -57,30 +57,27 @@ void Touchscreen::setScreen(uint8_t screenID)
 /// \brief Used to retrieve currently active screen on display.
 /// \returns Active display screen.
 ///
-uint8_t Touchscreen::activeScreen()
+size_t Touchscreen::activeScreen()
 {
     return activeScreenID;
 }
 
-///
-/// \param fptr [in]    Pointer to function.
-///
-void Touchscreen::setButtonHandler(void (*fptr)(uint8_t index, bool state))
+void Touchscreen::setButtonHandler(void (*fptr)(size_t index, bool state))
 {
     buttonHandler = fptr;
 }
 
-void Touchscreen::setIconState(uint8_t index, bool state)
+void Touchscreen::setIconState(size_t index, bool state)
 {
     icon_t icon;
 
     if (!getIcon(index, icon))
         return;
 
-    if ((activeScreenID != icon.onPage) && (activeScreenID != icon.offPage))
+    if ((activeScreenID != icon.onScreen) && (activeScreenID != icon.offScreen))
         return;    //don't allow setting icon on wrong screen
 
-    model.setIconState(icon, index, state);
+    model.setIconState(icon, state);
 }
 
 __attribute__((weak)) bool Touchscreen::getIcon(size_t index, icon_t& icon)
@@ -88,7 +85,7 @@ __attribute__((weak)) bool Touchscreen::getIcon(size_t index, icon_t& icon)
     return false;
 }
 
-__attribute__((weak)) bool Touchscreen::isPageButton(size_t index, uint16_t& page)
+__attribute__((weak)) bool Touchscreen::isScreenChangeButton(size_t index, size_t& screenID)
 {
     return false;
 }

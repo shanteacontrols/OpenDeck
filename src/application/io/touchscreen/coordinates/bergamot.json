@@ -5,7 +5,7 @@
             "ypos": 141,
             "width": 185,
             "height": 80,
-            "page": {
+            "screen": {
                 "on": 2,
                 "off": 1
             }
@@ -15,7 +15,7 @@
             "ypos": 141,
             "width": 80,
             "height": 80,
-            "page": {
+            "screen": {
                 "on": 2,
                 "off": 1
             }
@@ -25,7 +25,7 @@
             "ypos": 141,
             "width": 80,
             "height": 80,
-            "page": {
+            "screen": {
                 "on": 2,
                 "off": 1
             }
@@ -35,7 +35,7 @@
             "ypos": 141,
             "width": 185,
             "height": 80,
-            "page": {
+            "screen": {
                 "on": 2,
                 "off": 1
             }
@@ -45,7 +45,7 @@
             "ypos": 246,
             "width": 80,
             "height": 80,
-            "page": {
+            "screen": {
                 "on": 2,
                 "off": 1
             }
@@ -55,7 +55,7 @@
             "ypos": 246,
             "width": 80,
             "height": 80,
-            "page": {
+            "screen": {
                 "on": 2,
                 "off": 1
             }
@@ -65,7 +65,7 @@
             "ypos": 246,
             "width": 80,
             "height": 80,
-            "page": {
+            "screen": {
                 "on": 2,
                 "off": 1
             }
@@ -75,7 +75,7 @@
             "ypos": 246,
             "width": 80,
             "height": 80,
-            "page": {
+            "screen": {
                 "on": 2,
                 "off": 1
             }
@@ -85,7 +85,7 @@
             "ypos": 246,
             "width": 80,
             "height": 80,
-            "page": {
+            "screen": {
                 "on": 2,
                 "off": 1
             }
@@ -95,7 +95,7 @@
             "ypos": 246,
             "width": 80,
             "height": 80,
-            "page": {
+            "screen": {
                 "on": 2,
                 "off": 1
             }
@@ -105,7 +105,7 @@
             "ypos": 351,
             "width": 80,
             "height": 80,
-            "page": {
+            "screen": {
                 "on": 2,
                 "off": 1
             }
@@ -115,7 +115,7 @@
             "ypos": 351,
             "width": 160,
             "height": 80,
-            "page": {
+            "screen": {
                 "on": 2,
                 "off": 1
             }
@@ -125,7 +125,7 @@
             "ypos": 351,
             "width": 80,
             "height": 80,
-            "page": {
+            "screen": {
                 "on": 2,
                 "off": 1
             }
@@ -561,30 +561,30 @@
             }
         }
     ],
-    "pageButtons": [
+    "screenButtons": [
         {
             "indexTS": 64,
-            "page": 1
+            "screen": 1
         },
         {
             "indexTS": 65,
-            "page": 3
+            "screen": 3
         },
         {
             "indexTS": 66,
-            "page": 5
+            "screen": 5
         },
         {
             "indexTS": 67,
-            "page": 7
+            "screen": 7
         },
         {
             "indexTS": 68,
-            "page": 9
+            "screen": 9
         },
         {
             "indexTS": 69,
-            "page": 11
+            "screen": 11
         }
     ]
 }

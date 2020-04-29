@@ -33,7 +33,7 @@ bool SDW::init()
 /// \brief Switches to requested page on display
 /// @param [in] pageID  Index of page to display.
 ///
-bool SDW::setScreen(uint8_t screenID)
+bool SDW::setScreen(size_t screenID)
 {
     sendMessage(PICTURE_DISPLAY, messageByteType_t::start);
     sendMessage(HIGH_BYTE(screenID), messageByteType_t::content);
@@ -89,7 +89,7 @@ void SDW::sendMessage(uint8_t value, messageByteType_t messageByteType)
 /// \brief Checks for incoming data from display.
 /// \returns True if there is incoming data, false otherwise.
 ///
-bool SDW::update(uint8_t& buttonID, bool& state)
+bool SDW::update(size_t& buttonID, bool& state)
 {
     uint8_t data = 0;
 
@@ -140,13 +140,13 @@ bool SDW::update(uint8_t& buttonID, bool& state)
     return false;
 }
 
-void SDW::setIconState(IO::Touchscreen::icon_t& icon, uint8_t buttonID, bool state)
+void SDW::setIconState(IO::Touchscreen::icon_t& icon, bool state)
 {
-    uint16_t iconPage = state ? icon.onPage : icon.offPage;
+    size_t iconScreen = state ? icon.onScreen : icon.offScreen;
 
     sendMessage(PICTURE_CUT, messageByteType_t::start);
-    sendMessage(HIGH_BYTE(iconPage), messageByteType_t::content);
-    sendMessage(LOW_BYTE(iconPage), messageByteType_t::content);
+    sendMessage(HIGH_BYTE(iconScreen), messageByteType_t::content);
+    sendMessage(LOW_BYTE(iconScreen), messageByteType_t::content);
     sendMessage(HIGH_BYTE(icon.xPos), messageByteType_t::content);
     sendMessage(LOW_BYTE(icon.xPos), messageByteType_t::content);
     sendMessage(HIGH_BYTE(icon.yPos), messageByteType_t::content);

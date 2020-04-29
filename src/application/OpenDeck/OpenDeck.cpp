@@ -297,7 +297,7 @@ void OpenDeck::init()
     });
 
 #ifdef TOUCHSCREEN_SUPPORTED
-    touchscreen.setButtonHandler([](uint8_t index, bool state) {
+    touchscreen.setButtonHandler([](size_t index, bool state) {
         buttons.processButton(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + index, state);
     });
 #endif

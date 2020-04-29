@@ -9,12 +9,12 @@ bool Nextion::init()
     return hwa.init();
 }
 
-bool Nextion::setScreen(uint8_t screenID)
+bool Nextion::setScreen(size_t screenID)
 {
     return writeCommand("page %u", screenID);
 }
 
-bool Nextion::update(uint8_t& buttonID, bool& state)
+bool Nextion::update(size_t& buttonID, bool& state)
 {
     uint8_t data;
 
@@ -51,7 +51,9 @@ bool Nextion::update(uint8_t& buttonID, bool& state)
                     rxBuffer.remove(data);
 
                     //next byte is component id
-                    rxBuffer.remove(buttonID);
+                    rxBuffer.remove(data);
+
+                    buttonID = data;
 
                     //1 - pressed, 0 - released
                     rxBuffer.remove(data);
@@ -74,7 +76,7 @@ bool Nextion::update(uint8_t& buttonID, bool& state)
     return false;
 }
 
-void Nextion::setIconState(IO::Touchscreen::icon_t& icon, uint8_t buttonID, bool state)
+void Nextion::setIconState(IO::Touchscreen::icon_t& icon, bool state)
 {
     writeCommand("picq %u,%u,%u,%u,%u", icon.xPos, icon.yPos, icon.width, icon.height, state ? 1 : 0);
 }

@@ -17,10 +17,10 @@ then
 fi
 
 declare -i total_indicators
-declare -i total_pageButtons
+declare -i total_screenButtons
 
 total_indicators=$(jq '.indicators | length' "$JSON_FILE")
-total_pageButtons=$(jq '.pageButtons | length' "$JSON_FILE")
+total_screenButtons=$(jq '.screenButtons | length' "$JSON_FILE")
 
 {
     printf "%s\n\n" "#include \"io/touchscreen/Touchscreen.h\""
@@ -31,12 +31,12 @@ total_pageButtons=$(jq '.pageButtons | length' "$JSON_FILE")
     printf "%s\n\n" "#endif"
 
     printf "%s\n" "#define TOTAL_ICONS $total_indicators"
-    printf "%s\n\n" "#define TOTAL_PAGE_BUTTONS $total_pageButtons"
+    printf "%s\n\n" "#define TOTAL_SCREEN_BUTTONS $total_screenButtons"
     printf "%s\n" "namespace"
     printf "%s\n" "{"
     printf "%s\n" "#ifdef __AVR__"
     printf "%s\n" "IO::Touchscreen::icon_t ramIcon;"
-    printf "%s\n" "IO::Touchscreen::pageButton_t ramPageButton;"
+    printf "%s\n" "IO::Touchscreen::screenButton_t ramScreenButton;"
     printf "%s\n\n" "#endif"
 } > "$OUT_FILE"
 
@@ -48,8 +48,8 @@ do
     yPos=$(jq '.indicators | .['${i}'] | .ypos' "$JSON_FILE")
     width=$(jq '.indicators | .['${i}'] | .width' "$JSON_FILE")
     height=$(jq '.indicators | .['${i}'] | .height' "$JSON_FILE")
-    onPage=$(jq '.indicators | .['${i}'] | .page | .on' "$JSON_FILE")
-    offPage=$(jq '.indicators | .['${i}'] | .page | .off' "$JSON_FILE")
+    onScreen=$(jq '.indicators | .['${i}'] | .screen | .on' "$JSON_FILE")
+    offScreen=$(jq '.indicators | .['${i}'] | .screen | .off' "$JSON_FILE")
 
     {
         printf "        %s\n" "{"
@@ -57,8 +57,8 @@ do
         printf "            %s\n" ".yPos = $yPos,"
         printf "            %s\n" ".width = $width,"
         printf "            %s\n" ".height = $height,"
-        printf "            %s\n" ".onPage = $onPage,"
-        printf "            %s\n" ".offPage = $offPage,"
+        printf "            %s\n" ".onScreen = $onScreen,"
+        printf "            %s\n" ".offScreen = $offScreen,"
         printf "        %s\n" "},"
     } >> "$OUT_FILE"
 done
@@ -67,17 +67,17 @@ done
     printf "%s\n\n" "    };"
 } >> "$OUT_FILE"
 
-printf "    %s\n" "const IO::Touchscreen::pageButton_t pageButtons[TOTAL_PAGE_BUTTONS] PROGMEM = {" >> "$OUT_FILE"
+printf "    %s\n" "const IO::Touchscreen::screenButton_t screenButtons[TOTAL_SCREEN_BUTTONS] PROGMEM = {" >> "$OUT_FILE"
 
-for ((i=0; i<total_pageButtons; i++))
+for ((i=0; i<total_screenButtons; i++))
 do
-    buttonIndex=$(jq '.pageButtons | .['${i}'] | .indexTS' "$JSON_FILE")
-    pageIndex=$(jq '.pageButtons | .['${i}'] | .page' "$JSON_FILE")
+    buttonIndex=$(jq '.screenButtons | .['${i}'] | .indexTS' "$JSON_FILE")
+    screenIndex=$(jq '.screenButtons | .['${i}'] | .screen' "$JSON_FILE")
 
     {
         printf "        %s\n" "{"
         printf "            %s\n" ".indexTS = $buttonIndex,"
-        printf "            %s\n" ".page = $pageIndex,"
+        printf "            %s\n" ".screen = $screenIndex,"
         printf "        %s\n" "},"
     } >> "$OUT_FILE"
 done
@@ -103,21 +103,21 @@ done
 } >> "$OUT_FILE"
 
 {
-    printf "%s\n" "bool IO::Touchscreen::isPageButton(size_t index, uint16_t& page)"
+    printf "%s\n" "bool IO::Touchscreen::isScreenChangeButton(size_t index, size_t& screenID)"
     printf "%s\n" "{"
-    printf "%s\n" "    for (size_t i = 0; i < TOTAL_PAGE_BUTTONS; i++)"
+    printf "%s\n" "    for (size_t i = 0; i < TOTAL_SCREEN_BUTTONS; i++)"
     printf "%s\n" "    {"
     printf "%s\n" "#ifdef __AVR__"
-    printf "%s\n" "        memcpy_P(&ramPageButton, &pageButtons[i], sizeof(IO::Touchscreen::pageButton_t));"
-    printf "%s\n" "        if (ramPageButton.indexTS == index)"
+    printf "%s\n" "        memcpy_P(&ramScreenButton, &screenButtons[i], sizeof(IO::Touchscreen::screenButton_t));"
+    printf "%s\n" "        if (ramScreenButton.indexTS == index)"
     printf "%s\n" "        {"
-    printf "%s\n" "            page = ramPageButton.page;"
+    printf "%s\n" "            screenID = ramScreenButton.screen;"
     printf "%s\n" "            return true;"
     printf "%s\n" "        }"
     printf "%s\n" "#else"
-    printf "%s\n" "        if (pageButtons[i].indexTS == index)"
+    printf "%s\n" "        if (screenButtons[i].indexTS == index)"
     printf "%s\n" "        {"
-    printf "%s\n" "            page = pageButtons[i].page;"
+    printf "%s\n" "            screenID = screenButtons[i].screen;"
     printf "%s\n" "            return true;"
     printf "%s\n" "        }"
     printf "%s\n" "#endif"
