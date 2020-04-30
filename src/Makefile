@@ -12,9 +12,13 @@ ifneq ($(findstring $(TARGETNAME), $(shell jq ".targets[] | .name" ../targets.js
     $(error Target doesn't exist)
 endif
 
+ifeq ($(shell jq '.targets[] | select(.name=="$(TARGETNAME)") | .bootloader' ../targets.json), true)
+    HAS_BTLDR := 1
+endif
+
 ifeq ($(BOOT),1)
     #verify if target has bootloader
-    ifeq ($(shell jq '.targets[] | select(.name=="$(TARGETNAME)") | .bootloader' ../targets.json), false)
+    ifneq ($(HAS_BTLDR),1)
         $(error This target doesn't have bootloader)
     endif
 
@@ -167,6 +171,12 @@ else
 	@#convert hex to bin
 	@arm-none-eabi-objcopy -I ihex "$(TARGET).hex" -O binary "$(TARGET).bin"
 	@arm-none-eabi-size "$(TARGET).elf"
+endif
+ifeq ($(HAS_BTLDR),1)
+ifneq ($(BOOT),1)
+	@echo Creating SysEx file...
+	@../scripts/sysex_fw_create.sh $(TARGET).bin $(TARGET).sysex
+endif
 endif
 
 pre-build:
