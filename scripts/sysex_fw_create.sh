@@ -8,7 +8,7 @@ SYSEX_FILE=$2
 declare -i BYTES_PER_MESSAGE=32
 
 MANUFACTURER_IDs="00 53 43"
-FW_START_BYTES="55 55"
+FW_START_BYTES="00 55 00 55"
 
 #variables in which low and high bytes will be stored after splitting
 declare -i highByte=0
@@ -64,15 +64,25 @@ echo "F0 $MANUFACTURER_IDs $FW_START_BYTES F7" > "$SYSEX_FILE"
 fw_size=$(wc -c < "$BIN_FILE")
 printf '%s\n' "Firmware size is $fw_size bytes. Generating SysEx file, please wait..."
 
-fw_size_lower14=$((fw_size & 0x3FFF))
-fw_size_upper14=$((fw_size >> 14 & 0x3FFF))
+declare -a fw_size_array
 
-split14bit $fw_size_lower14
-printf "%s" "F0 $MANUFACTURER_IDs $highByte $lowByte" >> "$SYSEX_FILE"
-printf " " >> "$SYSEX_FILE"
+fw_size_array[0]=$((fw_size >> 24 & 0xFF))
+fw_size_array[1]=$((fw_size >> 16 & 0xFF))
+fw_size_array[2]=$((fw_size >> 8  & 0xFF))
+fw_size_array[3]=$((fw_size >> 0  & 0xFF))
 
-split14bit $fw_size_upper14
-printf "%s\n" "$highByte $lowByte F7" >> "$SYSEX_FILE"
+printf "%s" "F0 $MANUFACTURER_IDs" >> "$SYSEX_FILE"
+
+for fwSizeByte in "${fw_size_array[@]}"
+do
+    split14bit $fwSizeByte
+    {
+        printf " %02X" "$highByte"
+        printf " %02X" "$lowByte"
+    } >> "$SYSEX_FILE"
+done
+
+printf " %s\n" "F7" >> "$SYSEX_FILE"
 
 #read binary one byte at the time
 #split each byte into two bytes in order to able to send

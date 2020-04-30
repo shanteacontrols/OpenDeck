@@ -80,8 +80,8 @@ bool Updater::processFwMetadata(uint8_t data)
 {
     //metadata consists of 4 bytes of total fw length
 
-    fwSize <<= (8 * byteCountReceived);
-    fwSize |= data;
+    fwSize |= static_cast<uint32_t>(data);
+    fwSize <<= (8 * (3 - byteCountReceived));
 
     if (byteCountReceived == 3)
     {
@@ -114,7 +114,7 @@ bool Updater::processFwChunk(uint8_t data)
 
     //we are operating with words (two bytes)
     pageBytesReceived += 2;
-    fwBytesReceived += pageBytesReceived;
+    fwBytesReceived += 2;
 
     if (pageBytesReceived == currentPageSize)
     {
