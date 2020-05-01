@@ -114,13 +114,8 @@ namespace Board
             if (pgm_read_word(0) == 0xFFFF)
                 return false;
 
-            uint16_t crc = 0x0000;
-
-#if (FLASHEND > 0xFFFF)
-            uint32_t lastAddress = pgm_read_word(core::misc::pgmGetFarAddress(APP_LENGTH_LOCATION));
-#else
+            uint16_t crc         = 0x0000;
             uint32_t lastAddress = pgm_read_word(APP_LENGTH_LOCATION);
-#endif
 
             for (uint32_t i = 0; i < lastAddress; i++)
             {
