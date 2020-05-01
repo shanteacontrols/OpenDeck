@@ -66,10 +66,10 @@ printf '%s\n' "Firmware size is $fw_size bytes. Generating SysEx file, please wa
 
 declare -a fw_size_array
 
-fw_size_array[0]=$((fw_size >> 24 & 0xFF))
-fw_size_array[1]=$((fw_size >> 16 & 0xFF))
-fw_size_array[2]=$((fw_size >> 8  & 0xFF))
-fw_size_array[3]=$((fw_size >> 0  & 0xFF))
+fw_size_array[0]=$((fw_size >> 0  & 0xFF))
+fw_size_array[1]=$((fw_size >> 8  & 0xFF))
+fw_size_array[2]=$((fw_size >> 16 & 0xFF))
+fw_size_array[3]=$((fw_size >> 24 & 0xFF))
 
 printf "%s" "F0 $MANUFACTURER_IDs" >> "$SYSEX_FILE"
 

@@ -32,19 +32,19 @@ class BTLDRWriter : public Bootloader::Updater::BTLDRWriter
         return Board::bootloader::pageSize(index);
     }
 
-    void erasePage(uint32_t address) override
+    void erasePage(size_t index) override
     {
-        Board::bootloader::erasePage(address);
+        Board::bootloader::erasePage(index);
     }
 
-    void fillPage(uint32_t address, uint16_t data) override
+    void fillPage(size_t index, uint32_t address, uint16_t data) override
     {
-        Board::bootloader::fillPage(address, data);
+        Board::bootloader::fillPage(index, address, data);
     }
 
-    void writePage(uint32_t address) override
+    void writePage(size_t index) override
     {
-        Board::bootloader::writePage(address);
+        Board::bootloader::writePage(index);
     }
 
     void apply() override

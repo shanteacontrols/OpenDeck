@@ -44,21 +44,21 @@ namespace Board
 #endif
         }
 
-        void erasePage(uint32_t address)
+        void erasePage(size_t index)
         {
-            boot_page_erase(address);
+            boot_page_erase(index * pageSize(index));
             boot_spm_busy_wait();
         }
 
-        void fillPage(uint32_t address, uint16_t data)
+        void fillPage(size_t index, uint32_t address, uint16_t data)
         {
-            boot_page_fill(address, data);
+            boot_page_fill(address + (index * pageSize(index)), data);
         }
 
-        void writePage(uint32_t address)
+        void writePage(size_t index)
         {
             //write the filled FLASH page to memory
-            boot_page_write(address);
+            boot_page_write(index * pageSize(index));
             boot_spm_busy_wait();
 
             //re-enable RWW section
