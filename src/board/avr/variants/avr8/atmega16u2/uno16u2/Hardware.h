@@ -64,9 +64,6 @@ limitations under the License.
 ///
 #define USB_LINK_MCU
 
-#undef BTLDR_FLASH_PAGE_SIZE
-#define BTLDR_FLASH_PAGE_SIZE 128
-
 ///
 /// \brief Specifies resolution of the ADC used on board.
 ///
