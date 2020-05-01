@@ -20,14 +20,23 @@ limitations under the License.
 
 #include <inttypes.h>
 #include <stdlib.h>
-#include "IBTLDRWriter.h"
 
 namespace Bootloader
 {
     class Updater
     {
         public:
-        Updater(IBTLDRWriter& writer, const uint16_t startValue)
+        class BTLDRWriter
+        {
+            public:
+            virtual size_t pageSize(size_t index)                    = 0;
+            virtual void   erasePage(uint32_t address)               = 0;
+            virtual void   fillPage(uint32_t address, uint16_t data) = 0;
+            virtual void   writePage(uint32_t address)               = 0;
+            virtual void   apply()                                   = 0;
+        };
+
+        Updater(BTLDRWriter& writer, const uint16_t startValue)
             : writer(writer)
             , startValue(startValue)
         {}
@@ -54,7 +63,7 @@ namespace Bootloader
         uint32_t       fwBytesReceived   = 0;
         uint32_t       fwSize            = 0;
         uint8_t        byteCountReceived = 0;
-        IBTLDRWriter&  writer;
+        BTLDRWriter&   writer;
         const uint32_t startValue;
     };
 }    // namespace Bootloader

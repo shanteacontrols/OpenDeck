@@ -24,7 +24,7 @@ limitations under the License.
 #include "application/OpenDeck/sysconfig/Constants.h"
 #endif
 
-class BTLDRWriter : public IBTLDRWriter
+class BTLDRWriter : public Bootloader::Updater::BTLDRWriter
 {
     public:
     size_t pageSize(size_t index) override
