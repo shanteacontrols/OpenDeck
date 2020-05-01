@@ -10,7 +10,7 @@ INCLUDE_DIRS := \
 
 INCLUDE_FILES += -include "board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h"
 
-ifeq ($(findstring boot_,$(TARGETNAME)), boot_)
+ifeq ($(BOOT),1)
     #bootloader only
     INCLUDE_DIRS += \
     -I"bootloader/mcu/"
@@ -68,7 +68,7 @@ SOURCES += $(shell $(FIND) ./board/common -maxdepth 1 -type f -name "*.cpp")
 SOURCES += $(shell $(FIND) ./board/$(ARCH)/common -type f -name "*.cpp")
 SOURCES += $(shell $(FIND) ./board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR) -type f -name "*.cpp")
 
-ifeq ($(findstring boot,$(TARGETNAME)), boot)
+ifeq ($(BOOT),1)
     #bootloader sources
     #common
     SOURCES += \

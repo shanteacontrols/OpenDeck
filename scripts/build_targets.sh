@@ -55,15 +55,11 @@ case $TYPE in
     ;;
 esac
 
-
 if [[ $(basename "$(pwd)") != "$run_dir" ]]
 then
     echo "ERROR: Script must be run from $run_dir directory!"
     exit 1
 fi
-
-#exit on error
-set -e
 
 TARGETS_FILE=../targets.json
 
@@ -74,17 +70,17 @@ test=()
 while IFS= read -r line
 do
     targets+=( "$line" )
-done < <( jq ".[] | .name" $TARGETS_FILE | tr -d \")
+done < <( jq ".targets[] | .name" $TARGETS_FILE | tr -d \")
 
 while IFS= read -r line
 do
     release+=( "$line" )
-done < <( jq ".[] | .release" $TARGETS_FILE)
+done < <( jq ".targets[] | .release" $TARGETS_FILE)
 
 while IFS= read -r line
 do
     test+=( "$line" )
-done < <( jq ".[] | .test" $TARGETS_FILE)
+done < <( jq ".targets[] | .test" $TARGETS_FILE)
 
 len_targets=${#targets[@]}
 len_release=${#release[@]}
@@ -96,9 +92,9 @@ then
     exit 1
 fi
 
-if [[ "$TYPE" == "tests" ]]
+if [[ "$BUILD_RELEASE" == "true" ]]
 then
-    make pre-build
+    make clean
 fi
 
 for (( i=0; i<len_targets; i++ ))
@@ -110,6 +106,9 @@ do
             if [[ "${release[$i]}" == "false" ]]
             then
                 continue;
+            else
+                #build merged binary
+                ../scripts/build_combined.sh "${targets[$i]}"
             fi
         fi
     else
@@ -119,6 +118,10 @@ do
         fi
     fi
 
-    printf '\n%s\n' "***Building ${targets[$i]}***"
+    if [[ "$TYPE" == "tests" ]]
+    then
+        make pre-build TARGETNAME="${targets[$i]}"
+    fi
+
     make TARGETNAME="${targets[$i]}"
 done

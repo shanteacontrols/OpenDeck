@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := test
 
-TARGETNAME := fw_opendeck
+TARGETNAME := opendeck
 BUILD_DIR_BASE := ./build
 BUILD_DIR := $(BUILD_DIR_BASE)/$(TARGETNAME)
 GEN_DIR := test_run

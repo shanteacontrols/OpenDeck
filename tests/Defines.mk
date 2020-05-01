@@ -1,6 +1,6 @@
 #slightly modified Defines.mk from src directory
 
-BOARD_DIR := $(subst fw_,,$(TARGETNAME))
+BOARD_DIR := $(TARGETNAME)
 
 #determine the architecture by directory in which the board dir is located
 ARCH := $(shell find ../src/board -type d ! -path *build -name *$(BOARD_DIR) | cut -d/ -f4 | head -n 1)

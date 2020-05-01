@@ -33,36 +33,22 @@ then
     exit 1
 fi
 
-TARGET=$1
+set -e
 
-boot_target=${TARGET/fw_/boot_}
-fw_target=${TARGET/boot_/fw_}
-board=${fw_target/fw_/}
+#start by building bootloader first - if this fails, no point in building application
+#always build release variant
+echo Building bootloader for "$1"...
+boot_dir=$(make TARGETNAME="$1" BOOT=1 DEBUG=0 print-BUILD_DIR)
+make TARGETNAME="$1" BOOT=1 DEBUG=0
 
-#bootloader target might not exist - verify
-boot_dir=$(make TARGETNAME="$boot_target" print-BUILD_DIR)
-result=$?
-
-if [[ ($result -ne 0) ]]
-then
-    exit 1
-fi
-
-fw_dir=$(make TARGETNAME="$fw_target" print-BUILD_DIR)
-
-#always build release fw type when running this script
-combined_dir=$(make print-BUILD_DIR_BASE)/merged_$board/release
-combined_filename="$combined_dir"/merged_"$board".hex
-
-#build bootloader
-echo Building "$boot_target"...
-make TARGETNAME="$boot_target"
-
-#build firmware
-echo Building "$fw_target"...
-make TARGETNAME="$fw_target"
+echo Building application for "$1"...
+fw_dir=$(make TARGETNAME="$1" BOOT=0 DEBUG=0 print-BUILD_DIR)
+make TARGETNAME="$1" BOOT=0 DEBUG=0
 
 echo Merging bootloader and firmware...
+combined_dir=$(make print-BUILD_DIR_BASE)/merged
 mkdir -p "$combined_dir"
-srec_cat "$fw_dir"/"$fw_target".hex -intel "$boot_dir"/"$boot_target".hex -Intel -o "$combined_filename" -Intel
-echo Firmware merged: "$combined_filename"
+
+srec_cat "$fw_dir"/"$1".hex -intel "$boot_dir"/"$1".hex -Intel -o "$combined_dir"/"$1".hex -Intel
+
+echo Firmware merged: "$combined_dir"/"$1".hex
