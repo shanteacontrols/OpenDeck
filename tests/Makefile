@@ -43,7 +43,7 @@ FW_ROOT_DIR := ../src
 COMMON_FLAGS := \
 -fprofile-instr-generate \
 -fcoverage-mapping \
--Og \
+-O0 \
 -g \
 -Wall
 
