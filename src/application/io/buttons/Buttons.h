@@ -75,12 +75,19 @@ namespace IO
             AMOUNT
         };
 
+        class HWA
+        {
+            public:
+            virtual bool state(size_t index) = 0;
+        };
+
 #ifdef DISPLAY_SUPPORTED
-        Buttons(Database& database, MIDI& midi, IO::LEDs& leds, Display& display, ComponentInfo& cInfo)
+        Buttons(HWA& hwa, Database& database, MIDI& midi, IO::LEDs& leds, Display& display, ComponentInfo& cInfo)
 #else
-        Buttons(Database& database, MIDI& midi, IO::LEDs& leds, ComponentInfo& cInfo)
+        Buttons(HWA& hwa, Database& database, MIDI& midi, IO::LEDs& leds, ComponentInfo& cInfo)
 #endif
-            : database(database)
+            : hwa(hwa)
+            , database(database)
             , midi(midi)
             , leds(leds)
 #ifdef DISPLAY_SUPPORTED
@@ -102,6 +109,7 @@ namespace IO
         bool buttonDebounced(uint8_t buttonID, bool state);
         void customHook(uint8_t buttonID, bool state);
 
+        HWA&      hwa;
         Database& database;
         MIDI&     midi;
         IO::LEDs& leds;

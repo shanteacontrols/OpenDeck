@@ -107,6 +107,17 @@ namespace
         }
     } ledsHWA;
 
+    class HWAButtons : public IO::Buttons::HWA
+    {
+        public:
+        HWAButtons() {}
+
+        bool state(size_t index) override
+        {
+            return buttonState[index];
+        }
+    } hwaButtons;
+
     DBstorageMock dbStorageMock;
     Database      database = Database(dbHandlers, dbStorageMock);
     MIDI          midi;
@@ -119,9 +130,9 @@ namespace
     IO::LEDs leds(ledsHWA, database);
 
 #ifdef DISPLAY_SUPPORTED
-    IO::Buttons buttons = IO::Buttons(database, midi, leds, display, cInfo);
+    IO::Buttons buttons = IO::Buttons(hwaButtons, database, midi, leds, display, cInfo);
 #else
-    IO::Buttons buttons = IO::Buttons(database, midi, leds, cInfo);
+    IO::Buttons buttons = IO::Buttons(hwaButtons, database, midi, leds, cInfo);
 #endif
 
     void stateChangeRegister(bool state)
@@ -159,22 +170,6 @@ namespace
         buttons.update();
     }
 }    // namespace
-
-namespace Board
-{
-    namespace io
-    {
-        uint8_t getEncoderPair(uint8_t buttonID)
-        {
-            return 0;
-        }
-
-        bool getButtonState(uint8_t buttonIndex)
-        {
-            return buttonState[buttonIndex];
-        }
-    }    // namespace io
-}    // namespace Board
 
 TEST_SETUP()
 {

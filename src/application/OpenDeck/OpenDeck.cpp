@@ -97,6 +97,7 @@ class StorageAccess : public LESSDB::StorageAccess
         return Board::eeprom::paramUsage(type);
     }
 } storageAccess;
+Database database(dbHandlers, storageAccess);
 
 class HWALEDs : public IO::LEDs::HWA
 {
@@ -226,9 +227,24 @@ class HWAEncoders : public IO::Encoders::HWA
     }
 } hwaEncoders;
 
+class HWAButtons : public IO::Buttons::HWA
+{
+    public:
+    HWAButtons() {}
+
+    bool state(size_t index) override
+    {
+        //if encoder under this index is enabled, just return false state each time
+        //side note: don't bother with references to dependencies here, just use global database object
+        if (database.read(Database::Section::encoder_t::enable, Board::io::getEncoderPair(index)))
+            return false;
+
+        return Board::io::getButtonState(index);
+    }
+} hwaButtons;
+
 // clang-format off
 ComponentInfo                       cinfo;
-Database                            database(dbHandlers, storageAccess);
 MIDI                                midi;
 IO::Common                          digitalInputCommon;
 #ifdef DISPLAY_SUPPORTED
@@ -252,9 +268,9 @@ IO::Analog                          analog(IO::Analog::adcType_t::adc12bit, data
 #endif
 #endif
 #ifdef DISPLAY_SUPPORTED
-IO::Buttons                         buttons(database, midi, leds, display, cinfo);
+IO::Buttons                         buttons(hwaButtons, database, midi, leds, display, cinfo);
 #else
-IO::Buttons                         buttons(database, midi, leds, cinfo);
+IO::Buttons                         buttons(hwaButtons, database, midi, leds, cinfo);
 #endif
 #ifdef DISPLAY_SUPPORTED
 IO::Encoders                        encoders(hwaEncoders, database, midi, display, cinfo);

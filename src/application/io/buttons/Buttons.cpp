@@ -17,7 +17,6 @@ limitations under the License.
 */
 
 #include "Buttons.h"
-#include "board/Board.h"
 #include "core/src/general/Helpers.h"
 
 using namespace IO;
@@ -29,10 +28,7 @@ void Buttons::update()
 {
     for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
     {
-        if (database.read(Database::Section::encoder_t::enable, Board::io::getEncoderPair(i)))
-            continue;
-
-        bool state = Board::io::getButtonState(i);
+        bool state = hwa.state(i);
 
         if (!buttonDebounced(i, state))
             continue;
