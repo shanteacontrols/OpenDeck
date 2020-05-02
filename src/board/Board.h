@@ -219,12 +219,7 @@ namespace Board
         /// @param[in] analogID     Analog index for which ADC value is being checked.
         /// \returns ADC value for requested analog index.
         ///
-        int16_t getAnalogValue(uint8_t analogID);
-
-        ///
-        /// \brief Resets the analog sampling procedure.
-        ///
-        void continueAnalogReadout();
+        uint16_t getAnalogValue(uint8_t analogID);
     }    // namespace io
 
     namespace eeprom

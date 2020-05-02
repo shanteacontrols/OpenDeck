@@ -133,10 +133,6 @@ namespace Board
             return detail::adcReturnValue;
         }
 
-        void continueAnalogReadout()
-        {
-        }
-
         bool isAnalogDataAvailable()
         {
             return true;

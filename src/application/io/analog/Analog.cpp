@@ -72,8 +72,6 @@ void Analog::update()
                 (*buttonHandler)(i, digitalStateFromAnalogValue(analogData));
         }
     }
-
-    Board::io::continueAnalogReadout();
 }
 
 void Analog::debounceReset(uint16_t index)
