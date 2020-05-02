@@ -133,7 +133,6 @@ namespace IO
         void setRetentionTime(uint32_t time);
 
         private:
-        void          displayHome();
         void          displayWelcomeMessage();
         void          displayVinfo(bool newFw);
         void          setDirectWriteState(bool state);

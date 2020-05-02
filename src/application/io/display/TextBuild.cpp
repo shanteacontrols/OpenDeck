@@ -111,33 +111,6 @@ void Display::displayVinfo(bool newFw)
     core::timing::waitMs(2000);
 }
 
-void Display::displayHome()
-{
-    if (!initDone)
-        return;
-
-    U8X8::clearDisplay();
-
-    uint8_t startRow;
-
-    switch (U8X8::getRows())
-    {
-    case 4:
-        startRow = 0;
-        break;
-
-    default:
-        startRow = 0;
-        break;
-    }
-
-    stringBuilder.overwrite("In: ");
-    updateText(startRow, lcdTextType_t::still, 0);
-
-    stringBuilder.overwrite("Out: ");
-    updateText(startRow + 2, lcdTextType_t::still, 0);
-}
-
 void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, uint16_t byte2, uint8_t byte3)
 {
     if (!initDone)
@@ -223,19 +196,23 @@ void Display::clearMIDIevent(eventType_t type)
     {
     case eventType_t::in:
         //first row
-        stringBuilder.fillUntil(U8X8::getColumns() - COLUMN_START_MIDI_IN_MESSAGE);
-        updateText(ROW_START_MIDI_IN_MESSAGE, lcdTextType_t::still, COLUMN_START_MIDI_IN_MESSAGE);
+        stringBuilder.overwrite("In: ");
+        stringBuilder.fillUntil(U8X8::getColumns() - strlen(stringBuilder.string()));
+        updateText(ROW_START_MIDI_IN_MESSAGE, lcdTextType_t::still, 0);
         //second row
-        stringBuilder.fillUntil(U8X8::getColumns());
+        stringBuilder.overwrite("");
+        stringBuilder.fillUntil(U8X8::getColumns() - strlen(stringBuilder.string()));
         updateText(ROW_START_MIDI_IN_MESSAGE + 1, lcdTextType_t::still, 0);
         break;
 
     case eventType_t::out:
         //first row
-        stringBuilder.fillUntil(U8X8::getColumns() - COLUMN_START_MIDI_OUT_MESSAGE);
-        updateText(ROW_START_MIDI_OUT_MESSAGE, lcdTextType_t::still, COLUMN_START_MIDI_OUT_MESSAGE);
+        stringBuilder.overwrite("Out: ");
+        stringBuilder.fillUntil(U8X8::getColumns() - strlen(stringBuilder.string()));
+        updateText(ROW_START_MIDI_OUT_MESSAGE, lcdTextType_t::still, 0);
         //second row
-        stringBuilder.fillUntil(U8X8::getColumns());
+        stringBuilder.overwrite("");
+        stringBuilder.fillUntil(U8X8::getColumns() - strlen(stringBuilder.string()));
         updateText(ROW_START_MIDI_OUT_MESSAGE + 1, lcdTextType_t::still, 0);
         break;
 
