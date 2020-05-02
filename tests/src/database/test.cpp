@@ -4,7 +4,6 @@
 #include "database/Database.h"
 #include "io/leds/LEDs.h"
 #include "io/display/Config.h"
-#include "board/Board.h"
 #include "OpenDeck/sysconfig/SysConfig.h"
 
 namespace
