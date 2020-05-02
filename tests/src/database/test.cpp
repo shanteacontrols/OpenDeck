@@ -210,12 +210,10 @@ TEST_CASE(ReadInitialValues)
         TEST_ASSERT(database.read(Database::Section::display_t::features, static_cast<size_t>(IO::Display::feature_t::enable)) == 0);
         TEST_ASSERT(database.read(Database::Section::display_t::features, static_cast<size_t>(IO::Display::feature_t::welcomeMsg)) == 0);
         TEST_ASSERT(database.read(Database::Section::display_t::features, static_cast<size_t>(IO::Display::feature_t::vInfoMsg)) == 0);
-        TEST_ASSERT(database.read(Database::Section::display_t::features, static_cast<size_t>(IO::Display::feature_t::MIDIeventRetention)) == 0);
         TEST_ASSERT(database.read(Database::Section::display_t::features, static_cast<size_t>(IO::Display::feature_t::MIDInotesAlternate)) == 0);
 
-        int32_t eventTime = database.read(Database::Section::display_t::setting, static_cast<size_t>(IO::Display::setting_t::MIDIeventTime));
-
-        TEST_ASSERT(eventTime == MIN_MESSAGE_RETENTION_TIME);
+        //setting section
+        TEST_ASSERT(database.read(Database::Section::display_t::setting, static_cast<size_t>(IO::Display::setting_t::MIDIeventTime)) == 0);
         TEST_ASSERT(database.read(Database::Section::display_t::setting, static_cast<size_t>(IO::Display::setting_t::octaveNormalization)) == 0);
 #endif
     }

@@ -137,9 +137,6 @@ bool Database::factoryReset(LESSDB::factoryResetType_t type)
 
         if (!initData(type))
             return false;
-
-        if (!writeCustomValues())
-            return false;
     }
 
     handlers.factoryResetDone();
@@ -179,18 +176,6 @@ bool Database::setPreset(uint8_t preset)
 uint8_t Database::getPreset()
 {
     return activePreset;
-}
-
-///
-/// \brief Writes custom values to specific indexes which can't be generalized within database section.
-///
-bool Database::writeCustomValues()
-{
-#ifdef DISPLAY_SUPPORTED
-    return update(Database::Section::display_t::setting, static_cast<size_t>(IO::Display::setting_t::MIDIeventTime), MIN_MESSAGE_RETENTION_TIME);
-#endif
-
-    return true;
 }
 
 ///

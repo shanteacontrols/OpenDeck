@@ -82,9 +82,8 @@ bool Display::init(bool startupInfo)
                 setDirectWriteState(false);
             }
 
-            setRetentionState(database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::MIDIeventRetention)));
             setAlternateNoteDisplay(database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::MIDInotesAlternate)));
-            setRetentionTime(database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::MIDIeventTime) * 1000));
+            setRetentionTime(database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::MIDIeventTime)) * 1000);
 
             return true;
         }
@@ -143,7 +142,7 @@ bool Display::update()
     lastLCDupdateTime = core::timing::currentRunTimeMs();
 
     //check if midi in/out messages need to be cleared
-    if (!retentionState)
+    if (MIDImessageRetentionTime)
     {
         for (int i = 0; i < 2; i++)
         {
@@ -343,14 +342,12 @@ Display::lcdTextType_t Display::getActiveTextType()
 }
 
 ///
-/// \brief Updates message retention state.
-/// @param [in] state   New retention state.
+/// \brief Sets new message retention time.
+/// @param [in] retentionTime New retention time in milliseconds.
 ///
-void Display::setRetentionState(bool state)
+void Display::setRetentionTime(uint32_t retentionTime)
 {
-    retentionState = state;
-
-    if (!state)
+    if (retentionTime < MIDImessageRetentionTime)
     {
         for (int i = 0; i < 2; i++)
         {
@@ -359,18 +356,9 @@ void Display::setRetentionState(bool state)
             lastMIDIMessageDisplayTime[i] = 0;
         }
     }
-}
-
-///
-/// \brief Sets new message retention time.
-/// @param [in] retentionTime New retention time.
-///
-void Display::setRetentionTime(uint32_t retentionTime)
-{
-    if ((retentionTime < MIN_MESSAGE_RETENTION_TIME) || (retentionTime > MAX_MESSAGE_RETENTION_TIME))
-        return;
 
     MIDImessageRetentionTime = retentionTime;
+
     //reset last update time
     lastMIDIMessageDisplayTime[eventType_t::in]  = core::timing::currentRunTimeMs();
     lastMIDIMessageDisplayTime[eventType_t::out] = core::timing::currentRunTimeMs();

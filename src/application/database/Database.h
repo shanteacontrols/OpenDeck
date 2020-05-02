@@ -184,7 +184,6 @@ class Database : public LESSDB
         return block_t::display;
     }
 
-    bool     writeCustomValues();
     uint16_t getDbUID();
     bool     setDbUID(uint16_t uid);
 

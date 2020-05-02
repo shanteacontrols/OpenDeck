@@ -50,16 +50,6 @@ limitations under the License.
 ///
 #define LCD_HEIGHT_MAX 4
 
-///
-/// \brief Valid range in seconds of MIDI message retention time.
-/// @{
-///
-
-#define MIN_MESSAGE_RETENTION_TIME 1
-#define MAX_MESSAGE_RETENTION_TIME 5
-
-/// @}
-
 #define COLUMN_START_MIDI_IN_MESSAGE  4
 #define COLUMN_START_MIDI_OUT_MESSAGE 5
 

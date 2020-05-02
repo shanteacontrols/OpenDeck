@@ -117,7 +117,6 @@ namespace IO
             enable,
             welcomeMsg,
             vInfoMsg,
-            MIDIeventRetention,
             MIDInotesAlternate,
             AMOUNT
         };
@@ -136,7 +135,6 @@ namespace IO
         void          setOctaveNormalization(int8_t value);
         void          setDirectWriteState(bool state);
         lcdTextType_t getActiveTextType();
-        void          setRetentionState(bool state);
         void          setRetentionTime(uint32_t time);
 
         private:
@@ -232,13 +230,6 @@ namespace IO
         /// \brief Holds true if display has been initialized.
         ///
         bool initDone = false;
-
-        ///
-        /// \brief Holds message retention state.
-        /// If true, last MIDI message will be shown on display indefinately until it's
-        /// overwritten by a new one.
-        ///
-        bool retentionState = false;
 
         ///
         /// \brief Object used for easier string manipulation on display.

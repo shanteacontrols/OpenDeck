@@ -526,17 +526,10 @@ SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t i
         }
         break;
 
-        case IO::Display::feature_t::MIDIeventRetention:
-        {
-            display.setRetentionState(newValue);
-        }
-        break;
-
         case IO::Display::feature_t::MIDInotesAlternate:
         {
             display.setAlternateNoteDisplay(newValue);
         }
-        break;
 
         default:
             break;
@@ -570,10 +563,7 @@ SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t i
 
         case IO::Display::setting_t::MIDIeventTime:
         {
-            if ((newValue >= MIN_MESSAGE_RETENTION_TIME) && (newValue <= MAX_MESSAGE_RETENTION_TIME))
-            {
-                display.setRetentionTime(newValue * 1000);
-            }
+            display.setRetentionTime(newValue * 1000);
         }
         break;
 

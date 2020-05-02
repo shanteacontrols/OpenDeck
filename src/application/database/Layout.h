@@ -345,7 +345,7 @@ namespace
         //features section
         {
             .numberOfParameters     = static_cast<uint8_t>(IO::Display::feature_t::AMOUNT),
-            .parameterType          = LESSDB::sectionParameterType_t::byte,
+            .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = 0,
             .defaultValue           = 0,
             .autoIncrement          = false,
