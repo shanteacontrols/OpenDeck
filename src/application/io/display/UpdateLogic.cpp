@@ -67,8 +67,6 @@ bool Display::init(bool startupInfo)
 
             initDone = true;
 
-            displayHome();
-
             if (startupInfo)
             {
                 setDirectWriteState(true);
@@ -84,6 +82,8 @@ bool Display::init(bool startupInfo)
 
             setAlternateNoteDisplay(database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::MIDInotesAlternate)));
             setRetentionTime(database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::MIDIeventTime)) * 1000);
+
+            displayHome();
 
             return true;
         }
