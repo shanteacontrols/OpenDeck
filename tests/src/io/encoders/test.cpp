@@ -10,6 +10,16 @@
 
 namespace
 {
+    uint8_t controlValue[MAX_NUMBER_OF_ENCODERS];
+    uint8_t messageCounter;
+
+    bool midiDataHandler(MIDI::USBMIDIpacket_t& USBMIDIpacket)
+    {
+        controlValue[messageCounter] = USBMIDIpacket.Data3;
+        messageCounter++;
+        return true;
+    }
+
     class DBhandlers : public Database::Handlers
     {
         public:
@@ -49,6 +59,57 @@ namespace
         void (*initHandler)()                       = nullptr;
     } dbHandlers;
 
+    class HWAEncoders : public IO::Encoders::HWA
+    {
+        public:
+        HWAEncoders()
+        {}
+
+        uint8_t state(size_t index) override
+        {
+            uint8_t returnValue = 0;
+
+            if (encoderPosition[index] == IO::Encoders::position_t::ccw)
+            {
+                returnValue = stateArray[stateCounter[index]];
+
+                if (++stateCounter[index] >= 4)
+                    stateCounter[index] = 0;
+            }
+            else if (encoderPosition[index] == IO::Encoders::position_t::cw)
+            {
+                if (--stateCounter[index] < 0)
+                    stateCounter[index] = 3;
+
+                returnValue = stateArray[stateCounter[index]];
+            }
+
+            if (returnValue == lastState[index])
+                return state(index);
+
+            lastState[index] = returnValue;
+            return returnValue;
+        }
+
+        void setEncoderState(uint8_t encoderID, IO::Encoders::position_t position)
+        {
+            controlValue[encoderID]    = 0;
+            encoderPosition[encoderID] = position;
+        }
+
+        IO::Encoders::position_t encoderPosition[MAX_NUMBER_OF_ENCODERS];
+
+        int8_t  stateCounter[MAX_NUMBER_OF_ENCODERS] = {};
+        uint8_t lastState[MAX_NUMBER_OF_ENCODERS]    = {};
+
+        const uint8_t stateArray[4] = {
+            0b01,
+            0b11,
+            0b10,
+            0b00
+        };
+    } hwaEncoders;
+
     DBstorageMock dbStorageMock;
     Database      database = Database(dbHandlers, dbStorageMock);
     MIDI          midi;
@@ -59,80 +120,15 @@ namespace
 #endif
 
 #ifdef DISPLAY_SUPPORTED
-    IO::Encoders encoders = IO::Encoders(database, midi, display, cInfo);
+    IO::Encoders encoders = IO::Encoders(hwaEncoders, database, midi, display, cInfo);
 #else
-    IO::Encoders encoders = IO::Encoders(database, midi, cInfo);
+    IO::Encoders encoders = IO::Encoders(hwaEncoders, database, midi, cInfo);
 #endif
-
-    uint8_t controlValue[MAX_NUMBER_OF_ENCODERS];
-    uint8_t messageCounter;
-
-    bool midiDataHandler(MIDI::USBMIDIpacket_t& USBMIDIpacket)
-    {
-        controlValue[messageCounter] = USBMIDIpacket.Data3;
-        messageCounter++;
-        return true;
-    }
 }    // namespace
-
-namespace Board
-{
-    namespace io
-    {
-        using namespace IO;
-
-        namespace
-        {
-            Encoders::position_t encoderPosition[MAX_NUMBER_OF_ENCODERS];
-
-            int8_t  stateCounter[MAX_NUMBER_OF_ENCODERS] = {};
-            uint8_t lastState[MAX_NUMBER_OF_ENCODERS]    = {};
-
-            const uint8_t stateArray[4] = {
-                0b01,
-                0b11,
-                0b10,
-                0b00
-            };
-        }    // namespace
-
-        uint8_t getEncoderPairState(uint8_t encoderID)
-        {
-            uint8_t returnValue = 0;
-
-            if (encoderPosition[encoderID] == Encoders::position_t::ccw)
-            {
-                returnValue = stateArray[stateCounter[encoderID]];
-
-                if (++stateCounter[encoderID] >= 4)
-                    stateCounter[encoderID] = 0;
-            }
-            else if (encoderPosition[encoderID] == Encoders::position_t::cw)
-            {
-                if (--stateCounter[encoderID] < 0)
-                    stateCounter[encoderID] = 3;
-
-                returnValue = stateArray[stateCounter[encoderID]];
-            }
-
-            if (returnValue == lastState[encoderID])
-                return getEncoderPairState(encoderID);
-
-            lastState[encoderID] = returnValue;
-            return returnValue;
-        }
-
-        void setEncoderState(uint8_t encoderID, Encoders::position_t position)
-        {
-            controlValue[encoderID]    = 0;
-            encoderPosition[encoderID] = position;
-        }
-    }    // namespace io
-}    // namespace Board
 
 TEST_SETUP()
 {
-    //init checks - no point in running further tests if these conditions fail
+    // init checks - no point in running further tests if these conditions fail
     TEST_ASSERT(database.init() == true);
     TEST_ASSERT(database.isSignatureValid() == true);
     encoders.init();
@@ -417,7 +413,7 @@ TEST_CASE(Debounce)
 
         for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
         {
-            Board::io::setEncoderState(i, Encoders::position_t::ccw);
+            hwaEncoders.setEncoderState(i, Encoders::position_t::ccw);
             testValue[i] = Encoders::position_t::ccw;
         }
 
@@ -430,7 +426,7 @@ TEST_CASE(Debounce)
         // set new direction
         for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
         {
-            Board::io::setEncoderState(i, Encoders::position_t::cw);
+            hwaEncoders.setEncoderState(i, Encoders::position_t::cw);
             testValue[i] = Encoders::position_t::cw;
         }
 
@@ -491,7 +487,7 @@ TEST_CASE(Debounce)
 
             for (int j = 0; j < MAX_NUMBER_OF_ENCODERS; j++)
             {
-                Board::io::setEncoderState(j, encoderPositionTest1[i]);
+                hwaEncoders.setEncoderState(j, encoderPositionTest1[i]);
                 testValue[j] = Encoders::position_t::cw;
             }
 
@@ -509,7 +505,7 @@ TEST_CASE(Debounce)
 
             for (int j = 0; j < MAX_NUMBER_OF_ENCODERS; j++)
             {
-                Board::io::setEncoderState(j, encoderPositionTest1[i]);
+                hwaEncoders.setEncoderState(j, encoderPositionTest1[i]);
                 testValue[j] = encoderPositionTest1[i];
             }
 
@@ -566,7 +562,7 @@ TEST_CASE(Debounce)
 
             for (int j = 0; j < MAX_NUMBER_OF_ENCODERS; j++)
             {
-                Board::io::setEncoderState(j, encoderPositionTest2[i]);
+                hwaEncoders.setEncoderState(j, encoderPositionTest2[i]);
                 testValue[j] = Encoders::position_t::cw;
             }
 
@@ -580,7 +576,7 @@ TEST_CASE(Debounce)
 
             for (int j = 0; j < MAX_NUMBER_OF_ENCODERS; j++)
             {
-                Board::io::setEncoderState(j, encoderPositionTest2[i]);
+                hwaEncoders.setEncoderState(j, encoderPositionTest2[i]);
                 testValue[j] = Encoders::position_t::cw;
             }
 
@@ -594,7 +590,7 @@ TEST_CASE(Debounce)
 
             for (int j = 0; j < MAX_NUMBER_OF_ENCODERS; j++)
             {
-                Board::io::setEncoderState(j, encoderPositionTest2[i]);
+                hwaEncoders.setEncoderState(j, encoderPositionTest2[i]);
                 testValue[j] = Encoders::position_t::ccw;
             }
 
@@ -640,7 +636,7 @@ TEST_CASE(Acceleration)
 
         //all encoders should move in the same direction
         for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
-            Board::io::setEncoderState(i, Encoders::position_t::cw);
+            hwaEncoders.setEncoderState(i, Encoders::position_t::cw);
 
         core::timing::detail::rTime_ms = 1;
 

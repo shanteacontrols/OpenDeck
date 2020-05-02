@@ -17,7 +17,6 @@ limitations under the License.
 */
 
 #include "Encoders.h"
-#include "board/Board.h"
 #include "io/common/CInfo.h"
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
@@ -43,7 +42,7 @@ void Encoders::update()
         if (!database.read(Database::Section::encoder_t::enable, i))
             continue;
 
-        position_t encoderState = read(i, Board::io::getEncoderPairState(i));
+        position_t encoderState = read(i, hwa.state(i));
 
         //disable debounce mode if encoder isn't moving for more than
         //ENCODERS_DEBOUNCE_RESET_TIME milliseconds

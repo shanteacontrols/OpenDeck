@@ -215,6 +215,17 @@ Nextion touchscreenModel(nextionHWA);
 #endif
 #endif
 
+class HWAEncoders : public IO::Encoders::HWA
+{
+    public:
+    HWAEncoders() {}
+
+    uint8_t state(size_t index) override
+    {
+        return Board::io::getEncoderPairState(index);
+    }
+} hwaEncoders;
+
 // clang-format off
 ComponentInfo                       cinfo;
 Database                            database(dbHandlers, storageAccess);
@@ -246,9 +257,9 @@ IO::Buttons                         buttons(database, midi, leds, display, cinfo
 IO::Buttons                         buttons(database, midi, leds, cinfo);
 #endif
 #ifdef DISPLAY_SUPPORTED
-IO::Encoders                        encoders(database, midi, display, cinfo);
+IO::Encoders                        encoders(hwaEncoders, database, midi, display, cinfo);
 #else
-IO::Encoders                        encoders(database, midi, cinfo);
+IO::Encoders                        encoders(hwaEncoders, database, midi, cinfo);
 #endif
 #ifdef DISPLAY_SUPPORTED
 SysConfig                           sysConfig(database, midi, buttons, encoders, analog, leds, display);

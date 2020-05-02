@@ -38,21 +38,6 @@ namespace IO
     class Encoders : public Common
     {
         public:
-#ifdef DISPLAY_SUPPORTED
-        Encoders(Database& database, MIDI& midi, Display& display, ComponentInfo& cInfo)
-            :
-#else
-        Encoders(Database& database, MIDI& midi, ComponentInfo& cInfo)
-            :
-#endif
-            database(database)
-            , midi(midi)
-#ifdef DISPLAY_SUPPORTED
-            , display(display)
-#endif
-            , cInfo(cInfo)
-        {}
-
         enum class type_t : uint8_t
         {
             t7Fh01h,
@@ -83,6 +68,26 @@ namespace IO
             AMOUNT
         };
 
+        class HWA
+        {
+            public:
+            virtual uint8_t state(size_t index) = 0;
+        };
+
+#ifdef DISPLAY_SUPPORTED
+        Encoders(HWA& hwa, Database& database, MIDI& midi, Display& display, ComponentInfo& cInfo)
+#else
+        Encoders(HWA& hwa, Database& database, MIDI& midi, ComponentInfo& cInfo)
+#endif
+            : hwa(hwa)
+            , database(database)
+            , midi(midi)
+#ifdef DISPLAY_SUPPORTED
+            , display(display)
+#endif
+            , cInfo(cInfo)
+        {}
+
         void       init();
         void       update();
         void       resetValue(uint8_t encoderID);
@@ -90,6 +95,7 @@ namespace IO
         position_t read(uint8_t encoderID, uint8_t pairState);
 
         private:
+        HWA&      hwa;
         Database& database;
         MIDI&     midi;
 #ifdef DISPLAY_SUPPORTED
