@@ -8,7 +8,6 @@
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
 #include "stubs/database/DB_ReadWrite.h"
-#include "board/Board.h"
 #include <vector>
 
 namespace
@@ -93,6 +92,19 @@ namespace
         }
     } ledsHWA;
 
+    class HWAAnalog : public IO::Analog::HWA
+    {
+        public:
+        HWAAnalog() {}
+
+        uint16_t state(size_t index) override
+        {
+            return adcReturnValue;
+        }
+
+        uint32_t adcReturnValue;
+    } hwaAnalog;
+
     DBstorageMock dbStorageMock;
     Database      database = Database(dbHandlers, dbStorageMock);
     MIDI          midi;
@@ -106,39 +118,18 @@ namespace
 
 #ifdef DISPLAY_SUPPORTED
 #ifdef ADC_10_BIT
-    IO::Analog analog(IO::Analog::adcType_t::adc10bit, database, midi, leds, display, cInfo);
+    IO::Analog analog(hwaAnalog, IO::Analog::adcType_t::adc10bit, database, midi, leds, display, cInfo);
 #else
-    IO::Analog analog(IO::Analog::adcType_t::adc12bit, database, midi, leds, display, cInfo);
+    IO::Analog analog(hwaAnalog, IO::Analog::adcType_t::adc12bit, database, midi, leds, display, cInfo);
 #endif
 #else
 #ifdef ADC_10_BIT
-    IO::Analog analog(IO::Analog::adcType_t::adc10bit, database, midi, leds, cInfo);
+    IO::Analog analog(hwaAnalog, IO::Analog::adcType_t::adc10bit, database, midi, leds, cInfo);
 #else
-    IO::Analog analog(IO::Analog::adcType_t::adc12bit, database, midi, leds, cInfo);
+    IO::Analog analog(hwaAnalog, IO::Analog::adcType_t::adc12bit, database, midi, leds, cInfo);
 #endif
 #endif
 }    // namespace
-
-namespace Board
-{
-    namespace detail
-    {
-        uint32_t adcReturnValue;
-    }
-
-    namespace io
-    {
-        int16_t getAnalogValue(uint8_t analogID)
-        {
-            return detail::adcReturnValue;
-        }
-
-        bool isAnalogDataAvailable()
-        {
-            return true;
-        }
-    }    // namespace io
-}    // namespace Board
 
 TEST_SETUP()
 {
@@ -189,7 +180,7 @@ TEST_CASE(CCtest)
 
     for (int i = 0; i <= adcConfig.adcMaxValue; i++)
     {
-        Board::detail::adcReturnValue = i;
+        hwaAnalog.adcReturnValue = i;
         analog.update();
     }
 
@@ -219,7 +210,7 @@ TEST_CASE(CCtest)
 
     for (int i = adcConfig.adcMaxValue; i >= 0; i--)
     {
-        Board::detail::adcReturnValue = i;
+        hwaAnalog.adcReturnValue = i;
         analog.update();
     }
 
@@ -281,7 +272,7 @@ TEST_CASE(PitchBendTest)
 
     for (int i = 0; i <= adcConfig.adcMaxValue; i++)
     {
-        Board::detail::adcReturnValue = i;
+        hwaAnalog.adcReturnValue = i;
         analog.update();
     }
 
@@ -334,7 +325,7 @@ TEST_CASE(PitchBendTest)
 
     for (int i = adcConfig.adcMaxValue; i >= 0; i--)
     {
-        Board::detail::adcReturnValue = i;
+        hwaAnalog.adcReturnValue = i;
         analog.update();
     }
 
@@ -398,13 +389,13 @@ TEST_CASE(Inversion)
         TEST_ASSERT(database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
     }
 
-    auto adcConfig                = analog.config();
-    Board::detail::adcReturnValue = adcConfig.adcMaxValue;
+    auto adcConfig           = analog.config();
+    hwaAnalog.adcReturnValue = adcConfig.adcMaxValue;
     uint32_t previousValue;
 
     for (int i = 0; i <= adcConfig.adcMaxValue; i++)
     {
-        Board::detail::adcReturnValue = i;
+        hwaAnalog.adcReturnValue = i;
         analog.update();
     }
 
@@ -443,7 +434,7 @@ TEST_CASE(Inversion)
     //feed all the values again
     for (int i = 0; i <= adcConfig.adcMaxValue; i++)
     {
-        Board::detail::adcReturnValue = i;
+        hwaAnalog.adcReturnValue = i;
         analog.update();
     }
 
@@ -486,7 +477,7 @@ TEST_CASE(Inversion)
     //feed all the values again
     for (int i = 0; i <= adcConfig.adcMaxValue; i++)
     {
-        Board::detail::adcReturnValue = i;
+        hwaAnalog.adcReturnValue = i;
         analog.update();
     }
 
@@ -525,7 +516,7 @@ TEST_CASE(Inversion)
     //feed all the values again
     for (int i = 0; i <= adcConfig.adcMaxValue; i++)
     {
-        Board::detail::adcReturnValue = i;
+        hwaAnalog.adcReturnValue = i;
         analog.update();
     }
 
@@ -584,13 +575,13 @@ TEST_CASE(Scaling)
         TEST_ASSERT(database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
     }
 
-    auto adcConfig                = analog.config();
-    Board::detail::adcReturnValue = adcConfig.adcMaxValue;
+    auto adcConfig           = analog.config();
+    hwaAnalog.adcReturnValue = adcConfig.adcMaxValue;
     uint32_t previousValue;
 
     for (int i = 0; i <= adcConfig.adcMaxValue; i++)
     {
-        Board::detail::adcReturnValue = i;
+        hwaAnalog.adcReturnValue = i;
         analog.update();
     }
 
@@ -612,7 +603,7 @@ TEST_CASE(Scaling)
 
     for (int i = 0; i <= adcConfig.adcMaxValue; i++)
     {
-        Board::detail::adcReturnValue = i;
+        hwaAnalog.adcReturnValue = i;
         analog.update();
     }
 
@@ -633,7 +624,7 @@ TEST_CASE(Scaling)
 
     for (int i = 0; i <= adcConfig.adcMaxValue; i++)
     {
-        Board::detail::adcReturnValue = i;
+        hwaAnalog.adcReturnValue = i;
         analog.update();
     }
 

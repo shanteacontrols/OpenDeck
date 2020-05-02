@@ -56,21 +56,6 @@ namespace IO
             const uint16_t digitalValueThresholdOff;    ///< Value below which button connected to analog input is considered released.
         } adcConfig_t;
 
-#ifdef DISPLAY_SUPPORTED
-        Analog(adcType_t adcType, Database& database, MIDI& midi, IO::LEDs& leds, Display& display, ComponentInfo& cInfo)
-#else
-        Analog(adcType_t adcType, Database& database, MIDI& midi, IO::LEDs& leds, ComponentInfo& cInfo)
-#endif
-            : adcConfig(adcType == adcType_t::adc10bit ? adc10bit : adc12bit)
-            , database(database)
-            , midi(midi)
-            , leds(leds)
-#ifdef DISPLAY_SUPPORTED
-            , display(display)
-#endif
-            , cInfo(cInfo)
-        {}
-
         enum class type_t : uint8_t
         {
             potentiometerControlChange,
@@ -89,6 +74,28 @@ namespace IO
             velocity,
             aftertouch
         };
+
+        class HWA
+        {
+            public:
+            virtual uint16_t state(size_t index) = 0;
+        };
+
+#ifdef DISPLAY_SUPPORTED
+        Analog(HWA& hwa, adcType_t adcType, Database& database, MIDI& midi, IO::LEDs& leds, Display& display, ComponentInfo& cInfo)
+#else
+        Analog(HWA& hwa, adcType_t adcType, Database& database, MIDI& midi, IO::LEDs& leds, ComponentInfo& cInfo)
+#endif
+            : hwa(hwa)
+            , adcConfig(adcType == adcType_t::adc10bit ? adc10bit : adc12bit)
+            , database(database)
+            , midi(midi)
+            , leds(leds)
+#ifdef DISPLAY_SUPPORTED
+            , display(display)
+#endif
+            , cInfo(cInfo)
+        {}
 
         void         update();
         void         debounceReset(uint16_t index);
@@ -127,8 +134,6 @@ namespace IO
             .digitalValueThresholdOff = 2400,
         };
 
-        adcConfig_t& adcConfig;
-
         uint16_t getHysteresisValue(uint8_t analogID, int16_t value);
         void     checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32_t value);
         void     checkFSRvalue(uint8_t analogID, uint16_t pressure);
@@ -140,9 +145,11 @@ namespace IO
         uint32_t calibratePressure(uint32_t value, pressureType_t type);
         bool     digitalStateFromAnalogValue(uint16_t adcValue);
 
-        Database& database;
-        MIDI&     midi;
-        IO::LEDs& leds;
+        HWA&         hwa;
+        adcConfig_t& adcConfig;
+        Database&    database;
+        MIDI&        midi;
+        IO::LEDs&    leds;
 #ifdef DISPLAY_SUPPORTED
         Display& display;
 #endif

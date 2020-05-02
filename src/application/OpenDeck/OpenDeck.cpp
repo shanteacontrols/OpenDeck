@@ -243,6 +243,17 @@ class HWAButtons : public IO::Buttons::HWA
     }
 } hwaButtons;
 
+class HWAAnalog : public IO::Analog::HWA
+{
+    public:
+    HWAAnalog() {}
+
+    uint16_t state(size_t index) override
+    {
+        return Board::io::getAnalogValue(index);
+    }
+} hwaAnalog;
+
 // clang-format off
 ComponentInfo                       cinfo;
 MIDI                                midi;
@@ -256,15 +267,15 @@ IO::Touchscreen                     touchscreen(touchscreenModel);
 IO::LEDs                            leds(hwaLEDs, database);
 #ifdef DISPLAY_SUPPORTED
 #ifdef ADC_10_BIT
-IO::Analog                          analog(IO::Analog::adcType_t::adc10bit, database, midi, leds, display, cinfo);
+IO::Analog                          analog(hwaAnalog, IO::Analog::adcType_t::adc10bit, database, midi, leds, display, cinfo);
 #else
-IO::Analog                          analog(IO::Analog::adcType_t::adc12bit, database, midi, leds, display, cinfo);
+IO::Analog                          analog(hwaAnalog, IO::Analog::adcType_t::adc12bit, database, midi, leds, display, cinfo);
 #endif
 #else
 #ifdef ADC_10_BIT
-IO::Analog                          analog(IO::Analog::adcType_t::adc10bit, database, midi, leds, cinfo);
+IO::Analog                          analog(hwaAnalog, IO::Analog::adcType_t::adc10bit, database, midi, leds, cinfo);
 #else
-IO::Analog                          analog(IO::Analog::adcType_t::adc12bit, database, midi, leds, cinfo);
+IO::Analog                          analog(hwaAnalog, IO::Analog::adcType_t::adc12bit, database, midi, leds, cinfo);
 #endif
 #endif
 #ifdef DISPLAY_SUPPORTED

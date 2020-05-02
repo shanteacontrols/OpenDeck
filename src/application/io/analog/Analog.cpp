@@ -17,7 +17,6 @@ limitations under the License.
 */
 
 #include "Analog.h"
-#include "board/Board.h"
 #include "core/src/general/Helpers.h"
 
 using namespace IO;
@@ -31,7 +30,7 @@ void Analog::update()
         if (!database.read(Database::Section::analog_t::enable, i))
             continue;
 
-        uint16_t analogData = Board::io::getAnalogValue(i);
+        uint16_t analogData = hwa.state(i);
         auto     type       = static_cast<type_t>(database.read(Database::Section::analog_t::type, i));
 
         if (expFilterUsed)
