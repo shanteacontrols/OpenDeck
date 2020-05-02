@@ -261,20 +261,6 @@ void OpenDeck::init()
 {
     Board::init();
 
-    dbHandlers.presetChangeHandler = [](uint8_t preset) {
-        leds.midiToState(MIDI::messageType_t::programChange, preset, 0, 0, true);
-
-#ifdef DISPLAY_SUPPORTED
-        if (display.init(false))
-            display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::presetChange, preset, 0, 0);
-#endif
-    };
-
-    dbHandlers.factoryResetStartHandler = []() {
-        leds.setAllOff();
-        core::timing::waitMs(1000);
-    };
-
     database.init();
     sysConfig.init();
     leds.init();
@@ -287,6 +273,20 @@ void OpenDeck::init()
     touchscreen.init();
     touchscreen.setScreen(1);
 #endif
+
+    dbHandlers.factoryResetStartHandler = []() {
+        leds.setAllOff();
+        core::timing::waitMs(1000);
+    };
+
+    dbHandlers.presetChangeHandler = [](uint8_t preset) {
+        leds.midiToState(MIDI::messageType_t::programChange, preset, 0, 0, true);
+
+#ifdef DISPLAY_SUPPORTED
+        if (display.init(false))
+            display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::presetChange, preset, 0, 0);
+#endif
+    };
 
     cinfo.registerHandler([](Database::block_t dbBlock, SysExConf::sysExParameter_t componentID) {
         return sysConfig.sendCInfo(dbBlock, componentID);
