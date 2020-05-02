@@ -29,16 +29,29 @@ using namespace IO;
 ///
 bool Display::init(bool startupInfo)
 {
-    if (initDone)
-        U8X8::clearDisplay();
-
     if (database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::enable)))
     {
         auto controller = static_cast<U8X8::displayController_t>(database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::controller)));
         auto resolution = static_cast<U8X8::displayResolution_t>(database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::resolution)));
 
+        if (!startupInfo)
+        {
+            //avoid reinitializing display with the same settings in this case
+            if (initDone)
+            {
+                if (lastController == controller)
+                {
+                    if (lastResolution == resolution)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
         if (U8X8::initDisplay(controller, resolution))
         {
+            U8X8::clearDisplay();
             U8X8::setPowerSave(0);
             U8X8::setFlipMode(0);
 
@@ -84,6 +97,9 @@ bool Display::init(bool startupInfo)
             setRetentionTime(database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::MIDIeventTime)) * 1000);
 
             displayHome();
+
+            lastController = controller;
+            lastResolution = resolution;
 
             return true;
         }
