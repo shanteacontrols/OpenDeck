@@ -24,9 +24,6 @@ using namespace IO;
 
 void Analog::update()
 {
-    if (!Board::io::isAnalogDataAvailable())
-        return;
-
     //check values
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {

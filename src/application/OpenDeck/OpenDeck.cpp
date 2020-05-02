@@ -373,7 +373,9 @@ void OpenDeck::checkComponents()
             encoders.update();
         }
 
-        analog.update();
+        if (Board::io::isAnalogDataAvailable())
+            analog.update();
+
         leds.checkBlinking();
 #ifdef DISPLAY_SUPPORTED
         display.update();
