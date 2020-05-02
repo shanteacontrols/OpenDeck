@@ -125,26 +125,26 @@ namespace IO
             : database(database)
         {}
 
-        bool          init(bool startupInfo);
-        bool          update();
-        void          displayWelcomeMessage();
-        void          displayVinfo(bool newFw);
-        void          displayHome();
-        void          displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, uint16_t byte2, uint8_t byte3);
-        void          setAlternateNoteDisplay(bool state);
-        void          setOctaveNormalization(int8_t value);
-        void          setDirectWriteState(bool state);
-        lcdTextType_t getActiveTextType();
-        void          setRetentionTime(uint32_t time);
+        bool init(bool startupInfo);
+        bool update();
+        void displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, uint16_t byte2, uint8_t byte3);
+        void setAlternateNoteDisplay(bool state);
+        void setOctaveNormalization(int8_t value);
+        void setRetentionTime(uint32_t time);
 
         private:
-        void    updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex);
-        uint8_t getTextCenter(uint8_t textSize);
-        int8_t  normalizeOctave(uint8_t octave, int8_t normalization);
-        void    buildString(const char* text, ...);
-        void    updateScrollStatus(uint8_t row);
-        void    updateTempTextStatus();
-        void    clearMIDIevent(eventType_t type);
+        void          displayHome();
+        void          displayWelcomeMessage();
+        void          displayVinfo(bool newFw);
+        void          setDirectWriteState(bool state);
+        lcdTextType_t getActiveTextType();
+        void          updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex);
+        uint8_t       getTextCenter(uint8_t textSize);
+        int8_t        normalizeOctave(uint8_t octave, int8_t normalization);
+        void          buildString(const char* text, ...);
+        void          updateScrollStatus(uint8_t row);
+        void          updateTempTextStatus();
+        void          clearMIDIevent(eventType_t type);
 
         Database& database;
 
