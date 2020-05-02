@@ -207,12 +207,9 @@ namespace Board
         void setLEDfadeSpeed(uint8_t transitionSpeed);
 
         ///
-        /// \brief Checks if data from multiplexers is available.
+        /// \brief Checks if data from ADC is available.
         /// Data is read in ISR and stored into samples array.
-        /// Once all mux inputs are read, data is considered available.
-        /// At this point, analogSamplingDone variable is reset
-        /// to stop further data reading from ISR until continueAnalogReadout
-        /// function is called.
+        /// Once all inputs are read, data is considered available.
         /// \returns True if data is available, false otherwise.
         ///
         bool isAnalogDataAvailable();
