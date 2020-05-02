@@ -163,10 +163,10 @@ class HWALEDs : public IO::LEDs::HWA
 
 #include "io/touchscreen/model/sdw/SDW.h"
 
-class SDWHWA : public IO::Touchscreen::Model::HWA
+class HWASDW : public IO::Touchscreen::Model::HWA
 {
     public:
-    SDWHWA() {}
+    HWASDW() {}
 
     bool init() override
     {
@@ -190,10 +190,10 @@ SDW touchscreenModel(sdwHWA);
 //nextion by default
 #include "io/touchscreen/model/nextion/Nextion.h"
 
-class NextionHWA : public IO::Touchscreen::Model::HWA
+class HWANextion : public IO::Touchscreen::Model::HWA
 {
     public:
-    NextionHWA() {}
+    HWANextion() {}
 
     bool init() override
     {

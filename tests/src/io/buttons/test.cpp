@@ -83,10 +83,10 @@ namespace
         void (*initHandler)()                       = nullptr;
     } dbHandlers;
 
-    class LEDsHWA : public IO::LEDs::HWA
+    class HWALEDs : public IO::LEDs::HWA
     {
         public:
-        LEDsHWA() {}
+        HWALEDs() {}
 
         void setState(size_t index, bool state) override
         {
