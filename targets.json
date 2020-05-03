@@ -16,13 +16,13 @@
             "name": "discovery",
             "bootloader": false,
             "release": false,
-            "test": false
+            "test": true
         },
         {
             "name": "cardamom",
             "bootloader": false,
             "release": false,
-            "test": false
+            "test": true
         },
         {
             "name": "dubfocus",

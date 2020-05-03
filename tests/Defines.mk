@@ -20,6 +20,10 @@ else ifeq ($(MCU),atmega2560)
     DATABASE_SIZE := 4093
 else ifeq ($(MCU),atmega328p)
     DATABASE_SIZE := 1021
+else ifeq ($(MCU),stm32f405)
+    DATABASE_SIZE := 131068
+else ifeq ($(MCU),stm32f407)
+    DATABASE_SIZE := 131068
 endif
 
 DEFINES_COMMON += OD_BOARD_$(shell echo $(BOARD_DIR) | tr 'a-z' 'A-Z')
