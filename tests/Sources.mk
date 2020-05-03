@@ -7,6 +7,7 @@ vpath modules/%.c ../
 SOURCES_COMMON := \
 modules/unity/src/unity.c \
 modules/dbms/src/LESSDB.cpp \
+modules/EmuEEPROM/src/EmuEEPROM.cpp \
 modules/midi/src/MIDI.cpp \
 modules/u8g2/csrc/u8x8_string.c \
 modules/u8g2/csrc/u8x8_setup.c \

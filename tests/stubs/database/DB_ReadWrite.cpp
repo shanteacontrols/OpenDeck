@@ -8,6 +8,7 @@ uint32_t DBstorageMock::size()
 
 size_t DBstorageMock::paramUsage(LESSDB::sectionParameterType_t type)
 {
+#ifndef STM32_EMU_EEPROM
     switch (type)
     {
     case LESSDB::sectionParameterType_t::word:
@@ -22,10 +23,25 @@ size_t DBstorageMock::paramUsage(LESSDB::sectionParameterType_t type)
     default:
         return 1;
     }
+#else
+    switch (type)
+    {
+    case LESSDB::sectionParameterType_t::dword:
+        return 8;
+
+    case LESSDB::sectionParameterType_t::bit:
+    case LESSDB::sectionParameterType_t::halfByte:
+    case LESSDB::sectionParameterType_t::byte:
+    case LESSDB::sectionParameterType_t::word:
+    default:
+        return 4;    //2 bytes for address, 2 bytes for data
+    }
+#endif
 }
 
 bool DBstorageMock::read(uint32_t address, int32_t& value, LESSDB::sectionParameterType_t type)
 {
+#ifndef STM32_EMU_EEPROM
     switch (type)
     {
     case LESSDB::sectionParameterType_t::bit:
@@ -53,10 +69,45 @@ bool DBstorageMock::read(uint32_t address, int32_t& value, LESSDB::sectionParame
     }
 
     return true;
+#else
+    uint16_t tempData;
+
+    switch (type)
+    {
+    case LESSDB::sectionParameterType_t::bit:
+    case LESSDB::sectionParameterType_t::byte:
+    case LESSDB::sectionParameterType_t::halfByte:
+    case LESSDB::sectionParameterType_t::word:
+        if (eepromMemory[address] != 0xFFFF)
+        {
+            value = eepromMemory[address];
+        }
+        else
+        {
+            if (emuEEPROM.read(address, tempData) != EmuEEPROM::readStatus_t::ok)
+            {
+                return false;
+            }
+            else
+            {
+                value                 = tempData;
+                eepromMemory[address] = tempData;
+            }
+        }
+        break;
+
+    default:
+        return false;
+        break;
+    }
+
+    return true;
+#endif
 }
 
 bool DBstorageMock::write(uint32_t address, int32_t value, LESSDB::sectionParameterType_t type)
 {
+#ifndef STM32_EMU_EEPROM
     switch (type)
     {
     case LESSDB::sectionParameterType_t::bit:
@@ -80,9 +131,35 @@ bool DBstorageMock::write(uint32_t address, int32_t value, LESSDB::sectionParame
     }
 
     return true;
+#else
+    uint16_t tempData;
+
+    switch (type)
+    {
+    case LESSDB::sectionParameterType_t::bit:
+    case LESSDB::sectionParameterType_t::byte:
+    case LESSDB::sectionParameterType_t::halfByte:
+    case LESSDB::sectionParameterType_t::word:
+        tempData              = value;
+        eepromMemory[address] = value;
+        if (emuEEPROM.write(address, tempData) != EmuEEPROM::writeStatus_t::ok)
+            return false;
+        break;
+
+    default:
+        return false;
+        break;
+    }
+
+    return true;
+#endif
 }
 
 void DBstorageMock::clear()
 {
+#ifndef STM32_EMU_EEPROM
     memset(memoryArray, 0x00, DATABASE_SIZE);
+#else
+    emuEEPROM.format();
+#endif
 }
