@@ -300,19 +300,16 @@ TEST_CASE(Note)
         verifyValue(false);
     };
 
-    //test for all midi channels
-    for (int i = 0; i < 16; i++)
+    //test for all velocity values
+    //test only for channel 0 for simplicity
+    for (int j = 1; j < 128; j++)
     {
-        //test for all velocity values
-        for (int j = 1; j < 128; j++)
-        {
-            midi.setNoteOffMode(MIDI::noteOffType_t::standardNoteOff);
-            test(i, i);
+        midi.setNoteOffMode(MIDI::noteOffType_t::standardNoteOff);
+        test(0, j);
 
-            //repeat the test with note off being sent as note on with velocity 0
-            midi.setNoteOffMode(MIDI::noteOffType_t::noteOnZeroVel);
-            test(i, i);
-        }
+        //repeat the test with note off being sent as note on with velocity 0
+        midi.setNoteOffMode(MIDI::noteOffType_t::noteOnZeroVel);
+        test(0, j);
     }
 }
 
