@@ -19,5 +19,5 @@ class DBstorageMock : public LESSDB::StorageAccess
     bool     write(uint32_t address, int32_t value, LESSDB::sectionParameterType_t type) override;
 
     private:
-    uint8_t memoryArray[EEPROM_SIZE - 3] = {};
+    uint8_t memoryArray[DATABASE_SIZE] = {};
 };

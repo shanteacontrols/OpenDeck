@@ -9,21 +9,21 @@ MCU_FAMILY := $(shell $(FIND) ../src/board -type d -name *$(BOARD_DIR) | cut -d/
 
 #mcu specific
 ifeq ($(MCU),atmega32u4)
-    EEPROM_SIZE := 1024
+    DATABASE_SIZE := 1021
 else ifeq ($(MCU),at90usb1286)
-    EEPROM_SIZE := 4096
+    DATABASE_SIZE := 4093
 else ifeq ($(MCU),atmega16u2)
-    EEPROM_SIZE := 512
+    DATABASE_SIZE := 509
 else ifeq ($(MCU),atmega8u2)
-    EEPROM_SIZE := 512
+    DATABASE_SIZE := 509
 else ifeq ($(MCU),atmega2560)
-    EEPROM_SIZE := 4096
+    DATABASE_SIZE := 4093
 else ifeq ($(MCU),atmega328p)
-    EEPROM_SIZE := 1024
+    DATABASE_SIZE := 1021
 endif
 
 DEFINES_COMMON += OD_BOARD_$(shell echo $(BOARD_DIR) | tr 'a-z' 'A-Z')
-DEFINES_COMMON += EEPROM_SIZE=$(EEPROM_SIZE)
+DEFINES_COMMON += DATABASE_SIZE=$(DATABASE_SIZE)
 
 ifneq ($(HARDWARE_VERSION_MAJOR), )
     DEFINES_COMMON += HARDWARE_VERSION_MAJOR=$(HARDWARE_VERSION_MAJOR)

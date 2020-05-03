@@ -1,11 +1,9 @@
 #include "DB_ReadWrite.h"
 #include <string.h>
 
-#define DB_SIZE (EEPROM_SIZE - 3)
-
 uint32_t DBstorageMock::size()
 {
-    return DB_SIZE;
+    return DATABASE_SIZE;
 }
 
 size_t DBstorageMock::paramUsage(LESSDB::sectionParameterType_t type)
@@ -86,5 +84,5 @@ bool DBstorageMock::write(uint32_t address, int32_t value, LESSDB::sectionParame
 
 void DBstorageMock::clear()
 {
-    memset(memoryArray, 0x00, DB_SIZE);
+    memset(memoryArray, 0x00, DATABASE_SIZE);
 }
