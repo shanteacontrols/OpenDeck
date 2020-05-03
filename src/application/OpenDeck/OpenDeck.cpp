@@ -175,7 +175,7 @@ class HWASDW : public IO::Touchscreen::Model::HWA
         return true;
     }
 
-    bool write(uint8_t data)
+    bool write(uint8_t data) override
     {
         return Board::UART::write(UART_TOUCHSCREEN_CHANNEL, data);
     }
@@ -202,7 +202,7 @@ class HWANextion : public IO::Touchscreen::Model::HWA
         return true;
     }
 
-    bool write(uint8_t data)
+    bool write(uint8_t data) override
     {
         return Board::UART::write(UART_TOUCHSCREEN_CHANNEL, data);
     }
