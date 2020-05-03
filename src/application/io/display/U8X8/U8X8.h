@@ -18,29 +18,59 @@ limitations under the License.
 
 #include "u8g2/csrc/u8x8.h"
 
-namespace U8X8
+namespace IO
 {
-    enum class displayController_t : uint8_t
+    class U8X8
     {
-        invalid,
-        ssd1306,
-        AMOUNT
-    };
+        public:
+        class HWAI2C
+        {
+            public:
+            enum class transferType_t : uint8_t
+            {
+                write,
+                read
+            };
 
-    enum displayResolution_t : uint8_t
-    {
-        invalid,
-        _128x64,
-        _128x32,
-        AMOUNT
-    };
+            virtual void init()                                         = 0;
+            virtual bool transfer(uint8_t address, transferType_t type) = 0;
+            virtual void stop()                                         = 0;
+            virtual bool write(uint8_t data)                            = 0;
+        };
 
-    bool    initDisplay(displayController_t controller, displayResolution_t resolution);
-    uint8_t getColumns();
-    uint8_t getRows();
-    void    clearDisplay();
-    void    setPowerSave(uint8_t is_enable);
-    void    setFlipMode(uint8_t mode);
-    void    setFont(const uint8_t* font_8x8);
-    void    drawGlyph(uint8_t x, uint8_t y, uint8_t encoding);
-}    // namespace U8X8
+        enum class displayController_t : uint8_t
+        {
+            invalid,
+            ssd1306,
+            AMOUNT
+        };
+
+        enum displayResolution_t : uint8_t
+        {
+            invalid,
+            _128x64,
+            _128x32,
+            AMOUNT
+        };
+
+        U8X8(HWAI2C& hwa)
+            : hwa(hwa)
+        {}
+
+        bool    initDisplay(displayController_t controller, displayResolution_t resolution);
+        uint8_t getColumns();
+        uint8_t getRows();
+        void    clearDisplay();
+        void    setPowerSave(uint8_t is_enable);
+        void    setFlipMode(uint8_t mode);
+        void    setFont(const uint8_t* font_8x8);
+        void    drawGlyph(uint8_t x, uint8_t y, uint8_t encoding);
+
+        private:
+        HWAI2C& hwa;
+
+        u8x8_t u8x8;
+        size_t rows    = 0;
+        size_t columns = 0;
+    };
+}    // namespace IO

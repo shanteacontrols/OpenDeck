@@ -113,7 +113,32 @@ namespace
     IO::LEDs leds(ledsHWA, database);
 
 #ifdef DISPLAY_SUPPORTED
-    IO::Display display(database);
+    class HWAU8X8 : public IO::U8X8::HWAI2C
+    {
+        public:
+        HWAU8X8() {}
+
+        void init() override
+        {
+        }
+
+        bool transfer(uint8_t address, IO::U8X8::HWAI2C::transferType_t type) override
+        {
+            return true;
+        }
+
+        void stop() override
+        {
+        }
+
+        bool write(uint8_t data) override
+        {
+            return true;
+        }
+    } hwaU8X8;
+
+    IO::U8X8    u8x8(hwaU8X8);
+    IO::Display display(u8x8, database);
 #endif
 
 #ifdef DISPLAY_SUPPORTED

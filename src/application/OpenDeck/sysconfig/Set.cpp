@@ -545,7 +545,7 @@ SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t i
         {
         case IO::Display::setting_t::controller:
         {
-            if ((newValue <= static_cast<uint8_t>(U8X8::displayController_t::AMOUNT)) && (newValue >= 0))
+            if ((newValue <= static_cast<uint8_t>(IO::U8X8::displayController_t::AMOUNT)) && (newValue >= 0))
             {
                 init = true;
             }
@@ -554,7 +554,7 @@ SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t i
 
         case IO::Display::setting_t::resolution:
         {
-            if ((newValue <= static_cast<uint8_t>(U8X8::displayResolution_t::AMOUNT)) && (newValue >= 0))
+            if ((newValue <= static_cast<uint8_t>(IO::U8X8::displayResolution_t::AMOUNT)) && (newValue >= 0))
             {
                 init = true;
             }

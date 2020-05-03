@@ -259,7 +259,7 @@ TEST_CASE(FactoryReset)
 #ifdef DISPLAY_SUPPORTED
     TEST_ASSERT(database.update(Database::Section::display_t::setting,
                                 static_cast<size_t>(IO::Display::setting_t::controller),
-                                static_cast<size_t>(U8X8::displayController_t::ssd1306)) == true);
+                                static_cast<size_t>(IO::U8X8::displayController_t::ssd1306)) == true);
 #endif
 
     database.setPresetPreserveState(true);
@@ -272,7 +272,7 @@ TEST_CASE(FactoryReset)
 
 #ifdef DISPLAY_SUPPORTED
     TEST_ASSERT(database.read(Database::Section::display_t::setting,
-                              static_cast<size_t>(IO::Display::setting_t::controller)) == static_cast<int32_t>(U8X8::displayController_t::invalid));
+                              static_cast<size_t>(IO::Display::setting_t::controller)) == static_cast<int32_t>(IO::U8X8::displayController_t::invalid));
 #endif
 
     TEST_ASSERT(database.getPresetPreserveState() == false);

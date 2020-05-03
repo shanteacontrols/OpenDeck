@@ -34,9 +34,9 @@ void Display::displayWelcomeMessage()
     uint8_t location  = 0;
     uint8_t startRow;
 
-    U8X8::clearDisplay();
+    u8x8.clearDisplay();
 
-    switch (U8X8::getRows())
+    switch (u8x8.getRows())
     {
     case 4:
         startRow = 1;
@@ -54,7 +54,7 @@ void Display::displayWelcomeMessage()
 
     while (string[charIndex] != '\0')
     {
-        U8X8::drawGlyph(location + charIndex, rowMap[resolution][startRow], string[charIndex]);
+        u8x8.drawGlyph(location + charIndex, rowMap[resolution][startRow], string[charIndex]);
         charIndex++;
     }
 
@@ -66,7 +66,7 @@ void Display::displayWelcomeMessage()
 
     while (string[charIndex] != '\0')
     {
-        U8X8::drawGlyph(location + charIndex, rowMap[resolution][startRow + 1], string[charIndex]);
+        u8x8.drawGlyph(location + charIndex, rowMap[resolution][startRow + 1], string[charIndex]);
         core::timing::waitMs(50);
         charIndex++;
     }
@@ -81,9 +81,9 @@ void Display::displayVinfo(bool newFw)
 
     uint8_t startRow;
 
-    U8X8::clearDisplay();
+    u8x8.clearDisplay();
 
-    switch (U8X8::getRows())
+    switch (u8x8.getRows())
     {
     case 4:
         startRow = 1;
@@ -120,7 +120,7 @@ void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, 
     uint8_t startColumn = (type == Display::eventType_t::in) ? COLUMN_START_MIDI_IN_MESSAGE : COLUMN_START_MIDI_OUT_MESSAGE;
 
     stringBuilder.overwrite("%s", Strings::midiMessage(event));
-    stringBuilder.fillUntil(U8X8::getColumns() - startColumn - strlen(stringBuilder.string()));
+    stringBuilder.fillUntil(u8x8.getColumns() - startColumn - strlen(stringBuilder.string()));
     updateText(startRow, lcdTextType_t::still, startColumn);
 
     switch (event)
@@ -134,20 +134,20 @@ void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, 
             stringBuilder.overwrite("%s%d", Strings::note(MIDI::getTonicFromNote(byte1)), normalizeOctave(MIDI::getOctaveFromNote(byte1), octaveNormalization));
 
         stringBuilder.append(" v%d CH%d", byte2, byte3);
-        stringBuilder.fillUntil(U8X8::getColumns() - strlen(stringBuilder.string()));
+        stringBuilder.fillUntil(u8x8.getColumns() - strlen(stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
         break;
 
     case event_t::programChange:
         stringBuilder.overwrite("%d CH%d", byte1, byte3);
-        stringBuilder.fillUntil(U8X8::getColumns() - strlen(stringBuilder.string()));
+        stringBuilder.fillUntil(u8x8.getColumns() - strlen(stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
         break;
 
     case event_t::controlChange:
     case event_t::nrpn:
         stringBuilder.overwrite("%d %d CH%d", byte1, byte2, byte3);
-        stringBuilder.fillUntil(U8X8::getColumns() - strlen(stringBuilder.string()));
+        stringBuilder.fillUntil(u8x8.getColumns() - strlen(stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
         break;
 
@@ -157,7 +157,7 @@ void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, 
     case event_t::mmcRecordOff:
     case event_t::mmcPause:
         stringBuilder.overwrite("CH%d", byte1);
-        stringBuilder.fillUntil(U8X8::getColumns() - strlen(stringBuilder.string()));
+        stringBuilder.fillUntil(u8x8.getColumns() - strlen(stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
         break;
 
@@ -169,13 +169,13 @@ void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, 
     case event_t::sysRealTimeSystemReset:
     case event_t::systemExclusive:
         stringBuilder.overwrite("");
-        stringBuilder.fillUntil(U8X8::getColumns());
+        stringBuilder.fillUntil(u8x8.getColumns());
         updateText(startRow + 1, lcdTextType_t::still, 0);
         break;
 
     case event_t::presetChange:
         stringBuilder.overwrite("%d", byte1);
-        stringBuilder.fillUntil(U8X8::getColumns() - strlen(stringBuilder.string()));
+        stringBuilder.fillUntil(u8x8.getColumns() - strlen(stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
         break;
 
@@ -197,22 +197,22 @@ void Display::clearMIDIevent(eventType_t type)
     case eventType_t::in:
         //first row
         stringBuilder.overwrite("In: ");
-        stringBuilder.fillUntil(U8X8::getColumns() - strlen(stringBuilder.string()));
+        stringBuilder.fillUntil(u8x8.getColumns() - strlen(stringBuilder.string()));
         updateText(ROW_START_MIDI_IN_MESSAGE, lcdTextType_t::still, 0);
         //second row
         stringBuilder.overwrite("");
-        stringBuilder.fillUntil(U8X8::getColumns() - strlen(stringBuilder.string()));
+        stringBuilder.fillUntil(u8x8.getColumns() - strlen(stringBuilder.string()));
         updateText(ROW_START_MIDI_IN_MESSAGE + 1, lcdTextType_t::still, 0);
         break;
 
     case eventType_t::out:
         //first row
         stringBuilder.overwrite("Out: ");
-        stringBuilder.fillUntil(U8X8::getColumns() - strlen(stringBuilder.string()));
+        stringBuilder.fillUntil(u8x8.getColumns() - strlen(stringBuilder.string()));
         updateText(ROW_START_MIDI_OUT_MESSAGE, lcdTextType_t::still, 0);
         //second row
         stringBuilder.overwrite("");
-        stringBuilder.fillUntil(U8X8::getColumns() - strlen(stringBuilder.string()));
+        stringBuilder.fillUntil(u8x8.getColumns() - strlen(stringBuilder.string()));
         updateText(ROW_START_MIDI_OUT_MESSAGE + 1, lcdTextType_t::still, 0);
         break;
 

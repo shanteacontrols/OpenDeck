@@ -21,6 +21,7 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 #include "core/src/general/Interrupt.h"
 #include "core/src/general/Reset.h"
+#include "core/src/general/I2C.h"
 #include "io/common/CInfo.h"
 
 class DBhandlers : public Database::Handlers
@@ -254,12 +255,51 @@ class HWAAnalog : public IO::Analog::HWA
     }
 } hwaAnalog;
 
+#ifdef DISPLAY_SUPPORTED
+class HWAU8X8 : public IO::U8X8::HWAI2C
+{
+    public:
+    HWAU8X8() {}
+
+    void init() override
+    {
+        core::i2c::enable();
+    }
+
+    bool transfer(uint8_t address, IO::U8X8::HWAI2C::transferType_t type) override
+    {
+        switch (type)
+        {
+        case IO::U8X8::HWAI2C::transferType_t::write:
+            return core::i2c::startComm(address, core::i2c::transferType_t::write);
+
+        case IO::U8X8::HWAI2C::transferType_t::read:
+            return core::i2c::startComm(address, core::i2c::transferType_t::read);
+
+        default:
+            return false;
+        }
+    }
+
+    void stop() override
+    {
+        core::i2c::stopComm();
+    }
+
+    bool write(uint8_t data) override
+    {
+        return core::i2c::write(data);
+    }
+} hwaU8X8;
+#endif
+
 // clang-format off
 ComponentInfo                       cinfo;
 MIDI                                midi;
 IO::Common                          digitalInputCommon;
 #ifdef DISPLAY_SUPPORTED
-IO::Display                         display(database);
+IO::U8X8                            u8x8(hwaU8X8);
+IO::Display                         display(u8x8, database);
 #endif
 #ifdef TOUCHSCREEN_SUPPORTED
 IO::Touchscreen                     touchscreen(touchscreenModel);

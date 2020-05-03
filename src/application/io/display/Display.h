@@ -121,8 +121,9 @@ namespace IO
             AMOUNT
         };
 
-        Display(Database& database)
-            : database(database)
+        Display(IO::U8X8& u8x8, Database& database)
+            : u8x8(u8x8)
+            , database(database)
         {}
 
         bool init(bool startupInfo);
@@ -145,6 +146,7 @@ namespace IO
         void          updateTempTextStatus();
         void          clearMIDIevent(eventType_t type);
 
+        IO::U8X8& u8x8;
         Database& database;
 
         ///

@@ -123,13 +123,35 @@ namespace
     MIDI          midi;
     ComponentInfo cInfo;
 
-#ifdef DISPLAY_SUPPORTED
-    IO::Display display(database);
-#endif
-
     IO::LEDs leds(ledsHWA, database);
 
 #ifdef DISPLAY_SUPPORTED
+    class HWAU8X8 : public IO::U8X8::HWAI2C
+    {
+        public:
+        HWAU8X8() {}
+
+        void init() override
+        {
+        }
+
+        bool transfer(uint8_t address, IO::U8X8::HWAI2C::transferType_t type) override
+        {
+            return true;
+        }
+
+        void stop() override
+        {
+        }
+
+        bool write(uint8_t data) override
+        {
+            return true;
+        }
+    } hwaU8X8;
+
+    IO::U8X8    u8x8(hwaU8X8);
+    IO::Display display(u8x8, database);
     IO::Buttons buttons = IO::Buttons(hwaButtons, database, midi, leds, display, cInfo);
 #else
     IO::Buttons buttons = IO::Buttons(hwaButtons, database, midi, leds, cInfo);
