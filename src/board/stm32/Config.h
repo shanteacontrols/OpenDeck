@@ -23,7 +23,7 @@ limitations under the License.
 ///
 /// \brief Defines how many analog samples from the same input will be thrown away before storing the read value.
 ///
-#define ADC_IGNORED_SAMPLES_COUNT 3
+#define ADC_IGNORED_SAMPLES_COUNT 5
 
 ///
 /// \brief Location at which compiled binary CRC is written in EEPROM.
