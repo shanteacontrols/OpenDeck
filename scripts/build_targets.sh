@@ -138,4 +138,11 @@ do
     fi
 
     make TARGETNAME="${targets[$i]}"
+
+    result=$?
+
+    if [[ ($result -ne 0) ]]
+    then
+        exit 1
+    fi
 done
