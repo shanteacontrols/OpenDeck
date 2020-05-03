@@ -95,11 +95,22 @@ void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32
     //     //14-bit values are already read
     // }
 
-    auto scaledMIDIvalue = core::misc::mapRange(midiValue, static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(lowerLimit), static_cast<uint32_t>(upperLimit));
+    uint32_t scaledMIDIvalue;
 
-    //invert MIDI data if configured
-    if (database.read(DB_BLOCK_ANALOG, dbSection_analog_invert, analogID))
-        scaledMIDIvalue = maxLimit - scaledMIDIvalue;
+    if (lowerLimit > upperLimit)
+    {
+        scaledMIDIvalue = core::misc::mapRange(midiValue, static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(upperLimit), static_cast<uint32_t>(lowerLimit));
+
+        if (!database.read(DB_BLOCK_ANALOG, dbSection_analog_invert, analogID))
+            scaledMIDIvalue = upperLimit - (scaledMIDIvalue - lowerLimit);
+    }
+    else
+    {
+        scaledMIDIvalue = core::misc::mapRange(midiValue, static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(lowerLimit), static_cast<uint32_t>(upperLimit));
+
+        if (database.read(DB_BLOCK_ANALOG, dbSection_analog_invert, analogID))
+            scaledMIDIvalue = upperLimit - (scaledMIDIvalue - lowerLimit);
+    }
 
     switch (analogType)
     {
