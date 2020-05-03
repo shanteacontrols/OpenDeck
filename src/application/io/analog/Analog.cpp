@@ -33,16 +33,13 @@ void Analog::update()
         uint16_t analogData = hwa.state(i);
         auto     type       = static_cast<type_t>(database.read(Database::Section::analog_t::type, i));
 
-        if (expFilterUsed)
-        {
-            //normally use exponential filter (factor 0.5 for easier bitwise math), but not around the edges
-            if (analogData <= adcConfig.stepMinDiff7bit)
-                analogData = 0;
-            else if (analogData >= (adcConfig.adcMaxValue - adcConfig.stepMinDiff7bit))
-                analogData = adcConfig.adcMaxValue;
-            else
-                analogData = (analogData >> 1) + (lastAnalogueValue[i] >> 1);
-        }
+        //normally use exponential filter but not around the edges
+        if (analogData <= adc7bitStep)
+            analogData = 0;
+        else if (analogData >= (adcConfig.adcMaxValue - adc7bitStep))
+            analogData = adcConfig.adcMaxValue;
+        else
+            analogData = emaFilter[i].value(analogData);
 
         if (type != type_t::button)
         {
@@ -78,6 +75,8 @@ void Analog::debounceReset(uint16_t index)
     lastDirection[index]     = potDirection_t::initial;
     lastAnalogueValue[index] = 0;
     fsrPressed[index]        = false;
+
+    emaFilter[index].reset();
 }
 
 ///
@@ -97,16 +96,6 @@ bool Analog::digitalStateFromAnalogValue(uint16_t adcValue)
         return true;
     else
         return false;
-}
-
-void Analog::enableExpFiltering()
-{
-    expFilterUsed = true;
-}
-
-void Analog::disableExpFiltering()
-{
-    expFilterUsed = false;
 }
 
 IO::Analog::adcConfig_t& Analog::config()

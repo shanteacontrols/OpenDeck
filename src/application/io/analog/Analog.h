@@ -47,8 +47,10 @@ namespace IO
         typedef struct
         {
             const uint16_t adcMaxValue;                 ///< Maxmimum raw ADC value.
-            const uint16_t stepMinDiff7bit;             ///< Minimum difference between two raw ADC readings to consider that value has been changed for 7-bit MIDI values.
-            const uint16_t stepMinDiff14bit;            ///< Minimum difference between two raw ADC readings to consider that value has been changed for 14-bit MIDI values.
+            const uint16_t stepDiff7Bit;                ///< Minimum difference between two raw ADC readings to consider that value has been changed for 7-bit MIDI values.
+            const uint16_t stepDiff14Bit;               ///< Minimum difference between two raw ADC readings to consider that value has been changed for 14-bit MIDI values.
+            const uint16_t stepDiff7BitDirChange;       ///< Same as stepDiff7Bit, only used when the direction is different from the last one.
+            const uint16_t stepDiff14BitDirChange;      ///< Same as stepDiff14Bit, only used when the direction is different from the last one.
             const uint16_t fsrMinValue;                 ///< Minimum raw ADC reading for FSR sensors.
             const uint16_t fsrMaxValue;                 ///< Maximum raw ADC reading for FSR sensors.
             const uint16_t aftertouchMaxValue;          ///< Maxmimum raw ADC reading for aftertouch on FSR sensors.
@@ -95,13 +97,12 @@ namespace IO
             , display(display)
 #endif
             , cInfo(cInfo)
+            , adc7bitStep((adcConfig.adcMaxValue + 1) / 128)
         {}
 
         void         update();
         void         debounceReset(uint16_t index);
         void         setButtonHandler(void (*fptr)(uint8_t adcIndex, bool state));
-        void         enableExpFiltering();
-        void         disableExpFiltering();
         adcConfig_t& config();
 
         private:
@@ -114,8 +115,10 @@ namespace IO
 
         adcConfig_t adc10bit = {
             .adcMaxValue              = 1023,
-            .stepMinDiff7bit          = 6,
-            .stepMinDiff14bit         = 1,
+            .stepDiff7Bit             = 6,
+            .stepDiff14Bit            = 1,
+            .stepDiff7BitDirChange    = 6,
+            .stepDiff14BitDirChange   = 12,
             .fsrMinValue              = 40,
             .fsrMaxValue              = 340,
             .aftertouchMaxValue       = 600,
@@ -125,8 +128,10 @@ namespace IO
 
         adcConfig_t adc12bit = {
             .adcMaxValue              = 4095,
-            .stepMinDiff7bit          = 24,
-            .stepMinDiff14bit         = 2,
+            .stepDiff7Bit             = 24,
+            .stepDiff14Bit            = 2,
+            .stepDiff7BitDirChange    = 24,
+            .stepDiff14BitDirChange   = 8,
             .fsrMinValue              = 160,
             .fsrMaxValue              = 1360,
             .aftertouchMaxValue       = 2400,
@@ -134,7 +139,28 @@ namespace IO
             .digitalValueThresholdOff = 2400,
         };
 
-        uint16_t getHysteresisValue(uint8_t analogID, int16_t value);
+        class EMA
+        {
+            //exponential moving average filter
+            public:
+            EMA() {}
+
+            // use factor 0.5 for easier bitwise math
+            uint16_t value(uint16_t rawData)
+            {
+                currentValue = (rawData >> 1) + (currentValue >> 1);
+                return currentValue;
+            }
+
+            void reset()
+            {
+                currentValue = 0;
+            }
+
+            private:
+            uint16_t currentValue = 0;
+        };
+
         void     checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32_t value);
         void     checkFSRvalue(uint8_t analogID, uint16_t pressure);
         bool     fsrPressureStable(uint8_t analogID);
@@ -155,11 +181,13 @@ namespace IO
 #endif
         ComponentInfo& cInfo;
 
-        void (*buttonHandler)(uint8_t adcIndex, bool state)    = nullptr;
+        void (*buttonHandler)(uint8_t adcIndex, bool state) = nullptr;
+
         uint16_t       lastAnalogueValue[MAX_NUMBER_OF_ANALOG] = {};
         uint8_t        fsrPressed[MAX_NUMBER_OF_ANALOG]        = {};
         potDirection_t lastDirection[MAX_NUMBER_OF_ANALOG]     = {};
-        bool           expFilterUsed                           = true;
+        EMA            emaFilter[MAX_NUMBER_OF_ANALOG];
+        const uint16_t adc7bitStep;
     };
 
     /// @}

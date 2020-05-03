@@ -167,8 +167,6 @@ TEST_SETUP()
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
         analog.debounceReset(i);
 
-    analog.disableExpFiltering();
-
     resetReceived();
 }
 
@@ -285,15 +283,7 @@ TEST_CASE(PitchBendTest)
         TEST_ASSERT(database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
     }
 
-    //feed all the values from minimum to maximum
-    //here, ADC resolution should be taken into account:
-    //ADC resolution is smaller than the 14-bit bit Pitch Bend values
-    //application may use some debouncing techniques so perform only best-effort checks here
-
-    auto     adcConfig        = analog.config();
-    uint32_t valueDiff        = 16384 / (adcConfig.adcMaxValue + 1);
-    uint32_t totalMIDIvalues  = 16384 / valueDiff / 2;    //don't expect the value to change on every change of raw value
-    uint32_t expectedMessages = MAX_NUMBER_OF_ANALOG * totalMIDIvalues;
+    auto adcConfig = analog.config();
 
     for (int i = 0; i <= adcConfig.adcMaxValue; i++)
     {
@@ -301,7 +291,10 @@ TEST_CASE(PitchBendTest)
         analog.update();
     }
 
-    TEST_ASSERT(messageCounter >= expectedMessages);
+    //number of pitch bend messages can vary depending on ADC resolution and debounce
+    //techniques used
+    //just verify that number of messages per component is larger than 128 (amount of messages in 7-bit mode)
+    TEST_ASSERT(messageCounter >= (MAX_NUMBER_OF_ANALOG * 128));
 
     //all received messages should be pitch bend
     for (int i = 0; i < midiPacket.size(); i++)
