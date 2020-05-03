@@ -21,7 +21,9 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 #include "core/src/general/Interrupt.h"
 #include "core/src/general/Reset.h"
+#ifdef __AVR__
 #include "core/src/general/I2C.h"
+#endif
 #include "io/common/CInfo.h"
 
 class DBhandlers : public Database::Handlers
