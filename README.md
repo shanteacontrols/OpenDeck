@@ -1,4 +1,5 @@
-[![Build Status](https://github.com/paradajz/OpenDeck/workflows/Build+Test/badge.svg?branch=master)](https://github.com/paradajz/OpenDeck/actions)
+![Build+Test [Linux]](https://github.com/paradajz/OpenDeck/workflows/Build+Test%20%5BLinux%5D/badge.svg)
+![Build+Test [macOS]](https://github.com/paradajz/OpenDeck/workflows/Build+Test%20%5BmacOS%5D/badge.svg)
 
 # OpenDeck MIDI Platform
 
