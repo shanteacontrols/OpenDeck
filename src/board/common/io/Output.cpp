@@ -292,7 +292,7 @@ namespace Board
                 for (int i = 0; i < NUMBER_OF_LED_ROWS; i++)
                 {
                     ledIndex       = activeOutColumn + i * NUMBER_OF_LED_COLUMNS;
-                    ledStateSingle = ledState[ledIndex] * (NUMBER_OF_LED_TRANSITIONS - 1);
+                    ledStateSingle = ledState[ledIndex] && (NUMBER_OF_LED_TRANSITIONS - 1);
 
                     //don't bother with pwm if it's disabled
                     if (!pwmSteps && ledStateSingle)
