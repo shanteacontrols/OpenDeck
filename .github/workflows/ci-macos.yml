@@ -1,0 +1,62 @@
+name: Build+Test [macOS]
+
+on: [push]
+
+jobs:
+  build:
+    name: Build FW+Bootloaders
+    runs-on: macos-latest
+    steps:
+      - name: Pull the repository and submodules
+        uses: actions/checkout@v1
+        with:
+          submodules: true
+      - name: Prepare build env
+        run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+          brew tap osx-cross/avr
+          brew install wget avr-gcc coreutils findutils srecord jq
+          wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2019q4/gcc-arm-none-eabi-9-2019-q4-major-mac.tar.bz2 -O armtoolchain.tar.bz2
+          tar xjf armtoolchain.tar.bz2
+      - name: Build
+        run: |
+          PATH=$(pwd)/gcc-arm-none-eabi-9-2019-q4-major/bin:${PATH}
+          cd src/
+          ../scripts/build_targets.sh --type=fw_all
+  test:
+    name: Run tests
+    runs-on: macos-latest
+    steps:
+       - name: Pull the repository and submodules
+         uses: actions/checkout@v1
+         with:
+          submodules: true
+       - name: Prepare build env
+         run: |
+           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+           brew install llvm ctags jq coreutils findutils jq grep
+       - name: Build
+         run: |
+           export C_COMPILER=clang
+           export CPP_COMPILER=clang++
+           cd tests/
+           ../scripts/build_targets.sh --type=tests
+           make exec
+  format:
+    name: Code formatting
+    runs-on: macos-latest
+    steps:
+       - name: Pull the repository
+         uses: actions/checkout@v1
+         with:
+          submodules: true
+       - name: Prepare env
+         run: |
+           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+           brew install clang-format findutils coreutils
+       - name: Format
+         run: |
+           cd src
+           make format CF_FAIL_ON_DIFF=1 CLANG_FORMAT=clang-format
+           cd ../tests
+           make format CF_FAIL_ON_DIFF=1 CLANG_FORMAT=clang-format
