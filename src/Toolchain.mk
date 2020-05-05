@@ -20,8 +20,6 @@ FLASH_BIN_ARM := arm-none-eabi-gdb
 
 CLANG_FORMAT := clang-format
 
-undefine override REQ_PACKAGES
-
 REQ_PACKAGES := \
 git \
 $(FIND) \

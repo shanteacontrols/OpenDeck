@@ -34,9 +34,6 @@ CLANG_FORMAT := clang-format-9
 
 TEST_BINARIES := $(addprefix -object ,$(shell $(FIND) $(BUILD_DIR_BASE) -name "*.out" 2>/dev/null))
 
-#do not allow overriding this variable via command-line
-override undefine TESTS_EXPANDED
-
 FW_ROOT_DIR := ../src
 
 #passed to both c and c++ compiler

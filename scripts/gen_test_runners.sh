@@ -25,7 +25,7 @@ mkdir -p "$GEN_DIR"/runners
 
 #find all directories containing test source
 #to do so, only take into account directories which contain Makefile
-tests=$($find ./src -type f -name Makefile -print0 | xargs -0 dirname | xargs -n 1 basename | tr "\n" " ")
+tests=$($find ./src -type f -name Makefile | rev | cut -d / -f 2 | rev | tr "\n" " ")
 
 #use ctags to generate list of tests to be run by RUN_TEST unity macro
 #this works by filtering all functions defined with TEST_CASE macro

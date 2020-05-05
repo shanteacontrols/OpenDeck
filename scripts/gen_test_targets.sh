@@ -23,7 +23,7 @@ mkdir -p "$GEN_DIR"
 
 #find all directories containing test source
 #to do so, only take into account directories which contain Makefile
-tests=$($find ./src -type f -name Makefile -print0 | xargs -0 dirname | xargs -n 1 basename | tr "\n" " ")
+tests=$($find ./src -type f -name Makefile | rev | cut -d / -f 2 | rev | tr "\n" " ")
 
 {
     printf '%s ' "TESTS := ${tests}" > Objects.mk
