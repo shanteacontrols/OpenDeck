@@ -217,6 +217,11 @@ else
 	$(TARGET).elf
 endif
 
+ifeq ($(ARCH), avr)
+flashread:
+	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:r:readcontents.bin:r
+endif
+
 format:
 	@echo Checking code formatting...
 	@$(FIND) . -regex '.*\.\(cpp\|hpp\|h\|cc\|cxx\)' \
