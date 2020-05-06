@@ -26,13 +26,13 @@
         },
         {
             "name": "dubfocus",
-            "bootloader": true,
+            "bootloader": false,
             "release": true,
             "test": true
         },
         {
             "name": "jamiel",
-            "bootloader": true,
+            "bootloader": false,
             "release": true,
             "test": true
         },
