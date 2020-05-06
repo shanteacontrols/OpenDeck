@@ -152,6 +152,9 @@ namespace Board
 
                 CORE_IO_CONFIG(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN, core::io::pinMode_t::input);
                 CORE_IO_SET_HIGH(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+
+                CORE_IO_CONFIG(LED_BTLDR_PORT, LED_BTLDR_PIN, core::io::pinMode_t::output);
+                CORE_IO_SET_HIGH(LED_BTLDR_PORT, LED_BTLDR_PIN);
             }
 
             void adc()

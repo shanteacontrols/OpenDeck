@@ -111,9 +111,9 @@ namespace Board
                 }
 
                 CORE_IO_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
-#elif defined(OD_BOARD_TEENSY2PP)
+#elif defined(LED_BTLDR_PORT)
                 //only one led
-                INT_LED_ON(LED_IN_PORT, LED_IN_PIN);
+                INT_LED_ON(LED_BTLDR_PORT, LED_BTLDR_PIN);
 #endif
             }
 

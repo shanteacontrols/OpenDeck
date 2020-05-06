@@ -103,5 +103,9 @@ limitations under the License.
 #define MUX_7_IN_PORT               PORTF
 #define MUX_7_IN_PIN                6
 
+
 #define BTLDR_BUTTON_PORT           PORTB
 #define BTLDR_BUTTON_PIN            4
+
+#define LED_BTLDR_PORT              PORTB
+#define LED_BTLDR_PIN               7

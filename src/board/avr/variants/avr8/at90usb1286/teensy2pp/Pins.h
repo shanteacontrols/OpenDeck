@@ -142,10 +142,9 @@ limitations under the License.
 #define AI_8_PORT               PORTF
 #define AI_8_PIN                7
 
-//on teensy, there is only one led which is used as an output
-//use this led as indicator only for bootloader
-#define LED_IN_PORT             DO_4_PORT
-#define LED_IN_PIN              DO_4_PIN
+
+#define LED_BTLDR_PORT          DO_4_PORT
+#define LED_BTLDR_PIN           DO_4_PIN
 
 #define BTLDR_BUTTON_PORT       PORTE
 #define BTLDR_BUTTON_PIN        4

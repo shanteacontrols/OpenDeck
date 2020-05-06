@@ -218,3 +218,6 @@ limitations under the License.
 
 #define BTLDR_BUTTON_PORT   PORTB
 #define BTLDR_BUTTON_PIN    2
+
+#define LED_BTLDR_PORT      PORTB
+#define LED_BTLDR_PIN       7
