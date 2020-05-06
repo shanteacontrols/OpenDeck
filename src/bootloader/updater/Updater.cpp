@@ -43,7 +43,17 @@ void Updater::feed(uint8_t data)
     case receiveStage_t::fwChunk:
     {
         if (processFwChunk(data))
+            currentStage = receiveStage_t::end;
+    }
+    break;
+
+    case receiveStage_t::end:
+    {
+        if (processEnd(data))
+        {
             reset();
+            writer.apply();
+        }
     }
     break;
 
@@ -54,21 +64,16 @@ void Updater::feed(uint8_t data)
 
 bool Updater::processStart(uint8_t data)
 {
-    //first two received bytes must match the startValue
+    //first 4 received bytes must match the startValue
 
-    if (!byteCountReceived)
+    if (((startValue >> (byteCountReceived * 8)) & static_cast<uint32_t>(0xFF)) != data)
     {
-        if ((startValue & 0xFF) == data)
-            byteCountReceived++;
+        byteCountReceived = 0;
+        return false;
     }
-    else
-    {
-        if ((startValue >> 8 & 0xFF) != data)
-        {
-            byteCountReceived = 0;
-            return false;
-        }
 
+    if (++byteCountReceived == 4)
+    {
         byteCountReceived = 0;
         nextPageSize      = writer.pageSize(currentPage);
         return true;
@@ -81,15 +86,14 @@ bool Updater::processFwMetadata(uint8_t data)
 {
     //metadata consists of 4 bytes of total fw length
 
-    fwSize |= (data << (8 * byteCountReceived));
+    fwSize |= (static_cast<uint32_t>(data) << (8 * byteCountReceived));
 
-    if (byteCountReceived == 3)
+    if (++byteCountReceived == 4)
     {
         byteCountReceived = 0;
         return true;
     }
 
-    byteCountReceived++;
     return false;
 }
 
@@ -130,9 +134,26 @@ bool Updater::processFwChunk(uint8_t data)
         if (!pageWritten)
             writer.writePage(currentPage);
 
-        writer.apply();
+        byteCountReceived = 0;
+
         return true;
     }
+
+    return false;
+}
+
+bool Updater::processEnd(uint8_t data)
+{
+    //last 4 received bytes must match the endValue
+
+    if (((endValue >> (byteCountReceived * 8)) & static_cast<uint32_t>(0xFF)) != data)
+    {
+        byteCountReceived = 0;
+        return false;
+    }
+
+    if (++byteCountReceived == 4)
+        return true;
 
     return false;
 }

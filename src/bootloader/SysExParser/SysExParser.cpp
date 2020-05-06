@@ -1,6 +1,4 @@
 #include "SysExParser.h"
-#include "application/OpenDeck/sysconfig/Constants.h"
-#include "bootloader/Config.h"
 
 bool SysExParser::isValidMessage(MIDI::USBMIDIpacket_t& packet)
 {
@@ -81,7 +79,7 @@ size_t SysExParser::dataBytes()
 
 bool SysExParser::value(size_t index, uint8_t& data)
 {
-    size_t arrayIndex = SYSEX_FW_DATA_START_BYTE + index * 2;
+    size_t arrayIndex = dataStartByte + index * 2;
 
     if ((arrayIndex + 1) >= sysExArrayLength)
         return false;

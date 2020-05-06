@@ -26,7 +26,6 @@ limitations under the License.
 #include "io/encoders/Encoders.h"
 #include "io/analog/Analog.h"
 #include "io/leds/LEDs.h"
-#include "Constants.h"
 
 class SysConfig
 {

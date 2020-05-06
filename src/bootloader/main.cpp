@@ -16,13 +16,9 @@ limitations under the License.
 
 */
 
-#include "Config.h"
 #include "board/Board.h"
 #include "updater/Updater.h"
-#if defined(USB_MIDI_SUPPORTED)
 #include "SysExParser/SysExParser.h"
-#include "application/OpenDeck/sysconfig/Constants.h"
-#endif
 
 class BTLDRWriter : public Bootloader::Updater::BTLDRWriter
 {
@@ -57,7 +53,9 @@ namespace
 {
 #ifndef USB_LINK_MCU
     BTLDRWriter         btldrWriter;
-    Bootloader::Updater updater(btldrWriter, COMMAND_FW_UPDATE_START);
+    Bootloader::Updater updater(btldrWriter, COMMAND_FW_UPDATE_START, COMMAND_FW_UPDATE_END);
+#else
+    uint8_t endCounter;
 #endif
 
 #if defined(USB_MIDI_SUPPORTED)
@@ -98,6 +96,34 @@ int main()
                             updater.feed(data);
 #else
                             Board::UART::write(UART_USB_LINK_CHANNEL, data);
+                            //to avoid compiling the entire parser to figure out the end
+                            //of the fw stream (if won't fit into 4k space), parse fw end manually
+                            //fw end stream is detected by two messages with data size being 2
+                            //taken those 4 bytes together, COMMAND_FW_UPDATE_END value should be formed
+                            //if it is, reboot the mcu into app mode
+
+                            if (dataSize == 2)
+                            {
+                                if (((COMMAND_FW_UPDATE_END >> (endCounter * 8)) & static_cast<uint32_t>(0xFF)) != data)
+                                {
+                                    endCounter = 0;
+                                }
+                                else
+                                {
+                                    endCounter++;
+
+                                    if (endCounter == 4)
+                                    {
+                                        while (!Board::UART::isTxEmpty(UART_USB_LINK_CHANNEL))
+                                            ;
+                                        Board::reboot(Board::rebootType_t::rebootApp);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                endCounter = 0;
+                            }
 #endif
                         }
                     }

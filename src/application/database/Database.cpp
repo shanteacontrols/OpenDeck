@@ -17,7 +17,6 @@ limitations under the License.
 */
 
 #include <inttypes.h>
-#include "OpenDeck/sysconfig/Constants.h"
 #include "core/src/general/Helpers.h"
 
 namespace SectionPrivate

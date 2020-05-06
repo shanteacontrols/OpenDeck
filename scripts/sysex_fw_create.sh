@@ -4,11 +4,18 @@
 BIN_FILE=$1
 #second argument should be path of the output file
 SYSEX_FILE=$2
+#third argument is sysex manufacturer id 0 (uint8)
+M_ID_0=$3
+#fourth argument is sysex manufacturer id 1 (uint8)
+M_ID_1=$4
+#fifth argument is sysex manufacturer id 2 (uint8)
+M_ID_2=$5
+#sixth argument is start command (uint32)
+START_COMMAND=$6
+#seventh argument is end command (uint32)
+END_COMMAND=$7
 
 declare -i BYTES_PER_MESSAGE=32
-
-MANUFACTURER_IDs="00 53 43"
-FW_START_BYTES="00 55 00 55"
 
 #variables in which low and high bytes will be stored after splitting
 declare -i highByte=0
@@ -59,19 +66,57 @@ then
     exit 1
 fi
 
-echo "F0 $MANUFACTURER_IDs $FW_START_BYTES F7" > "$SYSEX_FILE"
+function append_command
+{
+    command=$1
+
+    for ((i=0; i<2; i++))
+    do
+        {
+            printf "F0"
+            printf " %02X" "$M_ID_0"
+            printf " %02X" "$M_ID_1"
+            printf " %02X" "$M_ID_2"
+        } >> "$SYSEX_FILE"
+
+        shift_amount=$((16*i))
+
+        start_command_array[0]=$((command >> (shift_amount + 0) & 0xFF))
+        start_command_array[1]=$((command >> (shift_amount + 8) & 0xFF))
+
+        for byte in "${start_command_array[@]}"
+        do
+            split14bit $byte
+            {
+                printf " %02X" "$highByte"
+                printf " %02X" "$lowByte"
+            } >> "$SYSEX_FILE"
+        done
+
+        printf "%s\n" " F7" >> "$SYSEX_FILE"
+    done
+}
+
+printf "%s" "" > "$SYSEX_FILE"
 
 fw_size=$(wc -c < "$BIN_FILE")
 printf '%s\n' "Firmware size is $fw_size bytes. Generating SysEx file, please wait..."
 
 declare -a fw_size_array
 
+append_command "$START_COMMAND"
+
+{
+    printf "F0"
+    printf " %02X" "$M_ID_0"
+    printf " %02X" "$M_ID_1"
+    printf " %02X" "$M_ID_2"
+} >> "$SYSEX_FILE"
+
 fw_size_array[0]=$((fw_size >> 0  & 0xFF))
 fw_size_array[1]=$((fw_size >> 8  & 0xFF))
 fw_size_array[2]=$((fw_size >> 16 & 0xFF))
 fw_size_array[3]=$((fw_size >> 24 & 0xFF))
-
-printf "%s" "F0 $MANUFACTURER_IDs" >> "$SYSEX_FILE"
 
 for fwSizeByte in "${fw_size_array[@]}"
 do
@@ -82,7 +127,7 @@ do
     } >> "$SYSEX_FILE"
 done
 
-printf " %s\n" "F7" >> "$SYSEX_FILE"
+printf "%s\n" " F7" >> "$SYSEX_FILE"
 
 #read binary one byte at the time
 #split each byte into two bytes in order to able to send
@@ -95,25 +140,32 @@ while IFS= read -r line
 do
     if [[ $byteCounter -eq 0 ]]
     then
-        printf "%s" "F0 $MANUFACTURER_IDs " >> "$SYSEX_FILE"
+        {
+            printf "F0"
+            printf " %02X" "$M_ID_0"
+            printf " %02X" "$M_ID_1"
+            printf " %02X" "$M_ID_2"
+        } >> "$SYSEX_FILE"
         ((lastByteSet=0))
     fi
 
     split14bit "$line"
-    printf "%02X " "$highByte" >> "$SYSEX_FILE"
-    printf "%02X " "$lowByte" >> "$SYSEX_FILE"
+    printf " %02X" "$highByte" >> "$SYSEX_FILE"
+    printf " %02X" "$lowByte" >> "$SYSEX_FILE"
 
     ((byteCounter++))
 
     if [[ $byteCounter -eq $BYTES_PER_MESSAGE ]]
     then
         ((byteCounter=0))
-        printf "%s\n" "F7" >> "$SYSEX_FILE"
+        printf "%s\n" " F7" >> "$SYSEX_FILE"
         ((lastByteSet=1))
     fi
 done < <( < "$BIN_FILE" hexdump -v -e '/1 "%d\n"')
 
 if [[ $lastByteSet -eq 0 ]]
 then
-    printf "F7\n" >> "$SYSEX_FILE"
+    printf " F7\n" >> "$SYSEX_FILE"
 fi
+
+append_command "$END_COMMAND"

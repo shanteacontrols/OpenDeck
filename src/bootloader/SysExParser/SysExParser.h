@@ -44,6 +44,11 @@ class SysExParser
     static const size_t maxFwPacketSize = 2 + 3 + 64;
 
     ///
+    /// \brief Byte index in SysEx message on which firmware data starts.
+    ///
+    static const size_t dataStartByte = 4;
+
+    ///
     /// \brief Holds decoded SysEx message.
     ///
     uint8_t sysexArray[maxFwPacketSize];

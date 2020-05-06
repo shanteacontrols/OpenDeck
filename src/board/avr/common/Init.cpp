@@ -28,7 +28,6 @@ limitations under the License.
 #include "core/src/general/IO.h"
 #include "core/src/general/Interrupt.h"
 #include "core/src/general/Reset.h"
-#include "bootloader/Config.h"
 
 extern "C" void __cxa_pure_virtual()
 {

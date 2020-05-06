@@ -36,9 +36,10 @@ namespace Bootloader
             virtual void   apply()                                                 = 0;
         };
 
-        Updater(BTLDRWriter& writer, const uint16_t startValue)
+        Updater(BTLDRWriter& writer, const uint32_t startValue, uint32_t endValue)
             : writer(writer)
             , startValue(startValue)
+            , endValue(endValue)
         {}
 
         void feed(uint8_t data);
@@ -49,12 +50,14 @@ namespace Bootloader
         {
             start,
             fwMetadata,
-            fwChunk
+            fwChunk,
+            end
         };
 
         bool processStart(uint8_t data);
         bool processFwMetadata(uint8_t data);
         bool processFwChunk(uint8_t data);
+        bool processEnd(uint8_t data);
 
         receiveStage_t currentStage      = receiveStage_t::start;
         size_t         currentPage       = 0;
@@ -66,5 +69,6 @@ namespace Bootloader
         uint8_t        byteCountReceived = 0;
         BTLDRWriter&   writer;
         const uint32_t startValue;
+        const uint32_t endValue;
     };
 }    // namespace Bootloader
