@@ -54,7 +54,7 @@ extern "C" void HAL_MspInit(void)
     __HAL_RCC_PWR_CLK_ENABLE();
 }
 
-void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
+extern "C" void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
 {
     if (hadc->Instance == ADC1)
     {
@@ -77,7 +77,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     HAL_NVIC_EnableIRQ(ADC_IRQn);
 }
 
-void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
+extern "C" void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
 {
     if (htim_base->Instance == TIM2)
     {
