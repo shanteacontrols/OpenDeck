@@ -28,6 +28,31 @@ namespace
 
 namespace Board
 {
+    namespace bootloader
+    {
+        size_t pageSize(size_t index)
+        {
+#warning dummy return value!
+            return 256;
+        }
+
+        void erasePage(size_t index)
+        {
+        }
+
+        void fillPage(size_t index, uint32_t address, uint16_t data)
+        {
+        }
+
+        void writePage(size_t index)
+        {
+        }
+
+        void applyFw()
+        {
+        }
+    }    // namespace bootloader
+
     namespace detail
     {
         namespace bootloader
