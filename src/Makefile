@@ -79,13 +79,12 @@ LDFLAGS := \
 -Wl,-Map="$(TARGET).map",--cref
 
 ifeq ($(ARCH),avr)
-    ifeq ($(BOOT),1)
-        #make sure to link .text at correct address in bootloader
-        LDFLAGS += -Wl,--section-start=.text=$(BOOT_START_ADDR)
-    else
+    ifeq ($(BOOT),0)
         #append length only in firmware
         LEN_APPEND := 1
     endif
+
+    LDFLAGS += -Wl,--section-start=.text=$(FLASH_START_ADDR)
 
     C_COMPILER := $(C_COMPILER_AVR)
     CPP_COMPILER := $(CPP_COMPILER_AVR)
@@ -125,6 +124,8 @@ else ifeq ($(ARCH),stm32)
     -mthumb \
     -specs=nano.specs \
     -specs=nosys.specs
+
+    LDFLAGS += -Xlinker --defsym=FLASH_START=$(FLASH_START_ADDR)
 
     ifeq ($(DEBUG), 1)
         COMMON_FLAGS += -g -gdwarf-2

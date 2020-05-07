@@ -33,9 +33,10 @@ ifeq ($(MCU), atmega32u4)
     FUSE_HIGH := 0xd0
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
-    BOOT_START_ADDR := 0x7000
     FLASH_SIZE_START_ADDR := 0xAC
     FLASH_SIZE_END_ADDR := 0xB0
+    APP_START_ADDR := 0x00
+    BOOT_START_ADDR := 0x7000
     DEFINES += __AVR_ATmega32U4__
 else ifeq ($(MCU), at90usb1286)
     FUSE_UNLOCK := 0xff
@@ -43,9 +44,10 @@ else ifeq ($(MCU), at90usb1286)
     FUSE_HIGH := 0xd0
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
-    BOOT_START_ADDR := 0x1E000
     FLASH_SIZE_START_ADDR := 0x98
     FLASH_SIZE_END_ADDR := 0x9C
+    APP_START_ADDR := 0x00
+    BOOT_START_ADDR := 0x1E000
     DEFINES += __AVR_AT90USB1286__
 else ifeq ($(MCU), atmega16u2)
     FUSE_UNLOCK := 0xff
@@ -55,6 +57,7 @@ else ifeq ($(MCU), atmega16u2)
     FUSE_LOCK := 0xef
     FLASH_SIZE_START_ADDR := 0x74
     FLASH_SIZE_END_ADDR := 0x78
+    APP_START_ADDR := 0x00
     BOOT_START_ADDR := 0x3000
     DEFINES += __AVR_ATmega16U2__
 else ifeq ($(MCU), atmega8u2)
@@ -65,6 +68,7 @@ else ifeq ($(MCU), atmega8u2)
     FUSE_LOCK := 0xef
     FLASH_SIZE_START_ADDR := 0x74
     FLASH_SIZE_END_ADDR := 0x78
+    APP_START_ADDR := 0x00
     BOOT_START_ADDR := 0x1800
     DEFINES += __AVR_ATmega8U2__
 else ifeq ($(MCU), atmega2560)
@@ -75,6 +79,7 @@ else ifeq ($(MCU), atmega2560)
     FUSE_LOCK := 0xef
     FLASH_SIZE_START_ADDR := 0xE4
     FLASH_SIZE_END_ADDR := 0xE8
+    APP_START_ADDR := 0x00
     BOOT_START_ADDR := 0x3F000
     DEFINES += __AVR_ATmega2560__
 else ifeq ($(MCU), atmega328p)
@@ -85,17 +90,22 @@ else ifeq ($(MCU), atmega328p)
     FUSE_LOCK := 0xef
     FLASH_SIZE_START_ADDR := 0x68
     FLASH_SIZE_END_ADDR := 0x6C
+    APP_START_ADDR := 0x00
     BOOT_START_ADDR := 0x7000
     DEFINES += __AVR_ATmega328P__
 else ifeq ($(MCU), stm32f407)
     CPU := cortex-m4
     FPU := fpv4-sp-d16
     FLOAT-ABI := hard
+    APP_START_ADDR := 0x8004000
+    BOOT_START_ADDR := 0x8000000
     DEFINES += STM32F407xx
 else ifeq ($(MCU), stm32f405)
     CPU := cortex-m4
     FPU := fpv4-sp-d16
     FLOAT-ABI := hard
+    APP_START_ADDR := 0x8004000
+    BOOT_START_ADDR := 0x8000000
     DEFINES += STM32F405xx
 endif
 
@@ -153,6 +163,9 @@ ifeq ($(BOOT),1)
     FW_BOOT \
     COMMAND_FW_UPDATE_START=$(COMMAND_FW_UPDATE_START) \
     COMMAND_FW_UPDATE_END=$(COMMAND_FW_UPDATE_END)
+
+    FLASH_START_ADDR := $(BOOT_START_ADDR)
 else
     DEFINES += FW_APP
+    FLASH_START_ADDR := $(APP_START_ADDR)
 endif
