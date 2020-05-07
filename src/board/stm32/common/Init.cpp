@@ -34,12 +34,14 @@ namespace Board
 #ifdef FW_APP
         eeprom::init();
         detail::setup::adc();
-#endif
 
         detail::setup::timers();
 
 #ifdef USB_MIDI_SUPPORTED
         detail::setup::usb();
+#endif
+#else
+        detail::setup::bootloader();
 #endif
     }
 
