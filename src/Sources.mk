@@ -16,9 +16,10 @@ ifeq ($(BOOT),1)
     -I"bootloader/"
 endif
 
+LINKER_FILE := board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(MCU).ld
+
 #architecture specific
 ifeq ($(ARCH), avr)
-    LINKER_FILE := board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(MCU).ld
 
     INCLUDE_DIRS += \
     -I"../modules/lufa/"
@@ -41,8 +42,6 @@ ifeq ($(ARCH), avr)
         modules/lufa/LUFA/Drivers/USB/Class/Device/MIDIClassDevice.c
     endif
 else ifeq ($(ARCH),stm32)
-    LINKER_FILE := $(shell $(FIND) ./board/$(ARCH)/gen/$(MCU_FAMILY)/$(MCU) -name "*.ld" | head -n 1)
-
     SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/common -regex '.*\.\(s\|c\)')
     SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/$(MCU) -regex '.*\.\(s\|c\)')
     SOURCES += $(shell $(FIND) ./board/stm32/variants/$(MCU_FAMILY) -maxdepth 1 -name "*.cpp")
