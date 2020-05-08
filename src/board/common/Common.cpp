@@ -57,7 +57,7 @@ namespace Board
 
         if (detail::bootloader::btldrTrigger() == detail::bootloader::btldrTrigger_t::none)
         {
-            if (detail::bootloader::isAppCRCvalid())
+            if (detail::bootloader::isAppValid())
                 runBootloader = false;
             else
                 runBootloader = true;

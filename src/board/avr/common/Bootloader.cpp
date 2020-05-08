@@ -18,7 +18,6 @@ limitations under the License.
 
 #include <avr/boot.h>
 #include <avr/io.h>
-#include <util/crc16.h>
 #include <avr/pgmspace.h>
 #include "board/Board.h"
 #include "board/Internal.h"
@@ -74,28 +73,9 @@ namespace Board
     {
         namespace bootloader
         {
-            bool isAppCRCvalid()
+            bool isAppValid()
             {
-                if (pgm_read_word(0) == 0xFFFF)
-                    return false;
-
-                uint16_t crc         = 0x0000;
-                uint32_t lastAddress = pgm_read_word(APP_LENGTH_LOCATION);
-
-                for (uint32_t i = 0; i < lastAddress; i++)
-                {
-#if (FLASHEND > 0xFFFF)
-                    crc = _crc_xmodem_update(crc, pgm_read_byte_far(core::misc::pgmGetFarAddress(i)));
-#else
-                    crc = _crc_xmodem_update(crc, pgm_read_byte(i));
-#endif
-                }
-
-#if (FLASHEND > 0xFFFF)
-                return (crc == pgm_read_word_far(core::misc::pgmGetFarAddress(lastAddress)));
-#else
-                return (crc == pgm_read_word(lastAddress));
-#endif
+                return (pgm_read_word(0) != 0xFFFF);
             }
 
             bool isSWtriggerActive()

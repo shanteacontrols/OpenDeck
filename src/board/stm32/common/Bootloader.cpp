@@ -62,7 +62,7 @@ namespace Board
     {
         namespace bootloader
         {
-            bool isAppCRCvalid()
+            bool isAppValid()
             {
                 return true;
             }

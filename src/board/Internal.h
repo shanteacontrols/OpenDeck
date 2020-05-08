@@ -328,10 +328,10 @@ namespace Board
             };
 
             ///
-            /// \brief Calculates CRC of entire flash.
-            /// \return True if CRC is valid, that is, if it matches CRC written in last flash address.
+            /// \brief Verifies if the programmed flash is valid.
+            /// \return True if valid, false otherwise.
             ///
-            bool isAppCRCvalid();
+            bool isAppValid();
 
             ///
             /// \brief Checks if any of the bootloader entry triggers are active.

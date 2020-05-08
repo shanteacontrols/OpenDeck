@@ -26,12 +26,6 @@ limitations under the License.
 #define ADC_IGNORED_SAMPLES_COUNT 5
 
 ///
-/// \brief Location at which compiled binary CRC is written in EEPROM.
-/// CRC takes two bytes.
-///
-#define SW_CRC_LOCATION_EEPROM (EEPROM_SIZE - 3)
-
-///
 /// \brief Total number of states between fully off and fully on for LEDs.
 ///
 #define NUMBER_OF_LED_TRANSITIONS 64

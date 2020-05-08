@@ -146,8 +146,7 @@ namespace Board
     {
         uint32_t size()
         {
-            //4 bytes are used to store app crc
-            return EEPROM_SIZE - 4;
+            return EEPROM_SIZE;
         }
 
         void init()

@@ -33,8 +33,6 @@ ifeq ($(MCU), atmega32u4)
     FUSE_HIGH := 0xd0
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
-    FLASH_SIZE_START_ADDR := 0xAC
-    FLASH_SIZE_END_ADDR := 0xB0
     APP_START_ADDR := 0x00
     BOOT_START_ADDR := 0x7000
     DEFINES += __AVR_ATmega32U4__
@@ -44,8 +42,6 @@ else ifeq ($(MCU), at90usb1286)
     FUSE_HIGH := 0xd0
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
-    FLASH_SIZE_START_ADDR := 0x98
-    FLASH_SIZE_END_ADDR := 0x9C
     APP_START_ADDR := 0x00
     BOOT_START_ADDR := 0x1E000
     DEFINES += __AVR_AT90USB1286__
@@ -55,8 +51,6 @@ else ifeq ($(MCU), atmega16u2)
     FUSE_HIGH := 0xd0
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
-    FLASH_SIZE_START_ADDR := 0x74
-    FLASH_SIZE_END_ADDR := 0x78
     APP_START_ADDR := 0x00
     BOOT_START_ADDR := 0x3000
     DEFINES += __AVR_ATmega16U2__
@@ -66,8 +60,6 @@ else ifeq ($(MCU), atmega8u2)
     FUSE_HIGH := 0xd3
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
-    FLASH_SIZE_START_ADDR := 0x74
-    FLASH_SIZE_END_ADDR := 0x78
     APP_START_ADDR := 0x00
     BOOT_START_ADDR := 0x1800
     DEFINES += __AVR_ATmega8U2__
@@ -77,8 +69,6 @@ else ifeq ($(MCU), atmega2560)
     FUSE_HIGH := 0xd0
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
-    FLASH_SIZE_START_ADDR := 0xE4
-    FLASH_SIZE_END_ADDR := 0xE8
     APP_START_ADDR := 0x00
     BOOT_START_ADDR := 0x3E000
     DEFINES += __AVR_ATmega2560__
@@ -88,8 +78,6 @@ else ifeq ($(MCU), atmega328p)
     FUSE_HIGH := 0xd0
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
-    FLASH_SIZE_START_ADDR := 0x68
-    FLASH_SIZE_END_ADDR := 0x6C
     APP_START_ADDR := 0x00
     BOOT_START_ADDR := 0x7000
     DEFINES += __AVR_ATmega328P__

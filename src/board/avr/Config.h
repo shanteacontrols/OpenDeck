@@ -32,12 +32,6 @@ limitations under the License.
 #define REBOOT_VALUE_EEPROM_LOCATION E2END
 
 ///
-/// \brief Location at which compiled binary CRC is written in EEPROM.
-/// CRC takes two bytes.
-///
-#define SW_CRC_LOCATION_EEPROM (E2END - 2)
-
-///
 /// \brief Total number of states between fully off and fully on for LEDs.
 ///
 #define NUMBER_OF_LED_TRANSITIONS 64
