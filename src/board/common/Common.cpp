@@ -46,6 +46,38 @@ namespace core
 
 namespace Board
 {
+    void init()
+    {
+#ifdef FW_APP
+        detail::setup::application();
+#else
+        detail::setup::bootloader();
+
+        bool runBootloader = true;
+
+        if (detail::bootloader::btldrTrigger() == detail::bootloader::btldrTrigger_t::none)
+        {
+            if (detail::bootloader::isAppCRCvalid())
+                runBootloader = false;
+            else
+                runBootloader = true;
+        }
+        else
+        {
+            runBootloader = true;
+        }
+
+        if (runBootloader)
+        {
+            detail::bootloader::runBootloader();
+        }
+        else
+        {
+            detail::bootloader::runApplication();
+        }
+#endif
+    }
+
     void reboot(rebootType_t type)
     {
         switch (type)

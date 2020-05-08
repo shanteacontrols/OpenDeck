@@ -46,23 +46,22 @@ namespace Board
         };
 
         ///
-        /// \brief Run user application.
-        ///
-        void runApplication();
-
-        ///
-        /// \brief Calculates CRC of entire flash.
-        /// \return True if CRC is valid, that is, if it matches CRC written in last flash address.
-        ///
-        bool isAppCRCvalid();
-
-        ///
         /// \brief Default error handler.
         ///
         void errorHandler();
 
         namespace setup
         {
+            ///
+            /// \brief Prepares MCU to run application.
+            ///
+            void application();
+
+            ///
+            /// \brief Prepares MCU to run bootloader.
+            ///
+            void bootloader();
+
             ///
             /// \brief Initializes all used clocks on the board.
             ///
@@ -91,11 +90,6 @@ namespace Board
             /// \brief Initializes all used timers on board.
             ///
             void timers();
-
-            ///
-            /// \brief Used to setup bootloader if needed.
-            ///
-            void bootloader();
         }    // namespace setup
 
         namespace UART
@@ -326,6 +320,12 @@ namespace Board
             };
 
             ///
+            /// \brief Calculates CRC of entire flash.
+            /// \return True if CRC is valid, that is, if it matches CRC written in last flash address.
+            ///
+            bool isAppCRCvalid();
+
+            ///
             /// \brief Checks if any of the bootloader entry triggers are active.
             ///
             btldrTrigger_t btldrTrigger();
@@ -358,6 +358,16 @@ namespace Board
             /// \brief Initializes outputs used to indicate that bootloader mode is active.
             ///
             void indicate();
+
+            ///
+            /// \brief Runs the bootloader.
+            ///
+            void runBootloader();
+
+            ///
+            /// \brief Jumps to application.
+            ///
+            void runApplication();
         }    // namespace bootloader
     }        // namespace detail
 }    // namespace Board

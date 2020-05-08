@@ -17,6 +17,11 @@ limitations under the License.
 */
 
 #include "board/Board.h"
+#include "board/Internal.h"
+#include "core/src/general/Interrupt.h"
+#include "stm32f4xx_hal.h"
+
+using appEntry_t = void (*)();
 
 namespace
 {
@@ -57,6 +62,11 @@ namespace Board
     {
         namespace bootloader
         {
+            bool isAppCRCvalid()
+            {
+                return true;
+            }
+
             bool isSWtriggerActive()
             {
                 return fwEntryType == BTLDR_REBOOT_VALUE;
@@ -70,6 +80,27 @@ namespace Board
             void clearSWtrigger()
             {
                 fwEntryType = APP_REBOOT_VALUE;
+            }
+
+            void runApplication()
+            {
+                HAL_RCC_DeInit();
+                HAL_DeInit();
+
+                appEntry_t appEntry = (appEntry_t) * (volatile uint32_t*)(APP_START_ADDR + 4);
+                appEntry();
+
+                while (1)
+                    ;
+            }
+
+            void runBootloader()
+            {
+                detail::bootloader::indicate();
+
+#ifdef USB_MIDI_SUPPORTED
+                detail::setup::usb();
+#endif
             }
         }    // namespace bootloader
     }        // namespace detail

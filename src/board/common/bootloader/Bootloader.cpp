@@ -27,44 +27,6 @@ namespace Board
 {
     namespace detail
     {
-        namespace setup
-        {
-            void bootloader()
-            {
-                if (Board::detail::bootloader::btldrTrigger() == Board::detail::bootloader::btldrTrigger_t::none)
-                {
-                    if (Board::detail::isAppCRCvalid())
-                        Board::detail::runApplication();
-                }
-
-#if defined(USB_LINK_MCU) || !defined(USB_MIDI_SUPPORTED)
-                Board::UART::init(UART_USB_LINK_CHANNEL, UART_BAUDRATE_MIDI_OD);
-
-#ifndef USB_MIDI_SUPPORTED
-                // make sure USB link goes to bootloader mode as well
-                MIDI::USBMIDIpacket_t packet;
-
-                packet.Event = static_cast<uint8_t>(OpenDeckMIDIformat::command_t::btldrReboot);
-                packet.Data1 = 0x00;
-                packet.Data2 = 0x00;
-                packet.Data3 = 0x00;
-
-                //add some delay - it case of hardware btldr entry both MCUs will boot up in the same time
-                //so it's possible USB link MCU will miss this packet
-
-                core::timing::waitMs(1000);
-
-                OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, packet, OpenDeckMIDIformat::packetType_t::internalCommand);
-#endif
-#endif
-
-                Board::detail::bootloader::indicate();
-#ifdef USB_MIDI_SUPPORTED
-                Board::detail::setup::usb();
-#endif
-            }
-        }    // namespace setup
-
         namespace bootloader
         {
             btldrTrigger_t btldrTrigger()

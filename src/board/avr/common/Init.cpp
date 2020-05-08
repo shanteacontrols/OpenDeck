@@ -18,7 +18,6 @@ limitations under the License.
 
 #include <avr/power.h>
 #include <avr/eeprom.h>
-#include <util/crc16.h>
 #include <avr/wdt.h>
 #include "board/Board.h"
 #include "board/Internal.h"
@@ -37,46 +36,6 @@ extern "C" void __cxa_pure_virtual()
 
 namespace Board
 {
-    void init()
-    {
-        DISABLE_INTERRUPTS();
-
-        //clear reset source
-        MCUSR &= ~(1 << EXTRF);
-
-        //disable watchdog
-        MCUSR &= ~(1 << WDRF);
-        wdt_disable();
-
-        //disable clock division
-        clock_prescale_set(clock_div_1);
-
-        detail::setup::io();
-
-#ifdef FW_APP
-#ifndef USB_LINK_MCU
-        detail::setup::adc();
-#else
-        UART::init(UART_USB_LINK_CHANNEL, UART_BAUDRATE_MIDI_OD);
-#endif
-
-#ifdef USB_MIDI_SUPPORTED
-        detail::setup::usb();
-#endif
-
-        detail::setup::timers();
-#else
-        detail::setup::bootloader();
-
-        //relocate the interrupt vector table to the bootloader section
-        //note: if this point is reached, bootloader is active
-        MCUCR                = (1 << IVCE);
-        MCUCR                = (1 << IVSEL);
-#endif
-
-        ENABLE_INTERRUPTS();
-    }
-
     bool checkNewRevision()
     {
         uint16_t crc_eeprom = eeprom_read_word(reinterpret_cast<uint16_t*>(SW_CRC_LOCATION_EEPROM));
@@ -99,37 +58,55 @@ namespace Board
 
     namespace detail
     {
-        void runApplication()
+        namespace setup
         {
-            __asm__ __volatile__(
-                // Jump to RST vector
-                "clr r30\n"
-                "clr r31\n"
-                "ijmp\n");
-        }
-
-        bool isAppCRCvalid()
-        {
-            if (pgm_read_word(0) == 0xFFFF)
-                return false;
-
-            uint16_t crc         = 0x0000;
-            uint32_t lastAddress = pgm_read_word(APP_LENGTH_LOCATION);
-
-            for (uint32_t i = 0; i < lastAddress; i++)
+            void application()
             {
-#if (FLASHEND > 0xFFFF)
-                crc = _crc_xmodem_update(crc, pgm_read_byte_far(core::misc::pgmGetFarAddress(i)));
+                DISABLE_INTERRUPTS();
+
+                //clear reset source
+                MCUSR &= ~(1 << EXTRF);
+
+                //disable watchdog
+                MCUSR &= ~(1 << WDRF);
+                wdt_disable();
+
+                //disable clock division
+                clock_prescale_set(clock_div_1);
+
+                detail::setup::io();
+
+#ifndef USB_LINK_MCU
+                detail::setup::adc();
 #else
-                crc = _crc_xmodem_update(crc, pgm_read_byte(i));
+                Board::UART::init(UART_USB_LINK_CHANNEL, UART_BAUDRATE_MIDI_OD);
 #endif
+
+#ifdef USB_MIDI_SUPPORTED
+                detail::setup::usb();
+#endif
+
+                detail::setup::timers();
+
+                ENABLE_INTERRUPTS();
             }
 
-#if (FLASHEND > 0xFFFF)
-            return (crc == pgm_read_word_far(core::misc::pgmGetFarAddress(lastAddress)));
-#else
-            return (crc == pgm_read_word(lastAddress));
-#endif
-        }
-    }    // namespace detail
+            void bootloader()
+            {
+                DISABLE_INTERRUPTS();
+
+                //clear reset source
+                MCUSR &= ~(1 << EXTRF);
+
+                //disable watchdog
+                MCUSR &= ~(1 << WDRF);
+                wdt_disable();
+
+                //disable clock division
+                clock_prescale_set(clock_div_1);
+
+                detail::setup::io();
+            }
+        }    // namespace setup
+    }        // namespace detail
 }    // namespace Board

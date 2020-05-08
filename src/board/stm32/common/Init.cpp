@@ -23,28 +23,6 @@ limitations under the License.
 
 namespace Board
 {
-    void init()
-    {
-        //Reset of all peripherals, Initializes the Flash interface and the Systick
-        HAL_Init();
-
-        detail::setup::clocks();
-        detail::setup::io();
-
-#ifdef FW_APP
-        eeprom::init();
-        detail::setup::adc();
-
-        detail::setup::timers();
-
-#ifdef USB_MIDI_SUPPORTED
-        detail::setup::usb();
-#endif
-#else
-        detail::setup::bootloader();
-#endif
-    }
-
     bool checkNewRevision()
     {
         return false;
@@ -64,4 +42,36 @@ namespace Board
                 uid.uid[(i * 4) + j] = id[i] >> ((3 - j) * 8) & 0xFF;
         }
     }
+
+    namespace detail
+    {
+        namespace setup
+        {
+            void application()
+            {
+                //Reset of all peripherals, Initializes the Flash interface and the Systick
+                HAL_Init();
+
+                detail::setup::clocks();
+                detail::setup::io();
+
+                eeprom::init();
+                detail::setup::adc();
+
+                detail::setup::timers();
+
+#ifdef USB_MIDI_SUPPORTED
+                detail::setup::usb();
+#endif
+            }
+
+            void bootloader()
+            {
+                HAL_Init();
+
+                detail::setup::clocks();
+                detail::setup::io();
+            }
+        }    // namespace setup
+    }        // namespace detail
 }    // namespace Board
