@@ -97,14 +97,14 @@ else ifeq ($(MCU), stm32f407)
     CPU := cortex-m4
     FPU := fpv4-sp-d16
     FLOAT-ABI := hard
-    APP_START_ADDR := 0x8004000
+    APP_START_ADDR := 0x8008000
     BOOT_START_ADDR := 0x8000000
     DEFINES += STM32F407xx
 else ifeq ($(MCU), stm32f405)
     CPU := cortex-m4
     FPU := fpv4-sp-d16
     FLOAT-ABI := hard
-    APP_START_ADDR := 0x8004000
+    APP_START_ADDR := 0x8008000
     BOOT_START_ADDR := 0x8000000
     DEFINES += STM32F405xx
 endif
