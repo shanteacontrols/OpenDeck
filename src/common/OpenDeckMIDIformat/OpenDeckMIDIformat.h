@@ -27,10 +27,8 @@ namespace OpenDeckMIDIformat
     ///
     enum class command_t : uint8_t
     {
-        fwUpdated,       ///< Signal to USB link MCU that the firmware has been updated on main MCU.
-        fwNotUpdated,    ///< Signal to USB link MCU that the firmware hasn't been updated on main MCU.
-        btldrReboot,     ///< Signal to USB link MCU to reboot to bootloader mode.
-        appReboot        ///< Signal to USB link MCU to reboot to application mode.
+        btldrReboot,    ///< Signal to USB link MCU to reboot to bootloader mode.
+        appReboot       ///< Signal to USB link MCU to reboot to application mode.
     };
 
     enum class packetType_t : uint8_t

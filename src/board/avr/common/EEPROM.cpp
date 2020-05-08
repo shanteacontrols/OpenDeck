@@ -27,8 +27,7 @@ namespace Board
         uint32_t size()
         {
             //last eeprom address stores type of firmare to boot once in bootloader
-            //before that, 2 bytes are used to store application CRC
-            return (E2END - 2);
+            return E2END;
         }
 
         void init()

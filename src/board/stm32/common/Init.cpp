@@ -23,11 +23,6 @@ limitations under the License.
 
 namespace Board
 {
-    bool checkNewRevision()
-    {
-        return false;
-    }
-
     void uniqueID(uniqueID_t& uid)
     {
         uint32_t id[3];

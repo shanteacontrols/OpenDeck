@@ -283,6 +283,14 @@ namespace Board
             /// \brief Disables the checking of LED indicators in ISR.
             ///
             void disableIndicators();
+
+            ///
+            /// \brief Flashes integrated LEDs on board on startup.
+            /// Pattern differs depending on whether firmware is updated or not.
+            /// @param[in] fwUpdated    If set to true, "Firmware updated" pattern will be
+            ///                         used to flash the LEDs.
+            ///
+            void ledFlashStartup(bool fwUpdated);
 #endif
         }    // namespace io
 

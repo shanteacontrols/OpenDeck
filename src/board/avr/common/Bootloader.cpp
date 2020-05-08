@@ -62,6 +62,9 @@ namespace Board
 
         void applyFw()
         {
+#ifdef LED_INDICATORS
+            detail::io::ledFlashStartup(true);
+#endif
             core::reset::mcuReset();
         }
     }    // namespace bootloader

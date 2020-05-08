@@ -73,6 +73,9 @@ namespace Board
         }
         else
         {
+#ifdef LED_INDICATORS
+            detail::io::ledFlashStartup(false);
+#endif
             detail::bootloader::runApplication();
         }
 #endif

@@ -60,14 +60,6 @@ namespace Board
     ///
     void reboot(rebootType_t type);
 
-    ///
-    /// \brief Checks if firmware has been updated.
-    /// Firmware file has written CRC in last two flash addresses. Application stores last read CRC in EEPROM.
-    /// If EEPROM and flash CRC differ, firmware has been updated.
-    /// \returns True if firmware has been updated, false otherwise.
-    ///
-    bool checkNewRevision();
-
     namespace USB
     {
         ///
@@ -141,14 +133,6 @@ namespace Board
             g,
             b
         };
-
-        ///
-        /// \brief Flashes integrated LEDs on board on startup.
-        /// Pattern differs depending on whether firmware is updated or not.
-        /// @param[in] fwUpdated    If set to true, "Firmware updated" pattern will be
-        ///                         used to flash the LEDs.
-        ///
-        void ledFlashStartup(bool fwUpdated);
 
         ///
         /// \brief Checks if digital input data is available (encoder and button data).

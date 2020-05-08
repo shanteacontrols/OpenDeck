@@ -164,14 +164,6 @@ namespace OpenDeckMIDIformat
                 {
                     switch (static_cast<command_t>(USBMIDIpacket.Event))
                     {
-                    case command_t::fwUpdated:
-                        Board::io::ledFlashStartup(true);
-                        break;
-
-                    case command_t::fwNotUpdated:
-                        Board::io::ledFlashStartup(false);
-                        break;
-
                     case command_t::btldrReboot:
                         Board::reboot(Board::rebootType_t::rebootBtldr);
                         break;

@@ -36,26 +36,6 @@ extern "C" void __cxa_pure_virtual()
 
 namespace Board
 {
-    bool checkNewRevision()
-    {
-        uint16_t crc_eeprom = eeprom_read_word(reinterpret_cast<uint16_t*>(SW_CRC_LOCATION_EEPROM));
-#if (FLASHEND > 0xFFFF)
-        uint32_t lastAddress = pgm_read_dword_far(core::misc::pgmGetFarAddress(APP_LENGTH_LOCATION));
-        uint16_t crc_flash   = pgm_read_word_far(core::misc::pgmGetFarAddress(lastAddress));
-#else
-        uint32_t lastAddress = pgm_read_dword(APP_LENGTH_LOCATION);
-        uint16_t crc_flash   = pgm_read_word(lastAddress);
-#endif
-
-        if (crc_eeprom != crc_flash)
-        {
-            eeprom_update_word(reinterpret_cast<uint16_t*>(SW_CRC_LOCATION_EEPROM), crc_flash);
-            return true;
-        }
-
-        return false;
-    }
-
     namespace detail
     {
         namespace setup

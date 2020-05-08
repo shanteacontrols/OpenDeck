@@ -116,7 +116,9 @@ int main()
                                     {
                                         while (!Board::UART::isTxEmpty(UART_USB_LINK_CHANNEL))
                                             ;
-                                        Board::reboot(Board::rebootType_t::rebootApp);
+
+                                        //this will actually flash the integrated LEDs and reset the MCU
+                                        Board::bootloader::applyFw();
                                     }
                                 }
                             }

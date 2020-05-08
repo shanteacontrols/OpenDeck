@@ -48,51 +48,6 @@ namespace
 
 namespace Board
 {
-    namespace io
-    {
-        void ledFlashStartup(bool fwUpdated)
-        {
-            Board::detail::io::disableIndicators();
-
-            for (int i = 0; i < 3; i++)
-            {
-                if (fwUpdated)
-                {
-                    INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-                    INT_LED_ON(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
-                    INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-                    INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
-                    core::timing::waitMs(LED_INDICATOR_STARTUP_DELAY);
-                    INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-                    INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
-                    INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-                    INT_LED_ON(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
-                    core::timing::waitMs(LED_INDICATOR_STARTUP_DELAY);
-                }
-                else
-                {
-                    INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-                    INT_LED_ON(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
-                    INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-                    INT_LED_ON(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
-                    core::timing::waitMs(LED_INDICATOR_STARTUP_DELAY);
-                    INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-                    INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
-                    INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-                    INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
-                    core::timing::waitMs(LED_INDICATOR_STARTUP_DELAY);
-                }
-            }
-
-            INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-            INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-            INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
-            INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
-
-            Board::detail::io::enableIndicators();
-        }
-    }    // namespace io
-
     namespace detail
     {
         namespace io
@@ -171,20 +126,50 @@ namespace Board
                 else
                     INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
             }
+
+            void ledFlashStartup(bool fwUpdated)
+            {
+                Board::detail::io::disableIndicators();
+
+                for (int i = 0; i < 3; i++)
+                {
+                    if (fwUpdated)
+                    {
+                        INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+                        INT_LED_ON(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
+                        INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
+                        INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
+                        core::timing::waitMs(LED_INDICATOR_STARTUP_DELAY);
+                        INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+                        INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
+                        INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
+                        INT_LED_ON(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
+                        core::timing::waitMs(LED_INDICATOR_STARTUP_DELAY);
+                    }
+                    else
+                    {
+                        INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+                        INT_LED_ON(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
+                        INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
+                        INT_LED_ON(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
+                        core::timing::waitMs(LED_INDICATOR_STARTUP_DELAY);
+                        INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+                        INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
+                        INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
+                        INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
+                        core::timing::waitMs(LED_INDICATOR_STARTUP_DELAY);
+                    }
+                }
+
+                INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+                INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
+                INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
+                INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
+
+                Board::detail::io::enableIndicators();
+            }
         }    // namespace io
     }        // namespace detail
 }    // namespace Board
 
-#else
-//define empty weak ledFlashStartup function to allow compilation
-//on boards which don't support this feature
-namespace Board
-{
-    namespace io
-    {
-        __attribute__((weak)) void ledFlashStartup(bool fwUpdated)
-        {
-        }
-    }    // namespace io
-}    // namespace Board
 #endif

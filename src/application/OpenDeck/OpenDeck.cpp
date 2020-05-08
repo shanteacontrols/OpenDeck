@@ -412,8 +412,6 @@ void OpenDeck::init()
 #endif
 #endif
     };
-
-    Board::io::ledFlashStartup(Board::checkNewRevision());
 }
 
 void OpenDeck::checkComponents()
