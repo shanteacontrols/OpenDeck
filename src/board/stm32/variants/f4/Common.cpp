@@ -54,6 +54,12 @@ extern "C" void HAL_MspInit(void)
     __HAL_RCC_PWR_CLK_ENABLE();
 }
 
+extern "C" void HAL_MspDeInit(void)
+{
+    __HAL_RCC_SYSCFG_CLK_DISABLE();
+    __HAL_RCC_PWR_CLK_DISABLE();
+}
+
 extern "C" void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
 {
     if (hadc->Instance == ADC1)
