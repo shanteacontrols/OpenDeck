@@ -118,7 +118,7 @@ TEST_CASE(ManualPacketBuilding)
     TEST_ASSERT(true == Board::UART::write(TEST_MIDI_CHANNEL, sending.Data1));
     TEST_ASSERT(true == Board::UART::write(TEST_MIDI_CHANNEL, sending.Data2));
     TEST_ASSERT(true == Board::UART::write(TEST_MIDI_CHANNEL, sending.Data3));
-    TEST_ASSERT(true == Board::UART::write(TEST_MIDI_CHANNEL, 0x00));
+    TEST_ASSERT(true == Board::UART::write(TEST_MIDI_CHANNEL, 0xFF));
 
     rebootType = Board::rebootType_t::rebootApp;
 
