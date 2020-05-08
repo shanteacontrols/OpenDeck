@@ -14,13 +14,13 @@
         },
         {
             "name": "discovery",
-            "bootloader": false,
+            "bootloader": true,
             "release": false,
             "test": true
         },
         {
             "name": "cardamom",
-            "bootloader": false,
+            "bootloader": true,
             "release": false,
             "test": true
         },
