@@ -181,6 +181,9 @@ extern "C" void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 
 extern "C" void InitSystem(void)
 {
+    //set stack pointer
+    __set_MSP(*reinterpret_cast<volatile uint32_t*>(FLASH_START_ADDR));
+
     //setup FPU
 #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
     SCB->CPACR |= ((3UL << 10 * 2) | (3UL << 11 * 2)); /* set CP10 and CP11 Full Access */
