@@ -173,7 +173,7 @@ namespace OpenDeckMIDIformat
                         break;
 
                     default:
-                        break;
+                        return false;
                     }
                 }
 
