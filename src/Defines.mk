@@ -74,13 +74,13 @@ else ifeq ($(MCU), atmega8u2)
 else ifeq ($(MCU), atmega2560)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xfc
-    FUSE_HIGH := 0xd2
+    FUSE_HIGH := 0xd0
     FUSE_LOW := 0xff
     FUSE_LOCK := 0xef
     FLASH_SIZE_START_ADDR := 0xE4
     FLASH_SIZE_END_ADDR := 0xE8
     APP_START_ADDR := 0x00
-    BOOT_START_ADDR := 0x3F000
+    BOOT_START_ADDR := 0x3E000
     DEFINES += __AVR_ATmega2560__
 else ifeq ($(MCU), atmega328p)
     FUSE_UNLOCK := 0xff
