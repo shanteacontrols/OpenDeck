@@ -171,6 +171,9 @@ else
 	@arm-none-eabi-objcopy -O ihex $(TARGET).elf $(TARGET).hex
 	@#convert hex to bin
 	@arm-none-eabi-objcopy -I ihex "$(TARGET).hex" -O binary "$(TARGET).bin"
+ifeq ($(BOOT),1)
+	@arm-none-eabi-objcopy --pad-to=$(APP_START_ADDR) --gap-fill=0xFF -O binary "$(TARGET).elf" "$(TARGET).bin"
+endif
 	@arm-none-eabi-size "$(TARGET).elf"
 endif
 ifeq ($(HAS_BTLDR),1)
