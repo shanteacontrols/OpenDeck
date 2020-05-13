@@ -22,14 +22,6 @@ limitations under the License.
 #include "core/src/general/Reset.h"
 #include "core/src/general/Timing.h"
 
-namespace
-{
-    ///
-    /// \brief Placeholder variable used only to reserve space in linker section.
-    ///
-    const uint32_t appLength __attribute__((section(".applen"))) __attribute__((used)) = 0;
-}    // namespace
-
 namespace core
 {
     namespace timing
