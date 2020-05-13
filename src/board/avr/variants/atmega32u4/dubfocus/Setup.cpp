@@ -37,6 +37,7 @@ namespace Board
                 CORE_IO_CONFIG(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN, core::io::pinMode_t::output);
                 CORE_IO_CONFIG(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN, core::io::pinMode_t::output);
                 CORE_IO_CONFIG(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN, core::io::pinMode_t::output);
+                CORE_IO_CONFIG(SR_OUT_OE_PORT, SR_OUT_OE_PIN, core::io::pinMode_t::output);
 
                 CORE_IO_CONFIG(MUX_S0_PORT, MUX_S0_PIN, core::io::pinMode_t::output);
                 CORE_IO_CONFIG(MUX_S1_PORT, MUX_S1_PIN, core::io::pinMode_t::output);
@@ -74,7 +75,6 @@ namespace Board
                 CORE_IO_SET_LOW(PORTB, 7);
 
                 CORE_IO_SET_LOW(PORTC, 6);
-                CORE_IO_SET_LOW(PORTC, 7);
 
                 CORE_IO_SET_LOW(PORTD, 6);
                 CORE_IO_SET_LOW(PORTD, 7);
@@ -97,6 +97,7 @@ namespace Board
                 }
 
                 CORE_IO_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+                CORE_IO_SET_LOW(SR_OUT_OE_PORT, SR_OUT_OE_PIN);
             }
 
             void adc()

@@ -39,6 +39,9 @@ limitations under the License.
 #define SR_OUT_LATCH_PORT           PORTD
 #define SR_OUT_LATCH_PIN            1
 
+#define SR_OUT_OE_PORT              PORTC
+#define SR_OUT_OE_PIN               7
+
 
 #define MUX_S0_PORT                 PORTB
 #define MUX_S0_PIN                  3
