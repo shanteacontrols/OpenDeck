@@ -131,8 +131,7 @@ else ifeq ($(ARCH),stm32)
     UID_BITS=96 \
     USE_USB_FS \
     DEVICE_FS=0 \
-    DEVICE_HS=1 \
-    NVM_FLASH_CACHE
+    DEVICE_HS=1
 endif
 
 DEFINES += OD_BOARD_$(shell echo $(BOARD_DIR) | tr 'a-z' 'A-Z')

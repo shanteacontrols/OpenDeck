@@ -18,7 +18,6 @@ limitations under the License.
 
 #include "Pins.h"
 #include "board/Internal.h"
-#include "board/stm32/variants/f4/nvm/Constants.h"
 
 namespace Board
 {
@@ -108,15 +107,8 @@ namespace Board
                     },
                 };
 
-                EmuEEPROM::StorageAccess::pageDescriptor_t flashPage1 = {
-                    .startAddress = EEPROM_PAGE1_START_ADDRESS,
-                    .sector       = EEPROM_PAGE1_SECTOR
-                };
-
-                EmuEEPROM::StorageAccess::pageDescriptor_t flashPage2 = {
-                    .startAddress = EEPROM_PAGE2_START_ADDRESS,
-                    .sector       = EEPROM_PAGE2_SECTOR
-                };
+                const size_t emuEEPROMflashPage1 = FLASH_SECTOR_5;
+                const size_t emuEEPROMflashPage2 = FLASH_SECTOR_6;
 
                 class UARTdescriptor0 : public Board::detail::map::STMPeripheral
                 {
@@ -223,14 +215,14 @@ namespace Board
                 return TIM7;
             }
 
-            EmuEEPROM::StorageAccess::pageDescriptor_t& eepromFlashPage1()
+            size_t eepromFlashPage1()
             {
-                return flashPage1;
+                return emuEEPROMflashPage1;
             }
 
-            EmuEEPROM::StorageAccess::pageDescriptor_t& eepromFlashPage2()
+            size_t eepromFlashPage2()
             {
-                return flashPage2;
+                return emuEEPROMflashPage2;
             }
         }    // namespace map
     }        // namespace detail

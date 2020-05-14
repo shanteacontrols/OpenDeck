@@ -2,25 +2,34 @@
 #include "board/Internal.h"
 #include "EmuEEPROM/src/EmuEEPROM.h"
 #include "stm32f4xx.h"
-#include "Constants.h"
+#include <vector>
 
 namespace
 {
     class STM32F4EEPROM : public EmuEEPROM::StorageAccess
     {
         public:
-        STM32F4EEPROM(pageDescriptor_t& page1, pageDescriptor_t& page2, size_t totalSize)
-            : page1(page1)
-            , page2(page2)
-            , totalSize(totalSize)
+        STM32F4EEPROM()
         {}
+
+        bool init() override
+        {
+            uint32_t totalStorageSpace = Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPage1()).size / 4 - 1;
+
+            eepromMemory.reserve(totalStorageSpace);
+
+            for (size_t i = 0; i < totalStorageSpace; i++)
+                eepromMemory[i] = 0xFFFF;
+
+            return true;
+        }
 
         uint32_t startAddress(page_t page) override
         {
             if (page == page_t::page1)
-                return page1.startAddress;
+                return Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPage1()).address;
             else
-                return page2.startAddress;
+                return Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPage1()).address;
         }
 
         bool erasePage(page_t page) override
@@ -31,11 +40,11 @@ namespace
             pEraseInit.NbSectors = 1;
 
             if (page == page_t::page1)
-                pEraseInit.Sector = page1.sector;
+                pEraseInit.Sector = Board::detail::map::eepromFlashPage1();
             else
-                pEraseInit.Sector = page2.sector;
+                pEraseInit.Sector = Board::detail::map::eepromFlashPage2();
 
-            pEraseInit.VoltageRange = EEPROM_VOLTAGE_RANGE;
+            pEraseInit.VoltageRange = FLASH_VOLTAGE_RANGE_3;
             pEraseInit.TypeErase    = FLASH_TYPEERASE_SECTORS;
 
             uint32_t          eraseStatus;
@@ -96,9 +105,9 @@ namespace
             uint32_t status;
 
             if (page == page_t::page1)
-                status = (*(volatile uint32_t*)page1.startAddress);
+                status = (*(volatile uint32_t*)Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPage1()).address);
             else
-                status = (*(volatile uint32_t*)page2.startAddress);
+                status = (*(volatile uint32_t*)Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPage2()).address);
 
             switch (status)
             {
@@ -116,28 +125,18 @@ namespace
 
         size_t pageSize() override
         {
-            return EEPROM_SIZE;
+            return Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPage1()).size;
         }
 
-        private:
-        pageDescriptor_t& page1;
-        pageDescriptor_t& page2;
-        const size_t      totalSize;
+        ///
+        /// \brief Memory array stored in RAM holding all the values stored in virtual EEPROM.
+        /// Used to avoid constant lookups in the flash.
+        ///
+        std::vector<uint16_t> eepromMemory;
     };
 
-#ifdef NVM_FLASH_CACHE
-    ///
-    /// \brief Memory array stored in RAM holding all the values stored in virtual EEPROM.
-    /// Used to avoid constant lookups in the flash.
-    ///
-    uint16_t eepromMemory[(EEPROM_SIZE / 4) - 1];
-#endif
-
-    STM32F4EEPROM stm32EEPROM(Board::detail::map::eepromFlashPage1(),
-                              Board::detail::map::eepromFlashPage2(),
-                              EEPROM_SIZE);
-
-    EmuEEPROM emuEEPROM(stm32EEPROM);
+    STM32F4EEPROM stm32EEPROM;
+    EmuEEPROM     emuEEPROM(stm32EEPROM);
 }    // namespace
 
 namespace Board
@@ -146,15 +145,12 @@ namespace Board
     {
         uint32_t size()
         {
-            return EEPROM_SIZE;
+            return stm32EEPROM.pageSize();
         }
 
         void init()
         {
             emuEEPROM.init();
-
-            for (size_t i = 0; i < (EEPROM_SIZE / 4) - 1; i++)
-                eepromMemory[i] = 0xFFFF;
         }
 
         bool read(uint32_t address, int32_t& value, parameterType_t type)
@@ -165,9 +161,9 @@ namespace Board
             {
             case parameterType_t::byte:
             case parameterType_t::word:
-                if (eepromMemory[address] != 0xFFFF)
+                if (stm32EEPROM.eepromMemory[address] != 0xFFFF)
                 {
-                    value = eepromMemory[address];
+                    value = stm32EEPROM.eepromMemory[address];
                 }
                 else
                 {
@@ -177,8 +173,8 @@ namespace Board
                     }
                     else
                     {
-                        value                 = tempData;
-                        eepromMemory[address] = tempData;
+                        value                             = tempData;
+                        stm32EEPROM.eepromMemory[address] = tempData;
                     }
                 }
                 break;
@@ -199,8 +195,8 @@ namespace Board
             {
             case parameterType_t::byte:
             case parameterType_t::word:
-                tempData              = value;
-                eepromMemory[address] = value;
+                tempData                          = value;
+                stm32EEPROM.eepromMemory[address] = value;
                 if (emuEEPROM.write(address, tempData) != EmuEEPROM::writeStatus_t::ok)
                     return false;
                 break;

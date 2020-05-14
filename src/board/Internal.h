@@ -216,6 +216,12 @@ namespace Board
                 core::io::mcuPin_t sdl;
             } I2Cpins_t;
 
+            typedef struct
+            {
+                uint32_t address;
+                uint32_t size;
+            } flashPage_t;
+
             ///
             /// Used to retrieve physical UART interface used on MCU for a given UART channel index as well
             /// as pins on which the interface is connected.
@@ -239,11 +245,18 @@ namespace Board
             TIM_TypeDef* mainTimerInstance();
 
             ///
+            /// \brief Retrieves flash page descriptor containing page address and size.
+            /// @param [in] pageIndex Index of flash sector for which to retrieve address and size.
+            /// \returns Reference to flash page descriptor for specified page index.
+            ///
+            flashPage_t& flashPageDescriptor(size_t pageIndex);
+
+            ///
             /// \brief Used to retrieve descriptors for flash pages used for EEPROM emulation.
             /// @ {
 
-            EmuEEPROM::StorageAccess::pageDescriptor_t& eepromFlashPage1();
-            EmuEEPROM::StorageAccess::pageDescriptor_t& eepromFlashPage2();
+            size_t eepromFlashPage1();
+            size_t eepromFlashPage2();
 
             /// }
 #endif

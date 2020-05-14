@@ -45,7 +45,7 @@ else ifeq ($(ARCH),stm32)
     SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/common -regex '.*\.\(s\|c\)')
     SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/$(MCU) -regex '.*\.\(s\|c\)')
     SOURCES += $(shell $(FIND) ./board/stm32/variants/$(MCU_FAMILY) -maxdepth 1 -name "*.cpp")
-    SOURCES += $(shell $(FIND) ./board/stm32/variants/$(MCU_FAMILY)/$(MCU) -maxdepth 1 -name "*.s")
+    SOURCES += $(shell $(FIND) ./board/stm32/variants/$(MCU_FAMILY)/$(MCU) -maxdepth 1 -regex '.*\.\(s\|c\|cpp\)')
     SOURCES += $(shell $(FIND) ./board/stm32/variants/$(MCU_FAMILY)/nvm -name "*.cpp")
     SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
 
