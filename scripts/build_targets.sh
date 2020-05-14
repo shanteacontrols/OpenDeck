@@ -108,7 +108,7 @@ do
                 continue;
             else
                 #build merged binary
-                ../scripts/build_combined.sh "${targets[$i]}"
+                make merged TARGETNAME="${targets[$i]}"
                 result=$?
 
                 if [[ "$result" -eq 0 ]]

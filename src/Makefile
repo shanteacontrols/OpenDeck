@@ -43,9 +43,8 @@ TARGET := $(BUILD_DIR)/$(TARGETNAME)
 include Defines.mk
 include Sources.mk
 
-# shell script "build_combined.sh" can generate binary with combined firmware and bootloader
-# if this file exists, use it when running flash target
-MERGED_TARGET := $(shell $(FIND) $(BUILD_DIR_BASE)/merged -name "*$(BOARD_DIR).hex" 2>/dev/null)
+# if merged binary exists (bootloader+application), use it when running flash target
+MERGED_TARGET := $(BUILD_DIR_BASE)/merged/$(TARGETNAME).bin
 
 #when set to 1, format target will fail if there are any changes to the repository after formatting
 CF_FAIL_ON_DIFF := 0
@@ -150,20 +149,12 @@ $(TARGET).elf: $(OBJECTS)
 	@echo Creating executable: $@
 	@$(CPP_COMPILER) -o$(TARGET).elf $(OBJECTS) $(LDFLAGS)
 ifeq ($(ARCH), avr)
-	@#convert elf to hex
 	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(TARGET).elf" "$(TARGET).hex"
-	@#convert hex to bin
 	@avr-objcopy -I ihex "$(TARGET).hex" -O binary "$(TARGET).bin"
-	@#display memory usage
 	@avr-size -C --mcu=$(MCU) "$(TARGET).elf"
 else
-	@#convert elf to hex
 	@arm-none-eabi-objcopy -O ihex $(TARGET).elf $(TARGET).hex
-	@#convert hex to bin
 	@arm-none-eabi-objcopy -I ihex "$(TARGET).hex" -O binary "$(TARGET).bin"
-ifeq ($(BOOT),1)
-	@arm-none-eabi-objcopy --pad-to=$(APP_START_ADDR) --gap-fill=0xFF -O binary "$(TARGET).elf" "$(TARGET).bin"
-endif
 	@arm-none-eabi-size "$(TARGET).elf"
 endif
 ifeq ($(HAS_BTLDR),1)
@@ -172,6 +163,22 @@ ifneq ($(BOOT),1)
 	@../scripts/sysex_fw_create.sh $(TARGET).bin $(TARGET).sysex $(SYSEX_MANUFACTURER_ID_0) $(SYSEX_MANUFACTURER_ID_1) $(SYSEX_MANUFACTURER_ID_2) $(COMMAND_FW_UPDATE_START) $(COMMAND_FW_UPDATE_END)
 endif
 endif
+
+merged:
+	@mkdir -p $(BUILD_DIR_BASE)/merged
+	@echo Building application...
+	@$(MAKE) --no-print-directory TARGETNAME=$(TARGETNAME) BOOT=0
+	@echo Building bootloader...
+	@$(MAKE) --no-print-directory TARGETNAME=$(TARGETNAME) BOOT=1
+	@echo Combining application and bootloader...
+ifeq ($(ARCH), avr)
+	@avr-objcopy --pad-to=$(BOOT_START_ADDR) --gap-fill=0xFF -O binary "$(BUILD_DIR_BASE)/application/$(TARGETNAME)/release/$(TARGETNAME).elf" "$(BUILD_DIR_BASE)/application/$(TARGETNAME)/release/$(TARGETNAME)_padded.bin"
+	@cat "$(BUILD_DIR_BASE)/application/$(TARGETNAME)/release/$(TARGETNAME)_padded.bin" "$(BUILD_DIR_BASE)/bootloader/$(TARGETNAME)/release/$(TARGETNAME).bin" > $(MERGED_TARGET)
+else
+	@arm-none-eabi-objcopy --pad-to=$(APP_START_ADDR) --gap-fill=0xFF -O binary "$(BUILD_DIR_BASE)/bootloader/$(TARGETNAME)/release/$(TARGETNAME).elf" "$(BUILD_DIR_BASE)/bootloader/$(TARGETNAME)/release/$(TARGETNAME)_padded.bin"
+	@cat "$(BUILD_DIR_BASE)/bootloader/$(TARGETNAME)/release/$(TARGETNAME)_padded.bin" "$(BUILD_DIR_BASE)/application/$(TARGETNAME)/release/$(TARGETNAME).bin" > $(MERGED_TARGET)
+endif
+	@echo Merged binary created: $(MERGED_TARGET)
 
 pre-build:
 	@../scripts/gen_touchscreen.sh application/io/touchscreen/coordinates/$(BOARD_DIR).json
@@ -194,7 +201,7 @@ $(BUILD_DIR)/%.s.o: %.s
 flash:
 ifeq ($(ARCH), avr)
 	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -e -V -u -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
-ifneq (,$(MERGED_TARGET))
+ifneq (,$(wildcard $(MERGED_TARGET)))
 	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:$(MERGED_TARGET)
 else
 	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:$(TARGET).hex
