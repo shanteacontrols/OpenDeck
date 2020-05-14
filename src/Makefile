@@ -6,6 +6,7 @@ TARGETNAME := mega2560
 ifneq (,$(wildcard $(BUILD_DIR_BASE)/TARGET))
     TARGETNAME := $(shell cat $(BUILD_DIR_BASE)/TARGET)
     DEBUG := $(shell cat $(BUILD_DIR_BASE)/DEBUG)
+    BOOT := $(shell cat $(BUILD_DIR_BASE)/BOOT)
 endif
 
 ifneq ($(findstring $(TARGETNAME), $(shell jq ".targets[] | .name" ../targets.json)), $(TARGETNAME))
@@ -146,6 +147,7 @@ LDFLAGS += -T $(LINKER_FILE)
 $(TARGET).elf: $(OBJECTS)
 	@echo $(TARGETNAME) > $(BUILD_DIR_BASE)/TARGET
 	@echo $(DEBUG) > $(BUILD_DIR_BASE)/DEBUG
+	@echo $(BOOT) > $(BUILD_DIR_BASE)/BOOT
 	@echo Creating executable: $@
 	@$(CPP_COMPILER) -o$(TARGET).elf $(OBJECTS) $(LDFLAGS)
 ifeq ($(ARCH), avr)
