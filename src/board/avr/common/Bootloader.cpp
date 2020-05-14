@@ -21,12 +21,18 @@ limitations under the License.
 #include <avr/pgmspace.h>
 #include "board/Board.h"
 #include "board/Internal.h"
+#include "board/common/constants/Reboot.h"
 #include "core/src/general/Reset.h"
 #include "core/src/general/Helpers.h"
 #include "core/src/arch/avr/Misc.h"
 #include "core/src/general/Interrupt.h"
 #include "core/src/general/Timing.h"
 #include "common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
+
+///
+/// \brief Location at which reboot type is written in EEPROM when initiating software reset.
+///
+#define REBOOT_VALUE_EEPROM_LOCATION E2END
 
 namespace Board
 {

@@ -24,6 +24,11 @@ limitations under the License.
 #include "Pins.h"
 #include "io/leds/LEDs.h"
 
+///
+/// \brief Total number of states between fully off and fully on for LEDs.
+///
+#define NUMBER_OF_LED_TRANSITIONS 64
+
 namespace
 {
 #if !defined(NUMBER_OF_OUT_SR) || defined(NUMBER_OF_LED_COLUMNS)

@@ -20,7 +20,6 @@ limitations under the License.
 
 #include "dbms/src/LESSDB.h"
 #include "midi/src/MIDI.h"
-#include "common/Common.h"
 
 namespace Board
 {

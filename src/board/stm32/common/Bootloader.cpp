@@ -18,6 +18,7 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
+#include "board/common/constants/Reboot.h"
 #include "core/src/general/Interrupt.h"
 #include "stm32f4xx_hal.h"
 

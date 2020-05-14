@@ -52,7 +52,6 @@ limitations under the License.
 #include "../Descriptors.h"
 #include "UserConstants.h"
 #include "core/src/general/Helpers.h"
-#include "board/common/Common.h"
 
 /** Configuration descriptor structure. This descriptor, located in FLASH memory, describes the usage
  *  of the device in one of its supported configurations, including information about any device interfaces

@@ -47,6 +47,11 @@ limitations under the License.
 #define ANALOG_IN_BUFFER_SIZE 3
 
 ///
+/// \brief Defines how many analog samples from the same input will be thrown away before storing the read value.
+///
+#define ADC_IGNORED_SAMPLES_COUNT 3
+
+///
 /// \brief Time in milliseconds during which MIDI event indicators on board are on when MIDI event happens.
 ///
 #define MIDI_INDICATOR_TIMEOUT 50
