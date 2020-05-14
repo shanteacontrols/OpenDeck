@@ -20,7 +20,7 @@ limitations under the License.
 #include "board/Internal.h"
 #include "board/common/constants/Reboot.h"
 #include "core/src/general/Interrupt.h"
-#include "stm32f4xx_hal.h"
+#include "core/src/general/Reset.h"
 
 using appEntry_t = void (*)();
 
@@ -43,18 +43,25 @@ namespace Board
 
         void erasePage(size_t index)
         {
+            detail::flash::erasePage(index);
         }
 
         void fillPage(size_t index, uint32_t address, uint16_t data)
         {
+            detail::flash::write16(detail::map::flashPageDescriptor(index).address + address, data);
         }
 
         void writePage(size_t index)
         {
+            //nothing to do here
         }
 
         void applyFw()
         {
+#ifdef LED_INDICATORS
+            detail::io::ledFlashStartup(true);
+#endif
+            core::reset::mcuReset();
         }
     }    // namespace bootloader
 
@@ -64,7 +71,10 @@ namespace Board
         {
             bool isAppValid()
             {
-                return true;
+                uint16_t data = 0xFFFF;
+                detail::flash::read16(APP_START_ADDR, data);
+
+                return data != 0xFFFF;
             }
 
             bool isSWtriggerActive()
