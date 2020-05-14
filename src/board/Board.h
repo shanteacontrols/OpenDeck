@@ -205,8 +205,10 @@ namespace Board
         uint16_t getAnalogValue(uint8_t analogID);
     }    // namespace io
 
-    namespace eeprom
+    namespace NVM
     {
+        //NVM: non-volatile memory
+
         enum class parameterType_t : uint8_t
         {
             byte,
@@ -215,7 +217,7 @@ namespace Board
         };
 
         ///
-        /// \brief Returns total available bytes to store in EEPROM memory.
+        /// \brief Returns total available bytes to store in non-volatile memory.
         ///
         uint32_t size();
 
@@ -253,7 +255,7 @@ namespace Board
         /// \returns            True on success, false otherwise.
         ///
         bool write(uint32_t address, int32_t value, parameterType_t type);
-    }    // namespace eeprom
+    }    // namespace NVM
 
     namespace bootloader
     {

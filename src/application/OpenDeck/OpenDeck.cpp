@@ -72,17 +72,17 @@ class StorageAccess : public LESSDB::StorageAccess
 
     void init() override
     {
-        Board::eeprom::init();
+        Board::NVM::init();
     }
 
     uint32_t size() override
     {
-        return Board::eeprom::size();
+        return Board::NVM::size();
     }
 
     void clear() override
     {
-        Board::eeprom::clear(0, Board::eeprom::size());
+        Board::NVM::clear(0, Board::NVM::size());
     }
 
     bool read(uint32_t address, int32_t& value, LESSDB::sectionParameterType_t type) override
@@ -90,13 +90,13 @@ class StorageAccess : public LESSDB::StorageAccess
         switch (type)
         {
         case LESSDB::sectionParameterType_t::word:
-            return Board::eeprom::read(address, value, Board::eeprom::parameterType_t::word);
+            return Board::NVM::read(address, value, Board::NVM::parameterType_t::word);
 
         case LESSDB::sectionParameterType_t::dword:
-            return Board::eeprom::read(address, value, Board::eeprom::parameterType_t::dword);
+            return Board::NVM::read(address, value, Board::NVM::parameterType_t::dword);
 
         default:
-            return Board::eeprom::read(address, value, Board::eeprom::parameterType_t::byte);
+            return Board::NVM::read(address, value, Board::NVM::parameterType_t::byte);
         }
     }
 
@@ -105,13 +105,13 @@ class StorageAccess : public LESSDB::StorageAccess
         switch (type)
         {
         case LESSDB::sectionParameterType_t::word:
-            return Board::eeprom::write(address, value, Board::eeprom::parameterType_t::word);
+            return Board::NVM::write(address, value, Board::NVM::parameterType_t::word);
 
         case LESSDB::sectionParameterType_t::dword:
-            return Board::eeprom::write(address, value, Board::eeprom::parameterType_t::dword);
+            return Board::NVM::write(address, value, Board::NVM::parameterType_t::dword);
 
         default:
-            return Board::eeprom::write(address, value, Board::eeprom::parameterType_t::byte);
+            return Board::NVM::write(address, value, Board::NVM::parameterType_t::byte);
         }
     }
 
@@ -120,13 +120,13 @@ class StorageAccess : public LESSDB::StorageAccess
         switch (type)
         {
         case LESSDB::sectionParameterType_t::word:
-            return Board::eeprom::paramUsage(Board::eeprom::parameterType_t::word);
+            return Board::NVM::paramUsage(Board::NVM::parameterType_t::word);
 
         case LESSDB::sectionParameterType_t::dword:
-            return Board::eeprom::paramUsage(Board::eeprom::parameterType_t::dword);
+            return Board::NVM::paramUsage(Board::NVM::parameterType_t::dword);
 
         default:
-            return Board::eeprom::paramUsage(Board::eeprom::parameterType_t::byte);
+            return Board::NVM::paramUsage(Board::NVM::parameterType_t::byte);
         }
     }
 } storageAccess;

@@ -22,7 +22,7 @@ limitations under the License.
 
 namespace Board
 {
-    namespace eeprom
+    namespace NVM
     {
         uint32_t size()
         {
@@ -95,5 +95,5 @@ namespace Board
                 return 1;
             }
         }
-    }    // namespace eeprom
+    }    // namespace NVM
 }    // namespace Board

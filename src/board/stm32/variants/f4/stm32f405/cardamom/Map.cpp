@@ -18,7 +18,7 @@ limitations under the License.
 
 #include "Pins.h"
 #include "board/Internal.h"
-#include "board/stm32/variants/f4/eeprom/Constants.h"
+#include "board/stm32/variants/f4/nvm/Constants.h"
 
 namespace Board
 {

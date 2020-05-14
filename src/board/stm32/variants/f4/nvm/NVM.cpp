@@ -125,7 +125,7 @@ namespace
         const size_t      totalSize;
     };
 
-#ifdef EEPROM_RAM_CACHE
+#ifdef NVM_FLASH_CACHE
     ///
     /// \brief Memory array stored in RAM holding all the values stored in virtual EEPROM.
     /// Used to avoid constant lookups in the flash.
@@ -142,7 +142,7 @@ namespace
 
 namespace Board
 {
-    namespace eeprom
+    namespace NVM
     {
         uint32_t size()
         {
@@ -230,5 +230,5 @@ namespace Board
                 return 4;    //2 bytes for address, 2 bytes for data
             }
         }
-    }    // namespace eeprom
+    }    // namespace NVM
 }    // namespace Board

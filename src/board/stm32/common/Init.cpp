@@ -50,7 +50,7 @@ namespace Board
                 detail::setup::clocks();
                 detail::setup::io();
 
-                eeprom::init();
+                NVM::init();
                 detail::setup::adc();
 
                 detail::setup::timers();
