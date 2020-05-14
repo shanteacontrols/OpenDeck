@@ -259,10 +259,10 @@ namespace Board
 
     namespace bootloader
     {
-        size_t pageSize(size_t index);
-        void   erasePage(size_t index);
-        void   fillPage(size_t index, uint32_t address, uint16_t data);
-        void   writePage(size_t index);
-        void   applyFw();
+        uint32_t pageSize(size_t index);
+        void     erasePage(size_t index);
+        void     fillPage(size_t index, uint32_t address, uint16_t data);
+        void     writePage(size_t index);
+        void     applyFw();
     }    // namespace bootloader
 };       // namespace Board

@@ -29,11 +29,11 @@ namespace Bootloader
         class BTLDRWriter
         {
             public:
-            virtual size_t pageSize(size_t index)                                  = 0;
-            virtual void   erasePage(size_t index)                                 = 0;
-            virtual void   fillPage(size_t index, uint32_t address, uint16_t data) = 0;
-            virtual void   writePage(size_t index)                                 = 0;
-            virtual void   apply()                                                 = 0;
+            virtual uint32_t pageSize(size_t index)                                  = 0;
+            virtual void     erasePage(size_t index)                                 = 0;
+            virtual void     fillPage(size_t index, uint32_t address, uint16_t data) = 0;
+            virtual void     writePage(size_t index)                                 = 0;
+            virtual void     apply()                                                 = 0;
         };
 
         Updater(BTLDRWriter& writer, const uint32_t startValue, uint32_t endValue)
@@ -62,7 +62,7 @@ namespace Bootloader
         receiveStage_t currentStage      = receiveStage_t::start;
         size_t         currentPage       = 0;
         uint16_t       receivedWord      = 0;
-        size_t         pageBytesReceived = 0;
+        uint32_t       pageBytesReceived = 0;
         uint32_t       fwBytesReceived   = 0;
         uint32_t       fwSize            = 0;
         uint8_t        byteCountReceived = 0;

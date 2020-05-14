@@ -39,7 +39,7 @@ namespace Board
 #ifdef FW_BOOT
     namespace bootloader
     {
-        size_t pageSize(size_t index)
+        uint32_t pageSize(size_t index)
         {
             return SPM_PAGESIZE;
         }

@@ -23,7 +23,7 @@ limitations under the License.
 class BTLDRWriter : public Bootloader::Updater::BTLDRWriter
 {
     public:
-    size_t pageSize(size_t index) override
+    uint32_t pageSize(size_t index) override
     {
         return Board::bootloader::pageSize(index);
     }

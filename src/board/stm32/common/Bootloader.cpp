@@ -36,7 +36,7 @@ namespace Board
 {
     namespace bootloader
     {
-        size_t pageSize(size_t index)
+        uint32_t pageSize(size_t index)
         {
             return detail::map::flashPageDescriptor(index).size;
         }
