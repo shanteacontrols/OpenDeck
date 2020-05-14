@@ -38,8 +38,7 @@ namespace Board
     {
         size_t pageSize(size_t index)
         {
-#warning dummy return value!
-            return 256;
+            return detail::map::flashPageDescriptor(index).size;
         }
 
         void erasePage(size_t index)
