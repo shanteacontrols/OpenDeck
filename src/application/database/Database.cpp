@@ -123,12 +123,6 @@ bool Database::factoryReset(LESSDB::factoryResetType_t type)
     if (type == LESSDB::factoryResetType_t::full)
         clear();
 
-    if (!setDbUID(getDbUID()))
-        return false;
-
-    if (!setPresetPreserveState(false))
-        return false;
-
     for (int i = supportedPresets - 1; i >= 0; i--)
     {
         if (!setPreset(i))
@@ -137,6 +131,12 @@ bool Database::factoryReset(LESSDB::factoryResetType_t type)
         if (!initData(type))
             return false;
     }
+
+    if (!setPresetPreserveState(false))
+        return false;
+
+    if (!setDbUID(getDbUID()))
+        return false;
 
     handlers.factoryResetDone();
 
