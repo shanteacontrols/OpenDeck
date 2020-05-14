@@ -87,17 +87,47 @@ class StorageAccess : public LESSDB::StorageAccess
 
     bool read(uint32_t address, int32_t& value, LESSDB::sectionParameterType_t type) override
     {
-        return Board::eeprom::read(address, value, type);
+        switch (type)
+        {
+        case LESSDB::sectionParameterType_t::word:
+            return Board::eeprom::read(address, value, Board::eeprom::parameterType_t::word);
+
+        case LESSDB::sectionParameterType_t::dword:
+            return Board::eeprom::read(address, value, Board::eeprom::parameterType_t::dword);
+
+        default:
+            return Board::eeprom::read(address, value, Board::eeprom::parameterType_t::byte);
+        }
     }
 
     bool write(uint32_t address, int32_t value, LESSDB::sectionParameterType_t type) override
     {
-        return Board::eeprom::write(address, value, type);
+        switch (type)
+        {
+        case LESSDB::sectionParameterType_t::word:
+            return Board::eeprom::write(address, value, Board::eeprom::parameterType_t::word);
+
+        case LESSDB::sectionParameterType_t::dword:
+            return Board::eeprom::write(address, value, Board::eeprom::parameterType_t::dword);
+
+        default:
+            return Board::eeprom::write(address, value, Board::eeprom::parameterType_t::byte);
+        }
     }
 
     size_t paramUsage(LESSDB::sectionParameterType_t type) override
     {
-        return Board::eeprom::paramUsage(type);
+        switch (type)
+        {
+        case LESSDB::sectionParameterType_t::word:
+            return Board::eeprom::paramUsage(Board::eeprom::parameterType_t::word);
+
+        case LESSDB::sectionParameterType_t::dword:
+            return Board::eeprom::paramUsage(Board::eeprom::parameterType_t::dword);
+
+        default:
+            return Board::eeprom::paramUsage(Board::eeprom::parameterType_t::byte);
+        }
     }
 } storageAccess;
 Database database(dbHandlers, storageAccess);

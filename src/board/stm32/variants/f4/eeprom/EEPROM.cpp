@@ -157,16 +157,14 @@ namespace Board
                 eepromMemory[i] = 0xFFFF;
         }
 
-        bool read(uint32_t address, int32_t& value, LESSDB::sectionParameterType_t type)
+        bool read(uint32_t address, int32_t& value, parameterType_t type)
         {
             uint16_t tempData;
 
             switch (type)
             {
-            case LESSDB::sectionParameterType_t::bit:
-            case LESSDB::sectionParameterType_t::byte:
-            case LESSDB::sectionParameterType_t::halfByte:
-            case LESSDB::sectionParameterType_t::word:
+            case parameterType_t::byte:
+            case parameterType_t::word:
                 if (eepromMemory[address] != 0xFFFF)
                 {
                     value = eepromMemory[address];
@@ -193,16 +191,14 @@ namespace Board
             return true;
         }
 
-        bool write(uint32_t address, int32_t value, LESSDB::sectionParameterType_t type)
+        bool write(uint32_t address, int32_t value, parameterType_t type)
         {
             uint16_t tempData;
 
             switch (type)
             {
-            case LESSDB::sectionParameterType_t::bit:
-            case LESSDB::sectionParameterType_t::byte:
-            case LESSDB::sectionParameterType_t::halfByte:
-            case LESSDB::sectionParameterType_t::word:
+            case parameterType_t::byte:
+            case parameterType_t::word:
                 tempData              = value;
                 eepromMemory[address] = value;
                 if (emuEEPROM.write(address, tempData) != EmuEEPROM::writeStatus_t::ok)
@@ -223,17 +219,13 @@ namespace Board
             emuEEPROM.format();
         }
 
-        size_t paramUsage(LESSDB::sectionParameterType_t type)
+        size_t paramUsage(parameterType_t type)
         {
             switch (type)
             {
-            case LESSDB::sectionParameterType_t::dword:
+            case parameterType_t::dword:
                 return 8;
 
-            case LESSDB::sectionParameterType_t::bit:
-            case LESSDB::sectionParameterType_t::halfByte:
-            case LESSDB::sectionParameterType_t::byte:
-            case LESSDB::sectionParameterType_t::word:
             default:
                 return 4;    //2 bytes for address, 2 bytes for data
             }

@@ -18,7 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#include "dbms/src/LESSDB.h"
+#include <inttypes.h>
 #include "midi/src/MIDI.h"
 
 namespace Board
@@ -207,6 +207,13 @@ namespace Board
 
     namespace eeprom
     {
+        enum class parameterType_t : uint8_t
+        {
+            byte,
+            word,
+            dword
+        };
+
         ///
         /// \brief Returns total available bytes to store in EEPROM memory.
         ///
@@ -227,25 +234,25 @@ namespace Board
         ///
         /// \brief Returns amount of actual memory it takes to store provided parameter type.
         ///
-        size_t paramUsage(LESSDB::sectionParameterType_t type);
+        size_t paramUsage(parameterType_t type);
 
         ///
         /// \brief Used to read contents of memory provided by specific board,
         /// @param [in] address Memory address from which to read from.
         /// @param [in] value   Pointer to variable in which read value is being stored.
-        /// @param [in] type    Type of parameter which is being read. Defined in DBMS module.
+        /// @param [in] type    Type of parameter which is being read.
         /// \returns            True on success, false otherwise.
         ///
-        bool read(uint32_t address, int32_t& value, LESSDB::sectionParameterType_t type);
+        bool read(uint32_t address, int32_t& value, parameterType_t type);
 
         ///
         /// \brief Used to write value to memory provided by specific board.
         /// @param [in] address Memory address in which new value is being written.
         /// @param [in] value   Value to write.
-        /// @param [in] type    Type of parameter which is being written. Defined in DBMS module.
+        /// @param [in] type    Type of parameter which is being written.
         /// \returns            True on success, false otherwise.
         ///
-        bool write(uint32_t address, int32_t value, LESSDB::sectionParameterType_t type);
+        bool write(uint32_t address, int32_t value, parameterType_t type);
     }    // namespace eeprom
 
     namespace bootloader
