@@ -75,7 +75,6 @@ bool Updater::processStart(uint8_t data)
     if (++byteCountReceived == 4)
     {
         byteCountReceived = 0;
-        nextPageSize      = writer.pageSize(currentPage);
         return true;
     }
 
@@ -125,7 +124,6 @@ bool Updater::processFwChunk(uint8_t data)
         writer.writePage(currentPage);
         pageWritten = true;
         currentPage++;
-        nextPageSize = writer.pageSize(currentPage);
     }
 
     if (fwBytesReceived == fwSize)
@@ -161,7 +159,6 @@ bool Updater::processEnd(uint8_t data)
 void Updater::reset()
 {
     currentStage      = receiveStage_t::start;
-    nextPageSize      = 0;
     currentPage       = 0;
     receivedWord      = 0;
     pageBytesReceived = 0;

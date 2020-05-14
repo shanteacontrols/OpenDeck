@@ -61,7 +61,6 @@ namespace Bootloader
 
         receiveStage_t currentStage      = receiveStage_t::start;
         size_t         currentPage       = 0;
-        size_t         nextPageSize      = 0;
         uint16_t       receivedWord      = 0;
         size_t         pageBytesReceived = 0;
         uint32_t       fwBytesReceived   = 0;
