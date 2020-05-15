@@ -123,7 +123,6 @@ bool Updater::processFwChunk(uint8_t data)
         pageBytesReceived = 0;
         writer.writePage(currentPage);
         pageWritten = true;
-        currentPage++;
     }
 
     if (fwBytesReceived == fwSize)
@@ -136,6 +135,9 @@ bool Updater::processFwChunk(uint8_t data)
 
         return true;
     }
+
+    if (pageWritten)
+        currentPage++;
 
     return false;
 }
