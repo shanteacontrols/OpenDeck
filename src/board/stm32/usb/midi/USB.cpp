@@ -30,27 +30,28 @@ limitations under the License.
 /// \brief Buffer size in bytes for incoming and outgoing MIDI messages (from device standpoint).
 /// @{
 
-#define RX_BUFFER_SIZE 128
-#define TX_BUFFER_SIZE 128
+#define RX_BUFFER_SIZE_RING 4096
+#define RX_BUFFER_SIZE_USB  128
+#define TX_BUFFER_SIZE_USB  128
 
 /// @}
 
 namespace
 {
-    USBD_HandleTypeDef             hUsbDeviceFS;
-    volatile bool                  TxDone;
-    __ALIGN_BEGIN volatile uint8_t rxBuffer[RX_BUFFER_SIZE] __ALIGN_END;
+    USBD_HandleTypeDef hUsbDeviceFS;
+    volatile bool      TxDone;
+    volatile uint8_t   rxBuffer[RX_BUFFER_SIZE_USB];
 
     //rxBuffer is overriden every time RxCallback is called
     //save results in ring buffer and remove them as needed in readMIDI
     //not really the most optimized way, however, we are not in AVR land anymore
-    core::RingBuffer<uint8_t, RX_BUFFER_SIZE> rxBufferRing;
+    core::RingBuffer<uint8_t, RX_BUFFER_SIZE_RING> rxBufferRing;
 
     uint8_t initCallback(USBD_HandleTypeDef* pdev, uint8_t cfgidx)
     {
-        USBD_LL_OpenEP(pdev, MIDI_STREAM_IN_EPADDR, USBD_EP_TYPE_BULK, TX_BUFFER_SIZE);
-        USBD_LL_OpenEP(pdev, MIDI_STREAM_OUT_EPADDR, USBD_EP_TYPE_BULK, RX_BUFFER_SIZE);
-        USBD_LL_PrepareReceive(pdev, MIDI_STREAM_OUT_EPADDR, (uint8_t*)(rxBuffer), RX_BUFFER_SIZE);
+        USBD_LL_OpenEP(pdev, MIDI_STREAM_IN_EPADDR, USBD_EP_TYPE_BULK, TX_BUFFER_SIZE_USB);
+        USBD_LL_OpenEP(pdev, MIDI_STREAM_OUT_EPADDR, USBD_EP_TYPE_BULK, RX_BUFFER_SIZE_USB);
+        USBD_LL_PrepareReceive(pdev, MIDI_STREAM_OUT_EPADDR, (uint8_t*)(rxBuffer), RX_BUFFER_SIZE_USB);
         TxDone = true;
         return 0;
     }
@@ -75,7 +76,7 @@ namespace
         for (uint32_t i = 0; i < count; i++)
             rxBufferRing.insert(rxBuffer[i]);
 
-        USBD_LL_PrepareReceive(pdev, MIDI_STREAM_OUT_EPADDR, (uint8_t*)(rxBuffer), RX_BUFFER_SIZE);
+        USBD_LL_PrepareReceive(pdev, MIDI_STREAM_OUT_EPADDR, (uint8_t*)(rxBuffer), RX_BUFFER_SIZE_USB);
         return 0;
     }
 
@@ -187,17 +188,14 @@ namespace Board
         {
             bool returnValue = false;
 
-            ATOMIC_SECTION
+            if (rxBufferRing.count() >= 4)
             {
-                if (rxBufferRing.count() >= 4)
-                {
-                    rxBufferRing.remove(USBMIDIpacket.Event);
-                    rxBufferRing.remove(USBMIDIpacket.Data1);
-                    rxBufferRing.remove(USBMIDIpacket.Data2);
-                    rxBufferRing.remove(USBMIDIpacket.Data3);
+                rxBufferRing.remove(USBMIDIpacket.Event);
+                rxBufferRing.remove(USBMIDIpacket.Data1);
+                rxBufferRing.remove(USBMIDIpacket.Data2);
+                rxBufferRing.remove(USBMIDIpacket.Data3);
 
-                    returnValue = true;
-                }
+                returnValue = true;
             }
 
             if (returnValue)
