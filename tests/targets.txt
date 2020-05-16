@@ -8,3 +8,4 @@ fw_opendeck
 fw_promicro
 fw_teensy2pp
 fw_uno
+fw_arrival

@@ -9,3 +9,4 @@ fw_promicro
 fw_teensy2pp
 fw_uno
 fw_uno16u2
+fw_arrival

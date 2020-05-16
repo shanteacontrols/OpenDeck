@@ -11,6 +11,7 @@ boot_promicro
 boot_teensy2pp
 boot_uno
 boot_uno16u2
+boot_arrival
 fw_8u2
 fw_bergamot
 fw_discovery
@@ -26,3 +27,4 @@ fw_promicro
 fw_teensy2pp
 fw_uno
 fw_uno16u2
+fw_arrival
