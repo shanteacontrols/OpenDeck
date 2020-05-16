@@ -400,13 +400,21 @@ namespace Board
 
             ///
             /// \brief Write 16-bit data to specified address in flash memory.
-            ///
+            /// {@
+
             bool write16(uint32_t address, uint16_t data);
+            bool write16(uint32_t address, uint16_t* data, uint32_t count);
+
+            /// @}
 
             ///
             /// \brief Write 32-bit data to specified address in flash memory.
-            ///
+            /// {@
+
             bool write32(uint32_t address, uint32_t data);
+            bool write32(uint32_t address, uint32_t* data, uint32_t count);
+
+            /// @
 
             ///
             /// \brief Read 16-bit data from specified address in flash memory.

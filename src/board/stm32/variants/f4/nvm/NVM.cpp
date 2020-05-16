@@ -53,6 +53,25 @@ namespace Board
                 return (halStatus == HAL_OK);
             }
 
+            _RAM bool write16(uint32_t address, uint16_t* data, uint32_t count)
+            {
+                HAL_StatusTypeDef halStatus = HAL_FLASH_Unlock();
+
+                if (halStatus == HAL_OK)
+                {
+                    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
+
+                    for (uint32_t i = 0; i < count; i++)
+                    {
+                        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, address + (i * 2), data[i]) != HAL_OK)
+                            return false;
+                    }
+                }
+
+                HAL_FLASH_Lock();
+                return (halStatus == HAL_OK);
+            }
+
             ///
             /// \brief Write 32-bit data to specified address in flash memory.
             ///
@@ -64,6 +83,25 @@ namespace Board
                 {
                     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
                     halStatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, address, data);
+                }
+
+                HAL_FLASH_Lock();
+                return (halStatus == HAL_OK);
+            }
+
+            _RAM bool write32(uint32_t address, uint32_t* data, uint32_t count)
+            {
+                HAL_StatusTypeDef halStatus = HAL_FLASH_Unlock();
+
+                if (halStatus == HAL_OK)
+                {
+                    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
+
+                    for (uint32_t i = 0; i < count; i++)
+                    {
+                        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, address + (i * 4), data[i]) != HAL_OK)
+                            return false;
+                    }
                 }
 
                 HAL_FLASH_Lock();
