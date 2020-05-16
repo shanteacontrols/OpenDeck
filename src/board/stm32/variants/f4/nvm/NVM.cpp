@@ -2,6 +2,8 @@
 #include "board/Internal.h"
 #include "stm32f4xx.h"
 
+#define _RAM __attribute__((section(".data#"), noinline))
+
 namespace Board
 {
     namespace detail
@@ -11,7 +13,7 @@ namespace Board
             ///
             /// \brief Erases specified flash page.
             ///
-            bool erasePage(size_t index)
+            _RAM bool erasePage(size_t index)
             {
                 FLASH_EraseInitTypeDef pEraseInit = {};
 
@@ -37,7 +39,7 @@ namespace Board
             ///
             /// \brief Write 16-bit data to specified address in flash memory.
             ///
-            bool write16(uint32_t address, uint16_t data)
+            _RAM bool write16(uint32_t address, uint16_t data)
             {
                 HAL_StatusTypeDef halStatus = HAL_FLASH_Unlock();
 
@@ -54,7 +56,7 @@ namespace Board
             ///
             /// \brief Write 32-bit data to specified address in flash memory.
             ///
-            bool write32(uint32_t address, uint32_t data)
+            _RAM bool write32(uint32_t address, uint32_t data)
             {
                 HAL_StatusTypeDef halStatus = HAL_FLASH_Unlock();
 
