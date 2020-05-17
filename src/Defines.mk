@@ -83,6 +83,11 @@ else ifeq ($(MCU), stm32f407)
     FPU := fpv4-sp-d16
     FLOAT-ABI := hard
     DEFINES += STM32F407xx
+else ifeq ($(MCU), stm32f405)
+    CPU := cortex-m4
+    FPU := fpv4-sp-d16
+    FLOAT-ABI := hard
+    DEFINES += STM32F405xx
 endif
 
 ifeq ($(ARCH),avr)
