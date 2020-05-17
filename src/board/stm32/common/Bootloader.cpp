@@ -38,16 +38,20 @@ namespace Board
     {
         uint32_t pageSize(size_t index)
         {
+            //first two pages are reserved for bootloader
+            index += 2;
             return detail::map::flashPageDescriptor(index).size;
         }
 
         void erasePage(size_t index)
         {
+            index += 2;
             detail::flash::erasePage(index);
         }
 
         void fillPage(size_t index, uint32_t address, uint16_t data)
         {
+            index += 2;
             detail::flash::write16(detail::map::flashPageDescriptor(index).address + address, data);
         }
 
