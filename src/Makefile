@@ -141,7 +141,7 @@ else
 endif
 
 #custom linker script
-LDFLAGS += -T board/$(ARCH)/variants/$(MCU)/$(MCU).ld
+LDFLAGS += -T $(LINKER_FILE)
 
 $(TARGET).elf: $(OBJECTS)
 	@echo $(TARGETNAME) > $(BUILD_DIR_BASE)/TARGET
@@ -212,6 +212,7 @@ format:
 	-not -name "*Pins.h" \
 	-not -name "*Hardware.h" \
 	-not -name "*MCU.h" \
+	-not -name "*hal_conf*" \
 	-exec $(CLANG_FORMAT) -style=file -i {} \;
 ifeq ($(CF_FAIL_ON_DIFF), 1)
 	git diff -s --exit-code

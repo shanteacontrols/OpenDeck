@@ -4,11 +4,11 @@ vpath modules/%.c ../
 #common include dirs
 INCLUDE_DIRS := \
 -I"../modules/" \
--I"board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/" \
+-I"board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(BOARD_DIR)/" \
 -I"application/" \
 -I"./"
 
-INCLUDE_FILES += -include "board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h"
+INCLUDE_FILES += -include "board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(BOARD_DIR)/Hardware.h"
 
 ifeq ($(BOOT),1)
     #bootloader only
@@ -18,10 +18,12 @@ endif
 
 #architecture specific
 ifeq ($(ARCH), avr)
+    LINKER_FILE := board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(MCU).ld
+
     INCLUDE_DIRS += \
     -I"../modules/lufa/"
 
-    ifneq ($(shell cat board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
+    ifneq ($(shell cat board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
         #common for bootloader and application
         SOURCES += \
         modules/lufa/LUFA/Drivers/USB/Core/AVR8/Device_AVR8.c \
@@ -49,24 +51,22 @@ ifeq ($(ARCH), avr)
         endif
     endif
 else ifeq ($(ARCH),stm32)
-    SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU)/Drivers/STM32*_HAL_Driver/Src -name "*.c")
-    SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU)/Middlewares/ST/STM32_USB_Device_Library/Core/Src -name "*.c")
-    SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU)/Src -name "system_*.c")
-    SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU)/Src -name "*_hal_msp.c")
-    SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU) -name "startup_*.s")
-    SOURCES += $(shell $(FIND) ./board/stm32/eeprom -name "*.cpp")
-    SOURCES += ./board/stm32/gen/$(MCU)/Src/usbd_conf.c
+    LINKER_FILE := $(shell $(FIND) ./board/$(ARCH)/gen/$(MCU_FAMILY)/$(MCU) -name "*.ld" | head -n 1)
 
-    INCLUDE_DIRS += $(addprefix -I,$(shell $(FIND) ./board/stm32/gen/$(MCU)/Drivers -type d -not -path "*Src*"))
-    INCLUDE_DIRS += $(addprefix -I,$(shell $(FIND) ./board/stm32/gen/$(MCU)/Inc -type d -not -path "*Src*"))
-    INCLUDE_DIRS += -I"./board/stm32/gen/$(MCU)/Middlewares/ST/STM32_USB_Device_Library/Core/Inc"
-    INCLUDE_DIRS += -I"./board/stm32/variants/$(MCU)"
+    SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/common -regex '.*\.\(s\|c\)')
+    SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/$(MCU) -regex '.*\.\(s\|c\)')
+    SOURCES += $(shell $(FIND) ./board/stm32/variants/$(MCU_FAMILY) -maxdepth 1 -name "*.cpp")
+    SOURCES += $(shell $(FIND) ./board/stm32/eeprom -name "*.cpp")
+
+    INCLUDE_DIRS += $(addprefix -I,$(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/common -type d -not -path "*Src*"))
+    INCLUDE_DIRS += $(addprefix -I,$(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/$(MCU)/Drivers -type d -not -path "*Src*"))
+    INCLUDE_DIRS += -I"./board/stm32/variants/$(MCU_FAMILY)/$(MCU)"
 endif
 
 #common for both bootloader and application
 SOURCES += $(shell $(FIND) ./board/common -maxdepth 1 -type f -name "*.cpp")
 SOURCES += $(shell $(FIND) ./board/$(ARCH)/common -type f -name "*.cpp")
-SOURCES += $(shell $(FIND) ./board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR) -type f -name "*.cpp")
+SOURCES += $(shell $(FIND) ./board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(BOARD_DIR) -type f -name "*.cpp")
 
 ifeq ($(BOOT),1)
     #bootloader sources
@@ -77,12 +77,12 @@ ifeq ($(BOOT),1)
 
     SOURCES += $(shell find ./bootloader/mcu -type f -name "*.cpp")
 
-    ifneq ($(shell cat board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
+    ifneq ($(shell cat board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
         SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/hid -type f -name "*.cpp")
         SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/hid -type f -name "*.c")
         SOURCES += $(shell $(FIND) ./board/$(ARCH)/usb/hid -type f -name "*.cpp")
 
-        ifneq ($(shell cat board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h | grep USB_LINK_MCU), )
+        ifneq ($(shell cat board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(BOARD_DIR)/Hardware.h | grep USB_LINK_MCU), )
             #for USB link MCUs, compile UART as well - needed to communicate with main MCU
             SOURCES += \
             board/$(ARCH)/uart/UART.cpp \
@@ -100,13 +100,13 @@ else
     #common for all targets
     SOURCES += $(shell $(FIND) ./common/OpenDeckMIDIformat -type f -name "*.cpp")
 
-    ifneq ($(shell cat board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
+    ifneq ($(shell cat board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(BOARD_DIR)/Hardware.h | grep USB_MIDI_SUPPORTED), )
         SOURCES += $(shell $(FIND) ./board/$(ARCH)/usb/midi -type f -name "*.cpp")
         SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/midi -type f -name "*.cpp")
         SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/midi -type f -name "*.c")
     endif
 
-    ifneq ($(shell cat board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h | grep UART_INTERFACES), )
+    ifneq ($(shell cat board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(BOARD_DIR)/Hardware.h | grep UART_INTERFACES), )
         SOURCES += \
         board/$(ARCH)/uart/UART.cpp \
         board/common/uart/UART.cpp
@@ -135,7 +135,7 @@ else
             SOURCES += ./application/interface/digital/output/leds/startup/$(BOARD_DIR).cpp
         endif
 
-        ifneq ($(shell cat board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h | grep DISPLAY_SUPPORTED), )
+        ifneq ($(shell cat board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(BOARD_DIR)/Hardware.h | grep DISPLAY_SUPPORTED), )
             SOURCES += $(shell $(FIND) ./application/interface/display -maxdepth 1 -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ./application/interface/display/U8X8 -maxdepth 1 -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ./application/interface/display/strings -maxdepth 1 -type f -name "*.cpp")
@@ -156,7 +156,7 @@ else
             modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
         endif
 
-        ifneq ($(shell cat board/$(ARCH)/variants/$(MCU)/$(BOARD_DIR)/Hardware.h | grep TOUCHSCREEN_SUPPORTED), )
+        ifneq ($(shell cat board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(BOARD_DIR)/Hardware.h | grep TOUCHSCREEN_SUPPORTED), )
             SOURCES += $(shell $(FIND) ./application/interface/display/touch -type f -name "*.cpp")
         endif
     endif

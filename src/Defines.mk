@@ -13,11 +13,10 @@ endif
 
 BOARD_DIR := $(TARGETNAME)
 
-#determine the architecture by directory in which the board dir is located
+#determine the architecture, mcu and mcu family by directory in which the board dir is located
 ARCH := $(shell $(FIND) board -type d ! -path *build -name *$(BOARD_DIR) | cut -d/ -f2 | head -n 1)
-
-#determine MCU by directory in which the board dir is located
-MCU := $(shell $(FIND) board -type d -name *$(BOARD_DIR) | cut -d/ -f4 | head -n 1)
+MCU := $(shell $(FIND) board -type d -name *$(BOARD_DIR) | cut -d/ -f5 | head -n 1)
+MCU_FAMILY := $(shell $(FIND) board -type d -name *$(BOARD_DIR) | cut -d/ -f4 | head -n 1)
 
 ifeq ($(TARGETNAME),uploadboot)
     ifeq ($(filter fw_opendeck fw_leonardo fw_promicro fw_dubfocus fw_teensy2pp fw_bergamot fw_mega fw_uno, $(shell cat $(BUILD_BASE)/TARGET)), )
@@ -127,6 +126,7 @@ else ifeq ($(ARCH),stm32)
     USE_HAL_DRIVER \
     FIXED_CONTROL_ENDPOINT_SIZE=64 \
     UID_BITS=96 \
+    USE_USB_FS \
     DEVICE_FS=0 \
     DEVICE_HS=1
 endif

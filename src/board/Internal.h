@@ -26,6 +26,10 @@ limitations under the License.
 #include "board/stm32/eeprom/EEPROM.h"
 #endif
 
+#ifndef __AVR__
+#include <vector>
+#endif
+
 //for internal board usage only - do not include/call in application directly
 
 namespace Board
@@ -188,10 +192,47 @@ namespace Board
             core::io::pwmChannel_t pwmChannel(uint8_t index);
 
 #ifdef __STM32__
+            class STMPeripheral
+            {
+                public:
+                STMPeripheral() {}
+
+                virtual std::vector<core::io::mcuPin_t> pins()         = 0;
+                virtual void*                           interface()    = 0;
+                virtual IRQn_Type                       irqn()         = 0;
+                virtual void                            enableClock()  = 0;
+                virtual void                            disableClock() = 0;
+            };
+
+            typedef struct
+            {
+                core::io::mcuPin_t miso;
+                core::io::mcuPin_t mosi;
+                core::io::mcuPin_t sck;
+            } SPIpins_t;
+
+            typedef struct
+            {
+                core::io::mcuPin_t sda;
+                core::io::mcuPin_t sdl;
+            } I2Cpins_t;
+
             ///
-            /// \brief Used to retrieve actual UART interface on board for a given UART channel index.
+            /// Used to retrieve physical UART interface used on MCU for a given UART channel index as well
+            /// as pins on which the interface is connected.
             ///
-            USART_TypeDef* uartInterface(uint8_t channel);
+            STMPeripheral* uartDescriptor(uint8_t channel);
+
+            ///
+            /// \brief Used to retrieve UART channel on board for a specified UART interface.
+            /// If no channels are mapped to the provided interface, return false.
+            ///
+            bool uartChannel(USART_TypeDef* interface, uint8_t& channel);
+
+            ///
+            /// \brief Used to retrieve physical ADC interface used on MCU.
+            ///
+            ADC_TypeDef* adcInterface();
 
             ///
             /// \brief Used to retrieve timer instance used for main timer interrupt.

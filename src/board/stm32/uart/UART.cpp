@@ -67,7 +67,7 @@ namespace Board
 
                     deInit(channel);
 
-                    uartHandler[channel].Instance          = Board::detail::map::uartInterface(channel);
+                    uartHandler[channel].Instance          = static_cast<USART_TypeDef*>(Board::detail::map::uartDescriptor(channel)->interface());
                     uartHandler[channel].Init.BaudRate     = baudRate;
                     uartHandler[channel].Init.WordLength   = UART_WORDLENGTH_8B;
                     uartHandler[channel].Init.StopBits     = UART_STOPBITS_1;
