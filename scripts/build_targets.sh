@@ -109,6 +109,20 @@ do
             else
                 #build merged binary
                 ../scripts/build_combined.sh "${targets[$i]}"
+                result=$?
+
+                if [[ "$result" -eq 0 ]]
+                then
+                    #copy merged binary to bin directory
+                    dir=../bin/compiled/merged/"$(make TARGETNAME="${targets[$i]}" print-ARCH)"/"$(make TARGETNAME="${targets[$i]}" print-MCU)"
+                    mkdir -p "$dir"
+                    cp "$(make TARGETNAME="${targets[$i]}" BOOT=1 print-MERGED_TARGET)" "$dir"
+                fi
+
+                #always copy application to bin directory
+                dir=../bin/compiled/fw/"$(make TARGETNAME="${targets[$i]}" print-ARCH)"/"$(make TARGETNAME="${targets[$i]}" print-MCU)"
+                mkdir -p "$dir"
+                cp "$(make TARGETNAME="${targets[$i]}" BOOT=0 print-TARGET)".hex "$dir"
             fi
         fi
     else

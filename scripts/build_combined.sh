@@ -35,15 +35,14 @@ fi
 
 set -e
 
-#start by building bootloader first - if this fails, no point in building application
 #always build release variant
-echo Building bootloader for "$1"...
-boot_dir=$(make TARGETNAME="$1" BOOT=1 DEBUG=0 print-BUILD_DIR)
-make TARGETNAME="$1" BOOT=1 DEBUG=0
-
 echo Building application for "$1"...
 fw_dir=$(make TARGETNAME="$1" BOOT=0 DEBUG=0 print-BUILD_DIR)
 make TARGETNAME="$1" BOOT=0 DEBUG=0
+
+echo Building bootloader for "$1"...
+boot_dir=$(make TARGETNAME="$1" BOOT=1 DEBUG=0 print-BUILD_DIR)
+make TARGETNAME="$1" BOOT=1 DEBUG=0
 
 echo Merging bootloader and firmware...
 combined_dir=$(make print-BUILD_DIR_BASE)/merged
