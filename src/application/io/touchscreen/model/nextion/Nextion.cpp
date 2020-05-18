@@ -20,6 +20,8 @@ bool Nextion::update(size_t& buttonID, bool& state)
 
     if (hwa.read(data))
         rxBuffer.insert(data);
+    else
+        return false;
 
     if (data == 0xFF)
     {
