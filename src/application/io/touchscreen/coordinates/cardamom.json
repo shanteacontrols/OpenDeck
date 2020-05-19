@@ -300,5 +300,19 @@
                 "off": 1
             }
         }
+    ],
+    "screenButtons": [
+        {
+            "indexTS": 21,
+            "screen": 0
+        },
+        {
+            "indexTS": 22,
+            "screen": 2
+        },
+        {
+            "indexTS": 23,
+            "screen": 4
+        }
     ]
 }
