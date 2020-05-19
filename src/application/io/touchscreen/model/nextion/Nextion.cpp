@@ -47,20 +47,17 @@ bool Nextion::update(size_t& buttonID, bool& state)
 
             if ((data == 0x65) && messageStart)
             {
-                if (rxBuffer.count() == 6)
+                if (rxBuffer.count() >= 5)
                 {
-                    //first data is page, don't care about that
-                    rxBuffer.remove(data);
-
-                    //next byte is component id
-                    rxBuffer.remove(data);
-
-                    buttonID = data;
-
+                    //state
                     //1 - pressed, 0 - released
                     rxBuffer.remove(data);
 
                     state = data ? 1 : 0;
+
+                    //button id
+                    rxBuffer.remove(data);
+                    buttonID = data;
 
                     rxBuffer.reset();
                     return true;
