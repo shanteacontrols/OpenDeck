@@ -60,7 +60,7 @@ read -r board_nr
 echo "Please wait..."
 
 filename=$(echo "$boards" | head -n "$board_nr" | tail -n 1)
-make_target=fw_$(echo "$filename" | cut -d . -f1)
+make_target=$(echo "$filename" | cut -d . -f1)
 path=$($find bin/compiled/merged -type f -name "$filename")
 
 unlock_fuse=$($make TARGETNAME="$make_target" print-FUSE_UNLOCK)
