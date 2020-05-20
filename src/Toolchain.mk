@@ -8,6 +8,9 @@ else
     $(error Unsupported platform)
 endif
 
+#avoid find errors
+FIND := $(FIND) 2>/dev/null
+
 #use windows binary on wsl since HID access isn't possible in wsl
 ifeq ($(findstring Microsoft,$(shell uname -r)), Microsoft)
     DFU_BIN := cmd.exe /c "..\bin\dfu\hid_bootloader_loader_win.exe"
