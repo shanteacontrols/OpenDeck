@@ -26,16 +26,8 @@ namespace IO
         class HWAI2C
         {
             public:
-            enum class transferType_t : uint8_t
-            {
-                write,
-                read
-            };
-
-            virtual void init()                                         = 0;
-            virtual bool transfer(uint8_t address, transferType_t type) = 0;
-            virtual void stop()                                         = 0;
-            virtual bool write(uint8_t data)                            = 0;
+            virtual bool init()                                             = 0;
+            virtual bool write(uint8_t address, uint8_t* data, size_t size) = 0;
         };
 
         enum class displayController_t : uint8_t

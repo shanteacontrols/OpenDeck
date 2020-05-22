@@ -144,6 +144,7 @@ else
 
         ifneq ($(shell cat board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(BOARD_DIR)/Hardware.h | grep DISPLAY_SUPPORTED), )
             SOURCES += $(shell $(FIND) ./application/io/display -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./board/$(ARCH)/i2c -type f -name "*.cpp")
 
             #u8x8 sources
             SOURCES += \

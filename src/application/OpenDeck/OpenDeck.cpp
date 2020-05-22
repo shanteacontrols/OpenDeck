@@ -21,9 +21,6 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 #include "core/src/general/Interrupt.h"
 #include "core/src/general/Reset.h"
-#ifdef __AVR__
-#include "core/src/general/I2C.h"
-#endif
 #include "io/common/CInfo.h"
 
 class DBhandlers : public Database::Handlers
@@ -293,34 +290,14 @@ class HWAU8X8 : public IO::U8X8::HWAI2C
     public:
     HWAU8X8() {}
 
-    void init() override
+    bool init() override
     {
-        core::i2c::enable();
+        return Board::I2C::init(Board::I2C::clockSpeed_t::_1kHz);
     }
 
-    bool transfer(uint8_t address, IO::U8X8::HWAI2C::transferType_t type) override
+    bool write(uint8_t address, uint8_t* data, size_t size) override
     {
-        switch (type)
-        {
-        case IO::U8X8::HWAI2C::transferType_t::write:
-            return core::i2c::startComm(address, core::i2c::transferType_t::write);
-
-        case IO::U8X8::HWAI2C::transferType_t::read:
-            return core::i2c::startComm(address, core::i2c::transferType_t::read);
-
-        default:
-            return false;
-        }
-    }
-
-    void stop() override
-    {
-        core::i2c::stopComm();
-    }
-
-    bool write(uint8_t data) override
-    {
-        return core::i2c::write(data);
+        return Board::I2C::write(address, data, size);
     }
 } hwaU8X8;
 #endif

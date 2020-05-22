@@ -121,20 +121,12 @@ namespace
         public:
         HWAU8X8() {}
 
-        void init() override
-        {
-        }
-
-        bool transfer(uint8_t address, IO::U8X8::HWAI2C::transferType_t type) override
+        bool init() override
         {
             return true;
         }
 
-        void stop() override
-        {
-        }
-
-        bool write(uint8_t data) override
+        bool write(uint8_t address, uint8_t* data, size_t size) override
         {
             return true;
         }

@@ -124,6 +124,36 @@ namespace Board
         bool isTxEmpty(uint8_t channel);
     }    // namespace UART
 
+    namespace I2C
+    {
+        enum class clockSpeed_t : uint32_t
+        {
+            _1kHz = 100000
+        };
+
+        ///
+        /// \brief Initializes I2C peripheral on the MCU.
+        /// @param [in] clockSpeed  I2C interface speed.
+        /// \returns True on success, false otherwise.
+        ///
+        bool init(clockSpeed_t clockSpeed);
+
+        ///
+        /// \brief Denitializes I2C peripheral on the MCU.
+        /// \returns True on success, false otherwise.
+        ///
+        bool deInit();
+
+        ///
+        /// \brief Write data to I2C slave on specified address.
+        /// @param [in] address 7-bit slave address without R/W bit.
+        /// @param [in] buffer  Buffer containing data to send.
+        /// @param [in] size    Number of bytes to send.
+        /// \returns True on success, false otherwise.
+        ///
+        bool write(uint8_t address, uint8_t* data, size_t size);
+    }    // namespace I2C
+
     namespace io
     {
         enum class rgbIndex_t : uint8_t
