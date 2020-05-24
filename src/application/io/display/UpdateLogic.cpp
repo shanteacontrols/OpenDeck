@@ -31,8 +31,9 @@ bool Display::init(bool startupInfo)
 {
     if (database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::enable)))
     {
-        auto controller = static_cast<U8X8::displayController_t>(database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::controller)));
-        auto resolution = static_cast<U8X8::displayResolution_t>(database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::resolution)));
+        auto    controller = static_cast<U8X8::displayController_t>(database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::controller)));
+        auto    resolution = static_cast<U8X8::displayResolution_t>(database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::resolution)));
+        uint8_t address    = database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::i2cAddress));
 
         if (!startupInfo)
         {
@@ -43,13 +44,16 @@ bool Display::init(bool startupInfo)
                 {
                     if (lastResolution == resolution)
                     {
-                        return true;
+                        if (lastAddress == address)
+                        {
+                            return true;
+                        }
                     }
                 }
             }
         }
 
-        if (u8x8.initDisplay(controller, resolution))
+        if (u8x8.initDisplay(address, controller, resolution))
         {
             u8x8.clearDisplay();
             u8x8.setPowerSave(0);

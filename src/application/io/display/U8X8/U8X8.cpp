@@ -21,7 +21,7 @@ limitations under the License.
 
 using namespace IO;
 
-bool U8X8::initDisplay(displayController_t controller, displayResolution_t resolution)
+bool U8X8::initDisplay(uint8_t i2cAddressIndex, displayController_t controller, displayResolution_t resolution)
 {
     bool success = false;
 
@@ -91,6 +91,17 @@ bool U8X8::initDisplay(displayController_t controller, displayResolution_t resol
         rows                   = 2;
         columns                = 16;
         success                = true;
+    }
+
+    uint8_t totalAddresses = sizeof(i2cAddressArray) / sizeof(uint8_t);
+
+    if (i2cAddressIndex < totalAddresses)
+    {
+        u8x8.i2c_address = i2cAddressArray[i2cAddressIndex];
+    }
+    else
+    {
+        //invalid address index, use default (don't set custom address)
     }
 
     if (success)

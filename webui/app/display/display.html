@@ -43,6 +43,21 @@
       </div>
     </div>
   </div><!-- /row -->
+  <div class="row">
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+      <h3>I2C address</h3>
+    </div>
+    <div class="col-lg-2 col-lg-offset-1 col-md-2 col-md-offset-1 col-sm-6 col-xs-12">
+      <div class="selectfield">
+        <select ng-model="displayObj.i2cAddress" convert-to-number>
+          <option value="0" selected>0</option>
+          <option value="1">0x78</option>
+          <option value="2">0x7A</option>
+        </select>
+        <div class="hint-mark" data-toggle="tooltip" data-container="body" title="Display resolution." data-placement="left">?</div>
+      </div>
+    </div>
+  </div><!-- /row -->
   <h2 class="page-header">Features</h2>
   <div class="row">
     <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6">

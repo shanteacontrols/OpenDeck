@@ -45,11 +45,17 @@ namespace IO
             AMOUNT
         };
 
+        const uint8_t i2cAddressArray[3] = {
+            0x00,
+            0x78,
+            0x7A
+        };
+
         U8X8(HWAI2C& hwa)
             : hwa(hwa)
         {}
 
-        bool    initDisplay(displayController_t controller, displayResolution_t resolution);
+        bool    initDisplay(uint8_t i2cAddressIndex, displayController_t controller, displayResolution_t resolution);
         uint8_t getColumns();
         uint8_t getRows();
         void    clearDisplay();

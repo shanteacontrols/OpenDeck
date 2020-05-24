@@ -109,6 +109,7 @@ namespace IO
             resolution,
             MIDIeventTime,
             octaveNormalization,
+            i2cAddress,
             AMOUNT
         };
 
@@ -261,6 +262,7 @@ namespace IO
 
         U8X8::displayController_t lastController = U8X8::displayController_t::invalid;
         U8X8::displayResolution_t lastResolution = U8X8::displayResolution_t::invalid;
+        uint8_t                   lastAddress    = 0;
     };
 
     /// @}

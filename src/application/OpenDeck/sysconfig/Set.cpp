@@ -591,6 +591,12 @@ SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t i
         }
         break;
 
+        case IO::Display::setting_t::i2cAddress:
+        {
+            init = true;
+        }
+        break;
+
         default:
             break;
         }
