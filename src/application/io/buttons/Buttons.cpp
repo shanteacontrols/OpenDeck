@@ -127,10 +127,6 @@ void Buttons::processButton(uint8_t buttonID, bool state)
                 database.setPreset(preset);
             }
         }
-        else if (buttonMessage == messageType_t::customHook)
-        {
-            customHook(buttonID, state);
-        }
     }
 
     cInfo.send(Database::block_t::buttons, buttonID);
