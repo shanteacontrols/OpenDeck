@@ -159,6 +159,10 @@ else
 	@arm-none-eabi-objcopy -I ihex "$(TARGET).hex" -O binary "$(TARGET).bin"
 	@arm-none-eabi-size "$(TARGET).elf"
 endif
+
+sysexfw: $(TARGET).sysex
+
+$(TARGET).sysex: $(TARGET).elf
 ifeq ($(HAS_BTLDR),1)
 ifneq ($(BOOT),1)
 	@echo Creating SysEx file...
