@@ -71,6 +71,10 @@ namespace IO
             programChangeDec,
             none,
             presetOpenDeck,
+            multiValIncResetNote,
+            multiValIncDecNote,
+            multiValIncResetCC,
+            multiValIncDecCC,
             AMOUNT
         };
 

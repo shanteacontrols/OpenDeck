@@ -75,6 +75,10 @@ void Buttons::processButton(uint8_t buttonID, bool state)
         case messageType_t::realTimeStop:
         case messageType_t::realTimeActiveSensing:
         case messageType_t::realTimeSystemReset:
+        case messageType_t::multiValIncResetNote:
+        case messageType_t::multiValIncDecNote:
+        case messageType_t::multiValIncResetCC:
+        case messageType_t::multiValIncDecCC:
             type = type_t::momentary;
             break;
 
@@ -157,16 +161,19 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
         switch (buttonMessage)
         {
         case messageType_t::note:
+        {
             midi.sendNoteOn(note, velocity, channel);
 #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, note, velocity, channel + 1);
 #endif
             leds.midiToState(MIDI::messageType_t::noteOn, note, velocity, channel, true);
-            break;
+        }
+        break;
 
         case messageType_t::programChange:
         case messageType_t::programChangeInc:
         case messageType_t::programChangeDec:
+        {
             if (buttonMessage != messageType_t::programChange)
             {
                 if (buttonMessage == messageType_t::programChangeInc)
@@ -191,91 +198,200 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
                 display.displayMIDIevent(Display::eventType_t::out, Display::event_t::programChange, note, 0, channel + 1);
 #endif
             }
-            break;
+        }
+        break;
 
         case messageType_t::controlChange:
         case messageType_t::controlChangeReset:
+        {
             midi.sendControlChange(note, velocity, channel);
 #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, note, velocity, channel + 1);
 #endif
             leds.midiToState(MIDI::messageType_t::controlChange, note, velocity, channel, true);
-            break;
+        }
+        break;
 
         case messageType_t::mmcPlay:
+        {
             mmcArray[4] = 0x02;
             midi.sendSysEx(6, mmcArray, true);
 #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::mmcPlay, mmcArray[2], 0, 0);
 #endif
-            break;
+        }
+        break;
 
         case messageType_t::mmcStop:
+        {
             mmcArray[4] = 0x01;
             midi.sendSysEx(6, mmcArray, true);
 #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::mmcStop, mmcArray[2], 0, 0);
 #endif
-            break;
+        }
+        break;
 
         case messageType_t::mmcPause:
+        {
             mmcArray[4] = 0x09;
             midi.sendSysEx(6, mmcArray, true);
 #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::mmcPause, mmcArray[2], 0, 0);
 #endif
-            break;
+        }
+        break;
 
         case messageType_t::realTimeClock:
+        {
             midi.sendRealTime(MIDI::messageType_t::sysRealTimeClock);
 #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::sysRealTimeClock, 0, 0, 0);
 #endif
-            break;
+        }
+        break;
 
         case messageType_t::realTimeStart:
+        {
             midi.sendRealTime(MIDI::messageType_t::sysRealTimeStart);
 #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::sysRealTimeStart, 0, 0, 0);
 #endif
-            break;
+        }
+        break;
 
         case messageType_t::realTimeContinue:
+        {
             midi.sendRealTime(MIDI::messageType_t::sysRealTimeContinue);
 #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::sysRealTimeContinue, 0, 0, 0);
 #endif
-            break;
+        }
+        break;
 
         case messageType_t::realTimeStop:
+        {
             midi.sendRealTime(MIDI::messageType_t::sysRealTimeStop);
 #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::sysRealTimeStop, 0, 0, 0);
 #endif
-            break;
+        }
+        break;
 
         case messageType_t::realTimeActiveSensing:
+        {
             midi.sendRealTime(MIDI::messageType_t::sysRealTimeActiveSensing);
 #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::sysRealTimeActiveSensing, 0, 0, 0);
 #endif
-            break;
+        }
+        break;
 
         case messageType_t::realTimeSystemReset:
+        {
             midi.sendRealTime(MIDI::messageType_t::sysRealTimeSystemReset);
 #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::sysRealTimeSystemReset, 0, 0, 0);
 #endif
-            break;
+        }
+        break;
 
         case messageType_t::mmcRecord:
+        {
             //start recording
             mmcArray[4] = 0x06;
             midi.sendSysEx(6, mmcArray, true);
 #ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::mmcRecordOn, mmcArray[2], 0, 0);
 #endif
-            break;
+        }
+        break;
+
+        case messageType_t::multiValIncResetNote:
+        {
+            uint8_t currentValue = Common::currentValue(buttonID);
+            uint8_t value        = Common::valueInc(buttonID, velocity, Common::incDecType_t::reset);
+
+            if (currentValue != value)
+            {
+                if (!value)
+                {
+                    midi.sendNoteOff(note, value, channel);
+                    leds.midiToState(MIDI::messageType_t::noteOff, note, value, channel, true);
+#ifdef DISPLAY_SUPPORTED
+                    display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOff, note, value, channel + 1);
+#endif
+                }
+                else
+                {
+                    midi.sendNoteOn(note, value, channel);
+                    leds.midiToState(MIDI::messageType_t::noteOn, note, value, channel, true);
+#ifdef DISPLAY_SUPPORTED
+                    display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, note, value, channel + 1);
+#endif
+                }
+            }
+        }
+        break;
+
+        case messageType_t::multiValIncDecNote:
+        {
+            uint8_t currentValue = Common::currentValue(buttonID);
+            uint8_t value        = Common::valueIncDec(buttonID, velocity);
+
+            if (currentValue != value)
+            {
+                if (!value)
+                {
+                    midi.sendNoteOff(note, value, channel);
+                    leds.midiToState(MIDI::messageType_t::noteOff, note, value, channel, true);
+#ifdef DISPLAY_SUPPORTED
+                    display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOff, note, value, channel + 1);
+#endif
+                }
+                else
+                {
+                    midi.sendNoteOn(note, value, channel);
+                    leds.midiToState(MIDI::messageType_t::noteOn, note, value, channel, true);
+#ifdef DISPLAY_SUPPORTED
+                    display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, note, value, channel + 1);
+#endif
+                }
+            }
+        }
+        break;
+
+        case messageType_t::multiValIncResetCC:
+        {
+            uint8_t currentValue = Common::currentValue(buttonID);
+            uint8_t value        = Common::valueInc(buttonID, velocity, Common::incDecType_t::reset);
+
+            if (currentValue != value)
+            {
+                midi.sendControlChange(note, value, channel);
+                leds.midiToState(MIDI::messageType_t::controlChange, note, value, channel, true);
+#ifdef DISPLAY_SUPPORTED
+                display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, note, value, channel + 1);
+#endif
+            }
+        }
+        break;
+
+        case messageType_t::multiValIncDecCC:
+        {
+            uint8_t currentValue = Common::currentValue(buttonID);
+            uint8_t value        = Common::valueIncDec(buttonID, velocity);
+
+            if (currentValue != value)
+            {
+                midi.sendControlChange(note, value, channel);
+                leds.midiToState(MIDI::messageType_t::controlChange, note, value, channel, true);
+#ifdef DISPLAY_SUPPORTED
+                display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, note, value, channel + 1);
+#endif
+            }
+        }
+        break;
 
         default:
             break;
