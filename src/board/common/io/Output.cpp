@@ -300,24 +300,15 @@ namespace Board
                     ledStateSingle = ledState[ledIndex] && (NUMBER_OF_LED_TRANSITIONS - 1);
 
                     //don't bother with pwm if it's disabled
+#ifdef LED_FADING
                     if (!pwmSteps && ledStateSingle)
                     {
-                        ledRowOn(i
-#ifdef LED_FADING
-                                 ,
-                                 255
-#endif
-                        );
+                        ledRowOn(i, 255);
                     }
                     else
                     {
                         if (ledTransitionScale[transitionCounter[ledIndex]])
-                            ledRowOn(i
-#ifdef LED_FADING
-                                     ,
-                                     ledTransitionScale[transitionCounter[ledIndex]]
-#endif
-                            );
+                            ledRowOn(i, ledTransitionScale[transitionCounter[ledIndex]]);
 
                         if (transitionCounter[ledIndex] != ledStateSingle)
                         {
@@ -339,6 +330,10 @@ namespace Board
                             }
                         }
                     }
+#else
+                    if (ledStateSingle)
+                        ledRowOn(i);
+#endif
                 }
 
                 if (++activeOutColumn == NUMBER_OF_LED_COLUMNS)
