@@ -502,10 +502,10 @@ bool Buttons::getLatchingState(uint8_t buttonID)
 bool Buttons::buttonDebounced(uint8_t buttonID, bool state)
 {
     //shift new button reading into previousButtonState
-    buttonDebounceCounter[buttonID] = (buttonDebounceCounter[buttonID] << (uint8_t)1) | (uint8_t)state | BUTTON_DEBOUNCE_COMPARE;
+    buttonDebounceCounter[buttonID] = (buttonDebounceCounter[buttonID] << (uint8_t)1) | (uint8_t)state | buttonDebounceCompare;
 
     //if button is debounced, return true
-    return ((buttonDebounceCounter[buttonID] == BUTTON_DEBOUNCE_COMPARE) || (buttonDebounceCounter[buttonID] == 0xFF));
+    return ((buttonDebounceCounter[buttonID] == buttonDebounceCompare) || (buttonDebounceCounter[buttonID] == 0xFF));
 }
 
 ///

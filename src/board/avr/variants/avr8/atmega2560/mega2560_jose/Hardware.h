@@ -55,11 +55,6 @@ limitations under the License.
 #define UART_USB_LINK_CHANNEL           0
 
 ///
-/// \brief Constant used to debounce button readings.
-///
-#define BUTTON_DEBOUNCE_COMPARE         0b11110000
-
-///
 /// \brief Total number of analog multiplexers.
 ///
 #define NUMBER_OF_MUX                   7

@@ -151,37 +151,10 @@ namespace
 
     void stateChangeRegister(bool state)
     {
-        uint8_t debouncingState = BUTTON_DEBOUNCE_COMPARE;
-        messageCounter          = 0;
+        messageCounter = 0;
 
         for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
-            setButtonState(i, state);
-
-        //internally, Buttons class performs debouncing by shifting the current button state
-        //into internal debounce counter for each button
-        //if that variable equals 0xFF or BUTTON_DEBOUNCE_COMPARE constants (can vary depending on the board)
-        //button is considered pressed or released (stable state)
-        //in real application, buttons.update() is called only when there are new readings to process
-        //new readings take place every 1ms, however, buttons.update doesn't check the timing of the signal
-        //therefore, it is up to the caller to ensure that the readings are taken on constant time base
-        //for tests, timing of the reading is irrelevant, however, debouncing still takes place
-        //this function ensures that buttons.update is called enough times in order for buttons to register a state
-        //stable state should be registered once debouncingState variable equals 0xFF
-        while (true)
-        {
-            debouncingState = (debouncingState << (uint8_t)1) | (uint8_t)1 | BUTTON_DEBOUNCE_COMPARE;
-
-            if (debouncingState == 0xFF)
-                break;
-
-            buttons.update();
-
-            //due to the debouncing, no messages should be sent yet
-            TEST_ASSERT(messageCounter == 0);
-        }
-
-        // messages should now be sent
-        buttons.update();
+            buttons.processButton(i, state);
     }
 }    // namespace
 
@@ -210,19 +183,32 @@ TEST_CASE(Debouncing)
         TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, i, static_cast<int32_t>(Buttons::messageType_t::note)) == true);
     }
 
-    //stateChangeRegister performs changing of button state
-    //check stateChangeRegister function to see description of how debouncing works
-
     //simulate button press
-    stateChangeRegister(true);
+    messageCounter = 0;
+
+    for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
+        setButtonState(i, true);
+
+    while (!messageCounter)
+        buttons.update();
+
     TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
 
+    messageCounter = 0;
+
     //try another press, verify that no new messages have been sent
-    stateChangeRegister(true);
+    buttons.update();
+
     TEST_ASSERT(messageCounter == 0);
 
     //simulate button release
-    stateChangeRegister(false);
+
+    for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
+        setButtonState(i, false);
+
+    while (!messageCounter)
+        buttons.update();
+
     TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
 }
 

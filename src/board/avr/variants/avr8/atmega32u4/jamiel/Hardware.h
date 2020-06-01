@@ -40,11 +40,6 @@ limitations under the License.
 #define USB_MIDI_SUPPORTED
 
 ///
-/// \brief Constant used to debounce button readings.
-///
-#define BUTTON_DEBOUNCE_COMPARE         0b00000000
-
-///
 /// \brief Total number of analog multiplexers.
 ///
 #define NUMBER_OF_MUX                   3

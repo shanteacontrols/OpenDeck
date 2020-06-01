@@ -40,11 +40,6 @@ limitations under the License.
 #define USB_MIDI_SUPPORTED
 
 ///
-/// \brief Constant used to debounce button readings.
-///
-#define BUTTON_DEBOUNCE_COMPARE         0b11110000
-
-///
 /// brief Total number of analog components.
 ///
 #define MAX_NUMBER_OF_ANALOG            8

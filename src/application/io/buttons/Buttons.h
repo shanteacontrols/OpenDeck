@@ -140,6 +140,14 @@ namespace IO
         /// Based on MIDI specification for transport control.
         ///
         uint8_t mmcArray[6] = { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 };
+
+        ///
+        /// \brief Constant used to debounce button readings.
+        /// Once new value has been read, shift old value to the left, append new value and
+        /// append buttonDebounceCompare with OR operator. If final value is equal to 0xFF or
+        /// buttonDebounceCompare, button state is debounced.
+        ///
+        const uint8_t buttonDebounceCompare = 0b11110000;
     };
 
     /// @}
