@@ -19,22 +19,6 @@ limitations under the License.
 #pragma once
 
 ///
-/// \brief Holds current version of hardware.
-/// Can be overriden during build process to compile
-/// the firmware for different hardware revision of the board.
-/// @{
-
-#ifndef HARDWARE_VERSION_MAJOR
-#define HARDWARE_VERSION_MAJOR  1
-#endif
-
-#ifndef HARDWARE_VERSION_MINOR
-#define HARDWARE_VERSION_MINOR  0
-#endif
-
-/// @}
-
-///
 /// \brief Defines total number of available UART interfaces on board.
 ///
 #define UART_INTERFACES                 2
