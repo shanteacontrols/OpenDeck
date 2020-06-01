@@ -16,16 +16,16 @@ limitations under the License.
 
 */
 
-#ifdef UART_INTERFACES
-#if UART_INTERFACES > 0
+#ifdef USE_UART
 
 #include "board/Board.h"
 #include "board/Internal.h"
 #include "core/src/general/Atomic.h"
+#include "MCU.h"
 
 namespace
 {
-    UART_HandleTypeDef uartHandler[UART_INTERFACES];
+    UART_HandleTypeDef uartHandler[MAX_UART_INTERFACES];
 }
 
 namespace Board
@@ -38,7 +38,7 @@ namespace Board
             {
                 void enableDataEmptyInt(uint8_t channel)
                 {
-                    if (channel >= UART_INTERFACES)
+                    if (channel >= MAX_UART_INTERFACES)
                         return;
 
                     __HAL_UART_ENABLE_IT(&uartHandler[channel], UART_IT_TXE);
@@ -46,7 +46,7 @@ namespace Board
 
                 void disableDataEmptyInt(uint8_t channel)
                 {
-                    if (channel >= UART_INTERFACES)
+                    if (channel >= MAX_UART_INTERFACES)
                         return;
 
                     __HAL_UART_DISABLE_IT(&uartHandler[channel], UART_IT_TXE);
@@ -54,7 +54,7 @@ namespace Board
 
                 bool deInit(uint8_t channel)
                 {
-                    if (channel >= UART_INTERFACES)
+                    if (channel >= MAX_UART_INTERFACES)
                         return false;
 
                     return HAL_UART_DeInit(&uartHandler[channel]) == HAL_OK;
@@ -62,7 +62,7 @@ namespace Board
 
                 bool init(uint8_t channel, uint32_t baudRate)
                 {
-                    if (channel >= UART_INTERFACES)
+                    if (channel >= MAX_UART_INTERFACES)
                         return false;
 
                     if (!deInit(channel))
@@ -141,5 +141,4 @@ namespace Board
     }        // namespace detail
 }    // namespace Board
 
-#endif
 #endif

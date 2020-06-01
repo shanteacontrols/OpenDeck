@@ -16,8 +16,7 @@ limitations under the License.
 
 */
 
-#ifdef UART_INTERFACES
-#if UART_INTERFACES > 0
+#ifdef USE_UART
 
 #include "OpenDeckMIDIformat.h"
 #include "board/Board.h"
@@ -84,24 +83,29 @@ namespace OpenDeckMIDIformat
 
     bool write(uint8_t channel, MIDI::USBMIDIpacket_t& USBMIDIpacket, packetType_t packetType)
     {
-        if (channel >= UART_INTERFACES)
+        if (!Board::UART::write(channel, static_cast<uint8_t>(packetType)))
             return false;
 
-        Board::UART::write(channel, static_cast<uint8_t>(packetType));
-        Board::UART::write(channel, USBMIDIpacket.Event);
-        Board::UART::write(channel, USBMIDIpacket.Data1);
-        Board::UART::write(channel, USBMIDIpacket.Data2);
-        Board::UART::write(channel, USBMIDIpacket.Data3);
-        Board::UART::write(channel, USBMIDIpacket.Event ^ USBMIDIpacket.Data1 ^ USBMIDIpacket.Data2 ^ USBMIDIpacket.Data3);
+        if (!Board::UART::write(channel, USBMIDIpacket.Event))
+            return false;
+
+        if (!Board::UART::write(channel, USBMIDIpacket.Data1))
+            return false;
+
+        if (!Board::UART::write(channel, USBMIDIpacket.Data2))
+            return false;
+
+        if (!Board::UART::write(channel, USBMIDIpacket.Data3))
+            return false;
+
+        if (!Board::UART::write(channel, USBMIDIpacket.Event ^ USBMIDIpacket.Data1 ^ USBMIDIpacket.Data2 ^ USBMIDIpacket.Data3))
+            return false;
 
         return true;
     }
 
     bool read(uint8_t channel, MIDI::USBMIDIpacket_t& USBMIDIpacket, packetType_t& packetType)
     {
-        if (channel >= UART_INTERFACES)
-            return false;
-
         for (int i = 0; i < 6; i++)
         {
             uint8_t value;
@@ -185,5 +189,4 @@ namespace OpenDeckMIDIformat
     }
 }    // namespace OpenDeckMIDIformat
 
-#endif
 #endif

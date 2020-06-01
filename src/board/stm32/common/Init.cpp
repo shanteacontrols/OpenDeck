@@ -20,6 +20,8 @@ limitations under the License.
 #include "board/Internal.h"
 #include "core/src/general/Reset.h"
 #include "core/src/general/Interrupt.h"
+#include "board/common/io/Helpers.h"
+#include "Pins.h"
 
 namespace Board
 {
@@ -66,6 +68,116 @@ namespace Board
 
                 detail::setup::clocks();
                 detail::setup::io();
+            }
+
+            void io()
+            {
+#ifdef NUMBER_OF_IN_SR
+                CORE_IO_CONFIG({ SR_IN_DATA_PORT, SR_IN_DATA_PIN, core::io::pinMode_t::input, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                CORE_IO_CONFIG({ SR_IN_CLK_PORT, SR_IN_CLK_PIN, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                CORE_IO_CONFIG({ SR_IN_LATCH_PORT, SR_IN_LATCH_PIN, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+
+#ifdef NUMBER_OF_BUTTON_COLUMNS
+                CORE_IO_CONFIG({ DEC_BM_PORT_A0, DEC_BM_PIN_A0, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                CORE_IO_CONFIG({ DEC_BM_PORT_A1, DEC_BM_PIN_A1, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                CORE_IO_CONFIG({ DEC_BM_PORT_A1, DEC_BM_PIN_A2, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+#endif
+#else
+                for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
+                {
+                    core::io::mcuPin_t pin = detail::map::button(i);
+
+#ifndef BUTTONS_EXT_PULLUPS
+                    CORE_IO_CONFIG({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::input, core::io::pullMode_t::up, core::io::gpioSpeed_t::medium, 0x00 });
+#else
+                    CORE_IO_CONFIG({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::input, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+#endif
+                }
+#endif
+
+#ifdef NUMBER_OF_OUT_SR
+                CORE_IO_CONFIG({ SR_OUT_DATA_PORT, SR_OUT_DATA_PIN, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                CORE_IO_CONFIG({ SR_OUT_CLK_PORT, SR_OUT_CLK_PIN, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                CORE_IO_CONFIG({ SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+
+#ifdef SR_OUT_OE_PORT
+                CORE_IO_CONFIG({ SR_OUT_OE_PORT, SR_OUT_OE_PIN, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+#endif
+
+                //init all outputs on shift register
+                CORE_IO_SET_LOW(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+
+                for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
+                {
+                    EXT_LED_OFF(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
+                    CORE_IO_SET_HIGH(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+                    _NOP();
+                    _NOP();
+                    CORE_IO_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
+                }
+
+                CORE_IO_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
+#ifdef SR_OUT_OE_PORT
+                CORE_IO_SET_LOW(SR_OUT_OE_PORT, SR_OUT_OE_PIN);
+#endif
+#else
+#ifdef NUMBER_OF_LED_ROWS
+                CORE_IO_CONFIG({ DEC_LM_PORT_A0, DEC_LM_PIN_A0, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                CORE_IO_CONFIG({ DEC_LM_PORT_A1, DEC_LM_PIN_A1, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                CORE_IO_CONFIG({ DEC_LM_PORT_A2, DEC_LM_PIN_A2, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+
+                for (int i = 0; i < NUMBER_OF_LED_ROWS; i++)
+#else
+                for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
+#endif
+                {
+                    core::io::mcuPin_t pin = detail::map::led(i);
+
+                    CORE_IO_CONFIG({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                    EXT_LED_OFF(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
+                }
+#endif
+
+#if MAX_ADC_CHANNELS > 0
+                for (int i = 0; i < MAX_ADC_CHANNELS; i++)
+                {
+                    core::io::mcuPin_t pin = detail::map::adcPin(i);
+
+                    CORE_IO_CONFIG({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::input });
+                    EXT_LED_OFF(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
+                }
+#endif
+
+#ifdef NUMBER_OF_MUX
+                CORE_IO_CONFIG({ MUX_PORT_S0, MUX_PIN_S0, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                CORE_IO_CONFIG({ MUX_PORT_S1, MUX_PIN_S1, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                CORE_IO_CONFIG({ MUX_PORT_S2, MUX_PIN_S2, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+#ifdef MUX_PORT_S3
+                CORE_IO_CONFIG({ MUX_PORT_S3, MUX_PIN_S3, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+#endif
+#endif
+
+#ifdef BTLDR_BUTTON_PORT
+                CORE_IO_CONFIG({ BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN, core::io::pinMode_t::input });
+                CORE_IO_SET_HIGH(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+#endif
+
+#ifdef LED_INDICATORS
+                CORE_IO_CONFIG({ LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                CORE_IO_CONFIG({ LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                CORE_IO_CONFIG({ LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                CORE_IO_CONFIG({ LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+
+                INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
+                INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+                INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
+                INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
+#endif
+
+#ifdef LED_BTLDR_PORT
+                CORE_IO_CONFIG({ LED_BTLDR_PORT, LED_BTLDR_PIN, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                CORE_IO_SET_HIGH(LED_BTLDR_PORT, LED_BTLDR_PIN);
+#endif
             }
         }    // namespace setup
     }        // namespace detail

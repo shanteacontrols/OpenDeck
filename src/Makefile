@@ -9,11 +9,11 @@ ifneq (,$(wildcard $(BUILD_DIR_BASE)/TARGET))
     BOOT := $(shell cat $(BUILD_DIR_BASE)/BOOT)
 endif
 
-ifneq ($(findstring $(TARGETNAME), $(shell jq ".targets[] | .name" ../targets.json)), $(TARGETNAME))
+ifeq (,$(wildcard ../targets/$(TARGETNAME).yml))
     $(error Target doesn't exist)
 endif
 
-ifeq ($(shell jq '.targets[] | select(.name=="$(TARGETNAME)") | .bootloader' ../targets.json), true)
+ifeq ($(shell yq r ../targets/$(TARGETNAME).yml bootloader.use), true)
     HAS_BTLDR := 1
 endif
 
@@ -37,7 +37,7 @@ else
 endif
 
 TARGET := $(BUILD_DIR)/$(TARGETNAME)
-.DEFAULT_GOAL := $(TARGET).elf
+.DEFAULT_GOAL := fw
 
 #includes
 #important - do not change the order of inclusion!
@@ -144,6 +144,10 @@ endif
 #custom linker script
 LDFLAGS += -T $(LINKER_FILE)
 
+fw:
+	@$(MAKE) --no-print-directory BOOT=$(BOOT) TARGETNAME=$(TARGETNAME) pre-build
+	@$(MAKE) --no-print-directory BOOT=$(BOOT) TARGETNAME=$(TARGETNAME) $(TARGET).elf
+
 $(TARGET).elf: $(OBJECTS)
 	@echo $(TARGETNAME) > $(BUILD_DIR_BASE)/TARGET
 	@echo $(DEBUG) > $(BUILD_DIR_BASE)/DEBUG
@@ -186,8 +190,15 @@ else
 endif
 	@echo Merged binary created: $(MERGED_TARGET)
 
-pre-build:
-	@../scripts/gen_touchscreen.sh application/io/touchscreen/coordinates/$(BOARD_DIR).json
+pre-build: $(GEN_SOURCES)
+
+board/gen/$(TARGETNAME)/Pins.cpp: ../targets/$(TARGETNAME).yml
+	@echo Generating pins...
+	@../scripts/gen_pins.sh $<
+
+application/io/touchscreen/coordinates/$(TARGETNAME).cpp: application/io/touchscreen/coordinates/$(TARGETNAME).json
+	@echo Generating touchscreen coordinate file...
+	@../scripts/gen_touchscreen.sh $<
 
 $(BUILD_DIR)/%.c.o: %.c
 	@mkdir -p $(@D)
@@ -241,9 +252,6 @@ format:
 	@echo Checking code formatting...
 	@$(FIND) . -regex '.*\.\(cpp\|hpp\|h\|cc\|cxx\)' \
 	-not -path "*gen*" \
-	-not -name "*Pins.h" \
-	-not -name "*Hardware.h" \
-	-not -name "*MCU.h" \
 	-not -name "*hal_conf*" \
 	-exec $(CLANG_FORMAT) -style=file -i {} \;
 ifeq ($(CF_FAIL_ON_DIFF), 1)

@@ -119,7 +119,7 @@ namespace Board
                 detail::bootloader::indicate();
 
 #if defined(USB_LINK_MCU) || !defined(USB_MIDI_SUPPORTED)
-                Board::UART::init(UART_USB_LINK_CHANNEL, UART_BAUDRATE_MIDI_OD);
+                Board::UART::init(UART_CHANNEL_USB_LINK, UART_BAUDRATE_MIDI_OD);
 
 #ifndef USB_MIDI_SUPPORTED
                 // make sure USB link goes to bootloader mode as well
@@ -135,7 +135,7 @@ namespace Board
 
                 core::timing::waitMs(1000);
 
-                OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, packet, OpenDeckMIDIformat::packetType_t::internalCommand);
+                OpenDeckMIDIformat::write(UART_CHANNEL_USB_LINK, packet, OpenDeckMIDIformat::packetType_t::internalCommand);
 #endif
 #endif
 

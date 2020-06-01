@@ -15,7 +15,7 @@ jobs:
         run: |
           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
           brew tap osx-cross/avr
-          brew install wget avr-gcc coreutils findutils srecord jq
+          brew install wget avr-gcc coreutils findutils srecord jq yq
           wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2019q4/gcc-arm-none-eabi-9-2019-q4-major-mac.tar.bz2 -O armtoolchain.tar.bz2
           tar xjf armtoolchain.tar.bz2
       - name: Build
@@ -34,7 +34,7 @@ jobs:
        - name: Prepare build env
          run: |
            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-           brew install llvm ctags jq coreutils findutils jq grep
+           brew install llvm ctags jq coreutils findutils jq grep yq
        - name: Build
          run: |
            export C_COMPILER=clang
@@ -53,7 +53,7 @@ jobs:
        - name: Prepare env
          run: |
            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-           brew install clang-format findutils coreutils
+           brew install clang-format findutils coreutils yq
        - name: Format
          run: |
            cd src

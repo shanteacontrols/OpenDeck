@@ -20,6 +20,7 @@ limitations under the License.
 #include "board/Board.h"
 #include "core/src/general/Helpers.h"
 #include "core/src/general/Timing.h"
+#include "MCU.h"
 
 #define I2C_TRANSFER_TIMEOUT_MS 10
 
@@ -27,8 +28,11 @@ namespace Board
 {
     namespace I2C
     {
-        bool init(clockSpeed_t speed)
+        bool init(uint8_t channel, clockSpeed_t speed)
         {
+            if (channel >= MAX_I2C_INTERFACES)
+                return false;
+
             //no prescaling
             TWSR = 0x00;
 
@@ -41,14 +45,20 @@ namespace Board
             return true;
         }
 
-        bool deInit()
+        bool deInit(uint8_t channel)
         {
+            if (channel >= MAX_I2C_INTERFACES)
+                return false;
+
             TWCR = 0;
             return true;
         }
 
-        bool write(uint8_t address, uint8_t* data, size_t size)
+        bool write(uint8_t channel, uint8_t address, uint8_t* data, size_t size)
         {
+            if (channel >= MAX_I2C_INTERFACES)
+                return false;
+
             //enable interrupt flag
             //enable start bit (set to master)
             TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN);

@@ -133,25 +133,28 @@ namespace Board
 
         ///
         /// \brief Initializes I2C peripheral on the MCU.
+        /// @param [in] channel I2C interface channel on MCU.
         /// @param [in] clockSpeed  I2C interface speed.
         /// \returns True on success, false otherwise.
         ///
-        bool init(clockSpeed_t clockSpeed);
+        bool init(uint8_t channel, clockSpeed_t clockSpeed);
 
         ///
         /// \brief Denitializes I2C peripheral on the MCU.
+        /// @param [in] channel I2C interface channel on MCU.
         /// \returns True on success, false otherwise.
         ///
-        bool deInit();
+        bool deInit(uint8_t channel);
 
         ///
         /// \brief Write data to I2C slave on specified address.
+        /// @param [in] channel I2C interface channel on MCU.
         /// @param [in] address 7-bit slave address without R/W bit.
         /// @param [in] buffer  Buffer containing data to send.
         /// @param [in] size    Number of bytes to send.
         /// \returns True on success, false otherwise.
         ///
-        bool write(uint8_t address, uint8_t* data, size_t size);
+        bool write(uint8_t channel, uint8_t address, uint8_t* data, size_t size);
     }    // namespace I2C
 
     namespace io

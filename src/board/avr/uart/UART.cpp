@@ -16,13 +16,13 @@ limitations under the License.
 
 */
 
-#ifdef UART_INTERFACES
-#if UART_INTERFACES > 0
+#ifdef USE_UART
 
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "core/src/arch/avr/UART.h"
 #include "core/src/arch/avr/Atomic.h"
+#include "core/src/arch/avr/UART.h"
+#include "MCU.h"
 
 namespace Board
 {
@@ -40,7 +40,7 @@ namespace Board
                         UCSRB_0 |= (1 << UDRIE_0);
                         break;
 
-#if UART_INTERFACES > 1
+#ifdef UCSRB_1
                     case 1:
                         UCSRB_1 |= (1 << UDRIE_1);
                         break;
@@ -59,7 +59,7 @@ namespace Board
                         UCSRB_0 &= ~(1 << UDRIE_0);
                         break;
 
-#if UART_INTERFACES > 1
+#ifdef UCSRB_1
                     case 1:
                         UCSRB_1 &= ~(1 << UDRIE_1);
                         break;
@@ -72,7 +72,7 @@ namespace Board
 
                 bool deInit(uint8_t channel)
                 {
-                    if (channel >= UART_INTERFACES)
+                    if (channel >= MAX_UART_INTERFACES)
                         return false;
 
                     ATOMIC_SECTION
@@ -86,7 +86,7 @@ namespace Board
                             UBRR_0  = 0;
                             break;
 
-#if UART_INTERFACES > 1
+#ifdef UCSRB_1
                         case 1:
                             UCSRA_1 = 0;
                             UCSRB_1 = 0;
@@ -105,7 +105,7 @@ namespace Board
 
                 bool init(uint8_t channel, uint32_t baudRate)
                 {
-                    if (channel >= UART_INTERFACES)
+                    if (channel >= MAX_UART_INTERFACES)
                         return false;
 
                     if (!deInit(channel))
@@ -122,7 +122,7 @@ namespace Board
                             UBRR_0  = baud_count - 1;
                             break;
 
-#if UART_INTERFACES > 1
+#ifdef UCSRA_1
                         case 1:
                             UCSRA_1 = (1 << U2X_1);    //double speed uart
                             UBRR_1  = baud_count - 1;
@@ -142,7 +142,7 @@ namespace Board
                             UBRR_0  = (baud_count >> 1) - 1;
                             break;
 
-#if UART_INTERFACES > 1
+#ifdef UCSRA_1
                         case 1:
                             UCSRA_1 = 0;
                             UBRR_1  = (baud_count >> 1) - 1;
@@ -163,7 +163,7 @@ namespace Board
                         UCSRB_0 = (1 << RXEN_0) | (1 << TXEN_0) | (1 << RXCIE_0) | (1 << TXCIE_0);
                         break;
 
-#if UART_INTERFACES > 1
+#ifdef UCSRC_1
                     case 1:
                         UCSRC_1 = (1 << UCSZ1_1) | (1 << UCSZ0_1);
                         UCSRB_1 = (1 << RXEN_1) | (1 << TXEN_1) | (1 << RXCIE_1) | (1 << TXCIE_1);
@@ -188,7 +188,7 @@ namespace Board
                         }
                         break;
 
-#if UART_INTERFACES > 1
+#ifdef UDR_1
                     case 1:
                         ATOMIC_SECTION
                         {
@@ -216,7 +216,7 @@ ISR(USART_RX_vect_0)
     Board::detail::UART::storeIncomingData(0, data);
 }
 
-#if UART_INTERFACES > 1
+#ifdef UDR_1
 ISR(USART_RX_vect_1)
 {
     uint8_t data = UDR_1;
@@ -238,7 +238,7 @@ ISR(USART_UDRE_vect_0)
         UDR_0 = data;
 }
 
-#if UART_INTERFACES > 1
+#ifdef UDR_1
 ISR(USART_UDRE_vect_1)
 {
     uint8_t data;
@@ -259,7 +259,7 @@ ISR(USART_TX_vect_0)
     Board::detail::UART::indicateTxComplete(0);
 }
 
-#if UART_INTERFACES > 1
+#ifdef UDR_1
 ISR(USART_TX_vect_1)
 {
     Board::detail::UART::indicateTxComplete(1);
@@ -268,5 +268,4 @@ ISR(USART_TX_vect_1)
 
 /// @}
 
-#endif
 #endif

@@ -1,0 +1,84 @@
+---
+  arch: "avr"
+  mcuFamily: "avr8"
+  mcu: "atmega328p"
+  usb: false
+  dinMIDI:
+    use: false
+  display:
+    use: false
+  touchscreen:
+    use: false
+  buttons:
+    type: "native"
+    pins:
+    -
+      port: "D"
+      index: 2
+    -
+      port: "D"
+      index: 3
+    -
+      port: "D"
+      index: 4
+    -
+      port: "D"
+      index: 5
+    -
+      port: "D"
+      index: 6
+    -
+      port: "D"
+      index: 7
+  analog:
+    type: "native"
+    pins:
+    -
+      port: "C"
+      index: 0
+    -
+      port: "C"
+      index: 1
+    -
+      port: "C"
+      index: 2
+    -
+      port: "C"
+      index: 3
+    -
+      port: "C"
+      index: 4
+    -
+      port: "C"
+      index: 5
+  leds:
+    internal:
+      present: false
+    external:
+      type: "native"
+      pins:
+      -
+        port: "B"
+        index: 0
+      -
+        port: "B"
+        index: 1
+      -
+        port: "B"
+        index: 2
+      -
+        port: "B"
+        index: 3
+      -
+        port: "B"
+        index: 4
+      -
+        port: "B"
+        index: 5
+  usbLink:
+    type: "slave"
+    uartChannel: 0
+  bootloader:
+    use: true
+  release: true
+  test: true

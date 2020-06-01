@@ -123,7 +123,7 @@ SysConfig::result_t SysConfig::onSetGlobal(Section::global_t section, size_t ind
             if (newValue)
                 setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true);
             else
-                Board::UART::deInit(UART_MIDI_CHANNEL);
+                Board::UART::deInit(UART_CHANNEL_DIN);
 
             result = SysConfig::result_t::ok;
 #endif

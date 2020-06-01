@@ -74,7 +74,7 @@ int main()
         //read data from uart
         uint8_t data = 0;
 
-        if (Board::UART::read(UART_USB_LINK_CHANNEL, data))
+        if (Board::UART::read(UART_CHANNEL_USB_LINK, data))
         {
             updater.feed(data);
         }
@@ -95,7 +95,7 @@ int main()
 #ifndef USB_LINK_MCU
                             updater.feed(data);
 #else
-                            Board::UART::write(UART_USB_LINK_CHANNEL, data);
+                            Board::UART::write(UART_CHANNEL_USB_LINK, data);
                             //to avoid compiling the entire parser to figure out the end
                             //of the fw stream (if won't fit into 4k space), parse fw end manually
                             //fw end stream is detected by two messages with data size being 2
@@ -114,7 +114,7 @@ int main()
 
                                     if (endCounter == 4)
                                     {
-                                        while (!Board::UART::isTxEmpty(UART_USB_LINK_CHANNEL))
+                                        while (!Board::UART::isTxEmpty(UART_CHANNEL_USB_LINK))
                                             ;
 
                                         //this will actually flash the integrated LEDs and reset the MCU

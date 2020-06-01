@@ -142,9 +142,9 @@ namespace
     ///
     inline void activateOutputColumn()
     {
-        BIT_READ(activeOutColumn, 0) ? CORE_IO_SET_HIGH(DEC_LM_A0_PORT, DEC_LM_A0_PIN) : CORE_IO_SET_LOW(DEC_LM_A0_PORT, DEC_LM_A0_PIN);
-        BIT_READ(activeOutColumn, 1) ? CORE_IO_SET_HIGH(DEC_LM_A1_PORT, DEC_LM_A1_PIN) : CORE_IO_SET_LOW(DEC_LM_A1_PORT, DEC_LM_A1_PIN);
-        BIT_READ(activeOutColumn, 2) ? CORE_IO_SET_HIGH(DEC_LM_A2_PORT, DEC_LM_A2_PIN) : CORE_IO_SET_LOW(DEC_LM_A2_PORT, DEC_LM_A2_PIN);
+        BIT_READ(activeOutColumn, 0) ? CORE_IO_SET_HIGH(DEC_LM_PORT_A0, DEC_LM_PIN_A0) : CORE_IO_SET_LOW(DEC_LM_PORT_A0, DEC_LM_PIN_A0);
+        BIT_READ(activeOutColumn, 1) ? CORE_IO_SET_HIGH(DEC_LM_PORT_A1, DEC_LM_PIN_A1) : CORE_IO_SET_LOW(DEC_LM_PORT_A1, DEC_LM_PIN_A1);
+        BIT_READ(activeOutColumn, 2) ? CORE_IO_SET_HIGH(DEC_LM_PORT_A2, DEC_LM_PIN_A2) : CORE_IO_SET_LOW(DEC_LM_PORT_A2, DEC_LM_PIN_A2);
     }
 
     ///
@@ -351,9 +351,9 @@ namespace Board
 
                     for (int j = 0; j < NUMBER_OF_OUT_SR; j++)
                     {
-                        for (int i = 0; i < NUMBER_OF_OUT_SR_INPUTS; i++)
+                        for (int i = 0; i < 8; i++)
                         {
-                            ledIndex = i + j * NUMBER_OF_OUT_SR_INPUTS;
+                            ledIndex = i + j * 8;
 
                             ledState[ledIndex] ? EXT_LED_ON(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN) : EXT_LED_OFF(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
                             CORE_IO_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);

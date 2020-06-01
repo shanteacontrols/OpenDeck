@@ -16,13 +16,13 @@ limitations under the License.
 
 */
 
-#ifdef UART_INTERFACES
-#if UART_INTERFACES > 0
+#ifdef USE_UART
 
 #include "board/Board.h"
 #include "board/Internal.h"
 #include "core/src/general/RingBuffer.h"
 #include "core/src/general/Helpers.h"
+#include "MCU.h"
 
 //generic UART driver, arch-independent
 
@@ -35,22 +35,22 @@ namespace
     /// \brief Flag determining whether or not UART loopback functionality is enabled.
     /// When enabled, all incoming UART traffic is immediately passed on to UART TX.
     ///
-    volatile bool loopbackEnabled[UART_INTERFACES];
+    volatile bool loopbackEnabled[MAX_UART_INTERFACES];
 
     ///
     /// \brief Flag signaling that the transmission is done.
     ///
-    volatile bool txDone[UART_INTERFACES];
+    volatile bool txDone[MAX_UART_INTERFACES];
 
     ///
     /// \brief Buffer in which outgoing UART data is stored.
     ///
-    core::RingBuffer<uint8_t, TX_BUFFER_SIZE> txBuffer[UART_INTERFACES];
+    core::RingBuffer<uint8_t, TX_BUFFER_SIZE> txBuffer[MAX_UART_INTERFACES];
 
     ///
     /// \brief Buffer in which incoming UART data is stored.
     ///
-    core::RingBuffer<uint8_t, RX_BUFFER_SIZE> rxBuffer[UART_INTERFACES];
+    core::RingBuffer<uint8_t, RX_BUFFER_SIZE> rxBuffer[MAX_UART_INTERFACES];
 
     ///
     /// \brief Starts the process of transmitting the data from UART TX buffer to UART interface.
@@ -58,7 +58,7 @@ namespace
     ///
     void uartTransmitStart(uint8_t channel)
     {
-        if (channel >= UART_INTERFACES)
+        if (channel >= MAX_UART_INTERFACES)
             return;
 
         txDone[channel] = false;
@@ -73,7 +73,7 @@ namespace Board
     {
         void setLoopbackState(uint8_t channel, bool state)
         {
-            if (channel >= UART_INTERFACES)
+            if (channel >= MAX_UART_INTERFACES)
                 return;
 
             loopbackEnabled[channel] = state;
@@ -81,7 +81,7 @@ namespace Board
 
         bool deInit(uint8_t channel)
         {
-            if (channel >= UART_INTERFACES)
+            if (channel >= MAX_UART_INTERFACES)
                 return false;
 
             setLoopbackState(channel, false);
@@ -101,7 +101,7 @@ namespace Board
 
         bool init(uint8_t channel, uint32_t baudRate)
         {
-            if (channel >= UART_INTERFACES)
+            if (channel >= MAX_UART_INTERFACES)
                 return false;
 
             if (deInit(channel))
@@ -114,7 +114,7 @@ namespace Board
         {
             data = 0;
 
-            if (channel >= UART_INTERFACES)
+            if (channel >= MAX_UART_INTERFACES)
                 return false;
 
             return rxBuffer[channel].remove(data);
@@ -122,7 +122,7 @@ namespace Board
 
         bool write(uint8_t channel, uint8_t data)
         {
-            if (channel >= UART_INTERFACES)
+            if (channel >= MAX_UART_INTERFACES)
                 return false;
 
             //if:
@@ -147,7 +147,7 @@ namespace Board
 
         bool isTxEmpty(uint8_t channel)
         {
-            if (channel >= UART_INTERFACES)
+            if (channel >= MAX_UART_INTERFACES)
                 return false;
 
             return txDone[channel];
@@ -213,5 +213,4 @@ namespace Board
     }        // namespace detail
 }    // namespace Board
 
-#endif
 #endif

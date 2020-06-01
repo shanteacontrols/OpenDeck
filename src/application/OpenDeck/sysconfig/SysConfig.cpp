@@ -224,12 +224,12 @@ bool SysConfig::isProcessingEnabled()
 #ifdef DIN_MIDI_SUPPORTED
 void SysConfig::setupMIDIoverUART(uint32_t baudRate, bool initRX, bool initTX)
 {
-    Board::UART::init(UART_MIDI_CHANNEL, baudRate);
+    Board::UART::init(UART_CHANNEL_DIN, baudRate);
 
     if (initRX)
     {
         midi.handleUARTread([](uint8_t& data) {
-            return Board::UART::read(UART_MIDI_CHANNEL, data);
+            return Board::UART::read(UART_CHANNEL_DIN, data);
         });
     }
     else
@@ -240,7 +240,7 @@ void SysConfig::setupMIDIoverUART(uint32_t baudRate, bool initRX, bool initTX)
     if (initTX)
     {
         midi.handleUARTwrite([](uint8_t data) {
-            return Board::UART::write(UART_MIDI_CHANNEL, data);
+            return Board::UART::write(UART_CHANNEL_DIN, data);
         });
     }
     else
@@ -257,12 +257,12 @@ void SysConfig::setupMIDIoverUSB()
     midi.handleUSBwrite(Board::USB::writeMIDI);
 #else
     //enable uart-to-usb link when usb isn't supported directly
-    Board::UART::init(UART_USB_LINK_CHANNEL, UART_BAUDRATE_MIDI_OD);
+    Board::UART::init(UART_CHANNEL_USB_LINK, UART_BAUDRATE_MIDI_OD);
 
     midi.handleUSBread([](MIDI::USBMIDIpacket_t& USBMIDIpacket) {
         OpenDeckMIDIformat::packetType_t odPacketType;
 
-        if (OpenDeckMIDIformat::read(UART_USB_LINK_CHANNEL, USBMIDIpacket, odPacketType))
+        if (OpenDeckMIDIformat::read(UART_CHANNEL_USB_LINK, USBMIDIpacket, odPacketType))
         {
             if (odPacketType == OpenDeckMIDIformat::packetType_t::midi)
                 return true;
@@ -272,7 +272,7 @@ void SysConfig::setupMIDIoverUSB()
     });
 
     midi.handleUSBwrite([](MIDI::USBMIDIpacket_t& USBMIDIpacket) {
-        return OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::midi);
+        return OpenDeckMIDIformat::write(UART_CHANNEL_USB_LINK, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::midi);
     });
 #endif
 }
@@ -333,7 +333,7 @@ void SysConfig::configureMIDI()
     }
     else
     {
-        Board::UART::deInit(UART_MIDI_CHANNEL);
+        Board::UART::deInit(UART_CHANNEL_DIN);
         midi.handleUARTread(nullptr);
         midi.handleUARTwrite(nullptr);
     }
@@ -347,8 +347,8 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
     {
     case midiMergeType_t::odMaster:
     {
-        Board::UART::setLoopbackState(UART_MIDI_CHANNEL, false);
-        Board::UART::init(UART_MIDI_CHANNEL, UART_BAUDRATE_MIDI_OD);
+        Board::UART::setLoopbackState(UART_CHANNEL_DIN, false);
+        Board::UART::init(UART_CHANNEL_DIN, UART_BAUDRATE_MIDI_OD);
         //before enabling master configuration, send slave request to other boards
         sendDaisyChainRequest();
 
@@ -358,14 +358,14 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
             OpenDeckMIDIformat::packetType_t packetType;
 
             //use this function to forward all incoming data from other boards to usb
-            if (OpenDeckMIDIformat::read(UART_MIDI_CHANNEL, slavePacket, packetType))
+            if (OpenDeckMIDIformat::read(UART_CHANNEL_DIN, slavePacket, packetType))
             {
                 if (packetType == OpenDeckMIDIformat::packetType_t::midi)
                 {
 #ifdef USB_MIDI_SUPPORTED
                     Board::USB::writeMIDI(slavePacket);
 #else
-                    OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, slavePacket, OpenDeckMIDIformat::packetType_t::midi);
+                    OpenDeckMIDIformat::write(UART_CHANNEL_USB_LINK, slavePacket, OpenDeckMIDIformat::packetType_t::midi);
 #endif
                 }
             }
@@ -374,13 +374,13 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
 #ifdef USB_MIDI_SUPPORTED
             if (Board::USB::readMIDI(USBMIDIpacket))
             {
-                return OpenDeckMIDIformat::write(UART_MIDI_CHANNEL, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::midiDaisyChain);
+                return OpenDeckMIDIformat::write(UART_CHANNEL_DIN, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::midiDaisyChain);
             }
 #else
-            if (OpenDeckMIDIformat::read(UART_USB_LINK_CHANNEL, USBMIDIpacket, packetType))
+            if (OpenDeckMIDIformat::read(UART_CHANNEL_USB_LINK, USBMIDIpacket, packetType))
             {
                 if (packetType == OpenDeckMIDIformat::packetType_t::midi)
-                    return OpenDeckMIDIformat::write(UART_MIDI_CHANNEL, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::midiDaisyChain);
+                    return OpenDeckMIDIformat::write(UART_CHANNEL_DIN, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::midiDaisyChain);
             }
 #endif
 
@@ -391,7 +391,7 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
         midi.handleUSBwrite(Board::USB::writeMIDI);
 #else
         midi.handleUSBwrite([](MIDI::USBMIDIpacket_t& USBMIDIpacket) {
-            return OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::midi);
+            return OpenDeckMIDIformat::write(UART_CHANNEL_USB_LINK, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::midi);
         });
 #endif
         //unused
@@ -402,16 +402,16 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
 
     case midiMergeType_t::odSlave:
     {
-        Board::UART::setLoopbackState(UART_MIDI_CHANNEL, false);
-        Board::UART::init(UART_MIDI_CHANNEL, UART_BAUDRATE_MIDI_OD);
+        Board::UART::setLoopbackState(UART_CHANNEL_DIN, false);
+        Board::UART::init(UART_CHANNEL_DIN, UART_BAUDRATE_MIDI_OD);
         //forward all incoming messages to other boards
         midi.handleUSBread([](MIDI::USBMIDIpacket_t& USBMIDIpacket) {
             OpenDeckMIDIformat::packetType_t packetType;
 
-            if (OpenDeckMIDIformat::read(UART_MIDI_CHANNEL, USBMIDIpacket, packetType))
+            if (OpenDeckMIDIformat::read(UART_CHANNEL_DIN, USBMIDIpacket, packetType))
             {
                 if (packetType != OpenDeckMIDIformat::packetType_t::internalCommand)
-                    return OpenDeckMIDIformat::write(UART_MIDI_CHANNEL, USBMIDIpacket, packetType);
+                    return OpenDeckMIDIformat::write(UART_CHANNEL_DIN, USBMIDIpacket, packetType);
             }
 
             return false;
@@ -419,7 +419,7 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
 
         //write data to uart (opendeck format)
         midi.handleUSBwrite([](MIDI::USBMIDIpacket_t& USBMIDIpacket) {
-            return OpenDeckMIDIformat::write(UART_MIDI_CHANNEL, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::midi);
+            return OpenDeckMIDIformat::write(UART_CHANNEL_DIN, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::midi);
         });
 
         //no need for uart handlers
@@ -440,7 +440,7 @@ void SysConfig::configureMIDImerge(midiMergeType_t mergeType)
         //forward all incoming DIN MIDI data to DIN MIDI out
         //also send OpenDeck-generated traffic to DIN MIDI out
         setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, false, true);
-        Board::UART::setLoopbackState(UART_MIDI_CHANNEL, true);
+        Board::UART::setLoopbackState(UART_CHANNEL_DIN, true);
     }
     break;
 
@@ -471,9 +471,9 @@ void SysConfig::sendDaisyChainRequest()
     };
 
     for (int i = 0; i < 8; i++)
-        Board::UART::write(UART_MIDI_CHANNEL, daisyChainSysEx[i]);
+        Board::UART::write(UART_CHANNEL_DIN, daisyChainSysEx[i]);
 
-    while (!Board::UART::isTxEmpty(UART_MIDI_CHANNEL))
+    while (!Board::UART::isTxEmpty(UART_CHANNEL_DIN))
         ;
 }
 

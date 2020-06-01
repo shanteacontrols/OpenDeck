@@ -44,10 +44,10 @@ namespace
     ///
     inline void setMuxInput()
     {
-        BIT_READ(Board::detail::map::muxChannel(activeMuxInput), 0) ? CORE_IO_SET_HIGH(MUX_S0_PORT, MUX_S0_PIN) : CORE_IO_SET_LOW(MUX_S0_PORT, MUX_S0_PIN);
-        BIT_READ(Board::detail::map::muxChannel(activeMuxInput), 1) ? CORE_IO_SET_HIGH(MUX_S1_PORT, MUX_S1_PIN) : CORE_IO_SET_LOW(MUX_S1_PORT, MUX_S1_PIN);
-        BIT_READ(Board::detail::map::muxChannel(activeMuxInput), 2) ? CORE_IO_SET_HIGH(MUX_S2_PORT, MUX_S2_PIN) : CORE_IO_SET_LOW(MUX_S2_PORT, MUX_S2_PIN);
-        BIT_READ(Board::detail::map::muxChannel(activeMuxInput), 3) ? CORE_IO_SET_HIGH(MUX_S3_PORT, MUX_S3_PIN) : CORE_IO_SET_LOW(MUX_S3_PORT, MUX_S3_PIN);
+        BIT_READ(activeMuxInput, 0) ? CORE_IO_SET_HIGH(MUX_PORT_S0, MUX_PIN_S0) : CORE_IO_SET_LOW(MUX_PORT_S0, MUX_PIN_S0);
+        BIT_READ(activeMuxInput, 1) ? CORE_IO_SET_HIGH(MUX_PORT_S1, MUX_PIN_S1) : CORE_IO_SET_LOW(MUX_PORT_S1, MUX_PIN_S1);
+        BIT_READ(activeMuxInput, 2) ? CORE_IO_SET_HIGH(MUX_PORT_S2, MUX_PIN_S2) : CORE_IO_SET_LOW(MUX_PORT_S2, MUX_PIN_S2);
+        BIT_READ(activeMuxInput, 3) ? CORE_IO_SET_HIGH(MUX_PORT_S3, MUX_PIN_S3) : CORE_IO_SET_LOW(MUX_PORT_S3, MUX_PIN_S3);
     }
 #endif
 }    // namespace

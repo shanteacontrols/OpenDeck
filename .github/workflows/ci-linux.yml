@@ -15,6 +15,7 @@ jobs:
         run: |
           wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2019q4/RC2.1/gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2 -O armtoolchain.tar.bz2
           sudo apt-get install -y srecord jq
+          sudo snap install yq
           tar xjf armtoolchain.tar.bz2
           git clone https://github.com/Synapseware/avr-toolchain
           tar xzf avr-toolchain/toolchain/avr8-gnu-toolchain-3.6.2.1759-linux.any.x86_64.tar.gz
@@ -38,6 +39,7 @@ jobs:
            sudo add-apt-repository 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main'
            sudo apt update
            sudo apt-get install -y clang-9 ctags jq
+           sudo snap install yq
        - name: Build
          run: |
            C_COMPILER=clang-9
@@ -60,6 +62,7 @@ jobs:
            sudo add-apt-repository 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main'
            sudo apt update
            sudo apt-get install -y clang-format-9
+           sudo snap install yq
        - name: Format
          run: |
            cd src

@@ -200,18 +200,18 @@ class HWASDW : public IO::Touchscreen::Model::HWA
 
     bool init() override
     {
-        Board::UART::init(UART_TOUCHSCREEN_CHANNEL, 38400);
+        Board::UART::init(UART_CHANNEL_TOUCHSCREEN, 38400);
         return true;
     }
 
     bool write(uint8_t data) override
     {
-        return Board::UART::write(UART_TOUCHSCREEN_CHANNEL, data);
+        return Board::UART::write(UART_CHANNEL_TOUCHSCREEN, data);
     }
 
     bool read(uint8_t& data) override
     {
-        return Board::UART::read(UART_TOUCHSCREEN_CHANNEL, data);
+        return Board::UART::read(UART_CHANNEL_TOUCHSCREEN, data);
     }
 } sdwHWA;
 
@@ -227,18 +227,18 @@ class HWANextion : public IO::Touchscreen::Model::HWA
 
     bool init() override
     {
-        Board::UART::init(UART_TOUCHSCREEN_CHANNEL, 230400);
+        Board::UART::init(UART_CHANNEL_TOUCHSCREEN, 230400);
         return true;
     }
 
     bool write(uint8_t data) override
     {
-        return Board::UART::write(UART_TOUCHSCREEN_CHANNEL, data);
+        return Board::UART::write(UART_CHANNEL_TOUCHSCREEN, data);
     }
 
     bool read(uint8_t& data) override
     {
-        return Board::UART::read(UART_TOUCHSCREEN_CHANNEL, data);
+        return Board::UART::read(UART_CHANNEL_TOUCHSCREEN, data);
     }
 } nextionHWA;
 
@@ -292,12 +292,12 @@ class HWAU8X8 : public IO::U8X8::HWAI2C
 
     bool init() override
     {
-        return Board::I2C::init(Board::I2C::clockSpeed_t::_1kHz);
+        return Board::I2C::init(I2C_CHANNEL_DISPLAY, Board::I2C::clockSpeed_t::_1kHz);
     }
 
     bool write(uint8_t address, uint8_t* data, size_t size) override
     {
-        return Board::I2C::write(address, data, size);
+        return Board::I2C::write(I2C_CHANNEL_DISPLAY, address, data, size);
     }
 } hwaU8X8;
 #endif

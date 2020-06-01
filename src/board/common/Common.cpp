@@ -89,8 +89,8 @@ namespace Board
             USBMIDIpacket.Data2 = 0x00;
             USBMIDIpacket.Data3 = 0x00;
 
-            OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::internalCommand);
-            while (!Board::UART::isTxEmpty(UART_USB_LINK_CHANNEL))
+            OpenDeckMIDIformat::write(UART_CHANNEL_USB_LINK, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::internalCommand);
+            while (!Board::UART::isTxEmpty(UART_CHANNEL_USB_LINK))
                 ;
 
             //give some time to usb link to properly re-initialize so that everything is in sync

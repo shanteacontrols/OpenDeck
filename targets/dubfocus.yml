@@ -1,0 +1,80 @@
+---
+  arch: "avr"
+  mcuFamily: "avr8"
+  mcu: "atmega32u4"
+  usb: true
+  dinMIDI:
+    use: false
+  display:
+    use: false
+  touchscreen:
+    use: false
+  buttons:
+    type: "shiftRegister"
+    shiftRegisters: 2
+    pins:
+      data:
+        port: "D"
+        index: 3
+      clock:
+        port: "D"
+        index: 4
+      latch:
+        port: "D"
+        index: 5
+  analog:
+    extReference: true
+    type: "4067"
+    multiplexers: 4
+    pins:
+      s0:
+        port: "B"
+        index: 3
+      s1:
+        port: "B"
+        index: 1
+      s2:
+        port: "E"
+        index: 6
+      s3:
+        port: "B"
+        index: 2
+      z0:
+        port: "F"
+        index: 7
+      z1:
+        port: "F"
+        index: 6
+      z2:
+        port: "F"
+        index: 5
+      z3:
+        port: "F"
+        index: 4
+  leds:
+    internal:
+      present: false
+    external:
+      type: "shiftRegister"
+      shiftRegisters: 2
+      invert: true
+      pins:
+        data:
+          port: "D"
+          index: 2
+        clock:
+          port: "D"
+          index: 0
+        latch:
+          port: "D"
+          index: 1
+        enable:
+          port: "C"
+          index: 7
+  usbLink:
+    type: "none"
+  bootloader:
+    use: true
+    buttonIndex: 12
+  release: true
+  test: true

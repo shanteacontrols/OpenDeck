@@ -32,9 +32,9 @@ int main(void)
     while (1)
     {
         if (Board::USB::readMIDI(USBMIDIpacket))
-            OpenDeckMIDIformat::write(UART_USB_LINK_CHANNEL, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::midi);
+            OpenDeckMIDIformat::write(UART_CHANNEL_USB_LINK, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::midi);
 
-        if (OpenDeckMIDIformat::read(UART_USB_LINK_CHANNEL, USBMIDIpacket, packetType))
+        if (OpenDeckMIDIformat::read(UART_CHANNEL_USB_LINK, USBMIDIpacket, packetType))
         {
             if (packetType != OpenDeckMIDIformat::packetType_t::internalCommand)
                 Board::USB::writeMIDI(USBMIDIpacket);

@@ -84,27 +84,27 @@ namespace Board
             bool isHWtriggerActive()
             {
 #if defined(BTLDR_BUTTON_INDEX)
-                CORE_IO_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
-                CORE_IO_SET_LOW(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+                CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
+                CORE_IO_SET_LOW(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
                 _NOP();
 
-                CORE_IO_SET_HIGH(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+                CORE_IO_SET_HIGH(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
 
                 for (int j = 0; j < NUMBER_OF_IN_SR; j++)
                 {
-                    for (int i = 0; i < NUMBER_OF_IN_SR_INPUTS; i++)
+                    for (int i = 0; i < 8; i++)
                     {
-                        uint8_t index = (7 - i) + j * NUMBER_OF_OUT_SR_INPUTS;
+                        uint8_t index = (7 - i) + j * 8;
 
                         if (index == BTLDR_BUTTON_INDEX)
                         {
-                            if (!CORE_IO_READ(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN))
+                            if (!CORE_IO_READ(SR_IN_DATA_PORT, SR_IN_DATA_PIN))
                                 return true;
                         }
 
-                        CORE_IO_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+                        CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
                         _NOP();
-                        CORE_IO_SET_HIGH(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+                        CORE_IO_SET_HIGH(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
                     }
                 }
 

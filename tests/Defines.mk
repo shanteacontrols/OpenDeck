@@ -1,13 +1,7 @@
-#slightly modified Defines.mk from src directory
+include ../src/Defines.mk
 
-BOARD_DIR := $(TARGETNAME)
-
-#determine the architecture, mcu and mcu family by directory in which the board dir is located
-ARCH := $(shell $(FIND) ../src/board -type d ! -path *build -name *$(BOARD_DIR) | cut -d/ -f4 | head -n 1)
-MCU := $(shell $(FIND) ../src/board -type d -name *$(BOARD_DIR) | cut -d/ -f7 | head -n 1)
-MCU_FAMILY := $(shell $(FIND) ../src/board -type d -name *$(BOARD_DIR) | cut -d/ -f6 | head -n 1)
-
-#mcu specific
+#db size is determined in run time in application firmware, for
+#test purposes hardcode it
 ifeq ($(MCU),atmega32u4)
     DATABASE_SIZE := 1021
 else ifeq ($(MCU),at90usb1286)
@@ -26,13 +20,17 @@ else ifeq ($(MCU),stm32f407)
     DATABASE_SIZE := 131068
 endif
 
-DEFINES_COMMON += OD_BOARD_$(shell echo $(BOARD_DIR) | tr 'a-z' 'A-Z')
-DEFINES_COMMON += DATABASE_SIZE=$(DATABASE_SIZE)
-
-DEFINES_COMMON += SYSEX_MANUFACTURER_ID_0=0x00
-DEFINES_COMMON += SYSEX_MANUFACTURER_ID_1=0x53
-DEFINES_COMMON += SYSEX_MANUFACTURER_ID_2=0x43
-
 ifeq ($(ARCH), stm32)
-    DEFINES_COMMON += STM32_EMU_EEPROM
+    DEFINES += STM32_EMU_EEPROM
 endif
+
+DEFINES += OD_BOARD_$(shell echo $(TARGETNAME) | tr 'a-z' 'A-Z')
+DEFINES += DATABASE_SIZE=$(DATABASE_SIZE)
+
+DEFINES += SYSEX_MANUFACTURER_ID_0=0x00
+DEFINES += SYSEX_MANUFACTURER_ID_1=0x53
+DEFINES += SYSEX_MANUFACTURER_ID_2=0x43
+
+#filter out arch symbols to avoid pulling MCU-specific headers
+DEFINES := $(filter-out __AVR__,$(DEFINES))
+DEFINES := $(filter-out __STM32__,$(DEFINES))

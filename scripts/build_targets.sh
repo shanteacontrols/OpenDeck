@@ -5,7 +5,7 @@ function usage
     echo -e "\nUsage: ./$(basename "$0") --type"
 
     echo -e "
-    This script is used to build specific set of targets from targets.json file
+    This script is used to build specific set of targets from targets.yml file
     located in the root directory of OpenDeck repository."
 
     echo -e "\n--type=
@@ -61,36 +61,20 @@ then
     exit 1
 fi
 
-TARGETS_FILE=../targets.json
-
 targets=()
+btldr=()
 release=()
 test=()
 
-while IFS= read -r line
+for config in ../targets/*.yml;
 do
-    targets+=( "$line" )
-done < <( jq ".targets[] | .name" $TARGETS_FILE | tr -d \")
-
-while IFS= read -r line
-do
-    release+=( "$line" )
-done < <( jq ".targets[] | .release" $TARGETS_FILE)
-
-while IFS= read -r line
-do
-    test+=( "$line" )
-done < <( jq ".targets[] | .test" $TARGETS_FILE)
+    targets+=("$(basename "$config" .yml)")
+    release+=("$(yq r "$config" release)")
+    test+=("$(yq r "$config" test)")
+    btldr+=("$(yq r "$config" bootloader.use)")
+done
 
 len_targets=${#targets[@]}
-len_release=${#release[@]}
-len_tests=${#test[@]}
-
-if [[ ($len_targets -ne $len_release) || ($len_targets -ne $len_tests) ]]
-then
-    echo "Invalid JSON record"
-    exit 1
-fi
 
 if [[ "$BUILD_RELEASE" == "true" ]]
 then
@@ -107,7 +91,6 @@ do
             then
                 continue;
             else
-                #build merged binary
                 make merged TARGETNAME="${targets[$i]}"
                 result=$?
 
@@ -135,9 +118,21 @@ do
     if [[ "$TYPE" == "tests" ]]
     then
         make pre-build TARGETNAME="${targets[$i]}"
+    else
+    if [[ "${btldr[$i]}" == "true" ]]
+    then
+        make TARGETNAME="${targets[$i]}" BOOT=1
+
+        result=$?
+
+        if [[ ($result -ne 0) ]]
+        then
+            exit 1
+        fi
+    fi
     fi
 
-    make TARGETNAME="${targets[$i]}"
+    make TARGETNAME="${targets[$i]}" BOOT=0
 
     result=$?
 

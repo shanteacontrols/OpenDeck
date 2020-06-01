@@ -1,5 +1,4 @@
-#ifdef UART_INTERFACES
-#if UART_INTERFACES > 0
+#ifdef USE_UART
 
 #include "unity/src/unity.h"
 #include "unity/Helpers.h"
@@ -149,5 +148,4 @@ TEST_CASE(ManualPacketBuilding)
     rebootType = Board::rebootType_t::rebootBtldr;
 }
 
-#endif
 #endif

@@ -1,0 +1,36 @@
+#include "board/Internal.h"
+
+namespace Board
+{
+    namespace detail
+    {
+        namespace map
+        {
+#if defined(ADC) || !defined(__AVR__)
+            uint32_t adcChannel(uint8_t index)
+            {
+                return detail::map::adcChannel(aInPins[index]);
+            }
+
+            core::io::mcuPin_t adcPin(uint8_t index)
+            {
+                return aInPins[index];
+            }
+#endif
+
+#ifdef NATIVE_BUTTON_INPUTS
+            core::io::mcuPin_t button(uint8_t index)
+            {
+                return dInPins[index];
+            }
+#endif
+
+#if defined(NATIVE_LED_OUTPUTS) || defined(NUMBER_OF_LED_ROWS)
+            core::io::mcuPin_t led(uint8_t index)
+            {
+                return dOutPins[index];
+            }
+#endif
+        }
+    }
+}

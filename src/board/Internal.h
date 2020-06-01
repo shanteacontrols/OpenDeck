@@ -156,24 +156,19 @@ namespace Board
         namespace map
         {
             ///
-            /// \brief Used to retrieve real analog multiplexer channel for an given index.
+            /// \brief Used to retrieve physical ADC channel for a given MCU pin.
             ///
-            uint8_t muxChannel(uint8_t index);
+            uint32_t adcChannel(core::io::mcuPin_t pin);
 
             ///
-            /// \brief Used to retrieve real row address in an input matrix for an given index.
-            ///
-            uint8_t inMatrixRow(uint8_t index);
-
-            ///
-            /// \brief Used to retrieve real column address in an input matrix for an given index.
-            ///
-            uint8_t inMatrixColumn(uint8_t index);
-
-            ///
-            /// \brief Used to retrieve ADC port and pin for a given ADC channel.
+            /// \brief Used to retrieve physical ADC channel for a given ADC channel index.
             ///
             uint32_t adcChannel(uint8_t index);
+
+            ///
+            /// \brief Used to retrieve ADC port and pin for a given ADC channel index.
+            ///
+            core::io::mcuPin_t adcPin(uint8_t index);
 
             ///
             /// \brief Used to retrieve button port and pin for a given button index.

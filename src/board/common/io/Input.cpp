@@ -39,32 +39,32 @@ namespace
     volatile uint8_t dIn_tail;
     volatile uint8_t dIn_count;
 
-#if defined(SR_DIN_CLK_PORT) && defined(SR_DIN_LATCH_PORT) && defined(SR_DIN_DATA_PORT) && !defined(NUMBER_OF_BUTTON_COLUMNS) && !defined(NUMBER_OF_BUTTON_ROWS)
+#if defined(SR_IN_CLK_PORT) && defined(SR_IN_LATCH_PORT) && defined(SR_IN_DATA_PORT) && !defined(NUMBER_OF_BUTTON_COLUMNS) && !defined(NUMBER_OF_BUTTON_ROWS)
     inline void storeDigitalIn()
     {
-        CORE_IO_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
-        CORE_IO_SET_LOW(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+        CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
+        CORE_IO_SET_LOW(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
         _NOP();
 
-        CORE_IO_SET_HIGH(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+        CORE_IO_SET_HIGH(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
 
         for (int j = 0; j < NUMBER_OF_IN_SR; j++)
         {
-            for (int i = 0; i < NUMBER_OF_IN_SR_INPUTS; i++)
+            for (int i = 0; i < 8; i++)
             {
-                CORE_IO_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+                CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
                 _NOP();
-                BIT_WRITE(digitalInBuffer[dIn_head][j], 7 - i, !CORE_IO_READ(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN));
-                CORE_IO_SET_HIGH(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+                BIT_WRITE(digitalInBuffer[dIn_head][j], 7 - i, !CORE_IO_READ(SR_IN_DATA_PORT, SR_IN_DATA_PIN));
+                CORE_IO_SET_HIGH(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
             }
         }
     }
 #elif defined(NUMBER_OF_BUTTON_COLUMNS) && defined(NUMBER_OF_BUTTON_ROWS)
     inline void activateInputColumn()
     {
-        BIT_READ(Board::detail::map::inMatrixColumn(activeInColumn), 0) ? CORE_IO_SET_HIGH(DEC_DM_A0_PORT, DEC_DM_A0_PIN) : CORE_IO_SET_LOW(DEC_DM_A0_PORT, DEC_DM_A0_PIN);
-        BIT_READ(Board::detail::map::inMatrixColumn(activeInColumn), 1) ? CORE_IO_SET_HIGH(DEC_DM_A1_PORT, DEC_DM_A1_PIN) : CORE_IO_SET_LOW(DEC_DM_A1_PORT, DEC_DM_A1_PIN);
-        BIT_READ(Board::detail::map::inMatrixColumn(activeInColumn), 2) ? CORE_IO_SET_HIGH(DEC_DM_A2_PORT, DEC_DM_A2_PIN) : CORE_IO_SET_LOW(DEC_DM_A2_PORT, DEC_DM_A2_PIN);
+        BIT_READ(activeInColumn, 0) ? CORE_IO_SET_HIGH(DEC_BM_PORT_A0, DEC_BM_PIN_A0) : CORE_IO_SET_LOW(DEC_BM_PORT_A0, DEC_BM_PIN_A0);
+        BIT_READ(activeInColumn, 1) ? CORE_IO_SET_HIGH(DEC_BM_PORT_A1, DEC_BM_PIN_A1) : CORE_IO_SET_LOW(DEC_BM_PORT_A1, DEC_BM_PIN_A1);
+        BIT_READ(activeInColumn, 2) ? CORE_IO_SET_HIGH(DEC_BM_PORT_A2, DEC_BM_PIN_A2) : CORE_IO_SET_LOW(DEC_BM_PORT_A2, DEC_BM_PIN_A2);
 
         if (++activeInColumn == NUMBER_OF_BUTTON_COLUMNS)
             activeInColumn = 0;
@@ -81,18 +81,18 @@ namespace
             activateInputColumn();
             _NOP();
 
-            CORE_IO_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
-            CORE_IO_SET_LOW(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+            CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
+            CORE_IO_SET_LOW(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
             _NOP();
 
-            CORE_IO_SET_HIGH(SR_DIN_LATCH_PORT, SR_DIN_LATCH_PIN);
+            CORE_IO_SET_HIGH(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
 
             for (int j = 0; j < NUMBER_OF_BUTTON_ROWS; j++)
             {
-                CORE_IO_SET_LOW(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+                CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
                 _NOP();
-                BIT_WRITE(digitalInBuffer[dIn_head][i], Board::detail::map::inMatrixRow(j), !CORE_IO_READ(SR_DIN_DATA_PORT, SR_DIN_DATA_PIN));
-                CORE_IO_SET_HIGH(SR_DIN_CLK_PORT, SR_DIN_CLK_PIN);
+                BIT_WRITE(digitalInBuffer[dIn_head][i], j, !CORE_IO_READ(SR_IN_DATA_PORT, SR_IN_DATA_PIN));
+                CORE_IO_SET_HIGH(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
             }
         }
     }
