@@ -156,15 +156,18 @@ extern "C" void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 
     if (Board::detail::map::uartChannel(huart->Instance, channel))
     {
-        auto uartDescriptor = Board::detail::map::uartDescriptor(channel);
+        auto descriptor = Board::detail::map::uartDescriptor(channel);
 
-        uartDescriptor->enableClock();
+        descriptor->enableClock();
 
-        for (size_t i = 0; i < uartDescriptor->pins().size(); i++)
-            CORE_IO_CONFIG(uartDescriptor->pins().at(i));
+        for (size_t i = 0; i < descriptor->pins().size(); i++)
+            CORE_IO_CONFIG(descriptor->pins().at(i));
 
-        HAL_NVIC_SetPriority(uartDescriptor->irqn(), 0, 0);
-        HAL_NVIC_EnableIRQ(uartDescriptor->irqn());
+        if (descriptor->irqn() != 0)
+        {
+            HAL_NVIC_SetPriority(descriptor->irqn(), 0, 0);
+            HAL_NVIC_EnableIRQ(descriptor->irqn());
+        }
     }
 }
 
@@ -174,14 +177,14 @@ extern "C" void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 
     if (Board::detail::map::uartChannel(huart->Instance, channel))
     {
-        auto uartDescriptor = Board::detail::map::uartDescriptor(channel);
+        auto descriptor = Board::detail::map::uartDescriptor(channel);
 
-        uartDescriptor->disableClock();
+        descriptor->disableClock();
 
-        for (size_t i = 0; i < uartDescriptor->pins().size(); i++)
-            HAL_GPIO_DeInit(uartDescriptor->pins().at(i).port, uartDescriptor->pins().at(i).index);
+        for (size_t i = 0; i < descriptor->pins().size(); i++)
+            HAL_GPIO_DeInit(descriptor->pins().at(i).port, descriptor->pins().at(i).index);
 
-        HAL_NVIC_DisableIRQ(uartDescriptor->irqn());
+        HAL_NVIC_DisableIRQ(descriptor->irqn());
     }
 }
 
