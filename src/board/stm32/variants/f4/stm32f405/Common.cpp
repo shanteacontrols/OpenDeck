@@ -356,6 +356,168 @@ namespace
         const IRQn_Type _irqn = USART6_IRQn;
     } _uartDescriptor6;
 
+    class I2Cdescriptor1 : public Board::detail::map::STMPeripheral
+    {
+        public:
+        I2Cdescriptor1() {}
+
+        std::vector<core::io::mcuPin_t> pins() override
+        {
+            return _pins;
+        }
+
+        void* interface() override
+        {
+            return I2C1;
+        }
+
+        IRQn_Type irqn() override
+        {
+            return _irqn;
+        }
+
+        void enableClock() override
+        {
+            __HAL_RCC_I2C1_CLK_ENABLE();
+        }
+
+        void disableClock() override
+        {
+            __HAL_RCC_I2C1_CLK_DISABLE();
+        }
+
+        private:
+        std::vector<core::io::mcuPin_t> _pins = {
+            {
+                .port      = GPIOB,
+                .index     = GPIO_PIN_6,
+                .mode      = core::io::pinMode_t::alternateOD,
+                .pull      = core::io::pullMode_t::up,
+                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .alternate = GPIO_AF4_I2C1,
+            },
+
+            {
+                .port      = GPIOB,
+                .index     = GPIO_PIN_9,
+                .mode      = core::io::pinMode_t::alternateOD,
+                .pull      = core::io::pullMode_t::up,
+                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .alternate = GPIO_AF4_I2C1,
+            },
+        };
+
+        const IRQn_Type _irqn = static_cast<IRQn_Type>(0);
+    } _i2cDescriptor1;
+
+    class I2Cdescriptor2 : public Board::detail::map::STMPeripheral
+    {
+        public:
+        I2Cdescriptor2() {}
+
+        std::vector<core::io::mcuPin_t> pins() override
+        {
+            return _pins;
+        }
+
+        void* interface() override
+        {
+            return I2C2;
+        }
+
+        IRQn_Type irqn() override
+        {
+            return _irqn;
+        }
+
+        void enableClock() override
+        {
+            __HAL_RCC_I2C2_CLK_ENABLE();
+        }
+
+        void disableClock() override
+        {
+            __HAL_RCC_I2C2_CLK_DISABLE();
+        }
+
+        private:
+        std::vector<core::io::mcuPin_t> _pins = {
+            {
+                .port      = GPIOB,
+                .index     = GPIO_PIN_10,
+                .mode      = core::io::pinMode_t::alternateOD,
+                .pull      = core::io::pullMode_t::up,
+                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .alternate = GPIO_AF4_I2C2,
+            },
+
+            {
+                .port      = GPIOB,
+                .index     = GPIO_PIN_11,
+                .mode      = core::io::pinMode_t::alternateOD,
+                .pull      = core::io::pullMode_t::up,
+                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .alternate = GPIO_AF4_I2C2,
+            },
+        };
+
+        const IRQn_Type _irqn = static_cast<IRQn_Type>(0);
+    } _i2cDescriptor2;
+
+    class I2Cdescriptor3 : public Board::detail::map::STMPeripheral
+    {
+        public:
+        I2Cdescriptor3() {}
+
+        std::vector<core::io::mcuPin_t> pins() override
+        {
+            return _pins;
+        }
+
+        void* interface() override
+        {
+            return I2C3;
+        }
+
+        IRQn_Type irqn() override
+        {
+            return _irqn;
+        }
+
+        void enableClock() override
+        {
+            __HAL_RCC_I2C1_CLK_ENABLE();
+        }
+
+        void disableClock() override
+        {
+            __HAL_RCC_I2C1_CLK_DISABLE();
+        }
+
+        private:
+        std::vector<core::io::mcuPin_t> _pins = {
+            {
+                .port      = GPIOC,
+                .index     = GPIO_PIN_9,
+                .mode      = core::io::pinMode_t::alternateOD,
+                .pull      = core::io::pullMode_t::up,
+                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .alternate = GPIO_AF4_I2C3,
+            },
+
+            {
+                .port      = GPIOA,
+                .index     = GPIO_PIN_8,
+                .mode      = core::io::pinMode_t::alternateOD,
+                .pull      = core::io::pullMode_t::up,
+                .speed     = core::io::gpioSpeed_t::veryHigh,
+                .alternate = GPIO_AF4_I2C3,
+            },
+        };
+
+        const IRQn_Type _irqn = static_cast<IRQn_Type>(0);
+    } _i2cDescriptor3;
+
     Board::detail::map::STMPeripheral* uart[MAX_UART_INTERFACES] = {
         &_uartDescriptor1,
         &_uartDescriptor2,
@@ -363,6 +525,12 @@ namespace
         &_uartDescriptor4,
         &_uartDescriptor5,
         &_uartDescriptor6,
+    };
+
+    Board::detail::map::STMPeripheral* i2c[MAX_I2C_INTERFACES] = {
+        &_i2cDescriptor1,
+        &_i2cDescriptor2,
+        &_i2cDescriptor3
     };
 }    // namespace
 
@@ -538,6 +706,28 @@ namespace Board
                     return nullptr;
 
                 return uart[channel];
+            }
+
+            bool i2cChannel(I2C_TypeDef* interface, uint8_t& channel)
+            {
+                for (int i = 0; i < MAX_I2C_INTERFACES; i++)
+                {
+                    if (static_cast<I2C_TypeDef*>(i2c[i]->interface()) == interface)
+                    {
+                        channel = i;
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            STMPeripheral* i2cDescriptor(uint8_t channel)
+            {
+                if (channel >= MAX_I2C_INTERFACES)
+                    return nullptr;
+
+                return i2c[channel];
             }
 
             uint32_t adcChannel(core::io::mcuPin_t pin)

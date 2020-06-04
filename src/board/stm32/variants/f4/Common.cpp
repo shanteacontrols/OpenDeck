@@ -188,6 +188,44 @@ extern "C" void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
     }
 }
 
+extern "C" void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
+{
+    uint8_t channel = 0;
+
+    if (Board::detail::map::i2cChannel(hi2c->Instance, channel))
+    {
+        auto descriptor = Board::detail::map::i2cDescriptor(channel);
+
+        descriptor->enableClock();
+
+        for (size_t i = 0; i < descriptor->pins().size(); i++)
+            CORE_IO_CONFIG(descriptor->pins().at(i));
+
+        if (descriptor->irqn() != 0)
+        {
+            HAL_NVIC_SetPriority(descriptor->irqn(), 0, 0);
+            HAL_NVIC_EnableIRQ(descriptor->irqn());
+        }
+    }
+}
+
+extern "C" void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
+{
+    uint8_t channel = 0;
+
+    if (Board::detail::map::i2cChannel(hi2c->Instance, channel))
+    {
+        auto descriptor = Board::detail::map::i2cDescriptor(channel);
+
+        descriptor->disableClock();
+
+        for (size_t i = 0; i < descriptor->pins().size(); i++)
+            HAL_GPIO_DeInit(descriptor->pins().at(i).port, descriptor->pins().at(i).index);
+
+        HAL_NVIC_DisableIRQ(descriptor->irqn());
+    }
+}
+
 extern "C" void InitSystem(void)
 {
     //set stack pointer

@@ -224,10 +224,22 @@ namespace Board
             STMPeripheral* uartDescriptor(uint8_t channel);
 
             ///
+            /// Used to retrieve physical I2C interface used on MCU for a given I2C channel index as well
+            /// as pins on which the interface is connected.
+            ///
+            STMPeripheral* i2cDescriptor(uint8_t channel);
+
+            ///
             /// \brief Used to retrieve UART channel on board for a specified UART interface.
             /// If no channels are mapped to the provided interface, return false.
             ///
             bool uartChannel(USART_TypeDef* interface, uint8_t& channel);
+
+            ///
+            /// \brief Used to retrieve I2C channel on board for a specified UART interface.
+            /// If no channels are mapped to the provided interface, return false.
+            ///
+            bool i2cChannel(I2C_TypeDef* interface, uint8_t& channel);
 
             ///
             /// \brief Used to retrieve physical ADC interface used on MCU.
