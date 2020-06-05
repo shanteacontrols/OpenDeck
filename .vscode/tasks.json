@@ -15,7 +15,7 @@
         },
         {
             "label": "[FW/STM32FDiscovery/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=fw_discovery LANG=C DEBUG=1",
+            "command": "cd ./src && compiledb -d . make TARGETNAME=discovery LANG=C DEBUG=1 BOOT=0",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -27,7 +27,7 @@
         },
         {
             "label": "[BTLDR/STM32FDiscovery/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=boot_discovery LANG=C DEBUG=1",
+            "command": "cd ./src && compiledb -d . make TARGETNAME=discovery LANG=C DEBUG=1 BOOT=1",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -39,7 +39,7 @@
         },
         {
             "label": "[FW/Cardamom/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=fw_cardamom LANG=C DEBUG=1",
+            "command": "cd ./src && compiledb -d . make TARGETNAME=cardamom LANG=C DEBUG=1 BOOT=0",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -51,7 +51,7 @@
         },
         {
             "label": "[BTLDR/Cardamom/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=boot_cardamom LANG=C DEBUG=1",
+            "command": "cd ./src && compiledb -d . make TARGETNAME=cardamom LANG=C DEBUG=1 BOOT=1",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
