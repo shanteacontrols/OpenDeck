@@ -95,7 +95,7 @@ bool Nextion::update(size_t& buttonID, bool& state)
 
 void Nextion::setIconState(IO::Touchscreen::icon_t& icon, bool state)
 {
-    writeCommand("picq %u,%u,%u,%u,%u", icon.xPos, icon.yPos, icon.width, icon.height, state ? 1 : 0);
+    writeCommand("picq %u,%u,%u,%u,%u", icon.xPos, icon.yPos, icon.width, icon.height, state ? icon.onScreen : icon.offScreen);
 }
 
 bool Nextion::writeCommand(const char* line, ...)
