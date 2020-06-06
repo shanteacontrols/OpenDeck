@@ -36,14 +36,20 @@ void Touchscreen::update()
 
     if (model.update(buttonID, state))
     {
-        if (isScreenChangeButton(buttonID, activeScreenID))
-        {
-            if (screenHandler != nullptr)
-                screenHandler(activeScreenID);
-        }
+        bool changeScreen = isScreenChangeButton(buttonID, activeScreenID);
 
         if (buttonHandler != nullptr)
             (*buttonHandler)(buttonID, state);
+
+        //if the button should change screen, change it immediately
+        //this will result in button never sending off state so do it manually first
+        if (changeScreen)
+        {
+            if (buttonHandler != nullptr)
+                (*buttonHandler)(buttonID, false);
+
+            setScreen(activeScreenID);
+        }
     }
 }
 
