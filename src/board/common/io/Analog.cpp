@@ -47,7 +47,9 @@ namespace
         BIT_READ(activeMuxInput, 0) ? CORE_IO_SET_HIGH(MUX_PORT_S0, MUX_PIN_S0) : CORE_IO_SET_LOW(MUX_PORT_S0, MUX_PIN_S0);
         BIT_READ(activeMuxInput, 1) ? CORE_IO_SET_HIGH(MUX_PORT_S1, MUX_PIN_S1) : CORE_IO_SET_LOW(MUX_PORT_S1, MUX_PIN_S1);
         BIT_READ(activeMuxInput, 2) ? CORE_IO_SET_HIGH(MUX_PORT_S2, MUX_PIN_S2) : CORE_IO_SET_LOW(MUX_PORT_S2, MUX_PIN_S2);
+#ifdef MUX_PORT_S3
         BIT_READ(activeMuxInput, 3) ? CORE_IO_SET_HIGH(MUX_PORT_S3, MUX_PIN_S3) : CORE_IO_SET_LOW(MUX_PORT_S3, MUX_PIN_S3);
+#endif
     }
 #endif
 }    // namespace

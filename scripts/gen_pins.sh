@@ -228,6 +228,37 @@ then
     done
 
     printf "%s\n" "};" >> "$OUT_FILE_SOURCE"
+elif [[ $analog_in_type == 4051 ]]
+then
+    printf "%s\n" "const core::io::mcuPin_t aInPins[MAX_ADC_CHANNELS] = {" >> "$OUT_FILE_SOURCE"
+
+    for ((i=0; i<3; i++))
+    do
+        port=$(yq r "$PIN_FILE" analog.pins.s"$i".port)
+        index=$(yq r "$PIN_FILE" analog.pins.s"$i".index)
+
+        {
+            printf "%s\n" "#define MUX_PORT_S${i} CORE_IO_PORT(${port})"
+            printf "%s\n" "#define MUX_PIN_S${i} CORE_IO_PORT_INDEX(${index})"
+        } >> "$OUT_FILE_HEADER"
+    done
+
+    number_of_mux=$(yq r "$PIN_FILE" analog.multiplexers $PIN_FILE)
+
+    for ((i=0; i<"$number_of_mux"; i++))
+    do
+        port=$(yq r "$PIN_FILE" analog.pins.z"$i".port)
+        index=$(yq r "$PIN_FILE" analog.pins.z"$i".index)
+
+        {
+            printf "%s\n" "#define MUX_PORT_INPUT_${i} CORE_IO_PORT(${port})"
+            printf "%s\n" "#define MUX_PIN_INPUT_${i} CORE_IO_PORT_INDEX(${index})"
+        } >> "$OUT_FILE_HEADER"
+
+        printf "%s\n" "CORE_IO_MCU_PIN_DEF(MUX_PORT_INPUT_${i}, MUX_PIN_INPUT_${i})," >> "$OUT_FILE_SOURCE"
+    done
+
+    printf "%s\n" "};" >> "$OUT_FILE_SOURCE"
 fi
 
 printf "\n%s" "}" >> "$OUT_FILE_SOURCE"

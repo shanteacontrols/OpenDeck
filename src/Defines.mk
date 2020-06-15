@@ -268,6 +268,12 @@ else ifeq ($(shell yq r ../targets/$(TARGETNAME).yml analog.type), 4067)
     DEFINES += NUMBER_OF_MUX_INPUTS=16
     MAX_NUMBER_OF_ANALOG := $(shell expr 16 \* $(NUMBER_OF_MUX))
     DEFINES += MAX_ADC_CHANNELS=$(NUMBER_OF_MUX)
+else ifeq ($(shell yq r ../targets/$(TARGETNAME).yml analog.type), 4051)
+    NUMBER_OF_MUX := $(shell yq r ../targets/$(TARGETNAME).yml analog.multiplexers)
+    DEFINES += NUMBER_OF_MUX=$(NUMBER_OF_MUX)
+    DEFINES += NUMBER_OF_MUX_INPUTS=8
+    MAX_NUMBER_OF_ANALOG := $(shell expr 8 \* $(NUMBER_OF_MUX))
+    DEFINES += MAX_ADC_CHANNELS=$(NUMBER_OF_MUX)
 else
     MAX_NUMBER_OF_ANALOG := 0
     MAX_ADC_CHANNELS := 0
