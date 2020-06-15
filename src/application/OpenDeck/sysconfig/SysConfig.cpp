@@ -161,6 +161,16 @@ SysConfig::result_t SysConfig::SysExDataHandler::customRequest(size_t request, C
     }
     break;
 
+    case SYSEX_CR_BOOTLOADER_SUPPORT:
+    {
+#ifdef BOOTLOADER_SUPPORTED
+        customResponse.append(1);
+#else
+        customResponse.append(0);
+#endif
+    }
+    break;
+
 #ifdef DIN_MIDI_SUPPORTED
     case SYSEX_CR_DAISY_CHAIN:
     {

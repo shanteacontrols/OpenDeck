@@ -20,6 +20,10 @@ else
     DEFINES += NDEBUG
 endif
 
+ifeq ($(HAS_BTLDR), 1)
+    DEFINES += BOOTLOADER_SUPPORTED
+endif
+
 ARCH := $(shell yq r ../targets/$(TARGETNAME).yml arch)
 MCU := $(shell yq r ../targets/$(TARGETNAME).yml mcu)
 MCU_FAMILY := $(shell yq r ../targets/$(TARGETNAME).yml mcuFamily)
