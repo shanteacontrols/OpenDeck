@@ -206,7 +206,7 @@ namespace Board
                     core::io::mcuPin_t pin = detail::map::adcPin(i);
 
                     CORE_IO_CONFIG(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::input);
-                    EXT_LED_OFF(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
+                    CORE_IO_SET_LOW(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
                 }
 #endif
 
