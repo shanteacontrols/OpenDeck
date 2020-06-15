@@ -253,8 +253,13 @@ TEST_CASE(FactoryReset)
     database.factoryReset(LESSDB::factoryResetType_t::full);
 
     //change several values
+#ifdef BUTTONS_SUPPORTED
     TEST_ASSERT(database.update(Database::Section::button_t::midiID, 0, 114) == true);
+#endif
+
+#ifdef ENCODERS_SUPPORTED
     TEST_ASSERT(database.update(Database::Section::encoder_t::midiChannel, 0, 11) == true);
+#endif
 
 #ifdef DISPLAY_SUPPORTED
     TEST_ASSERT(database.update(Database::Section::display_t::setting,
@@ -267,8 +272,13 @@ TEST_CASE(FactoryReset)
     database.factoryReset(LESSDB::factoryResetType_t::full);
 
     //expect default values
+#ifdef BUTTONS_SUPPORTED
     TEST_ASSERT(database.read(Database::Section::button_t::midiID, 0) == 0);
+#endif
+
+#ifdef ENCODERS_SUPPORTED
     TEST_ASSERT(database.read(Database::Section::encoder_t::midiChannel, 0) == 0);
+#endif
 
 #ifdef DISPLAY_SUPPORTED
     TEST_ASSERT(database.read(Database::Section::display_t::setting,
