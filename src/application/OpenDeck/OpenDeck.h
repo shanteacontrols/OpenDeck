@@ -21,13 +21,10 @@ limitations under the License.
 #ifndef USB_LINK_MCU
 #include "database/Database.h"
 #include "io/analog/Analog.h"
+#include "io/encoders/Encoders.h"
 #include "io/leds/LEDs.h"
-#ifdef DISPLAY_SUPPORTED
 #include "io/display/Display.h"
-#endif
-#ifdef TOUCHSCREEN_SUPPORTED
 #include "io/touchscreen/Touchscreen.h"
-#endif
 #include "sysconfig/SysConfig.h"
 #endif
 #include "midi/src/MIDI.h"

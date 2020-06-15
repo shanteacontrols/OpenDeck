@@ -16,6 +16,8 @@ limitations under the License.
 
 */
 
+#pragma once
+
 #include "u8g2/csrc/u8x8.h"
 
 namespace IO

@@ -129,6 +129,7 @@ class StorageAccess : public LESSDB::StorageAccess
 } storageAccess;
 Database database(dbHandlers, storageAccess);
 
+#ifdef LEDS_SUPPORTED
 class HWALEDs : public IO::LEDs::HWA
 {
     public:
@@ -184,8 +185,43 @@ class HWALEDs : public IO::LEDs::HWA
 #endif
     }
 
+    void registerHandler(void (*fptr)(size_t index, bool state))
+    {
+        stateHandler = fptr;
+    }
+
+    private:
     void (*stateHandler)(size_t index, bool state) = nullptr;
 } hwaLEDs;
+#else
+class HWALEDsStub : public IO::LEDs::HWA
+{
+    public:
+    HWALEDsStub() {}
+
+    void setState(size_t index, bool state) override
+    {
+    }
+
+    size_t rgbSingleComponentIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
+    {
+        return 0;
+    }
+
+    size_t rgbIndex(size_t singleLEDindex) override
+    {
+        return 0;
+    }
+
+    void setFadeSpeed(size_t transitionSpeed) override
+    {
+    }
+
+    void registerHandler(void (*fptr)(size_t index, bool state))
+    {
+    }
+} hwaLEDs;
+#endif
 
 #ifdef TOUCHSCREEN_SUPPORTED
 #ifdef OD_BOARD_BERGAMOT
@@ -213,9 +249,9 @@ class HWASDW : public IO::Touchscreen::Model::HWA
     {
         return Board::UART::read(UART_CHANNEL_TOUCHSCREEN, data);
     }
-} sdwHWA;
+} touchscreenHWA;
 
-SDW touchscreenModel(sdwHWA);
+SDW touchscreenModel(touchscreenHWA);
 #else
 //nextion by default
 #include "io/touchscreen/model/nextion/Nextion.h"
@@ -240,12 +276,41 @@ class HWANextion : public IO::Touchscreen::Model::HWA
     {
         return Board::UART::read(UART_CHANNEL_TOUCHSCREEN, data);
     }
-} nextionHWA;
+} touchscreenHWA;
 
-Nextion touchscreenModel(nextionHWA);
+Nextion touchscreenModel(touchscreenHWA);
 #endif
+#else
+class TouchscreenModelStub : public IO::Touchscreen::Model
+{
+    public:
+    TouchscreenModelStub()
+    {}
+
+    bool init() override
+    {
+        return false;
+    }
+
+    bool setScreen(size_t screenID) override
+    {
+        return false;
+    }
+
+    bool update(size_t& buttonID, bool& state) override
+    {
+        return false;
+    }
+
+    void setIconState(IO::Touchscreen::icon_t& icon, bool state) override
+    {
+    }
+};
+
+TouchscreenModelStub touchscreenModel;
 #endif
 
+#ifdef BUTTONS_SUPPORTED
 class HWAEncoders : public IO::Encoders::HWA
 {
     public:
@@ -272,7 +337,31 @@ class HWAButtons : public IO::Buttons::HWA
         return Board::io::getButtonState(index);
     }
 } hwaButtons;
+#else
+class HWAEncodersStub : public IO::Encoders::HWA
+{
+    public:
+    HWAEncodersStub() {}
 
+    uint8_t state(size_t index) override
+    {
+        return 0;
+    }
+} hwaEncoders;
+
+class HWAButtonsStub : public IO::Buttons::HWA
+{
+    public:
+    HWAButtonsStub() {}
+
+    bool state(size_t index) override
+    {
+        return false;
+    }
+} hwaButtons;
+#endif
+
+#ifdef ANALOG_SUPPORTED
 class HWAAnalog : public IO::Analog::HWA
 {
     public:
@@ -283,6 +372,18 @@ class HWAAnalog : public IO::Analog::HWA
         return Board::io::getAnalogValue(index);
     }
 } hwaAnalog;
+#else
+class HWAAnalogStub : public IO::Analog::HWA
+{
+    public:
+    HWAAnalogStub() {}
+
+    uint16_t state(size_t index) override
+    {
+        return 0;
+    }
+} hwaAnalog;
+#endif
 
 #ifdef DISPLAY_SUPPORTED
 class HWAU8X8 : public IO::U8X8::HWAI2C
@@ -300,49 +401,41 @@ class HWAU8X8 : public IO::U8X8::HWAI2C
         return Board::I2C::write(I2C_CHANNEL_DISPLAY, address, data, size);
     }
 } hwaU8X8;
+#else
+class HWAU8X8Stub : public IO::U8X8::HWAI2C
+{
+    public:
+    HWAU8X8Stub() {}
+
+    bool init() override
+    {
+        return false;
+    }
+
+    bool write(uint8_t address, uint8_t* data, size_t size) override
+    {
+        return false;
+    }
+} hwaU8X8;
 #endif
 
-// clang-format off
-ComponentInfo                       cinfo;
-MIDI                                midi;
-IO::Common                          digitalInputCommon;
-#ifdef DISPLAY_SUPPORTED
-IO::U8X8                            u8x8(hwaU8X8);
-IO::Display                         display(u8x8, database);
-#endif
-#ifdef TOUCHSCREEN_SUPPORTED
-IO::Touchscreen                     touchscreen(touchscreenModel);
-#endif
-IO::LEDs                            leds(hwaLEDs, database);
-#ifdef DISPLAY_SUPPORTED
-#ifdef ADC_10_BIT
-IO::Analog                          analog(hwaAnalog, IO::Analog::adcType_t::adc10bit, database, midi, leds, display, cinfo);
+#ifdef ADC_12_BIT
+#define ADC_RESOLUTION IO::Analog::adcType_t::adc12bit
 #else
-IO::Analog                          analog(hwaAnalog, IO::Analog::adcType_t::adc12bit, database, midi, leds, display, cinfo);
+#define ADC_RESOLUTION IO::Analog::adcType_t::adc10bit
 #endif
-#else
-#ifdef ADC_10_BIT
-IO::Analog                          analog(hwaAnalog, IO::Analog::adcType_t::adc10bit, database, midi, leds, cinfo);
-#else
-IO::Analog                          analog(hwaAnalog, IO::Analog::adcType_t::adc12bit, database, midi, leds, cinfo);
-#endif
-#endif
-#ifdef DISPLAY_SUPPORTED
-IO::Buttons                         buttons(hwaButtons, database, midi, leds, display, cinfo);
-#else
-IO::Buttons                         buttons(hwaButtons, database, midi, leds, cinfo);
-#endif
-#ifdef DISPLAY_SUPPORTED
-IO::Encoders                        encoders(hwaEncoders, database, midi, display, cinfo);
-#else
-IO::Encoders                        encoders(hwaEncoders, database, midi, cinfo);
-#endif
-#ifdef DISPLAY_SUPPORTED
-SysConfig                           sysConfig(database, midi, buttons, encoders, analog, leds, display);
-#else
-SysConfig                           sysConfig(database, midi, buttons, encoders, analog, leds);
-#endif
-//clang-format on
+
+ComponentInfo   cinfo;
+MIDI            midi;
+IO::Common      digitalInputCommon;
+IO::U8X8        u8x8(hwaU8X8);
+IO::Display     display(u8x8, database);
+IO::Touchscreen touchscreen(touchscreenModel);
+IO::LEDs        leds(hwaLEDs, database);
+IO::Analog      analog(hwaAnalog, ADC_RESOLUTION, database, midi, leds, display, cinfo);
+IO::Buttons     buttons(hwaButtons, database, midi, leds, display, cinfo);
+IO::Encoders    encoders(hwaEncoders, database, midi, display, cinfo);
+SysConfig       sysConfig(database, midi, buttons, encoders, analog, leds, display);
 
 void OpenDeck::init()
 {
@@ -352,14 +445,10 @@ void OpenDeck::init()
     sysConfig.init();
     leds.init();
     encoders.init();
-#ifdef DISPLAY_SUPPORTED
     display.init(true);
-#endif
 
-#ifdef TOUCHSCREEN_SUPPORTED
     touchscreen.init();
     touchscreen.setScreen(1);
-#endif
 
     dbHandlers.factoryResetStartHandler = []() {
         leds.setAllOff();
@@ -369,10 +458,8 @@ void OpenDeck::init()
     dbHandlers.presetChangeHandler = [](uint8_t preset) {
         leds.midiToState(MIDI::messageType_t::programChange, preset, 0, 0, true);
 
-#ifdef DISPLAY_SUPPORTED
         if (display.init(false))
             display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::presetChange, preset, 0, 0);
-#endif
     };
 
     cinfo.registerHandler([](Database::block_t dbBlock, SysExConf::sysExParameter_t componentID) {
@@ -383,7 +470,6 @@ void OpenDeck::init()
         buttons.processButton(analogIndex + MAX_NUMBER_OF_BUTTONS, value);
     });
 
-#ifdef TOUCHSCREEN_SUPPORTED
     touchscreen.setButtonHandler([](size_t index, bool state) {
         buttons.processButton(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + index, state);
     });
@@ -391,7 +477,6 @@ void OpenDeck::init()
     touchscreen.setScreenChangeHandler([](size_t screenID) {
         leds.refresh();
     });
-#endif
 
     // on startup, indicate current program for all channels (if any leds have program change assigned as control mode)
     for (int i = 0; i < 16; i++)
@@ -403,7 +488,7 @@ void OpenDeck::init()
         core::reset::mcuReset();
     };
 
-    hwaLEDs.stateHandler = [](size_t index, bool state) {
+    hwaLEDs.registerHandler([](size_t index, bool state) {
 #if MAX_NUMBER_OF_LEDS > 0
 #if MAX_TOUCHSCREEN_BUTTONS != 0
         if (index >= MAX_NUMBER_OF_LEDS)
@@ -414,11 +499,9 @@ void OpenDeck::init()
         Board::io::writeLEDstate(index, state);
 #endif
 #else
-#ifdef TOUCHSCREEN_SUPPORTED
         touchscreen.setIconState(index, state);
 #endif
-#endif
-    };
+    });
 }
 
 void OpenDeck::checkComponents()
@@ -435,13 +518,9 @@ void OpenDeck::checkComponents()
             analog.update();
 
         leds.checkBlinking();
-#ifdef DISPLAY_SUPPORTED
         display.update();
-#endif
 
-#ifdef TOUCHSCREEN_SUPPORTED
         touchscreen.update();
-#endif
     }
 }
 
@@ -472,7 +551,6 @@ void OpenDeck::checkMIDI()
 
             leds.midiToState(messageType, data1, data2, channel, false);
 
-#ifdef DISPLAY_SUPPORTED
             switch (messageType)
             {
             case MIDI::messageType_t::noteOn:
@@ -494,7 +572,6 @@ void OpenDeck::checkMIDI()
             default:
                 break;
             }
-#endif
 
             if (messageType == MIDI::messageType_t::programChange)
                 database.setPreset(data1);

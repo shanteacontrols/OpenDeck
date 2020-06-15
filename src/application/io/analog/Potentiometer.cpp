@@ -120,9 +120,7 @@ void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32
         if (analogType == type_t::potentiometerControlChange)
         {
             midi.sendControlChange(midiID, scaledMIDIvalue, channel);
-#ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, midiID, scaledMIDIvalue, channel + 1);
-#endif
         }
         else
         {
@@ -176,16 +174,12 @@ void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32
             }
         }
 
-#ifdef DISPLAY_SUPPORTED
         display.displayMIDIevent(Display::eventType_t::out, (analogType == type_t::cc14bit) ? Display::event_t::controlChange : Display::event_t::nrpn, midiID, scaledMIDIvalue, channel + 1);
-#endif
         break;
 
     case type_t::pitchBend:
         midi.sendPitchBend(scaledMIDIvalue, channel);
-#ifdef DISPLAY_SUPPORTED
         display.displayMIDIevent(Display::eventType_t::out, Display::event_t::pitchBend, midiID, scaledMIDIvalue, channel + 1);
-#endif
         break;
 
     default:

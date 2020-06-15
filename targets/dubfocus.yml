@@ -71,8 +71,6 @@
         enable:
           port: "C"
           index: 7
-  usbLink:
-    type: "none"
   bootloader:
     use: true
     buttonIndex: 12

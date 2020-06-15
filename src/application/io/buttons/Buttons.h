@@ -18,12 +18,14 @@ limitations under the License.
 
 #pragma once
 
+#ifndef BUTTONS_SUPPORTED
+#include "Stub.h"
+#else
+
 #include "database/Database.h"
 #include "midi/src/MIDI.h"
 #include "io/leds/LEDs.h"
-#ifdef DISPLAY_SUPPORTED
 #include "io/display/Display.h"
-#endif
 #include "io/common/Common.h"
 #include "io/common/CInfo.h"
 
@@ -84,18 +86,12 @@ namespace IO
             virtual bool state(size_t index) = 0;
         };
 
-#ifdef DISPLAY_SUPPORTED
         Buttons(HWA& hwa, Database& database, MIDI& midi, IO::LEDs& leds, Display& display, ComponentInfo& cInfo)
-#else
-        Buttons(HWA& hwa, Database& database, MIDI& midi, IO::LEDs& leds, ComponentInfo& cInfo)
-#endif
             : hwa(hwa)
             , database(database)
             , midi(midi)
             , leds(leds)
-#ifdef DISPLAY_SUPPORTED
             , display(display)
-#endif
             , cInfo(cInfo)
         {}
 
@@ -111,13 +107,11 @@ namespace IO
         bool getLatchingState(uint8_t buttonID);
         bool buttonDebounced(uint8_t buttonID, bool state);
 
-        HWA&      hwa;
-        Database& database;
-        MIDI&     midi;
-        IO::LEDs& leds;
-#ifdef DISPLAY_SUPPORTED
-        Display& display;
-#endif
+        HWA&           hwa;
+        Database&      database;
+        MIDI&          midi;
+        IO::LEDs&      leds;
+        Display&       display;
         ComponentInfo& cInfo;
 
         ///
@@ -152,3 +146,5 @@ namespace IO
 
     /// @}
 }    // namespace IO
+
+#endif

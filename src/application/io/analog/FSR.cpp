@@ -61,9 +61,7 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             uint8_t note    = database.read(Database::Section::analog_t::midiID, analogID);
             uint8_t channel = database.read(Database::Section::analog_t::midiChannel, analogID);
             midi.sendNoteOn(note, calibratedPressure, channel);
-#ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, note, calibratedPressure, channel + 1);
-#endif
             leds.midiToState(MIDI::messageType_t::noteOn, note, calibratedPressure, channel, true);
 
             cInfo.send(Database::block_t::analog, analogID);
@@ -77,9 +75,7 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             uint8_t note    = database.read(Database::Section::analog_t::midiID, analogID);
             uint8_t channel = database.read(Database::Section::analog_t::midiChannel, analogID);
             midi.sendNoteOff(note, 0, channel);
-#ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOff, note, calibratedPressure, channel + 1);
-#endif
             leds.midiToState(MIDI::messageType_t::noteOff, note, 0, channel, true);
 
             cInfo.send(Database::block_t::analog, analogID);

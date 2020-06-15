@@ -98,8 +98,6 @@
         -
           port: "C"
           index: 7
-  usbLink:
-    type: "none"
   bootloader:
     use: true
     button:

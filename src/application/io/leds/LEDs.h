@@ -18,6 +18,10 @@ limitations under the License.
 
 #pragma once
 
+#ifndef LEDS_SUPPORTED
+#include "Stub.h"
+#else
+
 #include "database/Database.h"
 #include "midi/src/MIDI.h"
 
@@ -223,3 +227,5 @@ namespace IO
         bool blinkState[static_cast<uint8_t>(blinkSpeed_t::AMOUNT)] = {};
     };
 }    // namespace IO
+
+#endif

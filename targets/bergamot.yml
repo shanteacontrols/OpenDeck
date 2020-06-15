@@ -46,10 +46,6 @@
   leds:
     internal:
       present: false
-    external:
-      type: "none"
-  usbLink:
-    type: "none"
   bootloader:
     use: true
     button:

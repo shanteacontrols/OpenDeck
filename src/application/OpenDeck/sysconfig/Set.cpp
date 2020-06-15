@@ -69,13 +69,11 @@ SysExConf::DataHandler::result_t SysConfig::SysExDataHandler::set(uint8_t       
         break;
     }
 
-#ifdef DISPLAY_SUPPORTED
     sysConfig.display.displayMIDIevent(IO::Display::eventType_t::in,
                                        IO::Display::event_t::systemExclusive,
                                        0,
                                        0,
                                        0);
-#endif
 
     return result;
 }
@@ -274,6 +272,7 @@ SysConfig::result_t SysConfig::onSetGlobal(Section::global_t section, size_t ind
 
 SysConfig::result_t SysConfig::onSetButtons(Section::button_t section, size_t index, SysExConf::sysExParameter_t newValue)
 {
+#ifdef BUTTONS_SUPPORTED
     auto result = SysConfig::result_t::error;
 
     //channels start from 0 in db, start from 1 in sysex
@@ -291,10 +290,14 @@ SysConfig::result_t SysConfig::onSetButtons(Section::button_t section, size_t in
     }
 
     return result;
+#else
+    return SysConfig::result_t::notSupported;
+#endif
 }
 
 SysConfig::result_t SysConfig::onSetEncoders(Section::encoder_t section, size_t index, SysExConf::sysExParameter_t newValue)
 {
+#ifdef ENCODERS_SUPPORTED
     auto result = SysConfig::result_t::error;
 
     //channels start from 0 in db, start from 1 in sysex
@@ -305,11 +308,16 @@ SysConfig::result_t SysConfig::onSetEncoders(Section::encoder_t section, size_t 
     encoders.resetValue(index);
 
     return result;
+#else
+    return SysConfig::result_t::notSupported;
+#endif
 }
 
 SysConfig::result_t SysConfig::onSetAnalog(Section::analog_t section, size_t index, SysExConf::sysExParameter_t newValue)
 {
-    auto                 result = SysConfig::result_t::error;
+#ifdef ANALOG_SUPPORTED
+    auto result = SysConfig::result_t::error;
+
     MIDI::encDec_14bit_t encDec_14bit;
 
     switch (section)
@@ -365,11 +373,16 @@ SysConfig::result_t SysConfig::onSetAnalog(Section::analog_t section, size_t ind
     }
 
     return result;
+#else
+    return SysConfig::result_t::notSupported;
+#endif
 }
 
 SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, SysExConf::sysExParameter_t newValue)
 {
-    auto result    = SysConfig::result_t::error;
+#ifdef LEDS_SUPPORTED
+    auto result = SysConfig::result_t::error;
+
     bool writeToDb = true;
 
     switch (section)
@@ -523,6 +536,9 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
     }
 
     return result;
+#else
+    return SysConfig::result_t::notSupported;
+#endif
 }
 
 SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t newValue)

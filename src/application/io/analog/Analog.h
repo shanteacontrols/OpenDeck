@@ -18,12 +18,14 @@ limitations under the License.
 
 #pragma once
 
+#ifndef ANALOG_SUPPORTED
+#include "Stub.h"
+#else
+
 #include "database/Database.h"
 #include "midi/src/MIDI.h"
 #include "io/leds/LEDs.h"
-#ifdef DISPLAY_SUPPORTED
 #include "io/display/Display.h"
-#endif
 #include "io/common/CInfo.h"
 
 namespace IO
@@ -83,19 +85,13 @@ namespace IO
             virtual uint16_t state(size_t index) = 0;
         };
 
-#ifdef DISPLAY_SUPPORTED
         Analog(HWA& hwa, adcType_t adcType, Database& database, MIDI& midi, IO::LEDs& leds, Display& display, ComponentInfo& cInfo)
-#else
-        Analog(HWA& hwa, adcType_t adcType, Database& database, MIDI& midi, IO::LEDs& leds, ComponentInfo& cInfo)
-#endif
             : hwa(hwa)
             , adcConfig(adcType == adcType_t::adc10bit ? adc10bit : adc12bit)
             , database(database)
             , midi(midi)
             , leds(leds)
-#ifdef DISPLAY_SUPPORTED
             , display(display)
-#endif
             , cInfo(cInfo)
             , adc7bitStep((adcConfig.adcMaxValue + 1) / 128)
         {}
@@ -171,14 +167,12 @@ namespace IO
         uint32_t calibratePressure(uint32_t value, pressureType_t type);
         bool     digitalStateFromAnalogValue(uint16_t adcValue);
 
-        HWA&         hwa;
-        adcConfig_t& adcConfig;
-        Database&    database;
-        MIDI&        midi;
-        IO::LEDs&    leds;
-#ifdef DISPLAY_SUPPORTED
-        Display& display;
-#endif
+        HWA&           hwa;
+        adcConfig_t&   adcConfig;
+        Database&      database;
+        MIDI&          midi;
+        IO::LEDs&      leds;
+        Display&       display;
         ComponentInfo& cInfo;
 
         void (*buttonHandler)(uint8_t adcIndex, bool state) = nullptr;
@@ -192,3 +186,5 @@ namespace IO
 
     /// @}
 }    // namespace IO
+
+#endif

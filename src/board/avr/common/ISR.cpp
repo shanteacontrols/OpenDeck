@@ -21,7 +21,7 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 
 #ifdef FW_APP
-#ifdef ADC
+#ifdef ANALOG_SUPPORTED
 ///
 /// \brief ADC ISR used to read values from multiplexers.
 ///

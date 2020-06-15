@@ -205,9 +205,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
         case messageType_t::controlChangeReset:
         {
             midi.sendControlChange(note, velocity, channel);
-#ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, note, velocity, channel + 1);
-#endif
             leds.midiToState(MIDI::messageType_t::controlChange, note, velocity, channel, true);
         }
         break;
@@ -216,9 +214,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
         {
             mmcArray[4] = 0x02;
             midi.sendSysEx(6, mmcArray, true);
-#ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::mmcPlay, mmcArray[2], 0, 0);
-#endif
         }
         break;
 
@@ -226,9 +222,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
         {
             mmcArray[4] = 0x01;
             midi.sendSysEx(6, mmcArray, true);
-#ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::mmcStop, mmcArray[2], 0, 0);
-#endif
         }
         break;
 
@@ -236,63 +230,49 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
         {
             mmcArray[4] = 0x09;
             midi.sendSysEx(6, mmcArray, true);
-#ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::mmcPause, mmcArray[2], 0, 0);
-#endif
         }
         break;
 
         case messageType_t::realTimeClock:
         {
             midi.sendRealTime(MIDI::messageType_t::sysRealTimeClock);
-#ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::sysRealTimeClock, 0, 0, 0);
-#endif
         }
         break;
 
         case messageType_t::realTimeStart:
         {
             midi.sendRealTime(MIDI::messageType_t::sysRealTimeStart);
-#ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::sysRealTimeStart, 0, 0, 0);
-#endif
         }
         break;
 
         case messageType_t::realTimeContinue:
         {
             midi.sendRealTime(MIDI::messageType_t::sysRealTimeContinue);
-#ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::sysRealTimeContinue, 0, 0, 0);
-#endif
         }
         break;
 
         case messageType_t::realTimeStop:
         {
             midi.sendRealTime(MIDI::messageType_t::sysRealTimeStop);
-#ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::sysRealTimeStop, 0, 0, 0);
-#endif
         }
         break;
 
         case messageType_t::realTimeActiveSensing:
         {
             midi.sendRealTime(MIDI::messageType_t::sysRealTimeActiveSensing);
-#ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::sysRealTimeActiveSensing, 0, 0, 0);
-#endif
         }
         break;
 
         case messageType_t::realTimeSystemReset:
         {
             midi.sendRealTime(MIDI::messageType_t::sysRealTimeSystemReset);
-#ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::sysRealTimeSystemReset, 0, 0, 0);
-#endif
         }
         break;
 
@@ -301,9 +281,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
             //start recording
             mmcArray[4] = 0x06;
             midi.sendSysEx(6, mmcArray, true);
-#ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::mmcRecordOn, mmcArray[2], 0, 0);
-#endif
         }
         break;
 
@@ -318,17 +296,13 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
                 {
                     midi.sendNoteOff(note, value, channel);
                     leds.midiToState(MIDI::messageType_t::noteOff, note, value, channel, true);
-#ifdef DISPLAY_SUPPORTED
                     display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOff, note, value, channel + 1);
-#endif
                 }
                 else
                 {
                     midi.sendNoteOn(note, value, channel);
                     leds.midiToState(MIDI::messageType_t::noteOn, note, value, channel, true);
-#ifdef DISPLAY_SUPPORTED
                     display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, note, value, channel + 1);
-#endif
                 }
             }
         }
@@ -345,17 +319,13 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
                 {
                     midi.sendNoteOff(note, value, channel);
                     leds.midiToState(MIDI::messageType_t::noteOff, note, value, channel, true);
-#ifdef DISPLAY_SUPPORTED
                     display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOff, note, value, channel + 1);
-#endif
                 }
                 else
                 {
                     midi.sendNoteOn(note, value, channel);
                     leds.midiToState(MIDI::messageType_t::noteOn, note, value, channel, true);
-#ifdef DISPLAY_SUPPORTED
                     display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, note, value, channel + 1);
-#endif
                 }
             }
         }
@@ -370,9 +340,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
             {
                 midi.sendControlChange(note, value, channel);
                 leds.midiToState(MIDI::messageType_t::controlChange, note, value, channel, true);
-#ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, note, value, channel + 1);
-#endif
             }
         }
         break;
@@ -386,9 +354,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
             {
                 midi.sendControlChange(note, value, channel);
                 leds.midiToState(MIDI::messageType_t::controlChange, note, value, channel, true);
-#ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, note, value, channel + 1);
-#endif
             }
         }
         break;
@@ -403,17 +369,13 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
         {
         case messageType_t::note:
             midi.sendNoteOff(note, 0, channel);
-#ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, midi.getNoteOffMode() == MIDI::noteOffType_t::standardNoteOff ? Display::event_t::noteOff : Display::event_t::noteOn, note, 0, channel + 1);
-#endif
             leds.midiToState(MIDI::messageType_t::noteOff, note, 0, channel, true);
             break;
 
         case messageType_t::controlChangeReset:
             midi.sendControlChange(note, 0, channel);
-#ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, note, 0, channel + 1);
-#endif
             leds.midiToState(MIDI::messageType_t::controlChange, note, 0, channel, true);
             break;
 
@@ -421,9 +383,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, messageType_t buttonMess
             //stop recording
             mmcArray[4] = 0x07;
             midi.sendSysEx(6, mmcArray, true);
-#ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::mmcRecordOff, mmcArray[2], 0, 0);
-#endif
             break;
 
         default:

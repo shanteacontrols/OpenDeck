@@ -171,16 +171,12 @@ void Encoders::update()
                 if (type == type_t::tProgramChange)
                 {
                     midi.sendProgramChange(encoderValue, channel);
-#ifdef DISPLAY_SUPPORTED
                     display.displayMIDIevent(Display::eventType_t::out, Display::event_t::programChange, midiID & 0x7F, encoderValue, channel + 1);
-#endif
                 }
                 else if (type == type_t::tPitchBend)
                 {
                     midi.sendPitchBend(encoderValue, channel);
-#ifdef DISPLAY_SUPPORTED
                     display.displayMIDIevent(Display::eventType_t::out, Display::event_t::pitchBend, midiID & 0x7F, encoderValue, channel + 1);
-#endif
                 }
                 else if ((type == type_t::tNRPN7bit) || (type == type_t::tNRPN14bit) || (type == type_t::tControlChange14bit))
                 {
@@ -216,16 +212,12 @@ void Encoders::update()
                         }
                     }
 
-#ifdef DISPLAY_SUPPORTED
                     display.displayMIDIevent(Display::eventType_t::out, (type == type_t::tControlChange14bit) ? Display::event_t::controlChange : Display::event_t::nrpn, midiID, encoderValue, channel + 1);
-#endif
                 }
                 else if (type != type_t::tPresetChange)
                 {
                     midi.sendControlChange(midiID, encoderValue, channel);
-#ifdef DISPLAY_SUPPORTED
                     display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, midiID & 0x7F, encoderValue, channel + 1);
-#endif
                 }
                 else
                 {

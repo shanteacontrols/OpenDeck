@@ -122,26 +122,46 @@ else
         board/common/io/Indicators.cpp \
         usb-link/USBlink.cpp
     else
-        SOURCES += $(shell $(FIND) ./board/common/io -type f -name "*.cpp" ! -name "*Bootloader*")
         SOURCES += $(shell $(FIND) ./application -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell $(FIND) ./application/database -type f -name "*.cpp")
         SOURCES += $(shell $(FIND) ./application/OpenDeck -type f -name "*.cpp")
-        SOURCES += $(shell $(FIND) ./application/io/analog -type f -name "*.cpp")
-        SOURCES += $(shell $(FIND) ./application/io/buttons -type f -name "*.cpp")
         SOURCES += $(shell $(FIND) ./application/io/common -maxdepth 1 -type f -name "*.cpp")
-        SOURCES += $(shell $(FIND) ./application/io/encoders -maxdepth 1 -type f -name "*.cpp")
-        SOURCES += $(shell $(FIND) ./application/io/leds -maxdepth 1 -type f -name "*.cpp")
-        SOURCES += $(shell $(FIND) ./application/io/touchscreen -maxdepth 1 -type f -name "*.cpp")
-        SOURCES += $(shell $(FIND) ./application/io/touchscreen/model/sdw -maxdepth 1 -type f -name "*.cpp")
-        SOURCES += $(shell $(FIND) ./application/io/touchscreen/model/nextion -maxdepth 1 -type f -name "*.cpp")
         SOURCES += $(shell $(FIND) ../modules/sysex/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
         SOURCES += $(shell $(FIND) ../modules/midi/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
         SOURCES += $(shell $(FIND) ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
+        SOURCES += board/common/io/Stubs.cpp
+
+
+        ifneq (,$(findstring ANALOG_SUPPORTED,$(DEFINES)))
+            SOURCES += $(shell $(FIND) ./application/io/analog -type f -name "*.cpp")
+            SOURCES += board/common/io/Analog.cpp
+        endif
+
+        ifneq (,$(findstring LEDS_SUPPORTED,$(DEFINES)))
+            SOURCES += $(shell $(FIND) ./application/io/leds -maxdepth 1 -type f -name "*.cpp")
+            SOURCES += board/common/io/Output.cpp
+        endif
+
+        ifneq (,$(findstring BUTTONS_SUPPORTED,$(DEFINES)))
+            SOURCES += $(shell $(FIND) ./application/io/buttons -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./application/io/encoders -maxdepth 1 -type f -name "*.cpp")
+            SOURCES += board/common/io/Input.cpp
+        endif
+
+        ifneq (,$(findstring LED_INDICATORS,$(DEFINES)))
+            SOURCES += board/common/io/Indicators.cpp
+        endif
 
         #if a file named $(TARGETNAME).cpp exists in ./application/io/leds/startup directory
         #add it to the sources
         ifneq (,$(wildcard ./application/io/leds/startup/$(TARGETNAME).cpp))
             SOURCES += ./application/io/leds/startup/$(TARGETNAME).cpp
+        endif
+
+        ifneq (,$(findstring TOUCHSCREEN_SUPPORTED,$(DEFINES)))
+            SOURCES += $(shell $(FIND) ./application/io/touchscreen -maxdepth 1 -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./application/io/touchscreen/model/sdw -maxdepth 1 -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./application/io/touchscreen/model/nextion -maxdepth 1 -type f -name "*.cpp")
         endif
 
         ifneq (,$(findstring DISPLAY_SUPPORTED,$(DEFINES)))

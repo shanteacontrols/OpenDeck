@@ -8,6 +8,8 @@
 #include "database/Database.h"
 #include "stubs/database/DB_ReadWrite.h"
 
+#ifdef BUTTONS_SUPPORTED
+
 namespace
 {
     uint32_t              messageCounter                     = 0;
@@ -125,7 +127,6 @@ namespace
 
     IO::LEDs leds(ledsHWA, database);
 
-#ifdef DISPLAY_SUPPORTED
     class HWAU8X8 : public IO::U8X8::HWAI2C
     {
         public:
@@ -145,9 +146,6 @@ namespace
     IO::U8X8    u8x8(hwaU8X8);
     IO::Display display(u8x8, database);
     IO::Buttons buttons = IO::Buttons(hwaButtons, database, midi, leds, display, cInfo);
-#else
-    IO::Buttons buttons = IO::Buttons(hwaButtons, database, midi, leds, cInfo);
-#endif
 
     void stateChangeRegister(bool state)
     {
@@ -802,4 +800,6 @@ TEST_CASE(LocalLEDcontrol)
 
     TEST_ASSERT(leds.getColor(0) == LEDs::color_t::off);
 }
+#endif
+
 #endif

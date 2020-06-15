@@ -86,8 +86,6 @@
       -
         port: "B"
         index: 1
-  usbLink:
-    type: "none"
   bootloader:
     use: true
     button:

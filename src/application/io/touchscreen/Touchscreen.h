@@ -21,6 +21,10 @@ limitations under the License.
 #include <inttypes.h>
 #include <stdlib.h>
 
+#ifndef TOUCHSCREEN_SUPPORTED
+#include "Stub.h"
+#else
+
 namespace IO
 {
     ///
@@ -92,3 +96,5 @@ namespace IO
 
     /// @}
 }    // namespace IO
+
+#endif

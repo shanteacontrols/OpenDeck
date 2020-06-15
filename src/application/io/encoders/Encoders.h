@@ -18,11 +18,13 @@ limitations under the License.
 
 #pragma once
 
+#ifndef ENCODERS_SUPPORTED
+#include "Stub.h"
+#else
+
 #include "database/Database.h"
 #include "midi/src/MIDI.h"
-#ifdef DISPLAY_SUPPORTED
 #include "io/display/Display.h"
-#endif
 #include "Constants.h"
 #include "io/common/Common.h"
 #include "io/common/CInfo.h"
@@ -74,17 +76,11 @@ namespace IO
             virtual uint8_t state(size_t index) = 0;
         };
 
-#ifdef DISPLAY_SUPPORTED
         Encoders(HWA& hwa, Database& database, MIDI& midi, Display& display, ComponentInfo& cInfo)
-#else
-        Encoders(HWA& hwa, Database& database, MIDI& midi, ComponentInfo& cInfo)
-#endif
             : hwa(hwa)
             , database(database)
             , midi(midi)
-#ifdef DISPLAY_SUPPORTED
             , display(display)
-#endif
             , cInfo(cInfo)
         {}
 
@@ -95,12 +91,10 @@ namespace IO
         position_t read(uint8_t encoderID, uint8_t pairState);
 
         private:
-        HWA&      hwa;
-        Database& database;
-        MIDI&     midi;
-#ifdef DISPLAY_SUPPORTED
-        Display& display;
-#endif
+        HWA&           hwa;
+        Database&      database;
+        MIDI&          midi;
+        Display&       display;
         ComponentInfo& cInfo;
 
         ///
@@ -216,3 +210,5 @@ namespace IO
 
     /// @}
 }    // namespace IO
+
+#endif

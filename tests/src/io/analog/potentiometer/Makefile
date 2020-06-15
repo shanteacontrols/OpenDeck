@@ -4,12 +4,24 @@ vpath common/%.cpp ../src
 SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) := \
 stubs/Core.cpp \
 stubs/database/DB_ReadWrite.cpp \
-application/database/Database.cpp \
-application/io/analog/Analog.cpp \
-application/io/analog/Potentiometer.cpp \
-application/io/analog/FSR.cpp \
-application/io/leds/LEDs.cpp \
-application/io/display/U8X8/U8X8.cpp \
-application/io/display/UpdateLogic.cpp \
-application/io/display/TextBuild.cpp \
-application/io/display/strings/Strings.cpp
+application/database/Database.cpp
+
+ifneq (,$(findstring LEDS_SUPPORTED,$(DEFINES)))
+    SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) += \
+    application/io/leds/LEDs.cpp
+endif
+
+ifneq (,$(findstring ANALOG_SUPPORTED,$(DEFINES)))
+    SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) += \
+    application/io/analog/Analog.cpp \
+    application/io/analog/Potentiometer.cpp \
+    application/io/analog/FSR.cpp
+endif
+
+ifneq (,$(findstring DISPLAY_SUPPORTED,$(DEFINES)))
+    SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) += \
+    application/io/display/U8X8/U8X8.cpp \
+    application/io/display/UpdateLogic.cpp \
+    application/io/display/TextBuild.cpp \
+    application/io/display/strings/Strings.cpp
+endif

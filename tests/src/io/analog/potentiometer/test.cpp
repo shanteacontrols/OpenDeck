@@ -10,6 +10,8 @@
 #include "stubs/database/DB_ReadWrite.h"
 #include <vector>
 
+#ifdef ANALOG_SUPPORTED
+
 namespace
 {
     uint32_t                           messageCounter = 0;
@@ -112,7 +114,6 @@ namespace
 
     IO::LEDs leds(ledsHWA, database);
 
-#ifdef DISPLAY_SUPPORTED
     class HWAU8X8 : public IO::U8X8::HWAI2C
     {
         public:
@@ -131,20 +132,11 @@ namespace
 
     IO::U8X8    u8x8(hwaU8X8);
     IO::Display display(u8x8, database);
-#endif
 
-#ifdef DISPLAY_SUPPORTED
 #ifdef ADC_10_BIT
     IO::Analog analog(hwaAnalog, IO::Analog::adcType_t::adc10bit, database, midi, leds, display, cInfo);
 #else
     IO::Analog analog(hwaAnalog, IO::Analog::adcType_t::adc12bit, database, midi, leds, display, cInfo);
-#endif
-#else
-#ifdef ADC_10_BIT
-    IO::Analog analog(hwaAnalog, IO::Analog::adcType_t::adc10bit, database, midi, leds, cInfo);
-#else
-    IO::Analog analog(hwaAnalog, IO::Analog::adcType_t::adc12bit, database, midi, leds, cInfo);
-#endif
 #endif
 }    // namespace
 
@@ -646,3 +638,5 @@ TEST_CASE(Scaling)
         TEST_ASSERT_EQUAL_UINT32(scaledUpperLower, midiPacket.at(midiPacket.size() - MAX_NUMBER_OF_ANALOG + i).Data3);
     }
 }
+
+#endif

@@ -173,7 +173,7 @@ ifeq ($(shell yq r ../targets/$(TARGETNAME).yml usb), true)
 endif
 
 ifneq ($(shell yq r ../targets/$(TARGETNAME).yml usbLink),)
-    ifneq ($(shell yq r ../targets/$(TARGETNAME).yml usbLink.type), none)
+    ifneq ($(shell yq r ../targets/$(TARGETNAME).yml usbLink.type),)
         UART_CHANNEL_USB_LINK := $(shell yq r ../targets/$(TARGETNAME).yml usbLink.uartChannel)
         DEFINES += UART_CHANNEL_USB_LINK=$(UART_CHANNEL_USB_LINK)
 
@@ -210,6 +210,7 @@ endif
 ifeq ($(shell yq r ../targets/$(TARGETNAME).yml touchscreen.use), true)
     DEFINES += TOUCHSCREEN_SUPPORTED
     DEFINES += MAX_TOUCHSCREEN_BUTTONS=64
+    DEFINES += LEDS_SUPPORTED
 
     UART_CHANNEL_TOUCHSCREEN := $(shell yq r ../targets/$(TARGETNAME).yml touchscreen.uartChannel)
 
@@ -220,6 +221,11 @@ ifeq ($(shell yq r ../targets/$(TARGETNAME).yml touchscreen.use), true)
     DEFINES += UART_CHANNEL_TOUCHSCREEN=$(UART_CHANNEL_TOUCHSCREEN)
 else
     DEFINES += MAX_TOUCHSCREEN_BUTTONS=0
+endif
+
+ifneq ($(shell yq r ../targets/$(TARGETNAME).yml buttons),)
+    DEFINES += BUTTONS_SUPPORTED
+    DEFINES += ENCODERS_SUPPORTED
 endif
 
 ifeq ($(shell yq r ../targets/$(TARGETNAME).yml buttons.type), native)
@@ -244,6 +250,10 @@ else
     MAX_NUMBER_OF_BUTTONS := 0
 endif
 
+ifneq ($(shell yq r ../targets/$(TARGETNAME).yml analog),)
+    DEFINES += ANALOG_SUPPORTED
+endif
+
 ifeq ($(shell yq r ../targets/$(TARGETNAME).yml analog.type), native)
     MAX_NUMBER_OF_ANALOG := $(shell yq r ../targets/$(TARGETNAME).yml analog.pins --length)
     DEFINES += MAX_ADC_CHANNELS=$(MAX_NUMBER_OF_ANALOG)
@@ -262,6 +272,12 @@ endif
 
 ifeq ($(shell yq r ../targets/$(TARGETNAME).yml analog.extReference), true)
     DEFINES += ADC_EXT_REF
+endif
+
+ifneq ($(shell yq r ../targets/$(TARGETNAME).yml leds.external),)
+    ifeq (,$(findstring LEDS_SUPPORTED,$(DEFINES)))
+        DEFINES += LEDS_SUPPORTED
+    endif
 endif
 
 ifeq ($(shell yq r ../targets/$(TARGETNAME).yml leds.internal.present), true)

@@ -23,6 +23,10 @@ limitations under the License.
 #include "core/src/general/StringBuilder.h"
 #include "database/Database.h"
 
+#ifndef DISPLAY_SUPPORTED
+#include "Stub.h"
+#else
+
 namespace IO
 {
     ///
@@ -267,3 +271,5 @@ namespace IO
 
     /// @}
 }    // namespace IO
+
+#endif

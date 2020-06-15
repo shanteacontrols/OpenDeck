@@ -30,11 +30,7 @@ limitations under the License.
 class SysConfig
 {
     public:
-#ifdef DISPLAY_SUPPORTED
     SysConfig(Database& database, MIDI& midi, IO::Buttons& buttons, IO::Encoders& encoders, IO::Analog& analog, IO::LEDs& leds, IO::Display& display)
-#else
-    SysConfig(Database& database, MIDI& midi, IO::Buttons& buttons, IO::Encoders& encoders, IO::Analog& analog, IO::LEDs& leds)
-#endif
         : sysExConf(
               sysExDataHandler,
               sysExMID,
@@ -46,9 +42,7 @@ class SysConfig
         , encoders(encoders)
         , analog(analog)
         , leds(leds)
-#ifdef DISPLAY_SUPPORTED
         , display(display)
-#endif
         , sysExDataHandler(*this)
     {}
 
@@ -214,9 +208,7 @@ class SysConfig
     IO::Encoders& encoders;
     IO::Analog&   analog;
     IO::LEDs&     leds;
-#ifdef DISPLAY_SUPPORTED
-    IO::Display& display;
-#endif
+    IO::Display&  display;
 
     SysExDataHandler sysExDataHandler;
 

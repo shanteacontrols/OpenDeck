@@ -9,10 +9,6 @@
     use: false
   touchscreen:
     use: false
-  buttons:
-    type: "none"
-  analog:
-    type: "none"
   leds:
     internal:
       present: true
@@ -32,8 +28,6 @@
           tx:
             port: "D"
             index: 4
-    external:
-      type: "none"
   usbLink:
     type: "master"
     uartChannel: 0

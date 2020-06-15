@@ -58,9 +58,11 @@ namespace Board
 
                 detail::setup::io();
 
-#ifndef USB_LINK_MCU
+#ifdef ANALOG_SUPPORTED
                 detail::setup::adc();
-#else
+#endif
+
+#ifdef USB_LINK_MCU
                 Board::UART::init(UART_CHANNEL_USB_LINK, UART_BAUDRATE_MIDI_OD);
 #endif
 
@@ -90,7 +92,7 @@ namespace Board
                 detail::setup::io();
             }
 
-#ifdef ADC
+#ifdef ANALOG_SUPPORTED
             void adc()
             {
                 core::adc::conf_t adcConfiguration;

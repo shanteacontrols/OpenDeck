@@ -164,8 +164,6 @@
       -
         port: "D"
         index: 0
-  usbLink:
-    type: "none"
   bootloader:
     use: true
   release: false

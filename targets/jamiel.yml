@@ -65,8 +65,6 @@
         latch:
           port: "B"
           index: 4
-  usbLink:
-    type: "none"
   bootloader:
     use: true
     buttonIndex: 23

@@ -8,6 +8,8 @@
 #include "database/Database.h"
 #include "stubs/database/DB_ReadWrite.h"
 
+#ifdef ENCODERS_SUPPORTED
+
 namespace
 {
     uint8_t controlValue[MAX_NUMBER_OF_ENCODERS];
@@ -115,7 +117,6 @@ namespace
     MIDI          midi;
     ComponentInfo cInfo;
 
-#ifdef DISPLAY_SUPPORTED
     class HWAU8X8 : public IO::U8X8::HWAI2C
     {
         public:
@@ -135,9 +136,6 @@ namespace
     IO::U8X8     u8x8(hwaU8X8);
     IO::Display  display(u8x8, database);
     IO::Encoders encoders = IO::Encoders(hwaEncoders, database, midi, display, cInfo);
-#else
-    IO::Encoders encoders = IO::Encoders(hwaEncoders, database, midi, cInfo);
-#endif
 }    // namespace
 
 TEST_SETUP()
@@ -724,3 +722,5 @@ TEST_CASE(Acceleration)
     accelerationTest(3);
     accelerationTest(2);
 }
+
+#endif

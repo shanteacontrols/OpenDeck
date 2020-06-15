@@ -143,8 +143,6 @@
       -
         port: "A"
         index: 4
-  usbLink:
-    type: "none"
   bootloader:
     use: true
     button:

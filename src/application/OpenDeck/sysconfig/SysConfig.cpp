@@ -199,11 +199,7 @@ SysConfig::result_t SysConfig::SysExDataHandler::customRequest(size_t request, C
     }
 
     if (result == SysConfig::result_t::ok)
-    {
-#ifdef DISPLAY_SUPPORTED
         sysConfig.display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::systemExclusive, 0, 0, 0);
-#endif
-    }
 
     return result;
 }

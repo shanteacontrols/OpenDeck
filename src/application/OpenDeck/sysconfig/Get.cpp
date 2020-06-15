@@ -65,9 +65,7 @@ SysConfig::result_t SysConfig::SysExDataHandler::get(uint8_t block, uint8_t sect
         break;
     }
 
-#ifdef DISPLAY_SUPPORTED
     sysConfig.display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::systemExclusive, 0, 0, 0);
-#endif
 
     return result;
 }
@@ -122,6 +120,7 @@ SysConfig::result_t SysConfig::onGetGlobal(Section::global_t section, size_t ind
 
 SysConfig::result_t SysConfig::onGetButtons(Section::button_t section, size_t index, SysExConf::sysExParameter_t& value)
 {
+#ifdef BUTTONS_SUPPORTED
     int32_t readValue;
     auto    result = database.read(dbSection(section), index, readValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
 
@@ -130,11 +129,16 @@ SysConfig::result_t SysConfig::onGetButtons(Section::button_t section, size_t in
         readValue++;
 
     value = readValue;
+
     return result;
+#else
+    return SysConfig::result_t::notSupported;
+#endif
 }
 
 SysConfig::result_t SysConfig::onGetEncoders(Section::encoder_t section, size_t index, SysExConf::sysExParameter_t& value)
 {
+#ifdef ENCODERS_SUPPORTED
     int32_t              readValue;
     auto                 result = database.read(dbSection(section), index, readValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
     MIDI::encDec_14bit_t encDec_14bit;
@@ -159,11 +163,16 @@ SysConfig::result_t SysConfig::onGetEncoders(Section::encoder_t section, size_t 
     }
 
     value = readValue;
+
     return result;
+#else
+    return SysConfig::result_t::notSupported;
+#endif
 }
 
 SysConfig::result_t SysConfig::onGetAnalog(Section::analog_t section, size_t index, SysExConf::sysExParameter_t& value)
 {
+#ifdef ANALOG_SUPPORTED
     int32_t              readValue;
     auto                 result = database.read(dbSection(section), index, readValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
     MIDI::encDec_14bit_t encDec_14bit;
@@ -215,11 +224,16 @@ SysConfig::result_t SysConfig::onGetAnalog(Section::analog_t section, size_t ind
     }
 
     value = readValue;
+
     return result;
+#else
+    return SysConfig::result_t::notSupported;
+#endif
 }
 
 SysConfig::result_t SysConfig::onGetLEDs(Section::leds_t section, size_t index, SysExConf::sysExParameter_t& value)
 {
+#ifdef LEDS_SUPPORTED
     int32_t readValue;
     auto    result = SysConfig::result_t::ok;
 
@@ -261,7 +275,11 @@ SysConfig::result_t SysConfig::onGetLEDs(Section::leds_t section, size_t index, 
     }
 
     value = readValue;
+
     return result;
+#else
+    return SysConfig::result_t::notSupported;
+#endif
 }
 
 SysConfig::result_t SysConfig::onGetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t& value)
