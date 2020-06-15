@@ -102,7 +102,7 @@ namespace Board
 #ifdef ADC_EXT_REF
                 adcConfiguration.vref = core::adc::vRef_t::aref;
 #else
-                adcConfiguration.vref = core::adc::vRef_t::aref;
+                adcConfiguration.vref = core::adc::vRef_t::avcc;
 #endif
 
                 for (int i = 0; i < MAX_ADC_CHANNELS; i++)
