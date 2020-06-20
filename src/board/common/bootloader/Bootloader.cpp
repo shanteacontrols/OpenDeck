@@ -68,8 +68,7 @@ namespace Board
                     {
                         EXT_LED_ON(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
                         CORE_IO_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
-                        _NOP();
-                        _NOP();
+                        detail::io::sr595wait();
                         CORE_IO_SET_HIGH(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
                     }
                 }
@@ -86,7 +85,7 @@ namespace Board
 #if defined(BTLDR_BUTTON_INDEX)
                 CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
                 CORE_IO_SET_LOW(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
-                _NOP();
+                detail::io::sr165wait();
 
                 CORE_IO_SET_HIGH(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
 
@@ -103,7 +102,7 @@ namespace Board
                         }
 
                         CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
-                        _NOP();
+                        detail::io::sr165wait();
                         CORE_IO_SET_HIGH(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
                     }
                 }

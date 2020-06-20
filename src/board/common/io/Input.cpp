@@ -44,7 +44,7 @@ namespace
     {
         CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
         CORE_IO_SET_LOW(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
-        _NOP();
+        Board::detail::io::sr165wait();
 
         CORE_IO_SET_HIGH(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
 
@@ -53,7 +53,7 @@ namespace
             for (int i = 0; i < 8; i++)
             {
                 CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
-                _NOP();
+                Board::detail::io::sr165wait();
                 BIT_WRITE(digitalInBuffer[dIn_head][j], 7 - i, !CORE_IO_READ(SR_IN_DATA_PORT, SR_IN_DATA_PIN));
                 CORE_IO_SET_HIGH(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
             }
@@ -79,18 +79,18 @@ namespace
         for (int i = 0; i < NUMBER_OF_BUTTON_COLUMNS; i++)
         {
             activateInputColumn();
-            _NOP();
+            Board::detail::io::sr165wait();
 
             CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
             CORE_IO_SET_LOW(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
-            _NOP();
+            Board::detail::io::sr165wait();
 
             CORE_IO_SET_HIGH(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
 
             for (int j = 0; j < NUMBER_OF_BUTTON_ROWS; j++)
             {
                 CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
-                _NOP();
+                Board::detail::io::sr165wait();
                 BIT_WRITE(digitalInBuffer[dIn_head][i], j, !CORE_IO_READ(SR_IN_DATA_PORT, SR_IN_DATA_PIN));
                 CORE_IO_SET_HIGH(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
             }

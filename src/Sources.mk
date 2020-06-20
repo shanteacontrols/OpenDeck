@@ -72,7 +72,8 @@ ifeq ($(BOOT),1)
     board/common/bootloader/Bootloader.cpp \
     board/common/io/Indicators.cpp \
     board/$(ARCH)/common/Bootloader.cpp \
-    board/$(ARCH)/common/Init.cpp
+    board/$(ARCH)/common/Init.cpp \
+    board/$(ARCH)/common/ShiftRegistersWait.cpp
 
     ifeq ($(ARCH),stm32)
         SOURCES += board/$(ARCH)/common/ISR.cpp

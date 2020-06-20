@@ -312,6 +312,16 @@ namespace Board
             ///
             void ledFlashStartup(bool fwUpdated);
 #endif
+
+            ///
+            /// \brief MCU-specific delay routine used when setting 74HC595 shift register state.
+            ///
+            void sr595wait();
+
+            ///
+            /// \brief MCU-specific delay routine used when setting 74HC165 shift register state.
+            ///
+            void sr165wait();
         }    // namespace io
 
         namespace isrHandling

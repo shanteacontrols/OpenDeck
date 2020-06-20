@@ -111,8 +111,7 @@ namespace Board
                 {
                     EXT_LED_OFF(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
                     CORE_IO_SET_HIGH(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
-                    _NOP();
-                    _NOP();
+                    detail::io::sr595wait();
                     CORE_IO_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
                 }
 
