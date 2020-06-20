@@ -1,7 +1,7 @@
 ---
-  arch: "avr"
-  mcuFamily: "avr8"
-  mcu: "atmega32u4"
+  arch: "stm32"
+  mcuFamily: "f4"
+  mcu: "stm32f405"
   usb: true
   dinMIDI:
     use: false
@@ -11,68 +11,73 @@
     use: false
   buttons:
     type: "shiftRegister"
-    shiftRegisters: 2
+    shiftRegisters: 4
     pins:
       data:
-        port: "D"
-        index: 3
+        port: "B"
+        index: 13
       clock:
-        port: "D"
-        index: 4
+        port: "B"
+        index: 15
       latch:
-        port: "D"
-        index: 5
+        port: "B"
+        index: 14
   analog:
-    extReference: true
+    extReference: false
     type: "4067"
-    multiplexers: 4
+    multiplexers: 5
     pins:
       s0:
         port: "B"
-        index: 3
+        index: 5
       s1:
         port: "B"
-        index: 1
-      s2:
-        port: "E"
         index: 6
+      s2:
+        port: "B"
+        index: 4
       s3:
         port: "B"
-        index: 2
+        index: 3
       z0:
-        port: "F"
-        index: 7
+        port: "A"
+        index: 5
       z1:
-        port: "F"
+        port: "A"
         index: 6
       z2:
-        port: "F"
-        index: 5
+        port: "A"
+        index: 7
       z3:
-        port: "F"
+        port: "A"
         index: 4
+      z4:
+        port: "A"
+        index: 1
   leds:
     internal:
       present: false
     external:
       type: "shiftRegister"
-      shiftRegisters: 2
+      shiftRegisters: 4
       invert: true
       pins:
         data:
-          port: "D"
+          port: "B"
           index: 2
         clock:
-          port: "D"
+          port: "B"
           index: 0
         latch:
-          port: "D"
+          port: "B"
           index: 1
         enable:
-          port: "C"
-          index: 7
+          port: "B"
+          index: 10
   bootloader:
     use: true
-    buttonIndex: 12
+    button:
+      port: "D"
+      index: 2
   release: true
   test: true
