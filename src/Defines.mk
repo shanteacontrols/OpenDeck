@@ -142,7 +142,7 @@ else
 endif
 
 DEFINES += OD_BOARD_$(shell echo $(TARGETNAME) | tr 'a-z' 'A-Z')
-DEFINES += FW_UID=$(shell ../scripts/fw_uid_gen.sh $(TARGETNAME) $(BOOT))
+DEFINES += FW_UID=$(shell ../scripts/fw_uid_gen.sh $(TARGETNAME))
 
 ifeq ($(BOOT),1)
     DEFINES += \
