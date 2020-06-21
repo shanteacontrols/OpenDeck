@@ -100,11 +100,7 @@ void Display::displayVinfo(bool newFw)
     stringBuilder.overwrite("FW: v%d.%d.%d", SW_VERSION_MAJOR, SW_VERSION_MINOR, SW_VERSION_REVISION);
     updateText(startRow + 1, lcdTextType_t::temp, getTextCenter(strlen(stringBuilder.string())));
 
-#ifdef OD_BOARD_OPENDECK
-    stringBuilder.overwrite("HW: v%d.%d", HARDWARE_VERSION_MAJOR, HARDWARE_VERSION_MINOR);
-#else
     stringBuilder.overwrite("HW: %s", Strings::board());
-#endif
 
     updateText(startRow + 2, lcdTextType_t::temp, getTextCenter(strlen(stringBuilder.string())));
 

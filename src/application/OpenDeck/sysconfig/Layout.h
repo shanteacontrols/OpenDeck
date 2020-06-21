@@ -343,12 +343,12 @@ namespace
         },
 
         {
-            .requestID     = SYSEX_CR_HARDWARE_VERSION,
+            .requestID     = SYSEX_CR_HARDWARE_UID,
             .connOpenCheck = false,
         },
 
         {
-            .requestID     = SYSEX_CR_FIRMWARE_HARDWARE_VERSION,
+            .requestID     = SYSEX_CR_FIRMWARE_VERSION_HARDWARE_UID,
             .connOpenCheck = true,
         },
 

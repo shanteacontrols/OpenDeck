@@ -106,9 +106,6 @@ SysConfig::result_t SysConfig::SysExDataHandler::customRequest(size_t request, C
         customResponse.append((FW_UID >> 16) & static_cast<uint32_t>(0xFF));
         customResponse.append((FW_UID >> 8) & static_cast<uint32_t>(0xFF));
         customResponse.append(FW_UID & static_cast<uint32_t>(0xFF));
-        customResponse.append(HARDWARE_VERSION_MAJOR);
-        customResponse.append(HARDWARE_VERSION_MINOR);
-        customResponse.append(0);
     };
 
     switch (request)
@@ -119,13 +116,13 @@ SysConfig::result_t SysConfig::SysExDataHandler::customRequest(size_t request, C
     }
     break;
 
-    case SYSEX_CR_HARDWARE_VERSION:
+    case SYSEX_CR_HARDWARE_UID:
     {
         appendHW();
     }
     break;
 
-    case SYSEX_CR_FIRMWARE_HARDWARE_VERSION:
+    case SYSEX_CR_FIRMWARE_VERSION_HARDWARE_UID:
     {
         appendSW();
         appendHW();
