@@ -62,6 +62,30 @@
             }
         },
         {
+            "label": "[FW/DubFocus/Debug] Build",
+            "command": "cd ./src && compiledb -d . make TARGETNAME=dubfocus LANG=C DEBUG=1 BOOT=0",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "[BTLDR/DubFocus/Debug] Build",
+            "command": "cd ./src && compiledb -d . make TARGETNAME=dubfocus LANG=C DEBUG=1 BOOT=1",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
             "label": "[FW/BTLDR] Clean",
             "command": "cd ./src && make clean",
             "type": "shell",

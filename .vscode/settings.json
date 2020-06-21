@@ -14,5 +14,6 @@
     "C_Cpp.autoAddFileAssociations": false,
     "diffEditor.ignoreTrimWhitespace": false,
     "git.detectSubmodules": false,
-    "explorer.compactFolders": false
+    "explorer.compactFolders": false,
+    "extensions.ignoreRecommendations": true
 }
