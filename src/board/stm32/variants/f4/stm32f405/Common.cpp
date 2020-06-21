@@ -25,6 +25,7 @@ limitations under the License.
 #include "core/src/general/Atomic.h"
 #include "core/src/general/ADC.h"
 #include "core/src/general/Timing.h"
+#include "core/src/general/Helpers.h"
 #include "MCU.h"
 
 namespace
@@ -734,14 +735,16 @@ namespace Board
 
             uint32_t adcChannel(core::io::mcuPin_t pin)
             {
+                uint8_t index = core::misc::maskToIndex(pin.index);
+
                 if (pin.port == GPIOA)
                 {
-                    if (pin.index < 8)
-                        return pin.index;
+                    if (index < 8)
+                        return index;
                 }
                 else if (pin.port == GPIOB)
                 {
-                    switch (pin.index)
+                    switch (index)
                     {
                     case 0:
                         return 8;
@@ -755,8 +758,8 @@ namespace Board
                 }
                 else if (pin.port == GPIOC)
                 {
-                    if (pin.index < 6)
-                        return 10 + pin.index;
+                    if (index < 6)
+                        return 10 + index;
                 }
 
                 return 0xFF;
