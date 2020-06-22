@@ -147,6 +147,14 @@ then
         printf "%s\n" "#define SR_OUT_LATCH_PORT CORE_IO_PORT(${port})"
         printf "%s\n" "#define SR_OUT_LATCH_PIN CORE_IO_PORT_INDEX(${index})"
     } >> "$OUT_FILE_HEADER"
+
+    port=$(yq r "$PIN_FILE" leds.external.pins.enable.port)
+    index=$(yq r "$PIN_FILE" leds.external.pins.enable.index)
+
+    {
+        printf "%s\n" "#define SR_OUT_OE_PORT CORE_IO_PORT(${port})"
+        printf "%s\n" "#define SR_OUT_OE_PIN CORE_IO_PORT_INDEX(${index})"
+    } >> "$OUT_FILE_HEADER"
 elif [[ $digital_out_type == matrix ]]
 then
     for ((i=0; i<3; i++))
