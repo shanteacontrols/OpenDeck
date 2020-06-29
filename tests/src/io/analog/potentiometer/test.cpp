@@ -285,10 +285,7 @@ TEST_CASE(PitchBendTest)
         TEST_ASSERT_EQUAL_UINT32(midiPacket.at(i).Event << 4, static_cast<uint8_t>(MIDI::messageType_t::pitchBend));
 
     //since numbers in this case are scaled from lower to upper range,
-    //verify that
-    //1) first value is 0
-    //2) each next value is larger from previous
-    //3) last value is 16383
+    //verify that each next value is larger from previous
     uint32_t previousPitchBendValue = 0;
 
     uint32_t receivedMessages = midiPacket.size() / MAX_NUMBER_OF_ANALOG;
@@ -305,13 +302,10 @@ TEST_CASE(PitchBendTest)
             pitchBendValue.high = midiPacket.at(index).Data3;
             pitchBendValue.mergeTo14bit();
 
-            if (!i)
-                TEST_ASSERT_EQUAL_UINT32(0, pitchBendValue.value);
-            else
+            if (i)
+            {
                 TEST_ASSERT(pitchBendValue.value > previousPitchBendValue);
-
-            if (i == (receivedMessages - 1))
-                TEST_ASSERT_EQUAL_UINT32(16383, pitchBendValue.value);
+            }
         }
 
         previousPitchBendValue = pitchBendValue.value;
@@ -331,9 +325,7 @@ TEST_CASE(PitchBendTest)
         analog.update();
     }
 
-    //similar to previous case, verify that:
-    //every next value is smaller than previous
-    //last value is 0
+    //similar to previous case, verify that every next value is smaller than previous
 
     receivedMessages       = midiPacket.size() / MAX_NUMBER_OF_ANALOG;
     previousPitchBendValue = 16383;
@@ -351,9 +343,6 @@ TEST_CASE(PitchBendTest)
             pitchBendValue.mergeTo14bit();
 
             TEST_ASSERT(pitchBendValue.value < previousPitchBendValue);
-
-            if (i == (receivedMessages - 1))
-                TEST_ASSERT_EQUAL_UINT32(0, pitchBendValue.value);
         }
 
         previousPitchBendValue = pitchBendValue.value;
@@ -552,8 +541,8 @@ TEST_CASE(Scaling)
 {
     using namespace IO;
 
-    const uint32_t scaledUpperLower = 11;
-    const uint32_t scaledUpperValue = 100;
+    const uint32_t scaledLower = 11;
+    const uint32_t scaledUpper = 100;
 
     //set known state
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
@@ -571,7 +560,7 @@ TEST_CASE(Scaling)
         TEST_ASSERT(database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
 
         //set all upper limits to 100
-        TEST_ASSERT(database.update(Database::Section::analog_t::upperLimit, i, scaledUpperValue) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::upperLimit, i, scaledUpper) == true);
 
         //midi channel
         TEST_ASSERT(database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
@@ -590,16 +579,16 @@ TEST_CASE(Scaling)
     previousValue = 0;
 
     //first values should be 0
-    //last value should match the configured scaled value (scaledUpperValue)
+    //last value should match the configured scaled value (scaledUpper)
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         TEST_ASSERT_EQUAL_UINT32(0, midiPacket.at(i).Data3);
-        TEST_ASSERT_EQUAL_UINT32(scaledUpperValue, midiPacket.at(midiPacket.size() - MAX_NUMBER_OF_ANALOG + i).Data3);
+        TEST_ASSERT_EQUAL_UINT32(scaledUpper, midiPacket.at(midiPacket.size() - MAX_NUMBER_OF_ANALOG + i).Data3);
     }
 
     //now scale minimum value as well
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
-        TEST_ASSERT(database.update(Database::Section::analog_t::lowerLimit, i, scaledUpperLower) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::lowerLimit, i, scaledLower) == true);
 
     resetReceived();
 
@@ -611,8 +600,8 @@ TEST_CASE(Scaling)
 
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
-        TEST_ASSERT_EQUAL_UINT32(scaledUpperLower, midiPacket.at(i).Data3);
-        TEST_ASSERT_EQUAL_UINT32(scaledUpperValue, midiPacket.at(midiPacket.size() - MAX_NUMBER_OF_ANALOG + i).Data3);
+        TEST_ASSERT(midiPacket.at(i).Data3 >= scaledLower);
+        TEST_ASSERT(midiPacket.at(midiPacket.size() - MAX_NUMBER_OF_ANALOG + i).Data3 <= scaledUpper);
     }
 
     //now enable inversion
@@ -630,12 +619,10 @@ TEST_CASE(Scaling)
         analog.update();
     }
 
-    //first values should be scaledUpperValue
-    //last value should match the configured scaled value (scaledUpperLower)
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
-        TEST_ASSERT_EQUAL_UINT32(scaledUpperValue, midiPacket.at(i).Data3);
-        TEST_ASSERT_EQUAL_UINT32(scaledUpperLower, midiPacket.at(midiPacket.size() - MAX_NUMBER_OF_ANALOG + i).Data3);
+        TEST_ASSERT(midiPacket.at(i).Data3 >= scaledUpper);
+        TEST_ASSERT(midiPacket.at(midiPacket.size() - MAX_NUMBER_OF_ANALOG + i).Data3 <= scaledLower);
     }
 }
 

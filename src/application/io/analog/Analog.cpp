@@ -33,13 +33,7 @@ void Analog::update()
         uint16_t analogData = hwa.state(i);
         auto     type       = static_cast<type_t>(database.read(Database::Section::analog_t::type, i));
 
-        //normally use exponential filter but not around the edges
-        if (analogData <= adc7bitStep)
-            analogData = 0;
-        else if (analogData >= (adcConfig.adcMaxValue - adc7bitStep))
-            analogData = adcConfig.adcMaxValue;
-        else
-            analogData = emaFilter[i].value(analogData);
+        analogData = emaFilter[i].value(analogData);
 
         if (type != type_t::button)
         {
