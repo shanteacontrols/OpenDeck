@@ -33,12 +33,12 @@ void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32
     if (use14bit)
     {
         maxLimit = MIDI_14_BIT_VALUE_MAX;
-        stepDiff = adcConfig.stepDiff7Bit;
+        stepDiff = adcConfig.stepDiff14Bit;
     }
     else
     {
         maxLimit = MIDI_7_BIT_VALUE_MAX;
-        stepDiff = adcConfig.stepDiff14Bit;
+        stepDiff = adcConfig.stepDiff7Bit;
     }
 
     //if the first read value is 0, mark it as increasing since the lastAnalogueValue is initialized to value 0 for all pots
