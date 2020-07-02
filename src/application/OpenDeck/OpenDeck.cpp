@@ -224,36 +224,6 @@ class HWALEDsStub : public IO::LEDs::HWA
 #endif
 
 #ifdef TOUCHSCREEN_SUPPORTED
-#ifdef OD_BOARD_BERGAMOT
-//bergamot uses SDW touchscreen display
-
-#include "io/touchscreen/model/sdw/SDW.h"
-
-class HWASDW : public IO::Touchscreen::Model::HWA
-{
-    public:
-    HWASDW() {}
-
-    bool init() override
-    {
-        Board::UART::init(UART_CHANNEL_TOUCHSCREEN, 38400);
-        return true;
-    }
-
-    bool write(uint8_t data) override
-    {
-        return Board::UART::write(UART_CHANNEL_TOUCHSCREEN, data);
-    }
-
-    bool read(uint8_t& data) override
-    {
-        return Board::UART::read(UART_CHANNEL_TOUCHSCREEN, data);
-    }
-} touchscreenHWA;
-
-SDW touchscreenModel(touchscreenHWA);
-#else
-//nextion by default
 #include "io/touchscreen/model/nextion/Nextion.h"
 
 class HWANextion : public IO::Touchscreen::Model::HWA
@@ -279,7 +249,6 @@ class HWANextion : public IO::Touchscreen::Model::HWA
 } touchscreenHWA;
 
 Nextion touchscreenModel(touchscreenHWA);
-#endif
 #else
 class TouchscreenModelStub : public IO::Touchscreen::Model
 {

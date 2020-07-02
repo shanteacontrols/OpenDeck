@@ -38,8 +38,6 @@ namespace
         "Teensy++ 2.0";
 #elif defined(OD_BOARD_DUBFOCUS)
         "DubFocus";
-#elif defined(OD_BOARD_BERGAMOT)
-        "Bergamot";
 #else
         "Unknown";
 #endif
