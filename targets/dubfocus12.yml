@@ -11,7 +11,7 @@
     use: false
   buttons:
     type: "shiftRegister"
-    shiftRegisters: 4
+    shiftRegisters: 3
     pins:
       data:
         port: "B"
@@ -25,7 +25,7 @@
   analog:
     extReference: false
     type: "4067"
-    multiplexers: 5
+    multiplexers: 4
     pins:
       s0:
         port: "B"
@@ -41,17 +41,14 @@
         index: 3
       z0:
         port: "A"
-        index: 5
+        index: 7
       z1:
         port: "A"
         index: 6
       z2:
         port: "A"
-        index: 7
+        index: 5
       z3:
-        port: "A"
-        index: 4
-      z4:
         port: "A"
         index: 1
   leds:
@@ -59,7 +56,7 @@
       present: false
     external:
       type: "shiftRegister"
-      shiftRegisters: 4
+      shiftRegisters: 3
       invert: true
       pins:
         data:
