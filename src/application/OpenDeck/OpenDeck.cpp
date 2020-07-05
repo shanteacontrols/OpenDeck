@@ -341,6 +341,17 @@ class HWAAnalog : public IO::Analog::HWA
         return Board::io::getAnalogValue(index);
     }
 } hwaAnalog;
+
+#ifdef __AVR__
+#define ANALOG_SAMPLES 1
+#else
+//stm32f4 has noiser adc - compensate with more samples
+#define ANALOG_SAMPLES 8
+#endif
+
+#include "io/analog/Filter.h"
+
+IO::AnalogFilter<ANALOG_SAMPLES> analogFilter;
 #else
 class HWAAnalogStub : public IO::Analog::HWA
 {
@@ -352,6 +363,21 @@ class HWAAnalogStub : public IO::Analog::HWA
         return 0;
     }
 } hwaAnalog;
+
+class AnalogFilterStub : public IO::Analog::Filter
+{
+    public:
+    AnalogFilterStub() {}
+
+    bool isFiltered(size_t index, uint16_t value, uint16_t& filteredValue) override
+    {
+        return false;
+    }
+
+    void reset(size_t index) override
+    {
+    }
+} analogFilter;
 #endif
 
 #ifdef DISPLAY_SUPPORTED
@@ -401,7 +427,7 @@ IO::U8X8        u8x8(hwaU8X8);
 IO::Display     display(u8x8, database);
 IO::Touchscreen touchscreen(touchscreenModel);
 IO::LEDs        leds(hwaLEDs, database);
-IO::Analog      analog(hwaAnalog, ADC_RESOLUTION, database, midi, leds, display, cinfo);
+IO::Analog      analog(hwaAnalog, ADC_RESOLUTION, analogFilter, database, midi, leds, display, cinfo);
 IO::Buttons     buttons(hwaButtons, database, midi, leds, display, cinfo);
 IO::Encoders    encoders(hwaEncoders, database, midi, display, cinfo);
 SysConfig       sysConfig(database, midi, buttons, encoders, analog, leds, display);

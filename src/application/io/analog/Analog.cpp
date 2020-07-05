@@ -30,10 +30,12 @@ void Analog::update()
         if (!database.read(Database::Section::analog_t::enable, i))
             continue;
 
-        uint16_t analogData = hwa.state(i);
-        auto     type       = static_cast<type_t>(database.read(Database::Section::analog_t::type, i));
+        uint16_t analogData;
 
-        analogData = emaFilter[i].value(analogData);
+        if (!filter.isFiltered(i, hwa.state(i), analogData))
+            continue;
+
+        auto type = static_cast<type_t>(database.read(Database::Section::analog_t::type, i));
 
         if (type != type_t::button)
         {
@@ -69,8 +71,7 @@ void Analog::debounceReset(uint16_t index)
     lastDirection[index]     = potDirection_t::initial;
     lastAnalogueValue[index] = 0;
     fsrPressed[index]        = false;
-
-    emaFilter[index].reset();
+    filter.reset(index);
 }
 
 ///

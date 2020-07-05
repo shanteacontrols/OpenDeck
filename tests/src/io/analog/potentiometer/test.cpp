@@ -130,14 +130,32 @@ namespace
         }
     } hwaU8X8;
 
+    class AnalogFilterStub : public IO::Analog::Filter
+    {
+        public:
+        AnalogFilterStub() {}
+
+        bool isFiltered(size_t index, uint16_t value, uint16_t& filteredValue) override
+        {
+            filteredValue = value;
+            return true;
+        }
+
+        void reset(size_t index) override
+        {
+        }
+    } analogFilter;
+
     IO::U8X8    u8x8(hwaU8X8);
     IO::Display display(u8x8, database);
 
-#ifdef ADC_10_BIT
-    IO::Analog analog(hwaAnalog, IO::Analog::adcType_t::adc10bit, database, midi, leds, display, cInfo);
+#ifdef ADC_12_BIT
+#define ADC_RESOLUTION IO::Analog::adcType_t::adc12bit
 #else
-    IO::Analog analog(hwaAnalog, IO::Analog::adcType_t::adc12bit, database, midi, leds, display, cInfo);
+#define ADC_RESOLUTION IO::Analog::adcType_t::adc10bit
 #endif
+
+    IO::Analog analog(hwaAnalog, ADC_RESOLUTION, analogFilter, database, midi, leds, display, cInfo);
 }    // namespace
 
 TEST_SETUP()
@@ -181,9 +199,10 @@ TEST_CASE(CCtest)
     }
 
     //feed all the values from minimum to maximum
-    //expected result should be all MIDI values received (0-127)
-    auto     adcConfig        = analog.config();
-    uint32_t expectedMessages = MAX_NUMBER_OF_ANALOG * 128;
+    //expect the following:
+    //first value is 0
+    //last value is 127
+    auto adcConfig = analog.config();
 
     for (int i = 0; i <= adcConfig.adcMaxValue; i++)
     {
@@ -191,25 +210,26 @@ TEST_CASE(CCtest)
         analog.update();
     }
 
-    TEST_ASSERT_EQUAL_UINT32(messageCounter, expectedMessages);
-
     //all received messages should be control change
     for (int i = 0; i < midiPacket.size(); i++)
         TEST_ASSERT_EQUAL_UINT32(static_cast<uint8_t>(MIDI::messageType_t::controlChange), midiPacket.at(i).Event << 4);
 
-    //verify that all values have been sent in order (forward)
-    for (int i = 0; i < 128; i++)
+    for (int i = 0; i < midiPacket.size(); i += MAX_NUMBER_OF_ANALOG)
     {
         for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
-            size_t index = i * MAX_NUMBER_OF_ANALOG + j;
-            TEST_ASSERT_EQUAL_UINT32(i, midiPacket.at(index).Data3);
+            size_t index = i + j;
+
+            if (!i)
+            {
+                TEST_ASSERT_EQUAL_UINT32(0, midiPacket.at(index).Data3);
+            }
+            else if (i == (midiPacket.size() - 1))
+            {
+                TEST_ASSERT_EQUAL_UINT32(127, midiPacket.at(index).Data3);
+            }
         }
     }
-
-    //try to update it again without changing values, nothing should change
-    analog.update();
-    TEST_ASSERT_EQUAL_UINT32(expectedMessages, messageCounter);
 
     //now go backward
 
@@ -221,24 +241,19 @@ TEST_CASE(CCtest)
         analog.update();
     }
 
-    //one message less (max/127 is already sent)
-    expectedMessages -= MAX_NUMBER_OF_ANALOG;
-
-    TEST_ASSERT_EQUAL_UINT32(expectedMessages, messageCounter);
-
-    //verify that all values have been sent in order (backward)
-    for (int i = 0; i < 127; i++)
+    //verify that the last value is 0
+    for (int i = 0; i < midiPacket.size(); i += MAX_NUMBER_OF_ANALOG)
     {
         for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
-            size_t index = i * MAX_NUMBER_OF_ANALOG + j;
-            TEST_ASSERT_EQUAL_UINT32(126 - i, midiPacket.at(index).Data3);
+            size_t index = i + j;
+
+            if (i == (midiPacket.size() - 1))
+            {
+                TEST_ASSERT_EQUAL_UINT32(0, midiPacket.at(index).Data3);
+            }
         }
     }
-
-    //try to update it again without changing values, nothing should change
-    analog.update();
-    TEST_ASSERT_EQUAL_UINT32(expectedMessages, messageCounter);
 }
 
 TEST_CASE(PitchBendTest)

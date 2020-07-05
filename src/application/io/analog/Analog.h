@@ -85,9 +85,24 @@ namespace IO
             virtual uint16_t state(size_t index) = 0;
         };
 
-        Analog(HWA& hwa, adcType_t adcType, Database& database, MIDI& midi, IO::LEDs& leds, Display& display, ComponentInfo& cInfo)
+        class Filter
+        {
+            public:
+            virtual bool isFiltered(size_t index, uint16_t value, uint16_t& filteredValue) = 0;
+            virtual void reset(size_t index)                                               = 0;
+        };
+
+        Analog(HWA&           hwa,
+               adcType_t      adcType,
+               Filter&        filter,
+               Database&      database,
+               MIDI&          midi,
+               IO::LEDs&      leds,
+               Display&       display,
+               ComponentInfo& cInfo)
             : hwa(hwa)
             , adcConfig(adcType == adcType_t::adc10bit ? adc10bit : adc12bit)
+            , filter(filter)
             , database(database)
             , midi(midi)
             , leds(leds)
@@ -126,35 +141,13 @@ namespace IO
             .adcMaxValue              = 4095,
             .stepDiff7Bit             = 24,
             .stepDiff14Bit            = 2,
-            .stepDiff7BitDirChange    = 24,
+            .stepDiff7BitDirChange    = 35,
             .stepDiff14BitDirChange   = 8,
             .fsrMinValue              = 160,
             .fsrMaxValue              = 1360,
             .aftertouchMaxValue       = 2400,
             .digitalValueThresholdOn  = 4000,
             .digitalValueThresholdOff = 2400,
-        };
-
-        class EMA
-        {
-            //exponential moving average filter
-            public:
-            EMA() {}
-
-            // use factor 0.5 for easier bitwise math
-            uint16_t value(uint16_t rawData)
-            {
-                currentValue = (rawData >> 1) + (currentValue >> 1);
-                return currentValue;
-            }
-
-            void reset()
-            {
-                currentValue = 0;
-            }
-
-            private:
-            uint16_t currentValue = 0;
         };
 
         void     checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32_t value);
@@ -169,6 +162,7 @@ namespace IO
 
         HWA&           hwa;
         adcConfig_t&   adcConfig;
+        Filter&        filter;
         Database&      database;
         MIDI&          midi;
         IO::LEDs&      leds;
@@ -180,7 +174,6 @@ namespace IO
         uint16_t       lastAnalogueValue[MAX_NUMBER_OF_ANALOG] = {};
         uint8_t        fsrPressed[MAX_NUMBER_OF_ANALOG]        = {};
         potDirection_t lastDirection[MAX_NUMBER_OF_ANALOG]     = {};
-        EMA            emaFilter[MAX_NUMBER_OF_ANALOG];
         const uint16_t adc7bitStep;
     };
 
