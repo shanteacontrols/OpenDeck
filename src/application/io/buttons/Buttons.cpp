@@ -28,9 +28,9 @@ void Buttons::update()
 {
     for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
     {
-        bool state = hwa.state(i);
+        bool state;
 
-        if (!buttonDebounced(i, state))
+        if (!filter.isFiltered(i, hwa.state(i), state))
             continue;
 
         processButton(i, state);
@@ -451,30 +451,12 @@ bool Buttons::getLatchingState(uint8_t buttonID)
 }
 
 ///
-/// \brief Checks if button reading is stable.
-/// Shift old value to the left, append new value and
-/// append DEBOUNCE_COMPARE with OR command. If final value is equal to 0xFF or
-/// DEBOUNCE_COMPARE, signal is debounced.
-/// @param [in] buttonID    Button index which is being checked.
-/// @param [in] state Current button state.
-/// \returns                True if button reading is stable, false otherwise.
-///
-bool Buttons::buttonDebounced(uint8_t buttonID, bool state)
-{
-    //shift new button reading into previousButtonState
-    buttonDebounceCounter[buttonID] = (buttonDebounceCounter[buttonID] << (uint8_t)1) | (uint8_t)state | buttonDebounceCompare;
-
-    //if button is debounced, return true
-    return ((buttonDebounceCounter[buttonID] == buttonDebounceCompare) || (buttonDebounceCounter[buttonID] == 0xFF));
-}
-
-///
 /// \brief Resets the current state of the specified button.
 /// @param [in] buttonID    Button for which to reset state.
 ///
 void Buttons::reset(uint8_t buttonID)
 {
-    buttonDebounceCounter[buttonID] = 0;
     setButtonState(buttonID, false);
     setLatchingState(buttonID, false);
+    filter.reset(buttonID);
 }

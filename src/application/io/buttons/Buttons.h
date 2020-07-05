@@ -86,8 +86,22 @@ namespace IO
             virtual bool state(size_t index) = 0;
         };
 
-        Buttons(HWA& hwa, Database& database, MIDI& midi, IO::LEDs& leds, Display& display, ComponentInfo& cInfo)
+        class Filter
+        {
+            public:
+            virtual bool isFiltered(size_t index, bool value, bool& filteredValue) = 0;
+            virtual void reset(size_t index)                                       = 0;
+        };
+
+        Buttons(HWA&           hwa,
+                Filter&        filter,
+                Database&      database,
+                MIDI&          midi,
+                IO::LEDs&      leds,
+                Display&       display,
+                ComponentInfo& cInfo)
             : hwa(hwa)
+            , filter(filter)
             , database(database)
             , midi(midi)
             , leds(leds)
@@ -105,19 +119,14 @@ namespace IO
         void setButtonState(uint8_t buttonID, uint8_t state);
         void setLatchingState(uint8_t buttonID, uint8_t state);
         bool getLatchingState(uint8_t buttonID);
-        bool buttonDebounced(uint8_t buttonID, bool state);
 
         HWA&           hwa;
+        Filter&        filter;
         Database&      database;
         MIDI&          midi;
         IO::LEDs&      leds;
         Display&       display;
         ComponentInfo& cInfo;
-
-        ///
-        /// \brief Array holding debounce count for all buttons to avoid incorrect state detection.
-        ///
-        uint8_t buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS] = {};
 
         ///
         /// \brief Array holding current state for all buttons.
@@ -134,14 +143,6 @@ namespace IO
         /// Based on MIDI specification for transport control.
         ///
         uint8_t mmcArray[6] = { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 };
-
-        ///
-        /// \brief Constant used to debounce button readings.
-        /// Once new value has been read, shift old value to the left, append new value and
-        /// append buttonDebounceCompare with OR operator. If final value is equal to 0xFF or
-        /// buttonDebounceCompare, button state is debounced.
-        ///
-        const uint8_t buttonDebounceCompare = 0b11110000;
     };
 
     /// @}

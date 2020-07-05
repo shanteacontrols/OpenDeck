@@ -306,6 +306,10 @@ class HWAButtons : public IO::Buttons::HWA
         return Board::io::getButtonState(index);
     }
 } hwaButtons;
+
+#include "io/buttons/Filter.h"
+
+IO::ButtonsFilter buttonsFilter;
 #else
 class HWAEncodersStub : public IO::Encoders::HWA
 {
@@ -328,6 +332,21 @@ class HWAButtonsStub : public IO::Buttons::HWA
         return false;
     }
 } hwaButtons;
+
+class ButtonsFilterStub : public IO::Buttons::Filter
+{
+    public:
+    ButtonsFilterStub() {}
+
+    bool isFiltered(size_t index, bool state, bool& filteredState) override
+    {
+        return false;
+    }
+
+    void reset(size_t index) override
+    {
+    }
+} buttonsFilter;
 #endif
 
 #ifdef ANALOG_SUPPORTED
@@ -428,7 +447,7 @@ IO::Display     display(u8x8, database);
 IO::Touchscreen touchscreen(touchscreenModel);
 IO::LEDs        leds(hwaLEDs, database);
 IO::Analog      analog(hwaAnalog, ADC_RESOLUTION, analogFilter, database, midi, leds, display, cinfo);
-IO::Buttons     buttons(hwaButtons, database, midi, leds, display, cinfo);
+IO::Buttons     buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cinfo);
 IO::Encoders    encoders(hwaEncoders, database, midi, display, cinfo);
 SysConfig       sysConfig(database, midi, buttons, encoders, analog, leds, display);
 

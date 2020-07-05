@@ -16,11 +16,6 @@ namespace
     bool                  buttonState[MAX_NUMBER_OF_BUTTONS] = {};
     MIDI::USBMIDIpacket_t midiPacket[MAX_NUMBER_OF_BUTTONS];
 
-    void setButtonState(uint8_t buttonIndex, bool state)
-    {
-        buttonState[buttonIndex] = state;
-    }
-
     void resetReceived()
     {
         for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
@@ -120,6 +115,19 @@ namespace
         }
     } hwaButtons;
 
+    class ButtonsFilter : public IO::Buttons::Filter
+    {
+        public:
+        bool isFiltered(size_t index, bool value, bool& filteredValue) override
+        {
+            return true;
+        }
+
+        void reset(size_t index) override
+        {
+        }
+    } buttonsFilter;
+
     DBstorageMock dbStorageMock;
     Database      database = Database(dbHandlers, dbStorageMock);
     MIDI          midi;
@@ -145,7 +153,7 @@ namespace
 
     IO::U8X8    u8x8(hwaU8X8);
     IO::Display display(u8x8, database);
-    IO::Buttons buttons = IO::Buttons(hwaButtons, database, midi, leds, display, cInfo);
+    IO::Buttons buttons = IO::Buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cInfo);
 
     void stateChangeRegister(bool state)
     {
@@ -165,49 +173,6 @@ TEST_SETUP()
     TEST_ASSERT(database.isSignatureValid() == true);
     midi.handleUSBwrite(midiDataHandler);
     midi.setChannelSendZeroStart(true);
-}
-
-TEST_CASE(Debouncing)
-{
-    using namespace IO;
-
-    //set known state
-    for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
-    {
-        //configure all buttons as momentary
-        TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::momentary)) == true);
-
-        //make all buttons send note messages
-        TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, i, static_cast<int32_t>(Buttons::messageType_t::note)) == true);
-    }
-
-    //simulate button press
-    messageCounter = 0;
-
-    for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
-        setButtonState(i, true);
-
-    while (!messageCounter)
-        buttons.update();
-
-    TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
-
-    messageCounter = 0;
-
-    //try another press, verify that no new messages have been sent
-    buttons.update();
-
-    TEST_ASSERT(messageCounter == 0);
-
-    //simulate button release
-
-    for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
-        setButtonState(i, false);
-
-    while (!messageCounter)
-        buttons.update();
-
-    TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
 }
 
 TEST_CASE(Note)
