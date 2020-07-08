@@ -19,6 +19,7 @@ limitations under the License.
 #include "board/Board.h"
 #include "updater/Updater.h"
 #include "SysExParser/SysExParser.h"
+#include "midi/src/Helpers.h"
 
 class BTLDRWriter : public Bootloader::Updater::BTLDRWriter
 {
@@ -60,7 +61,18 @@ namespace
 
 #if defined(USB_MIDI_SUPPORTED)
     MIDI::USBMIDIpacket_t usbMIDIpacket;
-    SysExParser           sysExParser;
+
+    //special midi sysex message/packet which should be sent back to host
+    //single byte of data only so that it fits into single USB MIDI packet and also
+    //to avoid having complex sysex sending mechanism in bootloader
+    const MIDI::USBMIDIpacket_t usbMIDIpacketEcho = {
+        .Event = GET_USB_MIDI_EVENT(0, static_cast<uint8_t>(MIDI::usbMIDIsystemCin_t::sysExStop3byteCin)),    //event indicating sysex with single byte of data
+        .Data1 = 0xF0,
+        .Data2 = 0x55,
+        .Data3 = 0xF7
+    };
+
+    SysExParser sysExParser;
 #endif
 }    // namespace
 
@@ -129,6 +141,18 @@ int main()
 #endif
                         }
                     }
+                }
+            }
+            else
+            {
+                if (
+                    (usbMIDIpacket.Event == usbMIDIpacketEcho.Event) &&
+                    (usbMIDIpacket.Data1 == usbMIDIpacketEcho.Data1) &&
+                    (usbMIDIpacket.Data2 == usbMIDIpacketEcho.Data2) &&
+                    (usbMIDIpacket.Data3 == usbMIDIpacketEcho.Data3))
+                {
+                    //return the message back to host
+                    Board::USB::writeMIDI(usbMIDIpacket);
                 }
             }
         }
