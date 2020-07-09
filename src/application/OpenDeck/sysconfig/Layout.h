@@ -113,7 +113,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
             .newValueMin        = 0,
-            .newValueMax        = 127,
+            .newValueMax        = 16383,
         },
 
         //midi channel section
@@ -178,7 +178,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
             .newValueMin        = 0,
-            .newValueMax        = 127,
+            .newValueMax        = 16383,
         },
 
         //midi id section, msb
@@ -192,7 +192,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
             .newValueMin        = 0,
-            .newValueMax        = 127,
+            .newValueMax        = 16383,
         },
 
         //lower cc limit, msb
@@ -206,7 +206,7 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
             .newValueMin        = 0,
-            .newValueMax        = 127,
+            .newValueMax        = 16383,
         },
 
         //upper cc limit, msb

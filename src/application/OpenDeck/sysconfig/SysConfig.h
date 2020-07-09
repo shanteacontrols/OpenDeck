@@ -89,7 +89,7 @@ class SysConfig
             midiChannel,
             pulsesPerStep,
             acceleration,
-            midiID_msb,
+            midiID_MSB,
             remoteSync,
             AMOUNT
         };

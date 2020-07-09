@@ -298,14 +298,62 @@ SysConfig::result_t SysConfig::onSetButtons(Section::button_t section, size_t in
 SysConfig::result_t SysConfig::onSetEncoders(Section::encoder_t section, size_t index, SysExConf::sysExParameter_t newValue)
 {
 #ifdef ENCODERS_SUPPORTED
-    auto result = SysConfig::result_t::error;
+    switch (section)
+    {
+    case Section::encoder_t::midiID_MSB:
 
-    //channels start from 0 in db, start from 1 in sysex
-    if (section == Section::encoder_t::midiChannel)
-        newValue--;
+        if (sysExConf.paramSize() == SysExConf::paramSize_t::_14bit)
+        {
+            //no need for MSB parameters in 2-byte mode since the entire value
+            //can be set via single value
+            return SysConfig::result_t::notSupported;
+        }
 
-    result = database.update(dbSection(section), index, newValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
-    encoders.resetValue(index);
+        //intentional fall-through
+
+    case Section::encoder_t::midiID:
+    {
+        if (sysExConf.paramSize() == SysExConf::paramSize_t::_7bit)
+        {
+            MIDI::encDec_14bit_t encDec_14bit;
+
+            encDec_14bit.value = database.read(dbSection(section), index);
+            encDec_14bit.split14bit();
+
+            switch (section)
+            {
+            case Section::encoder_t::midiID:
+            {
+                encDec_14bit.low = newValue;
+            }
+            break;
+
+            default:
+            {
+                encDec_14bit.high = newValue;
+            }
+            break;
+            }
+
+            encDec_14bit.mergeTo14bit();
+            newValue = encDec_14bit.value;
+        }
+    }
+    break;
+
+    default:
+    {
+        //channels start from 0 in db, start from 1 in sysex
+        if (section == Section::encoder_t::midiChannel)
+            newValue--;
+    }
+    break;
+    }
+
+    auto result = database.update(dbSection(section), index, newValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
+
+    if (result == SysConfig::result_t::ok)
+        encoders.resetValue(index);
 
     return result;
 #else
@@ -316,48 +364,58 @@ SysConfig::result_t SysConfig::onSetEncoders(Section::encoder_t section, size_t 
 SysConfig::result_t SysConfig::onSetAnalog(Section::analog_t section, size_t index, SysExConf::sysExParameter_t newValue)
 {
 #ifdef ANALOG_SUPPORTED
-    auto result = SysConfig::result_t::error;
-
-    MIDI::encDec_14bit_t encDec_14bit;
-
     switch (section)
     {
-    case Section::analog_t::midiID:
     case Section::analog_t::midiID_MSB:
-    case Section::analog_t::lowerLimit:
     case Section::analog_t::lowerLimit_MSB:
-    case Section::analog_t::upperLimit:
     case Section::analog_t::upperLimit_MSB:
+
+        if (sysExConf.paramSize() == SysExConf::paramSize_t::_14bit)
+        {
+            //no need for MSB parameters in 2-byte mode since the entire value
+            //can be set via single value
+            return SysConfig::result_t::notSupported;
+        }
+
+        //intentional fall-through
+
+    case Section::analog_t::midiID:
+    case Section::analog_t::lowerLimit:
+    case Section::analog_t::upperLimit:
     {
-        encDec_14bit.value = database.read(dbSection(section), index);
-        encDec_14bit.split14bit();
-
-        switch (section)
+        if (sysExConf.paramSize() == SysExConf::paramSize_t::_7bit)
         {
-        case Section::analog_t::midiID:
-        case Section::analog_t::lowerLimit:
-        case Section::analog_t::upperLimit:
-        {
-            encDec_14bit.low = newValue;
-        }
-        break;
+            MIDI::encDec_14bit_t encDec_14bit;
 
-        default:
-        {
-            encDec_14bit.high = newValue;
-        }
-        break;
-        }
+            encDec_14bit.value = database.read(dbSection(section), index);
+            encDec_14bit.split14bit();
 
-        encDec_14bit.mergeTo14bit();
-        result = database.update(dbSection(section), index, encDec_14bit.value) ? SysConfig::result_t::ok : SysConfig::result_t::error;
+            switch (section)
+            {
+            case Section::analog_t::midiID:
+            case Section::analog_t::lowerLimit:
+            case Section::analog_t::upperLimit:
+            {
+                encDec_14bit.low = newValue;
+            }
+            break;
+
+            default:
+            {
+                encDec_14bit.high = newValue;
+            }
+            break;
+            }
+
+            encDec_14bit.mergeTo14bit();
+            newValue = encDec_14bit.value;
+        }
     }
     break;
 
     case Section::analog_t::type:
     {
         analog.debounceReset(index);
-        result = database.update(dbSection(section), index, newValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
     }
     break;
 
@@ -366,13 +424,11 @@ SysConfig::result_t SysConfig::onSetAnalog(Section::analog_t section, size_t ind
         //channels start from 0 in db, start from 1 in sysex
         if (section == Section::analog_t::midiChannel)
             newValue--;
-
-        result = database.update(dbSection(section), index, newValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
     }
     break;
     }
 
-    return result;
+    return database.update(dbSection(section), index, newValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
 #else
     return SysConfig::result_t::notSupported;
 #endif

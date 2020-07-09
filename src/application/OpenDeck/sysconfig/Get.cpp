@@ -139,23 +139,33 @@ SysConfig::result_t SysConfig::onGetButtons(Section::button_t section, size_t in
 SysConfig::result_t SysConfig::onGetEncoders(Section::encoder_t section, size_t index, SysExConf::sysExParameter_t& value)
 {
 #ifdef ENCODERS_SUPPORTED
-    int32_t              readValue;
-    auto                 result = database.read(dbSection(section), index, readValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
-    MIDI::encDec_14bit_t encDec_14bit;
+    int32_t readValue;
+    auto    result = database.read(dbSection(section), index, readValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
 
     if (result == SysConfig::result_t::ok)
     {
-        if ((section == Section::encoder_t::midiID) || (section == Section::encoder_t::midiID_msb))
+        if (sysExConf.paramSize() == SysExConf::paramSize_t::_14bit)
         {
-            encDec_14bit.value = readValue;
-            encDec_14bit.split14bit();
-
-            if (section == Section::encoder_t::midiID)
-                readValue = encDec_14bit.low;
-            else
-                readValue = encDec_14bit.high;
+            if (section == Section::encoder_t::midiID_MSB)
+                return SysConfig::result_t::notSupported;
         }
-        else if (section == Section::encoder_t::midiChannel)
+        else
+        {
+            if ((section == Section::encoder_t::midiID) || (section == Section::encoder_t::midiID_MSB))
+            {
+                MIDI::encDec_14bit_t encDec_14bit;
+
+                encDec_14bit.value = readValue;
+                encDec_14bit.split14bit();
+
+                if (section == Section::encoder_t::midiID)
+                    readValue = encDec_14bit.low;
+                else
+                    readValue = encDec_14bit.high;
+            }
+        }
+
+        if (section == Section::encoder_t::midiChannel)
         {
             //channels start from 0 in db, start from 1 in sysex
             readValue++;
@@ -173,40 +183,58 @@ SysConfig::result_t SysConfig::onGetEncoders(Section::encoder_t section, size_t 
 SysConfig::result_t SysConfig::onGetAnalog(Section::analog_t section, size_t index, SysExConf::sysExParameter_t& value)
 {
 #ifdef ANALOG_SUPPORTED
-    int32_t              readValue;
-    auto                 result = database.read(dbSection(section), index, readValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
-    MIDI::encDec_14bit_t encDec_14bit;
+    int32_t readValue;
+    auto    result = database.read(dbSection(section), index, readValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
 
     switch (section)
     {
-    case Section::analog_t::midiID:
     case Section::analog_t::midiID_MSB:
-    case Section::analog_t::lowerLimit:
     case Section::analog_t::lowerLimit_MSB:
-    case Section::analog_t::upperLimit:
     case Section::analog_t::upperLimit_MSB:
-    {
-        if (result == SysConfig::result_t::ok)
+
+        if (sysExConf.paramSize() == SysExConf::paramSize_t::_14bit)
         {
-            encDec_14bit.value = readValue;
-            encDec_14bit.split14bit();
+            //no need for MSB parameters in 2-byte mode since the entire value
+            //can be retrieved via single value
+            return SysConfig::result_t::notSupported;
+        }
 
-            switch (section)
-            {
-            case Section::analog_t::midiID:
-            case Section::analog_t::lowerLimit:
-            case Section::analog_t::upperLimit:
-            {
-                readValue = encDec_14bit.low;
-            }
-            break;
+        //intentional fall-through
 
-            default:
+    case Section::analog_t::midiID:
+    case Section::analog_t::lowerLimit:
+    case Section::analog_t::upperLimit:
+    {
+        if (sysExConf.paramSize() == SysExConf::paramSize_t::_7bit)
+        {
+            if (result == SysConfig::result_t::ok)
             {
-                readValue = encDec_14bit.high;
+                MIDI::encDec_14bit_t encDec_14bit;
+
+                encDec_14bit.value = readValue;
+                encDec_14bit.split14bit();
+
+                switch (section)
+                {
+                case Section::analog_t::midiID:
+                case Section::analog_t::lowerLimit:
+                case Section::analog_t::upperLimit:
+                {
+                    readValue = encDec_14bit.low;
+                }
+                break;
+
+                default:
+                {
+                    readValue = encDec_14bit.high;
+                }
+                break;
+                }
             }
-            break;
-            }
+        }
+        else
+        {
+            //nothing to do
         }
     }
     break;
