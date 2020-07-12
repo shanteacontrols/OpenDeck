@@ -31,7 +31,12 @@ namespace IO
         bool isFiltered(size_t index, uint16_t value, uint16_t& filteredValue) override
         {
             auto compare = [](const void* a, const void* b) {
-                return (*(int*)a - *(int*)b);
+                if (*(uint16_t*)a < *(uint16_t*)b)
+                    return -1;
+                else if (*(uint16_t*)a > *(uint16_t*)b)
+                    return 1;
+
+                return 0;
             };
 
             analogSample[index][sampleCounter[index]++] = value;
