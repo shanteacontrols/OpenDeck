@@ -361,12 +361,7 @@ class HWAAnalog : public IO::Analog::HWA
     }
 } hwaAnalog;
 
-#ifdef __AVR__
 #define ANALOG_SAMPLES 1
-#else
-//stm32f4 has noiser adc - compensate with more samples
-#define ANALOG_SAMPLES 8
-#endif
 
 #include "io/analog/Filter.h"
 

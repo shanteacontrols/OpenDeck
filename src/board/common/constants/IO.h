@@ -49,7 +49,7 @@ limitations under the License.
 ///
 /// \brief Defines how many analog samples from the same input will be thrown away before storing the read value.
 ///
-#define ADC_IGNORED_SAMPLES_COUNT 3
+#define ADC_IGNORED_SAMPLES_COUNT 4
 
 ///
 /// \brief Time in milliseconds during which MIDI event indicators on board are on when MIDI event happens.
