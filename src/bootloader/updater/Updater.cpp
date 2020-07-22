@@ -22,106 +22,104 @@ using namespace Bootloader;
 
 void Updater::feed(uint8_t data)
 {
-    //lower byte first, higher byte second
-
-    switch (currentStage)
-    {
-    case receiveStage_t::start:
-    {
-        if (processStart(data))
-            currentStage = receiveStage_t::fwMetadata;
-    }
-    break;
-
-    case receiveStage_t::fwMetadata:
-    {
-        if (processFwMetadata(data))
-            currentStage = receiveStage_t::fwChunk;
-    }
-    break;
-
-    case receiveStage_t::fwChunk:
-    {
-        if (processFwChunk(data))
-            currentStage = receiveStage_t::end;
-    }
-    break;
-
-    case receiveStage_t::end:
-    {
-        if (processEnd(data))
+    auto nextStage = [&]() {
+        if (currentStage == static_cast<uint8_t>(receiveStage_t::end))
         {
             reset();
             writer.apply();
         }
-    }
-    break;
+        else
+        {
+            stageBytesReceived = 0;
+            currentStage++;
+        }
+    };
 
-    default:
-        break;
+    //continually process start command - this makes sure the fw update process can always restart
+
+    if (currentStage)
+    {
+        if (processStart(data) == processStatus_t::complete)
+        {
+            reset();
+            nextStage();
+            return;    //nothing more to do in this case
+        }
+    }
+
+    processStatus_t result = (this->*processHandler[currentStage])(data);
+
+    if (result == processStatus_t::complete)
+    {
+        nextStage();
+    }
+    else if (result == processStatus_t::invalid)
+    {
+        //in this case, restart the procedure
+        reset();
+
+        //also reset again if it fails again - it cannot possibly return complete status since that requires 8 bytes
+        if ((this->*processHandler[currentStage])(data) == processStatus_t::invalid)
+            reset();
     }
 }
 
-bool Updater::processStart(uint8_t data)
+Updater::processStatus_t Updater::processStart(uint8_t data)
 {
-    //first 4 received bytes must match the startValue
+    //8 received bytes must match the startCommand (lower first, then upper)
 
-    if (((startValue >> (byteCountReceived * 8)) & static_cast<uint32_t>(0xFF)) != data)
+    if (((startCommand >> (startBytesReceived * 8)) & static_cast<uint64_t>(0xFF)) != data)
     {
-        byteCountReceived = 0;
-        return false;
+        startBytesReceived = 0;
+        return processStatus_t::invalid;
     }
 
-    if (++byteCountReceived == 4)
+    if (++startBytesReceived == 8)
     {
-        byteCountReceived = 0;
-        return true;
+        startBytesReceived = 0;
+        return processStatus_t::complete;
     }
 
-    return false;
+    return processStatus_t::incomplete;
 }
 
-bool Updater::processFwMetadata(uint8_t data)
+Updater::processStatus_t Updater::processFwMetadata(uint8_t data)
 {
     //metadata consists of 4 bytes of total fw length
 
-    fwSize |= (static_cast<uint32_t>(data) << (8 * byteCountReceived));
+    fwSize |= (static_cast<uint32_t>(data) << (8 * stageBytesReceived));
 
-    if (++byteCountReceived == 4)
-    {
-        byteCountReceived = 0;
-        return true;
-    }
+    if (++stageBytesReceived == 4)
+        return processStatus_t::complete;
 
-    return false;
+    return processStatus_t::incomplete;
 }
 
-bool Updater::processFwChunk(uint8_t data)
+Updater::processStatus_t Updater::processFwChunk(uint8_t data)
 {
-    receivedWord |= (data << (8 * byteCountReceived));
-    byteCountReceived++;
+    receivedWord |= (data << (8 * stageBytesReceived));
 
-    if (byteCountReceived != 2)
-        return false;
+    if (++stageBytesReceived != 2)
+        return processStatus_t::incomplete;
 
-    if (!pageBytesReceived)
-        writer.erasePage(currentPage);
+    if (!fwPageBytesReceived)
+        writer.erasePage(currentFwPage);
 
-    writer.fillPage(currentPage, pageBytesReceived, receivedWord);
+    writer.fillPage(currentFwPage, fwPageBytesReceived, receivedWord);
 
     //we are operating with words (two bytes)
-    pageBytesReceived += 2;
+    fwPageBytesReceived += 2;
     fwBytesReceived += 2;
 
-    receivedWord      = 0;
-    byteCountReceived = 0;
+    receivedWord       = 0;
+    stageBytesReceived = 0;
 
     bool pageWritten = false;
 
-    if (pageBytesReceived == writer.pageSize(currentPage))
+    if (fwPageBytesReceived == writer.pageSize(currentFwPage))
     {
-        pageBytesReceived = 0;
-        writer.writePage(currentPage);
+        fwPageBytesReceived = 0;
+        writer.writePage(currentFwPage);
         pageWritten = true;
     }
 
@@ -129,42 +127,47 @@ bool Updater::processFwChunk(uint8_t data)
     {
         //make sure page is written even if entire page range wasn't received
         if (!pageWritten)
-            writer.writePage(currentPage);
+            writer.writePage(currentFwPage);
 
-        byteCountReceived = 0;
+        stageBytesReceived = 0;
 
-        return true;
+        return processStatus_t::complete;
     }
 
     if (pageWritten)
-        currentPage++;
+        currentFwPage++;
 
-    return false;
+    return processStatus_t::incomplete;
 }
 
-bool Updater::processEnd(uint8_t data)
+Updater::processStatus_t Updater::processEnd(uint8_t data)
 {
-    //last 4 received bytes must match the endValue
+    //4 received bytes must match the endCommand (lower first, then upper)
 
-    if (((endValue >> (byteCountReceived * 8)) & static_cast<uint32_t>(0xFF)) != data)
+    if (((endCommand >> (stageBytesReceived * 8)) & static_cast<uint32_t>(0xFF)) != data)
     {
-        byteCountReceived = 0;
-        return false;
+        stageBytesReceived = 0;
+        return processStatus_t::invalid;
     }
 
-    if (++byteCountReceived == 4)
-        return true;
+    if (++stageBytesReceived == 4)
+    {
+        stageBytesReceived = 0;
+        return processStatus_t::complete;
+    }
 
-    return false;
+    return processStatus_t::incomplete;
 }
 
 void Updater::reset()
 {
-    currentStage      = receiveStage_t::start;
-    currentPage       = 0;
-    receivedWord      = 0;
-    pageBytesReceived = 0;
-    fwBytesReceived   = 0;
-    fwSize            = 0;
-    byteCountReceived = 0;
+    currentStage           = 0;
+    currentFwPage          = 0;
+    receivedWord           = 0;
+    fwPageBytesReceived    = 0;
+    stageBytesReceived     = 0;
+    commandRepeatsReceived = 0;
+    fwBytesReceived        = 0;
+    fwSize                 = 0;
+    startBytesReceived     = 0;
 }

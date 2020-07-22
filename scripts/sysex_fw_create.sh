@@ -15,7 +15,7 @@ START_COMMAND=$6
 #seventh argument is end command (uint32)
 END_COMMAND=$7
 
-declare -i BYTES_PER_MESSAGE=32
+declare -i BYTES_PER_FW_MESSAGE=32
 
 #variables in which low and high bytes will be stored after splitting
 declare -i highByte=0
@@ -69,6 +69,7 @@ fi
 function append_command
 {
     command=$1
+    bytes_per_command_message=$2
 
     for ((i=0; i<2; i++))
     do
@@ -79,10 +80,26 @@ function append_command
             printf " %02X" "$M_ID_2"
         } >> "$SYSEX_FILE"
 
-        shift_amount=$((16*i))
+        unset start_command_array
 
-        start_command_array[0]=$((command >> (shift_amount + 0) & 0xFF))
-        start_command_array[1]=$((command >> (shift_amount + 8) & 0xFF))
+        if [[ $bytes_per_command_message -eq 2 ]]
+        then
+            shift_amount=$((16*i))
+
+            start_command_array[0]=$((command >> (shift_amount + 0) & 0xFF))
+            start_command_array[1]=$((command >> (shift_amount + 8) & 0xFF))
+        elif [[ $bytes_per_command_message -eq 4 ]]
+        then
+            shift_amount=$((32*i))
+
+            start_command_array[0]=$((command >> (shift_amount + 0) & 0xFF))
+            start_command_array[1]=$((command >> (shift_amount + 8) & 0xFF))
+            start_command_array[2]=$((command >> (shift_amount + 16) & 0xFF))
+            start_command_array[3]=$((command >> (shift_amount + 24) & 0xFF))
+        else
+            echo "Incorrect number of bytes per command message specified"
+            exit 1
+        fi
 
         for byte in "${start_command_array[@]}"
         do
@@ -104,7 +121,7 @@ printf '%s\n' "Firmware size is $fw_size bytes. Generating SysEx file, please wa
 
 declare -a fw_size_array
 
-append_command "$START_COMMAND"
+append_command "$START_COMMAND" 4
 
 {
     printf "F0"
@@ -155,7 +172,7 @@ do
 
     ((byteCounter++))
 
-    if [[ $byteCounter -eq $BYTES_PER_MESSAGE ]]
+    if [[ $byteCounter -eq $BYTES_PER_FW_MESSAGE ]]
     then
         ((byteCounter=0))
         printf "%s\n" " F7" >> "$SYSEX_FILE"
@@ -168,4 +185,4 @@ then
     printf " F7\n" >> "$SYSEX_FILE"
 fi
 
-append_command "$END_COMMAND"
+append_command "$END_COMMAND" 2

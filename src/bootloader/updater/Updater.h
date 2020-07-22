@@ -36,10 +36,10 @@ namespace Bootloader
             virtual void     apply()                                                 = 0;
         };
 
-        Updater(BTLDRWriter& writer, const uint32_t startValue, uint32_t endValue)
+        Updater(BTLDRWriter& writer, const uint64_t startCommand, const uint32_t endCommand)
             : writer(writer)
-            , startValue(startValue)
-            , endValue(endValue)
+            , startCommand(startCommand)
+            , endCommand(endCommand)
         {}
 
         void feed(uint8_t data);
@@ -51,23 +51,43 @@ namespace Bootloader
             start,
             fwMetadata,
             fwChunk,
-            end
+            end,
+            AMOUNT
         };
 
-        bool processStart(uint8_t data);
-        bool processFwMetadata(uint8_t data);
-        bool processFwChunk(uint8_t data);
-        bool processEnd(uint8_t data);
+        enum class processStatus_t : uint8_t
+        {
+            complete,
+            incomplete,
+            invalid
+        };
 
-        receiveStage_t currentStage      = receiveStage_t::start;
-        size_t         currentPage       = 0;
-        uint16_t       receivedWord      = 0;
-        uint32_t       pageBytesReceived = 0;
-        uint32_t       fwBytesReceived   = 0;
-        uint32_t       fwSize            = 0;
-        uint8_t        byteCountReceived = 0;
+        processStatus_t processStart(uint8_t data);
+        processStatus_t processFwMetadata(uint8_t data);
+        processStatus_t processFwChunk(uint8_t data);
+        processStatus_t processEnd(uint8_t data);
+
+        using processHandler_t = processStatus_t (Updater::*)(uint8_t);
+
+        processHandler_t processHandler[static_cast<uint8_t>(receiveStage_t::AMOUNT)] = {
+            &Updater::processStart,
+            &Updater::processFwMetadata,
+            &Updater::processFwChunk,
+            &Updater::processEnd
+        };
+
+        uint8_t  currentStage           = 0;
+        size_t   currentFwPage          = 0;
+        uint16_t receivedWord           = 0;
+        uint32_t fwPageBytesReceived    = 0;
+        uint8_t  stageBytesReceived     = 0;
+        uint8_t  commandRepeatsReceived = 0;
+        uint32_t fwBytesReceived        = 0;
+        uint32_t fwSize                 = 0;
+        uint8_t  startBytesReceived     = 0;
+
         BTLDRWriter&   writer;
-        const uint32_t startValue;
-        const uint32_t endValue;
+        const uint64_t startCommand;
+        const uint32_t endCommand;
     };
 }    // namespace Bootloader
