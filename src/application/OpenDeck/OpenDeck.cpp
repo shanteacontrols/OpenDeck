@@ -625,8 +625,24 @@ void OpenDeck::checkMIDI()
     //note: mega/uno
     //"fake" usb interface - din data is stored as usb data so use usb callback to read the usb
     //packet stored in midi object
+#ifdef DIN_MIDI_SUPPORTED
+    if (
+        sysConfig.isMIDIfeatureEnabled(SysConfig::midiFeature_t::dinEnabled) &&
+        sysConfig.isMIDIfeatureEnabled(SysConfig::midiFeature_t::passToDIN))
+    {
+        //pass the message to din
+        if (midi.read(MIDI::interface_t::usb, MIDI::filterMode_t::fullDIN))
+            processMessage(MIDI::interface_t::usb);
+    }
+    else
+    {
+        if (midi.read(MIDI::interface_t::usb))
+            processMessage(MIDI::interface_t::usb);
+    }
+#else
     if (midi.read(MIDI::interface_t::usb))
         processMessage(MIDI::interface_t::usb);
+#endif
 
 #ifdef DIN_MIDI_SUPPORTED
     if (sysConfig.isMIDIfeatureEnabled(SysConfig::midiFeature_t::dinEnabled))

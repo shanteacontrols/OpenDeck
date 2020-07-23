@@ -143,6 +143,7 @@ class SysConfig
         runningStatus,
         mergeEnabled,
         dinEnabled,
+        passToDIN,
         AMOUNT
     };
 
