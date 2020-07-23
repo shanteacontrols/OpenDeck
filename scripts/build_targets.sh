@@ -91,7 +91,7 @@ do
             then
                 continue;
             else
-                make merged TARGETNAME="${targets[$i]}"
+                make merged TARGETNAME="${targets[$i]}" DEBUG=0
                 result=$?
 
                 if [[ "$result" -eq 0 ]]
@@ -117,11 +117,11 @@ do
 
     if [[ "$TYPE" == "tests" ]]
     then
-        make pre-build TARGETNAME="${targets[$i]}"
+        make pre-build TARGETNAME="${targets[$i]}" DEBUG=0
     else
     if [[ "${btldr[$i]}" == "true" ]]
     then
-        make TARGETNAME="${targets[$i]}" BOOT=1
+        make TARGETNAME="${targets[$i]}" BOOT=1 DEBUG=0
 
         result=$?
 
@@ -132,7 +132,7 @@ do
     fi
     fi
 
-    make TARGETNAME="${targets[$i]}" BOOT=0
+    make TARGETNAME="${targets[$i]}" BOOT=0 DEBUG=0
 
     result=$?
 
