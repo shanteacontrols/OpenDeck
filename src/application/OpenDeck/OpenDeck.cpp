@@ -545,7 +545,9 @@ void OpenDeck::checkMIDI()
         switch (messageType)
         {
         case MIDI::messageType_t::systemExclusive:
-            sysConfig.handleSysEx(midi.getSysExArray(interface), midi.getSysExArrayLength(interface));
+            //process sysex messages only from usb interface
+            if (interface == MIDI::interface_t::usb)
+                sysConfig.handleSysEx(midi.getSysExArray(interface), midi.getSysExArrayLength(interface));
             break;
 
         case MIDI::messageType_t::noteOn:
