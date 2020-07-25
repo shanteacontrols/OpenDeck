@@ -22,6 +22,12 @@ limitations under the License.
 #include "core/src/general/Reset.h"
 #include "core/src/general/Timing.h"
 
+//holds total flash size - inserted in the binary by build process
+//address where this variable is stored contains total firmware length
+//after the last firmware address, crc of firmware is stored
+//this is used by the bootloader to verify the crc of application
+uint32_t flashSize __attribute__((section(".fwMetadata"))) __attribute__((used)) = 0;
+
 namespace core
 {
     namespace timing

@@ -79,6 +79,8 @@ LDFLAGS := \
 -Wl,-Map="$(TARGET).map",--cref
 
 ifeq ($(ARCH),avr)
+    TOOL_PREFIX := avr-
+    SIZE_TOOL := avr-size -C --mcu=$(MCU)
     LDFLAGS += -Wl,--section-start=.text=$(FLASH_START_ADDR)
 
     C_COMPILER := $(C_COMPILER_AVR)
@@ -103,6 +105,8 @@ ifeq ($(ARCH),avr)
     -mmcu=$(MCU) \
     -flto
 else ifeq ($(ARCH),stm32)
+    TOOL_PREFIX := arm-none-eabi-
+    SIZE_TOOL := arm-none-eabi-size
     C_COMPILER := $(C_COMPILER_ARM)
     CPP_COMPILER := $(CPP_COMPILER_ARM)
     ASSEMBLER := $(C_COMPILER_ARM)
@@ -156,13 +160,15 @@ $(TARGET).elf: $(OBJECTS)
 	@$(CPP_COMPILER) -o$(TARGET).elf $(OBJECTS) $(LDFLAGS)
 ifeq ($(ARCH), avr)
 	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(TARGET).elf" "$(TARGET).hex"
-	@avr-objcopy -I ihex "$(TARGET).hex" -O binary "$(TARGET).bin"
-	@avr-size -C --mcu=$(MCU) "$(TARGET).elf"
-else
-	@arm-none-eabi-objcopy -O ihex $(TARGET).elf $(TARGET).hex
-	@arm-none-eabi-objcopy -I ihex "$(TARGET).hex" -O binary "$(TARGET).bin"
-	@arm-none-eabi-size "$(TARGET).elf"
 endif
+	@$(TOOL_PREFIX)objcopy --gap-fill 0xFF -O ihex $(TARGET).elf $(TARGET).hex
+#append metadata only for application
+ifneq ($(BOOT),1)
+	@srec_cat $(TARGET).hex -Intel -exclude $(FW_METADATA_LOCATION) $$(($(FW_METADATA_LOCATION) + $(FW_METADATA_SIZE))) -MAximum_Little_Endian $(FW_METADATA_LOCATION) -o $(TARGET).hex -Intel
+	@srec_cat $(TARGET).hex -Intel -Cyclic_Redundancy_Check_16_Little_Endian -MAximum-Address $(TARGET).hex -Intel -Cyclic_Redundancy_Check_16_XMODEM -Output $(TARGET).hex -Intel
+endif
+	@$(TOOL_PREFIX)objcopy -I ihex "$(TARGET).hex" -O binary "$(TARGET).bin"
+	@$(SIZE_TOOL) "$(TARGET).elf"
 
 sysexfw: $(TARGET).sysex
 
@@ -240,7 +246,7 @@ flash-bmp:
 	-ex 'load' \
 	-ex 'compare-sections' \
 	-ex 'kill' \
-	$(TARGET).elf
+	$(TARGET).hex
 
 ifeq ($(ARCH), avr)
 flashread:

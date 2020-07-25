@@ -81,6 +81,8 @@ SECTIONS
   /* The program code and other data goes into FLASH */
   .text :
   {
+    *(.fwMetadata)
+    KEEP(*(.fwMetadata))
     . = ALIGN(4);
     *(.text)           /* .text sections (code) */
     *(.text*)          /* .text* sections (code) */

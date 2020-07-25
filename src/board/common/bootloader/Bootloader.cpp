@@ -22,6 +22,7 @@ limitations under the License.
 #include "Pins.h"
 #include "core/src/general/Timing.h"
 #include "core/src/general/Reset.h"
+#include "core/src/general/CRC.h"
 #include "common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
 #include "MCU.h"
 
@@ -64,10 +65,25 @@ namespace Board
         {
             bool isAppValid()
             {
-                uint16_t data = 0xFFFF;
-                detail::flash::read16(APP_START_ADDR, data);
+                //verify app crc
+                uint16_t crcCalculated = 0x0000;
+                uint16_t crcActual;
+                uint32_t lastFwAddress;
 
-                return data != 0xFFFF;
+                detail::flash::read32(FW_METADATA_LOCATION, lastFwAddress);
+                detail::flash::read16(lastFwAddress, crcActual);
+
+                //take into account app start offset
+                lastFwAddress -= APP_START_ADDR;
+
+                for (uint32_t i = 0; i < lastFwAddress; i++)
+                {
+                    uint8_t data = 0;
+                    detail::flash::read8(i + APP_START_ADDR, data);
+                    crcCalculated = core::crc::xmodem(crcCalculated, data);
+                }
+
+                return (crcCalculated == crcActual);
             }
 
             btldrTrigger_t btldrTrigger()

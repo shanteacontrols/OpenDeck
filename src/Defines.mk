@@ -5,6 +5,7 @@ COMMAND_FW_UPDATE_END   := 0x4465436B
 SYSEX_MANUFACTURER_ID_0 := 0x00
 SYSEX_MANUFACTURER_ID_1 := 0x53
 SYSEX_MANUFACTURER_ID_2 := 0x43
+FW_METADATA_SIZE        := 4
 
 DEFINES := \
 UART_BAUDRATE_MIDI_STD=31250 \
@@ -36,6 +37,7 @@ ifeq ($(MCU), atmega32u4)
     FUSE_LOCK := 0xef
     APP_START_ADDR := 0x00
     BOOT_START_ADDR := 0x7000
+    FW_METADATA_LOCATION := 0xAC
     DEFINES += __AVR_ATmega32U4__
 else ifeq ($(MCU), at90usb1286)
     FUSE_UNLOCK := 0xff
@@ -45,6 +47,7 @@ else ifeq ($(MCU), at90usb1286)
     FUSE_LOCK := 0xef
     APP_START_ADDR := 0x00
     BOOT_START_ADDR := 0x1E000
+    FW_METADATA_LOCATION := 0x98
     DEFINES += __AVR_AT90USB1286__
 else ifeq ($(MCU), atmega16u2)
     FUSE_UNLOCK := 0xff
@@ -54,6 +57,7 @@ else ifeq ($(MCU), atmega16u2)
     FUSE_LOCK := 0xef
     APP_START_ADDR := 0x00
     BOOT_START_ADDR := 0x3000
+    FW_METADATA_LOCATION := 0x74
     DEFINES += __AVR_ATmega16U2__
 else ifeq ($(MCU), atmega8u2)
     FUSE_UNLOCK := 0xff
@@ -63,6 +67,7 @@ else ifeq ($(MCU), atmega8u2)
     FUSE_LOCK := 0xef
     APP_START_ADDR := 0x00
     BOOT_START_ADDR := 0x1800
+    FW_METADATA_LOCATION := 0x74
     DEFINES += __AVR_ATmega8U2__
 else ifeq ($(MCU), atmega2560)
     FUSE_UNLOCK := 0xff
@@ -72,6 +77,7 @@ else ifeq ($(MCU), atmega2560)
     FUSE_LOCK := 0xef
     APP_START_ADDR := 0x00
     BOOT_START_ADDR := 0x3E000
+    FW_METADATA_LOCATION := 0xE4
     DEFINES += __AVR_ATmega2560__
 else ifeq ($(MCU), atmega328p)
     FUSE_UNLOCK := 0xff
@@ -81,6 +87,7 @@ else ifeq ($(MCU), atmega328p)
     FUSE_LOCK := 0xef
     APP_START_ADDR := 0x00
     BOOT_START_ADDR := 0x7000
+    FW_METADATA_LOCATION := 0x68
     DEFINES += __AVR_ATmega328P__
 else ifeq ($(MCU), stm32f407)
     CPU := cortex-m4
@@ -88,6 +95,7 @@ else ifeq ($(MCU), stm32f407)
     FLOAT-ABI := hard
     APP_START_ADDR := 0x8008000
     BOOT_START_ADDR := 0x8000000
+    FW_METADATA_LOCATION := 0x8008190
     DEFINES += STM32F407xx
 else ifeq ($(MCU), stm32f405)
     CPU := cortex-m4
@@ -95,6 +103,7 @@ else ifeq ($(MCU), stm32f405)
     FLOAT-ABI := hard
     APP_START_ADDR := 0x8008000
     BOOT_START_ADDR := 0x8000000
+    FW_METADATA_LOCATION := 0x8008190
     DEFINES += STM32F405xx
 else
     $(error MCU $(MCU) not supported)
@@ -114,9 +123,6 @@ ifeq ($(ARCH),avr)
     INTERRUPT_CONTROL_ENDPOINT \
     USE_RAM_DESCRIPTORS \
     ADC_10_BIT
-
-    DEFINES += APP_LENGTH_LOCATION=$(FLASH_SIZE_START_ADDR)
-    DEFINES += BOOT_START_ADDR=$(BOOT_START_ADDR)
 
     #flash type specific
     ifeq ($(BOOT),1)
@@ -141,8 +147,11 @@ else
     $(error Arch $(ARCH) not supported)
 endif
 
+FW_UID := $(shell ../scripts/fw_uid_gen.sh $(TARGETNAME))
+
 DEFINES += OD_BOARD_$(shell echo $(TARGETNAME) | tr 'a-z' 'A-Z')
-DEFINES += FW_UID=$(shell ../scripts/fw_uid_gen.sh $(TARGETNAME))
+DEFINES += FW_UID=$(FW_UID)
+DEFINES += FW_METADATA_LOCATION=$(FW_METADATA_LOCATION)
 
 ifeq ($(BOOT),1)
     DEFINES += \
@@ -153,22 +162,12 @@ ifeq ($(BOOT),1)
     FLASH_START_ADDR := $(BOOT_START_ADDR)
 else
     DEFINES += FW_APP
-
-    ifeq ($(DEBUG),1)
-        FLASH_START_ADDR := $(BOOT_START_ADDR)
-    else
-        FLASH_START_ADDR := $(APP_START_ADDR)
-    endif
+    FLASH_START_ADDR := $(APP_START_ADDR)
 endif
 
 DEFINES += FLASH_START_ADDR=$(FLASH_START_ADDR)
 DEFINES += BOOT_START_ADDR=$(BOOT_START_ADDR)
-
-ifeq ($(DEBUG),1)
-    DEFINES += APP_START_ADDR=$(BOOT_START_ADDR)
-else
-    DEFINES += APP_START_ADDR=$(APP_START_ADDR)
-endif
+DEFINES += APP_START_ADDR=$(APP_START_ADDR)
 
 ifeq ($(shell yq r ../targets/$(TARGETNAME).yml usb), true)
     DEFINES += USB_MIDI_SUPPORTED

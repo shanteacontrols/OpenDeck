@@ -82,6 +82,8 @@ SECTIONS
   .text :
   {
     . = ALIGN(4);
+    *(.fwMetadata)
+    KEEP(*(.fwMetadata))
     *(.text)           /* .text sections (code) */
     *(.text*)          /* .text* sections (code) */
     *(.glue_7)         /* glue arm to thumb code */
