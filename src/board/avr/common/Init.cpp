@@ -27,7 +27,6 @@ limitations under the License.
 #include "core/src/arch/avr/Misc.h"
 #include "core/src/general/IO.h"
 #include "core/src/general/Interrupt.h"
-#include "core/src/general/Reset.h"
 #include "Pins.h"
 
 extern "C" void __cxa_pure_virtual()

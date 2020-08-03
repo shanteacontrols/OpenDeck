@@ -18,7 +18,6 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "core/src/general/Reset.h"
 #include "core/src/general/Interrupt.h"
 #include "board/common/io/Helpers.h"
 #include "Pins.h"
