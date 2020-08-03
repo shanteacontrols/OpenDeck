@@ -21,14 +21,55 @@ limitations under the License.
 #include "board/common/io/Helpers.h"
 #include "Pins.h"
 #include "core/src/general/Timing.h"
+#include "core/src/general/Reset.h"
 #include "common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
+#include "MCU.h"
 
 namespace Board
 {
+    namespace bootloader
+    {
+        uint32_t pageSize(size_t index)
+        {
+            return detail::flash::pageSize(index + BOOTLOADER_PAGE_START_INDEX);
+        }
+
+        void erasePage(size_t index)
+        {
+            detail::flash::erasePage(index + BOOTLOADER_PAGE_START_INDEX);
+        }
+
+        void fillPage(size_t index, uint32_t address, uint16_t data)
+        {
+            detail::flash::write16(detail::map::flashPageDescriptor(index + BOOTLOADER_PAGE_START_INDEX).address + address, data);
+        }
+
+        void writePage(size_t index)
+        {
+            detail::flash::writePage(index + BOOTLOADER_PAGE_START_INDEX);
+        }
+
+        void applyFw()
+        {
+#ifdef LED_INDICATORS
+            detail::io::ledFlashStartup(true);
+#endif
+            core::reset::mcuReset();
+        }
+    }    // namespace bootloader
+
     namespace detail
     {
         namespace bootloader
         {
+            bool isAppValid()
+            {
+                uint16_t data = 0xFFFF;
+                detail::flash::read16(APP_START_ADDR, data);
+
+                return data != 0xFFFF;
+            }
+
             btldrTrigger_t btldrTrigger()
             {
                 //add some delay before reading the pins to avoid incorrect state detection

@@ -28,9 +28,11 @@ namespace Board
     {
         namespace flash
         {
-            ///
-            /// \brief Erases specified flash page.
-            ///
+            uint32_t pageSize(size_t index)
+            {
+                return detail::map::flashPageDescriptor(index).size;
+            }
+
             _RAM bool erasePage(size_t index)
             {
                 FLASH_EraseInitTypeDef pEraseInit = {};
@@ -54,9 +56,11 @@ namespace Board
                 return (halStatus == HAL_OK) && (eraseStatus == 0xFFFFFFFFU);
             }
 
-            ///
-            /// \brief Write 16-bit data to specified address in flash memory.
-            ///
+            _RAM void writePage(size_t index)
+            {
+                //nothing to do here
+            }
+
             _RAM bool write16(uint32_t address, uint16_t data)
             {
                 HAL_StatusTypeDef halStatus = HAL_FLASH_Unlock();
@@ -71,28 +75,6 @@ namespace Board
                 return (halStatus == HAL_OK);
             }
 
-            _RAM bool write16(uint32_t address, uint16_t* data, uint32_t count)
-            {
-                HAL_StatusTypeDef halStatus = HAL_FLASH_Unlock();
-
-                if (halStatus == HAL_OK)
-                {
-                    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
-
-                    for (uint32_t i = 0; i < count; i++)
-                    {
-                        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, address + (i * 2), data[i]) != HAL_OK)
-                            return false;
-                    }
-                }
-
-                HAL_FLASH_Lock();
-                return (halStatus == HAL_OK);
-            }
-
-            ///
-            /// \brief Write 32-bit data to specified address in flash memory.
-            ///
             _RAM bool write32(uint32_t address, uint32_t data)
             {
                 HAL_StatusTypeDef halStatus = HAL_FLASH_Unlock();
@@ -107,37 +89,18 @@ namespace Board
                 return (halStatus == HAL_OK);
             }
 
-            _RAM bool write32(uint32_t address, uint32_t* data, uint32_t count)
+            bool read8(uint32_t address, uint8_t& data)
             {
-                HAL_StatusTypeDef halStatus = HAL_FLASH_Unlock();
-
-                if (halStatus == HAL_OK)
-                {
-                    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
-
-                    for (uint32_t i = 0; i < count; i++)
-                    {
-                        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, address + (i * 4), data[i]) != HAL_OK)
-                            return false;
-                    }
-                }
-
-                HAL_FLASH_Lock();
-                return (halStatus == HAL_OK);
+                data = (*(volatile uint8_t*)address);
+                return true;
             }
 
-            ///
-            /// \brief Read 16-bit data from specified address in flash memory.
-            ///
             bool read16(uint32_t address, uint16_t& data)
             {
                 data = (*(volatile uint16_t*)address);
                 return true;
             }
 
-            ///
-            /// \brief Read 32-bit data from specified address in flash memory.
-            ///
             bool read32(uint32_t address, uint32_t& data)
             {
                 data = (*(volatile uint32_t*)address);

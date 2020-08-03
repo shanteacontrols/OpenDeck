@@ -16,5 +16,6 @@ limitations under the License.
 
 */
 
-#define MAX_UART_INTERFACES 6
-#define MAX_I2C_INTERFACES  3
+#define MAX_UART_INTERFACES         6
+#define MAX_I2C_INTERFACES          3
+#define BOOTLOADER_PAGE_START_INDEX 2

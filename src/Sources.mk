@@ -54,7 +54,6 @@ else ifeq ($(ARCH),stm32)
     SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/common -regex '.*\.\(s\|c\)')
     SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/$(MCU) -regex '.*\.\(s\|c\)')
     SOURCES += $(shell $(FIND) ./board/stm32/variants/$(MCU_FAMILY) -maxdepth 1 -name "*.cpp")
-    SOURCES += $(shell $(FIND) ./board/stm32/variants/$(MCU_FAMILY)/nvm -name "*.cpp")
     SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
 
     INCLUDE_DIRS += $(addprefix -I,$(shell $(FIND) ./board/stm32/gen/common -type d -not -path "*Src*"))
@@ -77,7 +76,10 @@ ifeq ($(BOOT),1)
     board/$(ARCH)/common/Init.cpp \
     board/$(ARCH)/common/ShiftRegistersWait.cpp
 
-    ifeq ($(ARCH),stm32)
+    ifeq ($(ARCH),avr)
+        SOURCES += board/$(ARCH)/common/Flash.cpp
+        SOURCES += board/$(ARCH)/common/FlashPages.cpp
+    else ifeq ($(ARCH),stm32)
         SOURCES += board/$(ARCH)/common/ISR.cpp
     endif
 

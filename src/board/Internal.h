@@ -155,6 +155,25 @@ namespace Board
 
         namespace map
         {
+            typedef struct
+            {
+                core::io::mcuPin_t miso;
+                core::io::mcuPin_t mosi;
+                core::io::mcuPin_t sck;
+            } SPIpins_t;
+
+            typedef struct
+            {
+                core::io::mcuPin_t sda;
+                core::io::mcuPin_t sdl;
+            } I2Cpins_t;
+
+            typedef struct
+            {
+                uint32_t address;
+                uint32_t size;
+            } flashPage_t;
+
             ///
             /// \brief Used to retrieve physical ADC channel for a given MCU pin.
             ///
@@ -185,6 +204,13 @@ namespace Board
             ///
             core::io::pwmChannel_t pwmChannel(uint8_t index);
 
+            ///
+            /// \brief Retrieves flash page descriptor containing page address and size.
+            /// @param [in] pageIndex Index of flash sector for which to retrieve address and size.
+            /// \returns Reference to flash page descriptor for specified page index.
+            ///
+            flashPage_t& flashPageDescriptor(size_t pageIndex);
+
 #ifdef __STM32__
             class STMPeripheral
             {
@@ -197,25 +223,6 @@ namespace Board
                 virtual void                            enableClock()  = 0;
                 virtual void                            disableClock() = 0;
             };
-
-            typedef struct
-            {
-                core::io::mcuPin_t miso;
-                core::io::mcuPin_t mosi;
-                core::io::mcuPin_t sck;
-            } SPIpins_t;
-
-            typedef struct
-            {
-                core::io::mcuPin_t sda;
-                core::io::mcuPin_t sdl;
-            } I2Cpins_t;
-
-            typedef struct
-            {
-                uint32_t address;
-                uint32_t size;
-            } flashPage_t;
 
             ///
             /// Used to retrieve physical UART interface used on MCU for a given UART channel index as well
@@ -250,13 +257,6 @@ namespace Board
             /// \brief Used to retrieve timer instance used for main timer interrupt.
             ///
             TIM_TypeDef* mainTimerInstance();
-
-            ///
-            /// \brief Retrieves flash page descriptor containing page address and size.
-            /// @param [in] pageIndex Index of flash sector for which to retrieve address and size.
-            /// \returns Reference to flash page descriptor for specified page index.
-            ///
-            flashPage_t& flashPageDescriptor(size_t pageIndex);
 
             ///
             /// \brief Used to retrieve descriptors for flash pages used for EEPROM emulation.
@@ -411,27 +411,34 @@ namespace Board
         namespace flash
         {
             ///
+            /// \brief Retrieves size of specified flash page.
+            ///
+            uint32_t pageSize(size_t index);
+
+            ///
             /// \brief Erases specified flash page.
             ///
             bool erasePage(size_t index);
 
             ///
+            /// \brief Writes filled page buffer to flash page if needed/supported.
+            ///
+            void writePage(size_t index);
+
+            ///
             /// \brief Write 16-bit data to specified address in flash memory.
-            /// {@
-
+            ///
             bool write16(uint32_t address, uint16_t data);
-            bool write16(uint32_t address, uint16_t* data, uint32_t count);
-
-            /// @}
 
             ///
             /// \brief Write 32-bit data to specified address in flash memory.
-            /// {@
-
+            ///
             bool write32(uint32_t address, uint32_t data);
-            bool write32(uint32_t address, uint32_t* data, uint32_t count);
 
-            /// @
+            ///
+            /// \brief Read 8-bit data from specified address in flash memory.
+            ///
+            bool read8(uint32_t address, uint8_t& data);
 
             ///
             /// \brief Read 16-bit data from specified address in flash memory.

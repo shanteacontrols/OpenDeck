@@ -16,13 +16,12 @@ limitations under the License.
 
 */
 
-#include <avr/boot.h>
 #include <avr/io.h>
 #include <avr/pgmspace.h>
+#include <avr/eeprom.h>
 #include "board/Board.h"
 #include "board/Internal.h"
 #include "board/common/constants/Reboot.h"
-#include "core/src/general/Reset.h"
 #include "core/src/general/Helpers.h"
 #include "core/src/arch/avr/Misc.h"
 #include "core/src/general/Interrupt.h"
@@ -36,54 +35,10 @@ limitations under the License.
 
 namespace Board
 {
-#ifdef FW_BOOT
-    namespace bootloader
-    {
-        uint32_t pageSize(size_t index)
-        {
-            return SPM_PAGESIZE;
-        }
-
-        void erasePage(size_t index)
-        {
-            boot_page_erase(index * pageSize(index));
-            boot_spm_busy_wait();
-        }
-
-        void fillPage(size_t index, uint32_t address, uint16_t data)
-        {
-            boot_page_fill(address + (index * pageSize(index)), data);
-        }
-
-        void writePage(size_t index)
-        {
-            //write the filled FLASH page to memory
-            boot_page_write(index * pageSize(index));
-            boot_spm_busy_wait();
-
-            //re-enable RWW section
-            boot_rww_enable();
-        }
-
-        void applyFw()
-        {
-#ifdef LED_INDICATORS
-            detail::io::ledFlashStartup(true);
-#endif
-            core::reset::mcuReset();
-        }
-    }    // namespace bootloader
-#endif
-
     namespace detail
     {
         namespace bootloader
         {
-            bool isAppValid()
-            {
-                return (pgm_read_word(0) != 0xFFFF);
-            }
-
             bool isSWtriggerActive()
             {
                 return eeprom_read_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION) == BTLDR_REBOOT_VALUE;

@@ -16,4 +16,5 @@ limitations under the License.
 
 */
 
-#define MAX_UART_INTERFACES 1
+#define MAX_UART_INTERFACES         1
+#define BOOTLOADER_PAGE_START_INDEX 0
