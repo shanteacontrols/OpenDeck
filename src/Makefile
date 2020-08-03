@@ -225,7 +225,14 @@ else
 endif
 	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -V -u -U lock:w:$(FUSE_LOCK):m
 else
-ifeq ($(BMP), 1)
+ifneq (,$(wildcard $(MERGED_TARGET)))
+	st-flash write $(MERGED_TARGET) $(BOOT_START_ADDR)
+else
+	st-flash write $(TARGET).bin $(BOOT_START_ADDR)
+endif
+endif
+
+flash-bmp:
 	$(FLASH_BIN) -nx --batch \
 	-ex 'target extended-remote /dev/$(PORT)' \
 	-ex 'monitor swdp_scan' \
@@ -234,14 +241,6 @@ ifeq ($(BMP), 1)
 	-ex 'compare-sections' \
 	-ex 'kill' \
 	$(TARGET).elf
-else
-ifneq (,$(wildcard $(MERGED_TARGET)))
-	st-flash write $(MERGED_TARGET) $(BOOT_START_ADDR)
-else
-	st-flash write $(TARGET).bin $(BOOT_START_ADDR)
-endif
-endif
-endif
 
 ifeq ($(ARCH), avr)
 flashread:
