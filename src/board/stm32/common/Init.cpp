@@ -156,7 +156,6 @@ namespace Board
 
 #ifdef BTLDR_BUTTON_PORT
                 CORE_IO_CONFIG({ BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN, core::io::pinMode_t::input });
-                CORE_IO_SET_HIGH(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
 #endif
 
 #ifdef LED_INDICATORS
