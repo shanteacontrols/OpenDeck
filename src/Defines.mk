@@ -303,6 +303,11 @@ ifeq ($(shell yq r ../targets/$(TARGETNAME).yml leds.external.fading), true)
     DEFINES += LED_FADING
 endif
 
+ifeq ($(shell yq r ../targets/$(TARGETNAME).yml bootloader.button.activeState), true)
+    #active high
+    DEFINES += BTLDR_BUTTON_AH
+endif
+
 ifeq ($(shell yq r ../targets/$(TARGETNAME).yml leds.external.type), native)
     MAX_NUMBER_OF_LEDS := $(shell yq r ../targets/$(TARGETNAME).yml leds.external.pins --length)
     DEFINES += NATIVE_LED_OUTPUTS

@@ -166,7 +166,11 @@ namespace Board
 
                 return false;
 #elif defined(BTLDR_BUTTON_PORT)
+#ifdef BTLDR_BUTTON_AH
+                return CORE_IO_READ(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+#else
                 return !CORE_IO_READ(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+#endif
 #else
                 //no hardware entry possible in this case
                 return false;

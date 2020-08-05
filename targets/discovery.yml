@@ -169,5 +169,6 @@
     button:
       port: "A"
       index: 0
+      activeState: true
   release: false
   test: true
