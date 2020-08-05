@@ -166,5 +166,8 @@
         index: 0
   bootloader:
     use: true
+    button:
+      port: "A"
+      index: 0
   release: false
   test: true
