@@ -36,10 +36,11 @@ namespace Bootloader
             virtual void     apply()                                                 = 0;
         };
 
-        Updater(BTLDRWriter& writer, const uint64_t startCommand, const uint32_t endCommand)
+        Updater(BTLDRWriter& writer, const uint64_t startCommand, const uint32_t endCommand, const uint32_t uid)
             : writer(writer)
             , startCommand(startCommand)
             , endCommand(endCommand)
+            , uid(uid)
         {}
 
         void feed(uint8_t data);
@@ -84,10 +85,12 @@ namespace Bootloader
         uint8_t  commandRepeatsReceived = 0;
         uint32_t fwBytesReceived        = 0;
         uint32_t fwSize                 = 0;
+        uint32_t receivedUID            = 0;
         uint8_t  startBytesReceived     = 0;
 
         BTLDRWriter&   writer;
         const uint64_t startCommand;
         const uint32_t endCommand;
+        const uint32_t uid;
     };
 }    // namespace Bootloader

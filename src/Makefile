@@ -176,7 +176,7 @@ $(TARGET).sysex: $(TARGET).elf
 ifeq ($(HAS_BTLDR),1)
 ifneq ($(BOOT),1)
 	@echo Creating SysEx file...
-	@../scripts/sysex_fw_create.sh $(TARGET).bin $(TARGET).sysex $(SYSEX_MANUFACTURER_ID_0) $(SYSEX_MANUFACTURER_ID_1) $(SYSEX_MANUFACTURER_ID_2) $(COMMAND_FW_UPDATE_START) $(COMMAND_FW_UPDATE_END)
+	@../scripts/sysex_fw_create.sh $(TARGET).bin $(TARGET).sysex $(SYSEX_MANUFACTURER_ID_0) $(SYSEX_MANUFACTURER_ID_1) $(SYSEX_MANUFACTURER_ID_2) $(COMMAND_FW_UPDATE_START) $(COMMAND_FW_UPDATE_END) $(FW_UID)
 endif
 endif
 

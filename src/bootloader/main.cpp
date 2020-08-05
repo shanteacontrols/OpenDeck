@@ -54,7 +54,7 @@ namespace
 {
 #ifndef USB_LINK_MCU
     BTLDRWriter         btldrWriter;
-    Bootloader::Updater updater(btldrWriter, COMMAND_FW_UPDATE_START, COMMAND_FW_UPDATE_END);
+    Bootloader::Updater updater(btldrWriter, COMMAND_FW_UPDATE_START, COMMAND_FW_UPDATE_END, FW_UID);
 #else
     uint8_t endCounter;
 #endif

@@ -85,12 +85,20 @@ Updater::processStatus_t Updater::processStart(uint8_t data)
 
 Updater::processStatus_t Updater::processFwMetadata(uint8_t data)
 {
-    //metadata consists of 4 bytes of total fw length
+    //metadata consists of 4 bytes for firmware length and 4 bytes for UID
 
-    fwSize |= (static_cast<uint32_t>(data) << (8 * stageBytesReceived));
+    if (stageBytesReceived < 4)
+        fwSize |= (static_cast<uint32_t>(data) << (8 * stageBytesReceived));
+    else
+        receivedUID |= (static_cast<uint32_t>(data) << (8 * (stageBytesReceived - 4)));
 
-    if (++stageBytesReceived == 4)
+    if (++stageBytesReceived == 8)
+    {
+        if (receivedUID != uid)
+            return processStatus_t::invalid;
+
         return processStatus_t::complete;
+    }
 
     return processStatus_t::incomplete;
 }

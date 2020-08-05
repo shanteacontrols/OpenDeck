@@ -14,6 +14,8 @@ M_ID_2=$5
 START_COMMAND=$6
 #seventh argument is end command (uint32)
 END_COMMAND=$7
+#eight argument is board UID
+BOARD_UID=$8
 
 declare -i BYTES_PER_FW_MESSAGE=32
 
@@ -135,9 +137,23 @@ fw_size_array[1]=$((fw_size >> 8  & 0xFF))
 fw_size_array[2]=$((fw_size >> 16 & 0xFF))
 fw_size_array[3]=$((fw_size >> 24 & 0xFF))
 
+uid_array[0]=$((BOARD_UID >> 0  & 0xFF))
+uid_array[1]=$((BOARD_UID >> 8  & 0xFF))
+uid_array[2]=$((BOARD_UID >> 16  & 0xFF))
+uid_array[3]=$((BOARD_UID >> 24  & 0xFF))
+
 for fwSizeByte in "${fw_size_array[@]}"
 do
     split14bit $fwSizeByte
+    {
+        printf " %02X" "$highByte"
+        printf " %02X" "$lowByte"
+    } >> "$SYSEX_FILE"
+done
+
+for uidByte in "${uid_array[@]}"
+do
+    split14bit $uidByte
     {
         printf " %02X" "$highByte"
         printf " %02X" "$lowByte"
