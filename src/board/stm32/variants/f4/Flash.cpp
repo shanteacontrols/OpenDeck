@@ -28,6 +28,16 @@ namespace Board
     {
         namespace flash
         {
+            bool isInRange(uint32_t address)
+            {
+                return IS_FLASH_ADDRESS(address);
+            }
+
+            uint32_t size()
+            {
+                return FLASH_BASE - FLASH_END + static_cast<uint32_t>(1);
+            }
+
             uint32_t pageSize(size_t index)
             {
                 return detail::map::flashPageDescriptor(index).size;

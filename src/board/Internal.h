@@ -411,6 +411,16 @@ namespace Board
         namespace flash
         {
             ///
+            /// \brief Checks whether the specified flash address is valid / in range for the current MCU.
+            ///
+            bool isInRange(uint32_t address);
+
+            ///
+            /// \brief Retrieves total flash size in bytes.
+            ///
+            uint32_t size();
+
+            ///
             /// \brief Retrieves size of specified flash page.
             ///
             uint32_t pageSize(size_t index);
