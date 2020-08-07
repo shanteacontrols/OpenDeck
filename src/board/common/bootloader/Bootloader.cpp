@@ -65,12 +65,35 @@ namespace Board
         {
             bool isAppValid()
             {
+#ifndef USB_LINK_MCU
                 //verify app crc
+                //done first by retrieving value stored at FW_METADATA_LOCATION address which contains last flash address
+                //2-byte value after last flash address is firmware CRC
                 uint16_t crcCalculated = 0x0000;
                 uint16_t crcActual;
                 uint32_t lastFwAddress;
 
                 detail::flash::read32(FW_METADATA_LOCATION, lastFwAddress);
+
+                //make sure the address is valid - otherwise read at non-existing address will occur resulting in hard fault
+                if (!detail::flash::isInRange(lastFwAddress))
+                    return false;
+
+                //also make sure the address isn't larger than maximum flash size minus 2 bytes for CRC
+
+                if (BOOT_START_ADDR > APP_START_ADDR)
+                {
+                    //app first, bootloader second
+                    if (lastFwAddress > (BOOT_START_ADDR - 2))
+                        return false;
+                }
+                else
+                {
+                    //bootloader first, app second
+                    if (lastFwAddress > (detail::flash::size() - 2))
+                        return false;
+                }
+
                 detail::flash::read16(lastFwAddress, crcActual);
 
                 //take into account app start offset
@@ -84,6 +107,11 @@ namespace Board
                 }
 
                 return (crcCalculated == crcActual);
+#else
+                //no need to verify fw on USB link MCUs since their firmware isn't user-upgradeable
+                //this will also save flash size
+                return true;
+#endif
             }
 
             btldrTrigger_t btldrTrigger()
