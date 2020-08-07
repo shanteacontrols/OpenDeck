@@ -45,7 +45,7 @@ include Defines.mk
 include Sources.mk
 
 # if merged binary exists (bootloader+application), use it when running flash target
-MERGED_TARGET := $(BUILD_DIR_BASE)/merged/$(TARGETNAME).bin
+MERGED_TARGET := $(BUILD_DIR_BASE)/merged/$(TARGETNAME).hex
 
 #when set to 1, format target will fail if there are any changes to the repository after formatting
 CF_FAIL_ON_DIFF := 0
@@ -188,11 +188,9 @@ merged:
 	@$(MAKE) --no-print-directory TARGETNAME=$(TARGETNAME) BOOT=1
 	@echo Combining application and bootloader...
 ifeq ($(ARCH), avr)
-	@avr-objcopy --pad-to=$(BOOT_START_ADDR) --gap-fill=0xFF -O binary "$(BUILD_DIR_BASE)/application/$(TARGETNAME)/release/$(TARGETNAME).elf" "$(BUILD_DIR_BASE)/application/$(TARGETNAME)/release/$(TARGETNAME)_padded.bin"
-	@cat "$(BUILD_DIR_BASE)/application/$(TARGETNAME)/release/$(TARGETNAME)_padded.bin" "$(BUILD_DIR_BASE)/bootloader/$(TARGETNAME)/release/$(TARGETNAME).bin" > $(MERGED_TARGET)
+	@srec_cat "$(BUILD_DIR_BASE)/application/$(TARGETNAME)/release/$(TARGETNAME).hex" -Intel "$(BUILD_DIR_BASE)/bootloader/$(TARGETNAME)/release/$(TARGETNAME).hex" -Intel -o $(MERGED_TARGET) -Intel
 else
-	@arm-none-eabi-objcopy --pad-to=$(APP_START_ADDR) --gap-fill=0xFF -O binary "$(BUILD_DIR_BASE)/bootloader/$(TARGETNAME)/release/$(TARGETNAME).elf" "$(BUILD_DIR_BASE)/bootloader/$(TARGETNAME)/release/$(TARGETNAME)_padded.bin"
-	@cat "$(BUILD_DIR_BASE)/bootloader/$(TARGETNAME)/release/$(TARGETNAME)_padded.bin" "$(BUILD_DIR_BASE)/application/$(TARGETNAME)/release/$(TARGETNAME).bin" > $(MERGED_TARGET)
+	@srec_cat "$(BUILD_DIR_BASE)/bootloader/$(TARGETNAME)/release/$(TARGETNAME).hex" -Intel "$(BUILD_DIR_BASE)/application/$(TARGETNAME)/release/$(TARGETNAME).hex" -Intel -o $(MERGED_TARGET) -Intel
 endif
 	@echo Merged binary created: $(MERGED_TARGET)
 
