@@ -161,7 +161,7 @@ namespace
             .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
-            .defaultValue           = 0,
+            .defaultValue           = MAX_NUMBER_OF_ANALOG,
             .autoIncrement          = true,
             .address                = 0,
         },

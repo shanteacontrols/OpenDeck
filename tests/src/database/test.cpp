@@ -122,9 +122,9 @@ TEST_CASE(ReadInitialValues)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::encoder_t::mode, i));
 
         //midi id section
-        //incremental values - first value should be set to 0, each successive value should be incremented by 1
+        //incremental values - first value should be set to MAX_NUMBER_OF_ANALOG, each successive value should be incremented by 1
         for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
-            TEST_ASSERT_EQUAL_UINT32(i, database.read(Database::Section::encoder_t::midiID, i));
+            TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ANALOG + i, database.read(Database::Section::encoder_t::midiID, i));
 
         //midi channel section
         //all values should be set to 0
