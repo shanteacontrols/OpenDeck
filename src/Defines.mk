@@ -210,7 +210,7 @@ endif
 
 ifeq ($(shell yq r ../targets/$(TARGETNAME).yml touchscreen.use), true)
     DEFINES += TOUCHSCREEN_SUPPORTED
-    DEFINES += MAX_TOUCHSCREEN_BUTTONS=64
+    DEFINES += MAX_TOUCHSCREEN_BUTTONS=$(shell yq r ../targets/$(TARGETNAME).yml touchscreen.components)
     DEFINES += LEDS_SUPPORTED
 
     UART_CHANNEL_TOUCHSCREEN := $(shell yq r ../targets/$(TARGETNAME).yml touchscreen.uartChannel)

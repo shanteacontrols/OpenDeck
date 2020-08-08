@@ -11,6 +11,7 @@
   touchscreen:
     use: true
     uartChannel: 1
+    components: 64
   buttons:
     type: "native"
     pins:
