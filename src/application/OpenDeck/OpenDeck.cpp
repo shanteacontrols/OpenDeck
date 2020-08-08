@@ -499,7 +499,7 @@ void OpenDeck::init()
 
     hwaLEDs.registerHandler([](size_t index, bool state) {
 #if MAX_NUMBER_OF_LEDS > 0
-#if MAX_TOUCHSCREEN_BUTTONS != 0
+#if MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS != 0
         if (index >= MAX_NUMBER_OF_LEDS)
             touchscreen.setIconState(MAX_NUMBER_OF_LEDS - index, state);
         else

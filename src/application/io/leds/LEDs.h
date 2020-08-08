@@ -155,7 +155,7 @@ namespace IO
 
         HWA&                    hwa;
         Database&               database;
-        static constexpr size_t maxLEDs = MAX_NUMBER_OF_LEDS + MAX_TOUCHSCREEN_BUTTONS;
+        static constexpr size_t maxLEDs = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS;
 
         ///
         /// \brief Array holding current LED status for all LEDs.

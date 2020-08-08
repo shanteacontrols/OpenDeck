@@ -82,27 +82,27 @@ TEST_CASE(ReadInitialValues)
         //button block
         //type section
         //all values should be set to 0 (default type)
-        for (int i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS; i++)
+        for (int i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS; i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::button_t::type, i));
 
         //midi message section
         //all values should be set to 0 (default type)
-        for (int i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS; i++)
+        for (int i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS; i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::button_t::midiMessage, i));
 
         //midi id section
         //incremental values - first value should be 0, each successive value should be incremented by 1
-        for (int i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS; i++)
+        for (int i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS; i++)
             TEST_ASSERT_EQUAL_UINT32(i, database.read(Database::Section::button_t::midiID, i));
 
         //midi velocity section
         //all values should be set to 127
-        for (int i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS; i++)
+        for (int i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS; i++)
             TEST_ASSERT_EQUAL_UINT32(127, database.read(Database::Section::button_t::velocity, i));
 
         //midi channel section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS; i++)
+        for (int i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS; i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::button_t::midiChannel, i));
 
         //encoders block
@@ -180,27 +180,27 @@ TEST_CASE(ReadInitialValues)
 
         //activation id section
         //incremental values - first value should be set to 0, each successive value should be incremented by 1
-        for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_TOUCHSCREEN_BUTTONS; i++)
+        for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS; i++)
             TEST_ASSERT_EQUAL_UINT32(i, database.read(Database::Section::leds_t::activationID, i));
 
         //rgb enable section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_RGB_LEDS + (MAX_TOUCHSCREEN_BUTTONS / 3); i++)
+        for (int i = 0; i < MAX_NUMBER_OF_RGB_LEDS + (MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS / 3); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::leds_t::rgbEnable, i));
 
         //control type section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_TOUCHSCREEN_BUTTONS; i++)
+        for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS; i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::leds_t::controlType, i));
 
         //activation value section
         //all values should be set to 127
-        for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_TOUCHSCREEN_BUTTONS; i++)
+        for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS; i++)
             TEST_ASSERT_EQUAL_UINT32(127, database.read(Database::Section::leds_t::activationValue, i));
 
         //midi channel section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_TOUCHSCREEN_BUTTONS; i++)
+        for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS; i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::leds_t::midiChannel, i));
 
 #ifdef DISPLAY_SUPPORTED

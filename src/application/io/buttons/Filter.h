@@ -60,6 +60,6 @@ namespace IO
         ///
         /// \brief Array holding debounce count for all buttons to avoid incorrect state detection.
         ///
-        uint8_t buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS] = {};
+        uint8_t buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS] = {};
     };
 }    // namespace IO

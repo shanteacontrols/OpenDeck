@@ -53,6 +53,6 @@ namespace IO
         /// \brief Holds current MIDI value (velocity or control value) for all buttons.
         /// Used when button is configured in any of the multi-value modes.
         ///
-        static uint8_t midiValue[MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_TOUCHSCREEN_BUTTONS];
+        static uint8_t midiValue[MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS];
     };
 }    // namespace IO
