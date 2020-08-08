@@ -298,6 +298,71 @@ namespace
         }
     };
 
+    SysExConf::section_t touchscreenSections[static_cast<uint8_t>(SysConfig::Section::touchscreen_t::AMOUNT)] = {
+        //setting section
+        {
+            .numberOfParameters = static_cast<uint8_t>(IO::Touchscreen::setting_t::AMOUNT),
+            .newValueMin        = 0,
+            .newValueMax        = 0,
+        },
+
+        //x position section
+        {
+            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .newValueMin        = 0,
+            .newValueMax        = 1024,
+        },
+
+        //y position section
+        {
+            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .newValueMin        = 0,
+            .newValueMax        = 600,
+        },
+
+        //width section
+        {
+            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .newValueMin        = 0,
+            .newValueMax        = 1024,
+        },
+
+        //height section
+        {
+            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .newValueMin        = 0,
+            .newValueMax        = 600,
+        },
+
+        //on screen section
+        {
+            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .newValueMin        = 0,
+            .newValueMax        = 15,
+        },
+
+        //off screen section
+        {
+            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .newValueMin        = 0,
+            .newValueMax        = 15,
+        },
+
+        //page switch enabled section
+        {
+            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .newValueMin        = 0,
+            .newValueMax        = 1,
+        },
+
+        //page switch index section
+        {
+            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .newValueMin        = 0,
+            .newValueMax        = 15,
+        },
+    };
+
     SysExConf::block_t sysExLayout[static_cast<uint8_t>(SysConfig::block_t::AMOUNT)] = {
         //global block
         {
@@ -333,6 +398,12 @@ namespace
         {
             .numberOfSections = static_cast<uint8_t>(SysConfig::Section::display_t::AMOUNT),
             .section          = displaySections,
+        },
+
+        //touchscreen block
+        {
+            .numberOfSections = static_cast<uint8_t>(SysConfig::Section::touchscreen_t::AMOUNT),
+            .section          = touchscreenSections,
         }
     };
 

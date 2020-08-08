@@ -439,12 +439,12 @@ MIDI            midi;
 IO::Common      digitalInputCommon;
 IO::U8X8        u8x8(hwaU8X8);
 IO::Display     display(u8x8, database);
-IO::Touchscreen touchscreen(touchscreenModel);
+IO::Touchscreen touchscreen(database, touchscreenModel);
 IO::LEDs        leds(hwaLEDs, database);
 IO::Analog      analog(hwaAnalog, ADC_RESOLUTION, analogFilter, database, midi, leds, display, cinfo);
 IO::Buttons     buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cinfo);
 IO::Encoders    encoders(hwaEncoders, database, midi, display, cinfo);
-SysConfig       sysConfig(database, midi, buttons, encoders, analog, leds, display);
+SysConfig       sysConfig(database, midi, buttons, encoders, analog, leds, display, touchscreen);
 
 void OpenDeck::init()
 {
@@ -457,7 +457,6 @@ void OpenDeck::init()
     display.init(true);
 
     touchscreen.init();
-    touchscreen.setScreen(1);
 
     dbHandlers.factoryResetStartHandler = []() {
         leds.setAllOff();

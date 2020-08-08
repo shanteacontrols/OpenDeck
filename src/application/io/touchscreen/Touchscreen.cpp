@@ -22,8 +22,19 @@ using namespace IO;
 
 bool Touchscreen::init()
 {
-    initialized = model.init();
-    return initialized;
+    if (database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::enable)))
+    {
+        initialized = model.init();
+
+        if (initialized)
+        {
+            //screen 0 should be blank or logo only - used to detect that the firmware is running
+            setScreen(1);
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void Touchscreen::update()
@@ -36,7 +47,14 @@ void Touchscreen::update()
 
     if (model.update(buttonID, state))
     {
-        bool changeScreen = isScreenChangeButton(buttonID, activeScreenID);
+        bool   changeScreen = false;
+        size_t newScreen    = 0;
+
+        if (database.read(Database::Section::touchscreen_t::pageSwitchEnabled, buttonID))
+        {
+            changeScreen = true;
+            newScreen    = database.read(Database::Section::touchscreen_t::pageSwitchIndex, buttonID);
+        }
 
         if (buttonHandler != nullptr)
             (*buttonHandler)(buttonID, state);
@@ -48,7 +66,7 @@ void Touchscreen::update()
             if (buttonHandler != nullptr)
                 (*buttonHandler)(buttonID, false);
 
-            setScreen(activeScreenID);
+            setScreen(newScreen);
         }
     }
 }
@@ -87,23 +105,21 @@ void Touchscreen::setScreenChangeHandler(void (*fptr)(size_t screenID))
 
 void Touchscreen::setIconState(size_t index, bool state)
 {
+    if (index >= MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS)
+        return;
+
     icon_t icon;
 
-    if (!getIcon(index, icon))
-        return;
+    icon.onScreen  = database.read(Database::Section::touchscreen_t::onScreen, index);
+    icon.offScreen = database.read(Database::Section::touchscreen_t::offScreen, index);
 
     if ((activeScreenID != icon.onScreen) && (activeScreenID != icon.offScreen))
         return;    //don't allow setting icon on wrong screen
 
+    icon.xPos   = database.read(Database::Section::touchscreen_t::xPos, index);
+    icon.yPos   = database.read(Database::Section::touchscreen_t::yPos, index);
+    icon.width  = database.read(Database::Section::touchscreen_t::width, index);
+    icon.height = database.read(Database::Section::touchscreen_t::height, index);
+
     model.setIconState(icon, state);
-}
-
-__attribute__((weak)) bool Touchscreen::getIcon(size_t index, icon_t& icon)
-{
-    return false;
-}
-
-__attribute__((weak)) bool Touchscreen::isScreenChangeButton(size_t index, size_t& screenID)
-{
-    return false;
 }

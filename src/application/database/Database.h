@@ -51,6 +51,7 @@ class Database : public LESSDB
         analog,
         leds,
         display,
+        touchscreen,
         AMOUNT
     };
 
@@ -118,6 +119,20 @@ class Database : public LESSDB
             setting,
             AMOUNT
         };
+
+        enum class touchscreen_t : uint8_t
+        {
+            setting,
+            xPos,
+            yPos,
+            width,
+            height,
+            onScreen,
+            offScreen,
+            pageSwitchEnabled,
+            pageSwitchIndex,
+            AMOUNT
+        };
     };
 
     using LESSDB::read;
@@ -182,6 +197,11 @@ class Database : public LESSDB
     block_t block(Section::display_t section)
     {
         return block_t::display;
+    }
+
+    block_t block(Section::touchscreen_t section)
+    {
+        return block_t::touchscreen;
     }
 
     uint16_t getDbUID();

@@ -65,6 +65,12 @@ SysExConf::DataHandler::result_t SysConfig::SysExDataHandler::set(uint8_t       
     }
     break;
 
+    case block_t::touchscreen:
+    {
+        result = sysConfig.onSetTouchscreen(static_cast<Section::touchscreen_t>(section), index, newValue);
+    }
+    break;
+
     default:
         break;
     }
@@ -685,6 +691,30 @@ SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t i
         display.init(false);
 
     return result;
+#else
+    return SysConfig::result_t::notSupported;
+#endif
+}
+
+SysConfig::result_t SysConfig::onSetTouchscreen(Section::touchscreen_t section, size_t index, SysExConf::sysExParameter_t newValue)
+{
+#ifdef TOUCHSCREEN_SUPPORTED
+    switch (section)
+    {
+    case Section::touchscreen_t::setting:
+    {
+        if (index == static_cast<size_t>(IO::Touchscreen::setting_t::enable))
+        {
+            if (newValue)
+                touchscreen.init();
+        }
+    }
+    break;
+
+    default:
+        break;
+    }
+    return database.update(dbSection(section), index, newValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
 #else
     return SysConfig::result_t::notSupported;
 #endif

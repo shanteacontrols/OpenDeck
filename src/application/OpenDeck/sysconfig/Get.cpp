@@ -61,6 +61,12 @@ SysConfig::result_t SysConfig::SysExDataHandler::get(uint8_t block, uint8_t sect
     }
     break;
 
+    case SysConfig::block_t::touchscreen:
+    {
+        result = sysConfig.onGetTouchscreen(static_cast<SysConfig::Section::touchscreen_t>(section), index, value);
+    }
+    break;
+
     default:
         break;
     }
@@ -313,6 +319,19 @@ SysConfig::result_t SysConfig::onGetLEDs(Section::leds_t section, size_t index, 
 SysConfig::result_t SysConfig::onGetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t& value)
 {
 #ifdef DISPLAY_SUPPORTED
+    int32_t readValue;
+    auto    result = database.read(dbSection(section), index, readValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
+
+    value = readValue;
+    return result;
+#else
+    return SysConfig::result_t::notSupported;
+#endif
+}
+
+SysConfig::result_t SysConfig::onGetTouchscreen(Section::touchscreen_t section, size_t index, SysExConf::sysExParameter_t& value)
+{
+#ifdef TOUCHSCREEN_SUPPORTED
     int32_t readValue;
     auto    result = database.read(dbSection(section), index, readValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
 

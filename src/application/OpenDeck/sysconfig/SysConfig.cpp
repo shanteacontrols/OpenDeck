@@ -49,6 +49,9 @@ Database::block_t SysConfig::dbBlock(uint8_t index)
     case block_t::display:
         return Database::block_t::display;
 
+    case block_t::touchscreen:
+        return Database::block_t::touchscreen;
+
     default:
         return Database::block_t::AMOUNT;
     }
@@ -82,6 +85,11 @@ Database::Section::leds_t SysConfig::dbSection(Section::leds_t section)
 Database::Section::display_t SysConfig::dbSection(Section::display_t section)
 {
     return sysEx2DB_display[static_cast<uint8_t>(section)];
+}
+
+Database::Section::touchscreen_t SysConfig::dbSection(Section::touchscreen_t section)
+{
+    return sysEx2DB_touchscreen[static_cast<uint8_t>(section)];
 }
 
 void SysConfig::handleSysEx(const uint8_t* array, size_t size)

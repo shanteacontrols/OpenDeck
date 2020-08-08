@@ -20,6 +20,7 @@ limitations under the License.
 
 #include <inttypes.h>
 #include <stdlib.h>
+#include "database/Database.h"
 
 #ifndef TOUCHSCREEN_SUPPORTED
 #include "Stub.h"
@@ -69,9 +70,17 @@ namespace IO
             virtual void setIconState(Touchscreen::icon_t& icon, bool state) = 0;
         };
 
-        Touchscreen(Model& model)
-            : model(model)
+        Touchscreen(Database& database, Model& model)
+            : database(database)
+            , model(model)
         {}
+
+        enum class setting_t : uint8_t
+        {
+            enable,
+            brightness,
+            AMOUNT
+        };
 
         bool   init();
         void   update();
@@ -82,13 +91,11 @@ namespace IO
         void   setIconState(size_t index, bool state);
 
         private:
-        Model& model;
+        Database& database;
+        Model&    model;
 
         void (*buttonHandler)(size_t index, bool state) = nullptr;
         void (*screenHandler)(size_t screenID)          = nullptr;
-
-        static bool getIcon(size_t index, icon_t& icon);
-        static bool isScreenChangeButton(size_t index, size_t& screenID);
 
         size_t activeScreenID = 0;
         bool   initialized    = false;

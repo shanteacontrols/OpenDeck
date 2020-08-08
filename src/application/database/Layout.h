@@ -21,6 +21,7 @@ limitations under the License.
 #include "Database.h"
 #include "io/leds/LEDs.h"
 #include "io/display/Display.h"
+#include "io/touchscreen/Touchscreen.h"
 #include "OpenDeck/sysconfig/SysConfig.h"
 #include "io/display/Config.h"
 
@@ -363,6 +364,98 @@ namespace
         }
     };
 
+    LESSDB::section_t touchscreenSections[static_cast<uint8_t>(Database::Section::touchscreen_t::AMOUNT)] = {
+        //setting section
+        {
+            .numberOfParameters     = static_cast<uint8_t>(IO::Touchscreen::setting_t::AMOUNT),
+            .parameterType          = LESSDB::sectionParameterType_t::byte,
+            .preserveOnPartialReset = 0,
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
+
+        //x position section
+        {
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .parameterType          = LESSDB::sectionParameterType_t::word,
+            .preserveOnPartialReset = 0,
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
+
+        //y position section
+        {
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .parameterType          = LESSDB::sectionParameterType_t::word,
+            .preserveOnPartialReset = 0,
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
+
+        //width section
+        {
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .parameterType          = LESSDB::sectionParameterType_t::word,
+            .preserveOnPartialReset = 0,
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
+
+        //height section
+        {
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .parameterType          = LESSDB::sectionParameterType_t::word,
+            .preserveOnPartialReset = 0,
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
+
+        //on screen section
+        {
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .parameterType          = LESSDB::sectionParameterType_t::halfByte,
+            .preserveOnPartialReset = 0,
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
+
+        //off screen section
+        {
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .parameterType          = LESSDB::sectionParameterType_t::halfByte,
+            .preserveOnPartialReset = 0,
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
+
+        //page switch enabled section
+        {
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .parameterType          = LESSDB::sectionParameterType_t::bit,
+            .preserveOnPartialReset = 0,
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
+
+        //page switch index section
+        {
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .parameterType          = LESSDB::sectionParameterType_t::halfByte,
+            .preserveOnPartialReset = 0,
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
+    };
+
     LESSDB::block_t dbLayout[static_cast<uint8_t>(Database::block_t::AMOUNT) + 1] = {
         //system block
         {
@@ -411,6 +504,13 @@ namespace
             .numberOfSections = static_cast<uint8_t>(Database::Section::display_t::AMOUNT),
             .section          = displaySections,
             .address          = 0,
-        }
+        },
+
+        //touchscreen block
+        {
+            .numberOfSections = static_cast<uint8_t>(Database::Section::touchscreen_t::AMOUNT),
+            .section          = touchscreenSections,
+            .address          = 0,
+        },
     };
 }    // namespace

@@ -20,6 +20,7 @@ limitations under the License.
 
 #include <inttypes.h>
 #include <stdlib.h>
+#include "database/Database.h"
 
 namespace IO
 {
@@ -43,8 +44,15 @@ namespace IO
             virtual void setIconState(Touchscreen::icon_t& icon, bool state) = 0;
         };
 
-        Touchscreen(Model& model)
+        Touchscreen(Database& database, Model& model)
         {}
+
+        enum class setting_t : uint8_t
+        {
+            enable,
+            brightness,
+            AMOUNT
+        };
 
         bool init()
         {

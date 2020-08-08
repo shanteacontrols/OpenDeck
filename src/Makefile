@@ -200,10 +200,6 @@ board/gen/$(TARGETNAME)/Pins.cpp: ../targets/$(TARGETNAME).yml
 	@echo Generating pins...
 	@../scripts/gen_pins.sh $<
 
-application/io/touchscreen/coordinates/$(TARGETNAME).cpp: application/io/touchscreen/coordinates/$(TARGETNAME).json
-	@echo Generating touchscreen coordinate file...
-	@../scripts/gen_touchscreen.sh $<
-
 $(BUILD_DIR)/%.c.o: %.c
 	@mkdir -p $(@D)
 	@echo Building: $<

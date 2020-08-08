@@ -26,11 +26,19 @@ limitations under the License.
 #include "io/encoders/Encoders.h"
 #include "io/analog/Analog.h"
 #include "io/leds/LEDs.h"
+#include "io/touchscreen/Touchscreen.h"
 
 class SysConfig
 {
     public:
-    SysConfig(Database& database, MIDI& midi, IO::Buttons& buttons, IO::Encoders& encoders, IO::Analog& analog, IO::LEDs& leds, IO::Display& display)
+    SysConfig(Database&        database,
+              MIDI&            midi,
+              IO::Buttons&     buttons,
+              IO::Encoders&    encoders,
+              IO::Analog&      analog,
+              IO::LEDs&        leds,
+              IO::Display&     display,
+              IO::Touchscreen& touchscreen)
         : sysExConf(
               sysExDataHandler,
               sysExMID,
@@ -43,6 +51,7 @@ class SysConfig
         , analog(analog)
         , leds(leds)
         , display(display)
+        , touchscreen(touchscreen)
         , sysExDataHandler(*this)
     {}
 
@@ -54,6 +63,7 @@ class SysConfig
         analog,
         leds,
         display,
+        touchscreen,
         AMOUNT
     };
 
@@ -126,6 +136,20 @@ class SysConfig
         {
             features,
             setting,
+            AMOUNT
+        };
+
+        enum class touchscreen_t : uint8_t
+        {
+            setting,
+            xPos,
+            yPos,
+            width,
+            height,
+            onScreen,
+            offScreen,
+            pageSwitchEnabled,
+            pageSwitchIndex,
             AMOUNT
         };
     };
@@ -203,13 +227,14 @@ class SysConfig
 
     SysExConf sysExConf;
 
-    Database&     database;
-    MIDI&         midi;
-    IO::Buttons&  buttons;
-    IO::Encoders& encoders;
-    IO::Analog&   analog;
-    IO::LEDs&     leds;
-    IO::Display&  display;
+    Database&        database;
+    MIDI&            midi;
+    IO::Buttons&     buttons;
+    IO::Encoders&    encoders;
+    IO::Analog&      analog;
+    IO::LEDs&        leds;
+    IO::Display&     display;
+    IO::Touchscreen& touchscreen;
 
     SysExDataHandler sysExDataHandler;
 
@@ -297,14 +322,27 @@ class SysConfig
         Database::Section::display_t::setting,
     };
 
+    const Database::Section::touchscreen_t sysEx2DB_touchscreen[static_cast<uint8_t>(Section::touchscreen_t::AMOUNT)] = {
+        Database::Section::touchscreen_t::setting,
+        Database::Section::touchscreen_t::xPos,
+        Database::Section::touchscreen_t::yPos,
+        Database::Section::touchscreen_t::width,
+        Database::Section::touchscreen_t::height,
+        Database::Section::touchscreen_t::onScreen,
+        Database::Section::touchscreen_t::offScreen,
+        Database::Section::touchscreen_t::pageSwitchEnabled,
+        Database::Section::touchscreen_t::pageSwitchIndex,
+    };
+
     Database::block_t dbBlock(uint8_t index);
 
-    Database::Section::global_t  dbSection(Section::global_t section);
-    Database::Section::button_t  dbSection(Section::button_t section);
-    Database::Section::encoder_t dbSection(Section::encoder_t section);
-    Database::Section::analog_t  dbSection(Section::analog_t section);
-    Database::Section::leds_t    dbSection(Section::leds_t section);
-    Database::Section::display_t dbSection(Section::display_t section);
+    Database::Section::global_t      dbSection(Section::global_t section);
+    Database::Section::button_t      dbSection(Section::button_t section);
+    Database::Section::encoder_t     dbSection(Section::encoder_t section);
+    Database::Section::analog_t      dbSection(Section::analog_t section);
+    Database::Section::leds_t        dbSection(Section::leds_t section);
+    Database::Section::display_t     dbSection(Section::display_t section);
+    Database::Section::touchscreen_t dbSection(Section::touchscreen_t section);
 
     result_t onGetGlobal(Section::global_t section, size_t index, SysExConf::sysExParameter_t& value);
     result_t onGetButtons(Section::button_t section, size_t index, SysExConf::sysExParameter_t& value);
@@ -312,6 +350,7 @@ class SysConfig
     result_t onGetAnalog(Section::analog_t section, size_t index, SysExConf::sysExParameter_t& value);
     result_t onGetLEDs(Section::leds_t section, size_t index, SysExConf::sysExParameter_t& value);
     result_t onGetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t& value);
+    result_t onGetTouchscreen(Section::touchscreen_t section, size_t index, SysExConf::sysExParameter_t& value);
 
     result_t onSetGlobal(Section::global_t section, size_t index, SysExConf::sysExParameter_t newValue);
     result_t onSetButtons(Section::button_t section, size_t index, SysExConf::sysExParameter_t newValue);
@@ -319,4 +358,5 @@ class SysConfig
     result_t onSetAnalog(Section::analog_t section, size_t index, SysExConf::sysExParameter_t newValue);
     result_t onSetLEDs(Section::leds_t section, size_t index, SysExConf::sysExParameter_t newValue);
     result_t onSetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t newValue);
+    result_t onSetTouchscreen(Section::touchscreen_t section, size_t index, SysExConf::sysExParameter_t newValue);
 };
