@@ -95,6 +95,12 @@ Database::Section::touchscreen_t SysConfig::dbSection(Section::touchscreen_t sec
 void SysConfig::handleSysEx(const uint8_t* array, size_t size)
 {
     sysExConf.handleMessage(array, size);
+
+    if (backupRequested)
+    {
+        backup();
+        backupRequested = false;
+    }
 }
 
 SysConfig::result_t SysConfig::SysExDataHandler::customRequest(size_t request, CustomResponse& customResponse)
@@ -204,6 +210,13 @@ SysConfig::result_t SysConfig::SysExDataHandler::customRequest(size_t request, C
     case SYSEX_CR_DISABLE_PROCESSING:
     {
         sysConfig.processingEnabled = false;
+    }
+    break;
+
+    case SYSEX_CR_FULL_BACKUP:
+    {
+        //no response here, just set flag internally that backup needs to be done
+        sysConfig.backupRequested = true;
     }
     break;
 
@@ -499,4 +512,75 @@ bool SysConfig::isMIDIfeatureEnabled(midiFeature_t feature)
 SysConfig::midiMergeType_t SysConfig::midiMergeType()
 {
     return static_cast<midiMergeType_t>(database.read(Database::Section::global_t::midiMerge, static_cast<size_t>(midiMerge_t::mergeType)));
+}
+
+void SysConfig::backup()
+{
+    uint8_t backupRequest[] = {
+        0xF0,
+        sysExMID.id1,
+        sysExMID.id2,
+        sysExMID.id3,
+        0x00,    //request
+        0x7F,    //all message parts,
+        static_cast<uint8_t>(SysExConf::wish_t::backup),
+        static_cast<uint8_t>(SysExConf::amount_t::all),
+        0x00,    //block - set later in the loop
+        0x00,    //section - set later in the loop
+        0x00,    //index - unused but required
+        0xF7
+    };
+
+    SysExConf::sysExParameter_t presetChangeRequest[] = {
+        static_cast<uint8_t>(SysExConf::wish_t::set),
+        static_cast<uint8_t>(SysExConf::amount_t::single),
+        static_cast<uint8_t>(SysConfig::block_t::global),
+        static_cast<uint8_t>(SysConfig::Section::global_t::presets),
+        0x00,    //index 0 is active preset
+        0x00     //preset value - set later in the loop
+    };
+
+    const uint8_t presetChangeRequestSize        = 6;
+    const uint8_t presetChangeRequestPresetIndex = 5;
+    const uint8_t backupRequestBlockIndex        = 8;
+    const uint8_t backupRequestSectionIndex      = 9;
+
+    uint8_t currentPreset = database.getPreset();
+
+    //make sure not to report any errors while performing backup
+    sysExConf.setSilentMode(true);
+
+    //send internally created backup requests to sysex handler for all presets, blocks and presets
+    for (uint8_t preset = 0; preset < database.getSupportedPresets(); preset++)
+    {
+        database.setPreset(preset);
+        presetChangeRequest[presetChangeRequestPresetIndex] = preset;
+        sysExConf.sendCustomMessage(presetChangeRequest, presetChangeRequestSize, false);
+
+        for (size_t block = 0; block < static_cast<uint8_t>(SysConfig::block_t::AMOUNT); block++)
+        {
+            backupRequest[backupRequestBlockIndex] = block;
+
+            for (size_t section = 0; section < sysExLayout[block].numberOfSections; section++)
+            {
+                if (
+                    (block == static_cast<uint8_t>(SysConfig::block_t::leds)) &&
+                    ((section == static_cast<uint8_t>(SysConfig::Section::leds_t::testColor)) ||
+                     (section == static_cast<uint8_t>(SysConfig::Section::leds_t::testBlink))))
+                    continue;    //testing sections, skip
+
+                backupRequest[backupRequestSectionIndex] = section;
+                sysExConf.handleMessage(backupRequest, sizeof(backupRequest));
+            }
+        }
+    }
+
+    database.setPreset(currentPreset);
+    presetChangeRequest[presetChangeRequestPresetIndex] = currentPreset;
+    sysExConf.sendCustomMessage(presetChangeRequest, presetChangeRequestSize);
+
+    //finally, send back full backup request to mark the end of sending
+    SysExConf::sysExParameter_t endMarker = SYSEX_CR_FULL_BACKUP;
+    sysExConf.sendCustomMessage(&endMarker, 1);
+    sysExConf.setSilentMode(false);
 }

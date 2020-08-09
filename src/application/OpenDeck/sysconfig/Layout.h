@@ -467,5 +467,10 @@ namespace
             .requestID     = SYSEX_CR_BOOTLOADER_SUPPORT,
             .connOpenCheck = true,
         },
+
+        {
+            .requestID     = SYSEX_CR_FULL_BACKUP,
+            .connOpenCheck = true,
+        },
     };
 }    // namespace

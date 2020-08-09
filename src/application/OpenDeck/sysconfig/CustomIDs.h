@@ -34,13 +34,14 @@ limitations under the License.
 #define SYSEX_CR_DAISY_CHAIN                   0x6D
 #define SYSEX_CR_SUPPORTED_PRESETS             0x50
 #define SYSEX_CR_BOOTLOADER_SUPPORT            0x51
+#define SYSEX_CR_FULL_BACKUP                   0x1B
 
 /// @}
 
 ///
 /// \brief Total number of custom requests.
 ///
-#define NUMBER_OF_CUSTOM_REQUESTS 12
+#define NUMBER_OF_CUSTOM_REQUESTS 13
 
 ///
 /// \brief Custom ID used when sending info about components to host.

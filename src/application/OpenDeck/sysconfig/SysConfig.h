@@ -248,6 +248,7 @@ class SysConfig
     bool onSet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t newValue);
     bool onCustomRequest(size_t value);
     void onWrite(uint8_t* sysExArray, size_t size);
+    void backup();
 
     ///
     /// \brief Configures UART read/write handlers for MIDI module.
@@ -265,6 +266,7 @@ class SysConfig
 #endif
 
     uint32_t lastCinfoMsgTime[static_cast<uint8_t>(Database::block_t::AMOUNT)];
+    bool     backupRequested = false;
 
     //map sysex sections to sections in db
     const Database::Section::global_t sysEx2DB_global[static_cast<uint8_t>(Section::global_t::AMOUNT)] = {
