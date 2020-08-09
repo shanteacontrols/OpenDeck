@@ -480,6 +480,7 @@ void OpenDeck::init()
 
     touchscreen.setButtonHandler([](size_t index, bool state) {
         buttons.processButton(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + index, state);
+        cinfo.send(Database::block_t::touchscreen, index);
     });
 
     touchscreen.setScreenChangeHandler([](size_t screenID) {
