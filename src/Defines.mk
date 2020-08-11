@@ -29,17 +29,7 @@ ARCH := $(shell yq r ../targets/$(TARGETNAME).yml arch)
 MCU := $(shell yq r ../targets/$(TARGETNAME).yml mcu)
 MCU_FAMILY := $(shell yq r ../targets/$(TARGETNAME).yml mcuFamily)
 
-ifeq ($(MCU), atmega32u4)
-    FUSE_UNLOCK := 0xff
-    FUSE_EXT := 0xc8
-    FUSE_HIGH := 0xd0
-    FUSE_LOW := 0xff
-    FUSE_LOCK := 0xef
-    APP_START_ADDR := 0x00
-    BOOT_START_ADDR := 0x7000
-    FW_METADATA_LOCATION := 0xAC
-    DEFINES += __AVR_ATmega32U4__
-else ifeq ($(MCU), at90usb1286)
+ifeq ($(MCU), at90usb1286)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xf8
     FUSE_HIGH := 0xd0
@@ -59,16 +49,6 @@ else ifeq ($(MCU), atmega16u2)
     BOOT_START_ADDR := 0x3000
     FW_METADATA_LOCATION := 0x74
     DEFINES += __AVR_ATmega16U2__
-else ifeq ($(MCU), atmega8u2)
-    FUSE_UNLOCK := 0xff
-    FUSE_EXT := 0xf8
-    FUSE_HIGH := 0xd3
-    FUSE_LOW := 0xff
-    FUSE_LOCK := 0xef
-    APP_START_ADDR := 0x00
-    BOOT_START_ADDR := 0x1800
-    FW_METADATA_LOCATION := 0x74
-    DEFINES += __AVR_ATmega8U2__
 else ifeq ($(MCU), atmega2560)
     FUSE_UNLOCK := 0xff
     FUSE_EXT := 0xfc
@@ -79,16 +59,6 @@ else ifeq ($(MCU), atmega2560)
     BOOT_START_ADDR := 0x3E000
     FW_METADATA_LOCATION := 0xE4
     DEFINES += __AVR_ATmega2560__
-else ifeq ($(MCU), atmega328p)
-    FUSE_UNLOCK := 0xff
-    FUSE_EXT := 0xfc
-    FUSE_HIGH := 0xd0
-    FUSE_LOW := 0xff
-    FUSE_LOCK := 0xef
-    APP_START_ADDR := 0x00
-    BOOT_START_ADDR := 0x7000
-    FW_METADATA_LOCATION := 0x68
-    DEFINES += __AVR_ATmega328P__
 else ifeq ($(MCU), stm32f407)
     CPU := cortex-m4
     FPU := fpv4-sp-d16

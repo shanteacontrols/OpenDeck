@@ -20,9 +20,6 @@ using [Web interface](https://paradajz.github.io/OpenDeck).
 
 OpenDeck firmware is compatible with official OpenDeck board, as well as various other boards:
 
-* Arduino Uno
-* Arduino Leonardo
-* Arduino Pro Micro
 * Arduino Mega2560
 * Teensy++ 2.0
 * STM32F4 Discovery
