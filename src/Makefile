@@ -233,6 +233,16 @@ endif
 endif
 
 flash-bmp:
+ifneq (,$(wildcard $(MERGED_TARGET)))
+	$(FLASH_BIN) -nx --batch \
+	-ex 'target extended-remote /dev/$(PORT)' \
+	-ex 'monitor swdp_scan' \
+	-ex 'attach 1' \
+	-ex 'load' \
+	-ex 'compare-sections' \
+	-ex 'kill' \
+	$(MERGED_TARGET)
+else
 	$(FLASH_BIN) -nx --batch \
 	-ex 'target extended-remote /dev/$(PORT)' \
 	-ex 'monitor swdp_scan' \
@@ -241,6 +251,7 @@ flash-bmp:
 	-ex 'compare-sections' \
 	-ex 'kill' \
 	$(TARGET).hex
+endif
 
 ifeq ($(ARCH), avr)
 flashread:
