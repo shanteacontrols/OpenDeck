@@ -42,7 +42,7 @@ class SysConfig
         : sysExConf(
               sysExDataHandler,
               sysExMID,
-              SysExConf::paramSize_t::_7bit,
+              SysExConf::paramSize_t::_14bit,
               SysExConf::nrOfParam_t::_32)
         , database(database)
         , midi(midi)

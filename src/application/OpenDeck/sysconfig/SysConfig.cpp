@@ -311,10 +311,17 @@ bool SysConfig::sendCInfo(Database::block_t dbBlock, SysExConf::sysExParameter_t
             SysExConf::sysExParameter_t cInfoMessage[] = {
                 SYSEX_CM_COMPONENT_ID,
                 static_cast<SysExConf::sysExParameter_t>(dbBlock),
-                static_cast<SysExConf::sysExParameter_t>(componentID)
+                0,
+                0
             };
 
-            sysExConf.sendCustomMessage(cInfoMessage, 3);
+            uint8_t high, low;
+            SysExConf::split14bit(componentID, high, low);
+
+            cInfoMessage[2] = high;
+            cInfoMessage[3] = low;
+
+            sysExConf.sendCustomMessage(cInfoMessage, 4);
             lastCinfoMsgTime[static_cast<uint8_t>(dbBlock)] = core::timing::currentRunTimeMs();
         }
 
@@ -527,7 +534,10 @@ void SysConfig::backup()
         static_cast<uint8_t>(SysExConf::amount_t::all),
         0x00,    //block - set later in the loop
         0x00,    //section - set later in the loop
-        0x00,    //index - unused but required
+        0x00,    //index MSB - unused but required
+        0x00,    //index LSB - unused but required
+        0x00,    //new value MSB - unused but required
+        0x00,    //new value LSB - unused but required
         0xF7
     };
 
@@ -536,12 +546,14 @@ void SysConfig::backup()
         static_cast<uint8_t>(SysExConf::amount_t::single),
         static_cast<uint8_t>(SysConfig::block_t::global),
         static_cast<uint8_t>(SysConfig::Section::global_t::presets),
-        0x00,    //index 0 is active preset
-        0x00     //preset value - set later in the loop
+        0x00,    //index 0 (active preset) MSB
+        0x00,    //index 0 (active preset) LSB
+        0x00,    //preset value MSB - always 0
+        0x00     //preset value LSB - set later in the loop
     };
 
-    const uint8_t presetChangeRequestSize        = 6;
-    const uint8_t presetChangeRequestPresetIndex = 5;
+    const uint8_t presetChangeRequestSize        = 8;
+    const uint8_t presetChangeRequestPresetIndex = 7;
     const uint8_t backupRequestBlockIndex        = 8;
     const uint8_t backupRequestSectionIndex      = 9;
 
