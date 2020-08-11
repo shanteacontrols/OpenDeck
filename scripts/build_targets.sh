@@ -102,6 +102,12 @@ do
                     cp "$(make TARGETNAME="${targets[$i]}" BOOT=1 print-MERGED_TARGET)" "$dir"
                 fi
 
+                if [[ ${targets[$i]} == "mega16u2" ]]
+                then
+                    #no need to copy firmware for atmega16u2 - it's only a USB link
+                    continue;
+                fi
+
                 #always copy application to bin directory
                 dir=../bin/compiled/fw/"$(make TARGETNAME="${targets[$i]}" print-ARCH)"/"$(make TARGETNAME="${targets[$i]}" print-MCU)"
                 mkdir -p "$dir"
