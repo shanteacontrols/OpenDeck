@@ -46,6 +46,20 @@
             "preLaunchTask": "[FW/STM32FDiscovery/Debug] Build"
         },
         {
+            "type": "cortex-debug",
+            "request": "attach",
+            "servertype": "bmp",
+            "cwd": "${workspaceRoot}",
+            "executable": "./src/build/application/discovery/debug/discovery.elf",
+            "name": "[STM32F407/FW] Attach Debug (BMP)",
+            "interface": "swd",
+            "svdFile": "${workspaceFolder}/misc/STM32F40x.svd",
+            "device": "STM32F407",
+            "BMPGDBSerialPort": "/dev/ttyACM0",
+            "targetId": 1,
+            "preLaunchTask": "[FW/STM32FDiscovery/Debug] Build"
+        },
+        {
             "runToMain": true,
             "type": "cortex-debug",
             "request": "launch",
