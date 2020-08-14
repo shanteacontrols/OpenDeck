@@ -31,10 +31,12 @@ endif
 BUILD_DIR := $(BUILD_DIR)/$(TARGETNAME)
 
 ifeq ($(DEBUG),1)
-    BUILD_DIR := $(BUILD_DIR)/debug
+    BUILD_TYPE := debug
 else
-    BUILD_DIR := $(BUILD_DIR)/release
+    BUILD_TYPE := release
 endif
+
+BUILD_DIR := $(BUILD_DIR)/$(BUILD_TYPE)
 
 TARGET := $(BUILD_DIR)/$(TARGETNAME)
 .DEFAULT_GOAL := fw
@@ -188,9 +190,9 @@ merged:
 	@$(MAKE) --no-print-directory TARGETNAME=$(TARGETNAME) BOOT=1
 	@echo Combining application and bootloader...
 ifeq ($(ARCH), avr)
-	@srec_cat "$(BUILD_DIR_BASE)/application/$(TARGETNAME)/release/$(TARGETNAME).hex" -Intel "$(BUILD_DIR_BASE)/bootloader/$(TARGETNAME)/release/$(TARGETNAME).hex" -Intel -o $(MERGED_TARGET) -Intel
+	@srec_cat "$(BUILD_DIR_BASE)/application/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex" -Intel "$(BUILD_DIR_BASE)/bootloader/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex" -Intel -o $(MERGED_TARGET) -Intel
 else
-	@srec_cat "$(BUILD_DIR_BASE)/bootloader/$(TARGETNAME)/release/$(TARGETNAME).hex" -Intel "$(BUILD_DIR_BASE)/application/$(TARGETNAME)/release/$(TARGETNAME).hex" -Intel -o $(MERGED_TARGET) -Intel
+	@srec_cat "$(BUILD_DIR_BASE)/bootloader/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex" -Intel "$(BUILD_DIR_BASE)/application/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex" -Intel -o $(MERGED_TARGET) -Intel
 endif
 	@echo Merged binary created: $(MERGED_TARGET)
 
