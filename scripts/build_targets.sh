@@ -104,14 +104,12 @@ do
 
                 if [[ ${targets[$i]} == "mega16u2" ]]
                 then
-                    #no need to copy firmware for atmega16u2 - it's only a USB link
+                    #no need to create sysex firmware for atmega16u2 - it's only a USB link
                     continue;
                 fi
 
-                #always copy application to bin directory
-                dir=../bin/compiled/fw/"$(make TARGETNAME="${targets[$i]}" print-ARCH)"/"$(make TARGETNAME="${targets[$i]}" print-MCU)"
-                mkdir -p "$dir"
-                cp "$(make TARGETNAME="${targets[$i]}" BOOT=0 print-TARGET)".hex "$dir"
+                #create sysex fw update file
+                make sysexfw TARGETNAME="${targets[$i]}" BOOT=0
             fi
         fi
     else
