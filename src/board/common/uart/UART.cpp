@@ -43,6 +43,11 @@ namespace
     volatile bool txDone[MAX_UART_INTERFACES];
 
     ///
+    /// \brief Flag holding the state of UART interface (whether it's initialized or not).
+    ///
+    bool initialized[MAX_UART_INTERFACES];
+
+    ///
     /// \brief Buffer in which outgoing UART data is stored.
     ///
     core::RingBuffer<uint8_t, TX_BUFFER_SIZE> txBuffer[MAX_UART_INTERFACES];
@@ -84,14 +89,15 @@ namespace Board
             if (channel >= MAX_UART_INTERFACES)
                 return false;
 
-            setLoopbackState(channel, false);
-
             if (Board::detail::UART::ll::deInit(channel))
             {
+                setLoopbackState(channel, false);
+
                 rxBuffer[channel].reset();
                 txBuffer[channel].reset();
 
-                txDone[channel] = true;
+                txDone[channel]      = true;
+                initialized[channel] = false;
 
                 return true;
             }
@@ -104,10 +110,24 @@ namespace Board
             if (channel >= MAX_UART_INTERFACES)
                 return false;
 
+            if (isInitialized(channel))
+                return false;    //interface already initialized
+
             if (deInit(channel))
-                return Board::detail::UART::ll::init(channel, baudRate);
+            {
+                if (Board::detail::UART::ll::init(channel, baudRate))
+                {
+                    initialized[channel] = true;
+                    return true;
+                }
+            }
 
             return false;
+        }
+
+        bool isInitialized(uint8_t channel)
+        {
+            return initialized[channel];
         }
 
         bool read(uint8_t channel, uint8_t& data)

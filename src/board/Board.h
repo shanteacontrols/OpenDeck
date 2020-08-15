@@ -92,6 +92,12 @@ namespace Board
         bool deInit(uint8_t channel);
 
         ///
+        /// \brief Checks if specified UART channel is initialized.
+        /// @param [in] channel UART channel on MCU.
+        ///
+        bool isInitialized(uint8_t channel);
+
+        ///
         /// \brief Used to read MIDI data from RX UART buffer.
         /// @param [in]     channel     UART channel on MCU.
         /// @param [in,out] data        Pointer to variable in which read data is being stored.
