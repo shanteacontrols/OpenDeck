@@ -336,6 +336,13 @@ class SysConfig
         Database::Section::touchscreen_t::pageSwitchIndex,
     };
 
+    enum class initAction_t : uint8_t
+    {
+        asIs,
+        init,
+        deInit
+    };
+
     Database::block_t dbBlock(uint8_t index);
 
     Database::Section::global_t      dbSection(Section::global_t section);

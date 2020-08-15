@@ -699,6 +699,8 @@ SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t i
 SysConfig::result_t SysConfig::onSetTouchscreen(Section::touchscreen_t section, size_t index, SysExConf::sysExParameter_t newValue)
 {
 #ifdef TOUCHSCREEN_SUPPORTED
+    auto initAction = initAction_t::asIs;
+
     switch (section)
     {
     case Section::touchscreen_t::setting:
@@ -706,7 +708,9 @@ SysConfig::result_t SysConfig::onSetTouchscreen(Section::touchscreen_t section, 
         if (index == static_cast<size_t>(IO::Touchscreen::setting_t::enable))
         {
             if (newValue)
-                touchscreen.init();
+                initAction = initAction_t::init;
+            else
+                initAction = initAction_t::deInit;
         }
     }
     break;
@@ -714,7 +718,22 @@ SysConfig::result_t SysConfig::onSetTouchscreen(Section::touchscreen_t section, 
     default:
         break;
     }
-    return database.update(dbSection(section), index, newValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
+
+    bool result = database.update(dbSection(section), index, newValue);
+
+    if (result)
+    {
+        if (initAction == initAction_t::init)
+            touchscreen.init();
+        else if (initAction == initAction_t::deInit)
+            touchscreen.deInit();
+
+        return SysConfig::result_t::ok;
+    }
+    else
+    {
+        return SysConfig::result_t::error;
+    }
 #else
     return SysConfig::result_t::notSupported;
 #endif

@@ -37,6 +37,17 @@ bool Touchscreen::init()
     return false;
 }
 
+bool Touchscreen::deInit()
+{
+    if (model.deInit())
+    {
+        initialized = false;
+        return true;
+    }
+
+    return false;
+}
+
 void Touchscreen::update()
 {
     if (!initialized)

@@ -233,8 +233,12 @@ class HWANextion : public IO::Touchscreen::Model::HWA
 
     bool init() override
     {
-        Board::UART::init(UART_CHANNEL_TOUCHSCREEN, 230400);
-        return true;
+        return Board::UART::init(UART_CHANNEL_TOUCHSCREEN, 230400);
+    }
+
+    bool deInit() override
+    {
+        return Board::UART::deInit(UART_CHANNEL_TOUCHSCREEN);
     }
 
     bool write(uint8_t data) override

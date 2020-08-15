@@ -60,11 +60,13 @@ namespace IO
             {
                 public:
                 virtual bool init()              = 0;
+                virtual bool deInit()            = 0;
                 virtual bool write(uint8_t data) = 0;
                 virtual bool read(uint8_t& data) = 0;
             };
 
             virtual bool init()                                              = 0;
+            virtual bool deInit()                                            = 0;
             virtual bool setScreen(size_t screenID)                          = 0;
             virtual bool update(size_t& buttonID, bool& state)               = 0;
             virtual void setIconState(Touchscreen::icon_t& icon, bool state) = 0;
@@ -83,6 +85,7 @@ namespace IO
         };
 
         bool   init();
+        bool   deInit();
         void   update();
         void   setScreen(size_t screenID);
         size_t activeScreen();

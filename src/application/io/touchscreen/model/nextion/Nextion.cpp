@@ -27,6 +27,11 @@ bool Nextion::init()
     return hwa.init();
 }
 
+bool Nextion::deInit()
+{
+    return hwa.deInit();
+}
+
 bool Nextion::setScreen(size_t screenID)
 {
     return writeCommand("page %u", screenID);

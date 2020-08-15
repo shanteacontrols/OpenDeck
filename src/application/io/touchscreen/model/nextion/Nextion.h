@@ -30,6 +30,7 @@ class Nextion : public IO::Touchscreen::Model
     {}
 
     bool init() override;
+    bool deInit() override;
     bool setScreen(size_t screenID) override;
     bool update(size_t& buttonID, bool& state) override;
     void setIconState(IO::Touchscreen::icon_t& icon, bool state) override;
