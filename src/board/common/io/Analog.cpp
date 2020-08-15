@@ -60,6 +60,11 @@ namespace Board
     {
         uint16_t getAnalogValue(uint8_t analogID)
         {
+            analogID = detail::map::adcIndex(analogID);
+
+            if (analogID >= MAX_NUMBER_OF_ANALOG)
+                return 0;
+
             return analogBufferReadOnly[analogID];
         }
 

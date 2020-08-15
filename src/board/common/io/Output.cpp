@@ -201,6 +201,11 @@ namespace Board
     {
         void writeLEDstate(uint8_t ledID, bool state)
         {
+            ledID = detail::map::ledIndex(ledID);
+
+            if (ledID >= MAX_NUMBER_OF_LEDS)
+                return;
+
             ATOMIC_SECTION
             {
                 ledState[ledID] = state;
@@ -373,7 +378,7 @@ namespace Board
                 {
                     for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
                     {
-                        pin = Board::detail::map::led(i);
+                        pin = Board::detail::map::ledPin(i);
 
                         if (ledState[i])
                             EXT_LED_ON(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));

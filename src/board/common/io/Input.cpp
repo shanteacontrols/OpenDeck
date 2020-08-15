@@ -110,7 +110,7 @@ namespace
                 if (buttonIndex >= MAX_NUMBER_OF_BUTTONS)
                     break;    //done
 
-                pin = Board::detail::map::button(buttonIndex);
+                pin = Board::detail::map::buttonPin(buttonIndex);
 
                 BIT_WRITE(digitalInBuffer[dIn_head][i], j, !CORE_IO_READ(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin)));
             }
@@ -125,6 +125,11 @@ namespace Board
     {
         bool getButtonState(uint8_t buttonID)
         {
+            buttonID = detail::map::buttonIndex(buttonID);
+
+            if (buttonID >= MAX_NUMBER_OF_BUTTONS)
+                return false;
+
 #ifdef NUMBER_OF_BUTTON_COLUMNS
             uint8_t row    = buttonID / NUMBER_OF_BUTTON_COLUMNS;
             uint8_t column = buttonID % NUMBER_OF_BUTTON_COLUMNS;

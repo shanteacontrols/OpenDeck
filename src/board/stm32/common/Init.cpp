@@ -84,7 +84,7 @@ namespace Board
 #else
                 for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
                 {
-                    core::io::mcuPin_t pin = detail::map::button(i);
+                    core::io::mcuPin_t pin = detail::map::buttonPin(i);
 
 #ifndef BUTTONS_EXT_PULLUPS
                     CORE_IO_CONFIG({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::input, core::io::pullMode_t::up, core::io::gpioSpeed_t::medium, 0x00 });
@@ -129,7 +129,7 @@ namespace Board
                 for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
 #endif
                 {
-                    core::io::mcuPin_t pin = detail::map::led(i);
+                    core::io::mcuPin_t pin = detail::map::ledPin(i);
 
                     CORE_IO_CONFIG({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
                     EXT_LED_OFF(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));

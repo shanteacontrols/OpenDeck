@@ -190,14 +190,29 @@ namespace Board
             core::io::mcuPin_t adcPin(uint8_t index);
 
             ///
+            /// \brief Used to retrieve physical analog component index for a given user-specified index.
+            ///
+            uint8_t adcIndex(uint8_t index);
+
+            ///
             /// \brief Used to retrieve button port and pin for a given button index.
             ///
-            core::io::mcuPin_t button(uint8_t index);
+            core::io::mcuPin_t buttonPin(uint8_t index);
+
+            ///
+            /// \brief Used to retrieve physical button component index for a given user-specified index.
+            ///
+            uint8_t buttonIndex(uint8_t index);
 
             ///
             /// \brief Used to retrieve LED port and pin for a given LED index.
             ///
-            core::io::mcuPin_t led(uint8_t index);
+            core::io::mcuPin_t ledPin(uint8_t index);
+
+            ///
+            /// \brief Used to physical LED component index for a given user-specified index.
+            ///
+            uint8_t ledIndex(uint8_t index);
 
             ///
             /// \brief Used to retrieve all the registers needed to control PWM channel for an given index.

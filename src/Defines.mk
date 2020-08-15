@@ -221,6 +221,11 @@ else
     MAX_NUMBER_OF_BUTTONS := 0
 endif
 
+ifneq ($(shell yq r ../targets/$(TARGETNAME).yml buttons.indexing),)
+    MAX_NUMBER_OF_BUTTONS := $(shell yq r ../targets/$(TARGETNAME).yml buttons.indexing --length)
+    DEFINES += BUTTON_INDEXING
+endif
+
 ifneq ($(shell yq r ../targets/$(TARGETNAME).yml analog),)
     DEFINES += ANALOG_SUPPORTED
 endif
@@ -245,6 +250,11 @@ else
     MAX_NUMBER_OF_ANALOG := 0
     MAX_ADC_CHANNELS := 0
     DEFINES += MAX_ADC_CHANNELS=$(MAX_ADC_CHANNELS)
+endif
+
+ifneq ($(shell yq r ../targets/$(TARGETNAME).yml analog.indexing),)
+    MAX_NUMBER_OF_ANALOG := $(shell yq r ../targets/$(TARGETNAME).yml analog.indexing --length)
+    DEFINES += ANALOG_INDEXING
 endif
 
 ifeq ($(shell yq r ../targets/$(TARGETNAME).yml analog.extReference), true)
@@ -293,6 +303,11 @@ else ifeq ($(shell yq r ../targets/$(TARGETNAME).yml leds.external.type), matrix
     DEFINES += NUMBER_OF_LED_ROWS=$(NUMBER_OF_LED_ROWS)
 else
     MAX_NUMBER_OF_LEDS := 0
+endif
+
+ifneq ($(shell yq r ../targets/$(TARGETNAME).yml leds.external.indexing),)
+    MAX_NUMBER_OF_LEDS := $(shell yq r ../targets/$(TARGETNAME).yml leds.external.indexing --length)
+    DEFINES += LED_INDEXING
 endif
 
 DEFINES += MAX_NUMBER_OF_BUTTONS=$(MAX_NUMBER_OF_BUTTONS)

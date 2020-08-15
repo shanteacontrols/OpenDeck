@@ -7,11 +7,21 @@ mkdir -p board/gen/"$(basename "$PIN_FILE" .yml)"
 OUT_FILE_HEADER=board/gen/"$(basename "$PIN_FILE" .yml)"/Pins.h
 OUT_FILE_SOURCE=board/gen/"$(basename "$PIN_FILE" .yml)"/Pins.cpp
 
+declare -i digital_inputs
+declare -i digital_inputs_indexed
+declare -i digital_outputs
+declare -i digital_outputs_indexed
+declare -i analog_inputs
+declare -i analog_inputs_indexed
+
 digital_inputs=$(yq r "$PIN_FILE" buttons.pins --length)
+digital_inputs_indexed=$(yq r "$PIN_FILE" buttons.indexing --length)
 digital_in_type=$(yq r "$PIN_FILE" buttons.type)
 digital_outputs=$(yq r "$PIN_FILE" leds.external.pins --length)
+digital_outputs_indexed=$(yq r "$PIN_FILE" leds.external.indexing --length)
 digital_out_type=$(yq r "$PIN_FILE" leds.external.type)
 analog_inputs=$(yq r "$PIN_FILE" analog.pins --length)
+analog_inputs_indexed=$(yq r "$PIN_FILE" analog.indexing --length)
 analog_in_type=$(yq r "$PIN_FILE" analog.type)
 
 {
@@ -22,6 +32,21 @@ analog_in_type=$(yq r "$PIN_FILE" analog.type)
     printf "%s\n\n" "#include \"Pins.h\""
     printf "%s\n\n" "namespace {"
 } > "$OUT_FILE_SOURCE"
+
+if [[ $digital_inputs_indexed -ne 0 ]]
+then
+    digital_inputs=$digital_inputs_indexed
+
+    printf "%s\n" "const uint8_t buttonIndexes[MAX_NUMBER_OF_BUTTONS] = {" >> "$OUT_FILE_SOURCE"
+
+    for ((i=0; i<digital_inputs; i++))
+    do
+        index=$(yq r "$PIN_FILE" buttons.indexing["$i"])
+        printf "%s\n" "${index}," >> "$OUT_FILE_SOURCE"
+    done
+
+    printf "%s\n" "};" >> "$OUT_FILE_SOURCE"
+fi
 
 if [[ $digital_in_type == native ]]
 then
@@ -104,6 +129,21 @@ then
     done
 fi
 
+if [[ $digital_outputs_indexed -ne 0 ]]
+then
+    digital_outputs=$digital_outputs_indexed
+
+    printf "%s\n" "const uint8_t ledIndexes[MAX_NUMBER_OF_LEDS] = {" >> "$OUT_FILE_SOURCE"
+
+    for ((i=0; i<digital_outputs; i++))
+    do
+        index=$(yq r "$PIN_FILE" leds.external.indexing["$i"])
+        printf "%s\n" "${index}," >> "$OUT_FILE_SOURCE"
+    done
+
+    printf "%s\n" "};" >> "$OUT_FILE_SOURCE"
+fi
+
 if [[ $digital_out_type == native ]]
 then
     printf "%s\n" "const core::io::mcuPin_t dOutPins[MAX_NUMBER_OF_LEDS] = {" >> "$OUT_FILE_SOURCE"
@@ -182,6 +222,21 @@ then
         } >> "$OUT_FILE_HEADER"
 
         printf "%s\n" "CORE_IO_MCU_PIN_DEF(LED_ROW_PORT_${i}, LED_ROW_PIN_${i})," >> "$OUT_FILE_SOURCE"
+    done
+
+    printf "%s\n" "};" >> "$OUT_FILE_SOURCE"
+fi
+
+if [[ $analog_inputs_indexed -ne 0 ]]
+then
+    analog_inputs=$analog_inputs_indexed
+
+    printf "%s\n" "const uint8_t analogIndexes[MAX_NUMBER_OF_ANALOG] = {" >> "$OUT_FILE_SOURCE"
+
+    for ((i=0; i<analog_inputs; i++))
+    do
+        index=$(yq r "$PIN_FILE" analog.indexing["$i"])
+        printf "%s\n" "${index}," >> "$OUT_FILE_SOURCE"
     done
 
     printf "%s\n" "};" >> "$OUT_FILE_SOURCE"
