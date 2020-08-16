@@ -18,18 +18,19 @@ limitations under the License.
 
 #pragma once
 
+#include <inttypes.h>
 #include "io/touchscreen/Touchscreen.h"
-#include "Config.h"
-#include "Commands.h"
+#include "core/src/general/RingBuffer.h"
 
-class SDW : public IO::Touchscreen::Model
+class Viewtech : public IO::Touchscreen::Model
 {
     public:
-    SDW(IO::Touchscreen::Model::HWA& hwa)
+    Viewtech(IO::Touchscreen::Model::HWA& hwa)
         : hwa(hwa)
     {}
 
     bool init() override;
+    bool deInit() override;
     bool setScreen(size_t screenID) override;
     bool update(size_t& buttonID, bool& state) override;
     void setIconState(IO::Touchscreen::icon_t& icon, bool state) override;
@@ -37,26 +38,8 @@ class SDW : public IO::Touchscreen::Model
     private:
     IO::Touchscreen::Model::HWA& hwa;
 
-    ///
-    /// \brief Enumeration holding different byte types for display messages.
-    ///
-    enum class messageByteType_t : uint8_t
-    {
-        start,
-        content,
-        singleByte,
-        end
-    };
-
-    const uint8_t endCode[END_CODES] = {
-        END_CODE1,
-        END_CODE2,
-        END_CODE3,
-        END_CODE4
-    };
-
-    void sendMessage(uint8_t value, messageByteType_t messageByteType);
-
-    uint8_t displayRxBuffer[TOUCHSCREEN_RX_BUFFER_SIZE] = {};
-    uint8_t bufferIndex_rx                              = 0;
+    static const size_t                   bufferSize = 100;
+    core::RingBuffer<uint8_t, bufferSize> rxBuffer;
+    const uint8_t                         endBytes   = 3;
+    size_t                                endCounter = 0;
 };
