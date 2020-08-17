@@ -24,7 +24,14 @@ limitations under the License.
 bool Nextion::init()
 {
     rxBuffer.reset();
-    return hwa.init();
+
+    if (hwa.init())
+    {
+        writeCommand("dims=100");
+        return true;
+    }
+
+    return false;
 }
 
 bool Nextion::deInit()
