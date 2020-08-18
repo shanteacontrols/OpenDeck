@@ -130,6 +130,15 @@ bool Database::factoryReset(LESSDB::factoryResetType_t type)
 
         if (!initData(type))
             return false;
+
+        //perform custom init as well
+        customInitGlobal();
+        customInitButtons();
+        customInitEncoders();
+        customInitAnalog();
+        customInitLEDs();
+        customInitDisplay();
+        customInitTouchscreen();
     }
 
     if (!setPresetPreserveState(false))
@@ -278,4 +287,32 @@ bool Database::setDbUID(uint16_t uid)
         returnValue = update(0, static_cast<uint8_t>(SectionPrivate::system_t::uid), 0, uid);)
 
     return returnValue;
+}
+
+__attribute__((weak)) void Database::customInitGlobal()
+{
+}
+
+__attribute__((weak)) void Database::customInitButtons()
+{
+}
+
+__attribute__((weak)) void Database::customInitEncoders()
+{
+}
+
+__attribute__((weak)) void Database::customInitAnalog()
+{
+}
+
+__attribute__((weak)) void Database::customInitLEDs()
+{
+}
+
+__attribute__((weak)) void Database::customInitDisplay()
+{
+}
+
+__attribute__((weak)) void Database::customInitTouchscreen()
+{
 }

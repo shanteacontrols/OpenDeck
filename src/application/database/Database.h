@@ -168,6 +168,14 @@ class Database : public LESSDB
     bool    setPresetPreserveState(bool state);
     bool    getPresetPreserveState();
 
+    void customInitGlobal();
+    void customInitButtons();
+    void customInitEncoders();
+    void customInitAnalog();
+    void customInitLEDs();
+    void customInitDisplay();
+    void customInitTouchscreen();
+
     private:
     block_t block(Section::global_t section)
     {
