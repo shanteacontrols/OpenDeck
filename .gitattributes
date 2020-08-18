@@ -12,7 +12,6 @@
 *.tsi   text eol=crlf
 *.bat   text eol=crlf
 *.sh    text eol=lf
-
 #binary files
 *.bin   binary
 *.elf   binary
@@ -20,6 +19,6 @@
 *.o     binary
 *.jpg   binary
 *.png   binary
-*.bmp   binary
+*.bmp filter=lfs diff=lfs merge=lfs -text
 *.pdf   binary
 *.cdr   binary
