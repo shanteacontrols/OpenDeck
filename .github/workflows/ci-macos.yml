@@ -15,7 +15,7 @@ jobs:
         run: |
           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
           brew tap osx-cross/avr
-          brew install wget avr-gcc coreutils findutils srecord jq yq
+          brew install wget avr-gcc coreutils findutils srecord jq yq imagemagick
           wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2019q4/gcc-arm-none-eabi-9-2019-q4-major-mac.tar.bz2 -O armtoolchain.tar.bz2
           tar xjf armtoolchain.tar.bz2
       - name: Build

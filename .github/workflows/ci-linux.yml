@@ -14,7 +14,7 @@ jobs:
       - name: Prepare build env
         run: |
           wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2019q4/RC2.1/gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2 -O armtoolchain.tar.bz2
-          sudo apt-get install -y srecord jq
+          sudo apt-get install -y srecord jq imagemagick
           sudo snap install yq
           tar xjf armtoolchain.tar.bz2
           git clone https://github.com/Synapseware/avr-toolchain
