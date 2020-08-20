@@ -23,7 +23,7 @@ limitations under the License.
 
 bool Nextion::init()
 {
-    rxBuffer.reset();
+    IO::Touchscreen::Model::Common::rxBuffer.reset();
 
     if (hwa.init())
     {
@@ -49,7 +49,7 @@ bool Nextion::update(size_t& buttonID, bool& state)
     uint8_t data;
 
     if (hwa.read(data))
-        rxBuffer.insert(data);
+        IO::Touchscreen::Model::Common::rxBuffer.insert(data);
     else
         return false;
 
@@ -71,31 +71,31 @@ bool Nextion::update(size_t& buttonID, bool& state)
         //handle only button messages for now
         bool messageStart = true;
 
-        while (rxBuffer.count())
+        while (IO::Touchscreen::Model::Common::rxBuffer.count())
         {
-            rxBuffer.remove(data);
+            IO::Touchscreen::Model::Common::rxBuffer.remove(data);
 
             if ((data == 0x65) && messageStart)
             {
-                if (rxBuffer.count() >= 5)
+                if (IO::Touchscreen::Model::Common::rxBuffer.count() >= 5)
                 {
                     //state
                     //1 - pressed, 0 - released
-                    rxBuffer.remove(data);
+                    IO::Touchscreen::Model::Common::rxBuffer.remove(data);
 
                     state = data ? 1 : 0;
 
                     //button id
-                    rxBuffer.remove(data);
+                    IO::Touchscreen::Model::Common::rxBuffer.remove(data);
                     buttonID = data;
 
-                    rxBuffer.reset();
+                    IO::Touchscreen::Model::Common::rxBuffer.reset();
                     return true;
                 }
             }
             else
             {
-                rxBuffer.reset();
+                IO::Touchscreen::Model::Common::rxBuffer.reset();
             }
 
             messageStart = false;
@@ -115,7 +115,7 @@ bool Nextion::writeCommand(const char* line, ...)
     va_list args;
     va_start(args, line);
 
-    size_t retVal = vsnprintf(commandBuffer, bufferSize, line, args);
+    size_t retVal = vsnprintf(commandBuffer, IO::Touchscreen::Model::Common::bufferSize, line, args);
 
     va_end(args);
 

@@ -44,7 +44,7 @@ namespace IO
             virtual void setIconState(Touchscreen::icon_t& icon, bool state) = 0;
         };
 
-        Touchscreen(Database& database, Model& model)
+        Touchscreen(Database& database)
         {}
 
         enum class setting_t : uint8_t

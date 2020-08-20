@@ -22,7 +22,7 @@ limitations under the License.
 #include "io/touchscreen/Touchscreen.h"
 #include "core/src/general/RingBuffer.h"
 
-class Viewtech : public IO::Touchscreen::Model
+class Viewtech : public IO::Touchscreen::Model, public IO::Touchscreen::Model::Common
 {
     public:
     Viewtech(IO::Touchscreen::Model::HWA& hwa)
@@ -38,8 +38,6 @@ class Viewtech : public IO::Touchscreen::Model
     private:
     IO::Touchscreen::Model::HWA& hwa;
 
-    static const size_t                   bufferSize = 100;
-    core::RingBuffer<uint8_t, bufferSize> rxBuffer;
-    const uint8_t                         endBytes   = 3;
-    size_t                                endCounter = 0;
+    const uint8_t endBytes   = 3;
+    size_t        endCounter = 0;
 };

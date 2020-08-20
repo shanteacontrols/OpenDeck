@@ -225,11 +225,13 @@ class HWALEDsStub : public IO::LEDs::HWA
 
 #ifdef TOUCHSCREEN_SUPPORTED
 #include "io/touchscreen/model/nextion/Nextion.h"
+#include "io/touchscreen/model/viewtech/Viewtech.h"
 
-class HWANextion : public IO::Touchscreen::Model::HWA
+//use the same hwa instance for all models
+class HWAtouchscreen : public IO::Touchscreen::Model::HWA
 {
     public:
-    HWANextion() {}
+    HWAtouchscreen() {}
 
     bool init() override
     {
@@ -252,35 +254,8 @@ class HWANextion : public IO::Touchscreen::Model::HWA
     }
 } touchscreenHWA;
 
-Nextion touchscreenModel(touchscreenHWA);
-#else
-class TouchscreenModelStub : public IO::Touchscreen::Model
-{
-    public:
-    TouchscreenModelStub()
-    {}
-
-    bool init() override
-    {
-        return false;
-    }
-
-    bool setScreen(size_t screenID) override
-    {
-        return false;
-    }
-
-    bool update(size_t& buttonID, bool& state) override
-    {
-        return false;
-    }
-
-    void setIconState(IO::Touchscreen::icon_t& icon, bool state) override
-    {
-    }
-};
-
-TouchscreenModelStub touchscreenModel;
+Nextion  touchscreenModelNextion(touchscreenHWA);
+Viewtech touchscreenModelViewtech(touchscreenHWA);
 #endif
 
 #ifdef BUTTONS_SUPPORTED
@@ -443,7 +418,7 @@ MIDI            midi;
 IO::Common      digitalInputCommon;
 IO::U8X8        u8x8(hwaU8X8);
 IO::Display     display(u8x8, database);
-IO::Touchscreen touchscreen(database, touchscreenModel);
+IO::Touchscreen touchscreen(database);
 IO::LEDs        leds(hwaLEDs, database);
 IO::Analog      analog(hwaAnalog, ADC_RESOLUTION, analogFilter, database, midi, leds, display, cinfo);
 IO::Buttons     buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cinfo);
@@ -459,6 +434,11 @@ void OpenDeck::init()
     leds.init();
     encoders.init();
     display.init(true);
+
+#ifdef TOUCHSCREEN_SUPPORTED
+    touchscreen.registerModel(IO::Touchscreen::Model::model_t::nextion, &touchscreenModelNextion);
+    touchscreen.registerModel(IO::Touchscreen::Model::model_t::viewtech, &touchscreenModelViewtech);
+#endif
 
     touchscreen.init();
 

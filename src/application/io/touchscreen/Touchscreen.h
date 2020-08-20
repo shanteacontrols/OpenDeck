@@ -21,6 +21,7 @@ limitations under the License.
 #include <inttypes.h>
 #include <stdlib.h>
 #include "database/Database.h"
+#include "core/src/general/RingBuffer.h"
 
 #ifndef TOUCHSCREEN_SUPPORTED
 #include "Stub.h"
@@ -65,6 +66,23 @@ namespace IO
                 virtual bool read(uint8_t& data) = 0;
             };
 
+            class Common
+            {
+                public:
+                Common() {}
+
+                protected:
+                static const size_t                          bufferSize = 100;
+                static core::RingBuffer<uint8_t, bufferSize> rxBuffer;
+            };
+
+            enum class model_t : uint8_t
+            {
+                nextion,
+                viewtech,
+                AMOUNT
+            };
+
             virtual bool init()                                              = 0;
             virtual bool deInit()                                            = 0;
             virtual bool setScreen(size_t screenID)                          = 0;
@@ -72,20 +90,21 @@ namespace IO
             virtual void setIconState(Touchscreen::icon_t& icon, bool state) = 0;
         };
 
-        Touchscreen(Database& database, Model& model)
+        Touchscreen(Database& database)
             : database(database)
-            , model(model)
         {}
 
         enum class setting_t : uint8_t
         {
             enable,
+            model,
             brightness,
             AMOUNT
         };
 
         bool   init();
         bool   deInit();
+        bool   registerModel(IO::Touchscreen::Model::model_t, Model* ptr);
         void   update();
         void   setScreen(size_t screenID);
         size_t activeScreen();
@@ -94,14 +113,18 @@ namespace IO
         void   setIconState(size_t index, bool state);
 
         private:
+        bool isModelValid(Model::model_t model);
+
         Database& database;
-        Model&    model;
 
         void (*buttonHandler)(size_t index, bool state) = nullptr;
         void (*screenHandler)(size_t screenID)          = nullptr;
 
         size_t activeScreenID = 0;
         bool   initialized    = false;
+
+        Model*  modelPtr[static_cast<uint8_t>(Model::model_t::AMOUNT)] = {};
+        uint8_t activeModel                                            = static_cast<uint8_t>(Model::model_t::AMOUNT);
     };
 
     /// @}

@@ -23,7 +23,7 @@ limitations under the License.
 
 bool Viewtech::init()
 {
-    rxBuffer.reset();
+    IO::Touchscreen::Model::Common::rxBuffer.reset();
     return hwa.init();
 }
 
@@ -56,7 +56,7 @@ bool Viewtech::update(size_t& buttonID, bool& state)
     uint8_t data = 0;
 
     if (hwa.read(data))
-        rxBuffer.insert(data);
+        IO::Touchscreen::Model::Common::rxBuffer.insert(data);
     else
         return false;
 
@@ -77,16 +77,16 @@ bool Viewtech::update(size_t& buttonID, bool& state)
 
         //handle only button messages for now
 
-        if (rxBuffer.count() >= 7)
+        if (IO::Touchscreen::Model::Common::rxBuffer.count() >= 7)
         {
             uint8_t startHeader[2];
 
-            rxBuffer.remove(startHeader[0]);
-            rxBuffer.remove(startHeader[1]);
+            IO::Touchscreen::Model::Common::rxBuffer.remove(startHeader[0]);
+            IO::Touchscreen::Model::Common::rxBuffer.remove(startHeader[1]);
 
             if ((startHeader[0] == 0xA5) && (startHeader[1] == 0x5A))
             {
-                rxBuffer.remove(data);
+                IO::Touchscreen::Model::Common::rxBuffer.remove(data);
 
                 //button press event - 0/release, 1/press
                 if ((data == 0x00) || (data == 0x01))
@@ -94,16 +94,16 @@ bool Viewtech::update(size_t& buttonID, bool& state)
                     state = data;
 
                     //button id is the next byte
-                    rxBuffer.remove(data);
+                    IO::Touchscreen::Model::Common::rxBuffer.remove(data);
                     buttonID = data;
 
-                    rxBuffer.reset();
+                    IO::Touchscreen::Model::Common::rxBuffer.reset();
                     return true;
                 }
             }
         }
 
-        rxBuffer.reset();
+        IO::Touchscreen::Model::Common::rxBuffer.reset();
         return false;
     }
 

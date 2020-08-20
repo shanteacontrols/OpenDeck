@@ -705,12 +705,26 @@ SysConfig::result_t SysConfig::onSetTouchscreen(Section::touchscreen_t section, 
     {
     case Section::touchscreen_t::setting:
     {
-        if (index == static_cast<size_t>(IO::Touchscreen::setting_t::enable))
+        switch (index)
+        {
+        case static_cast<size_t>(IO::Touchscreen::setting_t::enable):
         {
             if (newValue)
                 initAction = initAction_t::init;
             else
                 initAction = initAction_t::deInit;
+            break;
+        }
+        break;
+
+        case static_cast<size_t>(IO::Touchscreen::setting_t::model):
+        {
+            initAction = initAction_t::init;
+        }
+        break;
+
+        default:
+            break;
         }
     }
     break;

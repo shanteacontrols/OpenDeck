@@ -22,7 +22,7 @@ limitations under the License.
 #include "io/touchscreen/Touchscreen.h"
 #include "core/src/general/RingBuffer.h"
 
-class Nextion : public IO::Touchscreen::Model
+class Nextion : public IO::Touchscreen::Model, public IO::Touchscreen::Model::Common
 {
     public:
     Nextion(IO::Touchscreen::Model::HWA& hwa)
@@ -36,11 +36,10 @@ class Nextion : public IO::Touchscreen::Model
     void setIconState(IO::Touchscreen::icon_t& icon, bool state) override;
 
     private:
-    IO::Touchscreen::Model::HWA&          hwa;
-    static const size_t                   bufferSize = 100;
-    char                                  commandBuffer[bufferSize];
-    core::RingBuffer<uint8_t, bufferSize> rxBuffer;
-    size_t                                endCounter = 0;
+    IO::Touchscreen::Model::HWA& hwa;
+
+    char   commandBuffer[IO::Touchscreen::Model::Common::bufferSize];
+    size_t endCounter = 0;
 
     bool writeCommand(const char* line, ...);
     bool endCommand();

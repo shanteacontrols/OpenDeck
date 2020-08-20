@@ -20,14 +20,34 @@ limitations under the License.
 
 using namespace IO;
 
+#define MODEL modelPtr[activeModel]
+
+core::RingBuffer<uint8_t, IO::Touchscreen::Model::Common::bufferSize> IO::Touchscreen::Model::Common::rxBuffer;
+
 bool Touchscreen::init()
 {
     if (database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::enable)))
     {
-        initialized = model.init();
+        auto dbModel = static_cast<IO::Touchscreen::Model::model_t>(database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::model)));
 
         if (initialized)
         {
+            if (static_cast<uint8_t>(dbModel) == activeModel)
+                return true;    //nothing to do, same model already initialized
+
+            if (!deInit())
+                return false;
+        }
+
+        if (!isModelValid(dbModel))
+            return false;
+
+        initialized = MODEL->init();
+
+        if (initialized)
+        {
+            activeModel = static_cast<uint8_t>(dbModel);
+
             //screen 0 should be blank or logo only - used to detect that the firmware is running
             setScreen(1);
             return true;
@@ -39,9 +59,13 @@ bool Touchscreen::init()
 
 bool Touchscreen::deInit()
 {
-    if (model.deInit())
+    if (!initialized)
+        return false;    //nothing to do
+
+    if (MODEL->deInit())
     {
         initialized = false;
+        activeModel = static_cast<uint8_t>(Model::model_t::AMOUNT);
         return true;
     }
 
@@ -56,7 +80,7 @@ void Touchscreen::update()
     size_t buttonID = 0;
     bool   state    = false;
 
-    if (model.update(buttonID, state))
+    if (MODEL->update(buttonID, state))
     {
         bool   changeScreen = false;
         size_t newScreen    = 0;
@@ -88,7 +112,10 @@ void Touchscreen::update()
 ///
 void Touchscreen::setScreen(size_t screenID)
 {
-    model.setScreen(screenID);
+    if (!initialized)
+        return;
+
+    MODEL->setScreen(screenID);
     activeScreenID = screenID;
 
     if (screenHandler != nullptr)
@@ -116,6 +143,9 @@ void Touchscreen::setScreenChangeHandler(void (*fptr)(size_t screenID))
 
 void Touchscreen::setIconState(size_t index, bool state)
 {
+    if (!initialized)
+        return;
+
     if (index >= MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS)
         return;
 
@@ -132,5 +162,25 @@ void Touchscreen::setIconState(size_t index, bool state)
     icon.width  = database.read(Database::Section::touchscreen_t::width, index);
     icon.height = database.read(Database::Section::touchscreen_t::height, index);
 
-    model.setIconState(icon, state);
+    MODEL->setIconState(icon, state);
+}
+
+bool Touchscreen::isModelValid(Model::model_t model)
+{
+    if (model == IO::Touchscreen::Model::model_t::AMOUNT)
+        return false;
+
+    if (modelPtr[static_cast<uint8_t>(model)] == nullptr)
+        return false;
+
+    return true;
+}
+
+bool Touchscreen::registerModel(IO::Touchscreen::Model::model_t model, Model* ptr)
+{
+    if (model == IO::Touchscreen::Model::model_t::AMOUNT)
+        return false;
+
+    modelPtr[static_cast<uint8_t>(model)] = ptr;
+    return true;
 }
