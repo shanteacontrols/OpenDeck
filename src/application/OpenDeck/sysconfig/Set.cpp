@@ -606,7 +606,7 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
 SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t newValue)
 {
 #ifdef DISPLAY_SUPPORTED
-    bool init = false;
+    auto initAction = initAction_t::asIs;
 
     switch (section)
     {
@@ -618,7 +618,7 @@ SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t i
         {
         case IO::Display::feature_t::enable:
         {
-            init = true;
+            initAction = newValue ? initAction_t::init : initAction_t::deInit;
         }
         break;
 
@@ -643,7 +643,7 @@ SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t i
         {
             if ((newValue <= static_cast<uint8_t>(IO::U8X8::displayController_t::AMOUNT)) && (newValue >= 0))
             {
-                init = true;
+                initAction = initAction_t::init;
             }
         }
         break;
@@ -652,7 +652,7 @@ SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t i
         {
             if ((newValue <= static_cast<uint8_t>(IO::U8X8::displayResolution_t::AMOUNT)) && (newValue >= 0))
             {
-                init = true;
+                initAction = initAction_t::init;
             }
         }
         break;
@@ -671,7 +671,7 @@ SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t i
 
         case IO::Display::setting_t::i2cAddress:
         {
-            init = true;
+            initAction = initAction_t::init;
         }
         break;
 
@@ -687,8 +687,10 @@ SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t i
 
     auto result = database.update(dbSection(section), index, newValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
 
-    if (init)
+    if (initAction == initAction_t::init)
         display.init(false);
+    else if (initAction == initAction_t::deInit)
+        display.deInit();
 
     return result;
 #else

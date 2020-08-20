@@ -21,7 +21,7 @@ limitations under the License.
 
 using namespace IO;
 
-bool U8X8::initDisplay(uint8_t i2cAddressIndex, displayController_t controller, displayResolution_t resolution)
+bool U8X8::init(uint8_t i2cAddressIndex, displayController_t controller, displayResolution_t resolution)
 {
     bool success = false;
 
@@ -116,6 +116,19 @@ bool U8X8::initDisplay(uint8_t i2cAddressIndex, displayController_t controller, 
         clearDisplay();
         setPowerSave(0);
 
+        return true;
+    }
+
+    return false;
+}
+
+bool U8X8::deInit()
+{
+    if (hwa.deInit())
+    {
+        u8x8_SetupDefaults(&u8x8);
+        rows    = 0;
+        columns = 0;
         return true;
     }
 

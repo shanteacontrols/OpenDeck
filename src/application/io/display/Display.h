@@ -132,6 +132,7 @@ namespace IO
         {}
 
         bool init(bool startupInfo);
+        bool deInit();
         bool update();
         void displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, uint16_t byte2, uint8_t byte3);
         void setAlternateNoteDisplay(bool state);
@@ -235,7 +236,7 @@ namespace IO
         ///
         /// \brief Holds true if display has been initialized.
         ///
-        bool initDone = false;
+        bool initialized = false;
 
         ///
         /// \brief Object used for easier string manipulation on display.

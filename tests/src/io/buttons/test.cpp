@@ -145,6 +145,11 @@ namespace
             return true;
         }
 
+        bool deInit() override
+        {
+            return true;
+        }
+
         bool write(uint8_t address, uint8_t* data, size_t size) override
         {
             return true;

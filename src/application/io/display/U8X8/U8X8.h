@@ -29,6 +29,7 @@ namespace IO
         {
             public:
             virtual bool init()                                             = 0;
+            virtual bool deInit()                                           = 0;
             virtual bool write(uint8_t address, uint8_t* data, size_t size) = 0;
         };
 
@@ -57,7 +58,8 @@ namespace IO
             : hwa(hwa)
         {}
 
-        bool    initDisplay(uint8_t i2cAddressIndex, displayController_t controller, displayResolution_t resolution);
+        bool    init(uint8_t i2cAddressIndex, displayController_t controller, displayResolution_t resolution);
+        bool    deInit();
         uint8_t getColumns();
         uint8_t getRows();
         void    clearDisplay();

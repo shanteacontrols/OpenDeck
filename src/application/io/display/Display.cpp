@@ -40,7 +40,7 @@ bool Display::init(bool startupInfo)
         if (!startupInfo)
         {
             //avoid reinitializing display with the same settings in this case
-            if (initDone)
+            if (initialized)
             {
                 if (lastController == controller)
                 {
@@ -55,7 +55,7 @@ bool Display::init(bool startupInfo)
             }
         }
 
-        if (u8x8.initDisplay(address, controller, resolution))
+        if (u8x8.init(address, controller, resolution))
         {
             u8x8.clearDisplay();
             u8x8.setPowerSave(0);
@@ -84,7 +84,7 @@ bool Display::init(bool startupInfo)
                 scrollEvent[i].direction    = scrollDirection_t::leftToRight;
             }
 
-            initDone = true;
+            initialized = true;
 
             if (startupInfo)
             {
@@ -115,12 +115,29 @@ bool Display::init(bool startupInfo)
     return false;
 }
 
+bool Display::deInit()
+{
+    if (!initialized)
+        return false;    //nothing to do
+
+    if (u8x8.deInit())
+    {
+        initialized    = false;
+        lastController = U8X8::displayController_t::invalid;
+        lastResolution = U8X8::displayResolution_t::invalid;
+        lastAddress    = 0;
+        return true;
+    }
+
+    return false;
+}
+
 ///
 /// \brief Checks if LCD requires updating continuously.
 ///
 bool Display::update()
 {
-    if (!initDone)
+    if (!initialized)
         return false;
 
     if ((core::timing::currentRunTimeMs() - lastLCDupdateTime) < LCD_REFRESH_TIME)
@@ -188,7 +205,7 @@ bool Display::update()
 ///
 void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex)
 {
-    if (!initDone)
+    if (!initialized)
         return;
 
     const char* string     = stringBuilder.string();
@@ -397,7 +414,7 @@ int8_t Display::normalizeOctave(uint8_t octave, int8_t normalization)
 
 void Display::displayWelcomeMessage()
 {
-    if (!initDone)
+    if (!initialized)
         return;
 
     uint8_t charIndex = 0;
@@ -446,7 +463,7 @@ void Display::displayWelcomeMessage()
 
 void Display::displayVinfo(bool newFw)
 {
-    if (!initDone)
+    if (!initialized)
         return;
 
     uint8_t startRow;
@@ -479,7 +496,7 @@ void Display::displayVinfo(bool newFw)
 
 void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, uint16_t byte2, uint8_t byte3)
 {
-    if (!initDone)
+    if (!initialized)
         return;
 
     uint8_t startRow    = (type == Display::eventType_t::in) ? ROW_START_MIDI_IN_MESSAGE : ROW_START_MIDI_OUT_MESSAGE;
@@ -555,7 +572,7 @@ void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, 
 
 void Display::clearMIDIevent(eventType_t type)
 {
-    if (!initDone)
+    if (!initialized)
         return;
 
     switch (type)

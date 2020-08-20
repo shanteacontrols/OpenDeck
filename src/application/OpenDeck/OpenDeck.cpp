@@ -384,6 +384,11 @@ class HWAU8X8 : public IO::U8X8::HWAI2C
         return Board::I2C::init(I2C_CHANNEL_DISPLAY, Board::I2C::clockSpeed_t::_1kHz);
     }
 
+    bool deInit() override
+    {
+        return Board::I2C::deInit(I2C_CHANNEL_DISPLAY);
+    }
+
     bool write(uint8_t address, uint8_t* data, size_t size) override
     {
         return Board::I2C::write(I2C_CHANNEL_DISPLAY, address, data, size);
@@ -396,6 +401,11 @@ class HWAU8X8Stub : public IO::U8X8::HWAI2C
     HWAU8X8Stub() {}
 
     bool init() override
+    {
+        return false;
+    }
+
+    bool deInit() override
     {
         return false;
     }
