@@ -1,0 +1,314 @@
+{
+    "indicators": [
+        {
+            "xpos": 162,
+            "ypos": 207,
+            "width": 80,
+            "height": 185,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 267,
+            "ypos": 207,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 372,
+            "ypos": 207,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 267,
+            "ypos": 312,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 372,
+            "ypos": 312,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 472,
+            "ypos": 260,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 572,
+            "ypos": 207,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 677,
+            "ypos": 207,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 572,
+            "ypos": 312,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 677,
+            "ypos": 312,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 782,
+            "ypos": 207,
+            "width": 80,
+            "height": 185,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 432,
+            "ypos": 50,
+            "width": 160,
+            "height": 80,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 16,
+            "ypos": 470,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 121,
+            "ypos": 470,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 251,
+            "ypos": 470,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 696,
+            "ypos": 470,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 826,
+            "ypos": 470,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 931,
+            "ypos": 470,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 25,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 130,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 235,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 340,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 604,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 709,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 814,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 919,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 130,
+            "ypos": 147,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 235,
+            "ypos": 147,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 709,
+            "ypos": 147,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 814,
+            "ypos": 147,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        }
+    ],
+    "screenButtons": [
+        {
+            "indexTS": 0,
+            "screen": 1
+        },
+        {
+            "indexTS": 1,
+            "screen": 3
+        }
+    ]
+}
