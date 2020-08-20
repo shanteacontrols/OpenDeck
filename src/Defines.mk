@@ -283,7 +283,7 @@ ifeq ($(shell yq r ../targets/$(TARGETNAME).yml leds.external.fading), true)
     DEFINES += LED_FADING
 endif
 
-ifeq ($(shell yq r ../targets/$(TARGETNAME).yml bootloader.button.activeState), true)
+ifeq ($(shell yq r ../targets/$(TARGETNAME).yml bootloader.button.activeState), high)
     #active high
     DEFINES += BTLDR_BUTTON_AH
 endif
