@@ -1,0 +1,34 @@
+name: Build UI
+
+on: [repository_dispatch]
+
+jobs:
+  build:
+    name: Deploy UI
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: webui
+      - name: Prepare build env
+        run: |
+          sudo apt install yarn
+      - name: Deploy new UI
+        run: |
+          git config --global user.name "webui_bot"
+          git config --global user.email "2544094+webui_bot@users.noreply.github.com"
+          git clone https://github.com/paradajz/OpenDeckUI.git
+          cd OpenDeckUI
+          yarn
+          yarn build
+          cd ../
+          rm index.html *.js *.css
+          mv OpenDeckUI/dist/* .
+          mv _assets/* .
+          rm -rf OpenDeckUI
+          sed -i 's#/_assets/##g' index.html
+          sed -i '7i<base href="/OpenDeck/">' index.html
+          git add .
+          git commit -m "update webui"
+          git push https://github.com/paradajz/OpenDeck.git webui
