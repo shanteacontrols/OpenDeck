@@ -84,9 +84,29 @@ SysConfig::result_t SysConfig::onGetGlobal(Section::global_t section, size_t ind
     switch (section)
     {
     case Section::global_t::midiFeature:
+    {
+        if (index == static_cast<size_t>(SysConfig::midiFeature_t::standardNoteOff))
+        {
+            result = database.read(dbSection(section), index, readValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
+        }
+        else
+        {
+#ifndef DIN_MIDI_SUPPORTED
+            return SysConfig::result_t::notSupported;
+#else
+            result = database.read(dbSection(section), index, readValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
+#endif
+        }
+    }
+    break;
+
     case Section::global_t::midiMerge:
     {
+#ifndef DIN_MIDI_SUPPORTED
+        return SysConfig::result_t::notSupported;
+#else
         result = database.read(dbSection(section), index, readValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
+#endif
     }
     break;
 
