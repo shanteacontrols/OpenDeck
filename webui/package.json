@@ -1,8 +1,0 @@
-{
-  "name": "opendeck-configurator",
-  "description": "Configuration utility for OpenDeck MIDI platform",
-  "main": "main.js",
-  "scripts": {
-    "start": "electron ."
-  }
-}

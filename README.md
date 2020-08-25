@@ -26,13 +26,11 @@ OpenDeck firmware is compatible with official OpenDeck board, as well as various
 
 Support for custom boards can be easily added using [YAML descriptors](https://github.com/paradajz/OpenDeck/wiki/Creating-custom-board-variant).
 
-## Web UI
+## Web configurator
 
-This repository also contains source code for OpenDeck Web configuration utility written using Angular framework by other developer. Web utility can run in any browser which supports WebMIDI specification (currently Google Chrome and Opera). Utility needs access to MIDI devices so that it can communicate with OpenDeck boards. All communication is done with custom SysEx protocol explained in detail in [Wiki section](https://github.com/paradajz/OpenDeck/wiki/SysEx-Configuration).
+Source code for OpenDeck web configurator is located in [OpenDeckUI repository](https://github.com/paradajz/OpenDeckUI). It's written by [wyrd-code](https://github.com/wyrd-code/). Web configurator can run in any browser which supports WebMIDI specification (any browser based on Chromium). Utility needs access to MIDI devices so that it can communicate with OpenDeck boards. All communication is done with custom SysEx protocol explained in detail in [Wiki section](https://github.com/paradajz/OpenDeck/wiki/SysEx-Configuration).
 
-Latest version of the UI is always available on [this link](https://paradajz.github.io/OpenDeck). The UI available on this link is hosted on GitHub (via this repository, master branch) and it's compatible only with latest available OpenDeck firmware. If older firmware is used with latest UI, UI tends to crash when it tries to request parameters which aren't available in older firmwares.
-
-Older versions of the UI are also available and can be downloaded from [releases](https://github.com/paradajz/OpenDeck/releases) page.
+Latest stable version of the UI is always available on [this link](https://paradajz.github.io/OpenDeck).
 
 ## Credits
 
