@@ -42,12 +42,11 @@ bool Touchscreen::init()
         if (!isModelValid(dbModel))
             return false;
 
+        activeModel = static_cast<uint8_t>(dbModel);
         initialized = MODEL->init();
 
         if (initialized)
         {
-            activeModel = static_cast<uint8_t>(dbModel);
-
             //screen 0 should be blank or logo only - used to detect that the firmware is running
             setScreen(1);
             return true;
