@@ -139,20 +139,22 @@ SysConfig::result_t SysConfig::onSetGlobal(Section::global_t section, size_t ind
 #ifndef DIN_MIDI_SUPPORTED
             result = SysConfig::result_t::notSupported;
 #else
-            if (isMIDIfeatureEnabled(midiFeature_t::dinEnabled) || !newValue)
-            {
-                result = SysConfig::result_t::ok;
-                //use recursive parsing when merging is active
-                midi.useRecursiveParsing(newValue);
+            result = SysConfig::result_t::ok;
 
-                //make sure everything is in correct state
-                if (!newValue)
+            //make sure everything is in correct state
+            if (!newValue)
+            {
+                setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true);
+                midi.useRecursiveParsing(false);
+            }
+            else
+            {
+                //restore active settings if din midi is enabled
+                if (isMIDIfeatureEnabled(midiFeature_t::dinEnabled))
                 {
-                    setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true);
-                }
-                else
-                {
-                    //restore active settings
+                    //use recursive parsing when merging is active
+                    midi.useRecursiveParsing(true);
+
                     auto mergeType = midiMergeType();
 
                     if (mergeType == midiMergeType_t::odSlave)
@@ -161,16 +163,12 @@ SysConfig::result_t SysConfig::onSetGlobal(Section::global_t section, size_t ind
                     configureMIDImerge(mergeType);
                 }
             }
-            else
-            {
-                //invalid configuration - trying to enable merge functionality while din midi is disabled
-                result = SysConfig::result_t::notSupported;
-            }
 #endif
         }
         break;
 
         default:
+            result = SysConfig::result_t::ok;
             break;
         }
     }
@@ -187,25 +185,19 @@ SysConfig::result_t SysConfig::onSetGlobal(Section::global_t section, size_t ind
         {
         case midiMerge_t::mergeType:
         {
-            if (isMIDIfeatureEnabled(midiFeature_t::dinEnabled) && isMIDIfeatureEnabled(midiFeature_t::mergeEnabled))
+            if ((newValue >= 0) && (newValue < static_cast<size_t>(midiMergeType_t::AMOUNT)))
             {
-                if ((newValue >= 0) && (newValue < static_cast<size_t>(midiMergeType_t::AMOUNT)))
-                {
-                    result = SysConfig::result_t::ok;
+                result = SysConfig::result_t::ok;
 
-                    if (static_cast<midiMergeType_t>(newValue) == midiMergeType_t::odSlave)
-                        newValue = static_cast<SysExConf::sysExParameter_t>(midiMergeType_t::odSlaveInitial);
+                if (static_cast<midiMergeType_t>(newValue) == midiMergeType_t::odSlave)
+                    newValue = static_cast<SysExConf::sysExParameter_t>(midiMergeType_t::odSlaveInitial);
 
+                //configure merging only if din midi and merging options are enabled
+                if (isMIDIfeatureEnabled(midiFeature_t::dinEnabled) && isMIDIfeatureEnabled(midiFeature_t::mergeEnabled))
                     configureMIDImerge(static_cast<midiMergeType_t>(newValue));
-                }
-                else
-                {
-                    result = SysConfig::result_t::notSupported;
-                }
             }
             else
             {
-                //invalid configuration
                 result = SysConfig::result_t::notSupported;
             }
         }
