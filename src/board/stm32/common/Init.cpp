@@ -167,7 +167,11 @@ namespace Board
 #endif
 
 #ifdef BTLDR_BUTTON_PORT
-                CORE_IO_CONFIG({ BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN, core::io::pinMode_t::input });
+#ifdef BTLDR_BUTTON_AH
+                CORE_IO_CONFIG({ BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN, core::io::pinMode_t::input, core::io::pullMode_t::down, core::io::gpioSpeed_t::medium, 0x00 });
+#else
+                CORE_IO_CONFIG({ BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN, core::io::pinMode_t::input, core::io::pullMode_t::up, core::io::gpioSpeed_t::medium, 0x00 });
+#endif
 #endif
 
 #ifdef LED_INDICATORS
