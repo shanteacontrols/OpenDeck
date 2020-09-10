@@ -157,7 +157,7 @@ namespace
         core::io::pwmOff(Board::detail::map::pwmChannel(row));
 #endif
 
-        pin = Board::detail::map::led(row);
+        pin = Board::detail::map::ledPin(row);
         EXT_LED_OFF(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
     }
 
@@ -176,7 +176,7 @@ namespace
         if (intensity == 255)
 #endif
         {
-            pin = Board::detail::map::led(row);
+            pin = Board::detail::map::ledPin(row);
 
             //max value, don't use pwm
             EXT_LED_ON(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
