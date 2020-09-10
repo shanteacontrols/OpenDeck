@@ -27,7 +27,7 @@ namespace Board
             }
 #endif
 
-#ifdef NATIVE_BUTTON_INPUTS
+#if defined(NATIVE_BUTTON_INPUTS) || (defined(NUMBER_OF_BUTTON_ROWS) && !defined(NUMBER_OF_IN_SR))
             core::io::mcuPin_t buttonPin(uint8_t index)
             {
                 return dInPins[index];

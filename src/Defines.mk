@@ -212,12 +212,20 @@ else ifeq ($(shell yq r ../targets/$(TARGETNAME).yml buttons.type), shiftRegiste
     MAX_NUMBER_OF_BUTTONS := $(shell expr 8 \* $(NUMBER_OF_IN_SR))
     DEFINES += NUMBER_OF_IN_SR=$(NUMBER_OF_IN_SR)
 else ifeq ($(shell yq r ../targets/$(TARGETNAME).yml buttons.type), matrix)
-    NUMBER_OF_BUTTON_COLUMNS := $(shell yq r ../targets/$(TARGETNAME).yml buttons.columns)
-    NUMBER_OF_BUTTON_ROWS := $(shell yq r ../targets/$(TARGETNAME).yml buttons.rows)
+    ifeq ($(shell yq r ../targets/$(TARGETNAME).yml buttons.columns.pins --length), 3)
+        NUMBER_OF_BUTTON_COLUMNS := 8
+    else
+        $(error Invalid number of columns specified)
+    endif
+    ifeq ($(shell yq r ../targets/$(TARGETNAME).yml buttons.rows.type), native)
+        NUMBER_OF_BUTTON_ROWS := $(shell yq r ../targets/$(TARGETNAME).yml buttons.rows.pins --length)
+    else
+        DEFINES += NUMBER_OF_IN_SR=1
+        NUMBER_OF_BUTTON_ROWS := 8
+    endif
     MAX_NUMBER_OF_BUTTONS := $(shell expr $(NUMBER_OF_BUTTON_COLUMNS) \* $(NUMBER_OF_BUTTON_ROWS))
     DEFINES += NUMBER_OF_BUTTON_COLUMNS=$(NUMBER_OF_BUTTON_COLUMNS)
     DEFINES += NUMBER_OF_BUTTON_ROWS=$(NUMBER_OF_BUTTON_ROWS)
-    DEFINES += NUMBER_OF_IN_SR=1
 else
     MAX_NUMBER_OF_BUTTONS := 0
 endif
@@ -297,8 +305,8 @@ else ifeq ($(shell yq r ../targets/$(TARGETNAME).yml leds.external.type), shiftR
     MAX_NUMBER_OF_LEDS := $(shell expr 8 \* $(NUMBER_OF_OUT_SR))
     DEFINES += NUMBER_OF_OUT_SR=$(NUMBER_OF_OUT_SR)
 else ifeq ($(shell yq r ../targets/$(TARGETNAME).yml leds.external.type), matrix)
-    NUMBER_OF_LED_COLUMNS := $(shell yq r ../targets/$(TARGETNAME).yml leds.external.columns)
-    NUMBER_OF_LED_ROWS := $(shell yq r ../targets/$(TARGETNAME).yml leds.external.rows)
+    NUMBER_OF_LED_COLUMNS := 8
+    NUMBER_OF_LED_ROWS := $(shell yq r ../targets/$(TARGETNAME).yml leds.external.rows.pins --length)
     MAX_NUMBER_OF_LEDS := $(shell expr $(NUMBER_OF_LED_COLUMNS) \* $(NUMBER_OF_LED_ROWS))
     DEFINES += NUMBER_OF_LED_COLUMNS=$(NUMBER_OF_LED_COLUMNS)
     DEFINES += NUMBER_OF_LED_ROWS=$(NUMBER_OF_LED_ROWS)

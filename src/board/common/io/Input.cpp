@@ -79,8 +79,9 @@ namespace
         for (int i = 0; i < NUMBER_OF_BUTTON_COLUMNS; i++)
         {
             activateInputColumn();
-            Board::detail::io::sr165wait();
 
+#ifdef NUMBER_OF_IN_SR
+            Board::detail::io::sr165wait();
             CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
             CORE_IO_SET_LOW(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
             Board::detail::io::sr165wait();
@@ -94,6 +95,15 @@ namespace
                 BIT_WRITE(digitalInBuffer[dIn_head][i], j, !CORE_IO_READ(SR_IN_DATA_PORT, SR_IN_DATA_PIN));
                 CORE_IO_SET_HIGH(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
             }
+#else
+            core::io::mcuPin_t pin;
+
+            for (int j = 0; j < NUMBER_OF_BUTTON_ROWS; j++)
+            {
+                pin = Board::detail::map::buttonPin(j);
+                BIT_WRITE(digitalInBuffer[dIn_head][i], j, !CORE_IO_READ(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin)));
+            }
+#endif
         }
     }
 #else

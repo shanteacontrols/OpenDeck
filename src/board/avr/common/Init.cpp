@@ -137,12 +137,6 @@ namespace Board
                 CORE_IO_CONFIG(SR_IN_DATA_PORT, SR_IN_DATA_PIN, core::io::pinMode_t::input);
                 CORE_IO_CONFIG(SR_IN_CLK_PORT, SR_IN_CLK_PIN, core::io::pinMode_t::output);
                 CORE_IO_CONFIG(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN, core::io::pinMode_t::output);
-
-#ifdef NUMBER_OF_BUTTON_COLUMNS
-                CORE_IO_CONFIG(DEC_BM_PORT_A0, DEC_BM_PIN_A0, core::io::pinMode_t::output);
-                CORE_IO_CONFIG(DEC_BM_PORT_A1, DEC_BM_PIN_A1, core::io::pinMode_t::output);
-                CORE_IO_CONFIG(DEC_BM_PORT_A1, DEC_BM_PIN_A2, core::io::pinMode_t::output);
-#endif
 #else
                 for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
                 {
@@ -154,6 +148,12 @@ namespace Board
                     CORE_IO_SET_HIGH(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
 #endif
                 }
+#endif
+
+#ifdef NUMBER_OF_BUTTON_COLUMNS
+                CORE_IO_CONFIG(DEC_BM_PORT_A0, DEC_BM_PIN_A0, core::io::pinMode_t::output);
+                CORE_IO_CONFIG(DEC_BM_PORT_A1, DEC_BM_PIN_A1, core::io::pinMode_t::output);
+                CORE_IO_CONFIG(DEC_BM_PORT_A1, DEC_BM_PIN_A2, core::io::pinMode_t::output);
 #endif
 
 #ifdef NUMBER_OF_OUT_SR

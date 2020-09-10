@@ -75,14 +75,12 @@ namespace Board
                 CORE_IO_CONFIG({ SR_IN_DATA_PORT, SR_IN_DATA_PIN, core::io::pinMode_t::input, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
                 CORE_IO_CONFIG({ SR_IN_CLK_PORT, SR_IN_CLK_PIN, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
                 CORE_IO_CONFIG({ SR_IN_LATCH_PORT, SR_IN_LATCH_PIN, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
-
-#ifdef NUMBER_OF_BUTTON_COLUMNS
-                CORE_IO_CONFIG({ DEC_BM_PORT_A0, DEC_BM_PIN_A0, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
-                CORE_IO_CONFIG({ DEC_BM_PORT_A1, DEC_BM_PIN_A1, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
-                CORE_IO_CONFIG({ DEC_BM_PORT_A1, DEC_BM_PIN_A2, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
-#endif
+#else
+#ifdef NUMBER_OF_BUTTON_ROWS
+                for (int i = 0; i < NUMBER_OF_BUTTON_ROWS; i++)
 #else
                 for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
+#endif
                 {
                     core::io::mcuPin_t pin = detail::map::buttonPin(i);
 
@@ -92,6 +90,12 @@ namespace Board
                     CORE_IO_CONFIG({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::input, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
 #endif
                 }
+#endif
+
+#ifdef NUMBER_OF_BUTTON_COLUMNS
+                CORE_IO_CONFIG({ DEC_BM_PORT_A0, DEC_BM_PIN_A0, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                CORE_IO_CONFIG({ DEC_BM_PORT_A1, DEC_BM_PIN_A1, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                CORE_IO_CONFIG({ DEC_BM_PORT_A1, DEC_BM_PIN_A2, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
 #endif
 
 #ifdef NUMBER_OF_OUT_SR
