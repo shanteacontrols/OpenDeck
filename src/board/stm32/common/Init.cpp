@@ -95,7 +95,11 @@ namespace Board
 #ifdef NUMBER_OF_BUTTON_COLUMNS
                 CORE_IO_CONFIG({ DEC_BM_PORT_A0, DEC_BM_PIN_A0, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
                 CORE_IO_CONFIG({ DEC_BM_PORT_A1, DEC_BM_PIN_A1, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
-                CORE_IO_CONFIG({ DEC_BM_PORT_A1, DEC_BM_PIN_A2, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                CORE_IO_CONFIG({ DEC_BM_PORT_A2, DEC_BM_PIN_A2, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+
+                CORE_IO_SET_LOW(DEC_BM_PORT_A0, DEC_BM_PIN_A0);
+                CORE_IO_SET_LOW(DEC_BM_PORT_A1, DEC_BM_PIN_A1);
+                CORE_IO_SET_LOW(DEC_BM_PORT_A2, DEC_BM_PIN_A2);
 #endif
 
 #ifdef NUMBER_OF_OUT_SR
