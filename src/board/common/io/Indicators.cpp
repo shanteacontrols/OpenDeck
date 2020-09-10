@@ -108,24 +108,36 @@ namespace Board
                     return;
 
                 if (midiInDINtimeout)
+                {
                     midiInDINtimeout--;
-                else
-                    INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
+
+                    if (!midiInDINtimeout)
+                        INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
+                }
 
                 if (midiOutDINtimeout)
+                {
                     midiOutDINtimeout--;
-                else
-                    INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+
+                    if (!midiOutDINtimeout)
+                        INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+                }
 
                 if (midiInUSBtimeout)
+                {
                     midiInUSBtimeout--;
-                else
-                    INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
+
+                    if (!midiInUSBtimeout)
+                        INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
+                }
 
                 if (midiOutUSBtimeout)
+                {
                     midiOutUSBtimeout--;
-                else
-                    INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
+
+                    if (!midiOutUSBtimeout)
+                        INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
+                }
             }
 
             void ledFlashStartup(bool fwUpdated)
