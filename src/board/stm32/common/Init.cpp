@@ -132,6 +132,10 @@ namespace Board
                 CORE_IO_CONFIG({ DEC_LM_PORT_A1, DEC_LM_PIN_A1, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
                 CORE_IO_CONFIG({ DEC_LM_PORT_A2, DEC_LM_PIN_A2, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
 
+                CORE_IO_SET_LOW(DEC_LM_PORT_A0, DEC_LM_PIN_A0);
+                CORE_IO_SET_LOW(DEC_LM_PORT_A1, DEC_LM_PIN_A1);
+                CORE_IO_SET_LOW(DEC_LM_PORT_A2, DEC_LM_PIN_A2);
+
                 for (int i = 0; i < NUMBER_OF_LED_ROWS; i++)
 #else
                 for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
