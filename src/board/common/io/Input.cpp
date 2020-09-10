@@ -171,9 +171,16 @@ namespace Board
         uint8_t getEncoderPairState(uint8_t encoderID)
         {
 #ifdef NUMBER_OF_BUTTON_COLUMNS
-            uint8_t column    = encoderID % NUMBER_OF_BUTTON_COLUMNS;
-            uint8_t row       = (encoderID / NUMBER_OF_BUTTON_COLUMNS) * 2;
-            uint8_t pairState = (digitalInBufferReadOnly[column] >> row) & 0x03;
+            uint8_t column = encoderID % NUMBER_OF_BUTTON_COLUMNS;
+            uint8_t row    = (encoderID / NUMBER_OF_BUTTON_COLUMNS) * 2;
+
+            uint8_t buttonID;
+
+            buttonID = row * NUMBER_OF_BUTTON_COLUMNS + column;
+
+            uint8_t pairState = getButtonState(buttonID);
+            pairState <<= 1;
+            pairState |= getButtonState(buttonID + NUMBER_OF_BUTTON_COLUMNS);
 #else
             uint8_t buttonID = encoderID * 2;
 
