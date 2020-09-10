@@ -143,7 +143,7 @@ namespace Board
                 {
                     core::io::mcuPin_t pin = detail::map::ledPin(i);
 
-                    CORE_IO_CONFIG({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                    CORE_IO_CONFIG({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::outputOD, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
                     EXT_LED_OFF(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
                 }
 #endif
