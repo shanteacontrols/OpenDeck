@@ -86,6 +86,30 @@
             }
         },
         {
+            "label": "[BTLDR/OpenDeck2/Debug] Build",
+            "command": "cd ./src && compiledb -d . make TARGETNAME=opendeck2 LANG=C DEBUG=1 BOOT=1",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "[FW/OpenDeck2/Debug] Build",
+            "command": "cd ./src && compiledb -d . make TARGETNAME=opendeck2 LANG=C DEBUG=1 BOOT=0",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
             "label": "[FW/BTLDR] Clean",
             "command": "cd ./src && make clean",
             "type": "shell",
