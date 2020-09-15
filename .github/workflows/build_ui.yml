@@ -19,16 +19,12 @@ jobs:
           git config --global user.name "webui_bot"
           git config --global user.email "2544094+webui_bot@users.noreply.github.com"
           git clone https://github.com/paradajz/OpenDeckUI.git
+          rm -rf _assets index.html
           cd OpenDeckUI
           yarn
           yarn build
           cd ../
-          rm index.html *.js *.css
           mv OpenDeckUI/dist/* .
-          mv _assets/* .
-          rm -rf OpenDeckUI
-          sed -i 's#/_assets/##g' index.html
-          sed -i '7i<base href="/OpenDeck/">' index.html
-          git add .
-          git commit -m "update webui"
+          git add index.html _assets*
+          git commit --allow-empty -m "update webui"
           git push https://github.com/paradajz/OpenDeck.git webui
