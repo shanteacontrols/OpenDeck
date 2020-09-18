@@ -256,14 +256,14 @@ namespace Board
         };
 
         ///
+        /// \brief Initializes and prepares non-volatile storage on board.
+        ///
+        bool init();
+
+        ///
         /// \brief Returns total available bytes to store in non-volatile memory.
         ///
         uint32_t size();
-
-        ///
-        /// \brief Initializes and prepares non-volatile storage on board.
-        ///
-        void init();
 
         ///
         /// \brief Used to wipe non-volatile memory on specified range.

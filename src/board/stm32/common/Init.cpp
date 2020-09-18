@@ -50,10 +50,7 @@ namespace Board
 
                 detail::setup::clocks();
                 detail::setup::io();
-
-                NVM::init();
                 detail::setup::adc();
-
                 detail::setup::timers();
 
 #ifdef USB_MIDI_SUPPORTED

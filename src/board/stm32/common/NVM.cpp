@@ -97,14 +97,14 @@ namespace Board
 {
     namespace NVM
     {
+        bool init()
+        {
+            return emuEEPROM.init();
+        }
+
         uint32_t size()
         {
             return stm32EEPROM.pageSize();
-        }
-
-        void init()
-        {
-            emuEEPROM.init();
         }
 
         bool read(uint32_t address, int32_t& value, parameterType_t type)

@@ -67,9 +67,9 @@ class StorageAccess : public LESSDB::StorageAccess
     public:
     StorageAccess() {}
 
-    void init() override
+    bool init() override
     {
-        Board::NVM::init();
+        return Board::NVM::init();
     }
 
     uint32_t size() override

@@ -24,15 +24,16 @@ namespace Board
 {
     namespace NVM
     {
+        bool init()
+        {
+            //nothing to do
+            return true;
+        }
+
         uint32_t size()
         {
             //last eeprom address stores type of firmare to boot once in bootloader
             return E2END;
-        }
-
-        void init()
-        {
-            //nothing to do
         }
 
         bool read(uint32_t address, int32_t& value, parameterType_t type)
