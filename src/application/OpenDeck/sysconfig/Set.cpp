@@ -144,8 +144,11 @@ SysConfig::result_t SysConfig::onSetGlobal(Section::global_t section, size_t ind
             //make sure everything is in correct state
             if (!newValue)
             {
-                setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true);
-                midi.useRecursiveParsing(false);
+                if (isMIDIfeatureEnabled(midiFeature_t::dinEnabled))
+                {
+                    setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true);
+                    midi.useRecursiveParsing(false);
+                }
             }
             else
             {
