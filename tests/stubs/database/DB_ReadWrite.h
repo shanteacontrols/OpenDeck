@@ -38,17 +38,17 @@ class DBstorageMock : public LESSDB::StorageAccess
             return true;
         }
 
-        uint32_t startAddress(page_t page) override
+        uint32_t startAddress(EmuEEPROM::page_t page) override
         {
-            if (page == page_t::page1)
+            if (page == EmuEEPROM::page_t::page1)
                 return 0;
             else
                 return DATABASE_SIZE;
         }
 
-        bool erasePage(page_t page) override
+        bool erasePage(EmuEEPROM::page_t page) override
         {
-            if (page == page_t::page1)
+            if (page == EmuEEPROM::page_t::page1)
                 memset(pageArray, 0xFF, DATABASE_SIZE);
             else
                 memset(&pageArray[DATABASE_SIZE], 0xFF, DATABASE_SIZE);
@@ -94,35 +94,6 @@ class DBstorageMock : public LESSDB::StorageAccess
             data |= pageArray[address + 0];
 
             return true;
-        }
-
-        EmuEEPROM::pageStatus_t pageStatus(page_t page) override
-        {
-            uint32_t                data;
-            EmuEEPROM::pageStatus_t status;
-
-            if (page == page_t::page1)
-                read32(0, data);
-            else
-                read32(DATABASE_SIZE, data);
-
-            switch (data)
-            {
-            case static_cast<uint32_t>(EmuEEPROM::pageStatus_t::erased):
-                status = EmuEEPROM::pageStatus_t::erased;
-                break;
-
-            case static_cast<uint32_t>(EmuEEPROM::pageStatus_t::receiving):
-                status = EmuEEPROM::pageStatus_t::receiving;
-                break;
-
-            case static_cast<uint32_t>(EmuEEPROM::pageStatus_t::valid):
-            default:
-                status = EmuEEPROM::pageStatus_t::valid;
-                break;
-            }
-
-            return status;
         }
 
         size_t pageSize() override

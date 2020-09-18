@@ -41,17 +41,17 @@ namespace
             return true;
         }
 
-        uint32_t startAddress(page_t page) override
+        uint32_t startAddress(EmuEEPROM::page_t page) override
         {
-            if (page == page_t::page1)
+            if (page == EmuEEPROM::page_t::page1)
                 return Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPage1()).address;
             else
                 return Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPage1()).address;
         }
 
-        bool erasePage(page_t page) override
+        bool erasePage(EmuEEPROM::page_t page) override
         {
-            if (page == page_t::page1)
+            if (page == EmuEEPROM::page_t::page1)
                 return Board::detail::flash::erasePage(Board::detail::map::eepromFlashPage1());
             else
                 return Board::detail::flash::erasePage(Board::detail::map::eepromFlashPage2());
@@ -75,29 +75,6 @@ namespace
         bool read32(uint32_t address, uint32_t& data) override
         {
             return Board::detail::flash::read32(address, data);
-        }
-
-        EmuEEPROM::pageStatus_t pageStatus(page_t page) override
-        {
-            uint32_t status;
-
-            if (page == page_t::page1)
-                status = (*(volatile uint32_t*)Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPage1()).address);
-            else
-                status = (*(volatile uint32_t*)Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPage2()).address);
-
-            switch (status)
-            {
-            case static_cast<uint32_t>(EmuEEPROM::pageStatus_t::receiving):
-                return EmuEEPROM::pageStatus_t::receiving;
-
-            case static_cast<uint32_t>(EmuEEPROM::pageStatus_t::valid):
-                return EmuEEPROM::pageStatus_t::valid;
-
-            case static_cast<uint32_t>(EmuEEPROM::pageStatus_t::erased):
-            default:
-                return EmuEEPROM::pageStatus_t::erased;
-            }
         }
 
         size_t pageSize() override
