@@ -101,7 +101,7 @@ namespace
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
-            .autoIncrement          = true,
+            .autoIncrement          = false,
             .address                = 0,
         },
 
@@ -297,7 +297,7 @@ namespace
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
-            .autoIncrement          = true,
+            .autoIncrement          = false,
             .address                = 0,
         },
 

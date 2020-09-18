@@ -91,9 +91,16 @@ TEST_CASE(ReadInitialValues)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::button_t::midiMessage, i));
 
         //midi id section
-        //incremental values - first value should be 0, each successive value should be incremented by 1
-        for (int i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS; i++)
+        //incremental values - first value should be 0, each successive value should be incremented by 1 for each group
+        //(physical/analog/touchscreen)
+        for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
             TEST_ASSERT_EQUAL_UINT32(i, database.read(Database::Section::button_t::midiID, i));
+
+        for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+            TEST_ASSERT_EQUAL_UINT32(i, database.read(Database::Section::button_t::midiID, MAX_NUMBER_OF_BUTTONS + i));
+
+        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS; i++)
+            TEST_ASSERT_EQUAL_UINT32(i, database.read(Database::Section::button_t::midiID, MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + i));
 
         //midi velocity section
         //all values should be set to 127
@@ -179,9 +186,13 @@ TEST_CASE(ReadInitialValues)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::leds_t::global, i));
 
         //activation id section
-        //incremental values - first value should be set to 0, each successive value should be incremented by 1
-        for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS; i++)
+        //incremental values - first value should be set to 0, each successive value should be incremented by 1 for each group
+        //(physical/touchscreen)
+        for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
             TEST_ASSERT_EQUAL_UINT32(i, database.read(Database::Section::leds_t::activationID, i));
+
+        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS; i++)
+            TEST_ASSERT_EQUAL_UINT32(i, database.read(Database::Section::leds_t::activationID, MAX_NUMBER_OF_LEDS + i));
 
         //rgb enable section
         //all values should be set to 0
