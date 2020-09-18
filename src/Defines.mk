@@ -13,8 +13,7 @@ UART_BAUDRATE_MIDI_OD=38400 \
 FIXED_NUM_CONFIGURATIONS=1 \
 SYSEX_MANUFACTURER_ID_0=$(SYSEX_MANUFACTURER_ID_0) \
 SYSEX_MANUFACTURER_ID_1=$(SYSEX_MANUFACTURER_ID_1) \
-SYSEX_MANUFACTURER_ID_2=$(SYSEX_MANUFACTURER_ID_2) \
-MIDI_SYSEX_ARRAY_SIZE=64
+SYSEX_MANUFACTURER_ID_2=$(SYSEX_MANUFACTURER_ID_2)
 
 ifeq ($(DEBUG), 1)
     DEFINES += DEBUG
@@ -161,6 +160,13 @@ ifneq ($(shell yq r ../targets/$(TARGETNAME).yml usbLink),)
             DEFINES := $(filter-out USB_MIDI_SUPPORTED,$(DEFINES))
         endif
     endif
+endif
+
+ifeq (,$(findstring USB_LINK_MCU,$(DEFINES)))
+#use smaller sysex buffer size on USB link MCUs
+    DEFINES += MIDI_SYSEX_ARRAY_SIZE=64
+else
+    DEFINES += MIDI_SYSEX_ARRAY_SIZE=80
 endif
 
 ifeq ($(shell yq r ../targets/$(TARGETNAME).yml dinMIDI.use), true)
