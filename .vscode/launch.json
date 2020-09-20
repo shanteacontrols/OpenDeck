@@ -41,7 +41,7 @@
             "interface": "swd",
             "svdFile": "${workspaceFolder}/misc/STM32F40x.svd",
             "device": "STM32F407",
-            "BMPGDBSerialPort": "/dev/ttyACM0",
+            "BMPGDBSerialPort": "/dev/ttyBmpGdb",
             "targetId": 1,
             "preLaunchTask": "[FW/STM32FDiscovery/Debug] Build"
         },
@@ -55,7 +55,7 @@
             "interface": "swd",
             "svdFile": "${workspaceFolder}/misc/STM32F40x.svd",
             "device": "STM32F407",
-            "BMPGDBSerialPort": "/dev/ttyACM0",
+            "BMPGDBSerialPort": "/dev/ttyBmpGdb",
             "targetId": 1,
             "preLaunchTask": "[FW/STM32FDiscovery/Debug] Build"
         },
@@ -70,7 +70,7 @@
             "interface": "swd",
             "svdFile": "${workspaceFolder}/misc/STM32F40x.svd",
             "device": "STM32F407",
-            "BMPGDBSerialPort": "/dev/ttyACM0",
+            "BMPGDBSerialPort": "/dev/ttyBmpGdb",
             "targetId": 1,
             "preLaunchTask": "[BTLDR/STM32FDiscovery/Debug] Build"
         },
@@ -85,7 +85,7 @@
             "interface": "swd",
             "svdFile": "${workspaceFolder}/misc/STM32F40x.svd",
             "device": "STM32F405",
-            "BMPGDBSerialPort": "/dev/ttyACM0",
+            "BMPGDBSerialPort": "/dev/ttyBmpGdb",
             "targetId": 1,
             "preLaunchTask": "[FW/Cardamom/Debug] Build"
         },
@@ -100,7 +100,7 @@
             "interface": "swd",
             "svdFile": "${workspaceFolder}/misc/STM32F40x.svd",
             "device": "STM32F405",
-            "BMPGDBSerialPort": "/dev/ttyACM0",
+            "BMPGDBSerialPort": "/dev/ttyBmpGdb",
             "targetId": 1,
             "preLaunchTask": "[BTLDR/Cardamom/Debug] Build"
         },
@@ -115,7 +115,7 @@
             "interface": "swd",
             "svdFile": "${workspaceFolder}/misc/STM32F40x.svd",
             "device": "STM32F405",
-            "BMPGDBSerialPort": "/dev/ttyACM0",
+            "BMPGDBSerialPort": "/dev/ttyBmpGdb",
             "targetId": 1,
             "preLaunchTask": "[BTLDR/DubFocus/Debug] Build"
         },
@@ -130,7 +130,7 @@
             "interface": "swd",
             "svdFile": "${workspaceFolder}/misc/STM32F40x.svd",
             "device": "STM32F405",
-            "BMPGDBSerialPort": "/dev/ttyACM0",
+            "BMPGDBSerialPort": "/dev/ttyBmpGdb",
             "targetId": 1,
             "preLaunchTask": "[FW/DubFocus/Debug] Build"
         },
@@ -145,7 +145,7 @@
             "interface": "swd",
             "svdFile": "${workspaceFolder}/misc/STM32F40x.svd",
             "device": "STM32F405",
-            "BMPGDBSerialPort": "/dev/ttyACM0",
+            "BMPGDBSerialPort": "/dev/ttyBmpGdb",
             "targetId": 1,
             "preLaunchTask": "[BTLDR/OpenDeck2/Debug] Build"
         },
@@ -159,7 +159,7 @@
             "interface": "swd",
             "svdFile": "${workspaceFolder}/misc/STM32F40x.svd",
             "device": "STM32F405",
-            "BMPGDBSerialPort": "/dev/ttyACM0",
+            "BMPGDBSerialPort": "/dev/ttyBmpGdb",
             "targetId": 1,
             "preLaunchTask": "[FW/OpenDeck2/Debug] Build"
         },
