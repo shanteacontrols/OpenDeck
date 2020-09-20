@@ -487,12 +487,8 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
 
         case IO::LEDs::setting_t::fadeSpeed:
         {
-#ifdef LED_FADING
             if (leds.setFadeSpeed(newValue))
                 result = SysConfig::result_t::ok;
-#else
-            result = SysConfig::result_t::notSupported;
-#endif
         }
         break;
 
