@@ -589,7 +589,7 @@ void SysConfig::backup()
 
     database.setPreset(currentPreset);
     presetChangeRequest[presetChangeRequestPresetIndex] = currentPreset;
-    sysExConf.sendCustomMessage(presetChangeRequest, presetChangeRequestSize);
+    sysExConf.sendCustomMessage(presetChangeRequest, presetChangeRequestSize, false);
 
     //finally, send back full backup request to mark the end of sending
     SysExConf::sysExParameter_t endMarker = SYSEX_CR_FULL_BACKUP;
