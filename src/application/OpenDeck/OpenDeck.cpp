@@ -254,7 +254,7 @@ class HWAtouchscreen : public IO::Touchscreen::Model::HWA
         return Board::UART::write(UART_CHANNEL_TOUCHSCREEN, data);
     }
 
-    bool read(uint8_t & data) override
+    bool read(uint8_t& data) override
     {
         return Board::UART::read(UART_CHANNEL_TOUCHSCREEN, data);
     }
@@ -368,7 +368,7 @@ class AnalogFilterStub : public IO::Analog::Filter
     public:
     AnalogFilterStub() {}
 
-    bool isFiltered(size_t index, uint16_t value, uint16_t & filteredValue) override
+    bool isFiltered(size_t index, uint16_t value, uint16_t& filteredValue) override
     {
         return false;
     }
@@ -395,7 +395,7 @@ class HWAU8X8 : public IO::U8X8::HWAI2C
         return Board::I2C::deInit(I2C_CHANNEL_DISPLAY);
     }
 
-    bool write(uint8_t address, uint8_t * data, size_t size) override
+    bool write(uint8_t address, uint8_t* data, size_t size) override
     {
         return Board::I2C::write(I2C_CHANNEL_DISPLAY, address, data, size);
     }
@@ -416,7 +416,7 @@ class HWAU8X8Stub : public IO::U8X8::HWAI2C
         return false;
     }
 
-    bool write(uint8_t address, uint8_t * data, size_t size) override
+    bool write(uint8_t address, uint8_t* data, size_t size) override
     {
         return false;
     }
