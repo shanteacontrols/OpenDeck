@@ -596,3 +596,22 @@ void SysConfig::backup()
     sysExConf.sendCustomMessage(&endMarker, 1);
     sysExConf.setSilentMode(false);
 }
+
+void SysConfig::SysExDataHandler::sendResponse(uint8_t* array, size_t size)
+{
+//never send responses through DIN MIDI
+#ifdef DIN_MIDI_SUPPORTED
+    sysConfig.midi.handleUARTwrite(nullptr);
+#endif
+    sysConfig.midi.sendSysEx(size, array, true);
+
+//restore din midi
+#ifdef DIN_MIDI_SUPPORTED
+    if (sysConfig.isMIDIfeatureEnabled(midiFeature_t::dinEnabled))
+    {
+        sysConfig.midi.handleUARTwrite([](uint8_t data) {
+            return Board::UART::write(UART_CHANNEL_DIN, data);
+        });
+    }
+#endif
+}

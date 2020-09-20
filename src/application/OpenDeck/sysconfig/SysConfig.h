@@ -209,11 +209,7 @@ class SysConfig
         result_t get(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t& value) override;
         result_t set(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t newValue) override;
         result_t customRequest(size_t request, CustomResponse& customResponse) override;
-
-        void sendResponse(uint8_t* array, size_t size) override
-        {
-            sysConfig.midi.sendSysEx(size, array, true);
-        }
+        void     sendResponse(uint8_t* array, size_t size) override;
 
         private:
         SysConfig& sysConfig;
