@@ -347,7 +347,7 @@ namespace
         {
             .numberOfParameters     = static_cast<uint8_t>(IO::Display::feature_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::bit,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue           = 0,
             .autoIncrement          = false,
             .address                = 0,
@@ -357,7 +357,7 @@ namespace
         {
             .numberOfParameters     = static_cast<uint8_t>(IO::Display::setting_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::byte,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue           = 0,
             .autoIncrement          = false,
             .address                = 0,
@@ -369,7 +369,7 @@ namespace
         {
             .numberOfParameters     = static_cast<uint8_t>(IO::Touchscreen::setting_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::byte,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue           = 0,
             .autoIncrement          = false,
             .address                = 0,
@@ -379,7 +379,7 @@ namespace
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue           = 0,
             .autoIncrement          = false,
             .address                = 0,
@@ -389,7 +389,7 @@ namespace
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue           = 0,
             .autoIncrement          = false,
             .address                = 0,
@@ -399,7 +399,7 @@ namespace
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue           = 0,
             .autoIncrement          = false,
             .address                = 0,
@@ -409,7 +409,7 @@ namespace
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue           = 0,
             .autoIncrement          = false,
             .address                = 0,
@@ -419,7 +419,7 @@ namespace
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue           = 0,
             .autoIncrement          = false,
             .address                = 0,
@@ -429,7 +429,7 @@ namespace
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue           = 0,
             .autoIncrement          = false,
             .address                = 0,
@@ -439,7 +439,7 @@ namespace
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
             .parameterType          = LESSDB::sectionParameterType_t::bit,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue           = 0,
             .autoIncrement          = false,
             .address                = 0,
@@ -449,7 +449,7 @@ namespace
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
-            .preserveOnPartialReset = 0,
+            .preserveOnPartialReset = false,
             .defaultValue           = 0,
             .autoIncrement          = false,
             .address                = 0,

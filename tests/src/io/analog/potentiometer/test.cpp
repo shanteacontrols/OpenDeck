@@ -168,7 +168,7 @@ TEST_SETUP()
     //init checks - no point in running further tests if these conditions fail
     TEST_ASSERT(database.init() == true);
     TEST_ASSERT(database.isSignatureValid() == true);
-    TEST_ASSERT(database.factoryReset(LESSDB::factoryResetType_t::full) == true);
+    TEST_ASSERT(database.factoryReset() == true);
     midi.handleUSBwrite(midiDataHandler);
 
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)

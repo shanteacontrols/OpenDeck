@@ -161,7 +161,7 @@ class Database : public LESSDB
     }
 
     bool    init();
-    bool    factoryReset(LESSDB::factoryResetType_t type);
+    bool    factoryReset();
     uint8_t getSupportedPresets();
     bool    isSignatureValid();
     bool    setPreset(uint8_t preset);

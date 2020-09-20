@@ -144,7 +144,7 @@ SysConfig::result_t SysConfig::SysExDataHandler::customRequest(size_t request, C
     break;
 
     case SYSEX_CR_FACTORY_RESET:
-        sysConfig.database.factoryReset(LESSDB::factoryResetType_t::partial);
+        sysConfig.database.factoryReset();
         break;
 
     case SYSEX_CR_REBOOT_APP:

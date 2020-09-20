@@ -174,7 +174,7 @@ TEST_SETUP()
     //init checks - no point in running further tests if these conditions fail
     TEST_ASSERT(database.init() == true);
     //always start from known state
-    database.factoryReset(LESSDB::factoryResetType_t::full);
+    database.factoryReset();
     TEST_ASSERT(database.isSignatureValid() == true);
     midi.handleUSBwrite(midiDataHandler);
     midi.setChannelSendZeroStart(true);
@@ -326,7 +326,7 @@ TEST_CASE(ProgramChange)
 
     //test programChangeInc/programChangeDec
     //revert to default database state first
-    database.factoryReset(LESSDB::factoryResetType_t::full);
+    database.factoryReset();
     stateChangeRegister(false);
 
     auto configurePCbutton = [&](uint8_t buttonID, uint8_t channel, bool increase) {
@@ -369,7 +369,7 @@ TEST_CASE(ProgramChange)
     stateChangeRegister(false);
 
     //now, revert all buttons back to default
-    database.factoryReset(LESSDB::factoryResetType_t::full);
+    database.factoryReset();
 
     //configure some other button to programChangeInc
     configurePCbutton(4, 0, true);
@@ -406,7 +406,7 @@ TEST_CASE(ProgramChange)
     stateChangeRegister(false);
 
     //revert to default again
-    database.factoryReset(LESSDB::factoryResetType_t::full);
+    database.factoryReset();
 
     //now configure button 0 for programChangeDec
     configurePCbutton(0, 0, false);
@@ -473,7 +473,7 @@ TEST_CASE(ProgramChange)
     stateChangeRegister(false);
 
     //revert all buttons to default
-    database.factoryReset(LESSDB::factoryResetType_t::full);
+    database.factoryReset();
 
     configurePCbutton(0, 0, true);
 

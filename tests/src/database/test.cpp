@@ -61,7 +61,7 @@ TEST_SETUP()
 TEST_CASE(ReadInitialValues)
 {
     //verify default values
-    database.factoryReset(LESSDB::factoryResetType_t::full);
+    database.factoryReset();
 
     for (int i = 0; i < database.getSupportedPresets(); i++)
     {
@@ -231,7 +231,7 @@ TEST_CASE(ReadInitialValues)
 
 TEST_CASE(Presets)
 {
-    database.factoryReset(LESSDB::factoryResetType_t::full);
+    database.factoryReset();
 
     //verify that first preset is active
     TEST_ASSERT(database.getPreset() == 0);
@@ -254,14 +254,14 @@ TEST_CASE(Presets)
     //enable preset preservation, perform factory reset and verify that preservation is disabled
     database.setPresetPreserveState(true);
     TEST_ASSERT(database.getPresetPreserveState() == true);
-    database.factoryReset(LESSDB::factoryResetType_t::full);
+    database.factoryReset();
     database.init();
     TEST_ASSERT(database.getPresetPreserveState() == false);
 }
 
 TEST_CASE(FactoryReset)
 {
-    database.factoryReset(LESSDB::factoryResetType_t::full);
+    database.factoryReset();
 
     //change several values
 #ifdef BUTTONS_SUPPORTED
@@ -280,7 +280,7 @@ TEST_CASE(FactoryReset)
 
     database.setPresetPreserveState(true);
 
-    database.factoryReset(LESSDB::factoryResetType_t::full);
+    database.factoryReset();
 
     //expect default values
 #ifdef BUTTONS_SUPPORTED
