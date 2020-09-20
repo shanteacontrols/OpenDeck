@@ -19,6 +19,7 @@ limitations under the License.
 #include "board/Board.h"
 #include "board/Internal.h"
 #include "core/src/general/Interrupt.h"
+#include "core/src/general/Timing.h"
 #include "board/common/io/Helpers.h"
 #include "Pins.h"
 
@@ -49,6 +50,10 @@ namespace Board
                 HAL_Init();
 
                 detail::setup::clocks();
+
+                //add some delay for clocks to stabilize
+                core::timing::waitMs(10);
+
                 detail::setup::io();
                 detail::setup::adc();
                 detail::setup::timers();
