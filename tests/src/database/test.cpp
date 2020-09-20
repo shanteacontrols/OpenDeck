@@ -55,7 +55,6 @@ TEST_SETUP()
 {
     //init checks - no point in running further tests if these conditions fail
     TEST_ASSERT(database.init() == true);
-    TEST_ASSERT(database.isSignatureValid() == true);
 }
 
 TEST_CASE(ReadInitialValues)
@@ -302,6 +301,8 @@ TEST_CASE(FactoryReset)
 #if MAX_NUMBER_OF_LEDS > 0
 TEST_CASE(LEDs)
 {
+    database.factoryReset();
+
     //regression test
     //by default, rgb state should be disabled
     for (int i = 0; i < MAX_NUMBER_OF_RGB_LEDS; i++)
