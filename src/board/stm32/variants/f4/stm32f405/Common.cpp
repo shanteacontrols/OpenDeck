@@ -679,16 +679,6 @@ namespace Board
                 return TIM7;
             }
 
-            size_t eepromFlashPage1()
-            {
-                return FLASH_SECTOR_5;
-            }
-
-            size_t eepromFlashPage2()
-            {
-                return FLASH_SECTOR_6;
-            }
-
             bool uartChannel(USART_TypeDef* interface, uint8_t& channel)
             {
                 for (int i = 0; i < MAX_UART_INTERFACES; i++)

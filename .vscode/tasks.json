@@ -140,6 +140,14 @@
             "command": "./scripts/vscode_intellisense.sh ${input:target}",
             "type": "shell",
             "problemMatcher": []
+        },
+        {
+            "label": "[Flashgen] Build",
+            "command": "cd ./src && make TARGETNAME=${input:target} flashgen LANG=C DEBUG=1",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ]
         }
     ],
     "inputs": [
@@ -160,7 +168,8 @@
                 "8u2",
                 "mega6mux",
                 "arrival",
-                "cardamom"
+                "cardamom",
+                "opendeck2"
             ]
         },
         {

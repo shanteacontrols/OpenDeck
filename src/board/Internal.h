@@ -226,6 +226,16 @@ namespace Board
             ///
             flashPage_t& flashPageDescriptor(size_t pageIndex);
 
+            ///
+            /// \brief Used to retrieve descriptors for flash pages used for EEPROM emulation.
+            /// @ {
+
+            size_t eepromFlashPageFactory();
+            size_t eepromFlashPage1();
+            size_t eepromFlashPage2();
+
+            /// }
+
 #ifdef __STM32__
             class STMPeripheral
             {
@@ -272,15 +282,6 @@ namespace Board
             /// \brief Used to retrieve timer instance used for main timer interrupt.
             ///
             TIM_TypeDef* mainTimerInstance();
-
-            ///
-            /// \brief Used to retrieve descriptors for flash pages used for EEPROM emulation.
-            /// @ {
-
-            size_t eepromFlashPage1();
-            size_t eepromFlashPage2();
-
-            /// }
 #endif
         }    // namespace map
 

@@ -14,6 +14,8 @@ FLASH_BIN_AVR := avrdude
 C_COMPILER_ARM := arm-none-eabi-gcc
 CPP_COMPILER_ARM := arm-none-eabi-g++
 FLASH_BIN_ARM := arm-none-eabi-gdb
+C_COMPILER_x86 := clang
+CPP_COMPILER_x86 := clang++
 
 CLANG_FORMAT := clang-format
 

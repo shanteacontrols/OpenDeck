@@ -32,29 +32,39 @@ namespace
         bool init() override
         {
             uint32_t totalStorageSpace = Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPage1()).size / 4 - 1;
-
-            eepromMemory.reserve(totalStorageSpace);
-
-            for (size_t i = 0; i < totalStorageSpace; i++)
-                eepromMemory[i] = 0xFFFF;
+            eepromMemory.resize(totalStorageSpace, 0xFFFF);
 
             return true;
         }
 
         uint32_t startAddress(EmuEEPROM::page_t page) override
         {
-            if (page == EmuEEPROM::page_t::page1)
+            switch (page)
+            {
+            case EmuEEPROM::page_t::pageFactory:
+                return Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPageFactory()).address;
+
+            case EmuEEPROM::page_t::page2:
+                return Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPage2()).address;
+
+            default:
                 return Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPage1()).address;
-            else
-                return Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPage1()).address;
+            }
         }
 
         bool erasePage(EmuEEPROM::page_t page) override
         {
-            if (page == EmuEEPROM::page_t::page1)
-                return Board::detail::flash::erasePage(Board::detail::map::eepromFlashPage1());
-            else
+            switch (page)
+            {
+            case EmuEEPROM::page_t::pageFactory:
+                return Board::detail::flash::erasePage(Board::detail::map::eepromFlashPageFactory());
+
+            case EmuEEPROM::page_t::page2:
                 return Board::detail::flash::erasePage(Board::detail::map::eepromFlashPage2());
+
+            default:
+                return Board::detail::flash::erasePage(Board::detail::map::eepromFlashPage1());
+            }
         }
 
         bool write16(uint32_t address, uint16_t data) override
@@ -77,7 +87,7 @@ namespace
             return Board::detail::flash::read32(address, data);
         }
 
-        size_t pageSize() override
+        uint32_t pageSize() override
         {
             return Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPage1()).size;
         }
@@ -90,7 +100,7 @@ namespace
     };
 
     STM32F4EEPROM stm32EEPROM;
-    EmuEEPROM     emuEEPROM(stm32EEPROM);
+    EmuEEPROM     emuEEPROM(stm32EEPROM, true);
 }    // namespace
 
 namespace Board
@@ -163,10 +173,10 @@ namespace Board
             return true;
         }
 
-        void clear(uint32_t start, uint32_t end)
+        bool clear(uint32_t start, uint32_t end)
         {
             //ignore start/end markers on stm32 for now
-            emuEEPROM.format();
+            return emuEEPROM.format();
         }
 
         size_t paramUsage(parameterType_t type)

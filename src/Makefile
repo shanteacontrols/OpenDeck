@@ -17,15 +17,19 @@ ifeq ($(shell yq r ../targets/$(TARGETNAME).yml bootloader.use), true)
     HAS_BTLDR := 1
 endif
 
-ifeq ($(BOOT),1)
-    #verify if target has bootloader
-    ifneq ($(HAS_BTLDR),1)
-        $(error This target doesn't have bootloader)
-    endif
+ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
+    ifeq ($(BOOT),1)
+        #verify if target has bootloader
+        ifneq ($(HAS_BTLDR),1)
+            $(error This target doesn't have bootloader)
+        endif
 
-    BUILD_DIR := $(BUILD_DIR_BASE)/bootloader
+        BUILD_DIR := $(BUILD_DIR_BASE)/bootloader
+    else
+        BUILD_DIR := $(BUILD_DIR_BASE)/application
+    endif
 else
-    BUILD_DIR := $(BUILD_DIR_BASE)/application
+    BUILD_DIR := $(BUILD_DIR_BASE)/flashgen
 endif
 
 BUILD_DIR := $(BUILD_DIR)/$(TARGETNAME)
@@ -79,6 +83,9 @@ ASM_FLAGS := \
 LDFLAGS := \
 -Wl,--gc-sections \
 -Wl,-Map="$(TARGET).map",--cref
+
+#custom linker script
+LDFLAGS += -T $(LINKER_FILE)
 
 ifeq ($(ARCH),avr)
     TOOL_PREFIX := avr-
@@ -144,33 +151,44 @@ else ifeq ($(ARCH),stm32)
         LDFLAGS += -mfloat-abi=$(FLOAT-ABI)
     endif
 else
-    $(error Unsupported architecture)
-endif
+    C_COMPILER := $(C_COMPILER_x86)
+    CPP_COMPILER := $(CPP_COMPILER_x86)
+    LDFLAGS :=
+    SIZE_TOOL := size
 
-#custom linker script
-LDFLAGS += -T $(LINKER_FILE)
+    ifeq ($(DEBUG), 1)
+        COMMON_FLAGS += -g -gdwarf-2
+        OPT := -O0
+    else
+        OPT := -O3
+    endif
+endif
 
 fw:
 	@$(MAKE) --no-print-directory BOOT=$(BOOT) TARGETNAME=$(TARGETNAME) pre-build
 	@$(MAKE) --no-print-directory BOOT=$(BOOT) TARGETNAME=$(TARGETNAME) $(TARGET).elf
 
-$(TARGET).elf: $(OBJECTS)
+$(TARGET).elf: $(OBJECTS) $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin_offset
+	@echo Creating executable: $@
+	@$(CPP_COMPILER) -o$(TARGET).elf $(OBJECTS) $(LDFLAGS)
+ifneq ($(ARCH),x86)
 	@echo $(TARGETNAME) > $(BUILD_DIR_BASE)/TARGET
 	@echo $(DEBUG) > $(BUILD_DIR_BASE)/DEBUG
 	@echo $(BOOT) > $(BUILD_DIR_BASE)/BOOT
-	@echo Creating executable: $@
-	@$(CPP_COMPILER) -o$(TARGET).elf $(OBJECTS) $(LDFLAGS)
-ifeq ($(ARCH), avr)
-	@avr-objcopy -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "$(TARGET).elf" "$(TARGET).hex"
-endif
 	@$(TOOL_PREFIX)objcopy --gap-fill 0xFF -O ihex $(TARGET).elf $(TARGET).hex
-#append metadata only for application
 ifneq ($(BOOT),1)
+#append metadata only for application
 	@srec_cat $(TARGET).hex -Intel -exclude $(FW_METADATA_LOCATION) $$(($(FW_METADATA_LOCATION) + $(FW_METADATA_SIZE))) -MAximum_Little_Endian $(FW_METADATA_LOCATION) -o $(TARGET).hex -Intel
 	@srec_cat $(TARGET).hex -Intel -Cyclic_Redundancy_Check_16_Little_Endian -MAximum-Address $(TARGET).hex -Intel -Cyclic_Redundancy_Check_16_XMODEM -Output $(TARGET).hex -Intel
+#also append generated flash containing factory configuration
+ifeq ($(ARCH),stm32)
+	@srec_cat $(TARGET).hex -Intel $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin -binary -offset $(shell cat $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin_offset) -o $(TARGET).hex
+	@$(TOOL_PREFIX)objcopy --gap-fill 0xFF -O ihex $(TARGET).hex $(TARGET).hex
+endif
 endif
 	@$(TOOL_PREFIX)objcopy -I ihex "$(TARGET).hex" -O binary "$(TARGET).bin"
 	@$(SIZE_TOOL) "$(TARGET).elf"
+endif
 
 sysexfw: $(TARGET).sysex
 
@@ -205,6 +223,21 @@ board/gen/$(TARGETNAME)/Pins.cpp: ../targets/$(TARGETNAME).yml
 application/io/touchscreen/coordinates/$(TARGETNAME).cpp: application/io/touchscreen/coordinates/$(TARGETNAME).json
 	@echo Generating touchscreen coordinate file...
 	@../scripts/gen_touchscreen.sh $<
+
+$(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin_offset:
+ifeq ($(ARCH), stm32)
+ifneq ($(BOOT),1)
+	@$(MAKE) --no-print-directory TARGETNAME=$(TARGETNAME) BOOT=0 DEBUG=0 flashgen
+	@echo Generating factory flash configuration...
+	@./$(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/$(TARGETNAME).elf $(shell pwd)/$(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin
+endif
+else
+#just generate empty file if not needed to avoid re-linking on repeated calls of make on targets where this isn't used
+	@mkdir -p $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release
+	@touch $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin_offset
+endif
+
+flashgen: $(TARGET).elf
 
 $(BUILD_DIR)/%.c.o: %.c
 	@mkdir -p $(@D)

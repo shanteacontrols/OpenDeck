@@ -129,7 +129,7 @@ namespace
     } buttonsFilter;
 
     DBstorageMock dbStorageMock;
-    Database      database = Database(dbHandlers, dbStorageMock);
+    Database      database = Database(dbHandlers, dbStorageMock, true);
     MIDI          midi;
     ComponentInfo cInfo;
 

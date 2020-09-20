@@ -76,10 +76,12 @@ namespace Board
             return true;
         }
 
-        void clear(uint32_t start, uint32_t end)
+        bool clear(uint32_t start, uint32_t end)
         {
             for (uint32_t i = start; i < end; i++)
                 eeprom_update_byte(reinterpret_cast<uint8_t*>(i), 0);
+
+            return true;
         }
 
         size_t paramUsage(parameterType_t type)

@@ -38,9 +38,10 @@ class Database : public LESSDB
         virtual void initialized()                = 0;
     };
 
-    Database(Handlers& handlers, LESSDB::StorageAccess& storageAccess)
+    Database(Handlers& handlers, LESSDB::StorageAccess& storageAccess, bool initializeData)
         : LESSDB(storageAccess)
         , handlers(handlers)
+        , initializeData(initializeData)
     {}
 
     enum class block_t : uint8_t
@@ -216,6 +217,8 @@ class Database : public LESSDB
     bool     setDbUID(uint16_t uid);
 
     Handlers& handlers;
+
+    const bool initializeData;
 
     ///
     /// \brief Address at which user data starts (after system block).

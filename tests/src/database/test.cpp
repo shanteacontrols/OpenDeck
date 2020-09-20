@@ -48,7 +48,7 @@ namespace
     } dbHandlers;
 
     DBstorageMock dbStorageMock;
-    Database      database = Database(dbHandlers, dbStorageMock);
+    Database      database = Database(dbHandlers, dbStorageMock, true);
 }    // namespace
 
 TEST_SETUP()

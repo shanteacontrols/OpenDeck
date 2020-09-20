@@ -99,6 +99,21 @@ namespace Board
 
                 return pageDescriptor[pageIndex];
             }
+
+            size_t eepromFlashPageFactory()
+            {
+                return 5;
+            }
+
+            size_t eepromFlashPage1()
+            {
+                return 6;
+            }
+
+            size_t eepromFlashPage2()
+            {
+                return 7;
+            }
         }    // namespace map
     }        // namespace detail
 }    // namespace Board

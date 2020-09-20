@@ -49,6 +49,9 @@ namespace SectionPrivate
 ///
 bool Database::init()
 {
+    if (!LESSDB::init())
+        return false;
+
     setStartAddress(0);
 
     uint32_t systemBlockUsage = 0;
@@ -121,31 +124,42 @@ bool Database::factoryReset(LESSDB::factoryResetType_t type)
     handlers.factoryResetStart();
 
     if (type == LESSDB::factoryResetType_t::full)
-        clear();
-
-    for (int i = supportedPresets - 1; i >= 0; i--)
     {
-        if (!setPreset(i))
+        if (!clear())
             return false;
-
-        if (!initData(type))
-            return false;
-
-        //perform custom init as well
-        customInitGlobal();
-        customInitButtons();
-        customInitEncoders();
-        customInitAnalog();
-        customInitLEDs();
-        customInitDisplay();
-        customInitTouchscreen();
     }
 
-    if (!setPresetPreserveState(false))
-        return false;
+    if (initializeData)
+    {
+        for (int i = supportedPresets - 1; i >= 0; i--)
+        {
+            if (!setPreset(i))
+                return false;
 
-    if (!setDbUID(getDbUID()))
-        return false;
+            if (!initData(type))
+                return false;
+
+            //perform custom init as well
+            customInitGlobal();
+            customInitButtons();
+            customInitEncoders();
+            customInitAnalog();
+            customInitLEDs();
+            customInitDisplay();
+            customInitTouchscreen();
+        }
+
+        if (!setPresetPreserveState(false))
+            return false;
+
+        if (!setDbUID(getDbUID()))
+            return false;
+    }
+    else
+    {
+        //just enter once into system block and do nothing so that correct start address is set
+        SYSTEM_BLOCK_ENTER()
+    }
 
     handlers.factoryResetDone();
 

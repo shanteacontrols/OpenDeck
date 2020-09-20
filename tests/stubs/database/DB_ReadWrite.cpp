@@ -155,11 +155,12 @@ bool DBstorageMock::write(uint32_t address, int32_t value, LESSDB::sectionParame
 #endif
 }
 
-void DBstorageMock::clear()
+bool DBstorageMock::clear()
 {
 #ifndef STM32_EMU_EEPROM
     memset(memoryArray, 0x00, DATABASE_SIZE);
+    return true;
 #else
-    emuEEPROM.format();
+    return emuEEPROM.format();
 #endif
 }

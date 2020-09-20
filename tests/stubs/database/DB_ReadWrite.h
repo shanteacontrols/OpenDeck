@@ -10,7 +10,7 @@ class DBstorageMock : public LESSDB::StorageAccess
     public:
     DBstorageMock() {}
 
-    void init() override
+    bool init() override
     {
 #ifdef STM32_EMU_EEPROM
         emuEEPROM.init();
@@ -18,11 +18,12 @@ class DBstorageMock : public LESSDB::StorageAccess
         for (size_t i = 0; i < (DATABASE_SIZE / 4) - 1; i++)
             eepromMemory[i] = 0xFFFF;
 #endif
+        return true;
     }
 
     uint32_t size() override;
     size_t   paramUsage(LESSDB::sectionParameterType_t type) override;
-    void     clear() override;
+    bool     clear() override;
     bool     read(uint32_t address, int32_t& value, LESSDB::sectionParameterType_t type) override;
     bool     write(uint32_t address, int32_t value, LESSDB::sectionParameterType_t type) override;
 
@@ -96,7 +97,7 @@ class DBstorageMock : public LESSDB::StorageAccess
             return true;
         }
 
-        size_t pageSize() override
+        uint32_t pageSize() override
         {
             return DATABASE_SIZE;
         }
@@ -106,7 +107,7 @@ class DBstorageMock : public LESSDB::StorageAccess
     };
 
     EmuEEPROMStorageAccess storageMock;
-    EmuEEPROM              emuEEPROM = EmuEEPROM(storageMock);
+    EmuEEPROM              emuEEPROM = EmuEEPROM(storageMock, false);
     //for caching - avoids constant lookups by EmuEEPROM
     //this is also used in actual firmware
     uint16_t eepromMemory[(DATABASE_SIZE / 4) - 1];

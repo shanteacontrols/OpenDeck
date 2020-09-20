@@ -79,6 +79,11 @@ else
     $(error MCU $(MCU) not supported)
 endif
 
+#overwrite arch if needed only when all MCU defines have been set so that they can be used in flashgen application as well
+ifneq (,$(findstring flashgen,$(MAKECMDGOALS)))
+    ARCH := x86
+endif
+
 ifeq ($(ARCH),avr)
     #common for all avr targets
     DEFINES += \
@@ -113,8 +118,6 @@ else ifeq ($(ARCH),stm32)
     DEVICE_FS=0 \
     DEVICE_HS=1 \
     ADC_12_BIT
-else
-    $(error Arch $(ARCH) not supported)
 endif
 
 FW_UID := $(shell ../scripts/fw_uid_gen.sh $(TARGETNAME))

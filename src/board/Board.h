@@ -270,7 +270,7 @@ namespace Board
         /// @param [in] start   Starting address from which to erase.
         /// @param [in] end     Last address to erase.
         ///
-        void clear(uint32_t start, uint32_t end);
+        bool clear(uint32_t start, uint32_t end);
 
         ///
         /// \brief Returns amount of actual memory it takes to store provided parameter type.

@@ -163,5 +163,25 @@
             "targetId": 1,
             "preLaunchTask": "[FW/OpenDeck2/Debug] Build"
         },
+        {
+            "name": "Flashgen",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/build/flashgen/opendeck2/debug/opendeck2.elf",
+            "args": [],
+            "stopAtEntry": true,
+            "environment": [],
+            "externalConsole": false,
+            "cwd": "${workspaceFolder}",
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "[Flashgen] Build"
+        }
     ]
 }
