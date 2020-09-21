@@ -212,6 +212,7 @@ ifeq ($(ARCH), avr)
 else
 	@srec_cat "$(BUILD_DIR_BASE)/bootloader/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex" -Intel "$(BUILD_DIR_BASE)/application/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex" -Intel -o $(MERGED_TARGET) -Intel
 endif
+	@$(TOOL_PREFIX)objcopy -I ihex "$(MERGED_TARGET)" -O binary "$(MERGED_TARGET).bin"
 	@echo Merged binary created: $(MERGED_TARGET)
 
 pre-build: $(GEN_SOURCES)
