@@ -165,7 +165,7 @@ ifneq ($(shell yq r ../targets/$(TARGETNAME).yml usbLink),)
     endif
 endif
 
-ifeq (,$(findstring USB_LINK_MCU,$(DEFINES)))
+ifneq (,$(findstring USB_LINK_MCU,$(DEFINES)))
 #use smaller sysex buffer size on USB link MCUs
     DEFINES += MIDI_SYSEX_ARRAY_SIZE=64
 else
