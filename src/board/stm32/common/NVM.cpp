@@ -20,6 +20,9 @@ limitations under the License.
 #include "board/Internal.h"
 #include "EmuEEPROM/src/EmuEEPROM.h"
 #include <vector>
+#include "core/src/general/Atomic.h"
+#include "core/src/general/Timing.h"
+#include "board/common/constants/IO.h"
 
 namespace
 {
@@ -109,7 +112,15 @@ namespace Board
     {
         bool init()
         {
-            return emuEEPROM.init();
+            bool result;
+
+            //disable all interrupts during init to avoid ISRs messing up the flash page formatting/setup
+            ATOMIC_SECTION
+            {
+                result = emuEEPROM.init();
+            }
+
+            return result;
         }
 
         uint32_t size()
@@ -175,8 +186,20 @@ namespace Board
 
         bool clear(uint32_t start, uint32_t end)
         {
+            bool result;
+
+            //clearing is usually called in runtime so it's possible that LED
+            //indicators are still on since the command is most likely given via USB
+            //wait until all indicators are turned off
+            core::timing::waitMs(MIDI_INDICATOR_TIMEOUT);
+
+            ATOMIC_SECTION
+            {
+                result = emuEEPROM.format();
+            }
+
             //ignore start/end markers on stm32 for now
-            return emuEEPROM.format();
+            return result;
         }
 
         size_t paramUsage(parameterType_t type)
