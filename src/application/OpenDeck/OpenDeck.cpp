@@ -445,7 +445,6 @@ void OpenDeck::init()
 
     database.init();
     sysConfig.init();
-    leds.init();
     encoders.init();
     display.init(true);
 
@@ -484,10 +483,6 @@ void OpenDeck::init()
         leds.refresh();
     });
 
-    // on startup, indicate current program for all channels (if any leds have program change assigned as control mode)
-    for (int i = 0; i < 16; i++)
-        leds.midiToState(MIDI::messageType_t::programChange, 0, 0, i, false);
-
     //don't configure this handler before initializing database to avoid mcu reset if
     //factory reset is needed initially
     dbHandlers.factoryResetDoneHandler = []() {
@@ -508,6 +503,12 @@ void OpenDeck::init()
         touchscreen.setIconState(index, state);
 #endif
     });
+
+    leds.init();
+
+    //on startup, indicate current program for all channels (if any leds have program change assigned as control mode)
+    for (int i = 0; i < 16; i++)
+        leds.midiToState(MIDI::messageType_t::programChange, 0, 0, i, false);
 }
 
 void OpenDeck::checkComponents()
