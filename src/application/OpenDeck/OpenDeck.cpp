@@ -340,26 +340,24 @@ class HWAAnalog : public IO::Analog::HWA
     public:
     HWAAnalog() {}
 
-    uint16_t state(size_t index) override
+    bool value(size_t index, uint16_t& value) override
     {
-        return Board::io::getAnalogValue(index);
+        return Board::io::analogValue(index, value);
     }
 } hwaAnalog;
 
-#define ANALOG_SAMPLES 1
-
 #include "io/analog/Filter.h"
 
-IO::AnalogFilter<ANALOG_SAMPLES> analogFilter;
+IO::AnalogFilterSMA<3> analogFilter;
 #else
 class HWAAnalogStub : public IO::Analog::HWA
 {
     public:
     HWAAnalogStub() {}
 
-    uint16_t state(size_t index) override
+    bool value(size_t index, uint16_t& value) override
     {
-        return 0;
+        return false;
     }
 } hwaAnalog;
 
@@ -522,8 +520,7 @@ void OpenDeck::checkComponents()
             encoders.update();
         }
 
-        if (Board::io::isAnalogDataAvailable())
-            analog.update();
+        analog.update();
 
         leds.checkBlinking();
         display.update();

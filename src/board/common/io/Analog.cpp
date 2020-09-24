@@ -24,16 +24,15 @@ limitations under the License.
 #include "board/Internal.h"
 #include "Pins.h"
 
+///
+/// \brief Used to indicate that the new reading has been made.
+///
+#define NEW_READING_FLAG 0x8000
+
 namespace
 {
-    uint8_t           ignoreCounter;
     uint8_t           analogIndex;
-    volatile uint16_t analogBuffer[ANALOG_IN_BUFFER_SIZE][MAX_NUMBER_OF_ANALOG];
-    uint16_t          analogBufferReadOnly[MAX_NUMBER_OF_ANALOG];
-
-    volatile uint8_t aIn_head;
-    volatile uint8_t aIn_tail;
-    volatile uint8_t aIn_count;
+    volatile uint16_t analogBuffer[MAX_NUMBER_OF_ANALOG];
 
 #ifdef NUMBER_OF_MUX
     uint8_t activeMux;
@@ -58,31 +57,22 @@ namespace Board
 {
     namespace io
     {
-        uint16_t getAnalogValue(uint8_t analogID)
+        bool analogValue(uint8_t analogID, uint16_t& value)
         {
             analogID = detail::map::adcIndex(analogID);
 
             if (analogID >= MAX_NUMBER_OF_ANALOG)
-                return 0;
+                return false;
 
-            return analogBufferReadOnly[analogID];
-        }
-
-        bool isAnalogDataAvailable()
-        {
-            if (aIn_count)
+            ATOMIC_SECTION
             {
-                ATOMIC_SECTION
-                {
-                    if (++aIn_tail == ANALOG_IN_BUFFER_SIZE)
-                        aIn_tail = 0;
+                value = analogBuffer[analogID];
+                analogBuffer[analogID] &= ~NEW_READING_FLAG;
+            }
 
-                    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
-                        analogBufferReadOnly[i] = analogBuffer[aIn_tail][i];
-
-                    aIn_count--;
-                }
-
+            if (value & NEW_READING_FLAG)
+            {
+                value &= ~NEW_READING_FLAG;
                 return true;
             }
 
@@ -96,67 +86,59 @@ namespace Board
         {
             void adc(uint16_t adcValue)
             {
-                static bool analogSamplingStarted = false;
+                static bool firstReading = false;
 
-                if (!analogSamplingStarted)
+                firstReading = !firstReading;
+
+                if (!firstReading)
                 {
-                    if (aIn_count < ANALOG_IN_BUFFER_SIZE)
-                    {
-                        if (++aIn_head == ANALOG_IN_BUFFER_SIZE)
-                            aIn_head = 0;
-
-                        analogSamplingStarted = true;
-                    }
-                }
-
-                //proceed with reading only if there is room in ring buffer
-                if (analogSamplingStarted)
-                {
-                    if (ignoreCounter++ == ADC_IGNORED_SAMPLES_COUNT)
-                    {
-                        ignoreCounter = 0;
-
-                        analogBuffer[aIn_head][analogIndex] = adcValue;
-                        analogIndex++;
 #ifdef NUMBER_OF_MUX
-                        activeMuxInput++;
+                    detail::io::dischargeMux();
+#endif
 
-                        bool switchMux = (activeMuxInput == NUMBER_OF_MUX_INPUTS);
+                    analogBuffer[analogIndex] = adcValue;
+                    analogBuffer[analogIndex] |= NEW_READING_FLAG;
+                    analogIndex++;
+#ifdef NUMBER_OF_MUX
+                    activeMuxInput++;
 
-                        if (switchMux)
+                    bool switchMux = (activeMuxInput == NUMBER_OF_MUX_INPUTS);
+
+                    if (switchMux)
 #else
-                        if (analogIndex == MAX_NUMBER_OF_ANALOG)
+                    if (analogIndex == MAX_NUMBER_OF_ANALOG)
 #endif
+                    {
+#ifdef NUMBER_OF_MUX
+                        activeMuxInput = 0;
+                        activeMux++;
+
+                        if (activeMux == NUMBER_OF_MUX)
                         {
-#ifdef NUMBER_OF_MUX
-                            activeMuxInput = 0;
-                            activeMux++;
-
-                            if (activeMux == NUMBER_OF_MUX)
-                            {
-                                activeMux = 0;
+                            activeMux = 0;
 #endif
-                                analogIndex           = 0;
-                                analogSamplingStarted = false;
-                                aIn_count++;
+                            analogIndex = 0;
 #ifdef NUMBER_OF_MUX
-                            }
-#endif
-
-#ifdef NUMBER_OF_MUX
-                            //switch to next mux once all mux inputs are read
-                            core::adc::setChannel(Board::detail::map::adcChannel(activeMux));
-#endif
                         }
+#endif
+
+#ifdef NUMBER_OF_MUX
+                        //switch to next mux once all mux inputs are read
+                        core::adc::setChannel(Board::detail::map::adcChannel(activeMux));
+#endif
+                    }
 
 //always switch to next read pin
 #ifdef NUMBER_OF_MUX
-                        setMuxInput();
+                    setMuxInput();
 #else
-                        core::adc::setChannel(Board::detail::map::adcChannel(analogIndex));
+                    core::adc::setChannel(Board::detail::map::adcChannel(analogIndex));
 #endif
-                    }
                 }
+
+#ifdef NUMBER_OF_MUX
+                detail::io::restoreMux(activeMux);
+#endif
 
                 core::adc::startConversion();
             }

@@ -22,11 +22,10 @@ limitations under the License.
 
 namespace IO
 {
-    template<size_t nrOfSamples>
-    class AnalogFilter : public IO::Analog::Filter
+    class AnalogFilterMedian : public IO::Analog::Filter
     {
         public:
-        AnalogFilter() {}
+        AnalogFilterMedian() {}
 
         bool isFiltered(size_t index, uint16_t value, uint16_t& filteredValue) override
         {
@@ -39,34 +38,82 @@ namespace IO
                 return 0;
             };
 
+            analogSampleMedian[index][sampleCounter[index]++] = value;
+
+            //take the median value to avoid using outliers
+            if (sampleCounter[index] == 3)
+            {
+                qsort(analogSampleMedian[index], 3, sizeof(uint16_t), compare);
+                sampleCounter[index] = 0;
+
+                //finally, pass the value through exponential moving average filter for increased stability
+                filteredValue = emaFilter[index].value(analogSampleMedian[index][1]);
+                return true;
+            }
+
+            return false;
+        }
+
+        void reset(size_t index) override
+        {
+            sampleCounter[index] = 0;
+            emaFilter[index].reset();
+        }
+
+        private:
+        class EMA
+        {
+            //exponential moving average filter
+            public:
+            EMA() {}
+
+            uint16_t value(uint16_t rawData)
+            {
+                currentValue = (percentage * static_cast<uint32_t>(rawData) + (100 - percentage) * static_cast<uint32_t>(currentValue)) / 100;
+                return currentValue;
+            }
+
+            void reset()
+            {
+                currentValue = 0;
+            }
+
+            private:
+            uint16_t                  currentValue = 0;
+            static constexpr uint32_t percentage   = 80;
+        };
+
+        EMA      emaFilter[MAX_NUMBER_OF_ANALOG];
+        size_t   sampleCounter[MAX_NUMBER_OF_ANALOG]            = {};
+        uint16_t analogSampleMedian[MAX_NUMBER_OF_ANALOG][3]    = {};
+        uint16_t analogSampleMovingAvg[MAX_NUMBER_OF_ANALOG][3] = {};
+    };    // namespace IO
+
+    template<size_t nrOfSamples>
+    class AnalogFilterSMA : public IO::Analog::Filter
+    {
+        public:
+        AnalogFilterSMA() {}
+
+        bool isFiltered(size_t index, uint16_t value, uint16_t& filteredValue) override
+        {
+            //simple moving average filter
             analogSample[index][sampleCounter[index]++] = value;
 
             if (sampleCounter[index] == _nrOfSamples)
             {
-                sampleCounter[index] = 0;
-                filteredValue        = 0;
+                filteredValue = 0;
 
-                if (_nrOfSamples > 2)
-                {
-                    qsort(analogSample[index], _nrOfSamples, sizeof(uint16_t), compare);
+                for (size_t i = 0; i < _nrOfSamples; i++)
+                    filteredValue += analogSample[index][i];
 
-                    //now delete half of samples (one quarter lower, one quarter upper)
+                filteredValue /= _nrOfSamples;
 
-                    for (size_t i = _nrOfSamples / 4; i < (_nrOfSamples - (_nrOfSamples / 4)); i++)
-                        filteredValue += analogSample[index][i];
+                for (size_t i = 0; i < _nrOfSamples - 2; i++)
+                    analogSample[index][i] = analogSample[index][i + 1];
 
-                    filteredValue /= (_nrOfSamples / 2);
-                }
-                else
-                {
-                    for (size_t i = 0; i < _nrOfSamples; i++)
-                        filteredValue += analogSample[index][i];
-
-                    filteredValue /= _nrOfSamples;
-                }
-
-                //finally, pass the value through exponential moving average filter for increased stability
-                filteredValue = emaFilter[index].value(filteredValue);
+                analogSample[index][nrOfSamples - 2] = filteredValue;
+                sampleCounter[index]                 = nrOfSamples - 1;
 
                 return true;
             }
@@ -80,30 +127,7 @@ namespace IO
         }
 
         private:
-        class EMA
-        {
-            //exponential moving average filter
-            public:
-            EMA() {}
-
-            // use factor 0.5 for easier bitwise math
-            uint16_t value(uint16_t rawData)
-            {
-                currentValue = (rawData >> 1) + (currentValue >> 1);
-                return currentValue;
-            }
-
-            void reset()
-            {
-                currentValue = 0;
-            }
-
-            private:
-            uint16_t currentValue = 0;
-        };
-
-        const size_t _nrOfSamples = nrOfSamples;
-        EMA          emaFilter[MAX_NUMBER_OF_ANALOG];
+        const size_t _nrOfSamples                                    = nrOfSamples;
         uint16_t     analogSample[MAX_NUMBER_OF_ANALOG][nrOfSamples] = {};
         size_t       sampleCounter[MAX_NUMBER_OF_ANALOG]             = {};
     };

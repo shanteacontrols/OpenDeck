@@ -32,7 +32,10 @@ void Analog::update()
 
         uint16_t analogData;
 
-        if (!filter.isFiltered(i, hwa.state(i), analogData))
+        if (!hwa.value(i, analogData))
+            continue;
+
+        if (!filter.isFiltered(i, analogData, analogData))
             continue;
 
         auto type = static_cast<type_t>(database.read(Database::Section::analog_t::type, i));

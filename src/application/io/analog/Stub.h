@@ -40,8 +40,7 @@ namespace IO
             const uint16_t adcMaxValue;                 ///< Maxmimum raw ADC value.
             const uint16_t stepDiff7Bit;                ///< Minimum difference between two raw ADC readings to consider that value has been changed for 7-bit MIDI values.
             const uint16_t stepDiff14Bit;               ///< Minimum difference between two raw ADC readings to consider that value has been changed for 14-bit MIDI values.
-            const uint16_t stepDiff7BitDirChange;       ///< Same as stepDiff7Bit, only used when the direction is different from the last one.
-            const uint16_t stepDiff14BitDirChange;      ///< Same as stepDiff14Bit, only used when the direction is different from the last one.
+            const uint16_t stepDiffDirChange;           ///< Same as stepDiff7Bit and stepDiff14Bit, only used when the direction is different from the last one.
             const uint16_t fsrMinValue;                 ///< Minimum raw ADC reading for FSR sensors.
             const uint16_t fsrMaxValue;                 ///< Maximum raw ADC reading for FSR sensors.
             const uint16_t aftertouchMaxValue;          ///< Maxmimum raw ADC reading for aftertouch on FSR sensors.
@@ -99,8 +98,7 @@ namespace IO
             .adcMaxValue              = 0,
             .stepDiff7Bit             = 0,
             .stepDiff14Bit            = 0,
-            .stepDiff7BitDirChange    = 0,
-            .stepDiff14BitDirChange   = 0,
+            .stepDiffDirChange        = 0,
             .fsrMinValue              = 0,
             .fsrMaxValue              = 0,
             .aftertouchMaxValue       = 0,

@@ -51,8 +51,7 @@ namespace IO
             const uint16_t adcMaxValue;                 ///< Maxmimum raw ADC value.
             const uint16_t stepDiff7Bit;                ///< Minimum difference between two raw ADC readings to consider that value has been changed for 7-bit MIDI values.
             const uint16_t stepDiff14Bit;               ///< Minimum difference between two raw ADC readings to consider that value has been changed for 14-bit MIDI values.
-            const uint16_t stepDiff7BitDirChange;       ///< Same as stepDiff7Bit, only used when the direction is different from the last one.
-            const uint16_t stepDiff14BitDirChange;      ///< Same as stepDiff14Bit, only used when the direction is different from the last one.
+            const uint16_t stepDiffDirChange;           ///< Same as stepDiff7Bit and stepDiff14Bit, only used when the direction is different from the last one.
             const uint16_t fsrMinValue;                 ///< Minimum raw ADC reading for FSR sensors.
             const uint16_t fsrMaxValue;                 ///< Maximum raw ADC reading for FSR sensors.
             const uint16_t aftertouchMaxValue;          ///< Maxmimum raw ADC reading for aftertouch on FSR sensors.
@@ -82,7 +81,8 @@ namespace IO
         class HWA
         {
             public:
-            virtual uint16_t state(size_t index) = 0;
+            //should return true if the value has been refreshed, false otherwise
+            virtual bool value(size_t index, uint16_t& value) = 0;
         };
 
         class Filter
@@ -128,8 +128,7 @@ namespace IO
             .adcMaxValue              = 1023,
             .stepDiff7Bit             = 6,
             .stepDiff14Bit            = 1,
-            .stepDiff7BitDirChange    = 6,
-            .stepDiff14BitDirChange   = 12,
+            .stepDiffDirChange        = 6,
             .fsrMinValue              = 40,
             .fsrMaxValue              = 340,
             .aftertouchMaxValue       = 600,
@@ -141,8 +140,7 @@ namespace IO
             .adcMaxValue              = 4095,
             .stepDiff7Bit             = 24,
             .stepDiff14Bit            = 2,
-            .stepDiff7BitDirChange    = 35,
-            .stepDiff14BitDirChange   = 8,
+            .stepDiffDirChange        = 50,
             .fsrMinValue              = 160,
             .fsrMaxValue              = 1360,
             .aftertouchMaxValue       = 2400,

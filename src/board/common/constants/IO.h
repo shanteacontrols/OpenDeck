@@ -40,18 +40,6 @@ limitations under the License.
 #define DIGITAL_IN_BUFFER_SIZE 5
 
 ///
-/// \brief Size of ring buffer used to store all analog input readings.
-/// Once analog input array is full (all inputs are read), index within ring buffer
-/// is incremented (if there is space left).
-///
-#define ANALOG_IN_BUFFER_SIZE 3
-
-///
-/// \brief Defines how many analog samples from the same input will be thrown away before storing the read value.
-///
-#define ADC_IGNORED_SAMPLES_COUNT 4
-
-///
 /// \brief Time in milliseconds during which MIDI event indicators on board are on when MIDI event happens.
 ///
 #define MIDI_INDICATOR_TIMEOUT 50

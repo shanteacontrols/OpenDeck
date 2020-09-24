@@ -64,11 +64,6 @@ namespace Board
         {
         }
 
-        __attribute__((weak)) bool isAnalogDataAvailable()
-        {
-            return false;
-        }
-
         __attribute__((weak)) uint16_t getAnalogValue(uint8_t analogID)
         {
             return 0;

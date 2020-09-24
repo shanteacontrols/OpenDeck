@@ -338,6 +338,17 @@ namespace Board
             /// \brief MCU-specific delay routine used when setting 74HC165 shift register state.
             ///
             void sr165wait();
+
+            ///
+            /// \brief Used to temporarily configure all common multiplexer pins as outputs to minimize
+            /// the effect of channel-to-channel crosstalk.
+            ///
+            void dischargeMux();
+
+            ///
+            /// \brief Used to restore pin setup for specified multiplexer.
+            ///
+            void restoreMux(uint8_t muxIndex);
         }    // namespace io
 
         namespace isrHandling

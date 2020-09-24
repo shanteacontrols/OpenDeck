@@ -99,9 +99,10 @@ namespace
         public:
         HWAAnalog() {}
 
-        uint16_t state(size_t index) override
+        bool value(size_t index, uint16_t& value) override
         {
-            return adcReturnValue;
+            value = adcReturnValue;
+            return true;
         }
 
         uint32_t adcReturnValue;

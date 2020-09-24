@@ -50,12 +50,7 @@ void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32
         //when potentiometer changes direction, use double step difference to avoid jumping of values
         //but only in 14bit mode
         if (direction != lastDirection[analogID])
-        {
-            if (use14bit)
-                stepDiff = adcConfig.stepDiff14BitDirChange;
-            else
-                stepDiff = adcConfig.stepDiff7BitDirChange;
-        }
+            stepDiff = adcConfig.stepDiffDirChange;
 
         if (abs(static_cast<uint16_t>(value) - lastAnalogueValue[analogID]) < stepDiff)
             return;

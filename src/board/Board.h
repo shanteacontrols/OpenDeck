@@ -229,19 +229,12 @@ namespace Board
         void setLEDfadeSpeed(uint8_t transitionSpeed);
 
         ///
-        /// \brief Checks if data from ADC is available.
-        /// Data is read in ISR and stored into samples array.
-        /// Once all inputs are read, data is considered available.
-        /// \returns True if data is available, false otherwise.
-        ///
-        bool isAnalogDataAvailable();
-
-        ///
         /// brief Checks for current analog value for specified analog index.
         /// @param[in] analogID     Analog index for which ADC value is being checked.
-        /// \returns ADC value for requested analog index.
+        /// @param [in,out]         Reference to variable in which new ADC reading is stored.
+        /// \returns True if there is a new reading for specified analog index.
         ///
-        uint16_t getAnalogValue(uint8_t analogID);
+        bool analogValue(uint8_t analogID, uint16_t& value);
     }    // namespace io
 
     namespace NVM
