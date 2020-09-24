@@ -96,10 +96,37 @@ __attribute__((weak)) void LEDs::startUpAnimation()
 #ifdef LED_FADING
     setFadeSpeed(1);
 #endif
+    //turn all leds on first
     setAllOn();
-    core::timing::waitMs(2000);
+
+    core::timing::waitMs(1000);
+
+    for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
+    {
+        updateState(i, ledBit_t::active, false);
+        updateState(i, ledBit_t::state, false);
+
+        core::timing::waitMs(35);
+    }
+
+    for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
+    {
+        updateState(MAX_NUMBER_OF_LEDS - 1 - i, ledBit_t::active, true);
+        updateState(MAX_NUMBER_OF_LEDS - 1 - i, ledBit_t::state, true);
+
+        core::timing::waitMs(35);
+    }
+
+    for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
+    {
+        updateState(MAX_NUMBER_OF_LEDS - 1 - i, ledBit_t::active, false);
+        updateState(MAX_NUMBER_OF_LEDS - 1 - i, ledBit_t::state, false);
+
+        core::timing::waitMs(35);
+    }
+
+    //turn all off again
     setAllOff();
-    core::timing::waitMs(2000);
 #ifdef LED_FADING
     setFadeSpeed(database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::fadeSpeed)));
 #endif
