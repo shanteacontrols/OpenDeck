@@ -32,7 +32,7 @@ limitations under the License.
 namespace
 {
     uint8_t           analogIndex;
-    volatile uint16_t analogBuffer[MAX_NUMBER_OF_ANALOG];
+    volatile uint16_t analogBuffer[ANALOG_IN_BUFFER_SIZE];
 
 #ifdef NUMBER_OF_MUX
     uint8_t activeMux;
