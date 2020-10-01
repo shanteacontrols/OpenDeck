@@ -201,10 +201,10 @@ namespace Board
     {
         void writeLEDstate(uint8_t ledID, bool state)
         {
-            ledID = detail::map::ledIndex(ledID);
-
             if (ledID >= MAX_NUMBER_OF_LEDS)
                 return;
+
+            ledID = detail::map::ledIndex(ledID);
 
             ATOMIC_SECTION
             {

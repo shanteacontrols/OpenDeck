@@ -59,10 +59,10 @@ namespace Board
     {
         bool analogValue(uint8_t analogID, uint16_t& value)
         {
-            analogID = detail::map::adcIndex(analogID);
-
             if (analogID >= MAX_NUMBER_OF_ANALOG)
                 return false;
+
+            analogID = detail::map::adcIndex(analogID);
 
             ATOMIC_SECTION
             {
