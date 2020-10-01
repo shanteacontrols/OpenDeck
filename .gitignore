@@ -13,3 +13,4 @@ Documentation/*
 !**/cubemx/**/*.ioc
 src/application/io/touchscreen/coordinates/*.cpp
 src/application/io/touchscreen/**/*.ico
+**/.clangd/*
