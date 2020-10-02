@@ -32,7 +32,7 @@ limitations under the License.
 class OpenDeck
 {
     public:
-    OpenDeck() {}
+    OpenDeck() = default;
 
     static void init();
     static void update();

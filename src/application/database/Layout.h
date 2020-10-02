@@ -27,6 +27,16 @@ limitations under the License.
 
 #define MAX_PRESETS 10
 
+namespace SectionPrivate
+{
+    enum class system_t : uint8_t
+    {
+        uid,
+        presets,
+        AMOUNT
+    };
+}
+
 namespace
 {
     //not user accessible

@@ -12,8 +12,7 @@ namespace
     class EmuEEPROMStorage : public EmuEEPROM::StorageAccess
     {
         public:
-        EmuEEPROMStorage()
-        {}
+        EmuEEPROMStorage() = default;
 
         ~EmuEEPROMStorage()
         {
@@ -131,7 +130,7 @@ namespace
     class DBhandlers : public Database::Handlers
     {
         public:
-        DBhandlers() {}
+        DBhandlers() = default;
 
         void presetChange(uint8_t preset) override
         {
@@ -153,7 +152,7 @@ namespace
     class StorageAccess : public LESSDB::StorageAccess
     {
         public:
-        StorageAccess() {}
+        StorageAccess() = default;
 
         bool init() override
         {

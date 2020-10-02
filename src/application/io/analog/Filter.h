@@ -30,7 +30,7 @@ namespace IO
     {
         //exponential moving average filter
         public:
-        EMA() {}
+        EMA() = default;
 
         uint16_t value(uint16_t rawData)
         {
@@ -200,7 +200,7 @@ namespace IO
         }
 
         private:
-        typedef struct
+        using adcConfig_t = struct
         {
             const uint16_t adcMaxValue;                 ///< Maxmimum raw ADC value.
             const uint16_t stepDiff7Bit;                ///< Minimum difference between two raw ADC readings to consider that value has been changed for 7-bit MIDI values.
@@ -211,7 +211,7 @@ namespace IO
             const uint16_t aftertouchMaxValue;          ///< Maxmimum raw ADC reading for aftertouch on FSR sensors.
             const uint16_t digitalValueThresholdOn;     ///< Value above which buton connected to analog input is considered pressed.
             const uint16_t digitalValueThresholdOff;    ///< Value below which button connected to analog input is considered released.
-        } adcConfig_t;
+        };
 
         enum class valDirection_t : uint8_t
         {

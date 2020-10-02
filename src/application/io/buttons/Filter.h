@@ -25,7 +25,7 @@ namespace IO
     class ButtonsFilter : public IO::Buttons::Filter
     {
         public:
-        ButtonsFilter() {}
+        ButtonsFilter() = default;
 
         bool isFiltered(size_t index, bool state, bool& filteredState) override
         {

@@ -116,7 +116,7 @@ namespace Board
     {
         void errorHandler()
         {
-            while (1)
+            while (true)
             {
             }
         }

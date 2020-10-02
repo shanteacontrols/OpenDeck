@@ -26,7 +26,7 @@ limitations under the License.
 class DBhandlers : public Database::Handlers
 {
     public:
-    DBhandlers() {}
+    DBhandlers() = default;
 
     void presetChange(uint8_t preset) override
     {
@@ -65,7 +65,7 @@ class DBhandlers : public Database::Handlers
 class StorageAccess : public LESSDB::StorageAccess
 {
     public:
-    StorageAccess() {}
+    StorageAccess() = default;
 
     bool init() override
     {
@@ -139,7 +139,7 @@ Database database(dbHandlers, storageAccess,
 class HWALEDs : public IO::LEDs::HWA
 {
     public:
-    HWALEDs() {}
+    HWALEDs() = default;
 
     void setState(size_t index, bool state) override
     {
@@ -268,7 +268,7 @@ Viewtech touchscreenModelViewtech(touchscreenHWA);
 class HWAEncoders : public IO::Encoders::HWA
 {
     public:
-    HWAEncoders() {}
+    HWAEncoders() = default;
 
     uint8_t state(size_t index) override
     {
@@ -279,7 +279,7 @@ class HWAEncoders : public IO::Encoders::HWA
 class HWAButtons : public IO::Buttons::HWA
 {
     public:
-    HWAButtons() {}
+    HWAButtons() = default;
 
     bool state(size_t index) override
     {
@@ -344,7 +344,7 @@ class ButtonsFilterStub : public IO::Buttons::Filter
 class HWAAnalog : public IO::Analog::HWA
 {
     public:
-    HWAAnalog() {}
+    HWAAnalog() = default;
 
     bool value(size_t index, uint16_t& value) override
     {
@@ -413,7 +413,7 @@ class HWAU8X8 : public IO::U8X8::HWAI2C
 class HWAU8X8Stub : public IO::U8X8::HWAI2C
 {
     public:
-    HWAU8X8Stub() {}
+    HWAU8X8Stub() = default;
 
     bool init() override
     {

@@ -29,8 +29,7 @@ namespace
     class STM32F4EEPROM : public EmuEEPROM::StorageAccess
     {
         public:
-        STM32F4EEPROM()
-        {}
+        STM32F4EEPROM() = default;
 
         bool init() override
         {

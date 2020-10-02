@@ -22,7 +22,7 @@ int main()
 {
     OpenDeck::init();
 
-    while (1)
+    while (true)
     {
         OpenDeck::update();
     }

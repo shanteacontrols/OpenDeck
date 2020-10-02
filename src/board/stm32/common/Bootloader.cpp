@@ -57,10 +57,10 @@ namespace Board
                 HAL_RCC_DeInit();
                 HAL_DeInit();
 
-                appEntry_t appEntry = (appEntry_t) * (volatile uint32_t*)(APP_START_ADDR + 4);
+                auto appEntry = (appEntry_t) * (volatile uint32_t*)(APP_START_ADDR + 4);
                 appEntry();
 
-                while (1)
+                while (true)
                     ;
             }
 

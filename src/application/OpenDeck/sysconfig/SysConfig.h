@@ -70,7 +70,7 @@ class SysConfig
     class Section
     {
         public:
-        Section() {}
+        Section() = default;
 
         enum class global_t : uint8_t
         {

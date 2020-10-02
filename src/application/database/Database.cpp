@@ -18,17 +18,6 @@ limitations under the License.
 
 #include <inttypes.h>
 #include "core/src/general/Helpers.h"
-
-namespace SectionPrivate
-{
-    enum class system_t : uint8_t
-    {
-        uid,
-        presets,
-        AMOUNT
-    };
-}
-
 #include "Layout.h"
 
 ///

@@ -31,7 +31,7 @@ class Database : public LESSDB
     class Handlers
     {
         public:
-        Handlers() {}
+        Handlers()                                = default;
         virtual void presetChange(uint8_t preset) = 0;
         virtual void factoryResetStart()          = 0;
         virtual void factoryResetDone()           = 0;
