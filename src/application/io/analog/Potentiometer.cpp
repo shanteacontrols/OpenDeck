@@ -24,46 +24,6 @@ using namespace IO;
 void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32_t value)
 {
     uint16_t maxLimit;
-    uint16_t stepDiff;
-    bool     use14bit = false;
-
-    if ((analogType == type_t::nrpn14b) || (analogType == type_t::pitchBend) || (analogType == type_t::cc14bit))
-        use14bit = true;
-
-    if (use14bit)
-    {
-        maxLimit = MIDI_14_BIT_VALUE_MAX;
-        stepDiff = adcConfig.stepDiff14Bit;
-    }
-    else
-    {
-        maxLimit = MIDI_7_BIT_VALUE_MAX;
-        stepDiff = adcConfig.stepDiff7Bit;
-    }
-
-    //if the first read value is 0, mark it as increasing since the lastAnalogueValue is initialized to value 0 for all pots
-    potDirection_t direction = value >= lastAnalogueValue[analogID] ? potDirection_t::increasing : potDirection_t::decreasing;
-
-    //don't perform these checks on initial value readout
-    if (lastDirection[analogID] != potDirection_t::initial)
-    {
-        //when potentiometer changes direction, use double step difference to avoid jumping of values
-        //but only in 14bit mode
-        if (direction != lastDirection[analogID])
-            stepDiff = adcConfig.stepDiffDirChange;
-
-        if (abs(static_cast<uint16_t>(value) - lastAnalogueValue[analogID]) < stepDiff)
-            return;
-    }
-
-    auto midiValue    = core::misc::mapRange(value, static_cast<uint32_t>(0), static_cast<uint32_t>(adcConfig.adcMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
-    auto oldMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(lastAnalogueValue[analogID]), static_cast<uint32_t>(0), static_cast<uint32_t>(adcConfig.adcMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
-
-    //this will allow value 0 as the first sent value
-    if ((midiValue == oldMIDIvalue) && (lastDirection[analogID] != potDirection_t::initial))
-        return;
-
-    lastDirection[analogID] = direction;
 
     uint16_t             lowerLimit = database.read(Database::Section::analog_t::lowerLimit, analogID);
     uint16_t             upperLimit = database.read(Database::Section::analog_t::upperLimit, analogID);
@@ -71,8 +31,15 @@ void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32
     uint8_t              channel    = database.read(Database::Section::analog_t::midiChannel, analogID);
     MIDI::encDec_14bit_t encDec_14bit;
 
-    if (!use14bit)
+    if ((analogType == type_t::nrpn14b) || (analogType == type_t::pitchBend) || (analogType == type_t::cc14bit))
     {
+        //14-bit values are already read
+        maxLimit = MIDI_14_BIT_VALUE_MAX;
+    }
+    else
+    {
+        maxLimit = MIDI_7_BIT_VALUE_MAX;
+
         //use 7-bit MIDI ID and limits
         encDec_14bit.value = midiID;
         encDec_14bit.split14bit();
@@ -86,27 +53,29 @@ void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32
         encDec_14bit.split14bit();
         upperLimit = encDec_14bit.low;
     }
-    // else
-    // {
-    //     //14-bit values are already read
-    // }
+
+    if (value > maxLimit)
+        return;
 
     uint32_t scaledMIDIvalue;
 
     if (lowerLimit > upperLimit)
     {
-        scaledMIDIvalue = core::misc::mapRange(midiValue, static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(upperLimit), static_cast<uint32_t>(lowerLimit));
+        scaledMIDIvalue = core::misc::mapRange(value, static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(upperLimit), static_cast<uint32_t>(lowerLimit));
 
         if (!database.read(Database::Section::analog_t::invert, analogID))
             scaledMIDIvalue = upperLimit - (scaledMIDIvalue - lowerLimit);
     }
     else
     {
-        scaledMIDIvalue = core::misc::mapRange(midiValue, static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(lowerLimit), static_cast<uint32_t>(upperLimit));
+        scaledMIDIvalue = core::misc::mapRange(value, static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(lowerLimit), static_cast<uint32_t>(upperLimit));
 
         if (database.read(Database::Section::analog_t::invert, analogID))
             scaledMIDIvalue = upperLimit - (scaledMIDIvalue - lowerLimit);
     }
+
+    if (scaledMIDIvalue == lastValue[analogID])
+        return;
 
     switch (analogType)
     {
@@ -181,8 +150,5 @@ void Analog::checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32
         return;
     }
 
-    cInfo.send(Database::block_t::analog, analogID);
-
-    //update values
-    lastAnalogueValue[analogID] = value;
+    lastValue[analogID] = scaledMIDIvalue;
 }

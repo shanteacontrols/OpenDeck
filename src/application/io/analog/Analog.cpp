@@ -35,10 +35,10 @@ void Analog::update()
         if (!hwa.value(i, analogData))
             continue;
 
-        if (!filter.isFiltered(i, analogData, analogData))
-            continue;
-
         auto type = static_cast<type_t>(database.read(Database::Section::analog_t::type, i));
+
+        if (!filter.isFiltered(i, type, analogData, analogData))
+            continue;
 
         if (type != type_t::button)
         {
@@ -64,16 +64,17 @@ void Analog::update()
         else
         {
             if (buttonHandler != nullptr)
-                (*buttonHandler)(i, digitalStateFromAnalogValue(analogData));
+                (*buttonHandler)(i, analogData);
         }
+
+        cInfo.send(Database::block_t::analog, i);
     }
 }
 
 void Analog::debounceReset(uint16_t index)
 {
-    lastDirection[index]     = potDirection_t::initial;
-    lastAnalogueValue[index] = 0;
-    fsrPressed[index]        = false;
+    fsrPressed[index] = false;
+    lastValue[index]  = 0xFFFF;
     filter.reset(index);
 }
 
@@ -83,20 +84,4 @@ void Analog::debounceReset(uint16_t index)
 void Analog::setButtonHandler(void (*fptr)(uint8_t adcIndex, bool state))
 {
     buttonHandler = fptr;
-}
-
-bool Analog::digitalStateFromAnalogValue(uint16_t adcValue)
-{
-    //set state to released only if value is below digitalValueThresholdOff
-    if (adcValue < adcConfig.digitalValueThresholdOff)
-        return false;
-    else if (adcValue > adcConfig.digitalValueThresholdOn)
-        return true;
-    else
-        return false;
-}
-
-IO::Analog::adcConfig_t& Analog::config()
-{
-    return adcConfig;
 }

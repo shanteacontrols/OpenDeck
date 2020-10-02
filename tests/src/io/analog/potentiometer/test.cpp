@@ -141,7 +141,7 @@ namespace
         public:
         AnalogFilterStub() {}
 
-        bool isFiltered(size_t index, uint16_t value, uint16_t& filteredValue) override
+        bool isFiltered(size_t index, IO::Analog::type_t type, uint16_t value, uint16_t& filteredValue) override
         {
             filteredValue = value;
             return true;
@@ -161,7 +161,7 @@ namespace
 #define ADC_RESOLUTION IO::Analog::adcType_t::adc10bit
 #endif
 
-    IO::Analog analog(hwaAnalog, ADC_RESOLUTION, analogFilter, database, midi, leds, display, cInfo);
+    IO::Analog analog(hwaAnalog, analogFilter, database, midi, leds, display, cInfo);
 }    // namespace
 
 TEST_SETUP()
@@ -208,58 +208,66 @@ TEST_CASE(CCtest)
     //expect the following:
     //first value is 0
     //last value is 127
-    auto adcConfig = analog.config();
 
-    for (int i = 0; i <= adcConfig.adcMaxValue; i++)
+    for (int i = 0; i <= 127; i++)
     {
         hwaAnalog.adcReturnValue = i;
         analog.update();
     }
 
+    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 128), messageCounter);
+
     //all received messages should be control change
     for (int i = 0; i < midiPacket.size(); i++)
         TEST_ASSERT_EQUAL_UINT32(static_cast<uint8_t>(MIDI::messageType_t::controlChange), midiPacket.at(i).Event << 4);
+
+    uint8_t expectedMIDIvalue = 0;
 
     for (int i = 0; i < midiPacket.size(); i += MAX_NUMBER_OF_ANALOG)
     {
         for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
             size_t index = i + j;
-
-            if (!i)
-            {
-                TEST_ASSERT_EQUAL_UINT32(0, midiPacket.at(index).Data3);
-            }
-            else if (i == (midiPacket.size() - 1))
-            {
-                TEST_ASSERT_EQUAL_UINT32(127, midiPacket.at(index).Data3);
-            }
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, midiPacket.at(index).Data3);
         }
+
+        expectedMIDIvalue++;
     }
 
     //now go backward
 
     resetReceived();
 
-    for (int i = adcConfig.adcMaxValue; i >= 0; i--)
+    for (int i = 127; i >= 0; i--)
     {
         hwaAnalog.adcReturnValue = i;
         analog.update();
     }
 
-    //verify that the last value is 0
+    //expect one message less since the last one was 127
+    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 127), messageCounter);
+
+    expectedMIDIvalue = 126;
+
     for (int i = 0; i < midiPacket.size(); i += MAX_NUMBER_OF_ANALOG)
     {
         for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
             size_t index = i + j;
-
-            if (i == (midiPacket.size() - 1))
-            {
-                TEST_ASSERT_EQUAL_UINT32(0, midiPacket.at(index).Data3);
-            }
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, midiPacket.at(index).Data3);
         }
+
+        expectedMIDIvalue--;
     }
+
+    resetReceived();
+
+    //try to feed value larger than 127
+    //no response should be received
+    hwaAnalog.adcReturnValue = 10000;
+    analog.update();
+
+    TEST_ASSERT_EQUAL_UINT32(0, messageCounter);
 }
 
 TEST_CASE(PitchBendTest)
@@ -288,91 +296,69 @@ TEST_CASE(PitchBendTest)
         TEST_ASSERT(database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
     }
 
-    auto adcConfig = analog.config();
-
-    for (int i = 0; i <= adcConfig.adcMaxValue; i++)
+    for (int i = 0; i <= 16383; i++)
     {
         hwaAnalog.adcReturnValue = i;
         analog.update();
     }
 
-    //number of pitch bend messages can vary depending on ADC resolution and debounce
-    //techniques used
-    //just verify that number of messages per component is larger than 128 (amount of messages in 7-bit mode)
-    TEST_ASSERT(messageCounter >= (MAX_NUMBER_OF_ANALOG * 128));
+    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 16384), messageCounter);
 
     //all received messages should be pitch bend
     for (int i = 0; i < midiPacket.size(); i++)
         TEST_ASSERT_EQUAL_UINT32(midiPacket.at(i).Event << 4, static_cast<uint8_t>(MIDI::messageType_t::pitchBend));
 
-    //since numbers in this case are scaled from lower to upper range,
-    //verify that each next value is larger from previous
-    uint32_t previousPitchBendValue = 0;
+    uint16_t expectedMIDIvalue = 0;
 
-    uint32_t receivedMessages = midiPacket.size() / MAX_NUMBER_OF_ANALOG;
-
-    for (int i = 0; i < receivedMessages; i++)
+    for (int i = 0; i < midiPacket.size(); i += MAX_NUMBER_OF_ANALOG)
     {
-        MIDI::encDec_14bit_t pitchBendValue;
-
         for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
-            size_t index = i * MAX_NUMBER_OF_ANALOG + j;
+            size_t index = i + j;
+
+            MIDI::encDec_14bit_t pitchBendValue;
 
             pitchBendValue.low  = midiPacket.at(index).Data2;
             pitchBendValue.high = midiPacket.at(index).Data3;
             pitchBendValue.mergeTo14bit();
 
-            if (i)
-            {
-                TEST_ASSERT(pitchBendValue.value > previousPitchBendValue);
-            }
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, pitchBendValue.value);
         }
 
-        previousPitchBendValue = pitchBendValue.value;
+        expectedMIDIvalue++;
     }
-
-    // try to update it again without changing values, nothing should change
-    uint32_t previousCount = messageCounter;
-    analog.update();
-    TEST_ASSERT_EQUAL_UINT32(previousCount, messageCounter);
 
     //now go backward
     resetReceived();
 
-    for (int i = adcConfig.adcMaxValue; i >= 0; i--)
+    for (int i = 16383; i >= 0; i--)
     {
         hwaAnalog.adcReturnValue = i;
         analog.update();
     }
 
-    //similar to previous case, verify that every next value is smaller than previous
+    //one message less
+    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 16383), messageCounter);
 
-    receivedMessages       = midiPacket.size() / MAX_NUMBER_OF_ANALOG;
-    previousPitchBendValue = 16383;
+    expectedMIDIvalue = 16382;
 
-    for (int i = 0; i < receivedMessages; i++)
+    for (int i = 0; i < midiPacket.size(); i += MAX_NUMBER_OF_ANALOG)
     {
-        MIDI::encDec_14bit_t pitchBendValue;
-
         for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
-            volatile size_t index = i * MAX_NUMBER_OF_ANALOG + j;
+            size_t index = i + j;
+
+            MIDI::encDec_14bit_t pitchBendValue;
 
             pitchBendValue.low  = midiPacket.at(index).Data2;
             pitchBendValue.high = midiPacket.at(index).Data3;
             pitchBendValue.mergeTo14bit();
 
-            TEST_ASSERT(pitchBendValue.value < previousPitchBendValue);
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, pitchBendValue.value);
         }
 
-        previousPitchBendValue = pitchBendValue.value;
+        expectedMIDIvalue--;
     }
-
-    // try to update it again without changing values, nothing should change
-    previousCount = messageCounter;
-    analog.update();
-    TEST_ASSERT_EQUAL_UINT32(previousCount, messageCounter);
 }
 
 TEST_CASE(Inversion)
@@ -401,82 +387,38 @@ TEST_CASE(Inversion)
         TEST_ASSERT(database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
     }
 
-    auto adcConfig           = analog.config();
-    hwaAnalog.adcReturnValue = adcConfig.adcMaxValue;
-    uint32_t previousValue;
-
-    for (int i = 0; i <= adcConfig.adcMaxValue; i++)
-    {
-        hwaAnalog.adcReturnValue = i;
-        analog.update();
-    }
-
-    previousValue = 0;
-
-    //verify that every received value is larger than the previous
-    //first value should be 0
-    //last value should be 127
-    for (int i = 0; i < 128; i++)
-    {
-        for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
-        {
-            size_t index = i * MAX_NUMBER_OF_ANALOG + j;
-
-            if (!i)
-                TEST_ASSERT_EQUAL_UINT32(0, midiPacket.at(index).Data3);
-            else
-                TEST_ASSERT(midiPacket.at(index).Data3 > previousValue);
-
-            if (i == 127)
-                TEST_ASSERT_EQUAL_UINT32(127, midiPacket.at(index).Data3);
-        }
-
-        previousValue = i;
-    }
-
-    //now enable inversion
+    //enable inversion
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
-    {
         TEST_ASSERT(database.update(Database::Section::analog_t::invert, i, 1) == true);
-        analog.debounceReset(i);
-    }
 
-    resetReceived();
-
-    //feed all the values again
-    for (int i = 0; i <= adcConfig.adcMaxValue; i++)
+    for (int i = 0; i <= 127; i++)
     {
         hwaAnalog.adcReturnValue = i;
         analog.update();
     }
 
-    //verify that every received value is smaller than the previous
+    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 128), messageCounter);
+
     //first value should be 127
     //last value should be 0
-    for (int i = 0; i < 128; i++)
-    {
-        size_t index;
 
+    uint16_t expectedMIDIvalue = 127;
+
+    for (int i = 0; i < midiPacket.size(); i += MAX_NUMBER_OF_ANALOG)
+    {
         for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
-            index = i * MAX_NUMBER_OF_ANALOG + j;
-
-            if (!i)
-                TEST_ASSERT_EQUAL_UINT32(127, midiPacket.at(index).Data3);
-            else
-                TEST_ASSERT(midiPacket.at(index).Data3 < previousValue);
-
-            if (i == 127)
-                TEST_ASSERT_EQUAL_UINT32(0, midiPacket.at(index).Data3);
+            size_t index = i + j;
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, midiPacket.at(index).Data3);
         }
 
-        previousValue = midiPacket.at(index).Data3;
+        expectedMIDIvalue--;
     }
 
     resetReceived();
 
     //funky setup: set lower limit to 127, upper to 0 while inversion is enabled
-    //result should be the same as when default setup is used (no inversion/ 0 as lower limit, 127 as upper limit)
+    //result should be the same as when default setup is used (no inversion / 0 as lower limit, 127 as upper limit)
 
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
@@ -487,34 +429,28 @@ TEST_CASE(Inversion)
     }
 
     //feed all the values again
-    for (int i = 0; i <= adcConfig.adcMaxValue; i++)
+    for (int i = 0; i <= 127; i++)
     {
         hwaAnalog.adcReturnValue = i;
         analog.update();
     }
 
-    previousValue = 0;
+    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 128), messageCounter);
 
-    //verify that every received value is larger than the previous
-    //first value should be 0
-    //last value should be 127
-    for (int i = 0; i < 128; i++)
+    expectedMIDIvalue = 0;
+
+    for (int i = 0; i < midiPacket.size(); i += MAX_NUMBER_OF_ANALOG)
     {
         for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
-            size_t index = i * MAX_NUMBER_OF_ANALOG + j;
-
-            if (!i)
-                TEST_ASSERT_EQUAL_UINT32(0, midiPacket.at(index).Data3);
-            else
-                TEST_ASSERT(midiPacket.at(index).Data3 > previousValue);
-
-            if (i == 127)
-                TEST_ASSERT_EQUAL_UINT32(127, midiPacket.at(index).Data3);
+            size_t index = i + j;
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, midiPacket.at(index).Data3);
         }
 
-        previousValue = i;
+        expectedMIDIvalue++;
     }
+
+    resetReceived();
 
     //now disable inversion
     resetReceived();
@@ -526,35 +462,25 @@ TEST_CASE(Inversion)
     }
 
     //feed all the values again
-    for (int i = 0; i <= adcConfig.adcMaxValue; i++)
+    for (int i = 0; i <= 127; i++)
     {
         hwaAnalog.adcReturnValue = i;
         analog.update();
     }
 
-    previousValue = 0;
+    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 128), messageCounter);
 
-    //verify that every received value is smaller than the previous
-    //first value should be 127
-    //last value should be 0
-    for (int i = 0; i < 128; i++)
+    expectedMIDIvalue = 127;
+
+    for (int i = 0; i < midiPacket.size(); i += MAX_NUMBER_OF_ANALOG)
     {
-        size_t index;
-
         for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
-            index = i * MAX_NUMBER_OF_ANALOG + j;
-
-            if (!i)
-                TEST_ASSERT_EQUAL_UINT32(127, midiPacket.at(index).Data3);
-            else
-                TEST_ASSERT(midiPacket.at(index).Data3 < previousValue);
-
-            if (i == 127)
-                TEST_ASSERT_EQUAL_UINT32(0, midiPacket.at(index).Data3);
+            size_t index = i + j;
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, midiPacket.at(index).Data3);
         }
 
-        previousValue = midiPacket.at(index).Data3;
+        expectedMIDIvalue--;
     }
 }
 
@@ -587,19 +513,15 @@ TEST_CASE(Scaling)
         TEST_ASSERT(database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
     }
 
-    auto adcConfig           = analog.config();
-    hwaAnalog.adcReturnValue = adcConfig.adcMaxValue;
-    uint32_t previousValue;
-
-    for (int i = 0; i <= adcConfig.adcMaxValue; i++)
+    for (int i = 0; i <= 127; i++)
     {
         hwaAnalog.adcReturnValue = i;
         analog.update();
     }
 
-    previousValue = 0;
+    TEST_ASSERT((MAX_NUMBER_OF_ANALOG * 128) > messageCounter);
 
-    //first values should be 0
+    //first value should be 0
     //last value should match the configured scaled value (scaledUpper)
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
@@ -613,11 +535,13 @@ TEST_CASE(Scaling)
 
     resetReceived();
 
-    for (int i = 0; i <= adcConfig.adcMaxValue; i++)
+    for (int i = 0; i <= 127; i++)
     {
         hwaAnalog.adcReturnValue = i;
         analog.update();
     }
+
+    TEST_ASSERT((MAX_NUMBER_OF_ANALOG * 128) > messageCounter);
 
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
@@ -634,7 +558,7 @@ TEST_CASE(Scaling)
 
     resetReceived();
 
-    for (int i = 0; i <= adcConfig.adcMaxValue; i++)
+    for (int i = 0; i <= 127; i++)
     {
         hwaAnalog.adcReturnValue = i;
         analog.update();

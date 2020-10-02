@@ -334,6 +334,12 @@ class ButtonsFilterStub : public IO::Buttons::Filter
 } buttonsFilter;
 #endif
 
+#ifdef ADC_12_BIT
+#define ADC_RESOLUTION IO::Analog::Filter::adcType_t::adc12bit
+#else
+#define ADC_RESOLUTION IO::Analog::Filter::adcType_t::adc10bit
+#endif
+
 #ifdef ANALOG_SUPPORTED
 class HWAAnalog : public IO::Analog::HWA
 {
@@ -348,7 +354,12 @@ class HWAAnalog : public IO::Analog::HWA
 
 #include "io/analog/Filter.h"
 
-IO::AnalogFilterSMA<3> analogFilter;
+#ifdef __AVR__
+IO::AnalogFilter analogFilter(ADC_RESOLUTION, 1);
+#else
+//stm32 has more sensitive ADC, use more repetitions
+IO::AnalogFilter analogFilter(ADC_RESOLUTION, 3);
+#endif
 #else
 class HWAAnalogStub : public IO::Analog::HWA
 {
@@ -421,12 +432,6 @@ class HWAU8X8Stub : public IO::U8X8::HWAI2C
 } hwaU8X8;
 #endif
 
-#ifdef ADC_12_BIT
-#define ADC_RESOLUTION IO::Analog::adcType_t::adc12bit
-#else
-#define ADC_RESOLUTION IO::Analog::adcType_t::adc10bit
-#endif
-
 ComponentInfo   cinfo;
 MIDI            midi;
 IO::Common      digitalInputCommon;
@@ -434,7 +439,7 @@ IO::U8X8        u8x8(hwaU8X8);
 IO::Display     display(u8x8, database);
 IO::Touchscreen touchscreen(database);
 IO::LEDs        leds(hwaLEDs, database);
-IO::Analog      analog(hwaAnalog, ADC_RESOLUTION, analogFilter, database, midi, leds, display, cinfo);
+IO::Analog      analog(hwaAnalog, analogFilter, database, midi, leds, display, cinfo);
 IO::Buttons     buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cinfo);
 IO::Encoders    encoders(hwaEncoders, database, midi, display, cinfo);
 SysConfig       sysConfig(database, midi, buttons, encoders, analog, leds, display, touchscreen);

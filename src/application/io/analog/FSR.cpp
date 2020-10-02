@@ -21,23 +21,6 @@ limitations under the License.
 
 using namespace IO;
 
-//use 1k resistor when connecting FSR between signal and ground
-
-uint32_t Analog::calibratePressure(uint32_t value, pressureType_t type)
-{
-    switch (type)
-    {
-    case pressureType_t::velocity:
-        return core::misc::mapRange(CONSTRAIN(value, static_cast<uint32_t>(adcConfig.fsrMinValue), static_cast<uint32_t>(adcConfig.fsrMaxValue)), static_cast<uint32_t>(adcConfig.fsrMinValue), static_cast<uint32_t>(adcConfig.fsrMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
-
-    case pressureType_t::aftertouch:
-        return core::misc::mapRange(CONSTRAIN(value, static_cast<uint32_t>(adcConfig.fsrMinValue), static_cast<uint32_t>(adcConfig.aftertouchMaxValue)), static_cast<uint32_t>(adcConfig.fsrMinValue), static_cast<uint32_t>(adcConfig.aftertouchMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(MIDI_7_BIT_VALUE_MAX));
-
-    default:
-        return 0;
-    }
-}
-
 bool Analog::getFsrPressed(uint8_t fsrID)
 {
     return fsrPressed[fsrID];
@@ -48,11 +31,9 @@ void Analog::setFsrPressed(uint8_t fsrID, bool state)
     fsrPressed[fsrID] = state;
 }
 
-void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
+void Analog::checkFSRvalue(uint8_t analogID, uint32_t value)
 {
-    auto calibratedPressure = calibratePressure(pressure, pressureType_t::velocity);
-
-    if (calibratedPressure > 0)
+    if (value > 0)
     {
         if (!getFsrPressed(analogID))
         {
@@ -60,11 +41,9 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             setFsrPressed(analogID, true);
             uint8_t note    = database.read(Database::Section::analog_t::midiID, analogID);
             uint8_t channel = database.read(Database::Section::analog_t::midiChannel, analogID);
-            midi.sendNoteOn(note, calibratedPressure, channel);
-            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, note, calibratedPressure, channel + 1);
-            leds.midiToState(MIDI::messageType_t::noteOn, note, calibratedPressure, channel, true);
-
-            cInfo.send(Database::block_t::analog, analogID);
+            midi.sendNoteOn(note, value, channel);
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, note, value, channel + 1);
+            leds.midiToState(MIDI::messageType_t::noteOn, note, value, channel, true);
         }
     }
     else
@@ -75,13 +54,10 @@ void Analog::checkFSRvalue(uint8_t analogID, uint16_t pressure)
             uint8_t note    = database.read(Database::Section::analog_t::midiID, analogID);
             uint8_t channel = database.read(Database::Section::analog_t::midiChannel, analogID);
             midi.sendNoteOff(note, 0, channel);
-            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOff, note, calibratedPressure, channel + 1);
+            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOff, note, value, channel + 1);
             leds.midiToState(MIDI::messageType_t::noteOff, note, 0, channel, true);
-
-            cInfo.send(Database::block_t::analog, analogID);
         }
     }
 
-    //update values
-    lastAnalogueValue[analogID] = pressure;
+    lastValue[analogID] = value;
 }
