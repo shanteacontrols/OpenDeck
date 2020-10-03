@@ -94,6 +94,7 @@ ifeq ($(ARCH),avr)
 
     C_COMPILER := $(C_COMPILER_AVR)
     CPP_COMPILER := $(CPP_COMPILER_AVR)
+    LINKER := $(LINKER_AVR)
     FLASH_BIN := $(FLASH_BIN_AVR)
     OPT := -Os
 
@@ -118,6 +119,7 @@ else ifeq ($(ARCH),stm32)
     SIZE_TOOL := arm-none-eabi-size
     C_COMPILER := $(C_COMPILER_ARM)
     CPP_COMPILER := $(CPP_COMPILER_ARM)
+    LINKER := $(LINKER_ARM)
     ASSEMBLER := $(C_COMPILER_ARM)
     FLASH_BIN := $(FLASH_BIN_ARM)
     OPT := -O2
@@ -153,6 +155,7 @@ else ifeq ($(ARCH),stm32)
 else
     C_COMPILER := $(C_COMPILER_x86)
     CPP_COMPILER := $(CPP_COMPILER_x86)
+    LINKER := $(LINKER_x86)
     LDFLAGS :=
     SIZE_TOOL := size
 
@@ -170,7 +173,7 @@ fw:
 
 $(TARGET).elf: $(OBJECTS) $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin_offset
 	@echo Creating executable: $@
-	@$(CPP_COMPILER) -o$(TARGET).elf $(OBJECTS) $(LDFLAGS)
+	@$(LINKER) -o$(TARGET).elf $(OBJECTS) $(LDFLAGS)
 ifneq ($(ARCH),x86)
 	@echo $(TARGETNAME) > $(BUILD_DIR_BASE)/TARGET
 	@echo $(DEBUG) > $(BUILD_DIR_BASE)/DEBUG

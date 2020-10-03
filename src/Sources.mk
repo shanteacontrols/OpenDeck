@@ -61,6 +61,14 @@ ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
         INCLUDE_DIRS += $(addprefix -I,$(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/common -type d -not -path "*Src*"))
         INCLUDE_DIRS += $(addprefix -I,$(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/$(MCU)/Drivers -type d -not -path "*Src*"))
         INCLUDE_DIRS += -I"./board/stm32/variants/$(MCU_FAMILY)/$(MCU)"
+
+        TOOLCHAIN_DIR := $(shell dirname $(shell which arm-none-eabi-gcc) | rev | cut -c5- | rev)
+        CPP_VER := $(shell $(FIND) $(TOOLCHAIN_DIR)/arm-none-eabi/include/c++ -mindepth 1 -maxdepth 1 | rev | cut -d/ -f 1 | rev)
+
+        INCLUDE_DIRS += \
+        -isystem"$(TOOLCHAIN_DIR)/arm-none-eabi/include" \
+        -isystem"$(TOOLCHAIN_DIR)/arm-none-eabi/include/c++/$(CPP_VER)" \
+        -isystem"$(TOOLCHAIN_DIR)/arm-none-eabi/include/c++/$(CPP_VER)/arm-none-eabi"
     endif
     
     #common for both bootloader and application
