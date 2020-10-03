@@ -1,4 +1,4 @@
-name: Build UI
+name: Deploy UI
 
 on: [repository_dispatch]
 

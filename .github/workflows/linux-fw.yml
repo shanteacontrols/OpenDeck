@@ -1,0 +1,26 @@
+name: Firmware build [Linux]
+
+on: [push]
+
+jobs:
+  build:
+    name: Firmware build
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Pull the repository and submodules
+        uses: actions/checkout@v1
+        with:
+          submodules: true
+      - name: Prepare build env
+        run: |
+          wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2019q4/RC2.1/gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2 -O armtoolchain.tar.bz2
+          sudo apt-get install -y srecord jq imagemagick
+          sudo snap install yq
+          tar xjf armtoolchain.tar.bz2
+          git clone https://github.com/Synapseware/avr-toolchain
+          tar xzf avr-toolchain/toolchain/avr8-gnu-toolchain-3.6.2.1759-linux.any.x86_64.tar.gz
+      - name: Build
+        run: |
+          PATH=$(pwd)/avr8-gnu-toolchain-linux_x86_64/bin:$(pwd)/gcc-arm-none-eabi-9-2019-q4-major/bin:${PATH}
+          cd src/
+          ../scripts/build_targets.sh --type=fw_all

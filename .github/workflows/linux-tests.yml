@@ -1,0 +1,28 @@
+name: Test [Linux]
+
+on: [push]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-20.04
+    steps:
+       - name: Pull the repository and submodules
+         uses: actions/checkout@v1
+         with:
+          submodules: true
+       - name: Prepare build env
+         run: |
+           wget https://apt.llvm.org/llvm-snapshot.gpg.key
+           sudo apt-key add llvm-snapshot.gpg.key
+           sudo add-apt-repository 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main'
+           sudo apt update
+           sudo apt-get install -y clang-9 ctags jq
+           sudo snap install yq
+       - name: Build
+         run: |
+           C_COMPILER=clang-9
+           CPP_COMPILER=clang++-9
+           cd tests/
+           ../scripts/build_targets.sh --type=tests
+           make exec

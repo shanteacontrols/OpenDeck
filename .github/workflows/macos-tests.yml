@@ -1,0 +1,24 @@
+name: Test [macOS]
+
+on: [push]
+
+jobs:
+  test:
+    name: Test
+    runs-on: macos-latest
+    steps:
+       - name: Pull the repository and submodules
+         uses: actions/checkout@v1
+         with:
+          submodules: true
+       - name: Prepare build env
+         run: |
+           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+           brew install llvm ctags jq coreutils findutils jq grep yq
+       - name: Build
+         run: |
+           export C_COMPILER=clang
+           export CPP_COMPILER=clang++
+           cd tests/
+           ../scripts/build_targets.sh --type=tests
+           make exec

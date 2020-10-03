@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    name: Build release binaries
+    name: Attach SysEx firmware to release
     runs-on: ubuntu-20.04
     steps:
       - name: Pull the repository and submodules

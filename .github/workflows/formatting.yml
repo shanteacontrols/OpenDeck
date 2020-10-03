@@ -1,0 +1,23 @@
+name: Code formatting
+
+on: [push]
+
+jobs:
+  format:
+    name: Code formatting
+    runs-on: ubuntu-20.04
+    steps:
+       - name: Pull the repository
+         uses: actions/checkout@v1
+         with:
+          submodules: true
+       - name: Prepare env
+         run: |
+           sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+           sudo snap install yq
+       - name: Format
+         run: |
+           cd src
+           make format CF_FAIL_ON_DIFF=1 CLANG_FORMAT=clang-format-10
+           cd ../tests
+           make format CF_FAIL_ON_DIFF=1 CLANG_FORMAT=clang-format-10
