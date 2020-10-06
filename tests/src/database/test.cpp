@@ -51,16 +51,10 @@ namespace
     Database      database = Database(dbHandlers, dbStorageMock, true);
 }    // namespace
 
-TEST_SETUP()
+TEST_CASE(ReadInitialValues)
 {
     //init checks - no point in running further tests if these conditions fail
     TEST_ASSERT(database.init() == true);
-}
-
-TEST_CASE(ReadInitialValues)
-{
-    //verify default values
-    database.factoryReset();
 
     for (int i = 0; i < database.getSupportedPresets(); i++)
     {
@@ -230,16 +224,23 @@ TEST_CASE(ReadInitialValues)
 
 TEST_CASE(Presets)
 {
-    database.factoryReset();
+    //init checks - no point in running further tests if these conditions fail
+    TEST_ASSERT(database.init() == true);
 
     //verify that first preset is active
     TEST_ASSERT(database.getPreset() == 0);
 
-    for (int i = 0; i < database.getSupportedPresets(); i++)
+    size_t activePreset = 0;
+
+    for (activePreset = 0; activePreset < database.getSupportedPresets(); activePreset++)
     {
-        TEST_ASSERT(database.setPreset(i) == true);
-        TEST_ASSERT(database.getPreset() == i);
+        TEST_ASSERT(database.setPreset(activePreset) == true);
+        TEST_ASSERT(database.getPreset() == activePreset);
     }
+
+    //preset preservation is disabled by default which means that on init, preset should be reset back to 0
+    TEST_ASSERT(database.init() == true);
+    TEST_ASSERT(database.getPreset() == 0);
 
     if (database.getSupportedPresets() > 1)
     {
@@ -253,13 +254,17 @@ TEST_CASE(Presets)
     //enable preset preservation, perform factory reset and verify that preservation is disabled
     database.setPresetPreserveState(true);
     TEST_ASSERT(database.getPresetPreserveState() == true);
-    database.factoryReset();
-    database.init();
+    TEST_ASSERT(database.factoryReset() == true);
+    TEST_ASSERT(database.init() == true);
     TEST_ASSERT(database.getPresetPreserveState() == false);
 }
 
 TEST_CASE(FactoryReset)
 {
+    //init checks - no point in running further tests if these conditions fail
+    TEST_ASSERT(database.init() == true);
+
+    //start with clean state
     database.factoryReset();
 
     //change several values
@@ -301,7 +306,8 @@ TEST_CASE(FactoryReset)
 #if MAX_NUMBER_OF_LEDS > 0
 TEST_CASE(LEDs)
 {
-    database.factoryReset();
+    //init checks - no point in running further tests if these conditions fail
+    TEST_ASSERT(database.init() == true);
 
     //regression test
     //by default, rgb state should be disabled

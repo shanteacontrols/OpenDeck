@@ -215,6 +215,7 @@ class Database : public LESSDB
 
     uint16_t getDbUID();
     bool     setDbUID(uint16_t uid);
+    bool     setPresetInternal(uint8_t preset);
 
     Handlers& handlers;
 

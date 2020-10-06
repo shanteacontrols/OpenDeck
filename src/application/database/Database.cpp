@@ -83,19 +83,29 @@ bool Database::init()
     }
     else
     {
+        SYSTEM_BLOCK_ENTER(
+            activePreset = read(0,
+                                static_cast<uint8_t>(SectionPrivate::system_t::presets),
+                                static_cast<size_t>(SysConfig::presetSetting_t::activePreset));)
+
         if (getPresetPreserveState())
         {
-            SYSTEM_BLOCK_ENTER(
-                activePreset = read(0,
-                                    static_cast<uint8_t>(SectionPrivate::system_t::presets),
-                                    static_cast<size_t>(SysConfig::presetSetting_t::activePreset));)
+            //don't write anything to database in this case - setup preset only internally
+            setPresetInternal(activePreset);
         }
         else
         {
-            activePreset = 0;
+            if (activePreset != 0)
+            {
+                //preset preservation is not set which means preset must be 0
+                //in this case it is not so overwrite it with 0
+                setPreset(0);
+            }
+            else
+            {
+                setPresetInternal(0);
+            }
         }
-
-        setPreset(activePreset);
     }
 
     if (returnValue)
@@ -118,7 +128,7 @@ bool Database::factoryReset()
     {
         for (int i = supportedPresets - 1; i >= 0; i--)
         {
-            if (!setPreset(i))
+            if (!setPresetInternal(i))
                 return false;
 
             if (!initData(LESSDB::factoryResetType_t::full))
@@ -139,11 +149,14 @@ bool Database::factoryReset()
 
         if (!setDbUID(getDbUID()))
             return false;
+
+        if (!setPreset(0))
+            return false;
     }
     else
     {
-        //just enter once into system block and do nothing so that correct start address is set
-        SYSTEM_BLOCK_ENTER()
+        if (!setPresetInternal(0))
+            return false;
     }
 
     handlers.factoryResetDone();
@@ -175,6 +188,23 @@ bool Database::setPreset(uint8_t preset)
         handlers.presetChange(preset);
 
     return returnValue;
+}
+
+///
+/// \brief Used to set new database layout (preset) without writing to database.
+/// For internal use only.
+/// @param [in] preset  New preset to set.
+/// \returns False if specified preset isn't supported, true otherwise.
+///
+bool Database::setPresetInternal(uint8_t preset)
+{
+    if (preset >= supportedPresets)
+        return false;
+
+    activePreset = preset;
+    setStartAddress(userDataStartAddress + (lastPresetAddress * activePreset));
+
+    return true;
 }
 
 ///
