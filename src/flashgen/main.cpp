@@ -178,13 +178,23 @@ namespace
             {
                 uint16_t tempData;
 
-                if (emuEEPROM.read(address, tempData) == EmuEEPROM::readStatus_t::ok)
+                auto readStatus = emuEEPROM.read(address, tempData);
+
+                if (readStatus == EmuEEPROM::readStatus_t::ok)
                 {
                     value = tempData;
-                    return true;
+                }
+                else if (readStatus == EmuEEPROM::readStatus_t::noVar)
+                {
+                    //variable with this address doesn't exist yet - set value to 0
+                    value = 0;
+                }
+                else
+                {
+                    return false;
                 }
 
-                return false;
+                return true;
             }
             break;
 

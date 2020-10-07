@@ -84,14 +84,22 @@ bool DBstorageMock::read(uint32_t address, int32_t& value, LESSDB::sectionParame
         }
         else
         {
-            if (emuEEPROM.read(address, tempData) != EmuEEPROM::readStatus_t::ok)
-            {
-                return false;
-            }
-            else
+            auto readStatus = emuEEPROM.read(address, tempData);
+
+            if (readStatus == EmuEEPROM::readStatus_t::ok)
             {
                 value                 = tempData;
                 eepromMemory[address] = tempData;
+            }
+            else if (readStatus == EmuEEPROM::readStatus_t::noVar)
+            {
+                //variable with this address doesn't exist yet - set value to 0
+                value                 = 0;
+                eepromMemory[address] = tempData;
+            }
+            else
+            {
+                return false;
             }
         }
         break;
