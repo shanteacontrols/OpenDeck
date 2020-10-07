@@ -175,6 +175,8 @@ namespace
             {
             case LESSDB::sectionParameterType_t::word:
             case LESSDB::sectionParameterType_t::byte:
+            case LESSDB::sectionParameterType_t::halfByte:
+            case LESSDB::sectionParameterType_t::bit:
             {
                 uint16_t tempData;
 
@@ -209,6 +211,8 @@ namespace
             {
             case LESSDB::sectionParameterType_t::word:
             case LESSDB::sectionParameterType_t::byte:
+            case LESSDB::sectionParameterType_t::halfByte:
+            case LESSDB::sectionParameterType_t::bit:
             {
                 uint16_t tempData = value;
 
