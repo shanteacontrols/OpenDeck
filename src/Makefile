@@ -218,7 +218,7 @@ endif
 	@$(TOOL_PREFIX)objcopy -I ihex "$(MERGED_TARGET)" -O binary "$(MERGED_TARGET).bin"
 	@echo Merged binary created: $(MERGED_TARGET)
 
-pre-build: $(GEN_SOURCES)
+pre-build: $(PINS_GEN_SOURCE) $(TSCREEN_GEN_SOURCE)
 
 board/gen/$(TARGETNAME)/Pins.cpp: ../targets/$(TARGETNAME).yml
 	@echo Generating pins...
