@@ -79,6 +79,26 @@
       z1:
         port: "C"
         index: 4
+    indexing:
+    - 5
+    - 4
+    - 3
+    - 2
+    - 7
+    - 6
+    - 1
+    - 0
+    - 8
+    - 9
+    - 14
+    - 15
+    - 10
+    - 11
+    - 12
+    - 13
+    - 30
+    - 29
+    - 31
   leds:
     internal:
       present: false
