@@ -169,7 +169,7 @@ ifneq (,$(findstring USB_LINK_MCU,$(DEFINES)))
 #use smaller sysex buffer size on USB link MCUs
     DEFINES += MIDI_SYSEX_ARRAY_SIZE=64
 else
-    DEFINES += MIDI_SYSEX_ARRAY_SIZE=80
+    DEFINES += MIDI_SYSEX_ARRAY_SIZE=100
 endif
 
 ifeq ($(shell yq r ../targets/$(TARGETNAME).yml dinMIDI.use), true)
