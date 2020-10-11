@@ -1,7 +1,6 @@
 #include "unity/src/unity.h"
 #include "unity/Helpers.h"
 #include "io/encoders/Encoders.h"
-#include "io/leds/LEDs.h"
 #include "io/common/CInfo.h"
 #include "midi/src/MIDI.h"
 #include "core/src/general/Timing.h"
@@ -12,16 +11,6 @@
 
 namespace
 {
-    uint8_t controlValue[MAX_NUMBER_OF_ENCODERS];
-    uint8_t messageCounter;
-
-    bool midiDataHandler(MIDI::USBMIDIpacket_t& USBMIDIpacket)
-    {
-        controlValue[messageCounter] = USBMIDIpacket.Data3;
-        messageCounter++;
-        return true;
-    }
-
     class DBhandlers : public Database::Handlers
     {
         public:
@@ -61,6 +50,40 @@ namespace
         void (*initHandler)()                       = nullptr;
     } dbHandlers;
 
+    class HWAMIDI : public MIDI::HWA
+    {
+        public:
+        HWAMIDI() = default;
+
+        bool init() override
+        {
+            return true;
+        }
+
+        bool dinRead(uint8_t& data) override
+        {
+            return false;
+        }
+
+        bool dinWrite(uint8_t data) override
+        {
+            return false;
+        }
+
+        bool usbRead(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
+        {
+            return false;
+        }
+
+        bool usbWrite(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
+        {
+            midiPacket.push_back(USBMIDIpacket);
+            return true;
+        }
+
+        std::vector<MIDI::USBMIDIpacket_t> midiPacket;
+    } hwaMIDI;
+
     class HWAEncoders : public IO::Encoders::HWA
     {
         public:
@@ -95,7 +118,6 @@ namespace
 
         void setEncoderState(uint8_t encoderID, IO::Encoders::position_t position)
         {
-            controlValue[encoderID]    = 0;
             encoderPosition[encoderID] = position;
         }
 
@@ -114,7 +136,7 @@ namespace
 
     DBstorageMock dbStorageMock;
     Database      database = Database(dbHandlers, dbStorageMock, true);
-    MIDI          midi;
+    MIDI          midi(hwaMIDI);
     ComponentInfo cInfo;
 
     class HWAU8X8 : public IO::U8X8::HWAI2C
@@ -147,9 +169,9 @@ TEST_SETUP()
 {
     // init checks - no point in running further tests if these conditions fail
     TEST_ASSERT(database.init() == true);
-    TEST_ASSERT(database.isSignatureValid() == true);
     encoders.init();
-    midi.handleUSBwrite(midiDataHandler);
+    midi.init();
+    midi.enableUSBMIDI();
 }
 
 TEST_CASE(StateDecoding)
@@ -402,9 +424,9 @@ TEST_CASE(Debounce)
                 encoders.update();
 
                 //verify that all received values are correct
-                for (int j = 0; j < MAX_NUMBER_OF_ENCODERS; j++)
+                for (int j = 0; j < hwaMIDI.midiPacket.size(); j++)
                 {
-                    if (controlValue[j] != encValue(Encoders::type_t::t7Fh01h, value[j]))
+                    if (hwaMIDI.midiPacket.at(j).Data3 != encValue(Encoders::type_t::t7Fh01h, value[j]))
                     {
                         success = false;
                         break;
@@ -425,7 +447,7 @@ TEST_CASE(Debounce)
         core::timing::detail::rTime_ms = 0;
         Encoders::position_t testValue[MAX_NUMBER_OF_ENCODERS];
 
-        messageCounter = 0;
+        hwaMIDI.midiPacket.clear();
         encoders.init();
 
         for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
@@ -435,10 +457,10 @@ TEST_CASE(Debounce)
         }
 
         TEST_ASSERT(verifyValue(testValue) == true);
-        TEST_ASSERT(messageCounter == MAX_NUMBER_OF_ENCODERS);
+        TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_ENCODERS);
 
         //reset values
-        messageCounter = 0;
+        hwaMIDI.midiPacket.clear();
 
         // set new direction
         for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
@@ -448,7 +470,7 @@ TEST_CASE(Debounce)
         }
 
         TEST_ASSERT(verifyValue(testValue) == true);
-        TEST_ASSERT(messageCounter == MAX_NUMBER_OF_ENCODERS);
+        TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_ENCODERS);
 
         //test the scenario where the values alternate between last position
         //(right) and different position (left)
@@ -500,7 +522,7 @@ TEST_CASE(Debounce)
         // after each call switch to next value from test array
         for (int i = 0; i < NUMBER_OF_TEST_VALUES; i++)
         {
-            messageCounter = 0;
+            hwaMIDI.midiPacket.clear();
 
             for (int j = 0; j < MAX_NUMBER_OF_ENCODERS; j++)
             {
@@ -518,7 +540,7 @@ TEST_CASE(Debounce)
 
         for (int i = 0; i < NUMBER_OF_TEST_VALUES; i++)
         {
-            messageCounter = 0;
+            hwaMIDI.midiPacket.clear();
 
             for (int j = 0; j < MAX_NUMBER_OF_ENCODERS; j++)
             {
@@ -575,7 +597,7 @@ TEST_CASE(Debounce)
 
         for (int i = 0; i < 16; i++)
         {
-            messageCounter = 0;
+            hwaMIDI.midiPacket.clear();
 
             for (int j = 0; j < MAX_NUMBER_OF_ENCODERS; j++)
             {
@@ -589,7 +611,7 @@ TEST_CASE(Debounce)
         for (int i = 16; i < 19; i++)
         {
             //first three values should still be right direction
-            messageCounter = 0;
+            hwaMIDI.midiPacket.clear();
 
             for (int j = 0; j < MAX_NUMBER_OF_ENCODERS; j++)
             {
@@ -603,7 +625,7 @@ TEST_CASE(Debounce)
         //from now on, debouncer should be initiated and all other values should be left
         for (int i = 19; i < MAX_NUMBER_OF_ENCODERS; i++)
         {
-            messageCounter = 0;
+            hwaMIDI.midiPacket.clear();
 
             for (int j = 0; j < MAX_NUMBER_OF_ENCODERS; j++)
             {
@@ -670,12 +692,12 @@ TEST_CASE(Acceleration)
                 if (compareValue > 127)
                     compareValue = 127;
 
-                if (messageCounter == MAX_NUMBER_OF_ENCODERS)
+                if (hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_ENCODERS)
                 {
                     //verify that all received values are correct
                     for (int k = 0; k < MAX_NUMBER_OF_ENCODERS; k++)
                     {
-                        if (controlValue[k] != compareValue)
+                        if (hwaMIDI.midiPacket.at(k).Data3 != compareValue)
                         {
                             success = false;
                             break;
@@ -688,7 +710,7 @@ TEST_CASE(Acceleration)
 
                     if (success)
                     {
-                        lastValue = controlValue[0];
+                        lastValue = hwaMIDI.midiPacket.at(0).Data3;
                         break;
                     }
                 }
@@ -705,7 +727,7 @@ TEST_CASE(Acceleration)
         //to current encoder midi value
         for (int i = 1; i <= 3; i++)
         {
-            messageCounter = 0;
+            hwaMIDI.midiPacket.clear();
             core::timing::detail::rTime_ms++;
             uint16_t compareValue = lastValue + (ENCODER_SPEED_CHANGE * i);
             update(compareValue);
@@ -716,7 +738,7 @@ TEST_CASE(Acceleration)
         //in this case, existing values should be increased only by 1
         for (int i = 1; i <= 3; i++)
         {
-            messageCounter = 0;
+            hwaMIDI.midiPacket.clear();
             core::timing::detail::rTime_ms += ENCODERS_SPEED_TIMEOUT;
             uint16_t compareValue = lastValue + 1;
             update(compareValue);

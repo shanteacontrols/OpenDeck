@@ -26,7 +26,6 @@ limitations under the License.
 #include "midi/src/MIDI.h"
 #include "io/leds/LEDs.h"
 #include "io/display/Display.h"
-#include "io/common/Common.h"
 #include "io/common/CInfo.h"
 
 namespace IO
@@ -37,7 +36,7 @@ namespace IO
     /// \ingroup interfaceDigitalIn
     /// @{
 
-    class Buttons : public Common
+    class Buttons
     {
         public:
         ///

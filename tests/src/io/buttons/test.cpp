@@ -12,34 +12,7 @@
 
 namespace
 {
-    uint32_t              messageCounter                     = 0;
-    bool                  buttonState[MAX_NUMBER_OF_BUTTONS] = {};
-    MIDI::USBMIDIpacket_t midiPacket[MAX_NUMBER_OF_BUTTONS];
-
-    void resetReceived()
-    {
-        for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
-        {
-            midiPacket[i].Event = 0;
-            midiPacket[i].Data1 = 0;
-            midiPacket[i].Data2 = 0;
-            midiPacket[i].Data3 = 0;
-        }
-
-        messageCounter = 0;
-    }
-
-    bool midiDataHandler(MIDI::USBMIDIpacket_t& USBMIDIpacket)
-    {
-        midiPacket[messageCounter].Event = USBMIDIpacket.Event;
-        midiPacket[messageCounter].Data1 = USBMIDIpacket.Data1;
-        midiPacket[messageCounter].Data2 = USBMIDIpacket.Data2;
-        midiPacket[messageCounter].Data3 = USBMIDIpacket.Data3;
-
-        messageCounter++;
-
-        return true;
-    }
+    bool buttonState[MAX_NUMBER_OF_BUTTONS] = {};
 
     class DBhandlers : public Database::Handlers
     {
@@ -80,6 +53,40 @@ namespace
         void (*initHandler)()                       = nullptr;
     } dbHandlers;
 
+    class HWAMIDI : public MIDI::HWA
+    {
+        public:
+        HWAMIDI() = default;
+
+        bool init() override
+        {
+            return true;
+        }
+
+        bool dinRead(uint8_t& data) override
+        {
+            return false;
+        }
+
+        bool dinWrite(uint8_t data) override
+        {
+            return false;
+        }
+
+        bool usbRead(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
+        {
+            return false;
+        }
+
+        bool usbWrite(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
+        {
+            midiPacket.push_back(USBMIDIpacket);
+            return true;
+        }
+
+        std::vector<MIDI::USBMIDIpacket_t> midiPacket;
+    } hwaMIDI;
+
     class HWALEDs : public IO::LEDs::HWA
     {
         public:
@@ -102,7 +109,7 @@ namespace
         void setFadeSpeed(size_t transitionSpeed) override
         {
         }
-    } ledsHWA;
+    } hwaLEDs;
 
     class HWAButtons : public IO::Buttons::HWA
     {
@@ -130,10 +137,10 @@ namespace
 
     DBstorageMock dbStorageMock;
     Database      database = Database(dbHandlers, dbStorageMock, true);
-    MIDI          midi;
+    MIDI          midi(hwaMIDI);
     ComponentInfo cInfo;
 
-    IO::LEDs leds(ledsHWA, database);
+    IO::LEDs leds(hwaLEDs, database);
 
     class HWAU8X8 : public IO::U8X8::HWAI2C
     {
@@ -162,7 +169,7 @@ namespace
 
     void stateChangeRegister(bool state)
     {
-        messageCounter = 0;
+        hwaMIDI.midiPacket.clear();
 
         for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
             buttons.processButton(i, state);
@@ -175,9 +182,10 @@ TEST_SETUP()
     TEST_ASSERT(database.init() == true);
     //always start from known state
     database.factoryReset();
-    TEST_ASSERT(database.isSignatureValid() == true);
-    midi.handleUSBwrite(midiDataHandler);
+
+    midi.init();
     midi.setChannelSendZeroStart(true);
+    midi.enableUSBMIDI();
 }
 
 TEST_CASE(Note)
@@ -205,28 +213,28 @@ TEST_CASE(Note)
             // verify all received messages
             for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
             {
-                uint8_t midiMessage = midiPacket[i].Event << 4;
+                uint8_t midiMessage = hwaMIDI.midiPacket.at(i).Event << 4;
                 TEST_ASSERT(midiMessage == (state ? static_cast<uint8_t>(MIDI::messageType_t::noteOn)
                                                   : midi.getNoteOffMode() == MIDI::noteOffType_t::standardNoteOff ? static_cast<uint8_t>(MIDI::messageType_t::noteOff)
                                                                                                                   : static_cast<uint8_t>(MIDI::messageType_t::noteOn)));
 
-                TEST_ASSERT(midiPacket[i].Data3 == (state ? velocityValue : 0));
-                TEST_ASSERT(channel == midi.getChannelFromStatusByte(midiPacket[i].Data1));
+                TEST_ASSERT(hwaMIDI.midiPacket.at(i).Data3 == (state ? velocityValue : 0));
+                TEST_ASSERT(channel == midi.getChannelFromStatusByte(hwaMIDI.midiPacket.at(i).Data1));
 
                 //also verify MIDI ID
                 //it should be equal to button ID by default
-                TEST_ASSERT(i == midiPacket[i].Data2);
+                TEST_ASSERT(i == hwaMIDI.midiPacket.at(i).Data2);
             }
         };
 
         //simulate button press
         stateChangeRegister(true);
-        TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
+        TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
         verifyValue(true);
 
         //simulate button release
         stateChangeRegister(false);
-        TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
+        TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
         verifyValue(false);
 
         // try with the latching mode
@@ -234,12 +242,12 @@ TEST_CASE(Note)
             TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::latching)) == true);
 
         stateChangeRegister(true);
-        TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
+        TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
         verifyValue(true);
 
         //nothing should happen on release
         stateChangeRegister(false);
-        TEST_ASSERT(messageCounter == 0);
+        TEST_ASSERT(hwaMIDI.midiPacket.size() == 0);
 
         //press again, new messages should arrive
         stateChangeRegister(true);
@@ -283,29 +291,29 @@ TEST_CASE(ProgramChange)
             // verify all received messages are program change
             for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
             {
-                uint8_t midiMessage = midiPacket[i].Event << 4;
+                uint8_t midiMessage = hwaMIDI.midiPacket.at(i).Event << 4;
                 TEST_ASSERT(midiMessage == static_cast<uint8_t>(MIDI::messageType_t::programChange));
 
                 //byte 3 on program change should be 0
-                TEST_ASSERT(0 == midiPacket[i].Data3);
+                TEST_ASSERT(0 == hwaMIDI.midiPacket.at(i).Data3);
 
                 //verify channel
-                TEST_ASSERT(channel == midi.getChannelFromStatusByte(midiPacket[i].Data1));
+                TEST_ASSERT(channel == midi.getChannelFromStatusByte(hwaMIDI.midiPacket.at(i).Data1));
 
                 //also verify MIDI ID/program
                 //it should be equal to button ID by default
-                TEST_ASSERT(i == midiPacket[i].Data2);
+                TEST_ASSERT(i == hwaMIDI.midiPacket.at(i).Data2);
             }
         };
 
         //simulate button press
         stateChangeRegister(true);
-        TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
+        TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
         verifyMessage();
 
         //program change shouldn't be sent on release
         stateChangeRegister(false);
-        TEST_ASSERT(messageCounter == 0);
+        TEST_ASSERT(hwaMIDI.midiPacket.size() == 0);
 
         //repeat the entire test again, but with buttons configured as latching types
         //behaviour should be the same
@@ -313,11 +321,11 @@ TEST_CASE(ProgramChange)
             TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::latching)) == true);
 
         stateChangeRegister(true);
-        TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
+        TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
         verifyMessage();
 
         stateChangeRegister(false);
-        TEST_ASSERT(messageCounter == 0);
+        TEST_ASSERT(hwaMIDI.midiPacket.size() == 0);
     };
 
     //test for all channels
@@ -339,16 +347,16 @@ TEST_CASE(ProgramChange)
     };
 
     auto verifyProgramChange = [&](uint8_t buttonID, uint8_t channel, uint8_t program) {
-        uint8_t midiMessage = midiPacket[buttonID].Event << 4;
+        uint8_t midiMessage = hwaMIDI.midiPacket[buttonID].Event << 4;
         TEST_ASSERT(midiMessage == static_cast<uint8_t>(MIDI::messageType_t::programChange));
 
         //byte 3 on program change should be 0
-        TEST_ASSERT(0 == midiPacket[buttonID].Data3);
+        TEST_ASSERT(0 == hwaMIDI.midiPacket[buttonID].Data3);
 
         //verify channel
-        TEST_ASSERT(channel == midi.getChannelFromStatusByte(midiPacket[buttonID].Data1));
+        TEST_ASSERT(channel == midi.getChannelFromStatusByte(hwaMIDI.midiPacket[buttonID].Data1));
 
-        TEST_ASSERT(program == midiPacket[buttonID].Data2);
+        TEST_ASSERT(program == hwaMIDI.midiPacket[buttonID].Data2);
     };
 
     configurePCbutton(0, 0, true);
@@ -444,7 +452,7 @@ TEST_CASE(ProgramChange)
     stateChangeRegister(false);
 
     //reset all received messages first
-    resetReceived();
+    hwaMIDI.midiPacket.clear();
 
     //only two program change messages should be sent
     //program change value is 0 after the second button decreases it
@@ -459,10 +467,10 @@ TEST_CASE(ProgramChange)
     //verify that only two program change messages have been received
     uint8_t pcCounter = 0;
 
-    for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
+    for (int i = 0; i < hwaMIDI.midiPacket.size(); i++)
     {
         //no program change messages should be sent
-        uint8_t midiMessage = midiPacket[i].Event << 4;
+        uint8_t midiMessage = hwaMIDI.midiPacket.at(i).Event << 4;
 
         if (midiMessage == static_cast<uint8_t>(MIDI::messageType_t::programChange))
             pcCounter++;
@@ -507,29 +515,29 @@ TEST_CASE(ControlChange)
             // verify all received messages are control change
             for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
             {
-                uint8_t midiMessage = midiPacket[i].Event << 4;
+                uint8_t midiMessage = hwaMIDI.midiPacket.at(i).Event << 4;
                 TEST_ASSERT(midiMessage == static_cast<uint8_t>(MIDI::messageType_t::controlChange));
 
-                TEST_ASSERT(midiValue == midiPacket[i].Data3);
+                TEST_ASSERT(midiValue == hwaMIDI.midiPacket.at(i).Data3);
 
                 //verify channel
-                TEST_ASSERT(0 == midi.getChannelFromStatusByte(midiPacket[i].Data1));
+                TEST_ASSERT(0 == midi.getChannelFromStatusByte(hwaMIDI.midiPacket.at(i).Data1));
 
                 //also verify MIDI ID
                 //it should be equal to button ID by default
-                TEST_ASSERT(i == midiPacket[i].Data2);
+                TEST_ASSERT(i == hwaMIDI.midiPacket.at(i).Data2);
             }
         };
 
         //simulate button press
         stateChangeRegister(true);
-        TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
+        TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
         verifyMessage(controlValue);
 
         //no messages should be sent on release
         stateChangeRegister(false);
-        TEST_ASSERT(messageCounter == 0);
+        TEST_ASSERT(hwaMIDI.midiPacket.size() == 0);
 
         //change to latching type
         //behaviour should be the same
@@ -538,12 +546,12 @@ TEST_CASE(ControlChange)
             TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::latching)) == true);
 
         stateChangeRegister(true);
-        TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
+        TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
         verifyMessage(controlValue);
 
         stateChangeRegister(false);
-        TEST_ASSERT(messageCounter == 0);
+        TEST_ASSERT(hwaMIDI.midiPacket.size() == 0);
 
         // change type to control change with 0 on reset, momentary mode
         // this means CC value 0 should be sent on release
@@ -555,12 +563,12 @@ TEST_CASE(ControlChange)
             TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, i, static_cast<int32_t>(Buttons::messageType_t::controlChangeReset)) == true);
 
         stateChangeRegister(true);
-        TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
+        TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
         verifyMessage(controlValue);
 
         stateChangeRegister(false);
-        TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
+        TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
         verifyMessage(0);
 
@@ -573,15 +581,15 @@ TEST_CASE(ControlChange)
             TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::latching)) == true);
 
         stateChangeRegister(true);
-        TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
+        TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
         verifyMessage(controlValue);
 
         stateChangeRegister(false);
-        TEST_ASSERT(messageCounter == 0);
+        TEST_ASSERT(hwaMIDI.midiPacket.size() == 0);
 
         stateChangeRegister(true);
-        TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
+        TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
         verifyMessage(0);
     };
@@ -610,25 +618,25 @@ TEST_CASE(NoMessages)
     }
 
     stateChangeRegister(true);
-    TEST_ASSERT(messageCounter == 0);
+    TEST_ASSERT(hwaMIDI.midiPacket.size() == 0);
 
     stateChangeRegister(false);
-    TEST_ASSERT(messageCounter == 0);
+    TEST_ASSERT(hwaMIDI.midiPacket.size() == 0);
 
     for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
         TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::latching)) == true);
 
     stateChangeRegister(true);
-    TEST_ASSERT(messageCounter == 0);
+    TEST_ASSERT(hwaMIDI.midiPacket.size() == 0);
 
     stateChangeRegister(false);
-    TEST_ASSERT(messageCounter == 0);
+    TEST_ASSERT(hwaMIDI.midiPacket.size() == 0);
 
     stateChangeRegister(true);
-    TEST_ASSERT(messageCounter == 0);
+    TEST_ASSERT(hwaMIDI.midiPacket.size() == 0);
 
     stateChangeRegister(false);
-    TEST_ASSERT(messageCounter == 0);
+    TEST_ASSERT(hwaMIDI.midiPacket.size() == 0);
 }
 
 #if MAX_NUMBER_OF_LEDS > 0
@@ -663,7 +671,7 @@ TEST_CASE(LocalLEDcontrol)
     //simulate the press of all buttons
     //since led 0 is configured in local control mode, it should be on now
     stateChangeRegister(true);
-    TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
+    TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
     TEST_ASSERT(leds.getColor(0) != LEDs::color_t::off);
 
@@ -673,7 +681,7 @@ TEST_CASE(LocalLEDcontrol)
 
     //now release the button and verify that the led is off again
     stateChangeRegister(false);
-    TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
+    TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
     for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
         TEST_ASSERT(leds.getColor(i) == LEDs::color_t::off);
@@ -683,18 +691,18 @@ TEST_CASE(LocalLEDcontrol)
         TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::latching)) == true);
 
     stateChangeRegister(true);
-    TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
+    TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
     TEST_ASSERT(leds.getColor(0) != LEDs::color_t::off);
 
     stateChangeRegister(false);
-    TEST_ASSERT(messageCounter == 0);
+    TEST_ASSERT(hwaMIDI.midiPacket.size() == 0);
 
     //led should remain on
     TEST_ASSERT(leds.getColor(0) != LEDs::color_t::off);
 
     stateChangeRegister(true);
-    TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
+    TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
     TEST_ASSERT(leds.getColor(0) == LEDs::color_t::off);
 
@@ -711,7 +719,7 @@ TEST_CASE(LocalLEDcontrol)
     }
 
     stateChangeRegister(true);
-    TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
+    TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
     //led should be off since it's configure to react on note messages and not on control change
     TEST_ASSERT(leds.getColor(0) == LEDs::color_t::off);
@@ -720,19 +728,19 @@ TEST_CASE(LocalLEDcontrol)
 
     //no messages being sent on release in CC mode
     stateChangeRegister(false);
-    TEST_ASSERT(messageCounter == 0);
+    TEST_ASSERT(hwaMIDI.midiPacket.size() == 0);
 
     //nothing should happen on release yet
     TEST_ASSERT(leds.getColor(0) == LEDs::color_t::off);
 
     stateChangeRegister(true);
-    TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
+    TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
     //led should be on now
     TEST_ASSERT(leds.getColor(0) != LEDs::color_t::off);
 
     stateChangeRegister(false);
-    TEST_ASSERT(messageCounter == 0);
+    TEST_ASSERT(hwaMIDI.midiPacket.size() == 0);
 
     //no messages sent - led must remain on
     TEST_ASSERT(leds.getColor(0) != LEDs::color_t::off);
@@ -741,7 +749,7 @@ TEST_CASE(LocalLEDcontrol)
     TEST_ASSERT(database.update(Database::Section::button_t::velocity, 0, 126) == true);
 
     stateChangeRegister(true);
-    TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
+    TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
     //led should be off now - it has received velocity 126 differing from activating one which is 127
     TEST_ASSERT(leds.getColor(0) == LEDs::color_t::off);
@@ -761,12 +769,12 @@ TEST_CASE(LocalLEDcontrol)
     }
 
     stateChangeRegister(true);
-    TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
+    TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
     TEST_ASSERT(leds.getColor(0) != LEDs::color_t::off);
 
     stateChangeRegister(false);
-    TEST_ASSERT(messageCounter == MAX_NUMBER_OF_BUTTONS);
+    TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
     TEST_ASSERT(leds.getColor(0) == LEDs::color_t::off);
 }

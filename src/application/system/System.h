@@ -28,33 +28,9 @@ limitations under the License.
 #include "io/leds/LEDs.h"
 #include "io/touchscreen/Touchscreen.h"
 
-class SysConfig
+class System
 {
     public:
-    SysConfig(Database&        database,
-              MIDI&            midi,
-              IO::Buttons&     buttons,
-              IO::Encoders&    encoders,
-              IO::Analog&      analog,
-              IO::LEDs&        leds,
-              IO::Display&     display,
-              IO::Touchscreen& touchscreen)
-        : sysExConf(
-              sysExDataHandler,
-              sysExMID,
-              SysExConf::paramSize_t::_14bit,
-              SysExConf::nrOfParam_t::_32)
-        , database(database)
-        , midi(midi)
-        , buttons(buttons)
-        , encoders(encoders)
-        , analog(analog)
-        , leds(leds)
-        , display(display)
-        , touchscreen(touchscreen)
-        , sysExDataHandler(*this)
-    {}
-
     enum class block_t : uint8_t
     {
         global,
@@ -65,6 +41,44 @@ class SysConfig
         display,
         touchscreen,
         AMOUNT
+    };
+
+    enum class presetSetting_t : uint8_t
+    {
+        activePreset,
+        presetPreserve,
+        AMOUNT
+    };
+
+    enum class midiFeature_t : uint8_t
+    {
+        standardNoteOff,
+        runningStatus,
+        mergeEnabled,
+        dinEnabled,
+        passToDIN,
+        AMOUNT
+    };
+
+    enum class midiMerge_t : uint8_t
+    {
+        mergeType,
+        mergeUSBchannel,
+        mergeDINchannel,
+        AMOUNT
+    };
+
+    enum class midiMergeType_t
+    {
+        DINtoUSB,
+        DINtoDIN,
+        AMOUNT
+    };
+
+    enum class reboot_t : uint8_t
+    {
+        application,
+        bootloader
     };
 
     class Section
@@ -154,42 +168,46 @@ class SysConfig
         };
     };
 
-    enum class presetSetting_t : uint8_t
+    class HWA
     {
-        activePreset,
-        presetPreserve,
-        AMOUNT
+        public:
+        HWA() = default;
+
+        virtual bool init()                        = 0;
+        virtual bool isDigitalInputAvailable()     = 0;
+        virtual void reboot(System::reboot_t type) = 0;
+        virtual void enableDINMIDI(bool loopback)  = 0;
+        virtual void disableDINMIDI()              = 0;
     };
 
-    enum class midiFeature_t : uint8_t
-    {
-        standardNoteOff,
-        runningStatus,
-        mergeEnabled,
-        dinEnabled,
-        passToDIN,
-        AMOUNT
-    };
+    System(HWA&             hwa,
+           Database&        database,
+           MIDI&            midi,
+           IO::Buttons&     buttons,
+           IO::Encoders&    encoders,
+           IO::Analog&      analog,
+           IO::LEDs&        leds,
+           IO::Display&     display,
+           IO::Touchscreen& touchscreen)
+        : sysExConf(
+              sysExDataHandler,
+              sysExMID,
+              SysExConf::paramSize_t::_14bit,
+              SysExConf::nrOfParam_t::_32)
+        , hwa(hwa)
+        , database(database)
+        , midi(midi)
+        , buttons(buttons)
+        , encoders(encoders)
+        , analog(analog)
+        , leds(leds)
+        , display(display)
+        , touchscreen(touchscreen)
+        , sysExDataHandler(*this)
+    {}
 
-    enum class midiMerge_t : uint8_t
-    {
-        mergeType,
-        mergeUSBchannel,
-        mergeDINchannel,
-        AMOUNT
-    };
-
-    enum class midiMergeType_t
-    {
-        DINtoUSB,
-        DINtoDIN,
-        odMaster,
-        odSlave,
-        odSlaveInitial,
-        AMOUNT
-    };
-
-    void            init();
+    bool            init();
+    void            run();
     void            handleSysEx(const uint8_t* array, size_t size);
     bool            isProcessingEnabled();
     bool            sendCInfo(Database::block_t dbBlock, SysExConf::sysExParameter_t componentID);
@@ -202,8 +220,8 @@ class SysConfig
     class SysExDataHandler : public SysExConf::DataHandler
     {
         public:
-        SysExDataHandler(SysConfig& sysConfig)
-            : sysConfig(sysConfig)
+        SysExDataHandler(System& system)
+            : system(system)
         {}
 
         result_t get(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t& value) override;
@@ -212,17 +230,12 @@ class SysConfig
         void     sendResponse(uint8_t* array, size_t size) override;
 
         private:
-        SysConfig& sysConfig;
-    };
-
-    const SysExConf::manufacturerID_t sysExMID = {
-        SYSEX_MANUFACTURER_ID_0,
-        SYSEX_MANUFACTURER_ID_1,
-        SYSEX_MANUFACTURER_ID_2
+        System& system;
     };
 
     SysExConf sysExConf;
 
+    HWA&             hwa;
     Database&        database;
     MIDI&            midi;
     IO::Buttons&     buttons;
@@ -239,27 +252,11 @@ class SysConfig
     ///
     bool processingEnabled = true;
 
-    void configureMIDI();
-    bool onGet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t& value);
-    bool onSet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t newValue);
-    bool onCustomRequest(size_t value);
-    void onWrite(uint8_t* sysExArray, size_t size);
-    void backup();
-
-    ///
-    /// \brief Configures UART read/write handlers for MIDI module.
-    ///
-    void setupMIDIoverUART(uint32_t baudRate, bool initRX, bool initTX);
-
-    ///
-    /// \brief Configures USB read/write handlers for MIDI module.
-    ///
-    void setupMIDIoverUSB();
-
-#ifdef DIN_MIDI_SUPPORTED
-    void configureMIDImerge(midiMergeType_t mergeType);
-    void sendDaisyChainRequest();
-#endif
+    const SysExConf::manufacturerID_t sysExMID = {
+        SYSEX_MANUFACTURER_ID_0,
+        SYSEX_MANUFACTURER_ID_1,
+        SYSEX_MANUFACTURER_ID_2
+    };
 
     uint32_t lastCinfoMsgTime[static_cast<uint8_t>(Database::block_t::AMOUNT)];
     bool     backupRequested = false;
@@ -338,6 +335,18 @@ class SysConfig
         init,
         deInit
     };
+
+    void checkComponents();
+    void checkMIDI();
+    void configureMIDI();
+    bool onGet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t& value);
+    bool onSet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t newValue);
+    bool onCustomRequest(size_t value);
+    void onWrite(uint8_t* sysExArray, size_t size);
+    void backup();
+#ifdef DIN_MIDI_SUPPORTED
+    void configureMIDImerge(midiMergeType_t mergeType);
+#endif
 
     Database::block_t dbBlock(uint8_t index);
 

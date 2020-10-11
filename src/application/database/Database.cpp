@@ -86,7 +86,7 @@ bool Database::init()
         SYSTEM_BLOCK_ENTER(
             activePreset = read(0,
                                 static_cast<uint8_t>(SectionPrivate::system_t::presets),
-                                static_cast<size_t>(SysConfig::presetSetting_t::activePreset));)
+                                static_cast<size_t>(System::presetSetting_t::activePreset));)
 
         if (getPresetPreserveState())
         {
@@ -109,9 +109,17 @@ bool Database::init()
     }
 
     if (returnValue)
+    {
+        initialized = true;
         handlers.initialized();
+    }
 
     return returnValue;
+}
+
+bool Database::isInitialized()
+{
+    return initialized;
 }
 
 ///
@@ -181,7 +189,7 @@ bool Database::setPreset(uint8_t preset)
     SYSTEM_BLOCK_ENTER(
         returnValue = update(0,
                              static_cast<uint8_t>(SectionPrivate::system_t::presets),
-                             static_cast<size_t>(SysConfig::presetSetting_t::activePreset),
+                             static_cast<size_t>(System::presetSetting_t::activePreset),
                              preset);)
 
     if (returnValue)
@@ -236,7 +244,7 @@ bool Database::setPresetPreserveState(bool state)
     SYSTEM_BLOCK_ENTER(
         returnValue = update(0,
                              static_cast<uint8_t>(SectionPrivate::system_t::presets),
-                             static_cast<size_t>(SysConfig::presetSetting_t::presetPreserve),
+                             static_cast<size_t>(System::presetSetting_t::presetPreserve),
                              state);)
 
     return returnValue;
@@ -253,7 +261,7 @@ bool Database::getPresetPreserveState()
     SYSTEM_BLOCK_ENTER(
         returnValue = read(0,
                            static_cast<uint8_t>(SectionPrivate::system_t::presets),
-                           static_cast<size_t>(SysConfig::presetSetting_t::presetPreserve));)
+                           static_cast<size_t>(System::presetSetting_t::presetPreserve));)
 
     return returnValue;
 }

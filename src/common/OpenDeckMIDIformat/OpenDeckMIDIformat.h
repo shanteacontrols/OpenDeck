@@ -37,10 +37,6 @@ namespace OpenDeckMIDIformat
                                    ///< Indicates start of MIDI data when OpenDeck MIDI format is used.
         internalCommand = 0xF2,    ///< Internal command used for target MCU <> USB link communication.
                                    ///< Indicates start of internal data when OpenDeck MIDI format is used.
-        midiDaisyChain = 0xF3      ///< MIDI packet sent from master to slaves in daisy chain configuration.
-                                   ///< Indicates that origin of MIDI message is OpenDeck master in daisy-chain configuration.
-                                   ///< Since all the messages are forwarded between slaves, avoid routing message from
-                                   ///< last slave back to USB master (filter out).
     };
 
     ///

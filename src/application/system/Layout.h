@@ -27,30 +27,30 @@
 
 namespace
 {
-    SysExConf::section_t globalSections[static_cast<uint8_t>(SysConfig::Section::global_t::AMOUNT)] = {
+    SysExConf::section_t globalSections[static_cast<uint8_t>(System::Section::global_t::AMOUNT)] = {
         //midi feature section
         {
-            .numberOfParameters = static_cast<uint8_t>(SysConfig::midiFeature_t::AMOUNT),
+            .numberOfParameters = static_cast<uint8_t>(System::midiFeature_t::AMOUNT),
             .newValueMin        = 0,
             .newValueMax        = 1,
         },
 
         //midi merge section
         {
-            .numberOfParameters = static_cast<uint8_t>(SysConfig::midiMerge_t::AMOUNT),
+            .numberOfParameters = static_cast<uint8_t>(System::midiMerge_t::AMOUNT),
             .newValueMin        = 0,
             .newValueMax        = 0,
         },
 
         //preset section
         {
-            .numberOfParameters = static_cast<uint8_t>(SysConfig::presetSetting_t::AMOUNT),
+            .numberOfParameters = static_cast<uint8_t>(System::presetSetting_t::AMOUNT),
             .newValueMin        = 0,
             .newValueMax        = 0,
         },
     };
 
-    SysExConf::section_t buttonSections[static_cast<uint8_t>(SysConfig::Section::button_t::AMOUNT)] = {
+    SysExConf::section_t buttonSections[static_cast<uint8_t>(System::Section::button_t::AMOUNT)] = {
         //type section
         {
             .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
@@ -87,7 +87,7 @@ namespace
         }
     };
 
-    SysExConf::section_t encoderSections[static_cast<uint8_t>(SysConfig::Section::encoder_t::AMOUNT)] = {
+    SysExConf::section_t encoderSections[static_cast<uint8_t>(System::Section::encoder_t::AMOUNT)] = {
         //encoder enabled section
         {
             .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
@@ -152,7 +152,7 @@ namespace
         },
     };
 
-    SysExConf::section_t analogSections[static_cast<uint8_t>(SysConfig::Section::analog_t::AMOUNT)] = {
+    SysExConf::section_t analogSections[static_cast<uint8_t>(System::Section::analog_t::AMOUNT)] = {
         //analog enabled section
         {
             .numberOfParameters = MAX_NUMBER_OF_ANALOG,
@@ -224,7 +224,7 @@ namespace
         }
     };
 
-    SysExConf::section_t ledSections[static_cast<uint8_t>(SysConfig::Section::leds_t::AMOUNT)] = {
+    SysExConf::section_t ledSections[static_cast<uint8_t>(System::Section::leds_t::AMOUNT)] = {
         //led color test section
         {
             .numberOfParameters = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
@@ -282,7 +282,7 @@ namespace
         }
     };
 
-    SysExConf::section_t displaySections[static_cast<uint8_t>(SysConfig::Section::display_t::AMOUNT)] = {
+    SysExConf::section_t displaySections[static_cast<uint8_t>(System::Section::display_t::AMOUNT)] = {
         //features section
         {
             .numberOfParameters = static_cast<uint8_t>(IO::Display::feature_t::AMOUNT),
@@ -298,7 +298,7 @@ namespace
         }
     };
 
-    SysExConf::section_t touchscreenSections[static_cast<uint8_t>(SysConfig::Section::touchscreen_t::AMOUNT)] = {
+    SysExConf::section_t touchscreenSections[static_cast<uint8_t>(System::Section::touchscreen_t::AMOUNT)] = {
         //setting section
         {
             .numberOfParameters = static_cast<uint8_t>(IO::Touchscreen::setting_t::AMOUNT),
@@ -363,46 +363,46 @@ namespace
         },
     };
 
-    SysExConf::block_t sysExLayout[static_cast<uint8_t>(SysConfig::block_t::AMOUNT)] = {
+    SysExConf::block_t sysExLayout[static_cast<uint8_t>(System::block_t::AMOUNT)] = {
         //global block
         {
-            .numberOfSections = static_cast<uint8_t>(SysConfig::Section::global_t::AMOUNT),
+            .numberOfSections = static_cast<uint8_t>(System::Section::global_t::AMOUNT),
             .section          = globalSections,
         },
 
         //buttons block
         {
-            .numberOfSections = static_cast<uint8_t>(SysConfig::Section::button_t::AMOUNT),
+            .numberOfSections = static_cast<uint8_t>(System::Section::button_t::AMOUNT),
             .section          = buttonSections,
         },
 
         //encoder block
         {
-            .numberOfSections = static_cast<uint8_t>(SysConfig::Section::encoder_t::AMOUNT),
+            .numberOfSections = static_cast<uint8_t>(System::Section::encoder_t::AMOUNT),
             .section          = encoderSections,
         },
 
         //analog block
         {
-            .numberOfSections = static_cast<uint8_t>(SysConfig::Section::analog_t::AMOUNT),
+            .numberOfSections = static_cast<uint8_t>(System::Section::analog_t::AMOUNT),
             .section          = analogSections,
         },
 
         //led block
         {
-            .numberOfSections = static_cast<uint8_t>(SysConfig::Section::leds_t::AMOUNT),
+            .numberOfSections = static_cast<uint8_t>(System::Section::leds_t::AMOUNT),
             .section          = ledSections,
         },
 
         //display block
         {
-            .numberOfSections = static_cast<uint8_t>(SysConfig::Section::display_t::AMOUNT),
+            .numberOfSections = static_cast<uint8_t>(System::Section::display_t::AMOUNT),
             .section          = displaySections,
         },
 
         //touchscreen block
         {
-            .numberOfSections = static_cast<uint8_t>(SysConfig::Section::touchscreen_t::AMOUNT),
+            .numberOfSections = static_cast<uint8_t>(System::Section::touchscreen_t::AMOUNT),
             .section          = touchscreenSections,
         }
     };
@@ -451,11 +451,6 @@ namespace
         {
             .requestID     = SYSEX_CR_DISABLE_PROCESSING,
             .connOpenCheck = true,
-        },
-
-        {
-            .requestID     = SYSEX_CR_DAISY_CHAIN,
-            .connOpenCheck = false,
         },
 
         {

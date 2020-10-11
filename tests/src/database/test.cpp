@@ -4,7 +4,7 @@
 #include "database/Database.h"
 #include "io/leds/LEDs.h"
 #include "io/display/Config.h"
-#include "OpenDeck/sysconfig/SysConfig.h"
+#include "system/System.h"
 
 namespace
 {
@@ -63,14 +63,14 @@ TEST_CASE(ReadInitialValues)
         //MIDI block
         //feature section
         //all values should be set to 0
-        for (int i = 0; i < static_cast<uint8_t>(SysConfig::midiFeature_t::AMOUNT); i++)
+        for (int i = 0; i < static_cast<uint8_t>(System::midiFeature_t::AMOUNT); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiFeatures, i));
 
         //merge section
         //all values should be set to 0
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiMerge, static_cast<size_t>(SysConfig::midiMerge_t::mergeType)));
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiMerge, static_cast<size_t>(SysConfig::midiMerge_t::mergeUSBchannel)));
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiMerge, static_cast<size_t>(SysConfig::midiMerge_t::mergeDINchannel)));
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiMerge, static_cast<size_t>(System::midiMerge_t::mergeType)));
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiMerge, static_cast<size_t>(System::midiMerge_t::mergeUSBchannel)));
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiMerge, static_cast<size_t>(System::midiMerge_t::mergeDINchannel)));
 
         //button block
         //type section

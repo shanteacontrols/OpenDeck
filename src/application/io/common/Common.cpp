@@ -19,11 +19,14 @@ limitations under the License.
 #include "Common.h"
 #include "core/src/general/Helpers.h"
 
+namespace
+{
+    uint8_t pcValue[16];
+    uint8_t midiValue[MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS];
+}    // namespace
+
 namespace IO
 {
-    uint8_t Common::pcValue[16]                                                                                 = {};
-    uint8_t Common::midiValue[MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS] = {};
-
     bool Common::pcIncrement(uint8_t channel)
     {
         if (channel >= 16)

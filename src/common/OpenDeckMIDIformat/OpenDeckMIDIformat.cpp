@@ -124,7 +124,7 @@ namespace OpenDeckMIDIformat
 
         bool packetTypeValid = true;
 
-        if ((readBytes[static_cast<uint8_t>(packet_t::packetType)] == static_cast<uint8_t>(packetType_t::midi)) || (readBytes[static_cast<uint8_t>(packet_t::packetType)] == static_cast<uint8_t>(packetType_t::midiDaisyChain)))
+        if (readBytes[static_cast<uint8_t>(packet_t::packetType)] == static_cast<uint8_t>(packetType_t::midi))
             packetType = static_cast<packetType_t>(readBytes[static_cast<uint8_t>(packet_t::packetType)]);
         else if (readBytes[static_cast<uint8_t>(packet_t::packetType)] == static_cast<uint8_t>(packetType_t::internalCommand))
             packetType = packetType_t::internalCommand;

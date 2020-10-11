@@ -16,58 +16,57 @@ limitations under the License.
 
 */
 
-#include "SysConfig.h"
-#include "board/Board.h"
+#include "System.h"
 
-SysExConf::DataHandler::result_t SysConfig::SysExDataHandler::set(uint8_t                     block,
-                                                                  uint8_t                     section,
-                                                                  size_t                      index,
-                                                                  SysExConf::sysExParameter_t newValue)
+SysExConf::DataHandler::result_t System::SysExDataHandler::set(uint8_t                     block,
+                                                               uint8_t                     section,
+                                                               size_t                      index,
+                                                               SysExConf::sysExParameter_t newValue)
 {
     auto sysExBlock = static_cast<block_t>(block);
-    auto result     = SysConfig::result_t::notSupported;
+    auto result     = System::result_t::notSupported;
 
     switch (sysExBlock)
     {
     case block_t::global:
     {
-        result = sysConfig.onSetGlobal(static_cast<Section::global_t>(section), index, newValue);
+        result = system.onSetGlobal(static_cast<Section::global_t>(section), index, newValue);
     }
     break;
 
     case block_t::buttons:
     {
-        result = sysConfig.onSetButtons(static_cast<Section::button_t>(section), index, newValue);
+        result = system.onSetButtons(static_cast<Section::button_t>(section), index, newValue);
     }
     break;
 
     case block_t::encoders:
     {
-        result = sysConfig.onSetEncoders(static_cast<Section::encoder_t>(section), index, newValue);
+        result = system.onSetEncoders(static_cast<Section::encoder_t>(section), index, newValue);
     }
     break;
 
     case block_t::analog:
     {
-        result = sysConfig.onSetAnalog(static_cast<Section::analog_t>(section), index, newValue);
+        result = system.onSetAnalog(static_cast<Section::analog_t>(section), index, newValue);
     }
     break;
 
     case block_t::leds:
     {
-        result = sysConfig.onSetLEDs(static_cast<Section::leds_t>(section), index, newValue);
+        result = system.onSetLEDs(static_cast<Section::leds_t>(section), index, newValue);
     }
     break;
 
     case block_t::display:
     {
-        result = sysConfig.onSetDisplay(static_cast<Section::display_t>(section), index, newValue);
+        result = system.onSetDisplay(static_cast<Section::display_t>(section), index, newValue);
     }
     break;
 
     case block_t::touchscreen:
     {
-        result = sysConfig.onSetTouchscreen(static_cast<Section::touchscreen_t>(section), index, newValue);
+        result = system.onSetTouchscreen(static_cast<Section::touchscreen_t>(section), index, newValue);
     }
     break;
 
@@ -75,78 +74,78 @@ SysExConf::DataHandler::result_t SysConfig::SysExDataHandler::set(uint8_t       
         break;
     }
 
-    sysConfig.display.displayMIDIevent(IO::Display::eventType_t::in,
-                                       IO::Display::event_t::systemExclusive,
-                                       0,
-                                       0,
-                                       0);
+    system.display.displayMIDIevent(IO::Display::eventType_t::in,
+                                    IO::Display::event_t::systemExclusive,
+                                    0,
+                                    0,
+                                    0);
 
     return result;
 }
 
-SysConfig::result_t SysConfig::onSetGlobal(Section::global_t section, size_t index, SysExConf::sysExParameter_t newValue)
+System::result_t System::onSetGlobal(Section::global_t section, size_t index, SysExConf::sysExParameter_t newValue)
 {
-    auto result    = SysConfig::result_t::error;
+    auto result    = System::result_t::error;
     bool writeToDb = true;
 
     switch (section)
     {
     case Section::global_t::midiFeature:
     {
-        auto feature = static_cast<SysConfig::midiFeature_t>(index);
+        auto feature = static_cast<System::midiFeature_t>(index);
 
         switch (feature)
         {
-        case SysConfig::midiFeature_t::runningStatus:
+        case System::midiFeature_t::runningStatus:
         {
 #ifndef DIN_MIDI_SUPPORTED
-            result = SysConfig::result_t::notSupported;
+            result = System::result_t::notSupported;
 #else
             midi.setRunningStatusState(newValue);
-            result = SysConfig::result_t::ok;
+            result = System::result_t::ok;
 #endif
         }
         break;
 
-        case SysConfig::midiFeature_t::standardNoteOff:
+        case System::midiFeature_t::standardNoteOff:
         {
             if (newValue)
                 midi.setNoteOffMode(MIDI::noteOffType_t::standardNoteOff);
             else
                 midi.setNoteOffMode(MIDI::noteOffType_t::noteOnZeroVel);
 
-            result = SysConfig::result_t::ok;
+            result = System::result_t::ok;
         }
         break;
 
-        case SysConfig::midiFeature_t::dinEnabled:
+        case System::midiFeature_t::dinEnabled:
         {
 #ifndef DIN_MIDI_SUPPORTED
-            result = SysConfig::result_t::notSupported;
+            result = System::result_t::notSupported;
 #else
             if (newValue)
-                setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true);
+                hwa.enableDINMIDI(false);
             else
-                Board::UART::deInit(UART_CHANNEL_DIN);
+                hwa.disableDINMIDI();
 
-            result = SysConfig::result_t::ok;
+            result = System::result_t::ok;
 #endif
         }
         break;
 
-        case SysConfig::midiFeature_t::mergeEnabled:
+        case System::midiFeature_t::mergeEnabled:
         {
 #ifndef DIN_MIDI_SUPPORTED
-            result = SysConfig::result_t::notSupported;
+            result = System::result_t::notSupported;
 #else
-            result = SysConfig::result_t::ok;
+            result = System::result_t::ok;
 
             //make sure everything is in correct state
             if (!newValue)
             {
                 if (isMIDIfeatureEnabled(midiFeature_t::dinEnabled))
                 {
-                    setupMIDIoverUART(UART_BAUDRATE_MIDI_STD, true, true);
+                    hwa.enableDINMIDI(false);
                     midi.useRecursiveParsing(false);
                 }
             }
@@ -157,13 +156,7 @@ SysConfig::result_t SysConfig::onSetGlobal(Section::global_t section, size_t ind
                 {
                     //use recursive parsing when merging is active
                     midi.useRecursiveParsing(true);
-
-                    auto mergeType = midiMergeType();
-
-                    if (mergeType == midiMergeType_t::odSlave)
-                        mergeType = midiMergeType_t::odSlaveInitial;
-
-                    configureMIDImerge(mergeType);
+                    configureMIDImerge(midiMergeType());
                 }
             }
 #endif
@@ -171,7 +164,7 @@ SysConfig::result_t SysConfig::onSetGlobal(Section::global_t section, size_t ind
         break;
 
         default:
-            result = SysConfig::result_t::ok;
+            result = System::result_t::ok;
             break;
         }
     }
@@ -180,7 +173,7 @@ SysConfig::result_t SysConfig::onSetGlobal(Section::global_t section, size_t ind
     case Section::global_t::midiMerge:
     {
 #ifndef DIN_MIDI_SUPPORTED
-        result = SysConfig::result_t::notSupported;
+        result = System::result_t::notSupported;
 #else
         auto mergeParam = static_cast<midiMerge_t>(index);
 
@@ -190,10 +183,7 @@ SysConfig::result_t SysConfig::onSetGlobal(Section::global_t section, size_t ind
         {
             if ((newValue >= 0) && (newValue < static_cast<size_t>(midiMergeType_t::AMOUNT)))
             {
-                result = SysConfig::result_t::ok;
-
-                if (static_cast<midiMergeType_t>(newValue) == midiMergeType_t::odSlave)
-                    newValue = static_cast<SysExConf::sysExParameter_t>(midiMergeType_t::odSlaveInitial);
+                result = System::result_t::ok;
 
                 //configure merging only if din midi and merging options are enabled
                 if (isMIDIfeatureEnabled(midiFeature_t::dinEnabled) && isMIDIfeatureEnabled(midiFeature_t::mergeEnabled))
@@ -201,7 +191,7 @@ SysConfig::result_t SysConfig::onSetGlobal(Section::global_t section, size_t ind
             }
             else
             {
-                result = SysConfig::result_t::notSupported;
+                result = System::result_t::notSupported;
             }
         }
         break;
@@ -211,7 +201,7 @@ SysConfig::result_t SysConfig::onSetGlobal(Section::global_t section, size_t ind
         {
             //unused for now
             writeToDb = false;
-            result = SysConfig::result_t::ok;
+            result = System::result_t::ok;
         }
         break;
 
@@ -233,12 +223,12 @@ SysConfig::result_t SysConfig::onSetGlobal(Section::global_t section, size_t ind
             if (newValue < database.getSupportedPresets())
             {
                 database.setPreset(newValue);
-                result    = SysConfig::result_t::ok;
+                result    = System::result_t::ok;
                 writeToDb = false;
             }
             else
             {
-                result = SysConfig::result_t::notSupported;
+                result = System::result_t::notSupported;
             }
         }
         break;
@@ -248,7 +238,7 @@ SysConfig::result_t SysConfig::onSetGlobal(Section::global_t section, size_t ind
             if ((newValue <= 1) && (newValue >= 0))
             {
                 database.setPresetPreserveState(newValue);
-                result    = SysConfig::result_t::ok;
+                result    = System::result_t::ok;
                 writeToDb = false;
             }
         }
@@ -265,24 +255,24 @@ SysConfig::result_t SysConfig::onSetGlobal(Section::global_t section, size_t ind
         break;
     }
 
-    if ((result == SysConfig::result_t::ok) && writeToDb)
-        result = database.update(dbSection(section), index, newValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
+    if ((result == System::result_t::ok) && writeToDb)
+        result = database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
 
     return result;
 }
 
-SysConfig::result_t SysConfig::onSetButtons(Section::button_t section, size_t index, SysExConf::sysExParameter_t newValue)
+System::result_t System::onSetButtons(Section::button_t section, size_t index, SysExConf::sysExParameter_t newValue)
 {
 #ifdef BUTTONS_SUPPORTED
-    auto result = SysConfig::result_t::error;
+    auto result = System::result_t::error;
 
     //channels start from 0 in db, start from 1 in sysex
     if (section == Section::button_t::midiChannel)
         newValue--;
 
-    result = database.update(dbSection(section), index, newValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
+    result = database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
 
-    if (result == SysConfig::result_t::ok)
+    if (result == System::result_t::ok)
     {
         if (
             (section == Section::button_t::type) ||
@@ -292,11 +282,11 @@ SysConfig::result_t SysConfig::onSetButtons(Section::button_t section, size_t in
 
     return result;
 #else
-    return SysConfig::result_t::notSupported;
+    return System::result_t::notSupported;
 #endif
 }
 
-SysConfig::result_t SysConfig::onSetEncoders(Section::encoder_t section, size_t index, SysExConf::sysExParameter_t newValue)
+System::result_t System::onSetEncoders(Section::encoder_t section, size_t index, SysExConf::sysExParameter_t newValue)
 {
 #ifdef ENCODERS_SUPPORTED
     switch (section)
@@ -307,7 +297,7 @@ SysConfig::result_t SysConfig::onSetEncoders(Section::encoder_t section, size_t 
         {
             //no need for MSB parameters in 2-byte mode since the entire value
             //can be set via single value
-            return SysConfig::result_t::notSupported;
+            return System::result_t::notSupported;
         }
 
         //intentional fall-through
@@ -351,18 +341,18 @@ SysConfig::result_t SysConfig::onSetEncoders(Section::encoder_t section, size_t 
     break;
     }
 
-    auto result = database.update(dbSection(section), index, newValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
+    auto result = database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
 
-    if (result == SysConfig::result_t::ok)
+    if (result == System::result_t::ok)
         encoders.resetValue(index);
 
     return result;
 #else
-    return SysConfig::result_t::notSupported;
+    return System::result_t::notSupported;
 #endif
 }
 
-SysConfig::result_t SysConfig::onSetAnalog(Section::analog_t section, size_t index, SysExConf::sysExParameter_t newValue)
+System::result_t System::onSetAnalog(Section::analog_t section, size_t index, SysExConf::sysExParameter_t newValue)
 {
 #ifdef ANALOG_SUPPORTED
     switch (section)
@@ -375,7 +365,7 @@ SysConfig::result_t SysConfig::onSetAnalog(Section::analog_t section, size_t ind
         {
             //no need for MSB parameters in 2-byte mode since the entire value
             //can be set via single value
-            return SysConfig::result_t::notSupported;
+            return System::result_t::notSupported;
         }
 
         //intentional fall-through
@@ -429,16 +419,16 @@ SysConfig::result_t SysConfig::onSetAnalog(Section::analog_t section, size_t ind
     break;
     }
 
-    return database.update(dbSection(section), index, newValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
+    return database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
 #else
-    return SysConfig::result_t::notSupported;
+    return System::result_t::notSupported;
 #endif
 }
 
-SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, SysExConf::sysExParameter_t newValue)
+System::result_t System::onSetLEDs(Section::leds_t section, size_t index, SysExConf::sysExParameter_t newValue)
 {
 #ifdef LEDS_SUPPORTED
-    auto result = SysConfig::result_t::error;
+    auto result = System::result_t::error;
 
     bool writeToDb = true;
 
@@ -448,7 +438,7 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
     {
         //no writing to database
         leds.setColor(index, static_cast<IO::LEDs::color_t>(newValue));
-        result    = SysConfig::result_t::ok;
+        result    = System::result_t::ok;
         writeToDb = false;
     }
     break;
@@ -457,7 +447,7 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
     {
         //no writing to database
         leds.setBlinkState(index, newValue ? IO::LEDs::blinkSpeed_t::s500ms : IO::LEDs::blinkSpeed_t::noBlink);
-        result    = SysConfig::result_t::ok;
+        result    = System::result_t::ok;
         writeToDb = false;
     }
     break;
@@ -472,7 +462,7 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
         {
             if ((newValue <= 1) && (newValue >= 0))
             {
-                result = SysConfig::result_t::ok;
+                result = System::result_t::ok;
                 leds.setBlinkType(static_cast<IO::LEDs::blinkType_t>(newValue));
             }
         }
@@ -481,14 +471,14 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
         case IO::LEDs::setting_t::useStartupAnimation:
         {
             if ((newValue <= 1) && (newValue >= 0))
-                result = SysConfig::result_t::ok;
+                result = System::result_t::ok;
         }
         break;
 
         case IO::LEDs::setting_t::fadeSpeed:
         {
             if (leds.setFadeSpeed(newValue))
-                result = SysConfig::result_t::ok;
+                result = System::result_t::ok;
         }
         break;
 
@@ -497,8 +487,8 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
         }
 
         //write to db if success is true and writing should take place
-        if ((result == SysConfig::result_t::ok) && writeToDb)
-            result = database.update(dbSection(section), index, newValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
+        if ((result == System::result_t::ok) && writeToDb)
+            result = database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
     }
     break;
 
@@ -510,9 +500,9 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
         leds.setColor(leds.rgbSingleComponentIndex(leds.rgbIndex(index), IO::LEDs::rgbIndex_t::b), IO::LEDs::color_t::off);
 
         //write rgb enabled bit to led
-        result = database.update(dbSection(section), leds.rgbIndex(index), newValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
+        result = database.update(dbSection(section), leds.rgbIndex(index), newValue) ? System::result_t::ok : System::result_t::error;
 
-        if (newValue && (result == SysConfig::result_t::ok))
+        if (newValue && (result == System::result_t::ok))
         {
             //copy over note activation local control and midi channel settings to all three leds from the current led index
 
@@ -521,28 +511,28 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
                 result = database.update(dbSection(Section::leds_t::activationID),
                                          leds.rgbSingleComponentIndex(leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
                                          database.read(dbSection(Section::leds_t::activationID), index))
-                             ? SysConfig::result_t::ok
-                             : SysConfig::result_t::error;
+                             ? System::result_t::ok
+                             : System::result_t::error;
 
-                if (result != SysConfig::result_t::ok)
+                if (result != System::result_t::ok)
                     break;
 
                 result = database.update(dbSection(Section::leds_t::controlType),
                                          leds.rgbSingleComponentIndex(leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
                                          database.read(dbSection(Section::leds_t::controlType), index))
-                             ? SysConfig::result_t::ok
-                             : SysConfig::result_t::error;
+                             ? System::result_t::ok
+                             : System::result_t::error;
 
-                if (result != SysConfig::result_t::ok)
+                if (result != System::result_t::ok)
                     break;
 
                 result = database.update(dbSection(Section::leds_t::midiChannel),
                                          leds.rgbSingleComponentIndex(leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
                                          database.read(dbSection(Section::leds_t::midiChannel), index))
-                             ? SysConfig::result_t::ok
-                             : SysConfig::result_t::error;
+                             ? System::result_t::ok
+                             : System::result_t::error;
 
-                if (result != SysConfig::result_t::ok)
+                if (result != System::result_t::ok)
                     break;
             }
         }
@@ -566,35 +556,35 @@ SysConfig::result_t SysConfig::onSetLEDs(Section::leds_t section, size_t index, 
                 result = database.update(dbSection(section),
                                          leds.rgbSingleComponentIndex(leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
                                          newValue)
-                             ? SysConfig::result_t::ok
-                             : SysConfig::result_t::error;
+                             ? System::result_t::ok
+                             : System::result_t::error;
 
-                if (result != SysConfig::result_t::ok)
+                if (result != System::result_t::ok)
                     break;
             }
         }
         else
         {
             //apply to single led only
-            result = database.update(dbSection(section), index, newValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
+            result = database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
         }
     }
     break;
 
     default:
     {
-        result = database.update(dbSection(section), index, newValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
+        result = database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
     }
     break;
     }
 
     return result;
 #else
-    return SysConfig::result_t::notSupported;
+    return System::result_t::notSupported;
 #endif
 }
 
-SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t newValue)
+System::result_t System::onSetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t newValue)
 {
 #ifdef DISPLAY_SUPPORTED
     auto initAction = initAction_t::asIs;
@@ -676,7 +666,7 @@ SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t i
         break;
     }
 
-    auto result = database.update(dbSection(section), index, newValue) ? SysConfig::result_t::ok : SysConfig::result_t::error;
+    auto result = database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
 
     if (initAction == initAction_t::init)
         display.init(false);
@@ -685,11 +675,11 @@ SysConfig::result_t SysConfig::onSetDisplay(Section::display_t section, size_t i
 
     return result;
 #else
-    return SysConfig::result_t::notSupported;
+    return System::result_t::notSupported;
 #endif
 }
 
-SysConfig::result_t SysConfig::onSetTouchscreen(Section::touchscreen_t section, size_t index, SysExConf::sysExParameter_t newValue)
+System::result_t System::onSetTouchscreen(Section::touchscreen_t section, size_t index, SysExConf::sysExParameter_t newValue)
 {
 #ifdef TOUCHSCREEN_SUPPORTED
     auto initAction = initAction_t::asIs;
@@ -735,13 +725,13 @@ SysConfig::result_t SysConfig::onSetTouchscreen(Section::touchscreen_t section, 
         else if (initAction == initAction_t::deInit)
             touchscreen.deInit();
 
-        return SysConfig::result_t::ok;
+        return System::result_t::ok;
     }
     else
     {
-        return SysConfig::result_t::error;
+        return System::result_t::error;
     }
 #else
-    return SysConfig::result_t::notSupported;
+    return System::result_t::notSupported;
 #endif
 }

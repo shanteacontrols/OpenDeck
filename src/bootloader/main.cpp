@@ -19,7 +19,7 @@ limitations under the License.
 #include "board/Board.h"
 #include "updater/Updater.h"
 #include "SysExParser/SysExParser.h"
-#include "midi/src/Helpers.h"
+#include "midi/src/MIDI.h"
 
 class BTLDRWriter : public Bootloader::Updater::BTLDRWriter
 {
@@ -66,7 +66,7 @@ namespace
     //single byte of data only so that it fits into single USB MIDI packet and also
     //to avoid having complex sysex sending mechanism in bootloader
     const MIDI::USBMIDIpacket_t usbMIDIpacketEcho = {
-        .Event = GET_USB_MIDI_EVENT(0, static_cast<uint8_t>(MIDI::usbMIDIsystemCin_t::sysExStop3byteCin)),    //event indicating sysex with single byte of data
+        .Event = MIDI::USBMIDIEvent(0, static_cast<uint8_t>(MIDI::usbMIDIsystemCin_t::sysExStop3byteCin)),    //event indicating sysex with single byte of data
         .Data1 = 0xF0,
         .Data2 = 0x55,
         .Data3 = 0xF7

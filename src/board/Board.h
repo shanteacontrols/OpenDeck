@@ -18,6 +18,7 @@ limitations under the License.
 
 #pragma once
 
+#include <stddef.h>
 #include <inttypes.h>
 #include "midi/src/MIDI.h"
 

@@ -22,7 +22,7 @@ limitations under the License.
 #include "io/leds/LEDs.h"
 #include "io/display/Display.h"
 #include "io/touchscreen/Touchscreen.h"
-#include "OpenDeck/sysconfig/SysConfig.h"
+#include "system/System.h"
 #include "io/display/Config.h"
 
 #define MAX_PRESETS 10
@@ -53,7 +53,7 @@ namespace
 
         //presets
         {
-            .numberOfParameters     = static_cast<uint8_t>(SysConfig::presetSetting_t::AMOUNT),
+            .numberOfParameters     = static_cast<uint8_t>(System::presetSetting_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -65,7 +65,7 @@ namespace
     LESSDB::section_t globalSections[static_cast<uint8_t>(Database::Section::global_t::AMOUNT)] = {
         //midi feature section
         {
-            .numberOfParameters     = static_cast<uint8_t>(SysConfig::midiFeature_t::AMOUNT),
+            .numberOfParameters     = static_cast<uint8_t>(System::midiFeature_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -75,7 +75,7 @@ namespace
 
         //midi merge section
         {
-            .numberOfParameters     = static_cast<uint8_t>(SysConfig::midiMerge_t::AMOUNT),
+            .numberOfParameters     = static_cast<uint8_t>(System::midiMerge_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,

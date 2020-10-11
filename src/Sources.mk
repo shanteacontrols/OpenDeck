@@ -138,7 +138,7 @@ ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
         else
             SOURCES += $(shell $(FIND) ./application -maxdepth 1 -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ./application/database -type f -name "*.cpp")
-            SOURCES += $(shell $(FIND) ./application/OpenDeck -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./application/system -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ./application/io/common -maxdepth 1 -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ../modules/sysex/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
             SOURCES += $(shell $(FIND) ../modules/midi/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")

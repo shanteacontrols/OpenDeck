@@ -163,11 +163,11 @@ class Database : public LESSDB
     bool    init();
     bool    factoryReset();
     uint8_t getSupportedPresets();
-    bool    isSignatureValid();
     bool    setPreset(uint8_t preset);
     uint8_t getPreset();
     bool    setPresetPreserveState(bool state);
     bool    getPresetPreserveState();
+    bool    isInitialized();
 
     void customInitGlobal();
     void customInitButtons();
@@ -213,6 +213,7 @@ class Database : public LESSDB
         return block_t::touchscreen;
     }
 
+    bool     isSignatureValid();
     uint16_t getDbUID();
     bool     setDbUID(uint16_t uid);
     bool     setPresetInternal(uint8_t preset);
@@ -242,4 +243,6 @@ class Database : public LESSDB
     /// \brief Holds currently active preset.
     ///
     uint8_t activePreset = 0;
+
+    bool initialized = false;
 };
