@@ -184,9 +184,11 @@ namespace Board
                 {
                     if (rxBuffer[channel].insert(data))
                     {
+#ifndef USB_LINK_MCU
 #ifdef FW_APP
 #ifdef LED_INDICATORS
                         Board::detail::io::indicateMIDItraffic(MIDI::interface_t::din, Board::detail::midiTrafficDirection_t::incoming);
+#endif
 #endif
 #endif
                     }
@@ -211,9 +213,11 @@ namespace Board
             {
                 if (txBuffer[channel].remove(data))
                 {
+#ifndef USB_LINK_MCU
 #ifdef FW_APP
 #ifdef LED_INDICATORS
                     Board::detail::io::indicateMIDItraffic(MIDI::interface_t::din, Board::detail::midiTrafficDirection_t::outgoing);
+#endif
 #endif
 #endif
                     return true;
