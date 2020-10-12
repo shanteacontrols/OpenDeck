@@ -18,4 +18,12 @@
     "git.detectSubmodules": false,
     "extensions.ignoreRecommendations": true,
     "explorer.compactFolders": false,
+
+    "emeraldwalk.runonsave": {
+        "commands": [
+            {
+                "cmd": "cd src && make format && cd ../tests && make format"
+            }
+        ]
+    }
 }
