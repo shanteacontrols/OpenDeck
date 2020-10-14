@@ -161,6 +161,13 @@ void Touchscreen::setIconState(size_t index, bool state)
     icon.width  = database.read(Database::Section::touchscreen_t::width, index);
     icon.height = database.read(Database::Section::touchscreen_t::height, index);
 
+    //ignore width/height zero - set either intentionally to avoid display or incorrectly
+    if (!icon.width)
+        return;
+
+    if (!icon.height)
+        return;
+
     MODEL->setIconState(icon, state);
 }
 
