@@ -75,9 +75,8 @@
             "preLaunchTask": "[BTLDR/STM32FDiscovery/Debug] Build"
         },
         {
-            "runToMain": true,
             "type": "cortex-debug",
-            "request": "launch",
+            "request": "attach",
             "servertype": "bmp",
             "cwd": "${workspaceRoot}",
             "executable": "./src/build/application/cardamom/debug/cardamom.elf",
