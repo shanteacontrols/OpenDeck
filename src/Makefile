@@ -62,7 +62,8 @@ COMMON_FLAGS := \
 -fdata-sections \
 -ffunction-sections \
 -fmessage-length=0 \
--fno-strict-aliasing
+-fno-strict-aliasing \
+-fshort-enums
 
 #c++ compiler only
 CPP_FLAGS := \
@@ -106,7 +107,6 @@ ifeq ($(ARCH),avr)
     -mmcu=$(MCU) \
     -funsigned-char \
     -funsigned-bitfields \
-    -fshort-enums \
     -fno-jump-tables \
     -flto
 
