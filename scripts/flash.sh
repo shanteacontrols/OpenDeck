@@ -8,12 +8,6 @@ then
     exit 1
 fi
 
-if [[ "$(command -v make)" == "" ]]
-then
-    echo "ERROR: make not installed"
-    exit 1
-fi
-
 if [[ "$(command -v avrdude)" == "" ]]
 then
     echo "ERROR: avrdude not installed"
@@ -37,8 +31,6 @@ then
     port_list=$($find /dev/serial/by-id/ -type l -ls | grep -Eo '\btty\w+')
 fi
 
-make="make --no-print-directory -C src"
-
 if [[ "$port_list" == "" ]]
 then
     echo "ERROR: No ports found. Please connect ArduinoISP before running the script."
@@ -60,24 +52,14 @@ read -r board_nr
 echo "Please wait..."
 
 filename=$(echo "$boards" | head -n "$board_nr" | tail -n 1)
-make_target=$(echo "$filename" | cut -d . -f1)
+mcu=$($find bin/compiled -type f -name "*$filename" -path "*merged/avr*" | cut -d/ -f5)
 path=$($find bin/compiled/merged -type f -name "$filename")
 
-unlock_fuse=$($make TARGETNAME="$make_target" print-FUSE_UNLOCK)
-result=$?
-
-#specified target might not exist - verify
-if [[ ($result -ne 0) ]]
-then
-    exit 1
-fi
-
-lock_fuse=$($make TARGETNAME="$make_target" print-FUSE_LOCK)
-low_fuse=$($make TARGETNAME="$make_target" print-FUSE_LOW)
-high_fuse=$($make TARGETNAME="$make_target" print-FUSE_HIGH)
-ext_fuse=$($make TARGETNAME="$make_target" print-FUSE_EXT)
-
-mcu=$($make TARGETNAME="$make_target" print-MCU)
+unlock_fuse=$(command < src/board/avr/variants/avr8/"$mcu"/fuses.txt grep ^unlock= | cut -d= -f2)
+lock_fuse=$(command < src/board/avr/variants/avr8/"$mcu"/fuses.txt grep ^lock= | cut -d= -f2)
+ext_fuse=$(command < src/board/avr/variants/avr8/"$mcu"/fuses.txt grep ^ext= | cut -d= -f2)
+low_fuse=$(command < src/board/avr/variants/avr8/"$mcu"/fuses.txt grep ^low= | cut -d= -f2)
+high_fuse=$(command < src/board/avr/variants/avr8/"$mcu"/fuses.txt grep ^high= | cut -d= -f2)
 
 echo "Connect programmer to programming header on the board and then press enter."
 read -rn1
