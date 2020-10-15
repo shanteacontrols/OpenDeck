@@ -209,7 +209,7 @@ namespace Board
                 }
             }
 
-            bool getNextByteToSend(uint8_t channel, uint8_t& data)
+            bool getNextByteToSend(uint8_t channel, uint8_t& data, size_t& remainingBytes)
             {
                 if (txBuffer[channel].remove(data))
                 {
@@ -220,10 +220,13 @@ namespace Board
 #endif
 #endif
 #endif
+                    remainingBytes = txBuffer[channel].count();
+
                     return true;
                 }
                 else
                 {
+                    remainingBytes = 0;
                     Board::detail::UART::ll::disableDataEmptyInt(channel);
                     return false;
                 }

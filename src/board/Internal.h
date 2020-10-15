@@ -142,10 +142,12 @@ namespace Board
 
             ///
             /// \brief Retrieves the next byte from the outgoing ring buffer.
-            /// @param [in] channel UART channel on MCU.
-            /// @param [in] data    Data to send.
+            /// @param [in] channel             UART channel on MCU.
+            /// @param [in,out] data            Reference to variable in which next byte to send is stored.
+            /// @param [in,out] remainingBytes  Reference to variable in which total number of bytes remanining in buffer is stored.
+            /// \returns True if byte has been successfully retrieved, false otherwise (buffer is empty).
             ///
-            bool getNextByteToSend(uint8_t channel, uint8_t& data);
+            bool getNextByteToSend(uint8_t channel, uint8_t& data, size_t& remainingBytes);
 
             ///
             /// \brief Used to indicate that the transmission is complete.

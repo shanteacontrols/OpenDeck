@@ -80,10 +80,7 @@ namespace Board
                     if (HAL_UART_Init(&uartHandler[channel]) != HAL_OK)
                         return false;
 
-                    //enable transmission done interrupt
-                    __HAL_UART_ENABLE_IT(&uartHandler[channel], UART_IT_TC);
-
-                    //enable data not empty interrupt
+                    //enable rx interrupt
                     __HAL_UART_ENABLE_IT(&uartHandler[channel], UART_IT_RXNE);
 
                     return true;
@@ -91,6 +88,7 @@ namespace Board
 
                 void directWrite(uint8_t channel, uint8_t data)
                 {
+                    __HAL_UART_ENABLE_IT(&uartHandler[channel], UART_IT_TC);
                     uartHandler[channel].Instance->DR = data;
                 }
             }    // namespace ll
@@ -100,39 +98,40 @@ namespace Board
         {
             void uart(uint8_t channel)
             {
-                uint32_t isrflags     = READ_REG(uartHandler[channel].Instance->SR);
-                uint8_t  data         = uartHandler[channel].Instance->DR;
-                uint32_t cr1its       = READ_REG(uartHandler[channel].Instance->CR1);
-                uint32_t errorflags   = (isrflags & (uint32_t)(USART_SR_PE | USART_SR_FE | USART_SR_ORE | USART_SR_NE));
-                bool     verifyTxDone = true;
+                uint32_t isrflags = uartHandler[channel].Instance->SR;
+                uint32_t cr1its   = uartHandler[channel].Instance->CR1;
+                uint8_t  data     = uartHandler[channel].Instance->DR;
 
-                if (errorflags == RESET)
+                bool receiving = (((isrflags & USART_SR_RXNE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET)) ||
+                                 (((isrflags & USART_SR_ORE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET));
+
+                bool txComplete = ((isrflags & USART_SR_TC) != RESET) && ((cr1its & USART_CR1_TCIE) != RESET);
+                bool txEmpty    = ((isrflags & USART_SR_TXE) != RESET) && ((cr1its & USART_CR1_TXEIE) != RESET);
+
+                if (receiving)
                 {
-                    //transmitting
-                    if (((isrflags & USART_SR_TXE) != RESET) && ((cr1its & USART_CR1_TXEIE) != RESET))
-                    {
-                        if (Board::detail::UART::getNextByteToSend(channel, data))
-                        {
-                            uartHandler[channel].Instance->DR = data;
+                    Board::detail::UART::storeIncomingData(channel, data);
+                }
+                else if (txEmpty || txComplete)
+                {
+                    size_t remainingBytes;
 
-                            //more data to send - don't verify tx done interrupt yet
-                            verifyTxDone = false;
+                    if (Board::detail::UART::getNextByteToSend(channel, data, remainingBytes))
+                    {
+                        if (!remainingBytes)
+                        {
+                            __HAL_UART_ENABLE_IT(&uartHandler[channel], UART_IT_TC);
+                            __HAL_UART_DISABLE_IT(&uartHandler[channel], UART_IT_TXE);
                         }
+
+                        uartHandler[channel].Instance->DR = data;
                     }
                     else
                     {
-                        //receiving
-                        if (((isrflags & USART_SR_RXNE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET))
-                            Board::detail::UART::storeIncomingData(channel, data);
-                    }
-
-                    if (verifyTxDone)
-                    {
-                        //verify if transmission done interrupt has occured
-                        if (__HAL_UART_GET_IT_SOURCE(&uartHandler[channel], UART_IT_TC) != RESET)
+                        if (txComplete)
                         {
+                            __HAL_UART_DISABLE_IT(&uartHandler[channel], UART_IT_TC);
                             Board::detail::UART::indicateTxComplete(channel);
-                            __HAL_UART_CLEAR_FLAG(&uartHandler[channel], UART_IT_TC);
                         }
                     }
                 }

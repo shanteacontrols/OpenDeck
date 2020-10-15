@@ -233,8 +233,9 @@ ISR(USART_RX_vect_1)
 ISR(USART_UDRE_vect_0)
 {
     uint8_t data;
+    size_t  dummy;
 
-    if (Board::detail::UART::getNextByteToSend(0, data))
+    if (Board::detail::UART::getNextByteToSend(0, data, dummy))
         UDR_0 = data;
 }
 
@@ -242,8 +243,9 @@ ISR(USART_UDRE_vect_0)
 ISR(USART_UDRE_vect_1)
 {
     uint8_t data;
+    size_t  dummy;
 
-    if (Board::detail::UART::getNextByteToSend(1, data))
+    if (Board::detail::UART::getNextByteToSend(1, data, dummy))
         UDR_1 = data;
 }
 #endif
