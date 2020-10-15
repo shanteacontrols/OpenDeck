@@ -66,7 +66,12 @@ do
         printf "    %s\n\n" "update(Database::Section::touchscreen_t::offScreen, $i, $offScreen);"
     } >> "$OUT_FILE"
 
-    convert "$IN_DIR_IMAGES"/"$onScreen".bmp -crop "$width"x"$height"+"$xPos"+"$yPos" "$OUT_DIR_ICONS"/"$i".ico
+    if [[ $width -ne 0 && $height -ne 0 ]]
+    then
+        convert "$IN_DIR_IMAGES"/"$onScreen".bmp -crop "$width"x"$height"+"$xPos"+"$yPos" "$OUT_DIR_ICONS"/"$i".ico
+    else
+        convert "$IN_DIR_IMAGES"/"$onScreen".bmp -crop 1x1+0+0 "$OUT_DIR_ICONS"/"$i".ico
+    fi
 done
 
 for ((i=0; i<total_screenButtons; i++))
