@@ -7,7 +7,7 @@ SYSEX_MANUFACTURER_ID_1 := 0x53
 SYSEX_MANUFACTURER_ID_2 := 0x43
 FW_METADATA_SIZE        := 4
 
-DEFINES := \
+DEFINES += \
 UART_BAUDRATE_MIDI_STD=31250 \
 UART_BAUDRATE_MIDI_OD=38400 \
 FIXED_NUM_CONFIGURATIONS=1 \
@@ -94,11 +94,13 @@ ifeq ($(ARCH),avr)
         NO_DEVICE_SELF_POWER
     endif
 
-    FUSE_UNLOCK := $(shell cat board/avr/variants/$(MCU_FAMILY)/$(MCU)/fuses.txt | grep ^unlock= | cut -d= -f2)
-    FUSE_EXT := $(shell cat board/avr/variants/$(MCU_FAMILY)/$(MCU)/fuses.txt | grep ^ext= | cut -d= -f2)
-    FUSE_HIGH := $(shell cat board/avr/variants/$(MCU_FAMILY)/$(MCU)/fuses.txt | grep ^high= | cut -d= -f2)
-    FUSE_LOW := $(shell cat board/avr/variants/$(MCU_FAMILY)/$(MCU)/fuses.txt | grep ^low= | cut -d= -f2)
-    FUSE_LOCK := $(shell cat board/avr/variants/$(MCU_FAMILY)/$(MCU)/fuses.txt | grep ^lock= | cut -d= -f2)
+    ifeq (,$(findstring TEST,$(DEFINES)))
+        FUSE_UNLOCK := $(shell cat board/avr/variants/$(MCU_FAMILY)/$(MCU)/fuses.txt | grep ^unlock= | cut -d= -f2)
+        FUSE_EXT := $(shell cat board/avr/variants/$(MCU_FAMILY)/$(MCU)/fuses.txt | grep ^ext= | cut -d= -f2)
+        FUSE_HIGH := $(shell cat board/avr/variants/$(MCU_FAMILY)/$(MCU)/fuses.txt | grep ^high= | cut -d= -f2)
+        FUSE_LOW := $(shell cat board/avr/variants/$(MCU_FAMILY)/$(MCU)/fuses.txt | grep ^low= | cut -d= -f2)
+        FUSE_LOCK := $(shell cat board/avr/variants/$(MCU_FAMILY)/$(MCU)/fuses.txt | grep ^lock= | cut -d= -f2)
+    endif
 else ifeq ($(ARCH),stm32)
     DEFINES += \
     __STM32__ \

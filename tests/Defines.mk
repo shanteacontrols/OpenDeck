@@ -1,3 +1,5 @@
+DEFINES += TEST
+
 include ../src/Defines.mk
 
 #db size is determined in run time in application firmware, for
