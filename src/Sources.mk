@@ -68,9 +68,12 @@ ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
         INCLUDE_DIRS += \
         -isystem"$(TOOLCHAIN_DIR)/arm-none-eabi/include" \
         -isystem"$(TOOLCHAIN_DIR)/arm-none-eabi/include/c++/$(CPP_VER)" \
-        -isystem"$(TOOLCHAIN_DIR)/arm-none-eabi/include/c++/$(CPP_VER)/arm-none-eabi"
+        -isystem"$(TOOLCHAIN_DIR)/arm-none-eabi/include/c++/$(CPP_VER)/arm-none-eabi" \
+        -isystem"$(TOOLCHAIN_DIR)arm-none-eabi/include/c++/$(CPP_VER)/backward" \
+        -isystem"$(TOOLCHAIN_DIR)/lib/gcc/arm-none-eabi/$(CPP_VER)/include" \
+        -isystem"$(TOOLCHAIN_DIR)/lib/gcc/arm-none-eabi/$(CPP_VER)/include-fixed"
     endif
-    
+
     #common for both bootloader and application
     SOURCES += $(shell $(FIND) ./board/common -maxdepth 1 -type f -name "*.cpp")
     SOURCES += $(shell $(FIND) ./board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU) -maxdepth 1 -type f -regex '.*\.\(s\|c\|cpp\)')

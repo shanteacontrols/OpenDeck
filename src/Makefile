@@ -93,8 +93,8 @@ ifeq ($(ARCH),avr)
     SIZE_TOOL := avr-size -C --mcu=$(MCU)
     LDFLAGS += -Wl,--section-start=.text=$(FLASH_START_ADDR)
 
-    C_COMPILER := $(C_COMPILER_AVR)
-    CPP_COMPILER := $(CPP_COMPILER_AVR)
+    CC := $(C_COMPILER_AVR)
+    CXX := $(CPP_COMPILER_AVR)
     LINKER := $(LINKER_AVR)
     FLASH_BIN := $(FLASH_BIN_AVR)
     OPT := -Os
@@ -117,8 +117,8 @@ ifeq ($(ARCH),avr)
 else ifeq ($(ARCH),stm32)
     TOOL_PREFIX := arm-none-eabi-
     SIZE_TOOL := arm-none-eabi-size
-    C_COMPILER := $(C_COMPILER_ARM)
-    CPP_COMPILER := $(CPP_COMPILER_ARM)
+    CC := $(C_COMPILER_ARM)
+    CXX := $(CPP_COMPILER_ARM)
     LINKER := $(LINKER_ARM)
     ASSEMBLER := $(C_COMPILER_ARM)
     FLASH_BIN := $(FLASH_BIN_ARM)
@@ -127,7 +127,8 @@ else ifeq ($(ARCH),stm32)
     COMMON_FLAGS += \
     -mcpu=$(CPU) \
     -mthumb \
-    -mno-unaligned-access
+    -mno-unaligned-access \
+    -target arm-none-eabi
 
     LDFLAGS += \
     -mcpu=$(CPU) \
@@ -153,8 +154,8 @@ else ifeq ($(ARCH),stm32)
         LDFLAGS += -mfloat-abi=$(FLOAT-ABI)
     endif
 else
-    C_COMPILER := $(C_COMPILER_x86)
-    CPP_COMPILER := $(CPP_COMPILER_x86)
+    CC := $(C_COMPILER_x86)
+    CXX := $(CPP_COMPILER_x86)
     LINKER := $(LINKER_x86)
     LDFLAGS :=
     SIZE_TOOL := size
@@ -243,12 +244,12 @@ flashgen: $(TARGET).elf
 $(BUILD_DIR)/%.c.o: %.c
 	@mkdir -p $(@D)
 	@echo Building: $<
-	@$(C_COMPILER) $(COMMON_FLAGS) $(C_FLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	@$(CC) $(COMMON_FLAGS) $(C_FLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
 $(BUILD_DIR)/%.cpp.o: %.cpp
 	@mkdir -p $(@D)
 	@echo Building: $<
-	@$(CPP_COMPILER) $(COMMON_FLAGS) $(CPP_FLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
+	@$(CXX) $(COMMON_FLAGS) $(CPP_FLAGS) $(addprefix -D,$(DEFINES)) $(OPT) $(INCLUDE_FILES) $(INCLUDE_DIRS) -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -c "$<" -o "$@"
 
 $(BUILD_DIR)/%.s.o: %.s
 	@mkdir -p $(@D)
