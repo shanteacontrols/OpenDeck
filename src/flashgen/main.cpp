@@ -23,7 +23,30 @@ namespace
 
             if (file.is_open())
             {
-                file.write(reinterpret_cast<char*>(&_flashVector[0]), _flashVector.size() * sizeof(uint8_t));
+                size_t size = 0;
+
+                //get actual size of vector by finding first entry with content 0xFFFFFFFF
+                for (; size < _flashVector.size(); size += 4)
+                {
+                    uint32_t data;
+
+                    if (!read32(size, data))
+                    {
+                        while(1)
+                        {
+                            //should never happen
+                        }
+                    }
+
+                    if (data == 0xFFFFFFFF)
+                    {
+                        //last entry found
+                        size += 4;
+                        break;
+                    }
+                }
+
+                file.write(reinterpret_cast<char*>(&_flashVector[0]), (size + 4) * sizeof(uint8_t));
                 file.close();
             }
 
