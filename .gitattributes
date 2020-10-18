@@ -20,5 +20,6 @@
 *.jpg   binary
 *.png   binary
 *.bmp filter=lfs diff=lfs merge=lfs -text
+*.HMI filter=lfs diff=lfs merge=lfs -text
 *.pdf   binary
 *.cdr   binary
