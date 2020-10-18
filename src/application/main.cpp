@@ -315,7 +315,7 @@ class HWAtouchscreen : public IO::Touchscreen::Model::HWA
 
     bool init() override
     {
-        return Board::UART::init(UART_CHANNEL_TOUCHSCREEN, 115200);
+        return Board::UART::init(UART_CHANNEL_TOUCHSCREEN, 19200);
     }
 
     bool deInit() override
