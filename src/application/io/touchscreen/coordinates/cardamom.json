@@ -299,6 +299,126 @@
                 "on": 2,
                 "off": 1
             }
+        },
+        {
+            "xpos": 25,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 130,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 235,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 340,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 130,
+            "ypos": 147,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 235,
+            "ypos": 147,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 604,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 709,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 814,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 919,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 709,
+            "ypos": 147,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 814,
+            "ypos": 147,
+            "width": 80,
+            "height": 80,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
         }
     ],
     "screenButtons": [
