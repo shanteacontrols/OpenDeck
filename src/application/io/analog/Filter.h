@@ -166,6 +166,7 @@ namespace IO
                 _stableSampleCount[index] = 0;
                 _lastDirection[index]     = direction;
                 _lastStableValue[index]   = filteredValue;
+                _sampleCounter[index]     = 0;
                 _lastMovementTime[index]  = core::timing::currentRunTimeMs();
             };
 
@@ -189,6 +190,10 @@ namespace IO
             {
                 filteredValue = midiValue;
             }
+
+            //when edge values are reached, disable fast filter by resetting last movement time
+            if ((midiValue == 0) || (midiValue == maxLimit))
+                _lastMovementTime[index] = 0;
 
             return true;
         }
