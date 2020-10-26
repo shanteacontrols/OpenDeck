@@ -17,6 +17,7 @@ limitations under the License.
 */
 
 #include "Viewtech.h"
+#include "core/src/general/Timing.h"
 
 #define LOW_BYTE(value)  ((value) & (0xFF))
 #define HIGH_BYTE(value) (((value) >> 8) & 0xFF)
@@ -24,6 +25,11 @@ limitations under the License.
 bool Viewtech::init()
 {
     IO::Touchscreen::Model::Common::rxBuffer.reset();
+
+    //this display has slight delay before it becomes ready on power on
+    //add some delay before initializing the communication with it
+    core::timing::waitMs(200);
+
     return hwa.init();
 }
 
