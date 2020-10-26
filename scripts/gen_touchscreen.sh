@@ -54,14 +54,23 @@ do
     yPos=$(jq '.indicators | .['${i}'] | .ypos' "$JSON_FILE")
     width=$(jq '.indicators | .['${i}'] | .width' "$JSON_FILE")
     height=$(jq '.indicators | .['${i}'] | .height' "$JSON_FILE")
+
     onScreen=$(jq '.indicators | .['${i}'] | .screen | .on' "$JSON_FILE")
     offScreen=$(jq '.indicators | .['${i}'] | .screen | .off' "$JSON_FILE")
 
+    address=$(jq '.indicators | .['${i}'] | .address' "$JSON_FILE")
+
     {
-        printf "    %s\n" "update(Database::Section::touchscreen_t::xPos, $i, $xPos);"
-        printf "    %s\n" "update(Database::Section::touchscreen_t::yPos, $i, $yPos);"
-        printf "    %s\n" "update(Database::Section::touchscreen_t::width, $i, $width);"
-        printf "    %s\n" "update(Database::Section::touchscreen_t::height, $i, $height);"
+        if [[ $address != "null" ]]
+        then
+            printf "    %s\n" "update(Database::Section::touchscreen_t::xPos, $i, $address);"
+        else
+            printf "    %s\n" "update(Database::Section::touchscreen_t::xPos, $i, $xPos);"
+            printf "    %s\n" "update(Database::Section::touchscreen_t::yPos, $i, $yPos);"
+            printf "    %s\n" "update(Database::Section::touchscreen_t::width, $i, $width);"
+            printf "    %s\n" "update(Database::Section::touchscreen_t::height, $i, $height);"
+        fi
+
         printf "    %s\n" "update(Database::Section::touchscreen_t::onScreen, $i, $onScreen);"
         printf "    %s\n\n" "update(Database::Section::touchscreen_t::offScreen, $i, $offScreen);"
     } >> "$OUT_FILE"
