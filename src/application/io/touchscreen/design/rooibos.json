@@ -1,0 +1,476 @@
+{
+    "indicators": [
+        {
+            "xpos": 0,
+            "ypos": 0,
+            "width": 0,
+            "height": 0,
+            "address": 0,
+            "screen": {
+                "on": 0,
+                "off": 0
+            }
+        },
+        {
+            "xpos": 0,
+            "ypos": 0,
+            "width": 0,
+            "height": 0,
+            "address": 0,
+            "screen": {
+                "on": 0,
+                "off": 0
+            }
+        },
+        {
+            "xpos": 32,
+            "ypos": 50,
+            "width": 80,
+            "height": 80,
+            "address": 41219,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 32,
+            "ypos": 155,
+            "width": 80,
+            "height": 80,
+            "address": 41220,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 32,
+            "ypos": 260,
+            "width": 80,
+            "height": 80,
+            "address": 41221,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 163,
+            "ypos": 50,
+            "width": 80,
+            "height": 80,
+            "address": 41222,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 328,
+            "ypos": 50,
+            "width": 80,
+            "height": 80,
+            "address": 41223,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 432,
+            "ypos": 50,
+            "width": 160,
+            "height": 80,
+            "address": 41224,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 616,
+            "ypos": 50,
+            "width": 80,
+            "height": 80,
+            "address": 41225,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 781,
+            "ypos": 50,
+            "width": 80,
+            "height": 80,
+            "address": 41226,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 912,
+            "ypos": 50,
+            "width": 80,
+            "height": 80,
+            "address": 41227,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 912,
+            "ypos": 155,
+            "width": 80,
+            "height": 80,
+            "address": 41228,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 912,
+            "ypos": 260,
+            "width": 80,
+            "height": 80,
+            "address": 41229,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 162,
+            "ypos": 207,
+            "width": 80,
+            "height": 186,
+            "address": 41230,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 267,
+            "ypos": 207,
+            "width": 80,
+            "height": 80,
+            "address": 41231,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 371,
+            "ypos": 207,
+            "width": 80,
+            "height": 80,
+            "address": 41232,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 267,
+            "ypos": 313,
+            "width": 80,
+            "height": 80,
+            "address": 41233,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 371,
+            "ypos": 313,
+            "width": 80,
+            "height": 80,
+            "address": 41234,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 472,
+            "ypos": 260,
+            "width": 80,
+            "height": 80,
+            "address": 41235,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 573,
+            "ypos": 207,
+            "width": 80,
+            "height": 80,
+            "address": 41236,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 677,
+            "ypos": 207,
+            "width": 80,
+            "height": 80,
+            "address": 41237,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 573,
+            "ypos": 313,
+            "width": 80,
+            "height": 80,
+            "address": 41238,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 677,
+            "ypos": 313,
+            "width": 80,
+            "height": 80,
+            "address": 41239,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 782,
+            "ypos": 207,
+            "width": 80,
+            "height": 186,
+            "address": 41240,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 15,
+            "ypos": 471,
+            "width": 80,
+            "height": 80,
+            "address": 41241,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 119,
+            "ypos": 471,
+            "width": 80,
+            "height": 80,
+            "address": 41242,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 249,
+            "ypos": 471,
+            "width": 80,
+            "height": 80,
+            "address": 41243,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 695,
+            "ypos": 471,
+            "width": 80,
+            "height": 80,
+            "address": 41244,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 825,
+            "ypos": 471,
+            "width": 80,
+            "height": 80,
+            "address": 41245,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 929,
+            "ypos": 471,
+            "width": 80,
+            "height": 80,
+            "address": 41246,
+            "screen": {
+                "on": 2,
+                "off": 1
+            }
+        },
+        {
+            "xpos": 25,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "address": 41247,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 130,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "address": 41248,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 235,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "address": 41249,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 340,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "address": 41250,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 130,
+            "ypos": 147,
+            "width": 80,
+            "height": 80,
+            "address": 41251,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 235,
+            "ypos": 147,
+            "width": 80,
+            "height": 80,
+            "address": 41252,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 604,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "address": 41253,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 709,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "address": 41254,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 814,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "address": 41255,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 919,
+            "ypos": 42,
+            "width": 80,
+            "height": 80,
+            "address": 41256,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 709,
+            "ypos": 147,
+            "width": 80,
+            "height": 80,
+            "address": 41257,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        },
+        {
+            "xpos": 814,
+            "ypos": 147,
+            "width": 80,
+            "height": 80,
+            "address": 41258,
+            "screen": {
+                "on": 4,
+                "off": 3
+            }
+        }
+    ],
+    "screenButtons": [
+        {
+            "indexTS": 0,
+            "screen": 1
+        },
+        {
+            "indexTS": 1,
+            "screen": 3
+        }
+    ]
+}
