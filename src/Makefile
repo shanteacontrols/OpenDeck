@@ -222,7 +222,7 @@ board/gen/$(TARGETNAME)/Pins.cpp: ../targets/$(TARGETNAME).yml
 	@echo Generating pins...
 	@../scripts/gen_pins.sh $<
 
-application/io/touchscreen/coordinates/$(TARGETNAME).cpp: application/io/touchscreen/coordinates/$(TARGETNAME).json
+application/io/touchscreen/design/$(TARGETNAME).cpp: application/io/touchscreen/design/$(TARGETNAME).json
 	@echo Generating touchscreen coordinate file...
 	@../scripts/gen_touchscreen.sh $<
 

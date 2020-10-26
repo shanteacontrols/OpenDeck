@@ -19,7 +19,7 @@ fi
 
 OUT_FILE=${JSON_FILE/.json/.cpp}
 IN_DIR_IMAGES=$(dirname "$OUT_FILE")
-IN_DIR_IMAGES=${IN_DIR_IMAGES/coordinates/images}/$(basename "$JSON_FILE" .json)
+IN_DIR_IMAGES=${IN_DIR_IMAGES/design/images}/$(basename "$JSON_FILE" .json)
 OUT_DIR_ICONS=$IN_DIR_IMAGES/icons
 
 mkdir -p "$OUT_DIR_ICONS"
