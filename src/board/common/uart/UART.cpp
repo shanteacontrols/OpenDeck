@@ -145,18 +145,6 @@ namespace Board
             if (channel >= MAX_UART_INTERFACES)
                 return false;
 
-            //if:
-            // *outgoing buffer is empty
-            // * UART data register is empty
-            // txDone is marked as true
-            //write the byte to the data register directly
-            if (txDone[channel] && txBuffer[channel].isEmpty())
-            {
-                txDone[channel] = false;
-                Board::detail::UART::ll::directWrite(channel, data);
-                return true;
-            }
-
             while (!txBuffer[channel].insert(data))
                 ;
 

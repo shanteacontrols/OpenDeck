@@ -124,13 +124,6 @@ namespace Board
                 /// @param [in] channel UART channel on MCU.
                 ///
                 bool deInit(uint8_t channel);
-
-                ///
-                /// \brief Performs direct writing of data to outgoing UART register.
-                /// @param [in] channel UART channel on MCU.
-                /// @param [in] data    Data to write.
-                ///
-                void directWrite(uint8_t channel, uint8_t data);
             }    // namespace ll
 
             ///

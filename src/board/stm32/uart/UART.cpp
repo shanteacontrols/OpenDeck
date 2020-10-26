@@ -85,12 +85,6 @@ namespace Board
 
                     return true;
                 }
-
-                void directWrite(uint8_t channel, uint8_t data)
-                {
-                    __HAL_UART_ENABLE_IT(&uartHandler[channel], UART_IT_TC);
-                    uartHandler[channel].Instance->DR = data;
-                }
             }    // namespace ll
         }        // namespace UART
 

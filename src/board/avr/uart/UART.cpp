@@ -176,31 +176,6 @@ namespace Board
 
                     return true;
                 }
-
-                void directWrite(uint8_t channel, uint8_t data)
-                {
-                    switch (channel)
-                    {
-                    case 0:
-                        ATOMIC_SECTION
-                        {
-                            UDR_0 = data;
-                        }
-                        break;
-
-#ifdef UDR_1
-                    case 1:
-                        ATOMIC_SECTION
-                        {
-                            UDR_1 = data;
-                        }
-                        break;
-#endif
-
-                    default:
-                        break;
-                    }
-                }
             }    // namespace ll
         }        // namespace UART
     }            // namespace detail
