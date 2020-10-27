@@ -153,6 +153,9 @@ void Touchscreen::setIconState(size_t index, bool state)
     icon.onScreen  = database.read(Database::Section::touchscreen_t::onScreen, index);
     icon.offScreen = database.read(Database::Section::touchscreen_t::offScreen, index);
 
+    if (icon.onScreen == icon.offScreen)
+        return;    //invalid screen indexes
+
     if ((activeScreenID != icon.onScreen) && (activeScreenID != icon.offScreen))
         return;    //don't allow setting icon on wrong screen
 
