@@ -310,14 +310,14 @@ namespace
         {
             .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
             .newValueMin        = 0,
-            .newValueMax        = 1024,
+            .newValueMax        = 0,
         },
 
         //y position section
         {
             .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
             .newValueMin        = 0,
-            .newValueMax        = 600,
+            .newValueMax        = 0,
         },
 
         //width section

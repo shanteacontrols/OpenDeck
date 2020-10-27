@@ -128,9 +128,9 @@ void Viewtech::setIconState(IO::Touchscreen::icon_t& icon, bool state)
     //write variable
     hwa.write(0x82);
 
-    //icon address - for viewtech displays, higher address byte is stored in xPos and lower in yPos
-    hwa.write(icon.xPos);
-    hwa.write(icon.yPos);
+    //icon address - for viewtech displays, address is stored in xPos element
+    hwa.write(HIGH_BYTE(icon.xPos));
+    hwa.write(LOW_BYTE(icon.xPos));
 
     //value to set - 2 bytes are used, higher is always 0
     //inverted logic for setting state - 0 means on state, 1 is off
