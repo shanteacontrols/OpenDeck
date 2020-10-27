@@ -107,6 +107,13 @@ bool Nextion::update(size_t& buttonID, bool& state)
 
 void Nextion::setIconState(IO::Touchscreen::icon_t& icon, bool state)
 {
+    //ignore width/height zero - set either intentionally to avoid display or incorrectly
+    if (!icon.width)
+        return;
+
+    if (!icon.height)
+        return;
+
     writeCommand("picq %u,%u,%u,%u,%u", icon.xPos, icon.yPos, icon.width, icon.height, state ? icon.onScreen : icon.offScreen);
 }
 
