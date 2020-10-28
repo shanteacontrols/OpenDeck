@@ -27,7 +27,7 @@ limitations under the License.
 
 namespace IO
 {
-    class Encoders : public Common
+    class Encoders
     {
         public:
         enum class type_t : uint8_t

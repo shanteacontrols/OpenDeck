@@ -27,7 +27,7 @@ limitations under the License.
 
 namespace IO
 {
-    class Buttons : public Common
+    class Buttons
     {
         public:
         enum class type_t : uint8_t
@@ -70,7 +70,20 @@ namespace IO
             virtual bool state(size_t index) = 0;
         };
 
-        Buttons(HWA& hwa, Database& database, MIDI& midi, IO::LEDs& leds, Display& display, ComponentInfo& cInfo)
+        class Filter
+        {
+            public:
+            virtual bool isFiltered(size_t index, bool value, bool& filteredValue) = 0;
+            virtual void reset(size_t index)                                       = 0;
+        };
+
+        Buttons(HWA&           hwa,
+                Filter&        filter,
+                Database&      database,
+                MIDI&          midi,
+                IO::LEDs&      leds,
+                Display&       display,
+                ComponentInfo& cInfo)
         {}
 
         void update()
