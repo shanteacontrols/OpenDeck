@@ -78,10 +78,7 @@ void Analog::debounceReset(uint16_t index)
     filter.reset(index);
 }
 
-///
-/// \param fptr [in]    Pointer to function.
-///
-void Analog::setButtonHandler(void (*fptr)(uint8_t adcIndex, bool state))
+void Analog::setButtonHandler(buttonHandler_t handler)
 {
-    buttonHandler = fptr;
+    buttonHandler = handler;
 }

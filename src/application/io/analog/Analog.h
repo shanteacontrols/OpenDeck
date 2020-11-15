@@ -79,6 +79,8 @@ namespace IO
             virtual void reset(size_t index)                                                                    = 0;
         };
 
+        using buttonHandler_t = void (*)(uint8_t adcIndex, bool state);
+
         Analog(HWA&           hwa,
                Filter&        filter,
                Database&      database,
@@ -101,7 +103,7 @@ namespace IO
 
         void update();
         void debounceReset(uint16_t index);
-        void setButtonHandler(void (*fptr)(uint8_t adcIndex, bool state));
+        void setButtonHandler(buttonHandler_t handler);
 
         private:
         void checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32_t value);
@@ -117,9 +119,9 @@ namespace IO
         Display&       display;
         ComponentInfo& cInfo;
 
-        void (*buttonHandler)(uint8_t adcIndex, bool state) = nullptr;
-        uint8_t  fsrPressed[MAX_NUMBER_OF_ANALOG]           = {};
-        uint16_t lastValue[MAX_NUMBER_OF_ANALOG]            = {};
+        buttonHandler_t buttonHandler                    = nullptr;
+        uint8_t         fsrPressed[MAX_NUMBER_OF_ANALOG] = {};
+        uint16_t        lastValue[MAX_NUMBER_OF_ANALOG]  = {};
     };
 
     /// @}
