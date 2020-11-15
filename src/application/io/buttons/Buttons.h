@@ -114,7 +114,15 @@ namespace IO
         void reset(uint8_t buttonID);
 
         private:
-        void sendMessage(uint8_t buttonID, bool state, messageType_t buttonMessage = messageType_t::AMOUNT);
+        typedef struct
+        {
+            messageType_t messageType;
+            uint8_t       note;
+            uint8_t       channel;
+            uint8_t       velocity;
+        } buttonMessageDescriptor_t;
+
+        void sendMessage(uint8_t buttonID, bool state, buttonMessageDescriptor_t& descriptor);
         void setButtonState(uint8_t buttonID, uint8_t state);
         void setLatchingState(uint8_t buttonID, uint8_t state);
         bool getLatchingState(uint8_t buttonID);
