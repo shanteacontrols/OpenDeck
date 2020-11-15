@@ -19,47 +19,74 @@ limitations under the License.
 #pragma once
 
 #include "io/buttons/Buttons.h"
+#include "core/src/general//Helpers.h"
 
 namespace IO
 {
     class ButtonsFilter : public IO::Buttons::Filter
     {
         public:
-        ButtonsFilter() = default;
+        ButtonsFilter()
+        {
+            for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
+                buttonDebounceCounter[i] = buttonDebounceCompare;
+        }
 
         bool isFiltered(size_t index, bool state, bool& filteredState) override
         {
-            // Shift old value to the left, append new value and
-            // append DEBOUNCE_COMPARE with OR command. If final value is equal to 0xFF or
-            // DEBOUNCE_COMPARE, signal is debounced.
-            buttonDebounceCounter[index] = (buttonDebounceCounter[index] << (uint8_t)1) | (uint8_t)state | buttonDebounceCompare;
-
-            if ((buttonDebounceCounter[index] == buttonDebounceCompare) || (buttonDebounceCounter[index] == 0xFF))
+            if (index >= MAX_NUMBER_OF_BUTTONS)
             {
-                filteredState = buttonDebounceCounter[index] == 0xFF;
+                //don't debounce analog inputs and touchscreen buttons
+                filteredState = state;
                 return true;
             }
 
-            return false;
+            auto debounceRelease = [&]() {
+                buttonDebounceCounter[index] = (buttonDebounceCounter[index] << (uint16_t)1) | (uint16_t)state | buttonDebounceCompare;
+
+                return (buttonDebounceCounter[index] == buttonDebounceCompare);
+            };
+
+            if (state)
+            {
+                //debounce only release
+                buttonDebounceCounter[index] = 0xFFFF;
+                filteredState                = true;
+            }
+            else
+            {
+                if (debounceRelease())
+                {
+                    filteredState = false;
+                }
+                else
+                {
+                    filteredState = true;
+                }
+            }
+
+            return true;
         }
 
         void reset(size_t index) override
         {
-            buttonDebounceCounter[index] = 0;
+            buttonDebounceCounter[index] = buttonDebounceCompare;
         }
 
         private:
         ///
         /// \brief Constant used to debounce button readings.
         /// Once new value has been read, shift old value to the left, append new value and
-        /// append buttonDebounceCompare with OR operator. If final value is equal to 0xFF or
-        /// buttonDebounceCompare, button state is debounced.
+        /// append buttonDebounceCompare with OR operator. If final value is equal to this
+        /// constant button release is stable.
+        /// OpenDeck boards are refreshing button states every 500us.
+        /// Configure debouncer for 5ms debounce time on release only.
         ///
-        const uint8_t buttonDebounceCompare = 0b11110000;
+        const uint16_t buttonDebounceCompare = 0xFC00;
 
         ///
         /// \brief Array holding debounce count for all buttons to avoid incorrect state detection.
         ///
-        uint8_t buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS] = {};
+        uint16_t buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS] = {};
     };
 }    // namespace IO
