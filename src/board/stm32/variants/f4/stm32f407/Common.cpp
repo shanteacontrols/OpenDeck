@@ -36,7 +36,7 @@ namespace
     class UARTdescriptor1 : public Board::detail::map::STMPeripheral
     {
         public:
-        UARTdescriptor1() {}
+        UARTdescriptor1() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -90,7 +90,7 @@ namespace
     class UARTdescriptor2 : public Board::detail::map::STMPeripheral
     {
         public:
-        UARTdescriptor2() {}
+        UARTdescriptor2() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -144,7 +144,7 @@ namespace
     class UARTdescriptor3 : public Board::detail::map::STMPeripheral
     {
         public:
-        UARTdescriptor3() {}
+        UARTdescriptor3() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -198,7 +198,7 @@ namespace
     class UARTdescriptor4 : public Board::detail::map::STMPeripheral
     {
         public:
-        UARTdescriptor4() {}
+        UARTdescriptor4() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -252,7 +252,7 @@ namespace
     class UARTdescriptor5 : public Board::detail::map::STMPeripheral
     {
         public:
-        UARTdescriptor5() {}
+        UARTdescriptor5() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -306,7 +306,7 @@ namespace
     class UARTdescriptor6 : public Board::detail::map::STMPeripheral
     {
         public:
-        UARTdescriptor6() {}
+        UARTdescriptor6() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -360,7 +360,7 @@ namespace
     class I2Cdescriptor1 : public Board::detail::map::STMPeripheral
     {
         public:
-        I2Cdescriptor1() {}
+        I2Cdescriptor1() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -414,7 +414,7 @@ namespace
     class I2Cdescriptor2 : public Board::detail::map::STMPeripheral
     {
         public:
-        I2Cdescriptor2() {}
+        I2Cdescriptor2() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -468,7 +468,7 @@ namespace
     class I2Cdescriptor3 : public Board::detail::map::STMPeripheral
     {
         public:
-        I2Cdescriptor3() {}
+        I2Cdescriptor3() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
