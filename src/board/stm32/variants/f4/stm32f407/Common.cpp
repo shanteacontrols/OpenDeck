@@ -400,7 +400,7 @@ namespace
 
             {
                 .port      = GPIOB,
-                .index     = GPIO_PIN_9,
+                .index     = GPIO_PIN_7,
                 .mode      = core::io::pinMode_t::alternateOD,
                 .pull      = core::io::pullMode_t::up,
                 .speed     = core::io::gpioSpeed_t::veryHigh,

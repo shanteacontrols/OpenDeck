@@ -151,7 +151,7 @@
         index: 5
       -
         port: "B"
-        index: 7
+        index: 9
       -
         port: "B"
         index: 5
