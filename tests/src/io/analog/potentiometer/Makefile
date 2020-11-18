@@ -14,9 +14,7 @@ endif
 
 ifneq (,$(findstring ANALOG_SUPPORTED,$(DEFINES)))
     SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) += \
-    application/io/analog/Analog.cpp \
-    application/io/analog/Potentiometer.cpp \
-    application/io/analog/FSR.cpp
+    application/io/analog/Analog.cpp
 endif
 
 ifneq (,$(findstring DISPLAY_SUPPORTED,$(DEFINES)))

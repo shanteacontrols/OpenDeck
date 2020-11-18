@@ -106,10 +106,19 @@ namespace IO
         void setButtonHandler(buttonHandler_t handler);
 
         private:
-        void checkPotentiometerValue(type_t analogType, uint8_t analogID, uint32_t value);
-        void checkFSRvalue(uint8_t analogID, uint32_t value);
-        bool getFsrPressed(uint8_t fsrID);
-        void setFsrPressed(uint8_t fsrID, bool state);
+        typedef struct
+        {
+            type_t   type;
+            uint16_t lowerLimit;
+            uint16_t upperLimit;
+            uint16_t midiID;
+            uint8_t  channel;
+            bool     inverted;
+        } analogDescriptor_t;
+
+        bool checkPotentiometerValue(uint8_t analogID, analogDescriptor_t& descriptor, uint16_t& value);
+        bool checkFSRvalue(uint8_t analogID, analogDescriptor_t& descriptor, uint16_t& value);
+        void sendMessage(uint8_t analogID, analogDescriptor_t& descriptor, uint16_t value);
 
         HWA&           hwa;
         Filter&        filter;
