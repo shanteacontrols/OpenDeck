@@ -543,6 +543,7 @@ extern "C" void TIM7_IRQHandler(void)
 
 #ifdef FW_APP
 //not needed in bootloader
+#ifdef USE_UART
 extern "C" void USART1_IRQHandler(void)
 {
     Board::detail::isrHandling::uart(0);
@@ -572,6 +573,7 @@ extern "C" void USART6_IRQHandler(void)
 {
     Board::detail::isrHandling::uart(5);
 }
+#endif
 
 extern "C" void ADC_IRQHandler(void)
 {
