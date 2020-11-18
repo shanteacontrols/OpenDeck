@@ -110,7 +110,8 @@ else ifeq ($(ARCH),stm32)
     USE_USB_FS \
     DEVICE_FS=0 \
     DEVICE_HS=1 \
-    ADC_12_BIT
+    ADC_12_BIT \
+    HSE_VALUE=$(shell yq r ../targets/$(TARGETNAME).yml extClockMhz)000000
 endif
 
 FW_UID := $(shell ../scripts/fw_uid_gen.sh $(TARGETNAME))

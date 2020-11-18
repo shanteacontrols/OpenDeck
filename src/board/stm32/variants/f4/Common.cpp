@@ -19,6 +19,7 @@ limitations under the License.
 #include "stm32f4xx_hal.h"
 #include "board/Internal.h"
 #include "core/src/general/ADC.h"
+#include "ClockPLLs.h"
 
 namespace core
 {
@@ -48,6 +49,48 @@ namespace core
     }    // namespace adc
 }    // namespace core
 
+namespace Board
+{
+    namespace detail
+    {
+        namespace setup
+        {
+            void clocks()
+            {
+                RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
+                RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
+
+                /* Configure the main internal regulator output voltage */
+                __HAL_RCC_PWR_CLK_ENABLE();
+                __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE);
+
+                /* Initializes the CPU, AHB and APB busses clocks */
+                RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+                RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+                RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
+                RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
+                RCC_OscInitStruct.PLL.PLLM       = HSE_PLLM;
+                RCC_OscInitStruct.PLL.PLLN       = HSE_PLLN;
+                RCC_OscInitStruct.PLL.PLLP       = HSE_PLLP;
+                RCC_OscInitStruct.PLL.PLLQ       = HSE_PLLQ;
+
+                if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+                    Board::detail::errorHandler();
+
+                /* Initializes the CPU, AHB and APB busses clocks */
+                RCC_ClkInitStruct.ClockType      = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+                RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+                RCC_ClkInitStruct.AHBCLKDivider  = AHB_CLK_DIV;
+                RCC_ClkInitStruct.APB1CLKDivider = APB1_CLK_DIV;
+                RCC_ClkInitStruct.APB2CLKDivider = APB2_CLK_DIV;
+
+                if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+                    Board::detail::errorHandler();
+            }
+        }    // namespace setup
+    }        // namespace detail
+}    // namespace Board
+
 extern "C" void HAL_MspInit(void)
 {
     __HAL_RCC_SYSCFG_CLK_ENABLE();
@@ -66,14 +109,6 @@ extern "C" void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     {
         __HAL_RCC_ADC1_CLK_ENABLE();
     }
-    else if (hadc->Instance == ADC2)
-    {
-        __HAL_RCC_ADC2_CLK_ENABLE();
-    }
-    else if (hadc->Instance == ADC3)
-    {
-        __HAL_RCC_ADC3_CLK_ENABLE();
-    }
     else
     {
         return;
@@ -85,6 +120,7 @@ extern "C" void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
 
 extern "C" void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
 {
+#ifdef TIM2
     if (htim_base->Instance == TIM2)
     {
         __HAL_RCC_TIM2_CLK_ENABLE();
@@ -92,62 +128,79 @@ extern "C" void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
         HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0);
         HAL_NVIC_EnableIRQ(TIM2_IRQn);
     }
-    else if (htim_base->Instance == TIM3)
+#endif
+#ifdef TIM3
+    if (htim_base->Instance == TIM3)
     {
         __HAL_RCC_TIM3_CLK_ENABLE();
 
         HAL_NVIC_SetPriority(TIM3_IRQn, 0, 0);
         HAL_NVIC_EnableIRQ(TIM3_IRQn);
     }
-    else if (htim_base->Instance == TIM4)
+#endif
+#ifdef TIM4
+    if (htim_base->Instance == TIM4)
     {
         __HAL_RCC_TIM4_CLK_ENABLE();
 
         HAL_NVIC_SetPriority(TIM4_IRQn, 0, 0);
         HAL_NVIC_EnableIRQ(TIM4_IRQn);
     }
-    else if (htim_base->Instance == TIM5)
+#endif
+#ifdef TIM5
+    if (htim_base->Instance == TIM5)
     {
         __HAL_RCC_TIM5_CLK_ENABLE();
 
         HAL_NVIC_SetPriority(TIM5_IRQn, 0, 0);
         HAL_NVIC_EnableIRQ(TIM5_IRQn);
     }
-    else if (htim_base->Instance == TIM6)
+#endif
+#ifdef TIM6
+    if (htim_base->Instance == TIM6)
     {
         __HAL_RCC_TIM6_CLK_ENABLE();
 
         HAL_NVIC_SetPriority(TIM6_DAC_IRQn, 0, 0);
         HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);
     }
-    else if (htim_base->Instance == TIM7)
+#endif
+#ifdef TIM7
+    if (htim_base->Instance == TIM7)
     {
         __HAL_RCC_TIM7_CLK_ENABLE();
 
         HAL_NVIC_SetPriority(TIM7_IRQn, 0, 0);
         HAL_NVIC_EnableIRQ(TIM7_IRQn);
     }
-    else if (htim_base->Instance == TIM12)
+#endif
+#ifdef TIM12
+    if (htim_base->Instance == TIM12)
     {
         __HAL_RCC_TIM12_CLK_ENABLE();
 
         HAL_NVIC_SetPriority(TIM8_BRK_TIM12_IRQn, 0, 0);
         HAL_NVIC_EnableIRQ(TIM8_BRK_TIM12_IRQn);
     }
-    else if (htim_base->Instance == TIM13)
+#endif
+#ifdef TIM12
+    if (htim_base->Instance == TIM13)
     {
         __HAL_RCC_TIM13_CLK_ENABLE();
 
         HAL_NVIC_SetPriority(TIM8_UP_TIM13_IRQn, 0, 0);
         HAL_NVIC_EnableIRQ(TIM8_UP_TIM13_IRQn);
     }
-    else if (htim_base->Instance == TIM14)
+#endif
+#ifdef TIM14
+    if (htim_base->Instance == TIM14)
     {
         __HAL_RCC_TIM14_CLK_ENABLE();
 
         HAL_NVIC_SetPriority(TIM8_TRG_COM_TIM14_IRQn, 0, 0);
         HAL_NVIC_EnableIRQ(TIM8_TRG_COM_TIM14_IRQn);
     }
+#endif
 }
 
 extern "C" void HAL_UART_MspInit(UART_HandleTypeDef* huart)
