@@ -487,12 +487,12 @@ namespace
 
         void enableClock() override
         {
-            __HAL_RCC_I2C1_CLK_ENABLE();
+            __HAL_RCC_I2C3_CLK_ENABLE();
         }
 
         void disableClock() override
         {
-            __HAL_RCC_I2C1_CLK_DISABLE();
+            __HAL_RCC_I2C3_CLK_DISABLE();
         }
 
         private:
