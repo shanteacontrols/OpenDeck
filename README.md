@@ -28,6 +28,7 @@ OpenDeck firmware is compatible with official OpenDeck board, as well as various
 * Arduino Mega2560
 * Teensy++ 2.0
 * STM32F4 Discovery
+* STM32F401 Black Pill
 
 Support for custom boards can be easily added using [YAML descriptors](https://github.com/paradajz/OpenDeck/wiki/Creating-custom-board-variant).
 
