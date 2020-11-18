@@ -1,7 +1,7 @@
 ---
   arch: "stm32"
   mcuFamily: "f4"
-  mcu: "stm32f405"
+  mcu: "stm32f405rg"
   extClockMhz: 16
   usb: true
   dinMIDI:

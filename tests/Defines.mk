@@ -10,9 +10,9 @@ else ifeq ($(MCU),atmega16u2)
     DATABASE_SIZE := 509
 else ifeq ($(MCU),atmega2560)
     DATABASE_SIZE := 4093
-else ifeq ($(MCU),stm32f405)
+else ifeq ($(MCU),stm32f405rg)
     DATABASE_SIZE := 131068
-else ifeq ($(MCU),stm32f407)
+else ifeq ($(MCU),stm32f407vg)
     DATABASE_SIZE := 131068
 endif
 
