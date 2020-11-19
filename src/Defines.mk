@@ -69,6 +69,14 @@ else ifeq ($(MCU), stm32f401ce)
     BOOT_START_ADDR := 0x8000000
     FW_METADATA_LOCATION := 0x8008190
     DEFINES += STM32F401xE
+else ifeq ($(MCU), stm32f411ce)
+    CPU := cortex-m4
+    FPU := fpv4-sp-d16
+    FLOAT-ABI := hard
+    APP_START_ADDR := 0x8008000
+    BOOT_START_ADDR := 0x8000000
+    FW_METADATA_LOCATION := 0x8008190
+    DEFINES += STM32F411xE
 else
     $(error MCU $(MCU) not supported)
 endif

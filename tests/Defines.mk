@@ -16,6 +16,8 @@ else ifeq ($(MCU),stm32f407vg)
     DATABASE_SIZE := 131068
 else ifeq ($(MCU),stm32f401ce)
     DATABASE_SIZE := 65536
+else ifeq ($(MCU),stm32f411ce)
+    DATABASE_SIZE := 65536
 endif
 
 ifeq ($(ARCH), stm32)
