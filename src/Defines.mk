@@ -339,6 +339,10 @@ ifneq ($(shell yq r ../targets/$(TARGETNAME).yml leds.external.indexing),)
     DEFINES += LED_INDEXING
 endif
 
+ifneq ($(shell yq r ../targets/$(TARGETNAME).yml unused-io),)
+    DEFINES += TOTAL_UNUSED_IO=$(shell yq r ../targets/$(TARGETNAME).yml unused-io --length)
+endif
+
 DEFINES += MAX_NUMBER_OF_BUTTONS=$(MAX_NUMBER_OF_BUTTONS)
 DEFINES += MAX_NUMBER_OF_ENCODERS=$(shell expr $(MAX_NUMBER_OF_BUTTONS) \/ 2)
 DEFINES += MAX_NUMBER_OF_ANALOG=$(MAX_NUMBER_OF_ANALOG)

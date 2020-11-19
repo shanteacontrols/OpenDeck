@@ -58,6 +58,18 @@ namespace Board
                 return ledIndexes[index];
 #endif
             }
+
+#ifdef TOTAL_UNUSED_IO
+            core::io::mcuPin_t unusedPin(uint8_t index)
+            {
+                return unusedPins[index];
+            }
+
+            bool unusedPinState(uint8_t index)
+            {
+                return unusedPinsStates[index];
+            }
+#endif
         }
     }
 }

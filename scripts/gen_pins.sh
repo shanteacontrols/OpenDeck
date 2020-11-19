@@ -13,6 +13,7 @@ declare -i digital_outputs
 declare -i digital_outputs_indexed
 declare -i analog_inputs
 declare -i analog_inputs_indexed
+declare -i unused_pins
 
 digital_inputs=$(yq r "$PIN_FILE" buttons.pins --length)
 digital_inputs_indexed=$(yq r "$PIN_FILE" buttons.indexing --length)
@@ -23,6 +24,7 @@ digital_out_type=$(yq r "$PIN_FILE" leds.external.type)
 analog_inputs=$(yq r "$PIN_FILE" analog.pins --length)
 analog_inputs_indexed=$(yq r "$PIN_FILE" analog.indexing --length)
 analog_in_type=$(yq r "$PIN_FILE" analog.type)
+unused_pins=$(yq r "$PIN_FILE" unused-io --length)
 
 {
     printf "%s\n\n" "#include \"core/src/general/IO.h\""
@@ -414,6 +416,42 @@ then
         printf "%s\n" "#define LED_MIDI_OUT_USB_PORT CORE_IO_PORT(${port})"
         printf "%s\n" "#define LED_MIDI_OUT_USB_PIN CORE_IO_PORT_INDEX(${index})"
     } >> "$OUT_FILE_HEADER"
+fi
+
+if [[ $unused_pins -ne 0 ]]
+then
+    printf "\n%s\n" "const core::io::mcuPin_t unusedPins[TOTAL_UNUSED_IO] = {" >> "$OUT_FILE_SOURCE"
+
+    for ((i=0; i<unused_pins; i++))
+    do
+        port=$(yq r "$PIN_FILE" unused-io["$i"].port)
+        index=$(yq r "$PIN_FILE" unused-io["$i"].index)
+
+        {
+            printf "%s\n" "#define UNUSED_PORT_${i} CORE_IO_PORT(${port})"
+            printf "%s\n" "#define UNUSED_PIN_${i} CORE_IO_PORT_INDEX(${index})"
+        } >> "$OUT_FILE_HEADER"
+
+        printf "%s\n" "CORE_IO_MCU_PIN_DEF(UNUSED_PORT_${i}, UNUSED_PIN_${i})," >> "$OUT_FILE_SOURCE"
+    done
+
+    printf "%s\n" "};" >> "$OUT_FILE_SOURCE"
+
+    printf "\n%s\n" "const bool unusedPinsStates[TOTAL_UNUSED_IO] = {" >> "$OUT_FILE_SOURCE"
+
+    for ((i=0; i<unused_pins; i++))
+    do
+        state=$(yq r "$PIN_FILE" unused-io["$i"].state)
+
+        if [[ $state == "high" ]]
+        then
+            printf "%s\n" "true," >> "$OUT_FILE_SOURCE"
+        else
+            printf "%s\n" "false," >> "$OUT_FILE_SOURCE"
+        fi
+    done
+
+    printf "%s\n" "};" >> "$OUT_FILE_SOURCE"
 fi
 
 printf "\n%s" "#include \"board/common/Map.cpp.include\"" >> "$OUT_FILE_SOURCE"

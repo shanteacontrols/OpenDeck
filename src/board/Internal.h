@@ -210,6 +210,18 @@ namespace Board
             ///
             uint8_t ledIndex(uint8_t index);
 
+#ifdef TOTAL_UNUSED_IO
+            ///
+            /// \brief Used to retrieve unused port and pin for a given index.
+            ///
+            core::io::mcuPin_t unusedPin(uint8_t index);
+
+            ///
+            /// \brief Used to retrieve state of unused port and pin for a given index.
+            ///
+            bool unusedPinState(uint8_t index);
+#endif
+
             ///
             /// \brief Used to retrieve all the registers needed to control PWM channel for an given index.
             ///

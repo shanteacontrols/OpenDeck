@@ -192,6 +192,15 @@ namespace Board
                 CORE_IO_CONFIG({ LED_BTLDR_PORT, LED_BTLDR_PIN, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
                 CORE_IO_SET_HIGH(LED_BTLDR_PORT, LED_BTLDR_PIN);
 #endif
+
+#ifdef TOTAL_UNUSED_IO
+                for (int i = 0; i < TOTAL_UNUSED_IO; i++)
+                {
+                    core::io::mcuPin_t pin = detail::map::unusedPin(i);
+                    CORE_IO_CONFIG({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::outputPP });
+                    CORE_IO_SET_STATE(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), detail::map::unusedPinState(i));
+                }
+#endif
             }
         }    // namespace setup
     }        // namespace detail
