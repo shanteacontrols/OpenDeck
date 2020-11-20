@@ -212,7 +212,7 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
                     setState = true;
                 break;
 
-            case controlType_t::midiInNoteForStateAndBlink:
+            case controlType_t::localNoteForStateAndBlink:
                 if ((messageType == MIDI::messageType_t::noteOn) || (messageType == MIDI::messageType_t::noteOff))
                 {
                     setState = true;
@@ -220,7 +220,7 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
                 }
                 break;
 
-            case controlType_t::midiInCCforStateAndBlink:
+            case controlType_t::localCCforStateAndBlink:
                 if (messageType == MIDI::messageType_t::controlChange)
                 {
                     setState = true;
