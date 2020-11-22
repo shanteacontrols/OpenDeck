@@ -129,7 +129,7 @@
         },
         {
             "label": "[Tests] Build",
-            "command": "cd ./tests && make pre-build && make TARGETNAME=${input:target} TESTS=${input:test} && cp $(../scripts/test_dir_get.sh ${input:target} ${input:test})/${input:test}.out build/test.out",
+            "command": "cd ./tests && make pre-build TARGETNAME=${input:target} && make TARGETNAME=${input:target} TESTS=${input:test} && cp $(../scripts/test_dir_get.sh ${input:target} ${input:test})/${input:test}.out build/test.out",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
