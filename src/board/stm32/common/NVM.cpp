@@ -33,9 +33,6 @@ namespace
 
         bool init() override
         {
-            uint32_t totalStorageSpace = Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPage1()).size / 4 - 1;
-            eepromMemory.resize(totalStorageSpace, 0xFFFF);
-
             return true;
         }
 
@@ -135,31 +132,24 @@ namespace Board
             {
             case parameterType_t::byte:
             case parameterType_t::word:
-                if (stm32EEPROM.eepromMemory[address] != 0xFFFF)
+            {
+                auto readStatus = emuEEPROM.read(address, tempData);
+
+                if (readStatus == EmuEEPROM::readStatus_t::ok)
                 {
-                    value = stm32EEPROM.eepromMemory[address];
+                    value = tempData;
+                }
+                else if (readStatus == EmuEEPROM::readStatus_t::noVar)
+                {
+                    //variable with this address doesn't exist yet - set value to 0
+                    value = 0;
                 }
                 else
                 {
-                    auto readStatus = emuEEPROM.read(address, tempData);
-
-                    if (readStatus == EmuEEPROM::readStatus_t::ok)
-                    {
-                        value                             = tempData;
-                        stm32EEPROM.eepromMemory[address] = tempData;
-                    }
-                    else if (readStatus == EmuEEPROM::readStatus_t::noVar)
-                    {
-                        //variable with this address doesn't exist yet - set value to 0
-                        value                             = 0;
-                        stm32EEPROM.eepromMemory[address] = tempData;
-                    }
-                    else
-                    {
-                        return false;
-                    }
+                    return false;
                 }
-                break;
+            }
+            break;
 
             default:
                 return false;
@@ -177,8 +167,7 @@ namespace Board
             {
             case parameterType_t::byte:
             case parameterType_t::word:
-                tempData                          = value;
-                stm32EEPROM.eepromMemory[address] = value;
+                tempData = value;
                 if (emuEEPROM.write(address, tempData) != EmuEEPROM::writeStatus_t::ok)
                     return false;
                 break;

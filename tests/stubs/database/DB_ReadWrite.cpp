@@ -78,31 +78,24 @@ bool DBstorageMock::read(uint32_t address, int32_t& value, LESSDB::sectionParame
     case LESSDB::sectionParameterType_t::byte:
     case LESSDB::sectionParameterType_t::halfByte:
     case LESSDB::sectionParameterType_t::word:
-        if (eepromMemory[address] != 0xFFFF)
+    {
+        auto readStatus = emuEEPROM.read(address, tempData);
+
+        if (readStatus == EmuEEPROM::readStatus_t::ok)
         {
-            value = eepromMemory[address];
+            value = tempData;
+        }
+        else if (readStatus == EmuEEPROM::readStatus_t::noVar)
+        {
+            //variable with this address doesn't exist yet - set value to 0
+            value = 0;
         }
         else
         {
-            auto readStatus = emuEEPROM.read(address, tempData);
-
-            if (readStatus == EmuEEPROM::readStatus_t::ok)
-            {
-                value                 = tempData;
-                eepromMemory[address] = tempData;
-            }
-            else if (readStatus == EmuEEPROM::readStatus_t::noVar)
-            {
-                //variable with this address doesn't exist yet - set value to 0
-                value                 = 0;
-                eepromMemory[address] = tempData;
-            }
-            else
-            {
-                return false;
-            }
+            return false;
         }
-        break;
+    }
+    break;
 
     default:
         return false;
@@ -148,8 +141,7 @@ bool DBstorageMock::write(uint32_t address, int32_t value, LESSDB::sectionParame
     case LESSDB::sectionParameterType_t::byte:
     case LESSDB::sectionParameterType_t::halfByte:
     case LESSDB::sectionParameterType_t::word:
-        tempData              = value;
-        eepromMemory[address] = value;
+        tempData = value;
         if (emuEEPROM.write(address, tempData) != EmuEEPROM::writeStatus_t::ok)
             return false;
         break;

@@ -14,9 +14,6 @@ class DBstorageMock : public LESSDB::StorageAccess
     {
 #ifdef STM32_EMU_EEPROM
         emuEEPROM.init();
-
-        for (size_t i = 0; i < (DATABASE_SIZE / 4) - 1; i++)
-            eepromMemory[i] = 0xFFFF;
 #endif
         return true;
     }
@@ -108,9 +105,6 @@ class DBstorageMock : public LESSDB::StorageAccess
 
     EmuEEPROMStorageAccess storageMock;
     EmuEEPROM              emuEEPROM = EmuEEPROM(storageMock, false);
-    //for caching - avoids constant lookups by EmuEEPROM
-    //this is also used in actual firmware
-    uint16_t eepromMemory[(DATABASE_SIZE / 4) - 1];
 #else
     uint8_t memoryArray[DATABASE_SIZE] = {};
 #endif
