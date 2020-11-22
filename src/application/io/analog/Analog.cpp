@@ -36,18 +36,18 @@ void Analog::update()
             continue;
 
         analogDescriptor_t descriptor;
-
-        descriptor.type       = static_cast<type_t>(database.read(Database::Section::analog_t::type, i));
-        descriptor.lowerLimit = database.read(Database::Section::analog_t::lowerLimit, i);
-        descriptor.upperLimit = database.read(Database::Section::analog_t::upperLimit, i);
-        descriptor.midiID     = database.read(Database::Section::analog_t::midiID, i);
-        descriptor.channel    = database.read(Database::Section::analog_t::midiChannel, i);
-        descriptor.inverted   = database.read(Database::Section::analog_t::invert, i);
+        descriptor.type = static_cast<type_t>(database.read(Database::Section::analog_t::type, i));
 
         if (!filter.isFiltered(i, descriptor.type, value, value))
             continue;
 
         bool send = false;
+
+        descriptor.lowerLimit = database.read(Database::Section::analog_t::lowerLimit, i);
+        descriptor.upperLimit = database.read(Database::Section::analog_t::upperLimit, i);
+        descriptor.midiID     = database.read(Database::Section::analog_t::midiID, i);
+        descriptor.channel    = database.read(Database::Section::analog_t::midiChannel, i);
+        descriptor.inverted   = database.read(Database::Section::analog_t::invert, i);
 
         if (descriptor.type != type_t::button)
         {

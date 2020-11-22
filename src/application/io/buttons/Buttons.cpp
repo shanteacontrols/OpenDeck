@@ -45,6 +45,12 @@ void Buttons::update()
 ///
 void Buttons::processButton(uint8_t buttonID, bool state)
 {
+    //act on change of state only
+    if (state == getButtonState(buttonID))
+        return;
+
+    setButtonState(buttonID, state);
+
     buttonMessageDescriptor_t descriptor;
 
     descriptor.messageType = static_cast<messageType_t>(database.read(Database::Section::button_t::midiMessage, buttonID));
@@ -53,12 +59,6 @@ void Buttons::processButton(uint8_t buttonID, bool state)
     descriptor.velocity    = database.read(Database::Section::button_t::velocity, buttonID);
 
     auto type = static_cast<type_t>(database.read(Database::Section::button_t::type, buttonID));
-
-    //act on change of state only
-    if (state == getButtonState(buttonID))
-        return;
-
-    setButtonState(buttonID, state);
 
     //don't process messageType_t::none type of message
     if (descriptor.messageType != messageType_t::none)
