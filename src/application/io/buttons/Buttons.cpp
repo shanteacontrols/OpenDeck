@@ -29,7 +29,7 @@ void Buttons::update()
 {
     for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
     {
-        bool state;
+        bool state = false;
 
         if (!filter.isFiltered(i, hwa.state(i), state))
             continue;
