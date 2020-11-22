@@ -181,7 +181,9 @@
                 "mega6mux",
                 "arrival",
                 "cardamom",
-                "opendeck2"
+                "opendeck2",
+                "blackpill401",
+                "blackpill411"
             ]
         },
         {
@@ -195,7 +197,8 @@
                 "encoders",
                 "odmidi",
                 "potentiometer",
-                "ringbuffer"
+                "ringbuffer",
+                "system"
             ]
         },
         {
