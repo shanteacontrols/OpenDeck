@@ -26,11 +26,11 @@ endif
 include Sources.mk
 -include Objects.mk
 
-C_COMPILER ?= clang
-CPP_COMPILER ?= clang++
-LLVM_PROFDATA ?= llvm-profdata
-LLVM_COV ?= llvm-cov
-CLANG_FORMAT ?= clang-format
+C_COMPILER := clang
+CPP_COMPILER := clang++
+LLVM_PROFDATA := llvm-profdata
+LLVM_COV := llvm-cov
+CLANG_FORMAT := clang-format
 
 TEST_BINARIES := $(addprefix -object ,$(shell $(FIND) $(BUILD_DIR_BASE) -name "*.out" 2>/dev/null))
 
