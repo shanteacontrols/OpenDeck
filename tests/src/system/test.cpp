@@ -118,10 +118,10 @@ namespace
             return true;
         }
 
-        std::vector<MIDI::USBMIDIpacket_t> usbPacketIn;
-        std::vector<MIDI::USBMIDIpacket_t> usbPacketOut;
-        std::vector<uint8_t>               dinPacketIn;
-        std::vector<uint8_t>               dinPacketOut;
+        std::vector<MIDI::USBMIDIpacket_t> usbPacketIn  = {};
+        std::vector<MIDI::USBMIDIpacket_t> usbPacketOut = {};
+        std::vector<uint8_t>               dinPacketIn  = {};
+        std::vector<uint8_t>               dinPacketOut = {};
     } hwaMIDI;
 
     class HWALEDs : public IO::LEDs::HWA
