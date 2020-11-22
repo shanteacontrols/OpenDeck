@@ -14,10 +14,12 @@ jobs:
        - name: Prepare env
          run: |
            sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+           sudo apt install clang-format-11
            sudo snap install yq
        - name: Format
          run: |
+           clang-format --version
            cd src
-           make format CF_FAIL_ON_DIFF=1 CLANG_FORMAT=clang-format-10
+           make format CF_FAIL_ON_DIFF=1 CLANG_FORMAT=clang-format-11
            cd ../tests
-           make format CF_FAIL_ON_DIFF=1 CLANG_FORMAT=clang-format-10
+           make format CF_FAIL_ON_DIFF=1 CLANG_FORMAT=clang-format-11
