@@ -776,6 +776,34 @@ TEST_CASE(LocalLEDcontrol)
     stateChangeRegister(false);
     TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
+    //regression test
+    //configure LED 0 in midiInNoteForStateAndBlink mode, activation value to 127, activation ID to 0
+    //press button 0 (momentary mode, midi notes)
+    //verify that the state of led hasn't been changed
+    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(LEDs::controlType_t::midiInNoteForStateAndBlink)) == true);
+    TEST_ASSERT(database.update(Database::Section::leds_t::activationValue, 0, 127) == true);
+    TEST_ASSERT(database.update(Database::Section::leds_t::activationID, 0, 0) == true);
+
+    for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
+    {
+        TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::momentary)) == true);
+        TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, i, static_cast<int32_t>(Buttons::messageType_t::note)) == true);
+        TEST_ASSERT(database.update(Database::Section::button_t::velocity, i, 127) == true);
+
+        buttons.reset(i);
+    }
+
+    TEST_ASSERT(leds.getColor(0) == LEDs::color_t::off);
+    stateChangeRegister(true);
+    TEST_ASSERT(leds.getColor(0) == LEDs::color_t::off);
+    stateChangeRegister(false);
+    TEST_ASSERT(leds.getColor(0) == LEDs::color_t::off);
+
+    //again with midiInCCForStateAndBlink
+    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(LEDs::controlType_t::midiInCCforStateAndBlink)) == true);
+    stateChangeRegister(true);
+    TEST_ASSERT(leds.getColor(0) == LEDs::color_t::off);
+    stateChangeRegister(false);
     TEST_ASSERT(leds.getColor(0) == LEDs::color_t::off);
 }
 #endif
