@@ -214,9 +214,9 @@ TEST_CASE(Note)
             for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
             {
                 uint8_t midiMessage = hwaMIDI.midiPacket.at(i).Event << 4;
-                TEST_ASSERT(midiMessage == (state ? static_cast<uint8_t>(MIDI::messageType_t::noteOn)
-                                                  : midi.getNoteOffMode() == MIDI::noteOffType_t::standardNoteOff ? static_cast<uint8_t>(MIDI::messageType_t::noteOff)
-                                                                                                                  : static_cast<uint8_t>(MIDI::messageType_t::noteOn)));
+                TEST_ASSERT(midiMessage == (state                                                           ? static_cast<uint8_t>(MIDI::messageType_t::noteOn)
+                                            : midi.getNoteOffMode() == MIDI::noteOffType_t::standardNoteOff ? static_cast<uint8_t>(MIDI::messageType_t::noteOff)
+                                                                                                            : static_cast<uint8_t>(MIDI::messageType_t::noteOn)));
 
                 TEST_ASSERT(hwaMIDI.midiPacket.at(i).Data3 == (state ? velocityValue : 0));
                 TEST_ASSERT(channel == midi.getChannelFromStatusByte(hwaMIDI.midiPacket.at(i).Data1));
