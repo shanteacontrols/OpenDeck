@@ -58,6 +58,9 @@ namespace Board
                 detail::setup::adc();
                 detail::setup::timers();
 
+                //add some delay and remove initial readout of digital inputs
+                core::timing::waitMs(10);
+                detail::io::flushInputReadings();
 #ifdef USB_MIDI_SUPPORTED
                 detail::setup::usb();
 #endif
@@ -77,6 +80,9 @@ namespace Board
                 CORE_IO_CONFIG({ SR_IN_DATA_PORT, SR_IN_DATA_PIN, core::io::pinMode_t::input, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
                 CORE_IO_CONFIG({ SR_IN_CLK_PORT, SR_IN_CLK_PIN, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
                 CORE_IO_CONFIG({ SR_IN_LATCH_PORT, SR_IN_LATCH_PIN, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+
+                CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
+                CORE_IO_SET_HIGH(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
 #else
 #ifdef NUMBER_OF_BUTTON_ROWS
                 for (int i = 0; i < NUMBER_OF_BUTTON_ROWS; i++)

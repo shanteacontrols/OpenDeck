@@ -50,7 +50,7 @@ limitations under the License.
 /// Once digital input array is full (all inputs are read), index within ring buffer
 /// is incremented (if there is space left).
 ///
-#define DIGITAL_IN_BUFFER_SIZE 5
+#define DIGITAL_IN_BUFFER_SIZE 10
 
 ///
 /// \brief Time in milliseconds during which MIDI event indicators on board are on when MIDI event happens.

@@ -230,6 +230,16 @@ namespace Board
                     dIn_count++;
                 }
             }
+
+            void flushInputReadings()
+            {
+                ATOMIC_SECTION
+                {
+                    dIn_head  = 0;
+                    dIn_tail  = 0;
+                    dIn_count = 0;
+                }
+            }
         }    // namespace io
     }        // namespace detail
 }    // namespace Board

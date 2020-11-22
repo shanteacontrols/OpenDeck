@@ -19,7 +19,8 @@ limitations under the License.
 #pragma once
 
 #include "io/buttons/Buttons.h"
-#include "core/src/general//Helpers.h"
+#include "core/src/general/Helpers.h"
+#include "core/src/general/Timing.h"
 
 namespace IO
 {
@@ -29,7 +30,7 @@ namespace IO
         ButtonsFilter()
         {
             for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
-                buttonDebounceCounter[i] = buttonDebounceCompare;
+                lastPressTime[i] = 1;
         }
 
         bool isFiltered(size_t index, bool state, bool& filteredState) override
@@ -41,28 +42,21 @@ namespace IO
                 return true;
             }
 
-            auto debounceRelease = [&]() {
-                buttonDebounceCounter[index] = (buttonDebounceCounter[index] << (uint16_t)1) | (uint16_t)state | buttonDebounceCompare;
-
-                return (buttonDebounceCounter[index] == buttonDebounceCompare);
-            };
-
             if (state)
             {
                 //debounce only release
-                buttonDebounceCounter[index] = 0xFFFF;
-                filteredState                = true;
+                filteredState        = true;
+                lastPressTime[index] = 0;
             }
             else
             {
-                if (debounceRelease())
-                {
+                if (!lastPressTime[index])
+                    lastPressTime[index] = core::timing::currentRunTimeMs();
+
+                if ((core::timing::currentRunTimeMs() - lastPressTime[index]) > debounceReleaseTime)
                     filteredState = false;
-                }
                 else
-                {
                     filteredState = true;
-                }
             }
 
             return true;
@@ -70,23 +64,11 @@ namespace IO
 
         void reset(size_t index) override
         {
-            buttonDebounceCounter[index] = buttonDebounceCompare;
+            lastPressTime[index] = 1;
         }
 
         private:
-        ///
-        /// \brief Constant used to debounce button readings.
-        /// Once new value has been read, shift old value to the left, append new value and
-        /// append buttonDebounceCompare with OR operator. If final value is equal to this
-        /// constant button release is stable.
-        /// OpenDeck boards are refreshing button states every 500us.
-        /// Configure debouncer for 5ms debounce time on release only.
-        ///
-        const uint16_t buttonDebounceCompare = 0xFC00;
-
-        ///
-        /// \brief Array holding debounce count for all buttons to avoid incorrect state detection.
-        ///
-        uint16_t buttonDebounceCounter[MAX_NUMBER_OF_BUTTONS] = {};
+        static constexpr uint32_t debounceReleaseTime                  = 5;
+        uint32_t                  lastPressTime[MAX_NUMBER_OF_BUTTONS] = {};
     };
 }    // namespace IO

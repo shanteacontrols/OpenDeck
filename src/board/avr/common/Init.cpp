@@ -27,6 +27,7 @@ limitations under the License.
 #include "core/src/arch/avr/Misc.h"
 #include "core/src/general/IO.h"
 #include "core/src/general/Interrupt.h"
+#include "core/src/general/Timing.h"
 #include "Pins.h"
 
 extern "C" void __cxa_pure_virtual()
@@ -72,6 +73,12 @@ namespace Board
                 detail::setup::timers();
 
                 ENABLE_INTERRUPTS();
+
+#ifndef USB_LINK_MCU
+                //add some delay and remove initial readout of digital inputs
+                core::timing::waitMs(10);
+                detail::io::flushInputReadings();
+#endif
             }
 
             void bootloader()
@@ -137,6 +144,9 @@ namespace Board
                 CORE_IO_CONFIG(SR_IN_DATA_PORT, SR_IN_DATA_PIN, core::io::pinMode_t::input);
                 CORE_IO_CONFIG(SR_IN_CLK_PORT, SR_IN_CLK_PIN, core::io::pinMode_t::output);
                 CORE_IO_CONFIG(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN, core::io::pinMode_t::output);
+
+                CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
+                CORE_IO_SET_HIGH(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
 #else
                 for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
                 {

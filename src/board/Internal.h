@@ -301,6 +301,11 @@ namespace Board
             void checkDigitalInputs();
 
             ///
+            /// \brief Removes all readings from digital inputs.
+            ///
+            void flushInputReadings();
+
+            ///
             /// \brief Checks if digital outputs need to be updated (state and PWM control).
             ///
             void checkDigitalOutputs();
