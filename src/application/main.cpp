@@ -315,7 +315,15 @@ class HWAtouchscreen : public IO::Touchscreen::Model::HWA
 
     bool init() override
     {
-        return Board::UART::init(UART_CHANNEL_TOUCHSCREEN, 19200);
+        if (Board::UART::init(UART_CHANNEL_TOUCHSCREEN, 19200))
+        {
+            //add slight delay before display becomes ready on power on
+            core::timing::waitMs(1000);
+
+            return true;
+        }
+
+        return false;
     }
 
     bool deInit() override

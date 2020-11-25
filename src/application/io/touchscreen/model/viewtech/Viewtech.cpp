@@ -25,11 +25,6 @@ limitations under the License.
 bool Viewtech::init()
 {
     IO::Touchscreen::Model::Common::rxBuffer.reset();
-
-    //this display has slight delay before it becomes ready on power on
-    //add some delay before initializing the communication with it
-    core::timing::waitMs(200);
-
     return hwa.init();
 }
 
