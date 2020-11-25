@@ -329,10 +329,7 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
                     if (data2 && static_cast<bool>(color))
                     {
                         //single message is being used to set both state and blink value
-                        //first reduce data2 to range 0-15
-                        //append 1 so that first value is blinking one
-                        //turn off blinking only on higher range
-                        blinkSpeed = 1 + (data2 - ((static_cast<uint8_t>(color) * 16)));
+                        blinkSpeed = data2 / static_cast<uint8_t>(blinkSpeed_t::AMOUNT);
 
                         //make sure data2 is in range
                         //when it's not turn off blinking
