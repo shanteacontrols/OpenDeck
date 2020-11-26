@@ -14,4 +14,5 @@ Documentation/*
 src/application/io/touchscreen/design/*.cpp
 src/application/io/touchscreen/**/*.ico
 **/.clangd/*
+**/clangd/*
 **/**/Backup*.cdr
