@@ -17,6 +17,7 @@ limitations under the License.
 */
 
 #include "System.h"
+#include "io/leds/LEDs.h"
 
 SysExConf::DataHandler::result_t System::SysExDataHandler::set(uint8_t                     block,
                                                                uint8_t                     section,
@@ -437,7 +438,7 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, SysExC
     case Section::leds_t::testColor:
     {
         //no writing to database
-        leds.setColor(index, static_cast<IO::LEDs::color_t>(newValue));
+        leds.setColor(index, static_cast<IO::LEDs::color_t>(newValue), IO::LEDs::brightness_t::b100);
         result    = System::result_t::ok;
         writeToDb = false;
     }
@@ -495,9 +496,9 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, SysExC
     case Section::leds_t::rgbEnable:
     {
         //make sure to turn all three leds off before setting new state
-        leds.setColor(leds.rgbSingleComponentIndex(leds.rgbIndex(index), IO::LEDs::rgbIndex_t::r), IO::LEDs::color_t::off);
-        leds.setColor(leds.rgbSingleComponentIndex(leds.rgbIndex(index), IO::LEDs::rgbIndex_t::g), IO::LEDs::color_t::off);
-        leds.setColor(leds.rgbSingleComponentIndex(leds.rgbIndex(index), IO::LEDs::rgbIndex_t::b), IO::LEDs::color_t::off);
+        leds.setColor(leds.rgbSingleComponentIndex(leds.rgbIndex(index), IO::LEDs::rgbIndex_t::r), IO::LEDs::color_t::off, IO::LEDs::brightness_t::bOff);
+        leds.setColor(leds.rgbSingleComponentIndex(leds.rgbIndex(index), IO::LEDs::rgbIndex_t::g), IO::LEDs::color_t::off, IO::LEDs::brightness_t::bOff);
+        leds.setColor(leds.rgbSingleComponentIndex(leds.rgbIndex(index), IO::LEDs::rgbIndex_t::b), IO::LEDs::color_t::off, IO::LEDs::brightness_t::bOff);
 
         //write rgb enabled bit to led
         result = database.update(dbSection(section), leds.rgbIndex(index), newValue) ? System::result_t::ok : System::result_t::error;

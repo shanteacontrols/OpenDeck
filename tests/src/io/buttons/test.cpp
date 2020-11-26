@@ -92,7 +92,7 @@ namespace
         public:
         HWALEDs() {}
 
-        void setState(size_t index, bool state) override
+        void setState(size_t index, IO::LEDs::brightness_t brightness) override
         {
         }
 
@@ -666,25 +666,25 @@ TEST_CASE(LocalLEDcontrol)
 
     //all leds should be off initially
     for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
-        TEST_ASSERT(leds.getColor(i) == LEDs::color_t::off);
+        TEST_ASSERT(leds.color(i) == LEDs::color_t::off);
 
     //simulate the press of all buttons
     //since led 0 is configured in local control mode, it should be on now
     stateChangeRegister(true);
     TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
-    TEST_ASSERT(leds.getColor(0) != LEDs::color_t::off);
+    TEST_ASSERT(leds.color(0) != LEDs::color_t::off);
 
     //all other leds should remain off
     for (int i = 1; i < MAX_NUMBER_OF_LEDS; i++)
-        TEST_ASSERT(leds.getColor(i) == LEDs::color_t::off);
+        TEST_ASSERT(leds.color(i) == LEDs::color_t::off);
 
     //now release the button and verify that the led is off again
     stateChangeRegister(false);
     TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
     for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
-        TEST_ASSERT(leds.getColor(i) == LEDs::color_t::off);
+        TEST_ASSERT(leds.color(i) == LEDs::color_t::off);
 
     //test again in latching mode
     for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
@@ -693,18 +693,18 @@ TEST_CASE(LocalLEDcontrol)
     stateChangeRegister(true);
     TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
-    TEST_ASSERT(leds.getColor(0) != LEDs::color_t::off);
+    TEST_ASSERT(leds.color(0) != LEDs::color_t::off);
 
     stateChangeRegister(false);
     TEST_ASSERT(hwaMIDI.midiPacket.size() == 0);
 
     //led should remain on
-    TEST_ASSERT(leds.getColor(0) != LEDs::color_t::off);
+    TEST_ASSERT(leds.color(0) != LEDs::color_t::off);
 
     stateChangeRegister(true);
     TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
-    TEST_ASSERT(leds.getColor(0) == LEDs::color_t::off);
+    TEST_ASSERT(leds.color(0) == LEDs::color_t::off);
 
     //test again in control change mode
     for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
@@ -722,7 +722,7 @@ TEST_CASE(LocalLEDcontrol)
     TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
     //led should be off since it's configure to react on note messages and not on control change
-    TEST_ASSERT(leds.getColor(0) == LEDs::color_t::off);
+    TEST_ASSERT(leds.color(0) == LEDs::color_t::off);
 
     TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(LEDs::controlType_t::localCCforStateNoBlink)) == true);
 
@@ -731,19 +731,19 @@ TEST_CASE(LocalLEDcontrol)
     TEST_ASSERT(hwaMIDI.midiPacket.size() == 0);
 
     //nothing should happen on release yet
-    TEST_ASSERT(leds.getColor(0) == LEDs::color_t::off);
+    TEST_ASSERT(leds.color(0) == LEDs::color_t::off);
 
     stateChangeRegister(true);
     TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
     //led should be on now
-    TEST_ASSERT(leds.getColor(0) != LEDs::color_t::off);
+    TEST_ASSERT(leds.color(0) != LEDs::color_t::off);
 
     stateChangeRegister(false);
     TEST_ASSERT(hwaMIDI.midiPacket.size() == 0);
 
     //no messages sent - led must remain on
-    TEST_ASSERT(leds.getColor(0) != LEDs::color_t::off);
+    TEST_ASSERT(leds.color(0) != LEDs::color_t::off);
 
     //change the control value for button 0 to something else
     TEST_ASSERT(database.update(Database::Section::button_t::velocity, 0, 126) == true);
@@ -752,7 +752,7 @@ TEST_CASE(LocalLEDcontrol)
     TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
     //led should be off now - it has received velocity 126 differing from activating one which is 127
-    TEST_ASSERT(leds.getColor(0) == LEDs::color_t::off);
+    TEST_ASSERT(leds.color(0) == LEDs::color_t::off);
 
     //try similar thing - cc with reset 0
     for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
@@ -771,7 +771,7 @@ TEST_CASE(LocalLEDcontrol)
     stateChangeRegister(true);
     TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
-    TEST_ASSERT(leds.getColor(0) != LEDs::color_t::off);
+    TEST_ASSERT(leds.color(0) != LEDs::color_t::off);
 
     stateChangeRegister(false);
     TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
@@ -793,18 +793,18 @@ TEST_CASE(LocalLEDcontrol)
         buttons.reset(i);
     }
 
-    TEST_ASSERT(leds.getColor(0) == LEDs::color_t::off);
+    TEST_ASSERT(leds.color(0) == LEDs::color_t::off);
     stateChangeRegister(true);
-    TEST_ASSERT(leds.getColor(0) == LEDs::color_t::off);
+    TEST_ASSERT(leds.color(0) == LEDs::color_t::off);
     stateChangeRegister(false);
-    TEST_ASSERT(leds.getColor(0) == LEDs::color_t::off);
+    TEST_ASSERT(leds.color(0) == LEDs::color_t::off);
 
     //again with midiInCCForStateAndBlink
     TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(LEDs::controlType_t::midiInCCforStateAndBlink)) == true);
     stateChangeRegister(true);
-    TEST_ASSERT(leds.getColor(0) == LEDs::color_t::off);
+    TEST_ASSERT(leds.color(0) == LEDs::color_t::off);
     stateChangeRegister(false);
-    TEST_ASSERT(leds.getColor(0) == LEDs::color_t::off);
+    TEST_ASSERT(leds.color(0) == LEDs::color_t::off);
 }
 #endif
 

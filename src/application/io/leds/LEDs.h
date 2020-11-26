@@ -82,17 +82,9 @@ namespace IO
         enum class blinkSpeed_t : uint8_t
         {
             noBlink,
-            s100ms,
-            s200ms,
-            s300ms,
-            s400ms,
+            s250ms,
             s500ms,
-            s600ms,
-            s700ms,
-            s800ms,
-            s900ms,
-            s1000ms,
-            AMOUNT
+            s1000ms
         };
 
         enum class blinkType_t : uint8_t
@@ -101,12 +93,21 @@ namespace IO
             midiClock
         };
 
+        enum class brightness_t : uint8_t
+        {
+            bOff,
+            b25,
+            b50,
+            b75,
+            b100
+        };
+
         class HWA
         {
             public:
             HWA() = default;
 
-            virtual void   setState(size_t index, bool state)                                      = 0;
+            virtual void   setState(size_t index, brightness_t brightness)                         = 0;
             virtual size_t rgbSingleComponentIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent) = 0;
             virtual size_t rgbIndex(size_t singleLEDindex)                                         = 0;
             virtual void   setFadeSpeed(size_t transitionSpeed)                                    = 0;
@@ -117,22 +118,21 @@ namespace IO
             , database(database)
         {}
 
-        void        init(bool startUp = true);
-        void        checkBlinking(bool forceChange = false);
-        void        setAllOn();
-        void        setAllOff();
-        void        refresh();
-        void        setColor(uint8_t ledID, color_t color);
-        color_t     getColor(uint8_t ledID);
-        void        setBlinkState(uint8_t ledID, blinkSpeed_t value);
-        bool        getBlinkState(uint8_t ledID);
-        size_t      rgbSingleComponentIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent);
-        size_t      rgbIndex(size_t singleLEDindex);
-        bool        setFadeSpeed(uint8_t transitionSpeed);
-        void        midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local);
-        void        setBlinkType(blinkType_t blinkType);
-        blinkType_t getBlinkType();
-        void        resetBlinking();
+        void    init(bool startUp = true);
+        void    checkBlinking(bool forceChange = false);
+        void    setAllOn();
+        void    setAllOff();
+        void    refresh();
+        void    setColor(uint8_t ledID, color_t color, brightness_t brightness);
+        color_t color(uint8_t ledID);
+        void    setBlinkState(uint8_t ledID, blinkSpeed_t value);
+        bool    getBlinkState(uint8_t ledID);
+        size_t  rgbSingleComponentIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent);
+        size_t  rgbIndex(size_t singleLEDindex);
+        bool    setFadeSpeed(uint8_t transitionSpeed);
+        void    midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local);
+        void    setBlinkType(blinkType_t blinkType);
+        void    resetBlinking();
 
         private:
         enum class ledBit_t : uint8_t
@@ -146,12 +146,12 @@ namespace IO
             rgb_b       ///< B index of RGB LED
         };
 
-        void         updateState(uint8_t index, ledBit_t bit, bool state, bool setOnBoard = true);
-        bool         getState(uint8_t index, ledBit_t bit);
+        void         updateBit(uint8_t index, ledBit_t bit, bool state);
+        bool         bit(uint8_t index, ledBit_t bit);
         void         resetState(uint8_t index);
         color_t      valueToColor(uint8_t receivedVelocity);
         blinkSpeed_t valueToBlinkSpeed(uint8_t value);
-        void         handleLED(uint8_t ledID, bool state, bool rgbLED, rgbIndex_t index = rgbIndex_t::r);
+        brightness_t valueToBrightness(uint8_t value);
         void         startUpAnimation();
 
         HWA&                    hwa;
@@ -162,6 +162,11 @@ namespace IO
         /// \brief Array holding current LED status for all LEDs.
         ///
         uint8_t ledState[maxLEDs] = {};
+
+        ///
+        /// \brief Array holding current LED brightness for all LEDs.
+        ///
+        brightness_t brightness[maxLEDs] = {};
 
         ///
         /// \brief Array holding time after which LEDs should blink.
@@ -178,44 +183,33 @@ namespace IO
         ///
         const uint8_t* blinkResetArrayPtr = nullptr;
 
+        static constexpr size_t totalBlinkSpeeds      = 4;
+        static constexpr size_t totalBrightnessValues = 4;
+
         ///
         /// \brief Array holding MIDI clock pulses after which LED state is toggled for all possible blink rates.
         ///
-        const uint8_t blinkReset_midiClock[static_cast<uint8_t>(blinkSpeed_t::AMOUNT)] = {
+        const uint8_t blinkReset_midiClock[totalBlinkSpeeds] = {
             255,    //no blinking
-            2,
-            3,
-            4,
-            6,
-            9,
             12,
-            18,
             24,
-            36,
             48
         };
 
         ///
-        /// \brief Array holding time indexes (multipled by 100) after which LED state is toggled for all possible blink rates.
+        /// \brief Array holding time indexes (multipled by 50) after which LED state is toggled for all possible blink rates.
         ///
-        const uint8_t blinkReset_timer[static_cast<uint8_t>(blinkSpeed_t::AMOUNT)] = {
+        const uint8_t blinkReset_timer[totalBlinkSpeeds] = {
             0,
-            1,
-            2,
-            3,
-            4,
             5,
-            6,
-            7,
-            8,
-            9,
-            10
+            10,
+            20,
         };
 
         ///
         /// \brief Array used to determine when the blink state for specific blink rate should be changed.
         ///
-        uint8_t blinkCounter[static_cast<uint8_t>(blinkSpeed_t::AMOUNT)] = {};
+        uint8_t blinkCounter[totalBlinkSpeeds] = {};
 
         ///
         /// \brief Holds last time in miliseconds when LED blinking has been updated.
@@ -225,7 +219,7 @@ namespace IO
         ///
         // \brief Holds blink state for each blink speed so that leds are in sync.
         ///
-        bool blinkState[static_cast<uint8_t>(blinkSpeed_t::AMOUNT)] = {};
+        bool blinkState[totalBlinkSpeeds] = {};
     };
 }    // namespace IO
 

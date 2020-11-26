@@ -128,7 +128,7 @@ namespace IO
         {
         }
 
-        color_t getColor(uint8_t ledID)
+        color_t color(uint8_t ledID)
         {
             return color_t::off;
         }
@@ -163,11 +163,6 @@ namespace IO
 
         void setBlinkType(blinkType_t blinkType)
         {
-        }
-
-        blinkType_t getBlinkType()
-        {
-            return blinkType_t::timer;
         }
 
         void resetBlinking()

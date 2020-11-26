@@ -215,10 +215,10 @@ class HWALEDs : public IO::LEDs::HWA
     public:
     HWALEDs() = default;
 
-    void setState(size_t index, bool state) override
+    void setState(size_t index, IO::LEDs::brightness_t brightness) override
     {
         if (stateHandler != nullptr)
-            stateHandler(index, state);
+            stateHandler(index, static_cast<bool>(brightness));
     }
 
     size_t rgbSingleComponentIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override

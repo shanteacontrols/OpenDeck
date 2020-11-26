@@ -295,7 +295,7 @@ System::result_t System::onGetLEDs(Section::leds_t section, size_t index, SysExC
     {
     case Section::leds_t::testColor:
     {
-        readValue = static_cast<int32_t>(leds.getColor(index));
+        readValue = static_cast<int32_t>(leds.color(index));
     }
     break;
 

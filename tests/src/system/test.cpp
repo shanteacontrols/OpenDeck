@@ -129,7 +129,7 @@ namespace
         public:
         HWALEDs() {}
 
-        void setState(size_t index, bool state) override
+        void setState(size_t index, IO::LEDs::brightness_t brightness) override
         {
         }
 
