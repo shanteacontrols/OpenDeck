@@ -36,11 +36,11 @@ class Nextion : public IO::Touchscreen::Model, public IO::Touchscreen::Model::Co
     void setIconState(IO::Touchscreen::icon_t& icon, bool state) override;
 
     private:
+    bool writeCommand(const char* line, ...);
+    bool endCommand();
+
     IO::Touchscreen::Model::HWA& hwa;
 
     char   commandBuffer[IO::Touchscreen::Model::Common::bufferSize];
     size_t endCounter = 0;
-
-    bool writeCommand(const char* line, ...);
-    bool endCommand();
 };

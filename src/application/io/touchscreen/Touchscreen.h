@@ -117,12 +117,10 @@ namespace IO
 
         Database& database;
 
-        void (*buttonHandler)(size_t index, bool state) = nullptr;
-        void (*screenHandler)(size_t screenID)          = nullptr;
-
-        size_t activeScreenID = 0;
-        bool   initialized    = false;
-
+        void (*buttonHandler)(size_t index, bool state)                = nullptr;
+        void (*screenHandler)(size_t screenID)                         = nullptr;
+        size_t  activeScreenID                                         = 0;
+        bool    initialized                                            = false;
         Model*  modelPtr[static_cast<uint8_t>(Model::model_t::AMOUNT)] = {};
         uint8_t activeModel                                            = static_cast<uint8_t>(Model::model_t::AMOUNT);
     };

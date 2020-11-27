@@ -252,13 +252,14 @@ namespace IO
         const IO::Analog::Filter::adcType_t _adcType;
         adcConfig_t&                        _adcConfig;
         const size_t                        _stableValueRepetitions;
-        const uint32_t                      _fastFilterEnableAfter = 500;
-        EMA                                 _emaFilter[MAX_NUMBER_OF_ANALOG];
-        uint16_t                            _analogSample[MAX_NUMBER_OF_ANALOG][3]   = {};
-        size_t                              _sampleCounter[MAX_NUMBER_OF_ANALOG]     = {};
-        valDirection_t                      _lastDirection[MAX_NUMBER_OF_ANALOG]     = {};
-        uint16_t                            _lastStableValue[MAX_NUMBER_OF_ANALOG]   = {};
-        uint8_t                             _stableSampleCount[MAX_NUMBER_OF_ANALOG] = {};
-        uint32_t                            _lastMovementTime[MAX_NUMBER_OF_ANALOG]  = {};
+
+        const uint32_t _fastFilterEnableAfter = 500;
+        EMA            _emaFilter[MAX_NUMBER_OF_ANALOG];
+        uint16_t       _analogSample[MAX_NUMBER_OF_ANALOG][3]   = {};
+        size_t         _sampleCounter[MAX_NUMBER_OF_ANALOG]     = {};
+        valDirection_t _lastDirection[MAX_NUMBER_OF_ANALOG]     = {};
+        uint16_t       _lastStableValue[MAX_NUMBER_OF_ANALOG]   = {};
+        uint8_t        _stableSampleCount[MAX_NUMBER_OF_ANALOG] = {};
+        uint32_t       _lastMovementTime[MAX_NUMBER_OF_ANALOG]  = {};
     };    // namespace IO
 }    // namespace IO

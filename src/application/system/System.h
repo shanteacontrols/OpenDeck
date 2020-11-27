@@ -217,6 +217,13 @@ class System
     private:
     using result_t = SysExConf::DataHandler::result_t;
 
+    enum class initAction_t : uint8_t
+    {
+        asIs,
+        init,
+        deInit
+    };
+
     class SysExDataHandler : public SysExConf::DataHandler
     {
         public:
@@ -233,8 +240,39 @@ class System
         System& system;
     };
 
-    SysExConf sysExConf;
+    void                             checkComponents();
+    void                             checkMIDI();
+    void                             configureMIDI();
+    bool                             onGet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t& value);
+    bool                             onSet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t newValue);
+    bool                             onCustomRequest(size_t value);
+    void                             onWrite(uint8_t* sysExArray, size_t size);
+    void                             backup();
+    void                             configureMIDImerge(midiMergeType_t mergeType);
+    Database::block_t                dbBlock(uint8_t index);
+    Database::Section::global_t      dbSection(Section::global_t section);
+    Database::Section::button_t      dbSection(Section::button_t section);
+    Database::Section::encoder_t     dbSection(Section::encoder_t section);
+    Database::Section::analog_t      dbSection(Section::analog_t section);
+    Database::Section::leds_t        dbSection(Section::leds_t section);
+    Database::Section::display_t     dbSection(Section::display_t section);
+    Database::Section::touchscreen_t dbSection(Section::touchscreen_t section);
+    result_t                         onGetGlobal(Section::global_t section, size_t index, SysExConf::sysExParameter_t& value);
+    result_t                         onGetButtons(Section::button_t section, size_t index, SysExConf::sysExParameter_t& value);
+    result_t                         onGetEncoders(Section::encoder_t section, size_t index, SysExConf::sysExParameter_t& value);
+    result_t                         onGetAnalog(Section::analog_t section, size_t index, SysExConf::sysExParameter_t& value);
+    result_t                         onGetLEDs(Section::leds_t section, size_t index, SysExConf::sysExParameter_t& value);
+    result_t                         onGetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t& value);
+    result_t                         onGetTouchscreen(Section::touchscreen_t section, size_t index, SysExConf::sysExParameter_t& value);
+    result_t                         onSetGlobal(Section::global_t section, size_t index, SysExConf::sysExParameter_t newValue);
+    result_t                         onSetButtons(Section::button_t section, size_t index, SysExConf::sysExParameter_t newValue);
+    result_t                         onSetEncoders(Section::encoder_t section, size_t index, SysExConf::sysExParameter_t newValue);
+    result_t                         onSetAnalog(Section::analog_t section, size_t index, SysExConf::sysExParameter_t newValue);
+    result_t                         onSetLEDs(Section::leds_t section, size_t index, SysExConf::sysExParameter_t newValue);
+    result_t                         onSetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t newValue);
+    result_t                         onSetTouchscreen(Section::touchscreen_t section, size_t index, SysExConf::sysExParameter_t newValue);
 
+    SysExConf        sysExConf;
     HWA&             hwa;
     Database&        database;
     MIDI&            midi;
@@ -244,7 +282,6 @@ class System
     IO::LEDs&        leds;
     IO::Display&     display;
     IO::Touchscreen& touchscreen;
-
     SysExDataHandler sysExDataHandler;
 
     ///
@@ -258,8 +295,8 @@ class System
         SYSEX_MANUFACTURER_ID_2
     };
 
-    uint32_t lastCinfoMsgTime[static_cast<uint8_t>(Database::block_t::AMOUNT)];
-    bool     backupRequested = false;
+    uint32_t lastCinfoMsgTime[static_cast<uint8_t>(Database::block_t::AMOUNT)] = {};
+    bool     backupRequested                                                   = false;
 
     //map sysex sections to sections in db
     const Database::Section::global_t sysEx2DB_global[static_cast<uint8_t>(Section::global_t::AMOUNT)] = {
@@ -328,49 +365,4 @@ class System
         Database::Section::touchscreen_t::pageSwitchEnabled,
         Database::Section::touchscreen_t::pageSwitchIndex,
     };
-
-    enum class initAction_t : uint8_t
-    {
-        asIs,
-        init,
-        deInit
-    };
-
-    void checkComponents();
-    void checkMIDI();
-    void configureMIDI();
-    bool onGet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t& value);
-    bool onSet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t newValue);
-    bool onCustomRequest(size_t value);
-    void onWrite(uint8_t* sysExArray, size_t size);
-    void backup();
-#ifdef DIN_MIDI_SUPPORTED
-    void configureMIDImerge(midiMergeType_t mergeType);
-#endif
-
-    Database::block_t dbBlock(uint8_t index);
-
-    Database::Section::global_t      dbSection(Section::global_t section);
-    Database::Section::button_t      dbSection(Section::button_t section);
-    Database::Section::encoder_t     dbSection(Section::encoder_t section);
-    Database::Section::analog_t      dbSection(Section::analog_t section);
-    Database::Section::leds_t        dbSection(Section::leds_t section);
-    Database::Section::display_t     dbSection(Section::display_t section);
-    Database::Section::touchscreen_t dbSection(Section::touchscreen_t section);
-
-    result_t onGetGlobal(Section::global_t section, size_t index, SysExConf::sysExParameter_t& value);
-    result_t onGetButtons(Section::button_t section, size_t index, SysExConf::sysExParameter_t& value);
-    result_t onGetEncoders(Section::encoder_t section, size_t index, SysExConf::sysExParameter_t& value);
-    result_t onGetAnalog(Section::analog_t section, size_t index, SysExConf::sysExParameter_t& value);
-    result_t onGetLEDs(Section::leds_t section, size_t index, SysExConf::sysExParameter_t& value);
-    result_t onGetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t& value);
-    result_t onGetTouchscreen(Section::touchscreen_t section, size_t index, SysExConf::sysExParameter_t& value);
-
-    result_t onSetGlobal(Section::global_t section, size_t index, SysExConf::sysExParameter_t newValue);
-    result_t onSetButtons(Section::button_t section, size_t index, SysExConf::sysExParameter_t newValue);
-    result_t onSetEncoders(Section::encoder_t section, size_t index, SysExConf::sysExParameter_t newValue);
-    result_t onSetAnalog(Section::analog_t section, size_t index, SysExConf::sysExParameter_t newValue);
-    result_t onSetLEDs(Section::leds_t section, size_t index, SysExConf::sysExParameter_t newValue);
-    result_t onSetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t newValue);
-    result_t onSetTouchscreen(Section::touchscreen_t section, size_t index, SysExConf::sysExParameter_t newValue);
 };

@@ -19,6 +19,7 @@ limitations under the License.
 #pragma once
 
 #include "sysex/src/SysExConf.h"
+#include "database/Database.h"
 
 class ComponentInfo
 {
