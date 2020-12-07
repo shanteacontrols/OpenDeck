@@ -81,10 +81,10 @@ namespace IO
 
         enum class blinkSpeed_t : uint8_t
         {
-            noBlink,
-            s250ms,
+            s1000ms,
             s500ms,
-            s1000ms
+            s250ms,
+            noBlink
         };
 
         enum class blinkType_t : uint8_t

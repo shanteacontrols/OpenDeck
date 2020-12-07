@@ -315,7 +315,7 @@ void LEDs::setBlinkState(uint8_t ledID, blinkSpeed_t state)
 
     for (int i = 0; i < leds; i++)
     {
-        if (static_cast<bool>(state))
+        if (state != blinkSpeed_t::noBlink)
         {
             updateBit(ledArray[i], ledBit_t::blinkOn, true);
             updateBit(ledArray[i], ledBit_t::state, true);
