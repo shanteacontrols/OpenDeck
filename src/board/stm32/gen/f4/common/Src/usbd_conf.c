@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
+  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under Ultimate Liberty license
@@ -81,11 +81,11 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
   /* USER CODE BEGIN USB_OTG_FS_MspInit 0 */
 
   /* USER CODE END USB_OTG_FS_MspInit 0 */
-  
+
     __HAL_RCC_GPIOA_CLK_ENABLE();
-    /**USB_OTG_FS GPIO Configuration    
+    /**USB_OTG_FS GPIO Configuration
     PA11     ------> USB_OTG_FS_DM
-    PA12     ------> USB_OTG_FS_DP 
+    PA12     ------> USB_OTG_FS_DP
     */
     GPIO_InitStruct.Pin = GPIO_PIN_11|GPIO_PIN_12;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -115,10 +115,10 @@ void HAL_PCD_MspDeInit(PCD_HandleTypeDef* pcdHandle)
   /* USER CODE END USB_OTG_FS_MspDeInit 0 */
     /* Peripheral clock disable */
     __HAL_RCC_USB_OTG_FS_CLK_DISABLE();
-  
-    /**USB_OTG_FS GPIO Configuration    
+
+    /**USB_OTG_FS GPIO Configuration
     PA11     ------> USB_OTG_FS_DM
-    PA12     ------> USB_OTG_FS_DP 
+    PA12     ------> USB_OTG_FS_DP
     */
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_11|GPIO_PIN_12);
 
@@ -199,7 +199,7 @@ static void PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
 #else
 void HAL_PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
 #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
-{ 
+{
   USBD_SpeedTypeDef speed = USBD_SPEED_FULL;
 
   if ( hpcd->Init.speed == PCD_SPEED_HIGH)
@@ -338,7 +338,7 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
   /* Link the driver to the stack. */
   hpcd_USB_OTG_FS.pData = pdev;
   pdev->pData = &hpcd_USB_OTG_FS;
-  
+
   hpcd_USB_OTG_FS.Instance = USB_OTG_FS;
   hpcd_USB_OTG_FS.Init.dev_endpoints = 4;
   hpcd_USB_OTG_FS.Init.speed = PCD_SPEED_FULL;
@@ -389,12 +389,12 @@ USBD_StatusTypeDef USBD_LL_DeInit(USBD_HandleTypeDef *pdev)
   hal_status = HAL_PCD_DeInit(pdev->pData);
 
   usb_status =  USBD_Get_USB_Status(hal_status);
-  
-  return usb_status; 
+
+  return usb_status;
 }
 
 /**
-  * @brief  Starts the low level portion of the device driver. 
+  * @brief  Starts the low level portion of the device driver.
   * @param  pdev: Device handle
   * @retval USBD status
   */
@@ -402,11 +402,11 @@ USBD_StatusTypeDef USBD_LL_Start(USBD_HandleTypeDef *pdev)
 {
   HAL_StatusTypeDef hal_status = HAL_OK;
   USBD_StatusTypeDef usb_status = USBD_OK;
- 
+
   hal_status = HAL_PCD_Start(pdev->pData);
-  
-  usb_status =  USBD_Get_USB_Status(hal_status);     
-  
+
+  usb_status =  USBD_Get_USB_Status(hal_status);
+
   return usb_status;
 }
 
@@ -421,9 +421,9 @@ USBD_StatusTypeDef USBD_LL_Stop(USBD_HandleTypeDef *pdev)
   USBD_StatusTypeDef usb_status = USBD_OK;
 
   hal_status = HAL_PCD_Stop(pdev->pData);
-  
+
   usb_status =  USBD_Get_USB_Status(hal_status);
- 
+
   return usb_status;
 }
 
@@ -443,7 +443,7 @@ USBD_StatusTypeDef USBD_LL_OpenEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr, uin
   hal_status = HAL_PCD_EP_Open(pdev->pData, ep_addr, ep_mps, ep_type);
 
   usb_status =  USBD_Get_USB_Status(hal_status);
-  
+
   return usb_status;
 }
 
@@ -457,12 +457,12 @@ USBD_StatusTypeDef USBD_LL_CloseEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
 {
   HAL_StatusTypeDef hal_status = HAL_OK;
   USBD_StatusTypeDef usb_status = USBD_OK;
-  
+
   hal_status = HAL_PCD_EP_Close(pdev->pData, ep_addr);
-  
-  usb_status =  USBD_Get_USB_Status(hal_status);    
- 
-  return usb_status;  
+
+  usb_status =  USBD_Get_USB_Status(hal_status);
+
+  return usb_status;
 }
 
 /**
@@ -475,12 +475,12 @@ USBD_StatusTypeDef USBD_LL_FlushEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
 {
   HAL_StatusTypeDef hal_status = HAL_OK;
   USBD_StatusTypeDef usb_status = USBD_OK;
-  
+
   hal_status = HAL_PCD_EP_Flush(pdev->pData, ep_addr);
-  
-  usb_status =  USBD_Get_USB_Status(hal_status);   
-  
-  return usb_status;  
+
+  usb_status =  USBD_Get_USB_Status(hal_status);
+
+  return usb_status;
 }
 
 /**
@@ -493,12 +493,12 @@ USBD_StatusTypeDef USBD_LL_StallEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
 {
   HAL_StatusTypeDef hal_status = HAL_OK;
   USBD_StatusTypeDef usb_status = USBD_OK;
-  
+
   hal_status = HAL_PCD_EP_SetStall(pdev->pData, ep_addr);
 
   usb_status =  USBD_Get_USB_Status(hal_status);
-  
-  return usb_status;  
+
+  return usb_status;
 }
 
 /**
@@ -511,12 +511,12 @@ USBD_StatusTypeDef USBD_LL_ClearStallEP(USBD_HandleTypeDef *pdev, uint8_t ep_add
 {
   HAL_StatusTypeDef hal_status = HAL_OK;
   USBD_StatusTypeDef usb_status = USBD_OK;
-  
+
   hal_status = HAL_PCD_EP_ClrStall(pdev->pData, ep_addr);
-    
-  usb_status =  USBD_Get_USB_Status(hal_status);  
-  
-  return usb_status; 
+
+  usb_status =  USBD_Get_USB_Status(hal_status);
+
+  return usb_status;
 }
 
 /**
@@ -528,14 +528,14 @@ USBD_StatusTypeDef USBD_LL_ClearStallEP(USBD_HandleTypeDef *pdev, uint8_t ep_add
 uint8_t USBD_LL_IsStallEP(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
 {
   PCD_HandleTypeDef *hpcd = (PCD_HandleTypeDef*) pdev->pData;
-  
+
   if((ep_addr & 0x80) == 0x80)
   {
-    return hpcd->IN_ep[ep_addr & 0x7F].is_stall; 
+    return hpcd->IN_ep[ep_addr & 0x7F].is_stall;
   }
   else
   {
-    return hpcd->OUT_ep[ep_addr & 0x7F].is_stall; 
+    return hpcd->OUT_ep[ep_addr & 0x7F].is_stall;
   }
 }
 
@@ -549,12 +549,12 @@ USBD_StatusTypeDef USBD_LL_SetUSBAddress(USBD_HandleTypeDef *pdev, uint8_t dev_a
 {
   HAL_StatusTypeDef hal_status = HAL_OK;
   USBD_StatusTypeDef usb_status = USBD_OK;
-  
+
   hal_status = HAL_PCD_SetAddress(pdev->pData, dev_addr);
-  
+
   usb_status =  USBD_Get_USB_Status(hal_status);
-  
-  return usb_status;  
+
+  return usb_status;
 }
 
 /**
@@ -562,7 +562,7 @@ USBD_StatusTypeDef USBD_LL_SetUSBAddress(USBD_HandleTypeDef *pdev, uint8_t dev_a
   * @param  pdev: Device handle
   * @param  ep_addr: Endpoint number
   * @param  pbuf: Pointer to data to be sent
-  * @param  size: Data size    
+  * @param  size: Data size
   * @retval USBD status
   */
 USBD_StatusTypeDef USBD_LL_Transmit(USBD_HandleTypeDef *pdev, uint8_t ep_addr, uint8_t *pbuf, uint32_t size)
@@ -571,10 +571,10 @@ USBD_StatusTypeDef USBD_LL_Transmit(USBD_HandleTypeDef *pdev, uint8_t ep_addr, u
   USBD_StatusTypeDef usb_status = USBD_OK;
 
   hal_status = HAL_PCD_EP_Transmit(pdev->pData, ep_addr, pbuf, size);
-  
-  usb_status =  USBD_Get_USB_Status(hal_status); 
-  
-  return usb_status;    
+
+  usb_status =  USBD_Get_USB_Status(hal_status);
+
+  return usb_status;
 }
 
 /**
@@ -591,10 +591,10 @@ USBD_StatusTypeDef USBD_LL_PrepareReceive(USBD_HandleTypeDef *pdev, uint8_t ep_a
   USBD_StatusTypeDef usb_status = USBD_OK;
 
   hal_status = HAL_PCD_EP_Receive(pdev->pData, ep_addr, pbuf, size);
-  
-  usb_status =  USBD_Get_USB_Status(hal_status);   
-  
-  return usb_status; 
+
+  usb_status =  USBD_Get_USB_Status(hal_status);
+
+  return usb_status;
 }
 
 /**
