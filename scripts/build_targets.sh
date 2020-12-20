@@ -99,7 +99,7 @@ do
                     #copy merged binary to bin directory
                     dir=../bin/compiled/merged/"$(make TARGETNAME="${targets[$i]}" print-ARCH)"/"$(make TARGETNAME="${targets[$i]}" print-MCU)"
                     mkdir -p "$dir"
-                    cp "$(make TARGETNAME="${targets[$i]}" BOOT=1 print-MERGED_TARGET)" "$dir"
+                    cp "$(make TARGETNAME="${targets[$i]}" TYPE=boot print-MERGED_TARGET)" "$dir"
                 fi
 
                 if [[ ${targets[$i]} == "mega16u2" ]]
@@ -109,7 +109,7 @@ do
                 fi
 
                 #create sysex fw update file
-                make sysexfw TARGETNAME="${targets[$i]}" BOOT=0
+                make sysexfw TARGETNAME="${targets[$i]}" TYPE=app
             fi
         fi
     else
@@ -125,7 +125,7 @@ do
     else
     if [[ "${btldr[$i]}" == "true" ]]
     then
-        make TARGETNAME="${targets[$i]}" BOOT=1 DEBUG=0
+        make TARGETNAME="${targets[$i]}" TYPE=boot DEBUG=0
 
         result=$?
 
@@ -136,7 +136,7 @@ do
     fi
     fi
 
-    make TARGETNAME="${targets[$i]}" BOOT=0 DEBUG=0
+    make TARGETNAME="${targets[$i]}" TYPE=app DEBUG=0
 
     result=$?
 

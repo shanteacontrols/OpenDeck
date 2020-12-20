@@ -10,7 +10,7 @@ INCLUDE_DIRS := \
 -I"board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)" \
 -I"./"
 
-ifeq ($(BOOT),1)
+ifeq ($(TYPE),boot)
     #bootloader only
     INCLUDE_DIRS += \
     -I"bootloader/"
@@ -79,7 +79,7 @@ ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
     SOURCES += $(shell $(FIND) ./board/common -maxdepth 1 -type f -name "*.cpp")
     SOURCES += $(shell $(FIND) ./board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU) -maxdepth 1 -type f -regex '.*\.\(s\|c\|cpp\)')
 
-    ifeq ($(BOOT),1)
+    ifeq ($(TYPE),boot)
         #bootloader sources
         #common
         SOURCES += \

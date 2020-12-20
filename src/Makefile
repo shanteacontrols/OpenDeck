@@ -2,11 +2,12 @@ include Toolchain.mk
 
 BUILD_DIR_BASE := ./build
 TARGETNAME := mega2560
+TYPE := app
 
 ifneq (,$(wildcard $(BUILD_DIR_BASE)/TARGET))
     TARGETNAME := $(shell cat $(BUILD_DIR_BASE)/TARGET)
     DEBUG := $(shell cat $(BUILD_DIR_BASE)/DEBUG)
-    BOOT := $(shell cat $(BUILD_DIR_BASE)/BOOT)
+    TYPE := $(shell cat $(BUILD_DIR_BASE)/TYPE)
 endif
 
 ifeq (,$(wildcard ../targets/$(TARGETNAME).yml))
@@ -18,16 +19,14 @@ ifeq ($(shell yq r ../targets/$(TARGETNAME).yml bootloader.use), true)
 endif
 
 ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
-    ifeq ($(BOOT),1)
+    ifeq ($(TYPE),boot)
         #verify if target has bootloader
         ifneq ($(HAS_BTLDR),1)
             $(error This target doesn't have bootloader)
         endif
-
-        BUILD_DIR := $(BUILD_DIR_BASE)/bootloader
-    else
-        BUILD_DIR := $(BUILD_DIR_BASE)/application
     endif
+
+    BUILD_DIR := $(BUILD_DIR_BASE)/$(TYPE)
 else
     BUILD_DIR := $(BUILD_DIR_BASE)/flashgen
 endif
@@ -169,8 +168,8 @@ else
 endif
 
 fw:
-	@$(MAKE) --no-print-directory BOOT=$(BOOT) TARGETNAME=$(TARGETNAME) pre-build
-	@$(MAKE) --no-print-directory BOOT=$(BOOT) TARGETNAME=$(TARGETNAME) $(TARGET).elf
+	@$(MAKE) --no-print-directory TYPE=$(TYPE) TARGETNAME=$(TARGETNAME) pre-build
+	@$(MAKE) --no-print-directory TYPE=$(TYPE) TARGETNAME=$(TARGETNAME) $(TARGET).elf
 
 $(TARGET).elf: $(OBJECTS) $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin_offset
 	@echo Creating executable: $@
@@ -178,9 +177,9 @@ $(TARGET).elf: $(OBJECTS) $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/gener
 ifneq ($(ARCH),x86)
 	@echo $(TARGETNAME) > $(BUILD_DIR_BASE)/TARGET
 	@echo $(DEBUG) > $(BUILD_DIR_BASE)/DEBUG
-	@echo $(BOOT) > $(BUILD_DIR_BASE)/BOOT
+	@echo $(TYPE) > $(BUILD_DIR_BASE)/TYPE
 	@$(TOOL_PREFIX)objcopy --gap-fill 0xFF -O ihex $(TARGET).elf $(TARGET).hex
-ifneq ($(BOOT),1)
+ifeq ($(TYPE),app)
 #append metadata only for application
 	@srec_cat $(TARGET).hex -Intel -exclude $(FW_METADATA_LOCATION) $$(($(FW_METADATA_LOCATION) + $(FW_METADATA_SIZE))) -MAximum_Little_Endian $(FW_METADATA_LOCATION) -o $(TARGET).hex -Intel
 	@srec_cat $(TARGET).hex -Intel -Cyclic_Redundancy_Check_16_Little_Endian -MAximum-Address $(TARGET).hex -Intel -Cyclic_Redundancy_Check_16_XMODEM -Output $(TARGET).hex -Intel
@@ -197,21 +196,21 @@ endif
 sysexfw: $(TARGET).sysex
 
 $(TARGET).sysex:
-	@$(MAKE) --no-print-directory fw TARGETNAME=$(TARGETNAME) DEBUG=0 BOOT=0
+	@$(MAKE) --no-print-directory fw TARGETNAME=$(TARGETNAME) DEBUG=0 TYPE=app
 	@echo Creating SysEx file...
 	@../scripts/sysex_fw_create.sh $(TARGET).bin $(TARGET).sysex $(SYSEX_MANUFACTURER_ID_0) $(SYSEX_MANUFACTURER_ID_1) $(SYSEX_MANUFACTURER_ID_2) $(COMMAND_FW_UPDATE_START) $(COMMAND_FW_UPDATE_END) $(FW_UID)
 
 merged:
 	@mkdir -p $(BUILD_DIR_BASE)/merged
 	@echo Building application...
-	@$(MAKE) --no-print-directory TARGETNAME=$(TARGETNAME) BOOT=0
+	@$(MAKE) --no-print-directory TARGETNAME=$(TARGETNAME) TYPE=app
 	@echo Building bootloader...
-	@$(MAKE) --no-print-directory TARGETNAME=$(TARGETNAME) BOOT=1
+	@$(MAKE) --no-print-directory TARGETNAME=$(TARGETNAME) TYPE=boot
 	@echo Combining application and bootloader...
 ifeq ($(ARCH), avr)
-	@srec_cat "$(BUILD_DIR_BASE)/application/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex" -Intel "$(BUILD_DIR_BASE)/bootloader/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex" -Intel -o $(MERGED_TARGET) -Intel
+	@srec_cat "$(BUILD_DIR_BASE)/app/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex" -Intel "$(BUILD_DIR_BASE)/boot/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex" -Intel -o $(MERGED_TARGET) -Intel
 else
-	@srec_cat "$(BUILD_DIR_BASE)/bootloader/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex" -Intel "$(BUILD_DIR_BASE)/application/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex" -Intel -o $(MERGED_TARGET) -Intel
+	@srec_cat "$(BUILD_DIR_BASE)/boot/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex" -Intel "$(BUILD_DIR_BASE)/app/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex" -Intel -o $(MERGED_TARGET) -Intel
 endif
 	@$(TOOL_PREFIX)objcopy -I ihex "$(MERGED_TARGET)" -O binary "$(MERGED_TARGET).bin"
 	@echo Merged binary created: $(MERGED_TARGET)
@@ -228,8 +227,8 @@ application/io/touchscreen/design/$(TARGETNAME).cpp: application/io/touchscreen/
 
 $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin_offset:
 ifeq ($(ARCH), stm32)
-ifneq ($(BOOT),1)
-	@$(MAKE) --no-print-directory TARGETNAME=$(TARGETNAME) BOOT=0 DEBUG=0 flashgen
+ifeq ($(TYPE),app)
+	@$(MAKE) --no-print-directory TARGETNAME=$(TARGETNAME) TYPE=app DEBUG=0 flashgen
 	@echo Generating factory flash configuration...
 	@./$(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/$(TARGETNAME).elf $(shell pwd)/$(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin
 endif

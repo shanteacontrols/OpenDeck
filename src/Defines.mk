@@ -102,7 +102,7 @@ ifeq ($(ARCH),avr)
     ADC_10_BIT
 
     #flash type specific
-    ifeq ($(BOOT),1)
+    ifeq ($(TYPE),boot)
         DEFINES += \
         ORDERED_EP_CONFIG \
         NO_SOF_EVENTS \
@@ -137,7 +137,12 @@ DEFINES += OD_BOARD_$(shell echo $(TARGETNAME) | tr 'a-z' 'A-Z')
 DEFINES += FW_UID=$(FW_UID)
 DEFINES += FW_METADATA_LOCATION=$(FW_METADATA_LOCATION)
 
-ifeq ($(BOOT),1)
+#set default type to app if left blank
+ifeq ($(TYPE),)
+    TYPE := app
+endif
+
+ifeq ($(TYPE),boot)
     DEFINES += \
     FW_BOOT \
     COMMAND_FW_UPDATE_START=$(COMMAND_FW_UPDATE_START) \

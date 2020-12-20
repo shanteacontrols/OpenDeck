@@ -15,7 +15,7 @@
         },
         {
             "label": "[FW/STM32FDiscovery/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=discovery LANG=C DEBUG=1 BOOT=0",
+            "command": "cd ./src && compiledb -d . make TARGETNAME=discovery LANG=C DEBUG=1 TYPE=app",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -27,7 +27,7 @@
         },
         {
             "label": "[BTLDR/STM32FDiscovery/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=discovery LANG=C DEBUG=1 BOOT=1",
+            "command": "cd ./src && compiledb -d . make TARGETNAME=discovery LANG=C DEBUG=1 TYPE=boot",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -39,7 +39,7 @@
         },
         {
             "label": "[FW/Cardamom/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=cardamom LANG=C DEBUG=1 BOOT=0",
+            "command": "cd ./src && compiledb -d . make TARGETNAME=cardamom LANG=C DEBUG=1 TYPE=app",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -51,7 +51,7 @@
         },
         {
             "label": "[BTLDR/Cardamom/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=cardamom LANG=C DEBUG=1 BOOT=1",
+            "command": "cd ./src && compiledb -d . make TARGETNAME=cardamom LANG=C DEBUG=1 TYPE=boot",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -63,7 +63,7 @@
         },
         {
             "label": "[FW/DubFocus/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=dubfocus LANG=C DEBUG=1 BOOT=0",
+            "command": "cd ./src && compiledb -d . make TARGETNAME=dubfocus LANG=C DEBUG=1 TYPE=app",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -75,7 +75,7 @@
         },
         {
             "label": "[BTLDR/DubFocus/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=dubfocus LANG=C DEBUG=1 BOOT=1",
+            "command": "cd ./src && compiledb -d . make TARGETNAME=dubfocus LANG=C DEBUG=1 TYPE=boot",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -87,7 +87,7 @@
         },
         {
             "label": "[BTLDR/OpenDeck2/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=opendeck2 LANG=C DEBUG=1 BOOT=1",
+            "command": "cd ./src && compiledb -d . make TARGETNAME=opendeck2 LANG=C DEBUG=1 TYPE=boot",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -99,7 +99,7 @@
         },
         {
             "label": "[FW/OpenDeck2/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=opendeck2 LANG=C DEBUG=1 BOOT=0",
+            "command": "cd ./src && compiledb -d . make TARGETNAME=opendeck2 LANG=C DEBUG=1 TYPE=app",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -111,7 +111,7 @@
         },
         {
             "label": "[FW/Rooibos/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=rooibos LANG=C DEBUG=1 BOOT=0",
+            "command": "cd ./src && compiledb -d . make TARGETNAME=rooibos LANG=C DEBUG=1 TYPE=app",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
