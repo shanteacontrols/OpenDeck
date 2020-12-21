@@ -73,7 +73,9 @@ CPP_FLAGS := \
 
 #c compiler only
 C_FLAGS := \
--std=c11
+-std=c11 \
+-Wno-parentheses-equality \
+-Wno-unused-value
 
 #assembler only
 ASM_FLAGS := \
