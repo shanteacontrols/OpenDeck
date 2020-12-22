@@ -533,9 +533,11 @@ class SystemHWA : public System::HWA
     void reboot(System::reboot_t type) override
     {
         if (type == System::reboot_t::application)
-            Board::reboot(Board::rebootType_t::rebootApp);
+            Board::reboot(Board::rebootType_t::application);
+        else if (type == System::reboot_t::bootloader)
+            Board::reboot(Board::rebootType_t::bootloader);
         else
-            Board::reboot(Board::rebootType_t::rebootBtldr);
+            Board::reboot(Board::rebootType_t::cdc);
     }
 
     void enableDINMIDI(bool loopback) override

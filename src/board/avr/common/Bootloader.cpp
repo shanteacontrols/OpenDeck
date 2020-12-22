@@ -21,7 +21,6 @@ limitations under the License.
 #include <avr/eeprom.h>
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "board/common/constants/Reboot.h"
 #include "core/src/general/Helpers.h"
 #include "core/src/arch/avr/Misc.h"
 #include "core/src/general/Interrupt.h"
@@ -39,19 +38,20 @@ namespace Board
     {
         namespace bootloader
         {
-            bool isSWtriggerActive()
+            fwType_t btldrTriggerSoftType()
             {
-                return eeprom_read_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION) == BTLDR_REBOOT_VALUE;
+                if (eeprom_read_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION) == static_cast<uint8_t>(fwType_t::bootloader))
+                    return fwType_t::bootloader;
+                else
+                    return fwType_t::application;
             }
 
-            void enableSWtrigger()
+            void setSWtrigger(fwType_t btldrTriggerSoftType)
             {
-                eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, BTLDR_REBOOT_VALUE);
-            }
+                if (btldrTriggerSoftType == fwType_t::cdc)
+                    btldrTriggerSoftType = fwType_t::application;
 
-            void clearSWtrigger()
-            {
-                eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, APP_REBOOT_VALUE);
+                eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, static_cast<uint8_t>(btldrTriggerSoftType));
             }
 
             void runApplication()

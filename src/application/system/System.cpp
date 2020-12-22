@@ -146,14 +146,16 @@ System::result_t System::SysExDataHandler::customRequest(size_t request, CustomR
         break;
 
     case SYSEX_CR_REBOOT_APP:
+        system.hwa.reboot(reboot_t::application);
+        break;
+
     case SYSEX_CR_REBOOT_BTLDR:
-    {
-        if (request == SYSEX_CR_REBOOT_BTLDR)
-            system.hwa.reboot(reboot_t::bootloader);
-        else
-            system.hwa.reboot(reboot_t::application);
-    }
-    break;
+        system.hwa.reboot(reboot_t::bootloader);
+        break;
+
+    case SYSEX_CR_REBOOT_CDC:
+        system.hwa.reboot(reboot_t::cdc);
+        break;
 
     case SYSEX_CR_MAX_COMPONENTS:
     {

@@ -11,7 +11,7 @@
 
 namespace
 {
-    auto                                   rebootType = Board::rebootType_t::rebootApp;
+    auto                                   rebootType = Board::rebootType_t::application;
     core::RingBuffer<uint8_t, BUFFER_SIZE> buffer;
 }    // namespace
 
@@ -73,8 +73,8 @@ TEST_CASE(InternalCMD)
     sending.Data2 = 0x20;
     sending.Data3 = 0x30;
 
-    //change the state to app reboot first - after reading this should be switched to rebootBtldr
-    rebootType = Board::rebootType_t::rebootApp;
+    //change the state to app reboot first - after reading this should be switched to bootloader
+    rebootType = Board::rebootType_t::application;
 
     TEST_ASSERT(OpenDeckMIDIformat::write(TEST_MIDI_CHANNEL, sending, OpenDeckMIDIformat::packetType_t::internalCommand) == true);
     TEST_ASSERT(OpenDeckMIDIformat::read(TEST_MIDI_CHANNEL, receiving, receivedPacketType) == true);
@@ -83,7 +83,7 @@ TEST_CASE(InternalCMD)
 
     //in case of internal commands, Event, Data1, Data2 and Data3 are fully ignored - only the
     //specific function is called
-    TEST_ASSERT(rebootType == Board::rebootType_t::rebootBtldr);
+    TEST_ASSERT(rebootType == Board::rebootType_t::bootloader);
 
     //nothing left in the buffer - read should return false
     TEST_ASSERT(OpenDeckMIDIformat::read(TEST_MIDI_CHANNEL, receiving, receivedPacketType) == false);
@@ -119,11 +119,11 @@ TEST_CASE(ManualPacketBuilding)
     TEST_ASSERT(true == Board::UART::write(TEST_MIDI_CHANNEL, sending.Data3));
     TEST_ASSERT(true == Board::UART::write(TEST_MIDI_CHANNEL, 0xFF));
 
-    rebootType = Board::rebootType_t::rebootApp;
+    rebootType = Board::rebootType_t::application;
 
     //read should return false and btldr reboot function shouldn't be called
     TEST_ASSERT(OpenDeckMIDIformat::read(TEST_MIDI_CHANNEL, receiving, receivedPacketType) == false);
-    TEST_ASSERT(rebootType == Board::rebootType_t::rebootApp);
+    TEST_ASSERT(rebootType == Board::rebootType_t::application);
 
     //try building valid packet, and then start another one in the middle without first one being finished properly
     TEST_ASSERT(true == Board::UART::write(TEST_MIDI_CHANNEL, static_cast<uint8_t>(OpenDeckMIDIformat::packetType_t::internalCommand)));
@@ -145,7 +145,7 @@ TEST_CASE(ManualPacketBuilding)
     //next read should return success
     TEST_ASSERT(OpenDeckMIDIformat::read(TEST_MIDI_CHANNEL, receiving, receivedPacketType) == true);
     TEST_ASSERT(receivedPacketType == OpenDeckMIDIformat::packetType_t::internalCommand);
-    rebootType = Board::rebootType_t::rebootBtldr;
+    rebootType = Board::rebootType_t::bootloader;
 }
 
 #endif

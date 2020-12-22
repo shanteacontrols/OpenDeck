@@ -78,7 +78,8 @@ class System
     enum class reboot_t : uint8_t
     {
         application,
-        bootloader
+        bootloader,
+        cdc
     };
 
     class Section

@@ -114,28 +114,6 @@ namespace Board
 #endif
             }
 
-            btldrTrigger_t btldrTrigger()
-            {
-                //add some delay before reading the pins to avoid incorrect state detection
-                core::timing::waitMs(100);
-
-                bool hardwareTrigger = Board::detail::bootloader::isHWtriggerActive();
-
-                //check if user wants to enter bootloader
-                bool softwareTrigger = Board::detail::bootloader::isSWtriggerActive();
-
-                detail::bootloader::clearSWtrigger();
-
-                if (softwareTrigger && hardwareTrigger)
-                    return btldrTrigger_t::all;
-                else if (!softwareTrigger && hardwareTrigger)
-                    return btldrTrigger_t::hardware;
-                else if (softwareTrigger && !hardwareTrigger)
-                    return btldrTrigger_t::software;
-                else
-                    return btldrTrigger_t::none;
-            }
-
             void indicate()
             {
 #if defined(LED_INDICATORS)
@@ -167,6 +145,9 @@ namespace Board
 
             bool isHWtriggerActive()
             {
+                //add some delay before reading the pins to avoid incorrect state detection
+                core::timing::waitMs(100);
+
 #if defined(BTLDR_BUTTON_INDEX)
                 CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
                 CORE_IO_SET_LOW(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);

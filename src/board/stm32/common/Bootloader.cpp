@@ -18,7 +18,6 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "board/common/constants/Reboot.h"
 #include "core/src/general/Interrupt.h"
 
 using appEntry_t = void (*)();
@@ -37,19 +36,19 @@ namespace Board
     {
         namespace bootloader
         {
-            bool isSWtriggerActive()
+            fwType_t btldrTriggerSoftType()
             {
-                return fwEntryType == BTLDR_REBOOT_VALUE;
+                if (fwEntryType == static_cast<uint8_t>(fwType_t::bootloader))
+                    return fwType_t::bootloader;
+                else if (fwEntryType == static_cast<uint8_t>(fwType_t::cdc))
+                    return fwType_t::cdc;
+                else
+                    return fwType_t::application;
             }
 
-            void enableSWtrigger()
+            void setSWtrigger(fwType_t btldrTriggerSoftType)
             {
-                fwEntryType = BTLDR_REBOOT_VALUE;
-            }
-
-            void clearSWtrigger()
-            {
-                fwEntryType = APP_REBOOT_VALUE;
+                fwEntryType = static_cast<uint8_t>(btldrTriggerSoftType);
             }
 
             void runApplication()
@@ -58,6 +57,18 @@ namespace Board
                 HAL_DeInit();
 
                 auto appEntry = (appEntry_t) * (volatile uint32_t*)(APP_START_ADDR + 4);
+                appEntry();
+
+                while (true)
+                    ;
+            }
+
+            void runCDC()
+            {
+                HAL_RCC_DeInit();
+                HAL_DeInit();
+
+                auto appEntry = (appEntry_t) * (volatile uint32_t*)(CDC_START_ADDR + 4);
                 appEntry();
 
                 while (true)

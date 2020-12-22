@@ -29,8 +29,9 @@ namespace Board
     ///
     enum class rebootType_t : uint8_t
     {
-        rebootApp,     ///< Reboot to application.
-        rebootBtldr    ///< Reboot to bootloader.
+        application,    ///< Reboot to application.
+        bootloader,     ///< Reboot to bootloader.
+        cdc             ///< Reboot to CDC (Serial) mode used to flash touchscreen displays.
     };
 
 #ifdef UID_BITS

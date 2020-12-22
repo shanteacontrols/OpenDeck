@@ -403,21 +403,29 @@ namespace Board
             };
 
             ///
+            /// \brief List of all possible firmwares which can be loaded and their values.
+            /// On AVR, firmware value is written to special EEPROM location and on STM32 to variable
+            /// stored in .noinit RAM section.
+            /// Bootloader will load a firmware based on read value.
+            ///
+            enum class fwType_t : uint8_t
+            {
+                application = 0xFF,
+                bootloader  = 0x47,
+                cdc         = 0x74
+            };
+
+            ///
             /// \brief Verifies if the programmed flash is valid.
             /// \return True if valid, false otherwise.
             ///
             bool isAppValid();
 
             ///
-            /// \brief Checks if any of the bootloader entry triggers are active.
+            /// \brief Checks which firmware should be booted depending on value
+            /// set by user.
             ///
-            btldrTrigger_t btldrTrigger();
-
-            ///
-            /// \brief Checks if bootloader mode should be triggered because of software trigger.
-            /// \returns True if bootloader mode was triggered from application, false otherwise.
-            ///
-            bool isSWtriggerActive();
+            fwType_t btldrTriggerSoftType();
 
             ///
             /// \brief Reads the state of the button responsible for hardware bootloader entry.
@@ -427,15 +435,10 @@ namespace Board
             bool isHWtriggerActive();
 
             ///
-            /// \brief Configures the MCU to run bootloader on next reset.
+            /// \brief Specifies which firmware to load on next boot.
+            /// @param[in] bootFw   Enumerated value, lists all possible firmwares to load.
             ///
-            void enableSWtrigger();
-
-            ///
-            /// \brief Clears configured software bootloader trigger so that bootloader
-            /// isn't run on next reset.
-            ///
-            void clearSWtrigger();
+            void setSWtrigger(fwType_t bootFw);
 
             ///
             /// \brief Initializes outputs used to indicate that bootloader mode is active.
@@ -451,6 +454,11 @@ namespace Board
             /// \brief Jumps to application.
             ///
             void runApplication();
+
+            ///
+            /// \brief Jumps to CDC firmware.
+            ///
+            void runCDC();
         }    // namespace bootloader
 
         namespace cdc

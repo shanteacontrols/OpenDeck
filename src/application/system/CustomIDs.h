@@ -27,6 +27,7 @@ limitations under the License.
 #define SYSEX_CR_FIRMWARE_VERSION_HARDWARE_UID 0x43
 #define SYSEX_CR_REBOOT_APP                    0x7F
 #define SYSEX_CR_REBOOT_BTLDR                  0x55
+#define SYSEX_CR_REBOOT_CDC                    0x54
 #define SYSEX_CR_FACTORY_RESET                 0x44
 #define SYSEX_CR_MAX_COMPONENTS                0x4D
 #define SYSEX_CR_ENABLE_PROCESSING             0x65
@@ -40,7 +41,7 @@ limitations under the License.
 ///
 /// \brief Total number of custom requests.
 ///
-#define NUMBER_OF_CUSTOM_REQUESTS 12
+#define NUMBER_OF_CUSTOM_REQUESTS 13
 
 ///
 /// \brief Custom ID used when sending info about components to host.

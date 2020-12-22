@@ -169,11 +169,11 @@ namespace OpenDeckMIDIformat
                     switch (static_cast<command_t>(USBMIDIpacket.Event))
                     {
                     case command_t::btldrReboot:
-                        Board::reboot(Board::rebootType_t::rebootBtldr);
+                        Board::reboot(Board::rebootType_t::bootloader);
                         break;
 
                     case command_t::appReboot:
-                        Board::reboot(Board::rebootType_t::rebootApp);
+                        Board::reboot(Board::rebootType_t::application);
                         break;
 
                     default:

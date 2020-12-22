@@ -21,7 +21,6 @@ limitations under the License.
 #include <avr/wdt.h>
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "board/common/constants/Reboot.h"
 #include "board/common/io/Helpers.h"
 #include "core/src/general/ADC.h"
 #include "core/src/arch/avr/Misc.h"

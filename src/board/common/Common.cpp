@@ -53,30 +53,30 @@ namespace Board
 #elif defined(FW_BOOT)
         detail::setup::bootloader();
 
-        bool runBootloader = true;
+        auto fwType = detail::bootloader::fwType_t::application;
 
-        if (detail::bootloader::btldrTrigger() == detail::bootloader::btldrTrigger_t::none)
-        {
-            if (detail::bootloader::isAppValid())
-                runBootloader = false;
-            else
-                runBootloader = true;
-        }
+        if (Board::detail::bootloader::isHWtriggerActive())
+            fwType = detail::bootloader::fwType_t::bootloader;
         else
-        {
-            runBootloader = true;
-        }
+            fwType = Board::detail::bootloader::btldrTriggerSoftType();
 
-        if (runBootloader)
+        switch (fwType)
         {
-            detail::bootloader::runBootloader();
-        }
-        else
+        case detail::bootloader::fwType_t::application:
         {
 #ifdef LED_INDICATORS
             detail::io::ledFlashStartup(false);
 #endif
             detail::bootloader::runApplication();
+        }
+        break;
+
+        case detail::bootloader::fwType_t::cdc:
+            detail::bootloader::runCDC();
+            break;
+
+        default:
+            detail::bootloader::runBootloader();
         }
 #endif
     }
@@ -85,8 +85,9 @@ namespace Board
     {
         switch (type)
         {
-        case rebootType_t::rebootApp:
-            detail::bootloader::clearSWtrigger();
+        case rebootType_t::application:
+        {
+            detail::bootloader::setSWtrigger(detail::bootloader::fwType_t::application);
 #ifndef USB_MIDI_SUPPORTED
             //signal to usb link to reboot as well
             //no need to do this for bootloader reboot - the bootloader already sends btldrReboot command to USB link
@@ -104,10 +105,15 @@ namespace Board
             //give some time to usb link to properly re-initialize so that everything is in sync
             core::timing::waitMs(50);
 #endif
+        }
+        break;
+
+        case rebootType_t::bootloader:
+            detail::bootloader::setSWtrigger(detail::bootloader::fwType_t::bootloader);
             break;
 
-        case rebootType_t::rebootBtldr:
-            detail::bootloader::enableSWtrigger();
+        case rebootType_t::cdc:
+            detail::bootloader::setSWtrigger(detail::bootloader::fwType_t::cdc);
             break;
         }
 

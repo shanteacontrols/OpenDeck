@@ -467,5 +467,10 @@ namespace
             .requestID     = SYSEX_CR_FULL_BACKUP,
             .connOpenCheck = true,
         },
+
+        {
+            .requestID     = SYSEX_CR_REBOOT_CDC,
+            .connOpenCheck = true,
+        },
     };
 }    // namespace
