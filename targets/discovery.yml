@@ -11,7 +11,9 @@
     use: true
     i2cChannel: 2
   touchscreen:
-    use: false
+    use: true
+    uartChannel: 2
+    components: 64
   buttons:
     type: "native"
     pins:
