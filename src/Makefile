@@ -94,6 +94,7 @@ LDFLAGS := \
 
 #custom linker script
 LDFLAGS += -T $(LINKER_FILE)
+OPT := -Os
 
 ifeq ($(ARCH),avr)
     TOOL_PREFIX := avr-
@@ -104,7 +105,6 @@ ifeq ($(ARCH),avr)
     CXX := $(CPP_COMPILER_AVR)
     LINKER := $(LINKER_AVR)
     FLASH_BIN := $(FLASH_BIN_AVR)
-    OPT := -Os
 
     C_FLAGS += \
     -fpack-struct
@@ -129,7 +129,6 @@ else ifeq ($(ARCH),stm32)
     LINKER := $(LINKER_ARM)
     ASSEMBLER := $(C_COMPILER_ARM)
     FLASH_BIN := $(FLASH_BIN_ARM)
-    OPT := -O2
 
     COMMON_FLAGS += \
     -mcpu=$(CPU) \
