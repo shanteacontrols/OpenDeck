@@ -49,9 +49,11 @@ namespace
             .size    = 65536,
         },
 
+        //first 128k page is used both for factory settings and part of firmware
+        //place CDC firmware in lower 24kb range
         {
-            .address = 0x8020000,
-            .size    = 131072,
+            .address = 0x8026000,
+            .size    = 106496,
         },
 
         {

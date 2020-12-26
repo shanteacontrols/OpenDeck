@@ -64,6 +64,11 @@ namespace Board
             void bootloader();
 
             ///
+            /// \brief Prepares MCU to run as CDC device.
+            ///
+            void cdc();
+
+            ///
             /// \brief Initializes all used clocks on the board.
             ///
             void clocks();
@@ -447,6 +452,16 @@ namespace Board
             ///
             void runApplication();
         }    // namespace bootloader
+
+        namespace cdc
+        {
+            ///
+            /// \brief Checks if incoming UART buffer contains data.
+            /// If it does, it creates a new USB CDC packet containing that data.
+            /// Should be checked periodicaly in timer.
+            ///
+            void checkIncomingData();
+        }    // namespace cdc
 
         namespace flash
         {

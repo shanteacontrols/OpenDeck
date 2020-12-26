@@ -51,7 +51,8 @@ else ifeq ($(MCU), stm32f407vg)
     FLOAT-ABI := hard
     APP_START_ADDR := 0x8008000
     BOOT_START_ADDR := 0x8000000
-    FW_METADATA_LOCATION := 0x8008190
+    CDC_START_ADDR := 0x8020000
+    FW_METADATA_LOCATION := $(shell echo $$(($(APP_START_ADDR) + 0x190)))
     DEFINES += STM32F407xx
 else ifeq ($(MCU), stm32f405rg)
     CPU := cortex-m4
@@ -59,7 +60,8 @@ else ifeq ($(MCU), stm32f405rg)
     FLOAT-ABI := hard
     APP_START_ADDR := 0x8008000
     BOOT_START_ADDR := 0x8000000
-    FW_METADATA_LOCATION := 0x8008190
+    CDC_START_ADDR := 0x8020000
+    FW_METADATA_LOCATION := $(shell echo $$(($(APP_START_ADDR) + 0x190)))
     DEFINES += STM32F405xx
 else ifeq ($(MCU), stm32f401ce)
     CPU := cortex-m4
@@ -67,7 +69,8 @@ else ifeq ($(MCU), stm32f401ce)
     FLOAT-ABI := hard
     APP_START_ADDR := 0x8008000
     BOOT_START_ADDR := 0x8000000
-    FW_METADATA_LOCATION := 0x8008190
+    CDC_START_ADDR := 0x8020000
+    FW_METADATA_LOCATION := $(shell echo $$(($(APP_START_ADDR) + 0x190)))
     DEFINES += STM32F401xE
 else ifeq ($(MCU), stm32f411ce)
     CPU := cortex-m4
@@ -75,7 +78,8 @@ else ifeq ($(MCU), stm32f411ce)
     FLOAT-ABI := hard
     APP_START_ADDR := 0x8008000
     BOOT_START_ADDR := 0x8000000
-    FW_METADATA_LOCATION := 0x8008190
+    CDC_START_ADDR := 0x8020000
+    FW_METADATA_LOCATION := $(shell echo $$(($(APP_START_ADDR) + 0x190)))
     DEFINES += STM32F411xE
 else
     $(error MCU $(MCU) not supported)
@@ -149,14 +153,20 @@ ifeq ($(TYPE),boot)
     COMMAND_FW_UPDATE_END=$(COMMAND_FW_UPDATE_END)
 
     FLASH_START_ADDR := $(BOOT_START_ADDR)
-else
+else ifeq ($(TYPE),app)
     DEFINES += FW_APP
     FLASH_START_ADDR := $(APP_START_ADDR)
+else ifeq ($(TYPE),cdc)
+    DEFINES += FW_CDC
+    FLASH_START_ADDR := $(CDC_START_ADDR)
+else
+    $(error Invalid firmware type specified)
 endif
 
 DEFINES += FLASH_START_ADDR=$(FLASH_START_ADDR)
 DEFINES += BOOT_START_ADDR=$(BOOT_START_ADDR)
 DEFINES += APP_START_ADDR=$(APP_START_ADDR)
+DEFINES += CDC_START_ADDR=$(CDC_START_ADDR)
 
 ifeq ($(shell yq r ../targets/$(TARGETNAME).yml usb), true)
     DEFINES += USB_MIDI_SUPPORTED
@@ -187,6 +197,9 @@ ifneq (,$(findstring USB_LINK_MCU,$(DEFINES)))
 else
     DEFINES += MIDI_SYSEX_ARRAY_SIZE=100
 endif
+
+DEFINES += CDC_TX_BUFFER_SIZE=4096
+DEFINES += CDC_RX_BUFFER_SIZE=1024
 
 ifeq ($(shell yq r ../targets/$(TARGETNAME).yml dinMIDI.use), true)
     DEFINES += DIN_MIDI_SUPPORTED

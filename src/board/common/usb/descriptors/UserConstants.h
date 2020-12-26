@@ -18,18 +18,24 @@ limitations under the License.
 
 #pragma once
 
-#ifdef __AVR__
-#include <avr/pgmspace.h>
-#include "LUFA/Drivers/USB/USB.h"
+#include "board/common/usb/Arch.h"
 
-#define UNICODE_STRING(string) L##string
-#else
-#ifdef FW_CDC
-#include "descriptors/types/CDCDescriptors.h"
-#else
-#include "descriptors/types/AudioDescriptors.h"
-#include "descriptors/types/MIDIDescriptors.h"
+#define USB_VENDOR_ID 0x1209
+
+#if defined(FW_APP)
+#define USB_PRODUCT_ID 0x8472
+#elif defined(FW_BOOT)
+#define USB_PRODUCT_ID 0x8473
+#elif defined(FW_CDC)
+#define USB_PRODUCT_ID 0x8474
 #endif
 
-#define UNICODE_STRING(string) u##string
+#define USB_MANUFACTURER UNICODE_STRING("Shantea Controls")
+
+#if defined(FW_APP)
+#define USB_PRODUCT UNICODE_STRING("OpenDeck")
+#elif defined(FW_BOOT)
+#define USB_PRODUCT UNICODE_STRING("OpenDeck DFU")
+#elif defined(FW_CDC)
+#define USB_PRODUCT UNICODE_STRING("OpenDeck CDC")
 #endif

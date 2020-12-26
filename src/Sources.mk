@@ -24,16 +24,28 @@ ifneq (,$(wildcard application/io/touchscreen/design/$(TARGETNAME).json))
     TSCREEN_GEN_SOURCE += application/io/touchscreen/design/$(TARGETNAME).cpp
 endif
 
+#used for merged target - contains list of firmwares which should be merged together
+MERGED_FW_FILES := $(BUILD_DIR_BASE)/app/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex -Intel
+
+ifeq ($(ARCH), stm32)
+    ifneq (,$(findstring TOUCHSCREEN_SUPPORTED,$(DEFINES)))
+        MERGED_FW_FILES += $(BUILD_DIR_BASE)/cdc/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex -Intel
+    endif
+endif
+
+ifneq ($(NO_BOOT_MERGE),1)
+    MERGED_FW_FILES += $(BUILD_DIR_BASE)/boot/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex -Intel
+endif
+
 ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
     SOURCES += $(PINS_GEN_SOURCE)
     SOURCES += $(TSCREEN_GEN_SOURCE)
 
     #architecture specific
     ifeq ($(ARCH), avr)
-    
         INCLUDE_DIRS += \
         -I"../modules/lufa/"
-    
+
         ifneq (,$(findstring USB_MIDI_SUPPORTED,$(DEFINES)))
             #common for bootloader and application
             SOURCES += \
@@ -88,21 +100,21 @@ ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
         board/$(ARCH)/common/Bootloader.cpp \
         board/$(ARCH)/common/Init.cpp \
         board/$(ARCH)/common/ShiftRegistersWait.cpp
-    
+
         ifeq ($(ARCH),avr)
             SOURCES += board/$(ARCH)/common/Flash.cpp
             SOURCES += board/$(ARCH)/common/FlashPages.cpp
         else ifeq ($(ARCH),stm32)
             SOURCES += board/$(ARCH)/common/ISR.cpp
         endif
-    
+
         SOURCES += $(shell find ./bootloader -type f -name "*.cpp")
-    
+
         ifneq (,$(findstring USB_MIDI_SUPPORTED,$(DEFINES)))
             SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/midi -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/midi -type f -name "*.c")
             SOURCES += $(shell $(FIND) ./board/$(ARCH)/usb/midi -type f -name "*.cpp")
-    
+
             ifneq (,$(findstring USB_LINK_MCU,$(DEFINES)))
                 #for USB link MCUs, compile UART as well - needed to communicate with main MCU
                 SOURCES += \
@@ -113,27 +125,27 @@ ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
             SOURCES += \
             board/$(ARCH)/uart/UART.cpp \
             board/common/uart/UART.cpp
-    
+
             SOURCES += $(shell $(FIND) ./common/OpenDeckMIDIformat -type f -name "*.cpp")
         endif
-    else
+    else ifeq ($(TYPE),app)
         #application sources
         #common for all targets
         SOURCES += $(shell $(FIND) ./board/$(ARCH)/common -type f -name "*.cpp")
         SOURCES += $(shell $(FIND) ./common/OpenDeckMIDIformat -type f -name "*.cpp")
-    
+
         ifneq (,$(findstring USB_MIDI_SUPPORTED,$(DEFINES)))
             SOURCES += $(shell $(FIND) ./board/$(ARCH)/usb/midi -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/midi -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/midi -type f -name "*.c")
         endif
-    
+
         ifneq (,$(findstring USE_UART,$(DEFINES)))
             SOURCES += \
             board/$(ARCH)/uart/UART.cpp \
             board/common/uart/UART.cpp
         endif
-    
+
         ifneq ($(filter %16u2 %8u2, $(TARGETNAME)), )
             #fw for xu2 uses different set of sources than other targets
             SOURCES += \
@@ -148,44 +160,43 @@ ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
             SOURCES += $(shell $(FIND) ../modules/midi/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
             SOURCES += $(shell $(FIND) ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
             SOURCES += board/common/io/Stubs.cpp
-    
-    
+
             ifneq (,$(findstring ANALOG_SUPPORTED,$(DEFINES)))
                 SOURCES += $(shell $(FIND) ./application/io/analog -type f -name "*.cpp")
                 SOURCES += board/common/io/Analog.cpp
             endif
-    
+
             ifneq (,$(findstring LEDS_SUPPORTED,$(DEFINES)))
                 SOURCES += $(shell $(FIND) ./application/io/leds -maxdepth 1 -type f -name "*.cpp")
                 SOURCES += board/common/io/Output.cpp
             endif
-    
+
             ifneq (,$(findstring BUTTONS_SUPPORTED,$(DEFINES)))
                 SOURCES += $(shell $(FIND) ./application/io/buttons -type f -name "*.cpp")
                 SOURCES += $(shell $(FIND) ./application/io/encoders -maxdepth 1 -type f -name "*.cpp")
                 SOURCES += board/common/io/Input.cpp
             endif
-    
+
             ifneq (,$(findstring LED_INDICATORS,$(DEFINES)))
                 SOURCES += board/common/io/Indicators.cpp
             endif
-    
+
             #if a file named $(TARGETNAME).cpp exists in ./application/io/leds/startup directory
             #add it to the sources
             ifneq (,$(wildcard ./application/io/leds/startup/$(TARGETNAME).cpp))
                 SOURCES += ./application/io/leds/startup/$(TARGETNAME).cpp
             endif
-    
+
             ifneq (,$(findstring TOUCHSCREEN_SUPPORTED,$(DEFINES)))
                 SOURCES += $(shell $(FIND) ./application/io/touchscreen -maxdepth 1 -type f -name "*.cpp")
                 SOURCES += $(shell $(FIND) ./application/io/touchscreen/model/sdw -maxdepth 1 -type f -name "*.cpp")
                 SOURCES += $(shell $(FIND) ./application/io/touchscreen/model -type f -name "*.cpp")
             endif
-    
+
             ifneq (,$(findstring DISPLAY_SUPPORTED,$(DEFINES)))
                 SOURCES += $(shell $(FIND) ./application/io/display -type f -name "*.cpp")
                 SOURCES += $(shell $(FIND) ./board/$(ARCH)/i2c -type f -name "*.cpp")
-    
+
                 #u8x8 sources
                 SOURCES += \
                 modules/u8g2/csrc/u8x8_string.c \
@@ -202,6 +213,21 @@ ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
                 modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
             endif
         endif
+    else ifeq ($(TYPE),cdc)
+        #cdc mode sources
+        #stm32 only
+        SOURCES += \
+        board/$(ARCH)/common/Init.cpp \
+        board/common/io/Indicators.cpp \
+        board/$(ARCH)/common/ShiftRegistersWait.cpp \
+        board/$(ARCH)/common/ISR.cpp \
+        board/$(ARCH)/uart/UART.cpp \
+        board/common/uart/UART.cpp
+
+        SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/cdc -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/cdc -type f -name "*.c")
+        SOURCES += $(shell $(FIND) ./board/$(ARCH)/usb/cdc -type f -name "*.cpp")
+        SOURCES += $(shell find ./cdc -type f -name "*.cpp")
     endif
 else
     SOURCES += $(shell $(FIND) ./application/database -type f -name "*.cpp")

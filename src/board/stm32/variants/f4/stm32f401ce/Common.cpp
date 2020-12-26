@@ -376,7 +376,7 @@ extern "C" void TIM5_IRQHandler(void)
     Board::detail::isrHandling::mainTimer();
 }
 
-#ifdef FW_APP
+#if defined(FW_APP) || defined(FW_CDC)
 //not needed in bootloader
 #ifdef USE_UART
 extern "C" void USART1_IRQHandler(void)
@@ -395,10 +395,12 @@ extern "C" void USART6_IRQHandler(void)
 }
 #endif
 
+#ifdef FW_APP
 extern "C" void ADC_IRQHandler(void)
 {
     Board::detail::isrHandling::adc(hadc1.Instance->DR);
 }
+#endif
 #endif
 
 namespace Board

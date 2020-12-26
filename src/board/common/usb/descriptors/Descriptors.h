@@ -19,7 +19,12 @@ limitations under the License.
 #pragma once
 
 #include "board/common/usb/Arch.h"
+
+#ifdef FW_CDC
+#include "cdc/Descriptors.h"
+#else
 #include "midi/Descriptors.h"
+#endif
 
 #ifdef __cplusplus
 extern "C"

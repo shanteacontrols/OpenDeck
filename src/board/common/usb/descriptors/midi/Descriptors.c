@@ -50,7 +50,7 @@ limitations under the License.
 #include <stdio.h>
 #include "Descriptors.h"
 #include "../Descriptors.h"
-#include "UserConstants.h"
+#include "board/common/usb/descriptors/UserConstants.h"
 #include "core/src/general/Helpers.h"
 
 /** Configuration descriptor structure. This descriptor, located in FLASH memory, describes the usage

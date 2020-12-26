@@ -44,6 +44,19 @@ namespace Board
     {
         namespace setup
         {
+            void cdc()
+            {
+                //Reset of all peripherals, Initializes the Flash interface and the Systick
+                HAL_Init();
+
+                detail::setup::clocks();
+
+                //add some delay for clocks to stabilize
+                core::timing::waitMs(10);
+                detail::setup::timers();
+                detail::setup::usb();
+            }
+
             void application()
             {
                 //Reset of all peripherals, Initializes the Flash interface and the Systick

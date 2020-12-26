@@ -99,7 +99,7 @@ do
                     #copy merged binary to bin directory
                     dir=../bin/compiled/merged/"$(make TARGETNAME="${targets[$i]}" print-ARCH)"/"$(make TARGETNAME="${targets[$i]}" print-MCU)"
                     mkdir -p "$dir"
-                    cp "$(make TARGETNAME="${targets[$i]}" TYPE=boot print-MERGED_TARGET)" "$dir"
+                    cp "$(make TARGETNAME="${targets[$i]}" TYPE=boot print-MERGED_TARGET).hex" "$dir"
                 fi
 
                 if [[ ${targets[$i]} == "mega16u2" ]]

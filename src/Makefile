@@ -49,8 +49,14 @@ TARGET := $(BUILD_DIR)/$(TARGETNAME)
 include Defines.mk
 include Sources.mk
 
+ifeq ($(TYPE),cdc)
+    ifeq (,$(findstring TOUCHSCREEN_SUPPORTED,$(DEFINES)))
+        $(error CDC not supported for this target)
+    endif
+endif
+
 # if merged binary exists (bootloader+application), use it when running flash target
-MERGED_TARGET := $(BUILD_DIR_BASE)/merged/$(TARGETNAME).hex
+MERGED_TARGET := $(BUILD_DIR_BASE)/merged/$(TARGETNAME)
 
 #when set to 1, format target will fail if there are any changes to the repository after formatting
 CF_FAIL_ON_DIFF := 0
@@ -185,37 +191,48 @@ ifeq ($(TYPE),app)
 #append metadata only for application
 	@srec_cat $(TARGET).hex -Intel -exclude $(FW_METADATA_LOCATION) $$(($(FW_METADATA_LOCATION) + $(FW_METADATA_SIZE))) -MAximum_Little_Endian $(FW_METADATA_LOCATION) -o $(TARGET).hex -Intel
 	@srec_cat $(TARGET).hex -Intel -Cyclic_Redundancy_Check_16_Little_Endian -MAximum-Address $(TARGET).hex -Intel -Cyclic_Redundancy_Check_16_XMODEM -Output $(TARGET).hex -Intel
-#also append generated flash containing factory configuration
-ifeq ($(ARCH),stm32)
-	@srec_cat $(TARGET).hex -Intel $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin -binary -offset $(shell cat $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin_offset) -o $(TARGET).hex
-	@$(TOOL_PREFIX)objcopy --gap-fill 0xFF -O ihex $(TARGET).hex $(TARGET).hex
-endif
 endif
 	@$(TOOL_PREFIX)objcopy -I ihex "$(TARGET).hex" -O binary "$(TARGET).bin"
 	@$(SIZE_TOOL) "$(TARGET).elf"
 endif
 
-sysexfw: $(TARGET).sysex
-
-$(TARGET).sysex:
-	@$(MAKE) --no-print-directory fw TARGETNAME=$(TARGETNAME) DEBUG=0 TYPE=app
-	@echo Creating SysEx file...
-	@../scripts/sysex_fw_create.sh $(TARGET).bin $(TARGET).sysex $(SYSEX_MANUFACTURER_ID_0) $(SYSEX_MANUFACTURER_ID_1) $(SYSEX_MANUFACTURER_ID_2) $(COMMAND_FW_UPDATE_START) $(COMMAND_FW_UPDATE_END) $(FW_UID)
-
 merged:
 	@mkdir -p $(BUILD_DIR_BASE)/merged
 	@echo Building application...
 	@$(MAKE) --no-print-directory TARGETNAME=$(TARGETNAME) TYPE=app
+ifneq ($(NO_BOOT_MERGE),1)
 	@echo Building bootloader...
 	@$(MAKE) --no-print-directory TARGETNAME=$(TARGETNAME) TYPE=boot
-	@echo Combining application and bootloader...
-ifeq ($(ARCH), avr)
-	@srec_cat "$(BUILD_DIR_BASE)/app/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex" -Intel "$(BUILD_DIR_BASE)/boot/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex" -Intel -o $(MERGED_TARGET) -Intel
-else
-	@srec_cat "$(BUILD_DIR_BASE)/boot/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex" -Intel "$(BUILD_DIR_BASE)/app/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex" -Intel -o $(MERGED_TARGET) -Intel
 endif
-	@$(TOOL_PREFIX)objcopy -I ihex "$(MERGED_TARGET)" -O binary "$(MERGED_TARGET).bin"
-	@echo Merged binary created: $(MERGED_TARGET)
+ifeq ($(ARCH), stm32)
+ifneq (,$(findstring TOUCHSCREEN_SUPPORTED,$(DEFINES)))
+		@echo Building CDC...
+		@$(MAKE) --no-print-directory TARGETNAME=$(TARGETNAME) TYPE=cdc
+endif
+endif
+ifeq ($(ARCH), avr)
+	@srec_cat \
+	$(MERGED_FW_FILES) \
+	-o $(MERGED_TARGET).hex -Intel
+else
+#define FACTORY_IMAGE_START_ADDR variable as shell variable instead of make variable:
+#when this recipe is started, generated_flash.bin_offset doesn't exist yet, so make will
+#complain that it cannot find it if it were defined like this: $(shell cat $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin_offset)
+	@FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin_offset) && \
+	srec_cat \
+	$(MERGED_FW_FILES) \
+	$(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
+	-o $(MERGED_TARGET).hex -Intel
+endif
+	@$(TOOL_PREFIX)objcopy --gap-fill 0xFF -O ihex $(MERGED_TARGET).hex $(MERGED_TARGET)_filled.hex
+	@$(TOOL_PREFIX)objcopy -I ihex "$(MERGED_TARGET)_filled.hex" -O binary "$(MERGED_TARGET).bin"
+	@echo Merged binary created: $(MERGED_TARGET).hex
+
+sysexfw:
+#create merged binary but without bootloader
+	@$(MAKE) --no-print-directory merged TARGETNAME=$(TARGETNAME) DEBUG=0 NO_BOOT_MERGE=1
+	@echo Creating SysEx file...
+	@../scripts/sysex_fw_create.sh $(MERGED_TARGET).bin $(TARGET).sysex $(SYSEX_MANUFACTURER_ID_0) $(SYSEX_MANUFACTURER_ID_1) $(SYSEX_MANUFACTURER_ID_2) $(COMMAND_FW_UPDATE_START) $(COMMAND_FW_UPDATE_END) $(FW_UID)
 
 pre-build: $(PINS_GEN_SOURCE) $(TSCREEN_GEN_SOURCE)
 
@@ -260,22 +277,22 @@ $(BUILD_DIR)/%.s.o: %.s
 flash:
 ifeq ($(ARCH), avr)
 	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -e -V -u -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
-ifneq (,$(wildcard $(MERGED_TARGET)))
-	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:$(MERGED_TARGET)
+ifneq (,$(wildcard $(MERGED_TARGET).hex))
+	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:$(MERGED_TARGET).hex
 else
 	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:$(TARGET).hex
 endif
 	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -V -u -U lock:w:$(FUSE_LOCK):m
 else
-ifneq (,$(wildcard $(MERGED_TARGET)))
-	st-flash write $(MERGED_TARGET) $(BOOT_START_ADDR)
+ifneq (,$(wildcard $(MERGED_TARGET).hex))
+	st-flash write $(MERGED_TARGET).hex $(BOOT_START_ADDR)
 else
 	st-flash write $(TARGET).bin $(BOOT_START_ADDR)
 endif
 endif
 
 flash-bmp:
-ifneq (,$(wildcard $(MERGED_TARGET)))
+ifneq (,$(wildcard $(MERGED_TARGET).hex))
 	$(FLASH_BIN) -nx --batch \
 	-ex 'target extended-remote /dev/$(PORT)' \
 	-ex 'monitor swdp_scan' \
@@ -283,7 +300,7 @@ ifneq (,$(wildcard $(MERGED_TARGET)))
 	-ex 'load' \
 	-ex 'compare-sections' \
 	-ex 'kill' \
-	$(MERGED_TARGET)
+	$(MERGED_TARGET).hex
 else
 	$(FLASH_BIN) -nx --batch \
 	-ex 'target extended-remote /dev/$(PORT)' \

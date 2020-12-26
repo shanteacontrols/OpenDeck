@@ -16,22 +16,13 @@ limitations under the License.
 
 */
 
-#pragma once
+#include "board/Board.h"
 
-#include "board/common/usb/Arch.h"
+int main()
+{
+    Board::init();
 
-#define USB_VENDOR_ID 0x1209
-
-#if defined(FW_APP)
-#define USB_PRODUCT_ID 0x8472
-#elif defined(FW_BOOT)
-#define USB_PRODUCT_ID 0x8473
-#endif
-
-#define USB_MANUFACTURER UNICODE_STRING("Shantea Controls")
-
-#if defined(FW_APP)
-#define USB_PRODUCT UNICODE_STRING("OpenDeck")
-#elif defined(FW_BOOT)
-#define USB_PRODUCT UNICODE_STRING("OpenDeck DFU")
-#endif
+    while (1)
+    {
+    }
+}

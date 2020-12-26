@@ -122,6 +122,18 @@
             }
         },
         {
+            "label": "[CDC/Discovery/Debug] Build",
+            "command": "cd ./src && compiledb -d . make TARGETNAME=discovery LANG=C DEBUG=1 TYPE=cdc",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
             "label": "[FW/BTLDR] Clean",
             "command": "cd ./src && make clean",
             "type": "shell",

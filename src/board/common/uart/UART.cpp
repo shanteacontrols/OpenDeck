@@ -26,8 +26,13 @@ limitations under the License.
 
 //generic UART driver, arch-independent
 
+#ifdef FW_CDC
+#define TX_BUFFER_SIZE CDC_TX_BUFFER_SIZE
+#define RX_BUFFER_SIZE CDC_RX_BUFFER_SIZE
+#else
 #define TX_BUFFER_SIZE MIDI_SYSEX_ARRAY_SIZE
 #define RX_BUFFER_SIZE MIDI_SYSEX_ARRAY_SIZE
+#endif
 
 namespace
 {
@@ -110,8 +115,10 @@ namespace Board
             if (channel >= MAX_UART_INTERFACES)
                 return false;
 
+#ifndef FW_CDC
             if (isInitialized(channel))
                 return false;    //interface already initialized
+#endif
 
             if (deInit(channel))
             {
