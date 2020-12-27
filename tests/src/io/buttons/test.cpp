@@ -379,6 +379,7 @@ TEST_CASE(ProgramChange)
     //now, revert all buttons back to default
     database.factoryReset();
 
+#if MAX_NUMBER_OF_BUTTONS > 1
     //configure some other button to programChangeInc
     configurePCbutton(4, 0, true);
 
@@ -489,6 +490,7 @@ TEST_CASE(ProgramChange)
     //button 0 should increase the last value by 1
     verifyProgramChange(0, 0, 1);
     stateChangeRegister(false);
+#endif
 }
 
 TEST_CASE(ControlChange)
