@@ -284,5 +284,4 @@
       port: "B"
       index: 4
       activeState: "high"
-  release: true
   test: true

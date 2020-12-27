@@ -33,7 +33,7 @@ ifeq ($(ARCH), stm32)
     endif
 endif
 
-ifneq ($(NO_BOOT_MERGE),1)
+ifneq ($(SYSEX_MERGE),1)
     MERGED_FW_FILES += $(BUILD_DIR_BASE)/boot/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex -Intel
 endif
 

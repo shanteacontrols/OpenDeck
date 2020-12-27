@@ -33,5 +33,4 @@
     uartChannel: 0
   bootloader:
     use: true
-  release: true
   test: false

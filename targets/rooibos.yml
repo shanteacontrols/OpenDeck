@@ -92,5 +92,4 @@
       present: false
   bootloader:
     use: true
-  release: true
   test: true

@@ -188,5 +188,4 @@
     button:
       port: "D"
       index: 2
-  release: true
   test: true

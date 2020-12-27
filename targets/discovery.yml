@@ -173,5 +173,4 @@
       port: "A"
       index: 0
       activeState: "high"
-  release: true
   test: true

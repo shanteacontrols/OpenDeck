@@ -151,5 +151,4 @@
     led:
       port: "D"
       index: 6
-  release: true
   test: true

@@ -228,5 +228,4 @@
     led:
       port: "B"
       index: 7
-  release: true
   test: true

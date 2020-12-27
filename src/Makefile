@@ -52,6 +52,14 @@ endif
 # if merged binary exists (bootloader+application), use it when running flash target
 MERGED_TARGET := $(BUILD_DIR_BASE)/merged/$(TARGETNAME)
 
+ifneq (,$(findstring sysexfw,$(MAKECMDGOALS)))
+    SYSEX_MERGE := 1
+endif
+
+ifeq ($(SYSEX_MERGE),1)
+    MERGED_TARGET := $(MERGED_TARGET)_sysex
+endif
+
 #when set to 1, format target will fail if there are any changes to the repository after formatting
 CF_FAIL_ON_DIFF := 0
 
@@ -190,7 +198,7 @@ merged:
 	@mkdir -p $(BUILD_DIR_BASE)/merged
 	@echo Building application...
 	@$(MAKE) --no-print-directory TARGETNAME=$(TARGETNAME) TYPE=app
-ifneq ($(NO_BOOT_MERGE),1)
+ifneq ($(SYSEX_MERGE),1)
 	@echo Building bootloader...
 	@$(MAKE) --no-print-directory TARGETNAME=$(TARGETNAME) TYPE=boot
 endif
@@ -220,7 +228,7 @@ endif
 
 sysexfw:
 #create merged binary but without bootloader
-	@$(MAKE) --no-print-directory merged TARGETNAME=$(TARGETNAME) DEBUG=0 NO_BOOT_MERGE=1
+	@$(MAKE) --no-print-directory merged TARGETNAME=$(TARGETNAME) DEBUG=0 SYSEX_MERGE=1
 	@echo Creating SysEx file...
 	@../scripts/sysex_fw_create.sh $(MERGED_TARGET).bin $(TARGET).sysex $(SYSEX_MANUFACTURER_ID_0) $(SYSEX_MANUFACTURER_ID_1) $(SYSEX_MANUFACTURER_ID_2) $(COMMAND_FW_UPDATE_START) $(COMMAND_FW_UPDATE_END) $(FW_UID)
 

@@ -110,5 +110,4 @@
     button:
       port: "A"
       index: 0
-  release: true
   test: true

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 function usage
 {
     echo -e "\nUsage: ./$(basename "$0") --type"
@@ -63,13 +65,11 @@ fi
 
 targets=()
 btldr=()
-release=()
 test=()
 
 for config in ../targets/*.yml;
 do
     targets+=("$(basename "$config" .yml)")
-    release+=("$(yq r "$config" release)")
     test+=("$(yq r "$config" test)")
     btldr+=("$(yq r "$config" bootloader.use)")
 done
@@ -85,63 +85,31 @@ for (( i=0; i<len_targets; i++ ))
 do
     if [[ "$TYPE" != "tests" ]]
     then
+        make merged TARGETNAME="${targets[$i]}" DEBUG=0
+
         if [[ "$BUILD_RELEASE" == "true" ]]
         then
-            if [[ "${release[$i]}" == "false" ]]
+            #copy merged binary to bin directory
+            dir=../bin/compiled/merged/"$(make TARGETNAME="${targets[$i]}" print-ARCH)"/"$(make TARGETNAME="${targets[$i]}" print-MCU)"
+            mkdir -p "$dir"
+            cp "$(make TARGETNAME="${targets[$i]}" TYPE=app print-MERGED_TARGET).hex" "$dir"
+
+            if [[ ${targets[$i]} == "mega16u2" ]]
             then
+                #no need to create sysex firmware for atmega16u2 - it's only a USB link
                 continue;
-            else
-                make merged TARGETNAME="${targets[$i]}" DEBUG=0
-                result=$?
-
-                if [[ "$result" -eq 0 ]]
-                then
-                    #copy merged binary to bin directory
-                    dir=../bin/compiled/merged/"$(make TARGETNAME="${targets[$i]}" print-ARCH)"/"$(make TARGETNAME="${targets[$i]}" print-MCU)"
-                    mkdir -p "$dir"
-                    cp "$(make TARGETNAME="${targets[$i]}" TYPE=boot print-MERGED_TARGET).hex" "$dir"
-                fi
-
-                if [[ ${targets[$i]} == "mega16u2" ]]
-                then
-                    #no need to create sysex firmware for atmega16u2 - it's only a USB link
-                    continue;
-                fi
-
-                #create sysex fw update file
-                make sysexfw TARGETNAME="${targets[$i]}" TYPE=app
             fi
+
+            #create sysex fw update file
+            make sysexfw TARGETNAME="${targets[$i]}" TYPE=app
         fi
     else
         if [[ "${test[$i]}" == "false" ]]
         then
             continue;
+        else
+            make pre-build TARGETNAME="${targets[$i]}" DEBUG=0
+            make TARGETNAME="${targets[$i]}" TYPE=app DEBUG=0
         fi
-    fi
-
-    if [[ "$TYPE" == "tests" ]]
-    then
-        make pre-build TARGETNAME="${targets[$i]}" DEBUG=0
-    else
-    if [[ "${btldr[$i]}" == "true" ]]
-    then
-        make TARGETNAME="${targets[$i]}" TYPE=boot DEBUG=0
-
-        result=$?
-
-        if [[ ($result -ne 0) ]]
-        then
-            exit 1
-        fi
-    fi
-    fi
-
-    make TARGETNAME="${targets[$i]}" TYPE=app DEBUG=0
-
-    result=$?
-
-    if [[ ($result -ne 0) ]]
-    then
-        exit 1
     fi
 done
