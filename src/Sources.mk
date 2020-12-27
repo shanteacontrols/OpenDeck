@@ -173,7 +173,13 @@ ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
 
             ifneq (,$(findstring BUTTONS_SUPPORTED,$(DEFINES)))
                 SOURCES += $(shell $(FIND) ./application/io/buttons -type f -name "*.cpp")
+            endif
+
+            ifneq (,$(findstring ENCODERS_SUPPORTED,$(DEFINES)))
                 SOURCES += $(shell $(FIND) ./application/io/encoders -maxdepth 1 -type f -name "*.cpp")
+            endif
+
+            ifneq (,$(filter $(DEFINES),ENCODERS_SUPPORTED BUTTONS_SUPPORTED))
                 SOURCES += board/common/io/Input.cpp
             endif
 

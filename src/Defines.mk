@@ -235,7 +235,6 @@ endif
 
 ifneq ($(shell yq r ../targets/$(TARGETNAME).yml buttons),)
     DEFINES += BUTTONS_SUPPORTED
-    DEFINES += ENCODERS_SUPPORTED
 endif
 
 ifeq ($(shell yq r ../targets/$(TARGETNAME).yml buttons.type), native)
@@ -271,6 +270,10 @@ endif
 ifneq ($(shell yq r ../targets/$(TARGETNAME).yml buttons.indexing),)
     MAX_NUMBER_OF_BUTTONS := $(shell yq r ../targets/$(TARGETNAME).yml buttons.indexing --length)
     DEFINES += BUTTON_INDEXING
+endif
+
+ifeq ($(shell test $(MAX_NUMBER_OF_BUTTONS) -gt 1; echo $$?),0)
+    DEFINES += ENCODERS_SUPPORTED
 endif
 
 ifneq ($(shell yq r ../targets/$(TARGETNAME).yml analog),)
