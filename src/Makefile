@@ -4,12 +4,6 @@ BUILD_DIR_BASE := ./build
 TARGETNAME := mega2560
 TYPE := app
 
-ifneq (,$(wildcard $(BUILD_DIR_BASE)/TARGET))
-    TARGETNAME := $(shell cat $(BUILD_DIR_BASE)/TARGET)
-    DEBUG := $(shell cat $(BUILD_DIR_BASE)/DEBUG)
-    TYPE := $(shell cat $(BUILD_DIR_BASE)/TYPE)
-endif
-
 ifeq (,$(wildcard ../targets/$(TARGETNAME).yml))
     $(error Target doesn't exist)
 endif
@@ -182,9 +176,6 @@ $(TARGET).elf: $(OBJECTS) $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/gener
 	@echo Creating executable: $@
 	@$(LINKER) -o$(TARGET).elf $(OBJECTS) $(LDFLAGS)
 ifneq ($(ARCH),x86)
-	@echo $(TARGETNAME) > $(BUILD_DIR_BASE)/TARGET
-	@echo $(DEBUG) > $(BUILD_DIR_BASE)/DEBUG
-	@echo $(TYPE) > $(BUILD_DIR_BASE)/TYPE
 	@$(TOOL_PREFIX)objcopy --gap-fill 0xFF -O ihex $(TARGET).elf $(TARGET).hex
 ifeq ($(TYPE),app)
 #append metadata only for application
