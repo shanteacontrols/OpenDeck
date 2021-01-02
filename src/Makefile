@@ -180,7 +180,7 @@ fw:
 	@$(MAKE) --no-print-directory TYPE=$(TYPE) TARGETNAME=$(TARGETNAME) pre-build
 	@$(MAKE) --no-print-directory TYPE=$(TYPE) TARGETNAME=$(TARGETNAME) $(TARGET).elf
 
-$(TARGET).elf: $(OBJECTS) $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin_offset
+$(TARGET).elf: $(OBJECTS) $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/$(BUILD_TYPE)/generated_flash.bin_offset
 	@echo Creating executable: $@
 	@$(LINKER) -o$(TARGET).elf $(OBJECTS) $(LDFLAGS)
 ifneq ($(ARCH),x86)
@@ -216,10 +216,10 @@ else
 #define FACTORY_IMAGE_START_ADDR variable as shell variable instead of make variable:
 #when this recipe is started, generated_flash.bin_offset doesn't exist yet, so make will
 #complain that it cannot find it if it were defined like this: $(shell cat $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin_offset)
-	@FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin_offset) && \
+	@FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/$(BUILD_TYPE)/generated_flash.bin_offset) && \
 	srec_cat \
 	$(MERGED_FW_FILES) \
-	$(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
+	$(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/$(BUILD_TYPE)/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
 	-o $(MERGED_TARGET).hex -Intel
 endif
 	@$(TOOL_PREFIX)objcopy --gap-fill 0xFF -O ihex $(MERGED_TARGET).hex $(MERGED_TARGET)_filled.hex
@@ -242,17 +242,17 @@ application/io/touchscreen/design/$(TARGETNAME).cpp: application/io/touchscreen/
 	@echo Generating touchscreen coordinate file...
 	@../scripts/gen_touchscreen.sh $<
 
-$(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin_offset:
+$(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/$(BUILD_TYPE)/generated_flash.bin_offset:
 ifeq ($(ARCH), stm32)
 ifeq ($(TYPE),app)
-	@$(MAKE) --no-print-directory TARGETNAME=$(TARGETNAME) TYPE=app DEBUG=0 flashgen
+	@$(MAKE) --no-print-directory TARGETNAME=$(TARGETNAME) TYPE=app DEBUG=$(DEBUG) flashgen
 	@echo Generating factory flash configuration...
-	@./$(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/$(TARGETNAME).elf $(shell pwd)/$(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin
+	@./$(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).elf $(shell pwd)/$(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/$(BUILD_TYPE)/generated_flash.bin
 endif
 else
 #just generate empty file if not needed to avoid re-linking on repeated calls of make on targets where this isn't used
-	@mkdir -p $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release
-	@touch $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin_offset
+	@mkdir -p $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/$(BUILD_TYPE)
+	@touch $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/$(BUILD_TYPE)/generated_flash.bin_offset
 endif
 
 flashgen: $(TARGET).elf
