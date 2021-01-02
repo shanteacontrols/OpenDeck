@@ -79,7 +79,7 @@ TEST_CASE(ReadInitialValues)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::button_t::type, i));
 
         //midi message section
-        //all values should be set to 0 (default type)
+        //all values should be set to 0 (default/note)
         for (int i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS; i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::button_t::midiMessage, i));
 
