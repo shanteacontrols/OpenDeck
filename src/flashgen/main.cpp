@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <array>
 #include <iterator>
 #include <string>
 #include "database/Database.h"
@@ -26,11 +27,11 @@ namespace
                 size_t size = 0;
 
                 //get actual size of vector by finding first entry with content 0xFFFFFFFF
-                for (; size < _flashVector.size(); size += 4)
+                for (; size < _flashVector.at(activePageWrite).size(); size += 4)
                 {
                     uint32_t data;
 
-                    if (!read32(size, data))
+                    if (!read32(size + (pageSize() * activePageWrite), data))
                     {
                         while(1)
                         {
@@ -46,7 +47,7 @@ namespace
                     }
                 }
 
-                file.write(reinterpret_cast<char*>(&_flashVector[0]), (size + 4) * sizeof(uint8_t));
+                file.write(reinterpret_cast<char*>(&_flashVector.at(activePageWrite)[0]), (size + 4) * sizeof(uint8_t));
                 file.close();
             }
 
@@ -64,70 +65,108 @@ namespace
 
         bool init() override
         {
-            _flashVector.resize(pageSize(), 0xFF);
+            _flashVector.at(0).resize(pageSize(), 0xFF);
+            _flashVector.at(1).resize(pageSize(), 0xFF);
             return true;
         }
 
         uint32_t startAddress(EmuEEPROM::page_t page) override
         {
-            return 0;
+            return pageSize() * static_cast<uint32_t>(page);
         }
 
         bool erasePage(EmuEEPROM::page_t page) override
         {
+            switch(page)
+            {
+                case EmuEEPROM::page_t::page2:
+                    std::fill(_flashVector.at(1).begin(), _flashVector.at(1).end(), 0xFF);
+                    break;
+
+                default:
+                    std::fill(_flashVector.at(0).begin(), _flashVector.at(0).end(), 0xFF);
+                    break;
+            }
             return true;
         }
 
         bool write16(uint32_t address, uint16_t data) override
         {
-            _flashVector.at(address + 0) = data >> 0 & static_cast<uint16_t>(0xFF);
-            _flashVector.at(address + 1) = data >> 8 & static_cast<uint16_t>(0xFF);
+            size_t page = 0;
+
+            if (address >= pageSize())
+            {
+                address -= pageSize();
+                page = 1;
+            }
+
+            _flashVector.at(page).at(address + 0) = data >> 0 & static_cast<uint16_t>(0xFF);
+            _flashVector.at(page).at(address + 1) = data >> 8 & static_cast<uint16_t>(0xFF);
 
             return true;
         }
 
         bool write32(uint32_t address, uint32_t data) override
         {
-            _flashVector.at(address + 0) = data >> 0 & static_cast<uint16_t>(0xFF);
-            _flashVector.at(address + 1) = data >> 8 & static_cast<uint16_t>(0xFF);
-            _flashVector.at(address + 2) = data >> 16 & static_cast<uint16_t>(0xFF);
-            _flashVector.at(address + 3) = data >> 24 & static_cast<uint16_t>(0xFF);
+            size_t page = 0;
+
+            if (address >= pageSize())
+            {
+                address -= pageSize();
+                page = 1;
+            }
+
+            if (address == 0)
+            {
+                if (
+                (data == static_cast<uint32_t>(EmuEEPROM::pageStatus_t::receiving)) ||
+                (data == static_cast<uint32_t>(EmuEEPROM::pageStatus_t::valid))
+                )
+                    activePageWrite = page;
+            }
+
+            _flashVector.at(page).at(address + 0) = data >> 0 & static_cast<uint16_t>(0xFF);
+            _flashVector.at(page).at(address + 1) = data >> 8 & static_cast<uint16_t>(0xFF);
+            _flashVector.at(page).at(address + 2) = data >> 16 & static_cast<uint16_t>(0xFF);
+            _flashVector.at(page).at(address + 3) = data >> 24 & static_cast<uint16_t>(0xFF);
 
             return true;
         }
 
         bool read16(uint32_t address, uint16_t& data) override
         {
-            if (address >= _flashVector.size())
+            size_t page = 0;
+
+            if (address >= pageSize())
             {
-                data = 0xFFFF;
+                address -= pageSize();
+                page = 1;
             }
-            else
-            {
-                data = _flashVector.at(address + 1);
-                data <<= 8;
-                data |= _flashVector.at(address + 0);
-            }
+
+            data = _flashVector.at(page).at(address + 1);
+            data <<= 8;
+            data |= _flashVector.at(page).at(address + 0);
 
             return true;
         }
 
         bool read32(uint32_t address, uint32_t& data) override
         {
-            if (address >= _flashVector.size())
+            size_t page = 0;
+
+            if (address >= pageSize())
             {
-                data = 0xFFFF;
+                address -= pageSize();
+                page = 1;
             }
-            else
-            {
-                data = _flashVector.at(address + 3);
-                data <<= 8;
-                data |= _flashVector.at(address + 2);
-                data <<= 8;
-                data |= _flashVector.at(address + 1);
-                data <<= 8;
-                data |= _flashVector.at(address + 0);
-            }
+
+            data = _flashVector.at(page).at(address + 3);
+            data <<= 8;
+            data |= _flashVector.at(page).at(address + 2);
+            data <<= 8;
+            data |= _flashVector.at(page).at(address + 1);
+            data <<= 8;
+            data |= _flashVector.at(page).at(address + 0);
 
             return true;
         }
@@ -143,8 +182,9 @@ namespace
         }
 
         private:
-        std::vector<uint8_t> _flashVector;
+        std::array<std::vector<uint8_t>, 2> _flashVector;
         std::string          _filename;
+        size_t activePageWrite = 0;
 
     } emuEEPROMstorage;
 
@@ -276,5 +316,13 @@ int main(int argc, char* argv[])
         emuEEPROMstorage.setFilename(argv[1]);
     }
 
-    return !database.init();
+    if (database.init())
+    {
+        //ensure that we have clean flash binary:
+        //firmware also uses custom values after defaults have been written
+        emuEEPROM.pageTransfer();
+        return 0;
+    }
+
+    return 1;
 }
