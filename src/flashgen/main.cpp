@@ -33,7 +33,7 @@ namespace
 
                     if (!read32(size + (pageSize() * activePageWrite), data))
                     {
-                        while(1)
+                        while (1)
                         {
                             //should never happen
                         }
@@ -77,15 +77,15 @@ namespace
 
         bool erasePage(EmuEEPROM::page_t page) override
         {
-            switch(page)
+            switch (page)
             {
-                case EmuEEPROM::page_t::page2:
-                    std::fill(_flashVector.at(1).begin(), _flashVector.at(1).end(), 0xFF);
-                    break;
+            case EmuEEPROM::page_t::page2:
+                std::fill(_flashVector.at(1).begin(), _flashVector.at(1).end(), 0xFF);
+                break;
 
-                default:
-                    std::fill(_flashVector.at(0).begin(), _flashVector.at(0).end(), 0xFF);
-                    break;
+            default:
+                std::fill(_flashVector.at(0).begin(), _flashVector.at(0).end(), 0xFF);
+                break;
             }
             return true;
         }
@@ -119,9 +119,8 @@ namespace
             if (address == 0)
             {
                 if (
-                (data == static_cast<uint32_t>(EmuEEPROM::pageStatus_t::receiving)) ||
-                (data == static_cast<uint32_t>(EmuEEPROM::pageStatus_t::valid))
-                )
+                    (data == static_cast<uint32_t>(EmuEEPROM::pageStatus_t::receiving)) ||
+                    (data == static_cast<uint32_t>(EmuEEPROM::pageStatus_t::valid)))
                     activePageWrite = page;
             }
 
@@ -183,8 +182,8 @@ namespace
 
         private:
         std::array<std::vector<uint8_t>, 2> _flashVector;
-        std::string          _filename;
-        size_t activePageWrite = 0;
+        std::string                         _filename;
+        size_t                              activePageWrite = 0;
 
     } emuEEPROMstorage;
 

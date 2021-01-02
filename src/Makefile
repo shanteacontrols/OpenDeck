@@ -318,7 +318,7 @@ endif
 format:
 	@echo Checking code formatting...
 	@$(FIND) . -regex '.*\.\(cpp\|hpp\|h\|cc\|cxx\)' \
-	-not -path "*gen*" \
+	-not -path "**/gen/**/*" \
 	-not -name "*hal_conf*" \
 	-exec $(CLANG_FORMAT) -style=file -i {} \;
 ifeq ($(CF_FAIL_ON_DIFF), 1)
