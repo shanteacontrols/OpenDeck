@@ -167,7 +167,7 @@
         },
         {
             "label": "[Flashgen] Build",
-            "command": "cd ./src && make TARGETNAME=${input:target} flashgen LANG=C DEBUG=1",
+            "command": "cd ./src && make TARGETNAME=${input:target} flashgen LANG=C DEBUG=1 && cp ./build/flashgen/${input:target}/debug/${input:target}.elf ./build/flashgen/flashgen.elf && touch ./build/flashgen/${input:target}/debug/generated_flash.bin",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"

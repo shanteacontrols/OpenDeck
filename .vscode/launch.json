@@ -105,8 +105,10 @@
             "name": "Flashgen",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/src/build/flashgen/opendeck2/debug/opendeck2.elf",
-            "args": [],
+            "program": "${workspaceFolder}/src/build/flashgen/flashgen.elf",
+            "args": [
+                "${workspaceFolder}/src/build/flashgen/generated_flash.bin"
+            ],
             "stopAtEntry": true,
             "environment": [],
             "externalConsole": false,
