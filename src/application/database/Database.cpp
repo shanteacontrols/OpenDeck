@@ -24,13 +24,11 @@ limitations under the License.
 /// \brief Helper macro for easier entry and exit from system block.
 /// Important: ::init must called before trying to use this macro.
 ///
-#define SYSTEM_BLOCK_ENTER(code)                                                    \
-    {                                                                               \
-        setStartAddress(0);                                                         \
-        LESSDB::setLayout(dbLayout, static_cast<uint8_t>(block_t::AMOUNT) + 1);     \
-        code                                                                        \
-            LESSDB::setLayout(&dbLayout[1], static_cast<uint8_t>(block_t::AMOUNT)); \
-        setStartAddress(userDataStartAddress + (lastPresetAddress * activePreset)); \
+#define SYSTEM_BLOCK_ENTER(code)                                                                                                               \
+    {                                                                                                                                          \
+        LESSDB::setLayout(dbLayout, static_cast<uint8_t>(block_t::AMOUNT) + 1, 0);                                                             \
+        code                                                                                                                                   \
+            LESSDB::setLayout(&dbLayout[1], static_cast<uint8_t>(block_t::AMOUNT), userDataStartAddress + (lastPresetAddress * activePreset)); \
     }
 
 ///
@@ -41,12 +39,10 @@ bool Database::init()
     if (!LESSDB::init())
         return false;
 
-    setStartAddress(0);
-
     uint32_t systemBlockUsage = 0;
 
     //set only system block for now
-    if (!LESSDB::setLayout(dbLayout, 1))
+    if (!LESSDB::setLayout(dbLayout, 1, 0))
     {
         return false;
     }
@@ -56,7 +52,7 @@ bool Database::init()
         userDataStartAddress = LESSDB::nextParameterAddress();
 
         //now set the entire layout
-        if (!LESSDB::setLayout(dbLayout, static_cast<uint8_t>(block_t::AMOUNT) + 1))
+        if (!LESSDB::setLayout(dbLayout, static_cast<uint8_t>(block_t::AMOUNT) + 1, 0))
             return false;
     }
 
@@ -134,6 +130,13 @@ bool Database::factoryReset()
 
     if (initializeData)
     {
+        //init system block first
+        if (!LESSDB::setLayout(dbLayout, 1, 0))
+            return false;
+
+        if (!initData(LESSDB::factoryResetType_t::full))
+            return false;
+
         for (int i = supportedPresets - 1; i >= 0; i--)
         {
             if (!setPresetInternal(i))
@@ -210,7 +213,7 @@ bool Database::setPresetInternal(uint8_t preset)
         return false;
 
     activePreset = preset;
-    setStartAddress(userDataStartAddress + (lastPresetAddress * activePreset));
+    LESSDB::setLayout(&dbLayout[1], static_cast<uint8_t>(block_t::AMOUNT), userDataStartAddress + (lastPresetAddress * activePreset));
 
     return true;
 }
