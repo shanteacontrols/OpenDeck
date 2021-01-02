@@ -20,11 +20,6 @@ limitations under the License.
 
 #include "dbms/src/LESSDB.h"
 
-///
-/// \addtogroup eeprom
-/// @{
-///
-
 class Database : public LESSDB
 {
     public:
