@@ -85,14 +85,14 @@ for (( i=0; i<len_targets; i++ ))
 do
     if [[ "$TYPE" != "tests" ]]
     then
-        make merged TARGETNAME="${targets[$i]}" DEBUG=0
+        make merged TARGET="${targets[$i]}" DEBUG=0
 
         if [[ "$BUILD_RELEASE" == "true" ]]
         then
             #copy merged binary to bin directory
-            dir=../bin/compiled/merged/"$(make TARGETNAME="${targets[$i]}" print-ARCH)"/"$(make TARGETNAME="${targets[$i]}" print-MCU)"
+            dir=../bin/compiled/merged/"$(make TARGET="${targets[$i]}" print-ARCH)"/"$(make TARGET="${targets[$i]}" print-MCU)"
             mkdir -p "$dir"
-            cp "$(make TARGETNAME="${targets[$i]}" TYPE=app print-MERGED_TARGET).hex" "$dir"
+            cp "$(make TARGET="${targets[$i]}" TYPE=app print-MERGED_TARGET).hex" "$dir"
 
             if [[ ${targets[$i]} == "mega16u2" ]]
             then
@@ -101,15 +101,15 @@ do
             fi
 
             #create sysex fw update file
-            make sysexfw TARGETNAME="${targets[$i]}" TYPE=app
+            make sysexfw TARGET="${targets[$i]}" TYPE=app
         fi
     else
         if [[ "${test[$i]}" == "false" ]]
         then
             continue;
         else
-            make pre-build TARGETNAME="${targets[$i]}" DEBUG=0
-            make TARGETNAME="${targets[$i]}" TYPE=app DEBUG=0
+            make pre-build TARGET="${targets[$i]}" DEBUG=0
+            make TARGET="${targets[$i]}" TYPE=app DEBUG=0
         fi
     fi
 done

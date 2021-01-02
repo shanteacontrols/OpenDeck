@@ -24,7 +24,7 @@ ifeq ($(ARCH), stm32)
     DEFINES += STM32_EMU_EEPROM
 endif
 
-DEFINES += OD_BOARD_$(shell echo $(TARGETNAME) | tr 'a-z' 'A-Z')
+DEFINES += OD_BOARD_$(shell echo $(TARGET) | tr 'a-z' 'A-Z')
 DEFINES += DATABASE_SIZE=$(DATABASE_SIZE)
 
 DEFINES += SYSEX_MANUFACTURER_ID_0=0x00

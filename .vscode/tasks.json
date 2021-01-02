@@ -3,7 +3,7 @@
     "tasks": [
         {
             "label": "[FW/BTLDR] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=${input:target} LANG=C DEBUG=${input:debug}",
+            "command": "cd ./src && compiledb -d . make TARGET=${input:target} LANG=C DEBUG=${input:debug}",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -15,7 +15,7 @@
         },
         {
             "label": "[FW/STM32FDiscovery/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=discovery LANG=C DEBUG=1 TYPE=app",
+            "command": "cd ./src && compiledb -d . make TARGET=discovery LANG=C DEBUG=1 TYPE=app",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -27,7 +27,7 @@
         },
         {
             "label": "[BTLDR/STM32FDiscovery/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=discovery LANG=C DEBUG=1 TYPE=boot",
+            "command": "cd ./src && compiledb -d . make TARGET=discovery LANG=C DEBUG=1 TYPE=boot",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -39,7 +39,7 @@
         },
         {
             "label": "[FW/Cardamom/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=cardamom LANG=C DEBUG=1 TYPE=app",
+            "command": "cd ./src && compiledb -d . make TARGET=cardamom LANG=C DEBUG=1 TYPE=app",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -51,7 +51,7 @@
         },
         {
             "label": "[BTLDR/Cardamom/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=cardamom LANG=C DEBUG=1 TYPE=boot",
+            "command": "cd ./src && compiledb -d . make TARGET=cardamom LANG=C DEBUG=1 TYPE=boot",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -63,7 +63,7 @@
         },
         {
             "label": "[FW/DubFocus/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=dubfocus LANG=C DEBUG=1 TYPE=app",
+            "command": "cd ./src && compiledb -d . make TARGET=dubfocus LANG=C DEBUG=1 TYPE=app",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -75,7 +75,7 @@
         },
         {
             "label": "[BTLDR/DubFocus/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=dubfocus LANG=C DEBUG=1 TYPE=boot",
+            "command": "cd ./src && compiledb -d . make TARGET=dubfocus LANG=C DEBUG=1 TYPE=boot",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -87,7 +87,7 @@
         },
         {
             "label": "[BTLDR/OpenDeck2/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=opendeck2 LANG=C DEBUG=1 TYPE=boot",
+            "command": "cd ./src && compiledb -d . make TARGET=opendeck2 LANG=C DEBUG=1 TYPE=boot",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -99,7 +99,7 @@
         },
         {
             "label": "[FW/OpenDeck2/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=opendeck2 LANG=C DEBUG=1 TYPE=app",
+            "command": "cd ./src && compiledb -d . make TARGET=opendeck2 LANG=C DEBUG=1 TYPE=app",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -111,7 +111,7 @@
         },
         {
             "label": "[FW/Rooibos/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=rooibos LANG=C DEBUG=1 TYPE=app",
+            "command": "cd ./src && compiledb -d . make TARGET=rooibos LANG=C DEBUG=1 TYPE=app",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -123,7 +123,7 @@
         },
         {
             "label": "[CDC/Discovery/Debug] Build",
-            "command": "cd ./src && compiledb -d . make TARGETNAME=discovery LANG=C DEBUG=1 TYPE=cdc",
+            "command": "cd ./src && compiledb -d . make TARGET=discovery LANG=C DEBUG=1 TYPE=cdc",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -141,7 +141,7 @@
         },
         {
             "label": "[Tests] Build",
-            "command": "cd ./tests && make pre-build TARGETNAME=${input:target} && make TARGETNAME=${input:target} TESTS=${input:test} && cp $(../scripts/test_dir_get.sh ${input:target} ${input:test})/${input:test}.out build/test.out",
+            "command": "cd ./tests && make pre-build TARGET=${input:target} && make TARGET=${input:target} TESTS=${input:test} && cp $(../scripts/test_dir_get.sh ${input:target} ${input:test})/${input:test}.out build/test.out",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
@@ -167,7 +167,7 @@
         },
         {
             "label": "[Flashgen] Build",
-            "command": "cd ./src && make TARGETNAME=${input:target} flashgen LANG=C DEBUG=1 && cp ./build/flashgen/${input:target}/debug/${input:target}.elf ./build/flashgen/flashgen.elf && touch ./build/flashgen/${input:target}/debug/generated_flash.bin",
+            "command": "cd ./src && make TARGET=${input:target} flashgen LANG=C DEBUG=1 && cp ./build/flashgen/${input:target}/debug/${input:target}.elf ./build/flashgen/flashgen.elf && touch ./build/flashgen/${input:target}/debug/generated_flash.bin",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"

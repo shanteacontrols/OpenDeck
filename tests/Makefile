@@ -1,8 +1,8 @@
 .DEFAULT_GOAL := test
 
-TARGETNAME := mega2560
+TARGET := mega2560
 BUILD_DIR_BASE := ./build
-BUILD_DIR := $(BUILD_DIR_BASE)/$(TARGETNAME)
+BUILD_DIR := $(BUILD_DIR_BASE)/$(TARGET)
 GEN_DIR := test_run
 SCRIPTS_DIR := ../scripts
 
@@ -75,8 +75,8 @@ define LINK_OBJECTS
 endef
 
 pre-build:
-	@chmod +x $(SCRIPTS_DIR)/gen_test_targets.sh && $(SCRIPTS_DIR)/gen_test_targets.sh $(GEN_DIR)/$(TARGETNAME)
-	@chmod +x $(SCRIPTS_DIR)/gen_test_runners.sh && $(SCRIPTS_DIR)/gen_test_runners.sh $(GEN_DIR)/$(TARGETNAME)
+	@chmod +x $(SCRIPTS_DIR)/gen_test_targets.sh && $(SCRIPTS_DIR)/gen_test_targets.sh $(GEN_DIR)/$(TARGET)
+	@chmod +x $(SCRIPTS_DIR)/gen_test_runners.sh && $(SCRIPTS_DIR)/gen_test_runners.sh $(GEN_DIR)/$(TARGET)
 
 exec:
 	@echo Running all compiled tests.

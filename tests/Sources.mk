@@ -29,4 +29,4 @@ INCLUDE_DIRS_COMMON := \
 -I"../src/application/" \
 -I"../src/" \
 -I"../modules/" \
--I"../src/board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(subst fw_,,$(TARGETNAME))/"
+-I"../src/board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(subst fw_,,$(TARGET))/"

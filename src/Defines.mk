@@ -25,10 +25,10 @@ ifeq ($(HAS_BTLDR), 1)
     DEFINES += BOOTLOADER_SUPPORTED
 endif
 
-ARCH := $(shell yq r ../targets/$(TARGETNAME).yml arch)
-MCU := $(shell yq r ../targets/$(TARGETNAME).yml mcu)
+ARCH := $(shell yq r ../targets/$(TARGET).yml arch)
+MCU := $(shell yq r ../targets/$(TARGET).yml mcu)
 MCU_BASE := $(shell echo $(MCU) | rev | cut -c3- | rev)
-MCU_FAMILY := $(shell yq r ../targets/$(TARGETNAME).yml mcuFamily)
+MCU_FAMILY := $(shell yq r ../targets/$(TARGET).yml mcuFamily)
 
 ifeq ($(MCU), at90usb1286)
     APP_START_ADDR := 0x00
@@ -132,12 +132,12 @@ else ifeq ($(ARCH),stm32)
     DEVICE_FS=0 \
     DEVICE_HS=1 \
     ADC_12_BIT \
-    HSE_VALUE=$(shell yq r ../targets/$(TARGETNAME).yml extClockMhz)000000
+    HSE_VALUE=$(shell yq r ../targets/$(TARGET).yml extClockMhz)000000
 endif
 
-FW_UID := $(shell ../scripts/fw_uid_gen.sh $(TARGETNAME))
+FW_UID := $(shell ../scripts/fw_uid_gen.sh $(TARGET))
 
-DEFINES += OD_BOARD_$(shell echo $(TARGETNAME) | tr 'a-z' 'A-Z')
+DEFINES += OD_BOARD_$(shell echo $(TARGET) | tr 'a-z' 'A-Z')
 DEFINES += FW_UID=$(FW_UID)
 DEFINES += FW_METADATA_LOCATION=$(FW_METADATA_LOCATION)
 
@@ -168,23 +168,23 @@ DEFINES += BOOT_START_ADDR=$(BOOT_START_ADDR)
 DEFINES += APP_START_ADDR=$(APP_START_ADDR)
 DEFINES += CDC_START_ADDR=$(CDC_START_ADDR)
 
-ifeq ($(shell yq r ../targets/$(TARGETNAME).yml usb), true)
+ifeq ($(shell yq r ../targets/$(TARGET).yml usb), true)
     DEFINES += USB_MIDI_SUPPORTED
 endif
 
-ifneq ($(shell yq r ../targets/$(TARGETNAME).yml usbLink),)
-    ifneq ($(shell yq r ../targets/$(TARGETNAME).yml usbLink.type),)
-        UART_CHANNEL_USB_LINK := $(shell yq r ../targets/$(TARGETNAME).yml usbLink.uartChannel)
+ifneq ($(shell yq r ../targets/$(TARGET).yml usbLink),)
+    ifneq ($(shell yq r ../targets/$(TARGET).yml usbLink.type),)
+        UART_CHANNEL_USB_LINK := $(shell yq r ../targets/$(TARGET).yml usbLink.uartChannel)
         DEFINES += UART_CHANNEL_USB_LINK=$(UART_CHANNEL_USB_LINK)
 
-        ifeq ($(shell yq r ../targets/$(TARGETNAME).yml usbLink.type), master)
+        ifeq ($(shell yq r ../targets/$(TARGET).yml usbLink.type), master)
             DEFINES += USB_LINK_MCU
 
             #append this only if it wasn't appended already
             ifeq (,$(findstring USB_MIDI_SUPPORTED,$(DEFINES)))
                 DEFINES += USB_MIDI_SUPPORTED
             endif
-        else ifeq ($(shell yq r ../targets/$(TARGETNAME).yml usbLink.type), slave)
+        else ifeq ($(shell yq r ../targets/$(TARGET).yml usbLink.type), slave)
             #make sure slave MCUs don't have USB enabled
             DEFINES := $(filter-out USB_MIDI_SUPPORTED,$(DEFINES))
         endif
@@ -201,9 +201,9 @@ endif
 DEFINES += CDC_TX_BUFFER_SIZE=4096
 DEFINES += CDC_RX_BUFFER_SIZE=1024
 
-ifeq ($(shell yq r ../targets/$(TARGETNAME).yml dinMIDI.use), true)
+ifeq ($(shell yq r ../targets/$(TARGET).yml dinMIDI.use), true)
     DEFINES += DIN_MIDI_SUPPORTED
-    UART_CHANNEL_DIN=$(shell yq r ../targets/$(TARGETNAME).yml dinMIDI.uartChannel)
+    UART_CHANNEL_DIN=$(shell yq r ../targets/$(TARGET).yml dinMIDI.uartChannel)
 
     ifeq ($(UART_CHANNEL_USB_LINK),$(UART_CHANNEL_DIN))
         $(error USB link channel and DIN MIDI channel cannot be the same)
@@ -212,17 +212,17 @@ ifeq ($(shell yq r ../targets/$(TARGETNAME).yml dinMIDI.use), true)
     DEFINES += UART_CHANNEL_DIN=$(UART_CHANNEL_DIN)
 endif
 
-ifeq ($(shell yq r ../targets/$(TARGETNAME).yml display.use), true)
+ifeq ($(shell yq r ../targets/$(TARGET).yml display.use), true)
     DEFINES += DISPLAY_SUPPORTED
-    DEFINES += I2C_CHANNEL_DISPLAY=$(shell yq r ../targets/$(TARGETNAME).yml display.i2cChannel)
+    DEFINES += I2C_CHANNEL_DISPLAY=$(shell yq r ../targets/$(TARGET).yml display.i2cChannel)
 endif
 
-ifeq ($(shell yq r ../targets/$(TARGETNAME).yml touchscreen.use), true)
+ifeq ($(shell yq r ../targets/$(TARGET).yml touchscreen.use), true)
     DEFINES += TOUCHSCREEN_SUPPORTED
-    DEFINES += MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS=$(shell yq r ../targets/$(TARGETNAME).yml touchscreen.components)
+    DEFINES += MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS=$(shell yq r ../targets/$(TARGET).yml touchscreen.components)
     DEFINES += LEDS_SUPPORTED
 
-    UART_CHANNEL_TOUCHSCREEN := $(shell yq r ../targets/$(TARGETNAME).yml touchscreen.uartChannel)
+    UART_CHANNEL_TOUCHSCREEN := $(shell yq r ../targets/$(TARGET).yml touchscreen.uartChannel)
 
     ifeq ($(UART_CHANNEL_USB_LINK),$(UART_CHANNEL_TOUCHSCREEN))
         $(error USB link channel and touchscreen channel cannot be the same)
@@ -233,29 +233,29 @@ else
     DEFINES += MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS=0
 endif
 
-ifneq ($(shell yq r ../targets/$(TARGETNAME).yml buttons),)
+ifneq ($(shell yq r ../targets/$(TARGET).yml buttons),)
     DEFINES += BUTTONS_SUPPORTED
 endif
 
-ifeq ($(shell yq r ../targets/$(TARGETNAME).yml buttons.type), native)
-    MAX_NUMBER_OF_BUTTONS := $(shell yq r ../targets/$(TARGETNAME).yml buttons.pins --length)
+ifeq ($(shell yq r ../targets/$(TARGET).yml buttons.type), native)
+    MAX_NUMBER_OF_BUTTONS := $(shell yq r ../targets/$(TARGET).yml buttons.pins --length)
     DEFINES += NATIVE_BUTTON_INPUTS
 
-    ifeq ($(shell yq r ../targets/$(TARGETNAME).yml buttons.extPullups), true)
+    ifeq ($(shell yq r ../targets/$(TARGET).yml buttons.extPullups), true)
         DEFINES += BUTTONS_EXT_PULLUPS
     endif
-else ifeq ($(shell yq r ../targets/$(TARGETNAME).yml buttons.type), shiftRegister)
-    NUMBER_OF_IN_SR=$(shell yq r ../targets/$(TARGETNAME).yml buttons.shiftRegisters)
+else ifeq ($(shell yq r ../targets/$(TARGET).yml buttons.type), shiftRegister)
+    NUMBER_OF_IN_SR=$(shell yq r ../targets/$(TARGET).yml buttons.shiftRegisters)
     MAX_NUMBER_OF_BUTTONS := $(shell expr 8 \* $(NUMBER_OF_IN_SR))
     DEFINES += NUMBER_OF_IN_SR=$(NUMBER_OF_IN_SR)
-else ifeq ($(shell yq r ../targets/$(TARGETNAME).yml buttons.type), matrix)
-    ifeq ($(shell yq r ../targets/$(TARGETNAME).yml buttons.columns.pins --length), 3)
+else ifeq ($(shell yq r ../targets/$(TARGET).yml buttons.type), matrix)
+    ifeq ($(shell yq r ../targets/$(TARGET).yml buttons.columns.pins --length), 3)
         NUMBER_OF_BUTTON_COLUMNS := 8
     else
         $(error Invalid number of columns specified)
     endif
-    ifeq ($(shell yq r ../targets/$(TARGETNAME).yml buttons.rows.type), native)
-        NUMBER_OF_BUTTON_ROWS := $(shell yq r ../targets/$(TARGETNAME).yml buttons.rows.pins --length)
+    ifeq ($(shell yq r ../targets/$(TARGET).yml buttons.rows.type), native)
+        NUMBER_OF_BUTTON_ROWS := $(shell yq r ../targets/$(TARGET).yml buttons.rows.pins --length)
     else
         DEFINES += NUMBER_OF_IN_SR=1
         NUMBER_OF_BUTTON_ROWS := 8
@@ -267,8 +267,8 @@ else
     MAX_NUMBER_OF_BUTTONS := 0
 endif
 
-ifneq ($(shell yq r ../targets/$(TARGETNAME).yml buttons.indexing),)
-    MAX_NUMBER_OF_BUTTONS := $(shell yq r ../targets/$(TARGETNAME).yml buttons.indexing --length)
+ifneq ($(shell yq r ../targets/$(TARGET).yml buttons.indexing),)
+    MAX_NUMBER_OF_BUTTONS := $(shell yq r ../targets/$(TARGET).yml buttons.indexing --length)
     DEFINES += BUTTON_INDEXING
 endif
 
@@ -276,22 +276,22 @@ ifeq ($(shell test $(MAX_NUMBER_OF_BUTTONS) -gt 1; echo $$?),0)
     DEFINES += ENCODERS_SUPPORTED
 endif
 
-ifneq ($(shell yq r ../targets/$(TARGETNAME).yml analog),)
+ifneq ($(shell yq r ../targets/$(TARGET).yml analog),)
     DEFINES += ANALOG_SUPPORTED
 endif
 
-ifeq ($(shell yq r ../targets/$(TARGETNAME).yml analog.type), native)
-    MAX_NUMBER_OF_ANALOG := $(shell yq r ../targets/$(TARGETNAME).yml analog.pins --length)
+ifeq ($(shell yq r ../targets/$(TARGET).yml analog.type), native)
+    MAX_NUMBER_OF_ANALOG := $(shell yq r ../targets/$(TARGET).yml analog.pins --length)
     DEFINES += MAX_ADC_CHANNELS=$(MAX_NUMBER_OF_ANALOG)
     DEFINES += NATIVE_ANALOG_INPUTS
-else ifeq ($(shell yq r ../targets/$(TARGETNAME).yml analog.type), 4067)
-    NUMBER_OF_MUX := $(shell yq r ../targets/$(TARGETNAME).yml analog.multiplexers)
+else ifeq ($(shell yq r ../targets/$(TARGET).yml analog.type), 4067)
+    NUMBER_OF_MUX := $(shell yq r ../targets/$(TARGET).yml analog.multiplexers)
     DEFINES += NUMBER_OF_MUX=$(NUMBER_OF_MUX)
     DEFINES += NUMBER_OF_MUX_INPUTS=16
     MAX_NUMBER_OF_ANALOG := $(shell expr 16 \* $(NUMBER_OF_MUX))
     DEFINES += MAX_ADC_CHANNELS=$(NUMBER_OF_MUX)
-else ifeq ($(shell yq r ../targets/$(TARGETNAME).yml analog.type), 4051)
-    NUMBER_OF_MUX := $(shell yq r ../targets/$(TARGETNAME).yml analog.multiplexers)
+else ifeq ($(shell yq r ../targets/$(TARGET).yml analog.type), 4051)
+    NUMBER_OF_MUX := $(shell yq r ../targets/$(TARGET).yml analog.multiplexers)
     DEFINES += NUMBER_OF_MUX=$(NUMBER_OF_MUX)
     DEFINES += NUMBER_OF_MUX_INPUTS=8
     MAX_NUMBER_OF_ANALOG := $(shell expr 8 \* $(NUMBER_OF_MUX))
@@ -302,52 +302,52 @@ else
     DEFINES += MAX_ADC_CHANNELS=$(MAX_ADC_CHANNELS)
 endif
 
-ifneq ($(shell yq r ../targets/$(TARGETNAME).yml analog.indexing),)
-    MAX_NUMBER_OF_ANALOG := $(shell yq r ../targets/$(TARGETNAME).yml analog.indexing --length)
+ifneq ($(shell yq r ../targets/$(TARGET).yml analog.indexing),)
+    MAX_NUMBER_OF_ANALOG := $(shell yq r ../targets/$(TARGET).yml analog.indexing --length)
     DEFINES += ANALOG_INDEXING
 endif
 
-ifeq ($(shell yq r ../targets/$(TARGETNAME).yml analog.extReference), true)
+ifeq ($(shell yq r ../targets/$(TARGET).yml analog.extReference), true)
     DEFINES += ADC_EXT_REF
 endif
 
-ifneq ($(shell yq r ../targets/$(TARGETNAME).yml leds.external),)
+ifneq ($(shell yq r ../targets/$(TARGET).yml leds.external),)
     ifeq (,$(findstring LEDS_SUPPORTED,$(DEFINES)))
         DEFINES += LEDS_SUPPORTED
     endif
 endif
 
-ifeq ($(shell yq r ../targets/$(TARGETNAME).yml leds.internal.present), true)
+ifeq ($(shell yq r ../targets/$(TARGET).yml leds.internal.present), true)
     DEFINES += LED_INDICATORS
 endif
 
-ifeq ($(shell yq r ../targets/$(TARGETNAME).yml leds.internal.invert), true)
+ifeq ($(shell yq r ../targets/$(TARGET).yml leds.internal.invert), true)
     DEFINES += LED_INT_INVERT
 endif
 
-ifeq ($(shell yq r ../targets/$(TARGETNAME).yml leds.external.invert), true)
+ifeq ($(shell yq r ../targets/$(TARGET).yml leds.external.invert), true)
     DEFINES += LED_EXT_INVERT
 endif
 
-ifeq ($(shell yq r ../targets/$(TARGETNAME).yml leds.external.fading), true)
+ifeq ($(shell yq r ../targets/$(TARGET).yml leds.external.fading), true)
     DEFINES += LED_FADING
 endif
 
-ifeq ($(shell yq r ../targets/$(TARGETNAME).yml bootloader.button.activeState), high)
+ifeq ($(shell yq r ../targets/$(TARGET).yml bootloader.button.activeState), high)
     #active high
     DEFINES += BTLDR_BUTTON_AH
 endif
 
-ifeq ($(shell yq r ../targets/$(TARGETNAME).yml leds.external.type), native)
-    MAX_NUMBER_OF_LEDS := $(shell yq r ../targets/$(TARGETNAME).yml leds.external.pins --length)
+ifeq ($(shell yq r ../targets/$(TARGET).yml leds.external.type), native)
+    MAX_NUMBER_OF_LEDS := $(shell yq r ../targets/$(TARGET).yml leds.external.pins --length)
     DEFINES += NATIVE_LED_OUTPUTS
-else ifeq ($(shell yq r ../targets/$(TARGETNAME).yml leds.external.type), shiftRegister)
-    NUMBER_OF_OUT_SR := $(shell yq r ../targets/$(TARGETNAME).yml leds.external.shiftRegisters)
+else ifeq ($(shell yq r ../targets/$(TARGET).yml leds.external.type), shiftRegister)
+    NUMBER_OF_OUT_SR := $(shell yq r ../targets/$(TARGET).yml leds.external.shiftRegisters)
     MAX_NUMBER_OF_LEDS := $(shell expr 8 \* $(NUMBER_OF_OUT_SR))
     DEFINES += NUMBER_OF_OUT_SR=$(NUMBER_OF_OUT_SR)
-else ifeq ($(shell yq r ../targets/$(TARGETNAME).yml leds.external.type), matrix)
+else ifeq ($(shell yq r ../targets/$(TARGET).yml leds.external.type), matrix)
     NUMBER_OF_LED_COLUMNS := 8
-    NUMBER_OF_LED_ROWS := $(shell yq r ../targets/$(TARGETNAME).yml leds.external.rows.pins --length)
+    NUMBER_OF_LED_ROWS := $(shell yq r ../targets/$(TARGET).yml leds.external.rows.pins --length)
     MAX_NUMBER_OF_LEDS := $(shell expr $(NUMBER_OF_LED_COLUMNS) \* $(NUMBER_OF_LED_ROWS))
     DEFINES += NUMBER_OF_LED_COLUMNS=$(NUMBER_OF_LED_COLUMNS)
     DEFINES += NUMBER_OF_LED_ROWS=$(NUMBER_OF_LED_ROWS)
@@ -355,13 +355,13 @@ else
     MAX_NUMBER_OF_LEDS := 0
 endif
 
-ifneq ($(shell yq r ../targets/$(TARGETNAME).yml leds.external.indexing),)
-    MAX_NUMBER_OF_LEDS := $(shell yq r ../targets/$(TARGETNAME).yml leds.external.indexing --length)
+ifneq ($(shell yq r ../targets/$(TARGET).yml leds.external.indexing),)
+    MAX_NUMBER_OF_LEDS := $(shell yq r ../targets/$(TARGET).yml leds.external.indexing --length)
     DEFINES += LED_INDEXING
 endif
 
-ifneq ($(shell yq r ../targets/$(TARGETNAME).yml unused-io),)
-    DEFINES += TOTAL_UNUSED_IO=$(shell yq r ../targets/$(TARGETNAME).yml unused-io --length)
+ifneq ($(shell yq r ../targets/$(TARGET).yml unused-io),)
+    DEFINES += TOTAL_UNUSED_IO=$(shell yq r ../targets/$(TARGET).yml unused-io --length)
 endif
 
 DEFINES += MAX_NUMBER_OF_BUTTONS=$(MAX_NUMBER_OF_BUTTONS)

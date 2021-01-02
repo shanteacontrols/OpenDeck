@@ -1,14 +1,14 @@
 include Toolchain.mk
 
 BUILD_DIR_BASE := ./build
-TARGETNAME := mega2560
+TARGET := mega2560
 TYPE := app
 
-ifeq (,$(wildcard ../targets/$(TARGETNAME).yml))
+ifeq (,$(wildcard ../targets/$(TARGET).yml))
     $(error Target doesn't exist)
 endif
 
-ifeq ($(shell yq r ../targets/$(TARGETNAME).yml bootloader.use), true)
+ifeq ($(shell yq r ../targets/$(TARGET).yml bootloader.use), true)
     HAS_BTLDR := 1
 endif
 
@@ -25,7 +25,7 @@ else
     BUILD_DIR := $(BUILD_DIR_BASE)/flashgen
 endif
 
-BUILD_DIR := $(BUILD_DIR)/$(TARGETNAME)
+BUILD_DIR := $(BUILD_DIR)/$(TARGET)
 
 ifeq ($(DEBUG),1)
     BUILD_TYPE := debug
@@ -35,7 +35,7 @@ endif
 
 BUILD_DIR := $(BUILD_DIR)/$(BUILD_TYPE)
 
-TARGET := $(BUILD_DIR)/$(TARGETNAME)
+OUTPUT := $(BUILD_DIR)/$(TARGET)
 .DEFAULT_GOAL := fw
 
 #includes
@@ -50,7 +50,7 @@ ifeq ($(TYPE),cdc)
 endif
 
 # if merged binary exists (bootloader+application), use it when running flash target
-MERGED_TARGET := $(BUILD_DIR_BASE)/merged/$(TARGETNAME)
+MERGED_TARGET := $(BUILD_DIR_BASE)/merged/$(TARGET)
 
 ifneq (,$(findstring sysexfw,$(MAKECMDGOALS)))
     SYSEX_MERGE := 1
@@ -92,7 +92,7 @@ ASM_FLAGS := \
 #common linker flags
 LDFLAGS := \
 -Wl,--gc-sections \
--Wl,-Map="$(TARGET).map",--cref
+-Wl,-Map="$(OUTPUT).map",--cref
 
 #custom linker script
 LDFLAGS += -T $(LINKER_FILE)
@@ -177,35 +177,35 @@ else
 endif
 
 fw:
-	@$(MAKE) --no-print-directory TYPE=$(TYPE) TARGETNAME=$(TARGETNAME) pre-build
-	@$(MAKE) --no-print-directory TYPE=$(TYPE) TARGETNAME=$(TARGETNAME) $(TARGET).elf
+	@$(MAKE) --no-print-directory TYPE=$(TYPE) TARGET=$(TARGET) pre-build
+	@$(MAKE) --no-print-directory TYPE=$(TYPE) TARGET=$(TARGET) $(OUTPUT).elf
 
-$(TARGET).elf: $(OBJECTS) $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/$(BUILD_TYPE)/generated_flash.bin_offset
+$(OUTPUT).elf: $(OBJECTS) $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin_offset
 	@echo Creating executable: $@
-	@$(LINKER) -o$(TARGET).elf $(OBJECTS) $(LDFLAGS)
+	@$(LINKER) -o$(OUTPUT).elf $(OBJECTS) $(LDFLAGS)
 ifneq ($(ARCH),x86)
-	@$(TOOL_PREFIX)objcopy --gap-fill 0xFF -O ihex $(TARGET).elf $(TARGET).hex
+	@$(TOOL_PREFIX)objcopy --gap-fill 0xFF -O ihex $(OUTPUT).elf $(OUTPUT).hex
 ifeq ($(TYPE),app)
 #append metadata only for application
-	@srec_cat $(TARGET).hex -Intel -exclude $(FW_METADATA_LOCATION) $$(($(FW_METADATA_LOCATION) + $(FW_METADATA_SIZE))) -MAximum_Little_Endian $(FW_METADATA_LOCATION) -o $(TARGET).hex -Intel
-	@srec_cat $(TARGET).hex -Intel -Cyclic_Redundancy_Check_16_Little_Endian -MAximum-Address $(TARGET).hex -Intel -Cyclic_Redundancy_Check_16_XMODEM -Output $(TARGET).hex -Intel
+	@srec_cat $(OUTPUT).hex -Intel -exclude $(FW_METADATA_LOCATION) $$(($(FW_METADATA_LOCATION) + $(FW_METADATA_SIZE))) -MAximum_Little_Endian $(FW_METADATA_LOCATION) -o $(OUTPUT).hex -Intel
+	@srec_cat $(OUTPUT).hex -Intel -Cyclic_Redundancy_Check_16_Little_Endian -MAximum-Address $(OUTPUT).hex -Intel -Cyclic_Redundancy_Check_16_XMODEM -Output $(OUTPUT).hex -Intel
 endif
-	@$(TOOL_PREFIX)objcopy -I ihex "$(TARGET).hex" -O binary "$(TARGET).bin"
-	@$(SIZE_TOOL) "$(TARGET).elf"
+	@$(TOOL_PREFIX)objcopy -I ihex "$(OUTPUT).hex" -O binary "$(OUTPUT).bin"
+	@$(SIZE_TOOL) "$(OUTPUT).elf"
 endif
 
 merged:
 	@mkdir -p $(BUILD_DIR_BASE)/merged
 	@echo Building application...
-	@$(MAKE) --no-print-directory TARGETNAME=$(TARGETNAME) TYPE=app
+	@$(MAKE) --no-print-directory TARGET=$(TARGET) TYPE=app
 ifneq ($(SYSEX_MERGE),1)
 	@echo Building bootloader...
-	@$(MAKE) --no-print-directory TARGETNAME=$(TARGETNAME) TYPE=boot
+	@$(MAKE) --no-print-directory TARGET=$(TARGET) TYPE=boot
 endif
 ifeq ($(ARCH), stm32)
 ifneq (,$(findstring TOUCHSCREEN_SUPPORTED,$(DEFINES)))
 		@echo Building CDC...
-		@$(MAKE) --no-print-directory TARGETNAME=$(TARGETNAME) TYPE=cdc
+		@$(MAKE) --no-print-directory TARGET=$(TARGET) TYPE=cdc
 endif
 endif
 ifeq ($(ARCH), avr)
@@ -215,11 +215,11 @@ ifeq ($(ARCH), avr)
 else
 #define FACTORY_IMAGE_START_ADDR variable as shell variable instead of make variable:
 #when this recipe is started, generated_flash.bin_offset doesn't exist yet, so make will
-#complain that it cannot find it if it were defined like this: $(shell cat $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/release/generated_flash.bin_offset)
-	@FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/$(BUILD_TYPE)/generated_flash.bin_offset) && \
+#complain that it cannot find it if it were defined like this: $(shell cat $(BUILD_DIR_BASE)/flashgen/$(TARGET)/release/generated_flash.bin_offset)
+	@FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin_offset) && \
 	srec_cat \
 	$(MERGED_FW_FILES) \
-	$(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/$(BUILD_TYPE)/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
+	$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
 	-o $(MERGED_TARGET).hex -Intel
 endif
 	@$(TOOL_PREFIX)objcopy --gap-fill 0xFF -O ihex $(MERGED_TARGET).hex $(MERGED_TARGET)_filled.hex
@@ -228,34 +228,34 @@ endif
 
 sysexfw:
 #create merged binary but without bootloader
-	@$(MAKE) --no-print-directory merged TARGETNAME=$(TARGETNAME) DEBUG=0 SYSEX_MERGE=1
+	@$(MAKE) --no-print-directory merged TARGET=$(TARGET) DEBUG=0 SYSEX_MERGE=1
 	@echo Creating SysEx file...
-	@../scripts/sysex_fw_create.sh $(MERGED_TARGET).bin $(TARGET).sysex $(SYSEX_MANUFACTURER_ID_0) $(SYSEX_MANUFACTURER_ID_1) $(SYSEX_MANUFACTURER_ID_2) $(COMMAND_FW_UPDATE_START) $(COMMAND_FW_UPDATE_END) $(FW_UID)
+	@../scripts/sysex_fw_create.sh $(MERGED_TARGET).bin $(OUTPUT).sysex $(SYSEX_MANUFACTURER_ID_0) $(SYSEX_MANUFACTURER_ID_1) $(SYSEX_MANUFACTURER_ID_2) $(COMMAND_FW_UPDATE_START) $(COMMAND_FW_UPDATE_END) $(FW_UID)
 
 pre-build: $(PINS_GEN_SOURCE) $(TSCREEN_GEN_SOURCE)
 
-board/gen/$(TARGETNAME)/Pins.cpp: ../targets/$(TARGETNAME).yml
+board/gen/$(TARGET)/Pins.cpp: ../targets/$(TARGET).yml
 	@echo Generating pins...
 	@../scripts/gen_pins.sh $<
 
-application/io/touchscreen/design/$(TARGETNAME).cpp: application/io/touchscreen/design/$(TARGETNAME).json
+application/io/touchscreen/design/$(TARGET).cpp: application/io/touchscreen/design/$(TARGET).json
 	@echo Generating touchscreen coordinate file...
 	@../scripts/gen_touchscreen.sh $<
 
-$(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/$(BUILD_TYPE)/generated_flash.bin_offset:
+$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin_offset:
 ifeq ($(ARCH), stm32)
 ifeq ($(TYPE),app)
-	@$(MAKE) --no-print-directory TARGETNAME=$(TARGETNAME) TYPE=app DEBUG=$(DEBUG) flashgen
+	@$(MAKE) --no-print-directory TARGET=$(TARGET) TYPE=app DEBUG=$(DEBUG) flashgen
 	@echo Generating factory flash configuration...
-	@./$(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).elf $(shell pwd)/$(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/$(BUILD_TYPE)/generated_flash.bin
+	@./$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/$(TARGET).elf $(shell pwd)/$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin
 endif
 else
 #just generate empty file if not needed to avoid re-linking on repeated calls of make on targets where this isn't used
-	@mkdir -p $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/$(BUILD_TYPE)
-	@touch $(BUILD_DIR_BASE)/flashgen/$(TARGETNAME)/$(BUILD_TYPE)/generated_flash.bin_offset
+	@mkdir -p $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)
+	@touch $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin_offset
 endif
 
-flashgen: $(TARGET).elf
+flashgen: $(OUTPUT).elf
 
 $(BUILD_DIR)/%.c.o: %.c
 	@mkdir -p $(@D)
@@ -278,14 +278,14 @@ ifeq ($(ARCH), avr)
 ifneq (,$(wildcard $(MERGED_TARGET).hex))
 	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:$(MERGED_TARGET).hex
 else
-	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:$(TARGET).hex
+	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:$(OUTPUT).hex
 endif
 	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -V -u -U lock:w:$(FUSE_LOCK):m
 else
 ifneq (,$(wildcard $(MERGED_TARGET).hex))
 	st-flash write $(MERGED_TARGET).hex $(BOOT_START_ADDR)
 else
-	st-flash write $(TARGET).bin $(BOOT_START_ADDR)
+	st-flash write $(OUTPUT).bin $(BOOT_START_ADDR)
 endif
 endif
 
@@ -307,7 +307,7 @@ else
 	-ex 'load' \
 	-ex 'compare-sections' \
 	-ex 'kill' \
-	$(TARGET).hex
+	$(OUTPUT).hex
 endif
 
 ifeq ($(ARCH), avr)

@@ -4,7 +4,7 @@ vpath modules/%.c ../
 #common include dirs
 INCLUDE_DIRS := \
 -I"../modules/" \
--I"board/gen/$(TARGETNAME)/" \
+-I"board/gen/$(TARGET)/" \
 -I"application/" \
 -I"board/$(ARCH)/variants/$(MCU_FAMILY)" \
 -I"board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)" \
@@ -18,23 +18,23 @@ endif
 
 LINKER_FILE := board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(MCU).ld
 
-PINS_GEN_SOURCE := board/gen/$(TARGETNAME)/Pins.cpp
+PINS_GEN_SOURCE := board/gen/$(TARGET)/Pins.cpp
 
-ifneq (,$(wildcard application/io/touchscreen/design/$(TARGETNAME).json))
-    TSCREEN_GEN_SOURCE += application/io/touchscreen/design/$(TARGETNAME).cpp
+ifneq (,$(wildcard application/io/touchscreen/design/$(TARGET).json))
+    TSCREEN_GEN_SOURCE += application/io/touchscreen/design/$(TARGET).cpp
 endif
 
 #used for merged target - contains list of firmwares which should be merged together
-MERGED_FW_FILES := $(BUILD_DIR_BASE)/app/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex -Intel
+MERGED_FW_FILES := $(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel
 
 ifeq ($(ARCH), stm32)
     ifneq (,$(findstring TOUCHSCREEN_SUPPORTED,$(DEFINES)))
-        MERGED_FW_FILES += $(BUILD_DIR_BASE)/cdc/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex -Intel
+        MERGED_FW_FILES += $(BUILD_DIR_BASE)/cdc/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel
     endif
 endif
 
 ifneq ($(SYSEX_MERGE),1)
-    MERGED_FW_FILES += $(BUILD_DIR_BASE)/boot/$(TARGETNAME)/$(BUILD_TYPE)/$(TARGETNAME).hex -Intel
+    MERGED_FW_FILES += $(BUILD_DIR_BASE)/boot/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel
 endif
 
 ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
@@ -146,7 +146,7 @@ ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
             board/common/uart/UART.cpp
         endif
 
-        ifneq ($(filter %16u2 %8u2, $(TARGETNAME)), )
+        ifneq ($(filter %16u2 %8u2, $(TARGET)), )
             #fw for xu2 uses different set of sources than other targets
             SOURCES += \
             board/common/io/Indicators.cpp \
@@ -187,10 +187,10 @@ ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
                 SOURCES += board/common/io/Indicators.cpp
             endif
 
-            #if a file named $(TARGETNAME).cpp exists in ./application/io/leds/startup directory
+            #if a file named $(TARGET).cpp exists in ./application/io/leds/startup directory
             #add it to the sources
-            ifneq (,$(wildcard ./application/io/leds/startup/$(TARGETNAME).cpp))
-                SOURCES += ./application/io/leds/startup/$(TARGETNAME).cpp
+            ifneq (,$(wildcard ./application/io/leds/startup/$(TARGET).cpp))
+                SOURCES += ./application/io/leds/startup/$(TARGET).cpp
             endif
 
             ifneq (,$(findstring TOUCHSCREEN_SUPPORTED,$(DEFINES)))
@@ -239,7 +239,7 @@ else
     SOURCES += $(shell $(FIND) ./application/database -type f -name "*.cpp")
     SOURCES += $(shell $(FIND) ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
     SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
-    SOURCES += board/$(shell yq r ../targets/$(TARGETNAME).yml arch)/variants/$(MCU_FAMILY)/$(MCU)/FlashPages.cpp
+    SOURCES += board/$(shell yq r ../targets/$(TARGET).yml arch)/variants/$(MCU_FAMILY)/$(MCU)/FlashPages.cpp
     SOURCES += $(TSCREEN_GEN_SOURCE)
     SOURCES += flashgen/main.cpp
 endif

@@ -4,12 +4,12 @@
 
 #get compile_commands.json for firmware first
 make clean
-compiledb -d . make TARGETNAME=$1
+compiledb -d . make TARGET=$1
 
 #next, generate compile_commands.json for tests
 cd tests
 make clean-all
-compiledb -d . make TARGETNAME=$1
+compiledb -d . make TARGET=$1
 #replace current directory with "tests"
 sed -i 's#"."#"tests"#g' compile_commands.json
 #replace previous directory with current one
