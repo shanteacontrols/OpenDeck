@@ -56,9 +56,9 @@ TEST_CASE(ReadInitialValues)
     //init checks - no point in running further tests if these conditions fail
     TEST_ASSERT(database.init() == true);
 
-    for (int i = 0; i < database.getSupportedPresets(); i++)
+    for (int preset = 0; preset < database.getSupportedPresets(); preset++)
     {
-        TEST_ASSERT(database.setPreset(i) == true);
+        TEST_ASSERT(database.setPreset(preset) == true);
 
         //MIDI block
         //feature section
