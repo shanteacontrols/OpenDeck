@@ -21,9 +21,6 @@
 [submodule "src/modules/core"]
 	path = modules/core
 	url = https://github.com/paradajz/core.git
-[submodule "wiki"]
-	path = wiki
-	url = https://github.com/paradajz/OpenDeck.wiki.git
 [submodule "src/modules/unity"]
 	path = modules/unity
 	url = https://github.com/ThrowTheSwitch/Unity.git
