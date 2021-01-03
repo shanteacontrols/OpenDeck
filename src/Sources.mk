@@ -150,7 +150,7 @@ ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
             #fw for xu2 uses different set of sources than other targets
             SOURCES += \
             board/common/io/Indicators.cpp \
-            usb-link/USBlink.cpp
+            usb-link/main.cpp
         else
             SOURCES += $(shell $(FIND) ./application -maxdepth 1 -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ./application/database -type f -name "*.cpp")
