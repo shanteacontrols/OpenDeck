@@ -1,16 +1,14 @@
 [![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://shanteacontrols.zulipchat.com)
 
-![Firmware build [Linux]](https://github.com/paradajz/OpenDeck/workflows/Firmware%20build%20%5BLinux%5D/badge.svg)
-![Firmware build [macOS]](https://github.com/paradajz/OpenDeck/workflows/Firmware%20build%20%5BmacOS%5D/badge.svg)
-
-![Test [Linux]](https://github.com/paradajz/OpenDeck/workflows/Test%20%5BLinux%5D/badge.svg)
-![Test [macOS]](https://github.com/paradajz/OpenDeck/workflows/Test%20%5BmacOS%5D/badge.svg)
-
-![Code formatting](https://github.com/paradajz/OpenDeck/workflows/Code%20formatting/badge.svg)
+![Firmware build [Linux]](https://github.com/paradajz/OpenDeck/workflows/Firmware%20build%20%5BLinux%5D/badge.svg) ![Firmware build [macOS]](https://github.com/paradajz/OpenDeck/workflows/Firmware%20build%20%5BmacOS%5D/badge.svg) ![Test [Linux]](https://github.com/paradajz/OpenDeck/workflows/Test%20%5BLinux%5D/badge.svg) ![Test [macOS]](https://github.com/paradajz/OpenDeck/workflows/Test%20%5BmacOS%5D/badge.svg) ![Code formatting](https://github.com/paradajz/OpenDeck/workflows/Code%20formatting/badge.svg)
 
 # OpenDeck MIDI Platform
 
-OpenDeck is a platform suited both for prototyping and developing custom MIDI controllers. Platform uses class-compliant USB MIDI which makes it compatible with any MIDI software on any OS. Main part of the platform is board on which various components used to build a MIDI controller can be connected. OpenDeck supports the following components:
+OpenDeck is a platform suited both for prototyping and developing custom MIDI controllers with easy to use web configurator.
+
+![](https://github.com/paradajz/OpenDeck/blob/master/bin/img/webui.png?raw=true)
+
+Platform uses class-compliant USB MIDI which makes it compatible with any MIDI software on any OS. Main part of the platform is board on which various components used to build a MIDI controller can be connected. OpenDeck supports the following components:
 
 * Buttons
 * Encoders
@@ -22,10 +20,7 @@ OpenDeck is a platform suited both for prototyping and developing custom MIDI co
 
 OpenDeck supports sending of both 7-bit and 14-bit Non-Registered Part Numbers (NRPN), latching messages on buttons, various encoding modes for quadrature encoders, LED control using MIDI In, configurable MIDI channels for each component individually etc. Full list of supported features can be found [here](https://github.com/paradajz/OpenDeck/wiki/Configurable-features).
 
-All configuration is done using custom SysEx protocol explained in detail on [Wiki page](https://github.com/paradajz/OpenDeck/wiki/SysEx-Configuration) or
-using [Web interface](https://paradajz.github.io/OpenDeck).
-
-OpenDeck firmware is compatible with official OpenDeck board, as well as various other boards:
+OpenDeck firmware is compatible with [official OpenDeck board](https://www.tindie.com/products/paradajz/opendeck-diy-midi-platform/), as well as various other boards:
 
 * Arduino Mega2560
 * Teensy++ 2.0
