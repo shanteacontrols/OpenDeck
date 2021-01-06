@@ -49,21 +49,23 @@ namespace
             .size    = 65536,
         },
 
+        //note: these pages are actually 128k pages (factory storage page, storage page 1 and storage page 2)
+        //use only 64k so that caching of entire page is possible
         //first 128k page is used both for factory settings and part of firmware
         //place CDC firmware in lower 24kb range
         {
             .address = 0x8026000,
-            .size    = 106496,
+            .size    = 65536,
         },
 
         {
             .address = 0x8040000,
-            .size    = 131072,
+            .size    = 65536,
         },
 
         {
             .address = 0x8060000,
-            .size    = 131072,
+            .size    = 65536,
         },
 
         {
