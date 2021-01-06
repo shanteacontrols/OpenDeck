@@ -88,6 +88,20 @@
         },
         {
             "type": "cortex-debug",
+            "request": "attach",
+            "servertype": "bmp",
+            "cwd": "${workspaceRoot}",
+            "executable": "./src/build/app/blackpill401/debug/blackpill401.elf",
+            "name": "[BlackPill401/FW]",
+            "interface": "swd",
+            "svdFile": "${workspaceFolder}/misc/STM32F40x.svd",
+            "device": "STM32F405",
+            "BMPGDBSerialPort": "/dev/ttyBmpGdb",
+            "targetId": 1,
+            "preLaunchTask": "[FW/BlackPill401/Debug] Build"
+        },
+        {
+            "type": "cortex-debug",
             "request": "launch",
             "runToMain": true,
             "servertype": "bmp",

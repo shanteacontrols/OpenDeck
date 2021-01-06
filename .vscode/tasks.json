@@ -122,6 +122,18 @@
             }
         },
         {
+            "label": "[FW/BlackPill401/Debug] Build",
+            "command": "cd ./src && compiledb -d . make TARGET=blackpill401 LANG=C DEBUG=1 TYPE=app",
+            "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
             "label": "[CDC/Discovery/Debug] Build",
             "command": "cd ./src && compiledb -d . make TARGET=discovery LANG=C DEBUG=1 TYPE=cdc",
             "type": "shell",
