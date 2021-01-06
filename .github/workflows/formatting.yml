@@ -15,7 +15,9 @@ jobs:
          run: |
            sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
            sudo apt install clang-format-11
-           sudo snap install yq
+           curl -L https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_amd64 > yq
+           chmod +x yq
+           sudo mv yq /usr/local/bin/yq
        - name: Format
          run: |
            clang-format --version

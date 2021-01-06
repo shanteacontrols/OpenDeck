@@ -17,10 +17,12 @@ jobs:
         run: |
           wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2019q4/RC2.1/gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2 -O armtoolchain.tar.bz2
           sudo apt-get install -y srecord jq imagemagick
-          sudo snap install yq
           tar xjf armtoolchain.tar.bz2
           git clone https://github.com/Synapseware/avr-toolchain
           tar xzf avr-toolchain/toolchain/avr8-gnu-toolchain-3.6.2.1759-linux.any.x86_64.tar.gz
+          curl -L https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_amd64 > yq
+          chmod +x yq
+          sudo mv yq /usr/local/bin/yq
       - name: Build
         run: |
           PATH=$(pwd)/avr8-gnu-toolchain-linux_x86_64/bin:$(pwd)/gcc-arm-none-eabi-9-2019-q4-major/bin:${PATH}

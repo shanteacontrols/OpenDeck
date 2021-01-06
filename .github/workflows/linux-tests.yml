@@ -18,7 +18,9 @@ jobs:
            sudo add-apt-repository 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main'
            sudo apt update
            sudo apt-get install -y clang-9 ctags jq
-           sudo snap install yq
+           curl -L https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_amd64 > yq
+           chmod +x yq
+           sudo mv yq /usr/local/bin/yq
        - name: Build
          run: |
            C_COMPILER=clang-9
