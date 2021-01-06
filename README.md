@@ -1,6 +1,6 @@
 [![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://shanteacontrols.zulipchat.com)
 
-![Firmware build [Linux]](https://github.com/paradajz/OpenDeck/workflows/Firmware%20build%20%5BLinux%5D/badge.svg) ![Firmware build [macOS]](https://github.com/paradajz/OpenDeck/workflows/Firmware%20build%20%5BmacOS%5D/badge.svg) ![Test [Linux]](https://github.com/paradajz/OpenDeck/workflows/Test%20%5BLinux%5D/badge.svg) ![Test [macOS]](https://github.com/paradajz/OpenDeck/workflows/Test%20%5BmacOS%5D/badge.svg) ![Code formatting](https://github.com/paradajz/OpenDeck/workflows/Code%20formatting/badge.svg)
+![Firmware build [Linux]](https://github.com/paradajz/OpenDeck/workflows/Firmware%20build%20%5BLinux%5D/badge.svg) ![Test [Linux]](https://github.com/paradajz/OpenDeck/workflows/Test%20%5BLinux%5D/badge.svg) ![Code formatting](https://github.com/paradajz/OpenDeck/workflows/Code%20formatting/badge.svg)
 
 # OpenDeck MIDI Platform
 
