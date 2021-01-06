@@ -23,18 +23,14 @@ limitations under the License.
 
 using namespace IO;
 
-///
-/// \brief Initializes values for all encoders to their defaults.
-///
+/// Initializes values for all encoders to their defaults.
 void Encoders::init()
 {
     for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
         resetValue(i);
 }
 
-///
-/// \brief Continuously checks state of all encoders.
-///
+/// Continuously checks state of all encoders.
 void Encoders::update()
 {
     for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
@@ -233,9 +229,7 @@ void Encoders::update()
     }
 }
 
-///
-/// \brief Sets the MIDI value of specified encoder to default.
-///
+/// Sets the MIDI value of specified encoder to default.
 void Encoders::resetValue(uint8_t encoderID)
 {
     if (database.read(Database::Section::encoder_t::mode, encoderID) == static_cast<int32_t>(type_t::tPitchBend))
@@ -256,12 +250,10 @@ void Encoders::setValue(uint8_t encoderID, uint16_t value)
     midiValue[encoderID] = value;
 }
 
-///
-/// \brief Checks state of requested encoder.
-/// @param [in] encoderID       Encoder which is being checked.
-/// @param [in] pairState       A and B signal readings from encoder placed into bits 0 and 1.
-/// \returns Encoder direction. See position_t.
-///
+/// Checks state of requested encoder.
+/// param [in]: encoderID       Encoder which is being checked.
+/// param [in]: pairState       A and B signal readings from encoder placed into bits 0 and 1.
+/// returns: Encoder direction. See position_t.
 Encoders::position_t Encoders::read(uint8_t encoderID, uint8_t pairState)
 {
     position_t returnValue = position_t::stopped;

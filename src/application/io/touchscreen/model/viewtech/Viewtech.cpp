@@ -48,10 +48,8 @@ bool Viewtech::setScreen(size_t screenID)
     return true;
 }
 
-///
-/// \brief Checks for incoming data from display.
-/// \returns True if there is incoming data, false otherwise.
-///
+/// Checks for incoming data from display.
+/// returns: True if there is incoming data, false otherwise.
 bool Viewtech::update(size_t& buttonID, bool& state)
 {
     uint8_t data = 0;

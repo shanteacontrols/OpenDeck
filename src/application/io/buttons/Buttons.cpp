@@ -22,9 +22,7 @@ limitations under the License.
 
 using namespace IO;
 
-///
-/// \brief Continuously reads inputs from buttons and acts if necessary.
-///
+/// Continuously reads inputs from buttons and acts if necessary.
 void Buttons::update()
 {
     for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
@@ -38,11 +36,9 @@ void Buttons::update()
     }
 }
 
-///
-/// \brief Handles changes in button states.
-/// @param [in] buttonID    Button index which has changed state.
-/// @param [in] state       Current button state.
-///
+/// Handles changes in button states.
+/// param [in]: buttonID    Button index which has changed state.
+/// param [in]: state       Current button state.
 void Buttons::processButton(uint8_t buttonID, bool state)
 {
     //act on change of state only
@@ -142,13 +138,11 @@ void Buttons::processButton(uint8_t buttonID, bool state)
     cInfo.send(Database::block_t::buttons, buttonID);
 }
 
-///
-/// \brief Used to send MIDI message from specified button.
+/// Used to send MIDI message from specified button.
 /// Used internally once the button state has been changed and processed.
-/// @param [in] buttonID        Button ID which sends the message.
-/// @param [in] state           Button state (true/pressed, false/released).
-/// @param [in] buttonMessage   Type of MIDI message to send. If unspecified, message type is read from database.
-///
+/// param [in]: buttonID        Button ID which sends the message.
+/// param [in]: state           Button state (true/pressed, false/released).
+/// param [in]: buttonMessage   Type of MIDI message to send. If unspecified, message type is read from database.
 void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMessageDescriptor_t& descriptor)
 {
     if (descriptor.messageType == messageType_t::AMOUNT)
@@ -394,11 +388,9 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMessageDescriptor_
     }
 }
 
-///
-/// \brief Updates current state of button.
-/// @param [in] buttonID        Button for which state is being changed.
-/// @param [in] state     New button state (true/pressed, false/released).
-///
+/// Updates current state of button.
+/// param [in]: buttonID    Button for which state is being changed.
+/// param [in]: state       New button state (true/pressed, false/released).
 void Buttons::setButtonState(uint8_t buttonID, uint8_t state)
 {
     uint8_t arrayIndex  = buttonID / 8;
@@ -407,11 +399,9 @@ void Buttons::setButtonState(uint8_t buttonID, uint8_t state)
     BIT_WRITE(buttonPressed[arrayIndex], buttonIndex, state);
 }
 
-///
-/// \brief Checks for last button state.
-/// @param [in] buttonID    Button index for which previous state is being checked.
-/// \returns True if last state was on/pressed, false otherwise.
-///
+/// Checks for last button state.
+/// param [in]: buttonID    Button index for which previous state is being checked.
+/// returns: True if last state was on/pressed, false otherwise.
 bool Buttons::getButtonState(uint8_t buttonID)
 {
     uint8_t arrayIndex  = buttonID / 8;
@@ -420,17 +410,15 @@ bool Buttons::getButtonState(uint8_t buttonID)
     return BIT_READ(buttonPressed[arrayIndex], buttonIndex);
 }
 
-///
-/// \brief Updates current state of latching button.
+/// Updates current state of latching button.
 /// Used only for latching buttons where new state which should be sent differs
 /// from last one, for instance when sending MIDI note on on first press (latching
 /// state: true), and note off on second (latching state: false).
 /// State should be stored in variable because unlike momentary buttons, state of
 /// latching buttons doesn't necessarrily match current "real" state of button since events
 /// for latching buttons are sent only on presses.
-/// @param [in] buttonID    Button for which state is being changed.
-/// @param [in] state       New latching state.
-///
+/// param [in]: buttonID    Button for which state is being changed.
+/// param [in]: state       New latching state.
 void Buttons::setLatchingState(uint8_t buttonID, uint8_t state)
 {
     uint8_t arrayIndex  = buttonID / 8;
@@ -439,11 +427,9 @@ void Buttons::setLatchingState(uint8_t buttonID, uint8_t state)
     BIT_WRITE(lastLatchingState[arrayIndex], buttonIndex, state);
 }
 
-///
-/// \brief Checks for last latching button state.
-/// @param [in] buttonID    Button index for which previous latching state is being checked.
-/// \returns True if last state was on/pressed, false otherwise.
-///
+/// Checks for last latching button state.
+/// param [in]: buttonID    Button index for which previous latching state is being checked.
+/// returns: True if last state was on/pressed, false otherwise.
 bool Buttons::getLatchingState(uint8_t buttonID)
 {
     uint8_t arrayIndex  = buttonID / 8;
@@ -452,10 +438,8 @@ bool Buttons::getLatchingState(uint8_t buttonID)
     return BIT_READ(lastLatchingState[arrayIndex], buttonIndex);
 }
 
-///
-/// \brief Resets the current state of the specified button.
-/// @param [in] buttonID    Button for which to reset state.
-///
+/// Resets the current state of the specified button.
+/// param [in]: buttonID    Button for which to reset state.
 void Buttons::reset(uint8_t buttonID)
 {
     setButtonState(buttonID, false);

@@ -181,9 +181,7 @@ namespace Board
     }            // namespace detail
 }    // namespace Board
 
-///
-/// \brief ISR used to store incoming data from UART to buffer.
-/// @{
+/// ISR used to store incoming data from UART to buffer.
 
 ISR(USART_RX_vect_0)
 {
@@ -199,11 +197,9 @@ ISR(USART_RX_vect_1)
 }
 #endif
 
-/// @}
-
 ///
-/// \brief ISR used to write outgoing data in buffer to UART.
-/// @{
+
+/// ISR used to write outgoing data in buffer to UART.
 
 ISR(USART_UDRE_vect_0)
 {
@@ -225,11 +221,9 @@ ISR(USART_UDRE_vect_1)
 }
 #endif
 
-/// @}
-
 ///
-/// \brief ISR fired once the UART transmission is complete.
-/// {
+
+/// ISR fired once the UART transmission is complete.
 
 ISR(USART_TX_vect_0)
 {
@@ -243,6 +237,6 @@ ISR(USART_TX_vect_1)
 }
 #endif
 
-/// @}
+///
 
 #endif

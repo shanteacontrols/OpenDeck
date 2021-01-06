@@ -27,12 +27,6 @@ limitations under the License.
 
 namespace IO
 {
-    ///
-    /// \brief LED handling.
-    /// \defgroup leds LEDs
-    /// \ingroup interface
-    /// @{
-    ///
     class LEDs
     {
         public:
@@ -158,37 +152,25 @@ namespace IO
         Database&               database;
         static constexpr size_t maxLEDs = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS;
 
-        ///
-        /// \brief Array holding current LED status for all LEDs.
-        ///
+        /// Array holding current LED status for all LEDs.
         uint8_t ledState[maxLEDs] = {};
 
-        ///
-        /// \brief Array holding current LED brightness for all LEDs.
-        ///
+        /// Array holding current LED brightness for all LEDs.
         brightness_t brightness[maxLEDs] = {};
 
-        ///
-        /// \brief Array holding time after which LEDs should blink.
-        ///
+        /// Array holding time after which LEDs should blink.
         uint8_t blinkTimer[maxLEDs] = {};
 
-        ///
-        /// \brief Holds currently active LED blink type.
-        ///
+        /// Holds currently active LED blink type.
         blinkType_t ledBlinkType = blinkType_t::timer;
 
-        ///
-        /// \brief Pointer to array used to check if blinking LEDs should toggle state.
-        ///
+        /// Pointer to array used to check if blinking LEDs should toggle state.
         const uint8_t* blinkResetArrayPtr = nullptr;
 
         static constexpr size_t totalBlinkSpeeds      = 4;
         static constexpr size_t totalBrightnessValues = 4;
 
-        ///
-        /// \brief Array holding MIDI clock pulses after which LED state is toggled for all possible blink rates.
-        ///
+        /// Array holding MIDI clock pulses after which LED state is toggled for all possible blink rates.
         const uint8_t blinkReset_midiClock[totalBlinkSpeeds] = {
             255,    //no blinking
             12,
@@ -196,9 +178,7 @@ namespace IO
             48
         };
 
-        ///
-        /// \brief Array holding time indexes (multipled by 50) after which LED state is toggled for all possible blink rates.
-        ///
+        /// Array holding time indexes (multipled by 50) after which LED state is toggled for all possible blink rates.
         const uint8_t blinkReset_timer[totalBlinkSpeeds] = {
             0,
             5,
@@ -206,19 +186,13 @@ namespace IO
             20,
         };
 
-        ///
-        /// \brief Array used to determine when the blink state for specific blink rate should be changed.
-        ///
+        /// Array used to determine when the blink state for specific blink rate should be changed.
         uint8_t blinkCounter[totalBlinkSpeeds] = {};
 
-        ///
-        /// \brief Holds last time in miliseconds when LED blinking has been updated.
-        ///
+        /// Holds last time in miliseconds when LED blinking has been updated.
         uint32_t lastLEDblinkUpdateTime = 0;
 
-        ///
         // \brief Holds blink state for each blink speed so that leds are in sync.
-        ///
         bool blinkState[totalBlinkSpeeds] = {};
     };
 }    // namespace IO

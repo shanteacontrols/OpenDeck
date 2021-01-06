@@ -37,64 +37,44 @@ namespace Board
 {
     namespace detail
     {
-        ///
-        /// \brief Specifies incoming or outgoing MIDI data traffic.
-        ///
+        /// Specifies incoming or outgoing MIDI data traffic.
         enum class midiTrafficDirection_t : uint8_t
         {
             incoming,
             outgoing
         };
 
-        ///
-        /// \brief Default error handler.
-        ///
+        /// Default error handler.
         void errorHandler();
 
         namespace setup
         {
-            ///
-            /// \brief Prepares MCU to run application.
-            ///
+            /// Prepares MCU to run application.
             void application();
 
-            ///
-            /// \brief Prepares MCU to run bootloader.
-            ///
+            /// Prepares MCU to run bootloader.
             void bootloader();
 
-            ///
-            /// \brief Prepares MCU to run as CDC device.
-            ///
+            /// Prepares MCU to run as CDC device.
             void cdc();
 
-            ///
-            /// \brief Initializes all used clocks on the board.
-            ///
+            /// Initializes all used clocks on the board.
             void clocks();
 
-            ///
-            /// \brief Initializes all pins to correct states.
-            ///
+            /// Initializes all pins to correct states.
             void io();
 
 #ifndef USB_LINK_MCU
-            ///
-            /// \brief Initializes analog variables and ADC peripheral.
-            ///
+            /// Initializes analog variables and ADC peripheral.
             void adc();
 #endif
 
 #ifdef USB_MIDI_SUPPORTED
-            ///
-            /// \brief Initializes USB peripheral and configures it as MIDI device.
-            ///
+            /// Initializes USB peripheral and configures it as MIDI device.
             void usb();
 #endif
 
-            ///
-            /// \brief Initializes all used timers on board.
-            ///
+            /// Initializes all used timers on board.
             void timers();
         }    // namespace setup
 
@@ -104,53 +84,39 @@ namespace Board
             {
                 //low-level UART API, MCU specific
 
-                ///
-                /// \brief Enables the firing of interrupt once the UART data register is empty.
+                /// Enables the firing of interrupt once the UART data register is empty.
                 /// This effectively starts the process of transmitting the data from UART TX buffer to UART interface.
-                /// @param [in] channel     UART channel on MCU.
-                ///
+                /// param [in]: channel     UART channel on MCU.
                 void enableDataEmptyInt(uint8_t channel);
 
-                ///
-                /// \brief Disables the firing of interrupt once the UART data register is empty.
-                /// @param [in] channel     UART channel on MCU.
-                ///
+                /// Disables the firing of interrupt once the UART data register is empty.
+                /// param [in]: channel     UART channel on MCU.
                 void disableDataEmptyInt(uint8_t channel);
 
-                ///
-                /// \brief Performs low-level initialization of the specified UART channel.
-                /// @param [in] channel     UART channel on MCU.
-                /// @param [in] baudRate    UART speed (baudrate).
-                ///
+                /// Performs low-level initialization of the specified UART channel.
+                /// param [in]: channel     UART channel on MCU.
+                /// param [in]: baudRate    UART speed (baudrate).
                 bool init(uint8_t channel, uint32_t baudRate);
 
-                ///
-                /// \brief Performs low-level deinitialization of the specified UART channel.
-                /// @param [in] channel UART channel on MCU.
-                ///
+                /// Performs low-level deinitialization of the specified UART channel.
+                /// param [in]: channel UART channel on MCU.
                 bool deInit(uint8_t channel);
             }    // namespace ll
 
-            ///
-            /// \brief Used to store incoming data from UART to buffer.
-            /// @param [in] channel UART channel on MCU.
-            /// @param [in] data    Received data.
-            ///
+            /// Used to store incoming data from UART to buffer.
+            /// param [in]: channel UART channel on MCU.
+            /// param [in]: data    Received data.
             void storeIncomingData(uint8_t channel, uint8_t data);
 
-            ///
-            /// \brief Retrieves the next byte from the outgoing ring buffer.
-            /// @param [in] channel             UART channel on MCU.
-            /// @param [in,out] data            Reference to variable in which next byte to send is stored.
-            /// @param [in,out] remainingBytes  Reference to variable in which total number of bytes remanining in buffer is stored.
-            /// \returns True if byte has been successfully retrieved, false otherwise (buffer is empty).
-            ///
+            /// Retrieves the next byte from the outgoing ring buffer.
+            /// param [in]: channel             UART channel on MCU.
+            /// param [in,out]: data            Reference to variable in which next byte to send is stored.
+            /// param [in,out]: remainingBytes  Reference to variable in which total number of bytes remanining in buffer is stored.
+            /// returns: True if byte has been successfully retrieved, false otherwise (buffer is empty).
             bool getNextByteToSend(uint8_t channel, uint8_t& data, size_t& remainingBytes);
 
-            ///
-            /// \brief Used to indicate that the transmission is complete.
-            /// @param [in] channel UART channel on MCU.
-            ///
+            /// Used to indicate that the transmission is complete.
+            /// param [in]: channel UART channel on MCU.
             void indicateTxComplete(uint8_t channel);
         }    // namespace UART
 
@@ -175,72 +141,47 @@ namespace Board
                 uint32_t size;
             } flashPage_t;
 
-            ///
-            /// \brief Used to retrieve physical ADC channel for a given MCU pin.
-            ///
+            /// Used to retrieve physical ADC channel for a given MCU pin.
             uint32_t adcChannel(core::io::mcuPin_t pin);
 
-            ///
-            /// \brief Used to retrieve physical ADC channel for a given ADC channel index.
-            ///
+            /// Used to retrieve physical ADC channel for a given ADC channel index.
             uint32_t adcChannel(uint8_t index);
 
-            ///
-            /// \brief Used to retrieve ADC port and pin for a given ADC channel index.
-            ///
+            /// Used to retrieve ADC port and pin for a given ADC channel index.
             core::io::mcuPin_t adcPin(uint8_t index);
 
-            ///
-            /// \brief Used to retrieve physical analog component index for a given user-specified index.
-            ///
+            /// Used to retrieve physical analog component index for a given user-specified index.
             uint8_t adcIndex(uint8_t index);
 
-            ///
-            /// \brief Used to retrieve button port and pin for a given button index.
-            ///
+            /// Used to retrieve button port and pin for a given button index.
             core::io::mcuPin_t buttonPin(uint8_t index);
 
-            ///
-            /// \brief Used to retrieve physical button component index for a given user-specified index.
-            ///
+            /// Used to retrieve physical button component index for a given user-specified index.
             uint8_t buttonIndex(uint8_t index);
 
-            ///
-            /// \brief Used to retrieve LED port and pin for a given LED index.
-            ///
+            /// Used to retrieve LED port and pin for a given LED index.
             core::io::mcuPin_t ledPin(uint8_t index);
 
-            ///
-            /// \brief Used to physical LED component index for a given user-specified index.
-            ///
+            /// Used to physical LED component index for a given user-specified index.
             uint8_t ledIndex(uint8_t index);
 
 #ifdef TOTAL_UNUSED_IO
-            ///
-            /// \brief Used to retrieve unused port and pin for a given index.
-            ///
+            /// Used to retrieve unused port and pin for a given index.
             core::io::mcuPin_t unusedPin(uint8_t index);
 
-            ///
-            /// \brief Used to retrieve state of unused port and pin for a given index.
-            ///
+            /// Used to retrieve state of unused port and pin for a given index.
             bool unusedPinState(uint8_t index);
 #endif
 
-            ///
-            /// \brief Used to retrieve all the registers needed to control PWM channel for an given index.
-            ///
+            /// Used to retrieve all the registers needed to control PWM channel for an given index.
             core::io::pwmChannel_t pwmChannel(uint8_t index);
 
-            ///
-            /// \brief Retrieves flash page descriptor containing page address and size.
-            /// @param [in] pageIndex Index of flash sector for which to retrieve address and size.
-            /// \returns Reference to flash page descriptor for specified page index.
-            ///
+            /// Retrieves flash page descriptor containing page address and size.
+            /// param [in]: pageIndex Index of flash sector for which to retrieve address and size.
+            /// returns: Reference to flash page descriptor for specified page index.
             flashPage_t& flashPageDescriptor(size_t pageIndex);
 
-            ///
-            /// \brief Used to retrieve descriptors for flash pages used for EEPROM emulation.
+            /// Used to retrieve descriptors for flash pages used for EEPROM emulation.
             /// @ {
 
             size_t eepromFlashPageFactory();
@@ -262,138 +203,94 @@ namespace Board
                 virtual void                            disableClock() = 0;
             };
 
-            ///
             /// Used to retrieve physical UART interface used on MCU for a given UART channel index as well
             /// as pins on which the interface is connected.
-            ///
             STMPeripheral* uartDescriptor(uint8_t channel);
 
-            ///
             /// Used to retrieve physical I2C interface used on MCU for a given I2C channel index as well
             /// as pins on which the interface is connected.
-            ///
             STMPeripheral* i2cDescriptor(uint8_t channel);
 
-            ///
-            /// \brief Used to retrieve UART channel on board for a specified UART interface.
+            /// Used to retrieve UART channel on board for a specified UART interface.
             /// If no channels are mapped to the provided interface, return false.
-            ///
             bool uartChannel(USART_TypeDef* interface, uint8_t& channel);
 
-            ///
-            /// \brief Used to retrieve I2C channel on board for a specified UART interface.
+            /// Used to retrieve I2C channel on board for a specified UART interface.
             /// If no channels are mapped to the provided interface, return false.
-            ///
             bool i2cChannel(I2C_TypeDef* interface, uint8_t& channel);
 
-            ///
-            /// \brief Used to retrieve physical ADC interface used on MCU.
-            ///
+            /// Used to retrieve physical ADC interface used on MCU.
             ADC_TypeDef* adcInterface();
 
-            ///
-            /// \brief Used to retrieve timer instance used for main timer interrupt.
-            ///
+            /// Used to retrieve timer instance used for main timer interrupt.
             TIM_TypeDef* mainTimerInstance();
 #endif
         }    // namespace map
 
         namespace io
         {
-            ///
-            /// \brief Continuously reads all digital inputs.
-            ///
+            /// Continuously reads all digital inputs.
             void checkDigitalInputs();
 
-            ///
-            /// \brief Removes all readings from digital inputs.
-            ///
+            /// Removes all readings from digital inputs.
             void flushInputReadings();
 
-            ///
-            /// \brief Checks if digital outputs need to be updated (state and PWM control).
-            ///
+            /// Checks if digital outputs need to be updated (state and PWM control).
             void checkDigitalOutputs();
 
 #ifdef LED_INDICATORS
-            ///
-            /// \brief Used to indicate that the MIDI event has occured using built-in LEDs on board.
-            /// @param [source]     Source of MIDI data. See MIDI::interface_t enumeration.
-            /// @param [direction]  Direction of MIDI data. See midiTrafficDirection_t enumeration.
-            ///
+            /// Used to indicate that the MIDI event has occured using built-in LEDs on board.
+            /// param [source]     Source of MIDI data. See MIDI::interface_t enumeration.
+            /// param [direction]  Direction of MIDI data. See midiTrafficDirection_t enumeration.
             void indicateMIDItraffic(MIDI::interface_t source, midiTrafficDirection_t direction);
 
-            ///
-            /// \brief Checks if indicator LEDs need to be turned on or off.
-            ///
+            /// Checks if indicator LEDs need to be turned on or off.
             void checkIndicators();
 
-            ///
-            /// \brief Enables the checking of LED indicators in ISR.
-            ///
+            /// Enables the checking of LED indicators in ISR.
             void enableIndicators();
 
-            ///
-            /// \brief Disables the checking of LED indicators in ISR.
-            ///
+            /// Disables the checking of LED indicators in ISR.
             void disableIndicators();
 
-            ///
-            /// \brief Flashes integrated LEDs on board on startup.
+            /// Flashes integrated LEDs on board on startup.
             /// Pattern differs depending on whether firmware is updated or not.
             /// @param[in] fwUpdated    If set to true, "Firmware updated" pattern will be
             ///                         used to flash the LEDs.
-            ///
             void ledFlashStartup(bool fwUpdated);
 #endif
 
-            ///
-            /// \brief MCU-specific delay routine used when setting 74HC595 shift register state.
-            ///
+            /// MCU-specific delay routine used when setting 74HC595 shift register state.
             void sr595wait();
 
-            ///
-            /// \brief MCU-specific delay routine used when setting 74HC165 shift register state.
-            ///
+            /// MCU-specific delay routine used when setting 74HC165 shift register state.
             void sr165wait();
 
-            ///
-            /// \brief Used to temporarily configure all common multiplexer pins as outputs to minimize
+            /// Used to temporarily configure all common multiplexer pins as outputs to minimize
             /// the effect of channel-to-channel crosstalk.
-            ///
             void dischargeMux();
 
-            ///
-            /// \brief Used to restore pin setup for specified multiplexer.
-            ///
+            /// Used to restore pin setup for specified multiplexer.
             void restoreMux(uint8_t muxIndex);
         }    // namespace io
 
         namespace isrHandling
         {
-            ///
-            /// \brief Global ISR handler for all UART events.
-            /// @param [in] channel UART channel on MCU.
-            ///
+            /// Global ISR handler for all UART events.
+            /// param [in]: channel UART channel on MCU.
             void uart(uint8_t channel);
 
-            ///
-            /// \brief Called in ADC ISR once the conversion is done.
-            /// @param [in] adcValue    Retrieved ADC value.
-            ///
+            /// Called in ADC ISR once the conversion is done.
+            /// param [in]: adcValue    Retrieved ADC value.
             void adc(uint16_t adcValue);
 
-            ///
-            /// \brief Global ISR handler for main timer.
-            ///
+            /// Global ISR handler for main timer.
             void mainTimer();
         }    // namespace isrHandling
 
         namespace bootloader
         {
-            ///
-            /// \brief List of all possible bootloader triggers.
-            ///
+            /// List of all possible bootloader triggers.
             enum class btldrTrigger_t : uint8_t
             {
                 software,
@@ -402,12 +299,10 @@ namespace Board
                 none
             };
 
-            ///
-            /// \brief List of all possible firmwares which can be loaded and their values.
+            /// List of all possible firmwares which can be loaded and their values.
             /// On AVR, firmware value is written to special EEPROM location and on STM32 to variable
             /// stored in .noinit RAM section.
             /// Bootloader will load a firmware based on read value.
-            ///
             enum class fwType_t : uint8_t
             {
                 application = 0xFF,
@@ -415,112 +310,74 @@ namespace Board
                 cdc         = 0x74
             };
 
-            ///
-            /// \brief Verifies if the programmed flash is valid.
+            /// Verifies if the programmed flash is valid.
             /// \return True if valid, false otherwise.
-            ///
             bool isAppValid();
 
-            ///
-            /// \brief Checks which firmware should be booted depending on value
+            /// Checks which firmware should be booted depending on value
             /// set by user.
-            ///
             fwType_t btldrTriggerSoftType();
 
-            ///
-            /// \brief Reads the state of the button responsible for hardware bootloader entry.
-            /// \returns True if pressed, false otherwise. If bootloader button doesn't exist,
+            /// Reads the state of the button responsible for hardware bootloader entry.
+            /// returns: True if pressed, false otherwise. If bootloader button doesn't exist,
             ///          function will return false.
-            ///
             bool isHWtriggerActive();
 
-            ///
-            /// \brief Specifies which firmware to load on next boot.
+            /// Specifies which firmware to load on next boot.
             /// @param[in] bootFw   Enumerated value, lists all possible firmwares to load.
-            ///
             void setSWtrigger(fwType_t bootFw);
 
-            ///
-            /// \brief Initializes outputs used to indicate that bootloader mode is active.
-            ///
+            /// Initializes outputs used to indicate that bootloader mode is active.
             void indicate();
 
-            ///
-            /// \brief Runs the bootloader.
-            ///
+            /// Runs the bootloader.
             void runBootloader();
 
-            ///
-            /// \brief Jumps to application.
-            ///
+            /// Jumps to application.
             void runApplication();
 
-            ///
-            /// \brief Jumps to CDC firmware.
-            ///
+            /// Jumps to CDC firmware.
             void runCDC();
         }    // namespace bootloader
 
         namespace cdc
         {
-            ///
-            /// \brief Checks if incoming UART buffer contains data.
+            /// Checks if incoming UART buffer contains data.
             /// If it does, it creates a new USB CDC packet containing that data.
             /// Should be checked periodicaly in timer.
-            ///
             void checkIncomingData();
         }    // namespace cdc
 
         namespace flash
         {
-            ///
-            /// \brief Checks whether the specified flash address is valid / in range for the current MCU.
-            ///
+            /// Checks whether the specified flash address is valid / in range for the current MCU.
             bool isInRange(uint32_t address);
 
-            ///
-            /// \brief Retrieves total flash size in bytes.
-            ///
+            /// Retrieves total flash size in bytes.
             uint32_t size();
 
-            ///
-            /// \brief Retrieves size of specified flash page.
-            ///
+            /// Retrieves size of specified flash page.
             uint32_t pageSize(size_t index);
 
-            ///
-            /// \brief Erases specified flash page.
-            ///
+            /// Erases specified flash page.
             bool erasePage(size_t index);
 
-            ///
-            /// \brief Writes filled page buffer to flash page if needed/supported.
-            ///
+            /// Writes filled page buffer to flash page if needed/supported.
             void writePage(size_t index);
 
-            ///
-            /// \brief Write 16-bit data to specified address in flash memory.
-            ///
+            /// Write 16-bit data to specified address in flash memory.
             bool write16(uint32_t address, uint16_t data);
 
-            ///
-            /// \brief Write 32-bit data to specified address in flash memory.
-            ///
+            /// Write 32-bit data to specified address in flash memory.
             bool write32(uint32_t address, uint32_t data);
 
-            ///
-            /// \brief Read 8-bit data from specified address in flash memory.
-            ///
+            /// Read 8-bit data from specified address in flash memory.
             bool read8(uint32_t address, uint8_t& data);
 
-            ///
-            /// \brief Read 16-bit data from specified address in flash memory.
-            ///
+            /// Read 16-bit data from specified address in flash memory.
             bool read16(uint32_t address, uint16_t& data);
 
-            ///
-            /// \brief Read 32-bit data from specified address in flash memory.
-            ///
+            /// Read 32-bit data from specified address in flash memory.
             bool read32(uint32_t address, uint32_t& data);
         }    // namespace flash
     }        // namespace detail

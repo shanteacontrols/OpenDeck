@@ -91,10 +91,8 @@ namespace
             return Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPage1()).size;
         }
 
-        ///
-        /// \brief Memory array stored in RAM holding all the values stored in virtual EEPROM.
+        /// Memory array stored in RAM holding all the values stored in virtual EEPROM.
         /// Used to avoid constant lookups in the flash.
-        ///
         std::vector<uint16_t> eepromMemory;
     };
 

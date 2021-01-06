@@ -29,36 +29,24 @@ limitations under the License.
 
 namespace IO
 {
-    ///
-    /// \brief LCD control.
-    /// \defgroup interfaceLCD LCD
-    /// \ingroup interface
-    /// @{
-
     class Display
     {
         public:
-        ///
-        /// \brief List of all possible text types on display.
-        ///
+        /// List of all possible text types on display.
         enum class lcdTextType_t : uint8_t
         {
             still,
             temp
         };
 
-        ///
-        /// \brief List of all possible text scrolling directions.
-        ///
+        /// List of all possible text scrolling directions.
         enum class scrollDirection_t : uint8_t
         {
             leftToRight,
             rightToLeft
         };
 
-        ///
-        /// \brief Structure holding data for scrolling event on display for single row.
-        ///
+        /// Structure holding data for scrolling event on display for single row.
         typedef struct
         {
             uint8_t           size;
@@ -73,10 +61,8 @@ namespace IO
             out,
         };
 
-        ///
-        /// \brief Same enumeration as MIDI::messageType_t but without custom values.
+        /// Same enumeration as MIDI::messageType_t but without custom values.
         /// Used for easier access to event strings stored in arrays
-        ///
         enum class event_t : uint8_t
         {
             noteOff,
@@ -155,99 +141,64 @@ namespace IO
         IO::U8X8& u8x8;
         Database& database;
 
-        ///
-        /// \brief Holds last time index MIDI message was shown for specific event type (in or out).
-        ///
+        /// Holds last time index MIDI message was shown for specific event type (in or out).
         uint32_t lastMIDIMessageDisplayTime[2] = {};
 
-        ///
-        /// \brief Holds true if MIDI input or output message is shown on display.
-        ///
+        /// Holds true if MIDI input or output message is shown on display.
         bool midiMessageDisplayed[2] = {};
 
-        ///
-        /// \brief Holds time after which MIDI message should be cleared on display if retention is disabled.
-        ///
+        /// Holds time after which MIDI message should be cleared on display if retention is disabled.
         uint32_t MIDImessageRetentionTime = 0;
 
-        ///
-        /// \brief Holds last time index info message was shown.
-        ///
+        /// Holds last time index info message was shown.
         uint32_t messageDisplayTime = 0;
 
-        ///
-        /// \brief Holds last time LCD was updated.
+        /// Holds last time LCD was updated.
         /// LCD isn't updated in real-time but after defined amount of time (see LCD_REFRESH_TIME).
-        ///
         uint32_t lastLCDupdateTime = 0;
 
-        ///
-        /// \brief Holds active text type on display.
+        /// Holds active text type on display.
         /// Enumerated type (see lcdTextType_t enumeration).
-        ///
         lcdTextType_t activeTextType = lcdTextType_t::still;
 
-        ///
-        /// \brief Array holding still LCD text for each LCD row.
-        ///
+        /// Array holding still LCD text for each LCD row.
         char lcdRowStillText[LCD_HEIGHT_MAX][LCD_STRING_BUFFER_SIZE] = {};
 
-        ///
-        /// \brief Array holding temp LCD text for each LCD row.
-        ///
+        /// Array holding temp LCD text for each LCD row.
         char lcdRowTempText[LCD_HEIGHT_MAX][LCD_STRING_BUFFER_SIZE] = {};
 
-        ///
-        /// \brief Array holding true of false value representing the change of character at specific location on LCD row.
+        /// Array holding true of false value representing the change of character at specific location on LCD row.
         /// \warning This variables assume there can be no more than 32 characters per LCD row.
-        ///
         uint32_t charChange[LCD_HEIGHT_MAX] = {};
 
-        ///
-        /// \brief Structure array holding scrolling information for all LCD rows.
-        ///
+        /// Structure array holding scrolling information for all LCD rows.
         scrollEvent_t scrollEvent[LCD_HEIGHT_MAX] = {};
 
-        ///
-        /// \brief Holds last time text has been scrolled on display.
-        ///
+        /// Holds last time text has been scrolled on display.
         uint32_t lastScrollTime = 0;
 
-        ///
-        /// \brief Holds value by which actual octave is being subtracted when showing octave on display.
-        ///
+        /// Holds value by which actual octave is being subtracted when showing octave on display.
         int8_t octaveNormalization = 0;
 
-        ///
-        /// \brief If set to true, note number will be shown on display (0-127), otherwise, note and octave
+        /// If set to true, note number will be shown on display (0-127), otherwise, note and octave
         /// will be displayed (i.e. C#4).
         bool alternateNoteDisplay = true;
 
-        ///
-        /// \brief Holds true if direct LCD writing is enabled, false otherwise.
-        ///
+        /// Holds true if direct LCD writing is enabled, false otherwise.
         bool directWriteState = false;
 
-        ///
-        /// \brief Holds resolution of configured screen.
-        ///
+        /// Holds resolution of configured screen.
         U8X8::displayResolution_t resolution = U8X8::displayResolution_t::AMOUNT;
 
-        ///
-        /// \brief Holds true if display has been initialized.
-        ///
+        /// Holds true if display has been initialized.
         bool initialized = false;
 
-        ///
-        /// \brief Object used for easier string manipulation on display.
-        ///
+        /// Object used for easier string manipulation on display.
         core::StringBuilder<LCD_STRING_BUFFER_SIZE> stringBuilder;
 
-        ///
-        /// \brief Array holding remapped values of LCD rows.
+        /// Array holding remapped values of LCD rows.
         /// Used to increase readability.
         /// Matched with displayResolution_t enum.
-        ///
         const uint8_t rowMap[static_cast<uint8_t>(U8X8::displayResolution_t::AMOUNT)][LCD_HEIGHT_MAX] = {
             //128x32
             {
@@ -269,8 +220,6 @@ namespace IO
         U8X8::displayResolution_t lastResolution = U8X8::displayResolution_t::invalid;
         uint8_t                   lastAddress    = 0;
     };
-
-    /// @}
 }    // namespace IO
 
 #endif

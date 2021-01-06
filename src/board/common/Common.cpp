@@ -34,9 +34,7 @@ namespace core
     {
         namespace detail
         {
-            ///
-            /// \brief Implementation of core variable used to keep track of run time in milliseconds.
-            ///
+            /// Implementation of core variable used to keep track of run time in milliseconds.
             volatile uint32_t rTime_ms;
         }    // namespace detail
     }        // namespace timing

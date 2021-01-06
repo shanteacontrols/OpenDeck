@@ -26,9 +26,7 @@ limitations under the License.
 
 using namespace IO;
 
-///
-/// \brief Initialize display driver and variables.
-///
+/// Initialize display driver and variables.
 bool Display::init(bool startupInfo)
 {
     if (database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::enable)))
@@ -132,9 +130,7 @@ bool Display::deInit()
     return false;
 }
 
-///
-/// \brief Checks if LCD requires updating continuously.
-///
+/// Checks if LCD requires updating continuously.
 bool Display::update()
 {
     if (!initialized)
@@ -195,14 +191,12 @@ bool Display::update()
     return true;
 }
 
-///
-/// \brief Updates text to be shown on display.
+/// Updates text to be shown on display.
 /// This function only updates internal buffers with received text, actual updating is done in update() function.
 /// Text isn't passed directly, instead, value from string builder is used.
-/// @param [in] row             Row which is being updated.
-/// @param [in] textType        Type of text to be shown on display (enumerated type). See lcdTextType_t enumeration.
-/// @param [in] startIndex      Index on which received text should on specified row.
-///
+/// param [in]: row             Row which is being updated.
+/// param [in]: textType        Type of text to be shown on display (enumerated type). See lcdTextType_t enumeration.
+/// param [in]: startIndex      Index on which received text should on specified row.
 void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex)
 {
     if (!initialized)
@@ -289,30 +283,24 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
     }
 }
 
-///
-/// \brief Enables or disables direct writing to LCD.
+/// Enables or disables direct writing to LCD.
 /// When enabled, low-level APIs are used to write text to LCD directly.
 /// Otherwise, update() function takes care of updating LCD.
-/// @param [in] state   New direct write state.
-///
+/// param [in]: state   New direct write state.
 void Display::setDirectWriteState(bool state)
 {
     directWriteState = state;
 }
 
-///
-/// \brief Calculates position on which text needs to be set on display to be in center of display row.
-/// @param [in] textSize    Size of text for which center position on display is being calculated.
-/// \returns Center position of text on display.
-///
+/// Calculates position on which text needs to be set on display to be in center of display row.
+/// param [in]: textSize    Size of text for which center position on display is being calculated.
+/// returns: Center position of text on display.
 uint8_t Display::getTextCenter(uint8_t textSize)
 {
     return u8x8.getColumns() / 2 - (textSize / 2);
 }
 
-///
-/// \brief Updates status of temp text on display.
-///
+/// Updates status of temp text on display.
 void Display::updateTempTextStatus()
 {
     if (activeTextType == lcdTextType_t::temp)
@@ -329,10 +317,8 @@ void Display::updateTempTextStatus()
     }
 }
 
-///
-/// \brief Updates status of scrolling text on display.
-/// @param [in] row     Row which is being checked.
-///
+/// Updates status of scrolling text on display.
+/// param [in]: row     Row which is being checked.
 void Display::updateScrollStatus(uint8_t row)
 {
     if (!scrollEvent[row].size)
@@ -372,19 +358,15 @@ void Display::updateScrollStatus(uint8_t row)
     lastScrollTime = core::timing::currentRunTimeMs();
 }
 
-///
-/// \brief Checks for currently active text type on display.
-/// \returns Active text type (enumerated type). See lcdTextType_t enumeration.
-///
+/// Checks for currently active text type on display.
+/// returns: Active text type (enumerated type). See lcdTextType_t enumeration.
 Display::lcdTextType_t Display::getActiveTextType()
 {
     return activeTextType;
 }
 
-///
-/// \brief Sets new message retention time.
-/// @param [in] retentionTime New retention time in milliseconds.
-///
+/// Sets new message retention time.
+/// param [in]: retentionTime New retention time in milliseconds.
 void Display::setRetentionTime(uint32_t retentionTime)
 {
     if (retentionTime < MIDImessageRetentionTime)
@@ -404,9 +386,7 @@ void Display::setRetentionTime(uint32_t retentionTime)
     lastMIDIMessageDisplayTime[eventType_t::out] = core::timing::currentRunTimeMs();
 }
 
-///
-/// \brief Adds normalization to a given octave.
-///
+/// Adds normalization to a given octave.
 int8_t Display::normalizeOctave(uint8_t octave, int8_t normalization)
 {
     return static_cast<int8_t>(octave) + normalization;

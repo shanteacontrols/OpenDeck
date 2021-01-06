@@ -25,9 +25,7 @@ namespace OpenDeckMIDIformat
 {
     namespace
     {
-        ///
-        /// \brief List of all bytes contained within OpenDeck packet.
-        ///
+        /// List of all bytes contained within OpenDeck packet.
         enum class packet_t : uint8_t
         {
             packetType,
@@ -42,13 +40,11 @@ namespace OpenDeckMIDIformat
         uint8_t readBytes[6]       = {};
         uint8_t tempArray[5];
 
-        ///
-        /// \brief Appends read byte into internal storage.
+        /// Appends read byte into internal storage.
         /// If the buffer is full and valid packet still hasn't been
         /// found, this function will shift all stored bytes by one
         /// position to the left and write current byte to the
         /// last position.
-        ///
         void appendIncoming(uint8_t byte)
         {
             if (incomingBytesCount >= 6)
@@ -68,10 +64,8 @@ namespace OpenDeckMIDIformat
             }
         }
 
-        ///
-        /// \brief Clears the entire incoming buffer.
+        /// Clears the entire incoming buffer.
         /// Should be called when valid packet has been processed.
-        ///
         void clearIncomingCount()
         {
             incomingBytesCount = 0;

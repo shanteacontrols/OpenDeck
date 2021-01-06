@@ -24,12 +24,6 @@ limitations under the License.
 
 namespace IO
 {
-    ///
-    /// \brief Touchscreen control.
-    /// \defgroup interfaceLCDTouch Touchscreen
-    /// \ingroup interfaceLCD
-    /// @{
-
     class Touchscreen
     {
         public:
@@ -84,6 +78,4 @@ namespace IO
         {
         }
     };
-
-    /// @}
 }    // namespace IO

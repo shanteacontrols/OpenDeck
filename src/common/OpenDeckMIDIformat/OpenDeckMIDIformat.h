@@ -22,9 +22,7 @@ limitations under the License.
 
 namespace OpenDeckMIDIformat
 {
-    ///
-    /// \brief List of all possible internal commands used in OpenDeck MIDI format.
-    ///
+    /// List of all possible internal commands used in OpenDeck MIDI format.
     enum class command_t : uint8_t
     {
         btldrReboot,    ///< Signal to USB link MCU to reboot to bootloader mode.
@@ -39,21 +37,17 @@ namespace OpenDeckMIDIformat
                                    ///< Indicates start of internal data when OpenDeck MIDI format is used.
     };
 
-    ///
-    /// \brief Used to read data using custom OpenDeck format from UART interface.
-    /// @param [in] channel         UART channel on MCU.
-    /// @param [in] USBMIDIpacket   Pointer to structure holding MIDI data being read.
-    /// @param [in] packetType      Pointer to variable in which read packet type is being stored.
-    /// \returns True if data is available, false otherwise.
-    ///
+    /// Used to read data using custom OpenDeck format from UART interface.
+    /// param [in]: channel         UART channel on MCU.
+    /// param [in]: USBMIDIpacket   Pointer to structure holding MIDI data being read.
+    /// param [in]: packetType      Pointer to variable in which read packet type is being stored.
+    /// returns: True if data is available, false otherwise.
     bool read(uint8_t channel, MIDI::USBMIDIpacket_t& USBMIDIpacket, packetType_t& packetType);
 
-    ///
-    /// \brief Used to write data using custom OpenDeck format to UART interface.
-    /// @param [in] channel         UART channel on MCU.
-    /// @param [in] USBMIDIpacket   Pointer to structure holding MIDI data to write.
-    /// @param [in] packetType      Type of OpenDeck packet to send.
-    /// \returns True on success, false otherwise.
-    ///
+    /// Used to write data using custom OpenDeck format to UART interface.
+    /// param [in]: channel         UART channel on MCU.
+    /// param [in]: USBMIDIpacket   Pointer to structure holding MIDI data to write.
+    /// param [in]: packetType      Type of OpenDeck packet to send.
+    /// returns: True on success, false otherwise.
     bool write(uint8_t channel, MIDI::USBMIDIpacket_t& USBMIDIpacket, packetType_t packetType);
 }    // namespace OpenDeckMIDIformat

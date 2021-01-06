@@ -40,9 +40,7 @@ class ComponentInfo
     }
 
     private:
-    ///
-    /// \brief Common handler used to identify currently active component during SysEx configuration.
+    /// Common handler used to identify currently active component during SysEx configuration.
     /// Must be implemented externally.
-    ///
     cinfoHandler_t handler = nullptr;
 };

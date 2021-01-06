@@ -30,18 +30,10 @@ limitations under the License.
 
 namespace IO
 {
-    ///
-    /// \brief Button handling.
-    /// \defgroup interfaceButtons Buttons
-    /// \ingroup interfaceDigitalIn
-    /// @{
-
     class Buttons
     {
         public:
-        ///
-        /// \brief List of all possible button types.
-        ///
+        /// List of all possible button types.
         enum class type_t : uint8_t
         {
             momentary,    ///< Event on press and release.
@@ -49,9 +41,7 @@ namespace IO
             AMOUNT        ///< Total number of button types.
         };
 
-        ///
-        /// \brief List of all possible MIDI messages buttons can send.
-        ///
+        /// List of all possible MIDI messages buttons can send.
         enum class messageType_t : uint8_t
         {
             note,
@@ -135,24 +125,16 @@ namespace IO
         Display&       display;
         ComponentInfo& cInfo;
 
-        ///
-        /// \brief Array holding current state for all buttons.
-        ///
+        /// Array holding current state for all buttons.
         uint8_t buttonPressed[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS) / 8 + 1] = {};
 
-        ///
-        /// \brief Array holding last sent state for latching buttons only.
-        ///
+        /// Array holding last sent state for latching buttons only.
         uint8_t lastLatchingState[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS) / 8 + 1] = {};
 
-        ///
-        /// \brief Array used for simpler building of transport control messages.
+        /// Array used for simpler building of transport control messages.
         /// Based on MIDI specification for transport control.
-        ///
         uint8_t mmcArray[6] = { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 };
     };
-
-    /// @}
 }    // namespace IO
 
 #endif

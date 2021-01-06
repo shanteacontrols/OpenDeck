@@ -36,36 +36,24 @@ limitations under the License.
 
 namespace
 {
-    ///
-    /// \brief Flag determining whether or not UART loopback functionality is enabled.
+    /// Flag determining whether or not UART loopback functionality is enabled.
     /// When enabled, all incoming UART traffic is immediately passed on to UART TX.
-    ///
     volatile bool loopbackEnabled[MAX_UART_INTERFACES];
 
-    ///
-    /// \brief Flag signaling that the transmission is done.
-    ///
+    /// Flag signaling that the transmission is done.
     volatile bool txDone[MAX_UART_INTERFACES];
 
-    ///
-    /// \brief Flag holding the state of UART interface (whether it's initialized or not).
-    ///
+    /// Flag holding the state of UART interface (whether it's initialized or not).
     bool initialized[MAX_UART_INTERFACES];
 
-    ///
-    /// \brief Buffer in which outgoing UART data is stored.
-    ///
+    /// Buffer in which outgoing UART data is stored.
     core::RingBuffer<uint8_t, TX_BUFFER_SIZE> txBuffer[MAX_UART_INTERFACES];
 
-    ///
-    /// \brief Buffer in which incoming UART data is stored.
-    ///
+    /// Buffer in which incoming UART data is stored.
     core::RingBuffer<uint8_t, RX_BUFFER_SIZE> rxBuffer[MAX_UART_INTERFACES];
 
-    ///
-    /// \brief Starts the process of transmitting the data from UART TX buffer to UART interface.
-    /// @param [in] channel     UART channel on MCU.
-    ///
+    /// Starts the process of transmitting the data from UART TX buffer to UART interface.
+    /// param [in]: channel     UART channel on MCU.
     void uartTransmitStart(uint8_t channel)
     {
         if (channel >= MAX_UART_INTERFACES)

@@ -105,10 +105,8 @@ void Touchscreen::update()
     }
 }
 
-///
-/// \brief Switches to requested screen on display
-/// @param [in] screenID  Index of screen to display.
-///
+/// Switches to requested screen on display
+/// param [in]: screenID  Index of screen to display.
 void Touchscreen::setScreen(size_t screenID)
 {
     if (!initialized)
@@ -121,10 +119,8 @@ void Touchscreen::setScreen(size_t screenID)
         screenHandler(screenID);
 }
 
-///
-/// \brief Used to retrieve currently active screen on display.
-/// \returns Active display screen.
-///
+/// Used to retrieve currently active screen on display.
+/// returns: Active display screen.
 size_t Touchscreen::activeScreen()
 {
     return activeScreenID;

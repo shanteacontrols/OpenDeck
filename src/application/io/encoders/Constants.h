@@ -18,21 +18,15 @@ limitations under the License.
 
 #pragma once
 
-///
-/// \brief Time in milliseconds after which debounce mode is reset if encoder isn't moving.
-///
+/// Time in milliseconds after which debounce mode is reset if encoder isn't moving.
 #define ENCODERS_DEBOUNCE_RESET_TIME 50
 
-///
 /// Number of times movement in the same direction must be registered in order
 /// for debouncer to become active. Once the debouncer is active, all further changes
 /// in the movement will be ignored, that is, all movements will be registered in the
 /// direction which was repeated. This state is reset until the encoder is either stopped
 /// or if same amount of movements are registered in the opposite direction.
-///
 #define ENCODERS_DEBOUNCE_COUNT 4
 
-///
-/// \brief Time threshold in milliseconds between two encoder steps used to detect fast movement.
-///
+/// Time threshold in milliseconds between two encoder steps used to detect fast movement.
 #define ENCODERS_SPEED_TIMEOUT 140

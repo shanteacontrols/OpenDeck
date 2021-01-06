@@ -24,9 +24,7 @@ using appEntry_t = void (*)();
 
 namespace
 {
-    ///
-    /// \brief Variable used to specify whether to enter bootloader or application.
-    ///
+    /// Variable used to specify whether to enter bootloader or application.
     uint32_t fwEntryType __attribute__((section(".noinit"))) __attribute__((used));
 }    // namespace
 

@@ -133,12 +133,10 @@ bool SysExParser::verify()
     return true;
 }
 
-///
-/// \brief Convert 7-bit high and low bytes to single 14-bit value.
-/// @param [in,out] value Resulting 14-bit value.
-/// @param [in,out] high    Higher 7 bits.
-/// @param [in,out] low     Lower 7 bits.
-///
+/// Convert 7-bit high and low bytes to single 14-bit value.
+/// param [in,out]: value   Resulting 14-bit value.
+/// param [in,out]: high    Higher 7 bits.
+/// param [in,out]: low     Lower 7 bits.
 void SysExParser::mergeTo14bit(uint16_t& value, uint8_t high, uint8_t low)
 {
     if (high & 0x01)

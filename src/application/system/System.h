@@ -285,9 +285,7 @@ class System
     IO::Touchscreen& touchscreen;
     SysExDataHandler sysExDataHandler;
 
-    ///
     /// Used to prevent updating states of all components (analog, LEDs, encoders, buttons).
-    ///
     bool processingEnabled = true;
 
     const SysExConf::manufacturerID_t sysExMID = {

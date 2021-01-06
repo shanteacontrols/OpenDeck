@@ -24,9 +24,7 @@ limitations under the License.
 #include "Pins.h"
 #include "io/leds/LEDs.h"
 
-///
-/// \brief Total number of states between fully off and fully on for LEDs.
-///
+/// Total number of states between fully off and fully on for LEDs.
 #define NUMBER_OF_LED_TRANSITIONS 64
 
 namespace
@@ -35,10 +33,8 @@ namespace
     core::io::mcuPin_t pin;
 #endif
 
-    ///
-    /// \brief Variables holding calculated current LED index and state.
+    /// Variables holding calculated current LED index and state.
     /// Used only to avoid stack usage in interrupt.
-    /// @{
 
 #if defined(NUMBER_OF_LED_COLUMNS) || defined(NUMBER_OF_OUT_SR)
     uint8_t ledIndex;
@@ -46,7 +42,7 @@ namespace
 #ifdef NUMBER_OF_LED_COLUMNS
     bool ledStateSingle;
 #endif
-    /// @}
+    ///
 
     uint8_t ledState[MAX_NUMBER_OF_LEDS];
 
@@ -54,9 +50,7 @@ namespace
     volatile uint8_t pwmSteps;
     volatile int8_t  transitionCounter[MAX_NUMBER_OF_LEDS];
 
-    ///
-    /// \brief Array holding values needed to achieve more natural LED transition between states.
-    ///
+    /// Array holding values needed to achieve more natural LED transition between states.
     const uint8_t ledTransitionScale[NUMBER_OF_LED_TRANSITIONS] = {
         0,
         0,
@@ -126,20 +120,14 @@ namespace
 #endif
 
 #ifndef NUMBER_OF_LED_COLUMNS
-    ///
-    /// \brief Used to indicate whether or not outputs should be updated.
+    /// Used to indicate whether or not outputs should be updated.
     /// Set to true in ::writeState if the new state differs from the current one.
-    ///
     volatile bool updateOutputs = false;
 #else
-    ///
-    /// \brief Holds value of currently active output matrix column.
-    ///
+    /// Holds value of currently active output matrix column.
     volatile uint8_t activeOutColumn;
 
-    ///
-    /// \brief Switches to next LED matrix column.
-    ///
+    /// Switches to next LED matrix column.
     inline void activateOutputColumn()
     {
         BIT_READ(activeOutColumn, 0) ? CORE_IO_SET_HIGH(DEC_LM_PORT_A0, DEC_LM_PIN_A0) : CORE_IO_SET_LOW(DEC_LM_PORT_A0, DEC_LM_PIN_A0);
@@ -147,9 +135,7 @@ namespace
         BIT_READ(activeOutColumn, 2) ? CORE_IO_SET_HIGH(DEC_LM_PORT_A2, DEC_LM_PIN_A2) : CORE_IO_SET_LOW(DEC_LM_PORT_A2, DEC_LM_PIN_A2);
     }
 
-    ///
-    /// \brief Used to turn the given LED row off.
-    ///
+    /// Used to turn the given LED row off.
     inline void ledRowOff(uint8_t row)
     {
 #ifdef LED_FADING
@@ -161,10 +147,8 @@ namespace
         EXT_LED_OFF(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
     }
 
-    ///
-    /// \brief Used to turn the given LED row on.
+    /// Used to turn the given LED row on.
     /// If led fading is supported on board, intensity must be specified as well.
-    ///
     inline void ledRowOn(uint8_t row
 #ifdef LED_FADING
                          ,
@@ -345,9 +329,7 @@ namespace Board
                     activeOutColumn = 0;
             }
 #elif defined(NUMBER_OF_OUT_SR)
-            ///
-            /// \brief Checks if any LED state has been changed and writes changed state to output shift registers.
-            ///
+            /// Checks if any LED state has been changed and writes changed state to output shift registers.
             void checkDigitalOutputs()
             {
                 if (updateOutputs)

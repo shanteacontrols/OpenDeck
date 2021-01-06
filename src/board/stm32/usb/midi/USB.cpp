@@ -26,15 +26,13 @@ limitations under the License.
 #include "board/Board.h"
 #include "board/Internal.h"
 
-///
-/// \brief Buffer size in bytes for incoming and outgoing MIDI messages (from device standpoint).
-/// @{
+/// Buffer size in bytes for incoming and outgoing MIDI messages (from device standpoint).
 
 #define RX_BUFFER_SIZE_RING 4096
 #define RX_BUFFER_SIZE_USB  128
 #define TX_BUFFER_SIZE_USB  128
 
-/// @}
+///
 
 namespace
 {

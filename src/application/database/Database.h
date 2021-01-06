@@ -217,26 +217,18 @@ class Database : public LESSDB
 
     const bool initializeData;
 
-    ///
-    /// \brief Address at which user data starts (after system block).
+    /// Address at which user data starts (after system block).
     /// Used to set correct offset in database for user layout.
-    ///
     uint32_t userDataStartAddress;
 
-    ///
-    /// \brief Address at which next preset should start.
+    /// Address at which next preset should start.
     /// Used to calculate the start address of next preset.
-    ///
     uint32_t lastPresetAddress;
 
-    ///
-    /// \brief Holds total number of supported presets.
-    ///
+    /// Holds total number of supported presets.
     uint16_t supportedPresets;
 
-    ///
-    /// \brief Holds currently active preset.
-    ///
+    /// Holds currently active preset.
     uint8_t activePreset = 0;
 
     bool initialized = false;

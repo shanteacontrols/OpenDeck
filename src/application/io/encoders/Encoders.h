@@ -30,12 +30,6 @@ limitations under the License.
 
 namespace IO
 {
-    ///
-    /// \brief Encoder handling.
-    /// \defgroup interfaceEncoders Encoders
-    /// \ingroup interfaceDigitalIn
-    /// @{
-
     class Encoders
     {
         public:
@@ -96,54 +90,36 @@ namespace IO
         Display&       display;
         ComponentInfo& cInfo;
 
-        ///
-        /// \brief Holds current MIDI value for all encoders.
-        ///
+        /// Holds current MIDI value for all encoders.
         int16_t midiValue[MAX_NUMBER_OF_ENCODERS] = { 0 };
 
-        ///
-        /// \brief Array holding last movement time for all encoders.
-        ///
+        /// Array holding last movement time for all encoders.
         uint32_t lastMovementTime[MAX_NUMBER_OF_ENCODERS] = {};
 
-        ///
-        /// \brief Array holding current speed (in steps) for all encoders.
-        ///
+        /// Array holding current speed (in steps) for all encoders.
         uint8_t encoderSpeed[MAX_NUMBER_OF_ENCODERS] = {};
 
-        ///
-        /// \brief Array holding previous encoder direction for all encoders.
-        ///
+        /// Array holding previous encoder direction for all encoders.
         position_t lastDirection[MAX_NUMBER_OF_ENCODERS] = {};
 
-        ///
-        /// \brief Array holding current debounced direction for all encoders.
-        ///
+        /// Array holding current debounced direction for all encoders.
         position_t debounceDirection[MAX_NUMBER_OF_ENCODERS] = {};
 
-        ///
-        /// \brief Used to detect constant rotation in single direction.
+        /// Used to detect constant rotation in single direction.
         /// Once n consecutive movements in same direction are detected,
         /// all further movements are assumed to have same direction until
         /// encoder stops moving for ENCODERS_DEBOUNCE_RESET_TIME milliseconds *or*
         /// n new consecutive movements are made in the opposite direction.
         /// n = ENCODERS_DEBOUNCE_COUNT (defined in Constants.h)
-        ///
         uint8_t debounceCounter[MAX_NUMBER_OF_ENCODERS] = {};
 
-        ///
-        /// \brief Array holding last two readings from encoder pins.
-        ///
+        /// Array holding last two readings from encoder pins.
         uint8_t encoderData[MAX_NUMBER_OF_ENCODERS] = {};
 
-        ///
-        /// \brief Array holding current amount of pulses for all encoders.
-        ///
+        /// Array holding current amount of pulses for all encoders.
         int8_t encoderPulses[MAX_NUMBER_OF_ENCODERS] = {};
 
-        ///
-        /// \brief Lookup table used to convert encoder reading to pulses.
-        ///
+        /// Lookup table used to convert encoder reading to pulses.
         const int8_t encoderLookUpTable[16] = {
             0,     //0000
             1,     //0001
@@ -163,12 +139,10 @@ namespace IO
             0      //1111
         };
 
-        ///
-        /// \brief Used to achieve linear encoder acceleration on fast movement.
+        /// Used to achieve linear encoder acceleration on fast movement.
         /// Every time fast movement is detected, amount of steps is increased by this value.
         /// Used only in CC/Pitch bend/NRPN modes. In Pitch bend/NRPN modes, this value is multiplied
         /// by 4 due to a larger value range.
-        ///
         const uint8_t encoderSpeedChange[static_cast<uint8_t>(IO::Encoders::acceleration_t::AMOUNT)] = {
             0,    //acceleration disabled
             1,
@@ -176,9 +150,7 @@ namespace IO
             3
         };
 
-        ///
-        /// \brief Maximum value by which MIDI value is increased during acceleration.
-        ///
+        /// Maximum value by which MIDI value is increased during acceleration.
         const uint8_t encoderMaxAccSpeed[static_cast<uint8_t>(IO::Encoders::acceleration_t::AMOUNT)] = {
             0,    //acceleration disabled
             5,
@@ -186,10 +158,8 @@ namespace IO
             100
         };
 
-        ///
-        /// \brief Array used for easier access to current encoder MIDI value in 7Fh01h and 3Fh41h modes.
+        /// Array used for easier access to current encoder MIDI value in 7Fh01h and 3Fh41h modes.
         /// Matched with type_t and position_t
-        ///
         const uint8_t encValue[2][3] = {
             //t7Fh01h
             {
@@ -206,8 +176,6 @@ namespace IO
             }
         };
     };
-
-    /// @}
 }    // namespace IO
 
 #endif

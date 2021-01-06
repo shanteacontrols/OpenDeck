@@ -24,9 +24,7 @@ limitations under the License.
 #include "board/Internal.h"
 #include "Pins.h"
 
-///
-/// \brief Used to indicate that the new reading has been made.
-///
+/// Used to indicate that the new reading has been made.
 #define NEW_READING_FLAG 0x8000
 
 namespace
@@ -38,9 +36,7 @@ namespace
     uint8_t activeMux;
     uint8_t activeMuxInput;
 
-    ///
-    /// \brief Configures one of 16 inputs/outputs on 4067 multiplexer.
-    ///
+    /// Configures one of 16 inputs/outputs on 4067 multiplexer.
     inline void setMuxInput()
     {
         BIT_READ(activeMuxInput, 0) ? CORE_IO_SET_HIGH(MUX_PORT_S0, MUX_PIN_S0) : CORE_IO_SET_LOW(MUX_PORT_S0, MUX_PIN_S0);

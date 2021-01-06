@@ -18,9 +18,7 @@ limitations under the License.
 
 #pragma once
 
-///
-/// \brief Helper macros used for easier control of internal (on-board) and external LEDs.
-/// @{
+/// Helper macros used for easier control of internal (on-board) and external LEDs.
 
 #ifdef LED_INT_INVERT
 #define INT_LED_ON(port, pin)  CORE_IO_SET_LOW(port, pin)
@@ -37,5 +35,3 @@ limitations under the License.
 #define EXT_LED_ON(port, pin)  CORE_IO_SET_HIGH(port, pin)
 #define EXT_LED_OFF(port, pin) CORE_IO_SET_LOW(port, pin)
 #endif
-
-/// @}

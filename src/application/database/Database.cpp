@@ -20,10 +20,8 @@ limitations under the License.
 #include "core/src/general/Helpers.h"
 #include "Layout.h"
 
-///
-/// \brief Helper macro for easier entry and exit from system block.
+/// Helper macro for easier entry and exit from system block.
 /// Important: ::init must called before trying to use this macro.
-///
 #define SYSTEM_BLOCK_ENTER(code)                                                                                                               \
     {                                                                                                                                          \
         LESSDB::setLayout(dbLayout, static_cast<uint8_t>(block_t::AMOUNT) + 1, 0);                                                             \
@@ -31,9 +29,7 @@ limitations under the License.
             LESSDB::setLayout(&dbLayout[1], static_cast<uint8_t>(block_t::AMOUNT), userDataStartAddress + (lastPresetAddress * activePreset)); \
     }
 
-///
-/// \brief Initializes database.
-///
+/// Initializes database.
 bool Database::init()
 {
     if (!LESSDB::init())
@@ -118,9 +114,7 @@ bool Database::isInitialized()
     return initialized;
 }
 
-///
-/// \brief Performs full factory reset of data in database.
-///
+/// Performs full factory reset of data in database.
 bool Database::factoryReset()
 {
     handlers.factoryResetStart();
@@ -175,11 +169,9 @@ bool Database::factoryReset()
     return true;
 }
 
-///
-/// \brief Used to set new database layout (preset).
-/// @param [in] preset  New preset to set.
-/// \returns False if specified preset isn't supported, true otherwise.
-///
+/// Used to set new database layout (preset).
+/// param [in]: preset  New preset to set.
+/// returns: False if specified preset isn't supported, true otherwise.
 bool Database::setPreset(uint8_t preset)
 {
     if (preset >= supportedPresets)
@@ -201,12 +193,10 @@ bool Database::setPreset(uint8_t preset)
     return returnValue;
 }
 
-///
-/// \brief Used to set new database layout (preset) without writing to database.
+/// Used to set new database layout (preset) without writing to database.
 /// For internal use only.
-/// @param [in] preset  New preset to set.
-/// \returns False if specified preset isn't supported, true otherwise.
-///
+/// param [in]: preset  New preset to set.
+/// returns: False if specified preset isn't supported, true otherwise.
 bool Database::setPresetInternal(uint8_t preset)
 {
     if (preset >= supportedPresets)
@@ -218,28 +208,22 @@ bool Database::setPresetInternal(uint8_t preset)
     return true;
 }
 
-///
-/// \brief Retrieves currently active preset.
-///
+/// Retrieves currently active preset.
 uint8_t Database::getPreset()
 {
     return activePreset;
 }
 
-///
-/// \brief Retrieves number of presets possible to store in database.
+/// Retrieves number of presets possible to store in database.
 /// Preset is simply another database layout copy.
-///
 uint8_t Database::getSupportedPresets()
 {
     return supportedPresets;
 }
 
-///
-/// \brief Enables or disables preservation of preset setting.
+/// Enables or disables preservation of preset setting.
 /// If preservation is enabled, configured preset will be loaded on board power on.
 /// Otherwise, first preset will be loaded instead.
-///
 bool Database::setPresetPreserveState(bool state)
 {
     bool returnValue;
@@ -253,10 +237,8 @@ bool Database::setPresetPreserveState(bool state)
     return returnValue;
 }
 
-///
-/// \brief Checks if preset preservation setting is enabled or disabled.
-/// \returns True if preset preservation is enabled, false otherwise.
-///
+/// Checks if preset preservation setting is enabled or disabled.
+/// returns: True if preset preservation is enabled, false otherwise.
 bool Database::getPresetPreserveState()
 {
     bool returnValue;
@@ -269,10 +251,8 @@ bool Database::getPresetPreserveState()
     return returnValue;
 }
 
-///
-/// \brief Checks if database has been already initialized by checking DB_BLOCK_ID.
-/// \returns True if valid, false otherwise.
-///
+/// Checks if database has been already initialized by checking DB_BLOCK_ID.
+/// returns: True if valid, false otherwise.
 bool Database::isSignatureValid()
 {
     uint16_t signature;
@@ -285,16 +265,12 @@ bool Database::isSignatureValid()
     return getDbUID() == signature;
 }
 
-///
-/// \brief Calculates unique database ID.
+/// Calculates unique database ID.
 /// UID is calculated by appending number of parameters and their types for all
 /// sections and all blocks.
-///
 uint16_t Database::getDbUID()
 {
-    ///
-    /// \brief Magic value with which calculated signature is XORed.
-    ///
+    /// Magic value with which calculated signature is XORed.
     const uint16_t uidBase = 0x1701;
 
     uint16_t signature = 0;
@@ -314,11 +290,9 @@ uint16_t Database::getDbUID()
     return signature ^ uidBase;
 }
 
-///
-/// \brief Updates unique database UID.
+/// Updates unique database UID.
 /// UID is written to first two database locations.
-/// @param [in] uid Database UID to set.
-///
+/// param [in]: uid Database UID to set.
 bool Database::setDbUID(uint16_t uid)
 {
     bool returnValue;

@@ -70,10 +70,8 @@ namespace
             activeInColumn = 0;
     }
 
-    ///
     /// Acquires data for all buttons connected in currently active button matrix column by
     /// reading inputs from shift register.
-    ///
     inline void storeDigitalIn()
     {
         for (int i = 0; i < NUMBER_OF_BUTTON_COLUMNS; i++)

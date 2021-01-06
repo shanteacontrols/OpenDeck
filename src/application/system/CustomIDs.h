@@ -18,9 +18,7 @@ limitations under the License.
 
 #pragma once
 
-///
-/// \brief Custom requests for SysEx protocol.
-/// @{
+/// Custom requests for SysEx protocol.
 
 #define SYSEX_CR_FIRMWARE_VERSION              0x56
 #define SYSEX_CR_HARDWARE_UID                  0x42
@@ -36,19 +34,13 @@ limitations under the License.
 #define SYSEX_CR_BOOTLOADER_SUPPORT            0x51
 #define SYSEX_CR_FULL_BACKUP                   0x1B
 
-/// @}
+///
 
-///
-/// \brief Total number of custom requests.
-///
+/// Total number of custom requests.
 #define NUMBER_OF_CUSTOM_REQUESTS 13
 
-///
-/// \brief Custom ID used when sending info about components to host.
-///
+/// Custom ID used when sending info about components to host.
 #define SYSEX_CM_COMPONENT_ID 0x49
 
-///
-/// \brief Minimum time difference in milliseconds between sending two identical component info messages.
-///
+/// Minimum time difference in milliseconds between sending two identical component info messages.
 #define COMPONENT_INFO_TIMEOUT 500    //ms

@@ -22,9 +22,7 @@ limitations under the License.
 
 #ifdef FW_APP
 #ifdef ANALOG_SUPPORTED
-///
-/// \brief ADC ISR used to read values from multiplexers.
-///
+/// ADC ISR used to read values from multiplexers.
 ISR(ADC_vect)
 {
     Board::detail::isrHandling::adc(ADC);
@@ -32,10 +30,8 @@ ISR(ADC_vect)
 #endif
 #endif
 
-///
-/// \brief Main interrupt service routine.
+/// Main interrupt service routine.
 /// Used to control I/O on board and to update current run time.
-///
 ISR(TIMER0_COMPA_vect)
 {
     static bool _1ms = true;

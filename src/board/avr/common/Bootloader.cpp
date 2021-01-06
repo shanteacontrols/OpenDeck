@@ -27,9 +27,7 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 #include "common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
 
-///
-/// \brief Location at which reboot type is written in EEPROM when initiating software reset.
-///
+/// Location at which reboot type is written in EEPROM when initiating software reset.
 #define REBOOT_VALUE_EEPROM_LOCATION E2END
 
 namespace Board

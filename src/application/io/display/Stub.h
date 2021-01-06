@@ -111,6 +111,4 @@ namespace IO
         {
         }
     };
-
-    /// @}
 }    // namespace IO

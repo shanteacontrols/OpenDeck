@@ -30,13 +30,6 @@ limitations under the License.
 
 namespace IO
 {
-    ///
-    /// \brief Analog components handling.
-    /// \defgroup analog Analog
-    /// \ingroup interface
-    /// @{
-    ///
-
     class Analog
     {
         public:
@@ -132,8 +125,6 @@ namespace IO
         uint8_t         fsrPressed[MAX_NUMBER_OF_ANALOG] = {};
         uint16_t        lastValue[MAX_NUMBER_OF_ANALOG]  = {};
     };
-
-    /// @}
 }    // namespace IO
 
 #endif

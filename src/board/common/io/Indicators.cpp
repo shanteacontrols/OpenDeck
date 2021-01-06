@@ -29,12 +29,10 @@ limitations under the License.
 
 namespace
 {
-    ///
-    /// \brief Variables used to control the time MIDI in/out LED indicators on board are active.
+    /// Variables used to control the time MIDI in/out LED indicators on board are active.
     /// When these LEDs need to be turned on, variables are set to value representing time in
     /// milliseconds during which they should be on. ISR decreases variable value by 1 every 1 millsecond.
     /// Once the variables have value 0, specific LED indicator is turned off.
-    /// @{
 
     volatile uint8_t midiInDINtimeout;
     volatile uint8_t midiOutDINtimeout;
@@ -42,7 +40,7 @@ namespace
     volatile uint8_t midiInUSBtimeout;
     volatile uint8_t midiOutUSBtimeout;
 
-    /// @}
+    ///
 
     bool indicatorsDisabled;
 }    // namespace

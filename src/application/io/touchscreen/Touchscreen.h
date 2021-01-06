@@ -29,12 +29,6 @@ limitations under the License.
 
 namespace IO
 {
-    ///
-    /// \brief Touchscreen control.
-    /// \defgroup interfaceLCDTouch Touchscreen
-    /// \ingroup interfaceLCD
-    /// @{
-
     class Touchscreen
     {
         public:
@@ -124,8 +118,6 @@ namespace IO
         Model*  modelPtr[static_cast<uint8_t>(Model::model_t::AMOUNT)] = {};
         uint8_t activeModel                                            = static_cast<uint8_t>(Model::model_t::AMOUNT);
     };
-
-    /// @}
 }    // namespace IO
 
 #endif

@@ -23,17 +23,13 @@ limitations under the License.
 
 namespace
 {
-    ///
-    /// \brief MIDI Class Device Mode Configuration and State Structure.
-    ///
+    /// MIDI Class Device Mode Configuration and State Structure.
     USB_ClassInfo_MIDI_Device_t MIDI_Interface;
 }    // namespace
 
-///
-/// \brief Event handler for the USB_ConfigurationChanged event.
+/// Event handler for the USB_ConfigurationChanged event.
 /// This is fired when the host set the current configuration
 /// of the USB device after enumeration - the device endpoints are configured and the MIDI management task started.
-///
 extern "C" void EVENT_USB_Device_ConfigurationChanged(void)
 {
     /* Setup MIDI Data Endpoints */
