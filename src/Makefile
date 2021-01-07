@@ -1,7 +1,7 @@
 include Toolchain.mk
 
 BUILD_DIR_BASE := ./build
-TARGET := mega2560
+TARGET := discovery
 TYPE := app
 
 ifeq (,$(wildcard ../targets/$(TARGET).yml))

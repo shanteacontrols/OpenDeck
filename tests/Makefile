@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := test
 
-TARGET := mega2560
+TARGET := discovery
 BUILD_DIR_BASE := ./build
 BUILD_DIR := $(BUILD_DIR_BASE)/$(TARGET)
 GEN_DIR := test_run
