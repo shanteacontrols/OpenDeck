@@ -64,14 +64,12 @@ then
 fi
 
 targets=()
-btldr=()
 test=()
 
 for config in ../targets/*.yml;
 do
     targets+=("$(basename "$config" .yml)")
     test+=("$(yq r "$config" test)")
-    btldr+=("$(yq r "$config" bootloader.use)")
 done
 
 len_targets=${#targets[@]}

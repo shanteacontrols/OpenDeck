@@ -31,6 +31,4 @@
   usbLink:
     type: "master"
     uartChannel: 0
-  bootloader:
-    use: true
   test: false

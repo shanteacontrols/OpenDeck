@@ -144,7 +144,6 @@
         port: "A"
         index: 4
   bootloader:
-    use: true
     button:
       port: "E"
       index: 4

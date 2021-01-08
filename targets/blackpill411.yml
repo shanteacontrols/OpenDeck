@@ -106,7 +106,6 @@
         port: "C"
         index: 15
   bootloader:
-    use: true
     button:
       port: "A"
       index: 0

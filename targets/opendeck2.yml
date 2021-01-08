@@ -279,7 +279,6 @@
       - 30
       - 31
   bootloader:
-    use: true
     button:
       port: "B"
       index: 4

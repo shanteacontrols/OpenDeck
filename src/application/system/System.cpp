@@ -175,11 +175,7 @@ System::result_t System::SysExDataHandler::customRequest(size_t request, CustomR
 
     case SYSEX_CR_BOOTLOADER_SUPPORT:
     {
-#ifdef BOOTLOADER_SUPPORTED
         customResponse.append(1);
-#else
-        customResponse.append(0);
-#endif
     }
     break;
 

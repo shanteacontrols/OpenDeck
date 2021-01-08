@@ -90,6 +90,4 @@
   leds:
     internal:
       present: false
-  bootloader:
-    use: true
   test: true

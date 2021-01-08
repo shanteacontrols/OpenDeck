@@ -104,7 +104,6 @@
     internal:
       present: false
   bootloader:
-    use: true
     button:
       port: "A"
       index: 8

@@ -221,7 +221,6 @@
     type: "slave"
     uartChannel: 0
   bootloader:
-    use: true
     button:
       port: "B"
       index: 2

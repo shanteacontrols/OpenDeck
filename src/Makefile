@@ -8,18 +8,7 @@ ifeq (,$(wildcard ../targets/$(TARGET).yml))
     $(error Target doesn't exist)
 endif
 
-ifeq ($(shell yq r ../targets/$(TARGET).yml bootloader.use), true)
-    HAS_BTLDR := 1
-endif
-
 ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
-    ifeq ($(TYPE),boot)
-        #verify if target has bootloader
-        ifneq ($(HAS_BTLDR),1)
-            $(error This target doesn't have bootloader)
-        endif
-    endif
-
     BUILD_DIR := $(BUILD_DIR_BASE)/$(TYPE)
 else
     BUILD_DIR := $(BUILD_DIR_BASE)/flashgen

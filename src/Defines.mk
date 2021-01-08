@@ -21,10 +21,6 @@ else
     DEFINES += NDEBUG
 endif
 
-ifeq ($(HAS_BTLDR), 1)
-    DEFINES += BOOTLOADER_SUPPORTED
-endif
-
 ARCH := $(shell yq r ../targets/$(TARGET).yml arch)
 MCU := $(shell yq r ../targets/$(TARGET).yml mcu)
 MCU_BASE := $(shell echo $(MCU) | rev | cut -c3- | rev)

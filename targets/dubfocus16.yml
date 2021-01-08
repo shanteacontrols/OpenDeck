@@ -223,7 +223,6 @@
       - 30
       - 26
   bootloader:
-    use: true
     button:
       port: "D"
       index: 2
