@@ -226,4 +226,3 @@
     button:
       port: "D"
       index: 2
-  test: true

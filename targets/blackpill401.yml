@@ -109,4 +109,3 @@
     button:
       port: "A"
       index: 0
-  test: true

@@ -283,4 +283,3 @@
       port: "B"
       index: 4
       activeState: "high"
-  test: true

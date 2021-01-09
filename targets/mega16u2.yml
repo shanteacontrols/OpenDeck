@@ -31,4 +31,3 @@
   usbLink:
     type: "master"
     uartChannel: 0
-  test: false

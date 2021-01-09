@@ -64,12 +64,10 @@ then
 fi
 
 targets=()
-test=()
 
 for config in ../targets/*.yml;
 do
     targets+=("$(basename "$config" .yml)")
-    test+=("$(yq r "$config" test)")
 done
 
 len_targets=${#targets[@]}
@@ -102,12 +100,7 @@ do
             make sysexfw TARGET="${targets[$i]}" TYPE=app
         fi
     else
-        if [[ "${test[$i]}" == "false" ]]
-        then
-            continue;
-        else
-            make pre-build TARGET="${targets[$i]}" DEBUG=0
-            make TARGET="${targets[$i]}" TYPE=app DEBUG=0
-        fi
+        make pre-build TARGET="${targets[$i]}" DEBUG=0
+        make TARGET="${targets[$i]}" TYPE=app DEBUG=0
     fi
 done

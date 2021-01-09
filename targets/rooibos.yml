@@ -90,4 +90,3 @@
   leds:
     internal:
       present: false
-  test: true

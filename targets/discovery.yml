@@ -172,4 +172,3 @@
       port: "A"
       index: 0
       activeState: "high"
-  test: true

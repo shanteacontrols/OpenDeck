@@ -150,4 +150,3 @@
     led:
       port: "D"
       index: 6
-  test: true

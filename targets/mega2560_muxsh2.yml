@@ -194,4 +194,3 @@
     led:
       port: "B"
       index: 7
-  test: true
