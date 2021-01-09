@@ -51,6 +51,7 @@ namespace
     Database      database = Database(dbHandlers, dbStorageMock, true);
 }    // namespace
 
+#ifndef USB_LINK_MCU
 TEST_CASE(ReadInitialValues)
 {
     //init checks - no point in running further tests if these conditions fail
@@ -320,4 +321,5 @@ TEST_CASE(LEDs)
     for (int i = 0; i < MAX_NUMBER_OF_RGB_LEDS; i++)
         TEST_ASSERT(database.read(Database::Section::leds_t::rgbEnable, i) == false);
 }
+#endif
 #endif

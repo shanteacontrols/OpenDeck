@@ -249,6 +249,7 @@ namespace
     System          systemStub(hwaSystem, database, midi, buttons, encoders, analog, leds, display, touchscreen);
 }    // namespace
 
+#ifndef USB_LINK_MCU
 TEST_SETUP()
 {
     hwaSystem.reset();
@@ -466,3 +467,4 @@ TEST_CASE(Requests)
 
     TEST_ASSERT_EQUAL_UINT32(0, hwaMIDI.dinPacketOut.size());
 }
+#endif
