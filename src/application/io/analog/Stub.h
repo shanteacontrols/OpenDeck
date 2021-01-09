@@ -70,10 +70,29 @@ namespace IO
         class HWA
         {
             public:
-            virtual uint16_t state(size_t index) = 0;
+            virtual bool value(size_t index, uint16_t& value) = 0;
         };
 
-        Analog(HWA& hwa, adcType_t adcType, Database& database, MIDI& midi, IO::LEDs& leds, Display& display, ComponentInfo& cInfo)
+        class Filter
+        {
+            public:
+            enum class adcType_t : uint16_t
+            {
+                adc10bit = 1023,
+                adc12bit = 4095
+            };
+
+            virtual bool isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) = 0;
+            virtual void reset(size_t index)                                                                    = 0;
+        };
+
+        Analog(HWA&           hwa,
+               Filter&        filter,
+               Database&      database,
+               MIDI&          midi,
+               IO::LEDs&      leds,
+               Display&       display,
+               ComponentInfo& cInfo)
         {}
 
         void update()

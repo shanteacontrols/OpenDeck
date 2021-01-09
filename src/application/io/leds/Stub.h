@@ -91,11 +91,20 @@ namespace IO
             midiClock
         };
 
+        enum class brightness_t : uint8_t
+        {
+            bOff,
+            b25,
+            b50,
+            b75,
+            b100
+        };
+
         class HWA
         {
             public:
             HWA() {}
-            virtual void   setState(size_t index, bool state)                                      = 0;
+            virtual void   setState(size_t index, brightness_t brightness)                         = 0;
             virtual size_t rgbSingleComponentIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent) = 0;
             virtual size_t rgbIndex(size_t singleLEDindex)                                         = 0;
             virtual void   setFadeSpeed(size_t transitionSpeed)                                    = 0;
