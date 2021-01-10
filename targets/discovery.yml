@@ -5,13 +5,10 @@
   extClockMhz: 8
   usb: true
   dinMIDI:
-    use: true
     uartChannel: 2
   display:
-    use: true
     i2cChannel: 2
   touchscreen:
-    use: true
     uartChannel: 2
     components: 64
   buttons:

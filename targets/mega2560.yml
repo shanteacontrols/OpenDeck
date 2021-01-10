@@ -4,13 +4,10 @@
   mcu: "atmega2560"
   usb: false
   dinMIDI:
-    use: true
     uartChannel: 1
   display:
-    use: true
     i2cChannel: 0
   touchscreen:
-    use: true
     uartChannel: 1
     components: 64
   buttons:

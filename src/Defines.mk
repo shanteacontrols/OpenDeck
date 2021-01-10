@@ -197,7 +197,7 @@ endif
 DEFINES += CDC_TX_BUFFER_SIZE=4096
 DEFINES += CDC_RX_BUFFER_SIZE=1024
 
-ifeq ($(shell yq r ../targets/$(TARGET).yml dinMIDI.use), true)
+ifneq ($(shell yq r ../targets/$(TARGET).yml dinMIDI),)
     DEFINES += DIN_MIDI_SUPPORTED
     UART_CHANNEL_DIN=$(shell yq r ../targets/$(TARGET).yml dinMIDI.uartChannel)
 
@@ -208,12 +208,12 @@ ifeq ($(shell yq r ../targets/$(TARGET).yml dinMIDI.use), true)
     DEFINES += UART_CHANNEL_DIN=$(UART_CHANNEL_DIN)
 endif
 
-ifeq ($(shell yq r ../targets/$(TARGET).yml display.use), true)
+ifneq ($(shell yq r ../targets/$(TARGET).yml display),)
     DEFINES += DISPLAY_SUPPORTED
     DEFINES += I2C_CHANNEL_DISPLAY=$(shell yq r ../targets/$(TARGET).yml display.i2cChannel)
 endif
 
-ifeq ($(shell yq r ../targets/$(TARGET).yml touchscreen.use), true)
+ifneq ($(shell yq r ../targets/$(TARGET).yml touchscreen),)
     DEFINES += TOUCHSCREEN_SUPPORTED
     #guard against ommisions of touchscreen component amount by assigning the value to 0 if undefined
     DEFINES += MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS=$(shell yq r ../targets/$(TARGET).yml touchscreen.components | awk '{print$$1}END{if(NR==0)print 0}')

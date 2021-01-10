@@ -5,15 +5,7 @@
   extClockMhz: 25
   usb: true
   dinMIDI:
-    use: true
     uartChannel: 0
-  display:
-    use: false
-    i2cChannel: 0
-  touchscreen:
-    use: false
-    uartChannel: 0
-    components: 64
   buttons:
     type: "native"
     extPullups: false

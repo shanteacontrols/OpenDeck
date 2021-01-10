@@ -4,13 +4,9 @@
   mcu: "at90usb1286"
   usb: true
   dinMIDI:
-    use: true
     uartChannel: 0
   display:
-    use: true
     i2cChannel: 0
-  touchscreen:
-    use: false
   buttons:
     type: "native"
     pins:

@@ -3,12 +3,6 @@
   mcuFamily: "avr8"
   mcu: "atmega16u2"
   usb: true
-  dinMIDI:
-    use: false
-  display:
-    use: false
-  touchscreen:
-    use: false
   leds:
     internal:
       present: true
