@@ -52,6 +52,12 @@ namespace IO
             aftertouch
         };
 
+        enum class adcType_t : uint16_t
+        {
+            adc10bit = 1023,
+            adc12bit = 4095
+        };
+
         class HWA
         {
             public:
@@ -62,14 +68,9 @@ namespace IO
         class Filter
         {
             public:
-            enum class adcType_t : uint8_t
-            {
-                adc10bit,
-                adc12bit
-            };
-
-            virtual bool isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) = 0;
-            virtual void reset(size_t index)                                                                    = 0;
+            virtual Analog::adcType_t adcType()                                                                              = 0;
+            virtual bool              isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) = 0;
+            virtual void              reset(size_t index)                                                                    = 0;
         };
 
         using buttonHandler_t = void (*)(uint8_t adcIndex, bool state);
@@ -94,9 +95,10 @@ namespace IO
                 lastValue[i] = 0xFFFF;
         }
 
-        void update();
-        void debounceReset(uint16_t index);
-        void setButtonHandler(buttonHandler_t handler);
+        void      update();
+        void      debounceReset(uint16_t index);
+        void      setButtonHandler(buttonHandler_t handler);
+        adcType_t adcType();
 
         private:
         typedef struct

@@ -51,11 +51,16 @@ namespace IO
     class AnalogFilter : public IO::Analog::Filter
     {
         public:
-        AnalogFilter(IO::Analog::Filter::adcType_t adcType, size_t stableValueRepetitions)
+        AnalogFilter(IO::Analog::adcType_t adcType, size_t stableValueRepetitions)
             : _adcType(adcType)
-            , _adcConfig(adcType == IO::Analog::Filter::adcType_t::adc10bit ? adc10bit : adc12bit)
+            , _adcConfig(adcType == IO::Analog::adcType_t::adc10bit ? adc10bit : adc12bit)
             , _stableValueRepetitions(stableValueRepetitions)
         {}
+
+        Analog::adcType_t adcType() override
+        {
+            return _adcType;
+        }
 
         bool isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) override
         {
@@ -68,7 +73,7 @@ namespace IO
                 return 0;
             };
 
-            if (_adcType == Analog::Filter::adcType_t::adc12bit)
+            if (_adcType == Analog::adcType_t::adc12bit)
             {
                 //on 12bit ADCs, when the value is above 90%, add small value
                 //to offset the reading error and possible situation that the maximum
@@ -249,9 +254,9 @@ namespace IO
             .digitalValueThresholdOff = 2400,
         };
 
-        const IO::Analog::Filter::adcType_t _adcType;
-        adcConfig_t&                        _adcConfig;
-        const size_t                        _stableValueRepetitions;
+        const IO::Analog::adcType_t _adcType;
+        adcConfig_t&                _adcConfig;
+        const size_t                _stableValueRepetitions;
 
         const uint32_t _fastFilterEnableAfter = 500;
         EMA            _emaFilter[MAX_NUMBER_OF_ANALOG];

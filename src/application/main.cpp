@@ -417,9 +417,9 @@ class ButtonsFilterStub : public IO::Buttons::Filter
 #endif
 
 #ifdef ADC_12_BIT
-#define ADC_RESOLUTION IO::Analog::Filter::adcType_t::adc12bit
+#define ADC_RESOLUTION IO::Analog::adcType_t::adc12bit
 #else
-#define ADC_RESOLUTION IO::Analog::Filter::adcType_t::adc10bit
+#define ADC_RESOLUTION IO::Analog::adcType_t::adc10bit
 #endif
 
 #ifdef ANALOG_SUPPORTED

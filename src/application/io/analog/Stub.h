@@ -29,10 +29,10 @@ namespace IO
     class Analog
     {
         public:
-        enum class adcType_t : uint8_t
+        enum class adcType_t : uint16_t
         {
-            adc10bit,
-            adc12bit
+            adc10bit = 1023,
+            adc12bit = 4095
         };
 
         typedef struct
@@ -76,14 +76,9 @@ namespace IO
         class Filter
         {
             public:
-            enum class adcType_t : uint16_t
-            {
-                adc10bit = 1023,
-                adc12bit = 4095
-            };
-
-            virtual bool isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) = 0;
-            virtual void reset(size_t index)                                                                    = 0;
+            virtual Analog::adcType_t adcType()                                                                              = 0;
+            virtual bool              isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) = 0;
+            virtual void              reset(size_t index)                                                                    = 0;
         };
 
         Analog(HWA&           hwa,
@@ -97,6 +92,15 @@ namespace IO
 
         void update()
         {
+        }
+
+        adcType_t adcType()
+        {
+#ifdef ADC_12_BIT
+            return adcType_t::adc12bit;
+#else
+            return adcType_t::adc10bit;
+#endif
         }
 
         void debounceReset(uint16_t index)

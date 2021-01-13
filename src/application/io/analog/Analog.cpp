@@ -92,6 +92,11 @@ void Analog::update()
     }
 }
 
+Analog::adcType_t Analog::adcType()
+{
+    return filter.adcType();
+}
+
 bool Analog::checkPotentiometerValue(uint8_t analogID, analogDescriptor_t& descriptor, uint16_t& value)
 {
     uint16_t maxLimit;
