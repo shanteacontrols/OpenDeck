@@ -282,6 +282,7 @@ void System::configureMIDI()
 #ifdef DIN_MIDI_SUPPORTED
     if (isMIDIfeatureEnabled(midiFeature_t::dinEnabled))
     {
+        midi.enableDINMIDI();
         bool mergeEnabled = isMIDIfeatureEnabled(midiFeature_t::mergeEnabled);
 
         //use recursive parsing when merging is active
