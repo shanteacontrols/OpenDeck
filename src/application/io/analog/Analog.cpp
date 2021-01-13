@@ -26,75 +26,80 @@ void Analog::update()
     //check values
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
-        //don't process component if it's not enabled
-        if (!database.read(Database::Section::analog_t::enable, i))
-            continue;
-
         uint16_t value;
 
         if (!hwa.value(i, value))
             continue;
 
-        analogDescriptor_t descriptor;
-        descriptor.type = static_cast<type_t>(database.read(Database::Section::analog_t::type, i));
-
-        if (!filter.isFiltered(i, descriptor.type, value, value))
-            continue;
-
-        bool send = false;
-
-        descriptor.lowerLimit = database.read(Database::Section::analog_t::lowerLimit, i);
-        descriptor.upperLimit = database.read(Database::Section::analog_t::upperLimit, i);
-        descriptor.midiID     = database.read(Database::Section::analog_t::midiID, i);
-        descriptor.channel    = database.read(Database::Section::analog_t::midiChannel, i);
-        descriptor.inverted   = database.read(Database::Section::analog_t::invert, i);
-
-        if (descriptor.type != type_t::button)
-        {
-            switch (descriptor.type)
-            {
-            case type_t::potentiometerControlChange:
-            case type_t::potentiometerNote:
-            case type_t::nrpn7b:
-            case type_t::nrpn14b:
-            case type_t::pitchBend:
-            case type_t::cc14bit:
-            {
-                if (checkPotentiometerValue(i, descriptor, value))
-                    send = true;
-            }
-            break;
-
-            case type_t::fsr:
-            {
-                if (checkFSRvalue(i, descriptor, value))
-                    send = true;
-            }
-            break;
-
-            default:
-                break;
-            }
-        }
-        else
-        {
-            if (buttonHandler != nullptr)
-                (*buttonHandler)(i, value);
-        }
-
-        if (send)
-        {
-            sendMessage(i, descriptor, value);
-            lastValue[i] = value;
-        }
-
-        cInfo.send(Database::block_t::analog, i);
+        processReading(i, value);
     }
 }
 
 Analog::adcType_t Analog::adcType()
 {
     return filter.adcType();
+}
+
+void Analog::processReading(uint8_t analogID, uint16_t value)
+{
+    //don't process component if it's not enabled
+    if (!database.read(Database::Section::analog_t::enable, analogID))
+        return;
+
+    analogDescriptor_t descriptor;
+    descriptor.type = static_cast<type_t>(database.read(Database::Section::analog_t::type, analogID));
+
+    if (!filter.isFiltered(analogID, descriptor.type, value, value))
+        return;
+
+    bool send = false;
+
+    descriptor.lowerLimit = database.read(Database::Section::analog_t::lowerLimit, analogID);
+    descriptor.upperLimit = database.read(Database::Section::analog_t::upperLimit, analogID);
+    descriptor.midiID     = database.read(Database::Section::analog_t::midiID, analogID);
+    descriptor.channel    = database.read(Database::Section::analog_t::midiChannel, analogID);
+    descriptor.inverted   = database.read(Database::Section::analog_t::invert, analogID);
+
+    if (descriptor.type != type_t::button)
+    {
+        switch (descriptor.type)
+        {
+        case type_t::potentiometerControlChange:
+        case type_t::potentiometerNote:
+        case type_t::nrpn7b:
+        case type_t::nrpn14b:
+        case type_t::pitchBend:
+        case type_t::cc14bit:
+        {
+            if (checkPotentiometerValue(analogID, descriptor, value))
+                send = true;
+        }
+        break;
+
+        case type_t::fsr:
+        {
+            if (checkFSRvalue(analogID, descriptor, value))
+                send = true;
+        }
+        break;
+
+        default:
+            break;
+        }
+    }
+    else
+    {
+        if (buttonHandler != nullptr)
+            (*buttonHandler)(analogID, value);
+    }
+
+    if (send)
+    {
+        sendMessage(analogID, descriptor, value);
+        lastValue[analogID] = value;
+    }
+
+    cInfo.send(Database::block_t::analog, analogID);
 }
 
 bool Analog::checkPotentiometerValue(uint8_t analogID, analogDescriptor_t& descriptor, uint16_t& value)
