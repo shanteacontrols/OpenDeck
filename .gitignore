@@ -4,7 +4,6 @@ Documentation/*
 *compile_commands.json
 *ipch*
 *Objects.mk
-*.zip
 *.cortex-debug*
 **/tests/test_run/*
 **/board/gen/*
