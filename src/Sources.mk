@@ -133,8 +133,8 @@ ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
             board/common/uart/UART.cpp
         endif
 
-        ifneq ($(filter %16u2 %8u2, $(TARGET)), )
-            #fw for xu2 uses different set of sources than other targets
+        ifneq (,$(findstring USB_LINK_MCU,$(DEFINES)))
+            #fw for usb links uses different set of sources than other targets
             SOURCES += \
             board/common/io/Indicators.cpp \
             usb-link/main.cpp
