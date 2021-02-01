@@ -37,11 +37,9 @@ $(FLASH_BIN_ARM) \
 $(C_COMPILER_x86) \
 $(CPP_COMPILER_x86)
 
+#don't allow running make at all if required packages don't exist on the system
+$(foreach package, $(REQ_PACKAGES), $(if $(shell which $(package) 2>/dev/null),,$(error Required package not found: $(package))))
+
 #avoid find errors
 #defined here to avoid verify target parsing "2>/dev/null" as an package causing it to fail
 FIND := $(FIND) 2>/dev/null
-
-verify:
-	@echo Verifying all required packages...
-	$(foreach package, $(REQ_PACKAGES), $(if $(shell which $(package) 2>/dev/null),,$(error Required package not found: $(package))))
-	@echo All required packages found!
