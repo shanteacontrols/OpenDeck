@@ -15,6 +15,13 @@ jobs:
          run: |
            sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
            sudo apt install clang-format-11
+           sudo touch /usr/bin/avrdude && sudo chmod +x /usr/bin/avrdude
+           sudo touch /usr/bin/srec_cat && sudo chmod +x /usr/bin/srec_cat
+           sudo touch /usr/bin/avr-gcc && sudo chmod +x /usr/bin/avr-gcc
+           sudo touch /usr/bin/avr-g++ && sudo chmod +x /usr/bin/avr-g++
+           sudo touch /usr/bin/arm-none-eabi-gcc && sudo chmod +x /usr/bin/arm-none-eabi-gcc
+           sudo touch /usr/bin/arm-none-eabi-g++ && sudo chmod +x /usr/bin/arm-none-eabi-g++
+           sudo touch /usr/bin/arm-none-eabi-gdb && sudo chmod +x /usr/bin/arm-none-eabi-gdb
            curl -L https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_amd64 > yq
            chmod +x yq
            sudo mv yq /usr/local/bin/yq
