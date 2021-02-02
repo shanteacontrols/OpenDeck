@@ -58,6 +58,9 @@ namespace Board
         else
             fwType = Board::detail::bootloader::btldrTriggerSoftType();
 
+        //always reset soft trigger after reading it back to application
+        setSWtrigger(detail::bootloader::fwType_t::application);
+
         switch (fwType)
         {
         case detail::bootloader::fwType_t::application:
