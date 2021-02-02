@@ -63,19 +63,22 @@ namespace Board
 
         switch (fwType)
         {
-        case detail::bootloader::fwType_t::application:
-        {
-#ifdef LED_INDICATORS
-            detail::io::ledFlashStartup(false);
-#endif
-            detail::bootloader::runApplication();
-        }
-        break;
-
         case detail::bootloader::fwType_t::cdc:
             detail::bootloader::runCDC();
             break;
 
+        case detail::bootloader::fwType_t::application:
+        {
+            if (detail::bootloader::isAppValid())
+            {
+#ifdef LED_INDICATORS
+                detail::io::ledFlashStartup(false);
+#endif
+                detail::bootloader::runApplication();
+            }
+        }
+
+        //intentional fall-through
         default:
             detail::bootloader::runBootloader();
         }
