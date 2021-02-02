@@ -64,9 +64,11 @@ namespace Board
         switch (fwType)
         {
         case detail::bootloader::fwType_t::cdc:
+#ifndef __AVR__
             detail::bootloader::runCDC();
-            break;
+#endif
 
+        //intentional fall-through
         case detail::bootloader::fwType_t::application:
         {
             if (detail::bootloader::isAppValid())
