@@ -11,7 +11,7 @@ Documentation/*
 **/cubemx/**/*
 !**/cubemx/**/*.ioc
 src/application/io/touchscreen/design/*.cpp
-src/application/io/touchscreen/**/*.ico
+**/*.ico
 **/.clangd/*
 **/clangd/*
 **/**/Backup*.cdr
