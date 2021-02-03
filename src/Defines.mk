@@ -235,6 +235,12 @@ else
     DEFINES += MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS=0
 endif
 
+ifeq ($(TYPE),cdc)
+    ifeq ($(ARCH), avr)
+        $(error CDC not supported for this arch)
+    endif
+endif
+
 ifneq ($(shell yq r ../targets/$(TARGET).yml buttons),)
     DEFINES += BUTTONS_SUPPORTED
 endif
@@ -372,6 +378,8 @@ DEFINES += MAX_NUMBER_OF_ANALOG=$(MAX_NUMBER_OF_ANALOG)
 DEFINES += MAX_NUMBER_OF_LEDS=$(MAX_NUMBER_OF_LEDS)
 DEFINES += MAX_NUMBER_OF_RGB_LEDS=$(shell expr $(MAX_NUMBER_OF_LEDS) \/ 3)
 
-ifneq (,$(findstring UART_CHANNEL,$(DEFINES)))
+ifeq ($(TYPE),cdc)
+    DEFINES += USE_UART
+else ifneq (,$(findstring UART_CHANNEL,$(DEFINES)))
     DEFINES += USE_UART
 endif

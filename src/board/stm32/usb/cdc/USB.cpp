@@ -25,6 +25,12 @@ limitations under the License.
 #include "board/Board.h"
 #include "board/Internal.h"
 
+#ifndef UART_CHANNEL_TOUCHSCREEN
+#define UART_CHANNEL 0
+#else
+#define UART_CHANNEL UART_CHANNEL_TOUCHSCREEN
+#endif
+
 namespace
 {
     typedef struct
@@ -223,7 +229,7 @@ namespace
         NAKed till the end of the application Xfer */
 
         for (uint32_t i = 0; i < length; i++)
-            Board::UART::write(UART_CHANNEL_TOUCHSCREEN, rxBuffer[i]);
+            Board::UART::write(UART_CHANNEL, rxBuffer[i]);
 
         (void)USBD_LL_PrepareReceive(pdev, CDC_OUT_EPADDR, (uint8_t*)rxBuffer, CDC_TXRX_EPSIZE);
 
@@ -299,7 +305,7 @@ namespace
         {
             baudRate = (uint32_t)(pbuf[0] | (pbuf[1] << 8) | (pbuf[2] << 16) | (pbuf[3] << 24));
             //ignore other parameters
-            Board::UART::init(UART_CHANNEL_TOUCHSCREEN, baudRate);
+            Board::UART::init(UART_CHANNEL, baudRate);
         }
         break;
 
@@ -407,7 +413,7 @@ namespace Board
                     {
                         uint8_t value;
 
-                        if (Board::UART::read(UART_CHANNEL_TOUCHSCREEN, value))
+                        if (Board::UART::read(UART_CHANNEL, value))
                         {
                             txBuffer[size] = value;
                         }
