@@ -9,7 +9,7 @@
     i2cChannel: 0
   touchscreen:
     uartChannel: 1
-    components: 64
+    components: 32
   buttons:
     type: "native"
     pins:
