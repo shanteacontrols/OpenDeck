@@ -138,3 +138,24 @@ void Viewtech::setIconState(IO::Touchscreen::icon_t& icon, bool state)
     hwa.write(0x00);
     hwa.write(state ? 0x00 : 0x01);
 }
+
+bool Viewtech::setBrightness(IO::Touchscreen::brightness_t brightness)
+{
+    //header
+    hwa.write(0xA5);
+    hwa.write(0x5A);
+
+    //request size
+    hwa.write(0x03);
+
+    //register write
+    hwa.write(0x80);
+
+    //brightness settting
+    hwa.write(0x01);
+
+    //brightness value
+    hwa.write(brightnessMapping[static_cast<uint8_t>(brightness)]);
+
+    return true;
+}

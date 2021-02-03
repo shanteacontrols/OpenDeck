@@ -34,12 +34,24 @@ class Nextion : public IO::Touchscreen::Model, public IO::Touchscreen::Model::Co
     bool                       setScreen(size_t screenID) override;
     IO::Touchscreen::tsEvent_t update(IO::Touchscreen::tsData_t& data) override;
     void                       setIconState(IO::Touchscreen::icon_t& icon, bool state) override;
+    bool                       setBrightness(IO::Touchscreen::brightness_t brightness) override;
 
     private:
     bool writeCommand(const char* line, ...);
     bool endCommand();
 
     IO::Touchscreen::Model::HWA& hwa;
+
+    //there are 7 levels of brighness - scale them to available range (0-100)
+    const uint8_t brightnessMapping[7] = {
+        10,
+        25,
+        50,
+        75,
+        80,
+        90,
+        100
+    };
 
     char   commandBuffer[IO::Touchscreen::Model::Common::bufferSize];
     size_t endCounter = 0;

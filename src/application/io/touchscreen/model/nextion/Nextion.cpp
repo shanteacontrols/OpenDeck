@@ -149,3 +149,8 @@ bool Nextion::endCommand()
 
     return true;
 }
+
+bool Nextion::setBrightness(IO::Touchscreen::brightness_t brightness)
+{
+    return writeCommand("dims=%d", brightnessMapping[static_cast<uint8_t>(brightness)]);
+}

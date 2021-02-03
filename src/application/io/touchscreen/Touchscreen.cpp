@@ -51,6 +51,8 @@ bool Touchscreen::init()
         {
             //screen 0 should be blank or logo only - used to detect that the firmware is running
             setScreen(1);
+            setBrightness(static_cast<brightness_t>(database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::brightness))));
+
             return true;
         }
     }
@@ -186,4 +188,12 @@ void Touchscreen::processButton(const size_t buttonID, const bool state)
         buttons.processButton(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + buttonID, false);
         setScreen(newScreen);
     }
+}
+
+bool Touchscreen::setBrightness(brightness_t brightness)
+{
+    if (!initialized)
+        return false;
+
+    return MODEL->setBrightness(brightness);
 }

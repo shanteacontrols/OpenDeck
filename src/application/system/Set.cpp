@@ -707,6 +707,13 @@ System::result_t System::onSetTouchscreen(Section::touchscreen_t section, size_t
         }
         break;
 
+        case static_cast<size_t>(IO::Touchscreen::setting_t::brightness):
+        {
+            if (!touchscreen.setBrightness(static_cast<IO::Touchscreen::brightness_t>(newValue)))
+                return System::result_t::error;
+        }
+        break;
+
         default:
             break;
         }

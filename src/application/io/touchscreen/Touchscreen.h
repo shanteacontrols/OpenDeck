@@ -60,6 +60,17 @@ namespace IO
             AMOUNT
         };
 
+        enum class brightness_t : uint8_t
+        {
+            _10,
+            _25,
+            _50,
+            _75,
+            _80,
+            _90,
+            _100
+        };
+
         struct icon_t
         {
             uint16_t xPos      = 0;
@@ -112,6 +123,7 @@ namespace IO
             virtual bool      setScreen(size_t screenID)                          = 0;
             virtual tsEvent_t update(tsData_t& tsData)                            = 0;
             virtual void      setIconState(Touchscreen::icon_t& icon, bool state) = 0;
+            virtual bool      setBrightness(brightness_t brightness)              = 0;
         };
 
         Touchscreen(Database&      database,
@@ -130,6 +142,7 @@ namespace IO
         size_t activeScreen();
         void   setScreenChangeHandler(void (*fptr)(size_t screenID));
         void   setIconState(size_t index, bool state);
+        bool   setBrightness(brightness_t brightness);
 
         private:
         bool isModelValid(Model::model_t model);

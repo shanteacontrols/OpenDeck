@@ -34,6 +34,7 @@ class Viewtech : public IO::Touchscreen::Model, public IO::Touchscreen::Model::C
     bool                       setScreen(size_t screenID) override;
     IO::Touchscreen::tsEvent_t update(IO::Touchscreen::tsData_t& data) override;
     void                       setIconState(IO::Touchscreen::icon_t& icon, bool state) override;
+    bool                       setBrightness(IO::Touchscreen::brightness_t brightness) override;
 
     private:
     enum class response_t : uint32_t
@@ -45,4 +46,15 @@ class Viewtech : public IO::Touchscreen::Model, public IO::Touchscreen::Model::C
 
     IO::Touchscreen::Model::HWA& hwa;
     bool                         buttonPressed = false;
+
+    //there are 7 levels of brighness - scale them to available range (0-64)
+    const uint8_t brightnessMapping[7] = {
+        6,
+        16,
+        32,
+        48,
+        51,
+        58,
+        64
+    };
 };

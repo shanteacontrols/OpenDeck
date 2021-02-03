@@ -52,6 +52,17 @@ namespace IO
             AMOUNT
         };
 
+        enum class brightness_t : uint8_t
+        {
+            _10,
+            _25,
+            _50,
+            _75,
+            _80,
+            _90,
+            _100
+        };
+
         enum class componentType_t : uint8_t
         {
             button,
@@ -83,6 +94,11 @@ namespace IO
 
         void setIconState(size_t index, bool state)
         {
+        }
+
+        bool setBrightness(brightness_t brightness)
+        {
+            return false;
         }
     };
 }    // namespace IO
