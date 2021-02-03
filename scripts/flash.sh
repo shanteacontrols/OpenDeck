@@ -23,24 +23,13 @@ then
         echo "ERROR: GNU find not installed (gfind)"
         exit 1
     fi
-
-    port_list=$($find /dev -name "cu.*" -ls 2>/dev/null | sort | cut -d / -f3 | grep -v Bluetooth)
 elif [ "$(uname -s)" == "Linux" ]
 then
     find="find"
-    port_list=$($find /dev/serial/by-id/ -type l -ls | grep -Eo '\btty\w+')
 fi
 
-if [[ "$port_list" == "" ]]
-then
-    echo "ERROR: No ports found. Please connect ArduinoISP before running the script."
-    exit 1
-fi
-
-echo "Please select serial port on which ArduinoISP is connected:"
-echo "$port_list" | cat -n
+echo "Please type the serial port on which ArduinoISP is connected, without /dev/ part:"
 read -r port
-port=$(echo "$port_list" | head -n "$port" | tail -n 1)
 
 echo "Please select board you want to flash and then press enter:"
 
