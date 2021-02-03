@@ -81,7 +81,7 @@ for (( i=0; i<len_targets; i++ ))
 do
     if [[ "$TYPE" != "tests" ]]
     then
-        make merged TARGET="${targets[$i]}" DEBUG=0
+        make TARGET="${targets[$i]}" DEBUG=0
 
         if [[ "$BUILD_RELEASE" == "true" ]]
         then

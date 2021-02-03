@@ -24,19 +24,6 @@ ifneq (,$(wildcard application/io/touchscreen/design/$(TARGET).json))
     TSCREEN_GEN_SOURCE += application/io/touchscreen/design/$(TARGET).cpp
 endif
 
-#used for merged target - contains list of firmwares which should be merged together
-MERGED_FW_FILES := $(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel
-
-ifeq ($(ARCH), stm32)
-    ifneq (,$(findstring TOUCHSCREEN_SUPPORTED,$(DEFINES)))
-        MERGED_FW_FILES += $(BUILD_DIR_BASE)/cdc/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel
-    endif
-endif
-
-ifneq ($(SYSEX_MERGE),1)
-    MERGED_FW_FILES += $(BUILD_DIR_BASE)/boot/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel
-endif
-
 ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
     SOURCES += $(PINS_GEN_SOURCE)
     SOURCES += $(TSCREEN_GEN_SOURCE)

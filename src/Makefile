@@ -22,32 +22,24 @@ else
     BUILD_TYPE := release
 endif
 
-BUILD_DIR := $(BUILD_DIR)/$(BUILD_TYPE)
+BUILD_DIR       := $(BUILD_DIR)/$(BUILD_TYPE)
+OUTPUT          := $(BUILD_DIR)/$(TARGET)
+BUILD_TIME_FILE := $(BUILD_DIR_BASE)/lastbuild
+LAST_BUILD_TIME := $(shell cat $(BUILD_TIME_FILE) 2>/dev/null | awk '{print$$1}END{if(NR==0)print 0}')
 
-OUTPUT := $(BUILD_DIR)/$(TARGET)
-.DEFAULT_GOAL := fw
+SYSEX_BINARY_SUFFIX := _sysex
+
+ifneq (,$(findstring sysex,$(MAKECMDGOALS)))
+    SYSEX_MERGE := 1
+endif
 
 #includes
 #important - do not change the order of inclusion!
 include Defines.mk
 include Sources.mk
 
-ifeq ($(TYPE),cdc)
-    ifeq (,$(findstring TOUCHSCREEN_SUPPORTED,$(DEFINES)))
-        $(error CDC not supported for this target)
-    endif
-endif
-
-# if merged binary exists (bootloader+application), use it when running flash target
 MERGED_TARGET := $(BUILD_DIR_BASE)/merged/$(TARGET)
-
-ifneq (,$(findstring sysexfw,$(MAKECMDGOALS)))
-    SYSEX_MERGE := 1
-endif
-
-ifeq ($(SYSEX_MERGE),1)
-    MERGED_TARGET := $(MERGED_TARGET)_sysex
-endif
+.DEFAULT_GOAL := merged-full
 
 #when set to 1, format target will fail if there are any changes to the repository after formatting
 CF_FAIL_ON_DIFF := 0
@@ -165,9 +157,7 @@ else
     endif
 endif
 
-fw:
-	@$(MAKE) --no-print-directory TYPE=$(TYPE) TARGET=$(TARGET) pre-build
-	@$(MAKE) --no-print-directory TYPE=$(TYPE) TARGET=$(TARGET) $(OUTPUT).elf
+fw: $(OUTPUT).elf
 
 $(OUTPUT).elf: $(OBJECTS) $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin_offset
 	@echo Creating executable: $@
@@ -182,44 +172,75 @@ endif
 	@$(TOOL_PREFIX)objcopy -I ihex "$(OUTPUT).hex" -O binary "$(OUTPUT).bin"
 	@$(SIZE_TOOL) "$(OUTPUT).elf"
 endif
+#indicate that new binary has been created
+	@echo $(shell date +%s%N) > $(BUILD_TIME_FILE)
 
-merged:
-	@mkdir -p $(BUILD_DIR_BASE)/merged
+merged-full:
+	@mkdir -p $(MERGED_TARGET)
 	@echo Building application...
-	@$(MAKE) --no-print-directory TARGET=$(TARGET) TYPE=app
-ifneq ($(SYSEX_MERGE),1)
+	@$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) pre-build
+	@$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) fw
 	@echo Building bootloader...
-	@$(MAKE) --no-print-directory TARGET=$(TARGET) TYPE=boot
-endif
+	@$(MAKE) --no-print-directory TYPE=boot TARGET=$(TARGET) DEBUG=$(DEBUG) fw
 ifeq ($(ARCH), stm32)
-ifneq (,$(findstring TOUCHSCREEN_SUPPORTED,$(DEFINES)))
-		@echo Building CDC...
-		@$(MAKE) --no-print-directory TARGET=$(TARGET) TYPE=cdc
+	@echo Building CDC...
+	@$(MAKE) --no-print-directory TYPE=cdc TARGET=$(TARGET) DEBUG=$(DEBUG) fw
 endif
-endif
+#relink only if needed
+	@NEW_BUILD_TIME=$$(cat $(BUILD_TIME_FILE)) && if [ $$(echo $$NEW_BUILD_TIME) = $$(echo $(LAST_BUILD_TIME)) ]; then \
+	echo Merged binary up to date; \
+	else \
+	$(MAKE) --no-print-directory TARGET=$(TARGET) DEBUG=$(DEBUG) merge; \
+	fi
+
+merge:
 ifeq ($(ARCH), avr)
 	@srec_cat \
-	$(MERGED_FW_FILES) \
-	-o $(MERGED_TARGET).hex -Intel
+	$(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
+	$(BUILD_DIR_BASE)/boot/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
+	-o $(MERGED_TARGET).hex -Intel && \
+	srec_cat \
+	$(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
+	-o $(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).hex
 else
 #define FACTORY_IMAGE_START_ADDR variable as shell variable instead of make variable:
 #when this recipe is started, generated_flash.bin_offset doesn't exist yet, so make will
 #complain that it cannot find it if it were defined like this: $(shell cat $(BUILD_DIR_BASE)/flashgen/$(TARGET)/release/generated_flash.bin_offset)
 	@FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin_offset) && \
 	srec_cat \
-	$(MERGED_FW_FILES) \
+	$(BUILD_DIR_BASE)/boot/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
+	$(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
+	$(BUILD_DIR_BASE)/cdc/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
 	$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
-	-o $(MERGED_TARGET).hex -Intel
+	-o $(MERGED_TARGET).hex -Intel && \
+	srec_cat \
+	$(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
+	$(BUILD_DIR_BASE)/cdc/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
+	$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
+	-o $(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).hex
 endif
-	@$(TOOL_PREFIX)objcopy --gap-fill 0xFF -O ihex $(MERGED_TARGET).hex $(MERGED_TARGET)_filled.hex
-	@$(TOOL_PREFIX)objcopy -I ihex "$(MERGED_TARGET)_filled.hex" -O binary "$(MERGED_TARGET).bin"
+	@$(TOOL_PREFIX)objcopy --gap-fill 0xFF -O ihex $(MERGED_TARGET).hex $(MERGED_TARGET).hex
+	@$(TOOL_PREFIX)objcopy --gap-fill 0xFF -O ihex $(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).hex $(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).hex
+	@$(TOOL_PREFIX)objcopy -I ihex "$(MERGED_TARGET).hex" -O binary "$(MERGED_TARGET).bin"
+	@$(TOOL_PREFIX)objcopy -I ihex "$(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).hex" -O binary "$(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).bin"
 	@echo Merged binary created: $(MERGED_TARGET).hex
+#everytime new binary gets created, remove sysex binary
+	@rm -f $(MERGED_TARGET).sysex
 
-sysexfw:
-#create merged binary but without bootloader
-	@$(MAKE) --no-print-directory merged TARGET=$(TARGET) DEBUG=0 SYSEX_MERGE=1
-	@echo Creating SysEx file...
-	@../scripts/sysex_fw_create.sh $(MERGED_TARGET).bin $(OUTPUT).sysex $(SYSEX_MANUFACTURER_ID_0) $(SYSEX_MANUFACTURER_ID_1) $(SYSEX_MANUFACTURER_ID_2) $(COMMAND_FW_UPDATE_START) $(COMMAND_FW_UPDATE_END) $(FW_UID)
+#when building sysex binary, also run merged-full just in case so that full binary is re-linked if needed as well
+merged-sysex: merged-full
+#relink only if needed
+	@NEW_BUILD_TIME=$$(cat $(BUILD_TIME_FILE)) && \
+	if [ $$(echo $$NEW_BUILD_TIME) = $$(echo $(LAST_BUILD_TIME)) ] && [ -f $(MERGED_TARGET).sysex ]; then \
+	echo SysEx binary up to date; \
+	else \
+	echo Creating SysEx file...; \
+	../scripts/sysex_fw_create.sh $(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).bin $(MERGED_TARGET).sysex $(SYSEX_MANUFACTURER_ID_0) $(SYSEX_MANUFACTURER_ID_1) $(SYSEX_MANUFACTURER_ID_2) $(COMMAND_FW_UPDATE_START) $(COMMAND_FW_UPDATE_END) $(FW_UID); \
+	echo SysEx file created: $(MERGED_TARGET).sysex; \
+	fi
+
+#just a shorter alias
+sysexfw: merged-sysex
 
 pre-build: $(PINS_GEN_SOURCE) $(TSCREEN_GEN_SOURCE)
 
