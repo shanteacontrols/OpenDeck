@@ -53,19 +53,34 @@ namespace
         //use only 64k so that caching of entire page is possible
         //first 128k page is used both for factory settings and part of firmware
         //place CDC firmware in lower 24kb range
+        //for bootloader, use the real addresses and sizes so that firmware is updated properly
+        //for app, use address with an offset (page 5 only) since app is only concerned with factory flash page and smaller sizes
         {
+#ifdef FW_BOOT
+            .address = 0x8020000,
+            .size    = 131072,
+#else
             .address = 0x8026000,
             .size    = 65536,
+#endif
         },
 
         {
             .address = 0x8040000,
+#ifdef FW_BOOT
+            .size = 131072,
+#else
             .size    = 65536,
+#endif
         },
 
         {
             .address = 0x8060000,
+#ifdef FW_BOOT
+            .size = 131072,
+#else
             .size    = 65536,
+#endif
         },
 
         {
@@ -88,7 +103,7 @@ namespace
             .size    = 131072,
         },
     };
-}
+}    // namespace
 
 namespace Board
 {
