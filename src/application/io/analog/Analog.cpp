@@ -161,6 +161,10 @@ bool Analog::checkPotentiometerValue(uint8_t analogID, analogDescriptor_t& descr
 
 bool Analog::checkFSRvalue(uint8_t analogID, analogDescriptor_t& descriptor, uint16_t& value)
 {
+    //don't allow touchscreen components to be processed as FSR
+    if (analogID >= MAX_NUMBER_OF_ANALOG)
+        return false;
+
     if (value > 0)
     {
         if (!fsrPressed[analogID])

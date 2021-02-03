@@ -155,70 +155,70 @@ namespace
     SysExConf::section_t analogSections[static_cast<uint8_t>(System::Section::analog_t::AMOUNT)] = {
         //analog enabled section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG,
+            .numberOfParameters = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .newValueMin        = 0,
             .newValueMax        = 1,
         },
 
         //analog inverted section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG,
+            .numberOfParameters = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .newValueMin        = 0,
             .newValueMax        = 1,
         },
 
         //analog type section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG,
+            .numberOfParameters = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .newValueMin        = 0,
             .newValueMax        = static_cast<SysExConf::sysExParameter_t>(IO::Analog::type_t::AMOUNT) - 1,
         },
 
         //midi id section, lsb
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG,
+            .numberOfParameters = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .newValueMin        = 0,
             .newValueMax        = 16383,
         },
 
         //midi id section, msb
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG,
+            .numberOfParameters = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .newValueMin        = 0,
             .newValueMax        = 127,
         },
 
         //lower cc limit, lsb
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG,
+            .numberOfParameters = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .newValueMin        = 0,
             .newValueMax        = 16383,
         },
 
         //lower cc limit, msb
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG,
+            .numberOfParameters = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .newValueMin        = 0,
             .newValueMax        = 127,
         },
 
         //upper cc limit, lsb
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG,
+            .numberOfParameters = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .newValueMin        = 0,
             .newValueMax        = 16383,
         },
 
         //upper cc limit, msb
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG,
+            .numberOfParameters = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .newValueMin        = 0,
             .newValueMax        = 127,
         },
 
         //midi channel section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG,
+            .numberOfParameters = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .newValueMin        = 1,
             .newValueMax        = 16,
         }
@@ -360,6 +360,55 @@ namespace
             .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .newValueMin        = 0,
             .newValueMax        = 15,
+        },
+
+        //analog page section
+        {
+            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .newValueMin        = 0,
+            .newValueMax        = 15,
+        },
+
+        //analog start x coordinate section
+        {
+            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .newValueMin        = 0,
+            .newValueMax        = 0,
+        },
+
+        //analog end x coordinate section
+        {
+            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .newValueMin        = 0,
+            .newValueMax        = 0,
+        },
+
+        //analog start y coordinate section
+        {
+            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .newValueMin        = 0,
+            .newValueMax        = 0,
+        },
+
+        //analog end y coordinate section
+        {
+            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .newValueMin        = 0,
+            .newValueMax        = 0,
+        },
+
+        //analog type section
+        {
+            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .newValueMin        = 0,
+            .newValueMax        = 1,
+        },
+
+        //analog reset on release section
+        {
+            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .newValueMin        = 0,
+            .newValueMax        = 1,
         },
     };
 

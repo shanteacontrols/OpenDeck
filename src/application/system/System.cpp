@@ -161,7 +161,7 @@ System::result_t System::SysExDataHandler::customRequest(size_t request, CustomR
     {
         customResponse.append(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS);
         customResponse.append(MAX_NUMBER_OF_ENCODERS);
-        customResponse.append(MAX_NUMBER_OF_ANALOG);
+        customResponse.append(MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS);
         customResponse.append(MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS);
         customResponse.append(MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS);
     }

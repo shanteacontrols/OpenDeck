@@ -31,6 +31,12 @@ void Database::customInitButtons()
         update(Database::Section::button_t::midiID, i + MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG, i);
 }
 
+void Database::customInitAnalog()
+{
+    for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        update(Database::Section::analog_t::midiID, i + MAX_NUMBER_OF_ANALOG, i);
+}
+
 void Database::customInitLEDs()
 {
     //same logic as for the buttons

@@ -221,7 +221,7 @@ namespace
     LESSDB::section_t analogSections[static_cast<uint8_t>(Database::Section::analog_t::AMOUNT)] = {
         //analog enabled section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_ANALOG,
+            .numberOfParameters     = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -231,7 +231,7 @@ namespace
 
         //analog inverted section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_ANALOG,
+            .numberOfParameters     = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -241,7 +241,7 @@ namespace
 
         //analog type section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_ANALOG,
+            .numberOfParameters     = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -251,7 +251,7 @@ namespace
 
         //midi id section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_ANALOG,
+            .numberOfParameters     = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -261,7 +261,7 @@ namespace
 
         //lower cc limit
         {
-            .numberOfParameters     = MAX_NUMBER_OF_ANALOG,
+            .numberOfParameters     = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -271,7 +271,7 @@ namespace
 
         //upper cc limit
         {
-            .numberOfParameters     = MAX_NUMBER_OF_ANALOG,
+            .numberOfParameters     = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
             .defaultValue           = 16383,
@@ -281,7 +281,7 @@ namespace
 
         //midi channel section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_ANALOG,
+            .numberOfParameters     = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -459,6 +459,76 @@ namespace
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
+            .preserveOnPartialReset = false,
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
+
+        //analog page section
+        {
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .parameterType          = LESSDB::sectionParameterType_t::halfByte,
+            .preserveOnPartialReset = false,
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
+
+        //analog start x coordinate section
+        {
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .parameterType          = LESSDB::sectionParameterType_t::word,
+            .preserveOnPartialReset = false,
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
+
+        //analog end x coordinate section
+        {
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .parameterType          = LESSDB::sectionParameterType_t::word,
+            .preserveOnPartialReset = false,
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
+
+        //analog start y coordinate section
+        {
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .parameterType          = LESSDB::sectionParameterType_t::word,
+            .preserveOnPartialReset = false,
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
+
+        //analog end y coordinate section
+        {
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .parameterType          = LESSDB::sectionParameterType_t::word,
+            .preserveOnPartialReset = false,
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
+
+        //analog type section
+        {
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .parameterType          = LESSDB::sectionParameterType_t::bit,
+            .preserveOnPartialReset = false,
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
+        },
+
+        //analog reset on release section
+        {
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
             .autoIncrement          = false,

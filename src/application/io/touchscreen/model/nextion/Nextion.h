@@ -42,6 +42,51 @@ class Nextion : public IO::Touchscreen::Model, public IO::Touchscreen::Model::Co
 
     IO::Touchscreen::Model::HWA& hwa;
 
+    enum class responseID_t : uint8_t
+    {
+        button,
+        initialFinalCoord,
+        coordUpdate,
+        AMOUNT
+    };
+
+    typedef struct
+    {
+        uint8_t bytes;
+        uint8_t responseID;
+    } responseDescriptor_t;
+
+    enum class xyRequestState_t : uint8_t
+    {
+        xRequest,
+        xRequested,
+        yRequest,
+        yRequested,
+    };
+
+    const responseDescriptor_t responses[static_cast<size_t>(responseID_t::AMOUNT)] = {
+        //button
+        {
+            .bytes      = 6,
+            .responseID = 0x65,
+        },
+
+        //coordinate initial/final
+        {
+            .bytes      = 9,
+            .responseID = 0x67,
+        },
+
+        //coordinate update
+        {
+            .bytes      = 8,
+            .responseID = 0x71,
+        },
+    };
+
+    IO::Touchscreen::tsEvent_t response(IO::Touchscreen::tsData_t& data);
+    void                       pollXY();
+
     //there are 7 levels of brighness - scale them to available range (0-100)
     const uint8_t brightnessMapping[7] = {
         10,
@@ -53,6 +98,12 @@ class Nextion : public IO::Touchscreen::Model, public IO::Touchscreen::Model::Co
         100
     };
 
-    char   commandBuffer[IO::Touchscreen::Model::Common::bufferSize];
-    size_t endCounter = 0;
+    static constexpr uint32_t XY_POLL_TIME_MS = 5;
+
+    char             commandBuffer[IO::Touchscreen::Model::Common::bufferSize];
+    size_t           endCounter     = 0;
+    bool             screenPressed  = false;
+    xyRequestState_t xyRequestState = xyRequestState_t::xRequest;
+    uint16_t         xPos           = 0;
+    uint16_t         yPos           = 0;
 };

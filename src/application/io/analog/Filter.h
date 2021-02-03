@@ -73,7 +73,7 @@ namespace IO
                 return 0;
             };
 
-            if (_adcType == Analog::adcType_t::adc12bit)
+            if ((_adcType == Analog::adcType_t::adc12bit) && (index < MAX_NUMBER_OF_ANALOG))
             {
                 //on 12bit ADCs, when the value is above 90%, add small value
                 //to offset the reading error and possible situation that the maximum
@@ -98,30 +98,39 @@ namespace IO
 
             bool fastFilter = true;
 
-            if ((core::timing::currentRunTimeMs() - _lastMovementTime[index]) > _fastFilterEnableAfter)
+            if (index < MAX_NUMBER_OF_ANALOG)
             {
-                fastFilter                                    = false;
-                _analogSample[index][_sampleCounter[index]++] = value;
+                //don't filter the readings for touchscreen data
 
-                //take the median value to avoid using outliers
-                if (_sampleCounter[index] == 3)
+                if ((core::timing::currentRunTimeMs() - _lastMovementTime[index]) > _fastFilterEnableAfter)
                 {
-                    qsort(_analogSample[index], 3, sizeof(uint16_t), compare);
-                    _sampleCounter[index] = 0;
-                    filteredValue         = _analogSample[index][1];
+                    fastFilter                                    = false;
+                    _analogSample[index][_sampleCounter[index]++] = value;
+
+                    //take the median value to avoid using outliers
+                    if (_sampleCounter[index] == 3)
+                    {
+                        qsort(_analogSample[index], 3, sizeof(uint16_t), compare);
+                        _sampleCounter[index] = 0;
+                        filteredValue         = _analogSample[index][1];
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
-                    return false;
+                    filteredValue = value;
                 }
+
+                //pass the value through exponential moving average filter for increased stability
+                filteredValue = _emaFilter[index].value(filteredValue);
             }
             else
             {
                 filteredValue = value;
             }
-
-            //pass the value through exponential moving average filter for increased stability
-            filteredValue = _emaFilter[index].value(filteredValue);
 
             bool     use14bit = false;
             uint16_t maxLimit;
@@ -259,12 +268,12 @@ namespace IO
         const size_t                _stableValueRepetitions;
 
         const uint32_t _fastFilterEnableAfter = 500;
-        EMA            _emaFilter[MAX_NUMBER_OF_ANALOG];
-        uint16_t       _analogSample[MAX_NUMBER_OF_ANALOG][3]   = {};
-        size_t         _sampleCounter[MAX_NUMBER_OF_ANALOG]     = {};
-        valDirection_t _lastDirection[MAX_NUMBER_OF_ANALOG]     = {};
-        uint16_t       _lastStableValue[MAX_NUMBER_OF_ANALOG]   = {};
-        uint8_t        _stableSampleCount[MAX_NUMBER_OF_ANALOG] = {};
-        uint32_t       _lastMovementTime[MAX_NUMBER_OF_ANALOG]  = {};
+        EMA            _emaFilter[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS];
+        uint16_t       _analogSample[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS][3]   = {};
+        size_t         _sampleCounter[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]     = {};
+        valDirection_t _lastDirection[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]     = {};
+        uint16_t       _lastStableValue[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]   = {};
+        uint8_t        _stableSampleCount[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS] = {};
+        uint32_t       _lastMovementTime[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]  = {};
     };    // namespace IO
 }    // namespace IO

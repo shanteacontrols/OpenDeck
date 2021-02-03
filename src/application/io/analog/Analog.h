@@ -124,9 +124,9 @@ namespace IO
         Display&       display;
         ComponentInfo& cInfo;
 
-        buttonHandler_t buttonHandler                    = nullptr;
-        uint8_t         fsrPressed[MAX_NUMBER_OF_ANALOG] = {};
-        uint16_t        lastValue[MAX_NUMBER_OF_ANALOG]  = {};
+        buttonHandler_t buttonHandler                                                          = nullptr;
+        uint8_t         fsrPressed[MAX_NUMBER_OF_ANALOG]                                       = {};
+        uint16_t        lastValue[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS] = {};
     };
 }    // namespace IO
 

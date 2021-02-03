@@ -127,6 +127,13 @@ class Database : public LESSDB
             offScreen,
             pageSwitchEnabled,
             pageSwitchIndex,
+            analogPage,
+            analogStartXCoordinate,
+            analogEndXCoordinate,
+            analogStartYCoordinate,
+            analogEndYCoordinate,
+            analogType,
+            analogResetOnRelease,
             AMOUNT
         };
     };

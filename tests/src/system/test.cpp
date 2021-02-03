@@ -254,7 +254,7 @@ namespace
     IO::Analog      analog(hwaAnalog, analogFilter, database, midi, leds, display, cInfo);
     IO::Buttons     buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cInfo);
     IO::Encoders    encoders(hwaEncoders, database, midi, display, cInfo);
-    IO::Touchscreen touchscreen(database, buttons, cInfo);
+    IO::Touchscreen touchscreen(database, buttons, analog, cInfo);
     System          systemStub(hwaSystem, database, midi, buttons, encoders, analog, leds, display, touchscreen);
 }    // namespace
 

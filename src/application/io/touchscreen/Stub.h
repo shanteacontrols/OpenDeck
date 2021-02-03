@@ -42,6 +42,7 @@ namespace IO
 
         Touchscreen(Database&      database,
                     IO::Buttons&   buttons,
+                    IO::Analog&    analog,
                     ComponentInfo& cInfo)
         {}
 
@@ -63,11 +64,10 @@ namespace IO
             _100
         };
 
-        enum class componentType_t : uint8_t
+        enum class analogType_t : uint8_t
         {
-            button,
-            indicator,
-            AMOUNT
+            horizontal,
+            vertical
         };
 
         bool init()

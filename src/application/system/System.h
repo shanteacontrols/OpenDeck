@@ -159,6 +159,13 @@ class System
             offScreen,
             pageSwitchEnabled,
             pageSwitchIndex,
+            analogPage,
+            analogStartXCoordinate,
+            analogEndXCoordinate,
+            analogStartYCoordinate,
+            analogEndYCoordinate,
+            analogType,
+            analogResetOnRelease,
             AMOUNT
         };
     };
@@ -357,5 +364,12 @@ class System
         Database::Section::touchscreen_t::offScreen,
         Database::Section::touchscreen_t::pageSwitchEnabled,
         Database::Section::touchscreen_t::pageSwitchIndex,
+        Database::Section::touchscreen_t::analogPage,
+        Database::Section::touchscreen_t::analogStartXCoordinate,
+        Database::Section::touchscreen_t::analogEndXCoordinate,
+        Database::Section::touchscreen_t::analogStartYCoordinate,
+        Database::Section::touchscreen_t::analogEndYCoordinate,
+        Database::Section::touchscreen_t::analogType,
+        Database::Section::touchscreen_t::analogResetOnRelease,
     };
 };

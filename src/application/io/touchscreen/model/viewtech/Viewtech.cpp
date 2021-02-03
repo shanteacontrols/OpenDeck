@@ -50,6 +50,8 @@ bool Viewtech::setScreen(size_t screenID)
 
 IO::Touchscreen::tsEvent_t Viewtech::update(IO::Touchscreen::tsData_t& data)
 {
+    pollXY();
+
     auto    event = IO::Touchscreen::tsEvent_t::none;
     uint8_t byte  = 0;
 
@@ -88,9 +90,32 @@ IO::Touchscreen::tsEvent_t Viewtech::update(IO::Touchscreen::tsData_t& data)
                             {
                                 data.buttonState = IO::Touchscreen::Model::Common::rxBuffer[6];
                                 data.buttonID    = IO::Touchscreen::Model::Common::rxBuffer[7];
-                                buttonPressed    = data.buttonState;
 
                                 event = IO::Touchscreen::tsEvent_t::button;
+                            }
+                            break;
+
+                            case static_cast<uint32_t>(response_t::xyUpdate):
+                            {
+                                if ((IO::Touchscreen::Model::Common::rxBuffer[6] == 0x01) || (IO::Touchscreen::Model::Common::rxBuffer[6] == 0x03))
+                                {
+                                    data.xPos = IO::Touchscreen::Model::Common::rxBuffer[7] << 8;
+                                    data.xPos |= IO::Touchscreen::Model::Common::rxBuffer[8];
+
+                                    data.yPos = IO::Touchscreen::Model::Common::rxBuffer[9] << 8;
+                                    data.yPos |= IO::Touchscreen::Model::Common::rxBuffer[10];
+                                    data.pressType = IO::Touchscreen::Model::Common::rxBuffer[6] == 0x01 ? IO::Touchscreen::pressType_t::initial : IO::Touchscreen::pressType_t::hold;
+
+                                    event = IO::Touchscreen::tsEvent_t::coordinate;
+                                }
+                                else
+                                {
+                                    //screen released
+                                    data.xPos      = 0;
+                                    data.yPos      = 0;
+                                    data.pressType = IO::Touchscreen::pressType_t::none;
+                                    event          = IO::Touchscreen::tsEvent_t::coordinate;
+                                }
                             }
                             break;
 
@@ -160,4 +185,32 @@ bool Viewtech::setBrightness(IO::Touchscreen::brightness_t brightness)
     hwa.write(brightnessMapping[static_cast<uint8_t>(brightness)]);
 
     return true;
+}
+
+void Viewtech::pollXY()
+{
+    static uint32_t lastPollTime = 0;
+
+    if ((core::timing::currentRunTimeMs() - lastPollTime) > XY_POLL_TIME_MS)
+    {
+        //header
+        hwa.write(0xA5);
+        hwa.write(0x5A);
+
+        //request size
+        hwa.write(0x03);
+
+        //register read
+        hwa.write(0x81);
+
+        //read register 6 but request 5 bytes
+        //reg6 contains touch status (1 byte)
+        //reg7 contains x/y coordinates (4 bytes)
+        hwa.write(0x06);
+
+        //read 5 bytes
+        hwa.write(0x05);
+
+        lastPollTime = core::timing::currentRunTimeMs();
+    }
 }

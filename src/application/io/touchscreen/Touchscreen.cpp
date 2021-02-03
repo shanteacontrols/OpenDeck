@@ -89,6 +89,10 @@ void Touchscreen::update()
         processButton(tsData.buttonID, tsData.buttonState);
         break;
 
+    case tsEvent_t::coordinate:
+        processCoordinate(tsData.pressType, tsData.xPos, tsData.yPos);
+        break;
+
     default:
         break;
     }
@@ -196,4 +200,91 @@ bool Touchscreen::setBrightness(brightness_t brightness)
         return false;
 
     return MODEL->setBrightness(brightness);
+}
+
+void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16_t yPos)
+{
+    for (size_t i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+    {
+        if (database.read(Database::Section::touchscreen_t::analogPage, i) == static_cast<int32_t>(activeScreen()))
+        {
+            uint16_t startXCoordinate = database.read(Database::Section::touchscreen_t::analogStartXCoordinate, i);
+            uint16_t endXCoordinate   = database.read(Database::Section::touchscreen_t::analogEndXCoordinate, i);
+            uint16_t startYCoordinate = database.read(Database::Section::touchscreen_t::analogStartYCoordinate, i);
+            uint16_t endYCoordinate   = database.read(Database::Section::touchscreen_t::analogEndYCoordinate, i);
+
+            uint16_t startCoordinate;
+            uint16_t endCoordinate;
+            uint16_t value;
+
+            //x
+            if (database.read(Database::Section::touchscreen_t::analogType, i) == static_cast<int32_t>(IO::Touchscreen::analogType_t::horizontal))
+            {
+                value = xPos;
+
+                if (pressType == IO::Touchscreen::pressType_t::hold)
+                {
+                    //y coordinate can be ignored once the touchscreen is pressed, verify and constrain x range only
+                    if (value > endXCoordinate)
+                        value = endXCoordinate;
+                    else if (value < startXCoordinate)
+                        value = startXCoordinate;
+                }
+                else if (pressType == IO::Touchscreen::pressType_t::initial)
+                {
+                    if (((value < startXCoordinate) || (value > endXCoordinate)) || ((yPos < startYCoordinate) || (yPos > endYCoordinate)))
+                        continue;
+                    else
+                        analogActive[i] = true;
+                }
+                else
+                {
+                    analogActive[i] = false;
+                }
+
+                startCoordinate = startXCoordinate;
+                endCoordinate   = endXCoordinate;
+            }
+            //y
+            else
+            {
+                value = yPos;
+
+                if (pressType == IO::Touchscreen::pressType_t::hold)
+                {
+                    //x coordinate can be ignored once the touchscreen is pressed, verify and constrain x range only
+                    if (value > endYCoordinate)
+                        value = endYCoordinate;
+                    else if (value < startYCoordinate)
+                        value = startYCoordinate;
+                }
+                else if (pressType == IO::Touchscreen::pressType_t::initial)
+                {
+                    if (((xPos < startXCoordinate) || (xPos > endXCoordinate)) || ((value < startYCoordinate) || (value > endYCoordinate)))
+                        continue;
+                    else
+                        analogActive[i] = true;
+                }
+                else
+                {
+                    analogActive[i] = false;
+                }
+
+                startCoordinate = startYCoordinate;
+                endCoordinate   = endYCoordinate;
+            }
+
+            //scale the value to ADC range
+            if (analogActive[i])
+            {
+                value = core::misc::mapRange(static_cast<uint32_t>(value), static_cast<uint32_t>(startCoordinate), static_cast<uint32_t>(endCoordinate), static_cast<uint32_t>(0), static_cast<uint32_t>(analog.adcType()));
+                analog.processReading(MAX_NUMBER_OF_ANALOG + i, value);
+            }
+            else
+            {
+                if (database.read(Database::Section::touchscreen_t::analogResetOnRelease, i))
+                    analog.processReading(MAX_NUMBER_OF_ANALOG + i, 0);
+            }
+        }
+    }
 }

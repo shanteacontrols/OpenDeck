@@ -22,6 +22,7 @@ limitations under the License.
 #include <stdlib.h>
 #include "database/Database.h"
 #include "io/buttons/Buttons.h"
+#include "io/analog/Analog.h"
 
 #ifndef TOUCHSCREEN_SUPPORTED
 #include "Stub.h"
@@ -35,7 +36,8 @@ namespace IO
         enum class tsEvent_t : uint8_t
         {
             none,
-            button
+            button,
+            coordinate
         };
 
         enum class pressType_t : uint8_t
@@ -43,13 +45,6 @@ namespace IO
             none,
             initial,
             hold
-        };
-
-        enum class componentType_t : uint8_t
-        {
-            button,
-            indicator,
-            AMOUNT
         };
 
         enum class setting_t : uint8_t
@@ -71,6 +66,12 @@ namespace IO
             _100
         };
 
+        enum class analogType_t : uint8_t
+        {
+            horizontal,
+            vertical
+        };
+
         struct icon_t
         {
             uint16_t xPos      = 0;
@@ -86,6 +87,8 @@ namespace IO
             pressType_t pressType   = pressType_t::none;
             size_t      buttonID    = 0;
             bool        buttonState = false;
+            uint16_t    xPos        = 0;
+            uint16_t    yPos        = 0;
         };
 
         class Model
@@ -128,9 +131,11 @@ namespace IO
 
         Touchscreen(Database&      database,
                     IO::Buttons&   buttons,
+                    IO::Analog&    analog,
                     ComponentInfo& cInfo)
             : database(database)
             , buttons(buttons)
+            , analog(analog)
             , cInfo(cInfo)
         {}
 
@@ -147,9 +152,11 @@ namespace IO
         private:
         bool isModelValid(Model::model_t model);
         void processButton(const size_t buttonID, const bool state);
+        void processCoordinate(pressType_t pressType, uint16_t xPos, uint16_t yPos);
 
         Database&      database;
         IO::Buttons&   buttons;
+        IO::Analog&    analog;
         ComponentInfo& cInfo;
 
         void (*screenHandler)(size_t screenID)                         = nullptr;
@@ -157,6 +164,7 @@ namespace IO
         bool    initialized                                            = false;
         Model*  modelPtr[static_cast<uint8_t>(Model::model_t::AMOUNT)] = {};
         uint8_t activeModel                                            = static_cast<uint8_t>(Model::model_t::AMOUNT);
+        bool    analogActive[MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]     = {};
     };
 }    // namespace IO
 

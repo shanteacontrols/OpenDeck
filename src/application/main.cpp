@@ -558,7 +558,7 @@ IO::LEDs        leds(hwaLEDs, database);
 IO::Analog      analog(hwaAnalog, analogFilter, database, midi, leds, display, cinfo);
 IO::Buttons     buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cinfo);
 IO::Encoders    encoders(hwaEncoders, database, midi, display, cinfo);
-IO::Touchscreen touchscreen(database, buttons, cinfo);
+IO::Touchscreen touchscreen(database, buttons, analog, cinfo);
 System          sys(hwaSystem, database, midi, buttons, encoders, analog, leds, display, touchscreen);
 
 int main()
