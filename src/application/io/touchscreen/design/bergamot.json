@@ -1,0 +1,459 @@
+{
+    "components": [
+        {
+            "button": {
+                "switchesScreen": true,
+                "screenToSwitch": 1
+            },
+            "analog": {
+                "screen": 3,
+                "startXCoordinate": 58,
+                "endXCoordinate": 245,
+                "startYCoordinate": 149,
+                "endYCoordinate": 335,
+                "type": "horizontal",
+                "resetOnRelease": "true"
+            }
+        },
+        {
+            "button": {
+                "switchesScreen": true,
+                "screenToSwitch": 3
+            },
+            "analog": {
+                "screen": 3,
+                "startXCoordinate": 58,
+                "endXCoordinate": 245,
+                "startYCoordinate": 149,
+                "endYCoordinate": 335,
+                "type": "vertical",
+                "resetOnRelease": "true"
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 17,
+                "ypos": 30,
+                "width": 80,
+                "height": 80,
+                "address": 16000,
+                "onScreen": 2,
+                "offScreen": 1
+            },
+            "analog": {
+                "screen": 3,
+                "startXCoordinate": 558,
+                "endXCoordinate": 740,
+                "startYCoordinate": 149,
+                "endYCoordinate": 335,
+                "type": "horizontal",
+                "resetOnRelease": "true"
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 112,
+                "ypos": 30,
+                "width": 80,
+                "height": 80,
+                "address": 16001,
+                "onScreen": 2,
+                "offScreen": 1
+            },
+            "analog": {
+                "screen": 3,
+                "startXCoordinate": 558,
+                "endXCoordinate": 740,
+                "startYCoordinate": 149,
+                "endYCoordinate": 335,
+                "type": "vertical",
+                "resetOnRelease": "true"
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 207,
+                "ypos": 30,
+                "width": 80,
+                "height": 80,
+                "address": 16002,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 320,
+                "ypos": 30,
+                "width": 160,
+                "height": 80,
+                "address": 16003,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 513,
+                "ypos": 30,
+                "width": 80,
+                "height": 80,
+                "address": 16004,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 608,
+                "ypos": 30,
+                "width": 80,
+                "height": 80,
+                "address": 16005,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 703,
+                "ypos": 30,
+                "width": 80,
+                "height": 80,
+                "address": 16006,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 17,
+                "ypos": 150,
+                "width": 80,
+                "height": 180,
+                "address": 16007,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 112,
+                "ypos": 150,
+                "width": 80,
+                "height": 80,
+                "address": 16008,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 207,
+                "ypos": 150,
+                "width": 80,
+                "height": 80,
+                "address": 16009,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 112,
+                "ypos": 250,
+                "width": 80,
+                "height": 80,
+                "address": 16010,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 207,
+                "ypos": 250,
+                "width": 80,
+                "height": 80,
+                "address": 16011,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 303,
+                "ypos": 200,
+                "width": 80,
+                "height": 80,
+                "address": 16012,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 417,
+                "ypos": 200,
+                "width": 80,
+                "height": 80,
+                "address": 16013,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 513,
+                "ypos": 150,
+                "width": 80,
+                "height": 80,
+                "address": 16014,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 608,
+                "ypos": 150,
+                "width": 80,
+                "height": 80,
+                "address": 16015,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 513,
+                "ypos": 250,
+                "width": 80,
+                "height": 80,
+                "address": 16016,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 608,
+                "ypos": 250,
+                "width": 80,
+                "height": 80,
+                "address": 16017,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 703,
+                "ypos": 150,
+                "width": 80,
+                "height": 180,
+                "address": 16018,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 17,
+                "ypos": 380,
+                "width": 80,
+                "height": 80,
+                "address": 16019,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 112,
+                "ypos": 380,
+                "width": 80,
+                "height": 80,
+                "address": 16020,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 608,
+                "ypos": 380,
+                "width": 80,
+                "height": 80,
+                "address": 16021,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 703,
+                "ypos": 380,
+                "width": 80,
+                "height": 80,
+                "address": 16022,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 17,
+                "ypos": 30,
+                "width": 80,
+                "height": 80,
+                "address": 16023,
+                "onScreen": 4,
+                "offScreen": 3
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 112,
+                "ypos": 30,
+                "width": 80,
+                "height": 80,
+                "address": 16024,
+                "onScreen": 4,
+                "offScreen": 3
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 207,
+                "ypos": 30,
+                "width": 80,
+                "height": 80,
+                "address": 16025,
+                "onScreen": 4,
+                "offScreen": 3
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 513,
+                "ypos": 30,
+                "width": 80,
+                "height": 80,
+                "address": 16026,
+                "onScreen": 4,
+                "offScreen": 3
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 608,
+                "ypos": 30,
+                "width": 80,
+                "height": 80,
+                "address": 16027,
+                "onScreen": 4,
+                "offScreen": 3
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 703,
+                "ypos": 30,
+                "width": 80,
+                "height": 80,
+                "address": 16028,
+                "onScreen": 4,
+                "offScreen": 3
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 303,
+                "ypos": 200,
+                "width": 80,
+                "height": 80,
+                "address": 16029,
+                "onScreen": 4,
+                "offScreen": 3
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 417,
+                "ypos": 200,
+                "width": 80,
+                "height": 80,
+                "address": 16030,
+                "onScreen": 4,
+                "offScreen": 3
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 17,
+                "ypos": 380,
+                "width": 80,
+                "height": 80,
+                "address": 16031,
+                "onScreen": 4,
+                "offScreen": 3
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 112,
+                "ypos": 380,
+                "width": 80,
+                "height": 80,
+                "address": 16032,
+                "onScreen": 4,
+                "offScreen": 3
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 608,
+                "ypos": 380,
+                "width": 80,
+                "height": 80,
+                "address": 16033,
+                "onScreen": 4,
+                "offScreen": 3
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 703,
+                "ypos": 380,
+                "width": 80,
+                "height": 80,
+                "address": 16034,
+                "onScreen": 4,
+                "offScreen": 3
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 207,
+                "ypos": 380,
+                "width": 80,
+                "height": 80,
+                "address": 16035,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        },
+        {
+            "indicator": {
+                "xpos": 513,
+                "ypos": 380,
+                "width": 80,
+                "height": 80,
+                "address": 16036,
+                "onScreen": 2,
+                "offScreen": 1
+            }
+        }
+    ]
+}
