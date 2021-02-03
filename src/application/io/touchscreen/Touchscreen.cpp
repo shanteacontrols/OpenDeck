@@ -17,12 +17,14 @@ limitations under the License.
 */
 
 #include "Touchscreen.h"
+#include "core/src/general/Helpers.h"
 
 using namespace IO;
 
 #define MODEL modelPtr[activeModel]
 
-core::RingBuffer<uint8_t, IO::Touchscreen::Model::Common::bufferSize> IO::Touchscreen::Model::Common::rxBuffer;
+uint8_t IO::Touchscreen::Model::Common::rxBuffer[IO::Touchscreen::Model::Common::bufferSize];
+size_t  IO::Touchscreen::Model::Common::bufferCount;
 
 bool Touchscreen::init()
 {
@@ -76,32 +78,17 @@ void Touchscreen::update()
     if (!initialized)
         return;
 
-    size_t buttonID = 0;
-    bool   state    = false;
+    tsData_t  tsData;
+    tsEvent_t event = MODEL->update(tsData);
 
-    if (MODEL->update(buttonID, state))
+    switch (event)
     {
-        bool   changeScreen = false;
-        size_t newScreen    = 0;
+    case tsEvent_t::button:
+        processButton(tsData.buttonID, tsData.buttonState);
+        break;
 
-        if (database.read(Database::Section::touchscreen_t::pageSwitchEnabled, buttonID))
-        {
-            changeScreen = true;
-            newScreen    = database.read(Database::Section::touchscreen_t::pageSwitchIndex, buttonID);
-        }
-
-        if (buttonHandler != nullptr)
-            (*buttonHandler)(buttonID, state);
-
-        //if the button should change screen, change it immediately
-        //this will result in button never sending off state so do it manually first
-        if (changeScreen)
-        {
-            if (buttonHandler != nullptr)
-                (*buttonHandler)(buttonID, false);
-
-            setScreen(newScreen);
-        }
+    default:
+        break;
     }
 }
 
@@ -124,11 +111,6 @@ void Touchscreen::setScreen(size_t screenID)
 size_t Touchscreen::activeScreen()
 {
     return activeScreenID;
-}
-
-void Touchscreen::setButtonHandler(void (*fptr)(size_t index, bool state))
-{
-    buttonHandler = fptr;
 }
 
 void Touchscreen::setScreenChangeHandler(void (*fptr)(size_t screenID))
@@ -181,4 +163,27 @@ bool Touchscreen::registerModel(IO::Touchscreen::Model::model_t model, Model* pt
 
     modelPtr[static_cast<uint8_t>(model)] = ptr;
     return true;
+}
+
+void Touchscreen::processButton(const size_t buttonID, const bool state)
+{
+    bool   changeScreen = false;
+    size_t newScreen    = 0;
+
+    if (database.read(Database::Section::touchscreen_t::pageSwitchEnabled, buttonID))
+    {
+        changeScreen = true;
+        newScreen    = database.read(Database::Section::touchscreen_t::pageSwitchIndex, buttonID);
+    }
+
+    buttons.processButton(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + buttonID, state);
+    cInfo.send(Database::block_t::touchscreen, buttonID);
+
+    //if the button should change screen, change it immediately
+    //this will result in button never sending off state so do it manually first
+    if (changeScreen)
+    {
+        buttons.processButton(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + buttonID, false);
+        setScreen(newScreen);
+    }
 }

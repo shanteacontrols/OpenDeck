@@ -29,11 +29,11 @@ class Nextion : public IO::Touchscreen::Model, public IO::Touchscreen::Model::Co
         : hwa(hwa)
     {}
 
-    bool init() override;
-    bool deInit() override;
-    bool setScreen(size_t screenID) override;
-    bool update(size_t& buttonID, bool& state) override;
-    void setIconState(IO::Touchscreen::icon_t& icon, bool state) override;
+    bool                       init() override;
+    bool                       deInit() override;
+    bool                       setScreen(size_t screenID) override;
+    IO::Touchscreen::tsEvent_t update(IO::Touchscreen::tsData_t& data) override;
+    void                       setIconState(IO::Touchscreen::icon_t& icon, bool state) override;
 
     private:
     bool writeCommand(const char* line, ...);

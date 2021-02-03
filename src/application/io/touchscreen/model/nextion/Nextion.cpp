@@ -23,7 +23,7 @@ limitations under the License.
 
 bool Nextion::init()
 {
-    IO::Touchscreen::Model::Common::rxBuffer.reset();
+    IO::Touchscreen::Model::Common::bufferCount = 0;
 
     if (hwa.init())
     {
@@ -44,16 +44,16 @@ bool Nextion::setScreen(size_t screenID)
     return writeCommand("page %u", screenID);
 }
 
-bool Nextion::update(size_t& buttonID, bool& state)
+IO::Touchscreen::tsEvent_t Nextion::update(IO::Touchscreen::tsData_t& data)
 {
-    uint8_t data;
+    uint8_t byte;
 
-    if (hwa.read(data))
-        IO::Touchscreen::Model::Common::rxBuffer.insert(data);
+    if (hwa.read(byte))
+        IO::Touchscreen::Model::Common::rxBuffer[IO::Touchscreen::Model::Common::bufferCount++] = byte;
     else
-        return false;
+        return IO::Touchscreen::tsEvent_t::none;
 
-    if (data == 0xFF)
+    if (byte == 0xFF)
     {
         endCounter++;
     }
@@ -71,38 +71,39 @@ bool Nextion::update(size_t& buttonID, bool& state)
         //handle only button messages for now
         bool messageStart = true;
 
-        while (IO::Touchscreen::Model::Common::rxBuffer.count())
+        while (IO::Touchscreen::Model::Common::bufferCount)
         {
-            IO::Touchscreen::Model::Common::rxBuffer.remove(data);
+            byte = IO::Touchscreen::Model::Common::rxBuffer[0];
 
-            if ((data == 0x65) && messageStart)
+            if ((byte == 0x65) && messageStart)
             {
-                if (IO::Touchscreen::Model::Common::rxBuffer.count() >= 5)
+                if (IO::Touchscreen::Model::Common::bufferCount >= 5)
                 {
                     //state
                     //1 - pressed, 0 - released
-                    IO::Touchscreen::Model::Common::rxBuffer.remove(data);
+                    byte = IO::Touchscreen::Model::Common::rxBuffer[1];
 
-                    state = data ? 1 : 0;
+                    data.buttonState = byte ? 1 : 0;
 
                     //button id
-                    IO::Touchscreen::Model::Common::rxBuffer.remove(data);
-                    buttonID = data;
+                    byte          = IO::Touchscreen::Model::Common::rxBuffer[2];
+                    data.buttonID = byte;
 
-                    IO::Touchscreen::Model::Common::rxBuffer.reset();
-                    return true;
+                    IO::Touchscreen::Model::Common::bufferCount = 0;
+                    return IO::Touchscreen::tsEvent_t::button;
                 }
             }
             else
             {
-                IO::Touchscreen::Model::Common::rxBuffer.reset();
+                IO::Touchscreen::Model::Common::bufferCount = 0;
             }
 
             messageStart = false;
+            IO::Touchscreen::Model::Common::bufferCount--;
         }
     }
 
-    return false;
+    return IO::Touchscreen::tsEvent_t::none;
 }
 
 void Nextion::setIconState(IO::Touchscreen::icon_t& icon, bool state)

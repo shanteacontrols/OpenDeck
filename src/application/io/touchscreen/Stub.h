@@ -21,6 +21,8 @@ limitations under the License.
 #include <inttypes.h>
 #include <stdlib.h>
 #include "database/Database.h"
+#include "io/buttons/Buttons.h"
+#include "io/analog/Analog.h"
 
 namespace IO
 {
@@ -38,13 +40,22 @@ namespace IO
             virtual void setIconState(Touchscreen::icon_t& icon, bool state) = 0;
         };
 
-        Touchscreen(Database& database)
+        Touchscreen(Database&      database,
+                    IO::Buttons&   buttons,
+                    ComponentInfo& cInfo)
         {}
 
         enum class setting_t : uint8_t
         {
             enable,
             brightness,
+            AMOUNT
+        };
+
+        enum class componentType_t : uint8_t
+        {
+            button,
+            indicator,
             AMOUNT
         };
 
@@ -64,10 +75,6 @@ namespace IO
         size_t activeScreen()
         {
             return 0;
-        }
-
-        void setButtonHandler(void (*fptr)(size_t index, bool state))
-        {
         }
 
         void setScreenChangeHandler(void (*fptr)(size_t screenID))

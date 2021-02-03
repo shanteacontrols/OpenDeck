@@ -24,7 +24,7 @@ limitations under the License.
 
 bool Viewtech::init()
 {
-    IO::Touchscreen::Model::Common::rxBuffer.reset();
+    IO::Touchscreen::Model::Common::bufferCount = 0;
     return hwa.init();
 }
 
@@ -48,65 +48,73 @@ bool Viewtech::setScreen(size_t screenID)
     return true;
 }
 
-/// Checks for incoming data from display.
-/// returns: True if there is incoming data, false otherwise.
-bool Viewtech::update(size_t& buttonID, bool& state)
+IO::Touchscreen::tsEvent_t Viewtech::update(IO::Touchscreen::tsData_t& data)
 {
-    uint8_t data = 0;
+    auto    event = IO::Touchscreen::tsEvent_t::none;
+    uint8_t byte  = 0;
 
-    if (hwa.read(data))
-        IO::Touchscreen::Model::Common::rxBuffer.insert(data);
-    else
-        return false;
-
-    if (data == 0xFF)
+    while (hwa.read(byte))
     {
-        endCounter++;
-    }
-    else
-    {
-        if (endCounter)
-            endCounter = 0;
+        IO::Touchscreen::Model::Common::rxBuffer[IO::Touchscreen::Model::Common::bufferCount++] = byte;
     }
 
-    if (endCounter == endBytes)
+    //assumption - only one response is received at the time
+    //if parsing fails, wipe the buffer
+    if (IO::Touchscreen::Model::Common::bufferCount)
     {
-        //new message received
-        endCounter = 0;
-
-        //handle only button messages for now
-
-        if (IO::Touchscreen::Model::Common::rxBuffer.count() >= 7)
+        //verify header first
+        if (IO::Touchscreen::Model::Common::rxBuffer[0] == 0xA5)
         {
-            uint8_t startHeader[2];
-
-            IO::Touchscreen::Model::Common::rxBuffer.remove(startHeader[0]);
-            IO::Touchscreen::Model::Common::rxBuffer.remove(startHeader[1]);
-
-            if ((startHeader[0] == 0xA5) && (startHeader[1] == 0x5A))
+            if (IO::Touchscreen::Model::Common::bufferCount > 1)
             {
-                IO::Touchscreen::Model::Common::rxBuffer.remove(data);
-
-                //button press event - 0/release, 1/press
-                if ((data == 0x00) || (data == 0x01))
+                if (IO::Touchscreen::Model::Common::rxBuffer[1] == 0x5A)
                 {
-                    state = data;
+                    if (IO::Touchscreen::Model::Common::bufferCount > 2)
+                    {
+                        //byte at index 2 holds response length, without first two bytes and without byte at index 2
+                        if (IO::Touchscreen::Model::Common::bufferCount >= static_cast<size_t>(3 + IO::Touchscreen::Model::Common::rxBuffer[2]))
+                        {
+                            uint32_t response = IO::Touchscreen::Model::Common::rxBuffer[2];
+                            response <<= 8;
+                            response |= IO::Touchscreen::Model::Common::rxBuffer[3];
+                            response <<= 8;
+                            response |= IO::Touchscreen::Model::Common::rxBuffer[4];
+                            response <<= 8;
+                            response |= IO::Touchscreen::Model::Common::rxBuffer[5];
 
-                    //button id is the next byte
-                    IO::Touchscreen::Model::Common::rxBuffer.remove(data);
-                    buttonID = data;
+                            switch (response)
+                            {
+                            case static_cast<uint32_t>(response_t::buttonStateChange):
+                            {
+                                data.buttonState = IO::Touchscreen::Model::Common::rxBuffer[6];
+                                data.buttonID    = IO::Touchscreen::Model::Common::rxBuffer[7];
+                                buttonPressed    = data.buttonState;
 
-                    IO::Touchscreen::Model::Common::rxBuffer.reset();
-                    return true;
+                                event = IO::Touchscreen::tsEvent_t::button;
+                            }
+                            break;
+
+                            default:
+                                break;
+                            }
+
+                            IO::Touchscreen::Model::Common::bufferCount = 0;
+                        }
+                    }
+                }
+                else
+                {
+                    IO::Touchscreen::Model::Common::bufferCount = 0;
                 }
             }
         }
-
-        IO::Touchscreen::Model::Common::rxBuffer.reset();
-        return false;
+        else
+        {
+            IO::Touchscreen::Model::Common::bufferCount = 0;
+        }
     }
 
-    return false;
+    return event;
 }
 
 void Viewtech::setIconState(IO::Touchscreen::icon_t& icon, bool state)

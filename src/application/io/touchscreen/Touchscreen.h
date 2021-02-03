@@ -21,7 +21,7 @@ limitations under the License.
 #include <inttypes.h>
 #include <stdlib.h>
 #include "database/Database.h"
-#include "core/src/general/RingBuffer.h"
+#include "io/buttons/Buttons.h"
 
 #ifndef TOUCHSCREEN_SUPPORTED
 #include "Stub.h"
@@ -32,21 +32,50 @@ namespace IO
     class Touchscreen
     {
         public:
-        typedef struct
+        enum class tsEvent_t : uint8_t
         {
-            uint16_t xPos;
-            uint16_t yPos;
-            uint16_t width;
-            uint16_t height;
-            uint16_t onScreen;
-            uint16_t offScreen;
-        } icon_t;
+            none,
+            button
+        };
 
-        typedef struct
+        enum class pressType_t : uint8_t
         {
-            uint16_t indexTS;
-            uint16_t screen;
-        } screenButton_t;
+            none,
+            initial,
+            hold
+        };
+
+        enum class componentType_t : uint8_t
+        {
+            button,
+            indicator,
+            AMOUNT
+        };
+
+        enum class setting_t : uint8_t
+        {
+            enable,
+            model,
+            brightness,
+            AMOUNT
+        };
+
+        struct icon_t
+        {
+            uint16_t xPos      = 0;
+            uint16_t yPos      = 0;
+            uint16_t width     = 0;
+            uint16_t height    = 0;
+            uint16_t onScreen  = 0;
+            uint16_t offScreen = 0;
+        };
+
+        struct tsData_t
+        {
+            pressType_t pressType   = pressType_t::none;
+            size_t      buttonID    = 0;
+            bool        buttonState = false;
+        };
 
         class Model
         {
@@ -66,8 +95,9 @@ namespace IO
                 Common() {}
 
                 protected:
-                static const size_t                          bufferSize = 100;
-                static core::RingBuffer<uint8_t, bufferSize> rxBuffer;
+                static constexpr size_t bufferSize = 50;
+                static uint8_t          rxBuffer[bufferSize];
+                static size_t           bufferCount;
             };
 
             enum class model_t : uint8_t
@@ -77,24 +107,20 @@ namespace IO
                 AMOUNT
             };
 
-            virtual bool init()                                              = 0;
-            virtual bool deInit()                                            = 0;
-            virtual bool setScreen(size_t screenID)                          = 0;
-            virtual bool update(size_t& buttonID, bool& state)               = 0;
-            virtual void setIconState(Touchscreen::icon_t& icon, bool state) = 0;
+            virtual bool      init()                                              = 0;
+            virtual bool      deInit()                                            = 0;
+            virtual bool      setScreen(size_t screenID)                          = 0;
+            virtual tsEvent_t update(tsData_t& tsData)                            = 0;
+            virtual void      setIconState(Touchscreen::icon_t& icon, bool state) = 0;
         };
 
-        Touchscreen(Database& database)
+        Touchscreen(Database&      database,
+                    IO::Buttons&   buttons,
+                    ComponentInfo& cInfo)
             : database(database)
+            , buttons(buttons)
+            , cInfo(cInfo)
         {}
-
-        enum class setting_t : uint8_t
-        {
-            enable,
-            model,
-            brightness,
-            AMOUNT
-        };
 
         bool   init();
         bool   deInit();
@@ -102,16 +128,17 @@ namespace IO
         void   update();
         void   setScreen(size_t screenID);
         size_t activeScreen();
-        void   setButtonHandler(void (*fptr)(size_t index, bool state));
         void   setScreenChangeHandler(void (*fptr)(size_t screenID));
         void   setIconState(size_t index, bool state);
 
         private:
         bool isModelValid(Model::model_t model);
+        void processButton(const size_t buttonID, const bool state);
 
-        Database& database;
+        Database&      database;
+        IO::Buttons&   buttons;
+        ComponentInfo& cInfo;
 
-        void (*buttonHandler)(size_t index, bool state)                = nullptr;
         void (*screenHandler)(size_t screenID)                         = nullptr;
         size_t  activeScreenID                                         = 0;
         bool    initialized                                            = false;

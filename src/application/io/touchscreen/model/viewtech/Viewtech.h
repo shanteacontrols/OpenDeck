@@ -29,15 +29,20 @@ class Viewtech : public IO::Touchscreen::Model, public IO::Touchscreen::Model::C
         : hwa(hwa)
     {}
 
-    bool init() override;
-    bool deInit() override;
-    bool setScreen(size_t screenID) override;
-    bool update(size_t& buttonID, bool& state) override;
-    void setIconState(IO::Touchscreen::icon_t& icon, bool state) override;
+    bool                       init() override;
+    bool                       deInit() override;
+    bool                       setScreen(size_t screenID) override;
+    IO::Touchscreen::tsEvent_t update(IO::Touchscreen::tsData_t& data) override;
+    void                       setIconState(IO::Touchscreen::icon_t& icon, bool state) override;
 
     private:
-    IO::Touchscreen::Model::HWA& hwa;
+    enum class response_t : uint32_t
+    {
+        buttonStateChange = 0x05820002
+    };
 
-    const uint8_t endBytes   = 3;
-    size_t        endCounter = 0;
+    void pollXY();
+
+    IO::Touchscreen::Model::HWA& hwa;
+    bool                         buttonPressed = false;
 };

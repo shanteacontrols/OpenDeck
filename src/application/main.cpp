@@ -579,11 +579,11 @@ MIDI            midi(hwaMIDI);
 ComponentInfo   cinfo;
 IO::U8X8        u8x8(hwaU8X8);
 IO::Display     display(u8x8, database);
-IO::Touchscreen touchscreen(database);
 IO::LEDs        leds(hwaLEDs, database);
 IO::Analog      analog(hwaAnalog, analogFilter, database, midi, leds, display, cinfo);
 IO::Buttons     buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cinfo);
 IO::Encoders    encoders(hwaEncoders, database, midi, display, cinfo);
+IO::Touchscreen touchscreen(database, buttons, cinfo);
 System          sys(hwaSystem, database, midi, buttons, encoders, analog, leds, display, touchscreen);
 
 int main()
@@ -617,11 +617,6 @@ int main()
 
     analog.setButtonHandler([](uint8_t analogIndex, bool value) {
         buttons.processButton(analogIndex + MAX_NUMBER_OF_BUTTONS, value);
-    });
-
-    touchscreen.setButtonHandler([](size_t index, bool state) {
-        buttons.processButton(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + index, state);
-        cinfo.send(Database::block_t::touchscreen, index);
     });
 
     touchscreen.setScreenChangeHandler([](size_t screenID) {
