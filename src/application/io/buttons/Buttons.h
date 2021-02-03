@@ -126,10 +126,10 @@ namespace IO
         ComponentInfo& cInfo;
 
         /// Array holding current state for all buttons.
-        uint8_t buttonPressed[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS) / 8 + 1] = {};
+        uint8_t buttonPressed[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS) / 8 + 1] = {};
 
         /// Array holding last sent state for latching buttons only.
-        uint8_t lastLatchingState[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS) / 8 + 1] = {};
+        uint8_t lastLatchingState[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS) / 8 + 1] = {};
 
         /// Array used for simpler building of transport control messages.
         /// Based on MIDI specification for transport control.

@@ -215,8 +215,14 @@ endif
 
 ifeq ($(shell yq r ../targets/$(TARGET).yml touchscreen.use), true)
     DEFINES += TOUCHSCREEN_SUPPORTED
-    DEFINES += MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS=$(shell yq r ../targets/$(TARGET).yml touchscreen.components)
+    #guard against ommisions of touchscreen component amount by assigning the value to 0 if undefined
+    DEFINES += MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS=$(shell yq r ../targets/$(TARGET).yml touchscreen.components | awk '{print$$1}END{if(NR==0)print 0}')
+
+ifneq (,$(findstring MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS=0,$(DEFINES)))
+    $(error Amount of touchscreen components cannot be 0)
+else
     DEFINES += LEDS_SUPPORTED
+endif
 
     UART_CHANNEL_TOUCHSCREEN := $(shell yq r ../targets/$(TARGET).yml touchscreen.uartChannel)
 
@@ -226,7 +232,7 @@ ifeq ($(shell yq r ../targets/$(TARGET).yml touchscreen.use), true)
 
     DEFINES += UART_CHANNEL_TOUCHSCREEN=$(UART_CHANNEL_TOUCHSCREEN)
 else
-    DEFINES += MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS=0
+    DEFINES += MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS=0
 endif
 
 ifneq ($(shell yq r ../targets/$(TARGET).yml buttons),)

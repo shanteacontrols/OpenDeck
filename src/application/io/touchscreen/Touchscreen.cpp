@@ -141,7 +141,7 @@ void Touchscreen::setIconState(size_t index, bool state)
     if (!initialized)
         return;
 
-    if (index >= MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS)
+    if (index >= MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS)
         return;
 
     icon_t icon;

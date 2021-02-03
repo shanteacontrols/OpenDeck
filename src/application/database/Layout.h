@@ -87,7 +87,7 @@ namespace
     LESSDB::section_t buttonSections[static_cast<uint8_t>(Database::Section::button_t::AMOUNT)] = {
         //type section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -97,7 +97,7 @@ namespace
 
         //midi message type section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -107,7 +107,7 @@ namespace
 
         //midi id section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -117,7 +117,7 @@ namespace
 
         //midi velocity section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
             .defaultValue           = 127,
@@ -127,7 +127,7 @@ namespace
 
         //midi channel section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -303,7 +303,7 @@ namespace
 
         //activation id section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .numberOfParameters     = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -313,7 +313,7 @@ namespace
 
         //rgb enabled section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_RGB_LEDS + (MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS / 3),
+            .numberOfParameters     = MAX_NUMBER_OF_RGB_LEDS + (MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS / 3),
             .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -323,7 +323,7 @@ namespace
 
         //led control type section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .numberOfParameters     = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -333,7 +333,7 @@ namespace
 
         //single velocity value section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .numberOfParameters     = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
             .defaultValue           = 127,
@@ -343,7 +343,7 @@ namespace
 
         //midi channel section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .numberOfParameters     = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -387,7 +387,7 @@ namespace
 
         //x position section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -397,7 +397,7 @@ namespace
 
         //y position section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -407,7 +407,7 @@ namespace
 
         //width section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -417,7 +417,7 @@ namespace
 
         //height section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -427,7 +427,7 @@ namespace
 
         //on screen section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -437,7 +437,7 @@ namespace
 
         //off screen section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -447,7 +447,7 @@ namespace
 
         //page switch enabled section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -457,7 +457,7 @@ namespace
 
         //page switch index section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_BUTTONS,
+            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
