@@ -33,8 +33,8 @@ namespace
 extern "C" void EVENT_USB_Device_ConfigurationChanged(void)
 {
     /* Setup MIDI Data Endpoints */
-    Endpoint_ConfigureEndpoint(MIDI_STREAM_IN_EPADDR, EP_TYPE_BULK, MIDI_STREAM_EPSIZE, 1);
-    Endpoint_ConfigureEndpoint(MIDI_STREAM_OUT_EPADDR, EP_TYPE_BULK, MIDI_STREAM_EPSIZE, 1);
+    Endpoint_ConfigureEndpoint(MIDI_STREAM_IN_EPADDR, USB_EP_TYPE_BULK, MIDI_STREAM_EPSIZE, 1);
+    Endpoint_ConfigureEndpoint(MIDI_STREAM_OUT_EPADDR, USB_EP_TYPE_BULK, MIDI_STREAM_EPSIZE, 1);
 }
 
 /** This function is called by the library when in device mode, and must be overridden (see library "USB Descriptors"

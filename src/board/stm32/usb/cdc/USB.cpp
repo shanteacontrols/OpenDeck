@@ -62,12 +62,12 @@ namespace
         cdcData.RxState = 0;
 
         /* Open EP IN */
-        (void)USBD_LL_OpenEP(pdev, CDC_IN_EPADDR, USBD_EP_TYPE_BULK, CDC_TXRX_EPSIZE);
+        (void)USBD_LL_OpenEP(pdev, CDC_IN_EPADDR, USB_EP_TYPE_BULK, CDC_TXRX_EPSIZE);
 
         pdev->ep_in[CDC_IN_EPADDR & 0xFU].is_used = 1U;
 
         /* Open EP OUT */
-        (void)USBD_LL_OpenEP(pdev, CDC_OUT_EPADDR, USBD_EP_TYPE_BULK, CDC_TXRX_EPSIZE);
+        (void)USBD_LL_OpenEP(pdev, CDC_OUT_EPADDR, USB_EP_TYPE_BULK, CDC_TXRX_EPSIZE);
 
         pdev->ep_out[CDC_OUT_EPADDR & 0xFU].is_used           = 1U;
         pdev->ep_in[CDC_NOTIFICATION_EPADDR & 0xFU].bInterval = CDC_POLLING_TIME;

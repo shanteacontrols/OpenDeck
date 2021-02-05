@@ -48,8 +48,8 @@ namespace
 
     uint8_t initCallback(USBD_HandleTypeDef* pdev, uint8_t cfgidx)
     {
-        USBD_LL_OpenEP(pdev, MIDI_STREAM_IN_EPADDR, USBD_EP_TYPE_BULK, TX_BUFFER_SIZE_USB);
-        USBD_LL_OpenEP(pdev, MIDI_STREAM_OUT_EPADDR, USBD_EP_TYPE_BULK, RX_BUFFER_SIZE_USB);
+        USBD_LL_OpenEP(pdev, MIDI_STREAM_IN_EPADDR, USB_EP_TYPE_BULK, TX_BUFFER_SIZE_USB);
+        USBD_LL_OpenEP(pdev, MIDI_STREAM_OUT_EPADDR, USB_EP_TYPE_BULK, RX_BUFFER_SIZE_USB);
         USBD_LL_PrepareReceive(pdev, MIDI_STREAM_OUT_EPADDR, (uint8_t*)(rxBuffer), RX_BUFFER_SIZE_USB);
         TxDone      = true;
         initialized = true;

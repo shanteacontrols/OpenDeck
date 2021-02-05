@@ -68,7 +68,7 @@ typedef struct
 
     uint8_t InCollection;    /**< Total number of Audio Streaming interfaces linked to this Audio Control interface (must be 1). */
     uint8_t InterfaceNumber; /**< Interface number of the associated Audio Streaming interface. */
-} ATTR_PACKED USB_Audio_Descriptor_Interface_AC_t;
+} __attribute__((packed)) USB_Audio_Descriptor_Interface_AC_t;
 
 /** \brief Audio class-specific Streaming Endpoint Descriptor (LUFA naming conventions).
  *
@@ -85,7 +85,7 @@ typedef struct
 
     uint8_t Refresh;            /**< Always set to zero for Audio class devices. */
     uint8_t SyncEndpointNumber; /**< Endpoint address to send synchronization information to, if needed (zero otherwise). */
-} ATTR_PACKED USB_Audio_Descriptor_StreamEndpoint_Std_t;
+} __attribute__((packed)) USB_Audio_Descriptor_StreamEndpoint_Std_t;
 
 enum Audio_Descriptor_ClassSubclassProtocol_t
 {

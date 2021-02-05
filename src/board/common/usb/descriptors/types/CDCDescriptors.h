@@ -96,7 +96,7 @@ typedef struct
                                                 *
                                                 *   \see \ref VERSION_BCD() utility macro.
                                                 */
-} ATTR_PACKED USB_CDC_Descriptor_FunctionalHeader_t;
+} __attribute__((packed)) USB_CDC_Descriptor_FunctionalHeader_t;
 
 /** \brief CDC class-specific Functional ACM Descriptor (LUFA naming conventions).
 		 *
@@ -117,7 +117,7 @@ typedef struct
 			                                       *   this should be set to a fixed value of \c 0x06 - for other capabilities, refer
 			                                       *   to the CDC ACM specification.
 			                                       */
-} ATTR_PACKED USB_CDC_Descriptor_FunctionalACM_t;
+} __attribute__((packed)) USB_CDC_Descriptor_FunctionalACM_t;
 
 /** \brief CDC class-specific Functional Union Descriptor (LUFA naming conventions).
 		 *
@@ -136,7 +136,7 @@ typedef struct
 			                                  */
     uint8_t                 MasterInterfaceNumber; /**< Interface number of the CDC Control interface. */
     uint8_t                 SlaveInterfaceNumber;  /**< Interface number of the CDC Data interface. */
-} ATTR_PACKED USB_CDC_Descriptor_FunctionalUnion_t;
+} __attribute__((packed)) USB_CDC_Descriptor_FunctionalUnion_t;
 
 /** Enum for possible Class, Subclass and Protocol values of device and interface descriptors relating to the CDC
     *  device class.

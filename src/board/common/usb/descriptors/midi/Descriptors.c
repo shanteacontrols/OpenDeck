@@ -70,9 +70,9 @@ const USB_Descriptor_Configuration_t ConfigurationDescriptor =
         .ConfigurationNumber      = 1,
         .ConfigurationStrIndex    = NO_DESCRIPTOR,
 
-        .ConfigAttributes         = USB_CONFIG_ATTR_RESERVED,
+        .ConfigAttributes         = USB_CONF_DESC_ATTR_RESERVED,
 
-        .MaxPowerConsumption      = USB_CONFIG_POWER_MA(100)
+        .MaxPowerConsumption      = USB_CONF_DESC_POWER_MA(100)
     },
 
     .Audio_ControlInterface =
@@ -189,7 +189,7 @@ const USB_Descriptor_Configuration_t ConfigurationDescriptor =
                 .Header              = {.Size = sizeof(USB_Audio_Descriptor_StreamEndpoint_Std_t), .Type = DTYPE_Endpoint},
 
                 .EndpointAddress     = MIDI_STREAM_OUT_EPADDR,
-                .Attributes          = (EP_TYPE_BULK | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+                .Attributes          = (USB_EP_TYPE_BULK | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
                 .EndpointSize        = MIDI_STREAM_EPSIZE,
                 .PollingIntervalMS   = 0x05
             },
@@ -214,7 +214,7 @@ const USB_Descriptor_Configuration_t ConfigurationDescriptor =
                 .Header              = {.Size = sizeof(USB_Audio_Descriptor_StreamEndpoint_Std_t), .Type = DTYPE_Endpoint},
 
                 .EndpointAddress     = MIDI_STREAM_IN_EPADDR,
-                .Attributes          = (EP_TYPE_BULK | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+                .Attributes          = (USB_EP_TYPE_BULK | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
                 .EndpointSize        = MIDI_STREAM_EPSIZE,
                 .PollingIntervalMS   = 0x05
             },

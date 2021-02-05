@@ -64,7 +64,7 @@ typedef struct
                                                     *   \see \ref VERSION_BCD() utility macro.
                                                     */
     uint16_t TotalLength;        /**< Total length of the Audio class-specific descriptors, including this descriptor. */
-} ATTR_PACKED USB_MIDI_Descriptor_AudioInterface_AS_t;
+} __attribute__((packed)) USB_MIDI_Descriptor_AudioInterface_AS_t;
 
 /** \brief MIDI class-specific Input Jack Descriptor (LUFA naming conventions).
  *
@@ -84,7 +84,7 @@ typedef struct
     uint8_t JackID;   /**< ID value of this jack - must be a unique value within the device. */
 
     uint8_t JackStrIndex; /**< Index of a string descriptor describing this descriptor within the device. */
-} ATTR_PACKED USB_MIDI_Descriptor_InputJack_t;
+} __attribute__((packed)) USB_MIDI_Descriptor_InputJack_t;
 
 /** \brief MIDI class-specific Output Jack Descriptor (LUFA naming conventions).
  *
@@ -108,7 +108,7 @@ typedef struct
     uint8_t SourcePinID[1];  /**< Pin number in the input jack of each output pin's source data. */
 
     uint8_t JackStrIndex; /**< Index of a string descriptor describing this descriptor within the device. */
-} ATTR_PACKED USB_MIDI_Descriptor_OutputJack_t;
+} __attribute__((packed)) USB_MIDI_Descriptor_OutputJack_t;
 
 /** \brief Audio class-specific Jack Endpoint Descriptor (LUFA naming conventions).
  *
@@ -127,7 +127,7 @@ typedef struct
 
     uint8_t TotalEmbeddedJacks;  /**< Total number of jacks inside this endpoint. */
     uint8_t AssociatedJackID[1]; /**< IDs of each jack inside the endpoint. */
-} ATTR_PACKED USB_MIDI_Descriptor_Jack_Endpoint_t;
+} __attribute__((packed)) USB_MIDI_Descriptor_Jack_Endpoint_t;
 
 /** Enum for the possible MIDI jack types in a MIDI device jack descriptor. */
 enum MIDI_JackTypes_t

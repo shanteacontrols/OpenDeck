@@ -18,6 +18,8 @@ limitations under the License.
 
 #pragma once
 
+#include "descriptors/types/Helpers.h"
+
 #ifdef __AVR__
 #include <avr/pgmspace.h>
 #include "LUFA/Drivers/USB/USB.h"
