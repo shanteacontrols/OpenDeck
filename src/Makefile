@@ -219,10 +219,8 @@ else
 	$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
 	-o $(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).hex
 endif
-	@$(TOOL_PREFIX)objcopy --gap-fill 0xFF -O ihex $(MERGED_TARGET).hex $(MERGED_TARGET).hex
-	@$(TOOL_PREFIX)objcopy --gap-fill 0xFF -O ihex $(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).hex $(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).hex
-	@$(TOOL_PREFIX)objcopy -I ihex "$(MERGED_TARGET).hex" -O binary "$(MERGED_TARGET).bin"
-	@$(TOOL_PREFIX)objcopy -I ihex "$(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).hex" -O binary "$(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).bin"
+	@$(TOOL_PREFIX)objcopy -I ihex "$(MERGED_TARGET).hex" --gap-fill 0xFF -O binary "$(MERGED_TARGET).bin"
+	@$(TOOL_PREFIX)objcopy -I ihex "$(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).hex" --gap-fill 0xFF -O binary "$(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).bin"
 	@echo Merged binary created: $(MERGED_TARGET).hex
 #everytime new binary gets created, remove sysex binary
 	@rm -f $(MERGED_TARGET).sysex
