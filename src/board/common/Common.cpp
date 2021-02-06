@@ -18,7 +18,7 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
+#include "board/common/USBMIDIOverSerial/USBMIDIOverSerial.h"
 #include "core/src/general/Reset.h"
 #include "core/src/general/Timing.h"
 
@@ -50,78 +50,27 @@ namespace Board
         detail::setup::application();
 #elif defined(FW_BOOT)
         detail::setup::bootloader();
-
-        auto fwType = detail::bootloader::fwType_t::application;
-
-        if (Board::detail::bootloader::isHWtriggerActive())
-            fwType = detail::bootloader::fwType_t::bootloader;
-        else
-            fwType = Board::detail::bootloader::btldrTriggerSoftType();
-
-        //always reset soft trigger after reading it back to application
-        setSWtrigger(detail::bootloader::fwType_t::application);
-
-        switch (fwType)
-        {
-        case detail::bootloader::fwType_t::cdc:
-#ifndef __AVR__
-            detail::bootloader::runCDC();
-#endif
-
-        //intentional fall-through
-        case detail::bootloader::fwType_t::application:
-        {
-            if (detail::bootloader::isAppValid())
-            {
-#ifdef LED_INDICATORS
-                detail::io::ledFlashStartup(false);
-#endif
-                detail::bootloader::runApplication();
-            }
-        }
-
-        //intentional fall-through
-        default:
-            detail::bootloader::runBootloader();
-        }
 #endif
     }
 
-    void reboot(rebootType_t type)
+    void reboot()
     {
-        switch (type)
-        {
-        case rebootType_t::application:
-        {
-            detail::bootloader::setSWtrigger(detail::bootloader::fwType_t::application);
 #ifndef USB_MIDI_SUPPORTED
-            //signal to usb link to reboot as well
-            //no need to do this for bootloader reboot - the bootloader already sends btldrReboot command to USB link
-            MIDI::USBMIDIpacket_t USBMIDIpacket;
+        //signal to usb link to reboot as well
+        MIDI::USBMIDIpacket_t USBMIDIpacket;
 
-            USBMIDIpacket.Event = static_cast<uint8_t>(OpenDeckMIDIformat::command_t::appReboot);
-            USBMIDIpacket.Data1 = 0x00;
-            USBMIDIpacket.Data2 = 0x00;
-            USBMIDIpacket.Data3 = 0x00;
+        USBMIDIpacket.Event = Board::bootloader::magicBootValue();
+        USBMIDIpacket.Data1 = 0x00;
+        USBMIDIpacket.Data2 = 0x00;
+        USBMIDIpacket.Data3 = 0x00;
 
-            OpenDeckMIDIformat::write(UART_CHANNEL_USB_LINK, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::internalCommand);
-            while (!Board::UART::isTxEmpty(UART_CHANNEL_USB_LINK))
-                ;
+        USBMIDIOverSerial::write(UART_CHANNEL_USB_LINK, USBMIDIpacket, USBMIDIOverSerial::packetType_t::internal);
+        while (!Board::UART::isTxEmpty(UART_CHANNEL_USB_LINK))
+            ;
 
-            //give some time to usb link to properly re-initialize so that everything is in sync
-            core::timing::waitMs(50);
+        //give some time to usb link to properly re-initialize so that everything is in sync
+        core::timing::waitMs(50);
 #endif
-        }
-        break;
-
-        case rebootType_t::bootloader:
-            detail::bootloader::setSWtrigger(detail::bootloader::fwType_t::bootloader);
-            break;
-
-        case rebootType_t::cdc:
-            detail::bootloader::setSWtrigger(detail::bootloader::fwType_t::cdc);
-            break;
-        }
 
         core::reset::mcuReset();
     }

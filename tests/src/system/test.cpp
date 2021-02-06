@@ -38,7 +38,7 @@ namespace
             return false;
         }
 
-        void reboot(System::reboot_t type) override
+        void reboot(FwSelector::fwType_t type) override
         {
         }
 

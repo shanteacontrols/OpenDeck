@@ -32,7 +32,8 @@ limitations under the License.
 #include "core/src/general/Interrupt.h"
 #include "core/src/general/Reset.h"
 #include "io/common/CInfo.h"
-#include "common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
+#include "board/common/USBMIDIOverSerial/USBMIDIOverSerial.h"
+#include "bootloader/FwSelector/FwSelector.h"
 
 class DBhandlers : public Database::Handlers
 {
@@ -153,14 +154,6 @@ class HWAMIDI : public MIDI::HWA
 
     bool init() override
     {
-#ifndef USB_MIDI_SUPPORTED
-        //enable uart-to-usb link when usb isn't supported directly
-        Board::UART::init(UART_CHANNEL_USB_LINK, UART_BAUDRATE_MIDI_OD);
-#endif
-
-        //unlike usb midi, din midi is configurable by user
-        //enable/disable it on request only
-
         return true;
     }
 
@@ -184,28 +177,12 @@ class HWAMIDI : public MIDI::HWA
 
     bool usbRead(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
     {
-#ifdef USB_MIDI_SUPPORTED
         return Board::USB::readMIDI(USBMIDIpacket);
-#else
-        OpenDeckMIDIformat::packetType_t odPacketType;
-
-        if (OpenDeckMIDIformat::read(UART_CHANNEL_USB_LINK, USBMIDIpacket, odPacketType))
-        {
-            if (odPacketType == OpenDeckMIDIformat::packetType_t::midi)
-                return true;
-        }
-
-        return false;
-#endif
     }
 
     bool usbWrite(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
     {
-#ifdef USB_MIDI_SUPPORTED
         return Board::USB::writeMIDI(USBMIDIpacket);
-#else
-        return OpenDeckMIDIformat::write(UART_CHANNEL_USB_LINK, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::midi);
-#endif
     }
 } hwaMIDI;
 
@@ -530,14 +507,12 @@ class SystemHWA : public System::HWA
         return Board::io::isInputDataAvailable();
     }
 
-    void reboot(System::reboot_t type) override
+    void reboot(FwSelector::fwType_t type) override
     {
-        if (type == System::reboot_t::application)
-            Board::reboot(Board::rebootType_t::application);
-        else if (type == System::reboot_t::bootloader)
-            Board::reboot(Board::rebootType_t::bootloader);
-        else
-            Board::reboot(Board::rebootType_t::cdc);
+        auto value = static_cast<uint8_t>(type);
+
+        Board::bootloader::setMagicBootValue(value);
+        Board::reboot();
     }
 
     void enableDINMIDI(bool loopback) override

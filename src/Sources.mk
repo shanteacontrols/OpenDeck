@@ -74,9 +74,9 @@ ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
         -isystem"$(TOOLCHAIN_DIR)/lib/gcc/arm-none-eabi/$(CPP_VER)/include-fixed"
     endif
 
-    #common for both bootloader and application
     SOURCES += $(shell $(FIND) ./board/common -maxdepth 1 -type f -name "*.cpp")
     SOURCES += $(shell $(FIND) ./board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU) -maxdepth 1 -type f -regex '.*\.\(s\|c\|cpp\)')
+    SOURCES += board/common/io/Stubs.cpp
 
     ifeq ($(TYPE),boot)
         #bootloader sources
@@ -113,13 +113,13 @@ ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
             board/$(ARCH)/uart/UART.cpp \
             board/common/uart/UART.cpp
 
-            SOURCES += $(shell $(FIND) ./common/OpenDeckMIDIformat -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./board/common/USBMIDIOverSerial -type f -name "*.cpp")
         endif
     else ifeq ($(TYPE),app)
         #application sources
         #common for all targets
         SOURCES += $(shell $(FIND) ./board/$(ARCH)/common -type f -name "*.cpp")
-        SOURCES += $(shell $(FIND) ./common/OpenDeckMIDIformat -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./board/common/USBMIDIOverSerial -type f -name "*.cpp")
 
         ifneq (,$(findstring USB_MIDI_SUPPORTED,$(DEFINES)))
             SOURCES += $(shell $(FIND) ./board/$(ARCH)/usb/midi -type f -name "*.cpp")

@@ -146,15 +146,15 @@ System::result_t System::SysExDataHandler::customRequest(size_t request, CustomR
         break;
 
     case SYSEX_CR_REBOOT_APP:
-        system.hwa.reboot(reboot_t::application);
+        system.hwa.reboot(FwSelector::fwType_t::application);
         break;
 
     case SYSEX_CR_REBOOT_BTLDR:
-        system.hwa.reboot(reboot_t::bootloader);
+        system.hwa.reboot(FwSelector::fwType_t::bootloader);
         break;
 
     case SYSEX_CR_REBOOT_CDC:
-        system.hwa.reboot(reboot_t::cdc);
+        system.hwa.reboot(FwSelector::fwType_t::cdc);
         break;
 
     case SYSEX_CR_MAX_COMPONENTS:
@@ -533,9 +533,6 @@ void System::checkMIDI()
         }
     };
 
-    //note: mega/uno
-    //"fake" usb interface - din data is stored as usb data so use usb callback to read the usb
-    //packet stored in midi object
 #ifdef DIN_MIDI_SUPPORTED
     if (
         isMIDIfeatureEnabled(System::midiFeature_t::dinEnabled) &&

@@ -17,12 +17,12 @@ limitations under the License.
 */
 
 #include "board/Board.h"
-#include "common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
+#include "board/common/USBMIDIOverSerial/USBMIDIOverSerial.h"
 
 namespace
 {
-    MIDI::USBMIDIpacket_t            USBMIDIpacket;
-    OpenDeckMIDIformat::packetType_t packetType;
+    MIDI::USBMIDIpacket_t                  USBMIDIpacket;
+    Board::USBMIDIOverSerial::packetType_t packetType;
 }    // namespace
 
 int main(void)
@@ -31,13 +31,24 @@ int main(void)
 
     while (1)
     {
+        //USB -> UART
         if (Board::USB::readMIDI(USBMIDIpacket))
-            OpenDeckMIDIformat::write(UART_CHANNEL_USB_LINK, USBMIDIpacket, OpenDeckMIDIformat::packetType_t::midi);
+            Board::USBMIDIOverSerial::write(UART_CHANNEL_USB_LINK, USBMIDIpacket, Board::USBMIDIOverSerial::packetType_t::midi);
 
-        if (OpenDeckMIDIformat::read(UART_CHANNEL_USB_LINK, USBMIDIpacket, packetType))
+        //UART -> USB
+        if (Board::USBMIDIOverSerial::read(UART_CHANNEL_USB_LINK, USBMIDIpacket, packetType))
         {
-            if (packetType != OpenDeckMIDIformat::packetType_t::internalCommand)
+            if (packetType == Board::USBMIDIOverSerial::packetType_t::midi)
+            {
                 Board::USB::writeMIDI(USBMIDIpacket);
+            }
+            else
+            {
+                //internal command - use it for reboot only
+                //use received data as the magic bootloader value
+                Board::bootloader::setMagicBootValue(USBMIDIpacket.Event);
+                Board::reboot();
+            }
         }
     }
 }

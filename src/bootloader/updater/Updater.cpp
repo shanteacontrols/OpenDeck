@@ -18,8 +18,6 @@ limitations under the License.
 
 #include "Updater.h"
 
-using namespace Bootloader;
-
 void Updater::feed(uint8_t data)
 {
     auto nextStage = [&]() {

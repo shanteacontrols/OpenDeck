@@ -41,45 +41,6 @@ namespace Board
     {
         namespace setup
         {
-            void application()
-            {
-                DISABLE_INTERRUPTS();
-
-                //clear reset source
-                MCUSR &= ~(1 << EXTRF);
-
-                //disable watchdog
-                MCUSR &= ~(1 << WDRF);
-                wdt_disable();
-
-                //disable clock division
-                clock_prescale_set(clock_div_1);
-
-                detail::setup::io();
-
-#ifdef ANALOG_SUPPORTED
-                detail::setup::adc();
-#endif
-
-#ifdef USB_LINK_MCU
-                Board::UART::init(UART_CHANNEL_USB_LINK, UART_BAUDRATE_MIDI_OD);
-#endif
-
-#ifdef USB_MIDI_SUPPORTED
-                detail::setup::usb();
-#endif
-
-                detail::setup::timers();
-
-                ENABLE_INTERRUPTS();
-
-#ifndef USB_LINK_MCU
-                //add some delay and remove initial readout of digital inputs
-                core::timing::waitMs(10);
-                detail::io::flushInputReadings();
-#endif
-            }
-
             void bootloader()
             {
                 DISABLE_INTERRUPTS();
@@ -95,6 +56,39 @@ namespace Board
                 clock_prescale_set(clock_div_1);
 
                 detail::setup::io();
+            }
+
+            void application()
+            {
+                DISABLE_INTERRUPTS();
+
+                //clear reset source
+                MCUSR &= ~(1 << EXTRF);
+
+                //disable watchdog
+                MCUSR &= ~(1 << WDRF);
+                wdt_disable();
+
+                //disable clock division
+                clock_prescale_set(clock_div_1);
+
+                detail::setup::io();
+                detail::setup::adc();
+
+#if defined(USB_LINK_MCU) || !defined(USB_MIDI_SUPPORTED)
+                Board::UART::init(UART_CHANNEL_USB_LINK, UART_BAUDRATE_MIDI_OD);
+#endif
+
+                detail::setup::usb();
+                detail::setup::timers();
+
+                ENABLE_INTERRUPTS();
+
+#ifndef USB_LINK_MCU
+                //add some delay and remove initial readout of digital inputs
+                core::timing::waitMs(10);
+                detail::io::flushInputReadings();
+#endif
             }
 
 #ifdef ANALOG_SUPPORTED

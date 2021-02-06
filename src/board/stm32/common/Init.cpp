@@ -44,17 +44,12 @@ namespace Board
     {
         namespace setup
         {
-            void cdc()
+            void bootloader()
             {
-                //Reset of all peripherals, Initializes the Flash interface and the Systick
                 HAL_Init();
 
                 detail::setup::clocks();
-
-                //add some delay for clocks to stabilize
-                core::timing::waitMs(10);
-                detail::setup::timers();
-                detail::setup::usb();
+                detail::setup::io();
             }
 
             void application()
@@ -74,17 +69,20 @@ namespace Board
                 //add some delay and remove initial readout of digital inputs
                 core::timing::waitMs(10);
                 detail::io::flushInputReadings();
-#ifdef USB_MIDI_SUPPORTED
                 detail::setup::usb();
-#endif
             }
 
-            void bootloader()
+            void cdc()
             {
+                //Reset of all peripherals, Initializes the Flash interface and the Systick
                 HAL_Init();
 
                 detail::setup::clocks();
-                detail::setup::io();
+
+                //add some delay for clocks to stabilize
+                core::timing::waitMs(10);
+                detail::setup::timers();
+                detail::setup::usb();
             }
 
             void io()

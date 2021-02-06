@@ -90,16 +90,32 @@ namespace Board
             {
             }
 
-            __attribute__((weak)) void enableIndicators()
-            {
-            }
-            __attribute__((weak)) void disableIndicators()
+            __attribute__((weak)) void indicateBTLDR()
             {
             }
 
-            __attribute__((weak)) void ledFlashStartup(bool fwUpdated)
+            __attribute__((weak)) void ledFlashStartup()
             {
             }
         }    // namespace io
+
+        namespace setup
+        {
+            __attribute__((weak)) void usb()
+            {
+            }
+
+            __attribute__((weak)) void adc()
+            {
+            }
+        }    // namespace setup
     }        // namespace detail
+
+    namespace bootloader
+    {
+        __attribute__((weak)) void runCDC()
+        {
+            //cdc might be unsupported
+        }
+    }    // namespace bootloader
 }    // namespace Board

@@ -25,77 +25,50 @@ limitations under the License.
 #include "core/src/arch/avr/Misc.h"
 #include "core/src/general/Interrupt.h"
 #include "core/src/general/Timing.h"
-#include "common/OpenDeckMIDIformat/OpenDeckMIDIformat.h"
 
 /// Location at which reboot type is written in EEPROM when initiating software reset.
 #define REBOOT_VALUE_EEPROM_LOCATION E2END
 
 namespace Board
 {
-    namespace detail
+    namespace bootloader
     {
-        namespace bootloader
+        uint8_t magicBootValue()
         {
-            fwType_t btldrTriggerSoftType()
-            {
-                if (eeprom_read_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION) == static_cast<uint8_t>(fwType_t::bootloader))
-                    return fwType_t::bootloader;
-                else
-                    return fwType_t::application;
-            }
+            return eeprom_read_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION);
+        }
 
-            void setSWtrigger(fwType_t btldrTriggerSoftType)
-            {
-                if (btldrTriggerSoftType == fwType_t::cdc)
-                    btldrTriggerSoftType = fwType_t::application;
+        void setMagicBootValue(uint8_t value)
+        {
+            eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, static_cast<uint8_t>(value));
+        }
 
-                eeprom_write_byte((uint8_t*)REBOOT_VALUE_EEPROM_LOCATION, static_cast<uint8_t>(btldrTriggerSoftType));
-            }
+        void runBootloader()
+        {
+            detail::io::indicateBTLDR();
 
-            void runApplication()
-            {
-                __asm__ __volatile__(
-                    // Jump to RST vector
-                    "clr r30\n"
-                    "clr r31\n"
-                    "ijmp\n");
-            }
+            //relocate the interrupt vector table to the bootloader section
+            MCUCR = (1 << IVCE);
+            MCUCR = (1 << IVSEL);
 
-            void runBootloader()
-            {
-                //relocate the interrupt vector table to the bootloader section
-                MCUCR = (1 << IVCE);
-                MCUCR = (1 << IVSEL);
-
-                ENABLE_INTERRUPTS();
-
-                detail::bootloader::indicate();
+            ENABLE_INTERRUPTS();
 
 #if defined(USB_LINK_MCU) || !defined(USB_MIDI_SUPPORTED)
-                Board::UART::init(UART_CHANNEL_USB_LINK, UART_BAUDRATE_MIDI_OD);
-
-#ifndef USB_MIDI_SUPPORTED
-                // make sure USB link goes to bootloader mode as well
-                MIDI::USBMIDIpacket_t packet;
-
-                packet.Event = static_cast<uint8_t>(OpenDeckMIDIformat::command_t::btldrReboot);
-                packet.Data1 = 0x00;
-                packet.Data2 = 0x00;
-                packet.Data3 = 0x00;
-
-                //add some delay - it case of hardware btldr entry both MCUs will boot up in the same time
-                //so it's possible USB link MCU will miss this packet
-
-                core::timing::waitMs(1000);
-
-                OpenDeckMIDIformat::write(UART_CHANNEL_USB_LINK, packet, OpenDeckMIDIformat::packetType_t::internalCommand);
-#endif
+            Board::UART::init(UART_CHANNEL_USB_LINK, UART_BAUDRATE_MIDI_OD);
 #endif
 
-#ifdef USB_MIDI_SUPPORTED
-                detail::setup::usb();
-#endif
-            }
-        }    // namespace bootloader
-    }        // namespace detail
+            detail::setup::usb();
+        }
+
+        void runApplication()
+        {
+            detail::io::ledFlashStartup();
+
+            __asm__ __volatile__(
+                // Jump to RST vector
+                "clr r30\n"
+                "clr r31\n"
+                "ijmp\n");
+        }
+    }    // namespace bootloader
 }    // namespace Board

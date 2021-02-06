@@ -30,57 +30,48 @@ namespace
 
 namespace Board
 {
-    namespace detail
+    namespace bootloader
     {
-        namespace bootloader
+        uint8_t magicBootValue()
         {
-            fwType_t btldrTriggerSoftType()
-            {
-                if (fwEntryType == static_cast<uint8_t>(fwType_t::bootloader))
-                    return fwType_t::bootloader;
-                else if (fwEntryType == static_cast<uint8_t>(fwType_t::cdc))
-                    return fwType_t::cdc;
-                else
-                    return fwType_t::application;
-            }
+            return fwEntryType;
+        }
 
-            void setSWtrigger(fwType_t btldrTriggerSoftType)
-            {
-                fwEntryType = static_cast<uint8_t>(btldrTriggerSoftType);
-            }
+        void setMagicBootValue(uint8_t value)
+        {
+            fwEntryType = static_cast<uint32_t>(value);
+        }
 
-            void runApplication()
-            {
-                HAL_RCC_DeInit();
-                HAL_DeInit();
+        void runBootloader()
+        {
+            detail::io::indicateBTLDR();
+            detail::setup::usb();
+        }
 
-                auto appEntry = (appEntry_t) * (volatile uint32_t*)(APP_START_ADDR + 4);
-                appEntry();
+        void runApplication()
+        {
+            detail::io::ledFlashStartup();
 
-                while (true)
-                    ;
-            }
+            HAL_RCC_DeInit();
+            HAL_DeInit();
 
-            void runCDC()
-            {
-                HAL_RCC_DeInit();
-                HAL_DeInit();
+            auto appEntry = (appEntry_t) * (volatile uint32_t*)(APP_START_ADDR + 4);
+            appEntry();
 
-                auto appEntry = (appEntry_t) * (volatile uint32_t*)(CDC_START_ADDR + 4);
-                appEntry();
+            while (true)
+                ;
+        }
 
-                while (true)
-                    ;
-            }
+        void runCDC()
+        {
+            HAL_RCC_DeInit();
+            HAL_DeInit();
 
-            void runBootloader()
-            {
-                detail::bootloader::indicate();
+            auto appEntry = (appEntry_t) * (volatile uint32_t*)(CDC_START_ADDR + 4);
+            appEntry();
 
-#ifdef USB_MIDI_SUPPORTED
-                detail::setup::usb();
-#endif
-            }
-        }    // namespace bootloader
-    }        // namespace detail
+            while (true)
+                ;
+        }
+    }    // namespace bootloader
 }    // namespace Board

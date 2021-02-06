@@ -24,14 +24,6 @@ limitations under the License.
 
 namespace Board
 {
-    /// List of all possible reboot types.
-    enum class rebootType_t : uint8_t
-    {
-        application,    ///< Reboot to application.
-        bootloader,     ///< Reboot to bootloader.
-        cdc             ///< Reboot to CDC (Serial) mode used to flash touchscreen displays.
-    };
-
 #ifdef UID_BITS
     /// Structure holding unique ID for MCU.
     typedef struct
@@ -48,8 +40,7 @@ namespace Board
     void init();
 
     /// Performs software MCU reboot.
-    /// param [in]: type    Type of reset to perform. See rebootType_t enumeration.
-    void reboot(rebootType_t type);
+    void reboot();
 
     namespace USB
     {
@@ -229,10 +220,20 @@ namespace Board
 
     namespace bootloader
     {
+        uint8_t  magicBootValue();
+        void     setMagicBootValue(uint8_t value);
+        void     runBootloader();
+        void     runApplication();
+        void     runCDC();
+        void     appAddrBoundary(uint32_t& first, uint32_t& last);
+        bool     isHWtriggerActive();
         uint32_t pageSize(size_t index);
         void     erasePage(size_t index);
         void     fillPage(size_t index, uint32_t address, uint16_t data);
         void     writePage(size_t index);
-        void     applyFw();
+#ifdef FW_BOOT
+        //don't allow this API from application
+        uint8_t readFlash(uint32_t address);
+#endif
     }    // namespace bootloader
 };       // namespace Board

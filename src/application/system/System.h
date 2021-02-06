@@ -27,6 +27,7 @@ limitations under the License.
 #include "io/analog/Analog.h"
 #include "io/leds/LEDs.h"
 #include "io/touchscreen/Touchscreen.h"
+#include "bootloader/FwSelector/FwSelector.h"
 
 class System
 {
@@ -73,13 +74,6 @@ class System
         DINtoUSB,
         DINtoDIN,
         AMOUNT
-    };
-
-    enum class reboot_t : uint8_t
-    {
-        application,
-        bootloader,
-        cdc
     };
 
     class Section
@@ -174,11 +168,11 @@ class System
         public:
         HWA() = default;
 
-        virtual bool init()                        = 0;
-        virtual bool isDigitalInputAvailable()     = 0;
-        virtual void reboot(System::reboot_t type) = 0;
-        virtual void enableDINMIDI(bool loopback)  = 0;
-        virtual void disableDINMIDI()              = 0;
+        virtual bool init()                            = 0;
+        virtual bool isDigitalInputAvailable()         = 0;
+        virtual void reboot(FwSelector::fwType_t type) = 0;
+        virtual void enableDINMIDI(bool loopback)      = 0;
+        virtual void disableDINMIDI()                  = 0;
     };
 
     System(HWA&             hwa,

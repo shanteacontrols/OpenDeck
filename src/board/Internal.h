@@ -64,15 +64,11 @@ namespace Board
             /// Initializes all pins to correct states.
             void io();
 
-#ifndef USB_LINK_MCU
             /// Initializes analog variables and ADC peripheral.
             void adc();
-#endif
 
-#ifdef USB_MIDI_SUPPORTED
             /// Initializes USB peripheral and configures it as MIDI device.
             void usb();
-#endif
 
             /// Initializes all used timers on board.
             void timers();
@@ -165,13 +161,11 @@ namespace Board
             /// Used to physical LED component index for a given user-specified index.
             uint8_t ledIndex(uint8_t index);
 
-#ifdef TOTAL_UNUSED_IO
             /// Used to retrieve unused port and pin for a given index.
             core::io::mcuPin_t unusedPin(uint8_t index);
 
             /// Used to retrieve state of unused port and pin for a given index.
             bool unusedPinState(uint8_t index);
-#endif
 
             /// Used to retrieve all the registers needed to control PWM channel for an given index.
             core::io::pwmChannel_t pwmChannel(uint8_t index);
@@ -238,7 +232,6 @@ namespace Board
             /// Checks if digital outputs need to be updated (state and PWM control).
             void checkDigitalOutputs();
 
-#ifdef LED_INDICATORS
             /// Used to indicate that the MIDI event has occured using built-in LEDs on board.
             /// param [source]     Source of MIDI data. See MIDI::interface_t enumeration.
             /// param [direction]  Direction of MIDI data. See midiTrafficDirection_t enumeration.
@@ -247,18 +240,11 @@ namespace Board
             /// Checks if indicator LEDs need to be turned on or off.
             void checkIndicators();
 
-            /// Enables the checking of LED indicators in ISR.
-            void enableIndicators();
+            /// Initializes outputs used to indicate that bootloader mode is active (MIDI traffic LEDs).
+            void indicateBTLDR();
 
-            /// Disables the checking of LED indicators in ISR.
-            void disableIndicators();
-
-            /// Flashes integrated LEDs on board on startup.
-            /// Pattern differs depending on whether firmware is updated or not.
-            /// @param[in] fwUpdated    If set to true, "Firmware updated" pattern will be
-            ///                         used to flash the LEDs.
-            void ledFlashStartup(bool fwUpdated);
-#endif
+            /// Flashes integrated LEDs on board on startup to indicate that application is about to be loaded.
+            void ledFlashStartup();
 
             /// MCU-specific delay routine used when setting 74HC595 shift register state.
             void sr595wait();
@@ -287,58 +273,6 @@ namespace Board
             /// Global ISR handler for main timer.
             void mainTimer();
         }    // namespace isrHandling
-
-        namespace bootloader
-        {
-            /// List of all possible bootloader triggers.
-            enum class btldrTrigger_t : uint8_t
-            {
-                software,
-                hardware,
-                all,
-                none
-            };
-
-            /// List of all possible firmwares which can be loaded and their values.
-            /// On AVR, firmware value is written to special EEPROM location and on STM32 to variable
-            /// stored in .noinit RAM section.
-            /// Bootloader will load a firmware based on read value.
-            enum class fwType_t : uint8_t
-            {
-                application = 0xFF,
-                bootloader  = 0x47,
-                cdc         = 0x74
-            };
-
-            /// Verifies if the programmed flash is valid.
-            /// \return True if valid, false otherwise.
-            bool isAppValid();
-
-            /// Checks which firmware should be booted depending on value
-            /// set by user.
-            fwType_t btldrTriggerSoftType();
-
-            /// Reads the state of the button responsible for hardware bootloader entry.
-            /// returns: True if pressed, false otherwise. If bootloader button doesn't exist,
-            ///          function will return false.
-            bool isHWtriggerActive();
-
-            /// Specifies which firmware to load on next boot.
-            /// @param[in] bootFw   Enumerated value, lists all possible firmwares to load.
-            void setSWtrigger(fwType_t bootFw);
-
-            /// Initializes outputs used to indicate that bootloader mode is active.
-            void indicate();
-
-            /// Runs the bootloader.
-            void runBootloader();
-
-            /// Jumps to application.
-            void runApplication();
-
-            /// Jumps to CDC firmware.
-            void runCDC();
-        }    // namespace bootloader
 
         namespace cdc
         {

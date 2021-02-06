@@ -20,6 +20,7 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
+#include "board/common/USBMIDIOverSerial/USBMIDIOverSerial.h"
 #include "core/src/general/RingBuffer.h"
 #include "core/src/general/Helpers.h"
 #include "MCU.h"
@@ -221,6 +222,46 @@ namespace Board
             }
         }    // namespace UART
     }        // namespace detail
+
+#ifndef USB_MIDI_SUPPORTED
+    namespace USB
+    {
+        //simulated USB MIDI interface via UART - make this transparent to the application
+
+        bool writeMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
+        {
+            return USBMIDIOverSerial::write(UART_CHANNEL_USB_LINK, USBMIDIpacket, USBMIDIOverSerial::packetType_t::midi);
+
+#ifdef FW_APP
+#ifdef LED_INDICATORS
+            Board::detail::io::indicateMIDItraffic(MIDI::interface_t::usb, Board::detail::midiTrafficDirection_t::outgoing);
+#endif
+#endif
+            return true;
+        }
+
+        bool readMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
+        {
+            USBMIDIOverSerial::packetType_t odPacketType;
+
+            if (USBMIDIOverSerial::read(UART_CHANNEL_USB_LINK, USBMIDIpacket, odPacketType))
+            {
+                if (odPacketType == USBMIDIOverSerial::packetType_t::midi)
+                {
+#ifdef FW_APP
+#ifdef LED_INDICATORS
+                    Board::detail::io::indicateMIDItraffic(MIDI::interface_t::usb, Board::detail::midiTrafficDirection_t::incoming);
+#endif
+#endif
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }    // namespace USB
+#endif
 }    // namespace Board
 
 #endif

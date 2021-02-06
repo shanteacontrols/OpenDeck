@@ -21,76 +21,73 @@ limitations under the License.
 #include <inttypes.h>
 #include <stdlib.h>
 
-namespace Bootloader
+class Updater
 {
-    class Updater
+    public:
+    class BTLDRWriter
     {
         public:
-        class BTLDRWriter
-        {
-            public:
-            virtual uint32_t pageSize(size_t index)                                  = 0;
-            virtual void     erasePage(size_t index)                                 = 0;
-            virtual void     fillPage(size_t index, uint32_t address, uint16_t data) = 0;
-            virtual void     writePage(size_t index)                                 = 0;
-            virtual void     apply()                                                 = 0;
-        };
-
-        Updater(BTLDRWriter& writer, const uint64_t startCommand, const uint32_t endCommand, const uint32_t uid)
-            : writer(writer)
-            , startCommand(startCommand)
-            , endCommand(endCommand)
-            , uid(uid)
-        {}
-
-        void feed(uint8_t data);
-        void reset();
-
-        private:
-        enum class receiveStage_t : uint8_t
-        {
-            start,
-            fwMetadata,
-            fwChunk,
-            end,
-            AMOUNT
-        };
-
-        enum class processStatus_t : uint8_t
-        {
-            complete,
-            incomplete,
-            invalid
-        };
-
-        processStatus_t processStart(uint8_t data);
-        processStatus_t processFwMetadata(uint8_t data);
-        processStatus_t processFwChunk(uint8_t data);
-        processStatus_t processEnd(uint8_t data);
-
-        using processHandler_t = processStatus_t (Updater::*)(uint8_t);
-
-        processHandler_t processHandler[static_cast<uint8_t>(receiveStage_t::AMOUNT)] = {
-            &Updater::processStart,
-            &Updater::processFwMetadata,
-            &Updater::processFwChunk,
-            &Updater::processEnd
-        };
-
-        uint8_t  currentStage           = 0;
-        size_t   currentFwPage          = 0;
-        uint16_t receivedWord           = 0;
-        uint32_t fwPageBytesReceived    = 0;
-        uint8_t  stageBytesReceived     = 0;
-        uint8_t  commandRepeatsReceived = 0;
-        uint32_t fwBytesReceived        = 0;
-        uint32_t fwSize                 = 0;
-        uint32_t receivedUID            = 0;
-        uint8_t  startBytesReceived     = 0;
-
-        BTLDRWriter&   writer;
-        const uint64_t startCommand;
-        const uint32_t endCommand;
-        const uint32_t uid;
+        virtual uint32_t pageSize(size_t index)                                  = 0;
+        virtual void     erasePage(size_t index)                                 = 0;
+        virtual void     fillPage(size_t index, uint32_t address, uint16_t data) = 0;
+        virtual void     writePage(size_t index)                                 = 0;
+        virtual void     apply()                                                 = 0;
     };
-}    // namespace Bootloader
+
+    Updater(BTLDRWriter& writer, const uint64_t startCommand, const uint32_t endCommand, const uint32_t uid)
+        : writer(writer)
+        , startCommand(startCommand)
+        , endCommand(endCommand)
+        , uid(uid)
+    {}
+
+    void feed(uint8_t data);
+    void reset();
+
+    private:
+    enum class receiveStage_t : uint8_t
+    {
+        start,
+        fwMetadata,
+        fwChunk,
+        end,
+        AMOUNT
+    };
+
+    enum class processStatus_t : uint8_t
+    {
+        complete,
+        incomplete,
+        invalid
+    };
+
+    processStatus_t processStart(uint8_t data);
+    processStatus_t processFwMetadata(uint8_t data);
+    processStatus_t processFwChunk(uint8_t data);
+    processStatus_t processEnd(uint8_t data);
+
+    using processHandler_t = processStatus_t (Updater::*)(uint8_t);
+
+    processHandler_t processHandler[static_cast<uint8_t>(receiveStage_t::AMOUNT)] = {
+        &Updater::processStart,
+        &Updater::processFwMetadata,
+        &Updater::processFwChunk,
+        &Updater::processEnd
+    };
+
+    uint8_t  currentStage           = 0;
+    size_t   currentFwPage          = 0;
+    uint16_t receivedWord           = 0;
+    uint32_t fwPageBytesReceived    = 0;
+    uint8_t  stageBytesReceived     = 0;
+    uint8_t  commandRepeatsReceived = 0;
+    uint32_t fwBytesReceived        = 0;
+    uint32_t fwSize                 = 0;
+    uint32_t receivedUID            = 0;
+    uint8_t  startBytesReceived     = 0;
+
+    BTLDRWriter&   writer;
+    const uint64_t startCommand;
+    const uint32_t endCommand;
+    const uint32_t uid;
+};

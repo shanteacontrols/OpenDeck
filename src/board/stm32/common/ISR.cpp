@@ -122,10 +122,10 @@ namespace Board
 #if MAX_NUMBER_OF_LEDS > 0
                     Board::detail::io::checkDigitalOutputs();
 #endif
-#endif
 
 #ifdef LED_INDICATORS
                     Board::detail::io::checkIndicators();
+#endif
 #endif
                 }
 #ifdef FW_APP
