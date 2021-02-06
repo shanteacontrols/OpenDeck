@@ -369,17 +369,6 @@ then
     } >> "$OUT_FILE_HEADER"
 fi
 
-if [[ $(yq r "$PIN_FILE" bootloader.led) != "" ]]
-then
-    port=$(yq r "$PIN_FILE" bootloader.led.port)
-    index=$(yq r "$PIN_FILE" bootloader.led.index)
-
-    {
-        printf "%s\n" "#define BTLDR_LED_PORT CORE_IO_PORT(${port})"
-        printf "%s\n" "#define BTLDR_LED_PIN CORE_IO_PORT_INDEX(${index})"
-    } >> "$OUT_FILE_HEADER"
-fi
-
 if [[ $(yq r "$PIN_FILE" leds.internal.pins.din) != "" ]]
 then
     port=$(yq r "$PIN_FILE" leds.internal.pins.din.rx.port)

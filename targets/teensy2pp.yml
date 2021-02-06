@@ -143,6 +143,3 @@
     button:
       port: "E"
       index: 4
-    led:
-      port: "D"
-      index: 6

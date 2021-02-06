@@ -188,6 +188,3 @@
     button:
       port: "B"
       index: 2
-    led:
-      port: "B"
-      index: 7
