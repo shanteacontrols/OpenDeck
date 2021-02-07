@@ -333,7 +333,7 @@ endif
 
 clean:
 	@echo Cleaning up.
-	@rm -rf $(BUILD_DIR_BASE)/ ../Documentation/
+	@rm -rf $(BUILD_DIR_BASE)/ board/gen application/io/touchscreen/design/gen
 
 #debugging
 print-%:
