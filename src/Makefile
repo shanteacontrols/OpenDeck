@@ -80,7 +80,6 @@ LDFLAGS += -T $(LINKER_FILE)
 OPT := -Os
 
 ifeq ($(ARCH),avr)
-    TOOL_PREFIX := avr-
     SIZE_TOOL := avr-size -C --mcu=$(MCU)
     LDFLAGS += -Wl,--section-start=.text=$(FLASH_START_ADDR)
 
@@ -105,8 +104,7 @@ ifeq ($(ARCH),avr)
     -mmcu=$(MCU) \
     -flto
 else ifeq ($(ARCH),stm32)
-    TOOL_PREFIX := arm-none-eabi-
-    SIZE_TOOL := arm-none-eabi-size
+    SIZE_TOOL := size
     CC := $(C_COMPILER_ARM)
     CXX := $(CPP_COMPILER_ARM)
     LINKER := $(LINKER_ARM)
@@ -163,13 +161,13 @@ $(OUTPUT).elf: $(OBJECTS) $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/gen
 	@echo Creating executable: $@
 	@$(LINKER) -o$(OUTPUT).elf $(OBJECTS) $(LDFLAGS)
 ifneq ($(ARCH),x86)
-	@$(TOOL_PREFIX)objcopy --gap-fill 0xFF -O ihex $(OUTPUT).elf $(OUTPUT).hex
+	@objcopy --gap-fill 0xFF -O ihex $(OUTPUT).elf $(OUTPUT).hex
 ifeq ($(TYPE),app)
 #append metadata only for application
 	@srec_cat $(OUTPUT).hex -Intel -exclude $(FW_METADATA_LOCATION) $$(($(FW_METADATA_LOCATION) + $(FW_METADATA_SIZE))) -MAximum_Little_Endian $(FW_METADATA_LOCATION) -o $(OUTPUT).hex -Intel
 	@srec_cat $(OUTPUT).hex -Intel -Cyclic_Redundancy_Check_16_Little_Endian -MAximum-Address $(OUTPUT).hex -Intel -Cyclic_Redundancy_Check_16_XMODEM -Output $(OUTPUT).hex -Intel
 endif
-	@$(TOOL_PREFIX)objcopy -I ihex "$(OUTPUT).hex" -O binary "$(OUTPUT).bin"
+	@objcopy -I ihex "$(OUTPUT).hex" -O binary "$(OUTPUT).bin"
 	@$(SIZE_TOOL) "$(OUTPUT).elf"
 endif
 #indicate that new binary has been created
@@ -219,8 +217,8 @@ else
 	$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
 	-o $(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).hex
 endif
-	@$(TOOL_PREFIX)objcopy -I ihex "$(MERGED_TARGET).hex" --gap-fill 0xFF -O binary "$(MERGED_TARGET).bin"
-	@$(TOOL_PREFIX)objcopy -I ihex "$(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).hex" --gap-fill 0xFF -O binary "$(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).bin"
+	@objcopy -I ihex "$(MERGED_TARGET).hex" --gap-fill 0xFF -O binary "$(MERGED_TARGET).bin"
+	@objcopy -I ihex "$(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).hex" --gap-fill 0xFF -O binary "$(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).bin"
 	@echo Merged binary created: $(MERGED_TARGET).hex
 #everytime new binary gets created, remove sysex binary
 	@rm -f $(MERGED_TARGET).sysex
