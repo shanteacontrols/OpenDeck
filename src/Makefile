@@ -1,10 +1,11 @@
 include Toolchain.mk
 
-BUILD_DIR_BASE := ./build
-TARGET := discovery
-TYPE := app
+BUILD_DIR_BASE  := ./build
+TARGET          := discovery
+TARGET_DEF_FILE := ../targets/$(TARGET).yml
+TYPE            := app
 
-ifeq (,$(wildcard ../targets/$(TARGET).yml))
+ifeq (,$(wildcard $(TARGET_DEF_FILE)))
     $(error Target doesn't exist)
 endif
 
@@ -239,7 +240,7 @@ sysexfw: merged-sysex
 
 pre-build: $(PINS_GEN_SOURCE) $(TSCREEN_GEN_SOURCE)
 
-board/gen/$(TARGET)/Pins.cpp: ../targets/$(TARGET).yml
+board/gen/$(TARGET)/Pins.cpp: $(TARGET_DEF_FILE)
 	@echo Generating pins...
 	@../scripts/gen_pins.sh $<
 

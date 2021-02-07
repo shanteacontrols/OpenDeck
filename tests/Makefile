@@ -1,6 +1,7 @@
 .DEFAULT_GOAL := test
 
 TARGET := discovery
+TARGET_DEF_FILE := ../targets/$(TARGET).yml
 BUILD_DIR_BASE := ./build
 BUILD_DIR := $(BUILD_DIR_BASE)/$(TARGET)
 GEN_DIR := test_run
