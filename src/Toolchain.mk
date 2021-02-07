@@ -12,13 +12,13 @@ C_COMPILER_AVR := avr-gcc
 CPP_COMPILER_AVR := avr-g++
 LINKER_AVR := avr-g++
 FLASH_BIN_AVR := avrdude
-C_COMPILER_ARM := clang
-CPP_COMPILER_ARM := clang++
+C_COMPILER_ARM := arm-none-eabi-gcc
+CPP_COMPILER_ARM := arm-none-eabi-g++
 LINKER_ARM := arm-none-eabi-g++
 FLASH_BIN_ARM := gdb
-C_COMPILER_x86 := clang
-CPP_COMPILER_x86 := clang++
-LINKER_x86 := clang++
+C_COMPILER_x86 := gcc
+CPP_COMPILER_x86 := g++
+LINKER_x86 := g++
 
 CLANG_FORMAT := clang-format
 

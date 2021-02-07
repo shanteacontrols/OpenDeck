@@ -21,7 +21,7 @@ jobs:
            sudo touch /usr/bin/avr-g++ && sudo chmod +x /usr/bin/avr-g++
            sudo touch /usr/bin/arm-none-eabi-gcc && sudo chmod +x /usr/bin/arm-none-eabi-gcc
            sudo touch /usr/bin/arm-none-eabi-g++ && sudo chmod +x /usr/bin/arm-none-eabi-g++
-           sudo touch /usr/bin/arm-none-eabi-gdb && sudo chmod +x /usr/bin/arm-none-eabi-gdb
+           sudo touch /usr/bin/gdb && sudo chmod +x /usr/bin/gdb
            curl -L https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_amd64 > yq
            chmod +x yq
            sudo mv yq /usr/local/bin/yq

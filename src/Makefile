@@ -114,8 +114,7 @@ else ifeq ($(ARCH),stm32)
     COMMON_FLAGS += \
     -mcpu=$(CPU) \
     -mthumb \
-    -mno-unaligned-access \
-    -target arm-none-eabi
+    -mno-unaligned-access
 
     LDFLAGS += \
     -mcpu=$(CPU) \
