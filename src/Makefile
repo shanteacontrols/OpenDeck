@@ -244,7 +244,7 @@ board/gen/$(TARGET)/Pins.cpp: $(TARGET_DEF_FILE)
 	@echo Generating pins...
 	@../scripts/gen_pins.sh $<
 
-application/io/touchscreen/design/$(TARGET).cpp: application/io/touchscreen/design/$(TARGET).json
+application/io/touchscreen/design/gen/$(TARGET).cpp: application/io/touchscreen/design/$(TARGET).json
 	@echo Generating touchscreen coordinate file...
 	@../scripts/gen_touchscreen.sh $<
 

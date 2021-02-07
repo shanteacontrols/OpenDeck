@@ -17,12 +17,11 @@ then
     exit 0
 fi
 
-OUT_FILE=${JSON_FILE/.json/.cpp}
-IN_DIR_IMAGES=$(dirname "$OUT_FILE")
+OUT_FILE=$(dirname "$JSON_FILE")/gen/$(basename "$JSON_FILE" .json).cpp
 IN_DIR_IMAGES=../bin/touchscreen/img/$(basename "$JSON_FILE" .json)
 OUT_DIR_ICONS=$IN_DIR_IMAGES/icons
 
-mkdir -p "$OUT_DIR_ICONS"
+mkdir -p "$OUT_DIR_ICONS" "$(dirname "$OUT_FILE")"
 
 if [[ "$(command -v jq)" == "" ]]
 then

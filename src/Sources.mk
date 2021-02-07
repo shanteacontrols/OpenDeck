@@ -21,7 +21,7 @@ LINKER_FILE := board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(MCU).ld
 PINS_GEN_SOURCE := board/gen/$(TARGET)/Pins.cpp
 
 ifneq (,$(wildcard application/io/touchscreen/design/$(TARGET).json))
-    TSCREEN_GEN_SOURCE += application/io/touchscreen/design/$(TARGET).cpp
+    TSCREEN_GEN_SOURCE += application/io/touchscreen/design/gen/$(TARGET).cpp
 endif
 
 ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
