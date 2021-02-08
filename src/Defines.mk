@@ -82,7 +82,7 @@ else
 endif
 
 #overwrite arch if needed only when all MCU defines have been set so that they can be used in flashgen application as well
-ifneq (,$(findstring flashgen,$(MAKECMDGOALS)))
+ifeq ($(TYPE),flashgen)
     ARCH := x86
 endif
 
@@ -150,6 +150,10 @@ ifeq ($(TYPE),boot)
 
     FLASH_START_ADDR := $(BOOT_START_ADDR)
 else ifeq ($(TYPE),app)
+    DEFINES += FW_APP
+    FLASH_START_ADDR := $(APP_START_ADDR)
+else ifeq ($(TYPE),flashgen)
+    #same as app
     DEFINES += FW_APP
     FLASH_START_ADDR := $(APP_START_ADDR)
 else ifeq ($(TYPE),cdc)

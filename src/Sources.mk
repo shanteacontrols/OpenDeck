@@ -24,7 +24,7 @@ ifneq (,$(wildcard application/io/touchscreen/design/$(TARGET).json))
     TSCREEN_GEN_SOURCE += application/io/touchscreen/design/gen/$(TARGET).cpp
 endif
 
-ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
+ifneq ($(TYPE),flashgen)
     SOURCES += $(PINS_GEN_SOURCE)
     SOURCES += $(TSCREEN_GEN_SOURCE)
 

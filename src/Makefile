@@ -9,10 +9,10 @@ ifeq (,$(wildcard $(TARGET_DEF_FILE)))
     $(error Target doesn't exist)
 endif
 
-ifeq (,$(findstring flashgen,$(MAKECMDGOALS)))
-    BUILD_DIR := $(BUILD_DIR_BASE)/$(TYPE)
+ifneq (,$(filter $(MAKECMDGOALS),cat-full cat-sysex sysex))
+    BUILD_DIR := $(BUILD_DIR_BASE)/merged
 else
-    BUILD_DIR := $(BUILD_DIR_BASE)/flashgen
+    BUILD_DIR := $(BUILD_DIR_BASE)/$(TYPE)
 endif
 
 BUILD_DIR := $(BUILD_DIR)/$(TARGET)
@@ -39,7 +39,6 @@ endif
 include Defines.mk
 include Sources.mk
 
-MERGED_TARGET := $(BUILD_DIR_BASE)/merged/$(TARGET)
 .DEFAULT_GOAL := merged-full
 
 #when set to 1, format target will fail if there are any changes to the repository after formatting
@@ -155,51 +154,62 @@ else
     endif
 endif
 
-fw: $(OUTPUT).elf
+binary: $(OUTPUT).elf
 
-$(OUTPUT).elf: $(OBJECTS) $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin_offset
+$(OUTPUT).elf: $(OBJECTS)
 	@echo Creating executable: $@
 	@$(LINKER) -o$(OUTPUT).elf $(OBJECTS) $(LDFLAGS)
-ifneq ($(ARCH),x86)
+ifneq ($(TYPE),flashgen)
 	@objcopy --gap-fill 0xFF -O ihex $(OUTPUT).elf $(OUTPUT).hex
+endif
 ifeq ($(TYPE),app)
 #append metadata only for application
 	@srec_cat $(OUTPUT).hex -Intel -exclude $(FW_METADATA_LOCATION) $$(($(FW_METADATA_LOCATION) + $(FW_METADATA_SIZE))) -MAximum_Little_Endian $(FW_METADATA_LOCATION) -o $(OUTPUT).hex -Intel
 	@srec_cat $(OUTPUT).hex -Intel -Cyclic_Redundancy_Check_16_Little_Endian -MAximum-Address $(OUTPUT).hex -Intel -Cyclic_Redundancy_Check_16_XMODEM -Output $(OUTPUT).hex -Intel
 endif
+ifneq ($(TYPE),flashgen)
 	@objcopy -I ihex "$(OUTPUT).hex" -O binary "$(OUTPUT).bin"
-	@$(SIZE_TOOL) "$(OUTPUT).elf"
 endif
+	@$(SIZE_TOOL) "$(OUTPUT).elf"
 #indicate that new binary has been created
 	@echo $(shell date +%s%N) > $(BUILD_TIME_FILE)
 
 merged-full:
-	@mkdir -p $(MERGED_TARGET)
 	@echo Building application...
 	@$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) pre-build
-	@$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) fw
+	@$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) binary
 	@echo Building bootloader...
-	@$(MAKE) --no-print-directory TYPE=boot TARGET=$(TARGET) DEBUG=$(DEBUG) fw
+	@$(MAKE) --no-print-directory TYPE=boot TARGET=$(TARGET) DEBUG=$(DEBUG) binary
 ifeq ($(ARCH), stm32)
 	@echo Building CDC...
-	@$(MAKE) --no-print-directory TYPE=cdc TARGET=$(TARGET) DEBUG=$(DEBUG) fw
+	@$(MAKE) --no-print-directory TYPE=cdc TARGET=$(TARGET) DEBUG=$(DEBUG) binary
+	@echo Building flashgen...
+	@$(MAKE) --no-print-directory TYPE=flashgen TARGET=$(TARGET) DEBUG=$(DEBUG) binary
 endif
 #relink only if needed
 	@NEW_BUILD_TIME=$$(cat $(BUILD_TIME_FILE)) && if [ $$(echo $$NEW_BUILD_TIME) = $$(echo $(LAST_BUILD_TIME)) ]; then \
 	echo Merged binary up to date; \
 	else \
-	$(MAKE) --no-print-directory TARGET=$(TARGET) DEBUG=$(DEBUG) merge; \
+	$(MAKE) --no-print-directory TARGET=$(TARGET) DEBUG=$(DEBUG) cat-full; \
 	fi
 
-merge:
+#when building sysex binary, also run merged-full just in case so that full binary is re-linked if needed as well
+merged-sysex: merged-full
+#relink only if needed
+	@NEW_BUILD_TIME=$$(cat $(BUILD_TIME_FILE)) && \
+	if [ $$(echo $$NEW_BUILD_TIME) = $$(echo $(LAST_BUILD_TIME)) ] && [ -f $(BUILD_DIR)/$(TARGET).sysex ]; then \
+	echo SysEx binary up to date; \
+	else \
+	$(MAKE) --no-print-directory TARGET=$(TARGET) DEBUG=$(DEBUG) cat-sysex; \
+	fi
+
+cat-full: $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin
+	@mkdir -p $(BUILD_DIR)
 ifeq ($(ARCH), avr)
 	@srec_cat \
 	$(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
 	$(BUILD_DIR_BASE)/boot/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
-	-o $(MERGED_TARGET).hex -Intel && \
-	srec_cat \
-	$(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
-	-o $(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).hex
+	-o $(BUILD_DIR)/$(TARGET).hex -Intel
 else
 #define FACTORY_IMAGE_START_ADDR variable as shell variable instead of make variable:
 #when this recipe is started, generated_flash.bin_offset doesn't exist yet, so make will
@@ -210,30 +220,32 @@ else
 	$(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
 	$(BUILD_DIR_BASE)/cdc/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
 	$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
-	-o $(MERGED_TARGET).hex -Intel && \
+	-o $(BUILD_DIR)/$(TARGET).hex -Intel
+endif
+	@objcopy -I ihex "$(BUILD_DIR)/$(TARGET).hex" --gap-fill 0xFF -O binary "$(BUILD_DIR)/$(TARGET).bin"
+	@echo Merged binary created: $(BUILD_DIR)/$(TARGET).hex
+#everytime new binary gets created, remove sysex binary
+	@rm -f $(BUILD_DIR)/$(TARGET).sysex
+
+cat-sysex:
+ifeq ($(ARCH), avr)
+	@srec_cat \
+	$(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
+	-o $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
+else
+	@FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin_offset) && \
 	srec_cat \
 	$(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
 	$(BUILD_DIR_BASE)/cdc/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
 	$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
-	-o $(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).hex
+	-o $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
 endif
-	@objcopy -I ihex "$(MERGED_TARGET).hex" --gap-fill 0xFF -O binary "$(MERGED_TARGET).bin"
-	@objcopy -I ihex "$(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).hex" --gap-fill 0xFF -O binary "$(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).bin"
-	@echo Merged binary created: $(MERGED_TARGET).hex
-#everytime new binary gets created, remove sysex binary
-	@rm -f $(MERGED_TARGET).sysex
-
-#when building sysex binary, also run merged-full just in case so that full binary is re-linked if needed as well
-merged-sysex: merged-full
-#relink only if needed
-	@NEW_BUILD_TIME=$$(cat $(BUILD_TIME_FILE)) && \
-	if [ $$(echo $$NEW_BUILD_TIME) = $$(echo $(LAST_BUILD_TIME)) ] && [ -f $(MERGED_TARGET).sysex ]; then \
-	echo SysEx binary up to date; \
-	else \
-	echo Creating SysEx file...; \
-	../scripts/sysex_fw_create.sh $(MERGED_TARGET)$(SYSEX_BINARY_SUFFIX).bin $(MERGED_TARGET).sysex $(SYSEX_MANUFACTURER_ID_0) $(SYSEX_MANUFACTURER_ID_1) $(SYSEX_MANUFACTURER_ID_2) $(COMMAND_FW_UPDATE_START) $(COMMAND_FW_UPDATE_END) $(FW_UID); \
-	echo SysEx file created: $(MERGED_TARGET).sysex; \
-	fi
+	@objcopy -I ihex "$(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex" --gap-fill 0xFF -O binary "$(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin"
+	@rm $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
+	@echo Creating SysEx file...
+	@../scripts/sysex_fw_create.sh $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin $(BUILD_DIR)/$(TARGET).sysex $(SYSEX_MANUFACTURER_ID_0) $(SYSEX_MANUFACTURER_ID_1) $(SYSEX_MANUFACTURER_ID_2) $(COMMAND_FW_UPDATE_START) $(COMMAND_FW_UPDATE_END) $(FW_UID);
+	@rm $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin
+	@echo SysEx file created: $(BUILD_DIR)/$(TARGET).sysex
 
 #just a shorter alias
 sysexfw: merged-sysex
@@ -248,20 +260,15 @@ application/io/touchscreen/design/gen/$(TARGET).cpp: application/io/touchscreen/
 	@echo Generating touchscreen coordinate file...
 	@../scripts/gen_touchscreen.sh $<
 
-$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin_offset: $(TARGET_DEF_FILE) application/database/Database.cpp application/database/CustomInit.cpp
-ifeq ($(ARCH), stm32)
-ifeq ($(TYPE),app)
-	@$(MAKE) --no-print-directory TARGET=$(TARGET) TYPE=app DEBUG=$(DEBUG) flashgen
+$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin: $(TARGET_DEF_FILE) application/database/Database.cpp application/database/CustomInit.cpp
+ifeq ($(ARCH),stm32)
 	@echo Generating factory flash configuration...
-	@./$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/$(TARGET).elf $(shell pwd)/$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin
-endif
+	@./$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/$(TARGET).elf $@
 else
-#just generate empty file if not needed to avoid re-linking on repeated calls of make on targets where this isn't used
-	@mkdir -p $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)
-	@touch $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin_offset
+#just create dummy binary
+	@mkdir -p $(@D)
+	@touch $@
 endif
-
-flashgen: $(OUTPUT).elf
 
 $(BUILD_DIR)/%.c.o: %.c
 	@mkdir -p $(@D)
@@ -281,22 +288,13 @@ $(BUILD_DIR)/%.s.o: %.s
 flash:
 ifeq ($(ARCH), avr)
 	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -e -V -u -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
-ifneq (,$(wildcard $(MERGED_TARGET).hex))
-	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:$(MERGED_TARGET).hex
-else
-	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:$(OUTPUT).hex
-endif
+	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -U flash:w:$(BUILD_DIR_BASE)/merged/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex
 	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -V -u -U lock:w:$(FUSE_LOCK):m
 else
-ifneq (,$(wildcard $(MERGED_TARGET).hex))
-	st-flash write $(MERGED_TARGET).hex $(BOOT_START_ADDR)
-else
-	st-flash write $(OUTPUT).bin $(BOOT_START_ADDR)
-endif
+	st-flash write $(BUILD_DIR)/$(TARGET).hex $(BOOT_START_ADDR)
 endif
 
 flash-bmp:
-ifneq (,$(wildcard $(MERGED_TARGET).hex))
 	$(FLASH_BIN) -nx --batch \
 	-ex 'target extended-remote /dev/$(PORT)' \
 	-ex 'monitor swdp_scan' \
@@ -304,17 +302,7 @@ ifneq (,$(wildcard $(MERGED_TARGET).hex))
 	-ex 'load' \
 	-ex 'compare-sections' \
 	-ex 'kill' \
-	$(MERGED_TARGET).hex
-else
-	$(FLASH_BIN) -nx --batch \
-	-ex 'target extended-remote /dev/$(PORT)' \
-	-ex 'monitor swdp_scan' \
-	-ex 'attach 1' \
-	-ex 'load' \
-	-ex 'compare-sections' \
-	-ex 'kill' \
-	$(OUTPUT).hex
-endif
+	$(BUILD_DIR_BASE)/merged/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex
 
 ifeq ($(ARCH), avr)
 flashread:
