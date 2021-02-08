@@ -512,7 +512,7 @@ namespace Board
                 return i2c[channel];
             }
 
-            uint32_t adcChannel(core::io::mcuPin_t pin)
+            uint32_t adcChannel(const core::io::mcuPin_t& pin)
             {
                 uint8_t index = core::misc::maskToIndex(pin.index);
 

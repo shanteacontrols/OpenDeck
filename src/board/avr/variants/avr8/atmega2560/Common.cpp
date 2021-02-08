@@ -25,7 +25,7 @@ namespace Board
     {
         namespace map
         {
-            uint32_t adcChannel(core::io::mcuPin_t pin)
+            uint32_t adcChannel(const core::io::mcuPin_t& pin)
             {
                 if (pin.port == &PORTF)
                     return pin.index;

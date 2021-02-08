@@ -30,7 +30,7 @@ namespace Board
                 return detail::map::adcChannel(aInPins[index]);
             }
 
-            core::io::mcuPin_t adcPin(uint8_t index)
+            const core::io::mcuPin_t& adcPin(uint8_t index)
             {
                 return aInPins[index];
             }
@@ -46,7 +46,7 @@ namespace Board
 #endif
 
 #if defined(NATIVE_BUTTON_INPUTS) || (defined(NUMBER_OF_BUTTON_ROWS) && !defined(NUMBER_OF_IN_SR))
-            core::io::mcuPin_t buttonPin(uint8_t index)
+            const core::io::mcuPin_t& buttonPin(uint8_t index)
             {
                 return dInPins[index];
             }
@@ -62,7 +62,7 @@ namespace Board
             }
 
 #if defined(NATIVE_LED_OUTPUTS) || defined(NUMBER_OF_LED_ROWS)
-            core::io::mcuPin_t ledPin(uint8_t index)
+            const core::io::mcuPin_t& ledPin(uint8_t index)
             {
                 return dOutPins[index];
             }
@@ -78,7 +78,7 @@ namespace Board
             }
 
 #ifdef TOTAL_UNUSED_IO
-            core::io::mcuPin_t unusedPin(uint8_t index)
+            const core::io::mcuPin_t& unusedPin(uint8_t index)
             {
                 return unusedPins[index];
             }

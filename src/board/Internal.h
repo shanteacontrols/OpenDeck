@@ -138,37 +138,37 @@ namespace Board
             } flashPage_t;
 
             /// Used to retrieve physical ADC channel for a given MCU pin.
-            uint32_t adcChannel(core::io::mcuPin_t pin);
+            uint32_t adcChannel(const core::io::mcuPin_t& pin);
 
             /// Used to retrieve physical ADC channel for a given ADC channel index.
             uint32_t adcChannel(uint8_t index);
 
             /// Used to retrieve ADC port and pin for a given ADC channel index.
-            core::io::mcuPin_t adcPin(uint8_t index);
+            const core::io::mcuPin_t& adcPin(uint8_t index);
 
             /// Used to retrieve physical analog component index for a given user-specified index.
             uint8_t adcIndex(uint8_t index);
 
             /// Used to retrieve button port and pin for a given button index.
-            core::io::mcuPin_t buttonPin(uint8_t index);
+            const core::io::mcuPin_t& buttonPin(uint8_t index);
 
             /// Used to retrieve physical button component index for a given user-specified index.
             uint8_t buttonIndex(uint8_t index);
 
             /// Used to retrieve LED port and pin for a given LED index.
-            core::io::mcuPin_t ledPin(uint8_t index);
+            const core::io::mcuPin_t& ledPin(uint8_t index);
 
             /// Used to physical LED component index for a given user-specified index.
             uint8_t ledIndex(uint8_t index);
 
             /// Used to retrieve unused port and pin for a given index.
-            core::io::mcuPin_t unusedPin(uint8_t index);
+            const core::io::mcuPin_t& unusedPin(uint8_t index);
 
             /// Used to retrieve state of unused port and pin for a given index.
             bool unusedPinState(uint8_t index);
 
             /// Used to retrieve all the registers needed to control PWM channel for an given index.
-            core::io::pwmChannel_t pwmChannel(uint8_t index);
+            const core::io::pwmChannel_t& pwmChannel(uint8_t index);
 
             /// Retrieves flash page descriptor containing page address and size.
             /// param [in]: pageIndex Index of flash sector for which to retrieve address and size.
