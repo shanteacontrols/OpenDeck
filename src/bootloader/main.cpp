@@ -25,6 +25,7 @@ limitations under the License.
 
 //Number of sent FW bytes via USB link after which confirmation is expected
 #define FW_CHUNK_BUFFER_SIZE_ACK 16
+#define USB_LINK_MAGIC_VAL_APP   0x55
 
 class BTLDRWriter : public Updater::BTLDRWriter
 {
@@ -72,12 +73,41 @@ class HWAFwSelector : public FwSelector::HWA
     {
         switch (fwType)
         {
+        case FwSelector::fwType_t::application:
+        {
+#if !defined(USB_MIDI_SUPPORTED)
+            //on non-usb supported board, send magic value to USB link so that link
+            //knows whether the target MCU has entered application
+            //if link MCU doesn't receive this, bootloader should be entered
+            Board::UART::write(UART_CHANNEL_USB_LINK, USB_LINK_MAGIC_VAL_APP);
+
+            while (!Board::UART::isTxEmpty(UART_CHANNEL_USB_LINK))
+                ;
+
+            Board::bootloader::runApplication();
+#elif defined(USB_LINK_MCU)
+            //wait a bit first
+            core::timing::waitMs(1000);
+            uint8_t data;
+
+            while (Board::UART::read(UART_CHANNEL_USB_LINK, data))
+            {
+                if (data == USB_LINK_MAGIC_VAL_APP)
+                {
+                    //everything fine, proceed with app load
+                    Board::bootloader::runApplication();
+                }
+            }
+
+            Board::bootloader::runBootloader();
+#else
+            Board::bootloader::runApplication();
+#endif
+        }
+        break;
+
         case FwSelector::fwType_t::bootloader:
             Board::bootloader::runBootloader();
-            break;
-
-        case FwSelector::fwType_t::application:
-            Board::bootloader::runApplication();
             break;
 
         case FwSelector::fwType_t::cdc:
@@ -106,18 +136,6 @@ class Reader
 {
     public:
     Reader() = default;
-
-    void init()
-    {
-#if defined(USB_LINK_MCU) || !defined(USB_MIDI_SUPPORTED)
-        //make sure all incoming data is cleared on startup to avoid junk values
-        uint8_t data;
-        core::timing::waitMs(500);
-
-        while (Board::UART::read(UART_CHANNEL_USB_LINK, data))
-            ;
-#endif
-    }
 
 #ifdef USB_MIDI_SUPPORTED
     void read()
@@ -193,7 +211,7 @@ class Reader
     void read()
     {
         //read data from uart
-        uint8_t        data    = 0;
+        uint8_t data = 0;
         static uint8_t counter = 0;
 
         if (Board::UART::read(UART_CHANNEL_USB_LINK, data))
@@ -235,7 +253,6 @@ namespace
 int main()
 {
     Board::init();
-    reader.init();
     fwSelector.init();
 
     //everything beyond this point means bootloader is active

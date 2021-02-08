@@ -56,11 +56,25 @@ namespace Board
                 clock_prescale_set(clock_div_1);
 
                 detail::setup::io();
+
+                //relocate the interrupt vector table to the bootloader section
+                MCUCR = (1 << IVCE);
+                MCUCR = (1 << IVSEL);
+
+                ENABLE_INTERRUPTS();
+
+#if defined(USB_LINK_MCU) || !defined(USB_MIDI_SUPPORTED)
+                Board::UART::init(UART_CHANNEL_USB_LINK, UART_BAUDRATE_MIDI_OD);
+#endif
             }
 
             void application()
             {
                 DISABLE_INTERRUPTS();
+
+                //relocate the interrupt vector table to the application section
+                MCUCR = (1 << IVCE);
+                MCUCR = (0 << IVSEL);
 
                 //clear reset source
                 MCUSR &= ~(1 << EXTRF);

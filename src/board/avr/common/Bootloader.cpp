@@ -46,17 +46,6 @@ namespace Board
         void runBootloader()
         {
             detail::io::indicateBTLDR();
-
-            //relocate the interrupt vector table to the bootloader section
-            MCUCR = (1 << IVCE);
-            MCUCR = (1 << IVSEL);
-
-            ENABLE_INTERRUPTS();
-
-#if defined(USB_LINK_MCU) || !defined(USB_MIDI_SUPPORTED)
-            Board::UART::init(UART_CHANNEL_USB_LINK, UART_BAUDRATE_MIDI_OD);
-#endif
-
             detail::setup::usb();
         }
 
