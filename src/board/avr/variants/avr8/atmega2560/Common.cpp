@@ -27,9 +27,9 @@ namespace Board
         {
             uint32_t adcChannel(core::io::mcuPin_t pin)
             {
-                if (CORE_IO_MCU_PIN_PORT(pin) == PORTF)
+                if (pin.port == &PORTF)
                     return pin.index;
-                else if (CORE_IO_MCU_PIN_PORT(pin) == PORTK)
+                else if (pin.port == &PORTK)
                     return pin.index + 8;
 
                 return 0xFF;
