@@ -1,11 +1,19 @@
-.DEFAULT_GOAL := test
+.DEFAULT_GOAL   := test
 
-TARGET := discovery
+BUILD_DIR_BASE  := ./build
+TARGET          := discovery
 TARGET_DEF_FILE := ../targets/$(TARGET).yml
-BUILD_DIR_BASE := ./build
-BUILD_DIR := $(BUILD_DIR_BASE)/$(TARGET)
-GEN_DIR := test_run
-SCRIPTS_DIR := ../scripts
+BUILD_DIR       := $(BUILD_DIR_BASE)/$(TARGET)
+GEN_DIR         := test_run
+TEST_BINARIES   := $(addprefix -object ,$(shell $(FIND) $(BUILD_DIR_BASE) -name "*.out" 2>/dev/null))
+FW_ROOT_DIR     := ../src
+SCRIPTS_DIR     := ../scripts
+
+C_COMPILER      := clang
+CPP_COMPILER    := clang++
+LLVM_PROFDATA   := llvm-profdata
+LLVM_COV        := llvm-cov
+CLANG_FORMAT    := clang-format
 
 ifeq ($(shell uname), Linux)
     FIND := find
@@ -15,27 +23,9 @@ else
     $(error Unsupported platform)
 endif
 
-ifeq ($(shell uname), Linux)
-    FIND := find
-else ifeq ($(shell uname), Darwin)
-    FIND := gfind
-else
-    $(error Unsupported platform)
-endif
-
--include Defines.mk
+include Defines.mk
 include Sources.mk
 -include Objects.mk
-
-C_COMPILER := clang
-CPP_COMPILER := clang++
-LLVM_PROFDATA := llvm-profdata
-LLVM_COV := llvm-cov
-CLANG_FORMAT := clang-format
-
-TEST_BINARIES := $(addprefix -object ,$(shell $(FIND) $(BUILD_DIR_BASE) -name "*.out" 2>/dev/null))
-
-FW_ROOT_DIR := ../src
 
 #passed to both c and c++ compiler
 COMMON_FLAGS := \
@@ -44,10 +34,6 @@ COMMON_FLAGS := \
 -O0 \
 -g \
 -Wall
-
-#common defines
-DEFINES += \
-UNITY_INCLUDE_CONFIG_H
 
 #c++ compiler only
 CPP_FLAGS := \

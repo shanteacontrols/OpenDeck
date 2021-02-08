@@ -1,3 +1,7 @@
+#common defines
+DEFINES += \
+UNITY_INCLUDE_CONFIG_H
+
 DEFINES += TEST
 
 include ../src/Defines.mk
