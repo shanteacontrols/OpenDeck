@@ -85,11 +85,6 @@ do
 
         if [[ "$BUILD_RELEASE" == "true" ]]
         then
-            #copy merged binary to bin directory
-            dir=../bin/compiled/merged/"$(make TARGET="${targets[$i]}" print-ARCH)"/"$(make TARGET="${targets[$i]}" print-MCU)"
-            mkdir -p "$dir"
-            cp "$(make TARGET="${targets[$i]}" TYPE=app print-MERGED_TARGET).hex" "$dir"
-
             if [[ ${targets[$i]} == "mega16u2" ]]
             then
                 #no need to create sysex firmware for atmega16u2 - it's only a USB link
@@ -97,10 +92,10 @@ do
             fi
 
             #create sysex fw update file
-            make sysexfw TARGET="${targets[$i]}" TYPE=app
+            make sysexfw TARGET="${targets[$i]}"
         fi
     else
         make pre-build TARGET="${targets[$i]}" DEBUG=0
-        make TARGET="${targets[$i]}" TYPE=app DEBUG=0
+        make TARGET="${targets[$i]}" DEBUG=0
     fi
 done

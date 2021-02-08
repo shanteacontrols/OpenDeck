@@ -31,24 +31,25 @@ fi
 echo "Please type the serial port on which ArduinoISP is connected, without /dev/ part:"
 read -r port
 
-echo "Please select board you want to flash and then press enter:"
+echo "Please select AVR MCU you want to flash and then press enter:"
 
-boards=$($find bin/compiled -type f -name "*.hex" -path "*merged/avr*" -printf '%f\n' | sort)
+boards=$($find src/board/avr/variants/avr8 -mindepth 1 -type d -printf '%f\n' | sort)
 echo "$boards" | cut -d . -f1 | cat -n
 printf "Board number: "
 read -r board_nr
 
 echo "Please wait..."
 
-filename=$(echo "$boards" | head -n "$board_nr" | tail -n 1)
-mcu=$($find bin/compiled -type f -name "*$filename" -path "*merged/avr*" | cut -d/ -f5)
-path=$($find bin/compiled/merged -type f -name "$filename")
+mcu=$(echo "$boards" | head -n "$board_nr" | tail -n 1)
 
 unlock_fuse=$(command < src/board/avr/variants/avr8/"$mcu"/fuses.txt grep ^unlock= | cut -d= -f2)
 lock_fuse=$(command < src/board/avr/variants/avr8/"$mcu"/fuses.txt grep ^lock= | cut -d= -f2)
 ext_fuse=$(command < src/board/avr/variants/avr8/"$mcu"/fuses.txt grep ^ext= | cut -d= -f2)
 low_fuse=$(command < src/board/avr/variants/avr8/"$mcu"/fuses.txt grep ^low= | cut -d= -f2)
 high_fuse=$(command < src/board/avr/variants/avr8/"$mcu"/fuses.txt grep ^high= | cut -d= -f2)
+
+echo "Type the path to the binary you want to flash"
+read -r path
 
 echo "Connect programmer to programming header on the board and then press enter."
 read -rn1

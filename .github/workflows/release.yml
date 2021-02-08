@@ -35,4 +35,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           tag_name="${GITHUB_REF##*/}"
-          hub release edit $(find . -type f -name "*.sysex" -printf "-a %p ") -m "" "$tag_name"
+          hub release edit $(find ./src/build/merged -type f -name "*.sysex" -printf "-a %p ") -m "" "$tag_name"
+          hub release edit $(find ./src/build/merged -type f -name "*.hex" -printf "-a %p ") -m "" "$tag_name"
