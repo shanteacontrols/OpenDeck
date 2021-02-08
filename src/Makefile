@@ -4,6 +4,7 @@ BUILD_DIR_BASE  := ./build
 TARGET          := discovery
 TARGET_DEF_FILE := ../targets/$(TARGET).yml
 TYPE            := app
+SCRIPTS_DIR     := ../scripts
 
 ifeq (,$(wildcard $(TARGET_DEF_FILE)))
     $(error Target doesn't exist)
@@ -243,7 +244,7 @@ endif
 	@objcopy -I ihex "$(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex" --gap-fill 0xFF -O binary "$(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin"
 	@rm $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
 	@echo Creating SysEx file...
-	@../scripts/sysex_fw_create.sh $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin $(BUILD_DIR)/$(TARGET).sysex $(SYSEX_MANUFACTURER_ID_0) $(SYSEX_MANUFACTURER_ID_1) $(SYSEX_MANUFACTURER_ID_2) $(COMMAND_FW_UPDATE_START) $(COMMAND_FW_UPDATE_END) $(FW_UID);
+	@$(SCRIPTS_DIR)/sysex_fw_create.sh $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin $(BUILD_DIR)/$(TARGET).sysex $(SYSEX_MANUFACTURER_ID_0) $(SYSEX_MANUFACTURER_ID_1) $(SYSEX_MANUFACTURER_ID_2) $(COMMAND_FW_UPDATE_START) $(COMMAND_FW_UPDATE_END) $(FW_UID);
 	@rm $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin
 	@echo SysEx file created: $(BUILD_DIR)/$(TARGET).sysex
 
@@ -254,11 +255,11 @@ pre-build: $(PINS_GEN_SOURCE) $(TSCREEN_GEN_SOURCE)
 
 board/gen/$(TARGET)/Pins.cpp: $(TARGET_DEF_FILE)
 	@echo Generating pins...
-	@../scripts/gen_pins.sh $<
+	@$(SCRIPTS_DIR)/gen_pins.sh $<
 
 application/io/touchscreen/design/gen/$(TARGET).cpp: application/io/touchscreen/design/$(TARGET).json
 	@echo Generating touchscreen coordinate file...
-	@../scripts/gen_touchscreen.sh $<
+	@$(SCRIPTS_DIR)/gen_touchscreen.sh $<
 
 $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin: $(TARGET_DEF_FILE) application/database/Database.cpp application/database/CustomInit.cpp
 ifeq ($(ARCH),stm32)

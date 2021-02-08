@@ -131,7 +131,7 @@ else ifeq ($(ARCH),stm32)
     HSE_VALUE=$(shell yq r $(TARGET_DEF_FILE) extClockMhz)000000
 endif
 
-FW_UID := $(shell ../scripts/fw_uid_gen.sh $(TARGET))
+FW_UID := $(shell $(SCRIPTS_DIR)/fw_uid_gen.sh $(TARGET))
 
 DEFINES += OD_BOARD_$(shell echo $(TARGET) | tr 'a-z' 'A-Z')
 DEFINES += FW_UID=$(FW_UID)
