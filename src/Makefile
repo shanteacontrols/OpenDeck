@@ -248,7 +248,7 @@ application/io/touchscreen/design/gen/$(TARGET).cpp: application/io/touchscreen/
 	@echo Generating touchscreen coordinate file...
 	@../scripts/gen_touchscreen.sh $<
 
-$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin_offset:
+$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin_offset: $(TARGET_DEF_FILE) application/database/Database.cpp application/database/CustomInit.cpp
 ifeq ($(ARCH), stm32)
 ifeq ($(TYPE),app)
 	@$(MAKE) --no-print-directory TARGET=$(TARGET) TYPE=app DEBUG=$(DEBUG) flashgen
