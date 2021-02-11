@@ -1,9 +1,11 @@
 #toolchain checks
 
 ifeq ($(shell uname), Linux)
-    FIND := find
+    FIND      := find
+    SHA256SUM := sha256sum
 else ifeq ($(shell uname), Darwin)
-    FIND := gfind
+    FIND      := gfind
+    SHA256SUM := gsha256sum
 else
     $(error Unsupported platform)
 endif
@@ -36,7 +38,8 @@ $(FLASH_BIN_ARM) \
 $(C_COMPILER_x86) \
 $(CPP_COMPILER_x86) \
 objcopy \
-$(YML_PARSER)
+$(YML_PARSER) \
+$(SHA256SUM)
 
 #don't allow running make at all if required packages don't exist on the system
 $(foreach package, $(REQ_PACKAGES), $(if $(shell which $(package) 2>/dev/null),,$(error Required package not found: $(package))))
