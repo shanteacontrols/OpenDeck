@@ -317,6 +317,7 @@ format:
 	-not -name "*hal_conf*" \
 	-exec $(CLANG_FORMAT) -style=file -i {} \;
 ifeq ($(CF_FAIL_ON_DIFF), 1)
+	git diff
 	git diff -s --exit-code
 endif
 
