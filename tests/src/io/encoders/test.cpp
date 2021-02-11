@@ -403,14 +403,22 @@ TEST_CASE(Debounce)
             switch (type)
             {
             case Encoders::type_t::t7Fh01h:
-                return position == Encoders::position_t::ccw ? 127 : position == Encoders::position_t::cw ? 1
-                                                                                                          : 0;
-                break;
+            {
+                if (position == Encoders::position_t::ccw)
+                    return 127;
+
+                return position == Encoders::position_t::cw ? 1 : 0;
+            }
+            break;
 
             case Encoders::type_t::t3Fh41h:
-                return position == Encoders::position_t::ccw ? 63 : position == Encoders::position_t::cw ? 65
-                                                                                                         : 0;
-                break;
+            {
+                if (position == Encoders::position_t::ccw)
+                    return 63;
+
+                return position == Encoders::position_t::cw ? 65 : 0;
+            }
+            break;
 
             default:
                 return 0;
