@@ -17,14 +17,6 @@ LLVM_PROFDATA   := llvm-profdata
 LLVM_COV        := llvm-cov
 CLANG_FORMAT    := clang-format
 
-ifeq ($(shell uname), Linux)
-    FIND := find
-else ifeq ($(shell uname), Darwin)
-    FIND := gfind
-else
-    $(error Unsupported platform)
-endif
-
 include Defines.mk
 include Sources.mk
 -include Objects.mk
