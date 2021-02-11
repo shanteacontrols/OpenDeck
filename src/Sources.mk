@@ -215,7 +215,7 @@ else
     SOURCES += $(shell $(FIND) ./application/database -type f -name "*.cpp")
     SOURCES += $(shell $(FIND) ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
     SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
-    SOURCES += board/$(shell yq r $(TARGET_DEF_FILE) arch)/variants/$(MCU_FAMILY)/$(MCU)/FlashPages.cpp
+    SOURCES += board/$(shell $(YML_PARSER) $(TARGET_DEF_FILE) arch)/variants/$(MCU_FAMILY)/$(MCU)/FlashPages.cpp
     SOURCES += $(TSCREEN_GEN_SOURCE)
     SOURCES += flashgen/main.cpp
 endif

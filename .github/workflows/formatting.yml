@@ -22,9 +22,9 @@ jobs:
            sudo touch /usr/bin/arm-none-eabi-gcc && sudo chmod +x /usr/bin/arm-none-eabi-gcc
            sudo touch /usr/bin/arm-none-eabi-g++ && sudo chmod +x /usr/bin/arm-none-eabi-g++
            sudo touch /usr/bin/gdb && sudo chmod +x /usr/bin/gdb
-           curl -L https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_amd64 > yq
-           chmod +x yq
-           sudo mv yq /usr/local/bin/yq
+           curl -s https://api.github.com/repos/tomwright/dasel/releases/latest | grep browser_download_url | grep linux_amd64 | cut -d '"' -f 4 | wget -qi -
+           chmod +x dasel_linux_amd64
+           sudo mv dasel_linux_amd64 /usr/local/bin/dasel
        - name: Format
          run: |
            clang-format --version

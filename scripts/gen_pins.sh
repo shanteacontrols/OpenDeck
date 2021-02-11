@@ -1,6 +1,7 @@
 #!/bin/bash
 
 PIN_FILE=$1
+YAML_PARSER="dasel -n -p yaml --plain -f"
 
 mkdir -p board/gen/"$(basename "$PIN_FILE" .yml)"
 
@@ -15,16 +16,16 @@ declare -i analog_inputs
 declare -i analog_inputs_indexed
 declare -i unused_pins
 
-digital_inputs=$(yq r "$PIN_FILE" buttons.pins --length)
-digital_inputs_indexed=$(yq r "$PIN_FILE" buttons.indexing --length)
-digital_in_type=$(yq r "$PIN_FILE" buttons.type)
-digital_outputs=$(yq r "$PIN_FILE" leds.external.pins --length)
-digital_outputs_indexed=$(yq r "$PIN_FILE" leds.external.indexing --length)
-digital_out_type=$(yq r "$PIN_FILE" leds.external.type)
-analog_inputs=$(yq r "$PIN_FILE" analog.pins --length)
-analog_inputs_indexed=$(yq r "$PIN_FILE" analog.indexing --length)
-analog_in_type=$(yq r "$PIN_FILE" analog.type)
-unused_pins=$(yq r "$PIN_FILE" unused-io --length)
+digital_inputs=$($YAML_PARSER "$PIN_FILE" buttons.pins --length)
+digital_inputs_indexed=$($YAML_PARSER "$PIN_FILE" buttons.indexing --length)
+digital_in_type=$($YAML_PARSER "$PIN_FILE" buttons.type)
+digital_outputs=$($YAML_PARSER "$PIN_FILE" leds.external.pins --length)
+digital_outputs_indexed=$($YAML_PARSER "$PIN_FILE" leds.external.indexing --length)
+digital_out_type=$($YAML_PARSER "$PIN_FILE" leds.external.type)
+analog_inputs=$($YAML_PARSER "$PIN_FILE" analog.pins --length)
+analog_inputs_indexed=$($YAML_PARSER "$PIN_FILE" analog.indexing --length)
+analog_in_type=$($YAML_PARSER "$PIN_FILE" analog.type)
+unused_pins=$($YAML_PARSER "$PIN_FILE" unused-io --length)
 
 {
     printf "%s\n\n" "#include \"core/src/general/IO.h\""
@@ -43,7 +44,7 @@ then
 
     for ((i=0; i<digital_inputs; i++))
     do
-        index=$(yq r "$PIN_FILE" buttons.indexing["$i"])
+        index=$($YAML_PARSER "$PIN_FILE" buttons.indexing.["$i"])
         printf "%s\n" "${index}," >> "$OUT_FILE_SOURCE"
     done
 
@@ -56,8 +57,8 @@ then
 
     for ((i=0; i<digital_inputs; i++))
     do
-        port=$(yq r "$PIN_FILE" buttons.pins["$i"].port)
-        index=$(yq r "$PIN_FILE" buttons.pins["$i"].index)
+        port=$($YAML_PARSER "$PIN_FILE" buttons.pins.["$i"].port)
+        index=$($YAML_PARSER "$PIN_FILE" buttons.pins.["$i"].index)
 
         {
             printf "%s\n" "#define DIN_PORT_${i} CORE_IO_PORT(${port})"
@@ -70,24 +71,24 @@ then
     printf "%s\n" "};" >> "$OUT_FILE_SOURCE"
 elif [[ $digital_in_type == shiftRegister ]]
 then
-    port=$(yq r "$PIN_FILE" buttons.pins.data.port)
-    index=$(yq r "$PIN_FILE" buttons.pins.data.index)
+    port=$($YAML_PARSER "$PIN_FILE" buttons.pins.data.port)
+    index=$($YAML_PARSER "$PIN_FILE" buttons.pins.data.index)
 
     {
         printf "%s\n" "#define SR_IN_DATA_PORT CORE_IO_PORT(${port})"
         printf "%s\n" "#define SR_IN_DATA_PIN CORE_IO_PORT_INDEX(${index})"
     } >> "$OUT_FILE_HEADER"
 
-    port=$(yq r "$PIN_FILE" buttons.pins.clock.port)
-    index=$(yq r "$PIN_FILE" buttons.pins.clock.index)
+    port=$($YAML_PARSER "$PIN_FILE" buttons.pins.clock.port)
+    index=$($YAML_PARSER "$PIN_FILE" buttons.pins.clock.index)
 
     {
         printf "%s\n" "#define SR_IN_CLK_PORT CORE_IO_PORT(${port})"
         printf "%s\n" "#define SR_IN_CLK_PIN CORE_IO_PORT_INDEX(${index})"
     } >> "$OUT_FILE_HEADER"
 
-    port=$(yq r "$PIN_FILE" buttons.pins.latch.port)
-    index=$(yq r "$PIN_FILE" buttons.pins.latch.index)
+    port=$($YAML_PARSER "$PIN_FILE" buttons.pins.latch.port)
+    index=$($YAML_PARSER "$PIN_FILE" buttons.pins.latch.index)
 
     {
         printf "%s\n" "#define SR_IN_LATCH_PORT CORE_IO_PORT(${port})"
@@ -95,41 +96,41 @@ then
     } >> "$OUT_FILE_HEADER"
 elif [[ $digital_in_type == matrix ]]
 then
-    if [[ $(yq r "$PIN_FILE" buttons.rows.type) == "shiftRegister" ]]
+    if [[ $($YAML_PARSER "$PIN_FILE" buttons.rows.type) == "shiftRegister" ]]
     then
-        port=$(yq r "$PIN_FILE" buttons.rows.pins.data.port)
-        index=$(yq r "$PIN_FILE" buttons.rows.pins.data.index)
+        port=$($YAML_PARSER "$PIN_FILE" buttons.rows.pins.data.port)
+        index=$($YAML_PARSER "$PIN_FILE" buttons.rows.pins.data.index)
 
         {
             printf "%s\n" "#define SR_IN_DATA_PORT CORE_IO_PORT(${port})"
             printf "%s\n" "#define SR_IN_DATA_PIN CORE_IO_PORT_INDEX(${index})"
         } >> "$OUT_FILE_HEADER"
 
-        port=$(yq r "$PIN_FILE" buttons.rows.pins.clock.port)
-        index=$(yq r "$PIN_FILE" buttons.rows.pins.clock.index)
+        port=$($YAML_PARSER "$PIN_FILE" buttons.rows.pins.clock.port)
+        index=$($YAML_PARSER "$PIN_FILE" buttons.rows.pins.clock.index)
 
         {
             printf "%s\n" "#define SR_IN_CLK_PORT CORE_IO_PORT(${port})"
             printf "%s\n" "#define SR_IN_CLK_PIN CORE_IO_PORT_INDEX(${index})"
         } >> "$OUT_FILE_HEADER"
 
-        port=$(yq r "$PIN_FILE" buttons.rows.pins.latch.port)
-        index=$(yq r "$PIN_FILE" buttons.rows.pins.latch.index)
+        port=$($YAML_PARSER "$PIN_FILE" buttons.rows.pins.latch.port)
+        index=$($YAML_PARSER "$PIN_FILE" buttons.rows.pins.latch.index)
 
         {
             printf "%s\n" "#define SR_IN_LATCH_PORT CORE_IO_PORT(${port})"
             printf "%s\n" "#define SR_IN_LATCH_PIN CORE_IO_PORT_INDEX(${index})"
         } >> "$OUT_FILE_HEADER"
-    elif [[ $(yq r "$PIN_FILE" buttons.rows.type) == "native" ]]
+    elif [[ $($YAML_PARSER "$PIN_FILE" buttons.rows.type) == "native" ]]
     then
-        rows=$(yq r "$PIN_FILE" buttons.rows.pins --length)
+        rows=$($YAML_PARSER "$PIN_FILE" buttons.rows.pins --length)
 
         printf "%s\n" "const core::io::mcuPin_t dInPins[$rows] = {" >> "$OUT_FILE_SOURCE"
 
         for ((i=0; i<rows; i++))
         do
-            port=$(yq r "$PIN_FILE" buttons.rows.pins["$i"].port)
-            index=$(yq r "$PIN_FILE" buttons.rows.pins["$i"].index)
+            port=$($YAML_PARSER "$PIN_FILE" buttons.rows.pins.["$i"].port)
+            index=$($YAML_PARSER "$PIN_FILE" buttons.rows.pins.["$i"].index)
 
             {
                 printf "%s\n" "#define DIN_PORT_${i} CORE_IO_PORT(${port})"
@@ -144,8 +145,8 @@ then
 
     for ((i=0; i<3; i++))
     do
-        port=$(yq r "$PIN_FILE" buttons.columns.pins.decA"$i".port)
-        index=$(yq r "$PIN_FILE" buttons.columns.pins.decA"$i".index)
+        port=$($YAML_PARSER "$PIN_FILE" buttons.columns.pins.decA"$i".port)
+        index=$($YAML_PARSER "$PIN_FILE" buttons.columns.pins.decA"$i".index)
 
         {
             printf "%s\n" "#define DEC_BM_PORT_A${i} CORE_IO_PORT(${port})"
@@ -162,7 +163,7 @@ then
 
     for ((i=0; i<digital_outputs; i++))
     do
-        index=$(yq r "$PIN_FILE" leds.external.indexing["$i"])
+        index=$($YAML_PARSER "$PIN_FILE" leds.external.indexing.["$i"])
         printf "%s\n" "${index}," >> "$OUT_FILE_SOURCE"
     done
 
@@ -175,8 +176,8 @@ then
 
     for ((i=0; i<digital_outputs; i++))
     do
-        port=$(yq r "$PIN_FILE" leds.external.pins["$i"].port)
-        index=$(yq r "$PIN_FILE" leds.external.pins["$i"].index)
+        port=$($YAML_PARSER "$PIN_FILE" leds.external.pins.["$i"].port)
+        index=$($YAML_PARSER "$PIN_FILE" leds.external.pins.["$i"].index)
 
         {
             printf "%s\n" "#define DOUT_PORT_${i} CORE_IO_PORT(${port})"
@@ -189,32 +190,32 @@ then
     printf "%s\n" "};" >> "$OUT_FILE_SOURCE"
 elif [[ $digital_out_type == shiftRegister ]]
 then
-    port=$(yq r "$PIN_FILE" leds.external.pins.data.port)
-    index=$(yq r "$PIN_FILE" leds.external.pins.data.index)
+    port=$($YAML_PARSER "$PIN_FILE" leds.external.pins.data.port)
+    index=$($YAML_PARSER "$PIN_FILE" leds.external.pins.data.index)
 
     {
         printf "%s\n" "#define SR_OUT_DATA_PORT CORE_IO_PORT(${port})"
         printf "%s\n" "#define SR_OUT_DATA_PIN CORE_IO_PORT_INDEX(${index})"
     } >> "$OUT_FILE_HEADER"
 
-    port=$(yq r "$PIN_FILE" leds.external.pins.clock.port)
-    index=$(yq r "$PIN_FILE" leds.external.pins.clock.index)
+    port=$($YAML_PARSER "$PIN_FILE" leds.external.pins.clock.port)
+    index=$($YAML_PARSER "$PIN_FILE" leds.external.pins.clock.index)
 
     {
         printf "%s\n" "#define SR_OUT_CLK_PORT CORE_IO_PORT(${port})"
         printf "%s\n" "#define SR_OUT_CLK_PIN CORE_IO_PORT_INDEX(${index})"
     } >> "$OUT_FILE_HEADER"
 
-    port=$(yq r "$PIN_FILE" leds.external.pins.latch.port)
-    index=$(yq r "$PIN_FILE" leds.external.pins.latch.index)
+    port=$($YAML_PARSER "$PIN_FILE" leds.external.pins.latch.port)
+    index=$($YAML_PARSER "$PIN_FILE" leds.external.pins.latch.index)
 
     {
         printf "%s\n" "#define SR_OUT_LATCH_PORT CORE_IO_PORT(${port})"
         printf "%s\n" "#define SR_OUT_LATCH_PIN CORE_IO_PORT_INDEX(${index})"
     } >> "$OUT_FILE_HEADER"
 
-    port=$(yq r "$PIN_FILE" leds.external.pins.enable.port)
-    index=$(yq r "$PIN_FILE" leds.external.pins.enable.index)
+    port=$($YAML_PARSER "$PIN_FILE" leds.external.pins.enable.port)
+    index=$($YAML_PARSER "$PIN_FILE" leds.external.pins.enable.index)
 
     {
         printf "%s\n" "#define SR_OUT_OE_PORT CORE_IO_PORT(${port})"
@@ -224,8 +225,8 @@ elif [[ $digital_out_type == matrix ]]
 then
     for ((i=0; i<3; i++))
     do
-        port=$(yq r "$PIN_FILE" leds.external.columns.pins.decA"$i".port)
-        index=$(yq r "$PIN_FILE" leds.external.columns.pins.decA"$i".index)
+        port=$($YAML_PARSER "$PIN_FILE" leds.external.columns.pins.decA"$i".port)
+        index=$($YAML_PARSER "$PIN_FILE" leds.external.columns.pins.decA"$i".index)
 
         {
             printf "%s\n" "#define DEC_LM_PORT_A${i} CORE_IO_PORT(${port})"
@@ -233,13 +234,13 @@ then
         } >> "$OUT_FILE_HEADER"
     done
 
-    rows=$(yq r "$PIN_FILE" leds.external.rows.pins --length)
+    rows=$($YAML_PARSER "$PIN_FILE" leds.external.rows.pins --length)
     printf "%s\n" "const core::io::mcuPin_t dOutPins[$rows] = {" >> "$OUT_FILE_SOURCE"
 
     for ((i=0; i<"$rows"; i++))
     do
-        port=$(yq r "$PIN_FILE" leds.external.rows.pins["$i"].port)
-        index=$(yq r "$PIN_FILE" leds.external.rows.pins["$i"].index)
+        port=$($YAML_PARSER "$PIN_FILE" leds.external.rows.pins.["$i"].port)
+        index=$($YAML_PARSER "$PIN_FILE" leds.external.rows.pins.["$i"].index)
 
         {
             printf "%s\n" "#define LED_ROW_PORT_${i} CORE_IO_PORT(${port})"
@@ -260,7 +261,7 @@ then
 
     for ((i=0; i<analog_inputs; i++))
     do
-        index=$(yq r "$PIN_FILE" analog.indexing["$i"])
+        index=$($YAML_PARSER "$PIN_FILE" analog.indexing.["$i"])
         printf "%s\n" "${index}," >> "$OUT_FILE_SOURCE"
     done
 
@@ -273,8 +274,8 @@ then
 
     for ((i=0; i<analog_inputs; i++))
     do
-        port=$(yq r "$PIN_FILE" analog.pins["$i"].port)
-        index=$(yq r "$PIN_FILE" analog.pins["$i"].index)
+        port=$($YAML_PARSER "$PIN_FILE" analog.pins.["$i"].port)
+        index=$($YAML_PARSER "$PIN_FILE" analog.pins.["$i"].index)
 
         {
             printf "%s\n" "#define AIN_PORT_${i} CORE_IO_PORT(${port})"
@@ -291,8 +292,8 @@ then
 
     for ((i=0; i<4; i++))
     do
-        port=$(yq r "$PIN_FILE" analog.pins.s"$i".port)
-        index=$(yq r "$PIN_FILE" analog.pins.s"$i".index)
+        port=$($YAML_PARSER "$PIN_FILE" analog.pins.s"$i".port)
+        index=$($YAML_PARSER "$PIN_FILE" analog.pins.s"$i".index)
 
         {
             printf "%s\n" "#define MUX_PORT_S${i} CORE_IO_PORT(${port})"
@@ -300,12 +301,12 @@ then
         } >> "$OUT_FILE_HEADER"
     done
 
-    number_of_mux=$(yq r "$PIN_FILE" analog.multiplexers $PIN_FILE)
+    number_of_mux=$($YAML_PARSER "$PIN_FILE" analog.multiplexers $PIN_FILE)
 
     for ((i=0; i<"$number_of_mux"; i++))
     do
-        port=$(yq r "$PIN_FILE" analog.pins.z"$i".port)
-        index=$(yq r "$PIN_FILE" analog.pins.z"$i".index)
+        port=$($YAML_PARSER "$PIN_FILE" analog.pins.z"$i".port)
+        index=$($YAML_PARSER "$PIN_FILE" analog.pins.z"$i".index)
 
         {
             printf "%s\n" "#define MUX_PORT_INPUT_${i} CORE_IO_PORT(${port})"
@@ -322,8 +323,8 @@ then
 
     for ((i=0; i<3; i++))
     do
-        port=$(yq r "$PIN_FILE" analog.pins.s"$i".port)
-        index=$(yq r "$PIN_FILE" analog.pins.s"$i".index)
+        port=$($YAML_PARSER "$PIN_FILE" analog.pins.s"$i".port)
+        index=$($YAML_PARSER "$PIN_FILE" analog.pins.s"$i".index)
 
         {
             printf "%s\n" "#define MUX_PORT_S${i} CORE_IO_PORT(${port})"
@@ -331,12 +332,12 @@ then
         } >> "$OUT_FILE_HEADER"
     done
 
-    number_of_mux=$(yq r "$PIN_FILE" analog.multiplexers $PIN_FILE)
+    number_of_mux=$($YAML_PARSER "$PIN_FILE" analog.multiplexers $PIN_FILE)
 
     for ((i=0; i<"$number_of_mux"; i++))
     do
-        port=$(yq r "$PIN_FILE" analog.pins.z"$i".port)
-        index=$(yq r "$PIN_FILE" analog.pins.z"$i".index)
+        port=$($YAML_PARSER "$PIN_FILE" analog.pins.z"$i".port)
+        index=$($YAML_PARSER "$PIN_FILE" analog.pins.z"$i".index)
 
         {
             printf "%s\n" "#define MUX_PORT_INPUT_${i} CORE_IO_PORT(${port})"
@@ -351,36 +352,36 @@ fi
 
 printf "\n%s" "}" >> "$OUT_FILE_SOURCE"
 
-if [[ $(yq r "$PIN_FILE" bootloader.button) != "" ]]
+if [[ $($YAML_PARSER "$PIN_FILE" bootloader.button) != "null" ]]
 then
-    port=$(yq r "$PIN_FILE" bootloader.button.port)
-    index=$(yq r "$PIN_FILE" bootloader.button.index)
+    port=$($YAML_PARSER "$PIN_FILE" bootloader.button.port)
+    index=$($YAML_PARSER "$PIN_FILE" bootloader.button.index)
 
     {
         printf "%s\n" "#define BTLDR_BUTTON_PORT CORE_IO_PORT(${port})"
         printf "%s\n" "#define BTLDR_BUTTON_PIN CORE_IO_PORT_INDEX(${index})"
     } >> "$OUT_FILE_HEADER"
-elif [[ $(yq r "$PIN_FILE" bootloader.buttonIndex) != "" ]]
+elif [[ $($YAML_PARSER "$PIN_FILE" bootloader.buttonIndex) != "null" ]]
 then
-    index=$(yq r "$PIN_FILE" bootloader.buttonIndex)
+    index=$($YAML_PARSER "$PIN_FILE" bootloader.buttonIndex)
 
     {
         printf "%s\n" "#define BTLDR_BUTTON_INDEX CORE_IO_PORT_INDEX(${index})"
     } >> "$OUT_FILE_HEADER"
 fi
 
-if [[ $(yq r "$PIN_FILE" leds.internal.pins.din) != "" ]]
+if [[ $($YAML_PARSER "$PIN_FILE" leds.internal.pins.din) != "null" ]]
 then
-    port=$(yq r "$PIN_FILE" leds.internal.pins.din.rx.port)
-    index=$(yq r "$PIN_FILE" leds.internal.pins.din.rx.index)
+    port=$($YAML_PARSER "$PIN_FILE" leds.internal.pins.din.rx.port)
+    index=$($YAML_PARSER "$PIN_FILE" leds.internal.pins.din.rx.index)
 
     {
         printf "%s\n" "#define LED_MIDI_IN_DIN_PORT CORE_IO_PORT(${port})"
         printf "%s\n" "#define LED_MIDI_IN_DIN_PIN CORE_IO_PORT_INDEX(${index})"
     } >> "$OUT_FILE_HEADER"
 
-    port=$(yq r "$PIN_FILE" leds.internal.pins.din.tx.port)
-    index=$(yq r "$PIN_FILE" leds.internal.pins.din.tx.index)
+    port=$($YAML_PARSER "$PIN_FILE" leds.internal.pins.din.tx.port)
+    index=$($YAML_PARSER "$PIN_FILE" leds.internal.pins.din.tx.index)
 
     {
         printf "%s\n" "#define LED_MIDI_OUT_DIN_PORT CORE_IO_PORT(${port})"
@@ -388,18 +389,18 @@ then
     } >> "$OUT_FILE_HEADER"
 fi
 
-if [[ $(yq r "$PIN_FILE" leds.internal.pins.usb) != "" ]]
+if [[ $($YAML_PARSER "$PIN_FILE" leds.internal.pins.usb) != "null" ]]
 then
-    port=$(yq r "$PIN_FILE" leds.internal.pins.usb.rx.port)
-    index=$(yq r "$PIN_FILE" leds.internal.pins.usb.rx.index)
+    port=$($YAML_PARSER "$PIN_FILE" leds.internal.pins.usb.rx.port)
+    index=$($YAML_PARSER "$PIN_FILE" leds.internal.pins.usb.rx.index)
 
     {
         printf "%s\n" "#define LED_MIDI_IN_USB_PORT CORE_IO_PORT(${port})"
         printf "%s\n" "#define LED_MIDI_IN_USB_PIN CORE_IO_PORT_INDEX(${index})"
     } >> "$OUT_FILE_HEADER"
 
-    port=$(yq r "$PIN_FILE" leds.internal.pins.usb.tx.port)
-    index=$(yq r "$PIN_FILE" leds.internal.pins.usb.tx.index)
+    port=$($YAML_PARSER "$PIN_FILE" leds.internal.pins.usb.tx.port)
+    index=$($YAML_PARSER "$PIN_FILE" leds.internal.pins.usb.tx.index)
 
     {
         printf "%s\n" "#define LED_MIDI_OUT_USB_PORT CORE_IO_PORT(${port})"
@@ -413,8 +414,8 @@ then
 
     for ((i=0; i<unused_pins; i++))
     do
-        port=$(yq r "$PIN_FILE" unused-io["$i"].port)
-        index=$(yq r "$PIN_FILE" unused-io["$i"].index)
+        port=$($YAML_PARSER "$PIN_FILE" unused-io.["$i"].port)
+        index=$($YAML_PARSER "$PIN_FILE" unused-io.["$i"].index)
 
         {
             printf "%s\n" "#define UNUSED_PORT_${i} CORE_IO_PORT(${port})"
@@ -430,7 +431,7 @@ then
 
     for ((i=0; i<unused_pins; i++))
     do
-        state=$(yq r "$PIN_FILE" unused-io["$i"].state)
+        state=$($YAML_PARSER "$PIN_FILE" unused-io.["$i"].state)
 
         if [[ $state == "high" ]]
         then

@@ -1,3 +1,5 @@
+include ../src/Toolchain.mk
+
 .DEFAULT_GOAL   := test
 
 BUILD_DIR_BASE  := ./build

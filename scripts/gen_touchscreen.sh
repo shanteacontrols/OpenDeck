@@ -10,6 +10,7 @@ fi
 
 #first argument should be path to the input json file
 JSON_FILE=$1
+YAML_PARSER="dasel -n -p json --plain -f"
 
 if [[ ! -f "$JSON_FILE" ]]
 then
@@ -23,12 +24,6 @@ OUT_DIR_ICONS=$IN_DIR_IMAGES/icons
 
 mkdir -p "$OUT_DIR_ICONS" "$(dirname "$OUT_FILE")"
 
-if [[ "$(command -v jq)" == "" ]]
-then
-    echo "ERROR: jq not installed"
-    exit 1
-fi
-
 if [[ "$(command -v convert)" == "" ]]
 then
     echo "ERROR: imagemagick not installed"
@@ -38,8 +33,8 @@ fi
 declare -i total_indicators
 declare -i total_screenButtons
 
-total_indicators=$(jq '.indicators | length' "$JSON_FILE")
-total_screenButtons=$(jq '.screenButtons | length' "$JSON_FILE")
+total_indicators=$($YAML_PARSER $JSON_FILE indicators --length)
+total_screenButtons=$($YAML_PARSER $JSON_FILE screenButtons --length)
 
 {
     printf "%s\n\n" "#include \"database/Database.h\""
@@ -49,15 +44,15 @@ total_screenButtons=$(jq '.screenButtons | length' "$JSON_FILE")
 
 for ((i=0; i<total_indicators; i++))
 do
-    xPos=$(jq '.indicators | .['${i}'] | .xpos' "$JSON_FILE")
-    yPos=$(jq '.indicators | .['${i}'] | .ypos' "$JSON_FILE")
-    width=$(jq '.indicators | .['${i}'] | .width' "$JSON_FILE")
-    height=$(jq '.indicators | .['${i}'] | .height' "$JSON_FILE")
+    xPos=$($YAML_PARSER $JSON_FILE indicators.[${i}].xpos)
+    yPos=$($YAML_PARSER $JSON_FILE indicators.[${i}].ypos)
+    width=$($YAML_PARSER $JSON_FILE indicators.[${i}].width)
+    height=$($YAML_PARSER $JSON_FILE indicators.[${i}].height)
 
-    onScreen=$(jq '.indicators | .['${i}'] | .screen | .on' "$JSON_FILE")
-    offScreen=$(jq '.indicators | .['${i}'] | .screen | .off' "$JSON_FILE")
+    onScreen=$($YAML_PARSER $JSON_FILE indicators.[${i}].screen.on)
+    offScreen=$($YAML_PARSER $JSON_FILE indicators.[${i}].screen.off)
 
-    address=$(jq '.indicators | .['${i}'] | .address' "$JSON_FILE")
+    address=$($YAML_PARSER $JSON_FILE indicators.[${i}].address)
 
     {
         if [[ $address != "null" ]]
@@ -84,8 +79,8 @@ done
 
 for ((i=0; i<total_screenButtons; i++))
 do
-    buttonIndex=$(jq '.screenButtons | .['${i}'] | .indexTS' "$JSON_FILE")
-    screenIndex=$(jq '.screenButtons | .['${i}'] | .screen' "$JSON_FILE")
+    buttonIndex=$($YAML_PARSER $JSON_FILE screenButtons.[${i}].indexTS)
+    screenIndex=$($YAML_PARSER $JSON_FILE screenButtons.[${i}].screen)
 
     {
         printf "    %s\n" "update(Database::Section::touchscreen_t::pageSwitchEnabled, $buttonIndex, 1);"

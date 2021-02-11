@@ -21,12 +21,11 @@ CPP_COMPILER_x86 := g++
 LINKER_x86 := g++
 
 CLANG_FORMAT := clang-format
+YML_PARSER := dasel
 
 REQ_PACKAGES := \
 git \
 $(FIND) \
-jq \
-yq \
 srec_cat \
 $(C_COMPILER_AVR) \
 $(CPP_COMPILER_AVR) \
@@ -36,7 +35,8 @@ $(CPP_COMPILER_ARM) \
 $(FLASH_BIN_ARM) \
 $(C_COMPILER_x86) \
 $(CPP_COMPILER_x86) \
-objcopy
+objcopy \
+$(YML_PARSER)
 
 #don't allow running make at all if required packages don't exist on the system
 $(foreach package, $(REQ_PACKAGES), $(if $(shell which $(package) 2>/dev/null),,$(error Required package not found: $(package))))
@@ -44,3 +44,6 @@ $(foreach package, $(REQ_PACKAGES), $(if $(shell which $(package) 2>/dev/null),,
 #avoid find errors
 #defined here to avoid verify target parsing "2>/dev/null" as an package causing it to fail
 FIND := $(FIND) 2>/dev/null
+
+#add flags here to avoid manual typing everywhere
+YML_PARSER := $(YML_PARSER) -n -p yaml --plain -f
