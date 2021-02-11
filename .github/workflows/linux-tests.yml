@@ -13,19 +13,20 @@ jobs:
           submodules: true
        - name: Prepare build env
          run: |
-           wget https://apt.llvm.org/llvm-snapshot.gpg.key
-           sudo apt-key add llvm-snapshot.gpg.key
-           sudo add-apt-repository 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main'
            sudo apt update
-           sudo apt-get install -y clang-9 ctags
+           sudo apt-get install -y clang ctags
            sudo touch /usr/bin/avrdude && sudo chmod +x /usr/bin/avrdude
+           sudo touch /usr/bin/srec_cat && sudo chmod +x /usr/bin/srec_cat
+           sudo touch /usr/bin/avr-gcc && sudo chmod +x /usr/bin/avr-gcc
+           sudo touch /usr/bin/avr-g++ && sudo chmod +x /usr/bin/avr-g++
+           sudo touch /usr/bin/arm-none-eabi-gcc && sudo chmod +x /usr/bin/arm-none-eabi-gcc
+           sudo touch /usr/bin/arm-none-eabi-g++ && sudo chmod +x /usr/bin/arm-none-eabi-g++
+           sudo touch /usr/bin/gdb && sudo chmod +x /usr/bin/gdb
            curl -s https://api.github.com/repos/tomwright/dasel/releases/latest | grep browser_download_url | grep linux_amd64 | cut -d '"' -f 4 | wget -qi -
            chmod +x dasel_linux_amd64
            sudo mv dasel_linux_amd64 /usr/local/bin/dasel
        - name: Build
          run: |
-           C_COMPILER=clang-9
-           CPP_COMPILER=clang++-9
            cd tests/
            ../scripts/build_targets.sh --type=tests
            make exec

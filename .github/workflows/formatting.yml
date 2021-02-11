@@ -13,8 +13,7 @@ jobs:
           submodules: true
        - name: Prepare env
          run: |
-           sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
-           sudo apt install clang-format-11
+           sudo apt install clang-format
            sudo touch /usr/bin/avrdude && sudo chmod +x /usr/bin/avrdude
            sudo touch /usr/bin/srec_cat && sudo chmod +x /usr/bin/srec_cat
            sudo touch /usr/bin/avr-gcc && sudo chmod +x /usr/bin/avr-gcc
@@ -29,6 +28,6 @@ jobs:
          run: |
            clang-format --version
            cd src
-           make format CF_FAIL_ON_DIFF=1 CLANG_FORMAT=clang-format-11
+           make format CF_FAIL_ON_DIFF=1
            cd ../tests
-           make format CF_FAIL_ON_DIFF=1 CLANG_FORMAT=clang-format-11
+           make format CF_FAIL_ON_DIFF=1
