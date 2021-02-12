@@ -14,26 +14,12 @@ then
     exit 1
 fi
 
-if [ "$(uname)" == "Darwin" ]
-then
-    find="gfind"
-
-    if [[ "$(command -v gfind)" == "" ]]
-    then
-        echo "ERROR: GNU find not installed (gfind)"
-        exit 1
-    fi
-elif [ "$(uname -s)" == "Linux" ]
-then
-    find="find"
-fi
-
 echo "Please type the serial port on which ArduinoISP is connected, without /dev/ part:"
 read -r port
 
 echo "Please select AVR MCU you want to flash and then press enter:"
 
-boards=$($find src/board/avr/variants/avr8 -mindepth 1 -type d -printf '%f\n' | sort)
+boards=$(find src/board/avr/variants/avr8 -mindepth 1 -type d | awk -F/ '{ print $NF }')
 echo "$boards" | cut -d . -f1 | cat -n
 printf "Board number: "
 read -r board_nr
