@@ -21,5 +21,5 @@ limitations under the License.
 /// Firmware version in major.minor.revision notation.
 
 #define SW_VERSION_MAJOR    5
-#define SW_VERSION_MINOR    3
-#define SW_VERSION_REVISION 2
+#define SW_VERSION_MINOR    4
+#define SW_VERSION_REVISION 0
