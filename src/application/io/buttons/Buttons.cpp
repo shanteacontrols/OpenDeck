@@ -159,9 +159,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMessageDescriptor_
         case messageType_t::note:
         {
             midi.sendNoteOn(descriptor.note, descriptor.velocity, descriptor.channel);
-#ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, descriptor.note, descriptor.velocity, descriptor.channel + 1);
-#endif
             leds.midiToState(MIDI::messageType_t::noteOn, descriptor.note, descriptor.velocity, descriptor.channel, true);
         }
         break;
@@ -190,9 +188,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMessageDescriptor_
             {
                 midi.sendProgramChange(descriptor.note, descriptor.channel);
                 leds.midiToState(MIDI::messageType_t::programChange, descriptor.note, 0, descriptor.channel, true);
-#ifdef DISPLAY_SUPPORTED
                 display.displayMIDIevent(Display::eventType_t::out, Display::event_t::programChange, descriptor.note, 0, descriptor.channel + 1);
-#endif
             }
         }
         break;

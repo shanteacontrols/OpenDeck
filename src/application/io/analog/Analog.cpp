@@ -197,9 +197,7 @@ void Analog::sendMessage(uint8_t analogID, analogDescriptor_t& descriptor, uint1
         else
         {
             midi.sendNoteOn(descriptor.midiID, value, descriptor.channel);
-#ifdef DISPLAY_SUPPORTED
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, descriptor.midiID, value, descriptor.channel + 1);
-#endif
         }
     }
     break;
