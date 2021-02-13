@@ -261,11 +261,12 @@ application/io/touchscreen/design/gen/$(TARGET).cpp: application/io/touchscreen/
 	@echo Generating touchscreen coordinate file...
 	@$(SCRIPTS_DIR)/gen_touchscreen.sh $<
 
-$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin: $(TARGET_DEF_FILE) application/database/Database.cpp application/database/CustomInit.cpp
 ifeq ($(ARCH),stm32)
+$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin: $(TARGET_DEF_FILE) $(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/application/database/Database.cpp.o $(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/application/database/CustomInit.cpp.o
 	@echo Generating factory flash configuration...
 	@./$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/$(TARGET).elf $@
 else
+$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin:
 #just create dummy binary
 	@mkdir -p $(@D)
 	@touch $@
