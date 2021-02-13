@@ -104,12 +104,14 @@ IO::Touchscreen::tsEvent_t Viewtech::update(IO::Touchscreen::tsData_t& data)
                 }
                 else
                 {
+                    //header invalid - ignore the rest of the message
                     IO::Touchscreen::Model::Common::bufferCount = 0;
                 }
             }
         }
         else
         {
+            //header invalid - ignore the rest of the message
             IO::Touchscreen::Model::Common::bufferCount = 0;
         }
     }
