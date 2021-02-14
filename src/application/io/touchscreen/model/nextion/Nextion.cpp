@@ -29,7 +29,6 @@ bool Nextion::init()
 
     if (hwa.init())
     {
-        writeCommand("dims=100");
         writeCommand("sendxy=1");
 
         return true;
