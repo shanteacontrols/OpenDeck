@@ -135,14 +135,19 @@ LEDs::color_t LEDs::valueToColor(uint8_t value)
 
 LEDs::blinkSpeed_t LEDs::valueToBlinkSpeed(uint8_t value)
 {
+    if (value < 16)
+        return blinkSpeed_t::noBlink;
+
     //there are 4 total blink speeds
-    return static_cast<blinkSpeed_t>(value % totalBlinkSpeeds);
+    return static_cast<blinkSpeed_t>(value % 16 / totalBlinkSpeeds);
 }
 
 LEDs::brightness_t LEDs::valueToBrightness(uint8_t value)
 {
-    //there are 4 total brightness options
-    return static_cast<brightness_t>(value % 16 % totalBrightnessValues);
+    if (value < 16)
+        return brightness_t::bOff;
+
+    return static_cast<brightness_t>((value % 16 % totalBrightnessValues) + 1);
 }
 
 void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local)
