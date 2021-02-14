@@ -19,12 +19,6 @@
     "extensions.ignoreRecommendations": true,
     "explorer.compactFolders": false,
     "editor.mouseWheelZoom": true,
-
-    "emeraldwalk.runonsave": {
-        "commands": [
-            {
-                "cmd": "cd src && make format && cd ../tests && make format"
-            }
-        ]
-    }
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "xaver.clang-format"
 }
