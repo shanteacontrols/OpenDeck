@@ -447,7 +447,7 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, SysExC
     case Section::leds_t::testBlink:
     {
         //no writing to database
-        leds.setBlinkState(index, newValue ? IO::LEDs::blinkSpeed_t::s500ms : IO::LEDs::blinkSpeed_t::noBlink);
+        leds.setBlinkSpeed(index, newValue ? IO::LEDs::blinkSpeed_t::s500ms : IO::LEDs::blinkSpeed_t::noBlink);
         result    = System::result_t::ok;
         writeToDb = false;
     }

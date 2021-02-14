@@ -112,21 +112,21 @@ namespace IO
             , database(database)
         {}
 
-        void    init(bool startUp = true);
-        void    checkBlinking(bool forceChange = false);
-        void    setAllOn();
-        void    setAllOff();
-        void    refresh();
-        void    setColor(uint8_t ledID, color_t color, brightness_t brightness);
-        color_t color(uint8_t ledID);
-        void    setBlinkState(uint8_t ledID, blinkSpeed_t value);
-        bool    getBlinkState(uint8_t ledID);
-        size_t  rgbSingleComponentIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent);
-        size_t  rgbIndex(size_t singleLEDindex);
-        bool    setFadeSpeed(uint8_t transitionSpeed);
-        void    midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local);
-        void    setBlinkType(blinkType_t blinkType);
-        void    resetBlinking();
+        void         init(bool startUp = true);
+        void         checkBlinking(bool forceChange = false);
+        void         setAllOn();
+        void         setAllOff();
+        void         refresh();
+        void         setColor(uint8_t ledID, color_t color, brightness_t brightness);
+        color_t      color(uint8_t ledID);
+        void         setBlinkSpeed(uint8_t ledID, blinkSpeed_t value);
+        blinkSpeed_t blinkSpeed(uint8_t ledID);
+        size_t       rgbSingleComponentIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent);
+        size_t       rgbIndex(size_t singleLEDindex);
+        bool         setFadeSpeed(uint8_t transitionSpeed);
+        void         midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local);
+        void         setBlinkType(blinkType_t blinkType);
+        void         resetBlinking();
 
         private:
         enum class ledBit_t : uint8_t

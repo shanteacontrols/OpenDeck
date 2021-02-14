@@ -142,13 +142,13 @@ namespace IO
             return color_t::off;
         }
 
-        void setBlinkState(uint8_t ledID, blinkSpeed_t value)
+        void setBlinkSpeed(uint8_t ledID, blinkSpeed_t value)
         {
         }
 
-        bool getBlinkState(uint8_t ledID)
+        blinkSpeed_t blinkSpeed(uint8_t ledID)
         {
-            return false;
+            return blinkSpeed_t::noBlink;
         }
 
         size_t rgbSingleComponentIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent)

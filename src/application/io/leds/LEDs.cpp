@@ -285,13 +285,13 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
             if (database.read(Database::Section::leds_t::activationID, i) == data1)
             {
                 //blink speed depends on data2 value
-                setBlinkState(i, valueToBlinkSpeed(data2));
+                setBlinkSpeed(i, valueToBlinkSpeed(data2));
             }
         }
     }
 }
 
-void LEDs::setBlinkState(uint8_t ledID, blinkSpeed_t state)
+void LEDs::setBlinkSpeed(uint8_t ledID, blinkSpeed_t state)
 {
     uint8_t ledArray[3], leds = 0;
     uint8_t rgbIndex = hwa.rgbIndex(ledID);
@@ -413,9 +413,9 @@ void LEDs::setColor(uint8_t ledID, color_t color, brightness_t brightness)
     }
 }
 
-bool LEDs::getBlinkState(uint8_t ledID)
+IO::LEDs::blinkSpeed_t LEDs::blinkSpeed(uint8_t ledID)
 {
-    return bit(ledID, ledBit_t::blinkOn);
+    return static_cast<blinkSpeed_t>(blinkTimer[ledID]);
 }
 
 size_t LEDs::rgbSingleComponentIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent)

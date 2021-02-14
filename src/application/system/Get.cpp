@@ -301,7 +301,7 @@ System::result_t System::onGetLEDs(Section::leds_t section, size_t index, SysExC
 
     case Section::leds_t::testBlink:
     {
-        readValue = leds.getBlinkState(index);
+        readValue = leds.blinkSpeed(index) != IO::LEDs::blinkSpeed_t::noBlink;
     }
     break;
 
