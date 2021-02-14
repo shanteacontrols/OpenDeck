@@ -30,11 +30,9 @@ then
     exit 1
 fi
 
-declare -i total_indicators
-declare -i total_screenButtons
+declare -i total_components
 
-total_indicators=$($YAML_PARSER $JSON_FILE indicators --length)
-total_screenButtons=$($YAML_PARSER $JSON_FILE screenButtons --length)
+total_components=$($YAML_PARSER "$JSON_FILE" components --length)
 
 {
     printf "%s\n\n" "#include \"database/Database.h\""
@@ -42,50 +40,50 @@ total_screenButtons=$($YAML_PARSER $JSON_FILE screenButtons --length)
     printf "%s\n" "{"
 } > "$OUT_FILE"
 
-for ((i=0; i<total_indicators; i++))
+for ((i=0; i<total_components; i++))
 do
-    xPos=$($YAML_PARSER $JSON_FILE indicators.[${i}].xpos)
-    yPos=$($YAML_PARSER $JSON_FILE indicators.[${i}].ypos)
-    width=$($YAML_PARSER $JSON_FILE indicators.[${i}].width)
-    height=$($YAML_PARSER $JSON_FILE indicators.[${i}].height)
-
-    onScreen=$($YAML_PARSER $JSON_FILE indicators.[${i}].screen.on)
-    offScreen=$($YAML_PARSER $JSON_FILE indicators.[${i}].screen.off)
-
-    address=$($YAML_PARSER $JSON_FILE indicators.[${i}].address)
-
-    {
-        if [[ $address != "null" ]]
-        then
-            printf "    %s\n" "update(Database::Section::touchscreen_t::xPos, $i, $address);"
-        else
-            printf "    %s\n" "update(Database::Section::touchscreen_t::xPos, $i, $xPos);"
-            printf "    %s\n" "update(Database::Section::touchscreen_t::yPos, $i, $yPos);"
-            printf "    %s\n" "update(Database::Section::touchscreen_t::width, $i, $width);"
-            printf "    %s\n" "update(Database::Section::touchscreen_t::height, $i, $height);"
-        fi
-
-        printf "    %s\n" "update(Database::Section::touchscreen_t::onScreen, $i, $onScreen);"
-        printf "    %s\n\n" "update(Database::Section::touchscreen_t::offScreen, $i, $offScreen);"
-    } >> "$OUT_FILE"
-
-    if [[ $width -ne 0 && $height -ne 0 ]]
+    if [[ $($YAML_PARSER "$JSON_FILE" components.[${i}].indicator) != "null" ]]
     then
+        xPos=$($YAML_PARSER "$JSON_FILE" components.[${i}].indicator.xpos)
+        yPos=$($YAML_PARSER "$JSON_FILE" components.[${i}].indicator.ypos)
+        width=$($YAML_PARSER "$JSON_FILE" components.[${i}].indicator.width)
+        height=$($YAML_PARSER "$JSON_FILE" components.[${i}].indicator.height)
+
+        onScreen=$($YAML_PARSER "$JSON_FILE" components.[${i}].indicator.onScreen)
+        offScreen=$($YAML_PARSER "$JSON_FILE" components.[${i}].indicator.offScreen)
+
+        address=$($YAML_PARSER "$JSON_FILE" components.[${i}].indicator.address)
+
+        {
+            if [[ $address != "null" ]]
+            then
+                printf "    %s\n" "update(Database::Section::touchscreen_t::xPos, $i, $address);"
+            else
+                printf "    %s\n" "update(Database::Section::touchscreen_t::xPos, $i, $xPos);"
+                printf "    %s\n" "update(Database::Section::touchscreen_t::yPos, $i, $yPos);"
+                printf "    %s\n" "update(Database::Section::touchscreen_t::width, $i, $width);"
+                printf "    %s\n" "update(Database::Section::touchscreen_t::height, $i, $height);"
+            fi
+
+            printf "    %s\n" "update(Database::Section::touchscreen_t::onScreen, $i, $onScreen);"
+            printf "    %s\n\n" "update(Database::Section::touchscreen_t::offScreen, $i, $offScreen);"
+        } >> "$OUT_FILE"
+
         convert "$IN_DIR_IMAGES"/"$onScreen".bmp -crop "$width"x"$height"+"$xPos"+"$yPos" "$OUT_DIR_ICONS"/"$i".ico
     else
-        convert "$IN_DIR_IMAGES"/"$onScreen".bmp -crop 1x1+0+0 "$OUT_DIR_ICONS"/"$i".ico
+        convert -size 1x1 xc:black "$OUT_DIR_ICONS"/"$i".ico
     fi
-done
 
-for ((i=0; i<total_screenButtons; i++))
-do
-    buttonIndex=$($YAML_PARSER $JSON_FILE screenButtons.[${i}].indexTS)
-    screenIndex=$($YAML_PARSER $JSON_FILE screenButtons.[${i}].screen)
+    if [[ $($YAML_PARSER "$JSON_FILE" components.[${i}].button) != "null" ]]
+    then
+        switchesScreen=$($YAML_PARSER "$JSON_FILE" components.[${i}].button.switchesScreen)
+        screenIndex=$($YAML_PARSER "$JSON_FILE" components.[${i}].button.screenToSwitch)
 
-    {
-        printf "    %s\n" "update(Database::Section::touchscreen_t::pageSwitchEnabled, $buttonIndex, 1);"
-        printf "    %s\n\n" "update(Database::Section::touchscreen_t::pageSwitchIndex, $buttonIndex, $screenIndex);"
-    } >> "$OUT_FILE"
+        {
+            printf "    %s\n" "update(Database::Section::touchscreen_t::pageSwitchEnabled, $i, $switchesScreen);"
+            printf "    %s\n\n" "update(Database::Section::touchscreen_t::pageSwitchIndex, $i, $screenIndex);"
+        } >> "$OUT_FILE"
+    fi
 done
 
 printf "%s\n" "}" >> "$OUT_FILE"
