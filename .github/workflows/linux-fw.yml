@@ -27,5 +27,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           path: |
-            ./src/build/merged/*.hex
-            !./src/build/merged/*filled.hex
+            ./src/build/merged/**/*.hex
