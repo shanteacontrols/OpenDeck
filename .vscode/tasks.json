@@ -236,7 +236,8 @@
                 "odmidi",
                 "potentiometer",
                 "ringbuffer",
-                "system"
+                "system",
+                "leds"
             ]
         },
         {
