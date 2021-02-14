@@ -62,6 +62,7 @@ TEST_CASE(ReadInitialValues)
         TEST_ASSERT(database.setPreset(preset) == true);
 
         //MIDI block
+        //----------------------------------
         //feature section
         //all values should be set to 0
         for (int i = 0; i < static_cast<uint8_t>(System::midiFeature_t::AMOUNT); i++)
@@ -74,6 +75,7 @@ TEST_CASE(ReadInitialValues)
         TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiMerge, static_cast<size_t>(System::midiMerge_t::mergeDINchannel)));
 
         //button block
+        //----------------------------------
         //type section
         //all values should be set to 0 (default type)
         for (int i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
@@ -107,6 +109,7 @@ TEST_CASE(ReadInitialValues)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::button_t::midiChannel, i));
 
         //encoders block
+        //----------------------------------
         //enable section
         //all values should be set to 0
         for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
@@ -138,6 +141,7 @@ TEST_CASE(ReadInitialValues)
             TEST_ASSERT_EQUAL_UINT32(4, database.read(Database::Section::encoder_t::pulsesPerStep, i));
 
         //analog block
+        //----------------------------------
         //enable section
         //all values should be set to 0
         for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
@@ -174,6 +178,7 @@ TEST_CASE(ReadInitialValues)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::analog_t::midiChannel, i));
 
         //LED block
+        //----------------------------------
         //global section
         //all values should be set to 0
         for (int i = 0; i < static_cast<uint8_t>(IO::LEDs::setting_t::AMOUNT); i++)
@@ -210,6 +215,7 @@ TEST_CASE(ReadInitialValues)
 
 #ifdef DISPLAY_SUPPORTED
         //display block
+        //----------------------------------
         //feature section
         TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::display_t::features, static_cast<size_t>(IO::Display::feature_t::enable)));
         TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::display_t::features, static_cast<size_t>(IO::Display::feature_t::welcomeMsg)));
@@ -219,6 +225,90 @@ TEST_CASE(ReadInitialValues)
         //setting section
         TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::display_t::setting, static_cast<size_t>(IO::Display::setting_t::MIDIeventTime)));
         TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::display_t::setting, static_cast<size_t>(IO::Display::setting_t::octaveNormalization)));
+#endif
+
+#ifdef TOUCHSCREEN_SUPPORTED
+        //touchscreen block
+        //----------------------------------
+        //setting section
+        //all values should be set to 0
+        for (int i = 0; i < static_cast<uint8_t>(IO::Touchscreen::setting_t::AMOUNT); i++)
+            TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::setting, i));
+
+        //x position section
+        //all values should be set to 0
+        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+            TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::xPos, i));
+
+        //y position section
+        //all values should be set to 0
+        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+            TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::yPos, i));
+
+        //width section
+        //all values should be set to 0
+        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+            TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::width, i));
+
+        //height section
+        //all values should be set to 0
+        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+            TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::height, i));
+
+        //on screen section
+        //all values should be set to 0
+        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+            TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::onScreen, i));
+
+        //off screen section
+        //all values should be set to 0
+        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+            TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::offScreen, i));
+
+        //page switch enabled section
+        //all values should be set to 0
+        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+            TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::pageSwitchEnabled, i));
+
+        //page switch index section
+        //all values should be set to 0
+        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+            TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::pageSwitchIndex, i));
+
+        //analog page section
+        //all values should be set to 0
+        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+            TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::analogPage, i));
+
+        //analog start x coordinate section
+        //all values should be set to 0
+        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+            TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::analogStartXCoordinate, i));
+
+        //analog end x coordinate section
+        //all values should be set to 0
+        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+            TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::analogEndXCoordinate, i));
+
+        //analog start y coordinate section
+        //all values should be set to 0
+        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+            TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::analogStartYCoordinate, i));
+
+        //analog end y coordinate section
+        //all values should be set to 0
+        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+            TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::analogEndYCoordinate, i));
+
+        //analog type section
+        //all values should be set to 0
+        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+            TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::analogType, i));
+
+        //analog reset on release section
+        //all values should be set to 0
+        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+            TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::analogResetOnRelease, i));
 #endif
     }
 }
