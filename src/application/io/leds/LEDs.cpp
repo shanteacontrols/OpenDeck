@@ -169,38 +169,48 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
         {
             switch (controlType)
             {
-            case controlType_t::localNoteForStateNoBlink:
+            case controlType_t::localNoteSingleVal:
+            {
                 if ((messageType == MIDI::messageType_t::noteOn) || (messageType == MIDI::messageType_t::noteOff))
                     setState = true;
-                break;
+            }
+            break;
 
-            case controlType_t::localCCforStateNoBlink:
+            case controlType_t::localCCSingleVal:
+            {
                 if (messageType == MIDI::messageType_t::controlChange)
                     setState = true;
-                break;
+            }
+            break;
 
             //set state for program change control type regardless of local/midi in setting
-            case controlType_t::midiInPCforStateNoBlink:
-            case controlType_t::localPCforStateNoBlink:
+            case controlType_t::midiInPCSingleVal:
+            case controlType_t::localPCSingleVal:
+            {
                 if (messageType == MIDI::messageType_t::programChange)
                     setState = true;
-                break;
+            }
+            break;
 
-            case controlType_t::localNoteForStateAndBlink:
+            case controlType_t::localNoteMultiVal:
+            {
                 if ((messageType == MIDI::messageType_t::noteOn) || (messageType == MIDI::messageType_t::noteOff))
                 {
                     setState = true;
                     setBlink = true;
                 }
-                break;
+            }
+            break;
 
-            case controlType_t::localCCforStateAndBlink:
+            case controlType_t::localCCMultiVal:
+            {
                 if (messageType == MIDI::messageType_t::controlChange)
                 {
                     setState = true;
                     setBlink = true;
                 }
-                break;
+            }
+            break;
 
             default:
                 break;
@@ -210,42 +220,48 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
         {
             switch (controlType)
             {
-            case controlType_t::midiInNoteForStateCCforBlink:
+            case controlType_t::midiInNoteSingleVal:
+            {
                 if ((messageType == MIDI::messageType_t::noteOn) || (messageType == MIDI::messageType_t::noteOff))
                     setState = true;
-                else if (messageType == MIDI::messageType_t::controlChange)
-                    setBlink = true;
-                break;
+            }
+            break;
 
-            case controlType_t::midiInCCforStateNoteForBlink:
-                if ((messageType == MIDI::messageType_t::noteOn) || (messageType == MIDI::messageType_t::noteOff))
-                    setBlink = true;
-                else if (messageType == MIDI::messageType_t::controlChange)
+            case controlType_t::midiInCCSingleVal:
+            {
+                if (messageType == MIDI::messageType_t::controlChange)
                     setState = true;
-                break;
+            }
+            break;
 
-            case controlType_t::midiInNoteForStateAndBlink:
+            //set state for program change control type regardless of local/midi in setting
+            case controlType_t::midiInPCSingleVal:
+            case controlType_t::localPCSingleVal:
+            {
+                if (messageType == MIDI::messageType_t::programChange)
+                    setState = true;
+            }
+            break;
+
+            case controlType_t::midiInNoteMultiVal:
+            {
                 if ((messageType == MIDI::messageType_t::noteOn) || (messageType == MIDI::messageType_t::noteOff))
                 {
                     setState = true;
                     setBlink = true;
                 }
-                break;
+            }
+            break;
 
-            case controlType_t::midiInCCforStateAndBlink:
+            case controlType_t::midiInCCMultiVal:
+            {
                 if (messageType == MIDI::messageType_t::controlChange)
                 {
                     setState = true;
                     setBlink = true;
                 }
-                break;
-
-            //set state for program change control type regardless of local/midi in setting
-            case controlType_t::midiInPCforStateNoBlink:
-            case controlType_t::localPCforStateNoBlink:
-                if (messageType == MIDI::messageType_t::programChange)
-                    setState = true;
-                break;
+            }
+            break;
 
             default:
                 break;
@@ -254,7 +270,9 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
 
         auto color      = color_t::off;
         auto brightness = brightness_t::bOff;
-        bool rgbEnabled = database.read(Database::Section::leds_t::rgbEnable, hwa.rgbIndex(i));
+
+        //in single value modes, brightness and blink speed cannot be controlled since we're dealing
+        //with one value only
 
         if (setState)
         {
@@ -264,20 +282,25 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
                 if (messageType == MIDI::messageType_t::programChange)
                 {
                     //byte2 doesn't exist on program change message
-                    color      = valueToColor(data1);
-                    brightness = valueToBrightness(data1);
+                    color      = color_t::red;
+                    brightness = brightness_t::b100;
                 }
                 else
                 {
                     //use data2 value (note velocity / cc value) to set led color
                     //and possibly blink speed (depending on configuration)
                     //when note/cc are used to control both state and blinking ignore activation velocity
-                    if (rgbEnabled || (setState && setBlink))
-                        color = valueToColor(data2);
+                    if (setState && setBlink)
+                    {
+                        color      = valueToColor(data2);
+                        brightness = valueToBrightness(data2);
+                    }
                     else
-                        color = (database.read(Database::Section::leds_t::activationValue, i) == data2) ? color_t::red : color_t::off;
-
-                    brightness = valueToBrightness(data2);
+                    {
+                        //this has side effect that it will always set RGB LED to red color since no color information is available
+                        color      = (database.read(Database::Section::leds_t::activationValue, i) == data2) ? color_t::red : color_t::off;
+                        brightness = brightness_t::b100;
+                    }
                 }
 
                 setColor(i, color, brightness);

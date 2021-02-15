@@ -668,7 +668,7 @@ TEST_CASE(LocalLEDcontrol)
     }
 
     //configure one of the leds in local control mode
-    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(LEDs::controlType_t::localNoteForStateNoBlink)) == true);
+    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(LEDs::controlType_t::localNoteSingleVal)) == true);
     //set 127 as activation value, 0 as activation ID
     TEST_ASSERT(database.update(Database::Section::leds_t::activationValue, 0, 127) == true);
     TEST_ASSERT(database.update(Database::Section::leds_t::activationID, 0, 0) == true);
@@ -733,7 +733,7 @@ TEST_CASE(LocalLEDcontrol)
     //led should be off since it's configure to react on note messages and not on control change
     TEST_ASSERT(leds.color(0) == LEDs::color_t::off);
 
-    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(LEDs::controlType_t::localCCforStateNoBlink)) == true);
+    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(LEDs::controlType_t::localCCSingleVal)) == true);
 
     //no messages being sent on release in CC mode
     stateChangeRegister(false);
@@ -786,10 +786,10 @@ TEST_CASE(LocalLEDcontrol)
     TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
 
     //regression test
-    //configure LED 0 in midiInNoteForStateAndBlink mode, activation value to 127, activation ID to 0
+    //configure LED 0 in midiInNoteMultiVal mode, activation value to 127, activation ID to 0
     //press button 0 (momentary mode, midi notes)
     //verify that the state of led hasn't been changed
-    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(LEDs::controlType_t::midiInNoteForStateAndBlink)) == true);
+    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(LEDs::controlType_t::midiInNoteMultiVal)) == true);
     TEST_ASSERT(database.update(Database::Section::leds_t::activationValue, 0, 127) == true);
     TEST_ASSERT(database.update(Database::Section::leds_t::activationID, 0, 0) == true);
 
@@ -808,8 +808,8 @@ TEST_CASE(LocalLEDcontrol)
     stateChangeRegister(false);
     TEST_ASSERT(leds.color(0) == LEDs::color_t::off);
 
-    //again with midiInCCForStateAndBlink
-    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(LEDs::controlType_t::midiInCCforStateAndBlink)) == true);
+    //again with midiInCCMultiVal
+    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(LEDs::controlType_t::midiInCCMultiVal)) == true);
     stateChangeRegister(true);
     TEST_ASSERT(leds.color(0) == LEDs::color_t::off);
     stateChangeRegister(false);

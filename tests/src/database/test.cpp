@@ -405,7 +405,7 @@ TEST_CASE(LEDs)
     for (int i = 0; i < MAX_NUMBER_OF_RGB_LEDS; i++)
         TEST_ASSERT(database.read(Database::Section::leds_t::rgbEnable, i) == false);
 
-    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(IO::LEDs::controlType_t::localPCforStateNoBlink)) == true);
+    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(IO::LEDs::controlType_t::localPCSingleVal)) == true);
 
     //rgb state shouldn't change
     for (int i = 0; i < MAX_NUMBER_OF_RGB_LEDS; i++)

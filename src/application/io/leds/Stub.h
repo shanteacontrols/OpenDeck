@@ -56,16 +56,16 @@ namespace IO
 
         enum class controlType_t : uint8_t
         {
-            midiInNoteForStateCCforBlink,
-            localNoteForStateNoBlink,
-            midiInCCforStateNoteForBlink,
-            localCCforStateNoBlink,
-            midiInPCforStateNoBlink,
-            localPCforStateNoBlink,
-            midiInNoteForStateAndBlink,
-            localNoteForStateAndBlink,
-            midiInCCforStateAndBlink,
-            localCCforStateAndBlink,
+            midiInNoteSingleVal,
+            localNoteSingleVal,
+            midiInCCSingleVal,
+            localCCSingleVal,
+            midiInPCSingleVal,
+            localPCSingleVal,
+            midiInNoteMultiVal,
+            localNoteMultiVal,
+            midiInCCMultiVal,
+            localCCMultiVal,
             AMOUNT
         };
 
