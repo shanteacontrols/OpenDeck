@@ -150,7 +150,7 @@ LEDs::brightness_t LEDs::valueToBrightness(uint8_t value)
     return static_cast<brightness_t>((value % 16 % totalBrightnessValues) + 1);
 }
 
-void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local)
+void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, dataSource_t dataSource)
 {
     for (size_t i = 0; i < maxLEDs; i++)
     {
@@ -165,7 +165,7 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
 
         //determine whether led state or blink state should be changed
         //received MIDI message must match with defined control type
-        if (local)
+        if (dataSource == dataSource_t::internal)
         {
             switch (controlType)
             {

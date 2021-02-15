@@ -96,6 +96,12 @@ namespace IO
             b100
         };
 
+        enum class dataSource_t : uint8_t
+        {
+            external,    //data from midi in
+            internal     //data from local source (buttons, encoders...)
+        };
+
         class HWA
         {
             public:
@@ -124,7 +130,7 @@ namespace IO
         size_t       rgbSingleComponentIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent);
         size_t       rgbIndex(size_t singleLEDindex);
         bool         setFadeSpeed(uint8_t transitionSpeed);
-        void         midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local);
+        void         midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, dataSource_t dataSource);
         void         setBlinkType(blinkType_t blinkType);
         void         resetBlinking();
 

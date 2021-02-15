@@ -269,13 +269,13 @@ void Analog::sendMessage(uint8_t analogID, analogDescriptor_t& descriptor, uint1
         {
             midi.sendNoteOn(descriptor.midiID, value, descriptor.channel);
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, descriptor.midiID, value, descriptor.channel + 1);
-            leds.midiToState(MIDI::messageType_t::noteOn, descriptor.midiID, value, descriptor.channel, true);
+            leds.midiToState(MIDI::messageType_t::noteOn, descriptor.midiID, value, descriptor.channel, LEDs::dataSource_t::internal);
         }
         else
         {
             midi.sendNoteOff(descriptor.midiID, 0, descriptor.channel);
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOff, descriptor.midiID, value, descriptor.channel + 1);
-            leds.midiToState(MIDI::messageType_t::noteOff, descriptor.midiID, 0, descriptor.channel, true);
+            leds.midiToState(MIDI::messageType_t::noteOff, descriptor.midiID, 0, descriptor.channel, LEDs::dataSource_t::internal);
         }
     }
     break;

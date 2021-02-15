@@ -467,7 +467,7 @@ void System::checkMIDI()
             if (messageType == MIDI::messageType_t::noteOff)
                 data2 = 0;
 
-            leds.midiToState(messageType, data1, data2, channel, false);
+            leds.midiToState(messageType, data1, data2, channel, IO::LEDs::dataSource_t::external);
 
             switch (messageType)
             {

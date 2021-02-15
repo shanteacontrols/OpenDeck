@@ -160,7 +160,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMessageDescriptor_
         {
             midi.sendNoteOn(descriptor.note, descriptor.velocity, descriptor.channel);
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, descriptor.note, descriptor.velocity, descriptor.channel + 1);
-            leds.midiToState(MIDI::messageType_t::noteOn, descriptor.note, descriptor.velocity, descriptor.channel, true);
+            leds.midiToState(MIDI::messageType_t::noteOn, descriptor.note, descriptor.velocity, descriptor.channel, LEDs::dataSource_t::internal);
         }
         break;
 
@@ -187,7 +187,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMessageDescriptor_
             if (send)
             {
                 midi.sendProgramChange(descriptor.note, descriptor.channel);
-                leds.midiToState(MIDI::messageType_t::programChange, descriptor.note, 0, descriptor.channel, true);
+                leds.midiToState(MIDI::messageType_t::programChange, descriptor.note, 0, descriptor.channel, LEDs::dataSource_t::internal);
                 display.displayMIDIevent(Display::eventType_t::out, Display::event_t::programChange, descriptor.note, 0, descriptor.channel + 1);
             }
         }
@@ -198,7 +198,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMessageDescriptor_
         {
             midi.sendControlChange(descriptor.note, descriptor.velocity, descriptor.channel);
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, descriptor.note, descriptor.velocity, descriptor.channel + 1);
-            leds.midiToState(MIDI::messageType_t::controlChange, descriptor.note, descriptor.velocity, descriptor.channel, true);
+            leds.midiToState(MIDI::messageType_t::controlChange, descriptor.note, descriptor.velocity, descriptor.channel, LEDs::dataSource_t::internal);
         }
         break;
 
@@ -287,13 +287,13 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMessageDescriptor_
                 if (!value)
                 {
                     midi.sendNoteOff(descriptor.note, value, descriptor.channel);
-                    leds.midiToState(MIDI::messageType_t::noteOff, descriptor.note, value, descriptor.channel, true);
+                    leds.midiToState(MIDI::messageType_t::noteOff, descriptor.note, value, descriptor.channel, LEDs::dataSource_t::internal);
                     display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOff, descriptor.note, value, descriptor.channel + 1);
                 }
                 else
                 {
                     midi.sendNoteOn(descriptor.note, value, descriptor.channel);
-                    leds.midiToState(MIDI::messageType_t::noteOn, descriptor.note, value, descriptor.channel, true);
+                    leds.midiToState(MIDI::messageType_t::noteOn, descriptor.note, value, descriptor.channel, LEDs::dataSource_t::internal);
                     display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, descriptor.note, value, descriptor.channel + 1);
                 }
             }
@@ -310,13 +310,13 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMessageDescriptor_
                 if (!value)
                 {
                     midi.sendNoteOff(descriptor.note, value, descriptor.channel);
-                    leds.midiToState(MIDI::messageType_t::noteOff, descriptor.note, value, descriptor.channel, true);
+                    leds.midiToState(MIDI::messageType_t::noteOff, descriptor.note, value, descriptor.channel, LEDs::dataSource_t::internal);
                     display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOff, descriptor.note, value, descriptor.channel + 1);
                 }
                 else
                 {
                     midi.sendNoteOn(descriptor.note, value, descriptor.channel);
-                    leds.midiToState(MIDI::messageType_t::noteOn, descriptor.note, value, descriptor.channel, true);
+                    leds.midiToState(MIDI::messageType_t::noteOn, descriptor.note, value, descriptor.channel, LEDs::dataSource_t::internal);
                     display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, descriptor.note, value, descriptor.channel + 1);
                 }
             }
@@ -331,7 +331,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMessageDescriptor_
             if (currentValue != value)
             {
                 midi.sendControlChange(descriptor.note, value, descriptor.channel);
-                leds.midiToState(MIDI::messageType_t::controlChange, descriptor.note, value, descriptor.channel, true);
+                leds.midiToState(MIDI::messageType_t::controlChange, descriptor.note, value, descriptor.channel, LEDs::dataSource_t::internal);
                 display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, descriptor.note, value, descriptor.channel + 1);
             }
         }
@@ -345,7 +345,7 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMessageDescriptor_
             if (currentValue != value)
             {
                 midi.sendControlChange(descriptor.note, value, descriptor.channel);
-                leds.midiToState(MIDI::messageType_t::controlChange, descriptor.note, value, descriptor.channel, true);
+                leds.midiToState(MIDI::messageType_t::controlChange, descriptor.note, value, descriptor.channel, LEDs::dataSource_t::internal);
                 display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, descriptor.note, value, descriptor.channel + 1);
             }
         }
@@ -362,13 +362,13 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMessageDescriptor_
         case messageType_t::note:
             midi.sendNoteOff(descriptor.note, 0, descriptor.channel);
             display.displayMIDIevent(Display::eventType_t::out, midi.getNoteOffMode() == MIDI::noteOffType_t::standardNoteOff ? Display::event_t::noteOff : Display::event_t::noteOn, descriptor.note, 0, descriptor.channel + 1);
-            leds.midiToState(MIDI::messageType_t::noteOff, descriptor.note, 0, descriptor.channel, true);
+            leds.midiToState(MIDI::messageType_t::noteOff, descriptor.note, 0, descriptor.channel, LEDs::dataSource_t::internal);
             break;
 
         case messageType_t::controlChangeReset:
             midi.sendControlChange(descriptor.note, 0, descriptor.channel);
             display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, descriptor.note, 0, descriptor.channel + 1);
-            leds.midiToState(MIDI::messageType_t::controlChange, descriptor.note, 0, descriptor.channel, true);
+            leds.midiToState(MIDI::messageType_t::controlChange, descriptor.note, 0, descriptor.channel, LEDs::dataSource_t::internal);
             break;
 
         case messageType_t::mmcRecord:

@@ -100,6 +100,12 @@ namespace IO
             b100
         };
 
+        enum class dataSource_t : uint8_t
+        {
+            external,    //data from midi in
+            internal     //data from local source (buttons, encoders...)
+        };
+
         class HWA
         {
             public:
@@ -166,7 +172,7 @@ namespace IO
             return false;
         }
 
-        void midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, bool local)
+        void midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, dataSource_t dataSource)
         {
         }
 
