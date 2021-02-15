@@ -573,7 +573,7 @@ int main()
     };
 
     dbHandlers.presetChangeHandler = [](uint8_t preset) {
-        leds.midiToState(MIDI::messageType_t::programChange, preset, 0, 0, true);
+        leds.setAllOff();
 
         if (display.init(false))
             display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::presetChange, preset, 0, 0);
