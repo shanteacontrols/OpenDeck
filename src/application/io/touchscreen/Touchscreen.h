@@ -52,6 +52,7 @@ namespace IO
             enable,
             model,
             brightness,
+            initialScreen,
             AMOUNT
         };
 

@@ -49,8 +49,7 @@ bool Touchscreen::init()
 
         if (initialized)
         {
-            //screen 0 should be blank or logo only - used to detect that the firmware is running
-            setScreen(1);
+            setScreen(database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::initialScreen)));
             setBrightness(static_cast<brightness_t>(database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::brightness))));
 
             return true;
