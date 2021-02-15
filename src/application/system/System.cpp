@@ -224,10 +224,6 @@ bool System::init()
     touchscreen.init();
     leds.init();
 
-    //on startup, indicate current program for all channels (if any leds have program change assigned as control mode)
-    for (int i = 0; i < 16; i++)
-        leds.midiToState(MIDI::messageType_t::programChange, 0, 0, i, false);
-
     sysExConf.setLayout(sysExLayout, static_cast<uint8_t>(block_t::AMOUNT));
     sysExConf.setupCustomRequests(customRequests, NUMBER_OF_CUSTOM_REQUESTS);
 
