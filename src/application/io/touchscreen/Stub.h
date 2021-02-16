@@ -40,9 +40,15 @@ namespace IO
             virtual void setIconState(Touchscreen::icon_t& icon, bool state) = 0;
         };
 
+        class EventNotifier
+        {
+            public:
+            virtual void button(size_t index, bool state)                                 = 0;
+            virtual void analog(size_t index, uint16_t value, uint16_t min, uint16_t max) = 0;
+            virtual void screenChange(size_t screenID)                                    = 0;
+        };
+
         Touchscreen(Database&      database,
-                    IO::Buttons&   buttons,
-                    IO::Analog&    analog,
                     ComponentInfo& cInfo)
         {}
 
@@ -88,7 +94,7 @@ namespace IO
             return 0;
         }
 
-        void setScreenChangeHandler(void (*fptr)(size_t screenID))
+        void registerEventNotifier(EventNotifier& eventNotifer)
         {
         }
 

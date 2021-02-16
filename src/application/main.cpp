@@ -519,7 +519,7 @@ IO::LEDs        leds(hwaLEDs, database);
 IO::Analog      analog(hwaAnalog, analogFilter, database, midi, leds, display, cInfo);
 IO::Buttons     buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cInfo);
 IO::Encoders    encoders(hwaEncoders, database, midi, display, cInfo);
-IO::Touchscreen touchscreen(database, buttons, analog, cInfo);
+IO::Touchscreen touchscreen(database, cInfo);
 System          sys(hwaSystem, cInfo, database, midi, buttons, encoders, analog, leds, display, touchscreen);
 
 int main()
@@ -528,10 +528,6 @@ int main()
     touchscreen.registerModel(IO::Touchscreen::Model::model_t::nextion, &touchscreenModelNextion);
     touchscreen.registerModel(IO::Touchscreen::Model::model_t::viewtech, &touchscreenModelViewtech);
 #endif
-
-    touchscreen.setScreenChangeHandler([](size_t screenID) {
-        leds.refresh();
-    });
 
     hwaLEDs.registerHandler([](size_t index, bool state) {
 #if MAX_NUMBER_OF_LEDS > 0

@@ -17,7 +17,6 @@ limitations under the License.
 */
 
 #include "Touchscreen.h"
-#include "core/src/general/Helpers.h"
 
 using namespace IO;
 
@@ -107,8 +106,8 @@ void Touchscreen::setScreen(size_t screenID)
     MODEL->setScreen(screenID);
     activeScreenID = screenID;
 
-    if (screenHandler != nullptr)
-        screenHandler(screenID);
+    if (eventNotifier != nullptr)
+        eventNotifier->screenChange(screenID);
 }
 
 /// Used to retrieve currently active screen on display.
@@ -118,9 +117,9 @@ size_t Touchscreen::activeScreen()
     return activeScreenID;
 }
 
-void Touchscreen::setScreenChangeHandler(void (*fptr)(size_t screenID))
+void Touchscreen::registerEventNotifier(EventNotifier& eventNotifer)
 {
-    screenHandler = fptr;
+    this->eventNotifier = &eventNotifer;
 }
 
 void Touchscreen::setIconState(size_t index, bool state)
@@ -181,14 +180,18 @@ void Touchscreen::processButton(const size_t buttonID, const bool state)
         newScreen    = database.read(Database::Section::touchscreen_t::pageSwitchIndex, buttonID);
     }
 
-    buttons.processButton(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + buttonID, state);
     cInfo.send(Database::block_t::touchscreen, buttonID);
+
+    if (eventNotifier != nullptr)
+        eventNotifier->button(buttonID, state);
 
     //if the button should change screen, change it immediately
     //this will result in button never sending off state so do it manually first
     if (changeScreen)
     {
-        buttons.processButton(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + buttonID, false);
+        if (eventNotifier != nullptr)
+            eventNotifier->button(buttonID, false);
+
         setScreen(newScreen);
     }
 }
@@ -276,13 +279,16 @@ void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16
             //scale the value to ADC range
             if (analogActive[i])
             {
-                value = core::misc::mapRange(static_cast<uint32_t>(value), static_cast<uint32_t>(startCoordinate), static_cast<uint32_t>(endCoordinate), static_cast<uint32_t>(0), static_cast<uint32_t>(analog.adcType()));
-                analog.processReading(MAX_NUMBER_OF_ANALOG + i, value);
+                if (eventNotifier != nullptr)
+                    eventNotifier->analog(i, value, startCoordinate, endCoordinate);
             }
             else
             {
                 if (database.read(Database::Section::touchscreen_t::analogResetOnRelease, i))
-                    analog.processReading(MAX_NUMBER_OF_ANALOG + i, 0);
+                {
+                    if (eventNotifier != nullptr)
+                        eventNotifier->analog(i, 0, startCoordinate, endCoordinate);
+                }
             }
         }
     }

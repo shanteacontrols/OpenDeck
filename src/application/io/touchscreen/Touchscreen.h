@@ -21,8 +21,7 @@ limitations under the License.
 #include <inttypes.h>
 #include <stdlib.h>
 #include "database/Database.h"
-#include "io/buttons/Buttons.h"
-#include "io/analog/Analog.h"
+#include "io/common/CInfo.h"
 
 #ifndef TOUCHSCREEN_SUPPORTED
 #include "Stub.h"
@@ -130,13 +129,17 @@ namespace IO
             virtual bool      setBrightness(brightness_t brightness)              = 0;
         };
 
+        class EventNotifier
+        {
+            public:
+            virtual void button(size_t index, bool state)                                 = 0;
+            virtual void analog(size_t index, uint16_t value, uint16_t min, uint16_t max) = 0;
+            virtual void screenChange(size_t screenID)                                    = 0;
+        };
+
         Touchscreen(Database&      database,
-                    IO::Buttons&   buttons,
-                    IO::Analog&    analog,
                     ComponentInfo& cInfo)
             : database(database)
-            , buttons(buttons)
-            , analog(analog)
             , cInfo(cInfo)
         {}
 
@@ -146,7 +149,7 @@ namespace IO
         void   update();
         void   setScreen(size_t screenID);
         size_t activeScreen();
-        void   setScreenChangeHandler(void (*fptr)(size_t screenID));
+        void   registerEventNotifier(EventNotifier& eventNotifer);
         void   setIconState(size_t index, bool state);
         bool   setBrightness(brightness_t brightness);
 
@@ -156,11 +159,9 @@ namespace IO
         void processCoordinate(pressType_t pressType, uint16_t xPos, uint16_t yPos);
 
         Database&      database;
-        IO::Buttons&   buttons;
-        IO::Analog&    analog;
         ComponentInfo& cInfo;
+        EventNotifier* eventNotifier = nullptr;
 
-        void (*screenHandler)(size_t screenID)                         = nullptr;
         size_t  activeScreenID                                         = 0;
         bool    initialized                                            = false;
         Model*  modelPtr[static_cast<uint8_t>(Model::model_t::AMOUNT)] = {};

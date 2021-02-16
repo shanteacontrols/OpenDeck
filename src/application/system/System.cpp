@@ -23,6 +23,7 @@ limitations under the License.
 #include "bootloader/FwSelector/FwSelector.h"
 #include "core/src/general/Timing.h"
 #include "io/common/Common.h"
+#include "core/src/general/Helpers.h"
 
 Database::block_t System::dbBlock(uint8_t index)
 {
@@ -238,9 +239,26 @@ void System::DBhandlers::initialized()
     //nothing to do here
 }
 
+void System::TouchScreenHandlers::button(size_t index, bool state)
+{
+    system.buttons.processButton(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + index, state);
+}
+
+void System::TouchScreenHandlers::analog(size_t index, uint16_t value, uint16_t min, uint16_t max)
+{
+    value = core::misc::mapRange(static_cast<uint32_t>(value), static_cast<uint32_t>(min), static_cast<uint32_t>(max), static_cast<uint32_t>(0), static_cast<uint32_t>(system.analog.adcType()));
+    system.analog.processReading(MAX_NUMBER_OF_ANALOG + index, value);
+}
+
+void System::TouchScreenHandlers::screenChange(size_t screenID)
+{
+    system.leds.refresh();
+}
+
 bool System::init()
 {
     database.registerHandlers(dbHandlers);
+    touchscreen.registerEventNotifier(touchScreenHandlers);
 
     cInfo.registerHandler([this](Database::block_t dbBlock, SysExConf::sysExParameter_t componentID) {
         return sendCInfo(dbBlock, componentID);

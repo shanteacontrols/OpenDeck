@@ -210,6 +210,7 @@ class System
         , touchscreen(touchscreen)
         , sysExDataHandler(*this)
         , dbHandlers(*this)
+        , touchScreenHandlers(*this)
     {}
 
     bool            init();
@@ -262,6 +263,21 @@ class System
         System& system;
     };
 
+    class TouchScreenHandlers : public IO::Touchscreen::EventNotifier
+    {
+        public:
+        TouchScreenHandlers(System& system)
+            : system(system)
+        {}
+
+        void button(size_t index, bool state) override;
+        void analog(size_t index, uint16_t value, uint16_t min, uint16_t max) override;
+        void screenChange(size_t screenID) override;
+
+        private:
+        System& system;
+    };
+
     void                             checkComponents();
     void                             checkMIDI();
     void                             configureMIDI();
@@ -294,19 +310,20 @@ class System
     result_t                         onSetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t newValue);
     result_t                         onSetTouchscreen(Section::touchscreen_t section, size_t index, SysExConf::sysExParameter_t newValue);
 
-    SysExConf        sysExConf;
-    HWA&             hwa;
-    ComponentInfo&   cInfo;
-    Database&        database;
-    MIDI&            midi;
-    IO::Buttons&     buttons;
-    IO::Encoders&    encoders;
-    IO::Analog&      analog;
-    IO::LEDs&        leds;
-    IO::Display&     display;
-    IO::Touchscreen& touchscreen;
-    SysExDataHandler sysExDataHandler;
-    DBhandlers       dbHandlers;
+    SysExConf           sysExConf;
+    HWA&                hwa;
+    ComponentInfo&      cInfo;
+    Database&           database;
+    MIDI&               midi;
+    IO::Buttons&        buttons;
+    IO::Encoders&       encoders;
+    IO::Analog&         analog;
+    IO::LEDs&           leds;
+    IO::Display&        display;
+    IO::Touchscreen&    touchscreen;
+    SysExDataHandler    sysExDataHandler;
+    DBhandlers          dbHandlers;
+    TouchScreenHandlers touchScreenHandlers;
 
     /// Used to prevent updating states of all components (analog, LEDs, encoders, buttons).
     bool processingEnabled = true;
