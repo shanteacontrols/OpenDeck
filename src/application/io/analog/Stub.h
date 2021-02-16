@@ -18,6 +18,7 @@ limitations under the License.
 
 #pragma once
 
+#include <functional>
 #include "database/Database.h"
 #include "midi/src/MIDI.h"
 #include "io/leds/LEDs.h"
@@ -81,6 +82,8 @@ namespace IO
             virtual void              reset(size_t index)                                                                    = 0;
         };
 
+        using buttonHandler_t = std::function<void(uint8_t adcIndex, bool state)>;
+
         Analog(HWA&           hwa,
                Filter&        filter,
                Database&      database,
@@ -107,7 +110,7 @@ namespace IO
         {
         }
 
-        void setButtonHandler(void (*fptr)(uint8_t adcIndex, bool state))
+        void setButtonHandler(buttonHandler_t buttonHandler)
         {
         }
 

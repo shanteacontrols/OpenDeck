@@ -22,6 +22,7 @@ limitations under the License.
 #include "Stub.h"
 #else
 
+#include <functional>
 #include "database/Database.h"
 #include "midi/src/MIDI.h"
 #include "io/leds/LEDs.h"
@@ -73,7 +74,7 @@ namespace IO
             virtual void              reset(size_t index)                                                                    = 0;
         };
 
-        using buttonHandler_t = void (*)(uint8_t adcIndex, bool state);
+        using buttonHandler_t = std::function<void(uint8_t adcIndex, bool state)>;
 
         Analog(HWA&           hwa,
                Filter&        filter,
