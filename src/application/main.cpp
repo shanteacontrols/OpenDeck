@@ -529,10 +529,6 @@ int main()
     touchscreen.registerModel(IO::Touchscreen::Model::model_t::viewtech, &touchscreenModelViewtech);
 #endif
 
-    analog.setButtonHandler([](uint8_t analogIndex, bool value) {
-        buttons.processButton(analogIndex + MAX_NUMBER_OF_BUTTONS, value);
-    });
-
     touchscreen.setScreenChangeHandler([](size_t screenID) {
         leds.refresh();
     });

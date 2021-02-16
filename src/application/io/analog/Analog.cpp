@@ -90,7 +90,7 @@ void Analog::processReading(uint8_t analogID, uint16_t value)
     else
     {
         if (buttonHandler != nullptr)
-            (*buttonHandler)(analogID, value);
+            buttonHandler(analogID, value);
     }
 
     if (send)
@@ -292,7 +292,7 @@ void Analog::debounceReset(uint16_t index)
     filter.reset(index);
 }
 
-void Analog::setButtonHandler(buttonHandler_t handler)
+void Analog::registerButtonHandler(buttonHandler_t handler)
 {
-    buttonHandler = handler;
+    this->buttonHandler = std::move(handler);
 }

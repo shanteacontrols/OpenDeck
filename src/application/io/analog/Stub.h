@@ -97,6 +97,10 @@ namespace IO
         {
         }
 
+        void processReading(uint8_t analogID, uint16_t value)
+        {
+        }
+
         adcType_t adcType()
         {
 #ifdef ADC_12_BIT
@@ -110,7 +114,7 @@ namespace IO
         {
         }
 
-        void setButtonHandler(buttonHandler_t buttonHandler)
+        void registerButtonHandler(buttonHandler_t buttonHandler)
         {
         }
 

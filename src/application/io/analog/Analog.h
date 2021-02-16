@@ -99,7 +99,7 @@ namespace IO
         void      update();
         void      processReading(uint8_t analogID, uint16_t value);
         void      debounceReset(uint16_t index);
-        void      setButtonHandler(buttonHandler_t handler);
+        void      registerButtonHandler(buttonHandler_t handler);
         adcType_t adcType();
 
         private:

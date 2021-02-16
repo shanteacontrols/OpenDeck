@@ -246,6 +246,10 @@ bool System::init()
         return sendCInfo(dbBlock, componentID);
     });
 
+    analog.registerButtonHandler([this](uint8_t analogIndex, bool value) {
+        buttons.processButton(analogIndex + MAX_NUMBER_OF_BUTTONS, value);
+    });
+
     if (!hwa.init())
         return false;
 
