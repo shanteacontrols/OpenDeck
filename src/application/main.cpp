@@ -35,45 +35,6 @@ limitations under the License.
 #include "board/common/USBMIDIOverSerial/USBMIDIOverSerial.h"
 #include "bootloader/FwSelector/FwSelector.h"
 
-class DBhandlers : public Database::Handlers
-{
-    public:
-    DBhandlers() = default;
-
-    void presetChange(uint8_t preset) override
-    {
-        if (presetChangeHandler != nullptr)
-            presetChangeHandler(preset);
-    }
-
-    void factoryResetStart() override
-    {
-        if (factoryResetStartHandler != nullptr)
-            factoryResetStartHandler();
-    }
-
-    void factoryResetDone() override
-    {
-        if (factoryResetDoneHandler != nullptr)
-            factoryResetDoneHandler();
-    }
-
-    void initialized() override
-    {
-        if (initHandler != nullptr)
-            initHandler();
-    }
-
-    //actions which these handlers should take depend on objects making
-    //up the entire system to be initialized
-    //therefore in interface we are calling these function pointers which
-    // are set in application once we have all objects ready
-    void (*presetChangeHandler)(uint8_t preset) = nullptr;
-    void (*factoryResetStartHandler)()          = nullptr;
-    void (*factoryResetDoneHandler)()           = nullptr;
-    void (*initHandler)()                       = nullptr;
-} dbHandlers;
-
 class StorageAccess : public LESSDB::StorageAccess
 {
     public:
@@ -567,26 +528,6 @@ int main()
     touchscreen.registerModel(IO::Touchscreen::Model::model_t::nextion, &touchscreenModelNextion);
     touchscreen.registerModel(IO::Touchscreen::Model::model_t::viewtech, &touchscreenModelViewtech);
 #endif
-
-    dbHandlers.factoryResetStartHandler = []() {
-        leds.setAllOff();
-    };
-
-    dbHandlers.presetChangeHandler = [](uint8_t preset) {
-        leds.setAllOff();
-
-        if (display.init(false))
-            display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::presetChange, preset, 0, 0);
-    };
-
-    dbHandlers.factoryResetDoneHandler = []() {
-        //don't run this if database isn't initialized yet to avoid mcu reset if
-        //factory reset is needed initially
-        if (database.isInitialized())
-            core::reset::mcuReset();
-    };
-
-    database.registerHandlers(dbHandlers);
 
     cinfo.registerHandler([](Database::block_t dbBlock, SysExConf::sysExParameter_t componentID) {
         return sys.sendCInfo(dbBlock, componentID);

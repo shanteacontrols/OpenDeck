@@ -20,6 +20,7 @@ limitations under the License.
 #include "board/Board.h"
 #include "Version.h"
 #include "Layout.h"
+#include "bootloader/FwSelector/FwSelector.h"
 #include "core/src/general/Timing.h"
 #include "io/common/Common.h"
 
@@ -211,8 +212,36 @@ System::result_t System::SysExDataHandler::customRequest(size_t request, CustomR
     return result;
 }
 
+void System::DBhandlers::presetChange(uint8_t preset)
+{
+    system.leds.setAllOff();
+
+    if (system.display.init(false))
+        system.display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::presetChange, preset, 0, 0);
+}
+
+void System::DBhandlers::factoryResetStart()
+{
+    system.leds.setAllOff();
+}
+
+void System::DBhandlers::factoryResetDone()
+{
+    // don't run this if database isn' t initialized yet to avoid mcu reset if
+    //factory reset is needed initially
+    if (system.database.isInitialized())
+        system.hwa.reboot(FwSelector::fwType_t::application);
+}
+
+void System::DBhandlers::initialized()
+{
+    //nothing to do here
+}
+
 bool System::init()
 {
+    database.registerHandlers(dbHandlers);
+
     if (!hwa.init())
         return false;
 

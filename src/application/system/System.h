@@ -206,6 +206,7 @@ class System
         , display(display)
         , touchscreen(touchscreen)
         , sysExDataHandler(*this)
+        , dbHandlers(*this)
     {}
 
     bool            init();
@@ -237,6 +238,22 @@ class System
         result_t set(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t newValue) override;
         result_t customRequest(size_t request, CustomResponse& customResponse) override;
         void     sendResponse(uint8_t* array, size_t size) override;
+
+        private:
+        System& system;
+    };
+
+    class DBhandlers : public Database::Handlers
+    {
+        public:
+        DBhandlers(System& system)
+            : system(system)
+        {}
+
+        void presetChange(uint8_t preset) override;
+        void factoryResetStart() override;
+        void factoryResetDone() override;
+        void initialized() override;
 
         private:
         System& system;
@@ -285,6 +302,7 @@ class System
     IO::Display&     display;
     IO::Touchscreen& touchscreen;
     SysExDataHandler sysExDataHandler;
+    DBhandlers       dbHandlers;
 
     /// Used to prevent updating states of all components (analog, LEDs, encoders, buttons).
     bool processingEnabled = true;
