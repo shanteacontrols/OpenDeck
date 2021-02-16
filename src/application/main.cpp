@@ -512,14 +512,14 @@ class SystemHWA : public System::HWA
 } hwaSystem;
 
 MIDI            midi(hwaMIDI);
-ComponentInfo   cinfo;
+ComponentInfo   cInfo;
 IO::U8X8        u8x8(hwaU8X8);
 IO::Display     display(u8x8, database);
 IO::LEDs        leds(hwaLEDs, database);
-IO::Analog      analog(hwaAnalog, analogFilter, database, midi, leds, display, cinfo);
-IO::Buttons     buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cinfo);
-IO::Encoders    encoders(hwaEncoders, database, midi, display, cinfo);
-IO::Touchscreen touchscreen(database, buttons, analog, cinfo);
+IO::Analog      analog(hwaAnalog, analogFilter, database, midi, leds, display, cInfo);
+IO::Buttons     buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cInfo);
+IO::Encoders    encoders(hwaEncoders, database, midi, display, cInfo);
+IO::Touchscreen touchscreen(database, buttons, analog, cInfo);
 System          sys(hwaSystem, database, midi, buttons, encoders, analog, leds, display, touchscreen);
 
 int main()
@@ -529,7 +529,7 @@ int main()
     touchscreen.registerModel(IO::Touchscreen::Model::model_t::viewtech, &touchscreenModelViewtech);
 #endif
 
-    cinfo.registerHandler([](Database::block_t dbBlock, SysExConf::sysExParameter_t componentID) {
+    cInfo.registerHandler([](Database::block_t dbBlock, SysExConf::sysExParameter_t componentID) {
         return sys.sendCInfo(dbBlock, componentID);
     });
 
