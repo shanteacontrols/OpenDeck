@@ -242,6 +242,10 @@ bool System::init()
 {
     database.registerHandlers(dbHandlers);
 
+    cInfo.registerHandler([this](Database::block_t dbBlock, SysExConf::sysExParameter_t componentID) {
+        return sendCInfo(dbBlock, componentID);
+    });
+
     if (!hwa.init())
         return false;
 

@@ -520,7 +520,7 @@ IO::Analog      analog(hwaAnalog, analogFilter, database, midi, leds, display, c
 IO::Buttons     buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cInfo);
 IO::Encoders    encoders(hwaEncoders, database, midi, display, cInfo);
 IO::Touchscreen touchscreen(database, buttons, analog, cInfo);
-System          sys(hwaSystem, database, midi, buttons, encoders, analog, leds, display, touchscreen);
+System          sys(hwaSystem, cInfo, database, midi, buttons, encoders, analog, leds, display, touchscreen);
 
 int main()
 {
@@ -528,10 +528,6 @@ int main()
     touchscreen.registerModel(IO::Touchscreen::Model::model_t::nextion, &touchscreenModelNextion);
     touchscreen.registerModel(IO::Touchscreen::Model::model_t::viewtech, &touchscreenModelViewtech);
 #endif
-
-    cInfo.registerHandler([](Database::block_t dbBlock, SysExConf::sysExParameter_t componentID) {
-        return sys.sendCInfo(dbBlock, componentID);
-    });
 
     analog.setButtonHandler([](uint8_t analogIndex, bool value) {
         buttons.processButton(analogIndex + MAX_NUMBER_OF_BUTTONS, value);

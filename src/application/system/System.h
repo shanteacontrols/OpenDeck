@@ -18,6 +18,7 @@ limitations under the License.
 
 #pragma once
 
+#include "io/common/CInfo.h"
 #include "sysex/src/SysExConf.h"
 #include "CustomIDs.h"
 #include "database/Database.h"
@@ -183,6 +184,7 @@ class System
     };
 
     System(HWA&             hwa,
+           ComponentInfo&   cInfo,
            Database&        database,
            MIDI&            midi,
            IO::Buttons&     buttons,
@@ -197,6 +199,7 @@ class System
               SysExConf::paramSize_t::_14bit,
               SysExConf::nrOfParam_t::_32)
         , hwa(hwa)
+        , cInfo(cInfo)
         , database(database)
         , midi(midi)
         , buttons(buttons)
@@ -293,6 +296,7 @@ class System
 
     SysExConf        sysExConf;
     HWA&             hwa;
+    ComponentInfo&   cInfo;
     Database&        database;
     MIDI&            midi;
     IO::Buttons&     buttons;
