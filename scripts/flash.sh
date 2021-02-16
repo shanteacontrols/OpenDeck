@@ -40,6 +40,6 @@ read -r path
 echo "Connect programmer to programming header on the board and then press enter."
 read -rn1
 
-avrdude -p "$mcu" -P /dev/"$port" -b 19200 -c avrisp -e -V -u -U lock:w:"$unlock_fuse":m -U efuse:w:"$ext_fuse":m -U hfuse:w:"$high_fuse":m -U lfuse:w:"$low_fuse":m
-avrdude -p "$mcu" -P /dev/"$port" -b 19200 -c avrisp -U flash:w:"$path"
-avrdude -p "$mcu" -P /dev/"$port" -b 19200 -c avrisp -V -u -U lock:w:"$lock_fuse":m
+avrdude -p "$mcu" -P /dev/"$port" -b 19200 -c avrisp -C /etc/avrdude.conf -e -V -u -U lock:w:"$unlock_fuse":m -U efuse:w:"$ext_fuse":m -U hfuse:w:"$high_fuse":m -U lfuse:w:"$low_fuse":m
+avrdude -p "$mcu" -P /dev/"$port" -b 19200 -c avrisp -C /etc/avrdude.conf -U flash:w:"$path"
+avrdude -p "$mcu" -P /dev/"$port" -b 19200 -c avrisp -C /etc/avrdude.conf -V -u -U lock:w:"$lock_fuse":m
