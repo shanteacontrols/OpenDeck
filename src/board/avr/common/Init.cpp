@@ -31,9 +31,16 @@ limitations under the License.
 
 extern "C" void __cxa_pure_virtual()
 {
-    while (1)
-        ;
+    Board::detail::errorHandler();
 }
+
+namespace std
+{
+    void __throw_bad_function_call()
+    {
+        Board::detail::errorHandler();
+    }
+}    // namespace std
 
 namespace Board
 {
