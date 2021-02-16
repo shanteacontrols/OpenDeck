@@ -207,28 +207,6 @@ namespace
 
     EmuEEPROM emuEEPROM(emuEEPROMstorage, false);
 
-    class DBhandlers : public Database::Handlers
-    {
-        public:
-        DBhandlers() = default;
-
-        void presetChange(uint8_t preset) override
-        {
-        }
-
-        void factoryResetStart() override
-        {
-        }
-
-        void factoryResetDone() override
-        {
-        }
-
-        void initialized() override
-        {
-        }
-    } dbHandlers;
-
     class StorageAccess : public LESSDB::StorageAccess
     {
         public:
@@ -318,7 +296,7 @@ namespace
         }
     } storageAccess;
 
-    Database database(dbHandlers, storageAccess, true);
+    Database database(storageAccess, true);
 }    // namespace
 
 int main(int argc, char* argv[])

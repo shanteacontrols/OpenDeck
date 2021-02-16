@@ -58,28 +58,6 @@ namespace
         bool loopbackEnabled = false;
     } hwaSystem;
 
-    class DBhandlers : public Database::Handlers
-    {
-        public:
-        DBhandlers() {}
-
-        void presetChange(uint8_t preset) override
-        {
-        }
-
-        void factoryResetStart() override
-        {
-        }
-
-        void factoryResetDone() override
-        {
-        }
-
-        void initialized() override
-        {
-        }
-    } dbHandlers;
-
     class HWAMIDI : public MIDI::HWA
     {
         public:
@@ -245,7 +223,7 @@ namespace
     } hwaEncoders;
 
     DBstorageMock   dbStorageMock;
-    Database        database(dbHandlers, dbStorageMock, true);
+    Database        database(dbStorageMock, true);
     MIDI            midi(hwaMIDI);
     ComponentInfo   cInfo;
     IO::LEDs        leds(hwaLEDs, database);

@@ -103,7 +103,9 @@ bool Database::init()
     if (returnValue)
     {
         initialized = true;
-        handlers.initialized();
+
+        if (handlers != nullptr)
+            handlers->initialized();
     }
 
     return returnValue;
@@ -117,7 +119,8 @@ bool Database::isInitialized()
 /// Performs full factory reset of data in database.
 bool Database::factoryReset()
 {
-    handlers.factoryResetStart();
+    if (handlers != nullptr)
+        handlers->factoryResetStart();
 
     if (!clear())
         return false;
@@ -164,7 +167,8 @@ bool Database::factoryReset()
             return false;
     }
 
-    handlers.factoryResetDone();
+    if (handlers != nullptr)
+        handlers->factoryResetDone();
 
     return true;
 }
@@ -188,7 +192,10 @@ bool Database::setPreset(uint8_t preset)
                              preset);)
 
     if (returnValue)
-        handlers.presetChange(preset);
+    {
+        if (handlers != nullptr)
+            handlers->presetChange(preset);
+    }
 
     return returnValue;
 }
@@ -301,6 +308,11 @@ bool Database::setDbUID(uint16_t uid)
         returnValue = update(0, static_cast<uint8_t>(SectionPrivate::system_t::uid), 0, uid);)
 
     return returnValue;
+}
+
+void Database::registerHandlers(Handlers& handlers)
+{
+    this->handlers = &handlers;
 }
 
 __attribute__((weak)) void Database::customInitGlobal()

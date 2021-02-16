@@ -33,9 +33,8 @@ class Database : public LESSDB
         virtual void initialized()                = 0;
     };
 
-    Database(Handlers& handlers, LESSDB::StorageAccess& storageAccess, bool initializeData)
+    Database(LESSDB::StorageAccess& storageAccess, bool initializeData)
         : LESSDB(storageAccess)
-        , handlers(handlers)
         , initializeData(initializeData)
     {}
 
@@ -170,6 +169,7 @@ class Database : public LESSDB
     bool    setPresetPreserveState(bool state);
     bool    getPresetPreserveState();
     bool    isInitialized();
+    void    registerHandlers(Handlers& handlers);
 
     void customInitGlobal();
     void customInitButtons();
@@ -220,7 +220,7 @@ class Database : public LESSDB
     bool     setDbUID(uint16_t uid);
     bool     setPresetInternal(uint8_t preset);
 
-    Handlers& handlers;
+    Handlers* handlers = nullptr;
 
     const bool initializeData;
 

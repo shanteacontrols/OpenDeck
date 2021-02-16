@@ -139,7 +139,7 @@ class StorageAccess : public LESSDB::StorageAccess
         }
     }
 } storageAccess;
-Database database(dbHandlers, storageAccess,
+Database database(storageAccess,
 #ifdef __AVR__
                   true
 #else
@@ -585,6 +585,8 @@ int main()
         if (database.isInitialized())
             core::reset::mcuReset();
     };
+
+    database.registerHandlers(dbHandlers);
 
     cinfo.registerHandler([](Database::block_t dbBlock, SysExConf::sysExParameter_t componentID) {
         return sys.sendCInfo(dbBlock, componentID);
