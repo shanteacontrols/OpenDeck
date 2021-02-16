@@ -18,19 +18,20 @@ limitations under the License.
 
 #pragma once
 
+#include <functional>
 #include "sysex/src/SysExConf.h"
 #include "database/Database.h"
 
 class ComponentInfo
 {
     public:
-    using cinfoHandler_t = bool (*)(Database::block_t, SysExConf::sysExParameter_t);
+    using cinfoHandler_t = std::function<bool(Database::block_t, SysExConf::sysExParameter_t)>;
 
     ComponentInfo() = default;
 
     void registerHandler(cinfoHandler_t handler)
     {
-        this->handler = handler;
+        this->handler = std::move(handler);
     }
 
     void send(Database::block_t block, SysExConf::sysExParameter_t id)
