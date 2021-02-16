@@ -13,14 +13,17 @@ jobs:
           submodules: true
       - name: Prepare build env
         run: |
-          sudo apt-get install -y srecord avr-libc gcc-avr gcc-arm-none-eabi
+          sudo apt-get install -y srecord avr-libc gcc-arm-none-eabi
           sudo touch /usr/bin/avrdude && sudo chmod +x /usr/bin/avrdude
           sudo touch /usr/bin/gdb && sudo chmod +x /usr/bin/gdb
           curl -s https://api.github.com/repos/tomwright/dasel/releases/latest | grep browser_download_url | grep linux_amd64 | cut -d '"' -f 4 | wget -qi -
           chmod +x dasel_linux_amd64
           sudo mv dasel_linux_amd64 /usr/local/bin/dasel
+          wget https://downloads.arduino.cc/arduino-1.8.13-linux64.tar.xz -O arduino.tar.xz
+          tar -xf arduino.tar.xz
       - name: Build
         run: |
+          PATH=$(pwd)/arduino-1.8.13/hardware/tools/avr/bin:${PATH}
           cd src/
           ../scripts/build_targets.sh --type=fw_all
       - name: Archive hex files

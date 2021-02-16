@@ -27,3 +27,6 @@
 [submodule "modules/EmuEEPROM"]
 	path = modules/EmuEEPROM
 	url = https://github.com/paradajz/EmuEEPROM.git
+[submodule "modules/avr-libstdcpp"]
+	path = modules/avr-libstdcpp
+	url = https://github.com/modm-io/avr-libstdcpp.git

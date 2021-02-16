@@ -31,7 +31,8 @@ ifneq ($(TYPE),flashgen)
     #architecture specific
     ifeq ($(ARCH), avr)
         INCLUDE_DIRS += \
-        -I"../modules/lufa/"
+        -I"../modules/lufa/" \
+        -I"../modules/avr-libstdcpp/include"
 
         ifneq (,$(findstring USB_MIDI_SUPPORTED,$(DEFINES)))
             #common for bootloader and application
