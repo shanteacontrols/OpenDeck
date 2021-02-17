@@ -113,6 +113,7 @@ namespace IO
             bool     inverted;
         } analogDescriptor_t;
 
+        void fillAnalogDescriptor(uint8_t analogID, analogDescriptor_t& analogDescriptor);
         bool checkPotentiometerValue(uint8_t analogID, analogDescriptor_t& descriptor, uint16_t& value);
         bool checkFSRvalue(uint8_t analogID, analogDescriptor_t& descriptor, uint16_t& value);
         void sendMessage(uint8_t analogID, analogDescriptor_t& descriptor, uint16_t value);
