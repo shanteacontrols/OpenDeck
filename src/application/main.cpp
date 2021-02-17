@@ -504,11 +504,43 @@ class SystemHWA : public System::HWA
 #endif
     }
 
+    void registerOnUSBconnectionHandler(System::usbConnectionHandler_t usbConnectionHandler)
+    {
+        this->usbConnectionHandler = std::move(usbConnectionHandler);
+    }
+
+    void checkUSBconnection()
+    {
+        static uint32_t lastCheckTime       = 0;
+        static bool     lastConnectionState = false;
+
+        if (core::timing::currentRunTimeMs() - lastCheckTime > USB_CONN_CHECK_TIME)
+        {
+            bool newState = Board::USB::isUSBconnected();
+
+            if (newState)
+            {
+                if (!lastConnectionState)
+                {
+                    if (usbConnectionHandler != nullptr)
+                        usbConnectionHandler();
+                }
+            }
+
+            lastConnectionState = newState;
+        }
+    }
+
     private:
 #ifdef DIN_MIDI_SUPPORTED
     bool dinMIDIenabled         = false;
     bool dinMIDIloopbackEnabled = false;
 #endif
+
+    /// Time in milliseconds after which USB connection state should be checked
+    static constexpr uint32_t USB_CONN_CHECK_TIME = 2000;
+
+    System::usbConnectionHandler_t usbConnectionHandler = nullptr;
 } hwaSystem;
 
 MIDI            midi(hwaMIDI);
@@ -549,6 +581,7 @@ int main()
     while (true)
     {
         sys.run();
+        hwaSystem.checkUSBconnection();
     }
 
     return 1;

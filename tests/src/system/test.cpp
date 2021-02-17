@@ -54,6 +54,10 @@ namespace
             loopbackEnabled = false;
         }
 
+        void registerOnUSBconnectionHandler(System::usbConnectionHandler_t usbConnectionHandler) override
+        {
+        }
+
         bool dinMIDIenabled  = false;
         bool loopbackEnabled = false;
     } hwaSystem;

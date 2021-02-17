@@ -18,6 +18,7 @@ limitations under the License.
 
 #pragma once
 
+#include <functional>
 #include "io/common/CInfo.h"
 #include "sysex/src/SysExConf.h"
 #include "CustomIDs.h"
@@ -171,16 +172,19 @@ class System
         };
     };
 
+    using usbConnectionHandler_t = std::function<void()>;
+
     class HWA
     {
         public:
         HWA() = default;
 
-        virtual bool init()                            = 0;
-        virtual bool isDigitalInputAvailable()         = 0;
-        virtual void reboot(FwSelector::fwType_t type) = 0;
-        virtual void enableDINMIDI(bool loopback)      = 0;
-        virtual void disableDINMIDI()                  = 0;
+        virtual bool init()                                                                      = 0;
+        virtual bool isDigitalInputAvailable()                                                   = 0;
+        virtual void reboot(FwSelector::fwType_t type)                                           = 0;
+        virtual void enableDINMIDI(bool loopback)                                                = 0;
+        virtual void disableDINMIDI()                                                            = 0;
+        virtual void registerOnUSBconnectionHandler(usbConnectionHandler_t usbConnectionHandler) = 0;
     };
 
     System(HWA&             hwa,
