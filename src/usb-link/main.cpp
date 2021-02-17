@@ -18,6 +18,7 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/common/USBMIDIOverSerial/USBMIDIOverSerial.h"
+#include "Commands.h"
 
 namespace
 {
@@ -44,10 +45,13 @@ int main(void)
             }
             else
             {
-                //internal command - use it for reboot only
-                //use received data as the magic bootloader value
-                Board::bootloader::setMagicBootValue(USBMIDIpacket.Event);
-                Board::reboot();
+                //internal command
+                if (USBMIDIpacket.Event == static_cast<uint8_t>(USBLink::internalCMD_t::rebootBTLDR))
+                {
+                    //use received data as the magic bootloader value
+                    Board::bootloader::setMagicBootValue(USBMIDIpacket.Data1);
+                    Board::reboot();
+                }
             }
         }
     }

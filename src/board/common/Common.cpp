@@ -21,6 +21,7 @@ limitations under the License.
 #include "board/common/USBMIDIOverSerial/USBMIDIOverSerial.h"
 #include "core/src/general/Reset.h"
 #include "core/src/general/Timing.h"
+#include "usb-link/Commands.h"
 
 //holds total flash size - inserted in the binary by build process
 //address where this variable is stored contains total firmware length
@@ -59,8 +60,8 @@ namespace Board
         //signal to usb link to reboot as well
         MIDI::USBMIDIpacket_t USBMIDIpacket;
 
-        USBMIDIpacket.Event = Board::bootloader::magicBootValue();
-        USBMIDIpacket.Data1 = 0x00;
+        USBMIDIpacket.Event = static_cast<uint8_t>(USBLink::internalCMD_t::rebootBTLDR);
+        USBMIDIpacket.Data1 = Board::bootloader::magicBootValue();
         USBMIDIpacket.Data2 = 0x00;
         USBMIDIpacket.Data3 = 0x00;
 
