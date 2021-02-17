@@ -39,7 +39,6 @@ namespace
     USBD_HandleTypeDef hUsbDeviceFS;
     volatile bool      TxDone;
     volatile uint8_t   rxBuffer[RX_BUFFER_SIZE_USB];
-    volatile bool      initialized;
 
     //rxBuffer is overriden every time RxCallback is called
     //save results in ring buffer and remove them as needed in readMIDI
@@ -51,8 +50,7 @@ namespace
         USBD_LL_OpenEP(pdev, MIDI_STREAM_IN_EPADDR, USB_EP_TYPE_BULK, TX_BUFFER_SIZE_USB);
         USBD_LL_OpenEP(pdev, MIDI_STREAM_OUT_EPADDR, USB_EP_TYPE_BULK, RX_BUFFER_SIZE_USB);
         USBD_LL_PrepareReceive(pdev, MIDI_STREAM_OUT_EPADDR, (uint8_t*)(rxBuffer), RX_BUFFER_SIZE_USB);
-        TxDone      = true;
-        initialized = true;
+        TxDone = true;
         return 0;
     }
 
@@ -60,7 +58,6 @@ namespace
     {
         USBD_LL_CloseEP(pdev, MIDI_STREAM_IN_EPADDR);
         USBD_LL_CloseEP(pdev, MIDI_STREAM_OUT_EPADDR);
-        initialized = false;
         return 0;
     }
 
@@ -187,7 +184,7 @@ namespace Board
     {
         bool isUSBconnected()
         {
-            return initialized;
+            return (hUsbDeviceFS.dev_state == USBD_STATE_CONFIGURED);
         }
 
         bool readMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
@@ -218,7 +215,7 @@ namespace Board
 
         bool writeMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
         {
-            if (!initialized)
+            if (!isUSBconnected())
                 return false;
 
             while (!TxDone)
