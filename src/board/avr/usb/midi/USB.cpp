@@ -106,6 +106,11 @@ namespace Board
 
     namespace USB
     {
+        bool isUSBconnected()
+        {
+            return USB_DeviceState == DEVICE_STATE_Configured;
+        }
+
         bool readMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
         {
             //device must be connected and configured for the task to run

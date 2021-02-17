@@ -185,6 +185,11 @@ namespace Board
 
     namespace USB
     {
+        bool isUSBconnected()
+        {
+            return initialized;
+        }
+
         bool readMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
         {
             bool returnValue = false;

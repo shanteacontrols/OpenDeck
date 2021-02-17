@@ -44,6 +44,9 @@ namespace Board
 
     namespace USB
     {
+        /// Checks if USB has been enumerated on host machine.
+        bool isUSBconnected();
+
         /// Used to read MIDI data from USB interface.
         /// param [in]: USBMIDIpacket   Pointer to structure in which MIDI data is stored.
         /// returns: True if data is available, false otherwise.
