@@ -24,6 +24,7 @@ limitations under the License.
 #include "core/src/general/RingBuffer.h"
 #include "core/src/general/Helpers.h"
 #include "MCU.h"
+#include "usb-link/Commands.h"
 
 //generic UART driver, arch-independent
 
@@ -52,6 +53,11 @@ namespace
 
     /// Buffer in which incoming UART data is stored.
     core::RingBuffer<uint8_t, RX_BUFFER_SIZE> rxBuffer[MAX_UART_INTERFACES];
+
+#ifndef USB_MIDI_SUPPORTED
+    /// Holds the USB state received from USB link MCU
+    bool usbConnectionState = false;
+#endif
 
     /// Starts the process of transmitting the data from UART TX buffer to UART interface.
     /// param [in]: channel     UART channel on MCU.
@@ -228,6 +234,11 @@ namespace Board
     {
         //simulated USB MIDI interface via UART - make this transparent to the application
 
+        bool isUSBconnected()
+        {
+            return usbConnectionState;
+        }
+
         bool writeMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
         {
             return USBMIDIOverSerial::write(UART_CHANNEL_USB_LINK, USBMIDIpacket, USBMIDIOverSerial::packetType_t::midi);
@@ -255,6 +266,12 @@ namespace Board
 #endif
 
                     return true;
+                }
+                else
+                {
+                    //internal command
+                    if (USBMIDIpacket.Event == static_cast<uint8_t>(USBLink::internalCMD_t::usbState))
+                        usbConnectionState = USBMIDIpacket.Data1;
                 }
             }
 

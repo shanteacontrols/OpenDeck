@@ -19,11 +19,35 @@ limitations under the License.
 #include "board/Board.h"
 #include "board/common/USBMIDIOverSerial/USBMIDIOverSerial.h"
 #include "Commands.h"
+#include "core/src/general/Timing.h"
+
+/// Time in milliseconds after which USB connection state should be checked
+#define USB_CONN_CHECK_TIME 2000
 
 namespace
 {
     MIDI::USBMIDIpacket_t                  USBMIDIpacket;
     Board::USBMIDIOverSerial::packetType_t packetType;
+
+    void checkUSBconnection()
+    {
+        static uint32_t lastCheckTime       = 0;
+        static bool     lastConnectionState = false;
+
+        if (core::timing::currentRunTimeMs() - lastCheckTime > USB_CONN_CHECK_TIME)
+        {
+            bool newState = Board::USB::isUSBconnected();
+
+            if (lastConnectionState != newState)
+            {
+                USBMIDIpacket.Event = static_cast<uint8_t>(USBLink::internalCMD_t::usbState);
+                USBMIDIpacket.Data1 = newState;
+                Board::USBMIDIOverSerial::write(UART_CHANNEL_USB_LINK, USBMIDIpacket, Board::USBMIDIOverSerial::packetType_t::internal);
+
+                lastConnectionState = newState;
+            }
+        }
+    }
 }    // namespace
 
 int main(void)
@@ -54,5 +78,7 @@ int main(void)
                 }
             }
         }
+
+        checkUSBconnection();
     }
 }
