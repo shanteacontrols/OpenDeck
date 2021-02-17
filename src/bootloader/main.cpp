@@ -23,9 +23,11 @@ limitations under the License.
 #include "FwSelector/FwSelector.h"
 #include "core/src/general/Timing.h"
 
-//Number of sent FW bytes via USB link after which confirmation is expected
-#define FW_CHUNK_BUFFER_SIZE_ACK 16
-#define USB_LINK_MAGIC_VAL_APP   0x55
+/// Value sent from non-USB target to USB link before loading application
+#define USB_LINK_MAGIC_VAL_APP 0x55
+
+/// Value sent from non-USB target to USB link after the firmware update is done
+#define TARGET_FW_UPDATE_DONE 0xFD
 
 class BTLDRWriter : public Updater::BTLDRWriter
 {
@@ -52,6 +54,12 @@ class BTLDRWriter : public Updater::BTLDRWriter
 
     void apply() override
     {
+#ifndef USB_MIDI_SUPPORTED
+        Board::UART::write(UART_CHANNEL_USB_LINK, TARGET_FW_UPDATE_DONE);
+
+        while (!Board::UART::isTxEmpty(UART_CHANNEL_USB_LINK))
+            ;
+#endif
         Board::reboot();
     }
 };
@@ -140,12 +148,13 @@ class Reader
 #ifdef USB_MIDI_SUPPORTED
     void read()
     {
+        uint8_t data = 0;
+
         if (Board::USB::readMIDI(_usbMIDIpacket))
         {
             if (_sysExParser.isValidMessage(_usbMIDIpacket))
             {
-                size_t  dataSize = _sysExParser.dataBytes();
-                uint8_t data     = 0;
+                size_t dataSize = _sysExParser.dataBytes();
 
                 if (dataSize)
                 {
@@ -156,48 +165,9 @@ class Reader
 #ifdef USB_LINK_MCU
                             Board::UART::write(UART_CHANNEL_USB_LINK, data);
 
-                            //To avoid compiling the entire parser to figure out the end
-                            //of the FW stream (if won't fit into 4k space), parse FW end manually.
-                            //FW end stream is detected by two messages with data size being 2.
-                            //Taken those 4 bytes together, COMMAND_FW_UPDATE_END value should be formed
-                            //If it is, reboot the MCU into app mode.
-
-                            if (dataSize == 2)
-                            {
-                                if (((COMMAND_FW_UPDATE_END >> (endCounter * 8)) & static_cast<uint32_t>(0xFF)) != data)
-                                {
-                                    endCounter = 0;
-                                }
-                                else
-                                {
-                                    endCounter++;
-
-                                    if (endCounter == 4)
-                                    {
-                                        //end of stream detected
-                                        //wait until everything is sent and then reboot
-                                        while (!Board::UART::isTxEmpty(UART_CHANNEL_USB_LINK))
-                                            ;
-
-                                        Board::reboot();
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                endCounter = 0;
-                            }
-
-                            if (++fwChunkCounter == FW_CHUNK_BUFFER_SIZE_ACK)
-                            {
-                                fwChunkCounter = 0;
-
-                                //target MCU might be busy writing new flash page - packets could be missed
-                                //expect a byte to appear on RX as confirmation
-                                //value doesn't matter
-                                while (!Board::UART::read(UART_CHANNEL_USB_LINK, data))
-                                    ;
-                            }
+                            //expect ACK but ignore the value
+                            while (!Board::UART::read(UART_CHANNEL_USB_LINK, data))
+                                ;
 #else
                             _updater.feed(data);
 #endif
@@ -206,23 +176,29 @@ class Reader
                 }
             }
         }
+
+#ifdef USB_LINK_MCU
+        if (Board::UART::read(UART_CHANNEL_USB_LINK, data))
+        {
+            if (data == TARGET_FW_UPDATE_DONE)
+            {
+                //To avoid compiling the entire parser to figure out the end
+                //of the FW stream (if won't fit into 4k space), wait for TARGET_FW_UPDATE_DONE
+                //byte on UART sent by target MCU (this is done in BTLDRWriter::apply())
+                Board::reboot();
+            }
+        }
+#endif
     }
 #else
     void read()
     {
-        //read data from uart
-        uint8_t data = 0;
-        static uint8_t counter = 0;
+        uint8_t data;
 
         if (Board::UART::read(UART_CHANNEL_USB_LINK, data))
         {
-            if (++counter == FW_CHUNK_BUFFER_SIZE_ACK)
-            {
-                //send confirmation to USB link MCU
-                counter = 0;
-                Board::UART::write(UART_CHANNEL_USB_LINK, 0xFF);
-            }
-
+            //send USB_LINK_MAGIC_VAL_APP for ACK so that USB link can proceed with next byte
+            Board::UART::write(UART_CHANNEL_USB_LINK, USB_LINK_MAGIC_VAL_APP);
             _updater.feed(data);
         }
     }
@@ -232,13 +208,10 @@ class Reader
 #ifndef USB_LINK_MCU
     BTLDRWriter _btldrWriter;
     Updater     _updater = Updater(_btldrWriter, COMMAND_FW_UPDATE_START, COMMAND_FW_UPDATE_END, FW_UID);
-#else
-    uint8_t fwChunkCounter = 0;
-    uint8_t endCounter;
 #endif
 
 #ifdef USB_MIDI_SUPPORTED
-    MIDI::USBMIDIpacket_t _usbMIDIpacket;
+    MIDI::USBMIDIpacket_t _usbMIDIpacket = {};
     SysExParser           _sysExParser;
 #endif
 };
