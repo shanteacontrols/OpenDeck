@@ -268,6 +268,10 @@ bool System::init()
         buttons.processButton(analogIndex + MAX_NUMBER_OF_BUTTONS, value);
     });
 
+    hwa.registerOnUSBconnectionHandler([this]() {
+        analog.update(true);
+    });
+
     if (!hwa.init())
         return false;
 
