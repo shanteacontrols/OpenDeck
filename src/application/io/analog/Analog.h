@@ -96,7 +96,7 @@ namespace IO
                 lastValue[i] = 0xFFFF;
         }
 
-        void      update();
+        void      update(bool forceResend = false);
         void      processReading(uint8_t analogID, uint16_t value);
         void      debounceReset(uint16_t index);
         void      registerButtonHandler(buttonHandler_t handler);

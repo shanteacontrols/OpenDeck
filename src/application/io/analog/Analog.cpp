@@ -21,17 +21,30 @@ limitations under the License.
 
 using namespace IO;
 
-void Analog::update()
+void Analog::update(bool forceResend)
 {
     //check values
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
-        uint16_t value;
+        if (!forceResend)
+        {
+            uint16_t value;
 
-        if (!hwa.value(i, value))
-            continue;
+            if (!hwa.value(i, value))
+                continue;
 
-        processReading(i, value);
+            processReading(i, value);
+        }
+        else
+        {
+            if (database.read(Database::Section::analog_t::enable, i))
+            {
+                analogDescriptor_t analogDescriptor;
+                fillAnalogDescriptor(i, analogDescriptor);
+
+                sendMessage(i, analogDescriptor, lastValue[i]);
+            }
+        }
     }
 }
 

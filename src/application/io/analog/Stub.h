@@ -93,7 +93,7 @@ namespace IO
                ComponentInfo& cInfo)
         {}
 
-        void update()
+        void update(bool forceResend = false)
         {
         }
 
