@@ -31,11 +31,3 @@ limitations under the License.
 #endif
 
 #define USB_MANUFACTURER UNICODE_STRING("Shantea Controls")
-
-#if defined(FW_APP)
-#define USB_PRODUCT UNICODE_STRING("OpenDeck")
-#elif defined(FW_BOOT)
-#define USB_PRODUCT UNICODE_STRING("OpenDeck DFU")
-#elif defined(FW_CDC)
-#define USB_PRODUCT UNICODE_STRING("OpenDeck CDC")
-#endif
