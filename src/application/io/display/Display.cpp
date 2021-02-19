@@ -19,7 +19,6 @@ limitations under the License.
 #include <string.h>
 #include "Display.h"
 #include "strings/Strings.h"
-#include "../../Version.h"
 #include "midi/src/MIDI.h"
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"

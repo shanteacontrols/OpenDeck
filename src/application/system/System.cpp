@@ -18,7 +18,6 @@ limitations under the License.
 
 #include "System.h"
 #include "board/Board.h"
-#include "Version.h"
 #include "Layout.h"
 #include "bootloader/FwSelector/FwSelector.h"
 #include "core/src/general/Timing.h"
