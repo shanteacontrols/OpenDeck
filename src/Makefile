@@ -254,8 +254,8 @@ sysexfw: merged-sysex
 pre-build: $(PINS_GEN_SOURCE) $(TSCREEN_GEN_SOURCE)
 
 board/gen/$(TARGET)/Pins.cpp: $(TARGET_DEF_FILE)
-	@echo Generating pins...
-	@$(SCRIPTS_DIR)/gen_pins.sh $<
+	@echo Generating board definitions...
+	@$(SCRIPTS_DIR)/gen_board.sh $<
 
 application/io/touchscreen/design/gen/$(TARGET).cpp: application/io/touchscreen/design/$(TARGET).json
 	@echo Generating touchscreen coordinate file...
