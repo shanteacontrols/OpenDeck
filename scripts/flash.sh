@@ -14,17 +14,27 @@ then
     exit 1
 fi
 
-echo "Please type the serial port on which ArduinoISP is connected, without /dev/ part:"
+echo -n "Please type the serial port on which ArduinoISP is connected, without /dev/ part.
+Port name usually has the following pattern, where X is number representing the port:
+    * Linux: ttyACMX (or ttyUSBX)
+    * macOS: cu.usbmodemXXX
+    * WSL: ttySX (where X corresponds with COMX port name from Windows)
+If unsure, open Arduino IDE and check where your Arduino as an programmer is connected to under Tools/Port.
+Port: "
+
 read -r port
 
 echo "Please select AVR MCU you want to flash and then press enter:"
 
 boards=$(find src/board/avr/variants/avr8 -mindepth 1 -type d | awk -F/ '{ print $NF }')
 echo "$boards" | cut -d . -f1 | cat -n
-printf "Board number: "
+
+echo -n "Board number: "
 read -r board_nr
 
-echo "Please wait..."
+echo "
+Please wait...
+"
 
 mcu=$(echo "$boards" | head -n "$board_nr" | tail -n 1)
 
@@ -34,8 +44,18 @@ ext_fuse=$(command < src/board/avr/variants/avr8/"$mcu"/fuses.txt grep ^ext= | c
 low_fuse=$(command < src/board/avr/variants/avr8/"$mcu"/fuses.txt grep ^low= | cut -d= -f2)
 high_fuse=$(command < src/board/avr/variants/avr8/"$mcu"/fuses.txt grep ^high= | cut -d= -f2)
 
-echo "Type the path to the binary you want to flash"
+echo -n "Type the path (location) of the binary you want to flash.
+If you want to flash official binary from OpenDeck repository, go to the following link and
+download appropriate .hex file: https://github.com/paradajz/OpenDeck/releases
+.hex file can be found in release assets.
+
+Tip: you can also drag .hex file to the terminal - path to the binary will be printed.
+Path: "
+
 read -r path
+
+#remove single quotes if present
+path=${path//\'/}
 
 echo "Connect programmer to programming header on the board and then press enter."
 read -rn1
