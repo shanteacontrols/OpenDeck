@@ -155,8 +155,8 @@ class HWALEDs : public IO::LEDs::HWA
 
     void setState(size_t index, IO::LEDs::brightness_t brightness) override
     {
-        if (stateHandler != nullptr)
-            stateHandler(index, static_cast<bool>(brightness));
+        if (_stateHandler != nullptr)
+            _stateHandler(index, static_cast<bool>(brightness));
     }
 
     size_t rgbSingleComponentIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
@@ -205,11 +205,11 @@ class HWALEDs : public IO::LEDs::HWA
 
     void registerHandler(void (*fptr)(size_t index, bool state))
     {
-        stateHandler = fptr;
+        _stateHandler = fptr;
     }
 
     private:
-    void (*stateHandler)(size_t index, bool state) = nullptr;
+    void (*_stateHandler)(size_t index, bool state) = nullptr;
 } hwaLEDs;
 #else
 class HWALEDsStub : public IO::LEDs::HWA
@@ -479,34 +479,34 @@ class SystemHWA : public System::HWA
     void enableDINMIDI(bool loopback) override
     {
 #ifdef DIN_MIDI_SUPPORTED
-        if (dinMIDIenabled && (loopback == dinMIDIloopbackEnabled))
+        if (_dinMIDIenabled && (loopback == _dinMIDIloopbackEnabled))
             return;    //nothing do do
 
-        if (!dinMIDIenabled)
+        if (!_dinMIDIenabled)
             Board::UART::init(UART_CHANNEL_DIN, UART_BAUDRATE_MIDI_STD);
 
         Board::UART::setLoopbackState(UART_CHANNEL_DIN, loopback);
 
-        dinMIDIenabled         = true;
-        dinMIDIloopbackEnabled = loopback;
+        _dinMIDIenabled         = true;
+        _dinMIDIloopbackEnabled = loopback;
 #endif
     }
 
     void disableDINMIDI() override
     {
 #ifdef DIN_MIDI_SUPPORTED
-        if (!dinMIDIenabled)
+        if (!_dinMIDIenabled)
             return;    //nothing to do
 
         Board::UART::deInit(UART_CHANNEL_DIN);
-        dinMIDIenabled         = false;
-        dinMIDIloopbackEnabled = false;
+        _dinMIDIenabled         = false;
+        _dinMIDIloopbackEnabled = false;
 #endif
     }
 
     void registerOnUSBconnectionHandler(System::usbConnectionHandler_t usbConnectionHandler)
     {
-        this->usbConnectionHandler = std::move(usbConnectionHandler);
+        _usbConnectionHandler = std::move(usbConnectionHandler);
     }
 
     void checkUSBconnection()
@@ -522,8 +522,8 @@ class SystemHWA : public System::HWA
             {
                 if (!lastConnectionState)
                 {
-                    if (usbConnectionHandler != nullptr)
-                        usbConnectionHandler();
+                    if (_usbConnectionHandler != nullptr)
+                        _usbConnectionHandler();
                 }
             }
 
@@ -532,15 +532,15 @@ class SystemHWA : public System::HWA
     }
 
     private:
-#ifdef DIN_MIDI_SUPPORTED
-    bool dinMIDIenabled         = false;
-    bool dinMIDIloopbackEnabled = false;
-#endif
-
     /// Time in milliseconds after which USB connection state should be checked
     static constexpr uint32_t USB_CONN_CHECK_TIME = 2000;
 
-    System::usbConnectionHandler_t usbConnectionHandler = nullptr;
+#ifdef DIN_MIDI_SUPPORTED
+    bool _dinMIDIenabled         = false;
+    bool _dinMIDIloopbackEnabled = false;
+#endif
+
+    System::usbConnectionHandler_t _usbConnectionHandler = nullptr;
 } hwaSystem;
 
 MIDI            midi(hwaMIDI);

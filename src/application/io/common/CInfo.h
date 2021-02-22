@@ -31,17 +31,17 @@ class ComponentInfo
 
     void registerHandler(cinfoHandler_t handler)
     {
-        this->handler = std::move(handler);
+        _handler = std::move(handler);
     }
 
     void send(Database::block_t block, SysExConf::sysExParameter_t id)
     {
-        if (handler != nullptr)
-            handler(block, id);
+        if (_handler != nullptr)
+            _handler(block, id);
     }
 
     private:
     /// Common handler used to identify currently active component during SysEx configuration.
     /// Must be implemented externally.
-    cinfoHandler_t handler = nullptr;
+    cinfoHandler_t _handler = nullptr;
 };

@@ -28,22 +28,22 @@ using namespace IO;
 /// Initialize display driver and variables.
 bool Display::init(bool startupInfo)
 {
-    if (database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::enable)))
+    if (_database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::enable)))
     {
-        auto    controller = static_cast<U8X8::displayController_t>(database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::controller)));
-        auto    resolution = static_cast<U8X8::displayResolution_t>(database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::resolution)));
-        uint8_t address    = database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::i2cAddress));
+        auto    controller = static_cast<U8X8::displayController_t>(_database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::controller)));
+        auto    resolution = static_cast<U8X8::displayResolution_t>(_database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::resolution)));
+        uint8_t address    = _database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::i2cAddress));
 
         if (!startupInfo)
         {
             //avoid reinitializing display with the same settings in this case
-            if (initialized)
+            if (_initialized)
             {
-                if (lastController == controller)
+                if (_lastController == controller)
                 {
-                    if (lastResolution == resolution)
+                    if (_lastResolution == resolution)
                     {
-                        if (lastAddress == address)
+                        if (_lastAddress == address)
                         {
                             return true;
                         }
@@ -52,58 +52,57 @@ bool Display::init(bool startupInfo)
             }
         }
 
-        if (u8x8.init(address, controller, resolution))
+        if (_u8x8.init(address, controller, resolution))
         {
-            u8x8.clearDisplay();
-            u8x8.setPowerSave(0);
-            u8x8.setFlipMode(0);
+            _u8x8.clearDisplay();
+            _u8x8.setPowerSave(0);
+            _u8x8.setFlipMode(0);
+            _u8x8.setFont(u8x8_font_pxplustandynewtv_r);
+            _u8x8.clearDisplay();
 
-            this->resolution = resolution;
-
-            u8x8.setFont(u8x8_font_pxplustandynewtv_r);
-            u8x8.clearDisplay();
+            _resolution = resolution;
 
             //init char arrays
             for (int i = 0; i < LCD_HEIGHT_MAX; i++)
             {
                 for (int j = 0; j < LCD_STRING_BUFFER_SIZE - 2; j++)
                 {
-                    lcdRowStillText[i][j] = ' ';
-                    lcdRowTempText[i][j]  = ' ';
+                    _lcdRowStillText[i][j] = ' ';
+                    _lcdRowTempText[i][j]  = ' ';
                 }
 
-                lcdRowStillText[i][LCD_STRING_BUFFER_SIZE - 1] = '\0';
-                lcdRowTempText[i][LCD_STRING_BUFFER_SIZE - 1]  = '\0';
+                _lcdRowStillText[i][LCD_STRING_BUFFER_SIZE - 1] = '\0';
+                _lcdRowTempText[i][LCD_STRING_BUFFER_SIZE - 1]  = '\0';
 
-                scrollEvent[i].size         = 0;
-                scrollEvent[i].startIndex   = 0;
-                scrollEvent[i].currentIndex = 0;
-                scrollEvent[i].direction    = scrollDirection_t::leftToRight;
+                _scrollEvent[i].size         = 0;
+                _scrollEvent[i].startIndex   = 0;
+                _scrollEvent[i].currentIndex = 0;
+                _scrollEvent[i].direction    = scrollDirection_t::leftToRight;
             }
 
-            initialized = true;
+            _initialized = true;
 
             if (startupInfo)
             {
                 setDirectWriteState(true);
 
-                if (database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::welcomeMsg)))
+                if (_database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::welcomeMsg)))
                     displayWelcomeMessage();
 
-                if (database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::vInfoMsg)))
+                if (_database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::vInfoMsg)))
                     displayVinfo(false);
 
                 setDirectWriteState(false);
             }
 
-            setAlternateNoteDisplay(database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::MIDInotesAlternate)));
-            setRetentionTime(database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::MIDIeventTime)) * 1000);
+            setAlternateNoteDisplay(_database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::MIDInotesAlternate)));
+            setRetentionTime(_database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::MIDIeventTime)) * 1000);
 
             clearMIDIevent(eventType_t::in);
             clearMIDIevent(eventType_t::out);
 
-            lastController = controller;
-            lastResolution = resolution;
+            _lastController = controller;
+            _lastResolution = resolution;
 
             return true;
         }
@@ -114,15 +113,15 @@ bool Display::init(bool startupInfo)
 
 bool Display::deInit()
 {
-    if (!initialized)
+    if (!_initialized)
         return false;    //nothing to do
 
-    if (u8x8.deInit())
+    if (_u8x8.deInit())
     {
-        initialized    = false;
-        lastController = U8X8::displayController_t::invalid;
-        lastResolution = U8X8::displayResolution_t::invalid;
-        lastAddress    = 0;
+        _initialized    = false;
+        _lastController = U8X8::displayController_t::invalid;
+        _lastResolution = U8X8::displayResolution_t::invalid;
+        _lastAddress    = 0;
         return true;
     }
 
@@ -132,10 +131,10 @@ bool Display::deInit()
 /// Checks if LCD requires updating continuously.
 bool Display::update()
 {
-    if (!initialized)
+    if (!_initialized)
         return false;
 
-    if ((core::timing::currentRunTimeMs() - lastLCDupdateTime) < LCD_REFRESH_TIME)
+    if ((core::timing::currentRunTimeMs() - _lastLCDupdateTime) < LCD_REFRESH_TIME)
         return false;    //we don't need to update lcd in real time
 
     //use char pointer to point to line we're going to print
@@ -145,44 +144,44 @@ bool Display::update()
 
     for (int i = 0; i < LCD_HEIGHT_MAX; i++)
     {
-        if (activeTextType == lcdTextType_t::still)
+        if (_activeTextType == lcdTextType_t::still)
         {
             //scrolling is possible only with still text
             updateScrollStatus(i);
-            charPointer = lcdRowStillText[i];
+            charPointer = _lcdRowStillText[i];
         }
         else
         {
-            charPointer = lcdRowTempText[i];
+            charPointer = _lcdRowTempText[i];
         }
 
-        if (!charChange[i])
+        if (!_charChange[i])
             continue;
 
         int8_t string_len = strlen(charPointer) > LCD_WIDTH_MAX ? LCD_WIDTH_MAX : strlen(charPointer);
 
         for (int j = 0; j < string_len; j++)
         {
-            if (BIT_READ(charChange[i], j))
-                u8x8.drawGlyph(j, rowMap[resolution][i], charPointer[j + scrollEvent[i].currentIndex]);
+            if (BIT_READ(_charChange[i], j))
+                _u8x8.drawGlyph(j, _rowMap[_resolution][i], charPointer[j + _scrollEvent[i].currentIndex]);
         }
 
         //now fill remaining columns with spaces
         for (int j = string_len; j < LCD_WIDTH_MAX; j++)
-            u8x8.drawGlyph(j, rowMap[resolution][i], ' ');
+            _u8x8.drawGlyph(j, _rowMap[_resolution][i], ' ');
 
-        charChange[i] = 0;
+        _charChange[i] = 0;
     }
 
-    lastLCDupdateTime = core::timing::currentRunTimeMs();
+    _lastLCDupdateTime = core::timing::currentRunTimeMs();
 
     //check if midi in/out messages need to be cleared
-    if (MIDImessageRetentionTime)
+    if (_MIDImessageRetentionTime)
     {
         for (int i = 0; i < 2; i++)
         {
             //0 = in, 1 = out
-            if ((core::timing::currentRunTimeMs() - lastMIDIMessageDisplayTime[i] > MIDImessageRetentionTime) && midiMessageDisplayed[i])
+            if ((core::timing::currentRunTimeMs() - _lastMIDIMessageDisplayTime[i] > _MIDImessageRetentionTime) && _midiMessageDisplayed[i])
                 clearMIDIevent(static_cast<eventType_t>(i));
         }
     }
@@ -198,20 +197,20 @@ bool Display::update()
 /// param [in]: startIndex      Index on which received text should on specified row.
 void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex)
 {
-    if (!initialized)
+    if (!_initialized)
         return;
 
-    const char* string     = stringBuilder.string();
+    const char* string     = _stringBuilder.string();
     uint8_t     size       = strlen(string);
     uint8_t     scrollSize = 0;
 
     if (size + startIndex >= LCD_STRING_BUFFER_SIZE - 2)
         size = LCD_STRING_BUFFER_SIZE - 2 - startIndex;    //trim string
 
-    if (directWriteState)
+    if (_directWriteState)
     {
         for (int j = 0; j < size; j++)
-            u8x8.drawGlyph(j + startIndex, rowMap[resolution][row], string[j]);
+            _u8x8.drawGlyph(j + startIndex, _rowMap[_resolution][row], string[j]);
     }
     else
     {
@@ -222,58 +221,57 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
         case lcdTextType_t::still:
             for (int i = 0; i < size; i++)
             {
-                lcdRowStillText[row][startIndex + i] = string[i];
-                BIT_WRITE(charChange[row], startIndex + i, 1);
+                _lcdRowStillText[row][startIndex + i] = string[i];
+                BIT_WRITE(_charChange[row], startIndex + i, 1);
             }
 
             //scrolling is enabled only if some characters are found after LCD_WIDTH_MAX-1 index
             for (int i = LCD_WIDTH_MAX; i < LCD_STRING_BUFFER_SIZE - 1; i++)
             {
-                if ((lcdRowStillText[row][i] != ' ') && (lcdRowStillText[row][i] != '\0'))
+                if ((_lcdRowStillText[row][i] != ' ') && (_lcdRowStillText[row][i] != '\0'))
                 {
                     scrollingEnabled = true;
                     scrollSize++;
                 }
             }
 
-            if (scrollingEnabled && !scrollEvent[row].size)
+            if (scrollingEnabled && !_scrollEvent[row].size)
             {
                 //enable scrolling
-                scrollEvent[row].size         = scrollSize;
-                scrollEvent[row].startIndex   = startIndex;
-                scrollEvent[row].currentIndex = 0;
-                scrollEvent[row].direction    = scrollDirection_t::leftToRight;
-
-                lastScrollTime = core::timing::currentRunTimeMs();
+                _scrollEvent[row].size         = scrollSize;
+                _scrollEvent[row].startIndex   = startIndex;
+                _scrollEvent[row].currentIndex = 0;
+                _scrollEvent[row].direction    = scrollDirection_t::leftToRight;
+                _lastScrollTime                = core::timing::currentRunTimeMs();
             }
-            else if (!scrollingEnabled && scrollEvent[row].size)
+            else if (!scrollingEnabled && _scrollEvent[row].size)
             {
-                scrollEvent[row].size         = 0;
-                scrollEvent[row].startIndex   = 0;
-                scrollEvent[row].currentIndex = 0;
-                scrollEvent[row].direction    = scrollDirection_t::leftToRight;
+                _scrollEvent[row].size         = 0;
+                _scrollEvent[row].startIndex   = 0;
+                _scrollEvent[row].currentIndex = 0;
+                _scrollEvent[row].direction    = scrollDirection_t::leftToRight;
             }
             break;
 
         case lcdTextType_t::temp:
             //clear entire message first
             for (int j = 0; j < LCD_WIDTH_MAX - 2; j++)
-                lcdRowTempText[row][j] = ' ';
+                _lcdRowTempText[row][j] = ' ';
 
-            lcdRowTempText[row][LCD_WIDTH_MAX - 1] = '\0';
+            _lcdRowTempText[row][LCD_WIDTH_MAX - 1] = '\0';
 
             for (int i = 0; i < size; i++)
-                lcdRowTempText[row][startIndex + i] = string[i];
+                _lcdRowTempText[row][startIndex + i] = string[i];
 
             //make sure message is properly EOL'ed
-            lcdRowTempText[row][startIndex + size] = '\0';
+            _lcdRowTempText[row][startIndex + size] = '\0';
 
-            activeTextType     = lcdTextType_t::temp;
-            messageDisplayTime = core::timing::currentRunTimeMs();
+            _activeTextType     = lcdTextType_t::temp;
+            _messageDisplayTime = core::timing::currentRunTimeMs();
 
             //update all characters on display
             for (int i = 0; i < LCD_HEIGHT_MAX; i++)
-                charChange[i] = static_cast<uint32_t>(0xFFFFFFFF);
+                _charChange[i] = static_cast<uint32_t>(0xFFFFFFFF);
             break;
 
         default:
@@ -288,7 +286,7 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
 /// param [in]: state   New direct write state.
 void Display::setDirectWriteState(bool state)
 {
-    directWriteState = state;
+    _directWriteState = state;
 }
 
 /// Calculates position on which text needs to be set on display to be in center of display row.
@@ -296,22 +294,22 @@ void Display::setDirectWriteState(bool state)
 /// returns: Center position of text on display.
 uint8_t Display::getTextCenter(uint8_t textSize)
 {
-    return u8x8.getColumns() / 2 - (textSize / 2);
+    return _u8x8.getColumns() / 2 - (textSize / 2);
 }
 
 /// Updates status of temp text on display.
 void Display::updateTempTextStatus()
 {
-    if (activeTextType == lcdTextType_t::temp)
+    if (_activeTextType == lcdTextType_t::temp)
     {
         //temp text - check if temp text should be removed
-        if ((core::timing::currentRunTimeMs() - messageDisplayTime) > LCD_MESSAGE_DURATION)
+        if ((core::timing::currentRunTimeMs() - _messageDisplayTime) > LCD_MESSAGE_DURATION)
         {
-            activeTextType = lcdTextType_t::still;
+            _activeTextType = lcdTextType_t::still;
 
             //make sure all characters are updated once temp text is removed
             for (int j = 0; j < LCD_HEIGHT_MAX; j++)
-                charChange[j] = static_cast<uint32_t>(0xFFFFFFFF);
+                _charChange[j] = static_cast<uint32_t>(0xFFFFFFFF);
         }
     }
 }
@@ -320,69 +318,69 @@ void Display::updateTempTextStatus()
 /// param [in]: row     Row which is being checked.
 void Display::updateScrollStatus(uint8_t row)
 {
-    if (!scrollEvent[row].size)
+    if (!_scrollEvent[row].size)
         return;
 
-    if ((core::timing::currentRunTimeMs() - lastScrollTime) < LCD_SCROLL_TIME)
+    if ((core::timing::currentRunTimeMs() - _lastScrollTime) < LCD_SCROLL_TIME)
         return;
 
-    switch (scrollEvent[row].direction)
+    switch (_scrollEvent[row].direction)
     {
     case scrollDirection_t::leftToRight:
         //left to right
-        scrollEvent[row].currentIndex++;
+        _scrollEvent[row].currentIndex++;
 
-        if (scrollEvent[row].currentIndex == scrollEvent[row].size)
+        if (_scrollEvent[row].currentIndex == _scrollEvent[row].size)
         {
             //switch direction
-            scrollEvent[row].direction = scrollDirection_t::rightToLeft;
+            _scrollEvent[row].direction = scrollDirection_t::rightToLeft;
         }
         break;
 
     case scrollDirection_t::rightToLeft:
         //right to left
-        scrollEvent[row].currentIndex--;
+        _scrollEvent[row].currentIndex--;
 
-        if (scrollEvent[row].currentIndex == 0)
+        if (_scrollEvent[row].currentIndex == 0)
         {
             //switch direction
-            scrollEvent[row].direction = scrollDirection_t::leftToRight;
+            _scrollEvent[row].direction = scrollDirection_t::leftToRight;
         }
         break;
     }
 
-    for (int i = scrollEvent[row].startIndex; i < LCD_WIDTH_MAX; i++)
-        BIT_WRITE(charChange[row], i, 1);
+    for (int i = _scrollEvent[row].startIndex; i < LCD_WIDTH_MAX; i++)
+        BIT_WRITE(_charChange[row], i, 1);
 
-    lastScrollTime = core::timing::currentRunTimeMs();
+    _lastScrollTime = core::timing::currentRunTimeMs();
 }
 
 /// Checks for currently active text type on display.
 /// returns: Active text type (enumerated type). See lcdTextType_t enumeration.
 Display::lcdTextType_t Display::getActiveTextType()
 {
-    return activeTextType;
+    return _activeTextType;
 }
 
 /// Sets new message retention time.
 /// param [in]: retentionTime New retention time in milliseconds.
 void Display::setRetentionTime(uint32_t retentionTime)
 {
-    if (retentionTime < MIDImessageRetentionTime)
+    if (retentionTime < _MIDImessageRetentionTime)
     {
         for (int i = 0; i < 2; i++)
         {
             //0 = in, 1 = out
             //make sure events are cleared immediately in next call of update()
-            lastMIDIMessageDisplayTime[i] = 0;
+            _lastMIDIMessageDisplayTime[i] = 0;
         }
     }
 
-    MIDImessageRetentionTime = retentionTime;
+    _MIDImessageRetentionTime = retentionTime;
 
     //reset last update time
-    lastMIDIMessageDisplayTime[eventType_t::in]  = core::timing::currentRunTimeMs();
-    lastMIDIMessageDisplayTime[eventType_t::out] = core::timing::currentRunTimeMs();
+    _lastMIDIMessageDisplayTime[eventType_t::in]  = core::timing::currentRunTimeMs();
+    _lastMIDIMessageDisplayTime[eventType_t::out] = core::timing::currentRunTimeMs();
 }
 
 /// Adds normalization to a given octave.
@@ -393,16 +391,16 @@ int8_t Display::normalizeOctave(uint8_t octave, int8_t normalization)
 
 void Display::displayWelcomeMessage()
 {
-    if (!initialized)
+    if (!_initialized)
         return;
 
     uint8_t charIndex = 0;
     uint8_t location  = 0;
     uint8_t startRow;
 
-    u8x8.clearDisplay();
+    _u8x8.clearDisplay();
 
-    switch (u8x8.getRows())
+    switch (_u8x8.getRows())
     {
     case 4:
         startRow = 1;
@@ -413,26 +411,26 @@ void Display::displayWelcomeMessage()
         break;
     }
 
-    stringBuilder.overwrite("OpenDeck");
-    location           = getTextCenter(strlen(stringBuilder.string()));
+    _stringBuilder.overwrite("OpenDeck");
+    location           = getTextCenter(strlen(_stringBuilder.string()));
     charIndex          = 0;
-    const char* string = stringBuilder.string();
+    const char* string = _stringBuilder.string();
 
     while (string[charIndex] != '\0')
     {
-        u8x8.drawGlyph(location + charIndex, rowMap[resolution][startRow], string[charIndex]);
+        _u8x8.drawGlyph(location + charIndex, _rowMap[_resolution][startRow], string[charIndex]);
         charIndex++;
     }
 
     core::timing::waitMs(1000);
 
-    stringBuilder.overwrite("Welcome!");
-    location  = getTextCenter(strlen(stringBuilder.string()));
+    _stringBuilder.overwrite("Welcome!");
+    location  = getTextCenter(strlen(_stringBuilder.string()));
     charIndex = 0;
 
     while (string[charIndex] != '\0')
     {
-        u8x8.drawGlyph(location + charIndex, rowMap[resolution][startRow + 1], string[charIndex]);
+        _u8x8.drawGlyph(location + charIndex, _rowMap[_resolution][startRow + 1], string[charIndex]);
         core::timing::waitMs(50);
         charIndex++;
     }
@@ -442,14 +440,14 @@ void Display::displayWelcomeMessage()
 
 void Display::displayVinfo(bool newFw)
 {
-    if (!initialized)
+    if (!_initialized)
         return;
 
     uint8_t startRow;
 
-    u8x8.clearDisplay();
+    _u8x8.clearDisplay();
 
-    switch (u8x8.getRows())
+    switch (_u8x8.getRows())
     {
     case 4:
         startRow = 1;
@@ -460,29 +458,29 @@ void Display::displayVinfo(bool newFw)
         break;
     }
 
-    stringBuilder.overwrite("Version info:");
-    updateText(startRow, lcdTextType_t::temp, getTextCenter(strlen(stringBuilder.string())));
+    _stringBuilder.overwrite("Version info:");
+    updateText(startRow, lcdTextType_t::temp, getTextCenter(strlen(_stringBuilder.string())));
 
-    stringBuilder.overwrite("FW: v%d.%d.%d", SW_VERSION_MAJOR, SW_VERSION_MINOR, SW_VERSION_REVISION);
-    updateText(startRow + 1, lcdTextType_t::temp, getTextCenter(strlen(stringBuilder.string())));
+    _stringBuilder.overwrite("FW: v%d.%d.%d", SW_VERSION_MAJOR, SW_VERSION_MINOR, SW_VERSION_REVISION);
+    updateText(startRow + 1, lcdTextType_t::temp, getTextCenter(strlen(_stringBuilder.string())));
 
-    stringBuilder.overwrite("HW: %s", Strings::board());
+    _stringBuilder.overwrite("HW: %s", Strings::board());
 
-    updateText(startRow + 2, lcdTextType_t::temp, getTextCenter(strlen(stringBuilder.string())));
+    updateText(startRow + 2, lcdTextType_t::temp, getTextCenter(strlen(_stringBuilder.string())));
 
     core::timing::waitMs(2000);
 }
 
 void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, uint16_t byte2, uint8_t byte3)
 {
-    if (!initialized)
+    if (!_initialized)
         return;
 
     uint8_t startRow    = (type == Display::eventType_t::in) ? ROW_START_MIDI_IN_MESSAGE : ROW_START_MIDI_OUT_MESSAGE;
     uint8_t startColumn = (type == Display::eventType_t::in) ? COLUMN_START_MIDI_IN_MESSAGE : COLUMN_START_MIDI_OUT_MESSAGE;
 
-    stringBuilder.overwrite("%s", Strings::midiMessage(event));
-    stringBuilder.fillUntil(u8x8.getColumns() - startColumn - strlen(stringBuilder.string()));
+    _stringBuilder.overwrite("%s", Strings::midiMessage(event));
+    _stringBuilder.fillUntil(_u8x8.getColumns() - startColumn - strlen(_stringBuilder.string()));
     updateText(startRow, lcdTextType_t::still, startColumn);
 
     switch (event)
@@ -490,26 +488,26 @@ void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, 
     case event_t::noteOff:
     case event_t::noteOn:
 
-        if (!alternateNoteDisplay)
-            stringBuilder.overwrite("%d", byte1);
+        if (!_alternateNoteDisplay)
+            _stringBuilder.overwrite("%d", byte1);
         else
-            stringBuilder.overwrite("%s%d", Strings::note(MIDI::getTonicFromNote(byte1)), normalizeOctave(MIDI::getOctaveFromNote(byte1), octaveNormalization));
+            _stringBuilder.overwrite("%s%d", Strings::note(MIDI::getTonicFromNote(byte1)), normalizeOctave(MIDI::getOctaveFromNote(byte1), _octaveNormalization));
 
-        stringBuilder.append(" v%d CH%d", byte2, byte3);
-        stringBuilder.fillUntil(u8x8.getColumns() - strlen(stringBuilder.string()));
+        _stringBuilder.append(" v%d CH%d", byte2, byte3);
+        _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
         break;
 
     case event_t::programChange:
-        stringBuilder.overwrite("%d CH%d", byte1, byte3);
-        stringBuilder.fillUntil(u8x8.getColumns() - strlen(stringBuilder.string()));
+        _stringBuilder.overwrite("%d CH%d", byte1, byte3);
+        _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
         break;
 
     case event_t::controlChange:
     case event_t::nrpn:
-        stringBuilder.overwrite("%d %d CH%d", byte1, byte2, byte3);
-        stringBuilder.fillUntil(u8x8.getColumns() - strlen(stringBuilder.string()));
+        _stringBuilder.overwrite("%d %d CH%d", byte1, byte2, byte3);
+        _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
         break;
 
@@ -518,8 +516,8 @@ void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, 
     case event_t::mmcRecordOn:
     case event_t::mmcRecordOff:
     case event_t::mmcPause:
-        stringBuilder.overwrite("CH%d", byte1);
-        stringBuilder.fillUntil(u8x8.getColumns() - strlen(stringBuilder.string()));
+        _stringBuilder.overwrite("CH%d", byte1);
+        _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
         break;
 
@@ -530,14 +528,14 @@ void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, 
     case event_t::sysRealTimeActiveSensing:
     case event_t::sysRealTimeSystemReset:
     case event_t::systemExclusive:
-        stringBuilder.overwrite("");
-        stringBuilder.fillUntil(u8x8.getColumns());
+        _stringBuilder.overwrite("");
+        _stringBuilder.fillUntil(_u8x8.getColumns());
         updateText(startRow + 1, lcdTextType_t::still, 0);
         break;
 
     case event_t::presetChange:
-        stringBuilder.overwrite("%d", byte1);
-        stringBuilder.fillUntil(u8x8.getColumns() - strlen(stringBuilder.string()));
+        _stringBuilder.overwrite("%d", byte1);
+        _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
         break;
 
@@ -545,36 +543,36 @@ void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, 
         break;
     }
 
-    lastMIDIMessageDisplayTime[type] = core::timing::currentRunTimeMs();
-    midiMessageDisplayed[type]       = true;
+    _lastMIDIMessageDisplayTime[type] = core::timing::currentRunTimeMs();
+    _midiMessageDisplayed[type]       = true;
 }
 
 void Display::clearMIDIevent(eventType_t type)
 {
-    if (!initialized)
+    if (!_initialized)
         return;
 
     switch (type)
     {
     case eventType_t::in:
         //first row
-        stringBuilder.overwrite("In: ");
-        stringBuilder.fillUntil(u8x8.getColumns() - strlen(stringBuilder.string()));
+        _stringBuilder.overwrite("In: ");
+        _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(ROW_START_MIDI_IN_MESSAGE, lcdTextType_t::still, 0);
         //second row
-        stringBuilder.overwrite("");
-        stringBuilder.fillUntil(u8x8.getColumns() - strlen(stringBuilder.string()));
+        _stringBuilder.overwrite("");
+        _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(ROW_START_MIDI_IN_MESSAGE + 1, lcdTextType_t::still, 0);
         break;
 
     case eventType_t::out:
         //first row
-        stringBuilder.overwrite("Out: ");
-        stringBuilder.fillUntil(u8x8.getColumns() - strlen(stringBuilder.string()));
+        _stringBuilder.overwrite("Out: ");
+        _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(ROW_START_MIDI_OUT_MESSAGE, lcdTextType_t::still, 0);
         //second row
-        stringBuilder.overwrite("");
-        stringBuilder.fillUntil(u8x8.getColumns() - strlen(stringBuilder.string()));
+        _stringBuilder.overwrite("");
+        _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(ROW_START_MIDI_OUT_MESSAGE + 1, lcdTextType_t::still, 0);
         break;
 
@@ -583,15 +581,15 @@ void Display::clearMIDIevent(eventType_t type)
         break;
     }
 
-    midiMessageDisplayed[type] = false;
+    _midiMessageDisplayed[type] = false;
 }
 
 void Display::setAlternateNoteDisplay(bool state)
 {
-    alternateNoteDisplay = state;
+    _alternateNoteDisplay = state;
 }
 
 void Display::setOctaveNormalization(int8_t value)
 {
-    octaveNormalization = value;
+    _octaveNormalization = value;
 }

@@ -21,7 +21,6 @@ limitations under the License.
 #include "database/Database.h"
 #include "midi/src/MIDI.h"
 #include "io/display/Display.h"
-#include "Constants.h"
 #include "io/common/Common.h"
 #include "io/common/CInfo.h"
 

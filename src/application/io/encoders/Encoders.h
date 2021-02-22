@@ -25,7 +25,6 @@ limitations under the License.
 #include "database/Database.h"
 #include "midi/src/MIDI.h"
 #include "io/display/Display.h"
-#include "Constants.h"
 #include "io/common/CInfo.h"
 
 namespace IO
@@ -70,11 +69,11 @@ namespace IO
         };
 
         Encoders(HWA& hwa, Database& database, MIDI& midi, Display& display, ComponentInfo& cInfo)
-            : hwa(hwa)
-            , database(database)
-            , midi(midi)
-            , display(display)
-            , cInfo(cInfo)
+            : _hwa(hwa)
+            , _database(database)
+            , _midi(midi)
+            , _display(display)
+            , _cInfo(cInfo)
         {}
 
         void       init();
@@ -84,26 +83,39 @@ namespace IO
         position_t read(uint8_t encoderID, uint8_t pairState);
 
         private:
-        HWA&           hwa;
-        Database&      database;
-        MIDI&          midi;
-        Display&       display;
-        ComponentInfo& cInfo;
+        HWA&           _hwa;
+        Database&      _database;
+        MIDI&          _midi;
+        Display&       _display;
+        ComponentInfo& _cInfo;
+
+        /// Time in milliseconds after which debounce mode is reset if encoder isn't moving.
+        static constexpr uint32_t ENCODERS_DEBOUNCE_RESET_TIME = 50;
+
+        /// Number of times movement in the same direction must be registered in order
+        /// for debouncer to become active. Once the debouncer is active, all further changes
+        /// in the movement will be ignored, that is, all movements will be registered in the
+        /// direction which was repeated. This state is reset until the encoder is either stopped
+        /// or if same amount of movements are registered in the opposite direction.
+        static constexpr uint8_t ENCODERS_DEBOUNCE_COUNT = 4;
+
+        /// Time threshold in milliseconds between two encoder steps used to detect fast movement.
+        static constexpr uint32_t ENCODERS_SPEED_TIMEOUT = 140;
 
         /// Holds current MIDI value for all encoders.
-        int16_t midiValue[MAX_NUMBER_OF_ENCODERS] = { 0 };
+        int16_t _midiValue[MAX_NUMBER_OF_ENCODERS] = { 0 };
 
         /// Array holding last movement time for all encoders.
-        uint32_t lastMovementTime[MAX_NUMBER_OF_ENCODERS] = {};
+        uint32_t _lastMovementTime[MAX_NUMBER_OF_ENCODERS] = {};
 
         /// Array holding current speed (in steps) for all encoders.
-        uint8_t encoderSpeed[MAX_NUMBER_OF_ENCODERS] = {};
+        uint8_t _encoderSpeed[MAX_NUMBER_OF_ENCODERS] = {};
 
         /// Array holding previous encoder direction for all encoders.
-        position_t lastDirection[MAX_NUMBER_OF_ENCODERS] = {};
+        position_t _lastDirection[MAX_NUMBER_OF_ENCODERS] = {};
 
         /// Array holding current debounced direction for all encoders.
-        position_t debounceDirection[MAX_NUMBER_OF_ENCODERS] = {};
+        position_t _debounceDirection[MAX_NUMBER_OF_ENCODERS] = {};
 
         /// Used to detect constant rotation in single direction.
         /// Once n consecutive movements in same direction are detected,
@@ -111,16 +123,16 @@ namespace IO
         /// encoder stops moving for ENCODERS_DEBOUNCE_RESET_TIME milliseconds *or*
         /// n new consecutive movements are made in the opposite direction.
         /// n = ENCODERS_DEBOUNCE_COUNT (defined in Constants.h)
-        uint8_t debounceCounter[MAX_NUMBER_OF_ENCODERS] = {};
+        uint8_t _debounceCounter[MAX_NUMBER_OF_ENCODERS] = {};
 
         /// Array holding last two readings from encoder pins.
-        uint8_t encoderData[MAX_NUMBER_OF_ENCODERS] = {};
+        uint8_t _encoderData[MAX_NUMBER_OF_ENCODERS] = {};
 
         /// Array holding current amount of pulses for all encoders.
-        int8_t encoderPulses[MAX_NUMBER_OF_ENCODERS] = {};
+        int8_t _encoderPulses[MAX_NUMBER_OF_ENCODERS] = {};
 
         /// Lookup table used to convert encoder reading to pulses.
-        const int8_t encoderLookUpTable[16] = {
+        const int8_t _encoderLookUpTable[16] = {
             0,     //0000
             1,     //0001
             -1,    //0010
@@ -143,7 +155,7 @@ namespace IO
         /// Every time fast movement is detected, amount of steps is increased by this value.
         /// Used only in CC/Pitch bend/NRPN modes. In Pitch bend/NRPN modes, this value is multiplied
         /// by 4 due to a larger value range.
-        const uint8_t encoderSpeedChange[static_cast<uint8_t>(IO::Encoders::acceleration_t::AMOUNT)] = {
+        const uint8_t _encoderSpeedChange[static_cast<uint8_t>(IO::Encoders::acceleration_t::AMOUNT)] = {
             0,    //acceleration disabled
             1,
             2,
@@ -151,7 +163,7 @@ namespace IO
         };
 
         /// Maximum value by which MIDI value is increased during acceleration.
-        const uint8_t encoderMaxAccSpeed[static_cast<uint8_t>(IO::Encoders::acceleration_t::AMOUNT)] = {
+        const uint8_t _encoderMaxAccSpeed[static_cast<uint8_t>(IO::Encoders::acceleration_t::AMOUNT)] = {
             0,    //acceleration disabled
             5,
             10,
@@ -160,7 +172,7 @@ namespace IO
 
         /// Array used for easier access to current encoder MIDI value in 7Fh01h and 3Fh41h modes.
         /// Matched with type_t and position_t
-        const uint8_t encValue[2][3] = {
+        const uint8_t _encValue[2][3] = {
             //t7Fh01h
             {
                 0,      //stopped

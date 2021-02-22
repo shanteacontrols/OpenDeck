@@ -32,10 +32,6 @@ class SysExParser
     bool   value(size_t index, uint8_t& data);
 
     private:
-    bool        parse(MIDI::USBMIDIpacket_t& packet);
-    bool        verify();
-    static void mergeTo14bit(uint16_t& value, uint8_t high, uint8_t low);
-
     /// Enumeration holding USB-specific values for SysEx/System Common messages.
     /// Normally, USB MIDI CIN (cable index number) is just messageType_t shifted left by four bytes,
     /// however, SysEx/System Common messages have different values so they're grouped in special enumeration.
@@ -51,17 +47,21 @@ class SysExParser
         sysExStop3byteCin = 0x70
     };
 
+    bool        parse(MIDI::USBMIDIpacket_t& packet);
+    bool        verify();
+    static void mergeTo14bit(uint16_t& value, uint8_t high, uint8_t low);
+
     /// Maximum size of SysEx message carrying firmware data.
     /// Two bytes for start/stop bytes
     /// Three bytes for manufacturer ID
     /// 64 bytes for firmware data
-    static const size_t maxFwPacketSize = 2 + 3 + 64;
+    static constexpr size_t MAX_FW_PACKET_SIZE = 2 + 3 + 64;
 
     /// Byte index in SysEx message on which firmware data starts.
-    static const size_t dataStartByte = 4;
+    static constexpr size_t DATA_START_BYTE = 4;
 
     /// Holds decoded SysEx message.
-    uint8_t sysexArray[maxFwPacketSize];
+    uint8_t _sysExArray[MAX_FW_PACKET_SIZE];
 
-    size_t sysExArrayLength = 0;
+    size_t _sysExArrayLength = 0;
 };

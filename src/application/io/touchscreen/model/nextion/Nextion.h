@@ -26,7 +26,7 @@ class Nextion : public IO::Touchscreen::Model, public IO::Touchscreen::Model::Co
 {
     public:
     Nextion(IO::Touchscreen::Model::HWA& hwa)
-        : hwa(hwa)
+        : _hwa(hwa)
     {}
 
     bool                       init() override;
@@ -37,11 +37,6 @@ class Nextion : public IO::Touchscreen::Model, public IO::Touchscreen::Model::Co
     bool                       setBrightness(IO::Touchscreen::brightness_t brightness) override;
 
     private:
-    bool writeCommand(const char* line, ...);
-    bool endCommand();
-
-    IO::Touchscreen::Model::HWA& hwa;
-
     enum class responseID_t : uint8_t
     {
         button,
@@ -64,7 +59,23 @@ class Nextion : public IO::Touchscreen::Model, public IO::Touchscreen::Model::Co
         yRequested,
     };
 
-    const responseDescriptor_t responses[static_cast<size_t>(responseID_t::AMOUNT)] = {
+    bool                       writeCommand(const char* line, ...);
+    bool                       endCommand();
+    IO::Touchscreen::tsEvent_t response(IO::Touchscreen::tsData_t& data);
+    void                       pollXY();
+
+    static constexpr uint32_t XY_POLL_TIME_MS = 5;
+
+    IO::Touchscreen::Model::HWA& _hwa;
+
+    char             _commandBuffer[IO::Touchscreen::Model::Common::bufferSize];
+    size_t           _endCounter     = 0;
+    bool             _screenPressed  = false;
+    xyRequestState_t _xyRequestState = xyRequestState_t::xRequest;
+    uint16_t         _xPos           = 0;
+    uint16_t         _yPos           = 0;
+
+    const responseDescriptor_t _responses[static_cast<size_t>(responseID_t::AMOUNT)] = {
         //button
         {
             .bytes      = 6,
@@ -84,11 +95,8 @@ class Nextion : public IO::Touchscreen::Model, public IO::Touchscreen::Model::Co
         },
     };
 
-    IO::Touchscreen::tsEvent_t response(IO::Touchscreen::tsData_t& data);
-    void                       pollXY();
-
     //there are 7 levels of brighness - scale them to available range (0-100)
-    const uint8_t brightnessMapping[7] = {
+    const uint8_t _brightnessMapping[7] = {
         10,
         25,
         50,
@@ -97,13 +105,4 @@ class Nextion : public IO::Touchscreen::Model, public IO::Touchscreen::Model::Co
         90,
         100
     };
-
-    static constexpr uint32_t XY_POLL_TIME_MS = 5;
-
-    char             commandBuffer[IO::Touchscreen::Model::Common::bufferSize];
-    size_t           endCounter     = 0;
-    bool             screenPressed  = false;
-    xyRequestState_t xyRequestState = xyRequestState_t::xRequest;
-    uint16_t         xPos           = 0;
-    uint16_t         yPos           = 0;
 };

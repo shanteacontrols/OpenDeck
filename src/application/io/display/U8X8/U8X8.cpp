@@ -26,7 +26,7 @@ bool U8X8::init(uint8_t i2cAddressIndex, displayController_t controller, display
     bool success = false;
 
     //setup defaults
-    u8x8_SetupDefaults(&u8x8);
+    u8x8_SetupDefaults(&_u8x8);
 
     //i2c hw access
     auto gpioDelay = [](u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, U8X8_UNUSED void* arg_ptr) -> uint8_t {
@@ -38,7 +38,7 @@ bool U8X8::init(uint8_t i2cAddressIndex, displayController_t controller, display
     //we are interfacing with C library!
 
     static HWAI2C* hwaStatic;
-    hwaStatic = &this->hwa;
+    hwaStatic = &_hwa;
 
     auto i2cHWA = [](u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_ptr) -> uint8_t {
         auto* array = (uint8_t*)arg_ptr;
@@ -74,30 +74,30 @@ bool U8X8::init(uint8_t i2cAddressIndex, displayController_t controller, display
     //setup specific callbacks depending on controller/resolution
     if ((resolution == displayResolution_t::_128x64) && (controller == displayController_t::ssd1306))
     {
-        u8x8.display_cb        = u8x8_d_ssd1306_128x64_noname;
-        u8x8.cad_cb            = u8x8_cad_ssd13xx_i2c;
-        u8x8.byte_cb           = i2cHWA;
-        u8x8.gpio_and_delay_cb = gpioDelay;
-        rows                   = 4;
-        columns                = 16;
-        success                = true;
+        _u8x8.display_cb        = u8x8_d_ssd1306_128x64_noname;
+        _u8x8.cad_cb            = u8x8_cad_ssd13xx_i2c;
+        _u8x8.byte_cb           = i2cHWA;
+        _u8x8.gpio_and_delay_cb = gpioDelay;
+        _rows                   = 4;
+        _columns                = 16;
+        success                 = true;
     }
     else if ((resolution == displayResolution_t::_128x32) && (controller == displayController_t::ssd1306))
     {
-        u8x8.display_cb        = u8x8_d_ssd1306_128x32_univision;
-        u8x8.cad_cb            = u8x8_cad_ssd13xx_i2c;
-        u8x8.byte_cb           = i2cHWA;
-        u8x8.gpio_and_delay_cb = gpioDelay;
-        rows                   = 2;
-        columns                = 16;
-        success                = true;
+        _u8x8.display_cb        = u8x8_d_ssd1306_128x32_univision;
+        _u8x8.cad_cb            = u8x8_cad_ssd13xx_i2c;
+        _u8x8.byte_cb           = i2cHWA;
+        _u8x8.gpio_and_delay_cb = gpioDelay;
+        _rows                   = 2;
+        _columns                = 16;
+        success                 = true;
     }
 
     uint8_t totalAddresses = sizeof(i2cAddressArray) / sizeof(uint8_t);
 
     if (i2cAddressIndex < totalAddresses)
     {
-        u8x8.i2c_address = i2cAddressArray[i2cAddressIndex];
+        _u8x8.i2c_address = i2cAddressArray[i2cAddressIndex];
     }
     else
     {
@@ -106,12 +106,12 @@ bool U8X8::init(uint8_t i2cAddressIndex, displayController_t controller, display
 
     if (success)
     {
-        if (!hwa.init())
+        if (!_hwa.init())
             return false;
 
         /* setup display info */
-        u8x8_SetupMemory(&u8x8);
-        u8x8_InitDisplay(&u8x8);
+        u8x8_SetupMemory(&_u8x8);
+        u8x8_InitDisplay(&_u8x8);
 
         clearDisplay();
         setPowerSave(0);
@@ -124,11 +124,11 @@ bool U8X8::init(uint8_t i2cAddressIndex, displayController_t controller, display
 
 bool U8X8::deInit()
 {
-    if (hwa.deInit())
+    if (_hwa.deInit())
     {
-        u8x8_SetupDefaults(&u8x8);
-        rows    = 0;
-        columns = 0;
+        u8x8_SetupDefaults(&_u8x8);
+        _rows    = 0;
+        _columns = 0;
         return true;
     }
 
@@ -137,35 +137,35 @@ bool U8X8::deInit()
 
 uint8_t U8X8::getColumns()
 {
-    return columns;
+    return _columns;
 }
 
 uint8_t U8X8::getRows()
 {
-    return rows;
+    return _rows;
 }
 
 void U8X8::clearDisplay()
 {
-    u8x8_ClearDisplay(&u8x8);
+    u8x8_ClearDisplay(&_u8x8);
 }
 
 void U8X8::setPowerSave(uint8_t is_enable)
 {
-    u8x8_SetPowerSave(&u8x8, is_enable);
+    u8x8_SetPowerSave(&_u8x8, is_enable);
 }
 
 void U8X8::setFlipMode(uint8_t mode)
 {
-    u8x8_SetFlipMode(&u8x8, mode);
+    u8x8_SetFlipMode(&_u8x8, mode);
 }
 
 void U8X8::setFont(const uint8_t* font_8x8)
 {
-    u8x8_SetFont(&u8x8, font_8x8);
+    u8x8_SetFont(&_u8x8, font_8x8);
 }
 
 void U8X8::drawGlyph(uint8_t x, uint8_t y, uint8_t encoding)
 {
-    u8x8_DrawGlyph(&u8x8, x, y, encoding);
+    u8x8_DrawGlyph(&_u8x8, x, y, encoding);
 }

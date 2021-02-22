@@ -17,7 +17,6 @@ limitations under the License.
 */
 
 #include "LEDs.h"
-#include "Constants.h"
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
 
@@ -27,36 +26,36 @@ void LEDs::init(bool startUp)
 {
     if (startUp)
     {
-        if (database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::useStartupAnimation)))
+        if (_database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::useStartupAnimation)))
             startUpAnimation();
 
 #ifdef LED_FADING
-        setFadeSpeed(database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::fadeSpeed)));
+        setFadeSpeed(_database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::fadeSpeed)));
 #endif
     }
 
-    setBlinkType(static_cast<blinkType_t>(database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::blinkWithMIDIclock))));
+    setBlinkType(static_cast<blinkType_t>(_database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::blinkWithMIDIclock))));
 
-    for (size_t i = 0; i < totalBlinkSpeeds; i++)
-        blinkState[i] = true;
+    for (size_t i = 0; i < TOTAL_BLINK_SPEEDS; i++)
+        _blinkState[i] = true;
 
-    for (size_t i = 0; i < maxLEDs; i++)
-        brightness[i] = brightness_t::bOff;
+    for (size_t i = 0; i < MAX_LEDS; i++)
+        _brightness[i] = brightness_t::bOff;
 }
 
 void LEDs::checkBlinking(bool forceChange)
 {
-    if (blinkResetArrayPtr == nullptr)
+    if (_blinkResetArrayPtr == nullptr)
         return;
 
-    switch (ledBlinkType)
+    switch (_ledBlinkType)
     {
     case blinkType_t::timer:
         //update blink states every 100ms - minimum blink time
-        if ((core::timing::currentRunTimeMs() - lastLEDblinkUpdateTime) < 100)
+        if ((core::timing::currentRunTimeMs() - _lastLEDblinkUpdateTime) < 100)
             return;
 
-        lastLEDblinkUpdateTime = core::timing::currentRunTimeMs();
+        _lastLEDblinkUpdateTime = core::timing::currentRunTimeMs();
         break;
 
     case blinkType_t::midiClock:
@@ -69,25 +68,25 @@ void LEDs::checkBlinking(bool forceChange)
     }
 
     //change the blink state for specific blink rate
-    for (size_t i = 0; i < totalBlinkSpeeds; i++)
+    for (size_t i = 0; i < TOTAL_BLINK_SPEEDS; i++)
     {
-        if (++blinkCounter[i] < blinkResetArrayPtr[i])
+        if (++_blinkCounter[i] < _blinkResetArrayPtr[i])
             continue;
 
-        blinkState[i]   = !blinkState[i];
-        blinkCounter[i] = 0;
+        _blinkState[i]   = !_blinkState[i];
+        _blinkCounter[i] = 0;
 
         //assign changed state to all leds which have this speed
-        for (size_t j = 0; j < maxLEDs; j++)
+        for (size_t j = 0; j < MAX_LEDS; j++)
         {
             if (!bit(j, ledBit_t::blinkOn))
                 continue;
 
-            if (blinkTimer[j] != i)
+            if (_blinkTimer[j] != i)
                 continue;
 
-            updateBit(j, ledBit_t::state, blinkState[i]);
-            hwa.setState(j, bit(j, ledBit_t::state) ? brightness[j] : brightness_t::bOff);
+            updateBit(j, ledBit_t::state, _blinkState[i]);
+            _hwa.setState(j, bit(j, ledBit_t::state) ? _brightness[j] : brightness_t::bOff);
         }
     }
 }
@@ -104,26 +103,26 @@ __attribute__((weak)) void LEDs::startUpAnimation()
 
     for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
     {
-        hwa.setState(i, brightness_t::bOff);
+        _hwa.setState(i, brightness_t::bOff);
         core::timing::waitMs(35);
     }
 
     for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
     {
-        hwa.setState(MAX_NUMBER_OF_LEDS - 1 - i, brightness_t::b100);
+        _hwa.setState(MAX_NUMBER_OF_LEDS - 1 - i, brightness_t::b100);
         core::timing::waitMs(35);
     }
 
     for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
     {
-        hwa.setState(i, brightness_t::bOff);
+        _hwa.setState(i, brightness_t::bOff);
         core::timing::waitMs(35);
     }
 
     //turn all off again
     setAllOff();
 #ifdef LED_FADING
-    setFadeSpeed(database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::fadeSpeed)));
+    setFadeSpeed(_database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::fadeSpeed)));
 #endif
 }
 
@@ -139,7 +138,7 @@ LEDs::blinkSpeed_t LEDs::valueToBlinkSpeed(uint8_t value)
         return blinkSpeed_t::noBlink;
 
     //there are 4 total blink speeds
-    return static_cast<blinkSpeed_t>(value % 16 / totalBlinkSpeeds);
+    return static_cast<blinkSpeed_t>(value % 16 / TOTAL_BLINK_SPEEDS);
 }
 
 LEDs::brightness_t LEDs::valueToBrightness(uint8_t value)
@@ -147,21 +146,21 @@ LEDs::brightness_t LEDs::valueToBrightness(uint8_t value)
     if (value < 16)
         return brightness_t::bOff;
 
-    return static_cast<brightness_t>((value % 16 % totalBrightnessValues) + 1);
+    return static_cast<brightness_t>((value % 16 % TOTAL_BRIGHTNESS_VALUES) + 1);
 }
 
 void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, dataSource_t dataSource)
 {
-    for (size_t i = 0; i < maxLEDs; i++)
+    for (size_t i = 0; i < MAX_LEDS; i++)
     {
         //no point in checking if channel doesn't match
-        if (database.read(Database::Section::leds_t::midiChannel, i) != channel)
+        if (_database.read(Database::Section::leds_t::midiChannel, i) != channel)
             continue;
 
         bool setState = false;
         bool setBlink = false;
 
-        auto controlType = static_cast<controlType_t>(database.read(Database::Section::leds_t::controlType, i));
+        auto controlType = static_cast<controlType_t>(_database.read(Database::Section::leds_t::controlType, i));
 
         //determine whether led state or blink state should be changed
         //received MIDI message must match with defined control type
@@ -277,7 +276,7 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
         if (setState)
         {
             //match activation ID with received ID
-            if (database.read(Database::Section::leds_t::activationID, i) == data1)
+            if (_database.read(Database::Section::leds_t::activationID, i) == data1)
             {
                 if (messageType == MIDI::messageType_t::programChange)
                 {
@@ -298,7 +297,7 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
                     else
                     {
                         //this has side effect that it will always set RGB LED to red color since no color information is available
-                        color      = (database.read(Database::Section::leds_t::activationValue, i) == data2) ? color_t::red : color_t::off;
+                        color      = (_database.read(Database::Section::leds_t::activationValue, i) == data2) ? color_t::red : color_t::off;
                         brightness = brightness_t::b100;
                     }
                 }
@@ -310,7 +309,7 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
         if (setBlink)
         {
             //match activation ID with received ID
-            if (database.read(Database::Section::leds_t::activationID, i) == data1)
+            if (_database.read(Database::Section::leds_t::activationID, i) == data1)
             {
                 //blink speed depends on data2 value
                 setBlinkSpeed(i, valueToBlinkSpeed(data2));
@@ -321,14 +320,15 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
 
 void LEDs::setBlinkSpeed(uint8_t ledID, blinkSpeed_t state)
 {
-    uint8_t ledArray[3], leds = 0;
-    uint8_t rgbIndex = hwa.rgbIndex(ledID);
+    uint8_t ledArray[3] = {};
+    uint8_t leds        = 0;
+    uint8_t rgbIndex    = _hwa.rgbIndex(ledID);
 
-    if (database.read(Database::Section::leds_t::rgbEnable, rgbIndex))
+    if (_database.read(Database::Section::leds_t::rgbEnable, rgbIndex))
     {
-        ledArray[0] = hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::r);
-        ledArray[1] = hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::g);
-        ledArray[2] = hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::b);
+        ledArray[0] = _hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::r);
+        ledArray[1] = _hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::g);
+        ledArray[2] = _hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::b);
 
         leds = 3;
     }
@@ -354,34 +354,34 @@ void LEDs::setBlinkSpeed(uint8_t ledID, blinkSpeed_t state)
             updateBit(ledArray[i], ledBit_t::state, bit(ledArray[i], ledBit_t::active));
         }
 
-        hwa.setState(ledArray[i], brightness[ledArray[i]]);
-        blinkTimer[ledID] = static_cast<uint8_t>(state);
+        _hwa.setState(ledArray[i], _brightness[ledArray[i]]);
+        _blinkTimer[ledID] = static_cast<uint8_t>(state);
     }
 }
 
 void LEDs::setAllOn()
 {
     //turn on all LEDs
-    for (size_t i = 0; i < maxLEDs; i++)
+    for (size_t i = 0; i < MAX_LEDS; i++)
         setColor(i, color_t::red, brightness_t::b100);
 }
 
 void LEDs::setAllOff()
 {
     //turn off all LEDs
-    for (size_t i = 0; i < maxLEDs; i++)
+    for (size_t i = 0; i < MAX_LEDS; i++)
         resetState(i);
 }
 
 void LEDs::refresh()
 {
-    for (size_t i = 0; i < maxLEDs; i++)
-        hwa.setState(i, brightness[i]);
+    for (size_t i = 0; i < MAX_LEDS; i++)
+        _hwa.setState(i, _brightness[i]);
 }
 
 void LEDs::setColor(uint8_t ledID, color_t color, brightness_t brightness)
 {
-    uint8_t rgbIndex = hwa.rgbIndex(ledID);
+    uint8_t rgbIndex = _hwa.rgbIndex(ledID);
 
     auto handleLED = [&](uint8_t index, rgbIndex_t rgbIndex, bool state, bool isRGB) {
         if (state)
@@ -413,8 +413,8 @@ void LEDs::setColor(uint8_t ledID, color_t color, brightness_t brightness)
                 updateBit(index, ledBit_t::rgb, false);
             }
 
-            this->brightness[index] = brightness;
-            hwa.setState(index, brightness);
+            _brightness[index] = brightness;
+            _hwa.setState(index, brightness);
         }
         else
         {
@@ -423,13 +423,13 @@ void LEDs::setColor(uint8_t ledID, color_t color, brightness_t brightness)
         }
     };
 
-    if (database.read(Database::Section::leds_t::rgbEnable, rgbIndex))
+    if (_database.read(Database::Section::leds_t::rgbEnable, rgbIndex))
     {
         //rgb led is composed of three standard LEDs
         //get indexes of individual LEDs first
-        uint8_t rLED = hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::r);
-        uint8_t gLED = hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::g);
-        uint8_t bLED = hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::b);
+        uint8_t rLED = _hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::r);
+        uint8_t gLED = _hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::g);
+        uint8_t bLED = _hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::b);
 
         handleLED(rLED, rgbIndex_t::r, BIT_READ(static_cast<bool>(color), static_cast<uint8_t>(rgbIndex_t::r)), true);
         handleLED(gLED, rgbIndex_t::g, BIT_READ(static_cast<bool>(color), static_cast<uint8_t>(rgbIndex_t::g)), true);
@@ -443,24 +443,24 @@ void LEDs::setColor(uint8_t ledID, color_t color, brightness_t brightness)
 
 IO::LEDs::blinkSpeed_t LEDs::blinkSpeed(uint8_t ledID)
 {
-    return static_cast<blinkSpeed_t>(blinkTimer[ledID]);
+    return static_cast<blinkSpeed_t>(_blinkTimer[ledID]);
 }
 
 size_t LEDs::rgbSingleComponentIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent)
 {
-    return hwa.rgbSingleComponentIndex(rgbIndex, rgbComponent);
+    return _hwa.rgbSingleComponentIndex(rgbIndex, rgbComponent);
 }
 
 size_t LEDs::rgbIndex(size_t singleLEDindex)
 {
-    return hwa.rgbIndex(singleLEDindex);
+    return _hwa.rgbIndex(singleLEDindex);
 }
 
 bool LEDs::setFadeSpeed(uint8_t transitionSpeed)
 {
     if ((transitionSpeed >= FADE_TIME_MIN) && (transitionSpeed <= FADE_TIME_MAX))
     {
-        hwa.setFadeSpeed(transitionSpeed);
+        _hwa.setFadeSpeed(transitionSpeed);
         return true;
     }
 
@@ -472,39 +472,39 @@ void LEDs::setBlinkType(blinkType_t blinkType)
     switch (blinkType)
     {
     case blinkType_t::timer:
-        blinkResetArrayPtr = blinkReset_timer;
+        _blinkResetArrayPtr = _blinkReset_timer;
         break;
 
     case blinkType_t::midiClock:
-        blinkResetArrayPtr = blinkReset_midiClock;
+        _blinkResetArrayPtr = _blinkReset_midiClock;
         break;
 
     default:
         return;
     }
 
-    ledBlinkType = blinkType;
+    _ledBlinkType = blinkType;
 }
 
 void LEDs::resetBlinking()
 {
     //reset all counters in this case
     //also make sure all leds are in sync again
-    for (size_t i = 0; i < totalBlinkSpeeds; i++)
+    for (size_t i = 0; i < TOTAL_BLINK_SPEEDS; i++)
     {
-        blinkCounter[i] = 0;
-        blinkState[i]   = true;
+        _blinkCounter[i] = 0;
+        _blinkState[i]   = true;
     }
 }
 
 void LEDs::updateBit(uint8_t index, ledBit_t bit, bool state)
 {
-    BIT_WRITE(ledState[index], static_cast<uint8_t>(bit), state);
+    BIT_WRITE(_ledState[index], static_cast<uint8_t>(bit), state);
 }
 
 bool LEDs::bit(uint8_t index, ledBit_t bit)
 {
-    return BIT_READ(ledState[index], static_cast<uint8_t>(bit));
+    return BIT_READ(_ledState[index], static_cast<uint8_t>(bit));
 }
 
 LEDs::color_t LEDs::color(uint8_t ledID)
@@ -523,14 +523,14 @@ LEDs::color_t LEDs::color(uint8_t ledID)
         else
         {
             //rgb led
-            uint8_t rgbIndex = hwa.rgbIndex(ledID);
+            uint8_t rgbIndex = _hwa.rgbIndex(ledID);
 
             uint8_t color = 0;
-            color |= bit(hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::b), ledBit_t::rgb_b);
+            color |= bit(_hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::b), ledBit_t::rgb_b);
             color <<= 1;
-            color |= bit(hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::g), ledBit_t::rgb_g);
+            color |= bit(_hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::g), ledBit_t::rgb_g);
             color <<= 1;
-            color |= bit(hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::r), ledBit_t::rgb_r);
+            color |= bit(_hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::r), ledBit_t::rgb_r);
 
             return static_cast<color_t>(color);
         }
@@ -539,7 +539,7 @@ LEDs::color_t LEDs::color(uint8_t ledID)
 
 void LEDs::resetState(uint8_t index)
 {
-    ledState[index]   = 0;
-    brightness[index] = brightness_t::bOff;
-    hwa.setState(index, brightness_t::bOff);
+    _ledState[index]   = 0;
+    _brightness[index] = brightness_t::bOff;
+    _hwa.setState(index, brightness_t::bOff);
 }

@@ -27,43 +27,43 @@ System::result_t System::SysExDataHandler::get(uint8_t block, uint8_t section, s
     {
     case System::block_t::global:
     {
-        result = system.onGetGlobal(static_cast<System::Section::global_t>(section), index, value);
+        result = _system.onGetGlobal(static_cast<System::Section::global_t>(section), index, value);
     }
     break;
 
     case System::block_t::buttons:
     {
-        result = system.onGetButtons(static_cast<System::Section::button_t>(section), index, value);
+        result = _system.onGetButtons(static_cast<System::Section::button_t>(section), index, value);
     }
     break;
 
     case System::block_t::encoders:
     {
-        result = system.onGetEncoders(static_cast<System::Section::encoder_t>(section), index, value);
+        result = _system.onGetEncoders(static_cast<System::Section::encoder_t>(section), index, value);
     }
     break;
 
     case System::block_t::analog:
     {
-        result = system.onGetAnalog(static_cast<System::Section::analog_t>(section), index, value);
+        result = _system.onGetAnalog(static_cast<System::Section::analog_t>(section), index, value);
     }
     break;
 
     case System::block_t::leds:
     {
-        result = system.onGetLEDs(static_cast<System::Section::leds_t>(section), index, value);
+        result = _system.onGetLEDs(static_cast<System::Section::leds_t>(section), index, value);
     }
     break;
 
     case System::block_t::display:
     {
-        result = system.onGetDisplay(static_cast<System::Section::display_t>(section), index, value);
+        result = _system.onGetDisplay(static_cast<System::Section::display_t>(section), index, value);
     }
     break;
 
     case System::block_t::touchscreen:
     {
-        result = system.onGetTouchscreen(static_cast<System::Section::touchscreen_t>(section), index, value);
+        result = _system.onGetTouchscreen(static_cast<System::Section::touchscreen_t>(section), index, value);
     }
     break;
 
@@ -71,7 +71,7 @@ System::result_t System::SysExDataHandler::get(uint8_t block, uint8_t section, s
         break;
     }
 
-    system.display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::systemExclusive, 0, 0, 0);
+    _system._display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::systemExclusive, 0, 0, 0);
 
     return result;
 }
@@ -87,14 +87,14 @@ System::result_t System::onGetGlobal(Section::global_t section, size_t index, Sy
     {
         if (index == static_cast<size_t>(System::midiFeature_t::standardNoteOff))
         {
-            result = database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
+            result = _database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
         }
         else
         {
 #ifndef DIN_MIDI_SUPPORTED
             return System::result_t::notSupported;
 #else
-            result = database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
+            result = _database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
 #endif
         }
     }
@@ -105,7 +105,7 @@ System::result_t System::onGetGlobal(Section::global_t section, size_t index, Sy
 #ifndef DIN_MIDI_SUPPORTED
         return System::result_t::notSupported;
 #else
-        result = database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
+        result = _database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
 #endif
     }
     break;
@@ -118,14 +118,14 @@ System::result_t System::onGetGlobal(Section::global_t section, size_t index, Sy
         {
         case presetSetting_t::activePreset:
         {
-            readValue = database.getPreset();
+            readValue = _database.getPreset();
             result    = System::result_t::ok;
         }
         break;
 
         case presetSetting_t::presetPreserve:
         {
-            readValue = database.getPresetPreserveState();
+            readValue = _database.getPresetPreserveState();
             result    = System::result_t::ok;
         }
         break;
@@ -148,7 +148,7 @@ System::result_t System::onGetButtons(Section::button_t section, size_t index, S
 {
 #ifdef BUTTONS_SUPPORTED
     int32_t readValue;
-    auto    result = database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
+    auto    result = _database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
 
     //channels start from 0 in db, start from 1 in sysex
     if ((section == Section::button_t::midiChannel) && (result == System::result_t::ok))
@@ -166,11 +166,11 @@ System::result_t System::onGetEncoders(Section::encoder_t section, size_t index,
 {
 #ifdef ENCODERS_SUPPORTED
     int32_t readValue;
-    auto    result = database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
+    auto    result = _database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
 
     if (result == System::result_t::ok)
     {
-        if (sysExConf.paramSize() == SysExConf::paramSize_t::_14bit)
+        if (_sysExConf.paramSize() == SysExConf::paramSize_t::_14bit)
         {
             if (section == Section::encoder_t::midiID_MSB)
                 return System::result_t::notSupported;
@@ -210,7 +210,7 @@ System::result_t System::onGetAnalog(Section::analog_t section, size_t index, Sy
 {
 #ifdef ANALOG_SUPPORTED
     int32_t readValue;
-    auto    result = database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
+    auto    result = _database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
 
     switch (section)
     {
@@ -218,7 +218,7 @@ System::result_t System::onGetAnalog(Section::analog_t section, size_t index, Sy
     case Section::analog_t::lowerLimit_MSB:
     case Section::analog_t::upperLimit_MSB:
 
-        if (sysExConf.paramSize() == SysExConf::paramSize_t::_14bit)
+        if (_sysExConf.paramSize() == SysExConf::paramSize_t::_14bit)
         {
             //no need for MSB parameters in 2-byte mode since the entire value
             //can be retrieved via single value
@@ -231,7 +231,7 @@ System::result_t System::onGetAnalog(Section::analog_t section, size_t index, Sy
     case Section::analog_t::lowerLimit:
     case Section::analog_t::upperLimit:
     {
-        if (sysExConf.paramSize() == SysExConf::paramSize_t::_7bit)
+        if (_sysExConf.paramSize() == SysExConf::paramSize_t::_7bit)
         {
             if (result == System::result_t::ok)
             {
@@ -295,19 +295,19 @@ System::result_t System::onGetLEDs(Section::leds_t section, size_t index, SysExC
     {
     case Section::leds_t::testColor:
     {
-        readValue = static_cast<int32_t>(leds.color(index));
+        readValue = static_cast<int32_t>(_leds.color(index));
     }
     break;
 
     case Section::leds_t::testBlink:
     {
-        readValue = leds.blinkSpeed(index) != IO::LEDs::blinkSpeed_t::noBlink;
+        readValue = _leds.blinkSpeed(index) != IO::LEDs::blinkSpeed_t::noBlink;
     }
     break;
 
     case Section::leds_t::midiChannel:
     {
-        result = database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
+        result = _database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
 
         //channels start from 0 in db, start from 1 in sysex
         if (result == System::result_t::ok)
@@ -317,13 +317,13 @@ System::result_t System::onGetLEDs(Section::leds_t section, size_t index, SysExC
 
     case Section::leds_t::rgbEnable:
     {
-        result = database.read(dbSection(section), leds.rgbIndex(index), readValue) ? System::result_t::ok : System::result_t::error;
+        result = _database.read(dbSection(section), _leds.rgbIndex(index), readValue) ? System::result_t::ok : System::result_t::error;
     }
     break;
 
     default:
     {
-        result = database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
+        result = _database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
     }
     break;
     }
@@ -340,7 +340,7 @@ System::result_t System::onGetDisplay(Section::display_t section, size_t index, 
 {
 #ifdef DISPLAY_SUPPORTED
     int32_t readValue;
-    auto    result = database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
+    auto    result = _database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
 
     value = readValue;
     return result;
@@ -353,7 +353,7 @@ System::result_t System::onGetTouchscreen(Section::touchscreen_t section, size_t
 {
 #ifdef TOUCHSCREEN_SUPPORTED
     int32_t readValue;
-    auto    result = database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
+    auto    result = _database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
 
     value = readValue;
     return result;

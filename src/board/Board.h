@@ -62,7 +62,7 @@ namespace Board
     {
         /// Initializes UART peripheral.
         /// param [in]: channel     UART channel on MCU.
-        /// param [in]: baudRate    UART speed (baudrate).
+        /// param [in]: baudRate    UART speed (baudRate).
         bool init(uint8_t channel, uint32_t baudRate);
 
         /// Deinitializes specified UART channel.

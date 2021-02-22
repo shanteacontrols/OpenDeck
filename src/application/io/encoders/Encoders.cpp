@@ -35,22 +35,22 @@ void Encoders::update()
 {
     for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
     {
-        if (!database.read(Database::Section::encoder_t::enable, i))
+        if (!_database.read(Database::Section::encoder_t::enable, i))
             continue;
 
-        position_t encoderState = read(i, hwa.state(i));
+        position_t encoderState = read(i, _hwa.state(i));
 
         //disable debounce mode if encoder isn't moving for more than
         //ENCODERS_DEBOUNCE_RESET_TIME milliseconds
-        if ((core::timing::currentRunTimeMs() - lastMovementTime[i]) > ENCODERS_DEBOUNCE_RESET_TIME)
+        if ((core::timing::currentRunTimeMs() - _lastMovementTime[i]) > ENCODERS_DEBOUNCE_RESET_TIME)
         {
-            debounceCounter[i]   = 0;
-            debounceDirection[i] = position_t::stopped;
+            _debounceCounter[i]   = 0;
+            _debounceDirection[i] = position_t::stopped;
         }
 
         if (encoderState != position_t::stopped)
         {
-            if (database.read(Database::Section::encoder_t::invert, i))
+            if (_database.read(Database::Section::encoder_t::invert, i))
             {
                 if (encoderState == position_t::ccw)
                     encoderState = position_t::cw;
@@ -58,44 +58,44 @@ void Encoders::update()
                     encoderState = position_t::ccw;
             }
 
-            if (debounceCounter[i] != ENCODERS_DEBOUNCE_COUNT)
+            if (_debounceCounter[i] != ENCODERS_DEBOUNCE_COUNT)
             {
-                if (encoderState != lastDirection[i])
-                    debounceCounter[i] = 0;
+                if (encoderState != _lastDirection[i])
+                    _debounceCounter[i] = 0;
 
-                debounceCounter[i]++;
+                _debounceCounter[i]++;
 
-                if (debounceCounter[i] == ENCODERS_DEBOUNCE_COUNT)
+                if (_debounceCounter[i] == ENCODERS_DEBOUNCE_COUNT)
                 {
-                    debounceCounter[i]   = 0;
-                    debounceDirection[i] = encoderState;
+                    _debounceCounter[i]   = 0;
+                    _debounceDirection[i] = encoderState;
                 }
             }
 
-            uint8_t encAcceleration = database.read(Database::Section::encoder_t::acceleration, i);
+            uint8_t encAcceleration = _database.read(Database::Section::encoder_t::acceleration, i);
 
             if (encAcceleration)
             {
                 //when time difference between two movements is smaller than ENCODERS_SPEED_TIMEOUT,
                 //start accelerating
-                if ((core::timing::currentRunTimeMs() - lastMovementTime[i]) < ENCODERS_SPEED_TIMEOUT)
-                    encoderSpeed[i] = CONSTRAIN(encoderSpeed[i] + encoderSpeedChange[encAcceleration], 0, encoderMaxAccSpeed[encAcceleration]);
+                if ((core::timing::currentRunTimeMs() - _lastMovementTime[i]) < ENCODERS_SPEED_TIMEOUT)
+                    _encoderSpeed[i] = CONSTRAIN(_encoderSpeed[i] + _encoderSpeedChange[encAcceleration], 0, _encoderMaxAccSpeed[encAcceleration]);
                 else
-                    encoderSpeed[i] = 0;
+                    _encoderSpeed[i] = 0;
             }
 
-            lastDirection[i]    = encoderState;
-            lastMovementTime[i] = core::timing::currentRunTimeMs();
+            _lastDirection[i]    = encoderState;
+            _lastMovementTime[i] = core::timing::currentRunTimeMs();
 
-            if (debounceDirection[i] != position_t::stopped)
-                encoderState = debounceDirection[i];
+            if (_debounceDirection[i] != position_t::stopped)
+                encoderState = _debounceDirection[i];
 
-            uint8_t  midiID       = database.read(Database::Section::encoder_t::midiID, i);
-            uint8_t  channel      = database.read(Database::Section::encoder_t::midiChannel, i);
-            auto     type         = static_cast<type_t>(database.read(Database::Section::encoder_t::mode, i));
+            uint8_t  midiID       = _database.read(Database::Section::encoder_t::midiID, i);
+            uint8_t  channel      = _database.read(Database::Section::encoder_t::midiChannel, i);
+            auto     type         = static_cast<type_t>(_database.read(Database::Section::encoder_t::mode, i));
             bool     validType    = true;
             uint16_t encoderValue = 0;
-            uint8_t  steps        = (encoderSpeed[i] > 0) ? encoderSpeed[i] : 1;
+            uint8_t  steps        = (_encoderSpeed[i] > 0) ? _encoderSpeed[i] : 1;
             bool     use14bit     = false;
 
             MIDI::encDec_14bit_t encDec_14bit;
@@ -104,7 +104,7 @@ void Encoders::update()
             {
             case type_t::t7Fh01h:
             case type_t::t3Fh41h:
-                encoderValue = encValue[static_cast<uint8_t>(type)][static_cast<uint8_t>(encoderState)];
+                encoderValue = _encValue[static_cast<uint8_t>(type)][static_cast<uint8_t>(encoderState)];
                 break;
 
             case type_t::tProgramChange:
@@ -135,22 +135,22 @@ void Encoders::update()
 
                 if (encoderState == position_t::ccw)
                 {
-                    midiValue[i] -= steps;
+                    _midiValue[i] -= steps;
 
-                    if (midiValue[i] < 0)
-                        midiValue[i] = 0;
+                    if (_midiValue[i] < 0)
+                        _midiValue[i] = 0;
                 }
                 else
                 {
                     int16_t limit = use14bit ? 16383 : 127;
 
-                    midiValue[i] += steps;
+                    _midiValue[i] += steps;
 
-                    if (midiValue[i] > limit)
-                        midiValue[i] = limit;
+                    if (_midiValue[i] > limit)
+                        _midiValue[i] = limit;
                 }
 
-                encoderValue = midiValue[i];
+                encoderValue = _midiValue[i];
                 break;
 
             case type_t::tPresetChange:
@@ -166,25 +166,25 @@ void Encoders::update()
             {
                 if (type == type_t::tProgramChange)
                 {
-                    midi.sendProgramChange(encoderValue, channel);
-                    display.displayMIDIevent(Display::eventType_t::out, Display::event_t::programChange, midiID & 0x7F, encoderValue, channel + 1);
+                    _midi.sendProgramChange(encoderValue, channel);
+                    _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::programChange, midiID & 0x7F, encoderValue, channel + 1);
                 }
                 else if (type == type_t::tPitchBend)
                 {
-                    midi.sendPitchBend(encoderValue, channel);
-                    display.displayMIDIevent(Display::eventType_t::out, Display::event_t::pitchBend, midiID & 0x7F, encoderValue, channel + 1);
+                    _midi.sendPitchBend(encoderValue, channel);
+                    _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::pitchBend, midiID & 0x7F, encoderValue, channel + 1);
                 }
                 else if ((type == type_t::tNRPN7bit) || (type == type_t::tNRPN14bit) || (type == type_t::tControlChange14bit))
                 {
                     encDec_14bit.value = midiID;
                     encDec_14bit.split14bit();
 
-                    midi.sendControlChange(99, encDec_14bit.high, channel);
-                    midi.sendControlChange(98, encDec_14bit.low, channel);
+                    _midi.sendControlChange(99, encDec_14bit.high, channel);
+                    _midi.sendControlChange(98, encDec_14bit.low, channel);
 
                     if (type == type_t::tNRPN7bit)
                     {
-                        midi.sendControlChange(6, encoderValue, channel);
+                        _midi.sendControlChange(6, encoderValue, channel);
                     }
                     else
                     {
@@ -198,33 +198,33 @@ void Encoders::update()
                             if (midiID >= 96)
                                 break;    //not allowed
 
-                            midi.sendControlChange(midiID, encDec_14bit.high, channel);
-                            midi.sendControlChange(midiID + 32, encDec_14bit.low, channel);
+                            _midi.sendControlChange(midiID, encDec_14bit.high, channel);
+                            _midi.sendControlChange(midiID + 32, encDec_14bit.low, channel);
                         }
                         else
                         {
-                            midi.sendControlChange(6, encDec_14bit.high, channel);
-                            midi.sendControlChange(38, encDec_14bit.low, channel);
+                            _midi.sendControlChange(6, encDec_14bit.high, channel);
+                            _midi.sendControlChange(38, encDec_14bit.low, channel);
                         }
                     }
 
-                    display.displayMIDIevent(Display::eventType_t::out, (type == type_t::tControlChange14bit) ? Display::event_t::controlChange : Display::event_t::nrpn, midiID, encoderValue, channel + 1);
+                    _display.displayMIDIevent(Display::eventType_t::out, (type == type_t::tControlChange14bit) ? Display::event_t::controlChange : Display::event_t::nrpn, midiID, encoderValue, channel + 1);
                 }
                 else if (type != type_t::tPresetChange)
                 {
-                    midi.sendControlChange(midiID, encoderValue, channel);
-                    display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, midiID & 0x7F, encoderValue, channel + 1);
+                    _midi.sendControlChange(midiID, encoderValue, channel);
+                    _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, midiID & 0x7F, encoderValue, channel + 1);
                 }
                 else
                 {
-                    uint8_t preset = database.getPreset();
+                    uint8_t preset = _database.getPreset();
                     preset += (encoderState == position_t::cw) ? 1 : -1;
 
-                    database.setPreset(preset);
+                    _database.setPreset(preset);
                 }
             }
 
-            cInfo.send(Database::block_t::encoders, i);
+            _cInfo.send(Database::block_t::encoders, i);
         }
     }
 }
@@ -232,22 +232,22 @@ void Encoders::update()
 /// Sets the MIDI value of specified encoder to default.
 void Encoders::resetValue(uint8_t encoderID)
 {
-    if (database.read(Database::Section::encoder_t::mode, encoderID) == static_cast<int32_t>(type_t::tPitchBend))
-        midiValue[encoderID] = 8192;
+    if (_database.read(Database::Section::encoder_t::mode, encoderID) == static_cast<int32_t>(type_t::tPitchBend))
+        _midiValue[encoderID] = 8192;
     else
-        midiValue[encoderID] = 0;
+        _midiValue[encoderID] = 0;
 
-    lastMovementTime[encoderID]  = 0;
-    encoderSpeed[encoderID]      = 0;
-    debounceDirection[encoderID] = position_t::stopped;
-    debounceCounter[encoderID]   = 0;
-    encoderData[encoderID]       = 0;
-    encoderPulses[encoderID]     = 0;
+    _lastMovementTime[encoderID]  = 0;
+    _encoderSpeed[encoderID]      = 0;
+    _debounceDirection[encoderID] = position_t::stopped;
+    _debounceCounter[encoderID]   = 0;
+    _encoderData[encoderID]       = 0;
+    _encoderPulses[encoderID]     = 0;
 }
 
 void Encoders::setValue(uint8_t encoderID, uint16_t value)
 {
-    midiValue[encoderID] = value;
+    _midiValue[encoderID] = value;
 }
 
 /// Checks state of requested encoder.
@@ -264,23 +264,23 @@ Encoders::position_t Encoders::read(uint8_t encoderID, uint8_t pairState)
     bool process = true;
 
     //only process the data from encoder if there is a previous reading stored
-    if (!BIT_READ(encoderData[encoderID], 7))
+    if (!BIT_READ(_encoderData[encoderID], 7))
         process = false;
 
-    encoderData[encoderID] <<= 2;
-    encoderData[encoderID] |= pairState;
-    encoderData[encoderID] |= 0x80;
+    _encoderData[encoderID] <<= 2;
+    _encoderData[encoderID] |= pairState;
+    _encoderData[encoderID] |= 0x80;
 
     if (!process)
         return returnValue;
 
-    encoderPulses[encoderID] += encoderLookUpTable[encoderData[encoderID] & 0x0F];
+    _encoderPulses[encoderID] += _encoderLookUpTable[_encoderData[encoderID] & 0x0F];
 
-    if (abs(encoderPulses[encoderID]) >= database.read(Database::Section::encoder_t::pulsesPerStep, encoderID))
+    if (abs(_encoderPulses[encoderID]) >= _database.read(Database::Section::encoder_t::pulsesPerStep, encoderID))
     {
-        returnValue = (encoderPulses[encoderID] > 0) ? position_t::ccw : position_t::cw;
+        returnValue = (_encoderPulses[encoderID] > 0) ? position_t::ccw : position_t::cw;
         //reset count
-        encoderPulses[encoderID] = 0;
+        _encoderPulses[encoderID] = 0;
     }
 
     return returnValue;

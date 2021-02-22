@@ -21,7 +21,6 @@
 #include "sysex/src/SysExConf.h"
 #include "io/leds/LEDs.h"
 #include "io/encoders/Encoders.h"
-#include "io/encoders/Constants.h"
 #include "io/analog/Analog.h"
 #include "io/display/Display.h"
 

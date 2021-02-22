@@ -197,24 +197,24 @@ class System
            IO::LEDs&        leds,
            IO::Display&     display,
            IO::Touchscreen& touchscreen)
-        : sysExConf(
-              sysExDataHandler,
-              sysExMID,
+        : _sysExConf(
+              _sysExDataHandler,
+              _sysExMID,
               SysExConf::paramSize_t::_14bit,
               SysExConf::nrOfParam_t::_32)
-        , hwa(hwa)
-        , cInfo(cInfo)
-        , database(database)
-        , midi(midi)
-        , buttons(buttons)
-        , encoders(encoders)
-        , analog(analog)
-        , leds(leds)
-        , display(display)
-        , touchscreen(touchscreen)
-        , sysExDataHandler(*this)
-        , dbHandlers(*this)
-        , touchScreenHandlers(*this)
+        , _hwa(hwa)
+        , _cInfo(cInfo)
+        , _database(database)
+        , _midi(midi)
+        , _buttons(buttons)
+        , _encoders(encoders)
+        , _analog(analog)
+        , _leds(leds)
+        , _display(display)
+        , _touchscreen(touchscreen)
+        , _sysExDataHandler(*this)
+        , _dbHandlers(*this)
+        , _touchScreenHandlers(*this)
     {}
 
     bool            init();
@@ -239,7 +239,7 @@ class System
     {
         public:
         SysExDataHandler(System& system)
-            : system(system)
+            : _system(system)
         {}
 
         result_t get(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t& value) override;
@@ -248,14 +248,14 @@ class System
         void     sendResponse(uint8_t* array, size_t size) override;
 
         private:
-        System& system;
+        System& _system;
     };
 
     class DBhandlers : public Database::Handlers
     {
         public:
         DBhandlers(System& system)
-            : system(system)
+            : _system(system)
         {}
 
         void presetChange(uint8_t preset) override;
@@ -264,14 +264,14 @@ class System
         void initialized() override;
 
         private:
-        System& system;
+        System& _system;
     };
 
     class TouchScreenHandlers : public IO::Touchscreen::EventNotifier
     {
         public:
         TouchScreenHandlers(System& system)
-            : system(system)
+            : _system(system)
         {}
 
         void button(size_t index, bool state) override;
@@ -279,7 +279,7 @@ class System
         void screenChange(size_t screenID) override;
 
         private:
-        System& system;
+        System& _system;
     };
 
     void                             checkComponents();
@@ -314,41 +314,41 @@ class System
     result_t                         onSetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t newValue);
     result_t                         onSetTouchscreen(Section::touchscreen_t section, size_t index, SysExConf::sysExParameter_t newValue);
 
-    SysExConf           sysExConf;
-    HWA&                hwa;
-    ComponentInfo&      cInfo;
-    Database&           database;
-    MIDI&               midi;
-    IO::Buttons&        buttons;
-    IO::Encoders&       encoders;
-    IO::Analog&         analog;
-    IO::LEDs&           leds;
-    IO::Display&        display;
-    IO::Touchscreen&    touchscreen;
-    SysExDataHandler    sysExDataHandler;
-    DBhandlers          dbHandlers;
-    TouchScreenHandlers touchScreenHandlers;
+    SysExConf           _sysExConf;
+    HWA&                _hwa;
+    ComponentInfo&      _cInfo;
+    Database&           _database;
+    MIDI&               _midi;
+    IO::Buttons&        _buttons;
+    IO::Encoders&       _encoders;
+    IO::Analog&         _analog;
+    IO::LEDs&           _leds;
+    IO::Display&        _display;
+    IO::Touchscreen&    _touchscreen;
+    SysExDataHandler    _sysExDataHandler;
+    DBhandlers          _dbHandlers;
+    TouchScreenHandlers _touchScreenHandlers;
 
     /// Used to prevent updating states of all components (analog, LEDs, encoders, buttons).
-    bool processingEnabled = true;
+    bool _processingEnabled = true;
 
-    const SysExConf::manufacturerID_t sysExMID = {
+    const SysExConf::manufacturerID_t _sysExMID = {
         SYSEX_MANUFACTURER_ID_0,
         SYSEX_MANUFACTURER_ID_1,
         SYSEX_MANUFACTURER_ID_2
     };
 
-    uint32_t lastCinfoMsgTime[static_cast<uint8_t>(Database::block_t::AMOUNT)] = {};
-    bool     backupRequested                                                   = false;
+    uint32_t _lastCinfoMsgTime[static_cast<uint8_t>(Database::block_t::AMOUNT)] = {};
+    bool     _backupRequested                                                   = false;
 
     //map sysex sections to sections in db
-    const Database::Section::global_t sysEx2DB_global[static_cast<uint8_t>(Section::global_t::AMOUNT)] = {
+    const Database::Section::global_t _sysEx2DB_global[static_cast<uint8_t>(Section::global_t::AMOUNT)] = {
         Database::Section::global_t::midiFeatures,
         Database::Section::global_t::midiMerge,
         Database::Section::global_t::AMOUNT,    //unused
     };
 
-    const Database::Section::button_t sysEx2DB_button[static_cast<uint8_t>(Section::button_t::AMOUNT)] = {
+    const Database::Section::button_t _sysEx2DB_button[static_cast<uint8_t>(Section::button_t::AMOUNT)] = {
         Database::Section::button_t::type,
         Database::Section::button_t::midiMessage,
         Database::Section::button_t::midiID,
@@ -356,7 +356,7 @@ class System
         Database::Section::button_t::midiChannel
     };
 
-    const Database::Section::encoder_t sysEx2DB_encoder[static_cast<uint8_t>(Section::encoder_t::AMOUNT)] = {
+    const Database::Section::encoder_t _sysEx2DB_encoder[static_cast<uint8_t>(Section::encoder_t::AMOUNT)] = {
         Database::Section::encoder_t::enable,
         Database::Section::encoder_t::invert,
         Database::Section::encoder_t::mode,
@@ -368,7 +368,7 @@ class System
         Database::Section::encoder_t::remoteSync
     };
 
-    const Database::Section::analog_t sysEx2DB_analog[static_cast<uint8_t>(Section::analog_t::AMOUNT)] = {
+    const Database::Section::analog_t _sysEx2DB_analog[static_cast<uint8_t>(Section::analog_t::AMOUNT)] = {
         Database::Section::analog_t::enable,
         Database::Section::analog_t::invert,
         Database::Section::analog_t::type,
@@ -381,7 +381,7 @@ class System
         Database::Section::analog_t::midiChannel
     };
 
-    const Database::Section::leds_t sysEx2DB_leds[static_cast<uint8_t>(Section::leds_t::AMOUNT)] = {
+    const Database::Section::leds_t _sysEx2DB_leds[static_cast<uint8_t>(Section::leds_t::AMOUNT)] = {
         Database::Section::leds_t::AMOUNT,
         Database::Section::leds_t::AMOUNT,
         Database::Section::leds_t::global,
@@ -392,12 +392,12 @@ class System
         Database::Section::leds_t::midiChannel,
     };
 
-    const Database::Section::display_t sysEx2DB_display[static_cast<uint8_t>(Section::display_t::AMOUNT)] = {
+    const Database::Section::display_t _sysEx2DB_display[static_cast<uint8_t>(Section::display_t::AMOUNT)] = {
         Database::Section::display_t::features,
         Database::Section::display_t::setting,
     };
 
-    const Database::Section::touchscreen_t sysEx2DB_touchscreen[static_cast<uint8_t>(Section::touchscreen_t::AMOUNT)] = {
+    const Database::Section::touchscreen_t _sysEx2DB_touchscreen[static_cast<uint8_t>(Section::touchscreen_t::AMOUNT)] = {
         Database::Section::touchscreen_t::setting,
         Database::Section::touchscreen_t::xPos,
         Database::Section::touchscreen_t::yPos,

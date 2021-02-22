@@ -20,21 +20,21 @@ limitations under the License.
 
 using namespace IO;
 
-#define MODEL modelPtr[activeModel]
+#define MODEL _modelPtr[_activeModel]
 
 uint8_t IO::Touchscreen::Model::Common::rxBuffer[IO::Touchscreen::Model::Common::bufferSize];
 size_t  IO::Touchscreen::Model::Common::bufferCount;
 
 bool Touchscreen::init()
 {
-    if (database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::enable)))
+    if (_database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::enable)))
     {
-        auto dbModel = static_cast<IO::Touchscreen::Model::model_t>(database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::model)));
+        auto dbModel = static_cast<IO::Touchscreen::Model::model_t>(_database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::model)));
 
-        if (initialized)
+        if (_initialized)
         {
-            if (static_cast<uint8_t>(dbModel) == activeModel)
-                return true;    //nothing to do, same model already initialized
+            if (static_cast<uint8_t>(dbModel) == _activeModel)
+                return true;    //nothing to do, same model already _initialized
 
             if (!deInit())
                 return false;
@@ -43,13 +43,13 @@ bool Touchscreen::init()
         if (!isModelValid(dbModel))
             return false;
 
-        activeModel = static_cast<uint8_t>(dbModel);
-        initialized = MODEL->init();
+        _activeModel = static_cast<uint8_t>(dbModel);
+        _initialized = MODEL->init();
 
-        if (initialized)
+        if (_initialized)
         {
-            setScreen(database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::initialScreen)));
-            setBrightness(static_cast<brightness_t>(database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::brightness))));
+            setScreen(_database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::initialScreen)));
+            setBrightness(static_cast<brightness_t>(_database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::brightness))));
 
             return true;
         }
@@ -60,13 +60,13 @@ bool Touchscreen::init()
 
 bool Touchscreen::deInit()
 {
-    if (!initialized)
+    if (!_initialized)
         return false;    //nothing to do
 
     if (MODEL->deInit())
     {
-        initialized = false;
-        activeModel = static_cast<uint8_t>(Model::model_t::AMOUNT);
+        _initialized = false;
+        _activeModel = static_cast<uint8_t>(Model::model_t::AMOUNT);
         return true;
     }
 
@@ -75,7 +75,7 @@ bool Touchscreen::deInit()
 
 void Touchscreen::update()
 {
-    if (!initialized)
+    if (!_initialized)
         return;
 
     tsData_t  tsData;
@@ -100,31 +100,31 @@ void Touchscreen::update()
 /// param [in]: screenID  Index of screen to display.
 void Touchscreen::setScreen(size_t screenID)
 {
-    if (!initialized)
+    if (!_initialized)
         return;
 
     MODEL->setScreen(screenID);
-    activeScreenID = screenID;
+    _activeScreenID = screenID;
 
-    if (eventNotifier != nullptr)
-        eventNotifier->screenChange(screenID);
+    if (_eventNotifier != nullptr)
+        _eventNotifier->screenChange(screenID);
 }
 
 /// Used to retrieve currently active screen on display.
 /// returns: Active display screen.
 size_t Touchscreen::activeScreen()
 {
-    return activeScreenID;
+    return _activeScreenID;
 }
 
 void Touchscreen::registerEventNotifier(EventNotifier& eventNotifer)
 {
-    this->eventNotifier = &eventNotifer;
+    _eventNotifier = &eventNotifer;
 }
 
 void Touchscreen::setIconState(size_t index, bool state)
 {
-    if (!initialized)
+    if (!_initialized)
         return;
 
     if (index >= MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS)
@@ -132,19 +132,19 @@ void Touchscreen::setIconState(size_t index, bool state)
 
     icon_t icon;
 
-    icon.onScreen  = database.read(Database::Section::touchscreen_t::onScreen, index);
-    icon.offScreen = database.read(Database::Section::touchscreen_t::offScreen, index);
+    icon.onScreen  = _database.read(Database::Section::touchscreen_t::onScreen, index);
+    icon.offScreen = _database.read(Database::Section::touchscreen_t::offScreen, index);
 
     if (icon.onScreen == icon.offScreen)
         return;    //invalid screen indexes
 
-    if ((activeScreenID != icon.onScreen) && (activeScreenID != icon.offScreen))
+    if ((_activeScreenID != icon.onScreen) && (_activeScreenID != icon.offScreen))
         return;    //don't allow setting icon on wrong screen
 
-    icon.xPos   = database.read(Database::Section::touchscreen_t::xPos, index);
-    icon.yPos   = database.read(Database::Section::touchscreen_t::yPos, index);
-    icon.width  = database.read(Database::Section::touchscreen_t::width, index);
-    icon.height = database.read(Database::Section::touchscreen_t::height, index);
+    icon.xPos   = _database.read(Database::Section::touchscreen_t::xPos, index);
+    icon.yPos   = _database.read(Database::Section::touchscreen_t::yPos, index);
+    icon.width  = _database.read(Database::Section::touchscreen_t::width, index);
+    icon.height = _database.read(Database::Section::touchscreen_t::height, index);
 
     MODEL->setIconState(icon, state);
 }
@@ -154,7 +154,7 @@ bool Touchscreen::isModelValid(Model::model_t model)
     if (model == IO::Touchscreen::Model::model_t::AMOUNT)
         return false;
 
-    if (modelPtr[static_cast<uint8_t>(model)] == nullptr)
+    if (_modelPtr[static_cast<uint8_t>(model)] == nullptr)
         return false;
 
     return true;
@@ -165,7 +165,7 @@ bool Touchscreen::registerModel(IO::Touchscreen::Model::model_t model, Model* pt
     if (model == IO::Touchscreen::Model::model_t::AMOUNT)
         return false;
 
-    modelPtr[static_cast<uint8_t>(model)] = ptr;
+    _modelPtr[static_cast<uint8_t>(model)] = ptr;
     return true;
 }
 
@@ -174,23 +174,23 @@ void Touchscreen::processButton(const size_t buttonID, const bool state)
     bool   changeScreen = false;
     size_t newScreen    = 0;
 
-    if (database.read(Database::Section::touchscreen_t::pageSwitchEnabled, buttonID))
+    if (_database.read(Database::Section::touchscreen_t::pageSwitchEnabled, buttonID))
     {
         changeScreen = true;
-        newScreen    = database.read(Database::Section::touchscreen_t::pageSwitchIndex, buttonID);
+        newScreen    = _database.read(Database::Section::touchscreen_t::pageSwitchIndex, buttonID);
     }
 
-    cInfo.send(Database::block_t::touchscreen, buttonID);
+    _cInfo.send(Database::block_t::touchscreen, buttonID);
 
-    if (eventNotifier != nullptr)
-        eventNotifier->button(buttonID, state);
+    if (_eventNotifier != nullptr)
+        _eventNotifier->button(buttonID, state);
 
     //if the button should change screen, change it immediately
     //this will result in button never sending off state so do it manually first
     if (changeScreen)
     {
-        if (eventNotifier != nullptr)
-            eventNotifier->button(buttonID, false);
+        if (_eventNotifier != nullptr)
+            _eventNotifier->button(buttonID, false);
 
         setScreen(newScreen);
     }
@@ -198,7 +198,7 @@ void Touchscreen::processButton(const size_t buttonID, const bool state)
 
 bool Touchscreen::setBrightness(brightness_t brightness)
 {
-    if (!initialized)
+    if (!_initialized)
         return false;
 
     return MODEL->setBrightness(brightness);
@@ -208,19 +208,19 @@ void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16
 {
     for (size_t i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
     {
-        if (database.read(Database::Section::touchscreen_t::analogPage, i) == static_cast<int32_t>(activeScreen()))
+        if (_database.read(Database::Section::touchscreen_t::analogPage, i) == static_cast<int32_t>(activeScreen()))
         {
-            uint16_t startXCoordinate = database.read(Database::Section::touchscreen_t::analogStartXCoordinate, i);
-            uint16_t endXCoordinate   = database.read(Database::Section::touchscreen_t::analogEndXCoordinate, i);
-            uint16_t startYCoordinate = database.read(Database::Section::touchscreen_t::analogStartYCoordinate, i);
-            uint16_t endYCoordinate   = database.read(Database::Section::touchscreen_t::analogEndYCoordinate, i);
+            uint16_t startXCoordinate = _database.read(Database::Section::touchscreen_t::analogStartXCoordinate, i);
+            uint16_t endXCoordinate   = _database.read(Database::Section::touchscreen_t::analogEndXCoordinate, i);
+            uint16_t startYCoordinate = _database.read(Database::Section::touchscreen_t::analogStartYCoordinate, i);
+            uint16_t endYCoordinate   = _database.read(Database::Section::touchscreen_t::analogEndYCoordinate, i);
 
             uint16_t startCoordinate;
             uint16_t endCoordinate;
             uint16_t value;
 
             //x
-            if (database.read(Database::Section::touchscreen_t::analogType, i) == static_cast<int32_t>(IO::Touchscreen::analogType_t::horizontal))
+            if (_database.read(Database::Section::touchscreen_t::analogType, i) == static_cast<int32_t>(IO::Touchscreen::analogType_t::horizontal))
             {
                 value = xPos;
 
@@ -237,11 +237,11 @@ void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16
                     if (((value < startXCoordinate) || (value > endXCoordinate)) || ((yPos < startYCoordinate) || (yPos > endYCoordinate)))
                         continue;
                     else
-                        analogActive[i] = true;
+                        _analogActive[i] = true;
                 }
                 else
                 {
-                    analogActive[i] = false;
+                    _analogActive[i] = false;
                 }
 
                 startCoordinate = startXCoordinate;
@@ -265,11 +265,11 @@ void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16
                     if (((xPos < startXCoordinate) || (xPos > endXCoordinate)) || ((value < startYCoordinate) || (value > endYCoordinate)))
                         continue;
                     else
-                        analogActive[i] = true;
+                        _analogActive[i] = true;
                 }
                 else
                 {
-                    analogActive[i] = false;
+                    _analogActive[i] = false;
                 }
 
                 startCoordinate = startYCoordinate;
@@ -277,17 +277,17 @@ void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16
             }
 
             //scale the value to ADC range
-            if (analogActive[i])
+            if (_analogActive[i])
             {
-                if (eventNotifier != nullptr)
-                    eventNotifier->analog(i, value, startCoordinate, endCoordinate);
+                if (_eventNotifier != nullptr)
+                    _eventNotifier->analog(i, value, startCoordinate, endCoordinate);
             }
             else
             {
-                if (database.read(Database::Section::touchscreen_t::analogResetOnRelease, i))
+                if (_database.read(Database::Section::touchscreen_t::analogResetOnRelease, i))
                 {
-                    if (eventNotifier != nullptr)
-                        eventNotifier->analog(i, 0, startCoordinate, endCoordinate);
+                    if (_eventNotifier != nullptr)
+                        _eventNotifier->analog(i, 0, startCoordinate, endCoordinate);
                 }
             }
         }

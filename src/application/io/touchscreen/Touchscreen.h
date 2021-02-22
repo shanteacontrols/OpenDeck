@@ -139,8 +139,8 @@ namespace IO
 
         Touchscreen(Database&      database,
                     ComponentInfo& cInfo)
-            : database(database)
-            , cInfo(cInfo)
+            : _database(database)
+            , _cInfo(cInfo)
         {}
 
         bool   init();
@@ -158,15 +158,15 @@ namespace IO
         void processButton(const size_t buttonID, const bool state);
         void processCoordinate(pressType_t pressType, uint16_t xPos, uint16_t yPos);
 
-        Database&      database;
-        ComponentInfo& cInfo;
-        EventNotifier* eventNotifier = nullptr;
+        Database&      _database;
+        ComponentInfo& _cInfo;
+        EventNotifier* _eventNotifier = nullptr;
 
-        size_t  activeScreenID                                         = 0;
-        bool    initialized                                            = false;
-        Model*  modelPtr[static_cast<uint8_t>(Model::model_t::AMOUNT)] = {};
-        uint8_t activeModel                                            = static_cast<uint8_t>(Model::model_t::AMOUNT);
-        bool    analogActive[MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]     = {};
+        size_t  _activeScreenID                                         = 0;
+        bool    _initialized                                            = false;
+        Model*  _modelPtr[static_cast<uint8_t>(Model::model_t::AMOUNT)] = {};
+        uint8_t _activeModel                                            = static_cast<uint8_t>(Model::model_t::AMOUNT);
+        bool    _analogActive[MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]     = {};
     };
 }    // namespace IO
 

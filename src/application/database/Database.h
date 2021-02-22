@@ -35,7 +35,7 @@ class Database : public LESSDB
 
     Database(LESSDB::StorageAccess& storageAccess, bool initializeData)
         : LESSDB(storageAccess)
-        , initializeData(initializeData)
+        , _initializeData(initializeData)
     {}
 
     enum class block_t : uint8_t
@@ -220,23 +220,23 @@ class Database : public LESSDB
     bool     setDbUID(uint16_t uid);
     bool     setPresetInternal(uint8_t preset);
 
-    Handlers* handlers = nullptr;
+    Handlers* _handlers = nullptr;
 
-    const bool initializeData;
+    const bool _initializeData;
 
     /// Address at which user data starts (after system block).
     /// Used to set correct offset in database for user layout.
-    uint32_t userDataStartAddress;
+    uint32_t _userDataStartAddress;
 
     /// Address at which next preset should start.
     /// Used to calculate the start address of next preset.
-    uint32_t lastPresetAddress;
+    uint32_t _lastPresetAddress;
 
     /// Holds total number of supported presets.
-    uint16_t supportedPresets;
+    uint16_t _supportedPresets;
 
     /// Holds currently active preset.
-    uint8_t activePreset = 0;
+    uint8_t _activePreset = 0;
 
-    bool initialized = false;
+    bool _initialized = false;
 };

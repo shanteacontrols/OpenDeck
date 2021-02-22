@@ -39,8 +39,8 @@ bool SysExParser::parse(MIDI::USBMIDIpacket_t& packet)
         if (packet.Data1 == 0xF7)
         {
             //end of sysex
-            sysexArray[sysExArrayLength] = packet.Data1;
-            sysExArrayLength++;
+            _sysExArray[_sysExArrayLength] = packet.Data1;
+            _sysExArrayLength++;
             return true;
         }
         break;
@@ -48,34 +48,35 @@ bool SysExParser::parse(MIDI::USBMIDIpacket_t& packet)
     case static_cast<uint8_t>(usbMIDIsystemCin_t::sysExStartCin):
         //the message can be any length between 3 and MIDI_SYSEX_ARRAY_SIZE
         if (packet.Data1 == 0xF0)
-            sysExArrayLength = 0;    //this is a new sysex message, reset length
+            _sysExArrayLength = 0;    //this is a new sysex message, reset length
 
-        sysexArray[sysExArrayLength] = packet.Data1;
-        sysExArrayLength++;
-        sysexArray[sysExArrayLength] = packet.Data2;
-        sysExArrayLength++;
-        sysexArray[sysExArrayLength] = packet.Data3;
-        sysExArrayLength++;
+        _sysExArray[_sysExArrayLength] = packet.Data1;
+        _sysExArrayLength++;
+        _sysExArray[_sysExArrayLength] = packet.Data2;
+        _sysExArrayLength++;
+        _sysExArray[_sysExArrayLength] = packet.Data3;
+        _sysExArrayLength++;
         return false;
         break;
 
     case static_cast<uint8_t>(usbMIDIsystemCin_t::sysExStop2byteCin):
-        sysexArray[sysExArrayLength] = packet.Data1;
-        sysExArrayLength++;
-        sysexArray[sysExArrayLength] = packet.Data2;
-        sysExArrayLength++;
+        _sysExArray[_sysExArrayLength] = packet.Data1;
+        _sysExArrayLength++;
+        _sysExArray[_sysExArrayLength] = packet.Data2;
+        _sysExArrayLength++;
         return true;
         break;
 
     case static_cast<uint8_t>(usbMIDIsystemCin_t::sysExStop3byteCin):
         if (packet.Data1 == 0xF0)
-            sysExArrayLength = 0;    //sysex message with 1 byte of payload
-        sysexArray[sysExArrayLength] = packet.Data1;
-        sysExArrayLength++;
-        sysexArray[sysExArrayLength] = packet.Data2;
-        sysExArrayLength++;
-        sysexArray[sysExArrayLength] = packet.Data3;
-        sysExArrayLength++;
+            _sysExArrayLength = 0;    //sysex message with 1 byte of payload
+
+        _sysExArray[_sysExArrayLength] = packet.Data1;
+        _sysExArrayLength++;
+        _sysExArray[_sysExArrayLength] = packet.Data2;
+        _sysExArrayLength++;
+        _sysExArray[_sysExArrayLength] = packet.Data3;
+        _sysExArrayLength++;
         return true;
         break;
 
@@ -92,19 +93,19 @@ size_t SysExParser::dataBytes()
     if (!verify())
         return 0;
 
-    return (sysExArrayLength - 2 - 3) / 2;
+    return (_sysExArrayLength - 2 - 3) / 2;
 }
 
 bool SysExParser::value(size_t index, uint8_t& data)
 {
-    size_t arrayIndex = dataStartByte + index * 2;
+    size_t arrayIndex = DATA_START_BYTE + index * 2;
 
-    if ((arrayIndex + 1) >= sysExArrayLength)
+    if ((arrayIndex + 1) >= _sysExArrayLength)
         return false;
 
     uint16_t data16;
 
-    mergeTo14bit(data16, sysexArray[arrayIndex], sysexArray[arrayIndex + 1]);
+    mergeTo14bit(data16, _sysExArray[arrayIndex], _sysExArray[arrayIndex + 1]);
 
     data = data16 & 0xFF;
 
@@ -113,13 +114,13 @@ bool SysExParser::value(size_t index, uint8_t& data)
 
 bool SysExParser::verify()
 {
-    if (sysexArray[1] != SYSEX_MANUFACTURER_ID_0)
+    if (_sysExArray[1] != SYSEX_MANUFACTURER_ID_0)
         return false;
 
-    if (sysexArray[2] != SYSEX_MANUFACTURER_ID_1)
+    if (_sysExArray[2] != SYSEX_MANUFACTURER_ID_1)
         return false;
 
-    if (sysexArray[3] != SYSEX_MANUFACTURER_ID_2)
+    if (_sysExArray[3] != SYSEX_MANUFACTURER_ID_2)
         return false;
 
     //firmware sysex message should contain at least:
@@ -127,7 +128,7 @@ bool SysExParser::verify()
     //three ID bytes
     //two data bytes
     //stop byte
-    if (sysExArrayLength < 7)
+    if (_sysExArrayLength < 7)
         return false;
 
     return true;

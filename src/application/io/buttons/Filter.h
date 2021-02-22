@@ -30,7 +30,7 @@ namespace IO
         ButtonsFilter()
         {
             for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
-                lastPressTime[i] = 1;
+                _lastPressTime[i] = 1;
         }
 
         bool isFiltered(size_t index, bool state, bool& filteredState) override
@@ -45,15 +45,15 @@ namespace IO
             if (state)
             {
                 //debounce only release
-                filteredState        = true;
-                lastPressTime[index] = 0;
+                filteredState         = true;
+                _lastPressTime[index] = 0;
             }
             else
             {
-                if (!lastPressTime[index])
-                    lastPressTime[index] = core::timing::currentRunTimeMs();
+                if (!_lastPressTime[index])
+                    _lastPressTime[index] = core::timing::currentRunTimeMs();
 
-                if ((core::timing::currentRunTimeMs() - lastPressTime[index]) > debounceReleaseTime)
+                if ((core::timing::currentRunTimeMs() - _lastPressTime[index]) > DEBOUNCE_RELEASE_TIME)
                     filteredState = false;
                 else
                     filteredState = true;
@@ -64,11 +64,11 @@ namespace IO
 
         void reset(size_t index) override
         {
-            lastPressTime[index] = 1;
+            _lastPressTime[index] = 1;
         }
 
         private:
-        static constexpr uint32_t debounceReleaseTime                  = 5;
-        uint32_t                  lastPressTime[MAX_NUMBER_OF_BUTTONS] = {};
+        static constexpr uint32_t DEBOUNCE_RELEASE_TIME                 = 5;
+        uint32_t                  _lastPressTime[MAX_NUMBER_OF_BUTTONS] = {};
     };
 }    // namespace IO

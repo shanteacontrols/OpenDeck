@@ -83,17 +83,17 @@ namespace IO
                IO::LEDs&      leds,
                Display&       display,
                ComponentInfo& cInfo)
-            : hwa(hwa)
-            , filter(filter)
-            , database(database)
-            , midi(midi)
-            , leds(leds)
-            , display(display)
-            , cInfo(cInfo)
+            : _hwa(hwa)
+            , _filter(filter)
+            , _database(database)
+            , _midi(midi)
+            , _leds(leds)
+            , _display(display)
+            , _cInfo(cInfo)
         {
             //make sure the first value is sent even if 0
             for (size_t i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
-                lastValue[i] = 0xFFFF;
+                _lastValue[i] = 0xFFFF;
         }
 
         void      update(bool forceResend = false);
@@ -118,17 +118,17 @@ namespace IO
         bool checkFSRvalue(uint8_t analogID, analogDescriptor_t& descriptor, uint16_t& value);
         void sendMessage(uint8_t analogID, analogDescriptor_t& descriptor, uint16_t value);
 
-        HWA&           hwa;
-        Filter&        filter;
-        Database&      database;
-        MIDI&          midi;
-        IO::LEDs&      leds;
-        Display&       display;
-        ComponentInfo& cInfo;
+        HWA&           _hwa;
+        Filter&        _filter;
+        Database&      _database;
+        MIDI&          _midi;
+        IO::LEDs&      _leds;
+        Display&       _display;
+        ComponentInfo& _cInfo;
 
-        buttonHandler_t buttonHandler                                                          = nullptr;
-        uint8_t         fsrPressed[MAX_NUMBER_OF_ANALOG]                                       = {};
-        uint16_t        lastValue[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS] = {};
+        buttonHandler_t _buttonHandler                                                          = nullptr;
+        uint8_t         _fsrPressed[MAX_NUMBER_OF_ANALOG]                                       = {};
+        uint16_t        _lastValue[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS] = {};
     };
 }    // namespace IO
 

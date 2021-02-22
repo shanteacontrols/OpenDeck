@@ -27,7 +27,7 @@ bool Nextion::init()
 {
     IO::Touchscreen::Model::Common::bufferCount = 0;
 
-    if (hwa.init())
+    if (_hwa.init())
     {
         writeCommand("sendxy=1");
 
@@ -39,7 +39,7 @@ bool Nextion::init()
 
 bool Nextion::deInit()
 {
-    return hwa.deInit();
+    return _hwa.deInit();
 }
 
 bool Nextion::setScreen(size_t screenID)
@@ -55,25 +55,25 @@ IO::Touchscreen::tsEvent_t Nextion::update(IO::Touchscreen::tsData_t& data)
     bool    process   = false;
     auto    returnVal = IO::Touchscreen::tsEvent_t::none;
 
-    while (hwa.read(byte))
+    while (_hwa.read(byte))
     {
         IO::Touchscreen::Model::Common::rxBuffer[IO::Touchscreen::Model::Common::bufferCount++] = byte;
 
         if (byte == 0xFF)
         {
-            endCounter++;
+            _endCounter++;
         }
         else
         {
-            if (endCounter)
-                endCounter = 0;
+            if (_endCounter)
+                _endCounter = 0;
         }
 
-        if (endCounter == 3)
+        if (_endCounter == 3)
         {
             //new message arrived
-            endCounter = 0;
-            process    = true;
+            _endCounter = 0;
+            process     = true;
             break;
         }
     }
@@ -104,16 +104,16 @@ bool Nextion::writeCommand(const char* line, ...)
     va_list args;
     va_start(args, line);
 
-    size_t retVal = vsnprintf(commandBuffer, IO::Touchscreen::Model::Common::bufferSize, line, args);
+    size_t retVal = vsnprintf(_commandBuffer, IO::Touchscreen::Model::Common::bufferSize, line, args);
 
     va_end(args);
 
     if (retVal < 0)
         return false;
 
-    for (size_t i = 0; i < strlen(commandBuffer); i++)
+    for (size_t i = 0; i < strlen(_commandBuffer); i++)
     {
-        if (!hwa.write(commandBuffer[i]))
+        if (!_hwa.write(_commandBuffer[i]))
             return false;
     }
 
@@ -124,7 +124,7 @@ bool Nextion::endCommand()
 {
     for (int i = 0; i < 3; i++)
     {
-        if (!hwa.write(0xFF))
+        if (!_hwa.write(0xFF))
             return false;
     }
 
@@ -133,7 +133,7 @@ bool Nextion::endCommand()
 
 bool Nextion::setBrightness(IO::Touchscreen::brightness_t brightness)
 {
-    return writeCommand("dims=%d", brightnessMapping[static_cast<uint8_t>(brightness)]);
+    return writeCommand("dims=%d", _brightnessMapping[static_cast<uint8_t>(brightness)]);
 }
 
 IO::Touchscreen::tsEvent_t Nextion::response(IO::Touchscreen::tsData_t& data)
@@ -143,9 +143,9 @@ IO::Touchscreen::tsEvent_t Nextion::response(IO::Touchscreen::tsData_t& data)
 
     for (size_t i = 0; i < static_cast<size_t>(responseID_t::AMOUNT); i++)
     {
-        if (IO::Touchscreen::Model::Common::bufferCount == responses[i].bytes)
+        if (IO::Touchscreen::Model::Common::bufferCount == _responses[i].bytes)
         {
-            if (IO::Touchscreen::Model::Common::rxBuffer[0] == static_cast<uint8_t>(responses[i].responseID))
+            if (IO::Touchscreen::Model::Common::rxBuffer[0] == static_cast<uint8_t>(_responses[i].responseID))
             {
                 response      = static_cast<responseID_t>(i);
                 responseFound = true;
@@ -177,15 +177,15 @@ IO::Touchscreen::tsEvent_t Nextion::response(IO::Touchscreen::tsData_t& data)
 
             if (IO::Touchscreen::Model::Common::rxBuffer[5])
             {
-                screenPressed  = true;
+                _screenPressed = true;
                 data.pressType = IO::Touchscreen::pressType_t::initial;
 
                 //on each press, restart the xy coordinate retrieval process
-                xyRequestState = xyRequestState_t::xRequest;
+                _xyRequestState = xyRequestState_t::xRequest;
             }
             else
             {
-                screenPressed  = false;
+                _screenPressed = false;
                 data.pressType = IO::Touchscreen::pressType_t::none;
             }
 
@@ -197,26 +197,26 @@ IO::Touchscreen::tsEvent_t Nextion::response(IO::Touchscreen::tsData_t& data)
         {
             bool xyUpdated = false;
 
-            switch (xyRequestState)
+            switch (_xyRequestState)
             {
             case xyRequestState_t::xRequested:
             {
-                xPos = IO::Touchscreen::Model::Common::rxBuffer[2] << 8;
-                xPos |= IO::Touchscreen::Model::Common::rxBuffer[1];
+                _xPos = IO::Touchscreen::Model::Common::rxBuffer[2] << 8;
+                _xPos |= IO::Touchscreen::Model::Common::rxBuffer[1];
 
-                xyRequestState = xyRequestState_t::yRequest;
+                _xyRequestState = xyRequestState_t::yRequest;
             }
             break;
 
             case xyRequestState_t::yRequested:
             {
-                data.xPos = xPos;
+                data.xPos = _xPos;
 
                 data.yPos = IO::Touchscreen::Model::Common::rxBuffer[2] << 8;
                 data.yPos |= IO::Touchscreen::Model::Common::rxBuffer[1];
 
-                xyRequestState = xyRequestState_t::xRequest;
-                xyUpdated      = true;
+                _xyRequestState = xyRequestState_t::xRequest;
+                xyUpdated       = true;
             }
             break;
 
@@ -224,7 +224,7 @@ IO::Touchscreen::tsEvent_t Nextion::response(IO::Touchscreen::tsData_t& data)
                 break;
             }
 
-            if (xyUpdated && screenPressed)
+            if (xyUpdated && _screenPressed)
             {
                 data.pressType = IO::Touchscreen::pressType_t::hold;
                 return IO::Touchscreen::tsEvent_t::coordinate;
@@ -248,21 +248,21 @@ void Nextion::pollXY()
 {
     static uint32_t lastPollTime = 0;
 
-    if (!screenPressed)
+    if (!_screenPressed)
         return;
 
     if ((core::timing::currentRunTimeMs() - lastPollTime) > XY_POLL_TIME_MS)
     {
-        switch (xyRequestState)
+        switch (_xyRequestState)
         {
         case xyRequestState_t::xRequest:
             writeCommand("get tch0");
-            xyRequestState = xyRequestState_t::xRequested;
+            _xyRequestState = xyRequestState_t::xRequested;
             break;
 
         case xyRequestState_t::yRequest:
             writeCommand("get tch1");
-            xyRequestState = xyRequestState_t::yRequested;
+            _xyRequestState = xyRequestState_t::yRequested;
             break;
 
         default:

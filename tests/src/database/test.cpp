@@ -3,7 +3,6 @@
 #include "stubs/database/DB_ReadWrite.h"
 #include "database/Database.h"
 #include "io/leds/LEDs.h"
-#include "io/display/Config.h"
 #include "system/System.h"
 
 namespace

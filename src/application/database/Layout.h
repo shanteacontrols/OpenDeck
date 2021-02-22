@@ -23,7 +23,6 @@ limitations under the License.
 #include "io/display/Display.h"
 #include "io/touchscreen/Touchscreen.h"
 #include "system/System.h"
-#include "io/display/Config.h"
 
 #define MAX_PRESETS 10
 

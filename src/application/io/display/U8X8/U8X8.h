@@ -55,7 +55,7 @@ namespace IO
         };
 
         U8X8(HWAI2C& hwa)
-            : hwa(hwa)
+            : _hwa(hwa)
         {}
 
         bool    init(uint8_t i2cAddressIndex, displayController_t controller, displayResolution_t resolution);
@@ -69,10 +69,10 @@ namespace IO
         void    drawGlyph(uint8_t x, uint8_t y, uint8_t encoding);
 
         private:
-        HWAI2C& hwa;
+        HWAI2C& _hwa;
 
-        u8x8_t u8x8;
-        size_t rows    = 0;
-        size_t columns = 0;
+        u8x8_t _u8x8;
+        size_t _rows    = 0;
+        size_t _columns = 0;
     };
 }    // namespace IO

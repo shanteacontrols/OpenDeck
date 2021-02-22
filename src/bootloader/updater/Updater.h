@@ -35,10 +35,10 @@ class Updater
     };
 
     Updater(BTLDRWriter& writer, const uint64_t startCommand, const uint32_t endCommand, const uint32_t uid)
-        : writer(writer)
-        , startCommand(startCommand)
-        , endCommand(endCommand)
-        , uid(uid)
+        : _writer(writer)
+        , _startCommand(startCommand)
+        , _endCommand(endCommand)
+        , _uid(uid)
     {}
 
     void feed(uint8_t data);
@@ -61,12 +61,27 @@ class Updater
         invalid
     };
 
+    using processHandler_t = processStatus_t (Updater::*)(uint8_t);
+
     processStatus_t processStart(uint8_t data);
     processStatus_t processFwMetadata(uint8_t data);
     processStatus_t processFwChunk(uint8_t data);
     processStatus_t processEnd(uint8_t data);
 
-    using processHandler_t = processStatus_t (Updater::*)(uint8_t);
+    BTLDRWriter& _writer;
+
+    uint8_t        _currentStage        = 0;
+    size_t         _currentFwPage       = 0;
+    uint16_t       _receivedWord        = 0;
+    uint32_t       _fwPageBytesReceived = 0;
+    uint8_t        _stageBytesReceived  = 0;
+    uint32_t       _fwBytesReceived     = 0;
+    uint32_t       _fwSize              = 0;
+    uint32_t       _receivedUID         = 0;
+    uint8_t        _startBytesReceived  = 0;
+    const uint64_t _startCommand;
+    const uint32_t _endCommand;
+    const uint32_t _uid;
 
     processHandler_t processHandler[static_cast<uint8_t>(receiveStage_t::AMOUNT)] = {
         &Updater::processStart,
@@ -74,20 +89,4 @@ class Updater
         &Updater::processFwChunk,
         &Updater::processEnd
     };
-
-    uint8_t  currentStage           = 0;
-    size_t   currentFwPage          = 0;
-    uint16_t receivedWord           = 0;
-    uint32_t fwPageBytesReceived    = 0;
-    uint8_t  stageBytesReceived     = 0;
-    uint8_t  commandRepeatsReceived = 0;
-    uint32_t fwBytesReceived        = 0;
-    uint32_t fwSize                 = 0;
-    uint32_t receivedUID            = 0;
-    uint8_t  startBytesReceived     = 0;
-
-    BTLDRWriter&   writer;
-    const uint64_t startCommand;
-    const uint32_t endCommand;
-    const uint32_t uid;
 };

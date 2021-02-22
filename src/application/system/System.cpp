@@ -60,47 +60,47 @@ Database::block_t System::dbBlock(uint8_t index)
 
 Database::Section::global_t System::dbSection(Section::global_t section)
 {
-    return sysEx2DB_global[static_cast<uint8_t>(section)];
+    return _sysEx2DB_global[static_cast<uint8_t>(section)];
 }
 
 Database::Section::button_t System::dbSection(Section::button_t section)
 {
-    return sysEx2DB_button[static_cast<uint8_t>(section)];
+    return _sysEx2DB_button[static_cast<uint8_t>(section)];
 }
 
 Database::Section::encoder_t System::dbSection(Section::encoder_t section)
 {
-    return sysEx2DB_encoder[static_cast<uint8_t>(section)];
+    return _sysEx2DB_encoder[static_cast<uint8_t>(section)];
 }
 
 Database::Section::analog_t System::dbSection(Section::analog_t section)
 {
-    return sysEx2DB_analog[static_cast<uint8_t>(section)];
+    return _sysEx2DB_analog[static_cast<uint8_t>(section)];
 }
 
 Database::Section::leds_t System::dbSection(Section::leds_t section)
 {
-    return sysEx2DB_leds[static_cast<uint8_t>(section)];
+    return _sysEx2DB_leds[static_cast<uint8_t>(section)];
 }
 
 Database::Section::display_t System::dbSection(Section::display_t section)
 {
-    return sysEx2DB_display[static_cast<uint8_t>(section)];
+    return _sysEx2DB_display[static_cast<uint8_t>(section)];
 }
 
 Database::Section::touchscreen_t System::dbSection(Section::touchscreen_t section)
 {
-    return sysEx2DB_touchscreen[static_cast<uint8_t>(section)];
+    return _sysEx2DB_touchscreen[static_cast<uint8_t>(section)];
 }
 
 void System::handleSysEx(const uint8_t* array, size_t size)
 {
-    sysExConf.handleMessage(array, size);
+    _sysExConf.handleMessage(array, size);
 
-    if (backupRequested)
+    if (_backupRequested)
     {
         backup();
-        backupRequested = false;
+        _backupRequested = false;
     }
 }
 
@@ -143,19 +143,19 @@ System::result_t System::SysExDataHandler::customRequest(size_t request, CustomR
     break;
 
     case SYSEX_CR_FACTORY_RESET:
-        system.database.factoryReset();
+        _system._database.factoryReset();
         break;
 
     case SYSEX_CR_REBOOT_APP:
-        system.hwa.reboot(FwSelector::fwType_t::application);
+        _system._hwa.reboot(FwSelector::fwType_t::application);
         break;
 
     case SYSEX_CR_REBOOT_BTLDR:
-        system.hwa.reboot(FwSelector::fwType_t::bootloader);
+        _system._hwa.reboot(FwSelector::fwType_t::bootloader);
         break;
 
     case SYSEX_CR_REBOOT_CDC:
-        system.hwa.reboot(FwSelector::fwType_t::cdc);
+        _system._hwa.reboot(FwSelector::fwType_t::cdc);
         break;
 
     case SYSEX_CR_MAX_COMPONENTS:
@@ -170,7 +170,7 @@ System::result_t System::SysExDataHandler::customRequest(size_t request, CustomR
 
     case SYSEX_CR_SUPPORTED_PRESETS:
     {
-        customResponse.append(system.database.getSupportedPresets());
+        customResponse.append(_system._database.getSupportedPresets());
     }
     break;
 
@@ -182,20 +182,20 @@ System::result_t System::SysExDataHandler::customRequest(size_t request, CustomR
 
     case SYSEX_CR_ENABLE_PROCESSING:
     {
-        system.processingEnabled = true;
+        _system._processingEnabled = true;
     }
     break;
 
     case SYSEX_CR_DISABLE_PROCESSING:
     {
-        system.processingEnabled = false;
+        _system._processingEnabled = false;
     }
     break;
 
     case SYSEX_CR_FULL_BACKUP:
     {
         //no response here, just set flag internally that backup needs to be done
-        system.backupRequested = true;
+        _system._backupRequested = true;
     }
     break;
 
@@ -207,30 +207,30 @@ System::result_t System::SysExDataHandler::customRequest(size_t request, CustomR
     }
 
     if (result == System::result_t::ok)
-        system.display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::systemExclusive, 0, 0, 0);
+        _system._display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::systemExclusive, 0, 0, 0);
 
     return result;
 }
 
 void System::DBhandlers::presetChange(uint8_t preset)
 {
-    system.leds.setAllOff();
+    _system._leds.setAllOff();
 
-    if (system.display.init(false))
-        system.display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::presetChange, preset, 0, 0);
+    if (_system._display.init(false))
+        _system._display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::presetChange, preset, 0, 0);
 }
 
 void System::DBhandlers::factoryResetStart()
 {
-    system.leds.setAllOff();
+    _system._leds.setAllOff();
 }
 
 void System::DBhandlers::factoryResetDone()
 {
     // don't run this if database isn' t initialized yet to avoid mcu reset if
     //factory reset is needed initially
-    if (system.database.isInitialized())
-        system.hwa.reboot(FwSelector::fwType_t::application);
+    if (_system._database.isInitialized())
+        _system._hwa.reboot(FwSelector::fwType_t::application);
 }
 
 void System::DBhandlers::initialized()
@@ -240,50 +240,50 @@ void System::DBhandlers::initialized()
 
 void System::TouchScreenHandlers::button(size_t index, bool state)
 {
-    system.buttons.processButton(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + index, state);
+    _system._buttons.processButton(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + index, state);
 }
 
 void System::TouchScreenHandlers::analog(size_t index, uint16_t value, uint16_t min, uint16_t max)
 {
-    value = core::misc::mapRange(static_cast<uint32_t>(value), static_cast<uint32_t>(min), static_cast<uint32_t>(max), static_cast<uint32_t>(0), static_cast<uint32_t>(system.analog.adcType()));
-    system.analog.processReading(MAX_NUMBER_OF_ANALOG + index, value);
+    value = core::misc::mapRange(static_cast<uint32_t>(value), static_cast<uint32_t>(min), static_cast<uint32_t>(max), static_cast<uint32_t>(0), static_cast<uint32_t>(_system._analog.adcType()));
+    _system._analog.processReading(MAX_NUMBER_OF_ANALOG + index, value);
 }
 
 void System::TouchScreenHandlers::screenChange(size_t screenID)
 {
-    system.leds.refresh();
+    _system._leds.refresh();
 }
 
 bool System::init()
 {
-    database.registerHandlers(dbHandlers);
-    touchscreen.registerEventNotifier(touchScreenHandlers);
+    _database.registerHandlers(_dbHandlers);
+    _touchscreen.registerEventNotifier(_touchScreenHandlers);
 
-    cInfo.registerHandler([this](Database::block_t dbBlock, SysExConf::sysExParameter_t componentID) {
+    _cInfo.registerHandler([this](Database::block_t dbBlock, SysExConf::sysExParameter_t componentID) {
         return sendCInfo(dbBlock, componentID);
     });
 
-    analog.registerButtonHandler([this](uint8_t analogIndex, bool value) {
-        buttons.processButton(analogIndex + MAX_NUMBER_OF_BUTTONS, value);
+    _analog.registerButtonHandler([this](uint8_t analogIndex, bool value) {
+        _buttons.processButton(analogIndex + MAX_NUMBER_OF_BUTTONS, value);
     });
 
-    hwa.registerOnUSBconnectionHandler([this]() {
-        analog.update(true);
+    _hwa.registerOnUSBconnectionHandler([this]() {
+        _analog.update(true);
     });
 
-    if (!hwa.init())
+    if (!_hwa.init())
         return false;
 
-    if (!database.init())
+    if (!_database.init())
         return false;
 
-    encoders.init();
-    display.init(true);
-    touchscreen.init();
-    leds.init();
+    _encoders.init();
+    _display.init(true);
+    _touchscreen.init();
+    _leds.init();
 
-    sysExConf.setLayout(sysExLayout, static_cast<uint8_t>(block_t::AMOUNT));
-    sysExConf.setupCustomRequests(customRequests, NUMBER_OF_CUSTOM_REQUESTS);
+    _sysExConf.setLayout(sysExLayout, static_cast<uint8_t>(block_t::AMOUNT));
+    _sysExConf.setupCustomRequests(customRequests, NUMBER_OF_CUSTOM_REQUESTS);
 
     configureMIDI();
 
@@ -292,14 +292,14 @@ bool System::init()
 
 bool System::isProcessingEnabled()
 {
-    return processingEnabled;
+    return _processingEnabled;
 }
 
 bool System::sendCInfo(Database::block_t dbBlock, SysExConf::sysExParameter_t componentID)
 {
-    if (sysExConf.isConfigurationEnabled())
+    if (_sysExConf.isConfigurationEnabled())
     {
-        if ((core::timing::currentRunTimeMs() - lastCinfoMsgTime[static_cast<uint8_t>(dbBlock)]) > COMPONENT_INFO_TIMEOUT)
+        if ((core::timing::currentRunTimeMs() - _lastCinfoMsgTime[static_cast<uint8_t>(dbBlock)]) > COMPONENT_INFO_TIMEOUT)
         {
             SysExConf::sysExParameter_t cInfoMessage[] = {
                 SYSEX_CM_COMPONENT_ID,
@@ -314,8 +314,8 @@ bool System::sendCInfo(Database::block_t dbBlock, SysExConf::sysExParameter_t co
             cInfoMessage[2] = high;
             cInfoMessage[3] = low;
 
-            sysExConf.sendCustomMessage(cInfoMessage, 4);
-            lastCinfoMsgTime[static_cast<uint8_t>(dbBlock)] = core::timing::currentRunTimeMs();
+            _sysExConf.sendCustomMessage(cInfoMessage, 4);
+            _lastCinfoMsgTime[static_cast<uint8_t>(dbBlock)] = core::timing::currentRunTimeMs();
         }
 
         return true;
@@ -326,21 +326,21 @@ bool System::sendCInfo(Database::block_t dbBlock, SysExConf::sysExParameter_t co
 
 void System::configureMIDI()
 {
-    midi.init();
-    midi.enableUSBMIDI();
-    midi.setInputChannel(MIDI_CHANNEL_OMNI);
-    midi.setNoteOffMode(isMIDIfeatureEnabled(midiFeature_t::standardNoteOff) ? MIDI::noteOffType_t::standardNoteOff : MIDI::noteOffType_t::noteOnZeroVel);
-    midi.setRunningStatusState(isMIDIfeatureEnabled(midiFeature_t::runningStatus));
-    midi.setChannelSendZeroStart(true);
+    _midi.init();
+    _midi.enableUSBMIDI();
+    _midi.setInputChannel(MIDI_CHANNEL_OMNI);
+    _midi.setNoteOffMode(isMIDIfeatureEnabled(midiFeature_t::standardNoteOff) ? MIDI::noteOffType_t::standardNoteOff : MIDI::noteOffType_t::noteOnZeroVel);
+    _midi.setRunningStatusState(isMIDIfeatureEnabled(midiFeature_t::runningStatus));
+    _midi.setChannelSendZeroStart(true);
 
 #ifdef DIN_MIDI_SUPPORTED
     if (isMIDIfeatureEnabled(midiFeature_t::dinEnabled))
     {
-        midi.enableDINMIDI();
+        _midi.enableDINMIDI();
         bool mergeEnabled = isMIDIfeatureEnabled(midiFeature_t::mergeEnabled);
 
         //use recursive parsing when merging is active
-        midi.useRecursiveParsing(mergeEnabled);
+        _midi.useRecursiveParsing(mergeEnabled);
 
         //only configure master
         if (mergeEnabled)
@@ -349,12 +349,12 @@ void System::configureMIDI()
         }
         else
         {
-            hwa.enableDINMIDI(false);
+            _hwa.enableDINMIDI(false);
         }
     }
     else
     {
-        hwa.disableDINMIDI();
+        _hwa.disableDINMIDI();
     }
 #endif
 }
@@ -367,13 +367,13 @@ void System::configureMIDImerge(midiMergeType_t mergeType)
     case midiMergeType_t::DINtoDIN:
     {
         //forward all incoming DIN MIDI data to DIN MIDI out
-        hwa.enableDINMIDI(true);
+        _hwa.enableDINMIDI(true);
     }
     break;
 
     case midiMergeType_t::DINtoUSB:
     {
-        hwa.enableDINMIDI(false);
+        _hwa.enableDINMIDI(false);
     }
     break;
 
@@ -385,21 +385,21 @@ void System::configureMIDImerge(midiMergeType_t mergeType)
 
 bool System::isMIDIfeatureEnabled(midiFeature_t feature)
 {
-    return database.read(Database::Section::global_t::midiFeatures, static_cast<size_t>(feature));
+    return _database.read(Database::Section::global_t::midiFeatures, static_cast<size_t>(feature));
 }
 
 System::midiMergeType_t System::midiMergeType()
 {
-    return static_cast<midiMergeType_t>(database.read(Database::Section::global_t::midiMerge, static_cast<size_t>(midiMerge_t::mergeType)));
+    return static_cast<midiMergeType_t>(_database.read(Database::Section::global_t::midiMerge, static_cast<size_t>(midiMerge_t::mergeType)));
 }
 
 void System::backup()
 {
     uint8_t backupRequest[] = {
         0xF0,
-        sysExMID.id1,
-        sysExMID.id2,
-        sysExMID.id3,
+        _sysExMID.id1,
+        _sysExMID.id2,
+        _sysExMID.id3,
         0x00,    //request
         0x7F,    //all message parts,
         static_cast<uint8_t>(SysExConf::wish_t::backup),
@@ -429,17 +429,17 @@ void System::backup()
     const uint8_t backupRequestBlockIndex        = 8;
     const uint8_t backupRequestSectionIndex      = 9;
 
-    uint8_t currentPreset = database.getPreset();
+    uint8_t currentPreset = _database.getPreset();
 
     //make sure not to report any errors while performing backup
-    sysExConf.setSilentMode(true);
+    _sysExConf.setSilentMode(true);
 
     //send internally created backup requests to sysex handler for all presets, blocks and presets
-    for (uint8_t preset = 0; preset < database.getSupportedPresets(); preset++)
+    for (uint8_t preset = 0; preset < _database.getSupportedPresets(); preset++)
     {
-        database.setPreset(preset);
+        _database.setPreset(preset);
         presetChangeRequest[presetChangeRequestPresetIndex] = preset;
-        sysExConf.sendCustomMessage(presetChangeRequest, presetChangeRequestSize, false);
+        _sysExConf.sendCustomMessage(presetChangeRequest, presetChangeRequestSize, false);
 
         for (size_t block = 0; block < static_cast<uint8_t>(System::block_t::AMOUNT); block++)
         {
@@ -454,47 +454,45 @@ void System::backup()
                     continue;    //testing sections, skip
 
                 backupRequest[backupRequestSectionIndex] = section;
-                sysExConf.handleMessage(backupRequest, sizeof(backupRequest));
+                _sysExConf.handleMessage(backupRequest, sizeof(backupRequest));
             }
         }
     }
 
-    database.setPreset(currentPreset);
+    _database.setPreset(currentPreset);
     presetChangeRequest[presetChangeRequestPresetIndex] = currentPreset;
-    sysExConf.sendCustomMessage(presetChangeRequest, presetChangeRequestSize, false);
+    _sysExConf.sendCustomMessage(presetChangeRequest, presetChangeRequestSize, false);
 
     //finally, send back full backup request to mark the end of sending
     SysExConf::sysExParameter_t endMarker = SYSEX_CR_FULL_BACKUP;
-    sysExConf.sendCustomMessage(&endMarker, 1);
-    sysExConf.setSilentMode(false);
+    _sysExConf.sendCustomMessage(&endMarker, 1);
+    _sysExConf.setSilentMode(false);
 }
 
 void System::SysExDataHandler::sendResponse(uint8_t* array, size_t size)
 {
     //never send responses through DIN MIDI
-    system.midi.disableDINMIDI();
-    system.midi.sendSysEx(size, array, true);
+    _system._midi.disableDINMIDI();
+    _system._midi.sendSysEx(size, array, true);
 
-    if (system.database.read(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled)))
-        system.midi.enableDINMIDI();
+    if (_system._database.read(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled)))
+        _system._midi.enableDINMIDI();
 }
 
 void System::checkComponents()
 {
     if (isProcessingEnabled())
     {
-        if (hwa.isDigitalInputAvailable())
+        if (_hwa.isDigitalInputAvailable())
         {
-            buttons.update();
-            encoders.update();
+            _buttons.update();
+            _encoders.update();
         }
 
-        analog.update();
-
-        leds.checkBlinking();
-        display.update();
-
-        touchscreen.update();
+        _analog.update();
+        _leds.checkBlinking();
+        _display.update();
+        _touchscreen.update();
     }
 }
 
@@ -502,17 +500,17 @@ void System::checkMIDI()
 {
     auto processMessage = [&](MIDI::interface_t interface) {
         //new message
-        auto    messageType = midi.getType(interface);
-        uint8_t data1       = midi.getData1(interface);
-        uint8_t data2       = midi.getData2(interface);
-        uint8_t channel     = midi.getChannel(interface);
+        auto    messageType = _midi.getType(interface);
+        uint8_t data1       = _midi.getData1(interface);
+        uint8_t data2       = _midi.getData2(interface);
+        uint8_t channel     = _midi.getChannel(interface);
 
         switch (messageType)
         {
         case MIDI::messageType_t::systemExclusive:
             //process sysex messages only from usb interface
             if (interface == MIDI::interface_t::usb)
-                handleSysEx(midi.getSysExArray(interface), midi.getSysExArrayLength(interface));
+                handleSysEx(_midi.getSysExArray(interface), _midi.getSysExArrayLength(interface));
             break;
 
         case MIDI::messageType_t::noteOn:
@@ -525,24 +523,24 @@ void System::checkMIDI()
             if (messageType == MIDI::messageType_t::noteOff)
                 data2 = 0;
 
-            leds.midiToState(messageType, data1, data2, channel, IO::LEDs::dataSource_t::external);
+            _leds.midiToState(messageType, data1, data2, channel, IO::LEDs::dataSource_t::external);
 
             switch (messageType)
             {
             case MIDI::messageType_t::noteOn:
-                display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::noteOn, data1, data2, channel + 1);
+                _display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::noteOn, data1, data2, channel + 1);
                 break;
 
             case MIDI::messageType_t::noteOff:
-                display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::noteOff, data1, data2, channel + 1);
+                _display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::noteOff, data1, data2, channel + 1);
                 break;
 
             case MIDI::messageType_t::controlChange:
-                display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::controlChange, data1, data2, channel + 1);
+                _display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::controlChange, data1, data2, channel + 1);
                 break;
 
             case MIDI::messageType_t::programChange:
-                display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::programChange, data1, data2, channel + 1);
+                _display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::programChange, data1, data2, channel + 1);
                 break;
 
             default:
@@ -550,36 +548,36 @@ void System::checkMIDI()
             }
 
             if (messageType == MIDI::messageType_t::programChange)
-                database.setPreset(data1);
+                _database.setPreset(data1);
 
             if (messageType == MIDI::messageType_t::controlChange)
             {
                 for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
                 {
-                    if (!database.read(Database::Section::encoder_t::remoteSync, i))
+                    if (!_database.read(Database::Section::encoder_t::remoteSync, i))
                         continue;
 
-                    if (database.read(Database::Section::encoder_t::mode, i) != static_cast<int32_t>(IO::Encoders::type_t::tControlChange))
+                    if (_database.read(Database::Section::encoder_t::mode, i) != static_cast<int32_t>(IO::Encoders::type_t::tControlChange))
                         continue;
 
-                    if (database.read(Database::Section::encoder_t::midiChannel, i) != channel)
+                    if (_database.read(Database::Section::encoder_t::midiChannel, i) != channel)
                         continue;
 
-                    if (database.read(Database::Section::encoder_t::midiID, i) != data1)
+                    if (_database.read(Database::Section::encoder_t::midiID, i) != data1)
                         continue;
 
-                    encoders.setValue(i, data2);
+                    _encoders.setValue(i, data2);
                 }
             }
             break;
 
         case MIDI::messageType_t::sysRealTimeClock:
-            leds.checkBlinking(true);
+            _leds.checkBlinking(true);
             break;
 
         case MIDI::messageType_t::sysRealTimeStart:
-            leds.resetBlinking();
-            leds.checkBlinking(true);
+            _leds.resetBlinking();
+            _leds.checkBlinking(true);
             break;
 
         default:
@@ -593,16 +591,16 @@ void System::checkMIDI()
         isMIDIfeatureEnabled(System::midiFeature_t::passToDIN))
     {
         //pass the message to din
-        if (midi.read(MIDI::interface_t::usb, MIDI::filterMode_t::fullDIN))
+        if (_midi.read(MIDI::interface_t::usb, MIDI::filterMode_t::fullDIN))
             processMessage(MIDI::interface_t::usb);
     }
     else
     {
-        if (midi.read(MIDI::interface_t::usb))
+        if (_midi.read(MIDI::interface_t::usb))
             processMessage(MIDI::interface_t::usb);
     }
 #else
-    if (midi.read(MIDI::interface_t::usb))
+    if (_midi.read(MIDI::interface_t::usb))
         processMessage(MIDI::interface_t::usb);
 #endif
 
@@ -617,7 +615,7 @@ void System::checkMIDI()
             {
             case System::midiMergeType_t::DINtoUSB:
                 //dump everything from DIN MIDI in to USB MIDI out
-                midi.read(MIDI::interface_t::din, MIDI::filterMode_t::fullUSB);
+                _midi.read(MIDI::interface_t::din, MIDI::filterMode_t::fullUSB);
                 break;
 
                 // case System::midiMergeType_t::DINtoDIN:
@@ -630,7 +628,7 @@ void System::checkMIDI()
         }
         else
         {
-            if (midi.read(MIDI::interface_t::din))
+            if (_midi.read(MIDI::interface_t::din))
                 processMessage(MIDI::interface_t::din);
         }
     }

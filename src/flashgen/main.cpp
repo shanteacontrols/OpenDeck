@@ -45,11 +45,11 @@ namespace
                 size_t size = 0;
 
                 //get actual size of vector by finding first entry with content 0xFFFFFFFF
-                for (; size < _flashVector.at(activePageWrite).size(); size += 4)
+                for (; size < _flashVector.at(_activePageWrite).size(); size += 4)
                 {
                     uint32_t data;
 
-                    if (!read32(size + (pageSize() * activePageWrite), data))
+                    if (!read32(size + (pageSize() * _activePageWrite), data))
                     {
                         while (1)
                         {
@@ -65,7 +65,7 @@ namespace
                     }
                 }
 
-                file.write(reinterpret_cast<char*>(&_flashVector.at(activePageWrite)[0]), (size + 4) * sizeof(uint8_t));
+                file.write(reinterpret_cast<char*>(&_flashVector.at(_activePageWrite)[0]), (size + 4) * sizeof(uint8_t));
                 file.close();
             }
 
@@ -139,7 +139,7 @@ namespace
                 if (
                     (data == static_cast<uint32_t>(EmuEEPROM::pageStatus_t::receiving)) ||
                     (data == static_cast<uint32_t>(EmuEEPROM::pageStatus_t::valid)))
-                    activePageWrite = page;
+                    _activePageWrite = page;
             }
 
             _flashVector.at(page).at(address + 0) = data >> 0 & static_cast<uint16_t>(0xFF);
@@ -201,7 +201,7 @@ namespace
         private:
         std::array<std::vector<uint8_t>, 2> _flashVector;
         std::string                         _filename;
-        size_t                              activePageWrite = 0;
+        size_t                              _activePageWrite = 0;
 
     } emuEEPROMstorage;
 

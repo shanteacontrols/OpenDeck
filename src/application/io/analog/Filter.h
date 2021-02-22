@@ -102,7 +102,7 @@ namespace IO
             {
                 //don't filter the readings for touchscreen data
 
-                if ((core::timing::currentRunTimeMs() - _lastMovementTime[index]) > _fastFilterEnableAfter)
+                if ((core::timing::currentRunTimeMs() - _lastMovementTime[index]) > FAST_FILTER_ENABLE_AFTER_MS)
                 {
                     fastFilter                                    = false;
                     _analogSample[index][_sampleCounter[index]++] = value;
@@ -267,13 +267,13 @@ namespace IO
         adcConfig_t&                _adcConfig;
         const size_t                _stableValueRepetitions;
 
-        const uint32_t _fastFilterEnableAfter = 500;
-        EMA            _emaFilter[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS];
-        uint16_t       _analogSample[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS][3]   = {};
-        size_t         _sampleCounter[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]     = {};
-        valDirection_t _lastDirection[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]     = {};
-        uint16_t       _lastStableValue[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]   = {};
-        uint8_t        _stableSampleCount[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS] = {};
-        uint32_t       _lastMovementTime[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]  = {};
+        static constexpr uint32_t FAST_FILTER_ENABLE_AFTER_MS = 500;
+        EMA                       _emaFilter[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS];
+        uint16_t                  _analogSample[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS][3]   = {};
+        size_t                    _sampleCounter[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]     = {};
+        valDirection_t            _lastDirection[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]     = {};
+        uint16_t                  _lastStableValue[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]   = {};
+        uint8_t                   _stableSampleCount[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS] = {};
+        uint32_t                  _lastMovementTime[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]  = {};
     };    // namespace IO
 }    // namespace IO

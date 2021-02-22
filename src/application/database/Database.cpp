@@ -22,11 +22,11 @@ limitations under the License.
 
 /// Helper macro for easier entry and exit from system block.
 /// Important: ::init must called before trying to use this macro.
-#define SYSTEM_BLOCK_ENTER(code)                                                                                                               \
-    {                                                                                                                                          \
-        LESSDB::setLayout(dbLayout, static_cast<uint8_t>(block_t::AMOUNT) + 1, 0);                                                             \
-        code                                                                                                                                   \
-            LESSDB::setLayout(&dbLayout[1], static_cast<uint8_t>(block_t::AMOUNT), userDataStartAddress + (lastPresetAddress * activePreset)); \
+#define SYSTEM_BLOCK_ENTER(code)                                                                                                                  \
+    {                                                                                                                                             \
+        LESSDB::setLayout(dbLayout, static_cast<uint8_t>(block_t::AMOUNT) + 1, 0);                                                                \
+        code                                                                                                                                      \
+            LESSDB::setLayout(&dbLayout[1], static_cast<uint8_t>(block_t::AMOUNT), _userDataStartAddress + (_lastPresetAddress * _activePreset)); \
     }
 
 /// Initializes database.
@@ -44,28 +44,28 @@ bool Database::init()
     }
     else
     {
-        systemBlockUsage     = LESSDB::currentDBsize();
-        userDataStartAddress = LESSDB::nextParameterAddress();
+        systemBlockUsage      = LESSDB::currentDBsize();
+        _userDataStartAddress = LESSDB::nextParameterAddress();
 
         //now set the entire layout
         if (!LESSDB::setLayout(dbLayout, static_cast<uint8_t>(block_t::AMOUNT) + 1, 0))
             return false;
     }
 
-    lastPresetAddress = LESSDB::nextParameterAddress() - userDataStartAddress;
+    _lastPresetAddress = LESSDB::nextParameterAddress() - _userDataStartAddress;
 
     //limit the address space to 0xFFFF - 1
     const uint32_t maxAddress = 0xFFFF - 1;
-    uint16_t       maxPresets = (maxAddress / LESSDB::lastParameterAddress()) - userDataStartAddress;
+    uint16_t       maxPresets = (maxAddress / LESSDB::lastParameterAddress()) - _userDataStartAddress;
 
     //get theoretical maximum of presets
-    supportedPresets = (LESSDB::dbSize() - systemBlockUsage) / (LESSDB::currentDBsize() - systemBlockUsage);
+    _supportedPresets = (LESSDB::dbSize() - systemBlockUsage) / (LESSDB::currentDBsize() - systemBlockUsage);
 
     //limit by address space
-    supportedPresets = CONSTRAIN(supportedPresets, 0, maxPresets);
+    _supportedPresets = CONSTRAIN(_supportedPresets, 0, maxPresets);
 
     //limit by hardcoded limit
-    supportedPresets = CONSTRAIN(supportedPresets, 0, MAX_PRESETS);
+    _supportedPresets = CONSTRAIN(_supportedPresets, 0, MAX_PRESETS);
 
     bool returnValue = true;
 
@@ -76,18 +76,18 @@ bool Database::init()
     else
     {
         SYSTEM_BLOCK_ENTER(
-            activePreset = read(0,
-                                static_cast<uint8_t>(SectionPrivate::system_t::presets),
-                                static_cast<size_t>(System::presetSetting_t::activePreset));)
+            _activePreset = read(0,
+                                 static_cast<uint8_t>(SectionPrivate::system_t::presets),
+                                 static_cast<size_t>(System::presetSetting_t::activePreset));)
 
         if (getPresetPreserveState())
         {
             //don't write anything to database in this case - setup preset only internally
-            setPresetInternal(activePreset);
+            setPresetInternal(_activePreset);
         }
         else
         {
-            if (activePreset != 0)
+            if (_activePreset != 0)
             {
                 //preset preservation is not set which means preset must be 0
                 //in this case it is not so overwrite it with 0
@@ -102,10 +102,10 @@ bool Database::init()
 
     if (returnValue)
     {
-        initialized = true;
+        _initialized = true;
 
-        if (handlers != nullptr)
-            handlers->initialized();
+        if (_handlers != nullptr)
+            _handlers->initialized();
     }
 
     return returnValue;
@@ -113,19 +113,19 @@ bool Database::init()
 
 bool Database::isInitialized()
 {
-    return initialized;
+    return _initialized;
 }
 
 /// Performs full factory reset of data in database.
 bool Database::factoryReset()
 {
-    if (handlers != nullptr)
-        handlers->factoryResetStart();
+    if (_handlers != nullptr)
+        _handlers->factoryResetStart();
 
     if (!clear())
         return false;
 
-    if (initializeData)
+    if (_initializeData)
     {
         //init system block first
         if (!LESSDB::setLayout(dbLayout, 1, 0))
@@ -134,7 +134,7 @@ bool Database::factoryReset()
         if (!initData(LESSDB::factoryResetType_t::full))
             return false;
 
-        for (int i = supportedPresets - 1; i >= 0; i--)
+        for (int i = _supportedPresets - 1; i >= 0; i--)
         {
             if (!setPresetInternal(i))
                 return false;
@@ -167,8 +167,8 @@ bool Database::factoryReset()
             return false;
     }
 
-    if (handlers != nullptr)
-        handlers->factoryResetDone();
+    if (_handlers != nullptr)
+        _handlers->factoryResetDone();
 
     return true;
 }
@@ -178,10 +178,10 @@ bool Database::factoryReset()
 /// returns: False if specified preset isn't supported, true otherwise.
 bool Database::setPreset(uint8_t preset)
 {
-    if (preset >= supportedPresets)
+    if (preset >= _supportedPresets)
         return false;
 
-    activePreset = preset;
+    _activePreset = preset;
 
     bool returnValue;
 
@@ -193,8 +193,8 @@ bool Database::setPreset(uint8_t preset)
 
     if (returnValue)
     {
-        if (handlers != nullptr)
-            handlers->presetChange(preset);
+        if (_handlers != nullptr)
+            _handlers->presetChange(preset);
     }
 
     return returnValue;
@@ -206,11 +206,11 @@ bool Database::setPreset(uint8_t preset)
 /// returns: False if specified preset isn't supported, true otherwise.
 bool Database::setPresetInternal(uint8_t preset)
 {
-    if (preset >= supportedPresets)
+    if (preset >= _supportedPresets)
         return false;
 
-    activePreset = preset;
-    LESSDB::setLayout(&dbLayout[1], static_cast<uint8_t>(block_t::AMOUNT), userDataStartAddress + (lastPresetAddress * activePreset));
+    _activePreset = preset;
+    LESSDB::setLayout(&dbLayout[1], static_cast<uint8_t>(block_t::AMOUNT), _userDataStartAddress + (_lastPresetAddress * _activePreset));
 
     return true;
 }
@@ -218,14 +218,14 @@ bool Database::setPresetInternal(uint8_t preset)
 /// Retrieves currently active preset.
 uint8_t Database::getPreset()
 {
-    return activePreset;
+    return _activePreset;
 }
 
 /// Retrieves number of presets possible to store in database.
 /// Preset is simply another database layout copy.
 uint8_t Database::getSupportedPresets()
 {
-    return supportedPresets;
+    return _supportedPresets;
 }
 
 /// Enables or disables preservation of preset setting.
@@ -292,7 +292,7 @@ uint16_t Database::getDbUID()
         }
     }
 
-    signature += supportedPresets;
+    signature += _supportedPresets;
 
     return signature ^ uidBase;
 }
@@ -312,7 +312,7 @@ bool Database::setDbUID(uint16_t uid)
 
 void Database::registerHandlers(Handlers& handlers)
 {
-    this->handlers = &handlers;
+    _handlers = &handlers;
 }
 
 __attribute__((weak)) void Database::customInitGlobal()

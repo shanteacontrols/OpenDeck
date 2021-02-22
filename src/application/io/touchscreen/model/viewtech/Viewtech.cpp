@@ -25,25 +25,25 @@ limitations under the License.
 bool Viewtech::init()
 {
     IO::Touchscreen::Model::Common::bufferCount = 0;
-    return hwa.init();
+    return _hwa.init();
 }
 
 bool Viewtech::deInit()
 {
-    return hwa.deInit();
+    return _hwa.deInit();
 }
 
 bool Viewtech::setScreen(size_t screenID)
 {
     screenID &= 0xFF;
 
-    hwa.write(0xA5);
-    hwa.write(0x5A);
-    hwa.write(0x04);
-    hwa.write(0x80);
-    hwa.write(0x03);
-    hwa.write(0x00);
-    hwa.write(screenID);
+    _hwa.write(0xA5);
+    _hwa.write(0x5A);
+    _hwa.write(0x04);
+    _hwa.write(0x80);
+    _hwa.write(0x03);
+    _hwa.write(0x00);
+    _hwa.write(screenID);
 
     return true;
 }
@@ -55,7 +55,7 @@ IO::Touchscreen::tsEvent_t Viewtech::update(IO::Touchscreen::tsData_t& data)
     auto    event = IO::Touchscreen::tsEvent_t::none;
     uint8_t byte  = 0;
 
-    while (hwa.read(byte))
+    while (_hwa.read(byte))
     {
         IO::Touchscreen::Model::Common::rxBuffer[IO::Touchscreen::Model::Common::bufferCount++] = byte;
     }
@@ -147,42 +147,42 @@ IO::Touchscreen::tsEvent_t Viewtech::update(IO::Touchscreen::tsData_t& data)
 void Viewtech::setIconState(IO::Touchscreen::icon_t& icon, bool state)
 {
     //header
-    hwa.write(0xA5);
-    hwa.write(0x5A);
+    _hwa.write(0xA5);
+    _hwa.write(0x5A);
 
     //request size
-    hwa.write(0x05);
+    _hwa.write(0x05);
 
     //write variable
-    hwa.write(0x82);
+    _hwa.write(0x82);
 
     //icon address - for viewtech displays, address is stored in xPos element
-    hwa.write(HIGH_BYTE(icon.xPos));
-    hwa.write(LOW_BYTE(icon.xPos));
+    _hwa.write(HIGH_BYTE(icon.xPos));
+    _hwa.write(LOW_BYTE(icon.xPos));
 
     //value to set - 2 bytes are used, higher is always 0
     //inverted logic for setting state - 0 means on state, 1 is off
-    hwa.write(0x00);
-    hwa.write(state ? 0x00 : 0x01);
+    _hwa.write(0x00);
+    _hwa.write(state ? 0x00 : 0x01);
 }
 
 bool Viewtech::setBrightness(IO::Touchscreen::brightness_t brightness)
 {
     //header
-    hwa.write(0xA5);
-    hwa.write(0x5A);
+    _hwa.write(0xA5);
+    _hwa.write(0x5A);
 
     //request size
-    hwa.write(0x03);
+    _hwa.write(0x03);
 
     //register write
-    hwa.write(0x80);
+    _hwa.write(0x80);
 
     //brightness settting
-    hwa.write(0x01);
+    _hwa.write(0x01);
 
     //brightness value
-    hwa.write(brightnessMapping[static_cast<uint8_t>(brightness)]);
+    _hwa.write(_brightnessMapping[static_cast<uint8_t>(brightness)]);
 
     return true;
 }
@@ -194,22 +194,22 @@ void Viewtech::pollXY()
     if ((core::timing::currentRunTimeMs() - lastPollTime) > XY_POLL_TIME_MS)
     {
         //header
-        hwa.write(0xA5);
-        hwa.write(0x5A);
+        _hwa.write(0xA5);
+        _hwa.write(0x5A);
 
         //request size
-        hwa.write(0x03);
+        _hwa.write(0x03);
 
         //register read
-        hwa.write(0x81);
+        _hwa.write(0x81);
 
         //read register 6 but request 5 bytes
         //reg6 contains touch status (1 byte)
         //reg7 contains x/y coordinates (4 bytes)
-        hwa.write(0x06);
+        _hwa.write(0x06);
 
         //read 5 bytes
-        hwa.write(0x05);
+        _hwa.write(0x05);
 
         lastPollTime = core::timing::currentRunTimeMs();
     }

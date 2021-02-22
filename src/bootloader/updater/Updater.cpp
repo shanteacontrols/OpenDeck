@@ -21,21 +21,21 @@ limitations under the License.
 void Updater::feed(uint8_t data)
 {
     auto nextStage = [&]() {
-        if (currentStage == static_cast<uint8_t>(receiveStage_t::end))
+        if (_currentStage == static_cast<uint8_t>(receiveStage_t::end))
         {
             reset();
-            writer.apply();
+            _writer.apply();
         }
         else
         {
-            stageBytesReceived = 0;
-            currentStage++;
+            _stageBytesReceived = 0;
+            _currentStage++;
         }
     };
 
     //continually process start command - this makes sure the fw update process can always restart
 
-    if (currentStage)
+    if (_currentStage)
     {
         if (processStart(data) == processStatus_t::complete)
         {
@@ -45,7 +45,7 @@ void Updater::feed(uint8_t data)
         }
     }
 
-    processStatus_t result = (this->*processHandler[currentStage])(data);
+    processStatus_t result = (this->*processHandler[_currentStage])(data);
 
     if (result == processStatus_t::complete)
     {
@@ -57,7 +57,7 @@ void Updater::feed(uint8_t data)
         reset();
 
         //also reset again if it fails again - it cannot possibly return complete status since that requires 8 bytes
-        if ((this->*processHandler[currentStage])(data) == processStatus_t::invalid)
+        if ((this->*processHandler[_currentStage])(data) == processStatus_t::invalid)
             reset();
     }
 }
@@ -66,15 +66,15 @@ Updater::processStatus_t Updater::processStart(uint8_t data)
 {
     //8 received bytes must match the startCommand (lower first, then upper)
 
-    if (((startCommand >> (startBytesReceived * 8)) & static_cast<uint64_t>(0xFF)) != data)
+    if (((_startCommand >> (_startBytesReceived * 8)) & static_cast<uint64_t>(0xFF)) != data)
     {
-        startBytesReceived = 0;
+        _startBytesReceived = 0;
         return processStatus_t::invalid;
     }
 
-    if (++startBytesReceived == 8)
+    if (++_startBytesReceived == 8)
     {
-        startBytesReceived = 0;
+        _startBytesReceived = 0;
         return processStatus_t::complete;
     }
 
@@ -85,14 +85,14 @@ Updater::processStatus_t Updater::processFwMetadata(uint8_t data)
 {
     //metadata consists of 4 bytes for firmware length and 4 bytes for UID
 
-    if (stageBytesReceived < 4)
-        fwSize |= (static_cast<uint32_t>(data) << (8 * stageBytesReceived));
+    if (_stageBytesReceived < 4)
+        _fwSize |= (static_cast<uint32_t>(data) << (8 * _stageBytesReceived));
     else
-        receivedUID |= (static_cast<uint32_t>(data) << (8 * (stageBytesReceived - 4)));
+        _receivedUID |= (static_cast<uint32_t>(data) << (8 * (_stageBytesReceived - 4)));
 
-    if (++stageBytesReceived == 8)
+    if (++_stageBytesReceived == 8)
     {
-        if (receivedUID != uid)
+        if (_receivedUID != _uid)
             return processStatus_t::invalid;
 
         return processStatus_t::complete;
@@ -103,62 +103,62 @@ Updater::processStatus_t Updater::processFwMetadata(uint8_t data)
 
 Updater::processStatus_t Updater::processFwChunk(uint8_t data)
 {
-    receivedWord |= (data << (8 * stageBytesReceived));
+    _receivedWord |= (data << (8 * _stageBytesReceived));
 
-    if (++stageBytesReceived != 2)
+    if (++_stageBytesReceived != 2)
         return processStatus_t::incomplete;
 
-    if (!fwPageBytesReceived)
-        writer.erasePage(currentFwPage);
+    if (!_fwPageBytesReceived)
+        _writer.erasePage(_currentFwPage);
 
-    writer.fillPage(currentFwPage, fwPageBytesReceived, receivedWord);
+    _writer.fillPage(_currentFwPage, _fwPageBytesReceived, _receivedWord);
 
     //we are operating with words (two bytes)
-    fwPageBytesReceived += 2;
-    fwBytesReceived += 2;
+    _fwPageBytesReceived += 2;
+    _fwBytesReceived += 2;
 
-    receivedWord       = 0;
-    stageBytesReceived = 0;
+    _receivedWord       = 0;
+    _stageBytesReceived = 0;
 
     bool pageWritten = false;
 
-    if (fwPageBytesReceived == writer.pageSize(currentFwPage))
+    if (_fwPageBytesReceived == _writer.pageSize(_currentFwPage))
     {
-        fwPageBytesReceived = 0;
-        writer.writePage(currentFwPage);
+        _fwPageBytesReceived = 0;
+        _writer.writePage(_currentFwPage);
         pageWritten = true;
     }
 
-    if (fwBytesReceived == fwSize)
+    if (_fwBytesReceived == _fwSize)
     {
         //make sure page is written even if entire page range wasn't received
         if (!pageWritten)
-            writer.writePage(currentFwPage);
+            _writer.writePage(_currentFwPage);
 
-        stageBytesReceived = 0;
+        _stageBytesReceived = 0;
 
         return processStatus_t::complete;
     }
 
     if (pageWritten)
-        currentFwPage++;
+        _currentFwPage++;
 
     return processStatus_t::incomplete;
 }
 
 Updater::processStatus_t Updater::processEnd(uint8_t data)
 {
-    //4 received bytes must match the endCommand (lower first, then upper)
+    //4 received bytes must match the _endCommand (lower first, then upper)
 
-    if (((endCommand >> (stageBytesReceived * 8)) & static_cast<uint32_t>(0xFF)) != data)
+    if (((_endCommand >> (_stageBytesReceived * 8)) & static_cast<uint32_t>(0xFF)) != data)
     {
-        stageBytesReceived = 0;
+        _stageBytesReceived = 0;
         return processStatus_t::invalid;
     }
 
-    if (++stageBytesReceived == 4)
+    if (++_stageBytesReceived == 4)
     {
-        stageBytesReceived = 0;
+        _stageBytesReceived = 0;
         return processStatus_t::complete;
     }
 
@@ -167,13 +167,12 @@ Updater::processStatus_t Updater::processEnd(uint8_t data)
 
 void Updater::reset()
 {
-    currentStage           = 0;
-    currentFwPage          = 0;
-    receivedWord           = 0;
-    fwPageBytesReceived    = 0;
-    stageBytesReceived     = 0;
-    commandRepeatsReceived = 0;
-    fwBytesReceived        = 0;
-    fwSize                 = 0;
-    startBytesReceived     = 0;
+    _currentStage        = 0;
+    _currentFwPage       = 0;
+    _receivedWord        = 0;
+    _fwPageBytesReceived = 0;
+    _stageBytesReceived  = 0;
+    _fwBytesReceived     = 0;
+    _fwSize              = 0;
+    _startBytesReceived  = 0;
 }

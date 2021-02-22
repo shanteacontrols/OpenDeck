@@ -26,7 +26,7 @@ class Viewtech : public IO::Touchscreen::Model, public IO::Touchscreen::Model::C
 {
     public:
     Viewtech(IO::Touchscreen::Model::HWA& hwa)
-        : hwa(hwa)
+        : _hwa(hwa)
     {}
 
     bool                       init() override;
@@ -45,13 +45,13 @@ class Viewtech : public IO::Touchscreen::Model, public IO::Touchscreen::Model::C
 
     void pollXY();
 
-    IO::Touchscreen::Model::HWA& hwa;
+    IO::Touchscreen::Model::HWA& _hwa;
 
     //as fast as possible on viewtech - minimum variable response is 80ms
     static constexpr uint32_t XY_POLL_TIME_MS = 80;
 
     //there are 7 levels of brighness - scale them to available range (0-64)
-    const uint8_t brightnessMapping[7] = {
+    const uint8_t _brightnessMapping[7] = {
         6,
         16,
         32,

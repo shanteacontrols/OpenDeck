@@ -89,13 +89,13 @@ namespace IO
                 IO::LEDs&      leds,
                 Display&       display,
                 ComponentInfo& cInfo)
-            : hwa(hwa)
-            , filter(filter)
-            , database(database)
-            , midi(midi)
-            , leds(leds)
-            , display(display)
-            , cInfo(cInfo)
+            : _hwa(hwa)
+            , _filter(filter)
+            , _database(database)
+            , _midi(midi)
+            , _leds(leds)
+            , _display(display)
+            , _cInfo(cInfo)
         {}
 
         void update();
@@ -117,23 +117,23 @@ namespace IO
         void setLatchingState(uint8_t buttonID, uint8_t state);
         bool getLatchingState(uint8_t buttonID);
 
-        HWA&           hwa;
-        Filter&        filter;
-        Database&      database;
-        MIDI&          midi;
-        IO::LEDs&      leds;
-        Display&       display;
-        ComponentInfo& cInfo;
+        HWA&           _hwa;
+        Filter&        _filter;
+        Database&      _database;
+        MIDI&          _midi;
+        IO::LEDs&      _leds;
+        Display&       _display;
+        ComponentInfo& _cInfo;
 
         /// Array holding current state for all buttons.
-        uint8_t buttonPressed[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS) / 8 + 1] = {};
+        uint8_t _buttonPressed[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS) / 8 + 1] = {};
 
         /// Array holding last sent state for latching buttons only.
-        uint8_t lastLatchingState[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS) / 8 + 1] = {};
+        uint8_t _lastLatchingState[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS) / 8 + 1] = {};
 
         /// Array used for simpler building of transport control messages.
         /// Based on MIDI specification for transport control.
-        uint8_t mmcArray[6] = { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 };
+        uint8_t _mmcArray[6] = { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 };
     };
 }    // namespace IO
 

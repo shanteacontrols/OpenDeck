@@ -30,19 +30,19 @@ void Analog::update(bool forceResend)
         {
             uint16_t value;
 
-            if (!hwa.value(i, value))
+            if (!_hwa.value(i, value))
                 continue;
 
             processReading(i, value);
         }
         else
         {
-            if (database.read(Database::Section::analog_t::enable, i))
+            if (_database.read(Database::Section::analog_t::enable, i))
             {
                 analogDescriptor_t analogDescriptor;
                 fillAnalogDescriptor(i, analogDescriptor);
 
-                sendMessage(i, analogDescriptor, lastValue[i]);
+                sendMessage(i, analogDescriptor, _lastValue[i]);
             }
         }
     }
@@ -50,19 +50,19 @@ void Analog::update(bool forceResend)
 
 Analog::adcType_t Analog::adcType()
 {
-    return filter.adcType();
+    return _filter.adcType();
 }
 
 void Analog::processReading(uint8_t analogID, uint16_t value)
 {
     //don't process component if it's not enabled
-    if (!database.read(Database::Section::analog_t::enable, analogID))
+    if (!_database.read(Database::Section::analog_t::enable, analogID))
         return;
 
     analogDescriptor_t analogDescriptor;
     fillAnalogDescriptor(analogID, analogDescriptor);
 
-    if (!filter.isFiltered(analogID, analogDescriptor.type, value, value))
+    if (!_filter.isFiltered(analogID, analogDescriptor.type, value, value))
         return;
 
     bool send = false;
@@ -96,17 +96,17 @@ void Analog::processReading(uint8_t analogID, uint16_t value)
     }
     else
     {
-        if (buttonHandler != nullptr)
-            buttonHandler(analogID, value);
+        if (_buttonHandler != nullptr)
+            _buttonHandler(analogID, value);
     }
 
     if (send)
     {
         sendMessage(analogID, analogDescriptor, value);
-        lastValue[analogID] = value;
+        _lastValue[analogID] = value;
     }
 
-    cInfo.send(Database::block_t::analog, analogID);
+    _cInfo.send(Database::block_t::analog, analogID);
 }
 
 bool Analog::checkPotentiometerValue(uint8_t analogID, analogDescriptor_t& descriptor, uint16_t& value)
@@ -158,7 +158,7 @@ bool Analog::checkPotentiometerValue(uint8_t analogID, analogDescriptor_t& descr
             scaledMIDIvalue = descriptor.upperLimit - (scaledMIDIvalue - descriptor.lowerLimit);
     }
 
-    if (scaledMIDIvalue == lastValue[analogID])
+    if (scaledMIDIvalue == _lastValue[analogID])
         return false;
 
     value = scaledMIDIvalue;
@@ -174,18 +174,18 @@ bool Analog::checkFSRvalue(uint8_t analogID, analogDescriptor_t& descriptor, uin
 
     if (value > 0)
     {
-        if (!fsrPressed[analogID])
+        if (!_fsrPressed[analogID])
         {
             //sensor is really pressed
-            fsrPressed[analogID] = true;
+            _fsrPressed[analogID] = true;
             return true;
         }
     }
     else
     {
-        if (fsrPressed[analogID])
+        if (_fsrPressed[analogID])
         {
-            fsrPressed[analogID] = false;
+            _fsrPressed[analogID] = false;
             return true;
         }
     }
@@ -202,13 +202,13 @@ void Analog::sendMessage(uint8_t analogID, analogDescriptor_t& descriptor, uint1
     {
         if (descriptor.type == type_t::potentiometerControlChange)
         {
-            midi.sendControlChange(descriptor.midiID, value, descriptor.channel);
-            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, descriptor.midiID, value, descriptor.channel + 1);
+            _midi.sendControlChange(descriptor.midiID, value, descriptor.channel);
+            _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, descriptor.midiID, value, descriptor.channel + 1);
         }
         else
         {
-            midi.sendNoteOn(descriptor.midiID, value, descriptor.channel);
-            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, descriptor.midiID, value, descriptor.channel + 1);
+            _midi.sendNoteOn(descriptor.midiID, value, descriptor.channel);
+            _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, descriptor.midiID, value, descriptor.channel + 1);
         }
     }
     break;
@@ -227,13 +227,13 @@ void Analog::sendMessage(uint8_t analogID, analogDescriptor_t& descriptor, uint1
 
         if (descriptor.type != type_t::cc14bit)
         {
-            midi.sendControlChange(99, encDec_14bit.high, descriptor.channel);
-            midi.sendControlChange(98, encDec_14bit.low, descriptor.channel);
+            _midi.sendControlChange(99, encDec_14bit.high, descriptor.channel);
+            _midi.sendControlChange(98, encDec_14bit.low, descriptor.channel);
         }
 
         if (descriptor.type == type_t::nrpn7b)
         {
-            midi.sendControlChange(6, value, descriptor.channel);
+            _midi.sendControlChange(6, value, descriptor.channel);
         }
         else
         {
@@ -249,40 +249,40 @@ void Analog::sendMessage(uint8_t analogID, analogDescriptor_t& descriptor, uint1
                 if (descriptor.midiID >= 96)
                     break;    //not allowed
 
-                midi.sendControlChange(descriptor.midiID, encDec_14bit.high, descriptor.channel);
-                midi.sendControlChange(descriptor.midiID + 32, encDec_14bit.low, descriptor.channel);
+                _midi.sendControlChange(descriptor.midiID, encDec_14bit.high, descriptor.channel);
+                _midi.sendControlChange(descriptor.midiID + 32, encDec_14bit.low, descriptor.channel);
             }
             else
             {
-                midi.sendControlChange(6, encDec_14bit.high, descriptor.channel);
-                midi.sendControlChange(38, encDec_14bit.low, descriptor.channel);
+                _midi.sendControlChange(6, encDec_14bit.high, descriptor.channel);
+                _midi.sendControlChange(38, encDec_14bit.low, descriptor.channel);
             }
         }
 
-        display.displayMIDIevent(Display::eventType_t::out, (descriptor.type == type_t::cc14bit) ? Display::event_t::controlChange : Display::event_t::nrpn, descriptor.midiID, value, descriptor.channel + 1);
+        _display.displayMIDIevent(Display::eventType_t::out, (descriptor.type == type_t::cc14bit) ? Display::event_t::controlChange : Display::event_t::nrpn, descriptor.midiID, value, descriptor.channel + 1);
     }
     break;
 
     case type_t::pitchBend:
     {
-        midi.sendPitchBend(value, descriptor.channel);
-        display.displayMIDIevent(Display::eventType_t::out, Display::event_t::pitchBend, descriptor.midiID, value, descriptor.channel + 1);
+        _midi.sendPitchBend(value, descriptor.channel);
+        _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::pitchBend, descriptor.midiID, value, descriptor.channel + 1);
     }
     break;
 
     case type_t::fsr:
     {
-        if (fsrPressed[analogID])
+        if (_fsrPressed[analogID])
         {
-            midi.sendNoteOn(descriptor.midiID, value, descriptor.channel);
-            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, descriptor.midiID, value, descriptor.channel + 1);
-            leds.midiToState(MIDI::messageType_t::noteOn, descriptor.midiID, value, descriptor.channel, LEDs::dataSource_t::internal);
+            _midi.sendNoteOn(descriptor.midiID, value, descriptor.channel);
+            _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, descriptor.midiID, value, descriptor.channel + 1);
+            _leds.midiToState(MIDI::messageType_t::noteOn, descriptor.midiID, value, descriptor.channel, LEDs::dataSource_t::internal);
         }
         else
         {
-            midi.sendNoteOff(descriptor.midiID, 0, descriptor.channel);
-            display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOff, descriptor.midiID, value, descriptor.channel + 1);
-            leds.midiToState(MIDI::messageType_t::noteOff, descriptor.midiID, 0, descriptor.channel, LEDs::dataSource_t::internal);
+            _midi.sendNoteOff(descriptor.midiID, 0, descriptor.channel);
+            _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOff, descriptor.midiID, value, descriptor.channel + 1);
+            _leds.midiToState(MIDI::messageType_t::noteOff, descriptor.midiID, 0, descriptor.channel, LEDs::dataSource_t::internal);
         }
     }
     break;
@@ -294,22 +294,22 @@ void Analog::sendMessage(uint8_t analogID, analogDescriptor_t& descriptor, uint1
 
 void Analog::debounceReset(uint16_t index)
 {
-    fsrPressed[index] = false;
-    lastValue[index]  = 0xFFFF;
-    filter.reset(index);
+    _fsrPressed[index] = false;
+    _lastValue[index]  = 0xFFFF;
+    _filter.reset(index);
 }
 
 void Analog::registerButtonHandler(buttonHandler_t handler)
 {
-    this->buttonHandler = std::move(handler);
+    _buttonHandler = std::move(handler);
 }
 
 void Analog::fillAnalogDescriptor(uint8_t analogID, analogDescriptor_t& analogDescriptor)
 {
-    analogDescriptor.type       = static_cast<type_t>(database.read(Database::Section::analog_t::type, analogID));
-    analogDescriptor.lowerLimit = database.read(Database::Section::analog_t::lowerLimit, analogID);
-    analogDescriptor.upperLimit = database.read(Database::Section::analog_t::upperLimit, analogID);
-    analogDescriptor.midiID     = database.read(Database::Section::analog_t::midiID, analogID);
-    analogDescriptor.channel    = database.read(Database::Section::analog_t::midiChannel, analogID);
-    analogDescriptor.inverted   = database.read(Database::Section::analog_t::invert, analogID);
+    analogDescriptor.type       = static_cast<type_t>(_database.read(Database::Section::analog_t::type, analogID));
+    analogDescriptor.lowerLimit = _database.read(Database::Section::analog_t::lowerLimit, analogID);
+    analogDescriptor.upperLimit = _database.read(Database::Section::analog_t::upperLimit, analogID);
+    analogDescriptor.midiID     = _database.read(Database::Section::analog_t::midiID, analogID);
+    analogDescriptor.channel    = _database.read(Database::Section::analog_t::midiChannel, analogID);
+    analogDescriptor.inverted   = _database.read(Database::Section::analog_t::invert, analogID);
 }

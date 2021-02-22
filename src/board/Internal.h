@@ -91,7 +91,7 @@ namespace Board
 
                 /// Performs low-level initialization of the specified UART channel.
                 /// param [in]: channel     UART channel on MCU.
-                /// param [in]: baudRate    UART speed (baudrate).
+                /// param [in]: baudRate    UART speed (baudRate).
                 bool init(uint8_t channel, uint32_t baudRate);
 
                 /// Performs low-level deinitialization of the specified UART channel.

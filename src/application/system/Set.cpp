@@ -31,43 +31,43 @@ SysExConf::DataHandler::result_t System::SysExDataHandler::set(uint8_t          
     {
     case block_t::global:
     {
-        result = system.onSetGlobal(static_cast<Section::global_t>(section), index, newValue);
+        result = _system.onSetGlobal(static_cast<Section::global_t>(section), index, newValue);
     }
     break;
 
     case block_t::buttons:
     {
-        result = system.onSetButtons(static_cast<Section::button_t>(section), index, newValue);
+        result = _system.onSetButtons(static_cast<Section::button_t>(section), index, newValue);
     }
     break;
 
     case block_t::encoders:
     {
-        result = system.onSetEncoders(static_cast<Section::encoder_t>(section), index, newValue);
+        result = _system.onSetEncoders(static_cast<Section::encoder_t>(section), index, newValue);
     }
     break;
 
     case block_t::analog:
     {
-        result = system.onSetAnalog(static_cast<Section::analog_t>(section), index, newValue);
+        result = _system.onSetAnalog(static_cast<Section::analog_t>(section), index, newValue);
     }
     break;
 
     case block_t::leds:
     {
-        result = system.onSetLEDs(static_cast<Section::leds_t>(section), index, newValue);
+        result = _system.onSetLEDs(static_cast<Section::leds_t>(section), index, newValue);
     }
     break;
 
     case block_t::display:
     {
-        result = system.onSetDisplay(static_cast<Section::display_t>(section), index, newValue);
+        result = _system.onSetDisplay(static_cast<Section::display_t>(section), index, newValue);
     }
     break;
 
     case block_t::touchscreen:
     {
-        result = system.onSetTouchscreen(static_cast<Section::touchscreen_t>(section), index, newValue);
+        result = _system.onSetTouchscreen(static_cast<Section::touchscreen_t>(section), index, newValue);
     }
     break;
 
@@ -75,11 +75,11 @@ SysExConf::DataHandler::result_t System::SysExDataHandler::set(uint8_t          
         break;
     }
 
-    system.display.displayMIDIevent(IO::Display::eventType_t::in,
-                                    IO::Display::event_t::systemExclusive,
-                                    0,
-                                    0,
-                                    0);
+    _system._display.displayMIDIevent(IO::Display::eventType_t::in,
+                                      IO::Display::event_t::systemExclusive,
+                                      0,
+                                      0,
+                                      0);
 
     return result;
 }
@@ -102,7 +102,7 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, Sy
 #ifndef DIN_MIDI_SUPPORTED
             result = System::result_t::notSupported;
 #else
-            midi.setRunningStatusState(newValue);
+            _midi.setRunningStatusState(newValue);
             result = System::result_t::ok;
 #endif
         }
@@ -111,9 +111,9 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, Sy
         case System::midiFeature_t::standardNoteOff:
         {
             if (newValue)
-                midi.setNoteOffMode(MIDI::noteOffType_t::standardNoteOff);
+                _midi.setNoteOffMode(MIDI::noteOffType_t::standardNoteOff);
             else
-                midi.setNoteOffMode(MIDI::noteOffType_t::noteOnZeroVel);
+                _midi.setNoteOffMode(MIDI::noteOffType_t::noteOnZeroVel);
 
             result = System::result_t::ok;
         }
@@ -125,9 +125,9 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, Sy
             result = System::result_t::notSupported;
 #else
             if (newValue)
-                hwa.enableDINMIDI(false);
+                _hwa.enableDINMIDI(false);
             else
-                hwa.disableDINMIDI();
+                _hwa.disableDINMIDI();
 
             result = System::result_t::ok;
 #endif
@@ -146,8 +146,8 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, Sy
             {
                 if (isMIDIfeatureEnabled(midiFeature_t::dinEnabled))
                 {
-                    hwa.enableDINMIDI(false);
-                    midi.useRecursiveParsing(false);
+                    _hwa.enableDINMIDI(false);
+                    _midi.useRecursiveParsing(false);
                 }
             }
             else
@@ -156,7 +156,7 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, Sy
                 if (isMIDIfeatureEnabled(midiFeature_t::dinEnabled))
                 {
                     //use recursive parsing when merging is active
-                    midi.useRecursiveParsing(true);
+                    _midi.useRecursiveParsing(true);
                     configureMIDImerge(midiMergeType());
                 }
             }
@@ -221,9 +221,9 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, Sy
         {
         case presetSetting_t::activePreset:
         {
-            if (newValue < database.getSupportedPresets())
+            if (newValue < _database.getSupportedPresets())
             {
-                database.setPreset(newValue);
+                _database.setPreset(newValue);
                 result    = System::result_t::ok;
                 writeToDb = false;
             }
@@ -238,7 +238,7 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, Sy
         {
             if ((newValue <= 1) && (newValue >= 0))
             {
-                database.setPresetPreserveState(newValue);
+                _database.setPresetPreserveState(newValue);
                 result    = System::result_t::ok;
                 writeToDb = false;
             }
@@ -257,7 +257,7 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, Sy
     }
 
     if ((result == System::result_t::ok) && writeToDb)
-        result = database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
+        result = _database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
 
     return result;
 }
@@ -271,14 +271,14 @@ System::result_t System::onSetButtons(Section::button_t section, size_t index, S
     if (section == Section::button_t::midiChannel)
         newValue--;
 
-    result = database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
+    result = _database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
 
     if (result == System::result_t::ok)
     {
         if (
             (section == Section::button_t::type) ||
             (section == Section::button_t::midiMessage))
-            buttons.reset(index);
+            _buttons.reset(index);
     }
 
     return result;
@@ -294,7 +294,7 @@ System::result_t System::onSetEncoders(Section::encoder_t section, size_t index,
     {
     case Section::encoder_t::midiID_MSB:
 
-        if (sysExConf.paramSize() == SysExConf::paramSize_t::_14bit)
+        if (_sysExConf.paramSize() == SysExConf::paramSize_t::_14bit)
         {
             //no need for MSB parameters in 2-byte mode since the entire value
             //can be set via single value
@@ -305,11 +305,11 @@ System::result_t System::onSetEncoders(Section::encoder_t section, size_t index,
 
     case Section::encoder_t::midiID:
     {
-        if (sysExConf.paramSize() == SysExConf::paramSize_t::_7bit)
+        if (_sysExConf.paramSize() == SysExConf::paramSize_t::_7bit)
         {
             MIDI::encDec_14bit_t encDec_14bit;
 
-            encDec_14bit.value = database.read(dbSection(section), index);
+            encDec_14bit.value = _database.read(dbSection(section), index);
             encDec_14bit.split14bit();
 
             switch (section)
@@ -342,10 +342,10 @@ System::result_t System::onSetEncoders(Section::encoder_t section, size_t index,
     break;
     }
 
-    auto result = database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
+    auto result = _database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
 
     if (result == System::result_t::ok)
-        encoders.resetValue(index);
+        _encoders.resetValue(index);
 
     return result;
 #else
@@ -362,7 +362,7 @@ System::result_t System::onSetAnalog(Section::analog_t section, size_t index, Sy
     case Section::analog_t::lowerLimit_MSB:
     case Section::analog_t::upperLimit_MSB:
 
-        if (sysExConf.paramSize() == SysExConf::paramSize_t::_14bit)
+        if (_sysExConf.paramSize() == SysExConf::paramSize_t::_14bit)
         {
             //no need for MSB parameters in 2-byte mode since the entire value
             //can be set via single value
@@ -375,11 +375,11 @@ System::result_t System::onSetAnalog(Section::analog_t section, size_t index, Sy
     case Section::analog_t::lowerLimit:
     case Section::analog_t::upperLimit:
     {
-        if (sysExConf.paramSize() == SysExConf::paramSize_t::_7bit)
+        if (_sysExConf.paramSize() == SysExConf::paramSize_t::_7bit)
         {
             MIDI::encDec_14bit_t encDec_14bit;
 
-            encDec_14bit.value = database.read(dbSection(section), index);
+            encDec_14bit.value = _database.read(dbSection(section), index);
             encDec_14bit.split14bit();
 
             switch (section)
@@ -407,7 +407,7 @@ System::result_t System::onSetAnalog(Section::analog_t section, size_t index, Sy
 
     case Section::analog_t::type:
     {
-        analog.debounceReset(index);
+        _analog.debounceReset(index);
     }
     break;
 
@@ -420,7 +420,7 @@ System::result_t System::onSetAnalog(Section::analog_t section, size_t index, Sy
     break;
     }
 
-    return database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
+    return _database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
 #else
     return System::result_t::notSupported;
 #endif
@@ -438,7 +438,7 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, SysExC
     case Section::leds_t::testColor:
     {
         //no writing to database
-        leds.setColor(index, static_cast<IO::LEDs::color_t>(newValue), IO::LEDs::brightness_t::b100);
+        _leds.setColor(index, static_cast<IO::LEDs::color_t>(newValue), IO::LEDs::brightness_t::b100);
         result    = System::result_t::ok;
         writeToDb = false;
     }
@@ -447,7 +447,7 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, SysExC
     case Section::leds_t::testBlink:
     {
         //no writing to database
-        leds.setBlinkSpeed(index, newValue ? IO::LEDs::blinkSpeed_t::s500ms : IO::LEDs::blinkSpeed_t::noBlink);
+        _leds.setBlinkSpeed(index, newValue ? IO::LEDs::blinkSpeed_t::s500ms : IO::LEDs::blinkSpeed_t::noBlink);
         result    = System::result_t::ok;
         writeToDb = false;
     }
@@ -464,7 +464,7 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, SysExC
             if ((newValue <= 1) && (newValue >= 0))
             {
                 result = System::result_t::ok;
-                leds.setBlinkType(static_cast<IO::LEDs::blinkType_t>(newValue));
+                _leds.setBlinkType(static_cast<IO::LEDs::blinkType_t>(newValue));
             }
         }
         break;
@@ -478,7 +478,7 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, SysExC
 
         case IO::LEDs::setting_t::fadeSpeed:
         {
-            if (leds.setFadeSpeed(newValue))
+            if (_leds.setFadeSpeed(newValue))
                 result = System::result_t::ok;
         }
         break;
@@ -489,19 +489,19 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, SysExC
 
         //write to db if success is true and writing should take place
         if ((result == System::result_t::ok) && writeToDb)
-            result = database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
+            result = _database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
     }
     break;
 
     case Section::leds_t::rgbEnable:
     {
         //make sure to turn all three leds off before setting new state
-        leds.setColor(leds.rgbSingleComponentIndex(leds.rgbIndex(index), IO::LEDs::rgbIndex_t::r), IO::LEDs::color_t::off, IO::LEDs::brightness_t::bOff);
-        leds.setColor(leds.rgbSingleComponentIndex(leds.rgbIndex(index), IO::LEDs::rgbIndex_t::g), IO::LEDs::color_t::off, IO::LEDs::brightness_t::bOff);
-        leds.setColor(leds.rgbSingleComponentIndex(leds.rgbIndex(index), IO::LEDs::rgbIndex_t::b), IO::LEDs::color_t::off, IO::LEDs::brightness_t::bOff);
+        _leds.setColor(_leds.rgbSingleComponentIndex(_leds.rgbIndex(index), IO::LEDs::rgbIndex_t::r), IO::LEDs::color_t::off, IO::LEDs::brightness_t::bOff);
+        _leds.setColor(_leds.rgbSingleComponentIndex(_leds.rgbIndex(index), IO::LEDs::rgbIndex_t::g), IO::LEDs::color_t::off, IO::LEDs::brightness_t::bOff);
+        _leds.setColor(_leds.rgbSingleComponentIndex(_leds.rgbIndex(index), IO::LEDs::rgbIndex_t::b), IO::LEDs::color_t::off, IO::LEDs::brightness_t::bOff);
 
         //write rgb enabled bit to led
-        result = database.update(dbSection(section), leds.rgbIndex(index), newValue) ? System::result_t::ok : System::result_t::error;
+        result = _database.update(dbSection(section), _leds.rgbIndex(index), newValue) ? System::result_t::ok : System::result_t::error;
 
         if (newValue && (result == System::result_t::ok))
         {
@@ -509,27 +509,27 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, SysExC
 
             for (int i = 0; i < 3; i++)
             {
-                result = database.update(dbSection(Section::leds_t::activationID),
-                                         leds.rgbSingleComponentIndex(leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
-                                         database.read(dbSection(Section::leds_t::activationID), index))
+                result = _database.update(dbSection(Section::leds_t::activationID),
+                                          _leds.rgbSingleComponentIndex(_leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
+                                          _database.read(dbSection(Section::leds_t::activationID), index))
                              ? System::result_t::ok
                              : System::result_t::error;
 
                 if (result != System::result_t::ok)
                     break;
 
-                result = database.update(dbSection(Section::leds_t::controlType),
-                                         leds.rgbSingleComponentIndex(leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
-                                         database.read(dbSection(Section::leds_t::controlType), index))
+                result = _database.update(dbSection(Section::leds_t::controlType),
+                                          _leds.rgbSingleComponentIndex(_leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
+                                          _database.read(dbSection(Section::leds_t::controlType), index))
                              ? System::result_t::ok
                              : System::result_t::error;
 
                 if (result != System::result_t::ok)
                     break;
 
-                result = database.update(dbSection(Section::leds_t::midiChannel),
-                                         leds.rgbSingleComponentIndex(leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
-                                         database.read(dbSection(Section::leds_t::midiChannel), index))
+                result = _database.update(dbSection(Section::leds_t::midiChannel),
+                                          _leds.rgbSingleComponentIndex(_leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
+                                          _database.read(dbSection(Section::leds_t::midiChannel), index))
                              ? System::result_t::ok
                              : System::result_t::error;
 
@@ -549,14 +549,14 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, SysExC
             newValue--;
 
         //first, find out if RGB led is enabled for this led index
-        if (database.read(dbSection(Section::leds_t::rgbEnable), leds.rgbIndex(index)))
+        if (_database.read(dbSection(Section::leds_t::rgbEnable), _leds.rgbIndex(index)))
         {
             //rgb led enabled - copy these settings to all three leds
             for (int i = 0; i < 3; i++)
             {
-                result = database.update(dbSection(section),
-                                         leds.rgbSingleComponentIndex(leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
-                                         newValue)
+                result = _database.update(dbSection(section),
+                                          _leds.rgbSingleComponentIndex(_leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
+                                          newValue)
                              ? System::result_t::ok
                              : System::result_t::error;
 
@@ -567,14 +567,14 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, SysExC
         else
         {
             //apply to single led only
-            result = database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
+            result = _database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
         }
     }
     break;
 
     default:
     {
-        result = database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
+        result = _database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
     }
     break;
     }
@@ -606,8 +606,9 @@ System::result_t System::onSetDisplay(Section::display_t section, size_t index, 
 
         case IO::Display::feature_t::MIDInotesAlternate:
         {
-            display.setAlternateNoteDisplay(newValue);
+            _display.setAlternateNoteDisplay(newValue);
         }
+        break;
 
         default:
             break;
@@ -641,13 +642,13 @@ System::result_t System::onSetDisplay(Section::display_t section, size_t index, 
 
         case IO::Display::setting_t::MIDIeventTime:
         {
-            display.setRetentionTime(newValue * 1000);
+            _display.setRetentionTime(newValue * 1000);
         }
         break;
 
         case IO::Display::setting_t::octaveNormalization:
         {
-            display.setOctaveNormalization(newValue);
+            _display.setOctaveNormalization(newValue);
         }
         break;
 
@@ -667,12 +668,12 @@ System::result_t System::onSetDisplay(Section::display_t section, size_t index, 
         break;
     }
 
-    auto result = database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
+    auto result = _database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
 
     if (initAction == initAction_t::init)
-        display.init(false);
+        _display.init(false);
     else if (initAction == initAction_t::deInit)
-        display.deInit();
+        _display.deInit();
 
     return result;
 #else
@@ -709,7 +710,7 @@ System::result_t System::onSetTouchscreen(Section::touchscreen_t section, size_t
 
         case static_cast<size_t>(IO::Touchscreen::setting_t::brightness):
         {
-            if (!touchscreen.setBrightness(static_cast<IO::Touchscreen::brightness_t>(newValue)))
+            if (!_touchscreen.setBrightness(static_cast<IO::Touchscreen::brightness_t>(newValue)))
                 return System::result_t::error;
         }
         break;
@@ -724,14 +725,14 @@ System::result_t System::onSetTouchscreen(Section::touchscreen_t section, size_t
         break;
     }
 
-    bool result = database.update(dbSection(section), index, newValue);
+    bool result = _database.update(dbSection(section), index, newValue);
 
     if (result)
     {
         if (initAction == initAction_t::init)
-            touchscreen.init();
+            _touchscreen.init();
         else if (initAction == initAction_t::deInit)
-            touchscreen.deInit();
+            _touchscreen.deInit();
 
         return System::result_t::ok;
     }
