@@ -18,7 +18,6 @@
                 "ypos": 50,
                 "width": 80,
                 "height": 80,
-                "address": 11893,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -29,7 +28,6 @@
                 "ypos": 155,
                 "width": 80,
                 "height": 80,
-                "address": 11894,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -40,7 +38,6 @@
                 "ypos": 260,
                 "width": 80,
                 "height": 80,
-                "address": 11895,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -51,7 +48,6 @@
                 "ypos": 50,
                 "width": 80,
                 "height": 80,
-                "address": 11896,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -62,7 +58,6 @@
                 "ypos": 50,
                 "width": 80,
                 "height": 80,
-                "address": 11897,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -73,7 +68,6 @@
                 "ypos": 50,
                 "width": 160,
                 "height": 80,
-                "address": 11898,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -84,7 +78,6 @@
                 "ypos": 50,
                 "width": 80,
                 "height": 80,
-                "address": 11899,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -95,7 +88,6 @@
                 "ypos": 50,
                 "width": 80,
                 "height": 80,
-                "address": 11900,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -106,7 +98,6 @@
                 "ypos": 50,
                 "width": 80,
                 "height": 80,
-                "address": 11901,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -117,7 +108,6 @@
                 "ypos": 155,
                 "width": 80,
                 "height": 80,
-                "address": 11902,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -128,7 +118,6 @@
                 "ypos": 260,
                 "width": 80,
                 "height": 80,
-                "address": 11903,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -139,7 +128,6 @@
                 "ypos": 207,
                 "width": 80,
                 "height": 186,
-                "address": 11904,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -150,7 +138,6 @@
                 "ypos": 207,
                 "width": 80,
                 "height": 80,
-                "address": 11905,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -161,7 +148,6 @@
                 "ypos": 207,
                 "width": 80,
                 "height": 80,
-                "address": 11906,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -172,7 +158,6 @@
                 "ypos": 313,
                 "width": 80,
                 "height": 80,
-                "address": 11907,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -183,7 +168,6 @@
                 "ypos": 313,
                 "width": 80,
                 "height": 80,
-                "address": 11908,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -194,7 +178,6 @@
                 "ypos": 260,
                 "width": 80,
                 "height": 80,
-                "address": 11909,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -205,7 +188,6 @@
                 "ypos": 207,
                 "width": 80,
                 "height": 80,
-                "address": 11910,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -216,7 +198,6 @@
                 "ypos": 207,
                 "width": 80,
                 "height": 80,
-                "address": 11911,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -227,7 +208,6 @@
                 "ypos": 313,
                 "width": 80,
                 "height": 80,
-                "address": 11912,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -238,7 +218,6 @@
                 "ypos": 313,
                 "width": 80,
                 "height": 80,
-                "address": 11913,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -249,7 +228,6 @@
                 "ypos": 207,
                 "width": 80,
                 "height": 186,
-                "address": 11914,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -260,7 +238,6 @@
                 "ypos": 471,
                 "width": 80,
                 "height": 80,
-                "address": 11915,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -271,7 +248,6 @@
                 "ypos": 471,
                 "width": 80,
                 "height": 80,
-                "address": 11916,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -282,7 +258,6 @@
                 "ypos": 471,
                 "width": 80,
                 "height": 80,
-                "address": 11917,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -293,7 +268,6 @@
                 "ypos": 471,
                 "width": 80,
                 "height": 80,
-                "address": 11918,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -304,7 +278,6 @@
                 "ypos": 471,
                 "width": 80,
                 "height": 80,
-                "address": 11919,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -315,7 +288,6 @@
                 "ypos": 471,
                 "width": 80,
                 "height": 80,
-                "address": 11920,
                 "onScreen": 2,
                 "offScreen": 1
             }
@@ -326,7 +298,6 @@
                 "ypos": 42,
                 "width": 80,
                 "height": 80,
-                "address": 11921,
                 "onScreen": 4,
                 "offScreen": 3
             }
@@ -337,7 +308,6 @@
                 "ypos": 42,
                 "width": 80,
                 "height": 80,
-                "address": 11922,
                 "onScreen": 4,
                 "offScreen": 3
             }
@@ -348,7 +318,6 @@
                 "ypos": 42,
                 "width": 80,
                 "height": 80,
-                "address": 11923,
                 "onScreen": 4,
                 "offScreen": 3
             }
@@ -359,7 +328,6 @@
                 "ypos": 42,
                 "width": 80,
                 "height": 80,
-                "address": 11924,
                 "onScreen": 4,
                 "offScreen": 3
             }
@@ -370,7 +338,6 @@
                 "ypos": 147,
                 "width": 80,
                 "height": 80,
-                "address": 11925,
                 "onScreen": 4,
                 "offScreen": 3
             }
@@ -381,7 +348,6 @@
                 "ypos": 147,
                 "width": 80,
                 "height": 80,
-                "address": 11926,
                 "onScreen": 4,
                 "offScreen": 3
             }
@@ -392,7 +358,6 @@
                 "ypos": 42,
                 "width": 80,
                 "height": 80,
-                "address": 11927,
                 "onScreen": 4,
                 "offScreen": 3
             }
@@ -403,7 +368,6 @@
                 "ypos": 42,
                 "width": 80,
                 "height": 80,
-                "address": 11928,
                 "onScreen": 4,
                 "offScreen": 3
             }
@@ -414,7 +378,6 @@
                 "ypos": 42,
                 "width": 80,
                 "height": 80,
-                "address": 11929,
                 "onScreen": 4,
                 "offScreen": 3
             }
@@ -425,7 +388,6 @@
                 "ypos": 42,
                 "width": 80,
                 "height": 80,
-                "address": 11930,
                 "onScreen": 4,
                 "offScreen": 3
             }
@@ -436,7 +398,6 @@
                 "ypos": 147,
                 "width": 80,
                 "height": 80,
-                "address": 11931,
                 "onScreen": 4,
                 "offScreen": 3
             }
@@ -447,7 +408,6 @@
                 "ypos": 147,
                 "width": 80,
                 "height": 80,
-                "address": 11932,
                 "onScreen": 4,
                 "offScreen": 3
             }
