@@ -22,6 +22,10 @@ modules/u8g2/csrc/u8x8_gpio.c \
 modules/u8g2/csrc/u8x8_d_ssd1306_128x64_noname.c \
 modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
 
+ifeq ($(ARCH),stm32)
+    SOURCES_COMMON += board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/FlashPages.cpp
+endif
+
 #common include dirs
 INCLUDE_DIRS_COMMON := \
 -I"./" \

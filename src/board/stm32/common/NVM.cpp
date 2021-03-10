@@ -119,7 +119,8 @@ namespace Board
 
         uint32_t size()
         {
-            return stm32EEPROM.pageSize();
+            //first 4 bytes are reserved for page status
+            return stm32EEPROM.pageSize() - 4;
         }
 
         bool read(uint32_t address, int32_t& value, parameterType_t type)

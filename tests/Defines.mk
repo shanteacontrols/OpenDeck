@@ -6,22 +6,15 @@ DEFINES += TEST
 
 include ../src/Defines.mk
 
-#db size is determined in run time in application firmware, for
-#test purposes hardcode it
+#needed for AVR only since this info is normally pulled from AVR headers
+#which aren't present in tests
+#for stm32 this is determined in runtime
 ifeq ($(MCU),at90usb1286)
     DATABASE_SIZE := 4093
 else ifeq ($(MCU),atmega16u2)
     DATABASE_SIZE := 509
 else ifeq ($(MCU),atmega2560)
     DATABASE_SIZE := 4093
-else ifeq ($(MCU),stm32f405rg)
-    DATABASE_SIZE := 131068
-else ifeq ($(MCU),stm32f407vg)
-    DATABASE_SIZE := 131068
-else ifeq ($(MCU),stm32f401ce)
-    DATABASE_SIZE := 65536
-else ifeq ($(MCU),stm32f411ce)
-    DATABASE_SIZE := 65536
 endif
 
 ifeq ($(ARCH), stm32)

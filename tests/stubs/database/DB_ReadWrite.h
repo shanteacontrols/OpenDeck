@@ -4,6 +4,8 @@
 #include <string.h>
 #include "dbms/src/LESSDB.h"
 #include "EmuEEPROM/src/EmuEEPROM.h"
+#include "board/Board.h"
+#include "board/Internal.h"
 
 class DBstorageMock : public LESSDB::StorageAccess
 {
@@ -33,6 +35,7 @@ class DBstorageMock : public LESSDB::StorageAccess
 
         bool init() override
         {
+            pageArray.resize(pageSize() * 2, 0xFF);
             return true;
         }
 
@@ -41,15 +44,15 @@ class DBstorageMock : public LESSDB::StorageAccess
             if (page == EmuEEPROM::page_t::page1)
                 return 0;
             else
-                return DATABASE_SIZE;
+                return pageSize();
         }
 
         bool erasePage(EmuEEPROM::page_t page) override
         {
             if (page == EmuEEPROM::page_t::page1)
-                memset(pageArray, 0xFF, DATABASE_SIZE);
+                std::fill(pageArray.begin(), pageArray.end() - pageSize(), 0xFF);
             else
-                memset(&pageArray[DATABASE_SIZE], 0xFF, DATABASE_SIZE);
+                std::fill(pageArray.begin() + pageSize(), pageArray.end(), 0xFF);
 
             return true;
         }
@@ -96,11 +99,11 @@ class DBstorageMock : public LESSDB::StorageAccess
 
         uint32_t pageSize() override
         {
-            return DATABASE_SIZE;
+            return Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPage1()).size;
         }
 
         private:
-        uint8_t pageArray[DATABASE_SIZE * 2];
+        std::vector<uint8_t> pageArray;
     };
 
     EmuEEPROMStorageAccess storageMock;

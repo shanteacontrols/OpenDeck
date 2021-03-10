@@ -219,7 +219,8 @@ namespace
 
         uint32_t size() override
         {
-            return emuEEPROMstorage.pageSize();
+            //first 4 bytes are reserved for page status
+            return emuEEPROMstorage.pageSize() - 4;
         }
 
         bool clear() override

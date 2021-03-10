@@ -3,7 +3,12 @@
 
 uint32_t DBstorageMock::size()
 {
+#ifdef STM32_EMU_EEPROM
+    //first 4 bytes are reserved for page status
+    return storageMock.pageSize() - 4;
+#else
     return DATABASE_SIZE;
+#endif
 }
 
 size_t DBstorageMock::paramUsage(LESSDB::sectionParameterType_t type)
