@@ -159,9 +159,9 @@ TEST_CASE(ReadInitialValues)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::leds_t::rgbEnable, i));
 
         //control type section
-        //all values should be set to 0
+        //all values should be set to midiInNoteMultiVal
         for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
-            TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::leds_t::controlType, i));
+            TEST_ASSERT_EQUAL_UINT32(static_cast<uint32_t>(IO::LEDs::controlType_t::midiInNoteMultiVal), database.read(Database::Section::leds_t::controlType, i));
 
         //activation value section
         //all values should be set to 127

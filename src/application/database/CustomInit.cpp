@@ -17,6 +17,7 @@ limitations under the License.
 */
 
 #include "database/Database.h"
+#include "io/leds/LEDs.h"
 
 void Database::customInitButtons()
 {
@@ -39,10 +40,15 @@ void Database::customInitAnalog()
 
 void Database::customInitLEDs()
 {
-    //same logic as for the buttons
     for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
+    {
         update(Database::Section::leds_t::activationID, i, i);
+        update(Database::Section::leds_t::controlType, i, static_cast<int32_t>(IO::LEDs::controlType_t::midiInNoteMultiVal));
+    }
 
     for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+    {
         update(Database::Section::leds_t::activationID, i + MAX_NUMBER_OF_LEDS, i);
+        update(Database::Section::leds_t::controlType, i + MAX_NUMBER_OF_LEDS, static_cast<int32_t>(IO::LEDs::controlType_t::midiInNoteMultiVal));
+    }
 }
