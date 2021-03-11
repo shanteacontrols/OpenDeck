@@ -52,24 +52,24 @@ bool DBstorageMock::read(uint32_t address, int32_t& value, LESSDB::sectionParame
     case LESSDB::sectionParameterType_t::bit:
     case LESSDB::sectionParameterType_t::byte:
     case LESSDB::sectionParameterType_t::halfByte:
-        value = memoryArray[address];
+        value = memoryArray.at(address);
         break;
 
     case LESSDB::sectionParameterType_t::word:
-        value = memoryArray[address + 1];
+        value = memoryArray.at(address + 1);
         value <<= 8;
-        value |= memoryArray[address + 0];
+        value |= memoryArray.at(address + 0);
         break;
 
     default:
         // case LESSDB::sectionParameterType_t::dword:
-        value = memoryArray[address + 3];
+        value = memoryArray.at(address + 3);
         value <<= 8;
-        value |= memoryArray[address + 2];
+        value |= memoryArray.at(address + 2);
         value <<= 8;
-        value |= memoryArray[address + 1];
+        value |= memoryArray.at(address + 1);
         value <<= 8;
-        value |= memoryArray[address + 0];
+        value |= memoryArray.at(address + 0);
         break;
     }
 
@@ -119,20 +119,20 @@ bool DBstorageMock::write(uint32_t address, int32_t value, LESSDB::sectionParame
     case LESSDB::sectionParameterType_t::bit:
     case LESSDB::sectionParameterType_t::byte:
     case LESSDB::sectionParameterType_t::halfByte:
-        memoryArray[address] = value;
+        memoryArray.at(address) = value;
         break;
 
     case LESSDB::sectionParameterType_t::word:
-        memoryArray[address + 0] = (value >> 0) & (uint16_t)0xFF;
-        memoryArray[address + 1] = (value >> 8) & (uint16_t)0xFF;
+        memoryArray.at(address + 0) = (value >> 0) & (uint16_t)0xFF;
+        memoryArray.at(address + 1) = (value >> 8) & (uint16_t)0xFF;
         break;
 
     default:
         // case LESSDB::sectionParameterType_t::dword:
-        memoryArray[address + 0] = (value >> 0) & (uint32_t)0xFF;
-        memoryArray[address + 1] = (value >> 8) & (uint32_t)0xFF;
-        memoryArray[address + 2] = (value >> 16) & (uint32_t)0xFF;
-        memoryArray[address + 3] = (value >> 24) & (uint32_t)0xFF;
+        memoryArray.at(address + 0) = (value >> 0) & (uint32_t)0xFF;
+        memoryArray.at(address + 1) = (value >> 8) & (uint32_t)0xFF;
+        memoryArray.at(address + 2) = (value >> 16) & (uint32_t)0xFF;
+        memoryArray.at(address + 3) = (value >> 24) & (uint32_t)0xFF;
         break;
     }
 
@@ -163,7 +163,7 @@ bool DBstorageMock::write(uint32_t address, int32_t value, LESSDB::sectionParame
 bool DBstorageMock::clear()
 {
 #ifndef STM32_EMU_EEPROM
-    memset(memoryArray, 0x00, DATABASE_SIZE);
+    std::fill(memoryArray.begin(), memoryArray.end(), 0x00);
     return true;
 #else
     return emuEEPROM.format();

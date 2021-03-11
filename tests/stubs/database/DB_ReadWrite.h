@@ -2,6 +2,7 @@
 
 #include <inttypes.h>
 #include <string.h>
+#include <array>
 #include "dbms/src/LESSDB.h"
 #include "EmuEEPROM/src/EmuEEPROM.h"
 #include "board/Board.h"
@@ -59,40 +60,40 @@ class DBstorageMock : public LESSDB::StorageAccess
 
         bool write16(uint32_t address, uint16_t data) override
         {
-            pageArray[address + 0] = (data >> 0) & (uint16_t)0xFF;
-            pageArray[address + 1] = (data >> 8) & (uint16_t)0xFF;
+            pageArray.at(address + 0) = (data >> 0) & (uint16_t)0xFF;
+            pageArray.at(address + 1) = (data >> 8) & (uint16_t)0xFF;
 
             return true;
         }
 
         bool write32(uint32_t address, uint32_t data) override
         {
-            pageArray[address + 0] = (data >> 0) & (uint32_t)0xFF;
-            pageArray[address + 1] = (data >> 8) & (uint32_t)0xFF;
-            pageArray[address + 2] = (data >> 16) & (uint32_t)0xFF;
-            pageArray[address + 3] = (data >> 24) & (uint32_t)0xFF;
+            pageArray.at(address + 0) = (data >> 0) & (uint32_t)0xFF;
+            pageArray.at(address + 1) = (data >> 8) & (uint32_t)0xFF;
+            pageArray.at(address + 2) = (data >> 16) & (uint32_t)0xFF;
+            pageArray.at(address + 3) = (data >> 24) & (uint32_t)0xFF;
 
             return true;
         }
 
         bool read16(uint32_t address, uint16_t& data) override
         {
-            data = pageArray[address + 1];
+            data = pageArray.at(address + 1);
             data <<= 8;
-            data |= pageArray[address + 0];
+            data |= pageArray.at(address + 0);
 
             return true;
         }
 
         bool read32(uint32_t address, uint32_t& data) override
         {
-            data = pageArray[address + 3];
+            data = pageArray.at(address + 3);
             data <<= 8;
-            data |= pageArray[address + 2];
+            data |= pageArray.at(address + 2);
             data <<= 8;
-            data |= pageArray[address + 1];
+            data |= pageArray.at(address + 1);
             data <<= 8;
-            data |= pageArray[address + 0];
+            data |= pageArray.at(address + 0);
 
             return true;
         }
@@ -109,6 +110,6 @@ class DBstorageMock : public LESSDB::StorageAccess
     EmuEEPROMStorageAccess storageMock;
     EmuEEPROM              emuEEPROM = EmuEEPROM(storageMock, false);
 #else
-    uint8_t memoryArray[DATABASE_SIZE] = {};
+    std::array<uint8_t, DATABASE_SIZE> memoryArray;
 #endif
 };
