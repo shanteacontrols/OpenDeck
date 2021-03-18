@@ -234,7 +234,7 @@
         },
         {
             "indicator": {
-                "xpos": 15,
+                "xpos": 57,
                 "ypos": 471,
                 "width": 80,
                 "height": 80,
@@ -244,7 +244,7 @@
         },
         {
             "indicator": {
-                "xpos": 119,
+                "xpos": 162,
                 "ypos": 471,
                 "width": 80,
                 "height": 80,
@@ -254,7 +254,7 @@
         },
         {
             "indicator": {
-                "xpos": 249,
+                "xpos": 267,
                 "ypos": 471,
                 "width": 80,
                 "height": 80,
@@ -264,7 +264,7 @@
         },
         {
             "indicator": {
-                "xpos": 695,
+                "xpos": 677,
                 "ypos": 471,
                 "width": 80,
                 "height": 80,
@@ -274,7 +274,7 @@
         },
         {
             "indicator": {
-                "xpos": 825,
+                "xpos": 782,
                 "ypos": 471,
                 "width": 80,
                 "height": 80,
@@ -284,7 +284,7 @@
         },
         {
             "indicator": {
-                "xpos": 929,
+                "xpos": 887,
                 "ypos": 471,
                 "width": 80,
                 "height": 80,
