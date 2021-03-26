@@ -29,6 +29,7 @@ bool Nextion::init()
 
     if (_hwa.init())
     {
+        endCommand();
         writeCommand("sendxy=1");
 
         return true;
