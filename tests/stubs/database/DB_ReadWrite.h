@@ -32,76 +32,16 @@ class DBstorageMock : public LESSDB::StorageAccess
     class EmuEEPROMStorageAccess : public EmuEEPROM::StorageAccess
     {
         public:
-        EmuEEPROMStorageAccess() {}
+        EmuEEPROMStorageAccess();
 
-        bool init() override
-        {
-            pageArray.resize(pageSize() * 2, 0xFF);
-            return true;
-        }
-
-        uint32_t startAddress(EmuEEPROM::page_t page) override
-        {
-            if (page == EmuEEPROM::page_t::page1)
-                return 0;
-            else
-                return pageSize();
-        }
-
-        bool erasePage(EmuEEPROM::page_t page) override
-        {
-            if (page == EmuEEPROM::page_t::page1)
-                std::fill(pageArray.begin(), pageArray.end() - pageSize(), 0xFF);
-            else
-                std::fill(pageArray.begin() + pageSize(), pageArray.end(), 0xFF);
-
-            return true;
-        }
-
-        bool write16(uint32_t address, uint16_t data) override
-        {
-            pageArray.at(address + 0) = (data >> 0) & (uint16_t)0xFF;
-            pageArray.at(address + 1) = (data >> 8) & (uint16_t)0xFF;
-
-            return true;
-        }
-
-        bool write32(uint32_t address, uint32_t data) override
-        {
-            pageArray.at(address + 0) = (data >> 0) & (uint32_t)0xFF;
-            pageArray.at(address + 1) = (data >> 8) & (uint32_t)0xFF;
-            pageArray.at(address + 2) = (data >> 16) & (uint32_t)0xFF;
-            pageArray.at(address + 3) = (data >> 24) & (uint32_t)0xFF;
-
-            return true;
-        }
-
-        bool read16(uint32_t address, uint16_t& data) override
-        {
-            data = pageArray.at(address + 1);
-            data <<= 8;
-            data |= pageArray.at(address + 0);
-
-            return true;
-        }
-
-        bool read32(uint32_t address, uint32_t& data) override
-        {
-            data = pageArray.at(address + 3);
-            data <<= 8;
-            data |= pageArray.at(address + 2);
-            data <<= 8;
-            data |= pageArray.at(address + 1);
-            data <<= 8;
-            data |= pageArray.at(address + 0);
-
-            return true;
-        }
-
-        uint32_t pageSize() override
-        {
-            return Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPage1()).size;
-        }
+        bool     init() override;
+        uint32_t startAddress(EmuEEPROM::page_t page) override;
+        bool     erasePage(EmuEEPROM::page_t page) override;
+        bool     write16(uint32_t address, uint16_t data) override;
+        bool     write32(uint32_t address, uint32_t data) override;
+        bool     read16(uint32_t address, uint16_t& data) override;
+        bool     read32(uint32_t address, uint32_t& data) override;
+        uint32_t pageSize() override;
 
         private:
         std::vector<uint8_t> pageArray;
