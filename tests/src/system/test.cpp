@@ -13,7 +13,7 @@
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
 #include "stubs/database/DB_ReadWrite.h"
-#include "stubs/MIDIHelper.h"
+#include "helpers/MIDI.h"
 
 namespace
 {
