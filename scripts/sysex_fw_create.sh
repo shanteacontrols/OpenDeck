@@ -202,3 +202,12 @@ then
 fi
 
 append_command "$END_COMMAND" 2
+
+#created .sysex file is used for firmware update through web UI
+#create another .syx file used for testing purposes with amidi tool
+
+#remove all newlines first
+xargs echo < $SYSEX_FILE > $SYSEX_FILE.temp
+#reverse hexdump - write all ascii bytes as raw bytes into the new file
+cat $SYSEX_FILE.temp | xxd -r -p > $SYSEX_FILE.syx
+rm $SYSEX_FILE.temp

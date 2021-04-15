@@ -1,8 +1,10 @@
 #!/bin/bash
 
 # first argument to the script should be path to the directory where all compiled binares are located
+# if second argument is set to 1, run only hardware tests
 
 BIN_DIR=$1
+HW_TESTING=$2
 
 run_dir="tests"
 
@@ -35,7 +37,12 @@ fi
 # clean up all temporary profraw files
 $find "$BIN_DIR" -type f -name "*.profraw" -exec rm {} \;
 
-BINARIES=$($find "$BIN_DIR" -type f -name "*.out")
+if [ "$HW_TESTING" = "1" ]
+then
+    BINARIES=$($find "$BIN_DIR" -type f -name "*.out" -path "*hw*")
+else
+    BINARIES=$($find "$BIN_DIR" -type f -name "*.out" -not -path "*hw*")
+fi
 
 declare -i RESULT=0
 
@@ -43,8 +50,20 @@ export LLVM_PROFILE_FILE="$BIN_DIR/test-%p.profraw"
 
 for test in $BINARIES
 do
-    $test
-    RESULT+=$?
+    if [ "$HW_TESTING" == "1" ]
+    then
+        board=$(echo "$test" | cut -d/ -f3)
+
+        if grep -F -q "$board" "src/hw/boards.txt"
+        then
+            echo "Running tests on $board board"
+            $test
+            RESULT+=$?
+        fi
+    else
+        $test
+        RESULT+=$?
+    fi
 done
 
 exit $RESULT

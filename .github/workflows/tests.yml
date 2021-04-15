@@ -1,15 +1,14 @@
-name: Test [Linux]
+name: Testing
 
 on: [push]
 
 jobs:
-  test:
-    name: Test
+  virtual:
     runs-on: ubuntu-20.04
     steps:
-       - name: Pull the repository and submodules
-         uses: actions/checkout@v1
+       - uses: actions/checkout@v2
          with:
+          fetch-depth: 0
           submodules: true
        - name: Prepare build env
          run: |
@@ -30,3 +29,18 @@ jobs:
            cd tests/
            ../scripts/build_targets.sh --type=tests
            make exec
+  hardware:
+    runs-on: self-hosted
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        submodules: true
+    - name: Run tests on hardware
+      run: |
+        git reset --hard
+        git clean -dxf
+        git fetch --tags
+        cd tests
+        ../scripts/build_targets.sh --type=tests --hw
+        make exec HW_TESTING=1

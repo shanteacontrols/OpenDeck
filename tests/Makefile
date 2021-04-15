@@ -31,7 +31,7 @@ COMMON_FLAGS := \
 
 #c++ compiler only
 CPP_FLAGS := \
--std=c++11
+-std=c++17
 
 #c compiler only
 C_FLAGS := \
@@ -61,7 +61,7 @@ pre-build:
 
 exec:
 	@echo Running all compiled tests.
-	@$(SCRIPTS_DIR)/tests_exec.sh $(BUILD_DIR_BASE)
+	@$(SCRIPTS_DIR)/tests_exec.sh $(BUILD_DIR_BASE) $(HW_TESTING)
 
 coverage:
 	@echo Creating coverage report.

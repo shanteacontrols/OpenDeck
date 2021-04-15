@@ -4,7 +4,7 @@ set -e
 
 function usage
 {
-    echo -e "\nUsage: ./$(basename "$0") --type"
+    echo -e "\nUsage: ./$(basename "$0") --type [--hw]"
 
     echo -e "
     This script is used to build specific set of targets from targets.yml file
@@ -15,6 +15,9 @@ function usage
     fw_all      Builds all listed firmware targets
     fw_release  Builds only firmware targets which are part of official OpenDeck release
     tests       Builds all tests"
+
+    echo -e "\n--hw
+    If set, only tests which run on physical boards will be compiled"
 
     echo -e "\n--help
     Displays script usage"
@@ -30,6 +33,9 @@ for i in "$@"; do
     case "$i" in
         --type=*)
             TYPE=${i#--type=}
+            ;;
+        --hw)
+            HW=1
             ;;
     esac
 done
@@ -65,10 +71,19 @@ fi
 
 targets=()
 
-for config in ../targets/*.yml;
-do
-    targets+=("$(basename "$config" .yml)")
-done
+if [[ "$TYPE" == "tests" && -n "$HW" ]]
+then
+    while IFS= read -r target
+    do
+        targets+=("$(basename "$target" .yml)")
+    done < src/hw/boards.txt
+    
+else
+    for target in ../targets/*.yml;
+    do
+        targets+=("$(basename "$target" .yml)")
+    done
+fi
 
 len_targets=${#targets[@]}
 
@@ -95,7 +110,14 @@ do
             make sysexfw TARGET="${targets[$i]}"
         fi
     else
-        make pre-build TARGET="${targets[$i]}" DEBUG=0
-        make TARGET="${targets[$i]}" DEBUG=0
+        if [[ "$TYPE" == "tests" && -n "$HW" ]]
+        then
+            make pre-build TARGET="${targets[$i]}" DEBUG=0
+            make TARGET="${targets[$i]}" DEBUG=0 TESTS=hw
+            make -C ../src TARGET="${targets[$i]}" sysexfw DEBUG=0
+        else
+            make pre-build TARGET="${targets[$i]}" DEBUG=0
+            make TARGET="${targets[$i]}" DEBUG=0
+        fi
     fi
 done
