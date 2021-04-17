@@ -83,7 +83,7 @@ System::result_t System::onGetGlobal(Section::global_t section, size_t index, Sy
 
     switch (section)
     {
-    case Section::global_t::midiFeature:
+    case Section::global_t::midiFeatures:
     {
         if (index == static_cast<size_t>(System::midiFeature_t::standardNoteOff))
         {

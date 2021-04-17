@@ -85,7 +85,7 @@ class System
 
         enum class global_t : uint8_t
         {
-            midiFeature,
+            midiFeatures,
             midiMerge,
             presets,
             AMOUNT

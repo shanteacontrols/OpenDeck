@@ -91,7 +91,7 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, Sy
 
     switch (section)
     {
-    case Section::global_t::midiFeature:
+    case Section::global_t::midiFeatures:
     {
         auto feature = static_cast<System::midiFeature_t>(index);
 
