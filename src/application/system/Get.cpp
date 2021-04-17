@@ -179,15 +179,14 @@ System::result_t System::onGetEncoders(Section::encoder_t section, size_t index,
         {
             if ((section == Section::encoder_t::midiID) || (section == Section::encoder_t::midiID_MSB))
             {
-                MIDI::encDec_14bit_t encDec_14bit;
+                MIDI::Split14bit split14bit;
 
-                encDec_14bit.value = readValue;
-                encDec_14bit.split14bit();
+                split14bit.split(readValue);
 
                 if (section == Section::encoder_t::midiID)
-                    readValue = encDec_14bit.low;
+                    readValue = split14bit.low();
                 else
-                    readValue = encDec_14bit.high;
+                    readValue = split14bit.high();
             }
         }
 
@@ -235,10 +234,9 @@ System::result_t System::onGetAnalog(Section::analog_t section, size_t index, Sy
         {
             if (result == System::result_t::ok)
             {
-                MIDI::encDec_14bit_t encDec_14bit;
+                MIDI::Split14bit split14bit;
 
-                encDec_14bit.value = readValue;
-                encDec_14bit.split14bit();
+                split14bit.split(readValue);
 
                 switch (section)
                 {
@@ -246,13 +244,13 @@ System::result_t System::onGetAnalog(Section::analog_t section, size_t index, Sy
                 case Section::analog_t::lowerLimit:
                 case Section::analog_t::upperLimit:
                 {
-                    readValue = encDec_14bit.low;
+                    readValue = split14bit.low();
                 }
                 break;
 
                 default:
                 {
-                    readValue = encDec_14bit.high;
+                    readValue = split14bit.high();
                 }
                 break;
                 }

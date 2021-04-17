@@ -307,28 +307,27 @@ System::result_t System::onSetEncoders(Section::encoder_t section, size_t index,
     {
         if (_sysExConf.paramSize() == SysExConf::paramSize_t::_7bit)
         {
-            MIDI::encDec_14bit_t encDec_14bit;
+            MIDI::Split14bit split14bit;
+            MIDI::Merge14bit merge14bit;
 
-            encDec_14bit.value = _database.read(dbSection(section), index);
-            encDec_14bit.split14bit();
+            split14bit.split(_database.read(dbSection(section), index));
 
             switch (section)
             {
             case Section::encoder_t::midiID:
             {
-                encDec_14bit.low = newValue;
+                merge14bit.merge(split14bit.high(), newValue);
             }
             break;
 
             default:
             {
-                encDec_14bit.high = newValue;
+                merge14bit.merge(newValue, split14bit.low());
             }
             break;
             }
 
-            encDec_14bit.mergeTo14bit();
-            newValue = encDec_14bit.value;
+            newValue = merge14bit.value();
         }
     }
     break;
@@ -377,10 +376,10 @@ System::result_t System::onSetAnalog(Section::analog_t section, size_t index, Sy
     {
         if (_sysExConf.paramSize() == SysExConf::paramSize_t::_7bit)
         {
-            MIDI::encDec_14bit_t encDec_14bit;
+            MIDI::Split14bit split14bit;
+            MIDI::Merge14bit merge14bit;
 
-            encDec_14bit.value = _database.read(dbSection(section), index);
-            encDec_14bit.split14bit();
+            split14bit.split(_database.read(dbSection(section), index));
 
             switch (section)
             {
@@ -388,19 +387,18 @@ System::result_t System::onSetAnalog(Section::analog_t section, size_t index, Sy
             case Section::analog_t::lowerLimit:
             case Section::analog_t::upperLimit:
             {
-                encDec_14bit.low = newValue;
+                merge14bit.merge(split14bit.high(), newValue);
             }
             break;
 
             default:
             {
-                encDec_14bit.high = newValue;
+                merge14bit.merge(newValue, split14bit.low());
             }
             break;
             }
 
-            encDec_14bit.mergeTo14bit();
-            newValue = encDec_14bit.value;
+            newValue = merge14bit.value();
         }
     }
     break;

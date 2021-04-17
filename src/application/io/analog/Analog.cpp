@@ -113,8 +113,6 @@ bool Analog::checkPotentiometerValue(uint8_t analogID, analogDescriptor_t& descr
 {
     uint16_t maxLimit;
 
-    MIDI::encDec_14bit_t encDec_14bit;
-
     if ((descriptor.type == type_t::nrpn14b) || (descriptor.type == type_t::pitchBend) || (descriptor.type == type_t::cc14bit))
     {
         //14-bit values are already read
@@ -124,18 +122,17 @@ bool Analog::checkPotentiometerValue(uint8_t analogID, analogDescriptor_t& descr
     {
         maxLimit = MIDI_7_BIT_VALUE_MAX;
 
+        MIDI::Split14bit split14bit;
+
         //use 7-bit MIDI ID and limits
-        encDec_14bit.value = descriptor.midiID;
-        encDec_14bit.split14bit();
-        descriptor.midiID = encDec_14bit.low;
+        split14bit.split(descriptor.midiID);
+        descriptor.midiID = split14bit.low();
 
-        encDec_14bit.value = descriptor.lowerLimit;
-        encDec_14bit.split14bit();
-        descriptor.lowerLimit = encDec_14bit.low;
+        split14bit.split(descriptor.lowerLimit);
+        descriptor.lowerLimit = split14bit.low();
 
-        encDec_14bit.value = descriptor.upperLimit;
-        encDec_14bit.split14bit();
-        descriptor.upperLimit = encDec_14bit.low;
+        split14bit.split(descriptor.upperLimit);
+        descriptor.upperLimit = split14bit.low();
     }
 
     if (value > maxLimit)
@@ -217,18 +214,17 @@ void Analog::sendMessage(uint8_t analogID, analogDescriptor_t& descriptor, uint1
     case type_t::nrpn14b:
     case type_t::cc14bit:
     {
-        MIDI::encDec_14bit_t encDec_14bit;
+        MIDI::Split14bit split14bit;
 
         //when nrpn/cc14bit is used, MIDI ID is split into two messages
         //first message contains higher byte
 
-        encDec_14bit.value = descriptor.midiID;
-        encDec_14bit.split14bit();
+        split14bit.split(descriptor.midiID);
 
         if (descriptor.type != type_t::cc14bit)
         {
-            _midi.sendControlChange(99, encDec_14bit.high, descriptor.channel);
-            _midi.sendControlChange(98, encDec_14bit.low, descriptor.channel);
+            _midi.sendControlChange(99, split14bit.high(), descriptor.channel);
+            _midi.sendControlChange(98, split14bit.low(), descriptor.channel);
         }
 
         if (descriptor.type == type_t::nrpn7b)
@@ -237,25 +233,24 @@ void Analog::sendMessage(uint8_t analogID, analogDescriptor_t& descriptor, uint1
         }
         else
         {
-            descriptor.midiID = encDec_14bit.low;
+            descriptor.midiID = split14bit.low();
 
             //send 14-bit value in another two messages
             //first message contains higher byte
-            encDec_14bit.value = value;
-            encDec_14bit.split14bit();
+            split14bit.split(value);
 
             if (descriptor.type == type_t::cc14bit)
             {
                 if (descriptor.midiID >= 96)
                     break;    //not allowed
 
-                _midi.sendControlChange(descriptor.midiID, encDec_14bit.high, descriptor.channel);
-                _midi.sendControlChange(descriptor.midiID + 32, encDec_14bit.low, descriptor.channel);
+                _midi.sendControlChange(descriptor.midiID, split14bit.high(), descriptor.channel);
+                _midi.sendControlChange(descriptor.midiID + 32, split14bit.low(), descriptor.channel);
             }
             else
             {
-                _midi.sendControlChange(6, encDec_14bit.high, descriptor.channel);
-                _midi.sendControlChange(38, encDec_14bit.low, descriptor.channel);
+                _midi.sendControlChange(6, split14bit.high(), descriptor.channel);
+                _midi.sendControlChange(38, split14bit.low(), descriptor.channel);
             }
         }
 

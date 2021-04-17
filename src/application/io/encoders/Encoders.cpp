@@ -98,8 +98,6 @@ void Encoders::update()
             uint8_t  steps        = (_encoderSpeed[i] > 0) ? _encoderSpeed[i] : 1;
             bool     use14bit     = false;
 
-            MIDI::encDec_14bit_t encDec_14bit;
-
             switch (type)
             {
             case type_t::t7Fh01h:
@@ -176,11 +174,12 @@ void Encoders::update()
                 }
                 else if ((type == type_t::tNRPN7bit) || (type == type_t::tNRPN14bit) || (type == type_t::tControlChange14bit))
                 {
-                    encDec_14bit.value = midiID;
-                    encDec_14bit.split14bit();
+                    MIDI::Split14bit split14bit;
 
-                    _midi.sendControlChange(99, encDec_14bit.high, channel);
-                    _midi.sendControlChange(98, encDec_14bit.low, channel);
+                    split14bit.split(midiID);
+
+                    _midi.sendControlChange(99, split14bit.high(), channel);
+                    _midi.sendControlChange(98, split14bit.low(), channel);
 
                     if (type == type_t::tNRPN7bit)
                     {
@@ -188,23 +187,22 @@ void Encoders::update()
                     }
                     else
                     {
-                        midiID = encDec_14bit.low;
+                        midiID = split14bit.low();
 
-                        encDec_14bit.value = encoderValue;
-                        encDec_14bit.split14bit();
+                        split14bit.split(encoderValue);
 
                         if (type == type_t::tControlChange14bit)
                         {
                             if (midiID >= 96)
                                 break;    //not allowed
 
-                            _midi.sendControlChange(midiID, encDec_14bit.high, channel);
-                            _midi.sendControlChange(midiID + 32, encDec_14bit.low, channel);
+                            _midi.sendControlChange(midiID, split14bit.high(), channel);
+                            _midi.sendControlChange(midiID + 32, split14bit.low(), channel);
                         }
                         else
                         {
-                            _midi.sendControlChange(6, encDec_14bit.high, channel);
-                            _midi.sendControlChange(38, encDec_14bit.low, channel);
+                            _midi.sendControlChange(6, split14bit.high(), channel);
+                            _midi.sendControlChange(38, split14bit.low(), channel);
                         }
                     }
 

@@ -303,13 +303,10 @@ TEST_CASE(PitchBendTest)
         {
             size_t index = i + j;
 
-            MIDI::encDec_14bit_t pitchBendValue;
+            MIDI::Merge14bit pitchBendValue;
 
-            pitchBendValue.low  = hwaMIDI.midiPacket.at(index).Data2;
-            pitchBendValue.high = hwaMIDI.midiPacket.at(index).Data3;
-            pitchBendValue.mergeTo14bit();
-
-            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, pitchBendValue.value);
+            pitchBendValue.merge(hwaMIDI.midiPacket.at(index).Data3, hwaMIDI.midiPacket.at(index).Data2);
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, pitchBendValue.value());
         }
 
         expectedMIDIvalue++;
@@ -335,13 +332,10 @@ TEST_CASE(PitchBendTest)
         {
             size_t index = i + j;
 
-            MIDI::encDec_14bit_t pitchBendValue;
+            MIDI::Merge14bit pitchBendValue;
 
-            pitchBendValue.low  = hwaMIDI.midiPacket.at(index).Data2;
-            pitchBendValue.high = hwaMIDI.midiPacket.at(index).Data3;
-            pitchBendValue.mergeTo14bit();
-
-            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, pitchBendValue.value);
+            pitchBendValue.merge(hwaMIDI.midiPacket.at(index).Data3, hwaMIDI.midiPacket.at(index).Data2);
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, pitchBendValue.value());
         }
 
         expectedMIDIvalue--;
