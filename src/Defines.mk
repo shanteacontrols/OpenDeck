@@ -140,7 +140,7 @@ endif
 
 FW_UID := $(shell $(SCRIPTS_DIR)/fw_uid_gen.sh $(TARGET))
 
-DEFINES += OD_BOARD_$(shell echo $(TARGET) | tr 'a-z' 'A-Z')
+DEFINES += OD_BOARD=\"$(shell echo $(TARGET))\"
 DEFINES += FW_UID=$(FW_UID)
 DEFINES += FW_METADATA_LOCATION=$(FW_METADATA_LOCATION)
 

@@ -23,25 +23,7 @@ limitations under the License.
 
 namespace
 {
-    const char boardName_string[] PROGMEM =
-#ifdef OD_BOARD_OPENDECK
-        "OpenDeck";
-#elif defined(OD_BOARD_LEONARDO)
-        "Arduino Leo";
-#elif defined(OD_BOARD_MEGA)
-        "Arduino Mega";
-#elif defined(OD_BOARD_PROMICRO)
-        "Arduino PM";
-#elif defined(OD_BOARD_UNO)
-        "Arduino Uno";
-#elif defined(OD_BOARD_TEENSY2PP)
-        "Teensy++ 2.0";
-#elif defined(OD_BOARD_DUBFOCUS)
-        "DubFocus";
-#else
-        "Unknown";
-#endif
-
+    const char boardName_string[] PROGMEM         = OD_BOARD;
     const char eventNoteOff_string[] PROGMEM      = "Note Off";
     const char eventNoteOn_string[] PROGMEM       = "Note On";
     const char eventCC_string[] PROGMEM           = "CC";
