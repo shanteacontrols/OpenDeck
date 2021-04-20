@@ -56,12 +56,12 @@ define LINK_OBJECTS
 endef
 
 pre-build:
-	@chmod +x $(SCRIPTS_DIR)/gen_test_targets.sh && $(SCRIPTS_DIR)/gen_test_targets.sh $(GEN_DIR)/$(TARGET)
-	@chmod +x $(SCRIPTS_DIR)/gen_test_runners.sh && $(SCRIPTS_DIR)/gen_test_runners.sh $(GEN_DIR)/$(TARGET)
+	@$(SCRIPTS_DIR)/gen_test_targets.sh $(GEN_DIR)/$(TARGET)
+	@$(SCRIPTS_DIR)/gen_test_runners.sh $(GEN_DIR)/$(TARGET)
 
 exec:
 	@echo Running all compiled tests.
-	@chmod +x $(SCRIPTS_DIR)/tests_exec.sh && $(SCRIPTS_DIR)/tests_exec.sh $(BUILD_DIR_BASE)
+	@$(SCRIPTS_DIR)/tests_exec.sh $(BUILD_DIR_BASE)
 
 coverage:
 	@echo Creating coverage report.
