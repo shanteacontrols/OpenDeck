@@ -64,6 +64,9 @@ namespace IO
 
         void reset(size_t index) override
         {
+            if (index >= MAX_NUMBER_OF_BUTTONS)
+                return;
+
             _lastPressTime[index] = 1;
         }
 
