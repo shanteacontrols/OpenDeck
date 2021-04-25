@@ -34,11 +34,11 @@ software_version_revision=$(make TARGET="$TARGET_NAME" print-SW_VERSION_REVISION
 
 {
     printf "%s\n" "#if defined(FW_APP)"
-    printf "%s\n" "#define USB_PRODUCT UNICODE_STRING(\"OpenDeck | Board: $TARGET_NAME\")"
+    printf "%s\n" "#define USB_PRODUCT UNICODE_STRING(\"OpenDeck | $TARGET_NAME\")"
     printf "%s\n" "#elif defined(FW_BOOT)"
-    printf "%s\n" "#define USB_PRODUCT UNICODE_STRING(\"OpenDeck DFU v$software_version_major.$software_version_minor.$software_version_revision | Board: $TARGET_NAME\")"
+    printf "%s\n" "#define USB_PRODUCT UNICODE_STRING(\"OpenDeck DFU v$software_version_major.$software_version_minor.$software_version_revision | $TARGET_NAME\")"
     printf "%s\n" "#elif defined(FW_CDC)"
-    printf "%s\n" "#define USB_PRODUCT UNICODE_STRING(\"OpenDeck CDC | Board: $TARGET_NAME\")"
+    printf "%s\n" "#define USB_PRODUCT UNICODE_STRING(\"OpenDeck CDC | $TARGET_NAME\")"
     printf "%s\n" "#endif"
 } > "$OUT_FILE_HEADER_USB"
 
