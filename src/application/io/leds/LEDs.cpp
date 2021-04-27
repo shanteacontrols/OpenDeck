@@ -431,9 +431,9 @@ void LEDs::setColor(uint8_t ledID, color_t color, brightness_t brightness)
         uint8_t gLED = _hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::g);
         uint8_t bLED = _hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::b);
 
-        handleLED(rLED, rgbIndex_t::r, BIT_READ(static_cast<bool>(color), static_cast<uint8_t>(rgbIndex_t::r)), true);
-        handleLED(gLED, rgbIndex_t::g, BIT_READ(static_cast<bool>(color), static_cast<uint8_t>(rgbIndex_t::g)), true);
-        handleLED(bLED, rgbIndex_t::b, BIT_READ(static_cast<bool>(color), static_cast<uint8_t>(rgbIndex_t::b)), true);
+        handleLED(rLED, rgbIndex_t::r, BIT_READ(static_cast<uint8_t>(color), static_cast<uint8_t>(rgbIndex_t::r)), true);
+        handleLED(gLED, rgbIndex_t::g, BIT_READ(static_cast<uint8_t>(color), static_cast<uint8_t>(rgbIndex_t::g)), true);
+        handleLED(bLED, rgbIndex_t::b, BIT_READ(static_cast<uint8_t>(color), static_cast<uint8_t>(rgbIndex_t::b)), true);
     }
     else
     {

@@ -171,8 +171,9 @@ class HWALEDs : public IO::LEDs::HWA
             break;
 
         case IO::LEDs::rgbIndex_t::g:
-            boardRGBindex = Board::io::rgbIndex_t::r;
+            boardRGBindex = Board::io::rgbIndex_t::g;
             break;
+
         case IO::LEDs::rgbIndex_t::b:
             boardRGBindex = Board::io::rgbIndex_t::b;
             break;
