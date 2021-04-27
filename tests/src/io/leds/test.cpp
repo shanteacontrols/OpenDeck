@@ -501,6 +501,32 @@ TEST_CASE(VerifyBrightnessAndBlinkSpeed)
     for (size_t i = 0; i < 128; i++)
         leds.midiToState(MIDI::messageType_t::controlChange, 0, i, 0, IO::LEDs::dataSource_t::external);
 }
+
+TEST_CASE(SingleLEDstate)
+{
+    leds.midiToState(MIDI::messageType_t::noteOn, 0, 127, 0, IO::LEDs::dataSource_t::external);
+
+    //by default, leds are configured to react on MIDI Note on, channel 0
+    //note 0 should turn the first LED on
+    TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::b100, hwaLEDs.brightness.at(0));
+
+    //now turn the LED off
+    leds.midiToState(MIDI::messageType_t::noteOn, 0, 0, 0, IO::LEDs::dataSource_t::external);
+    TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::bOff, hwaLEDs.brightness.at(0));
+
+#if MAX_NUMBER_OF_LEDS >= 3
+    //configure RGB LED 0
+    TEST_ASSERT(database.update(Database::Section::leds_t::rgbEnable, 0, 1) == true);
+
+    //now turn it on
+    leds.midiToState(MIDI::messageType_t::noteOn, 0, 127, 0, IO::LEDs::dataSource_t::external);
+
+    //three LEDs should be on now
+    TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::b100, hwaLEDs.brightness.at(hwaLEDs.rgbSingleComponentIndex(0, IO::LEDs::rgbIndex_t::r)));
+    TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::b100, hwaLEDs.brightness.at(hwaLEDs.rgbSingleComponentIndex(0, IO::LEDs::rgbIndex_t::g)));
+    TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::b100, hwaLEDs.brightness.at(hwaLEDs.rgbSingleComponentIndex(0, IO::LEDs::rgbIndex_t::b)));
+#endif
+}
 #endif
 
 #endif
