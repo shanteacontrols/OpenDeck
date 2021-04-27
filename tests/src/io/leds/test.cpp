@@ -49,29 +49,30 @@ namespace
     class HWALEDs : public IO::LEDs::HWA
     {
         public:
-        HWALEDs() {}
+        HWALEDs()
+        {
+            brightness.resize(MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS, IO::LEDs::brightness_t::bOff);
+        }
 
         void setState(size_t index, IO::LEDs::brightness_t brightness) override
         {
-            this->index.push_back(index);
-            this->brightness.push_back(brightness);
+            this->brightness.at(index) = brightness;
         }
 
         size_t rgbSingleComponentIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
         {
-            return 0;
+            return rgbIndex * 3 + static_cast<uint8_t>(rgbComponent);
         }
 
         size_t rgbIndex(size_t singleLEDindex) override
         {
-            return 0;
+            return singleLEDindex / 3;
         }
 
         void setFadeSpeed(size_t transitionSpeed) override
         {
         }
 
-        std::vector<size_t>                 index;
         std::vector<IO::LEDs::brightness_t> brightness;
 
     } hwaLEDs;
@@ -386,11 +387,6 @@ TEST_CASE(VerifyBrightnessAndBlinkSpeed)
         IO::LEDs::blinkSpeed_t::noBlink,
     };
 
-    auto reset = [&]() {
-        leds.setAllOff();
-        hwaLEDs.brightness.clear();
-    };
-
     //midiInNoteMultiVal
     //----------------------------------
 
@@ -407,10 +403,9 @@ TEST_CASE(VerifyBrightnessAndBlinkSpeed)
         //read only the first response - it's possible midi state will be set for multiple LEDs
         TEST_ASSERT_EQUAL_UINT32(expectedBrightnessValue.at(i), hwaLEDs.brightness.at(0));
         TEST_ASSERT_EQUAL_UINT32(expectedBlinkSpeedValue.at(i), leds.blinkSpeed(0));
-        hwaLEDs.brightness.clear();
     }
 
-    reset();
+    leds.setAllOff();
 
     //test incorrect parameters
     for (size_t i = 0; i < 128; i++)
@@ -423,8 +418,6 @@ TEST_CASE(VerifyBrightnessAndBlinkSpeed)
         //test all other channels with otherwise correct params
         for (int channel = 1; channel < 16; channel++)
             leds.midiToState(MIDI::messageType_t::noteOn, 0, i, channel, IO::LEDs::dataSource_t::external);
-
-        TEST_ASSERT_EQUAL_UINT32(0, hwaLEDs.brightness.size());
     }
 
     //midiInCCMultiVal
@@ -443,10 +436,9 @@ TEST_CASE(VerifyBrightnessAndBlinkSpeed)
         //read only the first response - it's possible midi state will be set for multiple LEDs
         TEST_ASSERT_EQUAL_UINT32(expectedBrightnessValue.at(i), hwaLEDs.brightness.at(0));
         TEST_ASSERT_EQUAL_UINT32(expectedBlinkSpeedValue.at(i), leds.blinkSpeed(0));
-        hwaLEDs.brightness.clear();
     }
 
-    reset();
+    leds.setAllOff();
 
     //test incorrect parameters
     for (size_t i = 0; i < 128; i++)
@@ -459,8 +451,6 @@ TEST_CASE(VerifyBrightnessAndBlinkSpeed)
         //test all other channels with otherwise correct params
         for (int channel = 1; channel < 16; channel++)
             leds.midiToState(MIDI::messageType_t::noteOn, 0, i, channel, IO::LEDs::dataSource_t::external);
-
-        TEST_ASSERT_EQUAL_UINT32(0, hwaLEDs.brightness.size());
     }
 
     //localNoteMultiVal
@@ -479,17 +469,13 @@ TEST_CASE(VerifyBrightnessAndBlinkSpeed)
         //read only the first response - it's possible midi state will be set for multiple LEDs
         TEST_ASSERT_EQUAL_UINT32(expectedBrightnessValue.at(i), hwaLEDs.brightness.at(0));
         TEST_ASSERT_EQUAL_UINT32(expectedBlinkSpeedValue.at(i), leds.blinkSpeed(0));
-        hwaLEDs.brightness.clear();
     }
 
-    reset();
+    leds.setAllOff();
 
     //test incorrect parameters
     for (size_t i = 0; i < 128; i++)
-    {
         leds.midiToState(MIDI::messageType_t::noteOn, 0, i, 0, IO::LEDs::dataSource_t::external);
-        TEST_ASSERT_EQUAL_UINT32(0, hwaLEDs.brightness.size());
-    }
 
     //localCCMultiVal
     //----------------------------------
@@ -507,17 +493,13 @@ TEST_CASE(VerifyBrightnessAndBlinkSpeed)
         //read only the first response - it's possible midi state will be set for multiple LEDs
         TEST_ASSERT_EQUAL_UINT32(expectedBrightnessValue.at(i), hwaLEDs.brightness.at(0));
         TEST_ASSERT_EQUAL_UINT32(expectedBlinkSpeedValue.at(i), leds.blinkSpeed(0));
-        hwaLEDs.brightness.clear();
     }
 
-    reset();
+    leds.setAllOff();
 
     //in midi in mode nothing should be sent
     for (size_t i = 0; i < 128; i++)
-    {
         leds.midiToState(MIDI::messageType_t::controlChange, 0, i, 0, IO::LEDs::dataSource_t::external);
-        TEST_ASSERT_EQUAL_UINT32(0, hwaLEDs.brightness.size());
-    }
 }
 #endif
 
