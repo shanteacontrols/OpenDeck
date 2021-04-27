@@ -1,7 +1,7 @@
 #include "unity/src/unity.h"
 #include "unity/Helpers.h"
-#include "io/buttons/Buttons.h"
 #include "io/leds/LEDs.h"
+#include "io/display/Display.h"
 #include "io/common/CInfo.h"
 #include "midi/src/MIDI.h"
 #include "core/src/general/Timing.h"
@@ -12,8 +12,6 @@
 
 namespace
 {
-    bool buttonState[MAX_NUMBER_OF_BUTTONS] = {};
-
     class HWAMIDI : public MIDI::HWA
     {
         public:
@@ -78,30 +76,6 @@ namespace
 
     } hwaLEDs;
 
-    class HWAButtons : public IO::Buttons::HWA
-    {
-        public:
-        HWAButtons() {}
-
-        bool state(size_t index) override
-        {
-            return buttonState[index];
-        }
-    } hwaButtons;
-
-    class ButtonsFilter : public IO::Buttons::Filter
-    {
-        public:
-        bool isFiltered(size_t index, bool value, bool& filteredValue) override
-        {
-            return true;
-        }
-
-        void reset(size_t index) override
-        {
-        }
-    } buttonsFilter;
-
     DBstorageMock dbStorageMock;
     Database      database = Database(dbStorageMock, true);
     MIDI          midi(hwaMIDI);
@@ -132,7 +106,6 @@ namespace
 
     IO::U8X8    u8x8(hwaU8X8);
     IO::Display display(u8x8, database);
-    IO::Buttons buttons = IO::Buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cInfo);
 }    // namespace
 
 TEST_SETUP()
