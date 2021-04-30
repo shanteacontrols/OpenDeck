@@ -55,6 +55,7 @@ namespace IO
             : _adcType(adcType)
             , _adcConfig(adcType == IO::Analog::adcType_t::adc10bit ? adc10bit : adc12bit)
             , _stableValueRepetitions(stableValueRepetitions)
+            , _stepDiff7Bit(static_cast<uint16_t>(adcType) / 128)
         {}
 
         Analog::adcType_t adcType() override
@@ -73,15 +74,7 @@ namespace IO
                 return 0;
             };
 
-            if ((_adcType == Analog::adcType_t::adc12bit) && (index < MAX_NUMBER_OF_ANALOG))
-            {
-                //on 12bit ADCs, when the value is above 90%, add small value
-                //to offset the reading error and possible situation that the maximum
-                //MIDI value cannot be reached
-                //empirical
-                if ((value >= 3686) && (value <= 4087))
-                    value += 8;
-            }
+            value = CONSTRAIN(value, 0, _adcConfig.adcMaxValue);
 
             //avoid filtering in this case for faster response
             if (type == Analog::type_t::button)
@@ -147,7 +140,7 @@ namespace IO
             else
             {
                 maxLimit = MIDI_7_BIT_VALUE_MAX;
-                stepDiff = _adcConfig.stepDiff7Bit;
+                stepDiff = _stepDiff7Bit;
             }
 
             //if the first read value is 0, mark it as increasing
@@ -156,8 +149,10 @@ namespace IO
             //don't perform these checks on initial value readout
             if (_lastDirection[index] != valDirection_t::initial)
             {
+                //always use 7bit diff value here regardless of the type of value (7bit/14bit)
+                //for 14bit value this will improve stability since those values are scaled anyways and use small diff value
                 if (direction != _lastDirection[index])
-                    stepDiff = _adcConfig.stepDiffDirChange;
+                    stepDiff = _stepDiff7Bit;
 
                 if (abs(filteredValue - _lastStableValue[index]) < stepDiff)
                 {
@@ -222,9 +217,7 @@ namespace IO
         using adcConfig_t = struct
         {
             const uint16_t adcMaxValue;                 ///< Maxmimum raw ADC value.
-            const uint16_t stepDiff7Bit;                ///< Minimum difference between two raw ADC readings to consider that value has been changed for 7-bit MIDI values.
             const uint16_t stepDiff14Bit;               ///< Minimum difference between two raw ADC readings to consider that value has been changed for 14-bit MIDI values.
-            const uint16_t stepDiffDirChange;           ///< Same as stepDiff7Bit and stepDiff14Bit, only used when the direction is different from the last one.
             const uint16_t fsrMinValue;                 ///< Minimum raw ADC reading for FSR sensors.
             const uint16_t fsrMaxValue;                 ///< Maximum raw ADC reading for FSR sensors.
             const uint16_t aftertouchMaxValue;          ///< Maxmimum raw ADC reading for aftertouch on FSR sensors.
@@ -240,10 +233,8 @@ namespace IO
         };
 
         adcConfig_t adc10bit = {
-            .adcMaxValue              = 1023,
-            .stepDiff7Bit             = 6,
+            .adcMaxValue              = 1000,
             .stepDiff14Bit            = 1,
-            .stepDiffDirChange        = 6,
             .fsrMinValue              = 40,
             .fsrMaxValue              = 340,
             .aftertouchMaxValue       = 600,
@@ -252,10 +243,8 @@ namespace IO
         };
 
         adcConfig_t adc12bit = {
-            .adcMaxValue              = 4095,
-            .stepDiff7Bit             = 24,
+            .adcMaxValue              = 4000,
             .stepDiff14Bit            = 2,
-            .stepDiffDirChange        = 24,
             .fsrMinValue              = 160,
             .fsrMaxValue              = 1360,
             .aftertouchMaxValue       = 2400,
@@ -266,6 +255,7 @@ namespace IO
         const IO::Analog::adcType_t _adcType;
         adcConfig_t&                _adcConfig;
         const size_t                _stableValueRepetitions;
+        const uint16_t              _stepDiff7Bit;
 
         static constexpr uint32_t FAST_FILTER_ENABLE_AFTER_MS = 500;
         EMA                       _emaFilter[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS];
