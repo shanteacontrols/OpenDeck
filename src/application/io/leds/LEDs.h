@@ -157,11 +157,12 @@ namespace IO
         HWA&      _hwa;
         Database& _database;
 
-        static constexpr size_t  MAX_LEDS                = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS;
-        static constexpr size_t  TOTAL_BLINK_SPEEDS      = 4;
-        static constexpr size_t  TOTAL_BRIGHTNESS_VALUES = 4;
-        static constexpr uint8_t FADE_TIME_MIN           = 0;
-        static constexpr uint8_t FADE_TIME_MAX           = 10;
+        static constexpr size_t  MAX_LEDS                        = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS;
+        static constexpr size_t  TOTAL_BLINK_SPEEDS              = 4;
+        static constexpr size_t  TOTAL_BRIGHTNESS_VALUES         = 4;
+        static constexpr uint8_t FADE_TIME_MIN                   = 0;
+        static constexpr uint8_t FADE_TIME_MAX                   = 10;
+        static constexpr uint8_t LED_BLINK_TIMER_TYPE_CHECK_TIME = 50;
 
         /// Array holding current LED status for all LEDs.
         uint8_t _ledState[MAX_LEDS] = {};
@@ -180,18 +181,18 @@ namespace IO
 
         /// Array holding MIDI clock pulses after which LED state is toggled for all possible blink rates.
         const uint8_t _blinkReset_midiClock[TOTAL_BLINK_SPEEDS] = {
-            255,    //no blinking
-            12,
+            48,
             24,
-            48
+            12,
+            255,    //no blinking
         };
 
         /// Array holding time indexes (multipled by 50) after which LED state is toggled for all possible blink rates.
         const uint8_t _blinkReset_timer[TOTAL_BLINK_SPEEDS] = {
-            0,
-            5,
-            10,
             20,
+            10,
+            5,
+            0,
         };
 
         /// Array used to determine when the blink state for specific blink rate should be changed.

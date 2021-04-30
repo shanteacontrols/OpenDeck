@@ -51,8 +51,7 @@ void LEDs::checkBlinking(bool forceChange)
     switch (_ledBlinkType)
     {
     case blinkType_t::timer:
-        //update blink states every 100ms - minimum blink time
-        if ((core::timing::currentRunTimeMs() - _lastLEDblinkUpdateTime) < 100)
+        if ((core::timing::currentRunTimeMs() - _lastLEDblinkUpdateTime) < LED_BLINK_TIMER_TYPE_CHECK_TIME)
             return;
 
         _lastLEDblinkUpdateTime = core::timing::currentRunTimeMs();
