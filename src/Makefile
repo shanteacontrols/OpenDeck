@@ -306,6 +306,9 @@ flash-bmp:
 	-ex 'kill' \
 	$(BUILD_DIR_BASE)/merged/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex
 
+flash-dfu:
+	@sudo dfu-util -d 0483:df11 -a 0 -i 0 -s 0x8000000:leave -D $(BUILD_DIR_BASE)/merged/$(TARGET)/$(BUILD_TYPE)/$(TARGET).bin
+
 ifeq ($(ARCH), avr)
 flashread:
 	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -C /etc/avrdude.conf -U flash:r:readcontents.bin:r
