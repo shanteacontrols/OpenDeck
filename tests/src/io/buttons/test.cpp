@@ -57,7 +57,7 @@ namespace
         {
         }
 
-        size_t rgbSingleComponentIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
+        size_t rgbSignalIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
         {
             return 0;
         }
@@ -77,16 +77,21 @@ namespace
         public:
         HWAButtons() {}
 
-        bool state(size_t index) override
+        bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
         {
-            return buttonState[index];
+            numberOfReadings = 1;
+            states           = buttonState[index];
+            return true;
         }
     } hwaButtons;
 
     class ButtonsFilter : public IO::Buttons::Filter
     {
         public:
-        bool isFiltered(size_t index, bool value, bool& filteredValue) override
+        bool isFiltered(size_t   index,
+                        bool     state,
+                        bool&    filteredState,
+                        uint32_t sampleTakenTime) override
         {
             return true;
         }
@@ -126,7 +131,7 @@ namespace
 
     IO::U8X8    u8x8(hwaU8X8);
     IO::Display display(u8x8, database);
-    IO::Buttons buttons = IO::Buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cInfo);
+    IO::Buttons buttons = IO::Buttons(hwaButtons, buttonsFilter, 1, database, midi, leds, display, cInfo);
 
     void stateChangeRegister(bool state)
     {
@@ -305,26 +310,26 @@ TEST_CASE(ProgramChange)
     database.factoryReset();
     stateChangeRegister(false);
 
-    auto configurePCbutton = [&](uint8_t buttonID, uint8_t channel, bool increase) {
-        TEST_ASSERT(database.update(Database::Section::button_t::type, buttonID, static_cast<int32_t>(Buttons::type_t::momentary)) == true);
-        TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, buttonID, increase ? static_cast<int32_t>(Buttons::messageType_t::programChangeInc) : static_cast<int32_t>(Buttons::messageType_t::programChangeDec)) == true);
-        TEST_ASSERT(database.update(Database::Section::button_t::midiChannel, buttonID, channel) == true);
+    auto configurePCbutton = [&](size_t index, uint8_t channel, bool increase) {
+        TEST_ASSERT(database.update(Database::Section::button_t::type, index, static_cast<int32_t>(Buttons::type_t::momentary)) == true);
+        TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, index, increase ? static_cast<int32_t>(Buttons::messageType_t::programChangeInc) : static_cast<int32_t>(Buttons::messageType_t::programChangeDec)) == true);
+        TEST_ASSERT(database.update(Database::Section::button_t::midiChannel, index, channel) == true);
 
         for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
             buttons.reset(i);
     };
 
-    auto verifyProgramChange = [&](uint8_t buttonID, uint8_t channel, uint8_t program) {
-        uint8_t midiMessage = hwaMIDI.midiPacket[buttonID].Event << 4;
+    auto verifyProgramChange = [&](size_t index, uint8_t channel, uint8_t program) {
+        uint8_t midiMessage = hwaMIDI.midiPacket[index].Event << 4;
         TEST_ASSERT(midiMessage == static_cast<uint8_t>(MIDI::messageType_t::programChange));
 
         //byte 3 on program change should be 0
-        TEST_ASSERT(0 == hwaMIDI.midiPacket[buttonID].Data3);
+        TEST_ASSERT(0 == hwaMIDI.midiPacket[index].Data3);
 
         //verify channel
-        TEST_ASSERT(channel == midi.getChannelFromStatusByte(hwaMIDI.midiPacket[buttonID].Data1));
+        TEST_ASSERT(channel == midi.getChannelFromStatusByte(hwaMIDI.midiPacket[index].Data1));
 
-        TEST_ASSERT(program == hwaMIDI.midiPacket[buttonID].Data2);
+        TEST_ASSERT(program == hwaMIDI.midiPacket[index].Data2);
     };
 
     configurePCbutton(0, 0, true);

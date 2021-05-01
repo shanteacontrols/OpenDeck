@@ -483,12 +483,8 @@ void System::checkComponents()
 {
     if (isProcessingEnabled())
     {
-        if (_hwa.isDigitalInputAvailable())
-        {
-            _buttons.update();
-            _encoders.update();
-        }
-
+        _buttons.update();
+        _encoders.update();
         _analog.update();
         _leds.checkBlinking();
         _display.update();

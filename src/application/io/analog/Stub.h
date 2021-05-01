@@ -82,7 +82,7 @@ namespace IO
             virtual void              reset(size_t index)                                                                    = 0;
         };
 
-        using buttonHandler_t = std::function<void(uint8_t adcIndex, bool state)>;
+        using buttonHandler_t = std::function<void(size_t index, bool state)>;
 
         Analog(HWA&           hwa,
                Filter&        filter,
@@ -97,7 +97,7 @@ namespace IO
         {
         }
 
-        void processReading(uint8_t analogID, uint16_t value)
+        void processReading(size_t index, uint16_t value)
         {
         }
 

@@ -51,13 +51,14 @@ namespace
         HWAEncoders()
         {}
 
-        uint8_t state(size_t index) override
+        bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
         {
-            uint8_t returnValue = 0;
+            numberOfReadings = 1;
+            states           = 0;
 
             if (encoderPosition[index] == IO::Encoders::position_t::ccw)
             {
-                returnValue = stateArray[stateCounter[index]];
+                states = stateArray[stateCounter[index]];
 
                 if (++stateCounter[index] >= 4)
                     stateCounter[index] = 0;
@@ -67,19 +68,20 @@ namespace
                 if (--stateCounter[index] < 0)
                     stateCounter[index] = 3;
 
-                returnValue = stateArray[stateCounter[index]];
+                states = stateArray[stateCounter[index]];
             }
 
-            if (returnValue == lastState[index])
-                return state(index);
+            if (states == lastState[index])
+                return state(index, numberOfReadings, states);
 
-            lastState[index] = returnValue;
-            return returnValue;
+            lastState[index] = states;
+
+            return true;
         }
 
-        void setEncoderState(uint8_t encoderID, IO::Encoders::position_t position)
+        void setEncoderState(size_t index, IO::Encoders::position_t position)
         {
-            encoderPosition[encoderID] = position;
+            encoderPosition[index] = position;
         }
 
         IO::Encoders::position_t encoderPosition[MAX_NUMBER_OF_ENCODERS];
@@ -94,6 +96,27 @@ namespace
             0b00
         };
     } hwaEncoders;
+
+    class EncodersFilter : public IO::Encoders::Filter
+    {
+        public:
+        bool isFiltered(size_t                    index,
+                        IO::Encoders::position_t  position,
+                        IO::Encoders::position_t& filteredPosition,
+                        uint32_t                  sampleTakenTime) override
+        {
+            return true;
+        }
+
+        void reset(size_t index) override
+        {
+        }
+
+        uint32_t lastMovementTime(size_t index) override
+        {
+            return 0;
+        }
+    } encodersFilter;
 
     DBstorageMock dbStorageMock;
     Database      database = Database(dbStorageMock, true);
@@ -123,7 +146,7 @@ namespace
 
     IO::U8X8     u8x8(hwaU8X8);
     IO::Display  display(u8x8, database);
-    IO::Encoders encoders = IO::Encoders(hwaEncoders, database, midi, display, cInfo);
+    IO::Encoders encoders = IO::Encoders(hwaEncoders, encodersFilter, 1, database, midi, display, cInfo);
 }    // namespace
 
 TEST_SETUP()

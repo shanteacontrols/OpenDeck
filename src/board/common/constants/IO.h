@@ -18,33 +18,12 @@ limitations under the License.
 
 #pragma once
 
-/// Size of array used to store all digital input readings.
-/// Values are stored in byte array - one bit represents single digital input value.
-#ifndef NUMBER_OF_BUTTON_COLUMNS
-#ifdef NUMBER_OF_IN_SR
-#define DIGITAL_IN_ARRAY_SIZE (NUMBER_OF_IN_SR * 8)
-#else
-#if ((MAX_NUMBER_OF_BUTTONS % 8) != 0)
-#define DIGITAL_IN_ARRAY_SIZE ((MAX_NUMBER_OF_BUTTONS / 8) + 1)
-#else
-#define DIGITAL_IN_ARRAY_SIZE (MAX_NUMBER_OF_BUTTONS / 8)
-#endif
-#endif
-#else
-#define DIGITAL_IN_ARRAY_SIZE NUMBER_OF_BUTTON_COLUMNS
-#endif
-
 /// Size of array used to store all analog readings.
 #ifndef NUMBER_OF_MUX
 #define ANALOG_IN_BUFFER_SIZE MAX_NUMBER_OF_ANALOG
 #else
 #define ANALOG_IN_BUFFER_SIZE (NUMBER_OF_MUX_INPUTS * NUMBER_OF_MUX)
 #endif
-
-/// Size of ring buffer used to store all digital input readings.
-/// Once digital input array is full (all inputs are read), index within ring buffer
-/// is incremented (if there is space left).
-#define DIGITAL_IN_BUFFER_SIZE 10
 
 /// Time in milliseconds during which MIDI event indicators on board are on when MIDI event happens.
 #define MIDI_INDICATOR_TIMEOUT 50

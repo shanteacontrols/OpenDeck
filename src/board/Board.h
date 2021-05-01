@@ -134,41 +134,54 @@ namespace Board
             b
         };
 
-        /// Checks if digital input data is available (encoder and button data).
-        /// Digital input data is read in ISR and stored into ring buffer.
-        /// returns: True if data is available, false otherwise.
-        bool isInputDataAvailable();
+        enum class encoderIndex_t : uint8_t
+        {
+            a,
+            b
+        };
 
-        /// Returns last read button state for requested button index.
-        /// param [in]: buttonIndex Index of button which should be read.
-        /// returns: True if button is pressed, false otherwise.
-        bool getButtonState(uint8_t buttonIndex);
+        /// Structure containing digital input readings for a given input.
+        /// Count represents total amount of readings stored in readings variable.
+        /// Readings variable contains up to last 32 readings where LSB bit is the
+        /// newest reading, and MSB bit is the last.
+        typedef struct
+        {
+            uint8_t  count;
+            uint32_t readings;
+        } dInReadings_t;
 
-        /// Calculates encoder pair number based on provided button ID.
-        /// param [in]: buttonID   Button index from which encoder pair is being calculated.
-        /// returns: Calculated encoder pair number.
-        uint8_t getEncoderPair(uint8_t buttonID);
+        /// Returns last read digital input states for requested digital input index.
+        /// param [in]:     digitalInIndex  Index of digital input which should be read.
+        /// param [in,out]: dInReadings     Reference to variable in which new digital input readings are stored.
+        /// returns: True if there are new readings for specified digital input index.
+        bool digitalInState(size_t digitalInIndex, dInReadings_t& dInReadings);
 
-        /// Checks state of requested encoder.
+        /// Calculates encoder index based on provided button index.
+        /// param [in]: buttonID   Button index from which encoder is being calculated.
+        /// returns: Calculated encoder index.
+        size_t encoderIndex(size_t buttonID);
+
+        /// Used to calculate index of A or B signal of encoder.
         /// param [in]: encoderID       Encoder which is being checked.
-        /// returns: Pair state of the specified encoder (A and B signals stored in bits 0 and 1).
-        uint8_t getEncoderPairState(uint8_t encoderID);
+        /// param [in]: index   A or B signal (enumerated type, see encoderIndex_t).
+        /// returns: Calculated index of A or B signal of encoder.
+        size_t encoderSignalIndex(size_t encoderID, encoderIndex_t index);
 
         /// Used to turn LED connected to the board on or off.
         /// param [in]: ledID   LED for which to change state.
         /// param [in]: state   New LED state (true/on, false/off).
-        void writeLEDstate(uint8_t ledID, bool state);
+        void writeLEDstate(size_t ledID, bool state);
+
+        /// Calculates RGB LED index based on provided single-color LED index.
+        /// param [in]: ledID   Index of single-color LED.
+        /// returns: Calculated index of RGB LED.
+        size_t rgbIndex(size_t ledID);
 
         /// Used to calculate index of R, G or B component of RGB LED.
         /// param [in]: rgbID   Index of RGB LED.
         /// param [in]: index   R, G or B component (enumerated type, see rgbIndex_t).
         /// returns: Calculated index of R, G or B component of RGB LED.
-        uint8_t getRGBaddress(uint8_t rgbID, rgbIndex_t index);
-
-        /// Calculates RGB LED index based on provided single-color LED index.
-        /// param [in]: ledID   Index of single-color LED.
-        /// returns: Calculated index of RGB LED.
-        uint8_t getRGBID(uint8_t ledID);
+        size_t rgbSignalIndex(size_t rgbID, rgbIndex_t index);
 
         /// Sets LED transition speed.
         /// param [in]: transitionSpeed Transition speed.
@@ -178,7 +191,7 @@ namespace Board
         /// @param[in] analogID     Analog index for which ADC value is being checked.
         /// param [in,out]:         Reference to variable in which new ADC reading is stored.
         /// returns: True if there is a new reading for specified analog index.
-        bool analogValue(uint8_t analogID, uint16_t& value);
+        bool analogValue(size_t analogID, uint16_t& value);
     }    // namespace io
 
     namespace NVM

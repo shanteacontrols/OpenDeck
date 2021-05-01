@@ -325,9 +325,9 @@ void LEDs::setBlinkSpeed(uint8_t ledID, blinkSpeed_t state)
 
     if (_database.read(Database::Section::leds_t::rgbEnable, rgbIndex))
     {
-        ledArray[0] = _hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::r);
-        ledArray[1] = _hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::g);
-        ledArray[2] = _hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::b);
+        ledArray[0] = _hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::r);
+        ledArray[1] = _hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::g);
+        ledArray[2] = _hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::b);
 
         leds = 3;
     }
@@ -426,9 +426,9 @@ void LEDs::setColor(uint8_t ledID, color_t color, brightness_t brightness)
     {
         //rgb led is composed of three standard LEDs
         //get indexes of individual LEDs first
-        uint8_t rLED = _hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::r);
-        uint8_t gLED = _hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::g);
-        uint8_t bLED = _hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::b);
+        uint8_t rLED = _hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::r);
+        uint8_t gLED = _hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::g);
+        uint8_t bLED = _hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::b);
 
         handleLED(rLED, rgbIndex_t::r, BIT_READ(static_cast<uint8_t>(color), static_cast<uint8_t>(rgbIndex_t::r)), true);
         handleLED(gLED, rgbIndex_t::g, BIT_READ(static_cast<uint8_t>(color), static_cast<uint8_t>(rgbIndex_t::g)), true);
@@ -445,9 +445,9 @@ IO::LEDs::blinkSpeed_t LEDs::blinkSpeed(uint8_t ledID)
     return static_cast<blinkSpeed_t>(_blinkTimer[ledID]);
 }
 
-size_t LEDs::rgbSingleComponentIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent)
+size_t LEDs::rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent)
 {
-    return _hwa.rgbSingleComponentIndex(rgbIndex, rgbComponent);
+    return _hwa.rgbSignalIndex(rgbIndex, rgbComponent);
 }
 
 size_t LEDs::rgbIndex(size_t singleLEDindex)
@@ -525,11 +525,11 @@ LEDs::color_t LEDs::color(uint8_t ledID)
             uint8_t rgbIndex = _hwa.rgbIndex(ledID);
 
             uint8_t color = 0;
-            color |= bit(_hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::b), ledBit_t::rgb_b);
+            color |= bit(_hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::b), ledBit_t::rgb_b);
             color <<= 1;
-            color |= bit(_hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::g), ledBit_t::rgb_g);
+            color |= bit(_hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::g), ledBit_t::rgb_g);
             color <<= 1;
-            color |= bit(_hwa.rgbSingleComponentIndex(rgbIndex, rgbIndex_t::r), ledBit_t::rgb_r);
+            color |= bit(_hwa.rgbSignalIndex(rgbIndex, rgbIndex_t::r), ledBit_t::rgb_r);
 
             return static_cast<color_t>(color);
         }

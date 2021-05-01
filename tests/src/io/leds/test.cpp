@@ -59,7 +59,7 @@ namespace
             this->brightness.at(index) = brightness;
         }
 
-        size_t rgbSingleComponentIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
+        size_t rgbSignalIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
         {
             return rgbIndex * 3 + static_cast<uint8_t>(rgbComponent);
         }
@@ -522,9 +522,9 @@ TEST_CASE(SingleLEDstate)
     leds.midiToState(MIDI::messageType_t::noteOn, 0, 127, 0, IO::LEDs::dataSource_t::external);
 
     //three LEDs should be on now
-    TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::b100, hwaLEDs.brightness.at(hwaLEDs.rgbSingleComponentIndex(0, IO::LEDs::rgbIndex_t::r)));
-    TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::b100, hwaLEDs.brightness.at(hwaLEDs.rgbSingleComponentIndex(0, IO::LEDs::rgbIndex_t::g)));
-    TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::b100, hwaLEDs.brightness.at(hwaLEDs.rgbSingleComponentIndex(0, IO::LEDs::rgbIndex_t::b)));
+    TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::b100, hwaLEDs.brightness.at(hwaLEDs.rgbSignalIndex(0, IO::LEDs::rgbIndex_t::r)));
+    TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::b100, hwaLEDs.brightness.at(hwaLEDs.rgbSignalIndex(0, IO::LEDs::rgbIndex_t::g)));
+    TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::b100, hwaLEDs.brightness.at(hwaLEDs.rgbSignalIndex(0, IO::LEDs::rgbIndex_t::b)));
 #endif
 }
 #endif

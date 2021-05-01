@@ -31,6 +31,7 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 #include "core/src/general/Interrupt.h"
 #include "core/src/general/Reset.h"
+#include "core/src/general/Helpers.h"
 #include "io/common/CInfo.h"
 #include "board/common/USBMIDIOverSerial/USBMIDIOverSerial.h"
 #include "bootloader/FwSelector/FwSelector.h"
@@ -159,7 +160,16 @@ class HWALEDs : public IO::LEDs::HWA
             _stateHandler(index, static_cast<bool>(brightness));
     }
 
-    size_t rgbSingleComponentIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
+    size_t rgbIndex(size_t singleLEDindex) override
+    {
+#if MAX_NUMBER_OF_LEDS > 0
+        return Board::io::rgbIndex(singleLEDindex);
+#else
+        return 0;
+#endif
+    }
+
+    size_t rgbSignalIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
     {
 #if MAX_NUMBER_OF_LEDS > 0
         Board::io::rgbIndex_t boardRGBindex;
@@ -182,16 +192,7 @@ class HWALEDs : public IO::LEDs::HWA
             return 0;
         }
 
-        return Board::io::getRGBaddress(rgbIndex, boardRGBindex);
-#else
-        return 0;
-#endif
-    }
-
-    size_t rgbIndex(size_t singleLEDindex) override
-    {
-#if MAX_NUMBER_OF_LEDS > 0
-        return Board::io::getRGBID(singleLEDindex);
+        return Board::io::rgbSignalIndex(rgbIndex, boardRGBindex);
 #else
         return 0;
 #endif
@@ -222,12 +223,12 @@ class HWALEDsStub : public IO::LEDs::HWA
     {
     }
 
-    size_t rgbSingleComponentIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
+    size_t rgbIndex(size_t singleLEDindex) override
     {
         return 0;
     }
 
-    size_t rgbIndex(size_t singleLEDindex) override
+    size_t rgbSignalIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
     {
         return 0;
     }
@@ -285,55 +286,89 @@ Nextion  touchscreenModelNextion(touchscreenHWA);
 Viewtech touchscreenModelViewtech(touchscreenHWA);
 #endif
 
-#ifdef BUTTONS_SUPPORTED
-class HWAEncoders : public IO::Encoders::HWA
+#if defined(BUTTONS_SUPPORTED) || defined(ENCODERS_SUPPORTED)
+//buttons and encoders have the same data source which is digital input
+//this helper class pulls the latest data from board and then feeds it into HWAButtons and HWAEncoders
+class HWADigitalIn
 {
     public:
-    HWAEncoders() = default;
+    HWADigitalIn() = default;
 
-    uint8_t state(size_t index) override
+#ifdef BUTTONS_SUPPORTED
+    bool buttonState(size_t index, uint8_t& numberOfReadings, uint32_t& states)
     {
-        return Board::io::getEncoderPairState(index);
+        //if encoder under this index is enabled, just return false state each time
+        //side note: don't bother with references to dependencies here, just use global database object
+        if (database.read(Database::Section::encoder_t::enable, Board::io::encoderIndex(index)))
+            return false;
+
+        if (!Board::io::digitalInState(index, dInReadA))
+            return false;
+
+        numberOfReadings = dInReadA.count;
+        states           = dInReadA.readings;
+
+        return true;
     }
-} hwaEncoders;
+#endif
+
+#ifdef ENCODERS_SUPPORTED
+    bool encoderState(size_t index, uint8_t& numberOfReadings, uint32_t& states)
+    {
+        if (!Board::io::digitalInState(Board::io::encoderSignalIndex(index, Board::io::encoderIndex_t::a), dInReadA))
+            return false;
+
+        if (!Board::io::digitalInState(Board::io::encoderSignalIndex(index, Board::io::encoderIndex_t::b), dInReadB))
+            return false;
+
+        numberOfReadings = dInReadA.count > dInReadB.count ? dInReadA.count : dInReadB.count;
+
+        //construct encoder pair readings
+        //encoder signal is made of A and B signals
+        //take each bit of A signal and B signal and append it to states variable in order
+        //latest encoder readings should be in LSB bits
+
+        for (uint8_t i = 0; i < numberOfReadings; i++)
+        {
+            BIT_WRITE(states, (i * 2) + 1, (dInReadA.readings >> i & 0x01));
+            BIT_WRITE(states, i * 2, (dInReadB.readings >> i & 0x01));
+        }
+
+        return true;
+    }
+#endif
+
+    private:
+    Board::io::dInReadings_t dInReadA;
+#ifdef ENCODERS_SUPPORTED
+    Board::io::dInReadings_t dInReadB;
+#endif
+} hwaDigitalIn;
+#endif
+
+#ifdef BUTTONS_SUPPORTED
+
+#include "io/buttons/Filter.h"
+
+IO::ButtonsFilter buttonsFilter;
 
 class HWAButtons : public IO::Buttons::HWA
 {
     public:
     HWAButtons() = default;
 
-    bool state(size_t index) override
+    bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
     {
-        //if encoder under this index is enabled, just return false state each time
-        //side note: don't bother with references to dependencies here, just use global database object
-        if (database.read(Database::Section::encoder_t::enable, Board::io::getEncoderPair(index)))
-            return false;
-
-        return Board::io::getButtonState(index);
+        return hwaDigitalIn.buttonState(index, numberOfReadings, states);
     }
 } hwaButtons;
-
-#include "io/buttons/Filter.h"
-
-IO::ButtonsFilter buttonsFilter;
 #else
-class HWAEncodersStub : public IO::Encoders::HWA
-{
-    public:
-    HWAEncodersStub() {}
-
-    uint8_t state(size_t index) override
-    {
-        return 0;
-    }
-} hwaEncoders;
-
 class HWAButtonsStub : public IO::Buttons::HWA
 {
     public:
     HWAButtonsStub() {}
 
-    bool state(size_t index) override
+    bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
     {
         return false;
     }
@@ -353,6 +388,58 @@ class ButtonsFilterStub : public IO::Buttons::Filter
     {
     }
 } buttonsFilter;
+#endif
+
+#ifdef ENCODERS_SUPPORTED
+
+#include "io/encoders/Filter.h"
+
+IO::EncodersFilter encodersFilter;
+
+class HWAEncoders : public IO::Encoders::HWA
+{
+    public:
+    HWAEncoders() = default;
+
+    bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
+    {
+        return hwaDigitalIn.encoderState(index, numberOfReadings, states);
+    }
+} hwaEncoders;
+#else
+class HWAEncodersStub : public IO::Encoders::HWA
+{
+    public:
+    HWAEncodersStub() {}
+
+    bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
+    {
+        return false;
+    }
+} hwaEncoders;
+
+class EncodersFilterStub : public IO::Encoders::Filter
+{
+    public:
+    EncodersFilterStub() {}
+
+    virtual bool isFiltered(size_t index,
+                            IO::Encoders::position_t position,
+                            IO::Encoders::position_t& filteredPosition,
+                            uint32_t sampleTakenTime) override
+    {
+        return false;
+    }
+
+    virtual void reset(size_t index)
+    {
+    }
+
+    virtual uint32_t lastMovementTime(size_t index)
+    {
+        return 0;
+    }
+} encodersFilter;
 #endif
 
 #ifdef ADC_12_BIT
@@ -464,11 +551,6 @@ class SystemHWA : public System::HWA
         return true;
     }
 
-    bool isDigitalInputAvailable() override
-    {
-        return Board::io::isInputDataAvailable();
-    }
-
     void reboot(FwSelector::fwType_t type) override
     {
         auto value = static_cast<uint8_t>(type);
@@ -550,8 +632,8 @@ IO::U8X8        u8x8(hwaU8X8);
 IO::Display     display(u8x8, database);
 IO::LEDs        leds(hwaLEDs, database);
 IO::Analog      analog(hwaAnalog, analogFilter, database, midi, leds, display, cInfo);
-IO::Buttons     buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cInfo);
-IO::Encoders    encoders(hwaEncoders, database, midi, display, cInfo);
+IO::Buttons     buttons(hwaButtons, buttonsFilter, 1, database, midi, leds, display, cInfo);
+IO::Encoders    encoders(hwaEncoders, encodersFilter, 1, database, midi, display, cInfo);
 IO::Touchscreen touchscreen(database, cInfo);
 System          sys(hwaSystem, cInfo, database, midi, buttons, encoders, analog, leds, display, touchscreen);
 
@@ -581,8 +663,8 @@ int main()
 
     while (true)
     {
-        sys.run();
         hwaSystem.checkUSBconnection();
+        sys.run();
     }
 
     return 1;

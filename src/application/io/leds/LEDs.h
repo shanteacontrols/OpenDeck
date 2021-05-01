@@ -107,10 +107,10 @@ namespace IO
             public:
             HWA() = default;
 
-            virtual void   setState(size_t index, brightness_t brightness)                         = 0;
-            virtual size_t rgbSingleComponentIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent) = 0;
-            virtual size_t rgbIndex(size_t singleLEDindex)                                         = 0;
-            virtual void   setFadeSpeed(size_t transitionSpeed)                                    = 0;
+            virtual void   setState(size_t index, brightness_t brightness)                = 0;
+            virtual size_t rgbIndex(size_t singleLEDindex)                                = 0;
+            virtual size_t rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent) = 0;
+            virtual void   setFadeSpeed(size_t transitionSpeed)                           = 0;
         };
 
         LEDs(HWA& hwa, Database& database)
@@ -127,7 +127,7 @@ namespace IO
         color_t      color(uint8_t ledID);
         void         setBlinkSpeed(uint8_t ledID, blinkSpeed_t value);
         blinkSpeed_t blinkSpeed(uint8_t ledID);
-        size_t       rgbSingleComponentIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent);
+        size_t       rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent);
         size_t       rgbIndex(size_t singleLEDindex);
         bool         setFadeSpeed(uint8_t transitionSpeed);
         void         midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, dataSource_t dataSource);

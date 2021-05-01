@@ -36,7 +36,7 @@ namespace IO
             public:
             virtual bool init()                                              = 0;
             virtual bool setScreen(size_t screenID)                          = 0;
-            virtual bool update(size_t& buttonID, bool& state)               = 0;
+            virtual bool update(size_t& index, bool& state)                  = 0;
             virtual void setIconState(Touchscreen::icon_t& icon, bool state) = 0;
         };
 

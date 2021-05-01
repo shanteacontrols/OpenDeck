@@ -53,7 +53,7 @@ namespace Board
 {
     namespace io
     {
-        bool analogValue(uint8_t analogID, uint16_t& value)
+        bool analogValue(size_t analogID, uint16_t& value)
         {
             if (analogID >= MAX_NUMBER_OF_ANALOG)
                 return false;

@@ -183,7 +183,7 @@ namespace Board
 {
     namespace io
     {
-        void writeLEDstate(uint8_t ledID, bool state)
+        void writeLEDstate(size_t ledID, bool state)
         {
             if (ledID >= MAX_NUMBER_OF_LEDS)
                 return;
@@ -217,7 +217,7 @@ namespace Board
         }
 #endif
 
-        uint8_t getRGBaddress(uint8_t rgbID, Board::io::rgbIndex_t index)
+        size_t rgbSignalIndex(size_t rgbID, Board::io::rgbIndex_t index)
         {
 #ifdef NUMBER_OF_LED_COLUMNS
             uint8_t column  = rgbID % NUMBER_OF_LED_COLUMNS;
@@ -242,7 +242,7 @@ namespace Board
 #endif
         }
 
-        uint8_t getRGBID(uint8_t ledID)
+        size_t rgbIndex(size_t ledID)
         {
 #ifdef NUMBER_OF_LED_COLUMNS
             uint8_t row = ledID / NUMBER_OF_LED_COLUMNS;

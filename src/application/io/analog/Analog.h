@@ -74,7 +74,7 @@ namespace IO
             virtual void              reset(size_t index)                                                                    = 0;
         };
 
-        using buttonHandler_t = std::function<void(uint8_t adcIndex, bool state)>;
+        using buttonHandler_t = std::function<void(size_t index, bool state)>;
 
         Analog(HWA&           hwa,
                Filter&        filter,
@@ -97,8 +97,8 @@ namespace IO
         }
 
         void      update(bool forceResend = false);
-        void      processReading(uint8_t analogID, uint16_t value);
-        void      debounceReset(uint16_t index);
+        void      processReading(size_t index, uint16_t value);
+        void      debounceReset(size_t index);
         void      registerButtonHandler(buttonHandler_t handler);
         adcType_t adcType();
 
@@ -113,10 +113,10 @@ namespace IO
             bool     inverted;
         } analogDescriptor_t;
 
-        void fillAnalogDescriptor(uint8_t analogID, analogDescriptor_t& analogDescriptor);
-        bool checkPotentiometerValue(uint8_t analogID, analogDescriptor_t& descriptor, uint16_t& value);
-        bool checkFSRvalue(uint8_t analogID, analogDescriptor_t& descriptor, uint16_t& value);
-        void sendMessage(uint8_t analogID, analogDescriptor_t& descriptor, uint16_t value);
+        void fillAnalogDescriptor(size_t index, analogDescriptor_t& analogDescriptor);
+        bool checkPotentiometerValue(size_t index, analogDescriptor_t& descriptor, uint16_t& value);
+        bool checkFSRvalue(size_t index, analogDescriptor_t& descriptor, uint16_t& value);
+        void sendMessage(size_t index, analogDescriptor_t& descriptor, uint16_t value);
 
         HWA&           _hwa;
         Filter&        _filter;

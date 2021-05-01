@@ -494,9 +494,9 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, SysExC
     case Section::leds_t::rgbEnable:
     {
         //make sure to turn all three leds off before setting new state
-        _leds.setColor(_leds.rgbSingleComponentIndex(_leds.rgbIndex(index), IO::LEDs::rgbIndex_t::r), IO::LEDs::color_t::off, IO::LEDs::brightness_t::bOff);
-        _leds.setColor(_leds.rgbSingleComponentIndex(_leds.rgbIndex(index), IO::LEDs::rgbIndex_t::g), IO::LEDs::color_t::off, IO::LEDs::brightness_t::bOff);
-        _leds.setColor(_leds.rgbSingleComponentIndex(_leds.rgbIndex(index), IO::LEDs::rgbIndex_t::b), IO::LEDs::color_t::off, IO::LEDs::brightness_t::bOff);
+        _leds.setColor(_leds.rgbSignalIndex(_leds.rgbIndex(index), IO::LEDs::rgbIndex_t::r), IO::LEDs::color_t::off, IO::LEDs::brightness_t::bOff);
+        _leds.setColor(_leds.rgbSignalIndex(_leds.rgbIndex(index), IO::LEDs::rgbIndex_t::g), IO::LEDs::color_t::off, IO::LEDs::brightness_t::bOff);
+        _leds.setColor(_leds.rgbSignalIndex(_leds.rgbIndex(index), IO::LEDs::rgbIndex_t::b), IO::LEDs::color_t::off, IO::LEDs::brightness_t::bOff);
 
         //write rgb enabled bit to led
         result = _database.update(dbSection(section), _leds.rgbIndex(index), newValue) ? System::result_t::ok : System::result_t::error;
@@ -508,7 +508,7 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, SysExC
             for (int i = 0; i < 3; i++)
             {
                 result = _database.update(dbSection(Section::leds_t::activationID),
-                                          _leds.rgbSingleComponentIndex(_leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
+                                          _leds.rgbSignalIndex(_leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
                                           _database.read(dbSection(Section::leds_t::activationID), index))
                              ? System::result_t::ok
                              : System::result_t::error;
@@ -517,7 +517,7 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, SysExC
                     break;
 
                 result = _database.update(dbSection(Section::leds_t::controlType),
-                                          _leds.rgbSingleComponentIndex(_leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
+                                          _leds.rgbSignalIndex(_leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
                                           _database.read(dbSection(Section::leds_t::controlType), index))
                              ? System::result_t::ok
                              : System::result_t::error;
@@ -526,7 +526,7 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, SysExC
                     break;
 
                 result = _database.update(dbSection(Section::leds_t::midiChannel),
-                                          _leds.rgbSingleComponentIndex(_leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
+                                          _leds.rgbSignalIndex(_leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
                                           _database.read(dbSection(Section::leds_t::midiChannel), index))
                              ? System::result_t::ok
                              : System::result_t::error;
@@ -553,7 +553,7 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, SysExC
             for (int i = 0; i < 3; i++)
             {
                 result = _database.update(dbSection(section),
-                                          _leds.rgbSingleComponentIndex(_leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
+                                          _leds.rgbSignalIndex(_leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
                                           newValue)
                              ? System::result_t::ok
                              : System::result_t::error;

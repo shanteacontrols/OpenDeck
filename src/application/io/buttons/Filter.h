@@ -20,7 +20,6 @@ limitations under the License.
 
 #include "io/buttons/Buttons.h"
 #include "core/src/general/Helpers.h"
-#include "core/src/general/Timing.h"
 
 namespace IO
 {
@@ -33,7 +32,7 @@ namespace IO
                 _lastPressTime[i] = 1;
         }
 
-        bool isFiltered(size_t index, bool state, bool& filteredState) override
+        bool isFiltered(size_t index, bool state, bool& filteredState, uint32_t sampleTakenTime) override
         {
             if (index >= MAX_NUMBER_OF_BUTTONS)
             {
@@ -51,9 +50,9 @@ namespace IO
             else
             {
                 if (!_lastPressTime[index])
-                    _lastPressTime[index] = core::timing::currentRunTimeMs();
+                    _lastPressTime[index] = sampleTakenTime;
 
-                if ((core::timing::currentRunTimeMs() - _lastPressTime[index]) > DEBOUNCE_RELEASE_TIME)
+                if ((sampleTakenTime - _lastPressTime[index]) > DEBOUNCE_RELEASE_TIME)
                     filteredState = false;
                 else
                     filteredState = true;

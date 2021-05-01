@@ -19,6 +19,7 @@ limitations under the License.
 #include "Buttons.h"
 #include "io/common/Common.h"
 #include "core/src/general/Helpers.h"
+#include "core/src/general/Timing.h"
 
 using namespace IO;
 
@@ -27,34 +28,52 @@ void Buttons::update()
 {
     for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
     {
-        bool state = false;
+        uint8_t  numberOfReadings = 0;
+        uint32_t states           = 0;
 
-        if (!_filter.isFiltered(i, _hwa.state(i), state))
+        if (!_hwa.state(i, numberOfReadings, states))
             continue;
 
-        processButton(i, state);
+        uint32_t currentTime = core::timing::currentRunTimeMs();
+
+        for (int reading = 0; reading < numberOfReadings; reading++)
+        {
+            //take into account that there is a 1ms difference between readouts
+            //when processing, newest sample has index 0
+            //start from oldest reading which is in upper bits
+            uint8_t  processIndex = numberOfReadings - 1 - reading;
+            uint32_t sampleTime   = currentTime - (TIME_DIFF_READOUT * processIndex);
+
+            bool state = states >> processIndex;
+            state &= 0x01;
+
+            if (!_filter.isFiltered(i, state, state, sampleTime))
+                continue;
+
+            processButton(i, state);
+        }
     }
 }
 
 /// Handles changes in button states.
-/// param [in]: buttonID    Button index which has changed state.
-/// param [in]: state       Current button state.
-void Buttons::processButton(uint8_t buttonID, bool state)
+/// param [in]: index       Button index which has changed state.
+/// param [in]: newState    Latest button state.
+void Buttons::processButton(size_t index, bool newState)
 {
     //act on change of state only
-    if (state == getButtonState(buttonID))
+    if (newState == state(index))
         return;
 
-    setButtonState(buttonID, state);
+    setState(index, newState);
 
     buttonMessageDescriptor_t descriptor;
 
-    descriptor.messageType = static_cast<messageType_t>(_database.read(Database::Section::button_t::midiMessage, buttonID));
-    descriptor.note        = _database.read(Database::Section::button_t::midiID, buttonID);
-    descriptor.channel     = _database.read(Database::Section::button_t::midiChannel, buttonID);
-    descriptor.velocity    = _database.read(Database::Section::button_t::velocity, buttonID);
+    descriptor.messageType = static_cast<messageType_t>(_database.read(Database::Section::button_t::midiMessage, index));
+    descriptor.note        = _database.read(Database::Section::button_t::midiID, index);
+    descriptor.channel     = _database.read(Database::Section::button_t::midiChannel, index);
+    descriptor.velocity    = _database.read(Database::Section::button_t::velocity, index);
 
-    auto type = static_cast<type_t>(_database.read(Database::Section::button_t::type, buttonID));
+    auto type = static_cast<type_t>(_database.read(Database::Section::button_t::type, index));
 
     //don't process messageType_t::none type of message
     if (descriptor.messageType != messageType_t::none)
@@ -100,18 +119,18 @@ void Buttons::processButton(uint8_t buttonID, bool state)
         if (type == type_t::latching)
         {
             //act on press only
-            if (state)
+            if (newState)
             {
-                if (getLatchingState(buttonID))
+                if (latchingState(index))
                 {
-                    setLatchingState(buttonID, false);
+                    setLatchingState(index, false);
                     //overwrite before processing
-                    state = false;
+                    newState = false;
                 }
                 else
                 {
-                    setLatchingState(buttonID, true);
-                    state = true;
+                    setLatchingState(index, true);
+                    newState = true;
                 }
             }
             else
@@ -122,31 +141,31 @@ void Buttons::processButton(uint8_t buttonID, bool state)
 
         if (sendMIDI)
         {
-            sendMessage(buttonID, state, descriptor);
+            sendMessage(index, newState, descriptor);
         }
         else if (descriptor.messageType == messageType_t::presetOpenDeck)
         {
             //change preset only on press
-            if (state)
+            if (newState)
             {
-                uint8_t preset = _database.read(Database::Section::button_t::midiID, buttonID);
+                uint8_t preset = _database.read(Database::Section::button_t::midiID, index);
                 _database.setPreset(preset);
             }
         }
     }
 
-    _cInfo.send(Database::block_t::buttons, buttonID);
+    _cInfo.send(Database::block_t::buttons, index);
 }
 
 /// Used to send MIDI message from specified button.
 /// Used internally once the button state has been changed and processed.
-/// param [in]: buttonID        Button ID which sends the message.
+/// param [in]: index           Button index which sends the message.
 /// param [in]: state           Button state (true/pressed, false/released).
 /// param [in]: buttonMessage   Type of MIDI message to send. If unspecified, message type is read from _database.
-void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMessageDescriptor_t& descriptor)
+void Buttons::sendMessage(size_t index, bool state, buttonMessageDescriptor_t& descriptor)
 {
     if (descriptor.messageType == messageType_t::AMOUNT)
-        descriptor.messageType = static_cast<messageType_t>(_database.read(Database::Section::button_t::midiMessage, buttonID));
+        descriptor.messageType = static_cast<messageType_t>(_database.read(Database::Section::button_t::midiMessage, index));
 
     _mmcArray[2] = descriptor.note;    //use midi note as channel id for transport control
 
@@ -279,8 +298,8 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMessageDescriptor_
 
         case messageType_t::multiValIncResetNote:
         {
-            uint8_t currentValue = Common::currentValue(buttonID);
-            uint8_t value        = Common::valueInc(buttonID, descriptor.velocity, Common::incDecType_t::reset);
+            uint8_t currentValue = Common::currentValue(index);
+            uint8_t value        = Common::valueInc(index, descriptor.velocity, Common::incDecType_t::reset);
 
             if (currentValue != value)
             {
@@ -302,8 +321,8 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMessageDescriptor_
 
         case messageType_t::multiValIncDecNote:
         {
-            uint8_t currentValue = Common::currentValue(buttonID);
-            uint8_t value        = Common::valueIncDec(buttonID, descriptor.velocity);
+            uint8_t currentValue = Common::currentValue(index);
+            uint8_t value        = Common::valueIncDec(index, descriptor.velocity);
 
             if (currentValue != value)
             {
@@ -325,8 +344,8 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMessageDescriptor_
 
         case messageType_t::multiValIncResetCC:
         {
-            uint8_t currentValue = Common::currentValue(buttonID);
-            uint8_t value        = Common::valueInc(buttonID, descriptor.velocity, Common::incDecType_t::reset);
+            uint8_t currentValue = Common::currentValue(index);
+            uint8_t value        = Common::valueInc(index, descriptor.velocity, Common::incDecType_t::reset);
 
             if (currentValue != value)
             {
@@ -339,8 +358,8 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMessageDescriptor_
 
         case messageType_t::multiValIncDecCC:
         {
-            uint8_t currentValue = Common::currentValue(buttonID);
-            uint8_t value        = Common::valueIncDec(buttonID, descriptor.velocity);
+            uint8_t currentValue = Common::currentValue(index);
+            uint8_t value        = Common::valueIncDec(index, descriptor.velocity);
 
             if (currentValue != value)
             {
@@ -385,23 +404,23 @@ void Buttons::sendMessage(uint8_t buttonID, bool state, buttonMessageDescriptor_
 }
 
 /// Updates current state of button.
-/// param [in]: buttonID    Button for which state is being changed.
+/// param [in]: index       Button for which state is being changed.
 /// param [in]: state       New button state (true/pressed, false/released).
-void Buttons::setButtonState(uint8_t buttonID, uint8_t state)
+void Buttons::setState(size_t index, bool state)
 {
-    uint8_t arrayIndex  = buttonID / 8;
-    uint8_t buttonIndex = buttonID - 8 * arrayIndex;
+    uint8_t arrayIndex  = index / 8;
+    uint8_t buttonIndex = index - 8 * arrayIndex;
 
     BIT_WRITE(_buttonPressed[arrayIndex], buttonIndex, state);
 }
 
 /// Checks for last button state.
-/// param [in]: buttonID    Button index for which previous state is being checked.
+/// param [in]: index    Button index for which previous state is being checked.
 /// returns: True if last state was on/pressed, false otherwise.
-bool Buttons::getButtonState(uint8_t buttonID)
+bool Buttons::state(size_t index)
 {
-    uint8_t arrayIndex  = buttonID / 8;
-    uint8_t buttonIndex = buttonID - 8 * arrayIndex;
+    uint8_t arrayIndex  = index / 8;
+    uint8_t buttonIndex = index - 8 * arrayIndex;
 
     return BIT_READ(_buttonPressed[arrayIndex], buttonIndex);
 }
@@ -413,32 +432,32 @@ bool Buttons::getButtonState(uint8_t buttonID)
 /// State should be stored in variable because unlike momentary buttons, state of
 /// latching buttons doesn't necessarrily match current "real" state of button since events
 /// for latching buttons are sent only on presses.
-/// param [in]: buttonID    Button for which state is being changed.
+/// param [in]: index    Button for which state is being changed.
 /// param [in]: state       New latching state.
-void Buttons::setLatchingState(uint8_t buttonID, uint8_t state)
+void Buttons::setLatchingState(size_t index, bool state)
 {
-    uint8_t arrayIndex  = buttonID / 8;
-    uint8_t buttonIndex = buttonID - 8 * arrayIndex;
+    uint8_t arrayIndex  = index / 8;
+    uint8_t buttonIndex = index - 8 * arrayIndex;
 
     BIT_WRITE(_lastLatchingState[arrayIndex], buttonIndex, state);
 }
 
 /// Checks for last latching button state.
-/// param [in]: buttonID    Button index for which previous latching state is being checked.
+/// param [in]: index    Button index for which previous latching state is being checked.
 /// returns: True if last state was on/pressed, false otherwise.
-bool Buttons::getLatchingState(uint8_t buttonID)
+bool Buttons::latchingState(size_t index)
 {
-    uint8_t arrayIndex  = buttonID / 8;
-    uint8_t buttonIndex = buttonID - 8 * arrayIndex;
+    uint8_t arrayIndex  = index / 8;
+    uint8_t buttonIndex = index - 8 * arrayIndex;
 
     return BIT_READ(_lastLatchingState[arrayIndex], buttonIndex);
 }
 
 /// Resets the current state of the specified button.
-/// param [in]: buttonID    Button for which to reset state.
-void Buttons::reset(uint8_t buttonID)
+/// param [in]: index    Button for which to reset state.
+void Buttons::reset(size_t index)
 {
-    setButtonState(buttonID, false);
-    setLatchingState(buttonID, false);
-    _filter.reset(buttonID);
+    setState(index, false);
+    setLatchingState(index, false);
+    _filter.reset(index);
 }

@@ -67,18 +67,23 @@ namespace IO
         class HWA
         {
             public:
-            virtual bool state(size_t index) = 0;
+            virtual bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
         };
 
         class Filter
         {
             public:
-            virtual bool isFiltered(size_t index, bool value, bool& filteredValue) = 0;
-            virtual void reset(size_t index)                                       = 0;
+            virtual bool isFiltered(size_t   index,
+                                    bool     state,
+                                    bool&    filteredState,
+                                    uint32_t sampleTakenTime) = 0;
+
+            virtual void reset(size_t index) = 0;
         };
 
         Buttons(HWA&           hwa,
                 Filter&        filter,
+                uint32_t       timeDiffTimeout,
                 Database&      database,
                 MIDI&          midi,
                 IO::LEDs&      leds,
@@ -90,16 +95,16 @@ namespace IO
         {
         }
 
-        void processButton(uint8_t buttonID, bool state)
+        void processButton(size_t index, bool state)
         {
         }
 
-        bool getButtonState(uint8_t buttonID)
+        bool state(size_t index)
         {
             return false;
         }
 
-        void reset(uint8_t buttonID)
+        void reset(size_t index)
         {
         }
     };

@@ -62,10 +62,27 @@ namespace IO
         class HWA
         {
             public:
-            virtual uint8_t state(size_t index) = 0;
+            virtual bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
         };
 
-        Encoders(HWA& hwa, Database& database, MIDI& midi, Display& display, ComponentInfo& cInfo)
+        class Filter
+        {
+            virtual bool isFiltered(size_t                    index,
+                                    IO::Encoders::position_t  position,
+                                    IO::Encoders::position_t& filteredPosition,
+                                    uint32_t                  sampleTakenTime) = 0;
+
+            virtual void     reset(size_t index)            = 0;
+            virtual uint32_t lastMovementTime(size_t index) = 0;
+        };
+
+        Encoders(HWA&           hwa,
+                 Filter&        filter,
+                 uint32_t       timeDiffTimeout,
+                 Database&      database,
+                 MIDI&          midi,
+                 Display&       display,
+                 ComponentInfo& cInfo)
         {}
 
         void init()
@@ -76,15 +93,15 @@ namespace IO
         {
         }
 
-        void resetValue(uint8_t encoderID)
+        void resetValue(size_t index)
         {
         }
 
-        void setValue(uint8_t encoderID, uint16_t value)
+        void setValue(size_t index, uint16_t value)
         {
         }
 
-        position_t read(uint8_t encoderID, uint8_t pairState)
+        position_t read(size_t index, uint8_t pairState)
         {
             return position_t::stopped;
         }

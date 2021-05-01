@@ -65,11 +65,32 @@ namespace IO
         class HWA
         {
             public:
-            virtual uint8_t state(size_t index) = 0;
+            //should return true if the value has been refreshed, false otherwise
+            virtual bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
         };
 
-        Encoders(HWA& hwa, Database& database, MIDI& midi, Display& display, ComponentInfo& cInfo)
+        class Filter
+        {
+            public:
+            virtual bool isFiltered(size_t                    index,
+                                    IO::Encoders::position_t  position,
+                                    IO::Encoders::position_t& filteredPosition,
+                                    uint32_t                  sampleTakenTime) = 0;
+
+            virtual void     reset(size_t index)            = 0;
+            virtual uint32_t lastMovementTime(size_t index) = 0;
+        };
+
+        Encoders(HWA&           hwa,
+                 Filter&        filter,
+                 uint32_t       timeDiffTimeout,
+                 Database&      database,
+                 MIDI&          midi,
+                 Display&       display,
+                 ComponentInfo& cInfo)
             : _hwa(hwa)
+            , _filter(filter)
+            , TIME_DIFF_READOUT(timeDiffTimeout)
             , _database(database)
             , _midi(midi)
             , _display(display)
@@ -78,26 +99,23 @@ namespace IO
 
         void       init();
         void       update();
-        void       resetValue(uint8_t encoderID);
-        void       setValue(uint8_t encoderID, uint16_t value);
-        position_t read(uint8_t encoderID, uint8_t pairState);
+        void       resetValue(size_t index);
+        void       setValue(size_t index, uint16_t value);
+        position_t read(size_t index, uint8_t pairState);
 
         private:
-        HWA&           _hwa;
+        HWA&    _hwa;
+        Filter& _filter;
+
+        /// Time difference betweeen multiple encoder readouts in milliseconds.
+        const uint32_t TIME_DIFF_READOUT;
+
         Database&      _database;
         MIDI&          _midi;
         Display&       _display;
         ComponentInfo& _cInfo;
 
-        /// Time in milliseconds after which debounce mode is reset if encoder isn't moving.
-        static constexpr uint32_t ENCODERS_DEBOUNCE_RESET_TIME = 50;
-
-        /// Number of times movement in the same direction must be registered in order
-        /// for debouncer to become active. Once the debouncer is active, all further changes
-        /// in the movement will be ignored, that is, all movements will be registered in the
-        /// direction which was repeated. This state is reset until the encoder is either stopped
-        /// or if same amount of movements are registered in the opposite direction.
-        static constexpr uint8_t ENCODERS_DEBOUNCE_COUNT = 4;
+        void processReading(size_t index, uint8_t pairValue, uint32_t sampleTime);
 
         /// Time threshold in milliseconds between two encoder steps used to detect fast movement.
         static constexpr uint32_t ENCODERS_SPEED_TIMEOUT = 140;
@@ -105,25 +123,8 @@ namespace IO
         /// Holds current MIDI value for all encoders.
         int16_t _midiValue[MAX_NUMBER_OF_ENCODERS] = { 0 };
 
-        /// Array holding last movement time for all encoders.
-        uint32_t _lastMovementTime[MAX_NUMBER_OF_ENCODERS] = {};
-
         /// Array holding current speed (in steps) for all encoders.
         uint8_t _encoderSpeed[MAX_NUMBER_OF_ENCODERS] = {};
-
-        /// Array holding previous encoder direction for all encoders.
-        position_t _lastDirection[MAX_NUMBER_OF_ENCODERS] = {};
-
-        /// Array holding current debounced direction for all encoders.
-        position_t _debounceDirection[MAX_NUMBER_OF_ENCODERS] = {};
-
-        /// Used to detect constant rotation in single direction.
-        /// Once n consecutive movements in same direction are detected,
-        /// all further movements are assumed to have same direction until
-        /// encoder stops moving for ENCODERS_DEBOUNCE_RESET_TIME milliseconds *or*
-        /// n new consecutive movements are made in the opposite direction.
-        /// n = ENCODERS_DEBOUNCE_COUNT (defined in Constants.h)
-        uint8_t _debounceCounter[MAX_NUMBER_OF_ENCODERS] = {};
 
         /// Array holding last two readings from encoder pins.
         uint8_t _encoderData[MAX_NUMBER_OF_ENCODERS] = {};

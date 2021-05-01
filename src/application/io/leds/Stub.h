@@ -110,10 +110,10 @@ namespace IO
         {
             public:
             HWA() {}
-            virtual void   setState(size_t index, brightness_t brightness)                         = 0;
-            virtual size_t rgbSingleComponentIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent) = 0;
-            virtual size_t rgbIndex(size_t singleLEDindex)                                         = 0;
-            virtual void   setFadeSpeed(size_t transitionSpeed)                                    = 0;
+            virtual void   setState(size_t index, brightness_t brightness)                = 0;
+            virtual size_t rgbIndex(size_t singleLEDindex)                                = 0;
+            virtual size_t rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent) = 0;
+            virtual void   setFadeSpeed(size_t transitionSpeed)                           = 0;
         };
 
         LEDs(HWA& hwa, Database& database)
@@ -157,7 +157,7 @@ namespace IO
             return blinkSpeed_t::noBlink;
         }
 
-        size_t rgbSingleComponentIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent)
+        size_t rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent)
         {
             return 0;
         }

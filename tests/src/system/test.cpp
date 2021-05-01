@@ -33,11 +33,6 @@ namespace
             loopbackEnabled = false;
         }
 
-        bool isDigitalInputAvailable() override
-        {
-            return false;
-        }
-
         void reboot(FwSelector::fwType_t type) override
         {
         }
@@ -115,7 +110,7 @@ namespace
         {
         }
 
-        size_t rgbSingleComponentIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
+        size_t rgbSignalIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
         {
             return 0;
         }
@@ -195,7 +190,7 @@ namespace
         public:
         HWAButtons() {}
 
-        bool state(size_t index) override
+        bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
         {
             return false;
         }
@@ -204,7 +199,10 @@ namespace
     class ButtonsFilter : public IO::Buttons::Filter
     {
         public:
-        bool isFiltered(size_t index, bool value, bool& filteredValue) override
+        bool isFiltered(size_t   index,
+                        bool     state,
+                        bool&    filteredState,
+                        uint32_t sampleTakenTime) override
         {
             return true;
         }
@@ -220,11 +218,32 @@ namespace
         HWAEncoders()
         {}
 
-        uint8_t state(size_t index) override
+        bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
+        {
+            return false;
+        }
+    } hwaEncoders;
+
+    class EncodersFilter : public IO::Encoders::Filter
+    {
+        public:
+        bool isFiltered(size_t                    index,
+                        IO::Encoders::position_t  position,
+                        IO::Encoders::position_t& filteredPosition,
+                        uint32_t                  sampleTakenTime) override
+        {
+            return true;
+        }
+
+        void reset(size_t index) override
+        {
+        }
+
+        uint32_t lastMovementTime(size_t index) override
         {
             return 0;
         }
-    } hwaEncoders;
+    } encodersFilter;
 
     DBstorageMock   dbStorageMock;
     Database        database(dbStorageMock, true);
@@ -234,8 +253,8 @@ namespace
     IO::U8X8        u8x8(hwaU8X8);
     IO::Display     display(u8x8, database);
     IO::Analog      analog(hwaAnalog, analogFilter, database, midi, leds, display, cInfo);
-    IO::Buttons     buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cInfo);
-    IO::Encoders    encoders(hwaEncoders, database, midi, display, cInfo);
+    IO::Buttons     buttons(hwaButtons, buttonsFilter, 1, database, midi, leds, display, cInfo);
+    IO::Encoders    encoders(hwaEncoders, encodersFilter, 1, database, midi, display, cInfo);
     IO::Touchscreen touchscreen(database, cInfo);
     System          systemStub(hwaSystem, cInfo, database, midi, buttons, encoders, analog, leds, display, touchscreen);
 }    // namespace

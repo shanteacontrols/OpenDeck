@@ -26,36 +26,31 @@ namespace Board
 {
     namespace io
     {
-        __attribute__((weak)) bool isInputDataAvailable()
+        __attribute__((weak)) bool digitalInState(size_t digitalInIndex, dInReadings_t& dInReadings)
         {
             return false;
         }
 
-        __attribute__((weak)) bool getButtonState(uint8_t buttonIndex)
-        {
-            return false;
-        }
-
-        __attribute__((weak)) uint8_t getEncoderPair(uint8_t buttonID)
+        __attribute__((weak)) size_t encoderIndex(size_t buttonID)
         {
             return 0;
         }
 
-        __attribute__((weak)) uint8_t getEncoderPairState(uint8_t encoderID)
+        __attribute__((weak)) size_t encoderSignalIndex(size_t encoderID, encoderIndex_t index)
         {
             return 0;
         }
 
-        __attribute__((weak)) void writeLEDstate(uint8_t ledID, bool state)
+        __attribute__((weak)) void writeLEDstate(size_t ledID, bool state)
         {
         }
 
-        __attribute__((weak)) uint8_t getRGBaddress(uint8_t rgbID, rgbIndex_t index)
+        __attribute__((weak)) size_t rgbIndex(size_t ledID)
         {
             return 0;
         }
 
-        __attribute__((weak)) uint8_t getRGBID(uint8_t ledID)
+        __attribute__((weak)) size_t rgbSignalIndex(size_t rgbID, rgbIndex_t index)
         {
             return 0;
         }
@@ -64,7 +59,7 @@ namespace Board
         {
         }
 
-        __attribute__((weak)) uint16_t getAnalogValue(uint8_t analogID)
+        __attribute__((weak)) uint16_t getAnalogValue(size_t analogID)
         {
             return 0;
         }

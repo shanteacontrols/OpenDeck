@@ -72,18 +72,24 @@ namespace IO
         class HWA
         {
             public:
-            virtual bool state(size_t index) = 0;
+            //should return true if the value has been refreshed, false otherwise
+            virtual bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
         };
 
         class Filter
         {
             public:
-            virtual bool isFiltered(size_t index, bool value, bool& filteredValue) = 0;
-            virtual void reset(size_t index)                                       = 0;
+            virtual bool isFiltered(size_t   index,
+                                    bool     state,
+                                    bool&    filteredState,
+                                    uint32_t sampleTakenTime) = 0;
+
+            virtual void reset(size_t index) = 0;
         };
 
         Buttons(HWA&           hwa,
                 Filter&        filter,
+                uint32_t       timeDiffTimeout,
                 Database&      database,
                 MIDI&          midi,
                 IO::LEDs&      leds,
@@ -91,6 +97,7 @@ namespace IO
                 ComponentInfo& cInfo)
             : _hwa(hwa)
             , _filter(filter)
+            , TIME_DIFF_READOUT(timeDiffTimeout)
             , _database(database)
             , _midi(midi)
             , _leds(leds)
@@ -99,9 +106,9 @@ namespace IO
         {}
 
         void update();
-        void processButton(uint8_t buttonID, bool state);
-        bool getButtonState(uint8_t buttonID);
-        void reset(uint8_t buttonID);
+        void processButton(size_t index, bool newState);
+        bool state(size_t index);
+        void reset(size_t index);
 
         private:
         typedef struct
@@ -112,13 +119,17 @@ namespace IO
             uint8_t       velocity;
         } buttonMessageDescriptor_t;
 
-        void sendMessage(uint8_t buttonID, bool state, buttonMessageDescriptor_t& descriptor);
-        void setButtonState(uint8_t buttonID, uint8_t state);
-        void setLatchingState(uint8_t buttonID, uint8_t state);
-        bool getLatchingState(uint8_t buttonID);
+        void sendMessage(size_t index, bool state, buttonMessageDescriptor_t& descriptor);
+        void setState(size_t index, bool state);
+        void setLatchingState(size_t index, bool state);
+        bool latchingState(size_t index);
 
-        HWA&           _hwa;
-        Filter&        _filter;
+        HWA&    _hwa;
+        Filter& _filter;
+
+        /// Time difference betweeen multiple button readouts in milliseconds.
+        const uint32_t TIME_DIFF_READOUT;
+
         Database&      _database;
         MIDI&          _midi;
         IO::LEDs&      _leds;

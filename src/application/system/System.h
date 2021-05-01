@@ -180,7 +180,6 @@ class System
         HWA() = default;
 
         virtual bool init()                                                                      = 0;
-        virtual bool isDigitalInputAvailable()                                                   = 0;
         virtual void reboot(FwSelector::fwType_t type)                                           = 0;
         virtual void enableDINMIDI(bool loopback)                                                = 0;
         virtual void disableDINMIDI()                                                            = 0;
