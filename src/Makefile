@@ -10,7 +10,7 @@ ifeq (,$(wildcard $(TARGET_DEF_FILE)))
     $(error Target doesn't exist)
 endif
 
-ifneq (,$(filter $(MAKECMDGOALS),cat-full cat-sysex sysex))
+ifneq (,$(filter $(MAKECMDGOALS),cat-full cat-sysex sysexfw))
     BUILD_DIR := $(BUILD_DIR_BASE)/merged
 else
     BUILD_DIR := $(BUILD_DIR_BASE)/$(TYPE)
