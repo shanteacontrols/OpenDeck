@@ -141,9 +141,9 @@ else ifeq ($(ARCH),stm32)
         LDFLAGS += -mfloat-abi=$(FLOAT-ABI)
     endif
 else
-    CC := $(C_COMPILER_x86)
-    CXX := $(CPP_COMPILER_x86)
-    LINKER := $(LINKER_x86)
+    CC := $(C_COMPILER_NATIVE)
+    CXX := $(CPP_COMPILER_NATIVE)
+    LINKER := $(LINKER_NATIVE)
     LDFLAGS :=
     SIZE_TOOL := size
 

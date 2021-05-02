@@ -18,9 +18,9 @@ C_COMPILER_ARM := arm-none-eabi-gcc
 CPP_COMPILER_ARM := arm-none-eabi-g++
 LINKER_ARM := arm-none-eabi-g++
 FLASH_BIN_ARM := gdb
-C_COMPILER_x86 := gcc
-CPP_COMPILER_x86 := g++
-LINKER_x86 := g++
+C_COMPILER_NATIVE := gcc
+CPP_COMPILER_NATIVE := g++
+LINKER_NATIVE := g++
 
 CLANG_FORMAT := clang-format
 YML_PARSER := dasel
@@ -35,8 +35,8 @@ $(FLASH_BIN_AVR) \
 $(C_COMPILER_ARM) \
 $(CPP_COMPILER_ARM) \
 $(FLASH_BIN_ARM) \
-$(C_COMPILER_x86) \
-$(CPP_COMPILER_x86) \
+$(C_COMPILER_NATIVE) \
+$(CPP_COMPILER_NATIVE) \
 objcopy \
 $(YML_PARSER) \
 $(SHA256SUM)
