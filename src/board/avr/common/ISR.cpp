@@ -34,27 +34,17 @@ ISR(ADC_vect)
 /// Used to control I/O on board and to update current run time.
 ISR(TIMER0_COMPA_vect)
 {
-    static bool _1ms = true;
-
-    _1ms = !_1ms;
-
-    if (_1ms)
-    {
-        core::timing::detail::rTime_ms++;
+    core::timing::detail::rTime_ms++;
 
 #ifdef FW_APP
 #ifndef USB_LINK_MCU
 #if MAX_NUMBER_OF_LEDS > 0
-        Board::detail::io::checkDigitalOutputs();
+    Board::detail::io::checkDigitalOutputs();
 #endif
 #endif
 #ifdef LED_INDICATORS
-        Board::detail::io::checkIndicators();
+    Board::detail::io::checkIndicators();
 #endif
-#endif
-    }
-
-#ifdef FW_APP
 #ifndef USB_LINK_MCU
     Board::detail::io::checkDigitalInputs();
 #endif

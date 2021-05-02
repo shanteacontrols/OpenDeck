@@ -592,7 +592,7 @@ namespace Board
             void timers()
             {
                 htim7.Instance               = TIM7;
-                htim7.Init.Prescaler         = 0;
+                htim7.Init.Prescaler         = 1;
                 htim7.Init.CounterMode       = TIM_COUNTERMODE_UP;
                 htim7.Init.Period            = 41999;
                 htim7.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;

@@ -148,7 +148,7 @@ namespace Board
                 TIMSK0 = 0;
                 TCCR0A |= (1 << WGM01);                 //CTC mode
                 TCCR0B |= (1 << CS01) | (1 << CS00);    //prescaler 64
-                OCR0A = 124;                            //500us
+                OCR0A = 249;                            //1ms
                 TIMSK0 |= (1 << OCIE0A);                //compare match interrupt
             }
 

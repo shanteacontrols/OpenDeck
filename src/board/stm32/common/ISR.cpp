@@ -110,25 +110,16 @@ namespace Board
         {
             void mainTimer()
             {
-                static bool _1ms = true;
-
-                _1ms = !_1ms;
-
-                if (_1ms)
-                {
-                    core::timing::detail::rTime_ms++;
+                core::timing::detail::rTime_ms++;
 
 #ifdef FW_APP
 #if MAX_NUMBER_OF_LEDS > 0
-                    Board::detail::io::checkDigitalOutputs();
+                Board::detail::io::checkDigitalOutputs();
 #endif
 
 #ifdef LED_INDICATORS
-                    Board::detail::io::checkIndicators();
+                Board::detail::io::checkIndicators();
 #endif
-#endif
-                }
-#ifdef FW_APP
                 Board::detail::io::checkDigitalInputs();
 #endif
             }
