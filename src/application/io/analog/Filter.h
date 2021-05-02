@@ -26,28 +26,6 @@ limitations under the License.
 
 namespace IO
 {
-    class EMA
-    {
-        //exponential moving average filter
-        public:
-        EMA() = default;
-
-        uint16_t value(uint16_t rawData)
-        {
-            _currentValue = (_percentage * static_cast<uint32_t>(rawData) + (100 - _percentage) * static_cast<uint32_t>(_currentValue)) / 100;
-            return _currentValue;
-        }
-
-        void reset()
-        {
-            _currentValue = 0;
-        }
-
-        private:
-        uint16_t                  _currentValue = 0;
-        static constexpr uint32_t _percentage   = 60;
-    };
-
     class AnalogFilter : public IO::Analog::Filter
     {
         public:
@@ -116,9 +94,6 @@ namespace IO
                 {
                     filteredValue = value;
                 }
-
-                //pass the value through exponential moving average filter for increased stability
-                filteredValue = _emaFilter[index].value(filteredValue);
             }
             else
             {
@@ -210,7 +185,6 @@ namespace IO
         void reset(size_t index) override
         {
             _sampleCounter[index] = 0;
-            _emaFilter[index].reset();
         }
 
         private:
@@ -257,8 +231,7 @@ namespace IO
         const size_t                _stableValueRepetitions;
         const uint16_t              _stepDiff7Bit;
 
-        static constexpr uint32_t FAST_FILTER_ENABLE_AFTER_MS = 500;
-        EMA                       _emaFilter[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS];
+        static constexpr uint32_t FAST_FILTER_ENABLE_AFTER_MS                                                     = 500;
         uint16_t                  _analogSample[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS][3]   = {};
         size_t                    _sampleCounter[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]     = {};
         valDirection_t            _lastDirection[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]     = {};
