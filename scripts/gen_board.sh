@@ -1,6 +1,9 @@
 #!/bin/bash
 
 PIN_FILE=$1
+SW_VERSION_MAJOR=$2
+SW_VERSION_MINOR=$3
+SW_VERSION_REVISION=$4
 YAML_PARSER="dasel -n -p yaml --plain -f"
 TARGET_NAME=$(basename "$PIN_FILE" .yml)
 mkdir -p board/gen/"$(basename "$PIN_FILE" .yml)"
@@ -28,15 +31,11 @@ analog_inputs_indexed=$($YAML_PARSER "$PIN_FILE" analog.indexing --length)
 analog_in_type=$($YAML_PARSER "$PIN_FILE" analog.type)
 unused_pins=$($YAML_PARSER "$PIN_FILE" unused-io --length)
 
-software_version_major=$(make TARGET="$TARGET_NAME" print-SW_VERSION_MAJOR)
-software_version_minor=$(make TARGET="$TARGET_NAME" print-SW_VERSION_MINOR)
-software_version_revision=$(make TARGET="$TARGET_NAME" print-SW_VERSION_REVISION)
-
 {
     printf "%s\n" "#if defined(FW_APP)"
     printf "%s\n" "#define USB_PRODUCT UNICODE_STRING(\"OpenDeck | $TARGET_NAME\")"
     printf "%s\n" "#elif defined(FW_BOOT)"
-    printf "%s\n" "#define USB_PRODUCT UNICODE_STRING(\"OpenDeck DFU v$software_version_major.$software_version_minor.$software_version_revision | $TARGET_NAME\")"
+    printf "%s\n" "#define USB_PRODUCT UNICODE_STRING(\"OpenDeck DFU v$SW_VERSION_MAJOR.$SW_VERSION_MINOR.$SW_VERSION_REVISION | $TARGET_NAME\")"
     printf "%s\n" "#elif defined(FW_CDC)"
     printf "%s\n" "#define USB_PRODUCT UNICODE_STRING(\"OpenDeck CDC | $TARGET_NAME\")"
     printf "%s\n" "#endif"

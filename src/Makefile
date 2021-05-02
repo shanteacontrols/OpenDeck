@@ -255,7 +255,7 @@ pre-build: $(PINS_GEN_SOURCE) $(TSCREEN_GEN_SOURCE)
 
 board/gen/$(TARGET)/Pins.cpp: $(TARGET_DEF_FILE)
 	@echo Generating board definitions...
-	@$(SCRIPTS_DIR)/gen_board.sh $<
+	@$(SCRIPTS_DIR)/gen_board.sh $< $(SW_VERSION_MAJOR) $(SW_VERSION_MINOR) $(SW_VERSION_REVISION)
 
 application/io/touchscreen/design/gen/$(TARGET).cpp: application/io/touchscreen/design/$(TARGET).json
 	@echo Generating touchscreen coordinate file...
