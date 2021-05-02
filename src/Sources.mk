@@ -24,7 +24,7 @@ ifneq (,$(wildcard application/io/touchscreen/design/$(TARGET).json))
     TSCREEN_GEN_SOURCE += application/io/touchscreen/design/gen/$(TARGET).cpp
 endif
 
-ifneq ($(TYPE),flashgen)
+ifeq (,$(findstring gen,$(TYPE)))
     SOURCES += $(PINS_GEN_SOURCE)
     SOURCES += $(TSCREEN_GEN_SOURCE)
 
@@ -212,13 +212,15 @@ ifneq ($(TYPE),flashgen)
         SOURCES += $(shell $(FIND) ./board/$(ARCH)/usb/cdc -type f -name "*.cpp")
         SOURCES += $(shell find ./cdc -type f -name "*.cpp")
     endif
-else
+else ifeq ($(TYPE),flashgen)
     SOURCES += $(shell $(FIND) ./application/database -type f -name "*.cpp")
     SOURCES += $(shell $(FIND) ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
     SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
     SOURCES += board/$(shell $(YML_PARSER) $(TARGET_DEF_FILE) arch)/variants/$(MCU_FAMILY)/$(MCU)/FlashPages.cpp
     SOURCES += $(TSCREEN_GEN_SOURCE)
     SOURCES += flashgen/main.cpp
+else ifeq ($(TYPE),sysexgen)
+    SOURCES += sysexgen/main.cpp
 endif
 
 #make sure all objects are located in build directory

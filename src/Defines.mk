@@ -88,9 +88,9 @@ else
     $(error MCU $(MCU) not supported)
 endif
 
-#overwrite arch if needed only when all MCU defines have been set so that they can be used in flashgen application as well
-ifeq ($(TYPE),flashgen)
-    ARCH := x86
+#for *gen applications rewrite the arch to native type
+ifneq (,$(findstring gen,$(TYPE)))
+    ARCH := native
 endif
 
 ifeq ($(ARCH),avr)
@@ -166,6 +166,10 @@ else ifeq ($(TYPE),flashgen)
 else ifeq ($(TYPE),cdc)
     DEFINES += FW_CDC
     FLASH_START_ADDR := $(CDC_START_ADDR)
+else ifeq ($(TYPE),sysexgen)
+    DEFINES += \
+    COMMAND_FW_UPDATE_START=$(COMMAND_FW_UPDATE_START) \
+    COMMAND_FW_UPDATE_END=$(COMMAND_FW_UPDATE_END)
 else
     $(error Invalid firmware type specified)
 endif

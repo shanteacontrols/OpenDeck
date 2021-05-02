@@ -160,7 +160,7 @@ binary: $(OUTPUT).elf
 $(OUTPUT).elf: $(OBJECTS)
 	@echo Creating executable: $@
 	@$(LINKER) -o$(OUTPUT).elf $(OBJECTS) $(LDFLAGS)
-ifneq ($(TYPE),flashgen)
+ifeq (,$(findstring gen,$(TYPE)))
 	@objcopy --gap-fill 0xFF -O ihex $(OUTPUT).elf $(OUTPUT).hex
 endif
 ifeq ($(TYPE),app)
@@ -168,7 +168,7 @@ ifeq ($(TYPE),app)
 	@srec_cat $(OUTPUT).hex -Intel -exclude $(FW_METADATA_LOCATION) $$(($(FW_METADATA_LOCATION) + $(FW_METADATA_SIZE))) -MAximum_Little_Endian $(FW_METADATA_LOCATION) -o $(OUTPUT).hex -Intel
 	@srec_cat $(OUTPUT).hex -Intel -Cyclic_Redundancy_Check_16_Little_Endian -MAximum-Address $(OUTPUT).hex -Intel -Cyclic_Redundancy_Check_16_XMODEM -Output $(OUTPUT).hex -Intel
 endif
-ifneq ($(TYPE),flashgen)
+ifeq (,$(findstring gen,$(TYPE)))
 	@objcopy -I ihex "$(OUTPUT).hex" -O binary "$(OUTPUT).bin"
 endif
 	@$(SIZE_TOOL) "$(OUTPUT).elf"
@@ -181,6 +181,8 @@ merged-full:
 	@$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) binary
 	@echo Building bootloader...
 	@$(MAKE) --no-print-directory TYPE=boot TARGET=$(TARGET) DEBUG=$(DEBUG) binary
+	@echo Building sysexgen...
+	@$(MAKE) --no-print-directory TYPE=sysexgen TARGET=$(TARGET) DEBUG=$(DEBUG) binary
 ifeq ($(ARCH), stm32)
 	@echo Building CDC...
 	@$(MAKE) --no-print-directory TYPE=cdc TARGET=$(TARGET) DEBUG=$(DEBUG) binary
@@ -244,7 +246,10 @@ endif
 	@objcopy -I ihex "$(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex" --gap-fill 0xFF -O binary "$(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin"
 	@rm $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
 	@echo Creating SysEx file...
-	@$(SCRIPTS_DIR)/sysex_fw_create.sh $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin $(BUILD_DIR)/$(TARGET).sysex $(SYSEX_MANUFACTURER_ID_0) $(SYSEX_MANUFACTURER_ID_1) $(SYSEX_MANUFACTURER_ID_2) $(COMMAND_FW_UPDATE_START) $(COMMAND_FW_UPDATE_END) $(FW_UID);
+#raw syx file for use with amidi
+	@$(BUILD_DIR_BASE)/sysexgen/$(TARGET)/$(BUILD_TYPE)/$(TARGET).elf $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin $(BUILD_DIR)/$(TARGET).sysex.syx
+#ascii sysex file for use with web configurator
+	@hexdump -v -e '/1 "%02x "' $(BUILD_DIR)/$(TARGET).sysex.syx | sed 's/f7/f7\n/g' | sed 's/^ *//' | tr a-z A-Z > $(BUILD_DIR)/$(TARGET).sysex
 	@rm $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin
 	@echo SysEx file created: $(BUILD_DIR)/$(TARGET).sysex
 
