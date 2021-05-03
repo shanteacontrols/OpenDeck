@@ -23,7 +23,7 @@ CPP_COMPILER_NATIVE := g++
 LINKER_NATIVE := g++
 
 CLANG_FORMAT := clang-format
-YML_PARSER := dasel
+YAML_PARSER := dasel
 
 REQ_PACKAGES := \
 git \
@@ -38,7 +38,7 @@ $(FLASH_BIN_ARM) \
 $(C_COMPILER_NATIVE) \
 $(CPP_COMPILER_NATIVE) \
 objcopy \
-$(YML_PARSER) \
+$(YAML_PARSER) \
 $(SHA256SUM)
 
 #don't allow running make at all if required packages don't exist on the system
@@ -49,4 +49,4 @@ $(foreach package, $(REQ_PACKAGES), $(if $(shell which $(package) 2>/dev/null),,
 FIND := $(FIND) 2>/dev/null
 
 #add flags here to avoid manual typing everywhere
-YML_PARSER := $(YML_PARSER) -n -p yaml --plain -f
+YAML_PARSER := $(YAML_PARSER) -n -p yaml --plain -f
