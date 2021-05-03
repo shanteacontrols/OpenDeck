@@ -12,12 +12,14 @@ function usage
 
     echo -e "\n--type=
     Specifies which targets to build. Available options are:
-    fw_all      Builds all listed firmware targets
-    fw_release  Builds only firmware targets which are part of official OpenDeck release
-    tests       Builds all tests"
+    fw          Builds all available firmware targets
+    tests       Builds all tests for all targets"
 
     echo -e "\n--hw
-    If set, only tests which run on physical boards will be compiled"
+    If set, only tests which run on physical boards will be compiled. If type is set to fw, this flag is ignored."
+
+    echo -e "\n--clean
+    If set, all build artifacts will be cleaned before running the build."
 
     echo -e "\n--help
     Displays script usage"
@@ -37,19 +39,16 @@ for i in "$@"; do
         --hw)
             HW=1
             ;;
+
+        --clean)
+            CLEAN=1
+            ;;
     esac
 done
 
-BUILD_RELEASE=false
-
 case $TYPE in
-  fw_all)
+  fw)
     run_dir="src"
-    ;;
-
-  fw_release)
-    run_dir="src"
-    BUILD_RELEASE=true
     ;;
 
   tests)
@@ -87,7 +86,7 @@ fi
 
 len_targets=${#targets[@]}
 
-if [[ "$BUILD_RELEASE" == "true" ]]
+if [[ -n "$CLEAN" ]]
 then
     make clean
 fi
@@ -97,24 +96,13 @@ do
     if [[ "$TYPE" != "tests" ]]
     then
         make TARGET="${targets[$i]}" DEBUG=0
-
-        if [[ "$BUILD_RELEASE" == "true" ]]
-        then
-            if [[ ${targets[$i]} == "mega16u2" ]]
-            then
-                #no need to create sysex firmware for atmega16u2 - it's only a USB link
-                continue;
-            fi
-
-            #create sysex fw update file
-            make sysexfw TARGET="${targets[$i]}"
-        fi
     else
         if [[ "$TYPE" == "tests" && -n "$HW" ]]
         then
             make pre-build TARGET="${targets[$i]}" DEBUG=0
             make TARGET="${targets[$i]}" DEBUG=0 TESTS=hw
-            make -C ../src TARGET="${targets[$i]}" sysexfw DEBUG=0
+            #firmware and sysex files are needed for hw tests, compile that as well
+            make -C ../src TARGET="${targets[$i]}" DEBUG=0
         else
             make pre-build TARGET="${targets[$i]}" DEBUG=0
             make TARGET="${targets[$i]}" DEBUG=0

@@ -10,7 +10,7 @@ ifeq (,$(wildcard $(TARGET_DEF_FILE)))
     $(error Target doesn't exist)
 endif
 
-ifneq (,$(filter $(MAKECMDGOALS),cat-full cat-sysex sysexfw))
+ifneq (,$(filter $(MAKECMDGOALS),concat))
     BUILD_DIR := $(BUILD_DIR_BASE)/merged
 else
     BUILD_DIR := $(BUILD_DIR_BASE)/$(TYPE)
@@ -31,16 +31,12 @@ LAST_BUILD_TIME := $(shell cat $(BUILD_TIME_FILE) 2>/dev/null | awk '{print$$1}E
 
 SYSEX_BINARY_SUFFIX := _sysex
 
-ifneq (,$(findstring sysex,$(MAKECMDGOALS)))
-    SYSEX_MERGE := 1
-endif
-
 #includes
 #important - do not change the order of inclusion!
 include Defines.mk
 include Sources.mk
 
-.DEFAULT_GOAL := merged-full
+.DEFAULT_GOAL := merged
 
 #when set to 1, format target will fail if there are any changes to the repository after formatting
 CF_FAIL_ON_DIFF := 0
@@ -175,7 +171,7 @@ endif
 #indicate that new binary has been created
 	@echo $(shell date +%s%N) > $(BUILD_TIME_FILE)
 
-merged-full:
+merged:
 	@echo Building application...
 	@$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) pre-build
 	@$(MAKE) --no-print-directory TYPE=app TARGET=$(TARGET) DEBUG=$(DEBUG) binary
@@ -193,26 +189,19 @@ endif
 	@NEW_BUILD_TIME=$$(cat $(BUILD_TIME_FILE)) && if [ $$(echo $$NEW_BUILD_TIME) = $$(echo $(LAST_BUILD_TIME)) ]; then \
 	echo Merged binary up to date; \
 	else \
-	$(MAKE) --no-print-directory TARGET=$(TARGET) DEBUG=$(DEBUG) cat-full; \
+	$(MAKE) --no-print-directory TARGET=$(TARGET) DEBUG=$(DEBUG) concat; \
 	fi
 
-#when building sysex binary, also run merged-full just in case so that full binary is re-linked if needed as well
-merged-sysex: merged-full
-#relink only if needed
-	@NEW_BUILD_TIME=$$(cat $(BUILD_TIME_FILE)) && \
-	if [ $$(echo $$NEW_BUILD_TIME) = $$(echo $(LAST_BUILD_TIME)) ] && [ -f $(BUILD_DIR)/$(TARGET).sysex ]; then \
-	echo SysEx binary up to date; \
-	else \
-	$(MAKE) --no-print-directory TARGET=$(TARGET) DEBUG=$(DEBUG) cat-sysex; \
-	fi
-
-cat-full: $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin
+concat: $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin
 	@mkdir -p $(BUILD_DIR)
 ifeq ($(ARCH), avr)
 	@srec_cat \
 	$(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
 	$(BUILD_DIR_BASE)/boot/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
 	-o $(BUILD_DIR)/$(TARGET).hex -Intel
+	@srec_cat \
+	$(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
+	-o $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
 else
 #define FACTORY_IMAGE_START_ADDR variable as shell variable instead of make variable:
 #when this recipe is started, generated_flash.bin_offset doesn't exist yet, so make will
@@ -224,18 +213,6 @@ else
 	$(BUILD_DIR_BASE)/cdc/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
 	$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
 	-o $(BUILD_DIR)/$(TARGET).hex -Intel
-endif
-	@objcopy -I ihex "$(BUILD_DIR)/$(TARGET).hex" --gap-fill 0xFF -O binary "$(BUILD_DIR)/$(TARGET).bin"
-	@echo Merged binary created: $(BUILD_DIR)/$(TARGET).hex
-#everytime new binary gets created, remove sysex binary
-	@rm -f $(BUILD_DIR)/$(TARGET).sysex
-
-cat-sysex:
-ifeq ($(ARCH), avr)
-	@srec_cat \
-	$(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
-	-o $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
-else
 	@FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin_offset) && \
 	srec_cat \
 	$(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
@@ -243,8 +220,10 @@ else
 	$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
 	-o $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
 endif
+	@objcopy -I ihex "$(BUILD_DIR)/$(TARGET).hex" --gap-fill 0xFF -O binary "$(BUILD_DIR)/$(TARGET).bin"
 	@objcopy -I ihex "$(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex" --gap-fill 0xFF -O binary "$(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin"
 	@rm $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
+	@echo Merged binary created: $(BUILD_DIR)/$(TARGET).hex
 	@echo Creating SysEx file...
 #raw syx file for use with amidi
 	@$(BUILD_DIR_BASE)/sysexgen/$(TARGET)/$(BUILD_TYPE)/$(TARGET).elf $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin $(BUILD_DIR)/$(TARGET).sysex.syx
@@ -252,9 +231,6 @@ endif
 	@hexdump -v -e '/1 "%02x "' $(BUILD_DIR)/$(TARGET).sysex.syx | sed 's/f7/f7\n/g' | sed 's/^ *//' | tr a-z A-Z > $(BUILD_DIR)/$(TARGET).sysex
 	@rm $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).bin
 	@echo SysEx file created: $(BUILD_DIR)/$(TARGET).sysex
-
-#just a shorter alias
-sysexfw: merged-sysex
 
 pre-build: $(PINS_GEN_SOURCE) $(TSCREEN_GEN_SOURCE)
 

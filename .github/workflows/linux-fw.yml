@@ -25,7 +25,7 @@ jobs:
         run: |
           PATH=$(pwd)/arduino-1.8.13/hardware/tools/avr/bin:${PATH}
           cd src/
-          ../scripts/build_targets.sh --type=fw_all
+          ../scripts/build_targets.sh --type=fw
       - name: Archive hex files
         uses: actions/upload-artifact@v2
         with:

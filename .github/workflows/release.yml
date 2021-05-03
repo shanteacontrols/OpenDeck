@@ -27,12 +27,12 @@ jobs:
         run: |
           PATH=$(pwd)/arduino-1.8.13/hardware/tools/avr/bin:${PATH}
           cd src/
-          ../scripts/build_targets.sh --type=fw_release
+          ../scripts/build_targets.sh --type=fw --clean
       - name: Upload
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           tag_name="${GITHUB_REF##*/}"
-          hub release edit $(find ./src/build/merged -type f -name "*.sysex" -printf "-a %p ") -m "" "$tag_name"
+          hub release edit $(find ./src/build/merged -type f -name "*.sysex" -not -name "*mega16u2*" -printf "-a %p ") -m "" "$tag_name"
           hub release edit $(find ./src/build/merged -type f -name "*.hex" -printf "-a %p ") -m "" "$tag_name"
           hub release edit $(find ./src/build/merged -type f -name "*.bin" -printf "-a %p ") -m "" "$tag_name"
