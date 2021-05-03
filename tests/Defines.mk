@@ -4,6 +4,7 @@ UNITY_INCLUDE_CONFIG_H
 
 DEFINES += TEST
 
+-include ../src/board/gen/$(TARGET)/Defines.mk
 include ../src/Defines.mk
 
 #needed for AVR only since this info is normally pulled from AVR headers
@@ -22,10 +23,6 @@ ifeq ($(ARCH), stm32)
 endif
 
 DEFINES += DATABASE_SIZE=$(DATABASE_SIZE)
-
-DEFINES += SYSEX_MANUFACTURER_ID_0=0x00
-DEFINES += SYSEX_MANUFACTURER_ID_1=0x53
-DEFINES += SYSEX_MANUFACTURER_ID_2=0x43
 
 #filter out arch symbols to avoid pulling MCU-specific headers
 DEFINES := $(filter-out __AVR__,$(DEFINES))

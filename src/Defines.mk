@@ -1,37 +1,49 @@
-#common defines
-
 COMMAND_FW_UPDATE_START := 0x4F70456E6E45704F
 COMMAND_FW_UPDATE_END   := 0x4465436B
 SYSEX_MANUFACTURER_ID_0 := 0x00
 SYSEX_MANUFACTURER_ID_1 := 0x53
 SYSEX_MANUFACTURER_ID_2 := 0x43
 FW_METADATA_SIZE        := 4
+CDC_TX_BUFFER_SIZE      := 4096
+CDC_RX_BUFFER_SIZE      := 1024
+UART_BAUDRATE_MIDI_STD  := 31250
+UART_BAUDRATE_MIDI_OD   := 38400
 
 SW_VERSION_MAJOR    := $(shell git describe --tags --abbrev=0 | cut -c 2- | cut -d. -f1)
 SW_VERSION_MINOR    := $(shell git describe --tags --abbrev=0 | cut -c 2- | cut -d. -f2)
 SW_VERSION_REVISION := $(shell git describe --tags --abbrev=0 | cut -c 2- | cut -d. -f3)
 
 DEFINES += \
-UART_BAUDRATE_MIDI_STD=31250 \
-UART_BAUDRATE_MIDI_OD=38400 \
+UART_BAUDRATE_MIDI_STD=$(UART_BAUDRATE_MIDI_STD) \
+UART_BAUDRATE_MIDI_OD=$(UART_BAUDRATE_MIDI_OD) \
+CDC_TX_BUFFER_SIZE=$(CDC_TX_BUFFER_SIZE) \
+CDC_RX_BUFFER_SIZE=$(CDC_RX_BUFFER_SIZE) \
 FIXED_NUM_CONFIGURATIONS=1 \
 SYSEX_MANUFACTURER_ID_0=$(SYSEX_MANUFACTURER_ID_0) \
 SYSEX_MANUFACTURER_ID_1=$(SYSEX_MANUFACTURER_ID_1) \
 SYSEX_MANUFACTURER_ID_2=$(SYSEX_MANUFACTURER_ID_2) \
 SW_VERSION_MAJOR=$(SW_VERSION_MAJOR) \
 SW_VERSION_MINOR=$(SW_VERSION_MINOR) \
-SW_VERSION_REVISION=$(SW_VERSION_REVISION)
+SW_VERSION_REVISION=$(SW_VERSION_REVISION) \
+COMMAND_FW_UPDATE_START=$(COMMAND_FW_UPDATE_START) \
+COMMAND_FW_UPDATE_END=$(COMMAND_FW_UPDATE_END)
 
 ifeq ($(DEBUG), 1)
     DEFINES += DEBUG
-else
-    DEFINES += NDEBUG
 endif
+
+-include board/gen/$(TARGET)/Defines.mk
+
+ifneq (,$(findstring USB_LINK_MCU,$(DEFINES)))
+#use smaller sysex buffer size on USB link MCUs
+    DEFINES += MIDI_SYSEX_ARRAY_SIZE=50
+else
+    DEFINES += MIDI_SYSEX_ARRAY_SIZE=100
+endif
+
 
 ARCH := $(shell $(YAML_PARSER) $(TARGET_DEF_FILE) arch)
 MCU := $(shell $(YAML_PARSER) $(TARGET_DEF_FILE) mcu)
-MCU_BASE := $(shell echo $(MCU) | rev | cut -c3- | rev)
-MCU_FAMILY := $(shell $(YAML_PARSER) $(TARGET_DEF_FILE) mcuFamily)
 
 ifeq ($(MCU), at90usb1286)
     APP_START_ADDR := 0x00
@@ -117,14 +129,6 @@ ifeq ($(ARCH),avr)
         NO_DEVICE_REMOTE_WAKEUP \
         NO_DEVICE_SELF_POWER
     endif
-
-    ifeq (,$(findstring TEST,$(DEFINES)))
-        FUSE_UNLOCK := $(shell cat board/avr/variants/$(MCU_FAMILY)/$(MCU)/fuses.txt | grep ^unlock= | cut -d= -f2)
-        FUSE_EXT := $(shell cat board/avr/variants/$(MCU_FAMILY)/$(MCU)/fuses.txt | grep ^ext= | cut -d= -f2)
-        FUSE_HIGH := $(shell cat board/avr/variants/$(MCU_FAMILY)/$(MCU)/fuses.txt | grep ^high= | cut -d= -f2)
-        FUSE_LOW := $(shell cat board/avr/variants/$(MCU_FAMILY)/$(MCU)/fuses.txt | grep ^low= | cut -d= -f2)
-        FUSE_LOCK := $(shell cat board/avr/variants/$(MCU_FAMILY)/$(MCU)/fuses.txt | grep ^lock= | cut -d= -f2)
-    endif
 else ifeq ($(ARCH),stm32)
     DEFINES += \
     __STM32__ \
@@ -134,27 +138,11 @@ else ifeq ($(ARCH),stm32)
     USE_USB_FS \
     DEVICE_FS=0 \
     DEVICE_HS=1 \
-    ADC_12_BIT \
-    HSE_VALUE=$(shell $(YAML_PARSER) $(TARGET_DEF_FILE) extClockMhz)000000
-endif
-
-FW_UID := $(shell $(SCRIPTS_DIR)/fw_uid_gen.sh $(TARGET))
-
-DEFINES += OD_BOARD=\"$(shell echo $(TARGET))\"
-DEFINES += FW_UID=$(FW_UID)
-DEFINES += FW_METADATA_LOCATION=$(FW_METADATA_LOCATION)
-
-#set default type to app if left blank
-ifeq ($(TYPE),)
-    TYPE := app
+    ADC_12_BIT
 endif
 
 ifeq ($(TYPE),boot)
-    DEFINES += \
-    FW_BOOT \
-    COMMAND_FW_UPDATE_START=$(COMMAND_FW_UPDATE_START) \
-    COMMAND_FW_UPDATE_END=$(COMMAND_FW_UPDATE_END)
-
+    DEFINES += FW_BOOT
     FLASH_START_ADDR := $(BOOT_START_ADDR)
 else ifeq ($(TYPE),app)
     DEFINES += FW_APP
@@ -167,9 +155,7 @@ else ifeq ($(TYPE),cdc)
     DEFINES += FW_CDC
     FLASH_START_ADDR := $(CDC_START_ADDR)
 else ifeq ($(TYPE),sysexgen)
-    DEFINES += \
-    COMMAND_FW_UPDATE_START=$(COMMAND_FW_UPDATE_START) \
-    COMMAND_FW_UPDATE_END=$(COMMAND_FW_UPDATE_END)
+    #nothing to do
 else
     $(error Invalid firmware type specified)
 endif
@@ -178,221 +164,13 @@ DEFINES += FLASH_START_ADDR=$(FLASH_START_ADDR)
 DEFINES += BOOT_START_ADDR=$(BOOT_START_ADDR)
 DEFINES += APP_START_ADDR=$(APP_START_ADDR)
 DEFINES += CDC_START_ADDR=$(CDC_START_ADDR)
+DEFINES += FW_METADATA_LOCATION=$(FW_METADATA_LOCATION)
 
-ifeq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) usb), true)
-    DEFINES += USB_MIDI_SUPPORTED
-endif
-
-ifneq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) usbLink), null)
-    ifneq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) usbLink.type), null)
-        UART_CHANNEL_USB_LINK := $(shell $(YAML_PARSER) $(TARGET_DEF_FILE) usbLink.uartChannel)
-        DEFINES += UART_CHANNEL_USB_LINK=$(UART_CHANNEL_USB_LINK)
-
-        ifeq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) usbLink.type), master)
-            DEFINES += USB_LINK_MCU
-            DEFINES += FW_SELECTOR_NO_VERIFY_CRC
-
-            #append this only if it wasn't appended already
-            ifeq (,$(findstring USB_MIDI_SUPPORTED,$(DEFINES)))
-                DEFINES += USB_MIDI_SUPPORTED
-            endif
-        else ifeq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) usbLink.type), slave)
-            #make sure slave MCUs don't have USB enabled
-            DEFINES := $(filter-out USB_MIDI_SUPPORTED,$(DEFINES))
-        endif
+ifeq ($(ARCH), avr)
+    ifneq (,$(findstring cdc flashgen,$(TYPE)))
+        $(error $(TYPE) not supported for this arch)
     endif
 endif
-
-ifneq (,$(findstring USB_LINK_MCU,$(DEFINES)))
-#use smaller sysex buffer size on USB link MCUs
-    DEFINES += MIDI_SYSEX_ARRAY_SIZE=50
-else
-    DEFINES += MIDI_SYSEX_ARRAY_SIZE=100
-endif
-
-DEFINES += CDC_TX_BUFFER_SIZE=4096
-DEFINES += CDC_RX_BUFFER_SIZE=1024
-
-ifneq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) dinMIDI), null)
-    DEFINES += DIN_MIDI_SUPPORTED
-    UART_CHANNEL_DIN=$(shell $(YAML_PARSER) $(TARGET_DEF_FILE) dinMIDI.uartChannel)
-
-    ifeq ($(UART_CHANNEL_USB_LINK),$(UART_CHANNEL_DIN))
-        $(error USB link channel and DIN MIDI channel cannot be the same)
-    endif
-
-    DEFINES += UART_CHANNEL_DIN=$(UART_CHANNEL_DIN)
-endif
-
-ifneq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) display), null)
-    DEFINES += DISPLAY_SUPPORTED
-    DEFINES += I2C_CHANNEL_DISPLAY=$(shell $(YAML_PARSER) $(TARGET_DEF_FILE) display.i2cChannel)
-endif
-
-ifneq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) touchscreen), null)
-    DEFINES += TOUCHSCREEN_SUPPORTED
-    #guard against ommisions of touchscreen component amount by assigning the value to 0 if undefined
-    DEFINES += MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS=$(shell $(YAML_PARSER) $(TARGET_DEF_FILE) touchscreen.components | grep -v null | awk '{print$$1}END{if(NR==0)print 0}')
-
-ifneq (,$(findstring MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS=0,$(DEFINES)))
-    $(error Amount of touchscreen components cannot be 0)
-else
-    DEFINES += LEDS_SUPPORTED
-endif
-
-    UART_CHANNEL_TOUCHSCREEN := $(shell $(YAML_PARSER) $(TARGET_DEF_FILE) touchscreen.uartChannel)
-
-    ifeq ($(UART_CHANNEL_USB_LINK),$(UART_CHANNEL_TOUCHSCREEN))
-        $(error USB link channel and touchscreen channel cannot be the same)
-    endif
-
-    DEFINES += UART_CHANNEL_TOUCHSCREEN=$(UART_CHANNEL_TOUCHSCREEN)
-else
-    DEFINES += MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS=0
-endif
-
-ifeq ($(TYPE),cdc)
-    ifeq ($(ARCH), avr)
-        $(error CDC not supported for this arch)
-    endif
-endif
-
-ifneq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) buttons), null)
-    DEFINES += BUTTONS_SUPPORTED
-endif
-
-ifeq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) buttons.type), native)
-    MAX_NUMBER_OF_BUTTONS := $(shell $(YAML_PARSER) $(TARGET_DEF_FILE) buttons.pins --length)
-    DEFINES += NATIVE_BUTTON_INPUTS
-
-    ifeq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) buttons.extPullups), true)
-        DEFINES += BUTTONS_EXT_PULLUPS
-    endif
-else ifeq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) buttons.type), shiftRegister)
-    NUMBER_OF_IN_SR=$(shell $(YAML_PARSER) $(TARGET_DEF_FILE) buttons.shiftRegisters)
-    MAX_NUMBER_OF_BUTTONS := $(shell expr 8 \* $(NUMBER_OF_IN_SR))
-    DEFINES += NUMBER_OF_IN_SR=$(NUMBER_OF_IN_SR)
-else ifeq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) buttons.type), matrix)
-    ifeq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) buttons.columns.pins --length), 3)
-        NUMBER_OF_BUTTON_COLUMNS := 8
-    else
-        $(error Invalid number of columns specified)
-    endif
-    ifeq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) buttons.rows.type), native)
-        NUMBER_OF_BUTTON_ROWS := $(shell $(YAML_PARSER) $(TARGET_DEF_FILE) buttons.rows.pins --length)
-    else
-        DEFINES += NUMBER_OF_IN_SR=1
-        NUMBER_OF_BUTTON_ROWS := 8
-    endif
-    MAX_NUMBER_OF_BUTTONS := $(shell expr $(NUMBER_OF_BUTTON_COLUMNS) \* $(NUMBER_OF_BUTTON_ROWS))
-    DEFINES += NUMBER_OF_BUTTON_COLUMNS=$(NUMBER_OF_BUTTON_COLUMNS)
-    DEFINES += NUMBER_OF_BUTTON_ROWS=$(NUMBER_OF_BUTTON_ROWS)
-else
-    MAX_NUMBER_OF_BUTTONS := 0
-endif
-
-ifneq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) buttons.indexing), null)
-    MAX_NUMBER_OF_BUTTONS := $(shell $(YAML_PARSER) $(TARGET_DEF_FILE) buttons.indexing --length)
-    DEFINES += BUTTON_INDEXING
-endif
-
-ifeq ($(shell test $(MAX_NUMBER_OF_BUTTONS) -gt 1; echo $$?),0)
-    DEFINES += ENCODERS_SUPPORTED
-endif
-
-ifneq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) analog), null)
-    DEFINES += ANALOG_SUPPORTED
-endif
-
-ifeq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) analog.type), native)
-    MAX_NUMBER_OF_ANALOG := $(shell $(YAML_PARSER) $(TARGET_DEF_FILE) analog.pins --length)
-    DEFINES += MAX_ADC_CHANNELS=$(MAX_NUMBER_OF_ANALOG)
-    DEFINES += NATIVE_ANALOG_INPUTS
-else ifeq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) analog.type), 4067)
-    NUMBER_OF_MUX := $(shell $(YAML_PARSER) $(TARGET_DEF_FILE) analog.multiplexers)
-    DEFINES += NUMBER_OF_MUX=$(NUMBER_OF_MUX)
-    DEFINES += NUMBER_OF_MUX_INPUTS=16
-    MAX_NUMBER_OF_ANALOG := $(shell expr 16 \* $(NUMBER_OF_MUX))
-    DEFINES += MAX_ADC_CHANNELS=$(NUMBER_OF_MUX)
-else ifeq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) analog.type), 4051)
-    NUMBER_OF_MUX := $(shell $(YAML_PARSER) $(TARGET_DEF_FILE) analog.multiplexers)
-    DEFINES += NUMBER_OF_MUX=$(NUMBER_OF_MUX)
-    DEFINES += NUMBER_OF_MUX_INPUTS=8
-    MAX_NUMBER_OF_ANALOG := $(shell expr 8 \* $(NUMBER_OF_MUX))
-    DEFINES += MAX_ADC_CHANNELS=$(NUMBER_OF_MUX)
-else
-    MAX_NUMBER_OF_ANALOG := 0
-    MAX_ADC_CHANNELS := 0
-    DEFINES += MAX_ADC_CHANNELS=$(MAX_ADC_CHANNELS)
-endif
-
-ifneq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) analog.indexing), null)
-    MAX_NUMBER_OF_ANALOG := $(shell $(YAML_PARSER) $(TARGET_DEF_FILE) analog.indexing --length)
-    DEFINES += ANALOG_INDEXING
-endif
-
-ifeq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) analog.extReference), true)
-    DEFINES += ADC_EXT_REF
-endif
-
-ifneq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) leds.external), null)
-    ifeq (,$(findstring LEDS_SUPPORTED,$(DEFINES)))
-        DEFINES += LEDS_SUPPORTED
-    endif
-endif
-
-ifeq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) leds.internal.present), true)
-    DEFINES += LED_INDICATORS
-endif
-
-ifeq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) leds.internal.invert), true)
-    DEFINES += LED_INT_INVERT
-endif
-
-ifeq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) leds.external.invert), true)
-    DEFINES += LED_EXT_INVERT
-endif
-
-ifeq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) leds.external.fading), true)
-    DEFINES += LED_FADING
-endif
-
-ifeq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) bootloader.button.activeState), high)
-    #active high
-    DEFINES += BTLDR_BUTTON_AH
-endif
-
-ifeq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) leds.external.type), native)
-    MAX_NUMBER_OF_LEDS := $(shell $(YAML_PARSER) $(TARGET_DEF_FILE) leds.external.pins --length)
-    DEFINES += NATIVE_LED_OUTPUTS
-else ifeq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) leds.external.type), shiftRegister)
-    NUMBER_OF_OUT_SR := $(shell $(YAML_PARSER) $(TARGET_DEF_FILE) leds.external.shiftRegisters)
-    MAX_NUMBER_OF_LEDS := $(shell expr 8 \* $(NUMBER_OF_OUT_SR))
-    DEFINES += NUMBER_OF_OUT_SR=$(NUMBER_OF_OUT_SR)
-else ifeq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) leds.external.type), matrix)
-    NUMBER_OF_LED_COLUMNS := 8
-    NUMBER_OF_LED_ROWS := $(shell $(YAML_PARSER) $(TARGET_DEF_FILE) leds.external.rows.pins --length)
-    MAX_NUMBER_OF_LEDS := $(shell expr $(NUMBER_OF_LED_COLUMNS) \* $(NUMBER_OF_LED_ROWS))
-    DEFINES += NUMBER_OF_LED_COLUMNS=$(NUMBER_OF_LED_COLUMNS)
-    DEFINES += NUMBER_OF_LED_ROWS=$(NUMBER_OF_LED_ROWS)
-else
-    MAX_NUMBER_OF_LEDS := 0
-endif
-
-ifneq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) leds.external.indexing), null)
-    MAX_NUMBER_OF_LEDS := $(shell $(YAML_PARSER) $(TARGET_DEF_FILE) leds.external.indexing --length)
-    DEFINES += LED_INDEXING
-endif
-
-ifneq ($(shell $(YAML_PARSER) $(TARGET_DEF_FILE) unused-io), null)
-    DEFINES += TOTAL_UNUSED_IO=$(shell $(YAML_PARSER) $(TARGET_DEF_FILE) unused-io --length)
-endif
-
-DEFINES += MAX_NUMBER_OF_BUTTONS=$(MAX_NUMBER_OF_BUTTONS)
-DEFINES += MAX_NUMBER_OF_ENCODERS=$(shell expr $(MAX_NUMBER_OF_BUTTONS) \/ 2)
-DEFINES += MAX_NUMBER_OF_ANALOG=$(MAX_NUMBER_OF_ANALOG)
-DEFINES += MAX_NUMBER_OF_LEDS=$(MAX_NUMBER_OF_LEDS)
-DEFINES += MAX_NUMBER_OF_RGB_LEDS=$(shell expr $(MAX_NUMBER_OF_LEDS) \/ 3)
 
 ifeq ($(TYPE),cdc)
     DEFINES += USE_UART

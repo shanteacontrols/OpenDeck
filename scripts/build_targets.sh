@@ -97,14 +97,15 @@ do
     then
         make TARGET="${targets[$i]}" DEBUG=0
     else
-        if [[ "$TYPE" == "tests" && -n "$HW" ]]
+        #binaries, sysex files and defines are needed for tests, compile that as well
+        make -C ../src TARGET="${targets[$i]}" DEBUG=0
+
+        make pre-build TARGET="${targets[$i]}" DEBUG=0
+
+        if [[ -n "$HW" ]]
         then
-            make pre-build TARGET="${targets[$i]}" DEBUG=0
             make TARGET="${targets[$i]}" DEBUG=0 TESTS=hw
-            #firmware and sysex files are needed for hw tests, compile that as well
-            make -C ../src TARGET="${targets[$i]}" DEBUG=0
         else
-            make pre-build TARGET="${targets[$i]}" DEBUG=0
             make TARGET="${targets[$i]}" DEBUG=0
         fi
     fi

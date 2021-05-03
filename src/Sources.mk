@@ -7,7 +7,7 @@ INCLUDE_DIRS := \
 -I"board/gen/$(TARGET)/" \
 -I"application/" \
 -I"board/$(ARCH)/variants/$(MCU_FAMILY)" \
--I"board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)" \
+-I"$(MCU_DIR)" \
 -I"./"
 
 ifeq ($(TYPE),boot)
@@ -16,7 +16,7 @@ ifeq ($(TYPE),boot)
     -I"bootloader/"
 endif
 
-LINKER_FILE := board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(MCU).ld
+LINKER_FILE := $(MCU_DIR)/$(MCU).ld
 
 PINS_GEN_SOURCE := board/gen/$(TARGET)/Pins.cpp
 
@@ -65,7 +65,7 @@ ifeq (,$(findstring gen,$(TYPE)))
     endif
 
     SOURCES += $(shell $(FIND) ./board/common -maxdepth 1 -type f -name "*.cpp")
-    SOURCES += $(shell $(FIND) ./board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU) -maxdepth 1 -type f -regex '.*\.\(s\|c\|cpp\)')
+    SOURCES += $(shell $(FIND) ./$(MCU_DIR) -maxdepth 1 -type f -regex '.*\.\(s\|c\|cpp\)')
     SOURCES += board/common/io/Stubs.cpp
 
     ifeq ($(TYPE),boot)
@@ -216,7 +216,7 @@ else ifeq ($(TYPE),flashgen)
     SOURCES += $(shell $(FIND) ./application/database -type f -name "*.cpp")
     SOURCES += $(shell $(FIND) ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
     SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
-    SOURCES += board/$(shell $(YAML_PARSER) $(TARGET_DEF_FILE) arch)/variants/$(MCU_FAMILY)/$(MCU)/FlashPages.cpp
+    SOURCES += $(MCU_DIR)/FlashPages.cpp
     SOURCES += $(TSCREEN_GEN_SOURCE)
     SOURCES += flashgen/main.cpp
 else ifeq ($(TYPE),sysexgen)
