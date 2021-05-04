@@ -218,6 +218,8 @@ void System::DBhandlers::presetChange(uint8_t preset)
 
     if (_system._display.init(false))
         _system._display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::presetChange, preset, 0, 0);
+
+    _system._analog.update(true);
 }
 
 void System::DBhandlers::factoryResetStart()
