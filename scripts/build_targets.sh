@@ -8,12 +8,9 @@ function usage
 
     echo -e "
     This script is used to build specific set of targets from targets.yml file
-    located in the root directory of OpenDeck repository."
-
-    echo -e "\n--type=
-    Specifies which targets to build. Available options are:
-    fw          Builds all available firmware targets
-    tests       Builds all tests for all targets"
+    located in the root directory of OpenDeck repository.
+    If the script is launched from src directory, all available firmwares for all targets will be built.
+    If the script is launched from tests directory, all tests for all targets will be built."
 
     echo -e "\n--hw
     If set, only tests which run on physical boards will be compiled. If type is set to fw, this flag is ignored."
@@ -25,7 +22,7 @@ function usage
     Displays script usage"
 }
 
-if [[ ("$*" == "--help") || ($# -eq 0) ]]
+if [[ ("$*" == "--help") ]]
 then
     usage
     exit 1
@@ -33,9 +30,6 @@ fi
 
 for i in "$@"; do
     case "$i" in
-        --type=*)
-            TYPE=${i#--type=}
-            ;;
         --hw)
             HW=1
             ;;
@@ -46,26 +40,27 @@ for i in "$@"; do
     esac
 done
 
-case $TYPE in
-  fw)
-    run_dir="src"
+run_dir=$(basename "$(pwd)")
+
+case $run_dir in
+  src)
+    TYPE="fw"
     ;;
 
   tests)
-    run_dir="tests"
+    TYPE="tests"
     ;;
 
   *)
-    echo "ERROR: Invalid build type specified"
+    echo "ERROR: Script must be run either from src or tests directory!"
     usage
     exit 1
     ;;
 esac
 
-if [[ $(basename "$(pwd)") != "$run_dir" ]]
+if [[ -n "$CLEAN" ]]
 then
-    echo "ERROR: Script must be run from $run_dir directory!"
-    exit 1
+    make clean
 fi
 
 targets=()

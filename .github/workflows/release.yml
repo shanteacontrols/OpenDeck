@@ -27,7 +27,7 @@ jobs:
         run: |
           PATH=$(pwd)/arduino-1.8.13/hardware/tools/avr/bin:${PATH}
           cd src/
-          ../scripts/build_targets.sh --type=fw --clean
+          ../scripts/build_targets.sh
       - name: Upload
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
