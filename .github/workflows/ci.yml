@@ -1,12 +1,10 @@
-name: Deploy
+name: CI [Linux]
 
-on:
-  release:
-    types: [created]
+on: [push]
 
 jobs:
-  build:
-    name: Attach firmware to release
+  build_and_test:
+    name: Build and test all targets
     runs-on: ubuntu-20.04
     steps:
       - name: Pull the repository and submodules
@@ -17,7 +15,7 @@ jobs:
       - name: Prepare build env
         run: |
           sudo apt-get update
-          sudo apt-get install -y srecord avr-libc gcc-arm-none-eabi
+          sudo apt-get install -y srecord avr-libc gcc-arm-none-eabi clang
           sudo touch /usr/bin/avrdude && sudo chmod +x /usr/bin/avrdude
           sudo touch /usr/bin/gdb && sudo chmod +x /usr/bin/gdb
           curl -s https://api.github.com/repos/tomwright/dasel/releases/latest | grep browser_download_url | grep linux_amd64 | cut -d '"' -f 4 | wget -qi -
@@ -26,17 +24,30 @@ jobs:
           wget https://downloads.arduino.cc/arduino-1.8.13-linux64.tar.xz -O arduino.tar.xz
           tar -xf arduino.tar.xz
           export MAKEFLAGS=-j8
-      - name: Build
+      - name: Build targets
         run: |
           PATH=$(pwd)/arduino-1.8.13/hardware/tools/avr/bin:${PATH}
           git fetch --tags
           cd src/
           ../scripts/build_targets.sh
-      - name: Upload
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Test targets
         run: |
-          tag_name="${GITHUB_REF##*/}"
-          hub release edit $(find ./src/build/merged -type f -name "*.sysex" -not -name "*mega16u2*" -printf "-a %p ") -m "" "$tag_name"
-          hub release edit $(find ./src/build/merged -type f -name "*.hex" -printf "-a %p ") -m "" "$tag_name"
-          hub release edit $(find ./src/build/merged -type f -name "*.bin" -printf "-a %p ") -m "" "$tag_name"
+          cd tests/
+          ../scripts/build_targets.sh
+          make exec
+  hw-tests:
+    name: Run tests on physical boards
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: true
+      - name: Run tests on hardware
+        run: |
+          git reset --hard
+          git clean -dxf
+          git fetch --tags
+          cd tests
+          ../scripts/build_targets.sh --hw
+          make exec HW_TESTING=1
