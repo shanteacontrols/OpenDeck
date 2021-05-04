@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #used to generate firmware UID for specified target
 #call example: ./fw_uid_gen.sh mega2560

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # first argument to the script should be path to the directory where all compiled binares are located
 # if second argument is set to 1, run only hardware tests

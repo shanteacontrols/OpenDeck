@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 TARGET_DEF_FILE=$1
 SW_VERSION_MAJOR=$2
