@@ -23,7 +23,7 @@ modules/u8g2/csrc/u8x8_d_ssd1306_128x64_noname.c \
 modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
 
 ifeq ($(ARCH),stm32)
-    SOURCES_COMMON += board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/FlashPages.cpp
+    SOURCES_COMMON += $(MCU_DIR)/FlashPages.cpp
 endif
 
 #common include dirs
@@ -32,5 +32,4 @@ INCLUDE_DIRS_COMMON := \
 -I"./unity" \
 -I"../src/application/" \
 -I"../src/" \
--I"../modules/" \
--I"../src/board/$(ARCH)/variants/$(MCU_FAMILY)/$(MCU)/$(subst fw_,,$(TARGET))/"
+-I"../modules/"

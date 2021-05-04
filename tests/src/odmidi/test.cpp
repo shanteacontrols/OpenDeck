@@ -1,7 +1,6 @@
 #ifdef USE_UART
 
-#include "unity/src/unity.h"
-#include "unity/Helpers.h"
+#include "unity/Framework.h"
 #include "board/Board.h"
 #include "board/common/USBMIDIOverSerial/USBMIDIOverSerial.h"
 #include "core/src/general/RingBuffer.h"

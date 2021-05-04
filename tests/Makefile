@@ -5,8 +5,8 @@ include ../src/Toolchain.mk
 BUILD_DIR_BASE  := ./build
 TARGET          := discovery
 TARGET_DEF_FILE := ../targets/$(TARGET).yml
+TYPE            := app
 BUILD_DIR       := $(BUILD_DIR_BASE)/$(TARGET)
-GEN_DIR         := test_run
 TEST_BINARIES   := $(addprefix -object ,$(shell $(FIND) $(BUILD_DIR_BASE) -name "*.out" 2>/dev/null))
 FW_ROOT_DIR     := ../src
 SCRIPTS_DIR     := ../scripts
@@ -56,8 +56,7 @@ define LINK_OBJECTS
 endef
 
 pre-build:
-	@$(SCRIPTS_DIR)/gen_test_targets.sh $(GEN_DIR)/$(TARGET)
-	@$(SCRIPTS_DIR)/gen_test_runners.sh $(GEN_DIR)/$(TARGET)
+	@$(SCRIPTS_DIR)/gen_test_targets.sh
 
 exec:
 	@echo Running all compiled tests.
@@ -82,7 +81,6 @@ endif
 clean:
 	@echo Cleaning up.
 	@rm -rf $(BUILD_DIR_BASE)/
-	@rm -rf $(GEN_DIR)/
 
 #debugging
 print-%:

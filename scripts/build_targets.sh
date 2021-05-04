@@ -70,6 +70,11 @@ fi
 
 targets=()
 
+if [[ "$TYPE" == "tests" ]]
+then
+    make pre-build
+fi
+
 if [[ "$TYPE" == "tests" && -n "$HW" ]]
 then
     while IFS= read -r target
@@ -86,11 +91,6 @@ fi
 
 len_targets=${#targets[@]}
 
-if [[ -n "$CLEAN" ]]
-then
-    make clean
-fi
-
 for (( i=0; i<len_targets; i++ ))
 do
     if [[ "$TYPE" != "tests" ]]
@@ -99,8 +99,6 @@ do
     else
         #binaries, sysex files and defines are needed for tests, compile that as well
         make -C ../src TARGET="${targets[$i]}" DEBUG=0
-
-        make pre-build TARGET="${targets[$i]}" DEBUG=0
 
         if [[ -n "$HW" ]]
         then

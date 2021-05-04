@@ -1,5 +1,4 @@
-#include "unity/src/unity.h"
-#include "unity/Helpers.h"
+#include "unity/Framework.h"
 #include "io/analog/Analog.h"
 #include "io/leds/LEDs.h"
 #include "io/common/CInfo.h"
@@ -8,7 +7,6 @@
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
 #include "stubs/database/DB_ReadWrite.h"
-#include <vector>
 
 #ifdef ANALOG_SUPPORTED
 
