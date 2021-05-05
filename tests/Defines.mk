@@ -4,6 +4,10 @@ UNITY_INCLUDE_CONFIG_H
 
 DEFINES += TEST
 
+ifeq ($(HW_TESTING), 1)
+    DEFINES += HW_TESTING
+endif
+
 -include ../src/board/gen/$(TARGET)/Defines.mk
 include ../src/Defines.mk
 

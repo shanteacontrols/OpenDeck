@@ -97,9 +97,9 @@ do
 
         if [[ -n "$HW" ]]
         then
-            make TARGET="${targets[$i]}" DEBUG=0 TESTS=hw
+            make TARGET="${targets[$i]}" DEBUG=0 HW_TESTING=1 TESTS=hw
         else
-            make TARGET="${targets[$i]}" DEBUG=0
+            make TARGET="${targets[$i]}" DEBUG=0 HW_TESTING=0
         fi
     fi
 done

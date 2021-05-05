@@ -1,3 +1,5 @@
+#ifdef HW_TESTING
+
 #include "unity/Framework.h"
 #include <string>
 #include <filesystem>
@@ -506,3 +508,5 @@ TEST_CASE(BackupAndRestore)
         TEST_ASSERT_EQUAL_UINT32(126, MIDIHelper::getSingleSysExReq(System::Section::button_t::velocity, 0));
     }
 }
+
+#endif
