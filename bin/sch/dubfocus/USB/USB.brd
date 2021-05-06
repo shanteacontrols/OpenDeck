@@ -166,19 +166,36 @@
 </layers>
 <board>
 <plain>
-<text x="27.051" y="2.159" size="1.27" layer="25" font="vector" ratio="15">+5V</text>
-<text x="27.051" y="4.699" size="1.27" layer="25" font="vector" ratio="15">D+</text>
-<text x="27.051" y="7.112" size="1.27" layer="25" font="vector" ratio="15">D-</text>
-<text x="27.178" y="12.192" size="1.27" layer="25" font="vector" ratio="15">GND</text>
-<wire x1="39.751" y1="15.494" x2="39.751" y2="0" width="0" layer="20"/>
-<wire x1="39.751" y1="0" x2="0" y2="0" width="0" layer="20"/>
-<wire x1="0" y1="0" x2="0" y2="15.494" width="0" layer="20"/>
-<wire x1="0" y1="15.494" x2="39.751" y2="15.494" width="0" layer="20"/>
+<wire x1="42.799" y1="17.272" x2="42.799" y2="0" width="0" layer="20"/>
+<wire x1="42.799" y1="0" x2="0" y2="0" width="0" layer="20"/>
+<wire x1="0" y1="0" x2="0" y2="17.272" width="0" layer="20"/>
+<wire x1="0" y1="17.272" x2="42.799" y2="17.272" width="0" layer="20"/>
 </plain>
 <libraries>
 <library name="igor_lbr">
 <description>My often used parts collected into a single library</description>
 <packages>
+<package name="USB-A-PTH">
+<wire x1="0" y1="-5.08" x2="-6.35" y2="-4.445" width="0.127" layer="21"/>
+<wire x1="-6.35" y1="-4.445" x2="-6.35" y2="-1.27" width="0.127" layer="21"/>
+<wire x1="-6.35" y1="-1.27" x2="0" y2="-0.635" width="0.127" layer="21"/>
+<wire x1="0" y1="5.08" x2="-6.35" y2="4.445" width="0.127" layer="21"/>
+<wire x1="-6.35" y1="4.445" x2="-6.35" y2="1.27" width="0.127" layer="21"/>
+<wire x1="-6.35" y1="1.27" x2="0" y2="0.635" width="0.127" layer="21"/>
+<pad name="VBUS" x="5.2578" y="3.4925" drill="0.9144" rot="R270"/>
+<pad name="D-" x="5.2578" y="1.0033" drill="0.9144" rot="R270"/>
+<pad name="D+" x="5.2578" y="-1.0033" drill="0.9144" rot="R270"/>
+<pad name="GND" x="5.2578" y="-3.4925" drill="0.9144" rot="R270"/>
+<pad name="S1" x="2.54" y="-6.5659" drill="2.3114" rot="R270"/>
+<pad name="S2" x="2.54" y="6.5659" drill="2.3114" rot="R270"/>
+<text x="8.89" y="-6.35" size="1.27" layer="25" font="vector" ratio="15" rot="R90">&gt;NAME</text>
+<wire x1="-7.874" y1="6.604" x2="0.508" y2="6.604" width="0.127" layer="21"/>
+<wire x1="4.572" y1="6.604" x2="6.35" y2="6.604" width="0.127" layer="21"/>
+<wire x1="6.35" y1="6.604" x2="6.35" y2="-6.604" width="0.127" layer="21"/>
+<wire x1="6.35" y1="-6.604" x2="4.572" y2="-6.604" width="0.127" layer="21"/>
+<wire x1="0.508" y1="-6.604" x2="-7.874" y2="-6.604" width="0.127" layer="21"/>
+<wire x1="-7.874" y1="-6.604" x2="-7.874" y2="6.604" width="0.127" layer="21"/>
+</package>
 <package name="USB-B-PTH-V">
 <pad name="GND" x="1.25" y="-1.6" drill="0.9144" diameter="1.6764" rot="R90"/>
 <pad name="VBUS" x="1.25" y="1.6" drill="0.9144" diameter="1.6764" rot="R90"/>
@@ -199,27 +216,6 @@
 <wire x1="4.6" y1="-4.7" x2="4.6" y2="-2.7" width="0.127" layer="21"/>
 <wire x1="4.6" y1="-4.7" x2="-4.7" y2="-4.7" width="0.127" layer="21"/>
 <wire x1="-4.7" y1="-4.7" x2="-4.7" y2="-2.7" width="0.127" layer="21"/>
-</package>
-<package name="JST-XH-05P-H">
-<pad name="2" x="-2.5" y="0" drill="0.8"/>
-<pad name="3" x="0" y="0" drill="0.8"/>
-<pad name="4" x="2.5" y="0" drill="0.8"/>
-<text x="-7.5" y="-2.5" size="1.27" layer="21" font="vector" ratio="13">&gt;NAME</text>
-<pad name="5" x="5" y="0" drill="0.8"/>
-<wire x1="-7.5" y1="7" x2="7.5" y2="7" width="0.1524" layer="21"/>
-<wire x1="7.5" y1="7" x2="7.5" y2="-1" width="0.1524" layer="21"/>
-<pad name="1" x="-5" y="0" drill="0.8"/>
-<wire x1="-7.5" y1="-1" x2="-7.5" y2="7" width="0.1524" layer="21"/>
-<wire x1="-7.5" y1="-1" x2="7.5" y2="-1" width="0.1524" layer="21"/>
-</package>
-<package name="L0805">
-<wire x1="-1.973" y1="0.983" x2="1.973" y2="0.983" width="0.0508" layer="39"/>
-<wire x1="1.973" y1="-0.983" x2="-1.973" y2="-0.983" width="0.0508" layer="39"/>
-<wire x1="-1.973" y1="-0.983" x2="-1.973" y2="0.983" width="0.0508" layer="39"/>
-<wire x1="1.973" y1="0.983" x2="1.973" y2="-0.983" width="0.0508" layer="39"/>
-<smd name="1" x="-0.85" y="0" dx="1.3" dy="1.5" layer="1"/>
-<smd name="2" x="0.85" y="0" dx="1.3" dy="1.5" layer="1"/>
-<text x="-2.032" y="1.27" size="1.27" layer="25" font="vector" ratio="15">&gt;NAME</text>
 </package>
 </packages>
 </library>
@@ -414,78 +410,71 @@ design rules under a new name.</description>
 </pass>
 </autorouter>
 <elements>
-<element name="CONN1" library="igor_lbr" package="USB-B-PTH-V" value="USB-V" x="15.367" y="8.255" smashed="yes">
-<attribute name="MANUFACTURER" value="CUI Devices" x="15.367" y="8.255" size="1.778" layer="27" display="off"/>
-<attribute name="MPN" value="UJ2-BV-1-TH" x="15.367" y="8.255" size="1.778" layer="27" display="off"/>
+<element name="CONN1" library="igor_lbr" package="USB-B-PTH-V" value="USB-B-V" x="13.843" y="8.636" smashed="yes" rot="MR0">
+<attribute name="MANUFACTURER" value="CUI Devices" x="13.843" y="8.636" size="1.778" layer="28" rot="MR0" display="off"/>
+<attribute name="MPN" value="UJ2-BV-1-TH" x="13.843" y="8.636" size="1.778" layer="28" rot="MR0" display="off"/>
 </element>
-<element name="CONN2" library="igor_lbr" package="JST-XH-05P-H" value="PINHD-1X05-JST-XH-H" x="25.781" y="7.747" smashed="yes" rot="MR90"/>
-<element name="L1" library="igor_lbr" package="L0805" value="FERRITE_BEAD-BLM21PG221SN1D" x="9.271" y="1.397" smashed="yes" rot="MR180">
-<attribute name="MANUFACTURER" value="Murata" x="9.271" y="1.397" size="1.778" layer="28" rot="MR180" display="off"/>
-<attribute name="MPN" value="BLM21PG221SN1D" x="9.271" y="1.397" size="1.778" layer="28" rot="MR180" display="off"/>
-<attribute name="NAME" x="11.43" y="0.381" size="1.27" layer="26" font="vector" ratio="15" rot="MR90"/>
-</element>
+<element name="CONN2" library="igor_lbr" package="USB-A-PTH" value="USB-A-H" x="34.544" y="8.636" smashed="yes" rot="R180"/>
 </elements>
 <signals>
 <signal name="D+">
 <contactref element="CONN1" pad="D+"/>
-<contactref element="CONN2" pad="2"/>
-<wire x1="14.117" y1="6.655" x2="14.117" y2="5.822" width="0.3048" layer="1"/>
-<wire x1="14.117" y1="5.822" x2="15.367" y2="4.572" width="0.3048" layer="1"/>
-<wire x1="15.367" y1="4.572" x2="25.106" y2="4.572" width="0.3048" layer="1"/>
-<wire x1="25.106" y1="4.572" x2="25.781" y2="5.247" width="0.3048" layer="1"/>
+<contactref element="CONN2" pad="D+"/>
+<wire x1="15.093" y1="7.036" x2="15.093" y2="4.973" width="0.254" layer="1"/>
+<wire x1="15.093" y1="4.973" x2="16.891" y2="3.175" width="0.254" layer="1"/>
+<wire x1="16.891" y1="3.175" x2="29.972" y2="3.175" width="0.254" layer="1"/>
+<wire x1="29.972" y1="3.175" x2="31.496" y2="4.699" width="0.254" layer="1"/>
+<wire x1="31.496" y1="4.699" x2="31.496" y2="7.4295" width="0.254" layer="1"/>
+<wire x1="31.496" y1="7.4295" x2="29.2862" y2="9.6393" width="0.254" layer="1"/>
 </signal>
 <signal name="D-">
 <contactref element="CONN1" pad="D-"/>
-<contactref element="CONN2" pad="3"/>
-<wire x1="14.117" y1="9.855" x2="14.117" y2="9.378" width="0.3048" layer="1"/>
-<wire x1="14.117" y1="9.378" x2="15.24" y2="8.255" width="0.3048" layer="1"/>
-<wire x1="15.24" y1="8.255" x2="18.034" y2="8.255" width="0.3048" layer="1"/>
-<wire x1="18.034" y1="8.255" x2="19.685" y2="9.906" width="0.3048" layer="1"/>
-<wire x1="19.685" y1="9.906" x2="23.622" y2="9.906" width="0.3048" layer="1"/>
-<wire x1="23.622" y1="9.906" x2="25.781" y2="7.747" width="0.3048" layer="1"/>
+<contactref element="CONN2" pad="D-"/>
+<wire x1="15.093" y1="10.236" x2="16.307" y2="10.236" width="0.254" layer="1"/>
+<wire x1="16.307" y1="10.236" x2="16.637" y2="9.906" width="0.254" layer="1"/>
+<wire x1="16.637" y1="9.906" x2="16.637" y2="4.191" width="0.254" layer="1"/>
+<wire x1="16.637" y1="4.191" x2="17.145" y2="3.683" width="0.254" layer="1"/>
+<wire x1="17.145" y1="3.683" x2="29.718" y2="3.683" width="0.254" layer="1"/>
+<wire x1="29.718" y1="3.683" x2="30.988" y2="4.953" width="0.254" layer="1"/>
+<wire x1="30.988" y1="4.953" x2="30.988" y2="7.112" width="0.254" layer="1"/>
+<wire x1="29.2862" y1="7.6327" x2="30.4673" y2="7.6327" width="0.254" layer="1"/>
+<wire x1="30.4673" y1="7.6327" x2="30.988" y2="7.112" width="0.254" layer="1"/>
 </signal>
 <signal name="GND">
 <contactref element="CONN1" pad="GND"/>
-<contactref element="L1" pad="2"/>
-<contactref element="CONN2" pad="5"/>
 <polygon width="0.254" layer="1" isolate="0.3048">
-<vertex x="0" y="15.494"/>
+<vertex x="0" y="17.272"/>
 <vertex x="0" y="0"/>
-<vertex x="39.751" y="0"/>
-<vertex x="39.751" y="15.494"/>
+<vertex x="42.799" y="0"/>
+<vertex x="42.799" y="17.272"/>
 </polygon>
 <polygon width="0.254" layer="16" isolate="0.3048">
-<vertex x="0" y="15.494"/>
+<vertex x="0" y="17.272"/>
 <vertex x="0" y="0"/>
-<vertex x="39.751" y="0"/>
-<vertex x="39.751" y="15.494"/>
+<vertex x="42.799" y="0"/>
+<vertex x="42.799" y="17.272"/>
 </polygon>
-<via x="3.302" y="8.255" extent="1-16" drill="3.2" diameter="5"/>
-<via x="36.449" y="8.255" extent="1-16" drill="3.2" diameter="5"/>
+<contactref element="CONN2" pad="GND"/>
+<via x="2.921" y="8.636" extent="1-16" drill="3.2" diameter="5"/>
+<via x="25.019" y="8.636" extent="1-16" drill="3.2" diameter="5"/>
+<contactref element="CONN1" pad="S1"/>
+<contactref element="CONN1" pad="S2"/>
+<contactref element="CONN2" pad="S1"/>
+<contactref element="CONN2" pad="S2"/>
 </signal>
 <signal name="+5V">
 <contactref element="CONN1" pad="VBUS"/>
-<contactref element="CONN2" pad="1"/>
-<wire x1="25.781" y1="2.747" x2="13.128" y2="2.747" width="0.6096" layer="1"/>
-<wire x1="13.128" y1="2.747" x2="11.684" y2="4.191" width="0.6096" layer="1"/>
-<wire x1="11.684" y1="4.191" x2="11.684" y2="10.922" width="0.6096" layer="1"/>
-<wire x1="11.684" y1="10.922" x2="12.446" y2="11.684" width="0.6096" layer="1"/>
-<wire x1="12.446" y1="11.684" x2="15.621" y2="11.684" width="0.6096" layer="1"/>
-<wire x1="15.621" y1="11.684" x2="16.637" y2="10.668" width="0.6096" layer="1"/>
-<wire x1="16.637" y1="10.668" x2="16.637" y2="9.875" width="0.6096" layer="1"/>
-<wire x1="16.637" y1="9.875" x2="16.617" y2="9.855" width="0.6096" layer="1"/>
+<contactref element="CONN2" pad="VBUS"/>
+<wire x1="12.593" y1="10.236" x2="12.593" y2="11.958" width="0.6096" layer="1"/>
+<wire x1="12.593" y1="11.958" x2="13.208" y2="12.573" width="0.6096" layer="1"/>
+<wire x1="13.208" y1="12.573" x2="16.51" y2="12.573" width="0.6096" layer="1"/>
+<wire x1="16.51" y1="12.573" x2="17.399" y2="11.684" width="0.6096" layer="1"/>
+<wire x1="17.399" y1="11.684" x2="17.399" y2="5.207" width="0.6096" layer="1"/>
+<wire x1="17.399" y1="5.207" x2="18.034" y2="4.572" width="0.6096" layer="1"/>
+<wire x1="18.034" y1="4.572" x2="28.7147" y2="4.572" width="0.6096" layer="1"/>
+<wire x1="28.7147" y1="4.572" x2="29.2862" y2="5.1435" width="0.6096" layer="1"/>
 </signal>
-<signal name="N$1">
-<contactref element="CONN1" pad="S1"/>
-<contactref element="CONN1" pad="S2"/>
-<contactref element="L1" pad="1"/>
-<wire x1="9.347" y1="7.155" x2="9.347" y2="11.633" width="1.016" layer="16"/>
-<wire x1="9.347" y1="11.633" x2="11.049" y2="13.335" width="1.016" layer="16"/>
-<wire x1="11.049" y1="13.335" x2="20.828" y2="13.335" width="1.016" layer="16"/>
-<wire x1="20.828" y1="13.335" x2="21.387" y2="12.776" width="1.016" layer="16"/>
-<wire x1="21.387" y1="7.155" x2="21.387" y2="12.776" width="1.016" layer="16"/>
-<wire x1="8.421" y1="1.397" x2="8.421" y2="6.229" width="1.016" layer="16"/>
-<wire x1="8.421" y1="6.229" x2="9.347" y2="7.155" width="1.016" layer="16"/>
+<signal name="VBUS">
 </signal>
 </signals>
 </board>
