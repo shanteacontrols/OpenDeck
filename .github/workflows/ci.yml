@@ -15,23 +15,26 @@ jobs:
       - name: Prepare build env
         run: |
           sudo apt-get update
-          sudo apt-get install -y srecord avr-libc gcc-arm-none-eabi clang
+          sudo apt-get install -y srecord clang
           sudo touch /usr/bin/avrdude && sudo chmod +x /usr/bin/avrdude
           sudo touch /usr/bin/gdb && sudo chmod +x /usr/bin/gdb
           curl -s https://api.github.com/repos/tomwright/dasel/releases/latest | grep browser_download_url | grep linux_amd64 | cut -d '"' -f 4 | wget -qi -
           chmod +x dasel_linux_amd64
           sudo mv dasel_linux_amd64 /usr/local/bin/dasel
           wget https://downloads.arduino.cc/arduino-1.8.13-linux64.tar.xz -O arduino.tar.xz
+          wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2
           tar -xf arduino.tar.xz
+          tar -xf gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2
           export MAKEFLAGS=-j8
       - name: Build targets
         run: |
-          PATH=$(pwd)/arduino-1.8.13/hardware/tools/avr/bin:${PATH}
+          PATH=$(pwd)/arduino-1.8.13/hardware/tools/avr/bin:$(pwd)/gcc-arm-none-eabi-10-2020-q4-major/bin:${PATH}
           git fetch --tags
           cd src/
           ../scripts/build_targets.sh
       - name: Test targets
         run: |
+          PATH=$(pwd)/arduino-1.8.13/hardware/tools/avr/bin:$(pwd)/gcc-arm-none-eabi-10-2020-q4-major/bin:${PATH}
           cd tests/
           ../scripts/build_targets.sh
           make exec
