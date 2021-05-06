@@ -17,3 +17,14 @@ src/application/io/touchscreen/design/gen/*.cpp
 **/**/Backup*.cdr
 *.b#*
 *.s#*
+*.dri
+*.GBL
+*.GBO
+*.GBS
+*.GKS
+*.GKO
+*.GTL
+*.GTO
+*.GTS
+*.gpi
+*.TXT
