@@ -162,7 +162,12 @@ namespace Board
                 {
                     core::io::mcuPin_t pin = detail::map::ledPin(i);
 
+#ifdef NUMBER_OF_LED_ROWS
+                    //when rows are used from native outputs, use open-drain configuration
                     CORE_IO_CONFIG({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::outputOD, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+#else
+                    CORE_IO_CONFIG({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+#endif
                     EXT_LED_OFF(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
                 }
 #endif
