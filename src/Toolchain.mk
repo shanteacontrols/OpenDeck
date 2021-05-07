@@ -42,7 +42,11 @@ $(YAML_PARSER) \
 $(SHA256SUM)
 
 #don't allow running make at all if required packages don't exist on the system
-$(foreach package, $(REQ_PACKAGES), $(if $(shell which $(package) 2>/dev/null),,$(error Required package not found: $(package))))
+#don't run this if the user is root - it's very likely sudo is used for flashing in this case
+#and some of the binaries may not be available due to the PATH being set for non-root user only
+ifneq ($(shell id -u), 0)
+    $(foreach package, $(REQ_PACKAGES), $(if $(shell which $(package) 2>/dev/null),,$(error Required package not found: $(package))))
+endif
 
 #avoid find errors
 #defined here to avoid verify target parsing "2>/dev/null" as an package causing it to fail
