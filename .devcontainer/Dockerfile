@@ -60,6 +60,14 @@ wget ${WGET_ARGS} https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-20
 tar -xf gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2 && \
 rm gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2
 
+RUN \
+cd /opendeck-deps && \
+wget ${WGET_ARGS} https://github.com/github/hub/releases/download/v2.14.2/hub-linux-amd64-2.14.2.tgz && \
+tar -xf hub-linux-amd64-2.14.2.tgz && \
+rm hub-linux-amd64-2.14.2.tgz && \
+cp hub-linux-amd64-2.14.2/bin/hub /usr/bin/hub && \
+rm -rf hub-linux-amd64-2.14.2
+
 ENV PATH="/opendeck-deps/arduino-1.8.13/hardware/tools/avr/bin:/opendeck-deps/gcc-arm-none-eabi-10-2020-q4-major/bin:$PATH"
 ENV MAKEFLAGS="-j8"
 
