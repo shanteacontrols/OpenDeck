@@ -167,7 +167,7 @@ bool Display::update()
         }
 
         //now fill remaining columns with spaces
-        for (int j = string_len; j < LCD_WIDTH_MAX; j++)
+        for (uint16_t j = string_len; j < LCD_WIDTH_MAX; j++)
             _u8x8.drawGlyph(j, _rowMap[_resolution][i], ' ');
 
         _charChange[i] = 0;
@@ -255,7 +255,7 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
 
         case lcdTextType_t::temp:
             //clear entire message first
-            for (int j = 0; j < LCD_WIDTH_MAX - 2; j++)
+            for (uint16_t j = 0; j < LCD_WIDTH_MAX - 2; j++)
                 _lcdRowTempText[row][j] = ' ';
 
             _lcdRowTempText[row][LCD_WIDTH_MAX - 1] = '\0';
@@ -349,7 +349,7 @@ void Display::updateScrollStatus(uint8_t row)
         break;
     }
 
-    for (int i = _scrollEvent[row].startIndex; i < LCD_WIDTH_MAX; i++)
+    for (uint16_t i = _scrollEvent[row].startIndex; i < LCD_WIDTH_MAX; i++)
         BIT_WRITE(_charChange[row], i, 1);
 
     _lastScrollTime = core::timing::currentRunTimeMs();
