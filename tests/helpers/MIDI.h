@@ -141,14 +141,15 @@ class MIDIHelper
     }
 
     template<typename T>
-    static uint16_t getSingleSysExReq(T section, size_t index)
+    static void generateSysExGetReq(T section, size_t index, std::vector<uint8_t>& request)
     {
         auto             blockIndex = block(section);
-        MIDI::Split14bit split14bit;
+        MIDI::Split14bit splitIndex;
 
-        split14bit.split(index);
+        splitIndex.split(index);
+        request.clear();
 
-        const std::vector<uint8_t> requestUint8 = {
+        request = {
             0xF0,
             SYSEX_MANUFACTURER_ID_0,
             SYSEX_MANUFACTURER_ID_1,
@@ -159,12 +160,49 @@ class MIDIHelper
             static_cast<uint8_t>(SysExConf::amount_t::single),
             static_cast<uint8_t>(blockIndex),
             static_cast<uint8_t>(section),
-            split14bit.high(),
-            split14bit.low(),
+            splitIndex.high(),
+            splitIndex.low(),
             0,
             0,
             0xF7
         };
+    }
+
+    template<typename T>
+    static void generateSysExSetReq(T section, size_t index, int16_t value, std::vector<uint8_t>& request)
+    {
+        auto             blockIndex = block(section);
+        MIDI::Split14bit splitIndex;
+        MIDI::Split14bit splitValue;
+
+        splitIndex.split(index);
+        splitValue.split(value);
+        request.clear();
+
+        request = {
+            0xF0,
+            SYSEX_MANUFACTURER_ID_0,
+            SYSEX_MANUFACTURER_ID_1,
+            SYSEX_MANUFACTURER_ID_2,
+            static_cast<uint8_t>(SysExConf::status_t::request),
+            0,
+            static_cast<uint8_t>(SysExConf::wish_t::set),
+            static_cast<uint8_t>(SysExConf::amount_t::single),
+            static_cast<uint8_t>(blockIndex),
+            static_cast<uint8_t>(section),
+            splitIndex.high(),
+            splitIndex.low(),
+            splitValue.high(),
+            splitValue.low(),
+            0xF7
+        };
+    }
+
+    template<typename T>
+    static uint16_t getSingleSysExReq(T section, size_t index)
+    {
+        std::vector<uint8_t> requestUint8;
+        generateSysExGetReq(section, index, requestUint8);
 
         return sendRequest(requestUint8, SysExConf::wish_t::get);
     }
