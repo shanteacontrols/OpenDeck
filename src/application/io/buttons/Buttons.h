@@ -105,7 +105,7 @@ namespace IO
             , _cInfo(cInfo)
         {}
 
-        void update();
+        void update(bool forceResend = false);
         void processButton(size_t index, bool newState);
         bool state(size_t index);
         void reset(size_t index);
@@ -113,13 +113,15 @@ namespace IO
         private:
         typedef struct
         {
-            messageType_t messageType;
-            uint8_t       note;
-            uint8_t       channel;
+            type_t        type;
+            messageType_t midiMessage;
+            uint8_t       midiID;
+            uint8_t       midiChannel;
             uint8_t       velocity;
-        } buttonMessageDescriptor_t;
+        } buttonDescriptor_t;
 
-        void sendMessage(size_t index, bool state, buttonMessageDescriptor_t& descriptor);
+        void fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor);
+        void sendMessage(size_t index, bool state, buttonDescriptor_t& descriptor);
         void setState(size_t index, bool state);
         void setLatchingState(size_t index, bool state);
         bool latchingState(size_t index);

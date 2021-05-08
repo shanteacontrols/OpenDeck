@@ -24,33 +24,46 @@ limitations under the License.
 using namespace IO;
 
 /// Continuously reads inputs from buttons and acts if necessary.
-void Buttons::update()
+void Buttons::update(bool forceResend)
 {
     for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
     {
         uint8_t  numberOfReadings = 0;
         uint32_t states           = 0;
 
-        if (!_hwa.state(i, numberOfReadings, states))
-            continue;
-
-        uint32_t currentTime = core::timing::currentRunTimeMs();
-
-        for (int reading = 0; reading < numberOfReadings; reading++)
+        if (!forceResend)
         {
-            //take into account that there is a 1ms difference between readouts
-            //when processing, newest sample has index 0
-            //start from oldest reading which is in upper bits
-            uint8_t  processIndex = numberOfReadings - 1 - reading;
-            uint32_t sampleTime   = currentTime - (TIME_DIFF_READOUT * processIndex);
-
-            bool state = states >> processIndex;
-            state &= 0x01;
-
-            if (!_filter.isFiltered(i, state, state, sampleTime))
+            if (!_hwa.state(i, numberOfReadings, states))
                 continue;
 
-            processButton(i, state);
+            uint32_t currentTime = core::timing::currentRunTimeMs();
+
+            for (uint8_t reading = 0; reading < numberOfReadings; reading++)
+            {
+                //take into account that there is a 1ms difference between readouts
+                //when processing, newest sample has index 0
+                //start from oldest reading which is in upper bits
+                uint8_t  processIndex = numberOfReadings - 1 - reading;
+                uint32_t sampleTime   = currentTime - (TIME_DIFF_READOUT * processIndex);
+
+                bool state = states >> processIndex;
+                state &= 0x01;
+
+                if (!_filter.isFiltered(i, state, state, sampleTime))
+                    continue;
+
+                processButton(i, state);
+            }
+        }
+        else
+        {
+            buttonDescriptor_t descriptor;
+            fillButtonDescriptor(i, descriptor);
+
+            if (descriptor.type == type_t::latching)
+                sendMessage(i, latchingState(i), descriptor);
+            else
+                sendMessage(i, state(i), descriptor);
         }
     }
 }
@@ -66,57 +79,15 @@ void Buttons::processButton(size_t index, bool newState)
 
     setState(index, newState);
 
-    buttonMessageDescriptor_t descriptor;
-
-    descriptor.messageType = static_cast<messageType_t>(_database.read(Database::Section::button_t::midiMessage, index));
-    descriptor.note        = _database.read(Database::Section::button_t::midiID, index);
-    descriptor.channel     = _database.read(Database::Section::button_t::midiChannel, index);
-    descriptor.velocity    = _database.read(Database::Section::button_t::velocity, index);
-
-    auto type = static_cast<type_t>(_database.read(Database::Section::button_t::type, index));
+    buttonDescriptor_t descriptor;
+    fillButtonDescriptor(index, descriptor);
 
     //don't process messageType_t::none type of message
-    if (descriptor.messageType != messageType_t::none)
+    if (descriptor.midiMessage != messageType_t::none)
     {
         bool sendMIDI = true;
 
-        //overwrite type under certain conditions
-        switch (descriptor.messageType)
-        {
-        case messageType_t::programChange:
-        case messageType_t::programChangeInc:
-        case messageType_t::programChangeDec:
-        case messageType_t::mmcPlay:
-        case messageType_t::mmcStop:
-        case messageType_t::mmcPause:
-        case messageType_t::controlChange:
-        case messageType_t::realTimeClock:
-        case messageType_t::realTimeStart:
-        case messageType_t::realTimeContinue:
-        case messageType_t::realTimeStop:
-        case messageType_t::realTimeActiveSensing:
-        case messageType_t::realTimeSystemReset:
-        case messageType_t::multiValIncResetNote:
-        case messageType_t::multiValIncDecNote:
-        case messageType_t::multiValIncResetCC:
-        case messageType_t::multiValIncDecCC:
-            type = type_t::momentary;
-            break;
-
-        case messageType_t::mmcRecord:
-            type = type_t::latching;
-            break;
-
-        case messageType_t::presetOpenDeck:
-            type     = type_t::momentary;
-            sendMIDI = false;
-            break;
-
-        default:
-            break;
-        }
-
-        if (type == type_t::latching)
+        if (descriptor.type == type_t::latching)
         {
             //act on press only
             if (newState)
@@ -143,12 +114,16 @@ void Buttons::processButton(size_t index, bool newState)
         {
             sendMessage(index, newState, descriptor);
         }
-        else if (descriptor.messageType == messageType_t::presetOpenDeck)
+        else if (descriptor.midiMessage == messageType_t::presetOpenDeck)
         {
             //change preset only on press
             if (newState)
             {
                 uint8_t preset = _database.read(Database::Section::button_t::midiID, index);
+
+                //don't send off message once the preset is switched (in case this button has standard message type in switched preset)
+                //pretend the button is already released
+                setState(index, false);
                 _database.setPreset(preset);
             }
         }
@@ -162,24 +137,27 @@ void Buttons::processButton(size_t index, bool newState)
 /// param [in]: index           Button index which sends the message.
 /// param [in]: state           Button state (true/pressed, false/released).
 /// param [in]: buttonMessage   Type of MIDI message to send. If unspecified, message type is read from _database.
-void Buttons::sendMessage(size_t index, bool state, buttonMessageDescriptor_t& descriptor)
+void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descriptor)
 {
-    if (descriptor.messageType == messageType_t::AMOUNT)
-        descriptor.messageType = static_cast<messageType_t>(_database.read(Database::Section::button_t::midiMessage, index));
+    if (descriptor.midiMessage == messageType_t::presetOpenDeck)
+        return;    //no message to send in this case
 
-    _mmcArray[2] = descriptor.note;    //use midi note as channel id for transport control
+    if (descriptor.midiMessage == messageType_t::AMOUNT)
+        descriptor.midiMessage = static_cast<messageType_t>(_database.read(Database::Section::button_t::midiMessage, index));
+
+    _mmcArray[2] = descriptor.midiID;    //use midi note as channel id for transport control
 
     bool send = true;
 
     if (state)
     {
-        switch (descriptor.messageType)
+        switch (descriptor.midiMessage)
         {
         case messageType_t::note:
         {
-            _midi.sendNoteOn(descriptor.note, descriptor.velocity, descriptor.channel);
-            _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, descriptor.note, descriptor.velocity, descriptor.channel + 1);
-            _leds.midiToState(MIDI::messageType_t::noteOn, descriptor.note, descriptor.velocity, descriptor.channel, LEDs::dataSource_t::internal);
+            _midi.sendNoteOn(descriptor.midiID, descriptor.velocity, descriptor.midiChannel);
+            _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, descriptor.midiID, descriptor.velocity, descriptor.midiChannel + 1);
+            _leds.midiToState(MIDI::messageType_t::noteOn, descriptor.midiID, descriptor.velocity, descriptor.midiChannel, LEDs::dataSource_t::internal);
         }
         break;
 
@@ -187,27 +165,27 @@ void Buttons::sendMessage(size_t index, bool state, buttonMessageDescriptor_t& d
         case messageType_t::programChangeInc:
         case messageType_t::programChangeDec:
         {
-            if (descriptor.messageType != messageType_t::programChange)
+            if (descriptor.midiMessage != messageType_t::programChange)
             {
-                if (descriptor.messageType == messageType_t::programChangeInc)
+                if (descriptor.midiMessage == messageType_t::programChangeInc)
                 {
-                    if (!Common::pcIncrement(descriptor.channel))
+                    if (!Common::pcIncrement(descriptor.midiChannel))
                         send = false;
                 }
                 else
                 {
-                    if (!Common::pcDecrement(descriptor.channel))
+                    if (!Common::pcDecrement(descriptor.midiChannel))
                         send = false;
                 }
 
-                descriptor.note = Common::program(descriptor.channel);
+                descriptor.midiID = Common::program(descriptor.midiChannel);
             }
 
             if (send)
             {
-                _midi.sendProgramChange(descriptor.note, descriptor.channel);
-                _leds.midiToState(MIDI::messageType_t::programChange, descriptor.note, 0, descriptor.channel, LEDs::dataSource_t::internal);
-                _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::programChange, descriptor.note, 0, descriptor.channel + 1);
+                _midi.sendProgramChange(descriptor.midiID, descriptor.midiChannel);
+                _leds.midiToState(MIDI::messageType_t::programChange, descriptor.midiID, 0, descriptor.midiChannel, LEDs::dataSource_t::internal);
+                _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::programChange, descriptor.midiID, 0, descriptor.midiChannel + 1);
             }
         }
         break;
@@ -215,9 +193,9 @@ void Buttons::sendMessage(size_t index, bool state, buttonMessageDescriptor_t& d
         case messageType_t::controlChange:
         case messageType_t::controlChangeReset:
         {
-            _midi.sendControlChange(descriptor.note, descriptor.velocity, descriptor.channel);
-            _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, descriptor.note, descriptor.velocity, descriptor.channel + 1);
-            _leds.midiToState(MIDI::messageType_t::controlChange, descriptor.note, descriptor.velocity, descriptor.channel, LEDs::dataSource_t::internal);
+            _midi.sendControlChange(descriptor.midiID, descriptor.velocity, descriptor.midiChannel);
+            _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, descriptor.midiID, descriptor.velocity, descriptor.midiChannel + 1);
+            _leds.midiToState(MIDI::messageType_t::controlChange, descriptor.midiID, descriptor.velocity, descriptor.midiChannel, LEDs::dataSource_t::internal);
         }
         break;
 
@@ -305,15 +283,15 @@ void Buttons::sendMessage(size_t index, bool state, buttonMessageDescriptor_t& d
             {
                 if (!value)
                 {
-                    _midi.sendNoteOff(descriptor.note, value, descriptor.channel);
-                    _leds.midiToState(MIDI::messageType_t::noteOff, descriptor.note, value, descriptor.channel, LEDs::dataSource_t::internal);
-                    _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOff, descriptor.note, value, descriptor.channel + 1);
+                    _midi.sendNoteOff(descriptor.midiID, value, descriptor.midiChannel);
+                    _leds.midiToState(MIDI::messageType_t::noteOff, descriptor.midiID, value, descriptor.midiChannel, LEDs::dataSource_t::internal);
+                    _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOff, descriptor.midiID, value, descriptor.midiChannel + 1);
                 }
                 else
                 {
-                    _midi.sendNoteOn(descriptor.note, value, descriptor.channel);
-                    _leds.midiToState(MIDI::messageType_t::noteOn, descriptor.note, value, descriptor.channel, LEDs::dataSource_t::internal);
-                    _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, descriptor.note, value, descriptor.channel + 1);
+                    _midi.sendNoteOn(descriptor.midiID, value, descriptor.midiChannel);
+                    _leds.midiToState(MIDI::messageType_t::noteOn, descriptor.midiID, value, descriptor.midiChannel, LEDs::dataSource_t::internal);
+                    _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, descriptor.midiID, value, descriptor.midiChannel + 1);
                 }
             }
         }
@@ -328,15 +306,15 @@ void Buttons::sendMessage(size_t index, bool state, buttonMessageDescriptor_t& d
             {
                 if (!value)
                 {
-                    _midi.sendNoteOff(descriptor.note, value, descriptor.channel);
-                    _leds.midiToState(MIDI::messageType_t::noteOff, descriptor.note, value, descriptor.channel, LEDs::dataSource_t::internal);
-                    _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOff, descriptor.note, value, descriptor.channel + 1);
+                    _midi.sendNoteOff(descriptor.midiID, value, descriptor.midiChannel);
+                    _leds.midiToState(MIDI::messageType_t::noteOff, descriptor.midiID, value, descriptor.midiChannel, LEDs::dataSource_t::internal);
+                    _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOff, descriptor.midiID, value, descriptor.midiChannel + 1);
                 }
                 else
                 {
-                    _midi.sendNoteOn(descriptor.note, value, descriptor.channel);
-                    _leds.midiToState(MIDI::messageType_t::noteOn, descriptor.note, value, descriptor.channel, LEDs::dataSource_t::internal);
-                    _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, descriptor.note, value, descriptor.channel + 1);
+                    _midi.sendNoteOn(descriptor.midiID, value, descriptor.midiChannel);
+                    _leds.midiToState(MIDI::messageType_t::noteOn, descriptor.midiID, value, descriptor.midiChannel, LEDs::dataSource_t::internal);
+                    _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, descriptor.midiID, value, descriptor.midiChannel + 1);
                 }
             }
         }
@@ -349,9 +327,9 @@ void Buttons::sendMessage(size_t index, bool state, buttonMessageDescriptor_t& d
 
             if (currentValue != value)
             {
-                _midi.sendControlChange(descriptor.note, value, descriptor.channel);
-                _leds.midiToState(MIDI::messageType_t::controlChange, descriptor.note, value, descriptor.channel, LEDs::dataSource_t::internal);
-                _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, descriptor.note, value, descriptor.channel + 1);
+                _midi.sendControlChange(descriptor.midiID, value, descriptor.midiChannel);
+                _leds.midiToState(MIDI::messageType_t::controlChange, descriptor.midiID, value, descriptor.midiChannel, LEDs::dataSource_t::internal);
+                _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, descriptor.midiID, value, descriptor.midiChannel + 1);
             }
         }
         break;
@@ -363,9 +341,9 @@ void Buttons::sendMessage(size_t index, bool state, buttonMessageDescriptor_t& d
 
             if (currentValue != value)
             {
-                _midi.sendControlChange(descriptor.note, value, descriptor.channel);
-                _leds.midiToState(MIDI::messageType_t::controlChange, descriptor.note, value, descriptor.channel, LEDs::dataSource_t::internal);
-                _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, descriptor.note, value, descriptor.channel + 1);
+                _midi.sendControlChange(descriptor.midiID, value, descriptor.midiChannel);
+                _leds.midiToState(MIDI::messageType_t::controlChange, descriptor.midiID, value, descriptor.midiChannel, LEDs::dataSource_t::internal);
+                _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, descriptor.midiID, value, descriptor.midiChannel + 1);
             }
         }
         break;
@@ -376,18 +354,18 @@ void Buttons::sendMessage(size_t index, bool state, buttonMessageDescriptor_t& d
     }
     else
     {
-        switch (descriptor.messageType)
+        switch (descriptor.midiMessage)
         {
         case messageType_t::note:
-            _midi.sendNoteOff(descriptor.note, 0, descriptor.channel);
-            _display.displayMIDIevent(Display::eventType_t::out, _midi.getNoteOffMode() == MIDI::noteOffType_t::standardNoteOff ? Display::event_t::noteOff : Display::event_t::noteOn, descriptor.note, 0, descriptor.channel + 1);
-            _leds.midiToState(MIDI::messageType_t::noteOff, descriptor.note, 0, descriptor.channel, LEDs::dataSource_t::internal);
+            _midi.sendNoteOff(descriptor.midiID, 0, descriptor.midiChannel);
+            _display.displayMIDIevent(Display::eventType_t::out, _midi.getNoteOffMode() == MIDI::noteOffType_t::standardNoteOff ? Display::event_t::noteOff : Display::event_t::noteOn, descriptor.midiID, 0, descriptor.midiChannel + 1);
+            _leds.midiToState(MIDI::messageType_t::noteOff, descriptor.midiID, 0, descriptor.midiChannel, LEDs::dataSource_t::internal);
             break;
 
         case messageType_t::controlChangeReset:
-            _midi.sendControlChange(descriptor.note, 0, descriptor.channel);
-            _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, descriptor.note, 0, descriptor.channel + 1);
-            _leds.midiToState(MIDI::messageType_t::controlChange, descriptor.note, 0, descriptor.channel, LEDs::dataSource_t::internal);
+            _midi.sendControlChange(descriptor.midiID, 0, descriptor.midiChannel);
+            _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, descriptor.midiID, 0, descriptor.midiChannel + 1);
+            _leds.midiToState(MIDI::messageType_t::controlChange, descriptor.midiID, 0, descriptor.midiChannel, LEDs::dataSource_t::internal);
             break;
 
         case messageType_t::mmcRecord:
@@ -460,4 +438,48 @@ void Buttons::reset(size_t index)
     setState(index, false);
     setLatchingState(index, false);
     _filter.reset(index);
+}
+
+void Buttons::fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor)
+{
+    descriptor.type        = static_cast<type_t>(_database.read(Database::Section::button_t::type, index));
+    descriptor.midiMessage = static_cast<messageType_t>(_database.read(Database::Section::button_t::midiMessage, index));
+    descriptor.midiID      = _database.read(Database::Section::button_t::midiID, index);
+    descriptor.midiChannel = _database.read(Database::Section::button_t::midiChannel, index);
+    descriptor.velocity    = _database.read(Database::Section::button_t::velocity, index);
+
+    //overwrite type under certain conditions
+    switch (descriptor.midiMessage)
+    {
+    case messageType_t::programChange:
+    case messageType_t::programChangeInc:
+    case messageType_t::programChangeDec:
+    case messageType_t::mmcPlay:
+    case messageType_t::mmcStop:
+    case messageType_t::mmcPause:
+    case messageType_t::controlChange:
+    case messageType_t::realTimeClock:
+    case messageType_t::realTimeStart:
+    case messageType_t::realTimeContinue:
+    case messageType_t::realTimeStop:
+    case messageType_t::realTimeActiveSensing:
+    case messageType_t::realTimeSystemReset:
+    case messageType_t::multiValIncResetNote:
+    case messageType_t::multiValIncDecNote:
+    case messageType_t::multiValIncResetCC:
+    case messageType_t::multiValIncDecCC:
+        descriptor.type = type_t::momentary;
+        break;
+
+    case messageType_t::mmcRecord:
+        descriptor.type = type_t::latching;
+        break;
+
+    case messageType_t::presetOpenDeck:
+        descriptor.type = type_t::momentary;
+        break;
+
+    default:
+        break;
+    }
 }
