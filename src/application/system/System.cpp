@@ -219,7 +219,7 @@ void System::DBhandlers::presetChange(uint8_t preset)
     if (_system._display.init(false))
         _system._display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::presetChange, preset, 0, 0);
 
-    _system._analog.update(true);
+    _system.forceComponentRefresh();
 }
 
 void System::DBhandlers::factoryResetStart()
@@ -270,7 +270,7 @@ bool System::init()
     });
 
     _hwa.registerOnUSBconnectionHandler([this]() {
-        _analog.update(true);
+        forceComponentRefresh();
     });
 
     if (!_hwa.init())
@@ -637,4 +637,10 @@ void System::run()
 {
     checkComponents();
     checkMIDI();
+}
+
+void System::forceComponentRefresh()
+{
+    _analog.update(true);
+    _buttons.update(true);
 }

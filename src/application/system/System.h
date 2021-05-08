@@ -290,6 +290,7 @@ class System
     void                             onWrite(uint8_t* sysExArray, size_t size);
     void                             backup();
     void                             configureMIDImerge(midiMergeType_t mergeType);
+    void                             forceComponentRefresh();
     Database::block_t                dbBlock(uint8_t index);
     Database::Section::global_t      dbSection(Section::global_t section);
     Database::Section::button_t      dbSection(Section::button_t section);
