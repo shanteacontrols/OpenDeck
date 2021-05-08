@@ -171,29 +171,39 @@ class MIDIHelper
 
     static std::string sendRawSysEx(std::string req)
     {
-        std::string response;
+        std::string cmdResponse;
         std::string lastResponseFileLocation = "/tmp/midi_in_data.txt";
 
-        test::wsystem("rm -f " + lastResponseFileLocation, response);
+        test::wsystem("rm -f " + lastResponseFileLocation, cmdResponse);
         std::string cmd = std::string("stdbuf -i0 -o0 -e0 amidi -p $(amidi -l | grep -E 'OpenDeck'") + std::string(" | grep -Eo 'hw:\\S*') -S '") + req + "' -d | stdbuf -i0 -o0 -e0 tr -d '\n' > " + lastResponseFileLocation + " &";
-        test::wsystem(cmd, response);
+        test::wsystem(cmd, cmdResponse);
 
         size_t responseRetryCounter = 0;
 
         //once F7 appears in file, response is received
         //allow 100ms of total response time
-        while (test::wsystem("grep -q 'F7' " + lastResponseFileLocation, response))
+        while (test::wsystem("grep -q 'F7' " + lastResponseFileLocation, cmdResponse))
         {
-            test::wsystem("sleep 0.01", response);
+            test::wsystem("sleep 0.01", cmdResponse);
             responseRetryCounter++;
 
             if (responseRetryCounter == 10)
                 break;
         }
 
-        test::wsystem("killall amidi > /dev/null 2>&1", response);
+        test::wsystem("killall amidi > /dev/null 2>&1", cmdResponse);
 
-        return lastResponse(lastResponseFileLocation);
+        //cut everything before the last F0
+        test::wsystem("sed -i 's/^.*F0/F0/' " + lastResponseFileLocation, cmdResponse);
+        //and also everything after F7
+        test::wsystem("sed -i 's/F7.*/F7/' " + lastResponseFileLocation, cmdResponse);
+
+        auto response = lastResponse(lastResponseFileLocation);
+
+        std::cout << "req: " << req << std::endl;
+        std::cout << "res: " << response << std::endl;
+
+        return response;
     }
 
     private:
@@ -248,9 +258,6 @@ class MIDIHelper
         }
 
         std::string responseString = sendRawSysEx(requestString.str());
-
-        std::cout << "req: " << requestString.str() << std::endl;
-        std::cout << "res: " << responseString << std::endl;
 
         //convert response back to uint8 vector
         std::vector<uint8_t> responseUint8;
