@@ -39,10 +39,10 @@ void Analog::update(bool forceResend)
         {
             if (_database.read(Database::Section::analog_t::enable, i))
             {
-                analogDescriptor_t analogDescriptor;
-                fillAnalogDescriptor(i, analogDescriptor);
+                analogDescriptor_t descriptor;
+                fillAnalogDescriptor(i, descriptor);
 
-                sendMessage(i, analogDescriptor, _lastValue[i]);
+                sendMessage(i, descriptor, _lastValue[i]);
             }
         }
     }
@@ -59,17 +59,17 @@ void Analog::processReading(size_t index, uint16_t value)
     if (!_database.read(Database::Section::analog_t::enable, index))
         return;
 
-    analogDescriptor_t analogDescriptor;
-    fillAnalogDescriptor(index, analogDescriptor);
+    analogDescriptor_t descriptor;
+    fillAnalogDescriptor(index, descriptor);
 
-    if (!_filter.isFiltered(index, analogDescriptor.type, value, value))
+    if (!_filter.isFiltered(index, descriptor.type, value, value))
         return;
 
     bool send = false;
 
-    if (analogDescriptor.type != type_t::button)
+    if (descriptor.type != type_t::button)
     {
-        switch (analogDescriptor.type)
+        switch (descriptor.type)
         {
         case type_t::potentiometerControlChange:
         case type_t::potentiometerNote:
@@ -78,14 +78,14 @@ void Analog::processReading(size_t index, uint16_t value)
         case type_t::pitchBend:
         case type_t::cc14bit:
         {
-            if (checkPotentiometerValue(index, analogDescriptor, value))
+            if (checkPotentiometerValue(index, descriptor, value))
                 send = true;
         }
         break;
 
         case type_t::fsr:
         {
-            if (checkFSRvalue(index, analogDescriptor, value))
+            if (checkFSRvalue(index, descriptor, value))
                 send = true;
         }
         break;
@@ -102,7 +102,7 @@ void Analog::processReading(size_t index, uint16_t value)
 
     if (send)
     {
-        sendMessage(index, analogDescriptor, value);
+        sendMessage(index, descriptor, value);
         _lastValue[index] = value;
     }
 
@@ -299,12 +299,12 @@ void Analog::registerButtonHandler(buttonHandler_t handler)
     _buttonHandler = std::move(handler);
 }
 
-void Analog::fillAnalogDescriptor(size_t index, analogDescriptor_t& analogDescriptor)
+void Analog::fillAnalogDescriptor(size_t index, analogDescriptor_t& descriptor)
 {
-    analogDescriptor.type       = static_cast<type_t>(_database.read(Database::Section::analog_t::type, index));
-    analogDescriptor.lowerLimit = _database.read(Database::Section::analog_t::lowerLimit, index);
-    analogDescriptor.upperLimit = _database.read(Database::Section::analog_t::upperLimit, index);
-    analogDescriptor.midiID     = _database.read(Database::Section::analog_t::midiID, index);
-    analogDescriptor.channel    = _database.read(Database::Section::analog_t::midiChannel, index);
-    analogDescriptor.inverted   = _database.read(Database::Section::analog_t::invert, index);
+    descriptor.type       = static_cast<type_t>(_database.read(Database::Section::analog_t::type, index));
+    descriptor.lowerLimit = _database.read(Database::Section::analog_t::lowerLimit, index);
+    descriptor.upperLimit = _database.read(Database::Section::analog_t::upperLimit, index);
+    descriptor.midiID     = _database.read(Database::Section::analog_t::midiID, index);
+    descriptor.channel    = _database.read(Database::Section::analog_t::midiChannel, index);
+    descriptor.inverted   = _database.read(Database::Section::analog_t::invert, index);
 }
