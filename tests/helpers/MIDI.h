@@ -199,7 +199,7 @@ class MIDIHelper
     }
 
     template<typename T>
-    static uint16_t getSingleSysExReq(T section, size_t index)
+    static uint16_t readFromBoard(T section, size_t index)
     {
         std::vector<uint8_t> requestUint8;
         generateSysExGetReq(section, index, requestUint8);
