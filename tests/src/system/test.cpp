@@ -360,6 +360,7 @@ TEST_CASE(Requests)
     //try to enable DIN midi via sysex
     //verify that it is disabled first
     TEST_ASSERT(hwaSystem.dinMIDIenabled == false);
+    hwaMIDI.dinPacketOut.clear();
     TEST_ASSERT(database.read(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled)) == false);
     midi.sendNoteOn(127, 127, 1);
     TEST_ASSERT_EQUAL_UINT32(0, hwaMIDI.dinPacketOut.size());
