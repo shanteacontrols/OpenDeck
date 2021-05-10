@@ -37,6 +37,57 @@ namespace
 
     DBstorageMock dbStorageMock;
     Database      database = Database(dbStorageMock, false);
+
+    void reboot()
+    {
+        std::string response;
+
+        TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
+        MIDIHelper::sendRawSysEx(reboot_req);
+        test::wsystem("sleep " + startup_delay_s, response);
+
+        if (test::wsystem("lsusb -v 2>/dev/null | grep -q '" + opendeck_dev_vid_pid + "'", response) != 0)
+        {
+            printf("OpenDeck device not found after reboot, aborting\n");
+            exit(1);
+        }
+
+        TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
+    }
+
+    void factoryReset()
+    {
+        std::string response;
+
+        TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
+        MIDIHelper::sendRawSysEx(factory_reset_req);
+
+        test::wsystem("sleep " + startup_delay_s, response);
+
+        if (test::wsystem("lsusb -v 2>/dev/null | grep -q '" + opendeck_dev_vid_pid + "'", response) != 0)
+        {
+            printf("OpenDeck device not found after factory reset, aborting\n");
+            exit(1);
+        }
+
+        TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
+    }
+
+    void bootloaderMode()
+    {
+        std::string response;
+
+        TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
+        MIDIHelper::sendRawSysEx(btldr_req);
+
+        test::wsystem("sleep " + startup_delay_s, response);
+
+        if (test::wsystem("lsusb -v 2>/dev/null | grep -q '" + opendeck_dfu_vid_pid + "'", response) != 0)
+        {
+            printf("OpenDeck DFU device not found after bootloader request, aborting\n");
+            exit(1);
+        }
+    }
 }    // namespace
 
 TEST_SETUP()
@@ -47,6 +98,12 @@ TEST_SETUP()
 
     //dummy db - used only to retrieve correct amount of supported presets
     TEST_ASSERT(database.init() == true);
+}
+
+TEST_TEARDOWN()
+{
+    std::string response;
+    test::wsystem("rm -f " + temp_midi_data_location, response);
 }
 
 TEST_CASE(FlashAndBoot)
@@ -71,26 +128,9 @@ TEST_CASE(FlashAndBoot)
     }
 }
 
-TEST_CASE(FactoryReset)
-{
-    std::string response;
-
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
-    MIDIHelper::sendRawSysEx(factory_reset_req);
-
-    //once factory reset is initiated, board is rebooted
-    test::wsystem("sleep " + startup_delay_s, response);
-
-    if (test::wsystem("lsusb -v 2>/dev/null | grep -q '" + opendeck_dev_vid_pid + "'", response) != 0)
-    {
-        printf("OpenDeck device not found after factory reset, aborting\n");
-        exit(1);
-    }
-}
-
 TEST_CASE(DatabaseInitialValues)
 {
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
+    factoryReset();
 
     for (int preset = 0; preset < database.getSupportedPresets(); preset++)
     {
@@ -405,16 +445,7 @@ TEST_CASE(FwUpdate)
         exit(1);
     }
 
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
-    MIDIHelper::sendRawSysEx(btldr_req);
-
-    test::wsystem("sleep " + startup_delay_s, response);
-
-    if (test::wsystem("lsusb -v 2>/dev/null | grep -q '" + opendeck_dfu_vid_pid + "'", response) != 0)
-    {
-        printf("OpenDeck DFU device not found after bootloader request, aborting\n");
-        exit(1);
-    }
+    bootloaderMode();
 
     //perform fw update
     std::string cmd = std::string("amidi -p $(amidi -l | grep -E 'OpenDeck DFU'") + std::string(" | grep -Eo 'hw:\\S*') -s ") + syxPath + " -i " + sysex_fw_update_delay_ms;
@@ -432,24 +463,6 @@ TEST_CASE(FwUpdate)
 TEST_CASE(BackupAndRestore)
 {
     std::string response;
-
-    auto factoryReset = [&]() {
-        TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
-
-        //first, perform factory reset
-        MIDIHelper::sendRawSysEx(factory_reset_req);
-
-        //once factory reset is initiated, board is rebooted
-        test::wsystem("sleep " + startup_delay_s, response);
-
-        if (test::wsystem("lsusb -v 2>/dev/null | grep -q '" + opendeck_dev_vid_pid + "'", response) != 0)
-        {
-            printf("OpenDeck device not found after factory reset, aborting\n");
-            exit(1);
-        }
-
-        TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
-    };
 
     factoryReset();
 
