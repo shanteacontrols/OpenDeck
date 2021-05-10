@@ -611,6 +611,7 @@ class SystemHWA : public System::HWA
             }
 
             lastConnectionState = newState;
+            lastCheckTime       = core::timing::currentRunTimeMs();
         }
     }
 
