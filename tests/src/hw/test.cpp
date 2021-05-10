@@ -22,6 +22,7 @@ namespace
     const std::string opendeck_dev_vid_pid     = "1209:8472";
     const std::string opendeck_dfu_vid_pid     = "1209:8473";
     const std::string handshake_req            = "F0 00 53 43 00 00 01 F7";
+    const std::string reboot_req               = "F0 00 53 43 00 00 7F F7";
     const std::string handshake_ack            = "F0 00 53 43 01 00 01 F7";
     const std::string factory_reset_req        = "F0 00 53 43 00 00 44 F7";
     const std::string btldr_req                = "F0 00 53 43 00 00 55 F7";
@@ -34,6 +35,7 @@ namespace
     const std::string rapid_reboot_repeat_s    = "1.2";
     const std::string fw_build_dir             = "../src/build/merged/";
     const std::string fw_build_type_subdir     = "release/";
+    const std::string temp_midi_data_location  = "/tmp/temp_midi_data";
 
     DBstorageMock dbStorageMock;
     Database      database = Database(dbStorageMock, false);
@@ -520,6 +522,58 @@ TEST_CASE(BackupAndRestore)
         TEST_ASSERT_EQUAL_UINT32(2, MIDIHelper::readFromBoard(System::Section::encoder_t::pulsesPerStep, 1));
         TEST_ASSERT_EQUAL_UINT32(126, MIDIHelper::readFromBoard(System::Section::button_t::velocity, 0));
     }
+}
+
+TEST_CASE(MIDIData)
+{
+    std::string response;
+
+    factoryReset();
+
+    //once the usb midi connection is opened, the board should forcefully resend all the button states
+    std::string cmd = std::string("amidi -p $(amidi -l | grep -E 'OpenDeck'") + std::string(" | grep -Eo 'hw:\\S*')") + " -d -t 5 > " + temp_midi_data_location;
+    TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd, response));
+
+    //drop empty lines
+    TEST_ASSERT_EQUAL_INT(0, test::wsystem("sed -i '/^$/d' " + temp_midi_data_location, response));
+
+    //verify line count
+    TEST_ASSERT_EQUAL_INT(0, test::wsystem("grep -c . " + temp_midi_data_location, response));
+    TEST_ASSERT_EQUAL_INT(MAX_NUMBER_OF_BUTTONS, stoi(response));
+    TEST_ASSERT_EQUAL_INT(0, test::wsystem("rm " + temp_midi_data_location, response));
+
+    //run the same test for DIN MIDI
+
+    reboot();
+
+    cmd = std::string("amidi -p $(amidi -l | grep -E 'ESI MIDIMATE eX MIDI 1'") + std::string(" | grep -Eo 'hw:\\S*')") + " -d > " + temp_midi_data_location + " &";
+    TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd, response));
+
+    //note: after this request is sent, helper will terminate all amidi processes
+    //no need to terminate the one in the background manually
+    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
+
+    //verify line count - since DIN MIDI isn't enabled, total count should be 0
+    test::wsystem("grep -c . " + temp_midi_data_location, response);
+    TEST_ASSERT_EQUAL_INT(0, stoi(response));
+    TEST_ASSERT_EQUAL_INT(0, test::wsystem("rm " + temp_midi_data_location, response));
+
+    //now enable DIN MIDI, reboot the board, repeat the test and verify that messages are received on DIN MIDI as well
+    TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled), 1) == true);
+
+    reboot();
+
+    //monitor DIN MIDI through another interface
+    cmd = std::string("amidi -p $(amidi -l | grep -E 'ESI MIDIMATE eX MIDI 1'") + std::string(" | grep -Eo 'hw:\\S*')") + " -d > " + temp_midi_data_location + " &";
+    TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd, response));
+
+    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
+
+    test::wsystem("grep -c . " + temp_midi_data_location, response);
+
+    //raspberry pi has slow USB MIDI and drops some packets
+    //half of expected results is okay
+    TEST_ASSERT((MAX_NUMBER_OF_BUTTONS / 2) >= stoi(response));
 }
 
 #endif
