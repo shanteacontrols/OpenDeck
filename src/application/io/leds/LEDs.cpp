@@ -152,14 +152,18 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
 {
     for (size_t i = 0; i < MAX_LEDS; i++)
     {
+        auto controlType = static_cast<controlType_t>(_database.read(Database::Section::leds_t::controlType, i));
+
+        //match received midi message with the assigned LED control type
+        if (!isControlTypeMatched(messageType, controlType))
+            continue;
+
         //no point in checking if channel doesn't match
         if (_database.read(Database::Section::leds_t::midiChannel, i) != channel)
             continue;
 
         bool setState = false;
         bool setBlink = false;
-
-        auto controlType = static_cast<controlType_t>(_database.read(Database::Section::leds_t::controlType, i));
 
         //determine whether led state or blink state should be changed
         //received MIDI message must match with defined control type
@@ -541,4 +545,13 @@ void LEDs::resetState(uint8_t index)
     _ledState[index]   = 0;
     _brightness[index] = brightness_t::bOff;
     _hwa.setState(index, brightness_t::bOff);
+}
+
+bool LEDs::isControlTypeMatched(MIDI::messageType_t midiMessage, controlType_t controlType)
+{
+    //match note off as well - only noteOn is present in the array
+    if (midiMessage == MIDI::messageType_t::noteOff)
+        midiMessage = MIDI::messageType_t::noteOn;
+
+    return controlTypeToMIDImessage[static_cast<uint8_t>(controlType)] == midiMessage;
 }
