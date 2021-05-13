@@ -584,16 +584,16 @@ void System::checkMIDI()
         isMIDIfeatureEnabled(System::midiFeature_t::passToDIN))
     {
         //pass the message to din
-        if (_midi.read(MIDI::interface_t::usb, MIDI::filterMode_t::fullDIN))
+        while (_midi.read(MIDI::interface_t::usb, MIDI::filterMode_t::fullDIN))
             processMessage(MIDI::interface_t::usb);
     }
     else
     {
-        if (_midi.read(MIDI::interface_t::usb))
+        while (_midi.read(MIDI::interface_t::usb))
             processMessage(MIDI::interface_t::usb);
     }
 #else
-    if (_midi.read(MIDI::interface_t::usb))
+    while (_midi.read(MIDI::interface_t::usb))
         processMessage(MIDI::interface_t::usb);
 #endif
 
@@ -608,7 +608,8 @@ void System::checkMIDI()
             {
             case System::midiMergeType_t::DINtoUSB:
                 //dump everything from DIN MIDI in to USB MIDI out
-                _midi.read(MIDI::interface_t::din, MIDI::filterMode_t::fullUSB);
+                while (_midi.read(MIDI::interface_t::din, MIDI::filterMode_t::fullUSB))
+                    ;
                 break;
 
                 // case System::midiMergeType_t::DINtoDIN:
@@ -621,7 +622,7 @@ void System::checkMIDI()
         }
         else
         {
-            if (_midi.read(MIDI::interface_t::din))
+            while (_midi.read(MIDI::interface_t::din))
                 processMessage(MIDI::interface_t::din);
         }
     }
