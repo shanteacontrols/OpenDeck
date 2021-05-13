@@ -535,21 +535,7 @@ void System::checkMIDI()
 
             case MIDI::messageType_t::controlChange:
                 _display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::controlChange, data1, data2, channel + 1);
-                break;
 
-            case MIDI::messageType_t::programChange:
-                _display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::programChange, data1, data2, channel + 1);
-                break;
-
-            default:
-                break;
-            }
-
-            if (messageType == MIDI::messageType_t::programChange)
-                _database.setPreset(data1);
-
-            if (messageType == MIDI::messageType_t::controlChange)
-            {
                 for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
                 {
                     if (!_database.read(Database::Section::encoder_t::remoteSync, i))
@@ -566,6 +552,15 @@ void System::checkMIDI()
 
                     _encoders.setValue(i, data2);
                 }
+                break;
+
+            case MIDI::messageType_t::programChange:
+                _display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::programChange, data1, data2, channel + 1);
+                _database.setPreset(data1);
+                break;
+
+            default:
+                break;
             }
             break;
 
