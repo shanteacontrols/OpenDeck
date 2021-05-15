@@ -113,10 +113,6 @@ namespace Board
                 core::timing::detail::rTime_ms++;
 
 #ifdef FW_APP
-#if MAX_NUMBER_OF_LEDS > 0
-                Board::detail::io::checkDigitalOutputs();
-#endif
-
 #ifdef LED_INDICATORS
                 Board::detail::io::checkIndicators();
 #endif

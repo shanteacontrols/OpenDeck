@@ -134,6 +134,15 @@ namespace Board
             b
         };
 
+        enum class ledBrightness_t : uint8_t
+        {
+            bOff = 0,
+            b25  = 1,
+            b50  = 2,
+            b75  = 3,
+            b100 = 4
+        };
+
         enum class encoderIndex_t : uint8_t
         {
             a,
@@ -168,9 +177,9 @@ namespace Board
         size_t encoderSignalIndex(size_t encoderID, encoderIndex_t index);
 
         /// Used to turn LED connected to the board on or off.
-        /// param [in]: ledID   LED for which to change state.
-        /// param [in]: state   New LED state (true/on, false/off).
-        void writeLEDstate(size_t ledID, bool state);
+        /// param [in]: ledID           LED for which to change state.
+        /// param [in]: brightnessLevel See ledBrightness_t enum.
+        void writeLEDstate(size_t ledID, ledBrightness_t ledBrightness);
 
         /// Calculates RGB LED index based on provided single-color LED index.
         /// param [in]: ledID   Index of single-color LED.

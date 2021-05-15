@@ -157,7 +157,7 @@ class HWALEDs : public IO::LEDs::HWA
     void setState(size_t index, IO::LEDs::brightness_t brightness) override
     {
         if (_stateHandler != nullptr)
-            _stateHandler(index, static_cast<bool>(brightness));
+            _stateHandler(index, brightness);
     }
 
     size_t rgbIndex(size_t singleLEDindex) override
@@ -198,13 +198,34 @@ class HWALEDs : public IO::LEDs::HWA
 #endif
     }
 
-    void registerHandler(void (*fptr)(size_t index, bool state))
+    void registerHandler(void (*fptr)(size_t index, IO::LEDs::brightness_t brightness))
     {
         _stateHandler = fptr;
     }
 
+    Board::io::ledBrightness_t appToBoardBrightness(IO::LEDs::brightness_t brightness)
+    {
+        switch (brightness)
+        {
+        case IO::LEDs::brightness_t::b25:
+            return Board::io::ledBrightness_t::b25;
+
+        case IO::LEDs::brightness_t::b50:
+            return Board::io::ledBrightness_t::b50;
+
+        case IO::LEDs::brightness_t::b75:
+            return Board::io::ledBrightness_t::b75;
+
+        case IO::LEDs::brightness_t::b100:
+            return Board::io::ledBrightness_t::b100;
+
+        default:
+            return Board::io::ledBrightness_t::bOff;
+        }
+    }
+
     private:
-    void (*_stateHandler)(size_t index, bool state) = nullptr;
+    void (*_stateHandler)(size_t index, IO::LEDs::brightness_t brightness) = nullptr;
 } hwaLEDs;
 #else
 class HWALEDsStub : public IO::LEDs::HWA
@@ -634,18 +655,18 @@ int main()
     touchscreen.registerModel(IO::Touchscreen::Model::model_t::viewtech, &touchscreenModelViewtech);
 #endif
 
-    hwaLEDs.registerHandler([](size_t index, bool state) {
+    hwaLEDs.registerHandler([](size_t index, IO::LEDs::brightness_t brightness) {
 #if MAX_NUMBER_OF_LEDS > 0
 #if MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS != 0
         if (index >= MAX_NUMBER_OF_LEDS)
-            touchscreen.setIconState(MAX_NUMBER_OF_LEDS - index, state);
+            touchscreen.setIconState(MAX_NUMBER_OF_LEDS - index, brightness != IO::LEDs::brightness_t::bOff);
         else
-            Board::io::writeLEDstate(index, state);
+            Board::io::writeLEDstate(index, hwaLEDs.appToBoardBrightness(brightness));
 #else
-        Board::io::writeLEDstate(index, state);
+        Board::io::writeLEDstate(index, hwaLEDs.appToBoardBrightness(brightness));
 #endif
 #else
-        touchscreen.setIconState(index, state);
+        touchscreen.setIconState(index, brightness != IO::LEDs::brightness_t::bOff);
 #endif
     });
 

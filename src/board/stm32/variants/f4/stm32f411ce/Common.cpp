@@ -19,7 +19,6 @@ limitations under the License.
 #include "board/Board.h"
 #include "board/Internal.h"
 #include "Pins.h"
-#include "board/Internal.h"
 #include "board/common/io/Helpers.h"
 #include "core/src/general/IO.h"
 #include "core/src/general/Atomic.h"
@@ -32,6 +31,14 @@ namespace
 {
     TIM_HandleTypeDef htim5;
     ADC_HandleTypeDef hadc1;
+
+#ifdef FW_APP
+#ifndef USB_LINK_MCU
+#if MAX_NUMBER_OF_LEDS > 0
+    TIM_HandleTypeDef htim4;
+#endif
+#endif
+#endif
 
     class UARTdescriptor1 : public Board::detail::map::STMPeripheral
     {
@@ -376,6 +383,18 @@ extern "C" void TIM5_IRQHandler(void)
     Board::detail::isrHandling::mainTimer();
 }
 
+#ifdef FW_APP
+#ifndef USB_LINK_MCU
+#if MAX_NUMBER_OF_LEDS > 0
+extern "C" void TIM4_IRQHandler(void)
+{
+    __HAL_TIM_CLEAR_IT(&htim4, TIM_IT_UPDATE);
+    Board::detail::io::checkDigitalOutputs();
+}
+#endif
+#endif
+#endif
+
 #if defined(FW_APP) || defined(FW_CDC)
 //not needed in bootloader
 #ifdef USE_UART
@@ -418,9 +437,26 @@ namespace Board
                 htim5.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
                 htim5.Init.RepetitionCounter = 0;
                 htim5.Init.AutoReloadPreload = 0;
-                HAL_TIM_Base_Init(&htim5);
 
+                HAL_TIM_Base_Init(&htim5);
                 HAL_TIM_Base_Start_IT(&htim5);
+
+#ifdef FW_APP
+#ifndef USB_LINK_MCU
+#if MAX_NUMBER_OF_LEDS > 0
+                htim4.Instance               = TIM4;
+                htim4.Init.Prescaler         = 1;
+                htim4.Init.CounterMode       = TIM_COUNTERMODE_UP;
+                htim4.Init.Period            = 8399;
+                htim4.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+                htim4.Init.RepetitionCounter = 0;
+                htim4.Init.AutoReloadPreload = 0;
+
+                HAL_TIM_Base_Init(&htim4);
+                HAL_TIM_Base_Start_IT(&htim4);
+#endif
+#endif
+#endif
             }
 
             void adc()

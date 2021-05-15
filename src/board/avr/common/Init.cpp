@@ -150,6 +150,17 @@ namespace Board
                 TCCR0B |= (1 << CS01) | (1 << CS00);    //prescaler 64
                 OCR0A = 249;                            //1ms
                 TIMSK0 |= (1 << OCIE0A);                //compare match interrupt
+
+                //use timer1 for soft pwm
+                TCCR1A = 0;
+                TCCR1B = 0;
+                TCCR1C = 0;
+
+                TIMSK1 = 0;
+                TCCR1B |= (1 << WGM12);                 //CTC mode
+                TCCR1B |= (1 << CS11) | (1 << CS10);    //prescaler 64
+                OCR1A = 124;                            //500us
+                TIMSK1 |= (1 << OCIE1A);                //compare match interrupt
             }
 
             void io()

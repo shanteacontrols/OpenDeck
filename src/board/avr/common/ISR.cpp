@@ -37,16 +37,23 @@ ISR(TIMER0_COMPA_vect)
     core::timing::detail::rTime_ms++;
 
 #ifdef FW_APP
-#ifndef USB_LINK_MCU
-#if MAX_NUMBER_OF_LEDS > 0
-    Board::detail::io::checkDigitalOutputs();
-#endif
-#endif
 #ifdef LED_INDICATORS
     Board::detail::io::checkIndicators();
 #endif
 #ifndef USB_LINK_MCU
     Board::detail::io::checkDigitalInputs();
+#endif
+#endif
+}
+
+//PWM ISR
+ISR(TIMER1_COMPA_vect)
+{
+#ifdef FW_APP
+#ifndef USB_LINK_MCU
+#if MAX_NUMBER_OF_LEDS > 0
+    Board::detail::io::checkDigitalOutputs();
+#endif
 #endif
 #endif
 }
