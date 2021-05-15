@@ -68,10 +68,6 @@ namespace
             return singleLEDindex / 3;
         }
 
-        void setFadeSpeed(size_t transitionSpeed) override
-        {
-        }
-
         std::vector<IO::LEDs::brightness_t> brightness;
 
     } hwaLEDs;

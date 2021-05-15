@@ -183,10 +183,6 @@ namespace Board
         /// returns: Calculated index of R, G or B component of RGB LED.
         size_t rgbSignalIndex(size_t rgbID, rgbIndex_t index);
 
-        /// Sets LED transition speed.
-        /// param [in]: transitionSpeed Transition speed.
-        void setLEDfadeSpeed(uint8_t transitionSpeed);
-
         /// brief Checks for current analog value for specified analog index.
         /// @param[in] analogID     Analog index for which ADC value is being checked.
         /// param [in,out]:         Reference to variable in which new ADC reading is stored.

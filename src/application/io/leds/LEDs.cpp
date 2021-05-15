@@ -28,10 +28,6 @@ void LEDs::init(bool startUp)
     {
         if (_database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::useStartupAnimation)))
             startUpAnimation();
-
-#ifdef LED_FADING
-        setFadeSpeed(_database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::fadeSpeed)));
-#endif
     }
 
     setBlinkType(static_cast<blinkType_t>(_database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::blinkWithMIDIclock))));
@@ -92,9 +88,6 @@ void LEDs::checkBlinking(bool forceChange)
 
 __attribute__((weak)) void LEDs::startUpAnimation()
 {
-#ifdef LED_FADING
-    setFadeSpeed(1);
-#endif
     //turn all leds on first
     setAllOn();
 
@@ -120,9 +113,6 @@ __attribute__((weak)) void LEDs::startUpAnimation()
 
     //turn all off again
     setAllOff();
-#ifdef LED_FADING
-    setFadeSpeed(_database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::fadeSpeed)));
-#endif
 }
 
 LEDs::color_t LEDs::valueToColor(uint8_t value)
@@ -457,17 +447,6 @@ size_t LEDs::rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent)
 size_t LEDs::rgbIndex(size_t singleLEDindex)
 {
     return _hwa.rgbIndex(singleLEDindex);
-}
-
-bool LEDs::setFadeSpeed(uint8_t transitionSpeed)
-{
-    if ((transitionSpeed >= FADE_TIME_MIN) && (transitionSpeed <= FADE_TIME_MAX))
-    {
-        _hwa.setFadeSpeed(transitionSpeed);
-        return true;
-    }
-
-    return false;
 }
 
 void LEDs::setBlinkType(blinkType_t blinkType)

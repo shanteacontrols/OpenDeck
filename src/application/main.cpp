@@ -198,13 +198,6 @@ class HWALEDs : public IO::LEDs::HWA
 #endif
     }
 
-    void setFadeSpeed(size_t transitionSpeed) override
-    {
-#if MAX_NUMBER_OF_LEDS > 0
-        Board::io::setLEDfadeSpeed(transitionSpeed);
-#endif
-    }
-
     void registerHandler(void (*fptr)(size_t index, bool state))
     {
         _stateHandler = fptr;
@@ -231,10 +224,6 @@ class HWALEDsStub : public IO::LEDs::HWA
     size_t rgbSignalIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
     {
         return 0;
-    }
-
-    void setFadeSpeed(size_t transitionSpeed) override
-    {
     }
 
     void registerHandler(void (*fptr)(size_t index, bool state))

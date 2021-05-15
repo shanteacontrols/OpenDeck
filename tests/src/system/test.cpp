@@ -144,10 +144,6 @@ namespace
         {
             return 0;
         }
-
-        void setFadeSpeed(size_t transitionSpeed) override
-        {
-        }
     } hwaLEDs;
 
     class HWAAnalog : public IO::Analog::HWA

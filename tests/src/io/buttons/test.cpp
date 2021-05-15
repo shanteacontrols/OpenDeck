@@ -65,10 +65,6 @@ namespace
         {
             return 0;
         }
-
-        void setFadeSpeed(size_t transitionSpeed) override
-        {
-        }
     } hwaLEDs;
 
     class HWAButtons : public IO::Buttons::HWA

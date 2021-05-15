@@ -55,10 +55,6 @@ namespace Board
             return 0;
         }
 
-        __attribute__((weak)) void setLEDfadeSpeed(uint8_t transitionSpeed)
-        {
-        }
-
         __attribute__((weak)) uint16_t getAnalogValue(size_t analogID)
         {
             return 0;

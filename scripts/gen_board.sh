@@ -566,11 +566,6 @@ then
     then
         printf "%s\n" "DEFINES += LED_EXT_INVERT" >> "$OUT_FILE_MAKEFILE_DEFINES"
     fi
-
-    if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" leds.external.fading)" == "true" ]]
-    then
-        printf "%s\n" "DEFINES += LED_FADING" >> "$OUT_FILE_MAKEFILE_DEFINES"
-    fi
 else
     {
         printf "%s\n" "DEFINES += MAX_NUMBER_OF_LEDS=0"

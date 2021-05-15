@@ -474,13 +474,6 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, SysExC
         }
         break;
 
-        case IO::LEDs::setting_t::fadeSpeed:
-        {
-            if (_leds.setFadeSpeed(newValue))
-                result = System::result_t::ok;
-        }
-        break;
-
         default:
             break;
         }

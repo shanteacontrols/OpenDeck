@@ -53,7 +53,7 @@ namespace IO
         enum class setting_t : uint8_t
         {
             blinkWithMIDIclock,
-            fadeSpeed,
+            unused,
             useStartupAnimation,
             AMOUNT
         };
@@ -110,7 +110,6 @@ namespace IO
             virtual void   setState(size_t index, brightness_t brightness)                = 0;
             virtual size_t rgbIndex(size_t singleLEDindex)                                = 0;
             virtual size_t rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent) = 0;
-            virtual void   setFadeSpeed(size_t transitionSpeed)                           = 0;
         };
 
         LEDs(HWA& hwa, Database& database)
@@ -129,7 +128,6 @@ namespace IO
         blinkSpeed_t blinkSpeed(uint8_t ledID);
         size_t       rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent);
         size_t       rgbIndex(size_t singleLEDindex);
-        bool         setFadeSpeed(uint8_t transitionSpeed);
         void         midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, dataSource_t dataSource);
         void         setBlinkType(blinkType_t blinkType);
         void         resetBlinking();
@@ -161,8 +159,6 @@ namespace IO
         static constexpr size_t  MAX_LEDS                        = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS;
         static constexpr size_t  TOTAL_BLINK_SPEEDS              = 4;
         static constexpr size_t  TOTAL_BRIGHTNESS_VALUES         = 4;
-        static constexpr uint8_t FADE_TIME_MIN                   = 0;
-        static constexpr uint8_t FADE_TIME_MAX                   = 10;
         static constexpr uint8_t LED_BLINK_TIMER_TYPE_CHECK_TIME = 50;
 
         /// Array holding current LED status for all LEDs.

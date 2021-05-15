@@ -167,9 +167,6 @@ namespace Board
             /// Used to retrieve state of unused port and pin for a given index.
             bool unusedPinState(uint8_t index);
 
-            /// Used to retrieve all the registers needed to control PWM channel for an given index.
-            const core::io::pwmChannel_t& pwmChannel(uint8_t index);
-
             /// Retrieves flash page descriptor containing page address and size.
             /// param [in]: pageIndex Index of flash sector for which to retrieve address and size.
             /// returns: Reference to flash page descriptor for specified page index.
@@ -229,7 +226,7 @@ namespace Board
             /// Removes all readings from digital inputs.
             void flushInputReadings();
 
-            /// Checks if digital outputs need to be updated (state and PWM control).
+            /// Checks if digital outputs need to be updated.
             void checkDigitalOutputs();
 
             /// Used to indicate that the MIDI event has occured using built-in LEDs on board.

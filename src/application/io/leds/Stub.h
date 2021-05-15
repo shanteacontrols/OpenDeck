@@ -49,7 +49,7 @@ namespace IO
         enum class setting_t : uint8_t
         {
             blinkWithMIDIclock,
-            fadeSpeed,
+            unused,
             useStartupAnimation,
             AMOUNT
         };
@@ -113,7 +113,6 @@ namespace IO
             virtual void   setState(size_t index, brightness_t brightness)                = 0;
             virtual size_t rgbIndex(size_t singleLEDindex)                                = 0;
             virtual size_t rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent) = 0;
-            virtual void   setFadeSpeed(size_t transitionSpeed)                           = 0;
         };
 
         LEDs(HWA& hwa, Database& database)
@@ -165,11 +164,6 @@ namespace IO
         size_t rgbIndex(size_t singleLEDindex)
         {
             return 0;
-        }
-
-        bool setFadeSpeed(uint8_t transitionSpeed)
-        {
-            return false;
         }
 
         void midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, dataSource_t dataSource)

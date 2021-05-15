@@ -24,9 +24,6 @@ limitations under the License.
 #include "Pins.h"
 #include "io/leds/LEDs.h"
 
-/// Total number of states between fully off and fully on for LEDs.
-#define NUMBER_OF_LED_TRANSITIONS 64
-
 namespace
 {
 #if !defined(NUMBER_OF_OUT_SR) || defined(NUMBER_OF_LED_COLUMNS)
@@ -45,79 +42,6 @@ namespace
     ///
 
     uint8_t ledState[MAX_NUMBER_OF_LEDS];
-
-#ifdef LED_FADING
-    volatile uint8_t pwmSteps;
-    volatile int8_t  transitionCounter[MAX_NUMBER_OF_LEDS];
-
-    /// Array holding values needed to achieve more natural LED transition between states.
-    const uint8_t ledTransitionScale[NUMBER_OF_LED_TRANSITIONS] = {
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        1,
-        1,
-        1,
-        1,
-        2,
-        2,
-        2,
-        2,
-        3,
-        3,
-        4,
-        4,
-        5,
-        5,
-        6,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14,
-        16,
-        17,
-        19,
-        21,
-        23,
-        25,
-        28,
-        30,
-        33,
-        36,
-        40,
-        44,
-        48,
-        52,
-        57,
-        62,
-        68,
-        74,
-        81,
-        89,
-        97,
-        106,
-        115,
-        126,
-        138,
-        150,
-        164,
-        179,
-        195,
-        213,
-        255
-    };
-#endif
 
 #ifndef NUMBER_OF_LED_COLUMNS
     /// Used to indicate whether or not outputs should be updated.
@@ -138,43 +62,15 @@ namespace
     /// Used to turn the given LED row off.
     inline void ledRowOff(uint8_t row)
     {
-#ifdef LED_FADING
-        //turn off pwm
-        core::io::pwmOff(Board::detail::map::pwmChannel(row));
-#endif
-
         pin = Board::detail::map::ledPin(row);
         EXT_LED_OFF(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
     }
 
-    /// Used to turn the given LED row on.
-    /// If led fading is supported on board, intensity must be specified as well.
-    inline void ledRowOn(uint8_t row
-#ifdef LED_FADING
-                         ,
-                         uint8_t intensity
-#endif
-    )
+    inline void ledRowOn(uint8_t row)
     {
-#ifdef LED_FADING
-        if (intensity == 255)
-#endif
-        {
-            pin = Board::detail::map::ledPin(row);
+        pin = Board::detail::map::ledPin(row);
 
-            //max value, don't use pwm
-            EXT_LED_ON(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
-        }
-#ifdef LED_FADING
-        else
-        {
-#ifdef LED_EXT_INVERT
-            intensity = 255 - intensity;
-#endif
-
-            core::io::pwmOn(Board::detail::map::pwmChannel(row), intensity);
-        }
-#endif
+        EXT_LED_ON(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
     }
 #endif
 }    // namespace
@@ -198,24 +94,6 @@ namespace Board
 #endif
             }
         }
-
-#ifdef LED_FADING
-        void setLEDfadeSpeed(uint8_t transitionSpeed)
-        {
-            //reset transition counter
-            ATOMIC_SECTION
-            {
-                for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
-                    transitionCounter[i] = 0;
-
-                pwmSteps = transitionSpeed;
-            }
-        }
-#else
-        __attribute__((weak)) void setLEDfadeSpeed(uint8_t transitionSpeed)
-        {
-        }
-#endif
 
         size_t rgbSignalIndex(size_t rgbID, Board::io::rgbIndex_t index)
         {
@@ -282,47 +160,13 @@ namespace Board
                 activateOutputColumn();
 
                 //if there is an active LED in current column, turn on LED row
-                //do fancy transitions here
                 for (int i = 0; i < NUMBER_OF_LED_ROWS; i++)
                 {
                     ledIndex       = activeOutColumn + i * NUMBER_OF_LED_COLUMNS;
-                    ledStateSingle = ledState[ledIndex] && (NUMBER_OF_LED_TRANSITIONS - 1);
+                    ledStateSingle = ledState[ledIndex];
 
-                    //don't bother with pwm if it's disabled
-#ifdef LED_FADING
-                    if (!pwmSteps && ledStateSingle)
-                    {
-                        ledRowOn(i, 255);
-                    }
-                    else
-                    {
-                        if (ledTransitionScale[transitionCounter[ledIndex]])
-                            ledRowOn(i, ledTransitionScale[transitionCounter[ledIndex]]);
-
-                        if (transitionCounter[ledIndex] != ledStateSingle)
-                        {
-                            //fade up
-                            if (transitionCounter[ledIndex] < ledStateSingle)
-                            {
-                                transitionCounter[ledIndex] += pwmSteps;
-
-                                if (transitionCounter[ledIndex] > ledStateSingle)
-                                    transitionCounter[ledIndex] = ledStateSingle;
-                            }
-                            else
-                            {
-                                //fade down
-                                transitionCounter[ledIndex] -= pwmSteps;
-
-                                if (transitionCounter[ledIndex] < 0)
-                                    transitionCounter[ledIndex] = 0;
-                            }
-                        }
-                    }
-#else
                     if (ledStateSingle)
                         ledRowOn(i);
-#endif
                 }
 
                 if (++activeOutColumn == NUMBER_OF_LED_COLUMNS)
