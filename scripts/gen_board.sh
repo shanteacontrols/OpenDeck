@@ -514,6 +514,19 @@ then
         printf "%s\n" "DEFINES += MAX_NUMBER_OF_RGB_LEDS=$(("$max_number_of_leds" / 3))" 
     } >> "$OUT_FILE_MAKEFILE_DEFINES"
 
+    if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" leds.external.invert)" == "true" ]]
+    then
+        printf "%s\n" "DEFINES += LED_EXT_INVERT" >> "$OUT_FILE_MAKEFILE_DEFINES"
+    fi
+else
+    {
+        printf "%s\n" "DEFINES += MAX_NUMBER_OF_LEDS=0"
+        printf "%s\n" "DEFINES += MAX_NUMBER_OF_RGB_LEDS=0"
+    } >> "$OUT_FILE_MAKEFILE_DEFINES"
+fi
+
+if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" leds.internal)" != "null" ]]
+then
     if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" leds.internal.present)" == "true" ]]
     then
         printf "%s\n" "DEFINES += LED_INDICATORS" >> "$OUT_FILE_MAKEFILE_DEFINES"
@@ -561,16 +574,6 @@ then
             printf "%s\n" "#define LED_MIDI_OUT_USB_PIN CORE_IO_PORT_INDEX(${index})"
         } >> "$OUT_FILE_HEADER_PINS"
     fi
-
-    if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" leds.external.invert)" == "true" ]]
-    then
-        printf "%s\n" "DEFINES += LED_EXT_INVERT" >> "$OUT_FILE_MAKEFILE_DEFINES"
-    fi
-else
-    {
-        printf "%s\n" "DEFINES += MAX_NUMBER_OF_LEDS=0"
-        printf "%s\n" "DEFINES += MAX_NUMBER_OF_RGB_LEDS=0"
-    } >> "$OUT_FILE_MAKEFILE_DEFINES"
 fi
 
 ########################################################################################################
