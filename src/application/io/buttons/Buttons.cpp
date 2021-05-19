@@ -31,6 +31,9 @@ void Buttons::update(bool forceResend)
         uint8_t  numberOfReadings = 0;
         uint32_t states           = 0;
 
+        buttonDescriptor_t descriptor;
+        fillButtonDescriptor(i, descriptor);
+
         if (!forceResend)
         {
             if (!_hwa.state(i, numberOfReadings, states))
@@ -52,14 +55,11 @@ void Buttons::update(bool forceResend)
                 if (!_filter.isFiltered(i, state, state, sampleTime))
                     continue;
 
-                processButton(i, state);
+                processButton(descriptor, i, state);
             }
         }
         else
         {
-            buttonDescriptor_t descriptor;
-            fillButtonDescriptor(i, descriptor);
-
             if (descriptor.type == type_t::latching)
                 sendMessage(i, latchingState(i), descriptor);
             else
@@ -68,19 +68,26 @@ void Buttons::update(bool forceResend)
     }
 }
 
-/// Handles changes in button states.
-/// param [in]: index       Button index which has changed state.
-/// param [in]: newState    Latest button state.
+/// Used for public access only.
+/// Retrieve the descriptor internally and pass the rest of the arguments to internal function.
 void Buttons::processButton(size_t index, bool newState)
+{
+    buttonDescriptor_t descriptor;
+    fillButtonDescriptor(index, descriptor);
+    processButton(descriptor, index, newState);
+}
+
+/// Handles changes in button states.
+/// param [in]: buttonDescriptor_t  Descriptor containing the entire configuration for the button.
+/// param [in]: index               Button index which has changed state.
+/// param [in]: newState            Latest button state.
+void Buttons::processButton(buttonDescriptor_t& descriptor, size_t index, bool newState)
 {
     //act on change of state only
     if (newState == state(index))
         return;
 
     setState(index, newState);
-
-    buttonDescriptor_t descriptor;
-    fillButtonDescriptor(index, descriptor);
 
     //don't process messageType_t::none type of message
     if (descriptor.midiMessage != messageType_t::none)

@@ -120,6 +120,7 @@ namespace IO
             uint8_t       velocity;
         } buttonDescriptor_t;
 
+        void processButton(buttonDescriptor_t& descriptor, size_t index, bool newState);
         void fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor);
         void sendMessage(size_t index, bool state, buttonDescriptor_t& descriptor);
         void setState(size_t index, bool state);
