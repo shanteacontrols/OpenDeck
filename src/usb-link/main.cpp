@@ -59,11 +59,11 @@ int main(void)
     while (1)
     {
         //USB -> UART
-        if (Board::USB::readMIDI(USBMIDIpacket))
+        while (Board::USB::readMIDI(USBMIDIpacket))
             Board::USBMIDIOverSerial::write(UART_CHANNEL_USB_LINK, USBMIDIpacket, Board::USBMIDIOverSerial::packetType_t::midi);
 
         //UART -> USB
-        if (Board::USBMIDIOverSerial::read(UART_CHANNEL_USB_LINK, USBMIDIpacket, packetType))
+        while (Board::USBMIDIOverSerial::read(UART_CHANNEL_USB_LINK, USBMIDIpacket, packetType))
         {
             if (packetType == Board::USBMIDIOverSerial::packetType_t::midi)
             {
