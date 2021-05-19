@@ -46,6 +46,8 @@ namespace
 
                 lastConnectionState = newState;
             }
+
+            lastCheckTime = core::timing::currentRunTimeMs();
         }
     }
 }    // namespace
