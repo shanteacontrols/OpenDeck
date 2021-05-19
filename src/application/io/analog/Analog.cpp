@@ -96,8 +96,7 @@ void Analog::processReading(size_t index, uint16_t value)
     }
     else
     {
-        if (_buttonHandler != nullptr)
-            _buttonHandler(index, value);
+        send = true;
     }
 
     if (send)
@@ -279,6 +278,13 @@ void Analog::sendMessage(size_t index, analogDescriptor_t& descriptor, uint16_t 
             _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOff, descriptor.midiID, value, descriptor.channel + 1);
             _leds.midiToState(MIDI::messageType_t::noteOff, descriptor.midiID, 0, descriptor.channel, LEDs::dataSource_t::internal);
         }
+    }
+    break;
+
+    case type_t::button:
+    {
+        if (_buttonHandler != nullptr)
+            _buttonHandler(index, value);
     }
     break;
 
