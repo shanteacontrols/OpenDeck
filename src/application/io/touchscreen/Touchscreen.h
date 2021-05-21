@@ -145,6 +145,7 @@ namespace IO
 
         bool   init();
         bool   deInit();
+        bool   isInitialized() const;
         bool   registerModel(IO::Touchscreen::Model::model_t, Model* ptr);
         void   update();
         void   setScreen(size_t screenID);

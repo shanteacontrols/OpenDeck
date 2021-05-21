@@ -293,3 +293,8 @@ void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16
         }
     }
 }
+
+bool Touchscreen::isInitialized() const
+{
+    return _initialized;
+}
