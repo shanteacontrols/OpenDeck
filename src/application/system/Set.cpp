@@ -474,6 +474,12 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, SysExC
         }
         break;
 
+        case IO::LEDs::setting_t::unused:
+        {
+            result = System::result_t::ok;
+        }
+        break;
+
         default:
             break;
         }
@@ -701,8 +707,11 @@ System::result_t System::onSetTouchscreen(Section::touchscreen_t section, size_t
 
         case static_cast<size_t>(IO::Touchscreen::setting_t::brightness):
         {
-            if (!_touchscreen.setBrightness(static_cast<IO::Touchscreen::brightness_t>(newValue)))
-                return System::result_t::error;
+            if (_touchscreen.isInitialized())
+            {
+                if (!_touchscreen.setBrightness(static_cast<IO::Touchscreen::brightness_t>(newValue)))
+                    return System::result_t::error;
+            }
         }
         break;
 
