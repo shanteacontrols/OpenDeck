@@ -114,26 +114,31 @@ class MIDIHelper
         return sendRequest(requestUint8, SysExConf::wish_t::get);
     }
 
-    static std::string sendRawSysEx(std::string req)
+    static std::string sendRawSysEx(std::string req, bool setReq = true)
     {
         std::string cmdResponse;
         std::string lastResponseFileLocation = "/tmp/midi_in_data.txt";
 
         test::wsystem("rm -f " + lastResponseFileLocation, cmdResponse);
+        std::cout << "req: " << req << std::endl;
         std::string cmd = std::string("stdbuf -i0 -o0 -e0 amidi -p $(amidi -l | grep -E 'OpenDeck'") + std::string(" | grep -Eo 'hw:\\S*') -S '") + req + "' -d | stdbuf -i0 -o0 -e0 tr -d '\n' > " + lastResponseFileLocation + " &";
         test::wsystem(cmd, cmdResponse);
 
         size_t responseRetryCounter = 0;
 
-        //once F7 appears in file, response is received
-        //allow 100ms of total response time
-        while (test::wsystem("grep -q 'F7' " + lastResponseFileLocation, cmdResponse))
+        std::string pattern = setReq ? "F0 00 53 43 01 00 01.*F7$" : "F0 00 53 43 01.*F7$";
+
+        while (test::wsystem("grep '" + pattern + "' " + lastResponseFileLocation, cmdResponse))
         {
             test::wsystem("sleep 0.01", cmdResponse);
             responseRetryCounter++;
 
-            if (responseRetryCounter == 10)
-                break;
+            //allow 1 second of response time
+            if (responseRetryCounter == 100)
+            {
+                test::wsystem("killall amidi > /dev/null 2>&1");
+                return "";
+            }
         }
 
         test::wsystem("killall amidi > /dev/null 2>&1", cmdResponse);
@@ -145,7 +150,6 @@ class MIDIHelper
 
         auto response = lastResponse(lastResponseFileLocation);
 
-        std::cout << "req: " << req << std::endl;
         std::cout << "res: " << response << std::endl;
 
         return response;
@@ -202,7 +206,10 @@ class MIDIHelper
                 requestString << " ";
         }
 
-        std::string responseString = sendRawSysEx(requestString.str());
+        std::string responseString = sendRawSysEx(requestString.str(), wish == SysExConf::wish_t::set);
+
+        if (responseString == "")
+            return 0;    //invalid response
 
         //convert response back to uint8 vector
         std::vector<uint8_t> responseUint8;

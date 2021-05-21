@@ -34,6 +34,11 @@ namespace test
         return status;
     }
 
+    inline int wsystem(std::string const& in)
+    {
+        return system(in.c_str());
+    }
+
     inline std::string& trimNewline(std::string& s)
     {
         s.erase(std::remove(s.begin(), s.end(), '\n'), s.end());
