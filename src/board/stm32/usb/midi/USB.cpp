@@ -31,8 +31,7 @@ limitations under the License.
 #define RX_BUFFER_SIZE_RING 4096
 #define RX_BUFFER_SIZE_USB  128
 #define TX_BUFFER_SIZE_USB  128
-
-///
+#define USB_TX_TIMEOUT_MS   2000
 
 namespace
 {
@@ -218,18 +217,45 @@ namespace Board
             if (!isUSBconnected())
                 return false;
 
-            while (!TxDone)
+            static bool timeoutActive = false;
+
+            if (!TxDone)
             {
+                if (timeoutActive)
+                {
+                    return false;
+                }
+                else
+                {
+                    uint32_t currentTime = core::timing::currentRunTimeMs();
+                    timeoutActive        = true;
+
+                    while ((core::timing::currentRunTimeMs() - currentTime) < USB_TX_TIMEOUT_MS)
+                    {
+                        if (TxDone)
+                        {
+                            timeoutActive = false;
+                            break;
+                        }
+                    }
+                }
             }
 
-            TxDone = false;
-            USBD_LL_Transmit(&hUsbDeviceFS, MIDI_STREAM_IN_EPADDR, (uint8_t*)&USBMIDIpacket, 4);
+            if (TxDone)
+            {
+                timeoutActive = false;
+                TxDone        = false;
+                USBD_LL_Transmit(&hUsbDeviceFS, MIDI_STREAM_IN_EPADDR, (uint8_t*)&USBMIDIpacket, 4);
 
 #ifdef LED_INDICATORS
-            Board::detail::io::indicateMIDItraffic(MIDI::interface_t::usb, Board::detail::midiTrafficDirection_t::outgoing);
+                Board::detail::io::indicateMIDItraffic(MIDI::interface_t::usb, Board::detail::midiTrafficDirection_t::outgoing);
 #endif
-
-            return true;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }    // namespace USB
 }    // namespace Board
