@@ -121,7 +121,13 @@ class MIDIHelper
 
         test::wsystem("rm -f " + lastResponseFileLocation, cmdResponse);
         std::cout << "req: " << req << std::endl;
-        std::string cmd = std::string("stdbuf -i0 -o0 -e0 amidi -p $(amidi -l | grep -E 'OpenDeck'") + std::string(" | grep -Eo 'hw:\\S*') -S '") + req + "' -d | stdbuf -i0 -o0 -e0 tr -d '\n' > " + lastResponseFileLocation + " &";
+#ifdef STM32_EMU_EEPROM
+        std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string(OD_BOARD) + "\"";
+#else
+        std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string("mega16u2") + "\"";
+#endif
+
+        std::string cmd = std::string("stdbuf -i0 -o0 -e0 amidi -p ") + deviceNameSearch + std::string(" | grep -Eo 'hw:\\S*') -S '") + req + "' -d | stdbuf -i0 -o0 -e0 tr -d '\n' > " + lastResponseFileLocation + " &";
         test::wsystem(cmd, cmdResponse);
 
         size_t responseRetryCounter = 0;
@@ -133,8 +139,8 @@ class MIDIHelper
             test::wsystem("sleep 0.01", cmdResponse);
             responseRetryCounter++;
 
-            //allow 1 second of response time
-            if (responseRetryCounter == 100)
+            //allow 1.5 second of response time
+            if (responseRetryCounter == 150)
             {
                 test::wsystem("killall amidi > /dev/null 2>&1");
                 return "";
@@ -153,6 +159,43 @@ class MIDIHelper
         std::cout << "res: " << response << std::endl;
 
         return response;
+    }
+
+    static bool devicePresent(bool bootloader = false)
+    {
+        return (test::wsystem("amidi -l | grep \"" + amidiPort(bootloader) + "\"") == 0);
+    }
+
+    static std::string amidiPort(bool bootloader = false)
+    {
+        std::string cmd;
+        std::string cmdResponse;
+        std::string baseString = bootloader ? "amidi -l | grep \"OpenDeck DFU " : "amidi -l | grep \"OpenDeck | ";
+
+        if (bootloader)
+        {
+            std::string baseString = "amidi -l | grep \"OpenDeck DFU ";
+
+#ifdef STM32_EMU_EEPROM
+            cmd = baseString + "\"" + std::string("| grep ") + std::string(OD_BOARD) + std::string(" | grep -Eo 'hw:\\S*'");
+#else
+            cmd = baseString + "\"" + std::string("| grep mega16u2") + std::string(" | grep -Eo 'hw:\\S*'");
+#endif
+        }
+        else
+        {
+            std::string baseString = "amidi -l | grep \"OpenDeck | ";
+
+#ifdef STM32_EMU_EEPROM
+            cmd = baseString + std::string(OD_BOARD) + "\"" + std::string(" | grep -Eo 'hw:\\S*'");
+#else
+            cmd = baseString + std::string("mega16u2") + "\"" + std::string(" | grep -Eo 'hw:\\S*'");
+#endif
+        }
+
+        test::wsystem(cmd, cmdResponse);
+
+        return test::trimNewline(cmdResponse);
     }
 
     private:

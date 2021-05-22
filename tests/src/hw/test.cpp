@@ -10,31 +10,32 @@
 
 namespace
 {
-    const std::string flash_cmd = "gdb -nx --batch \
-    -ex 'target extended-remote /dev/ttyBmpGdb' \
-    -ex 'monitor swdp_scan' \
-    -ex 'attach 1' \
-    -ex 'load' \
-    -ex 'compare-sections' \
-    -ex 'kill' ";
+#ifdef STM32_EMU_EEPROM
+    const std::string flash_cmd = "make -C ../src flash-bmp";
+#else
+    const std::string flash_cmd            = "make -C ../src flash";
+#endif
 
     const std::string bmp_dev_vid_pid          = "1d50:6018";
-    const std::string opendeck_dev_vid_pid     = "1209:8472";
-    const std::string opendeck_dfu_vid_pid     = "1209:8473";
     const std::string handshake_req            = "F0 00 53 43 00 00 01 F7";
     const std::string reboot_req               = "F0 00 53 43 00 00 7F F7";
     const std::string handshake_ack            = "F0 00 53 43 01 00 01 F7";
     const std::string factory_reset_req        = "F0 00 53 43 00 00 44 F7";
     const std::string btldr_req                = "F0 00 53 43 00 00 55 F7";
     const std::string backup_req               = "F0 00 53 43 00 00 1B F7";
-    const std::string usb_power_off_cmd        = "uhubctl -a off -l 1-1";
-    const std::string usb_power_on_cmd         = "uhubctl -a on -l 1-1";
+    const std::string usb_power_off_cmd        = "uhubctl -a off -l 1-1 > /dev/null";
+    const std::string usb_power_on_cmd         = "uhubctl -a on -l 1-1 > /dev/null";
     const std::string sysex_fw_update_delay_ms = "5";
-    const std::string startup_delay_s          = "4";
+    const std::string startup_delay_s          = "5";
     const std::string rapid_reboot_repeat_s    = "1.2";
     const std::string fw_build_dir             = "../src/build/merged/";
     const std::string fw_build_type_subdir     = "release/";
     const std::string temp_midi_data_location  = "/tmp/temp_midi_data";
+    const std::string backup_file_location     = "/tmp/backup.txt";
+    const std::string stm_flash_port           = "ttyBmpGdb";
+    const std::string avr_flash_port_mega2560  = "ttyACM2";
+    const std::string avr_flash_port_mega16u2  = "ttyACM3";
+    const std::string avr_serial_port          = "ttyUSB0";
 
     DBstorageMock dbStorageMock;
     Database      database = Database(dbStorageMock, false);
@@ -45,7 +46,7 @@ namespace
         MIDIHelper::sendRawSysEx(reboot_req, false);
         test::wsystem("sleep " + startup_delay_s);
 
-        if (test::wsystem("lsusb -v 2>/dev/null | grep -q '" + opendeck_dev_vid_pid + "'") != 0)
+        if (!MIDIHelper::devicePresent())
         {
             printf("OpenDeck device not found after reboot, aborting\n");
             exit(1);
@@ -62,7 +63,7 @@ namespace
 
         test::wsystem("sleep " + startup_delay_s);
 
-        if (test::wsystem("lsusb -v 2>/dev/null | grep -q '" + opendeck_dev_vid_pid + "'") != 0)
+        if (!MIDIHelper::devicePresent())
         {
             printf("OpenDeck device not found after factory reset, aborting\n");
             exit(1);
@@ -76,19 +77,24 @@ namespace
 
         test::wsystem("sleep " + startup_delay_s);
 
-        if (test::wsystem("lsusb -v 2>/dev/null | grep -q '" + opendeck_dfu_vid_pid + "'") != 0)
+        if (!MIDIHelper::devicePresent(true))
         {
             printf("OpenDeck DFU device not found after bootloader request, aborting\n");
             exit(1);
         }
     }
+
+    void cyclePower()
+    {
+        TEST_ASSERT_EQUAL_INT(0, test::wsystem(usb_power_off_cmd));
+        test::wsystem("sleep " + startup_delay_s);
+        TEST_ASSERT_EQUAL_INT(0, test::wsystem(usb_power_on_cmd));
+        test::wsystem("sleep " + startup_delay_s);
+    }
 }    // namespace
 
 TEST_SETUP()
 {
-    //verify that black magic probe is connected to system
-    TEST_ASSERT_EQUAL_INT(0, test::wsystem("lsusb -v 2>/dev/null | grep -q '" + bmp_dev_vid_pid + "'"));
-
     //dummy db - used only to retrieve correct amount of supported presets
     TEST_ASSERT(database.init() == true);
 }
@@ -96,24 +102,41 @@ TEST_SETUP()
 TEST_TEARDOWN()
 {
     test::wsystem("rm -f " + temp_midi_data_location);
+    test::wsystem("rm -f " + backup_file_location);
     test::wsystem("killall amidi > /dev/null 2>&1");
 }
 
 TEST_CASE(FlashAndBoot)
 {
-    std::string hexPath = fw_build_dir + OD_BOARD + "/" + fw_build_type_subdir + OD_BOARD + ".hex";
+    //ensure clean state
+    cyclePower();
 
-    if (!std::filesystem::exists(hexPath))
-    {
-        printf("hex file not found, aborting\n");
-        exit(1);
-    }
+#ifdef STM32_EMU_EEPROM
+    //verify that black magic probe is connected to system
+    TEST_ASSERT_EQUAL_INT(0, test::wsystem("lsusb -v 2>/dev/null | grep -q '" + bmp_dev_vid_pid + "'"));
 
-    TEST_ASSERT_EQUAL_INT(0, test::wsystem(flash_cmd + hexPath));
-    //verify that opendeck device is present now
+    std::string flashTarget = " TARGET=" + std::string(OD_BOARD);
+    std::string flashPort   = " PORT=" + stm_flash_port;
+    TEST_ASSERT_EQUAL_INT(0, test::wsystem(flash_cmd + flashTarget + flashPort));
+#else
+    std::string       flashTarget_mega2560 = " TARGET=mega2560";
+    std::string       flashTarget_mega16u2 = " TARGET=mega16u2";
+    std::string       flashPort_mega2560   = " PORT=" + avr_flash_port_mega2560;
+    std::string       flashPort_mega16u2   = " PORT=" + avr_flash_port_mega16u2;
+
+    TEST_ASSERT_EQUAL_INT(0, test::wsystem(flash_cmd + flashTarget_mega2560 + flashPort_mega2560));
+    TEST_ASSERT_EQUAL_INT(0, test::wsystem(flash_cmd + flashTarget_mega16u2 + flashPort_mega16u2));
+#endif
+
+    //delay some time to allow eeprom init
     test::wsystem("sleep " + startup_delay_s);
 
-    if (test::wsystem("lsusb -v 2>/dev/null | grep -q '" + opendeck_dev_vid_pid + "'") != 0)
+#ifndef STM32_EMU_EEPROM
+    //cycle the power to ensure both MCUs are booted in application firmware (arduino mega)
+    cyclePower();
+#endif
+
+    if (!MIDIHelper::devicePresent())
     {
         printf("OpenDeck device not found after flashing, aborting\n");
         exit(1);
@@ -409,7 +432,7 @@ TEST_CASE(ValuesAfterReboots)
 
     //now perform several rapid reboots
     //note: in the past these kind of reboots have been known to cause factory reset on the board
-    for (size_t i = 0; i < 10; i++)
+    for (size_t i = 0; i < 5; i++)
     {
         TEST_ASSERT_EQUAL_INT(0, test::wsystem(usb_power_off_cmd));
         test::wsystem("sleep " + rapid_reboot_repeat_s);
@@ -427,7 +450,11 @@ TEST_CASE(ValuesAfterReboots)
 
 TEST_CASE(FwUpdate)
 {
+#ifdef STM32_EMU_EEPROM
     std::string syxPath = fw_build_dir + OD_BOARD + "/" + fw_build_type_subdir + OD_BOARD + ".sysex.syx";
+#else
+    std::string syxPath = fw_build_dir + std::string("mega2560") + "/" + fw_build_type_subdir + std::string("mega2560") + ".sysex.syx";
+#endif
 
     if (!std::filesystem::exists(syxPath))
     {
@@ -437,13 +464,12 @@ TEST_CASE(FwUpdate)
 
     bootloaderMode();
 
-    //perform fw update
-    std::string cmd = std::string("amidi -p $(amidi -l | grep -E 'OpenDeck DFU'") + std::string(" | grep -Eo 'hw:\\S*') -s ") + syxPath + " -i " + sysex_fw_update_delay_ms;
+    std::string cmd = std::string("amidi -p ") + MIDIHelper::amidiPort(true) + " -s " + syxPath + " -i " + sysex_fw_update_delay_ms;
     TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd));
 
     test::wsystem("sleep " + startup_delay_s);
 
-    if (test::wsystem("lsusb -v 2>/dev/null | grep -q '" + opendeck_dev_vid_pid + "'") != 0)
+    if (!MIDIHelper::devicePresent())
     {
         printf("OpenDeck device not found after firmware update, aborting\n");
         exit(1);
@@ -455,7 +481,7 @@ TEST_CASE(BackupAndRestore)
     factoryReset();
     TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
 
-    std::vector<uint8_t> presets = { 1, 2, 3 };
+    std::vector<uint8_t> presets = { 1, 0 };
 
     for (size_t i = 0; i < presets.size(); i++)
     {
@@ -470,7 +496,7 @@ TEST_CASE(BackupAndRestore)
         TEST_ASSERT_EQUAL_UINT32(126, MIDIHelper::readFromBoard(System::Section::button_t::velocity, 0));
     }
 
-    std::string cmd = std::string("amidi -p $(amidi -l | grep -E 'OpenDeck'") + std::string(" | grep -Eo 'hw:\\S*') -S ") + "'" + backup_req + "'" + " -d -t 5 > backup.txt";
+    std::string cmd = std::string("amidi -p ") + MIDIHelper::amidiPort() + " -S \"" + backup_req + "\" -d -t 5 > " + backup_file_location;
     TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd));
 
     factoryReset();
@@ -490,10 +516,10 @@ TEST_CASE(BackupAndRestore)
     //now restore backup
 
     //remove all lines not starting with F0 00 53 43 00 00 01 (set command)
-    TEST_ASSERT_EQUAL_INT(0, test::wsystem("sed -i '/^F0 00 53 43 00 00 01/!d' backup.txt"));
+    TEST_ASSERT_EQUAL_INT(0, test::wsystem("sed -i '/^F0 00 53 43 00 00 01/!d' " + backup_file_location));
 
     //send backup
-    std::ifstream backupStream("backup.txt");
+    std::ifstream backupStream(backup_file_location);
     std::string   line;
 
     while (getline(backupStream, line))
@@ -515,13 +541,24 @@ TEST_CASE(BackupAndRestore)
 
 TEST_CASE(MIDIData)
 {
+    std::string cmd;
     std::string response;
 
     factoryReset();
+    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
 
-    //once the usb midi connection is opened, the board should forcefully resend all the button states
-    std::string cmd = std::string("amidi -p $(amidi -l | grep -E 'OpenDeck'") + std::string(" | grep -Eo 'hw:\\S*')") + " -d -t 5 > " + temp_midi_data_location;
-    TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd));
+    auto changePreset = [&](bool redirect) {
+        //once the preset is changed, the board should forcefully resend all the button states
+
+        if (redirect)
+            cmd = std::string("amidi -p ") + MIDIHelper::amidiPort() + " -S \"F0 00 53 43 00 00 01 00 00 02 00 00 00 00 F7\" -d -t 5 > " + temp_midi_data_location;
+        else
+            cmd = std::string("amidi -p ") + MIDIHelper::amidiPort() + " -S \"F0 00 53 43 00 00 01 00 00 02 00 00 00 00 F7\"";
+
+        TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd, response));
+    };
+
+    changePreset(true);
 
     //drop empty lines
     TEST_ASSERT_EQUAL_INT(0, test::wsystem("sed -i '/^$/d' " + temp_midi_data_location));
@@ -538,17 +575,60 @@ TEST_CASE(MIDIData)
 
     reboot();
 
+#if FW_UID == 0x7a382913
+    //opendeck2 is the only board which has DIN MIDI connectors
+
     //rasp pi has weird issues with midi
     //open monitoring interface for a while and let it dump all the existing data first
     cmd = std::string("amidi -p $(amidi -l | grep -E 'ESI MIDIMATE eX MIDI 1'") + std::string(" | grep -Eo 'hw:\\S*')") + " -d -t 2";
     TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd, response));
 
-    cmd = std::string("amidi -p $(amidi -l | grep -E 'ESI MIDIMATE eX MIDI 1'") + std::string(" | grep -Eo 'hw:\\S*')") + " -d > " + temp_midi_data_location + " &";
-    TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd));
+    auto monitor = [&]() {
+        cmd = std::string("amidi -p $(amidi -l | grep -E 'ESI MIDIMATE eX MIDI 1'") + std::string(" | grep -Eo 'hw:\\S*')") + " -d > " + temp_midi_data_location + " &";
+        TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd));
+    };
 
-    //note: after this request is sent, helper will terminate all amidi processes
-    //no need to terminate the one in the background manually
     TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
+    monitor();
+    changePreset(false);
+
+    cmd = std::string("killall amidi");
+    TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd, response));
+
+    //verify line count - since DIN MIDI isn't enabled, total count should be 0
+    test::wsystem("grep -c . " + temp_midi_data_location, response);
+    TEST_ASSERT_EQUAL_INT(0, stoi(response));
+    TEST_ASSERT_EQUAL_INT(0, test::wsystem("rm " + temp_midi_data_location));
+
+    //now enable DIN MIDI, reboot the board, repeat the test and verify that messages are received on DIN MIDI as well
+    TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled), 1) == true);
+    reboot();
+    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
+    monitor();
+    changePreset(false);
+
+    test::wsystem("sleep 4 && killall amidi > /dev/null");
+
+    test::wsystem("grep -c . " + temp_midi_data_location, response);
+    TEST_ASSERT(stoi(response) >= (MAX_NUMBER_OF_BUTTONS / 2));
+#else
+    cyclePower();
+
+    auto monitor = [&]() {
+        //listen to serial port
+        cmd = std::string("stty -F /dev/" + avr_serial_port + " raw && stty -F /dev/" + avr_serial_port + " -echo -echoe -echok && stty -F /dev/" + avr_serial_port + " 38400");
+        TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd, response));
+
+        cmd = std::string("stdbuf -i0 -o0 -e0 hexdump /dev/" + avr_serial_port + " -v -e '3/1 \"%02X\" \"\n\"' > " + temp_midi_data_location + " &");
+        TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd, response));
+    };
+
+    monitor();
+
+    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
+
+    cmd = std::string("killall hexdump");
+    TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd, response));
 
     //verify line count - since DIN MIDI isn't enabled, total count should be 0
     test::wsystem("grep -c . " + temp_midi_data_location, response);
@@ -558,19 +638,19 @@ TEST_CASE(MIDIData)
     //now enable DIN MIDI, reboot the board, repeat the test and verify that messages are received on DIN MIDI as well
     TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled), 1) == true);
 
-    reboot(false);
+    //avoid weird issues again
+    cyclePower();
 
-    //monitor DIN MIDI through another interface
-    cmd = std::string("amidi -p $(amidi -l | grep -E 'ESI MIDIMATE eX MIDI 1'") + std::string(" | grep -Eo 'hw:\\S*')") + " -d > " + temp_midi_data_location + " &";
-    TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd));
+    monitor();
+    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
+    changePreset(false);
 
-    //open up usb connection so that dump is activated
-    cmd = std::string("amidi -p $(amidi -l | grep -E 'OpenDeck'") + std::string(" | grep -Eo 'hw:\\S*')") + " -d -t 5";
+    cmd = std::string("sleep 4 && killall hexdump");
     TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd, response));
 
     test::wsystem("grep -c . " + temp_midi_data_location, response);
-    std::cout << "amount is " << response << std::endl;
     TEST_ASSERT(stoi(response) >= (MAX_NUMBER_OF_BUTTONS / 2));
+#endif
 }
 
 #endif

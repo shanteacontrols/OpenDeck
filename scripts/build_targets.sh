@@ -96,7 +96,15 @@ do
         if [[ -n "$HW" ]]
         then
             #binaries, sysex files and defines are needed for tests, compile that as well
-            make -C ../src TARGET="${targets[$i]}" DEBUG=0
+
+            if [[ ${targets[$i]} == "mega2560" ]]
+            then
+                midi_override="UART_BAUDRATE_MIDI_STD=38400"
+                #mega16u2 firmware is needed as well for this target
+                make -C ../src TARGET=mega16u2 DEBUG=0
+            fi
+
+            make -C ../src TARGET="${targets[$i]}" DEBUG=0 $midi_override
             make TARGET="${targets[$i]}" DEBUG=0 HW_TESTING=1 TESTS=hw
         else
             #only defines are needed here
