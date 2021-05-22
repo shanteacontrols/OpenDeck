@@ -79,17 +79,11 @@ namespace IO
         class Filter
         {
             public:
-            virtual bool isFiltered(size_t   index,
-                                    bool     state,
-                                    bool&    filteredState,
-                                    uint32_t sampleTakenTime) = 0;
-
-            virtual void reset(size_t index) = 0;
+            virtual bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
         };
 
         Buttons(HWA&           hwa,
                 Filter&        filter,
-                uint32_t       timeDiffTimeout,
                 Database&      database,
                 MIDI&          midi,
                 IO::LEDs&      leds,
@@ -97,7 +91,6 @@ namespace IO
                 ComponentInfo& cInfo)
             : _hwa(hwa)
             , _filter(filter)
-            , TIME_DIFF_READOUT(timeDiffTimeout)
             , _database(database)
             , _midi(midi)
             , _leds(leds)
@@ -127,12 +120,8 @@ namespace IO
         void setLatchingState(size_t index, bool state);
         bool latchingState(size_t index);
 
-        HWA&    _hwa;
-        Filter& _filter;
-
-        /// Time difference betweeen multiple button readouts in milliseconds.
-        const uint32_t TIME_DIFF_READOUT;
-
+        HWA&           _hwa;
+        Filter&        _filter;
         Database&      _database;
         MIDI&          _midi;
         IO::LEDs&      _leds;

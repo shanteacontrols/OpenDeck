@@ -19,58 +19,48 @@ limitations under the License.
 #pragma once
 
 #include "io/buttons/Buttons.h"
-#include "core/src/general/Helpers.h"
 
 namespace IO
 {
     class ButtonsFilter : public IO::Buttons::Filter
     {
         public:
-        ButtonsFilter()
-        {
-            for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
-                _lastPressTime[i] = 1;
-        }
+        ButtonsFilter() = default;
 
-        bool isFiltered(size_t index, bool state, bool& filteredState, uint32_t sampleTakenTime) override
+        bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
         {
+            //this is a board-optimized debouncer
+            //by the time processing of buttons takes place, more than 5ms has already passed
+            //5ms is release debounce time
+            //take into account only two latest readings
+            //if any of those is 1 (pressed), consider the button pressed
+            //otherwise, button is considered released
+
+            numberOfReadings = 1;
+
             if (index >= MAX_NUMBER_OF_BUTTONS)
             {
                 //don't debounce analog inputs and touchscreen buttons
-                filteredState = state;
+                states = states & 0x01;
                 return true;
             }
 
-            if (state)
+            states &= 0x03;
+
+            if (numberOfReadings >= 2)
             {
-                //debounce only release
-                filteredState         = true;
-                _lastPressTime[index] = 0;
+                if (states)
+                {
+                    //button is pressed
+                    states = 0x01;
+                }
             }
             else
             {
-                if (!_lastPressTime[index])
-                    _lastPressTime[index] = sampleTakenTime;
-
-                if ((sampleTakenTime - _lastPressTime[index]) > DEBOUNCE_RELEASE_TIME)
-                    filteredState = false;
-                else
-                    filteredState = true;
+                states &= 0x01;
             }
 
             return true;
         }
-
-        void reset(size_t index) override
-        {
-            if (index >= MAX_NUMBER_OF_BUTTONS)
-                return;
-
-            _lastPressTime[index] = 1;
-        }
-
-        private:
-        static constexpr uint32_t DEBOUNCE_RELEASE_TIME                 = 5;
-        uint32_t                  _lastPressTime[MAX_NUMBER_OF_BUTTONS] = {};
     };
 }    // namespace IO

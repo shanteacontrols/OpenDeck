@@ -83,16 +83,9 @@ namespace
     class ButtonsFilter : public IO::Buttons::Filter
     {
         public:
-        bool isFiltered(size_t   index,
-                        bool     state,
-                        bool&    filteredState,
-                        uint32_t sampleTakenTime) override
+        bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
         {
             return true;
-        }
-
-        void reset(size_t index) override
-        {
         }
     } buttonsFilter;
 
@@ -126,7 +119,7 @@ namespace
 
     IO::U8X8    u8x8(hwaU8X8);
     IO::Display display(u8x8, database);
-    IO::Buttons buttons = IO::Buttons(hwaButtons, buttonsFilter, 1, database, midi, leds, display, cInfo);
+    IO::Buttons buttons = IO::Buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cInfo);
 
     void stateChangeRegister(bool state)
     {

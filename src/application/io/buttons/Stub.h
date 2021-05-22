@@ -73,17 +73,11 @@ namespace IO
         class Filter
         {
             public:
-            virtual bool isFiltered(size_t   index,
-                                    bool     state,
-                                    bool&    filteredState,
-                                    uint32_t sampleTakenTime) = 0;
-
-            virtual void reset(size_t index) = 0;
+            virtual bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
         };
 
         Buttons(HWA&           hwa,
                 Filter&        filter,
-                uint32_t       timeDiffTimeout,
                 Database&      database,
                 MIDI&          midi,
                 IO::LEDs&      leds,

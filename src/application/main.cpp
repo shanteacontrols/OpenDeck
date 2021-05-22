@@ -389,13 +389,9 @@ class ButtonsFilterStub : public IO::Buttons::Filter
     public:
     ButtonsFilterStub() {}
 
-    bool isFiltered(size_t index, bool state, bool& filteredState) override
+    bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
     {
         return false;
-    }
-
-    void reset(size_t index) override
-    {
     }
 } buttonsFilter;
 #endif
@@ -643,7 +639,7 @@ IO::U8X8        u8x8(hwaU8X8);
 IO::Display     display(u8x8, database);
 IO::LEDs        leds(hwaLEDs, database);
 IO::Analog      analog(hwaAnalog, analogFilter, database, midi, leds, display, cInfo);
-IO::Buttons     buttons(hwaButtons, buttonsFilter, 1, database, midi, leds, display, cInfo);
+IO::Buttons     buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cInfo);
 IO::Encoders    encoders(hwaEncoders, encodersFilter, 1, database, midi, display, cInfo);
 IO::Touchscreen touchscreen(database, cInfo);
 System          sys(hwaSystem, cInfo, database, midi, buttons, encoders, analog, leds, display, touchscreen);

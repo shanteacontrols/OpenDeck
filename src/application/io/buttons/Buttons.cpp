@@ -39,21 +39,18 @@ void Buttons::update(bool forceResend)
             if (!_hwa.state(i, numberOfReadings, states))
                 continue;
 
-            uint32_t currentTime = core::timing::currentRunTimeMs();
+            //this filter will return amount of stable changed readings
+            //and the states of those readings
+            //latest reading is index 0
+            if (!_filter.isFiltered(i, numberOfReadings, states))
+                continue;
 
             for (uint8_t reading = 0; reading < numberOfReadings; reading++)
             {
-                //take into account that there is a 1ms difference between readouts
                 //when processing, newest sample has index 0
                 //start from oldest reading which is in upper bits
-                uint8_t  processIndex = numberOfReadings - 1 - reading;
-                uint32_t sampleTime   = currentTime - (TIME_DIFF_READOUT * processIndex);
-
-                bool state = states >> processIndex;
-                state &= 0x01;
-
-                if (!_filter.isFiltered(i, state, state, sampleTime))
-                    continue;
+                uint8_t processIndex = numberOfReadings - 1 - reading;
+                bool    state        = (states >> processIndex) & 0x01;
 
                 processButton(descriptor, i, state);
             }
@@ -444,7 +441,6 @@ void Buttons::reset(size_t index)
 {
     setState(index, false);
     setLatchingState(index, false);
-    _filter.reset(index);
 }
 
 void Buttons::fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor)
