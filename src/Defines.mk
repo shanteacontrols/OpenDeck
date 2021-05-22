@@ -38,7 +38,7 @@ ifneq (,$(findstring USB_LINK_MCU,$(DEFINES)))
 #use smaller sysex buffer size on USB link MCUs
     DEFINES += MIDI_SYSEX_ARRAY_SIZE=50
 else
-    DEFINES += MIDI_SYSEX_ARRAY_SIZE=100
+    DEFINES += MIDI_SYSEX_ARRAY_SIZE=200
 endif
 
 
