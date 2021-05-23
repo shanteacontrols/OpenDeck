@@ -360,7 +360,7 @@ then
 
     printf "%s\n" "DEFINES += MAX_NUMBER_OF_BUTTONS=$max_number_of_buttons" >> "$OUT_FILE_MAKEFILE_DEFINES"
 
-    if [[ "$max_number_of_buttons" -gt 1 ]]
+    if [[ "$max_number_of_buttons" -gt 1 && $($YAML_PARSER "$TARGET_DEF_FILE" buttons.encoders) != "false" ]]
     then
         {
             printf "%s\n" "DEFINES += ENCODERS_SUPPORTED"
