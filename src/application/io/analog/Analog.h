@@ -92,7 +92,7 @@ namespace IO
             , _cInfo(cInfo)
         {
             //make sure the first value is sent even if 0
-            for (size_t i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+            for (size_t i = 0; i < MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
                 _lastValue[i] = 0xFFFF;
         }
 
