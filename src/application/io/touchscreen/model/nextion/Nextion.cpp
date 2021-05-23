@@ -105,7 +105,7 @@ bool Nextion::writeCommand(const char* line, ...)
     va_list args;
     va_start(args, line);
 
-    size_t retVal = vsnprintf(_commandBuffer, IO::Touchscreen::Model::Common::bufferSize, line, args);
+    int retVal = vsnprintf(_commandBuffer, IO::Touchscreen::Model::Common::bufferSize, line, args);
 
     va_end(args);
 
