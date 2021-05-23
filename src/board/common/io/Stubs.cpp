@@ -69,6 +69,10 @@ namespace Board
             {
             }
 
+            __attribute__((weak)) void flushInputReadings()
+            {
+            }
+
             __attribute__((weak)) void checkDigitalOutputs()
             {
             }
