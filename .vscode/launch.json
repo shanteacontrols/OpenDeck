@@ -42,7 +42,6 @@
             "device": "STM32F407",
             "BMPGDBSerialPort": "/dev/ttyBmpGdb",
             "targetId": 1,
-            "preLaunchTask": "[FW/STM32FDiscovery/Debug] Build"
         },
         {
             "type": "cortex-debug",
@@ -56,7 +55,6 @@
             "device": "STM32F405",
             "BMPGDBSerialPort": "/dev/ttyBmpGdb",
             "targetId": 1,
-            "preLaunchTask": "[FW/Cardamom/Debug] Build"
         },
         {
             "type": "cortex-debug",
@@ -70,7 +68,7 @@
             "device": "STM32F405",
             "BMPGDBSerialPort": "/dev/ttyBmpGdb",
             "targetId": 1,
-            "preLaunchTask": "[FW/OpenDeck2/Debug] Build"
+            "gdbPath": "/usr/bin/gdb"
         },
         {
             "type": "cortex-debug",
@@ -84,7 +82,6 @@
             "device": "STM32F405",
             "BMPGDBSerialPort": "/dev/ttyBmpGdb",
             "targetId": 1,
-            "preLaunchTask": "[FW/Rooibos/Debug] Build"
         },
         {
             "type": "cortex-debug",
@@ -98,7 +95,6 @@
             "device": "STM32F405",
             "BMPGDBSerialPort": "/dev/ttyBmpGdb",
             "targetId": 1,
-            "preLaunchTask": "[FW/Bergamot/Debug] Build"
         },
         {
             "type": "cortex-debug",
@@ -112,7 +108,6 @@
             "device": "STM32F405",
             "BMPGDBSerialPort": "/dev/ttyBmpGdb",
             "targetId": 1,
-            "preLaunchTask": "[FW/BlackPill401/Debug] Build"
         },
         {
             "type": "cortex-debug",
@@ -127,7 +122,6 @@
             "device": "STM32F407",
             "BMPGDBSerialPort": "/dev/ttyBmpGdb",
             "targetId": 1,
-            "preLaunchTask": "[CDC/Discovery/Debug] Build"
         },
         {
             "name": "Flashgen",
