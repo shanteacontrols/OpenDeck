@@ -26,436 +26,429 @@
 
 namespace
 {
-    SysExConf::section_t globalSections[static_cast<uint8_t>(System::Section::global_t::AMOUNT)] = {
+    std::vector<SysExConf::Section> globalSections = {
         //midi feature section
         {
-            .numberOfParameters = static_cast<uint8_t>(System::midiFeature_t::AMOUNT),
-            .newValueMin        = 0,
-            .newValueMax        = 1,
+            static_cast<uint16_t>(System::midiFeature_t::AMOUNT),
+            0,
+            1,
         },
 
         //midi merge section
         {
-            .numberOfParameters = static_cast<uint8_t>(System::midiMerge_t::AMOUNT),
-            .newValueMin        = 0,
-            .newValueMax        = 0,
+            static_cast<uint16_t>(System::midiMerge_t::AMOUNT),
+            0,
+            0,
         },
 
         //preset section
         {
-            .numberOfParameters = static_cast<uint8_t>(System::presetSetting_t::AMOUNT),
-            .newValueMin        = 0,
-            .newValueMax        = 0,
+            static_cast<uint16_t>(System::presetSetting_t::AMOUNT),
+            0,
+            0,
         },
     };
 
-    SysExConf::section_t buttonSections[static_cast<uint8_t>(System::Section::button_t::AMOUNT)] = {
+    std::vector<SysExConf::Section> buttonSections = {
         //type section
         {
-            .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(IO::Buttons::type_t::AMOUNT) - 1,
+            MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            static_cast<uint16_t>(IO::Buttons::type_t::AMOUNT) - 1,
         },
 
         //midi message type section
         {
-            .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(IO::Buttons::messageType_t::AMOUNT) - 1,
+            MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            static_cast<uint16_t>(IO::Buttons::messageType_t::AMOUNT) - 1,
         },
 
         //midi id section
         {
-            .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 127,
+            MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            127,
         },
 
         //midi velocity section
         {
-            .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 1,
-            .newValueMax        = 127,
+            MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            1,
+            127,
         },
 
         //midi channel section
         {
-            .numberOfParameters = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 1,
-            .newValueMax        = 16,
+            MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            1,
+            16,
         }
     };
 
-    SysExConf::section_t encoderSections[static_cast<uint8_t>(System::Section::encoder_t::AMOUNT)] = {
+    std::vector<SysExConf::Section> encoderSections = {
         //encoder enabled section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .newValueMin        = 0,
-            .newValueMax        = 1,
+            MAX_NUMBER_OF_ENCODERS,
+            0,
+            1,
         },
 
         //encoder inverted section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .newValueMin        = 0,
-            .newValueMax        = 1,
+            MAX_NUMBER_OF_ENCODERS,
+            0,
+            1,
         },
 
         //encoding mode section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .newValueMin        = 0,
-            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(IO::Encoders::type_t::AMOUNT) - 1,
+            MAX_NUMBER_OF_ENCODERS,
+            0,
+            static_cast<uint16_t>(IO::Encoders::type_t::AMOUNT) - 1,
         },
 
         //midi id section, lsb
         {
-            .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .newValueMin        = 0,
-            .newValueMax        = 16383,
+            MAX_NUMBER_OF_ENCODERS,
+            0,
+            16383,
         },
 
         //midi channel section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .newValueMin        = 1,
-            .newValueMax        = 16,
+            MAX_NUMBER_OF_ENCODERS,
+            1,
+            16,
         },
 
         //pulses per step section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .newValueMin        = 2,
-            .newValueMax        = 4,
+            MAX_NUMBER_OF_ENCODERS,
+            2,
+            4,
         },
 
         //acceleration section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .newValueMin        = 0,
-            .newValueMax        = static_cast<uint8_t>(IO::Encoders::acceleration_t::AMOUNT) - 1,
+            MAX_NUMBER_OF_ENCODERS,
+            0,
+            static_cast<uint16_t>(IO::Encoders::acceleration_t::AMOUNT) - 1,
         },
 
         //midi id section, msb
         {
-            .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .newValueMin        = 0,
-            .newValueMax        = 127,
+            MAX_NUMBER_OF_ENCODERS,
+            0,
+            127,
         },
 
         //remote sync section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ENCODERS,
-            .newValueMin        = 0,
-            .newValueMax        = 1,
+            MAX_NUMBER_OF_ENCODERS,
+            0,
+            1,
         },
     };
 
-    SysExConf::section_t analogSections[static_cast<uint8_t>(System::Section::analog_t::AMOUNT)] = {
+    std::vector<SysExConf::Section> analogSections = {
         //analog enabled section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 1,
+            MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            1,
         },
 
         //analog inverted section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 1,
+            MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            1,
         },
 
         //analog type section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(IO::Analog::type_t::AMOUNT) - 1,
+            MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            static_cast<uint16_t>(IO::Analog::type_t::AMOUNT) - 1,
         },
 
         //midi id section, lsb
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 16383,
+            MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            16383,
         },
 
         //midi id section, msb
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 127,
+            MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            127,
         },
 
         //lower cc limit, lsb
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 16383,
+            MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            16383,
         },
 
         //lower cc limit, msb
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 127,
+            MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            127,
         },
 
         //upper cc limit, lsb
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 16383,
+            MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            16383,
         },
 
         //upper cc limit, msb
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 127,
+            MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            127,
         },
 
         //midi channel section
         {
-            .numberOfParameters = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 1,
-            .newValueMax        = 16,
+            MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            1,
+            16,
         }
     };
 
-    SysExConf::section_t ledSections[static_cast<uint8_t>(System::Section::leds_t::AMOUNT)] = {
+    std::vector<SysExConf::Section> ledSections = {
         //led color test section
         {
-            .numberOfParameters = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(IO::LEDs::color_t::AMOUNT) - 1,
+            MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            static_cast<uint16_t>(IO::LEDs::color_t::AMOUNT) - 1,
         },
 
         //led blink test section
         {
-            .numberOfParameters = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 1,
+            MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            1,
         },
 
         //global parameters section
         {
-            .numberOfParameters = static_cast<SysExConf::sysExParameter_t>(IO::LEDs::setting_t::AMOUNT),
-            .newValueMin        = 0,
-            .newValueMax        = 0,
+            static_cast<uint16_t>(IO::LEDs::setting_t::AMOUNT),
+            0,
+            0,
         },
 
         //activation note section
         {
-            .numberOfParameters = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 127,
+            MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            127,
         },
 
         //rgb enabled section
         {
-            .numberOfParameters = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 1,
+            MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            1,
         },
 
         //led control type section
         {
-            .numberOfParameters = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = static_cast<SysExConf::sysExParameter_t>(IO::LEDs::controlType_t::AMOUNT) - 1,
+            MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            static_cast<uint16_t>(IO::LEDs::controlType_t::AMOUNT) - 1,
         },
 
         //single led velocity value section
         {
-            .numberOfParameters = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 1,
-            .newValueMax        = 127,
+            MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            1,
+            127,
         },
 
         //midi channel section
         {
-            .numberOfParameters = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 1,
-            .newValueMax        = 16,
+            MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            1,
+            16,
         }
     };
 
-    SysExConf::section_t displaySections[static_cast<uint8_t>(System::Section::display_t::AMOUNT)] = {
+    std::vector<SysExConf::Section> displaySections = {
         //features section
         {
-            .numberOfParameters = static_cast<uint8_t>(IO::Display::feature_t::AMOUNT),
-            .newValueMin        = 0,
-            .newValueMax        = 1,
+            static_cast<uint16_t>(IO::Display::feature_t::AMOUNT),
+            0,
+            1,
         },
 
         //settings section
         {
-            .numberOfParameters = static_cast<uint8_t>(IO::Display::setting_t::AMOUNT),
-            .newValueMin        = 0,
-            .newValueMax        = 0,
+            static_cast<uint16_t>(IO::Display::setting_t::AMOUNT),
+            0,
+            0,
         }
     };
 
-    SysExConf::section_t touchscreenSections[static_cast<uint8_t>(System::Section::touchscreen_t::AMOUNT)] = {
+    std::vector<SysExConf::Section> touchscreenSections = {
         //setting section
         {
-            .numberOfParameters = static_cast<uint8_t>(IO::Touchscreen::setting_t::AMOUNT),
-            .newValueMin        = 0,
-            .newValueMax        = 0,
+            static_cast<uint16_t>(IO::Touchscreen::setting_t::AMOUNT),
+            0,
+            0,
         },
 
         //x position section
         {
-            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 0,
+            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            0,
         },
 
         //y position section
         {
-            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 0,
+            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            0,
         },
 
         //width section
         {
-            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 1024,
+            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            1024,
         },
 
         //height section
         {
-            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 600,
+            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            600,
         },
 
         //on screen section
         {
-            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 15,
+            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            15,
         },
 
         //off screen section
         {
-            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 15,
+            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            15,
         },
 
         //page switch enabled section
         {
-            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 1,
+            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            1,
         },
 
         //page switch index section
         {
-            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 15,
+            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            15,
         },
 
         //analog page section
         {
-            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 15,
+            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            15,
         },
 
         //analog start x coordinate section
         {
-            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 0,
+            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            0,
         },
 
         //analog end x coordinate section
         {
-            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 0,
+            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            0,
         },
 
         //analog start y coordinate section
         {
-            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 0,
+            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            0,
         },
 
         //analog end y coordinate section
         {
-            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 0,
+            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            0,
         },
 
         //analog type section
         {
-            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 1,
+            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            1,
         },
 
         //analog reset on release section
         {
-            .numberOfParameters = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
-            .newValueMin        = 0,
-            .newValueMax        = 1,
+            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            0,
+            1,
         },
     };
 
-    SysExConf::block_t sysExLayout[static_cast<uint8_t>(System::block_t::AMOUNT)] = {
+    std::vector<SysExConf::block_t> sysExLayout = {
         //global block
         {
-            .numberOfSections = static_cast<uint8_t>(System::Section::global_t::AMOUNT),
-            .section          = globalSections,
+            .section = globalSections,
         },
 
         //buttons block
         {
-            .numberOfSections = static_cast<uint8_t>(System::Section::button_t::AMOUNT),
-            .section          = buttonSections,
+            .section = buttonSections,
         },
 
         //encoder block
         {
-            .numberOfSections = static_cast<uint8_t>(System::Section::encoder_t::AMOUNT),
-            .section          = encoderSections,
+            .section = encoderSections,
         },
 
         //analog block
         {
-            .numberOfSections = static_cast<uint8_t>(System::Section::analog_t::AMOUNT),
-            .section          = analogSections,
+            .section = analogSections,
         },
 
         //led block
         {
-            .numberOfSections = static_cast<uint8_t>(System::Section::leds_t::AMOUNT),
-            .section          = ledSections,
+            .section = ledSections,
         },
 
         //display block
         {
-            .numberOfSections = static_cast<uint8_t>(System::Section::display_t::AMOUNT),
-            .section          = displaySections,
+            .section = displaySections,
         },
 
         //touchscreen block
         {
-            .numberOfSections = static_cast<uint8_t>(System::Section::touchscreen_t::AMOUNT),
-            .section          = touchscreenSections,
+            .section = touchscreenSections,
         }
     };
 
-    SysExConf::customRequest_t customRequests[NUMBER_OF_CUSTOM_REQUESTS] = {
+    std::vector<SysExConf::customRequest_t> customRequests = {
         {
             .requestID     = SYSEX_CR_FIRMWARE_VERSION,
             .connOpenCheck = true,

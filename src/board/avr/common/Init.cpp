@@ -16,6 +16,9 @@ limitations under the License.
 
 */
 
+#include <cstddef>
+#include <stdio.h>
+#include <stdlib.h>
 #include <avr/power.h>
 #include <avr/eeprom.h>
 #include <avr/wdt.h>
@@ -34,9 +37,23 @@ extern "C" void __cxa_pure_virtual()
     Board::detail::errorHandler();
 }
 
+void* operator new(std::size_t size)
+{
+    return malloc(size);
+}
+
+void operator delete(void* ptr)
+{
+}
+
 namespace std
 {
     void __throw_bad_function_call()
+    {
+        Board::detail::errorHandler();
+    }
+
+    void __throw_bad_alloc()
     {
         Board::detail::errorHandler();
     }

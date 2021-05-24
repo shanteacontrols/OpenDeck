@@ -198,9 +198,7 @@ class System
            IO::Touchscreen& touchscreen)
         : _sysExConf(
               _sysExDataHandler,
-              _sysExMID,
-              SysExConf::paramSize_t::_14bit,
-              SysExConf::nrOfParam_t::_32)
+              _sysExMID)
         , _hwa(hwa)
         , _cInfo(cInfo)
         , _database(database)
@@ -220,7 +218,7 @@ class System
     void            run();
     void            handleSysEx(const uint8_t* array, size_t size);
     bool            isProcessingEnabled();
-    bool            sendCInfo(Database::block_t dbBlock, SysExConf::sysExParameter_t componentID);
+    bool            sendCInfo(Database::block_t dbBlock, uint16_t componentID);
     bool            isMIDIfeatureEnabled(midiFeature_t feature);
     midiMergeType_t midiMergeType();
 
@@ -241,10 +239,10 @@ class System
             : _system(system)
         {}
 
-        result_t get(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t& value) override;
-        result_t set(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t newValue) override;
-        result_t customRequest(size_t request, CustomResponse& customResponse) override;
-        void     sendResponse(uint8_t* array, size_t size) override;
+        result_t get(uint8_t block, uint8_t section, uint16_t index, uint16_t& value) override;
+        result_t set(uint8_t block, uint8_t section, uint16_t index, uint16_t newValue) override;
+        result_t customRequest(uint16_t request, CustomResponse& customResponse) override;
+        void     sendResponse(uint8_t* array, uint16_t size) override;
 
         private:
         System& _system;
@@ -284,8 +282,8 @@ class System
     void                             checkComponents();
     void                             checkMIDI();
     void                             configureMIDI();
-    bool                             onGet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t& value);
-    bool                             onSet(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t newValue);
+    bool                             onGet(uint8_t block, uint8_t section, size_t index, uint16_t& value);
+    bool                             onSet(uint8_t block, uint8_t section, size_t index, uint16_t newValue);
     bool                             onCustomRequest(size_t value);
     void                             onWrite(uint8_t* sysExArray, size_t size);
     void                             backup();
@@ -299,20 +297,20 @@ class System
     Database::Section::leds_t        dbSection(Section::leds_t section);
     Database::Section::display_t     dbSection(Section::display_t section);
     Database::Section::touchscreen_t dbSection(Section::touchscreen_t section);
-    result_t                         onGetGlobal(Section::global_t section, size_t index, SysExConf::sysExParameter_t& value);
-    result_t                         onGetButtons(Section::button_t section, size_t index, SysExConf::sysExParameter_t& value);
-    result_t                         onGetEncoders(Section::encoder_t section, size_t index, SysExConf::sysExParameter_t& value);
-    result_t                         onGetAnalog(Section::analog_t section, size_t index, SysExConf::sysExParameter_t& value);
-    result_t                         onGetLEDs(Section::leds_t section, size_t index, SysExConf::sysExParameter_t& value);
-    result_t                         onGetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t& value);
-    result_t                         onGetTouchscreen(Section::touchscreen_t section, size_t index, SysExConf::sysExParameter_t& value);
-    result_t                         onSetGlobal(Section::global_t section, size_t index, SysExConf::sysExParameter_t newValue);
-    result_t                         onSetButtons(Section::button_t section, size_t index, SysExConf::sysExParameter_t newValue);
-    result_t                         onSetEncoders(Section::encoder_t section, size_t index, SysExConf::sysExParameter_t newValue);
-    result_t                         onSetAnalog(Section::analog_t section, size_t index, SysExConf::sysExParameter_t newValue);
-    result_t                         onSetLEDs(Section::leds_t section, size_t index, SysExConf::sysExParameter_t newValue);
-    result_t                         onSetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t newValue);
-    result_t                         onSetTouchscreen(Section::touchscreen_t section, size_t index, SysExConf::sysExParameter_t newValue);
+    result_t                         onGetGlobal(Section::global_t section, size_t index, uint16_t& value);
+    result_t                         onGetButtons(Section::button_t section, size_t index, uint16_t& value);
+    result_t                         onGetEncoders(Section::encoder_t section, size_t index, uint16_t& value);
+    result_t                         onGetAnalog(Section::analog_t section, size_t index, uint16_t& value);
+    result_t                         onGetLEDs(Section::leds_t section, size_t index, uint16_t& value);
+    result_t                         onGetDisplay(Section::display_t section, size_t index, uint16_t& value);
+    result_t                         onGetTouchscreen(Section::touchscreen_t section, size_t index, uint16_t& value);
+    result_t                         onSetGlobal(Section::global_t section, size_t index, uint16_t newValue);
+    result_t                         onSetButtons(Section::button_t section, size_t index, uint16_t newValue);
+    result_t                         onSetEncoders(Section::encoder_t section, size_t index, uint16_t newValue);
+    result_t                         onSetAnalog(Section::analog_t section, size_t index, uint16_t newValue);
+    result_t                         onSetLEDs(Section::leds_t section, size_t index, uint16_t newValue);
+    result_t                         onSetDisplay(Section::display_t section, size_t index, uint16_t newValue);
+    result_t                         onSetTouchscreen(Section::touchscreen_t section, size_t index, uint16_t newValue);
 
     SysExConf           _sysExConf;
     HWA&                _hwa;

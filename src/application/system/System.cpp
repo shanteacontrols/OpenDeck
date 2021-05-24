@@ -104,7 +104,7 @@ void System::handleSysEx(const uint8_t* array, size_t size)
     }
 }
 
-System::result_t System::SysExDataHandler::customRequest(size_t request, CustomResponse& customResponse)
+System::result_t System::SysExDataHandler::customRequest(uint16_t request, CustomResponse& customResponse)
 {
     auto result = System::result_t::ok;
 
@@ -261,7 +261,7 @@ bool System::init()
     _database.registerHandlers(_dbHandlers);
     _touchscreen.registerEventNotifier(_touchScreenHandlers);
 
-    _cInfo.registerHandler([this](Database::block_t dbBlock, SysExConf::sysExParameter_t componentID) {
+    _cInfo.registerHandler([this](Database::block_t dbBlock, uint16_t componentID) {
         return sendCInfo(dbBlock, componentID);
     });
 
@@ -284,8 +284,8 @@ bool System::init()
     _touchscreen.init();
     _leds.init();
 
-    _sysExConf.setLayout(sysExLayout, static_cast<uint8_t>(block_t::AMOUNT));
-    _sysExConf.setupCustomRequests(customRequests, NUMBER_OF_CUSTOM_REQUESTS);
+    _sysExConf.setLayout(sysExLayout);
+    _sysExConf.setupCustomRequests(customRequests);
 
     configureMIDI();
 
@@ -297,15 +297,15 @@ bool System::isProcessingEnabled()
     return _processingEnabled;
 }
 
-bool System::sendCInfo(Database::block_t dbBlock, SysExConf::sysExParameter_t componentID)
+bool System::sendCInfo(Database::block_t dbBlock, uint16_t componentID)
 {
     if (_sysExConf.isConfigurationEnabled())
     {
         if ((core::timing::currentRunTimeMs() - _lastCinfoMsgTime[static_cast<uint8_t>(dbBlock)]) > COMPONENT_INFO_TIMEOUT)
         {
-            SysExConf::sysExParameter_t cInfoMessage[] = {
+            uint16_t cInfoMessage[] = {
                 SYSEX_CM_COMPONENT_ID,
-                static_cast<SysExConf::sysExParameter_t>(dbBlock),
+                static_cast<uint16_t>(dbBlock),
                 0,
                 0
             };
@@ -415,7 +415,7 @@ void System::backup()
         0xF7
     };
 
-    SysExConf::sysExParameter_t presetChangeRequest[] = {
+    uint16_t presetChangeRequest[] = {
         static_cast<uint8_t>(SysExConf::wish_t::set),
         static_cast<uint8_t>(SysExConf::amount_t::single),
         static_cast<uint8_t>(System::block_t::global),
@@ -443,11 +443,11 @@ void System::backup()
         presetChangeRequest[presetChangeRequestPresetIndex] = preset;
         _sysExConf.sendCustomMessage(presetChangeRequest, presetChangeRequestSize, false);
 
-        for (size_t block = 0; block < static_cast<uint8_t>(System::block_t::AMOUNT); block++)
+        for (size_t block = 0; block < _sysExConf.blocks(); block++)
         {
             backupRequest[backupRequestBlockIndex] = block;
 
-            for (size_t section = 0; section < sysExLayout[block].numberOfSections; section++)
+            for (size_t section = 0; section < _sysExConf.sections(block); section++)
             {
                 if (
                     (block == static_cast<uint8_t>(System::block_t::leds)) &&
@@ -466,18 +466,18 @@ void System::backup()
     _sysExConf.sendCustomMessage(presetChangeRequest, presetChangeRequestSize, false);
 
     //finally, send back full backup request to mark the end of sending
-    SysExConf::sysExParameter_t endMarker = SYSEX_CR_FULL_BACKUP;
+    uint16_t endMarker = SYSEX_CR_FULL_BACKUP;
     _sysExConf.sendCustomMessage(&endMarker, 1);
     _sysExConf.setSilentMode(false);
 }
 
-void System::SysExDataHandler::sendResponse(uint8_t* array, size_t size)
+void System::SysExDataHandler::sendResponse(uint8_t* array, uint16_t size)
 {
     //never send responses through DIN MIDI
     _system._midi.disableDINMIDI();
     _system._midi.sendSysEx(size, array, true);
 
-    if (_system._database.read(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled)))
+    if (_system._database.read(Database::Section::global_t::midiFeatures, static_cast<uint16_t>(System::midiFeature_t::dinEnabled)))
         _system._midi.enableDINMIDI();
 }
 

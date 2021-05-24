@@ -19,10 +19,10 @@ limitations under the License.
 #include "System.h"
 #include "io/leds/LEDs.h"
 
-SysExConf::DataHandler::result_t System::SysExDataHandler::set(uint8_t                     block,
-                                                               uint8_t                     section,
-                                                               size_t                      index,
-                                                               SysExConf::sysExParameter_t newValue)
+SysExConf::DataHandler::result_t System::SysExDataHandler::set(uint8_t  block,
+                                                               uint8_t  section,
+                                                               uint16_t index,
+                                                               uint16_t newValue)
 {
     auto sysExBlock = static_cast<block_t>(block);
     auto result     = System::result_t::notSupported;
@@ -84,7 +84,7 @@ SysExConf::DataHandler::result_t System::SysExDataHandler::set(uint8_t          
     return result;
 }
 
-System::result_t System::onSetGlobal(Section::global_t section, size_t index, SysExConf::sysExParameter_t newValue)
+System::result_t System::onSetGlobal(Section::global_t section, size_t index, uint16_t newValue)
 {
     auto result    = System::result_t::error;
     bool writeToDb = true;
@@ -262,7 +262,7 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, Sy
     return result;
 }
 
-System::result_t System::onSetButtons(Section::button_t section, size_t index, SysExConf::sysExParameter_t newValue)
+System::result_t System::onSetButtons(Section::button_t section, size_t index, uint16_t newValue)
 {
 #ifdef BUTTONS_SUPPORTED
     auto result = System::result_t::error;
@@ -287,50 +287,13 @@ System::result_t System::onSetButtons(Section::button_t section, size_t index, S
 #endif
 }
 
-System::result_t System::onSetEncoders(Section::encoder_t section, size_t index, SysExConf::sysExParameter_t newValue)
+System::result_t System::onSetEncoders(Section::encoder_t section, size_t index, uint16_t newValue)
 {
 #ifdef ENCODERS_SUPPORTED
     switch (section)
     {
     case Section::encoder_t::midiID_MSB:
-
-        if (_sysExConf.paramSize() == SysExConf::paramSize_t::_14bit)
-        {
-            //no need for MSB parameters in 2-byte mode since the entire value
-            //can be set via single value
-            return System::result_t::notSupported;
-        }
-
-        //intentional fall-through
-
-    case Section::encoder_t::midiID:
-    {
-        if (_sysExConf.paramSize() == SysExConf::paramSize_t::_7bit)
-        {
-            MIDI::Split14bit split14bit;
-            MIDI::Merge14bit merge14bit;
-
-            split14bit.split(_database.read(dbSection(section), index));
-
-            switch (section)
-            {
-            case Section::encoder_t::midiID:
-            {
-                merge14bit.merge(split14bit.high(), newValue);
-            }
-            break;
-
-            default:
-            {
-                merge14bit.merge(newValue, split14bit.low());
-            }
-            break;
-            }
-
-            newValue = merge14bit.value();
-        }
-    }
-    break;
+        return System::result_t::notSupported;
 
     default:
     {
@@ -352,7 +315,7 @@ System::result_t System::onSetEncoders(Section::encoder_t section, size_t index,
 #endif
 }
 
-System::result_t System::onSetAnalog(Section::analog_t section, size_t index, SysExConf::sysExParameter_t newValue)
+System::result_t System::onSetAnalog(Section::analog_t section, size_t index, uint16_t newValue)
 {
 #ifdef ANALOG_SUPPORTED
     switch (section)
@@ -360,48 +323,7 @@ System::result_t System::onSetAnalog(Section::analog_t section, size_t index, Sy
     case Section::analog_t::midiID_MSB:
     case Section::analog_t::lowerLimit_MSB:
     case Section::analog_t::upperLimit_MSB:
-
-        if (_sysExConf.paramSize() == SysExConf::paramSize_t::_14bit)
-        {
-            //no need for MSB parameters in 2-byte mode since the entire value
-            //can be set via single value
-            return System::result_t::notSupported;
-        }
-
-        //intentional fall-through
-
-    case Section::analog_t::midiID:
-    case Section::analog_t::lowerLimit:
-    case Section::analog_t::upperLimit:
-    {
-        if (_sysExConf.paramSize() == SysExConf::paramSize_t::_7bit)
-        {
-            MIDI::Split14bit split14bit;
-            MIDI::Merge14bit merge14bit;
-
-            split14bit.split(_database.read(dbSection(section), index));
-
-            switch (section)
-            {
-            case Section::analog_t::midiID:
-            case Section::analog_t::lowerLimit:
-            case Section::analog_t::upperLimit:
-            {
-                merge14bit.merge(split14bit.high(), newValue);
-            }
-            break;
-
-            default:
-            {
-                merge14bit.merge(newValue, split14bit.low());
-            }
-            break;
-            }
-
-            newValue = merge14bit.value();
-        }
-    }
-    break;
+        return System::result_t::notSupported;
 
     case Section::analog_t::type:
     {
@@ -424,7 +346,7 @@ System::result_t System::onSetAnalog(Section::analog_t section, size_t index, Sy
 #endif
 }
 
-System::result_t System::onSetLEDs(Section::leds_t section, size_t index, SysExConf::sysExParameter_t newValue)
+System::result_t System::onSetLEDs(Section::leds_t section, size_t index, uint16_t newValue)
 {
 #ifdef LEDS_SUPPORTED
     auto result = System::result_t::error;
@@ -582,7 +504,7 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, SysExC
 #endif
 }
 
-System::result_t System::onSetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t newValue)
+System::result_t System::onSetDisplay(Section::display_t section, size_t index, uint16_t newValue)
 {
 #ifdef DISPLAY_SUPPORTED
     auto initAction = initAction_t::asIs;
@@ -678,7 +600,7 @@ System::result_t System::onSetDisplay(Section::display_t section, size_t index, 
 #endif
 }
 
-System::result_t System::onSetTouchscreen(Section::touchscreen_t section, size_t index, SysExConf::sysExParameter_t newValue)
+System::result_t System::onSetTouchscreen(Section::touchscreen_t section, size_t index, uint16_t newValue)
 {
 #ifdef TOUCHSCREEN_SUPPORTED
     auto initAction = initAction_t::asIs;

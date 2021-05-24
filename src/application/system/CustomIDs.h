@@ -36,9 +36,6 @@ limitations under the License.
 
 ///
 
-/// Total number of custom requests.
-#define NUMBER_OF_CUSTOM_REQUESTS 13
-
 /// Custom ID used when sending info about components to host.
 #define SYSEX_CM_COMPONENT_ID 0x49
 

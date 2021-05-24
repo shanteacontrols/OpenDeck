@@ -18,7 +18,7 @@ limitations under the License.
 
 #include "System.h"
 
-System::result_t System::SysExDataHandler::get(uint8_t block, uint8_t section, size_t index, SysExConf::sysExParameter_t& value)
+System::result_t System::SysExDataHandler::get(uint8_t block, uint8_t section, uint16_t index, uint16_t& value)
 {
     auto sysExBlock = static_cast<System::block_t>(block);
     auto result     = System::result_t::notSupported;
@@ -76,7 +76,7 @@ System::result_t System::SysExDataHandler::get(uint8_t block, uint8_t section, s
     return result;
 }
 
-System::result_t System::onGetGlobal(Section::global_t section, size_t index, SysExConf::sysExParameter_t& value)
+System::result_t System::onGetGlobal(Section::global_t section, size_t index, uint16_t& value)
 {
     int32_t readValue = 0;
     auto    result    = System::result_t::error;
@@ -144,7 +144,7 @@ System::result_t System::onGetGlobal(Section::global_t section, size_t index, Sy
     return result;
 }
 
-System::result_t System::onGetButtons(Section::button_t section, size_t index, SysExConf::sysExParameter_t& value)
+System::result_t System::onGetButtons(Section::button_t section, size_t index, uint16_t& value)
 {
 #ifdef BUTTONS_SUPPORTED
     int32_t readValue;
@@ -162,7 +162,7 @@ System::result_t System::onGetButtons(Section::button_t section, size_t index, S
 #endif
 }
 
-System::result_t System::onGetEncoders(Section::encoder_t section, size_t index, SysExConf::sysExParameter_t& value)
+System::result_t System::onGetEncoders(Section::encoder_t section, size_t index, uint16_t& value)
 {
 #ifdef ENCODERS_SUPPORTED
     int32_t readValue;
@@ -170,25 +170,8 @@ System::result_t System::onGetEncoders(Section::encoder_t section, size_t index,
 
     if (result == System::result_t::ok)
     {
-        if (_sysExConf.paramSize() == SysExConf::paramSize_t::_14bit)
-        {
-            if (section == Section::encoder_t::midiID_MSB)
-                return System::result_t::notSupported;
-        }
-        else
-        {
-            if ((section == Section::encoder_t::midiID) || (section == Section::encoder_t::midiID_MSB))
-            {
-                MIDI::Split14bit split14bit;
-
-                split14bit.split(readValue);
-
-                if (section == Section::encoder_t::midiID)
-                    readValue = split14bit.low();
-                else
-                    readValue = split14bit.high();
-            }
-        }
+        if (section == Section::encoder_t::midiID_MSB)
+            return System::result_t::notSupported;
 
         if (section == Section::encoder_t::midiChannel)
         {
@@ -205,7 +188,7 @@ System::result_t System::onGetEncoders(Section::encoder_t section, size_t index,
 #endif
 }
 
-System::result_t System::onGetAnalog(Section::analog_t section, size_t index, SysExConf::sysExParameter_t& value)
+System::result_t System::onGetAnalog(Section::analog_t section, size_t index, uint16_t& value)
 {
 #ifdef ANALOG_SUPPORTED
     int32_t readValue;
@@ -216,52 +199,7 @@ System::result_t System::onGetAnalog(Section::analog_t section, size_t index, Sy
     case Section::analog_t::midiID_MSB:
     case Section::analog_t::lowerLimit_MSB:
     case Section::analog_t::upperLimit_MSB:
-
-        if (_sysExConf.paramSize() == SysExConf::paramSize_t::_14bit)
-        {
-            //no need for MSB parameters in 2-byte mode since the entire value
-            //can be retrieved via single value
-            return System::result_t::notSupported;
-        }
-
-        //intentional fall-through
-
-    case Section::analog_t::midiID:
-    case Section::analog_t::lowerLimit:
-    case Section::analog_t::upperLimit:
-    {
-        if (_sysExConf.paramSize() == SysExConf::paramSize_t::_7bit)
-        {
-            if (result == System::result_t::ok)
-            {
-                MIDI::Split14bit split14bit;
-
-                split14bit.split(readValue);
-
-                switch (section)
-                {
-                case Section::analog_t::midiID:
-                case Section::analog_t::lowerLimit:
-                case Section::analog_t::upperLimit:
-                {
-                    readValue = split14bit.low();
-                }
-                break;
-
-                default:
-                {
-                    readValue = split14bit.high();
-                }
-                break;
-                }
-            }
-        }
-        else
-        {
-            //nothing to do
-        }
-    }
-    break;
+        return System::result_t::notSupported;
 
     case Section::analog_t::midiChannel:
     {
@@ -283,7 +221,7 @@ System::result_t System::onGetAnalog(Section::analog_t section, size_t index, Sy
 #endif
 }
 
-System::result_t System::onGetLEDs(Section::leds_t section, size_t index, SysExConf::sysExParameter_t& value)
+System::result_t System::onGetLEDs(Section::leds_t section, size_t index, uint16_t& value)
 {
 #ifdef LEDS_SUPPORTED
     int32_t readValue;
@@ -334,7 +272,7 @@ System::result_t System::onGetLEDs(Section::leds_t section, size_t index, SysExC
 #endif
 }
 
-System::result_t System::onGetDisplay(Section::display_t section, size_t index, SysExConf::sysExParameter_t& value)
+System::result_t System::onGetDisplay(Section::display_t section, size_t index, uint16_t& value)
 {
 #ifdef DISPLAY_SUPPORTED
     int32_t readValue;
@@ -347,7 +285,7 @@ System::result_t System::onGetDisplay(Section::display_t section, size_t index, 
 #endif
 }
 
-System::result_t System::onGetTouchscreen(Section::touchscreen_t section, size_t index, SysExConf::sysExParameter_t& value)
+System::result_t System::onGetTouchscreen(Section::touchscreen_t section, size_t index, uint16_t& value)
 {
 #ifdef TOUCHSCREEN_SUPPORTED
     int32_t readValue;

@@ -25,7 +25,7 @@ limitations under the License.
 class ComponentInfo
 {
     public:
-    using cinfoHandler_t = std::function<bool(Database::block_t, SysExConf::sysExParameter_t)>;
+    using cinfoHandler_t = std::function<bool(Database::block_t, uint16_t)>;
 
     ComponentInfo() = default;
 
@@ -34,7 +34,7 @@ class ComponentInfo
         _handler = std::move(handler);
     }
 
-    void send(Database::block_t block, SysExConf::sysExParameter_t id)
+    void send(Database::block_t block, uint16_t id)
     {
         if (_handler != nullptr)
             _handler(block, id);
