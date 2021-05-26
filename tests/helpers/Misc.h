@@ -11,6 +11,8 @@ namespace test
     //simple wrapper for system call which takes string arg instead
     inline int wsystem(std::string const& in, std::string& out)
     {
+        // std::cout << "[CMD]: " << in << std::endl;
+
         FILE* fpipe = popen(in.c_str(), "r");
 
         if (fpipe == NULL)
@@ -36,6 +38,7 @@ namespace test
 
     inline int wsystem(std::string const& in)
     {
+        // std::cout << "[CMD]: " << in << std::endl;
         return system(in.c_str());
     }
 

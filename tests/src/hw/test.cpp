@@ -13,21 +13,27 @@ namespace
 #ifdef STM32_EMU_EEPROM
     const std::string flash_cmd = "make -C ../src flash-bmp";
 #else
-    const std::string flash_cmd            = "make -C ../src flash";
+    const std::string flash_cmd = "make -C ../src flash";
 #endif
 
-    const std::string bmp_dev_vid_pid          = "1d50:6018";
+    enum class powerCycleType_t : uint8_t
+    {
+        standard,
+        standardWithDeviceCheck
+    };
+
     const std::string handshake_req            = "F0 00 53 43 00 00 01 F7";
     const std::string reboot_req               = "F0 00 53 43 00 00 7F F7";
     const std::string handshake_ack            = "F0 00 53 43 01 00 01 F7";
     const std::string factory_reset_req        = "F0 00 53 43 00 00 44 F7";
     const std::string btldr_req                = "F0 00 53 43 00 00 55 F7";
     const std::string backup_req               = "F0 00 53 43 00 00 1B F7";
-    const std::string usb_power_off_cmd        = "uhubctl -a off -l 1-1 > /dev/null";
-    const std::string usb_power_on_cmd         = "uhubctl -a on -l 1-1 > /dev/null";
+    const std::string usb_power_off_cmd        = "uhubctl -a off -l 1-1.4.4 > /dev/null && sleep 2 && uhubctl -a off -l 1-1.4 > /dev/null && sleep 2 && uhubctl -a off -l 1-1 > /dev/null";
+    const std::string usb_power_on_cmd         = "uhubctl -a on -l 1-1 > /dev/null && sleep 2 && uhubctl -a on -l 1-1.4 > /dev/null && sleep 2 && uhubctl -a on -l 1-1.4 > /dev/null";
     const std::string sysex_fw_update_delay_ms = "5";
     const std::string startup_delay_s          = "5";
-    const std::string rapid_reboot_repeat_s    = "1.2";
+    const std::string eeprom_init_delay_s      = "10";
+    const std::string reboot_delay_s           = "7";
     const std::string fw_build_dir             = "../src/build/merged/";
     const std::string fw_build_type_subdir     = "release/";
     const std::string temp_midi_data_location  = "/tmp/temp_midi_data";
@@ -84,12 +90,51 @@ namespace
         }
     }
 
-    void cyclePower()
+    void cyclePower(powerCycleType_t powerCycleType)
     {
-        TEST_ASSERT_EQUAL_INT(0, test::wsystem(usb_power_off_cmd));
-        test::wsystem("sleep " + startup_delay_s);
-        TEST_ASSERT_EQUAL_INT(0, test::wsystem(usb_power_on_cmd));
-        test::wsystem("sleep " + startup_delay_s);
+        auto cycle = [&]() {
+            TEST_ASSERT_EQUAL_INT(0, test::wsystem(usb_power_off_cmd));
+            TEST_ASSERT_EQUAL_INT(0, test::wsystem(usb_power_on_cmd));
+
+            test::wsystem("sleep " + reboot_delay_s);
+        };
+
+        if (powerCycleType != powerCycleType_t::standardWithDeviceCheck)
+        {
+            cycle();
+        }
+        else
+        {
+            //ensure the device is present
+            do
+            {
+                cycle();
+            } while (!MIDIHelper::devicePresent());
+        }
+    }
+
+    void flash()
+    {
+        cyclePower(powerCycleType_t::standard);
+
+#ifdef STM32_EMU_EEPROM
+        std::string flashTarget = " TARGET=" + std::string(OD_BOARD);
+        std::string flashPort   = " PORT=" + stm_flash_port;
+        TEST_ASSERT_EQUAL_INT(0, test::wsystem(flash_cmd + flashTarget + flashPort));
+#else
+        std::string flashTarget_mega2560 = " TARGET=mega2560";
+        std::string flashTarget_mega16u2 = " TARGET=mega16u2";
+        std::string flashPort_mega2560   = " PORT=" + avr_flash_port_mega2560;
+        std::string flashPort_mega16u2   = " PORT=" + avr_flash_port_mega16u2;
+
+        TEST_ASSERT_EQUAL_INT(0, test::wsystem(flash_cmd + flashTarget_mega2560 + flashPort_mega2560));
+        TEST_ASSERT_EQUAL_INT(0, test::wsystem(flash_cmd + flashTarget_mega16u2 + flashPort_mega16u2));
+#endif
+
+        //delay some time to allow eeprom init
+        test::wsystem("sleep " + eeprom_init_delay_s);
+
+        cyclePower(powerCycleType_t::standardWithDeviceCheck);
     }
 }    // namespace
 
@@ -106,49 +151,24 @@ TEST_TEARDOWN()
     test::wsystem("killall amidi > /dev/null 2>&1");
 }
 
+#ifdef HW_TEST_FLASH
 TEST_CASE(FlashAndBoot)
 {
-    //ensure clean state
-    cyclePower();
-
-#ifdef STM32_EMU_EEPROM
-    //verify that black magic probe is connected to system
-    TEST_ASSERT_EQUAL_INT(0, test::wsystem("lsusb -v 2>/dev/null | grep -q '" + bmp_dev_vid_pid + "'"));
-
-    std::string flashTarget = " TARGET=" + std::string(OD_BOARD);
-    std::string flashPort   = " PORT=" + stm_flash_port;
-    TEST_ASSERT_EQUAL_INT(0, test::wsystem(flash_cmd + flashTarget + flashPort));
-#else
-    std::string       flashTarget_mega2560 = " TARGET=mega2560";
-    std::string       flashTarget_mega16u2 = " TARGET=mega16u2";
-    std::string       flashPort_mega2560   = " PORT=" + avr_flash_port_mega2560;
-    std::string       flashPort_mega16u2   = " PORT=" + avr_flash_port_mega16u2;
-
-    TEST_ASSERT_EQUAL_INT(0, test::wsystem(flash_cmd + flashTarget_mega2560 + flashPort_mega2560));
-    TEST_ASSERT_EQUAL_INT(0, test::wsystem(flash_cmd + flashTarget_mega16u2 + flashPort_mega16u2));
-#endif
-
-    //delay some time to allow eeprom init
-    test::wsystem("sleep " + startup_delay_s);
-
-#ifndef STM32_EMU_EEPROM
-    //cycle the power to ensure both MCUs are booted in application firmware (arduino mega)
-    cyclePower();
-#endif
-
-    if (!MIDIHelper::devicePresent())
-    {
-        printf("OpenDeck device not found after flashing, aborting\n");
-        exit(1);
-    }
+    flash();
 }
+#endif
 
 TEST_CASE(DatabaseInitialValues)
 {
+#ifndef HW_TEST_FLASH
+    cyclePower(powerCycleType_t::standardWithDeviceCheck);
+#endif
+
     factoryReset();
     TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
 
-    for (int preset = 0; preset < database.getSupportedPresets(); preset++)
+    //check only first and the last preset
+    for (int preset = 0; preset < database.getSupportedPresets(); preset += (database.getSupportedPresets() - 1))
     {
         TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::presets, 0, preset) == true);
         TEST_ASSERT_EQUAL_UINT32(preset, MIDIHelper::readFromBoard(System::Section::global_t::presets, 0));
@@ -409,39 +429,32 @@ TEST_CASE(DatabaseInitialValues)
     }
 }
 
-TEST_CASE(ValuesAfterReboots)
+TEST_CASE(ValuesAfterFlashing)
 {
+    factoryReset();
     TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
 
     //change few random values
     TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::presets, 0, 1) == true);    //active preset 1
     TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::presets, 1, 1) == true);    //preserve preset
     TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::analog_t::midiID, 4, 15) == true);
+#ifdef ENCODERS_SUPPORTED
     TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::encoder_t::pulsesPerStep, 1, 2) == true);
+#endif
     TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::button_t::velocity, 0, 126) == true);
 
     auto verify = []() {
         TEST_ASSERT_EQUAL_UINT32(1, MIDIHelper::readFromBoard(System::Section::global_t::presets, 0));
         TEST_ASSERT_EQUAL_UINT32(1, MIDIHelper::readFromBoard(System::Section::global_t::presets, 1));
         TEST_ASSERT_EQUAL_UINT32(15, MIDIHelper::readFromBoard(System::Section::analog_t::midiID, 4));
+#ifdef ENCODERS_SUPPORTED
         TEST_ASSERT_EQUAL_UINT32(2, MIDIHelper::readFromBoard(System::Section::encoder_t::pulsesPerStep, 1));
+#endif
         TEST_ASSERT_EQUAL_UINT32(126, MIDIHelper::readFromBoard(System::Section::button_t::velocity, 0));
     };
 
     verify();
-
-    //now perform several rapid reboots
-    //note: in the past these kind of reboots have been known to cause factory reset on the board
-    for (size_t i = 0; i < 5; i++)
-    {
-        TEST_ASSERT_EQUAL_INT(0, test::wsystem(usb_power_off_cmd));
-        test::wsystem("sleep " + rapid_reboot_repeat_s);
-
-        TEST_ASSERT_EQUAL_INT(0, test::wsystem(usb_power_on_cmd));
-        test::wsystem("sleep " + rapid_reboot_repeat_s);
-    }
-
-    test::wsystem("sleep " + startup_delay_s);
+    flash();
     TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
 
     //verify all values again
@@ -481,19 +494,22 @@ TEST_CASE(BackupAndRestore)
     factoryReset();
     TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
 
-    std::vector<uint8_t> presets = { 1, 0 };
-
-    for (size_t i = 0; i < presets.size(); i++)
+    for (int preset = 0; preset < database.getSupportedPresets(); preset++)
     {
-        TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::presets, static_cast<int>(System::presetSetting_t::activePreset), presets.at(i)) == true);
-        TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::analog_t::midiID, 4, 15) == true);
-        TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::encoder_t::pulsesPerStep, 1, 2) == true);
-        TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::button_t::velocity, 0, 126) == true);
+        TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::presets, static_cast<int>(System::presetSetting_t::activePreset), preset) == true);
+        TEST_ASSERT_EQUAL_UINT32(preset, MIDIHelper::readFromBoard(System::Section::global_t::presets, static_cast<int>(System::presetSetting_t::activePreset)));
 
-        TEST_ASSERT_EQUAL_UINT32(presets.at(i), MIDIHelper::readFromBoard(System::Section::global_t::presets, static_cast<int>(System::presetSetting_t::activePreset)));
-        TEST_ASSERT_EQUAL_UINT32(15, MIDIHelper::readFromBoard(System::Section::analog_t::midiID, 4));
-        TEST_ASSERT_EQUAL_UINT32(2, MIDIHelper::readFromBoard(System::Section::encoder_t::pulsesPerStep, 1));
-        TEST_ASSERT_EQUAL_UINT32(126, MIDIHelper::readFromBoard(System::Section::button_t::velocity, 0));
+        TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::analog_t::midiID, 4, 15 + preset) == true);
+#ifdef ENCODERS_SUPPORTED
+        TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::encoder_t::midiChannel, 1, 2 + preset) == true);
+#endif
+        TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::button_t::velocity, 0, 90 + preset) == true);
+
+        TEST_ASSERT_EQUAL_UINT32(15 + preset, MIDIHelper::readFromBoard(System::Section::analog_t::midiID, 4));
+#ifdef ENCODERS_SUPPORTED
+        TEST_ASSERT_EQUAL_UINT32(2 + preset, MIDIHelper::readFromBoard(System::Section::encoder_t::midiChannel, 1));
+#endif
+        TEST_ASSERT_EQUAL_UINT32(90 + preset, MIDIHelper::readFromBoard(System::Section::button_t::velocity, 0));
     }
 
     std::string cmd = std::string("amidi -p ") + MIDIHelper::amidiPort() + " -S \"" + backup_req + "\" -d -t 5 > " + backup_file_location;
@@ -503,13 +519,15 @@ TEST_CASE(BackupAndRestore)
     TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
 
     //verify that the defaults are active again
-    for (size_t i = 0; i < presets.size(); i++)
+    for (int preset = 0; preset < database.getSupportedPresets(); preset++)
     {
-        TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::presets, static_cast<int>(System::presetSetting_t::activePreset), presets.at(i)) == true);
-        TEST_ASSERT_EQUAL_UINT32(presets.at(i), MIDIHelper::readFromBoard(System::Section::global_t::presets, static_cast<int>(System::presetSetting_t::activePreset)));
+        TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::presets, static_cast<int>(System::presetSetting_t::activePreset), preset) == true);
+        TEST_ASSERT_EQUAL_UINT32(preset, MIDIHelper::readFromBoard(System::Section::global_t::presets, static_cast<int>(System::presetSetting_t::activePreset)));
 
         TEST_ASSERT_EQUAL_UINT32(4, MIDIHelper::readFromBoard(System::Section::analog_t::midiID, 4));
-        TEST_ASSERT_EQUAL_UINT32(4, MIDIHelper::readFromBoard(System::Section::encoder_t::pulsesPerStep, 1));
+#ifdef ENCODERS_SUPPORTED
+        TEST_ASSERT_EQUAL_UINT32(1, MIDIHelper::readFromBoard(System::Section::encoder_t::midiChannel, 1));
+#endif
         TEST_ASSERT_EQUAL_UINT32(127, MIDIHelper::readFromBoard(System::Section::button_t::velocity, 0));
     }
 
@@ -528,14 +546,16 @@ TEST_CASE(BackupAndRestore)
     }
 
     //verify that the custom values are active again
-    for (size_t i = 0; i < presets.size(); i++)
+    for (int preset = 0; preset < database.getSupportedPresets(); preset++)
     {
-        TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::presets, static_cast<int>(System::presetSetting_t::activePreset), presets.at(i)) == true);
-        TEST_ASSERT_EQUAL_UINT32(presets.at(i), MIDIHelper::readFromBoard(System::Section::global_t::presets, static_cast<int>(System::presetSetting_t::activePreset)));
+        TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::presets, static_cast<int>(System::presetSetting_t::activePreset), preset) == true);
+        TEST_ASSERT_EQUAL_UINT32(preset, MIDIHelper::readFromBoard(System::Section::global_t::presets, static_cast<int>(System::presetSetting_t::activePreset)));
 
-        TEST_ASSERT_EQUAL_UINT32(15, MIDIHelper::readFromBoard(System::Section::analog_t::midiID, 4));
-        TEST_ASSERT_EQUAL_UINT32(2, MIDIHelper::readFromBoard(System::Section::encoder_t::pulsesPerStep, 1));
-        TEST_ASSERT_EQUAL_UINT32(126, MIDIHelper::readFromBoard(System::Section::button_t::velocity, 0));
+        TEST_ASSERT_EQUAL_UINT32(15 + preset, MIDIHelper::readFromBoard(System::Section::analog_t::midiID, 4));
+#ifdef ENCODERS_SUPPORTED
+        TEST_ASSERT_EQUAL_UINT32(2 + preset, MIDIHelper::readFromBoard(System::Section::encoder_t::midiChannel, 1));
+#endif
+        TEST_ASSERT_EQUAL_UINT32(90 + preset, MIDIHelper::readFromBoard(System::Section::button_t::velocity, 0));
     }
 }
 
@@ -553,7 +573,7 @@ TEST_CASE(MIDIData)
         if (redirect)
             cmd = std::string("amidi -p ") + MIDIHelper::amidiPort() + " -S \"F0 00 53 43 00 00 01 00 00 02 00 00 00 00 F7\" -d -t 5 > " + temp_midi_data_location;
         else
-            cmd = std::string("amidi -p ") + MIDIHelper::amidiPort() + " -S \"F0 00 53 43 00 00 01 00 00 02 00 00 00 00 F7\"";
+            cmd = std::string("amidi -p ") + MIDIHelper::amidiPort() + " -S \"F0 00 53 43 00 00 01 00 00 02 00 00 00 00 F7\" -d -t 2";
 
         TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd, response));
     };
@@ -607,49 +627,54 @@ TEST_CASE(MIDIData)
     monitor();
     changePreset(false);
 
-    test::wsystem("sleep 4 && killall amidi > /dev/null");
-
+    test::wsystem("sleep 3 && killall amidi > /dev/null");
     test::wsystem("grep -c . " + temp_midi_data_location, response);
+    printf("Total number of received DIN MIDI messages: %d\n", stoi(response));
     TEST_ASSERT(stoi(response) >= (MAX_NUMBER_OF_BUTTONS / 2));
-#else
-    cyclePower();
+// #elif defined(DIN_MIDI_SUPPORTED)
+//     //prepare serial port
+//     cyclePower(powerCycleType_t::standardWithDeviceCheck);
 
-    auto monitor = [&]() {
-        //listen to serial port
-        cmd = std::string("stty -F /dev/" + avr_serial_port + " raw && stty -F /dev/" + avr_serial_port + " -echo -echoe -echok && stty -F /dev/" + avr_serial_port + " 38400");
-        TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd, response));
+//     int result = -1;
+//     cmd        = std::string("stty -F /dev/" + avr_serial_port + " raw && stty -F /dev/" + avr_serial_port + " -echo -echoe -echok && stty -F /dev/" + avr_serial_port + " 38400 && sleep 3");
 
-        cmd = std::string("stdbuf -i0 -o0 -e0 hexdump /dev/" + avr_serial_port + " -v -e '3/1 \"%02X\" \"\n\"' > " + temp_midi_data_location + " &");
-        TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd, response));
-    };
+//     do
+//     {
+//         result = test::wsystem(cmd);
 
-    monitor();
+//         if (result != 0)
+//             cyclePower(powerCycleType_t::standardWithDeviceCheck);
+//     } while (result != 0);
 
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
+//     auto monitor = [&]() {
+//         //listen to serial port
+//         cmd = std::string("stdbuf -i0 -o0 -e0 hexdump /dev/" + avr_serial_port + " -v -e '3/1 \"%02X \" \"\\n\"' > " + temp_midi_data_location + " &");
+//         TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd, response));
+//     };
 
-    cmd = std::string("killall hexdump");
-    TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd, response));
+//     monitor();
 
-    //verify line count - since DIN MIDI isn't enabled, total count should be 0
-    test::wsystem("grep -c . " + temp_midi_data_location, response);
-    TEST_ASSERT_EQUAL_INT(0, stoi(response));
-    TEST_ASSERT_EQUAL_INT(0, test::wsystem("rm " + temp_midi_data_location));
+//     TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
 
-    //now enable DIN MIDI, reboot the board, repeat the test and verify that messages are received on DIN MIDI as well
-    TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled), 1) == true);
+//     cmd = std::string("killall hexdump");
+//     TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd, response));
 
-    //avoid weird issues again
-    cyclePower();
+//     //verify line count - since DIN MIDI isn't enabled, total count should be 0
+//     test::wsystem("grep -c . " + temp_midi_data_location, response);
+//     TEST_ASSERT_EQUAL_INT(0, stoi(response));
+//     TEST_ASSERT_EQUAL_INT(0, test::wsystem("rm " + temp_midi_data_location));
 
-    monitor();
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
-    changePreset(false);
+//     //now enable DIN MIDI, reboot the board, repeat the test and verify that messages are received on DIN MIDI as well
+//     TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled), 1) == true);
+//     cyclePower(powerCycleType_t::standardWithDeviceCheck);
+//     TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
+//     monitor();
+//     changePreset(false);
 
-    cmd = std::string("sleep 4 && killall hexdump");
-    TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd, response));
-
-    test::wsystem("grep -c . " + temp_midi_data_location, response);
-    TEST_ASSERT(stoi(response) >= (MAX_NUMBER_OF_BUTTONS / 2));
+//     test::wsystem("sleep 3 && killall hexdump");
+//     test::wsystem("grep -c . " + temp_midi_data_location, response);
+//     printf("Total number of received DIN MIDI messages: %d\n", stoi(response));
+//     TEST_ASSERT(stoi(response) >= (MAX_NUMBER_OF_BUTTONS / 2));
 #endif
 }
 

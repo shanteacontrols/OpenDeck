@@ -4,8 +4,14 @@ UNITY_INCLUDE_CONFIG_H
 
 DEFINES += TEST
 
+HW_TEST_FLASH := 1
+
 ifeq ($(HW_TESTING), 1)
     DEFINES += HW_TESTING
+endif
+
+ifeq ($(HW_TEST_FLASH), 1)
+    DEFINES += HW_TEST_FLASH
 endif
 
 -include ../src/board/gen/$(TARGET)/Defines.mk

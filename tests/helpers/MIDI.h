@@ -127,7 +127,7 @@ class MIDIHelper
         std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string("mega16u2") + "\"";
 #endif
 
-        std::string cmd = std::string("stdbuf -i0 -o0 -e0 amidi -p ") + deviceNameSearch + std::string(" | grep -Eo 'hw:\\S*') -S '") + req + "' -d | stdbuf -i0 -o0 -e0 tr -d '\n' > " + lastResponseFileLocation + " &";
+        std::string cmd = std::string("stdbuf -i0 -o0 -e0 amidi -p ") + deviceNameSearch + std::string(" | grep -Eo 'hw:\\S*') -S '") + req + "' -d | stdbuf -i0 -o0 -e0 tr -d '\\n' > " + lastResponseFileLocation + " &";
         test::wsystem(cmd, cmdResponse);
 
         size_t responseRetryCounter = 0;
@@ -163,6 +163,11 @@ class MIDIHelper
 
     static bool devicePresent(bool bootloader = false)
     {
+        std::string port = amidiPort(bootloader);
+
+        if (port == "")
+            return false;
+
         return (test::wsystem("amidi -l | grep \"" + amidiPort(bootloader) + "\"") == 0);
     }
 
@@ -170,11 +175,10 @@ class MIDIHelper
     {
         std::string cmd;
         std::string cmdResponse;
-        std::string baseString = bootloader ? "amidi -l | grep \"OpenDeck DFU " : "amidi -l | grep \"OpenDeck | ";
 
         if (bootloader)
         {
-            std::string baseString = "amidi -l | grep \"OpenDeck DFU ";
+            std::string baseString = "amidi -l | grep \"OpenDeck DFU | ";
 
 #ifdef STM32_EMU_EEPROM
             cmd = baseString + "\"" + std::string("| grep ") + std::string(OD_BOARD) + std::string(" | grep -Eo 'hw:\\S*'");
