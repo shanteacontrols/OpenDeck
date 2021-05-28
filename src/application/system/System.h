@@ -217,7 +217,6 @@ class System
     bool            init();
     void            run();
     void            handleSysEx(const uint8_t* array, size_t size);
-    bool            isProcessingEnabled();
     bool            sendCInfo(Database::block_t dbBlock, uint16_t componentID);
     bool            isMIDIfeatureEnabled(midiFeature_t feature);
     midiMergeType_t midiMergeType();
@@ -326,9 +325,6 @@ class System
     SysExDataHandler    _sysExDataHandler;
     DBhandlers          _dbHandlers;
     TouchScreenHandlers _touchScreenHandlers;
-
-    /// Used to prevent updating states of all components (analog, LEDs, encoders, buttons).
-    bool _processingEnabled = true;
 
     const SysExConf::manufacturerID_t _sysExMID = {
         SYSEX_MANUFACTURER_ID_0,

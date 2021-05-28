@@ -28,8 +28,6 @@ limitations under the License.
 #define SYSEX_CR_REBOOT_CDC                    0x54
 #define SYSEX_CR_FACTORY_RESET                 0x44
 #define SYSEX_CR_MAX_COMPONENTS                0x4D
-#define SYSEX_CR_ENABLE_PROCESSING             0x65
-#define SYSEX_CR_DISABLE_PROCESSING            0x64
 #define SYSEX_CR_SUPPORTED_PRESETS             0x50
 #define SYSEX_CR_BOOTLOADER_SUPPORT            0x51
 #define SYSEX_CR_FULL_BACKUP                   0x1B

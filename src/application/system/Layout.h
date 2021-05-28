@@ -485,16 +485,6 @@ namespace
         },
 
         {
-            .requestID     = SYSEX_CR_ENABLE_PROCESSING,
-            .connOpenCheck = true,
-        },
-
-        {
-            .requestID     = SYSEX_CR_DISABLE_PROCESSING,
-            .connOpenCheck = true,
-        },
-
-        {
             .requestID     = SYSEX_CR_SUPPORTED_PRESETS,
             .connOpenCheck = true,
         },

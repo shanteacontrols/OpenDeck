@@ -180,18 +180,6 @@ System::result_t System::SysExDataHandler::customRequest(uint16_t request, Custo
     }
     break;
 
-    case SYSEX_CR_ENABLE_PROCESSING:
-    {
-        _system._processingEnabled = true;
-    }
-    break;
-
-    case SYSEX_CR_DISABLE_PROCESSING:
-    {
-        _system._processingEnabled = false;
-    }
-    break;
-
     case SYSEX_CR_FULL_BACKUP:
     {
         //no response here, just set flag internally that backup needs to be done
@@ -290,11 +278,6 @@ bool System::init()
     configureMIDI();
 
     return true;
-}
-
-bool System::isProcessingEnabled()
-{
-    return _processingEnabled;
 }
 
 bool System::sendCInfo(Database::block_t dbBlock, uint16_t componentID)
@@ -483,15 +466,12 @@ void System::SysExDataHandler::sendResponse(uint8_t* array, uint16_t size)
 
 void System::checkComponents()
 {
-    if (isProcessingEnabled())
-    {
-        _buttons.update();
-        _encoders.update();
-        _analog.update();
-        _leds.checkBlinking();
-        _display.update();
-        _touchscreen.update();
-    }
+    _buttons.update();
+    _encoders.update();
+    _analog.update();
+    _leds.checkBlinking();
+    _display.update();
+    _touchscreen.update();
 }
 
 void System::checkMIDI()
