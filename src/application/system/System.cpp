@@ -466,12 +466,50 @@ void System::SysExDataHandler::sendResponse(uint8_t* array, uint16_t size)
 
 void System::checkComponents()
 {
-    _buttons.update();
-    _encoders.update();
-    _analog.update();
-    _leds.checkBlinking();
-    _display.update();
-    _touchscreen.update();
+    enum class componentCheck_t : uint8_t
+    {
+        buttons,
+        encoders,
+        analog,
+        leds,
+        display,
+        touchscreen
+    };
+
+    static componentCheck_t componentCheck = componentCheck_t::buttons;
+
+    switch (componentCheck)
+    {
+    case componentCheck_t::buttons:
+        _buttons.update();
+        componentCheck = componentCheck_t::encoders;
+        break;
+
+    case componentCheck_t::encoders:
+        _encoders.update();
+        componentCheck = componentCheck_t::analog;
+        break;
+
+    case componentCheck_t::analog:
+        _analog.update();
+        componentCheck = componentCheck_t::leds;
+        break;
+
+    case componentCheck_t::leds:
+        _leds.checkBlinking();
+        componentCheck = componentCheck_t::display;
+        break;
+
+    case componentCheck_t::display:
+        _display.update();
+        componentCheck = componentCheck_t::touchscreen;
+        break;
+
+    case componentCheck_t::touchscreen:
+        _touchscreen.update();
+        componentCheck = componentCheck_t::buttons;
+        break;
+    }
 }
 
 void System::checkMIDI()
