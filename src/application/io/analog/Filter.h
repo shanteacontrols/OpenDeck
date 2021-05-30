@@ -119,28 +119,23 @@ namespace IO
             }
 
             //if the first read value is 0, mark it as increasing
-            valDirection_t direction = filteredValue >= _lastStableValue[index] ? valDirection_t::increasing : valDirection_t::decreasing;
+            bool direction = filteredValue >= _lastStableValue[index];
 
-            //don't perform these checks on initial value readout
-            if (_lastDirection[index] != valDirection_t::initial)
+            //always use 7bit diff value here regardless of the type of value (7bit/14bit)
+            //for 14bit value this will improve stability since those values are scaled anyways and use small diff value
+            if (direction != _lastDirection[index])
+                stepDiff = _stepDiff7Bit;
+
+            if (abs(filteredValue - _lastStableValue[index]) < stepDiff)
             {
-                //always use 7bit diff value here regardless of the type of value (7bit/14bit)
-                //for 14bit value this will improve stability since those values are scaled anyways and use small diff value
-                if (direction != _lastDirection[index])
-                    stepDiff = _stepDiff7Bit;
-
-                if (abs(filteredValue - _lastStableValue[index]) < stepDiff)
-                {
-                    _stableSampleCount[index] = 0;
-                    return false;
-                }
+                _stableSampleCount[index] = 0;
+                return false;
             }
 
             auto midiValue    = core::misc::mapRange(static_cast<uint32_t>(filteredValue), static_cast<uint32_t>(0), static_cast<uint32_t>(_adcConfig.adcMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
             auto oldMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(_lastStableValue[index]), static_cast<uint32_t>(0), static_cast<uint32_t>(_adcConfig.adcMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
 
-            //this will allow value 0 as the first sent value
-            if ((midiValue == oldMIDIvalue) && (_lastDirection[index] != valDirection_t::initial))
+            if (midiValue == oldMIDIvalue)
             {
                 _stableSampleCount[index] = 0;
                 return false;
@@ -199,13 +194,6 @@ namespace IO
             const uint16_t digitalValueThresholdOff;    ///< Value below which button connected to analog input is considered released.
         };
 
-        enum class valDirection_t : uint8_t
-        {
-            initial,
-            decreasing,
-            increasing
-        };
-
         adcConfig_t adc10bit = {
             .adcMaxValue              = 1000,
             .stepDiff14Bit            = 1,
@@ -234,7 +222,7 @@ namespace IO
         static constexpr uint32_t FAST_FILTER_ENABLE_AFTER_MS                                                     = 500;
         uint16_t                  _analogSample[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS][3]   = {};
         size_t                    _sampleCounter[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]     = {};
-        valDirection_t            _lastDirection[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]     = {};
+        bool                      _lastDirection[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]     = {};
         uint16_t                  _lastStableValue[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]   = {};
         uint8_t                   _stableSampleCount[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS] = {};
         uint32_t                  _lastMovementTime[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]  = {};

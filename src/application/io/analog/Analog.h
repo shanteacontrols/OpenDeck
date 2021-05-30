@@ -90,11 +90,7 @@ namespace IO
             , _leds(leds)
             , _display(display)
             , _cInfo(cInfo)
-        {
-            //make sure the first value is sent even if 0
-            for (size_t i = 0; i < MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
-                _lastValue[i] = 0xFFFF;
-        }
+        {}
 
         void      update(bool forceResend = false);
         void      processReading(size_t index, uint16_t value);
