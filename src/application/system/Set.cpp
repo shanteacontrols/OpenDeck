@@ -147,7 +147,6 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, ui
                 if (isMIDIfeatureEnabled(midiFeature_t::dinEnabled))
                 {
                     _hwa.enableDINMIDI(false);
-                    _midi.useRecursiveParsing(false);
                 }
             }
             else
@@ -155,8 +154,6 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, ui
                 //restore active settings if din midi is enabled
                 if (isMIDIfeatureEnabled(midiFeature_t::dinEnabled))
                 {
-                    //use recursive parsing when merging is active
-                    _midi.useRecursiveParsing(true);
                     configureMIDImerge(midiMergeType());
                 }
             }

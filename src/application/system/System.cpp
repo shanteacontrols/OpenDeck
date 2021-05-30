@@ -324,8 +324,7 @@ void System::configureMIDI()
         _midi.enableDINMIDI();
         bool mergeEnabled = isMIDIfeatureEnabled(midiFeature_t::mergeEnabled);
 
-        //use recursive parsing when merging is active
-        _midi.useRecursiveParsing(mergeEnabled);
+        _midi.useRecursiveParsing(true);
 
         //only configure master
         if (mergeEnabled)
