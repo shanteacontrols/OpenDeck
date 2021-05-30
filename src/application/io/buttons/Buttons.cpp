@@ -123,12 +123,10 @@ void Buttons::processButton(buttonDescriptor_t& descriptor, size_t index, bool n
             //change preset only on press
             if (newState)
             {
-                uint8_t preset = _database.read(Database::Section::button_t::midiID, index);
-
                 //don't send off message once the preset is switched (in case this button has standard message type in switched preset)
                 //pretend the button is already released
                 setState(index, false);
-                _database.setPreset(preset);
+                _database.setPreset(descriptor.midiID);
             }
         }
     }
@@ -145,9 +143,6 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
 {
     if (descriptor.midiMessage == messageType_t::presetOpenDeck)
         return;    //no message to send in this case
-
-    if (descriptor.midiMessage == messageType_t::AMOUNT)
-        descriptor.midiMessage = static_cast<messageType_t>(_database.read(Database::Section::button_t::midiMessage, index));
 
     _mmcArray[2] = descriptor.midiID;    //use midi note as channel id for transport control
 

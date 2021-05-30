@@ -260,52 +260,57 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
             }
         }
 
-        auto color      = color_t::off;
-        auto brightness = brightness_t::bOff;
-
-        //in single value modes, brightness and blink speed cannot be controlled since we're dealing
-        //with one value only
-
-        if (setState)
+        if (setState || setBlink)
         {
-            //match activation ID with received ID
-            if (_database.read(Database::Section::leds_t::activationID, i) == data1)
+            auto color      = color_t::off;
+            auto brightness = brightness_t::bOff;
+
+            //in single value modes, brightness and blink speed cannot be controlled since we're dealing
+            //with one value only
+
+            uint8_t activationID = _database.read(Database::Section::leds_t::activationID, i);
+
+            if (setState)
             {
-                if (messageType == MIDI::messageType_t::programChange)
+                //match activation ID with received ID
+                if (activationID == data1)
                 {
-                    //byte2 doesn't exist on program change message
-                    color      = color_t::red;
-                    brightness = brightness_t::b100;
-                }
-                else
-                {
-                    //use data2 value (note velocity / cc value) to set led color
-                    //and possibly blink speed (depending on configuration)
-                    //when note/cc are used to control both state and blinking ignore activation velocity
-                    if (setState && setBlink)
+                    if (messageType == MIDI::messageType_t::programChange)
                     {
-                        color      = valueToColor(data2);
-                        brightness = valueToBrightness(data2);
+                        //byte2 doesn't exist on program change message
+                        color      = color_t::red;
+                        brightness = brightness_t::b100;
                     }
                     else
                     {
-                        //this has side effect that it will always set RGB LED to red color since no color information is available
-                        color      = (_database.read(Database::Section::leds_t::activationValue, i) == data2) ? color_t::red : color_t::off;
-                        brightness = brightness_t::b100;
+                        //use data2 value (note velocity / cc value) to set led color
+                        //and possibly blink speed (depending on configuration)
+                        //when note/cc are used to control both state and blinking ignore activation velocity
+                        if (setState && setBlink)
+                        {
+                            color      = valueToColor(data2);
+                            brightness = valueToBrightness(data2);
+                        }
+                        else
+                        {
+                            //this has side effect that it will always set RGB LED to red color since no color information is available
+                            color      = (_database.read(Database::Section::leds_t::activationValue, i) == data2) ? color_t::red : color_t::off;
+                            brightness = brightness_t::b100;
+                        }
                     }
+
+                    setColor(i, color, brightness);
                 }
-
-                setColor(i, color, brightness);
             }
-        }
 
-        if (setBlink)
-        {
-            //match activation ID with received ID
-            if (_database.read(Database::Section::leds_t::activationID, i) == data1)
+            if (setBlink)
             {
-                //blink speed depends on data2 value
-                setBlinkSpeed(i, valueToBlinkSpeed(data2));
+                //match activation ID with received ID
+                if (activationID == data1)
+                {
+                    //blink speed depends on data2 value
+                    setBlinkSpeed(i, valueToBlinkSpeed(data2));
+                }
             }
         }
     }

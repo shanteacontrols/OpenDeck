@@ -132,7 +132,8 @@ namespace Board
             case parameterType_t::byte:
             case parameterType_t::word:
             {
-                auto readStatus = emuEEPROM.read(address, tempData);
+                auto readStatus = emuEEPROM.readCached(address, tempData);
+                value           = tempData;
 
                 if (readStatus == EmuEEPROM::readStatus_t::ok)
                 {
@@ -142,10 +143,6 @@ namespace Board
                 {
                     //variable with this address doesn't exist yet - set value to 0
                     value = 0;
-                }
-                else
-                {
-                    return false;
                 }
             }
             break;
