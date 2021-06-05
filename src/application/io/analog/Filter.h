@@ -185,7 +185,7 @@ namespace IO
         adcConfig_t&                _adcConfig;
         const uint16_t              _stepDiff7Bit;
 
-        static constexpr uint32_t FAST_FILTER_ENABLE_AFTER_MS                                                       = 500;
+        static constexpr uint32_t FAST_FILTER_ENABLE_AFTER_MS                                                       = 100;
         uint16_t                  _analogSample[MAX_NUMBER_OF_ANALOG][5]                                            = {};
         size_t                    _medianSampleCounter[MAX_NUMBER_OF_ANALOG]                                        = {};
         uint32_t                  _lastStableMovementTime[MAX_NUMBER_OF_ANALOG]                                     = {};
