@@ -468,12 +468,7 @@ class HWAAnalog : public IO::Analog::HWA
 
 #include "io/analog/Filter.h"
 
-#ifdef __AVR__
-IO::AnalogFilter analogFilter(ADC_RESOLUTION, 1);
-#else
-//stm32 has more sensitive ADC, use more repetitions
-IO::AnalogFilter analogFilter(ADC_RESOLUTION, 2);
-#endif
+IO::AnalogFilter analogFilter(ADC_RESOLUTION);
 #else
 class HWAAnalogStub : public IO::Analog::HWA
 {

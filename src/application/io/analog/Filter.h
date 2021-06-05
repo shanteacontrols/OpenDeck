@@ -29,10 +29,9 @@ namespace IO
     class AnalogFilter : public IO::Analog::Filter
     {
         public:
-        AnalogFilter(IO::Analog::adcType_t adcType, size_t stableValueRepetitions)
+        AnalogFilter(IO::Analog::adcType_t adcType)
             : _adcType(adcType)
             , _adcConfig(adcType == IO::Analog::adcType_t::adc10bit ? adc10bit : adc12bit)
-            , _stableValueRepetitions(stableValueRepetitions)
             , _stepDiff7Bit(static_cast<uint16_t>(adcType) / 128)
         {}
 
@@ -67,7 +66,7 @@ namespace IO
                 return 0;
             };
 
-            const bool     fastFilter = (core::timing::currentRunTimeMs() - _lastStableMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS;
+            const bool     fastFilter = (index < MAX_NUMBER_OF_ANALOG) ? (core::timing::currentRunTimeMs() - _lastStableMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS : true;
             const bool     use14bit   = (type == Analog::type_t::nrpn14b) || (type == Analog::type_t::pitchBend) || (type == Analog::type_t::cc14bit);
             const uint16_t maxLimit   = use14bit ? MIDI_14_BIT_VALUE_MAX : MIDI_7_BIT_VALUE_MAX;
             const bool     direction  = value >= _lastStableValue[index];
@@ -75,8 +74,9 @@ namespace IO
 
             if (abs(value - _lastStableValue[index]) < stepDiff)
             {
-                _medianSampleCounter[index]   = 0;
-                _repetitionSampleCount[index] = 0;
+                if (index < MAX_NUMBER_OF_ANALOG)
+                    _medianSampleCounter[index] = 0;
+
                 return false;
             }
 
@@ -89,11 +89,11 @@ namespace IO
                     _analogSample[index][_medianSampleCounter[index]++] = value;
 
                     //take the median value to avoid using outliers
-                    if (_medianSampleCounter[index] == 3)
+                    if (_medianSampleCounter[index] == 5)
                     {
-                        qsort(_analogSample[index], 3, sizeof(uint16_t), compare);
+                        qsort(_analogSample[index], 5, sizeof(uint16_t), compare);
                         _medianSampleCounter[index] = 0;
-                        filteredValue               = _analogSample[index][1];
+                        filteredValue               = _analogSample[index][3];
                     }
                     else
                     {
@@ -114,30 +114,13 @@ namespace IO
             const auto oldMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(_lastStableValue[index]), static_cast<uint32_t>(0), static_cast<uint32_t>(_adcConfig.adcMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
 
             if (midiValue == oldMIDIvalue)
-            {
-                _repetitionSampleCount[index] = 0;
                 return false;
-            }
 
-            auto acceptNewValue = [&]() {
-                _repetitionSampleCount[index]  = 0;
-                _lastStableDirection[index]    = direction;
-                _lastStableValue[index]        = filteredValue;
-                _medianSampleCounter[index]    = 0;
+            _lastStableDirection[index] = direction;
+            _lastStableValue[index]     = filteredValue;
+
+            if (index < MAX_NUMBER_OF_ANALOG)
                 _lastStableMovementTime[index] = core::timing::currentRunTimeMs();
-            };
-
-            if (fastFilter)
-            {
-                acceptNewValue();
-            }
-            else
-            {
-                if (++_repetitionSampleCount[index] >= _stableValueRepetitions)
-                    acceptNewValue();
-                else
-                    return false;
-            }
 
             if (type == Analog::type_t::fsr)
             {
@@ -149,7 +132,7 @@ namespace IO
             }
 
             //when edge values are reached, disable fast filter by resetting last movement time
-            if ((midiValue == 0) || (midiValue == maxLimit))
+            if (((midiValue == 0) || (midiValue == maxLimit)) && (index < MAX_NUMBER_OF_ANALOG))
                 _lastStableMovementTime[index] = 0;
 
             return true;
@@ -157,7 +140,13 @@ namespace IO
 
         void reset(size_t index) override
         {
-            _medianSampleCounter[index] = 0;
+            if (index < MAX_NUMBER_OF_ANALOG)
+            {
+                _medianSampleCounter[index]    = 0;
+                _lastStableMovementTime[index] = 0;
+            }
+
+            _lastStableValue[index] = 0;
         }
 
         private:
@@ -194,15 +183,13 @@ namespace IO
 
         const IO::Analog::adcType_t _adcType;
         adcConfig_t&                _adcConfig;
-        const size_t                _stableValueRepetitions;
         const uint16_t              _stepDiff7Bit;
 
-        static constexpr uint32_t FAST_FILTER_ENABLE_AFTER_MS                                                          = 500;
-        uint16_t                  _analogSample[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS][3]        = {};
-        size_t                    _medianSampleCounter[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]    = {};
-        bool                      _lastStableDirection[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]    = {};
-        uint16_t                  _lastStableValue[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]        = {};
-        uint8_t                   _repetitionSampleCount[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]  = {};
-        uint32_t                  _lastStableMovementTime[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS] = {};
+        static constexpr uint32_t FAST_FILTER_ENABLE_AFTER_MS                                                       = 500;
+        uint16_t                  _analogSample[MAX_NUMBER_OF_ANALOG][5]                                            = {};
+        size_t                    _medianSampleCounter[MAX_NUMBER_OF_ANALOG]                                        = {};
+        uint32_t                  _lastStableMovementTime[MAX_NUMBER_OF_ANALOG]                                     = {};
+        bool                      _lastStableDirection[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS] = {};
+        uint16_t                  _lastStableValue[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]     = {};
     };    // namespace IO
 }    // namespace IO
