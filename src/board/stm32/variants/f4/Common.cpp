@@ -20,6 +20,21 @@ limitations under the License.
 #include "board/Internal.h"
 #include "core/src/general/ADC.h"
 #include "ClockPLLs.h"
+#include "MCU.h"
+
+namespace
+{
+    TIM_HandleTypeDef mainTimerHandle;
+    ADC_HandleTypeDef adcHandle;
+
+#ifdef FW_APP
+#ifndef USB_LINK_MCU
+#if MAX_NUMBER_OF_LEDS > 0
+    TIM_HandleTypeDef pwmTimerHandle;
+#endif
+#endif
+#endif
+}    // namespace
 
 namespace core
 {
@@ -86,6 +101,69 @@ namespace Board
 
                 if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
                     Board::detail::errorHandler();
+            }
+
+            void timers()
+            {
+                mainTimerHandle.Instance               = MAIN_TIMER_INSTANCE;
+                mainTimerHandle.Init.Prescaler         = 1;
+                mainTimerHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
+                mainTimerHandle.Init.Period            = 41999;
+                mainTimerHandle.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+                mainTimerHandle.Init.RepetitionCounter = 0;
+                mainTimerHandle.Init.AutoReloadPreload = 0;
+
+                HAL_TIM_Base_Init(&mainTimerHandle);
+                HAL_TIM_Base_Start_IT(&mainTimerHandle);
+
+#ifdef FW_APP
+#ifndef USB_LINK_MCU
+#if MAX_NUMBER_OF_LEDS > 0
+                pwmTimerHandle.Instance               = PWM_TIMER_INSTANCE;
+                pwmTimerHandle.Init.Prescaler         = 1;
+                pwmTimerHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
+                pwmTimerHandle.Init.Period            = 8399;
+                pwmTimerHandle.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+                pwmTimerHandle.Init.RepetitionCounter = 0;
+                pwmTimerHandle.Init.AutoReloadPreload = 0;
+
+                HAL_TIM_Base_Init(&pwmTimerHandle);
+                HAL_TIM_Base_Start_IT(&pwmTimerHandle);
+#endif
+#endif
+#endif
+            }
+
+            void adc()
+            {
+                ADC_ChannelConfTypeDef sConfig = { 0 };
+
+                adcHandle.Instance                   = ADC_INSTANCE;
+                adcHandle.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV4;
+                adcHandle.Init.Resolution            = ADC_RESOLUTION_12B;
+                adcHandle.Init.ScanConvMode          = DISABLE;
+                adcHandle.Init.ContinuousConvMode    = DISABLE;
+                adcHandle.Init.DiscontinuousConvMode = DISABLE;
+                adcHandle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+                adcHandle.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
+                adcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+                adcHandle.Init.NbrOfConversion       = 1;
+                adcHandle.Init.DMAContinuousRequests = DISABLE;
+                adcHandle.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
+                HAL_ADC_Init(&adcHandle);
+
+                for (int i = 0; i < MAX_ADC_CHANNELS; i++)
+                {
+                    sConfig.Channel      = map::adcChannel(i);
+                    sConfig.Rank         = 1;
+                    sConfig.SamplingTime = ADC_SAMPLETIME_112CYCLES;
+                    HAL_ADC_ConfigChannel(&adcHandle, &sConfig);
+                }
+
+                //set first channel
+                core::adc::setChannel(map::adcChannel(0));
+
+                HAL_ADC_Start_IT(&adcHandle);
             }
         }    // namespace setup
     }        // namespace detail

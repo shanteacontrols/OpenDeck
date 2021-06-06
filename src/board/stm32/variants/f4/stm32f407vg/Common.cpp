@@ -29,17 +29,6 @@ limitations under the License.
 
 namespace
 {
-    TIM_HandleTypeDef htim7;
-    ADC_HandleTypeDef hadc1;
-
-#ifdef FW_APP
-#ifndef USB_LINK_MCU
-#if MAX_NUMBER_OF_LEDS > 0
-    TIM_HandleTypeDef htim5;
-#endif
-#endif
-#endif
-
     class UARTdescriptor1 : public Board::detail::map::STMPeripheral
     {
         public:
@@ -542,148 +531,12 @@ namespace
     };
 }    // namespace
 
-extern "C" void TIM7_IRQHandler(void)
-{
-    __HAL_TIM_CLEAR_IT(&htim7, TIM_IT_UPDATE);
-    Board::detail::isrHandling::mainTimer();
-}
-
-#ifdef FW_APP
-#ifndef USB_LINK_MCU
-#if MAX_NUMBER_OF_LEDS > 0
-extern "C" void TIM5_IRQHandler(void)
-{
-    __HAL_TIM_CLEAR_IT(&htim5, TIM_IT_UPDATE);
-    Board::detail::io::checkDigitalOutputs();
-}
-#endif
-#endif
-#endif
-
-#if defined(FW_APP) || defined(FW_CDC)
-//not needed in bootloader
-#ifdef USE_UART
-extern "C" void USART1_IRQHandler(void)
-{
-    Board::detail::isrHandling::uart(0);
-}
-
-extern "C" void USART2_IRQHandler(void)
-{
-    Board::detail::isrHandling::uart(1);
-}
-
-extern "C" void USART3_IRQHandler(void)
-{
-    Board::detail::isrHandling::uart(2);
-}
-
-extern "C" void UART4_IRQHandler(void)
-{
-    Board::detail::isrHandling::uart(3);
-}
-
-extern "C" void UART5_IRQHandler(void)
-{
-    Board::detail::isrHandling::uart(4);
-}
-
-extern "C" void USART6_IRQHandler(void)
-{
-    Board::detail::isrHandling::uart(5);
-}
-#endif
-
-#ifdef FW_APP
-extern "C" void ADC_IRQHandler(void)
-{
-    Board::detail::isrHandling::adc(hadc1.Instance->DR);
-}
-#endif
-#endif
-
 namespace Board
 {
     namespace detail
     {
-        namespace setup
-        {
-            void timers()
-            {
-                htim7.Instance               = TIM7;
-                htim7.Init.Prescaler         = 1;
-                htim7.Init.CounterMode       = TIM_COUNTERMODE_UP;
-                htim7.Init.Period            = 41999;
-                htim7.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
-                htim7.Init.RepetitionCounter = 0;
-                htim7.Init.AutoReloadPreload = 0;
-
-                HAL_TIM_Base_Init(&htim7);
-                HAL_TIM_Base_Start_IT(&htim7);
-
-#ifdef FW_APP
-#ifndef USB_LINK_MCU
-#if MAX_NUMBER_OF_LEDS > 0
-                htim5.Instance               = TIM5;
-                htim5.Init.Prescaler         = 1;
-                htim5.Init.CounterMode       = TIM_COUNTERMODE_UP;
-                htim5.Init.Period            = 8399;
-                htim5.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
-                htim5.Init.RepetitionCounter = 0;
-                htim5.Init.AutoReloadPreload = 0;
-
-                HAL_TIM_Base_Init(&htim5);
-                HAL_TIM_Base_Start_IT(&htim5);
-#endif
-#endif
-#endif
-            }
-
-            void adc()
-            {
-                ADC_ChannelConfTypeDef sConfig = { 0 };
-
-                hadc1.Instance                   = ADC1;
-                hadc1.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV4;
-                hadc1.Init.Resolution            = ADC_RESOLUTION_12B;
-                hadc1.Init.ScanConvMode          = DISABLE;
-                hadc1.Init.ContinuousConvMode    = DISABLE;
-                hadc1.Init.DiscontinuousConvMode = DISABLE;
-                hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-                hadc1.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
-                hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-                hadc1.Init.NbrOfConversion       = 1;
-                hadc1.Init.DMAContinuousRequests = DISABLE;
-                hadc1.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
-                HAL_ADC_Init(&hadc1);
-
-                for (int i = 0; i < MAX_ADC_CHANNELS; i++)
-                {
-                    sConfig.Channel      = map::adcChannel(i);
-                    sConfig.Rank         = 1;
-                    sConfig.SamplingTime = ADC_SAMPLETIME_112CYCLES;
-                    HAL_ADC_ConfigChannel(&hadc1, &sConfig);
-                }
-
-                //set first channel
-                core::adc::setChannel(map::adcChannel(0));
-
-                HAL_ADC_Start_IT(&hadc1);
-            }
-        }    // namespace setup
-
         namespace map
         {
-            ADC_TypeDef* adcInterface()
-            {
-                return ADC1;
-            }
-
-            TIM_TypeDef* mainTimerInstance()
-            {
-                return TIM7;
-            }
-
             bool uartChannel(USART_TypeDef* interface, uint8_t& channel)
             {
                 for (int i = 0; i < MAX_UART_INTERFACES; i++)

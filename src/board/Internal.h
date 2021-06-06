@@ -209,12 +209,6 @@ namespace Board
             /// Used to retrieve I2C channel on board for a specified UART interface.
             /// If no channels are mapped to the provided interface, return false.
             bool i2cChannel(I2C_TypeDef* interface, uint8_t& channel);
-
-            /// Used to retrieve physical ADC interface used on MCU.
-            ADC_TypeDef* adcInterface();
-
-            /// Used to retrieve timer instance used for main timer interrupt.
-            TIM_TypeDef* mainTimerInstance();
 #endif
         }    // namespace map
 

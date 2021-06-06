@@ -19,3 +19,6 @@ limitations under the License.
 #define MAX_UART_INTERFACES         6
 #define MAX_I2C_INTERFACES          3
 #define BOOTLOADER_PAGE_START_INDEX 2
+#define ADC_INSTANCE                ADC1
+#define MAIN_TIMER_INSTANCE         TIM7
+#define PWM_TIMER_INSTANCE          TIM5

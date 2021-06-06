@@ -23,6 +23,7 @@ limitations under the License.
 #ifdef FW_CDC
 #include "board/common/usb/descriptors/cdc/Descriptors.h"
 #endif
+#include "MCU.h"
 
 extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
@@ -101,6 +102,114 @@ extern "C" void SysTick_Handler(void)
     }
 #endif
 }
+
+#if defined(FW_APP) || defined(FW_CDC)
+//not needed in bootloader
+#ifdef USE_UART
+extern "C" void USART1_IRQHandler(void)
+{
+    Board::detail::isrHandling::uart(0);
+}
+
+extern "C" void USART2_IRQHandler(void)
+{
+    Board::detail::isrHandling::uart(1);
+}
+
+extern "C" void USART3_IRQHandler(void)
+{
+    Board::detail::isrHandling::uart(2);
+}
+
+extern "C" void UART4_IRQHandler(void)
+{
+    Board::detail::isrHandling::uart(3);
+}
+
+extern "C" void UART5_IRQHandler(void)
+{
+    Board::detail::isrHandling::uart(4);
+}
+
+extern "C" void USART6_IRQHandler(void)
+{
+    Board::detail::isrHandling::uart(5);
+}
+#endif
+
+#ifdef FW_APP
+extern "C" void ADC_IRQHandler(void)
+{
+    Board::detail::isrHandling::adc(ADC_INSTANCE->DR);
+}
+#endif
+#endif
+
+#ifdef TIM4
+extern "C" void TIM4_IRQHandler(void)
+{
+    TIM4->SR = ~TIM_IT_UPDATE;
+
+    if (TIM4 == MAIN_TIMER_INSTANCE)
+    {
+        Board::detail::isrHandling::mainTimer();
+    }
+    else if (TIM4 == PWM_TIMER_INSTANCE)
+    {
+#ifdef FW_APP
+#ifndef USB_LINK_MCU
+#if MAX_NUMBER_OF_LEDS > 0
+        Board::detail::io::checkDigitalOutputs();
+#endif
+#endif
+#endif
+    }
+}
+#endif
+
+#ifdef TIM5
+extern "C" void TIM5_IRQHandler(void)
+{
+    TIM5->SR = ~TIM_IT_UPDATE;
+
+    if (TIM5 == MAIN_TIMER_INSTANCE)
+    {
+        Board::detail::isrHandling::mainTimer();
+    }
+    else if (TIM5 == PWM_TIMER_INSTANCE)
+    {
+#ifdef FW_APP
+#ifndef USB_LINK_MCU
+#if MAX_NUMBER_OF_LEDS > 0
+        Board::detail::io::checkDigitalOutputs();
+#endif
+#endif
+#endif
+    }
+}
+#endif
+
+#ifdef TIM7
+extern "C" void TIM7_IRQHandler(void)
+{
+    TIM7->SR = ~TIM_IT_UPDATE;
+
+    if (TIM7 == MAIN_TIMER_INSTANCE)
+    {
+        Board::detail::isrHandling::mainTimer();
+    }
+    else if (TIM7 == PWM_TIMER_INSTANCE)
+    {
+#ifdef FW_APP
+#ifndef USB_LINK_MCU
+#if MAX_NUMBER_OF_LEDS > 0
+        Board::detail::io::checkDigitalOutputs();
+#endif
+#endif
+#endif
+    }
+}
+#endif
 
 namespace Board
 {
