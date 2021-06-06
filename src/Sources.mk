@@ -10,10 +10,23 @@ INCLUDE_DIRS := \
 -I"$(MCU_DIR)" \
 -I"./"
 
-ifeq ($(TYPE),boot)
-    #bootloader only
-    INCLUDE_DIRS += \
-    -I"bootloader/"
+ifeq (,$(findstring gen,$(TYPE)))
+    ifeq ($(ARCH), avr)
+        INCLUDE_DIRS += \
+        -I"../modules/lufa/" \
+        -I"../modules/avr-libstdcpp/include"
+    else ifeq ($(ARCH),stm32)
+        INCLUDE_DIRS += \
+        $(addprefix -I,$(shell $(FIND) ./board/stm32/gen/common -type d -not -path "*Src*")) \
+        $(addprefix -I,$(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/common -type d -not -path "*Src*")) \
+        $(addprefix -I,$(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/$(MCU_BASE)/Drivers -type d -not -path "*Src*")) \
+        -I"./board/stm32/variants/$(MCU_FAMILY)/$(MCU)"
+    endif
+
+    ifeq ($(TYPE),boot)
+        INCLUDE_DIRS += \
+        -I"bootloader/"
+    endif
 endif
 
 LINKER_FILE := $(MCU_DIR)/$(MCU).ld
@@ -30,10 +43,6 @@ ifeq (,$(findstring gen,$(TYPE)))
 
     #architecture specific
     ifeq ($(ARCH), avr)
-        INCLUDE_DIRS += \
-        -I"../modules/lufa/" \
-        -I"../modules/avr-libstdcpp/include"
-
         ifneq (,$(findstring USB_MIDI_SUPPORTED,$(DEFINES)))
             #common for bootloader and application
             SOURCES += \
@@ -57,11 +66,6 @@ ifeq (,$(findstring gen,$(TYPE)))
         SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/$(MCU_BASE) -regex '.*\.\(s\|c\)')
         SOURCES += $(shell $(FIND) ./board/stm32/variants/$(MCU_FAMILY) -maxdepth 1 -name "*.cpp")
         SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
-    
-        INCLUDE_DIRS += $(addprefix -I,$(shell $(FIND) ./board/stm32/gen/common -type d -not -path "*Src*"))
-        INCLUDE_DIRS += $(addprefix -I,$(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/common -type d -not -path "*Src*"))
-        INCLUDE_DIRS += $(addprefix -I,$(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/$(MCU_BASE)/Drivers -type d -not -path "*Src*"))
-        INCLUDE_DIRS += -I"./board/stm32/variants/$(MCU_FAMILY)/$(MCU)"
     endif
 
     SOURCES += $(shell $(FIND) ./board/common -maxdepth 1 -type f -name "*.cpp")
