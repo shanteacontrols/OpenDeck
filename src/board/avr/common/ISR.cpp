@@ -34,16 +34,7 @@ ISR(ADC_vect)
 /// Used to control I/O on board and to update current run time.
 ISR(TIMER0_COMPA_vect)
 {
-    core::timing::detail::rTime_ms++;
-
-#ifdef FW_APP
-#ifdef LED_INDICATORS
-    Board::detail::io::checkIndicators();
-#endif
-#ifndef USB_LINK_MCU
-    Board::detail::io::checkDigitalInputs();
-#endif
-#endif
+    Board::detail::isrHandling::mainTimer();
 }
 
 //PWM ISR

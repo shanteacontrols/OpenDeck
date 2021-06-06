@@ -84,5 +84,20 @@ namespace Board
             {
             }
         }
-    }    // namespace detail
+
+        namespace isrHandling
+        {
+            void mainTimer()
+            {
+                core::timing::detail::rTime_ms++;
+
+#ifdef FW_APP
+#ifdef LED_INDICATORS
+                Board::detail::io::checkIndicators();
+#endif
+                Board::detail::io::checkDigitalInputs();
+#endif
+            }
+        }    // namespace isrHandling
+    }        // namespace detail
 }    // namespace Board
