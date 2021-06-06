@@ -18,7 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#include "board/common/usb/Arch.h"
+#include "board/common/comm/usb/Arch.h"
 
 #define USB_VENDOR_ID 0x1209
 

@@ -20,7 +20,7 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "board/common/USBMIDIOverSerial/USBMIDIOverSerial.h"
+#include "board/common/comm/USBMIDIOverSerial/USBMIDIOverSerial.h"
 #include "core/src/general/RingBuffer.h"
 #include "core/src/general/Helpers.h"
 #include "MCU.h"

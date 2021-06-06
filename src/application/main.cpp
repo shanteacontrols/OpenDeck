@@ -33,7 +33,7 @@ limitations under the License.
 #include "core/src/general/Reset.h"
 #include "core/src/general/Helpers.h"
 #include "io/common/CInfo.h"
-#include "board/common/USBMIDIOverSerial/USBMIDIOverSerial.h"
+#include "board/common/comm/USBMIDIOverSerial/USBMIDIOverSerial.h"
 #include "bootloader/FwSelector/FwSelector.h"
 
 class StorageAccess : public LESSDB::StorageAccess

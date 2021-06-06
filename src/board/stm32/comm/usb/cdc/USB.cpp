@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#include "board/common/usb/descriptors/Descriptors.h"
+#include "board/common/comm/usb/descriptors/Descriptors.h"
 #include "usbd_core.h"
 #include "core/src/general/RingBuffer.h"
 #include "core/src/general/Atomic.h"

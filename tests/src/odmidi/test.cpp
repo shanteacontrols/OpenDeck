@@ -2,7 +2,7 @@
 
 #include "unity/Framework.h"
 #include "board/Board.h"
-#include "board/common/USBMIDIOverSerial/USBMIDIOverSerial.h"
+#include "board/common/comm/USBMIDIOverSerial/USBMIDIOverSerial.h"
 #include "core/src/general/RingBuffer.h"
 
 #define TEST_MIDI_CHANNEL 0

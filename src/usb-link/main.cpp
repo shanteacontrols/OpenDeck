@@ -17,7 +17,7 @@ limitations under the License.
 */
 
 #include "board/Board.h"
-#include "board/common/USBMIDIOverSerial/USBMIDIOverSerial.h"
+#include "board/common/comm/USBMIDIOverSerial/USBMIDIOverSerial.h"
 #include "Commands.h"
 #include "core/src/general/Timing.h"
 

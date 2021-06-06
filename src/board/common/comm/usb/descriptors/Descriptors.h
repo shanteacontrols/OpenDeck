@@ -18,7 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#include "board/common/usb/Arch.h"
+#include "board/common/comm/usb/Arch.h"
 
 #ifdef FW_CDC
 #include "cdc/Descriptors.h"

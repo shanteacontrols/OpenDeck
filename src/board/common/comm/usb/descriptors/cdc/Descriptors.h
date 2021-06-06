@@ -48,7 +48,7 @@ limitations under the License.
 
 #pragma once
 
-#include "board/common/usb/Arch.h"
+#include "board/common/comm/usb/Arch.h"
 
 /** Endpoint address of the CDC device-to-host notification IN endpoint. */
 #define CDC_NOTIFICATION_EPADDR (USB_ENDPOINT_DIR_IN | 2)

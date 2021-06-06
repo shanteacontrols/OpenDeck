@@ -21,7 +21,7 @@ limitations under the License.
 #include "stm32f4xx_hal.h"
 #include "core/src/general/Timing.h"
 #ifdef FW_CDC
-#include "board/common/usb/descriptors/cdc/Descriptors.h"
+#include "board/common/comm/usb/descriptors/cdc/Descriptors.h"
 #endif
 #include "MCU.h"
 

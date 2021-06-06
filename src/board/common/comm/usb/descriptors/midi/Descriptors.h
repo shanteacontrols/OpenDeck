@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "board/common/usb/Arch.h"
+#include "board/common/comm/usb/Arch.h"
 
 /** Endpoint address of the MIDI streaming data IN endpoint, for device-to-host data transfers. */
 #define MIDI_STREAM_IN_EPADDR (USB_ENDPOINT_DIR_IN | 1)

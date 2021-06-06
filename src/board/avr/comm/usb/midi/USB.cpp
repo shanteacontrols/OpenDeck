@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#include "board/common/usb/descriptors/Descriptors.h"
+#include "board/common/comm/usb/descriptors/Descriptors.h"
 #include "midi/src/MIDI.h"
 #include "board/Board.h"
 #include "board/Internal.h"

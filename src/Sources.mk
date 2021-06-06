@@ -88,39 +88,39 @@ ifeq (,$(findstring gen,$(TYPE)))
         SOURCES += $(shell find ./bootloader -type f -name "*.cpp")
 
         ifneq (,$(findstring USB_MIDI_SUPPORTED,$(DEFINES)))
-            SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/midi -type f -name "*.cpp")
-            SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/midi -type f -name "*.c")
-            SOURCES += $(shell $(FIND) ./board/$(ARCH)/usb/midi -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi -type f -name "*.c")
+            SOURCES += $(shell $(FIND) ./board/$(ARCH)/comm/usb/midi -type f -name "*.cpp")
 
             ifneq (,$(findstring USB_LINK_MCU,$(DEFINES)))
                 #for USB link MCUs, compile UART as well - needed to communicate with main MCU
                 SOURCES += \
-                board/$(ARCH)/uart/UART.cpp \
-                board/common/uart/UART.cpp
+                board/$(ARCH)/comm/uart/UART.cpp \
+                board/common/comm/uart/UART.cpp
             endif
         else
             SOURCES += \
-            board/$(ARCH)/uart/UART.cpp \
-            board/common/uart/UART.cpp
+            board/$(ARCH)/comm/uart/UART.cpp \
+            board/common/comm/uart/UART.cpp
 
-            SOURCES += $(shell $(FIND) ./board/common/USBMIDIOverSerial -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./board/common/comm/USBMIDIOverSerial -type f -name "*.cpp")
         endif
     else ifeq ($(TYPE),app)
         #application sources
         #common for all targets
         SOURCES += $(shell $(FIND) ./board/$(ARCH)/common -type f -name "*.cpp")
-        SOURCES += $(shell $(FIND) ./board/common/USBMIDIOverSerial -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./board/common/comm/USBMIDIOverSerial -type f -name "*.cpp")
 
         ifneq (,$(findstring USB_MIDI_SUPPORTED,$(DEFINES)))
-            SOURCES += $(shell $(FIND) ./board/$(ARCH)/usb/midi -type f -name "*.cpp")
-            SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/midi -type f -name "*.cpp")
-            SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/midi -type f -name "*.c")
+            SOURCES += $(shell $(FIND) ./board/$(ARCH)/comm/usb/midi -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi -type f -name "*.c")
         endif
 
         ifneq (,$(findstring USE_UART,$(DEFINES)))
             SOURCES += \
-            board/$(ARCH)/uart/UART.cpp \
-            board/common/uart/UART.cpp
+            board/$(ARCH)/comm/uart/UART.cpp \
+            board/common/comm/uart/UART.cpp
         endif
 
         ifneq (,$(findstring USB_LINK_MCU,$(DEFINES)))
@@ -178,7 +178,7 @@ ifeq (,$(findstring gen,$(TYPE)))
 
             ifneq (,$(findstring DISPLAY_SUPPORTED,$(DEFINES)))
                 SOURCES += $(shell $(FIND) ./application/io/display -type f -name "*.cpp")
-                SOURCES += $(shell $(FIND) ./board/$(ARCH)/i2c -type f -name "*.cpp")
+                SOURCES += $(shell $(FIND) ./board/$(ARCH)/comm/i2c -type f -name "*.cpp")
 
                 #u8x8 sources
                 SOURCES += \
@@ -204,12 +204,12 @@ ifeq (,$(findstring gen,$(TYPE)))
         board/common/io/Indicators.cpp \
         board/$(ARCH)/common/ShiftRegistersWait.cpp \
         board/$(ARCH)/common/ISR.cpp \
-        board/$(ARCH)/uart/UART.cpp \
-        board/common/uart/UART.cpp
+        board/$(ARCH)/comm/uart/UART.cpp \
+        board/common/comm/uart/UART.cpp
 
-        SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/cdc -type f -name "*.cpp")
-        SOURCES += $(shell $(FIND) ./board/common/usb/descriptors/cdc -type f -name "*.c")
-        SOURCES += $(shell $(FIND) ./board/$(ARCH)/usb/cdc -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/cdc -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/cdc -type f -name "*.c")
+        SOURCES += $(shell $(FIND) ./board/$(ARCH)/comm/usb/cdc -type f -name "*.cpp")
         SOURCES += $(shell find ./cdc -type f -name "*.cpp")
     endif
 else ifeq ($(TYPE),flashgen)
