@@ -18,7 +18,6 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "Pins.h"
 #include "board/common/io/Helpers.h"
 #include "core/src/general/IO.h"
 #include "core/src/general/Atomic.h"
