@@ -118,7 +118,7 @@ namespace
         cyclePower(powerCycleType_t::standard);
 
 #ifdef STM32_EMU_EEPROM
-        std::string flashTarget = " TARGET=" + std::string(OD_BOARD);
+        std::string flashTarget = " TARGET=" + std::string(BOARD_STRING);
         std::string flashPort   = " PORT=" + stm_flash_port;
         TEST_ASSERT_EQUAL_INT(0, test::wsystem(flash_cmd + flashTarget + flashPort));
 #else
@@ -464,7 +464,7 @@ TEST_CASE(ValuesAfterFlashing)
 TEST_CASE(FwUpdate)
 {
 #ifdef STM32_EMU_EEPROM
-    std::string syxPath = fw_build_dir + OD_BOARD + "/" + fw_build_type_subdir + OD_BOARD + ".sysex.syx";
+    std::string syxPath = fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + BOARD_STRING + ".sysex.syx";
 #else
     std::string syxPath = fw_build_dir + std::string("mega2560") + "/" + fw_build_type_subdir + std::string("mega2560") + ".sysex.syx";
 #endif

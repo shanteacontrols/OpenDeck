@@ -16,7 +16,7 @@ int main()
 
     for (size_t test = 0; test < testDescriptors.size(); test++)
     {
-        std::string filename = std::string(OD_BOARD) + ":" + testDescriptors.at(test).filename;
+        std::string filename = std::string(BOARD_STRING) + ":" + testDescriptors.at(test).filename;
         UnitySetTestFile(filename.c_str());
         UnityDefaultTestRun(testDescriptors.at(test).func, testDescriptors.at(test).testName.c_str(), testDescriptors.at(test).lineNr);
     }

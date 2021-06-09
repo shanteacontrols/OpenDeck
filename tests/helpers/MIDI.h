@@ -122,7 +122,7 @@ class MIDIHelper
         test::wsystem("rm -f " + lastResponseFileLocation, cmdResponse);
         std::cout << "req: " << req << std::endl;
 #ifdef STM32_EMU_EEPROM
-        std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string(OD_BOARD) + "\"";
+        std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string(BOARD_STRING) + "\"";
 #else
         std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string("mega16u2") + "\"";
 #endif
@@ -181,7 +181,7 @@ class MIDIHelper
             std::string baseString = "amidi -l | grep \"OpenDeck DFU | ";
 
 #ifdef STM32_EMU_EEPROM
-            cmd = baseString + "\"" + std::string("| grep ") + std::string(OD_BOARD) + std::string(" | grep -Eo 'hw:\\S*'");
+            cmd = baseString + "\"" + std::string("| grep ") + std::string(BOARD_STRING) + std::string(" | grep -Eo 'hw:\\S*'");
 #else
             cmd = baseString + "\"" + std::string("| grep mega16u2") + std::string(" | grep -Eo 'hw:\\S*'");
 #endif
@@ -191,7 +191,7 @@ class MIDIHelper
             std::string baseString = "amidi -l | grep \"OpenDeck | ";
 
 #ifdef STM32_EMU_EEPROM
-            cmd = baseString + std::string(OD_BOARD) + "\"" + std::string(" | grep -Eo 'hw:\\S*'");
+            cmd = baseString + std::string(BOARD_STRING) + "\"" + std::string(" | grep -Eo 'hw:\\S*'");
 #else
             cmd = baseString + std::string("mega16u2") + "\"" + std::string(" | grep -Eo 'hw:\\S*'");
 #endif

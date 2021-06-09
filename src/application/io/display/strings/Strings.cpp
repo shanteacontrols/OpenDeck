@@ -23,7 +23,7 @@ limitations under the License.
 
 namespace
 {
-    const char boardName_string[] PROGMEM         = OD_BOARD;
+    const char boardName_string[] PROGMEM         = BOARD_STRING;
     const char eventNoteOff_string[] PROGMEM      = "Note Off";
     const char eventNoteOn_string[] PROGMEM       = "Note On";
     const char eventCC_string[] PROGMEM           = "CC";

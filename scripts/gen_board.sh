@@ -48,7 +48,7 @@ then
     printf "%s%s\n" "DEFINES += HSE_VALUE=$hse_val" "000000" >> "$OUT_FILE_MAKEFILE_DEFINES"
 fi
 
-printf "%s\n" "DEFINES += OD_BOARD=\\\"$TARGET_NAME\\\"" >> "$OUT_FILE_MAKEFILE_DEFINES"
+printf "%s\n" "DEFINES += BOARD_STRING=\\\"$TARGET_NAME\\\"" >> "$OUT_FILE_MAKEFILE_DEFINES"
 
 ########################################################################################################
 
