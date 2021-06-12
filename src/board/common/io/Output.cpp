@@ -23,7 +23,6 @@ limitations under the License.
 #include "core/src/general/Helpers.h"
 #include "core/src/general/Atomic.h"
 #include "Pins.h"
-#include "io/leds/LEDs.h"
 
 namespace
 {
