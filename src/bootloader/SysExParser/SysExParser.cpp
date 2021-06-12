@@ -46,7 +46,6 @@ bool SysExParser::parse(MIDI::USBMIDIpacket_t& packet)
         break;
 
     case static_cast<uint8_t>(usbMIDIsystemCin_t::sysExStartCin):
-        //the message can be any length between 3 and MIDI_SYSEX_ARRAY_SIZE
         if (packet.Data1 == 0xF0)
             _sysExArrayLength = 0;    //this is a new sysex message, reset length
 

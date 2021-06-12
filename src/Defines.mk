@@ -39,10 +39,14 @@ endif
 -include $(BOARD_TARGET_DIR)/Defines.mk
 
 ifneq (,$(findstring USB_LINK_MCU,$(DEFINES)))
-#use smaller sysex buffer size on USB link MCUs
+#use smaller buffer size on USB link MCUs
+    DEFINES += UART_TX_BUFFER_SIZE=50
+    DEFINES += UART_RX_BUFFER_SIZE=50
     DEFINES += MIDI_SYSEX_ARRAY_SIZE=50
 else
-    DEFINES += MIDI_SYSEX_ARRAY_SIZE=200
+    DEFINES += UART_TX_BUFFER_SIZE=200
+    DEFINES += UART_RX_BUFFER_SIZE=200
+    DEFINES += MIDI_SYSEX_ARRAY_SIZE=100
 endif
 
 

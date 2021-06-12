@@ -29,11 +29,10 @@ limitations under the License.
 //generic UART driver, arch-independent
 
 #ifdef FW_CDC
-#define TX_BUFFER_SIZE CDC_TX_BUFFER_SIZE
-#define RX_BUFFER_SIZE CDC_RX_BUFFER_SIZE
-#else
-#define TX_BUFFER_SIZE MIDI_SYSEX_ARRAY_SIZE
-#define RX_BUFFER_SIZE MIDI_SYSEX_ARRAY_SIZE
+#undef UART_TX_BUFFER_SIZE
+#undef UART_RX_BUFFER_SIZE
+#define UART_TX_BUFFER_SIZE CDC_TX_BUFFER_SIZE
+#define UART_RX_BUFFER_SIZE CDC_RX_BUFFER_SIZE
 #endif
 
 namespace
@@ -49,10 +48,10 @@ namespace
     bool initialized[MAX_UART_INTERFACES];
 
     /// Buffer in which outgoing UART data is stored.
-    core::RingBuffer<uint8_t, TX_BUFFER_SIZE> txBuffer[MAX_UART_INTERFACES];
+    core::RingBuffer<uint8_t, UART_TX_BUFFER_SIZE> txBuffer[MAX_UART_INTERFACES];
 
     /// Buffer in which incoming UART data is stored.
-    core::RingBuffer<uint8_t, RX_BUFFER_SIZE> rxBuffer[MAX_UART_INTERFACES];
+    core::RingBuffer<uint8_t, UART_RX_BUFFER_SIZE> rxBuffer[MAX_UART_INTERFACES];
 
 #ifndef USB_MIDI_SUPPORTED
     /// Holds the USB state received from USB link MCU
