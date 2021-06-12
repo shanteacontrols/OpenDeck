@@ -8,8 +8,9 @@ then
     exit 1
 fi
 
-#first argument should be path to the input json file
+#first argument should be path to the input json file and second directory in which generated file shall be placed
 JSON_FILE=$1
+OUT_FILE=$2/$(basename "$JSON_FILE" .json).cpp
 YAML_PARSER="dasel -n -p json --plain -f"
 
 if [[ ! -f "$JSON_FILE" ]]
@@ -18,7 +19,6 @@ then
     exit 0
 fi
 
-OUT_FILE=$(dirname "$JSON_FILE")/gen/$(basename "$JSON_FILE" .json).cpp
 IN_DIR_IMAGES=../bin/touchscreen/img/$(basename "$JSON_FILE" .json)
 OUT_DIR_ICONS=$IN_DIR_IMAGES/icons
 

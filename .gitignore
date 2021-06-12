@@ -6,11 +6,11 @@ Documentation/*
 *Objects.mk
 *.cortex-debug*
 **/tests/test_run/*
-**/board/gen/*
+**/board/target/*
 *.profraw
 **/cubemx/**/*
 !**/cubemx/**/*.ioc
-src/application/io/touchscreen/design/gen/*.cpp
+src/application/io/touchscreen/design/target/*.cpp
 **/*.ico
 **/.clangd/*
 **/clangd/*

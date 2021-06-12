@@ -234,13 +234,13 @@ endif
 
 pre-build: $(PINS_GEN_SOURCE) $(TSCREEN_GEN_SOURCE)
 
-board/gen/$(TARGET)/Pins.cpp: $(TARGET_DEF_FILE)
+$(BOARD_TARGET_DIR)/Pins.cpp: $(TARGET_DEF_FILE)
 	@echo Generating board definitions...
-	@$(SCRIPTS_DIR)/gen_board.sh $< $(SW_VERSION_MAJOR) $(SW_VERSION_MINOR) $(SW_VERSION_REVISION)
+	@$(SCRIPTS_DIR)/gen_board.sh $< $(BOARD_TARGET_DIR)
 
-application/io/touchscreen/design/gen/$(TARGET).cpp: application/io/touchscreen/design/$(TARGET).json
+$(TOUCHSCREEN_TARGET_DIR)/$(TARGET).cpp: $(TOUCHSCREEN_TARGET_DIR)/$(TARGET).json
 	@echo Generating touchscreen coordinate file...
-	@$(SCRIPTS_DIR)/gen_touchscreen.sh $<
+	@$(SCRIPTS_DIR)/gen_touchscreen.sh $< $(TOUCHSCREEN_TARGET_DIR)
 
 ifeq ($(ARCH),stm32)
 $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin: $(TARGET_DEF_FILE) $(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/application/database/Database.cpp.o $(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/application/database/CustomInit.cpp.o
@@ -308,7 +308,8 @@ endif
 
 clean:
 	@echo Cleaning up.
-	@rm -rf $(BUILD_DIR_BASE)/ board/gen application/io/touchscreen/design/gen
+	@rm -rf $(BUILD_DIR_BASE)/ $(BOARD_TARGET_BASE_DIR)
+	@find $(TOUCHSCREEN_TARGET_BASE_DIR) -name "*.cpp" -exec rm {} +
 
 #debugging
 print-%:

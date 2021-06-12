@@ -1,13 +1,17 @@
-COMMAND_FW_UPDATE_START := 0x4F70456E6E45704F
-COMMAND_FW_UPDATE_END   := 0x4465436B
-SYSEX_MANUFACTURER_ID_0 := 0x00
-SYSEX_MANUFACTURER_ID_1 := 0x53
-SYSEX_MANUFACTURER_ID_2 := 0x43
-FW_METADATA_SIZE        := 4
-CDC_TX_BUFFER_SIZE      := 4096
-CDC_RX_BUFFER_SIZE      := 1024
-UART_BAUDRATE_MIDI_STD  := 31250
-UART_BAUDRATE_MIDI_OD   := 38400
+BOARD_TARGET_BASE_DIR       := board/target
+BOARD_TARGET_DIR            := $(BOARD_TARGET_BASE_DIR)/$(TARGET)
+TOUCHSCREEN_TARGET_BASE_DIR := application/io/touchscreen/design/target
+TOUCHSCREEN_TARGET_DIR      := $(TOUCHSCREEN_TARGET_BASE_DIR)/$(TARGET)
+COMMAND_FW_UPDATE_START     := 0x4F70456E6E45704F
+COMMAND_FW_UPDATE_END       := 0x4465436B
+SYSEX_MANUFACTURER_ID_0     := 0x00
+SYSEX_MANUFACTURER_ID_1     := 0x53
+SYSEX_MANUFACTURER_ID_2     := 0x43
+FW_METADATA_SIZE            := 4
+CDC_TX_BUFFER_SIZE          := 4096
+CDC_RX_BUFFER_SIZE          := 1024
+UART_BAUDRATE_MIDI_STD      := 31250
+UART_BAUDRATE_MIDI_OD       := 38400
 
 SW_VERSION_MAJOR    := $(shell git describe --tags --abbrev=0 | cut -c 2- | cut -d. -f1)
 SW_VERSION_MINOR    := $(shell git describe --tags --abbrev=0 | cut -c 2- | cut -d. -f2)
@@ -32,7 +36,7 @@ ifeq ($(DEBUG), 1)
     DEFINES += DEBUG
 endif
 
--include board/gen/$(TARGET)/Defines.mk
+-include $(BOARD_TARGET_DIR)/Defines.mk
 
 ifneq (,$(findstring USB_LINK_MCU,$(DEFINES)))
 #use smaller sysex buffer size on USB link MCUs

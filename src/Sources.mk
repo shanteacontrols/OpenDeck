@@ -4,7 +4,7 @@ vpath modules/%.c ../
 #common include dirs
 INCLUDE_DIRS := \
 -I"../modules/" \
--I"board/gen/$(TARGET)/" \
+-I"$(BOARD_TARGET_DIR)/" \
 -I"application/" \
 -I"board/$(ARCH)/variants/$(MCU_FAMILY)" \
 -I"$(MCU_DIR)" \
@@ -31,10 +31,10 @@ endif
 
 LINKER_FILE := $(MCU_DIR)/$(MCU).ld
 
-PINS_GEN_SOURCE := board/gen/$(TARGET)/Pins.cpp
+PINS_GEN_SOURCE := $(BOARD_TARGET_DIR)/Pins.cpp
 
 ifneq (,$(wildcard application/io/touchscreen/design/$(TARGET).json))
-    TSCREEN_GEN_SOURCE += application/io/touchscreen/design/gen/$(TARGET).cpp
+    TSCREEN_GEN_SOURCE += $(TOUCHSCREEN_TARGET_DIR)/$(TARGET).cpp
 endif
 
 ifeq (,$(findstring gen,$(TYPE)))

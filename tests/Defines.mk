@@ -14,7 +14,7 @@ ifeq ($(HW_TEST_FLASH), 1)
     DEFINES += HW_TEST_FLASH
 endif
 
--include ../src/board/gen/$(TARGET)/Defines.mk
+-include ../src/board/target/$(TARGET)/Defines.mk
 include ../src/Defines.mk
 
 #needed for AVR only since this info is normally pulled from AVR headers

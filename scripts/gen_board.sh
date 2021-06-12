@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 
 TARGET_DEF_FILE=$1
-SW_VERSION_MAJOR=$2
-SW_VERSION_MINOR=$3
-SW_VERSION_REVISION=$4
+GEN_DIR=$2
 YAML_PARSER="dasel -n -p yaml --plain -f"
 TARGET_NAME=$(basename "$TARGET_DEF_FILE" .yml)
-GEN_DIR=board/gen/"$(basename "$TARGET_DEF_FILE" .yml)"
 
 rm -rf "$GEN_DIR"
 mkdir -p "$GEN_DIR"
