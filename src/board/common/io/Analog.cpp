@@ -24,6 +24,12 @@ limitations under the License.
 #include "board/Internal.h"
 #include "Pins.h"
 
+#ifndef NUMBER_OF_MUX
+#define ANALOG_IN_BUFFER_SIZE MAX_NUMBER_OF_ANALOG
+#else
+#define ANALOG_IN_BUFFER_SIZE (NUMBER_OF_MUX_INPUTS * NUMBER_OF_MUX)
+#endif
+
 /// Used to indicate that the new reading has been made.
 #define NEW_READING_FLAG 0x8000
 

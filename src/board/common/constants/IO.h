@@ -18,13 +18,6 @@ limitations under the License.
 
 #pragma once
 
-/// Size of array used to store all analog readings.
-#ifndef NUMBER_OF_MUX
-#define ANALOG_IN_BUFFER_SIZE MAX_NUMBER_OF_ANALOG
-#else
-#define ANALOG_IN_BUFFER_SIZE (NUMBER_OF_MUX_INPUTS * NUMBER_OF_MUX)
-#endif
-
 /// Time in milliseconds during which MIDI event indicators on board are on when MIDI event happens.
 #define MIDI_INDICATOR_TIMEOUT 50
 
