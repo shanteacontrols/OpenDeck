@@ -18,10 +18,13 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "board/common/comm/USBMIDIOverSerial/USBMIDIOverSerial.h"
 #include "core/src/general/Reset.h"
 #include "core/src/general/Timing.h"
+
+#ifndef USB_MIDI_SUPPORTED
+#include "board/common/comm/USBMIDIOverSerial/USBMIDIOverSerial.h"
 #include "usb-link/Commands.h"
+#endif
 
 //holds total flash size - inserted in the binary by build process
 //address where this variable is stored contains total firmware length

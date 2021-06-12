@@ -20,11 +20,14 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "board/common/comm/USBMIDIOverSerial/USBMIDIOverSerial.h"
 #include "core/src/general/RingBuffer.h"
 #include "core/src/general/Helpers.h"
 #include "MCU.h"
+
+#ifndef USB_MIDI_SUPPORTED
+#include "board/common/comm/USBMIDIOverSerial/USBMIDIOverSerial.h"
 #include "usb-link/Commands.h"
+#endif
 
 //generic UART driver, arch-independent
 

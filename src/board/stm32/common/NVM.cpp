@@ -180,10 +180,12 @@ namespace Board
         {
             bool result;
 
+#ifdef LED_INDICATORS
             //clearing is usually called in runtime so it's possible that LED
             //indicators are still on since the command is most likely given via USB
             //wait until all indicators are turned off
             core::timing::waitMs(MIDI_INDICATOR_TIMEOUT);
+#endif
 
             ATOMIC_SECTION
             {
