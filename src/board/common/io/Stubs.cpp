@@ -113,4 +113,15 @@ namespace Board
             //cdc might be unsupported
         }
     }    // namespace bootloader
+
+    namespace USB
+    {
+        __attribute__((weak)) void onCDCsetLineEncoding(uint32_t baudrate)
+        {
+        }
+
+        __attribute__((weak)) void onCDCgetLineEncoding(uint32_t& baudrate)
+        {
+        }
+    }    // namespace USB
 }    // namespace Board

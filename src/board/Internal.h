@@ -265,14 +265,6 @@ namespace Board
             void mainTimer();
         }    // namespace isrHandling
 
-        namespace cdc
-        {
-            /// Checks if incoming UART buffer contains data.
-            /// If it does, it creates a new USB CDC packet containing that data.
-            /// Should be checked periodicaly in timer.
-            void checkIncomingData();
-        }    // namespace cdc
-
         namespace flash
         {
             /// Checks whether the specified flash address is valid / in range for the current MCU.

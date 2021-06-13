@@ -18,11 +18,81 @@ limitations under the License.
 
 #include "board/Board.h"
 
+#ifndef UART_CHANNEL_TOUCHSCREEN
+#define UART_CHANNEL 0
+#else
+#define UART_CHANNEL UART_CHANNEL_TOUCHSCREEN
+#endif
+
+namespace
+{
+    char              _txBuffer[CDC_TXRX_EPSIZE];
+    volatile uint32_t _baudrate;    //line handlers are called from interrupt
+
+    void uartToUSB()
+    {
+        uint32_t size = 0;
+
+        for (size = 0; size < CDC_TXRX_EPSIZE; size++)
+        {
+            uint8_t value;
+
+            if (Board::UART::read(UART_CHANNEL, value))
+            {
+                _txBuffer[size] = value;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        if (size)
+        {
+            while (!Board::USB::writeCDC(_txBuffer, size))
+                ;
+        }
+    }
+
+    void usbToUART()
+    {
+        char cdcByte;
+
+        while (Board::USB::readCDC(cdcByte))
+        {
+            while (!Board::UART::write(UART_CHANNEL, cdcByte))
+                ;
+        }
+    }
+}    // namespace
+
+namespace Board
+{
+    namespace USB
+    {
+        void onCDCsetLineEncoding(uint32_t baudrate)
+        {
+            _baudrate = baudrate;
+            Board::UART::init(UART_CHANNEL, _baudrate);
+        }
+
+        void onCDCgetLineEncoding(uint32_t& baudrate)
+        {
+            baudrate = _baudrate;
+        }
+    }    // namespace USB
+}    // namespace Board
+
 int main()
 {
     Board::init();
 
     while (1)
     {
+        if (_baudrate)
+        {
+            uartToUSB();
+            usbToUART();
+        }
     }
 }

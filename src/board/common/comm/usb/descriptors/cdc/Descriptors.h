@@ -62,9 +62,6 @@ limitations under the License.
 /** Size in bytes of the CDC device-to-host notification IN endpoint. */
 #define CDC_NOTIFICATION_EPSIZE 8
 
-/** Size in bytes of the CDC data IN and OUT endpoints. */
-#define CDC_TXRX_EPSIZE 64
-
 #define CDC_POLLING_TIME 5
 
 /** Type define for the device configuration descriptor structure. This must be defined in the
