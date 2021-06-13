@@ -59,6 +59,10 @@ namespace Board
         {
             return 0;
         }
+
+        __attribute__((weak)) void indicateTraffic(Board::io::dataSource_t source, Board::io::dataDirection_t direction)
+        {
+        }
     }    // namespace io
 
     namespace detail
@@ -77,15 +81,7 @@ namespace Board
             {
             }
 
-            __attribute__((weak)) void indicateMIDItraffic(MIDI::interface_t source, midiTrafficDirection_t direction)
-            {
-            }
-
             __attribute__((weak)) void checkIndicators()
-            {
-            }
-
-            __attribute__((weak)) void indicateBTLDR()
             {
             }
 

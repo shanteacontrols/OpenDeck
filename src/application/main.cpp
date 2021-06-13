@@ -122,7 +122,13 @@ class HWAMIDI : public MIDI::HWA
     bool dinRead(uint8_t& data) override
     {
 #ifdef DIN_MIDI_SUPPORTED
-        return Board::UART::read(UART_CHANNEL_DIN, data);
+        if (Board::UART::read(UART_CHANNEL_DIN, data))
+        {
+            Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::incoming);
+            return true;
+        }
+
+        return false;
 #else
         return false;
 #endif
@@ -131,7 +137,13 @@ class HWAMIDI : public MIDI::HWA
     bool dinWrite(uint8_t data) override
     {
 #ifdef DIN_MIDI_SUPPORTED
-        return Board::UART::write(UART_CHANNEL_DIN, data);
+        if (Board::UART::write(UART_CHANNEL_DIN, data))
+        {
+            Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::outgoing);
+            return true;
+        }
+
+        return false;
 #else
         return false;
 #endif
@@ -139,12 +151,24 @@ class HWAMIDI : public MIDI::HWA
 
     bool usbRead(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
     {
-        return Board::USB::readMIDI(USBMIDIpacket);
+        if (Board::USB::readMIDI(USBMIDIpacket))
+        {
+            Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
+            return true;
+        }
+
+        return false;
     }
 
     bool usbWrite(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
     {
-        return Board::USB::writeMIDI(USBMIDIpacket);
+        if (Board::USB::writeMIDI(USBMIDIpacket))
+        {
+            Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::outgoing);
+            return true;
+        }
+
+        return false;
     }
 } hwaMIDI;
 

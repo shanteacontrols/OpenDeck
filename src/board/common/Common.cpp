@@ -93,11 +93,9 @@ namespace Board
             void mainTimer()
             {
                 core::timing::detail::rTime_ms++;
+                Board::detail::io::checkIndicators();
 
 #ifdef FW_APP
-#ifdef LED_INDICATORS
-                Board::detail::io::checkIndicators();
-#endif
                 Board::detail::io::checkDigitalInputs();
 #endif
             }

@@ -182,6 +182,18 @@ namespace Board
             uint32_t readings;
         } dInReadings_t;
 
+        enum class dataSource_t : uint8_t
+        {
+            usb,
+            uart
+        };
+
+        enum class dataDirection_t : uint8_t
+        {
+            incoming,
+            outgoing
+        };
+
         /// Returns last read digital input states for requested digital input index.
         /// param [in]:     digitalInIndex  Index of digital input which should be read.
         /// param [in,out]: dInReadings     Reference to variable in which new digital input readings are stored.
@@ -220,6 +232,11 @@ namespace Board
         /// param [in,out]:         Reference to variable in which new ADC reading is stored.
         /// returns: True if there is a new reading for specified analog index.
         bool analogValue(size_t analogID, uint16_t& value);
+
+        /// Used to indicate that the data event (DIN MIDI, USB MIDI, CDC etc.) has occured using built-in LEDs on board.
+        /// param [source]     Source of data. Depending on the source (USB/UART, corresponding LEDs will be turned on).
+        /// param [direction]  Direction of data.
+        void indicateTraffic(dataSource_t source, dataDirection_t direction);
     }    // namespace io
 
     namespace NVM

@@ -37,13 +37,6 @@ namespace Board
 {
     namespace detail
     {
-        /// Specifies incoming or outgoing MIDI data traffic.
-        enum class midiTrafficDirection_t : uint8_t
-        {
-            incoming,
-            outgoing
-        };
-
         /// Default error handler.
         void errorHandler();
 
@@ -223,16 +216,8 @@ namespace Board
             /// Checks if digital outputs need to be updated.
             void checkDigitalOutputs();
 
-            /// Used to indicate that the MIDI event has occured using built-in LEDs on board.
-            /// param [source]     Source of MIDI data. See MIDI::interface_t enumeration.
-            /// param [direction]  Direction of MIDI data. See midiTrafficDirection_t enumeration.
-            void indicateMIDItraffic(MIDI::interface_t source, midiTrafficDirection_t direction);
-
             /// Checks if indicator LEDs need to be turned on or off.
             void checkIndicators();
-
-            /// Initializes outputs used to indicate that bootloader mode is active (MIDI traffic LEDs).
-            void indicateBTLDR();
 
             /// Flashes integrated LEDs on board on startup to indicate that application is about to be loaded.
             void ledFlashStartup();

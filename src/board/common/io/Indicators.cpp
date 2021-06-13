@@ -25,7 +25,7 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 #include "Pins.h"
 
-#ifdef LED_INDICATORS
+#if defined(LED_INDICATORS) && defined(LED_INDICATORS_CTL)
 
 namespace
 {
@@ -49,49 +49,6 @@ namespace Board
     {
         namespace io
         {
-            void enableIndicators()
-            {
-                ATOMIC_SECTION
-                {
-                    midiInDINtimeout  = 0;
-                    midiOutDINtimeout = 0;
-                    midiInUSBtimeout  = 0;
-                    midiOutUSBtimeout = 0;
-                }
-            }
-
-            void indicateMIDItraffic(MIDI::interface_t source, midiTrafficDirection_t direction)
-            {
-                switch (source)
-                {
-                case MIDI::interface_t::din:
-                    if (direction == midiTrafficDirection_t::incoming)
-                    {
-                        INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-                        midiInDINtimeout = MIDI_INDICATOR_TIMEOUT;
-                    }
-                    else
-                    {
-                        INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-                        midiOutDINtimeout = MIDI_INDICATOR_TIMEOUT;
-                    }
-                    break;
-
-                case MIDI::interface_t::usb:
-                    if (direction == midiTrafficDirection_t::incoming)
-                    {
-                        INT_LED_ON(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
-                        midiInUSBtimeout = MIDI_INDICATOR_TIMEOUT;
-                    }
-                    else
-                    {
-                        INT_LED_ON(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
-                        midiOutUSBtimeout = MIDI_INDICATOR_TIMEOUT;
-                    }
-                    break;
-                }
-            }
-
             void checkIndicators()
             {
                 if (midiInDINtimeout)
@@ -126,15 +83,55 @@ namespace Board
                         INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
                 }
             }
+        }    // namespace io
+    }        // namespace detail
 
-            void indicateBTLDR()
+    namespace io
+    {
+        void indicateTraffic(dataSource_t source, dataDirection_t direction)
+        {
+            switch (source)
             {
-                INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-                INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-                INT_LED_ON(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
-                INT_LED_ON(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
-            }
+            case dataSource_t::uart:
+                if (direction == dataDirection_t::incoming)
+                {
+                    INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
+                    midiInDINtimeout = MIDI_INDICATOR_TIMEOUT;
+                }
+                else
+                {
+                    INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
+                    midiOutDINtimeout = MIDI_INDICATOR_TIMEOUT;
+                }
+                break;
 
+            case dataSource_t::usb:
+                if (direction == dataDirection_t::incoming)
+                {
+                    INT_LED_ON(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
+                    midiInUSBtimeout = MIDI_INDICATOR_TIMEOUT;
+                }
+                else
+                {
+                    INT_LED_ON(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
+                    midiOutUSBtimeout = MIDI_INDICATOR_TIMEOUT;
+                }
+                break;
+            }
+        }
+    }    // namespace io
+}    // namespace Board
+
+#endif
+
+#ifdef LED_INDICATORS
+
+namespace Board
+{
+    namespace detail
+    {
+        namespace io
+        {
             void ledFlashStartup()
             {
                 for (int i = 0; i < 3; i++)

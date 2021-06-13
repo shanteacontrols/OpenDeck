@@ -80,13 +80,12 @@ ifeq (,$(findstring gen,$(TYPE)))
         board/common/io/Indicators.cpp \
         board/$(ARCH)/common/Bootloader.cpp \
         board/$(ARCH)/common/Init.cpp \
-        board/$(ARCH)/common/ShiftRegistersWait.cpp
+        board/$(ARCH)/common/ShiftRegistersWait.cpp \
+        board/$(ARCH)/common/ISR.cpp
 
         ifeq ($(ARCH),avr)
             SOURCES += board/$(ARCH)/common/Flash.cpp
             SOURCES += board/$(ARCH)/common/FlashPages.cpp
-        else ifeq ($(ARCH),stm32)
-            SOURCES += board/$(ARCH)/common/ISR.cpp
         endif
 
         SOURCES += $(shell find ./bootloader -type f -name "*.cpp")

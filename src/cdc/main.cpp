@@ -51,6 +51,8 @@ namespace
         {
             while (!Board::USB::writeCDC(_txBuffer, size))
                 ;
+
+            Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::outgoing);
         }
     }
 
@@ -62,6 +64,8 @@ namespace
         {
             while (!Board::UART::write(UART_CHANNEL, cdcByte))
                 ;
+
+            Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
         }
     }
 }    // namespace

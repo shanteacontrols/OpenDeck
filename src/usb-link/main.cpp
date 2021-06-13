@@ -60,7 +60,10 @@ int main(void)
     {
         //USB -> UART
         while (Board::USB::readMIDI(USBMIDIpacket))
+        {
             Board::USBMIDIOverSerial::write(UART_CHANNEL_USB_LINK, USBMIDIpacket, Board::USBMIDIOverSerial::packetType_t::midi);
+            Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
+        }
 
         //UART -> USB
         while (Board::USBMIDIOverSerial::read(UART_CHANNEL_USB_LINK, USBMIDIpacket, packetType))
@@ -68,6 +71,7 @@ int main(void)
             if (packetType == Board::USBMIDIOverSerial::packetType_t::midi)
             {
                 Board::USB::writeMIDI(USBMIDIpacket);
+                Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::outgoing);
             }
             else
             {

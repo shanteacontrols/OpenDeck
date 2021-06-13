@@ -200,15 +200,6 @@ namespace Board
                 returnValue = true;
             }
 
-            if (returnValue)
-            {
-#ifdef FW_APP
-#ifdef LED_INDICATORS
-                Board::detail::io::indicateMIDItraffic(MIDI::interface_t::usb, Board::detail::midiTrafficDirection_t::incoming);
-#endif
-#endif
-            }
-
             return returnValue;
         }
 
@@ -247,9 +238,6 @@ namespace Board
                 TxDone        = false;
                 USBD_LL_Transmit(&hUsbDeviceFS, MIDI_STREAM_IN_EPADDR, (uint8_t*)&USBMIDIpacket, 4);
 
-#ifdef LED_INDICATORS
-                Board::detail::io::indicateMIDItraffic(MIDI::interface_t::usb, Board::detail::midiTrafficDirection_t::outgoing);
-#endif
                 return true;
             }
             else
