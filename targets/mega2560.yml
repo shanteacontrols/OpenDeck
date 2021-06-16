@@ -161,8 +161,6 @@
       port: "K"
       index: 7
   leds:
-    internal:
-      present: false
     external:
       type: "native"
       pins:

@@ -95,9 +95,6 @@
     - 30
     - 29
     - 31
-  leds:
-    internal:
-      present: false
   bootloader:
     button:
       port: "A"

@@ -133,8 +133,6 @@
     - 2
     - 55
   leds:
-    internal:
-      present: false
     external:
       type: "shiftRegister"
       shiftRegisters: 3

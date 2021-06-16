@@ -135,8 +135,6 @@
         port: "F"
         index: 2
   leds:
-    internal:
-      present: false
     external:
       type: "native"
       pins:

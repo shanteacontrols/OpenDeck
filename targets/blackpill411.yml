@@ -70,8 +70,6 @@
       port: "B"
       index: 1
   leds:
-    internal:
-      present: false
     external:
       type: "native"
       pins:

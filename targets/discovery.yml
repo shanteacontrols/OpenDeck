@@ -97,7 +97,6 @@
       index: 4
   leds:
     internal:
-      present: true
       pins:
         din:
           rx:

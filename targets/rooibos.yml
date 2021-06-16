@@ -82,6 +82,3 @@
     - 2
     - 23
     - 16
-  leds:
-    internal:
-      present: false

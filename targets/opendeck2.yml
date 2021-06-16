@@ -175,7 +175,6 @@
       - 16
   leds:
     internal:
-      present: true
       invert: false
       pins:
         din:

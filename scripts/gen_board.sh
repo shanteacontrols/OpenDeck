@@ -524,11 +524,8 @@ fi
 
 if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" leds.internal)" != "null" ]]
 then
-    if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" leds.internal.present)" == "true" ]]
-    then
-        printf "%s\n" "DEFINES += LED_INDICATORS" >> "$OUT_FILE_MAKEFILE_DEFINES"
-        printf "%s\n" "DEFINES += LED_INDICATORS_CTL" >> "$OUT_FILE_MAKEFILE_DEFINES"
-    fi
+    printf "%s\n" "DEFINES += LED_INDICATORS" >> "$OUT_FILE_MAKEFILE_DEFINES"
+    printf "%s\n" "DEFINES += LED_INDICATORS_CTL" >> "$OUT_FILE_MAKEFILE_DEFINES"
 
     if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" leds.internal.invert)" == "true" ]]
     then
