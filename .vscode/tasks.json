@@ -219,7 +219,8 @@
                 "mega2560",
                 "opendeck2",
                 "rooibos",
-                "teensy2pp"
+                "teensy2pp",
+                "opendeck_mini"
             ]
         },
         {
