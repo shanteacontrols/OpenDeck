@@ -161,12 +161,6 @@ else
     printf "%s\n" "DEFINES += MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS=0" >> "$OUT_FILE_MAKEFILE_DEFINES"
 fi
 
-if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" bootloader.button.activeState)" == "high" ]]
-then
-    #active high
-    printf "%s\n" "DEFINES += BTLDR_BUTTON_AH" >> "$OUT_FILE_MAKEFILE_DEFINES"
-fi
-
 if [[ $($YAML_PARSER "$TARGET_DEF_FILE" bootloader.button) != "null" ]]
 then
     port=$($YAML_PARSER "$TARGET_DEF_FILE" bootloader.button.port)
@@ -176,13 +170,12 @@ then
         printf "%s\n" "#define BTLDR_BUTTON_PORT CORE_IO_PORT(${port})"
         printf "%s\n" "#define BTLDR_BUTTON_PIN CORE_IO_PORT_INDEX(${index})"
     } >> "$OUT_FILE_HEADER_PINS"
-elif [[ $($YAML_PARSER "$TARGET_DEF_FILE" bootloader.buttonIndex) != "null" ]]
-then
-    index=$($YAML_PARSER "$TARGET_DEF_FILE" bootloader.buttonIndex)
 
-    {
-        printf "%s\n" "#define BTLDR_BUTTON_INDEX CORE_IO_PORT_INDEX(${index})"
-    } >> "$OUT_FILE_HEADER_PINS"
+    if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" bootloader.button.activeState)" == "high" ]]
+    then
+        #active high
+        printf "%s\n" "DEFINES += BTLDR_BUTTON_AH" >> "$OUT_FILE_MAKEFILE_DEFINES"
+    fi
 fi
 
 ########################################################################################################
