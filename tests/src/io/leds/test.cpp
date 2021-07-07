@@ -119,7 +119,7 @@ TEST_SETUP()
 #if MAX_NUMBER_OF_LEDS > 0
 TEST_CASE(VerifyBrightnessAndBlinkSpeed)
 {
-    //these tables should match with the one at https://github.com/paradajz/OpenDeck/wiki/LED-control
+    //these tables should match with the one at https://github.com/shanteacontrols/OpenDeck/wiki/LED-control
     std::vector<IO::LEDs::brightness_t> expectedBrightnessValue = {
         IO::LEDs::brightness_t::bOff,
         IO::LEDs::brightness_t::bOff,
