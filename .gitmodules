@@ -1,6 +1,6 @@
 [submodule "src/Firmware/midi"]
 	path = modules/midi
-	url = https://github.com/paradajz/midi-lib.git
+	url = https://github.com/shanteacontrols/midi-lib.git
 	branch = master
 [submodule "src/Firmware/dbms"]
 	path = modules/dbms
@@ -8,7 +8,7 @@
 	branch = master
 [submodule "src/Firmware/sysex"]
 	path = modules/sysex
-	url = https://github.com/paradajz/sysex-conf.git
+	url = https://github.com/shanteacontrols/sysex-conf.git
 	branch = master
 [submodule "src/Firmware/lufa"]
 	path = modules/lufa

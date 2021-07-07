@@ -22,7 +22,7 @@ The following components are supported:
 * LCD/OLED displays
 * Touchscreen displays (Nextion and Viewtech/Stone)
 
-OpenDeck supports sending of both 7-bit and 14-bit Non-Registered Part Numbers (NRPN), latching messages on buttons, various encoding modes for quadrature encoders, LED control using MIDI In, configurable MIDI channels for each component individually etc. Full list of supported features can be found [here](https://github.com/paradajz/OpenDeck/wiki/Configurable-features).
+OpenDeck supports sending of both 7-bit and 14-bit Non-Registered Part Numbers (NRPN), latching messages on buttons, various encoding modes for quadrature encoders, LED control using MIDI In, configurable MIDI channels for each component individually etc. Full list of supported features can be found [here](https://github.com/shanteacontrols/OpenDeck/wiki/Configurable-features).
 
 
 ## Web configurator
@@ -31,9 +31,9 @@ Click the image to watch the video
 
 [![Watch the video](https://img.youtube.com/vi/7X2LC0JMfAU/maxresdefault.jpg)](https://youtu.be/7X2LC0JMfAU)
 
-Source code for OpenDeck web configurator is located in [OpenDeckUI repository](https://github.com/paradajz/OpenDeckUI). It's written by [wyrd-code](https://github.com/wyrd-code/). Web configurator can run in any browser which supports WebMIDI specification (Chromium based browsers only). Utility needs access to MIDI devices so that it can communicate with OpenDeck boards. All communication is done with custom SysEx protocol explained in detail in [Wiki section](https://github.com/paradajz/OpenDeck/wiki/SysEx-Configuration).
+Source code for OpenDeck web configurator is located in [OpenDeckUI repository](https://github.com/shanteacontrols/OpenDeckUI). It's written by [wyrd-code](https://github.com/wyrd-code/). Web configurator can run in any browser which supports WebMIDI specification (Chromium based browsers only). Utility needs access to MIDI devices so that it can communicate with OpenDeck boards. All communication is done with custom SysEx protocol explained in detail in [Wiki section](https://github.com/shanteacontrols/OpenDeck/wiki/SysEx-Configuration).
 
-Latest stable version of the UI is always available on [this link](https://paradajz.github.io/OpenDeck).
+Latest stable version of the UI is always available on [this link](https://config.shanteacontrols.com).
 
 ## Supported boards
 
@@ -45,15 +45,15 @@ OpenDeck firmware is compatible with [official OpenDeck board](https://www.tindi
 * STM32F401 Black Pill
 * STM32F411 Black Pill
 
-Support for custom boards can be easily added using [YAML descriptors](https://github.com/paradajz/OpenDeck/wiki/Creating-custom-board-variant).
+Support for custom boards can be easily added using [YAML descriptors](https://github.com/shanteacontrols/OpenDeck/wiki/Creating-custom-board-variant).
 
 ## Documentation
 
-Available on dedicated [Wiki section](https://github.com/paradajz/OpenDeck/wiki/).
+Available on dedicated [Wiki section](https://github.com/shanteacontrols/OpenDeck/wiki/).
 
 ## Discussion
 
-Need help? Want to show off your OpenDeck based builds? Head over to [Discussions](https://github.com/paradajz/OpenDeck/discussions)!
+Need help? Want to show off your OpenDeck based builds? Head over to [Discussions](https://github.com/shanteacontrols/OpenDeck/discussions)!
 
 ## Credits
 
