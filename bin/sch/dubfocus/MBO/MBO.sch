@@ -489,20 +489,6 @@
 <smd name="1" x="-4.5" y="1.4" dx="0.6" dy="1.9" layer="1"/>
 <smd name="10" x="4.5" y="1.4" dx="0.6" dy="1.9" layer="1"/>
 </package>
-<package name="C0402">
-<wire x1="-0.245" y1="0.224" x2="0.245" y2="0.224" width="0.1524" layer="51"/>
-<wire x1="0.245" y1="-0.224" x2="-0.245" y2="-0.224" width="0.1524" layer="51"/>
-<wire x1="-1.473" y1="0.483" x2="1.473" y2="0.483" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="0.483" x2="1.473" y2="-0.483" width="0.0508" layer="39"/>
-<wire x1="1.473" y1="-0.483" x2="-1.473" y2="-0.483" width="0.0508" layer="39"/>
-<wire x1="-1.473" y1="-0.483" x2="-1.473" y2="0.483" width="0.0508" layer="39"/>
-<smd name="1" x="-0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
-<smd name="2" x="0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
-<rectangle x1="-0.554" y1="-0.3048" x2="-0.254" y2="0.2951" layer="51"/>
-<rectangle x1="0.2588" y1="-0.3048" x2="0.5588" y2="0.2951" layer="51"/>
-<rectangle x1="-0.1999" y1="-0.3" x2="0.1999" y2="0.3" layer="35"/>
-<text x="-1.27" y="-1.905" size="1.016" layer="21" font="vector" ratio="15">&gt;NAME</text>
-</package>
 <package name="C-TH-025X050">
 <wire x1="-2.159" y1="1.27" x2="2.159" y2="1.27" width="0.1524" layer="21"/>
 <wire x1="2.159" y1="-1.27" x2="-2.159" y2="-1.27" width="0.1524" layer="21"/>
@@ -523,15 +509,6 @@
 <pad name="1" x="-1.27" y="0" drill="0.8128"/>
 <pad name="2" x="1.27" y="0" drill="0.8128"/>
 <text x="-2.54" y="-1.27" size="1.27" layer="25" ratio="13" rot="R90">&gt;NAME</text>
-</package>
-<package name="R0402">
-<wire x1="-0.245" y1="0.224" x2="0.245" y2="0.224" width="0.1524" layer="51"/>
-<wire x1="0.245" y1="-0.224" x2="-0.245" y2="-0.224" width="0.1524" layer="51"/>
-<smd name="1" x="-0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
-<smd name="2" x="0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
-<rectangle x1="-0.554" y1="-0.3048" x2="-0.254" y2="0.2951" layer="51"/>
-<rectangle x1="0.2588" y1="-0.3048" x2="0.5588" y2="0.2951" layer="51"/>
-<text x="-1.27" y="-2.54" size="1.016" layer="21" font="vector" ratio="14">&gt;NAME</text>
 </package>
 <package name="R-TH-0710">
 <wire x1="-3.27" y1="0.869" x2="-3.016" y2="1.123" width="0.1524" layer="21" curve="-90"/>
@@ -907,6 +884,51 @@
 <wire x1="16.51" y1="-17.78" x2="-16.51" y2="-17.78" width="0.2032" layer="21"/>
 <text x="-16.5" y="-19.5" size="1.016" layer="25" font="vector" ratio="15">&gt;NAME</text>
 </package>
+<package name="C0402">
+<wire x1="-0.245" y1="0.224" x2="0.245" y2="0.224" width="0.1524" layer="51"/>
+<wire x1="0.245" y1="-0.224" x2="-0.245" y2="-0.224" width="0.1524" layer="51"/>
+<wire x1="-1.473" y1="0.483" x2="1.473" y2="0.483" width="0.0508" layer="39"/>
+<wire x1="1.473" y1="0.483" x2="1.473" y2="-0.483" width="0.0508" layer="39"/>
+<wire x1="1.473" y1="-0.483" x2="-1.473" y2="-0.483" width="0.0508" layer="39"/>
+<wire x1="-1.473" y1="-0.483" x2="-1.473" y2="0.483" width="0.0508" layer="39"/>
+<smd name="1" x="-0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
+<smd name="2" x="0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
+<rectangle x1="-0.554" y1="-0.3048" x2="-0.254" y2="0.2951" layer="51"/>
+<rectangle x1="0.2588" y1="-0.3048" x2="0.5588" y2="0.2951" layer="51"/>
+<rectangle x1="-0.1999" y1="-0.3" x2="0.1999" y2="0.3" layer="35"/>
+<text x="-1.27" y="-2.54" size="1.27" layer="25" font="vector" ratio="15">&gt;NAME</text>
+</package>
+<package name="R0402">
+<wire x1="-0.245" y1="0.224" x2="0.245" y2="0.224" width="0.1524" layer="51"/>
+<wire x1="0.245" y1="-0.224" x2="-0.245" y2="-0.224" width="0.1524" layer="51"/>
+<smd name="1" x="-0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
+<smd name="2" x="0.65" y="0" dx="0.7" dy="0.9" layer="1"/>
+<rectangle x1="-0.554" y1="-0.3048" x2="-0.254" y2="0.2951" layer="51"/>
+<rectangle x1="0.2588" y1="-0.3048" x2="0.5588" y2="0.2951" layer="51"/>
+<text x="1.27" y="-1.27" size="1.27" layer="25" font="vector" ratio="15">&gt;NAME</text>
+</package>
+<package name="1X02-2.54-V">
+<wire x1="-1.905" y1="1.27" x2="-0.635" y2="1.27" width="0.1524" layer="21"/>
+<wire x1="-0.635" y1="1.27" x2="0" y2="0.635" width="0.1524" layer="21"/>
+<wire x1="0" y1="0.635" x2="0" y2="-0.635" width="0.1524" layer="21"/>
+<wire x1="0" y1="-0.635" x2="-0.635" y2="-1.27" width="0.1524" layer="21"/>
+<wire x1="0" y1="0.635" x2="0.635" y2="1.27" width="0.1524" layer="21"/>
+<wire x1="0.635" y1="1.27" x2="1.905" y2="1.27" width="0.1524" layer="21"/>
+<wire x1="1.905" y1="1.27" x2="2.54" y2="0.635" width="0.1524" layer="21"/>
+<wire x1="2.54" y1="0.635" x2="2.54" y2="-0.635" width="0.1524" layer="21"/>
+<wire x1="2.54" y1="-0.635" x2="1.905" y2="-1.27" width="0.1524" layer="21"/>
+<wire x1="1.905" y1="-1.27" x2="0.635" y2="-1.27" width="0.1524" layer="21"/>
+<wire x1="0.635" y1="-1.27" x2="0" y2="-0.635" width="0.1524" layer="21"/>
+<wire x1="-2.54" y1="0.635" x2="-2.54" y2="-0.635" width="0.1524" layer="21"/>
+<wire x1="-1.905" y1="1.27" x2="-2.54" y2="0.635" width="0.1524" layer="21"/>
+<wire x1="-2.54" y1="-0.635" x2="-1.905" y2="-1.27" width="0.1524" layer="21"/>
+<wire x1="-0.635" y1="-1.27" x2="-1.905" y2="-1.27" width="0.1524" layer="21"/>
+<pad name="1" x="-1.27" y="0" drill="1.016" diameter="1.778" rot="R90" first="yes"/>
+<pad name="2" x="1.27" y="0" drill="1.016" diameter="1.778" rot="R90"/>
+<rectangle x1="1.016" y1="-0.254" x2="1.524" y2="0.254" layer="51"/>
+<rectangle x1="-1.524" y1="-0.254" x2="-1.016" y2="0.254" layer="51"/>
+<text x="-2.54" y="-2.54" size="1.016" layer="25" font="vector" ratio="15">&gt;NAME</text>
+</package>
 </packages>
 <symbols>
 <symbol name="CAPACITOR_EU">
@@ -1060,7 +1082,7 @@
 <pin name="A8" x="-5.08" y="33.02" length="middle" swaplevel="1"/>
 <pin name="A9" x="-5.08" y="30.48" length="middle" swaplevel="1"/>
 <pin name="A10" x="-5.08" y="27.94" length="middle" swaplevel="1"/>
-<pin name="A12/USB_DM" x="-5.08" y="25.4" length="middle" swaplevel="1"/>
+<pin name="A11/USB_DM" x="-5.08" y="25.4" length="middle" swaplevel="1"/>
 <pin name="A12/USB_DP" x="-5.08" y="22.86" length="middle" swaplevel="1"/>
 <pin name="A15" x="-5.08" y="20.32" length="middle" swaplevel="1"/>
 <pin name="B3" x="-5.08" y="17.78" length="middle" swaplevel="1"/>
@@ -1209,6 +1231,15 @@
 </technologies>
 </device>
 <device name="-TH-4450" package="R-TH-4450">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="-TH-2.54" package="1X02-2.54-V">
 <connects>
 <connect gate="G$1" pin="1" pad="1"/>
 <connect gate="G$1" pin="2" pad="2"/>
@@ -1386,6 +1417,10 @@
 <attribute name="MANUFACTURER" value="Multicomp"/>
 <attribute name="MPN" value="MCVVT016M100CA1L"/>
 </technology>
+<technology name="25V">
+<attribute name="MANUFACTURER" value="Nichicon"/>
+<attribute name="MPN" value="UUD1E100MCL1GS" constant="no"/>
+</technology>
 <technology name="50V">
 <attribute name="MANUFACTURER" value="Panasonic"/>
 <attribute name="MPN" value="EEEFTH100UAR"/>
@@ -1468,7 +1503,7 @@
 <connect gate="G$1" pin="A0/KEY" pad="P2.15"/>
 <connect gate="G$1" pin="A1" pad="P2.14"/>
 <connect gate="G$1" pin="A10" pad="P1.7"/>
-<connect gate="G$1" pin="A12/USB_DM" pad="P1.8"/>
+<connect gate="G$1" pin="A11/USB_DM" pad="P1.8"/>
 <connect gate="G$1" pin="A12/USB_DP" pad="P1.9"/>
 <connect gate="G$1" pin="A15" pad="P1.10"/>
 <connect gate="G$1" pin="A2" pad="P2.13"/>
@@ -1520,7 +1555,10 @@
 <connect gate="G$1" pin="2" pad="2"/>
 </connects>
 <technologies>
-<technology name=""/>
+<technology name="">
+<attribute name="MANUFACTURER" value="Omron"/>
+<attribute name="MPN" value="B3F-3122"/>
+</technology>
 </technologies>
 </device>
 <device name="-RUBBER" package="RUBBER_SWITCH">
