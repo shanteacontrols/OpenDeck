@@ -24,6 +24,14 @@ limitations under the License.
 #include "io/analog/Analog.h"
 #include "core/src/general/Helpers.h"
 
+#ifndef MEDIAN_SAMPLE_COUNT
+#define MEDIAN_SAMPLE_COUNT 5
+#endif
+
+#ifndef MEDIAN_MIDDLE_VALUE
+#define MEDIAN_MIDDLE_VALUE 3
+#endif
+
 namespace IO
 {
     class AnalogFilter : public IO::Analog::Filter
@@ -89,11 +97,11 @@ namespace IO
                     _analogSample[index][_medianSampleCounter[index]++] = value;
 
                     //take the median value to avoid using outliers
-                    if (_medianSampleCounter[index] == 5)
+                    if (_medianSampleCounter[index] == MEDIAN_SAMPLE_COUNT)
                     {
-                        qsort(_analogSample[index], 5, sizeof(uint16_t), compare);
+                        qsort(_analogSample[index], MEDIAN_SAMPLE_COUNT, sizeof(uint16_t), compare);
                         _medianSampleCounter[index] = 0;
-                        filteredValue               = _analogSample[index][3];
+                        filteredValue               = _analogSample[index][MEDIAN_MIDDLE_VALUE];
                     }
                     else
                     {
@@ -186,7 +194,7 @@ namespace IO
         const uint16_t              _stepDiff7Bit;
 
         static constexpr uint32_t FAST_FILTER_ENABLE_AFTER_MS                                                       = 100;
-        uint16_t                  _analogSample[MAX_NUMBER_OF_ANALOG][5]                                            = {};
+        uint16_t                  _analogSample[MAX_NUMBER_OF_ANALOG][MEDIAN_SAMPLE_COUNT]                          = {};
         size_t                    _medianSampleCounter[MAX_NUMBER_OF_ANALOG]                                        = {};
         uint32_t                  _lastStableMovementTime[MAX_NUMBER_OF_ANALOG]                                     = {};
         bool                      _lastStableDirection[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS] = {};
