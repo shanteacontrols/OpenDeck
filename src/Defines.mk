@@ -186,6 +186,9 @@ ifeq ($(ARCH), avr)
     ifneq (,$(findstring cdc flashgen,$(TYPE)))
         $(error $(TYPE) not supported for this arch)
     endif
+
+    DEFINES += MEDIAN_SAMPLE_COUNT=3
+    DEFINES += MEDIAN_MIDDLE_VALUE=1
 endif
 
 ifeq ($(TYPE),cdc)
