@@ -83,7 +83,7 @@ ifeq ($(ARCH),avr)
     CC := $(C_COMPILER_AVR)
     CXX := $(CPP_COMPILER_AVR)
     LINKER := $(LINKER_AVR)
-    FLASH_BIN := $(FLASH_BIN_AVR)
+    FLASH_TOOL := $(FLASH_TOOL_AVR)
 
     C_FLAGS += \
     -fpack-struct
@@ -106,7 +106,7 @@ else ifeq ($(ARCH),stm32)
     CXX := $(CPP_COMPILER_ARM)
     LINKER := $(LINKER_ARM)
     ASSEMBLER := $(C_COMPILER_ARM)
-    FLASH_BIN := $(FLASH_BIN_ARM)
+    FLASH_TOOL := $(FLASH_TOOL_ARM)
 
     COMMON_FLAGS += \
     -mcpu=$(CPU) \
@@ -270,21 +270,20 @@ $(BUILD_DIR)/%.s.o: %.s
 
 flash:
 ifeq ($(ARCH), avr)
-ifeq ($(AVRISP), 1)
-	@$(FLASH_BIN) -p $(MCU) -P usb -c avrispmkII -C /etc/avrdude.conf -e -V -u -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
-	@$(FLASH_BIN) -p $(MCU) -P usb -c avrispmkII -C /etc/avrdude.conf -U flash:w:$(BUILD_DIR_BASE)/merged/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex
-	@$(FLASH_BIN) -p $(MCU) -P usb -c avrispmkII -C /etc/avrdude.conf -V -u -U lock:w:$(FUSE_LOCK):m
+ifeq ($(FLASH_TOOL), arduino)
+	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -C /etc/avrdude.conf -e -V -u -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
+	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -C /etc/avrdude.conf -U flash:w:$(BUILD_DIR_BASE)/merged/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex
+	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -C /etc/avrdude.conf -V -u -U lock:w:$(FUSE_LOCK):m
+else ifeq ($(FLASH_TOOL), avrispmkII)
+	@avrdude -p $(MCU) -P usb -c avrispmkII -C /etc/avrdude.conf -e -V -u -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
+	@avrdude -p $(MCU) -P usb -c avrispmkII -C /etc/avrdude.conf -U flash:w:$(BUILD_DIR_BASE)/merged/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex
+	@avrdude -p $(MCU) -P usb -c avrispmkII -C /etc/avrdude.conf -V -u -U lock:w:$(FUSE_LOCK):m
 else
-	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -C /etc/avrdude.conf -e -V -u -U lock:w:$(FUSE_UNLOCK):m -U efuse:w:$(FUSE_EXT):m -U hfuse:w:$(FUSE_HIGH):m -U lfuse:w:$(FUSE_LOW):m
-	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -C /etc/avrdude.conf -U flash:w:$(BUILD_DIR_BASE)/merged/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex
-	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -C /etc/avrdude.conf -V -u -U lock:w:$(FUSE_LOCK):m
+	$(error Unsupported flash tool specified)
 endif
 else
-	st-flash write $(BUILD_DIR)/$(TARGET).hex $(BOOT_START_ADDR)
-endif
-
-flash-bmp:
-	$(FLASH_BIN) -nx --batch \
+ifeq ($(FLASH_TOOL), bmp)
+	@gdb -nx --batch \
 	-ex 'target extended-remote /dev/$(PORT)' \
 	-ex 'monitor swdp_scan' \
 	-ex 'attach 1' \
@@ -292,13 +291,18 @@ flash-bmp:
 	-ex 'compare-sections' \
 	-ex 'kill' \
 	$(BUILD_DIR_BASE)/merged/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex
-
-flash-dfu:
+else ifeq ($(FLASH_TOOL), stlink)
+	@st-flash write $(BUILD_DIR)/$(TARGET).hex $(BOOT_START_ADDR)
+else ifeq ($(FLASH_TOOL), dfu)
 	@sudo dfu-util -d 0483:df11 -a 0 -i 0 -s 0x8000000:leave -D $(BUILD_DIR_BASE)/merged/$(TARGET)/$(BUILD_TYPE)/$(TARGET).bin
+else
+	$(error Unsupported flash tool specified)
+endif
+endif
 
 ifeq ($(ARCH), avr)
 flashread:
-	@$(FLASH_BIN) -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -C /etc/avrdude.conf -U flash:r:readcontents.bin:r
+	@avrdude -p $(MCU) -P /dev/$(PORT) -b 19200 -c avrisp -C /etc/avrdude.conf -U flash:r:readcontents.bin:r
 endif
 
 format:

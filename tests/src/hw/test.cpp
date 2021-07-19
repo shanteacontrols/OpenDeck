@@ -10,11 +10,7 @@
 
 namespace
 {
-#ifdef STM32_EMU_EEPROM
-    const std::string flash_cmd = "make -C ../src flash-bmp";
-#else
     const std::string flash_cmd = "make -C ../src flash";
-#endif
 
     enum class powerCycleType_t : uint8_t
     {
