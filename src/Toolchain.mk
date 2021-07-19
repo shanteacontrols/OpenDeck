@@ -13,11 +13,11 @@ endif
 C_COMPILER_AVR := avr-gcc
 CPP_COMPILER_AVR := avr-g++
 LINKER_AVR := avr-g++
-FLASH_BIN_AVR := avrdude
+FLASH_TOOL_AVR := arduino
 C_COMPILER_ARM := arm-none-eabi-gcc
 CPP_COMPILER_ARM := arm-none-eabi-g++
 LINKER_ARM := arm-none-eabi-g++
-FLASH_BIN_ARM := gdb
+FLASH_TOOL_ARM := bmp
 C_COMPILER_NATIVE := gcc
 CPP_COMPILER_NATIVE := g++
 LINKER_NATIVE := g++
@@ -31,15 +31,15 @@ $(FIND) \
 srec_cat \
 $(C_COMPILER_AVR) \
 $(CPP_COMPILER_AVR) \
-$(FLASH_BIN_AVR) \
 $(C_COMPILER_ARM) \
 $(CPP_COMPILER_ARM) \
-$(FLASH_BIN_ARM) \
 $(C_COMPILER_NATIVE) \
 $(CPP_COMPILER_NATIVE) \
 objcopy \
 $(YAML_PARSER) \
-$(SHA256SUM)
+$(SHA256SUM) \
+gdb \
+avrdude
 
 #don't allow running make at all if required packages don't exist on the system
 #don't run this if the user is root - it's very likely sudo is used for flashing in this case
