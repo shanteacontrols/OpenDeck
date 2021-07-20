@@ -160,6 +160,7 @@ namespace IO
         private:
         using adcConfig_t = struct
         {
+            const uint16_t adcMinValue;                 ///< Minimum raw ADC value.
             const uint16_t adcMaxValue;                 ///< Maxmimum raw ADC value.
             const uint16_t stepDiff14Bit;               ///< Minimum difference between two raw ADC readings to consider that value has been changed for 14-bit MIDI values.
             const uint16_t fsrMinValue;                 ///< Minimum raw ADC reading for FSR sensors.
@@ -170,6 +171,7 @@ namespace IO
         };
 
         adcConfig_t adc10bit = {
+            .adcMinValue              = 0,
             .adcMaxValue              = 1000,
             .stepDiff14Bit            = 1,
             .fsrMinValue              = 40,
@@ -180,6 +182,7 @@ namespace IO
         };
 
         adcConfig_t adc12bit = {
+            .adcMinValue              = 0,
             .adcMaxValue              = 4000,
             .stepDiff14Bit            = 2,
             .fsrMinValue              = 160,

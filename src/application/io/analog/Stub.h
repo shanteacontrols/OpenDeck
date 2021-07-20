@@ -38,6 +38,7 @@ namespace IO
 
         typedef struct
         {
+            const uint16_t adcMinValue;                 ///< Minimum raw ADC value.
             const uint16_t adcMaxValue;                 ///< Maxmimum raw ADC value.
             const uint16_t stepDiff14Bit;               ///< Minimum difference between two raw ADC readings to consider that value has been changed for 14-bit MIDI values.
             const uint16_t fsrMinValue;                 ///< Minimum raw ADC reading for FSR sensors.
