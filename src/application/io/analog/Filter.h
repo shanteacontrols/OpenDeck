@@ -32,6 +32,23 @@ limitations under the License.
 #define MEDIAN_MIDDLE_VALUE 3
 #endif
 
+//Define if analog MIDI values can't reach 0.
+//If this is defined, 0 won't be used as minimum
+//ADC value. Instead, minimum value will be
+//specified percentage from maximum available ADC value
+//(defined in adcConfig_t struct).
+#ifndef ADC_LOWER_OFFSET_PERCENTAGE
+#define ADC_LOWER_OFFSET_PERCENTAGE 0
+#endif
+
+//Define if analog MIDI values can't reach 127.
+//If this is defined, specified percentage will be
+//subtracted from maximum available ADC value
+//(defined in adcConfig_t).
+#ifndef ADC_UPPER_OFFSET_PERCENTAGE
+#define ADC_UPPER_OFFSET_PERCENTAGE 0
+#endif
+
 namespace IO
 {
     class AnalogFilter : public IO::Analog::Filter
@@ -41,7 +58,18 @@ namespace IO
             : _adcType(adcType)
             , _adcConfig(adcType == IO::Analog::adcType_t::adc10bit ? adc10bit : adc12bit)
             , _stepDiff7Bit(static_cast<uint16_t>(adcType) / 128)
-        {}
+        {
+            _adcMinValueOffset = _adcConfig.adcMinValue;
+            _adcMaxValueOffset = _adcConfig.adcMaxValue;
+
+#if ADC_LOWER_OFFSET_PERCENTAGE > 0
+            _adcMinValueOffset = static_cast<double>(_adcConfig.adcMaxValue) * static_cast<double>(ADC_LOWER_OFFSET_PERCENTAGE / 100.0);
+#endif
+
+#if ADC_UPPER_OFFSET_PERCENTAGE > 0
+            _adcMaxValueOffset = static_cast<double>(_adcConfig.adcMaxValue) - static_cast<double>(adcMaxValue * static_cast<double>(ADC_UPPER_OFFSET_PERCENTAGE / 100.0));
+#endif
+        }
 
         Analog::adcType_t adcType() override
         {
@@ -50,7 +78,11 @@ namespace IO
 
         bool isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) override
         {
-            value = CONSTRAIN(value, 0, _adcConfig.adcMaxValue);
+            //use offset adc values for adc values only, not for touchscreen
+            const uint32_t minValue = index < MAX_NUMBER_OF_ANALOG ? _adcMinValueOffset : _adcConfig.adcMinValue;
+            const uint32_t maxValue = index < MAX_NUMBER_OF_ANALOG ? _adcMaxValueOffset : _adcConfig.adcMaxValue;
+
+            value = CONSTRAIN(value, minValue, maxValue);
 
             //avoid filtering in this case for faster response
             if (type == Analog::type_t::button)
@@ -118,8 +150,8 @@ namespace IO
                 filteredValue = value;
             }
 
-            const auto midiValue    = core::misc::mapRange(static_cast<uint32_t>(filteredValue), static_cast<uint32_t>(0), static_cast<uint32_t>(_adcConfig.adcMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
-            const auto oldMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(_lastStableValue[index]), static_cast<uint32_t>(0), static_cast<uint32_t>(_adcConfig.adcMaxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
+            const auto midiValue    = core::misc::mapRange(static_cast<uint32_t>(filteredValue), static_cast<uint32_t>(minValue), static_cast<uint32_t>(maxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
+            const auto oldMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(_lastStableValue[index]), static_cast<uint32_t>(minValue), static_cast<uint32_t>(maxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
 
             if (midiValue == oldMIDIvalue)
                 return false;
@@ -196,6 +228,8 @@ namespace IO
         adcConfig_t&                _adcConfig;
         const uint16_t              _stepDiff7Bit;
 
+        uint32_t                  _adcMinValueOffset                                                                = 0;
+        uint32_t                  _adcMaxValueOffset                                                                = 0;
         static constexpr uint32_t FAST_FILTER_ENABLE_AFTER_MS                                                       = 100;
         uint16_t                  _analogSample[MAX_NUMBER_OF_ANALOG][MEDIAN_SAMPLE_COUNT]                          = {};
         size_t                    _medianSampleCounter[MAX_NUMBER_OF_ANALOG]                                        = {};
