@@ -78,14 +78,9 @@ namespace Board
             }
 
 #ifdef TOTAL_UNUSED_IO
-            const core::io::mcuPin_t& unusedPin(uint8_t index)
+            const Board::detail::io::unusedIO_t& unusedPin(uint8_t index)
             {
                 return unusedPins[index];
-            }
-
-            bool unusedPinState(uint8_t index)
-            {
-                return unusedPinsStates[index];
             }
 #endif
         }

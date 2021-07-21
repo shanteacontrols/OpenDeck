@@ -208,9 +208,13 @@ namespace Board
 #ifdef TOTAL_UNUSED_IO
                 for (int i = 0; i < TOTAL_UNUSED_IO; i++)
                 {
-                    core::io::mcuPin_t pin = detail::map::unusedPin(i);
-                    CORE_IO_CONFIG({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::outputPP });
-                    CORE_IO_SET_STATE(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), detail::map::unusedPinState(i));
+                    Board::detail::io::unusedIO_t unusedPin = detail::map::unusedPin(i);
+
+                    CORE_IO_CONFIG({ unusedPin.pin.port, unusedPin.pin.index, unusedPin.pin.mode });
+
+                    //for input mode, pull up is activated so no need to set state via CORE_IO_SET_STATE
+                    if (unusedPin.pin.mode == core::io::pinMode_t::outputPP)
+                        CORE_IO_SET_STATE(CORE_IO_MCU_PIN_PORT(unusedPin.pin), CORE_IO_MCU_PIN_INDEX(unusedPin.pin), unusedPin.state);
                 }
 #endif
 #endif

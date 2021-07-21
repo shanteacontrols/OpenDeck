@@ -166,19 +166,19 @@
   -
     port: "H"
     index: 5
-    state: "low"
+    mode: "out-low"
   -
     port: "B"
     index: 4
-    state: "low"
+    mode: "out-low"
   -
     port: "B"
     index: 5
-    state: "low"
+    mode: "out-low"
   -
     port: "B"
     index: 6
-    state: "low"
+    mode: "out-low"
   usbLink:
     type: "slave"
     uartChannel: 0

@@ -308,9 +308,10 @@ namespace Board
 #ifdef TOTAL_UNUSED_IO
                 for (int i = 0; i < TOTAL_UNUSED_IO; i++)
                 {
-                    core::io::mcuPin_t pin = detail::map::unusedPin(i);
-                    CORE_IO_CONFIG(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::output);
-                    CORE_IO_SET_STATE(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), detail::map::unusedPinState(i));
+                    Board::detail::io::unusedIO_t unusedPin = detail::map::unusedPin(i);
+
+                    CORE_IO_CONFIG(CORE_IO_MCU_PIN_PORT(unusedPin.pin), CORE_IO_MCU_PIN_INDEX(unusedPin.pin), unusedPin.pin.mode);
+                    CORE_IO_SET_STATE(CORE_IO_MCU_PIN_PORT(unusedPin.pin), CORE_IO_MCU_PIN_INDEX(unusedPin.pin), unusedPin.state);
                 }
 #endif
             }

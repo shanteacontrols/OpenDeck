@@ -125,7 +125,8 @@ then
 fi
 
 {
-    printf "%s\n\n" "#include \"Pins.h\""
+    printf "%s\n" "#include \"Pins.h\""
+    printf "%s\n\n" "#include \"board/Internal.h\""
     printf "%s\n\n" "namespace {"
 } >> "$OUT_FILE_SOURCE_PINS"
 
@@ -735,34 +736,69 @@ unused_pins=$($YAML_PARSER "$TARGET_DEF_FILE" unused-io --length)
 
 if [[ $unused_pins -ne 0 ]]
 then
-    printf "\n%s\n" "const core::io::mcuPin_t unusedPins[TOTAL_UNUSED_IO] = {" >> "$OUT_FILE_SOURCE_PINS"
+    printf "\n%s\n" "const Board::detail::io::unusedIO_t unusedPins[TOTAL_UNUSED_IO] = {" >> "$OUT_FILE_SOURCE_PINS"
 
     for ((i=0; i<unused_pins; i++))
     do
         port=$($YAML_PARSER "$TARGET_DEF_FILE" unused-io.["$i"].port)
         index=$($YAML_PARSER "$TARGET_DEF_FILE" unused-io.["$i"].index)
+        mode=$($YAML_PARSER "$TARGET_DEF_FILE" unused-io.["$i"].mode)
 
         {
             printf "%s\n" "#define UNUSED_PORT_${i} CORE_IO_PORT(${port})"
             printf "%s\n" "#define UNUSED_PIN_${i} CORE_IO_PORT_INDEX(${index})"
         } >> "$OUT_FILE_HEADER_PINS"
 
-        printf "%s\n" "CORE_IO_MCU_PIN_DEF(UNUSED_PORT_${i}, UNUSED_PIN_${i})," >> "$OUT_FILE_SOURCE_PINS"
-    done
+        printf "%s" "{ .pin = { .port= UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}, " >> "$OUT_FILE_SOURCE_PINS"
 
-    printf "%s\n" "};" >> "$OUT_FILE_SOURCE_PINS"
-
-    printf "\n%s\n" "const bool unusedPinsStates[TOTAL_UNUSED_IO] = {" >> "$OUT_FILE_SOURCE_PINS"
-
-    for ((i=0; i<unused_pins; i++))
-    do
-        state=$($YAML_PARSER "$TARGET_DEF_FILE" unused-io.["$i"].state)
-
-        if [[ $state == "high" ]]
+        if [[ $arch == "stm32" ]]
         then
-            printf "%s\n" "true," >> "$OUT_FILE_SOURCE_PINS"
+            case $mode in
+                "in-pull")
+                    printf "%s\n" ".mode = core::io::pinMode_t::input, .pull = core::io::pullMode_t::up, }," >> "$OUT_FILE_SOURCE_PINS"
+                    printf "%s\n" ".state = true, }," >> "$OUT_FILE_SOURCE_PINS"
+                    ;;
+
+                "out-low")
+                    printf "%s\n" ".mode = core::io::pinMode_t::outputPP, .pull = core::io::pullMode_t::none, }," >> "$OUT_FILE_SOURCE_PINS"
+                    printf "%s\n" ".state = false, }," >> "$OUT_FILE_SOURCE_PINS"
+                    ;;
+
+                "out-high")
+                    printf "%s\n" ".mode = core::io::pinMode_t::outputPP, .pull = core::io::pullMode_t::none, }," >> "$OUT_FILE_SOURCE_PINS"
+                    printf "%s\n" ".state = true, }," >> "$OUT_FILE_SOURCE_PINS"
+                    ;;
+
+                *)
+                    echo "Incorrect unused pin mode specified"
+                    exit 1
+                    ;;
+            esac
         else
-            printf "%s\n" "false," >> "$OUT_FILE_SOURCE_PINS"
+            if [[ $arch == "avr" ]]
+            then
+                case $mode in
+                    "in-pull")
+                        printf "%s\n" ".mode = core::io::pinMode_t::input, }," >> "$OUT_FILE_SOURCE_PINS"
+                        printf "%s\n" ".state = true, }," >> "$OUT_FILE_SOURCE_PINS"
+                        ;;
+
+                    "out-low")
+                        printf "%s\n" ".mode = core::io::pinMode_t::output, }," >> "$OUT_FILE_SOURCE_PINS"
+                        printf "%s\n" ".state = false, }," >> "$OUT_FILE_SOURCE_PINS"
+                        ;;
+
+                    "out-high")
+                        printf "%s\n" ".mode = core::io::pinMode_t::output, }," >> "$OUT_FILE_SOURCE_PINS"
+                        printf "%s\n" ".state = true, }," >> "$OUT_FILE_SOURCE_PINS"
+                        ;;
+
+                    *)
+                        echo "Incorrect unused pin mode specified"
+                        exit 1
+                        ;;
+                esac
+            fi
         fi
     done
 

@@ -109,6 +109,44 @@ namespace Board
             void indicateTxComplete(uint8_t channel);
         }    // namespace UART
 
+        namespace io
+        {
+            /// Continuously reads all digital inputs.
+            void checkDigitalInputs();
+
+            /// Removes all readings from digital inputs.
+            void flushInputReadings();
+
+            /// Checks if digital outputs need to be updated.
+            void checkDigitalOutputs();
+
+            /// Checks if indicator LEDs need to be turned on or off.
+            void checkIndicators();
+
+            /// Flashes integrated LEDs on board on startup to indicate that application is about to be loaded.
+            void ledFlashStartup();
+
+            /// MCU-specific delay routine used when setting 74HC595 shift register state.
+            void sr595wait();
+
+            /// MCU-specific delay routine used when setting 74HC165 shift register state.
+            void sr165wait();
+
+            /// Used to temporarily configure all common multiplexer pins as outputs to minimize
+            /// the effect of channel-to-channel crosstalk.
+            void dischargeMux();
+
+            /// Used to restore pin setup for specified multiplexer.
+            void restoreMux(uint8_t muxIndex);
+
+            /// Used as an descriptor for unused pins.
+            typedef struct
+            {
+                core::io::mcuPin_t pin;
+                bool               state;
+            } unusedIO_t;
+        }    // namespace io
+
         namespace map
         {
             typedef struct
@@ -155,10 +193,7 @@ namespace Board
             uint8_t ledIndex(uint8_t index);
 
             /// Used to retrieve unused port and pin for a given index.
-            const core::io::mcuPin_t& unusedPin(uint8_t index);
-
-            /// Used to retrieve state of unused port and pin for a given index.
-            bool unusedPinState(uint8_t index);
+            const Board::detail::io::unusedIO_t& unusedPin(uint8_t index);
 
             /// Retrieves flash page descriptor containing page address and size.
             /// param [in]: pageIndex Index of flash sector for which to retrieve address and size.
@@ -204,37 +239,6 @@ namespace Board
             bool i2cChannel(I2C_TypeDef* interface, uint8_t& channel);
 #endif
         }    // namespace map
-
-        namespace io
-        {
-            /// Continuously reads all digital inputs.
-            void checkDigitalInputs();
-
-            /// Removes all readings from digital inputs.
-            void flushInputReadings();
-
-            /// Checks if digital outputs need to be updated.
-            void checkDigitalOutputs();
-
-            /// Checks if indicator LEDs need to be turned on or off.
-            void checkIndicators();
-
-            /// Flashes integrated LEDs on board on startup to indicate that application is about to be loaded.
-            void ledFlashStartup();
-
-            /// MCU-specific delay routine used when setting 74HC595 shift register state.
-            void sr595wait();
-
-            /// MCU-specific delay routine used when setting 74HC165 shift register state.
-            void sr165wait();
-
-            /// Used to temporarily configure all common multiplexer pins as outputs to minimize
-            /// the effect of channel-to-channel crosstalk.
-            void dischargeMux();
-
-            /// Used to restore pin setup for specified multiplexer.
-            void restoreMux(uint8_t muxIndex);
-        }    // namespace io
 
         namespace isrHandling
         {
