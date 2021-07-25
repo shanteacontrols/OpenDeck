@@ -22,6 +22,8 @@ limitations under the License.
 #include "board/Board.h"
 #include "board/Internal.h"
 #include "core/src/arch/avr/Misc.h"
+#include "core/src/general/Atomic.h"
+#include "MCU.h"
 
 namespace Board
 {
@@ -47,25 +49,35 @@ namespace Board
 
             bool erasePage(size_t index)
             {
-                boot_page_erase(index * pageSize(index));
-                boot_spm_busy_wait();
+                ATOMIC_SECTION
+                {
+                    boot_page_erase(index * pageSize(index));
+                    boot_spm_busy_wait();
+                }
 
                 return true;
             }
 
             void writePage(size_t index)
             {
-                //write the filled flash page to memory
-                boot_page_write(index * pageSize(index));
-                boot_spm_busy_wait();
+                ATOMIC_SECTION
+                {
+                    //write the filled flash page to memory
+                    boot_page_write(index * pageSize(index));
+                    boot_spm_busy_wait();
 
-                //re-enable RWW section
-                boot_rww_enable();
+                    //re-enable RWW section
+                    boot_rww_enable();
+                }
             }
 
             bool write16(uint32_t address, uint16_t data)
             {
-                boot_page_fill(address, data);
+                ATOMIC_SECTION
+                {
+                    boot_page_fill(address, data);
+                }
+
                 return true;
             }
 
