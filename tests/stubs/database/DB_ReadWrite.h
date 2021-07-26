@@ -7,6 +7,7 @@
 #include "EmuEEPROM/src/EmuEEPROM.h"
 #include "board/Board.h"
 #include "board/Internal.h"
+#include "MCU.h"
 
 class DBstorageMock : public LESSDB::StorageAccess
 {
@@ -50,6 +51,6 @@ class DBstorageMock : public LESSDB::StorageAccess
     EmuEEPROMStorageAccess storageMock;
     EmuEEPROM              emuEEPROM = EmuEEPROM(storageMock, false);
 #else
-    std::array<uint8_t, DATABASE_SIZE> memoryArray;
+    std::array<uint8_t, EEPROM_END> memoryArray;
 #endif
 };

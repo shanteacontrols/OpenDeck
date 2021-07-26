@@ -7,7 +7,7 @@ uint32_t DBstorageMock::size()
     //first 4 bytes are reserved for page status
     return storageMock.pageSize() - 4;
 #else
-    return DATABASE_SIZE;
+    return memoryArray.size();
 #endif
 }
 
