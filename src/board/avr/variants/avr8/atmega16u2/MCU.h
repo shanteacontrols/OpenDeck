@@ -18,3 +18,6 @@ limitations under the License.
 
 #define MAX_UART_INTERFACES         1
 #define BOOTLOADER_PAGE_START_INDEX 0
+#define FLASH_PAGE_SIZE             128
+#define FLASH_END                   0x3FFF
+#define EEPROM_END                  0x1FF

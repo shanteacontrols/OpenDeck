@@ -16,15 +16,15 @@ limitations under the License.
 
 */
 
-#include <avr/io.h>
 #include "board/Board.h"
 #include "board/Internal.h"
+#include "MCU.h"
 
 namespace
 {
     Board::detail::map::flashPage_t pageDescriptor = {
         .address = 0,
-        .size    = SPM_PAGESIZE,
+        .size    = FLASH_PAGE_SIZE,
     };
 }
 
@@ -39,9 +39,9 @@ namespace Board
                 //all flash pages on avr have the same size
                 //calculate address only
 
-                uint32_t address = pageIndex * SPM_PAGESIZE;
+                uint32_t address = pageIndex * FLASH_PAGE_SIZE;
 
-                if (address > FLASHEND)
+                if (address > FLASH_END)
                     pageDescriptor.address = 0;
                 else
                     pageDescriptor.address = address;

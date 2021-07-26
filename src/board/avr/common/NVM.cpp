@@ -17,8 +17,8 @@ limitations under the License.
 */
 
 #include <avr/eeprom.h>
-#include <avr/io.h>
 #include "board/Board.h"
+#include "MCU.h"
 
 namespace Board
 {
@@ -32,8 +32,8 @@ namespace Board
 
         uint32_t size()
         {
-            //last eeprom address stores type of firmare to boot once in bootloader
-            return E2END;
+            //last eeprom address stores type of firmware to boot once in bootloader
+            return EEPROM_END;
         }
 
         bool read(uint32_t address, int32_t& value, parameterType_t type)

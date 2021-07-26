@@ -16,7 +16,6 @@ limitations under the License.
 
 */
 
-#include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <avr/boot.h>
 #include "board/Board.h"
@@ -33,18 +32,18 @@ namespace Board
         {
             bool isInRange(uint32_t address)
             {
-                return address <= FLASHEND;
+                return address <= FLASH_END;
             }
 
             uint32_t size()
             {
-                return FLASHEND + static_cast<uint32_t>(1);
+                return FLASH_END + static_cast<uint32_t>(1);
             }
 
             uint32_t pageSize(size_t index)
             {
                 //always constant on avr
-                return SPM_PAGESIZE;
+                return FLASH_PAGE_SIZE;
             }
 
             bool erasePage(size_t index)

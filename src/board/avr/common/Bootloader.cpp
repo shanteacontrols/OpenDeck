@@ -16,7 +16,6 @@ limitations under the License.
 
 */
 
-#include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 #include "board/Board.h"
@@ -25,9 +24,10 @@ limitations under the License.
 #include "core/src/arch/avr/Misc.h"
 #include "core/src/general/Interrupt.h"
 #include "core/src/general/Timing.h"
+#include "MCU.h"
 
 /// Location at which reboot type is written in EEPROM when initiating software reset.
-#define REBOOT_VALUE_EEPROM_LOCATION E2END
+#define REBOOT_VALUE_EEPROM_LOCATION EEPROM_END
 
 namespace Board
 {
