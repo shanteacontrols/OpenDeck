@@ -40,8 +40,6 @@
     - 11
   analog:
     extReference: true
-    offset:
-      lower: 8
     type: "4067"
     multiplexers: 1
     pins:
