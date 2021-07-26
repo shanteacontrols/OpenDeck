@@ -237,7 +237,8 @@
                 "ringbuffer",
                 "system",
                 "leds",
-                "hw"
+                "hw",
+                "bootloader"
             ]
         },
         {
