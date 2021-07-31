@@ -18,21 +18,6 @@ limitations under the License.
 
 #pragma once
 
-#include "descriptors/types/Helpers.h"
+#include "stm32f4xx_hal.h"
 
-#ifdef __AVR__
-#include <avr/pgmspace.h>
-#include "LUFA/Drivers/USB/USB.h"
-
-#define UNICODE_STRING(string) L##string
-#else
-#ifdef FW_CDC
-#include "descriptors/types/CDCDescriptors.h"
-#else
-#include "descriptors/types/AudioDescriptors.h"
-#include "descriptors/types/MIDIDescriptors.h"
-#include "descriptors/types/CDCDescriptors.h"
-#endif
-
-#define UNICODE_STRING(string) u##string
-#endif
+extern PCD_HandleTypeDef hpcd_USB_OTG_FS;

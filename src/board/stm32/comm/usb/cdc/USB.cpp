@@ -47,7 +47,7 @@ namespace
 
     USBD_HandleTypeDef hUsbDeviceFS;
     cdcData_t          cdcData;
-    volatile uint8_t   rxBuffer[CDC_TXRX_EPSIZE];
+    volatile uint8_t   rxBuffer[CDC_IN_OUT_EPSIZE];
 
     //rxBuffer is overriden every time RxCallback is called
     //save results in ring buffer and remove them as needed in readCDC
@@ -61,12 +61,12 @@ namespace
         cdcData.RxState = 0;
 
         /* Open EP IN */
-        (void)USBD_LL_OpenEP(pdev, CDC_IN_EPADDR, USB_EP_TYPE_BULK, CDC_TXRX_EPSIZE);
+        (void)USBD_LL_OpenEP(pdev, CDC_IN_EPADDR, USB_EP_TYPE_BULK, CDC_IN_OUT_EPSIZE);
 
         pdev->ep_in[CDC_IN_EPADDR & 0xFU].is_used = 1U;
 
         /* Open EP OUT */
-        (void)USBD_LL_OpenEP(pdev, CDC_OUT_EPADDR, USB_EP_TYPE_BULK, CDC_TXRX_EPSIZE);
+        (void)USBD_LL_OpenEP(pdev, CDC_OUT_EPADDR, USB_EP_TYPE_BULK, CDC_IN_OUT_EPSIZE);
 
         pdev->ep_out[CDC_OUT_EPADDR & 0xFU].is_used           = 1U;
         pdev->ep_in[CDC_NOTIFICATION_EPADDR & 0xFU].bInterval = CDC_POLLING_TIME;
@@ -76,7 +76,7 @@ namespace
         pdev->ep_in[CDC_NOTIFICATION_EPADDR & 0xFU].is_used = 1U;
 
         /* Prepare Out endpoint to receive next packet */
-        (void)USBD_LL_PrepareReceive(pdev, CDC_OUT_EPADDR, (uint8_t*)rxBuffer, CDC_TXRX_EPSIZE);
+        (void)USBD_LL_PrepareReceive(pdev, CDC_OUT_EPADDR, (uint8_t*)rxBuffer, CDC_IN_OUT_EPSIZE);
 
         return (uint8_t)USBD_OK;
     }
@@ -229,7 +229,7 @@ namespace
         for (uint32_t i = 0; i < length; i++)
             rxBufferRing.insert(static_cast<char>(rxBuffer[i]));
 
-        (void)USBD_LL_PrepareReceive(pdev, CDC_OUT_EPADDR, (uint8_t*)rxBuffer, CDC_TXRX_EPSIZE);
+        (void)USBD_LL_PrepareReceive(pdev, CDC_OUT_EPADDR, (uint8_t*)rxBuffer, CDC_IN_OUT_EPSIZE);
 
         return (uint8_t)USBD_OK;
     }

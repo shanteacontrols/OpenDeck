@@ -22,8 +22,10 @@ limitations under the License.
 
 #ifdef FW_CDC
 #include "cdc/Descriptors.h"
-#else
+#elif defined(FW_BOOT)
 #include "midi/Descriptors.h"
+#else
+#include "midi_cdc_dual/Descriptors.h"
 #endif
 
 #ifdef __cplusplus

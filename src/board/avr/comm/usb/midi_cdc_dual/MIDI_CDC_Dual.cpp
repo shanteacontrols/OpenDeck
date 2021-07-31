@@ -23,7 +23,7 @@ limitations under the License.
 
 namespace
 {
-    /// MIDI Class Device Mode Configuration and State Structure.
+    USB_ClassInfo_CDC_Device_t  CDC_Interface;
     USB_ClassInfo_MIDI_Device_t MIDI_Interface;
 }    // namespace
 
@@ -32,9 +32,8 @@ namespace
 /// of the USB device after enumeration - the device endpoints are configured and the MIDI management task started.
 extern "C" void EVENT_USB_Device_ConfigurationChanged(void)
 {
-    /* Setup MIDI Data Endpoints */
-    Endpoint_ConfigureEndpoint(MIDI_STREAM_IN_EPADDR, USB_EP_TYPE_BULK, MIDI_IN_OUT_EPSIZE, 1);
-    Endpoint_ConfigureEndpoint(MIDI_STREAM_OUT_EPADDR, USB_EP_TYPE_BULK, MIDI_IN_OUT_EPSIZE, 1);
+    CDC_Device_ConfigureEndpoints(&CDC_Interface);
+    MIDI_Device_ConfigureEndpoints(&MIDI_Interface);
 }
 
 /** This function is called by the library when in device mode, and must be overridden (see library "USB Descriptors"
@@ -81,6 +80,12 @@ extern "C" uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue, const uint
     return Size;
 }
 
+extern "C" void EVENT_USB_Device_ControlRequest(void)
+{
+    CDC_Device_ProcessControlRequest(&CDC_Interface);
+    MIDI_Device_ProcessControlRequest(&MIDI_Interface);
+}
+
 namespace Board
 {
     namespace detail
@@ -89,6 +94,20 @@ namespace Board
         {
             void usb()
             {
+                CDC_Interface.Config.ControlInterfaceNumber = INTERFACE_ID_CDC_CCI;
+
+                CDC_Interface.Config.DataINEndpoint.Address = CDC_IN_EPADDR;
+                CDC_Interface.Config.DataINEndpoint.Size    = CDC_IN_OUT_EPSIZE;
+                CDC_Interface.Config.DataINEndpoint.Banks   = 1;
+
+                CDC_Interface.Config.DataOUTEndpoint.Address = CDC_OUT_EPADDR;
+                CDC_Interface.Config.DataOUTEndpoint.Size    = CDC_IN_OUT_EPSIZE;
+                CDC_Interface.Config.DataOUTEndpoint.Banks   = 1;
+
+                CDC_Interface.Config.NotificationEndpoint.Address = CDC_NOTIFICATION_EPADDR;
+                CDC_Interface.Config.NotificationEndpoint.Size    = CDC_NOTIFICATION_EPSIZE;
+                CDC_Interface.Config.NotificationEndpoint.Banks   = 1;
+
                 MIDI_Interface.Config.StreamingInterfaceNumber = INTERFACE_ID_AudioStream;
 
                 MIDI_Interface.Config.DataINEndpoint.Address = MIDI_STREAM_IN_EPADDR;

@@ -191,7 +191,7 @@ const USB_Descriptor_Configuration_t ConfigurationDescriptor = {
 
             .EndpointAddress   = MIDI_STREAM_OUT_EPADDR,
             .Attributes        = (USB_EP_TYPE_BULK | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
-            .EndpointSize      = MIDI_STREAM_EPSIZE,
+            .EndpointSize      = MIDI_IN_OUT_EPSIZE,
             .PollingIntervalMS = 0x05,
         },
 
@@ -219,7 +219,7 @@ const USB_Descriptor_Configuration_t ConfigurationDescriptor = {
 
             .EndpointAddress   = MIDI_STREAM_IN_EPADDR,
             .Attributes        = (USB_EP_TYPE_BULK | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
-            .EndpointSize      = MIDI_STREAM_EPSIZE,
+            .EndpointSize      = MIDI_IN_OUT_EPSIZE,
             .PollingIntervalMS = 0x05,
         },
 
@@ -254,7 +254,7 @@ const USB_Descriptor_Device_t DeviceDescriptor = {
     .Class                  = USB_CSCP_NoDeviceClass,
     .SubClass               = USB_CSCP_NoDeviceSubclass,
     .Protocol               = USB_CSCP_NoDeviceProtocol,
-    .Endpoint0Size          = FIXED_CONTROL_ENDPOINT_SIZE,
+    .Endpoint0Size          = CONTROL_EPSIZE,
     .VendorID               = USB_VENDOR_ID,
     .ProductID              = USB_PRODUCT_ID,
     .ReleaseNumber          = VERSION_BCD(0, 0, 1),

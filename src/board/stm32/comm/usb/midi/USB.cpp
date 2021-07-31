@@ -29,15 +29,13 @@ limitations under the License.
 /// Buffer size in bytes for incoming and outgoing MIDI messages (from device standpoint).
 
 #define RX_BUFFER_SIZE_RING 4096
-#define RX_BUFFER_SIZE_USB  128
-#define TX_BUFFER_SIZE_USB  128
 #define USB_TX_TIMEOUT_MS   2000
 
 namespace
 {
     USBD_HandleTypeDef hUsbDeviceFS;
     volatile bool      TxDone;
-    volatile uint8_t   rxBuffer[RX_BUFFER_SIZE_USB];
+    volatile uint8_t   rxBuffer[MIDI_IN_OUT_EPSIZE];
 
     //rxBuffer is overriden every time RxCallback is called
     //save results in ring buffer and remove them as needed in readMIDI
@@ -46,9 +44,9 @@ namespace
 
     uint8_t initCallback(USBD_HandleTypeDef* pdev, uint8_t cfgidx)
     {
-        USBD_LL_OpenEP(pdev, MIDI_STREAM_IN_EPADDR, USB_EP_TYPE_BULK, TX_BUFFER_SIZE_USB);
-        USBD_LL_OpenEP(pdev, MIDI_STREAM_OUT_EPADDR, USB_EP_TYPE_BULK, RX_BUFFER_SIZE_USB);
-        USBD_LL_PrepareReceive(pdev, MIDI_STREAM_OUT_EPADDR, (uint8_t*)(rxBuffer), RX_BUFFER_SIZE_USB);
+        USBD_LL_OpenEP(pdev, MIDI_STREAM_IN_EPADDR, USB_EP_TYPE_BULK, MIDI_IN_OUT_EPSIZE);
+        USBD_LL_OpenEP(pdev, MIDI_STREAM_OUT_EPADDR, USB_EP_TYPE_BULK, MIDI_IN_OUT_EPSIZE);
+        USBD_LL_PrepareReceive(pdev, MIDI_STREAM_OUT_EPADDR, (uint8_t*)(rxBuffer), MIDI_IN_OUT_EPSIZE);
         TxDone = true;
         return 0;
     }
@@ -73,7 +71,7 @@ namespace
         for (uint32_t i = 0; i < count; i++)
             rxBufferRing.insert(rxBuffer[i]);
 
-        USBD_LL_PrepareReceive(pdev, MIDI_STREAM_OUT_EPADDR, (uint8_t*)(rxBuffer), RX_BUFFER_SIZE_USB);
+        USBD_LL_PrepareReceive(pdev, MIDI_STREAM_OUT_EPADDR, (uint8_t*)(rxBuffer), MIDI_IN_OUT_EPSIZE);
         return 0;
     }
 

@@ -31,15 +31,26 @@
 #pragma once
 
 #include "board/common/comm/usb/Arch.h"
-#include "comm/usb/midi/Endpoints.h"
+#include "comm/usb/midi_cdc_dual/Endpoints.h"
 
-/** Type define for the device configuration descriptor structure. This must be defined in the
-    *  application code, as the configuration descriptor contains several sub-descriptors which
-    *  vary between devices, and which describe the device's usage to the host.
-    */
+#define CDC_POLLING_TIME 5
+
 typedef struct
 {
     USB_Descriptor_Configuration_Header_t Config;
+
+    // CDC Control Interface
+    USB_Descriptor_Interface_Association_t CDC_IAD;    //for composite usb device
+    USB_Descriptor_Interface_t             CDC_CCI_Interface;
+    USB_CDC_Descriptor_FunctionalHeader_t  CDC_Functional_Header;
+    USB_CDC_Descriptor_FunctionalACM_t     CDC_Functional_ACM;
+    USB_CDC_Descriptor_FunctionalUnion_t   CDC_Functional_Union;
+    USB_Descriptor_Endpoint_t              CDC_NotificationEndpoint;
+
+    // CDC Data Interface
+    USB_Descriptor_Interface_t CDC_DCI_Interface;
+    USB_Descriptor_Endpoint_t  CDC_DataOutEndpoint;
+    USB_Descriptor_Endpoint_t  CDC_DataInEndpoint;
 
     // MIDI Audio Control Interface
     USB_Descriptor_Interface_t          Audio_ControlInterface;
@@ -64,8 +75,10 @@ typedef struct
     */
 enum InterfaceDescriptors_t
 {
-    INTERFACE_ID_AudioControl = 0, /**< Audio control interface descriptor ID */
-    INTERFACE_ID_AudioStream  = 1, /**< Audio stream interface descriptor ID */
+    INTERFACE_ID_CDC_CCI      = 0, /**< CDC CCI interface descriptor ID */
+    INTERFACE_ID_CDC_DCI      = 1, /**< CDC DCI interface descriptor ID */
+    INTERFACE_ID_AudioControl = 2, /**< Audio control interface descriptor ID */
+    INTERFACE_ID_AudioStream  = 3, /**< Audio stream interface descriptor ID */
 };
 
 /** Enum for the device string descriptor IDs within the device. Each string descriptor should

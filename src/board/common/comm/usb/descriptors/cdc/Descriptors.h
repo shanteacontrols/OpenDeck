@@ -49,18 +49,7 @@ limitations under the License.
 #pragma once
 
 #include "board/common/comm/usb/Arch.h"
-
-/** Endpoint address of the CDC device-to-host notification IN endpoint. */
-#define CDC_NOTIFICATION_EPADDR (USB_ENDPOINT_DIR_IN | 2)
-
-/** Endpoint address of the IN endpoint. */
-#define CDC_IN_EPADDR (USB_ENDPOINT_DIR_IN | 1)
-
-/** Endpoint address of OUT endpoint. */
-#define CDC_OUT_EPADDR (USB_ENDPOINT_DIR_OUT | 1)
-
-/** Size in bytes of the CDC device-to-host notification IN endpoint. */
-#define CDC_NOTIFICATION_EPSIZE 8
+#include "comm/usb/cdc/Endpoints.h"
 
 #define CDC_POLLING_TIME 5
 

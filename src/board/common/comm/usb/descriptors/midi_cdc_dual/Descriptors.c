@@ -1,5 +1,13 @@
 /*
-  Copyright 2020  Dean Camera (dean [at] fourwalledcubicle [dot] com)
+             LUFA Library
+     Copyright (C) Dean Camera, 2015.
+
+  dean [at] fourwalledcubicle [dot] com
+           www.lufa-lib.org
+*/
+
+/*
+  Copyright 2015  Dean Camera (dean [at] fourwalledcubicle [dot] com)
 
   Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
@@ -46,31 +54,6 @@ limitations under the License.
 #include "USBnames.h"
 #include "core/src/general/Helpers.h"
 
-/** Device descriptor structure. This descriptor, located in FLASH memory, describes the overall
- *  device characteristics, including the supported USB version, control endpoint size and the
- *  number of device configurations. The descriptor is read out by the USB host when the enumeration
- *  process begins.
- */
-const USB_Descriptor_Device_t DeviceDescriptor = {
-    .Header = {
-        .Size = sizeof(USB_Descriptor_Device_t),
-        .Type = DTYPE_Device,
-    },
-
-    .USBSpecification       = VERSION_BCD(2, 0, 0),
-    .Class                  = CDC_CSCP_CDCClass,
-    .SubClass               = CDC_CSCP_NoSpecificSubclass,
-    .Protocol               = CDC_CSCP_NoSpecificProtocol,
-    .Endpoint0Size          = CONTROL_EPSIZE,
-    .VendorID               = USB_VENDOR_ID,
-    .ProductID              = USB_PRODUCT_ID,
-    .ReleaseNumber          = VERSION_BCD(1, 0, 0),
-    .ManufacturerStrIndex   = STRING_ID_Manufacturer,
-    .ProductStrIndex        = STRING_ID_Product,
-    .SerialNumStrIndex      = STRING_ID_UID,
-    .NumberOfConfigurations = FIXED_NUM_CONFIGURATIONS
-};
-
 /** Configuration descriptor structure. This descriptor, located in FLASH memory, describes the usage
  *  of the device in one of its supported configurations, including information about any device interfaces
  *  and endpoints. The descriptor is read out by the USB host during the enumeration process when selecting
@@ -84,11 +67,27 @@ const USB_Descriptor_Configuration_t ConfigurationDescriptor = {
         },
 
         .TotalConfigurationSize = sizeof(USB_Descriptor_Configuration_t),
-        .TotalInterfaces        = 2,
+        .TotalInterfaces        = 4,
         .ConfigurationNumber    = 1,
         .ConfigurationStrIndex  = NO_DESCRIPTOR,
         .ConfigAttributes       = USB_CONF_DESC_ATTR_RESERVED,
         .MaxPowerConsumption    = USB_CONF_DESC_POWER_MA(100),
+    },
+
+    .CDC_IAD = {
+        .Header = {
+            .Size = sizeof(USB_Descriptor_Interface_Association_t),
+            .Type = DTYPE_InterfaceAssociation,
+        },
+
+        .FirstInterfaceIndex = INTERFACE_ID_CDC_CCI,
+        .TotalInterfaces     = 2,
+
+        .Class    = CDC_CSCP_CDCClass,
+        .SubClass = CDC_CSCP_ACMSubclass,
+        .Protocol = CDC_CSCP_ATCommandProtocol,
+
+        .IADStrIndex = NO_DESCRIPTOR,
     },
 
     .CDC_CCI_Interface = {
@@ -183,7 +182,196 @@ const USB_Descriptor_Configuration_t ConfigurationDescriptor = {
         .Attributes        = (USB_EP_TYPE_BULK | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
         .EndpointSize      = CDC_IN_OUT_EPSIZE,
         .PollingIntervalMS = CDC_POLLING_TIME,
+    },
+
+    .Audio_ControlInterface = {
+        .Header = {
+            .Size = sizeof(USB_Descriptor_Interface_t),
+            .Type = DTYPE_Interface,
+        },
+
+        .InterfaceNumber   = INTERFACE_ID_AudioControl,
+        .AlternateSetting  = 0,
+        .TotalEndpoints    = 0,
+        .Class             = AUDIO_CSCP_AudioClass,
+        .SubClass          = AUDIO_CSCP_ControlSubclass,
+        .Protocol          = AUDIO_CSCP_ControlProtocol,
+        .InterfaceStrIndex = NO_DESCRIPTOR,
+    },
+
+    .Audio_ControlInterface_SPC = {
+        .Header = {
+            .Size = sizeof(USB_Audio_Descriptor_Interface_AC_t),
+            .Type = AUDIO_DTYPE_CSInterface,
+        },
+
+        .Subtype         = AUDIO_DSUBTYPE_CSInterface_Header,
+        .ACSpecification = VERSION_BCD(1, 0, 0),
+        .TotalLength     = sizeof(USB_Audio_Descriptor_Interface_AC_t),
+        .InCollection    = 1,
+        .InterfaceNumber = INTERFACE_ID_AudioStream,
+    },
+
+    .Audio_StreamInterface = {
+        .Header = {
+            .Size = sizeof(USB_Descriptor_Interface_t),
+            .Type = DTYPE_Interface,
+        },
+
+        .InterfaceNumber   = INTERFACE_ID_AudioStream,
+        .AlternateSetting  = 0,
+        .TotalEndpoints    = 2,
+        .Class             = AUDIO_CSCP_AudioClass,
+        .SubClass          = AUDIO_CSCP_MIDIStreamingSubclass,
+        .Protocol          = AUDIO_CSCP_StreamingProtocol,
+        .InterfaceStrIndex = NO_DESCRIPTOR,
+    },
+
+    .Audio_StreamInterface_SPC = {
+        .Header = {
+            .Size = sizeof(USB_MIDI_Descriptor_AudioInterface_AS_t),
+            .Type = AUDIO_DTYPE_CSInterface,
+        },
+
+        .Subtype            = AUDIO_DSUBTYPE_CSInterface_General,
+        .AudioSpecification = VERSION_BCD(1, 0, 0),
+        .TotalLength        = (sizeof(USB_Descriptor_Configuration_t) - offsetof(USB_Descriptor_Configuration_t, Audio_StreamInterface_SPC)),
+    },
+
+    .MIDI_In_Jack_Emb = {
+        .Header = {
+            .Size = sizeof(USB_MIDI_Descriptor_InputJack_t),
+            .Type = AUDIO_DTYPE_CSInterface,
+        },
+
+        .Subtype      = AUDIO_DSUBTYPE_CSInterface_InputTerminal,
+        .JackType     = MIDI_JACKTYPE_Embedded,
+        .JackID       = 0x01,
+        .JackStrIndex = NO_DESCRIPTOR,
+    },
+
+    .MIDI_In_Jack_Ext = {
+        .Header = {
+            .Size = sizeof(USB_MIDI_Descriptor_InputJack_t),
+            .Type = AUDIO_DTYPE_CSInterface,
+        },
+
+        .Subtype      = AUDIO_DSUBTYPE_CSInterface_InputTerminal,
+        .JackType     = MIDI_JACKTYPE_External,
+        .JackID       = 0x02,
+        .JackStrIndex = NO_DESCRIPTOR,
+    },
+
+    .MIDI_Out_Jack_Emb = {
+        .Header = {
+            .Size = sizeof(USB_MIDI_Descriptor_OutputJack_t),
+            .Type = AUDIO_DTYPE_CSInterface,
+        },
+
+        .Subtype      = AUDIO_DSUBTYPE_CSInterface_OutputTerminal,
+        .JackType     = MIDI_JACKTYPE_Embedded,
+        .JackID       = 0x03,
+        .NumberOfPins = 1,
+        .SourceJackID = { 0x02 },
+        .SourcePinID  = { 0x01 },
+        .JackStrIndex = NO_DESCRIPTOR,
+    },
+
+    .MIDI_Out_Jack_Ext = {
+        .Header = {
+            .Size = sizeof(USB_MIDI_Descriptor_OutputJack_t),
+            .Type = AUDIO_DTYPE_CSInterface,
+        },
+
+        .Subtype      = AUDIO_DSUBTYPE_CSInterface_OutputTerminal,
+        .JackType     = MIDI_JACKTYPE_External,
+        .JackID       = 0x04,
+        .NumberOfPins = 1,
+        .SourceJackID = { 0x01 },
+        .SourcePinID  = { 0x01 },
+        .JackStrIndex = NO_DESCRIPTOR,
+    },
+
+    .MIDI_In_Jack_Endpoint = {
+        .Endpoint = {
+            .Header = {
+                .Size = sizeof(USB_Audio_Descriptor_StreamEndpoint_Std_t),
+                .Type = DTYPE_Endpoint,
+            },
+
+            .EndpointAddress   = MIDI_STREAM_OUT_EPADDR,
+            .Attributes        = (USB_EP_TYPE_BULK | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+            .EndpointSize      = MIDI_IN_OUT_EPSIZE,
+            .PollingIntervalMS = 0x05,
+        },
+
+        .Refresh            = 0,
+        .SyncEndpointNumber = 0,
+    },
+
+    .MIDI_In_Jack_Endpoint_SPC = {
+        .Header = {
+            .Size = sizeof(USB_MIDI_Descriptor_Jack_Endpoint_t),
+            .Type = AUDIO_DTYPE_CSEndpoint,
+        },
+
+        .Subtype            = AUDIO_DSUBTYPE_CSEndpoint_General,
+        .TotalEmbeddedJacks = 0x01,
+        .AssociatedJackID   = { 0x01 },
+    },
+
+    .MIDI_Out_Jack_Endpoint = {
+        .Endpoint = {
+            .Header = {
+                .Size = sizeof(USB_Audio_Descriptor_StreamEndpoint_Std_t),
+                .Type = DTYPE_Endpoint,
+            },
+
+            .EndpointAddress   = MIDI_STREAM_IN_EPADDR,
+            .Attributes        = (USB_EP_TYPE_BULK | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+            .EndpointSize      = MIDI_IN_OUT_EPSIZE,
+            .PollingIntervalMS = 0x05,
+        },
+
+        .Refresh            = 0,
+        .SyncEndpointNumber = 0,
+    },
+
+    .MIDI_Out_Jack_Endpoint_SPC = {
+        .Header = {
+            .Size = sizeof(USB_MIDI_Descriptor_Jack_Endpoint_t),
+            .Type = AUDIO_DTYPE_CSEndpoint,
+        },
+
+        .Subtype            = AUDIO_DSUBTYPE_CSEndpoint_General,
+        .TotalEmbeddedJacks = 0x01,
+        .AssociatedJackID   = { 0x03 },
     }
+};
+
+/** Device descriptor structure. This descriptor, located in FLASH memory, describes the overall
+ *  device characteristics, including the supported USB version, control endpoint size and the
+ *  number of device configurations. The descriptor is read out by the USB host when the enumeration
+ *  process begins.
+ */
+const USB_Descriptor_Device_t DeviceDescriptor = {
+    .Header = {
+        .Size = sizeof(USB_Descriptor_Device_t),
+        .Type = DTYPE_Device,
+    },
+
+    .USBSpecification       = VERSION_BCD(2, 0, 0),
+    .Class                  = USB_CSCP_IADDeviceClass,
+    .SubClass               = USB_CSCP_IADDeviceSubclass,
+    .Protocol               = USB_CSCP_IADDeviceProtocol,
+    .Endpoint0Size          = CONTROL_EPSIZE,
+    .VendorID               = USB_VENDOR_ID,
+    .ProductID              = USB_PRODUCT_ID,
+    .ReleaseNumber          = VERSION_BCD(0, 0, 1),
+    .ManufacturerStrIndex   = STRING_ID_Manufacturer,
+    .ProductStrIndex        = STRING_ID_Product,
+    .SerialNumStrIndex      = STRING_ID_UID,
+    .NumberOfConfigurations = FIXED_NUM_CONFIGURATIONS
 };
 
 /** Language descriptor structure. This descriptor, located in FLASH memory, is returned when the host requests

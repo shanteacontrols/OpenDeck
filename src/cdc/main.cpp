@@ -17,6 +17,7 @@ limitations under the License.
 */
 
 #include "board/Board.h"
+#include "board/common/comm/usb/descriptors/Descriptors.h"
 
 #ifndef UART_CHANNEL_TOUCHSCREEN
 #define UART_CHANNEL 0
@@ -26,14 +27,14 @@ limitations under the License.
 
 namespace
 {
-    char              _txBuffer[CDC_TXRX_EPSIZE];
+    char              _txBuffer[CDC_IN_OUT_EPSIZE];
     volatile uint32_t _baudrate;    //line handlers are called from interrupt
 
     void uartToUSB()
     {
         uint32_t size = 0;
 
-        for (size = 0; size < CDC_TXRX_EPSIZE; size++)
+        for (size = 0; size < CDC_IN_OUT_EPSIZE; size++)
         {
             uint8_t value;
 

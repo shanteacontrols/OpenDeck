@@ -202,6 +202,22 @@ typedef struct
     uint8_t InterfaceStrIndex; /**< Index of the string descriptor describing the interface. */
 } __attribute__((packed)) USB_Descriptor_Interface_t;
 
+typedef struct
+{
+    USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
+
+    uint8_t FirstInterfaceIndex; /**< Index of the first associated interface. */
+    uint8_t TotalInterfaces;     /**< Total number of associated interfaces. */
+
+    uint8_t Class;    /**< Interface class ID. */
+    uint8_t SubClass; /**< Interface subclass ID. */
+    uint8_t Protocol; /**< Interface protocol ID. */
+
+    uint8_t IADStrIndex; /**< Index of the string descriptor describing the
+                                      *   interface association.
+                                      */
+} __attribute__((packed)) USB_Descriptor_Interface_Association_t;
+
 /** \brief Standard USB Endpoint Descriptor (LUFA naming conventions).
  *
  *  Type define for a standard Endpoint Descriptor. This structure uses LUFA-specific element names

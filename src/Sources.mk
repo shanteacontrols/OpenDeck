@@ -7,6 +7,7 @@ INCLUDE_DIRS := \
 -I"$(BOARD_TARGET_DIR)/" \
 -I"application/" \
 -I"board/$(ARCH)/variants/$(MCU_FAMILY)" \
+-I"board/$(ARCH)" \
 -I"$(MCU_DIR)" \
 -I"./"
 
@@ -58,7 +59,8 @@ ifeq (,$(findstring gen,$(TYPE)))
             modules/lufa/LUFA/Drivers/USB/Core/Events.c \
             modules/lufa/LUFA/Drivers/USB/Core/USBTask.c \
             modules/lufa/LUFA/Drivers/USB/Class/Device/AudioClassDevice.c \
-            modules/lufa/LUFA/Drivers/USB/Class/Device/MIDIClassDevice.c
+            modules/lufa/LUFA/Drivers/USB/Class/Device/MIDIClassDevice.c \
+            modules/lufa/LUFA/Drivers/USB/Class/Device/CDCClassDevice.c
         endif
     else ifeq ($(ARCH),stm32)
         SOURCES += $(shell $(FIND) ./board/stm32/gen/common -regex '.*\.\(s\|c\)')
@@ -115,9 +117,9 @@ ifeq (,$(findstring gen,$(TYPE)))
         SOURCES += $(shell $(FIND) ./board/common/comm/USBMIDIOverSerial -type f -name "*.cpp")
 
         ifneq (,$(findstring USB_MIDI_SUPPORTED,$(DEFINES)))
-            SOURCES += $(shell $(FIND) ./board/$(ARCH)/comm/usb/midi -type f -name "*.cpp")
-            SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi -type f -name "*.cpp")
-            SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi -type f -name "*.c")
+            SOURCES += $(shell $(FIND) ./board/$(ARCH)/comm/usb/midi_cdc_dual -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi_cdc_dual -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi_cdc_dual -type f -name "*.c")
         endif
 
         ifneq (,$(findstring USE_UART,$(DEFINES)))

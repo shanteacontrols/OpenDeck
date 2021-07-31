@@ -18,21 +18,10 @@ limitations under the License.
 
 #pragma once
 
-#include "descriptors/types/Helpers.h"
+#include "board/common/comm/usb/descriptors/types/Helpers.h"
 
-#ifdef __AVR__
-#include <avr/pgmspace.h>
-#include "LUFA/Drivers/USB/USB.h"
+#define MIDI_STREAM_IN_EPADDR  (USB_ENDPOINT_DIR_IN | 1)
+#define MIDI_STREAM_OUT_EPADDR (USB_ENDPOINT_DIR_OUT | 2)
 
-#define UNICODE_STRING(string) L##string
-#else
-#ifdef FW_CDC
-#include "descriptors/types/CDCDescriptors.h"
-#else
-#include "descriptors/types/AudioDescriptors.h"
-#include "descriptors/types/MIDIDescriptors.h"
-#include "descriptors/types/CDCDescriptors.h"
-#endif
-
-#define UNICODE_STRING(string) u##string
-#endif
+#define CONTROL_EPSIZE     64
+#define MIDI_IN_OUT_EPSIZE 32

@@ -18,14 +18,13 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
+#include "board/stm32/comm/usb/USB.h"
 #include "stm32f4xx_hal.h"
 #include "core/src/general/Timing.h"
 #ifdef FW_CDC
 #include "board/common/comm/usb/descriptors/cdc/Descriptors.h"
 #endif
 #include "MCU.h"
-
-extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 //This function handles USB On The Go FS global interrupt.
 extern "C" void OTG_FS_IRQHandler(void)
