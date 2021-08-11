@@ -27,9 +27,7 @@ namespace
     const std::string usb_power_off_cmd        = "uhubctl -a off -l 1-1.4.4 > /dev/null && sleep 2 && uhubctl -a off -l 1-1.4 > /dev/null && sleep 2 && uhubctl -a off -l 1-1 > /dev/null";
     const std::string usb_power_on_cmd         = "uhubctl -a on -l 1-1 > /dev/null && sleep 2 && uhubctl -a on -l 1-1.4 > /dev/null && sleep 2 && uhubctl -a on -l 1-1.4 > /dev/null";
     const std::string sysex_fw_update_delay_ms = "5";
-    const std::string startup_delay_s          = "5";
-    const std::string eeprom_init_delay_s      = "10";
-    const std::string reboot_delay_s           = "7";
+    const std::string startup_delay_s          = "10";
     const std::string fw_build_dir             = "../src/build/merged/";
     const std::string fw_build_type_subdir     = "release/";
     const std::string temp_midi_data_location  = "/tmp/temp_midi_data";
@@ -92,7 +90,7 @@ namespace
             TEST_ASSERT_EQUAL_INT(0, test::wsystem(usb_power_off_cmd));
             TEST_ASSERT_EQUAL_INT(0, test::wsystem(usb_power_on_cmd));
 
-            test::wsystem("sleep " + reboot_delay_s);
+            test::wsystem("sleep " + startup_delay_s);
         };
 
         if (powerCycleType != powerCycleType_t::standardWithDeviceCheck)
@@ -128,7 +126,7 @@ namespace
 #endif
 
         //delay some time to allow eeprom init
-        test::wsystem("sleep " + eeprom_init_delay_s);
+        test::wsystem("sleep " + startup_delay_s);
 
         cyclePower(powerCycleType_t::standardWithDeviceCheck);
     }
