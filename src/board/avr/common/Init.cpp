@@ -57,6 +57,14 @@ namespace std
     {
         Board::detail::errorHandler();
     }
+
+    void __throw_out_of_range(char const* arg)
+    {
+        Board::detail::errorHandler();
+
+        while (1)
+            ;
+    }
 }    // namespace std
 
 namespace Board
