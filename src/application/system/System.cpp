@@ -104,9 +104,9 @@ void System::handleSysEx(const uint8_t* array, size_t size)
     }
 }
 
-System::result_t System::SysExDataHandler::customRequest(uint16_t request, CustomResponse& customResponse)
+uint8_t System::SysExDataHandler::customRequest(uint16_t request, CustomResponse& customResponse)
 {
-    auto result = System::result_t::ok;
+    uint8_t result = SysExConf::DataHandler::STATUS_OK;
 
     auto appendSW = [&customResponse]() {
         customResponse.append(SW_VERSION_MAJOR);
@@ -189,12 +189,12 @@ System::result_t System::SysExDataHandler::customRequest(uint16_t request, Custo
 
     default:
     {
-        result = System::result_t::error;
+        result = SysExConf::DataHandler::STATUS_ERROR_RW;
     }
     break;
     }
 
-    if (result == System::result_t::ok)
+    if (result == SysExConf::DataHandler::STATUS_OK)
         _system._display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::systemExclusive, 0, 0, 0);
 
     return result;

@@ -19,13 +19,13 @@ limitations under the License.
 #include "System.h"
 #include "io/leds/LEDs.h"
 
-SysExConf::DataHandler::result_t System::SysExDataHandler::set(uint8_t  block,
-                                                               uint8_t  section,
-                                                               uint16_t index,
-                                                               uint16_t newValue)
+uint8_t System::SysExDataHandler::set(uint8_t  block,
+                                      uint8_t  section,
+                                      uint16_t index,
+                                      uint16_t newValue)
 {
     auto sysExBlock = static_cast<block_t>(block);
-    auto result     = System::result_t::notSupported;
+    auto result     = static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 
     switch (sysExBlock)
     {
@@ -84,10 +84,10 @@ SysExConf::DataHandler::result_t System::SysExDataHandler::set(uint8_t  block,
     return result;
 }
 
-System::result_t System::onSetGlobal(Section::global_t section, size_t index, uint16_t newValue)
+uint8_t System::onSetGlobal(Section::global_t section, size_t index, uint16_t newValue)
 {
-    auto result    = System::result_t::error;
-    bool writeToDb = true;
+    uint8_t result    = SysExConf::DataHandler::STATUS_ERROR_RW;
+    bool    writeToDb = true;
 
     switch (section)
     {
@@ -100,10 +100,10 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, ui
         case System::midiFeature_t::runningStatus:
         {
 #ifndef DIN_MIDI_SUPPORTED
-            result = System::result_t::notSupported;
+            result = static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #else
             _midi.setRunningStatusState(newValue);
-            result = System::result_t::ok;
+            result = SysExConf::DataHandler::STATUS_OK;
 #endif
         }
         break;
@@ -115,21 +115,21 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, ui
             else
                 _midi.setNoteOffMode(MIDI::noteOffType_t::noteOnZeroVel);
 
-            result = System::result_t::ok;
+            result = SysExConf::DataHandler::STATUS_OK;
         }
         break;
 
         case System::midiFeature_t::dinEnabled:
         {
 #ifndef DIN_MIDI_SUPPORTED
-            result = System::result_t::notSupported;
+            result = static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #else
             if (newValue)
                 _hwa.enableDINMIDI(false);
             else
                 _hwa.disableDINMIDI();
 
-            result = System::result_t::ok;
+            result = SysExConf::DataHandler::STATUS_OK;
 #endif
         }
         break;
@@ -137,9 +137,9 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, ui
         case System::midiFeature_t::mergeEnabled:
         {
 #ifndef DIN_MIDI_SUPPORTED
-            result = System::result_t::notSupported;
+            result = static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #else
-            result = System::result_t::ok;
+            result = SysExConf::DataHandler::STATUS_OK;
 
             //make sure everything is in correct state
             if (!newValue)
@@ -162,7 +162,7 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, ui
         break;
 
         default:
-            result = System::result_t::ok;
+            result = SysExConf::DataHandler::STATUS_OK;
             break;
         }
     }
@@ -171,7 +171,7 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, ui
     case Section::global_t::midiMerge:
     {
 #ifndef DIN_MIDI_SUPPORTED
-        result = System::result_t::notSupported;
+        result = static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #else
         auto mergeParam = static_cast<midiMerge_t>(index);
 
@@ -181,7 +181,7 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, ui
         {
             if ((newValue >= 0) && (newValue < static_cast<size_t>(midiMergeType_t::AMOUNT)))
             {
-                result = System::result_t::ok;
+                result = SysExConf::DataHandler::STATUS_OK;
 
                 //configure merging only if din midi and merging options are enabled
                 if (isMIDIfeatureEnabled(midiFeature_t::dinEnabled) && isMIDIfeatureEnabled(midiFeature_t::mergeEnabled))
@@ -189,7 +189,7 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, ui
             }
             else
             {
-                result = System::result_t::notSupported;
+                result = static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
             }
         }
         break;
@@ -199,7 +199,7 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, ui
         {
             //unused for now
             writeToDb = false;
-            result = System::result_t::ok;
+            result = SysExConf::DataHandler::STATUS_OK;
         }
         break;
 
@@ -221,12 +221,12 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, ui
             if (newValue < _database.getSupportedPresets())
             {
                 _database.setPreset(newValue);
-                result    = System::result_t::ok;
+                result    = SysExConf::DataHandler::STATUS_OK;
                 writeToDb = false;
             }
             else
             {
-                result = System::result_t::notSupported;
+                result = static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
             }
         }
         break;
@@ -236,7 +236,7 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, ui
             if ((newValue <= 1) && (newValue >= 0))
             {
                 _database.setPresetPreserveState(newValue);
-                result    = System::result_t::ok;
+                result    = SysExConf::DataHandler::STATUS_OK;
                 writeToDb = false;
             }
         }
@@ -253,24 +253,24 @@ System::result_t System::onSetGlobal(Section::global_t section, size_t index, ui
         break;
     }
 
-    if ((result == System::result_t::ok) && writeToDb)
-        result = _database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
+    if ((result == SysExConf::DataHandler::STATUS_OK) && writeToDb)
+        result = _database.update(dbSection(section), index, newValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
 
     return result;
 }
 
-System::result_t System::onSetButtons(Section::button_t section, size_t index, uint16_t newValue)
+uint8_t System::onSetButtons(Section::button_t section, size_t index, uint16_t newValue)
 {
 #ifdef BUTTONS_SUPPORTED
-    auto result = System::result_t::error;
+    uint8_t result = SysExConf::DataHandler::STATUS_ERROR_RW;
 
     //channels start from 0 in db, start from 1 in sysex
     if (section == Section::button_t::midiChannel)
         newValue--;
 
-    result = _database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
+    result = _database.update(dbSection(section), index, newValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
 
-    if (result == System::result_t::ok)
+    if (result == SysExConf::DataHandler::STATUS_OK)
     {
         if (
             (section == Section::button_t::type) ||
@@ -280,17 +280,17 @@ System::result_t System::onSetButtons(Section::button_t section, size_t index, u
 
     return result;
 #else
-    return System::result_t::notSupported;
+    return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #endif
 }
 
-System::result_t System::onSetEncoders(Section::encoder_t section, size_t index, uint16_t newValue)
+uint8_t System::onSetEncoders(Section::encoder_t section, size_t index, uint16_t newValue)
 {
 #ifdef ENCODERS_SUPPORTED
     switch (section)
     {
     case Section::encoder_t::midiID_MSB:
-        return System::result_t::notSupported;
+        return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 
     default:
     {
@@ -301,18 +301,18 @@ System::result_t System::onSetEncoders(Section::encoder_t section, size_t index,
     break;
     }
 
-    auto result = _database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
+    auto result = _database.update(dbSection(section), index, newValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
 
-    if (result == System::result_t::ok)
+    if (result == SysExConf::DataHandler::STATUS_OK)
         _encoders.resetValue(index);
 
     return result;
 #else
-    return System::result_t::notSupported;
+    return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #endif
 }
 
-System::result_t System::onSetAnalog(Section::analog_t section, size_t index, uint16_t newValue)
+uint8_t System::onSetAnalog(Section::analog_t section, size_t index, uint16_t newValue)
 {
 #ifdef ANALOG_SUPPORTED
     switch (section)
@@ -320,7 +320,7 @@ System::result_t System::onSetAnalog(Section::analog_t section, size_t index, ui
     case Section::analog_t::midiID_MSB:
     case Section::analog_t::lowerLimit_MSB:
     case Section::analog_t::upperLimit_MSB:
-        return System::result_t::notSupported;
+        return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 
     case Section::analog_t::type:
     {
@@ -337,16 +337,16 @@ System::result_t System::onSetAnalog(Section::analog_t section, size_t index, ui
     break;
     }
 
-    return _database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
+    return _database.update(dbSection(section), index, newValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
 #else
-    return System::result_t::notSupported;
+    return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #endif
 }
 
-System::result_t System::onSetLEDs(Section::leds_t section, size_t index, uint16_t newValue)
+uint8_t System::onSetLEDs(Section::leds_t section, size_t index, uint16_t newValue)
 {
 #ifdef LEDS_SUPPORTED
-    auto result = System::result_t::error;
+    uint8_t result = SysExConf::DataHandler::STATUS_ERROR_RW;
 
     bool writeToDb = true;
 
@@ -356,7 +356,7 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, uint16
     {
         //no writing to database
         _leds.setColor(index, static_cast<IO::LEDs::color_t>(newValue), IO::LEDs::brightness_t::b100);
-        result    = System::result_t::ok;
+        result    = SysExConf::DataHandler::STATUS_OK;
         writeToDb = false;
     }
     break;
@@ -365,7 +365,7 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, uint16
     {
         //no writing to database
         _leds.setBlinkSpeed(index, newValue ? IO::LEDs::blinkSpeed_t::s500ms : IO::LEDs::blinkSpeed_t::noBlink);
-        result    = System::result_t::ok;
+        result    = SysExConf::DataHandler::STATUS_OK;
         writeToDb = false;
     }
     break;
@@ -380,7 +380,7 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, uint16
         {
             if ((newValue <= 1) && (newValue >= 0))
             {
-                result = System::result_t::ok;
+                result = SysExConf::DataHandler::STATUS_OK;
                 _leds.setBlinkType(static_cast<IO::LEDs::blinkType_t>(newValue));
             }
         }
@@ -389,13 +389,13 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, uint16
         case IO::LEDs::setting_t::useStartupAnimation:
         {
             if ((newValue <= 1) && (newValue >= 0))
-                result = System::result_t::ok;
+                result = SysExConf::DataHandler::STATUS_OK;
         }
         break;
 
         case IO::LEDs::setting_t::unused:
         {
-            result = System::result_t::ok;
+            result = SysExConf::DataHandler::STATUS_OK;
         }
         break;
 
@@ -404,8 +404,8 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, uint16
         }
 
         //write to db if success is true and writing should take place
-        if ((result == System::result_t::ok) && writeToDb)
-            result = _database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
+        if ((result == SysExConf::DataHandler::STATUS_OK) && writeToDb)
+            result = _database.update(dbSection(section), index, newValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
     }
     break;
 
@@ -417,9 +417,9 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, uint16
         _leds.setColor(_leds.rgbSignalIndex(_leds.rgbIndex(index), IO::LEDs::rgbIndex_t::b), IO::LEDs::color_t::off, IO::LEDs::brightness_t::bOff);
 
         //write rgb enabled bit to led
-        result = _database.update(dbSection(section), _leds.rgbIndex(index), newValue) ? System::result_t::ok : System::result_t::error;
+        result = _database.update(dbSection(section), _leds.rgbIndex(index), newValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
 
-        if (newValue && (result == System::result_t::ok))
+        if (newValue && (result == SysExConf::DataHandler::STATUS_OK))
         {
             //copy over note activation local control and midi channel settings to all three leds from the current led index
 
@@ -428,28 +428,28 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, uint16
                 result = _database.update(dbSection(Section::leds_t::activationID),
                                           _leds.rgbSignalIndex(_leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
                                           _database.read(dbSection(Section::leds_t::activationID), index))
-                             ? System::result_t::ok
-                             : System::result_t::error;
+                             ? SysExConf::DataHandler::STATUS_OK
+                             : SysExConf::DataHandler::STATUS_ERROR_RW;
 
-                if (result != System::result_t::ok)
+                if (result != SysExConf::DataHandler::STATUS_OK)
                     break;
 
                 result = _database.update(dbSection(Section::leds_t::controlType),
                                           _leds.rgbSignalIndex(_leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
                                           _database.read(dbSection(Section::leds_t::controlType), index))
-                             ? System::result_t::ok
-                             : System::result_t::error;
+                             ? SysExConf::DataHandler::STATUS_OK
+                             : SysExConf::DataHandler::STATUS_ERROR_RW;
 
-                if (result != System::result_t::ok)
+                if (result != SysExConf::DataHandler::STATUS_OK)
                     break;
 
                 result = _database.update(dbSection(Section::leds_t::midiChannel),
                                           _leds.rgbSignalIndex(_leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
                                           _database.read(dbSection(Section::leds_t::midiChannel), index))
-                             ? System::result_t::ok
-                             : System::result_t::error;
+                             ? SysExConf::DataHandler::STATUS_OK
+                             : SysExConf::DataHandler::STATUS_ERROR_RW;
 
-                if (result != System::result_t::ok)
+                if (result != SysExConf::DataHandler::STATUS_OK)
                     break;
             }
         }
@@ -473,35 +473,35 @@ System::result_t System::onSetLEDs(Section::leds_t section, size_t index, uint16
                 result = _database.update(dbSection(section),
                                           _leds.rgbSignalIndex(_leds.rgbIndex(index), static_cast<IO::LEDs::rgbIndex_t>(i)),
                                           newValue)
-                             ? System::result_t::ok
-                             : System::result_t::error;
+                             ? SysExConf::DataHandler::STATUS_OK
+                             : SysExConf::DataHandler::STATUS_ERROR_RW;
 
-                if (result != System::result_t::ok)
+                if (result != SysExConf::DataHandler::STATUS_OK)
                     break;
             }
         }
         else
         {
             //apply to single led only
-            result = _database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
+            result = _database.update(dbSection(section), index, newValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
         }
     }
     break;
 
     default:
     {
-        result = _database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
+        result = _database.update(dbSection(section), index, newValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
     }
     break;
     }
 
     return result;
 #else
-    return System::result_t::notSupported;
+    return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #endif
 }
 
-System::result_t System::onSetDisplay(Section::display_t section, size_t index, uint16_t newValue)
+uint8_t System::onSetDisplay(Section::display_t section, size_t index, uint16_t newValue)
 {
 #ifdef DISPLAY_SUPPORTED
     auto initAction = initAction_t::asIs;
@@ -584,7 +584,7 @@ System::result_t System::onSetDisplay(Section::display_t section, size_t index, 
         break;
     }
 
-    auto result = _database.update(dbSection(section), index, newValue) ? System::result_t::ok : System::result_t::error;
+    auto result = _database.update(dbSection(section), index, newValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
 
     if (initAction == initAction_t::init)
         _display.init(false);
@@ -593,11 +593,11 @@ System::result_t System::onSetDisplay(Section::display_t section, size_t index, 
 
     return result;
 #else
-    return System::result_t::notSupported;
+    return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #endif
 }
 
-System::result_t System::onSetTouchscreen(Section::touchscreen_t section, size_t index, uint16_t newValue)
+uint8_t System::onSetTouchscreen(Section::touchscreen_t section, size_t index, uint16_t newValue)
 {
 #ifdef TOUCHSCREEN_SUPPORTED
     auto initAction = initAction_t::asIs;
@@ -629,7 +629,7 @@ System::result_t System::onSetTouchscreen(Section::touchscreen_t section, size_t
             if (_touchscreen.isInitialized())
             {
                 if (!_touchscreen.setBrightness(static_cast<IO::Touchscreen::brightness_t>(newValue)))
-                    return System::result_t::error;
+                    return SysExConf::DataHandler::STATUS_ERROR_RW;
             }
         }
         break;
@@ -653,13 +653,13 @@ System::result_t System::onSetTouchscreen(Section::touchscreen_t section, size_t
         else if (initAction == initAction_t::deInit)
             _touchscreen.deInit();
 
-        return System::result_t::ok;
+        return SysExConf::DataHandler::STATUS_OK;
     }
     else
     {
-        return System::result_t::error;
+        return SysExConf::DataHandler::STATUS_ERROR_RW;
     }
 #else
-    return System::result_t::notSupported;
+    return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #endif
 }

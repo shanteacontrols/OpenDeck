@@ -18,10 +18,10 @@ limitations under the License.
 
 #include "System.h"
 
-System::result_t System::SysExDataHandler::get(uint8_t block, uint8_t section, uint16_t index, uint16_t& value)
+uint8_t System::SysExDataHandler::get(uint8_t block, uint8_t section, uint16_t index, uint16_t& value)
 {
     auto sysExBlock = static_cast<System::block_t>(block);
-    auto result     = System::result_t::notSupported;
+    auto result     = static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 
     switch (sysExBlock)
     {
@@ -76,10 +76,10 @@ System::result_t System::SysExDataHandler::get(uint8_t block, uint8_t section, u
     return result;
 }
 
-System::result_t System::onGetGlobal(Section::global_t section, size_t index, uint16_t& value)
+uint8_t System::onGetGlobal(Section::global_t section, size_t index, uint16_t& value)
 {
     int32_t readValue = 0;
-    auto    result    = System::result_t::error;
+    auto    result    = SysExConf::DataHandler::STATUS_ERROR_RW;
 
     switch (section)
     {
@@ -87,14 +87,15 @@ System::result_t System::onGetGlobal(Section::global_t section, size_t index, ui
     {
         if (index == static_cast<size_t>(System::midiFeature_t::standardNoteOff))
         {
-            result = _database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
+            result = _database.read(dbSection(section), index, readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
         }
         else
         {
 #ifndef DIN_MIDI_SUPPORTED
-            return System::result_t::notSupported;
+            return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
+
 #else
-            result = _database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
+            result = _database.read(dbSection(section), index, readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
 #endif
         }
     }
@@ -103,9 +104,9 @@ System::result_t System::onGetGlobal(Section::global_t section, size_t index, ui
     case Section::global_t::midiMerge:
     {
 #ifndef DIN_MIDI_SUPPORTED
-        return System::result_t::notSupported;
+        return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #else
-        result = _database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
+        result = _database.read(dbSection(section), index, readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
 #endif
     }
     break;
@@ -119,14 +120,14 @@ System::result_t System::onGetGlobal(Section::global_t section, size_t index, ui
         case presetSetting_t::activePreset:
         {
             readValue = _database.getPreset();
-            result    = System::result_t::ok;
+            result    = SysExConf::DataHandler::STATUS_OK;
         }
         break;
 
         case presetSetting_t::presetPreserve:
         {
             readValue = _database.getPresetPreserveState();
-            result    = System::result_t::ok;
+            result    = SysExConf::DataHandler::STATUS_OK;
         }
         break;
 
@@ -144,34 +145,34 @@ System::result_t System::onGetGlobal(Section::global_t section, size_t index, ui
     return result;
 }
 
-System::result_t System::onGetButtons(Section::button_t section, size_t index, uint16_t& value)
+uint8_t System::onGetButtons(Section::button_t section, size_t index, uint16_t& value)
 {
 #ifdef BUTTONS_SUPPORTED
     int32_t readValue;
-    auto    result = _database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
+    auto    result = _database.read(dbSection(section), index, readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
 
     //channels start from 0 in db, start from 1 in sysex
-    if ((section == Section::button_t::midiChannel) && (result == System::result_t::ok))
+    if ((section == Section::button_t::midiChannel) && (result == SysExConf::DataHandler::STATUS_OK))
         readValue++;
 
     value = readValue;
 
     return result;
 #else
-    return System::result_t::notSupported;
+    return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #endif
 }
 
-System::result_t System::onGetEncoders(Section::encoder_t section, size_t index, uint16_t& value)
+uint8_t System::onGetEncoders(Section::encoder_t section, size_t index, uint16_t& value)
 {
 #ifdef ENCODERS_SUPPORTED
     int32_t readValue;
-    auto    result = _database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
+    auto    result = _database.read(dbSection(section), index, readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
 
-    if (result == System::result_t::ok)
+    if (result == SysExConf::DataHandler::STATUS_OK)
     {
         if (section == Section::encoder_t::midiID_MSB)
-            return System::result_t::notSupported;
+            return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 
         if (section == Section::encoder_t::midiChannel)
         {
@@ -184,27 +185,27 @@ System::result_t System::onGetEncoders(Section::encoder_t section, size_t index,
 
     return result;
 #else
-    return System::result_t::notSupported;
+    return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #endif
 }
 
-System::result_t System::onGetAnalog(Section::analog_t section, size_t index, uint16_t& value)
+uint8_t System::onGetAnalog(Section::analog_t section, size_t index, uint16_t& value)
 {
 #ifdef ANALOG_SUPPORTED
     int32_t readValue;
-    auto    result = _database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
+    auto    result = _database.read(dbSection(section), index, readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
 
     switch (section)
     {
     case Section::analog_t::midiID_MSB:
     case Section::analog_t::lowerLimit_MSB:
     case Section::analog_t::upperLimit_MSB:
-        return System::result_t::notSupported;
+        return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 
     case Section::analog_t::midiChannel:
     {
         //channels start from 0 in db, start from 1 in sysex
-        if (result == System::result_t::ok)
+        if (result == SysExConf::DataHandler::STATUS_OK)
             readValue++;
     }
     break;
@@ -217,15 +218,15 @@ System::result_t System::onGetAnalog(Section::analog_t section, size_t index, ui
 
     return result;
 #else
-    return System::result_t::notSupported;
+    return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #endif
 }
 
-System::result_t System::onGetLEDs(Section::leds_t section, size_t index, uint16_t& value)
+uint8_t System::onGetLEDs(Section::leds_t section, size_t index, uint16_t& value)
 {
 #ifdef LEDS_SUPPORTED
     int32_t readValue;
-    auto    result = System::result_t::ok;
+    auto    result = SysExConf::DataHandler::STATUS_OK;
 
     switch (section)
     {
@@ -243,23 +244,23 @@ System::result_t System::onGetLEDs(Section::leds_t section, size_t index, uint16
 
     case Section::leds_t::midiChannel:
     {
-        result = _database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
+        result = _database.read(dbSection(section), index, readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
 
         //channels start from 0 in db, start from 1 in sysex
-        if (result == System::result_t::ok)
+        if (result == SysExConf::DataHandler::STATUS_OK)
             readValue++;
     }
     break;
 
     case Section::leds_t::rgbEnable:
     {
-        result = _database.read(dbSection(section), _leds.rgbIndex(index), readValue) ? System::result_t::ok : System::result_t::error;
+        result = _database.read(dbSection(section), _leds.rgbIndex(index), readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
     }
     break;
 
     default:
     {
-        result = _database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
+        result = _database.read(dbSection(section), index, readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
     }
     break;
     }
@@ -268,32 +269,32 @@ System::result_t System::onGetLEDs(Section::leds_t section, size_t index, uint16
 
     return result;
 #else
-    return System::result_t::notSupported;
+    return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #endif
 }
 
-System::result_t System::onGetDisplay(Section::display_t section, size_t index, uint16_t& value)
+uint8_t System::onGetDisplay(Section::display_t section, size_t index, uint16_t& value)
 {
 #ifdef DISPLAY_SUPPORTED
     int32_t readValue;
-    auto    result = _database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
+    auto    result = _database.read(dbSection(section), index, readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
 
     value = readValue;
     return result;
 #else
-    return System::result_t::notSupported;
+    return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #endif
 }
 
-System::result_t System::onGetTouchscreen(Section::touchscreen_t section, size_t index, uint16_t& value)
+uint8_t System::onGetTouchscreen(Section::touchscreen_t section, size_t index, uint16_t& value)
 {
 #ifdef TOUCHSCREEN_SUPPORTED
     int32_t readValue;
-    auto    result = _database.read(dbSection(section), index, readValue) ? System::result_t::ok : System::result_t::error;
+    auto    result = _database.read(dbSection(section), index, readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
 
     value = readValue;
     return result;
 #else
-    return System::result_t::notSupported;
+    return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #endif
 }
