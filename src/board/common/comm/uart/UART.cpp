@@ -25,7 +25,7 @@ limitations under the License.
 #include "MCU.h"
 
 #ifndef USB_MIDI_SUPPORTED
-#include "board/common/comm/USBMIDIOverSerial/USBMIDIOverSerial.h"
+#include "board/common/comm/USBOverSerial/USBOverSerial.h"
 #include "usb-link/Commands.h"
 #endif
 
@@ -214,6 +214,9 @@ namespace Board
     {
         //simulated USB MIDI interface via UART - make this transparent to the application
 
+        uint8_t                             readBuffer[USB_OVER_SERIAL_BUFFER_SIZE];
+        Board::USBOverSerial::USBReadPacket readPacket(readBuffer, USB_OVER_SERIAL_BUFFER_SIZE);
+
         bool isUSBconnected()
         {
             return usbConnectionState;
@@ -221,28 +224,44 @@ namespace Board
 
         bool writeMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
         {
-            return USBMIDIOverSerial::write(UART_CHANNEL_USB_LINK, USBMIDIpacket, USBMIDIOverSerial::packetType_t::midi);
+            uint8_t dataArray[4] = {
+                USBMIDIpacket.Event,
+                USBMIDIpacket.Data1,
+                USBMIDIpacket.Data2,
+                USBMIDIpacket.Data3
+            };
+
+            USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::midi, dataArray, 4);
+
+            return USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
         }
 
         bool readMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
         {
-            USBMIDIOverSerial::packetType_t odPacketType;
+            bool returnValue = false;
 
-            if (USBMIDIOverSerial::read(UART_CHANNEL_USB_LINK, USBMIDIpacket, odPacketType))
+            if (USBOverSerial::read(UART_CHANNEL_USB_LINK, readPacket))
             {
-                if (odPacketType == USBMIDIOverSerial::packetType_t::midi)
+                if (readPacket.type() == USBOverSerial::packetType_t::midi)
                 {
-                    return true;
+                    USBMIDIpacket.Event = readPacket.data()[0];
+                    USBMIDIpacket.Data1 = readPacket.data()[1];
+                    USBMIDIpacket.Data2 = readPacket.data()[2];
+                    USBMIDIpacket.Data3 = readPacket.data()[3];
+
+                    returnValue = true;
                 }
-                else
+                else if (readPacket.type() == USBOverSerial::packetType_t::internal)
                 {
                     //internal command
-                    if (USBMIDIpacket.Event == static_cast<uint8_t>(USBLink::internalCMD_t::usbState))
-                        usbConnectionState = USBMIDIpacket.Data1;
+                    if (readPacket.data()[0] == static_cast<uint8_t>(USBLink::internalCMD_t::usbState))
+                        usbConnectionState = readPacket.data()[1];
                 }
+
+                readPacket.reset();
             }
 
-            return false;
+            return returnValue;
         }
     }    // namespace USB
 #endif

@@ -232,7 +232,7 @@
                 "buttons",
                 "database",
                 "encoders",
-                "odmidi",
+                "usb_over_serial",
                 "potentiometer",
                 "ringbuffer",
                 "system",

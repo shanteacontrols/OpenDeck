@@ -17,7 +17,7 @@ limitations under the License.
 */
 
 #include "board/Board.h"
-#include "board/common/comm/USBMIDIOverSerial/USBMIDIOverSerial.h"
+#include "board/common/comm/USBOverSerial/USBOverSerial.h"
 #include "Commands.h"
 #include "core/src/general/Timing.h"
 
@@ -26,8 +26,9 @@ limitations under the License.
 
 namespace
 {
-    MIDI::USBMIDIpacket_t                  USBMIDIpacket;
-    Board::USBMIDIOverSerial::packetType_t packetType;
+    uint8_t                             readBuffer[USB_OVER_SERIAL_BUFFER_SIZE];
+    Board::USBOverSerial::USBReadPacket readPacket(readBuffer, USB_OVER_SERIAL_BUFFER_SIZE);
+    MIDI::USBMIDIpacket_t               USBMIDIpacket;
 
     void checkUSBconnection()
     {
@@ -40,9 +41,13 @@ namespace
 
             if (lastConnectionState != newState)
             {
-                USBMIDIpacket.Event = static_cast<uint8_t>(USBLink::internalCMD_t::usbState);
-                USBMIDIpacket.Data1 = newState;
-                Board::USBMIDIOverSerial::write(UART_CHANNEL_USB_LINK, USBMIDIpacket, Board::USBMIDIOverSerial::packetType_t::internal);
+                uint8_t data[2] = {
+                    static_cast<uint8_t>(USBLink::internalCMD_t::usbState),
+                    newState
+                };
+
+                Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::internal, data, 2);
+                Board::USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
 
                 lastConnectionState = newState;
             }
@@ -59,30 +64,41 @@ int main(void)
     while (1)
     {
         //USB -> UART
-        while (Board::USB::readMIDI(USBMIDIpacket))
+        if (Board::USB::readMIDI(USBMIDIpacket))
         {
-            Board::USBMIDIOverSerial::write(UART_CHANNEL_USB_LINK, USBMIDIpacket, Board::USBMIDIOverSerial::packetType_t::midi);
-            Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
+            uint8_t                              data[4] = { USBMIDIpacket.Event, USBMIDIpacket.Data1, USBMIDIpacket.Data2, USBMIDIpacket.Data3 };
+            Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::midi, data, 4);
+
+            if (Board::USBOverSerial::write(UART_CHANNEL_USB_LINK, packet))
+                Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
         }
 
         //UART -> USB
-        while (Board::USBMIDIOverSerial::read(UART_CHANNEL_USB_LINK, USBMIDIpacket, packetType))
+        if (Board::USBOverSerial::read(UART_CHANNEL_USB_LINK, readPacket))
         {
-            if (packetType == Board::USBMIDIOverSerial::packetType_t::midi)
+            if (readPacket.type() == Board::USBOverSerial::packetType_t::midi)
             {
-                Board::USB::writeMIDI(USBMIDIpacket);
-                Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::outgoing);
+                USBMIDIpacket.Event = readPacket[0];
+                USBMIDIpacket.Data1 = readPacket[1];
+                USBMIDIpacket.Data2 = readPacket[2];
+                USBMIDIpacket.Data3 = readPacket[3];
+
+                if (Board::USB::writeMIDI(USBMIDIpacket))
+                    Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::outgoing);
             }
-            else
+            else if (readPacket.type() == Board::USBOverSerial::packetType_t::internal)
             {
                 //internal command
-                if (USBMIDIpacket.Event == static_cast<uint8_t>(USBLink::internalCMD_t::rebootBTLDR))
+                if (readPacket[0] == static_cast<uint8_t>(USBLink::internalCMD_t::rebootBTLDR))
                 {
                     //use received data as the magic bootloader value
-                    Board::bootloader::setMagicBootValue(USBMIDIpacket.Data1);
+                    Board::bootloader::setMagicBootValue(readPacket[1]);
                     Board::reboot();
                 }
             }
+
+            //clear out any stored information in packet since we are reusing it
+            readPacket.reset();
         }
 
         checkUSBconnection();

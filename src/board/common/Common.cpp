@@ -22,7 +22,7 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 
 #ifndef USB_MIDI_SUPPORTED
-#include "board/common/comm/USBMIDIOverSerial/USBMIDIOverSerial.h"
+#include "board/common/comm/USBOverSerial/USBOverSerial.h"
 #include "usb-link/Commands.h"
 #endif
 
@@ -61,14 +61,15 @@ namespace Board
     {
 #ifndef USB_MIDI_SUPPORTED
         //signal to usb link to reboot as well
-        MIDI::USBMIDIpacket_t USBMIDIpacket;
 
-        USBMIDIpacket.Event = static_cast<uint8_t>(USBLink::internalCMD_t::rebootBTLDR);
-        USBMIDIpacket.Data1 = Board::bootloader::magicBootValue();
-        USBMIDIpacket.Data2 = 0x00;
-        USBMIDIpacket.Data3 = 0x00;
+        uint8_t data[2] = {
+            static_cast<uint8_t>(USBLink::internalCMD_t::rebootBTLDR),
+            Board::bootloader::magicBootValue()
+        };
 
-        USBMIDIOverSerial::write(UART_CHANNEL_USB_LINK, USBMIDIpacket, USBMIDIOverSerial::packetType_t::internal);
+        USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::internal, data, 2);
+        USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
+
         while (!Board::UART::isTxEmpty(UART_CHANNEL_USB_LINK))
             ;
 

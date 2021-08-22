@@ -96,7 +96,7 @@ namespace Board
                 ENABLE_INTERRUPTS();
 
 #if defined(USB_LINK_MCU) || !defined(USB_MIDI_SUPPORTED)
-                Board::UART::init(UART_CHANNEL_USB_LINK, UART_BAUDRATE_MIDI_OD);
+                Board::UART::init(UART_CHANNEL_USB_LINK, UART_BAUDRATE_USB);
 #endif
             }
 
@@ -122,7 +122,7 @@ namespace Board
                 detail::setup::adc();
 
 #if defined(USB_LINK_MCU) || !defined(USB_MIDI_SUPPORTED)
-                Board::UART::init(UART_CHANNEL_USB_LINK, UART_BAUDRATE_MIDI_OD);
+                Board::UART::init(UART_CHANNEL_USB_LINK, UART_BAUDRATE_USB);
 #endif
 
                 detail::setup::usb();
