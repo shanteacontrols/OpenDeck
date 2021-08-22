@@ -107,26 +107,24 @@ namespace Board
             return false;
         }
 
-        bool init(uint8_t channel, uint32_t baudRate)
+        initStatus_t init(uint8_t channel, uint32_t baudRate, bool force)
         {
             if (channel >= MAX_UART_INTERFACES)
-                return false;
+                return initStatus_t::error;
 
-#ifndef FW_CDC
-            if (isInitialized(channel))
-                return false;    //interface already initialized
-#endif
+            if (isInitialized(channel) && !force)
+                return initStatus_t::alreadyInit;    //interface already initialized
 
             if (deInit(channel))
             {
                 if (Board::detail::UART::ll::init(channel, baudRate))
                 {
                     initialized[channel] = true;
-                    return true;
+                    return initStatus_t::ok;
                 }
             }
 
-            return false;
+            return initStatus_t::error;
         }
 
         bool isInitialized(uint8_t channel)

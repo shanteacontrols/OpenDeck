@@ -77,7 +77,7 @@ namespace Board
         void onCDCsetLineEncoding(uint32_t baudrate)
         {
             _baudrate = baudrate;
-            Board::UART::init(UART_CHANNEL, _baudrate);
+            Board::UART::init(UART_CHANNEL, _baudrate, true);
         }
 
         void onCDCgetLineEncoding(uint32_t& baudrate)

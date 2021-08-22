@@ -311,8 +311,7 @@ bool System::sendCInfo(Database::block_t dbBlock, uint16_t componentID)
 
 void System::configureMIDI()
 {
-    _midi.init();
-    _midi.enableUSBMIDI();
+    _midi.init(MIDI::interface_t::usb);
     _midi.setInputChannel(MIDI_CHANNEL_OMNI);
     _midi.setNoteOffMode(isMIDIfeatureEnabled(midiFeature_t::standardNoteOff) ? MIDI::noteOffType_t::standardNoteOff : MIDI::noteOffType_t::noteOnZeroVel);
     _midi.setRunningStatusState(isMIDIfeatureEnabled(midiFeature_t::runningStatus));
@@ -321,51 +320,16 @@ void System::configureMIDI()
 #ifdef DIN_MIDI_SUPPORTED
     if (isMIDIfeatureEnabled(midiFeature_t::dinEnabled))
     {
-        _midi.enableDINMIDI();
-        bool mergeEnabled = isMIDIfeatureEnabled(midiFeature_t::mergeEnabled);
-
+        _midi.init(MIDI::interface_t::din);
         _midi.useRecursiveParsing(true);
-
-        //only configure master
-        if (mergeEnabled)
-        {
-            configureMIDImerge(midiMergeType());
-        }
-        else
-        {
-            _hwa.enableDINMIDI(false);
-        }
     }
     else
     {
-        _hwa.disableDINMIDI();
+        _midi.deInit(MIDI::interface_t::din);
+        _midi.useRecursiveParsing(false);
     }
 #endif
 }
-
-#ifdef DIN_MIDI_SUPPORTED
-void System::configureMIDImerge(midiMergeType_t mergeType)
-{
-    switch (mergeType)
-    {
-    case midiMergeType_t::DINtoDIN:
-    {
-        //forward all incoming DIN MIDI data to DIN MIDI out
-        _hwa.enableDINMIDI(true);
-    }
-    break;
-
-    case midiMergeType_t::DINtoUSB:
-    {
-        _hwa.enableDINMIDI(false);
-    }
-    break;
-
-    default:
-        break;
-    }
-}
-#endif
 
 bool System::isMIDIfeatureEnabled(midiFeature_t feature)
 {
@@ -456,11 +420,7 @@ void System::backup()
 void System::SysExDataHandler::sendResponse(uint8_t* array, uint16_t size)
 {
     //never send responses through DIN MIDI
-    _system._midi.disableDINMIDI();
-    _system._midi.sendSysEx(size, array, true);
-
-    if (_system._database.read(Database::Section::global_t::midiFeatures, static_cast<uint16_t>(System::midiFeature_t::dinEnabled)))
-        _system._midi.enableDINMIDI();
+    _system._midi.sendSysEx(size, array, true, MIDI::interface_t::usb);
 }
 
 void System::checkComponents()

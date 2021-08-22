@@ -27,6 +27,9 @@ namespace
 
     std::vector<channelMIDImessage_t> channelMIDImessages;
 
+    DBstorageMock dbStorageMock;
+    Database      database(dbStorageMock, true);
+
     class SystemHWA : public System::HWA
     {
         public:
@@ -37,34 +40,18 @@ namespace
             return true;
         }
 
-        void reset()
-        {
-            dinMIDIenabled  = false;
-            loopbackEnabled = false;
-        }
-
         void reboot(FwSelector::fwType_t type) override
         {
-        }
-
-        void enableDINMIDI(bool loopback) override
-        {
-            dinMIDIenabled  = true;
-            loopbackEnabled = loopback;
-        }
-
-        void disableDINMIDI() override
-        {
-            dinMIDIenabled  = false;
-            loopbackEnabled = false;
         }
 
         void registerOnUSBconnectionHandler(System::usbConnectionHandler_t usbConnectionHandler) override
         {
         }
 
-        bool dinMIDIenabled  = false;
-        bool loopbackEnabled = false;
+        bool serialPeripheralAllocated(System::serialPeripheral_t peripheral) override
+        {
+            return false;
+        }
     } hwaSystem;
 
     class HWAMIDI : public MIDI::HWA
@@ -72,10 +59,65 @@ namespace
         public:
         HWAMIDI() = default;
 
-        bool init() override
+        bool init(MIDI::interface_t interface) override
         {
             clear();
+
+            auto mergeType    = static_cast<System::midiMergeType_t>(database.read(Database::Section::global_t::midiMerge, static_cast<size_t>(System::midiMerge_t::mergeType)));
+            bool mergeEnabled = database.read(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::mergeEnabled));
+            switch (interface)
+            {
+            case MIDI::interface_t::din:
+                dinEnabled      = true;
+                loopbackEnabled = mergeType == System::midiMergeType_t::DINtoDIN && mergeEnabled;
+                break;
+
+            case MIDI::interface_t::usb:
+                usbEnabled = true;
+                break;
+
+            default:
+                dinEnabled      = true;
+                usbEnabled      = true;
+                loopbackEnabled = mergeType == System::midiMergeType_t::DINtoDIN && mergeEnabled;
+                break;
+            }
+
             return true;
+        }
+
+        bool deInit(MIDI::interface_t interface) override
+        {
+            clear();
+
+            switch (interface)
+            {
+            case MIDI::interface_t::din:
+                dinEnabled      = false;
+                loopbackEnabled = false;
+                break;
+
+            case MIDI::interface_t::usb:
+                usbEnabled = false;
+                break;
+
+            default:
+                dinEnabled      = false;
+                usbEnabled      = false;
+                loopbackEnabled = false;
+                break;
+            }
+
+            return true;
+        }
+
+        void reset()
+        {
+            clear();
+
+            dinEnabled      = false;
+            usbEnabled      = false;
+            loopbackEnabled = false;
         }
 
         bool dinRead(uint8_t& data) override
@@ -124,6 +166,9 @@ namespace
         std::vector<MIDI::USBMIDIpacket_t> usbPacketToBoard   = {};
         std::vector<uint8_t>               dinPacketToBoard   = {};
         std::vector<uint8_t>               dinPacketFromBoard = {};
+        bool                               dinEnabled         = false;
+        bool                               usbEnabled         = false;
+        bool                               loopbackEnabled    = false;
     } hwaMIDI;
 
     class HWALEDs : public IO::LEDs::HWA
@@ -259,8 +304,6 @@ namespace
         }
     } encodersFilter;
 
-    DBstorageMock   dbStorageMock;
-    Database        database(dbStorageMock, true);
     MIDI            midi(hwaMIDI);
     ComponentInfo   cInfo;
     IO::LEDs        leds(hwaLEDs, database);
@@ -281,7 +324,12 @@ namespace
                 : _buffer(buffer)
             {}
 
-            bool init() override
+            bool init(MIDI::interface_t interface) override
+            {
+                return true;
+            }
+
+            bool deInit(MIDI::interface_t interface) override
             {
                 return true;
             }
@@ -314,7 +362,7 @@ namespace
         //calling the real midi read will then result in parsing those filled bytes by the temp object
         MIDI fillMIDI(hwaFillMIDI);
 
-        fillMIDI.enableUSBMIDI();
+        fillMIDI.init(MIDI::interface_t::usb);
         fillMIDI.sendSysEx(request.size(), &request[0], true);
 
         //store this in a variable since every midi.read call will decrement the size of buffer
@@ -334,7 +382,12 @@ namespace
                 : _buffer(buffer)
             {}
 
-            bool init() override
+            bool init(MIDI::interface_t interface) override
+            {
+                return true;
+            }
+
+            bool deInit(MIDI::interface_t interface) override
             {
                 return true;
             }
@@ -373,8 +426,7 @@ namespace
 
         MIDI parseMIDI(hwaParseMIDI);
 
-        parseMIDI.enableUSBMIDI();
-        parseMIDI.enableDINMIDI();
+        parseMIDI.init(MIDI::interface_t::all);
         parseMIDI.setInputChannel(MIDI_CHANNEL_OMNI);
 
         //create temp midi object which will read written usb packets and pass them back as DIN MIDI array
@@ -434,10 +486,9 @@ namespace
 
 TEST_SETUP()
 {
-    hwaSystem.reset();
-    midi.init();
-    midi.enableUSBMIDI();
-    midi.disableDINMIDI();
+    hwaMIDI.reset();
+    midi.init(MIDI::interface_t::usb);
+    midi.deInit(MIDI::interface_t::din);
 }
 
 TEST_CASE(SystemInit)
@@ -446,8 +497,8 @@ TEST_CASE(SystemInit)
     TEST_ASSERT(systemStub.init() == true);
 
     //verify that din midi is disabled
-    TEST_ASSERT(hwaSystem.dinMIDIenabled == false);
-    TEST_ASSERT(hwaSystem.loopbackEnabled == false);
+    TEST_ASSERT(hwaMIDI.dinEnabled == false);
+    TEST_ASSERT(hwaMIDI.loopbackEnabled == false);
 
     //now enable din midi via write in database
     TEST_ASSERT(database.update(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled), 1) == true);
@@ -456,12 +507,12 @@ TEST_CASE(SystemInit)
     TEST_ASSERT(systemStub.init() == true);
 
 #ifdef DIN_MIDI_SUPPORTED
-    TEST_ASSERT(hwaSystem.dinMIDIenabled == true);
-    TEST_ASSERT(hwaSystem.loopbackEnabled == false);
+    TEST_ASSERT(hwaMIDI.dinEnabled == true);
+    TEST_ASSERT(hwaMIDI.loopbackEnabled == false);
 #else
     //nothing should change
-    TEST_ASSERT(hwaSystem.dinMIDIenabled == false);
-    TEST_ASSERT(hwaSystem.loopbackEnabled == false);
+    TEST_ASSERT(hwaMIDI.dinEnabled == false);
+    TEST_ASSERT(hwaMIDI.loopbackEnabled == false);
 #endif
 
     //now enable din to din merge, init system again and verify that both din midi and loopback are enabled
@@ -471,12 +522,12 @@ TEST_CASE(SystemInit)
     TEST_ASSERT(systemStub.init() == true);
 
 #ifdef DIN_MIDI_SUPPORTED
-    TEST_ASSERT(hwaSystem.dinMIDIenabled == true);
-    TEST_ASSERT(hwaSystem.loopbackEnabled == true);
+    TEST_ASSERT(hwaMIDI.dinEnabled == true);
+    TEST_ASSERT(hwaMIDI.loopbackEnabled == true);
 #else
     //nothing should change
-    TEST_ASSERT(hwaSystem.dinMIDIenabled == false);
-    TEST_ASSERT(hwaSystem.loopbackEnabled == false);
+    TEST_ASSERT(hwaMIDI.dinEnabled == false);
+    TEST_ASSERT(hwaMIDI.loopbackEnabled == false);
 #endif
 }
 
@@ -486,8 +537,6 @@ TEST_CASE(Requests)
 
     //send fake usb midi message containing the handshake
     //verify that the response is valid
-
-    hwaMIDI.usbPacketToBoard.clear();
 
     //handshake
     sendSysExRequest({ 0xF0,
@@ -513,7 +562,7 @@ TEST_CASE(Requests)
     hwaMIDI.usbPacketFromBoard.clear();
 
     //verify that din midi is disabled
-    TEST_ASSERT(hwaSystem.dinMIDIenabled == false);
+    TEST_ASSERT(hwaMIDI.dinEnabled == false);
     TEST_ASSERT(database.read(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled)) == false);
 
     midi.sendNoteOn(127, 127, 1);
@@ -564,10 +613,10 @@ TEST_CASE(Requests)
 #endif
 
 #ifdef DIN_MIDI_SUPPORTED
-    TEST_ASSERT(hwaSystem.dinMIDIenabled == true);
+    TEST_ASSERT(hwaMIDI.dinEnabled == true);
     TEST_ASSERT(database.read(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled)) == true);
 #else
-    TEST_ASSERT(hwaSystem.dinMIDIenabled == false);
+    TEST_ASSERT(hwaMIDI.dinEnabled == false);
     TEST_ASSERT(database.read(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled)) == false);
 #endif
 

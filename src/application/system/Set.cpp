@@ -86,8 +86,9 @@ uint8_t System::SysExDataHandler::set(uint8_t  block,
 
 uint8_t System::onSetGlobal(Section::global_t section, size_t index, uint16_t newValue)
 {
-    uint8_t result    = SysExConf::DataHandler::STATUS_ERROR_RW;
-    bool    writeToDb = true;
+    uint8_t result            = SysExConf::DataHandler::STATUS_ERROR_RW;
+    bool    writeToDb         = true;
+    auto    dinMIDIinitAction = initAction_t::asIs;
 
     switch (section)
     {
@@ -102,8 +103,15 @@ uint8_t System::onSetGlobal(Section::global_t section, size_t index, uint16_t ne
 #ifndef DIN_MIDI_SUPPORTED
             result = static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #else
-            _midi.setRunningStatusState(newValue);
-            result = SysExConf::DataHandler::STATUS_OK;
+            if (!isMIDIfeatureEnabled(midiFeature_t::dinEnabled) && _hwa.serialPeripheralAllocated(serialPeripheral_t::dinMIDI) && !_backupRequested)
+            {
+                result = SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+            }
+            else
+            {
+                _midi.setRunningStatusState(newValue);
+                result = SysExConf::DataHandler::STATUS_OK;
+            }
 #endif
         }
         break;
@@ -124,12 +132,19 @@ uint8_t System::onSetGlobal(Section::global_t section, size_t index, uint16_t ne
 #ifndef DIN_MIDI_SUPPORTED
             result = static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #else
-            if (newValue)
-                _hwa.enableDINMIDI(false);
+            if (!isMIDIfeatureEnabled(midiFeature_t::dinEnabled) && _hwa.serialPeripheralAllocated(serialPeripheral_t::dinMIDI) && !_backupRequested)
+            {
+                result = SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+            }
             else
-                _hwa.disableDINMIDI();
+            {
+                if (newValue)
+                    dinMIDIinitAction = initAction_t::init;
+                else
+                    dinMIDIinitAction = initAction_t::deInit;
 
-            result = SysExConf::DataHandler::STATUS_OK;
+                result = SysExConf::DataHandler::STATUS_OK;
+            }
 #endif
         }
         break;
@@ -139,23 +154,16 @@ uint8_t System::onSetGlobal(Section::global_t section, size_t index, uint16_t ne
 #ifndef DIN_MIDI_SUPPORTED
             result = static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #else
-            result = SysExConf::DataHandler::STATUS_OK;
-
-            //make sure everything is in correct state
-            if (!newValue)
+            if (!isMIDIfeatureEnabled(midiFeature_t::dinEnabled) && _hwa.serialPeripheralAllocated(serialPeripheral_t::dinMIDI) && !_backupRequested)
             {
-                if (isMIDIfeatureEnabled(midiFeature_t::dinEnabled))
-                {
-                    _hwa.enableDINMIDI(false);
-                }
+                result = SERIAL_PERIPHERAL_ALLOCATED_ERROR;
             }
             else
             {
-                //restore active settings if din midi is enabled
+                result = SysExConf::DataHandler::STATUS_OK;
+
                 if (isMIDIfeatureEnabled(midiFeature_t::dinEnabled))
-                {
-                    configureMIDImerge(midiMergeType());
-                }
+                    dinMIDIinitAction = initAction_t::init;
             }
 #endif
         }
@@ -173,38 +181,44 @@ uint8_t System::onSetGlobal(Section::global_t section, size_t index, uint16_t ne
 #ifndef DIN_MIDI_SUPPORTED
         result = static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #else
-        auto mergeParam = static_cast<midiMerge_t>(index);
-
-        switch (mergeParam)
+        if (!isMIDIfeatureEnabled(midiFeature_t::dinEnabled) && _hwa.serialPeripheralAllocated(serialPeripheral_t::dinMIDI) && !_backupRequested)
         {
-        case midiMerge_t::mergeType:
-        {
-            if ((newValue >= 0) && (newValue < static_cast<size_t>(midiMergeType_t::AMOUNT)))
-            {
-                result = SysExConf::DataHandler::STATUS_OK;
-
-                //configure merging only if din midi and merging options are enabled
-                if (isMIDIfeatureEnabled(midiFeature_t::dinEnabled) && isMIDIfeatureEnabled(midiFeature_t::mergeEnabled))
-                    configureMIDImerge(static_cast<midiMergeType_t>(newValue));
-            }
-            else
-            {
-                result = static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
-            }
+            result = SERIAL_PERIPHERAL_ALLOCATED_ERROR;
         }
-        break;
-
-        case midiMerge_t::mergeUSBchannel:
-        case midiMerge_t::mergeDINchannel:
+        else
         {
-            //unused for now
-            writeToDb = false;
-            result = SysExConf::DataHandler::STATUS_OK;
-        }
-        break;
+            auto mergeParam = static_cast<midiMerge_t>(index);
 
-        default:
+            switch (mergeParam)
+            {
+            case midiMerge_t::mergeType:
+            {
+                if ((newValue >= 0) && (newValue < static_cast<size_t>(midiMergeType_t::AMOUNT)))
+                {
+                    result = SysExConf::DataHandler::STATUS_OK;
+
+                    if (isMIDIfeatureEnabled(midiFeature_t::dinEnabled))
+                        dinMIDIinitAction = initAction_t::init;
+                }
+                else
+                {
+                    result = static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
+                }
+            }
             break;
+
+            case midiMerge_t::mergeUSBchannel:
+            case midiMerge_t::mergeDINchannel:
+            {
+                //unused for now
+                writeToDb = false;
+                result = SysExConf::DataHandler::STATUS_OK;
+            }
+            break;
+
+            default:
+                break;
+            }
         }
 #endif
     }
@@ -254,7 +268,23 @@ uint8_t System::onSetGlobal(Section::global_t section, size_t index, uint16_t ne
     }
 
     if ((result == SysExConf::DataHandler::STATUS_OK) && writeToDb)
+    {
         result = _database.update(dbSection(section), index, newValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
+
+        switch (dinMIDIinitAction)
+        {
+        case initAction_t::init:
+            _midi.init(MIDI::interface_t::din);
+            break;
+
+        case initAction_t::deInit:
+            _midi.deInit(MIDI::interface_t::din);
+            break;
+
+        default:
+            break;
+        }
+    }
 
     return result;
 }
@@ -600,36 +630,48 @@ uint8_t System::onSetDisplay(Section::display_t section, size_t index, uint16_t 
 uint8_t System::onSetTouchscreen(Section::touchscreen_t section, size_t index, uint16_t newValue)
 {
 #ifdef TOUCHSCREEN_SUPPORTED
-    auto initAction = initAction_t::asIs;
-
-    switch (section)
+    if (!_touchscreen.isInitialized() && _hwa.serialPeripheralAllocated(serialPeripheral_t::touchscreen) && !_backupRequested)
     {
-    case Section::touchscreen_t::setting:
+        return SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+    }
+    else
     {
-        switch (index)
-        {
-        case static_cast<size_t>(IO::Touchscreen::setting_t::enable):
-        {
-            if (newValue)
-                initAction = initAction_t::init;
-            else
-                initAction = initAction_t::deInit;
-            break;
-        }
-        break;
+        auto initAction = initAction_t::asIs;
 
-        case static_cast<size_t>(IO::Touchscreen::setting_t::model):
+        switch (section)
         {
-            initAction = initAction_t::init;
-        }
-        break;
-
-        case static_cast<size_t>(IO::Touchscreen::setting_t::brightness):
+        case Section::touchscreen_t::setting:
         {
-            if (_touchscreen.isInitialized())
+            switch (index)
             {
-                if (!_touchscreen.setBrightness(static_cast<IO::Touchscreen::brightness_t>(newValue)))
-                    return SysExConf::DataHandler::STATUS_ERROR_RW;
+            case static_cast<size_t>(IO::Touchscreen::setting_t::enable):
+            {
+                if (newValue)
+                    initAction = initAction_t::init;
+                else
+                    initAction = initAction_t::deInit;
+                break;
+            }
+            break;
+
+            case static_cast<size_t>(IO::Touchscreen::setting_t::model):
+            {
+                initAction = initAction_t::init;
+            }
+            break;
+
+            case static_cast<size_t>(IO::Touchscreen::setting_t::brightness):
+            {
+                if (_touchscreen.isInitialized())
+                {
+                    if (!_touchscreen.setBrightness(static_cast<IO::Touchscreen::brightness_t>(newValue)))
+                        return SysExConf::DataHandler::STATUS_ERROR_RW;
+                }
+            }
+            break;
+
+            default:
+                break;
             }
         }
         break;
@@ -637,27 +679,22 @@ uint8_t System::onSetTouchscreen(Section::touchscreen_t section, size_t index, u
         default:
             break;
         }
-    }
-    break;
 
-    default:
-        break;
-    }
+        bool result = _database.update(dbSection(section), index, newValue);
 
-    bool result = _database.update(dbSection(section), index, newValue);
+        if (result)
+        {
+            if (initAction == initAction_t::init)
+                _touchscreen.init();
+            else if (initAction == initAction_t::deInit)
+                _touchscreen.deInit();
 
-    if (result)
-    {
-        if (initAction == initAction_t::init)
-            _touchscreen.init();
-        else if (initAction == initAction_t::deInit)
-            _touchscreen.deInit();
-
-        return SysExConf::DataHandler::STATUS_OK;
-    }
-    else
-    {
-        return SysExConf::DataHandler::STATUS_ERROR_RW;
+            return SysExConf::DataHandler::STATUS_OK;
+        }
+        else
+        {
+            return SysExConf::DataHandler::STATUS_ERROR_RW;
+        }
     }
 #else
     return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);

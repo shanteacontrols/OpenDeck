@@ -15,7 +15,12 @@ namespace
         public:
         HWAMIDI() = default;
 
-        bool init() override
+        bool init(MIDI::interface_t interface) override
+        {
+            return true;
+        }
+
+        bool deInit(MIDI::interface_t interface) override
         {
             return true;
         }
@@ -153,8 +158,7 @@ TEST_SETUP()
     // init checks - no point in running further tests if these conditions fail
     TEST_ASSERT(database.init() == true);
     encoders.init();
-    midi.init();
-    midi.enableUSBMIDI();
+    midi.init(MIDI::interface_t::usb);
 }
 
 TEST_CASE(StateDecoding)

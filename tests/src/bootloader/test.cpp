@@ -61,7 +61,12 @@ namespace
                 : _packets(packets)
             {}
 
-            bool init() override
+            bool init(MIDI::interface_t interface) override
+            {
+                return true;
+            }
+
+            bool deInit(MIDI::interface_t interface) override
             {
                 return true;
             }
@@ -94,9 +99,7 @@ namespace
         MIDIHWA midiHWA(packets);
         MIDI    midi(midiHWA);
 
-        midi.init();
-        midi.enableUSBMIDI();
-
+        midi.init(MIDI::interface_t::usb);
         midi.sendSysEx(sysex.size(), &sysex[0], true);
     }
 

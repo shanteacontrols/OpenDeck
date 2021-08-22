@@ -78,6 +78,12 @@ class System
         AMOUNT
     };
 
+    enum class serialPeripheral_t : uint8_t
+    {
+        dinMIDI,
+        touchscreen
+    };
+
     class Section
     {
         public:
@@ -181,9 +187,8 @@ class System
 
         virtual bool init()                                                                      = 0;
         virtual void reboot(FwSelector::fwType_t type)                                           = 0;
-        virtual void enableDINMIDI(bool loopback)                                                = 0;
-        virtual void disableDINMIDI()                                                            = 0;
         virtual void registerOnUSBconnectionHandler(usbConnectionHandler_t usbConnectionHandler) = 0;
+        virtual bool serialPeripheralAllocated(serialPeripheral_t peripheral)                    = 0;
     };
 
     System(HWA&             hwa,
@@ -284,7 +289,6 @@ class System
     bool                             onCustomRequest(size_t value);
     void                             onWrite(uint8_t* sysExArray, size_t size);
     void                             backup();
-    void                             configureMIDImerge(midiMergeType_t mergeType);
     void                             forceComponentRefresh();
     Database::block_t                dbBlock(uint8_t index);
     Database::Section::global_t      dbSection(Section::global_t section);
@@ -329,6 +333,8 @@ class System
         SYSEX_MANUFACTURER_ID_1,
         SYSEX_MANUFACTURER_ID_2
     };
+
+    static constexpr uint8_t SERIAL_PERIPHERAL_ALLOCATED_ERROR = 80;
 
     uint32_t _lastCinfoMsgTime[static_cast<uint8_t>(Database::block_t::AMOUNT)] = {};
     bool     _backupRequested                                                   = false;

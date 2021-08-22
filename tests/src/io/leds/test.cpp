@@ -16,7 +16,12 @@ namespace
         public:
         HWAMIDI() = default;
 
-        bool init() override
+        bool init(MIDI::interface_t interface) override
+        {
+            return true;
+        }
+
+        bool deInit(MIDI::interface_t interface) override
         {
             return true;
         }
@@ -111,9 +116,8 @@ TEST_SETUP()
     //always start from known state
     database.factoryReset();
 
-    midi.init();
+    midi.init(MIDI::interface_t::usb);
     midi.setChannelSendZeroStart(true);
-    midi.enableUSBMIDI();
 }
 
 #if MAX_NUMBER_OF_LEDS > 0

@@ -79,7 +79,7 @@ uint8_t System::SysExDataHandler::get(uint8_t block, uint8_t section, uint16_t i
 uint8_t System::onGetGlobal(Section::global_t section, size_t index, uint16_t& value)
 {
     int32_t readValue = 0;
-    auto    result    = SysExConf::DataHandler::STATUS_ERROR_RW;
+    uint8_t result    = SysExConf::DataHandler::STATUS_ERROR_RW;
 
     switch (section)
     {
@@ -92,10 +92,17 @@ uint8_t System::onGetGlobal(Section::global_t section, size_t index, uint16_t& v
         else
         {
 #ifndef DIN_MIDI_SUPPORTED
-            return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
+            result = static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 
 #else
-            result = _database.read(dbSection(section), index, readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
+            if (!isMIDIfeatureEnabled(midiFeature_t::dinEnabled) && _hwa.serialPeripheralAllocated(serialPeripheral_t::dinMIDI) && !_backupRequested)
+            {
+                return SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+            }
+            else
+            {
+                result = _database.read(dbSection(section), index, readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
+            }
 #endif
         }
     }
@@ -104,9 +111,16 @@ uint8_t System::onGetGlobal(Section::global_t section, size_t index, uint16_t& v
     case Section::global_t::midiMerge:
     {
 #ifndef DIN_MIDI_SUPPORTED
-        return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
+        result = static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #else
-        result = _database.read(dbSection(section), index, readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
+        if (!isMIDIfeatureEnabled(midiFeature_t::dinEnabled) && _hwa.serialPeripheralAllocated(serialPeripheral_t::dinMIDI) && !_backupRequested)
+        {
+            result = SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+        }
+        else
+        {
+            result = _database.read(dbSection(section), index, readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
+        }
 #endif
     }
     break;
@@ -289,11 +303,18 @@ uint8_t System::onGetDisplay(Section::display_t section, size_t index, uint16_t&
 uint8_t System::onGetTouchscreen(Section::touchscreen_t section, size_t index, uint16_t& value)
 {
 #ifdef TOUCHSCREEN_SUPPORTED
-    int32_t readValue;
-    auto    result = _database.read(dbSection(section), index, readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
+    if (!_touchscreen.isInitialized() && _hwa.serialPeripheralAllocated(serialPeripheral_t::touchscreen) && !_backupRequested)
+    {
+        return SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+    }
+    else
+    {
+        int32_t readValue;
+        auto    result = _database.read(dbSection(section), index, readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
 
-    value = readValue;
-    return result;
+        value = readValue;
+        return result;
+    }
 #else
     return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 #endif

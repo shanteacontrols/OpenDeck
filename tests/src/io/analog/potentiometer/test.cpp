@@ -17,7 +17,12 @@ namespace
         public:
         HWAMIDI() = default;
 
-        bool init() override
+        bool init(MIDI::interface_t interface) override
+        {
+            return true;
+        }
+
+        bool deInit(MIDI::interface_t interface) override
         {
             return true;
         }
@@ -155,8 +160,7 @@ TEST_SETUP()
         analog.debounceReset(i);
 
     hwaMIDI.midiPacket.clear();
-    midi.init();
-    midi.enableUSBMIDI();
+    midi.init(MIDI::interface_t::usb);
 }
 
 TEST_CASE(CCtest)

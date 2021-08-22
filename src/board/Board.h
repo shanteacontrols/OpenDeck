@@ -83,10 +83,20 @@ namespace Board
 
     namespace UART
     {
+        enum class initStatus_t : uint8_t
+        {
+            ok,
+            error,
+            alreadyInit
+        };
+
         /// Initializes UART peripheral.
         /// param [in]: channel     UART channel on MCU.
         /// param [in]: baudRate    UART speed (baudRate).
-        bool init(uint8_t channel, uint32_t baudRate);
+        /// param [in]: force       Forces the enabling of UART channel
+        ///                         even if UART is already enabled.
+        /// returns: see initStatus_t.
+        initStatus_t init(uint8_t channel, uint32_t baudRate, bool force = false);
 
         /// Deinitializes specified UART channel.
         /// param [in]: channel UART channel on MCU.

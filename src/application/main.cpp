@@ -114,9 +114,65 @@ class HWAMIDI : public MIDI::HWA
     public:
     HWAMIDI() = default;
 
-    bool init() override
+    bool init(MIDI::interface_t interface) override
     {
+        if (interface == MIDI::interface_t::usb)
+            return true;    //already initialized
+
+#ifdef DIN_MIDI_SUPPORTED
+        auto mergeType    = static_cast<System::midiMergeType_t>(database.read(Database::Section::global_t::midiMerge, static_cast<size_t>(System::midiMerge_t::mergeType)));
+        bool mergeEnabled = database.read(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::mergeEnabled));
+
+        bool loopback = mergeType == System::midiMergeType_t::DINtoDIN && mergeEnabled;
+
+        if (_dinMIDIenabled && (loopback == _dinMIDIloopbackEnabled))
+            return true;    //nothing do do
+
+        if (!_dinMIDIenabled)
+        {
+            if (Board::UART::init(UART_CHANNEL_DIN, UART_BAUDRATE_MIDI_STD) == Board::UART::initStatus_t::ok)
+            {
+                Board::UART::setLoopbackState(UART_CHANNEL_DIN, loopback);
+
+                _dinMIDIenabled         = true;
+                _dinMIDIloopbackEnabled = loopback;
+
+                return true;
+            }
+        }
+        else
+        {
+            if (loopback != _dinMIDIloopbackEnabled)
+            {
+                //only the loopback parameter has changed
+                _dinMIDIloopbackEnabled = loopback;
+                Board::UART::setLoopbackState(UART_CHANNEL_DIN, loopback);
+                return true;
+            }
+        }
+
+        return false;
+#else
+        return false;
+#endif
+    }
+
+    bool deInit(MIDI::interface_t interface) override
+    {
+        if (interface == MIDI::interface_t::usb)
+            return true;    //never deinit usb interface, just pretend here
+
+#ifdef DIN_MIDI_SUPPORTED
+        if (!_dinMIDIenabled)
+            return true;    //nothing to do
+
+        Board::UART::deInit(UART_CHANNEL_DIN);
+        _dinMIDIenabled         = false;
+        _dinMIDIloopbackEnabled = false;
         return true;
+#else
+        return false;
+#endif
     }
 
     bool dinRead(uint8_t& data) override
@@ -170,6 +226,12 @@ class HWAMIDI : public MIDI::HWA
 
         return false;
     }
+
+    private:
+#ifdef DIN_MIDI_SUPPORTED
+    bool _dinMIDIenabled         = false;
+    bool _dinMIDIloopbackEnabled = false;
+#endif
 } hwaMIDI;
 
 #ifdef LEDS_SUPPORTED
@@ -289,7 +351,7 @@ class HWAtouchscreen : public IO::Touchscreen::Model::HWA
 
     bool init() override
     {
-        if (Board::UART::init(UART_CHANNEL_TOUCHSCREEN, 115200))
+        if (Board::UART::init(UART_CHANNEL_TOUCHSCREEN, 115200) == Board::UART::initStatus_t::ok)
         {
             //add slight delay before display becomes ready on power on
             core::timing::waitMs(1000);
@@ -584,34 +646,6 @@ class SystemHWA : public System::HWA
         Board::reboot();
     }
 
-    void enableDINMIDI(bool loopback) override
-    {
-#ifdef DIN_MIDI_SUPPORTED
-        if (_dinMIDIenabled && (loopback == _dinMIDIloopbackEnabled))
-            return;    //nothing do do
-
-        if (!_dinMIDIenabled)
-            Board::UART::init(UART_CHANNEL_DIN, UART_BAUDRATE_MIDI_STD);
-
-        Board::UART::setLoopbackState(UART_CHANNEL_DIN, loopback);
-
-        _dinMIDIenabled         = true;
-        _dinMIDIloopbackEnabled = loopback;
-#endif
-    }
-
-    void disableDINMIDI() override
-    {
-#ifdef DIN_MIDI_SUPPORTED
-        if (!_dinMIDIenabled)
-            return;    //nothing to do
-
-        Board::UART::deInit(UART_CHANNEL_DIN);
-        _dinMIDIenabled         = false;
-        _dinMIDIloopbackEnabled = false;
-#endif
-    }
-
     void registerOnUSBconnectionHandler(System::usbConnectionHandler_t usbConnectionHandler)
     {
         _usbConnectionHandler = std::move(usbConnectionHandler);
@@ -640,14 +674,42 @@ class SystemHWA : public System::HWA
         }
     }
 
+    bool serialPeripheralAllocated(System::serialPeripheral_t peripheral) override
+    {
+#ifdef USE_UART
+        switch (peripheral)
+        {
+        case System::serialPeripheral_t::dinMIDI:
+        {
+#ifdef UART_CHANNEL_DIN
+            return Board::UART::isInitialized(UART_CHANNEL_DIN);
+#else
+            return false;
+#endif
+        }
+        break;
+
+        case System::serialPeripheral_t::touchscreen:
+        {
+#ifdef UART_CHANNEL_TOUCHSCREEN
+            return Board::UART::isInitialized(UART_CHANNEL_TOUCHSCREEN);
+#else
+            return false;
+#endif
+        }
+        break;
+
+        default:
+            return false;
+        }
+#else
+        return false;
+#endif
+    }
+
     private:
     /// Time in milliseconds after which USB connection state should be checked
     static constexpr uint32_t USB_CONN_CHECK_TIME = 2000;
-
-#ifdef DIN_MIDI_SUPPORTED
-    bool _dinMIDIenabled         = false;
-    bool _dinMIDIloopbackEnabled = false;
-#endif
 
     System::usbConnectionHandler_t _usbConnectionHandler = nullptr;
 } hwaSystem;
