@@ -115,11 +115,11 @@ bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descripto
     if ((descriptor.type == type_t::nrpn14b) || (descriptor.type == type_t::pitchBend) || (descriptor.type == type_t::cc14bit))
     {
         //14-bit values are already read
-        maxLimit = MIDI_14_BIT_VALUE_MAX;
+        maxLimit = MIDI::MIDI_14_BIT_VALUE_MAX;
     }
     else
     {
-        maxLimit = MIDI_7_BIT_VALUE_MAX;
+        maxLimit = MIDI::MIDI_7_BIT_VALUE_MAX;
 
         MIDI::Split14bit split14bit;
 

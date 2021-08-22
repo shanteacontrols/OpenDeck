@@ -427,7 +427,7 @@ namespace
         MIDI parseMIDI(hwaParseMIDI);
 
         parseMIDI.init(MIDI::interface_t::all);
-        parseMIDI.setInputChannel(MIDI_CHANNEL_OMNI);
+        parseMIDI.setInputChannel(MIDI::MIDI_CHANNEL_OMNI);
 
         //create temp midi object which will read written usb packets and pass them back as DIN MIDI array
         //for easier parsing

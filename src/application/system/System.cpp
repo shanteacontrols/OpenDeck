@@ -312,7 +312,7 @@ bool System::sendCInfo(Database::block_t dbBlock, uint16_t componentID)
 void System::configureMIDI()
 {
     _midi.init(MIDI::interface_t::usb);
-    _midi.setInputChannel(MIDI_CHANNEL_OMNI);
+    _midi.setInputChannel(MIDI::MIDI_CHANNEL_OMNI);
     _midi.setNoteOffMode(isMIDIfeatureEnabled(midiFeature_t::standardNoteOff) ? MIDI::noteOffType_t::standardNoteOff : MIDI::noteOffType_t::noteOnZeroVel);
     _midi.setRunningStatusState(isMIDIfeatureEnabled(midiFeature_t::runningStatus));
     _midi.setChannelSendZeroStart(true);

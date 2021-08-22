@@ -183,7 +183,7 @@ TEST_CASE(CCtest)
         TEST_ASSERT(database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
 
         //set all upper limits to MIDI_7_BIT_VALUE_MAX
-        TEST_ASSERT(database.update(Database::Section::analog_t::upperLimit, i, MIDI_7_BIT_VALUE_MAX) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::upperLimit, i, MIDI::MIDI_7_BIT_VALUE_MAX) == true);
 
         //midi channel
         TEST_ASSERT(database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
@@ -275,7 +275,7 @@ TEST_CASE(PitchBendTest)
         TEST_ASSERT(database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
 
         //set all upper limits to MIDI_14_BIT_VALUE_MAX
-        TEST_ASSERT(database.update(Database::Section::analog_t::upperLimit, i, MIDI_14_BIT_VALUE_MAX) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::upperLimit, i, MIDI::MIDI_14_BIT_VALUE_MAX) == true);
 
         //midi channel
         TEST_ASSERT(database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
@@ -360,7 +360,7 @@ TEST_CASE(Inversion)
         TEST_ASSERT(database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
 
         //set all upper limits to MIDI_14_BIT_VALUE_MAX
-        TEST_ASSERT(database.update(Database::Section::analog_t::upperLimit, i, MIDI_14_BIT_VALUE_MAX) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::upperLimit, i, MIDI::MIDI_14_BIT_VALUE_MAX) == true);
 
         //midi channel
         TEST_ASSERT(database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
