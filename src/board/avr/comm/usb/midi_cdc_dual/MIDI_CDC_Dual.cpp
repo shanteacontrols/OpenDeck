@@ -86,6 +86,11 @@ extern "C" void EVENT_USB_Device_ControlRequest(void)
     MIDI_Device_ProcessControlRequest(&MIDI_Interface);
 }
 
+extern "C" void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo)
+{
+    Board::USB::onCDCsetLineEncoding(CDCInterfaceInfo->State.LineEncoding.BaudRateBPS);
+}
+
 namespace Board
 {
     namespace detail
@@ -173,6 +178,65 @@ namespace Board
                 Endpoint_ClearIN();
 
             MIDI_Device_Flush(&MIDI_Interface);
+
+            return true;
+        }
+
+        bool readCDC(uint8_t* buffer, size_t& size, const size_t maxSize)
+        {
+            size             = 0;
+            int16_t readData = -1;
+
+            do
+            {
+                readData = CDC_Device_ReceiveByte(&CDC_Interface);
+                CDC_Device_USBTask(&CDC_Interface);
+
+                if (readData != -1)
+                {
+                    buffer[size++] = static_cast<uint8_t>(readData);
+
+                    if (size >= maxSize)
+                        break;
+                }
+                else
+                {
+                    break;
+                }
+            } while (readData != -1);
+
+            return size > 0;
+        }
+
+        bool readCDC(uint8_t& value)
+        {
+            int16_t readData = CDC_Device_ReceiveByte(&CDC_Interface);
+            CDC_Device_USBTask(&CDC_Interface);
+
+            if (readData != -1)
+            {
+                value = static_cast<uint8_t>(readData);
+                return true;
+            }
+
+            return false;
+        }
+
+        bool writeCDC(uint8_t* buffer, size_t size)
+        {
+            for (size_t i = 0; i < size; i++)
+            {
+                if (CDC_Device_SendByte(&CDC_Interface, (uint8_t)buffer[i]) != ENDPOINT_READYWAIT_NoError)
+                    return false;
+            }
+
+            return true;
+        }
+
+        bool writeCDC(uint8_t value)
+        {
+            if (CDC_Device_SendByte(&CDC_Interface, (uint8_t)value) != ENDPOINT_READYWAIT_NoError)
+                return false;
 
             return true;
         }

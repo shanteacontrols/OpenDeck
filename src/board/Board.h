@@ -58,27 +58,33 @@ namespace Board
         bool writeMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket);
 
         /// Used to read CDC data from USB interface.
-        /// param [in]: byte   Reference to variable in which read CDC data will be stored if available.
+        /// param [in]: byte    Pointer to array in which read CDC data will be stored if available.
+        /// param [in]: size    Amount of read bytes.
+        /// param [in]: maxSize Maximum amount of bytes which can be stored in buffer.
         /// returns: True if data is available, false otherwise.
-        bool readCDC(char& byte);
+        bool readCDC(uint8_t* buffer, size_t& size, const size_t maxSize);
+
+        /// Used to read single CDC value from USB interface.
+        /// param [in]: value  Reference to variable in which read data will be stored if available.
+        /// returns: True if data is available, false otherwise.
+        bool readCDC(uint8_t& value);
 
         /// Used to write CDC data to USB interface.
         /// param [in]: buffer   Buffer containing bytes to write.
         /// param [in]: size     Amount of bytes in buffer.
         /// returns: True if transfer has succeded, false otherwise.
-        bool writeCDC(char* buffer, size_t size);
+        bool writeCDC(uint8_t* buffer, size_t size);
+
+        /// Used to write single CDC value to USB interface.
+        /// param [in]: value   Value being sent.
+        /// returns: True if transfer has succeded, false otherwise.
+        bool writeCDC(uint8_t value);
 
         /// Function called once set line encoding request has been received.
         /// Empty by default.
         /// Should be overriden by user application for proper functionality.
-        /// param [in]: baudrate    Baudrate value specified in USB request.
-        void onCDCsetLineEncoding(uint32_t baudrate);
-
-        /// Function called once get line encoding request has been received.
-        /// Empty by default.
-        /// Should be overriden by user application for proper functionality.
-        /// param [in]: baudrate    Reference to variable in which current baudrate should be stored.
-        void onCDCgetLineEncoding(uint32_t& baudrate);
+        /// param [in]: baudRate    Baudrate value specified in USB request.
+        void onCDCsetLineEncoding(uint32_t baudRate);
     }    // namespace USB
 
     namespace UART

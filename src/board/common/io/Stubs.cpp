@@ -112,11 +112,7 @@ namespace Board
 
     namespace USB
     {
-        __attribute__((weak)) void onCDCsetLineEncoding(uint32_t baudrate)
-        {
-        }
-
-        __attribute__((weak)) void onCDCgetLineEncoding(uint32_t& baudrate)
+        __attribute__((weak)) void onCDCsetLineEncoding(uint32_t baudRate)
         {
         }
     }    // namespace USB

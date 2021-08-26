@@ -25,6 +25,7 @@ namespace USBLink
     enum class internalCMD_t : uint8_t
     {
         rebootBTLDR,
-        usbState
+        usbState,
+        baudRateChange
     };
 }    // namespace USBLink

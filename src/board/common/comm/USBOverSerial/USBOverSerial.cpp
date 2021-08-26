@@ -137,6 +137,7 @@ namespace Board
                 {
                 case static_cast<uint8_t>(packetType_t::midi):
                 case static_cast<uint8_t>(packetType_t::internal):
+                case static_cast<uint8_t>(packetType_t::cdc):
                     return true;
 
                 default:

@@ -32,6 +32,7 @@ namespace Board
             invalid,     ///< Placeholder type used to indicate that the packet type isn't set.
             midi,        ///< MIDI packet in OpenDeck format.
             internal,    ///< Internal command used for target MCU <> USB link communication.
+            cdc,         ///< CDC packet in OpenDeck format.
         };
 
         class USBPacketBase

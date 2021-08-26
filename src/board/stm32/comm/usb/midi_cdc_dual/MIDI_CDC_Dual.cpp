@@ -59,7 +59,7 @@ namespace
     //these buffers are overriden every time midiRxCallback is called
     //save results in ring buffer and remove them as needed when reading
     //not really the most optimized way, however, we are not in AVR land anymore
-    core::RingBuffer<char, RX_BUFFER_SIZE_RING>    cdcRxBufferRing;
+    core::RingBuffer<uint8_t, RX_BUFFER_SIZE_RING> cdcRxBufferRing;
     core::RingBuffer<uint8_t, RX_BUFFER_SIZE_RING> midiRxBufferRing;
 
     namespace cdc
@@ -238,7 +238,7 @@ namespace
             NAKed till the end of the application Xfer */
 
             for (uint32_t i = 0; i < length; i++)
-                cdcRxBufferRing.insert(static_cast<char>(cdcRxBuffer[i]));
+                cdcRxBufferRing.insert(cdcRxBuffer[i]);
 
             (void)USBD_LL_PrepareReceive(pdev, CDC_OUT_EPADDR, (uint8_t*)cdcRxBuffer, CDC_IN_OUT_EPSIZE);
 
@@ -340,26 +340,24 @@ namespace
 
     int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
     {
+        static uint32_t baudRate = 0;
+
         switch (cmd)
         {
         case CDC_REQ_SetLineEncoding:
         {
             //ignore other parameters
-            uint32_t baudrate = (uint32_t)(pbuf[0] | (pbuf[1] << 8) | (pbuf[2] << 16) | (pbuf[3] << 24));
-            Board::USB::onCDCsetLineEncoding(baudrate);
+            baudRate = (uint32_t)(pbuf[0] | (pbuf[1] << 8) | (pbuf[2] << 16) | (pbuf[3] << 24));
+            Board::USB::onCDCsetLineEncoding(baudRate);
         }
         break;
 
         case CDC_REQ_GetLineEncoding:
         {
-            uint32_t baudrate = 0;
-
-            Board::USB::onCDCgetLineEncoding(baudrate);
-
-            pbuf[0] = (uint8_t)(baudrate);
-            pbuf[1] = (uint8_t)(baudrate >> 8);
-            pbuf[2] = (uint8_t)(baudrate >> 16);
-            pbuf[3] = (uint8_t)(baudrate >> 24);
+            pbuf[0] = (uint8_t)(baudRate);
+            pbuf[1] = (uint8_t)(baudRate >> 8);
+            pbuf[2] = (uint8_t)(baudRate >> 16);
+            pbuf[3] = (uint8_t)(baudRate >> 24);
 
             //set by default
             pbuf[4] = 0;       //1 stop bit
@@ -629,16 +627,35 @@ namespace Board
             }
         }
 
-        bool readCDC(char& byte)
+        bool readCDC(uint8_t* buffer, size_t& size, const size_t maxSize)
         {
             if (cdcRxBufferRing.isEmpty())
                 return false;
 
-            cdcRxBufferRing.remove(byte);
+            size = 0;
+
+            size_t loopNr = cdcRxBufferRing.count() > maxSize ? maxSize : cdcRxBufferRing.count();
+
+            for (size_t i = 0; i < loopNr; i++)
+            {
+                if (cdcRxBufferRing.remove(buffer[i]))
+                    size++;
+            }
+
             return true;
         }
 
-        bool writeCDC(char* buffer, size_t size)
+        bool readCDC(uint8_t& value)
+        {
+            if (cdcRxBufferRing.isEmpty())
+                return false;
+
+            value = 0;
+
+            return cdcRxBufferRing.remove(value);
+        }
+
+        bool writeCDC(uint8_t* buffer, size_t size)
         {
             if (cdcData.TxState)
                 return false;
@@ -649,7 +666,20 @@ namespace Board
             cdcData.TxState = 1;
 
             hUsbDeviceFS.ep_in[CDC_IN_EPADDR & 0xFU].total_length = size;
-            (void)USBD_LL_Transmit(&hUsbDeviceFS, CDC_IN_EPADDR, (uint8_t*)buffer, size);
+            (void)USBD_LL_Transmit(&hUsbDeviceFS, CDC_IN_EPADDR, buffer, size);
+
+            return true;
+        }
+
+        bool writeCDC(uint8_t value)
+        {
+            if (cdcData.TxState)
+                return false;
+
+            cdcData.TxState = 1;
+
+            hUsbDeviceFS.ep_in[CDC_IN_EPADDR & 0xFU].total_length = 1;
+            (void)USBD_LL_Transmit(&hUsbDeviceFS, CDC_IN_EPADDR, &value, 1);
 
             return true;
         }

@@ -212,7 +212,7 @@ namespace Board
 #ifndef USB_SUPPORTED
     namespace USB
     {
-        //simulated USB MIDI interface via UART - make this transparent to the application
+        //simulated USB interface via UART - make this transparent to the application
 
         uint8_t                             readBuffer[USB_OVER_SERIAL_BUFFER_SIZE];
         Board::USBOverSerial::USBReadPacket readPacket(readBuffer, USB_OVER_SERIAL_BUFFER_SIZE);
@@ -220,6 +220,34 @@ namespace Board
         bool isUSBconnected()
         {
             return usbConnectionState;
+        }
+
+        void checkInternal()
+        {
+            if (readPacket.type() == USBOverSerial::packetType_t::internal)
+            {
+                //internal command
+                if (readPacket[0] == static_cast<uint8_t>(USBLink::internalCMD_t::usbState))
+                {
+                    usbConnectionState = readPacket[1];
+                }
+                else if (readPacket[0] == static_cast<uint8_t>(USBLink::internalCMD_t::baudRateChange))
+                {
+                    uint32_t baudRate = 0;
+
+                    baudRate = readPacket[4];
+                    baudRate <<= 8;
+                    baudRate |= readPacket[3];
+                    baudRate <<= 8;
+                    baudRate |= readPacket[2];
+                    baudRate <<= 8;
+                    baudRate |= readPacket[1];
+
+                    Board::USB::onCDCsetLineEncoding(baudRate);
+                }
+
+                readPacket.reset();
+            }
         }
 
         bool writeMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
@@ -244,24 +272,78 @@ namespace Board
             {
                 if (readPacket.type() == USBOverSerial::packetType_t::midi)
                 {
-                    USBMIDIpacket.Event = readPacket.data()[0];
-                    USBMIDIpacket.Data1 = readPacket.data()[1];
-                    USBMIDIpacket.Data2 = readPacket.data()[2];
-                    USBMIDIpacket.Data3 = readPacket.data()[3];
+                    USBMIDIpacket.Event = readPacket[0];
+                    USBMIDIpacket.Data1 = readPacket[1];
+                    USBMIDIpacket.Data2 = readPacket[2];
+                    USBMIDIpacket.Data3 = readPacket[3];
 
+                    readPacket.reset();
                     returnValue = true;
                 }
-                else if (readPacket.type() == USBOverSerial::packetType_t::internal)
+                else
                 {
-                    //internal command
-                    if (readPacket.data()[0] == static_cast<uint8_t>(USBLink::internalCMD_t::usbState))
-                        usbConnectionState = readPacket.data()[1];
+                    checkInternal();
                 }
-
-                readPacket.reset();
             }
 
             return returnValue;
+        }
+
+        bool writeCDC(uint8_t* buffer, size_t size)
+        {
+            USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::cdc, buffer, size);
+
+            return USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
+        }
+
+        bool writeCDC(uint8_t value)
+        {
+            USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::cdc, &value, 1);
+
+            return USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
+        }
+
+        bool readCDC(uint8_t* buffer, size_t& size, const size_t maxSize)
+        {
+            if (USBOverSerial::read(UART_CHANNEL_USB_LINK, readPacket))
+            {
+                if (readPacket.type() == USBOverSerial::packetType_t::cdc)
+                {
+                    size = readPacket.size() > maxSize ? maxSize : readPacket.size();
+
+                    for (size_t i = 0; i < size; i++)
+                        buffer[i] = readPacket[i];
+
+                    readPacket.reset();
+                    return true;
+                }
+                else
+                {
+                    checkInternal();
+                }
+            }
+
+            return false;
+        }
+
+        bool readCDC(uint8_t& value)
+        {
+            if (USBOverSerial::read(UART_CHANNEL_USB_LINK, readPacket))
+            {
+                if (readPacket.type() == USBOverSerial::packetType_t::cdc)
+                {
+                    value = readPacket[0];
+
+                    readPacket.reset();
+                    return true;
+                }
+                else
+                {
+                    checkInternal();
+                }
+            }
+
+            return false;
         }
     }    // namespace USB
 #endif

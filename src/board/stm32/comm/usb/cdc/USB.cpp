@@ -400,12 +400,21 @@ namespace Board
 
     namespace USB
     {
-        bool readCDC(char& byte)
+        bool readCDC(char* buffer, size_t& size, const size_t maxSize)
         {
             if (rxBufferRing.isEmpty())
                 return false;
 
-            rxBufferRing.remove(byte);
+            size = 0;
+
+            size_t loopNr = rxBufferRing.count() > maxSize ? maxSize : rxBufferRing.count();
+
+            for (size_t i = 0; i < loopNr; i++)
+            {
+                if (rxBufferRing.remove(buffer[i]))
+                    size++;
+            }
+
             return true;
         }
 

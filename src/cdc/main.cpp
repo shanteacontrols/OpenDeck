@@ -28,6 +28,7 @@ limitations under the License.
 namespace
 {
     char              _txBuffer[CDC_IN_OUT_EPSIZE];
+    char              _rxBuffer[CDC_IN_OUT_EPSIZE];
     volatile uint32_t _baudrate;    //line handlers are called from interrupt
 
     void uartToUSB()
@@ -59,12 +60,15 @@ namespace
 
     void usbToUART()
     {
-        char cdcByte;
+        size_t bufferSize = 0;
 
-        while (Board::USB::readCDC(cdcByte))
+        while (Board::USB::readCDC(_rxBuffer, bufferSize, CDC_IN_OUT_EPSIZE))
         {
-            while (!Board::UART::write(UART_CHANNEL, cdcByte))
-                ;
+            for (size_t i = 0; i < bufferSize; i++)
+            {
+                while (!Board::UART::write(UART_CHANNEL, _rxBuffer[i]))
+                    ;
+            }
 
             Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
         }
@@ -79,11 +83,6 @@ namespace Board
         {
             _baudrate = baudrate;
             Board::UART::init(UART_CHANNEL, _baudrate, true);
-        }
-
-        void onCDCgetLineEncoding(uint32_t& baudrate)
-        {
-            baudrate = _baudrate;
         }
     }    // namespace USB
 }    // namespace Board

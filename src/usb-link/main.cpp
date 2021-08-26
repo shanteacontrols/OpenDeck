@@ -29,6 +29,7 @@ namespace
     uint8_t                             readBuffer[USB_OVER_SERIAL_BUFFER_SIZE];
     Board::USBOverSerial::USBReadPacket readPacket(readBuffer, USB_OVER_SERIAL_BUFFER_SIZE);
     MIDI::USBMIDIpacket_t               USBMIDIpacket;
+    size_t                              cdcPacketSize;
 
     void checkUSBconnection()
     {
@@ -57,17 +58,46 @@ namespace
     }
 }    // namespace
 
+namespace Board
+{
+    namespace USB
+    {
+        void onCDCsetLineEncoding(uint32_t baudRate)
+        {
+            uint8_t data[5] = {
+                static_cast<uint8_t>(USBLink::internalCMD_t::baudRateChange),
+                static_cast<uint8_t>((baudRate) >> 0 & 0xFF),
+                static_cast<uint8_t>((baudRate >> 8) & 0xFF),
+                static_cast<uint8_t>((baudRate >> 16) & 0xFF),
+                static_cast<uint8_t>((baudRate >> 24) & 0xFF),
+            };
+
+            Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::internal, data, 5);
+            Board::USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
+        }
+    }    // namespace USB
+}    // namespace Board
+
 int main(void)
 {
     Board::init();
 
     while (1)
     {
-        //USB -> UART
+        //USB MIDI -> UART
         if (Board::USB::readMIDI(USBMIDIpacket))
         {
             uint8_t                              data[4] = { USBMIDIpacket.Event, USBMIDIpacket.Data1, USBMIDIpacket.Data2, USBMIDIpacket.Data3 };
             Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::midi, data, 4);
+
+            if (Board::USBOverSerial::write(UART_CHANNEL_USB_LINK, packet))
+                Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
+        }
+
+        //USB CDC -> UART
+        if (Board::USB::readCDC(readBuffer, cdcPacketSize, USB_OVER_SERIAL_BUFFER_SIZE))
+        {
+            Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::cdc, readBuffer, cdcPacketSize);
 
             if (Board::USBOverSerial::write(UART_CHANNEL_USB_LINK, packet))
                 Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
@@ -95,6 +125,11 @@ int main(void)
                     Board::bootloader::setMagicBootValue(readPacket[1]);
                     Board::reboot();
                 }
+            }
+            else if (readPacket.type() == Board::USBOverSerial::packetType_t::cdc)
+            {
+                if (Board::USB::writeCDC(readPacket.buffer(), readPacket.size()))
+                    Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::outgoing);
             }
 
             //clear out any stored information in packet since we are reusing it
