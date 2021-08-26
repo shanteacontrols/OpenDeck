@@ -21,7 +21,7 @@ limitations under the License.
 #include "core/src/general/Reset.h"
 #include "core/src/general/Timing.h"
 
-#ifndef USB_MIDI_SUPPORTED
+#ifndef USB_SUPPORTED
 #include "board/common/comm/USBOverSerial/USBOverSerial.h"
 #include "usb-link/Commands.h"
 #endif
@@ -59,7 +59,7 @@ namespace Board
 
     void reboot()
     {
-#ifndef USB_MIDI_SUPPORTED
+#ifndef USB_SUPPORTED
         //signal to usb link to reboot as well
 
         uint8_t data[2] = {

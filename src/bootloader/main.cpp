@@ -54,7 +54,7 @@ class BTLDRWriter : public Updater::BTLDRWriter
 
     void apply() override
     {
-#ifndef USB_MIDI_SUPPORTED
+#ifndef USB_SUPPORTED
         Board::UART::write(UART_CHANNEL_USB_LINK, TARGET_FW_UPDATE_DONE);
 
         while (!Board::UART::isTxEmpty(UART_CHANNEL_USB_LINK))
@@ -83,7 +83,7 @@ class HWAFwSelector : public FwSelector::HWA
         {
         case FwSelector::fwType_t::application:
         {
-#if !defined(USB_MIDI_SUPPORTED)
+#if !defined(USB_SUPPORTED)
             //on non-usb supported board, send magic value to USB link so that link
             //knows whether the target MCU has entered application
             //if link MCU doesn't receive this, bootloader should be entered
@@ -145,7 +145,7 @@ class Reader
     public:
     Reader() = default;
 
-#ifdef USB_MIDI_SUPPORTED
+#ifdef USB_SUPPORTED
     void read()
     {
         uint8_t data = 0;
@@ -212,7 +212,7 @@ class Reader
     Updater     _updater = Updater(_btldrWriter, COMMAND_FW_UPDATE_START, COMMAND_FW_UPDATE_END, FW_UID);
 #endif
 
-#ifdef USB_MIDI_SUPPORTED
+#ifdef USB_SUPPORTED
     MIDI::USBMIDIpacket_t _usbMIDIpacket = {};
     SysExParser           _sysExParser;
 #endif

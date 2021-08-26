@@ -44,7 +44,7 @@ ifeq (,$(findstring gen,$(TYPE)))
 
     #architecture specific
     ifeq ($(ARCH), avr)
-        ifneq (,$(findstring USB_MIDI_SUPPORTED,$(DEFINES)))
+        ifneq (,$(findstring USB_SUPPORTED,$(DEFINES)))
             #common for bootloader and application
             SOURCES += \
             modules/lufa/LUFA/Drivers/USB/Core/AVR8/Device_AVR8.c \
@@ -92,7 +92,7 @@ ifeq (,$(findstring gen,$(TYPE)))
 
         SOURCES += $(shell find ./bootloader -type f -name "*.cpp")
 
-        ifneq (,$(findstring USB_MIDI_SUPPORTED,$(DEFINES)))
+        ifneq (,$(findstring USB_SUPPORTED,$(DEFINES)))
             SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi -type f -name "*.c")
             SOURCES += $(shell $(FIND) ./board/$(ARCH)/comm/usb/midi -type f -name "*.cpp")
@@ -116,7 +116,7 @@ ifeq (,$(findstring gen,$(TYPE)))
         SOURCES += $(shell $(FIND) ./board/$(ARCH)/common -type f -name "*.cpp")
         SOURCES += $(shell $(FIND) ./board/common/comm/USBOverSerial -type f -name "*.cpp")
 
-        ifneq (,$(findstring USB_MIDI_SUPPORTED,$(DEFINES)))
+        ifneq (,$(findstring USB_SUPPORTED,$(DEFINES)))
             SOURCES += $(shell $(FIND) ./board/$(ARCH)/comm/usb/midi_cdc_dual -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi_cdc_dual -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi_cdc_dual -type f -name "*.c")

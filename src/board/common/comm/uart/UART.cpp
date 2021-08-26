@@ -24,7 +24,7 @@ limitations under the License.
 #include "core/src/general/Helpers.h"
 #include "MCU.h"
 
-#ifndef USB_MIDI_SUPPORTED
+#ifndef USB_SUPPORTED
 #include "board/common/comm/USBOverSerial/USBOverSerial.h"
 #include "usb-link/Commands.h"
 #endif
@@ -56,7 +56,7 @@ namespace
     /// Buffer in which incoming UART data is stored.
     core::RingBuffer<uint8_t, UART_RX_BUFFER_SIZE> rxBuffer[MAX_UART_INTERFACES];
 
-#ifndef USB_MIDI_SUPPORTED
+#ifndef USB_SUPPORTED
     /// Holds the USB state received from USB link MCU
     bool usbConnectionState = false;
 #endif
@@ -209,7 +209,7 @@ namespace Board
         }    // namespace UART
     }        // namespace detail
 
-#ifndef USB_MIDI_SUPPORTED
+#ifndef USB_SUPPORTED
     namespace USB
     {
         //simulated USB MIDI interface via UART - make this transparent to the application

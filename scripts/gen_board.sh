@@ -57,7 +57,7 @@ printf "%s\n" "DEFINES += BOARD_STRING=\\\"$TARGET_NAME\\\"" >> "$OUT_FILE_MAKEF
 
 if [[ $($YAML_PARSER "$TARGET_DEF_FILE" usb) == "true" ]]
 then
-    printf "%s\n" "DEFINES += USB_MIDI_SUPPORTED" >> "$OUT_FILE_MAKEFILE_DEFINES"
+    printf "%s\n" "DEFINES += USB_SUPPORTED" >> "$OUT_FILE_MAKEFILE_DEFINES"
 
     {
         printf "%s\n" "#if defined(FW_APP)"
@@ -83,15 +83,15 @@ then
                 printf "%s\n" "DEFINES += USB_LINK_MCU"
                 printf "%s\n" "DEFINES += FW_SELECTOR_NO_VERIFY_CRC"
                 printf "%s\n" "#append this only if it wasn't appended already"
-                printf "%s\n" 'ifeq (,$(findstring USB_MIDI_SUPPORTED,$(DEFINES)))'
-                printf "%s\n" "    DEFINES += USB_MIDI_SUPPORTED"
+                printf "%s\n" 'ifeq (,$(findstring USB_SUPPORTED,$(DEFINES)))'
+                printf "%s\n" "    DEFINES += USB_SUPPORTED"
                 printf "%s\n" "endif"
             } >> "$OUT_FILE_MAKEFILE_DEFINES"
         elif [[ "$($YAML_PARSER "$TARGET_DEF_FILE" usbLink.type)" == "slave" ]]
         then
             {
                 printf "%s\n" "#make sure slave MCUs don't have USB enabled"
-                printf "%s\n" 'DEFINES := $(filter-out USB_MIDI_SUPPORTED,$(DEFINES))'
+                printf "%s\n" 'DEFINES := $(filter-out USB_SUPPORTED,$(DEFINES))'
             } >> "$OUT_FILE_MAKEFILE_DEFINES"
         fi
     fi
