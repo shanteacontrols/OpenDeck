@@ -26,10 +26,10 @@ namespace
         {
         }
 
-        void fillPage(size_t index, uint32_t address, uint16_t data) override
+        void fillPage(size_t index, uint32_t address, uint16_t value) override
         {
-            writtenBytes.push_back(data & 0xFF);
-            writtenBytes.push_back(data >> 8);
+            writtenBytes.push_back(value & 0xFF);
+            writtenBytes.push_back(value >> 8);
         }
 
         void writePage(size_t index) override
@@ -54,10 +54,10 @@ namespace
 
     void sysExToUSBMidi(std::vector<uint8_t> sysex, std::vector<MIDI::USBMIDIpacket_t>& packets)
     {
-        class MIDIHWA : public MIDI::HWA
+        class HWAMIDI : public MIDI::HWA
         {
             public:
-            MIDIHWA(std::vector<MIDI::USBMIDIpacket_t>& packets)
+            HWAMIDI(std::vector<MIDI::USBMIDIpacket_t>& packets)
                 : _packets(packets)
             {}
 
@@ -96,8 +96,8 @@ namespace
             std::vector<MIDI::USBMIDIpacket_t>& _packets;
         };
 
-        MIDIHWA midiHWA(packets);
-        MIDI    midi(midiHWA);
+        HWAMIDI hwaMIDI(packets);
+        MIDI    midi(hwaMIDI);
 
         midi.init(MIDI::interface_t::usb);
         midi.sendSysEx(sysex.size(), &sysex[0], true);

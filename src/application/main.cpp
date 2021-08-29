@@ -180,10 +180,10 @@ class HWAMIDI : public MIDI::HWA
 #endif
     }
 
-    bool dinRead(uint8_t& data) override
+    bool dinRead(uint8_t& value) override
     {
 #ifdef DIN_MIDI_SUPPORTED
-        if (Board::UART::read(UART_CHANNEL_DIN, data))
+        if (Board::UART::read(UART_CHANNEL_DIN, value))
         {
             Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::incoming);
             return true;
@@ -195,10 +195,10 @@ class HWAMIDI : public MIDI::HWA
 #endif
     }
 
-    bool dinWrite(uint8_t data) override
+    bool dinWrite(uint8_t value) override
     {
 #ifdef DIN_MIDI_SUPPORTED
-        if (Board::UART::write(UART_CHANNEL_DIN, data))
+        if (Board::UART::write(UART_CHANNEL_DIN, value))
         {
             Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::outgoing);
             return true;
@@ -349,10 +349,10 @@ class HWALEDsStub : public IO::LEDs::HWA
 #include "io/touchscreen/model/viewtech/Viewtech.h"
 
 //use the same hwa instance for all models
-class HWAtouchscreen : public IO::Touchscreen::Model::HWA
+class HWATouchscreen : public IO::Touchscreen::Model::HWA
 {
     public:
-    HWAtouchscreen() {}
+    HWATouchscreen() {}
 
     bool init() override
     {
@@ -377,19 +377,19 @@ class HWAtouchscreen : public IO::Touchscreen::Model::HWA
         return Board::UART::deInit(UART_CHANNEL_TOUCHSCREEN);
     }
 
-    bool write(uint8_t data) override
+    bool write(uint8_t value) override
     {
-        return Board::UART::write(UART_CHANNEL_TOUCHSCREEN, data);
+        return Board::UART::write(UART_CHANNEL_TOUCHSCREEN, value);
     }
 
-    bool read(uint8_t& data) override
+    bool read(uint8_t& value) override
     {
-        return Board::UART::read(UART_CHANNEL_TOUCHSCREEN, data);
+        return Board::UART::read(UART_CHANNEL_TOUCHSCREEN, value);
     }
-} touchscreenHWA;
+} hwaTouchscreen;
 
-Nextion  touchscreenModelNextion(touchscreenHWA);
-Viewtech touchscreenModelViewtech(touchscreenHWA);
+Nextion  touchscreenModelNextion(hwaTouchscreen);
+Viewtech touchscreenModelViewtech(hwaTouchscreen);
 
 class HWATouchscreenCDCPassthrough : public IO::Touchscreen::CDCPassthrough
 {
@@ -725,9 +725,9 @@ class HWAU8X8 : public IO::U8X8::HWAI2C
         return Board::I2C::deInit(I2C_CHANNEL_DISPLAY);
     }
 
-    bool write(uint8_t address, uint8_t* data, size_t size) override
+    bool write(uint8_t address, uint8_t* buffer, size_t size) override
     {
-        return Board::I2C::write(I2C_CHANNEL_DISPLAY, address, data, size);
+        return Board::I2C::write(I2C_CHANNEL_DISPLAY, address, buffer, size);
     }
 } hwaU8X8;
 #else
@@ -746,17 +746,17 @@ class HWAU8X8Stub : public IO::U8X8::HWAI2C
         return false;
     }
 
-    bool write(uint8_t address, uint8_t* data, size_t size) override
+    bool write(uint8_t address, uint8_t* buffer, size_t size) override
     {
         return false;
     }
 } hwaU8X8;
 #endif
 
-class SystemHWA : public System::HWA
+class HWASystem : public System::HWA
 {
     public:
-    SystemHWA() = default;
+    HWASystem() = default;
 
     bool init() override
     {

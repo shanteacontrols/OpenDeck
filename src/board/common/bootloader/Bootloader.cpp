@@ -62,9 +62,9 @@ namespace Board
             detail::flash::erasePage(index + BOOTLOADER_PAGE_START_INDEX);
         }
 
-        void fillPage(size_t index, uint32_t address, uint16_t data)
+        void fillPage(size_t index, uint32_t address, uint16_t value)
         {
-            detail::flash::write16(detail::map::flashPageDescriptor(index + BOOTLOADER_PAGE_START_INDEX).address + address, data);
+            detail::flash::write16(detail::map::flashPageDescriptor(index + BOOTLOADER_PAGE_START_INDEX).address + address, value);
         }
 
         void writePage(size_t index)

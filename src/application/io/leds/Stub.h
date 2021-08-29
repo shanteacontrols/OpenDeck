@@ -166,7 +166,7 @@ namespace IO
             return 0;
         }
 
-        void midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, dataSource_t dataSource)
+        void midiToState(MIDI::messageType_t messageType, uint8_t value1, uint8_t value2, uint8_t channel, dataSource_t dataSource)
         {
         }
 

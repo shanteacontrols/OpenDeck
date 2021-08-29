@@ -104,10 +104,10 @@ namespace IO
             class HWA
             {
                 public:
-                virtual bool init()              = 0;
-                virtual bool deInit()            = 0;
-                virtual bool write(uint8_t data) = 0;
-                virtual bool read(uint8_t& data) = 0;
+                virtual bool init()               = 0;
+                virtual bool deInit()             = 0;
+                virtual bool write(uint8_t value) = 0;
+                virtual bool read(uint8_t& value) = 0;
             };
 
             class Common
@@ -149,8 +149,8 @@ namespace IO
             public:
             virtual bool init()                                                       = 0;
             virtual bool deInit()                                                     = 0;
-            virtual bool uartRead(uint8_t& byte)                                      = 0;
-            virtual bool uartWrite(uint8_t byte)                                      = 0;
+            virtual bool uartRead(uint8_t& value)                                     = 0;
+            virtual bool uartWrite(uint8_t value)                                     = 0;
             virtual bool cdcRead(uint8_t* buffer, size_t& size, const size_t maxSize) = 0;
             virtual bool cdcWrite(uint8_t* buffer, size_t size)                       = 0;
         };

@@ -119,7 +119,7 @@ namespace IO
         bool init(bool startupInfo);
         bool deInit();
         bool update();
-        void displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, uint16_t byte2, uint8_t byte3);
+        void displayMIDIevent(eventType_t type, event_t event, uint16_t value1, uint16_t value2, uint8_t value3);
         void setAlternateNoteDisplay(bool state);
         void setOctaveNormalization(int8_t value);
         void setRetentionTime(uint32_t time);

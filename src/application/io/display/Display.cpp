@@ -471,7 +471,7 @@ void Display::displayVinfo(bool newFw)
     core::timing::waitMs(2000);
 }
 
-void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, uint16_t byte2, uint8_t byte3)
+void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t value1, uint16_t value2, uint8_t value3)
 {
     if (!_initialized)
         return;
@@ -489,24 +489,24 @@ void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, 
     case event_t::noteOn:
 
         if (!_alternateNoteDisplay)
-            _stringBuilder.overwrite("%d", byte1);
+            _stringBuilder.overwrite("%d", value1);
         else
-            _stringBuilder.overwrite("%s%d", Strings::note(MIDI::getTonicFromNote(byte1)), normalizeOctave(MIDI::getOctaveFromNote(byte1), _octaveNormalization));
+            _stringBuilder.overwrite("%s%d", Strings::note(MIDI::getTonicFromNote(value1)), normalizeOctave(MIDI::getOctaveFromNote(value1), _octaveNormalization));
 
-        _stringBuilder.append(" v%d CH%d", byte2, byte3);
+        _stringBuilder.append(" v%d CH%d", value2, value3);
         _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
         break;
 
     case event_t::programChange:
-        _stringBuilder.overwrite("%d CH%d", byte1, byte3);
+        _stringBuilder.overwrite("%d CH%d", value1, value3);
         _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
         break;
 
     case event_t::controlChange:
     case event_t::nrpn:
-        _stringBuilder.overwrite("%d %d CH%d", byte1, byte2, byte3);
+        _stringBuilder.overwrite("%d %d CH%d", value1, value2, value3);
         _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
         break;
@@ -516,7 +516,7 @@ void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, 
     case event_t::mmcRecordOn:
     case event_t::mmcRecordOff:
     case event_t::mmcPause:
-        _stringBuilder.overwrite("CH%d", byte1);
+        _stringBuilder.overwrite("CH%d", value1);
         _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
         break;
@@ -534,7 +534,7 @@ void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, 
         break;
 
     case event_t::presetChange:
-        _stringBuilder.overwrite("%d", byte1);
+        _stringBuilder.overwrite("%d", value1);
         _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
         break;

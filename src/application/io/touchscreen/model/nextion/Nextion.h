@@ -47,7 +47,7 @@ class Nextion : public IO::Touchscreen::Model, public IO::Touchscreen::Model::Co
 
     typedef struct
     {
-        uint8_t bytes;
+        uint8_t size;
         uint8_t responseID;
     } responseDescriptor_t;
 
@@ -78,19 +78,19 @@ class Nextion : public IO::Touchscreen::Model, public IO::Touchscreen::Model::Co
     const responseDescriptor_t _responses[static_cast<size_t>(responseID_t::AMOUNT)] = {
         //button
         {
-            .bytes      = 6,
+            .size       = 6,
             .responseID = 0x65,
         },
 
         //coordinate initial/final
         {
-            .bytes      = 9,
+            .size       = 9,
             .responseID = 0x67,
         },
 
         //coordinate update
         {
-            .bytes      = 8,
+            .size       = 8,
             .responseID = 0x71,
         },
     };

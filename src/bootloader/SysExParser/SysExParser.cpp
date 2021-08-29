@@ -102,11 +102,11 @@ bool SysExParser::value(size_t index, uint8_t& data)
     if ((arrayIndex + 1) >= _sysExArrayLength)
         return false;
 
-    uint16_t data16;
+    uint16_t value16;
 
-    mergeTo14bit(data16, _sysExArray[arrayIndex], _sysExArray[arrayIndex + 1]);
+    mergeTo14bit(value16, _sysExArray[arrayIndex], _sysExArray[arrayIndex + 1]);
 
-    data = data16 & 0xFF;
+    data = value16 & 0xFF;
 
     return true;
 }

@@ -48,19 +48,19 @@ namespace Board
         bool isUSBconnected();
 
         /// Used to read MIDI data from USB interface.
-        /// param [in]: USBMIDIpacket   Reference to structure in which read MIDI data will be stored if available.
+        /// param [in]: USBMIDIpacket   Reference to structure in which read data will be stored if available.
         /// returns: True if data is available, false otherwise.
         bool readMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket);
 
         /// Used to write MIDI data to USB interface.
-        /// param [in]: USBMIDIpacket   Reference to structure holding MIDI data to write.
+        /// param [in]: USBMIDIpacket   Reference to structure holding data to write.
         /// returns: True if transfer has succeded, false otherwise.
         bool writeMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket);
 
         /// Used to read CDC data from USB interface.
-        /// param [in]: byte    Pointer to array in which read CDC data will be stored if available.
-        /// param [in]: size    Amount of read bytes.
-        /// param [in]: maxSize Maximum amount of bytes which can be stored in buffer.
+        /// param [in]: buffer  Pointer to array in which read data will be stored if available.
+        /// param [in]: size    Reference to variable in which amount of read bytes will be stored.
+        /// param [in]: maxSize Maximum amount of bytes which can be stored in provided buffer.
         /// returns: True if data is available, false otherwise.
         bool readCDC(uint8_t* buffer, size_t& size, const size_t maxSize);
 
@@ -70,8 +70,8 @@ namespace Board
         bool readCDC(uint8_t& value);
 
         /// Used to write CDC data to USB interface.
-        /// param [in]: buffer   Buffer containing bytes to write.
-        /// param [in]: size     Amount of bytes in buffer.
+        /// param [in]: buffer  Pointer to array holding data to send.
+        /// param [in]: size    Amount of bytes in provided buffer.
         /// returns: True if transfer has succeded, false otherwise.
         bool writeCDC(uint8_t* buffer, size_t size);
 
@@ -81,7 +81,6 @@ namespace Board
         bool writeCDC(uint8_t value);
 
         /// Function called once set line encoding request has been received.
-        /// Empty by default.
         /// Should be overriden by user application for proper functionality.
         /// param [in]: baudRate    Baudrate value specified in USB request.
         void onCDCsetLineEncoding(uint32_t baudRate);
@@ -201,23 +200,23 @@ namespace Board
         };
 
         /// Initializes I2C peripheral on the MCU.
-        /// param [in]: channel I2C interface channel on MCU.
+        /// param [in]: channel     I2C interface channel on MCU.
         /// param [in]: clockSpeed  I2C interface speed.
         /// returns: True on success, false otherwise.
         bool init(uint8_t channel, clockSpeed_t clockSpeed);
 
         /// Denitializes I2C peripheral on the MCU.
-        /// param [in]: channel I2C interface channel on MCU.
+        /// param [in]: channel     I2C interface channel on MCU.
         /// returns: True on success, false otherwise.
         bool deInit(uint8_t channel);
 
         /// Write data to I2C slave on specified address.
-        /// param [in]: channel I2C interface channel on MCU.
-        /// param [in]: address 7-bit slave address without R/W bit.
-        /// param [in]: buffer  Buffer containing data to send.
-        /// param [in]: size    Number of bytes to send.
+        /// param [in]: channel     I2C interface channel on MCU.
+        /// param [in]: address     7-bit slave address without R/W bit.
+        /// param [in]: buffer      Pointer to array holding data to send.
+        /// param [in]: size        Amount of bytes in provided buffer.
         /// returns: True on success, false otherwise.
-        bool write(uint8_t channel, uint8_t address, uint8_t* data, size_t size);
+        bool write(uint8_t channel, uint8_t address, uint8_t* buffer, size_t size);
     }    // namespace I2C
 
     namespace io
@@ -278,8 +277,8 @@ namespace Board
         size_t encoderIndex(size_t buttonID);
 
         /// Used to calculate index of A or B signal of encoder.
-        /// param [in]: encoderID       Encoder which is being checked.
-        /// param [in]: index   A or B signal (enumerated type, see encoderIndex_t).
+        /// param [in]: encoderID   Encoder which is being checked.
+        /// param [in]: index       A or B signal (enumerated type, see encoderIndex_t).
         /// returns: Calculated index of A or B signal of encoder.
         size_t encoderSignalIndex(size_t encoderID, encoderIndex_t index);
 
@@ -338,7 +337,7 @@ namespace Board
 
         /// Used to read contents of memory provided by specific board,
         /// param [in]: address Memory address from which to read from.
-        /// param [in]: value   Pointer to variable in which read value is being stored.
+        /// param [in]: value   Reference to variable in which read value is being stored.
         /// param [in]: type    Type of parameter which is being read.
         /// returns: True on success, false otherwise.
         bool read(uint32_t address, int32_t& value, parameterType_t type);
@@ -361,7 +360,7 @@ namespace Board
         bool     isHWtriggerActive();
         uint32_t pageSize(size_t index);
         void     erasePage(size_t index);
-        void     fillPage(size_t index, uint32_t address, uint16_t data);
+        void     fillPage(size_t index, uint32_t address, uint16_t value);
         void     writePage(size_t index);
 #ifdef FW_BOOT
         //don't allow this API from application

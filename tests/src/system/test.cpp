@@ -30,10 +30,10 @@ namespace
     DBstorageMock dbStorageMock;
     Database      database(dbStorageMock, true);
 
-    class SystemHWA : public System::HWA
+    class HWASystem : public System::HWA
     {
         public:
-        SystemHWA() = default;
+        HWASystem() = default;
 
         bool init() override
         {
@@ -220,7 +220,7 @@ namespace
             return true;
         }
 
-        bool write(uint8_t address, uint8_t* data, size_t size) override
+        bool write(uint8_t address, uint8_t* buffer, size_t size) override
         {
             return true;
         }
@@ -319,12 +319,12 @@ namespace
             return false;
         }
 
-        bool uartRead(uint8_t& byte) override
+        bool uartRead(uint8_t& value) override
         {
             return false;
         }
 
-        bool uartWrite(uint8_t byte) override
+        bool uartWrite(uint8_t value) override
         {
             return false;
         }

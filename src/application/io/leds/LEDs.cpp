@@ -138,7 +138,7 @@ LEDs::brightness_t LEDs::valueToBrightness(uint8_t value)
     return static_cast<brightness_t>((value % 16 % TOTAL_BRIGHTNESS_VALUES) + 1);
 }
 
-void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t data2, uint8_t channel, dataSource_t dataSource)
+void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t value1, uint8_t value2, uint8_t channel, dataSource_t dataSource)
 {
     for (size_t i = 0; i < MAX_LEDS; i++)
     {
@@ -273,7 +273,7 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
             if (setState)
             {
                 //match activation ID with received ID
-                if (activationID == data1)
+                if (activationID == value1)
                 {
                     if (messageType == MIDI::messageType_t::programChange)
                     {
@@ -283,18 +283,18 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
                     }
                     else
                     {
-                        //use data2 value (note velocity / cc value) to set led color
+                        //use value2 value (note velocity / cc value) to set led color
                         //and possibly blink speed (depending on configuration)
                         //when note/cc are used to control both state and blinking ignore activation velocity
                         if (setState && setBlink)
                         {
-                            color      = valueToColor(data2);
-                            brightness = valueToBrightness(data2);
+                            color      = valueToColor(value2);
+                            brightness = valueToBrightness(value2);
                         }
                         else
                         {
                             //this has side effect that it will always set RGB LED to red color since no color information is available
-                            color      = (_database.read(Database::Section::leds_t::activationValue, i) == data2) ? color_t::red : color_t::off;
+                            color      = (_database.read(Database::Section::leds_t::activationValue, i) == value2) ? color_t::red : color_t::off;
                             brightness = brightness_t::b100;
                         }
                     }
@@ -306,10 +306,10 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t data1, uint8_t d
             if (setBlink)
             {
                 //match activation ID with received ID
-                if (activationID == data1)
+                if (activationID == value1)
                 {
-                    //blink speed depends on data2 value
-                    setBlinkSpeed(i, valueToBlinkSpeed(data2));
+                    //blink speed depends on value2 value
+                    setBlinkSpeed(i, valueToBlinkSpeed(value2));
                 }
             }
         }

@@ -54,7 +54,7 @@ namespace Board
             return true;
         }
 
-        bool write(uint8_t channel, uint8_t address, uint8_t* data, size_t size)
+        bool write(uint8_t channel, uint8_t address, uint8_t* buffer, size_t size)
         {
             if (channel >= MAX_I2C_INTERFACES)
                 return false;
@@ -100,7 +100,7 @@ namespace Board
 
             for (size_t i = 0; i < size; i++)
             {
-                TWDR = data[i];
+                TWDR = buffer[i];
                 TWCR = (1 << TWINT) | (1 << TWEN);
 
                 //wait for interrupt flag to be cleared

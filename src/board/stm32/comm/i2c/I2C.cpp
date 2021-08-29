@@ -63,12 +63,12 @@ namespace Board
             return HAL_I2C_DeInit(&i2cHandler[channel]) == HAL_OK;
         }
 
-        bool write(uint8_t channel, uint8_t address, uint8_t* data, size_t size)
+        bool write(uint8_t channel, uint8_t address, uint8_t* buffer, size_t size)
         {
             if (channel >= MAX_I2C_INTERFACES)
                 return false;
 
-            return HAL_I2C_Master_Transmit(&i2cHandler[channel], address, data, size, I2C_TRANSFER_TIMEOUT_MS) == HAL_OK;
+            return HAL_I2C_Master_Transmit(&i2cHandler[channel], address, buffer, size, I2C_TRANSFER_TIMEOUT_MS) == HAL_OK;
         }
     }    // namespace I2C
 }    // namespace Board

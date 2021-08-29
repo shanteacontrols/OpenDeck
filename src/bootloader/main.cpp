@@ -42,9 +42,9 @@ class BTLDRWriter : public Updater::BTLDRWriter
         Board::bootloader::erasePage(index);
     }
 
-    void fillPage(size_t index, uint32_t address, uint16_t data) override
+    void fillPage(size_t index, uint32_t address, uint16_t value) override
     {
-        Board::bootloader::fillPage(index, address, data);
+        Board::bootloader::fillPage(index, address, value);
     }
 
     void writePage(size_t index) override
@@ -145,7 +145,7 @@ class Reader
 #ifdef USB_SUPPORTED
     void read()
     {
-        uint8_t data = 0;
+        uint8_t value = 0;
 
         if (Board::USB::readMIDI(_usbMIDIpacket))
         {
@@ -157,18 +157,18 @@ class Reader
                 {
                     for (size_t i = 0; i < dataSize; i++)
                     {
-                        if (_sysExParser.value(i, data))
+                        if (_sysExParser.value(i, value))
                         {
                             Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
 
 #ifdef USB_LINK_MCU
-                            Board::UART::write(UART_CHANNEL_USB_LINK, data);
+                            Board::UART::write(UART_CHANNEL_USB_LINK, value);
 
                             //expect ACK but ignore the value
-                            while (!Board::UART::read(UART_CHANNEL_USB_LINK, data))
+                            while (!Board::UART::read(UART_CHANNEL_USB_LINK, value))
                                 ;
 #else
-                            _updater.feed(data);
+                            _updater.feed(value);
 #endif
                         }
                     }
@@ -177,9 +177,9 @@ class Reader
         }
 
 #ifdef USB_LINK_MCU
-        if (Board::UART::read(UART_CHANNEL_USB_LINK, data))
+        if (Board::UART::read(UART_CHANNEL_USB_LINK, value))
         {
-            if (data == TARGET_FW_UPDATE_DONE)
+            if (value == TARGET_FW_UPDATE_DONE)
             {
                 //To avoid compiling the entire parser to figure out the end
                 //of the FW stream (if won't fit into 4k space), wait for TARGET_FW_UPDATE_DONE
@@ -192,13 +192,13 @@ class Reader
 #else
     void read()
     {
-        uint8_t data;
+        uint8_t value;
 
-        if (Board::UART::read(UART_CHANNEL_USB_LINK, data))
+        if (Board::UART::read(UART_CHANNEL_USB_LINK, value))
         {
             //send USB_LINK_MAGIC_VAL_APP for ACK so that USB link can proceed with next byte
             Board::UART::write(UART_CHANNEL_USB_LINK, USB_LINK_MAGIC_VAL_APP);
-            _updater.feed(data);
+            _updater.feed(value);
         }
     }
 #endif

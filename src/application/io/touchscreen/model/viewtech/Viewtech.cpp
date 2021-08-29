@@ -53,11 +53,11 @@ IO::Touchscreen::tsEvent_t Viewtech::update(IO::Touchscreen::tsData_t& data)
     pollXY();
 
     auto    event = IO::Touchscreen::tsEvent_t::none;
-    uint8_t byte  = 0;
+    uint8_t value = 0;
 
-    while (_hwa.read(byte))
+    while (_hwa.read(value))
     {
-        IO::Touchscreen::Model::Common::rxBuffer[IO::Touchscreen::Model::Common::bufferCount++] = byte;
+        IO::Touchscreen::Model::Common::rxBuffer[IO::Touchscreen::Model::Common::bufferCount++] = value;
     }
 
     //assumption - only one response is received at the time

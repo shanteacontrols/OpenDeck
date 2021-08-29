@@ -52,15 +52,15 @@ IO::Touchscreen::tsEvent_t Nextion::update(IO::Touchscreen::tsData_t& data)
 {
     pollXY();
 
-    uint8_t byte      = 0;
+    uint8_t value     = 0;
     bool    process   = false;
     auto    returnVal = IO::Touchscreen::tsEvent_t::none;
 
-    while (_hwa.read(byte))
+    while (_hwa.read(value))
     {
-        IO::Touchscreen::Model::Common::rxBuffer[IO::Touchscreen::Model::Common::bufferCount++] = byte;
+        IO::Touchscreen::Model::Common::rxBuffer[IO::Touchscreen::Model::Common::bufferCount++] = value;
 
-        if (byte == 0xFF)
+        if (value == 0xFF)
         {
             _endCounter++;
         }
@@ -144,7 +144,7 @@ IO::Touchscreen::tsEvent_t Nextion::response(IO::Touchscreen::tsData_t& data)
 
     for (size_t i = 0; i < static_cast<size_t>(responseID_t::AMOUNT); i++)
     {
-        if (IO::Touchscreen::Model::Common::bufferCount == _responses[i].bytes)
+        if (IO::Touchscreen::Model::Common::bufferCount == _responses[i].size)
         {
             if (IO::Touchscreen::Model::Common::rxBuffer[0] == static_cast<uint8_t>(_responses[i].responseID))
             {

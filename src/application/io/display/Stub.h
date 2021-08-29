@@ -94,7 +94,7 @@ namespace IO
             return false;
         }
 
-        void displayMIDIevent(eventType_t type, event_t event, uint16_t byte1, uint16_t byte2, uint8_t byte3)
+        void displayMIDIevent(eventType_t type, event_t event, uint16_t value1, uint16_t value2, uint8_t value3)
         {
         }
 
