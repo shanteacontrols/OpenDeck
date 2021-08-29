@@ -22,6 +22,7 @@ limitations under the License.
 #include <inttypes.h>
 #include "midi/src/MIDI.h"
 #include "core/src/general/IO.h"
+#include "board/Board.h"
 
 #ifdef __STM32__
 #include "EmuEEPROM/src/EmuEEPROM.h"
@@ -84,8 +85,8 @@ namespace Board
 
                 /// Performs low-level initialization of the specified UART channel.
                 /// param [in]: channel     UART channel on MCU.
-                /// param [in]: baudRate    UART speed (baudRate).
-                bool init(uint8_t channel, uint32_t baudRate);
+                /// param [in]: config_t    Structure containing configuration for given UART channel.
+                bool init(uint8_t channel, Board::UART::config_t& config);
 
                 /// Performs low-level deinitialization of the specified UART channel.
                 /// param [in]: channel UART channel on MCU.
@@ -103,6 +104,11 @@ namespace Board
             /// param [in,out]: remainingBytes  Reference to variable in which total number of bytes remanining in buffer is stored.
             /// returns: True if byte has been successfully retrieved, false otherwise (buffer is empty).
             bool getNextByteToSend(uint8_t channel, uint8_t& data, size_t& remainingBytes);
+
+            /// Checks if there are any bytes to send in outgoing buffer for a given UART channel.
+            /// param [in]: channel             UART channel on MCU.
+            /// returns: True if there are bytes to send, false otherwise.
+            bool bytesToSendAvailable(uint8_t channel);
 
             /// Used to indicate that the transmission is complete.
             /// param [in]: channel UART channel on MCU.

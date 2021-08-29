@@ -107,7 +107,7 @@ namespace Board
             return false;
         }
 
-        initStatus_t init(uint8_t channel, uint32_t baudRate, bool force)
+        initStatus_t init(uint8_t channel, config_t& config, bool force)
         {
             if (channel >= MAX_UART_INTERFACES)
                 return initStatus_t::error;
@@ -117,7 +117,7 @@ namespace Board
 
             if (deInit(channel))
             {
-                if (Board::detail::UART::ll::init(channel, baudRate))
+                if (Board::detail::UART::ll::init(channel, config))
                 {
                     initialized[channel] = true;
                     return initStatus_t::ok;
@@ -132,22 +132,54 @@ namespace Board
             return initialized[channel];
         }
 
-        bool read(uint8_t channel, uint8_t& data)
+        bool read(uint8_t channel, uint8_t* buffer, size_t& size, const size_t maxSize)
         {
-            data = 0;
+            size = 0;
 
             if (channel >= MAX_UART_INTERFACES)
                 return false;
 
-            return rxBuffer[channel].remove(data);
+            while (rxBuffer[channel].remove(buffer[size++]))
+            {
+                if (size >= maxSize)
+                    break;
+            }
+
+            return size > 0;
         }
 
-        bool write(uint8_t channel, uint8_t data)
+        bool read(uint8_t channel, uint8_t& value)
+        {
+            value = 0;
+
+            if (channel >= MAX_UART_INTERFACES)
+                return false;
+
+            return rxBuffer[channel].remove(value);
+        }
+
+        bool write(uint8_t channel, uint8_t* buffer, size_t size)
         {
             if (channel >= MAX_UART_INTERFACES)
                 return false;
 
-            while (!txBuffer[channel].insert(data))
+            for (size_t i = 0; i < size; i++)
+            {
+                while (!txBuffer[channel].insert(buffer[i]))
+                    ;
+
+                uartTransmitStart(channel);
+            }
+
+            return true;
+        }
+
+        bool write(uint8_t channel, uint8_t value)
+        {
+            if (channel >= MAX_UART_INTERFACES)
+                return false;
+
+            while (!txBuffer[channel].insert(value))
                 ;
 
             uartTransmitStart(channel);
@@ -197,9 +229,13 @@ namespace Board
                 else
                 {
                     remainingBytes = 0;
-                    Board::detail::UART::ll::disableDataEmptyInt(channel);
                     return false;
                 }
+            }
+
+            bool bytesToSendAvailable(uint8_t channel)
+            {
+                return txBuffer[channel].count();
             }
 
             void indicateTxComplete(uint8_t channel)

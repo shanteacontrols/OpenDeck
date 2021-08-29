@@ -130,7 +130,12 @@ class HWAMIDI : public MIDI::HWA
 
         if (!_dinMIDIenabled)
         {
-            if (Board::UART::init(UART_CHANNEL_DIN, UART_BAUDRATE_MIDI_STD) == Board::UART::initStatus_t::ok)
+            Board::UART::config_t config(UART_BAUDRATE_MIDI_STD,
+                                         Board::UART::parity_t::no,
+                                         Board::UART::stopBits_t::one,
+                                         Board::UART::type_t::rxTx);
+
+            if (Board::UART::init(UART_CHANNEL_DIN, config) == Board::UART::initStatus_t::ok)
             {
                 Board::UART::setLoopbackState(UART_CHANNEL_DIN, loopback);
 
@@ -351,7 +356,12 @@ class HWAtouchscreen : public IO::Touchscreen::Model::HWA
 
     bool init() override
     {
-        if (Board::UART::init(UART_CHANNEL_TOUCHSCREEN, 115200) == Board::UART::initStatus_t::ok)
+        Board::UART::config_t config(115200,
+                                     Board::UART::parity_t::no,
+                                     Board::UART::stopBits_t::one,
+                                     Board::UART::type_t::rxTx);
+
+        if (Board::UART::init(UART_CHANNEL_TOUCHSCREEN, config) == Board::UART::initStatus_t::ok)
         {
             //add slight delay before display becomes ready on power on
             core::timing::waitMs(1000);

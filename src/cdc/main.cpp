@@ -82,7 +82,13 @@ namespace Board
         void onCDCsetLineEncoding(uint32_t baudrate)
         {
             _baudrate = baudrate;
-            Board::UART::init(UART_CHANNEL, _baudrate, true);
+
+            Board::UART::config_t config(_baudrate,
+                                         Board::UART::parity_t::no,
+                                         Board::UART::stopBits_t::one,
+                                         Board::UART::type_t::rxTx);
+
+            Board::UART::init(UART_CHANNEL, config, true);
         }
     }    // namespace USB
 }    // namespace Board

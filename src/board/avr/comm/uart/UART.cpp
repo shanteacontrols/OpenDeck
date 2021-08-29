@@ -103,7 +103,7 @@ namespace Board
                     return true;
                 }
 
-                bool init(uint8_t channel, uint32_t baudRate)
+                bool init(uint8_t channel, Board::UART::config_t& config)
                 {
                     if (channel >= MAX_UART_INTERFACES)
                         return false;
@@ -111,7 +111,7 @@ namespace Board
                     if (!deInit(channel))
                         return false;
 
-                    int32_t baud_count = ((F_CPU / 8) + (baudRate / 2)) / baudRate;
+                    int32_t baud_count = ((F_CPU / 8) + (config.baudRate / 2)) / config.baudRate;
 
                     if ((baud_count & 1) && baud_count <= 4096)
                     {
@@ -154,19 +154,40 @@ namespace Board
                         }
                     }
 
-                    //8 bit, no parity, 1 stop bit
-                    //enable receiver, transmitter and receive interrupt
+                    //8 bit data is fixed / non-configurable
                     switch (channel)
                     {
                     case 0:
                         UCSRC_0 = (1 << UCSZ1_0) | (1 << UCSZ0_0);
-                        UCSRB_0 = (1 << RXEN_0) | (1 << TXEN_0) | (1 << RXCIE_0) | (1 << TXCIE_0);
+
+                        if (config.type == Board::UART::type_t::rxTx)
+                            UCSRB_0 = (1 << RXEN_0) | (1 << TXEN_0) | (1 << RXCIE_0) | (1 << TXCIE_0);
+                        else if (config.type == Board::UART::type_t::rx)
+                            UCSRB_0 = (1 << RXEN_0) | (1 << RXCIE_0);
+                        else if (config.type == Board::UART::type_t::tx)
+                            UCSRB_0 = (1 << TXEN_0) | (1 << TXCIE_0);
+
+                        if (config.stopBits == Board::UART::stopBits_t::two)
+                            UCSRC_0 |= (1 << USBS_0);
+
+                        if (config.parity == Board::UART::parity_t::even)
+                            UCSRC_0 |= (1 << UPM1_0);
+                        else if (config.parity == Board::UART::parity_t::odd)
+                            UCSRC_0 |= (1 << UPM0_0) | (1 << UPM1_0);
                         break;
 
 #ifdef UCSRC_1
                     case 1:
                         UCSRC_1 = (1 << UCSZ1_1) | (1 << UCSZ0_1);
                         UCSRB_1 = (1 << RXEN_1) | (1 << TXEN_1) | (1 << RXCIE_1) | (1 << TXCIE_1);
+
+                        if (config.stopBits == Board::UART::stopBits_t::two)
+                            UCSRC_1 |= (1 << USBS_1);
+
+                        if (config.parity == Board::UART::parity_t::even)
+                            UCSRC_1 |= (1 << UPM1_1);
+                        else if (config.parity == Board::UART::parity_t::odd)
+                            UCSRC_1 |= (1 << UPM0_1) | (1 << UPM1_1);
                         break;
 #endif
 
@@ -207,7 +228,13 @@ ISR(USART_UDRE_vect_0)
     size_t  dummy;
 
     if (Board::detail::UART::getNextByteToSend(0, data, dummy))
+    {
         UDR_0 = data;
+    }
+    else
+    {
+        Board::detail::UART::ll::disableDataEmptyInt(0);
+    }
 }
 
 #ifdef UDR_1
@@ -217,7 +244,13 @@ ISR(USART_UDRE_vect_1)
     size_t  dummy;
 
     if (Board::detail::UART::getNextByteToSend(1, data, dummy))
+    {
         UDR_1 = data;
+    }
+    else
+    {
+        Board::detail::UART::ll::disableDataEmptyInt(1);
+    }
 }
 #endif
 

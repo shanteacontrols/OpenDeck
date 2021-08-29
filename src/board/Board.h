@@ -96,13 +96,53 @@ namespace Board
             alreadyInit
         };
 
+        enum parity_t : uint8_t
+        {
+            no,
+            even,
+            odd
+        };
+
+        enum stopBits_t : uint8_t
+        {
+            one,
+            two
+        };
+
+        enum type_t : uint8_t
+        {
+            rxTx,
+            rx,
+            tx
+        };
+
+        struct config_t
+        {
+            uint32_t   baudRate = 9600;
+            parity_t   parity   = parity_t::no;
+            stopBits_t stopBits = stopBits_t::one;
+            type_t     type     = type_t::rxTx;
+
+            config_t(uint32_t   baudRate,
+                     parity_t   parity,
+                     stopBits_t stopBits,
+                     type_t     type)
+                : baudRate(baudRate)
+                , parity(parity)
+                , stopBits(stopBits)
+                , type(type)
+            {}
+
+            config_t() = default;
+        };
+
         /// Initializes UART peripheral.
         /// param [in]: channel     UART channel on MCU.
-        /// param [in]: baudRate    UART speed (baudRate).
+        /// param [in]: config      Structure containing configuration for given UART channel.
         /// param [in]: force       Forces the enabling of UART channel
         ///                         even if UART is already enabled.
         /// returns: see initStatus_t.
-        initStatus_t init(uint8_t channel, uint32_t baudRate, bool force = false);
+        initStatus_t init(uint8_t channel, config_t& config, bool force = false);
 
         /// Deinitializes specified UART channel.
         /// param [in]: channel UART channel on MCU.
@@ -112,18 +152,34 @@ namespace Board
         /// param [in]: channel UART channel on MCU.
         bool isInitialized(uint8_t channel);
 
-        /// Used to read MIDI data from RX UART buffer.
-        /// param [in]:     channel     UART channel on MCU.
-        /// param [in,out]: data        Pointer to variable in which read data is being stored.
-        /// returns: False if buffer is empty, true otherwise.
-        bool read(uint8_t channel, uint8_t& data);
-
-        /// Used to write MIDI data to UART TX buffer.
+        /// Used to read data from RX UART buffer.
         /// param [in]: channel     UART channel on MCU.
-        /// param [in]: data        Byte of data to write.
+        /// param [in]: buffer      Pointer to array in which read data will be stored if available.
+        /// param [in]: size        Reference to variable in which amount of read bytes will be stored.
+        /// param [in]: maxSize     Maximum amount of bytes which can be stored in provided buffer.
+        /// returns: True if data is available, false otherwise.
+        bool read(uint8_t channel, uint8_t* buffer, size_t& size, const size_t maxSize);
+
+        /// Used to read single value from RX UART buffer.
+        /// param [in]: channel     UART channel on MCU.
+        /// param [in]: value       Reference to variable in which read data will be stored if available.
+        /// returns: True if data is available, false otherwise.
+        bool read(uint8_t channel, uint8_t& value);
+
+        /// Used to write data to UART TX buffer.
+        /// param [in]: channel     UART channel on MCU.
+        /// param [in]: buffer      Pointer to array holding data to send.
+        /// param [in]: size        Amount of bytes in provided buffer.
         /// returns: True on success. Since this function waits until
         /// outgoig buffer is full, result will always be success (1).
-        bool write(uint8_t channel, uint8_t data);
+        bool write(uint8_t channel, uint8_t* buffer, size_t size);
+
+        /// Used to write single value to UART TX buffer.
+        /// param [in]: channel     UART channel on MCU.
+        /// param [in]: value       Value being sent.
+        /// returns: True on success. Since this function waits until
+        /// outgoig buffer is full, result will always be success (1).
+        bool write(uint8_t channel, uint8_t value);
 
         /// Used to enable or disable UART loopback functionality.
         /// Used to pass incoming UART data to TX channel immediately.

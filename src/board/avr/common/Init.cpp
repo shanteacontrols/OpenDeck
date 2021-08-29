@@ -96,7 +96,12 @@ namespace Board
                 ENABLE_INTERRUPTS();
 
 #if defined(USB_LINK_MCU) || !defined(USB_SUPPORTED)
-                Board::UART::init(UART_CHANNEL_USB_LINK, UART_BAUDRATE_USB);
+                Board::UART::config_t config(UART_BAUDRATE_USB,
+                                             Board::UART::parity_t::no,
+                                             Board::UART::stopBits_t::one,
+                                             Board::UART::type_t::rxTx);
+
+                Board::UART::init(UART_CHANNEL_USB_LINK, config);
 #endif
             }
 
@@ -122,7 +127,12 @@ namespace Board
                 detail::setup::adc();
 
 #if defined(USB_LINK_MCU) || !defined(USB_SUPPORTED)
-                Board::UART::init(UART_CHANNEL_USB_LINK, UART_BAUDRATE_USB);
+                Board::UART::config_t config(UART_BAUDRATE_USB,
+                                             Board::UART::parity_t::no,
+                                             Board::UART::stopBits_t::one,
+                                             Board::UART::type_t::rxTx);
+
+                Board::UART::init(UART_CHANNEL_USB_LINK, config);
 #endif
 
                 detail::setup::usb();

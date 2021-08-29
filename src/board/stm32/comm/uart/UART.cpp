@@ -60,7 +60,7 @@ namespace Board
                     return HAL_UART_DeInit(&uartHandler[channel]) == HAL_OK;
                 }
 
-                bool init(uint8_t channel, uint32_t baudRate)
+                bool init(uint8_t channel, Board::UART::config_t& config)
                 {
                     if (channel >= MAX_UART_INTERFACES)
                         return false;
@@ -68,20 +68,36 @@ namespace Board
                     if (!deInit(channel))
                         return false;
 
-                    uartHandler[channel].Instance          = static_cast<USART_TypeDef*>(Board::detail::map::uartDescriptor(channel)->interface());
-                    uartHandler[channel].Init.BaudRate     = baudRate;
-                    uartHandler[channel].Init.WordLength   = UART_WORDLENGTH_8B;
-                    uartHandler[channel].Init.StopBits     = UART_STOPBITS_1;
-                    uartHandler[channel].Init.Parity       = UART_PARITY_NONE;
-                    uartHandler[channel].Init.Mode         = UART_MODE_TX_RX;
+                    uartHandler[channel].Instance        = static_cast<USART_TypeDef*>(Board::detail::map::uartDescriptor(channel)->interface());
+                    uartHandler[channel].Init.BaudRate   = config.baudRate;
+                    uartHandler[channel].Init.WordLength = UART_WORDLENGTH_8B;
+                    uartHandler[channel].Init.StopBits   = config.stopBits == Board::UART::stopBits_t::one ? UART_STOPBITS_1 : UART_STOPBITS_2;
+
+                    if (config.parity == Board::UART::parity_t::no)
+                        uartHandler[channel].Init.Parity = UART_PARITY_NONE;
+                    else if (config.parity == Board::UART::parity_t::even)
+                        uartHandler[channel].Init.Parity = UART_PARITY_EVEN;
+                    else if (config.parity == Board::UART::parity_t::odd)
+                        uartHandler[channel].Init.Parity = UART_PARITY_ODD;
+
+                    if (config.type == Board::UART::type_t::rxTx)
+                        uartHandler[channel].Init.Mode = UART_MODE_TX_RX;
+                    else if (config.type == Board::UART::type_t::rx)
+                        uartHandler[channel].Init.Mode = UART_MODE_RX;
+                    else if (config.type == Board::UART::type_t::tx)
+                        uartHandler[channel].Init.Mode = UART_MODE_TX;
+
                     uartHandler[channel].Init.HwFlowCtl    = UART_HWCONTROL_NONE;
                     uartHandler[channel].Init.OverSampling = UART_OVERSAMPLING_16;
 
                     if (HAL_UART_Init(&uartHandler[channel]) != HAL_OK)
                         return false;
 
-                    //enable rx interrupt
-                    __HAL_UART_ENABLE_IT(&uartHandler[channel], UART_IT_RXNE);
+                    if ((config.type == Board::UART::type_t::rxTx) || (config.type == Board::UART::type_t::rx))
+                    {
+                        //enable rx interrupt
+                        __HAL_UART_ENABLE_IT(&uartHandler[channel], UART_IT_RXNE);
+                    }
 
                     return true;
                 }
