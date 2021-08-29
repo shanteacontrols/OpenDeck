@@ -25,7 +25,6 @@ limitations under the License.
 #define SYSEX_CR_FIRMWARE_VERSION_HARDWARE_UID 0x43
 #define SYSEX_CR_REBOOT_APP                    0x7F
 #define SYSEX_CR_REBOOT_BTLDR                  0x55
-#define SYSEX_CR_REBOOT_CDC                    0x54
 #define SYSEX_CR_FACTORY_RESET                 0x44
 #define SYSEX_CR_MAX_COMPONENTS                0x4D
 #define SYSEX_CR_SUPPORTED_PRESETS             0x50

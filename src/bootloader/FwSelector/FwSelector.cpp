@@ -33,10 +33,6 @@ void FwSelector::init()
 
         switch (magicValue)
         {
-        case static_cast<uint8_t>(fwType_t::cdc):
-            fwType = fwType_t::cdc;
-            break;
-
         case static_cast<uint8_t>(fwType_t::bootloader):
             fwType = fwType_t::bootloader;
             break;

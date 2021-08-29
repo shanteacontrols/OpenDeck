@@ -21,9 +21,6 @@ limitations under the License.
 #include "board/stm32/comm/usb/USB.h"
 #include "stm32f4xx_hal.h"
 #include "core/src/general/Timing.h"
-#ifdef FW_CDC
-#include "board/common/comm/usb/descriptors/cdc/Descriptors.h"
-#endif
 #include "MCU.h"
 
 //This function handles USB On The Go FS global interrupt.
@@ -91,7 +88,7 @@ extern "C" void SysTick_Handler(void)
     HAL_IncTick();
 }
 
-#if defined(FW_APP) || defined(FW_CDC)
+#if defined(FW_APP)
 //not needed in bootloader
 #ifdef USE_UART
 extern "C" void USART1_IRQHandler(void)

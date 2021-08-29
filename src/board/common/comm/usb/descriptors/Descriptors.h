@@ -20,9 +20,7 @@ limitations under the License.
 
 #include "board/common/comm/usb/Arch.h"
 
-#ifdef FW_CDC
-#include "cdc/Descriptors.h"
-#elif defined(FW_BOOT)
+#ifdef FW_BOOT
 #include "midi/Descriptors.h"
 #else
 #include "midi_cdc_dual/Descriptors.h"

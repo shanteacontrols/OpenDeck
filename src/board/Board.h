@@ -357,7 +357,6 @@ namespace Board
         void     setMagicBootValue(uint8_t value);
         void     runBootloader();
         void     runApplication();
-        void     runCDC();
         void     appAddrBoundary(uint32_t& first, uint32_t& last);
         bool     isHWtriggerActive();
         uint32_t pageSize(size_t index);

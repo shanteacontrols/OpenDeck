@@ -26,8 +26,6 @@ limitations under the License.
 #define USB_PRODUCT_ID 0x8472
 #elif defined(FW_BOOT)
 #define USB_PRODUCT_ID 0x8473
-#elif defined(FW_CDC)
-#define USB_PRODUCT_ID 0x8474
 #endif
 
 #define USB_MANUFACTURER UNICODE_STRING("Shantea Controls")

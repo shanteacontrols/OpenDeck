@@ -154,10 +154,6 @@ uint8_t System::SysExDataHandler::customRequest(uint16_t request, CustomResponse
         _system._hwa.reboot(FwSelector::fwType_t::bootloader);
         break;
 
-    case SYSEX_CR_REBOOT_CDC:
-        _system._hwa.reboot(FwSelector::fwType_t::cdc);
-        break;
-
     case SYSEX_CR_MAX_COMPONENTS:
     {
         customResponse.append(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS);

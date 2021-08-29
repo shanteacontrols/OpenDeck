@@ -200,21 +200,6 @@ ifeq (,$(findstring gen,$(TYPE)))
                 modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
             endif
         endif
-    else ifeq ($(TYPE),cdc)
-        #cdc mode sources
-        #stm32 only
-        SOURCES += \
-        board/$(ARCH)/common/Init.cpp \
-        board/common/io/Indicators.cpp \
-        board/$(ARCH)/common/ShiftRegistersWait.cpp \
-        board/$(ARCH)/common/ISR.cpp \
-        board/$(ARCH)/comm/uart/UART.cpp \
-        board/common/comm/uart/UART.cpp
-
-        SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/cdc -type f -name "*.cpp")
-        SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/cdc -type f -name "*.c")
-        SOURCES += $(shell $(FIND) ./board/$(ARCH)/comm/usb/cdc -type f -name "*.cpp")
-        SOURCES += $(shell find ./cdc -type f -name "*.cpp")
     endif
 else ifeq ($(TYPE),flashgen)
     SOURCES += $(shell $(FIND) ./application/database -type f -name "*.cpp")

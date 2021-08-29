@@ -66,17 +66,5 @@ namespace Board
             while (true)
                 ;
         }
-
-        void runCDC()
-        {
-            HAL_RCC_DeInit();
-            HAL_DeInit();
-
-            auto appEntry = (appEntry_t) * (volatile uint32_t*)(CDC_START_ADDR + 4);
-            appEntry();
-
-            while (true)
-                ;
-        }
     }    // namespace bootloader
 }    // namespace Board

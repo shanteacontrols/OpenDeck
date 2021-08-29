@@ -26,13 +26,9 @@ limitations under the License.
 
 #define UNICODE_STRING(string) L##string
 #else
-#ifdef FW_CDC
-#include "descriptors/types/CDCDescriptors.h"
-#else
 #include "descriptors/types/AudioDescriptors.h"
 #include "descriptors/types/MIDIDescriptors.h"
 #include "descriptors/types/CDCDescriptors.h"
-#endif
 
 #define UNICODE_STRING(string) u##string
 #endif

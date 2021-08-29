@@ -81,7 +81,6 @@ else ifeq ($(MCU), stm32f407vg)
     FLOAT-ABI := hard
     APP_START_ADDR := 0x8008000
     BOOT_START_ADDR := 0x8000000
-    CDC_START_ADDR := 0x8020000
     FW_METADATA_LOCATION := $(shell echo $$(($(APP_START_ADDR) + 0x190)))
     DEFINES += STM32F407xx
 else ifeq ($(MCU), stm32f405rg)
@@ -90,7 +89,6 @@ else ifeq ($(MCU), stm32f405rg)
     FLOAT-ABI := hard
     APP_START_ADDR := 0x8008000
     BOOT_START_ADDR := 0x8000000
-    CDC_START_ADDR := 0x8020000
     FW_METADATA_LOCATION := $(shell echo $$(($(APP_START_ADDR) + 0x190)))
     DEFINES += STM32F405xx
 else ifeq ($(MCU), stm32f401ce)
@@ -99,7 +97,6 @@ else ifeq ($(MCU), stm32f401ce)
     FLOAT-ABI := hard
     APP_START_ADDR := 0x8008000
     BOOT_START_ADDR := 0x8000000
-    CDC_START_ADDR := 0x8020000
     FW_METADATA_LOCATION := $(shell echo $$(($(APP_START_ADDR) + 0x190)))
     DEFINES += STM32F401xE
 else ifeq ($(MCU), stm32f411ce)
@@ -108,7 +105,6 @@ else ifeq ($(MCU), stm32f411ce)
     FLOAT-ABI := hard
     APP_START_ADDR := 0x8008000
     BOOT_START_ADDR := 0x8000000
-    CDC_START_ADDR := 0x8020000
     FW_METADATA_LOCATION := $(shell echo $$(($(APP_START_ADDR) + 0x190)))
     DEFINES += STM32F411xE
 else
@@ -164,9 +160,6 @@ else ifeq ($(TYPE),flashgen)
     #same as app
     DEFINES += FW_APP
     FLASH_START_ADDR := $(APP_START_ADDR)
-else ifeq ($(TYPE),cdc)
-    DEFINES += FW_CDC
-    FLASH_START_ADDR := $(CDC_START_ADDR)
 else ifeq ($(TYPE),sysexgen)
     #nothing to do
 else
@@ -176,11 +169,10 @@ endif
 DEFINES += FLASH_START_ADDR=$(FLASH_START_ADDR)
 DEFINES += BOOT_START_ADDR=$(BOOT_START_ADDR)
 DEFINES += APP_START_ADDR=$(APP_START_ADDR)
-DEFINES += CDC_START_ADDR=$(CDC_START_ADDR)
 DEFINES += FW_METADATA_LOCATION=$(FW_METADATA_LOCATION)
 
 ifeq ($(ARCH), avr)
-    ifneq (,$(findstring cdc flashgen,$(TYPE)))
+    ifneq (,$(findstring flashgen,$(TYPE)))
         $(error $(TYPE) not supported for this arch)
     endif
 
@@ -188,13 +180,6 @@ ifeq ($(ARCH), avr)
     DEFINES += MEDIAN_MIDDLE_VALUE=1
 endif
 
-ifeq ($(TYPE),cdc)
-    DEFINES += USE_UART
-
-    ifeq ($(DEBUG),1)
-        #reduce the flash usage, otherwise debug binary is too large
-        DEFINES := $(filter-out LED_INDICATORS,$(DEFINES))
-    endif
-else ifneq (,$(findstring UART_CHANNEL,$(DEFINES)))
+ifneq (,$(findstring UART_CHANNEL,$(DEFINES)))
     DEFINES += USE_UART
 endif

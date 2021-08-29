@@ -180,8 +180,6 @@ merged:
 	@echo Building sysexgen...
 	@$(MAKE) --no-print-directory TYPE=sysexgen TARGET=$(TARGET) DEBUG=$(DEBUG) binary
 ifeq ($(ARCH), stm32)
-	@echo Building CDC...
-	@$(MAKE) --no-print-directory TYPE=cdc TARGET=$(TARGET) DEBUG=$(DEBUG) binary
 	@echo Building flashgen...
 	@$(MAKE) --no-print-directory TYPE=flashgen TARGET=$(TARGET) DEBUG=$(DEBUG) binary
 endif
@@ -210,13 +208,11 @@ else
 	srec_cat \
 	$(BUILD_DIR_BASE)/boot/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
 	$(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
-	$(BUILD_DIR_BASE)/cdc/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
 	$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
 	-o $(BUILD_DIR)/$(TARGET).hex -Intel
 	@FACTORY_IMAGE_START_ADDR=$$(cat $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin_offset) && \
 	srec_cat \
 	$(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
-	$(BUILD_DIR_BASE)/cdc/$(TARGET)/$(BUILD_TYPE)/$(TARGET).hex -Intel \
 	$(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin -binary -offset $$(echo $$FACTORY_IMAGE_START_ADDR) \
 	-o $(BUILD_DIR)/$(TARGET)$(SYSEX_BINARY_SUFFIX).hex
 endif

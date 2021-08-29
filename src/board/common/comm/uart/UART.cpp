@@ -31,13 +31,6 @@ limitations under the License.
 
 //generic UART driver, arch-independent
 
-#ifdef FW_CDC
-#undef UART_TX_BUFFER_SIZE
-#undef UART_RX_BUFFER_SIZE
-#define UART_TX_BUFFER_SIZE CDC_TX_BUFFER_SIZE
-#define UART_RX_BUFFER_SIZE CDC_RX_BUFFER_SIZE
-#endif
-
 namespace
 {
     /// Flag determining whether or not UART loopback functionality is enabled.

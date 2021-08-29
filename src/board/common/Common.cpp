@@ -48,9 +48,7 @@ namespace Board
 {
     void init()
     {
-#if defined(FW_CDC)
-        detail::setup::cdc();
-#elif defined(FW_APP)
+#if defined(FW_APP)
         detail::setup::application();
 #elif defined(FW_BOOT)
         detail::setup::bootloader();

@@ -29,8 +29,7 @@ class FwSelector
     enum class fwType_t : uint32_t
     {
         application = 0xFF,
-        bootloader  = 0x47,
-        cdc         = 0x74
+        bootloader  = 0x47
     };
 
     class HWA

@@ -51,17 +51,15 @@ namespace
 
         //note: these pages are actually 128k pages (factory storage page, storage page 1 and storage page 2)
         //use only 64k so that caching of entire page is possible
-        //first 128k page is used both for factory settings and part of firmware
-        //place CDC firmware in lower 24kb range
+        //first 128k page is used for factory settings
         //for bootloader, use the real addresses and sizes so that firmware is updated properly
-        //for app, use address with an offset (page 5 only) since app is only concerned with factory flash page and smaller sizes
         {
-#ifdef FW_BOOT
             .address = 0x8020000,
-            .size    = 131072,
+
+#ifdef FW_BOOT
+            .size = 131072,
 #else
-            .address = 0x8026000,
-            .size    = 65536,
+            .size = 65536,
 #endif
         },
 
@@ -70,7 +68,7 @@ namespace
 #ifdef FW_BOOT
             .size = 131072,
 #else
-            .size    = 65536,
+            .size = 65536,
 #endif
         },
 
@@ -79,7 +77,7 @@ namespace
 #ifdef FW_BOOT
             .size = 131072,
 #else
-            .size    = 65536,
+            .size = 65536,
 #endif
         },
 

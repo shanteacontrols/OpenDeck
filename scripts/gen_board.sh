@@ -64,8 +64,6 @@ then
         printf "%s\n" "#define USB_PRODUCT UNICODE_STRING(\"OpenDeck | $TARGET_NAME\")"
         printf "%s\n" "#elif defined(FW_BOOT)"
         printf "%s\n" "#define USB_PRODUCT UNICODE_STRING(\"OpenDeck DFU | $TARGET_NAME\")"
-        printf "%s\n" "#elif defined(FW_CDC)"
-        printf "%s\n" "#define USB_PRODUCT UNICODE_STRING(\"OpenDeck CDC | $TARGET_NAME\")"
         printf "%s\n" "#endif"
     } >> "$OUT_FILE_HEADER_USB"
 fi

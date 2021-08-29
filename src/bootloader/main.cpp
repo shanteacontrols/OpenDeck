@@ -81,7 +81,12 @@ class HWAFwSelector : public FwSelector::HWA
     {
         switch (fwType)
         {
+        case FwSelector::fwType_t::bootloader:
+            Board::bootloader::runBootloader();
+            break;
+
         case FwSelector::fwType_t::application:
+        default:
         {
 #if !defined(USB_SUPPORTED)
             //on non-usb supported board, send magic value to USB link so that link
@@ -113,14 +118,6 @@ class HWAFwSelector : public FwSelector::HWA
 #endif
         }
         break;
-
-        case FwSelector::fwType_t::bootloader:
-            Board::bootloader::runBootloader();
-            break;
-
-        case FwSelector::fwType_t::cdc:
-            Board::bootloader::runCDC();
-            break;
         }
     }
 

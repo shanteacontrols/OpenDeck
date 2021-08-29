@@ -49,9 +49,6 @@ namespace Board
             /// Prepares MCU to run bootloader.
             void bootloader();
 
-            /// Prepares MCU to run as CDC device.
-            void cdc();
-
             /// Initializes all used clocks on the board.
             void clocks();
 

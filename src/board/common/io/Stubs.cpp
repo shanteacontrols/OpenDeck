@@ -102,14 +102,6 @@ namespace Board
         }    // namespace setup
     }        // namespace detail
 
-    namespace bootloader
-    {
-        __attribute__((weak)) void runCDC()
-        {
-            //cdc might be unsupported
-        }
-    }    // namespace bootloader
-
     namespace USB
     {
         __attribute__((weak)) void onCDCsetLineEncoding(uint32_t baudRate)
