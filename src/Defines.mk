@@ -125,7 +125,6 @@ ifeq ($(ARCH),avr)
     USE_STATIC_OPTIONS=0 \
     USB_DEVICE_ONLY \
     INTERRUPT_CONTROL_ENDPOINT \
-    USE_RAM_DESCRIPTORS \
     ADC_10_BIT \
     ORDERED_EP_CONFIG \
     UID_BITS=80
@@ -136,7 +135,11 @@ ifeq ($(ARCH),avr)
         NO_SOF_EVENTS \
         DEVICE_STATE_AS_GPIOR \
         NO_DEVICE_REMOTE_WAKEUP \
-        NO_DEVICE_SELF_POWER
+        NO_DEVICE_SELF_POWER \
+        USE_RAM_DESCRIPTORS
+    else ifeq ($(TYPE),app)
+        DEFINES += \
+        USE_FLASH_DESCRIPTORS
     endif
 else ifeq ($(ARCH),stm32)
     DEFINES += \
