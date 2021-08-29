@@ -265,7 +265,7 @@ bool System::init()
 
     _encoders.init();
     _display.init(true);
-    _touchscreen.init();
+    _touchscreen.init(IO::Touchscreen::mode_t::normal);
     _leds.init();
 
     _sysExConf.setLayout(sysExLayout);

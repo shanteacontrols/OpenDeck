@@ -52,6 +52,7 @@ namespace IO
             model,
             brightness,
             initialScreen,
+            cdcPassthrough,
             AMOUNT
         };
 
@@ -89,6 +90,12 @@ namespace IO
             bool        buttonState = false;
             uint16_t    xPos        = 0;
             uint16_t    yPos        = 0;
+        };
+
+        enum class mode_t : uint8_t
+        {
+            normal,
+            cdcPassthrough
         };
 
         class Model
@@ -137,15 +144,29 @@ namespace IO
             virtual void screenChange(size_t screenID)                                    = 0;
         };
 
-        Touchscreen(Database&      database,
-                    ComponentInfo& cInfo)
+        class CDCPassthrough
+        {
+            public:
+            virtual bool init()                                                       = 0;
+            virtual bool deInit()                                                     = 0;
+            virtual bool uartRead(uint8_t& byte)                                      = 0;
+            virtual bool uartWrite(uint8_t byte)                                      = 0;
+            virtual bool cdcRead(uint8_t* buffer, size_t& size, const size_t maxSize) = 0;
+            virtual bool cdcWrite(uint8_t* buffer, size_t size)                       = 0;
+        };
+
+        Touchscreen(Database&       database,
+                    ComponentInfo&  cInfo,
+                    CDCPassthrough& cdcPassthrough)
             : _database(database)
             , _cInfo(cInfo)
+            , _cdcPassthrough(cdcPassthrough)
         {}
 
-        bool   init();
-        bool   deInit();
+        bool   init(mode_t mode);
+        bool   deInit(mode_t mode);
         bool   isInitialized() const;
+        bool   isInitialized(mode_t mode) const;
         bool   registerModel(IO::Touchscreen::Model::model_t, Model* ptr);
         void   update();
         void   setScreen(size_t screenID);
@@ -159,15 +180,19 @@ namespace IO
         void processButton(const size_t buttonID, const bool state);
         void processCoordinate(pressType_t pressType, uint16_t xPos, uint16_t yPos);
 
-        Database&      _database;
-        ComponentInfo& _cInfo;
-        EventNotifier* _eventNotifier = nullptr;
+        Database&       _database;
+        ComponentInfo&  _cInfo;
+        CDCPassthrough& _cdcPassthrough;
+        EventNotifier*  _eventNotifier = nullptr;
 
         size_t  _activeScreenID                                         = 0;
         bool    _initialized                                            = false;
+        mode_t  _mode                                                   = mode_t::normal;
         Model*  _modelPtr[static_cast<uint8_t>(Model::model_t::AMOUNT)] = {};
         uint8_t _activeModel                                            = static_cast<uint8_t>(Model::model_t::AMOUNT);
         bool    _analogActive[MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]     = {};
+        uint8_t _txBuffer[TSCREEN_CDC_PASSTHROUGH_BUFFER_SIZE]          = {};
+        uint8_t _rxBuffer[TSCREEN_CDC_PASSTHROUGH_BUFFER_SIZE]          = {};
     };
 }    // namespace IO
 

@@ -304,6 +304,44 @@ namespace
         }
     } encodersFilter;
 
+    class HWATouchscreenCDCPassthrough : public IO::Touchscreen::CDCPassthrough
+    {
+        public:
+        HWATouchscreenCDCPassthrough() = default;
+
+        bool init() override
+        {
+            return false;
+        }
+
+        bool deInit() override
+        {
+            return false;
+        }
+
+        bool uartRead(uint8_t& byte) override
+        {
+            return false;
+        }
+
+        bool uartWrite(uint8_t byte) override
+        {
+            return false;
+        }
+
+        bool cdcRead(uint8_t* buffer, size_t& size, const size_t maxSize) override
+        {
+            return false;
+        }
+
+        bool cdcWrite(uint8_t* buffer, size_t size) override
+        {
+            return false;
+        }
+
+        private:
+    } hwaTouchscreenCDCPassthrough;
+
     MIDI            midi(hwaMIDI);
     ComponentInfo   cInfo;
     IO::LEDs        leds(hwaLEDs, database);
@@ -312,7 +350,7 @@ namespace
     IO::Analog      analog(hwaAnalog, analogFilter, database, midi, leds, display, cInfo);
     IO::Buttons     buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cInfo);
     IO::Encoders    encoders(hwaEncoders, encodersFilter, 1, database, midi, display, cInfo);
-    IO::Touchscreen touchscreen(database, cInfo);
+    IO::Touchscreen touchscreen(database, cInfo, hwaTouchscreenCDCPassthrough);
     System          systemStub(hwaSystem, cInfo, database, midi, buttons, encoders, analog, leds, display, touchscreen);
 
     void sendSysExRequest(const std::vector<uint8_t> request, std::vector<MIDI::USBMIDIpacket_t>& buffer)

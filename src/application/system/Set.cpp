@@ -637,6 +637,8 @@ uint8_t System::onSetTouchscreen(Section::touchscreen_t section, size_t index, u
     else
     {
         auto initAction = initAction_t::asIs;
+        auto mode       = IO::Touchscreen::mode_t::normal;
+        bool writeToDb  = true;
 
         switch (section)
         {
@@ -650,7 +652,6 @@ uint8_t System::onSetTouchscreen(Section::touchscreen_t section, size_t index, u
                     initAction = initAction_t::init;
                 else
                     initAction = initAction_t::deInit;
-                break;
             }
             break;
 
@@ -670,6 +671,14 @@ uint8_t System::onSetTouchscreen(Section::touchscreen_t section, size_t index, u
             }
             break;
 
+            case static_cast<size_t>(IO::Touchscreen::setting_t::cdcPassthrough):
+            {
+                mode       = IO::Touchscreen::mode_t::cdcPassthrough;
+                initAction = newValue ? initAction_t::init : initAction_t::deInit;
+                writeToDb  = false;
+            }
+            break;
+
             default:
                 break;
             }
@@ -680,14 +689,17 @@ uint8_t System::onSetTouchscreen(Section::touchscreen_t section, size_t index, u
             break;
         }
 
-        bool result = _database.update(dbSection(section), index, newValue);
+        bool result = true;
+
+        if (writeToDb)
+            result = _database.update(dbSection(section), index, newValue);
 
         if (result)
         {
             if (initAction == initAction_t::init)
-                _touchscreen.init();
+                _touchscreen.init(mode);
             else if (initAction == initAction_t::deInit)
-                _touchscreen.deInit();
+                _touchscreen.deInit(mode);
 
             return SysExConf::DataHandler::STATUS_OK;
         }

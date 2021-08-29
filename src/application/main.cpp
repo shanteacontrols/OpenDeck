@@ -390,6 +390,122 @@ class HWAtouchscreen : public IO::Touchscreen::Model::HWA
 
 Nextion  touchscreenModelNextion(touchscreenHWA);
 Viewtech touchscreenModelViewtech(touchscreenHWA);
+
+class HWATouchscreenCDCPassthrough : public IO::Touchscreen::CDCPassthrough
+{
+    public:
+    HWATouchscreenCDCPassthrough() = default;
+
+    bool init() override
+    {
+        _passThroughState = true;
+        return true;
+    }
+
+    bool deInit() override
+    {
+        _passThroughState = false;
+        return true;
+    }
+
+    bool uartRead(uint8_t& value) override
+    {
+        if (Board::UART::read(UART_CHANNEL_TOUCHSCREEN, value))
+        {
+            Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::incoming);
+            return true;
+        }
+
+        return false;
+    }
+
+    bool uartWrite(uint8_t value) override
+    {
+        if (Board::UART::write(UART_CHANNEL_TOUCHSCREEN, value))
+        {
+            Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::outgoing);
+            return true;
+        }
+
+        return false;
+    }
+
+    bool cdcRead(uint8_t* buffer, size_t& size, const size_t maxSize) override
+    {
+        if (Board::USB::readCDC(buffer, size, maxSize))
+        {
+            Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
+            return true;
+        }
+
+        return false;
+    }
+
+    bool cdcWrite(uint8_t* buffer, size_t size) override
+    {
+        if (Board::USB::writeCDC(buffer, size))
+        {
+            Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::outgoing);
+            return true;
+        }
+
+        return false;
+    }
+
+    void onCDCsetLineEncoding(uint32_t baudRate)
+    {
+        if (_passThroughState)
+        {
+            Board::UART::config_t config(baudRate,
+                                         Board::UART::parity_t::no,
+                                         Board::UART::stopBits_t::one,
+                                         Board::UART::type_t::rxTx);
+
+            Board::UART::init(UART_CHANNEL_TOUCHSCREEN, config, true);
+        }
+    }
+
+    private:
+    bool _passThroughState = false;
+} hwaTouchscreenCDCPassthrough;
+#else
+class HWATouchscreenCDCPassthrough : public IO::Touchscreen::CDCPassthrough
+{
+    public:
+    HWATouchscreenCDCPassthrough() = default;
+
+    bool init() override
+    {
+        return false;
+    }
+
+    bool deInit() override
+    {
+        return false;
+    }
+
+    bool uartRead(uint8_t& value) override
+    {
+        return false;
+    }
+
+    bool uartWrite(uint8_t value) override
+    {
+        return false;
+    }
+
+    bool cdcRead(uint8_t* buffer, size_t& size, const size_t maxSize) override
+    {
+        return false;
+    }
+
+    bool cdcWrite(uint8_t* buffer, size_t size) override
+    {
+        return false;
+    }
+
+    private:
+} hwaTouchscreenCDCPassthrough;
 #endif
 
 #if defined(BUTTONS_SUPPORTED) || defined(ENCODERS_SUPPORTED)
@@ -724,6 +840,19 @@ class SystemHWA : public System::HWA
     System::usbConnectionHandler_t _usbConnectionHandler = nullptr;
 } hwaSystem;
 
+#ifdef TOUCHSCREEN_SUPPORTED
+namespace Board
+{
+    namespace USB
+    {
+        void onCDCsetLineEncoding(uint32_t baudRate)
+        {
+            hwaTouchscreenCDCPassthrough.onCDCsetLineEncoding(baudRate);
+        }
+    }    // namespace USB
+}    // namespace Board
+#endif
+
 MIDI            midi(hwaMIDI);
 ComponentInfo   cInfo;
 IO::U8X8        u8x8(hwaU8X8);
@@ -732,7 +861,7 @@ IO::LEDs        leds(hwaLEDs, database);
 IO::Analog      analog(hwaAnalog, analogFilter, database, midi, leds, display, cInfo);
 IO::Buttons     buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cInfo);
 IO::Encoders    encoders(hwaEncoders, encodersFilter, 1, database, midi, display, cInfo);
-IO::Touchscreen touchscreen(database, cInfo);
+IO::Touchscreen touchscreen(database, cInfo, hwaTouchscreenCDCPassthrough);
 System          sys(hwaSystem, cInfo, database, midi, buttons, encoders, analog, leds, display, touchscreen);
 
 int main()

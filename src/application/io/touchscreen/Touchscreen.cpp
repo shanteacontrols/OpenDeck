@@ -25,49 +25,101 @@ using namespace IO;
 uint8_t IO::Touchscreen::Model::Common::rxBuffer[IO::Touchscreen::Model::Common::bufferSize];
 size_t  IO::Touchscreen::Model::Common::bufferCount;
 
-bool Touchscreen::init()
+bool Touchscreen::init(mode_t mode)
 {
-    if (_database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::enable)))
+    switch (mode)
     {
-        auto dbModel = static_cast<IO::Touchscreen::Model::model_t>(_database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::model)));
-
-        if (_initialized)
+    case mode_t::normal:
+    {
+        if (_database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::enable)))
         {
-            if (static_cast<uint8_t>(dbModel) == _activeModel)
-                return true;    //nothing to do, same model already _initialized
+            auto dbModel = static_cast<IO::Touchscreen::Model::model_t>(_database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::model)));
 
-            if (!deInit())
+            if (_initialized)
+            {
+                if (static_cast<uint8_t>(dbModel) == _activeModel)
+                    return true;    //nothing to do, same model already _initialized
+
+                if (!deInit(mode))
+                    return false;
+            }
+
+            if (!isModelValid(dbModel))
                 return false;
+
+            if (_cdcPassthrough.deInit())
+            {
+                _activeModel = static_cast<uint8_t>(dbModel);
+                _initialized = MODEL->init();
+
+                if (_initialized)
+                {
+                    setScreen(_database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::initialScreen)));
+                    setBrightness(static_cast<brightness_t>(_database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::brightness))));
+
+                    _mode = mode;
+
+                    return true;
+                }
+            }
         }
 
-        if (!isModelValid(dbModel))
-            return false;
+        return false;
+    }
+    break;
 
-        _activeModel = static_cast<uint8_t>(dbModel);
-        _initialized = MODEL->init();
-
-        if (_initialized)
+    case mode_t::cdcPassthrough:
+    {
+        if (_cdcPassthrough.init())
         {
-            setScreen(_database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::initialScreen)));
-            setBrightness(static_cast<brightness_t>(_database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::brightness))));
-
+            _mode = mode;
             return true;
         }
+    }
+    break;
+
+    default:
+        return false;
     }
 
     return false;
 }
 
-bool Touchscreen::deInit()
+bool Touchscreen::deInit(mode_t mode)
 {
-    if (!_initialized)
-        return false;    //nothing to do
-
-    if (MODEL->deInit())
+    switch (mode)
     {
-        _initialized = false;
-        _activeModel = static_cast<uint8_t>(Model::model_t::AMOUNT);
-        return true;
+    case mode_t::normal:
+    {
+        if (!_initialized)
+            return false;
+
+        if (_cdcPassthrough.deInit())
+        {
+            if (MODEL->deInit())
+            {
+                _mode        = mode_t::normal;
+                _initialized = false;
+                _activeModel = static_cast<uint8_t>(Model::model_t::AMOUNT);
+
+                return true;
+            }
+        }
+    }
+    break;
+
+    case mode_t::cdcPassthrough:
+    {
+        if (_cdcPassthrough.deInit())
+        {
+            _mode = mode_t::normal;
+            return true;
+        }
+    }
+    break;
+
+    default:
+        return false;
     }
 
     return false;
@@ -75,24 +127,64 @@ bool Touchscreen::deInit()
 
 void Touchscreen::update()
 {
-    if (!_initialized)
-        return;
-
-    tsData_t  tsData;
-    tsEvent_t event = MODEL->update(tsData);
-
-    switch (event)
+    if (isInitialized(mode_t::normal))
     {
-    case tsEvent_t::button:
-        processButton(tsData.buttonID, tsData.buttonState);
-        break;
+        tsData_t  tsData;
+        tsEvent_t event = MODEL->update(tsData);
 
-    case tsEvent_t::coordinate:
-        processCoordinate(tsData.pressType, tsData.xPos, tsData.yPos);
-        break;
+        switch (event)
+        {
+        case tsEvent_t::button:
+            processButton(tsData.buttonID, tsData.buttonState);
+            break;
 
-    default:
-        break;
+        case tsEvent_t::coordinate:
+            processCoordinate(tsData.pressType, tsData.xPos, tsData.yPos);
+            break;
+
+        default:
+            break;
+        }
+    }
+    else if (isInitialized(mode_t::cdcPassthrough))
+    {
+        auto touchscreenToUSB = [&]() {
+            uint32_t size = 0;
+
+            for (size = 0; size < TSCREEN_CDC_PASSTHROUGH_BUFFER_SIZE; size++)
+            {
+                uint8_t value;
+
+                if (_cdcPassthrough.uartRead(value))
+                {
+                    _txBuffer[size] = value;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            if (size)
+            {
+                _cdcPassthrough.cdcWrite(_txBuffer, size);
+            }
+        };
+
+        auto usbToTouchscreen = [&]() {
+            size_t size = 0;
+
+            while (_cdcPassthrough.cdcRead(_rxBuffer, size, TSCREEN_CDC_PASSTHROUGH_BUFFER_SIZE))
+            {
+                for (size_t i = 0; i < size; i++)
+                {
+                    _cdcPassthrough.uartWrite(_rxBuffer[i]);
+                }
+            }
+        };
+
+        touchscreenToUSB();
+        usbToTouchscreen();
     }
 }
 
@@ -100,7 +192,7 @@ void Touchscreen::update()
 /// param [in]: screenID  Index of screen to display.
 void Touchscreen::setScreen(size_t screenID)
 {
-    if (!_initialized)
+    if (!isInitialized(mode_t::normal))
         return;
 
     MODEL->setScreen(screenID);
@@ -124,7 +216,7 @@ void Touchscreen::registerEventNotifier(EventNotifier& eventNotifer)
 
 void Touchscreen::setIconState(size_t index, bool state)
 {
-    if (!_initialized)
+    if (!isInitialized(mode_t::normal))
         return;
 
     if (index >= MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS)
@@ -198,7 +290,7 @@ void Touchscreen::processButton(const size_t buttonID, const bool state)
 
 bool Touchscreen::setBrightness(brightness_t brightness)
 {
-    if (!_initialized)
+    if (!isInitialized(mode_t::normal))
         return false;
 
     return MODEL->setBrightness(brightness);
@@ -297,4 +389,9 @@ void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16
 bool Touchscreen::isInitialized() const
 {
     return _initialized;
+}
+
+bool Touchscreen::isInitialized(mode_t mode) const
+{
+    return mode == _mode;
 }

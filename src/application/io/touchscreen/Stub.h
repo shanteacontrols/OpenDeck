@@ -48,8 +48,20 @@ namespace IO
             virtual void screenChange(size_t screenID)                                    = 0;
         };
 
-        Touchscreen(Database&      database,
-                    ComponentInfo& cInfo)
+        class CDCPassthrough
+        {
+            public:
+            virtual bool init()                                                       = 0;
+            virtual bool deInit()                                                     = 0;
+            virtual bool uartRead(uint8_t& byte)                                      = 0;
+            virtual bool uartWrite(uint8_t byte)                                      = 0;
+            virtual bool cdcRead(uint8_t* buffer, size_t& size, const size_t maxSize) = 0;
+            virtual bool cdcWrite(uint8_t* buffer, size_t size)                       = 0;
+        };
+
+        Touchscreen(Database&       database,
+                    ComponentInfo&  cInfo,
+                    CDCPassthrough& cdcPassthrough)
         {}
 
         enum class setting_t : uint8_t
@@ -76,7 +88,13 @@ namespace IO
             vertical
         };
 
-        bool init()
+        enum class mode_t : uint8_t
+        {
+            normal,
+            cdcPassthrough
+        };
+
+        bool init(mode_t mode)
         {
             return false;
         }
