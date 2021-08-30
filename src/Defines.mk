@@ -41,14 +41,15 @@ ARCH := $(shell $(YAML_PARSER) $(TARGET_DEF_FILE) arch)
 MCU  := $(shell $(YAML_PARSER) $(TARGET_DEF_FILE) mcu)
 
 ifneq (,$(findstring USB_LINK_MCU,$(DEFINES)))
-    #use smaller buffer size on USB link MCUs
-    DEFINES += UART_TX_BUFFER_SIZE=25
-    DEFINES += UART_RX_BUFFER_SIZE=25
-
     ifeq ($(MCU), atmega16u2)
         ifeq ($(TYPE),boot)
             #save flash - this feature doesn't fit into 4k
             DEFINES := $(filter-out LED_INDICATORS_CTL,$(DEFINES))
+            DEFINES += UART_TX_BUFFER_SIZE=32
+            DEFINES += UART_RX_BUFFER_SIZE=32
+        else ifeq ($(TYPE),app)
+            DEFINES += UART_TX_BUFFER_SIZE=64
+            DEFINES += UART_RX_BUFFER_SIZE=128
         endif
     endif
 else
