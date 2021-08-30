@@ -16,15 +16,16 @@ limitations under the License.
 
 */
 
-#include "board/common/comm/usb/descriptors/Descriptors.h"
+#include "board/common/comm/usb/USB.h"
 #include "midi/src/MIDI.h"
 #include "board/Board.h"
 #include "board/Internal.h"
+#include "core/src/general/Timing.h"
 
 namespace
 {
-    /// MIDI Class Device Mode Configuration and State Structure.
-    USB_ClassInfo_MIDI_Device_t MIDI_Interface;
+    USB_ClassInfo_MIDI_Device_t            MIDI_Interface;
+    volatile Board::detail::USB::txState_t txStateMIDI;
 }    // namespace
 
 /// Event handler for the USB_ConfigurationChanged event.
@@ -157,21 +158,39 @@ namespace Board
 
         bool writeMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
         {
-            if (USB_DeviceState != DEVICE_STATE_Configured)
+            static uint32_t timeout = 0;
+
+            if (!isUSBconnected())
                 return false;
+
+            //once the transfer fails, wait USB_TX_TIMEOUT_MS ms before trying again
+            if (txStateMIDI != Board::detail::USB::txState_t::done)
+            {
+                if ((core::timing::currentRunTimeMs() - timeout) < USB_TX_TIMEOUT_MS)
+                    return false;
+
+                txStateMIDI = Board::detail::USB::txState_t::done;
+                timeout     = 0;
+            }
 
             Endpoint_SelectEndpoint(MIDI_Interface.Config.DataINEndpoint.Address);
 
             uint8_t ErrorCode;
 
+            txStateMIDI = Board::detail::USB::txState_t::sending;
+
             if ((ErrorCode = Endpoint_Write_Stream_LE(&USBMIDIpacket, sizeof(MIDI::USBMIDIpacket_t), NULL)) != ENDPOINT_RWSTREAM_NoError)
+            {
+                txStateMIDI = Board::detail::USB::txState_t::waiting;
                 return false;
+            }
 
             if (!(Endpoint_IsReadWriteAllowed()))
                 Endpoint_ClearIN();
 
             MIDI_Device_Flush(&MIDI_Interface);
 
+            txStateMIDI = Board::detail::USB::txState_t::done;
             return true;
         }
     }    // namespace USB

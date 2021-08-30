@@ -65,6 +65,17 @@ namespace Board
             void timers();
         }    // namespace setup
 
+        namespace USB
+        {
+            /// Used to indicate current state of TX (data in in USB terminology) transfers.
+            enum class txState_t : uint32_t
+            {
+                done,
+                sending,
+                waiting
+            };
+        }    // namespace USB
+
         namespace UART
         {
             namespace ll

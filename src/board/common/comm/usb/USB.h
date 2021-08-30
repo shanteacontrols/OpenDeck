@@ -18,12 +18,10 @@ limitations under the License.
 
 #pragma once
 
-#include "board/common/comm/usb/Arch.h"
-
 #ifdef FW_BOOT
-#include "midi/Descriptors.h"
+#include "descriptors/midi/Descriptors.h"
 #else
-#include "midi_cdc_dual/Descriptors.h"
+#include "descriptors/midi_cdc_dual/Descriptors.h"
 #endif
 
 #ifdef __cplusplus

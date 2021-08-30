@@ -30,8 +30,10 @@
 
 #pragma once
 
-#include "board/common/comm/usb/Arch.h"
+#include "board/common/comm/usb/descriptors/Arch.h"
 #include "comm/usb/midi/Endpoints.h"
+
+#define USB_TX_TIMEOUT_MS 2000
 
 /** Type define for the device configuration descriptor structure. This must be defined in the
     *  application code, as the configuration descriptor contains several sub-descriptors which

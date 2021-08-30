@@ -16,15 +16,19 @@ limitations under the License.
 
 */
 
-#include "board/common/comm/usb/descriptors/Descriptors.h"
+#include "board/common/comm/usb/USB.h"
 #include "midi/src/MIDI.h"
 #include "board/Board.h"
 #include "board/Internal.h"
+#include "core/src/general/Timing.h"
 
 namespace
 {
-    USB_ClassInfo_CDC_Device_t  CDC_Interface;
-    USB_ClassInfo_MIDI_Device_t MIDI_Interface;
+    USB_ClassInfo_CDC_Device_t             CDC_Interface;
+    USB_ClassInfo_MIDI_Device_t            MIDI_Interface;
+    volatile Board::detail::USB::txState_t txStateCDC;
+    volatile Board::detail::USB::txState_t txStateMIDI;
+
 }    // namespace
 
 /// Event handler for the USB_ConfigurationChanged event.
@@ -155,7 +159,7 @@ namespace Board
         bool readMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
         {
             //device must be connected and configured for the task to run
-            if (USB_DeviceState != DEVICE_STATE_Configured)
+            if (!isUSBconnected())
                 return false;
 
             //select the MIDI OUT stream
@@ -181,26 +185,47 @@ namespace Board
 
         bool writeMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
         {
-            if (USB_DeviceState != DEVICE_STATE_Configured)
+            static uint32_t timeout = 0;
+
+            if (!isUSBconnected())
                 return false;
+
+            //once the transfer fails, wait USB_TX_TIMEOUT_MS ms before trying again
+            if (txStateMIDI != Board::detail::USB::txState_t::done)
+            {
+                if ((core::timing::currentRunTimeMs() - timeout) < USB_TX_TIMEOUT_MS)
+                    return false;
+
+                txStateMIDI = Board::detail::USB::txState_t::done;
+                timeout     = 0;
+            }
 
             Endpoint_SelectEndpoint(MIDI_Interface.Config.DataINEndpoint.Address);
 
             uint8_t ErrorCode;
 
+            txStateMIDI = Board::detail::USB::txState_t::sending;
+
             if ((ErrorCode = Endpoint_Write_Stream_LE(&USBMIDIpacket, sizeof(MIDI::USBMIDIpacket_t), NULL)) != ENDPOINT_RWSTREAM_NoError)
+            {
+                txStateMIDI = Board::detail::USB::txState_t::waiting;
                 return false;
+            }
 
             if (!(Endpoint_IsReadWriteAllowed()))
                 Endpoint_ClearIN();
 
             MIDI_Device_Flush(&MIDI_Interface);
 
+            txStateMIDI = Board::detail::USB::txState_t::done;
             return true;
         }
 
         bool readCDC(uint8_t* buffer, size_t& size, const size_t maxSize)
         {
+            if (!isUSBconnected())
+                return false;
+
             size             = 0;
             int16_t readData = -1;
 
@@ -227,35 +252,46 @@ namespace Board
 
         bool readCDC(uint8_t& value)
         {
-            int16_t readData = CDC_Device_ReceiveByte(&CDC_Interface);
-            CDC_Device_USBTask(&CDC_Interface);
+            size_t size;
 
-            if (readData != -1)
-            {
-                value = static_cast<uint8_t>(readData);
-                return true;
-            }
-
-            return false;
+            return readCDC(&value, size, 1);
         }
 
         bool writeCDC(uint8_t* buffer, size_t size)
         {
-            for (size_t i = 0; i < size; i++)
+            static uint32_t timeout = 0;
+
+            if (!isUSBconnected())
+                return false;
+
+            //once the transfer fails, wait USB_TX_TIMEOUT_MS ms before trying again
+            if (txStateCDC != Board::detail::USB::txState_t::done)
             {
-                if (CDC_Device_SendByte(&CDC_Interface, (uint8_t)buffer[i]) != ENDPOINT_READYWAIT_NoError)
+                if ((core::timing::currentRunTimeMs() - timeout) < USB_TX_TIMEOUT_MS)
                     return false;
+
+                txStateCDC = Board::detail::USB::txState_t::done;
+                timeout    = 0;
             }
 
+            for (size_t i = 0; i < size; i++)
+            {
+                txStateCDC = Board::detail::USB::txState_t::sending;
+
+                if (CDC_Device_SendByte(&CDC_Interface, (uint8_t)buffer[i]) != ENDPOINT_READYWAIT_NoError)
+                {
+                    txStateCDC = Board::detail::USB::txState_t::waiting;
+                    return false;
+                }
+            }
+
+            txStateCDC = Board::detail::USB::txState_t::done;
             return true;
         }
 
         bool writeCDC(uint8_t value)
         {
-            if (CDC_Device_SendByte(&CDC_Interface, (uint8_t)value) != ENDPOINT_READYWAIT_NoError)
-                return false;
-
-            return true;
+            return writeCDC(&value, 1);
         }
     }    // namespace USB
 }    // namespace Board
