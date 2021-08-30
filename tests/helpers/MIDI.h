@@ -142,6 +142,12 @@ class MIDIHelper
             //allow 2 second of response time
             if (responseRetryCounter == 200)
             {
+                std::cout << "Failed to find valid response to request. Outputting response:" << std::endl;
+                test::wsystem("cat " + lastResponseFileLocation, cmdResponse);
+                std::cout << cmdResponse << "\n"
+                                            "Search pattern was: "
+                          << pattern << std::endl;
+
                 test::wsystem("killall amidi > /dev/null 2>&1");
                 return "";
             }
