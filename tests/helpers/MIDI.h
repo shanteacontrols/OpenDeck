@@ -132,15 +132,15 @@ class MIDIHelper
 
         size_t responseRetryCounter = 0;
 
-        std::string pattern = setReq ? "F0 00 53 43 01 00 01.*F7$" : "F0 00 53 43 01.*F7$";
+        std::string pattern = setReq ? "F0 00 53 43 01 00 01.*F7" : "F0 00 53 43 01.*F7";
 
         while (test::wsystem("grep '" + pattern + "' " + lastResponseFileLocation, cmdResponse))
         {
             test::wsystem("sleep 0.01", cmdResponse);
             responseRetryCounter++;
 
-            //allow 1.5 second of response time
-            if (responseRetryCounter == 150)
+            //allow 2 second of response time
+            if (responseRetryCounter == 200)
             {
                 test::wsystem("killall amidi > /dev/null 2>&1");
                 return "";
