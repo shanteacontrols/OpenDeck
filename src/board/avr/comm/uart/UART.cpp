@@ -46,6 +46,18 @@ namespace Board
                         break;
 #endif
 
+#ifdef UCSRB_2
+                    case 2:
+                        UCSRB_2 |= (1 << UDRIE_2);
+                        break;
+#endif
+
+#ifdef UCSRB_3
+                    case 3:
+                        UCSRB_3 |= (1 << UDRIE_3);
+                        break;
+#endif
+
                     default:
                         break;
                     }
@@ -62,6 +74,18 @@ namespace Board
 #ifdef UCSRB_1
                     case 1:
                         UCSRB_1 &= ~(1 << UDRIE_1);
+                        break;
+#endif
+
+#ifdef UCSRB_2
+                    case 2:
+                        UCSRB_2 &= ~(1 << UDRIE_2);
+                        break;
+#endif
+
+#ifdef UCSRB_3
+                    case 3:
+                        UCSRB_3 &= ~(1 << UDRIE_3);
                         break;
 #endif
 
@@ -92,6 +116,24 @@ namespace Board
                             UCSRB_1 = 0;
                             UCSRC_1 = 0;
                             UBRR_1  = 0;
+                            break;
+#endif
+
+#ifdef UCSRB_2
+                        case 2:
+                            UCSRA_2 = 0;
+                            UCSRB_2 = 0;
+                            UCSRC_2 = 0;
+                            UBRR_2  = 0;
+                            break;
+#endif
+
+#ifdef UCSRB_3
+                        case 3:
+                            UCSRA_3 = 0;
+                            UCSRB_3 = 0;
+                            UCSRC_3 = 0;
+                            UBRR_3  = 0;
                             break;
 #endif
 
@@ -129,6 +171,20 @@ namespace Board
                             break;
 #endif
 
+#ifdef UCSRA_2
+                        case 2:
+                            UCSRA_2 = (1 << U2X_2);    //double speed uart
+                            UBRR_2  = baud_count - 1;
+                            break;
+#endif
+
+#ifdef UCSRA_3
+                        case 3:
+                            UCSRA_3 = (1 << U2X_3);    //double speed uart
+                            UBRR_3  = baud_count - 1;
+                            break;
+#endif
+
                         default:
                             break;
                         }
@@ -149,6 +205,20 @@ namespace Board
                             break;
 #endif
 
+#ifdef UCSRA_2
+                        case 2:
+                            UCSRA_2 = 0;
+                            UBRR_2  = (baud_count >> 1) - 1;
+                            break;
+#endif
+
+#ifdef UCSRA_3
+                        case 3:
+                            UCSRA_3 = 0;
+                            UBRR_3  = (baud_count >> 1) - 1;
+                            break;
+#endif
+
                         default:
                             break;
                         }
@@ -158,6 +228,7 @@ namespace Board
                     switch (channel)
                     {
                     case 0:
+                    {
                         UCSRC_0 = (1 << UCSZ1_0) | (1 << UCSZ0_0);
 
                         if (config.type == Board::UART::type_t::rxTx)
@@ -174,12 +245,20 @@ namespace Board
                             UCSRC_0 |= (1 << UPM1_0);
                         else if (config.parity == Board::UART::parity_t::odd)
                             UCSRC_0 |= (1 << UPM0_0) | (1 << UPM1_0);
-                        break;
+                    }
+                    break;
 
 #ifdef UCSRC_1
                     case 1:
+                    {
                         UCSRC_1 = (1 << UCSZ1_1) | (1 << UCSZ0_1);
-                        UCSRB_1 = (1 << RXEN_1) | (1 << TXEN_1) | (1 << RXCIE_1) | (1 << TXCIE_1);
+
+                        if (config.type == Board::UART::type_t::rxTx)
+                            UCSRB_1 = (1 << RXEN_1) | (1 << TXEN_1) | (1 << RXCIE_1) | (1 << TXCIE_1);
+                        else if (config.type == Board::UART::type_t::rx)
+                            UCSRB_1 = (1 << RXEN_1) | (1 << RXCIE_1);
+                        else if (config.type == Board::UART::type_t::tx)
+                            UCSRB_1 = (1 << TXEN_1) | (1 << TXCIE_1);
 
                         if (config.stopBits == Board::UART::stopBits_t::two)
                             UCSRC_1 |= (1 << USBS_1);
@@ -188,7 +267,54 @@ namespace Board
                             UCSRC_1 |= (1 << UPM1_1);
                         else if (config.parity == Board::UART::parity_t::odd)
                             UCSRC_1 |= (1 << UPM0_1) | (1 << UPM1_1);
-                        break;
+                    }
+                    break;
+#endif
+
+#ifdef UCSRC_2
+                    case 2:
+                    {
+                        UCSRC_2 = (1 << UCSZ1_2) | (1 << UCSZ0_2);
+
+                        if (config.type == Board::UART::type_t::rxTx)
+                            UCSRB_2 = (1 << RXEN_2) | (1 << TXEN_2) | (1 << RXCIE_2) | (1 << TXCIE_2);
+                        else if (config.type == Board::UART::type_t::rx)
+                            UCSRB_2 = (1 << RXEN_2) | (1 << RXCIE_2);
+                        else if (config.type == Board::UART::type_t::tx)
+                            UCSRB_2 = (1 << TXEN_2) | (1 << TXCIE_2);
+
+                        if (config.stopBits == Board::UART::stopBits_t::two)
+                            UCSRC_2 |= (1 << USBS_2);
+
+                        if (config.parity == Board::UART::parity_t::even)
+                            UCSRC_2 |= (1 << UPM1_2);
+                        else if (config.parity == Board::UART::parity_t::odd)
+                            UCSRC_2 |= (1 << UPM0_2) | (1 << UPM1_2);
+                    }
+                    break;
+#endif
+
+#ifdef UCSRC_3
+                    case 3:
+                    {
+                        UCSRC_3 = (1 << UCSZ1_3) | (1 << UCSZ0_3);
+
+                        if (config.type == Board::UART::type_t::rxTx)
+                            UCSRB_3 = (1 << RXEN_3) | (1 << TXEN_3) | (1 << RXCIE_3) | (1 << TXCIE_3);
+                        else if (config.type == Board::UART::type_t::rx)
+                            UCSRB_3 = (1 << RXEN_3) | (1 << RXCIE_3);
+                        else if (config.type == Board::UART::type_t::tx)
+                            UCSRB_3 = (1 << TXEN_3) | (1 << TXCIE_3);
+
+                        if (config.stopBits == Board::UART::stopBits_t::two)
+                            UCSRC_3 |= (1 << USBS_3);
+
+                        if (config.parity == Board::UART::parity_t::even)
+                            UCSRC_3 |= (1 << UPM1_3);
+                        else if (config.parity == Board::UART::parity_t::odd)
+                            UCSRC_3 |= (1 << UPM0_3) | (1 << UPM1_3);
+                    }
+                    break;
 #endif
 
                     default:
@@ -215,6 +341,22 @@ ISR(USART_RX_vect_1)
 {
     uint8_t data = UDR_1;
     Board::detail::UART::storeIncomingData(1, data);
+}
+#endif
+
+#ifdef UDR_2
+ISR(USART_RX_vect_2)
+{
+    uint8_t data = UDR_2;
+    Board::detail::UART::storeIncomingData(2, data);
+}
+#endif
+
+#ifdef UDR_3
+ISR(USART_RX_vect_3)
+{
+    uint8_t data = UDR_3;
+    Board::detail::UART::storeIncomingData(3, data);
 }
 #endif
 
@@ -254,6 +396,40 @@ ISR(USART_UDRE_vect_1)
 }
 #endif
 
+#ifdef UDR_2
+ISR(USART_UDRE_vect_2)
+{
+    uint8_t data;
+    size_t  dummy;
+
+    if (Board::detail::UART::getNextByteToSend(2, data, dummy))
+    {
+        UDR_2 = data;
+    }
+    else
+    {
+        Board::detail::UART::ll::disableDataEmptyInt(2);
+    }
+}
+#endif
+
+#ifdef UDR_3
+ISR(USART_UDRE_vect_3)
+{
+    uint8_t data;
+    size_t  dummy;
+
+    if (Board::detail::UART::getNextByteToSend(3, data, dummy))
+    {
+        UDR_3 = data;
+    }
+    else
+    {
+        Board::detail::UART::ll::disableDataEmptyInt(3);
+    }
+}
+#endif
+
 ///
 
 /// ISR fired once the UART transmission is complete.
@@ -267,6 +443,20 @@ ISR(USART_TX_vect_0)
 ISR(USART_TX_vect_1)
 {
     Board::detail::UART::indicateTxComplete(1);
+}
+#endif
+
+#ifdef UDR_2
+ISR(USART_TX_vect_2)
+{
+    Board::detail::UART::indicateTxComplete(2);
+}
+#endif
+
+#ifdef UDR_3
+ISR(USART_TX_vect_3)
+{
+    Board::detail::UART::indicateTxComplete(3);
 }
 #endif
 

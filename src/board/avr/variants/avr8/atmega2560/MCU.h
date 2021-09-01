@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#define MAX_UART_INTERFACES         2
+#define MAX_UART_INTERFACES         3
 #define MAX_I2C_INTERFACES          1
 #define BOOTLOADER_PAGE_START_INDEX 0
 #define FLASH_PAGE_SIZE             256
