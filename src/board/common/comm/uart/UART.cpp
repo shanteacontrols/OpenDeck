@@ -239,12 +239,16 @@ namespace Board
     }        // namespace detail
 
 #ifndef USB_SUPPORTED
+    namespace
+    {
+        uint8_t                             readBuffer[USB_OVER_SERIAL_BUFFER_SIZE];
+        Board::USBOverSerial::USBReadPacket readPacket(readBuffer, USB_OVER_SERIAL_BUFFER_SIZE);
+        Board::uniqueID_t                   uidUSBDevice;
+    }    // namespace
+
     namespace USB
     {
         //simulated USB interface via UART - make this transparent to the application
-
-        uint8_t                             readBuffer[USB_OVER_SERIAL_BUFFER_SIZE];
-        Board::USBOverSerial::USBReadPacket readPacket(readBuffer, USB_OVER_SERIAL_BUFFER_SIZE);
 
         bool isUSBconnected()
         {
@@ -259,6 +263,11 @@ namespace Board
                 if (readPacket[0] == static_cast<uint8_t>(USBLink::internalCMD_t::usbState))
                 {
                     usbConnectionState = readPacket[1];
+
+                    //this command also includes unique ID for USB link master
+                    //use it for non-usb MCU as well
+                    for (size_t i = 0; i < UID_BITS / 8; i++)
+                        uidUSBDevice[i] = readPacket[i + 2];
                 }
                 else if (readPacket[0] == static_cast<uint8_t>(USBLink::internalCMD_t::baudRateChange))
                 {
@@ -375,6 +384,12 @@ namespace Board
             return false;
         }
     }    // namespace USB
+
+    void uniqueID(uniqueID_t& uid)
+    {
+        for (size_t i = 0; i < UID_BITS / 8; i++)
+            uid[i] = uidUSBDevice[i];
+    }
 #endif
 }    // namespace Board
 

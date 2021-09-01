@@ -127,7 +127,8 @@ ifeq ($(ARCH),avr)
     INTERRUPT_CONTROL_ENDPOINT \
     USE_RAM_DESCRIPTORS \
     ADC_10_BIT \
-    ORDERED_EP_CONFIG
+    ORDERED_EP_CONFIG \
+    UID_BITS=80
 
     #flash type specific
     ifeq ($(TYPE),boot)

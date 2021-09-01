@@ -32,6 +32,11 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 #include "Pins.h"
 
+//serial numbers are available only on AVR MCUs with USB
+#ifdef USB_SUPPORTED
+#include "LUFA/Drivers/USB/USB.h"
+#endif
+
 extern "C" void __cxa_pure_virtual()
 {
     Board::detail::errorHandler();
@@ -69,6 +74,25 @@ namespace std
 
 namespace Board
 {
+#ifdef USB_SUPPORTED
+    void uniqueID(uniqueID_t& uid)
+    {
+        ATOMIC_SECTION
+        {
+            uint8_t address = INTERNAL_SERIAL_START_ADDRESS;
+
+            for (uint8_t i = 0; i < (UID_BITS / 8); i++)
+            {
+                uid[i] = boot_signature_byte_get(address++);
+
+                //LUFA sends unique ID with nibbles swaped
+                //to match with LUFA, invert them here
+                uid[i] = (uid[i] << 4) | ((uid[i] >> 4) & 0x0F);
+            }
+        }
+    }
+#endif
+
     namespace detail
     {
         namespace setup

@@ -42,12 +42,25 @@ namespace
 
             if (lastConnectionState != newState)
             {
-                uint8_t data[2] = {
+                Board::uniqueID_t uniqueID;
+                Board::uniqueID(uniqueID);
+
+                uint8_t data[12] = {
                     static_cast<uint8_t>(USBLink::internalCMD_t::usbState),
-                    newState
+                    newState,
+                    uniqueID[0],
+                    uniqueID[1],
+                    uniqueID[2],
+                    uniqueID[3],
+                    uniqueID[4],
+                    uniqueID[5],
+                    uniqueID[6],
+                    uniqueID[7],
+                    uniqueID[8],
+                    uniqueID[9],
                 };
 
-                Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::internal, data, 2);
+                Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::internal, data, 12);
                 Board::USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
 
                 lastConnectionState = newState;
