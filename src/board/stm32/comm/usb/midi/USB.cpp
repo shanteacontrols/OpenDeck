@@ -110,7 +110,7 @@ namespace
         Board::uniqueID_t uid;
         Board::uniqueID(uid);
 
-        const USB_Descriptor_UID_String_t* desc = USBgetSerialIDString(length, uid.uid);
+        const USB_Descriptor_UID_String_t* desc = USBgetSerialIDString(length, &uid[0]);
         return (uint8_t*)desc;
     }
 

@@ -36,7 +36,7 @@ namespace Board
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 4; j++)
-                uid.uid[(i * 4) + j] = id[i] >> ((3 - j) * 8) & 0xFF;
+                uid[(i * 4) + j] = id[i] >> ((3 - j) * 8) & 0xFF;
         }
     }
 

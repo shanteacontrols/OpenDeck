@@ -20,19 +20,16 @@ limitations under the License.
 
 #include <stddef.h>
 #include <inttypes.h>
+#include <array>
 #include "midi/src/MIDI.h"
 
 namespace Board
 {
 #ifdef UID_BITS
-    /// Structure holding unique ID for MCU.
-    typedef struct
-    {
-        uint8_t uid[UID_BITS / 8];
-    } uniqueID_t;
+    using uniqueID_t = std::array<uint8_t, UID_BITS / 8>;
 
     /// Retrieves MCU-specific unique ID number.
-    /// param [in]: uid Reference to structure in which retrieved UID will be stored.
+    /// param [in]: uid Reference to array in which retrieved UID will be stored.
     void uniqueID(uniqueID_t& uid);
 #endif
 
