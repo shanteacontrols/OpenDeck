@@ -56,11 +56,17 @@ namespace std
     void __throw_bad_function_call()
     {
         Board::detail::errorHandler();
+
+        while (1)
+            ;
     }
 
     void __throw_bad_alloc()
     {
         Board::detail::errorHandler();
+
+        while (1)
+            ;
     }
 
     void __throw_out_of_range(char const* arg)
