@@ -55,7 +55,7 @@ limitations under the License.
  *  a unique serial number internally, and setting the device descriptors serial number string index to this value
  *  will cause it to use the internal serial number.
  */
-#define USE_INTERNAL_SERIAL 0xDC
+#define USE_INTERNAL_SERIAL 0x03
 
 /** String language ID for the English language. Should be used in \ref USB_Descriptor_String_t descriptors
  *  to indicate that the English language is supported by the device in its string descriptors.

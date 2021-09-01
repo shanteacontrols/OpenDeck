@@ -64,13 +64,30 @@ extern "C" uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue, const uint
         switch (DescriptorNumber)
         {
         case STRING_ID_Language:
+        {
             Address = USBgetLanguageString(&Size);
-            break;
+        }
+        break;
+
         case STRING_ID_Manufacturer:
+        {
             Address = USBgetManufacturerString(&Size);
-            break;
+        }
+        break;
+
         case STRING_ID_Product:
+        {
             Address = USBgetProductString(&Size);
+        }
+        break;
+
+        case STRING_ID_UID:
+        {
+            //handled internally by LUFA
+        }
+        break;
+
+        default:
             break;
         }
         break;

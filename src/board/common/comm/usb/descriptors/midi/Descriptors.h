@@ -74,12 +74,8 @@ enum InterfaceDescriptors_t
     */
 enum StringDescriptors_t
 {
-    STRING_ID_Language     = 0, /**< Supported Languages string descriptor ID (must be zero) */
-    STRING_ID_Manufacturer = 1, /**< Manufacturer string ID */
-    STRING_ID_Product      = 2, /**< Product string ID */
-#ifdef __AVR__
-    STRING_ID_UID = 0 /**< Unique ID isn't supported on AVR MCUs */
-#else
-    STRING_ID_UID = 3 /**< Unique serial number string ID */
-#endif
+    STRING_ID_Language     = 0,                  /**< Supported Languages string descriptor ID (must be zero) */
+    STRING_ID_Manufacturer = 1,                  /**< Manufacturer string ID */
+    STRING_ID_Product      = 2,                  /**< Product string ID */
+    STRING_ID_UID          = USE_INTERNAL_SERIAL /**< Unique serial number string ID */
 };
