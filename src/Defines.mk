@@ -112,6 +112,9 @@ endif
 #for *gen applications rewrite the arch to native type
 ifneq (,$(findstring gen,$(TYPE)))
     ARCH := native
+
+    #needed only for compilation, unused otherwise for *gen targets
+    DEFINES += UID_BITS=96
 endif
 
 ifeq ($(ARCH),avr)

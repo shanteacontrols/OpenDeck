@@ -282,6 +282,8 @@ const USB_Descriptor_String_t ManufacturerString = USB_STRING_DESCRIPTOR(USB_MAN
  */
 const USB_Descriptor_String_t ProductString = USB_STRING_DESCRIPTOR(USB_PRODUCT);
 
+static USB_Descriptor_UID_String_t SignatureDescriptorInternal;
+
 const USB_Descriptor_Configuration_t* USBgetCfgDescriptor(uint16_t* size)
 {
     *size = sizeof(USB_Descriptor_Configuration_t);
@@ -312,10 +314,7 @@ const USB_Descriptor_String_t* USBgetProductString(uint16_t* size)
     return &ProductString;
 }
 
-#ifdef UID_BITS
-USB_Descriptor_UID_String_t SignatureDescriptorInternal;
-
-const USB_Descriptor_UID_String_t* USBgetSerialIDString(uint16_t* size, uint8_t uid[])
+const USB_Descriptor_UID_String_t* USBgetSerialIDString(uint16_t* size, uint8_t* uid)
 {
     SignatureDescriptorInternal.Header.Type = DTYPE_String;
     SignatureDescriptorInternal.Header.Size = USB_STRING_LEN(UID_BITS / 4);
@@ -339,4 +338,3 @@ const USB_Descriptor_UID_String_t* USBgetSerialIDString(uint16_t* size, uint8_t 
     *size = sizeof(USB_Descriptor_UID_String_t);
     return &SignatureDescriptorInternal;
 }
-#endif

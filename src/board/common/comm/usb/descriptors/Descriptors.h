@@ -36,10 +36,7 @@ extern "C"
     const USB_Descriptor_String_t*        USBgetLanguageString(uint16_t* size);
     const USB_Descriptor_String_t*        USBgetManufacturerString(uint16_t* size);
     const USB_Descriptor_String_t*        USBgetProductString(uint16_t* size);
-
-#ifdef UID_BITS
-    const USB_Descriptor_UID_String_t* USBgetSerialIDString(uint16_t* size, uint8_t uid[]);
-#endif
+    const USB_Descriptor_UID_String_t*    USBgetSerialIDString(uint16_t* size, uint8_t* uid);
 
 #ifdef __cplusplus
 }

@@ -25,13 +25,11 @@ limitations under the License.
 
 namespace Board
 {
-#ifdef UID_BITS
     using uniqueID_t = std::array<uint8_t, UID_BITS / 8>;
 
     /// Retrieves MCU-specific unique ID number.
     /// param [in]: uid Reference to array in which retrieved UID will be stored.
     void uniqueID(uniqueID_t& uid);
-#endif
 
     /// Perfoms initialization of MCU and all board peripherals.
     void init();

@@ -18,21 +18,12 @@ limitations under the License.
 
 #pragma once
 
-#include "descriptors/types/Helpers.h"
-
-#ifdef __AVR__
-#include <avr/pgmspace.h>
-#include "LUFA/Drivers/USB/USB.h"
-
-#define UNICODE_STRING(string) L##string
-#else
-#include "descriptors/types/AudioDescriptors.h"
-#include "descriptors/types/MIDIDescriptors.h"
-#include "descriptors/types/CDCDescriptors.h"
-
-#define UNICODE_STRING(string) u##string
+#ifndef __USB_BASE_TYPES_INCLUDE
+#error Please include headers defining base USB descriptor types before this header
 #endif
 
-#define __USB_BASE_TYPES_INCLUDE
-
-#include "descriptors/types/MiscDescriptors.h"
+typedef struct
+{
+    USB_Descriptor_Header_t Header;
+    uint16_t                UnicodeString[UID_BITS / 4];
+} USB_Descriptor_UID_String_t;

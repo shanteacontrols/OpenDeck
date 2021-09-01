@@ -308,14 +308,6 @@ typedef struct
                                 */
 } __attribute__((packed)) USB_Descriptor_String_t;
 
-#ifdef UID_BITS
-typedef struct
-{
-    USB_Descriptor_Header_t Header;
-    uint16_t                UnicodeString[UID_BITS / 4];
-} __attribute__((packed)) USB_Descriptor_UID_String_t;
-#endif
-
 /** Enum for the possible standard descriptor types, as given in each descriptor's header. */
 enum USB_DescriptorTypes_t
 {
