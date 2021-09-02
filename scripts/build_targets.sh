@@ -76,9 +76,8 @@ then
     do
         targets+=("$(basename "$target" .yml)")
     done < src/hw/boards.txt
-    
 else
-    for target in ../targets/*.yml;
+    for target in ../config/target/*.yml;
     do
         targets+=("$(basename "$target" .yml)")
     done

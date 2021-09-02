@@ -20,22 +20,21 @@ modules/u8g2/csrc/u8x8_byte.c \
 modules/u8g2/csrc/u8x8_cad.c \
 modules/u8g2/csrc/u8x8_gpio.c \
 modules/u8g2/csrc/u8x8_d_ssd1306_128x64_noname.c \
-modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c
-
-ifeq ($(ARCH), avr)
-    SOURCES_COMMON += board/$(ARCH)/common/FlashPages.cpp
-else
-    SOURCES_COMMON += $(MCU_DIR)/FlashPages.cpp
-endif
+modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c \
+$(BOARD_TARGET_DIR)/$(TARGET).cpp \
+stubs/Board.cpp
 
 #common include dirs
 INCLUDE_DIRS_COMMON := \
 -I"./" \
+-I"./stubs" \
 -I"./unity" \
 -I"../modules/" \
 -I"../src/" \
 -I"../src/bootloader/" \
 -I"../src/application/" \
--I"../src/board/$(ARCH)/variants/$(MCU_FAMILY)" \
+-I"../src/board/common" \
+-I"../src/board/arch/$(ARCH)/variants/$(MCU_FAMILY)" \
 -I"../src/$(MCU_DIR)" \
+-I"../src/$(BOARD_MCU_BASE_DIR)/$(MCU)" \
 -I"../src/$(BOARD_TARGET_DIR)/"

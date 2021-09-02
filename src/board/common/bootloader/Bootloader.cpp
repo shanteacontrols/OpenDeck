@@ -19,11 +19,11 @@ limitations under the License.
 #include "board/Board.h"
 #include "board/Internal.h"
 #include "board/common/io/Helpers.h"
-#include "Pins.h"
 #include "core/src/general/Timing.h"
 #include "core/src/general/Reset.h"
 #include "core/src/general/CRC.h"
-#include "MCU.h"
+#include <Pins.h>
+#include <MCU.h>
 
 namespace Board
 {
@@ -54,22 +54,22 @@ namespace Board
 
         uint32_t pageSize(size_t index)
         {
-            return detail::flash::pageSize(index + BOOTLOADER_PAGE_START_INDEX);
+            return detail::flash::pageSize(index + FLASH_PAGE_APP_START);
         }
 
         void erasePage(size_t index)
         {
-            detail::flash::erasePage(index + BOOTLOADER_PAGE_START_INDEX);
+            detail::flash::erasePage(index + FLASH_PAGE_APP_START);
         }
 
         void fillPage(size_t index, uint32_t address, uint16_t value)
         {
-            detail::flash::write16(detail::map::flashPageDescriptor(index + BOOTLOADER_PAGE_START_INDEX).address + address, value);
+            detail::flash::write16(detail::map::flashPageDescriptor(index + FLASH_PAGE_APP_START).address + address, value);
         }
 
         void writePage(size_t index)
         {
-            detail::flash::writePage(index + BOOTLOADER_PAGE_START_INDEX);
+            detail::flash::writePage(index + FLASH_PAGE_APP_START);
         }
 
         uint8_t readFlash(uint32_t address)

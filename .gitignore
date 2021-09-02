@@ -6,7 +6,7 @@ Documentation/*
 *Objects.mk
 *.cortex-debug*
 **/tests/test_run/*
-**/board/target/*
+**/board/gen/*
 *.profraw
 **/cubemx/**/*
 !**/cubemx/**/*.ioc

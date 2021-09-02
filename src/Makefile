@@ -2,7 +2,7 @@ include Toolchain.mk
 
 BUILD_DIR_BASE  := ./build
 TARGET          := discovery
-TARGET_DEF_FILE := ../targets/$(TARGET).yml
+TARGET_DEF_FILE := ../config/target/$(TARGET).yml
 TYPE            := app
 SCRIPTS_DIR     := ../scripts
 
@@ -76,65 +76,67 @@ LDFLAGS := \
 LDFLAGS += -T $(LINKER_FILE)
 OPT := -Os
 
-ifeq ($(ARCH),avr)
-    SIZE_TOOL := avr-size -C --mcu=$(MCU)
-    LDFLAGS += -Wl,--section-start=.text=$(FLASH_START_ADDR)
+ifeq (,$(findstring gen,$(TYPE)))
+    ifeq ($(ARCH),avr)
+        SIZE_TOOL := avr-size -C --mcu=$(MCU)
+        LDFLAGS += -Wl,--section-start=.text=$(FLASH_START_ADDR)
 
-    CC := $(C_COMPILER_AVR)
-    CXX := $(CPP_COMPILER_AVR)
-    LINKER := $(LINKER_AVR)
-    FLASH_TOOL := $(FLASH_TOOL_AVR)
+        CC := $(C_COMPILER_AVR)
+        CXX := $(CPP_COMPILER_AVR)
+        LINKER := $(LINKER_AVR)
+        FLASH_TOOL := $(FLASH_TOOL_AVR)
 
-    C_FLAGS += \
-    -fpack-struct
+        C_FLAGS += \
+        -fpack-struct
 
-    COMMON_FLAGS += \
-    -mrelax \
-    -mmcu=$(MCU) \
-    -funsigned-char \
-    -funsigned-bitfields \
-    -fno-jump-tables \
-    -flto
+        COMMON_FLAGS += \
+        -mrelax \
+        -mmcu=$(MCU) \
+        -funsigned-char \
+        -funsigned-bitfields \
+        -fno-jump-tables \
+        -flto
 
-    LDFLAGS += \
-    -mrelax \
-    -mmcu=$(MCU) \
-    -flto
-else ifeq ($(ARCH),stm32)
-    SIZE_TOOL := size
-    CC := $(C_COMPILER_ARM)
-    CXX := $(CPP_COMPILER_ARM)
-    LINKER := $(LINKER_ARM)
-    ASSEMBLER := $(C_COMPILER_ARM)
-    FLASH_TOOL := $(FLASH_TOOL_ARM)
+        LDFLAGS += \
+        -mrelax \
+        -mmcu=$(MCU) \
+        -flto
+    else ifeq ($(ARCH),stm32)
+        SIZE_TOOL := size
+        CC := $(C_COMPILER_ARM)
+        CXX := $(CPP_COMPILER_ARM)
+        LINKER := $(LINKER_ARM)
+        ASSEMBLER := $(C_COMPILER_ARM)
+        FLASH_TOOL := $(FLASH_TOOL_ARM)
 
-    COMMON_FLAGS += \
-    -mcpu=$(CPU) \
-    -mthumb \
-    -mno-unaligned-access
+        COMMON_FLAGS += \
+        -mcpu=$(CPU) \
+        -mthumb \
+        -mno-unaligned-access
 
-    LDFLAGS += \
-    -mcpu=$(CPU) \
-    -mthumb \
-    -specs=nano.specs \
-    -specs=nosys.specs
+        LDFLAGS += \
+        -mcpu=$(CPU) \
+        -mthumb \
+        -specs=nano.specs \
+        -specs=nosys.specs
 
-    LDFLAGS += -Xlinker --defsym=FLASH_START=$(FLASH_START_ADDR)
+        LDFLAGS += -Xlinker --defsym=FLASH_START=$(FLASH_START_ADDR)
 
-    ifeq ($(DEBUG), 1)
-        COMMON_FLAGS += -g -gdwarf-2
-        LDFLAGS += -g -gdwarf-2
-        OPT := -Og
-    endif
+        ifeq ($(DEBUG), 1)
+            COMMON_FLAGS += -g -gdwarf-2
+            LDFLAGS += -g -gdwarf-2
+            OPT := -Og
+        endif
+    
+        ifneq ($(FPU),)
+            COMMON_FLAGS += -mfpu=$(FPU)
+            LDFLAGS += -mfpu=$(FPU)
+        endif
 
-    ifneq ($(FPU),)
-        COMMON_FLAGS += -mfpu=$(FPU)
-        LDFLAGS += -mfpu=$(FPU)
-    endif
-
-    ifneq ($(FLOAT-ABI),)
-        COMMON_FLAGS += -mfloat-abi=$(FLOAT-ABI)
-        LDFLAGS += -mfloat-abi=$(FLOAT-ABI)
+        ifneq ($(FLOAT-ABI),)
+            COMMON_FLAGS += -mfloat-abi=$(FLOAT-ABI)
+            LDFLAGS += -mfloat-abi=$(FLOAT-ABI)
+        endif
     endif
 else
     CC := $(C_COMPILER_NATIVE)
@@ -154,6 +156,8 @@ endif
 binary: $(OUTPUT).elf
 
 $(OUTPUT).elf: $(OBJECTS)
+#perform the linking only if sources have been defined
+ifneq ($(OBJECTS),)
 	@echo Creating executable: $@
 	@$(LINKER) -o$(OUTPUT).elf $(OBJECTS) $(LDFLAGS)
 ifeq (,$(findstring gen,$(TYPE)))
@@ -170,6 +174,7 @@ endif
 	@$(SIZE_TOOL) "$(OUTPUT).elf"
 #indicate that new binary has been created
 	@echo $(shell date +%s%N) > $(BUILD_TIME_FILE)
+endif
 
 merged:
 	@echo Building application...
@@ -179,10 +184,8 @@ merged:
 	@$(MAKE) --no-print-directory TYPE=boot TARGET=$(TARGET) DEBUG=$(DEBUG) binary
 	@echo Building sysexgen...
 	@$(MAKE) --no-print-directory TYPE=sysexgen TARGET=$(TARGET) DEBUG=$(DEBUG) binary
-ifeq ($(ARCH), stm32)
 	@echo Building flashgen...
 	@$(MAKE) --no-print-directory TYPE=flashgen TARGET=$(TARGET) DEBUG=$(DEBUG) binary
-endif
 #relink only if needed
 	@NEW_BUILD_TIME=$$(cat $(BUILD_TIME_FILE)) && if [ $$(echo $$NEW_BUILD_TIME) = $$(echo $(LAST_BUILD_TIME)) ]; then \
 	echo Merged binary up to date; \
@@ -227,11 +230,11 @@ endif
 	@hexdump -v -e '/1 "%02x "' $(BUILD_DIR)/$(TARGET).sysex.syx | sed 's/f7/f7\n/g' | sed 's/^ *//' | tr a-z A-Z > $(BUILD_DIR)/$(TARGET).sysex
 	@echo SysEx file created: $(BUILD_DIR)/$(TARGET).sysex
 
-pre-build: $(PINS_GEN_SOURCE) $(TSCREEN_GEN_SOURCE)
+pre-build: $(TARGET_GEN_SOURCE) $(TSCREEN_GEN_SOURCE)
 
-$(BOARD_TARGET_DIR)/Pins.cpp: $(TARGET_DEF_FILE)
-	@echo Generating board definitions...
-	@$(SCRIPTS_DIR)/gen_board.sh $< $(BOARD_TARGET_DIR)
+$(BOARD_TARGET_DIR)/$(TARGET).cpp: $(TARGET_DEF_FILE)
+	@echo Generating target definitions...
+	@$(SCRIPTS_DIR)/gen_target.sh $(TARGET_DEF_FILE) $(BOARD_TARGET_DIR)
 
 $(TOUCHSCREEN_TARGET_DIR)/$(TARGET).cpp: $(TOUCHSCREEN_TARGET_DIR)/$(TARGET).json
 	@echo Generating touchscreen coordinate file...

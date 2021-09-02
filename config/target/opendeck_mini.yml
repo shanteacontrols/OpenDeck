@@ -1,0 +1,223 @@
+---
+  mcu: "at90usb1286"
+  usb: true
+  dinMIDI:
+    uartChannel: 0
+  touchscreen:
+    uartChannel: 0
+    components: 32
+  buttons:
+    type: "shiftRegister"
+    shiftRegisters: 2
+    pins:
+      data:
+        port: "E"
+        index: 6
+      clock:
+        port: "B"
+        index: 0
+      latch:
+        port: "E"
+        index: 7
+    indexing:
+    - 7
+    - 6
+    - 5
+    - 4
+    - 0
+    - 1
+    - 2
+    - 3
+    - 15
+    - 14
+    - 13
+    - 12
+    - 8
+    - 9
+    - 10
+    - 11
+  analog:
+    extReference: true
+    type: "4067"
+    multiplexers: 1
+    pins:
+      s0:
+        port: "C"
+        index: 6
+      s1:
+        port: "C"
+        index: 7
+      s2:
+        port: "E"
+        index: 2
+      s3:
+        port: "A"
+        index: 7
+      z0:
+        port: "F"
+        index: 0
+    indexing:
+    - 8
+    - 9
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+    - 15
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+  leds:
+    internal:
+      invert: false
+      pins:
+        din:
+          rx:
+            port: "A"
+            index: 5
+          tx:
+            port: "A"
+            index: 6
+        usb:
+          rx:
+            port: "A"
+            index: 3
+          tx:
+            port: "A"
+            index: 4
+    external:
+      type: "native"
+      invert: false
+      pins:
+      -
+        port: "D"
+        index: 1
+      -
+        port: "D"
+        index: 0
+      -
+        port: "E"
+        index: 5
+      -
+        port: "E"
+        index: 4
+      -
+        port: "B"
+        index: 7
+      -
+        port: "B"
+        index: 6
+      -
+        port: "B"
+        index: 5
+      -
+        port: "B"
+        index: 4
+      -
+        port: "E"
+        index: 0
+      -
+        port: "E"
+        index: 1
+      -
+        port: "C"
+        index: 0
+      -
+        port: "C"
+        index: 1
+      -
+        port: "C"
+        index: 2
+      -
+        port: "C"
+        index: 3
+      -
+        port: "C"
+        index: 4
+      -
+        port: "C"
+        index: 5
+      -
+        port: "D"
+        index: 6
+      -
+        port: "D"
+        index: 7
+      -
+        port: "D"
+        index: 4
+      -
+        port: "D"
+        index: 5
+      indexing:
+      - 7
+      - 6
+      - 5
+      - 4
+      - 3
+      - 2
+      - 1
+      - 0
+      - 15
+      - 14
+      - 13
+      - 12
+      - 11
+      - 10
+      - 9
+      - 8
+      - 16
+      - 17
+      - 19
+      - 18
+  bootloader:
+    button:
+      port: "E"
+      index: 3
+  unused-io:
+  -
+    port: "A"
+    index: 0
+    mode: "in-pull"
+  -
+    port: "A"
+    index: 1
+    mode: "in-pull"
+  -
+    port: "A"
+    index: 2
+    mode: "in-pull"
+  -
+    port: "F"
+    index: 1
+    mode: "in-pull"
+  -
+    port: "F"
+    index: 2
+    mode: "in-pull"
+  -
+    port: "F"
+    index: 3
+    mode: "in-pull"
+  -
+    port: "F"
+    index: 4
+    mode: "in-pull"
+  -
+    port: "F"
+    index: 5
+    mode: "in-pull"
+  -
+    port: "F"
+    index: 6
+    mode: "in-pull"
+  -
+    port: "F"
+    index: 7
+    mode: "in-pull"

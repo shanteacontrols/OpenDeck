@@ -22,7 +22,7 @@ limitations under the License.
 #include "core/src/general/Atomic.h"
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "Pins.h"
+#include <Pins.h>
 
 #ifndef NUMBER_OF_MUX
 #define ANALOG_IN_BUFFER_SIZE MAX_NUMBER_OF_ANALOG

@@ -4,10 +4,12 @@
 #include <string.h>
 #include <array>
 #include "dbms/src/LESSDB.h"
+#include <MCU.h>
+#ifdef STM32_EMU_EEPROM
 #include "EmuEEPROM/src/EmuEEPROM.h"
+#endif
 #include "board/Board.h"
 #include "board/Internal.h"
-#include "MCU.h"
 
 class DBstorageMock : public LESSDB::StorageAccess
 {
@@ -42,7 +44,6 @@ class DBstorageMock : public LESSDB::StorageAccess
         bool     write32(uint32_t address, uint32_t data) override;
         bool     read16(uint32_t address, uint16_t& data) override;
         bool     read32(uint32_t address, uint32_t& data) override;
-        uint32_t pageSize() override;
 
         private:
         std::vector<uint8_t> pageArray;

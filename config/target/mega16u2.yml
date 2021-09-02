@@ -1,0 +1,24 @@
+---
+  mcu: "atmega16u2"
+  usb: true
+  leds:
+    internal:
+      invert: true
+      pins:
+        din:
+          rx:
+            port: "D"
+            index: 4
+          tx:
+            port: "D"
+            index: 5
+        usb:
+          rx:
+            port: "D"
+            index: 4
+          tx:
+            port: "D"
+            index: 5
+  usbLink:
+    type: "master"
+    uartChannel: 0

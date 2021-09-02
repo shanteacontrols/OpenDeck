@@ -24,10 +24,6 @@ limitations under the License.
 #include "core/src/general/IO.h"
 #include "board/Board.h"
 
-#ifdef __STM32__
-#include "EmuEEPROM/src/EmuEEPROM.h"
-#endif
-
 #ifndef __AVR__
 #include <vector>
 #endif
@@ -213,15 +209,6 @@ namespace Board
             /// param [in]: pageIndex Index of flash sector for which to retrieve address and size.
             /// returns: Reference to flash page descriptor for specified page index.
             flashPage_t& flashPageDescriptor(size_t pageIndex);
-
-            /// Used to retrieve descriptors for flash pages used for EEPROM emulation.
-            /// @ {
-
-            size_t eepromFlashPageFactory();
-            size_t eepromFlashPage1();
-            size_t eepromFlashPage2();
-
-            /// }
 
 #ifdef __STM32__
             class STMPeripheral

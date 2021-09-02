@@ -1,0 +1,104 @@
+---
+  mcu: "stm32f411ce"
+  extClockMhz: 25
+  usb: true
+  dinMIDI:
+    uartChannel: 0
+  display:
+    i2cChannel: 0
+  touchscreen:
+    uartChannel: 0
+    components: 64
+  buttons:
+    type: "native"
+    extPullups: false
+    pins:
+    -
+      port: "A"
+      index: 0
+    -
+      port: "B"
+      index: 2
+    -
+      port: "B"
+      index: 10
+    -
+      port: "B"
+      index: 12
+    -
+      port: "B"
+      index: 13
+    -
+      port: "B"
+      index: 14
+    -
+      port: "B"
+      index: 15
+    -
+      port: "A"
+      index: 8
+  analog:
+    type: "native"
+    pins:
+    -
+      port: "A"
+      index: 1
+    -
+      port: "A"
+      index: 2
+    -
+      port: "A"
+      index: 3
+    -
+      port: "A"
+      index: 4
+    -
+      port: "A"
+      index: 5
+    -
+      port: "A"
+      index: 6
+    -
+      port: "A"
+      index: 7
+    -
+      port: "B"
+      index: 0
+    -
+      port: "B"
+      index: 1
+  leds:
+    external:
+      type: "native"
+      pins:
+      -
+        port: "A"
+        index: 15
+      -
+        port: "B"
+        index: 3
+      -
+        port: "B"
+        index: 4
+      -
+        port: "B"
+        index: 5
+      -
+        port: "B"
+        index: 8
+      -
+        port: "B"
+        index: 9
+      -
+        port: "C"
+        index: 13
+      -
+        port: "C"
+        index: 14
+      -
+        port: "C"
+        index: 15
+  bootloader:
+    button:
+      port: "A"
+      index: 0

@@ -22,7 +22,7 @@ limitations under the License.
 #include "board/Internal.h"
 #include "core/src/general/Helpers.h"
 #include "core/src/general/Atomic.h"
-#include "Pins.h"
+#include <Pins.h>
 
 namespace
 {

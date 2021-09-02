@@ -24,7 +24,6 @@ limitations under the License.
 #include <string>
 #include "database/Database.h"
 #include "EmuEEPROM/src/EmuEEPROM.h"
-#include "board/Internal.h"
 
 namespace
 {
@@ -49,7 +48,7 @@ namespace
                 {
                     uint32_t data;
 
-                    if (!read32(size + (pageSize() * _activePageWrite), data))
+                    if (!read32(size + (EMU_EEPROM_PAGE_SIZE * _activePageWrite), data))
                     {
                         while (1)
                         {
@@ -76,21 +75,21 @@ namespace
 
             if (file.is_open())
             {
-                file << Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPageFactory()).address;
+                file << FLASH_PAGE_ADDRESS(FLASH_PAGE_FACTORY);
                 file.close();
             }
         }
 
         bool init() override
         {
-            _flashVector.at(0).resize(pageSize(), 0xFF);
-            _flashVector.at(1).resize(pageSize(), 0xFF);
+            _flashVector.at(0).resize(EMU_EEPROM_PAGE_SIZE, 0xFF);
+            _flashVector.at(1).resize(EMU_EEPROM_PAGE_SIZE, 0xFF);
             return true;
         }
 
         uint32_t startAddress(EmuEEPROM::page_t page) override
         {
-            return pageSize() * static_cast<uint32_t>(page);
+            return EMU_EEPROM_PAGE_SIZE * static_cast<uint32_t>(page);
         }
 
         bool erasePage(EmuEEPROM::page_t page) override
@@ -112,9 +111,9 @@ namespace
         {
             size_t page = 0;
 
-            if (address >= pageSize())
+            if (address >= EMU_EEPROM_PAGE_SIZE)
             {
-                address -= pageSize();
+                address -= EMU_EEPROM_PAGE_SIZE;
                 page = 1;
             }
 
@@ -128,9 +127,9 @@ namespace
         {
             size_t page = 0;
 
-            if (address >= pageSize())
+            if (address >= EMU_EEPROM_PAGE_SIZE)
             {
-                address -= pageSize();
+                address -= EMU_EEPROM_PAGE_SIZE;
                 page = 1;
             }
 
@@ -154,9 +153,9 @@ namespace
         {
             size_t page = 0;
 
-            if (address >= pageSize())
+            if (address >= EMU_EEPROM_PAGE_SIZE)
             {
-                address -= pageSize();
+                address -= EMU_EEPROM_PAGE_SIZE;
                 page = 1;
             }
 
@@ -171,9 +170,9 @@ namespace
         {
             size_t page = 0;
 
-            if (address >= pageSize())
+            if (address >= EMU_EEPROM_PAGE_SIZE)
             {
-                address -= pageSize();
+                address -= EMU_EEPROM_PAGE_SIZE;
                 page = 1;
             }
 
@@ -186,11 +185,6 @@ namespace
             data |= _flashVector.at(page).at(address + 0);
 
             return true;
-        }
-
-        uint32_t pageSize() override
-        {
-            return Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPage1()).size;
         }
 
         void setFilename(const char* filename)
@@ -220,7 +214,7 @@ namespace
         uint32_t size() override
         {
             //first 4 bytes are reserved for page status
-            return emuEEPROMstorage.pageSize() - 4;
+            return EMU_EEPROM_PAGE_SIZE - 4;
         }
 
         bool clear() override

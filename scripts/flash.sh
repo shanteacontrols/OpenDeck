@@ -26,7 +26,7 @@ read -r port
 
 echo "Please select AVR MCU you want to flash and then press enter:"
 
-boards=$(find src/board/avr/variants/avr8 -mindepth 1 -type d | awk -F/ '{ print $NF }')
+boards=$(find src/board/arch/avr/variants/avr8 -mindepth 1 -type d | awk -F/ '{ print $NF }')
 echo "$boards" | cut -d . -f1 | cat -n
 
 echo -n "Board number: "
@@ -38,11 +38,12 @@ Please wait...
 
 mcu=$(echo "$boards" | head -n "$board_nr" | tail -n 1)
 
-unlock_fuse=$(command < src/board/avr/variants/avr8/"$mcu"/fuses.txt grep ^unlock= | cut -d= -f2)
-lock_fuse=$(command < src/board/avr/variants/avr8/"$mcu"/fuses.txt grep ^lock= | cut -d= -f2)
-ext_fuse=$(command < src/board/avr/variants/avr8/"$mcu"/fuses.txt grep ^ext= | cut -d= -f2)
-low_fuse=$(command < src/board/avr/variants/avr8/"$mcu"/fuses.txt grep ^low= | cut -d= -f2)
-high_fuse=$(command < src/board/avr/variants/avr8/"$mcu"/fuses.txt grep ^high= | cut -d= -f2)
+#don't use yaml parser (dasel) here so that this script can be run without any external tools
+unlock_fuse=$(< config/mcu/"$mcu".yml awk '{$1=$1};1' | grep ^unlock | cut -d: -f2 | xargs)
+lock_fuse=$(< config/mcu/"$mcu".yml awk '{$1=$1};1' | grep ^lock | cut -d: -f2 | xargs)
+ext_fuse=$(< config/mcu/"$mcu".yml awk '{$1=$1};1' | grep ^ext | cut -d: -f2 | xargs)
+low_fuse=$(< config/mcu/"$mcu".yml awk '{$1=$1};1' | grep ^low | cut -d: -f2 | xargs)
+high_fuse=$(< config/mcu/"$mcu".yml awk '{$1=$1};1' | grep ^high | cut -d: -f2 | xargs)
 
 echo -n "Type the path (location) of the binary you want to flash.
 If you want to flash official binary from OpenDeck repository, go to the following link and

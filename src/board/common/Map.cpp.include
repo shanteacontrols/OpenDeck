@@ -17,6 +17,7 @@ limitations under the License.
 */
 
 #include "board/Internal.h"
+#include <MCU.h>
 
 namespace Board
 {
@@ -83,6 +84,27 @@ namespace Board
                 return unusedPins[index];
             }
 #endif
-        }
-    }
-}
+
+            Board::detail::map::flashPage_t& flashPageDescriptor(size_t pageIndex)
+            {
+#ifdef FLASH_PAGE_SIZE_COMMON
+                //calculate address only
+
+                uint32_t address = pageIndex * FLASH_PAGE_SIZE_COMMON;
+
+                if (address > FLASH_END)
+                    pageDescriptor.address = 0;
+                else
+                    pageDescriptor.address = address;
+
+                return pageDescriptor;
+#else
+                if (pageIndex >= TOTAL_FLASH_PAGES)
+                    return pageDescriptor[TOTAL_FLASH_PAGES - 1];
+
+                return pageDescriptor[pageIndex];
+#endif
+            }
+        }    // namespace map
+    }        // namespace detail
+}    // namespace Board

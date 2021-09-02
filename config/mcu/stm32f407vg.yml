@@ -1,0 +1,95 @@
+---
+  arch: "stm32"
+  mcuFamily: "f4"
+  cpu: "cortex-m4"
+  fpu: "fpv4-sp-d16"
+  float-abi: "hard"
+  define-symbol: "STM32F407xx"
+  flash:
+    app-start: 0x8008000
+    boot-start: 0x8000000
+    metadata-start: 0x8008190
+    pages:
+    -
+      address: 0x8000000
+      size: 16384
+    -
+      address: 0x8004000
+      size: 16384
+    -
+      address: 0x8008000
+      size: 16384
+    -
+      address: 0x800C000
+      size: 16384
+    -
+      address: 0x8010000
+      size: 65536
+    -
+      address: 0x8020000
+      size: 131072
+      app-size: 65536
+    -
+      address: 0x8040000
+      size: 131072
+      app-size: 65536
+    -
+      address: 0x8060000
+      size: 131072
+      app-size: 65536
+    -
+      address: 0x8080000
+      size: 131072
+      app-size: 65536
+    -
+      address: 0x80A0000
+      size: 131072
+      app-size: 65536
+    -
+      address: 0x80C0000
+      size: 131072
+      app-size: 65536
+    -
+      address: 0x80E0000
+      size: 131072
+      app-size: 65536
+  eeprom:
+    emulated:
+      factory-flash-page: 5
+      eeprom-flash-page1: 6
+      eeprom-flash-page2: 7
+  hal:
+    adc: "ADC1"
+    timers:
+      main: "TIM7"
+      pwm: "TIM5"
+    #PLL values for 84MHz clock
+    clocks:
+        hse8MHz:
+          pllm: 4
+          plln: 168
+          pllq: 7
+          pllp: "RCC_PLLP_DIV2"
+          ahb_clk_div : "RCC_SYSCLK_DIV2"
+          apb1_clk_div: "RCC_SYSCLK_DIV2"
+          apb2_clk_div: "RCC_SYSCLK_DIV2"
+        hse16MHz:
+          pllm: 8
+          plln: 168
+          pllq: 7
+          pllp: "RCC_PLLP_DIV2"
+          ahb_clk_div : "RCC_SYSCLK_DIV2"
+          apb1_clk_div: "RCC_SYSCLK_DIV2"
+          apb2_clk_div: "RCC_SYSCLK_DIV2"
+        hse25MHz:
+          pllm: 25
+          plln: 336
+          pllq: 7
+          pllp: "RCC_PLLP_DIV2"
+          ahb_clk_div : "RCC_SYSCLK_DIV2"
+          apb1_clk_div: "RCC_SYSCLK_DIV2"
+          apb2_clk_div: "RCC_SYSCLK_DIV2"
+        voltage_scale: "PWR_REGULATOR_VOLTAGE_SCALE1"
+  interfaces:
+    uart: 6
+    i2c: 3

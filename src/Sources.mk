@@ -4,11 +4,12 @@ vpath modules/%.c ../
 #common include dirs
 INCLUDE_DIRS := \
 -I"../modules/" \
+-I"$(BOARD_MCU_BASE_DIR)/$(MCU)" \
 -I"$(BOARD_TARGET_DIR)/" \
 -I"application/" \
--I"board/$(ARCH)/variants/$(MCU_FAMILY)" \
--I"board/$(ARCH)" \
--I"$(MCU_DIR)" \
+-I"board/arch/$(ARCH)/variants/$(MCU_FAMILY)" \
+-I"board/arch/$(ARCH)" \
+-I"board/common" \
 -I"./"
 
 ifeq (,$(findstring gen,$(TYPE)))
@@ -18,10 +19,9 @@ ifeq (,$(findstring gen,$(TYPE)))
         -I"../modules/avr-libstdcpp/include"
     else ifeq ($(ARCH),stm32)
         INCLUDE_DIRS += \
-        $(addprefix -I,$(shell $(FIND) ./board/stm32/gen/common -type d -not -path "*Src*")) \
-        $(addprefix -I,$(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/common -type d -not -path "*Src*")) \
-        $(addprefix -I,$(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/$(MCU_BASE)/Drivers -type d -not -path "*Src*")) \
-        -I"./board/stm32/variants/$(MCU_FAMILY)/$(MCU)"
+        $(addprefix -I,$(shell $(FIND) ./board/arch/$(ARCH)/gen/common -type d -not -path "*Src*")) \
+        $(addprefix -I,$(shell $(FIND) ./board/arch/$(ARCH)/gen/$(MCU_FAMILY)/common -type d -not -path "*Src*")) \
+        $(addprefix -I,$(shell $(FIND) ./board/arch/$(ARCH)/gen/$(MCU_FAMILY)/$(MCU_BASE)/Drivers -type d -not -path "*Src*"))
     endif
 
     ifeq ($(TYPE),boot)
@@ -32,14 +32,14 @@ endif
 
 LINKER_FILE := $(MCU_DIR)/$(MCU).ld
 
-PINS_GEN_SOURCE := $(BOARD_TARGET_DIR)/Pins.cpp
+TARGET_GEN_SOURCE := $(BOARD_TARGET_DIR)/$(TARGET).cpp
 
 ifneq (,$(wildcard application/io/touchscreen/design/$(TARGET).json))
     TSCREEN_GEN_SOURCE += $(TOUCHSCREEN_TARGET_DIR)/$(TARGET).cpp
 endif
 
 ifeq (,$(findstring gen,$(TYPE)))
-    SOURCES += $(PINS_GEN_SOURCE)
+    SOURCES += $(TARGET_GEN_SOURCE)
     SOURCES += $(TSCREEN_GEN_SOURCE)
 
     #architecture specific
@@ -63,10 +63,10 @@ ifeq (,$(findstring gen,$(TYPE)))
             modules/lufa/LUFA/Drivers/USB/Class/Device/CDCClassDevice.c
         endif
     else ifeq ($(ARCH),stm32)
-        SOURCES += $(shell $(FIND) ./board/stm32/gen/common -regex '.*\.\(s\|c\)')
-        SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/common -regex '.*\.\(s\|c\)')
-        SOURCES += $(shell $(FIND) ./board/stm32/gen/$(MCU_FAMILY)/$(MCU_BASE) -regex '.*\.\(s\|c\)')
-        SOURCES += $(shell $(FIND) ./board/stm32/variants/$(MCU_FAMILY) -maxdepth 1 -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/gen/common -regex '.*\.\(s\|c\)')
+        SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/gen/$(MCU_FAMILY)/common -regex '.*\.\(s\|c\)')
+        SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/gen/$(MCU_FAMILY)/$(MCU_BASE) -regex '.*\.\(s\|c\)')
+        SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/variants/$(MCU_FAMILY) -maxdepth 1 -name "*.cpp")
         SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
     endif
 
@@ -80,14 +80,13 @@ ifeq (,$(findstring gen,$(TYPE)))
         SOURCES += \
         board/common/bootloader/Bootloader.cpp \
         board/common/io/Indicators.cpp \
-        board/$(ARCH)/common/Bootloader.cpp \
-        board/$(ARCH)/common/Init.cpp \
-        board/$(ARCH)/common/ShiftRegistersWait.cpp \
-        board/$(ARCH)/common/ISR.cpp
+        board/arch/$(ARCH)/common/Bootloader.cpp \
+        board/arch/$(ARCH)/common/Init.cpp \
+        board/arch/$(ARCH)/common/ShiftRegistersWait.cpp \
+        board/arch/$(ARCH)/common/ISR.cpp
 
         ifeq ($(ARCH),avr)
-            SOURCES += board/$(ARCH)/common/Flash.cpp
-            SOURCES += board/$(ARCH)/common/FlashPages.cpp
+            SOURCES += board/arch/$(ARCH)/common/Flash.cpp
         endif
 
         SOURCES += $(shell find ./bootloader -type f -name "*.cpp")
@@ -95,17 +94,17 @@ ifeq (,$(findstring gen,$(TYPE)))
         ifneq (,$(findstring USB_SUPPORTED,$(DEFINES)))
             SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi -type f -name "*.c")
-            SOURCES += $(shell $(FIND) ./board/$(ARCH)/comm/usb/midi -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/comm/usb/midi -type f -name "*.cpp")
 
             ifneq (,$(findstring USB_LINK_MCU,$(DEFINES)))
                 #for USB link MCUs, compile UART as well - needed to communicate with main MCU
                 SOURCES += \
-                board/$(ARCH)/comm/uart/UART.cpp \
+                board/arch/$(ARCH)/comm/uart/UART.cpp \
                 board/common/comm/uart/UART.cpp
             endif
         else
             SOURCES += \
-            board/$(ARCH)/comm/uart/UART.cpp \
+            board/arch/$(ARCH)/comm/uart/UART.cpp \
             board/common/comm/uart/UART.cpp
 
             SOURCES += $(shell $(FIND) ./board/common/comm/USBOverSerial -type f -name "*.cpp")
@@ -113,18 +112,18 @@ ifeq (,$(findstring gen,$(TYPE)))
     else ifeq ($(TYPE),app)
         #application sources
         #common for all targets
-        SOURCES += $(shell $(FIND) ./board/$(ARCH)/common -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/common -type f -name "*.cpp")
         SOURCES += $(shell $(FIND) ./board/common/comm/USBOverSerial -type f -name "*.cpp")
 
         ifneq (,$(findstring USB_SUPPORTED,$(DEFINES)))
-            SOURCES += $(shell $(FIND) ./board/$(ARCH)/comm/usb/midi_cdc_dual -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/comm/usb/midi_cdc_dual -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi_cdc_dual -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ./board/common/comm/usb/descriptors/midi_cdc_dual -type f -name "*.c")
         endif
 
         ifneq (,$(findstring USE_UART,$(DEFINES)))
             SOURCES += \
-            board/$(ARCH)/comm/uart/UART.cpp \
+            board/arch/$(ARCH)/comm/uart/UART.cpp \
             board/common/comm/uart/UART.cpp
         endif
 
@@ -182,7 +181,7 @@ ifeq (,$(findstring gen,$(TYPE)))
 
             ifneq (,$(findstring DISPLAY_SUPPORTED,$(DEFINES)))
                 SOURCES += $(shell $(FIND) ./application/io/display -type f -name "*.cpp")
-                SOURCES += $(shell $(FIND) ./board/$(ARCH)/comm/i2c -type f -name "*.cpp")
+                SOURCES += $(shell $(FIND) ./board/arch/$(ARCH)/comm/i2c -type f -name "*.cpp")
 
                 #u8x8 sources
                 SOURCES += \
@@ -202,12 +201,15 @@ ifeq (,$(findstring gen,$(TYPE)))
         endif
     endif
 else ifeq ($(TYPE),flashgen)
-    SOURCES += $(shell $(FIND) ./application/database -type f -name "*.cpp")
-    SOURCES += $(shell $(FIND) ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
-    SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
-    SOURCES += $(MCU_DIR)/FlashPages.cpp
-    SOURCES += $(TSCREEN_GEN_SOURCE)
-    SOURCES += flashgen/main.cpp
+    ifeq ($(ARCH),stm32)
+        SOURCES += $(shell $(FIND) ./application/database -type f -name "*.cpp")
+        SOURCES += $(shell $(FIND) ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
+        SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
+        SOURCES += $(TSCREEN_GEN_SOURCE)
+        SOURCES += flashgen/main.cpp
+
+        INCLUDE_DIRS += -I"flashgen/"
+    endif
 else ifeq ($(TYPE),sysexgen)
     SOURCES += sysexgen/main.cpp
 endif

@@ -1,0 +1,168 @@
+---
+  mcu: "stm32f407vg"
+  extClockMhz: 8
+  usb: true
+  dinMIDI:
+    uartChannel: 2
+  display:
+    i2cChannel: 2
+  touchscreen:
+    uartChannel: 2
+    components: 64
+  buttons:
+    type: "native"
+    pins:
+    -
+      port: "C"
+      index: 5
+    -
+      port: "E"
+      index: 7
+    -
+      port: "E"
+      index: 9
+    - 
+      port: "E"
+      index: 11
+    -
+      port: "E"
+      index: 13
+    -
+      port: "E"
+      index: 15
+    -
+      port: "D"
+      index: 9
+    -
+      port: "D"
+      index: 11
+    -    
+      port: "E"
+      index: 8
+    -    
+      port: "E"
+      index: 10
+    -    
+      port: "E"
+      index: 12
+    -
+      port: "E"
+      index: 14
+    -    
+      port: "B"
+      index: 12
+    -
+      port: "D"
+      index: 10
+    -
+      port: "C"
+      index: 8
+    -
+      port: "C"
+      index: 6
+    -
+      port: "C"
+      index: 11
+    -
+      port: "A"
+      index: 15
+  analog:
+    type: "native"
+    pins:
+    -
+      port: "A"
+      index: 1
+    -
+      port: "A"
+      index: 2
+    -
+      port: "A"
+      index: 3
+    -
+      port: "B"
+      index: 0
+    -
+      port: "B"
+      index: 1
+    -
+      port: "C"
+      index: 1
+    -
+      port: "C"
+      index: 2
+    -
+      port: "C"
+      index: 4
+  leds:
+    internal:
+      pins:
+        din:
+          rx:
+            port: "D"
+            index: 15
+          tx:
+            port: "D"
+            index: 13
+        usb:
+          rx:
+            port: "D"
+            index: 14
+          tx:
+            port: "D"
+            index: 12
+    external:
+      type: "native"
+      pins:
+      -
+        port: "E"
+        index: 6
+      -
+        port: "E"
+        index: 4
+      -
+        port: "E"
+        index: 2
+      -
+        port: "E"
+        index: 0
+      -
+        port: "B"
+        index: 8
+      -
+        port: "B"
+        index: 4
+      -
+        port: "D"
+        index: 7
+      -
+        port: "D"
+        index: 3
+      -
+        port: "D"
+        index: 1
+      -
+        port: "C"
+        index: 13
+      -
+        port: "E"
+        index: 5
+      -
+        port: "B"
+        index: 9
+      -
+        port: "B"
+        index: 5
+      -
+        port: "D"
+        index: 6
+      -
+        port: "D"
+        index: 2
+      -
+        port: "D"
+        index: 0
+  bootloader:
+    button:
+      port: "A"
+      index: 0
+      activeState: "high"

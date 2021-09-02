@@ -1,0 +1,21 @@
+---
+  arch: "avr"
+  mcuFamily: "avr8"
+  define-symbol: "__AVR_ATmega16U2__"
+  flash:
+    app-start: 0x00
+    boot-start: 0x3000
+    metadata-start: 0x74
+    page-size: 0x80
+    size: 0x4000
+  eeprom:
+    size: 0x200
+  interfaces:
+    uart: 1
+    i2c: 0
+  fuses:
+    unlock: 0xFF
+    lock: 0xEF
+    ext: 0xF8
+    high: 0xD0
+    low: 0xFF

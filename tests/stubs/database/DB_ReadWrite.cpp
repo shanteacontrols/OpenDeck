@@ -5,7 +5,7 @@ uint32_t DBstorageMock::size()
 {
 #ifdef STM32_EMU_EEPROM
     //first 4 bytes are reserved for page status
-    return storageMock.pageSize() - 4;
+    return EMU_EEPROM_PAGE_SIZE - 4;
 #else
     return memoryArray.size();
 #endif
@@ -173,7 +173,7 @@ bool DBstorageMock::clear()
 #ifdef STM32_EMU_EEPROM
 DBstorageMock::EmuEEPROMStorageAccess::EmuEEPROMStorageAccess()
 {
-    pageArray.resize(pageSize() * 2, 0xFF);
+    pageArray.resize(EMU_EEPROM_PAGE_SIZE * 2, 0xFF);
 }
 
 bool DBstorageMock::EmuEEPROMStorageAccess::init()
@@ -186,15 +186,15 @@ uint32_t DBstorageMock::EmuEEPROMStorageAccess::startAddress(EmuEEPROM::page_t p
     if (page == EmuEEPROM::page_t::page1)
         return 0;
     else
-        return pageSize();
+        return EMU_EEPROM_PAGE_SIZE;
 }
 
 bool DBstorageMock::EmuEEPROMStorageAccess::erasePage(EmuEEPROM::page_t page)
 {
     if (page == EmuEEPROM::page_t::page1)
-        std::fill(pageArray.begin(), pageArray.end() - pageSize(), 0xFF);
+        std::fill(pageArray.begin(), pageArray.end() - EMU_EEPROM_PAGE_SIZE, 0xFF);
     else
-        std::fill(pageArray.begin() + pageSize(), pageArray.end(), 0xFF);
+        std::fill(pageArray.begin() + EMU_EEPROM_PAGE_SIZE, pageArray.end(), 0xFF);
 
     return true;
 }
@@ -251,10 +251,5 @@ bool DBstorageMock::EmuEEPROMStorageAccess::read32(uint32_t address, uint32_t& d
     data |= pageArray.at(address + 0);
 
     return true;
-}
-
-uint32_t DBstorageMock::EmuEEPROMStorageAccess::pageSize()
-{
-    return Board::detail::map::flashPageDescriptor(Board::detail::map::eepromFlashPage1()).size;
 }
 #endif

@@ -22,7 +22,7 @@ limitations under the License.
 #include "board/Internal.h"
 #include "core/src/general/RingBuffer.h"
 #include "core/src/general/Helpers.h"
-#include "MCU.h"
+#include <MCU.h>
 
 #ifndef USB_SUPPORTED
 #include "board/common/comm/USBOverSerial/USBOverSerial.h"
