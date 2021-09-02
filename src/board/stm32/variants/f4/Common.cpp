@@ -134,6 +134,7 @@ namespace Board
 #endif
             }
 
+#ifdef ANALOG_SUPPORTED
             void adc()
             {
                 ADC_ChannelConfTypeDef sConfig = { 0 };
@@ -165,6 +166,7 @@ namespace Board
 
                 HAL_ADC_Start_IT(&adcHandle);
             }
+#endif
         }    // namespace setup
     }        // namespace detail
 }    // namespace Board

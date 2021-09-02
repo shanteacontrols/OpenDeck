@@ -698,7 +698,12 @@ class AnalogFilterStub : public IO::Analog::Filter
     public:
     AnalogFilterStub() {}
 
-    bool isFiltered(size_t index, uint16_t value, uint16_t& filteredValue) override
+    IO::Analog::adcType_t adcType() override
+    {
+        return ADC_RESOLUTION;
+    }
+
+    bool isFiltered(size_t index, IO::Analog::type_t type, uint16_t value, uint16_t& filteredValue)
     {
         return false;
     }

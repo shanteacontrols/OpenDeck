@@ -123,10 +123,12 @@ extern "C" void USART6_IRQHandler(void)
 #endif
 
 #ifdef FW_APP
+#ifdef ANALOG_SUPPORTED
 extern "C" void ADC_IRQHandler(void)
 {
     Board::detail::isrHandling::adc(ADC_INSTANCE->DR);
 }
+#endif
 #endif
 #endif
 
