@@ -59,6 +59,7 @@ class Database : public LESSDB
         {
             midiFeatures,
             midiMerge,
+            dmx,
             AMOUNT
         };
 

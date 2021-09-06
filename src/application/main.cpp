@@ -35,6 +35,7 @@ limitations under the License.
 #include "io/common/CInfo.h"
 #include "board/common/comm/USBOverSerial/USBOverSerial.h"
 #include "bootloader/FwSelector/FwSelector.h"
+#include "dmxusb/src/DMXUSBWidget.h"
 
 class StorageAccess : public LESSDB::StorageAccess
 {
@@ -238,6 +239,93 @@ class HWAMIDI : public MIDI::HWA
     bool _dinMIDIloopbackEnabled = false;
 #endif
 } hwaMIDI;
+
+#ifdef DMX_SUPPORTED
+class HWADMX : public DMXUSBWidget::HWA
+{
+    public:
+    HWADMX() = default;
+
+    bool init() override
+    {
+        Board::UART::config_t config(250000,
+                                     Board::UART::parity_t::no,
+                                     Board::UART::stopBits_t::two,
+                                     Board::UART::type_t::tx,
+                                     true);
+
+        return Board::UART::init(UART_CHANNEL_DMX, config) == Board::UART::initStatus_t::ok;
+    }
+
+    bool deInit() override
+    {
+        return Board::UART::deInit(UART_CHANNEL_DMX);
+    }
+
+    bool readUSB(uint8_t* buffer, size_t& size, const size_t maxSize) override
+    {
+        size_t bufferSize = 0;
+
+        if (Board::USB::readCDC(buffer, bufferSize, maxSize))
+        {
+            size = bufferSize;
+            Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
+            return true;
+        }
+
+        return false;
+    }
+
+    bool writeUSB(uint8_t* buffer, size_t size) override
+    {
+        if (Board::USB::writeCDC(buffer, size))
+        {
+            Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::outgoing);
+            return true;
+        }
+
+        return false;
+    }
+
+    bool updateChannel(uint16_t channel, uint8_t value) override
+    {
+        Board::UART::setDMXChannelValue(channel, value);
+        Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::outgoing);
+        return true;
+    }
+} hwaDMX;
+#else
+class HWADMXStub : public DMXUSBWidget::HWA
+{
+    public:
+    HWADMXStub() = default;
+
+    bool init() override
+    {
+        return false;
+    }
+
+    bool deInit() override
+    {
+        return false;
+    }
+
+    bool readUSB(uint8_t* buffer, size_t& size, const size_t maxSize) override
+    {
+        return false;
+    }
+
+    bool writeUSB(uint8_t* buffer, size_t size) override
+    {
+        return false;
+    }
+
+    bool updateChannel(uint16_t channel, uint8_t value) override
+    {
+        return false;
+    }
+} hwaDMX;
+#endif
 
 #ifdef LEDS_SUPPORTED
 class HWALEDs : public IO::LEDs::HWA
@@ -830,6 +918,16 @@ class HWASystem : public System::HWA
         }
         break;
 
+        case System::serialPeripheral_t::dmx:
+        {
+#ifdef UART_CHANNEL_DMX
+            return Board::UART::isInitialized(UART_CHANNEL_DMX);
+#else
+            return false;
+#endif
+        }
+        break;
+
         default:
             return false;
         }
@@ -865,6 +963,7 @@ namespace Board
 #endif
 
 MIDI            midi(hwaMIDI);
+DMXUSBWidget    dmx(hwaDMX);
 ComponentInfo   cInfo;
 IO::U8X8        u8x8(hwaU8X8);
 IO::Display     display(u8x8, database);
@@ -873,7 +972,7 @@ IO::Analog      analog(hwaAnalog, analogFilter, database, midi, leds, display, c
 IO::Buttons     buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cInfo);
 IO::Encoders    encoders(hwaEncoders, encodersFilter, 1, database, midi, display, cInfo);
 IO::Touchscreen touchscreen(database, cInfo, hwaTouchscreenCDCPassthrough);
-System          sys(hwaSystem, cInfo, database, midi, buttons, encoders, analog, leds, display, touchscreen);
+System          sys(hwaSystem, cInfo, database, midi, buttons, encoders, analog, leds, display, touchscreen, dmx);
 
 int main()
 {

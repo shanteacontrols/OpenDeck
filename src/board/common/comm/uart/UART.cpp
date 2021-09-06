@@ -54,6 +54,10 @@ namespace
     bool usbConnectionState = false;
 #endif
 
+#ifdef DMX_SUPPORTED
+    uint8_t _dmxBuffer[513];
+#endif
+
     /// Starts the process of transmitting the data from UART TX buffer to UART interface.
     /// param [in]: channel     UART channel on MCU.
     void uartTransmitStart(uint8_t channel)
@@ -187,6 +191,17 @@ namespace Board
 
             return txDone[channel];
         }
+
+#ifdef DMX_SUPPORTED
+        void setDMXChannelValue(uint16_t channel, uint8_t value)
+        {
+            ATOMIC_SECTION
+            {
+                if (channel < 513)
+                    _dmxBuffer[channel] = value;
+            }
+        }
+#endif
     }    // namespace UART
 
     namespace detail
@@ -235,6 +250,13 @@ namespace Board
             {
                 txDone[channel] = true;
             }
+
+#ifdef DMX_SUPPORTED
+            uint8_t* dmxBuffer()
+            {
+                return _dmxBuffer;
+            }
+#endif
         }    // namespace UART
     }        // namespace detail
 

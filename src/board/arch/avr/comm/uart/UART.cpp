@@ -24,6 +24,128 @@ limitations under the License.
 #include "core/src/arch/avr/UART.h"
 #include <MCU.h>
 
+namespace
+{
+#ifdef DMX_SUPPORTED
+    volatile Board::detail::UART::dmxState_t _dmxState[MAX_UART_INTERFACES];
+    volatile uint32_t                        _dmxByteCounter;
+    uint32_t                                 _dmxBreakBRR;
+    uint32_t                                 _dmxDataBRR;
+    uint8_t*                                 _dmxBuffer;
+#endif
+}    // namespace
+
+//these macros are used to avoid function calls in ISR as much as possible and to avoid
+//code repetition with only the register names being different
+
+#define _UBRR_GEN(x)  UBRR_##x
+#define UBRR(x)       _UBRR_GEN(x)
+#define _UDR_GEN(x)   UDR_##x
+#define UDR(x)        _UDR_GEN(x)
+#define _UCSRB_GEN(x) UCSRB_##x
+#define UCSRB(x)      _UCSRB_GEN(x)
+#define _UDRIE_GEN(x) UDRIE_##x
+#define UDRIE(x)      _UDRIE_GEN(x)
+
+#ifdef DMX_SUPPORTED
+#define DMX_SET_BREAK_BAUDRATE(channel) (UBRR(channel) = _dmxBreakBRR)
+#define DMX_SET_DATA_BAUDRATE(channel)  (UBRR(channel) = _dmxDataBRR)
+#endif
+
+#ifdef DMX_SUPPORTED
+#define UDRE_ISR(channel)                                                                \
+    do                                                                                   \
+    {                                                                                    \
+        uint8_t data;                                                                    \
+        size_t  dummy;                                                                   \
+        switch (_dmxState[channel])                                                      \
+        {                                                                                \
+        case Board::detail::UART::dmxState_t::disabled:                                  \
+        {                                                                                \
+            if (Board::detail::UART::getNextByteToSend(channel, data, dummy))            \
+            {                                                                            \
+                UDR(channel) = data;                                                     \
+            }                                                                            \
+            else                                                                         \
+            {                                                                            \
+                UCSRB(channel) &= ~(1 << UDRIE(channel));                                \
+            }                                                                            \
+        }                                                                                \
+        break;                                                                           \
+        case Board::detail::UART::dmxState_t::idle:                                      \
+        {                                                                                \
+            UCSRB(channel) &= ~(1 << UDRIE(channel));                                    \
+            _dmxState[channel] = Board::detail::UART::dmxState_t::breakChar;             \
+            UDR(channel)       = 0x00;                                                   \
+        }                                                                                \
+        break;                                                                           \
+        case Board::detail::UART::dmxState_t::data:                                      \
+        {                                                                                \
+            UDR(channel) = _dmxBuffer[_dmxByteCounter++];                                \
+            if (_dmxByteCounter == 513)                                                  \
+            {                                                                            \
+                UCSRB(channel) &= ~(1 << UDRIE(channel));                                \
+                _dmxByteCounter    = 0;                                                  \
+                _dmxState[channel] = Board::detail::UART::dmxState_t::waitingTXComplete; \
+            }                                                                            \
+        }                                                                                \
+        break;                                                                           \
+        default:                                                                         \
+            break;                                                                       \
+        }                                                                                \
+    } while (0)
+
+#define TXC_ISR(channel)                                                \
+    do                                                                  \
+    {                                                                   \
+        switch (_dmxState[channel])                                     \
+        {                                                               \
+        case Board::detail::UART::dmxState_t::disabled:                 \
+        {                                                               \
+            Board::detail::UART::indicateTxComplete(channel);           \
+        }                                                               \
+        break;                                                          \
+        case Board::detail::UART::dmxState_t::waitingTXComplete:        \
+        {                                                               \
+            UCSRB(channel) |= (1 << UDRIE(channel));                    \
+            DMX_SET_BREAK_BAUDRATE(channel);                            \
+            _dmxState[channel] = Board::detail::UART::dmxState_t::idle; \
+        }                                                               \
+        break;                                                          \
+        case Board::detail::UART::dmxState_t::breakChar:                \
+        {                                                               \
+            UCSRB(channel) |= (1 << UDRIE(channel));                    \
+            DMX_SET_DATA_BAUDRATE(channel);                             \
+            _dmxState[channel] = Board::detail::UART::dmxState_t::data; \
+        }                                                               \
+        break;                                                          \
+        default:                                                        \
+            break;                                                      \
+        }                                                               \
+    } while (0)
+#else
+#define UDRE_ISR(channel)                                                 \
+    do                                                                    \
+    {                                                                     \
+        uint8_t data;                                                     \
+        size_t  dummy;                                                    \
+        if (Board::detail::UART::getNextByteToSend(channel, data, dummy)) \
+        {                                                                 \
+            UDR(channel) = data;                                          \
+        }                                                                 \
+        else                                                              \
+        {                                                                 \
+            UCSRB(channel) &= ~(1 << UDRIE(channel));                     \
+        }                                                                 \
+    } while (0)
+
+#define TXC_ISR(channel)                                  \
+    do                                                    \
+    {                                                     \
+        Board::detail::UART::indicateTxComplete(channel); \
+    } while (0)
+#endif
+
 namespace Board
 {
     namespace detail
@@ -34,6 +156,9 @@ namespace Board
             {
                 void enableDataEmptyInt(uint8_t channel)
                 {
+                    if (channel >= MAX_UART_INTERFACES)
+                        return;
+
                     switch (channel)
                     {
                     case 0:
@@ -122,6 +247,11 @@ namespace Board
                     if (!deInit(channel))
                         return false;
 
+#ifdef DMX_SUPPORTED
+                    if (config.dmxMode)
+                        config.baudRate = static_cast<uint32_t>(dmxBaudRate_t::brBreak);
+#endif
+
                     int32_t baud_count = ((F_CPU / 8) + (config.baudRate / 2)) / config.baudRate;
 
                     if ((baud_count & 1) && baud_count <= 4096)
@@ -192,6 +322,14 @@ namespace Board
                             break;
                         }
                     }
+
+#ifdef DMX_SUPPORTED
+                    _dmxBreakBRR = ((F_CPU / 8) + (static_cast<uint32_t>(dmxBaudRate_t::brBreak) / 2)) / static_cast<uint32_t>(dmxBaudRate_t::brBreak);
+                    _dmxDataBRR  = ((F_CPU / 8) + (static_cast<uint32_t>(dmxBaudRate_t::brData) / 2)) / static_cast<uint32_t>(dmxBaudRate_t::brData);
+
+                    _dmxBreakBRR = (_dmxBreakBRR >> 1) - 1;
+                    _dmxDataBRR  = (_dmxDataBRR >> 1) - 1;
+#endif
 
                     //8 bit data is fixed / non-configurable
                     switch (channel)
@@ -290,6 +428,15 @@ namespace Board
                         break;
                     }
 
+#ifdef DMX_SUPPORTED
+                    _dmxState[channel] = config.dmxMode ? dmxState_t::idle : dmxState_t::disabled;
+                    _dmxByteCounter    = 0;
+                    _dmxBuffer         = Board::detail::UART::dmxBuffer();
+
+                    if (config.dmxMode)
+                        enableDataEmptyInt(channel);
+#endif
+
                     return true;
                 }
             }    // namespace ll
@@ -335,71 +482,27 @@ ISR(USART_RX_vect_3)
 
 ISR(USART_UDRE_vect_0)
 {
-    uint8_t data;
-    size_t  dummy;
-
-    if (Board::detail::UART::getNextByteToSend(0, data, dummy))
-    {
-        UDR_0 = data;
-    }
-    else
-    {
-        //disable data empty interrupt
-        UCSRB_0 &= ~(1 << UDRIE_0);
-    }
+    UDRE_ISR(0);
 }
 
 #ifdef UDR_1
 ISR(USART_UDRE_vect_1)
 {
-    uint8_t data;
-    size_t  dummy;
-
-    if (Board::detail::UART::getNextByteToSend(1, data, dummy))
-    {
-        UDR_1 = data;
-    }
-    else
-    {
-        //disable data empty interrupt
-        UCSRB_1 &= ~(1 << UDRIE_1);
-    }
+    UDRE_ISR(1);
 }
 #endif
 
 #ifdef UDR_2
 ISR(USART_UDRE_vect_2)
 {
-    uint8_t data;
-    size_t  dummy;
-
-    if (Board::detail::UART::getNextByteToSend(2, data, dummy))
-    {
-        UDR_2 = data;
-    }
-    else
-    {
-        //disable data empty interrupt
-        UCSRB_2 &= ~(1 << UDRIE_2);
-    }
+    UDRE_ISR(2);
 }
 #endif
 
 #ifdef UDR_3
 ISR(USART_UDRE_vect_3)
 {
-    uint8_t data;
-    size_t  dummy;
-
-    if (Board::detail::UART::getNextByteToSend(3, data, dummy))
-    {
-        UDR_3 = data;
-    }
-    else
-    {
-        //disable data empty interrupt
-        UCSRB_3 &= ~(1 << UDRIE_3);
-    }
+    UDRE_ISR(3);
 }
 #endif
 
@@ -409,27 +512,27 @@ ISR(USART_UDRE_vect_3)
 
 ISR(USART_TX_vect_0)
 {
-    Board::detail::UART::indicateTxComplete(0);
+    TXC_ISR(0);
 }
 
 #ifdef UDR_1
 ISR(USART_TX_vect_1)
 {
-    Board::detail::UART::indicateTxComplete(1);
+    TXC_ISR(1);
 }
 #endif
 
 #ifdef UDR_2
 ISR(USART_TX_vect_2)
 {
-    Board::detail::UART::indicateTxComplete(2);
+    TXC_ISR(2);
 }
 #endif
 
 #ifdef UDR_3
 ISR(USART_TX_vect_3)
 {
-    Board::detail::UART::indicateTxComplete(3);
+    TXC_ISR(3);
 }
 #endif
 

@@ -30,6 +30,7 @@ limitations under the License.
 #include "io/leds/LEDs.h"
 #include "io/touchscreen/Touchscreen.h"
 #include "bootloader/FwSelector/FwSelector.h"
+#include "dmxusb/src/DMXUSBWidget.h"
 
 class System
 {
@@ -78,10 +79,17 @@ class System
         AMOUNT
     };
 
+    enum class dmxSetting_t : uint8_t
+    {
+        enabled,
+        AMOUNT
+    };
+
     enum class serialPeripheral_t : uint8_t
     {
         dinMIDI,
-        touchscreen
+        touchscreen,
+        dmx
     };
 
     class Section
@@ -94,6 +102,7 @@ class System
             midiFeatures,
             midiMerge,
             presets,
+            dmx,
             AMOUNT
         };
 
@@ -202,7 +211,8 @@ class System
            IO::Analog&      analog,
            IO::LEDs&        leds,
            IO::Display&     display,
-           IO::Touchscreen& touchscreen)
+           IO::Touchscreen& touchscreen,
+           DMXUSBWidget&    dmx)
         : _sysExConf(
               _sysExDataHandler,
               _sysExMID)
@@ -216,6 +226,7 @@ class System
         , _leds(leds)
         , _display(display)
         , _touchscreen(touchscreen)
+        , _dmx(dmx)
         , _sysExDataHandler(*this)
         , _dbHandlers(*this)
         , _touchScreenHandlers(*this)
@@ -326,6 +337,7 @@ class System
     IO::LEDs&           _leds;
     IO::Display&        _display;
     IO::Touchscreen&    _touchscreen;
+    DMXUSBWidget&       _dmx;
     SysExDataHandler    _sysExDataHandler;
     DBhandlers          _dbHandlers;
     TouchScreenHandlers _touchScreenHandlers;
@@ -346,6 +358,7 @@ class System
         Database::Section::global_t::midiFeatures,
         Database::Section::global_t::midiMerge,
         Database::Section::global_t::AMOUNT,    //unused
+        Database::Section::global_t::dmx,
     };
 
     const Database::Section::button_t _sysEx2DB_button[static_cast<uint8_t>(Section::button_t::AMOUNT)] = {

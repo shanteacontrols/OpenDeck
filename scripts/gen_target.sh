@@ -177,6 +177,31 @@ then
     fi
 fi
 
+if [[ $($YAML_PARSER "$TARGET_DEF_FILE" dmx) != "null" ]]
+then
+    uart_channel_dmx=$($YAML_PARSER "$TARGET_DEF_FILE" dmx.uartChannel)
+
+    if [[ $uart_channel_dmx == "null" ]]
+    then
+        echo "DMX channel left unspecified"
+        exit 1
+    fi
+
+    if [[ -n "$uart_channel_usb_link" ]]
+    then
+        if [[ $uart_channel_usb_link -eq $uart_channel_dmx ]]
+        then
+            echo "USB link channel and DMX channel cannot be the same"
+            exit 1
+        fi
+    fi
+
+    {
+        printf "%s\n" "DEFINES += DMX_SUPPORTED" >> "$OUT_FILE_MAKEFILE_DEFINES"
+        printf "%s\n" "DEFINES += UART_CHANNEL_DMX=$uart_channel_dmx"
+    } >> "$OUT_FILE_MAKEFILE_DEFINES"
+fi
+
 ########################################################################################################
 
 #################################################### DIGITAL INPUTS ####################################################

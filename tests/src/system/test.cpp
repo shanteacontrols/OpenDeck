@@ -14,6 +14,7 @@
 #include "core/src/general/Helpers.h"
 #include "stubs/database/DB_ReadWrite.h"
 #include "helpers/MIDI.h"
+#include "dmxusb/src/DMXUSBWidget.h"
 
 namespace
 {
@@ -347,7 +348,39 @@ namespace
         private:
     } hwaTouchscreenCDCPassthrough;
 
+    class HWADMXStub : public DMXUSBWidget::HWA
+    {
+        public:
+        HWADMXStub() = default;
+
+        bool init() override
+        {
+            return false;
+        }
+
+        bool deInit() override
+        {
+            return false;
+        }
+
+        bool readUSB(uint8_t* buffer, size_t& size, const size_t maxSize) override
+        {
+            return false;
+        }
+
+        bool writeUSB(uint8_t* buffer, size_t size) override
+        {
+            return false;
+        }
+
+        bool updateChannel(uint16_t channel, uint8_t value) override
+        {
+            return false;
+        }
+    } hwaDMX;
+
     MIDI            midi(hwaMIDI);
+    DMXUSBWidget    dmx(hwaDMX);
     ComponentInfo   cInfo;
     IO::LEDs        leds(hwaLEDs, database);
     IO::U8X8        u8x8(hwaU8X8);
@@ -356,7 +389,7 @@ namespace
     IO::Buttons     buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cInfo);
     IO::Encoders    encoders(hwaEncoders, encodersFilter, 1, database, midi, display, cInfo);
     IO::Touchscreen touchscreen(database, cInfo, hwaTouchscreenCDCPassthrough);
-    System          systemStub(hwaSystem, cInfo, database, midi, buttons, encoders, analog, leds, display, touchscreen);
+    System          systemStub(hwaSystem, cInfo, database, midi, buttons, encoders, analog, leds, display, touchscreen, dmx);
 
     void sendSysExRequest(const std::vector<uint8_t> request, std::vector<MIDI::USBMIDIpacket_t>& buffer)
     {

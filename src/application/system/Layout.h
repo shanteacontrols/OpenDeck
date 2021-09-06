@@ -47,6 +47,13 @@ namespace
             0,
             0,
         },
+
+        //dmx section
+        {
+            static_cast<uint16_t>(System::dmxSetting_t::AMOUNT),
+            0,
+            0,
+        },
     };
 
     std::vector<SysExConf::Section> buttonSections = {

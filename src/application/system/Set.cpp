@@ -89,6 +89,7 @@ uint8_t System::onSetGlobal(Section::global_t section, size_t index, uint16_t ne
     uint8_t result            = SysExConf::DataHandler::STATUS_ERROR_RW;
     bool    writeToDb         = true;
     auto    dinMIDIinitAction = initAction_t::asIs;
+    auto    dmxInitAction     = initAction_t::asIs;
 
     switch (section)
     {
@@ -263,6 +264,26 @@ uint8_t System::onSetGlobal(Section::global_t section, size_t index, uint16_t ne
     }
     break;
 
+    case Section::global_t::dmx:
+    {
+#ifdef DMX_SUPPORTED
+        bool dmxEnabled = _database.read(dbSection(section), static_cast<size_t>(dmxSetting_t::enabled));
+
+        if (!dmxEnabled && _hwa.serialPeripheralAllocated(serialPeripheral_t::dmx) && !_backupRequested)
+        {
+            return SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+        }
+        else
+        {
+            dmxInitAction = newValue ? initAction_t::init : initAction_t::deInit;
+            result        = SysExConf::DataHandler::STATUS_OK;
+        }
+#else
+        return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
+#endif
+    }
+    break;
+
     default:
         break;
     }
@@ -279,6 +300,20 @@ uint8_t System::onSetGlobal(Section::global_t section, size_t index, uint16_t ne
 
         case initAction_t::deInit:
             _midi.deInit(MIDI::interface_t::din);
+            break;
+
+        default:
+            break;
+        }
+
+        switch (dmxInitAction)
+        {
+        case initAction_t::init:
+            _dmx.init();
+            break;
+
+        case initAction_t::deInit:
+            _dmx.deInit();
             break;
 
         default:

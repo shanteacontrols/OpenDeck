@@ -80,6 +80,16 @@ namespace
             .defaultValue           = 0,
             .autoIncrement          = false,
             .address                = 0,
+        },
+
+        //dmx section
+        {
+            .numberOfParameters     = static_cast<uint8_t>(System::dmxSetting_t::AMOUNT),
+            .parameterType          = LESSDB::sectionParameterType_t::byte,
+            .preserveOnPartialReset = false,
+            .defaultValue           = 0,
+            .autoIncrement          = false,
+            .address                = 0,
         }
     };
 

@@ -116,6 +116,19 @@ namespace Board
             parity_t   parity   = parity_t::no;
             stopBits_t stopBits = stopBits_t::one;
             type_t     type     = type_t::rxTx;
+            bool       dmxMode  = false;
+
+            config_t(uint32_t   baudRate,
+                     parity_t   parity,
+                     stopBits_t stopBits,
+                     type_t     type,
+                     bool       dmxMode)
+                : baudRate(baudRate)
+                , parity(parity)
+                , stopBits(stopBits)
+                , type(type)
+                , dmxMode(dmxMode)
+            {}
 
             config_t(uint32_t   baudRate,
                      parity_t   parity,
@@ -185,6 +198,12 @@ namespace Board
         /// param [in]: channel UART channel on MCU.
         /// returns: True if there is no more data to transmit, false otherwise.
         bool isTxEmpty(uint8_t channel);
+
+        /// Used to set value for a particular DMX channel.
+        /// Note: DMX channels start from 1.
+        /// param [in]: channel Channel for which to set new value.
+        /// param [in]: value   New value for the specified channel.
+        void setDMXChannelValue(uint16_t channel, uint8_t value);
     }    // namespace UART
 
     namespace I2C

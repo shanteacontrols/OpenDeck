@@ -74,6 +74,21 @@ namespace Board
 
         namespace UART
         {
+            enum class dmxState_t : uint8_t
+            {
+                disabled,
+                idle,
+                breakChar,
+                data,
+                waitingTXComplete
+            };
+
+            enum class dmxBaudRate_t : uint32_t
+            {
+                brBreak = 100000,
+                brData  = 250000
+            };
+
             namespace ll
             {
                 //low-level UART API, MCU specific
@@ -113,6 +128,9 @@ namespace Board
             /// Used to indicate that the transmission is complete.
             /// param [in]: channel UART channel on MCU.
             void indicateTxComplete(uint8_t channel);
+
+            /// Retrieves pointer to internal DMX buffer array.
+            uint8_t* dmxBuffer();
         }    // namespace UART
 
         namespace io

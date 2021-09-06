@@ -11,7 +11,8 @@ application/io/common/Common.cpp \
 application/system/System.cpp \
 application/system/Get.cpp \
 application/system/Set.cpp \
-modules/sysex/src/SysExConf.cpp
+modules/sysex/src/SysExConf.cpp \
+modules/dmxusb/src/DMXUSBWidget.cpp
 
 ifneq (,$(findstring BUTTONS_SUPPORTED,$(DEFINES)))
     SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) += \

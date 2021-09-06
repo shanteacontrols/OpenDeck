@@ -1,6 +1,6 @@
 # OpenDeck MIDI Platform
 
-OpenDeck is a platform suited both for prototyping and developing custom MIDI controllers with easy to use web configurator. Platform uses class-compliant USB MIDI which makes it compatible with any MIDI software on any OS. Main part of the platform is board on which various components used to build a MIDI controller can be connected.
+OpenDeck is a platform suited both for prototyping and developing custom MIDI controllers with easy to use web configurator. Platform uses class-compliant USB MIDI which makes it compatible with any MIDI software on any OS. Main part of the platform is board on which various components used to build a MIDI controller can be connected. The platform also supports DMX output so it can be used as DMX interface through `usbserial` plugin in [Open Lighting Architecture](https://www.openlighting.org/).
 
   * [Features](#features)
   * [Web configurator](#web-configurator)

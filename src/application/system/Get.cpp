@@ -151,6 +151,25 @@ uint8_t System::onGetGlobal(Section::global_t section, size_t index, uint16_t& v
     }
     break;
 
+    case Section::global_t::dmx:
+    {
+#ifdef DMX_SUPPORTED
+        bool dmxEnabled = _database.read(dbSection(section), static_cast<size_t>(dmxSetting_t::enabled));
+
+        if (!dmxEnabled && _hwa.serialPeripheralAllocated(serialPeripheral_t::dmx) && !_backupRequested)
+        {
+            return SERIAL_PERIPHERAL_ALLOCATED_ERROR;
+        }
+        else
+        {
+            result = _database.read(dbSection(section), index, readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
+        }
+#else
+        return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
+#endif
+    }
+    break;
+
     default:
         break;
     }
