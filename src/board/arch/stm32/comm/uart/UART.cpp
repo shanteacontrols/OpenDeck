@@ -44,14 +44,6 @@ namespace Board
                     __HAL_UART_ENABLE_IT(&uartHandler[channel], UART_IT_TXE);
                 }
 
-                void disableDataEmptyInt(uint8_t channel)
-                {
-                    if (channel >= MAX_UART_INTERFACES)
-                        return;
-
-                    __HAL_UART_DISABLE_IT(&uartHandler[channel], UART_IT_TXE);
-                }
-
                 bool deInit(uint8_t channel)
                 {
                     if (channel >= MAX_UART_INTERFACES)

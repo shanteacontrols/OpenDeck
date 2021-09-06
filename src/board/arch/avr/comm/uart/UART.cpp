@@ -63,37 +63,6 @@ namespace Board
                     }
                 }
 
-                void disableDataEmptyInt(uint8_t channel)
-                {
-                    switch (channel)
-                    {
-                    case 0:
-                        UCSRB_0 &= ~(1 << UDRIE_0);
-                        break;
-
-#ifdef UCSRB_1
-                    case 1:
-                        UCSRB_1 &= ~(1 << UDRIE_1);
-                        break;
-#endif
-
-#ifdef UCSRB_2
-                    case 2:
-                        UCSRB_2 &= ~(1 << UDRIE_2);
-                        break;
-#endif
-
-#ifdef UCSRB_3
-                    case 3:
-                        UCSRB_3 &= ~(1 << UDRIE_3);
-                        break;
-#endif
-
-                    default:
-                        break;
-                    }
-                }
-
                 bool deInit(uint8_t channel)
                 {
                     if (channel >= MAX_UART_INTERFACES)
@@ -375,7 +344,8 @@ ISR(USART_UDRE_vect_0)
     }
     else
     {
-        Board::detail::UART::ll::disableDataEmptyInt(0);
+        //disable data empty interrupt
+        UCSRB_0 &= ~(1 << UDRIE_0);
     }
 }
 
@@ -391,7 +361,8 @@ ISR(USART_UDRE_vect_1)
     }
     else
     {
-        Board::detail::UART::ll::disableDataEmptyInt(1);
+        //disable data empty interrupt
+        UCSRB_1 &= ~(1 << UDRIE_1);
     }
 }
 #endif
@@ -408,7 +379,8 @@ ISR(USART_UDRE_vect_2)
     }
     else
     {
-        Board::detail::UART::ll::disableDataEmptyInt(2);
+        //disable data empty interrupt
+        UCSRB_2 &= ~(1 << UDRIE_2);
     }
 }
 #endif
@@ -425,7 +397,8 @@ ISR(USART_UDRE_vect_3)
     }
     else
     {
-        Board::detail::UART::ll::disableDataEmptyInt(3);
+        //disable data empty interrupt
+        UCSRB_3 &= ~(1 << UDRIE_3);
     }
 }
 #endif

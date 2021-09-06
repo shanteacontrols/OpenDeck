@@ -83,10 +83,6 @@ namespace Board
                 /// param [in]: channel     UART channel on MCU.
                 void enableDataEmptyInt(uint8_t channel);
 
-                /// Disables the firing of interrupt once the UART data register is empty.
-                /// param [in]: channel     UART channel on MCU.
-                void disableDataEmptyInt(uint8_t channel);
-
                 /// Performs low-level initialization of the specified UART channel.
                 /// param [in]: channel     UART channel on MCU.
                 /// param [in]: config_t    Structure containing configuration for given UART channel.
