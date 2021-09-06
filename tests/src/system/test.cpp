@@ -52,6 +52,11 @@ namespace
         {
             return false;
         }
+
+        bool uniqueID(System::uniqueID_t& uniqueID) override
+        {
+            return false;
+        }
     } hwaSystem;
 
     class HWAMIDI : public MIDI::HWA

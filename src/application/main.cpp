@@ -833,6 +833,12 @@ class HWASystem : public System::HWA
 #endif
     }
 
+    bool uniqueID(System::uniqueID_t& uniqueID) override
+    {
+        Board::uniqueID(uniqueID);
+        return true;
+    }
+
     private:
     /// Time in milliseconds after which USB connection state should be checked
     static constexpr uint32_t USB_CONN_CHECK_TIME = 2000;

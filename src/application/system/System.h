@@ -179,6 +179,7 @@ class System
     };
 
     using usbConnectionHandler_t = std::function<void()>;
+    using uniqueID_t             = std::array<uint8_t, UID_BITS / 8>;
 
     class HWA
     {
@@ -189,6 +190,7 @@ class System
         virtual void reboot(FwSelector::fwType_t type)                                           = 0;
         virtual void registerOnUSBconnectionHandler(usbConnectionHandler_t usbConnectionHandler) = 0;
         virtual bool serialPeripheralAllocated(serialPeripheral_t peripheral)                    = 0;
+        virtual bool uniqueID(uniqueID_t& uniqueID)                                              = 0;
     };
 
     System(HWA&             hwa,
