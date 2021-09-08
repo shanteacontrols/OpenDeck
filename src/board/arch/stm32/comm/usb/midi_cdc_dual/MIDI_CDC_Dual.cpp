@@ -46,6 +46,7 @@ namespace
     volatile uint8_t                       cdcRxBuffer[CDC_IN_OUT_EPSIZE];
     volatile Board::detail::USB::txState_t txStateMIDI;
     volatile Board::detail::USB::txState_t txStateCDC;
+    volatile bool                          cdcBufferWait;
 
     //these buffers are overriden every time midiRxCallback is called
     //save results in ring buffer and remove them as needed when reading
@@ -257,14 +258,22 @@ namespace
         {
             uint32_t length = USBD_LL_GetRxDataSize(pdev, epnum);
 
-            //USB data will be immediately processed
-            //this allows next USB traffic being
-            //NAKed until the end of the application Xfer
-
             for (uint32_t i = 0; i < length; i++)
                 cdcRxBufferRing.insert(cdcRxBuffer[i]);
 
-            return USBD_LL_PrepareReceive(pdev, CDC_OUT_EPADDR, (uint8_t*)cdcRxBuffer, CDC_IN_OUT_EPSIZE);
+            //make sure the data is removed from buffer by application before declaring endpoint ready
+
+            if ((RX_BUFFER_SIZE_RING - cdcRxBufferRing.count()) > CDC_IN_OUT_EPSIZE)
+            {
+                cdcBufferWait = false;
+                return USBD_LL_PrepareReceive(pdev, CDC_OUT_EPADDR, (uint8_t*)cdcRxBuffer, CDC_IN_OUT_EPSIZE);
+            }
+            else
+            {
+                cdcBufferWait = true;
+            }
+
+            return USBD_OK;
         }
     }    // namespace cdc
 
@@ -586,7 +595,22 @@ namespace Board
             for (size_t i = 0; i < loopNr; i++)
             {
                 if (cdcRxBufferRing.remove(buffer[i]))
+                {
                     size++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            if (cdcBufferWait)
+            {
+                if ((RX_BUFFER_SIZE_RING - cdcRxBufferRing.count()) > CDC_IN_OUT_EPSIZE)
+                {
+                    cdcBufferWait = false;
+                    USBD_LL_PrepareReceive(&hUsbDeviceFS, CDC_OUT_EPADDR, (uint8_t*)cdcRxBuffer, CDC_IN_OUT_EPSIZE);
+                }
             }
 
             return true;
@@ -594,12 +618,9 @@ namespace Board
 
         bool readCDC(uint8_t& value)
         {
-            if (cdcRxBufferRing.isEmpty())
-                return false;
+            size_t size;
 
-            value = 0;
-
-            return cdcRxBufferRing.remove(value);
+            return readCDC(&value, size, 1);
         }
 
         bool writeCDC(uint8_t* buffer, size_t size)
