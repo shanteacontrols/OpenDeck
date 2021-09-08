@@ -40,25 +40,21 @@ namespace
         uint8_t  cmdLength;
     } cdcData_t;
 
-    USBD_HandleTypeDef                     hUsbDeviceFS;
-    cdcData_t                              cdcData;
-    volatile uint8_t                       midiRxBuffer[MIDI_IN_OUT_EPSIZE];
-    volatile uint8_t                       cdcRxBuffer[CDC_IN_OUT_EPSIZE];
-    volatile Board::detail::USB::txState_t txStateMIDI;
-    volatile Board::detail::USB::txState_t txStateCDC;
-    volatile bool                          cdcBufferWait;
-
-    //these buffers are overriden every time midiRxCallback is called
-    //save results in ring buffer and remove them as needed when reading
-    //not really the most optimized way, however, we are not in AVR land anymore
-    core::RingBuffer<uint8_t, RX_BUFFER_SIZE_RING> cdcRxBufferRing;
-    core::RingBuffer<uint8_t, RX_BUFFER_SIZE_RING> midiRxBufferRing;
+    USBD_HandleTypeDef                             _usbHandler;
+    cdcData_t                                      _cdcData;
+    volatile uint8_t                               _midiRxBuffer[MIDI_IN_OUT_EPSIZE];
+    volatile uint8_t                               _cdcRxBuffer[CDC_IN_OUT_EPSIZE];
+    volatile Board::detail::USB::txState_t         _txStateMIDI;
+    volatile Board::detail::USB::txState_t         _txStateCDC;
+    volatile bool                                  _cdcBufferWait;
+    core::RingBuffer<uint8_t, RX_BUFFER_SIZE_RING> _cdcRxBufferRing;
+    core::RingBuffer<uint8_t, RX_BUFFER_SIZE_RING> _midiRxBufferRing;
 
     namespace cdc
     {
         uint8_t initCallback(USBD_HandleTypeDef* pdev, uint8_t cfgidx)
         {
-            txStateCDC = Board::detail::USB::txState_t::done;
+            _txStateCDC = Board::detail::USB::txState_t::done;
 
             USBD_LL_OpenEP(pdev, CDC_IN_EPADDR, USB_EP_TYPE_BULK, CDC_IN_OUT_EPSIZE);
             pdev->ep_in[CDC_IN_EPADDR & 0xFU].is_used = 1U;
@@ -71,7 +67,7 @@ namespace
             pdev->ep_in[CDC_NOTIFICATION_EPADDR & 0xFU].is_used = 1U;
 
             //prepare out endpoint to receive next packet
-            return USBD_LL_PrepareReceive(pdev, CDC_OUT_EPADDR, (uint8_t*)cdcRxBuffer, CDC_IN_OUT_EPSIZE);
+            return USBD_LL_PrepareReceive(pdev, CDC_OUT_EPADDR, (uint8_t*)_cdcRxBuffer, CDC_IN_OUT_EPSIZE);
         }
 
         uint8_t deInitCallback(USBD_HandleTypeDef* pdev, uint8_t cfgidx)
@@ -138,15 +134,15 @@ namespace
                 {
                     if ((req->bmRequest & 0x80U) != 0U)
                     {
-                        cdcControlCallback(req->bRequest, (uint8_t*)cdcData.data, req->wLength);
-                        USBD_CtlSendData(pdev, (uint8_t*)cdcData.data, req->wLength);
+                        cdcControlCallback(req->bRequest, (uint8_t*)_cdcData.data, req->wLength);
+                        USBD_CtlSendData(pdev, (uint8_t*)_cdcData.data, req->wLength);
                     }
                     else
                     {
-                        cdcData.cmdOpCode = req->bRequest;
-                        cdcData.cmdLength = (uint8_t)req->wLength;
+                        _cdcData.cmdOpCode = req->bRequest;
+                        _cdcData.cmdLength = (uint8_t)req->wLength;
 
-                        USBD_CtlPrepareRx(pdev, (uint8_t*)cdcData.data, req->wLength);
+                        USBD_CtlPrepareRx(pdev, (uint8_t*)_cdcData.data, req->wLength);
                     }
                 }
                 else
@@ -226,10 +222,10 @@ namespace
 
         uint8_t EP0_RxReadyCallback(USBD_HandleTypeDef* pdev)
         {
-            if ((pdev->pUserData != NULL) && (cdcData.cmdOpCode != 0xFFU))
+            if ((pdev->pUserData != NULL) && (_cdcData.cmdOpCode != 0xFFU))
             {
-                cdcControlCallback(cdcData.cmdOpCode, (uint8_t*)cdcData.data, (uint16_t)cdcData.cmdLength);
-                cdcData.cmdOpCode = 0xFFU;
+                cdcControlCallback(_cdcData.cmdOpCode, (uint8_t*)_cdcData.data, (uint16_t)_cdcData.cmdLength);
+                _cdcData.cmdOpCode = 0xFFU;
             }
 
             return USBD_OK;
@@ -249,7 +245,7 @@ namespace
             }
             else
             {
-                txStateCDC = Board::detail::USB::txState_t::done;
+                _txStateCDC = Board::detail::USB::txState_t::done;
                 return USBD_OK;
             }
         }
@@ -259,18 +255,18 @@ namespace
             uint32_t length = USBD_LL_GetRxDataSize(pdev, epnum);
 
             for (uint32_t i = 0; i < length; i++)
-                cdcRxBufferRing.insert(cdcRxBuffer[i]);
+                _cdcRxBufferRing.insert(_cdcRxBuffer[i]);
 
             //make sure the data is removed from buffer by application before declaring endpoint ready
 
-            if ((RX_BUFFER_SIZE_RING - cdcRxBufferRing.count()) > CDC_IN_OUT_EPSIZE)
+            if ((RX_BUFFER_SIZE_RING - _cdcRxBufferRing.count()) > CDC_IN_OUT_EPSIZE)
             {
-                cdcBufferWait = false;
-                return USBD_LL_PrepareReceive(pdev, CDC_OUT_EPADDR, (uint8_t*)cdcRxBuffer, CDC_IN_OUT_EPSIZE);
+                _cdcBufferWait = false;
+                return USBD_LL_PrepareReceive(pdev, CDC_OUT_EPADDR, (uint8_t*)_cdcRxBuffer, CDC_IN_OUT_EPSIZE);
             }
             else
             {
-                cdcBufferWait = true;
+                _cdcBufferWait = true;
             }
 
             return USBD_OK;
@@ -283,9 +279,9 @@ namespace
         {
             USBD_LL_OpenEP(pdev, MIDI_STREAM_IN_EPADDR, USB_EP_TYPE_BULK, MIDI_IN_OUT_EPSIZE);
             USBD_LL_OpenEP(pdev, MIDI_STREAM_OUT_EPADDR, USB_EP_TYPE_BULK, MIDI_IN_OUT_EPSIZE);
-            USBD_LL_PrepareReceive(pdev, MIDI_STREAM_OUT_EPADDR, (uint8_t*)(midiRxBuffer), MIDI_IN_OUT_EPSIZE);
+            USBD_LL_PrepareReceive(pdev, MIDI_STREAM_OUT_EPADDR, (uint8_t*)(_midiRxBuffer), MIDI_IN_OUT_EPSIZE);
 
-            txStateMIDI = Board::detail::USB::txState_t::done;
+            _txStateMIDI = Board::detail::USB::txState_t::done;
 
             return USBD_OK;
         }
@@ -300,7 +296,7 @@ namespace
 
         uint8_t dataInCallback(USBD_HandleTypeDef* pdev, uint8_t epnum)
         {
-            txStateMIDI = Board::detail::USB::txState_t::done;
+            _txStateMIDI = Board::detail::USB::txState_t::done;
 
             return USBD_OK;
         }
@@ -310,9 +306,9 @@ namespace
             uint32_t count = ((PCD_HandleTypeDef*)pdev->pData)->OUT_ep[epnum].xfer_count;
 
             for (uint32_t i = 0; i < count; i++)
-                midiRxBufferRing.insert(midiRxBuffer[i]);
+                _midiRxBufferRing.insert(_midiRxBuffer[i]);
 
-            return USBD_LL_PrepareReceive(pdev, MIDI_STREAM_OUT_EPADDR, (uint8_t*)(midiRxBuffer), MIDI_IN_OUT_EPSIZE);
+            return USBD_LL_PrepareReceive(pdev, MIDI_STREAM_OUT_EPADDR, (uint8_t*)(_midiRxBuffer), MIDI_IN_OUT_EPSIZE);
         }
     }    // namespace midi
 
@@ -513,13 +509,13 @@ namespace Board
         {
             void usb()
             {
-                if (_USBD_Init(&hUsbDeviceFS, &DeviceDescriptor, DEVICE_FS) != USBD_OK)
+                if (_USBD_Init(&_usbHandler, &DeviceDescriptor, DEVICE_FS) != USBD_OK)
                     Board::detail::errorHandler();
 
-                if (USBD_RegisterClass(&hUsbDeviceFS, &USB_MIDI_CDC_Class) != USBD_OK)
+                if (USBD_RegisterClass(&_usbHandler, &USB_MIDI_CDC_Class) != USBD_OK)
                     Board::detail::errorHandler();
 
-                USBD_Start(&hUsbDeviceFS);
+                USBD_Start(&_usbHandler);
             }
         }    // namespace setup
     }        // namespace detail
@@ -528,19 +524,19 @@ namespace Board
     {
         bool isUSBconnected()
         {
-            return (hUsbDeviceFS.dev_state == USBD_STATE_CONFIGURED);
+            return (_usbHandler.dev_state == USBD_STATE_CONFIGURED);
         }
 
         bool readMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
         {
             bool returnValue = false;
 
-            if (midiRxBufferRing.count() >= 4)
+            if (_midiRxBufferRing.count() >= 4)
             {
-                midiRxBufferRing.remove(USBMIDIpacket.Event);
-                midiRxBufferRing.remove(USBMIDIpacket.Data1);
-                midiRxBufferRing.remove(USBMIDIpacket.Data2);
-                midiRxBufferRing.remove(USBMIDIpacket.Data3);
+                _midiRxBufferRing.remove(USBMIDIpacket.Event);
+                _midiRxBufferRing.remove(USBMIDIpacket.Data1);
+                _midiRxBufferRing.remove(USBMIDIpacket.Data2);
+                _midiRxBufferRing.remove(USBMIDIpacket.Data3);
 
                 returnValue = true;
             }
@@ -553,9 +549,9 @@ namespace Board
             if (!isUSBconnected())
                 return false;
 
-            if (txStateMIDI != Board::detail::USB::txState_t::done)
+            if (_txStateMIDI != Board::detail::USB::txState_t::done)
             {
-                if (txStateMIDI == Board::detail::USB::txState_t::waiting)
+                if (_txStateMIDI == Board::detail::USB::txState_t::waiting)
                 {
                     return false;
                 }
@@ -565,19 +561,19 @@ namespace Board
 
                     while ((core::timing::currentRunTimeMs() - currentTime) < USB_TX_TIMEOUT_MS)
                     {
-                        if (txStateMIDI == Board::detail::USB::txState_t::done)
+                        if (_txStateMIDI == Board::detail::USB::txState_t::done)
                             break;
                     }
 
-                    if (txStateMIDI != Board::detail::USB::txState_t::done)
-                        txStateMIDI = Board::detail::USB::txState_t::waiting;
+                    if (_txStateMIDI != Board::detail::USB::txState_t::done)
+                        _txStateMIDI = Board::detail::USB::txState_t::waiting;
                 }
             }
 
-            if (txStateMIDI == Board::detail::USB::txState_t::done)
+            if (_txStateMIDI == Board::detail::USB::txState_t::done)
             {
-                txStateMIDI = Board::detail::USB::txState_t::sending;
-                return USBD_LL_Transmit(&hUsbDeviceFS, MIDI_STREAM_IN_EPADDR, (uint8_t*)&USBMIDIpacket, 4) == USBD_OK;
+                _txStateMIDI = Board::detail::USB::txState_t::sending;
+                return USBD_LL_Transmit(&_usbHandler, MIDI_STREAM_IN_EPADDR, (uint8_t*)&USBMIDIpacket, 4) == USBD_OK;
             }
 
             return false;
@@ -585,16 +581,16 @@ namespace Board
 
         bool readCDC(uint8_t* buffer, size_t& size, const size_t maxSize)
         {
-            if (cdcRxBufferRing.isEmpty())
+            if (_cdcRxBufferRing.isEmpty())
                 return false;
 
             size = 0;
 
-            size_t loopNr = cdcRxBufferRing.count() > maxSize ? maxSize : cdcRxBufferRing.count();
+            size_t loopNr = _cdcRxBufferRing.count() > maxSize ? maxSize : _cdcRxBufferRing.count();
 
             for (size_t i = 0; i < loopNr; i++)
             {
-                if (cdcRxBufferRing.remove(buffer[i]))
+                if (_cdcRxBufferRing.remove(buffer[i]))
                 {
                     size++;
                 }
@@ -604,12 +600,12 @@ namespace Board
                 }
             }
 
-            if (cdcBufferWait)
+            if (_cdcBufferWait)
             {
-                if ((RX_BUFFER_SIZE_RING - cdcRxBufferRing.count()) > CDC_IN_OUT_EPSIZE)
+                if ((RX_BUFFER_SIZE_RING - _cdcRxBufferRing.count()) > CDC_IN_OUT_EPSIZE)
                 {
-                    cdcBufferWait = false;
-                    USBD_LL_PrepareReceive(&hUsbDeviceFS, CDC_OUT_EPADDR, (uint8_t*)cdcRxBuffer, CDC_IN_OUT_EPSIZE);
+                    _cdcBufferWait = false;
+                    USBD_LL_PrepareReceive(&_usbHandler, CDC_OUT_EPADDR, (uint8_t*)_cdcRxBuffer, CDC_IN_OUT_EPSIZE);
                 }
             }
 
@@ -631,9 +627,9 @@ namespace Board
             if (!size)
                 return false;
 
-            if (txStateCDC != Board::detail::USB::txState_t::done)
+            if (_txStateCDC != Board::detail::USB::txState_t::done)
             {
-                if (txStateCDC == Board::detail::USB::txState_t::waiting)
+                if (_txStateCDC == Board::detail::USB::txState_t::waiting)
                 {
                     return false;
                 }
@@ -643,20 +639,20 @@ namespace Board
 
                     while ((core::timing::currentRunTimeMs() - currentTime) < USB_TX_TIMEOUT_MS)
                     {
-                        if (txStateCDC == Board::detail::USB::txState_t::done)
+                        if (_txStateCDC == Board::detail::USB::txState_t::done)
                             break;
                     }
 
-                    if (txStateCDC != Board::detail::USB::txState_t::done)
-                        txStateCDC = Board::detail::USB::txState_t::waiting;
+                    if (_txStateCDC != Board::detail::USB::txState_t::done)
+                        _txStateCDC = Board::detail::USB::txState_t::waiting;
                 }
             }
 
-            if (txStateCDC == Board::detail::USB::txState_t::done)
+            if (_txStateCDC == Board::detail::USB::txState_t::done)
             {
-                txStateCDC                                            = Board::detail::USB::txState_t::sending;
-                hUsbDeviceFS.ep_in[CDC_IN_EPADDR & 0xFU].total_length = size;
-                return USBD_LL_Transmit(&hUsbDeviceFS, CDC_IN_EPADDR, buffer, size) == USBD_OK;
+                _txStateCDC                                          = Board::detail::USB::txState_t::sending;
+                _usbHandler.ep_in[CDC_IN_EPADDR & 0xFU].total_length = size;
+                return USBD_LL_Transmit(&_usbHandler, CDC_IN_EPADDR, buffer, size) == USBD_OK;
             }
 
             return false;

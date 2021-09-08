@@ -22,8 +22,8 @@ limitations under the License.
 
 namespace
 {
-    TIM_HandleTypeDef mainTimerHandle;
-    ADC_HandleTypeDef adcHandle;
+    TIM_HandleTypeDef _mainTimerHandler;
+    ADC_HandleTypeDef _adcHandler;
 
 #ifdef FW_APP
 #ifndef USB_LINK_MCU
@@ -103,16 +103,16 @@ namespace Board
 
             void timers()
             {
-                mainTimerHandle.Instance               = MAIN_TIMER_INSTANCE;
-                mainTimerHandle.Init.Prescaler         = 1;
-                mainTimerHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
-                mainTimerHandle.Init.Period            = 41999;
-                mainTimerHandle.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
-                mainTimerHandle.Init.RepetitionCounter = 0;
-                mainTimerHandle.Init.AutoReloadPreload = 0;
+                _mainTimerHandler.Instance               = MAIN_TIMER_INSTANCE;
+                _mainTimerHandler.Init.Prescaler         = 1;
+                _mainTimerHandler.Init.CounterMode       = TIM_COUNTERMODE_UP;
+                _mainTimerHandler.Init.Period            = 41999;
+                _mainTimerHandler.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+                _mainTimerHandler.Init.RepetitionCounter = 0;
+                _mainTimerHandler.Init.AutoReloadPreload = 0;
 
-                HAL_TIM_Base_Init(&mainTimerHandle);
-                HAL_TIM_Base_Start_IT(&mainTimerHandle);
+                HAL_TIM_Base_Init(&_mainTimerHandler);
+                HAL_TIM_Base_Start_IT(&_mainTimerHandler);
 
 #ifdef FW_APP
 #ifndef USB_LINK_MCU
@@ -137,32 +137,32 @@ namespace Board
             {
                 ADC_ChannelConfTypeDef sConfig = { 0 };
 
-                adcHandle.Instance                   = ADC_INSTANCE;
-                adcHandle.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV4;
-                adcHandle.Init.Resolution            = ADC_RESOLUTION_12B;
-                adcHandle.Init.ScanConvMode          = DISABLE;
-                adcHandle.Init.ContinuousConvMode    = DISABLE;
-                adcHandle.Init.DiscontinuousConvMode = DISABLE;
-                adcHandle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-                adcHandle.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
-                adcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-                adcHandle.Init.NbrOfConversion       = 1;
-                adcHandle.Init.DMAContinuousRequests = DISABLE;
-                adcHandle.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
-                HAL_ADC_Init(&adcHandle);
+                _adcHandler.Instance                   = ADC_INSTANCE;
+                _adcHandler.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV4;
+                _adcHandler.Init.Resolution            = ADC_RESOLUTION_12B;
+                _adcHandler.Init.ScanConvMode          = DISABLE;
+                _adcHandler.Init.ContinuousConvMode    = DISABLE;
+                _adcHandler.Init.DiscontinuousConvMode = DISABLE;
+                _adcHandler.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+                _adcHandler.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
+                _adcHandler.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+                _adcHandler.Init.NbrOfConversion       = 1;
+                _adcHandler.Init.DMAContinuousRequests = DISABLE;
+                _adcHandler.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
+                HAL_ADC_Init(&_adcHandler);
 
                 for (int i = 0; i < MAX_ADC_CHANNELS; i++)
                 {
                     sConfig.Channel      = map::adcChannel(i);
                     sConfig.Rank         = 1;
                     sConfig.SamplingTime = ADC_SAMPLETIME_112CYCLES;
-                    HAL_ADC_ConfigChannel(&adcHandle, &sConfig);
+                    HAL_ADC_ConfigChannel(&_adcHandler, &sConfig);
                 }
 
                 //set first channel
                 core::adc::setChannel(map::adcChannel(0));
 
-                HAL_ADC_Start_IT(&adcHandle);
+                HAL_ADC_Start_IT(&_adcHandler);
             }
 #endif
         }    // namespace setup

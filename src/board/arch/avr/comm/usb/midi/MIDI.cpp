@@ -24,8 +24,8 @@ limitations under the License.
 
 namespace
 {
-    USB_ClassInfo_MIDI_Device_t            MIDI_Interface;
-    volatile Board::detail::USB::txState_t txStateMIDI;
+    USB_ClassInfo_MIDI_Device_t            _midiInterface;
+    volatile Board::detail::USB::txState_t _txStateMIDI;
 }    // namespace
 
 /// Event handler for the USB_ConfigurationChanged event.
@@ -107,15 +107,15 @@ namespace Board
         {
             void usb()
             {
-                MIDI_Interface.Config.StreamingInterfaceNumber = INTERFACE_ID_AudioStream;
+                _midiInterface.Config.StreamingInterfaceNumber = INTERFACE_ID_AudioStream;
 
-                MIDI_Interface.Config.DataINEndpoint.Address = MIDI_STREAM_IN_EPADDR;
-                MIDI_Interface.Config.DataINEndpoint.Size    = MIDI_IN_OUT_EPSIZE;
-                MIDI_Interface.Config.DataINEndpoint.Banks   = 1;
+                _midiInterface.Config.DataINEndpoint.Address = MIDI_STREAM_IN_EPADDR;
+                _midiInterface.Config.DataINEndpoint.Size    = MIDI_IN_OUT_EPSIZE;
+                _midiInterface.Config.DataINEndpoint.Banks   = 1;
 
-                MIDI_Interface.Config.DataOUTEndpoint.Address = MIDI_STREAM_OUT_EPADDR;
-                MIDI_Interface.Config.DataOUTEndpoint.Size    = MIDI_IN_OUT_EPSIZE;
-                MIDI_Interface.Config.DataOUTEndpoint.Banks   = 1;
+                _midiInterface.Config.DataOUTEndpoint.Address = MIDI_STREAM_OUT_EPADDR;
+                _midiInterface.Config.DataOUTEndpoint.Size    = MIDI_IN_OUT_EPSIZE;
+                _midiInterface.Config.DataOUTEndpoint.Banks   = 1;
 
                 USB_Init();
             }
@@ -164,33 +164,33 @@ namespace Board
                 return false;
 
             //once the transfer fails, wait USB_TX_TIMEOUT_MS ms before trying again
-            if (txStateMIDI != Board::detail::USB::txState_t::done)
+            if (_txStateMIDI != Board::detail::USB::txState_t::done)
             {
                 if ((core::timing::currentRunTimeMs() - timeout) < USB_TX_TIMEOUT_MS)
                     return false;
 
-                txStateMIDI = Board::detail::USB::txState_t::done;
-                timeout     = 0;
+                _txStateMIDI = Board::detail::USB::txState_t::done;
+                timeout      = 0;
             }
 
-            Endpoint_SelectEndpoint(MIDI_Interface.Config.DataINEndpoint.Address);
+            Endpoint_SelectEndpoint(_midiInterface.Config.DataINEndpoint.Address);
 
             uint8_t ErrorCode;
 
-            txStateMIDI = Board::detail::USB::txState_t::sending;
+            _txStateMIDI = Board::detail::USB::txState_t::sending;
 
             if ((ErrorCode = Endpoint_Write_Stream_LE(&USBMIDIpacket, sizeof(MIDI::USBMIDIpacket_t), NULL)) != ENDPOINT_RWSTREAM_NoError)
             {
-                txStateMIDI = Board::detail::USB::txState_t::waiting;
+                _txStateMIDI = Board::detail::USB::txState_t::waiting;
                 return false;
             }
 
             if (!(Endpoint_IsReadWriteAllowed()))
                 Endpoint_ClearIN();
 
-            MIDI_Device_Flush(&MIDI_Interface);
+            MIDI_Device_Flush(&_midiInterface);
 
-            txStateMIDI = Board::detail::USB::txState_t::done;
+            _txStateMIDI = Board::detail::USB::txState_t::done;
             return true;
         }
     }    // namespace USB

@@ -26,14 +26,8 @@ limitations under the License.
 
 namespace
 {
-#if !defined(NUMBER_OF_OUT_SR) || defined(NUMBER_OF_LED_COLUMNS)
-    core::io::mcuPin_t pin;
-#endif
-    uint8_t          ledID;
-    uint8_t          arrayIndex;
-    uint8_t          ledBit;
-    uint8_t          pwmCounter;
-    volatile uint8_t ledState[(MAX_NUMBER_OF_LEDS / 8) + 1][static_cast<uint8_t>(Board::io::ledBrightness_t::b100)];
+    uint8_t          _pwmCounter;
+    volatile uint8_t _ledState[(MAX_NUMBER_OF_LEDS / 8) + 1][static_cast<uint8_t>(Board::io::ledBrightness_t::b100)];
 
 #ifdef NUMBER_OF_LED_COLUMNS
     /// Holds value of currently active output matrix column.
@@ -42,13 +36,13 @@ namespace
     /// Used to turn the given LED row off.
     inline void ledRowOff(uint8_t row)
     {
-        pin = Board::detail::map::ledPin(row);
+        core::io::mcuPin_t pin = Board::detail::map::ledPin(row);
         EXT_LED_OFF(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
     }
 
     inline void ledRowOn(uint8_t row)
     {
-        pin = Board::detail::map::ledPin(row);
+        core::io::mcuPin_t pin = Board::detail::map::ledPin(row);
         EXT_LED_ON(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
     }
 #endif
@@ -70,9 +64,9 @@ namespace Board
                 for (int i = 0; i < static_cast<int>(ledBrightness_t::b100); i++)
                 {
                     uint8_t arrayIndex = ledID / 8;
-                    uint8_t bit        = ledID - 8 * arrayIndex;
+                    uint8_t ledBit     = ledID - 8 * arrayIndex;
 
-                    BIT_WRITE(ledState[arrayIndex][i], bit, i < static_cast<int>(ledBrightness) ? 1 : 0);
+                    BIT_WRITE(_ledState[arrayIndex][i], ledBit, i < static_cast<int>(ledBrightness) ? 1 : 0);
                 }
             }
         }
@@ -136,7 +130,7 @@ namespace Board
 #ifdef NUMBER_OF_LED_COLUMNS
             void checkDigitalOutputs()
             {
-                if (!pwmCounter)
+                if (!_pwmCounter)
                 {
                     for (int i = 0; i < NUMBER_OF_LED_ROWS; i++)
                         ledRowOff(i);
@@ -151,16 +145,16 @@ namespace Board
 
                 for (int i = 0; i < NUMBER_OF_LED_ROWS; i++)
                 {
-                    ledID      = activeOutColumn + i * NUMBER_OF_LED_COLUMNS;
-                    arrayIndex = ledID / 8;
-                    ledBit     = ledID - 8 * arrayIndex;
+                    size_t  ledID      = activeOutColumn + i * NUMBER_OF_LED_COLUMNS;
+                    uint8_t arrayIndex = ledID / 8;
+                    uint8_t ledBit     = ledID - 8 * arrayIndex;
 
-                    BIT_READ(ledState[arrayIndex][pwmCounter], ledBit) ? ledRowOn(i) : ledRowOff(i);
+                    BIT_READ(_ledState[arrayIndex][_pwmCounter], ledBit) ? ledRowOn(i) : ledRowOff(i);
                 }
 
                 if (++pwmCounter >= static_cast<uint8_t>(Board::io::ledBrightness_t::b100))
                     pwmCounter = 0;
-            }
+            }    // namespace io
 #elif defined(NUMBER_OF_OUT_SR)
             void checkDigitalOutputs()
             {
@@ -170,11 +164,11 @@ namespace Board
                 {
                     for (int i = 0; i < 8; i++)
                     {
-                        ledID      = i + j * 8;
-                        arrayIndex = ledID / 8;
-                        ledBit     = ledID - 8 * arrayIndex;
+                        size_t  ledID      = i + j * 8;
+                        uint8_t arrayIndex = ledID / 8;
+                        uint8_t ledBit     = ledID - 8 * arrayIndex;
 
-                        BIT_READ(ledState[arrayIndex][pwmCounter], ledBit) ? EXT_LED_ON(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN) : EXT_LED_OFF(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
+                        BIT_READ(_ledState[arrayIndex][_pwmCounter], ledBit) ? EXT_LED_ON(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN) : EXT_LED_OFF(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
                         CORE_IO_SET_LOW(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
                         detail::io::sr595wait();
                         CORE_IO_SET_HIGH(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
@@ -183,23 +177,23 @@ namespace Board
 
                 CORE_IO_SET_HIGH(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 
-                if (++pwmCounter >= static_cast<uint8_t>(Board::io::ledBrightness_t::b100))
-                    pwmCounter = 0;
+                if (++_pwmCounter >= static_cast<uint8_t>(Board::io::ledBrightness_t::b100))
+                    _pwmCounter = 0;
             }
 #else
             void checkDigitalOutputs()
             {
-                for (ledID = 0; ledID < MAX_NUMBER_OF_LEDS; ledID++)
+                for (size_t ledID = 0; ledID < MAX_NUMBER_OF_LEDS; ledID++)
                 {
-                    arrayIndex = ledID / 8;
-                    ledBit     = ledID - 8 * arrayIndex;
+                    uint8_t arrayIndex = ledID / 8;
+                    uint8_t ledBit     = ledID - 8 * arrayIndex;
 
-                    pin = Board::detail::map::ledPin(ledID);
-                    BIT_READ(ledState[arrayIndex][pwmCounter], ledBit) ? EXT_LED_ON(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin)) : EXT_LED_OFF(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
+                    core::io::mcuPin_t pin = Board::detail::map::ledPin(ledID);
+                    BIT_READ(_ledState[arrayIndex][_pwmCounter], ledBit) ? EXT_LED_ON(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin)) : EXT_LED_OFF(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
                 }
 
-                if (++pwmCounter >= static_cast<uint8_t>(Board::io::ledBrightness_t::b100))
-                    pwmCounter = 0;
+                if (++_pwmCounter >= static_cast<uint8_t>(Board::io::ledBrightness_t::b100))
+                    _pwmCounter = 0;
             }
 #endif
         }    // namespace io

@@ -32,22 +32,18 @@ limitations under the License.
 
 namespace
 {
-    USBD_HandleTypeDef                     hUsbDeviceFS;
-    volatile uint8_t                       midiRxBuffer[MIDI_IN_OUT_EPSIZE];
-    volatile Board::detail::USB::txState_t txStateMIDI;
-
-    //rxBuffer is overriden every time RxCallback is called
-    //save results in ring buffer and remove them as needed in readMIDI
-    //not really the most optimized way, however, we are not in AVR land anymore
-    core::RingBuffer<uint8_t, RX_BUFFER_SIZE_RING> midiRxBufferRing;
+    USBD_HandleTypeDef                             _usbHandler;
+    volatile uint8_t                               _midiRxBuffer[MIDI_IN_OUT_EPSIZE];
+    volatile Board::detail::USB::txState_t         _txStateMIDI;
+    core::RingBuffer<uint8_t, RX_BUFFER_SIZE_RING> _midiRxBufferRing;
 
     uint8_t initCallback(USBD_HandleTypeDef* pdev, uint8_t cfgidx)
     {
         USBD_LL_OpenEP(pdev, MIDI_STREAM_IN_EPADDR, USB_EP_TYPE_BULK, MIDI_IN_OUT_EPSIZE);
         USBD_LL_OpenEP(pdev, MIDI_STREAM_OUT_EPADDR, USB_EP_TYPE_BULK, MIDI_IN_OUT_EPSIZE);
-        USBD_LL_PrepareReceive(pdev, MIDI_STREAM_OUT_EPADDR, (uint8_t*)(midiRxBuffer), MIDI_IN_OUT_EPSIZE);
+        USBD_LL_PrepareReceive(pdev, MIDI_STREAM_OUT_EPADDR, (uint8_t*)(_midiRxBuffer), MIDI_IN_OUT_EPSIZE);
 
-        txStateMIDI = Board::detail::USB::txState_t::done;
+        _txStateMIDI = Board::detail::USB::txState_t::done;
 
         return USBD_OK;
     }
@@ -62,7 +58,7 @@ namespace
 
     uint8_t dataInCallback(USBD_HandleTypeDef* pdev, uint8_t epnum)
     {
-        txStateMIDI = Board::detail::USB::txState_t::done;
+        _txStateMIDI = Board::detail::USB::txState_t::done;
 
         return USBD_OK;
     }
@@ -72,9 +68,9 @@ namespace
         uint32_t count = ((PCD_HandleTypeDef*)pdev->pData)->OUT_ep[epnum].xfer_count;
 
         for (uint32_t i = 0; i < count; i++)
-            midiRxBufferRing.insert(midiRxBuffer[i]);
+            _midiRxBufferRing.insert(_midiRxBuffer[i]);
 
-        return USBD_LL_PrepareReceive(pdev, MIDI_STREAM_OUT_EPADDR, (uint8_t*)(midiRxBuffer), MIDI_IN_OUT_EPSIZE);
+        return USBD_LL_PrepareReceive(pdev, MIDI_STREAM_OUT_EPADDR, (uint8_t*)(_midiRxBuffer), MIDI_IN_OUT_EPSIZE);
     }
 
     uint8_t* getDeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t* length)
@@ -172,9 +168,9 @@ namespace Board
         {
             void usb()
             {
-                USBD_Init(&hUsbDeviceFS, &DeviceDescriptor, DEVICE_FS);
-                USBD_RegisterClass(&hUsbDeviceFS, &USB_MIDI);
-                USBD_Start(&hUsbDeviceFS);
+                USBD_Init(&_usbHandler, &DeviceDescriptor, DEVICE_FS);
+                USBD_RegisterClass(&_usbHandler, &USB_MIDI);
+                USBD_Start(&_usbHandler);
             }
         }    // namespace setup
     }        // namespace detail
@@ -183,19 +179,19 @@ namespace Board
     {
         bool isUSBconnected()
         {
-            return (hUsbDeviceFS.dev_state == USBD_STATE_CONFIGURED);
+            return (_usbHandler.dev_state == USBD_STATE_CONFIGURED);
         }
 
         bool readMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
         {
             bool returnValue = false;
 
-            if (midiRxBufferRing.count() >= 4)
+            if (_midiRxBufferRing.count() >= 4)
             {
-                midiRxBufferRing.remove(USBMIDIpacket.Event);
-                midiRxBufferRing.remove(USBMIDIpacket.Data1);
-                midiRxBufferRing.remove(USBMIDIpacket.Data2);
-                midiRxBufferRing.remove(USBMIDIpacket.Data3);
+                _midiRxBufferRing.remove(USBMIDIpacket.Event);
+                _midiRxBufferRing.remove(USBMIDIpacket.Data1);
+                _midiRxBufferRing.remove(USBMIDIpacket.Data2);
+                _midiRxBufferRing.remove(USBMIDIpacket.Data3);
 
                 returnValue = true;
             }
@@ -208,9 +204,9 @@ namespace Board
             if (!isUSBconnected())
                 return false;
 
-            if (txStateMIDI != Board::detail::USB::txState_t::done)
+            if (_txStateMIDI != Board::detail::USB::txState_t::done)
             {
-                if (txStateMIDI == Board::detail::USB::txState_t::waiting)
+                if (_txStateMIDI == Board::detail::USB::txState_t::waiting)
                 {
                     return false;
                 }
@@ -220,19 +216,19 @@ namespace Board
 
                     while ((core::timing::currentRunTimeMs() - currentTime) < USB_TX_TIMEOUT_MS)
                     {
-                        if (txStateMIDI == Board::detail::USB::txState_t::done)
+                        if (_txStateMIDI == Board::detail::USB::txState_t::done)
                             break;
                     }
 
-                    if (txStateMIDI != Board::detail::USB::txState_t::done)
-                        txStateMIDI = Board::detail::USB::txState_t::waiting;
+                    if (_txStateMIDI != Board::detail::USB::txState_t::done)
+                        _txStateMIDI = Board::detail::USB::txState_t::waiting;
                 }
             }
 
-            if (txStateMIDI == Board::detail::USB::txState_t::done)
+            if (_txStateMIDI == Board::detail::USB::txState_t::done)
             {
-                txStateMIDI = Board::detail::USB::txState_t::sending;
-                return USBD_LL_Transmit(&hUsbDeviceFS, MIDI_STREAM_IN_EPADDR, (uint8_t*)&USBMIDIpacket, 4) == USBD_OK;
+                _txStateMIDI = Board::detail::USB::txState_t::sending;
+                return USBD_LL_Transmit(&_usbHandler, MIDI_STREAM_IN_EPADDR, (uint8_t*)&USBMIDIpacket, 4) == USBD_OK;
             }
 
             return false;

@@ -28,10 +28,10 @@ limitations under the License.
 
 namespace
 {
-    volatile Board::io::dInReadings_t digitalInBuffer[MAX_NUMBER_OF_BUTTONS];
+    volatile Board::io::dInReadings_t _digitalInBuffer[MAX_NUMBER_OF_BUTTONS];
 
 #ifdef NUMBER_OF_BUTTON_COLUMNS
-    volatile uint8_t activeInColumn;
+    volatile uint8_t _activeInColumn;
 #endif
 
 #if defined(SR_IN_CLK_PORT) && defined(SR_IN_LATCH_PORT) && defined(SR_IN_DATA_PORT) && !defined(NUMBER_OF_BUTTON_COLUMNS) && !defined(NUMBER_OF_BUTTON_ROWS)
@@ -52,11 +52,11 @@ namespace
                 CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
                 Board::detail::io::sr165wait();
 
-                digitalInBuffer[buttonIndex].readings <<= 1;
-                digitalInBuffer[buttonIndex].readings |= !CORE_IO_READ(SR_IN_DATA_PORT, SR_IN_DATA_PIN);
+                _digitalInBuffer[buttonIndex].readings <<= 1;
+                _digitalInBuffer[buttonIndex].readings |= !CORE_IO_READ(SR_IN_DATA_PORT, SR_IN_DATA_PIN);
 
-                if (++digitalInBuffer[buttonIndex].count > 32)
-                    digitalInBuffer[buttonIndex].count = 32;
+                if (++_digitalInBuffer[buttonIndex].count > 32)
+                    _digitalInBuffer[buttonIndex].count = 32;
 
                 CORE_IO_SET_HIGH(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
             }
@@ -65,12 +65,12 @@ namespace
 #elif defined(NUMBER_OF_BUTTON_COLUMNS) && defined(NUMBER_OF_BUTTON_ROWS)
     inline void activateInputColumn()
     {
-        BIT_READ(activeInColumn, 0) ? CORE_IO_SET_HIGH(DEC_BM_PORT_A0, DEC_BM_PIN_A0) : CORE_IO_SET_LOW(DEC_BM_PORT_A0, DEC_BM_PIN_A0);
-        BIT_READ(activeInColumn, 1) ? CORE_IO_SET_HIGH(DEC_BM_PORT_A1, DEC_BM_PIN_A1) : CORE_IO_SET_LOW(DEC_BM_PORT_A1, DEC_BM_PIN_A1);
-        BIT_READ(activeInColumn, 2) ? CORE_IO_SET_HIGH(DEC_BM_PORT_A2, DEC_BM_PIN_A2) : CORE_IO_SET_LOW(DEC_BM_PORT_A2, DEC_BM_PIN_A2);
+        BIT_READ(_activeInColumn, 0) ? CORE_IO_SET_HIGH(DEC_BM_PORT_A0, DEC_BM_PIN_A0) : CORE_IO_SET_LOW(DEC_BM_PORT_A0, DEC_BM_PIN_A0);
+        BIT_READ(_activeInColumn, 1) ? CORE_IO_SET_HIGH(DEC_BM_PORT_A1, DEC_BM_PIN_A1) : CORE_IO_SET_LOW(DEC_BM_PORT_A1, DEC_BM_PIN_A1);
+        BIT_READ(_activeInColumn, 2) ? CORE_IO_SET_HIGH(DEC_BM_PORT_A2, DEC_BM_PIN_A2) : CORE_IO_SET_LOW(DEC_BM_PORT_A2, DEC_BM_PIN_A2);
 
-        if (++activeInColumn == NUMBER_OF_BUTTON_COLUMNS)
-            activeInColumn = 0;
+        if (++_activeInColumn == NUMBER_OF_BUTTON_COLUMNS)
+            _activeInColumn = 0;
     }
 
     /// Acquires data for all buttons connected in currently active button matrix column by
@@ -96,11 +96,11 @@ namespace
                 CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
                 Board::detail::io::sr165wait();
 
-                digitalInBuffer[buttonIndex].readings <<= 1;
-                digitalInBuffer[buttonIndex].readings |= !CORE_IO_READ(SR_IN_DATA_PORT, SR_IN_DATA_PIN);
+                _digitalInBuffer[buttonIndex].readings <<= 1;
+                _digitalInBuffer[buttonIndex].readings |= !CORE_IO_READ(SR_IN_DATA_PORT, SR_IN_DATA_PIN);
 
-                if (++digitalInBuffer[buttonIndex].count > 32)
-                    digitalInBuffer[buttonIndex].count = 32;
+                if (++_digitalInBuffer[buttonIndex].count > 32)
+                    _digitalInBuffer[buttonIndex].count = 32;
 
                 CORE_IO_SET_HIGH(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
             }
@@ -112,29 +112,29 @@ namespace
                 size_t buttonIndex = (row * 8) + column;
                 pin                = Board::detail::map::buttonPin(row);
 
-                digitalInBuffer[buttonIndex].readings <<= 1;
-                digitalInBuffer[buttonIndex].readings |= !CORE_IO_READ(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
+                _digitalInBuffer[buttonIndex].readings <<= 1;
+                _digitalInBuffer[buttonIndex].readings |= !CORE_IO_READ(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
 
-                if (++digitalInBuffer[buttonIndex].count > 32)
-                    digitalInBuffer[buttonIndex].count = 32;
+                if (++_digitalInBuffer[buttonIndex].count > 32)
+                    _digitalInBuffer[buttonIndex].count = 32;
             }
 #endif
         }
     }
 #else
-    core::io::mcuPin_t pin;
+    core::io::mcuPin_t _pin;
 
     inline void storeDigitalIn()
     {
         for (int buttonIndex = 0; buttonIndex < MAX_NUMBER_OF_BUTTONS; buttonIndex++)
         {
-            pin = Board::detail::map::buttonPin(buttonIndex);
+            _pin = Board::detail::map::buttonPin(buttonIndex);
 
-            digitalInBuffer[buttonIndex].readings <<= 1;
-            digitalInBuffer[buttonIndex].readings |= !CORE_IO_READ(CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin));
+            _digitalInBuffer[buttonIndex].readings <<= 1;
+            _digitalInBuffer[buttonIndex].readings |= !CORE_IO_READ(CORE_IO_MCU_PIN_PORT(_pin), CORE_IO_MCU_PIN_INDEX(_pin));
 
-            if (++digitalInBuffer[buttonIndex].count > 32)
-                digitalInBuffer[buttonIndex].count = 32;
+            if (++_digitalInBuffer[buttonIndex].count > 32)
+                _digitalInBuffer[buttonIndex].count = 32;
         }
     }
 #endif
@@ -153,9 +153,9 @@ namespace Board
 
             ATOMIC_SECTION
             {
-                dInReadings.count                     = digitalInBuffer[digitalInIndex].count;
-                dInReadings.readings                  = digitalInBuffer[digitalInIndex].readings;
-                digitalInBuffer[digitalInIndex].count = 0;
+                dInReadings.count                      = _digitalInBuffer[digitalInIndex].count;
+                dInReadings.readings                   = _digitalInBuffer[digitalInIndex].readings;
+                _digitalInBuffer[digitalInIndex].count = 0;
             }
 
             return dInReadings.count > 0;
@@ -213,7 +213,7 @@ namespace Board
                 ATOMIC_SECTION
                 {
                     for (size_t i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
-                        digitalInBuffer[i].count = 0;
+                        _digitalInBuffer[i].count = 0;
                 }
             }
         }    // namespace io

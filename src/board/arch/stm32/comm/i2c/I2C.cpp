@@ -26,7 +26,7 @@ limitations under the License.
 
 namespace
 {
-    I2C_HandleTypeDef i2cHandler[MAX_I2C_INTERFACES];
+    I2C_HandleTypeDef _i2cHandler[MAX_I2C_INTERFACES];
 }    // namespace
 
 namespace Board
@@ -38,15 +38,15 @@ namespace Board
             if (channel >= MAX_I2C_INTERFACES)
                 return false;
 
-            i2cHandler[channel].Instance             = static_cast<I2C_TypeDef*>(Board::detail::map::i2cDescriptor(channel)->interface());
-            i2cHandler[channel].Init.ClockSpeed      = 100000;
-            i2cHandler[channel].Init.DutyCycle       = I2C_DUTYCYCLE_2;
-            i2cHandler[channel].Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
-            i2cHandler[channel].Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-            i2cHandler[channel].Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-            i2cHandler[channel].Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
+            _i2cHandler[channel].Instance             = static_cast<I2C_TypeDef*>(Board::detail::map::i2cDescriptor(channel)->interface());
+            _i2cHandler[channel].Init.ClockSpeed      = 100000;
+            _i2cHandler[channel].Init.DutyCycle       = I2C_DUTYCYCLE_2;
+            _i2cHandler[channel].Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
+            _i2cHandler[channel].Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+            _i2cHandler[channel].Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+            _i2cHandler[channel].Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
 
-            if (HAL_I2C_Init(&i2cHandler[channel]) != HAL_OK)
+            if (HAL_I2C_Init(&_i2cHandler[channel]) != HAL_OK)
             {
                 Board::detail::errorHandler();
                 return false;
@@ -60,7 +60,7 @@ namespace Board
             if (channel >= MAX_I2C_INTERFACES)
                 return false;
 
-            return HAL_I2C_DeInit(&i2cHandler[channel]) == HAL_OK;
+            return HAL_I2C_DeInit(&_i2cHandler[channel]) == HAL_OK;
         }
 
         bool write(uint8_t channel, uint8_t address, uint8_t* buffer, size_t size)
@@ -68,7 +68,7 @@ namespace Board
             if (channel >= MAX_I2C_INTERFACES)
                 return false;
 
-            return HAL_I2C_Master_Transmit(&i2cHandler[channel], address, buffer, size, I2C_TRANSFER_TIMEOUT_MS) == HAL_OK;
+            return HAL_I2C_Master_Transmit(&_i2cHandler[channel], address, buffer, size, I2C_TRANSFER_TIMEOUT_MS) == HAL_OK;
         }
     }    // namespace I2C
 }    // namespace Board

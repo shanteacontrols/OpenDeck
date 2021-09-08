@@ -80,7 +80,7 @@ namespace
         };
 
         const IRQn_Type _irqn = USART1_IRQn;
-    } _uartDescriptor1;
+    } _uartDescriptor0;
 
     class UARTdescriptor2 : public Board::detail::map::STMPeripheral
     {
@@ -134,7 +134,7 @@ namespace
         };
 
         const IRQn_Type _irqn = USART2_IRQn;
-    } _uartDescriptor2;
+    } _uartDescriptor1;
 
     class UARTdescriptor3 : public Board::detail::map::STMPeripheral
     {
@@ -188,7 +188,7 @@ namespace
         };
 
         const IRQn_Type _irqn = USART6_IRQn;
-    } _uartDescriptor3;
+    } _uartDescriptor2;
 
     class I2Cdescriptor1 : public Board::detail::map::STMPeripheral
     {
@@ -242,7 +242,7 @@ namespace
         };
 
         const IRQn_Type _irqn = static_cast<IRQn_Type>(0);
-    } _i2cDescriptor1;
+    } _i2cDescriptor0;
 
     class I2Cdescriptor2 : public Board::detail::map::STMPeripheral
     {
@@ -296,7 +296,7 @@ namespace
         };
 
         const IRQn_Type _irqn = static_cast<IRQn_Type>(0);
-    } _i2cDescriptor2;
+    } _i2cDescriptor1;
 
     class I2Cdescriptor3 : public Board::detail::map::STMPeripheral
     {
@@ -350,18 +350,18 @@ namespace
         };
 
         const IRQn_Type _irqn = static_cast<IRQn_Type>(0);
-    } _i2cDescriptor3;
+    } _i2cDescriptor2;
 
-    Board::detail::map::STMPeripheral* uart[MAX_UART_INTERFACES] = {
+    Board::detail::map::STMPeripheral* _uartDescriptor[MAX_UART_INTERFACES] = {
+        &_uartDescriptor0,
         &_uartDescriptor1,
         &_uartDescriptor2,
-        &_uartDescriptor3,
     };
 
-    Board::detail::map::STMPeripheral* i2c[MAX_I2C_INTERFACES] = {
+    Board::detail::map::STMPeripheral* _i2cDescriptor[MAX_I2C_INTERFACES] = {
+        &_i2cDescriptor0,
         &_i2cDescriptor1,
-        &_i2cDescriptor2,
-        &_i2cDescriptor3
+        &_i2cDescriptor2
     };
 }    // namespace
 
@@ -375,7 +375,7 @@ namespace Board
             {
                 for (int i = 0; i < MAX_UART_INTERFACES; i++)
                 {
-                    if (static_cast<USART_TypeDef*>(uart[i]->interface()) == interface)
+                    if (static_cast<USART_TypeDef*>(_uartDescriptor[i]->interface()) == interface)
                     {
                         channel = i;
                         return true;
@@ -390,14 +390,14 @@ namespace Board
                 if (channel >= MAX_UART_INTERFACES)
                     return nullptr;
 
-                return uart[channel];
+                return _uartDescriptor[channel];
             }
 
             bool i2cChannel(I2C_TypeDef* interface, uint8_t& channel)
             {
                 for (int i = 0; i < MAX_I2C_INTERFACES; i++)
                 {
-                    if (static_cast<I2C_TypeDef*>(i2c[i]->interface()) == interface)
+                    if (static_cast<I2C_TypeDef*>(_i2cDescriptor[i]->interface()) == interface)
                     {
                         channel = i;
                         return true;
@@ -412,7 +412,7 @@ namespace Board
                 if (channel >= MAX_I2C_INTERFACES)
                     return nullptr;
 
-                return i2c[channel];
+                return _i2cDescriptor[channel];
             }
 
             uint32_t adcChannel(const core::io::mcuPin_t& pin)

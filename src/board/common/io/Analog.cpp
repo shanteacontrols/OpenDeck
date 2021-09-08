@@ -35,21 +35,21 @@ limitations under the License.
 
 namespace
 {
-    uint8_t           analogIndex;
-    volatile uint16_t analogBuffer[ANALOG_IN_BUFFER_SIZE];
+    uint8_t           _analogIndex;
+    volatile uint16_t _analogBuffer[ANALOG_IN_BUFFER_SIZE];
 
 #ifdef NUMBER_OF_MUX
-    uint8_t activeMux;
-    uint8_t activeMuxInput;
+    uint8_t _activeMux;
+    uint8_t _activeMuxInput;
 
     /// Configures one of 16 inputs/outputs on 4067 multiplexer.
     inline void setMuxInput()
     {
-        BIT_READ(activeMuxInput, 0) ? CORE_IO_SET_HIGH(MUX_PORT_S0, MUX_PIN_S0) : CORE_IO_SET_LOW(MUX_PORT_S0, MUX_PIN_S0);
-        BIT_READ(activeMuxInput, 1) ? CORE_IO_SET_HIGH(MUX_PORT_S1, MUX_PIN_S1) : CORE_IO_SET_LOW(MUX_PORT_S1, MUX_PIN_S1);
-        BIT_READ(activeMuxInput, 2) ? CORE_IO_SET_HIGH(MUX_PORT_S2, MUX_PIN_S2) : CORE_IO_SET_LOW(MUX_PORT_S2, MUX_PIN_S2);
+        BIT_READ(_activeMuxInput, 0) ? CORE_IO_SET_HIGH(MUX_PORT_S0, MUX_PIN_S0) : CORE_IO_SET_LOW(MUX_PORT_S0, MUX_PIN_S0);
+        BIT_READ(_activeMuxInput, 1) ? CORE_IO_SET_HIGH(MUX_PORT_S1, MUX_PIN_S1) : CORE_IO_SET_LOW(MUX_PORT_S1, MUX_PIN_S1);
+        BIT_READ(_activeMuxInput, 2) ? CORE_IO_SET_HIGH(MUX_PORT_S2, MUX_PIN_S2) : CORE_IO_SET_LOW(MUX_PORT_S2, MUX_PIN_S2);
 #ifdef MUX_PORT_S3
-        BIT_READ(activeMuxInput, 3) ? CORE_IO_SET_HIGH(MUX_PORT_S3, MUX_PIN_S3) : CORE_IO_SET_LOW(MUX_PORT_S3, MUX_PIN_S3);
+        BIT_READ(_activeMuxInput, 3) ? CORE_IO_SET_HIGH(MUX_PORT_S3, MUX_PIN_S3) : CORE_IO_SET_LOW(MUX_PORT_S3, MUX_PIN_S3);
 #endif
     }
 #endif
@@ -68,8 +68,8 @@ namespace Board
 
             ATOMIC_SECTION
             {
-                value = analogBuffer[analogID];
-                analogBuffer[analogID] &= ~NEW_READING_FLAG;
+                value = _analogBuffer[analogID];
+                _analogBuffer[analogID] &= ~NEW_READING_FLAG;
             }
 
             if (value & NEW_READING_FLAG)
@@ -98,35 +98,35 @@ namespace Board
                     detail::io::dischargeMux();
 #endif
 
-                    analogBuffer[analogIndex] = adcValue;
-                    analogBuffer[analogIndex] |= NEW_READING_FLAG;
-                    analogIndex++;
+                    _analogBuffer[_analogIndex] = adcValue;
+                    _analogBuffer[_analogIndex] |= NEW_READING_FLAG;
+                    _analogIndex++;
 #ifdef NUMBER_OF_MUX
-                    activeMuxInput++;
+                    _activeMuxInput++;
 
-                    bool switchMux = (activeMuxInput == NUMBER_OF_MUX_INPUTS);
+                    bool switchMux = (_activeMuxInput == NUMBER_OF_MUX_INPUTS);
 
                     if (switchMux)
 #else
-                    if (analogIndex == MAX_NUMBER_OF_ANALOG)
+                    if (_analogIndex == MAX_NUMBER_OF_ANALOG)
 #endif
                     {
 #ifdef NUMBER_OF_MUX
-                        activeMuxInput = 0;
-                        activeMux++;
+                        _activeMuxInput = 0;
+                        _activeMux++;
 
-                        if (activeMux == NUMBER_OF_MUX)
+                        if (_activeMux == NUMBER_OF_MUX)
                         {
-                            activeMux = 0;
+                            _activeMux = 0;
 #endif
-                            analogIndex = 0;
+                            _analogIndex = 0;
 #ifdef NUMBER_OF_MUX
                         }
 #endif
 
 #ifdef NUMBER_OF_MUX
                         //switch to next mux once all mux inputs are read
-                        core::adc::setChannel(Board::detail::map::adcChannel(activeMux));
+                        core::adc::setChannel(Board::detail::map::adcChannel(_activeMux));
 #endif
                     }
 
@@ -134,12 +134,12 @@ namespace Board
 #ifdef NUMBER_OF_MUX
                     setMuxInput();
 #else
-                    core::adc::setChannel(Board::detail::map::adcChannel(analogIndex));
+                    core::adc::setChannel(Board::detail::map::adcChannel(_analogIndex));
 #endif
                 }
 
 #ifdef NUMBER_OF_MUX
-                detail::io::restoreMux(activeMux);
+                detail::io::restoreMux(_activeMux);
 #endif
 
                 core::adc::startConversion();

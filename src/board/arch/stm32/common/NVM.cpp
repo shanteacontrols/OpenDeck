@@ -87,8 +87,8 @@ namespace
         }
     };
 
-    STM32F4EEPROM stm32EEPROM;
-    EmuEEPROM     emuEEPROM(stm32EEPROM, true);
+    STM32F4EEPROM _stm32EEPROM;
+    EmuEEPROM     _emuEEPROM(_stm32EEPROM, true);
 }    // namespace
 
 namespace Board
@@ -102,7 +102,7 @@ namespace Board
             //disable all interrupts during init to avoid ISRs messing up the flash page formatting/setup
             ATOMIC_SECTION
             {
-                result = emuEEPROM.init();
+                result = _emuEEPROM.init();
             }
 
             return result;
@@ -123,7 +123,7 @@ namespace Board
             case parameterType_t::byte:
             case parameterType_t::word:
             {
-                auto readStatus = emuEEPROM.readCached(address, tempData);
+                auto readStatus = _emuEEPROM.readCached(address, tempData);
                 value           = tempData;
 
                 if (readStatus == EmuEEPROM::readStatus_t::ok)
@@ -155,7 +155,7 @@ namespace Board
             case parameterType_t::byte:
             case parameterType_t::word:
                 tempData = value;
-                if (emuEEPROM.write(address, tempData) != EmuEEPROM::writeStatus_t::ok)
+                if (_emuEEPROM.write(address, tempData) != EmuEEPROM::writeStatus_t::ok)
                     return false;
                 break;
 
@@ -180,7 +180,7 @@ namespace Board
 
             ATOMIC_SECTION
             {
-                result = emuEEPROM.format();
+                result = _emuEEPROM.format();
             }
 
             //ignore start/end markers on stm32 for now

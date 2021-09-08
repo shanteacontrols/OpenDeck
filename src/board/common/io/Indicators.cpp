@@ -34,11 +34,11 @@ namespace
     /// milliseconds during which they should be on. ISR decreases variable value by 1 every 1 millsecond.
     /// Once the variables have value 0, specific LED indicator is turned off.
 
-    volatile uint8_t midiInDINtimeout;
-    volatile uint8_t midiOutDINtimeout;
+    volatile uint8_t _midiInDINtimeout;
+    volatile uint8_t _midiOutDINtimeout;
 
-    volatile uint8_t midiInUSBtimeout;
-    volatile uint8_t midiOutUSBtimeout;
+    volatile uint8_t _midiInUSBtimeout;
+    volatile uint8_t _midiOutUSBtimeout;
 
     ///
 }    // namespace
@@ -51,35 +51,35 @@ namespace Board
         {
             void checkIndicators()
             {
-                if (midiInDINtimeout)
+                if (_midiInDINtimeout)
                 {
-                    midiInDINtimeout--;
+                    _midiInDINtimeout--;
 
-                    if (!midiInDINtimeout)
+                    if (!_midiInDINtimeout)
                         INT_LED_OFF(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
                 }
 
-                if (midiOutDINtimeout)
+                if (_midiOutDINtimeout)
                 {
-                    midiOutDINtimeout--;
+                    _midiOutDINtimeout--;
 
-                    if (!midiOutDINtimeout)
+                    if (!_midiOutDINtimeout)
                         INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
                 }
 
-                if (midiInUSBtimeout)
+                if (_midiInUSBtimeout)
                 {
-                    midiInUSBtimeout--;
+                    _midiInUSBtimeout--;
 
-                    if (!midiInUSBtimeout)
+                    if (!_midiInUSBtimeout)
                         INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
                 }
 
-                if (midiOutUSBtimeout)
+                if (_midiOutUSBtimeout)
                 {
-                    midiOutUSBtimeout--;
+                    _midiOutUSBtimeout--;
 
-                    if (!midiOutUSBtimeout)
+                    if (!_midiOutUSBtimeout)
                         INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
                 }
             }
@@ -96,12 +96,12 @@ namespace Board
                 if (direction == dataDirection_t::incoming)
                 {
                     INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
-                    midiInDINtimeout = MIDI_INDICATOR_TIMEOUT;
+                    _midiInDINtimeout = MIDI_INDICATOR_TIMEOUT;
                 }
                 else
                 {
                     INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
-                    midiOutDINtimeout = MIDI_INDICATOR_TIMEOUT;
+                    _midiOutDINtimeout = MIDI_INDICATOR_TIMEOUT;
                 }
                 break;
 
@@ -109,12 +109,12 @@ namespace Board
                 if (direction == dataDirection_t::incoming)
                 {
                     INT_LED_ON(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
-                    midiInUSBtimeout = MIDI_INDICATOR_TIMEOUT;
+                    _midiInUSBtimeout = MIDI_INDICATOR_TIMEOUT;
                 }
                 else
                 {
                     INT_LED_ON(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
-                    midiOutUSBtimeout = MIDI_INDICATOR_TIMEOUT;
+                    _midiOutUSBtimeout = MIDI_INDICATOR_TIMEOUT;
                 }
                 break;
             }

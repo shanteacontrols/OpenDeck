@@ -35,23 +35,23 @@ namespace
 {
     /// Flag determining whether or not UART loopback functionality is enabled.
     /// When enabled, all incoming UART traffic is immediately passed on to UART TX.
-    volatile bool loopbackEnabled[MAX_UART_INTERFACES];
+    volatile bool _loopbackEnabled[MAX_UART_INTERFACES];
 
     /// Flag signaling that the transmission is done.
-    volatile bool txDone[MAX_UART_INTERFACES];
+    volatile bool _txDone[MAX_UART_INTERFACES];
 
-    /// Flag holding the state of UART interface (whether it's initialized or not).
-    bool initialized[MAX_UART_INTERFACES];
+    /// Flag holding the state of UART interface (whether it's _initialized or not).
+    bool _initialized[MAX_UART_INTERFACES];
 
     /// Buffer in which outgoing UART data is stored.
-    core::RingBuffer<uint8_t, UART_TX_BUFFER_SIZE> txBuffer[MAX_UART_INTERFACES];
+    core::RingBuffer<uint8_t, UART_TX_BUFFER_SIZE> _txBuffer[MAX_UART_INTERFACES];
 
     /// Buffer in which incoming UART data is stored.
-    core::RingBuffer<uint8_t, UART_RX_BUFFER_SIZE> rxBuffer[MAX_UART_INTERFACES];
+    core::RingBuffer<uint8_t, UART_RX_BUFFER_SIZE> _rxBuffer[MAX_UART_INTERFACES];
 
 #ifndef USB_SUPPORTED
     /// Holds the USB state received from USB link MCU
-    bool usbConnectionState = false;
+    bool _usbConnectionState = false;
 #endif
 
 #ifdef DMX_SUPPORTED
@@ -65,7 +65,7 @@ namespace
         if (channel >= MAX_UART_INTERFACES)
             return;
 
-        txDone[channel] = false;
+        _txDone[channel] = false;
 
         Board::detail::UART::ll::enableDataEmptyInt(channel);
     }
@@ -80,7 +80,7 @@ namespace Board
             if (channel >= MAX_UART_INTERFACES)
                 return;
 
-            loopbackEnabled[channel] = state;
+            _loopbackEnabled[channel] = state;
         }
 
         bool deInit(uint8_t channel)
@@ -92,11 +92,11 @@ namespace Board
             {
                 setLoopbackState(channel, false);
 
-                rxBuffer[channel].reset();
-                txBuffer[channel].reset();
+                _rxBuffer[channel].reset();
+                _txBuffer[channel].reset();
 
-                txDone[channel]      = true;
-                initialized[channel] = false;
+                _txDone[channel]      = true;
+                _initialized[channel] = false;
 
                 return true;
             }
@@ -110,13 +110,13 @@ namespace Board
                 return initStatus_t::error;
 
             if (isInitialized(channel) && !force)
-                return initStatus_t::alreadyInit;    //interface already initialized
+                return initStatus_t::alreadyInit;    //interface already _initialized
 
             if (deInit(channel))
             {
                 if (Board::detail::UART::ll::init(channel, config))
                 {
-                    initialized[channel] = true;
+                    _initialized[channel] = true;
                     return initStatus_t::ok;
                 }
             }
@@ -126,7 +126,7 @@ namespace Board
 
         bool isInitialized(uint8_t channel)
         {
-            return initialized[channel];
+            return _initialized[channel];
         }
 
         bool read(uint8_t channel, uint8_t* buffer, size_t& size, const size_t maxSize)
@@ -136,7 +136,7 @@ namespace Board
             if (channel >= MAX_UART_INTERFACES)
                 return false;
 
-            while (rxBuffer[channel].remove(buffer[size++]))
+            while (_rxBuffer[channel].remove(buffer[size++]))
             {
                 if (size >= maxSize)
                     break;
@@ -152,7 +152,7 @@ namespace Board
             if (channel >= MAX_UART_INTERFACES)
                 return false;
 
-            return rxBuffer[channel].remove(value);
+            return _rxBuffer[channel].remove(value);
         }
 
         bool write(uint8_t channel, uint8_t* buffer, size_t size)
@@ -162,7 +162,7 @@ namespace Board
 
             for (size_t i = 0; i < size; i++)
             {
-                while (!txBuffer[channel].insert(buffer[i]))
+                while (!_txBuffer[channel].insert(buffer[i]))
                     ;
 
                 uartTransmitStart(channel);
@@ -176,7 +176,7 @@ namespace Board
             if (channel >= MAX_UART_INTERFACES)
                 return false;
 
-            while (!txBuffer[channel].insert(value))
+            while (!_txBuffer[channel].insert(value))
                 ;
 
             uartTransmitStart(channel);
@@ -189,7 +189,7 @@ namespace Board
             if (channel >= MAX_UART_INTERFACES)
                 return false;
 
-            return txDone[channel];
+            return _txDone[channel];
         }
 
 #ifdef DMX_SUPPORTED
@@ -210,13 +210,13 @@ namespace Board
         {
             void storeIncomingData(uint8_t channel, uint8_t data)
             {
-                if (!loopbackEnabled[channel])
+                if (!_loopbackEnabled[channel])
                 {
-                    rxBuffer[channel].insert(data);
+                    _rxBuffer[channel].insert(data);
                 }
                 else
                 {
-                    if (txBuffer[channel].insert(data))
+                    if (_txBuffer[channel].insert(data))
                     {
                         Board::detail::UART::ll::enableDataEmptyInt(channel);
 
@@ -229,9 +229,9 @@ namespace Board
 
             bool getNextByteToSend(uint8_t channel, uint8_t& data, size_t& remainingBytes)
             {
-                if (txBuffer[channel].remove(data))
+                if (_txBuffer[channel].remove(data))
                 {
-                    remainingBytes = txBuffer[channel].count();
+                    remainingBytes = _txBuffer[channel].count();
                     return true;
                 }
                 else
@@ -243,12 +243,12 @@ namespace Board
 
             bool bytesToSendAvailable(uint8_t channel)
             {
-                return txBuffer[channel].count();
+                return _txBuffer[channel].count();
             }
 
             void indicateTxComplete(uint8_t channel)
             {
-                txDone[channel] = true;
+                _txDone[channel] = true;
             }
 
 #ifdef DMX_SUPPORTED
@@ -263,9 +263,9 @@ namespace Board
 #ifndef USB_SUPPORTED
     namespace
     {
-        uint8_t                             readBuffer[USB_OVER_SERIAL_BUFFER_SIZE];
-        Board::USBOverSerial::USBReadPacket readPacket(readBuffer, USB_OVER_SERIAL_BUFFER_SIZE);
-        Board::uniqueID_t                   uidUSBDevice;
+        uint8_t                             _readBuffer[USB_OVER_SERIAL_BUFFER_SIZE];
+        Board::USBOverSerial::USBReadPacket _readPacket(_readBuffer, USB_OVER_SERIAL_BUFFER_SIZE);
+        Board::uniqueID_t                   _uidUSBDevice;
     }    // namespace
 
     namespace USB
@@ -274,39 +274,39 @@ namespace Board
 
         bool isUSBconnected()
         {
-            return usbConnectionState;
+            return _usbConnectionState;
         }
 
         void checkInternal()
         {
-            if (readPacket.type() == USBOverSerial::packetType_t::internal)
+            if (_readPacket.type() == USBOverSerial::packetType_t::internal)
             {
                 //internal command
-                if (readPacket[0] == static_cast<uint8_t>(USBLink::internalCMD_t::usbState))
+                if (_readPacket[0] == static_cast<uint8_t>(USBLink::internalCMD_t::usbState))
                 {
-                    usbConnectionState = readPacket[1];
+                    _usbConnectionState = _readPacket[1];
 
                     //this command also includes unique ID for USB link master
                     //use it for non-usb MCU as well
                     for (size_t i = 0; i < UID_BITS / 8; i++)
-                        uidUSBDevice[i] = readPacket[i + 2];
+                        _uidUSBDevice[i] = _readPacket[i + 2];
                 }
-                else if (readPacket[0] == static_cast<uint8_t>(USBLink::internalCMD_t::baudRateChange))
+                else if (_readPacket[0] == static_cast<uint8_t>(USBLink::internalCMD_t::baudRateChange))
                 {
                     uint32_t baudRate = 0;
 
-                    baudRate = readPacket[4];
+                    baudRate = _readPacket[4];
                     baudRate <<= 8;
-                    baudRate |= readPacket[3];
+                    baudRate |= _readPacket[3];
                     baudRate <<= 8;
-                    baudRate |= readPacket[2];
+                    baudRate |= _readPacket[2];
                     baudRate <<= 8;
-                    baudRate |= readPacket[1];
+                    baudRate |= _readPacket[1];
 
                     Board::USB::onCDCsetLineEncoding(baudRate);
                 }
 
-                readPacket.reset();
+                _readPacket.reset();
             }
         }
 
@@ -328,16 +328,16 @@ namespace Board
         {
             bool returnValue = false;
 
-            if (USBOverSerial::read(UART_CHANNEL_USB_LINK, readPacket))
+            if (USBOverSerial::read(UART_CHANNEL_USB_LINK, _readPacket))
             {
-                if (readPacket.type() == USBOverSerial::packetType_t::midi)
+                if (_readPacket.type() == USBOverSerial::packetType_t::midi)
                 {
-                    USBMIDIpacket.Event = readPacket[0];
-                    USBMIDIpacket.Data1 = readPacket[1];
-                    USBMIDIpacket.Data2 = readPacket[2];
-                    USBMIDIpacket.Data3 = readPacket[3];
+                    USBMIDIpacket.Event = _readPacket[0];
+                    USBMIDIpacket.Data1 = _readPacket[1];
+                    USBMIDIpacket.Data2 = _readPacket[2];
+                    USBMIDIpacket.Data3 = _readPacket[3];
 
-                    readPacket.reset();
+                    _readPacket.reset();
                     returnValue = true;
                 }
                 else
@@ -365,16 +365,16 @@ namespace Board
 
         bool readCDC(uint8_t* buffer, size_t& size, const size_t maxSize)
         {
-            if (USBOverSerial::read(UART_CHANNEL_USB_LINK, readPacket))
+            if (USBOverSerial::read(UART_CHANNEL_USB_LINK, _readPacket))
             {
-                if (readPacket.type() == USBOverSerial::packetType_t::cdc)
+                if (_readPacket.type() == USBOverSerial::packetType_t::cdc)
                 {
-                    size = readPacket.size() > maxSize ? maxSize : readPacket.size();
+                    size = _readPacket.size() > maxSize ? maxSize : _readPacket.size();
 
                     for (size_t i = 0; i < size; i++)
-                        buffer[i] = readPacket[i];
+                        buffer[i] = _readPacket[i];
 
-                    readPacket.reset();
+                    _readPacket.reset();
                     return true;
                 }
                 else
@@ -388,13 +388,13 @@ namespace Board
 
         bool readCDC(uint8_t& value)
         {
-            if (USBOverSerial::read(UART_CHANNEL_USB_LINK, readPacket))
+            if (USBOverSerial::read(UART_CHANNEL_USB_LINK, _readPacket))
             {
-                if (readPacket.type() == USBOverSerial::packetType_t::cdc)
+                if (_readPacket.type() == USBOverSerial::packetType_t::cdc)
                 {
-                    value = readPacket[0];
+                    value = _readPacket[0];
 
-                    readPacket.reset();
+                    _readPacket.reset();
                     return true;
                 }
                 else
@@ -410,7 +410,7 @@ namespace Board
     void uniqueID(uniqueID_t& uid)
     {
         for (size_t i = 0; i < UID_BITS / 8; i++)
-            uid[i] = uidUSBDevice[i];
+            uid[i] = _uidUSBDevice[i];
     }
 #endif
 }    // namespace Board
