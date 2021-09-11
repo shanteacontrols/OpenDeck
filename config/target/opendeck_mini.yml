@@ -6,6 +6,8 @@
   touchscreen:
     uartChannel: 0
     components: 32
+  dmx:
+    uartChannel: 0
   buttons:
     type: "shiftRegister"
     shiftRegisters: 2

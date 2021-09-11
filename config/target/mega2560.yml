@@ -8,6 +8,8 @@
   touchscreen:
     uartChannel: 2
     components: 32
+  dmx:
+    uartChannel: 2
   buttons:
     type: "native"
     pins:

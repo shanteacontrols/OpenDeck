@@ -5,6 +5,8 @@
     uartChannel: 0
   display:
     i2cChannel: 0
+  dmx:
+    uartChannel: 0
   buttons:
     type: "native"
     pins:

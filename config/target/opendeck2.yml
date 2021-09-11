@@ -9,6 +9,8 @@
   touchscreen:
     uartChannel: 4
     components: 64
+  dmx:
+    uartChannel: 4
   buttons:
     extPullups: true
     type: "matrix"
