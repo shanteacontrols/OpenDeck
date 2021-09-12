@@ -1,10 +1,11 @@
 include Toolchain.mk
 
-BUILD_DIR_BASE  := ./build
-TARGET          := discovery
-TARGET_DEF_FILE := ../config/target/$(TARGET).yml
-TYPE            := app
-SCRIPTS_DIR     := ../scripts
+BUILD_DIR_BASE       := ./build
+TARGET               := discovery
+TARGET_DEF_FILE      := ../config/target/$(TARGET).yml
+TOUCHSCREEN_DEF_FILE := ../config/touchscreen/$(TARGET).json
+TYPE                 := app
+SCRIPTS_DIR          := ../scripts
 
 ifeq (,$(wildcard $(TARGET_DEF_FILE)))
     $(error Target doesn't exist)
@@ -236,9 +237,9 @@ $(BOARD_TARGET_DIR)/$(TARGET).cpp: $(TARGET_DEF_FILE)
 	@echo Generating target definitions...
 	@$(SCRIPTS_DIR)/gen_target.sh $(TARGET_DEF_FILE) $(BOARD_TARGET_DIR)
 
-$(TOUCHSCREEN_TARGET_DIR)/$(TARGET).cpp: $(TOUCHSCREEN_TARGET_DIR)/$(TARGET).json
+$(TOUCHSCREEN_GEN_BASE_DIR)/$(TARGET).cpp: $(TOUCHSCREEN_DEF_FILE)
 	@echo Generating touchscreen coordinate file...
-	@$(SCRIPTS_DIR)/gen_touchscreen.sh $< $(TOUCHSCREEN_TARGET_DIR)
+	@$(SCRIPTS_DIR)/gen_touchscreen.sh $< $(TOUCHSCREEN_GEN_BASE_DIR)
 
 ifeq ($(ARCH),stm32)
 $(BUILD_DIR_BASE)/flashgen/$(TARGET)/$(BUILD_TYPE)/generated_flash.bin: $(TARGET_DEF_FILE) $(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/application/database/Database.cpp.o $(BUILD_DIR_BASE)/app/$(TARGET)/$(BUILD_TYPE)/application/database/CustomInit.cpp.o
@@ -326,8 +327,7 @@ endif
 
 clean:
 	@echo Cleaning up.
-	@rm -rf $(BUILD_DIR_BASE)/ $(BOARD_TARGET_BASE_DIR)
-	@find $(TOUCHSCREEN_TARGET_BASE_DIR) -name "*.cpp" -exec rm {} +
+	@rm -rf $(BUILD_DIR_BASE)/ $(BOARD_TARGET_BASE_DIR) $(TOUCHSCREEN_GEN_BASE_DIR)
 
 #debugging
 print-%:

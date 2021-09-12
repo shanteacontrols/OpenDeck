@@ -34,8 +34,8 @@ LINKER_FILE := $(MCU_DIR)/$(MCU).ld
 
 TARGET_GEN_SOURCE := $(BOARD_TARGET_DIR)/$(TARGET).cpp
 
-ifneq (,$(wildcard application/io/touchscreen/design/$(TARGET).json))
-    TSCREEN_GEN_SOURCE += $(TOUCHSCREEN_TARGET_DIR)/$(TARGET).cpp
+ifneq (,$(wildcard $(TOUCHSCREEN_DEF_FILE)))
+    TSCREEN_GEN_SOURCE += $(TOUCHSCREEN_GEN_BASE_DIR)/$(TARGET).cpp
 endif
 
 ifeq (,$(findstring gen,$(TYPE)))

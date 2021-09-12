@@ -10,7 +10,7 @@ Documentation/*
 *.profraw
 **/cubemx/**/*
 !**/cubemx/**/*.ioc
-src/application/io/touchscreen/design/target/*.cpp
+src/application/io/touchscreen/gen/*
 **/*.ico
 **/.clangd/*
 **/clangd/*
