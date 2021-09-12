@@ -327,7 +327,7 @@ endif
 
 clean:
 	@echo Cleaning up.
-	@rm -rf $(BUILD_DIR_BASE)/ $(BOARD_TARGET_BASE_DIR) $(TOUCHSCREEN_GEN_BASE_DIR)
+	@rm -rf $(BUILD_DIR_BASE)/ $(BOARD_GEN_BASE_DIR) $(TOUCHSCREEN_GEN_BASE_DIR)
 
 #debugging
 print-%:
