@@ -985,7 +985,7 @@ int main()
 #if MAX_NUMBER_OF_LEDS > 0
 #if MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS != 0
         if (index >= MAX_NUMBER_OF_LEDS)
-            touchscreen.setIconState(MAX_NUMBER_OF_LEDS - index, brightness != IO::LEDs::brightness_t::bOff);
+            touchscreen.setIconState(index - MAX_NUMBER_OF_LEDS, brightness != IO::LEDs::brightness_t::bOff);
         else
             Board::io::writeLEDstate(index, hwaLEDs.appToBoardBrightness(brightness));
 #else
