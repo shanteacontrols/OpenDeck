@@ -37,7 +37,7 @@ ifeq ($(DEBUG), 1)
     DEFINES += DEBUG
 endif
 
--include $(BOARD_TARGET_DIR)/Defines.mk
+-include $(MAKEFILE_INCLUDE_PREFIX)$(BOARD_TARGET_DIR)/Defines.mk
 
 ifneq (,$(findstring USB_LINK_MCU,$(DEFINES)))
     ifeq ($(MCU), atmega16u2)

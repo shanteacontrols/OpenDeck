@@ -33,7 +33,7 @@ fi
 mkdir -p "$GEN_DIR"
 
 {
-    printf "%s%s\n" '-include $(BOARD_MCU_BASE_DIR)/' "$mcu/MCU.mk"
+    printf "%s%s\n" '-include $(MAKEFILE_INCLUDE_PREFIX)$(BOARD_MCU_BASE_DIR)/' "$mcu/MCU.mk"
     printf "%s\n" "DEFINES += FW_UID=$(../scripts/fw_uid_gen.sh "$TARGET_NAME")"
 } >> "$OUT_FILE_MAKEFILE_DEFINES"
 

@@ -15,12 +15,10 @@ ifeq ($(HW_TEST_FLASH), 1)
     DEFINES += HW_TEST_FLASH
 endif
 
-#redefine this variable since target defines includes MCU defines before anything else
-#MCU defines use BOARD_MCU_BASE_DIR as the first line so at that moment it is not defined yet
-#ugly but it works
-BOARD_MCU_BASE_DIR := ../src/board/gen/mcu
--include ../src/board/gen/target/$(TARGET)/Defines.mk
-include ../src/Defines.mk
+#override root path for includes in Makefiles located in src directory
+MAKEFILE_INCLUDE_PREFIX := ../src/
+
+include $(MAKEFILE_INCLUDE_PREFIX)Defines.mk
 
 ifeq ($(ARCH), stm32)
     DEFINES += STM32_EMU_EEPROM
