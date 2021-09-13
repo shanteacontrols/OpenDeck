@@ -30,8 +30,17 @@ namespace
     volatile uint8_t _ledState[(MAX_NUMBER_OF_LEDS / 8) + 1][static_cast<uint8_t>(Board::io::ledBrightness_t::b100)];
 
 #ifdef NUMBER_OF_LED_COLUMNS
+    enum class switchState_t : uint8_t
+    {
+        none,
+        rowsOff,
+        columns
+    };
+
+    switchState_t switchState;
+
     /// Holds value of currently active output matrix column.
-    volatile uint8_t activeOutColumn = NUMBER_OF_LED_COLUMNS;
+    volatile uint8_t activeOutColumn;
 
     /// Used to turn the given LED row off.
     inline void ledRowOff(uint8_t row)
@@ -130,17 +139,43 @@ namespace Board
 #ifdef NUMBER_OF_LED_COLUMNS
             void checkDigitalOutputs()
             {
-                if (!_pwmCounter)
+                switch (switchState)
                 {
+                case switchState_t::none:
+                {
+                    if (++_pwmCounter >= (static_cast<uint8_t>(Board::io::ledBrightness_t::b100) - 1))
+                    {
+                        switchState = switchState_t::rowsOff;
+                    }
+                }
+                break;
+
+                case switchState_t::rowsOff:
+                {
+                    _pwmCounter = 0;
+
                     for (int i = 0; i < NUMBER_OF_LED_ROWS; i++)
                         ledRowOff(i);
 
-                    if (++activeOutColumn == NUMBER_OF_LED_COLUMNS)
+                    switchState = switchState_t::columns;
+
+                    //allow some settle time to avoid near LEDs being slighty lit
+                    return;
+                }
+                break;
+
+                case switchState_t::columns:
+                {
+                    if (++activeOutColumn >= NUMBER_OF_LED_COLUMNS)
                         activeOutColumn = 0;
 
                     BIT_READ(activeOutColumn, 0) ? CORE_IO_SET_HIGH(DEC_LM_PORT_A0, DEC_LM_PIN_A0) : CORE_IO_SET_LOW(DEC_LM_PORT_A0, DEC_LM_PIN_A0);
                     BIT_READ(activeOutColumn, 1) ? CORE_IO_SET_HIGH(DEC_LM_PORT_A1, DEC_LM_PIN_A1) : CORE_IO_SET_LOW(DEC_LM_PORT_A1, DEC_LM_PIN_A1);
                     BIT_READ(activeOutColumn, 2) ? CORE_IO_SET_HIGH(DEC_LM_PORT_A2, DEC_LM_PIN_A2) : CORE_IO_SET_LOW(DEC_LM_PORT_A2, DEC_LM_PIN_A2);
+
+                    switchState = switchState_t::none;
+                }
+                break;
                 }
 
                 for (int i = 0; i < NUMBER_OF_LED_ROWS; i++)
@@ -151,10 +186,7 @@ namespace Board
 
                     BIT_READ(_ledState[arrayIndex][_pwmCounter], ledBit) ? ledRowOn(i) : ledRowOff(i);
                 }
-
-                if (++pwmCounter >= static_cast<uint8_t>(Board::io::ledBrightness_t::b100))
-                    pwmCounter = 0;
-            }    // namespace io
+            }
 #elif defined(NUMBER_OF_OUT_SR)
             void checkDigitalOutputs()
             {
