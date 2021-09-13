@@ -16,9 +16,9 @@ limitations under the License.
 
 */
 
-#include <avr/io.h>
 #include "board/Board.h"
 #include "board/Internal.h"
+#include "core/src/general/Misc.h"
 
 //both delays assume 16MHz clock
 
@@ -30,13 +30,13 @@ namespace Board
         {
             void sr595wait()
             {
-                _NOP();
-                _NOP();
+                CORE_NOP();
+                CORE_NOP();
             }
 
             void sr165wait()
             {
-                _NOP();
+                CORE_NOP();
             }
         }    // namespace io
     }        // namespace detail

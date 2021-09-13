@@ -18,10 +18,9 @@ limitations under the License.
 
 #include "board/Board.h"
 #include "board/Internal.h"
+#include "core/src/general/Misc.h"
 
 //assuming 84MHz clock config
-
-#define _NOP() __asm__ __volatile__("nop")
 
 namespace Board
 {
@@ -32,13 +31,13 @@ namespace Board
             void sr595wait()
             {
                 for (int i = 0; i < 12; i++)
-                    _NOP();
+                    CORE_NOP();
             }
 
             void sr165wait()
             {
                 for (int i = 0; i < 6; i++)
-                    _NOP();
+                    CORE_NOP();
             }
         }    // namespace io
     }        // namespace detail
