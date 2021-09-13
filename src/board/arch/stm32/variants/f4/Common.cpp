@@ -106,7 +106,7 @@ namespace Board
                 _mainTimerHandler.Instance               = MAIN_TIMER_INSTANCE;
                 _mainTimerHandler.Init.Prescaler         = 1;
                 _mainTimerHandler.Init.CounterMode       = TIM_COUNTERMODE_UP;
-                _mainTimerHandler.Init.Period            = 41999;
+                _mainTimerHandler.Init.Period            = 41999;    //1ms
                 _mainTimerHandler.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
                 _mainTimerHandler.Init.RepetitionCounter = 0;
                 _mainTimerHandler.Init.AutoReloadPreload = 0;
@@ -120,7 +120,7 @@ namespace Board
                 pwmTimerHandle.Instance               = PWM_TIMER_INSTANCE;
                 pwmTimerHandle.Init.Prescaler         = 1;
                 pwmTimerHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
-                pwmTimerHandle.Init.Period            = 8399;
+                pwmTimerHandle.Init.Period            = 8399;    //200us
                 pwmTimerHandle.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
                 pwmTimerHandle.Init.RepetitionCounter = 0;
                 pwmTimerHandle.Init.AutoReloadPreload = 0;
