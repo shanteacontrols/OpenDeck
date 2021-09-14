@@ -512,7 +512,10 @@ void System::checkMIDI()
         case MIDI::messageType_t::controlChange:
         case MIDI::messageType_t::programChange:
             if (messageType == MIDI::messageType_t::programChange)
+            {
                 IO::Common::setProgram(channel, data1);
+                _database.setPreset(data1);
+            }
 
             if (messageType == MIDI::messageType_t::noteOff)
                 data2 = 0;
@@ -552,7 +555,6 @@ void System::checkMIDI()
 
             case MIDI::messageType_t::programChange:
                 _display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::programChange, data1, data2, channel + 1);
-                _database.setPreset(data1);
                 break;
 
             default:
