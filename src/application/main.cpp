@@ -444,7 +444,7 @@ class HWATouchscreen : public IO::Touchscreen::Model::HWA
 
     bool init() override
     {
-        Board::UART::config_t config(115200,
+        Board::UART::config_t config(UART_BAUDRATE_TOUCHSCREEN,
                                      Board::UART::parity_t::no,
                                      Board::UART::stopBits_t::one,
                                      Board::UART::type_t::rxTx);
