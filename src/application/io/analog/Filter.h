@@ -51,10 +51,11 @@ limitations under the License.
 
 namespace IO
 {
-    class AnalogFilter : public IO::Analog::Filter
+#ifdef ANALOG_SUPPORTED
+    class AnalogFilter : public Analog::Filter
     {
         public:
-        AnalogFilter(IO::Analog::adcType_t adcType)
+        AnalogFilter(Analog::adcType_t adcType)
             : _adcType(adcType)
             , _adcConfig(adcType == IO::Analog::adcType_t::adc10bit ? adc10bit : adc12bit)
             , _stepDiff7Bit(static_cast<uint16_t>(adcType) / 128)
@@ -237,4 +238,29 @@ namespace IO
         bool                      _lastStableDirection[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS] = {};
         uint16_t                  _lastStableValue[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]     = {};
     };    // namespace IO
+#else
+    class AnalogFilter : public Analog::Filter
+    {
+        public:
+        AnalogFilter(Analog::adcType_t adcType) {}
+
+        Analog::adcType_t adcType() override
+        {
+#ifdef ADC_12_BIT
+            return IO::Analog::adcType_t::adc12bit;
+#else
+            return IO::Analog::adcType_t::adc10bit;
+#endif
+        }
+
+        bool isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) override
+        {
+            return false;
+        }
+
+        void reset(size_t index) override
+        {
+        }
+    };
+#endif
 }    // namespace IO

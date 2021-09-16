@@ -24,7 +24,7 @@ limitations under the License.
 
 bool Viewtech::init()
 {
-    IO::Touchscreen::Model::Common::bufferCount = 0;
+    IO::TouchscreenBase::Common::bufferCount = 0;
     return _hwa.init();
 }
 
@@ -48,73 +48,73 @@ bool Viewtech::setScreen(size_t screenID)
     return true;
 }
 
-IO::Touchscreen::tsEvent_t Viewtech::update(IO::Touchscreen::tsData_t& data)
+IO::TouchscreenBase::tsEvent_t Viewtech::update(IO::TouchscreenBase::tsData_t& data)
 {
     pollXY();
 
-    auto    event = IO::Touchscreen::tsEvent_t::none;
+    auto    event = IO::TouchscreenBase::tsEvent_t::none;
     uint8_t value = 0;
 
     while (_hwa.read(value))
     {
-        IO::Touchscreen::Model::Common::rxBuffer[IO::Touchscreen::Model::Common::bufferCount++] = value;
+        IO::TouchscreenBase::Common::rxBuffer[IO::TouchscreenBase::Common::bufferCount++] = value;
     }
 
     //assumption - only one response is received at the time
     //if parsing fails, wipe the buffer
-    if (IO::Touchscreen::Model::Common::bufferCount)
+    if (IO::TouchscreenBase::Common::bufferCount)
     {
         //verify header first
-        if (IO::Touchscreen::Model::Common::rxBuffer[0] == 0xA5)
+        if (IO::TouchscreenBase::Common::rxBuffer[0] == 0xA5)
         {
-            if (IO::Touchscreen::Model::Common::bufferCount > 1)
+            if (IO::TouchscreenBase::Common::bufferCount > 1)
             {
-                if (IO::Touchscreen::Model::Common::rxBuffer[1] == 0x5A)
+                if (IO::TouchscreenBase::Common::rxBuffer[1] == 0x5A)
                 {
-                    if (IO::Touchscreen::Model::Common::bufferCount > 2)
+                    if (IO::TouchscreenBase::Common::bufferCount > 2)
                     {
                         //byte at index 2 holds response length, without first two bytes and without byte at index 2
-                        if (IO::Touchscreen::Model::Common::bufferCount >= static_cast<size_t>(3 + IO::Touchscreen::Model::Common::rxBuffer[2]))
+                        if (IO::TouchscreenBase::Common::bufferCount >= static_cast<size_t>(3 + IO::TouchscreenBase::Common::rxBuffer[2]))
                         {
-                            uint32_t response = IO::Touchscreen::Model::Common::rxBuffer[2];
+                            uint32_t response = IO::TouchscreenBase::Common::rxBuffer[2];
                             response <<= 8;
-                            response |= IO::Touchscreen::Model::Common::rxBuffer[3];
+                            response |= IO::TouchscreenBase::Common::rxBuffer[3];
                             response <<= 8;
-                            response |= IO::Touchscreen::Model::Common::rxBuffer[4];
+                            response |= IO::TouchscreenBase::Common::rxBuffer[4];
                             response <<= 8;
-                            response |= IO::Touchscreen::Model::Common::rxBuffer[5];
+                            response |= IO::TouchscreenBase::Common::rxBuffer[5];
 
                             switch (response)
                             {
                             case static_cast<uint32_t>(response_t::buttonStateChange):
                             {
-                                data.buttonState = IO::Touchscreen::Model::Common::rxBuffer[6];
-                                data.buttonID    = IO::Touchscreen::Model::Common::rxBuffer[7];
+                                data.buttonState = IO::TouchscreenBase::Common::rxBuffer[6];
+                                data.buttonID    = IO::TouchscreenBase::Common::rxBuffer[7];
 
-                                event = IO::Touchscreen::tsEvent_t::button;
+                                event = IO::TouchscreenBase::tsEvent_t::button;
                             }
                             break;
 
                             case static_cast<uint32_t>(response_t::xyUpdate):
                             {
-                                if ((IO::Touchscreen::Model::Common::rxBuffer[6] == 0x01) || (IO::Touchscreen::Model::Common::rxBuffer[6] == 0x03))
+                                if ((IO::TouchscreenBase::Common::rxBuffer[6] == 0x01) || (IO::TouchscreenBase::Common::rxBuffer[6] == 0x03))
                                 {
-                                    data.xPos = IO::Touchscreen::Model::Common::rxBuffer[7] << 8;
-                                    data.xPos |= IO::Touchscreen::Model::Common::rxBuffer[8];
+                                    data.xPos = IO::TouchscreenBase::Common::rxBuffer[7] << 8;
+                                    data.xPos |= IO::TouchscreenBase::Common::rxBuffer[8];
 
-                                    data.yPos = IO::Touchscreen::Model::Common::rxBuffer[9] << 8;
-                                    data.yPos |= IO::Touchscreen::Model::Common::rxBuffer[10];
-                                    data.pressType = IO::Touchscreen::Model::Common::rxBuffer[6] == 0x01 ? IO::Touchscreen::pressType_t::initial : IO::Touchscreen::pressType_t::hold;
+                                    data.yPos = IO::TouchscreenBase::Common::rxBuffer[9] << 8;
+                                    data.yPos |= IO::TouchscreenBase::Common::rxBuffer[10];
+                                    data.pressType = IO::TouchscreenBase::Common::rxBuffer[6] == 0x01 ? IO::TouchscreenBase::pressType_t::initial : IO::TouchscreenBase::pressType_t::hold;
 
-                                    event = IO::Touchscreen::tsEvent_t::coordinate;
+                                    event = IO::TouchscreenBase::tsEvent_t::coordinate;
                                 }
                                 else
                                 {
                                     //screen released
                                     data.xPos      = 0;
                                     data.yPos      = 0;
-                                    data.pressType = IO::Touchscreen::pressType_t::none;
-                                    event          = IO::Touchscreen::tsEvent_t::coordinate;
+                                    data.pressType = IO::TouchscreenBase::pressType_t::none;
+                                    event          = IO::TouchscreenBase::tsEvent_t::coordinate;
                                 }
                             }
                             break;
@@ -123,28 +123,28 @@ IO::Touchscreen::tsEvent_t Viewtech::update(IO::Touchscreen::tsData_t& data)
                                 break;
                             }
 
-                            IO::Touchscreen::Model::Common::bufferCount = 0;
+                            IO::TouchscreenBase::Common::bufferCount = 0;
                         }
                     }
                 }
                 else
                 {
                     //header invalid - ignore the rest of the message
-                    IO::Touchscreen::Model::Common::bufferCount = 0;
+                    IO::TouchscreenBase::Common::bufferCount = 0;
                 }
             }
         }
         else
         {
             //header invalid - ignore the rest of the message
-            IO::Touchscreen::Model::Common::bufferCount = 0;
+            IO::TouchscreenBase::Common::bufferCount = 0;
         }
     }
 
     return event;
 }
 
-void Viewtech::setIconState(IO::Touchscreen::icon_t& icon, bool state)
+void Viewtech::setIconState(IO::TouchscreenBase::icon_t& icon, bool state)
 {
     //header
     _hwa.write(0xA5);
@@ -166,7 +166,7 @@ void Viewtech::setIconState(IO::Touchscreen::icon_t& icon, bool state)
     _hwa.write(state ? 0x00 : 0x01);
 }
 
-bool Viewtech::setBrightness(IO::Touchscreen::brightness_t brightness)
+bool Viewtech::setBrightness(IO::TouchscreenBase::brightness_t brightness)
 {
     //header
     _hwa.write(0xA5);

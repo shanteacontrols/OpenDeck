@@ -22,6 +22,8 @@ limitations under the License.
 #include <stdlib.h>
 #include "database/Database.h"
 #include "io/common/CInfo.h"
+#include "model/nextion/Nextion.h"
+#include "model/viewtech/Viewtech.h"
 
 #ifndef TOUCHSCREEN_SUPPORTED
 #include "Stub.h"
@@ -32,20 +34,6 @@ namespace IO
     class Touchscreen
     {
         public:
-        enum class tsEvent_t : uint8_t
-        {
-            none,
-            button,
-            coordinate
-        };
-
-        enum class pressType_t : uint8_t
-        {
-            none,
-            initial,
-            hold
-        };
-
         enum class setting_t : uint8_t
         {
             enable,
@@ -56,84 +44,10 @@ namespace IO
             AMOUNT
         };
 
-        enum class brightness_t : uint8_t
-        {
-            _10,
-            _25,
-            _50,
-            _75,
-            _80,
-            _90,
-            _100
-        };
-
-        enum class analogType_t : uint8_t
-        {
-            horizontal,
-            vertical
-        };
-
-        struct icon_t
-        {
-            uint16_t xPos      = 0;
-            uint16_t yPos      = 0;
-            uint16_t width     = 0;
-            uint16_t height    = 0;
-            uint16_t onScreen  = 0;
-            uint16_t offScreen = 0;
-        };
-
-        struct tsData_t
-        {
-            pressType_t pressType   = pressType_t::none;
-            size_t      buttonID    = 0;
-            bool        buttonState = false;
-            uint16_t    xPos        = 0;
-            uint16_t    yPos        = 0;
-        };
-
         enum class mode_t : uint8_t
         {
             normal,
             cdcPassthrough
-        };
-
-        class Model
-        {
-            public:
-            class HWA
-            {
-                public:
-                virtual bool init()               = 0;
-                virtual bool deInit()             = 0;
-                virtual bool write(uint8_t value) = 0;
-                virtual bool read(uint8_t& value) = 0;
-            };
-
-            class Common
-            {
-                public:
-                Common() {}
-
-                protected:
-                static constexpr size_t bufferSize = 50;
-                static uint8_t          rxBuffer[bufferSize];
-                static size_t           bufferCount;
-            };
-
-            enum class model_t : uint8_t
-            {
-                nextion,
-                viewtech,
-                AMOUNT
-            };
-
-            virtual bool      init()                                              = 0;
-            virtual bool      deInit()                                            = 0;
-            virtual bool      setScreen(size_t screenID)                          = 0;
-            virtual tsEvent_t update(tsData_t& tsData)                            = 0;
-            virtual void      setIconState(Touchscreen::icon_t& icon, bool state) = 0;
-            virtual bool      setBrightness(brightness_t brightness)              = 0;
         };
 
         class EventNotifier
@@ -155,10 +69,19 @@ namespace IO
             virtual bool cdcWrite(uint8_t* buffer, size_t size)                       = 0;
         };
 
-        Touchscreen(Database&       database,
-                    ComponentInfo&  cInfo,
-                    CDCPassthrough& cdcPassthrough)
-            : _database(database)
+        using model_t      = TouchscreenBase::model_t;
+        using icon_t       = TouchscreenBase::icon_t;
+        using tsEvent_t    = TouchscreenBase::tsEvent_t;
+        using pressType_t  = TouchscreenBase::pressType_t;
+        using tsData_t     = TouchscreenBase::tsData_t;
+        using brightness_t = TouchscreenBase::brightness_t;
+
+        Touchscreen(TouchscreenBase::HWA& hwa,
+                    Database&             database,
+                    ComponentInfo&        cInfo,
+                    CDCPassthrough&       cdcPassthrough)
+            : _hwa(hwa)
+            , _database(database)
             , _cInfo(cInfo)
             , _cdcPassthrough(cdcPassthrough)
         {}
@@ -167,7 +90,6 @@ namespace IO
         bool   deInit(mode_t mode);
         bool   isInitialized() const;
         bool   isInitialized(mode_t mode) const;
-        bool   registerModel(IO::Touchscreen::Model::model_t, Model* ptr);
         void   update();
         void   setScreen(size_t screenID);
         size_t activeScreen();
@@ -176,23 +98,30 @@ namespace IO
         bool   setBrightness(brightness_t brightness);
 
         private:
-        bool isModelValid(Model::model_t model);
-        void processButton(const size_t buttonID, const bool state);
-        void processCoordinate(pressType_t pressType, uint16_t xPos, uint16_t yPos);
+        enum class analogType_t : uint8_t
+        {
+            horizontal,
+            vertical
+        };
 
-        Database&       _database;
-        ComponentInfo&  _cInfo;
-        CDCPassthrough& _cdcPassthrough;
-        EventNotifier*  _eventNotifier = nullptr;
+        IO::TouchscreenBase& modelInstance();
+        void                 processButton(const size_t buttonID, const bool state);
+        void                 processCoordinate(pressType_t pressType, uint16_t xPos, uint16_t yPos);
 
-        size_t  _activeScreenID                                         = 0;
-        bool    _initialized                                            = false;
-        mode_t  _mode                                                   = mode_t::normal;
-        Model*  _modelPtr[static_cast<uint8_t>(Model::model_t::AMOUNT)] = {};
-        uint8_t _activeModel                                            = static_cast<uint8_t>(Model::model_t::AMOUNT);
-        bool    _analogActive[MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]     = {};
-        uint8_t _txBuffer[TSCREEN_CDC_PASSTHROUGH_BUFFER_SIZE]          = {};
-        uint8_t _rxBuffer[TSCREEN_CDC_PASSTHROUGH_BUFFER_SIZE]          = {};
+        TouchscreenBase::HWA&        _hwa;
+        Database&                    _database;
+        ComponentInfo&               _cInfo;
+        CDCPassthrough&              _cdcPassthrough;
+        EventNotifier*               _eventNotifier                                      = nullptr;
+        size_t                       _activeScreenID                                     = 0;
+        bool                         _initialized                                        = false;
+        mode_t                       _mode                                               = mode_t::normal;
+        Nextion                      _nextion                                            = Nextion(_hwa);
+        Viewtech                     _viewtech                                           = Viewtech(_hwa);
+        IO::TouchscreenBase::model_t _activeModel                                        = TouchscreenBase::model_t::nextion;
+        bool                         _analogActive[MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS] = {};
+        uint8_t                      _txBuffer[TSCREEN_CDC_PASSTHROUGH_BUFFER_SIZE]      = {};
+        uint8_t                      _rxBuffer[TSCREEN_CDC_PASSTHROUGH_BUFFER_SIZE]      = {};
     };
 }    // namespace IO
 

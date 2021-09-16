@@ -16,26 +16,9 @@ limitations under the License.
 
 */
 
-#ifndef USB_LINK_MCU
-#include "database/Database.h"
-#include "io/buttons/Buttons.h"
-#include "io/analog/Analog.h"
-#include "io/encoders/Encoders.h"
-#include "io/leds/LEDs.h"
-#include "io/display/Display.h"
-#include "io/touchscreen/Touchscreen.h"
-#include "system/System.h"
-#endif
-#include "midi/src/MIDI.h"
-#include "board/Board.h"
 #include "core/src/general/Timing.h"
-#include "core/src/general/Interrupt.h"
-#include "core/src/general/Reset.h"
-#include "core/src/general/Helpers.h"
-#include "io/common/CInfo.h"
-#include "board/common/comm/USBOverSerial/USBOverSerial.h"
-#include "bootloader/FwSelector/FwSelector.h"
-#include "dmxusb/src/DMXUSBWidget.h"
+#include "board/Board.h"
+#include "system/System.h"
 
 class StorageAccess : public LESSDB::StorageAccess
 {
@@ -59,125 +42,315 @@ class StorageAccess : public LESSDB::StorageAccess
 
     bool read(uint32_t address, int32_t& value, LESSDB::sectionParameterType_t type) override
     {
-        switch (type)
-        {
-        case LESSDB::sectionParameterType_t::word:
-            return Board::NVM::read(address, value, Board::NVM::parameterType_t::word);
-
-        case LESSDB::sectionParameterType_t::dword:
-            return Board::NVM::read(address, value, Board::NVM::parameterType_t::dword);
-
-        default:
-            return Board::NVM::read(address, value, Board::NVM::parameterType_t::byte);
-        }
+        return Board::NVM::read(address, value, boardParamType(type));
     }
 
     bool write(uint32_t address, int32_t value, LESSDB::sectionParameterType_t type) override
     {
-        switch (type)
-        {
-        case LESSDB::sectionParameterType_t::word:
-            return Board::NVM::write(address, value, Board::NVM::parameterType_t::word);
-
-        case LESSDB::sectionParameterType_t::dword:
-            return Board::NVM::write(address, value, Board::NVM::parameterType_t::dword);
-
-        default:
-            return Board::NVM::write(address, value, Board::NVM::parameterType_t::byte);
-        }
+        return Board::NVM::write(address, value, boardParamType(type));
     }
 
     size_t paramUsage(LESSDB::sectionParameterType_t type) override
     {
+        return Board::NVM::paramUsage(boardParamType(type));
+    }
+
+    private:
+    Board::NVM::parameterType_t boardParamType(LESSDB::sectionParameterType_t type)
+    {
         switch (type)
         {
         case LESSDB::sectionParameterType_t::word:
-            return Board::NVM::paramUsage(Board::NVM::parameterType_t::word);
+            return Board::NVM::parameterType_t::word;
 
         case LESSDB::sectionParameterType_t::dword:
-            return Board::NVM::paramUsage(Board::NVM::parameterType_t::dword);
+            return Board::NVM::parameterType_t::dword;
 
         default:
-            return Board::NVM::paramUsage(Board::NVM::parameterType_t::byte);
+            return Board::NVM::parameterType_t::byte;
         }
     }
-} storageAccess;
-Database database(storageAccess,
-#ifdef __AVR__
-                  true
-#else
-                  false
-#endif
-);
+} _storageAccess;
 
-class HWAMIDI : public MIDI::HWA
+#ifdef LEDS_SUPPORTED
+class HWALEDs : public System::HWA::IO::LEDs
+{
+    public:
+    HWALEDs() = default;
+
+    void setState(size_t index, IO::LEDs::brightness_t brightness) override
+    {
+        Board::io::writeLEDstate(index, appToBoardBrightness(brightness));
+    }
+
+    size_t rgbIndex(size_t singleLEDindex) override
+    {
+#if MAX_NUMBER_OF_LEDS > 0
+        return Board::io::rgbIndex(singleLEDindex);
+#else
+        return 0;
+#endif
+    }
+
+    size_t rgbSignalIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
+    {
+#if MAX_NUMBER_OF_LEDS > 0
+        Board::io::rgbIndex_t boardRGBindex;
+
+        switch (rgbComponent)
+        {
+        case IO::LEDs::rgbIndex_t::r:
+            boardRGBindex = Board::io::rgbIndex_t::r;
+            break;
+
+        case IO::LEDs::rgbIndex_t::g:
+            boardRGBindex = Board::io::rgbIndex_t::g;
+            break;
+
+        case IO::LEDs::rgbIndex_t::b:
+            boardRGBindex = Board::io::rgbIndex_t::b;
+            break;
+
+        default:
+            return 0;
+        }
+
+        return Board::io::rgbSignalIndex(rgbIndex, boardRGBindex);
+#else
+        return 0;
+#endif
+    }
+
+    Board::io::ledBrightness_t appToBoardBrightness(IO::LEDs::brightness_t brightness)
+    {
+        switch (brightness)
+        {
+        case IO::LEDs::brightness_t::b25:
+            return Board::io::ledBrightness_t::b25;
+
+        case IO::LEDs::brightness_t::b50:
+            return Board::io::ledBrightness_t::b50;
+
+        case IO::LEDs::brightness_t::b75:
+            return Board::io::ledBrightness_t::b75;
+
+        case IO::LEDs::brightness_t::b100:
+            return Board::io::ledBrightness_t::b100;
+
+        default:
+            return Board::io::ledBrightness_t::bOff;
+        }
+    }
+} _hwaLEDs;
+#else
+class HWALEDsStub : public System::HWA::IO::LEDs
+{
+    public:
+    HWALEDsStub() {}
+
+    void setState(size_t index, bool state) override
+    {
+    }
+
+    size_t rgbIndex(size_t singleLEDindex) override
+    {
+        return 0;
+    }
+
+    size_t rgbSignalIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
+    {
+        return 0;
+    }
+
+    void registerHandler(void (*fptr)(size_t index, bool state))
+    {
+    }
+} _hwaLEDs;
+#endif
+
+#ifdef ANALOG_SUPPORTED
+class HWAAnalog : public System::HWA::IO::Analog
+{
+    public:
+    HWAAnalog() = default;
+
+    bool value(size_t index, uint16_t& value) override
+    {
+        return Board::io::analogValue(index, value);
+    }
+} _hwaAnalog;
+
+#else
+class HWAAnalogStub : public System::HWA::IO::Analog
+{
+    public:
+    HWAAnalogStub() {}
+
+    bool value(size_t index, uint16_t& value) override
+    {
+        return false;
+    }
+} _hwaAnalog;
+#endif
+
+#if defined(BUTTONS_SUPPORTED) || defined(ENCODERS_SUPPORTED)
+//buttons and encoders have the same data source which is digital input
+//this helper class pulls the latest data from board and then feeds it into HWAButtons and HWAEncoders
+class HWADigitalIn
+{
+    public:
+    HWADigitalIn() = default;
+
+#ifdef BUTTONS_SUPPORTED
+    bool buttonState(size_t index, uint8_t& numberOfReadings, uint32_t& states)
+    {
+        if (!Board::io::digitalInState(index, dInReadA))
+            return false;
+
+        numberOfReadings = dInReadA.count;
+        states           = dInReadA.readings;
+
+        return true;
+    }
+#endif
+
+#ifdef ENCODERS_SUPPORTED
+    bool encoderState(size_t index, uint8_t& numberOfReadings, uint32_t& states)
+    {
+        if (!Board::io::digitalInState(Board::io::encoderSignalIndex(index, Board::io::encoderIndex_t::a), dInReadA))
+            return false;
+
+        if (!Board::io::digitalInState(Board::io::encoderSignalIndex(index, Board::io::encoderIndex_t::b), dInReadB))
+            return false;
+
+        numberOfReadings = dInReadA.count > dInReadB.count ? dInReadA.count : dInReadB.count;
+
+        //construct encoder pair readings
+        //encoder signal is made of A and B signals
+        //take each bit of A signal and B signal and append it to states variable in order
+        //latest encoder readings should be in LSB bits
+
+        for (uint8_t i = 0; i < numberOfReadings; i++)
+        {
+            BIT_WRITE(states, (i * 2) + 1, (dInReadA.readings >> i & 0x01));
+            BIT_WRITE(states, i * 2, (dInReadB.readings >> i & 0x01));
+        }
+
+        return true;
+    }
+#endif
+
+    private:
+    Board::io::dInReadings_t dInReadA;
+#ifdef ENCODERS_SUPPORTED
+    Board::io::dInReadings_t dInReadB;
+#endif
+} _hwaDigitalIn;
+#endif
+
+#ifdef BUTTONS_SUPPORTED
+
+class HWAButtons : public System::HWA::IO::Buttons
+{
+    public:
+    HWAButtons() = default;
+
+    bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
+    {
+        return _hwaDigitalIn.buttonState(index, numberOfReadings, states);
+    }
+
+    size_t buttonToEncoderIndex(size_t index) override
+    {
+        return Board::io::encoderIndex(index);
+    }
+} _hwaButtons;
+#else
+class HWAButtonsStub : public System::HWA::IO::Buttons
+{
+    public:
+    HWAButtonsStub() {}
+
+    bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
+    {
+        return false;
+    }
+
+    size_t buttonToEncoderIndex(size_t index) override
+    {
+        return 0;
+    }
+} _hwaButtons;
+#endif
+
+#ifdef ENCODERS_SUPPORTED
+
+class HWAEncoders : public System::HWA::IO::Encoders
+{
+    public:
+    HWAEncoders() = default;
+
+    bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
+    {
+        return _hwaDigitalIn.encoderState(index, numberOfReadings, states);
+    }
+} _hwaEncoders;
+#else
+class HWAEncodersStub : public System::HWA::IO::Encoders
+{
+    public:
+    HWAEncodersStub() {}
+
+    bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
+    {
+        return false;
+    }
+} _hwaEncoders;
+#endif
+
+class HWAMIDI : public System::HWA::Protocol::MIDI
 {
     public:
     HWAMIDI() = default;
 
-    bool init(MIDI::interface_t interface) override
+    bool init(::MIDI::interface_t interface) override
     {
-        if (interface == MIDI::interface_t::usb)
+        if (interface == ::MIDI::interface_t::usb)
             return true;    //already initialized
 
 #ifdef DIN_MIDI_SUPPORTED
-        auto mergeType    = static_cast<System::midiMergeType_t>(database.read(Database::Section::global_t::midiMerge, static_cast<size_t>(System::midiMerge_t::mergeType)));
-        bool mergeEnabled = database.read(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::mergeEnabled));
+        Board::UART::config_t config(UART_BAUDRATE_MIDI_STD,
+                                     Board::UART::parity_t::no,
+                                     Board::UART::stopBits_t::one,
+                                     Board::UART::type_t::rxTx);
 
-        bool loopback = mergeType == System::midiMergeType_t::DINtoDIN && mergeEnabled;
+        return Board::UART::init(UART_CHANNEL_DIN, config) == Board::UART::initStatus_t::ok;
 
-        if (_dinMIDIenabled && (loopback == _dinMIDIloopbackEnabled))
-            return true;    //nothing do do
-
-        if (!_dinMIDIenabled)
-        {
-            Board::UART::config_t config(UART_BAUDRATE_MIDI_STD,
-                                         Board::UART::parity_t::no,
-                                         Board::UART::stopBits_t::one,
-                                         Board::UART::type_t::rxTx);
-
-            if (Board::UART::init(UART_CHANNEL_DIN, config) == Board::UART::initStatus_t::ok)
-            {
-                Board::UART::setLoopbackState(UART_CHANNEL_DIN, loopback);
-
-                _dinMIDIenabled         = true;
-                _dinMIDIloopbackEnabled = loopback;
-
-                return true;
-            }
-        }
-        else
-        {
-            if (loopback != _dinMIDIloopbackEnabled)
-            {
-                //only the loopback parameter has changed
-                _dinMIDIloopbackEnabled = loopback;
-                Board::UART::setLoopbackState(UART_CHANNEL_DIN, loopback);
-                return true;
-            }
-        }
-
-        return false;
 #else
         return false;
 #endif
     }
 
-    bool deInit(MIDI::interface_t interface) override
+    bool deInit(::MIDI::interface_t interface) override
     {
-        if (interface == MIDI::interface_t::usb)
+        if (interface == ::MIDI::interface_t::usb)
             return true;    //never deinit usb interface, just pretend here
 
 #ifdef DIN_MIDI_SUPPORTED
-        if (!_dinMIDIenabled)
-            return true;    //nothing to do
-
         Board::UART::deInit(UART_CHANNEL_DIN);
-        _dinMIDIenabled         = false;
-        _dinMIDIloopbackEnabled = false;
         return true;
 #else
         return false;
+#endif
+    }
+
+    bool setDINLoopback(bool state)
+    {
+#ifdef DIN_MIDI_SUPPORTED
+        Board::UART::setLoopbackState(UART_CHANNEL_DIN, state);
+        return true;
+#else
+        return true;
 #endif
     }
 
@@ -211,7 +384,7 @@ class HWAMIDI : public MIDI::HWA
 #endif
     }
 
-    bool usbRead(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
+    bool usbRead(::MIDI::USBMIDIpacket_t& USBMIDIpacket) override
     {
         if (Board::USB::readMIDI(USBMIDIpacket))
         {
@@ -222,7 +395,7 @@ class HWAMIDI : public MIDI::HWA
         return false;
     }
 
-    bool usbWrite(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
+    bool usbWrite(::MIDI::USBMIDIpacket_t& USBMIDIpacket) override
     {
         if (Board::USB::writeMIDI(USBMIDIpacket))
         {
@@ -232,16 +405,10 @@ class HWAMIDI : public MIDI::HWA
 
         return false;
     }
-
-    private:
-#ifdef DIN_MIDI_SUPPORTED
-    bool _dinMIDIenabled         = false;
-    bool _dinMIDIloopbackEnabled = false;
-#endif
-} hwaMIDI;
+} _hwaMIDI;
 
 #ifdef DMX_SUPPORTED
-class HWADMX : public DMXUSBWidget::HWA
+class HWADMX : public System::HWA::Protocol::DMX
 {
     public:
     HWADMX() = default;
@@ -293,9 +460,9 @@ class HWADMX : public DMXUSBWidget::HWA
         Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::outgoing);
         return true;
     }
-} hwaDMX;
+} _hwaDMX;
 #else
-class HWADMXStub : public DMXUSBWidget::HWA
+class HWADMXStub : public System::HWA::Protocol::DMX
 {
     public:
     HWADMXStub() = default;
@@ -324,120 +491,11 @@ class HWADMXStub : public DMXUSBWidget::HWA
     {
         return false;
     }
-} hwaDMX;
-#endif
-
-#ifdef LEDS_SUPPORTED
-class HWALEDs : public IO::LEDs::HWA
-{
-    public:
-    HWALEDs() = default;
-
-    void setState(size_t index, IO::LEDs::brightness_t brightness) override
-    {
-        if (_stateHandler != nullptr)
-            _stateHandler(index, brightness);
-    }
-
-    size_t rgbIndex(size_t singleLEDindex) override
-    {
-#if MAX_NUMBER_OF_LEDS > 0
-        return Board::io::rgbIndex(singleLEDindex);
-#else
-        return 0;
-#endif
-    }
-
-    size_t rgbSignalIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
-    {
-#if MAX_NUMBER_OF_LEDS > 0
-        Board::io::rgbIndex_t boardRGBindex;
-
-        switch (rgbComponent)
-        {
-        case IO::LEDs::rgbIndex_t::r:
-            boardRGBindex = Board::io::rgbIndex_t::r;
-            break;
-
-        case IO::LEDs::rgbIndex_t::g:
-            boardRGBindex = Board::io::rgbIndex_t::g;
-            break;
-
-        case IO::LEDs::rgbIndex_t::b:
-            boardRGBindex = Board::io::rgbIndex_t::b;
-            break;
-
-        default:
-            return 0;
-        }
-
-        return Board::io::rgbSignalIndex(rgbIndex, boardRGBindex);
-#else
-        return 0;
-#endif
-    }
-
-    void registerHandler(void (*fptr)(size_t index, IO::LEDs::brightness_t brightness))
-    {
-        _stateHandler = fptr;
-    }
-
-    Board::io::ledBrightness_t appToBoardBrightness(IO::LEDs::brightness_t brightness)
-    {
-        switch (brightness)
-        {
-        case IO::LEDs::brightness_t::b25:
-            return Board::io::ledBrightness_t::b25;
-
-        case IO::LEDs::brightness_t::b50:
-            return Board::io::ledBrightness_t::b50;
-
-        case IO::LEDs::brightness_t::b75:
-            return Board::io::ledBrightness_t::b75;
-
-        case IO::LEDs::brightness_t::b100:
-            return Board::io::ledBrightness_t::b100;
-
-        default:
-            return Board::io::ledBrightness_t::bOff;
-        }
-    }
-
-    private:
-    void (*_stateHandler)(size_t index, IO::LEDs::brightness_t brightness) = nullptr;
-} hwaLEDs;
-#else
-class HWALEDsStub : public IO::LEDs::HWA
-{
-    public:
-    HWALEDsStub() {}
-
-    void setState(size_t index, bool state) override
-    {
-    }
-
-    size_t rgbIndex(size_t singleLEDindex) override
-    {
-        return 0;
-    }
-
-    size_t rgbSignalIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
-    {
-        return 0;
-    }
-
-    void registerHandler(void (*fptr)(size_t index, bool state))
-    {
-    }
-} hwaLEDs;
+} _hwaDMX;
 #endif
 
 #ifdef TOUCHSCREEN_SUPPORTED
-#include "io/touchscreen/model/nextion/Nextion.h"
-#include "io/touchscreen/model/viewtech/Viewtech.h"
-
-//use the same hwa instance for all models
-class HWATouchscreen : public IO::Touchscreen::Model::HWA
+class HWATouchscreen : public System::HWA::IO::Touchscreen
 {
     public:
     HWATouchscreen() {}
@@ -449,15 +507,7 @@ class HWATouchscreen : public IO::Touchscreen::Model::HWA
                                      Board::UART::stopBits_t::one,
                                      Board::UART::type_t::rxTx);
 
-        if (Board::UART::init(UART_CHANNEL_TOUCHSCREEN, config) == Board::UART::initStatus_t::ok)
-        {
-            //add slight delay before display becomes ready on power on
-            core::timing::waitMs(1000);
-
-            return true;
-        }
-
-        return false;
+        return Board::UART::init(UART_CHANNEL_TOUCHSCREEN, config) == Board::UART::initStatus_t::ok;
     }
 
     bool deInit() override
@@ -474,15 +524,12 @@ class HWATouchscreen : public IO::Touchscreen::Model::HWA
     {
         return Board::UART::read(UART_CHANNEL_TOUCHSCREEN, value);
     }
-} hwaTouchscreen;
+} _hwaTouchscreen;
 
-Nextion  touchscreenModelNextion(hwaTouchscreen);
-Viewtech touchscreenModelViewtech(hwaTouchscreen);
-
-class HWATouchscreenCDCPassthrough : public IO::Touchscreen::CDCPassthrough
+class HWACDCPassthrough : public System::HWA::IO::CDCPassthrough
 {
     public:
-    HWATouchscreenCDCPassthrough() = default;
+    HWACDCPassthrough() = default;
 
     bool init() override
     {
@@ -555,12 +602,38 @@ class HWATouchscreenCDCPassthrough : public IO::Touchscreen::CDCPassthrough
 
     private:
     bool _passThroughState = false;
-} hwaTouchscreenCDCPassthrough;
+} _hwaCDCPassthrough;
 #else
-class HWATouchscreenCDCPassthrough : public IO::Touchscreen::CDCPassthrough
+class HWATouchscreenStub : public System::HWA::IO::Touchscreen
 {
     public:
-    HWATouchscreenCDCPassthrough() = default;
+    HWATouchscreenStub() {}
+
+    bool init() override
+    {
+        return false;
+    }
+
+    bool deInit() override
+    {
+        return false;
+    }
+
+    bool write(uint8_t value) override
+    {
+        return false;
+    }
+
+    bool read(uint8_t& value) override
+    {
+        return false;
+    }
+} _hwaTouchscreen;
+
+class HWACDCPassthroughStub : public System::HWA::IO::CDCPassthrough
+{
+    public:
+    HWACDCPassthroughStub() = default;
 
     bool init() override
     {
@@ -593,220 +666,14 @@ class HWATouchscreenCDCPassthrough : public IO::Touchscreen::CDCPassthrough
     }
 
     private:
-} hwaTouchscreenCDCPassthrough;
-#endif
-
-#if defined(BUTTONS_SUPPORTED) || defined(ENCODERS_SUPPORTED)
-//buttons and encoders have the same data source which is digital input
-//this helper class pulls the latest data from board and then feeds it into HWAButtons and HWAEncoders
-class HWADigitalIn
-{
-    public:
-    HWADigitalIn() = default;
-
-#ifdef BUTTONS_SUPPORTED
-    bool buttonState(size_t index, uint8_t& numberOfReadings, uint32_t& states)
-    {
-        //if encoder under this index is enabled, just return false state each time
-        //side note: don't bother with references to dependencies here, just use global database object
-        if (database.read(Database::Section::encoder_t::enable, Board::io::encoderIndex(index)))
-            return false;
-
-        if (!Board::io::digitalInState(index, dInReadA))
-            return false;
-
-        numberOfReadings = dInReadA.count;
-        states           = dInReadA.readings;
-
-        return true;
-    }
-#endif
-
-#ifdef ENCODERS_SUPPORTED
-    bool encoderState(size_t index, uint8_t& numberOfReadings, uint32_t& states)
-    {
-        if (!Board::io::digitalInState(Board::io::encoderSignalIndex(index, Board::io::encoderIndex_t::a), dInReadA))
-            return false;
-
-        if (!Board::io::digitalInState(Board::io::encoderSignalIndex(index, Board::io::encoderIndex_t::b), dInReadB))
-            return false;
-
-        numberOfReadings = dInReadA.count > dInReadB.count ? dInReadA.count : dInReadB.count;
-
-        //construct encoder pair readings
-        //encoder signal is made of A and B signals
-        //take each bit of A signal and B signal and append it to states variable in order
-        //latest encoder readings should be in LSB bits
-
-        for (uint8_t i = 0; i < numberOfReadings; i++)
-        {
-            BIT_WRITE(states, (i * 2) + 1, (dInReadA.readings >> i & 0x01));
-            BIT_WRITE(states, i * 2, (dInReadB.readings >> i & 0x01));
-        }
-
-        return true;
-    }
-#endif
-
-    private:
-    Board::io::dInReadings_t dInReadA;
-#ifdef ENCODERS_SUPPORTED
-    Board::io::dInReadings_t dInReadB;
-#endif
-} hwaDigitalIn;
-#endif
-
-#ifdef BUTTONS_SUPPORTED
-
-#include "io/buttons/Filter.h"
-
-IO::ButtonsFilter buttonsFilter;
-
-class HWAButtons : public IO::Buttons::HWA
-{
-    public:
-    HWAButtons() = default;
-
-    bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
-    {
-        return hwaDigitalIn.buttonState(index, numberOfReadings, states);
-    }
-} hwaButtons;
-#else
-class HWAButtonsStub : public IO::Buttons::HWA
-{
-    public:
-    HWAButtonsStub() {}
-
-    bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
-    {
-        return false;
-    }
-} hwaButtons;
-
-class ButtonsFilterStub : public IO::Buttons::Filter
-{
-    public:
-    ButtonsFilterStub() {}
-
-    bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
-    {
-        return false;
-    }
-} buttonsFilter;
-#endif
-
-#ifdef ENCODERS_SUPPORTED
-
-#include "io/encoders/Filter.h"
-
-IO::EncodersFilter encodersFilter;
-
-class HWAEncoders : public IO::Encoders::HWA
-{
-    public:
-    HWAEncoders() = default;
-
-    bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
-    {
-        return hwaDigitalIn.encoderState(index, numberOfReadings, states);
-    }
-} hwaEncoders;
-#else
-class HWAEncodersStub : public IO::Encoders::HWA
-{
-    public:
-    HWAEncodersStub() {}
-
-    bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
-    {
-        return false;
-    }
-} hwaEncoders;
-
-class EncodersFilterStub : public IO::Encoders::Filter
-{
-    public:
-    EncodersFilterStub() {}
-
-    virtual bool isFiltered(size_t index,
-                            IO::Encoders::position_t position,
-                            IO::Encoders::position_t& filteredPosition,
-                            uint32_t sampleTakenTime) override
-    {
-        return false;
-    }
-
-    virtual void reset(size_t index)
-    {
-    }
-
-    virtual uint32_t lastMovementTime(size_t index)
-    {
-        return 0;
-    }
-} encodersFilter;
-#endif
-
-#ifdef ADC_12_BIT
-#define ADC_RESOLUTION IO::Analog::adcType_t::adc12bit
-#else
-#define ADC_RESOLUTION IO::Analog::adcType_t::adc10bit
-#endif
-
-#ifdef ANALOG_SUPPORTED
-class HWAAnalog : public IO::Analog::HWA
-{
-    public:
-    HWAAnalog() = default;
-
-    bool value(size_t index, uint16_t& value) override
-    {
-        return Board::io::analogValue(index, value);
-    }
-} hwaAnalog;
-
-#include "io/analog/Filter.h"
-
-IO::AnalogFilter analogFilter(ADC_RESOLUTION);
-#else
-class HWAAnalogStub : public IO::Analog::HWA
-{
-    public:
-    HWAAnalogStub() {}
-
-    bool value(size_t index, uint16_t& value) override
-    {
-        return false;
-    }
-} hwaAnalog;
-
-class AnalogFilterStub : public IO::Analog::Filter
-{
-    public:
-    AnalogFilterStub() {}
-
-    IO::Analog::adcType_t adcType() override
-    {
-        return ADC_RESOLUTION;
-    }
-
-    bool isFiltered(size_t index, IO::Analog::type_t type, uint16_t value, uint16_t& filteredValue)
-    {
-        return false;
-    }
-
-    void reset(size_t index) override
-    {
-    }
-} analogFilter;
+} _hwaCDCPassthrough;
 #endif
 
 #ifdef DISPLAY_SUPPORTED
-class HWAU8X8 : public IO::U8X8::HWAI2C
+class Display : public System::HWA::IO::Display
 {
     public:
-    HWAU8X8() {}
+    Display() {}
 
     bool init() override
     {
@@ -822,12 +689,12 @@ class HWAU8X8 : public IO::U8X8::HWAI2C
     {
         return Board::I2C::write(I2C_CHANNEL_DISPLAY, address, buffer, size);
     }
-} hwaU8X8;
+} _hwaDisplay;
 #else
-class HWAU8X8Stub : public IO::U8X8::HWAI2C
+class DisplayStub : public System::HWA::IO::Display
 {
     public:
-    HWAU8X8Stub() = default;
+    DisplayStub() = default;
 
     bool init() override
     {
@@ -843,7 +710,7 @@ class HWAU8X8Stub : public IO::U8X8::HWAI2C
     {
         return false;
     }
-} hwaU8X8;
+} _hwaDisplay;
 #endif
 
 class HWASystem : public System::HWA
@@ -942,12 +809,75 @@ class HWASystem : public System::HWA
         return true;
     }
 
-    private:
-    /// Time in milliseconds after which USB connection state should be checked
-    static constexpr uint32_t USB_CONN_CHECK_TIME = 2000;
+    System::HWA::IO& io() override
+    {
+        return _hwaIO;
+    }
 
+    System::HWA::Protocol& protocol() override
+    {
+        return _hwaProtocol;
+    }
+
+    private:
+    static constexpr uint32_t      USB_CONN_CHECK_TIME   = 2000;
     System::usbConnectionHandler_t _usbConnectionHandler = nullptr;
-} hwaSystem;
+
+    class SystemHWAIO : public System::HWA::IO
+    {
+        public:
+        SystemHWAIO() = default;
+
+        System::HWA::IO::LEDs& leds() override
+        {
+            return _hwaLEDs;
+        }
+
+        System::HWA::IO::Analog& analog() override
+        {
+            return _hwaAnalog;
+        }
+
+        System::HWA::IO::Buttons& buttons() override
+        {
+            return _hwaButtons;
+        }
+
+        System::HWA::IO::Encoders& encoders() override
+        {
+            return _hwaEncoders;
+        }
+
+        System::HWA::IO::Touchscreen& touchscreen() override
+        {
+            return _hwaTouchscreen;
+        }
+
+        System::HWA::IO::CDCPassthrough& cdcPassthrough() override
+        {
+            return _hwaCDCPassthrough;
+        }
+
+        System::HWA::IO::Display& display() override
+        {
+            return _hwaDisplay;
+        }
+    } _hwaIO;
+
+    class SystemHWAProtocol : public System::HWA::Protocol
+    {
+        public:
+        System::HWA::Protocol::MIDI& midi()
+        {
+            return _hwaMIDI;
+        }
+
+        System::HWA::Protocol::DMX& dmx()
+        {
+            return _hwaDMX;
+        }
+    } _hwaProtocol;
+} _hwaSystem;
 
 #ifdef TOUCHSCREEN_SUPPORTED
 namespace Board
@@ -956,51 +886,28 @@ namespace Board
     {
         void onCDCsetLineEncoding(uint32_t baudRate)
         {
-            hwaTouchscreenCDCPassthrough.onCDCsetLineEncoding(baudRate);
+            _hwaCDCPassthrough.onCDCsetLineEncoding(baudRate);
         }
     }    // namespace USB
 }    // namespace Board
 #endif
 
-MIDI            midi(hwaMIDI);
-DMXUSBWidget    dmx(hwaDMX);
-ComponentInfo   cInfo;
-IO::U8X8        u8x8(hwaU8X8);
-IO::Display     display(u8x8, database);
-IO::LEDs        leds(hwaLEDs, database);
-IO::Analog      analog(hwaAnalog, analogFilter, database, midi, leds, display, cInfo);
-IO::Buttons     buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cInfo);
-IO::Encoders    encoders(hwaEncoders, encodersFilter, 1, database, midi, display, cInfo);
-IO::Touchscreen touchscreen(database, cInfo, hwaTouchscreenCDCPassthrough);
-System          sys(hwaSystem, cInfo, database, midi, buttons, encoders, analog, leds, display, touchscreen, dmx);
+Database _database(_storageAccess,
+#ifdef __AVR__
+                   true
+#else
+                   false
+#endif
+);
+System sys(_hwaSystem, _database);
 
 int main()
 {
-#ifdef TOUCHSCREEN_SUPPORTED
-    touchscreen.registerModel(IO::Touchscreen::Model::model_t::nextion, &touchscreenModelNextion);
-    touchscreen.registerModel(IO::Touchscreen::Model::model_t::viewtech, &touchscreenModelViewtech);
-#endif
-
-    hwaLEDs.registerHandler([](size_t index, IO::LEDs::brightness_t brightness) {
-#if MAX_NUMBER_OF_LEDS > 0
-#if MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS != 0
-        if (index >= MAX_NUMBER_OF_LEDS)
-            touchscreen.setIconState(index - MAX_NUMBER_OF_LEDS, brightness != IO::LEDs::brightness_t::bOff);
-        else
-            Board::io::writeLEDstate(index, hwaLEDs.appToBoardBrightness(brightness));
-#else
-        Board::io::writeLEDstate(index, hwaLEDs.appToBoardBrightness(brightness));
-#endif
-#else
-        touchscreen.setIconState(index, brightness != IO::LEDs::brightness_t::bOff);
-#endif
-    });
-
     sys.init();
 
     while (true)
     {
-        hwaSystem.checkUSBconnection();
+        _hwaSystem.checkUSBconnection();
         sys.run();
     }
 

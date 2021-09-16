@@ -1,20 +1,12 @@
 #ifndef USB_LINK_MCU
 
 #include "unity/Framework.h"
-#include "io/buttons/Buttons.h"
-#include "io/encoders/Encoders.h"
-#include "io/analog/Analog.h"
-#include "io/leds/LEDs.h"
-#include "io/touchscreen/Touchscreen.h"
-#include "io/common/CInfo.h"
 #include "system/System.h"
 #include "database/Database.h"
-#include "midi/src/MIDI.h"
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
 #include "stubs/database/DB_ReadWrite.h"
 #include "helpers/MIDI.h"
-#include "dmxusb/src/DMXUSBWidget.h"
 
 namespace
 {
@@ -28,156 +20,10 @@ namespace
 
     std::vector<channelMIDImessage_t> channelMIDImessages;
 
-    DBstorageMock dbStorageMock;
-    Database      database(dbStorageMock, true);
+    DBstorageMock _dbStorageMock;
+    Database      _database(_dbStorageMock, true);
 
-    class HWASystem : public System::HWA
-    {
-        public:
-        HWASystem() = default;
-
-        bool init() override
-        {
-            return true;
-        }
-
-        void reboot(FwSelector::fwType_t type) override
-        {
-        }
-
-        void registerOnUSBconnectionHandler(System::usbConnectionHandler_t usbConnectionHandler) override
-        {
-        }
-
-        bool serialPeripheralAllocated(System::serialPeripheral_t peripheral) override
-        {
-            return false;
-        }
-
-        bool uniqueID(System::uniqueID_t& uniqueID) override
-        {
-            return false;
-        }
-    } hwaSystem;
-
-    class HWAMIDI : public MIDI::HWA
-    {
-        public:
-        HWAMIDI() = default;
-
-        bool init(MIDI::interface_t interface) override
-        {
-            clear();
-
-            auto mergeType    = static_cast<System::midiMergeType_t>(database.read(Database::Section::global_t::midiMerge, static_cast<size_t>(System::midiMerge_t::mergeType)));
-            bool mergeEnabled = database.read(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::mergeEnabled));
-            switch (interface)
-            {
-            case MIDI::interface_t::din:
-                dinEnabled      = true;
-                loopbackEnabled = mergeType == System::midiMergeType_t::DINtoDIN && mergeEnabled;
-                break;
-
-            case MIDI::interface_t::usb:
-                usbEnabled = true;
-                break;
-
-            default:
-                dinEnabled      = true;
-                usbEnabled      = true;
-                loopbackEnabled = mergeType == System::midiMergeType_t::DINtoDIN && mergeEnabled;
-                break;
-            }
-
-            return true;
-        }
-
-        bool deInit(MIDI::interface_t interface) override
-        {
-            clear();
-
-            switch (interface)
-            {
-            case MIDI::interface_t::din:
-                dinEnabled      = false;
-                loopbackEnabled = false;
-                break;
-
-            case MIDI::interface_t::usb:
-                usbEnabled = false;
-                break;
-
-            default:
-                dinEnabled      = false;
-                usbEnabled      = false;
-                loopbackEnabled = false;
-                break;
-            }
-
-            return true;
-        }
-
-        void reset()
-        {
-            clear();
-
-            dinEnabled      = false;
-            usbEnabled      = false;
-            loopbackEnabled = false;
-        }
-
-        bool dinRead(uint8_t& data) override
-        {
-            if (!dinPacketToBoard.size())
-                return false;
-
-            data = dinPacketToBoard.at(0);
-            dinPacketToBoard.erase(dinPacketToBoard.begin());
-
-            return true;
-        }
-
-        bool dinWrite(uint8_t data) override
-        {
-            dinPacketFromBoard.push_back(data);
-            return true;
-        }
-
-        bool usbRead(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
-        {
-            if (!usbPacketFromBoard.size())
-                return false;
-
-            USBMIDIpacket = usbPacketFromBoard.at(0);
-            usbPacketFromBoard.erase(usbPacketFromBoard.begin());
-
-            return true;
-        }
-
-        bool usbWrite(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
-        {
-            usbPacketToBoard.push_back(USBMIDIpacket);
-            return true;
-        }
-
-        void clear()
-        {
-            usbPacketFromBoard.clear();
-            usbPacketToBoard.clear();
-            dinPacketToBoard.clear();
-            dinPacketFromBoard.clear();
-        }
-
-        std::vector<MIDI::USBMIDIpacket_t> usbPacketFromBoard = {};
-        std::vector<MIDI::USBMIDIpacket_t> usbPacketToBoard   = {};
-        std::vector<uint8_t>               dinPacketToBoard   = {};
-        std::vector<uint8_t>               dinPacketFromBoard = {};
-        bool                               dinEnabled         = false;
-        bool                               usbEnabled         = false;
-        bool                               loopbackEnabled    = false;
-    } hwaMIDI;
-
-    class HWALEDs : public IO::LEDs::HWA
+    class HWALEDs : public System::HWA::IO::LEDs
     {
         public:
         HWALEDs() {}
@@ -195,9 +41,9 @@ namespace
         {
             return 0;
         }
-    } hwaLEDs;
+    } _hwaLEDs;
 
-    class HWAAnalog : public IO::Analog::HWA
+    class HWAAnalog : public System::HWA::IO::Analog
     {
         public:
         HWAAnalog() {}
@@ -209,55 +55,9 @@ namespace
         }
 
         uint32_t adcReturnValue;
-    } hwaAnalog;
+    } _hwaAnalog;
 
-    class HWAU8X8 : public IO::U8X8::HWAI2C
-    {
-        public:
-        HWAU8X8() {}
-
-        bool init() override
-        {
-            return true;
-        }
-
-        bool deInit() override
-        {
-            return true;
-        }
-
-        bool write(uint8_t address, uint8_t* buffer, size_t size) override
-        {
-            return true;
-        }
-    } hwaU8X8;
-
-    class AnalogFilterStub : public IO::Analog::Filter
-    {
-        public:
-        AnalogFilterStub() {}
-
-        IO::Analog::adcType_t adcType() override
-        {
-#ifdef ADC_12_BIT
-            return IO::Analog::adcType_t::adc12bit;
-#else
-            return IO::Analog::adcType_t::adc10bit;
-#endif
-        }
-
-        bool isFiltered(size_t index, IO::Analog::type_t type, uint16_t value, uint16_t& filteredValue) override
-        {
-            filteredValue = value;
-            return true;
-        }
-
-        void reset(size_t index) override
-        {
-        }
-    } analogFilter;
-
-    class HWAButtons : public IO::Buttons::HWA
+    class HWAButtons : public System::HWA::IO::Buttons
     {
         public:
         HWAButtons() {}
@@ -266,18 +66,14 @@ namespace
         {
             return false;
         }
-    } hwaButtons;
 
-    class ButtonsFilter : public IO::Buttons::Filter
-    {
-        public:
-        bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
+        size_t buttonToEncoderIndex(size_t index) override
         {
-            return true;
+            return 0;
         }
-    } buttonsFilter;
+    } _hwaButtons;
 
-    class HWAEncoders : public IO::Encoders::HWA
+    class HWAEncoders : public System::HWA::IO::Encoders
     {
         public:
         HWAEncoders()
@@ -287,30 +83,35 @@ namespace
         {
             return false;
         }
-    } hwaEncoders;
+    } _hwaEncoders;
 
-    class EncodersFilter : public IO::Encoders::Filter
+    class HWATouchscreen : public System::HWA::IO::Touchscreen
     {
         public:
-        bool isFiltered(size_t                    index,
-                        IO::Encoders::position_t  position,
-                        IO::Encoders::position_t& filteredPosition,
-                        uint32_t                  sampleTakenTime) override
+        HWATouchscreen() = default;
+
+        bool init()
         {
-            return true;
+            return false;
         }
 
-        void reset(size_t index) override
+        bool deInit()
         {
+            return false;
         }
 
-        uint32_t lastMovementTime(size_t index) override
+        bool write(uint8_t value)
         {
-            return 0;
+            return false;
         }
-    } encodersFilter;
 
-    class HWATouchscreenCDCPassthrough : public IO::Touchscreen::CDCPassthrough
+        bool read(uint8_t& value)
+        {
+            return false;
+        }
+    } _hwaTouchscreen;
+
+    class HWATouchscreenCDCPassthrough : public System::HWA::IO::CDCPassthrough
     {
         public:
         HWATouchscreenCDCPassthrough() = default;
@@ -346,12 +147,107 @@ namespace
         }
 
         private:
-    } hwaTouchscreenCDCPassthrough;
+    } _hwaCDCPassthrough;
 
-    class HWADMXStub : public DMXUSBWidget::HWA
+    class HWADisplay : public System::HWA::IO::Display
     {
         public:
-        HWADMXStub() = default;
+        HWADisplay() {}
+
+        bool init() override
+        {
+            return true;
+        }
+
+        bool deInit() override
+        {
+            return true;
+        }
+
+        bool write(uint8_t address, uint8_t* buffer, size_t size) override
+        {
+            return true;
+        }
+    } _hwaDisplay;
+
+    class HWAMIDI : public System::HWA::Protocol::MIDI, public MIDI::HWA
+    {
+        public:
+        HWAMIDI() = default;
+
+        bool init(::MIDI::interface_t interface) override
+        {
+            reset();
+            return true;
+        }
+
+        bool deInit(::MIDI::interface_t interface) override
+        {
+            reset();
+            return true;
+        }
+
+        bool setDINLoopback(bool state) override
+        {
+            _loopbackEnabled = state;
+            return true;
+        }
+
+        bool dinRead(uint8_t& data) override
+        {
+            if (!dinPacketToBoard.size())
+                return false;
+
+            data = dinPacketToBoard.at(0);
+            dinPacketToBoard.erase(dinPacketToBoard.begin());
+
+            return true;
+        }
+
+        bool dinWrite(uint8_t data) override
+        {
+            dinPacketFromBoard.push_back(data);
+            return true;
+        }
+
+        bool usbRead(::MIDI::USBMIDIpacket_t& USBMIDIpacket) override
+        {
+            if (!usbPacketFromBoard.size())
+                return false;
+
+            USBMIDIpacket = usbPacketFromBoard.at(0);
+            usbPacketFromBoard.erase(usbPacketFromBoard.begin());
+
+            return true;
+        }
+
+        bool usbWrite(::MIDI::USBMIDIpacket_t& USBMIDIpacket) override
+        {
+            usbPacketToBoard.push_back(USBMIDIpacket);
+            return true;
+        }
+
+        void reset()
+        {
+            usbPacketFromBoard.clear();
+            usbPacketToBoard.clear();
+            dinPacketToBoard.clear();
+            dinPacketFromBoard.clear();
+
+            _loopbackEnabled = false;
+        }
+
+        std::vector<::MIDI::USBMIDIpacket_t> usbPacketFromBoard = {};
+        std::vector<::MIDI::USBMIDIpacket_t> usbPacketToBoard   = {};
+        std::vector<uint8_t>                 dinPacketToBoard   = {};
+        std::vector<uint8_t>                 dinPacketFromBoard = {};
+        bool                                 _loopbackEnabled   = false;
+    } _hwaMIDI;
+
+    class HWADMX : public System::HWA::Protocol::DMX
+    {
+        public:
+        HWADMX() = default;
 
         bool init() override
         {
@@ -377,19 +273,104 @@ namespace
         {
             return false;
         }
-    } hwaDMX;
+    } _hwaDMX;
 
-    MIDI            midi(hwaMIDI);
-    DMXUSBWidget    dmx(hwaDMX);
-    ComponentInfo   cInfo;
-    IO::LEDs        leds(hwaLEDs, database);
-    IO::U8X8        u8x8(hwaU8X8);
-    IO::Display     display(u8x8, database);
-    IO::Analog      analog(hwaAnalog, analogFilter, database, midi, leds, display, cInfo);
-    IO::Buttons     buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cInfo);
-    IO::Encoders    encoders(hwaEncoders, encodersFilter, 1, database, midi, display, cInfo);
-    IO::Touchscreen touchscreen(database, cInfo, hwaTouchscreenCDCPassthrough);
-    System          systemStub(hwaSystem, cInfo, database, midi, buttons, encoders, analog, leds, display, touchscreen, dmx);
+    class HWASystem : public System::HWA
+    {
+        public:
+        HWASystem() = default;
+
+        bool init() override
+        {
+            return true;
+        }
+
+        void reboot(FwSelector::fwType_t type) override
+        {
+        }
+
+        void registerOnUSBconnectionHandler(System::usbConnectionHandler_t usbConnectionHandler) override
+        {
+        }
+
+        bool serialPeripheralAllocated(System::serialPeripheral_t peripheral) override
+        {
+            return false;
+        }
+
+        bool uniqueID(System::uniqueID_t& uniqueID) override
+        {
+            return false;
+        }
+
+        System::HWA::IO& io() override
+        {
+            return _hwaIO;
+        }
+
+        System::HWA::Protocol& protocol() override
+        {
+            return _hwaProtocol;
+        }
+
+        private:
+        class SystemHWAIO : public System::HWA::IO
+        {
+            public:
+            SystemHWAIO() = default;
+
+            System::HWA::IO::LEDs& leds() override
+            {
+                return _hwaLEDs;
+            }
+
+            System::HWA::IO::Analog& analog() override
+            {
+                return _hwaAnalog;
+            }
+
+            System::HWA::IO::Buttons& buttons() override
+            {
+                return _hwaButtons;
+            }
+
+            System::HWA::IO::Encoders& encoders() override
+            {
+                return _hwaEncoders;
+            }
+
+            System::HWA::IO::Touchscreen& touchscreen() override
+            {
+                return _hwaTouchscreen;
+            }
+
+            System::HWA::IO::CDCPassthrough& cdcPassthrough() override
+            {
+                return _hwaCDCPassthrough;
+            }
+
+            System::HWA::IO::Display& display() override
+            {
+                return _hwaDisplay;
+            }
+        } _hwaIO;
+
+        class SystemHWAProtocol : public System::HWA::Protocol
+        {
+            public:
+            System::HWA::Protocol::MIDI& midi()
+            {
+                return _hwaMIDI;
+            }
+
+            System::HWA::Protocol::DMX& dmx()
+            {
+                return _hwaDMX;
+            }
+        } _hwaProtocol;
+    } _hwaSystem;
+
+    System systemStub(_hwaSystem, _database);
 
     void sendSysExRequest(const std::vector<uint8_t> request, std::vector<MIDI::USBMIDIpacket_t>& buffer)
     {
@@ -434,7 +415,7 @@ namespace
             std::vector<MIDI::USBMIDIpacket_t>& _buffer;
         } hwaFillMIDI(buffer);
 
-        //create temp midi object which will fill internal hwaMIDI buffer of the real midi object when send is called
+        //create temp midi object which will fill internal _hwaMIDI buffer of the real midi object when send is called
         //calling the real midi read will then result in parsing those filled bytes by the temp object
         MIDI fillMIDI(hwaFillMIDI);
 
@@ -562,9 +543,7 @@ namespace
 
 TEST_SETUP()
 {
-    hwaMIDI.reset();
-    midi.init(MIDI::interface_t::usb);
-    midi.deInit(MIDI::interface_t::din);
+    _hwaMIDI.reset();
 }
 
 TEST_CASE(SystemInit)
@@ -572,195 +551,60 @@ TEST_CASE(SystemInit)
     //on init, factory reset is performed so everything is in its default state
     TEST_ASSERT(systemStub.init() == true);
 
-    //verify that din midi is disabled
-    TEST_ASSERT(hwaMIDI.dinEnabled == false);
-    TEST_ASSERT(hwaMIDI.loopbackEnabled == false);
+    //enable din midi via write in database
+#ifdef DIN_MIDI_SUPPORTED
+    TEST_ASSERT(_database.update(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled), 1) == true);
 
-    //now enable din midi via write in database
-    TEST_ASSERT(database.update(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled), 1) == true);
-
-    //init system again and verify that din midi is enabled
+    // init system again and verify that din midi is enabled
     TEST_ASSERT(systemStub.init() == true);
 
-#ifdef DIN_MIDI_SUPPORTED
-    TEST_ASSERT(hwaMIDI.dinEnabled == true);
-    TEST_ASSERT(hwaMIDI.loopbackEnabled == false);
-#else
-    //nothing should change
-    TEST_ASSERT(hwaMIDI.dinEnabled == false);
-    TEST_ASSERT(hwaMIDI.loopbackEnabled == false);
+    TEST_ASSERT(_database.read(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled)) == true);
 #endif
+
+    TEST_ASSERT(_hwaMIDI._loopbackEnabled == false);
 
     //now enable din to din merge, init system again and verify that both din midi and loopback are enabled
-    TEST_ASSERT(database.update(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::mergeEnabled), 1) == true);
-    TEST_ASSERT(database.update(Database::Section::global_t::midiMerge, static_cast<size_t>(System::midiMerge_t::mergeType), static_cast<int32_t>(System::midiMergeType_t::DINtoDIN)) == true);
+#ifdef DIN_MIDI_SUPPORTED
+    TEST_ASSERT(_database.update(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::mergeEnabled), 1) == true);
+    TEST_ASSERT(_database.update(Database::Section::global_t::midiMerge, static_cast<size_t>(System::midiMerge_t::mergeType), static_cast<int32_t>(System::midiMergeType_t::DINtoDIN)) == true);
 
     TEST_ASSERT(systemStub.init() == true);
 
-#ifdef DIN_MIDI_SUPPORTED
-    TEST_ASSERT(hwaMIDI.dinEnabled == true);
-    TEST_ASSERT(hwaMIDI.loopbackEnabled == true);
-#else
-    //nothing should change
-    TEST_ASSERT(hwaMIDI.dinEnabled == false);
-    TEST_ASSERT(hwaMIDI.loopbackEnabled == false);
+    TEST_ASSERT(_database.read(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled)) == true);
+    TEST_ASSERT(_hwaMIDI._loopbackEnabled == true);
 #endif
-}
-
-TEST_CASE(Requests)
-{
-    database.factoryReset();
-
-    //send fake usb midi message containing the handshake
-    //verify that the response is valid
-
-    //handshake
-    sendSysExRequest({ 0xF0,
-                       0x00,
-                       0x53,
-                       0x43,
-                       0x00,
-                       0x00,
-                       0x01,
-                       0xF7 },
-                     hwaMIDI.usbPacketFromBoard);
-
-    verifyResponse({ 0xF0,
-                     0x00,
-                     0x53,
-                     0x43,
-                     0x01,
-                     0x00,
-                     0x01,
-                     0xF7 },
-                   hwaMIDI.usbPacketToBoard);
-
-    hwaMIDI.usbPacketFromBoard.clear();
-
-    //verify that din midi is disabled
-    TEST_ASSERT(hwaMIDI.dinEnabled == false);
-    TEST_ASSERT(database.read(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled)) == false);
-
-    midi.sendNoteOn(127, 127, 1);
-    TEST_ASSERT_EQUAL_UINT32(0, hwaMIDI.dinPacketFromBoard.size());
-
-    std::vector<uint8_t> generatedSysExReq;
-    MIDIHelper::generateSysExSetReq(System::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled), 1, generatedSysExReq);
-
-    hwaMIDI.clear();
-
-    sendSysExRequest(generatedSysExReq, hwaMIDI.usbPacketFromBoard);
-
-#ifdef DIN_MIDI_SUPPORTED
-    verifyResponse({ 0xF0,
-                     0x00,
-                     0x53,
-                     0x43,
-                     0x01,
-                     0x00,
-                     0x01,    //set
-                     0x00,    //single
-                     0x00,    //global block
-                     0x00,    //midi features
-                     0x00,
-                     0x03,    //din midi
-                     0x00,
-                     0x01,    //enable
-                     0xF7 },
-                   hwaMIDI.usbPacketToBoard);
-
-#else
-    verifyResponse({ 0xF0,
-                     0x00,
-                     0x53,
-                     0x43,
-                     0x0D,    //not supported error
-                     0x00,
-                     0x01,    //set
-                     0x00,    //single
-                     0x00,    //global block
-                     0x00,    //midi features
-                     0x00,
-                     0x03,    //din midi
-                     0x00,
-                     0x01,    //enable
-                     0xF7 },
-                   hwaMIDI.usbPacketToBoard);
-#endif
-
-#ifdef DIN_MIDI_SUPPORTED
-    TEST_ASSERT(hwaMIDI.dinEnabled == true);
-    TEST_ASSERT(database.read(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled)) == true);
-#else
-    TEST_ASSERT(hwaMIDI.dinEnabled == false);
-    TEST_ASSERT(database.read(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled)) == false);
-#endif
-
-    //test din by sending a midi message
-    //verify that it is received via din midi
-    midi.sendNoteOn(127, 127, 1);
-
-#ifdef DIN_MIDI_SUPPORTED
-    TEST_ASSERT_EQUAL_UINT32(3, hwaMIDI.dinPacketFromBoard.size());
-#else
-    TEST_ASSERT_EQUAL_UINT32(0, hwaMIDI.dinPacketFromBoard.size());
-#endif
-
-    hwaMIDI.usbPacketToBoard.clear();
-    hwaMIDI.usbPacketFromBoard.clear();
-    hwaMIDI.dinPacketFromBoard.clear();
-    hwaMIDI.dinPacketToBoard.clear();
-
-    //send handshake again and verify that the response isn't sent to din midi
-    sendSysExRequest({ 0xF0,
-                       0x00,
-                       0x53,
-                       0x43,
-                       0x00,
-                       0x00,
-                       0x01,
-                       0xF7 },
-                     hwaMIDI.usbPacketFromBoard);
-
-    verifyResponse({ 0xF0,
-                     0x00,
-                     0x53,
-                     0x43,
-                     0x01,
-                     0x00,
-                     0x01,
-                     0xF7 },
-                   hwaMIDI.usbPacketToBoard);
-
-    TEST_ASSERT_EQUAL_UINT32(0, hwaMIDI.dinPacketFromBoard.size());
 }
 
 TEST_CASE(ForcedResendOnPresetChange)
 {
-    database.factoryReset();
+    _database.factoryReset();
     TEST_ASSERT(systemStub.init() == true);
 
     //enable first analog component in first two presets
-    TEST_ASSERT(database.setPreset(1) == true);
-    TEST_ASSERT(database.update(Database::Section::analog_t::enable, 0, 1) == true);
+    TEST_ASSERT(_database.setPreset(1) == true);
+    TEST_ASSERT(_database.update(Database::Section::analog_t::enable, 0, 1) == true);
 
-    TEST_ASSERT(database.setPreset(0) == true);
-    TEST_ASSERT(database.update(Database::Section::analog_t::enable, 0, 1) == true);
+    TEST_ASSERT(_database.setPreset(0) == true);
+    TEST_ASSERT(_database.update(Database::Section::analog_t::enable, 0, 1) == true);
 
-    hwaMIDI.clear();
+    _hwaMIDI.reset();
 
-    hwaAnalog.adcReturnValue = 127;
-    analog.update();
+    //unrealistic value - also expect filter to scale this to maximum MIDI value
+    _hwaAnalog.adcReturnValue = 0xFFFF;
 
-    TEST_ASSERT_EQUAL_UINT32(1, hwaMIDI.usbPacketToBoard.size());
+    systemStub.run();    //buttons
+    systemStub.run();    //encoders
+    systemStub.run();    //analog
 
-    TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, hwaMIDI.usbPacketToBoard.at(0).Event << 4);
-    TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, hwaMIDI.usbPacketToBoard.at(0).Data1);
-    TEST_ASSERT_EQUAL_UINT32(0, hwaMIDI.usbPacketToBoard.at(0).Data2);
-    TEST_ASSERT_EQUAL_UINT32(127, hwaMIDI.usbPacketToBoard.at(0).Data3);
+    TEST_ASSERT_EQUAL_UINT32(1, _hwaMIDI.usbPacketToBoard.size());
+
+    TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _hwaMIDI.usbPacketToBoard.at(0).Event << 4);
+    TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _hwaMIDI.usbPacketToBoard.at(0).Data1);
+    TEST_ASSERT_EQUAL_UINT32(0, _hwaMIDI.usbPacketToBoard.at(0).Data2);
+    TEST_ASSERT_EQUAL_UINT32(127, _hwaMIDI.usbPacketToBoard.at(0).Data3);
 
     //now change preset and verify that the same midi message is repeated
-    hwaMIDI.clear();
+    _hwaMIDI.reset();
 
     //handshake
     sendSysExRequest({ 0xF0,
@@ -771,7 +615,7 @@ TEST_CASE(ForcedResendOnPresetChange)
                        0x00,
                        0x01,
                        0xF7 },
-                     hwaMIDI.usbPacketFromBoard);
+                     _hwaMIDI.usbPacketFromBoard);
 
     verifyResponse({ 0xF0,
                      0x00,
@@ -781,15 +625,15 @@ TEST_CASE(ForcedResendOnPresetChange)
                      0x00,
                      0x01,
                      0xF7 },
-                   hwaMIDI.usbPacketToBoard);
+                   _hwaMIDI.usbPacketToBoard);
 
-    hwaMIDI.clear();
+    _hwaMIDI.reset();
     channelMIDImessages.clear();
 
     std::vector<uint8_t> generatedSysExReq;
     MIDIHelper::generateSysExSetReq(System::Section::global_t::presets, static_cast<size_t>(System::presetSetting_t::activePreset), 1, generatedSysExReq);
 
-    sendSysExRequest(generatedSysExReq, hwaMIDI.usbPacketFromBoard);
+    sendSysExRequest(generatedSysExReq, _hwaMIDI.usbPacketFromBoard);
 
     verifyResponse({ 0xF0,
                      0x00,
@@ -806,7 +650,7 @@ TEST_CASE(ForcedResendOnPresetChange)
                      0x00,    //preset 1
                      0x01,
                      0xF7 },
-                   hwaMIDI.usbPacketToBoard);
+                   _hwaMIDI.usbPacketToBoard);
 
     //since the preset has been changed, all buttons should resend their state and all enabled analog components (only 1 in this case)
     TEST_ASSERT(channelMIDImessages.size() == MAX_NUMBER_OF_BUTTONS + 1);

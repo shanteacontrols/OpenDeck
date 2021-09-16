@@ -22,6 +22,7 @@ limitations under the License.
 
 namespace IO
 {
+#ifdef BUTTONS_SUPPORTED
     class ButtonsFilter : public IO::Buttons::Filter
     {
         public:
@@ -63,4 +64,16 @@ namespace IO
             return true;
         }
     };
+#else
+    class ButtonsFilter : public IO::Buttons::Filter
+    {
+        public:
+        ButtonsFilter() {}
+
+        bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
+        {
+            return false;
+        }
+    };
+#endif
 }    // namespace IO

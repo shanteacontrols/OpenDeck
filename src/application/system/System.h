@@ -18,6 +18,7 @@ limitations under the License.
 
 #pragma once
 
+#include <inttypes.h>
 #include <functional>
 #include "io/common/CInfo.h"
 #include "sysex/src/SysExConf.h"
@@ -25,12 +26,21 @@ limitations under the License.
 #include "database/Database.h"
 #include "midi/src/MIDI.h"
 #include "io/buttons/Buttons.h"
+#include "io/buttons/Filter.h"
 #include "io/encoders/Encoders.h"
+#include "io/encoders/Filter.h"
 #include "io/analog/Analog.h"
+#include "io/analog/Filter.h"
 #include "io/leds/LEDs.h"
 #include "io/touchscreen/Touchscreen.h"
 #include "bootloader/FwSelector/FwSelector.h"
 #include "dmxusb/src/DMXUSBWidget.h"
+
+#ifdef ADC_12_BIT
+#define ADC_RESOLUTION IO::Analog::adcType_t::adc12bit
+#else
+#define ADC_RESOLUTION IO::Analog::adcType_t::adc10bit
+#endif
 
 class System
 {
@@ -193,43 +203,134 @@ class System
     class HWA
     {
         public:
-        HWA() = default;
+        class IO
+        {
+            public:
+            class LEDs
+            {
+                public:
+                virtual void   setState(size_t index, ::IO::LEDs::brightness_t brightness)          = 0;
+                virtual size_t rgbIndex(size_t singleLEDindex)                                      = 0;
+                virtual size_t rgbSignalIndex(size_t rgbIndex, ::IO::LEDs::rgbIndex_t rgbComponent) = 0;
+            };
 
-        virtual bool init()                                                                      = 0;
-        virtual void reboot(FwSelector::fwType_t type)                                           = 0;
-        virtual void registerOnUSBconnectionHandler(usbConnectionHandler_t usbConnectionHandler) = 0;
-        virtual bool serialPeripheralAllocated(serialPeripheral_t peripheral)                    = 0;
-        virtual bool uniqueID(uniqueID_t& uniqueID)                                              = 0;
+            class Analog
+            {
+                public:
+                virtual bool value(size_t index, uint16_t& value) = 0;
+            };
+
+            class Buttons
+            {
+                public:
+                virtual bool   state(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
+                virtual size_t buttonToEncoderIndex(size_t index)                               = 0;
+            };
+
+            class Encoders
+            {
+                public:
+                virtual bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
+            };
+
+            class Touchscreen
+            {
+                public:
+                virtual bool init()               = 0;
+                virtual bool deInit()             = 0;
+                virtual bool write(uint8_t value) = 0;
+                virtual bool read(uint8_t& value) = 0;
+            };
+
+            class CDCPassthrough
+            {
+                public:
+                virtual bool init()                                                       = 0;
+                virtual bool deInit()                                                     = 0;
+                virtual bool uartRead(uint8_t& value)                                     = 0;
+                virtual bool uartWrite(uint8_t value)                                     = 0;
+                virtual bool cdcRead(uint8_t* buffer, size_t& size, const size_t maxSize) = 0;
+                virtual bool cdcWrite(uint8_t* buffer, size_t size)                       = 0;
+            };
+
+            class Display
+            {
+                public:
+                virtual bool init()                                               = 0;
+                virtual bool deInit()                                             = 0;
+                virtual bool write(uint8_t address, uint8_t* buffer, size_t size) = 0;
+            };
+
+            virtual LEDs&           leds()           = 0;
+            virtual Analog&         analog()         = 0;
+            virtual Buttons&        buttons()        = 0;
+            virtual Encoders&       encoders()       = 0;
+            virtual Touchscreen&    touchscreen()    = 0;
+            virtual CDCPassthrough& cdcPassthrough() = 0;
+            virtual Display&        display()        = 0;
+        };
+
+        class Protocol
+        {
+            public:
+            class MIDI
+            {
+                public:
+                MIDI() = default;
+
+                virtual bool init(::MIDI::interface_t interface)              = 0;
+                virtual bool deInit(::MIDI::interface_t interface)            = 0;
+                virtual bool setDINLoopback(bool state)                       = 0;
+                virtual bool dinRead(uint8_t& data)                           = 0;
+                virtual bool dinWrite(uint8_t data)                           = 0;
+                virtual bool usbRead(::MIDI::USBMIDIpacket_t& USBMIDIpacket)  = 0;
+                virtual bool usbWrite(::MIDI::USBMIDIpacket_t& USBMIDIpacket) = 0;
+            };
+
+            class DMX
+            {
+                public:
+                DMX() = default;
+
+                virtual bool init()                                                       = 0;
+                virtual bool deInit()                                                     = 0;
+                virtual bool readUSB(uint8_t* buffer, size_t& size, const size_t maxSize) = 0;
+                virtual bool writeUSB(uint8_t* buffer, size_t size)                       = 0;
+                virtual bool updateChannel(uint16_t channel, uint8_t value)               = 0;
+            };
+
+            virtual MIDI& midi() = 0;
+            virtual DMX&  dmx()  = 0;
+        };
+
+        virtual bool      init()                                                                      = 0;
+        virtual void      reboot(FwSelector::fwType_t type)                                           = 0;
+        virtual void      registerOnUSBconnectionHandler(usbConnectionHandler_t usbConnectionHandler) = 0;
+        virtual bool      serialPeripheralAllocated(serialPeripheral_t peripheral)                    = 0;
+        virtual bool      uniqueID(uniqueID_t& uniqueID)                                              = 0;
+        virtual IO&       io()                                                                        = 0;
+        virtual Protocol& protocol()                                                                  = 0;
     };
 
-    System(HWA&             hwa,
-           ComponentInfo&   cInfo,
-           Database&        database,
-           MIDI&            midi,
-           IO::Buttons&     buttons,
-           IO::Encoders&    encoders,
-           IO::Analog&      analog,
-           IO::LEDs&        leds,
-           IO::Display&     display,
-           IO::Touchscreen& touchscreen,
-           DMXUSBWidget&    dmx)
+    System(HWA&      hwa,
+           Database& database)
         : _sysExConf(
               _sysExDataHandler,
               _sysExMID)
         , _hwa(hwa)
-        , _cInfo(cInfo)
         , _database(database)
-        , _midi(midi)
-        , _buttons(buttons)
-        , _encoders(encoders)
-        , _analog(analog)
-        , _leds(leds)
-        , _display(display)
-        , _touchscreen(touchscreen)
-        , _dmx(dmx)
         , _sysExDataHandler(*this)
         , _dbHandlers(*this)
         , _touchScreenHandlers(*this)
+        , _hwaAnalog(*this)
+        , _hwaButtons(*this)
+        , _hwaEncoders(*this)
+        , _hwaTouchscreen(*this)
+        , _hwaCDCPassthrough(*this)
+        , _hwaU8X8(*this)
+        , _hwaMIDI(*this)
+        , _hwaDMX(*this)
+        , _hwaLEDs(*this)
     {}
 
     bool            init();
@@ -294,6 +395,146 @@ class System
         System& _system;
     };
 
+    class HWALEDs : public IO::LEDs::HWA
+    {
+        public:
+        HWALEDs(System& system)
+            : _system(system)
+        {}
+
+        void   setState(size_t index, IO::LEDs::brightness_t brightness) override;
+        size_t rgbIndex(size_t singleLEDindex) override;
+        size_t rgbSignalIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override;
+
+        private:
+        System& _system;
+    };
+
+    class HWAAnalog : public IO::Analog::HWA
+    {
+        public:
+        HWAAnalog(System& system)
+            : _system(system)
+        {}
+
+        bool value(size_t index, uint16_t& value) override;
+
+        private:
+        System& _system;
+    };
+
+    class HWAButtons : public IO::Buttons::HWA
+    {
+        public:
+        HWAButtons(System& system)
+            : _system(system)
+        {}
+
+        bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override;
+
+        private:
+        System& _system;
+    };
+
+    class HWAEncoders : public IO::Encoders::HWA
+    {
+        public:
+        HWAEncoders(System& system)
+            : _system(system)
+        {}
+
+        bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override;
+
+        private:
+        System& _system;
+    };
+
+    class HWATouchscreen : public IO::TouchscreenBase::HWA
+    {
+        public:
+        HWATouchscreen(System& system)
+            : _system(system)
+        {}
+
+        bool init() override;
+        bool deInit() override;
+        bool write(uint8_t value) override;
+        bool read(uint8_t& value) override;
+
+        private:
+        System& _system;
+    };
+
+    class HWACDCPassthrough : public IO::Touchscreen::CDCPassthrough
+    {
+        public:
+        HWACDCPassthrough(System& system)
+            : _system(system)
+        {}
+
+        bool init() override;
+        bool deInit() override;
+        bool uartRead(uint8_t& value) override;
+        bool uartWrite(uint8_t value) override;
+        bool cdcRead(uint8_t* buffer, size_t& size, const size_t maxSize) override;
+        bool cdcWrite(uint8_t* buffer, size_t size) override;
+
+        private:
+        System& _system;
+    };
+
+    class HWAU8X8 : public IO::U8X8::HWAI2C
+    {
+        public:
+        HWAU8X8(System& system)
+            : _system(system)
+        {}
+
+        bool init() override;
+        bool deInit() override;
+        bool write(uint8_t address, uint8_t* buffer, size_t size) override;
+
+        private:
+        System& _system;
+    };
+
+    class HWAMIDI : public MIDI::HWA
+    {
+        public:
+        HWAMIDI(System& system)
+            : _system(system)
+        {}
+
+        bool init(MIDI::interface_t interface) override;
+        bool deInit(MIDI::interface_t interface) override;
+        bool dinRead(uint8_t& value) override;
+        bool dinWrite(uint8_t value) override;
+        bool usbRead(MIDI::USBMIDIpacket_t& USBMIDIpacket) override;
+        bool usbWrite(MIDI::USBMIDIpacket_t& USBMIDIpacket) override;
+
+        private:
+        System& _system;
+        bool    _dinMIDIenabled         = false;
+        bool    _dinMIDIloopbackEnabled = false;
+    };
+
+    class HWADMX : public DMXUSBWidget::HWA
+    {
+        public:
+        HWADMX(System& system)
+            : _system(system)
+        {}
+
+        bool init() override;
+        bool deInit() override;
+        bool readUSB(uint8_t* buffer, size_t& size, const size_t maxSize) override;
+        bool writeUSB(uint8_t* buffer, size_t size) override;
+        bool updateChannel(uint16_t channel, uint8_t value) override;
+
+        private:
+        System& _system;
+    };
+
     void                             checkComponents();
     void                             checkMIDI();
     void                             configureMIDI();
@@ -328,19 +569,32 @@ class System
 
     SysExConf           _sysExConf;
     HWA&                _hwa;
-    ComponentInfo&      _cInfo;
     Database&           _database;
-    MIDI&               _midi;
-    IO::Buttons&        _buttons;
-    IO::Encoders&       _encoders;
-    IO::Analog&         _analog;
-    IO::LEDs&           _leds;
-    IO::Display&        _display;
-    IO::Touchscreen&    _touchscreen;
-    DMXUSBWidget&       _dmx;
     SysExDataHandler    _sysExDataHandler;
     DBhandlers          _dbHandlers;
     TouchScreenHandlers _touchScreenHandlers;
+    HWAAnalog           _hwaAnalog;
+    HWAButtons          _hwaButtons;
+    HWAEncoders         _hwaEncoders;
+    HWATouchscreen      _hwaTouchscreen;
+    HWACDCPassthrough   _hwaCDCPassthrough;
+    HWAU8X8             _hwaU8X8;
+    HWAMIDI             _hwaMIDI;
+    HWADMX              _hwaDMX;
+    HWALEDs             _hwaLEDs;
+    ComponentInfo       _cInfo;
+    IO::EncodersFilter  _encodersFilter;
+    IO::ButtonsFilter   _buttonsFilter;
+    MIDI                _midi         = MIDI(_hwaMIDI);
+    DMXUSBWidget        _dmx          = DMXUSBWidget(_hwaDMX);
+    IO::AnalogFilter    _analogFilter = IO::AnalogFilter(ADC_RESOLUTION);
+    IO::LEDs            _leds         = IO::LEDs(_hwaLEDs, _database);
+    IO::Analog          _analog       = IO::Analog(_hwaAnalog, _analogFilter, _database, _midi, _leds, _display, _cInfo);
+    IO::Buttons         _buttons      = IO::Buttons(_hwaButtons, _buttonsFilter, _database, _midi, _leds, _display, _cInfo);
+    IO::Encoders        _encoders     = IO::Encoders(_hwaEncoders, _encodersFilter, 1, _database, _midi, _display, _cInfo);
+    IO::Touchscreen     _touchscreen  = IO::Touchscreen(_hwaTouchscreen, _database, _cInfo, _hwaCDCPassthrough);
+    IO::U8X8            _u8x8         = IO::U8X8(_hwaU8X8);
+    IO::Display         _display      = IO::Display(_u8x8, _database);
 
     const SysExConf::manufacturerID_t _sysExMID = {
         SYSEX_MANUFACTURER_ID_0,

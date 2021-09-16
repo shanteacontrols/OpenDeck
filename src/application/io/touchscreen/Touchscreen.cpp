@@ -20,10 +20,8 @@ limitations under the License.
 
 using namespace IO;
 
-#define MODEL _modelPtr[_activeModel]
-
-uint8_t IO::Touchscreen::Model::Common::rxBuffer[IO::Touchscreen::Model::Common::bufferSize];
-size_t  IO::Touchscreen::Model::Common::bufferCount;
+uint8_t IO::TouchscreenBase::Common::rxBuffer[IO::TouchscreenBase::Common::bufferSize];
+size_t  IO::TouchscreenBase::Common::bufferCount;
 
 bool Touchscreen::init(mode_t mode)
 {
@@ -33,24 +31,21 @@ bool Touchscreen::init(mode_t mode)
     {
         if (_database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::enable)))
         {
-            auto dbModel = static_cast<IO::Touchscreen::Model::model_t>(_database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::model)));
+            auto dbModel = _database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::model));
 
             if (_initialized)
             {
-                if (static_cast<uint8_t>(dbModel) == _activeModel)
+                if (dbModel == static_cast<uint8_t>(_activeModel))
                     return true;    //nothing to do, same model already _initialized
 
                 if (!deInit(mode))
                     return false;
             }
 
-            if (!isModelValid(dbModel))
-                return false;
-
             if (_cdcPassthrough.deInit())
             {
-                _activeModel = static_cast<uint8_t>(dbModel);
-                _initialized = MODEL->init();
+                _activeModel = static_cast<model_t>(dbModel);
+                _initialized = modelInstance().init();
 
                 if (_initialized)
                 {
@@ -96,11 +91,10 @@ bool Touchscreen::deInit(mode_t mode)
 
         if (_cdcPassthrough.deInit())
         {
-            if (MODEL->deInit())
+            if (modelInstance().deInit())
             {
                 _mode        = mode_t::normal;
                 _initialized = false;
-                _activeModel = static_cast<uint8_t>(Model::model_t::AMOUNT);
 
                 return true;
             }
@@ -130,7 +124,7 @@ void Touchscreen::update()
     if (isInitialized(mode_t::normal))
     {
         tsData_t  tsData;
-        tsEvent_t event = MODEL->update(tsData);
+        tsEvent_t event = modelInstance().update(tsData);
 
         switch (event)
         {
@@ -195,7 +189,7 @@ void Touchscreen::setScreen(size_t screenID)
     if (!isInitialized(mode_t::normal))
         return;
 
-    MODEL->setScreen(screenID);
+    modelInstance().setScreen(screenID);
     _activeScreenID = screenID;
 
     if (_eventNotifier != nullptr)
@@ -238,27 +232,7 @@ void Touchscreen::setIconState(size_t index, bool state)
     icon.width  = _database.read(Database::Section::touchscreen_t::width, index);
     icon.height = _database.read(Database::Section::touchscreen_t::height, index);
 
-    MODEL->setIconState(icon, state);
-}
-
-bool Touchscreen::isModelValid(Model::model_t model)
-{
-    if (model == IO::Touchscreen::Model::model_t::AMOUNT)
-        return false;
-
-    if (_modelPtr[static_cast<uint8_t>(model)] == nullptr)
-        return false;
-
-    return true;
-}
-
-bool Touchscreen::registerModel(IO::Touchscreen::Model::model_t model, Model* ptr)
-{
-    if (model == IO::Touchscreen::Model::model_t::AMOUNT)
-        return false;
-
-    _modelPtr[static_cast<uint8_t>(model)] = ptr;
-    return true;
+    modelInstance().setIconState(icon, state);
 }
 
 void Touchscreen::processButton(const size_t buttonID, const bool state)
@@ -293,7 +267,7 @@ bool Touchscreen::setBrightness(brightness_t brightness)
     if (!isInitialized(mode_t::normal))
         return false;
 
-    return MODEL->setBrightness(brightness);
+    return modelInstance().setBrightness(brightness);
 }
 
 void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16_t yPos)
@@ -316,7 +290,7 @@ void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16
             {
                 value = xPos;
 
-                if (pressType == IO::Touchscreen::pressType_t::hold)
+                if (pressType == pressType_t::hold)
                 {
                     //y coordinate can be ignored once the touchscreen is pressed, verify and constrain x range only
                     if (value > endXCoordinate)
@@ -324,7 +298,7 @@ void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16
                     else if (value < startXCoordinate)
                         value = startXCoordinate;
                 }
-                else if (pressType == IO::Touchscreen::pressType_t::initial)
+                else if (pressType == pressType_t::initial)
                 {
                     if (((value < startXCoordinate) || (value > endXCoordinate)) || ((yPos < startYCoordinate) || (yPos > endYCoordinate)))
                         continue;
@@ -344,7 +318,7 @@ void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16
             {
                 value = yPos;
 
-                if (pressType == IO::Touchscreen::pressType_t::hold)
+                if (pressType == pressType_t::hold)
                 {
                     //x coordinate can be ignored once the touchscreen is pressed, verify and constrain x range only
                     if (value > endYCoordinate)
@@ -352,7 +326,7 @@ void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16
                     else if (value < startYCoordinate)
                         value = startYCoordinate;
                 }
-                else if (pressType == IO::Touchscreen::pressType_t::initial)
+                else if (pressType == pressType_t::initial)
                 {
                     if (((xPos < startXCoordinate) || (xPos > endXCoordinate)) || ((value < startYCoordinate) || (value > endYCoordinate)))
                         continue;
@@ -394,4 +368,16 @@ bool Touchscreen::isInitialized() const
 bool Touchscreen::isInitialized(mode_t mode) const
 {
     return mode == _mode;
+}
+
+IO::TouchscreenBase& Touchscreen::modelInstance()
+{
+    switch (_activeModel)
+    {
+    case TouchscreenBase::model_t::viewtech:
+        return _viewtech;
+
+    default:
+        return _nextion;
+    }
 }

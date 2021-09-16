@@ -21,23 +21,26 @@ limitations under the License.
 #include <inttypes.h>
 #include <stdlib.h>
 #include "database/Database.h"
-#include "io/buttons/Buttons.h"
-#include "io/analog/Analog.h"
 
 namespace IO
 {
     class Touchscreen
     {
         public:
-        using icon_t = uint8_t;
-
-        class Model
+        enum class setting_t : uint8_t
         {
-            public:
-            virtual bool init()                                              = 0;
-            virtual bool setScreen(size_t screenID)                          = 0;
-            virtual bool update(size_t& index, bool& state)                  = 0;
-            virtual void setIconState(Touchscreen::icon_t& icon, bool state) = 0;
+            enable,
+            model,
+            brightness,
+            initialScreen,
+            cdcPassthrough,
+            AMOUNT
+        };
+
+        enum class mode_t : uint8_t
+        {
+            normal,
+            cdcPassthrough
         };
 
         class EventNotifier
@@ -59,40 +62,11 @@ namespace IO
             virtual bool cdcWrite(uint8_t* buffer, size_t size)                       = 0;
         };
 
-        Touchscreen(Database&       database,
-                    ComponentInfo&  cInfo,
-                    CDCPassthrough& cdcPassthrough)
+        Touchscreen(TouchscreenBase::HWA& hwa,
+                    Database&             database,
+                    ComponentInfo&        cInfo,
+                    CDCPassthrough&       cdcPassthrough)
         {}
-
-        enum class setting_t : uint8_t
-        {
-            enable,
-            brightness,
-            AMOUNT
-        };
-
-        enum class brightness_t : uint8_t
-        {
-            _10,
-            _25,
-            _50,
-            _75,
-            _80,
-            _90,
-            _100
-        };
-
-        enum class analogType_t : uint8_t
-        {
-            horizontal,
-            vertical
-        };
-
-        enum class mode_t : uint8_t
-        {
-            normal,
-            cdcPassthrough
-        };
 
         bool init(mode_t mode)
         {
@@ -120,7 +94,7 @@ namespace IO
         {
         }
 
-        bool setBrightness(brightness_t brightness)
+        bool setBrightness(TouchscreenBase::brightness_t brightness)
         {
             return false;
         }
