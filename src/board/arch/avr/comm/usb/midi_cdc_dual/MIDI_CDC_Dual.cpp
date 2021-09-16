@@ -57,12 +57,16 @@ extern "C" uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue, const uint
     switch (DescriptorType)
     {
     case DTYPE_Device:
+    {
         Address = USBgetDeviceDescriptor(&Size);
-        break;
+    }
+    break;
 
     case DTYPE_Configuration:
+    {
         Address = USBgetCfgDescriptor(&Size);
-        break;
+    }
+    break;
 
     case DTYPE_String:
         switch (DescriptorNumber)

@@ -160,12 +160,16 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
             break;
 
             case type_t::tPresetChange:
+            {
                 //nothing to do - valid type
-                break;
+            }
+            break;
 
             default:
+            {
                 validType = false;
-                break;
+            }
+            break;
             }
 
             if (validType)

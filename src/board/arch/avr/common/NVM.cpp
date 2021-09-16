@@ -41,16 +41,22 @@ namespace Board
             switch (type)
             {
             case parameterType_t::word:
+            {
                 value = eeprom_read_word(reinterpret_cast<uint16_t*>(address));
-                break;
+            }
+            break;
 
             case parameterType_t::dword:
+            {
                 value = eeprom_read_dword(reinterpret_cast<uint32_t*>(address));
-                break;
+            }
+            break;
 
             default:
+            {
                 value = eeprom_read_byte(reinterpret_cast<uint8_t*>(address));
-                break;
+            }
+            break;
             }
 
             return true;
@@ -61,16 +67,22 @@ namespace Board
             switch (type)
             {
             case parameterType_t::word:
+            {
                 eeprom_update_word(reinterpret_cast<uint16_t*>(address), value);
-                break;
+            }
+            break;
 
             case parameterType_t::dword:
+            {
                 eeprom_update_dword(reinterpret_cast<uint32_t*>(address), value);
-                break;
+            }
+            break;
 
             default:
+            {
                 eeprom_update_byte(reinterpret_cast<uint8_t*>(address), value);
-                break;
+            }
+            break;
             }
 
             return true;

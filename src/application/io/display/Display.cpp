@@ -219,6 +219,7 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
         switch (textType)
         {
         case lcdTextType_t::still:
+        {
             for (int i = 0; i < size; i++)
             {
                 _lcdRowStillText[row][startIndex + i] = string[i];
@@ -251,9 +252,11 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
                 _scrollEvent[row].currentIndex = 0;
                 _scrollEvent[row].direction    = scrollDirection_t::leftToRight;
             }
-            break;
+        }
+        break;
 
         case lcdTextType_t::temp:
+        {
             //clear entire message first
             for (uint16_t j = 0; j < LCD_WIDTH_MAX - 2; j++)
                 _lcdRowTempText[row][j] = ' ';
@@ -272,7 +275,8 @@ void Display::updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex
             //update all characters on display
             for (int i = 0; i < LCD_HEIGHT_MAX; i++)
                 _charChange[i] = static_cast<uint32_t>(0xFFFFFFFF);
-            break;
+        }
+        break;
 
         default:
             return;
@@ -327,6 +331,7 @@ void Display::updateScrollStatus(uint8_t row)
     switch (_scrollEvent[row].direction)
     {
     case scrollDirection_t::leftToRight:
+    {
         //left to right
         _scrollEvent[row].currentIndex++;
 
@@ -335,9 +340,11 @@ void Display::updateScrollStatus(uint8_t row)
             //switch direction
             _scrollEvent[row].direction = scrollDirection_t::rightToLeft;
         }
-        break;
+    }
+    break;
 
     case scrollDirection_t::rightToLeft:
+    {
         //right to left
         _scrollEvent[row].currentIndex--;
 
@@ -346,6 +353,10 @@ void Display::updateScrollStatus(uint8_t row)
             //switch direction
             _scrollEvent[row].direction = scrollDirection_t::leftToRight;
         }
+    }
+    break;
+
+    default:
         break;
     }
 
@@ -403,12 +414,16 @@ void Display::displayWelcomeMessage()
     switch (_u8x8.getRows())
     {
     case 4:
+    {
         startRow = 1;
-        break;
+    }
+    break;
 
     default:
+    {
         startRow = 0;
-        break;
+    }
+    break;
     }
 
     _stringBuilder.overwrite("OpenDeck");
@@ -450,12 +465,16 @@ void Display::displayVinfo(bool newFw)
     switch (_u8x8.getRows())
     {
     case 4:
+    {
         startRow = 1;
-        break;
+    }
+    break;
 
     default:
+    {
         startRow = 0;
-        break;
+    }
+    break;
     }
 
     _stringBuilder.overwrite("Version info:");
@@ -487,7 +506,7 @@ void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t value1,
     {
     case event_t::noteOff:
     case event_t::noteOn:
-
+    {
         if (!_alternateNoteDisplay)
             _stringBuilder.overwrite("%d", value1);
         else
@@ -496,30 +515,37 @@ void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t value1,
         _stringBuilder.append(" v%d CH%d", value2, value3);
         _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
-        break;
+    }
+    break;
 
     case event_t::programChange:
+    {
         _stringBuilder.overwrite("%d CH%d", value1, value3);
         _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
-        break;
+    }
+    break;
 
     case event_t::controlChange:
     case event_t::nrpn:
+    {
         _stringBuilder.overwrite("%d %d CH%d", value1, value2, value3);
         _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
-        break;
+    }
+    break;
 
     case event_t::mmcPlay:
     case event_t::mmcStop:
     case event_t::mmcRecordOn:
     case event_t::mmcRecordOff:
     case event_t::mmcPause:
+    {
         _stringBuilder.overwrite("CH%d", value1);
         _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
-        break;
+    }
+    break;
 
     case event_t::sysRealTimeClock:
     case event_t::sysRealTimeStart:
@@ -528,16 +554,20 @@ void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t value1,
     case event_t::sysRealTimeActiveSensing:
     case event_t::sysRealTimeSystemReset:
     case event_t::systemExclusive:
+    {
         _stringBuilder.overwrite("");
         _stringBuilder.fillUntil(_u8x8.getColumns());
         updateText(startRow + 1, lcdTextType_t::still, 0);
-        break;
+    }
+    break;
 
     case event_t::presetChange:
+    {
         _stringBuilder.overwrite("%d", value1);
         _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
-        break;
+    }
+    break;
 
     default:
         break;
@@ -555,6 +585,7 @@ void Display::clearMIDIevent(eventType_t type)
     switch (type)
     {
     case eventType_t::in:
+    {
         //first row
         _stringBuilder.overwrite("In: ");
         _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
@@ -563,9 +594,11 @@ void Display::clearMIDIevent(eventType_t type)
         _stringBuilder.overwrite("");
         _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(ROW_START_MIDI_IN_MESSAGE + 1, lcdTextType_t::still, 0);
-        break;
+    }
+    break;
 
     case eventType_t::out:
+    {
         //first row
         _stringBuilder.overwrite("Out: ");
         _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
@@ -574,11 +607,11 @@ void Display::clearMIDIevent(eventType_t type)
         _stringBuilder.overwrite("");
         _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(ROW_START_MIDI_OUT_MESSAGE + 1, lcdTextType_t::still, 0);
-        break;
+    }
+    break;
 
     default:
         return;
-        break;
     }
 
     _midiMessageDisplayed[type] = false;

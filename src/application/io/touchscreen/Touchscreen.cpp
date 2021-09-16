@@ -129,12 +129,16 @@ void Touchscreen::update()
         switch (event)
         {
         case tsEvent_t::button:
+        {
             processButton(tsData.buttonID, tsData.buttonState);
-            break;
+        }
+        break;
 
         case tsEvent_t::coordinate:
+        {
             processCoordinate(tsData.pressType, tsData.xPos, tsData.yPos);
-            break;
+        }
+        break;
 
         default:
             break;

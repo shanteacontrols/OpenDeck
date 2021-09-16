@@ -93,6 +93,7 @@ namespace Board
             switch (source)
             {
             case dataSource_t::uart:
+            {
                 if (direction == dataDirection_t::incoming)
                 {
                     INT_LED_ON(LED_MIDI_IN_DIN_PORT, LED_MIDI_IN_DIN_PIN);
@@ -103,9 +104,11 @@ namespace Board
                     INT_LED_ON(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
                     _midiOutDINtimeout = MIDI_INDICATOR_TIMEOUT;
                 }
-                break;
+            }
+            break;
 
             case dataSource_t::usb:
+            {
                 if (direction == dataDirection_t::incoming)
                 {
                     INT_LED_ON(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
@@ -116,7 +119,8 @@ namespace Board
                     INT_LED_ON(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
                     _midiOutUSBtimeout = MIDI_INDICATOR_TIMEOUT;
                 }
-                break;
+            }
+            break;
             }
         }
     }    // namespace io

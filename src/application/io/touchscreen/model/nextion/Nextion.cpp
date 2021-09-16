@@ -257,14 +257,18 @@ void Nextion::pollXY()
         switch (_xyRequestState)
         {
         case xyRequestState_t::xRequest:
+        {
             writeCommand("get tch0");
             _xyRequestState = xyRequestState_t::xRequested;
-            break;
+        }
+        break;
 
         case xyRequestState_t::yRequest:
+        {
             writeCommand("get tch1");
             _xyRequestState = xyRequestState_t::yRequested;
-            break;
+        }
+        break;
 
         default:
             break;

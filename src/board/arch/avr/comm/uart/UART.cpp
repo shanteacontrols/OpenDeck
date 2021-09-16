@@ -162,25 +162,33 @@ namespace Board
                     switch (channel)
                     {
                     case 0:
+                    {
                         UCSRB_0 |= (1 << UDRIE_0);
-                        break;
+                    }
+                    break;
 
 #ifdef UCSRB_1
                     case 1:
+                    {
                         UCSRB_1 |= (1 << UDRIE_1);
-                        break;
+                    }
+                    break;
 #endif
 
 #ifdef UCSRB_2
                     case 2:
+                    {
                         UCSRB_2 |= (1 << UDRIE_2);
-                        break;
+                    }
+                    break;
 #endif
 
 #ifdef UCSRB_3
                     case 3:
+                    {
                         UCSRB_3 |= (1 << UDRIE_3);
-                        break;
+                    }
+                    break;
 #endif
 
                     default:
@@ -198,37 +206,45 @@ namespace Board
                         switch (channel)
                         {
                         case 0:
+                        {
                             UCSRA_0 = 0;
                             UCSRB_0 = 0;
                             UCSRC_0 = 0;
                             UBRR_0  = 0;
-                            break;
+                        }
+                        break;
 
 #ifdef UCSRB_1
                         case 1:
+                        {
                             UCSRA_1 = 0;
                             UCSRB_1 = 0;
                             UCSRC_1 = 0;
                             UBRR_1  = 0;
-                            break;
+                        }
+                        break;
 #endif
 
 #ifdef UCSRB_2
                         case 2:
+                        {
                             UCSRA_2 = 0;
                             UCSRB_2 = 0;
                             UCSRC_2 = 0;
                             UBRR_2  = 0;
-                            break;
+                        }
+                        break;
 #endif
 
 #ifdef UCSRB_3
                         case 3:
+                        {
                             UCSRA_3 = 0;
                             UCSRB_3 = 0;
                             UCSRC_3 = 0;
                             UBRR_3  = 0;
-                            break;
+                        }
+                        break;
 #endif
 
                         default:
@@ -259,29 +275,37 @@ namespace Board
                         switch (channel)
                         {
                         case 0:
+                        {
                             UCSRA_0 = (1 << U2X_0);    //double speed uart
                             UBRR_0  = baud_count - 1;
-                            break;
+                        }
+                        break;
 
 #ifdef UCSRA_1
                         case 1:
+                        {
                             UCSRA_1 = (1 << U2X_1);    //double speed uart
                             UBRR_1  = baud_count - 1;
-                            break;
+                        }
+                        break;
 #endif
 
 #ifdef UCSRA_2
                         case 2:
+                        {
                             UCSRA_2 = (1 << U2X_2);    //double speed uart
                             UBRR_2  = baud_count - 1;
-                            break;
+                        }
+                        break;
 #endif
 
 #ifdef UCSRA_3
                         case 3:
+                        {
                             UCSRA_3 = (1 << U2X_3);    //double speed uart
                             UBRR_3  = baud_count - 1;
-                            break;
+                        }
+                        break;
 #endif
 
                         default:
@@ -293,29 +317,37 @@ namespace Board
                         switch (channel)
                         {
                         case 0:
+                        {
                             UCSRA_0 = 0;
                             UBRR_0  = (baud_count >> 1) - 1;
-                            break;
+                        }
+                        break;
 
 #ifdef UCSRA_1
                         case 1:
+                        {
                             UCSRA_1 = 0;
                             UBRR_1  = (baud_count >> 1) - 1;
-                            break;
+                        }
+                        break;
 #endif
 
 #ifdef UCSRA_2
                         case 2:
+                        {
                             UCSRA_2 = 0;
                             UBRR_2  = (baud_count >> 1) - 1;
-                            break;
+                        }
+                        break;
 #endif
 
 #ifdef UCSRA_3
                         case 3:
+                        {
                             UCSRA_3 = 0;
                             UBRR_3  = (baud_count >> 1) - 1;
-                            break;
+                        }
+                        break;
 #endif
 
                         default:

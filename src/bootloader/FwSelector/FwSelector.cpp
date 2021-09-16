@@ -34,13 +34,17 @@ void FwSelector::init()
         switch (magicValue)
         {
         case static_cast<uint8_t>(fwType_t::bootloader):
+        {
             fwType = fwType_t::bootloader;
-            break;
+        }
+        break;
 
         default:
+        {
             //assume application here
             fwType = isAppValid() ? fwType_t::application : fwType_t::bootloader;
-            break;
+        }
+        break;
         }
     }
 

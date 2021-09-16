@@ -143,16 +143,22 @@ uint8_t System::SysExDataHandler::customRequest(uint16_t request, CustomResponse
     break;
 
     case SYSEX_CR_FACTORY_RESET:
+    {
         _system._database.factoryReset();
-        break;
+    }
+    break;
 
     case SYSEX_CR_REBOOT_APP:
+    {
         _system._hwa.reboot(FwSelector::fwType_t::application);
-        break;
+    }
+    break;
 
     case SYSEX_CR_REBOOT_BTLDR:
+    {
         _system._hwa.reboot(FwSelector::fwType_t::bootloader);
-        break;
+    }
+    break;
 
     case SYSEX_CR_MAX_COMPONENTS:
     {
@@ -459,34 +465,46 @@ void System::checkComponents()
     switch (componentCheck)
     {
     case componentCheck_t::buttons:
+    {
         _buttons.update();
         componentCheck = componentCheck_t::encoders;
-        break;
+    }
+    break;
 
     case componentCheck_t::encoders:
+    {
         _encoders.update();
         componentCheck = componentCheck_t::analog;
-        break;
+    }
+    break;
 
     case componentCheck_t::analog:
+    {
         _analog.update();
         componentCheck = componentCheck_t::leds;
-        break;
+    }
+    break;
 
     case componentCheck_t::leds:
+    {
         _leds.checkBlinking();
         componentCheck = componentCheck_t::display;
-        break;
+    }
+    break;
 
     case componentCheck_t::display:
+    {
         _display.update();
         componentCheck = componentCheck_t::touchscreen;
-        break;
+    }
+    break;
 
     case componentCheck_t::touchscreen:
+    {
         _touchscreen.update();
         componentCheck = componentCheck_t::buttons;
-        break;
+    }
+    break;
     }
 }
 
@@ -502,15 +520,18 @@ void System::checkMIDI()
         switch (messageType)
         {
         case MIDI::messageType_t::systemExclusive:
+        {
             //process sysex messages only from usb interface
             if (interface == MIDI::interface_t::usb)
                 handleSysEx(_midi.getSysExArray(interface), _midi.getSysExArrayLength(interface));
-            break;
+        }
+        break;
 
         case MIDI::messageType_t::noteOn:
         case MIDI::messageType_t::noteOff:
         case MIDI::messageType_t::controlChange:
         case MIDI::messageType_t::programChange:
+        {
             if (messageType == MIDI::messageType_t::programChange)
             {
                 IO::Common::setProgram(channel, data1);
@@ -525,14 +546,19 @@ void System::checkMIDI()
             switch (messageType)
             {
             case MIDI::messageType_t::noteOn:
+            {
                 _display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::noteOn, data1, data2, channel + 1);
-                break;
+            }
+            break;
 
             case MIDI::messageType_t::noteOff:
+            {
                 _display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::noteOff, data1, data2, channel + 1);
-                break;
+            }
+            break;
 
             case MIDI::messageType_t::controlChange:
+            {
                 _display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::controlChange, data1, data2, channel + 1);
 
                 for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
@@ -551,25 +577,33 @@ void System::checkMIDI()
 
                     _encoders.setValue(i, data2);
                 }
-                break;
+            }
+            break;
 
             case MIDI::messageType_t::programChange:
+            {
                 _display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::programChange, data1, data2, channel + 1);
-                break;
+            }
+            break;
 
             default:
                 break;
             }
-            break;
+        }
+        break;
 
         case MIDI::messageType_t::sysRealTimeClock:
+        {
             _leds.checkBlinking(true);
-            break;
+        }
+        break;
 
         case MIDI::messageType_t::sysRealTimeStart:
+        {
             _leds.resetBlinking();
             _leds.checkBlinking(true);
-            break;
+        }
+        break;
 
         default:
             break;
@@ -605,10 +639,12 @@ void System::checkMIDI()
             switch (mergeType)
             {
             case System::midiMergeType_t::DINtoUSB:
+            {
                 //dump everything from DIN MIDI in to USB MIDI out
                 while (_midi.read(MIDI::interface_t::din, MIDI::filterMode_t::fullUSB))
                     ;
-                break;
+            }
+            break;
 
                 // case System::midiMergeType_t::DINtoDIN:
                 //loopback is automatically configured here

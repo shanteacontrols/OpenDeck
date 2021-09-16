@@ -356,23 +356,29 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
         switch (descriptor.midiMessage)
         {
         case messageType_t::note:
+        {
             _midi.sendNoteOff(descriptor.midiID, 0, descriptor.midiChannel);
             _display.displayMIDIevent(Display::eventType_t::out, _midi.getNoteOffMode() == MIDI::noteOffType_t::standardNoteOff ? Display::event_t::noteOff : Display::event_t::noteOn, descriptor.midiID, 0, descriptor.midiChannel + 1);
             _leds.midiToState(MIDI::messageType_t::noteOff, descriptor.midiID, 0, descriptor.midiChannel, LEDs::dataSource_t::internal);
-            break;
+        }
+        break;
 
         case messageType_t::controlChangeReset:
+        {
             _midi.sendControlChange(descriptor.midiID, 0, descriptor.midiChannel);
             _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, descriptor.midiID, 0, descriptor.midiChannel + 1);
             _leds.midiToState(MIDI::messageType_t::controlChange, descriptor.midiID, 0, descriptor.midiChannel, LEDs::dataSource_t::internal);
-            break;
+        }
+        break;
 
         case messageType_t::mmcRecord:
+        {
             //stop recording
             _mmcArray[4] = 0x07;
             _midi.sendSysEx(6, _mmcArray, true);
             _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::mmcRecordOff, _mmcArray[2], 0, 0);
-            break;
+        }
+        break;
 
         default:
             break;
@@ -466,16 +472,22 @@ void Buttons::fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor)
     case messageType_t::multiValIncDecNote:
     case messageType_t::multiValIncResetCC:
     case messageType_t::multiValIncDecCC:
+    {
         descriptor.type = type_t::momentary;
-        break;
+    }
+    break;
 
     case messageType_t::mmcRecord:
+    {
         descriptor.type = type_t::latching;
-        break;
+    }
+    break;
 
     case messageType_t::presetOpenDeck:
+    {
         descriptor.type = type_t::momentary;
-        break;
+    }
+    break;
 
     default:
         break;

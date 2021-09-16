@@ -171,8 +171,10 @@ uint8_t System::onSetGlobal(Section::global_t section, size_t index, uint16_t ne
         break;
 
         default:
+        {
             result = SysExConf::DataHandler::STATUS_OK;
-            break;
+        }
+        break;
         }
     }
     break;
@@ -295,12 +297,16 @@ uint8_t System::onSetGlobal(Section::global_t section, size_t index, uint16_t ne
         switch (dinMIDIinitAction)
         {
         case initAction_t::init:
+        {
             _midi.init(MIDI::interface_t::din);
-            break;
+        }
+        break;
 
         case initAction_t::deInit:
+        {
             _midi.deInit(MIDI::interface_t::din);
-            break;
+        }
+        break;
 
         default:
             break;
@@ -309,12 +315,16 @@ uint8_t System::onSetGlobal(Section::global_t section, size_t index, uint16_t ne
         switch (dmxInitAction)
         {
         case initAction_t::init:
+        {
             _dmx.init();
-            break;
+        }
+        break;
 
         case initAction_t::deInit:
+        {
             _dmx.deInit();
-            break;
+        }
+        break;
 
         default:
             break;

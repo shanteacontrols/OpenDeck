@@ -36,6 +36,7 @@ bool SysExParser::parse(MIDI::USBMIDIpacket_t& packet)
     {
     case static_cast<uint8_t>(usbMIDIsystemCin_t::sysCommon1byteCin):
     case static_cast<uint8_t>(usbMIDIsystemCin_t::singleByte):
+    {
         if (packet.Data1 == 0xF7)
         {
             //end of sysex
@@ -43,9 +44,11 @@ bool SysExParser::parse(MIDI::USBMIDIpacket_t& packet)
             _sysExArrayLength++;
             return true;
         }
-        break;
+    }
+    break;
 
     case static_cast<uint8_t>(usbMIDIsystemCin_t::sysExStartCin):
+    {
         if (packet.Data1 == 0xF0)
             _sysExArrayLength = 0;    //this is a new sysex message, reset length
 
@@ -56,17 +59,21 @@ bool SysExParser::parse(MIDI::USBMIDIpacket_t& packet)
         _sysExArray[_sysExArrayLength] = packet.Data3;
         _sysExArrayLength++;
         return false;
-        break;
+    }
+    break;
 
     case static_cast<uint8_t>(usbMIDIsystemCin_t::sysExStop2byteCin):
+    {
         _sysExArray[_sysExArrayLength] = packet.Data1;
         _sysExArrayLength++;
         _sysExArray[_sysExArrayLength] = packet.Data2;
         _sysExArrayLength++;
         return true;
-        break;
+    }
+    break;
 
     case static_cast<uint8_t>(usbMIDIsystemCin_t::sysExStop3byteCin):
+    {
         if (packet.Data1 == 0xF0)
             _sysExArrayLength = 0;    //sysex message with 1 byte of payload
 
@@ -77,11 +84,11 @@ bool SysExParser::parse(MIDI::USBMIDIpacket_t& packet)
         _sysExArray[_sysExArrayLength] = packet.Data3;
         _sysExArrayLength++;
         return true;
-        break;
+    }
+    break;
 
     default:
         return false;
-        break;
     }
 
     return false;

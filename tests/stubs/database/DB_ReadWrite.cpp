@@ -52,16 +52,21 @@ bool DBstorageMock::read(uint32_t address, int32_t& value, LESSDB::sectionParame
     case LESSDB::sectionParameterType_t::bit:
     case LESSDB::sectionParameterType_t::byte:
     case LESSDB::sectionParameterType_t::halfByte:
+    {
         value = memoryArray.at(address);
-        break;
+    }
+    break;
 
     case LESSDB::sectionParameterType_t::word:
+    {
         value = memoryArray.at(address + 1);
         value <<= 8;
         value |= memoryArray.at(address + 0);
-        break;
+    }
+    break;
 
     default:
+    {
         // case LESSDB::sectionParameterType_t::dword:
         value = memoryArray.at(address + 3);
         value <<= 8;
@@ -70,7 +75,8 @@ bool DBstorageMock::read(uint32_t address, int32_t& value, LESSDB::sectionParame
         value |= memoryArray.at(address + 1);
         value <<= 8;
         value |= memoryArray.at(address + 0);
-        break;
+    }
+    break;
     }
 
     return true;
@@ -104,7 +110,6 @@ bool DBstorageMock::read(uint32_t address, int32_t& value, LESSDB::sectionParame
 
     default:
         return false;
-        break;
     }
 
     return true;
@@ -119,21 +124,27 @@ bool DBstorageMock::write(uint32_t address, int32_t value, LESSDB::sectionParame
     case LESSDB::sectionParameterType_t::bit:
     case LESSDB::sectionParameterType_t::byte:
     case LESSDB::sectionParameterType_t::halfByte:
+    {
         memoryArray.at(address) = value;
-        break;
+    }
+    break;
 
     case LESSDB::sectionParameterType_t::word:
+    {
         memoryArray.at(address + 0) = (value >> 0) & (uint16_t)0xFF;
         memoryArray.at(address + 1) = (value >> 8) & (uint16_t)0xFF;
-        break;
+    }
+    break;
 
     default:
+    {
         // case LESSDB::sectionParameterType_t::dword:
         memoryArray.at(address + 0) = (value >> 0) & (uint32_t)0xFF;
         memoryArray.at(address + 1) = (value >> 8) & (uint32_t)0xFF;
         memoryArray.at(address + 2) = (value >> 16) & (uint32_t)0xFF;
         memoryArray.at(address + 3) = (value >> 24) & (uint32_t)0xFF;
-        break;
+    }
+    break;
     }
 
     return true;
@@ -146,14 +157,16 @@ bool DBstorageMock::write(uint32_t address, int32_t value, LESSDB::sectionParame
     case LESSDB::sectionParameterType_t::byte:
     case LESSDB::sectionParameterType_t::halfByte:
     case LESSDB::sectionParameterType_t::word:
+    {
         tempData = value;
+
         if (emuEEPROM.write(address, tempData) != EmuEEPROM::writeStatus_t::ok)
             return false;
-        break;
+    }
+    break;
 
     default:
         return false;
-        break;
     }
 
     return true;

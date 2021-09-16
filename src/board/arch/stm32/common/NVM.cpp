@@ -140,7 +140,6 @@ namespace Board
 
             default:
                 return false;
-                break;
             }
 
             return true;
@@ -154,14 +153,17 @@ namespace Board
             {
             case parameterType_t::byte:
             case parameterType_t::word:
+            {
                 tempData = value;
+
                 if (_emuEEPROM.write(address, tempData) != EmuEEPROM::writeStatus_t::ok)
                     return false;
-                break;
+            }
+
+            break;
 
             default:
                 return false;
-                break;
             }
 
             return true;

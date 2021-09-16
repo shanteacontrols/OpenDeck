@@ -195,9 +195,7 @@ namespace
                 break;
 
                 case USB_REQ_CLEAR_FEATURE:
-                {
-                }
-                break;
+                    break;
 
                 default:
                 {

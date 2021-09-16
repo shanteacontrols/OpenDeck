@@ -509,8 +509,10 @@ namespace
                 case MIDI::messageType_t::noteOff:
                 case MIDI::messageType_t::controlChange:
                 case MIDI::messageType_t::programChange:
+                {
                     chMessage = true;
-                    break;
+                }
+                break;
 
                 default:
                     break;

@@ -82,8 +82,10 @@ class HWAFwSelector : public FwSelector::HWA
         switch (fwType)
         {
         case FwSelector::fwType_t::bootloader:
+        {
             Board::bootloader::runBootloader();
-            break;
+        }
+        break;
 
         case FwSelector::fwType_t::application:
         default:

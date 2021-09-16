@@ -87,13 +87,16 @@ namespace IO
         switch (type)
         {
         case incDecType_t::toEdge:
+        {
             //just make sure the value isn't larger than 127
 
             if (newValue > 127)
                 newValue = 127;
-            break;
+        }
+        break;
 
         case incDecType_t::reset:
+        {
             //in case value is larger than 127, send 127 but don't apply it internally
             //this way we're starting from 0 next time
             if (newValue > 127)
@@ -101,7 +104,8 @@ namespace IO
                 newValue    = 127;
                 setNewValue = false;
             }
-            break;
+        }
+        break;
 
         default:
             break;

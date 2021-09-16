@@ -50,16 +50,20 @@ bool U8X8::init(uint8_t i2cAddressIndex, displayController_t controller, display
         switch (msg)
         {
         case U8X8_MSG_BYTE_SEND:
+        {
             memcpy(&buffer[counter], array, arg_int);
             counter += arg_int;
-            break;
+        }
+        break;
 
         case U8X8_MSG_BYTE_INIT:
             break;
 
         case U8X8_MSG_BYTE_START_TRANSFER:
+        {
             counter = 0;
-            break;
+        }
+        break;
 
         case U8X8_MSG_BYTE_END_TRANSFER:
             return hwaStatic->write(u8x8_GetI2CAddress(u8x8), buffer, counter);

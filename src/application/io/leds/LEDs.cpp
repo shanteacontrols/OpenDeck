@@ -47,16 +47,20 @@ void LEDs::checkBlinking(bool forceChange)
     switch (_ledBlinkType)
     {
     case blinkType_t::timer:
+    {
         if ((core::timing::currentRunTimeMs() - _lastLEDblinkUpdateTime) < LED_BLINK_TIMER_TYPE_CHECK_TIME)
             return;
 
         _lastLEDblinkUpdateTime = core::timing::currentRunTimeMs();
-        break;
+    }
+    break;
 
     case blinkType_t::midiClock:
+    {
         if (!forceChange)
             return;
-        break;
+    }
+    break;
 
     default:
         return;
@@ -401,16 +405,22 @@ void LEDs::setColor(uint8_t ledID, color_t color, brightness_t brightness)
                 switch (rgbIndex)
                 {
                 case rgbIndex_t::r:
+                {
                     updateBit(index, ledBit_t::rgb_r, state);
-                    break;
+                }
+                break;
 
                 case rgbIndex_t::g:
+                {
                     updateBit(index, ledBit_t::rgb_g, state);
-                    break;
+                }
+                break;
 
                 case rgbIndex_t::b:
+                {
                     updateBit(index, ledBit_t::rgb_b, state);
-                    break;
+                }
+                break;
                 }
             }
             else
@@ -466,12 +476,16 @@ void LEDs::setBlinkType(blinkType_t blinkType)
     switch (blinkType)
     {
     case blinkType_t::timer:
+    {
         _blinkResetArrayPtr = _blinkReset_timer;
-        break;
+    }
+    break;
 
     case blinkType_t::midiClock:
+    {
         _blinkResetArrayPtr = _blinkReset_midiClock;
-        break;
+    }
+    break;
 
     default:
         return;

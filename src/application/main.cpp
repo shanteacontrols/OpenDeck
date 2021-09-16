@@ -100,16 +100,22 @@ class HWALEDs : public System::HWA::IO::LEDs
         switch (rgbComponent)
         {
         case IO::LEDs::rgbIndex_t::r:
+        {
             boardRGBindex = Board::io::rgbIndex_t::r;
-            break;
+        }
+        break;
 
         case IO::LEDs::rgbIndex_t::g:
+        {
             boardRGBindex = Board::io::rgbIndex_t::g;
-            break;
+        }
+        break;
 
         case IO::LEDs::rgbIndex_t::b:
+        {
             boardRGBindex = Board::io::rgbIndex_t::b;
-            break;
+        }
+        break;
 
         default:
             return 0;
