@@ -207,7 +207,7 @@
         port: "B"
         index: 7
   usbLink:
-    type: "slave"
+    type: "device"
     uartChannel: 0
   bootloader:
     button:

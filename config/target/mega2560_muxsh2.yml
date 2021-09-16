@@ -178,7 +178,7 @@
     index: 6
     mode: "out-low"
   usbLink:
-    type: "slave"
+    type: "device"
     uartChannel: 0
   bootloader:
     button:

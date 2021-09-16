@@ -74,7 +74,7 @@ then
         uart_channel_usb_link=$($YAML_PARSER "$TARGET_DEF_FILE" usbLink.uartChannel)
         printf "%s\n" "DEFINES += UART_CHANNEL_USB_LINK=$uart_channel_usb_link" >> "$OUT_FILE_MAKEFILE_DEFINES"
 
-        if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" usbLink.type)" == "master" ]]
+        if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" usbLink.type)" == "host" ]]
         then
             {
                 printf "%s\n" "DEFINES += USB_LINK_MCU"
@@ -84,7 +84,7 @@ then
                 printf "%s\n" "    DEFINES += USB_SUPPORTED"
                 printf "%s\n" "endif"
             } >> "$OUT_FILE_MAKEFILE_DEFINES"
-        elif [[ "$($YAML_PARSER "$TARGET_DEF_FILE" usbLink.type)" == "slave" ]]
+        elif [[ "$($YAML_PARSER "$TARGET_DEF_FILE" usbLink.type)" == "device" ]]
         then
             {
                 printf "%s\n" "#make sure slave MCUs don't have USB enabled"

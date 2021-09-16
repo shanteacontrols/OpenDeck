@@ -20,5 +20,5 @@
             port: "D"
             index: 5
   usbLink:
-    type: "master"
+    type: "host"
     uartChannel: 0

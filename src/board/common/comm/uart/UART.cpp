@@ -286,7 +286,7 @@ namespace Board
                 {
                     _usbConnectionState = _readPacket[1];
 
-                    //this command also includes unique ID for USB link master
+                    //this command also includes unique ID for USB link host
                     //use it for non-usb MCU as well
                     for (size_t i = 0; i < UID_BITS / 8; i++)
                         _uidUSBDevice[i] = _readPacket[i + 2];
