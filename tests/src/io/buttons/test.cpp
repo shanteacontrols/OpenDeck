@@ -1,3 +1,5 @@
+#ifdef BUTTONS_SUPPORTED
+
 #include "unity/Framework.h"
 #include "io/buttons/Buttons.h"
 #include "io/leds/LEDs.h"
@@ -6,8 +8,6 @@
 #include "core/src/general/Timing.h"
 #include "database/Database.h"
 #include "stubs/database/DB_ReadWrite.h"
-
-#ifdef BUTTONS_SUPPORTED
 
 namespace
 {

@@ -1,3 +1,5 @@
+#ifndef USB_LINK_MCU
+
 #include "unity/Framework.h"
 #include "stubs/database/DB_ReadWrite.h"
 #include "database/Database.h"
@@ -10,7 +12,6 @@ namespace
     Database      database = Database(dbStorageMock, true);
 }    // namespace
 
-#ifndef USB_LINK_MCU
 TEST_CASE(ReadInitialValues)
 {
     //init checks - no point in running further tests if these conditions fail

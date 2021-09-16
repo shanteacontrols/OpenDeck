@@ -1,3 +1,5 @@
+#ifdef ENCODERS_SUPPORTED
+
 #include "unity/Framework.h"
 #include "io/encoders/Encoders.h"
 #include "io/common/CInfo.h"
@@ -5,8 +7,6 @@
 #include "core/src/general/Timing.h"
 #include "database/Database.h"
 #include "stubs/database/DB_ReadWrite.h"
-
-#ifdef ENCODERS_SUPPORTED
 
 namespace
 {

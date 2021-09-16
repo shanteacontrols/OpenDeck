@@ -1,3 +1,5 @@
+#ifdef ANALOG_SUPPORTED
+
 #include "unity/Framework.h"
 #include "io/analog/Analog.h"
 #include "io/leds/LEDs.h"
@@ -7,8 +9,6 @@
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
 #include "stubs/database/DB_ReadWrite.h"
-
-#ifdef ANALOG_SUPPORTED
 
 namespace
 {

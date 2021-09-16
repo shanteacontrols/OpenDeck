@@ -1,3 +1,5 @@
+#ifdef LEDS_SUPPORTED
+
 #include "unity/Framework.h"
 #include "io/leds/LEDs.h"
 #include "io/display/Display.h"
@@ -6,8 +8,6 @@
 #include "core/src/general/Timing.h"
 #include "database/Database.h"
 #include "stubs/database/DB_ReadWrite.h"
-
-#ifdef LEDS_SUPPORTED
 
 namespace
 {

@@ -1,3 +1,5 @@
+#ifndef USB_LINK_MCU
+
 #include "unity/Framework.h"
 #include "SysExParser/SysExParser.h"
 #include "updater/Updater.h"
@@ -160,3 +162,5 @@ TEST_CASE(Bootloader)
     //written content should also match the original binary file from which .syx file has been created
     TEST_ASSERT(_btldrWriter.writtenBytes == binaryVector);
 }
+
+#endif
