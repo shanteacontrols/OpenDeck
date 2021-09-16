@@ -772,6 +772,40 @@ TEST_CASE(LocalLEDcontrol)
     TEST_ASSERT(leds.color(0) == LEDs::color_t::off);
     stateChangeRegister(false);
     TEST_ASSERT(leds.color(0) == LEDs::color_t::off);
+
+#if MAX_NUMBER_OF_LEDS > 1
+    for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
+        buttons.reset(i);
+
+    //test program change
+    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(LEDs::controlType_t::localPCSingleVal)) == true);
+    stateChangeRegister(true);
+    //led should remain in off state since none of the buttons use program change for message
+    TEST_ASSERT(leds.color(0) == LEDs::color_t::off);
+
+    for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
+        buttons.reset(i);
+
+    //configure button in program change mode - this should trigger on state for LED 0
+    TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, 0, static_cast<int32_t>(Buttons::messageType_t::programChange)) == true);
+    stateChangeRegister(true);
+    TEST_ASSERT(leds.color(0) == LEDs::color_t::red);
+
+    for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
+        buttons.reset(i);
+
+    //configure second LED and button in program change mode
+    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 1, static_cast<int32_t>(LEDs::controlType_t::localPCSingleVal)) == true);
+    TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, 1, static_cast<int32_t>(Buttons::messageType_t::programChange)) == true);
+
+    stateChangeRegister(true);
+
+    //program change 0 and 1 are triggered: first 0, then 1
+    //initially, led 0 is on, but then program change 1 is received
+    //program change message should just turn the LEDs with cooresponding activation ID, the rest should be off
+    TEST_ASSERT(leds.color(0) == LEDs::color_t::off);
+    TEST_ASSERT(leds.color(1) == LEDs::color_t::red);
+#endif
 }
 #endif
 

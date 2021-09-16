@@ -301,6 +301,13 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t value1, uint8_t 
 
                     setColor(i, color, brightness);
                 }
+                else
+                {
+                    if (messageType == MIDI::messageType_t::programChange)
+                    {
+                        setColor(i, color_t::off, brightness_t::bOff);
+                    }
+                }
             }
 
             if (setBlink)
