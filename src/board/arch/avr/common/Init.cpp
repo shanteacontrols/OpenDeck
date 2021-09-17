@@ -174,6 +174,21 @@ namespace Board
                 //add some delay and remove initial readout of digital inputs
                 core::timing::waitMs(10);
                 detail::io::flushInputReadings();
+
+#ifndef USB_SUPPORTED
+                //wait for unique id from usb host
+                //this is to make sure host and the device share the same unique id
+                USBLink::internalCMD_t cmd;
+
+                while (1)
+                {
+                    while (!Board::detail::USB::readInternal(cmd))
+                        ;
+
+                    if (cmd == USBLink::internalCMD_t::uniqueID)
+                        break;
+                }
+#endif
 #endif
             }
 
