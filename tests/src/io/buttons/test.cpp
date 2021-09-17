@@ -8,69 +8,14 @@
 #include "core/src/general/Timing.h"
 #include "database/Database.h"
 #include "stubs/database/DB_ReadWrite.h"
+#include "stubs/ButtonsFilter.h"
+#include "stubs/HWALEDs.h"
+#include "stubs/HWAU8X8.h"
+#include "stubs/HWAMIDI.h"
 
 namespace
 {
     bool buttonState[MAX_NUMBER_OF_BUTTONS] = {};
-
-    class HWAMIDI : public MIDI::HWA
-    {
-        public:
-        HWAMIDI() = default;
-
-        bool init(MIDI::interface_t interface) override
-        {
-            return true;
-        }
-
-        bool deInit(MIDI::interface_t interface) override
-        {
-            return true;
-        }
-
-        bool dinRead(uint8_t& data) override
-        {
-            return false;
-        }
-
-        bool dinWrite(uint8_t data) override
-        {
-            return false;
-        }
-
-        bool usbRead(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
-        {
-            return false;
-        }
-
-        bool usbWrite(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
-        {
-            midiPacket.push_back(USBMIDIpacket);
-            return true;
-        }
-
-        std::vector<MIDI::USBMIDIpacket_t> midiPacket;
-    } hwaMIDI;
-
-    class HWALEDs : public IO::LEDs::HWA
-    {
-        public:
-        HWALEDs() {}
-
-        void setState(size_t index, IO::LEDs::brightness_t brightness) override
-        {
-        }
-
-        size_t rgbSignalIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
-        {
-            return 0;
-        }
-
-        size_t rgbIndex(size_t singleLEDindex) override
-        {
-            return 0;
-        }
-    } hwaLEDs;
 
     class HWAButtons : public IO::Buttons::HWA
     {
@@ -85,46 +30,18 @@ namespace
         }
     } hwaButtons;
 
-    class ButtonsFilter : public IO::Buttons::Filter
-    {
-        public:
-        bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
-        {
-            return true;
-        }
-    } buttonsFilter;
-
-    DBstorageMock dbStorageMock;
-    Database      database = Database(dbStorageMock, true);
-    MIDI          midi(hwaMIDI);
-    ComponentInfo cInfo;
-
-    IO::LEDs leds(hwaLEDs, database);
-
-    class HWAU8X8 : public IO::U8X8::HWAI2C
-    {
-        public:
-        HWAU8X8() {}
-
-        bool init() override
-        {
-            return true;
-        }
-
-        bool deInit() override
-        {
-            return true;
-        }
-
-        bool write(uint8_t address, uint8_t* buffer, size_t size) override
-        {
-            return true;
-        }
-    } hwaU8X8;
-
-    IO::U8X8    u8x8(hwaU8X8);
-    IO::Display display(u8x8, database);
-    IO::Buttons buttons = IO::Buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cInfo);
+    DBstorageMock     dbStorageMock;
+    Database          database = Database(dbStorageMock, true);
+    HWAMIDIStub       hwaMIDI;
+    MIDI              midi(hwaMIDI);
+    ComponentInfo     cInfo;
+    HWALEDsStub       hwaLEDs;
+    IO::LEDs          leds(hwaLEDs, database);
+    HWAU8X8Stub       hwaU8X8;
+    IO::U8X8          u8x8(hwaU8X8);
+    IO::Display       display(u8x8, database);
+    ButtonsFilterStub buttonsFilter;
+    IO::Buttons       buttons = IO::Buttons(hwaButtons, buttonsFilter, database, midi, leds, display, cInfo);
 
     void stateChangeRegister(bool state)
     {

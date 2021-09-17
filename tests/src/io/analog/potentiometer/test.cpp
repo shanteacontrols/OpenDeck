@@ -2,75 +2,19 @@
 
 #include "unity/Framework.h"
 #include "io/analog/Analog.h"
-#include "io/leds/LEDs.h"
 #include "io/common/CInfo.h"
 #include "database/Database.h"
 #include "midi/src/MIDI.h"
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
 #include "stubs/database/DB_ReadWrite.h"
+#include "stubs/HWALEDs.h"
+#include "stubs/HWAU8X8.h"
+#include "stubs/AnalogFilter.h"
+#include "stubs/HWAMIDI.h"
 
 namespace
 {
-    class HWAMIDI : public MIDI::HWA
-    {
-        public:
-        HWAMIDI() = default;
-
-        bool init(MIDI::interface_t interface) override
-        {
-            return true;
-        }
-
-        bool deInit(MIDI::interface_t interface) override
-        {
-            return true;
-        }
-
-        bool dinRead(uint8_t& data) override
-        {
-            return false;
-        }
-
-        bool dinWrite(uint8_t data) override
-        {
-            return false;
-        }
-
-        bool usbRead(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
-        {
-            return false;
-        }
-
-        bool usbWrite(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
-        {
-            midiPacket.push_back(USBMIDIpacket);
-            return true;
-        }
-
-        std::vector<MIDI::USBMIDIpacket_t> midiPacket;
-    } hwaMIDI;
-
-    class HWALEDs : public IO::LEDs::HWA
-    {
-        public:
-        HWALEDs() {}
-
-        void setState(size_t index, IO::LEDs::brightness_t brightness) override
-        {
-        }
-
-        size_t rgbSignalIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
-        {
-            return 0;
-        }
-
-        size_t rgbIndex(size_t singleLEDindex) override
-        {
-            return 0;
-        }
-    } hwaLEDs;
-
     class HWAAnalog : public IO::Analog::HWA
     {
         public:
@@ -85,69 +29,18 @@ namespace
         uint32_t adcReturnValue;
     } hwaAnalog;
 
-    DBstorageMock dbStorageMock;
-    Database      database = Database(dbStorageMock, true);
-    MIDI          midi(hwaMIDI);
-    ComponentInfo cInfo;
-
-    IO::LEDs leds(hwaLEDs, database);
-
-    class HWAU8X8 : public IO::U8X8::HWAI2C
-    {
-        public:
-        HWAU8X8() {}
-
-        bool init() override
-        {
-            return true;
-        }
-
-        bool deInit() override
-        {
-            return true;
-        }
-
-        bool write(uint8_t address, uint8_t* buffer, size_t size) override
-        {
-            return true;
-        }
-    } hwaU8X8;
-
-    class AnalogFilterStub : public IO::Analog::Filter
-    {
-        public:
-        AnalogFilterStub() {}
-
-        IO::Analog::adcType_t adcType() override
-        {
-#ifdef ADC_12_BIT
-            return IO::Analog::adcType_t::adc12bit;
-#else
-            return IO::Analog::adcType_t::adc10bit;
-#endif
-        }
-
-        bool isFiltered(size_t index, IO::Analog::type_t type, uint16_t value, uint16_t& filteredValue) override
-        {
-            filteredValue = value;
-            return true;
-        }
-
-        void reset(size_t index) override
-        {
-        }
-    } analogFilter;
-
-    IO::U8X8    u8x8(hwaU8X8);
-    IO::Display display(u8x8, database);
-
-#ifdef ADC_12_BIT
-#define ADC_RESOLUTION IO::Analog::adcType_t::adc12bit
-#else
-#define ADC_RESOLUTION IO::Analog::adcType_t::adc10bit
-#endif
-
-    IO::Analog analog(hwaAnalog, analogFilter, database, midi, leds, display, cInfo);
+    DBstorageMock    dbStorageMock;
+    Database         database = Database(dbStorageMock, true);
+    HWAMIDIStub      hwaMIDI;
+    MIDI             midi(hwaMIDI);
+    ComponentInfo    cInfo;
+    AnalogFilterStub analogFilter;
+    HWALEDsStub      hwaLEDs;
+    IO::LEDs         leds(hwaLEDs, database);
+    HWAU8X8Stub      hwaU8X8;
+    IO::U8X8         u8x8(hwaU8X8);
+    IO::Display      display(u8x8, database);
+    IO::Analog       analog(hwaAnalog, analogFilter, database, midi, leds, display, cInfo);
 }    // namespace
 
 TEST_SETUP()
