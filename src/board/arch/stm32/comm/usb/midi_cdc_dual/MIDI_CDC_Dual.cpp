@@ -220,7 +220,7 @@ namespace
 
         uint8_t EP0_RxReadyCallback(USBD_HandleTypeDef* pdev)
         {
-            if ((pdev->pUserData != NULL) && (_cdcData.cmdOpCode != 0xFFU))
+            if (_cdcData.cmdOpCode != 0xFFU)
             {
                 cdcControlCallback(_cdcData.cmdOpCode, (uint8_t*)_cdcData.data, (uint16_t)_cdcData.cmdLength);
                 _cdcData.cmdOpCode = 0xFFU;
