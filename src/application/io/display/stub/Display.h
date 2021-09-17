@@ -18,7 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#include "U8X8/U8X8.h"
+#include "io/display/U8X8/U8X8.h"
 #include "core/src/general/StringBuilder.h"
 #include "database/Database.h"
 
@@ -85,6 +85,11 @@ namespace IO
         {}
 
         bool init(bool startupInfo)
+        {
+            return false;
+        }
+
+        bool deInit()
         {
             return false;
         }

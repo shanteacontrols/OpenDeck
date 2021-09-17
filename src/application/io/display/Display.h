@@ -18,13 +18,13 @@ limitations under the License.
 
 #pragma once
 
+#ifndef DISPLAY_SUPPORTED
+#include "stub/Display.h"
+#else
+
 #include "U8X8/U8X8.h"
 #include "core/src/general/StringBuilder.h"
 #include "database/Database.h"
-
-#ifndef DISPLAY_SUPPORTED
-#include "Stub.h"
-#else
 
 namespace IO
 {

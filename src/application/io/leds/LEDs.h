@@ -19,7 +19,7 @@ limitations under the License.
 #pragma once
 
 #ifndef LEDS_SUPPORTED
-#include "Stub.h"
+#include "stub/LEDs.h"
 #else
 
 #include "database/Database.h"

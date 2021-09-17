@@ -19,7 +19,7 @@ limitations under the License.
 #pragma once
 
 #ifndef ENCODERS_SUPPORTED
-#include "Stub.h"
+#include "stub/Encoders.h"
 #else
 
 #include "database/Database.h"

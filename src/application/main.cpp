@@ -78,6 +78,11 @@ class HWALEDs : public System::HWA::IO::LEDs
     public:
     HWALEDs() = default;
 
+    bool supported() override
+    {
+        return true;
+    }
+
     void setState(size_t index, IO::LEDs::brightness_t brightness) override
     {
         Board::io::writeLEDstate(index, appToBoardBrightness(brightness));
@@ -154,6 +159,11 @@ class HWALEDsStub : public System::HWA::IO::LEDs
     public:
     HWALEDsStub() {}
 
+    bool supported() override
+    {
+        return false;
+    }
+
     void setState(size_t index, bool state) override
     {
     }
@@ -180,6 +190,11 @@ class HWAAnalog : public System::HWA::IO::Analog
     public:
     HWAAnalog() = default;
 
+    bool supported() override
+    {
+        return true;
+    }
+
     bool value(size_t index, uint16_t& value) override
     {
         return Board::io::analogValue(index, value);
@@ -191,6 +206,11 @@ class HWAAnalogStub : public System::HWA::IO::Analog
 {
     public:
     HWAAnalogStub() {}
+
+    bool supported() override
+    {
+        return false;
+    }
 
     bool value(size_t index, uint16_t& value) override
     {
@@ -261,6 +281,11 @@ class HWAButtons : public System::HWA::IO::Buttons
     public:
     HWAButtons() = default;
 
+    bool supported() override
+    {
+        return true;
+    }
+
     bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
     {
         return _hwaDigitalIn.buttonState(index, numberOfReadings, states);
@@ -276,6 +301,11 @@ class HWAButtonsStub : public System::HWA::IO::Buttons
 {
     public:
     HWAButtonsStub() {}
+
+    bool supported() override
+    {
+        return false;
+    }
 
     bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
     {
@@ -296,6 +326,11 @@ class HWAEncoders : public System::HWA::IO::Encoders
     public:
     HWAEncoders() = default;
 
+    bool supported() override
+    {
+        return true;
+    }
+
     bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
     {
         return _hwaDigitalIn.encoderState(index, numberOfReadings, states);
@@ -306,6 +341,11 @@ class HWAEncodersStub : public System::HWA::IO::Encoders
 {
     public:
     HWAEncodersStub() {}
+
+    bool supported() override
+    {
+        return false;
+    }
 
     bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
     {
@@ -318,6 +358,15 @@ class HWAMIDI : public System::HWA::Protocol::MIDI
 {
     public:
     HWAMIDI() = default;
+
+    bool dinSupported() override
+    {
+#ifdef DIN_MIDI_SUPPORTED
+        return true;
+#else
+        return false;
+#endif
+    }
 
     bool init(::MIDI::interface_t interface) override
     {
@@ -419,6 +468,11 @@ class HWADMX : public System::HWA::Protocol::DMX
     public:
     HWADMX() = default;
 
+    bool supported() override
+    {
+        return true;
+    }
+
     bool init() override
     {
         Board::UART::config_t config(250000,
@@ -473,6 +527,11 @@ class HWADMXStub : public System::HWA::Protocol::DMX
     public:
     HWADMXStub() = default;
 
+    bool supported() override
+    {
+        return false;
+    }
+
     bool init() override
     {
         return false;
@@ -505,6 +564,11 @@ class HWATouchscreen : public System::HWA::IO::Touchscreen
 {
     public:
     HWATouchscreen() {}
+
+    bool supported() override
+    {
+        return true;
+    }
 
     bool init() override
     {
@@ -615,6 +679,11 @@ class HWATouchscreenStub : public System::HWA::IO::Touchscreen
     public:
     HWATouchscreenStub() {}
 
+    bool supported() override
+    {
+        return false;
+    }
+
     bool init() override
     {
         return false;
@@ -681,6 +750,11 @@ class Display : public System::HWA::IO::Display
     public:
     Display() {}
 
+    bool supported() override
+    {
+        return true;
+    }
+
     bool init() override
     {
         return Board::I2C::init(I2C_CHANNEL_DISPLAY, Board::I2C::clockSpeed_t::_1kHz);
@@ -701,6 +775,11 @@ class DisplayStub : public System::HWA::IO::Display
 {
     public:
     DisplayStub() = default;
+
+    bool supported() override
+    {
+        return false;
+    }
 
     bool init() override
     {

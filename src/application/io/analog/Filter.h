@@ -18,6 +18,10 @@ limitations under the License.
 
 #pragma once
 
+#ifndef ANALOG_SUPPORTED
+#include "stub/Filter.h"
+#else
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "core/src/general/Timing.h"
@@ -51,7 +55,6 @@ limitations under the License.
 
 namespace IO
 {
-#ifdef ANALOG_SUPPORTED
     class AnalogFilter : public Analog::Filter
     {
         public:
@@ -238,29 +241,5 @@ namespace IO
         bool                      _lastStableDirection[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS] = {};
         uint16_t                  _lastStableValue[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]     = {};
     };    // namespace IO
-#else
-    class AnalogFilter : public Analog::Filter
-    {
-        public:
-        AnalogFilter(Analog::adcType_t adcType) {}
-
-        Analog::adcType_t adcType() override
-        {
-#ifdef ADC_12_BIT
-            return IO::Analog::adcType_t::adc12bit;
-#else
-            return IO::Analog::adcType_t::adc10bit;
-#endif
-        }
-
-        bool isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) override
-        {
-            return false;
-        }
-
-        void reset(size_t index) override
-        {
-        }
-    };
-#endif
 }    // namespace IO
+#endif

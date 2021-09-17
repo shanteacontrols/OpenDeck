@@ -18,11 +18,14 @@ limitations under the License.
 
 #pragma once
 
+#ifndef BUTTONS_SUPPORTED
+#include "stub/Filter.h"
+#else
+
 #include "io/buttons/Buttons.h"
 
 namespace IO
 {
-#ifdef BUTTONS_SUPPORTED
     class ButtonsFilter : public IO::Buttons::Filter
     {
         public:
@@ -64,16 +67,6 @@ namespace IO
             return true;
         }
     };
-#else
-    class ButtonsFilter : public IO::Buttons::Filter
-    {
-        public:
-        ButtonsFilter() {}
-
-        bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
-        {
-            return false;
-        }
-    };
-#endif
 }    // namespace IO
+
+#endif

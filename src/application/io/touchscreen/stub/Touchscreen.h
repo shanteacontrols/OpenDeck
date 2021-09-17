@@ -21,6 +21,8 @@ limitations under the License.
 #include <inttypes.h>
 #include <stdlib.h>
 #include "database/Database.h"
+#include "io/touchscreen/model/Base.h"
+#include "io/common/CInfo.h"
 
 namespace IO
 {
@@ -62,6 +64,8 @@ namespace IO
             virtual bool cdcWrite(uint8_t* buffer, size_t size)                       = 0;
         };
 
+        using brightness_t = TouchscreenBase::brightness_t;
+
         Touchscreen(TouchscreenBase::HWA& hwa,
                     Database&             database,
                     ComponentInfo&        cInfo,
@@ -69,6 +73,16 @@ namespace IO
         {}
 
         bool init(mode_t mode)
+        {
+            return false;
+        }
+
+        bool deInit(mode_t mode)
+        {
+            return false;
+        }
+
+        bool isInitialized() const
         {
             return false;
         }

@@ -19,7 +19,7 @@ limitations under the License.
 #pragma once
 
 #ifndef BUTTONS_SUPPORTED
-#include "Stub.h"
+#include "stub/Buttons.h"
 #else
 
 #include "database/Database.h"

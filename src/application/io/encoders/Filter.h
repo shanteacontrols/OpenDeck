@@ -18,12 +18,15 @@ limitations under the License.
 
 #pragma once
 
+#ifndef ENCODERS_SUPPORTED
+#include "stub/Filter.h"
+#else
+
 #include "io/encoders/Encoders.h"
 #include "core/src/general/Helpers.h"
 
 namespace IO
 {
-#ifdef ENCODERS_SUPPORTED
     class EncodersFilter : public IO::Encoders::Filter
     {
         public:
@@ -108,28 +111,6 @@ namespace IO
         /// Array holding last movement time for all encoders.
         uint32_t _lastMovementTime[MAX_NUMBER_OF_ENCODERS] = {};
     };
-#else
-    class EncodersFilter : public IO::Encoders::Filter
-    {
-        public:
-        EncodersFilter() {}
-
-        bool isFiltered(size_t                    index,
-                        IO::Encoders::position_t  position,
-                        IO::Encoders::position_t& filteredPosition,
-                        uint32_t                  sampleTakenTime) override
-        {
-            return false;
-        }
-
-        void reset(size_t index) override
-        {
-        }
-
-        uint32_t lastMovementTime(size_t index) override
-        {
-            return 0;
-        }
-    };
-#endif
 }    // namespace IO
+
+#endif

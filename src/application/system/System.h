@@ -209,6 +209,7 @@ class System
             class LEDs
             {
                 public:
+                virtual bool   supported()                                                          = 0;
                 virtual void   setState(size_t index, ::IO::LEDs::brightness_t brightness)          = 0;
                 virtual size_t rgbIndex(size_t singleLEDindex)                                      = 0;
                 virtual size_t rgbSignalIndex(size_t rgbIndex, ::IO::LEDs::rgbIndex_t rgbComponent) = 0;
@@ -217,12 +218,14 @@ class System
             class Analog
             {
                 public:
+                virtual bool supported()                          = 0;
                 virtual bool value(size_t index, uint16_t& value) = 0;
             };
 
             class Buttons
             {
                 public:
+                virtual bool   supported()                                                      = 0;
                 virtual bool   state(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
                 virtual size_t buttonToEncoderIndex(size_t index)                               = 0;
             };
@@ -230,12 +233,14 @@ class System
             class Encoders
             {
                 public:
+                virtual bool supported()                                                      = 0;
                 virtual bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
             };
 
             class Touchscreen
             {
                 public:
+                virtual bool supported()          = 0;
                 virtual bool init()               = 0;
                 virtual bool deInit()             = 0;
                 virtual bool write(uint8_t value) = 0;
@@ -256,6 +261,7 @@ class System
             class Display
             {
                 public:
+                virtual bool supported()                                          = 0;
                 virtual bool init()                                               = 0;
                 virtual bool deInit()                                             = 0;
                 virtual bool write(uint8_t address, uint8_t* buffer, size_t size) = 0;
@@ -278,6 +284,7 @@ class System
                 public:
                 MIDI() = default;
 
+                virtual bool dinSupported()                                   = 0;
                 virtual bool init(::MIDI::interface_t interface)              = 0;
                 virtual bool deInit(::MIDI::interface_t interface)            = 0;
                 virtual bool setDINLoopback(bool state)                       = 0;
@@ -292,6 +299,7 @@ class System
                 public:
                 DMX() = default;
 
+                virtual bool supported()                                                  = 0;
                 virtual bool init()                                                       = 0;
                 virtual bool deInit()                                                     = 0;
                 virtual bool readUSB(uint8_t* buffer, size_t& size, const size_t maxSize) = 0;

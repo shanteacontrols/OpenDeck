@@ -342,7 +342,6 @@ void System::configureMIDI()
     _midi.setRunningStatusState(isMIDIfeatureEnabled(midiFeature_t::runningStatus));
     _midi.setChannelSendZeroStart(true);
 
-#ifdef DIN_MIDI_SUPPORTED
     if (isMIDIfeatureEnabled(midiFeature_t::dinEnabled))
     {
         _midi.init(MIDI::interface_t::din);
@@ -353,7 +352,6 @@ void System::configureMIDI()
         _midi.deInit(MIDI::interface_t::din);
         _midi.useRecursiveParsing(false);
     }
-#endif
 }
 
 bool System::isMIDIfeatureEnabled(midiFeature_t feature)
@@ -610,7 +608,6 @@ void System::checkMIDI()
         }
     };
 
-#ifdef DIN_MIDI_SUPPORTED
     if (
         isMIDIfeatureEnabled(System::midiFeature_t::dinEnabled) &&
         isMIDIfeatureEnabled(System::midiFeature_t::passToDIN))
@@ -624,12 +621,7 @@ void System::checkMIDI()
         while (_midi.read(MIDI::interface_t::usb))
             processMessage(MIDI::interface_t::usb);
     }
-#else
-    while (_midi.read(MIDI::interface_t::usb))
-        processMessage(MIDI::interface_t::usb);
-#endif
 
-#ifdef DIN_MIDI_SUPPORTED
     if (isMIDIfeatureEnabled(System::midiFeature_t::dinEnabled))
     {
         if (isMIDIfeatureEnabled(System::midiFeature_t::mergeEnabled))
@@ -660,7 +652,6 @@ void System::checkMIDI()
                 processMessage(MIDI::interface_t::din);
         }
     }
-#endif
 }
 
 void System::run()

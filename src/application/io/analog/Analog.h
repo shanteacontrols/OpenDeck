@@ -19,7 +19,7 @@ limitations under the License.
 #pragma once
 
 #ifndef ANALOG_SUPPORTED
-#include "Stub.h"
+#include "stub/Analog.h"
 #else
 
 #include <functional>

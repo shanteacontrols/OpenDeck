@@ -18,16 +18,16 @@ limitations under the License.
 
 #pragma once
 
+#ifndef TOUCHSCREEN_SUPPORTED
+#include "stub/Touchscreen.h"
+#else
+
 #include <inttypes.h>
 #include <stdlib.h>
 #include "database/Database.h"
 #include "io/common/CInfo.h"
 #include "model/nextion/Nextion.h"
 #include "model/viewtech/Viewtech.h"
-
-#ifndef TOUCHSCREEN_SUPPORTED
-#include "Stub.h"
-#else
 
 namespace IO
 {

@@ -28,6 +28,15 @@ namespace
         public:
         HWALEDs() {}
 
+        bool supported() override
+        {
+#ifdef LEDS_SUPPORTED
+            return true;
+#else
+            return false;
+#endif
+        }
+
         void setState(size_t index, IO::LEDs::brightness_t brightness) override
         {
         }
@@ -48,6 +57,15 @@ namespace
         public:
         HWAAnalog() {}
 
+        bool supported() override
+        {
+#ifdef ANALOG_SUPPORTED
+            return true;
+#else
+            return false;
+#endif
+        }
+
         bool value(size_t index, uint16_t& value) override
         {
             value = adcReturnValue;
@@ -61,6 +79,15 @@ namespace
     {
         public:
         HWAButtons() {}
+
+        bool supported() override
+        {
+#ifdef BUTTONS_SUPPORTED
+            return true;
+#else
+            return false;
+#endif
+        }
 
         bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
         {
@@ -79,6 +106,15 @@ namespace
         HWAEncoders()
         {}
 
+        bool supported() override
+        {
+#ifdef ENCODERS_SUPPORTED
+            return true;
+#else
+            return false;
+#endif
+        }
+
         bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
         {
             return false;
@@ -90,22 +126,31 @@ namespace
         public:
         HWATouchscreen() = default;
 
-        bool init()
+        bool supported() override
+        {
+#ifdef TOUCHSCREEN_SUPPORTED
+            return true;
+#else
+            return false;
+#endif
+        }
+
+        bool init() override
         {
             return false;
         }
 
-        bool deInit()
+        bool deInit() override
         {
             return false;
         }
 
-        bool write(uint8_t value)
+        bool write(uint8_t value) override
         {
             return false;
         }
 
-        bool read(uint8_t& value)
+        bool read(uint8_t& value) override
         {
             return false;
         }
@@ -154,6 +199,15 @@ namespace
         public:
         HWADisplay() {}
 
+        bool supported() override
+        {
+#ifdef DISPLAY_SUPPORTED
+            return true;
+#else
+            return false;
+#endif
+        }
+
         bool init() override
         {
             return true;
@@ -174,6 +228,15 @@ namespace
     {
         public:
         HWAMIDI() = default;
+
+        bool dinSupported() override
+        {
+#ifdef DIN_MIDI_SUPPORTED
+            return true;
+#else
+            return false;
+#endif
+        }
 
         bool init(::MIDI::interface_t interface) override
         {
@@ -248,6 +311,15 @@ namespace
     {
         public:
         HWADMX() = default;
+
+        bool supported() override
+        {
+#ifdef DMX_SUPPORTED
+            return true;
+#else
+            return false;
+#endif
+        }
 
         bool init() override
         {
