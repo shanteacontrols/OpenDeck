@@ -277,39 +277,6 @@ namespace Board
             return _usbConnectionState;
         }
 
-        void checkInternal()
-        {
-            if (_readPacket.type() == USBOverSerial::packetType_t::internal)
-            {
-                //internal command
-                if (_readPacket[0] == static_cast<uint8_t>(USBLink::internalCMD_t::usbState))
-                {
-                    _usbConnectionState = _readPacket[1];
-
-                    //this command also includes unique ID for USB link host
-                    //use it for non-usb MCU as well
-                    for (size_t i = 0; i < UID_BITS / 8; i++)
-                        _uidUSBDevice[i] = _readPacket[i + 2];
-                }
-                else if (_readPacket[0] == static_cast<uint8_t>(USBLink::internalCMD_t::baudRateChange))
-                {
-                    uint32_t baudRate = 0;
-
-                    baudRate = _readPacket[4];
-                    baudRate <<= 8;
-                    baudRate |= _readPacket[3];
-                    baudRate <<= 8;
-                    baudRate |= _readPacket[2];
-                    baudRate <<= 8;
-                    baudRate |= _readPacket[1];
-
-                    Board::USB::onCDCsetLineEncoding(baudRate);
-                }
-
-                _readPacket.reset();
-            }
-        }
-
         bool writeMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
         {
             uint8_t dataArray[4] = {
@@ -342,7 +309,8 @@ namespace Board
                 }
                 else
                 {
-                    checkInternal();
+                    USBLink::internalCMD_t cmd;
+                    Board::detail::USB::checkInternal(cmd);
                 }
             }
 
@@ -379,7 +347,8 @@ namespace Board
                 }
                 else
                 {
-                    checkInternal();
+                    USBLink::internalCMD_t cmd;
+                    Board::detail::USB::checkInternal(cmd);
                 }
             }
 
@@ -399,13 +368,84 @@ namespace Board
                 }
                 else
                 {
-                    checkInternal();
+                    USBLink::internalCMD_t cmd;
+                    Board::detail::USB::checkInternal(cmd);
                 }
             }
 
             return false;
         }
     }    // namespace USB
+
+    namespace detail
+    {
+        namespace USB
+        {
+            bool checkInternal(USBLink::internalCMD_t& cmd)
+            {
+                bool validCmd = true;
+
+                if (_readPacket.type() == USBOverSerial::packetType_t::internal)
+                {
+                    switch (_readPacket[0])
+                    {
+                    case static_cast<uint8_t>(USBLink::internalCMD_t::usbState):
+                    {
+                        _usbConnectionState = _readPacket[1];
+
+                        //this command also includes unique ID for USB link host
+                        //use it for non-usb MCU as well
+                        for (size_t i = 0; i < UID_BITS / 8; i++)
+                            _uidUSBDevice[i] = _readPacket[i + 2];
+                    }
+                    break;
+
+                    case static_cast<uint8_t>(USBLink::internalCMD_t::baudRateChange):
+                    {
+                        uint32_t baudRate = 0;
+
+                        baudRate = _readPacket[4];
+                        baudRate <<= 8;
+                        baudRate |= _readPacket[3];
+                        baudRate <<= 8;
+                        baudRate |= _readPacket[2];
+                        baudRate <<= 8;
+                        baudRate |= _readPacket[1];
+
+                        Board::USB::onCDCsetLineEncoding(baudRate);
+                    }
+                    break;
+
+                    default:
+                    {
+                        validCmd = false;
+                    }
+                    break;
+                    }
+
+                    if (validCmd)
+                        cmd = static_cast<USBLink::internalCMD_t>(_readPacket[0]);
+
+                    _readPacket.reset();
+                }
+
+                return validCmd;
+            }
+
+            bool readInternal(USBLink::internalCMD_t& cmd)
+            {
+                if (USBOverSerial::read(UART_CHANNEL_USB_LINK, _readPacket))
+                {
+                    if (_readPacket.type() == USBOverSerial::packetType_t::internal)
+                    {
+                        return checkInternal(cmd);
+                    }
+                }
+
+                return false;
+            }
+        }    // namespace USB
+    }        // namespace detail
 
     void uniqueID(uniqueID_t& uid)
     {

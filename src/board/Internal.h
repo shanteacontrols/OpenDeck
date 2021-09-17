@@ -23,6 +23,7 @@ limitations under the License.
 #include "midi/src/MIDI.h"
 #include "core/src/general/IO.h"
 #include "board/Board.h"
+#include "usb-link/Commands.h"
 
 #ifndef __AVR__
 #include <vector>
@@ -70,6 +71,18 @@ namespace Board
                 sending,
                 waiting
             };
+
+            /// Reads the data from UART channel on which USB host is located and checks if
+            /// received data is internal packet.
+            /// param [in,out] cmd  Reference to variable in which read internal command is stored.
+            /// returns True if internal command is read, false otherwise.
+            bool readInternal(USBLink::internalCMD_t& cmd);
+
+            /// Reads the buffered data already received from UART channel on which USB host is located and checks if
+            /// received data is internal packet.
+            /// param [in,out] cmd  Reference to variable in which read internal command is stored.
+            /// returns True if internal command is read, false otherwise.
+            bool checkInternal(USBLink::internalCMD_t& cmd);
         }    // namespace USB
 
         namespace UART
