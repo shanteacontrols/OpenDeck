@@ -26,11 +26,11 @@ void LEDs::init(bool startUp)
 {
     if (startUp)
     {
-        if (_database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::useStartupAnimation)))
+        if (_database.read(Database::Section::leds_t::global, setting_t::useStartupAnimation))
             startUpAnimation();
     }
 
-    setBlinkType(static_cast<blinkType_t>(_database.read(Database::Section::leds_t::global, static_cast<uint16_t>(setting_t::blinkWithMIDIclock))));
+    setBlinkType(static_cast<blinkType_t>(_database.read(Database::Section::leds_t::global, setting_t::blinkWithMIDIclock)));
 
     for (size_t i = 0; i < TOTAL_BLINK_SPEEDS; i++)
         _blinkState[i] = true;

@@ -332,7 +332,7 @@ TEST_CASE(VerifyBrightnessAndBlinkSpeed)
     //----------------------------------
 
     for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
-        TEST_ASSERT(database.update(Database::Section::leds_t::controlType, i, static_cast<int32_t>(IO::LEDs::controlType_t::midiInNoteMultiVal)) == true);
+        TEST_ASSERT(database.update(Database::Section::leds_t::controlType, i, IO::LEDs::controlType_t::midiInNoteMultiVal) == true);
 
     //continously call leds.midiToState with increasing MIDI value
     //verify that each call results in correct brightness and led blink speed
@@ -365,7 +365,7 @@ TEST_CASE(VerifyBrightnessAndBlinkSpeed)
     //----------------------------------
 
     for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
-        TEST_ASSERT(database.update(Database::Section::leds_t::controlType, i, static_cast<int32_t>(IO::LEDs::controlType_t::midiInCCMultiVal)) == true);
+        TEST_ASSERT(database.update(Database::Section::leds_t::controlType, i, IO::LEDs::controlType_t::midiInCCMultiVal) == true);
 
     //continously call leds.midiToState with increasing MIDI value
     //verify that each call results in correct brightness and led blink speed
@@ -398,7 +398,7 @@ TEST_CASE(VerifyBrightnessAndBlinkSpeed)
     //----------------------------------
 
     for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
-        TEST_ASSERT(database.update(Database::Section::leds_t::controlType, i, static_cast<int32_t>(IO::LEDs::controlType_t::localNoteMultiVal)) == true);
+        TEST_ASSERT(database.update(Database::Section::leds_t::controlType, i, IO::LEDs::controlType_t::localNoteMultiVal) == true);
 
     //continously call leds.midiToState with increasing MIDI value
     //verify that each call results in correct brightness and led blink speed
@@ -422,7 +422,7 @@ TEST_CASE(VerifyBrightnessAndBlinkSpeed)
     //----------------------------------
 
     for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
-        TEST_ASSERT(database.update(Database::Section::leds_t::controlType, i, static_cast<int32_t>(IO::LEDs::controlType_t::localCCMultiVal)) == true);
+        TEST_ASSERT(database.update(Database::Section::leds_t::controlType, i, IO::LEDs::controlType_t::localCCMultiVal) == true);
 
     //continously call leds.midiToState with increasing MIDI value
     //verify that each call results in correct brightness and led blink speed

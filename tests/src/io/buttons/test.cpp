@@ -72,10 +72,10 @@ TEST_CASE(Note)
         for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
         {
             //configure all buttons as momentary
-            TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::momentary)) == true);
+            TEST_ASSERT(database.update(Database::Section::button_t::type, i, Buttons::type_t::momentary) == true);
 
             //make all buttons send note messages
-            TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, i, static_cast<int32_t>(Buttons::messageType_t::note)) == true);
+            TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, i, Buttons::messageType_t::note) == true);
 
             //set passed velocity value
             TEST_ASSERT(database.update(Database::Section::button_t::velocity, i, velocityValue) == true);
@@ -121,7 +121,7 @@ TEST_CASE(Note)
 
         // try with the latching mode
         for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
-            TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::latching)) == true);
+            TEST_ASSERT(database.update(Database::Section::button_t::type, i, Buttons::type_t::latching) == true);
 
         stateChangeRegister(true);
         TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
@@ -158,10 +158,10 @@ TEST_CASE(ProgramChange)
         for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
         {
             //configure all buttons as momentary
-            TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::momentary)) == true);
+            TEST_ASSERT(database.update(Database::Section::button_t::type, i, Buttons::type_t::momentary) == true);
 
             //make all buttons send program change messages
-            TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, i, static_cast<int32_t>(Buttons::messageType_t::programChange)) == true);
+            TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, i, Buttons::messageType_t::programChange) == true);
 
             //configure the specifed midi channel
             TEST_ASSERT(database.update(Database::Section::button_t::midiChannel, i, channel) == true);
@@ -200,7 +200,7 @@ TEST_CASE(ProgramChange)
         //repeat the entire test again, but with buttons configured as latching types
         //behaviour should be the same
         for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
-            TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::latching)) == true);
+            TEST_ASSERT(database.update(Database::Section::button_t::type, i, Buttons::type_t::latching) == true);
 
         stateChangeRegister(true);
         TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
@@ -220,8 +220,8 @@ TEST_CASE(ProgramChange)
     stateChangeRegister(false);
 
     auto configurePCbutton = [&](size_t index, uint8_t channel, bool increase) {
-        TEST_ASSERT(database.update(Database::Section::button_t::type, index, static_cast<int32_t>(Buttons::type_t::momentary)) == true);
-        TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, index, increase ? static_cast<int32_t>(Buttons::messageType_t::programChangeInc) : static_cast<int32_t>(Buttons::messageType_t::programChangeDec)) == true);
+        TEST_ASSERT(database.update(Database::Section::button_t::type, index, Buttons::type_t::momentary) == true);
+        TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, index, increase ? Buttons::messageType_t::programChangeInc : Buttons::messageType_t::programChangeDec) == true);
         TEST_ASSERT(database.update(Database::Section::button_t::midiChannel, index, channel) == true);
 
         for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
@@ -384,10 +384,10 @@ TEST_CASE(ControlChange)
         for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
         {
             //configure all buttons as momentary
-            TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::momentary)) == true);
+            TEST_ASSERT(database.update(Database::Section::button_t::type, i, Buttons::type_t::momentary) == true);
 
             //make all buttons send control change messages
-            TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, i, static_cast<int32_t>(Buttons::messageType_t::controlChange)) == true);
+            TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, i, Buttons::messageType_t::controlChange) == true);
 
             //set passed control value
             TEST_ASSERT(database.update(Database::Section::button_t::velocity, i, controlValue) == true);
@@ -427,7 +427,7 @@ TEST_CASE(ControlChange)
         //behaviour should be the same
 
         for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
-            TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::latching)) == true);
+            TEST_ASSERT(database.update(Database::Section::button_t::type, i, Buttons::type_t::latching) == true);
 
         stateChangeRegister(true);
         TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
@@ -441,10 +441,10 @@ TEST_CASE(ControlChange)
         // this means CC value 0 should be sent on release
 
         for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
-            TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::momentary)) == true);
+            TEST_ASSERT(database.update(Database::Section::button_t::type, i, Buttons::type_t::momentary) == true);
 
         for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
-            TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, i, static_cast<int32_t>(Buttons::messageType_t::controlChangeReset)) == true);
+            TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, i, Buttons::messageType_t::controlChangeReset) == true);
 
         stateChangeRegister(true);
         TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
@@ -462,7 +462,7 @@ TEST_CASE(ControlChange)
         //on second press reset should be sent (CC with value 0)
 
         for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
-            TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::latching)) == true);
+            TEST_ASSERT(database.update(Database::Section::button_t::type, i, Buttons::type_t::latching) == true);
 
         stateChangeRegister(true);
         TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
@@ -493,10 +493,10 @@ TEST_CASE(NoMessages)
     for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
     {
         //configure all buttons as momentary
-        TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::momentary)) == true);
+        TEST_ASSERT(database.update(Database::Section::button_t::type, i, Buttons::type_t::momentary) == true);
 
         //don't send any message
-        TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, i, static_cast<int32_t>(Buttons::messageType_t::none)) == true);
+        TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, i, Buttons::messageType_t::none) == true);
 
         buttons.reset(i);
     }
@@ -508,7 +508,7 @@ TEST_CASE(NoMessages)
     TEST_ASSERT(hwaMIDI.midiPacket.size() == 0);
 
     for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
-        TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::latching)) == true);
+        TEST_ASSERT(database.update(Database::Section::button_t::type, i, Buttons::type_t::latching) == true);
 
     stateChangeRegister(true);
     TEST_ASSERT(hwaMIDI.midiPacket.size() == 0);
@@ -532,10 +532,10 @@ TEST_CASE(LocalLEDcontrol)
     for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
     {
         //configure all buttons as momentary
-        TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::momentary)) == true);
+        TEST_ASSERT(database.update(Database::Section::button_t::type, i, Buttons::type_t::momentary) == true);
 
         //send note messages
-        TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, i, static_cast<int32_t>(Buttons::messageType_t::note)) == true);
+        TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, i, Buttons::messageType_t::note) == true);
 
         TEST_ASSERT(database.update(Database::Section::button_t::velocity, i, 127) == true);
 
@@ -543,7 +543,7 @@ TEST_CASE(LocalLEDcontrol)
     }
 
     //configure one of the leds in local control mode
-    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(LEDs::controlType_t::localNoteSingleVal)) == true);
+    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, LEDs::controlType_t::localNoteSingleVal) == true);
     //set 127 as activation value, 0 as activation ID
     TEST_ASSERT(database.update(Database::Section::leds_t::activationValue, 0, 127) == true);
     TEST_ASSERT(database.update(Database::Section::leds_t::activationID, 0, 0) == true);
@@ -572,7 +572,7 @@ TEST_CASE(LocalLEDcontrol)
 
     //test again in latching mode
     for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
-        TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::latching)) == true);
+        TEST_ASSERT(database.update(Database::Section::button_t::type, i, Buttons::type_t::latching) == true);
 
     stateChangeRegister(true);
     TEST_ASSERT(hwaMIDI.midiPacket.size() == MAX_NUMBER_OF_BUTTONS);
@@ -594,10 +594,10 @@ TEST_CASE(LocalLEDcontrol)
     for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
     {
         //configure all buttons as momentary
-        TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::momentary)) == true);
+        TEST_ASSERT(database.update(Database::Section::button_t::type, i, Buttons::type_t::momentary) == true);
 
         //send cc messages
-        TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, i, static_cast<int32_t>(Buttons::messageType_t::controlChange)) == true);
+        TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, i, Buttons::messageType_t::controlChange) == true);
 
         buttons.reset(i);
     }
@@ -608,7 +608,7 @@ TEST_CASE(LocalLEDcontrol)
     //led should be off since it's configure to react on note messages and not on control change
     TEST_ASSERT(leds.color(0) == LEDs::color_t::off);
 
-    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(LEDs::controlType_t::localCCSingleVal)) == true);
+    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, LEDs::controlType_t::localCCSingleVal) == true);
 
     //no messages being sent on release in CC mode
     stateChangeRegister(false);
@@ -642,10 +642,10 @@ TEST_CASE(LocalLEDcontrol)
     for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
     {
         //configure all buttons as momentary
-        TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::momentary)) == true);
+        TEST_ASSERT(database.update(Database::Section::button_t::type, i, Buttons::type_t::momentary) == true);
 
         //send cc messages with reset
-        TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, i, static_cast<int32_t>(Buttons::messageType_t::controlChangeReset)) == true);
+        TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, i, Buttons::messageType_t::controlChangeReset) == true);
 
         TEST_ASSERT(database.update(Database::Section::button_t::velocity, i, 127) == true);
 
@@ -664,14 +664,14 @@ TEST_CASE(LocalLEDcontrol)
     //configure LED 0 in midiInNoteMultiVal mode, activation value to 127, activation ID to 0
     //press button 0 (momentary mode, midi notes)
     //verify that the state of led hasn't been changed
-    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(LEDs::controlType_t::midiInNoteMultiVal)) == true);
+    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, LEDs::controlType_t::midiInNoteMultiVal) == true);
     TEST_ASSERT(database.update(Database::Section::leds_t::activationValue, 0, 127) == true);
     TEST_ASSERT(database.update(Database::Section::leds_t::activationID, 0, 0) == true);
 
     for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
     {
-        TEST_ASSERT(database.update(Database::Section::button_t::type, i, static_cast<int32_t>(Buttons::type_t::momentary)) == true);
-        TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, i, static_cast<int32_t>(Buttons::messageType_t::note)) == true);
+        TEST_ASSERT(database.update(Database::Section::button_t::type, i, Buttons::type_t::momentary) == true);
+        TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, i, Buttons::messageType_t::note) == true);
         TEST_ASSERT(database.update(Database::Section::button_t::velocity, i, 127) == true);
 
         buttons.reset(i);
@@ -684,7 +684,7 @@ TEST_CASE(LocalLEDcontrol)
     TEST_ASSERT(leds.color(0) == LEDs::color_t::off);
 
     //again with midiInCCMultiVal
-    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(LEDs::controlType_t::midiInCCMultiVal)) == true);
+    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, LEDs::controlType_t::midiInCCMultiVal) == true);
     stateChangeRegister(true);
     TEST_ASSERT(leds.color(0) == LEDs::color_t::off);
     stateChangeRegister(false);
@@ -695,7 +695,7 @@ TEST_CASE(LocalLEDcontrol)
         buttons.reset(i);
 
     //test program change
-    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(LEDs::controlType_t::localPCSingleVal)) == true);
+    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, LEDs::controlType_t::localPCSingleVal) == true);
     stateChangeRegister(true);
     //led should remain in off state since none of the buttons use program change for message
     TEST_ASSERT(leds.color(0) == LEDs::color_t::off);
@@ -704,7 +704,7 @@ TEST_CASE(LocalLEDcontrol)
         buttons.reset(i);
 
     //configure button in program change mode - this should trigger on state for LED 0
-    TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, 0, static_cast<int32_t>(Buttons::messageType_t::programChange)) == true);
+    TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, 0, Buttons::messageType_t::programChange) == true);
     stateChangeRegister(true);
     TEST_ASSERT(leds.color(0) == LEDs::color_t::red);
 
@@ -712,8 +712,8 @@ TEST_CASE(LocalLEDcontrol)
         buttons.reset(i);
 
     //configure second LED and button in program change mode
-    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 1, static_cast<int32_t>(LEDs::controlType_t::localPCSingleVal)) == true);
-    TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, 1, static_cast<int32_t>(Buttons::messageType_t::programChange)) == true);
+    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 1, LEDs::controlType_t::localPCSingleVal) == true);
+    TEST_ASSERT(database.update(Database::Section::button_t::midiMessage, 1, Buttons::messageType_t::programChange) == true);
 
     stateChangeRegister(true);
 

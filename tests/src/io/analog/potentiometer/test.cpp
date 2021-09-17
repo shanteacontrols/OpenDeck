@@ -70,7 +70,7 @@ TEST_CASE(CCtest)
         TEST_ASSERT(database.update(Database::Section::analog_t::invert, i, 0) == true);
 
         //configure all analog components as potentiometers with CC MIDI message
-        TEST_ASSERT(database.update(Database::Section::analog_t::type, i, static_cast<int32_t>(Analog::type_t::potentiometerControlChange)) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::type, i, Analog::type_t::potentiometerControlChange) == true);
 
         //set all lower limits to 0
         TEST_ASSERT(database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
@@ -162,7 +162,7 @@ TEST_CASE(PitchBendTest)
         TEST_ASSERT(database.update(Database::Section::analog_t::invert, i, 0) == true);
 
         //configure all analog components as potentiometers with Pitch Bend MIDI message
-        TEST_ASSERT(database.update(Database::Section::analog_t::type, i, static_cast<int32_t>(Analog::type_t::pitchBend)) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::type, i, Analog::type_t::pitchBend) == true);
 
         //set all lower limits to 0
         TEST_ASSERT(database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
@@ -247,7 +247,7 @@ TEST_CASE(Inversion)
         TEST_ASSERT(database.update(Database::Section::analog_t::invert, i, 0) == true);
 
         //configure all analog components as potentiometers with CC MIDI message
-        TEST_ASSERT(database.update(Database::Section::analog_t::type, i, static_cast<int32_t>(Analog::type_t::potentiometerControlChange)) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::type, i, Analog::type_t::potentiometerControlChange) == true);
 
         //set all lower limits to 0
         TEST_ASSERT(database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
@@ -373,7 +373,7 @@ TEST_CASE(Scaling)
         TEST_ASSERT(database.update(Database::Section::analog_t::invert, i, 0) == true);
 
         //configure all analog components as potentiometers with CC MIDI message
-        TEST_ASSERT(database.update(Database::Section::analog_t::type, i, static_cast<int32_t>(Analog::type_t::potentiometerControlChange)) == true);
+        TEST_ASSERT(database.update(Database::Section::analog_t::type, i, Analog::type_t::potentiometerControlChange) == true);
 
         //set all lower limits to 0
         TEST_ASSERT(database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);

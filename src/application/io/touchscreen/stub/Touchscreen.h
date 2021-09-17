@@ -87,6 +87,11 @@ namespace IO
             return false;
         }
 
+        bool isInitialized(mode_t mode)
+        {
+            return false;
+        }
+
         void update()
         {
         }

@@ -299,7 +299,7 @@ bool System::init()
 
     configureMIDI();
 
-    if (_database.read(Database::Section::global_t::dmx, static_cast<size_t>(dmxSetting_t::enabled)))
+    if (_database.read(Database::Section::global_t::dmx, dmxSetting_t::enabled))
         _dmx.init();
 
     return true;
@@ -356,12 +356,12 @@ void System::configureMIDI()
 
 bool System::isMIDIfeatureEnabled(midiFeature_t feature)
 {
-    return _database.read(Database::Section::global_t::midiFeatures, static_cast<size_t>(feature));
+    return _database.read(Database::Section::global_t::midiFeatures, feature);
 }
 
 System::midiMergeType_t System::midiMergeType()
 {
-    return static_cast<midiMergeType_t>(_database.read(Database::Section::global_t::midiMerge, static_cast<size_t>(midiMerge_t::mergeType)));
+    return static_cast<midiMergeType_t>(_database.read(Database::Section::global_t::midiMerge, midiMerge_t::mergeType));
 }
 
 void System::backup()

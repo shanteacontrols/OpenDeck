@@ -25,8 +25,8 @@ bool System::HWAMIDI::init(MIDI::interface_t interface)
 
     //DIN
 
-    auto mergeType    = static_cast<System::midiMergeType_t>(_system._database.read(Database::Section::global_t::midiMerge, static_cast<size_t>(System::midiMerge_t::mergeType)));
-    bool mergeEnabled = _system._database.read(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::mergeEnabled));
+    auto mergeType    = static_cast<System::midiMergeType_t>(_system._database.read(Database::Section::global_t::midiMerge, System::midiMerge_t::mergeType));
+    bool mergeEnabled = _system._database.read(Database::Section::global_t::midiFeatures, System::midiFeature_t::mergeEnabled);
 
     bool loopback = mergeType == System::midiMergeType_t::DINtoDIN && mergeEnabled;
 

@@ -100,7 +100,7 @@ TEST_CASE(StateDecoding)
         TEST_ASSERT(database.update(Database::Section::encoder_t::invert, i, 0) == true);
 
         //set type of message to Encoders::type_t::t7Fh01h
-        TEST_ASSERT(database.update(Database::Section::encoder_t::mode, i, static_cast<int32_t>(Encoders::type_t::t7Fh01h)) == true);
+        TEST_ASSERT(database.update(Database::Section::encoder_t::mode, i, Encoders::type_t::t7Fh01h) == true);
 
         //set single pulse per step
         TEST_ASSERT(database.update(Database::Section::encoder_t::pulsesPerStep, i, 1) == true);

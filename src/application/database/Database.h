@@ -141,25 +141,25 @@ class Database : public LESSDB
     using LESSDB::read;
     using LESSDB::update;
 
-    template<typename T>
-    int32_t read(T section, size_t index)
+    template<typename T, typename I>
+    int32_t read(T section, I index)
     {
         block_t blockIndex = block(section);
-        return LESSDB::read(static_cast<uint8_t>(blockIndex), static_cast<uint8_t>(section), index);
+        return LESSDB::read(static_cast<uint8_t>(blockIndex), static_cast<uint8_t>(section), static_cast<size_t>(index));
     }
 
-    template<typename T>
-    bool read(T section, size_t index, int32_t& value)
+    template<typename T, typename I>
+    bool read(T section, I index, int32_t& value)
     {
         block_t blockIndex = block(section);
-        return LESSDB::read(static_cast<uint8_t>(blockIndex), static_cast<uint8_t>(section), index, value);
+        return LESSDB::read(static_cast<uint8_t>(blockIndex), static_cast<uint8_t>(section), static_cast<size_t>(index), value);
     }
 
-    template<typename T>
-    bool update(T section, size_t index, int32_t value)
+    template<typename T, typename I, typename V>
+    bool update(T section, I index, V value)
     {
         block_t blockIndex = block(section);
-        return LESSDB::update(static_cast<uint8_t>(blockIndex), static_cast<uint8_t>(section), index, value);
+        return LESSDB::update(static_cast<uint8_t>(blockIndex), static_cast<uint8_t>(section), static_cast<size_t>(index), static_cast<int32_t>(value));
     }
 
     bool    init();

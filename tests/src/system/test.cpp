@@ -627,24 +627,24 @@ TEST_CASE(SystemInit)
 
     //enable din midi via write in database
 #ifdef DIN_MIDI_SUPPORTED
-    TEST_ASSERT(_database.update(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled), 1) == true);
+    TEST_ASSERT(_database.update(Database::Section::global_t::midiFeatures, System::midiFeature_t::dinEnabled, 1) == true);
 
     // init system again and verify that din midi is enabled
     TEST_ASSERT(systemStub.init() == true);
 
-    TEST_ASSERT(_database.read(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled)) == true);
+    TEST_ASSERT(_database.read(Database::Section::global_t::midiFeatures, System::midiFeature_t::dinEnabled) == true);
 #endif
 
     TEST_ASSERT(_hwaMIDI._loopbackEnabled == false);
 
     //now enable din to din merge, init system again and verify that both din midi and loopback are enabled
 #ifdef DIN_MIDI_SUPPORTED
-    TEST_ASSERT(_database.update(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::mergeEnabled), 1) == true);
-    TEST_ASSERT(_database.update(Database::Section::global_t::midiMerge, static_cast<size_t>(System::midiMerge_t::mergeType), static_cast<int32_t>(System::midiMergeType_t::DINtoDIN)) == true);
+    TEST_ASSERT(_database.update(Database::Section::global_t::midiFeatures, System::midiFeature_t::mergeEnabled, 1) == true);
+    TEST_ASSERT(_database.update(Database::Section::global_t::midiMerge, System::midiMerge_t::mergeType, System::midiMergeType_t::DINtoDIN) == true);
 
     TEST_ASSERT(systemStub.init() == true);
 
-    TEST_ASSERT(_database.read(Database::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled)) == true);
+    TEST_ASSERT(_database.read(Database::Section::global_t::midiFeatures, System::midiFeature_t::dinEnabled) == true);
     TEST_ASSERT(_hwaMIDI._loopbackEnabled == true);
 #endif
 }

@@ -29,9 +29,9 @@ bool Touchscreen::init(mode_t mode)
     {
     case mode_t::normal:
     {
-        if (_database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::enable)))
+        if (_database.read(Database::Section::touchscreen_t::setting, IO::Touchscreen::setting_t::enable))
         {
-            auto dbModel = _database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::model));
+            auto dbModel = _database.read(Database::Section::touchscreen_t::setting, IO::Touchscreen::setting_t::model);
 
             if (_initialized)
             {
@@ -49,8 +49,8 @@ bool Touchscreen::init(mode_t mode)
 
                 if (_initialized)
                 {
-                    setScreen(_database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::initialScreen)));
-                    setBrightness(static_cast<brightness_t>(_database.read(Database::Section::touchscreen_t::setting, static_cast<size_t>(IO::Touchscreen::setting_t::brightness))));
+                    setScreen(_database.read(Database::Section::touchscreen_t::setting, IO::Touchscreen::setting_t::initialScreen));
+                    setBrightness(static_cast<brightness_t>(_database.read(Database::Section::touchscreen_t::setting, IO::Touchscreen::setting_t::brightness)));
 
                     _mode = mode;
 

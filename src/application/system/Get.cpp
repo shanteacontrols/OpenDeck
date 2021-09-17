@@ -161,7 +161,7 @@ uint8_t System::onGetGlobal(Section::global_t section, size_t index, uint16_t& v
         if (!_hwa.protocol().dmx().supported())
             return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 
-        bool dmxEnabled = _database.read(dbSection(section), static_cast<size_t>(dmxSetting_t::enabled));
+        bool dmxEnabled = _database.read(dbSection(section), dmxSetting_t::enabled);
 
         if (!dmxEnabled && _hwa.serialPeripheralAllocated(serialPeripheral_t::dmx) && !_backupRequested)
         {
@@ -346,7 +346,7 @@ uint8_t System::onGetTouchscreen(Section::touchscreen_t section, size_t index, u
             {
             case static_cast<size_t>(IO::Touchscreen::setting_t::cdcPassthrough):
             {
-                if (_database.read(Database::Section::global_t::dmx, static_cast<size_t>(dmxSetting_t::enabled)))
+                if (_database.read(Database::Section::global_t::dmx, dmxSetting_t::enabled))
                 {
                     if (!_backupRequested)
                     {

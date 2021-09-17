@@ -30,9 +30,9 @@ TEST_CASE(ReadInitialValues)
 
         //merge section
         //all values should be set to 0
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiMerge, static_cast<size_t>(System::midiMerge_t::mergeType)));
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiMerge, static_cast<size_t>(System::midiMerge_t::mergeUSBchannel)));
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiMerge, static_cast<size_t>(System::midiMerge_t::mergeDINchannel)));
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiMerge, System::midiMerge_t::mergeType));
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiMerge, System::midiMerge_t::mergeUSBchannel));
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiMerge, System::midiMerge_t::mergeDINchannel));
 
         //button block
         //----------------------------------
@@ -177,14 +177,14 @@ TEST_CASE(ReadInitialValues)
         //display block
         //----------------------------------
         //feature section
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::display_t::features, static_cast<size_t>(IO::Display::feature_t::enable)));
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::display_t::features, static_cast<size_t>(IO::Display::feature_t::welcomeMsg)));
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::display_t::features, static_cast<size_t>(IO::Display::feature_t::vInfoMsg)));
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::display_t::features, static_cast<size_t>(IO::Display::feature_t::MIDInotesAlternate)));
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::display_t::features, IO::Display::feature_t::enable));
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::display_t::features, IO::Display::feature_t::welcomeMsg));
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::display_t::features, IO::Display::feature_t::vInfoMsg));
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::display_t::features, IO::Display::feature_t::MIDInotesAlternate));
 
         //setting section
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::display_t::setting, static_cast<size_t>(IO::Display::setting_t::MIDIeventTime)));
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::display_t::setting, static_cast<size_t>(IO::Display::setting_t::octaveNormalization)));
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::display_t::setting, IO::Display::setting_t::MIDIeventTime));
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::display_t::setting, IO::Display::setting_t::octaveNormalization));
 #endif
 
 #ifdef TOUCHSCREEN_SUPPORTED
@@ -329,8 +329,8 @@ TEST_CASE(FactoryReset)
 
 #ifdef DISPLAY_SUPPORTED
     TEST_ASSERT(database.update(Database::Section::display_t::setting,
-                                static_cast<size_t>(IO::Display::setting_t::controller),
-                                static_cast<size_t>(IO::U8X8::displayController_t::ssd1306)) == true);
+                                IO::Display::setting_t::controller,
+                                IO::U8X8::displayController_t::ssd1306) == true);
 #endif
 
     database.setPresetPreserveState(true);
@@ -348,7 +348,7 @@ TEST_CASE(FactoryReset)
 
 #ifdef DISPLAY_SUPPORTED
     TEST_ASSERT(database.read(Database::Section::display_t::setting,
-                              static_cast<size_t>(IO::Display::setting_t::controller)) == static_cast<int32_t>(IO::U8X8::displayController_t::invalid));
+                              IO::Display::setting_t::controller) == static_cast<int32_t>(IO::U8X8::displayController_t::invalid));
 #endif
 
     TEST_ASSERT(database.getPresetPreserveState() == false);
@@ -365,7 +365,7 @@ TEST_CASE(LEDs)
     for (int i = 0; i < MAX_NUMBER_OF_RGB_LEDS; i++)
         TEST_ASSERT(database.read(Database::Section::leds_t::rgbEnable, i) == false);
 
-    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, static_cast<int32_t>(IO::LEDs::controlType_t::localPCSingleVal)) == true);
+    TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, IO::LEDs::controlType_t::localPCSingleVal) == true);
 
     //rgb state shouldn't change
     for (int i = 0; i < MAX_NUMBER_OF_RGB_LEDS; i++)

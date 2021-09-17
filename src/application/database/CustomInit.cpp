@@ -43,12 +43,12 @@ void Database::customInitLEDs()
     for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
     {
         update(Database::Section::leds_t::activationID, i, i);
-        update(Database::Section::leds_t::controlType, i, static_cast<int32_t>(IO::LEDs::controlType_t::midiInNoteMultiVal));
+        update(Database::Section::leds_t::controlType, i, IO::LEDs::controlType_t::midiInNoteMultiVal);
     }
 
     for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
     {
         update(Database::Section::leds_t::activationID, i + MAX_NUMBER_OF_LEDS, i);
-        update(Database::Section::leds_t::controlType, i + MAX_NUMBER_OF_LEDS, static_cast<int32_t>(IO::LEDs::controlType_t::midiInNoteMultiVal));
+        update(Database::Section::leds_t::controlType, i + MAX_NUMBER_OF_LEDS, IO::LEDs::controlType_t::midiInNoteMultiVal);
     }
 }

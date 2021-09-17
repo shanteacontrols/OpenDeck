@@ -28,11 +28,11 @@ using namespace IO;
 /// Initialize display driver and variables.
 bool Display::init(bool startupInfo)
 {
-    if (_database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::enable)))
+    if (_database.read(Database::Section::display_t::features, feature_t::enable))
     {
-        auto    controller = static_cast<U8X8::displayController_t>(_database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::controller)));
-        auto    resolution = static_cast<U8X8::displayResolution_t>(_database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::resolution)));
-        uint8_t address    = _database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::i2cAddress));
+        auto    controller = static_cast<U8X8::displayController_t>(_database.read(Database::Section::display_t::setting, setting_t::controller));
+        auto    resolution = static_cast<U8X8::displayResolution_t>(_database.read(Database::Section::display_t::setting, setting_t::resolution));
+        uint8_t address    = _database.read(Database::Section::display_t::setting, setting_t::i2cAddress);
 
         if (!startupInfo)
         {
@@ -86,17 +86,17 @@ bool Display::init(bool startupInfo)
             {
                 setDirectWriteState(true);
 
-                if (_database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::welcomeMsg)))
+                if (_database.read(Database::Section::display_t::features, feature_t::welcomeMsg))
                     displayWelcomeMessage();
 
-                if (_database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::vInfoMsg)))
+                if (_database.read(Database::Section::display_t::features, feature_t::vInfoMsg))
                     displayVinfo(false);
 
                 setDirectWriteState(false);
             }
 
-            setAlternateNoteDisplay(_database.read(Database::Section::display_t::features, static_cast<size_t>(feature_t::MIDInotesAlternate)));
-            setRetentionTime(_database.read(Database::Section::display_t::setting, static_cast<size_t>(setting_t::MIDIeventTime)) * 1000);
+            setAlternateNoteDisplay(_database.read(Database::Section::display_t::features, feature_t::MIDInotesAlternate));
+            setRetentionTime(_database.read(Database::Section::display_t::setting, setting_t::MIDIeventTime) * 1000);
 
             clearMIDIevent(eventType_t::in);
             clearMIDIevent(eventType_t::out);
