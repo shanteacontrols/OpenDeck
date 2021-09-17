@@ -42,25 +42,12 @@ namespace
 
             if (lastConnectionState != newState)
             {
-                Board::uniqueID_t uniqueID;
-                Board::uniqueID(uniqueID);
-
-                uint8_t data[12] = {
+                uint8_t data[2] = {
                     static_cast<uint8_t>(USBLink::internalCMD_t::usbState),
                     newState,
-                    uniqueID[0],
-                    uniqueID[1],
-                    uniqueID[2],
-                    uniqueID[3],
-                    uniqueID[4],
-                    uniqueID[5],
-                    uniqueID[6],
-                    uniqueID[7],
-                    uniqueID[8],
-                    uniqueID[9],
                 };
 
-                Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::internal, data, 12);
+                Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::internal, data, 2);
                 Board::USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
 
                 lastConnectionState = newState;
@@ -68,6 +55,29 @@ namespace
 
             lastCheckTime = core::timing::currentRunTimeMs();
         }
+    }
+
+    void sendUniqueID()
+    {
+        Board::uniqueID_t uniqueID;
+        Board::uniqueID(uniqueID);
+
+        uint8_t data[11] = {
+            static_cast<uint8_t>(USBLink::internalCMD_t::uniqueID),
+            uniqueID[0],
+            uniqueID[1],
+            uniqueID[2],
+            uniqueID[3],
+            uniqueID[4],
+            uniqueID[5],
+            uniqueID[6],
+            uniqueID[7],
+            uniqueID[8],
+            uniqueID[9],
+        };
+
+        Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::internal, data, 11);
+        Board::USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
     }
 }    // namespace
 
@@ -94,6 +104,10 @@ namespace Board
 int main(void)
 {
     Board::init();
+
+    //make sure device is ready before sending unique id
+    core::timing::waitMs(50);
+    sendUniqueID();
 
     while (1)
     {

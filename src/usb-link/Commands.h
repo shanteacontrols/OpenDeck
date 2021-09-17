@@ -28,6 +28,7 @@ namespace USBLink
     {
         rebootBTLDR,
         usbState,
-        baudRateChange
+        baudRateChange,
+        uniqueID
     };
 }    // namespace USBLink

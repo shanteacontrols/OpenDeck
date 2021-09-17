@@ -392,11 +392,6 @@ namespace Board
                     case static_cast<uint8_t>(USBLink::internalCMD_t::usbState):
                     {
                         _usbConnectionState = _readPacket[1];
-
-                        //this command also includes unique ID for USB link host
-                        //use it for non-usb MCU as well
-                        for (size_t i = 0; i < UID_BITS / 8; i++)
-                            _uidUSBDevice[i] = _readPacket[i + 2];
                     }
                     break;
 
@@ -413,6 +408,13 @@ namespace Board
                         baudRate |= _readPacket[1];
 
                         Board::USB::onCDCsetLineEncoding(baudRate);
+                    }
+                    break;
+
+                    case static_cast<uint8_t>(USBLink::internalCMD_t::uniqueID):
+                    {
+                        for (size_t i = 0; i < UID_BITS / 8; i++)
+                            _uidUSBDevice[i] = _readPacket[i + 1];
                     }
                     break;
 
