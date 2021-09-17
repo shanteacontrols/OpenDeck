@@ -16,6 +16,8 @@ limitations under the License.
 
 */
 
+#pragma once
+
 #include <inttypes.h>
 
 namespace USBLink
