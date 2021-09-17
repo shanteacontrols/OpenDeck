@@ -169,6 +169,14 @@ uint8_t System::onGetGlobal(Section::global_t section, size_t index, uint16_t& v
         }
         else
         {
+            if (_touchscreen.isInitialized(IO::Touchscreen::mode_t::cdcPassthrough))
+            {
+                if (!_backupRequested)
+                {
+                    return CDC_ALLOCATED_ERROR;
+                }
+            }
+
             result = _database.read(dbSection(section), index, readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
         }
     }
@@ -330,6 +338,34 @@ uint8_t System::onGetTouchscreen(Section::touchscreen_t section, size_t index, u
     }
     else
     {
+        switch (section)
+        {
+        case Section::touchscreen_t::setting:
+        {
+            switch (index)
+            {
+            case static_cast<size_t>(IO::Touchscreen::setting_t::cdcPassthrough):
+            {
+                if (_database.read(Database::Section::global_t::dmx, static_cast<size_t>(dmxSetting_t::enabled)))
+                {
+                    if (!_backupRequested)
+                    {
+                        return CDC_ALLOCATED_ERROR;
+                    }
+                }
+            }
+            break;
+
+            default:
+                break;
+            }
+        }
+        break;
+
+        default:
+            break;
+        }
+
         int32_t readValue;
         auto    result = _database.read(dbSection(section), index, readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
 

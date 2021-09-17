@@ -611,6 +611,7 @@ class System
     };
 
     static constexpr uint8_t SERIAL_PERIPHERAL_ALLOCATED_ERROR = 80;
+    static constexpr uint8_t CDC_ALLOCATED_ERROR               = 81;
 
     uint32_t _lastCinfoMsgTime[static_cast<uint8_t>(Database::block_t::AMOUNT)] = {};
     bool     _backupRequested                                                   = false;
