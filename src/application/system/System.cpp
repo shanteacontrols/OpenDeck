@@ -261,26 +261,6 @@ bool System::init()
 
     _hwa.registerOnUSBconnectionHandler([this]() {
         forceComponentRefresh();
-
-        static bool dmxSerialNrSet = false;
-
-        if (!dmxSerialNrSet)
-        {
-            uniqueID_t uniqueID;
-            _hwa.uniqueID(uniqueID);
-
-            uint32_t uid = uniqueID[0];
-            uid <<= 8;
-            uid |= uniqueID[1];
-            uid <<= 8;
-            uid |= uniqueID[2];
-            uid <<= 8;
-            uid |= uniqueID[3];
-
-            _dmx.setSerialNumber(uid);
-
-            dmxSerialNrSet = true;
-        }
     });
 
     if (!_hwa.init())
@@ -298,6 +278,19 @@ bool System::init()
     _sysExConf.setupCustomRequests(customRequests);
 
     configureMIDI();
+
+    uniqueID_t uniqueID;
+    _hwa.uniqueID(uniqueID);
+
+    uint32_t uid = uniqueID[0];
+    uid <<= 8;
+    uid |= uniqueID[1];
+    uid <<= 8;
+    uid |= uniqueID[2];
+    uid <<= 8;
+    uid |= uniqueID[3];
+
+    _dmx.setSerialNumber(uid);
 
     if (_database.read(Database::Section::global_t::dmx, dmxSetting_t::enabled))
         _dmx.init();
