@@ -82,19 +82,31 @@ namespace Board
 
             bool read8(uint32_t address, uint8_t& data)
             {
+#ifdef pgm_read_byte_far
+                data = pgm_read_byte_far(address);
+#else
                 data = pgm_read_byte(address);
+#endif
                 return true;
             }
 
             bool read16(uint32_t address, uint16_t& data)
             {
+#ifdef pgm_read_word_far
+                data = pgm_read_word_far(address);
+#else
                 data = pgm_read_word(address);
+#endif
                 return true;
             }
 
             bool read32(uint32_t address, uint32_t& data)
             {
+#ifdef pgm_read_dword_far
+                data = pgm_read_dword_far(address);
+#else
                 data = pgm_read_dword(address);
+#endif
                 return true;
             }
         }    // namespace flash
