@@ -506,6 +506,9 @@ void System::run()
 
 void System::forceComponentRefresh()
 {
-    _analog.update(true);
-    _buttons.update(true);
+    if (!_backupRequested)
+    {
+        _analog.update(true);
+        _buttons.update(true);
+    }
 }
