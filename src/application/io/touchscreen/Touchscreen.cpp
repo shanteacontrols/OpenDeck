@@ -371,7 +371,17 @@ bool Touchscreen::isInitialized() const
 
 bool Touchscreen::isInitialized(mode_t mode) const
 {
-    return mode == _mode;
+    switch (mode)
+    {
+    case mode_t::normal:
+        return _initialized && (_mode == mode);
+
+    case mode_t::cdcPassthrough:
+        return _mode == mode;
+
+    default:
+        return false;
+    }
 }
 
 IO::TouchscreenBase& Touchscreen::modelInstance()
