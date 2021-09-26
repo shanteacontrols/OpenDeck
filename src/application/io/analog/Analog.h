@@ -18,16 +18,14 @@ limitations under the License.
 
 #pragma once
 
+#include <functional>
+#include <memory>
+#include "database/Database.h"
+#include "util/messaging/Messaging.h"
+
 #ifndef ANALOG_SUPPORTED
 #include "stub/Analog.h"
 #else
-
-#include <functional>
-#include "database/Database.h"
-#include "midi/src/MIDI.h"
-#include "io/leds/LEDs.h"
-#include "io/display/Display.h"
-#include "io/common/CInfo.h"
 
 namespace IO
 {
@@ -40,10 +38,10 @@ namespace IO
             potentiometerNote,
             fsr,
             button,
-            nrpn7b,
-            nrpn14b,
+            nrpn7bit,
+            nrpn14bit,
             pitchBend,
-            cc14bit,
+            controlChange14bit,
             AMOUNT
         };
 
@@ -74,57 +72,51 @@ namespace IO
             virtual void              reset(size_t index)                                                                    = 0;
         };
 
-        using buttonHandler_t = std::function<void(size_t index, bool state)>;
-
-        Analog(HWA&           hwa,
-               Filter&        filter,
-               Database&      database,
-               MIDI&          midi,
-               IO::LEDs&      leds,
-               Display&       display,
-               ComponentInfo& cInfo)
-            : _hwa(hwa)
-            , _filter(filter)
-            , _database(database)
-            , _midi(midi)
-            , _leds(leds)
-            , _display(display)
-            , _cInfo(cInfo)
-        {}
+        Analog(HWA&               hwa,
+               Filter&            filter,
+               Database&          database,
+               MessageDispatcher& dispatcher);
 
         void      update(bool forceResend = false);
-        void      processReading(size_t index, uint16_t value);
         void      debounceReset(size_t index);
-        void      registerButtonHandler(buttonHandler_t handler);
         adcType_t adcType();
 
         private:
-        typedef struct
+        struct analogDescriptor_t
         {
-            type_t   type;
-            uint16_t lowerLimit;
-            uint16_t upperLimit;
-            uint16_t midiID;
-            uint8_t  channel;
-            bool     inverted;
-        } analogDescriptor_t;
+            type_t                           type       = type_t::potentiometerControlChange;
+            bool                             inverted   = false;
+            uint16_t                         lowerLimit = 0;
+            uint16_t                         upperLimit = 0;
+            IO::MessageDispatcher::message_t dispatchMessage;
 
-        void fillAnalogDescriptor(size_t index, analogDescriptor_t& descriptor);
-        bool checkPotentiometerValue(size_t index, analogDescriptor_t& descriptor, uint16_t& value);
-        bool checkFSRvalue(size_t index, analogDescriptor_t& descriptor, uint16_t& value);
-        void sendMessage(size_t index, analogDescriptor_t& descriptor, uint16_t value);
+            analogDescriptor_t() = default;
+        };
 
-        HWA&           _hwa;
-        Filter&        _filter;
-        Database&      _database;
-        MIDI&          _midi;
-        IO::LEDs&      _leds;
-        Display&       _display;
-        ComponentInfo& _cInfo;
+        std::unique_ptr<analogDescriptor_t> analogDescriptor(size_t index);
+        void                                processReading(size_t index, uint16_t value);
+        bool                                checkPotentiometerValue(size_t index, std::unique_ptr<analogDescriptor_t>& descriptor);
+        bool                                checkFSRvalue(size_t index, std::unique_ptr<analogDescriptor_t>& descriptor);
+        void                                sendMessage(size_t index, std::unique_ptr<analogDescriptor_t>& descriptor);
 
-        buttonHandler_t _buttonHandler                                                          = nullptr;
-        uint8_t         _fsrPressed[MAX_NUMBER_OF_ANALOG]                                       = {};
-        uint16_t        _lastValue[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS] = {};
+        HWA&                   _hwa;
+        Filter&                _filter;
+        Database&              _database;
+        IO::MessageDispatcher& _dispatcher;
+
+        uint8_t  _fsrPressed[MAX_NUMBER_OF_ANALOG]                                       = {};
+        uint16_t _lastValue[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS] = {};
+
+        const MIDI::messageType_t _internalMsgToMIDIType[static_cast<uint8_t>(type_t::AMOUNT)] = {
+            MIDI::messageType_t::controlChange,
+            MIDI::messageType_t::noteOn,
+            MIDI::messageType_t::noteOn,     //fsr: set to off when appropriate
+            MIDI::messageType_t::invalid,    //button: let other listeners handle this
+            MIDI::messageType_t::nrpn7bit,
+            MIDI::messageType_t::nrpn14bit,
+            MIDI::messageType_t::pitchBend,
+            MIDI::messageType_t::controlChange14bit,
+        };
     };
 }    // namespace IO
 

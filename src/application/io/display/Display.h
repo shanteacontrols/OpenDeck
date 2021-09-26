@@ -18,13 +18,14 @@ limitations under the License.
 
 #pragma once
 
-#ifndef DISPLAY_SUPPORTED
-#include "stub/Display.h"
-#else
-
 #include "U8X8/U8X8.h"
 #include "core/src/general/StringBuilder.h"
 #include "database/Database.h"
+#include "util/messaging/Messaging.h"
+
+#ifndef DISPLAY_SUPPORTED
+#include "stub/Display.h"
+#else
 
 namespace IO
 {
@@ -60,38 +61,6 @@ namespace IO
             out,
         };
 
-        /// Same enumeration as MIDI::messageType_t but without custom values.
-        /// Used for easier access to event strings stored in arrays
-        enum class event_t : uint8_t
-        {
-            noteOff,
-            noteOn,
-            controlChange,
-            programChange,
-            afterTouchChannel,
-            afterTouchPoly,
-            pitchBend,
-            systemExclusive,
-            sysCommonTimeCodeQuarterFrame,
-            sysCommonSongPosition,
-            sysCommonSongSelect,
-            sysCommonTuneRequest,
-            sysRealTimeClock,
-            sysRealTimeStart,
-            sysRealTimeContinue,
-            sysRealTimeStop,
-            sysRealTimeActiveSensing,
-            sysRealTimeSystemReset,
-            //these messages aren't part of regular MIDI::messageType_t enum
-            mmcPlay,
-            mmcStop,
-            mmcPause,
-            mmcRecordOn,
-            mmcRecordOff,
-            nrpn,
-            presetChange
-        };
-
         enum class setting_t : uint8_t
         {
             controller,
@@ -111,20 +80,20 @@ namespace IO
             AMOUNT
         };
 
-        Display(IO::U8X8& u8x8, Database& database)
-            : _u8x8(u8x8)
-            , _database(database)
-        {}
+        Display(IO::U8X8&          u8x8,
+                Database&          database,
+                MessageDispatcher& dispatcher);
 
         bool init(bool startupInfo);
         bool deInit();
         bool update();
-        void displayMIDIevent(eventType_t type, event_t event, uint16_t value1, uint16_t value2, uint8_t value3);
         void setAlternateNoteDisplay(bool state);
         void setOctaveNormalization(int8_t value);
         void setRetentionTime(uint32_t time);
+        void setPreset(uint8_t preset);
 
         private:
+        void          displayMIDIevent(eventType_t type, const MessageDispatcher::message_t& dispatchMessage);
         void          displayWelcomeMessage();
         void          displayVinfo(bool newFw);
         void          setDirectWriteState(bool state);
@@ -244,6 +213,7 @@ namespace IO
         U8X8::displayController_t _lastController = U8X8::displayController_t::invalid;
         U8X8::displayResolution_t _lastResolution = U8X8::displayResolution_t::invalid;
         uint8_t                   _lastAddress    = 0;
+        uint8_t                   _activePreset   = 0;
     };
 }    // namespace IO
 

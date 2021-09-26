@@ -18,13 +18,6 @@ limitations under the License.
 
 #pragma once
 
-#include "database/Database.h"
-#include "midi/src/MIDI.h"
-#include "io/leds/LEDs.h"
-#include "io/display/Display.h"
-#include "io/common/Common.h"
-#include "io/common/CInfo.h"
-
 namespace IO
 {
     class Buttons
@@ -76,20 +69,13 @@ namespace IO
             virtual bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
         };
 
-        Buttons(HWA&           hwa,
-                Filter&        filter,
-                Database&      database,
-                MIDI&          midi,
-                IO::LEDs&      leds,
-                Display&       display,
-                ComponentInfo& cInfo)
+        Buttons(HWA&               hwa,
+                Filter&            filter,
+                Database&          database,
+                MessageDispatcher& dispatcher)
         {}
 
         void update(bool forceResend = false)
-        {
-        }
-
-        void processButton(size_t index, bool state)
         {
         }
 

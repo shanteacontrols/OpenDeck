@@ -45,6 +45,7 @@ namespace
     const char eventMMCrecordOff_string[] PROGMEM = "MMC Record Off";
     const char eventNRPN_string[] PROGMEM         = "NRPN";
     const char eventPresetChange_string[] PROGMEM = "Preset";
+    const char eventInvalid_string[] PROGMEM      = "";
 
     const char noteC_string[] PROGMEM      = "C";
     const char noteCSharp_string[] PROGMEM = "C#";
@@ -58,35 +59,6 @@ namespace
     const char noteA_string[] PROGMEM      = "A";
     const char noteASharp_string[] PROGMEM = "A#";
     const char noteB_strig[] PROGMEM       = "B";
-
-    //match with messageTypeDisplay_t
-    STRING_PROGMEM_ARRAY(eventNameArray) = {
-        eventNoteOff_string,
-        eventNoteOn_string,
-        eventCC_string,
-        eventPC_string,
-        eventCHAT_string,
-        eventAT_string,
-        eventPB_string,
-        eventSysExConfig_string,
-        nullptr,    //sys common - Time Code Quarter Frame
-        nullptr,    //sys common - Song Position Pointer
-        nullptr,    //sys common - Song Select
-        nullptr,    //sys common - Tune Request
-        eventRTclock_string,
-        eventRTstart_string,
-        eventRTcontinue_string,
-        eventRTstop_string,
-        eventRTasens_string,
-        eventRTsysrst_string,
-        eventMMCplay_string,
-        eventMMCstop_string,
-        eventMMCpause_string,
-        eventMMCrecordOn_string,
-        eventMMCrecordOff_string,
-        eventNRPN_string,
-        eventPresetChange_string
-    };
 
     STRING_PROGMEM_ARRAY(noteNameArray) = {
         noteC_string,
@@ -112,9 +84,139 @@ const char* Strings::board()
     return tempBuffer;
 }
 
-const char* Strings::midiMessage(IO::Display::event_t event)
+const char* Strings::midiMessage(MIDI::messageType_t message)
 {
-    strcpy_P(tempBuffer, READ_PROGMEM_ARRAY(eventNameArray[static_cast<uint8_t>(event)]));
+    switch (message)
+    {
+    case MIDI::messageType_t::noteOff:
+    {
+        strcpy_P(tempBuffer, READ_PROGMEM_WORD(eventNoteOff_string));
+    }
+    break;
+
+    case MIDI::messageType_t::noteOn:
+    {
+        strcpy_P(tempBuffer, READ_PROGMEM_WORD(eventNoteOn_string));
+    }
+    break;
+
+    case MIDI::messageType_t::controlChange:
+    case MIDI::messageType_t::controlChange14bit:
+    {
+        strcpy_P(tempBuffer, READ_PROGMEM_WORD(eventCC_string));
+    }
+    break;
+
+    case MIDI::messageType_t::programChange:
+    {
+        strcpy_P(tempBuffer, READ_PROGMEM_WORD(eventPC_string));
+    }
+    break;
+
+    case MIDI::messageType_t::afterTouchChannel:
+    {
+        strcpy_P(tempBuffer, READ_PROGMEM_WORD(eventCHAT_string));
+    }
+    break;
+
+    case MIDI::messageType_t::afterTouchPoly:
+    {
+        strcpy_P(tempBuffer, READ_PROGMEM_WORD(eventAT_string));
+    }
+    break;
+
+    case MIDI::messageType_t::pitchBend:
+    {
+        strcpy_P(tempBuffer, READ_PROGMEM_WORD(eventPB_string));
+    }
+    break;
+
+    case MIDI::messageType_t::systemExclusive:
+    {
+        strcpy_P(tempBuffer, READ_PROGMEM_WORD(eventSysExConfig_string));
+    }
+    break;
+
+    case MIDI::messageType_t::sysRealTimeClock:
+    {
+        strcpy_P(tempBuffer, READ_PROGMEM_WORD(eventRTclock_string));
+    }
+    break;
+
+    case MIDI::messageType_t::sysRealTimeStart:
+    {
+        strcpy_P(tempBuffer, READ_PROGMEM_WORD(eventRTstart_string));
+    }
+    break;
+
+    case MIDI::messageType_t::sysRealTimeContinue:
+    {
+        strcpy_P(tempBuffer, READ_PROGMEM_WORD(eventRTcontinue_string));
+    }
+    break;
+
+    case MIDI::messageType_t::sysRealTimeStop:
+    {
+        strcpy_P(tempBuffer, READ_PROGMEM_WORD(eventRTstop_string));
+    }
+    break;
+
+    case MIDI::messageType_t::sysRealTimeActiveSensing:
+    {
+        strcpy_P(tempBuffer, READ_PROGMEM_WORD(eventRTasens_string));
+    }
+    break;
+
+    case MIDI::messageType_t::sysRealTimeSystemReset:
+    {
+        strcpy_P(tempBuffer, READ_PROGMEM_WORD(eventRTsysrst_string));
+    }
+    break;
+
+    case MIDI::messageType_t::mmcPlay:
+    {
+        strcpy_P(tempBuffer, READ_PROGMEM_WORD(eventMMCplay_string));
+    }
+    break;
+
+    case MIDI::messageType_t::mmcStop:
+    {
+        strcpy_P(tempBuffer, READ_PROGMEM_WORD(eventMMCstop_string));
+    }
+    break;
+
+    case MIDI::messageType_t::mmcPause:
+    {
+        strcpy_P(tempBuffer, READ_PROGMEM_WORD(eventMMCpause_string));
+    }
+    break;
+
+    case MIDI::messageType_t::mmcRecordStart:
+    {
+        strcpy_P(tempBuffer, READ_PROGMEM_WORD(eventMMCrecordOn_string));
+    }
+    break;
+
+    case MIDI::messageType_t::mmcRecordStop:
+    {
+        strcpy_P(tempBuffer, READ_PROGMEM_WORD(eventMMCrecordOff_string));
+    }
+    break;
+
+    case MIDI::messageType_t::nrpn7bit:
+    case MIDI::messageType_t::nrpn14bit:
+    {
+        strcpy_P(tempBuffer, READ_PROGMEM_WORD(eventNRPN_string));
+    }
+    break;
+
+    default:
+    {
+        strcpy_P(tempBuffer, READ_PROGMEM_WORD(eventInvalid_string));
+    }
+    break;
+    }
+
     return tempBuffer;
 }
 

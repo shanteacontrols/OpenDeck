@@ -18,12 +18,6 @@ limitations under the License.
 
 #pragma once
 
-#include "database/Database.h"
-#include "midi/src/MIDI.h"
-#include "io/display/Display.h"
-#include "io/common/Common.h"
-#include "io/common/CInfo.h"
-
 namespace IO
 {
     class Encoders
@@ -31,15 +25,15 @@ namespace IO
         public:
         enum class type_t : uint8_t
         {
-            t7Fh01h,
-            t3Fh41h,
-            tProgramChange,
-            tControlChange,
-            tPresetChange,
-            tPitchBend,
-            tNRPN7bit,
-            tNRPN14bit,
-            tControlChange14bit,
+            controlChange7Fh01h,
+            controlChange3Fh41h,
+            programChange,
+            controlChange,
+            presetChange,
+            pitchBend,
+            nrpn7bit,
+            nrpn14bit,
+            controlChange14bit,
             AMOUNT
         };
 
@@ -76,13 +70,11 @@ namespace IO
             virtual uint32_t lastMovementTime(size_t index) = 0;
         };
 
-        Encoders(HWA&           hwa,
-                 Filter&        filter,
-                 uint32_t       timeDiffTimeout,
-                 Database&      database,
-                 MIDI&          midi,
-                 Display&       display,
-                 ComponentInfo& cInfo)
+        Encoders(HWA&               hwa,
+                 Filter&            filter,
+                 uint32_t           timeDiffTimeout,
+                 Database&          database,
+                 MessageDispatcher& dispatcher)
         {}
 
         void init()
@@ -99,11 +91,6 @@ namespace IO
 
         void setValue(size_t index, uint16_t value)
         {
-        }
-
-        position_t read(size_t index, uint8_t pairState)
-        {
-            return position_t::stopped;
         }
     };
 }    // namespace IO

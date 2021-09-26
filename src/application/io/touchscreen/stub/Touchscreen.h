@@ -18,12 +18,6 @@ limitations under the License.
 
 #pragma once
 
-#include <inttypes.h>
-#include <stdlib.h>
-#include "database/Database.h"
-#include "io/touchscreen/model/Base.h"
-#include "io/common/CInfo.h"
-
 namespace IO
 {
     class Touchscreen
@@ -68,7 +62,6 @@ namespace IO
 
         Touchscreen(TouchscreenBase::HWA& hwa,
                     Database&             database,
-                    ComponentInfo&        cInfo,
                     CDCPassthrough&       cdcPassthrough)
         {}
 

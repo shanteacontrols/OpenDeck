@@ -18,16 +18,15 @@ limitations under the License.
 
 #pragma once
 
-#ifndef TOUCHSCREEN_SUPPORTED
-#include "stub/Touchscreen.h"
-#else
-
 #include <inttypes.h>
 #include <stdlib.h>
 #include "database/Database.h"
-#include "io/common/CInfo.h"
 #include "model/nextion/Nextion.h"
 #include "model/viewtech/Viewtech.h"
+
+#ifndef TOUCHSCREEN_SUPPORTED
+#include "stub/Touchscreen.h"
+#else
 
 namespace IO
 {
@@ -78,13 +77,7 @@ namespace IO
 
         Touchscreen(TouchscreenBase::HWA& hwa,
                     Database&             database,
-                    ComponentInfo&        cInfo,
-                    CDCPassthrough&       cdcPassthrough)
-            : _hwa(hwa)
-            , _database(database)
-            , _cInfo(cInfo)
-            , _cdcPassthrough(cdcPassthrough)
-        {}
+                    CDCPassthrough&       cdcPassthrough);
 
         bool   init(mode_t mode);
         bool   deInit(mode_t mode);
@@ -110,7 +103,6 @@ namespace IO
 
         TouchscreenBase::HWA&        _hwa;
         Database&                    _database;
-        ComponentInfo&               _cInfo;
         CDCPassthrough&              _cdcPassthrough;
         EventNotifier*               _eventNotifier                                      = nullptr;
         size_t                       _activeScreenID                                     = 0;

@@ -24,84 +24,10 @@ limitations under the License.
 #include "io/common/Common.h"
 #include "core/src/general/Helpers.h"
 
-Database::block_t System::dbBlock(uint8_t index)
+void System::SysExDataHandler::sendResponse(uint8_t* array, uint16_t size)
 {
-    //sysex blocks and db blocks don't have 1/1 mapping
-
-    auto sysExBlock = static_cast<block_t>(index);
-
-    switch (sysExBlock)
-    {
-    case block_t::global:
-        return Database::block_t::global;
-
-    case block_t::buttons:
-        return Database::block_t::buttons;
-
-    case block_t::encoders:
-        return Database::block_t::encoders;
-
-    case block_t::analog:
-        return Database::block_t::analog;
-
-    case block_t::leds:
-        return Database::block_t::leds;
-
-    case block_t::display:
-        return Database::block_t::display;
-
-    case block_t::touchscreen:
-        return Database::block_t::touchscreen;
-
-    default:
-        return Database::block_t::AMOUNT;
-    }
-}
-
-Database::Section::global_t System::dbSection(Section::global_t section)
-{
-    return _sysEx2DB_global[static_cast<uint8_t>(section)];
-}
-
-Database::Section::button_t System::dbSection(Section::button_t section)
-{
-    return _sysEx2DB_button[static_cast<uint8_t>(section)];
-}
-
-Database::Section::encoder_t System::dbSection(Section::encoder_t section)
-{
-    return _sysEx2DB_encoder[static_cast<uint8_t>(section)];
-}
-
-Database::Section::analog_t System::dbSection(Section::analog_t section)
-{
-    return _sysEx2DB_analog[static_cast<uint8_t>(section)];
-}
-
-Database::Section::leds_t System::dbSection(Section::leds_t section)
-{
-    return _sysEx2DB_leds[static_cast<uint8_t>(section)];
-}
-
-Database::Section::display_t System::dbSection(Section::display_t section)
-{
-    return _sysEx2DB_display[static_cast<uint8_t>(section)];
-}
-
-Database::Section::touchscreen_t System::dbSection(Section::touchscreen_t section)
-{
-    return _sysEx2DB_touchscreen[static_cast<uint8_t>(section)];
-}
-
-void System::handleSysEx(const uint8_t* array, size_t size)
-{
-    _sysExConf.handleMessage(array, size);
-
-    if (_backupRequested)
-    {
-        backup();
-        _backupRequested = false;
-    }
+    //never send responses through DIN MIDI
+    _system._midi.sendSysEx(size, array, true, MIDI::interface_t::usb);
 }
 
 uint8_t System::SysExDataHandler::customRequest(uint16_t request, CustomResponse& customResponse)
@@ -196,20 +122,14 @@ uint8_t System::SysExDataHandler::customRequest(uint16_t request, CustomResponse
     break;
     }
 
-    if (result == SysExConf::DataHandler::STATUS_OK)
-        _system._display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::systemExclusive, 0, 0, 0);
-
     return result;
 }
 
 void System::DBhandlers::presetChange(uint8_t preset)
 {
     _system._leds.setAllOff();
-
-    if (_system._display.init(false))
-        _system._display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::presetChange, preset, 0, 0);
-
-    _system.forceComponentRefresh();
+    _system._display.setPreset(preset);
+    _system._scheduler.registerTask({ [this]() { _system.forceComponentRefresh(); }, FORCED_VALUE_RESEND_DELAY });
 }
 
 void System::DBhandlers::factoryResetStart()
@@ -219,7 +139,7 @@ void System::DBhandlers::factoryResetStart()
 
 void System::DBhandlers::factoryResetDone()
 {
-    // don't run this if database isn' t initialized yet to avoid mcu reset if
+    //don't run this if database isn't initialized yet to avoid mcu reset if
     //factory reset is needed initially
     if (_system._database.isInitialized())
         _system._hwa.reboot(FwSelector::fwType_t::application);
@@ -232,13 +152,28 @@ void System::DBhandlers::initialized()
 
 void System::TouchScreenHandlers::button(size_t index, bool state)
 {
-    _system._buttons.processButton(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + index, state);
+    IO::MessageDispatcher::message_t dispatchMessage;
+
+    dispatchMessage.componentIndex = index;
+    dispatchMessage.midiValue      = state;
+
+    //mark this as forwarding message type - further action/processing is required
+    _system._dispatcher.notify(IO::MessageDispatcher::messageSource_t::touchscreenButton, dispatchMessage, IO::MessageDispatcher::listenType_t::forward);
 }
 
 void System::TouchScreenHandlers::analog(size_t index, uint16_t value, uint16_t min, uint16_t max)
 {
-    value = core::misc::mapRange(static_cast<uint32_t>(value), static_cast<uint32_t>(min), static_cast<uint32_t>(max), static_cast<uint32_t>(0), static_cast<uint32_t>(_system._analog.adcType()));
-    _system._analog.processReading(MAX_NUMBER_OF_ANALOG + index, value);
+    IO::MessageDispatcher::message_t dispatchMessage;
+
+    dispatchMessage.componentIndex = index;
+    dispatchMessage.midiValue      = core::misc::mapRange(static_cast<uint32_t>(value),
+                                                     static_cast<uint32_t>(min),
+                                                     static_cast<uint32_t>(max),
+                                                     static_cast<uint32_t>(0),
+                                                     static_cast<uint32_t>(ADC_RESOLUTION));
+
+    //mark this as forwarding message type - further action/processing is required
+    _system._dispatcher.notify(IO::MessageDispatcher::messageSource_t::touchscreenAnalog, dispatchMessage, IO::MessageDispatcher::listenType_t::forward);
 }
 
 void System::TouchScreenHandlers::screenChange(size_t screenID)
@@ -246,21 +181,53 @@ void System::TouchScreenHandlers::screenChange(size_t screenID)
     _system._leds.refresh();
 }
 
+void System::configureMIDI()
+{
+    _midi.init(MIDI::interface_t::usb);
+    _midi.setInputChannel(MIDI::MIDI_CHANNEL_OMNI);
+    _midi.setNoteOffMode(isMIDIfeatureEnabled(midiFeature_t::standardNoteOff) ? MIDI::noteOffType_t::standardNoteOff : MIDI::noteOffType_t::noteOnZeroVel);
+    _midi.setRunningStatusState(isMIDIfeatureEnabled(midiFeature_t::runningStatus));
+    _midi.setChannelSendZeroStart(true);
+
+    if (isMIDIfeatureEnabled(midiFeature_t::dinEnabled))
+    {
+        _midi.init(MIDI::interface_t::din);
+        _midi.useRecursiveParsing(true);
+    }
+    else
+    {
+        _midi.deInit(MIDI::interface_t::din);
+        _midi.useRecursiveParsing(false);
+    }
+}
+
 bool System::init()
 {
     _database.registerHandlers(_dbHandlers);
     _touchscreen.registerEventNotifier(_touchScreenHandlers);
 
-    _cInfo.registerHandler([this](Database::block_t dbBlock, uint16_t componentID) {
-        return sendCInfo(dbBlock, componentID);
-    });
+    _cInfo.registerHandler([this](size_t group, size_t index) {
+        if (_sysExConf.isConfigurationEnabled())
+        {
+            uint16_t cInfoMessage[] = {
+                SYSEX_CM_COMPONENT_ID,
+                static_cast<uint16_t>(group),
+                0,
+                0
+            };
 
-    _analog.registerButtonHandler([this](uint8_t analogIndex, bool value) {
-        _buttons.processButton(analogIndex + MAX_NUMBER_OF_BUTTONS, value);
+            uint8_t high, low;
+            SysExConf::split14bit(index, high, low);
+
+            cInfoMessage[2] = high;
+            cInfoMessage[3] = low;
+
+            _sysExConf.sendCustomMessage(cInfoMessage, 4);
+        }
     });
 
     _hwa.registerOnUSBconnectionHandler([this]() {
-        forceComponentRefresh();
+        _scheduler.registerTask({ [this]() { forceComponentRefresh(); }, FORCED_VALUE_RESEND_DELAY });
     });
 
     if (!_hwa.init())
@@ -269,7 +236,6 @@ bool System::init()
     if (!_database.init())
         return false;
 
-    _encoders.init();
     _display.init(true);
     _touchscreen.init(IO::Touchscreen::mode_t::normal);
     _leds.init();
@@ -296,65 +262,6 @@ bool System::init()
         _dmx.init();
 
     return true;
-}
-
-bool System::sendCInfo(Database::block_t dbBlock, uint16_t componentID)
-{
-    if (_sysExConf.isConfigurationEnabled())
-    {
-        if ((core::timing::currentRunTimeMs() - _lastCinfoMsgTime[static_cast<uint8_t>(dbBlock)]) > COMPONENT_INFO_TIMEOUT)
-        {
-            uint16_t cInfoMessage[] = {
-                SYSEX_CM_COMPONENT_ID,
-                static_cast<uint16_t>(dbBlock),
-                0,
-                0
-            };
-
-            uint8_t high, low;
-            SysExConf::split14bit(componentID, high, low);
-
-            cInfoMessage[2] = high;
-            cInfoMessage[3] = low;
-
-            _sysExConf.sendCustomMessage(cInfoMessage, 4);
-            _lastCinfoMsgTime[static_cast<uint8_t>(dbBlock)] = core::timing::currentRunTimeMs();
-        }
-
-        return true;
-    }
-
-    return false;
-}
-
-void System::configureMIDI()
-{
-    _midi.init(MIDI::interface_t::usb);
-    _midi.setInputChannel(MIDI::MIDI_CHANNEL_OMNI);
-    _midi.setNoteOffMode(isMIDIfeatureEnabled(midiFeature_t::standardNoteOff) ? MIDI::noteOffType_t::standardNoteOff : MIDI::noteOffType_t::noteOnZeroVel);
-    _midi.setRunningStatusState(isMIDIfeatureEnabled(midiFeature_t::runningStatus));
-    _midi.setChannelSendZeroStart(true);
-
-    if (isMIDIfeatureEnabled(midiFeature_t::dinEnabled))
-    {
-        _midi.init(MIDI::interface_t::din);
-        _midi.useRecursiveParsing(true);
-    }
-    else
-    {
-        _midi.deInit(MIDI::interface_t::din);
-        _midi.useRecursiveParsing(false);
-    }
-}
-
-bool System::isMIDIfeatureEnabled(midiFeature_t feature)
-{
-    return _database.read(Database::Section::global_t::midiFeatures, feature);
-}
-
-System::midiMergeType_t System::midiMergeType()
-{
-    return static_cast<midiMergeType_t>(_database.read(Database::Section::global_t::midiMerge, midiMerge_t::mergeType));
 }
 
 void System::backup()
@@ -433,12 +340,6 @@ void System::backup()
     _sysExConf.setSilentMode(false);
 }
 
-void System::SysExDataHandler::sendResponse(uint8_t* array, uint16_t size)
-{
-    //never send responses through DIN MIDI
-    _system._midi.sendSysEx(size, array, true, MIDI::interface_t::usb);
-}
-
 void System::checkComponents()
 {
     enum class componentCheck_t : uint8_t
@@ -478,7 +379,7 @@ void System::checkComponents()
 
     case componentCheck_t::leds:
     {
-        _leds.checkBlinking();
+        _leds.update();
         componentCheck = componentCheck_t::display;
     }
     break;
@@ -502,103 +403,50 @@ void System::checkComponents()
 void System::checkMIDI()
 {
     auto processMessage = [&](MIDI::interface_t interface) {
-        //new message
-        auto    messageType = _midi.getType(interface);
-        uint8_t data1       = _midi.getData1(interface);
-        uint8_t data2       = _midi.getData2(interface);
-        uint8_t channel     = _midi.getChannel(interface);
+        IO::MessageDispatcher::message_t dispatchMessage;
 
-        switch (messageType)
+        dispatchMessage.componentIndex = 0;
+        dispatchMessage.midiChannel    = _midi.getChannel(interface);
+        dispatchMessage.midiIndex      = _midi.getData1(interface);
+        dispatchMessage.midiValue      = _midi.getData2(interface);
+        dispatchMessage.message        = _midi.getType(interface);
+
+        switch (dispatchMessage.message)
         {
         case MIDI::messageType_t::systemExclusive:
         {
             //process sysex messages only from usb interface
             if (interface == MIDI::interface_t::usb)
-                handleSysEx(_midi.getSysExArray(interface), _midi.getSysExArrayLength(interface));
-        }
-        break;
-
-        case MIDI::messageType_t::noteOn:
-        case MIDI::messageType_t::noteOff:
-        case MIDI::messageType_t::controlChange:
-        case MIDI::messageType_t::programChange:
-        {
-            if (messageType == MIDI::messageType_t::programChange)
             {
-                IO::Common::setProgram(channel, data1);
-                _database.setPreset(data1);
-            }
+                _sysExConf.handleMessage(_midi.getSysExArray(interface), _midi.getSysExArrayLength(interface));
 
-            if (messageType == MIDI::messageType_t::noteOff)
-                data2 = 0;
-
-            _leds.midiToState(messageType, data1, data2, channel, IO::LEDs::dataSource_t::external);
-
-            switch (messageType)
-            {
-            case MIDI::messageType_t::noteOn:
-            {
-                _display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::noteOn, data1, data2, channel + 1);
-            }
-            break;
-
-            case MIDI::messageType_t::noteOff:
-            {
-                _display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::noteOff, data1, data2, channel + 1);
-            }
-            break;
-
-            case MIDI::messageType_t::controlChange:
-            {
-                _display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::controlChange, data1, data2, channel + 1);
-
-                for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
+                if (_backupRequested)
                 {
-                    if (!_database.read(Database::Section::encoder_t::remoteSync, i))
-                        continue;
-
-                    if (_database.read(Database::Section::encoder_t::mode, i) != static_cast<int32_t>(IO::Encoders::type_t::tControlChange))
-                        continue;
-
-                    if (_database.read(Database::Section::encoder_t::midiChannel, i) != channel)
-                        continue;
-
-                    if (_database.read(Database::Section::encoder_t::midiID, i) != data1)
-                        continue;
-
-                    _encoders.setValue(i, data2);
+                    backup();
+                    _backupRequested = false;
                 }
             }
-            break;
-
-            case MIDI::messageType_t::programChange:
-            {
-                _display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::programChange, data1, data2, channel + 1);
-            }
-            break;
-
-            default:
-                break;
-            }
         }
         break;
 
-        case MIDI::messageType_t::sysRealTimeClock:
+        case MIDI::messageType_t::programChange:
         {
-            _leds.checkBlinking(true);
+            IO::Common::setProgram(dispatchMessage.midiChannel, dispatchMessage.midiIndex);
+            _database.setPreset(dispatchMessage.midiIndex);
         }
         break;
 
-        case MIDI::messageType_t::sysRealTimeStart:
+        case MIDI::messageType_t::noteOff:
         {
-            _leds.resetBlinking();
-            _leds.checkBlinking(true);
+            dispatchMessage.midiValue = 0;
         }
         break;
 
         default:
             break;
         }
+
+        _dispatcher.notify(IO::MessageDispatcher::messageSource_t::midiIn, dispatchMessage, IO::MessageDispatcher::listenType_t::nonFwd);
     };
 
     if (
@@ -651,7 +499,9 @@ void System::run()
 {
     checkComponents();
     checkMIDI();
+    _hwa.update();
     _dmx.read();
+    _scheduler.update();
 }
 
 void System::forceComponentRefresh()

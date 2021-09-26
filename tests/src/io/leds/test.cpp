@@ -3,13 +3,10 @@
 #include "unity/Framework.h"
 #include "io/leds/LEDs.h"
 #include "io/display/Display.h"
-#include "io/common/CInfo.h"
-#include "midi/src/MIDI.h"
 #include "core/src/general/Timing.h"
 #include "database/Database.h"
 #include "stubs/database/DB_ReadWrite.h"
-#include "stubs/HWAU8X8.h"
-#include "stubs/HWAMIDI.h"
+#include "stubs/Listener.h"
 
 namespace
 {
@@ -18,12 +15,12 @@ namespace
         public:
         HWALEDs()
         {
-            brightness.resize(MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS, IO::LEDs::brightness_t::bOff);
+            _brightness.resize(MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS, IO::LEDs::brightness_t::bOff);
         }
 
         void setState(size_t index, IO::LEDs::brightness_t brightness) override
         {
-            this->brightness.at(index) = brightness;
+            _brightness.at(index) = brightness;
         }
 
         size_t rgbSignalIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
@@ -36,30 +33,24 @@ namespace
             return singleLEDindex / 3;
         }
 
-        std::vector<IO::LEDs::brightness_t> brightness;
+        std::vector<IO::LEDs::brightness_t> _brightness;
 
-    } hwaLEDs;
+    } _hwaLEDs;
 
-    DBstorageMock dbStorageMock;
-    Database      database = Database(dbStorageMock, true);
-    HWAMIDIStub   hwaMIDI;
-    MIDI          midi(hwaMIDI);
-    ComponentInfo cInfo;
-    IO::LEDs      leds(hwaLEDs, database);
-    HWAU8X8Stub   hwaU8X8;
-    IO::U8X8      u8x8(hwaU8X8);
-    IO::Display   display(u8x8, database);
+    IO::MessageDispatcher _dispatcher;
+    Listener              _listener;
+    DBstorageMock         _dbStorageMock;
+    Database              _database = Database(_dbStorageMock, true);
+    IO::LEDs              _leds(_hwaLEDs, _database, _dispatcher);
 }    // namespace
 
 TEST_SETUP()
 {
     //init checks - no point in running further tests if these conditions fail
-    TEST_ASSERT(database.init() == true);
-    //always start from known state
-    database.factoryReset();
+    TEST_ASSERT(_database.init() == true);
 
-    midi.init(MIDI::interface_t::usb);
-    midi.setChannelSendZeroStart(true);
+    //always start from known state
+    _database.factoryReset();
 }
 
 #if MAX_NUMBER_OF_LEDS > 0
@@ -332,140 +323,128 @@ TEST_CASE(VerifyBrightnessAndBlinkSpeed)
     //----------------------------------
 
     for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
-        TEST_ASSERT(database.update(Database::Section::leds_t::controlType, i, IO::LEDs::controlType_t::midiInNoteMultiVal) == true);
+        TEST_ASSERT(_database.update(Database::Section::leds_t::controlType, i, IO::LEDs::controlType_t::midiInNoteMultiVal) == true);
 
-    //continously call leds.midiToState with increasing MIDI value
-    //verify that each call results in correct brightness and led blink speed
-    for (size_t i = 0; i < 128; i++)
+    //push messages to dispatcher
+    //leds class listens to midi in message source
+    //verify that after each push correct brightness and led blink speed are set
+    for (uint16_t i = 0; i < 128; i++)
     {
         //MIDI ID 0, channel 0, value, MIDI in
-        leds.midiToState(MIDI::messageType_t::noteOn, 0, i, 0, IO::LEDs::dataSource_t::external);
+        _dispatcher.notify(IO::MessageDispatcher::messageSource_t::midiIn, { 0, 0, 0, i, MIDI::messageType_t::noteOn }, IO::MessageDispatcher::listenType_t::nonFwd);
 
         //read only the first response - it's possible midi state will be set for multiple LEDs
-        TEST_ASSERT_EQUAL_UINT32(expectedBrightnessValue.at(i), hwaLEDs.brightness.at(0));
-        TEST_ASSERT_EQUAL_UINT32(expectedBlinkSpeedValue.at(i), leds.blinkSpeed(0));
+        TEST_ASSERT_EQUAL_UINT32(expectedBrightnessValue.at(i), _hwaLEDs._brightness.at(0));
+        TEST_ASSERT_EQUAL_UINT32(expectedBlinkSpeedValue.at(i), _leds.blinkSpeed(0));
     }
 
-    leds.setAllOff();
-
-    //test incorrect parameters
-    for (size_t i = 0; i < 128; i++)
-    {
-        leds.midiToState(MIDI::messageType_t::noteOn, 0, i, 0, IO::LEDs::dataSource_t::internal);
-        leds.midiToState(MIDI::messageType_t::controlChange, 0, i, 0, IO::LEDs::dataSource_t::internal);
-        leds.midiToState(MIDI::messageType_t::controlChange, 0, i, 0, IO::LEDs::dataSource_t::external);
-        leds.midiToState(MIDI::messageType_t::programChange, 0, i, 0, IO::LEDs::dataSource_t::external);
-
-        //test all other channels with otherwise correct params
-        for (int channel = 1; channel < 16; channel++)
-            leds.midiToState(MIDI::messageType_t::noteOn, 0, i, channel, IO::LEDs::dataSource_t::external);
-    }
+    _leds.setAllOff();
 
     //midiInCCMultiVal
     //----------------------------------
 
     for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
-        TEST_ASSERT(database.update(Database::Section::leds_t::controlType, i, IO::LEDs::controlType_t::midiInCCMultiVal) == true);
+        TEST_ASSERT(_database.update(Database::Section::leds_t::controlType, i, IO::LEDs::controlType_t::midiInCCMultiVal) == true);
 
-    //continously call leds.midiToState with increasing MIDI value
-    //verify that each call results in correct brightness and led blink speed
-    for (size_t i = 0; i < 128; i++)
+    for (uint16_t i = 0; i < 128; i++)
     {
         //MIDI ID 0, channel 0, value, MIDI in
-        leds.midiToState(MIDI::messageType_t::controlChange, 0, i, 0, IO::LEDs::dataSource_t::external);
+        _dispatcher.notify(IO::MessageDispatcher::messageSource_t::midiIn, { 0, 0, 0, i, MIDI::messageType_t::controlChange }, IO::MessageDispatcher::listenType_t::nonFwd);
 
         //read only the first response - it's possible midi state will be set for multiple LEDs
-        TEST_ASSERT_EQUAL_UINT32(expectedBrightnessValue.at(i), hwaLEDs.brightness.at(0));
-        TEST_ASSERT_EQUAL_UINT32(expectedBlinkSpeedValue.at(i), leds.blinkSpeed(0));
+        TEST_ASSERT_EQUAL_UINT32(expectedBrightnessValue.at(i), _hwaLEDs._brightness.at(0));
+        TEST_ASSERT_EQUAL_UINT32(expectedBlinkSpeedValue.at(i), _leds.blinkSpeed(0));
     }
 
-    leds.setAllOff();
-
-    //test incorrect parameters
-    for (size_t i = 0; i < 128; i++)
-    {
-        leds.midiToState(MIDI::messageType_t::controlChange, 0, i, 0, IO::LEDs::dataSource_t::internal);
-        leds.midiToState(MIDI::messageType_t::noteOn, 0, i, 0, IO::LEDs::dataSource_t::internal);
-        leds.midiToState(MIDI::messageType_t::controlChange, 0, i, 0, IO::LEDs::dataSource_t::internal);
-        leds.midiToState(MIDI::messageType_t::programChange, 0, i, 0, IO::LEDs::dataSource_t::external);
-
-        //test all other channels with otherwise correct params
-        for (int channel = 1; channel < 16; channel++)
-            leds.midiToState(MIDI::messageType_t::noteOn, 0, i, channel, IO::LEDs::dataSource_t::external);
-    }
+    _leds.setAllOff();
 
     //localNoteMultiVal
     //----------------------------------
 
     for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
-        TEST_ASSERT(database.update(Database::Section::leds_t::controlType, i, IO::LEDs::controlType_t::localNoteMultiVal) == true);
+        TEST_ASSERT(_database.update(Database::Section::leds_t::controlType, i, IO::LEDs::controlType_t::localNoteMultiVal) == true);
 
-    //continously call leds.midiToState with increasing MIDI value
-    //verify that each call results in correct brightness and led blink speed
-    for (size_t i = 0; i < 128; i++)
+    for (uint16_t i = 0; i < 128; i++)
     {
         //MIDI ID 0, channel 0, value, MIDI in
-        leds.midiToState(MIDI::messageType_t::noteOn, 0, i, 0, IO::LEDs::dataSource_t::internal);
+        _dispatcher.notify(IO::MessageDispatcher::messageSource_t::buttons, { 0, 0, 0, i, MIDI::messageType_t::noteOn }, IO::MessageDispatcher::listenType_t::nonFwd);
 
         //read only the first response - it's possible midi state will be set for multiple LEDs
-        TEST_ASSERT_EQUAL_UINT32(expectedBrightnessValue.at(i), hwaLEDs.brightness.at(0));
-        TEST_ASSERT_EQUAL_UINT32(expectedBlinkSpeedValue.at(i), leds.blinkSpeed(0));
+        TEST_ASSERT_EQUAL_UINT32(expectedBrightnessValue.at(i), _hwaLEDs._brightness.at(0));
+        TEST_ASSERT_EQUAL_UINT32(expectedBlinkSpeedValue.at(i), _leds.blinkSpeed(0));
     }
 
-    leds.setAllOff();
+    _leds.setAllOff();
 
-    //test incorrect parameters
-    for (size_t i = 0; i < 128; i++)
-        leds.midiToState(MIDI::messageType_t::noteOn, 0, i, 0, IO::LEDs::dataSource_t::external);
+    //same test for analog components
+    for (uint16_t i = 0; i < 128; i++)
+    {
+        //MIDI ID 0, channel 0, value, MIDI in
+        _dispatcher.notify(IO::MessageDispatcher::messageSource_t::analog, { 0, 0, 0, i, MIDI::messageType_t::noteOn }, IO::MessageDispatcher::listenType_t::nonFwd);
+
+        //read only the first response - it's possible midi state will be set for multiple LEDs
+        TEST_ASSERT_EQUAL_UINT32(expectedBrightnessValue.at(i), _hwaLEDs._brightness.at(0));
+        TEST_ASSERT_EQUAL_UINT32(expectedBlinkSpeedValue.at(i), _leds.blinkSpeed(0));
+    }
+
+    _leds.setAllOff();
 
     //localCCMultiVal
     //----------------------------------
 
     for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
-        TEST_ASSERT(database.update(Database::Section::leds_t::controlType, i, IO::LEDs::controlType_t::localCCMultiVal) == true);
+        TEST_ASSERT(_database.update(Database::Section::leds_t::controlType, i, IO::LEDs::controlType_t::localCCMultiVal) == true);
 
-    //continously call leds.midiToState with increasing MIDI value
+    //continously call _leds.midiToState with increasing MIDI value
     //verify that each call results in correct brightness and led blink speed
-    for (size_t i = 0; i < 128; i++)
+    for (uint16_t i = 0; i < 128; i++)
     {
         //MIDI ID 0, channel 0, value, MIDI in
-        leds.midiToState(MIDI::messageType_t::controlChange, 0, i, 0, IO::LEDs::dataSource_t::internal);
+        _dispatcher.notify(IO::MessageDispatcher::messageSource_t::buttons, { 0, 0, 0, i, MIDI::messageType_t::controlChange }, IO::MessageDispatcher::listenType_t::nonFwd);
 
         //read only the first response - it's possible midi state will be set for multiple LEDs
-        TEST_ASSERT_EQUAL_UINT32(expectedBrightnessValue.at(i), hwaLEDs.brightness.at(0));
-        TEST_ASSERT_EQUAL_UINT32(expectedBlinkSpeedValue.at(i), leds.blinkSpeed(0));
+        TEST_ASSERT_EQUAL_UINT32(expectedBrightnessValue.at(i), _hwaLEDs._brightness.at(0));
+        TEST_ASSERT_EQUAL_UINT32(expectedBlinkSpeedValue.at(i), _leds.blinkSpeed(0));
     }
 
-    leds.setAllOff();
+    _leds.setAllOff();
 
-    //in midi in mode nothing should be sent
-    for (size_t i = 0; i < 128; i++)
-        leds.midiToState(MIDI::messageType_t::controlChange, 0, i, 0, IO::LEDs::dataSource_t::external);
+    //same test for analog components
+    for (uint16_t i = 0; i < 128; i++)
+    {
+        //MIDI ID 0, channel 0, value, MIDI in
+        _dispatcher.notify(IO::MessageDispatcher::messageSource_t::analog, { 0, 0, 0, i, MIDI::messageType_t::controlChange }, IO::MessageDispatcher::listenType_t::nonFwd);
+
+        //read only the first response - it's possible midi state will be set for multiple LEDs
+        TEST_ASSERT_EQUAL_UINT32(expectedBrightnessValue.at(i), _hwaLEDs._brightness.at(0));
+        TEST_ASSERT_EQUAL_UINT32(expectedBlinkSpeedValue.at(i), _leds.blinkSpeed(0));
+    }
+
+    _leds.setAllOff();
 }
 
 TEST_CASE(SingleLEDstate)
 {
-    leds.midiToState(MIDI::messageType_t::noteOn, 0, 127, 0, IO::LEDs::dataSource_t::external);
-
     //by default, leds are configured to react on MIDI Note on, channel 0
     //note 0 should turn the first LED on
-    TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::b100, hwaLEDs.brightness.at(0));
+    _dispatcher.notify(IO::MessageDispatcher::messageSource_t::midiIn, { 0, 0, 0, 127, MIDI::messageType_t::noteOn }, IO::MessageDispatcher::listenType_t::nonFwd);
+    TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::b100, _hwaLEDs._brightness.at(0));
 
     //now turn the LED off
-    leds.midiToState(MIDI::messageType_t::noteOn, 0, 0, 0, IO::LEDs::dataSource_t::external);
-    TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::bOff, hwaLEDs.brightness.at(0));
+    _dispatcher.notify(IO::MessageDispatcher::messageSource_t::midiIn, { 0, 0, 0, 0, MIDI::messageType_t::noteOn }, IO::MessageDispatcher::listenType_t::nonFwd);
+    TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::bOff, _hwaLEDs._brightness.at(0));
 
 #if MAX_NUMBER_OF_LEDS >= 3
     //configure RGB LED 0
-    TEST_ASSERT(database.update(Database::Section::leds_t::rgbEnable, 0, 1) == true);
+    TEST_ASSERT(_database.update(Database::Section::leds_t::rgbEnable, 0, 1) == true);
 
     //now turn it on
-    leds.midiToState(MIDI::messageType_t::noteOn, 0, 127, 0, IO::LEDs::dataSource_t::external);
+    _dispatcher.notify(IO::MessageDispatcher::messageSource_t::midiIn, { 0, 0, 0, 127, MIDI::messageType_t::noteOn }, IO::MessageDispatcher::listenType_t::nonFwd);
 
     //three LEDs should be on now
-    TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::b100, hwaLEDs.brightness.at(hwaLEDs.rgbSignalIndex(0, IO::LEDs::rgbIndex_t::r)));
-    TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::b100, hwaLEDs.brightness.at(hwaLEDs.rgbSignalIndex(0, IO::LEDs::rgbIndex_t::g)));
-    TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::b100, hwaLEDs.brightness.at(hwaLEDs.rgbSignalIndex(0, IO::LEDs::rgbIndex_t::b)));
+    TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::b100, _hwaLEDs._brightness.at(_hwaLEDs.rgbSignalIndex(0, IO::LEDs::rgbIndex_t::r)));
+    TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::b100, _hwaLEDs._brightness.at(_hwaLEDs.rgbSignalIndex(0, IO::LEDs::rgbIndex_t::g)));
+    TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::b100, _hwaLEDs._brightness.at(_hwaLEDs.rgbSignalIndex(0, IO::LEDs::rgbIndex_t::b)));
 #endif
 }
 #endif

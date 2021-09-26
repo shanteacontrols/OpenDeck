@@ -20,11 +20,12 @@ limitations under the License.
 
 #include <inttypes.h>
 #include <functional>
-#include "io/common/CInfo.h"
+#include "util/cinfo/CInfo.h"
+#include "util/scheduler/Scheduler.h"
 #include "sysex/src/SysExConf.h"
 #include "CustomIDs.h"
 #include "database/Database.h"
-#include "midi/src/MIDI.h"
+#include "midi/MIDI.h"
 #include "io/buttons/Buttons.h"
 #include "io/buttons/Filter.h"
 #include "io/encoders/Encoders.h"
@@ -32,6 +33,7 @@ limitations under the License.
 #include "io/analog/Analog.h"
 #include "io/analog/Filter.h"
 #include "io/leds/LEDs.h"
+#include "io/display/Display.h"
 #include "io/touchscreen/Touchscreen.h"
 #include "bootloader/FwSelector/FwSelector.h"
 #include "dmxusb/src/DMXUSBWidget.h"
@@ -200,6 +202,10 @@ class System
     using usbConnectionHandler_t = std::function<void()>;
     using uniqueID_t             = std::array<uint8_t, UID_BITS / 8>;
 
+    //time in milliseconds after which all internal MIDI values will be forcefully resent when scheduled
+    //done after preset change or on usb connection state change
+    static constexpr uint32_t FORCED_VALUE_RESEND_DELAY = 500;
+
     class HWA
     {
         public:
@@ -312,6 +318,7 @@ class System
         };
 
         virtual bool      init()                                                                      = 0;
+        virtual void      update()                                                                    = 0;
         virtual void      reboot(FwSelector::fwType_t type)                                           = 0;
         virtual void      registerOnUSBconnectionHandler(usbConnectionHandler_t usbConnectionHandler) = 0;
         virtual bool      serialPeripheralAllocated(serialPeripheral_t peripheral)                    = 0;
@@ -341,12 +348,8 @@ class System
         , _hwaLEDs(*this)
     {}
 
-    bool            init();
-    void            run();
-    void            handleSysEx(const uint8_t* array, size_t size);
-    bool            sendCInfo(Database::block_t dbBlock, uint16_t componentID);
-    bool            isMIDIfeatureEnabled(midiFeature_t feature);
-    midiMergeType_t midiMergeType();
+    bool init();
+    void run();
 
     private:
     enum class initAction_t : uint8_t
@@ -543,6 +546,8 @@ class System
         System& _system;
     };
 
+    bool                             isMIDIfeatureEnabled(midiFeature_t feature);
+    midiMergeType_t                  midiMergeType();
     void                             checkComponents();
     void                             checkMIDI();
     void                             configureMIDI();
@@ -575,34 +580,36 @@ class System
     uint8_t                          onSetDisplay(Section::display_t section, size_t index, uint16_t newValue);
     uint8_t                          onSetTouchscreen(Section::touchscreen_t section, size_t index, uint16_t newValue);
 
-    SysExConf           _sysExConf;
-    HWA&                _hwa;
-    Database&           _database;
-    SysExDataHandler    _sysExDataHandler;
-    DBhandlers          _dbHandlers;
-    TouchScreenHandlers _touchScreenHandlers;
-    HWAAnalog           _hwaAnalog;
-    HWAButtons          _hwaButtons;
-    HWAEncoders         _hwaEncoders;
-    HWATouchscreen      _hwaTouchscreen;
-    HWACDCPassthrough   _hwaCDCPassthrough;
-    HWAU8X8             _hwaU8X8;
-    HWAMIDI             _hwaMIDI;
-    HWADMX              _hwaDMX;
-    HWALEDs             _hwaLEDs;
-    ComponentInfo       _cInfo;
-    IO::EncodersFilter  _encodersFilter;
-    IO::ButtonsFilter   _buttonsFilter;
-    MIDI                _midi         = MIDI(_hwaMIDI);
-    DMXUSBWidget        _dmx          = DMXUSBWidget(_hwaDMX);
-    IO::AnalogFilter    _analogFilter = IO::AnalogFilter(ADC_RESOLUTION);
-    IO::LEDs            _leds         = IO::LEDs(_hwaLEDs, _database);
-    IO::Analog          _analog       = IO::Analog(_hwaAnalog, _analogFilter, _database, _midi, _leds, _display, _cInfo);
-    IO::Buttons         _buttons      = IO::Buttons(_hwaButtons, _buttonsFilter, _database, _midi, _leds, _display, _cInfo);
-    IO::Encoders        _encoders     = IO::Encoders(_hwaEncoders, _encodersFilter, 1, _database, _midi, _display, _cInfo);
-    IO::Touchscreen     _touchscreen  = IO::Touchscreen(_hwaTouchscreen, _database, _cInfo, _hwaCDCPassthrough);
-    IO::U8X8            _u8x8         = IO::U8X8(_hwaU8X8);
-    IO::Display         _display      = IO::Display(_u8x8, _database);
+    SysExConf             _sysExConf;
+    HWA&                  _hwa;
+    IO::MessageDispatcher _dispatcher;
+    Database&             _database;
+    SysExDataHandler      _sysExDataHandler;
+    DBhandlers            _dbHandlers;
+    TouchScreenHandlers   _touchScreenHandlers;
+    HWAAnalog             _hwaAnalog;
+    HWAButtons            _hwaButtons;
+    HWAEncoders           _hwaEncoders;
+    HWATouchscreen        _hwaTouchscreen;
+    HWACDCPassthrough     _hwaCDCPassthrough;
+    HWAU8X8               _hwaU8X8;
+    HWAMIDI               _hwaMIDI;
+    HWADMX                _hwaDMX;
+    HWALEDs               _hwaLEDs;
+    IO::EncodersFilter    _encodersFilter;
+    IO::ButtonsFilter     _buttonsFilter;
+    Scheduler             _scheduler;
+    Protocol::MIDI        _midi         = Protocol::MIDI(_hwaMIDI, _dispatcher);
+    DMXUSBWidget          _dmx          = DMXUSBWidget(_hwaDMX);
+    IO::ComponentInfo     _cInfo        = IO::ComponentInfo(_dispatcher);
+    IO::AnalogFilter      _analogFilter = IO::AnalogFilter(ADC_RESOLUTION);
+    IO::LEDs              _leds         = IO::LEDs(_hwaLEDs, _database, _dispatcher);
+    IO::Analog            _analog       = IO::Analog(_hwaAnalog, _analogFilter, _database, _dispatcher);
+    IO::Buttons           _buttons      = IO::Buttons(_hwaButtons, _buttonsFilter, _database, _dispatcher);
+    IO::Encoders          _encoders     = IO::Encoders(_hwaEncoders, _encodersFilter, 1, _database, _dispatcher);
+    IO::Touchscreen       _touchscreen  = IO::Touchscreen(_hwaTouchscreen, _database, _hwaCDCPassthrough);
+    IO::U8X8              _u8x8         = IO::U8X8(_hwaU8X8);
+    IO::Display           _display      = IO::Display(_u8x8, _database, _dispatcher);
 
     const SysExConf::manufacturerID_t _sysExMID = {
         SYSEX_MANUFACTURER_ID_0,
@@ -613,8 +620,7 @@ class System
     static constexpr uint8_t SERIAL_PERIPHERAL_ALLOCATED_ERROR = 80;
     static constexpr uint8_t CDC_ALLOCATED_ERROR               = 81;
 
-    uint32_t _lastCinfoMsgTime[static_cast<uint8_t>(Database::block_t::AMOUNT)] = {};
-    bool     _backupRequested                                                   = false;
+    bool _backupRequested = false;
 
     //map sysex sections to sections in db
     const Database::Section::global_t _sysEx2DB_global[static_cast<uint8_t>(Section::global_t::AMOUNT)] = {

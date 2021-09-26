@@ -111,7 +111,7 @@ namespace IO
             };
 
             const bool     fastFilter = (index < MAX_NUMBER_OF_ANALOG) ? (core::timing::currentRunTimeMs() - _lastStableMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS : true;
-            const bool     use14bit   = (type == Analog::type_t::nrpn14b) || (type == Analog::type_t::pitchBend) || (type == Analog::type_t::cc14bit);
+            const bool     use14bit   = (type == Analog::type_t::nrpn14bit) || (type == Analog::type_t::pitchBend) || (type == Analog::type_t::controlChange14bit);
             const uint16_t maxLimit   = use14bit ? MIDI::MIDI_14_BIT_VALUE_MAX : MIDI::MIDI_7_BIT_VALUE_MAX;
             const bool     direction  = value >= _lastStableValue[index];
             const uint16_t stepDiff   = !use14bit || (direction != _lastStableDirection[index]) || !fastFilter ? _stepDiff7Bit : _adcConfig.stepDiff14Bit;

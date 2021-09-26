@@ -18,30 +18,27 @@ limitations under the License.
 
 #pragma once
 
+#include <inttypes.h>
 #include <functional>
-#include "sysex/src/SysExConf.h"
-#include "database/Database.h"
 
-class ComponentInfo
+//a simple scheduler used to run one-off tasks specified time from now
+class Scheduler
 {
     public:
-    using cinfoHandler_t = std::function<bool(Database::block_t, uint16_t)>;
+    Scheduler();
 
-    ComponentInfo() = default;
-
-    void registerHandler(cinfoHandler_t handler)
+    struct task_t
     {
-        _handler = std::move(handler);
-    }
+        std::function<void()> function = nullptr;
+        uint32_t              timeout  = 0;
 
-    void send(Database::block_t block, uint16_t id)
-    {
-        if (_handler != nullptr)
-            _handler(block, id);
-    }
+        task_t() = default;
+    };
+
+    void update();
+    bool registerTask(const task_t&& task);
 
     private:
-    /// Common handler used to identify currently active component during SysEx configuration.
-    /// Must be implemented externally.
-    cinfoHandler_t _handler = nullptr;
+    static constexpr size_t MAX_TASKS         = 10;
+    task_t                  _tasks[MAX_TASKS] = {};
 };

@@ -71,8 +71,6 @@ uint8_t System::SysExDataHandler::get(uint8_t block, uint8_t section, uint16_t i
         break;
     }
 
-    _system._display.displayMIDIevent(IO::Display::eventType_t::in, IO::Display::event_t::systemExclusive, 0, 0, 0);
-
     return result;
 }
 

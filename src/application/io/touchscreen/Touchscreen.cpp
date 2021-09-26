@@ -23,6 +23,15 @@ using namespace IO;
 uint8_t IO::TouchscreenBase::Common::rxBuffer[IO::TouchscreenBase::Common::bufferSize];
 size_t  IO::TouchscreenBase::Common::bufferCount;
 
+Touchscreen::Touchscreen(TouchscreenBase::HWA& hwa,
+                         Database&             database,
+                         CDCPassthrough&       cdcPassthrough)
+    : _hwa(hwa)
+    , _database(database)
+    , _cdcPassthrough(cdcPassthrough)
+{
+}
+
 bool Touchscreen::init(mode_t mode)
 {
     switch (mode)
@@ -249,8 +258,6 @@ void Touchscreen::processButton(const size_t buttonID, const bool state)
         changeScreen = true;
         newScreen    = _database.read(Database::Section::touchscreen_t::pageSwitchIndex, buttonID);
     }
-
-    _cInfo.send(Database::block_t::touchscreen, buttonID);
 
     if (_eventNotifier != nullptr)
         _eventNotifier->button(buttonID, state);

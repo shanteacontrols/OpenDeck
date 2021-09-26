@@ -18,8 +18,6 @@ namespace
         uint8_t             data2;      ///< Second data byte (0-127, 0 if message length is 2 bytes)
     } channelMIDImessage_t;
 
-    std::vector<channelMIDImessage_t> channelMIDImessages;
-
     DBstorageMock _dbStorageMock;
     Database      _database(_dbStorageMock, true);
 
@@ -258,53 +256,53 @@ namespace
 
         bool dinRead(uint8_t& data) override
         {
-            if (!dinPacketToBoard.size())
+            if (!dinReadPackets.size())
                 return false;
 
-            data = dinPacketToBoard.at(0);
-            dinPacketToBoard.erase(dinPacketToBoard.begin());
+            data = dinReadPackets.at(0);
+            dinReadPackets.erase(dinReadPackets.begin());
 
             return true;
         }
 
         bool dinWrite(uint8_t data) override
         {
-            dinPacketFromBoard.push_back(data);
+            dinWritePackets.push_back(data);
             return true;
         }
 
         bool usbRead(::MIDI::USBMIDIpacket_t& USBMIDIpacket) override
         {
-            if (!usbPacketFromBoard.size())
+            if (!usbReadPackets.size())
                 return false;
 
-            USBMIDIpacket = usbPacketFromBoard.at(0);
-            usbPacketFromBoard.erase(usbPacketFromBoard.begin());
+            USBMIDIpacket = usbReadPackets.at(0);
+            usbReadPackets.erase(usbReadPackets.begin());
 
             return true;
         }
 
         bool usbWrite(::MIDI::USBMIDIpacket_t& USBMIDIpacket) override
         {
-            usbPacketToBoard.push_back(USBMIDIpacket);
+            usbWritePackets.push_back(USBMIDIpacket);
             return true;
         }
 
         void reset()
         {
-            usbPacketFromBoard.clear();
-            usbPacketToBoard.clear();
-            dinPacketToBoard.clear();
-            dinPacketFromBoard.clear();
+            usbReadPackets.clear();
+            usbWritePackets.clear();
+            dinReadPackets.clear();
+            dinWritePackets.clear();
 
             _loopbackEnabled = false;
         }
 
-        std::vector<::MIDI::USBMIDIpacket_t> usbPacketFromBoard = {};
-        std::vector<::MIDI::USBMIDIpacket_t> usbPacketToBoard   = {};
-        std::vector<uint8_t>                 dinPacketToBoard   = {};
-        std::vector<uint8_t>                 dinPacketFromBoard = {};
-        bool                                 _loopbackEnabled   = false;
+        std::vector<::MIDI::USBMIDIpacket_t> usbReadPackets   = {};
+        std::vector<::MIDI::USBMIDIpacket_t> usbWritePackets  = {};
+        std::vector<uint8_t>                 dinReadPackets   = {};
+        std::vector<uint8_t>                 dinWritePackets  = {};
+        bool                                 _loopbackEnabled = false;
     } _hwaMIDI;
 
     class HWADMX : public System::HWA::Protocol::DMX
@@ -355,6 +353,10 @@ namespace
         bool init() override
         {
             return true;
+        }
+
+        void update() override
+        {
         }
 
         void reboot(FwSelector::fwType_t type) override
@@ -441,178 +443,6 @@ namespace
             }
         } _hwaProtocol;
     } _hwaSystem;
-
-    System systemStub(_hwaSystem, _database);
-
-    void sendSysExRequest(const std::vector<uint8_t> request, std::vector<MIDI::USBMIDIpacket_t>& buffer)
-    {
-        class HWAFillMIDI : public MIDI::HWA
-        {
-            public:
-            HWAFillMIDI(std::vector<MIDI::USBMIDIpacket_t>& buffer)
-                : _buffer(buffer)
-            {}
-
-            bool init(MIDI::interface_t interface) override
-            {
-                return true;
-            }
-
-            bool deInit(MIDI::interface_t interface) override
-            {
-                return true;
-            }
-
-            bool dinRead(uint8_t& data) override
-            {
-                return false;
-            }
-
-            bool dinWrite(uint8_t data) override
-            {
-                return false;
-            }
-
-            bool usbRead(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
-            {
-                return false;
-            }
-
-            bool usbWrite(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
-            {
-                _buffer.push_back(USBMIDIpacket);
-                return true;
-            }
-
-            std::vector<MIDI::USBMIDIpacket_t>& _buffer;
-        } hwaFillMIDI(buffer);
-
-        //create temp midi object which will fill internal _hwaMIDI buffer of the real midi object when send is called
-        //calling the real midi read will then result in parsing those filled bytes by the temp object
-        MIDI fillMIDI(hwaFillMIDI);
-
-        fillMIDI.init(MIDI::interface_t::usb);
-        fillMIDI.sendSysEx(request.size(), &request[0], true);
-
-        //store this in a variable since every midi.read call will decrement the size of buffer
-        size_t packetSize = hwaFillMIDI._buffer.size();
-
-        //now just call system which will call midi.read which in turn will read the filled packets
-        for (size_t i = 0; i < packetSize; i++)
-            systemStub.run();
-    };
-
-    void verifyResponse(const std::vector<uint8_t> response, std::vector<MIDI::USBMIDIpacket_t>& buffer)
-    {
-        class HWAParseMIDI : public MIDI::HWA
-        {
-            public:
-            HWAParseMIDI(std::vector<MIDI::USBMIDIpacket_t>& buffer)
-                : _buffer(buffer)
-            {}
-
-            bool init(MIDI::interface_t interface) override
-            {
-                return true;
-            }
-
-            bool deInit(MIDI::interface_t interface) override
-            {
-                return true;
-            }
-
-            bool dinRead(uint8_t& data) override
-            {
-                return false;
-            }
-
-            bool dinWrite(uint8_t data) override
-            {
-                _parsed.push_back(data);
-                return true;
-            }
-
-            bool usbRead(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
-            {
-                if (!_buffer.size())
-                    return false;
-
-                USBMIDIpacket = _buffer.at(0);
-                _buffer.erase(_buffer.begin());
-
-                return true;
-            }
-
-            bool usbWrite(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
-            {
-                return true;
-            }
-
-            std::vector<MIDI::USBMIDIpacket_t>& _buffer;
-            std::vector<uint8_t>                _parsed;
-
-        } hwaParseMIDI(buffer);
-
-        MIDI parseMIDI(hwaParseMIDI);
-
-        parseMIDI.init(MIDI::interface_t::all);
-        parseMIDI.setInputChannel(MIDI::MIDI_CHANNEL_OMNI);
-
-        //create temp midi object which will read written usb packets and pass them back as DIN MIDI array
-        //for easier parsing
-
-        size_t packetSize              = hwaParseMIDI._buffer.size();
-        size_t sysExResponseIndexStart = 0;
-
-        for (size_t i = 0; i < packetSize; i++)
-        {
-            if (parseMIDI.read(MIDI::interface_t::usb, MIDI::filterMode_t::fullDIN))
-            {
-                auto    messageType = parseMIDI.getType(MIDI::interface_t::usb);
-                uint8_t data1       = parseMIDI.getData1(MIDI::interface_t::usb);
-                uint8_t data2       = parseMIDI.getData2(MIDI::interface_t::usb);
-                uint8_t channel     = parseMIDI.getChannel(MIDI::interface_t::usb);
-
-                bool chMessage = false;
-
-                switch (messageType)
-                {
-                case MIDI::messageType_t::noteOn:
-                case MIDI::messageType_t::noteOff:
-                case MIDI::messageType_t::controlChange:
-                case MIDI::messageType_t::programChange:
-                {
-                    chMessage = true;
-                }
-                break;
-
-                default:
-                    break;
-                }
-
-                if (chMessage)
-                {
-                    channelMIDImessages.push_back({
-                        channel,
-                        messageType,
-                        data1,
-                        data2,
-                    });
-                }
-            }
-        }
-
-        for (sysExResponseIndexStart = 0; sysExResponseIndexStart < hwaParseMIDI._parsed.size(); sysExResponseIndexStart++)
-        {
-            if (hwaParseMIDI._parsed.at(sysExResponseIndexStart) != response.at(0))
-                continue;
-
-            for (size_t i = 0; i < hwaParseMIDI._parsed.size() - sysExResponseIndexStart; i++)
-                TEST_ASSERT_EQUAL_UINT32(response.at(i), hwaParseMIDI._parsed.at(i + sysExResponseIndexStart));
-
-            break;
-        }
-    };
 }    // namespace
 
 TEST_SETUP()
@@ -622,6 +452,8 @@ TEST_SETUP()
 
 TEST_CASE(SystemInit)
 {
+    System systemStub(_hwaSystem, _database);
+
     //on init, factory reset is performed so everything is in its default state
     TEST_ASSERT(systemStub.init() == true);
 
@@ -651,6 +483,33 @@ TEST_CASE(SystemInit)
 
 TEST_CASE(ForcedResendOnPresetChange)
 {
+    System systemStub(_hwaSystem, _database);
+
+    auto sendAndVerifySysExRequest = [&](const std::vector<uint8_t> request, const std::vector<uint8_t> response) {
+        _hwaMIDI.usbReadPackets = MIDIHelper::rawSysExToUSBPackets(request);
+        //store this in a variable since every midi.read call will decrement the size of buffer
+        auto packetSize = _hwaMIDI.usbReadPackets.size();
+
+        //now just call system which will call midi.read which in turn will read the filled packets
+        for (size_t i = 0; i < packetSize; i++)
+            systemStub.run();
+
+        //response is now in _hwaMIDI.usbWritePackets (board has sent this to host)
+        //convert it to raw bytes for easier parsing
+        auto rawBytes = MIDIHelper::usbSysExToRawBytes(_hwaMIDI.usbWritePackets);
+
+        for (size_t i = 0; i < rawBytes.size(); i++)
+        {
+            //it's possible that the first response isn't sysex but some component message
+            if (rawBytes.at(i) != response.at(0))
+                continue;
+
+            //once F0 is found, however, it should be expected response
+            for (size_t sysExByte = 0; sysExByte < rawBytes.size() - i; sysExByte++)
+                TEST_ASSERT_EQUAL_UINT32(rawBytes.at(sysExByte), response.at(sysExByte));
+        }
+    };
+
     _database.factoryReset();
     TEST_ASSERT(systemStub.init() == true);
 
@@ -670,63 +529,74 @@ TEST_CASE(ForcedResendOnPresetChange)
     systemStub.run();    //encoders
     systemStub.run();    //analog
 
-    TEST_ASSERT_EQUAL_UINT32(1, _hwaMIDI.usbPacketToBoard.size());
+    TEST_ASSERT_EQUAL_UINT32(1, _hwaMIDI.usbWritePackets.size());
 
-    TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _hwaMIDI.usbPacketToBoard.at(0).Event << 4);
-    TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _hwaMIDI.usbPacketToBoard.at(0).Data1);
-    TEST_ASSERT_EQUAL_UINT32(0, _hwaMIDI.usbPacketToBoard.at(0).Data2);
-    TEST_ASSERT_EQUAL_UINT32(127, _hwaMIDI.usbPacketToBoard.at(0).Data3);
+    //verify the content of the message
+    TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _hwaMIDI.usbWritePackets.at(0).Event << 4);
+    TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _hwaMIDI.usbWritePackets.at(0).Data1);
+    TEST_ASSERT_EQUAL_UINT32(0, _hwaMIDI.usbWritePackets.at(0).Data2);
+    TEST_ASSERT_EQUAL_UINT32(127, _hwaMIDI.usbWritePackets.at(0).Data3);
 
     //now change preset and verify that the same midi message is repeated
     _hwaMIDI.reset();
 
     //handshake
-    sendSysExRequest({ 0xF0,
-                       0x00,
-                       0x53,
-                       0x43,
-                       0x00,
-                       0x00,
-                       0x01,
-                       0xF7 },
-                     _hwaMIDI.usbPacketFromBoard);
-
-    verifyResponse({ 0xF0,
-                     0x00,
-                     0x53,
-                     0x43,
-                     0x01,
-                     0x00,
-                     0x01,
-                     0xF7 },
-                   _hwaMIDI.usbPacketToBoard);
+    sendAndVerifySysExRequest({ 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x00,
+                                0x00,
+                                0x01,
+                                0xF7 },
+                              { 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x01,
+                                0x00,
+                                0x01,
+                                0xF7 });
 
     _hwaMIDI.reset();
-    channelMIDImessages.clear();
 
     std::vector<uint8_t> generatedSysExReq;
     MIDIHelper::generateSysExSetReq(System::Section::global_t::presets, static_cast<size_t>(System::presetSetting_t::activePreset), 1, generatedSysExReq);
 
-    sendSysExRequest(generatedSysExReq, _hwaMIDI.usbPacketFromBoard);
+    sendAndVerifySysExRequest(generatedSysExReq,
+                              { 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x01,
+                                0x00,
+                                0x01,    //set
+                                0x00,    //single
+                                0x00,    //block 0 (global)
+                                0x02,    //section 2 (presets)
+                                0x00,    //active preset
+                                0x00,
+                                0x00,    //preset 1
+                                0x01,
+                                0xF7 });
 
-    verifyResponse({ 0xF0,
-                     0x00,
-                     0x53,
-                     0x43,
-                     0x01,
-                     0x00,
-                     0x01,    //set
-                     0x00,    //single
-                     0x00,    //block 0 (global)
-                     0x02,    //section 2 (presets)
-                     0x00,    //active preset
-                     0x00,
-                     0x00,    //preset 1
-                     0x01,
-                     0xF7 },
-                   _hwaMIDI.usbPacketToBoard);
+    //values will be forcefully resent after a timeout
+    //fake the passage of time here first
+    core::timing::detail::rTime_ms += System::FORCED_VALUE_RESEND_DELAY;
+    _hwaMIDI.usbWritePackets.clear();
+    systemStub.run();
 
-    //since the preset has been changed, all buttons should resend their state and all enabled analog components (only 1 in this case)
-    TEST_ASSERT(channelMIDImessages.size() == MAX_NUMBER_OF_BUTTONS + 1);
+    size_t channelMessages = 0;
+
+    for (size_t i = 0; i < _hwaMIDI.usbWritePackets.size(); i++)
+    {
+        auto messageType = MIDI::getTypeFromStatusByte(_hwaMIDI.usbWritePackets.at(i).Data1);
+
+        if (MIDI::isChannelMessage(messageType))
+            channelMessages++;
+    }
+
+    //since the preset has been changed 3 times by now, all buttons should resend their state and all enabled analog components (only 1 in this case)
+    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_BUTTONS + 1) * 3, channelMessages);
 }
 #endif

@@ -18,12 +18,12 @@ limitations under the License.
 
 #pragma once
 
+#include "database/Database.h"
+#include "util/messaging/Messaging.h"
+
 #ifndef LEDS_SUPPORTED
 #include "stub/LEDs.h"
 #else
-
-#include "database/Database.h"
-#include "midi/src/MIDI.h"
 
 namespace IO
 {
@@ -112,13 +112,12 @@ namespace IO
             virtual size_t rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent) = 0;
         };
 
-        LEDs(HWA& hwa, Database& database)
-            : _hwa(hwa)
-            , _database(database)
-        {}
+        LEDs(HWA&               hwa,
+             Database&          database,
+             MessageDispatcher& dispatcher);
 
         void         init(bool startUp = true);
-        void         checkBlinking(bool forceChange = false);
+        void         update(bool forceChange = false);
         void         setAllOn();
         void         setAllOff();
         void         refresh();
@@ -128,7 +127,6 @@ namespace IO
         blinkSpeed_t blinkSpeed(uint8_t ledID);
         size_t       rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent);
         size_t       rgbIndex(size_t singleLEDindex);
-        void         midiToState(MIDI::messageType_t messageType, uint8_t value1, uint8_t value2, uint8_t channel, dataSource_t dataSource);
         void         setBlinkType(blinkType_t blinkType);
         void         resetBlinking();
 
@@ -152,6 +150,7 @@ namespace IO
         brightness_t valueToBrightness(uint8_t value);
         void         startUpAnimation();
         bool         isControlTypeMatched(MIDI::messageType_t midiMessage, controlType_t controlType);
+        void         midiToState(MIDI::messageType_t messageType, uint8_t value1, uint8_t value2, uint8_t channel, dataSource_t dataSource);
 
         HWA&      _hwa;
         Database& _database;

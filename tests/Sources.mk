@@ -25,7 +25,10 @@ ifeq (,$(findstring USB_LINK_MCU,$(DEFINES)))
     modules/u8g2/csrc/u8x8_d_ssd1306_128x64_noname.c \
     modules/u8g2/csrc/u8x8_d_ssd1306_128x32.c \
     $(BOARD_TARGET_DIR)/$(TARGET).cpp \
-    stubs/Board.cpp
+    stubs/Board.cpp \
+    stubs/Core.cpp \
+    application/util/messaging/Messaging.cpp \
+    application/util/scheduler/Scheduler.cpp
 endif
 
 #common include dirs

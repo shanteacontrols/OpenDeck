@@ -809,20 +809,7 @@ class HWASystem : public System::HWA
         return true;
     }
 
-    void reboot(FwSelector::fwType_t type) override
-    {
-        auto value = static_cast<uint8_t>(type);
-
-        Board::bootloader::setMagicBootValue(value);
-        Board::reboot();
-    }
-
-    void registerOnUSBconnectionHandler(System::usbConnectionHandler_t usbConnectionHandler)
-    {
-        _usbConnectionHandler = std::move(usbConnectionHandler);
-    }
-
-    void checkUSBconnection()
+    void update() override
     {
         static uint32_t lastCheckTime       = 0;
         static bool     lastConnectionState = false;
@@ -843,6 +830,19 @@ class HWASystem : public System::HWA
             lastConnectionState = newState;
             lastCheckTime       = core::timing::currentRunTimeMs();
         }
+    }
+
+    void reboot(FwSelector::fwType_t type) override
+    {
+        auto value = static_cast<uint8_t>(type);
+
+        Board::bootloader::setMagicBootValue(value);
+        Board::reboot();
+    }
+
+    void registerOnUSBconnectionHandler(System::usbConnectionHandler_t usbConnectionHandler)
+    {
+        _usbConnectionHandler = std::move(usbConnectionHandler);
     }
 
     bool serialPeripheralAllocated(System::serialPeripheral_t peripheral) override
@@ -992,7 +992,6 @@ int main()
 
     while (true)
     {
-        _hwaSystem.checkUSBconnection();
         sys.run();
     }
 

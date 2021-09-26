@@ -2,16 +2,13 @@
 
 #include "unity/Framework.h"
 #include "io/analog/Analog.h"
-#include "io/common/CInfo.h"
 #include "database/Database.h"
-#include "midi/src/MIDI.h"
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
 #include "stubs/database/DB_ReadWrite.h"
-#include "stubs/HWALEDs.h"
-#include "stubs/HWAU8X8.h"
 #include "stubs/AnalogFilter.h"
-#include "stubs/HWAMIDI.h"
+#include "stubs/Listener.h"
+#include "util/messaging/Messaging.h"
 
 namespace
 {
@@ -27,33 +24,39 @@ namespace
         }
 
         uint32_t adcReturnValue;
-    } hwaAnalog;
+    } _hwaAnalog;
 
-    DBstorageMock    dbStorageMock;
-    Database         database = Database(dbStorageMock, true);
-    HWAMIDIStub      hwaMIDI;
-    MIDI             midi(hwaMIDI);
-    ComponentInfo    cInfo;
-    AnalogFilterStub analogFilter;
-    HWALEDsStub      hwaLEDs;
-    IO::LEDs         leds(hwaLEDs, database);
-    HWAU8X8Stub      hwaU8X8;
-    IO::U8X8         u8x8(hwaU8X8);
-    IO::Display      display(u8x8, database);
-    IO::Analog       analog(hwaAnalog, analogFilter, database, midi, leds, display, cInfo);
+    IO::MessageDispatcher _dispatcher;
+    Listener              _listener;
+    DBstorageMock         _dbStorageMock;
+    Database              _database = Database(_dbStorageMock, true);
+    AnalogFilterStub      _analogFilter;
+    IO::Analog            _analog(_hwaAnalog, _analogFilter, _database, _dispatcher);
 }    // namespace
 
 TEST_SETUP()
 {
     //init checks - no point in running further tests if these conditions fail
-    TEST_ASSERT(database.init() == true);
-    TEST_ASSERT(database.factoryReset() == true);
+    TEST_ASSERT(_database.init() == true);
+    TEST_ASSERT(_database.factoryReset() == true);
 
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
-        analog.debounceReset(i);
+        _analog.debounceReset(i);
 
-    hwaMIDI.midiPacket.clear();
-    midi.init(MIDI::interface_t::usb);
+    static bool listenerActive = false;
+
+    if (!listenerActive)
+    {
+        _dispatcher.listen(IO::MessageDispatcher::messageSource_t::analog,
+                           IO::MessageDispatcher::listenType_t::nonFwd,
+                           [](const IO::MessageDispatcher::message_t& dispatchMessage) {
+                               _listener.messageListener(dispatchMessage);
+                           });
+
+        listenerActive = true;
+    }
+
+    _listener._dispatchMessage.clear();
 }
 
 TEST_CASE(CCtest)
@@ -64,22 +67,22 @@ TEST_CASE(CCtest)
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         //enable all analog components
-        TEST_ASSERT(database.update(Database::Section::analog_t::enable, i, 1) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::enable, i, 1) == true);
 
         //disable invert state
-        TEST_ASSERT(database.update(Database::Section::analog_t::invert, i, 0) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::invert, i, 0) == true);
 
         //configure all analog components as potentiometers with CC MIDI message
-        TEST_ASSERT(database.update(Database::Section::analog_t::type, i, Analog::type_t::potentiometerControlChange) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::type, i, Analog::type_t::potentiometerControlChange) == true);
 
         //set all lower limits to 0
-        TEST_ASSERT(database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
 
         //set all upper limits to MIDI_7_BIT_VALUE_MAX
-        TEST_ASSERT(database.update(Database::Section::analog_t::upperLimit, i, MIDI::MIDI_7_BIT_VALUE_MAX) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::upperLimit, i, MIDI::MIDI_7_BIT_VALUE_MAX) == true);
 
         //midi channel
-        TEST_ASSERT(database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
     }
 
     //feed all the values from minimum to maximum
@@ -89,24 +92,24 @@ TEST_CASE(CCtest)
 
     for (int i = 0; i <= 127; i++)
     {
-        hwaAnalog.adcReturnValue = i;
-        analog.update();
+        _hwaAnalog.adcReturnValue = i;
+        _analog.update();
     }
 
-    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 128), hwaMIDI.midiPacket.size());
+    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 128), _listener._dispatchMessage.size());
 
     //all received messages should be control change
-    for (int i = 0; i < hwaMIDI.midiPacket.size(); i++)
-        TEST_ASSERT_EQUAL_UINT32(static_cast<uint8_t>(MIDI::messageType_t::controlChange), hwaMIDI.midiPacket.at(i).Event << 4);
+    for (int i = 0; i < _listener._dispatchMessage.size(); i++)
+        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _listener._dispatchMessage.at(i).message);
 
     uint8_t expectedMIDIvalue = 0;
 
-    for (int i = 0; i < hwaMIDI.midiPacket.size(); i += MAX_NUMBER_OF_ANALOG)
+    for (int i = 0; i < _listener._dispatchMessage.size(); i += MAX_NUMBER_OF_ANALOG)
     {
         for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
             size_t index = i + j;
-            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, hwaMIDI.midiPacket.at(index).Data3);
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._dispatchMessage.at(index).midiValue);
         }
 
         expectedMIDIvalue++;
@@ -114,38 +117,38 @@ TEST_CASE(CCtest)
 
     //now go backward
 
-    hwaMIDI.midiPacket.clear();
+    _listener._dispatchMessage.clear();
 
     for (int i = 127; i >= 0; i--)
     {
-        hwaAnalog.adcReturnValue = i;
-        analog.update();
+        _hwaAnalog.adcReturnValue = i;
+        _analog.update();
     }
 
     //expect one message less since the last one was 127
-    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 127), hwaMIDI.midiPacket.size());
+    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 127), _listener._dispatchMessage.size());
 
     expectedMIDIvalue = 126;
 
-    for (int i = 0; i < hwaMIDI.midiPacket.size(); i += MAX_NUMBER_OF_ANALOG)
+    for (int i = 0; i < _listener._dispatchMessage.size(); i += MAX_NUMBER_OF_ANALOG)
     {
         for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
             size_t index = i + j;
-            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, hwaMIDI.midiPacket.at(index).Data3);
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._dispatchMessage.at(index).midiValue);
         }
 
         expectedMIDIvalue--;
     }
 
-    hwaMIDI.midiPacket.clear();
+    _listener._dispatchMessage.clear();
 
     //try to feed value larger than 127
     //no response should be received
-    hwaAnalog.adcReturnValue = 10000;
-    analog.update();
+    _hwaAnalog.adcReturnValue = 10000;
+    _analog.update();
 
-    TEST_ASSERT_EQUAL_UINT32(0, hwaMIDI.midiPacket.size());
+    TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
 }
 
 TEST_CASE(PitchBendTest)
@@ -156,77 +159,69 @@ TEST_CASE(PitchBendTest)
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         //enable all analog components
-        TEST_ASSERT(database.update(Database::Section::analog_t::enable, i, 1) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::enable, i, 1) == true);
 
         //disable invert state
-        TEST_ASSERT(database.update(Database::Section::analog_t::invert, i, 0) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::invert, i, 0) == true);
 
         //configure all analog components as potentiometers with Pitch Bend MIDI message
-        TEST_ASSERT(database.update(Database::Section::analog_t::type, i, Analog::type_t::pitchBend) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::type, i, Analog::type_t::pitchBend) == true);
 
         //set all lower limits to 0
-        TEST_ASSERT(database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
 
         //set all upper limits to MIDI_14_BIT_VALUE_MAX
-        TEST_ASSERT(database.update(Database::Section::analog_t::upperLimit, i, MIDI::MIDI_14_BIT_VALUE_MAX) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::upperLimit, i, MIDI::MIDI_14_BIT_VALUE_MAX) == true);
 
         //midi channel
-        TEST_ASSERT(database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
     }
 
     for (int i = 0; i <= 16383; i++)
     {
-        hwaAnalog.adcReturnValue = i;
-        analog.update();
+        _hwaAnalog.adcReturnValue = i;
+        _analog.update();
     }
 
-    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 16384), hwaMIDI.midiPacket.size());
+    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 16384), _listener._dispatchMessage.size());
 
-    //all received messages should be pitch bend
-    for (int i = 0; i < hwaMIDI.midiPacket.size(); i++)
-        TEST_ASSERT_EQUAL_UINT32(hwaMIDI.midiPacket.at(i).Event << 4, static_cast<uint8_t>(MIDI::messageType_t::pitchBend));
+    // //all received messages should be pitch bend
+    for (int i = 0; i < _listener._dispatchMessage.size(); i++)
+        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::pitchBend, _listener._dispatchMessage.at(i).message);
 
     uint16_t expectedMIDIvalue = 0;
 
-    for (int i = 0; i < hwaMIDI.midiPacket.size(); i += MAX_NUMBER_OF_ANALOG)
+    for (int i = 0; i < _listener._dispatchMessage.size(); i += MAX_NUMBER_OF_ANALOG)
     {
         for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
             size_t index = i + j;
-
-            MIDI::Merge14bit pitchBendValue;
-
-            pitchBendValue.merge(hwaMIDI.midiPacket.at(index).Data3, hwaMIDI.midiPacket.at(index).Data2);
-            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, pitchBendValue.value());
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._dispatchMessage.at(index).midiValue);
         }
 
         expectedMIDIvalue++;
     }
 
     //now go backward
-    hwaMIDI.midiPacket.clear();
+    _listener._dispatchMessage.clear();
 
     for (int i = 16383; i >= 0; i--)
     {
-        hwaAnalog.adcReturnValue = i;
-        analog.update();
+        _hwaAnalog.adcReturnValue = i;
+        _analog.update();
     }
 
     //one message less
-    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 16383), hwaMIDI.midiPacket.size());
+    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 16383), _listener._dispatchMessage.size());
 
     expectedMIDIvalue = 16382;
 
-    for (int i = 0; i < hwaMIDI.midiPacket.size(); i += MAX_NUMBER_OF_ANALOG)
+    for (int i = 0; i < _listener._dispatchMessage.size(); i += MAX_NUMBER_OF_ANALOG)
     {
         for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
             size_t index = i + j;
-
-            MIDI::Merge14bit pitchBendValue;
-
-            pitchBendValue.merge(hwaMIDI.midiPacket.at(index).Data3, hwaMIDI.midiPacket.at(index).Data2);
-            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, pitchBendValue.value());
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._dispatchMessage.at(index).midiValue);
         }
 
         expectedMIDIvalue--;
@@ -241,115 +236,115 @@ TEST_CASE(Inversion)
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         //enable all analog components
-        TEST_ASSERT(database.update(Database::Section::analog_t::enable, i, 1) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::enable, i, 1) == true);
 
         //disable invert state
-        TEST_ASSERT(database.update(Database::Section::analog_t::invert, i, 0) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::invert, i, 0) == true);
 
         //configure all analog components as potentiometers with CC MIDI message
-        TEST_ASSERT(database.update(Database::Section::analog_t::type, i, Analog::type_t::potentiometerControlChange) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::type, i, Analog::type_t::potentiometerControlChange) == true);
 
         //set all lower limits to 0
-        TEST_ASSERT(database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
 
         //set all upper limits to MIDI_14_BIT_VALUE_MAX
-        TEST_ASSERT(database.update(Database::Section::analog_t::upperLimit, i, MIDI::MIDI_14_BIT_VALUE_MAX) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::upperLimit, i, MIDI::MIDI_14_BIT_VALUE_MAX) == true);
 
         //midi channel
-        TEST_ASSERT(database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
     }
 
     //enable inversion
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
-        TEST_ASSERT(database.update(Database::Section::analog_t::invert, i, 1) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::invert, i, 1) == true);
 
     for (int i = 0; i <= 127; i++)
     {
-        hwaAnalog.adcReturnValue = i;
-        analog.update();
+        _hwaAnalog.adcReturnValue = i;
+        _analog.update();
     }
 
-    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 128), hwaMIDI.midiPacket.size());
+    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 128), _listener._dispatchMessage.size());
 
     //first value should be 127
     //last value should be 0
 
     uint16_t expectedMIDIvalue = 127;
 
-    for (int i = 0; i < hwaMIDI.midiPacket.size(); i += MAX_NUMBER_OF_ANALOG)
+    for (int i = 0; i < _listener._dispatchMessage.size(); i += MAX_NUMBER_OF_ANALOG)
     {
         for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
             size_t index = i + j;
-            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, hwaMIDI.midiPacket.at(index).Data3);
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._dispatchMessage.at(index).midiValue);
         }
 
         expectedMIDIvalue--;
     }
 
-    hwaMIDI.midiPacket.clear();
+    _listener._dispatchMessage.clear();
 
     //funky setup: set lower limit to 127, upper to 0 while inversion is enabled
     //result should be the same as when default setup is used (no inversion / 0 as lower limit, 127 as upper limit)
 
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
-        TEST_ASSERT(database.update(Database::Section::analog_t::invert, i, 1) == true);
-        TEST_ASSERT(database.update(Database::Section::analog_t::lowerLimit, i, 127) == true);
-        TEST_ASSERT(database.update(Database::Section::analog_t::upperLimit, i, 0) == true);
-        analog.debounceReset(i);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::invert, i, 1) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::lowerLimit, i, 127) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::upperLimit, i, 0) == true);
+        _analog.debounceReset(i);
     }
 
     //feed all the values again
     for (int i = 0; i <= 127; i++)
     {
-        hwaAnalog.adcReturnValue = i;
-        analog.update();
+        _hwaAnalog.adcReturnValue = i;
+        _analog.update();
     }
 
-    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 128), hwaMIDI.midiPacket.size());
+    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 128), _listener._dispatchMessage.size());
 
     expectedMIDIvalue = 0;
 
-    for (int i = 0; i < hwaMIDI.midiPacket.size(); i += MAX_NUMBER_OF_ANALOG)
+    for (int i = 0; i < _listener._dispatchMessage.size(); i += MAX_NUMBER_OF_ANALOG)
     {
         for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
             size_t index = i + j;
-            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, hwaMIDI.midiPacket.at(index).Data3);
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._dispatchMessage.at(index).midiValue);
         }
 
         expectedMIDIvalue++;
     }
 
-    hwaMIDI.midiPacket.clear();
+    _listener._dispatchMessage.clear();
 
     //now disable inversion
-    hwaMIDI.midiPacket.clear();
+    _listener._dispatchMessage.clear();
 
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
-        TEST_ASSERT(database.update(Database::Section::analog_t::invert, i, 0) == true);
-        analog.debounceReset(i);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::invert, i, 0) == true);
+        _analog.debounceReset(i);
     }
 
     //feed all the values again
     for (int i = 0; i <= 127; i++)
     {
-        hwaAnalog.adcReturnValue = i;
-        analog.update();
+        _hwaAnalog.adcReturnValue = i;
+        _analog.update();
     }
 
-    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 128), hwaMIDI.midiPacket.size());
+    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 128), _listener._dispatchMessage.size());
 
     expectedMIDIvalue = 127;
 
-    for (int i = 0; i < hwaMIDI.midiPacket.size(); i += MAX_NUMBER_OF_ANALOG)
+    for (int i = 0; i < _listener._dispatchMessage.size(); i += MAX_NUMBER_OF_ANALOG)
     {
         for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
         {
             size_t index = i + j;
-            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, hwaMIDI.midiPacket.at(index).Data3);
+            TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._dispatchMessage.at(index).midiValue);
         }
 
         expectedMIDIvalue--;
@@ -367,79 +362,80 @@ TEST_CASE(Scaling)
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         //enable all analog components
-        TEST_ASSERT(database.update(Database::Section::analog_t::enable, i, 1) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::enable, i, 1) == true);
 
         //disable invert state
-        TEST_ASSERT(database.update(Database::Section::analog_t::invert, i, 0) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::invert, i, 0) == true);
 
         //configure all analog components as potentiometers with CC MIDI message
-        TEST_ASSERT(database.update(Database::Section::analog_t::type, i, Analog::type_t::potentiometerControlChange) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::type, i, Analog::type_t::potentiometerControlChange) == true);
 
         //set all lower limits to 0
-        TEST_ASSERT(database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
 
         //set all upper limits to 100
-        TEST_ASSERT(database.update(Database::Section::analog_t::upperLimit, i, scaledUpper) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::upperLimit, i, scaledUpper) == true);
 
         //midi channel
-        TEST_ASSERT(database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
     }
 
     for (int i = 0; i <= 127; i++)
     {
-        hwaAnalog.adcReturnValue = i;
-        analog.update();
+        _hwaAnalog.adcReturnValue = i;
+        _analog.update();
     }
 
-    TEST_ASSERT((MAX_NUMBER_OF_ANALOG * 128) > hwaMIDI.midiPacket.size());
+    //since the values are scaled, verify that all the messages aren't received
+    TEST_ASSERT((MAX_NUMBER_OF_ANALOG * 128) > _listener._dispatchMessage.size());
 
     //first value should be 0
     //last value should match the configured scaled value (scaledUpper)
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
-        TEST_ASSERT_EQUAL_UINT32(0, hwaMIDI.midiPacket.at(i).Data3);
-        TEST_ASSERT_EQUAL_UINT32(scaledUpper, hwaMIDI.midiPacket.at(hwaMIDI.midiPacket.size() - MAX_NUMBER_OF_ANALOG + i).Data3);
+        TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.at(i).midiValue);
+        TEST_ASSERT_EQUAL_UINT32(scaledUpper, _listener._dispatchMessage.at(_listener._dispatchMessage.size() - MAX_NUMBER_OF_ANALOG + i).midiValue);
     }
 
     //now scale minimum value as well
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
-        TEST_ASSERT(database.update(Database::Section::analog_t::lowerLimit, i, scaledLower) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::lowerLimit, i, scaledLower) == true);
 
-    hwaMIDI.midiPacket.clear();
+    _listener._dispatchMessage.clear();
 
     for (int i = 0; i <= 127; i++)
     {
-        hwaAnalog.adcReturnValue = i;
-        analog.update();
+        _hwaAnalog.adcReturnValue = i;
+        _analog.update();
     }
 
-    TEST_ASSERT((MAX_NUMBER_OF_ANALOG * 128) > hwaMIDI.midiPacket.size());
+    TEST_ASSERT((MAX_NUMBER_OF_ANALOG * 128) > _listener._dispatchMessage.size());
 
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
-        TEST_ASSERT(hwaMIDI.midiPacket.at(i).Data3 >= scaledLower);
-        TEST_ASSERT(hwaMIDI.midiPacket.at(hwaMIDI.midiPacket.size() - MAX_NUMBER_OF_ANALOG + i).Data3 <= scaledUpper);
+        TEST_ASSERT(_listener._dispatchMessage.at(i).midiValue >= scaledLower);
+        TEST_ASSERT(_listener._dispatchMessage.at(_listener._dispatchMessage.size() - MAX_NUMBER_OF_ANALOG + i).midiValue <= scaledUpper);
     }
 
     //now enable inversion
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
-        TEST_ASSERT(database.update(Database::Section::analog_t::invert, i, 1) == true);
-        analog.debounceReset(i);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::invert, i, 1) == true);
+        _analog.debounceReset(i);
     }
 
-    hwaMIDI.midiPacket.clear();
+    _listener._dispatchMessage.clear();
 
     for (int i = 0; i <= 127; i++)
     {
-        hwaAnalog.adcReturnValue = i;
-        analog.update();
+        _hwaAnalog.adcReturnValue = i;
+        _analog.update();
     }
 
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
-        TEST_ASSERT(hwaMIDI.midiPacket.at(i).Data3 >= scaledUpper);
-        TEST_ASSERT(hwaMIDI.midiPacket.at(hwaMIDI.midiPacket.size() - MAX_NUMBER_OF_ANALOG + i).Data3 <= scaledLower);
+        TEST_ASSERT(_listener._dispatchMessage.at(i).midiValue >= scaledUpper);
+        TEST_ASSERT(_listener._dispatchMessage.at(_listener._dispatchMessage.size() - MAX_NUMBER_OF_ANALOG + i).midiValue <= scaledLower);
     }
 }
 

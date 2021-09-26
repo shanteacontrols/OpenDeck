@@ -22,6 +22,83 @@ limitations under the License.
 
 using namespace IO;
 
+LEDs::LEDs(HWA&               hwa,
+           Database&          database,
+           MessageDispatcher& dispatcher)
+    : _hwa(hwa)
+    , _database(database)
+{
+    for (size_t i = 0; i < TOTAL_BLINK_SPEEDS; i++)
+        _blinkState[i] = true;
+
+    for (size_t i = 0; i < MAX_LEDS; i++)
+        _brightness[i] = brightness_t::bOff;
+
+    dispatcher.listen(MessageDispatcher::messageSource_t::midiIn, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
+        switch (dispatchMessage.message)
+        {
+        case MIDI::messageType_t::noteOn:
+        case MIDI::messageType_t::noteOff:
+        case MIDI::messageType_t::controlChange:
+        case MIDI::messageType_t::programChange:
+        {
+            midiToState(dispatchMessage.message, dispatchMessage.midiIndex, dispatchMessage.midiValue, dispatchMessage.midiChannel, dataSource_t::external);
+        }
+        break;
+
+        case MIDI::messageType_t::sysRealTimeClock:
+        {
+            update(true);
+        }
+        break;
+
+        case MIDI::messageType_t::sysRealTimeStart:
+        {
+            resetBlinking();
+            update(true);
+        }
+        break;
+
+        default:
+            break;
+        }
+    });
+
+    dispatcher.listen(MessageDispatcher::messageSource_t::buttons, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
+        switch (dispatchMessage.message)
+        {
+        case MIDI::messageType_t::noteOn:
+        case MIDI::messageType_t::noteOff:
+        case MIDI::messageType_t::controlChange:
+        case MIDI::messageType_t::programChange:
+        {
+            midiToState(dispatchMessage.message, dispatchMessage.midiIndex, dispatchMessage.midiValue, dispatchMessage.midiChannel, dataSource_t::internal);
+        }
+        break;
+
+        default:
+            break;
+        }
+    });
+
+    dispatcher.listen(MessageDispatcher::messageSource_t::analog, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
+        switch (dispatchMessage.message)
+        {
+        case MIDI::messageType_t::noteOn:
+        case MIDI::messageType_t::noteOff:
+        case MIDI::messageType_t::controlChange:
+        case MIDI::messageType_t::programChange:
+        {
+            midiToState(dispatchMessage.message, dispatchMessage.midiIndex, dispatchMessage.midiValue, dispatchMessage.midiChannel, dataSource_t::internal);
+        }
+        break;
+
+        default:
+            break;
+        }
+    });
+}
+
 void LEDs::init(bool startUp)
 {
     if (startUp)
@@ -31,15 +108,9 @@ void LEDs::init(bool startUp)
     }
 
     setBlinkType(static_cast<blinkType_t>(_database.read(Database::Section::leds_t::global, setting_t::blinkWithMIDIclock)));
-
-    for (size_t i = 0; i < TOTAL_BLINK_SPEEDS; i++)
-        _blinkState[i] = true;
-
-    for (size_t i = 0; i < MAX_LEDS; i++)
-        _brightness[i] = brightness_t::bOff;
 }
 
-void LEDs::checkBlinking(bool forceChange)
+void LEDs::update(bool forceChange)
 {
     if (_blinkResetArrayPtr == nullptr)
         return;

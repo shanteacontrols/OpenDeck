@@ -18,9 +18,6 @@ limitations under the License.
 
 #pragma once
 
-#include "database/Database.h"
-#include "midi/src/MIDI.h"
-
 namespace IO
 {
     class LEDs
@@ -115,14 +112,16 @@ namespace IO
             virtual size_t rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent) = 0;
         };
 
-        LEDs(HWA& hwa, Database& database)
+        LEDs(HWA&               hwa,
+             Database&          database,
+             MessageDispatcher& dispatcher)
         {}
 
         void init(bool startUp = true)
         {
         }
 
-        void checkBlinking(bool forceChange = false)
+        void update(bool forceChange = false)
         {
         }
 
@@ -164,10 +163,6 @@ namespace IO
         size_t rgbIndex(size_t singleLEDindex)
         {
             return 0;
-        }
-
-        void midiToState(MIDI::messageType_t messageType, uint8_t value1, uint8_t value2, uint8_t channel, dataSource_t dataSource)
-        {
         }
 
         void setBlinkType(blinkType_t blinkType)

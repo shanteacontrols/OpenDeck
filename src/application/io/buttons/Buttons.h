@@ -18,15 +18,13 @@ limitations under the License.
 
 #pragma once
 
+#include <memory>
+#include "database/Database.h"
+#include "util/messaging/Messaging.h"
+
 #ifndef BUTTONS_SUPPORTED
 #include "stub/Buttons.h"
 #else
-
-#include "database/Database.h"
-#include "midi/src/MIDI.h"
-#include "io/leds/LEDs.h"
-#include "io/display/Display.h"
-#include "io/common/CInfo.h"
 
 namespace IO
 {
@@ -82,61 +80,64 @@ namespace IO
             virtual bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
         };
 
-        Buttons(HWA&           hwa,
-                Filter&        filter,
-                Database&      database,
-                MIDI&          midi,
-                IO::LEDs&      leds,
-                Display&       display,
-                ComponentInfo& cInfo)
-            : _hwa(hwa)
-            , _filter(filter)
-            , _database(database)
-            , _midi(midi)
-            , _leds(leds)
-            , _display(display)
-            , _cInfo(cInfo)
-        {}
+        Buttons(HWA&               hwa,
+                Filter&            filter,
+                Database&          database,
+                MessageDispatcher& dispatcher);
 
         void update(bool forceResend = false);
-        void processButton(size_t index, bool newState);
         bool state(size_t index);
         void reset(size_t index);
 
         private:
-        typedef struct
+        struct buttonDescriptor_t
         {
-            type_t        type;
-            messageType_t midiMessage;
-            uint8_t       midiID;
-            uint8_t       midiChannel;
-            uint8_t       velocity;
-        } buttonDescriptor_t;
+            type_t                           type        = type_t::momentary;
+            messageType_t                    messageType = messageType_t::note;
+            IO::MessageDispatcher::message_t dispatchMessage;
 
-        void processButton(buttonDescriptor_t& descriptor, size_t index, bool newState);
-        void fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor);
-        void sendMessage(size_t index, bool state, buttonDescriptor_t& descriptor);
-        void setState(size_t index, bool state);
-        void setLatchingState(size_t index, bool state);
-        bool latchingState(size_t index);
+            buttonDescriptor_t() = default;
+        };
 
-        HWA&           _hwa;
-        Filter&        _filter;
-        Database&      _database;
-        MIDI&          _midi;
-        IO::LEDs&      _leds;
-        Display&       _display;
-        ComponentInfo& _cInfo;
+        std::unique_ptr<buttonDescriptor_t> buttonDescriptor(size_t index);
+        void                                processButton(size_t index, bool reading, std::unique_ptr<buttonDescriptor_t>& descriptor);
+        void                                sendMessage(size_t index, bool state, std::unique_ptr<buttonDescriptor_t>& descriptor);
+        void                                setState(size_t index, bool state);
+        void                                setLatchingState(size_t index, bool state);
+        bool                                latchingState(size_t index);
 
-        /// Array holding current state for all buttons.
-        uint8_t _buttonPressed[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS) / 8 + 1] = {};
+        HWA&                   _hwa;
+        Filter&                _filter;
+        Database&              _database;
+        IO::MessageDispatcher& _dispatcher;
 
-        /// Array holding last sent state for latching buttons only.
+        uint8_t _buttonPressed[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS) / 8 + 1]     = {};
         uint8_t _lastLatchingState[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS) / 8 + 1] = {};
 
-        /// Array used for simpler building of transport control messages.
-        /// Based on MIDI specification for transport control.
-        uint8_t _mmcArray[6] = { 0xF0, 0x7F, 0x7F, 0x06, 0x00, 0xF7 };
+        const MIDI::messageType_t _internalMsgToMIDIType[static_cast<uint8_t>(messageType_t::AMOUNT)] = {
+            MIDI::messageType_t::noteOn,
+            MIDI::messageType_t::programChange,
+            MIDI::messageType_t::controlChange,
+            MIDI::messageType_t::controlChange,
+            MIDI::messageType_t::mmcStop,
+            MIDI::messageType_t::mmcPlay,
+            MIDI::messageType_t::mmcRecordStart,    //modified to stop when needed
+            MIDI::messageType_t::mmcPause,
+            MIDI::messageType_t::sysRealTimeClock,
+            MIDI::messageType_t::sysRealTimeStart,
+            MIDI::messageType_t::sysRealTimeContinue,
+            MIDI::messageType_t::sysRealTimeStop,
+            MIDI::messageType_t::sysRealTimeActiveSensing,
+            MIDI::messageType_t::sysRealTimeSystemReset,
+            MIDI::messageType_t::programChange,
+            MIDI::messageType_t::programChange,
+            MIDI::messageType_t::invalid,
+            MIDI::messageType_t::invalid,
+            MIDI::messageType_t::noteOn,
+            MIDI::messageType_t::noteOn,
+            MIDI::messageType_t::controlChange,
+            MIDI::messageType_t::controlChange,
+        };
     };
 }    // namespace IO
 

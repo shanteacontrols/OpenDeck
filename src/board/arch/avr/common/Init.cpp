@@ -51,6 +51,10 @@ void operator delete(void* ptr)
 {
 }
 
+void operator delete(void* ptr, unsigned int _s)
+{
+}
+
 namespace std
 {
     void __throw_bad_function_call()

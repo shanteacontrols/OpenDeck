@@ -16,6 +16,125 @@ class MIDIHelper
     public:
     MIDIHelper() = default;
 
+    static std::vector<MIDI::USBMIDIpacket_t> rawSysExToUSBPackets(const std::vector<uint8_t>& raw)
+    {
+        class HWAFillMIDI : public MIDI::HWA
+        {
+            public:
+            HWAFillMIDI(std::vector<MIDI::USBMIDIpacket_t>& buffer)
+                : _buffer(buffer)
+            {}
+
+            bool init(MIDI::interface_t interface) override
+            {
+                return true;
+            }
+
+            bool deInit(MIDI::interface_t interface) override
+            {
+                return true;
+            }
+
+            bool dinRead(uint8_t& data) override
+            {
+                return false;
+            }
+
+            bool dinWrite(uint8_t data) override
+            {
+                return false;
+            }
+
+            bool usbRead(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
+            {
+                return false;
+            }
+
+            bool usbWrite(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
+            {
+                _buffer.push_back(USBMIDIpacket);
+                return true;
+            }
+
+            std::vector<MIDI::USBMIDIpacket_t>& _buffer;
+        };
+
+        //create temp midi object whose purpose is to convert provided raw sysex array into
+        //a series of USB MIDI packets
+        std::vector<MIDI::USBMIDIpacket_t> usbPackets;
+        HWAFillMIDI                        hwaFillMIDI(usbPackets);
+        MIDI                               fillMIDI(hwaFillMIDI);
+
+        fillMIDI.init(MIDI::interface_t::usb);
+        fillMIDI.sendSysEx(raw.size(), &raw[0], true);
+
+        return usbPackets;
+    }
+
+    static std::vector<uint8_t> usbSysExToRawBytes(std::vector<MIDI::USBMIDIpacket_t>& raw)
+    {
+        class HWAParseMIDI : public MIDI::HWA
+        {
+            public:
+            HWAParseMIDI(std::vector<MIDI::USBMIDIpacket_t>& buffer)
+                : _buffer(buffer)
+            {}
+
+            bool init(MIDI::interface_t interface) override
+            {
+                return true;
+            }
+
+            bool deInit(MIDI::interface_t interface) override
+            {
+                return true;
+            }
+
+            bool dinRead(uint8_t& data) override
+            {
+                return false;
+            }
+
+            bool dinWrite(uint8_t data) override
+            {
+                _parsed.push_back(data);
+                return true;
+            }
+
+            bool usbRead(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
+            {
+                if (!_buffer.size())
+                    return false;
+
+                USBMIDIpacket = _buffer.at(0);
+                _buffer.erase(_buffer.begin());
+
+                return true;
+            }
+
+            bool usbWrite(MIDI::USBMIDIpacket_t& USBMIDIpacket) override
+            {
+                return true;
+            }
+
+            std::vector<MIDI::USBMIDIpacket_t>& _buffer;
+            std::vector<uint8_t>                _parsed;
+        };
+
+        HWAParseMIDI hwaParseMIDI(raw);
+        MIDI         parseMIDI(hwaParseMIDI);
+
+        parseMIDI.init(MIDI::interface_t::all);
+        parseMIDI.setInputChannel(MIDI::MIDI_CHANNEL_OMNI);
+
+        auto packetSize = raw.size();
+
+        for (size_t i = 0; i < packetSize; i++)
+            parseMIDI.read(MIDI::interface_t::usb, MIDI::filterMode_t::fullDIN);
+
+        return hwaParseMIDI._parsed;
+    }
+
     template<typename T>
     static bool setSingleSysExReq(T section, size_t index, uint16_t value)
     {

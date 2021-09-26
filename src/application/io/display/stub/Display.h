@@ -18,10 +18,6 @@ limitations under the License.
 
 #pragma once
 
-#include "io/display/U8X8/U8X8.h"
-#include "core/src/general/StringBuilder.h"
-#include "database/Database.h"
-
 namespace IO
 {
     class Display
@@ -81,7 +77,9 @@ namespace IO
             AMOUNT
         };
 
-        Display(IO::U8X8& u8x8, Database& database)
+        Display(IO::U8X8&          u8x8,
+                Database&          database,
+                MessageDispatcher& dispatcher)
         {}
 
         bool init(bool startupInfo)
@@ -99,10 +97,6 @@ namespace IO
             return false;
         }
 
-        void displayMIDIevent(eventType_t type, event_t event, uint16_t value1, uint16_t value2, uint8_t value3)
-        {
-        }
-
         void setAlternateNoteDisplay(bool state)
         {
         }
@@ -112,6 +106,10 @@ namespace IO
         }
 
         void setRetentionTime(uint32_t time)
+        {
+        }
+
+        void setPreset(uint8_t preset)
         {
         }
     };

@@ -18,14 +18,13 @@ limitations under the License.
 
 #pragma once
 
+#include <memory>
+#include "database/Database.h"
+#include "util/messaging/Messaging.h"
+
 #ifndef ENCODERS_SUPPORTED
 #include "stub/Encoders.h"
 #else
-
-#include "database/Database.h"
-#include "midi/src/MIDI.h"
-#include "io/display/Display.h"
-#include "io/common/CInfo.h"
 
 namespace IO
 {
@@ -34,15 +33,15 @@ namespace IO
         public:
         enum class type_t : uint8_t
         {
-            t7Fh01h,
-            t3Fh41h,
-            tProgramChange,
-            tControlChange,
-            tPresetChange,
-            tPitchBend,
-            tNRPN7bit,
-            tNRPN14bit,
-            tControlChange14bit,
+            controlChange7Fh01h,
+            controlChange3Fh41h,
+            programChange,
+            controlChange,
+            presetChange,
+            pitchBend,
+            nrpn7bit,
+            nrpn14bit,
+            controlChange14bit,
             AMOUNT
         };
 
@@ -81,41 +80,39 @@ namespace IO
             virtual uint32_t lastMovementTime(size_t index) = 0;
         };
 
-        Encoders(HWA&           hwa,
-                 Filter&        filter,
-                 uint32_t       timeDiffTimeout,
-                 Database&      database,
-                 MIDI&          midi,
-                 Display&       display,
-                 ComponentInfo& cInfo)
-            : _hwa(hwa)
-            , _filter(filter)
-            , TIME_DIFF_READOUT(timeDiffTimeout)
-            , _database(database)
-            , _midi(midi)
-            , _display(display)
-            , _cInfo(cInfo)
-        {}
+        Encoders(HWA&               hwa,
+                 Filter&            filter,
+                 uint32_t           timeDiffTimeout,
+                 Database&          database,
+                 MessageDispatcher& dispatcher);
 
-        void       init();
-        void       update();
-        void       resetValue(size_t index);
-        void       setValue(size_t index, uint16_t value);
-        position_t read(size_t index, uint8_t pairState);
+        void update();
+        void resetValue(size_t index);
 
         private:
         HWA&    _hwa;
         Filter& _filter;
 
+        struct encoderDescriptor_t
+        {
+            type_t                           type          = type_t::controlChange7Fh01h;
+            uint8_t                          pulsesPerStep = 0;
+            IO::MessageDispatcher::message_t dispatchMessage;
+
+            encoderDescriptor_t() = default;
+        };
+
         /// Time difference betweeen multiple encoder readouts in milliseconds.
         const uint32_t TIME_DIFF_READOUT;
 
-        Database&      _database;
-        MIDI&          _midi;
-        Display&       _display;
-        ComponentInfo& _cInfo;
+        Database&              _database;
+        IO::MessageDispatcher& _dispatcher;
 
-        void processReading(size_t index, uint8_t pairValue, uint32_t sampleTime);
+        std::unique_ptr<encoderDescriptor_t> encoderDescriptor(size_t index);
+        position_t                           read(size_t index, uint8_t pairState);
+        void                                 processReading(size_t index, uint8_t pairValue, uint32_t sampleTime);
+        void                                 sendMessage(size_t index, std::unique_ptr<encoderDescriptor_t>& descriptor);
+        void                                 setValue(size_t index, uint16_t value);
 
         /// Time threshold in milliseconds between two encoder steps used to detect fast movement.
         static constexpr uint32_t ENCODERS_SPEED_TIMEOUT = 140;
@@ -174,19 +171,31 @@ namespace IO
         /// Array used for easier access to current encoder MIDI value in 7Fh01h and 3Fh41h modes.
         /// Matched with type_t and position_t
         const uint8_t _encValue[2][3] = {
-            //t7Fh01h
+            //controlChange7Fh01h
             {
                 0,      //stopped
                 127,    //ccw
                 1       //cw
             },
 
-            //t3Fh41h
+            //controlChange3Fh41h
             {
                 0,     //stopped
                 63,    //ccw
                 65     //cw
             }
+        };
+
+        const MIDI::messageType_t _internalMsgToMIDIType[static_cast<uint8_t>(type_t::AMOUNT)] = {
+            MIDI::messageType_t::controlChange,
+            MIDI::messageType_t::controlChange,
+            MIDI::messageType_t::programChange,
+            MIDI::messageType_t::controlChange,
+            MIDI::messageType_t::invalid,
+            MIDI::messageType_t::pitchBend,
+            MIDI::messageType_t::nrpn7bit,
+            MIDI::messageType_t::nrpn14bit,
+            MIDI::messageType_t::controlChange14bit,
         };
     };
 }    // namespace IO

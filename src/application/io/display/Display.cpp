@@ -25,6 +25,37 @@ limitations under the License.
 
 using namespace IO;
 
+Display::Display(IO::U8X8&          u8x8,
+                 Database&          database,
+                 MessageDispatcher& dispatcher)
+    : _u8x8(u8x8)
+    , _database(database)
+{
+    dispatcher.listen(MessageDispatcher::messageSource_t::analog, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
+        displayMIDIevent(Display::eventType_t::out, dispatchMessage);
+    });
+
+    dispatcher.listen(MessageDispatcher::messageSource_t::buttons, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
+        displayMIDIevent(Display::eventType_t::out, dispatchMessage);
+    });
+
+    dispatcher.listen(MessageDispatcher::messageSource_t::encoders, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
+        displayMIDIevent(Display::eventType_t::out, dispatchMessage);
+    });
+
+    dispatcher.listen(MessageDispatcher::messageSource_t::touchscreenButton, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
+        displayMIDIevent(Display::eventType_t::out, dispatchMessage);
+    });
+
+    dispatcher.listen(MessageDispatcher::messageSource_t::touchscreenAnalog, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
+        displayMIDIevent(Display::eventType_t::out, dispatchMessage);
+    });
+
+    dispatcher.listen(MessageDispatcher::messageSource_t::midiIn, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
+        displayMIDIevent(Display::eventType_t::in, dispatchMessage);
+    });
+}
+
 /// Initialize display driver and variables.
 bool Display::init(bool startupInfo)
 {
@@ -490,7 +521,7 @@ void Display::displayVinfo(bool newFw)
     core::timing::waitMs(2000);
 }
 
-void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t value1, uint16_t value2, uint8_t value3)
+void Display::displayMIDIevent(eventType_t type, const MessageDispatcher::message_t& dispatchMessage)
 {
     if (!_initialized)
         return;
@@ -498,73 +529,67 @@ void Display::displayMIDIevent(eventType_t type, event_t event, uint16_t value1,
     uint8_t startRow    = (type == Display::eventType_t::in) ? ROW_START_MIDI_IN_MESSAGE : ROW_START_MIDI_OUT_MESSAGE;
     uint8_t startColumn = (type == Display::eventType_t::in) ? COLUMN_START_MIDI_IN_MESSAGE : COLUMN_START_MIDI_OUT_MESSAGE;
 
-    _stringBuilder.overwrite("%s", Strings::midiMessage(event));
+    _stringBuilder.overwrite("%s", Strings::midiMessage(dispatchMessage.message));
     _stringBuilder.fillUntil(_u8x8.getColumns() - startColumn - strlen(_stringBuilder.string()));
     updateText(startRow, lcdTextType_t::still, startColumn);
 
-    switch (event)
+    switch (dispatchMessage.message)
     {
-    case event_t::noteOff:
-    case event_t::noteOn:
+    case MIDI::messageType_t::noteOff:
+    case MIDI::messageType_t::noteOn:
     {
         if (!_alternateNoteDisplay)
-            _stringBuilder.overwrite("%d", value1);
+            _stringBuilder.overwrite("%d", dispatchMessage.midiIndex);
         else
-            _stringBuilder.overwrite("%s%d", Strings::note(MIDI::getTonicFromNote(value1)), normalizeOctave(MIDI::getOctaveFromNote(value1), _octaveNormalization));
+            _stringBuilder.overwrite("%s%d", Strings::note(MIDI::getTonicFromNote(dispatchMessage.midiIndex)), normalizeOctave(MIDI::getOctaveFromNote(dispatchMessage.midiValue), _octaveNormalization));
 
-        _stringBuilder.append(" v%d CH%d", value2, value3);
+        _stringBuilder.append(" v%d CH%d", dispatchMessage.midiValue, dispatchMessage.midiChannel + 1);
         _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
     }
     break;
 
-    case event_t::programChange:
+    case MIDI::messageType_t::programChange:
     {
-        _stringBuilder.overwrite("%d CH%d", value1, value3);
+        _stringBuilder.overwrite("%d CH%d", dispatchMessage.midiIndex, dispatchMessage.midiChannel + 1);
         _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
     }
     break;
 
-    case event_t::controlChange:
-    case event_t::nrpn:
+    case MIDI::messageType_t::controlChange:
+    case MIDI::messageType_t::controlChange14bit:
+    case MIDI::messageType_t::nrpn7bit:
+    case MIDI::messageType_t::nrpn14bit:
     {
-        _stringBuilder.overwrite("%d %d CH%d", value1, value2, value3);
+        _stringBuilder.overwrite("%d %d CH%d", dispatchMessage.midiIndex, dispatchMessage.midiValue, dispatchMessage.midiChannel + 1);
         _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
     }
     break;
 
-    case event_t::mmcPlay:
-    case event_t::mmcStop:
-    case event_t::mmcRecordOn:
-    case event_t::mmcRecordOff:
-    case event_t::mmcPause:
+    case MIDI::messageType_t::mmcPlay:
+    case MIDI::messageType_t::mmcStop:
+    case MIDI::messageType_t::mmcRecordStart:
+    case MIDI::messageType_t::mmcRecordStop:
+    case MIDI::messageType_t::mmcPause:
     {
-        _stringBuilder.overwrite("CH%d", value1);
+        _stringBuilder.overwrite("CH%d", dispatchMessage.midiIndex);
         _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
     }
     break;
 
-    case event_t::sysRealTimeClock:
-    case event_t::sysRealTimeStart:
-    case event_t::sysRealTimeContinue:
-    case event_t::sysRealTimeStop:
-    case event_t::sysRealTimeActiveSensing:
-    case event_t::sysRealTimeSystemReset:
-    case event_t::systemExclusive:
+    case MIDI::messageType_t::sysRealTimeClock:
+    case MIDI::messageType_t::sysRealTimeStart:
+    case MIDI::messageType_t::sysRealTimeContinue:
+    case MIDI::messageType_t::sysRealTimeStop:
+    case MIDI::messageType_t::sysRealTimeActiveSensing:
+    case MIDI::messageType_t::sysRealTimeSystemReset:
+    case MIDI::messageType_t::systemExclusive:
     {
         _stringBuilder.overwrite("");
         _stringBuilder.fillUntil(_u8x8.getColumns());
-        updateText(startRow + 1, lcdTextType_t::still, 0);
-    }
-    break;
-
-    case event_t::presetChange:
-    {
-        _stringBuilder.overwrite("%d", value1);
-        _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
         updateText(startRow + 1, lcdTextType_t::still, 0);
     }
     break;
@@ -625,4 +650,21 @@ void Display::setAlternateNoteDisplay(bool state)
 void Display::setOctaveNormalization(int8_t value)
 {
     _octaveNormalization = value;
+}
+
+void Display::setPreset(uint8_t preset)
+{
+    if (!_initialized)
+        return;
+
+    if (preset != _activePreset)
+    {
+        uint8_t startRow = ROW_START_MIDI_IN_MESSAGE;
+
+        _stringBuilder.overwrite("%d", preset);
+        _stringBuilder.fillUntil(_u8x8.getColumns() - strlen(_stringBuilder.string()));
+        updateText(startRow + 1, lcdTextType_t::still, 0);
+
+        _activePreset = preset;
+    }
 }

@@ -21,6 +21,21 @@ limitations under the License.
 
 using namespace IO;
 
+Analog::Analog(HWA&               hwa,
+               Filter&            filter,
+               Database&          database,
+               MessageDispatcher& dispatcher)
+    : _hwa(hwa)
+    , _filter(filter)
+    , _database(database)
+    , _dispatcher(dispatcher)
+{
+    _dispatcher.listen(MessageDispatcher::messageSource_t::touchscreenAnalog, MessageDispatcher::listenType_t::forward, [this](const MessageDispatcher::message_t& dispatchMessage) {
+        size_t index = dispatchMessage.componentIndex + MAX_NUMBER_OF_ANALOG;
+        processReading(index, dispatchMessage.midiValue);
+    });
+}
+
 void Analog::update(bool forceResend)
 {
     //check values
@@ -39,10 +54,9 @@ void Analog::update(bool forceResend)
         {
             if (_database.read(Database::Section::analog_t::enable, i))
             {
-                analogDescriptor_t descriptor;
-                fillAnalogDescriptor(i, descriptor);
-
-                sendMessage(i, descriptor, _lastValue[i]);
+                auto descriptor                       = analogDescriptor(i);
+                descriptor->dispatchMessage.midiValue = _lastValue[i];
+                sendMessage(i, descriptor);
             }
         }
     }
@@ -59,33 +73,34 @@ void Analog::processReading(size_t index, uint16_t value)
     if (!_database.read(Database::Section::analog_t::enable, index))
         return;
 
-    analogDescriptor_t descriptor;
-    fillAnalogDescriptor(index, descriptor);
+    auto descriptor = analogDescriptor(index);
 
-    if (!_filter.isFiltered(index, descriptor.type, value, value))
+    if (!_filter.isFiltered(index, descriptor->type, value, value))
         return;
+
+    descriptor->dispatchMessage.midiValue = value;
 
     bool send = false;
 
-    if (descriptor.type != type_t::button)
+    if (descriptor->type != type_t::button)
     {
-        switch (descriptor.type)
+        switch (descriptor->type)
         {
         case type_t::potentiometerControlChange:
         case type_t::potentiometerNote:
-        case type_t::nrpn7b:
-        case type_t::nrpn14b:
+        case type_t::nrpn7bit:
+        case type_t::nrpn14bit:
         case type_t::pitchBend:
-        case type_t::cc14bit:
+        case type_t::controlChange14bit:
         {
-            if (checkPotentiometerValue(index, descriptor, value))
+            if (checkPotentiometerValue(index, descriptor))
                 send = true;
         }
         break;
 
         case type_t::fsr:
         {
-            if (checkFSRvalue(index, descriptor, value))
+            if (checkFSRvalue(index, descriptor))
                 send = true;
         }
         break;
@@ -101,18 +116,16 @@ void Analog::processReading(size_t index, uint16_t value)
 
     if (send)
     {
-        sendMessage(index, descriptor, value);
-        _lastValue[index] = value;
+        sendMessage(index, descriptor);
+        _lastValue[index] = descriptor->dispatchMessage.midiValue;
     }
-
-    _cInfo.send(Database::block_t::analog, index);
 }
 
-bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descriptor, uint16_t& value)
+bool Analog::checkPotentiometerValue(size_t index, std::unique_ptr<analogDescriptor_t>& descriptor)
 {
     uint16_t maxLimit;
 
-    if ((descriptor.type == type_t::nrpn14b) || (descriptor.type == type_t::pitchBend) || (descriptor.type == type_t::cc14bit))
+    if ((descriptor->type == type_t::nrpn14bit) || (descriptor->type == type_t::pitchBend) || (descriptor->type == type_t::controlChange14bit))
     {
         //14-bit values are already read
         maxLimit = MIDI::MIDI_14_BIT_VALUE_MAX;
@@ -124,51 +137,51 @@ bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descripto
         MIDI::Split14bit split14bit;
 
         //use 7-bit MIDI ID and limits
-        split14bit.split(descriptor.midiID);
-        descriptor.midiID = split14bit.low();
+        split14bit.split(descriptor->dispatchMessage.midiIndex);
+        descriptor->dispatchMessage.midiIndex = split14bit.low();
 
-        split14bit.split(descriptor.lowerLimit);
-        descriptor.lowerLimit = split14bit.low();
+        split14bit.split(descriptor->lowerLimit);
+        descriptor->lowerLimit = split14bit.low();
 
-        split14bit.split(descriptor.upperLimit);
-        descriptor.upperLimit = split14bit.low();
+        split14bit.split(descriptor->upperLimit);
+        descriptor->upperLimit = split14bit.low();
     }
 
-    if (value > maxLimit)
+    if (descriptor->dispatchMessage.midiValue > maxLimit)
         return false;
 
     uint32_t scaledMIDIvalue;
 
-    if (descriptor.lowerLimit > descriptor.upperLimit)
+    if (descriptor->lowerLimit > descriptor->upperLimit)
     {
-        scaledMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(value), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(descriptor.upperLimit), static_cast<uint32_t>(descriptor.lowerLimit));
+        scaledMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(descriptor->dispatchMessage.midiValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(descriptor->upperLimit), static_cast<uint32_t>(descriptor->lowerLimit));
 
-        if (!descriptor.inverted)
-            scaledMIDIvalue = descriptor.upperLimit - (scaledMIDIvalue - descriptor.lowerLimit);
+        if (!descriptor->inverted)
+            scaledMIDIvalue = descriptor->upperLimit - (scaledMIDIvalue - descriptor->lowerLimit);
     }
     else
     {
-        scaledMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(value), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(descriptor.lowerLimit), static_cast<uint32_t>(descriptor.upperLimit));
+        scaledMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(descriptor->dispatchMessage.midiValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(descriptor->lowerLimit), static_cast<uint32_t>(descriptor->upperLimit));
 
-        if (descriptor.inverted)
-            scaledMIDIvalue = descriptor.upperLimit - (scaledMIDIvalue - descriptor.lowerLimit);
+        if (descriptor->inverted)
+            scaledMIDIvalue = descriptor->upperLimit - (scaledMIDIvalue - descriptor->lowerLimit);
     }
 
     if (scaledMIDIvalue == _lastValue[index])
         return false;
 
-    value = scaledMIDIvalue;
+    descriptor->dispatchMessage.midiValue = scaledMIDIvalue;
 
     return true;
 }
 
-bool Analog::checkFSRvalue(size_t index, analogDescriptor_t& descriptor, uint16_t& value)
+bool Analog::checkFSRvalue(size_t index, std::unique_ptr<analogDescriptor_t>& descriptor)
 {
     //don't allow touchscreen components to be processed as FSR
     if (index >= MAX_NUMBER_OF_ANALOG)
         return false;
 
-    if (value > 0)
+    if (descriptor->dispatchMessage.midiValue > 0)
     {
         if (!_fsrPressed[index])
         {
@@ -189,108 +202,54 @@ bool Analog::checkFSRvalue(size_t index, analogDescriptor_t& descriptor, uint16_
     return false;
 }
 
-void Analog::sendMessage(size_t index, analogDescriptor_t& descriptor, uint16_t value)
+void Analog::sendMessage(size_t index, std::unique_ptr<analogDescriptor_t>& descriptor)
 {
-    switch (descriptor.type)
+    bool send    = true;
+    bool forward = false;
+
+    switch (descriptor->type)
     {
     case type_t::potentiometerControlChange:
     case type_t::potentiometerNote:
-    {
-        if (descriptor.type == type_t::potentiometerControlChange)
-        {
-            _midi.sendControlChange(descriptor.midiID, value, descriptor.channel);
-            _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, descriptor.midiID, value, descriptor.channel + 1);
-        }
-        else
-        {
-            _midi.sendNoteOn(descriptor.midiID, value, descriptor.channel);
-            _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, descriptor.midiID, value, descriptor.channel + 1);
-        }
-    }
-    break;
-
-    case type_t::nrpn7b:
-    case type_t::nrpn14b:
-    case type_t::cc14bit:
-    {
-        MIDI::Split14bit split14bit;
-
-        //when nrpn/cc14bit is used, MIDI ID is split into two messages
-        //first message contains higher byte
-
-        split14bit.split(descriptor.midiID);
-
-        if (descriptor.type != type_t::cc14bit)
-        {
-            _midi.sendControlChange(99, split14bit.high(), descriptor.channel);
-            _midi.sendControlChange(98, split14bit.low(), descriptor.channel);
-        }
-
-        if (descriptor.type == type_t::nrpn7b)
-        {
-            _midi.sendControlChange(6, value, descriptor.channel);
-        }
-        else
-        {
-            descriptor.midiID = split14bit.low();
-
-            //send 14-bit value in another two messages
-            //first message contains higher byte
-            split14bit.split(value);
-
-            if (descriptor.type == type_t::cc14bit)
-            {
-                if (descriptor.midiID >= 96)
-                    break;    //not allowed
-
-                _midi.sendControlChange(descriptor.midiID, split14bit.high(), descriptor.channel);
-                _midi.sendControlChange(descriptor.midiID + 32, split14bit.low(), descriptor.channel);
-            }
-            else
-            {
-                _midi.sendControlChange(6, split14bit.high(), descriptor.channel);
-                _midi.sendControlChange(38, split14bit.low(), descriptor.channel);
-            }
-        }
-
-        _display.displayMIDIevent(Display::eventType_t::out, (descriptor.type == type_t::cc14bit) ? Display::event_t::controlChange : Display::event_t::nrpn, descriptor.midiID, value, descriptor.channel + 1);
-    }
-    break;
-
     case type_t::pitchBend:
-    {
-        _midi.sendPitchBend(value, descriptor.channel);
-        _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::pitchBend, descriptor.midiID, value, descriptor.channel + 1);
-    }
-    break;
+        break;
 
     case type_t::fsr:
     {
-        if (_fsrPressed[index])
+        if (!_fsrPressed[index])
         {
-            _midi.sendNoteOn(descriptor.midiID, value, descriptor.channel);
-            _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOn, descriptor.midiID, value, descriptor.channel + 1);
-            _leds.midiToState(MIDI::messageType_t::noteOn, descriptor.midiID, value, descriptor.channel, LEDs::dataSource_t::internal);
-        }
-        else
-        {
-            _midi.sendNoteOff(descriptor.midiID, 0, descriptor.channel);
-            _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::noteOff, descriptor.midiID, value, descriptor.channel + 1);
-            _leds.midiToState(MIDI::messageType_t::noteOff, descriptor.midiID, 0, descriptor.channel, LEDs::dataSource_t::internal);
+            descriptor->dispatchMessage.midiValue = 0;
+            descriptor->dispatchMessage.message   = MIDI::messageType_t::noteOff;
         }
     }
     break;
 
     case type_t::button:
     {
-        if (_buttonHandler != nullptr)
-            _buttonHandler(index, value);
+        forward = true;
+    }
+    break;
+
+    case type_t::controlChange14bit:
+    {
+        if (descriptor->dispatchMessage.midiIndex >= 96)
+        {
+            //not allowed
+            send = false;
+            break;
+        }
     }
     break;
 
     default:
-        break;
+    {
+        send = false;
     }
+    break;
+    }
+
+    if (send)
+        _dispatcher.notify(IO::MessageDispatcher::messageSource_t::analog, descriptor->dispatchMessage, forward ? IO::MessageDispatcher::listenType_t::forward : IO::MessageDispatcher::listenType_t::nonFwd);
 }
 
 void Analog::debounceReset(size_t index)
@@ -300,17 +259,18 @@ void Analog::debounceReset(size_t index)
     _filter.reset(index);
 }
 
-void Analog::registerButtonHandler(buttonHandler_t handler)
+std::unique_ptr<Analog::analogDescriptor_t> Analog::analogDescriptor(size_t index)
 {
-    _buttonHandler = std::move(handler);
-}
+    auto descriptor = std::make_unique<analogDescriptor_t>();
 
-void Analog::fillAnalogDescriptor(size_t index, analogDescriptor_t& descriptor)
-{
-    descriptor.type       = static_cast<type_t>(_database.read(Database::Section::analog_t::type, index));
-    descriptor.lowerLimit = _database.read(Database::Section::analog_t::lowerLimit, index);
-    descriptor.upperLimit = _database.read(Database::Section::analog_t::upperLimit, index);
-    descriptor.midiID     = _database.read(Database::Section::analog_t::midiID, index);
-    descriptor.channel    = _database.read(Database::Section::analog_t::midiChannel, index);
-    descriptor.inverted   = _database.read(Database::Section::analog_t::invert, index);
+    descriptor->type                           = static_cast<type_t>(_database.read(Database::Section::analog_t::type, index));
+    descriptor->inverted                       = _database.read(Database::Section::analog_t::invert, index);
+    descriptor->lowerLimit                     = _database.read(Database::Section::analog_t::lowerLimit, index);
+    descriptor->upperLimit                     = _database.read(Database::Section::analog_t::upperLimit, index);
+    descriptor->dispatchMessage.componentIndex = index;
+    descriptor->dispatchMessage.midiChannel    = _database.read(Database::Section::analog_t::midiChannel, index);
+    descriptor->dispatchMessage.midiIndex      = _database.read(Database::Section::analog_t::midiID, index);
+    descriptor->dispatchMessage.message        = _internalMsgToMIDIType[static_cast<uint8_t>(descriptor->type)];
+
+    return descriptor;
 }

@@ -18,13 +18,6 @@ limitations under the License.
 
 #pragma once
 
-#include <functional>
-#include "database/Database.h"
-#include "midi/src/MIDI.h"
-#include "io/leds/LEDs.h"
-#include "io/display/Display.h"
-#include "io/common/CInfo.h"
-
 namespace IO
 {
     class Analog
@@ -54,10 +47,10 @@ namespace IO
             potentiometerNote,
             fsr,
             button,
-            nrpn7b,
-            nrpn14b,
+            nrpn7bit,
+            nrpn14bit,
             pitchBend,
-            cc14bit,
+            controlChange14bit,
             AMOUNT
         };
 
@@ -83,20 +76,17 @@ namespace IO
 
         using buttonHandler_t = std::function<void(size_t index, bool state)>;
 
-        Analog(HWA&           hwa,
-               Filter&        filter,
-               Database&      database,
-               MIDI&          midi,
-               IO::LEDs&      leds,
-               Display&       display,
-               ComponentInfo& cInfo)
+        Analog(HWA&               hwa,
+               Filter&            filter,
+               Database&          database,
+               MessageDispatcher& dispatcher)
+            : _hwa(hwa)
+            , _filter(filter)
+            , _database(database)
+            , _dispatcher(dispatcher)
         {}
 
         void update(bool forceResend = false)
-        {
-        }
-
-        void processReading(size_t index, uint16_t value)
         {
         }
 

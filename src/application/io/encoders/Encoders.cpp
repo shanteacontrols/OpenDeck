@@ -23,11 +23,48 @@ limitations under the License.
 
 using namespace IO;
 
-/// Initializes values for all encoders to their defaults.
-void Encoders::init()
+Encoders::Encoders(HWA&               hwa,
+                   Filter&            filter,
+                   uint32_t           timeDiffTimeout,
+                   Database&          database,
+                   MessageDispatcher& dispatcher)
+    : _hwa(hwa)
+    , _filter(filter)
+    , TIME_DIFF_READOUT(timeDiffTimeout)
+    , _database(database)
+    , _dispatcher(dispatcher)
 {
     for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
         resetValue(i);
+
+    _dispatcher.listen(MessageDispatcher::messageSource_t::midiIn, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
+        switch (dispatchMessage.message)
+        {
+        case MIDI::messageType_t::controlChange:
+        {
+            for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
+            {
+                if (!_database.read(Database::Section::encoder_t::remoteSync, i))
+                    continue;
+
+                if (_database.read(Database::Section::encoder_t::mode, i) != static_cast<int32_t>(IO::Encoders::type_t::controlChange))
+                    continue;
+
+                if (_database.read(Database::Section::encoder_t::midiChannel, i) != dispatchMessage.midiChannel)
+                    continue;
+
+                if (_database.read(Database::Section::encoder_t::midiID, i) != dispatchMessage.midiIndex)
+                    continue;
+
+                setValue(i, dispatchMessage.midiValue);
+            }
+        }
+        break;
+
+        default:
+            break;
+        }
+    });
 }
 
 /// Continuously checks state of all encoders.
@@ -92,48 +129,45 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
                     _encoderSpeed[index] = 0;
             }
 
-            uint8_t  midiID       = _database.read(Database::Section::encoder_t::midiID, index);
-            uint8_t  channel      = _database.read(Database::Section::encoder_t::midiChannel, index);
-            auto     type         = static_cast<type_t>(_database.read(Database::Section::encoder_t::mode, index));
-            bool     validType    = true;
-            uint16_t encoderValue = 0;
-            uint8_t  steps        = (_encoderSpeed[index] > 0) ? _encoderSpeed[index] : 1;
-            bool     use14bit     = false;
+            auto descriptor = encoderDescriptor(index);
 
-            switch (type)
+            bool    send  = true;
+            uint8_t steps = (_encoderSpeed[index] > 0) ? _encoderSpeed[index] : 1;
+
+            switch (descriptor->type)
             {
-            case type_t::t7Fh01h:
-            case type_t::t3Fh41h:
+            case type_t::controlChange7Fh01h:
+            case type_t::controlChange3Fh41h:
             {
-                encoderValue = _encValue[static_cast<uint8_t>(type)][static_cast<uint8_t>(encoderState)];
+                descriptor->dispatchMessage.midiValue = _encValue[static_cast<uint8_t>(descriptor->type)][static_cast<uint8_t>(encoderState)];
             }
             break;
 
-            case type_t::tProgramChange:
+            case type_t::programChange:
             {
                 if (encoderState == position_t::ccw)
                 {
-                    if (!Common::pcIncrement(channel))
-                        validType = false;
+                    if (!Common::pcIncrement(descriptor->dispatchMessage.midiChannel))
+                        send = false;    //edge value reached, nothing more to send
                 }
                 else
                 {
-                    if (!Common::pcDecrement(channel))
-                        validType = false;
+                    if (!Common::pcDecrement(descriptor->dispatchMessage.midiChannel))
+                        send = false;    //edge value reached, nothing more to send
                 }
 
-                encoderValue = Common::program(channel);
+                descriptor->dispatchMessage.midiValue = Common::program(descriptor->dispatchMessage.midiChannel);
             }
             break;
 
-            case type_t::tControlChange:
-            case type_t::tPitchBend:
-            case type_t::tNRPN7bit:
-            case type_t::tNRPN14bit:
-            case type_t::tControlChange14bit:
+            case type_t::controlChange:
+            case type_t::pitchBend:
+            case type_t::nrpn7bit:
+            case type_t::nrpn14bit:
+            case type_t::controlChange14bit:
             {
-                if ((type == type_t::tPitchBend) || (type == type_t::tNRPN14bit) || (type == type_t::tControlChange14bit))
-                    use14bit = true;
+                const bool use14bit =
+                    ((descriptor->type == type_t::pitchBend) || (descriptor->type == type_t::nrpn14bit) || (descriptor->type == type_t::controlChange14bit));
 
                 if (use14bit && (steps > 1))
                     steps <<= 2;
@@ -155,94 +189,74 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
                         _midiValue[index] = limit;
                 }
 
-                encoderValue = _midiValue[index];
+                descriptor->dispatchMessage.midiValue = _midiValue[index];
             }
             break;
 
-            case type_t::tPresetChange:
+            case type_t::presetChange:
             {
-                //nothing to do - valid type
+                send           = false;
+                uint8_t preset = _database.getPreset();
+                preset += (encoderState == position_t::cw) ? 1 : -1;
+
+                _database.setPreset(preset);
             }
             break;
 
             default:
             {
-                validType = false;
+                send = false;
             }
             break;
             }
 
-            if (validType)
-            {
-                if (type == type_t::tProgramChange)
-                {
-                    _midi.sendProgramChange(encoderValue, channel);
-                    _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::programChange, midiID & 0x7F, encoderValue, channel + 1);
-                }
-                else if (type == type_t::tPitchBend)
-                {
-                    _midi.sendPitchBend(encoderValue, channel);
-                    _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::pitchBend, midiID & 0x7F, encoderValue, channel + 1);
-                }
-                else if ((type == type_t::tNRPN7bit) || (type == type_t::tNRPN14bit) || (type == type_t::tControlChange14bit))
-                {
-                    MIDI::Split14bit split14bit;
-
-                    split14bit.split(midiID);
-
-                    _midi.sendControlChange(99, split14bit.high(), channel);
-                    _midi.sendControlChange(98, split14bit.low(), channel);
-
-                    if (type == type_t::tNRPN7bit)
-                    {
-                        _midi.sendControlChange(6, encoderValue, channel);
-                    }
-                    else
-                    {
-                        midiID = split14bit.low();
-
-                        split14bit.split(encoderValue);
-
-                        if (type == type_t::tControlChange14bit)
-                        {
-                            if (midiID < 96)
-                            {
-                                _midi.sendControlChange(midiID, split14bit.high(), channel);
-                                _midi.sendControlChange(midiID + 32, split14bit.low(), channel);
-                            }
-                        }
-                        else
-                        {
-                            _midi.sendControlChange(6, split14bit.high(), channel);
-                            _midi.sendControlChange(38, split14bit.low(), channel);
-                        }
-                    }
-
-                    _display.displayMIDIevent(Display::eventType_t::out, (type == type_t::tControlChange14bit) ? Display::event_t::controlChange : Display::event_t::nrpn, midiID, encoderValue, channel + 1);
-                }
-                else if (type != type_t::tPresetChange)
-                {
-                    _midi.sendControlChange(midiID, encoderValue, channel);
-                    _display.displayMIDIevent(Display::eventType_t::out, Display::event_t::controlChange, midiID & 0x7F, encoderValue, channel + 1);
-                }
-                else
-                {
-                    uint8_t preset = _database.getPreset();
-                    preset += (encoderState == position_t::cw) ? 1 : -1;
-
-                    _database.setPreset(preset);
-                }
-            }
-
-            _cInfo.send(Database::block_t::encoders, index);
+            if (send)
+                sendMessage(index, descriptor);
         }
     }
+}
+
+void Encoders::sendMessage(size_t index, std::unique_ptr<encoderDescriptor_t>& descriptor)
+{
+    bool send = true;
+
+    switch (descriptor->type)
+    {
+    case type_t::controlChange7Fh01h:
+    case type_t::controlChange3Fh41h:
+    case type_t::programChange:
+    case type_t::controlChange:
+    case type_t::pitchBend:
+    case type_t::nrpn7bit:
+    case type_t::nrpn14bit:
+        break;
+
+    case type_t::controlChange14bit:
+    {
+        if (descriptor->dispatchMessage.midiIndex >= 96)
+        {
+            //not allowed
+            send = false;
+            break;
+        }
+    }
+    break;
+
+    default:
+    {
+        send = false;
+    }
+    break;
+    }
+
+    if (send)
+        _dispatcher.notify(IO::MessageDispatcher::messageSource_t::encoders, descriptor->dispatchMessage, IO::MessageDispatcher::listenType_t::nonFwd);
 }
 
 /// Sets the MIDI value of specified encoder to default.
 void Encoders::resetValue(size_t index)
 {
-    if (_database.read(Database::Section::encoder_t::mode, index) == static_cast<int32_t>(type_t::tPitchBend))
+    if (_database.read(Database::Section::encoder_t::mode, index) == static_cast<int32_t>(type_t::pitchBend))
         _midiValue[index] = 8192;
     else
         _midiValue[index] = 0;
@@ -292,4 +306,19 @@ Encoders::position_t Encoders::read(size_t index, uint8_t pairState)
     }
 
     return returnValue;
+}
+
+std::unique_ptr<Encoders::encoderDescriptor_t> Encoders::encoderDescriptor(size_t index)
+{
+    auto descriptor = std::make_unique<encoderDescriptor_t>();
+
+    descriptor->type          = static_cast<type_t>(_database.read(Database::Section::encoder_t::mode, index));
+    descriptor->pulsesPerStep = _database.read(Database::Section::encoder_t::pulsesPerStep, index);
+
+    descriptor->dispatchMessage.componentIndex = index;
+    descriptor->dispatchMessage.midiChannel    = _database.read(Database::Section::encoder_t::midiChannel, index);
+    descriptor->dispatchMessage.midiIndex      = _database.read(Database::Section::encoder_t::midiID, index);
+    descriptor->dispatchMessage.message        = _internalMsgToMIDIType[static_cast<uint8_t>(descriptor->type)];
+
+    return descriptor;
 }
