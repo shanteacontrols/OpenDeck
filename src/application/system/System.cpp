@@ -111,7 +111,19 @@ uint8_t System::SysExDataHandler::customRequest(uint16_t request, CustomResponse
     case SYSEX_CR_FULL_BACKUP:
     {
         //no response here, just set flag internally that backup needs to be done
-        _system._backupRequested = true;
+        _system._backupRestoreState = backupRestoreState_t::backup;
+    }
+    break;
+
+    case SYSEX_CR_RESTORE_START:
+    {
+        _system._backupRestoreState = backupRestoreState_t::restore;
+    }
+    break;
+
+    case SYSEX_CR_RESTORE_END:
+    {
+        _system._backupRestoreState = backupRestoreState_t::none;
     }
     break;
 
@@ -128,8 +140,12 @@ uint8_t System::SysExDataHandler::customRequest(uint16_t request, CustomResponse
 void System::DBhandlers::presetChange(uint8_t preset)
 {
     _system._leds.setAllOff();
-    _system._display.setPreset(preset);
-    _system._scheduler.registerTask({ [this]() { _system.forceComponentRefresh(); }, FORCED_VALUE_RESEND_DELAY });
+
+    if (_system._backupRestoreState == backupRestoreState_t::none)
+    {
+        _system._display.setPreset(preset);
+        _system._scheduler.registerTask({ [this]() { _system.forceComponentRefresh(); }, FORCED_VALUE_RESEND_DELAY });
+    }
 }
 
 void System::DBhandlers::factoryResetStart()
@@ -305,6 +321,11 @@ void System::backup()
     //make sure not to report any errors while performing backup
     _sysExConf.setSilentMode(true);
 
+    //first message sent as an response should be restore start marker
+    //this is used to indicate that restore procedure is in progress
+    uint16_t restoreMarker = SYSEX_CR_RESTORE_START;
+    _sysExConf.sendCustomMessage(&restoreMarker, 1, false);
+
     //send internally created backup requests to sysex handler for all presets, blocks and presets
     for (uint8_t preset = 0; preset < _database.getSupportedPresets(); preset++)
     {
@@ -334,10 +355,16 @@ void System::backup()
     presetChangeRequest[presetChangeRequestPresetIndex] = currentPreset;
     _sysExConf.sendCustomMessage(presetChangeRequest, presetChangeRequestSize, false);
 
+    //mark the end of restore procedure
+    restoreMarker = SYSEX_CR_RESTORE_END;
+    _sysExConf.sendCustomMessage(&restoreMarker, 1, false);
+
     //finally, send back full backup request to mark the end of sending
     uint16_t endMarker = SYSEX_CR_FULL_BACKUP;
     _sysExConf.sendCustomMessage(&endMarker, 1);
     _sysExConf.setSilentMode(false);
+
+    _backupRestoreState = backupRestoreState_t::none;
 }
 
 void System::checkComponents()
@@ -420,11 +447,8 @@ void System::checkMIDI()
             {
                 _sysExConf.handleMessage(_midi.getSysExArray(interface), _midi.getSysExArrayLength(interface));
 
-                if (_backupRequested)
-                {
+                if (_backupRestoreState == backupRestoreState_t::backup)
                     backup();
-                    _backupRequested = false;
-                }
             }
         }
         break;
@@ -506,9 +530,6 @@ void System::run()
 
 void System::forceComponentRefresh()
 {
-    if (!_backupRequested)
-    {
-        _analog.update(true);
-        _buttons.update(true);
-    }
+    _analog.update(true);
+    _buttons.update(true);
 }

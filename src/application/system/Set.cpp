@@ -97,7 +97,7 @@ uint8_t System::onSetGlobal(Section::global_t section, size_t index, uint16_t ne
         {
             if (_hwa.protocol().midi().dinSupported())
             {
-                if (!isMIDIfeatureEnabled(midiFeature_t::dinEnabled) && _hwa.serialPeripheralAllocated(serialPeripheral_t::dinMIDI) && !_backupRequested)
+                if (!isMIDIfeatureEnabled(midiFeature_t::dinEnabled) && _hwa.serialPeripheralAllocated(serialPeripheral_t::dinMIDI) && _backupRestoreState != backupRestoreState_t::none)
                 {
                     result = SERIAL_PERIPHERAL_ALLOCATED_ERROR;
                 }
@@ -129,7 +129,7 @@ uint8_t System::onSetGlobal(Section::global_t section, size_t index, uint16_t ne
         {
             if (_hwa.protocol().midi().dinSupported())
             {
-                if (!isMIDIfeatureEnabled(midiFeature_t::dinEnabled) && _hwa.serialPeripheralAllocated(serialPeripheral_t::dinMIDI) && !_backupRequested)
+                if (!isMIDIfeatureEnabled(midiFeature_t::dinEnabled) && _hwa.serialPeripheralAllocated(serialPeripheral_t::dinMIDI) && _backupRestoreState != backupRestoreState_t::none)
                 {
                     result = SERIAL_PERIPHERAL_ALLOCATED_ERROR;
                 }
@@ -154,7 +154,7 @@ uint8_t System::onSetGlobal(Section::global_t section, size_t index, uint16_t ne
         {
             if (_hwa.protocol().midi().dinSupported())
             {
-                if (!isMIDIfeatureEnabled(midiFeature_t::dinEnabled) && _hwa.serialPeripheralAllocated(serialPeripheral_t::dinMIDI) && !_backupRequested)
+                if (!isMIDIfeatureEnabled(midiFeature_t::dinEnabled) && _hwa.serialPeripheralAllocated(serialPeripheral_t::dinMIDI) && _backupRestoreState != backupRestoreState_t::none)
                 {
                     result = SERIAL_PERIPHERAL_ALLOCATED_ERROR;
                 }
@@ -186,7 +186,7 @@ uint8_t System::onSetGlobal(Section::global_t section, size_t index, uint16_t ne
     {
         if (_hwa.protocol().midi().dinSupported())
         {
-            if (!isMIDIfeatureEnabled(midiFeature_t::dinEnabled) && _hwa.serialPeripheralAllocated(serialPeripheral_t::dinMIDI) && !_backupRequested)
+            if (!isMIDIfeatureEnabled(midiFeature_t::dinEnabled) && _hwa.serialPeripheralAllocated(serialPeripheral_t::dinMIDI) && _backupRestoreState != backupRestoreState_t::none)
             {
                 result = SERIAL_PERIPHERAL_ALLOCATED_ERROR;
             }
@@ -279,7 +279,7 @@ uint8_t System::onSetGlobal(Section::global_t section, size_t index, uint16_t ne
 
         bool dmxEnabled = _database.read(dbSection(section), dmxSetting_t::enabled);
 
-        if (!dmxEnabled && _hwa.serialPeripheralAllocated(serialPeripheral_t::dmx) && !_backupRequested)
+        if (!dmxEnabled && _hwa.serialPeripheralAllocated(serialPeripheral_t::dmx) && _backupRestoreState != backupRestoreState_t::none)
         {
             return SERIAL_PERIPHERAL_ALLOCATED_ERROR;
         }
@@ -287,7 +287,7 @@ uint8_t System::onSetGlobal(Section::global_t section, size_t index, uint16_t ne
         {
             if (_touchscreen.isInitialized(IO::Touchscreen::mode_t::cdcPassthrough))
             {
-                if (!_backupRequested)
+                if (_backupRestoreState != backupRestoreState_t::none)
                 {
                     return CDC_ALLOCATED_ERROR;
                 }
@@ -685,7 +685,7 @@ uint8_t System::onSetTouchscreen(Section::touchscreen_t section, size_t index, u
     if (!_hwa.io().touchscreen().supported())
         return static_cast<uint8_t>(SysExConf::status_t::errorNotSupported);
 
-    if (!_touchscreen.isInitialized() && _hwa.serialPeripheralAllocated(serialPeripheral_t::touchscreen) && !_backupRequested)
+    if (!_touchscreen.isInitialized() && _hwa.serialPeripheralAllocated(serialPeripheral_t::touchscreen) && _backupRestoreState != backupRestoreState_t::none)
     {
         return SERIAL_PERIPHERAL_ALLOCATED_ERROR;
     }
@@ -730,7 +730,7 @@ uint8_t System::onSetTouchscreen(Section::touchscreen_t section, size_t index, u
             {
                 if (_database.read(Database::Section::global_t::dmx, dmxSetting_t::enabled))
                 {
-                    if (!_backupRequested)
+                    if (_backupRestoreState != backupRestoreState_t::none)
                     {
                         return CDC_ALLOCATED_ERROR;
                     }

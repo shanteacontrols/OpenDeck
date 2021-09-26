@@ -30,6 +30,8 @@ limitations under the License.
 #define SYSEX_CR_SUPPORTED_PRESETS             0x50
 #define SYSEX_CR_BOOTLOADER_SUPPORT            0x51
 #define SYSEX_CR_FULL_BACKUP                   0x1B
+#define SYSEX_CR_RESTORE_START                 0x1C
+#define SYSEX_CR_RESTORE_END                   0x1D
 
 ///
 

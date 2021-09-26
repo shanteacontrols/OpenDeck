@@ -620,7 +620,14 @@ class System
     static constexpr uint8_t SERIAL_PERIPHERAL_ALLOCATED_ERROR = 80;
     static constexpr uint8_t CDC_ALLOCATED_ERROR               = 81;
 
-    bool _backupRequested = false;
+    enum class backupRestoreState_t : uint8_t
+    {
+        none,
+        backup,
+        restore
+    };
+
+    backupRestoreState_t _backupRestoreState = backupRestoreState_t::none;
 
     //map sysex sections to sections in db
     const Database::Section::global_t _sysEx2DB_global[static_cast<uint8_t>(Section::global_t::AMOUNT)] = {

@@ -505,5 +505,15 @@ namespace
             .requestID     = SYSEX_CR_FULL_BACKUP,
             .connOpenCheck = true,
         },
+
+        {
+            .requestID     = SYSEX_CR_RESTORE_START,
+            .connOpenCheck = true,
+        },
+
+        {
+            .requestID     = SYSEX_CR_RESTORE_END,
+            .connOpenCheck = true,
+        },
     };
 }    // namespace
