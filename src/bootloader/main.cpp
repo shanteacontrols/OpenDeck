@@ -102,7 +102,7 @@ class HWAFwSelector : public FwSelector::HWA
             Board::bootloader::runApplication();
 #elif defined(USB_LINK_MCU)
             //wait a bit first
-            core::timing::waitMs(1000);
+            core::timing::waitMs(1500);
             uint8_t data;
 
             while (Board::UART::read(UART_CHANNEL_USB_LINK, data))
