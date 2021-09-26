@@ -95,13 +95,19 @@ ifeq (,$(findstring gen,$(TYPE)))
         -mmcu=$(MCU) \
         -funsigned-char \
         -funsigned-bitfields \
-        -fno-jump-tables \
-        -flto
+        -fno-jump-tables
+
+        ifeq ($(MCU), atmega16u2)
+            COMMON_FLAGS += -flto
+        endif
 
         LDFLAGS += \
         -mrelax \
-        -mmcu=$(MCU) \
-        -flto
+        -mmcu=$(MCU)
+
+        ifeq ($(MCU), atmega16u2)
+            LDFLAGS += -flto
+        endif
     else ifeq ($(ARCH),stm32)
         SIZE_TOOL := size
         CC := $(C_COMPILER_ARM)
