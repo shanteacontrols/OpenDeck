@@ -233,7 +233,7 @@ class MIDIHelper
         return sendRequest(requestUint8, SysExConf::wish_t::get);
     }
 
-    static std::string sendRawSysEx(std::string req, bool setReq = true)
+    static std::string sendRawSysEx(std::string req)
     {
         std::string cmdResponse;
         std::string lastResponseFileLocation = "/tmp/midi_in_data.txt";
@@ -251,9 +251,21 @@ class MIDIHelper
 
         size_t responseRetryCounter = 0;
 
-        std::string pattern = setReq ? "F0 00 53 43 01 00 01.*F7" : "F0 00 53 43 01.*F7";
+        if (test::wordsInString(req) < SysExConf::SPECIAL_REQ_MSG_SIZE)
+        {
+            std::cout << "Invalid request" << std::endl;
+            return "";
+        }
 
-        while (test::wsystem("grep '" + pattern + "' " + lastResponseFileLocation, cmdResponse))
+        //change status byte to ack
+        req[13] = '1';
+
+        //remove everything after request/wish byte
+        std::string pattern = req.substr(0, 20) + ".*F7";
+
+        cmd = "cat " + lastResponseFileLocation + " | xargs | sed 's/F7/F7\\n/g' | sed 's/F0/\\nF0/g' | grep -m 1 -E '" + pattern + "'";
+
+        while (test::wsystem(cmd, cmdResponse))
         {
             test::wsystem("sleep 0.01", cmdResponse);
             responseRetryCounter++;
@@ -272,18 +284,11 @@ class MIDIHelper
             }
         }
 
-        test::wsystem("killall amidi > /dev/null 2>&1", cmdResponse);
+        test::wsystem("killall amidi > /dev/null 2>&1");
+        test::trimNewline(cmdResponse);
+        std::cout << "res: " << cmdResponse << std::endl;
 
-        //cut everything before the last F0
-        test::wsystem("sed -i 's/^.*F0/F0/' " + lastResponseFileLocation, cmdResponse);
-        //and also everything after F7
-        test::wsystem("sed -i 's/F7.*/F7/' " + lastResponseFileLocation, cmdResponse);
-
-        auto response = lastResponse(lastResponseFileLocation);
-
-        std::cout << "res: " << response << std::endl;
-
-        return response;
+        return cmdResponse;
     }
 
     static bool devicePresent(bool bootloader = false)
@@ -328,39 +333,6 @@ class MIDIHelper
     }
 
     private:
-    static std::string lastResponse(const std::string& location)
-    {
-        //last response is in last line in provided file path
-        std::ifstream file;
-        std::string   lastline = "";
-
-        file.open(location);
-
-        if (file.is_open())
-        {
-            char ch = ' ';
-            file.seekg(0, std::ios_base::end);
-
-            while (ch != '\n')
-            {
-                file.seekg(-2, std::ios_base::cur);
-
-                if ((int)file.tellg() <= 0)
-                {                     //If passed the start of the file,
-                    file.seekg(0);    //this is the start of the line
-                    break;
-                }
-
-                file.get(ch);
-            }
-
-            std::getline(file, lastline);
-            file.close();
-        }
-
-        return lastline;
-    }
-
     static uint16_t sendRequest(const std::vector<uint8_t>& requestUint8, SysExConf::wish_t wish)
     {
         //convert uint8_t vector to string so it can be passed as command line argument
@@ -378,7 +350,7 @@ class MIDIHelper
                 requestString << " ";
         }
 
-        std::string responseString = sendRawSysEx(requestString.str(), wish == SysExConf::wish_t::set);
+        std::string responseString = sendRawSysEx(requestString.str());
 
         if (responseString == "")
             return 0;    //invalid response

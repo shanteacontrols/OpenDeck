@@ -42,8 +42,8 @@ namespace
 
     void reboot(bool sendHandshake = true)
     {
-        TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
-        MIDIHelper::sendRawSysEx(reboot_req, false);
+        TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
+        MIDIHelper::sendRawSysEx(reboot_req);
         test::wsystem("sleep " + startup_delay_s);
 
         if (!MIDIHelper::devicePresent())
@@ -53,13 +53,13 @@ namespace
         }
 
         if (sendHandshake)
-            TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
+            TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
     }
 
     void factoryReset()
     {
-        TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
-        MIDIHelper::sendRawSysEx(factory_reset_req, false);
+        TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
+        MIDIHelper::sendRawSysEx(factory_reset_req);
 
         test::wsystem("sleep " + startup_delay_s);
 
@@ -72,8 +72,8 @@ namespace
 
     void bootloaderMode()
     {
-        TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
-        MIDIHelper::sendRawSysEx(btldr_req, false);
+        TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
+        MIDIHelper::sendRawSysEx(btldr_req);
 
         test::wsystem("sleep " + startup_delay_s);
 
@@ -159,7 +159,7 @@ TEST_CASE(DatabaseInitialValues)
 #endif
 
     factoryReset();
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
+    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
 
     //check only first and the last preset
     for (int preset = 0; preset < database.getSupportedPresets(); preset += (database.getSupportedPresets() - 1))
@@ -426,7 +426,7 @@ TEST_CASE(DatabaseInitialValues)
 TEST_CASE(ValuesAfterFlashing)
 {
     factoryReset();
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
+    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
 
     //change few random values
     TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::presets, 0, 1) == true);    //active preset 1
@@ -449,7 +449,7 @@ TEST_CASE(ValuesAfterFlashing)
 
     verify();
     flash();
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
+    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
 
     //verify all values again
     verify();
@@ -486,7 +486,7 @@ TEST_CASE(FwUpdate)
 TEST_CASE(BackupAndRestore)
 {
     factoryReset();
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
+    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
 
     for (int preset = 0; preset < database.getSupportedPresets(); preset++)
     {
@@ -510,7 +510,7 @@ TEST_CASE(BackupAndRestore)
     TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd));
 
     factoryReset();
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
+    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
 
     //verify that the defaults are active again
     for (int preset = 0; preset < database.getSupportedPresets(); preset++)
@@ -527,8 +527,11 @@ TEST_CASE(BackupAndRestore)
 
     //now restore backup
 
-    //remove all lines not starting with set pattern
-    TEST_ASSERT_EQUAL_INT(0, test::wsystem("sed -i '/^F0 00 53 43 00 .. 01/!d' " + backup_file_location));
+    //remove everything before the first line containing F0 00 53 43 01 00 1B F7
+    TEST_ASSERT_EQUAL_INT(0, test::wsystem("sed -i '0,/^F0 00 53 43 01 00 1B F7$/d' " + backup_file_location));
+
+    //...and also after the last line containing the same
+    TEST_ASSERT_EQUAL_INT(0, test::wsystem("sed -i '/^F0 00 53 43 01 00 1B F7$/Q' " + backup_file_location));
 
     //send backup
     std::ifstream backupStream(backup_file_location);
@@ -536,7 +539,7 @@ TEST_CASE(BackupAndRestore)
 
     while (getline(backupStream, line))
     {
-        TEST_ASSERT(MIDIHelper::sendRawSysEx(line, true) != std::string(""));
+        TEST_ASSERT(MIDIHelper::sendRawSysEx(line) != std::string(""));
     }
 
     //verify that the custom values are active again
@@ -559,7 +562,7 @@ TEST_CASE(MIDIData)
     std::string response;
 
     factoryReset();
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
+    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
 
     auto changePreset = [&](bool redirect) {
         //once the preset is changed, the board should forcefully resend all the button states
@@ -602,7 +605,7 @@ TEST_CASE(MIDIData)
         TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd));
     };
 
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
+    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
     monitor();
     changePreset(false);
 
@@ -617,7 +620,7 @@ TEST_CASE(MIDIData)
     //now enable DIN MIDI, reboot the board, repeat the test and verify that messages are received on DIN MIDI as well
     TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled), 1) == true);
     reboot();
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
+    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
     monitor();
     changePreset(false);
 
@@ -648,7 +651,7 @@ TEST_CASE(MIDIData)
 
 //     monitor();
 
-//     TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
+//     TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
 
 //     cmd = std::string("killall hexdump");
 //     TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd, response));
@@ -661,7 +664,7 @@ TEST_CASE(MIDIData)
 //     //now enable DIN MIDI, reboot the board, repeat the test and verify that messages are received on DIN MIDI as well
 //     TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled), 1) == true);
 //     cyclePower(powerCycleType_t::standardWithDeviceCheck);
-//     TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req, false));
+//     TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
 //     monitor();
 //     changePreset(false);
 

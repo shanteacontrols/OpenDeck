@@ -47,4 +47,20 @@ namespace test
         s.erase(std::remove(s.begin(), s.end(), '\n'), s.end());
         return s;
     }
+
+    inline size_t wordsInString(std::string& s)
+    {
+        size_t words = 0;
+
+        for (size_t i = 0; s[i] != '\0'; i++)
+        {
+            if (s[i] == ' ')
+            {
+                words++;
+            }
+        }
+
+        return words + 1;
+    }
+
 }    // namespace test
