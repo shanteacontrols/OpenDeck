@@ -527,8 +527,8 @@ TEST_CASE(BackupAndRestore)
 
     //now restore backup
 
-    //remove all lines not starting with F0 00 53 43 00 00 01 (set command)
-    TEST_ASSERT_EQUAL_INT(0, test::wsystem("sed -i '/^F0 00 53 43 00 00 01/!d' " + backup_file_location));
+    //remove all lines not starting with set pattern
+    TEST_ASSERT_EQUAL_INT(0, test::wsystem("sed -i '/^F0 00 53 43 00 .. 01/!d' " + backup_file_location));
 
     //send backup
     std::ifstream backupStream(backup_file_location);
@@ -536,7 +536,7 @@ TEST_CASE(BackupAndRestore)
 
     while (getline(backupStream, line))
     {
-        TEST_ASSERT(MIDIHelper::sendRawSysEx(line, false) != std::string(""));
+        TEST_ASSERT(MIDIHelper::sendRawSysEx(line, true) != std::string(""));
     }
 
     //verify that the custom values are active again
