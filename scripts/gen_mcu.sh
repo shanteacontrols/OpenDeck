@@ -87,7 +87,11 @@ then
 
             {
                 printf "%s\n" "#define FLASH_PAGE_ADDRESS_${i} $addressStart"
+                printf "%s\n" "#ifdef FW_BOOT"
                 printf "%s\n" "#define FLASH_PAGE_SIZE_${i} $page_size"
+                printf "%s\n" "#else"
+                printf "%s\n" "#define FLASH_PAGE_SIZE_${i} $app_size"
+                printf "%s\n" "#endif"
             } >> "$OUT_FILE_HEADER"
 
             {
