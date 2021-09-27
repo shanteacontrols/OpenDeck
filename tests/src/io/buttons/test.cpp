@@ -27,14 +27,14 @@ namespace
         bool _state[MAX_NUMBER_OF_BUTTONS] = {};
     } _hwaButtons;
 
-    IO::MessageDispatcher _dispatcher;
-    Listener              _listener;
-    DBstorageMock         _dbStorageMock;
-    Database              _database = Database(_dbStorageMock, true);
-    HWALEDsStub           _hwaLEDs;
-    IO::LEDs              _leds(_hwaLEDs, _database, _dispatcher);
-    ButtonsFilterStub     _buttonsFilter;
-    IO::Buttons           _buttons = IO::Buttons(_hwaButtons, _buttonsFilter, _database, _dispatcher);
+    Util::MessageDispatcher _dispatcher;
+    Listener                _listener;
+    DBstorageMock           _dbStorageMock;
+    Database                _database = Database(_dbStorageMock, true);
+    HWALEDsStub             _hwaLEDs;
+    IO::LEDs                _leds(_hwaLEDs, _database, _dispatcher);
+    ButtonsFilterStub       _buttonsFilter;
+    IO::Buttons             _buttons = IO::Buttons(_hwaButtons, _buttonsFilter, _database, _dispatcher);
 
     void stateChangeRegister(bool state)
     {
@@ -59,9 +59,9 @@ TEST_SETUP()
 
     if (!listenerActive)
     {
-        _dispatcher.listen(IO::MessageDispatcher::messageSource_t::buttons,
-                           IO::MessageDispatcher::listenType_t::nonFwd,
-                           [](const IO::MessageDispatcher::message_t& dispatchMessage) {
+        _dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
+                           Util::MessageDispatcher::listenType_t::nonFwd,
+                           [](const Util::MessageDispatcher::message_t& dispatchMessage) {
                                _listener.messageListener(dispatchMessage);
                            });
 

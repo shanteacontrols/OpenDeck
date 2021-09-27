@@ -25,35 +25,47 @@ limitations under the License.
 
 using namespace IO;
 
-Display::Display(IO::U8X8&          u8x8,
-                 Database&          database,
-                 MessageDispatcher& dispatcher)
+Display::Display(IO::U8X8&                u8x8,
+                 Database&                database,
+                 Util::MessageDispatcher& dispatcher)
     : _u8x8(u8x8)
     , _database(database)
 {
-    dispatcher.listen(MessageDispatcher::messageSource_t::analog, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
-        displayMIDIevent(Display::eventType_t::out, dispatchMessage);
-    });
+    dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
+                      Util::MessageDispatcher::listenType_t::nonFwd,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          displayMIDIevent(Display::eventType_t::out, dispatchMessage);
+                      });
 
-    dispatcher.listen(MessageDispatcher::messageSource_t::buttons, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
-        displayMIDIevent(Display::eventType_t::out, dispatchMessage);
-    });
+    dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
+                      Util::MessageDispatcher::listenType_t::nonFwd,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          displayMIDIevent(Display::eventType_t::out, dispatchMessage);
+                      });
 
-    dispatcher.listen(MessageDispatcher::messageSource_t::encoders, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
-        displayMIDIevent(Display::eventType_t::out, dispatchMessage);
-    });
+    dispatcher.listen(Util::MessageDispatcher::messageSource_t::encoders,
+                      Util::MessageDispatcher::listenType_t::nonFwd,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          displayMIDIevent(Display::eventType_t::out, dispatchMessage);
+                      });
 
-    dispatcher.listen(MessageDispatcher::messageSource_t::touchscreenButton, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
-        displayMIDIevent(Display::eventType_t::out, dispatchMessage);
-    });
+    dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenButton,
+                      Util::MessageDispatcher::listenType_t::nonFwd,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          displayMIDIevent(Display::eventType_t::out, dispatchMessage);
+                      });
 
-    dispatcher.listen(MessageDispatcher::messageSource_t::touchscreenAnalog, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
-        displayMIDIevent(Display::eventType_t::out, dispatchMessage);
-    });
+    dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenAnalog,
+                      Util::MessageDispatcher::listenType_t::nonFwd,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          displayMIDIevent(Display::eventType_t::out, dispatchMessage);
+                      });
 
-    dispatcher.listen(MessageDispatcher::messageSource_t::midiIn, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
-        displayMIDIevent(Display::eventType_t::in, dispatchMessage);
-    });
+    dispatcher.listen(Util::MessageDispatcher::messageSource_t::midiIn,
+                      Util::MessageDispatcher::listenType_t::nonFwd,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          displayMIDIevent(Display::eventType_t::in, dispatchMessage);
+                      });
 }
 
 /// Initialize display driver and variables.
@@ -521,7 +533,7 @@ void Display::displayVinfo(bool newFw)
     core::timing::waitMs(2000);
 }
 
-void Display::displayMIDIevent(eventType_t type, const MessageDispatcher::message_t& dispatchMessage)
+void Display::displayMIDIevent(eventType_t type, const Util::MessageDispatcher::message_t& dispatchMessage)
 {
     if (!_initialized)
         return;

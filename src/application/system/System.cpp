@@ -168,18 +168,20 @@ void System::DBhandlers::initialized()
 
 void System::TouchScreenHandlers::button(size_t index, bool state)
 {
-    IO::MessageDispatcher::message_t dispatchMessage;
+    Util::MessageDispatcher::message_t dispatchMessage;
 
     dispatchMessage.componentIndex = index;
     dispatchMessage.midiValue      = state;
 
     //mark this as forwarding message type - further action/processing is required
-    _system._dispatcher.notify(IO::MessageDispatcher::messageSource_t::touchscreenButton, dispatchMessage, IO::MessageDispatcher::listenType_t::forward);
+    _system._dispatcher.notify(Util::MessageDispatcher::messageSource_t::touchscreenButton,
+                               dispatchMessage,
+                               Util::MessageDispatcher::listenType_t::forward);
 }
 
 void System::TouchScreenHandlers::analog(size_t index, uint16_t value, uint16_t min, uint16_t max)
 {
-    IO::MessageDispatcher::message_t dispatchMessage;
+    Util::MessageDispatcher::message_t dispatchMessage;
 
     dispatchMessage.componentIndex = index;
     dispatchMessage.midiValue      = core::misc::mapRange(static_cast<uint32_t>(value),
@@ -189,7 +191,9 @@ void System::TouchScreenHandlers::analog(size_t index, uint16_t value, uint16_t 
                                                      static_cast<uint32_t>(ADC_RESOLUTION));
 
     //mark this as forwarding message type - further action/processing is required
-    _system._dispatcher.notify(IO::MessageDispatcher::messageSource_t::touchscreenAnalog, dispatchMessage, IO::MessageDispatcher::listenType_t::forward);
+    _system._dispatcher.notify(Util::MessageDispatcher::messageSource_t::touchscreenAnalog,
+                               dispatchMessage,
+                               Util::MessageDispatcher::listenType_t::forward);
 }
 
 void System::TouchScreenHandlers::screenChange(size_t screenID)
@@ -430,7 +434,7 @@ void System::checkComponents()
 void System::checkMIDI()
 {
     auto processMessage = [&](MIDI::interface_t interface) {
-        IO::MessageDispatcher::message_t dispatchMessage;
+        Util::MessageDispatcher::message_t dispatchMessage;
 
         dispatchMessage.componentIndex = 0;
         dispatchMessage.midiChannel    = _midi.getChannel(interface);
@@ -470,7 +474,9 @@ void System::checkMIDI()
             break;
         }
 
-        _dispatcher.notify(IO::MessageDispatcher::messageSource_t::midiIn, dispatchMessage, IO::MessageDispatcher::listenType_t::nonFwd);
+        _dispatcher.notify(Util::MessageDispatcher::messageSource_t::midiIn,
+                           dispatchMessage,
+                           Util::MessageDispatcher::listenType_t::nonFwd);
     };
 
     if (

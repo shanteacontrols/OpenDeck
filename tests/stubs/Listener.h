@@ -7,10 +7,10 @@ class Listener
     public:
     Listener() = default;
 
-    void messageListener(const IO::MessageDispatcher::message_t& dispatchMessage)
+    void messageListener(const Util::MessageDispatcher::message_t& dispatchMessage)
     {
         _dispatchMessage.push_back(dispatchMessage);
     }
 
-    std::vector<IO::MessageDispatcher::message_t> _dispatchMessage = {};
+    std::vector<Util::MessageDispatcher::message_t> _dispatchMessage = {};
 };

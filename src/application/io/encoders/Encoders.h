@@ -80,11 +80,11 @@ namespace IO
             virtual uint32_t lastMovementTime(size_t index) = 0;
         };
 
-        Encoders(HWA&               hwa,
-                 Filter&            filter,
-                 uint32_t           timeDiffTimeout,
-                 Database&          database,
-                 MessageDispatcher& dispatcher);
+        Encoders(HWA&                     hwa,
+                 Filter&                  filter,
+                 uint32_t                 timeDiffTimeout,
+                 Database&                database,
+                 Util::MessageDispatcher& dispatcher);
 
         void update();
         void resetValue(size_t index);
@@ -95,9 +95,9 @@ namespace IO
 
         struct encoderDescriptor_t
         {
-            type_t                           type          = type_t::controlChange7Fh01h;
-            uint8_t                          pulsesPerStep = 0;
-            IO::MessageDispatcher::message_t dispatchMessage;
+            type_t                             type          = type_t::controlChange7Fh01h;
+            uint8_t                            pulsesPerStep = 0;
+            Util::MessageDispatcher::message_t dispatchMessage;
 
             encoderDescriptor_t() = default;
         };
@@ -105,8 +105,8 @@ namespace IO
         /// Time difference betweeen multiple encoder readouts in milliseconds.
         const uint32_t TIME_DIFF_READOUT;
 
-        Database&              _database;
-        IO::MessageDispatcher& _dispatcher;
+        Database&                _database;
+        Util::MessageDispatcher& _dispatcher;
 
         std::unique_ptr<encoderDescriptor_t> encoderDescriptor(size_t index);
         position_t                           read(size_t index, uint8_t pairState);

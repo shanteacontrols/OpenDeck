@@ -72,10 +72,10 @@ namespace IO
             virtual void              reset(size_t index)                                                                    = 0;
         };
 
-        Analog(HWA&               hwa,
-               Filter&            filter,
-               Database&          database,
-               MessageDispatcher& dispatcher);
+        Analog(HWA&                     hwa,
+               Filter&                  filter,
+               Database&                database,
+               Util::MessageDispatcher& dispatcher);
 
         void      update(bool forceResend = false);
         void      debounceReset(size_t index);
@@ -84,11 +84,11 @@ namespace IO
         private:
         struct analogDescriptor_t
         {
-            type_t                           type       = type_t::potentiometerControlChange;
-            bool                             inverted   = false;
-            uint16_t                         lowerLimit = 0;
-            uint16_t                         upperLimit = 0;
-            IO::MessageDispatcher::message_t dispatchMessage;
+            type_t                             type       = type_t::potentiometerControlChange;
+            bool                               inverted   = false;
+            uint16_t                           lowerLimit = 0;
+            uint16_t                           upperLimit = 0;
+            Util::MessageDispatcher::message_t dispatchMessage;
 
             analogDescriptor_t() = default;
         };
@@ -99,10 +99,10 @@ namespace IO
         bool                                checkFSRvalue(size_t index, std::unique_ptr<analogDescriptor_t>& descriptor);
         void                                sendMessage(size_t index, std::unique_ptr<analogDescriptor_t>& descriptor);
 
-        HWA&                   _hwa;
-        Filter&                _filter;
-        Database&              _database;
-        IO::MessageDispatcher& _dispatcher;
+        HWA&                     _hwa;
+        Filter&                  _filter;
+        Database&                _database;
+        Util::MessageDispatcher& _dispatcher;
 
         uint8_t  _fsrPressed[MAX_NUMBER_OF_ANALOG]                                       = {};
         uint16_t _lastValue[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS] = {};

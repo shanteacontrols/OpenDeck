@@ -22,9 +22,9 @@ limitations under the License.
 
 using namespace IO;
 
-LEDs::LEDs(HWA&               hwa,
-           Database&          database,
-           MessageDispatcher& dispatcher)
+LEDs::LEDs(HWA&                     hwa,
+           Database&                database,
+           Util::MessageDispatcher& dispatcher)
     : _hwa(hwa)
     , _database(database)
 {
@@ -34,69 +34,75 @@ LEDs::LEDs(HWA&               hwa,
     for (size_t i = 0; i < MAX_LEDS; i++)
         _brightness[i] = brightness_t::bOff;
 
-    dispatcher.listen(MessageDispatcher::messageSource_t::midiIn, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
-        switch (dispatchMessage.message)
-        {
-        case MIDI::messageType_t::noteOn:
-        case MIDI::messageType_t::noteOff:
-        case MIDI::messageType_t::controlChange:
-        case MIDI::messageType_t::programChange:
-        {
-            midiToState(dispatchMessage.message, dispatchMessage.midiIndex, dispatchMessage.midiValue, dispatchMessage.midiChannel, dataSource_t::external);
-        }
-        break;
+    dispatcher.listen(Util::MessageDispatcher::messageSource_t::midiIn,
+                      Util::MessageDispatcher::listenType_t::nonFwd,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          switch (dispatchMessage.message)
+                          {
+                          case MIDI::messageType_t::noteOn:
+                          case MIDI::messageType_t::noteOff:
+                          case MIDI::messageType_t::controlChange:
+                          case MIDI::messageType_t::programChange:
+                          {
+                              midiToState(dispatchMessage.message, dispatchMessage.midiIndex, dispatchMessage.midiValue, dispatchMessage.midiChannel, dataSource_t::external);
+                          }
+                          break;
 
-        case MIDI::messageType_t::sysRealTimeClock:
-        {
-            update(true);
-        }
-        break;
+                          case MIDI::messageType_t::sysRealTimeClock:
+                          {
+                              update(true);
+                          }
+                          break;
 
-        case MIDI::messageType_t::sysRealTimeStart:
-        {
-            resetBlinking();
-            update(true);
-        }
-        break;
+                          case MIDI::messageType_t::sysRealTimeStart:
+                          {
+                              resetBlinking();
+                              update(true);
+                          }
+                          break;
 
-        default:
-            break;
-        }
-    });
+                          default:
+                              break;
+                          }
+                      });
 
-    dispatcher.listen(MessageDispatcher::messageSource_t::buttons, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
-        switch (dispatchMessage.message)
-        {
-        case MIDI::messageType_t::noteOn:
-        case MIDI::messageType_t::noteOff:
-        case MIDI::messageType_t::controlChange:
-        case MIDI::messageType_t::programChange:
-        {
-            midiToState(dispatchMessage.message, dispatchMessage.midiIndex, dispatchMessage.midiValue, dispatchMessage.midiChannel, dataSource_t::internal);
-        }
-        break;
+    dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
+                      Util::MessageDispatcher::listenType_t::nonFwd,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          switch (dispatchMessage.message)
+                          {
+                          case MIDI::messageType_t::noteOn:
+                          case MIDI::messageType_t::noteOff:
+                          case MIDI::messageType_t::controlChange:
+                          case MIDI::messageType_t::programChange:
+                          {
+                              midiToState(dispatchMessage.message, dispatchMessage.midiIndex, dispatchMessage.midiValue, dispatchMessage.midiChannel, dataSource_t::internal);
+                          }
+                          break;
 
-        default:
-            break;
-        }
-    });
+                          default:
+                              break;
+                          }
+                      });
 
-    dispatcher.listen(MessageDispatcher::messageSource_t::analog, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
-        switch (dispatchMessage.message)
-        {
-        case MIDI::messageType_t::noteOn:
-        case MIDI::messageType_t::noteOff:
-        case MIDI::messageType_t::controlChange:
-        case MIDI::messageType_t::programChange:
-        {
-            midiToState(dispatchMessage.message, dispatchMessage.midiIndex, dispatchMessage.midiValue, dispatchMessage.midiChannel, dataSource_t::internal);
-        }
-        break;
+    dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
+                      Util::MessageDispatcher::listenType_t::nonFwd,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          switch (dispatchMessage.message)
+                          {
+                          case MIDI::messageType_t::noteOn:
+                          case MIDI::messageType_t::noteOff:
+                          case MIDI::messageType_t::controlChange:
+                          case MIDI::messageType_t::programChange:
+                          {
+                              midiToState(dispatchMessage.message, dispatchMessage.midiIndex, dispatchMessage.midiValue, dispatchMessage.midiChannel, dataSource_t::internal);
+                          }
+                          break;
 
-        default:
-            break;
-        }
-    });
+                          default:
+                              break;
+                          }
+                      });
 }
 
 void LEDs::init(bool startUp)

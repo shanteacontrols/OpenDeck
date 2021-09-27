@@ -19,6 +19,8 @@ limitations under the License.
 #include "Scheduler.h"
 #include "core/src/general/Timing.h"
 
+using namespace Util;
+
 Scheduler::Scheduler()
 {
     for (size_t i = 0; i < MAX_TASKS; i++)

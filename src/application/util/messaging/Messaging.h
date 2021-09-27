@@ -22,7 +22,7 @@ limitations under the License.
 #include <functional>
 #include "midi/src/MIDI.h"
 
-namespace IO
+namespace Util
 {
     class MessageDispatcher
     {
@@ -74,4 +74,4 @@ namespace IO
         std::array<listener_t, MAX_LISTENERS> _listener        = {};
         size_t                                _listenerCounter = 0;
     };
-}    // namespace IO
+}    // namespace Util

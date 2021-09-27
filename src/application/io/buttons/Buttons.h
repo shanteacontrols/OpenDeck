@@ -80,10 +80,10 @@ namespace IO
             virtual bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
         };
 
-        Buttons(HWA&               hwa,
-                Filter&            filter,
-                Database&          database,
-                MessageDispatcher& dispatcher);
+        Buttons(HWA&                     hwa,
+                Filter&                  filter,
+                Database&                database,
+                Util::MessageDispatcher& dispatcher);
 
         void update(bool forceResend = false);
         bool state(size_t index);
@@ -92,9 +92,9 @@ namespace IO
         private:
         struct buttonDescriptor_t
         {
-            type_t                           type        = type_t::momentary;
-            messageType_t                    messageType = messageType_t::note;
-            IO::MessageDispatcher::message_t dispatchMessage;
+            type_t                             type        = type_t::momentary;
+            messageType_t                      messageType = messageType_t::note;
+            Util::MessageDispatcher::message_t dispatchMessage;
 
             buttonDescriptor_t() = default;
         };
@@ -106,10 +106,10 @@ namespace IO
         void                                setLatchingState(size_t index, bool state);
         bool                                latchingState(size_t index);
 
-        HWA&                   _hwa;
-        Filter&                _filter;
-        Database&              _database;
-        IO::MessageDispatcher& _dispatcher;
+        HWA&                     _hwa;
+        Filter&                  _filter;
+        Database&                _database;
+        Util::MessageDispatcher& _dispatcher;
 
         uint8_t _buttonPressed[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS) / 8 + 1]     = {};
         uint8_t _lastLatchingState[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS) / 8 + 1] = {};

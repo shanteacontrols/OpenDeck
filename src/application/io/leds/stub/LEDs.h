@@ -112,9 +112,9 @@ namespace IO
             virtual size_t rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent) = 0;
         };
 
-        LEDs(HWA&               hwa,
-             Database&          database,
-             MessageDispatcher& dispatcher)
+        LEDs(HWA&                     hwa,
+             Database&                database,
+             Util::MessageDispatcher& dispatcher)
         {}
 
         void init(bool startUp = true)

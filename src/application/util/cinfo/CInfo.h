@@ -23,14 +23,14 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 #include "database/Database.h"
 
-namespace IO
+namespace Util
 {
     class ComponentInfo
     {
         public:
         using cinfoHandler_t = std::function<void(size_t, size_t)>;
 
-        ComponentInfo(MessageDispatcher& dispatcher);
+        ComponentInfo(Util::MessageDispatcher& dispatcher);
 
         void registerHandler(cinfoHandler_t handler);
 
@@ -43,4 +43,4 @@ namespace IO
         cinfoHandler_t _handler                                                           = nullptr;
         uint32_t       _lastCinfoMsgTime[static_cast<uint8_t>(Database::block_t::AMOUNT)] = {};
     };
-}    // namespace IO
+}    // namespace Util

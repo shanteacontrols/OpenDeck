@@ -18,29 +18,39 @@ limitations under the License.
 
 #include "CInfo.h"
 
-using namespace IO;
+using namespace Util;
 
-ComponentInfo::ComponentInfo(MessageDispatcher& dispatcher)
+ComponentInfo::ComponentInfo(Util::MessageDispatcher& dispatcher)
 {
-    dispatcher.listen(MessageDispatcher::messageSource_t::analog, MessageDispatcher::listenType_t::all, [this](const MessageDispatcher::message_t& dispatchMessage) {
-        send(Database::block_t::analog, dispatchMessage.componentIndex);
-    });
+    dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
+                      Util::MessageDispatcher::listenType_t::all,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          send(Database::block_t::analog, dispatchMessage.componentIndex);
+                      });
 
-    dispatcher.listen(MessageDispatcher::messageSource_t::buttons, MessageDispatcher::listenType_t::all, [this](const MessageDispatcher::message_t& dispatchMessage) {
-        send(Database::block_t::buttons, dispatchMessage.componentIndex);
-    });
+    dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
+                      Util::MessageDispatcher::listenType_t::all,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          send(Database::block_t::buttons, dispatchMessage.componentIndex);
+                      });
 
-    dispatcher.listen(MessageDispatcher::messageSource_t::encoders, MessageDispatcher::listenType_t::all, [this](const MessageDispatcher::message_t& dispatchMessage) {
-        send(Database::block_t::encoders, dispatchMessage.componentIndex);
-    });
+    dispatcher.listen(Util::MessageDispatcher::messageSource_t::encoders,
+                      Util::MessageDispatcher::listenType_t::all,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          send(Database::block_t::encoders, dispatchMessage.componentIndex);
+                      });
 
-    dispatcher.listen(MessageDispatcher::messageSource_t::touchscreenButton, MessageDispatcher::listenType_t::all, [this](const MessageDispatcher::message_t& dispatchMessage) {
-        send(Database::block_t::touchscreen, dispatchMessage.componentIndex);
-    });
+    dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenButton,
+                      Util::MessageDispatcher::listenType_t::all,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          send(Database::block_t::touchscreen, dispatchMessage.componentIndex);
+                      });
 
-    dispatcher.listen(MessageDispatcher::messageSource_t::touchscreenAnalog, MessageDispatcher::listenType_t::all, [this](const MessageDispatcher::message_t& dispatchMessage) {
-        send(Database::block_t::touchscreen, dispatchMessage.componentIndex);
-    });
+    dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenAnalog,
+                      Util::MessageDispatcher::listenType_t::all,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          send(Database::block_t::touchscreen, dispatchMessage.componentIndex);
+                      });
 }
 
 void ComponentInfo::registerHandler(cinfoHandler_t handler)

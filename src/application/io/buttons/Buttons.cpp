@@ -23,30 +23,34 @@ limitations under the License.
 
 using namespace IO;
 
-Buttons::Buttons(HWA&               hwa,
-                 Filter&            filter,
-                 Database&          database,
-                 MessageDispatcher& dispatcher)
+Buttons::Buttons(HWA&                     hwa,
+                 Filter&                  filter,
+                 Database&                database,
+                 Util::MessageDispatcher& dispatcher)
     : _hwa(hwa)
     , _filter(filter)
     , _database(database)
     , _dispatcher(dispatcher)
 {
-    _dispatcher.listen(MessageDispatcher::messageSource_t::analog, MessageDispatcher::listenType_t::forward, [this](const MessageDispatcher::message_t& dispatchMessage) {
-        size_t index      = dispatchMessage.componentIndex + MAX_NUMBER_OF_BUTTONS;
-        auto   descriptor = buttonDescriptor(index);
+    _dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
+                       Util::MessageDispatcher::listenType_t::forward,
+                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                           size_t index      = dispatchMessage.componentIndex + MAX_NUMBER_OF_BUTTONS;
+                           auto   descriptor = buttonDescriptor(index);
 
-        // dispatchMessage.midiValue in this case contains state information only
-        processButton(index, dispatchMessage.midiValue, descriptor);
-    });
+                           // dispatchMessage.midiValue in this case contains state information only
+                           processButton(index, dispatchMessage.midiValue, descriptor);
+                       });
 
-    _dispatcher.listen(MessageDispatcher::messageSource_t::touchscreenButton, MessageDispatcher::listenType_t::forward, [this](const MessageDispatcher::message_t& dispatchMessage) {
-        size_t index      = dispatchMessage.componentIndex + MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG;
-        auto   descriptor = buttonDescriptor(index);
+    _dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenButton,
+                       Util::MessageDispatcher::listenType_t::forward,
+                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                           size_t index      = dispatchMessage.componentIndex + MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG;
+                           auto   descriptor = buttonDescriptor(index);
 
-        // dispatchMessage.midiValue in this case contains state information only
-        processButton(index, dispatchMessage.midiValue, descriptor);
-    });
+                           // dispatchMessage.midiValue in this case contains state information only
+                           processButton(index, dispatchMessage.midiValue, descriptor);
+                       });
 }
 
 /// Continuously reads inputs from buttons and acts if necessary.
@@ -304,7 +308,11 @@ void Buttons::sendMessage(size_t index, bool state, std::unique_ptr<buttonDescri
     }
 
     if (send)
-        _dispatcher.notify(IO::MessageDispatcher::messageSource_t::buttons, descriptor->dispatchMessage, IO::MessageDispatcher::listenType_t::nonFwd);
+    {
+        _dispatcher.notify(Util::MessageDispatcher::messageSource_t::buttons,
+                           descriptor->dispatchMessage,
+                           Util::MessageDispatcher::listenType_t::nonFwd);
+    }
 }
 
 /// Updates current state of button.

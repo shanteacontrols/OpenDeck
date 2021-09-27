@@ -77,9 +77,9 @@ namespace IO
             AMOUNT
         };
 
-        Display(IO::U8X8&          u8x8,
-                Database&          database,
-                MessageDispatcher& dispatcher)
+        Display(IO::U8X8&                u8x8,
+                Database&                database,
+                Util::MessageDispatcher& dispatcher)
         {}
 
         bool init(bool startupInfo)

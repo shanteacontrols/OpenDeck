@@ -21,24 +21,27 @@ limitations under the License.
 #include <inttypes.h>
 #include <functional>
 
-//a simple scheduler used to run one-off tasks specified time from now
-class Scheduler
+namespace Util
 {
-    public:
-    Scheduler();
-
-    struct task_t
+    //a simple scheduler used to run one-off tasks specified time from now
+    class Scheduler
     {
-        std::function<void()> function = nullptr;
-        uint32_t              timeout  = 0;
+        public:
+        Scheduler();
 
-        task_t() = default;
+        struct task_t
+        {
+            std::function<void()> function = nullptr;
+            uint32_t              timeout  = 0;
+
+            task_t() = default;
+        };
+
+        void update();
+        bool registerTask(const task_t&& task);
+
+        private:
+        static constexpr size_t MAX_TASKS         = 10;
+        task_t                  _tasks[MAX_TASKS] = {};
     };
-
-    void update();
-    bool registerTask(const task_t&& task);
-
-    private:
-    static constexpr size_t MAX_TASKS         = 10;
-    task_t                  _tasks[MAX_TASKS] = {};
-};
+}    // namespace Util

@@ -18,7 +18,7 @@ limitations under the License.
 
 #include "Messaging.h"
 
-using namespace IO;
+using namespace Util;
 
 bool MessageDispatcher::listen(messageSource_t source, listenType_t listenType, messageCallback_t callback)
 {

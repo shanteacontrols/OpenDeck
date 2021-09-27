@@ -21,19 +21,21 @@ limitations under the License.
 
 using namespace IO;
 
-Analog::Analog(HWA&               hwa,
-               Filter&            filter,
-               Database&          database,
-               MessageDispatcher& dispatcher)
+Analog::Analog(HWA&                     hwa,
+               Filter&                  filter,
+               Database&                database,
+               Util::MessageDispatcher& dispatcher)
     : _hwa(hwa)
     , _filter(filter)
     , _database(database)
     , _dispatcher(dispatcher)
 {
-    _dispatcher.listen(MessageDispatcher::messageSource_t::touchscreenAnalog, MessageDispatcher::listenType_t::forward, [this](const MessageDispatcher::message_t& dispatchMessage) {
-        size_t index = dispatchMessage.componentIndex + MAX_NUMBER_OF_ANALOG;
-        processReading(index, dispatchMessage.midiValue);
-    });
+    _dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenAnalog,
+                       Util::MessageDispatcher::listenType_t::forward,
+                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                           size_t index = dispatchMessage.componentIndex + MAX_NUMBER_OF_ANALOG;
+                           processReading(index, dispatchMessage.midiValue);
+                       });
 }
 
 void Analog::update(bool forceResend)
@@ -249,7 +251,11 @@ void Analog::sendMessage(size_t index, std::unique_ptr<analogDescriptor_t>& desc
     }
 
     if (send)
-        _dispatcher.notify(IO::MessageDispatcher::messageSource_t::analog, descriptor->dispatchMessage, forward ? IO::MessageDispatcher::listenType_t::forward : IO::MessageDispatcher::listenType_t::nonFwd);
+    {
+        _dispatcher.notify(Util::MessageDispatcher::messageSource_t::analog,
+                           descriptor->dispatchMessage,
+                           forward ? Util::MessageDispatcher::listenType_t::forward : Util::MessageDispatcher::listenType_t::nonFwd);
+    }
 }
 
 void Analog::debounceReset(size_t index)

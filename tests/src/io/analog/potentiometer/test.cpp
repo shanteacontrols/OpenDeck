@@ -26,12 +26,12 @@ namespace
         uint32_t adcReturnValue;
     } _hwaAnalog;
 
-    IO::MessageDispatcher _dispatcher;
-    Listener              _listener;
-    DBstorageMock         _dbStorageMock;
-    Database              _database = Database(_dbStorageMock, true);
-    AnalogFilterStub      _analogFilter;
-    IO::Analog            _analog(_hwaAnalog, _analogFilter, _database, _dispatcher);
+    Util::MessageDispatcher _dispatcher;
+    Listener                _listener;
+    DBstorageMock           _dbStorageMock;
+    Database                _database = Database(_dbStorageMock, true);
+    AnalogFilterStub        _analogFilter;
+    IO::Analog              _analog(_hwaAnalog, _analogFilter, _database, _dispatcher);
 }    // namespace
 
 TEST_SETUP()
@@ -47,9 +47,9 @@ TEST_SETUP()
 
     if (!listenerActive)
     {
-        _dispatcher.listen(IO::MessageDispatcher::messageSource_t::analog,
-                           IO::MessageDispatcher::listenType_t::nonFwd,
-                           [](const IO::MessageDispatcher::message_t& dispatchMessage) {
+        _dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
+                           Util::MessageDispatcher::listenType_t::nonFwd,
+                           [](const Util::MessageDispatcher::message_t& dispatchMessage) {
                                _listener.messageListener(dispatchMessage);
                            });
 

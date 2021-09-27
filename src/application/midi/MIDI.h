@@ -23,36 +23,44 @@ limitations under the License.
 
 namespace Protocol
 {
-    using namespace ::IO;
-
     class MIDI : public ::MIDI
     {
         public:
-        MIDI(::MIDI::HWA& hwa, MessageDispatcher& dispatcher)
+        MIDI(::MIDI::HWA& hwa, Util::MessageDispatcher& dispatcher)
             : ::MIDI(hwa)
         {
-            dispatcher.listen(MessageDispatcher::messageSource_t::analog, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
-                sendMIDI(dispatchMessage);
-            });
+            dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
+                              Util::MessageDispatcher::listenType_t::nonFwd,
+                              [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                                  sendMIDI(dispatchMessage);
+                              });
 
-            dispatcher.listen(MessageDispatcher::messageSource_t::buttons, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
-                sendMIDI(dispatchMessage);
-            });
+            dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
+                              Util::MessageDispatcher::listenType_t::nonFwd,
+                              [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                                  sendMIDI(dispatchMessage);
+                              });
 
-            dispatcher.listen(MessageDispatcher::messageSource_t::encoders, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
-                sendMIDI(dispatchMessage);
-            });
+            dispatcher.listen(Util::MessageDispatcher::messageSource_t::encoders,
+                              Util::MessageDispatcher::listenType_t::nonFwd,
+                              [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                                  sendMIDI(dispatchMessage);
+                              });
 
-            dispatcher.listen(MessageDispatcher::messageSource_t::touchscreenButton, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
-                sendMIDI(dispatchMessage);
-            });
+            dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenButton,
+                              Util::MessageDispatcher::listenType_t::nonFwd,
+                              [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                                  sendMIDI(dispatchMessage);
+                              });
 
-            dispatcher.listen(MessageDispatcher::messageSource_t::touchscreenAnalog, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
-                sendMIDI(dispatchMessage);
-            });
+            dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenAnalog,
+                              Util::MessageDispatcher::listenType_t::nonFwd,
+                              [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                                  sendMIDI(dispatchMessage);
+                              });
         }
 
         private:
-        void sendMIDI(const MessageDispatcher::message_t& message);
+        void sendMIDI(const Util::MessageDispatcher::message_t& message);
     };
 }    // namespace Protocol

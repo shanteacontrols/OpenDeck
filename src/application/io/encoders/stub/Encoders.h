@@ -70,11 +70,11 @@ namespace IO
             virtual uint32_t lastMovementTime(size_t index) = 0;
         };
 
-        Encoders(HWA&               hwa,
-                 Filter&            filter,
-                 uint32_t           timeDiffTimeout,
-                 Database&          database,
-                 MessageDispatcher& dispatcher)
+        Encoders(HWA&                     hwa,
+                 Filter&                  filter,
+                 uint32_t                 timeDiffTimeout,
+                 Database&                database,
+                 Util::MessageDispatcher& dispatcher)
         {}
 
         void init()

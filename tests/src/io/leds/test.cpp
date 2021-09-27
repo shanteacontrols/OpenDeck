@@ -37,11 +37,11 @@ namespace
 
     } _hwaLEDs;
 
-    IO::MessageDispatcher _dispatcher;
-    Listener              _listener;
-    DBstorageMock         _dbStorageMock;
-    Database              _database = Database(_dbStorageMock, true);
-    IO::LEDs              _leds(_hwaLEDs, _database, _dispatcher);
+    Util::MessageDispatcher _dispatcher;
+    Listener                _listener;
+    DBstorageMock           _dbStorageMock;
+    Database                _database = Database(_dbStorageMock, true);
+    IO::LEDs                _leds(_hwaLEDs, _database, _dispatcher);
 }    // namespace
 
 TEST_SETUP()
@@ -331,7 +331,7 @@ TEST_CASE(VerifyBrightnessAndBlinkSpeed)
     for (uint16_t i = 0; i < 128; i++)
     {
         //MIDI ID 0, channel 0, value, MIDI in
-        _dispatcher.notify(IO::MessageDispatcher::messageSource_t::midiIn, { 0, 0, 0, i, MIDI::messageType_t::noteOn }, IO::MessageDispatcher::listenType_t::nonFwd);
+        _dispatcher.notify(Util::MessageDispatcher::messageSource_t::midiIn, { 0, 0, 0, i, MIDI::messageType_t::noteOn }, Util::MessageDispatcher::listenType_t::nonFwd);
 
         //read only the first response - it's possible midi state will be set for multiple LEDs
         TEST_ASSERT_EQUAL_UINT32(expectedBrightnessValue.at(i), _hwaLEDs._brightness.at(0));
@@ -349,7 +349,7 @@ TEST_CASE(VerifyBrightnessAndBlinkSpeed)
     for (uint16_t i = 0; i < 128; i++)
     {
         //MIDI ID 0, channel 0, value, MIDI in
-        _dispatcher.notify(IO::MessageDispatcher::messageSource_t::midiIn, { 0, 0, 0, i, MIDI::messageType_t::controlChange }, IO::MessageDispatcher::listenType_t::nonFwd);
+        _dispatcher.notify(Util::MessageDispatcher::messageSource_t::midiIn, { 0, 0, 0, i, MIDI::messageType_t::controlChange }, Util::MessageDispatcher::listenType_t::nonFwd);
 
         //read only the first response - it's possible midi state will be set for multiple LEDs
         TEST_ASSERT_EQUAL_UINT32(expectedBrightnessValue.at(i), _hwaLEDs._brightness.at(0));
@@ -367,7 +367,7 @@ TEST_CASE(VerifyBrightnessAndBlinkSpeed)
     for (uint16_t i = 0; i < 128; i++)
     {
         //MIDI ID 0, channel 0, value, MIDI in
-        _dispatcher.notify(IO::MessageDispatcher::messageSource_t::buttons, { 0, 0, 0, i, MIDI::messageType_t::noteOn }, IO::MessageDispatcher::listenType_t::nonFwd);
+        _dispatcher.notify(Util::MessageDispatcher::messageSource_t::buttons, { 0, 0, 0, i, MIDI::messageType_t::noteOn }, Util::MessageDispatcher::listenType_t::nonFwd);
 
         //read only the first response - it's possible midi state will be set for multiple LEDs
         TEST_ASSERT_EQUAL_UINT32(expectedBrightnessValue.at(i), _hwaLEDs._brightness.at(0));
@@ -380,7 +380,7 @@ TEST_CASE(VerifyBrightnessAndBlinkSpeed)
     for (uint16_t i = 0; i < 128; i++)
     {
         //MIDI ID 0, channel 0, value, MIDI in
-        _dispatcher.notify(IO::MessageDispatcher::messageSource_t::analog, { 0, 0, 0, i, MIDI::messageType_t::noteOn }, IO::MessageDispatcher::listenType_t::nonFwd);
+        _dispatcher.notify(Util::MessageDispatcher::messageSource_t::analog, { 0, 0, 0, i, MIDI::messageType_t::noteOn }, Util::MessageDispatcher::listenType_t::nonFwd);
 
         //read only the first response - it's possible midi state will be set for multiple LEDs
         TEST_ASSERT_EQUAL_UINT32(expectedBrightnessValue.at(i), _hwaLEDs._brightness.at(0));
@@ -400,7 +400,7 @@ TEST_CASE(VerifyBrightnessAndBlinkSpeed)
     for (uint16_t i = 0; i < 128; i++)
     {
         //MIDI ID 0, channel 0, value, MIDI in
-        _dispatcher.notify(IO::MessageDispatcher::messageSource_t::buttons, { 0, 0, 0, i, MIDI::messageType_t::controlChange }, IO::MessageDispatcher::listenType_t::nonFwd);
+        _dispatcher.notify(Util::MessageDispatcher::messageSource_t::buttons, { 0, 0, 0, i, MIDI::messageType_t::controlChange }, Util::MessageDispatcher::listenType_t::nonFwd);
 
         //read only the first response - it's possible midi state will be set for multiple LEDs
         TEST_ASSERT_EQUAL_UINT32(expectedBrightnessValue.at(i), _hwaLEDs._brightness.at(0));
@@ -413,7 +413,7 @@ TEST_CASE(VerifyBrightnessAndBlinkSpeed)
     for (uint16_t i = 0; i < 128; i++)
     {
         //MIDI ID 0, channel 0, value, MIDI in
-        _dispatcher.notify(IO::MessageDispatcher::messageSource_t::analog, { 0, 0, 0, i, MIDI::messageType_t::controlChange }, IO::MessageDispatcher::listenType_t::nonFwd);
+        _dispatcher.notify(Util::MessageDispatcher::messageSource_t::analog, { 0, 0, 0, i, MIDI::messageType_t::controlChange }, Util::MessageDispatcher::listenType_t::nonFwd);
 
         //read only the first response - it's possible midi state will be set for multiple LEDs
         TEST_ASSERT_EQUAL_UINT32(expectedBrightnessValue.at(i), _hwaLEDs._brightness.at(0));
@@ -427,11 +427,11 @@ TEST_CASE(SingleLEDstate)
 {
     //by default, leds are configured to react on MIDI Note on, channel 0
     //note 0 should turn the first LED on
-    _dispatcher.notify(IO::MessageDispatcher::messageSource_t::midiIn, { 0, 0, 0, 127, MIDI::messageType_t::noteOn }, IO::MessageDispatcher::listenType_t::nonFwd);
+    _dispatcher.notify(Util::MessageDispatcher::messageSource_t::midiIn, { 0, 0, 0, 127, MIDI::messageType_t::noteOn }, Util::MessageDispatcher::listenType_t::nonFwd);
     TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::b100, _hwaLEDs._brightness.at(0));
 
     //now turn the LED off
-    _dispatcher.notify(IO::MessageDispatcher::messageSource_t::midiIn, { 0, 0, 0, 0, MIDI::messageType_t::noteOn }, IO::MessageDispatcher::listenType_t::nonFwd);
+    _dispatcher.notify(Util::MessageDispatcher::messageSource_t::midiIn, { 0, 0, 0, 0, MIDI::messageType_t::noteOn }, Util::MessageDispatcher::listenType_t::nonFwd);
     TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::bOff, _hwaLEDs._brightness.at(0));
 
 #if MAX_NUMBER_OF_LEDS >= 3
@@ -439,7 +439,7 @@ TEST_CASE(SingleLEDstate)
     TEST_ASSERT(_database.update(Database::Section::leds_t::rgbEnable, 0, 1) == true);
 
     //now turn it on
-    _dispatcher.notify(IO::MessageDispatcher::messageSource_t::midiIn, { 0, 0, 0, 127, MIDI::messageType_t::noteOn }, IO::MessageDispatcher::listenType_t::nonFwd);
+    _dispatcher.notify(Util::MessageDispatcher::messageSource_t::midiIn, { 0, 0, 0, 127, MIDI::messageType_t::noteOn }, Util::MessageDispatcher::listenType_t::nonFwd);
 
     //three LEDs should be on now
     TEST_ASSERT_EQUAL_UINT32(IO::LEDs::brightness_t::b100, _hwaLEDs._brightness.at(_hwaLEDs.rgbSignalIndex(0, IO::LEDs::rgbIndex_t::r)));

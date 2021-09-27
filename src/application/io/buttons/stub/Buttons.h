@@ -69,10 +69,10 @@ namespace IO
             virtual bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
         };
 
-        Buttons(HWA&               hwa,
-                Filter&            filter,
-                Database&          database,
-                MessageDispatcher& dispatcher)
+        Buttons(HWA&                     hwa,
+                Filter&                  filter,
+                Database&                database,
+                Util::MessageDispatcher& dispatcher)
         {}
 
         void update(bool forceResend = false)

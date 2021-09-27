@@ -23,11 +23,11 @@ limitations under the License.
 
 using namespace IO;
 
-Encoders::Encoders(HWA&               hwa,
-                   Filter&            filter,
-                   uint32_t           timeDiffTimeout,
-                   Database&          database,
-                   MessageDispatcher& dispatcher)
+Encoders::Encoders(HWA&                     hwa,
+                   Filter&                  filter,
+                   uint32_t                 timeDiffTimeout,
+                   Database&                database,
+                   Util::MessageDispatcher& dispatcher)
     : _hwa(hwa)
     , _filter(filter)
     , TIME_DIFF_READOUT(timeDiffTimeout)
@@ -37,34 +37,36 @@ Encoders::Encoders(HWA&               hwa,
     for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
         resetValue(i);
 
-    _dispatcher.listen(MessageDispatcher::messageSource_t::midiIn, MessageDispatcher::listenType_t::nonFwd, [this](const MessageDispatcher::message_t& dispatchMessage) {
-        switch (dispatchMessage.message)
-        {
-        case MIDI::messageType_t::controlChange:
-        {
-            for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
-            {
-                if (!_database.read(Database::Section::encoder_t::remoteSync, i))
-                    continue;
+    _dispatcher.listen(Util::MessageDispatcher::messageSource_t::midiIn,
+                       Util::MessageDispatcher::listenType_t::nonFwd,
+                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                           switch (dispatchMessage.message)
+                           {
+                           case MIDI::messageType_t::controlChange:
+                           {
+                               for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
+                               {
+                                   if (!_database.read(Database::Section::encoder_t::remoteSync, i))
+                                       continue;
 
-                if (_database.read(Database::Section::encoder_t::mode, i) != static_cast<int32_t>(IO::Encoders::type_t::controlChange))
-                    continue;
+                                   if (_database.read(Database::Section::encoder_t::mode, i) != static_cast<int32_t>(IO::Encoders::type_t::controlChange))
+                                       continue;
 
-                if (_database.read(Database::Section::encoder_t::midiChannel, i) != dispatchMessage.midiChannel)
-                    continue;
+                                   if (_database.read(Database::Section::encoder_t::midiChannel, i) != dispatchMessage.midiChannel)
+                                       continue;
 
-                if (_database.read(Database::Section::encoder_t::midiID, i) != dispatchMessage.midiIndex)
-                    continue;
+                                   if (_database.read(Database::Section::encoder_t::midiID, i) != dispatchMessage.midiIndex)
+                                       continue;
 
-                setValue(i, dispatchMessage.midiValue);
-            }
-        }
-        break;
+                                   setValue(i, dispatchMessage.midiValue);
+                               }
+                           }
+                           break;
 
-        default:
-            break;
-        }
-    });
+                           default:
+                               break;
+                           }
+                       });
 }
 
 /// Continuously checks state of all encoders.
@@ -250,7 +252,11 @@ void Encoders::sendMessage(size_t index, std::unique_ptr<encoderDescriptor_t>& d
     }
 
     if (send)
-        _dispatcher.notify(IO::MessageDispatcher::messageSource_t::encoders, descriptor->dispatchMessage, IO::MessageDispatcher::listenType_t::nonFwd);
+    {
+        _dispatcher.notify(Util::MessageDispatcher::messageSource_t::encoders,
+                           descriptor->dispatchMessage,
+                           Util::MessageDispatcher::listenType_t::nonFwd);
+    }
 }
 
 /// Sets the MIDI value of specified encoder to default.

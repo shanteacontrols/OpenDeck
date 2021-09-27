@@ -28,12 +28,12 @@ namespace
         uint32_t _state = 0;
     } _hwaEncoders;
 
-    IO::MessageDispatcher _dispatcher;
-    Listener              _listener;
-    DBstorageMock         _dbStorageMock;
-    Database              _database = Database(_dbStorageMock, true);
-    EncodersFilterStub    _encodersFilter;
-    IO::Encoders          _encoders = IO::Encoders(_hwaEncoders, _encodersFilter, 1, _database, _dispatcher);
+    Util::MessageDispatcher _dispatcher;
+    Listener                _listener;
+    DBstorageMock           _dbStorageMock;
+    Database                _database = Database(_dbStorageMock, true);
+    EncodersFilterStub      _encodersFilter;
+    IO::Encoders            _encoders = IO::Encoders(_hwaEncoders, _encodersFilter, 1, _database, _dispatcher);
 }    // namespace
 
 TEST_SETUP()
@@ -45,9 +45,9 @@ TEST_SETUP()
 
     if (!listenerActive)
     {
-        _dispatcher.listen(IO::MessageDispatcher::messageSource_t::encoders,
-                           IO::MessageDispatcher::listenType_t::nonFwd,
-                           [](const IO::MessageDispatcher::message_t& dispatchMessage) {
+        _dispatcher.listen(Util::MessageDispatcher::messageSource_t::encoders,
+                           Util::MessageDispatcher::listenType_t::nonFwd,
+                           [](const Util::MessageDispatcher::message_t& dispatchMessage) {
                                _listener.messageListener(dispatchMessage);
                            });
 

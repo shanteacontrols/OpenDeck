@@ -76,10 +76,10 @@ namespace IO
 
         using buttonHandler_t = std::function<void(size_t index, bool state)>;
 
-        Analog(HWA&               hwa,
-               Filter&            filter,
-               Database&          database,
-               MessageDispatcher& dispatcher)
+        Analog(HWA&                     hwa,
+               Filter&                  filter,
+               Database&                database,
+               Util::MessageDispatcher& dispatcher)
             : _hwa(hwa)
             , _filter(filter)
             , _database(database)

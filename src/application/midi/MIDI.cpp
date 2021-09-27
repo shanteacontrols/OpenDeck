@@ -18,7 +18,7 @@ limitations under the License.
 
 #include "MIDI.h"
 
-void Protocol::MIDI::sendMIDI(const MessageDispatcher::message_t& message)
+void Protocol::MIDI::sendMIDI(const Util::MessageDispatcher::message_t& message)
 {
     switch (message.message)
     {

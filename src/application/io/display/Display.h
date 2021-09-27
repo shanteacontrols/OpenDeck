@@ -80,9 +80,9 @@ namespace IO
             AMOUNT
         };
 
-        Display(IO::U8X8&          u8x8,
-                Database&          database,
-                MessageDispatcher& dispatcher);
+        Display(IO::U8X8&                u8x8,
+                Database&                database,
+                Util::MessageDispatcher& dispatcher);
 
         bool init(bool startupInfo);
         bool deInit();
@@ -93,7 +93,7 @@ namespace IO
         void setPreset(uint8_t preset);
 
         private:
-        void          displayMIDIevent(eventType_t type, const MessageDispatcher::message_t& dispatchMessage);
+        void          displayMIDIevent(eventType_t type, const Util::MessageDispatcher::message_t& dispatchMessage);
         void          displayWelcomeMessage();
         void          displayVinfo(bool newFw);
         void          setDirectWriteState(bool state);
