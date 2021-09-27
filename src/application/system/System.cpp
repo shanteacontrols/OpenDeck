@@ -219,9 +219,6 @@ void System::configureMIDI()
 
 bool System::init()
 {
-    _database.registerHandlers(_dbHandlers);
-    _touchscreen.registerEventNotifier(_touchScreenHandlers);
-
     _cInfo.registerHandler([this](size_t group, size_t index) {
         if (_sysExConf.isConfigurationEnabled())
         {
@@ -251,6 +248,9 @@ bool System::init()
 
     if (!_database.init())
         return false;
+
+    _database.registerHandlers(_dbHandlers);
+    _touchscreen.registerEventNotifier(_touchScreenHandlers);
 
     _display.init(true);
     _touchscreen.init(IO::Touchscreen::mode_t::normal);
