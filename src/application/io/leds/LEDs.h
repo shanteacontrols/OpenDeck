@@ -96,12 +96,6 @@ namespace IO
             b100
         };
 
-        enum class dataSource_t : uint8_t
-        {
-            external,    //data from midi in
-            internal     //data from local source (buttons, encoders...)
-        };
-
         class HWA
         {
             public:
@@ -150,7 +144,7 @@ namespace IO
         brightness_t valueToBrightness(uint8_t value);
         void         startUpAnimation();
         bool         isControlTypeMatched(MIDI::messageType_t midiMessage, controlType_t controlType);
-        void         midiToState(MIDI::messageType_t messageType, uint8_t value1, uint8_t value2, uint8_t channel, dataSource_t dataSource);
+        void         midiToState(MIDI::messageType_t messageType, uint8_t value1, uint8_t value2, uint8_t channel, Util::MessageDispatcher::messageSource_t source);
 
         HWA&      _hwa;
         Database& _database;

@@ -44,7 +44,11 @@ LEDs::LEDs(HWA&                     hwa,
                           case MIDI::messageType_t::controlChange:
                           case MIDI::messageType_t::programChange:
                           {
-                              midiToState(dispatchMessage.message, dispatchMessage.midiIndex, dispatchMessage.midiValue, dispatchMessage.midiChannel, dataSource_t::external);
+                              midiToState(dispatchMessage.message,
+                                          dispatchMessage.midiIndex,
+                                          dispatchMessage.midiValue,
+                                          dispatchMessage.midiChannel,
+                                          Util::MessageDispatcher::messageSource_t::midiIn);
                           }
                           break;
 
@@ -76,7 +80,11 @@ LEDs::LEDs(HWA&                     hwa,
                           case MIDI::messageType_t::controlChange:
                           case MIDI::messageType_t::programChange:
                           {
-                              midiToState(dispatchMessage.message, dispatchMessage.midiIndex, dispatchMessage.midiValue, dispatchMessage.midiChannel, dataSource_t::internal);
+                              midiToState(dispatchMessage.message,
+                                          dispatchMessage.midiIndex,
+                                          dispatchMessage.midiValue,
+                                          dispatchMessage.midiChannel,
+                                          Util::MessageDispatcher::messageSource_t::buttons);
                           }
                           break;
 
@@ -95,7 +103,11 @@ LEDs::LEDs(HWA&                     hwa,
                           case MIDI::messageType_t::controlChange:
                           case MIDI::messageType_t::programChange:
                           {
-                              midiToState(dispatchMessage.message, dispatchMessage.midiIndex, dispatchMessage.midiValue, dispatchMessage.midiChannel, dataSource_t::internal);
+                              midiToState(dispatchMessage.message,
+                                          dispatchMessage.midiIndex,
+                                          dispatchMessage.midiValue,
+                                          dispatchMessage.midiChannel,
+                                          Util::MessageDispatcher::messageSource_t::analog);
                           }
                           break;
 
@@ -219,7 +231,7 @@ LEDs::brightness_t LEDs::valueToBrightness(uint8_t value)
     return static_cast<brightness_t>((value % 16 % TOTAL_BRIGHTNESS_VALUES) + 1);
 }
 
-void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t value1, uint8_t value2, uint8_t channel, dataSource_t dataSource)
+void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t value1, uint8_t value2, uint8_t channel, Util::MessageDispatcher::messageSource_t source)
 {
     for (size_t i = 0; i < MAX_LEDS; i++)
     {
@@ -238,7 +250,7 @@ void LEDs::midiToState(MIDI::messageType_t messageType, uint8_t value1, uint8_t 
 
         //determine whether led state or blink state should be changed
         //received MIDI message must match with defined control type
-        if (dataSource == dataSource_t::internal)
+        if (source != Util::MessageDispatcher::messageSource_t::midiIn)
         {
             switch (controlType)
             {
