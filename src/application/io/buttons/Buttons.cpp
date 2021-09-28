@@ -35,8 +35,9 @@ Buttons::Buttons(HWA&                     hwa,
     _dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
                        Util::MessageDispatcher::listenType_t::forward,
                        [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                           size_t index      = dispatchMessage.componentIndex + MAX_NUMBER_OF_BUTTONS;
-                           auto   descriptor = buttonDescriptor(index);
+                           size_t             index = dispatchMessage.componentIndex + MAX_NUMBER_OF_BUTTONS;
+                           buttonDescriptor_t descriptor;
+                           fillButtonDescriptor(index, descriptor);
 
                            // dispatchMessage.midiValue in this case contains state information only
                            processButton(index, dispatchMessage.midiValue, descriptor);
@@ -45,8 +46,9 @@ Buttons::Buttons(HWA&                     hwa,
     _dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenButton,
                        Util::MessageDispatcher::listenType_t::forward,
                        [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                           size_t index      = dispatchMessage.componentIndex + MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG;
-                           auto   descriptor = buttonDescriptor(index);
+                           size_t             index = dispatchMessage.componentIndex + MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG;
+                           buttonDescriptor_t descriptor;
+                           fillButtonDescriptor(index, descriptor);
 
                            // dispatchMessage.midiValue in this case contains state information only
                            processButton(index, dispatchMessage.midiValue, descriptor);
@@ -61,7 +63,8 @@ void Buttons::update(bool forceResend)
         uint8_t  numberOfReadings = 0;
         uint32_t states           = 0;
 
-        auto descriptor = buttonDescriptor(i);
+        buttonDescriptor_t descriptor;
+        fillButtonDescriptor(i, descriptor);
 
         if (!forceResend)
         {
@@ -86,7 +89,7 @@ void Buttons::update(bool forceResend)
         }
         else
         {
-            if (descriptor->type == type_t::latching)
+            if (descriptor.type == type_t::latching)
                 sendMessage(i, latchingState(i), descriptor);
             else
                 sendMessage(i, state(i), descriptor);
@@ -97,7 +100,7 @@ void Buttons::update(bool forceResend)
 /// Handles changes in button states.
 /// param [in]: index       Button index which has changed state.
 /// param [in]: descriptor  Descriptor containing the entire configuration for the button.
-void Buttons::processButton(size_t index, bool reading, std::unique_ptr<buttonDescriptor_t>& descriptor)
+void Buttons::processButton(size_t index, bool reading, buttonDescriptor_t& descriptor)
 {
     //act on change of state only
     if (reading == state(index))
@@ -106,9 +109,9 @@ void Buttons::processButton(size_t index, bool reading, std::unique_ptr<buttonDe
     setState(index, reading);
 
     //don't process messageType_t::none type of message
-    if (descriptor->messageType != messageType_t::none)
+    if (descriptor.messageType != messageType_t::none)
     {
-        if (descriptor->messageType == messageType_t::presetOpenDeck)
+        if (descriptor.messageType == messageType_t::presetOpenDeck)
         {
             //change preset only on press
             if (reading)
@@ -116,14 +119,14 @@ void Buttons::processButton(size_t index, bool reading, std::unique_ptr<buttonDe
                 //don't send off message once the preset is switched (in case this button has standard message type in switched preset)
                 //pretend the button is already released
                 setState(index, false);
-                _database.setPreset(descriptor->dispatchMessage.midiIndex);
+                _database.setPreset(descriptor.dispatchMessage.midiIndex);
             }
         }
         else
         {
             bool sendMIDI = true;
 
-            if (descriptor->type == type_t::latching)
+            if (descriptor.type == type_t::latching)
             {
                 //act on press only
                 if (reading)
@@ -156,13 +159,13 @@ void Buttons::processButton(size_t index, bool reading, std::unique_ptr<buttonDe
 /// Used internally once the button state has been changed and processed.
 /// param [in]: index           Button index which sends the message.
 /// param [in]: descriptor      Structure holding all the information about button for specified index.
-void Buttons::sendMessage(size_t index, bool state, std::unique_ptr<buttonDescriptor_t>& descriptor)
+void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descriptor)
 {
     bool send = true;
 
     if (state)
     {
-        switch (descriptor->messageType)
+        switch (descriptor.messageType)
         {
         case messageType_t::note:
         case messageType_t::controlChange:
@@ -183,22 +186,22 @@ void Buttons::sendMessage(size_t index, bool state, std::unique_ptr<buttonDescri
         case messageType_t::programChangeInc:
         case messageType_t::programChangeDec:
         {
-            descriptor->dispatchMessage.midiValue = 0;
+            descriptor.dispatchMessage.midiValue = 0;
 
-            if (descriptor->messageType != messageType_t::programChange)
+            if (descriptor.messageType != messageType_t::programChange)
             {
-                if (descriptor->messageType == messageType_t::programChangeInc)
+                if (descriptor.messageType == messageType_t::programChangeInc)
                 {
-                    if (!Common::pcIncrement(descriptor->dispatchMessage.midiChannel))
+                    if (!Common::pcIncrement(descriptor.dispatchMessage.midiChannel))
                         send = false;
                 }
                 else
                 {
-                    if (!Common::pcDecrement(descriptor->dispatchMessage.midiChannel))
+                    if (!Common::pcDecrement(descriptor.dispatchMessage.midiChannel))
                         send = false;
                 }
 
-                descriptor->dispatchMessage.midiIndex = Common::program(descriptor->dispatchMessage.midiChannel);
+                descriptor.dispatchMessage.midiIndex = Common::program(descriptor.dispatchMessage.midiChannel);
             }
         }
         break;
@@ -206,16 +209,16 @@ void Buttons::sendMessage(size_t index, bool state, std::unique_ptr<buttonDescri
         case messageType_t::multiValIncResetNote:
         {
             uint8_t currentValue = Common::currentValue(index);
-            uint8_t value        = Common::valueInc(index, descriptor->dispatchMessage.midiValue, Common::incDecType_t::reset);
+            uint8_t value        = Common::valueInc(index, descriptor.dispatchMessage.midiValue, Common::incDecType_t::reset);
 
             if (currentValue != value)
             {
                 if (!value)
-                    descriptor->dispatchMessage.message = MIDI::messageType_t::noteOff;
+                    descriptor.dispatchMessage.message = MIDI::messageType_t::noteOff;
                 else
-                    descriptor->dispatchMessage.message = MIDI::messageType_t::noteOn;
+                    descriptor.dispatchMessage.message = MIDI::messageType_t::noteOn;
 
-                descriptor->dispatchMessage.midiValue = currentValue;
+                descriptor.dispatchMessage.midiValue = currentValue;
             }
             else
             {
@@ -227,16 +230,16 @@ void Buttons::sendMessage(size_t index, bool state, std::unique_ptr<buttonDescri
         case messageType_t::multiValIncDecNote:
         {
             uint8_t currentValue = Common::currentValue(index);
-            uint8_t value        = Common::valueIncDec(index, descriptor->dispatchMessage.midiValue);
+            uint8_t value        = Common::valueIncDec(index, descriptor.dispatchMessage.midiValue);
 
             if (currentValue != value)
             {
                 if (!value)
-                    descriptor->dispatchMessage.message = MIDI::messageType_t::noteOff;
+                    descriptor.dispatchMessage.message = MIDI::messageType_t::noteOff;
                 else
-                    descriptor->dispatchMessage.message = MIDI::messageType_t::noteOn;
+                    descriptor.dispatchMessage.message = MIDI::messageType_t::noteOn;
 
-                descriptor->dispatchMessage.midiValue = currentValue;
+                descriptor.dispatchMessage.midiValue = currentValue;
             }
             else
             {
@@ -248,10 +251,10 @@ void Buttons::sendMessage(size_t index, bool state, std::unique_ptr<buttonDescri
         case messageType_t::multiValIncResetCC:
         {
             uint8_t currentValue = Common::currentValue(index);
-            uint8_t value        = Common::valueInc(index, descriptor->dispatchMessage.midiValue, Common::incDecType_t::reset);
+            uint8_t value        = Common::valueInc(index, descriptor.dispatchMessage.midiValue, Common::incDecType_t::reset);
 
             if (currentValue != value)
-                descriptor->dispatchMessage.midiValue = currentValue;
+                descriptor.dispatchMessage.midiValue = currentValue;
             else
                 send = false;
         }
@@ -260,10 +263,10 @@ void Buttons::sendMessage(size_t index, bool state, std::unique_ptr<buttonDescri
         case messageType_t::multiValIncDecCC:
         {
             uint8_t currentValue = Common::currentValue(index);
-            uint8_t value        = Common::valueIncDec(index, descriptor->dispatchMessage.midiValue);
+            uint8_t value        = Common::valueIncDec(index, descriptor.dispatchMessage.midiValue);
 
             if (currentValue != value)
-                descriptor->dispatchMessage.midiValue = currentValue;
+                descriptor.dispatchMessage.midiValue = currentValue;
             else
                 send = false;
         }
@@ -278,24 +281,24 @@ void Buttons::sendMessage(size_t index, bool state, std::unique_ptr<buttonDescri
     }
     else
     {
-        switch (descriptor->messageType)
+        switch (descriptor.messageType)
         {
         case messageType_t::note:
         {
-            descriptor->dispatchMessage.midiValue = 0;
-            descriptor->dispatchMessage.message   = MIDI::messageType_t::noteOff;
+            descriptor.dispatchMessage.midiValue = 0;
+            descriptor.dispatchMessage.message   = MIDI::messageType_t::noteOff;
         }
         break;
 
         case messageType_t::controlChangeReset:
         {
-            descriptor->dispatchMessage.midiValue = 0;
+            descriptor.dispatchMessage.midiValue = 0;
         }
         break;
 
         case messageType_t::mmcRecord:
         {
-            descriptor->dispatchMessage.message = MIDI::messageType_t::mmcRecordStop;
+            descriptor.dispatchMessage.message = MIDI::messageType_t::mmcRecordStop;
         }
         break;
 
@@ -310,7 +313,7 @@ void Buttons::sendMessage(size_t index, bool state, std::unique_ptr<buttonDescri
     if (send)
     {
         _dispatcher.notify(Util::MessageDispatcher::messageSource_t::buttons,
-                           descriptor->dispatchMessage,
+                           descriptor.dispatchMessage,
                            Util::MessageDispatcher::listenType_t::nonFwd);
     }
 }
@@ -373,19 +376,17 @@ void Buttons::reset(size_t index)
     setLatchingState(index, false);
 }
 
-std::unique_ptr<Buttons::buttonDescriptor_t> Buttons::buttonDescriptor(size_t index)
+void Buttons::fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor)
 {
-    auto descriptor = std::make_unique<buttonDescriptor_t>();
-
-    descriptor->type                           = static_cast<type_t>(_database.read(Database::Section::button_t::type, index));
-    descriptor->messageType                    = static_cast<messageType_t>(_database.read(Database::Section::button_t::midiMessage, index));
-    descriptor->dispatchMessage.componentIndex = index;
-    descriptor->dispatchMessage.midiChannel    = _database.read(Database::Section::button_t::midiChannel, index);
-    descriptor->dispatchMessage.midiIndex      = _database.read(Database::Section::button_t::midiID, index);
-    descriptor->dispatchMessage.midiValue      = _database.read(Database::Section::button_t::velocity, index);
+    descriptor.type                           = static_cast<type_t>(_database.read(Database::Section::button_t::type, index));
+    descriptor.messageType                    = static_cast<messageType_t>(_database.read(Database::Section::button_t::midiMessage, index));
+    descriptor.dispatchMessage.componentIndex = index;
+    descriptor.dispatchMessage.midiChannel    = _database.read(Database::Section::button_t::midiChannel, index);
+    descriptor.dispatchMessage.midiIndex      = _database.read(Database::Section::button_t::midiID, index);
+    descriptor.dispatchMessage.midiValue      = _database.read(Database::Section::button_t::velocity, index);
 
     //overwrite type under certain conditions
-    switch (descriptor->messageType)
+    switch (descriptor.messageType)
     {
     case messageType_t::programChange:
     case messageType_t::programChangeInc:
@@ -405,19 +406,19 @@ std::unique_ptr<Buttons::buttonDescriptor_t> Buttons::buttonDescriptor(size_t in
     case messageType_t::multiValIncResetCC:
     case messageType_t::multiValIncDecCC:
     {
-        descriptor->type = type_t::momentary;
+        descriptor.type = type_t::momentary;
     }
     break;
 
     case messageType_t::mmcRecord:
     {
-        descriptor->type = type_t::latching;
+        descriptor.type = type_t::latching;
     }
     break;
 
     case messageType_t::presetOpenDeck:
     {
-        descriptor->type = type_t::momentary;
+        descriptor.type = type_t::momentary;
     }
     break;
 
@@ -425,7 +426,5 @@ std::unique_ptr<Buttons::buttonDescriptor_t> Buttons::buttonDescriptor(size_t in
         break;
     }
 
-    descriptor->dispatchMessage.message = _internalMsgToMIDIType[static_cast<uint8_t>(descriptor->messageType)];
-
-    return descriptor;
+    descriptor.dispatchMessage.message = _internalMsgToMIDIType[static_cast<uint8_t>(descriptor.messageType)];
 }

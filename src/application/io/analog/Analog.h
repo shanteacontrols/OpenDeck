@@ -19,7 +19,6 @@ limitations under the License.
 #pragma once
 
 #include <functional>
-#include <memory>
 #include "database/Database.h"
 #include "util/messaging/Messaging.h"
 
@@ -93,11 +92,11 @@ namespace IO
             analogDescriptor_t() = default;
         };
 
-        std::unique_ptr<analogDescriptor_t> analogDescriptor(size_t index);
-        void                                processReading(size_t index, uint16_t value);
-        bool                                checkPotentiometerValue(size_t index, std::unique_ptr<analogDescriptor_t>& descriptor);
-        bool                                checkFSRvalue(size_t index, std::unique_ptr<analogDescriptor_t>& descriptor);
-        void                                sendMessage(size_t index, std::unique_ptr<analogDescriptor_t>& descriptor);
+        void fillAnalogDescriptor(size_t index, analogDescriptor_t& descriptor);
+        void processReading(size_t index, uint16_t value);
+        bool checkPotentiometerValue(size_t index, analogDescriptor_t& descriptor);
+        bool checkFSRvalue(size_t index, analogDescriptor_t& descriptor);
+        void sendMessage(size_t index, analogDescriptor_t& descriptor);
 
         HWA&                     _hwa;
         Filter&                  _filter;

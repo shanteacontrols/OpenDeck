@@ -18,7 +18,6 @@ limitations under the License.
 
 #pragma once
 
-#include <memory>
 #include "database/Database.h"
 #include "util/messaging/Messaging.h"
 
@@ -99,12 +98,12 @@ namespace IO
             buttonDescriptor_t() = default;
         };
 
-        std::unique_ptr<buttonDescriptor_t> buttonDescriptor(size_t index);
-        void                                processButton(size_t index, bool reading, std::unique_ptr<buttonDescriptor_t>& descriptor);
-        void                                sendMessage(size_t index, bool state, std::unique_ptr<buttonDescriptor_t>& descriptor);
-        void                                setState(size_t index, bool state);
-        void                                setLatchingState(size_t index, bool state);
-        bool                                latchingState(size_t index);
+        void fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor);
+        void processButton(size_t index, bool reading, buttonDescriptor_t& descriptor);
+        void sendMessage(size_t index, bool state, buttonDescriptor_t& descriptor);
+        void setState(size_t index, bool state);
+        void setLatchingState(size_t index, bool state);
+        bool latchingState(size_t index);
 
         HWA&                     _hwa;
         Filter&                  _filter;

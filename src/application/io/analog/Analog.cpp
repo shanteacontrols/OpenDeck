@@ -56,8 +56,9 @@ void Analog::update(bool forceResend)
         {
             if (_database.read(Database::Section::analog_t::enable, i))
             {
-                auto descriptor                       = analogDescriptor(i);
-                descriptor->dispatchMessage.midiValue = _lastValue[i];
+                analogDescriptor_t descriptor;
+                fillAnalogDescriptor(i, descriptor);
+                descriptor.dispatchMessage.midiValue = _lastValue[i];
                 sendMessage(i, descriptor);
             }
         }
@@ -75,18 +76,19 @@ void Analog::processReading(size_t index, uint16_t value)
     if (!_database.read(Database::Section::analog_t::enable, index))
         return;
 
-    auto descriptor = analogDescriptor(index);
+    analogDescriptor_t descriptor;
+    fillAnalogDescriptor(index, descriptor);
 
-    if (!_filter.isFiltered(index, descriptor->type, value, value))
+    if (!_filter.isFiltered(index, descriptor.type, value, value))
         return;
 
-    descriptor->dispatchMessage.midiValue = value;
+    descriptor.dispatchMessage.midiValue = value;
 
     bool send = false;
 
-    if (descriptor->type != type_t::button)
+    if (descriptor.type != type_t::button)
     {
-        switch (descriptor->type)
+        switch (descriptor.type)
         {
         case type_t::potentiometerControlChange:
         case type_t::potentiometerNote:
@@ -119,15 +121,15 @@ void Analog::processReading(size_t index, uint16_t value)
     if (send)
     {
         sendMessage(index, descriptor);
-        _lastValue[index] = descriptor->dispatchMessage.midiValue;
+        _lastValue[index] = descriptor.dispatchMessage.midiValue;
     }
 }
 
-bool Analog::checkPotentiometerValue(size_t index, std::unique_ptr<analogDescriptor_t>& descriptor)
+bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descriptor)
 {
     uint16_t maxLimit;
 
-    if ((descriptor->type == type_t::nrpn14bit) || (descriptor->type == type_t::pitchBend) || (descriptor->type == type_t::controlChange14bit))
+    if ((descriptor.type == type_t::nrpn14bit) || (descriptor.type == type_t::pitchBend) || (descriptor.type == type_t::controlChange14bit))
     {
         //14-bit values are already read
         maxLimit = MIDI::MIDI_14_BIT_VALUE_MAX;
@@ -139,51 +141,51 @@ bool Analog::checkPotentiometerValue(size_t index, std::unique_ptr<analogDescrip
         MIDI::Split14bit split14bit;
 
         //use 7-bit MIDI ID and limits
-        split14bit.split(descriptor->dispatchMessage.midiIndex);
-        descriptor->dispatchMessage.midiIndex = split14bit.low();
+        split14bit.split(descriptor.dispatchMessage.midiIndex);
+        descriptor.dispatchMessage.midiIndex = split14bit.low();
 
-        split14bit.split(descriptor->lowerLimit);
-        descriptor->lowerLimit = split14bit.low();
+        split14bit.split(descriptor.lowerLimit);
+        descriptor.lowerLimit = split14bit.low();
 
-        split14bit.split(descriptor->upperLimit);
-        descriptor->upperLimit = split14bit.low();
+        split14bit.split(descriptor.upperLimit);
+        descriptor.upperLimit = split14bit.low();
     }
 
-    if (descriptor->dispatchMessage.midiValue > maxLimit)
+    if (descriptor.dispatchMessage.midiValue > maxLimit)
         return false;
 
     uint32_t scaledMIDIvalue;
 
-    if (descriptor->lowerLimit > descriptor->upperLimit)
+    if (descriptor.lowerLimit > descriptor.upperLimit)
     {
-        scaledMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(descriptor->dispatchMessage.midiValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(descriptor->upperLimit), static_cast<uint32_t>(descriptor->lowerLimit));
+        scaledMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(descriptor.dispatchMessage.midiValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(descriptor.upperLimit), static_cast<uint32_t>(descriptor.lowerLimit));
 
-        if (!descriptor->inverted)
-            scaledMIDIvalue = descriptor->upperLimit - (scaledMIDIvalue - descriptor->lowerLimit);
+        if (!descriptor.inverted)
+            scaledMIDIvalue = descriptor.upperLimit - (scaledMIDIvalue - descriptor.lowerLimit);
     }
     else
     {
-        scaledMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(descriptor->dispatchMessage.midiValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(descriptor->lowerLimit), static_cast<uint32_t>(descriptor->upperLimit));
+        scaledMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(descriptor.dispatchMessage.midiValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit), static_cast<uint32_t>(descriptor.lowerLimit), static_cast<uint32_t>(descriptor.upperLimit));
 
-        if (descriptor->inverted)
-            scaledMIDIvalue = descriptor->upperLimit - (scaledMIDIvalue - descriptor->lowerLimit);
+        if (descriptor.inverted)
+            scaledMIDIvalue = descriptor.upperLimit - (scaledMIDIvalue - descriptor.lowerLimit);
     }
 
     if (scaledMIDIvalue == _lastValue[index])
         return false;
 
-    descriptor->dispatchMessage.midiValue = scaledMIDIvalue;
+    descriptor.dispatchMessage.midiValue = scaledMIDIvalue;
 
     return true;
 }
 
-bool Analog::checkFSRvalue(size_t index, std::unique_ptr<analogDescriptor_t>& descriptor)
+bool Analog::checkFSRvalue(size_t index, analogDescriptor_t& descriptor)
 {
     //don't allow touchscreen components to be processed as FSR
     if (index >= MAX_NUMBER_OF_ANALOG)
         return false;
 
-    if (descriptor->dispatchMessage.midiValue > 0)
+    if (descriptor.dispatchMessage.midiValue > 0)
     {
         if (!_fsrPressed[index])
         {
@@ -204,12 +206,12 @@ bool Analog::checkFSRvalue(size_t index, std::unique_ptr<analogDescriptor_t>& de
     return false;
 }
 
-void Analog::sendMessage(size_t index, std::unique_ptr<analogDescriptor_t>& descriptor)
+void Analog::sendMessage(size_t index, analogDescriptor_t& descriptor)
 {
     bool send    = true;
     bool forward = false;
 
-    switch (descriptor->type)
+    switch (descriptor.type)
     {
     case type_t::potentiometerControlChange:
     case type_t::potentiometerNote:
@@ -220,8 +222,8 @@ void Analog::sendMessage(size_t index, std::unique_ptr<analogDescriptor_t>& desc
     {
         if (!_fsrPressed[index])
         {
-            descriptor->dispatchMessage.midiValue = 0;
-            descriptor->dispatchMessage.message   = MIDI::messageType_t::noteOff;
+            descriptor.dispatchMessage.midiValue = 0;
+            descriptor.dispatchMessage.message   = MIDI::messageType_t::noteOff;
         }
     }
     break;
@@ -234,7 +236,7 @@ void Analog::sendMessage(size_t index, std::unique_ptr<analogDescriptor_t>& desc
 
     case type_t::controlChange14bit:
     {
-        if (descriptor->dispatchMessage.midiIndex >= 96)
+        if (descriptor.dispatchMessage.midiIndex >= 96)
         {
             //not allowed
             send = false;
@@ -253,7 +255,7 @@ void Analog::sendMessage(size_t index, std::unique_ptr<analogDescriptor_t>& desc
     if (send)
     {
         _dispatcher.notify(Util::MessageDispatcher::messageSource_t::analog,
-                           descriptor->dispatchMessage,
+                           descriptor.dispatchMessage,
                            forward ? Util::MessageDispatcher::listenType_t::forward : Util::MessageDispatcher::listenType_t::nonFwd);
     }
 }
@@ -265,18 +267,14 @@ void Analog::debounceReset(size_t index)
     _filter.reset(index);
 }
 
-std::unique_ptr<Analog::analogDescriptor_t> Analog::analogDescriptor(size_t index)
+void Analog::fillAnalogDescriptor(size_t index, analogDescriptor_t& descriptor)
 {
-    auto descriptor = std::make_unique<analogDescriptor_t>();
-
-    descriptor->type                           = static_cast<type_t>(_database.read(Database::Section::analog_t::type, index));
-    descriptor->inverted                       = _database.read(Database::Section::analog_t::invert, index);
-    descriptor->lowerLimit                     = _database.read(Database::Section::analog_t::lowerLimit, index);
-    descriptor->upperLimit                     = _database.read(Database::Section::analog_t::upperLimit, index);
-    descriptor->dispatchMessage.componentIndex = index;
-    descriptor->dispatchMessage.midiChannel    = _database.read(Database::Section::analog_t::midiChannel, index);
-    descriptor->dispatchMessage.midiIndex      = _database.read(Database::Section::analog_t::midiID, index);
-    descriptor->dispatchMessage.message        = _internalMsgToMIDIType[static_cast<uint8_t>(descriptor->type)];
-
-    return descriptor;
+    descriptor.type                           = static_cast<type_t>(_database.read(Database::Section::analog_t::type, index));
+    descriptor.inverted                       = _database.read(Database::Section::analog_t::invert, index);
+    descriptor.lowerLimit                     = _database.read(Database::Section::analog_t::lowerLimit, index);
+    descriptor.upperLimit                     = _database.read(Database::Section::analog_t::upperLimit, index);
+    descriptor.dispatchMessage.componentIndex = index;
+    descriptor.dispatchMessage.midiChannel    = _database.read(Database::Section::analog_t::midiChannel, index);
+    descriptor.dispatchMessage.midiIndex      = _database.read(Database::Section::analog_t::midiID, index);
+    descriptor.dispatchMessage.message        = _internalMsgToMIDIType[static_cast<uint8_t>(descriptor.type)];
 }

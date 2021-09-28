@@ -18,7 +18,6 @@ limitations under the License.
 
 #pragma once
 
-#include <memory>
 #include "database/Database.h"
 #include "util/messaging/Messaging.h"
 
@@ -108,11 +107,11 @@ namespace IO
         Database&                _database;
         Util::MessageDispatcher& _dispatcher;
 
-        std::unique_ptr<encoderDescriptor_t> encoderDescriptor(size_t index);
-        position_t                           read(size_t index, uint8_t pairState);
-        void                                 processReading(size_t index, uint8_t pairValue, uint32_t sampleTime);
-        void                                 sendMessage(size_t index, std::unique_ptr<encoderDescriptor_t>& descriptor);
-        void                                 setValue(size_t index, uint16_t value);
+        void       fillEncoderDescriptor(size_t index, encoderDescriptor_t& descriptor);
+        position_t read(size_t index, uint8_t pairState);
+        void       processReading(size_t index, uint8_t pairValue, uint32_t sampleTime);
+        void       sendMessage(size_t index, encoderDescriptor_t& descriptor);
+        void       setValue(size_t index, uint16_t value);
 
         /// Time threshold in milliseconds between two encoder steps used to detect fast movement.
         static constexpr uint32_t ENCODERS_SPEED_TIMEOUT = 140;

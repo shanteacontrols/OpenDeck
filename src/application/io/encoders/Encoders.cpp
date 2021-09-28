@@ -131,17 +131,18 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
                     _encoderSpeed[index] = 0;
             }
 
-            auto descriptor = encoderDescriptor(index);
+            encoderDescriptor_t descriptor;
+            fillEncoderDescriptor(index, descriptor);
 
             bool    send  = true;
             uint8_t steps = (_encoderSpeed[index] > 0) ? _encoderSpeed[index] : 1;
 
-            switch (descriptor->type)
+            switch (descriptor.type)
             {
             case type_t::controlChange7Fh01h:
             case type_t::controlChange3Fh41h:
             {
-                descriptor->dispatchMessage.midiValue = _encValue[static_cast<uint8_t>(descriptor->type)][static_cast<uint8_t>(encoderState)];
+                descriptor.dispatchMessage.midiValue = _encValue[static_cast<uint8_t>(descriptor.type)][static_cast<uint8_t>(encoderState)];
             }
             break;
 
@@ -149,16 +150,16 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
             {
                 if (encoderState == position_t::ccw)
                 {
-                    if (!Common::pcIncrement(descriptor->dispatchMessage.midiChannel))
+                    if (!Common::pcIncrement(descriptor.dispatchMessage.midiChannel))
                         send = false;    //edge value reached, nothing more to send
                 }
                 else
                 {
-                    if (!Common::pcDecrement(descriptor->dispatchMessage.midiChannel))
+                    if (!Common::pcDecrement(descriptor.dispatchMessage.midiChannel))
                         send = false;    //edge value reached, nothing more to send
                 }
 
-                descriptor->dispatchMessage.midiValue = Common::program(descriptor->dispatchMessage.midiChannel);
+                descriptor.dispatchMessage.midiValue = Common::program(descriptor.dispatchMessage.midiChannel);
             }
             break;
 
@@ -169,7 +170,7 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
             case type_t::controlChange14bit:
             {
                 const bool use14bit =
-                    ((descriptor->type == type_t::pitchBend) || (descriptor->type == type_t::nrpn14bit) || (descriptor->type == type_t::controlChange14bit));
+                    ((descriptor.type == type_t::pitchBend) || (descriptor.type == type_t::nrpn14bit) || (descriptor.type == type_t::controlChange14bit));
 
                 if (use14bit && (steps > 1))
                     steps <<= 2;
@@ -191,7 +192,7 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
                         _midiValue[index] = limit;
                 }
 
-                descriptor->dispatchMessage.midiValue = _midiValue[index];
+                descriptor.dispatchMessage.midiValue = _midiValue[index];
             }
             break;
 
@@ -218,11 +219,11 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
     }
 }
 
-void Encoders::sendMessage(size_t index, std::unique_ptr<encoderDescriptor_t>& descriptor)
+void Encoders::sendMessage(size_t index, encoderDescriptor_t& descriptor)
 {
     bool send = true;
 
-    switch (descriptor->type)
+    switch (descriptor.type)
     {
     case type_t::controlChange7Fh01h:
     case type_t::controlChange3Fh41h:
@@ -235,7 +236,7 @@ void Encoders::sendMessage(size_t index, std::unique_ptr<encoderDescriptor_t>& d
 
     case type_t::controlChange14bit:
     {
-        if (descriptor->dispatchMessage.midiIndex >= 96)
+        if (descriptor.dispatchMessage.midiIndex >= 96)
         {
             //not allowed
             send = false;
@@ -254,7 +255,7 @@ void Encoders::sendMessage(size_t index, std::unique_ptr<encoderDescriptor_t>& d
     if (send)
     {
         _dispatcher.notify(Util::MessageDispatcher::messageSource_t::encoders,
-                           descriptor->dispatchMessage,
+                           descriptor.dispatchMessage,
                            Util::MessageDispatcher::listenType_t::nonFwd);
     }
 }
@@ -314,17 +315,13 @@ Encoders::position_t Encoders::read(size_t index, uint8_t pairState)
     return returnValue;
 }
 
-std::unique_ptr<Encoders::encoderDescriptor_t> Encoders::encoderDescriptor(size_t index)
+void Encoders::fillEncoderDescriptor(size_t index, encoderDescriptor_t& descriptor)
 {
-    auto descriptor = std::make_unique<encoderDescriptor_t>();
+    descriptor.type          = static_cast<type_t>(_database.read(Database::Section::encoder_t::mode, index));
+    descriptor.pulsesPerStep = _database.read(Database::Section::encoder_t::pulsesPerStep, index);
 
-    descriptor->type          = static_cast<type_t>(_database.read(Database::Section::encoder_t::mode, index));
-    descriptor->pulsesPerStep = _database.read(Database::Section::encoder_t::pulsesPerStep, index);
-
-    descriptor->dispatchMessage.componentIndex = index;
-    descriptor->dispatchMessage.midiChannel    = _database.read(Database::Section::encoder_t::midiChannel, index);
-    descriptor->dispatchMessage.midiIndex      = _database.read(Database::Section::encoder_t::midiID, index);
-    descriptor->dispatchMessage.message        = _internalMsgToMIDIType[static_cast<uint8_t>(descriptor->type)];
-
-    return descriptor;
+    descriptor.dispatchMessage.componentIndex = index;
+    descriptor.dispatchMessage.midiChannel    = _database.read(Database::Section::encoder_t::midiChannel, index);
+    descriptor.dispatchMessage.midiIndex      = _database.read(Database::Section::encoder_t::midiID, index);
+    descriptor.dispatchMessage.message        = _internalMsgToMIDIType[static_cast<uint8_t>(descriptor.type)];
 }
