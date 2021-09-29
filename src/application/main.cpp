@@ -840,7 +840,7 @@ class HWASystem : public System::HWA
         Board::reboot();
     }
 
-    void registerOnUSBconnectionHandler(System::usbConnectionHandler_t usbConnectionHandler)
+    void registerOnUSBconnectionHandler(System::usbConnectionHandler_t&& usbConnectionHandler) override
     {
         _usbConnectionHandler = std::move(usbConnectionHandler);
     }

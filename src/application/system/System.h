@@ -317,14 +317,14 @@ class System
             virtual DMX&  dmx()  = 0;
         };
 
-        virtual bool      init()                                                                      = 0;
-        virtual void      update()                                                                    = 0;
-        virtual void      reboot(FwSelector::fwType_t type)                                           = 0;
-        virtual void      registerOnUSBconnectionHandler(usbConnectionHandler_t usbConnectionHandler) = 0;
-        virtual bool      serialPeripheralAllocated(serialPeripheral_t peripheral)                    = 0;
-        virtual bool      uniqueID(uniqueID_t& uniqueID)                                              = 0;
-        virtual IO&       io()                                                                        = 0;
-        virtual Protocol& protocol()                                                                  = 0;
+        virtual bool      init()                                                                        = 0;
+        virtual void      update()                                                                      = 0;
+        virtual void      reboot(FwSelector::fwType_t type)                                             = 0;
+        virtual void      registerOnUSBconnectionHandler(usbConnectionHandler_t&& usbConnectionHandler) = 0;
+        virtual bool      serialPeripheralAllocated(serialPeripheral_t peripheral)                      = 0;
+        virtual bool      uniqueID(uniqueID_t& uniqueID)                                                = 0;
+        virtual IO&       io()                                                                          = 0;
+        virtual Protocol& protocol()                                                                    = 0;
     };
 
     System(HWA&      hwa,

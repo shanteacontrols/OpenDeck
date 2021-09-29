@@ -363,7 +363,7 @@ namespace
         {
         }
 
-        void registerOnUSBconnectionHandler(System::usbConnectionHandler_t usbConnectionHandler) override
+        void registerOnUSBconnectionHandler(System::usbConnectionHandler_t&& usbConnectionHandler) override
         {
         }
 

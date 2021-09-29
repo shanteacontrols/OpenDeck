@@ -53,7 +53,7 @@ ComponentInfo::ComponentInfo(Util::MessageDispatcher& dispatcher)
                       });
 }
 
-void ComponentInfo::registerHandler(cinfoHandler_t handler)
+void ComponentInfo::registerHandler(cinfoHandler_t&& handler)
 {
     _handler = std::move(handler);
 }

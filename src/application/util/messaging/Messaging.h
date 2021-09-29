@@ -59,7 +59,7 @@ namespace Util
 
         MessageDispatcher() = default;
 
-        bool listen(messageSource_t source, listenType_t listenType, messageCallback_t callback);
+        bool listen(messageSource_t source, listenType_t listenType, messageCallback_t&& callback);
         void notify(messageSource_t source, message_t const& message, listenType_t listenType);
 
         private:

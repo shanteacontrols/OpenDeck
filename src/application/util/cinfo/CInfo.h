@@ -32,7 +32,7 @@ namespace Util
 
         ComponentInfo(Util::MessageDispatcher& dispatcher);
 
-        void registerHandler(cinfoHandler_t handler);
+        void registerHandler(cinfoHandler_t&& handler);
 
         private:
         void send(Database::block_t block, size_t index);

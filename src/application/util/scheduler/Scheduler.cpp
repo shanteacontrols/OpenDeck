@@ -45,7 +45,7 @@ void Scheduler::update()
     }
 }
 
-bool Scheduler::registerTask(const task_t&& task)
+bool Scheduler::registerTask(task_t&& task)
 {
     size_t index = MAX_TASKS;
 

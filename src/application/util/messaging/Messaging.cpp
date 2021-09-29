@@ -20,7 +20,7 @@ limitations under the License.
 
 using namespace Util;
 
-bool MessageDispatcher::listen(messageSource_t source, listenType_t listenType, messageCallback_t callback)
+bool MessageDispatcher::listen(messageSource_t source, listenType_t listenType, messageCallback_t&& callback)
 {
     if (_listenerCounter >= MAX_LISTENERS)
         return false;

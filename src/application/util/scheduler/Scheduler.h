@@ -38,7 +38,7 @@ namespace Util
         };
 
         void update();
-        bool registerTask(const task_t&& task);
+        bool registerTask(task_t&& task);
 
         private:
         static constexpr size_t MAX_TASKS         = 10;
