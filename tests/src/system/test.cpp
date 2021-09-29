@@ -343,6 +343,10 @@ namespace
         {
             return false;
         }
+
+        void packetComplete() override
+        {
+        }
     } _hwaDMX;
 
     class HWASystem : public System::HWA

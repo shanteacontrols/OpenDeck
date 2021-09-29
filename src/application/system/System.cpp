@@ -268,15 +268,22 @@ bool System::init()
     uniqueID_t uniqueID;
     _hwa.uniqueID(uniqueID);
 
-    uint32_t uid = uniqueID[0];
-    uid <<= 8;
-    uid |= uniqueID[1];
-    uid <<= 8;
-    uid |= uniqueID[2];
-    uid <<= 8;
-    uid |= uniqueID[3];
+    uint32_t dmxSerialNr = uniqueID[0];
+    dmxSerialNr <<= 8;
+    dmxSerialNr |= uniqueID[1];
+    dmxSerialNr <<= 8;
+    dmxSerialNr |= uniqueID[2];
+    dmxSerialNr <<= 8;
+    dmxSerialNr |= uniqueID[3];
 
-    _dmx.setSerialNumber(uid);
+    _dmx.setWidgetInfo({ dmxSerialNr,
+                         ESTA_ID,
+                         0x00,
+                         { SW_VERSION_MAJOR,
+                           SW_VERSION_MINOR,
+                           SW_VERSION_REVISION },
+                         "Shantea Controls",
+                         BOARD_STRING });
 
     if (_database.read(Database::Section::global_t::dmx, dmxSetting_t::enabled))
         _dmx.init();

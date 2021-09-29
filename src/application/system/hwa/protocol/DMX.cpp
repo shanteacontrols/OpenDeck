@@ -42,3 +42,8 @@ bool System::HWADMX::updateChannel(uint16_t channel, uint8_t value)
 {
     return _system._hwa.protocol().dmx().updateChannel(channel, value);
 }
+
+void System::HWADMX::packetComplete()
+{
+    return _system._hwa.protocol().dmx().packetComplete();
+}

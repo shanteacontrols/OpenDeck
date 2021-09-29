@@ -520,6 +520,11 @@ class HWADMX : public System::HWA::Protocol::DMX
         Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::outgoing);
         return true;
     }
+
+    void packetComplete() override
+    {
+        //todo
+    }
 } _hwaDMX;
 #else
 class HWADMXStub : public System::HWA::Protocol::DMX
@@ -555,6 +560,10 @@ class HWADMXStub : public System::HWA::Protocol::DMX
     bool updateChannel(uint16_t channel, uint8_t value) override
     {
         return false;
+    }
+
+    void packetComplete() override
+    {
     }
 } _hwaDMX;
 #endif

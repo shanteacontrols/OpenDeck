@@ -311,6 +311,7 @@ class System
                 virtual bool readUSB(uint8_t* buffer, size_t& size, const size_t maxSize) = 0;
                 virtual bool writeUSB(uint8_t* buffer, size_t size)                       = 0;
                 virtual bool updateChannel(uint16_t channel, uint8_t value)               = 0;
+                virtual void packetComplete()                                             = 0;
             };
 
             virtual MIDI& midi() = 0;
@@ -541,6 +542,7 @@ class System
         bool readUSB(uint8_t* buffer, size_t& size, const size_t maxSize) override;
         bool writeUSB(uint8_t* buffer, size_t size) override;
         bool updateChannel(uint16_t channel, uint8_t value) override;
+        void packetComplete() override;
 
         private:
         System& _system;
