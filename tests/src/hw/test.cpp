@@ -5,6 +5,7 @@
 #include <filesystem>
 #include "helpers/Misc.h"
 #include "helpers/MIDI.h"
+#include "helpers/Serial.h"
 #include "application/database/Database.h"
 #include "stubs/database/DB_ReadWrite.h"
 
@@ -18,24 +19,26 @@ namespace
         standardWithDeviceCheck
     };
 
-    const std::string handshake_req            = "F0 00 53 43 00 00 01 F7";
-    const std::string reboot_req               = "F0 00 53 43 00 00 7F F7";
-    const std::string handshake_ack            = "F0 00 53 43 01 00 01 F7";
-    const std::string factory_reset_req        = "F0 00 53 43 00 00 44 F7";
-    const std::string btldr_req                = "F0 00 53 43 00 00 55 F7";
-    const std::string backup_req               = "F0 00 53 43 00 00 1B F7";
-    const std::string usb_power_off_cmd        = "uhubctl -a off -l 1-1.4.4 > /dev/null && sleep 2 && uhubctl -a off -l 1-1.4 > /dev/null && sleep 2 && uhubctl -a off -l 1-1 > /dev/null";
-    const std::string usb_power_on_cmd         = "uhubctl -a on -l 1-1 > /dev/null && sleep 2 && uhubctl -a on -l 1-1.4 > /dev/null && sleep 2 && uhubctl -a on -l 1-1.4 > /dev/null";
-    const std::string sysex_fw_update_delay_ms = "5";
-    const std::string startup_delay_s          = "10";
-    const std::string fw_build_dir             = "../src/build/merged/";
-    const std::string fw_build_type_subdir     = "release/";
-    const std::string temp_midi_data_location  = "/tmp/temp_midi_data";
-    const std::string backup_file_location     = "/tmp/backup.txt";
-    const std::string stm_flash_port           = "ttyBmpGdb";
-    const std::string avr_flash_port_mega2560  = "ttyACM2";
-    const std::string avr_flash_port_mega16u2  = "ttyACM3";
-    const std::string avr_serial_port          = "ttyUSB0";
+    const std::string handshake_req             = "F0 00 53 43 00 00 01 F7";
+    const std::string reboot_req                = "F0 00 53 43 00 00 7F F7";
+    const std::string handshake_ack             = "F0 00 53 43 01 00 01 F7";
+    const std::string factory_reset_req         = "F0 00 53 43 00 00 44 F7";
+    const std::string btldr_req                 = "F0 00 53 43 00 00 55 F7";
+    const std::string backup_req                = "F0 00 53 43 00 00 1B F7";
+    const std::string usb_power_off_cmd         = "uhubctl -a off -l 1-1.4.4 > /dev/null && sleep 2 && uhubctl -a off -l 1-1.4 > /dev/null && sleep 2 && uhubctl -a off -l 1-1 > /dev/null";
+    const std::string usb_power_on_cmd          = "uhubctl -a on -l 1-1 > /dev/null && sleep 2 && uhubctl -a on -l 1-1.4 > /dev/null && sleep 2 && uhubctl -a on -l 1-1.4 > /dev/null";
+    const std::string sysex_fw_update_delay_ms  = "5";
+    const std::string startup_delay_s           = "10";
+    const std::string fw_build_dir              = "../src/build/merged/";
+    const std::string fw_build_type_subdir      = "release/";
+    const std::string temp_midi_data_location   = "/tmp/temp_midi_data";
+    const std::string backup_file_location      = "/tmp/backup.txt";
+    const std::string stm_flash_port            = "ttyBmpGdb";
+    const std::string avr_flash_port_mega2560   = "ttyACM2";
+    const std::string avr_flash_port_mega16u2   = "ttyACM3";
+    const std::string avr_serial_port           = "ttyUSB0";
+    const std::string opendeck2_dmx_serial_port = "ttyACM4";
+    const std::string mega2560_dmx_serial_port  = "ttyACM5";
 
     DBstorageMock dbStorageMock;
     Database      database = Database(dbStorageMock, false);
@@ -674,5 +677,66 @@ TEST_CASE(MIDIData)
 //     TEST_ASSERT(stoi(response) >= (MAX_NUMBER_OF_BUTTONS / 2));
 #endif
 }
+
+#ifdef DMX_SUPPORTED
+TEST_CASE(DMX)
+{
+    factoryReset();
+    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
+
+    //device manufacturer request
+    std::string port = "/dev/" +
+#if FW_UID == 0x7a382913
+                       opendeck2_dmx_serial_port
+#elif FW_UID == 0x09100012
+                       mega2560_dmx_serial_port
+#else
+#error Compiling DMX test for unsupported board
+#endif
+        ;
+
+    std::vector<uint8_t>
+        response = SerialHelper::sendToBoard(port, { 0x7E, 0x4D, 0x00, 0x00, 0xE7 });
+
+    std::vector<uint8_t> expectedResponse = {
+        0x7E,
+        0x4D,
+        0x12,
+        0x00,
+        ESTA_ID & 0xFF,
+        ESTA_ID >> 8 & 0xFF,
+        'S',
+        'h',
+        'a',
+        'n',
+        't',
+        'e',
+        'a',
+        ' ',
+        'C',
+        'o',
+        'n',
+        't',
+        'r',
+        'o',
+        'l',
+        's',
+        0xE7
+    };
+
+    //nothing should be received since DMX isn't enabled
+    TEST_ASSERT_EQUAL_UINT32(0, response.size());
+
+    TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::dmx, static_cast<int>(System::dmxSetting_t::enabled), 1) == true);
+
+    //CDC interface should now work - send request again in form of Enttec Widget API message
+    test::wsystem("sleep 1");
+    response = SerialHelper::sendToBoard(port, { 0x7E, 0x4D, 0x00, 0x00, 0xE7 });
+    TEST_ASSERT(expectedResponse == response);
+
+    //midi part should remain functional as well
+    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
+}
+#endif
 
 #endif
