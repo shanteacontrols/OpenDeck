@@ -188,19 +188,43 @@ namespace Board
                 return true;
             };
 
-            if (!writeSingle(channel, static_cast<uint8_t>(USBPacketUpdater::framing_t::boundary), true))
-                return false;
+            const size_t numberOfPackets = (packet.size() / packet.maxSize()) + (packet.size() % packet.maxSize() != 0);
 
-            if (!writeSingle(channel, static_cast<uint8_t>(packet.type())))
-                return false;
-
-            if (!writeSingle(channel, packet.size()))
-                return false;
-
-            for (size_t i = 0; i < packet.size(); i++)
+            for (size_t packetIndex = 0; packetIndex < numberOfPackets; packetIndex++)
             {
-                if (!writeSingle(channel, packet[i]))
+                const size_t packetStartIndex = packet.maxSize() * packetIndex;
+                size_t       packetSize       = 0;
+
+                if (packet.size() > packet.maxSize())
+                {
+                    if ((packetStartIndex + packet.maxSize()) > packet.size())
+                    {
+                        packetSize = packet.size() - packetStartIndex;
+                    }
+                    else
+                    {
+                        packetSize = packet.maxSize();
+                    }
+                }
+                else
+                {
+                    packetSize = packet.size();
+                }
+
+                if (!writeSingle(channel, static_cast<uint8_t>(USBPacketUpdater::framing_t::boundary), true))
                     return false;
+
+                if (!writeSingle(channel, static_cast<uint8_t>(packet.type())))
+                    return false;
+
+                if (!writeSingle(channel, packetSize))
+                    return false;
+
+                for (size_t i = 0; i < packetSize; i++)
+                {
+                    if (!writeSingle(channel, packet[i + packetStartIndex]))
+                        return false;
+                }
             }
 
             return true;

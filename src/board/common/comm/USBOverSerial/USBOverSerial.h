@@ -41,6 +41,7 @@ namespace Board
             virtual packetType_t type() const                   = 0;
             virtual uint8_t*     buffer() const                 = 0;
             virtual size_t       size() const                   = 0;
+            virtual size_t       maxSize() const                = 0;
             virtual uint8_t      operator[](size_t index) const = 0;
         };
 
@@ -67,17 +68,17 @@ namespace Board
                 return _size;
             }
 
+            size_t maxSize() const override
+            {
+                return _maxSize;
+            }
+
             uint8_t operator[](size_t index) const override
             {
                 if (index < _size)
                     return _buffer[index];
 
                 return 0;
-            }
-
-            size_t maxSize() const
-            {
-                return _maxSize;
             }
 
             bool done() const
@@ -113,10 +114,11 @@ namespace Board
         class USBWritePacket : public USBPacketBase
         {
             public:
-            USBWritePacket(packetType_t type, uint8_t* data, size_t size)
+            USBWritePacket(packetType_t type, uint8_t* data, size_t size, size_t maxSize)
                 : _type(type)
                 , _buffer(data)
                 , _size(size)
+                , _maxSize(maxSize)
             {}
 
             packetType_t type() const override
@@ -134,6 +136,11 @@ namespace Board
                 return _size;
             }
 
+            size_t maxSize() const override
+            {
+                return _maxSize;
+            }
+
             uint8_t operator[](size_t index) const override
             {
                 if (index < _size)
@@ -146,6 +153,7 @@ namespace Board
             packetType_t _type   = packetType_t::midi;
             uint8_t*     _buffer = nullptr;
             const size_t _size;
+            const size_t _maxSize;
         };
 
         /// Used to read data using custom OpenDeck format from UART interface.

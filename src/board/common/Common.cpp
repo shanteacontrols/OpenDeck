@@ -65,7 +65,10 @@ namespace Board
             Board::bootloader::magicBootValue()
         };
 
-        USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::internal, data, 2);
+        USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::internal,
+                                             data,
+                                             2,
+                                             USB_OVER_SERIAL_BUFFER_SIZE);
         USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
 
         while (!Board::UART::isTxEmpty(UART_CHANNEL_USB_LINK))

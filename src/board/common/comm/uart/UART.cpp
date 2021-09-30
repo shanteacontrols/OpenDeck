@@ -286,7 +286,10 @@ namespace Board
                 USBMIDIpacket.Data3
             };
 
-            USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::midi, dataArray, 4);
+            USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::midi,
+                                                 dataArray,
+                                                 4,
+                                                 USB_OVER_SERIAL_BUFFER_SIZE);
 
             return USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
         }
@@ -319,14 +322,20 @@ namespace Board
 
         bool writeCDC(uint8_t* buffer, size_t size)
         {
-            USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::cdc, buffer, size);
+            USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::cdc,
+                                                 buffer,
+                                                 size,
+                                                 USB_OVER_SERIAL_BUFFER_SIZE);
 
             return USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
         }
 
         bool writeCDC(uint8_t value)
         {
-            USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::cdc, &value, 1);
+            USBOverSerial::USBWritePacket packet(USBOverSerial::packetType_t::cdc,
+                                                 &value,
+                                                 1,
+                                                 USB_OVER_SERIAL_BUFFER_SIZE);
 
             return USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
         }

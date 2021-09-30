@@ -47,7 +47,10 @@ namespace
                     newState,
                 };
 
-                Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::internal, data, 2);
+                Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::internal,
+                                                            data,
+                                                            2,
+                                                            USB_OVER_SERIAL_BUFFER_SIZE);
                 Board::USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
 
                 lastConnectionState = newState;
@@ -76,7 +79,10 @@ namespace
             uniqueID[9],
         };
 
-        Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::internal, data, 11);
+        Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::internal,
+                                                    data,
+                                                    11,
+                                                    USB_OVER_SERIAL_BUFFER_SIZE);
         Board::USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
     }
 }    // namespace
@@ -95,7 +101,10 @@ namespace Board
                 static_cast<uint8_t>((baudRate >> 24) & 0xFF),
             };
 
-            Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::internal, data, 5);
+            Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::internal,
+                                                        data,
+                                                        5,
+                                                        USB_OVER_SERIAL_BUFFER_SIZE);
             Board::USBOverSerial::write(UART_CHANNEL_USB_LINK, packet);
         }
     }    // namespace USB
@@ -115,7 +124,10 @@ int main(void)
         if (Board::USB::readMIDI(USBMIDIpacket))
         {
             uint8_t                              data[4] = { USBMIDIpacket.Event, USBMIDIpacket.Data1, USBMIDIpacket.Data2, USBMIDIpacket.Data3 };
-            Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::midi, data, 4);
+            Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::midi,
+                                                        data,
+                                                        4,
+                                                        USB_OVER_SERIAL_BUFFER_SIZE);
 
             if (Board::USBOverSerial::write(UART_CHANNEL_USB_LINK, packet))
                 Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
@@ -124,7 +136,10 @@ int main(void)
         //USB CDC -> UART
         if (Board::USB::readCDC(readBuffer, cdcPacketSize, USB_OVER_SERIAL_BUFFER_SIZE))
         {
-            Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::cdc, readBuffer, cdcPacketSize);
+            Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::cdc,
+                                                        readBuffer,
+                                                        cdcPacketSize,
+                                                        USB_OVER_SERIAL_BUFFER_SIZE);
 
             if (Board::USBOverSerial::write(UART_CHANNEL_USB_LINK, packet))
                 Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
