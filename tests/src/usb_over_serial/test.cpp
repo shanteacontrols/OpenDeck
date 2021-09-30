@@ -189,4 +189,32 @@ TEST_CASE(LargePacket)
     TEST_ASSERT(Board::USBOverSerial::read(TEST_MIDI_CHANNEL, receiving) == false);
 }
 
+TEST_CASE(CDC)
+{
+    using namespace Board;
+
+    std::array<uint8_t, 5> dataBufRecv;
+    std::vector<uint8_t>   dataBufSend;
+
+    //enttec widget api packet - get widget params
+    dataBufSend.push_back(0x7E);    //start
+    dataBufSend.push_back(0x0A);    //label 10
+    dataBufSend.push_back(0x00);    //length lsb
+    dataBufSend.push_back(0x00);    //length msb
+    dataBufSend.push_back(0xE7);    //end
+
+    USBOverSerial::USBWritePacket sending(USBOverSerial::packetType_t::cdc, &dataBufSend[0], dataBufSend.size(), dataBufSend.size());
+    USBOverSerial::USBReadPacket  receiving(&dataBufRecv[0], dataBufRecv.size());
+
+    TEST_ASSERT(USBOverSerial::write(TEST_MIDI_CHANNEL, sending) == true);
+    TEST_ASSERT(Board::USBOverSerial::read(TEST_MIDI_CHANNEL, receiving) == true);
+    TEST_ASSERT(receiving.type() == USBOverSerial::packetType_t::cdc);
+
+    TEST_ASSERT_EQUAL_UINT32(0x7E, receiving[0]);
+    TEST_ASSERT_EQUAL_UINT32(0x0A, receiving[1]);
+    TEST_ASSERT_EQUAL_UINT32(0x00, receiving[2]);
+    TEST_ASSERT_EQUAL_UINT32(0x00, receiving[3]);
+    TEST_ASSERT_EQUAL_UINT32(0xE7, receiving[4]);
+}
+
 #endif
