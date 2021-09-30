@@ -98,7 +98,7 @@ do
 
             if [[ ${targets[$i]} == "mega2560" ]]
             then
-                midi_override="UART_BAUDRATE_MIDI_STD=38400"
+                midi_override="UART_BAUDRATE_MIDI_STD=19200"
                 #mega16u2 firmware is needed as well for this target
                 make -C ../src TARGET=mega16u2 DEBUG=0
             fi

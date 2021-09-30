@@ -633,7 +633,7 @@ TEST_CASE(MIDIData)
 //     cyclePower(powerCycleType_t::standardWithDeviceCheck);
 
 //     int result = -1;
-//     cmd        = std::string("stty -F /dev/" + avr_serial_port + " raw && stty -F /dev/" + avr_serial_port + " -echo -echoe -echok && stty -F /dev/" + avr_serial_port + " 38400 && sleep 3");
+//     cmd        = std::string("stty -F /dev/" + avr_serial_port + " raw && stty -F /dev/" + avr_serial_port + " -echo -echoe -echok && stty -F /dev/" + avr_serial_port + " 19200 && sleep 3");
 
 //     do
 //     {
