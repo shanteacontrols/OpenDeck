@@ -20,6 +20,12 @@ limitations under the License.
 #include "board/Board.h"
 #include "system/System.h"
 
+class CDCUser
+{
+    public:
+    virtual bool isUsed() = 0;
+};
+
 class StorageAccess : public LESSDB::StorageAccess
 {
     public:
@@ -463,7 +469,7 @@ class HWAMIDI : public System::HWA::Protocol::MIDI
 } _hwaMIDI;
 
 #ifdef DMX_SUPPORTED
-class HWADMX : public System::HWA::Protocol::DMX
+class HWADMX : public System::HWA::Protocol::DMX, public CDCUser
 {
     public:
     HWADMX() = default;
@@ -481,12 +487,24 @@ class HWADMX : public System::HWA::Protocol::DMX
                                      Board::UART::type_t::tx,
                                      true);
 
-        return Board::UART::init(UART_CHANNEL_DMX, config) == Board::UART::initStatus_t::ok;
+        if (Board::UART::init(UART_CHANNEL_DMX, config) == Board::UART::initStatus_t::ok)
+        {
+            _isUsed = true;
+            return true;
+        }
+
+        return false;
     }
 
     bool deInit() override
     {
-        return Board::UART::deInit(UART_CHANNEL_DMX);
+        if (Board::UART::deInit(UART_CHANNEL_DMX))
+        {
+            _isUsed = false;
+            return true;
+        }
+
+        return false;
     }
 
     bool readUSB(uint8_t* buffer, size_t& size, const size_t maxSize) override
@@ -525,9 +543,17 @@ class HWADMX : public System::HWA::Protocol::DMX
     {
         //todo
     }
+
+    bool isUsed() override
+    {
+        return _isUsed;
+    }
+
+    private:
+    bool _isUsed = false;
 } _hwaDMX;
 #else
-class HWADMXStub : public System::HWA::Protocol::DMX
+class HWADMXStub : public System::HWA::Protocol::DMX, public CDCUser
 {
     public:
     HWADMXStub() = default;
@@ -564,6 +590,11 @@ class HWADMXStub : public System::HWA::Protocol::DMX
 
     void packetComplete() override
     {
+    }
+
+    bool isUsed() override
+    {
+        return false;
     }
 } _hwaDMX;
 #endif
@@ -605,7 +636,7 @@ class HWATouchscreen : public System::HWA::IO::Touchscreen
     }
 } _hwaTouchscreen;
 
-class HWACDCPassthrough : public System::HWA::IO::CDCPassthrough
+class HWACDCPassthrough : public System::HWA::IO::CDCPassthrough, public CDCUser
 {
     public:
     HWACDCPassthrough() = default;
@@ -679,6 +710,11 @@ class HWACDCPassthrough : public System::HWA::IO::CDCPassthrough
         }
     }
 
+    bool isUsed() override
+    {
+        return _passThroughState;
+    }
+
     private:
     bool _passThroughState = false;
 } _hwaCDCPassthrough;
@@ -714,7 +750,7 @@ class HWATouchscreenStub : public System::HWA::IO::Touchscreen
     }
 } _hwaTouchscreen;
 
-class HWACDCPassthroughStub : public System::HWA::IO::CDCPassthrough
+class HWACDCPassthroughStub : public System::HWA::IO::CDCPassthrough, public CDCUser
 {
     public:
     HWACDCPassthroughStub() = default;
@@ -745,6 +781,11 @@ class HWACDCPassthroughStub : public System::HWA::IO::CDCPassthrough
     }
 
     bool cdcWrite(uint8_t* buffer, size_t size) override
+    {
+        return false;
+    }
+
+    bool isUsed() override
     {
         return false;
     }
@@ -822,6 +863,7 @@ class HWASystem : public System::HWA
     {
         static uint32_t lastCheckTime       = 0;
         static bool     lastConnectionState = false;
+        bool            readCDC             = true;
 
         if (core::timing::currentRunTimeMs() - lastCheckTime > USB_CONN_CHECK_TIME)
         {
@@ -838,6 +880,23 @@ class HWASystem : public System::HWA
 
             lastConnectionState = newState;
             lastCheckTime       = core::timing::currentRunTimeMs();
+        }
+
+        for (size_t i = 0; i < _cdcUserCount; i++)
+        {
+            if (_cdcUser[i]->isUsed())
+            {
+                readCDC = false;
+                break;
+            }
+        }
+
+        if (readCDC)
+        {
+            //nobody is using CDC, read it here to avoid lockups but ignore the data
+            uint8_t dummy;
+            while (Board::USB::readCDC(dummy))
+                ;
         }
     }
 
@@ -913,9 +972,20 @@ class HWASystem : public System::HWA
         return _hwaProtocol;
     }
 
+    void addCDCUser(CDCUser& cdcUser)
+    {
+        if (_cdcUserCount == MAX_CDC_USERS)
+            return;
+
+        _cdcUser[_cdcUserCount++] = &cdcUser;
+    }
+
     private:
     static constexpr uint32_t      USB_CONN_CHECK_TIME   = 2000;
+    static constexpr uint32_t      MAX_CDC_USERS         = 2;
     System::usbConnectionHandler_t _usbConnectionHandler = nullptr;
+    CDCUser*                       _cdcUser[MAX_CDC_USERS];
+    size_t                         _cdcUserCount = 0;
 
     class SystemHWAIO : public System::HWA::IO
     {
@@ -997,6 +1067,9 @@ System sys(_hwaSystem, _database);
 
 int main()
 {
+    _hwaSystem.addCDCUser(_hwaDMX);
+    _hwaSystem.addCDCUser(_hwaCDCPassthrough);
+
     sys.init();
 
     while (true)
