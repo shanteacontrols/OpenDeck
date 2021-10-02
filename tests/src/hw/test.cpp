@@ -112,18 +112,42 @@ namespace
 
     void flash()
     {
+        int result;
+
 #ifdef STM32_EMU_EEPROM
         std::string flashTarget = " TARGET=" + std::string(BOARD_STRING);
         std::string flashPort   = " PORT=" + stm_flash_port;
-        TEST_ASSERT_EQUAL_INT(0, test::wsystem(flash_cmd + flashTarget + flashPort));
+
+        do
+        {
+            result = test::wsystem(flash_cmd + flashTarget + flashPort);
+
+            if (result)
+                cyclePower(powerCycleType_t::standard);
+
+        } while (result);
 #else
         std::string flashTarget_mega2560 = " TARGET=mega2560";
         std::string flashTarget_mega16u2 = " TARGET=mega16u2";
         std::string flashPort_mega2560   = " PORT=" + avr_flash_port_mega2560;
         std::string flashPort_mega16u2   = " PORT=" + avr_flash_port_mega16u2;
 
-        TEST_ASSERT_EQUAL_INT(0, test::wsystem(flash_cmd + flashTarget_mega2560 + flashPort_mega2560));
-        TEST_ASSERT_EQUAL_INT(0, test::wsystem(flash_cmd + flashTarget_mega16u2 + flashPort_mega16u2));
+        do
+        {
+            result = test::wsystem(flash_cmd + flashTarget_mega2560 + flashPort_mega2560);
+
+            if (result)
+                cyclePower(powerCycleType_t::standard);
+
+        } while (result);
+
+        do
+        {
+            result = test::wsystem(flash_cmd + flashTarget_mega16u2 + flashPort_mega16u2);
+
+            if (result)
+                cyclePower(powerCycleType_t::standard);
+        } while (result);
 #endif
 
         //delay some time to allow eeprom init
