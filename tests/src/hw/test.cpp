@@ -28,7 +28,7 @@ namespace
     const std::string usb_power_off_cmd         = "uhubctl -a off -l 1-1.4.4 > /dev/null && sleep 2 && uhubctl -a off -l 1-1.4 > /dev/null && sleep 2 && uhubctl -a off -l 1-1 > /dev/null";
     const std::string usb_power_on_cmd          = "uhubctl -a on -l 1-1 > /dev/null && sleep 2 && uhubctl -a on -l 1-1.4 > /dev/null && sleep 2 && uhubctl -a on -l 1-1.4 > /dev/null";
     const std::string sysex_fw_update_delay_ms  = "5";
-    const std::string startup_delay_s           = "10";
+    const uint32_t    startup_delay_ms          = 10000;
     const std::string fw_build_dir              = "../src/build/merged/";
     const std::string fw_build_type_subdir      = "release/";
     const std::string temp_midi_data_location   = "/tmp/temp_midi_data";
@@ -47,7 +47,7 @@ namespace
     {
         TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
         MIDIHelper::sendRawSysEx(reboot_req);
-        test::wsystem("sleep " + startup_delay_s);
+        test::sleepMs(startup_delay_ms);
 
         if (!MIDIHelper::devicePresent())
         {
@@ -64,7 +64,7 @@ namespace
         TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
         MIDIHelper::sendRawSysEx(factory_reset_req);
 
-        test::wsystem("sleep " + startup_delay_s);
+        test::sleepMs(startup_delay_ms);
 
         if (!MIDIHelper::devicePresent())
         {
@@ -78,7 +78,7 @@ namespace
         TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
         MIDIHelper::sendRawSysEx(btldr_req);
 
-        test::wsystem("sleep " + startup_delay_s);
+        test::sleepMs(startup_delay_ms);
 
         if (!MIDIHelper::devicePresent(true))
         {
@@ -93,7 +93,7 @@ namespace
             TEST_ASSERT_EQUAL_INT(0, test::wsystem(usb_power_off_cmd));
             TEST_ASSERT_EQUAL_INT(0, test::wsystem(usb_power_on_cmd));
 
-            test::wsystem("sleep " + startup_delay_s);
+            test::sleepMs(startup_delay_ms);
         };
 
         if (powerCycleType != powerCycleType_t::standardWithDeviceCheck)
@@ -151,7 +151,7 @@ namespace
 #endif
 
         //delay some time to allow eeprom init
-        test::wsystem("sleep " + startup_delay_s);
+        test::sleepMs(startup_delay_ms);
 
         cyclePower(powerCycleType_t::standardWithDeviceCheck);
     }
@@ -469,7 +469,7 @@ TEST_CASE(FwUpdate)
     std::string cmd = std::string("amidi -p ") + MIDIHelper::amidiPort(true) + " -s " + syxPath + " -i " + sysex_fw_update_delay_ms;
     TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd));
 
-    test::wsystem("sleep " + startup_delay_s);
+    test::sleepMs(startup_delay_ms);
 
     if (!MIDIHelper::devicePresent())
     {
@@ -619,7 +619,8 @@ TEST_CASE(MIDIData)
     monitor();
     changePreset(false);
 
-    test::wsystem("sleep 3 && killall amidi > /dev/null");
+    test::sleepMs(3000);
+    test::wsystem("killall amidi > /dev/null");
     test::wsystem("grep -c . " + temp_midi_data_location, response);
     printf("Total number of received DIN MIDI messages: %d\n", stoi(response));
     TEST_ASSERT(stoi(response) >= (MAX_NUMBER_OF_BUTTONS / 2));
