@@ -233,6 +233,20 @@ class MIDIHelper
         return sendRequest(requestUint8, SysExConf::wish_t::get);
     }
 
+    static void flush()
+    {
+        std::string cmdResponse;
+
+#ifdef STM32_EMU_EEPROM
+        std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string(BOARD_STRING) + "\"";
+#else
+        std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string("mega16u2") + "\"";
+#endif
+
+        std::string cmd = std::string("stdbuf -i0 -o0 -e0 amidi -p ") + deviceNameSearch + std::string(" | grep -Eo 'hw:\\S*') -d -t 3");
+        test::wsystem(cmd, cmdResponse);
+    }
+
     static std::string sendRawSysEx(std::string req)
     {
         std::string cmdResponse;

@@ -112,8 +112,6 @@ namespace
 
     void flash()
     {
-        cyclePower(powerCycleType_t::standard);
-
 #ifdef STM32_EMU_EEPROM
         std::string flashTarget = " TARGET=" + std::string(BOARD_STRING);
         std::string flashPort   = " PORT=" + stm_flash_port;
@@ -139,6 +137,8 @@ TEST_SETUP()
 {
     //dummy db - used only to retrieve correct amount of supported presets
     TEST_ASSERT(database.init() == true);
+    cyclePower(powerCycleType_t::standard);
+    MIDIHelper::flush();
 }
 
 TEST_TEARDOWN()
