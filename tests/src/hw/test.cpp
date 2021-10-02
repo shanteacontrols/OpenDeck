@@ -426,38 +426,6 @@ TEST_CASE(DatabaseInitialValues)
     }
 }
 
-TEST_CASE(ValuesAfterFlashing)
-{
-    factoryReset();
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
-
-    //change few random values
-    TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::presets, 0, 1) == true);    //active preset 1
-    TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::presets, 1, 1) == true);    //preserve preset
-    TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::analog_t::midiID, 4, 15) == true);
-#ifdef ENCODERS_SUPPORTED
-    TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::encoder_t::pulsesPerStep, 1, 2) == true);
-#endif
-    TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::button_t::velocity, 0, 126) == true);
-
-    auto verify = []() {
-        TEST_ASSERT_EQUAL_UINT32(1, MIDIHelper::readFromBoard(System::Section::global_t::presets, 0));
-        TEST_ASSERT_EQUAL_UINT32(1, MIDIHelper::readFromBoard(System::Section::global_t::presets, 1));
-        TEST_ASSERT_EQUAL_UINT32(15, MIDIHelper::readFromBoard(System::Section::analog_t::midiID, 4));
-#ifdef ENCODERS_SUPPORTED
-        TEST_ASSERT_EQUAL_UINT32(2, MIDIHelper::readFromBoard(System::Section::encoder_t::pulsesPerStep, 1));
-#endif
-        TEST_ASSERT_EQUAL_UINT32(126, MIDIHelper::readFromBoard(System::Section::button_t::velocity, 0));
-    };
-
-    verify();
-    flash();
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
-
-    //verify all values again
-    verify();
-}
-
 TEST_CASE(FwUpdate)
 {
 #ifdef STM32_EMU_EEPROM
