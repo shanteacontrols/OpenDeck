@@ -51,7 +51,7 @@ namespace
 
         if (!MIDIHelper::devicePresent())
         {
-            printf("OpenDeck device not found after reboot, aborting\n");
+            std::cout << "OpenDeck device not found after reboot, aborting" << std::endl;
             exit(1);
         }
 
@@ -68,7 +68,7 @@ namespace
 
         if (!MIDIHelper::devicePresent())
         {
-            printf("OpenDeck device not found after factory reset, aborting\n");
+            std::cout << "OpenDeck device not found after factory reset, aborting" << std::endl;
             exit(1);
         }
     }
@@ -82,7 +82,7 @@ namespace
 
         if (!MIDIHelper::devicePresent(true))
         {
-            printf("OpenDeck DFU device not found after bootloader request, aborting\n");
+            std::cout << "OpenDeck DFU device not found after bootloader request" << std::endl;
             exit(1);
         }
     }
@@ -460,7 +460,7 @@ TEST_CASE(FwUpdate)
 
     if (!std::filesystem::exists(syxPath))
     {
-        printf(".syx file not found, aborting\n");
+        std::cout << ".syx file not found, aborting" << std::endl;
         exit(1);
     }
 
@@ -473,7 +473,7 @@ TEST_CASE(FwUpdate)
 
     if (!MIDIHelper::devicePresent())
     {
-        printf("OpenDeck device not found after firmware update, aborting\n");
+        std::cout << "OpenDeck device not found after firmware update, aborting" << std::endl;
         exit(1);
     }
 }
