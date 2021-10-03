@@ -36,7 +36,7 @@ namespace
     const std::string stm_flash_port            = "ttyBmpGdb";
     const std::string avr_flash_port_mega2560   = "ttyACM2";
     const std::string avr_flash_port_mega16u2   = "ttyACM3";
-    const std::string avr_serial_port           = "ttyUSB0";
+    const std::string avr_serial_port           = "mega_din_midi_serial";
     const std::string opendeck2_dmx_serial_port = "ttyACM4";
     const std::string mega2560_dmx_serial_port  = "ttyACM5";
 
@@ -593,7 +593,7 @@ TEST_CASE(MIDIData)
     //rasp pi has weird issues with midi
     //open monitoring interface for a while and let it dump all the existing data first
     cmd = std::string("amidi -p $(amidi -l | grep -E 'ESI MIDIMATE eX MIDI 1'") + std::string(" | grep -Eo 'hw:\\S*')") + " -d -t 2";
-    TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd, response));
+    test::wsystem(cmd, response);
 
     auto monitor = [&]() {
         cmd = std::string("amidi -p $(amidi -l | grep -E 'ESI MIDIMATE eX MIDI 1'") + std::string(" | grep -Eo 'hw:\\S*')") + " -d > " + temp_midi_data_location + " &";
@@ -604,70 +604,76 @@ TEST_CASE(MIDIData)
     monitor();
     changePreset(false);
 
-    cmd = std::string("killall amidi");
-    TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd, response));
+    test::wsystem("killall amidi", response);
 
     //verify line count - since DIN MIDI isn't enabled, total count should be 0
     test::wsystem("grep -c . " + temp_midi_data_location, response);
     TEST_ASSERT_EQUAL_INT(0, stoi(response));
     TEST_ASSERT_EQUAL_INT(0, test::wsystem("rm " + temp_midi_data_location));
 
-    //now enable DIN MIDI, reboot the board, repeat the test and verify that messages are received on DIN MIDI as well
+    //now enable DIN MIDI, repeat the test and verify that messages are received on DIN MIDI as well
     TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled), 1) == true);
-    reboot();
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
     monitor();
     changePreset(false);
 
-    test::sleepMs(3000);
-    test::wsystem("killall amidi > /dev/null");
+    test::wsystem("sleep 3 && killall amidi > /dev/null");
+    test::wsystem("cat " + temp_midi_data_location + " | xargs | sed 's/ /&\\n/3;P;D'", response);
+    std::cout << "Received DIN MIDI messages:\n"
+              << response << std::endl;
+
+    test::wsystem("echo \"" + response + "\" | grep -c .", response);
     test::wsystem("grep -c . " + temp_midi_data_location, response);
-    printf("Total number of received DIN MIDI messages: %d\n", stoi(response));
+    std::cout << "Total number of received DIN MIDI messages: " << response << std::endl;
     TEST_ASSERT(stoi(response) >= (MAX_NUMBER_OF_BUTTONS / 2));
-// #elif defined(DIN_MIDI_SUPPORTED)
-//     //prepare serial port
-//     cyclePower(powerCycleType_t::standardWithDeviceCheck);
+#elif defined(DIN_MIDI_SUPPORTED)
+    test::wsystem("rm -f " + temp_midi_data_location);
 
-//     int result = -1;
-//     cmd        = std::string("stty -F /dev/" + avr_serial_port + " raw && stty -F /dev/" + avr_serial_port + " -echo -echoe -echok && stty -F /dev/" + avr_serial_port + " 19200 && sleep 3");
+    test::wsystem("stty -F /dev/" + avr_serial_port + " raw 19200 && sleep 1");
 
-//     do
-//     {
-//         result = test::wsystem(cmd);
+    auto monitor = [&]() {
+        cmd = std::string("stdbuf -i0 -o0 -e0 hexdump /dev/" + avr_serial_port + " -v -e '1/1 \"%02X\\n\"' > " + temp_midi_data_location + " &");
+        test::wsystem(cmd, response);
+    };
 
-//         if (result != 0)
-//             cyclePower(powerCycleType_t::standardWithDeviceCheck);
-//     } while (result != 0);
+    monitor();
 
-//     auto monitor = [&]() {
-//         //listen to serial port
-//         cmd = std::string("stdbuf -i0 -o0 -e0 hexdump /dev/" + avr_serial_port + " -v -e '3/1 \"%02X \" \"\\n\"' > " + temp_midi_data_location + " &");
-//         TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd, response));
-//     };
+    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
 
-//     monitor();
+    //verify line count - since DIN MIDI isn't enabled, total count should be 0
+    test::wsystem("grep -c . " + temp_midi_data_location, response);
+    TEST_ASSERT_EQUAL_INT(0, stoi(response));
+    cmd = std::string("killall hexdump");
+    TEST_ASSERT_EQUAL_INT(0, test::wsystem("rm " + temp_midi_data_location));
 
-//     TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
+    //now enable DIN MIDI, repeat the test and verify that messages are received on DIN MIDI as well
+    TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled), 1) == true);
+    monitor();
+    changePreset(false);
 
-//     cmd = std::string("killall hexdump");
-//     TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd, response));
+    test::wsystem("sleep 3 && killall hexdump");
+    test::wsystem("cat " + temp_midi_data_location + " | xargs | sed 's/ /&\\n/3;P;D'", response);
+    std::cout << "Received DIN MIDI messages:\n"
+              << response << std::endl;
 
-//     //verify line count - since DIN MIDI isn't enabled, total count should be 0
-//     test::wsystem("grep -c . " + temp_midi_data_location, response);
-//     TEST_ASSERT_EQUAL_INT(0, stoi(response));
-//     TEST_ASSERT_EQUAL_INT(0, test::wsystem("rm " + temp_midi_data_location));
+    test::wsystem("echo \"" + response + "\" | grep -c .", response);
+    std::cout << "Total number of received DIN MIDI messages: " << response << std::endl;
+    TEST_ASSERT(stoi(response) >= (MAX_NUMBER_OF_BUTTONS / 2));
+    //////////////////
+    //for some reason, first time raspberry drops some messages from uart
+    //2nd time everything is received
+    //investigate further - for now, run the test again
+    std::cout << "Repeating preset change..." << std::endl;
+    test::wsystem("rm " + temp_midi_data_location);
+    monitor();
+    changePreset(false);
 
-//     //now enable DIN MIDI, reboot the board, repeat the test and verify that messages are received on DIN MIDI as well
-//     TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled), 1) == true);
-//     cyclePower(powerCycleType_t::standardWithDeviceCheck);
-//     TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
-//     monitor();
-//     changePreset(false);
+    test::wsystem("sleep 3 && killall hexdump");
+    test::wsystem("cat " + temp_midi_data_location + " | xargs | sed 's/ /&\\n/3;P;D'", response);
+    std::cout << "Received DIN MIDI messages:\n"
+              << response << std::endl;
 
-//     test::wsystem("sleep 3 && killall hexdump");
-//     test::wsystem("grep -c . " + temp_midi_data_location, response);
-//     printf("Total number of received DIN MIDI messages: %d\n", stoi(response));
-//     TEST_ASSERT(stoi(response) >= (MAX_NUMBER_OF_BUTTONS / 2));
+    test::wsystem("echo \"" + response + "\" | grep -c .", response);
+    std::cout << "Total number of received DIN MIDI messages: " << response << std::endl;
 #endif
 }
 
