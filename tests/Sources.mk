@@ -10,7 +10,6 @@ modules/unity/src/unity.c
 ifeq (,$(findstring USB_LINK_MCU,$(DEFINES)))
     SOURCES_COMMON += \
     modules/dbms/src/LESSDB.cpp \
-    modules/EmuEEPROM/src/EmuEEPROM.cpp \
     modules/midi/src/MIDI.cpp \
     modules/u8g2/csrc/u8x8_string.c \
     modules/u8g2/csrc/u8x8_setup.c \
@@ -29,6 +28,10 @@ ifeq (,$(findstring USB_LINK_MCU,$(DEFINES)))
     stubs/Core.cpp \
     application/util/messaging/Messaging.cpp \
     application/util/scheduler/Scheduler.cpp
+endif
+
+ifeq ($(ARCH),stm32)
+    SOURCES_COMMON += modules/EmuEEPROM/src/EmuEEPROM.cpp
 endif
 
 #common include dirs
