@@ -1,0 +1,4 @@
+---
+ports:
+  flash: "ttyBmpGdb"
+  dinMidi: "ESI MIDIMATE eX MIDI 1"

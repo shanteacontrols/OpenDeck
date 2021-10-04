@@ -13,7 +13,7 @@ function usage
     If the script is launched from tests directory, all tests for all targets will be built."
 
     echo -e "\n--hw
-    If set, only tests which run on physical boards will be compiled. If type is set to fw, this flag is ignored."
+    If set, only tests which run on physical boards will be compiled. Otherwise, this flag is ignored."
 
     echo -e "\n--clean
     If set, all build artifacts will be cleaned before running the build."
@@ -72,10 +72,10 @@ fi
 
 if [[ "$TYPE" == "tests" && -n "$HW" ]]
 then
-    while IFS= read -r target
+    for target in ../config/hw-test/*.yml;
     do
         targets+=("$(basename "$target" .yml)")
-    done < src/hw/boards.txt
+    done
 else
     for target in ../config/target/*.yml;
     do
@@ -96,14 +96,7 @@ do
         then
             #binaries, sysex files and defines are needed for tests, compile that as well
 
-            if [[ ${targets[$i]} == "mega2560" ]]
-            then
-                midi_override="UART_BAUDRATE_MIDI_STD=19200"
-                #mega16u2 firmware is needed as well for this target
-                make -C ../src TARGET=mega16u2 DEBUG=0
-            fi
-
-            make -C ../src TARGET="${targets[$i]}" DEBUG=0 $midi_override
+            make -C ../src TARGET="${targets[$i]}" DEBUG=0
             make TARGET="${targets[$i]}" DEBUG=0 HW_TESTING=1 TESTS=hw
         else
             #only defines are needed here

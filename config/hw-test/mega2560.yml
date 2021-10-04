@@ -1,0 +1,4 @@
+---
+ports:
+  flash: "ttyACM2"
+usbLinkTarget: "mega16u2"

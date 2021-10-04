@@ -54,7 +54,7 @@ do
     then
         board=$(echo "$test" | cut -d/ -f3)
 
-        if grep -F -q "$board" "src/hw/boards.txt"
+        if [[ -f ../config/hw-test/"$board".yml ]]
         then
             echo "Running tests on $board board"
             $test

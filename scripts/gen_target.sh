@@ -9,6 +9,9 @@ OUT_FILE_HEADER_USB="$GEN_DIR"/USBnames.h
 OUT_FILE_HEADER_PINS="$GEN_DIR"/Pins.h
 OUT_FILE_SOURCE_PINS="$GEN_DIR"/$TARGET_NAME.cpp
 OUT_FILE_MAKEFILE_DEFINES="$GEN_DIR"/Defines.mk
+HW_TEST_HEADER_CONSTANTS="$GEN_DIR"/HWTestDefines.h
+
+mkdir -p "$GEN_DIR"
 
 #################################################### CORE ####################################################
 
@@ -17,6 +20,7 @@ mcu=$($YAML_PARSER "$TARGET_DEF_FILE" mcu)
 ## MCU processing first
 MCU_GEN_DIR=$(dirname "$2")/../mcu/$mcu
 MCU_DEF_FILE=$(dirname "$TARGET_DEF_FILE")/../mcu/$mcu.yml
+HW_TEST_DEF_FILE=$(dirname "$TARGET_DEF_FILE")/../hw-test/$TARGET_NAME.yml
 
 if [[ ! -f $MCU_DEF_FILE ]]
 then
@@ -24,13 +28,52 @@ then
     exit 1
 fi
 
+printf "%s\n\n" "#pragma once" > "$HW_TEST_HEADER_CONSTANTS"
+
+if [[ -f $HW_TEST_DEF_FILE ]]
+then
+    echo "Generating HW test config..."
+
+
+    flash_port=$($YAML_PARSER "$HW_TEST_DEF_FILE" ports.flash)
+
+    if [[ $flash_port != "null" ]]
+    then
+        {
+            printf "%s\n" "#define TEST_FLASHING"
+            printf "%s\n" "constexpr inline char FLASH_PORT[]=\"$flash_port\";"
+        } >> "$HW_TEST_HEADER_CONSTANTS"
+    fi
+
+    din_midi_port=$($YAML_PARSER "$HW_TEST_DEF_FILE" ports.dinMidi)
+
+    if [[ $din_midi_port != "null" ]]
+    then
+        {
+            printf "%s\n" "#define TEST_DIN_MIDI_PORT"
+            printf "%s\n" "constexpr inline char DIN_MIDI_PORT[]=\"$din_midi_port\";"
+        } >> "$HW_TEST_HEADER_CONSTANTS"
+    fi
+
+    usb_link_target=$($YAML_PARSER "$HW_TEST_DEF_FILE" usbLinkTarget)
+
+    if [[ $usb_link_target != "null" ]]
+    then
+        USB_LINK_HW_TEST_DEF_FILE=$(dirname "$HW_TEST_DEF_FILE")/$usb_link_target.yml
+        usb_link_flash_port=$($YAML_PARSER "$USB_LINK_HW_TEST_DEF_FILE" ports.flash)
+
+        {
+            printf "%s\n" "constexpr inline char FLASH_PORT_USB_LINK[]=\"$usb_link_flash_port\";"
+            printf "%s\n" "constexpr inline char USB_LINK_TARGET[]=\"$usb_link_target\";"
+        } >> "$HW_TEST_HEADER_CONSTANTS"
+    fi
+fi
+
 if [[ ! -d $MCU_GEN_DIR ]]
 then
     echo "Generating MCU definitions..."
     ../scripts/gen_mcu.sh "$MCU_DEF_FILE" "$MCU_GEN_DIR"
 fi
-
-mkdir -p "$GEN_DIR"
 
 {
     printf "%s%s\n" '-include $(MAKEFILE_INCLUDE_PREFIX)$(BOARD_MCU_BASE_DIR)/' "$mcu/MCU.mk"

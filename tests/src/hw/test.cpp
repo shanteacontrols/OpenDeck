@@ -1,3 +1,4 @@
+#ifndef USB_LINK_MCU
 #ifdef HW_TESTING
 
 #include "unity/Framework.h"
@@ -8,6 +9,7 @@
 #include "helpers/Serial.h"
 #include "application/database/Database.h"
 #include "stubs/database/DB_ReadWrite.h"
+#include <HWTestDefines.h>
 
 namespace
 {
@@ -19,26 +21,20 @@ namespace
         standardWithDeviceCheck
     };
 
-    const std::string handshake_req             = "F0 00 53 43 00 00 01 F7";
-    const std::string reboot_req                = "F0 00 53 43 00 00 7F F7";
-    const std::string handshake_ack             = "F0 00 53 43 01 00 01 F7";
-    const std::string factory_reset_req         = "F0 00 53 43 00 00 44 F7";
-    const std::string btldr_req                 = "F0 00 53 43 00 00 55 F7";
-    const std::string backup_req                = "F0 00 53 43 00 00 1B F7";
-    const std::string usb_power_off_cmd         = "uhubctl -a off -l 1-1.4.4 > /dev/null && sleep 2 && uhubctl -a off -l 1-1.4 > /dev/null && sleep 2 && uhubctl -a off -l 1-1 > /dev/null";
-    const std::string usb_power_on_cmd          = "uhubctl -a on -l 1-1 > /dev/null && sleep 2 && uhubctl -a on -l 1-1.4 > /dev/null && sleep 2 && uhubctl -a on -l 1-1.4 > /dev/null";
-    const std::string sysex_fw_update_delay_ms  = "5";
-    const uint32_t    startup_delay_ms          = 10000;
-    const std::string fw_build_dir              = "../src/build/merged/";
-    const std::string fw_build_type_subdir      = "release/";
-    const std::string temp_midi_data_location   = "/tmp/temp_midi_data";
-    const std::string backup_file_location      = "/tmp/backup.txt";
-    const std::string stm_flash_port            = "ttyBmpGdb";
-    const std::string avr_flash_port_mega2560   = "ttyACM2";
-    const std::string avr_flash_port_mega16u2   = "ttyACM3";
-    const std::string avr_serial_port           = "mega_din_midi_serial";
-    const std::string opendeck2_dmx_serial_port = "ttyACM4";
-    const std::string mega2560_dmx_serial_port  = "ttyACM5";
+    const std::string handshake_req            = "F0 00 53 43 00 00 01 F7";
+    const std::string reboot_req               = "F0 00 53 43 00 00 7F F7";
+    const std::string handshake_ack            = "F0 00 53 43 01 00 01 F7";
+    const std::string factory_reset_req        = "F0 00 53 43 00 00 44 F7";
+    const std::string btldr_req                = "F0 00 53 43 00 00 55 F7";
+    const std::string backup_req               = "F0 00 53 43 00 00 1B F7";
+    const std::string usb_power_off_cmd        = "uhubctl -a off -l 1-1.4.4 > /dev/null && sleep 2 && uhubctl -a off -l 1-1.4 > /dev/null && sleep 2 && uhubctl -a off -l 1-1 > /dev/null";
+    const std::string usb_power_on_cmd         = "uhubctl -a on -l 1-1 > /dev/null && sleep 2 && uhubctl -a on -l 1-1.4 > /dev/null && sleep 2 && uhubctl -a on -l 1-1.4 > /dev/null";
+    const std::string sysex_fw_update_delay_ms = "5";
+    const uint32_t    startup_delay_ms         = 10000;
+    const std::string fw_build_dir             = "../src/build/merged/";
+    const std::string fw_build_type_subdir     = "release/";
+    const std::string temp_midi_data_location  = "/tmp/temp_midi_data";
+    const std::string backup_file_location     = "/tmp/backup.txt";
 
     DBstorageMock dbStorageMock;
     Database      database = Database(dbStorageMock, false);
@@ -112,42 +108,27 @@ namespace
 
     void flash()
     {
-        int result;
+        auto flash = [](std::string target, std::string port) {
+            int result;
 
-#ifdef STM32_EMU_EEPROM
-        std::string flashTarget = " TARGET=" + std::string(BOARD_STRING);
-        std::string flashPort   = " PORT=" + stm_flash_port;
+            std::string flashTarget = " TARGET=" + target;
+            std::string flashPort   = " PORT=" + port;
 
-        do
-        {
-            result = test::wsystem(flash_cmd + flashTarget + flashPort);
+            do
+            {
+                result = test::wsystem(flash_cmd + flashTarget + flashPort);
 
-            if (result)
-                cyclePower(powerCycleType_t::standard);
+                if (result)
+                    cyclePower(powerCycleType_t::standard);
 
-        } while (result);
-#else
-        std::string flashTarget_mega2560 = " TARGET=mega2560";
-        std::string flashTarget_mega16u2 = " TARGET=mega16u2";
-        std::string flashPort_mega2560   = " PORT=" + avr_flash_port_mega2560;
-        std::string flashPort_mega16u2   = " PORT=" + avr_flash_port_mega16u2;
+            } while (result);
+        };
 
-        do
-        {
-            result = test::wsystem(flash_cmd + flashTarget_mega2560 + flashPort_mega2560);
+        flash(std::string(BOARD_STRING), std::string(FLASH_PORT));
 
-            if (result)
-                cyclePower(powerCycleType_t::standard);
-
-        } while (result);
-
-        do
-        {
-            result = test::wsystem(flash_cmd + flashTarget_mega16u2 + flashPort_mega16u2);
-
-            if (result)
-                cyclePower(powerCycleType_t::standard);
-        } while (result);
+#ifndef USB_SUPPORTED
+        //flash usb link mcu as well
+        flash(std::string(USB_LINK_TARGET), std::string(FLASH_PORT_USB_LINK));
 #endif
 
         //delay some time to allow eeprom init
@@ -173,7 +154,7 @@ TEST_TEARDOWN()
     test::wsystem("killall olad > /dev/null 2>&1");
 }
 
-#ifdef HW_TEST_FLASH
+#ifdef TEST_FLASHING
 TEST_CASE(FlashAndBoot)
 {
     flash();
@@ -182,10 +163,6 @@ TEST_CASE(FlashAndBoot)
 
 TEST_CASE(DatabaseInitialValues)
 {
-#ifndef HW_TEST_FLASH
-    cyclePower(powerCycleType_t::standardWithDeviceCheck);
-#endif
-
     constexpr size_t PARAM_SKIP = 2;
 
     factoryReset();
@@ -590,16 +567,10 @@ TEST_CASE(MIDIData)
 
     reboot();
 
-#if FW_UID == 0x7a382913
-    //opendeck2 is the only board which has DIN MIDI connectors
-
-    //rasp pi has weird issues with midi
-    //open monitoring interface for a while and let it dump all the existing data first
-    cmd = std::string("amidi -p $(amidi -l | grep -E 'ESI MIDIMATE eX MIDI 1'") + std::string(" | grep -Eo 'hw:\\S*')") + " -d -t 2";
-    test::wsystem(cmd, response);
-
+#ifdef DIN_MIDI_SUPPORTED
+#ifdef TEST_DIN_MIDI_PORT
     auto monitor = [&]() {
-        cmd = std::string("amidi -p $(amidi -l | grep -E 'ESI MIDIMATE eX MIDI 1'") + std::string(" | grep -Eo 'hw:\\S*')") + " -d > " + temp_midi_data_location + " &";
+        cmd = std::string("amidi -p $(amidi -l | grep -E '") + DIN_MIDI_PORT + std::string("' | grep -Eo 'hw:\\S*')") + " -d > " + temp_midi_data_location + " &";
         TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd));
     };
 
@@ -628,55 +599,7 @@ TEST_CASE(MIDIData)
     test::wsystem("grep -c . " + temp_midi_data_location, response);
     std::cout << "Total number of received DIN MIDI messages: " << response << std::endl;
     TEST_ASSERT(stoi(response) >= (MAX_NUMBER_OF_BUTTONS / 2));
-#elif defined(DIN_MIDI_SUPPORTED)
-    test::wsystem("rm -f " + temp_midi_data_location);
-
-    test::wsystem("stty -F /dev/" + avr_serial_port + " raw 19200 && sleep 1");
-
-    auto monitor = [&]() {
-        cmd = std::string("stdbuf -i0 -o0 -e0 hexdump /dev/" + avr_serial_port + " -v -e '1/1 \"%02X\\n\"' > " + temp_midi_data_location + " &");
-        test::wsystem(cmd, response);
-    };
-
-    monitor();
-
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
-
-    //verify line count - since DIN MIDI isn't enabled, total count should be 0
-    test::wsystem("grep -c . " + temp_midi_data_location, response);
-    TEST_ASSERT_EQUAL_INT(0, stoi(response));
-    cmd = std::string("killall hexdump");
-    TEST_ASSERT_EQUAL_INT(0, test::wsystem("rm " + temp_midi_data_location));
-
-    //now enable DIN MIDI, repeat the test and verify that messages are received on DIN MIDI as well
-    TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled), 1) == true);
-    monitor();
-    changePreset(false);
-
-    test::wsystem("sleep 3 && killall hexdump");
-    test::wsystem("cat " + temp_midi_data_location + " | xargs | sed 's/ /&\\n/3;P;D'", response);
-    std::cout << "Received DIN MIDI messages:\n"
-              << response << std::endl;
-
-    test::wsystem("echo \"" + response + "\" | grep -c .", response);
-    std::cout << "Total number of received DIN MIDI messages: " << response << std::endl;
-    TEST_ASSERT(stoi(response) >= (MAX_NUMBER_OF_BUTTONS / 2));
-    //////////////////
-    //for some reason, first time raspberry drops some messages from uart
-    //2nd time everything is received
-    //investigate further - for now, run the test again
-    std::cout << "Repeating preset change..." << std::endl;
-    test::wsystem("rm " + temp_midi_data_location);
-    monitor();
-    changePreset(false);
-
-    test::wsystem("sleep 3 && killall hexdump");
-    test::wsystem("cat " + temp_midi_data_location + " | xargs | sed 's/ /&\\n/3;P;D'", response);
-    std::cout << "Received DIN MIDI messages:\n"
-              << response << std::endl;
-
-    test::wsystem("echo \"" + response + "\" | grep -c .", response);
-    std::cout << "Total number of received DIN MIDI messages: " << response << std::endl;
+#endif
 #endif
 }
 
@@ -690,14 +613,18 @@ TEST_CASE(DMX)
     test::sleepMs(3000);
 
     auto verify = [](bool state) {
-        std::string cmd                  = "ola_dev_info | grep -q " + std::string(BOARD_STRING);
-        size_t      responseRetryCounter = 0;
+#ifdef USB_SUPPORTED
+        std::string cmd = "ola_dev_info | grep -q " + std::string(BOARD_STRING);
+#else
+        std::string cmd = "ola_dev_info | grep -q " + std::string(USB_LINK_TARGET);
+#endif
+        size_t responseRetryCounter = 0;
 
         std::cout << "Checking if OLA " << std::string(state ? "can" : "can't") << " detect the board" << std::endl;
 
         while (test::wsystem(cmd))
         {
-            test::wsystem("sleep 1");
+            test::sleepMs(1000);
 
             //wait up to 20 seconds for detection
             if (++responseRetryCounter == 20)
@@ -748,4 +675,5 @@ TEST_CASE(DMX)
 }
 #endif
 
+#endif
 #endif

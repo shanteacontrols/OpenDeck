@@ -10,6 +10,7 @@
 #include "sysex/src/SysExConf.h"
 #include "system/System.h"
 #include "Misc.h"
+#include <HWTestDefines.h>
 
 class MIDIHelper
 {
@@ -136,37 +137,6 @@ class MIDIHelper
     }
 
     template<typename T>
-    static bool setSingleSysExReq(T section, size_t index, uint16_t value)
-    {
-        auto             blockIndex = block(section);
-        MIDI::Split14bit indexSplit;
-        MIDI::Split14bit valueSplit;
-
-        indexSplit.split(index);
-        valueSplit.split(value);
-
-        const std::vector<uint8_t> requestUint8 = {
-            0xF0,
-            SYSEX_MANUFACTURER_ID_0,
-            SYSEX_MANUFACTURER_ID_1,
-            SYSEX_MANUFACTURER_ID_2,
-            static_cast<uint8_t>(SysExConf::status_t::request),
-            0,
-            static_cast<uint8_t>(SysExConf::wish_t::set),
-            static_cast<uint8_t>(SysExConf::amount_t::single),
-            static_cast<uint8_t>(blockIndex),
-            static_cast<uint8_t>(section),
-            indexSplit.high(),
-            indexSplit.low(),
-            valueSplit.high(),
-            valueSplit.low(),
-            0xF7
-        };
-
-        return sendRequest(requestUint8, SysExConf::wish_t::set);
-    }
-
-    template<typename T>
     static void generateSysExGetReq(T section, size_t index, std::vector<uint8_t>& request)
     {
         auto             blockIndex = block(section);
@@ -224,6 +194,7 @@ class MIDIHelper
         };
     }
 
+#ifdef HW_TESTING
     template<typename T>
     static uint16_t readFromBoard(T section, size_t index)
     {
@@ -233,18 +204,55 @@ class MIDIHelper
         return sendRequest(requestUint8, SysExConf::wish_t::get);
     }
 
+    template<typename T>
+    static bool setSingleSysExReq(T section, size_t index, uint16_t value)
+    {
+        auto             blockIndex = block(section);
+        MIDI::Split14bit indexSplit;
+        MIDI::Split14bit valueSplit;
+
+        indexSplit.split(index);
+        valueSplit.split(value);
+
+        const std::vector<uint8_t> requestUint8 = {
+            0xF0,
+            SYSEX_MANUFACTURER_ID_0,
+            SYSEX_MANUFACTURER_ID_1,
+            SYSEX_MANUFACTURER_ID_2,
+            static_cast<uint8_t>(SysExConf::status_t::request),
+            0,
+            static_cast<uint8_t>(SysExConf::wish_t::set),
+            static_cast<uint8_t>(SysExConf::amount_t::single),
+            static_cast<uint8_t>(blockIndex),
+            static_cast<uint8_t>(section),
+            indexSplit.high(),
+            indexSplit.low(),
+            valueSplit.high(),
+            valueSplit.low(),
+            0xF7
+        };
+
+        return sendRequest(requestUint8, SysExConf::wish_t::set);
+    }
+
     static void flush()
     {
         std::string cmdResponse;
 
-#ifdef STM32_EMU_EEPROM
+#ifdef USB_SUPPORTED
         std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string(BOARD_STRING) + "\"";
 #else
-        std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string("mega16u2") + "\"";
+        std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string(USB_LINK_TARGET) + "\"";
 #endif
 
         std::string cmd = std::string("stdbuf -i0 -o0 -e0 amidi -p ") + deviceNameSearch + std::string(" | grep -Eo 'hw:\\S*') -d -t 3");
         test::wsystem(cmd, cmdResponse);
+
+//do the same for din interface if present
+#ifdef TEST_DIN_MIDI_PORT
+        cmd = std::string("amidi -p $(amidi -l | grep -E '") + std::string(DIN_MIDI_PORT) + std::string("' | grep -Eo 'hw:\\S*') -d -t 3");
+        test::wsystem(cmd, cmdResponse);
+#endif
     }
 
     static std::string sendRawSysEx(std::string req)
@@ -254,10 +262,10 @@ class MIDIHelper
 
         test::wsystem("rm -f " + lastResponseFileLocation, cmdResponse);
         std::cout << "req: " << req << std::endl;
-#ifdef STM32_EMU_EEPROM
+#ifdef USB_SUPPORTED
         std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string(BOARD_STRING) + "\"";
 #else
-        std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string("mega16u2") + "\"";
+        std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string(USB_LINK_TARGET) + "\"";
 #endif
 
         std::string cmd = std::string("stdbuf -i0 -o0 -e0 amidi -p ") + deviceNameSearch + std::string(" | grep -Eo 'hw:\\S*') -S '") + req + "' -d | stdbuf -i0 -o0 -e0 tr -d '\\n' > " + lastResponseFileLocation + " &";
@@ -324,20 +332,20 @@ class MIDIHelper
         {
             std::string baseString = "amidi -l | grep \"OpenDeck DFU | ";
 
-#ifdef STM32_EMU_EEPROM
+#ifdef USB_SUPPORTED
             cmd = baseString + "\"" + std::string("| grep ") + std::string(BOARD_STRING) + std::string(" | grep -Eo 'hw:\\S*'");
 #else
-            cmd = baseString + "\"" + std::string("| grep mega16u2") + std::string(" | grep -Eo 'hw:\\S*'");
+            cmd = baseString + "\"" + std::string("| grep ") + std::string(USB_LINK_TARGET) + std::string(" | grep -Eo 'hw:\\S*'");
 #endif
         }
         else
         {
             std::string baseString = "amidi -l | grep \"OpenDeck | ";
 
-#ifdef STM32_EMU_EEPROM
+#ifdef USB_SUPPORTED
             cmd = baseString + std::string(BOARD_STRING) + "\"" + std::string(" | grep -Eo 'hw:\\S*'");
 #else
-            cmd = baseString + std::string("mega16u2") + "\"" + std::string(" | grep -Eo 'hw:\\S*'");
+            cmd = baseString + std::string(USB_LINK_TARGET) + "\"" + std::string(" | grep -Eo 'hw:\\S*'");
 #endif
         }
 
@@ -345,8 +353,10 @@ class MIDIHelper
 
         return test::trimNewline(cmdResponse);
     }
+#endif
 
     private:
+#ifdef HW_TESTING
     static uint16_t sendRequest(const std::vector<uint8_t>& requestUint8, SysExConf::wish_t wish)
     {
         //convert uint8_t vector to string so it can be passed as command line argument
@@ -392,6 +402,7 @@ class MIDIHelper
             return responseUint8.at(4);
         }
     }
+#endif
 
     static System::block_t block(System::Section::global_t section)
     {
