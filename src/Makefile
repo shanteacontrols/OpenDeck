@@ -299,7 +299,7 @@ ifeq ($(FLASH_TOOL), bmp)
 ifeq ($(PORT),)
 	$(error Serial port for BMP not specified (eg. PORT=ttyACM0))
 endif
-	@gdb -nx --batch \
+	@timeout 30 gdb -nx --batch \
 	-ex 'target extended-remote /dev/$(PORT)' \
 	-ex 'monitor swdp_scan' \
 	-ex 'attach 1' \
