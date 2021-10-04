@@ -186,6 +186,8 @@ TEST_CASE(DatabaseInitialValues)
     cyclePower(powerCycleType_t::standardWithDeviceCheck);
 #endif
 
+    constexpr size_t PARAM_SKIP = 2;
+
     factoryReset();
     TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
 
@@ -199,7 +201,7 @@ TEST_CASE(DatabaseInitialValues)
         //----------------------------------
         //feature section
         //all values should be set to 0
-        for (int i = 0; i < static_cast<uint8_t>(System::midiFeature_t::AMOUNT); i++)
+        for (size_t i = 0; i < static_cast<uint8_t>(System::midiFeature_t::AMOUNT); i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::global_t::midiFeatures, i));
 
         //merge section
@@ -212,143 +214,143 @@ TEST_CASE(DatabaseInitialValues)
         //----------------------------------
         //type section
         //all values should be set to 0 (default type)
-        for (int i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::button_t::type, i));
 
         //midi message section
         //all values should be set to 0 (default/note)
-        for (int i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::button_t::midiMessage, i));
 
         //midi id section
         //incremental values - first value should be 0, each successive value should be incremented by 1 for each group
         //(physical/analog/touchscreen)
-        for (int i = 0; i < 1; i++)
+        for (size_t i = 0; i < 1; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(i, MIDIHelper::readFromBoard(System::Section::button_t::midiID, i));
 
-        for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_ANALOG; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(i, MIDIHelper::readFromBoard(System::Section::button_t::midiID, MAX_NUMBER_OF_BUTTONS + i));
 
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(i, MIDIHelper::readFromBoard(System::Section::button_t::midiID, MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + i));
 
         //midi velocity section
         //all values should be set to 127
-        for (int i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(127, MIDIHelper::readFromBoard(System::Section::button_t::velocity, i));
 
         //midi channel section
         //all values should be set to 0
         //note: midi channels are in range 1-16 via sysex and written in range 0-15 in db
-        for (int i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(1, MIDIHelper::readFromBoard(System::Section::button_t::midiChannel, i));
 
         //encoders block
         //----------------------------------
         //enable section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_ENCODERS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::encoder_t::enable, i));
 
         //invert section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_ENCODERS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::encoder_t::invert, i));
 
         //mode section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_ENCODERS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::encoder_t::mode, i));
 
         //midi id section
         //incremental values - first value should be set to MAX_NUMBER_OF_ANALOG, each successive value should be incremented by 1
-        for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_ENCODERS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ANALOG + i, MIDIHelper::readFromBoard(System::Section::encoder_t::midiID, i));
 
         //midi channel section
         //all values should be set to 0
         //note: midi channels are in range 1-16 via sysex and written in range 0-15 in db
-        for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_ENCODERS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(1, MIDIHelper::readFromBoard(System::Section::encoder_t::midiChannel, i));
 
         //pulses per step section
         //all values should be set to 4
-        for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_ENCODERS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(4, MIDIHelper::readFromBoard(System::Section::encoder_t::pulsesPerStep, i));
 
         //analog block
         //----------------------------------
         //enable section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_ANALOG; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::analog_t::enable, i));
 
         //invert section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_ANALOG; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::analog_t::invert, i));
 
         //type section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_ANALOG; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::analog_t::invert, i));
 
         //midi id section
         //incremental values - first value should be set to 0, each successive value should be incremented by 1
-        for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_ANALOG; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(i, MIDIHelper::readFromBoard(System::Section::analog_t::midiID, i));
 
         //lower limit section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_ANALOG; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::analog_t::lowerLimit, i));
 
         //upper limit section
         //all values should be set to 16383
-        for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_ANALOG; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(16383, MIDIHelper::readFromBoard(System::Section::analog_t::upperLimit, i));
 
         //midi channel section
         //all values should be set to 0
         //note: midi channels are in range 1-16 via sysex and written in range 0-15 in db
-        for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_ANALOG; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(1, MIDIHelper::readFromBoard(System::Section::analog_t::midiChannel, i));
 
         //LED block
         //----------------------------------
         //global section
         //all values should be set to 0
-        for (int i = 0; i < static_cast<uint8_t>(IO::LEDs::setting_t::AMOUNT); i++)
+        for (size_t i = 0; i < static_cast<uint8_t>(IO::LEDs::setting_t::AMOUNT); i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::leds_t::global, i));
 
         //activation id section
         //incremental values - first value should be set to 0, each successive value should be incremented by 1 for each group
         //(physical/touchscreen)
-        for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_LEDS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(i, MIDIHelper::readFromBoard(System::Section::leds_t::activationID, i));
 
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(i, MIDIHelper::readFromBoard(System::Section::leds_t::activationID, MAX_NUMBER_OF_LEDS + i));
 
         //rgb enable section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_RGB_LEDS + (MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS / 3); i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_RGB_LEDS + (MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS / 3); i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::leds_t::rgbEnable, i));
 
         //control type section
         //all values should be set to midiInNoteMultiVal
-        for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(static_cast<uint32_t>(IO::LEDs::controlType_t::midiInNoteMultiVal), MIDIHelper::readFromBoard(System::Section::leds_t::controlType, i));
 
         //activation value section
         //all values should be set to 127
-        for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(127, MIDIHelper::readFromBoard(System::Section::leds_t::activationValue, i));
 
         //midi channel section
         //all values should be set to 0
         //note: midi channels are in range 1-16 via sysex and written in range 0-15 in db
-        for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(1, MIDIHelper::readFromBoard(System::Section::leds_t::midiChannel, i));
 
 #ifdef DISPLAY_SUPPORTED
@@ -370,82 +372,82 @@ TEST_CASE(DatabaseInitialValues)
         //----------------------------------
         //setting section
         //all values should be set to 0
-        for (int i = 0; i < static_cast<uint8_t>(IO::Touchscreen::setting_t::AMOUNT); i++)
+        for (size_t i = 0; i < static_cast<uint8_t>(IO::Touchscreen::setting_t::AMOUNT); i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::touchscreen_t::setting, i));
 
         //x position section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::touchscreen_t::xPos, i));
 
         //y position section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::touchscreen_t::yPos, i));
 
         //width section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::touchscreen_t::width, i));
 
         //height section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::touchscreen_t::height, i));
 
         //on screen section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::touchscreen_t::onScreen, i));
 
         //off screen section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::touchscreen_t::offScreen, i));
 
         //page switch enabled section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::touchscreen_t::pageSwitchEnabled, i));
 
         //page switch index section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::touchscreen_t::pageSwitchIndex, i));
 
         //analog page section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::touchscreen_t::analogPage, i));
 
         //analog start x coordinate section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::touchscreen_t::analogStartXCoordinate, i));
 
         //analog end x coordinate section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::touchscreen_t::analogEndXCoordinate, i));
 
         //analog start y coordinate section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::touchscreen_t::analogStartYCoordinate, i));
 
         //analog end y coordinate section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::touchscreen_t::analogEndYCoordinate, i));
 
         //analog type section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::touchscreen_t::analogType, i));
 
         //analog reset on release section
         //all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (size_t i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i += PARAM_SKIP)
             TEST_ASSERT_EQUAL_UINT32(0, MIDIHelper::readFromBoard(System::Section::touchscreen_t::analogResetOnRelease, i));
 #endif
     }
