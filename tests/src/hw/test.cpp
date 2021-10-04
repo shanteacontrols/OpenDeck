@@ -170,6 +170,7 @@ TEST_TEARDOWN()
     test::wsystem("rm -f " + temp_midi_data_location);
     test::wsystem("rm -f " + backup_file_location);
     test::wsystem("killall amidi > /dev/null 2>&1");
+    test::wsystem("killall olad > /dev/null 2>&1");
 }
 
 #ifdef HW_TEST_FLASH
@@ -683,55 +684,62 @@ TEST_CASE(DMX)
     factoryReset();
     TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
 
-    //device manufacturer request
-    std::string port = "/dev/" +
-#if FW_UID == 0x7a382913
-                       opendeck2_dmx_serial_port
-#elif FW_UID == 0x09100012
-                       mega2560_dmx_serial_port
-#else
-#error Compiling DMX test for unsupported board
-#endif
-        ;
+    test::wsystem("olad -f --no-http");
+    test::sleepMs(3000);
 
-    std::vector<uint8_t>
-        response = SerialHelper::sendToBoard(port, { 0x7E, 0x4D, 0x00, 0x00, 0xE7 });
+    auto verify = [](bool state) {
+        std::string cmd                  = "ola_dev_info | grep -q " + std::string(BOARD_STRING);
+        size_t      responseRetryCounter = 0;
 
-    std::vector<uint8_t> expectedResponse = {
-        0x7E,
-        0x4D,
-        0x12,
-        0x00,
-        ESTA_ID & 0xFF,
-        ESTA_ID >> 8 & 0xFF,
-        'S',
-        'h',
-        'a',
-        'n',
-        't',
-        'e',
-        'a',
-        ' ',
-        'C',
-        'o',
-        'n',
-        't',
-        'r',
-        'o',
-        'l',
-        's',
-        0xE7
+        std::cout << "Checking if OLA " << std::string(state ? "can" : "can't") << " detect the board" << std::endl;
+
+        while (test::wsystem(cmd))
+        {
+            test::wsystem("sleep 1");
+
+            //wait up to 20 seconds for detection
+            if (++responseRetryCounter == 20)
+            {
+                break;
+            }
+        }
+
+        if (!state)
+        {
+            if (responseRetryCounter == 20)
+            {
+                std::cout << "OLA didn't detect the board while DMX was disabled" << std::endl;
+                return true;
+            }
+            else
+            {
+                std::cout << "OLA detected the board while DMX was disabled" << std::endl;
+                return false;
+            }
+        }
+        else
+        {
+            if (responseRetryCounter == 20)
+            {
+                std::cout << "OLA didn't detect the board while DMX was enabled" << std::endl;
+                return false;
+            }
+            else
+            {
+                std::cout << "OLA detected the board while DMX was enabled" << std::endl;
+                return true;
+            }
+        }
     };
 
-    //nothing should be received since DMX isn't enabled
-    TEST_ASSERT_EQUAL_UINT32(0, response.size());
+    //verify that the current board isn't present in the device list
+    TEST_ASSERT(verify(false));
 
+    //enable dmx
     TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::dmx, static_cast<int>(System::dmxSetting_t::enabled), 1) == true);
 
-    //CDC interface should now work - send request again in form of Enttec Widget API message
-    test::wsystem("sleep 1");
-    response = SerialHelper::sendToBoard(port, { 0x7E, 0x4D, 0x00, 0x00, 0xE7 });
-    TEST_ASSERT(expectedResponse == response);
+    //verify that the current board is present in the device list
+    TEST_ASSERT(verify(true));
 
     //midi part should remain functional as well
     TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
