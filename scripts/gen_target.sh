@@ -87,7 +87,14 @@ then
     printf "%s%s\n" "DEFINES += HSE_VALUE=$hse_val" "000000" >> "$OUT_FILE_MAKEFILE_DEFINES"
 fi
 
-printf "%s\n" "DEFINES += BOARD_STRING=\\\"$TARGET_NAME\\\"" >> "$OUT_FILE_MAKEFILE_DEFINES"
+board_name=$($YAML_PARSER "$TARGET_DEF_FILE" boardNameOverride)
+
+if [[ $board_name == "null" ]]
+then
+    board_name=$TARGET_NAME
+fi
+
+printf "%s\n" "DEFINES += BOARD_STRING=\\\"$board_name\\\"" >> "$OUT_FILE_MAKEFILE_DEFINES"
 
 ########################################################################################################
 
@@ -103,9 +110,9 @@ then
 
     {
         printf "%s\n" "#if defined(FW_APP)"
-        printf "%s\n" "#define USB_PRODUCT UNICODE_STRING(\"OpenDeck | $TARGET_NAME\")"
+        printf "%s\n" "#define USB_PRODUCT UNICODE_STRING(\"OpenDeck | $board_name\")"
         printf "%s\n" "#elif defined(FW_BOOT)"
-        printf "%s\n" "#define USB_PRODUCT UNICODE_STRING(\"OpenDeck DFU | $TARGET_NAME\")"
+        printf "%s\n" "#define USB_PRODUCT UNICODE_STRING(\"OpenDeck DFU | $board_name\")"
         printf "%s\n" "#endif"
     } >> "$OUT_FILE_HEADER_USB"
 fi

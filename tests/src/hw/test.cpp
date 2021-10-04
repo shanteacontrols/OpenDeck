@@ -432,11 +432,7 @@ TEST_CASE(DatabaseInitialValues)
 
 TEST_CASE(FwUpdate)
 {
-#ifdef STM32_EMU_EEPROM
     std::string syxPath = fw_build_dir + BOARD_STRING + "/" + fw_build_type_subdir + BOARD_STRING + ".sysex.syx";
-#else
-    std::string syxPath = fw_build_dir + std::string("mega2560") + "/" + fw_build_type_subdir + std::string("mega2560") + ".sysex.syx";
-#endif
 
     if (!std::filesystem::exists(syxPath))
     {
@@ -613,12 +609,8 @@ TEST_CASE(DMX)
     test::sleepMs(3000);
 
     auto verify = [](bool state) {
-#ifdef USB_SUPPORTED
-        std::string cmd = "ola_dev_info | grep -q " + std::string(BOARD_STRING);
-#else
-        std::string cmd = "ola_dev_info | grep -q " + std::string(USB_LINK_TARGET);
-#endif
-        size_t responseRetryCounter = 0;
+        std::string cmd                  = "ola_dev_info | grep -q " + std::string(BOARD_STRING);
+        size_t      responseRetryCounter = 0;
 
         std::cout << "Checking if OLA " << std::string(state ? "can" : "can't") << " detect the board" << std::endl;
 

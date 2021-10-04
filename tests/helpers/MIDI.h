@@ -239,11 +239,7 @@ class MIDIHelper
     {
         std::string cmdResponse;
 
-#ifdef USB_SUPPORTED
         std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string(BOARD_STRING) + "\"";
-#else
-        std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string(USB_LINK_TARGET) + "\"";
-#endif
 
         std::string cmd = std::string("stdbuf -i0 -o0 -e0 amidi -p ") + deviceNameSearch + std::string(" | grep -Eo 'hw:\\S*') -d -t 3");
         test::wsystem(cmd, cmdResponse);
@@ -262,13 +258,9 @@ class MIDIHelper
 
         test::wsystem("rm -f " + lastResponseFileLocation, cmdResponse);
         std::cout << "req: " << req << std::endl;
-#ifdef USB_SUPPORTED
-        std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string(BOARD_STRING) + "\"";
-#else
-        std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string(USB_LINK_TARGET) + "\"";
-#endif
 
-        std::string cmd = std::string("stdbuf -i0 -o0 -e0 amidi -p ") + deviceNameSearch + std::string(" | grep -Eo 'hw:\\S*') -S '") + req + "' -d | stdbuf -i0 -o0 -e0 tr -d '\\n' > " + lastResponseFileLocation + " &";
+        std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string(BOARD_STRING) + "\"";
+        std::string cmd              = std::string("stdbuf -i0 -o0 -e0 amidi -p ") + deviceNameSearch + std::string(" | grep -Eo 'hw:\\S*') -S '") + req + "' -d | stdbuf -i0 -o0 -e0 tr -d '\\n' > " + lastResponseFileLocation + " &";
         test::wsystem(cmd, cmdResponse);
 
         size_t responseRetryCounter = 0;
@@ -331,22 +323,12 @@ class MIDIHelper
         if (bootloader)
         {
             std::string baseString = "amidi -l | grep \"OpenDeck DFU | ";
-
-#ifdef USB_SUPPORTED
-            cmd = baseString + "\"" + std::string("| grep ") + std::string(BOARD_STRING) + std::string(" | grep -Eo 'hw:\\S*'");
-#else
-            cmd = baseString + "\"" + std::string("| grep ") + std::string(USB_LINK_TARGET) + std::string(" | grep -Eo 'hw:\\S*'");
-#endif
+            cmd                    = baseString + "\"" + std::string("| grep ") + std::string(BOARD_STRING) + std::string(" | grep -Eo 'hw:\\S*'");
         }
         else
         {
             std::string baseString = "amidi -l | grep \"OpenDeck | ";
-
-#ifdef USB_SUPPORTED
-            cmd = baseString + std::string(BOARD_STRING) + "\"" + std::string(" | grep -Eo 'hw:\\S*'");
-#else
-            cmd = baseString + std::string(USB_LINK_TARGET) + "\"" + std::string(" | grep -Eo 'hw:\\S*'");
-#endif
+            cmd                    = baseString + std::string(BOARD_STRING) + "\"" + std::string(" | grep -Eo 'hw:\\S*'");
         }
 
         test::wsystem(cmd, cmdResponse);

@@ -1,5 +1,6 @@
 ---
   mcu: "atmega16u2"
+  boardNameOverride: "mega2560"
   usb: true
   leds:
     internal:
