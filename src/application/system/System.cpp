@@ -543,6 +543,11 @@ void System::run()
 
 void System::forceComponentRefresh()
 {
-    _analog.update(true);
-    _buttons.update(true);
+    //extra check here - it's possible that preset was changed and then backup/restore procedure started
+    //in that case this would get called
+    if (_backupRestoreState == backupRestoreState_t::none)
+    {
+        _analog.update(true);
+        _buttons.update(true);
+    }
 }
