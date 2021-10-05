@@ -1,4 +1,4 @@
 ---
 ports:
-  flash: "ttyACM2"
+  flash: "isp_2560"
 usbLinkTarget: "mega16u2"

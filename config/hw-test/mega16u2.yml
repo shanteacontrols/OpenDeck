@@ -1,3 +1,3 @@
 ---
 ports:
-  flash: "ttyACM3"
+  flash: "isp_16u2"
