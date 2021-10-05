@@ -38,7 +38,7 @@ C_FLAGS := \
 -std=c11
 
 #linker
-LDFLAGS :=
+LDFLAGS := -lglog
 
 $(BUILD_DIR)/%.c.o $(BUILD_DIR_BASE)/%.c.o: %.c
 	@mkdir -p $(@D)

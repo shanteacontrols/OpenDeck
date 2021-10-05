@@ -11,6 +11,7 @@
 #include "system/System.h"
 #include "Misc.h"
 #include <HWTestDefines.h>
+#include <glog/logging.h>
 
 class MIDIHelper
 {
@@ -237,6 +238,7 @@ class MIDIHelper
 
     static void flush()
     {
+        LOG(INFO) << "Flushing all incoming data from the board";
         std::string cmdResponse;
 
         std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string(BOARD_STRING) + "\"";
@@ -246,6 +248,7 @@ class MIDIHelper
 
 //do the same for din interface if present
 #ifdef TEST_DIN_MIDI_PORT
+        LOG(INFO) << "Flushing all incoming data from the DIN MIDI interface";
         cmd = std::string("amidi -p $(amidi -l | grep -E '") + std::string(DIN_MIDI_PORT) + std::string("' | grep -Eo 'hw:\\S*') -d -t 3");
         test::wsystem(cmd, cmdResponse);
 #endif
@@ -257,7 +260,7 @@ class MIDIHelper
         std::string lastResponseFileLocation = "/tmp/midi_in_data.txt";
 
         test::wsystem("rm -f " + lastResponseFileLocation, cmdResponse);
-        std::cout << "req: " << req << std::endl;
+        LOG(INFO) << "req: " << req;
 
         std::string deviceNameSearch = "$(amidi -l | grep \"OpenDeck | " + std::string(BOARD_STRING) + "\"";
         std::string cmd              = std::string("stdbuf -i0 -o0 -e0 amidi -p ") + deviceNameSearch + std::string(" | grep -Eo 'hw:\\S*') -S '") + req + "' -d | stdbuf -i0 -o0 -e0 tr -d '\\n' > " + lastResponseFileLocation + " &";
@@ -267,7 +270,7 @@ class MIDIHelper
 
         if (test::wordsInString(req) < SysExConf::SPECIAL_REQ_MSG_SIZE)
         {
-            std::cout << "Invalid request" << std::endl;
+            LOG(ERROR) << "Invalid request";
             return "";
         }
 
@@ -289,11 +292,11 @@ class MIDIHelper
                 //allow 2 second of response time
                 if (responseRetryCounter == 200)
                 {
-                    std::cout << "Failed to find valid response to request. Outputting response:" << std::endl;
+                    LOG(ERROR) << "Failed to find valid response to request. Outputting response:";
                     test::wsystem("cat " + lastResponseFileLocation, cmdResponse);
-                    std::cout << cmdResponse << "\n"
+                    LOG(INFO) << cmdResponse << "\n"
                                                 "Search pattern was: "
-                              << pattern << std::endl;
+                              << pattern;
 
                     test::wsystem("killall amidi > /dev/null 2>&1");
                     return "";
@@ -302,7 +305,7 @@ class MIDIHelper
 
             test::wsystem("killall amidi > /dev/null 2>&1");
             test::trimNewline(cmdResponse);
-            std::cout << "res: " << cmdResponse << std::endl;
+            LOG(INFO) << "res: " << cmdResponse;
 
             return cmdResponse;
         }

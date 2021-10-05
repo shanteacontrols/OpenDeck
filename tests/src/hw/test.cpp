@@ -10,6 +10,7 @@
 #include "application/database/Database.h"
 #include "stubs/database/DB_ReadWrite.h"
 #include <HWTestDefines.h>
+#include <glog/logging.h>
 
 namespace
 {
@@ -41,14 +42,20 @@ namespace
 
     void reboot(bool sendHandshake = true)
     {
+        LOG(INFO) << "Reboting the board";
+
         TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
         MIDIHelper::sendRawSysEx(reboot_req, false);
         test::sleepMs(startup_delay_ms);
 
         if (!MIDIHelper::devicePresent())
         {
-            std::cout << "OpenDeck device not found after reboot, aborting" << std::endl;
+            LOG(ERROR) << "OpenDeck device not found after reboot, aborting";
             exit(1);
+        }
+        else
+        {
+            LOG(INFO) << "Board rebooted";
         }
 
         if (sendHandshake)
@@ -57,6 +64,8 @@ namespace
 
     void factoryReset()
     {
+        LOG(INFO) << "Performing factory reset";
+
         TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
         MIDIHelper::sendRawSysEx(factory_reset_req, false);
 
@@ -64,13 +73,19 @@ namespace
 
         if (!MIDIHelper::devicePresent())
         {
-            std::cout << "OpenDeck device not found after factory reset, aborting" << std::endl;
+            LOG(ERROR) << "OpenDeck device not found after factory reset, aborting";
             exit(1);
+        }
+        else
+        {
+            LOG(INFO) << "Factory reset complete";
         }
     }
 
     void bootloaderMode()
     {
+        LOG(INFO) << "Entering bootloader mode";
+
         TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
         MIDIHelper::sendRawSysEx(btldr_req, false);
 
@@ -78,15 +93,22 @@ namespace
 
         if (!MIDIHelper::devicePresent(true))
         {
-            std::cout << "OpenDeck DFU device not found after bootloader request" << std::endl;
+            LOG(ERROR) << "OpenDeck DFU device not found after bootloader request";
             exit(1);
+        }
+        else
+        {
+            LOG(INFO) << "Entered bootloader mode";
         }
     }
 
     void cyclePower(powerCycleType_t powerCycleType)
     {
         auto cycle = [&]() {
+            LOG(INFO) << "Turning USB devices off";
             TEST_ASSERT_EQUAL_INT(0, test::wsystem(usb_power_off_cmd));
+
+            LOG(INFO) << "Turning USB devices on";
             TEST_ASSERT_EQUAL_INT(0, test::wsystem(usb_power_on_cmd));
 
             test::sleepMs(startup_delay_ms);
@@ -94,10 +116,13 @@ namespace
 
         if (powerCycleType != powerCycleType_t::standardWithDeviceCheck)
         {
+            LOG(INFO) << "Cycling power without device check";
             cycle();
         }
         else
         {
+            LOG(INFO) << "Cycling power with device check";
+
             //ensure the device is present
             do
             {
@@ -116,22 +141,29 @@ namespace
 
             do
             {
+                LOG(INFO) << "Flashing the board";
                 result = test::wsystem(flash_cmd + flashTarget + flashPort);
 
                 if (result)
+                {
+                    LOG(ERROR) << "Flashing failed - repeating";
                     cyclePower(powerCycleType_t::standard);
-
+                }
+                else
+                {
+                    LOG(INFO) << "Flashing sucessful";
+                }
             } while (result);
         };
 
         flash(std::string(BOARD_STRING), std::string(FLASH_PORT));
 
 #ifndef USB_SUPPORTED
-        //flash usb link mcu as well
+        LOG(INFO) << "Flashing USB Link MCU";
         flash(std::string(USB_LINK_TARGET), std::string(FLASH_PORT_USB_LINK));
 #endif
 
-        //delay some time to allow eeprom init
+        LOG(INFO) << "Waiting " << startup_delay_ms << " ms after flashing...";
         test::sleepMs(startup_delay_ms);
 
         cyclePower(powerCycleType_t::standardWithDeviceCheck);
@@ -140,6 +172,8 @@ namespace
 
 TEST_SETUP()
 {
+    LOG(INFO) << "Setting up test";
+
     //dummy db - used only to retrieve correct amount of supported presets
     TEST_ASSERT(database.init() == true);
     cyclePower(powerCycleType_t::standard);
@@ -148,6 +182,8 @@ TEST_SETUP()
 
 TEST_TEARDOWN()
 {
+    LOG(INFO) << "Tearing down test";
+
     test::wsystem("rm -f " + temp_midi_data_location);
     test::wsystem("rm -f " + backup_file_location);
     test::wsystem("killall amidi > /dev/null 2>&1");
@@ -171,6 +207,7 @@ TEST_CASE(DatabaseInitialValues)
     //check only first and the last preset
     for (int preset = 0; preset < database.getSupportedPresets(); preset += (database.getSupportedPresets() - 1))
     {
+        LOG(INFO) << "Checking initial values for preset " << preset + 1;
         TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::presets, 0, preset) == true);
         TEST_ASSERT_EQUAL_UINT32(preset, MIDIHelper::readFromBoard(System::Section::global_t::presets, 0));
 
@@ -436,20 +473,21 @@ TEST_CASE(FwUpdate)
 
     if (!std::filesystem::exists(syxPath))
     {
-        std::cout << ".syx file not found, aborting" << std::endl;
+        LOG(ERROR) << ".syx file not found, aborting";
         exit(1);
     }
 
     bootloaderMode();
 
+    LOG(INFO) << "Sending firmware file to the board";
     std::string cmd = std::string("amidi -p ") + MIDIHelper::amidiPort(true) + " -s " + syxPath + " -i " + sysex_fw_update_delay_ms;
     TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd));
-
+    LOG(INFO) << "Firmware file sent sucessfully, waiting " << startup_delay_ms << " ms";
     test::sleepMs(startup_delay_ms);
 
     if (!MIDIHelper::devicePresent())
     {
-        std::cout << "OpenDeck device not found after firmware update, aborting" << std::endl;
+        LOG(ERROR) << "OpenDeck device not found after firmware update, aborting";
         exit(1);
     }
 }
@@ -458,6 +496,8 @@ TEST_CASE(BackupAndRestore)
 {
     factoryReset();
     TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
+
+    LOG(INFO) << "Setting few random values in each available preset";
 
     for (int preset = 0; preset < database.getSupportedPresets(); preset++)
     {
@@ -477,13 +517,15 @@ TEST_CASE(BackupAndRestore)
         TEST_ASSERT_EQUAL_UINT32(90 + preset, MIDIHelper::readFromBoard(System::Section::button_t::velocity, 0));
     }
 
+    LOG(INFO) << "Sending backup request";
     std::string cmd = std::string("amidi -p ") + MIDIHelper::amidiPort() + " -S \"" + backup_req + "\" -d -t 5 > " + backup_file_location;
     TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd));
 
     factoryReset();
     TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
 
-    //verify that the defaults are active again
+    LOG(INFO) << "Verifying that the default values are active again";
+
     for (int preset = 0; preset < database.getSupportedPresets(); preset++)
     {
         TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::presets, static_cast<int>(System::presetSetting_t::activePreset), preset) == true);
@@ -496,7 +538,7 @@ TEST_CASE(BackupAndRestore)
         TEST_ASSERT_EQUAL_UINT32(127, MIDIHelper::readFromBoard(System::Section::button_t::velocity, 0));
     }
 
-    //now restore backup
+    LOG(INFO) << "Restoring backup";
 
     //remove everything before the first line containing F0 00 53 43 01 00 1B F7
     TEST_ASSERT_EQUAL_INT(0, test::wsystem("sed -i '0,/^F0 00 53 43 01 00 1B F7$/d' " + backup_file_location));
@@ -513,7 +555,8 @@ TEST_CASE(BackupAndRestore)
         TEST_ASSERT(MIDIHelper::sendRawSysEx(line) != std::string(""));
     }
 
-    //verify that the custom values are active again
+    LOG(INFO) << "Verifying that the custom values are active again";
+
     for (int preset = 0; preset < database.getSupportedPresets(); preset++)
     {
         TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::presets, static_cast<int>(System::presetSetting_t::activePreset), preset) == true);
@@ -536,7 +579,7 @@ TEST_CASE(MIDIData)
     TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
 
     auto changePreset = [&](bool redirect) {
-        //once the preset is changed, the board should forcefully resend all the button states
+        LOG(INFO) << "Switching preset";
 
         if (redirect)
             cmd = std::string("amidi -p ") + MIDIHelper::amidiPort() + " -S \"F0 00 53 43 00 00 01 00 00 02 00 00 00 00 F7\" -d -t 5 > " + temp_midi_data_location;
@@ -566,6 +609,7 @@ TEST_CASE(MIDIData)
 #ifdef DIN_MIDI_SUPPORTED
 #ifdef TEST_DIN_MIDI_PORT
     auto monitor = [&]() {
+        LOG(INFO) << "Monitoring DIN MIDI interface";
         cmd = std::string("amidi -p $(amidi -l | grep -E '") + DIN_MIDI_PORT + std::string("' | grep -Eo 'hw:\\S*')") + " -d > " + temp_midi_data_location + " &";
         TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd));
     };
@@ -576,24 +620,25 @@ TEST_CASE(MIDIData)
 
     test::wsystem("killall amidi", response);
 
-    //verify line count - since DIN MIDI isn't enabled, total count should be 0
+    LOG(INFO) << "Verifying that no data reached DIN MIDI interface";
     test::wsystem("grep -c . " + temp_midi_data_location, response);
     TEST_ASSERT_EQUAL_INT(0, stoi(response));
     TEST_ASSERT_EQUAL_INT(0, test::wsystem("rm " + temp_midi_data_location));
 
-    //now enable DIN MIDI, repeat the test and verify that messages are received on DIN MIDI as well
+    LOG(INFO) << "Enabling DIN MIDI";
     TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::midiFeatures, static_cast<size_t>(System::midiFeature_t::dinEnabled), 1) == true);
     monitor();
     changePreset(false);
 
+    LOG(INFO) << "Verifying that the data has now reached DIN MIDI interface";
     test::wsystem("sleep 3 && killall amidi > /dev/null");
     test::wsystem("cat " + temp_midi_data_location + " | xargs | sed 's/ /&\\n/3;P;D'", response);
-    std::cout << "Received DIN MIDI messages:\n"
-              << response << std::endl;
+    LOG(INFO) << "Received DIN MIDI messages:\n"
+              << response;
 
     test::wsystem("echo \"" + response + "\" | grep -c .", response);
     test::wsystem("grep -c . " + temp_midi_data_location, response);
-    std::cout << "Total number of received DIN MIDI messages: " << response << std::endl;
+    LOG(INFO) << "Total number of received DIN MIDI messages: " << response;
     TEST_ASSERT(stoi(response) >= (MAX_NUMBER_OF_BUTTONS / 2));
 #endif
 #endif
@@ -605,14 +650,13 @@ TEST_CASE(DMX)
     factoryReset();
     TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
 
+    LOG(INFO) << "Starting OLA daemon";
     test::wsystem("olad -f --no-http");
     test::sleepMs(3000);
 
     auto verify = [](bool state) {
         std::string cmd                  = "ola_dev_info | grep -q " + std::string(BOARD_STRING);
         size_t      responseRetryCounter = 0;
-
-        std::cout << "Checking if OLA " << std::string(state ? "can" : "can't") << " detect the board" << std::endl;
 
         while (test::wsystem(cmd))
         {
@@ -629,12 +673,12 @@ TEST_CASE(DMX)
         {
             if (responseRetryCounter == 20)
             {
-                std::cout << "OLA didn't detect the board while DMX was disabled" << std::endl;
+                LOG(INFO) << "OLA didn't detect the board while DMX was disabled";
                 return true;
             }
             else
             {
-                std::cout << "OLA detected the board while DMX was disabled" << std::endl;
+                LOG(ERROR) << "OLA detected the board while DMX was disabled";
                 return false;
             }
         }
@@ -642,24 +686,24 @@ TEST_CASE(DMX)
         {
             if (responseRetryCounter == 20)
             {
-                std::cout << "OLA didn't detect the board while DMX was enabled" << std::endl;
+                LOG(ERROR) << "OLA didn't detect the board while DMX was enabled";
                 return false;
             }
             else
             {
-                std::cout << "OLA detected the board while DMX was enabled" << std::endl;
+                LOG(INFO) << "OLA detected the board while DMX was enabled";
                 return true;
             }
         }
     };
 
-    //verify that the current board isn't present in the device list
+    LOG(INFO) << "DMX is disabled, checking if the board isn't detectable by OLA";
     TEST_ASSERT(verify(false));
 
-    //enable dmx
+    LOG(INFO) << "Enabling DMX";
     TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::dmx, static_cast<int>(System::dmxSetting_t::enabled), 1) == true);
 
-    //verify that the current board is present in the device list
+    LOG(INFO) << "Checking if the board is detectable by OLA";
     TEST_ASSERT(verify(true));
 
     //midi part should remain functional as well

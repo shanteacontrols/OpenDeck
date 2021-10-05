@@ -1,4 +1,5 @@
 #include "Framework.h"
+#include <glog/logging.h>
 
 __attribute__((weak)) void setUp(void)
 {
@@ -10,8 +11,11 @@ __attribute__((weak)) void tearDown(void)
 
 std::vector<testDescriptor_t> testDescriptors;
 
-int main()
+int main(int argc, char* argv[])
 {
+    FLAGS_logtostderr = 1;
+
+    google::InitGoogleLogging(argv[0]);
     TESTS_START();
 
     for (size_t test = 0; test < testDescriptors.size(); test++)
