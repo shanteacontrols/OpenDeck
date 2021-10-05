@@ -652,15 +652,17 @@ TEST_CASE(DMX)
     test::sleepMs(3000);
 
     auto verify = [](bool state) {
-        std::string cmd                  = "ola_dev_info | grep -q " + std::string(BOARD_STRING);
-        size_t      responseRetryCounter = 0;
+        std::string    cmd           = "ola_dev_info | grep -q " + std::string(BOARD_STRING);
+        const uint32_t waitTimeMs    = 1000;
+        const uint32_t stopWaitAfter = 22000;    //ola searches after 20sec, 2 more just in case
+        uint32_t       totalWaitTime = 0;
 
         while (test::wsystem(cmd))
         {
-            test::sleepMs(1000);
+            test::sleepMs(waitTimeMs);
+            totalWaitTime += waitTimeMs;
 
-            //wait up to 20 seconds for detection
-            if (++responseRetryCounter == 20)
+            if (totalWaitTime == stopWaitAfter)
             {
                 break;
             }
@@ -668,7 +670,7 @@ TEST_CASE(DMX)
 
         if (!state)
         {
-            if (responseRetryCounter == 20)
+            if (totalWaitTime == stopWaitAfter)
             {
                 LOG(INFO) << "OLA didn't detect the board while DMX was disabled";
                 return true;
@@ -681,7 +683,7 @@ TEST_CASE(DMX)
         }
         else
         {
-            if (responseRetryCounter == 20)
+            if (totalWaitTime == stopWaitAfter)
             {
                 LOG(ERROR) << "OLA didn't detect the board while DMX was enabled";
                 return false;

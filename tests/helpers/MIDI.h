@@ -266,8 +266,6 @@ class MIDIHelper
         std::string cmd              = std::string("stdbuf -i0 -o0 -e0 amidi -p ") + deviceNameSearch + std::string(" | grep -Eo 'hw:\\S*') -S '") + req + "' -d | stdbuf -i0 -o0 -e0 tr -d '\\n' > " + lastResponseFileLocation + " &";
         test::wsystem(cmd, cmdResponse);
 
-        size_t responseRetryCounter = 0;
-
         if (test::wordsInString(req) < SysExConf::SPECIAL_REQ_MSG_SIZE)
         {
             LOG(ERROR) << "Invalid request";
@@ -282,15 +280,17 @@ class MIDIHelper
             //remove everything after request/wish byte
             std::string pattern = req.substr(0, 20) + ".*F7";
 
-            cmd = "cat " + lastResponseFileLocation + " | xargs | sed 's/F7/F7\\n/g' | sed 's/F0/\\nF0/g' | grep -m 1 -E '" + pattern + "'";
+            cmd                          = "cat " + lastResponseFileLocation + " | xargs | sed 's/F7/F7\\n/g' | sed 's/F0/\\nF0/g' | grep -m 1 -E '" + pattern + "'";
+            const uint32_t waitTimeMs    = 10;
+            const uint32_t stopWaitAfter = 2000;
+            uint32_t       totalWaitTime = 0;
 
             while (test::wsystem(cmd, cmdResponse))
             {
-                test::sleepMs(10);
-                responseRetryCounter++;
+                test::sleepMs(waitTimeMs);
+                totalWaitTime += waitTimeMs;
 
-                //allow 2 second of response time
-                if (responseRetryCounter == 200)
+                if (totalWaitTime == stopWaitAfter)
                 {
                     LOG(ERROR) << "Failed to find valid response to request. Outputting response:";
                     test::wsystem("cat " + lastResponseFileLocation, cmdResponse);
