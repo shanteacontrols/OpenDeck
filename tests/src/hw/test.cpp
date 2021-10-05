@@ -40,7 +40,7 @@ namespace
     DBstorageMock dbStorageMock;
     Database      database = Database(dbStorageMock, false);
 
-    void reboot(bool sendHandshake = true)
+    void reboot()
     {
         LOG(INFO) << "Reboting the board";
 
@@ -58,8 +58,8 @@ namespace
             LOG(INFO) << "Board rebooted";
         }
 
-        if (sendHandshake)
-            TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
+        TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
+        MIDIHelper::flush();
     }
 
     void factoryReset()
@@ -80,6 +80,9 @@ namespace
         {
             LOG(INFO) << "Factory reset complete";
         }
+
+        TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
+        MIDIHelper::flush();
     }
 
     void bootloaderMode()
@@ -202,7 +205,6 @@ TEST_CASE(DatabaseInitialValues)
     constexpr size_t PARAM_SKIP = 2;
 
     factoryReset();
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
 
     //check only first and the last preset
     for (int preset = 0; preset < database.getSupportedPresets(); preset += (database.getSupportedPresets() - 1))
@@ -495,7 +497,6 @@ TEST_CASE(FwUpdate)
 TEST_CASE(BackupAndRestore)
 {
     factoryReset();
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
 
     LOG(INFO) << "Setting few random values in each available preset";
 
@@ -522,7 +523,6 @@ TEST_CASE(BackupAndRestore)
     TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd));
 
     factoryReset();
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
 
     LOG(INFO) << "Verifying that the default values are active again";
 
@@ -576,7 +576,6 @@ TEST_CASE(MIDIData)
     std::string response;
 
     factoryReset();
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
 
     auto changePreset = [&](bool redirect) {
         LOG(INFO) << "Switching preset";
@@ -614,7 +613,6 @@ TEST_CASE(MIDIData)
         TEST_ASSERT_EQUAL_INT(0, test::wsystem(cmd));
     };
 
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
     monitor();
     changePreset(false);
 
@@ -648,7 +646,6 @@ TEST_CASE(MIDIData)
 TEST_CASE(DMX)
 {
     factoryReset();
-    TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
 
     LOG(INFO) << "Starting OLA daemon";
     test::wsystem("olad -f --no-http");
