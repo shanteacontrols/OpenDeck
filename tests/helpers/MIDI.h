@@ -321,11 +321,12 @@ class MIDIHelper
     static bool devicePresent(bool bootloader = false)
     {
         std::string port = amidiPort(bootloader);
+        std::string cmdResponse;
 
         if (port == "")
             return false;
 
-        return (test::wsystem("amidi -l | grep \"" + amidiPort(bootloader) + "\"") == 0);
+        return (test::wsystem("amidi -l | grep \"" + amidiPort(bootloader) + "\"", cmdResponse) == 0);
     }
 
     static std::string amidiPort(bool bootloader = false)
