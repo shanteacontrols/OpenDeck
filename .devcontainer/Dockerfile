@@ -22,6 +22,7 @@ clang \
 ca-certificates \
 sudo \
 bash-completion \
+libgoogle-glog-dev \
 && rm -rf /var/lib/apt/lists/*
 
 RUN \
