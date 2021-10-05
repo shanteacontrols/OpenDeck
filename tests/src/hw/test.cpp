@@ -42,7 +42,7 @@ namespace
     void reboot(bool sendHandshake = true)
     {
         TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
-        MIDIHelper::sendRawSysEx(reboot_req);
+        MIDIHelper::sendRawSysEx(reboot_req, false);
         test::sleepMs(startup_delay_ms);
 
         if (!MIDIHelper::devicePresent())
@@ -58,7 +58,7 @@ namespace
     void factoryReset()
     {
         TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
-        MIDIHelper::sendRawSysEx(factory_reset_req);
+        MIDIHelper::sendRawSysEx(factory_reset_req, false);
 
         test::sleepMs(startup_delay_ms);
 
@@ -72,7 +72,7 @@ namespace
     void bootloaderMode()
     {
         TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
-        MIDIHelper::sendRawSysEx(btldr_req);
+        MIDIHelper::sendRawSysEx(btldr_req, false);
 
         test::sleepMs(startup_delay_ms);
 

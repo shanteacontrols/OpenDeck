@@ -251,7 +251,7 @@ class MIDIHelper
 #endif
     }
 
-    static std::string sendRawSysEx(std::string req)
+    static std::string sendRawSysEx(std::string req, bool verifyResponse = true)
     {
         std::string cmdResponse;
         std::string lastResponseFileLocation = "/tmp/midi_in_data.txt";
@@ -271,38 +271,48 @@ class MIDIHelper
             return "";
         }
 
-        //change status byte to ack
-        req[13] = '1';
-
-        //remove everything after request/wish byte
-        std::string pattern = req.substr(0, 20) + ".*F7";
-
-        cmd = "cat " + lastResponseFileLocation + " | xargs | sed 's/F7/F7\\n/g' | sed 's/F0/\\nF0/g' | grep -m 1 -E '" + pattern + "'";
-
-        while (test::wsystem(cmd, cmdResponse))
+        if (verifyResponse)
         {
-            test::wsystem("sleep 0.01", cmdResponse);
-            responseRetryCounter++;
+            //change status byte to ack
+            req[13] = '1';
 
-            //allow 2 second of response time
-            if (responseRetryCounter == 200)
+            //remove everything after request/wish byte
+            std::string pattern = req.substr(0, 20) + ".*F7";
+
+            cmd = "cat " + lastResponseFileLocation + " | xargs | sed 's/F7/F7\\n/g' | sed 's/F0/\\nF0/g' | grep -m 1 -E '" + pattern + "'";
+
+            while (test::wsystem(cmd, cmdResponse))
             {
-                std::cout << "Failed to find valid response to request. Outputting response:" << std::endl;
-                test::wsystem("cat " + lastResponseFileLocation, cmdResponse);
-                std::cout << cmdResponse << "\n"
-                                            "Search pattern was: "
-                          << pattern << std::endl;
+                test::sleepMs(10);
+                responseRetryCounter++;
 
-                test::wsystem("killall amidi > /dev/null 2>&1");
-                return "";
+                //allow 2 second of response time
+                if (responseRetryCounter == 200)
+                {
+                    std::cout << "Failed to find valid response to request. Outputting response:" << std::endl;
+                    test::wsystem("cat " + lastResponseFileLocation, cmdResponse);
+                    std::cout << cmdResponse << "\n"
+                                                "Search pattern was: "
+                              << pattern << std::endl;
+
+                    test::wsystem("killall amidi > /dev/null 2>&1");
+                    return "";
+                }
             }
+
+            test::wsystem("killall amidi > /dev/null 2>&1");
+            test::trimNewline(cmdResponse);
+            std::cout << "res: " << cmdResponse << std::endl;
+
+            return cmdResponse;
         }
+        else
+        {
+            test::sleepMs(100);
+            test::wsystem("killall amidi > /dev/null 2>&1");
 
-        test::wsystem("killall amidi > /dev/null 2>&1");
-        test::trimNewline(cmdResponse);
-        std::cout << "res: " << cmdResponse << std::endl;
-
-        return cmdResponse;
+            return "";
+        }
     }
 
     static bool devicePresent(bool bootloader = false)
