@@ -176,7 +176,7 @@ fi
     printf "%s\n" "#include <MCU.h>"
     printf "%s\n\n" "#include \"board/Internal.h\""
     printf "%s\n\n" "namespace {"
-} >> "$OUT_FILE_SOURCE_PINS"
+} > "$OUT_FILE_SOURCE_PINS"
 
 if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" touchscreen)" != "null" ]]
 then
