@@ -28,8 +28,8 @@ namespace
     const std::string factory_reset_req        = "F0 00 53 43 00 00 44 F7";
     const std::string btldr_req                = "F0 00 53 43 00 00 55 F7";
     const std::string backup_req               = "F0 00 53 43 00 00 1B F7";
-    const std::string usb_power_off_cmd        = "uhubctl -a off -l 1-1.4.4 > /dev/null && sleep 2 && uhubctl -a off -l 1-1.4 > /dev/null && sleep 2 && uhubctl -a off -l 1-1 > /dev/null";
-    const std::string usb_power_on_cmd         = "uhubctl -a on -l 1-1 > /dev/null && sleep 2 && uhubctl -a on -l 1-1.4 > /dev/null && sleep 2 && uhubctl -a on -l 1-1.4 > /dev/null";
+    const std::string usb_power_off_cmd        = "uhubctl -a off -l 1-1 > /dev/null";
+    const std::string usb_power_on_cmd         = "uhubctl -a on -l 1-1 > /dev/null";
     const std::string sysex_fw_update_delay_ms = "5";
     const uint32_t    startup_delay_ms         = 10000;
     const std::string fw_build_dir             = "../src/build/merged/";
