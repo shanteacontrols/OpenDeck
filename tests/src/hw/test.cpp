@@ -40,6 +40,35 @@ namespace
     DBstorageMock dbStorageMock;
     Database      database = Database(dbStorageMock, false);
 
+    void cyclePower(powerCycleType_t powerCycleType)
+    {
+        auto cycle = [&]() {
+            LOG(INFO) << "Turning USB devices off";
+            TEST_ASSERT_EQUAL_INT(0, test::wsystem(usb_power_off_cmd));
+
+            LOG(INFO) << "Turning USB devices on";
+            TEST_ASSERT_EQUAL_INT(0, test::wsystem(usb_power_on_cmd));
+
+            test::sleepMs(startup_delay_ms);
+        };
+
+        if (powerCycleType != powerCycleType_t::standardWithDeviceCheck)
+        {
+            LOG(INFO) << "Cycling power without device check";
+            cycle();
+        }
+        else
+        {
+            LOG(INFO) << "Cycling power with device check";
+
+            //ensure the device is present
+            do
+            {
+                cycle();
+            } while (!MIDIHelper::devicePresent());
+        }
+    }
+
     void reboot()
     {
         LOG(INFO) << "Reboting the board";
@@ -50,8 +79,14 @@ namespace
 
         if (!MIDIHelper::devicePresent())
         {
-            LOG(ERROR) << "OpenDeck device not found after reboot, aborting";
-            exit(1);
+            LOG(ERROR) << "OpenDeck device not found after reboot, attempting power cycle";
+            cyclePower(powerCycleType_t::standardWithDeviceCheck);
+
+            if (!MIDIHelper::devicePresent())
+            {
+                LOG(ERROR) << "OpenDeck device not found after power cycle";
+                exit(1);
+            }
         }
         else
         {
@@ -73,8 +108,14 @@ namespace
 
         if (!MIDIHelper::devicePresent())
         {
-            LOG(ERROR) << "OpenDeck device not found after factory reset, aborting";
-            exit(1);
+            LOG(ERROR) << "OpenDeck device not found after factory reset, attempting power cycle";
+            cyclePower(powerCycleType_t::standardWithDeviceCheck);
+
+            if (!MIDIHelper::devicePresent())
+            {
+                LOG(ERROR) << "OpenDeck device not found after power cycle";
+                exit(1);
+            }
         }
         else
         {
@@ -102,35 +143,6 @@ namespace
         else
         {
             LOG(INFO) << "Entered bootloader mode";
-        }
-    }
-
-    void cyclePower(powerCycleType_t powerCycleType)
-    {
-        auto cycle = [&]() {
-            LOG(INFO) << "Turning USB devices off";
-            TEST_ASSERT_EQUAL_INT(0, test::wsystem(usb_power_off_cmd));
-
-            LOG(INFO) << "Turning USB devices on";
-            TEST_ASSERT_EQUAL_INT(0, test::wsystem(usb_power_on_cmd));
-
-            test::sleepMs(startup_delay_ms);
-        };
-
-        if (powerCycleType != powerCycleType_t::standardWithDeviceCheck)
-        {
-            LOG(INFO) << "Cycling power without device check";
-            cycle();
-        }
-        else
-        {
-            LOG(INFO) << "Cycling power with device check";
-
-            //ensure the device is present
-            do
-            {
-                cycle();
-            } while (!MIDIHelper::devicePresent());
         }
     }
 
