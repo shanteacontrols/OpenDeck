@@ -39,11 +39,12 @@ Latest stable version of the UI is always available on [this link](https://confi
 
 OpenDeck firmware is compatible with [official OpenDeck board](https://www.tindie.com/products/paradajz/opendeck-diy-midi-platform/), as well as various other boards:
 
-* Arduino Mega2560
-* Teensy++ 2.0
-* STM32F4 Discovery
-* STM32F401 Black Pill
-* STM32F411 Black Pill
+* [Arduino Mega2560](https://store.arduino.cc/products/arduino-mega-2560-rev3)
+* [Mux Shield v2 with Arduino Mega2560](https://mayhewlabs.com/products/mux-shield-2)
+* [Teensy++ 2.0](https://www.pjrc.com/store/teensypp.html)
+* [STM32F4 Discovery](https://www.st.com/en/evaluation-tools/stm32f4discovery.html)
+* [STM32F401 Black Pill](https://stm32-base.org/boards/STM32F401CCU6-WeAct-Black-Pill-V1.2.html)
+* [STM32F411 Black Pill](https://stm32-base.org/boards/STM32F411CEU6-WeAct-Black-Pill-V2.0)
 
 Support for custom boards can be easily added using [YAML descriptors](https://github.com/shanteacontrols/OpenDeck/wiki/Creating-custom-board-variant).
 
