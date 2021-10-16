@@ -86,6 +86,7 @@ namespace Board
                 for (int i = 0; i < NUMBER_OF_BUTTON_ROWS; i++)
 #else
                 for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
+#endif
                 {
                     core::io::mcuPin_t pin = detail::map::buttonPin(i);
 
@@ -98,7 +99,7 @@ namespace Board
 #endif
 
 #ifdef NUMBER_OF_BUTTON_COLUMNS
-                    CORE_IO_CONFIG({ DEC_BM_PORT_A0, DEC_BM_PIN_A0, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
+                CORE_IO_CONFIG({ DEC_BM_PORT_A0, DEC_BM_PIN_A0, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
                 CORE_IO_CONFIG({ DEC_BM_PORT_A1, DEC_BM_PIN_A1, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
                 CORE_IO_CONFIG({ DEC_BM_PORT_A2, DEC_BM_PIN_A2, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
 
@@ -200,7 +201,6 @@ namespace Board
                     if (unusedPin.pin.mode == core::io::pinMode_t::outputPP)
                         CORE_IO_SET_STATE(CORE_IO_MCU_PIN_PORT(unusedPin.pin), CORE_IO_MCU_PIN_INDEX(unusedPin.pin), unusedPin.state);
                 }
-#endif
 #endif
 
 #ifdef LED_INDICATORS
