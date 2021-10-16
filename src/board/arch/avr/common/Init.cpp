@@ -263,7 +263,11 @@ namespace Board
                 CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
                 CORE_IO_SET_HIGH(SR_IN_LATCH_PORT, SR_IN_LATCH_PIN);
 #else
+#ifdef NUMBER_OF_BUTTON_ROWS
+                for (int i = 0; i < NUMBER_OF_BUTTON_ROWS; i++)
+#else
                 for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
+#endif
                 {
                     core::io::mcuPin_t pin = detail::map::buttonPin(i);
 
@@ -352,7 +356,19 @@ namespace Board
 
 #ifdef BTLDR_BUTTON_PORT
                 CORE_IO_CONFIG(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN, core::io::pinMode_t::input);
+#ifndef BTLDR_BUTTON_AH
                 CORE_IO_SET_HIGH(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
+#endif
+#endif
+
+#ifdef TOTAL_UNUSED_IO
+                for (int i = 0; i < TOTAL_UNUSED_IO; i++)
+                {
+                    Board::detail::io::unusedIO_t unusedPin = detail::map::unusedPin(i);
+
+                    CORE_IO_CONFIG(CORE_IO_MCU_PIN_PORT(unusedPin.pin), CORE_IO_MCU_PIN_INDEX(unusedPin.pin), unusedPin.pin.mode);
+                    CORE_IO_SET_STATE(CORE_IO_MCU_PIN_PORT(unusedPin.pin), CORE_IO_MCU_PIN_INDEX(unusedPin.pin), unusedPin.state);
+                }
 #endif
 
 #ifdef LED_INDICATORS
@@ -365,21 +381,6 @@ namespace Board
                 INT_LED_OFF(LED_MIDI_OUT_DIN_PORT, LED_MIDI_OUT_DIN_PIN);
                 INT_LED_OFF(LED_MIDI_IN_USB_PORT, LED_MIDI_IN_USB_PIN);
                 INT_LED_OFF(LED_MIDI_OUT_USB_PORT, LED_MIDI_OUT_USB_PIN);
-#endif
-
-#ifdef LED_BTLDR_PORT
-                CORE_IO_CONFIG(LED_BTLDR_PORT, LED_BTLDR_PIN, core::io::pinMode_t::output);
-                CORE_IO_SET_HIGH(LED_BTLDR_PORT, LED_BTLDR_PIN);
-#endif
-
-#ifdef TOTAL_UNUSED_IO
-                for (int i = 0; i < TOTAL_UNUSED_IO; i++)
-                {
-                    Board::detail::io::unusedIO_t unusedPin = detail::map::unusedPin(i);
-
-                    CORE_IO_CONFIG(CORE_IO_MCU_PIN_PORT(unusedPin.pin), CORE_IO_MCU_PIN_INDEX(unusedPin.pin), unusedPin.pin.mode);
-                    CORE_IO_SET_STATE(CORE_IO_MCU_PIN_PORT(unusedPin.pin), CORE_IO_MCU_PIN_INDEX(unusedPin.pin), unusedPin.state);
-                }
 #endif
             }
         }    // namespace setup

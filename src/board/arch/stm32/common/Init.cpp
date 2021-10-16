@@ -185,11 +185,6 @@ namespace Board
 #endif
 #endif
 
-#ifdef LED_BTLDR_PORT
-                CORE_IO_CONFIG({ LED_BTLDR_PORT, LED_BTLDR_PIN, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
-                CORE_IO_SET_HIGH(LED_BTLDR_PORT, LED_BTLDR_PIN);
-#endif
-
 #ifdef TOTAL_UNUSED_IO
                 for (int i = 0; i < TOTAL_UNUSED_IO; i++)
                 {
