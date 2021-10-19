@@ -45,8 +45,9 @@ OpenDeck firmware is compatible with [official OpenDeck board](https://www.tindi
 * [STM32F4 Discovery](https://www.st.com/en/evaluation-tools/stm32f4discovery.html)
 * [STM32F401 Black Pill](https://stm32-base.org/boards/STM32F401CCU6-WeAct-Black-Pill-V1.2.html)
 * [STM32F411 Black Pill](https://stm32-base.org/boards/STM32F411CEU6-WeAct-Black-Pill-V2.0)
+* [Waveshare Core407I](https://www.waveshare.com/core407i.htm)
 
-Support for custom boards can be easily added using [YAML descriptors](https://github.com/shanteacontrols/OpenDeck/wiki/Creating-custom-board-variant).
+For more details on supported boards, check the dedicated [wiki page](https://github.com/shanteacontrols/OpenDeck/wiki/Connections). Support for custom boards can be easily added using [YAML descriptors](https://github.com/shanteacontrols/OpenDeck/wiki/Creating-custom-board-variant).
 
 ## Documentation
 

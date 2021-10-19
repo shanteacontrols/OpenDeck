@@ -220,7 +220,8 @@
                 "opendeck2",
                 "rooibos",
                 "teensy2pp",
-                "opendeck_mini"
+                "opendeck_mini",
+                "ws_core407i",
             ]
         },
         {

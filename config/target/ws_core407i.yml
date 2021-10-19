@@ -1,0 +1,408 @@
+---
+  mcu: "stm32f407ig"
+  extClockMhz: 8
+  usb: true
+  dinMIDI:
+    uartChannel: 3
+  display:
+    i2cChannel: 0
+  touchscreen:
+    uartChannel: 4
+    components: 64
+  dmx:
+    uartChannel: 3
+  buttons:
+    type: "native"
+    extPullups: false
+    pins:
+    -
+      port: "E"
+      index: 2
+    -
+      port: "E"
+      index: 3
+    -
+      port: "E"
+      index: 4
+    -
+      port: "E"
+      index: 5
+    -
+      port: "E"
+      index: 6
+    -
+      port: "I"
+      index: 8
+    -
+      port: "C"
+      index: 13
+    -
+      port: "C"
+      index: 14
+    -
+      port: "C"
+      index: 15
+    -
+      port: "I"
+      index: 9
+    -
+      port: "I"
+      index: 10
+    -
+      port: "I"
+      index: 11
+    -
+      port: "F"
+      index: 0
+    -
+      port: "F"
+      index: 1
+    -
+      port: "F"
+      index: 2
+    -
+      port: "F"
+      index: 3
+    -
+      port: "F"
+      index: 4
+    -
+      port: "F"
+      index: 5
+    -
+      port: "F"
+      index: 6
+    -
+      port: "F"
+      index: 7
+    -
+      port: "F"
+      index: 8
+    -
+      port: "F"
+      index: 9
+    -
+      port: "F"
+      index: 10
+    -
+      port: "H"
+      index: 2
+    -
+      port: "H"
+      index: 3
+    -
+      port: "H"
+      index: 4
+    -
+      port: "H"
+      index: 5
+    -
+      port: "F"
+      index: 11
+    -
+      port: "B"
+      index: 2
+    -
+      port: "F"
+      index: 13
+    -
+      port: "F"
+      index: 12
+    -
+      port: "F"
+      index: 15
+    -
+      port: "F"
+      index: 14
+    -
+      port: "G"
+      index: 1
+    -
+      port: "G"
+      index: 0
+    -
+      port: "E"
+      index: 8
+    -
+      port: "E"
+      index: 7
+    -
+      port: "E"
+      index: 10
+    -
+      port: "E"
+      index: 9
+    -
+      port: "E"
+      index: 12
+    -
+      port: "E"
+      index: 11
+    -
+      port: "E"
+      index: 14
+    -
+      port: "E"
+      index: 13
+    -
+      port: "B"
+      index: 10
+    -
+      port: "E"
+      index: 15
+    -
+      port: "H"
+      index: 6
+    -
+      port: "B"
+      index: 11
+    -
+      port: "H"
+      index: 8
+    -
+      port: "H"
+      index: 7
+    -
+      port: "H"
+      index: 10
+    -
+      port: "H"
+      index: 9
+    -
+      port: "H"
+      index: 11
+    -
+      port: "I"
+      index: 7
+    -
+      port: "I"
+      index: 6
+    -
+      port: "I"
+      index: 5
+    -
+      port: "I"
+      index: 4
+    -
+      port: "E"
+      index: 1
+    -
+      port: "E"
+      index: 0
+    -
+      port: "B"
+      index: 9
+    -
+      port: "B"
+      index: 8
+    -
+      port: "B"
+      index: 5
+    -
+      port: "B"
+      index: 4
+    -
+      port: "B"
+      index: 3
+    -
+      port: "G"
+      index: 15
+  analog:
+    type: "native"
+    pins:
+    -
+      port: "A"
+      index: 0
+    -
+      port: "A"
+      index: 1
+    -
+      port: "A"
+      index: 2
+    -
+      port: "A"
+      index: 3
+    -
+      port: "A"
+      index: 4
+    -
+      port: "A"
+      index: 5
+    -
+      port: "A"
+      index: 6
+    -
+      port: "A"
+      index: 7
+    -
+      port: "B"
+      index: 0
+    -
+      port: "B"
+      index: 1
+    -
+      port: "C"
+      index: 0
+    -
+      port: "C"
+      index: 1
+    -
+      port: "C"
+      index: 2
+    -
+      port: "C"
+      index: 3
+    -
+      port: "C"
+      index: 4
+    -
+      port: "C"
+      index: 5
+  leds:
+    external:
+      type: "native"
+      pins:
+      -
+        port: "G"
+        index: 14
+      -
+        port: "G"
+        index: 13
+      -
+        port: "G"
+        index: 12
+      -
+        port: "G"
+        index: 11
+      -
+        port: "G"
+        index: 10
+      -
+        port: "G"
+        index: 9
+      -
+        port: "D"
+        index: 7
+      -
+        port: "D"
+        index: 6
+      -
+        port: "D"
+        index: 5
+      -
+        port: "D"
+        index: 4
+      -
+        port: "D"
+        index: 3
+      -
+        port: "D"
+        index: 1
+      -
+        port: "D"
+        index: 0
+      -
+        port: "A"
+        index: 15
+      -
+        port: "I"
+        index: 3
+      -
+        port: "I"
+        index: 2
+      -
+        port: "I"
+        index: 1
+      -
+        port: "H"
+        index: 15
+      -
+        port: "I"
+        index: 0
+      -
+        port: "H"
+        index: 13
+      -
+        port: "H"
+        index: 14
+      -
+        port: "A"
+        index: 10
+      -
+        port: "A"
+        index: 9
+      -
+        port: "A"
+        index: 8
+      -
+        port: "C"
+        index: 9
+      -
+        port: "C"
+        index: 8
+      -
+        port: "C"
+        index: 7
+      -
+        port: "C"
+        index: 6
+      -
+        port: "G"
+        index: 8
+      -
+        port: "G"
+        index: 7
+      -
+        port: "G"
+        index: 6
+      -
+        port: "G"
+        index: 5
+      -
+        port: "G"
+        index: 4
+      -
+        port: "G"
+        index: 3
+      -
+        port: "G"
+        index: 2
+      -
+        port: "D"
+        index: 15
+      -
+        port: "D"
+        index: 14
+      -
+        port: "D"
+        index: 13
+      -
+        port: "D"
+        index: 12
+      -
+        port: "D"
+        index: 11
+      -
+        port: "D"
+        index: 10
+      -
+        port: "D"
+        index: 9
+      -
+        port: "D"
+        index: 8
+      -
+        port: "B"
+        index: 15
+      -
+        port: "B"
+        index: 14
+      -
+        port: "B"
+        index: 13
+      -
+        port: "B"
+        index: 12
+      -
+        port: "H"
+        index: 12
