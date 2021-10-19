@@ -29,7 +29,7 @@ limitations under the License.
 #include "usb-link/Commands.h"
 #endif
 
-//generic UART driver, arch-independent
+// generic UART driver, arch-independent
 
 namespace
 {
@@ -110,7 +110,7 @@ namespace Board
                 return initStatus_t::error;
 
             if (isInitialized(channel) && !force)
-                return initStatus_t::alreadyInit;    //interface already _initialized
+                return initStatus_t::alreadyInit;    // interface already initialized
 
             if (deInit(channel))
             {
@@ -220,7 +220,7 @@ namespace Board
                     {
                         Board::detail::UART::ll::enableDataEmptyInt(channel);
 
-                        //indicate loopback here since it's run inside interrupt, ie. not visible to the user application
+                        // indicate loopback here since it's run inside interrupt, ie. not visible to the user application
                         Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::outgoing);
                         Board::io::indicateTraffic(Board::io::dataSource_t::uart, Board::io::dataDirection_t::incoming);
                     }
@@ -270,7 +270,7 @@ namespace Board
 
     namespace USB
     {
-        //simulated USB interface via UART - make this transparent to the application
+        // simulated USB interface via UART - make this transparent to the application
 
         bool isUSBconnected()
         {

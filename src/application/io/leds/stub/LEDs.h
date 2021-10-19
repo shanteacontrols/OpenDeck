@@ -99,8 +99,8 @@ namespace IO
 
         enum class dataSource_t : uint8_t
         {
-            external,    //data from midi in
-            internal     //data from local source (buttons, encoders...)
+            external,    // data from midi in
+            internal     // data from local source (buttons, encoders...)
         };
 
         class HWA

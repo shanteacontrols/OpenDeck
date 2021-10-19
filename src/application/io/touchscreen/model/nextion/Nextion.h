@@ -75,26 +75,26 @@ class Nextion : public IO::TouchscreenBase, public IO::TouchscreenBase::Common
     uint16_t         _xPos           = 0;
 
     const responseDescriptor_t _responses[static_cast<size_t>(responseID_t::AMOUNT)] = {
-        //button
+        // button
         {
             .size       = 6,
             .responseID = 0x65,
         },
 
-        //coordinate initial/final
+        // coordinate initial/final
         {
             .size       = 9,
             .responseID = 0x67,
         },
 
-        //coordinate update
+        // coordinate update
         {
             .size       = 8,
             .responseID = 0x71,
         },
     };
 
-    //there are 7 levels of brighness - scale them to available range (0-100)
+    // there are 7 levels of brighness - scale them to available range (0-100)
     const uint8_t _brightnessMapping[7] = {
         10,
         25,

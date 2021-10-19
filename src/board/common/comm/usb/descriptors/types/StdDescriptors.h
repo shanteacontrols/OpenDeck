@@ -139,8 +139,8 @@ typedef struct
 {
     uint8_t Size; /**< Size of the descriptor, in bytes. */
     uint8_t Type; /**< Type of the descriptor, either a value in \ref USB_DescriptorTypes_t or a value
-                               *   given by the specific class.
-                               */
+                   *   given by the specific class.
+                   */
 } __attribute__((packed)) USB_Descriptor_Header_t;
 
 /** \brief Standard USB Configuration Descriptor (LUFA naming conventions).
@@ -157,21 +157,21 @@ typedef struct
     USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
 
     uint16_t TotalConfigurationSize; /**< Size of the configuration descriptor header,
-                                        *   and all sub descriptors inside the configuration.
-                                        */
-    uint8_t  TotalInterfaces;        /**< Total number of interfaces in the configuration. */
+                                      *   and all sub descriptors inside the configuration.
+                                      */
+    uint8_t TotalInterfaces;         /**< Total number of interfaces in the configuration. */
 
     uint8_t ConfigurationNumber;   /**< Configuration index of the current configuration. */
     uint8_t ConfigurationStrIndex; /**< Index of a string descriptor describing the configuration. */
 
     uint8_t ConfigAttributes; /**< Configuration attributes, comprised of a mask of \c USB_CONFIG_ATTR_* masks.
-                                *   On all devices, this should include USB_CONF_DESC_ATTR_RESERVED at a minimum.
-                                */
+                               *   On all devices, this should include USB_CONF_DESC_ATTR_RESERVED at a minimum.
+                               */
 
     uint8_t MaxPowerConsumption; /**< Maximum power consumption of the device while in the
-                                    *   current configuration, calculated by the \ref USB_CONF_DESC_POWER_MA()
-                                    *   macro.
-                                    */
+                                  *   current configuration, calculated by the \ref USB_CONF_DESC_POWER_MA()
+                                  *   macro.
+                                  */
 } __attribute__((packed)) USB_Descriptor_Configuration_Header_t;
 
 /** \brief Standard USB Interface Descriptor (LUFA naming conventions).
@@ -189,10 +189,10 @@ typedef struct
 
     uint8_t InterfaceNumber;  /**< Index of the interface in the current configuration. */
     uint8_t AlternateSetting; /**< Alternate setting for the interface number. The same
-                                *   interface number can have multiple alternate settings
-                                *   with different endpoint configurations, which can be
-                                *   selected by the host.
-                                */
+                               *   interface number can have multiple alternate settings
+                               *   with different endpoint configurations, which can be
+                               *   selected by the host.
+                               */
     uint8_t TotalEndpoints;   /**< Total number of endpoints in the interface. */
 
     uint8_t Class;    /**< Interface class ID. */
@@ -214,8 +214,8 @@ typedef struct
     uint8_t Protocol; /**< Interface protocol ID. */
 
     uint8_t IADStrIndex; /**< Index of the string descriptor describing the
-                                      *   interface association.
-                                      */
+                          *   interface association.
+                          */
 } __attribute__((packed)) USB_Descriptor_Interface_Association_t;
 
 /** \brief Standard USB Endpoint Descriptor (LUFA naming conventions).
@@ -231,18 +231,18 @@ typedef struct
 {
     USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
 
-    uint8_t  EndpointAddress;   /**< Logical address of the endpoint within the device for the current
+    uint8_t EndpointAddress;   /**< Logical address of the endpoint within the device for the current
                                 *   configuration, including direction mask.
                                 */
-    uint8_t  Attributes;        /**< Endpoint attributes, comprised of a mask of the endpoint type (EP_TYPE_*)
-                            *   and attributes (ENDPOINT_ATTR_*) masks.
-                            */
-    uint16_t EndpointSize;      /**< Size of the endpoint bank, in bytes. This indicates the maximum packet
-                            *   size that the endpoint can receive at a time.
-                            */
-    uint8_t  PollingIntervalMS; /**< Polling interval in milliseconds for the endpoint if it is an INTERRUPT
-                                    *   or ISOCHRONOUS type.
-                                    */
+    uint8_t Attributes;        /**< Endpoint attributes, comprised of a mask of the endpoint type (EP_TYPE_*)
+                                *   and attributes (ENDPOINT_ATTR_*) masks.
+                                */
+    uint16_t EndpointSize;     /**< Size of the endpoint bank, in bytes. This indicates the maximum packet
+                                *   size that the endpoint can receive at a time.
+                                */
+    uint8_t PollingIntervalMS; /**< Polling interval in milliseconds for the endpoint if it is an INTERRUPT
+                                *   or ISOCHRONOUS type.
+                                */
 } __attribute__((packed)) USB_Descriptor_Endpoint_t;
 
 /** \brief Standard USB Device Descriptor (LUFA naming conventions).
@@ -259,9 +259,9 @@ typedef struct
     USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
 
     uint16_t USBSpecification;       /**< BCD of the supported USB specification.
-                                *
-                                *   \see \ref VERSION_BCD() utility macro.
-                                */
+                                      *
+                                      *   \see \ref VERSION_BCD() utility macro.
+                                      */
     uint8_t  Class;                  /**< USB device class. */
     uint8_t  SubClass;               /**< USB device subclass. */
     uint8_t  Protocol;               /**< USB device protocol. */
@@ -295,17 +295,17 @@ typedef struct
     USB_Descriptor_Header_t Header; /**< Descriptor header, including type and size. */
 
     uint16_t UnicodeString[]; /**< String data, as unicode characters (alternatively,
-                                *   string language IDs). If normal ASCII characters are
-                                *   to be used, they must be added as an array of characters
-                                *   rather than a normal C string so that they are widened to
-                                *   Unicode size.
-                                *
-                                *   Under GCC, strings prefixed with the "L" character (before
-                                *   the opening string quotation mark) are considered to be
-                                *   Unicode strings, and may be used instead of an explicit
-                                *   array of ASCII characters on little endian devices with
-                                *   UTF-16-LE \c wchar_t encoding.
-                                */
+                               *   string language IDs). If normal ASCII characters are
+                               *   to be used, they must be added as an array of characters
+                               *   rather than a normal C string so that they are widened to
+                               *   Unicode size.
+                               *
+                               *   Under GCC, strings prefixed with the "L" character (before
+                               *   the opening string quotation mark) are considered to be
+                               *   Unicode strings, and may be used instead of an explicit
+                               *   array of ASCII characters on little endian devices with
+                               *   UTF-16-LE \c wchar_t encoding.
+                               */
 } __attribute__((packed)) USB_Descriptor_String_t;
 
 /** Enum for the possible standard descriptor types, as given in each descriptor's header. */
@@ -325,31 +325,31 @@ enum USB_DescriptorTypes_t
 /** Enum for possible Class, Subclass and Protocol values of device and interface descriptors. */
 enum USB_Descriptor_ClassSubclassProtocol_t
 {
-    USB_CSCP_NoDeviceClass          = 0x00, /**< Descriptor Class value indicating that the device does not belong
-                                                *   to a particular class at the device level.
-                                                */
-    USB_CSCP_NoDeviceSubclass       = 0x00, /**< Descriptor Subclass value indicating that the device does not belong
-                                                *   to a particular subclass at the device level.
-                                                */
-    USB_CSCP_NoDeviceProtocol       = 0x00, /**< Descriptor Protocol value indicating that the device does not belong
-                                                *   to a particular protocol at the device level.
-                                                */
-    USB_CSCP_VendorSpecificClass    = 0xFF, /**< Descriptor Class value indicating that the device/interface belongs
-                                                *   to a vendor specific class.
-                                                */
+    USB_CSCP_NoDeviceClass = 0x00,          /**< Descriptor Class value indicating that the device does not belong
+                                             *   to a particular class at the device level.
+                                             */
+    USB_CSCP_NoDeviceSubclass = 0x00,       /**< Descriptor Subclass value indicating that the device does not belong
+                                             *   to a particular subclass at the device level.
+                                             */
+    USB_CSCP_NoDeviceProtocol = 0x00,       /**< Descriptor Protocol value indicating that the device does not belong
+                                             *   to a particular protocol at the device level.
+                                             */
+    USB_CSCP_VendorSpecificClass = 0xFF,    /**< Descriptor Class value indicating that the device/interface belongs
+                                             *   to a vendor specific class.
+                                             */
     USB_CSCP_VendorSpecificSubclass = 0xFF, /**< Descriptor Subclass value indicating that the device/interface belongs
-                                                *   to a vendor specific subclass.
-                                                */
+                                             *   to a vendor specific subclass.
+                                             */
     USB_CSCP_VendorSpecificProtocol = 0xFF, /**< Descriptor Protocol value indicating that the device/interface belongs
-                                                *   to a vendor specific protocol.
-                                                */
-    USB_CSCP_IADDeviceClass         = 0xEF, /**< Descriptor Class value indicating that the device belongs to the
-                                                *   Interface Association Descriptor class.
-                                                */
-    USB_CSCP_IADDeviceSubclass      = 0x02, /**< Descriptor Subclass value indicating that the device belongs to the
-                                                *   Interface Association Descriptor subclass.
-                                                */
-    USB_CSCP_IADDeviceProtocol      = 0x01, /**< Descriptor Protocol value indicating that the device belongs to the
-                                                *   Interface Association Descriptor protocol.
-                                                */
+                                             *   to a vendor specific protocol.
+                                             */
+    USB_CSCP_IADDeviceClass = 0xEF,         /**< Descriptor Class value indicating that the device belongs to the
+                                             *   Interface Association Descriptor class.
+                                             */
+    USB_CSCP_IADDeviceSubclass = 0x02,      /**< Descriptor Subclass value indicating that the device belongs to the
+                                             *   Interface Association Descriptor subclass.
+                                             */
+    USB_CSCP_IADDeviceProtocol = 0x01,      /**< Descriptor Protocol value indicating that the device belongs to the
+                                             *   Interface Association Descriptor protocol.
+                                             */
 };

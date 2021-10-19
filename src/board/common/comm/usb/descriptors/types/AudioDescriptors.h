@@ -57,13 +57,13 @@ typedef struct
 {
     USB_Descriptor_Header_t Header;  /**< Regular descriptor header containing the descriptor's type and length. */
     uint8_t                 Subtype; /**< Sub type value used to distinguish between audio class-specific descriptors,
-                                        *   a value from the \ref Audio_CSInterface_AS_SubTypes_t enum.
-                                        */
+                                      *   a value from the \ref Audio_CSInterface_AS_SubTypes_t enum.
+                                      */
 
     uint16_t ACSpecification; /**< Binary Coded Decimal value, indicating the supported Audio Class specification version.
-                                                *
-                                                *   \see \ref VERSION_BCD() utility macro.
-                                                */
+                               *
+                               *   \see \ref VERSION_BCD() utility macro.
+                               */
     uint16_t TotalLength;     /**< Total length of the Audio class-specific descriptors, including this descriptor. */
 
     uint8_t InCollection;    /**< Total number of Audio Streaming interfaces linked to this Audio Control interface (must be 1). */
@@ -89,24 +89,24 @@ typedef struct
 
 enum Audio_Descriptor_ClassSubclassProtocol_t
 {
-    AUDIO_CSCP_AudioClass             = 0x01, /**< Descriptor Class value indicating that the device or
-                                                        *   interface belongs to the USB Audio 1.0 class.
-                                                        */
-    AUDIO_CSCP_ControlSubclass        = 0x01, /**< Descriptor Subclass value indicating that the device or
-                                                        *   interface belongs to the Audio Control subclass.
-                                                        */
-    AUDIO_CSCP_ControlProtocol        = 0x00, /**< Descriptor Protocol value indicating that the device or
-                                                        *   interface belongs to the Audio Control protocol.
-                                                        */
+    AUDIO_CSCP_AudioClass = 0x01,             /**< Descriptor Class value indicating that the device or
+                                               *   interface belongs to the USB Audio 1.0 class.
+                                               */
+    AUDIO_CSCP_ControlSubclass = 0x01,        /**< Descriptor Subclass value indicating that the device or
+                                               *   interface belongs to the Audio Control subclass.
+                                               */
+    AUDIO_CSCP_ControlProtocol = 0x00,        /**< Descriptor Protocol value indicating that the device or
+                                               *   interface belongs to the Audio Control protocol.
+                                               */
     AUDIO_CSCP_AudioStreamingSubclass = 0x02, /**< Descriptor Subclass value indicating that the device or
-                                                        *   interface belongs to the MIDI Streaming subclass.
-                                                        */
-    AUDIO_CSCP_MIDIStreamingSubclass  = 0x03, /**< Descriptor Subclass value indicating that the device or
-                                                        *   interface belongs to the Audio streaming subclass.
-                                                        */
-    AUDIO_CSCP_StreamingProtocol      = 0x00, /**< Descriptor Protocol value indicating that the device or
-                                                        *   interface belongs to the Streaming Audio protocol.
-                                                        */
+                                               *   interface belongs to the MIDI Streaming subclass.
+                                               */
+    AUDIO_CSCP_MIDIStreamingSubclass = 0x03,  /**< Descriptor Subclass value indicating that the device or
+                                               *   interface belongs to the Audio streaming subclass.
+                                               */
+    AUDIO_CSCP_StreamingProtocol = 0x00,      /**< Descriptor Protocol value indicating that the device or
+                                               *   interface belongs to the Streaming Audio protocol.
+                                               */
 };
 
 /** Enum for the Audio class specific descriptor types. */

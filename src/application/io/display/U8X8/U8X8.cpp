@@ -25,17 +25,17 @@ bool U8X8::init(uint8_t i2cAddressIndex, displayController_t controller, display
 {
     bool success = false;
 
-    //setup defaults
+    // setup defaults
     u8x8_SetupDefaults(&_u8x8);
 
-    //i2c hw access
+    // i2c hw access
     auto gpioDelay = [](u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, U8X8_UNUSED void* arg_ptr) -> uint8_t {
         return 0;
     };
 
-    //hack: make the hwa reference static pointer so that access to hwa
-    //works inside lambda
-    //we are interfacing with C library!
+    // hack: make the hwa reference static pointer so that access to hwa
+    // works inside lambda
+    // we are interfacing with C library!
 
     static HWAI2C* hwaStatic;
     hwaStatic = &_hwa;
@@ -43,7 +43,7 @@ bool U8X8::init(uint8_t i2cAddressIndex, displayController_t controller, display
     auto i2cHWA = [](u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_ptr) -> uint8_t {
         auto* array = (uint8_t*)arg_ptr;
 
-        //u8x8 lib doesn't send packets larger than 32 bytes
+        // u8x8 lib doesn't send packets larger than 32 bytes
         static uint8_t buffer[32];
         static size_t  counter = 0;
 
@@ -75,7 +75,7 @@ bool U8X8::init(uint8_t i2cAddressIndex, displayController_t controller, display
         return 1;
     };
 
-    //setup specific callbacks depending on controller/resolution
+    // setup specific callbacks depending on controller/resolution
     if ((resolution == displayResolution_t::_128x64) && (controller == displayController_t::ssd1306))
     {
         _u8x8.display_cb        = u8x8_d_ssd1306_128x64_noname;
@@ -105,7 +105,7 @@ bool U8X8::init(uint8_t i2cAddressIndex, displayController_t controller, display
     }
     else
     {
-        //invalid address index, use default (don't set custom address)
+        // invalid address index, use default (don't set custom address)
     }
 
     if (success)

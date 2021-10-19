@@ -226,8 +226,8 @@ class HWAAnalogStub : public System::HWA::IO::Analog
 #endif
 
 #if defined(BUTTONS_SUPPORTED) || defined(ENCODERS_SUPPORTED)
-//buttons and encoders have the same data source which is digital input
-//this helper class pulls the latest data from board and then feeds it into HWAButtons and HWAEncoders
+// buttons and encoders have the same data source which is digital input
+// this helper class pulls the latest data from board and then feeds it into HWAButtons and HWAEncoders
 class HWADigitalIn
 {
     public:
@@ -257,10 +257,10 @@ class HWADigitalIn
 
         numberOfReadings = dInReadA.count > dInReadB.count ? dInReadA.count : dInReadB.count;
 
-        //construct encoder pair readings
-        //encoder signal is made of A and B signals
-        //take each bit of A signal and B signal and append it to states variable in order
-        //latest encoder readings should be in LSB bits
+        // construct encoder pair readings
+        // encoder signal is made of A and B signals
+        // take each bit of A signal and B signal and append it to states variable in order
+        // latest encoder readings should be in LSB bits
 
         for (uint8_t i = 0; i < numberOfReadings; i++)
         {
@@ -377,7 +377,7 @@ class HWAMIDI : public System::HWA::Protocol::MIDI
     bool init(::MIDI::interface_t interface) override
     {
         if (interface == ::MIDI::interface_t::usb)
-            return true;    //already initialized
+            return true;    // already initialized
 
 #ifdef DIN_MIDI_SUPPORTED
         Board::UART::config_t config(UART_BAUDRATE_MIDI_STD,
@@ -395,7 +395,7 @@ class HWAMIDI : public System::HWA::Protocol::MIDI
     bool deInit(::MIDI::interface_t interface) override
     {
         if (interface == ::MIDI::interface_t::usb)
-            return true;    //never deinit usb interface, just pretend here
+            return true;    // never deinit usb interface, just pretend here
 
 #ifdef DIN_MIDI_SUPPORTED
         Board::UART::deInit(UART_CHANNEL_DIN);
@@ -541,7 +541,7 @@ class HWADMX : public System::HWA::Protocol::DMX, public CDCUser
 
     void packetComplete() override
     {
-        //todo
+        // todo
     }
 
     bool isUsed() override
@@ -893,7 +893,7 @@ class HWASystem : public System::HWA
 
         if (readCDC)
         {
-            //nobody is using CDC, read it here to avoid lockups but ignore the data
+            // nobody is using CDC, read it here to avoid lockups but ignore the data
             uint8_t dummy;
             while (Board::USB::readCDC(dummy))
                 ;

@@ -60,11 +60,11 @@ IO::TouchscreenBase::tsEvent_t Viewtech::update(IO::TouchscreenBase::tsData_t& d
         IO::TouchscreenBase::Common::rxBuffer[IO::TouchscreenBase::Common::bufferCount++] = value;
     }
 
-    //assumption - only one response is received at the time
-    //if parsing fails, wipe the buffer
+    // assumption - only one response is received at the time
+    // if parsing fails, wipe the buffer
     if (IO::TouchscreenBase::Common::bufferCount)
     {
-        //verify header first
+        // verify header first
         if (IO::TouchscreenBase::Common::rxBuffer[0] == 0xA5)
         {
             if (IO::TouchscreenBase::Common::bufferCount > 1)
@@ -73,7 +73,7 @@ IO::TouchscreenBase::tsEvent_t Viewtech::update(IO::TouchscreenBase::tsData_t& d
                 {
                     if (IO::TouchscreenBase::Common::bufferCount > 2)
                     {
-                        //byte at index 2 holds response length, without first two bytes and without byte at index 2
+                        // byte at index 2 holds response length, without first two bytes and without byte at index 2
                         if (IO::TouchscreenBase::Common::bufferCount >= static_cast<size_t>(3 + IO::TouchscreenBase::Common::rxBuffer[2]))
                         {
                             uint32_t response = IO::TouchscreenBase::Common::rxBuffer[2];
@@ -110,7 +110,7 @@ IO::TouchscreenBase::tsEvent_t Viewtech::update(IO::TouchscreenBase::tsData_t& d
                                 }
                                 else
                                 {
-                                    //screen released
+                                    // screen released
                                     data.xPos      = 0;
                                     data.yPos      = 0;
                                     data.pressType = IO::TouchscreenBase::pressType_t::none;
@@ -129,14 +129,14 @@ IO::TouchscreenBase::tsEvent_t Viewtech::update(IO::TouchscreenBase::tsData_t& d
                 }
                 else
                 {
-                    //header invalid - ignore the rest of the message
+                    // header invalid - ignore the rest of the message
                     IO::TouchscreenBase::Common::bufferCount = 0;
                 }
             }
         }
         else
         {
-            //header invalid - ignore the rest of the message
+            // header invalid - ignore the rest of the message
             IO::TouchscreenBase::Common::bufferCount = 0;
         }
     }
@@ -146,42 +146,42 @@ IO::TouchscreenBase::tsEvent_t Viewtech::update(IO::TouchscreenBase::tsData_t& d
 
 void Viewtech::setIconState(IO::TouchscreenBase::icon_t& icon, bool state)
 {
-    //header
+    // header
     _hwa.write(0xA5);
     _hwa.write(0x5A);
 
-    //request size
+    // request size
     _hwa.write(0x05);
 
-    //write variable
+    // write variable
     _hwa.write(0x82);
 
-    //icon address - for viewtech displays, address is stored in xPos element
+    // icon address - for viewtech displays, address is stored in xPos element
     _hwa.write(HIGH_BYTE(icon.xPos));
     _hwa.write(LOW_BYTE(icon.xPos));
 
-    //value to set - 2 bytes are used, higher is always 0
-    //inverted logic for setting state - 0 means on state, 1 is off
+    // value to set - 2 bytes are used, higher is always 0
+    // inverted logic for setting state - 0 means on state, 1 is off
     _hwa.write(0x00);
     _hwa.write(state ? 0x00 : 0x01);
 }
 
 bool Viewtech::setBrightness(IO::TouchscreenBase::brightness_t brightness)
 {
-    //header
+    // header
     _hwa.write(0xA5);
     _hwa.write(0x5A);
 
-    //request size
+    // request size
     _hwa.write(0x03);
 
-    //register write
+    // register write
     _hwa.write(0x80);
 
-    //brightness settting
+    // brightness settting
     _hwa.write(0x01);
 
-    //brightness value
+    // brightness value
     _hwa.write(_brightnessMapping[static_cast<uint8_t>(brightness)]);
 
     return true;
@@ -193,22 +193,22 @@ void Viewtech::pollXY()
 
     if ((core::timing::currentRunTimeMs() - lastPollTime) > XY_POLL_TIME_MS)
     {
-        //header
+        // header
         _hwa.write(0xA5);
         _hwa.write(0x5A);
 
-        //request size
+        // request size
         _hwa.write(0x03);
 
-        //register read
+        // register read
         _hwa.write(0x81);
 
-        //read register 6 but request 5 bytes
-        //reg6 contains touch status (1 byte)
-        //reg7 contains x/y coordinates (4 bytes)
+        // read register 6 but request 5 bytes
+        // reg6 contains touch status (1 byte)
+        // reg7 contains x/y coordinates (4 bytes)
         _hwa.write(0x06);
 
-        //read 5 bytes
+        // read 5 bytes
         _hwa.write(0x05);
 
         lastPollTime = core::timing::currentRunTimeMs();

@@ -43,7 +43,7 @@ namespace
             {
                 size_t size = 0;
 
-                //get actual size of vector by finding first entry with content 0xFFFFFFFF
+                // get actual size of vector by finding first entry with content 0xFFFFFFFF
                 for (; size < _flashVector.at(_activePageWrite).size(); size += 4)
                 {
                     uint32_t data;
@@ -52,13 +52,13 @@ namespace
                     {
                         while (1)
                         {
-                            //should never happen
+                            // should never happen
                         }
                     }
 
                     if (data == 0xFFFFFFFF)
                     {
-                        //last entry found
+                        // last entry found
                         size += 4;
                         break;
                     }
@@ -70,7 +70,7 @@ namespace
 
             _filename += "_offset";
 
-            //also create a file containing the offset at which to write generated flash
+            // also create a file containing the offset at which to write generated flash
             file.open(_filename.c_str(), std::ios::trunc | std::ios::out);
 
             if (file.is_open())
@@ -213,7 +213,7 @@ namespace
 
         uint32_t size() override
         {
-            //first 4 bytes are reserved for page status
+            // first 4 bytes are reserved for page status
             return EMU_EEPROM_PAGE_SIZE - 4;
         }
 
@@ -241,7 +241,7 @@ namespace
                 }
                 else if (readStatus == EmuEEPROM::readStatus_t::noVar)
                 {
-                    //variable with this address doesn't exist yet - set value to 0
+                    // variable with this address doesn't exist yet - set value to 0
                     value = 0;
                 }
                 else
@@ -286,7 +286,7 @@ namespace
                 return 8;
 
             default:
-                return 4;    //2 bytes for address, 2 bytes for data
+                return 4;    // 2 bytes for address, 2 bytes for data
             }
         }
     } storageAccess;
@@ -308,8 +308,8 @@ int main(int argc, char* argv[])
 
     if (database.init())
     {
-        //ensure that we have clean flash binary:
-        //firmware also uses custom values after defaults have been written
+        // ensure that we have clean flash binary:
+        // firmware also uses custom values after defaults have been written
         emuEEPROM.pageTransfer();
         return 0;
     }

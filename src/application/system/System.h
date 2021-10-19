@@ -202,8 +202,8 @@ class System
     using usbConnectionHandler_t = std::function<void()>;
     using uniqueID_t             = std::array<uint8_t, UID_BITS / 8>;
 
-    //time in milliseconds after which all internal MIDI values will be forcefully resent when scheduled
-    //done after preset change or on usb connection state change
+    // time in milliseconds after which all internal MIDI values will be forcefully resent when scheduled
+    // done after preset change or on usb connection state change
     static constexpr uint32_t FORCED_VALUE_RESEND_DELAY = 500;
 
     class HWA
@@ -631,11 +631,11 @@ class System
 
     backupRestoreState_t _backupRestoreState = backupRestoreState_t::none;
 
-    //map sysex sections to sections in db
+    // map sysex sections to sections in db
     const Database::Section::global_t _sysEx2DB_global[static_cast<uint8_t>(Section::global_t::AMOUNT)] = {
         Database::Section::global_t::midiFeatures,
         Database::Section::global_t::midiMerge,
-        Database::Section::global_t::AMOUNT,    //unused
+        Database::Section::global_t::AMOUNT,    // unused
         Database::Section::global_t::dmx,
     };
 

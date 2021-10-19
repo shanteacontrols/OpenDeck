@@ -36,16 +36,16 @@ TEST_CASE(Insertion)
     TEST_ASSERT(buffer.isEmpty() == true);
     TEST_ASSERT(buffer.isFull() == false);
 
-    //assign random value
+    // assign random value
     value = 147;
 
-    //try to remove again
+    // try to remove again
     TEST_ASSERT(buffer.remove(value) == false);
 
-    //verify that the value hasn't changed
+    // verify that the value hasn't changed
     TEST_ASSERT(147 == value);
 
-    //fill the entire buffer
+    // fill the entire buffer
     TEST_ASSERT(true == buffer.insert(10));
     TEST_ASSERT(true == buffer.insert(11));
     TEST_ASSERT(true == buffer.insert(12));
@@ -79,7 +79,7 @@ TEST_CASE(Insertion)
     TEST_ASSERT(buffer.isEmpty() == true);
     TEST_ASSERT(buffer.isFull() == false);
 
-    //verify that overwriting isn't possible
+    // verify that overwriting isn't possible
     TEST_ASSERT(true == buffer.insert(10));
     TEST_ASSERT(true == buffer.insert(11));
     TEST_ASSERT(true == buffer.insert(12));

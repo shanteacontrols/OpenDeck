@@ -33,13 +33,13 @@ namespace Board
             if (channel >= MAX_I2C_INTERFACES)
                 return false;
 
-            //no prescaling
+            // no prescaling
             TWSR = 0x00;
 
-            //use formula as per datasheet
+            // use formula as per datasheet
             TWBR = ((F_CPU / static_cast<uint32_t>(speed)) - 16) / 2;
 
-            //enable i2c interface
+            // enable i2c interface
             TWCR = (1 << TWEN);
 
             return true;
@@ -59,11 +59,11 @@ namespace Board
             if (channel >= MAX_I2C_INTERFACES)
                 return false;
 
-            //enable interrupt flag
-            //enable start bit (set to master)
+            // enable interrupt flag
+            // enable start bit (set to master)
             TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN);
 
-            //wait for interrupt flag to be cleared
+            // wait for interrupt flag to be cleared
             uint32_t currentTime = core::timing::currentRunTimeMs();
 
             currentTime = core::timing::currentRunTimeMs();
@@ -74,17 +74,17 @@ namespace Board
                     return false;
             }
 
-            //check the value of TWI status register
+            // check the value of TWI status register
             uint8_t status = TW_STATUS & 0xF8;
 
             if ((status != TW_START) && (status != TW_REP_START))
                 return false;
 
-            //send device address
+            // send device address
             TWDR = address;
             TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTA);
 
-            //wait for interrupt flag to be cleared
+            // wait for interrupt flag to be cleared
             currentTime = core::timing::currentRunTimeMs();
 
             while (!BIT_READ(TWCR, TWINT))
@@ -103,7 +103,7 @@ namespace Board
                 TWDR = buffer[i];
                 TWCR = (1 << TWINT) | (1 << TWEN);
 
-                //wait for interrupt flag to be cleared
+                // wait for interrupt flag to be cleared
                 while (!BIT_READ(TWCR, TWINT))
                     ;
 
@@ -119,7 +119,7 @@ namespace Board
                     return false;
             }
 
-            //wait until all ongoing transmissions are stopped
+            // wait until all ongoing transmissions are stopped
             TWCR |= (1 << TWSTO);
 
             currentTime = core::timing::currentRunTimeMs();

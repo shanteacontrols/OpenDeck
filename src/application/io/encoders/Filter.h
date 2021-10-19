@@ -37,8 +37,8 @@ namespace IO
         {
             filteredPosition = position;
 
-            //disable debouncing mode if encoder isn't moving for more than
-            //ENCODERS_DEBOUNCE_RESET_TIME milliseconds
+            // disable debouncing mode if encoder isn't moving for more than
+            // ENCODERS_DEBOUNCE_RESET_TIME milliseconds
             if ((sampleTakenTime - _lastMovementTime[index]) > ENCODERS_DEBOUNCE_RESET_TIME)
             {
                 reset(index);

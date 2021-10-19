@@ -20,8 +20,8 @@ limitations under the License.
 
 /// Helper macros used for easier control of internal (on-board) and external LEDs.
 
-//reverse the logic in bootloader mode:
-//internal leds are always on unless there's some traffic
+// reverse the logic in bootloader mode:
+// internal leds are always on unless there's some traffic
 #ifdef LED_INT_INVERT
 #ifndef FW_BOOT
 #define INT_LED_ON(port, pin)  CORE_IO_SET_LOW(port, pin)

@@ -59,10 +59,10 @@ typedef struct
     uint8_t                 Subtype; /**< Sub type value used to distinguish between audio class-specific descriptors. */
 
     uint16_t AudioSpecification; /**< Binary coded decimal value, indicating the supported Audio Class
-                                                    *   specification version.
-                                                    *
-                                                    *   \see \ref VERSION_BCD() utility macro.
-                                                    */
+                                  *   specification version.
+                                  *
+                                  *   \see \ref VERSION_BCD() utility macro.
+                                  */
     uint16_t TotalLength;        /**< Total length of the Audio class-specific descriptors, including this descriptor. */
 } __attribute__((packed)) USB_MIDI_Descriptor_AudioInterface_AS_t;
 

@@ -91,7 +91,7 @@ extern "C" uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue, const uint
 
         case STRING_ID_UID:
         {
-            //handled internally by LUFA
+            // handled internally by LUFA
         }
         break;
 
@@ -162,22 +162,22 @@ namespace Board
 
         bool readMIDI(MIDI::USBMIDIpacket_t& USBMIDIpacket)
         {
-            //device must be connected and configured for the task to run
+            // device must be connected and configured for the task to run
             if (!isUSBconnected())
                 return false;
 
-            //select the MIDI OUT stream
+            // select the MIDI OUT stream
             Endpoint_SelectEndpoint(MIDI_STREAM_OUT_EPADDR);
 
-            //check if a MIDI command has been received
+            // check if a MIDI command has been received
             if (Endpoint_IsOUTReceived())
             {
-                //read the MIDI event packet from the endpoint
+                // read the MIDI event packet from the endpoint
                 Endpoint_Read_Stream_LE(&USBMIDIpacket, sizeof(USBMIDIpacket), NULL);
 
-                //if the endpoint is now empty, clear the bank
+                // if the endpoint is now empty, clear the bank
                 if (!(Endpoint_BytesInEndpoint()))
-                    Endpoint_ClearOUT();    //clear the endpoint ready for new packet
+                    Endpoint_ClearOUT();    // clear the endpoint ready for new packet
 
                 return true;
             }
@@ -194,7 +194,7 @@ namespace Board
             if (!isUSBconnected())
                 return false;
 
-            //once the transfer fails, wait USB_TX_TIMEOUT_MS ms before trying again
+            // once the transfer fails, wait USB_TX_TIMEOUT_MS ms before trying again
             if (_txStateMIDI != Board::detail::USB::txState_t::done)
             {
                 if ((core::timing::currentRunTimeMs() - timeout) < USB_TX_TIMEOUT_MS)
@@ -268,7 +268,7 @@ namespace Board
             if (!isUSBconnected())
                 return false;
 
-            //once the transfer fails, wait USB_TX_TIMEOUT_MS ms before trying again
+            // once the transfer fails, wait USB_TX_TIMEOUT_MS ms before trying again
             if (_txStateCDC != Board::detail::USB::txState_t::done)
             {
                 if ((core::timing::currentRunTimeMs() - timeout) < USB_TX_TIMEOUT_MS)

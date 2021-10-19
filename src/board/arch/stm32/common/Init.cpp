@@ -54,19 +54,19 @@ namespace Board
 
             void application()
             {
-                //Reset of all peripherals, Initializes the Flash interface and the Systick
+                // Reset of all peripherals, Initializes the Flash interface and the Systick
                 HAL_Init();
 
                 detail::setup::clocks();
 
-                //add some delay for clocks to stabilize
+                // add some delay for clocks to stabilize
                 core::timing::waitMs(10);
 
                 detail::setup::io();
                 detail::setup::adc();
                 detail::setup::timers();
 
-                //add some delay and remove initial readout of digital inputs
+                // add some delay and remove initial readout of digital inputs
                 core::timing::waitMs(10);
                 detail::io::flushInputReadings();
                 detail::setup::usb();
@@ -117,7 +117,7 @@ namespace Board
                 CORE_IO_CONFIG({ SR_OUT_OE_PORT, SR_OUT_OE_PIN, core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
 #endif
 
-                //init all outputs on shift register
+                // init all outputs on shift register
                 CORE_IO_SET_LOW(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 
                 for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
@@ -150,7 +150,7 @@ namespace Board
                     core::io::mcuPin_t pin = detail::map::ledPin(i);
 
 #ifdef NUMBER_OF_LED_ROWS
-                    //when rows are used from native outputs, use open-drain configuration
+                    // when rows are used from native outputs, use open-drain configuration
                     CORE_IO_CONFIG({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::outputOD, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
 #else
                     CORE_IO_CONFIG({ CORE_IO_MCU_PIN_PORT(pin), CORE_IO_MCU_PIN_INDEX(pin), core::io::pinMode_t::outputPP, core::io::pullMode_t::none, core::io::gpioSpeed_t::medium, 0x00 });
@@ -192,7 +192,7 @@ namespace Board
 
                     CORE_IO_CONFIG({ unusedPin.pin.port, unusedPin.pin.index, unusedPin.pin.mode });
 
-                    //for input mode, pull up is activated so no need to set state via CORE_IO_SET_STATE
+                    // for input mode, pull up is activated so no need to set state via CORE_IO_SET_STATE
                     if (unusedPin.pin.mode == core::io::pinMode_t::outputPP)
                         CORE_IO_SET_STATE(CORE_IO_MCU_PIN_PORT(unusedPin.pin), CORE_IO_MCU_PIN_INDEX(unusedPin.pin), unusedPin.state);
                 }

@@ -20,7 +20,7 @@ limitations under the License.
 
 bool System::HWAButtons::state(size_t index, uint8_t& numberOfReadings, uint32_t& states)
 {
-    //if encoder under this index is enabled, just return false state each time
+    // if encoder under this index is enabled, just return false state each time
     if (_system._database.read(Database::Section::encoder_t::enable, _system._hwa.io().buttons().buttonToEncoderIndex(index)))
         return false;
 

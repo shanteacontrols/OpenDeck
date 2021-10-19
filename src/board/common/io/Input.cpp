@@ -47,7 +47,7 @@ namespace
         {
             for (int input = 0; input < 8; input++)
             {
-                //this register shifts out MSB first
+                // this register shifts out MSB first
                 size_t buttonIndex = (shiftRegister * 8) + (7 - input);
                 CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
                 Board::detail::io::sr165wait();
@@ -91,7 +91,7 @@ namespace
 
             for (int row = 0; row < NUMBER_OF_BUTTON_ROWS; row++)
             {
-                //this register shifts out MSB first
+                // this register shifts out MSB first
                 size_t buttonIndex = ((7 - row) * 8) + column;
                 CORE_IO_SET_LOW(SR_IN_CLK_PORT, SR_IN_CLK_PIN);
                 Board::detail::io::sr165wait();
@@ -168,7 +168,7 @@ namespace Board
             uint8_t column = buttonID % NUMBER_OF_BUTTON_COLUMNS;
 
             if (row % 2)
-                row -= 1;    //uneven row, get info from previous (even) row
+                row -= 1;    // uneven row, get info from previous (even) row
 
             return (row * NUMBER_OF_BUTTON_COLUMNS) / 2 + column;
 #else

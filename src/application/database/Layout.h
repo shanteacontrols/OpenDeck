@@ -38,9 +38,9 @@ namespace SectionPrivate
 
 namespace
 {
-    //not user accessible
+    // not user accessible
     LESSDB::section_t systemSections[static_cast<uint8_t>(SectionPrivate::system_t::AMOUNT)] = {
-        //uid section
+        // uid section
         {
             .numberOfParameters     = 1,
             .parameterType          = LESSDB::sectionParameterType_t::word,
@@ -50,7 +50,7 @@ namespace
             .address                = 0,
         },
 
-        //presets
+        // presets
         {
             .numberOfParameters     = static_cast<uint8_t>(System::presetSetting_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::byte,
@@ -62,7 +62,7 @@ namespace
     };
 
     LESSDB::section_t globalSections[static_cast<uint8_t>(Database::Section::global_t::AMOUNT)] = {
-        //midi feature section
+        // midi feature section
         {
             .numberOfParameters     = static_cast<uint8_t>(System::midiFeature_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::bit,
@@ -72,7 +72,7 @@ namespace
             .address                = 0,
         },
 
-        //midi merge section
+        // midi merge section
         {
             .numberOfParameters     = static_cast<uint8_t>(System::midiMerge_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
@@ -82,7 +82,7 @@ namespace
             .address                = 0,
         },
 
-        //dmx section
+        // dmx section
         {
             .numberOfParameters     = static_cast<uint8_t>(System::dmxSetting_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::byte,
@@ -94,7 +94,7 @@ namespace
     };
 
     LESSDB::section_t buttonSections[static_cast<uint8_t>(Database::Section::button_t::AMOUNT)] = {
-        //type section
+        // type section
         {
             .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::bit,
@@ -104,7 +104,7 @@ namespace
             .address                = 0,
         },
 
-        //midi message type section
+        // midi message type section
         {
             .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::byte,
@@ -114,7 +114,7 @@ namespace
             .address                = 0,
         },
 
-        //midi id section
+        // midi id section
         {
             .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::byte,
@@ -124,7 +124,7 @@ namespace
             .address                = 0,
         },
 
-        //midi velocity section
+        // midi velocity section
         {
             .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::byte,
@@ -134,7 +134,7 @@ namespace
             .address                = 0,
         },
 
-        //midi channel section
+        // midi channel section
         {
             .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
@@ -146,7 +146,7 @@ namespace
     };
 
     LESSDB::section_t encoderSections[static_cast<uint8_t>(Database::Section::encoder_t::AMOUNT)] = {
-        //encoder enabled section
+        // encoder enabled section
         {
             .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
             .parameterType          = LESSDB::sectionParameterType_t::bit,
@@ -156,7 +156,7 @@ namespace
             .address                = 0,
         },
 
-        //encoder inverted section
+        // encoder inverted section
         {
             .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
             .parameterType          = LESSDB::sectionParameterType_t::bit,
@@ -166,7 +166,7 @@ namespace
             .address                = 0,
         },
 
-        //encoding mode section
+        // encoding mode section
         {
             .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
@@ -176,7 +176,7 @@ namespace
             .address                = 0,
         },
 
-        //midi id section
+        // midi id section
         {
             .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
@@ -186,7 +186,7 @@ namespace
             .address                = 0,
         },
 
-        //midi channel section
+        // midi channel section
         {
             .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
@@ -196,7 +196,7 @@ namespace
             .address                = 0,
         },
 
-        //pulses per step section
+        // pulses per step section
         {
             .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
@@ -206,7 +206,7 @@ namespace
             .address                = 0,
         },
 
-        //acceleration section
+        // acceleration section
         {
             .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
@@ -216,7 +216,7 @@ namespace
             .address                = 0,
         },
 
-        //remote sync section
+        // remote sync section
         {
             .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
             .parameterType          = LESSDB::sectionParameterType_t::bit,
@@ -228,7 +228,7 @@ namespace
     };
 
     LESSDB::section_t analogSections[static_cast<uint8_t>(Database::Section::analog_t::AMOUNT)] = {
-        //analog enabled section
+        // analog enabled section
         {
             .numberOfParameters     = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::bit,
@@ -238,7 +238,7 @@ namespace
             .address                = 0,
         },
 
-        //analog inverted section
+        // analog inverted section
         {
             .numberOfParameters     = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::bit,
@@ -248,7 +248,7 @@ namespace
             .address                = 0,
         },
 
-        //analog type section
+        // analog type section
         {
             .numberOfParameters     = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
@@ -258,7 +258,7 @@ namespace
             .address                = 0,
         },
 
-        //midi id section
+        // midi id section
         {
             .numberOfParameters     = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
@@ -268,7 +268,7 @@ namespace
             .address                = 0,
         },
 
-        //lower cc limit
+        // lower cc limit
         {
             .numberOfParameters     = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
@@ -278,7 +278,7 @@ namespace
             .address                = 0,
         },
 
-        //upper cc limit
+        // upper cc limit
         {
             .numberOfParameters     = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
@@ -288,7 +288,7 @@ namespace
             .address                = 0,
         },
 
-        //midi channel section
+        // midi channel section
         {
             .numberOfParameters     = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
@@ -300,7 +300,7 @@ namespace
     };
 
     LESSDB::section_t ledSections[static_cast<uint8_t>(Database::Section::leds_t::AMOUNT)] = {
-        //global parameters section
+        // global parameters section
         {
             .numberOfParameters     = static_cast<size_t>(IO::LEDs::setting_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::byte,
@@ -310,7 +310,7 @@ namespace
             .address                = 0,
         },
 
-        //activation id section
+        // activation id section
         {
             .numberOfParameters     = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::byte,
@@ -320,7 +320,7 @@ namespace
             .address                = 0,
         },
 
-        //rgb enabled section
+        // rgb enabled section
         {
             .numberOfParameters     = MAX_NUMBER_OF_RGB_LEDS + (MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS / 3),
             .parameterType          = LESSDB::sectionParameterType_t::bit,
@@ -330,7 +330,7 @@ namespace
             .address                = 0,
         },
 
-        //led control type section
+        // led control type section
         {
             .numberOfParameters     = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
@@ -340,7 +340,7 @@ namespace
             .address                = 0,
         },
 
-        //single velocity value section
+        // single velocity value section
         {
             .numberOfParameters     = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::byte,
@@ -350,7 +350,7 @@ namespace
             .address                = 0,
         },
 
-        //midi channel section
+        // midi channel section
         {
             .numberOfParameters     = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
@@ -362,7 +362,7 @@ namespace
     };
 
     LESSDB::section_t displaySections[static_cast<uint8_t>(Database::Section::display_t::AMOUNT)] = {
-        //features section
+        // features section
         {
             .numberOfParameters     = static_cast<uint8_t>(IO::Display::feature_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::bit,
@@ -372,7 +372,7 @@ namespace
             .address                = 0,
         },
 
-        //setting section
+        // setting section
         {
             .numberOfParameters     = static_cast<uint8_t>(IO::Display::setting_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::byte,
@@ -384,7 +384,7 @@ namespace
     };
 
     LESSDB::section_t touchscreenSections[static_cast<uint8_t>(Database::Section::touchscreen_t::AMOUNT)] = {
-        //setting section
+        // setting section
         {
             .numberOfParameters     = static_cast<uint8_t>(IO::Touchscreen::setting_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::byte,
@@ -394,7 +394,7 @@ namespace
             .address                = 0,
         },
 
-        //x position section
+        // x position section
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
@@ -404,7 +404,7 @@ namespace
             .address                = 0,
         },
 
-        //y position section
+        // y position section
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
@@ -414,7 +414,7 @@ namespace
             .address                = 0,
         },
 
-        //width section
+        // width section
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
@@ -424,7 +424,7 @@ namespace
             .address                = 0,
         },
 
-        //height section
+        // height section
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
@@ -434,7 +434,7 @@ namespace
             .address                = 0,
         },
 
-        //on screen section
+        // on screen section
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
@@ -444,7 +444,7 @@ namespace
             .address                = 0,
         },
 
-        //off screen section
+        // off screen section
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
@@ -454,7 +454,7 @@ namespace
             .address                = 0,
         },
 
-        //page switch enabled section
+        // page switch enabled section
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::bit,
@@ -464,7 +464,7 @@ namespace
             .address                = 0,
         },
 
-        //page switch index section
+        // page switch index section
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
@@ -474,7 +474,7 @@ namespace
             .address                = 0,
         },
 
-        //analog page section
+        // analog page section
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
@@ -484,7 +484,7 @@ namespace
             .address                = 0,
         },
 
-        //analog start x coordinate section
+        // analog start x coordinate section
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
@@ -494,7 +494,7 @@ namespace
             .address                = 0,
         },
 
-        //analog end x coordinate section
+        // analog end x coordinate section
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
@@ -504,7 +504,7 @@ namespace
             .address                = 0,
         },
 
-        //analog start y coordinate section
+        // analog start y coordinate section
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
@@ -514,7 +514,7 @@ namespace
             .address                = 0,
         },
 
-        //analog end y coordinate section
+        // analog end y coordinate section
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::word,
@@ -524,7 +524,7 @@ namespace
             .address                = 0,
         },
 
-        //analog type section
+        // analog type section
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::bit,
@@ -534,7 +534,7 @@ namespace
             .address                = 0,
         },
 
-        //analog reset on release section
+        // analog reset on release section
         {
             .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             .parameterType          = LESSDB::sectionParameterType_t::bit,
@@ -546,56 +546,56 @@ namespace
     };
 
     LESSDB::block_t dbLayout[static_cast<uint8_t>(Database::block_t::AMOUNT) + 1] = {
-        //system block
+        // system block
         {
             .numberOfSections = static_cast<uint8_t>(SectionPrivate::system_t::AMOUNT),
             .section          = systemSections,
             .address          = 0,
         },
 
-        //global block
+        // global block
         {
             .numberOfSections = static_cast<uint8_t>(Database::Section::global_t::AMOUNT),
             .section          = globalSections,
             .address          = 0,
         },
 
-        //buttons block
+        // buttons block
         {
             .numberOfSections = static_cast<uint8_t>(Database::Section::button_t::AMOUNT),
             .section          = buttonSections,
             .address          = 0,
         },
 
-        //encoder block
+        // encoder block
         {
             .numberOfSections = static_cast<uint8_t>(Database::Section::encoder_t::AMOUNT),
             .section          = encoderSections,
             .address          = 0,
         },
 
-        //analog block
+        // analog block
         {
             .numberOfSections = static_cast<uint8_t>(Database::Section::analog_t::AMOUNT),
             .section          = analogSections,
             .address          = 0,
         },
 
-        //led block
+        // led block
         {
             .numberOfSections = static_cast<uint8_t>(Database::Section::leds_t::AMOUNT),
             .section          = ledSections,
             .address          = 0,
         },
 
-        //display block
+        // display block
         {
             .numberOfSections = static_cast<uint8_t>(Database::Section::display_t::AMOUNT),
             .section          = displaySections,
             .address          = 0,
         },
 
-        //touchscreen block
+        // touchscreen block
         {
             .numberOfSections = static_cast<uint8_t>(Database::Section::touchscreen_t::AMOUNT),
             .section          = touchscreenSections,

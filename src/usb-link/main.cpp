@@ -114,13 +114,13 @@ int main(void)
 {
     Board::init();
 
-    //make sure device is ready before sending unique id
+    // make sure device is ready before sending unique id
     core::timing::waitMs(50);
     sendUniqueID();
 
     while (1)
     {
-        //USB MIDI -> UART
+        // USB MIDI -> UART
         if (Board::USB::readMIDI(USBMIDIpacket))
         {
             uint8_t                              data[4] = { USBMIDIpacket.Event, USBMIDIpacket.Data1, USBMIDIpacket.Data2, USBMIDIpacket.Data3 };
@@ -133,7 +133,7 @@ int main(void)
                 Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
         }
 
-        //USB CDC -> UART
+        // USB CDC -> UART
         if (Board::USB::readCDC(readBuffer, cdcPacketSize, USB_OVER_SERIAL_BUFFER_SIZE))
         {
             Board::USBOverSerial::USBWritePacket packet(Board::USBOverSerial::packetType_t::cdc,
@@ -145,7 +145,7 @@ int main(void)
                 Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::incoming);
         }
 
-        //UART -> USB
+        // UART -> USB
         if (Board::USBOverSerial::read(UART_CHANNEL_USB_LINK, readPacket))
         {
             if (readPacket.type() == Board::USBOverSerial::packetType_t::midi)
@@ -160,10 +160,10 @@ int main(void)
             }
             else if (readPacket.type() == Board::USBOverSerial::packetType_t::internal)
             {
-                //internal command
+                // internal command
                 if (readPacket[0] == static_cast<uint8_t>(USBLink::internalCMD_t::rebootBTLDR))
                 {
-                    //use received data as the magic bootloader value
+                    // use received data as the magic bootloader value
                     Board::bootloader::setMagicBootValue(readPacket[1]);
                     Board::reboot();
                 }
@@ -174,7 +174,7 @@ int main(void)
                     Board::io::indicateTraffic(Board::io::dataSource_t::usb, Board::io::dataDirection_t::outgoing);
             }
 
-            //clear out any stored information in packet since we are reusing it
+            // clear out any stored information in packet since we are reusing it
             readPacket.reset();
         }
 

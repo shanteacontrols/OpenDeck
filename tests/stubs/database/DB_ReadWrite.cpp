@@ -4,7 +4,7 @@
 uint32_t DBstorageMock::size()
 {
 #ifdef STM32_EMU_EEPROM
-    //first 4 bytes are reserved for page status
+    // first 4 bytes are reserved for page status
     return EMU_EEPROM_PAGE_SIZE - 4;
 #else
     return memoryArray.size();
@@ -39,7 +39,7 @@ size_t DBstorageMock::paramUsage(LESSDB::sectionParameterType_t type)
     case LESSDB::sectionParameterType_t::byte:
     case LESSDB::sectionParameterType_t::word:
     default:
-        return 4;    //2 bytes for address, 2 bytes for data
+        return 4;    // 2 bytes for address, 2 bytes for data
     }
 #endif
 }
@@ -98,7 +98,7 @@ bool DBstorageMock::read(uint32_t address, int32_t& value, LESSDB::sectionParame
         }
         else if (readStatus == EmuEEPROM::readStatus_t::noVar)
         {
-            //variable with this address doesn't exist yet - set value to 0
+            // variable with this address doesn't exist yet - set value to 0
             value = 0;
         }
         else
@@ -214,7 +214,7 @@ bool DBstorageMock::EmuEEPROMStorageAccess::erasePage(EmuEEPROM::page_t page)
 
 bool DBstorageMock::EmuEEPROMStorageAccess::write16(uint32_t address, uint16_t data)
 {
-    //0->1 transition is not allowed
+    // 0->1 transition is not allowed
     uint16_t currentData = 0;
     read16(address, currentData);
 
@@ -229,7 +229,7 @@ bool DBstorageMock::EmuEEPROMStorageAccess::write16(uint32_t address, uint16_t d
 
 bool DBstorageMock::EmuEEPROMStorageAccess::write32(uint32_t address, uint32_t data)
 {
-    //0->1 transition is not allowed
+    // 0->1 transition is not allowed
     uint32_t currentData = 0;
     read32(address, currentData);
 

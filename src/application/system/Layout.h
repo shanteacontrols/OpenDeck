@@ -27,28 +27,28 @@
 namespace
 {
     std::vector<SysExConf::Section> globalSections = {
-        //midi feature section
+        // midi feature section
         {
             static_cast<uint16_t>(System::midiFeature_t::AMOUNT),
             0,
             1,
         },
 
-        //midi merge section
+        // midi merge section
         {
             static_cast<uint16_t>(System::midiMerge_t::AMOUNT),
             0,
             0,
         },
 
-        //preset section
+        // preset section
         {
             static_cast<uint16_t>(System::presetSetting_t::AMOUNT),
             0,
             0,
         },
 
-        //dmx section
+        // dmx section
         {
             static_cast<uint16_t>(System::dmxSetting_t::AMOUNT),
             0,
@@ -57,35 +57,35 @@ namespace
     };
 
     std::vector<SysExConf::Section> buttonSections = {
-        //type section
+        // type section
         {
             MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             static_cast<uint16_t>(IO::Buttons::type_t::AMOUNT) - 1,
         },
 
-        //midi message type section
+        // midi message type section
         {
             MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             static_cast<uint16_t>(IO::Buttons::messageType_t::AMOUNT) - 1,
         },
 
-        //midi id section
+        // midi id section
         {
             MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             127,
         },
 
-        //midi velocity section
+        // midi velocity section
         {
             MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             1,
             127,
         },
 
-        //midi channel section
+        // midi channel section
         {
             MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             1,
@@ -94,63 +94,63 @@ namespace
     };
 
     std::vector<SysExConf::Section> encoderSections = {
-        //encoder enabled section
+        // encoder enabled section
         {
             MAX_NUMBER_OF_ENCODERS,
             0,
             1,
         },
 
-        //encoder inverted section
+        // encoder inverted section
         {
             MAX_NUMBER_OF_ENCODERS,
             0,
             1,
         },
 
-        //encoding mode section
+        // encoding mode section
         {
             MAX_NUMBER_OF_ENCODERS,
             0,
             static_cast<uint16_t>(IO::Encoders::type_t::AMOUNT) - 1,
         },
 
-        //midi id section, lsb
+        // midi id section, lsb
         {
             MAX_NUMBER_OF_ENCODERS,
             0,
             16383,
         },
 
-        //midi channel section
+        // midi channel section
         {
             MAX_NUMBER_OF_ENCODERS,
             1,
             16,
         },
 
-        //pulses per step section
+        // pulses per step section
         {
             MAX_NUMBER_OF_ENCODERS,
             2,
             4,
         },
 
-        //acceleration section
+        // acceleration section
         {
             MAX_NUMBER_OF_ENCODERS,
             0,
             static_cast<uint16_t>(IO::Encoders::acceleration_t::AMOUNT) - 1,
         },
 
-        //midi id section, msb
+        // midi id section, msb
         {
             MAX_NUMBER_OF_ENCODERS,
             0,
             127,
         },
 
-        //remote sync section
+        // remote sync section
         {
             MAX_NUMBER_OF_ENCODERS,
             0,
@@ -159,70 +159,70 @@ namespace
     };
 
     std::vector<SysExConf::Section> analogSections = {
-        //analog enabled section
+        // analog enabled section
         {
             MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             1,
         },
 
-        //analog inverted section
+        // analog inverted section
         {
             MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             1,
         },
 
-        //analog type section
+        // analog type section
         {
             MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             static_cast<uint16_t>(IO::Analog::type_t::AMOUNT) - 1,
         },
 
-        //midi id section, lsb
+        // midi id section, lsb
         {
             MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             16383,
         },
 
-        //midi id section, msb
+        // midi id section, msb
         {
             MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             127,
         },
 
-        //lower cc limit, lsb
+        // lower cc limit, lsb
         {
             MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             16383,
         },
 
-        //lower cc limit, msb
+        // lower cc limit, msb
         {
             MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             127,
         },
 
-        //upper cc limit, lsb
+        // upper cc limit, lsb
         {
             MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             16383,
         },
 
-        //upper cc limit, msb
+        // upper cc limit, msb
         {
             MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             127,
         },
 
-        //midi channel section
+        // midi channel section
         {
             MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             1,
@@ -231,56 +231,56 @@ namespace
     };
 
     std::vector<SysExConf::Section> ledSections = {
-        //led color test section
+        // led color test section
         {
             MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             static_cast<uint16_t>(IO::LEDs::color_t::AMOUNT) - 1,
         },
 
-        //led blink test section
+        // led blink test section
         {
             MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             1,
         },
 
-        //global parameters section
+        // global parameters section
         {
             static_cast<uint16_t>(IO::LEDs::setting_t::AMOUNT),
             0,
             0,
         },
 
-        //activation note section
+        // activation note section
         {
             MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             127,
         },
 
-        //rgb enabled section
+        // rgb enabled section
         {
             MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             1,
         },
 
-        //led control type section
+        // led control type section
         {
             MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             static_cast<uint16_t>(IO::LEDs::controlType_t::AMOUNT) - 1,
         },
 
-        //single led velocity value section
+        // single led velocity value section
         {
             MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             1,
             127,
         },
 
-        //midi channel section
+        // midi channel section
         {
             MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             1,
@@ -289,14 +289,14 @@ namespace
     };
 
     std::vector<SysExConf::Section> displaySections = {
-        //features section
+        // features section
         {
             static_cast<uint16_t>(IO::Display::feature_t::AMOUNT),
             0,
             1,
         },
 
-        //settings section
+        // settings section
         {
             static_cast<uint16_t>(IO::Display::setting_t::AMOUNT),
             0,
@@ -305,112 +305,112 @@ namespace
     };
 
     std::vector<SysExConf::Section> touchscreenSections = {
-        //setting section
+        // setting section
         {
             static_cast<uint16_t>(IO::Touchscreen::setting_t::AMOUNT),
             0,
             0,
         },
 
-        //x position section
+        // x position section
         {
             MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             0,
         },
 
-        //y position section
+        // y position section
         {
             MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             0,
         },
 
-        //width section
+        // width section
         {
             MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             1024,
         },
 
-        //height section
+        // height section
         {
             MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             600,
         },
 
-        //on screen section
+        // on screen section
         {
             MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             15,
         },
 
-        //off screen section
+        // off screen section
         {
             MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             15,
         },
 
-        //page switch enabled section
+        // page switch enabled section
         {
             MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             1,
         },
 
-        //page switch index section
+        // page switch index section
         {
             MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             15,
         },
 
-        //analog page section
+        // analog page section
         {
             MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             15,
         },
 
-        //analog start x coordinate section
+        // analog start x coordinate section
         {
             MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             0,
         },
 
-        //analog end x coordinate section
+        // analog end x coordinate section
         {
             MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             0,
         },
 
-        //analog start y coordinate section
+        // analog start y coordinate section
         {
             MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             0,
         },
 
-        //analog end y coordinate section
+        // analog end y coordinate section
         {
             MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             0,
         },
 
-        //analog type section
+        // analog type section
         {
             MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
             1,
         },
 
-        //analog reset on release section
+        // analog reset on release section
         {
             MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
             0,
@@ -419,37 +419,37 @@ namespace
     };
 
     std::vector<SysExConf::block_t> sysExLayout = {
-        //global block
+        // global block
         {
             .section = globalSections,
         },
 
-        //buttons block
+        // buttons block
         {
             .section = buttonSections,
         },
 
-        //encoder block
+        // encoder block
         {
             .section = encoderSections,
         },
 
-        //analog block
+        // analog block
         {
             .section = analogSections,
         },
 
-        //led block
+        // led block
         {
             .section = ledSections,
         },
 
-        //display block
+        // display block
         {
             .section = displaySections,
         },
 
-        //touchscreen block
+        // touchscreen block
         {
             .section = touchscreenSections,
         }

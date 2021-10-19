@@ -51,11 +51,11 @@ class SerialHelper
         auto HexCharToInt = [](char Input) {
             return ((Input >= 'a') && (Input <= 'f'))
                        ? (Input - 87)
-                       : ((Input >= 'A') && (Input <= 'F'))
-                             ? (Input - 55)
-                             : ((Input >= '0') && (Input <= '9'))
-                                   ? (Input - 48)
-                                   : throw std::exception{};
+                   : ((Input >= 'A') && (Input <= 'F'))
+                       ? (Input - 55)
+                   : ((Input >= '0') && (Input <= '9'))
+                       ? (Input - 48)
+                       : throw std::exception{};
         };
 
         std::vector<uint8_t> response;

@@ -194,14 +194,14 @@ namespace IO
         /// Used to increase readability.
         /// Matched with displayResolution_t enum.
         const uint8_t _rowMap[static_cast<uint8_t>(U8X8::displayResolution_t::AMOUNT)][LCD_HEIGHT_MAX] = {
-            //128x32
+            // 128x32
             {
                 0,
                 2,
                 3,
                 4,
             },
-            //128x64
+            // 128x64
             {
                 0,
                 2,

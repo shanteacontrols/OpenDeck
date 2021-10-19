@@ -21,7 +21,7 @@ limitations under the License.
 
 void Database::customInitButtons()
 {
-    //each new category of buttons should have their IDs start from 0
+    // each new category of buttons should have their IDs start from 0
     for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
         update(Database::Section::button_t::midiID, i, i);
 

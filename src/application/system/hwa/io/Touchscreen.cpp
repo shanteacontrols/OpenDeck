@@ -22,7 +22,7 @@ bool System::HWATouchscreen::init()
 {
     if (_system._hwa.io().touchscreen().init())
     {
-        //add slight delay before display becomes ready on power on
+        // add slight delay before display becomes ready on power on
         core::timing::waitMs(1000);
 
         return true;

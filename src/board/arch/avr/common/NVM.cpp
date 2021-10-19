@@ -26,13 +26,13 @@ namespace Board
     {
         bool init()
         {
-            //nothing to do
+            // nothing to do
             return true;
         }
 
         uint32_t size()
         {
-            //last eeprom address stores type of firmware to boot once in bootloader
+            // last eeprom address stores type of firmware to boot once in bootloader
             return EEPROM_END;
         }
 

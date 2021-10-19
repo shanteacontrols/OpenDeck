@@ -37,7 +37,7 @@ ISR(TIMER0_COMPA_vect)
     Board::detail::isrHandling::mainTimer();
 }
 
-//PWM ISR
+// PWM ISR
 ISR(TIMER1_COMPA_vect)
 {
 #ifdef FW_APP

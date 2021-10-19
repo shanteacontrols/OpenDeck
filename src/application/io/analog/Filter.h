@@ -36,18 +36,18 @@ limitations under the License.
 #define MEDIAN_MIDDLE_VALUE 3
 #endif
 
-//Define if analog MIDI values can't reach 0.
-//If this is defined, 0 won't be used as minimum
-//ADC value. Instead, minimum value will be
-//specified percentage from maximum available ADC value
+// Define if analog MIDI values can't reach 0.
+// If this is defined, 0 won't be used as minimum
+// ADC value. Instead, minimum value will be
+// specified percentage from maximum available ADC value
 //(defined in adcConfig_t struct).
 #ifndef ADC_LOWER_OFFSET_PERCENTAGE
 #define ADC_LOWER_OFFSET_PERCENTAGE 0
 #endif
 
-//Define if analog MIDI values can't reach 127.
-//If this is defined, specified percentage will be
-//subtracted from maximum available ADC value
+// Define if analog MIDI values can't reach 127.
+// If this is defined, specified percentage will be
+// subtracted from maximum available ADC value
 //(defined in adcConfig_t).
 #ifndef ADC_UPPER_OFFSET_PERCENTAGE
 #define ADC_UPPER_OFFSET_PERCENTAGE 0
@@ -82,13 +82,13 @@ namespace IO
 
         bool isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) override
         {
-            //use offset adc values for adc values only, not for touchscreen
+            // use offset adc values for adc values only, not for touchscreen
             const uint32_t minValue = index < MAX_NUMBER_OF_ANALOG ? _adcMinValueOffset : _adcConfig.adcMinValue;
             const uint32_t maxValue = index < MAX_NUMBER_OF_ANALOG ? _adcMaxValueOffset : _adcConfig.adcMaxValue;
 
             value = CONSTRAIN(value, minValue, maxValue);
 
-            //avoid filtering in this case for faster response
+            // avoid filtering in this case for faster response
             if (type == Analog::type_t::button)
             {
                 if (value < _adcConfig.digitalValueThresholdOff)
@@ -126,13 +126,13 @@ namespace IO
 
             if (index < MAX_NUMBER_OF_ANALOG)
             {
-                //don't filter the readings for touchscreen data
+                // don't filter the readings for touchscreen data
 
                 if (!fastFilter)
                 {
                     _analogSample[index][_medianSampleCounter[index]++] = value;
 
-                    //take the median value to avoid using outliers
+                    // take the median value to avoid using outliers
                     if (_medianSampleCounter[index] == MEDIAN_SAMPLE_COUNT)
                     {
                         qsort(_analogSample[index], MEDIAN_SAMPLE_COUNT, sizeof(uint16_t), compare);
@@ -175,7 +175,7 @@ namespace IO
                 filteredValue = midiValue;
             }
 
-            //when edge values are reached, disable fast filter by resetting last movement time
+            // when edge values are reached, disable fast filter by resetting last movement time
             if (((midiValue == 0) || (midiValue == maxLimit)) && (index < MAX_NUMBER_OF_ANALOG))
                 _lastStableMovementTime[index] = 0;
 

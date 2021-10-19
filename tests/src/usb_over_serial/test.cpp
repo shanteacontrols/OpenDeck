@@ -60,7 +60,7 @@ TEST_CASE(MIDI)
     TEST_ASSERT_EQUAL_UINT32(0x7D, receiving[2]);
     TEST_ASSERT_EQUAL_UINT32(0x30, receiving[3]);
 
-    //packet is done - read should return true and not cause any changes in the data until
+    // packet is done - read should return true and not cause any changes in the data until
     //.reset() is called
     TEST_ASSERT(USBOverSerial::read(TEST_MIDI_CHANNEL, receiving) == true);
     TEST_ASSERT_EQUAL_UINT32(static_cast<uint8_t>(MIDI::messageType_t::noteOn), receiving[0]);
@@ -68,8 +68,8 @@ TEST_CASE(MIDI)
     TEST_ASSERT_EQUAL_UINT32(0x7D, receiving[2]);
     TEST_ASSERT_EQUAL_UINT32(0x30, receiving[3]);
 
-    //now do the same, but this time add some bytes of junk before writing the actual packet
-    //verify that this doesn't cause any issues and that the packet is read again correctly
+    // now do the same, but this time add some bytes of junk before writing the actual packet
+    // verify that this doesn't cause any issues and that the packet is read again correctly
     TEST_ASSERT(buffer.insert(0x7E) == true);
     TEST_ASSERT(buffer.insert(0x7D) == true);
     TEST_ASSERT(buffer.insert(0x7D) == true);
@@ -91,7 +91,7 @@ TEST_CASE(MIDI)
     receiving.reset();
     buffer.reset();
 
-    //actual case: send boundary, command type and then restart the packet again
+    // actual case: send boundary, command type and then restart the packet again
     TEST_ASSERT(buffer.insert(0x7E) == true);
     TEST_ASSERT(buffer.insert(static_cast<uint8_t>(USBOverSerial::packetType_t::midi)) == true);
     TEST_ASSERT(buffer.insert(0x7E) == true);
@@ -127,7 +127,7 @@ TEST_CASE(InternalCMD)
     TEST_ASSERT_EQUAL_UINT32(0x7E, receiving[2]);
     TEST_ASSERT_EQUAL_UINT32(0x30, receiving[3]);
 
-    //packet is done - read should return true and not cause any changes in the data until
+    // packet is done - read should return true and not cause any changes in the data until
     //.reset() is called
     TEST_ASSERT(USBOverSerial::read(TEST_MIDI_CHANNEL, receiving) == true);
     TEST_ASSERT_EQUAL_UINT32(0x7D, receiving[0]);
@@ -163,7 +163,7 @@ TEST_CASE(LargePacket)
 
     receiving.reset();
 
-    //second part
+    // second part
     TEST_ASSERT(Board::USBOverSerial::read(TEST_MIDI_CHANNEL, receiving) == true);
     TEST_ASSERT(receiving.type() == USBOverSerial::packetType_t::cdc);
     TEST_ASSERT_EQUAL_UINT32(maxSize, receiving.size());
@@ -175,7 +175,7 @@ TEST_CASE(LargePacket)
 
     receiving.reset();
 
-    //third part
+    // third part
     TEST_ASSERT(Board::USBOverSerial::read(TEST_MIDI_CHANNEL, receiving) == true);
     TEST_ASSERT(receiving.type() == USBOverSerial::packetType_t::cdc);
     TEST_ASSERT_EQUAL_UINT32(totalSize % maxSize, receiving.size());
@@ -196,12 +196,12 @@ TEST_CASE(CDC)
     std::array<uint8_t, 5> dataBufRecv;
     std::vector<uint8_t>   dataBufSend;
 
-    //enttec widget api packet - get widget params
-    dataBufSend.push_back(0x7E);    //start
-    dataBufSend.push_back(0x0A);    //label 10
-    dataBufSend.push_back(0x00);    //length lsb
-    dataBufSend.push_back(0x00);    //length msb
-    dataBufSend.push_back(0xE7);    //end
+    // enttec widget api packet - get widget params
+    dataBufSend.push_back(0x7E);    // start
+    dataBufSend.push_back(0x0A);    // label 10
+    dataBufSend.push_back(0x00);    // length lsb
+    dataBufSend.push_back(0x00);    // length msb
+    dataBufSend.push_back(0xE7);    // end
 
     USBOverSerial::USBWritePacket sending(USBOverSerial::packetType_t::cdc, &dataBufSend[0], dataBufSend.size(), dataBufSend.size());
     USBOverSerial::USBReadPacket  receiving(&dataBufRecv[0], dataBufRecv.size());

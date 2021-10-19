@@ -33,18 +33,18 @@ namespace IO
 
         bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
         {
-            //this is a board-optimized debouncer
-            //by the time processing of buttons takes place, more than 5ms has already passed
-            //5ms is release debounce time
-            //take into account only two latest readings
-            //if any of those is 1 (pressed), consider the button pressed
-            //otherwise, button is considered released
+            // this is a board-optimized debouncer
+            // by the time processing of buttons takes place, more than 5ms has already passed
+            // 5ms is release debounce time
+            // take into account only two latest readings
+            // if any of those is 1 (pressed), consider the button pressed
+            // otherwise, button is considered released
 
             numberOfReadings = 1;
 
             if (index >= MAX_NUMBER_OF_BUTTONS)
             {
-                //don't debounce analog inputs and touchscreen buttons
+                // don't debounce analog inputs and touchscreen buttons
                 states = states & 0x01;
                 return true;
             }
@@ -55,7 +55,7 @@ namespace IO
             {
                 if (states)
                 {
-                    //button is pressed
+                    // button is pressed
                     states = 0x01;
                 }
             }

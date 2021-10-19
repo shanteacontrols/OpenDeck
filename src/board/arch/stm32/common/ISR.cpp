@@ -22,18 +22,18 @@ limitations under the License.
 #include <MCU.h>
 #include <comm/usb/USB.h>
 
-//This function handles USB On The Go FS global interrupt.
+// This function handles USB On The Go FS global interrupt.
 extern "C" void OTG_FS_IRQHandler(void)
 {
     HAL_PCD_IRQHandler(&hpcd_USB_OTG_FS);
 }
 
-//This function handles Non maskable interrupt.
+// This function handles Non maskable interrupt.
 extern "C" void NMI_Handler(void)
 {
 }
 
-//This function handles Hard fault interrupt.
+// This function handles Hard fault interrupt.
 extern "C" void HardFault_Handler(void)
 {
     while (true)
@@ -41,7 +41,7 @@ extern "C" void HardFault_Handler(void)
     }
 }
 
-//This function handles Memory management fault.
+// This function handles Memory management fault.
 extern "C" void MemManage_Handler(void)
 {
     /* USER CODE END MemoryManagement_IRQn 0 */
@@ -50,7 +50,7 @@ extern "C" void MemManage_Handler(void)
     }
 }
 
-//This function handles Pre-fetch fault, memory access fault.
+// This function handles Pre-fetch fault, memory access fault.
 extern "C" void BusFault_Handler(void)
 {
     while (true)
@@ -58,7 +58,7 @@ extern "C" void BusFault_Handler(void)
     }
 }
 
-//This function handles Undefined instruction or illegal state.
+// This function handles Undefined instruction or illegal state.
 extern "C" void UsageFault_Handler(void)
 {
     while (true)
@@ -66,29 +66,29 @@ extern "C" void UsageFault_Handler(void)
     }
 }
 
-//This function handles System service call via SWI instruction.
+// This function handles System service call via SWI instruction.
 extern "C" void SVC_Handler(void)
 {
 }
 
-//This function handles Debug monitor.
+// This function handles Debug monitor.
 extern "C" void DebugMon_Handler(void)
 {
 }
 
-//This function handles Pendable request for system service.
+// This function handles Pendable request for system service.
 extern "C" void PendSV_Handler(void)
 {
 }
 
-//This function handles System tick timer.
+// This function handles System tick timer.
 extern "C" void SysTick_Handler(void)
 {
     HAL_IncTick();
 }
 
 #if defined(FW_APP)
-//not needed in bootloader
+// not needed in bootloader
 #ifdef USE_UART
 extern "C" void USART1_IRQHandler(void)
 {

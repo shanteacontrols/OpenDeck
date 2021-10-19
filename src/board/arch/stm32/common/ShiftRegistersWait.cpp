@@ -20,7 +20,7 @@ limitations under the License.
 #include "board/Internal.h"
 #include "core/src/general/Misc.h"
 
-//assuming 84MHz clock config
+// assuming 84MHz clock config
 
 namespace Board
 {

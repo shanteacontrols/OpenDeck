@@ -26,7 +26,7 @@ limitations under the License.
 
 void System::SysExDataHandler::sendResponse(uint8_t* array, uint16_t size)
 {
-    //never send responses through DIN MIDI
+    // never send responses through DIN MIDI
     _system._midi.sendSysEx(size, array, true, MIDI::interface_t::usb);
 }
 
@@ -110,7 +110,7 @@ uint8_t System::SysExDataHandler::customRequest(uint16_t request, CustomResponse
 
     case SYSEX_CR_FULL_BACKUP:
     {
-        //no response here, just set flag internally that backup needs to be done
+        // no response here, just set flag internally that backup needs to be done
         _system._backupRestoreState = backupRestoreState_t::backup;
     }
     break;
@@ -155,15 +155,15 @@ void System::DBhandlers::factoryResetStart()
 
 void System::DBhandlers::factoryResetDone()
 {
-    //don't run this if database isn't initialized yet to avoid mcu reset if
-    //factory reset is needed initially
+    // don't run this if database isn't initialized yet to avoid mcu reset if
+    // factory reset is needed initially
     if (_system._database.isInitialized())
         _system._hwa.reboot(FwSelector::fwType_t::application);
 }
 
 void System::DBhandlers::initialized()
 {
-    //nothing to do here
+    // nothing to do here
 }
 
 void System::TouchScreenHandlers::button(size_t index, bool state)
@@ -173,7 +173,7 @@ void System::TouchScreenHandlers::button(size_t index, bool state)
     dispatchMessage.componentIndex = index;
     dispatchMessage.midiValue      = state;
 
-    //mark this as forwarding message type - further action/processing is required
+    // mark this as forwarding message type - further action/processing is required
     _system._dispatcher.notify(Util::MessageDispatcher::messageSource_t::touchscreenButton,
                                dispatchMessage,
                                Util::MessageDispatcher::listenType_t::forward);
@@ -190,7 +190,7 @@ void System::TouchScreenHandlers::analog(size_t index, uint16_t value, uint16_t 
                                                      static_cast<uint32_t>(0),
                                                      static_cast<uint32_t>(ADC_RESOLUTION));
 
-    //mark this as forwarding message type - further action/processing is required
+    // mark this as forwarding message type - further action/processing is required
     _system._dispatcher.notify(Util::MessageDispatcher::messageSource_t::touchscreenAnalog,
                                dispatchMessage,
                                Util::MessageDispatcher::listenType_t::forward);
@@ -298,16 +298,16 @@ void System::backup()
         _sysExMID.id1,
         _sysExMID.id2,
         _sysExMID.id3,
-        0x00,    //request
-        0x7F,    //all message parts,
+        0x00,    // request
+        0x7F,    // all message parts,
         static_cast<uint8_t>(SysExConf::wish_t::backup),
         static_cast<uint8_t>(SysExConf::amount_t::all),
-        0x00,    //block - set later in the loop
-        0x00,    //section - set later in the loop
-        0x00,    //index MSB - unused but required
-        0x00,    //index LSB - unused but required
-        0x00,    //new value MSB - unused but required
-        0x00,    //new value LSB - unused but required
+        0x00,    // block - set later in the loop
+        0x00,    // section - set later in the loop
+        0x00,    // index MSB - unused but required
+        0x00,    // index LSB - unused but required
+        0x00,    // new value MSB - unused but required
+        0x00,    // new value LSB - unused but required
         0xF7
     };
 
@@ -316,10 +316,10 @@ void System::backup()
         static_cast<uint8_t>(SysExConf::amount_t::single),
         static_cast<uint8_t>(System::block_t::global),
         static_cast<uint8_t>(System::Section::global_t::presets),
-        0x00,    //index 0 (active preset) MSB
-        0x00,    //index 0 (active preset) LSB
-        0x00,    //preset value MSB - always 0
-        0x00     //preset value LSB - set later in the loop
+        0x00,    // index 0 (active preset) MSB
+        0x00,    // index 0 (active preset) LSB
+        0x00,    // preset value MSB - always 0
+        0x00     // preset value LSB - set later in the loop
     };
 
     const uint8_t presetChangeRequestSize        = 8;
@@ -329,15 +329,15 @@ void System::backup()
 
     uint8_t currentPreset = _database.getPreset();
 
-    //make sure not to report any errors while performing backup
+    // make sure not to report any errors while performing backup
     _sysExConf.setSilentMode(true);
 
-    //first message sent as an response should be restore start marker
-    //this is used to indicate that restore procedure is in progress
+    // first message sent as an response should be restore start marker
+    // this is used to indicate that restore procedure is in progress
     uint16_t restoreMarker = SYSEX_CR_RESTORE_START;
     _sysExConf.sendCustomMessage(&restoreMarker, 1, false);
 
-    //send internally created backup requests to sysex handler for all presets, blocks and presets
+    // send internally created backup requests to sysex handler for all presets, blocks and presets
     for (uint8_t preset = 0; preset < _database.getSupportedPresets(); preset++)
     {
         _database.setPreset(preset);
@@ -354,7 +354,7 @@ void System::backup()
                     (block == static_cast<uint8_t>(System::block_t::leds)) &&
                     ((section == static_cast<uint8_t>(System::Section::leds_t::testColor)) ||
                      (section == static_cast<uint8_t>(System::Section::leds_t::testBlink))))
-                    continue;    //testing sections, skip
+                    continue;    // testing sections, skip
 
                 backupRequest[backupRequestSectionIndex] = section;
                 _sysExConf.handleMessage(backupRequest, sizeof(backupRequest));
@@ -366,11 +366,11 @@ void System::backup()
     presetChangeRequest[presetChangeRequestPresetIndex] = currentPreset;
     _sysExConf.sendCustomMessage(presetChangeRequest, presetChangeRequestSize, false);
 
-    //mark the end of restore procedure
+    // mark the end of restore procedure
     restoreMarker = SYSEX_CR_RESTORE_END;
     _sysExConf.sendCustomMessage(&restoreMarker, 1, false);
 
-    //finally, send back full backup request to mark the end of sending
+    // finally, send back full backup request to mark the end of sending
     uint16_t endMarker = SYSEX_CR_FULL_BACKUP;
     _sysExConf.sendCustomMessage(&endMarker, 1);
     _sysExConf.setSilentMode(false);
@@ -453,7 +453,7 @@ void System::checkMIDI()
         {
         case MIDI::messageType_t::systemExclusive:
         {
-            //process sysex messages only from usb interface
+            // process sysex messages only from usb interface
             if (interface == MIDI::interface_t::usb)
             {
                 _sysExConf.handleMessage(_midi.getSysExArray(interface), _midi.getSysExArrayLength(interface));
@@ -490,7 +490,7 @@ void System::checkMIDI()
         isMIDIfeatureEnabled(System::midiFeature_t::dinEnabled) &&
         isMIDIfeatureEnabled(System::midiFeature_t::passToDIN))
     {
-        //pass the message to din
+        // pass the message to din
         while (_midi.read(MIDI::interface_t::usb, MIDI::filterMode_t::fullDIN))
             processMessage(MIDI::interface_t::usb);
     }
@@ -510,14 +510,14 @@ void System::checkMIDI()
             {
             case System::midiMergeType_t::DINtoUSB:
             {
-                //dump everything from DIN MIDI in to USB MIDI out
+                // dump everything from DIN MIDI in to USB MIDI out
                 while (_midi.read(MIDI::interface_t::din, MIDI::filterMode_t::fullUSB))
                     ;
             }
             break;
 
                 // case System::midiMergeType_t::DINtoDIN:
-                //loopback is automatically configured here
+                // loopback is automatically configured here
                 // break;
 
             default:
@@ -543,8 +543,8 @@ void System::run()
 
 void System::forceComponentRefresh()
 {
-    //extra check here - it's possible that preset was changed and then backup/restore procedure started
-    //in that case this would get called
+    // extra check here - it's possible that preset was changed and then backup/restore procedure started
+    // in that case this would get called
     if (_backupRestoreState == backupRestoreState_t::none)
     {
         _analog.update(true);

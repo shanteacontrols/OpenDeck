@@ -32,7 +32,7 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 #include <Pins.h>
 
-//serial numbers are available only on AVR MCUs with USB
+// serial numbers are available only on AVR MCUs with USB
 #ifdef USB_SUPPORTED
 #include "LUFA/Drivers/USB/USB.h"
 #endif
@@ -95,8 +95,8 @@ namespace Board
             {
                 uid[i] = boot_signature_byte_get(address++);
 
-                //LUFA sends unique ID with nibbles swaped
-                //to match with LUFA, invert them here
+                // LUFA sends unique ID with nibbles swaped
+                // to match with LUFA, invert them here
                 uid[i] = (uid[i] << 4) | ((uid[i] >> 4) & 0x0F);
             }
         }
@@ -111,19 +111,19 @@ namespace Board
             {
                 DISABLE_INTERRUPTS();
 
-                //clear reset source
+                // clear reset source
                 MCUSR &= ~(1 << EXTRF);
 
-                //disable watchdog
+                // disable watchdog
                 MCUSR &= ~(1 << WDRF);
                 wdt_disable();
 
-                //disable clock division
+                // disable clock division
                 clock_prescale_set(clock_div_1);
 
                 detail::setup::io();
 
-                //relocate the interrupt vector table to the bootloader section
+                // relocate the interrupt vector table to the bootloader section
                 MCUCR = (1 << IVCE);
                 MCUCR = (1 << IVSEL);
 
@@ -143,18 +143,18 @@ namespace Board
             {
                 DISABLE_INTERRUPTS();
 
-                //relocate the interrupt vector table to the application section
+                // relocate the interrupt vector table to the application section
                 MCUCR = (1 << IVCE);
                 MCUCR = (0 << IVSEL);
 
-                //clear reset source
+                // clear reset source
                 MCUSR &= ~(1 << EXTRF);
 
-                //disable watchdog
+                // disable watchdog
                 MCUSR &= ~(1 << WDRF);
                 wdt_disable();
 
-                //disable clock division
+                // disable clock division
                 clock_prescale_set(clock_div_1);
 
                 detail::setup::io();
@@ -175,13 +175,13 @@ namespace Board
                 ENABLE_INTERRUPTS();
 
 #ifndef USB_LINK_MCU
-                //add some delay and remove initial readout of digital inputs
+                // add some delay and remove initial readout of digital inputs
                 core::timing::waitMs(10);
                 detail::io::flushInputReadings();
 
 #ifndef USB_SUPPORTED
-                //wait for unique id from usb host
-                //this is to make sure host and the device share the same unique id
+                // wait for unique id from usb host
+                // this is to make sure host and the device share the same unique id
                 USBLink::internalCMD_t cmd;
 
                 while (1)
@@ -216,7 +216,7 @@ namespace Board
                 core::adc::setChannel(Board::detail::map::adcChannel(0));
 
                 for (int i = 0; i < 3; i++)
-                    core::adc::read();    //few dummy reads to init ADC
+                    core::adc::read();    // few dummy reads to init ADC
 
                 core::adc::enableInterrupt();
                 core::adc::startConversion();
@@ -225,29 +225,29 @@ namespace Board
 
             void timers()
             {
-                //set timer0 to ctc, used for millis/led matrix
-                //clear timer0 conf
+                // set timer0 to ctc, used for millis/led matrix
+                // clear timer0 conf
                 TCCR0A = 0;
                 TCCR0B = 0;
                 TIMSK0 = 0;
-                TCCR0A |= (1 << WGM01);                 //CTC mode
-                TCCR0B |= (1 << CS01) | (1 << CS00);    //prescaler 64
-                OCR0A = 249;                            //1ms
-                TIMSK0 |= (1 << OCIE0A);                //compare match interrupt
+                TCCR0A |= (1 << WGM01);                 // CTC mode
+                TCCR0B |= (1 << CS01) | (1 << CS00);    // prescaler 64
+                OCR0A = 249;                            // 1ms
+                TIMSK0 |= (1 << OCIE0A);                // compare match interrupt
 
 #ifdef FW_APP
 #ifndef USB_LINK_MCU
 #if MAX_NUMBER_OF_LEDS > 0
-                //use timer1 for soft pwm
+                // use timer1 for soft pwm
                 TCCR1A = 0;
                 TCCR1B = 0;
                 TCCR1C = 0;
 
                 TIMSK1 = 0;
-                TCCR1B |= (1 << WGM12);                 //CTC mode
-                TCCR1B |= (1 << CS11) | (1 << CS10);    //prescaler 64
-                OCR1A = 124;                            //500us
-                TIMSK1 |= (1 << OCIE1A);                //compare match interrupt
+                TCCR1B |= (1 << WGM12);                 // CTC mode
+                TCCR1B |= (1 << CS11) | (1 << CS10);    // prescaler 64
+                OCR1A = 124;                            // 500us
+                TIMSK1 |= (1 << OCIE1A);                // compare match interrupt
 #endif
 #endif
 #endif
@@ -298,7 +298,7 @@ namespace Board
                 CORE_IO_CONFIG(SR_OUT_OE_PORT, SR_OUT_OE_PIN, core::io::pinMode_t::output);
 #endif
 
-                //init all outputs on shift register
+                // init all outputs on shift register
                 CORE_IO_SET_LOW(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 
                 for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)

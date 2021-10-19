@@ -45,8 +45,8 @@ namespace Board
         void runBootloader()
         {
 #if defined(LED_INDICATORS) && defined(LED_INDICATORS_CTL)
-            //the only reason to run this in bootloader is to control led indicators through data event timeouts
-            //if this feature is unavailable, don't configure the timer
+            // the only reason to run this in bootloader is to control led indicators through data event timeouts
+            // if this feature is unavailable, don't configure the timer
             detail::setup::timers();
 #endif
 

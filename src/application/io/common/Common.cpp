@@ -80,7 +80,7 @@ namespace IO
         if (index >= (MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS))
             return 0xFF;
 
-        step &= 0x7F;    //safety
+        step &= 0x7F;    // safety
         uint8_t newValue    = (midiValue[index] & 0x7F) + step;
         bool    setNewValue = true;
 
@@ -88,7 +88,7 @@ namespace IO
         {
         case incDecType_t::toEdge:
         {
-            //just make sure the value isn't larger than 127
+            // just make sure the value isn't larger than 127
 
             if (newValue > 127)
                 newValue = 127;
@@ -97,8 +97,8 @@ namespace IO
 
         case incDecType_t::reset:
         {
-            //in case value is larger than 127, send 127 but don't apply it internally
-            //this way we're starting from 0 next time
+            // in case value is larger than 127, send 127 but don't apply it internally
+            // this way we're starting from 0 next time
             if (newValue > 127)
             {
                 newValue    = 127;
@@ -111,7 +111,7 @@ namespace IO
             break;
         }
 
-        //make sure increment/decrement flag is preserved
+        // make sure increment/decrement flag is preserved
         midiValue[index] &= 0x80;
 
         if (setNewValue)
@@ -127,8 +127,8 @@ namespace IO
 
         uint8_t newValue = 0xFF;
 
-        //in this case, once the value is larger than 127, decrement value
-        //bit 7 in midiValue is used as an indicator that we should decrement the value instead of incrementing it
+        // in this case, once the value is larger than 127, decrement value
+        // bit 7 in midiValue is used as an indicator that we should decrement the value instead of incrementing it
         if (BIT_READ(midiValue[index], 7))
         {
             if ((midiValue[index] & 0x7F) <= step)
@@ -136,7 +136,7 @@ namespace IO
             else
                 newValue = (midiValue[index] & 0x7F) - step;
 
-            //value 0 is reached, go back to incrementing next time
+            // value 0 is reached, go back to incrementing next time
             if (!newValue)
                 BIT_CLEAR(midiValue[index], 7);
         }
@@ -151,7 +151,7 @@ namespace IO
             }
         }
 
-        //make sure increment/decrement flag is preserved
+        // make sure increment/decrement flag is preserved
         midiValue[index] &= 0x80;
         midiValue[index] |= newValue;
 

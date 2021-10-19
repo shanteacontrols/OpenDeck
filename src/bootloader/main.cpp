@@ -91,9 +91,9 @@ class HWAFwSelector : public FwSelector::HWA
         default:
         {
 #if !defined(USB_SUPPORTED)
-            //on non-usb supported board, send magic value to USB link so that link
-            //knows whether the target MCU has entered application
-            //if link MCU doesn't receive this, bootloader should be entered
+            // on non-usb supported board, send magic value to USB link so that link
+            // knows whether the target MCU has entered application
+            // if link MCU doesn't receive this, bootloader should be entered
             Board::UART::write(UART_CHANNEL_USB_LINK, USB_LINK_MAGIC_VAL_APP);
 
             while (!Board::UART::isTxEmpty(UART_CHANNEL_USB_LINK))
@@ -101,7 +101,7 @@ class HWAFwSelector : public FwSelector::HWA
 
             Board::bootloader::runApplication();
 #elif defined(USB_LINK_MCU)
-            //wait a bit first
+            // wait a bit first
             core::timing::waitMs(1500);
             uint8_t data;
 
@@ -109,7 +109,7 @@ class HWAFwSelector : public FwSelector::HWA
             {
                 if (data == USB_LINK_MAGIC_VAL_APP)
                 {
-                    //everything fine, proceed with app load
+                    // everything fine, proceed with app load
                     Board::bootloader::runApplication();
                 }
             }
@@ -166,7 +166,7 @@ class Reader
 #ifdef USB_LINK_MCU
                             Board::UART::write(UART_CHANNEL_USB_LINK, value);
 
-                            //expect ACK but ignore the value
+                            // expect ACK but ignore the value
                             while (!Board::UART::read(UART_CHANNEL_USB_LINK, value))
                                 ;
 #else
@@ -183,9 +183,9 @@ class Reader
         {
             if (value == TARGET_FW_UPDATE_DONE)
             {
-                //To avoid compiling the entire parser to figure out the end
-                //of the FW stream (if won't fit into 4k space), wait for TARGET_FW_UPDATE_DONE
-                //byte on UART sent by target MCU (this is done in BTLDRWriter::apply())
+                // To avoid compiling the entire parser to figure out the end
+                // of the FW stream (if won't fit into 4k space), wait for TARGET_FW_UPDATE_DONE
+                // byte on UART sent by target MCU (this is done in BTLDRWriter::apply())
                 Board::reboot();
             }
         }
@@ -198,7 +198,7 @@ class Reader
 
         if (Board::UART::read(UART_CHANNEL_USB_LINK, value))
         {
-            //send USB_LINK_MAGIC_VAL_APP for ACK so that USB link can proceed with next byte
+            // send USB_LINK_MAGIC_VAL_APP for ACK so that USB link can proceed with next byte
             Board::UART::write(UART_CHANNEL_USB_LINK, USB_LINK_MAGIC_VAL_APP);
             _updater.feed(value);
         }
@@ -229,8 +229,8 @@ int main()
     Board::init();
     fwSelector.init();
 
-    //everything beyond this point means bootloader is active
-    //otherwise jump to other firmware would have already been made
+    // everything beyond this point means bootloader is active
+    // otherwise jump to other firmware would have already been made
 
     while (1)
     {

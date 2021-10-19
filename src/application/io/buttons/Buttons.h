@@ -69,7 +69,7 @@ namespace IO
         class HWA
         {
             public:
-            //should return true if the value has been refreshed, false otherwise
+            // should return true if the value has been refreshed, false otherwise
             virtual bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
         };
 
@@ -120,7 +120,7 @@ namespace IO
             MIDI::messageType_t::controlChange,
             MIDI::messageType_t::mmcStop,
             MIDI::messageType_t::mmcPlay,
-            MIDI::messageType_t::mmcRecordStart,    //modified to stop when needed
+            MIDI::messageType_t::mmcRecordStart,    // modified to stop when needed
             MIDI::messageType_t::mmcPause,
             MIDI::messageType_t::sysRealTimeClock,
             MIDI::messageType_t::sysRealTimeStart,

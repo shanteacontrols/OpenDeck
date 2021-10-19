@@ -33,7 +33,7 @@ void Updater::feed(uint8_t data)
         }
     };
 
-    //continually process start command - this makes sure the fw update process can always restart
+    // continually process start command - this makes sure the fw update process can always restart
 
     if (_currentStage)
     {
@@ -41,7 +41,7 @@ void Updater::feed(uint8_t data)
         {
             reset();
             nextStage();
-            return;    //nothing more to do in this case
+            return;    // nothing more to do in this case
         }
     }
 
@@ -53,10 +53,10 @@ void Updater::feed(uint8_t data)
     }
     else if (result == processStatus_t::invalid)
     {
-        //in this case, restart the procedure
+        // in this case, restart the procedure
         reset();
 
-        //also reset again if it fails again - it cannot possibly return complete status since that requires 8 bytes
+        // also reset again if it fails again - it cannot possibly return complete status since that requires 8 bytes
         if ((this->*processHandler[_currentStage])(data) == processStatus_t::invalid)
             reset();
     }
@@ -64,7 +64,7 @@ void Updater::feed(uint8_t data)
 
 Updater::processStatus_t Updater::processStart(uint8_t data)
 {
-    //8 received bytes must match the startCommand (lower first, then upper)
+    // 8 received bytes must match the startCommand (lower first, then upper)
 
     if (((_startCommand >> (_startBytesReceived * 8)) & static_cast<uint64_t>(0xFF)) != data)
     {
@@ -83,7 +83,7 @@ Updater::processStatus_t Updater::processStart(uint8_t data)
 
 Updater::processStatus_t Updater::processFwMetadata(uint8_t data)
 {
-    //metadata consists of 4 bytes for firmware length and 4 bytes for UID
+    // metadata consists of 4 bytes for firmware length and 4 bytes for UID
 
     if (_stageBytesReceived < 4)
         _fwSize |= (static_cast<uint32_t>(data) << (8 * _stageBytesReceived));
@@ -113,7 +113,7 @@ Updater::processStatus_t Updater::processFwChunk(uint8_t data)
 
     _writer.fillPage(_currentFwPage, _fwPageBytesReceived, _receivedWord);
 
-    //we are operating with words (two bytes)
+    // we are operating with words (two bytes)
     _fwPageBytesReceived += 2;
     _fwBytesReceived += 2;
 
@@ -131,7 +131,7 @@ Updater::processStatus_t Updater::processFwChunk(uint8_t data)
 
     if (_fwBytesReceived == _fwSize)
     {
-        //make sure page is written even if entire page range wasn't received
+        // make sure page is written even if entire page range wasn't received
         if (!pageWritten)
             _writer.writePage(_currentFwPage);
 
@@ -148,7 +148,7 @@ Updater::processStatus_t Updater::processFwChunk(uint8_t data)
 
 Updater::processStatus_t Updater::processEnd(uint8_t data)
 {
-    //4 received bytes must match the _endCommand (lower first, then upper)
+    // 4 received bytes must match the _endCommand (lower first, then upper)
 
     if (((_endCommand >> (_stageBytesReceived * 8)) & static_cast<uint32_t>(0xFF)) != data)
     {

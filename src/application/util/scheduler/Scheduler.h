@@ -23,7 +23,7 @@ limitations under the License.
 
 namespace Util
 {
-    //a simple scheduler used to run one-off tasks specified time from now
+    // a simple scheduler used to run one-off tasks specified time from now
     class Scheduler
     {
         public:

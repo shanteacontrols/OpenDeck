@@ -196,7 +196,7 @@ uint8_t System::onGetButtons(Section::button_t section, size_t index, uint16_t& 
     int32_t readValue;
     auto    result = _database.read(dbSection(section), index, readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
 
-    //channels start from 0 in db, start from 1 in sysex
+    // channels start from 0 in db, start from 1 in sysex
     if ((section == Section::button_t::midiChannel) && (result == SysExConf::DataHandler::STATUS_OK))
         readValue++;
 
@@ -220,7 +220,7 @@ uint8_t System::onGetEncoders(Section::encoder_t section, size_t index, uint16_t
 
         if (section == Section::encoder_t::midiChannel)
         {
-            //channels start from 0 in db, start from 1 in sysex
+            // channels start from 0 in db, start from 1 in sysex
             readValue++;
         }
     }
@@ -247,7 +247,7 @@ uint8_t System::onGetAnalog(Section::analog_t section, size_t index, uint16_t& v
 
     case Section::analog_t::midiChannel:
     {
-        //channels start from 0 in db, start from 1 in sysex
+        // channels start from 0 in db, start from 1 in sysex
         if (result == SysExConf::DataHandler::STATUS_OK)
             readValue++;
     }
@@ -288,7 +288,7 @@ uint8_t System::onGetLEDs(Section::leds_t section, size_t index, uint16_t& value
     {
         result = _database.read(dbSection(section), index, readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
 
-        //channels start from 0 in db, start from 1 in sysex
+        // channels start from 0 in db, start from 1 in sysex
         if (result == SysExConf::DataHandler::STATUS_OK)
             readValue++;
     }

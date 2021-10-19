@@ -63,7 +63,7 @@ namespace IO
         class HWA
         {
             public:
-            //should return true if the value has been refreshed, false otherwise
+            // should return true if the value has been refreshed, false otherwise
             virtual bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
         };
 
@@ -130,22 +130,22 @@ namespace IO
 
         /// Lookup table used to convert encoder reading to pulses.
         const int8_t _encoderLookUpTable[16] = {
-            0,     //0000
-            1,     //0001
-            -1,    //0010
-            0,     //0011
-            -1,    //0100
-            0,     //0101
-            0,     //0110
-            1,     //0111
-            1,     //1000
-            0,     //1001
-            0,     //1010
-            -1,    //1011
-            0,     //1100
-            -1,    //1101
-            1,     //1110
-            0      //1111
+            0,     // 0000
+            1,     // 0001
+            -1,    // 0010
+            0,     // 0011
+            -1,    // 0100
+            0,     // 0101
+            0,     // 0110
+            1,     // 0111
+            1,     // 1000
+            0,     // 1001
+            0,     // 1010
+            -1,    // 1011
+            0,     // 1100
+            -1,    // 1101
+            1,     // 1110
+            0      // 1111
         };
 
         /// Used to achieve linear encoder acceleration on fast movement.
@@ -153,7 +153,7 @@ namespace IO
         /// Used only in CC/Pitch bend/NRPN modes. In Pitch bend/NRPN modes, this value is multiplied
         /// by 4 due to a larger value range.
         const uint8_t _encoderSpeedChange[static_cast<uint8_t>(IO::Encoders::acceleration_t::AMOUNT)] = {
-            0,    //acceleration disabled
+            0,    // acceleration disabled
             1,
             2,
             3
@@ -161,7 +161,7 @@ namespace IO
 
         /// Maximum value by which MIDI value is increased during acceleration.
         const uint8_t _encoderMaxAccSpeed[static_cast<uint8_t>(IO::Encoders::acceleration_t::AMOUNT)] = {
-            0,    //acceleration disabled
+            0,    // acceleration disabled
             5,
             10,
             100
@@ -170,18 +170,18 @@ namespace IO
         /// Array used for easier access to current encoder MIDI value in 7Fh01h and 3Fh41h modes.
         /// Matched with type_t and position_t
         const uint8_t _encValue[2][3] = {
-            //controlChange7Fh01h
+            // controlChange7Fh01h
             {
-                0,      //stopped
-                127,    //ccw
-                1       //cw
+                0,      // stopped
+                127,    // ccw
+                1       // cw
             },
 
-            //controlChange3Fh41h
+            // controlChange3Fh41h
             {
-                0,     //stopped
-                63,    //ccw
-                65     //cw
+                0,     // stopped
+                63,    // ccw
+                65     // cw
             }
         };
 

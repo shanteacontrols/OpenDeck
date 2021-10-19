@@ -66,7 +66,7 @@ namespace
             USBD_LL_OpenEP(pdev, CDC_NOTIFICATION_EPADDR, USBD_EP_TYPE_INTR, CDC_NOTIFICATION_EPSIZE);
             pdev->ep_in[CDC_NOTIFICATION_EPADDR & 0xFU].is_used = 1U;
 
-            //prepare out endpoint to receive next packet
+            // prepare out endpoint to receive next packet
             return USBD_LL_PrepareReceive(pdev, CDC_OUT_EPADDR, (uint8_t*)_cdcRxBuffer, CDC_IN_OUT_EPSIZE);
         }
 
@@ -93,7 +93,7 @@ namespace
             {
             case CDC_REQ_SetLineEncoding:
             {
-                //ignore other parameters
+                // ignore other parameters
                 baudRate = (uint32_t)(pbuf[0] | (pbuf[1] << 8) | (pbuf[2] << 16) | (pbuf[3] << 24));
                 Board::USB::onCDCsetLineEncoding(baudRate);
             }
@@ -106,10 +106,10 @@ namespace
                 pbuf[2] = (uint8_t)(baudRate >> 16);
                 pbuf[3] = (uint8_t)(baudRate >> 24);
 
-                //set by default
-                pbuf[4] = 0;       //1 stop bit
-                pbuf[5] = 0;       //no parity
-                pbuf[6] = 0x08;    //8bit word
+                // set by default
+                pbuf[4] = 0;       // 1 stop bit
+                pbuf[5] = 0;       // no parity
+                pbuf[6] = 0x08;    // 8bit word
             }
             break;
 
@@ -238,7 +238,7 @@ namespace
             {
                 pdev->ep_in[epnum].total_length = 0U;
 
-                //send ZLP (zero length packet)
+                // send ZLP (zero length packet)
                 return USBD_LL_Transmit(pdev, epnum, NULL, 0U);
             }
             else
@@ -255,7 +255,7 @@ namespace
             for (uint32_t i = 0; i < length; i++)
                 _cdcRxBufferRing.insert(_cdcRxBuffer[i]);
 
-            //make sure the data is removed from buffer by application before declaring endpoint ready
+            // make sure the data is removed from buffer by application before declaring endpoint ready
 
             if ((RX_BUFFER_SIZE_RING - _cdcRxBufferRing.count()) > CDC_IN_OUT_EPSIZE)
             {
@@ -441,7 +441,7 @@ namespace
         NULL,
     };
 
-    //internal usb init functions used to specify own rx/tx fifo sizes
+    // internal usb init functions used to specify own rx/tx fifo sizes
 
     USBD_StatusTypeDef _USBD_LL_Init(USBD_HandleTypeDef* pdev)
     {
@@ -464,11 +464,11 @@ namespace
             if (HAL_PCD_Init(&hpcd_USB_OTG_FS) != HAL_OK)
                 Board::detail::errorHandler();
 
-            //sizes are given in words (one word = 4 bytes)
-            //keep the default for rx fifo
+            // sizes are given in words (one word = 4 bytes)
+            // keep the default for rx fifo
             HAL_PCDEx_SetRxFiFo(&hpcd_USB_OTG_FS, 0x80);
 
-            //match the order of defined endpoints
+            // match the order of defined endpoints
             HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_FS, 0, CONTROL_EPSIZE / 4);
             HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_FS, 1, CDC_IN_OUT_EPSIZE / 4);
             HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_FS, 2, MIDI_IN_OUT_EPSIZE / 4);

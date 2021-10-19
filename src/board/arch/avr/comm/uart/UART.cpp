@@ -35,8 +35,8 @@ namespace
 #endif
 }    // namespace
 
-//these macros are used to avoid function calls in ISR as much as possible and to avoid
-//code repetition with only the register names being different
+// these macros are used to avoid function calls in ISR as much as possible and to avoid
+// code repetition with only the register names being different
 
 #define _UBRR_GEN(x)  UBRR_##x
 #define UBRR(x)       _UBRR_GEN(x)
@@ -257,7 +257,7 @@ namespace Board
                         {
                         case 0:
                         {
-                            UCSRA_0 = (1 << U2X_0);    //double speed uart
+                            UCSRA_0 = (1 << U2X_0);    // double speed uart
                             UBRR_0  = baud_count - 1;
                         }
                         break;
@@ -265,7 +265,7 @@ namespace Board
 #ifdef UCSRA_1
                         case 1:
                         {
-                            UCSRA_1 = (1 << U2X_1);    //double speed uart
+                            UCSRA_1 = (1 << U2X_1);    // double speed uart
                             UBRR_1  = baud_count - 1;
                         }
                         break;
@@ -274,7 +274,7 @@ namespace Board
 #ifdef UCSRA_2
                         case 2:
                         {
-                            UCSRA_2 = (1 << U2X_2);    //double speed uart
+                            UCSRA_2 = (1 << U2X_2);    // double speed uart
                             UBRR_2  = baud_count - 1;
                         }
                         break;
@@ -326,7 +326,7 @@ namespace Board
                     _dmxDataBRR  = (_dmxDataBRR >> 1) - 1;
 #endif
 
-                    //8 bit data is fixed / non-configurable
+                    // 8 bit data is fixed / non-configurable
                     switch (channel)
                     {
                     case 0:

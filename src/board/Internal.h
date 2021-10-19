@@ -29,7 +29,7 @@ limitations under the License.
 #include <vector>
 #endif
 
-//for internal board usage only - do not include/call in application directly
+// for internal board usage only - do not include/call in application directly
 
 namespace Board
 {
@@ -104,7 +104,7 @@ namespace Board
 
             namespace ll
             {
-                //low-level UART API, MCU specific
+                // low-level UART API, MCU specific
 
                 /// Enables the firing of interrupt once the UART data register is empty.
                 /// This effectively starts the process of transmitting the data from UART TX buffer to UART interface.

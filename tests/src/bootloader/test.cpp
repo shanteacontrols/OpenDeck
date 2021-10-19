@@ -120,9 +120,9 @@ TEST_CASE(Bootloader)
     std::vector<uint8_t>               singleSysExMsg = {};
     std::vector<MIDI::USBMIDIpacket_t> packets        = {};
 
-    //go over the entire .sysex file
-    //upon reaching the end of single sysex message, convert it
-    //into series of USB MIDI packets
+    // go over the entire .sysex file
+    // upon reaching the end of single sysex message, convert it
+    // into series of USB MIDI packets
     for (size_t i = 0; i < sysExVector.size(); i++)
     {
         singleSysExMsg.push_back(sysExVector.at(i));
@@ -134,8 +134,8 @@ TEST_CASE(Bootloader)
         }
     }
 
-    //now we have the entire file in form of USB MIDI packets
-    //parse each message and once parsing passes, feed the parsed data into fw updater
+    // now we have the entire file in form of USB MIDI packets
+    // parse each message and once parsing passes, feed the parsed data into fw updater
     for (size_t packet = 0; packet < packets.size(); packet++)
     {
         if (_sysExParser.isValidMessage(packets.at(packet)))
@@ -156,10 +156,10 @@ TEST_CASE(Bootloader)
         }
     }
 
-    //once all data has been fed into updater, firmware update procedure should be complete
+    // once all data has been fed into updater, firmware update procedure should be complete
     TEST_ASSERT(_btldrWriter.updated == true);
 
-    //written content should also match the original binary file from which .syx file has been created
+    // written content should also match the original binary file from which .syx file has been created
     TEST_ASSERT(_btldrWriter.writtenBytes == binaryVector);
 }
 

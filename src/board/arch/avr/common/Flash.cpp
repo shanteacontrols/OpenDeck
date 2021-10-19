@@ -42,7 +42,7 @@ namespace Board
 
             uint32_t pageSize(size_t index)
             {
-                //always constant on avr
+                // always constant on avr
                 return FLASH_PAGE_SIZE_COMMON;
             }
 
@@ -61,11 +61,11 @@ namespace Board
             {
                 ATOMIC_SECTION
                 {
-                    //write the filled flash page to memory
+                    // write the filled flash page to memory
                     boot_page_write(index * pageSize(index));
                     boot_spm_busy_wait();
 
-                    //re-enable RWW section
+                    // re-enable RWW section
                     boot_rww_enable();
                 }
             }

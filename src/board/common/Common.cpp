@@ -26,10 +26,10 @@ limitations under the License.
 #include "usb-link/Commands.h"
 #endif
 
-//holds total flash size - inserted in the binary by build process
-//address where this variable is stored contains total firmware length
-//after the last firmware address, crc of firmware is stored
-//this is used by the bootloader to verify the crc of application
+// holds total flash size - inserted in the binary by build process
+// address where this variable is stored contains total firmware length
+// after the last firmware address, crc of firmware is stored
+// this is used by the bootloader to verify the crc of application
 uint32_t _flashSize __attribute__((section(".fwMetadata"))) __attribute__((used)) = 0;
 
 namespace core
@@ -58,7 +58,7 @@ namespace Board
     void reboot()
     {
 #ifndef USB_SUPPORTED
-        //signal to usb link to reboot as well
+        // signal to usb link to reboot as well
 
         uint8_t data[2] = {
             static_cast<uint8_t>(USBLink::internalCMD_t::rebootBTLDR),
@@ -74,7 +74,7 @@ namespace Board
         while (!Board::UART::isTxEmpty(UART_CHANNEL_USB_LINK))
             ;
 
-        //give some time to usb link to properly re-initialize so that everything is in sync
+        // give some time to usb link to properly re-initialize so that everything is in sync
         core::timing::waitMs(50);
 #endif
 

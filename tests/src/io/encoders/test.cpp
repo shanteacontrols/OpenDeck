@@ -24,7 +24,7 @@ namespace
             return true;
         }
 
-        //use the same state for all encoders
+        // use the same state for all encoders
         uint32_t _state = 0;
     } _hwaEncoders;
 
@@ -61,19 +61,19 @@ TEST_CASE(StateDecoding)
 {
     using namespace IO;
 
-    //set known state
+    // set known state
     for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
     {
-        //enable all encoders
+        // enable all encoders
         TEST_ASSERT(_database.update(Database::Section::encoder_t::enable, i, 1) == true);
 
-        //disable invert state
+        // disable invert state
         TEST_ASSERT(_database.update(Database::Section::encoder_t::invert, i, 0) == true);
 
-        //set type of message to Encoders::type_t::controlChange7Fh01h
+        // set type of message to Encoders::type_t::controlChange7Fh01h
         TEST_ASSERT(_database.update(Database::Section::encoder_t::mode, i, Encoders::type_t::controlChange7Fh01h) == true);
 
-        //set single pulse per step
+        // set single pulse per step
         TEST_ASSERT(_database.update(Database::Section::encoder_t::pulsesPerStep, i, 1) == true);
     }
 
@@ -90,9 +90,9 @@ TEST_CASE(StateDecoding)
         }
     };
 
-    //test expected permutations for ccw and cw directions
+    // test expected permutations for ccw and cw directions
 
-    //clockwise: 00, 10, 11, 01
+    // clockwise: 00, 10, 11, 01
 
     setState(0b00);
     TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
@@ -170,7 +170,7 @@ TEST_CASE(StateDecoding)
     verifyValue(MIDI::messageType_t::controlChange, 1);
     _listener._dispatchMessage.clear();
 
-    //counter-clockwise: 00, 01, 11, 10
+    // counter-clockwise: 00, 01, 11, 10
 
     setState(0b00);
     TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
@@ -248,59 +248,59 @@ TEST_CASE(StateDecoding)
     verifyValue(MIDI::messageType_t::controlChange, 127);
     _listener._dispatchMessage.clear();
 
-    //this time configure 4 pulses per step
+    // this time configure 4 pulses per step
     for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
     {
         TEST_ASSERT(_database.update(Database::Section::encoder_t::pulsesPerStep, i, 4) == true);
         _encoders.resetValue(i);
     }
 
-    //clockwise: 00, 10, 11, 01
+    // clockwise: 00, 10, 11, 01
 
-    //initial state doesn't count as pulse, 4 more needed
+    // initial state doesn't count as pulse, 4 more needed
     setState(0b00);
     TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
 
-    //1
+    // 1
     setState(0b10);
     TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
 
-    //2
+    // 2
     setState(0b11);
     TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
 
-    //3
+    // 3
     setState(0b01);
     TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
 
-    //4
-    //pulse should be registered
+    // 4
+    // pulse should be registered
     setState(0b00);
     TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
     _listener._dispatchMessage.clear();
 
-    //1
+    // 1
     setState(0b10);
     TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
 
-    //2
+    // 2
     setState(0b11);
     TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
 
-    //3
+    // 3
     setState(0b01);
     TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
 
-    //4
+    // 4
     setState(0b00);
     TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
     _listener._dispatchMessage.clear();
 
-    //now move to opposite direction
-    //don't start from 0b00 state again
-    //counter-clockwise: 01, 11, 10, 00
+    // now move to opposite direction
+    // don't start from 0b00 state again
+    // counter-clockwise: 01, 11, 10, 00
 
     setState(0b01);
     TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());

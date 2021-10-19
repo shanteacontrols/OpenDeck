@@ -137,7 +137,7 @@ namespace Board
 
                     if ((config.type == Board::UART::type_t::rxTx) || (config.type == Board::UART::type_t::rx))
                     {
-                        //enable rx interrupt
+                        // enable rx interrupt
                         __HAL_UART_ENABLE_IT(&_uartHandler[channel], UART_IT_RXNE);
                     }
 
@@ -201,15 +201,15 @@ namespace Board
                     {
                         if (txComplete)
                         {
-                            //Once TXC interrupt is received while in this state,
-                            //change baudrate, enable TX empty isr and exit. The
-                            //next time ISR runs, it will check the idle state and
-                            //if there is nothing to send, will turn off all TX
-                            //interrupts.
-                            //Note: switching the baudrate seems to have effect only
-                            //the next time ISR runs after switching, which is why a
-                            //fall-through to idle state isn't used here. TX empty will
-                            //trigger this ISR immediately after exit.
+                            // Once TXC interrupt is received while in this state,
+                            // change baudrate, enable TX empty isr and exit. The
+                            // next time ISR runs, it will check the idle state and
+                            // if there is nothing to send, will turn off all TX
+                            // interrupts.
+                            // Note: switching the baudrate seems to have effect only
+                            // the next time ISR runs after switching, which is why a
+                            // fall-through to idle state isn't used here. TX empty will
+                            // trigger this ISR immediately after exit.
 
                             DMX_SET_BREAK_BAUDRATE(channel);
                             __HAL_UART_DISABLE_IT(&_uartHandler[channel], UART_IT_TC);

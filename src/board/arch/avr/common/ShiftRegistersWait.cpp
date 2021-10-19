@@ -20,7 +20,7 @@ limitations under the License.
 #include "board/Internal.h"
 #include "core/src/general/Misc.h"
 
-//both delays assume 16MHz clock
+// both delays assume 16MHz clock
 
 namespace Board
 {

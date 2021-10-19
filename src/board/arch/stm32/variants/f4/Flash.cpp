@@ -68,7 +68,7 @@ namespace Board
 
             _RAM void writePage(size_t index)
             {
-                //nothing to do here
+                // nothing to do here
             }
 
             _RAM bool write16(uint32_t address, uint16_t data)

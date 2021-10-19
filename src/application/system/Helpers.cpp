@@ -20,7 +20,7 @@ limitations under the License.
 
 Database::block_t System::dbBlock(uint8_t index)
 {
-    //sysex blocks and db blocks don't have 1/1 mapping
+    // sysex blocks and db blocks don't have 1/1 mapping
 
     auto sysExBlock = static_cast<block_t>(index);
 

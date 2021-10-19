@@ -37,7 +37,7 @@ bool Database::init()
 
     uint32_t systemBlockUsage = 0;
 
-    //set only system block for now
+    // set only system block for now
     if (!LESSDB::setLayout(dbLayout, 1, 0))
     {
         return false;
@@ -47,24 +47,24 @@ bool Database::init()
         systemBlockUsage      = LESSDB::currentDBsize();
         _userDataStartAddress = LESSDB::nextParameterAddress();
 
-        //now set the entire layout
+        // now set the entire layout
         if (!LESSDB::setLayout(dbLayout, static_cast<uint8_t>(block_t::AMOUNT) + 1, 0))
             return false;
     }
 
     _lastPresetAddress = LESSDB::nextParameterAddress() - _userDataStartAddress;
 
-    //limit the address space to max 14-bit MIDI value
+    // limit the address space to max 14-bit MIDI value
     const uint32_t maxAddress = 16383;
     uint16_t       maxPresets = maxAddress / (LESSDB::lastParameterAddress() - _userDataStartAddress);
 
-    //get theoretical maximum of presets
+    // get theoretical maximum of presets
     _supportedPresets = (LESSDB::dbSize() - systemBlockUsage) / (LESSDB::currentDBsize() - systemBlockUsage);
 
-    //limit by address space
+    // limit by address space
     _supportedPresets = CONSTRAIN(_supportedPresets, 0, maxPresets);
 
-    //limit by hardcoded limit
+    // limit by hardcoded limit
     _supportedPresets = CONSTRAIN(_supportedPresets, 0, MAX_PRESETS);
 
     bool returnValue = true;
@@ -82,15 +82,15 @@ bool Database::init()
 
         if (getPresetPreserveState())
         {
-            //don't write anything to database in this case - setup preset only internally
+            // don't write anything to database in this case - setup preset only internally
             setPresetInternal(_activePreset);
         }
         else
         {
             if (_activePreset != 0)
             {
-                //preset preservation is not set which means preset must be 0
-                //in this case it is not so overwrite it with 0
+                // preset preservation is not set which means preset must be 0
+                // in this case it is not so overwrite it with 0
                 setPreset(0);
             }
             else
@@ -127,7 +127,7 @@ bool Database::factoryReset()
 
     if (_initializeData)
     {
-        //init system block first
+        // init system block first
         if (!LESSDB::setLayout(dbLayout, 1, 0))
             return false;
 
@@ -142,7 +142,7 @@ bool Database::factoryReset()
             if (!initData(LESSDB::factoryResetType_t::full))
                 return false;
 
-            //perform custom init as well
+            // perform custom init as well
             customInitGlobal();
             customInitButtons();
             customInitEncoders();
@@ -282,7 +282,7 @@ uint16_t Database::getDbUID()
 
     uint16_t signature = 0;
 
-    //get unique database signature based on its blocks/sections
+    // get unique database signature based on its blocks/sections
     for (int i = 0; i < static_cast<uint8_t>(block_t::AMOUNT) + 1; i++)
     {
         for (int j = 0; j < dbLayout[i].numberOfSections; j++)

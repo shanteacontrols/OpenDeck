@@ -23,7 +23,7 @@ bool System::HWAMIDI::init(MIDI::interface_t interface)
     if (interface == MIDI::interface_t::usb)
         return _system._hwa.protocol().midi().init(interface);
 
-    //DIN
+    // DIN
 
     auto mergeType    = static_cast<System::midiMergeType_t>(_system._database.read(Database::Section::global_t::midiMerge, System::midiMerge_t::mergeType));
     bool mergeEnabled = _system._database.read(Database::Section::global_t::midiFeatures, System::midiFeature_t::mergeEnabled);
@@ -31,7 +31,7 @@ bool System::HWAMIDI::init(MIDI::interface_t interface)
     bool loopback = mergeType == System::midiMergeType_t::DINtoDIN && mergeEnabled;
 
     if (_dinMIDIenabled && (loopback == _dinMIDIloopbackEnabled))
-        return true;    //nothing do do
+        return true;    // nothing do do
 
     if (!_dinMIDIenabled)
     {
@@ -49,7 +49,7 @@ bool System::HWAMIDI::init(MIDI::interface_t interface)
     {
         if (loopback != _dinMIDIloopbackEnabled)
         {
-            //only the loopback parameter has changed
+            // only the loopback parameter has changed
             _dinMIDIloopbackEnabled = loopback;
             _system._hwa.protocol().midi().setDINLoopback(loopback);
             return true;
@@ -64,7 +64,7 @@ bool System::HWAMIDI::deInit(MIDI::interface_t interface)
     if (interface == MIDI::interface_t::din)
     {
         if (!_dinMIDIenabled)
-            return true;    //nothing to do
+            return true;    // nothing to do
 
         if (_system._hwa.protocol().midi().deInit(interface))
         {

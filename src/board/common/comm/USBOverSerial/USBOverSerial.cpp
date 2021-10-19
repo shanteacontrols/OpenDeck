@@ -49,7 +49,7 @@ namespace Board
             appendResult_t append(uint8_t value)
             {
                 auto onBoundaryFound = [&]() {
-                    //actual boundary value, reset the packet
+                    // actual boundary value, reset the packet
                     _packet.reset();
 
                     //...but also set boundary flag
@@ -81,7 +81,7 @@ namespace Board
 
                         if (value == static_cast<uint8_t>(framing_t::boundary))
                         {
-                            //this is actual data, do nothing
+                            // this is actual data, do nothing
                         }
                         else if (value == static_cast<uint8_t>(framing_t::escapeValueSuffix))
                         {
@@ -111,7 +111,7 @@ namespace Board
                         }
                         else
                         {
-                            //if the packet is larger than expected, ignore the rest of the packet
+                            // if the packet is larger than expected, ignore the rest of the packet
                             if (_packet._count < _packet._maxSize)
                                 _packet._buffer[_packet._count++] = value;
                         }
@@ -171,7 +171,7 @@ namespace Board
             auto writeSingle = [](uint8_t channel, uint8_t value, bool initial = false) {
                 if (!initial && (value == static_cast<uint8_t>(USBPacketUpdater::framing_t::boundary)))
                 {
-                    //send escape first
+                    // send escape first
                     if (!Board::UART::write(channel, static_cast<uint8_t>(USBPacketUpdater::framing_t::escape)))
                         return false;
                 }

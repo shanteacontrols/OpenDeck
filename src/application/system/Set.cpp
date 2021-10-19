@@ -215,7 +215,7 @@ uint8_t System::onSetGlobal(Section::global_t section, size_t index, uint16_t ne
                 case midiMerge_t::mergeUSBchannel:
                 case midiMerge_t::mergeDINchannel:
                 {
-                    //unused for now
+                    // unused for now
                     writeToDb = false;
                     result    = SysExConf::DataHandler::STATUS_OK;
                 }
@@ -354,7 +354,7 @@ uint8_t System::onSetButtons(Section::button_t section, size_t index, uint16_t n
 
     uint8_t result = SysExConf::DataHandler::STATUS_ERROR_RW;
 
-    //channels start from 0 in db, start from 1 in sysex
+    // channels start from 0 in db, start from 1 in sysex
     if (section == Section::button_t::midiChannel)
         newValue--;
 
@@ -383,7 +383,7 @@ uint8_t System::onSetEncoders(Section::encoder_t section, size_t index, uint16_t
 
     default:
     {
-        //channels start from 0 in db, start from 1 in sysex
+        // channels start from 0 in db, start from 1 in sysex
         if (section == Section::encoder_t::midiChannel)
             newValue--;
     }
@@ -418,7 +418,7 @@ uint8_t System::onSetAnalog(Section::analog_t section, size_t index, uint16_t ne
 
     default:
     {
-        //channels start from 0 in db, start from 1 in sysex
+        // channels start from 0 in db, start from 1 in sysex
         if (section == Section::analog_t::midiChannel)
             newValue--;
     }
@@ -441,7 +441,7 @@ uint8_t System::onSetLEDs(Section::leds_t section, size_t index, uint16_t newVal
     {
     case Section::leds_t::testColor:
     {
-        //no writing to database
+        // no writing to database
         _leds.setColor(index, static_cast<IO::LEDs::color_t>(newValue), IO::LEDs::brightness_t::b100);
         result    = SysExConf::DataHandler::STATUS_OK;
         writeToDb = false;
@@ -450,7 +450,7 @@ uint8_t System::onSetLEDs(Section::leds_t section, size_t index, uint16_t newVal
 
     case Section::leds_t::testBlink:
     {
-        //no writing to database
+        // no writing to database
         _leds.setBlinkSpeed(index, newValue ? IO::LEDs::blinkSpeed_t::s500ms : IO::LEDs::blinkSpeed_t::noBlink);
         result    = SysExConf::DataHandler::STATUS_OK;
         writeToDb = false;
@@ -490,7 +490,7 @@ uint8_t System::onSetLEDs(Section::leds_t section, size_t index, uint16_t newVal
             break;
         }
 
-        //write to db if success is true and writing should take place
+        // write to db if success is true and writing should take place
         if ((result == SysExConf::DataHandler::STATUS_OK) && writeToDb)
             result = _database.update(dbSection(section), index, newValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
     }
@@ -498,17 +498,17 @@ uint8_t System::onSetLEDs(Section::leds_t section, size_t index, uint16_t newVal
 
     case Section::leds_t::rgbEnable:
     {
-        //make sure to turn all three leds off before setting new state
+        // make sure to turn all three leds off before setting new state
         _leds.setColor(_leds.rgbSignalIndex(_leds.rgbIndex(index), IO::LEDs::rgbIndex_t::r), IO::LEDs::color_t::off, IO::LEDs::brightness_t::bOff);
         _leds.setColor(_leds.rgbSignalIndex(_leds.rgbIndex(index), IO::LEDs::rgbIndex_t::g), IO::LEDs::color_t::off, IO::LEDs::brightness_t::bOff);
         _leds.setColor(_leds.rgbSignalIndex(_leds.rgbIndex(index), IO::LEDs::rgbIndex_t::b), IO::LEDs::color_t::off, IO::LEDs::brightness_t::bOff);
 
-        //write rgb enabled bit to led
+        // write rgb enabled bit to led
         result = _database.update(dbSection(section), _leds.rgbIndex(index), newValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
 
         if (newValue && (result == SysExConf::DataHandler::STATUS_OK))
         {
-            //copy over note activation local control and midi channel settings to all three leds from the current led index
+            // copy over note activation local control and midi channel settings to all three leds from the current led index
 
             for (int i = 0; i < 3; i++)
             {
@@ -547,14 +547,14 @@ uint8_t System::onSetLEDs(Section::leds_t section, size_t index, uint16_t newVal
     case Section::leds_t::controlType:
     case Section::leds_t::midiChannel:
     {
-        //channels start from 0 in db, start from 1 in sysex
+        // channels start from 0 in db, start from 1 in sysex
         if (section == Section::leds_t::midiChannel)
             newValue--;
 
-        //first, find out if RGB led is enabled for this led index
+        // first, find out if RGB led is enabled for this led index
         if (_database.read(dbSection(Section::leds_t::rgbEnable), _leds.rgbIndex(index)))
         {
-            //rgb led enabled - copy these settings to all three leds
+            // rgb led enabled - copy these settings to all three leds
             for (int i = 0; i < 3; i++)
             {
                 result = _database.update(dbSection(section),
@@ -569,7 +569,7 @@ uint8_t System::onSetLEDs(Section::leds_t section, size_t index, uint16_t newVal
         }
         else
         {
-            //apply to single led only
+            // apply to single led only
             result = _database.update(dbSection(section), index, newValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;
         }
     }

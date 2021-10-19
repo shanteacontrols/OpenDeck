@@ -61,8 +61,8 @@ class MIDIHelper
             std::vector<MIDI::USBMIDIpacket_t>& _buffer;
         };
 
-        //create temp midi object whose purpose is to convert provided raw sysex array into
-        //a series of USB MIDI packets
+        // create temp midi object whose purpose is to convert provided raw sysex array into
+        // a series of USB MIDI packets
         std::vector<MIDI::USBMIDIpacket_t> usbPackets;
         HWAFillMIDI                        hwaFillMIDI(usbPackets);
         MIDI                               fillMIDI(hwaFillMIDI);
@@ -151,16 +151,16 @@ class MIDIHelper
             SYSEX_MANUFACTURER_ID_0,
             SYSEX_MANUFACTURER_ID_1,
             SYSEX_MANUFACTURER_ID_2,
-            static_cast<uint8_t>(SysExConf::status_t::request),    //status
-            0,                                                     //part
-            static_cast<uint8_t>(SysExConf::wish_t::get),          //wish
-            static_cast<uint8_t>(SysExConf::amount_t::single),     //amount
-            static_cast<uint8_t>(blockIndex),                      //block
-            static_cast<uint8_t>(section),                         //section
-            splitIndex.high(),                                     //index high byte
-            splitIndex.low(),                                      //index low byte
-            0x00,                                                  //new value high byte
-            0x00,                                                  //new value low byte
+            static_cast<uint8_t>(SysExConf::status_t::request),    // status
+            0,                                                     // part
+            static_cast<uint8_t>(SysExConf::wish_t::get),          // wish
+            static_cast<uint8_t>(SysExConf::amount_t::single),     // amount
+            static_cast<uint8_t>(blockIndex),                      // block
+            static_cast<uint8_t>(section),                         // section
+            splitIndex.high(),                                     // index high byte
+            splitIndex.low(),                                      // index low byte
+            0x00,                                                  // new value high byte
+            0x00,                                                  // new value low byte
             0xF7
         };
     }
@@ -246,7 +246,7 @@ class MIDIHelper
         std::string cmd = std::string("stdbuf -i0 -o0 -e0 amidi -p ") + deviceNameSearch + std::string(" | grep -Eo 'hw:\\S*') -d -t 3");
         test::wsystem(cmd, cmdResponse);
 
-//do the same for din interface if present
+// do the same for din interface if present
 #ifdef TEST_DIN_MIDI_PORT
         LOG(INFO) << "Flushing all incoming data from the DIN MIDI interface";
         cmd = std::string("amidi -p $(amidi -l | grep -E '") + std::string(DIN_MIDI_PORT) + std::string("' | grep -Eo 'hw:\\S*') -d -t 3");
@@ -274,10 +274,10 @@ class MIDIHelper
 
         if (verifyResponse)
         {
-            //change status byte to ack
+            // change status byte to ack
             req[13] = '1';
 
-            //remove everything after request/wish byte
+            // remove everything after request/wish byte
             std::string pattern = req.substr(0, 20) + ".*F7";
 
             cmd                          = "cat " + lastResponseFileLocation + " | xargs | sed 's/F7/F7\\n/g' | sed 's/F0/\\nF0/g' | grep -m 1 -E '" + pattern + "'";
@@ -355,7 +355,7 @@ class MIDIHelper
 #ifdef HW_TESTING
     static uint16_t sendRequest(const std::vector<uint8_t>& requestUint8, SysExConf::wish_t wish)
     {
-        //convert uint8_t vector to string so it can be passed as command line argument
+        // convert uint8_t vector to string so it can be passed as command line argument
         std::stringstream requestString;
         requestString << std::hex << std::setfill('0') << std::uppercase;
 
@@ -373,9 +373,9 @@ class MIDIHelper
         std::string responseString = sendRawSysEx(requestString.str());
 
         if (responseString == "")
-            return 0;    //invalid response
+            return 0;    // invalid response
 
-        //convert response back to uint8 vector
+        // convert response back to uint8 vector
         std::vector<uint8_t> responseUint8;
 
         for (size_t i = 0; i < responseString.length(); i += 3)
@@ -387,14 +387,14 @@ class MIDIHelper
 
         if (wish == SysExConf::wish_t::get)
         {
-            //last two bytes are result
+            // last two bytes are result
             MIDI::Merge14bit merge14bit;
             merge14bit.merge(responseUint8.at(responseUint8.size() - 3), responseUint8.at(responseUint8.size() - 2));
             return merge14bit.value();
         }
         else
         {
-            //read status byte
+            // read status byte
             return responseUint8.at(4);
         }
     }

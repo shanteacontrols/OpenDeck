@@ -10,7 +10,7 @@
 
 namespace test
 {
-    //simple wrapper for system call which takes string arg instead
+    // simple wrapper for system call which takes string arg instead
     inline int wsystem(std::string const& in, std::string& out)
     {
         // std::cout << "[CMD]: " << in << std::endl;

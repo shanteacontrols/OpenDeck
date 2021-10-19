@@ -87,17 +87,17 @@ void Encoders::update()
 
         for (uint8_t reading = 0; reading < numberOfReadings; reading++)
         {
-            //take into account that there is a 1ms difference between readouts
-            //when processing, newest sample has index 0
-            //start from oldest reading which is in upper bits
+            // take into account that there is a 1ms difference between readouts
+            // when processing, newest sample has index 0
+            // start from oldest reading which is in upper bits
             uint8_t  processIndex = numberOfReadings - 1 - reading;
             uint32_t sampleTime   = currentTime - (TIME_DIFF_READOUT * processIndex);
 
-            //there are two readings per encoder
+            // there are two readings per encoder
             uint8_t pairState = states >> (processIndex * 2);
             pairState &= 0x03;
 
-            //when processing, newest sample has index 0
+            // when processing, newest sample has index 0
             processReading(i, pairState, sampleTime);
         }
     }
@@ -123,8 +123,8 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
 
             if (encAcceleration)
             {
-                //when time difference between two movements is smaller than ENCODERS_SPEED_TIMEOUT,
-                //start accelerating
+                // when time difference between two movements is smaller than ENCODERS_SPEED_TIMEOUT,
+                // start accelerating
                 if ((sampleTime - _filter.lastMovementTime(index)) < ENCODERS_SPEED_TIMEOUT)
                     _encoderSpeed[index] = CONSTRAIN(_encoderSpeed[index] + _encoderSpeedChange[encAcceleration], 0, _encoderMaxAccSpeed[encAcceleration]);
                 else
@@ -151,12 +151,12 @@ void Encoders::processReading(size_t index, uint8_t pairValue, uint32_t sampleTi
                 if (encoderState == position_t::ccw)
                 {
                     if (!Common::pcIncrement(descriptor.dispatchMessage.midiChannel))
-                        send = false;    //edge value reached, nothing more to send
+                        send = false;    // edge value reached, nothing more to send
                 }
                 else
                 {
                     if (!Common::pcDecrement(descriptor.dispatchMessage.midiChannel))
-                        send = false;    //edge value reached, nothing more to send
+                        send = false;    // edge value reached, nothing more to send
                 }
 
                 descriptor.dispatchMessage.midiValue = Common::program(descriptor.dispatchMessage.midiChannel);
@@ -238,7 +238,7 @@ void Encoders::sendMessage(size_t index, encoderDescriptor_t& descriptor)
     {
         if (descriptor.dispatchMessage.midiIndex >= 96)
         {
-            //not allowed
+            // not allowed
             send = false;
             break;
         }
@@ -288,11 +288,11 @@ Encoders::position_t Encoders::read(size_t index, uint8_t pairState)
     position_t returnValue = position_t::stopped;
     pairState &= 0x03;
 
-    //add new data
+    // add new data
 
     bool process = true;
 
-    //only process the data from encoder if there is a previous reading stored
+    // only process the data from encoder if there is a previous reading stored
     if (!BIT_READ(_encoderData[index], 7))
         process = false;
 
@@ -308,7 +308,7 @@ Encoders::position_t Encoders::read(size_t index, uint8_t pairState)
     if (abs(_encoderPulses[index]) >= _database.read(Database::Section::encoder_t::pulsesPerStep, index))
     {
         returnValue = (_encoderPulses[index] > 0) ? position_t::ccw : position_t::cw;
-        //reset count
+        // reset count
         _encoderPulses[index] = 0;
     }
 

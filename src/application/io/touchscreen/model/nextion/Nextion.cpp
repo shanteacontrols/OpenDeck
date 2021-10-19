@@ -72,7 +72,7 @@ IO::TouchscreenBase::tsEvent_t Nextion::update(IO::TouchscreenBase::tsData_t& da
 
         if (_endCounter == 3)
         {
-            //new message arrived
+            // new message arrived
             _endCounter = 0;
             process     = true;
             break;
@@ -90,7 +90,7 @@ IO::TouchscreenBase::tsEvent_t Nextion::update(IO::TouchscreenBase::tsData_t& da
 
 void Nextion::setIconState(IO::TouchscreenBase::icon_t& icon, bool state)
 {
-    //ignore width/height zero - set either intentionally to avoid display or incorrectly
+    // ignore width/height zero - set either intentionally to avoid display or incorrectly
     if (!icon.width)
         return;
 
@@ -140,7 +140,7 @@ bool Nextion::setBrightness(IO::TouchscreenBase::brightness_t brightness)
 IO::TouchscreenBase::tsEvent_t Nextion::response(IO::TouchscreenBase::tsData_t& data)
 {
     bool responseFound = false;
-    auto response      = responseID_t::button;    //assumption for now
+    auto response      = responseID_t::button;    // assumption for now
 
     for (size_t i = 0; i < static_cast<size_t>(responseID_t::AMOUNT); i++)
     {
@@ -181,7 +181,7 @@ IO::TouchscreenBase::tsEvent_t Nextion::response(IO::TouchscreenBase::tsData_t& 
                 _screenPressed = true;
                 data.pressType = IO::TouchscreenBase::pressType_t::initial;
 
-                //on each press, restart the xy coordinate retrieval process
+                // on each press, restart the xy coordinate retrieval process
                 _xyRequestState = xyRequestState_t::xRequest;
             }
             else

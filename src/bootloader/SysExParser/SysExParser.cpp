@@ -28,8 +28,8 @@ bool SysExParser::isValidMessage(MIDI::USBMIDIpacket_t& packet)
 
 bool SysExParser::parse(MIDI::USBMIDIpacket_t& packet)
 {
-    //MIDIEvent.Event is CIN, see midi10.pdf
-    //shift cin four bytes left to get message type
+    // MIDIEvent.Event is CIN, see midi10.pdf
+    // shift cin four bytes left to get message type
     uint8_t midiMessage = packet.Event << 4;
 
     switch (midiMessage)
@@ -39,7 +39,7 @@ bool SysExParser::parse(MIDI::USBMIDIpacket_t& packet)
     {
         if (packet.Data1 == 0xF7)
         {
-            //end of sysex
+            // end of sysex
             _sysExArray[_sysExArrayLength] = packet.Data1;
             _sysExArrayLength++;
             return true;
@@ -50,7 +50,7 @@ bool SysExParser::parse(MIDI::USBMIDIpacket_t& packet)
     case static_cast<uint8_t>(usbMIDIsystemCin_t::sysExStartCin):
     {
         if (packet.Data1 == 0xF0)
-            _sysExArrayLength = 0;    //this is a new sysex message, reset length
+            _sysExArrayLength = 0;    // this is a new sysex message, reset length
 
         _sysExArray[_sysExArrayLength] = packet.Data1;
         _sysExArrayLength++;
@@ -75,7 +75,7 @@ bool SysExParser::parse(MIDI::USBMIDIpacket_t& packet)
     case static_cast<uint8_t>(usbMIDIsystemCin_t::sysExStop3byteCin):
     {
         if (packet.Data1 == 0xF0)
-            _sysExArrayLength = 0;    //sysex message with 1 byte of payload
+            _sysExArrayLength = 0;    // sysex message with 1 byte of payload
 
         _sysExArray[_sysExArrayLength] = packet.Data1;
         _sysExArrayLength++;
@@ -129,11 +129,11 @@ bool SysExParser::verify()
     if (_sysExArray[3] != SYSEX_MANUFACTURER_ID_2)
         return false;
 
-    //firmware sysex message should contain at least:
-    //start byte
-    //three ID bytes
-    //two data bytes
-    //stop byte
+    // firmware sysex message should contain at least:
+    // start byte
+    // three ID bytes
+    // two data bytes
+    // stop byte
     if (_sysExArrayLength < 7)
         return false;
 

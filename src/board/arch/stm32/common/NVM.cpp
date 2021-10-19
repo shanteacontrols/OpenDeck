@@ -99,7 +99,7 @@ namespace Board
         {
             bool result;
 
-            //disable all interrupts during init to avoid ISRs messing up the flash page formatting/setup
+            // disable all interrupts during init to avoid ISRs messing up the flash page formatting/setup
             ATOMIC_SECTION
             {
                 result = _emuEEPROM.init();
@@ -110,7 +110,7 @@ namespace Board
 
         uint32_t size()
         {
-            //first 4 bytes are reserved for page status
+            // first 4 bytes are reserved for page status
             return EMU_EEPROM_PAGE_SIZE - 4;
         }
 
@@ -132,7 +132,7 @@ namespace Board
                 }
                 else if (readStatus == EmuEEPROM::readStatus_t::noVar)
                 {
-                    //variable with this address doesn't exist yet - set value to 0
+                    // variable with this address doesn't exist yet - set value to 0
                     value = 0;
                 }
             }
@@ -174,9 +174,9 @@ namespace Board
             bool result;
 
 #ifdef LED_INDICATORS
-            //clearing is usually called in runtime so it's possible that LED
-            //indicators are still on since the command is most likely given via USB
-            //wait until all indicators are turned off
+            // clearing is usually called in runtime so it's possible that LED
+            // indicators are still on since the command is most likely given via USB
+            // wait until all indicators are turned off
             core::timing::waitMs(MIDI_INDICATOR_TIMEOUT);
 #endif
 
@@ -185,7 +185,7 @@ namespace Board
                 result = _emuEEPROM.format();
             }
 
-            //ignore start/end markers on stm32 for now
+            // ignore start/end markers on stm32 for now
             return result;
         }
 
@@ -197,7 +197,7 @@ namespace Board
                 return 8;
 
             default:
-                return 4;    //2 bytes for address, 2 bytes for data
+                return 4;    // 2 bytes for address, 2 bytes for data
             }
         }
     }    // namespace NVM

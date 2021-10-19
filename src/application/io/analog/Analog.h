@@ -59,7 +59,7 @@ namespace IO
         class HWA
         {
             public:
-            //should return true if the value has been refreshed, false otherwise
+            // should return true if the value has been refreshed, false otherwise
             virtual bool value(size_t index, uint16_t& value) = 0;
         };
 
@@ -109,8 +109,8 @@ namespace IO
         const MIDI::messageType_t _internalMsgToMIDIType[static_cast<uint8_t>(type_t::AMOUNT)] = {
             MIDI::messageType_t::controlChange,
             MIDI::messageType_t::noteOn,
-            MIDI::messageType_t::noteOn,     //fsr: set to off when appropriate
-            MIDI::messageType_t::invalid,    //button: let other listeners handle this
+            MIDI::messageType_t::noteOn,     // fsr: set to off when appropriate
+            MIDI::messageType_t::invalid,    // button: let other listeners handle this
             MIDI::messageType_t::nrpn7bit,
             MIDI::messageType_t::nrpn14bit,
             MIDI::messageType_t::pitchBend,

@@ -37,7 +37,7 @@ namespace Board
 
         bool isHWtriggerActive()
         {
-            //add some delay before reading the pins to avoid incorrect state detection
+            // add some delay before reading the pins to avoid incorrect state detection
             core::timing::waitMs(100);
 
 #if defined(BTLDR_BUTTON_PORT)
@@ -47,7 +47,7 @@ namespace Board
             return !CORE_IO_READ(BTLDR_BUTTON_PORT, BTLDR_BUTTON_PIN);
 #endif
 #else
-            //no hardware entry possible in this case
+            // no hardware entry possible in this case
             return false;
 #endif
         }

@@ -36,9 +36,9 @@
 #define USB_TX_TIMEOUT_MS 2000
 
 /** Type define for the device configuration descriptor structure. This must be defined in the
-    *  application code, as the configuration descriptor contains several sub-descriptors which
-    *  vary between devices, and which describe the device's usage to the host.
-    */
+ *  application code, as the configuration descriptor contains several sub-descriptors which
+ *  vary between devices, and which describe the device's usage to the host.
+ */
 typedef struct
 {
     USB_Descriptor_Configuration_Header_t Config;
@@ -61,9 +61,9 @@ typedef struct
 } USB_Descriptor_Configuration_t;
 
 /** Enum for the device interface descriptor IDs within the device. Each interface descriptor
-    *  should have a unique ID index associated with it, which can be used to refer to the
-    *  interface from other descriptors.
-    */
+ *  should have a unique ID index associated with it, which can be used to refer to the
+ *  interface from other descriptors.
+ */
 enum InterfaceDescriptors_t
 {
     INTERFACE_ID_AudioControl = 0, /**< Audio control interface descriptor ID */
@@ -71,9 +71,9 @@ enum InterfaceDescriptors_t
 };
 
 /** Enum for the device string descriptor IDs within the device. Each string descriptor should
-    *  have a unique ID index associated with it, which can be used to refer to the string from
-    *  other descriptors.
-    */
+ *  have a unique ID index associated with it, which can be used to refer to the string from
+ *  other descriptors.
+ */
 enum StringDescriptors_t
 {
     STRING_ID_Language     = 0,                  /**< Supported Languages string descriptor ID (must be zero) */

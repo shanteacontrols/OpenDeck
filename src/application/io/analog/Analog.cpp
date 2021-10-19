@@ -40,7 +40,7 @@ Analog::Analog(HWA&                     hwa,
 
 void Analog::update(bool forceResend)
 {
-    //check values
+    // check values
     for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
     {
         if (!forceResend)
@@ -72,7 +72,7 @@ Analog::adcType_t Analog::adcType()
 
 void Analog::processReading(size_t index, uint16_t value)
 {
-    //don't process component if it's not enabled
+    // don't process component if it's not enabled
     if (!_database.read(Database::Section::analog_t::enable, index))
         return;
 
@@ -131,7 +131,7 @@ bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descripto
 
     if ((descriptor.type == type_t::nrpn14bit) || (descriptor.type == type_t::pitchBend) || (descriptor.type == type_t::controlChange14bit))
     {
-        //14-bit values are already read
+        // 14-bit values are already read
         maxLimit = MIDI::MIDI_14_BIT_VALUE_MAX;
     }
     else
@@ -140,7 +140,7 @@ bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descripto
 
         MIDI::Split14bit split14bit;
 
-        //use 7-bit MIDI ID and limits
+        // use 7-bit MIDI ID and limits
         split14bit.split(descriptor.dispatchMessage.midiIndex);
         descriptor.dispatchMessage.midiIndex = split14bit.low();
 
@@ -181,7 +181,7 @@ bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descripto
 
 bool Analog::checkFSRvalue(size_t index, analogDescriptor_t& descriptor)
 {
-    //don't allow touchscreen components to be processed as FSR
+    // don't allow touchscreen components to be processed as FSR
     if (index >= MAX_NUMBER_OF_ANALOG)
         return false;
 
@@ -189,7 +189,7 @@ bool Analog::checkFSRvalue(size_t index, analogDescriptor_t& descriptor)
     {
         if (!_fsrPressed[index])
         {
-            //sensor is really pressed
+            // sensor is really pressed
             _fsrPressed[index] = true;
             return true;
         }
@@ -238,7 +238,7 @@ void Analog::sendMessage(size_t index, analogDescriptor_t& descriptor)
     {
         if (descriptor.dispatchMessage.midiIndex >= 96)
         {
-            //not allowed
+            // not allowed
             send = false;
             break;
         }

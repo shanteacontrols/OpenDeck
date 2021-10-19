@@ -30,7 +30,7 @@ namespace Board
         {
             void dischargeMux()
             {
-                //discharge the voltage present on common mux pins to avoid channel crosstalk
+                // discharge the voltage present on common mux pins to avoid channel crosstalk
                 for (int i = 0; i < MAX_ADC_CHANNELS; i++)
                 {
                     core::io::mcuPin_t pin = Board::detail::map::adcPin(i);

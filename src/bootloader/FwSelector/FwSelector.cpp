@@ -41,14 +41,14 @@ void FwSelector::init()
 
         default:
         {
-            //assume application here
+            // assume application here
             fwType = isAppValid() ? fwType_t::application : fwType_t::bootloader;
         }
         break;
         }
     }
 
-    //always reset soft trigger after reading it back to application
+    // always reset soft trigger after reading it back to application
     _hwa.setMagicBootValue(static_cast<uint8_t>(fwType_t::application));
     _hwa.load(fwType);
 }
@@ -58,16 +58,16 @@ bool FwSelector::isAppValid()
 #ifdef FW_SELECTOR_NO_VERIFY_CRC
     return true;
 #else
-    //verify app crc
-    //crc is calculated across retrieved firmware address range
-    //last retrieved firmware address should contain valid application CRC
-    //consider application valid if calculated and retrieved CRC are equal
+    // verify app crc
+    // crc is calculated across retrieved firmware address range
+    // last retrieved firmware address should contain valid application CRC
+    // consider application valid if calculated and retrieved CRC are equal
     uint32_t firstFwAddr;
     uint32_t lastFwAddr;
 
     _hwa.appAddrBoundary(firstFwAddr, lastFwAddr);
 
-    //sanity checks
+    // sanity checks
     if (!lastFwAddr || (firstFwAddr == lastFwAddr) || (firstFwAddr > lastFwAddr))
         return false;
 

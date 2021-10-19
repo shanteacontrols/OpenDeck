@@ -326,7 +326,7 @@ namespace Board
 
     namespace NVM
     {
-        //NVM: non-volatile memory
+        // NVM: non-volatile memory
 
         enum class parameterType_t : uint8_t
         {
@@ -377,7 +377,7 @@ namespace Board
         void     fillPage(size_t index, uint32_t address, uint16_t value);
         void     writePage(size_t index);
 #ifdef FW_BOOT
-        //don't allow this API from application
+        // don't allow this API from application
         uint8_t readFlash(uint32_t address);
 #endif
     }    // namespace bootloader

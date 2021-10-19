@@ -75,8 +75,8 @@ void appendCommand(uint64_t command, size_t bytes, std::vector<uint8_t>& output)
 
 int main(int argc, char* argv[])
 {
-    //first argument should be path to the binary file
-    //second argument should be path of the output file
+    // first argument should be path to the binary file
+    // second argument should be path of the output file
     if (argc <= 2)
     {
         std::cout << argv[0] << "ERROR: Input and output filenames not provided" << std::endl;

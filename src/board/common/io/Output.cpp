@@ -159,7 +159,7 @@ namespace Board
 
                     switchState = switchState_t::columns;
 
-                    //allow some settle time to avoid near LEDs being slighty lit
+                    // allow some settle time to avoid near LEDs being slighty lit
                     return;
                 }
                 break;

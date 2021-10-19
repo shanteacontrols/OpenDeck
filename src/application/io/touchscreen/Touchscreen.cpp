@@ -45,7 +45,7 @@ bool Touchscreen::init(mode_t mode)
             if (_initialized)
             {
                 if (dbModel == static_cast<uint8_t>(_activeModel))
-                    return true;    //nothing to do, same model already _initialized
+                    return true;    // nothing to do, same model already _initialized
 
                 if (!deInit(mode))
                     return false;
@@ -235,10 +235,10 @@ void Touchscreen::setIconState(size_t index, bool state)
     icon.offScreen = _database.read(Database::Section::touchscreen_t::offScreen, index);
 
     if (icon.onScreen == icon.offScreen)
-        return;    //invalid screen indexes
+        return;    // invalid screen indexes
 
     if ((_activeScreenID != icon.onScreen) && (_activeScreenID != icon.offScreen))
-        return;    //don't allow setting icon on wrong screen
+        return;    // don't allow setting icon on wrong screen
 
     icon.xPos   = _database.read(Database::Section::touchscreen_t::xPos, index);
     icon.yPos   = _database.read(Database::Section::touchscreen_t::yPos, index);
@@ -262,8 +262,8 @@ void Touchscreen::processButton(const size_t buttonID, const bool state)
     if (_eventNotifier != nullptr)
         _eventNotifier->button(buttonID, state);
 
-    //if the button should change screen, change it immediately
-    //this will result in button never sending off state so do it manually first
+    // if the button should change screen, change it immediately
+    // this will result in button never sending off state so do it manually first
     if (changeScreen)
     {
         if (_eventNotifier != nullptr)
@@ -296,14 +296,14 @@ void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16
             uint16_t endCoordinate;
             uint16_t value;
 
-            //x
+            // x
             if (_database.read(Database::Section::touchscreen_t::analogType, i) == static_cast<int32_t>(IO::Touchscreen::analogType_t::horizontal))
             {
                 value = xPos;
 
                 if (pressType == pressType_t::hold)
                 {
-                    //y coordinate can be ignored once the touchscreen is pressed, verify and constrain x range only
+                    // y coordinate can be ignored once the touchscreen is pressed, verify and constrain x range only
                     if (value > endXCoordinate)
                         value = endXCoordinate;
                     else if (value < startXCoordinate)
@@ -324,14 +324,14 @@ void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16
                 startCoordinate = startXCoordinate;
                 endCoordinate   = endXCoordinate;
             }
-            //y
+            // y
             else
             {
                 value = yPos;
 
                 if (pressType == pressType_t::hold)
                 {
-                    //x coordinate can be ignored once the touchscreen is pressed, verify and constrain x range only
+                    // x coordinate can be ignored once the touchscreen is pressed, verify and constrain x range only
                     if (value > endYCoordinate)
                         value = endYCoordinate;
                     else if (value < startYCoordinate)
@@ -353,7 +353,7 @@ void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16
                 endCoordinate   = endYCoordinate;
             }
 
-            //scale the value to ADC range
+            // scale the value to ADC range
             if (_analogActive[i])
             {
                 if (_eventNotifier != nullptr)

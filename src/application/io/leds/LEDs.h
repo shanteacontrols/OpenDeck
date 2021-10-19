@@ -174,7 +174,7 @@ namespace IO
             48,
             24,
             12,
-            255,    //no blinking
+            255,    // no blinking
         };
 
         /// Array holding time indexes (multipled by 50) after which LED state is toggled for all possible blink rates.
@@ -195,16 +195,16 @@ namespace IO
         uint32_t _lastLEDblinkUpdateTime = 0;
 
         const MIDI::messageType_t controlTypeToMIDImessage[static_cast<uint8_t>(controlType_t::AMOUNT)] = {
-            MIDI::messageType_t::noteOn,           //midiInNoteSingleVal,
-            MIDI::messageType_t::noteOn,           //localNoteSingleVal,
-            MIDI::messageType_t::controlChange,    //midiInCCSingleVal,
-            MIDI::messageType_t::controlChange,    //localCCSingleVal,
-            MIDI::messageType_t::programChange,    //midiInPCSingleVal,
-            MIDI::messageType_t::programChange,    //localPCSingleVal,
-            MIDI::messageType_t::noteOn,           //midiInNoteMultiVal,
-            MIDI::messageType_t::noteOn,           //localNoteMultiVal,
-            MIDI::messageType_t::controlChange,    //midiInCCMultiVal,
-            MIDI::messageType_t::controlChange,    //localCCMultiVal,
+            MIDI::messageType_t::noteOn,           // midiInNoteSingleVal,
+            MIDI::messageType_t::noteOn,           // localNoteSingleVal,
+            MIDI::messageType_t::controlChange,    // midiInCCSingleVal,
+            MIDI::messageType_t::controlChange,    // localCCSingleVal,
+            MIDI::messageType_t::programChange,    // midiInPCSingleVal,
+            MIDI::messageType_t::programChange,    // localPCSingleVal,
+            MIDI::messageType_t::noteOn,           // midiInNoteMultiVal,
+            MIDI::messageType_t::noteOn,           // localNoteMultiVal,
+            MIDI::messageType_t::controlChange,    // midiInCCMultiVal,
+            MIDI::messageType_t::controlChange,    // localCCMultiVal,
         };
     };
 }    // namespace IO

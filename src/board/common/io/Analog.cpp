@@ -125,12 +125,12 @@ namespace Board
 #endif
 
 #ifdef NUMBER_OF_MUX
-                        //switch to next mux once all mux inputs are read
+                        // switch to next mux once all mux inputs are read
                         core::adc::setChannel(Board::detail::map::adcChannel(_activeMux));
 #endif
                     }
 
-//always switch to next read pin
+// always switch to next read pin
 #ifdef NUMBER_OF_MUX
                     setMuxInput();
 #else

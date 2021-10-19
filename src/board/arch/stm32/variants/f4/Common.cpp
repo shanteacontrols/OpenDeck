@@ -106,7 +106,7 @@ namespace Board
                 _mainTimerHandler.Instance               = MAIN_TIMER_INSTANCE;
                 _mainTimerHandler.Init.Prescaler         = 1;
                 _mainTimerHandler.Init.CounterMode       = TIM_COUNTERMODE_UP;
-                _mainTimerHandler.Init.Period            = 41999;    //1ms
+                _mainTimerHandler.Init.Period            = 41999;    // 1ms
                 _mainTimerHandler.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
                 _mainTimerHandler.Init.RepetitionCounter = 0;
                 _mainTimerHandler.Init.AutoReloadPreload = 0;
@@ -120,7 +120,7 @@ namespace Board
                 pwmTimerHandle.Instance               = PWM_TIMER_INSTANCE;
                 pwmTimerHandle.Init.Prescaler         = 1;
                 pwmTimerHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
-                pwmTimerHandle.Init.Period            = 8399;    //200us
+                pwmTimerHandle.Init.Period            = 8399;    // 200us
                 pwmTimerHandle.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
                 pwmTimerHandle.Init.RepetitionCounter = 0;
                 pwmTimerHandle.Init.AutoReloadPreload = 0;
@@ -159,7 +159,7 @@ namespace Board
                     HAL_ADC_ConfigChannel(&_adcHandler, &sConfig);
                 }
 
-                //set first channel
+                // set first channel
                 core::adc::setChannel(map::adcChannel(0));
 
                 HAL_ADC_Start_IT(&_adcHandler);
@@ -359,14 +359,14 @@ extern "C" void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
 
 extern "C" void InitSystem(void)
 {
-    //set stack pointer
+    // set stack pointer
     __set_MSP(*reinterpret_cast<volatile uint32_t*>(FLASH_START_ADDR));
 
-    //setup FPU
+    // setup FPU
 #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
     SCB->CPACR |= ((3UL << 10 * 2) | (3UL << 11 * 2)); /* set CP10 and CP11 Full Access */
 #endif
 
-    //set the correct address of vector table
+    // set the correct address of vector table
     SCB->VTOR = FLASH_START_ADDR;
 }

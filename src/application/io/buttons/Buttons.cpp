@@ -71,16 +71,16 @@ void Buttons::update(bool forceResend)
             if (!_hwa.state(i, numberOfReadings, states))
                 continue;
 
-            //this filter will return amount of stable changed readings
-            //and the states of those readings
-            //latest reading is index 0
+            // this filter will return amount of stable changed readings
+            // and the states of those readings
+            // latest reading is index 0
             if (!_filter.isFiltered(i, numberOfReadings, states))
                 continue;
 
             for (uint8_t reading = 0; reading < numberOfReadings; reading++)
             {
-                //when processing, newest sample has index 0
-                //start from oldest reading which is in upper bits
+                // when processing, newest sample has index 0
+                // start from oldest reading which is in upper bits
                 uint8_t processIndex = numberOfReadings - 1 - reading;
                 bool    state        = (states >> processIndex) & 0x01;
 
@@ -102,22 +102,22 @@ void Buttons::update(bool forceResend)
 /// param [in]: descriptor  Descriptor containing the entire configuration for the button.
 void Buttons::processButton(size_t index, bool reading, buttonDescriptor_t& descriptor)
 {
-    //act on change of state only
+    // act on change of state only
     if (reading == state(index))
         return;
 
     setState(index, reading);
 
-    //don't process messageType_t::none type of message
+    // don't process messageType_t::none type of message
     if (descriptor.messageType != messageType_t::none)
     {
         if (descriptor.messageType == messageType_t::presetOpenDeck)
         {
-            //change preset only on press
+            // change preset only on press
             if (reading)
             {
-                //don't send off message once the preset is switched (in case this button has standard message type in switched preset)
-                //pretend the button is already released
+                // don't send off message once the preset is switched (in case this button has standard message type in switched preset)
+                // pretend the button is already released
                 setState(index, false);
                 _database.setPreset(descriptor.dispatchMessage.midiIndex);
             }
@@ -128,13 +128,13 @@ void Buttons::processButton(size_t index, bool reading, buttonDescriptor_t& desc
 
             if (descriptor.type == type_t::latching)
             {
-                //act on press only
+                // act on press only
                 if (reading)
                 {
                     if (latchingState(index))
                     {
                         setLatchingState(index, false);
-                        //overwrite before processing
+                        // overwrite before processing
                         reading = false;
                     }
                     else
@@ -385,7 +385,7 @@ void Buttons::fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor)
     descriptor.dispatchMessage.midiIndex      = _database.read(Database::Section::button_t::midiID, index);
     descriptor.dispatchMessage.midiValue      = _database.read(Database::Section::button_t::velocity, index);
 
-    //overwrite type under certain conditions
+    // overwrite type under certain conditions
     switch (descriptor.messageType)
     {
     case messageType_t::programChange:

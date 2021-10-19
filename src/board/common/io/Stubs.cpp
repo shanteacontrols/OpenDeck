@@ -19,8 +19,8 @@ limitations under the License.
 #include "board/Board.h"
 #include "board/Internal.h"
 
-//stub functions used so that firmware can be compiled without resorting to ifdef mess if
-//some IO module isn't supported
+// stub functions used so that firmware can be compiled without resorting to ifdef mess if
+// some IO module isn't supported
 
 namespace Board
 {

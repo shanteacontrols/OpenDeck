@@ -47,10 +47,10 @@ class Viewtech : public IO::TouchscreenBase, public IO::TouchscreenBase::Common
 
     IO::TouchscreenBase::HWA& _hwa;
 
-    //as fast as possible on viewtech - minimum variable response is 80ms
+    // as fast as possible on viewtech - minimum variable response is 80ms
     static constexpr uint32_t XY_POLL_TIME_MS = 80;
 
-    //there are 7 levels of brighness - scale them to available range (0-64)
+    // there are 7 levels of brighness - scale them to available range (0-64)
     const uint8_t _brightnessMapping[7] = {
         6,
         16,
