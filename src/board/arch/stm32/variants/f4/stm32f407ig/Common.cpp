@@ -28,10 +28,10 @@ limitations under the License.
 
 namespace
 {
-    class UARTdescriptor1 : public Board::detail::map::STMPeripheral
+    class UARTdescriptor0 : public Board::detail::map::STMPeripheral
     {
         public:
-        UARTdescriptor1() = default;
+        UARTdescriptor0() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -60,6 +60,7 @@ namespace
 
         private:
         std::vector<core::io::mcuPin_t> _pins = {
+            // rx
             {
                 .port      = GPIOA,
                 .index     = GPIO_PIN_10,
@@ -69,6 +70,7 @@ namespace
                 .alternate = GPIO_AF7_USART1,
             },
 
+            // tx
             {
                 .port      = GPIOA,
                 .index     = GPIO_PIN_9,
@@ -82,10 +84,10 @@ namespace
         const IRQn_Type _irqn = USART1_IRQn;
     } _uartDescriptor0;
 
-    class UARTdescriptor2 : public Board::detail::map::STMPeripheral
+    class UARTdescriptor1 : public Board::detail::map::STMPeripheral
     {
         public:
-        UARTdescriptor2() = default;
+        UARTdescriptor1() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -114,6 +116,7 @@ namespace
 
         private:
         std::vector<core::io::mcuPin_t> _pins = {
+            // rx
             {
                 .port      = GPIOD,
                 .index     = GPIO_PIN_6,
@@ -123,6 +126,7 @@ namespace
                 .alternate = GPIO_AF7_USART2,
             },
 
+            // tx
             {
                 .port      = GPIOD,
                 .index     = GPIO_PIN_5,
@@ -136,10 +140,10 @@ namespace
         const IRQn_Type _irqn = USART2_IRQn;
     } _uartDescriptor1;
 
-    class UARTdescriptor3 : public Board::detail::map::STMPeripheral
+    class UARTdescriptor2 : public Board::detail::map::STMPeripheral
     {
         public:
-        UARTdescriptor3() = default;
+        UARTdescriptor2() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -168,6 +172,7 @@ namespace
 
         private:
         std::vector<core::io::mcuPin_t> _pins = {
+            // rx
             {
                 .port      = GPIOB,
                 .index     = GPIO_PIN_11,
@@ -177,6 +182,7 @@ namespace
                 .alternate = GPIO_AF7_USART3,
             },
 
+            // tx
             {
                 .port      = GPIOB,
                 .index     = GPIO_PIN_10,
@@ -190,10 +196,10 @@ namespace
         const IRQn_Type _irqn = USART3_IRQn;
     } _uartDescriptor2;
 
-    class UARTdescriptor4 : public Board::detail::map::STMPeripheral
+    class UARTdescriptor3 : public Board::detail::map::STMPeripheral
     {
         public:
-        UARTdescriptor4() = default;
+        UARTdescriptor3() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -222,6 +228,7 @@ namespace
 
         private:
         std::vector<core::io::mcuPin_t> _pins = {
+            // rx
             {
                 .port      = GPIOC,
                 .index     = GPIO_PIN_11,
@@ -231,6 +238,7 @@ namespace
                 .alternate = GPIO_AF8_UART4,
             },
 
+            // tx
             {
                 .port      = GPIOC,
                 .index     = GPIO_PIN_10,
@@ -244,10 +252,10 @@ namespace
         const IRQn_Type _irqn = UART4_IRQn;
     } _uartDescriptor3;
 
-    class UARTdescriptor5 : public Board::detail::map::STMPeripheral
+    class UARTdescriptor4 : public Board::detail::map::STMPeripheral
     {
         public:
-        UARTdescriptor5() = default;
+        UARTdescriptor4() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -276,6 +284,7 @@ namespace
 
         private:
         std::vector<core::io::mcuPin_t> _pins = {
+            // rx
             {
                 .port      = GPIOD,
                 .index     = GPIO_PIN_2,
@@ -285,6 +294,7 @@ namespace
                 .alternate = GPIO_AF8_UART5,
             },
 
+            // tx
             {
                 .port      = GPIOC,
                 .index     = GPIO_PIN_12,
@@ -298,10 +308,10 @@ namespace
         const IRQn_Type _irqn = UART5_IRQn;
     } _uartDescriptor4;
 
-    class UARTdescriptor6 : public Board::detail::map::STMPeripheral
+    class UARTdescriptor5 : public Board::detail::map::STMPeripheral
     {
         public:
-        UARTdescriptor6() = default;
+        UARTdescriptor5() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -330,6 +340,7 @@ namespace
 
         private:
         std::vector<core::io::mcuPin_t> _pins = {
+            // rx
             {
                 .port      = GPIOC,
                 .index     = GPIO_PIN_7,
@@ -339,6 +350,7 @@ namespace
                 .alternate = GPIO_AF8_USART6,
             },
 
+            // tx
             {
                 .port      = GPIOC,
                 .index     = GPIO_PIN_6,
@@ -352,10 +364,10 @@ namespace
         const IRQn_Type _irqn = USART6_IRQn;
     } _uartDescriptor5;
 
-    class I2Cdescriptor1 : public Board::detail::map::STMPeripheral
+    class I2Cdescriptor0 : public Board::detail::map::STMPeripheral
     {
         public:
-        I2Cdescriptor1() = default;
+        I2Cdescriptor0() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -384,6 +396,7 @@ namespace
 
         private:
         std::vector<core::io::mcuPin_t> _pins = {
+            // sda
             {
                 .port      = GPIOB,
                 .index     = GPIO_PIN_7,
@@ -393,6 +406,7 @@ namespace
                 .alternate = GPIO_AF4_I2C1,
             },
 
+            // scl
             {
                 .port      = GPIOB,
                 .index     = GPIO_PIN_6,
@@ -406,10 +420,10 @@ namespace
         const IRQn_Type _irqn = static_cast<IRQn_Type>(0);
     } _i2cDescriptor0;
 
-    class I2Cdescriptor2 : public Board::detail::map::STMPeripheral
+    class I2Cdescriptor1 : public Board::detail::map::STMPeripheral
     {
         public:
-        I2Cdescriptor2() = default;
+        I2Cdescriptor1() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -438,6 +452,7 @@ namespace
 
         private:
         std::vector<core::io::mcuPin_t> _pins = {
+            // sda
             {
                 .port      = GPIOF,
                 .index     = GPIO_PIN_0,
@@ -447,6 +462,7 @@ namespace
                 .alternate = GPIO_AF4_I2C2,
             },
 
+            // scl
             {
                 .port      = GPIOF,
                 .index     = GPIO_PIN_1,
@@ -460,10 +476,10 @@ namespace
         const IRQn_Type _irqn = static_cast<IRQn_Type>(0);
     } _i2cDescriptor1;
 
-    class I2Cdescriptor3 : public Board::detail::map::STMPeripheral
+    class I2Cdescriptor2 : public Board::detail::map::STMPeripheral
     {
         public:
-        I2Cdescriptor3() = default;
+        I2Cdescriptor2() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -492,6 +508,7 @@ namespace
 
         private:
         std::vector<core::io::mcuPin_t> _pins = {
+            // sda
             {
                 .port      = GPIOH,
                 .index     = GPIO_PIN_8,
@@ -501,6 +518,7 @@ namespace
                 .alternate = GPIO_AF4_I2C3,
             },
 
+            // scl
             {
                 .port      = GPIOH,
                 .index     = GPIO_PIN_7,

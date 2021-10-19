@@ -28,10 +28,10 @@ limitations under the License.
 
 namespace
 {
-    class UARTdescriptor1 : public Board::detail::map::STMPeripheral
+    class UARTdescriptor0 : public Board::detail::map::STMPeripheral
     {
         public:
-        UARTdescriptor1() = default;
+        UARTdescriptor0() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -60,6 +60,7 @@ namespace
 
         private:
         std::vector<core::io::mcuPin_t> _pins = {
+            // rx
             {
                 .port      = GPIOA,
                 .index     = GPIO_PIN_10,
@@ -69,6 +70,7 @@ namespace
                 .alternate = GPIO_AF7_USART1,
             },
 
+            // tx
             {
                 .port      = GPIOA,
                 .index     = GPIO_PIN_9,
@@ -82,10 +84,10 @@ namespace
         const IRQn_Type _irqn = USART1_IRQn;
     } _uartDescriptor0;
 
-    class UARTdescriptor2 : public Board::detail::map::STMPeripheral
+    class UARTdescriptor1 : public Board::detail::map::STMPeripheral
     {
         public:
-        UARTdescriptor2() = default;
+        UARTdescriptor1() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -114,6 +116,7 @@ namespace
 
         private:
         std::vector<core::io::mcuPin_t> _pins = {
+            // rx
             {
                 .port      = GPIOA,
                 .index     = GPIO_PIN_3,
@@ -123,6 +126,7 @@ namespace
                 .alternate = GPIO_AF7_USART2,
             },
 
+            // tx
             {
                 .port      = GPIOA,
                 .index     = GPIO_PIN_2,
@@ -136,10 +140,10 @@ namespace
         const IRQn_Type _irqn = USART2_IRQn;
     } _uartDescriptor1;
 
-    class UARTdescriptor3 : public Board::detail::map::STMPeripheral
+    class UARTdescriptor2 : public Board::detail::map::STMPeripheral
     {
         public:
-        UARTdescriptor3() = default;
+        UARTdescriptor2() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -168,18 +172,20 @@ namespace
 
         private:
         std::vector<core::io::mcuPin_t> _pins = {
+            // rx
             {
                 .port      = GPIOA,
-                .index     = GPIO_PIN_11,
+                .index     = GPIO_PIN_12,
                 .mode      = core::io::pinMode_t::alternatePP,
                 .pull      = core::io::pullMode_t::none,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
                 .alternate = GPIO_AF8_USART6,
             },
 
+            // tx
             {
                 .port      = GPIOA,
-                .index     = GPIO_PIN_12,
+                .index     = GPIO_PIN_11,
                 .mode      = core::io::pinMode_t::alternatePP,
                 .pull      = core::io::pullMode_t::none,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
@@ -190,10 +196,10 @@ namespace
         const IRQn_Type _irqn = USART6_IRQn;
     } _uartDescriptor2;
 
-    class I2Cdescriptor1 : public Board::detail::map::STMPeripheral
+    class I2Cdescriptor0 : public Board::detail::map::STMPeripheral
     {
         public:
-        I2Cdescriptor1() = default;
+        I2Cdescriptor0() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -222,18 +228,20 @@ namespace
 
         private:
         std::vector<core::io::mcuPin_t> _pins = {
+            // sda
             {
                 .port      = GPIOB,
-                .index     = GPIO_PIN_6,
+                .index     = GPIO_PIN_7,
                 .mode      = core::io::pinMode_t::alternateOD,
                 .pull      = core::io::pullMode_t::up,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
                 .alternate = GPIO_AF4_I2C1,
             },
 
+            // scl
             {
                 .port      = GPIOB,
-                .index     = GPIO_PIN_7,
+                .index     = GPIO_PIN_6,
                 .mode      = core::io::pinMode_t::alternateOD,
                 .pull      = core::io::pullMode_t::up,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
@@ -244,10 +252,10 @@ namespace
         const IRQn_Type _irqn = static_cast<IRQn_Type>(0);
     } _i2cDescriptor0;
 
-    class I2Cdescriptor2 : public Board::detail::map::STMPeripheral
+    class I2Cdescriptor1 : public Board::detail::map::STMPeripheral
     {
         public:
-        I2Cdescriptor2() = default;
+        I2Cdescriptor1() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -276,18 +284,20 @@ namespace
 
         private:
         std::vector<core::io::mcuPin_t> _pins = {
+            // sda
             {
                 .port      = GPIOB,
-                .index     = GPIO_PIN_10,
+                .index     = GPIO_PIN_3,
                 .mode      = core::io::pinMode_t::alternateOD,
                 .pull      = core::io::pullMode_t::up,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
                 .alternate = GPIO_AF4_I2C2,
             },
 
+            // scl
             {
                 .port      = GPIOB,
-                .index     = GPIO_PIN_3,
+                .index     = GPIO_PIN_10,
                 .mode      = core::io::pinMode_t::alternateOD,
                 .pull      = core::io::pullMode_t::up,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
@@ -298,10 +308,10 @@ namespace
         const IRQn_Type _irqn = static_cast<IRQn_Type>(0);
     } _i2cDescriptor1;
 
-    class I2Cdescriptor3 : public Board::detail::map::STMPeripheral
+    class I2Cdescriptor2 : public Board::detail::map::STMPeripheral
     {
         public:
-        I2Cdescriptor3() = default;
+        I2Cdescriptor2() = default;
 
         std::vector<core::io::mcuPin_t> pins() override
         {
@@ -330,18 +340,20 @@ namespace
 
         private:
         std::vector<core::io::mcuPin_t> _pins = {
+            // sda
             {
-                .port      = GPIOA,
-                .index     = GPIO_PIN_8,
+                .port      = GPIOB,
+                .index     = GPIO_PIN_4,
                 .mode      = core::io::pinMode_t::alternateOD,
                 .pull      = core::io::pullMode_t::up,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
                 .alternate = GPIO_AF4_I2C3,
             },
 
+            // scl
             {
-                .port      = GPIOB,
-                .index     = GPIO_PIN_4,
+                .port      = GPIOA,
+                .index     = GPIO_PIN_8,
                 .mode      = core::io::pinMode_t::alternateOD,
                 .pull      = core::io::pullMode_t::up,
                 .speed     = core::io::gpioSpeed_t::veryHigh,
