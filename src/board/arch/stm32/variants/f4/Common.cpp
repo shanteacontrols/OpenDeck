@@ -155,7 +155,7 @@ namespace Board
                 {
                     sConfig.Channel      = map::adcChannel(i);
                     sConfig.Rank         = 1;
-                    sConfig.SamplingTime = ADC_SAMPLETIME_112CYCLES;
+                    sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
                     HAL_ADC_ConfigChannel(&_adcHandler, &sConfig);
                 }
 

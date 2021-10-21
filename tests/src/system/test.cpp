@@ -526,7 +526,6 @@ TEST_CASE(ForcedResendOnPresetChange)
 
     _hwaMIDI.reset();
 
-    // unrealistic value - also expect filter to scale this to maximum MIDI value
     _hwaAnalog.adcReturnValue = 0xFFFF;
 
     systemStub.run();    // buttons
@@ -539,7 +538,7 @@ TEST_CASE(ForcedResendOnPresetChange)
     TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _hwaMIDI.usbWritePackets.at(0).Event << 4);
     TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _hwaMIDI.usbWritePackets.at(0).Data1);
     TEST_ASSERT_EQUAL_UINT32(0, _hwaMIDI.usbWritePackets.at(0).Data2);
-    TEST_ASSERT_EQUAL_UINT32(127, _hwaMIDI.usbWritePackets.at(0).Data3);
+    TEST_ASSERT(_hwaMIDI.usbWritePackets.at(0).Data3 > 0);    // due to filtering it is not certain what the value will be
 
     // now change preset and verify that the same midi message is repeated
     _hwaMIDI.reset();

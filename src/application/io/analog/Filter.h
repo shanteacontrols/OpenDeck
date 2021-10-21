@@ -29,11 +29,11 @@ limitations under the License.
 #include "core/src/general/Helpers.h"
 
 #ifndef MEDIAN_SAMPLE_COUNT
-#define MEDIAN_SAMPLE_COUNT 5
+#define MEDIAN_SAMPLE_COUNT 3
 #endif
 
 #ifndef MEDIAN_MIDDLE_VALUE
-#define MEDIAN_MIDDLE_VALUE 3
+#define MEDIAN_MIDDLE_VALUE 1
 #endif
 
 // Define if analog MIDI values can't reach 0.
@@ -55,6 +55,28 @@ limitations under the License.
 
 namespace IO
 {
+    class EMA
+    {
+        // exponential moving average filter
+        public:
+        EMA() = default;
+
+        uint16_t value(uint16_t rawData)
+        {
+            _currentValue = (PERCENTAGE * static_cast<uint32_t>(rawData) + (100 - PERCENTAGE) * static_cast<uint32_t>(_currentValue)) / 100;
+            return _currentValue;
+        }
+
+        void reset()
+        {
+            _currentValue = 0;
+        }
+
+        private:
+        static constexpr uint32_t PERCENTAGE    = 50;
+        uint16_t                  _currentValue = 0;
+    };
+
     class AnalogFilter : public Analog::Filter
     {
         public:
@@ -110,11 +132,21 @@ namespace IO
                 return 0;
             };
 
-            const bool     fastFilter = (index < MAX_NUMBER_OF_ANALOG) ? (core::timing::currentRunTimeMs() - _lastStableMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS : true;
-            const bool     use14bit   = (type == Analog::type_t::nrpn14bit) || (type == Analog::type_t::pitchBend) || (type == Analog::type_t::controlChange14bit);
-            const uint16_t maxLimit   = use14bit ? MIDI::MIDI_14_BIT_VALUE_MAX : MIDI::MIDI_7_BIT_VALUE_MAX;
-            const bool     direction  = value >= _lastStableValue[index];
-            const uint16_t stepDiff   = !use14bit || (direction != _lastStableDirection[index]) || !fastFilter ? _stepDiff7Bit : _adcConfig.stepDiff14Bit;
+            const bool     fastFilter   = (index < MAX_NUMBER_OF_ANALOG) ? (core::timing::currentRunTimeMs() - _lastStableMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS : true;
+            const bool     use14bit     = (type == Analog::type_t::nrpn14bit) || (type == Analog::type_t::pitchBend) || (type == Analog::type_t::controlChange14bit);
+            const uint16_t maxLimit     = use14bit ? MIDI::MIDI_14_BIT_VALUE_MAX : MIDI::MIDI_7_BIT_VALUE_MAX;
+            const bool     direction    = value >= _lastStableValue[index];
+            const auto     oldMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(_lastStableValue[index]), static_cast<uint32_t>(minValue), static_cast<uint32_t>(maxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
+            uint16_t       stepDiff     = 0;
+
+            if (((direction != _lastStableDirection[index]) || !fastFilter) && ((oldMIDIvalue != 0) && (oldMIDIvalue != maxLimit)))
+            {
+                stepDiff = _stepDiff7Bit * 2;
+            }
+            else
+            {
+                stepDiff = !use14bit || fastFilter ? _stepDiff7Bit : _adcConfig.stepDiff14Bit;
+            }
 
             if (abs(value - _lastStableValue[index]) < stepDiff)
             {
@@ -154,8 +186,9 @@ namespace IO
                 filteredValue = value;
             }
 
-            const auto midiValue    = core::misc::mapRange(static_cast<uint32_t>(filteredValue), static_cast<uint32_t>(minValue), static_cast<uint32_t>(maxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
-            const auto oldMIDIvalue = core::misc::mapRange(static_cast<uint32_t>(_lastStableValue[index]), static_cast<uint32_t>(minValue), static_cast<uint32_t>(maxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
+            filteredValue = _emaFilter[index].value(filteredValue);
+
+            const auto midiValue = core::misc::mapRange(static_cast<uint32_t>(filteredValue), static_cast<uint32_t>(minValue), static_cast<uint32_t>(maxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
 
             if (midiValue == oldMIDIvalue)
                 return false;
@@ -232,9 +265,10 @@ namespace IO
         adcConfig_t&                _adcConfig;
         const uint16_t              _stepDiff7Bit;
 
+        EMA                       _emaFilter[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS];
         uint32_t                  _adcMinValueOffset                                                                = 0;
         uint32_t                  _adcMaxValueOffset                                                                = 0;
-        static constexpr uint32_t FAST_FILTER_ENABLE_AFTER_MS                                                       = 100;
+        static constexpr uint32_t FAST_FILTER_ENABLE_AFTER_MS                                                       = 50;
         uint16_t                  _analogSample[MAX_NUMBER_OF_ANALOG][MEDIAN_SAMPLE_COUNT]                          = {};
         size_t                    _medianSampleCounter[MAX_NUMBER_OF_ANALOG]                                        = {};
         uint32_t                  _lastStableMovementTime[MAX_NUMBER_OF_ANALOG]                                     = {};
