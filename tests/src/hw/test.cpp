@@ -74,7 +74,7 @@ namespace
         LOG(INFO) << "Reboting the board";
 
         TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
-        MIDIHelper::sendRawSysEx(reboot_req, false);
+        TEST_ASSERT(std::string("") == MIDIHelper::sendRawSysEx(reboot_req, false));
         test::sleepMs(startup_delay_ms);
 
         if (!MIDIHelper::devicePresent())
@@ -102,7 +102,7 @@ namespace
         LOG(INFO) << "Performing factory reset";
 
         TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
-        MIDIHelper::sendRawSysEx(factory_reset_req, false);
+        TEST_ASSERT(std::string("") == MIDIHelper::sendRawSysEx(factory_reset_req, false));
 
         test::sleepMs(startup_delay_ms);
 
@@ -131,7 +131,7 @@ namespace
         LOG(INFO) << "Entering bootloader mode";
 
         TEST_ASSERT(handshake_ack == MIDIHelper::sendRawSysEx(handshake_req));
-        MIDIHelper::sendRawSysEx(btldr_req, false);
+        TEST_ASSERT(std::string("") == MIDIHelper::sendRawSysEx(btldr_req, false));
 
         test::sleepMs(startup_delay_ms);
 

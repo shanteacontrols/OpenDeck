@@ -254,7 +254,7 @@ class MIDIHelper
 #endif
     }
 
-    static std::string sendRawSysEx(std::string req, bool verifyResponse = true)
+    static std::string sendRawSysEx(std::string req, bool expectResponse = true)
     {
         std::string cmdResponse;
         std::string lastResponseFileLocation = "/tmp/midi_in_data.txt";
@@ -272,7 +272,11 @@ class MIDIHelper
             return "";
         }
 
-        if (verifyResponse)
+        const uint32_t waitTimeMs    = 10;
+        const uint32_t stopWaitAfter = 2000;
+        uint32_t       totalWaitTime = 0;
+
+        if (expectResponse)
         {
             // change status byte to ack
             req[13] = '1';
@@ -280,10 +284,7 @@ class MIDIHelper
             // remove everything after request/wish byte
             std::string pattern = req.substr(0, 20) + ".*F7";
 
-            cmd                          = "cat " + lastResponseFileLocation + " | xargs | sed 's/F7/F7\\n/g' | sed 's/F0/\\nF0/g' | grep -m 1 -E '" + pattern + "'";
-            const uint32_t waitTimeMs    = 10;
-            const uint32_t stopWaitAfter = 2000;
-            uint32_t       totalWaitTime = 0;
+            cmd = "cat " + lastResponseFileLocation + " | xargs | sed 's/F7/F7\\n/g' | sed 's/F0/\\nF0/g' | grep -m 1 -E '" + pattern + "'";
 
             while (test::wsystem(cmd, cmdResponse))
             {
@@ -311,10 +312,25 @@ class MIDIHelper
         }
         else
         {
-            test::sleepMs(100);
-            test::wsystem("killall amidi > /dev/null 2>&1");
+            cmd         = "[ -s " + lastResponseFileLocation + " ]";
+            cmdResponse = "";
 
-            return "";
+            while (totalWaitTime < stopWaitAfter)
+            {
+                test::sleepMs(waitTimeMs);
+                totalWaitTime += waitTimeMs;
+
+                if (test::wsystem(cmd) == 0)
+                {
+                    LOG(ERROR) << "Got response while expecting none. Outputting response:";
+                    test::wsystem("cat " + lastResponseFileLocation, cmdResponse);
+                    LOG(INFO) << cmdResponse;
+                    break;
+                }
+            }
+
+            test::wsystem("killall amidi > /dev/null 2>&1");
+            return cmdResponse;
         }
     }
 
