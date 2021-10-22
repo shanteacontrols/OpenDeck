@@ -70,7 +70,8 @@ uint8_t System::SysExDataHandler::customRequest(uint16_t request, CustomResponse
 
     case SYSEX_CR_FACTORY_RESET:
     {
-        _system._database.factoryReset();
+        if (!_system._database.factoryReset())
+            result = static_cast<uint8_t>(SysExConf::status_t::errorWrite);
     }
     break;
 
