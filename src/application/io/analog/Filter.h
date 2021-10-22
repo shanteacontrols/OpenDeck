@@ -186,7 +186,8 @@ namespace IO
                 filteredValue = value;
             }
 
-            filteredValue = _emaFilter[index].value(filteredValue);
+            if (index < MAX_NUMBER_OF_ANALOG)
+                filteredValue = _emaFilter[index].value(filteredValue);
 
             const auto midiValue = core::misc::mapRange(static_cast<uint32_t>(filteredValue), static_cast<uint32_t>(minValue), static_cast<uint32_t>(maxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
 
@@ -265,7 +266,7 @@ namespace IO
         adcConfig_t&                _adcConfig;
         const uint16_t              _stepDiff7Bit;
 
-        EMA                       _emaFilter[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS];
+        EMA                       _emaFilter[MAX_NUMBER_OF_ANALOG];
         uint32_t                  _adcMinValueOffset                                                                = 0;
         uint32_t                  _adcMaxValueOffset                                                                = 0;
         static constexpr uint32_t FAST_FILTER_ENABLE_AFTER_MS                                                       = 50;
