@@ -281,8 +281,7 @@ bool System::init()
                          ESTA_ID,
                          0x00,
                          { SW_VERSION_MAJOR,
-                           SW_VERSION_MINOR,
-                           SW_VERSION_REVISION },
+                           SW_VERSION_MINOR },
                          "Shantea Controls",
                          BOARD_STRING });
 
