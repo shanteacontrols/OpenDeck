@@ -1,0 +1,214 @@
+---
+  mcu: "stm32f407vg"
+  extClockMhz: 8
+  usb: true
+  dinMIDI:
+    uartChannel: 0
+  display:
+    i2cChannel: 2
+  touchscreen:
+    uartChannel: 1
+    components: 64
+  dmx:
+    uartChannel: 0
+  buttons:
+    type: "native"
+    pins:
+    -
+      port: "E"
+      index: 2
+    -
+      port: "E"
+      index: 3
+    -
+      port: "E"
+      index: 4
+    - 
+      port: "E"
+      index: 5
+    -
+      port: "E"
+      index: 5
+    -
+      port: "C"
+      index: 13
+    -
+      port: "D"
+      index: 7
+    -
+      port: "D"
+      index: 4
+    -
+      port: "D"
+      index: 3
+    -
+      port: "D"
+      index: 2
+    -
+      port: "D"
+      index: 1
+    -
+      port: "D"
+      index: 0
+    -
+      port: "C"
+      index: 12
+    -
+      port: "C"
+      index: 11
+    -
+      port: "C"
+      index: 10
+    -
+      port: "A"
+      index: 15
+    -
+      port: "C"
+      index: 8
+    -
+      port: "C"
+      index: 7
+    -
+      port: "C"
+      index: 6
+    -
+      port: "D"
+      index: 15
+    -
+      port: "D"
+      index: 14
+    -
+      port: "D"
+      index: 13
+    -
+      port: "D"
+      index: 12
+    -
+      port: "D"
+      index: 11
+    -
+      port: "D"
+      index: 10
+    -
+      port: "D"
+      index: 9
+    -
+      port: "D"
+      index: 8
+    -
+      port: "B"
+      index: 15
+  analog:
+    type: "native"
+    pins:
+    -
+      port: "A"
+      index: 0
+    -
+      port: "A"
+      index: 1
+    -
+      port: "A"
+      index: 2
+    -
+      port: "A"
+      index: 3
+    -
+      port: "A"
+      index: 4
+    -
+      port: "A"
+      index: 5
+    -
+      port: "C"
+      index: 0
+    -
+      port: "C"
+      index: 1
+    -
+      port: "C"
+      index: 2
+    -
+      port: "C"
+      index: 3
+    -
+      port: "C"
+      index: 4
+    -
+      port: "C"
+      index: 5
+  leds:
+    internal:
+      invert: true
+      pins:
+        din:
+          rx:
+            port: "A"
+            index: 6
+          tx:
+            port: "A"
+            index: 7
+        usb:
+          rx:
+            port: "A"
+            index: 6
+          tx:
+            port: "A"
+            index: 7
+    external:
+      type: "native"
+      pins:
+      -
+        port: "B"
+        index: 1
+      -
+        port: "E"
+        index: 7
+      -
+        port: "E"
+        index: 8
+      -
+        port: "E"
+        index: 9
+      -
+        port: "E"
+        index: 10
+      -
+        port: "E"
+        index: 11
+      -
+        port: "E"
+        index: 12
+      -
+        port: "E"
+        index: 13
+      -
+        port: "E"
+        index: 14
+      -
+        port: "E"
+        index: 15
+      -
+        port: "B"
+        index: 10
+      -
+        port: "B"
+        index: 11
+      -
+        port: "B"
+        index: 12
+      -
+        port: "B"
+        index: 13
+      -
+        port: "B"
+        index: 14
+      -
+        port: "E"
+        index: 1
+      -
+        port: "E"
+        index: 0
+      -
+        port: "B"
+        index: 9
