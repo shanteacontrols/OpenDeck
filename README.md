@@ -40,6 +40,7 @@ Latest stable version of the UI is always available on [this link](https://confi
 OpenDeck firmware is compatible with [official OpenDeck board](https://www.tindie.com/products/paradajz/opendeck-diy-midi-platform/), as well as various other boards:
 
 * [Arduino Mega2560](https://store.arduino.cc/products/arduino-mega-2560-rev3)
+* [Arduino Mega2560 Pro Mini / Meduino](http://wiki.epalsite.com/index.php?title=Mega2560_Pro_Mini)
 * [Mux Shield v2 with Arduino Mega2560](https://mayhewlabs.com/products/mux-shield-2)
 * [Teensy++ 2.0](https://www.pjrc.com/store/teensypp.html)
 * [STM32F4 Discovery](https://www.st.com/en/evaluation-tools/stm32f4discovery.html)
