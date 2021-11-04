@@ -448,7 +448,9 @@ namespace
         } _hwaProtocol;
     } _hwaSystem;
 
-    void sendAndVerifySysExRequest(System& systemStub, const std::vector<uint8_t> request, const std::vector<uint8_t> response)
+    System systemStub(_hwaSystem, _database);
+
+    void sendAndVerifySysExRequest(const std::vector<uint8_t> request, const std::vector<uint8_t> expectedResponse)
     {
         _hwaMIDI.usbReadPackets = MIDIHelper::rawSysExToUSBPackets(request);
         // store this in a variable since every midi.read call will decrement the size of buffer
@@ -462,16 +464,22 @@ namespace
         // convert it to raw bytes for easier parsing
         auto rawBytes = MIDIHelper::usbSysExToRawBytes(_hwaMIDI.usbWritePackets);
 
+        bool responseVerified = false;
+
         for (size_t i = 0; i < rawBytes.size(); i++)
         {
             // it's possible that the first response isn't sysex but some component message
-            if (rawBytes.at(i) != response.at(0))
+            if (rawBytes.at(i) != expectedResponse.at(0))
                 continue;
 
             // once F0 is found, however, it should be expected response
             for (size_t sysExByte = 0; sysExByte < rawBytes.size() - i; sysExByte++)
-                TEST_ASSERT_EQUAL_UINT32(rawBytes.at(sysExByte), response.at(sysExByte));
+                TEST_ASSERT_EQUAL_UINT32(expectedResponse.at(sysExByte), rawBytes.at(sysExByte + i));
+
+            responseVerified = true;
         }
+
+        TEST_ASSERT(responseVerified == true);
     }
 }    // namespace
 
@@ -482,8 +490,6 @@ TEST_SETUP()
 
 TEST_CASE(SystemInit)
 {
-    System systemStub(_hwaSystem, _database);
-
     // on init, factory reset is performed so everything is in its default state
     TEST_ASSERT(systemStub.init() == true);
 
@@ -513,8 +519,6 @@ TEST_CASE(SystemInit)
 
 TEST_CASE(ForcedResendOnPresetChange)
 {
-    System systemStub(_hwaSystem, _database);
-
     _database.factoryReset();
     TEST_ASSERT(systemStub.init() == true);
 
@@ -545,8 +549,7 @@ TEST_CASE(ForcedResendOnPresetChange)
     _hwaMIDI.reset();
 
     // handshake
-    sendAndVerifySysExRequest(systemStub,
-                              { 0xF0,
+    sendAndVerifySysExRequest({ 0xF0,
                                 0x00,
                                 0x53,
                                 0x43,
@@ -568,8 +571,7 @@ TEST_CASE(ForcedResendOnPresetChange)
     std::vector<uint8_t> generatedSysExReq;
     MIDIHelper::generateSysExSetReq(System::Section::global_t::presets, static_cast<size_t>(System::presetSetting_t::activePreset), 1, generatedSysExReq);
 
-    sendAndVerifySysExRequest(systemStub,
-                              generatedSysExReq,
+    sendAndVerifySysExRequest(generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
@@ -606,16 +608,14 @@ TEST_CASE(ForcedResendOnPresetChange)
     TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_BUTTONS + 1) * 3, channelMessages);
 }
 
+#ifdef LEDS_SUPPORTED
 TEST_CASE(PresetChangeIndicatedOnLEDs)
 {
-    System systemStub(_hwaSystem, _database);
-
     _database.factoryReset();
     TEST_ASSERT(systemStub.init() == true);
 
     // handshake
-    sendAndVerifySysExRequest(systemStub,
-                              { 0xF0,
+    sendAndVerifySysExRequest({ 0xF0,
                                 0x00,
                                 0x53,
                                 0x43,
@@ -637,8 +637,7 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
     // configure the first LED to indicate current preset
     MIDIHelper::generateSysExSetReq(System::Section::leds_t::controlType, 0, static_cast<size_t>(IO::LEDs::controlType_t::midiInPCSingleVal), generatedSysExReq);
 
-    sendAndVerifySysExRequest(systemStub,
-                              generatedSysExReq,
+    sendAndVerifySysExRequest(generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
@@ -657,8 +656,7 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
 
     MIDIHelper::generateSysExSetReq(System::Section::global_t::presets, static_cast<size_t>(System::presetSetting_t::activePreset), 1, generatedSysExReq);
 
-    sendAndVerifySysExRequest(systemStub,
-                              generatedSysExReq,
+    sendAndVerifySysExRequest(generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
@@ -678,8 +676,7 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
     // led 0 shouldn't be on since in preset 1, led doesn't indicate preset
     MIDIHelper::generateSysExGetReq(System::Section::leds_t::testColor, 0, generatedSysExReq);
 
-    sendAndVerifySysExRequest(systemStub,
-                              generatedSysExReq,
+    sendAndVerifySysExRequest(generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
@@ -692,15 +689,16 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 static_cast<uint8_t>(System::Section::leds_t::testColor),
                                 0x00,    // LED 0
                                 0x00,
+                                0x00,    // new value / blank
+                                0x00,    // new value / blank
                                 0x00,
-                                0x00,    // 0 - led is off
+                                0x00,    // LED state - off
                                 0xF7 });
 
     // now switch to preset 0 and expect the LED 0 to be on
     MIDIHelper::generateSysExSetReq(System::Section::global_t::presets, static_cast<size_t>(System::presetSetting_t::activePreset), 0, generatedSysExReq);
 
-    sendAndVerifySysExRequest(systemStub,
-                              generatedSysExReq,
+    sendAndVerifySysExRequest(generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
@@ -713,14 +711,13 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 0x02,    // section 2 (presets)
                                 0x00,    // active preset
                                 0x00,
-                                0x00,    // preset 1
-                                0x01,
+                                0x00,    // preset 0
+                                0x00,
                                 0xF7 });
 
     MIDIHelper::generateSysExGetReq(System::Section::leds_t::testColor, 0, generatedSysExReq);
 
-    sendAndVerifySysExRequest(systemStub,
-                              generatedSysExReq,
+    sendAndVerifySysExRequest(generatedSysExReq,
                               { 0xF0,
                                 0x00,
                                 0x53,
@@ -733,9 +730,12 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 static_cast<uint8_t>(System::Section::leds_t::testColor),
                                 0x00,    // LED 0
                                 0x00,
+                                0x00,    // new value / blank
+                                0x00,    // new value / blank
                                 0x00,
-                                0x01,    // 1 - led is on
+                                0x01,    // LED state - on
                                 0xF7 });
 }
+#endif
 
 #endif
