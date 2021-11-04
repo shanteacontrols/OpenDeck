@@ -115,6 +115,21 @@ LEDs::LEDs(HWA&                     hwa,
                               break;
                           }
                       });
+
+    dispatcher.listen(Util::MessageDispatcher::messageSource_t::preset,
+                      Util::MessageDispatcher::listenType_t::all,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          setAllOff();
+
+                          for (int i = 0; i < 16; i++)
+                          {
+                              midiToState(MIDI::messageType_t::programChange,
+                                          0,
+                                          0,
+                                          i,
+                                          Util::MessageDispatcher::messageSource_t::preset);
+                          }
+                      });
 }
 
 void LEDs::init(bool startUp)

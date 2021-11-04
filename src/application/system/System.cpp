@@ -140,12 +140,16 @@ uint8_t System::SysExDataHandler::customRequest(uint16_t request, CustomResponse
 
 void System::DBhandlers::presetChange(uint8_t preset)
 {
-    _system._leds.setAllOff();
-
     if (_system._backupRestoreState == backupRestoreState_t::none)
     {
-        _system._display.setPreset(preset);
         _system._scheduler.registerTask({ [this]() { _system.forceComponentRefresh(); }, FORCED_VALUE_RESEND_DELAY });
+
+        Util::MessageDispatcher::message_t dispatchMessage;
+        dispatchMessage.componentIndex = preset;
+
+        _system._dispatcher.notify(Util::MessageDispatcher::messageSource_t::preset,
+                                   dispatchMessage,
+                                   Util::MessageDispatcher::listenType_t::nonFwd);
     }
 }
 

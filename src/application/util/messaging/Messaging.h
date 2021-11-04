@@ -34,7 +34,8 @@ namespace Util
             encoders,
             touchscreenButton,
             touchscreenAnalog,
-            midiIn
+            midiIn,
+            preset
         };
 
         enum class listenType_t : uint8_t
