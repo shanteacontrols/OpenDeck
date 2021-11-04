@@ -157,9 +157,6 @@ bool Database::factoryReset()
 
         if (!setDbUID(getDbUID()))
             return false;
-
-        if (!setPreset(0))
-            return false;
     }
     else
     {
