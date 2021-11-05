@@ -271,6 +271,24 @@ bool System::init()
     _touchscreen.init(IO::Touchscreen::mode_t::normal);
     _leds.init();
 
+    // on startup, indicate current program for all channels (if any leds have program change assigned as control mode)
+    for (int i = 0; i < 16; i++)
+    {
+        Util::MessageDispatcher::message_t dispatchMessage;
+
+        dispatchMessage.componentIndex = 0;
+        dispatchMessage.midiChannel    = i;
+        dispatchMessage.midiIndex      = IO::Common::program(i);
+        dispatchMessage.midiValue      = 0;
+        dispatchMessage.message        = MIDI::messageType_t::programChange;
+
+        // pretend this midi in message - source isn't important here as
+        // both midi in and local control for program change are synced
+        _dispatcher.notify(Util::MessageDispatcher::messageSource_t::midiIn,
+                           dispatchMessage,
+                           Util::MessageDispatcher::listenType_t::nonFwd);
+    }
+
     _sysExConf.setLayout(sysExLayout);
     _sysExConf.setupCustomRequests(customRequests);
 

@@ -831,6 +831,117 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 0x01,    // LED state - on
                                 0xF7 });
 }
+
+TEST_CASE(ProgramIndicatedOnStartup)
+{
+    _database.factoryReset();
+    TEST_ASSERT(systemStub.init() == true);
+
+    // handshake
+    sendAndVerifySysExRequest({ 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x00,
+                                0x00,
+                                0x01,
+                                0xF7 },
+                              { 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x01,
+                                0x00,
+                                0x01,
+                                0xF7 });
+
+    std::vector<uint8_t> generatedSysExReq;
+
+    // configure the first LED to indicate program change
+    // its activation ID is 0 so it should be on only for program 0
+    MIDIHelper::generateSysExSetReq(System::Section::leds_t::controlType, 0, static_cast<size_t>(IO::LEDs::controlType_t::pcSingleVal), generatedSysExReq);
+
+    sendAndVerifySysExRequest(generatedSysExReq,
+                              { 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x01,
+                                0x00,
+                                0x01,    // set
+                                0x00,    // single
+                                static_cast<uint8_t>(System::block_t::leds),
+                                static_cast<uint8_t>(System::Section::leds_t::controlType),
+                                0x00,    // LED 0
+                                0x00,
+                                0x00,
+                                static_cast<uint8_t>(IO::LEDs::controlType_t::pcSingleVal),
+                                0xF7 });
+
+    // led should be off for now
+    MIDIHelper::generateSysExGetReq(System::Section::leds_t::testColor, 0, generatedSysExReq);
+
+    sendAndVerifySysExRequest(generatedSysExReq,
+                              { 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x01,
+                                0x00,
+                                0x00,    // get
+                                0x00,    // single
+                                static_cast<uint8_t>(System::block_t::leds),
+                                static_cast<uint8_t>(System::Section::leds_t::testColor),
+                                0x00,    // LED 0
+                                0x00,
+                                0x00,    // new value / blank
+                                0x00,    // new value / blank
+                                0x00,
+                                0x00,    // LED state - off
+                                0xF7 });
+
+    TEST_ASSERT(systemStub.init() == true);
+
+    // handshake
+    sendAndVerifySysExRequest({ 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x00,
+                                0x00,
+                                0x01,
+                                0xF7 },
+                              { 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x01,
+                                0x00,
+                                0x01,
+                                0xF7 });
+
+    // verify that the led is turned on on startup since initially, program for all channels is 0
+    MIDIHelper::generateSysExGetReq(System::Section::leds_t::testColor, 0, generatedSysExReq);
+
+    sendAndVerifySysExRequest(generatedSysExReq,
+                              { 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x01,
+                                0x00,
+                                0x00,    // get
+                                0x00,    // single
+                                static_cast<uint8_t>(System::block_t::leds),
+                                static_cast<uint8_t>(System::Section::leds_t::testColor),
+                                0x00,    // LED 0
+                                0x00,
+                                0x00,    // new value / blank
+                                0x00,    // new value / blank
+                                0x00,
+                                0x01,    // LED state - on
+                                0xF7 });
+}
 #endif
 
 #endif
