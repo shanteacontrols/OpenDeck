@@ -255,6 +255,8 @@ bool System::init()
     if (!_hwa.init())
         return false;
 
+    _leds.setAllOff();
+
     if (!_database.init())
         return false;
 
