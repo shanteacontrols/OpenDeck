@@ -64,8 +64,8 @@ namespace IO
             localNoteSingleVal,
             midiInCCSingleVal,
             localCCSingleVal,
-            midiInPCSingleVal,
-            localPCSingleVal,
+            pcSingleVal,
+            preset,
             midiInNoteMultiVal,
             localNoteMultiVal,
             midiInCCMultiVal,
@@ -144,7 +144,7 @@ namespace IO
         brightness_t valueToBrightness(uint8_t value);
         void         startUpAnimation();
         bool         isControlTypeMatched(MIDI::messageType_t midiMessage, controlType_t controlType);
-        void         midiToState(MIDI::messageType_t messageType, uint8_t value1, uint8_t value2, uint8_t channel, Util::MessageDispatcher::messageSource_t source);
+        void         midiToState(Util::MessageDispatcher::message_t message, Util::MessageDispatcher::messageSource_t source);
 
         HWA&      _hwa;
         Database& _database;
@@ -199,8 +199,8 @@ namespace IO
             MIDI::messageType_t::noteOn,           // localNoteSingleVal,
             MIDI::messageType_t::controlChange,    // midiInCCSingleVal,
             MIDI::messageType_t::controlChange,    // localCCSingleVal,
-            MIDI::messageType_t::programChange,    // midiInPCSingleVal,
-            MIDI::messageType_t::programChange,    // localPCSingleVal,
+            MIDI::messageType_t::programChange,    // pcSingleVal,
+            MIDI::messageType_t::programChange,    // preset,
             MIDI::messageType_t::noteOn,           // midiInNoteMultiVal,
             MIDI::messageType_t::noteOn,           // localNoteMultiVal,
             MIDI::messageType_t::controlChange,    // midiInCCMultiVal,

@@ -684,7 +684,7 @@ TEST_CASE(LocalLEDcontrol)
         _buttons.reset(i);
 
     // test program change
-    TEST_ASSERT(_database.update(Database::Section::leds_t::controlType, 0, LEDs::controlType_t::localPCSingleVal) == true);
+    TEST_ASSERT(_database.update(Database::Section::leds_t::controlType, 0, LEDs::controlType_t::pcSingleVal) == true);
     stateChangeRegister(true);
     // led should remain in off state since none of the buttons use program change for message
     TEST_ASSERT(_leds.color(0) == LEDs::color_t::off);
@@ -701,7 +701,7 @@ TEST_CASE(LocalLEDcontrol)
         _buttons.reset(i);
 
     // configure second LED and button in program change mode
-    TEST_ASSERT(_database.update(Database::Section::leds_t::controlType, 1, LEDs::controlType_t::localPCSingleVal) == true);
+    TEST_ASSERT(_database.update(Database::Section::leds_t::controlType, 1, LEDs::controlType_t::pcSingleVal) == true);
     TEST_ASSERT(_database.update(Database::Section::button_t::midiMessage, 1, Buttons::messageType_t::programChange) == true);
 
     stateChangeRegister(true);

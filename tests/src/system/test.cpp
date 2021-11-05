@@ -466,6 +466,16 @@ namespace
 
         bool responseVerified = false;
 
+        // std::cout << "expected / received:" << std::endl;
+
+        // for (size_t i = 0; i < expectedResponse.size(); i++)
+        //     std::cout << static_cast<int>(expectedResponse.at(i)) << " ";
+        // std::cout << std::endl;
+
+        // for (size_t i = 0; i < rawBytes.size(); i++)
+        //     std::cout << static_cast<int>(rawBytes.at(i)) << " ";
+        // std::cout << std::endl;
+
         for (size_t i = 0; i < rawBytes.size(); i++)
         {
             // it's possible that the first response isn't sysex but some component message
@@ -635,7 +645,8 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
     std::vector<uint8_t> generatedSysExReq;
 
     // configure the first LED to indicate current preset
-    MIDIHelper::generateSysExSetReq(System::Section::leds_t::controlType, 0, static_cast<size_t>(IO::LEDs::controlType_t::midiInPCSingleVal), generatedSysExReq);
+    // its activation ID is 0 so it should be on only in first preset
+    MIDIHelper::generateSysExSetReq(System::Section::leds_t::controlType, 0, static_cast<size_t>(IO::LEDs::controlType_t::preset), generatedSysExReq);
 
     sendAndVerifySysExRequest(generatedSysExReq,
                               { 0xF0,
@@ -651,9 +662,10 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 0x00,    // LED 0
                                 0x00,
                                 0x00,
-                                static_cast<uint8_t>(IO::LEDs::controlType_t::midiInPCSingleVal),
+                                static_cast<uint8_t>(IO::LEDs::controlType_t::preset),
                                 0xF7 });
 
+    // switch to preset 1
     MIDIHelper::generateSysExSetReq(System::Section::global_t::presets, static_cast<size_t>(System::presetSetting_t::activePreset), 1, generatedSysExReq);
 
     sendAndVerifySysExRequest(generatedSysExReq,
@@ -673,7 +685,7 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 0x01,
                                 0xF7 });
 
-    // led 0 shouldn't be on since in preset 1, led doesn't indicate preset
+    // verify the led is off
     MIDIHelper::generateSysExGetReq(System::Section::leds_t::testColor, 0, generatedSysExReq);
 
     sendAndVerifySysExRequest(generatedSysExReq,
@@ -713,6 +725,89 @@ TEST_CASE(PresetChangeIndicatedOnLEDs)
                                 0x00,
                                 0x00,    // preset 0
                                 0x00,
+                                0xF7 });
+
+    MIDIHelper::generateSysExGetReq(System::Section::leds_t::testColor, 0, generatedSysExReq);
+
+    sendAndVerifySysExRequest(generatedSysExReq,
+                              { 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x01,
+                                0x00,
+                                0x00,    // get
+                                0x00,    // single
+                                static_cast<uint8_t>(System::block_t::leds),
+                                static_cast<uint8_t>(System::Section::leds_t::testColor),
+                                0x00,    // LED 0
+                                0x00,
+                                0x00,    // new value / blank
+                                0x00,    // new value / blank
+                                0x00,
+                                0x01,    // LED state - on
+                                0xF7 });
+
+    // switch back to preset 1 and verify that the led is turned off
+    MIDIHelper::generateSysExSetReq(System::Section::global_t::presets, static_cast<size_t>(System::presetSetting_t::activePreset), 1, generatedSysExReq);
+
+    sendAndVerifySysExRequest(generatedSysExReq,
+                              { 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x01,
+                                0x00,
+                                0x01,    // set
+                                0x00,    // single
+                                0x00,    // block 0 (global)
+                                0x02,    // section 2 (presets)
+                                0x00,    // active preset
+                                0x00,
+                                0x00,    // preset 1
+                                0x01,
+                                0xF7 });
+
+    MIDIHelper::generateSysExGetReq(System::Section::leds_t::testColor, 0, generatedSysExReq);
+
+    sendAndVerifySysExRequest(generatedSysExReq,
+                              { 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x01,
+                                0x00,
+                                0x00,    // get
+                                0x00,    // single
+                                static_cast<uint8_t>(System::block_t::leds),
+                                static_cast<uint8_t>(System::Section::leds_t::testColor),
+                                0x00,    // LED 0
+                                0x00,
+                                0x00,    // new value / blank
+                                0x00,    // new value / blank
+                                0x00,
+                                0x00,    // LED state - off
+                                0xF7 });
+
+    // re-init the system - verify that the led 0 is on on startup to indicate current preset
+    TEST_ASSERT(systemStub.init() == true);
+
+    // handshake
+    sendAndVerifySysExRequest({ 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x00,
+                                0x00,
+                                0x01,
+                                0xF7 },
+                              { 0xF0,
+                                0x00,
+                                0x53,
+                                0x43,
+                                0x01,
+                                0x00,
+                                0x01,
                                 0xF7 });
 
     MIDIHelper::generateSysExGetReq(System::Section::leds_t::testColor, 0, generatedSysExReq);

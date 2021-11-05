@@ -145,7 +145,11 @@ void System::DBhandlers::presetChange(uint8_t preset)
         _system._scheduler.registerTask({ [this]() { _system.forceComponentRefresh(); }, FORCED_VALUE_RESEND_DELAY });
 
         Util::MessageDispatcher::message_t dispatchMessage;
-        dispatchMessage.componentIndex = preset;
+        dispatchMessage.componentIndex = 0;
+        dispatchMessage.midiChannel    = 0;
+        dispatchMessage.midiIndex      = preset;
+        dispatchMessage.midiValue      = 0;
+        dispatchMessage.message        = MIDI::messageType_t::programChange;
 
         _system._dispatcher.notify(Util::MessageDispatcher::messageSource_t::preset,
                                    dispatchMessage,

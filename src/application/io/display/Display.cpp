@@ -70,7 +70,7 @@ Display::Display(IO::U8X8&                u8x8,
     dispatcher.listen(Util::MessageDispatcher::messageSource_t::preset,
                       Util::MessageDispatcher::listenType_t::all,
                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                          setPreset(dispatchMessage.componentIndex);
+                          setPreset(dispatchMessage.midiIndex);
                       });
 }
 
