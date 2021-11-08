@@ -63,7 +63,7 @@ MEMORY
 {
 RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 128K
 CCMRAM (xrw)      : ORIGIN = 0x10000000, LENGTH = 64K
-FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 512K
+FLASH (rx)      : ORIGIN = FLASH_START, LENGTH = 512K
 }
 
 /* Define output sections */
@@ -80,6 +80,8 @@ SECTIONS
   /* The program code and other data goes into FLASH */
   .text :
   {
+    *(.fwMetadata)
+    KEEP(*(.fwMetadata))
     . = ALIGN(4);
     *(.text)           /* .text sections (code) */
     *(.text*)          /* .text* sections (code) */
@@ -130,6 +132,13 @@ SECTIONS
     KEEP (*(.fini_array*))
     PROVIDE_HIDDEN (__fini_array_end = .);
   } >FLASH
+
+  .noinit (NOLOAD) :
+  {
+    *(.noinit)
+    KEEP (*(.noinit))
+    . = ALIGN(4);
+  } > RAM
 
   /* used by the startup to initialize data */
   _sidata = LOADADDR(.data);
