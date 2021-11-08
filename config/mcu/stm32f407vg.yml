@@ -73,6 +73,14 @@
           ahb_clk_div : "RCC_SYSCLK_DIV2"
           apb1_clk_div: "RCC_SYSCLK_DIV2"
           apb2_clk_div: "RCC_SYSCLK_DIV2"
+        hse12MHz:
+          pllm: 6
+          plln: 168
+          pllq: 7
+          pllp: "RCC_PLLP_DIV2"
+          ahb_clk_div : "RCC_SYSCLK_DIV2"
+          apb1_clk_div: "RCC_SYSCLK_DIV2"
+          apb2_clk_div: "RCC_SYSCLK_DIV1"
         hse16MHz:
           pllm: 8
           plln: 168
