@@ -1,0 +1,240 @@
+---
+  mcu: "stm32f407ve"
+  extClockMhz: 8
+  usb: true
+  dinMIDI:
+    uartChannel: 3
+  display:
+    i2cChannel: 0
+  touchscreen:
+    uartChannel: 5
+    components: 64
+  dmx:
+    uartChannel: 3
+  buttons:
+    type: "native"
+    extPullups: false
+    pins:
+    -
+      port: "B"
+      index: 12
+    -
+      port: "B"
+      index: 14
+    -
+      port: "D"
+      index: 8
+    -
+      port: "D"
+      index: 10
+    -
+      port: "D"
+      index: 12
+    -
+      port: "D"
+      index: 14
+    -
+      port: "C"
+      index: 8
+    -
+      port: "A"
+      index: 8
+    -
+      port: "A"
+      index: 15
+    -
+      port: "C"
+      index: 11
+    -
+      port: "D"
+      index: 0
+    -
+      port: "D"
+      index: 2
+    -
+      port: "D"
+      index: 4
+    -
+      port: "D"
+      index: 6
+    -
+      port: "B"
+      index: 3
+    -
+      port: "B"
+      index: 5
+    -
+      port: "B"
+      index: 13
+    -
+      port: "B"
+      index: 15
+    -
+      port: "D"
+      index: 9
+    -
+      port: "D"
+      index: 11
+    -
+      port: "D"
+      index: 13
+    -
+      port: "D"
+      index: 15
+    -
+      port: "C"
+      index: 9
+    -
+      port: "A"
+      index: 13
+    -
+      port: "A"
+      index: 14
+    -
+      port: "C"
+      index: 10
+    -
+      port: "C"
+      index: 12
+    -
+      port: "D"
+      index: 1
+    -
+      port: "D"
+      index: 3
+    -
+      port: "D"
+      index: 5
+    -
+      port: "D"
+      index: 7
+    -
+      port: "B"
+      index: 4
+  analog:
+    type: "native"
+    pins:
+    -
+      port: "A"
+      index: 0
+    -
+      port: "A"
+      index: 1
+    -
+      port: "A"
+      index: 2
+    -
+      port: "A"
+      index: 3
+    -
+      port: "A"
+      index: 4
+    -
+      port: "A"
+      index: 5
+    -
+      port: "A"
+      index: 6
+    -
+      port: "A"
+      index: 7
+    -
+      port: "B"
+      index: 0
+    -
+      port: "B"
+      index: 1
+    -
+      port: "C"
+      index: 0
+    -
+      port: "C"
+      index: 1
+    -
+      port: "C"
+      index: 2
+    -
+      port: "C"
+      index: 3
+    -
+      port: "C"
+      index: 4
+    -
+      port: "C"
+      index: 5
+  leds:
+    external:
+      type: "native"
+      pins:
+      -
+        port: "B"
+        index: 8
+      -
+        port: "E"
+        index: 0
+      -
+        port: "B"
+        index: 9
+      -
+        port: "E"
+        index: 1
+      -
+        port: "B"
+        index: 11
+      -
+        port: "E"
+        index: 15
+      -
+        port: "E"
+        index: 13
+      -
+        port: "E"
+        index: 11
+      -
+        port: "E"
+        index: 9
+      -
+        port: "E"
+        index: 7
+      -
+        port: "C"
+        index: 14
+      -
+        port: "E"
+        index: 5
+      -
+        port: "E"
+        index: 3
+      -
+        port: "B"
+        index: 10
+      -
+        port: "E"
+        index: 14
+      -
+        port: "E"
+        index: 12
+      -
+        port: "E"
+        index: 10
+      -
+        port: "E"
+        index: 8
+      -
+        port: "B"
+        index: 2
+      -
+        port: "C"
+        index: 15
+      -
+        port: "C"
+        index: 13
+      -
+        port: "E"
+        index: 6
+      -
+        port: "E"
+        index: 4
+      -
+        port: "E"
+        index: 2
