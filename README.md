@@ -43,11 +43,14 @@ OpenDeck firmware is compatible with [official OpenDeck board](https://www.tindi
 * [Arduino Mega2560 Pro Mini / Meduino](http://wiki.epalsite.com/index.php?title=Mega2560_Pro_Mini)
 * [Mux Shield v2 with Arduino Mega2560](https://mayhewlabs.com/products/mux-shield-2)
 * [Teensy++ 2.0](https://www.pjrc.com/store/teensypp.html)
-* [STM32F4 Discovery](https://www.st.com/en/evaluation-tools/stm32f4discovery.html)
+* [STM32F4 Discovery](https://www.st.com/en/evaluation-tools/stm32f4discovery.html) ([Mouser](https://hr.mouser.com/ProductDetail/STMicroelectronics/STM32F407G-DISC1?qs=%2Fha2pyFadugMvYxi1ftRWf5mGCRgIpVnZzkmnZLph%2FPbqHgeIRafES4CiZOiJh1y) / [Digikey](https://www.digikey.com/en/products/detail/stmicroelectronics/STM32F407G-DISC1/5824404?s=N4IgTCBcDaIMoBUCyBmMAxALABgOwHEBaAEQEk4BhARhAF0BfIA))
 * [STM32F401 Black Pill](https://stm32-base.org/boards/STM32F401CCU6-WeAct-Black-Pill-V1.2.html)
-* [STM32F411 Black Pill](https://stm32-base.org/boards/STM32F411CEU6-WeAct-Black-Pill-V2.0)
+* [STM32F411 Black Pill](https://stm32-base.org/boards/STM32F411CEU6-WeAct-Black-Pill-V2.0) ([Adafruit](https://www.adafruit.com/product/4877) / [AliExpress](https://www.aliexpress.com/item/1005001456186625.html?pdp_ext_f=%7B%22sku_id%22:%2212000016817645221%22,%22ship_from%22:%22CN%22%7D&gps-id=pcStoreJustForYou&scm=1007.23125.137358.0&scm_id=1007.23125.137358.0&scm-url=1007.23125.137358.0&pvid=c145b0d6-10a9-42f7-9ddf-a3701e2ee9a1&spm=a2g0o.store_pc_home.smartJustForYou_6000147819213.1))
+* [Waveshare Core405R](https://www.waveshare.com/core405r.htm)
+* [Waveshare Core407V](https://www.waveshare.com/core407v.htm)
 * [Waveshare Core407I](https://www.waveshare.com/core407i.htm)
-* [STM32F4VE](https://stm32-base.org/boards/STM32F407VET6-STM32-F4VE-V2.0)
+* [STM32F4VE](https://stm32-base.org/boards/STM32F407VET6-STM32-F4VE-V2.0) ([eBay](https://www.ebay.com/itm/401956886691?hash=item5d967f58a3:g:fFcAAOSw4fhdy2rk))
+* [TPyBoard (PyBoard clone)](http://www.chinalctech.com/m/view.php?aid=338) ([eBay](https://www.ebay.com/itm/183887614794?hash=item2ad08e534a:g:bmsAAOSwrSpdLtFM))
 
 For more details on supported boards, check the dedicated [wiki page](https://github.com/shanteacontrols/OpenDeck/wiki/Connections). Support for custom boards can be easily added using [YAML descriptors](https://github.com/shanteacontrols/OpenDeck/wiki/Creating-custom-board-variant).
 
