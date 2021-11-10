@@ -532,31 +532,37 @@ TEST_CASE(ForcedResendOnPresetChange)
     _database.factoryReset();
     TEST_ASSERT(systemStub.init() == true);
 
-    // enable first analog component in first two presets
-    TEST_ASSERT(_database.setPreset(1) == true);
-    TEST_ASSERT(_database.update(Database::Section::analog_t::enable, 0, 1) == true);
+    const size_t ENABLED_ANALOG_COMPONENTS = IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) ? 1 : 0;
+    const size_t PRESET_CHANGED_TIMES      = ENABLED_ANALOG_COMPONENTS > 0 ? 3 : 1;
 
-    TEST_ASSERT(_database.setPreset(0) == true);
-    TEST_ASSERT(_database.update(Database::Section::analog_t::enable, 0, 1) == true);
+    if (ENABLED_ANALOG_COMPONENTS)
+    {
+        // enable first analog component in first two presets
+        TEST_ASSERT(_database.setPreset(1) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::enable, 0, 1) == true);
 
-    _hwaMIDI.reset();
+        TEST_ASSERT(_database.setPreset(0) == true);
+        TEST_ASSERT(_database.update(Database::Section::analog_t::enable, 0, 1) == true);
 
-    _hwaAnalog.adcReturnValue = 0xFFFF;
+        _hwaMIDI.reset();
 
-    systemStub.run();    // buttons
-    systemStub.run();    // encoders
-    systemStub.run();    // analog
+        _hwaAnalog.adcReturnValue = 0xFFFF;
 
-    TEST_ASSERT_EQUAL_UINT32(1, _hwaMIDI.usbWritePackets.size());
+        systemStub.run();    // buttons
+        systemStub.run();    // encoders
+        systemStub.run();    // analog
 
-    // verify the content of the message
-    TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _hwaMIDI.usbWritePackets.at(0).Event << 4);
-    TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _hwaMIDI.usbWritePackets.at(0).Data1);
-    TEST_ASSERT_EQUAL_UINT32(0, _hwaMIDI.usbWritePackets.at(0).Data2);
-    TEST_ASSERT(_hwaMIDI.usbWritePackets.at(0).Data3 > 0);    // due to filtering it is not certain what the value will be
+        TEST_ASSERT_EQUAL_UINT32(1, _hwaMIDI.usbWritePackets.size());
 
-    // now change preset and verify that the same midi message is repeated
-    _hwaMIDI.reset();
+        // verify the content of the message
+        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _hwaMIDI.usbWritePackets.at(0).Event << 4);
+        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, _hwaMIDI.usbWritePackets.at(0).Data1);
+        TEST_ASSERT_EQUAL_UINT32(0, _hwaMIDI.usbWritePackets.at(0).Data2);
+        TEST_ASSERT(_hwaMIDI.usbWritePackets.at(0).Data3 > 0);    // due to filtering it is not certain what the value will be
+
+        // now change preset and verify that the same midi message is repeated
+        _hwaMIDI.reset();
+    }
 
     // handshake
     sendAndVerifySysExRequest({ 0xF0,
@@ -614,8 +620,9 @@ TEST_CASE(ForcedResendOnPresetChange)
             channelMessages++;
     }
 
-    // since the preset has been changed 3 times by now, all buttons should resend their state and all enabled analog components (only 1 in this case)
-    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_BUTTONS + 1) * 3, channelMessages);
+    // since the preset has been changed three times by now (if analog components are supported), all buttons should resend their state
+    // all enabled analog components should be sent as well if analog components are supported (only 1 in this case)
+    TEST_ASSERT_EQUAL_UINT32((IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + ENABLED_ANALOG_COMPONENTS) * PRESET_CHANGED_TIMES, channelMessages);
 }
 
 #ifdef LEDS_SUPPORTED

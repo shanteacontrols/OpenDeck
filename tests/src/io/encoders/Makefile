@@ -6,16 +6,8 @@ ifeq (,$(findstring USB_LINK_MCU,$(DEFINES)))
     stubs/database/DB_ReadWrite.cpp \
     application/database/Database.cpp \
     application/io/common/Common.cpp \
-
-    ifneq (,$(findstring LEDS_SUPPORTED,$(DEFINES)))
-        SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) += \
-        application/io/leds/LEDs.cpp
-    endif
-
-    ifneq (,$(findstring ENCODERS_SUPPORTED,$(DEFINES)))
-        SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) += \
-        application/io/encoders/Encoders.cpp
-    endif
+    application/io/leds/LEDs.cpp \
+    application/io/encoders/Encoders.cpp \
 
     ifneq (,$(findstring DISPLAY_SUPPORTED,$(DEFINES)))
         SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) += \

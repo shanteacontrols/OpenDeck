@@ -192,22 +192,21 @@ then
     fi
 
     #guard against ommisions of touchscreen component amount by assigning the value to 0 if undefined
-    touchscreen_components=$($YAML_PARSER "$TARGET_DEF_FILE" touchscreen.components | grep -v null | awk '{print$1}END{if(NR==0)print 0}')
+    nr_of_touchscreen_components=$($YAML_PARSER "$TARGET_DEF_FILE" touchscreen.components | grep -v null | awk '{print$1}END{if(NR==0)print 0}')
 
-    if [[ "$touchscreen_components" -eq 0 ]]
+    if [[ "$nr_of_touchscreen_components" -eq 0 ]]
     then
         echo "Amount of touchscreen components cannot be 0 or undefined"
         exit 1
     fi
 
     {
-        printf "%s\n" "DEFINES += MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS=$touchscreen_components"
+        printf "%s\n" "DEFINES += NR_OF_TOUCHSCREEN_COMPONENTS=$nr_of_touchscreen_components"
         printf "%s\n" "DEFINES += TOUCHSCREEN_SUPPORTED"
-        printf "%s\n" "DEFINES += LEDS_SUPPORTED"
         printf "%s\n" "DEFINES += UART_CHANNEL_TOUCHSCREEN=$uart_channel_touchscreen"
     } >> "$OUT_FILE_MAKEFILE_DEFINES"
 else
-    printf "%s\n" "DEFINES += MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS=0" >> "$OUT_FILE_MAKEFILE_DEFINES"
+    printf "%s\n" "DEFINES += NR_OF_TOUCHSCREEN_COMPONENTS=0" >> "$OUT_FILE_MAKEFILE_DEFINES"
 fi
 
 if [[ $($YAML_PARSER "$TARGET_DEF_FILE" bootloader.button) != "null" ]]
@@ -258,20 +257,20 @@ fi
 
 if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" buttons)" != "null" ]]
 then
-    printf "%s\n" "DEFINES += BUTTONS_SUPPORTED" >> "$OUT_FILE_MAKEFILE_DEFINES"
+    printf "%s\n" "DEFINES += DIGITAL_INPUTS_SUPPORTED" >> "$OUT_FILE_MAKEFILE_DEFINES"
 
     digital_in_type=$($YAML_PARSER "$TARGET_DEF_FILE" buttons.type)
 
-    declare -i max_number_of_buttons
-    max_number_of_buttons=0
+    declare -i nr_of_digital_inputs
+    nr_of_digital_inputs=0
 
     if [[ $digital_in_type == native ]]
     then
-        printf "%s\n" "const core::io::mcuPin_t dInPins[MAX_NUMBER_OF_BUTTONS] = {" >> "$OUT_FILE_SOURCE_PINS"
+        printf "%s\n" "const core::io::mcuPin_t dInPins[NR_OF_DIGITAL_INPUTS] = {" >> "$OUT_FILE_SOURCE_PINS"
 
-        max_number_of_buttons=$($YAML_PARSER "$TARGET_DEF_FILE" buttons.pins --length)
+        nr_of_digital_inputs=$($YAML_PARSER "$TARGET_DEF_FILE" buttons.pins --length)
 
-        for ((i=0; i<max_number_of_buttons; i++))
+        for ((i=0; i<nr_of_digital_inputs; i++))
         do
             port=$($YAML_PARSER "$TARGET_DEF_FILE" buttons.pins.["$i"].port)
             index=$($YAML_PARSER "$TARGET_DEF_FILE" buttons.pins.["$i"].index)
@@ -318,7 +317,7 @@ then
         } >> "$OUT_FILE_HEADER_PINS"
 
         number_of_in_sr=$($YAML_PARSER "$TARGET_DEF_FILE" buttons.shiftRegisters)
-        max_number_of_buttons=$(( 8 * "$number_of_in_sr"))
+        nr_of_digital_inputs=$(( 8 * "$number_of_in_sr"))
 
         printf "%s\n" "DEFINES += NUMBER_OF_IN_SR=$number_of_in_sr" >> "$OUT_FILE_MAKEFILE_DEFINES"
     elif [[ $digital_in_type == matrix ]]
@@ -398,7 +397,7 @@ then
             exit 1
         fi
 
-        max_number_of_buttons=$(("$number_of_columns" * "$number_of_rows"))
+        nr_of_digital_inputs=$(("$number_of_columns" * "$number_of_rows"))
 
         {
             printf "%s\n" "DEFINES += NUMBER_OF_BUTTON_COLUMNS=$number_of_columns"
@@ -408,11 +407,11 @@ then
 
     if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" buttons.indexing)" != "null" ]]
     then
-        max_number_of_buttons=$($YAML_PARSER "$TARGET_DEF_FILE" buttons.indexing --length)
+        nr_of_digital_inputs=$($YAML_PARSER "$TARGET_DEF_FILE" buttons.indexing --length)
 
-        printf "%s\n" "const uint8_t buttonIndexes[MAX_NUMBER_OF_BUTTONS] = {" >> "$OUT_FILE_SOURCE_PINS"
+        printf "%s\n" "const uint8_t buttonIndexes[NR_OF_DIGITAL_INPUTS] = {" >> "$OUT_FILE_SOURCE_PINS"
 
-        for ((i=0; i<max_number_of_buttons; i++))
+        for ((i=0; i<nr_of_digital_inputs; i++))
         do
             index=$($YAML_PARSER "$TARGET_DEF_FILE" buttons.indexing.["$i"])
             printf "%s\n" "${index}," >> "$OUT_FILE_SOURCE_PINS"
@@ -422,21 +421,10 @@ then
         printf "%s\n" "};" >> "$OUT_FILE_SOURCE_PINS"
     fi
 
-    printf "%s\n" "DEFINES += MAX_NUMBER_OF_BUTTONS=$max_number_of_buttons" >> "$OUT_FILE_MAKEFILE_DEFINES"
-
-    if [[ "$max_number_of_buttons" -gt 1 && $($YAML_PARSER "$TARGET_DEF_FILE" buttons.encoders) != "false" ]]
-    then
-        {
-            printf "%s\n" "DEFINES += ENCODERS_SUPPORTED"
-            printf "%s\n" "DEFINES += MAX_NUMBER_OF_ENCODERS=$(("$max_number_of_buttons" / 2))"
-        } >> "$OUT_FILE_MAKEFILE_DEFINES"
-    else
-        printf "%s\n" "DEFINES += MAX_NUMBER_OF_ENCODERS=0" >> "$OUT_FILE_MAKEFILE_DEFINES"
-    fi
+    printf "%s\n" "DEFINES += NR_OF_DIGITAL_INPUTS=$nr_of_digital_inputs" >> "$OUT_FILE_MAKEFILE_DEFINES"
 else
     {
-        printf "%s\n" "DEFINES += MAX_NUMBER_OF_BUTTONS=0"
-        printf "%s\n" "DEFINES += MAX_NUMBER_OF_ENCODERS=0"
+        printf "%s\n" "DEFINES += NR_OF_DIGITAL_INPUTS=0"
     } >> "$OUT_FILE_MAKEFILE_DEFINES"
 fi
 
@@ -446,24 +434,20 @@ fi
 
 if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" leds.external)" != "null" ]]
 then
-    {
-        printf "%s\n" 'ifeq (,$(findstring LEDS_SUPPORTED,$(DEFINES)))'
-        printf "%s\n" '    DEFINES += LEDS_SUPPORTED'
-        printf "%s\n" 'endif'
-    } >> "$OUT_FILE_MAKEFILE_DEFINES"
+    printf "%s\n" "DEFINES += DIGITAL_OUTPUTS_SUPPORTED" >> "$OUT_FILE_MAKEFILE_DEFINES"
 
     digital_out_type=$($YAML_PARSER "$TARGET_DEF_FILE" leds.external.type)
 
-    declare -i max_number_of_leds
-    max_number_of_leds=0
+    declare -i nr_of_digital_outputs
+    nr_of_digital_outputs=0
 
     if [[ $digital_out_type == "native" ]]
     then
-        printf "%s\n" "const core::io::mcuPin_t dOutPins[MAX_NUMBER_OF_LEDS] = {" >> "$OUT_FILE_SOURCE_PINS"
+        printf "%s\n" "const core::io::mcuPin_t dOutPins[NR_OF_DIGITAL_OUTPUTS] = {" >> "$OUT_FILE_SOURCE_PINS"
 
-        max_number_of_leds=$($YAML_PARSER "$TARGET_DEF_FILE" leds.external.pins --length)
+        nr_of_digital_outputs=$($YAML_PARSER "$TARGET_DEF_FILE" leds.external.pins --length)
 
-        for ((i=0; i<max_number_of_leds; i++))
+        for ((i=0; i<nr_of_digital_outputs; i++))
         do
             port=$($YAML_PARSER "$TARGET_DEF_FILE" leds.external.pins.["$i"].port)
             index=$($YAML_PARSER "$TARGET_DEF_FILE" leds.external.pins.["$i"].index)
@@ -513,7 +497,7 @@ then
         } >> "$OUT_FILE_HEADER_PINS"
 
         number_of_out_sr=$($YAML_PARSER "$TARGET_DEF_FILE" leds.external.shiftRegisters)
-        max_number_of_leds=$((number_of_out_sr * 8))
+        nr_of_digital_outputs=$((number_of_out_sr * 8))
 
         printf "%s\n" "DEFINES += NUMBER_OF_OUT_SR=$number_of_out_sr" >> "$OUT_FILE_MAKEFILE_DEFINES"
     elif [[ $digital_out_type == matrix ]]
@@ -549,7 +533,7 @@ then
 
         printf "%s\n" "};" >> "$OUT_FILE_SOURCE_PINS"
 
-        max_number_of_leds=$(("$number_of_led_columns" * "$number_of_led_rows"))
+        nr_of_digital_outputs=$(("$number_of_led_columns" * "$number_of_led_rows"))
 
         {
             printf "%s\n" "DEFINES += NUMBER_OF_LED_COLUMNS=$number_of_led_columns"
@@ -559,11 +543,11 @@ then
 
     if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" leds.external.indexing)" != "null" ]]
     then
-        max_number_of_leds=$($YAML_PARSER "$TARGET_DEF_FILE" leds.external.indexing --length)
+        nr_of_digital_outputs=$($YAML_PARSER "$TARGET_DEF_FILE" leds.external.indexing --length)
 
-        printf "%s\n" "const uint8_t ledIndexes[MAX_NUMBER_OF_LEDS] = {" >> "$OUT_FILE_SOURCE_PINS"
+        printf "%s\n" "const uint8_t ledIndexes[NR_OF_DIGITAL_OUTPUTS] = {" >> "$OUT_FILE_SOURCE_PINS"
 
-        for ((i=0; i<max_number_of_leds; i++))
+        for ((i=0; i<nr_of_digital_outputs; i++))
         do
             index=$($YAML_PARSER "$TARGET_DEF_FILE" leds.external.indexing.["$i"])
             printf "%s\n" "${index}," >> "$OUT_FILE_SOURCE_PINS"
@@ -574,8 +558,7 @@ then
     fi
 
     {
-        printf "%s\n" "DEFINES += MAX_NUMBER_OF_LEDS=$max_number_of_leds"
-        printf "%s\n" "DEFINES += MAX_NUMBER_OF_RGB_LEDS=$(("$max_number_of_leds" / 3))" 
+        printf "%s\n" "DEFINES += NR_OF_DIGITAL_OUTPUTS=$nr_of_digital_outputs"
     } >> "$OUT_FILE_MAKEFILE_DEFINES"
 
     if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" leds.external.invert)" == "true" ]]
@@ -584,8 +567,7 @@ then
     fi
 else
     {
-        printf "%s\n" "DEFINES += MAX_NUMBER_OF_LEDS=0"
-        printf "%s\n" "DEFINES += MAX_NUMBER_OF_RGB_LEDS=0"
+        printf "%s\n" "DEFINES += NR_OF_DIGITAL_OUTPUTS=0"
     } >> "$OUT_FILE_MAKEFILE_DEFINES"
 fi
 
@@ -644,7 +626,7 @@ fi
 
 if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" analog)" != "null" ]]
 then
-    printf "%s\n" "DEFINES += ANALOG_SUPPORTED" >> "$OUT_FILE_MAKEFILE_DEFINES"
+    printf "%s\n" "DEFINES += ADC_SUPPORTED" >> "$OUT_FILE_MAKEFILE_DEFINES"
 
     if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" analog.extReference)" == "true" ]]
     then
@@ -667,16 +649,16 @@ then
 
     analog_in_type=$($YAML_PARSER "$TARGET_DEF_FILE" analog.type)
 
-    declare -i max_number_of_analog
-    max_number_of_analog=0
+    declare -i nr_of_analog_inputs
+    nr_of_analog_inputs=0
 
     if [[ $analog_in_type == "native" ]]
     then
         printf "%s\n" "const core::io::mcuPin_t aInPins[MAX_ADC_CHANNELS] = {" >> "$OUT_FILE_SOURCE_PINS"
 
-        max_number_of_analog=$($YAML_PARSER "$TARGET_DEF_FILE" analog.pins --length)
+        nr_of_analog_inputs=$($YAML_PARSER "$TARGET_DEF_FILE" analog.pins --length)
 
-        for ((i=0; i<max_number_of_analog; i++))
+        for ((i=0; i<nr_of_analog_inputs; i++))
         do
             port=$($YAML_PARSER "$TARGET_DEF_FILE" analog.pins.["$i"].port)
             index=$($YAML_PARSER "$TARGET_DEF_FILE" analog.pins.["$i"].index)
@@ -692,7 +674,7 @@ then
         printf "%s\n" "};" >> "$OUT_FILE_SOURCE_PINS"
 
         {
-            printf "%s\n" "DEFINES += MAX_ADC_CHANNELS=$max_number_of_analog"
+            printf "%s\n" "DEFINES += MAX_ADC_CHANNELS=$nr_of_analog_inputs"
             printf "%s\n" "DEFINES += NATIVE_ANALOG_INPUTS"
         } >> "$OUT_FILE_MAKEFILE_DEFINES"
 
@@ -728,7 +710,7 @@ then
 
         printf "%s\n" "};" >> "$OUT_FILE_SOURCE_PINS"
 
-        max_number_of_analog=$((16 * "$number_of_mux"))
+        nr_of_analog_inputs=$((16 * "$number_of_mux"))
 
         {
             printf "%s\n" "DEFINES += NUMBER_OF_MUX=$number_of_mux"
@@ -767,7 +749,7 @@ then
 
         printf "%s\n" "};" >> "$OUT_FILE_SOURCE_PINS"
 
-        max_number_of_analog=$((8 * "$number_of_mux"))
+        nr_of_analog_inputs=$((8 * "$number_of_mux"))
 
         {
             printf "%s\n" "DEFINES += NUMBER_OF_MUX=$number_of_mux"
@@ -778,11 +760,11 @@ then
 
     if [[ "$($YAML_PARSER "$TARGET_DEF_FILE" analog.indexing)" != "null" ]]
     then
-        max_number_of_analog=$($YAML_PARSER "$TARGET_DEF_FILE" analog.indexing --length)
+        nr_of_analog_inputs=$($YAML_PARSER "$TARGET_DEF_FILE" analog.indexing --length)
 
-        printf "%s\n" "const uint8_t analogIndexes[MAX_NUMBER_OF_ANALOG] = {" >> "$OUT_FILE_SOURCE_PINS"
+        printf "%s\n" "const uint8_t analogIndexes[NR_OF_ANALOG_INPUTS] = {" >> "$OUT_FILE_SOURCE_PINS"
 
-        for ((i=0; i<max_number_of_analog; i++))
+        for ((i=0; i<nr_of_analog_inputs; i++))
         do
             index=$($YAML_PARSER "$TARGET_DEF_FILE" analog.indexing.["$i"])
             printf "%s\n" "${index}," >> "$OUT_FILE_SOURCE_PINS"
@@ -792,10 +774,10 @@ then
         printf "%s\n" "DEFINES += ANALOG_INDEXING" >> "$OUT_FILE_MAKEFILE_DEFINES"
     fi
 
-    printf "%s\n" "DEFINES += MAX_NUMBER_OF_ANALOG=$max_number_of_analog" >> "$OUT_FILE_MAKEFILE_DEFINES"
+    printf "%s\n" "DEFINES += NR_OF_ANALOG_INPUTS=$nr_of_analog_inputs" >> "$OUT_FILE_MAKEFILE_DEFINES"
 else
     {
-        printf "%s\n" "DEFINES += MAX_NUMBER_OF_ANALOG=0"
+        printf "%s\n" "DEFINES += NR_OF_ANALOG_INPUTS=0"
         printf "%s\n" "DEFINES += MAX_ADC_CHANNELS=0" 
     } >> "$OUT_FILE_MAKEFILE_DEFINES"
 fi

@@ -20,16 +20,22 @@ limitations under the License.
 
 #include "database/Database.h"
 #include "util/messaging/Messaging.h"
+#include "io/common/Common.h"
 
-#ifndef ENCODERS_SUPPORTED
-#include "stub/Encoders.h"
-#else
+#if defined(DIGITAL_INPUTS_SUPPORTED) && (NR_OF_DIGITAL_INPUTS > 1)
+#define ENCODERS_SUPPORTED
 
 namespace IO
 {
     class Encoders
     {
         public:
+        class Collection : public Common::BaseCollection<NR_OF_DIGITAL_INPUTS / 2>
+        {
+            public:
+            Collection() = delete;
+        };
+
         enum class type_t : uint8_t
         {
             controlChange7Fh01h,
@@ -117,16 +123,16 @@ namespace IO
         static constexpr uint32_t ENCODERS_SPEED_TIMEOUT = 140;
 
         /// Holds current MIDI value for all encoders.
-        int16_t _midiValue[MAX_NUMBER_OF_ENCODERS] = { 0 };
+        int16_t _midiValue[Collection::size()] = { 0 };
 
         /// Array holding current speed (in steps) for all encoders.
-        uint8_t _encoderSpeed[MAX_NUMBER_OF_ENCODERS] = {};
+        uint8_t _encoderSpeed[Collection::size()] = {};
 
         /// Array holding last two readings from encoder pins.
-        uint8_t _encoderData[MAX_NUMBER_OF_ENCODERS] = {};
+        uint8_t _encoderData[Collection::size()] = {};
 
         /// Array holding current amount of pulses for all encoders.
-        int8_t _encoderPulses[MAX_NUMBER_OF_ENCODERS] = {};
+        int8_t _encoderPulses[Collection::size()] = {};
 
         /// Lookup table used to convert encoder reading to pulses.
         const int8_t _encoderLookUpTable[16] = {
@@ -199,4 +205,6 @@ namespace IO
     };
 }    // namespace IO
 
+#else
+#include "stub/Encoders.h"
 #endif

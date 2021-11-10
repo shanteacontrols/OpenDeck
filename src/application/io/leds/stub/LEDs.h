@@ -23,6 +23,17 @@ namespace IO
     class LEDs
     {
         public:
+        class Collection : public Common::BaseCollection<0>
+        {
+            public:
+            Collection() = delete;
+        };
+
+        enum
+        {
+            GROUP_DIGITAL_OUTPUTS,
+        };
+
         enum class rgbIndex_t : uint8_t
         {
             r,
@@ -137,7 +148,7 @@ namespace IO
         {
         }
 
-        void setColor(uint8_t ledID, color_t color)
+        void setColor(uint8_t ledID, color_t color, brightness_t brightness)
         {
         }
 

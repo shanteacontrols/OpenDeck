@@ -23,6 +23,7 @@ limitations under the License.
 #include "database/Database.h"
 #include "model/nextion/Nextion.h"
 #include "model/viewtech/Viewtech.h"
+#include "io/common/Common.h"
 
 #ifndef TOUCHSCREEN_SUPPORTED
 #include "stub/Touchscreen.h"
@@ -33,6 +34,12 @@ namespace IO
     class Touchscreen
     {
         public:
+        class Collection : public Common::BaseCollection<NR_OF_TOUCHSCREEN_COMPONENTS>
+        {
+            public:
+            Collection() = delete;
+        };
+
         enum class setting_t : uint8_t
         {
             enable,
@@ -104,16 +111,16 @@ namespace IO
         TouchscreenBase::HWA&        _hwa;
         Database&                    _database;
         CDCPassthrough&              _cdcPassthrough;
-        EventNotifier*               _eventNotifier                                      = nullptr;
-        size_t                       _activeScreenID                                     = 0;
-        bool                         _initialized                                        = false;
-        mode_t                       _mode                                               = mode_t::normal;
-        Nextion                      _nextion                                            = Nextion(_hwa);
-        Viewtech                     _viewtech                                           = Viewtech(_hwa);
-        IO::TouchscreenBase::model_t _activeModel                                        = TouchscreenBase::model_t::nextion;
-        bool                         _analogActive[MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS] = {};
-        uint8_t                      _txBuffer[TSCREEN_CDC_PASSTHROUGH_BUFFER_SIZE]      = {};
-        uint8_t                      _rxBuffer[TSCREEN_CDC_PASSTHROUGH_BUFFER_SIZE]      = {};
+        EventNotifier*               _eventNotifier                                 = nullptr;
+        size_t                       _activeScreenID                                = 0;
+        bool                         _initialized                                   = false;
+        mode_t                       _mode                                          = mode_t::normal;
+        Nextion                      _nextion                                       = Nextion(_hwa);
+        Viewtech                     _viewtech                                      = Viewtech(_hwa);
+        IO::TouchscreenBase::model_t _activeModel                                   = TouchscreenBase::model_t::nextion;
+        bool                         _analogActive[Collection::size()]              = {};
+        uint8_t                      _txBuffer[TSCREEN_CDC_PASSTHROUGH_BUFFER_SIZE] = {};
+        uint8_t                      _rxBuffer[TSCREEN_CDC_PASSTHROUGH_BUFFER_SIZE] = {};
     };
 }    // namespace IO
 

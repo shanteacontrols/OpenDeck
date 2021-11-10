@@ -42,7 +42,7 @@ namespace IO
 
             numberOfReadings = 1;
 
-            if (index >= MAX_NUMBER_OF_BUTTONS)
+            if (index >= IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS))
             {
                 // don't debounce analog inputs and touchscreen buttons
                 states = states & 0x01;

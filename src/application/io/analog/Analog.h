@@ -21,16 +21,29 @@ limitations under the License.
 #include <functional>
 #include "database/Database.h"
 #include "util/messaging/Messaging.h"
+#include "io/common/Common.h"
 
-#ifndef ANALOG_SUPPORTED
-#include "stub/Analog.h"
-#else
+#if defined(ADC_SUPPORTED) || defined(TOUCHSCREEN_SUPPORTED)
+#define ANALOG_SUPPORTED
 
 namespace IO
 {
     class Analog
     {
         public:
+        class Collection : public Common::BaseCollection<NR_OF_ANALOG_INPUTS,
+                                                         NR_OF_TOUCHSCREEN_COMPONENTS>
+        {
+            public:
+            Collection() = delete;
+        };
+
+        enum
+        {
+            GROUP_ANALOG_INPUTS,
+            GROUP_TOUCHSCREEN_COMPONENTS
+        };
+
         enum class type_t : uint8_t
         {
             potentiometerControlChange,
@@ -97,14 +110,16 @@ namespace IO
         bool checkPotentiometerValue(size_t index, analogDescriptor_t& descriptor);
         bool checkFSRvalue(size_t index, analogDescriptor_t& descriptor);
         void sendMessage(size_t index, analogDescriptor_t& descriptor);
+        void setFSRstate(size_t index, bool state);
+        bool fsrState(size_t index);
 
         HWA&                     _hwa;
         Filter&                  _filter;
         Database&                _database;
         Util::MessageDispatcher& _dispatcher;
 
-        uint8_t  _fsrPressed[MAX_NUMBER_OF_ANALOG]                                       = {};
-        uint16_t _lastValue[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS] = {};
+        uint8_t  _fsrPressed[Collection::size() / 8 + 1] = {};
+        uint16_t _lastValue[Collection::size()]          = {};
 
         const MIDI::messageType_t _internalMsgToMIDIType[static_cast<uint8_t>(type_t::AMOUNT)] = {
             MIDI::messageType_t::controlChange,
@@ -119,4 +134,6 @@ namespace IO
     };
 }    // namespace IO
 
+#else
+#include "stub/Analog.h"
 #endif

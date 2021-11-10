@@ -2,8 +2,6 @@
 
 #include "unity/Framework.h"
 #include "stubs/database/DB_ReadWrite.h"
-#include "database/Database.h"
-#include "io/leds/LEDs.h"
 #include "system/System.h"
 
 namespace
@@ -38,103 +36,101 @@ TEST_CASE(ReadInitialValues)
         //----------------------------------
         // type section
         // all values should be set to 0 (default type)
-        for (int i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (int i = 0; i < IO::Buttons::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::button_t::type, i));
 
         // midi message section
         // all values should be set to 0 (default/note)
-        for (int i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (int i = 0; i < IO::Buttons::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::button_t::midiMessage, i));
 
         // midi id section
-        // incremental values - first value should be 0, each successive value should be incremented by 1 for each group
-        //(physical/analog/touchscreen)
-        for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
-            TEST_ASSERT_EQUAL_UINT32(i, database.read(Database::Section::button_t::midiID, i));
-
-        for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
-            TEST_ASSERT_EQUAL_UINT32(i, database.read(Database::Section::button_t::midiID, MAX_NUMBER_OF_BUTTONS + i));
-
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
-            TEST_ASSERT_EQUAL_UINT32(i, database.read(Database::Section::button_t::midiID, MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + i));
+        for (size_t group = 0; group < IO::Buttons::Collection::groups(); group++)
+        {
+            for (size_t i = 0; i < IO::Buttons::Collection::size(group); i++)
+                TEST_ASSERT_EQUAL_UINT32(i, database.read(Database::Section::button_t::midiID, i + IO::Buttons::Collection::startIndex(group)));
+        }
 
         // midi velocity section
         // all values should be set to 127
-        for (int i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (int i = 0; i < IO::Buttons::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(127, database.read(Database::Section::button_t::velocity, i));
 
         // midi channel section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (int i = 0; i < IO::Buttons::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::button_t::midiChannel, i));
 
         // encoders block
         //----------------------------------
         // enable section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
+        for (int i = 0; i < IO::Encoders::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::encoder_t::enable, i));
 
         // invert section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
+        for (int i = 0; i < IO::Encoders::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::encoder_t::invert, i));
 
         // mode section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
+        for (int i = 0; i < IO::Encoders::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::encoder_t::mode, i));
 
         // midi id section
-        // incremental values - first value should be set to MAX_NUMBER_OF_ANALOG, each successive value should be incremented by 1
-        for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
-            TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ANALOG + i, database.read(Database::Section::encoder_t::midiID, i));
+        // incremental values - first value should be 0, each successive value should be incremented by 1 for each group
+        for (int i = 0; i < IO::Encoders::Collection::size(); i++)
+            TEST_ASSERT_EQUAL_UINT32(i, database.read(Database::Section::encoder_t::midiID, i));
 
         // midi channel section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
+        for (int i = 0; i < IO::Encoders::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::encoder_t::midiChannel, i));
 
         // pulses per step section
         // all values should be set to 4
-        for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
+        for (int i = 0; i < IO::Encoders::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(4, database.read(Database::Section::encoder_t::pulsesPerStep, i));
 
         // analog block
         //----------------------------------
         // enable section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+        for (int i = 0; i < IO::Analog::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::analog_t::enable, i));
 
         // invert section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+        for (int i = 0; i < IO::Analog::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::analog_t::invert, i));
 
         // type section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+        for (int i = 0; i < IO::Analog::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::analog_t::invert, i));
 
         // midi id section
         // incremental values - first value should be set to 0, each successive value should be incremented by 1
-        for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
-            TEST_ASSERT_EQUAL_UINT32(i, database.read(Database::Section::analog_t::midiID, i));
+        for (size_t group = 0; group < IO::Analog::Collection::groups(); group++)
+        {
+            for (size_t i = 0; i < IO::Analog::Collection::size(group); i++)
+                TEST_ASSERT_EQUAL_UINT32(i, database.read(Database::Section::analog_t::midiID, i + IO::Analog::Collection::startIndex(group)));
+        }
 
         // lower limit section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+        for (int i = 0; i < IO::Analog::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::analog_t::lowerLimit, i));
 
         // upper limit section
         // all values should be set to 16383
-        for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+        for (int i = 0; i < IO::Analog::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(16383, database.read(Database::Section::analog_t::upperLimit, i));
 
         // midi channel section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+        for (int i = 0; i < IO::Analog::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::analog_t::midiChannel, i));
 
         // LED block
@@ -146,31 +142,30 @@ TEST_CASE(ReadInitialValues)
 
         // activation id section
         // incremental values - first value should be set to 0, each successive value should be incremented by 1 for each group
-        //(physical/touchscreen)
-        for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
-            TEST_ASSERT_EQUAL_UINT32(i, database.read(Database::Section::leds_t::activationID, i));
-
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
-            TEST_ASSERT_EQUAL_UINT32(i, database.read(Database::Section::leds_t::activationID, MAX_NUMBER_OF_LEDS + i));
+        for (size_t group = 0; group < IO::LEDs::Collection::groups(); group++)
+        {
+            for (size_t i = 0; i < IO::LEDs::Collection::size(group); i++)
+                TEST_ASSERT_EQUAL_UINT32(i, database.read(Database::Section::leds_t::activationID, i + IO::LEDs::Collection::startIndex(group)));
+        }
 
         // rgb enable section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_RGB_LEDS + (MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS / 3); i++)
+        for (int i = 0; i < IO::LEDs::Collection::size() / 3 + (IO::Touchscreen::Collection::size() / 3); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::leds_t::rgbEnable, i));
 
         // control type section
         // all values should be set to midiInNoteMultiVal
-        for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (int i = 0; i < IO::LEDs::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(static_cast<uint32_t>(IO::LEDs::controlType_t::midiInNoteMultiVal), database.read(Database::Section::leds_t::controlType, i));
 
         // activation value section
         // all values should be set to 127
-        for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (int i = 0; i < IO::LEDs::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(127, database.read(Database::Section::leds_t::activationValue, i));
 
         // midi channel section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (int i = 0; i < IO::LEDs::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::leds_t::midiChannel, i));
 
 #ifdef DISPLAY_SUPPORTED
@@ -197,77 +192,77 @@ TEST_CASE(ReadInitialValues)
 
         // x position section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (int i = 0; i < IO::Touchscreen::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::xPos, i));
 
         // y position section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (int i = 0; i < IO::Touchscreen::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::yPos, i));
 
         // width section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (int i = 0; i < IO::Touchscreen::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::width, i));
 
         // height section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (int i = 0; i < IO::Touchscreen::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::height, i));
 
         // on screen section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (int i = 0; i < IO::Touchscreen::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::onScreen, i));
 
         // off screen section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (int i = 0; i < IO::Touchscreen::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::offScreen, i));
 
         // page switch enabled section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (int i = 0; i < IO::Touchscreen::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::pageSwitchEnabled, i));
 
         // page switch index section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (int i = 0; i < IO::Touchscreen::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::pageSwitchIndex, i));
 
         // analog page section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (int i = 0; i < IO::Touchscreen::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::analogPage, i));
 
         // analog start x coordinate section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (int i = 0; i < IO::Touchscreen::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::analogStartXCoordinate, i));
 
         // analog end x coordinate section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (int i = 0; i < IO::Touchscreen::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::analogEndXCoordinate, i));
 
         // analog start y coordinate section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (int i = 0; i < IO::Touchscreen::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::analogStartYCoordinate, i));
 
         // analog end y coordinate section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (int i = 0; i < IO::Touchscreen::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::analogEndYCoordinate, i));
 
         // analog type section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (int i = 0; i < IO::Touchscreen::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::analogType, i));
 
         // analog reset on release section
         // all values should be set to 0
-        for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+        for (int i = 0; i < IO::Touchscreen::Collection::size(); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::touchscreen_t::analogResetOnRelease, i));
 #endif
     }
@@ -297,9 +292,14 @@ TEST_CASE(Presets)
     {
         // try setting value in preset 1, switch back to preset 0 and verify preset 0 still contains default value
         TEST_ASSERT(database.setPreset(1) == true);
-        TEST_ASSERT(database.update(Database::Section::analog_t::midiID, 0, 127) == true);
+
+        if (IO::Analog::Collection::size())
+            TEST_ASSERT(database.update(Database::Section::analog_t::midiID, 0, 127) == true);
+
         TEST_ASSERT(database.setPreset(0) == true);
-        TEST_ASSERT(database.read(Database::Section::analog_t::midiID, 0) == 0);
+
+        if (IO::Analog::Collection::size())
+            TEST_ASSERT(database.read(Database::Section::analog_t::midiID, 0) == 0);
     }
 
     // enable preset preservation, perform factory reset and verify that preservation is disabled
@@ -354,7 +354,7 @@ TEST_CASE(FactoryReset)
     TEST_ASSERT(database.getPresetPreserveState() == false);
 }
 
-#if MAX_NUMBER_OF_LEDS > 0
+#ifdef LEDS_SUPPORTED
 TEST_CASE(LEDs)
 {
     // init checks - no point in running further tests if these conditions fail
@@ -362,13 +362,13 @@ TEST_CASE(LEDs)
 
     // regression test
     // by default, rgb state should be disabled
-    for (int i = 0; i < MAX_NUMBER_OF_RGB_LEDS; i++)
+    for (int i = 0; i < IO::LEDs::Collection::size() / 3; i++)
         TEST_ASSERT(database.read(Database::Section::leds_t::rgbEnable, i) == false);
 
     TEST_ASSERT(database.update(Database::Section::leds_t::controlType, 0, IO::LEDs::controlType_t::pcSingleVal) == true);
 
     // rgb state shouldn't change
-    for (int i = 0; i < MAX_NUMBER_OF_RGB_LEDS; i++)
+    for (int i = 0; i < IO::LEDs::Collection::size() / 3; i++)
         TEST_ASSERT(database.read(Database::Section::leds_t::rgbEnable, i) == false);
 }
 #endif

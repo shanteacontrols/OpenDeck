@@ -21,7 +21,7 @@ limitations under the License.
 #include "core/src/general/Timing.h"
 
 #ifdef FW_APP
-#ifdef ANALOG_SUPPORTED
+#ifdef ADC_SUPPORTED
 /// ADC ISR used to read values from multiplexers.
 ISR(ADC_vect)
 {
@@ -42,7 +42,7 @@ ISR(TIMER1_COMPA_vect)
 {
 #ifdef FW_APP
 #ifndef USB_LINK_MCU
-#if MAX_NUMBER_OF_LEDS > 0
+#if NR_OF_DIGITAL_OUTPUTS > 0
     Board::detail::io::checkDigitalOutputs();
 #endif
 #endif

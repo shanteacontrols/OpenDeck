@@ -28,7 +28,7 @@ limitations under the License.
 
 namespace
 {
-    volatile Board::io::dInReadings_t _digitalInBuffer[MAX_NUMBER_OF_BUTTONS];
+    volatile Board::io::dInReadings_t _digitalInBuffer[NR_OF_DIGITAL_INPUTS];
 
 #ifdef NUMBER_OF_BUTTON_COLUMNS
     volatile uint8_t _activeInColumn;
@@ -126,7 +126,7 @@ namespace
 
     inline void storeDigitalIn()
     {
-        for (int buttonIndex = 0; buttonIndex < MAX_NUMBER_OF_BUTTONS; buttonIndex++)
+        for (int buttonIndex = 0; buttonIndex < NR_OF_DIGITAL_INPUTS; buttonIndex++)
         {
             _pin = Board::detail::map::buttonPin(buttonIndex);
 
@@ -146,7 +146,7 @@ namespace Board
     {
         bool digitalInState(size_t digitalInIndex, dInReadings_t& dInReadings)
         {
-            if (digitalInIndex >= MAX_NUMBER_OF_BUTTONS)
+            if (digitalInIndex >= NR_OF_DIGITAL_INPUTS)
                 return false;
 
             digitalInIndex = detail::map::buttonIndex(digitalInIndex);
@@ -212,7 +212,7 @@ namespace Board
             {
                 ATOMIC_SECTION
                 {
-                    for (size_t i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
+                    for (size_t i = 0; i < NR_OF_DIGITAL_INPUTS; i++)
                         _digitalInBuffer[i].count = 0;
                 }
             }

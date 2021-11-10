@@ -96,16 +96,11 @@ class HWALEDs : public System::HWA::IO::LEDs
 
     size_t rgbIndex(size_t singleLEDindex) override
     {
-#if MAX_NUMBER_OF_LEDS > 0
         return Board::io::rgbIndex(singleLEDindex);
-#else
-        return 0;
-#endif
     }
 
     size_t rgbSignalIndex(size_t rgbIndex, IO::LEDs::rgbIndex_t rgbComponent) override
     {
-#if MAX_NUMBER_OF_LEDS > 0
         Board::io::rgbIndex_t boardRGBindex;
 
         switch (rgbComponent)
@@ -133,9 +128,6 @@ class HWALEDs : public System::HWA::IO::LEDs
         }
 
         return Board::io::rgbSignalIndex(rgbIndex, boardRGBindex);
-#else
-        return 0;
-#endif
     }
 
     Board::io::ledBrightness_t appToBoardBrightness(IO::LEDs::brightness_t brightness)
@@ -170,7 +162,7 @@ class HWALEDsStub : public System::HWA::IO::LEDs
         return false;
     }
 
-    void setState(size_t index, bool state) override
+    void setState(size_t index, IO::LEDs::brightness_t brightness) override
     {
     }
 

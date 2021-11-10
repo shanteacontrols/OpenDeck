@@ -7,17 +7,9 @@ ifeq (,$(findstring USB_LINK_MCU,$(DEFINES)))
     application/database/Database.cpp \
     application/database/CustomInit.cpp \
     application/io/common/Common.cpp \
-    application/io/buttons/Buttons.cpp
-
-    ifneq (,$(findstring LEDS_SUPPORTED,$(DEFINES)))
-        SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) += \
-        application/io/leds/LEDs.cpp
-    endif
-
-    ifneq (,$(findstring ANALOG_SUPPORTED,$(DEFINES)))
-        SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) += \
-        application/io/analog/Analog.cpp
-    endif
+    application/io/buttons/Buttons.cpp \
+    application/io/leds/LEDs.cpp \
+    application/io/analog/Analog.cpp
 
     ifneq (,$(findstring DISPLAY_SUPPORTED,$(DEFINES)))
         SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) += \

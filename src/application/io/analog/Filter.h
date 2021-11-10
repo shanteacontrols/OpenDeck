@@ -36,23 +36,6 @@ limitations under the License.
 #define MEDIAN_MIDDLE_VALUE 1
 #endif
 
-// Define if analog MIDI values can't reach 0.
-// If this is defined, 0 won't be used as minimum
-// ADC value. Instead, minimum value will be
-// specified percentage from maximum available ADC value
-//(defined in adcConfig_t struct).
-#ifndef ADC_LOWER_OFFSET_PERCENTAGE
-#define ADC_LOWER_OFFSET_PERCENTAGE 0
-#endif
-
-// Define if analog MIDI values can't reach 127.
-// If this is defined, specified percentage will be
-// subtracted from maximum available ADC value
-//(defined in adcConfig_t).
-#ifndef ADC_UPPER_OFFSET_PERCENTAGE
-#define ADC_UPPER_OFFSET_PERCENTAGE 0
-#endif
-
 namespace IO
 {
     class EMA
@@ -87,14 +70,6 @@ namespace IO
         {
             _adcMinValueOffset = _adcConfig.adcMinValue;
             _adcMaxValueOffset = _adcConfig.adcMaxValue;
-
-#if ADC_LOWER_OFFSET_PERCENTAGE > 0
-            _adcMinValueOffset = static_cast<double>(_adcConfig.adcMaxValue) * static_cast<double>(ADC_LOWER_OFFSET_PERCENTAGE / 100.0);
-#endif
-
-#if ADC_UPPER_OFFSET_PERCENTAGE > 0
-            _adcMaxValueOffset = static_cast<double>(_adcConfig.adcMaxValue) - static_cast<double>(adcMaxValue * static_cast<double>(ADC_UPPER_OFFSET_PERCENTAGE / 100.0));
-#endif
         }
 
         Analog::adcType_t adcType() override
@@ -105,8 +80,8 @@ namespace IO
         bool isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) override
         {
             // use offset adc values for adc values only, not for touchscreen
-            const uint32_t minValue = index < MAX_NUMBER_OF_ANALOG ? _adcMinValueOffset : _adcConfig.adcMinValue;
-            const uint32_t maxValue = index < MAX_NUMBER_OF_ANALOG ? _adcMaxValueOffset : _adcConfig.adcMaxValue;
+            const uint32_t minValue = index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) ? _adcMinValueOffset : _adcConfig.adcMinValue;
+            const uint32_t maxValue = index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) ? _adcMaxValueOffset : _adcConfig.adcMaxValue;
 
             value = CONSTRAIN(value, minValue, maxValue);
 
@@ -123,6 +98,7 @@ namespace IO
                 return true;
             }
 
+#ifdef ADC_SUPPORTED
             auto compare = [](const void* a, const void* b) {
                 if (*(uint16_t*)a < *(uint16_t*)b)
                     return -1;
@@ -132,7 +108,11 @@ namespace IO
                 return 0;
             };
 
-            const bool     fastFilter   = (index < MAX_NUMBER_OF_ANALOG) ? (core::timing::currentRunTimeMs() - _lastStableMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS : true;
+            const bool fastFilter = (index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)) ? (core::timing::currentRunTimeMs() - _lastStableMovementTime[index]) < FAST_FILTER_ENABLE_AFTER_MS : true;
+#else
+            const bool fastFilter = true;
+#endif
+
             const bool     use14bit     = (type == Analog::type_t::nrpn14bit) || (type == Analog::type_t::pitchBend) || (type == Analog::type_t::controlChange14bit);
             const uint16_t maxLimit     = use14bit ? MIDI::MIDI_14_BIT_VALUE_MAX : MIDI::MIDI_7_BIT_VALUE_MAX;
             const bool     direction    = value >= _lastStableValue[index];
@@ -150,13 +130,16 @@ namespace IO
 
             if (abs(value - _lastStableValue[index]) < stepDiff)
             {
-                if (index < MAX_NUMBER_OF_ANALOG)
+#ifdef ADC_SUPPORTED
+                if (index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
                     _medianSampleCounter[index] = 0;
+#endif
 
                 return false;
             }
 
-            if (index < MAX_NUMBER_OF_ANALOG)
+#ifdef ADC_SUPPORTED
+            if (index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
             {
                 // don't filter the readings for touchscreen data
 
@@ -180,14 +163,17 @@ namespace IO
                 {
                     filteredValue = value;
                 }
+
+                if (index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
+                    filteredValue = _emaFilter[index].value(filteredValue);
             }
             else
             {
                 filteredValue = value;
             }
-
-            if (index < MAX_NUMBER_OF_ANALOG)
-                filteredValue = _emaFilter[index].value(filteredValue);
+#else
+            filteredValue         = value;
+#endif
 
             const auto midiValue = core::misc::mapRange(static_cast<uint32_t>(filteredValue), static_cast<uint32_t>(minValue), static_cast<uint32_t>(maxValue), static_cast<uint32_t>(0), static_cast<uint32_t>(maxLimit));
 
@@ -197,8 +183,16 @@ namespace IO
             _lastStableDirection[index] = direction;
             _lastStableValue[index]     = filteredValue;
 
-            if (index < MAX_NUMBER_OF_ANALOG)
-                _lastStableMovementTime[index] = core::timing::currentRunTimeMs();
+#ifdef ADC_SUPPORTED
+            if (index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
+            {
+                // when edge values are reached, disable fast filter by resetting last movement time
+                if ((midiValue == 0) || (midiValue == maxLimit))
+                    _lastStableMovementTime[index] = 0;
+                else
+                    _lastStableMovementTime[index] = core::timing::currentRunTimeMs();
+            }
+#endif
 
             if (type == Analog::type_t::fsr)
             {
@@ -209,20 +203,18 @@ namespace IO
                 filteredValue = midiValue;
             }
 
-            // when edge values are reached, disable fast filter by resetting last movement time
-            if (((midiValue == 0) || (midiValue == maxLimit)) && (index < MAX_NUMBER_OF_ANALOG))
-                _lastStableMovementTime[index] = 0;
-
             return true;
         }
 
         void reset(size_t index) override
         {
-            if (index < MAX_NUMBER_OF_ANALOG)
+#ifdef ADC_SUPPORTED
+            if (index < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
             {
                 _medianSampleCounter[index]    = 0;
                 _lastStableMovementTime[index] = 0;
             }
+#endif
 
             _lastStableValue[index] = 0;
         }
@@ -266,15 +258,20 @@ namespace IO
         adcConfig_t&                _adcConfig;
         const uint16_t              _stepDiff7Bit;
 
-        EMA                       _emaFilter[MAX_NUMBER_OF_ANALOG];
-        uint32_t                  _adcMinValueOffset                                                                = 0;
-        uint32_t                  _adcMaxValueOffset                                                                = 0;
-        static constexpr uint32_t FAST_FILTER_ENABLE_AFTER_MS                                                       = 50;
-        uint16_t                  _analogSample[MAX_NUMBER_OF_ANALOG][MEDIAN_SAMPLE_COUNT]                          = {};
-        size_t                    _medianSampleCounter[MAX_NUMBER_OF_ANALOG]                                        = {};
-        uint32_t                  _lastStableMovementTime[MAX_NUMBER_OF_ANALOG]                                     = {};
-        bool                      _lastStableDirection[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS] = {};
-        uint16_t                  _lastStableValue[MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS]     = {};
+        uint32_t                  _adcMinValueOffset          = 0;
+        uint32_t                  _adcMaxValueOffset          = 0;
+        static constexpr uint32_t FAST_FILTER_ENABLE_AFTER_MS = 50;
+
+// some filtering is needed for adc only
+#ifdef ADC_SUPPORTED
+        EMA      _emaFilter[IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)];
+        uint16_t _analogSample[IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)][MEDIAN_SAMPLE_COUNT] = {};
+        size_t   _medianSampleCounter[IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)]               = {};
+        uint32_t _lastStableMovementTime[IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS)]            = {};
+#endif
+
+        bool     _lastStableDirection[IO::Analog::Collection::size()] = {};
+        uint16_t _lastStableValue[IO::Analog::Collection::size()]     = {};
     };    // namespace IO
 }    // namespace IO
 #endif

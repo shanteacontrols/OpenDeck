@@ -85,7 +85,7 @@ namespace Board
 #ifdef NUMBER_OF_BUTTON_ROWS
                 for (int i = 0; i < NUMBER_OF_BUTTON_ROWS; i++)
 #else
-                for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
+                for (int i = 0; i < NR_OF_DIGITAL_INPUTS; i++)
 #endif
                 {
                     core::io::mcuPin_t pin = detail::map::buttonPin(i);
@@ -120,7 +120,7 @@ namespace Board
                 // init all outputs on shift register
                 CORE_IO_SET_LOW(SR_OUT_LATCH_PORT, SR_OUT_LATCH_PIN);
 
-                for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
+                for (int i = 0; i < NR_OF_DIGITAL_OUTPUTS; i++)
                 {
                     EXT_LED_OFF(SR_OUT_DATA_PORT, SR_OUT_DATA_PIN);
                     CORE_IO_SET_HIGH(SR_OUT_CLK_PORT, SR_OUT_CLK_PIN);
@@ -144,7 +144,7 @@ namespace Board
 
                 for (int i = 0; i < NUMBER_OF_LED_ROWS; i++)
 #else
-                for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
+                for (int i = 0; i < NR_OF_DIGITAL_OUTPUTS; i++)
 #endif
                 {
                     core::io::mcuPin_t pin = detail::map::ledPin(i);

@@ -59,35 +59,35 @@ namespace
     std::vector<SysExConf::Section> buttonSections = {
         // type section
         {
-            MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Buttons::Collection::size(),
             0,
             static_cast<uint16_t>(IO::Buttons::type_t::AMOUNT) - 1,
         },
 
         // midi message type section
         {
-            MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Buttons::Collection::size(),
             0,
             static_cast<uint16_t>(IO::Buttons::messageType_t::AMOUNT) - 1,
         },
 
         // midi id section
         {
-            MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Buttons::Collection::size(),
             0,
             127,
         },
 
         // midi velocity section
         {
-            MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Buttons::Collection::size(),
             1,
             127,
         },
 
         // midi channel section
         {
-            MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Buttons::Collection::size(),
             1,
             16,
         }
@@ -96,63 +96,63 @@ namespace
     std::vector<SysExConf::Section> encoderSections = {
         // encoder enabled section
         {
-            MAX_NUMBER_OF_ENCODERS,
+            IO::Encoders::Collection::size(),
             0,
             1,
         },
 
         // encoder inverted section
         {
-            MAX_NUMBER_OF_ENCODERS,
+            IO::Encoders::Collection::size(),
             0,
             1,
         },
 
         // encoding mode section
         {
-            MAX_NUMBER_OF_ENCODERS,
+            IO::Encoders::Collection::size(),
             0,
             static_cast<uint16_t>(IO::Encoders::type_t::AMOUNT) - 1,
         },
 
         // midi id section, lsb
         {
-            MAX_NUMBER_OF_ENCODERS,
+            IO::Encoders::Collection::size(),
             0,
             16383,
         },
 
         // midi channel section
         {
-            MAX_NUMBER_OF_ENCODERS,
+            IO::Encoders::Collection::size(),
             1,
             16,
         },
 
         // pulses per step section
         {
-            MAX_NUMBER_OF_ENCODERS,
+            IO::Encoders::Collection::size(),
             2,
             4,
         },
 
         // acceleration section
         {
-            MAX_NUMBER_OF_ENCODERS,
+            IO::Encoders::Collection::size(),
             0,
             static_cast<uint16_t>(IO::Encoders::acceleration_t::AMOUNT) - 1,
         },
 
         // midi id section, msb
         {
-            MAX_NUMBER_OF_ENCODERS,
+            IO::Encoders::Collection::size(),
             0,
             127,
         },
 
         // remote sync section
         {
-            MAX_NUMBER_OF_ENCODERS,
+            IO::Encoders::Collection::size(),
             0,
             1,
         },
@@ -161,70 +161,70 @@ namespace
     std::vector<SysExConf::Section> analogSections = {
         // analog enabled section
         {
-            MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Analog::Collection::size(),
             0,
             1,
         },
 
         // analog inverted section
         {
-            MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Analog::Collection::size(),
             0,
             1,
         },
 
         // analog type section
         {
-            MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Analog::Collection::size(),
             0,
             static_cast<uint16_t>(IO::Analog::type_t::AMOUNT) - 1,
         },
 
         // midi id section, lsb
         {
-            MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Analog::Collection::size(),
             0,
             16383,
         },
 
         // midi id section, msb
         {
-            MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Analog::Collection::size(),
             0,
             127,
         },
 
         // lower cc limit, lsb
         {
-            MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Analog::Collection::size(),
             0,
             16383,
         },
 
         // lower cc limit, msb
         {
-            MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Analog::Collection::size(),
             0,
             127,
         },
 
         // upper cc limit, lsb
         {
-            MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Analog::Collection::size(),
             0,
             16383,
         },
 
         // upper cc limit, msb
         {
-            MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Analog::Collection::size(),
             0,
             127,
         },
 
         // midi channel section
         {
-            MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Analog::Collection::size(),
             1,
             16,
         }
@@ -233,14 +233,14 @@ namespace
     std::vector<SysExConf::Section> ledSections = {
         // led color test section
         {
-            MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::LEDs::Collection::size(),
             0,
             static_cast<uint16_t>(IO::LEDs::color_t::AMOUNT) - 1,
         },
 
         // led blink test section
         {
-            MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::LEDs::Collection::size(),
             0,
             1,
         },
@@ -254,35 +254,35 @@ namespace
 
         // activation note section
         {
-            MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::LEDs::Collection::size(),
             0,
             127,
         },
 
         // rgb enabled section
         {
-            MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::LEDs::Collection::size(),
             0,
             1,
         },
 
         // led control type section
         {
-            MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::LEDs::Collection::size(),
             0,
             static_cast<uint16_t>(IO::LEDs::controlType_t::AMOUNT) - 1,
         },
 
         // single led velocity value section
         {
-            MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::LEDs::Collection::size(),
             1,
             127,
         },
 
         // midi channel section
         {
-            MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::LEDs::Collection::size(),
             1,
             16,
         }
@@ -314,105 +314,105 @@ namespace
 
         // x position section
         {
-            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Touchscreen::Collection::size(),
             0,
             0,
         },
 
         // y position section
         {
-            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Touchscreen::Collection::size(),
             0,
             0,
         },
 
         // width section
         {
-            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Touchscreen::Collection::size(),
             0,
             1024,
         },
 
         // height section
         {
-            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Touchscreen::Collection::size(),
             0,
             600,
         },
 
         // on screen section
         {
-            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Touchscreen::Collection::size(),
             0,
             15,
         },
 
         // off screen section
         {
-            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Touchscreen::Collection::size(),
             0,
             15,
         },
 
         // page switch enabled section
         {
-            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Touchscreen::Collection::size(),
             0,
             1,
         },
 
         // page switch index section
         {
-            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Touchscreen::Collection::size(),
             0,
             15,
         },
 
         // analog page section
         {
-            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Touchscreen::Collection::size(),
             0,
             15,
         },
 
         // analog start x coordinate section
         {
-            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Touchscreen::Collection::size(),
             0,
             0,
         },
 
         // analog end x coordinate section
         {
-            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Touchscreen::Collection::size(),
             0,
             0,
         },
 
         // analog start y coordinate section
         {
-            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Touchscreen::Collection::size(),
             0,
             0,
         },
 
         // analog end y coordinate section
         {
-            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Touchscreen::Collection::size(),
             0,
             0,
         },
 
         // analog type section
         {
-            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Touchscreen::Collection::size(),
             0,
             1,
         },
 
         // analog reset on release section
         {
-            MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            IO::Touchscreen::Collection::size(),
             0,
             1,
         },

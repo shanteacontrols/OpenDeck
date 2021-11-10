@@ -96,7 +96,7 @@ namespace
     LESSDB::section_t buttonSections[static_cast<uint8_t>(Database::Section::button_t::AMOUNT)] = {
         // type section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Buttons::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -106,7 +106,7 @@ namespace
 
         // midi message type section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Buttons::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -116,7 +116,7 @@ namespace
 
         // midi id section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Buttons::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -126,7 +126,7 @@ namespace
 
         // midi velocity section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Buttons::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
             .defaultValue           = 127,
@@ -136,7 +136,7 @@ namespace
 
         // midi channel section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Buttons::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -148,7 +148,7 @@ namespace
     LESSDB::section_t encoderSections[static_cast<uint8_t>(Database::Section::encoder_t::AMOUNT)] = {
         // encoder enabled section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
+            .numberOfParameters     = IO::Encoders::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -158,7 +158,7 @@ namespace
 
         // encoder inverted section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
+            .numberOfParameters     = IO::Encoders::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -168,7 +168,7 @@ namespace
 
         // encoding mode section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
+            .numberOfParameters     = IO::Encoders::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -178,17 +178,17 @@ namespace
 
         // midi id section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
+            .numberOfParameters     = IO::Encoders::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
-            .defaultValue           = MAX_NUMBER_OF_ANALOG,
+            .defaultValue           = 0,
             .autoIncrement          = true,
             .address                = 0,
         },
 
         // midi channel section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
+            .numberOfParameters     = IO::Encoders::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -198,7 +198,7 @@ namespace
 
         // pulses per step section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
+            .numberOfParameters     = IO::Encoders::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 4,
@@ -208,7 +208,7 @@ namespace
 
         // acceleration section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
+            .numberOfParameters     = IO::Encoders::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -218,7 +218,7 @@ namespace
 
         // remote sync section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_ENCODERS,
+            .numberOfParameters     = IO::Encoders::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -230,7 +230,7 @@ namespace
     LESSDB::section_t analogSections[static_cast<uint8_t>(Database::Section::analog_t::AMOUNT)] = {
         // analog enabled section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Analog::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -240,7 +240,7 @@ namespace
 
         // analog inverted section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Analog::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -250,7 +250,7 @@ namespace
 
         // analog type section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Analog::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -260,7 +260,7 @@ namespace
 
         // midi id section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Analog::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -270,7 +270,7 @@ namespace
 
         // lower cc limit
         {
-            .numberOfParameters     = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Analog::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -280,7 +280,7 @@ namespace
 
         // upper cc limit
         {
-            .numberOfParameters     = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Analog::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
             .defaultValue           = 16383,
@@ -290,7 +290,7 @@ namespace
 
         // midi channel section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Analog::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -312,7 +312,7 @@ namespace
 
         // activation id section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::LEDs::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -322,7 +322,7 @@ namespace
 
         // rgb enabled section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_RGB_LEDS + (MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS / 3),
+            .numberOfParameters     = (IO::LEDs::Collection::size() / 3) + (IO::Touchscreen::Collection::size() / 3),
             .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -332,7 +332,7 @@ namespace
 
         // led control type section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::LEDs::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -342,7 +342,7 @@ namespace
 
         // single velocity value section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::LEDs::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
             .defaultValue           = 127,
@@ -352,7 +352,7 @@ namespace
 
         // midi channel section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::LEDs::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -396,7 +396,7 @@ namespace
 
         // x position section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Touchscreen::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -406,7 +406,7 @@ namespace
 
         // y position section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Touchscreen::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -416,7 +416,7 @@ namespace
 
         // width section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Touchscreen::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -426,7 +426,7 @@ namespace
 
         // height section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Touchscreen::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -436,7 +436,7 @@ namespace
 
         // on screen section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Touchscreen::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -446,7 +446,7 @@ namespace
 
         // off screen section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Touchscreen::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -456,7 +456,7 @@ namespace
 
         // page switch enabled section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Touchscreen::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -466,7 +466,7 @@ namespace
 
         // page switch index section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Touchscreen::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -476,7 +476,7 @@ namespace
 
         // analog page section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Touchscreen::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -486,7 +486,7 @@ namespace
 
         // analog start x coordinate section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Touchscreen::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -496,7 +496,7 @@ namespace
 
         // analog end x coordinate section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Touchscreen::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -506,7 +506,7 @@ namespace
 
         // analog start y coordinate section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Touchscreen::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -516,7 +516,7 @@ namespace
 
         // analog end y coordinate section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Touchscreen::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::word,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -526,7 +526,7 @@ namespace
 
         // analog type section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Touchscreen::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -536,7 +536,7 @@ namespace
 
         // analog reset on release section
         {
-            .numberOfParameters     = MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS,
+            .numberOfParameters     = IO::Touchscreen::Collection::size(),
             .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,

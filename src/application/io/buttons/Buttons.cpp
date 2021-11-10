@@ -17,7 +17,9 @@ limitations under the License.
 */
 
 #include "Buttons.h"
-#include "io/common/Common.h"
+
+#ifdef BUTTONS_SUPPORTED
+
 #include "core/src/general/Helpers.h"
 #include "core/src/general/Timing.h"
 
@@ -35,7 +37,7 @@ Buttons::Buttons(HWA&                     hwa,
     _dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
                        Util::MessageDispatcher::listenType_t::forward,
                        [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                           size_t             index = dispatchMessage.componentIndex + MAX_NUMBER_OF_BUTTONS;
+                           size_t             index = dispatchMessage.componentIndex + Collection::startIndex(GROUP_ANALOG_INPUTS);
                            buttonDescriptor_t descriptor;
                            fillButtonDescriptor(index, descriptor);
 
@@ -46,7 +48,8 @@ Buttons::Buttons(HWA&                     hwa,
     _dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenButton,
                        Util::MessageDispatcher::listenType_t::forward,
                        [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                           size_t             index = dispatchMessage.componentIndex + MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG;
+                           size_t index = dispatchMessage.componentIndex + Collection::startIndex(GROUP_TOUCHSCREEN_COMPONENTS);
+
                            buttonDescriptor_t descriptor;
                            fillButtonDescriptor(index, descriptor);
 
@@ -58,7 +61,7 @@ Buttons::Buttons(HWA&                     hwa,
 /// Continuously reads inputs from buttons and acts if necessary.
 void Buttons::update(bool forceResend)
 {
-    for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
+    for (size_t i = 0; i < Collection::size(GROUP_DIGITAL_INPUTS); i++)
     {
         uint8_t  numberOfReadings = 0;
         uint32_t states           = 0;
@@ -428,3 +431,5 @@ void Buttons::fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor)
 
     descriptor.dispatchMessage.message = _internalMsgToMIDIType[static_cast<uint8_t>(descriptor.messageType)];
 }
+
+#endif

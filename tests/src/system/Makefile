@@ -24,27 +24,11 @@ ifeq (,$(findstring USB_LINK_MCU,$(DEFINES)))
     application/util/cinfo/CInfo.cpp \
     application/midi/MIDI.cpp \
     modules/sysex/src/SysExConf.cpp \
-    modules/dmxusb/src/DMXUSBWidget.cpp
-
-    ifneq (,$(findstring BUTTONS_SUPPORTED,$(DEFINES)))
-        SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) += \
-        application/io/buttons/Buttons.cpp
-    endif
-
-    ifneq (,$(findstring ENCODERS_SUPPORTED,$(DEFINES)))
-        SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) += \
-        application/io/encoders/Encoders.cpp
-    endif
-
-    ifneq (,$(findstring LEDS_SUPPORTED,$(DEFINES)))
-        SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) += \
-        application/io/leds/LEDs.cpp
-    endif
-
-    ifneq (,$(findstring ANALOG_SUPPORTED,$(DEFINES)))
-        SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) += \
-        application/io/analog/Analog.cpp
-    endif
+    modules/dmxusb/src/DMXUSBWidget.cpp \
+    application/io/buttons/Buttons.cpp \
+    application/io/encoders/Encoders.cpp \
+    application/io/leds/LEDs.cpp \
+    application/io/analog/Analog.cpp \
 
     ifneq (,$(findstring DISPLAY_SUPPORTED,$(DEFINES)))
         SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) += \

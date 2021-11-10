@@ -17,6 +17,9 @@ limitations under the License.
 */
 
 #include "Analog.h"
+
+#ifdef ANALOG_SUPPORTED
+
 #include "core/src/general/Helpers.h"
 
 using namespace IO;
@@ -33,7 +36,7 @@ Analog::Analog(HWA&                     hwa,
     _dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenAnalog,
                        Util::MessageDispatcher::listenType_t::forward,
                        [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                           size_t index = dispatchMessage.componentIndex + MAX_NUMBER_OF_ANALOG;
+                           size_t index = dispatchMessage.componentIndex + Collection::startIndex(GROUP_TOUCHSCREEN_COMPONENTS);
                            processReading(index, dispatchMessage.midiValue);
                        });
 }
@@ -41,7 +44,7 @@ Analog::Analog(HWA&                     hwa,
 void Analog::update(bool forceResend)
 {
     // check values
-    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+    for (size_t i = 0; i < Collection::size(GROUP_ANALOG_INPUTS); i++)
     {
         if (!forceResend)
         {
@@ -182,23 +185,23 @@ bool Analog::checkPotentiometerValue(size_t index, analogDescriptor_t& descripto
 bool Analog::checkFSRvalue(size_t index, analogDescriptor_t& descriptor)
 {
     // don't allow touchscreen components to be processed as FSR
-    if (index >= MAX_NUMBER_OF_ANALOG)
+    if (index >= Collection::size(GROUP_ANALOG_INPUTS))
         return false;
 
     if (descriptor.dispatchMessage.midiValue > 0)
     {
-        if (!_fsrPressed[index])
+        if (!fsrState(index))
         {
             // sensor is really pressed
-            _fsrPressed[index] = true;
+            setFSRstate(index, true);
             return true;
         }
     }
     else
     {
-        if (_fsrPressed[index])
+        if (fsrState(index))
         {
-            _fsrPressed[index] = false;
+            setFSRstate(index, false);
             return true;
         }
     }
@@ -220,7 +223,7 @@ void Analog::sendMessage(size_t index, analogDescriptor_t& descriptor)
 
     case type_t::fsr:
     {
-        if (!_fsrPressed[index])
+        if (!fsrState(index))
         {
             descriptor.dispatchMessage.midiValue = 0;
             descriptor.dispatchMessage.message   = MIDI::messageType_t::noteOff;
@@ -262,9 +265,25 @@ void Analog::sendMessage(size_t index, analogDescriptor_t& descriptor)
 
 void Analog::debounceReset(size_t index)
 {
-    _fsrPressed[index] = false;
-    _lastValue[index]  = 0xFFFF;
+    setFSRstate(index, false);
+    _lastValue[index] = 0xFFFF;
     _filter.reset(index);
+}
+
+void Analog::setFSRstate(size_t index, bool state)
+{
+    uint8_t arrayIndex  = index / 8;
+    uint8_t analogIndex = index - 8 * arrayIndex;
+
+    BIT_WRITE(_fsrPressed[arrayIndex], analogIndex, state);
+}
+
+bool Analog::fsrState(size_t index)
+{
+    uint8_t arrayIndex  = index / 8;
+    uint8_t analogIndex = index - 8 * arrayIndex;
+
+    return BIT_READ(_fsrPressed[arrayIndex], analogIndex);
 }
 
 void Analog::fillAnalogDescriptor(size_t index, analogDescriptor_t& descriptor)
@@ -278,3 +297,5 @@ void Analog::fillAnalogDescriptor(size_t index, analogDescriptor_t& descriptor)
     descriptor.dispatchMessage.midiIndex      = _database.read(Database::Section::analog_t::midiID, index);
     descriptor.dispatchMessage.message        = _internalMsgToMIDIType[static_cast<uint8_t>(descriptor.type)];
 }
+
+#endif

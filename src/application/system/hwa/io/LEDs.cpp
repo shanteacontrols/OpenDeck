@@ -20,8 +20,8 @@ limitations under the License.
 
 void System::HWALEDs::setState(size_t index, IO::LEDs::brightness_t brightness)
 {
-    if (index >= MAX_NUMBER_OF_LEDS)
-        _system._touchscreen.setIconState(index - MAX_NUMBER_OF_LEDS, brightness != IO::LEDs::brightness_t::bOff);
+    if (index >= IO::LEDs::Collection::size(IO::LEDs::GROUP_DIGITAL_OUTPUTS))
+        _system._touchscreen.setIconState(index - IO::LEDs::Collection::size(IO::LEDs::GROUP_DIGITAL_OUTPUTS), brightness != IO::LEDs::brightness_t::bOff);
     else
         _system._hwa.io().leds().setState(index, brightness);
 }

@@ -25,6 +25,39 @@ namespace IO
 {
     namespace Common
     {
+        template<size_t... T>
+        class BaseCollection
+        {
+            public:
+            BaseCollection() = delete;
+
+            static constexpr size_t groups()
+            {
+                return sizeof...(T);
+            }
+
+            static constexpr size_t size()
+            {
+                return (T + ...);
+            }
+
+            static constexpr size_t size(size_t group)
+            {
+                constexpr size_t values[] = { T... };
+                return values[group];
+            }
+
+            static constexpr size_t startIndex(size_t group)
+            {
+                size_t index = 0;
+
+                for (size_t i = 0; i < group; i++)
+                    index += size(i);
+
+                return index;
+            }
+        };
+
         enum class incDecType_t : uint8_t
         {
             toEdge,

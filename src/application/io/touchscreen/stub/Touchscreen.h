@@ -23,6 +23,12 @@ namespace IO
     class Touchscreen
     {
         public:
+        class Collection : public Common::BaseCollection<0>
+        {
+            public:
+            Collection() = delete;
+        };
+
         enum class setting_t : uint8_t
         {
             enable,

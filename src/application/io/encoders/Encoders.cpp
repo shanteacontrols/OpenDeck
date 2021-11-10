@@ -17,7 +17,9 @@ limitations under the License.
 */
 
 #include "Encoders.h"
-#include "io/common/Common.h"
+
+#ifdef ENCODERS_SUPPORTED
+
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
 
@@ -34,7 +36,7 @@ Encoders::Encoders(HWA&                     hwa,
     , _database(database)
     , _dispatcher(dispatcher)
 {
-    for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
+    for (size_t i = 0; i < Collection::size(); i++)
         resetValue(i);
 
     _dispatcher.listen(Util::MessageDispatcher::messageSource_t::midiIn,
@@ -44,7 +46,7 @@ Encoders::Encoders(HWA&                     hwa,
                            {
                            case MIDI::messageType_t::controlChange:
                            {
-                               for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
+                               for (size_t i = 0; i < Collection::size(); i++)
                                {
                                    if (!_database.read(Database::Section::encoder_t::remoteSync, i))
                                        continue;
@@ -72,7 +74,7 @@ Encoders::Encoders(HWA&                     hwa,
 /// Continuously checks state of all encoders.
 void Encoders::update()
 {
-    for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
+    for (size_t i = 0; i < Collection::size(); i++)
     {
         if (!_database.read(Database::Section::encoder_t::enable, i))
             continue;
@@ -325,3 +327,5 @@ void Encoders::fillEncoderDescriptor(size_t index, encoderDescriptor_t& descript
     descriptor.dispatchMessage.midiIndex      = _database.read(Database::Section::encoder_t::midiID, index);
     descriptor.dispatchMessage.message        = _internalMsgToMIDIType[static_cast<uint8_t>(descriptor.type)];
 }
+
+#endif

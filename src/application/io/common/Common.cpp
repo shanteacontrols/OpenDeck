@@ -18,11 +18,12 @@ limitations under the License.
 
 #include "Common.h"
 #include "core/src/general/Helpers.h"
+#include "io/buttons/Buttons.h"
 
 namespace
 {
     uint8_t pcValue[16];
-    uint8_t midiValue[MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS];
+    uint8_t midiValue[IO::Buttons::Collection::size()];
 }    // namespace
 
 namespace IO
@@ -77,7 +78,7 @@ namespace IO
 
     uint8_t Common::valueInc(size_t index, uint8_t step, incDecType_t type)
     {
-        if (index >= (MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS))
+        if (index >= IO::Buttons::Collection::size())
             return 0xFF;
 
         step &= 0x7F;    // safety
@@ -122,7 +123,7 @@ namespace IO
 
     uint8_t Common::valueIncDec(size_t index, uint8_t step)
     {
-        if (index >= (MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS))
+        if (index >= IO::Buttons::Collection::size())
             return 0xFF;
 
         uint8_t newValue = 0xFF;
@@ -160,7 +161,7 @@ namespace IO
 
     uint8_t Common::currentValue(size_t index)
     {
-        if (index >= (MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS))
+        if (index >= IO::Buttons::Collection::size())
             return 0xFF;
 
         return midiValue[index] & 0x7F;

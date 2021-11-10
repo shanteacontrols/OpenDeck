@@ -17,6 +17,9 @@ limitations under the License.
 */
 
 #include "LEDs.h"
+
+#ifdef LEDS_SUPPORTED
+
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
 
@@ -31,7 +34,7 @@ LEDs::LEDs(HWA&                     hwa,
     for (size_t i = 0; i < TOTAL_BLINK_SPEEDS; i++)
         _blinkState[i] = true;
 
-    for (size_t i = 0; i < MAX_LEDS; i++)
+    for (size_t i = 0; i < Collection::size(); i++)
         _brightness[i] = brightness_t::bOff;
 
     dispatcher.listen(Util::MessageDispatcher::messageSource_t::midiIn,
@@ -160,7 +163,7 @@ void LEDs::update(bool forceChange)
         _blinkCounter[i] = 0;
 
         // assign changed state to all leds which have this speed
-        for (size_t j = 0; j < MAX_LEDS; j++)
+        for (size_t j = 0; j < Collection::size(); j++)
         {
             if (!bit(j, ledBit_t::blinkOn))
                 continue;
@@ -181,19 +184,19 @@ __attribute__((weak)) void LEDs::startUpAnimation()
 
     core::timing::waitMs(1000);
 
-    for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
+    for (size_t i = 0; i < Collection::size(GROUP_DIGITAL_OUTPUTS); i++)
     {
         _hwa.setState(i, brightness_t::bOff);
         core::timing::waitMs(35);
     }
 
-    for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
+    for (size_t i = 0; i < Collection::size(GROUP_DIGITAL_OUTPUTS); i++)
     {
-        _hwa.setState(MAX_NUMBER_OF_LEDS - 1 - i, brightness_t::b100);
+        _hwa.setState(Collection::size(GROUP_DIGITAL_OUTPUTS) - 1 - i, brightness_t::b100);
         core::timing::waitMs(35);
     }
 
-    for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
+    for (size_t i = 0; i < Collection::size(GROUP_DIGITAL_OUTPUTS); i++)
     {
         _hwa.setState(i, brightness_t::bOff);
         core::timing::waitMs(35);
@@ -228,7 +231,7 @@ LEDs::brightness_t LEDs::valueToBrightness(uint8_t value)
 
 void LEDs::midiToState(Util::MessageDispatcher::message_t message, Util::MessageDispatcher::messageSource_t source)
 {
-    for (size_t i = 0; i < MAX_LEDS; i++)
+    for (size_t i = 0; i < Collection::size(); i++)
     {
         auto controlType = static_cast<controlType_t>(_database.read(Database::Section::leds_t::controlType, i));
 
@@ -454,20 +457,20 @@ void LEDs::setBlinkSpeed(uint8_t ledID, blinkSpeed_t state)
 void LEDs::setAllOn()
 {
     // turn on all LEDs
-    for (size_t i = 0; i < MAX_LEDS; i++)
+    for (size_t i = 0; i < Collection::size(); i++)
         setColor(i, color_t::red, brightness_t::b100);
 }
 
 void LEDs::setAllOff()
 {
     // turn off all LEDs
-    for (size_t i = 0; i < MAX_LEDS; i++)
+    for (size_t i = 0; i < Collection::size(); i++)
         resetState(i);
 }
 
 void LEDs::refresh()
 {
-    for (size_t i = 0; i < MAX_LEDS; i++)
+    for (size_t i = 0; i < Collection::size(); i++)
         _hwa.setState(i, _brightness[i]);
 }
 
@@ -643,3 +646,5 @@ bool LEDs::isControlTypeMatched(MIDI::messageType_t midiMessage, controlType_t c
 
     return controlTypeToMIDImessage[static_cast<uint8_t>(controlType)] == midiMessage;
 }
+
+#endif

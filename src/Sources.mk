@@ -143,27 +143,21 @@ ifeq (,$(findstring gen,$(TYPE)))
             SOURCES += $(shell $(FIND) ../modules/midi/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
             SOURCES += $(shell $(FIND) ../modules/dbms/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
             SOURCES += $(shell $(FIND) ../modules/dmxusb/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
+            SOURCES += $(shell $(FIND) ./application/io/analog -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./application/io/buttons -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./application/io/encoders -maxdepth 1 -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./application/io/leds -maxdepth 1 -type f -name "*.cpp")
 
-            ifneq (,$(findstring ANALOG_SUPPORTED,$(DEFINES)))
-                SOURCES += $(shell $(FIND) ./application/io/analog -type f -name "*.cpp")
+            ifneq (,$(findstring ADC_SUPPORTED,$(DEFINES)))
                 SOURCES += board/common/io/Analog.cpp
             endif
 
-            ifneq (,$(findstring LEDS_SUPPORTED,$(DEFINES)))
-                SOURCES += $(shell $(FIND) ./application/io/leds -maxdepth 1 -type f -name "*.cpp")
-                SOURCES += board/common/io/Output.cpp
-            endif
-
-            ifneq (,$(findstring BUTTONS_SUPPORTED,$(DEFINES)))
-                SOURCES += $(shell $(FIND) ./application/io/buttons -type f -name "*.cpp")
-            endif
-
-            ifneq (,$(findstring ENCODERS_SUPPORTED,$(DEFINES)))
-                SOURCES += $(shell $(FIND) ./application/io/encoders -maxdepth 1 -type f -name "*.cpp")
-            endif
-
-            ifneq (,$(filter $(DEFINES),ENCODERS_SUPPORTED BUTTONS_SUPPORTED))
+            ifneq (,$(findstring DIGITAL_INPUTS_SUPPORTED,$(DEFINES)))
                 SOURCES += board/common/io/Input.cpp
+            endif
+
+            ifneq (,$(findstring DIGITAL_OUTPUTS_SUPPORTED,$(DEFINES)))
+                SOURCES += board/common/io/Output.cpp
             endif
 
             ifneq (,$(findstring LED_INDICATORS,$(DEFINES)))

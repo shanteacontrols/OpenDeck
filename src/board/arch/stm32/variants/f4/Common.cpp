@@ -23,11 +23,14 @@ limitations under the License.
 namespace
 {
     TIM_HandleTypeDef _mainTimerHandler;
+
+#ifdef ADC_SUPPORTED
     ADC_HandleTypeDef _adcHandler;
+#endif
 
 #ifdef FW_APP
 #ifndef USB_LINK_MCU
-#if MAX_NUMBER_OF_LEDS > 0
+#if NR_OF_DIGITAL_OUTPUTS > 0
     TIM_HandleTypeDef pwmTimerHandle;
 #endif
 #endif
@@ -36,6 +39,7 @@ namespace
 
 namespace core
 {
+#ifdef ADC_SUPPORTED
     namespace adc
     {
         void startConversion()
@@ -60,6 +64,7 @@ namespace core
             ADC1->SQR3 |= ADC_SQR3_RK(adcChannel, 1);
         }
     }    // namespace adc
+#endif
 }    // namespace core
 
 namespace Board
@@ -116,7 +121,7 @@ namespace Board
 
 #ifdef FW_APP
 #ifndef USB_LINK_MCU
-#if MAX_NUMBER_OF_LEDS > 0
+#if NR_OF_DIGITAL_OUTPUTS > 0
                 pwmTimerHandle.Instance               = PWM_TIMER_INSTANCE;
                 pwmTimerHandle.Init.Prescaler         = 1;
                 pwmTimerHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
@@ -132,7 +137,7 @@ namespace Board
 #endif
             }
 
-#ifdef ANALOG_SUPPORTED
+#ifdef ADC_SUPPORTED
             void adc()
             {
                 ADC_ChannelConfTypeDef sConfig = { 0 };

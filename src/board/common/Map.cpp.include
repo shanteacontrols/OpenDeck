@@ -25,7 +25,7 @@ namespace Board
     {
         namespace map
         {
-#ifdef ANALOG_SUPPORTED
+#ifdef ADC_SUPPORTED
             uint32_t adcChannel(uint8_t index)
             {
                 return detail::map::adcChannel(aInPins[index]);

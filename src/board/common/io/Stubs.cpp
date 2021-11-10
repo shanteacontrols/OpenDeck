@@ -41,7 +41,7 @@ namespace Board
             return 0;
         }
 
-        __attribute__((weak)) void writeLEDstate(size_t ledID, bool state)
+        __attribute__((weak)) void writeLEDstate(size_t ledID, ledBrightness_t ledBrightness)
         {
         }
 
@@ -55,7 +55,7 @@ namespace Board
             return 0;
         }
 
-        __attribute__((weak)) uint16_t getAnalogValue(size_t analogID)
+        __attribute__((weak)) bool analogValue(size_t analogID, uint16_t& value)
         {
             return 0;
         }

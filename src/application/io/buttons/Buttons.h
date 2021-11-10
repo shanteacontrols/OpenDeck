@@ -20,16 +20,31 @@ limitations under the License.
 
 #include "database/Database.h"
 #include "util/messaging/Messaging.h"
+#include "io/common/Common.h"
 
-#ifndef BUTTONS_SUPPORTED
-#include "stub/Buttons.h"
-#else
+#if defined(DIGITAL_INPUTS_SUPPORTED) || defined(TOUCHSCREEN_SUPPORTED) || defined(ADC_SUPPORTED)
+#define BUTTONS_SUPPORTED
 
 namespace IO
 {
     class Buttons
     {
         public:
+        class Collection : public Common::BaseCollection<NR_OF_DIGITAL_INPUTS,
+                                                         NR_OF_ANALOG_INPUTS,
+                                                         NR_OF_TOUCHSCREEN_COMPONENTS>
+        {
+            public:
+            Collection() = delete;
+        };
+
+        enum
+        {
+            GROUP_DIGITAL_INPUTS,
+            GROUP_ANALOG_INPUTS,
+            GROUP_TOUCHSCREEN_COMPONENTS
+        };
+
         /// List of all possible button types.
         enum class type_t : uint8_t
         {
@@ -110,8 +125,8 @@ namespace IO
         Database&                _database;
         Util::MessageDispatcher& _dispatcher;
 
-        uint8_t _buttonPressed[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS) / 8 + 1]     = {};
-        uint8_t _lastLatchingState[(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS) / 8 + 1] = {};
+        uint8_t _buttonPressed[Collection::size() / 8 + 1]     = {};
+        uint8_t _lastLatchingState[Collection::size() / 8 + 1] = {};
 
         const MIDI::messageType_t _internalMsgToMIDIType[static_cast<uint8_t>(messageType_t::AMOUNT)] = {
             MIDI::messageType_t::noteOn,
@@ -140,4 +155,6 @@ namespace IO
     };
 }    // namespace IO
 
+#else
+#include "stub/Buttons.h"
 #endif

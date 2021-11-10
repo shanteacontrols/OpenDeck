@@ -89,11 +89,11 @@ uint8_t System::SysExDataHandler::customRequest(uint16_t request, CustomResponse
 
     case SYSEX_CR_MAX_COMPONENTS:
     {
-        customResponse.append(MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS);
-        customResponse.append(MAX_NUMBER_OF_ENCODERS);
-        customResponse.append(MAX_NUMBER_OF_ANALOG + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS);
-        customResponse.append(MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS);
-        customResponse.append(MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS);
+        customResponse.append(IO::Buttons::Collection::size());
+        customResponse.append(IO::Encoders::Collection::size());
+        customResponse.append(IO::Analog::Collection::size());
+        customResponse.append(IO::LEDs::Collection::size());
+        customResponse.append(IO::Touchscreen::Collection::size());
     }
     break;
 

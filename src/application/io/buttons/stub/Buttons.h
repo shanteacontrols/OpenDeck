@@ -23,6 +23,17 @@ namespace IO
     class Buttons
     {
         public:
+        class Collection : public Common::BaseCollection<0>
+        {
+            public:
+            Collection() = delete;
+        };
+
+        enum
+        {
+            GROUP_DIGITAL_INPUTS,
+        };
+
         enum class type_t : uint8_t
         {
             momentary,    ///< Event on press and release.

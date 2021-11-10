@@ -23,6 +23,17 @@ namespace IO
     class Analog
     {
         public:
+        class Collection : public Common::BaseCollection<0>
+        {
+            public:
+            Collection() = delete;
+        };
+
+        enum
+        {
+            GROUP_ANALOG_INPUTS,
+        };
+
         enum class adcType_t : uint16_t
         {
             adc10bit = 1023,
@@ -80,10 +91,6 @@ namespace IO
                Filter&                  filter,
                Database&                database,
                Util::MessageDispatcher& dispatcher)
-            : _hwa(hwa)
-            , _filter(filter)
-            , _database(database)
-            , _dispatcher(dispatcher)
         {}
 
         void update(bool forceResend = false)
@@ -114,6 +121,7 @@ namespace IO
 
         private:
         adcConfig_t adcConfigStub = {
+            .adcMinValue              = 0,
             .adcMaxValue              = 0,
             .stepDiff14Bit            = 0,
             .fsrMinValue              = 0,
@@ -122,5 +130,5 @@ namespace IO
             .digitalValueThresholdOn  = 0,
             .digitalValueThresholdOff = 0,
         };
-    };
+    };    // namespace IO
 }    // namespace IO

@@ -23,6 +23,12 @@ namespace IO
     class Encoders
     {
         public:
+        class Collection : public Common::BaseCollection<0>
+        {
+            public:
+            Collection() = delete;
+        };
+
         enum class type_t : uint8_t
         {
             controlChange7Fh01h,

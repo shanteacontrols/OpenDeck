@@ -122,7 +122,7 @@ extern "C" void USART6_IRQHandler(void)
 #endif
 
 #ifdef FW_APP
-#ifdef ANALOG_SUPPORTED
+#ifdef ADC_SUPPORTED
 extern "C" void ADC_IRQHandler(void)
 {
     Board::detail::isrHandling::adc(ADC_INSTANCE->DR);
@@ -144,7 +144,7 @@ extern "C" void TIM4_IRQHandler(void)
     {
 #ifdef FW_APP
 #ifndef USB_LINK_MCU
-#if MAX_NUMBER_OF_LEDS > 0
+#if NR_OF_DIGITAL_OUTPUTS > 0
         Board::detail::io::checkDigitalOutputs();
 #endif
 #endif
@@ -166,7 +166,7 @@ extern "C" void TIM5_IRQHandler(void)
     {
 #ifdef FW_APP
 #ifndef USB_LINK_MCU
-#if MAX_NUMBER_OF_LEDS > 0
+#if NR_OF_DIGITAL_OUTPUTS > 0
         Board::detail::io::checkDigitalOutputs();
 #endif
 #endif
@@ -188,7 +188,7 @@ extern "C" void TIM7_IRQHandler(void)
     {
 #ifdef FW_APP
 #ifndef USB_LINK_MCU
-#if MAX_NUMBER_OF_LEDS > 0
+#if NR_OF_DIGITAL_OUTPUTS > 0
         Board::detail::io::checkDigitalOutputs();
 #endif
 #endif

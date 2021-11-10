@@ -25,7 +25,7 @@ limitations under the License.
 #include <Pins.h>
 
 #ifndef NUMBER_OF_MUX
-#define ANALOG_IN_BUFFER_SIZE MAX_NUMBER_OF_ANALOG
+#define ANALOG_IN_BUFFER_SIZE NR_OF_ANALOG_INPUTS
 #else
 #define ANALOG_IN_BUFFER_SIZE (NUMBER_OF_MUX_INPUTS * NUMBER_OF_MUX)
 #endif
@@ -61,7 +61,7 @@ namespace Board
     {
         bool analogValue(size_t analogID, uint16_t& value)
         {
-            if (analogID >= MAX_NUMBER_OF_ANALOG)
+            if (analogID >= NR_OF_ANALOG_INPUTS)
                 return false;
 
             analogID = detail::map::adcIndex(analogID);
@@ -108,7 +108,7 @@ namespace Board
 
                     if (switchMux)
 #else
-                    if (_analogIndex == MAX_NUMBER_OF_ANALOG)
+                    if (_analogIndex == NR_OF_ANALOG_INPUTS)
 #endif
                     {
 #ifdef NUMBER_OF_MUX

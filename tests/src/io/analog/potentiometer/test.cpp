@@ -1,16 +1,12 @@
-#ifdef ANALOG_SUPPORTED
-
 #include "unity/Framework.h"
 #include "io/analog/Analog.h"
 #include "io/buttons/Buttons.h"
-#include "database/Database.h"
-#include "core/src/general/Timing.h"
-#include "core/src/general/Helpers.h"
 #include "stubs/database/DB_ReadWrite.h"
 #include "stubs/AnalogFilter.h"
 #include "stubs/ButtonsFilter.h"
 #include "stubs/Listener.h"
-#include "util/messaging/Messaging.h"
+
+#ifdef ANALOG_SUPPORTED
 
 namespace
 {
@@ -40,7 +36,7 @@ namespace
             return true;
         }
 
-        bool _state[MAX_NUMBER_OF_BUTTONS] = {};
+        bool _state[IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS)] = {};
     } _hwaButtons;
 
     Util::MessageDispatcher _dispatcher;
@@ -59,7 +55,7 @@ TEST_SETUP()
     TEST_ASSERT(_database.init() == true);
     TEST_ASSERT(_database.factoryReset() == true);
 
-    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
         _analog.debounceReset(i);
 
     static bool listenerActive = false;
@@ -83,7 +79,7 @@ TEST_CASE(CCtest)
     using namespace IO;
 
     // set known state
-    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
     {
         // enable all analog components
         TEST_ASSERT(_database.update(Database::Section::analog_t::enable, i, 1) == true);
@@ -115,7 +111,7 @@ TEST_CASE(CCtest)
         _analog.update();
     }
 
-    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 128), _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128), _listener._dispatchMessage.size());
 
     // all received messages should be control change
     for (int i = 0; i < _listener._dispatchMessage.size(); i++)
@@ -123,9 +119,9 @@ TEST_CASE(CCtest)
 
     uint8_t expectedMIDIvalue = 0;
 
-    for (int i = 0; i < _listener._dispatchMessage.size(); i += MAX_NUMBER_OF_ANALOG)
+    for (int i = 0; i < _listener._dispatchMessage.size(); i += IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
     {
-        for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
+        for (int j = 0; j < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
             TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._dispatchMessage.at(index).midiValue);
@@ -145,13 +141,13 @@ TEST_CASE(CCtest)
     }
 
     // expect one message less since the last one was 127
-    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 127), _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 127), _listener._dispatchMessage.size());
 
     expectedMIDIvalue = 126;
 
-    for (int i = 0; i < _listener._dispatchMessage.size(); i += MAX_NUMBER_OF_ANALOG)
+    for (int i = 0; i < _listener._dispatchMessage.size(); i += IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
     {
-        for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
+        for (int j = 0; j < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
             TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._dispatchMessage.at(index).midiValue);
@@ -175,7 +171,7 @@ TEST_CASE(PitchBendTest)
     using namespace IO;
 
     // set known state
-    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
     {
         // enable all analog components
         TEST_ASSERT(_database.update(Database::Section::analog_t::enable, i, 1) == true);
@@ -202,7 +198,7 @@ TEST_CASE(PitchBendTest)
         _analog.update();
     }
 
-    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 16384), _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 16384), _listener._dispatchMessage.size());
 
     // //all received messages should be pitch bend
     for (int i = 0; i < _listener._dispatchMessage.size(); i++)
@@ -210,9 +206,9 @@ TEST_CASE(PitchBendTest)
 
     uint16_t expectedMIDIvalue = 0;
 
-    for (int i = 0; i < _listener._dispatchMessage.size(); i += MAX_NUMBER_OF_ANALOG)
+    for (int i = 0; i < _listener._dispatchMessage.size(); i += IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
     {
-        for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
+        for (int j = 0; j < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
             TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._dispatchMessage.at(index).midiValue);
@@ -231,13 +227,13 @@ TEST_CASE(PitchBendTest)
     }
 
     // one message less
-    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 16383), _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 16383), _listener._dispatchMessage.size());
 
     expectedMIDIvalue = 16382;
 
-    for (int i = 0; i < _listener._dispatchMessage.size(); i += MAX_NUMBER_OF_ANALOG)
+    for (int i = 0; i < _listener._dispatchMessage.size(); i += IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
     {
-        for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
+        for (int j = 0; j < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
             TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._dispatchMessage.at(index).midiValue);
@@ -252,7 +248,7 @@ TEST_CASE(Inversion)
     using namespace IO;
 
     // set known state
-    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
     {
         // enable all analog components
         TEST_ASSERT(_database.update(Database::Section::analog_t::enable, i, 1) == true);
@@ -274,7 +270,7 @@ TEST_CASE(Inversion)
     }
 
     // enable inversion
-    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
         TEST_ASSERT(_database.update(Database::Section::analog_t::invert, i, 1) == true);
 
     for (int i = 0; i <= 127; i++)
@@ -283,16 +279,16 @@ TEST_CASE(Inversion)
         _analog.update();
     }
 
-    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 128), _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128), _listener._dispatchMessage.size());
 
     // first value should be 127
     // last value should be 0
 
     uint16_t expectedMIDIvalue = 127;
 
-    for (int i = 0; i < _listener._dispatchMessage.size(); i += MAX_NUMBER_OF_ANALOG)
+    for (int i = 0; i < _listener._dispatchMessage.size(); i += IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
     {
-        for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
+        for (int j = 0; j < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
             TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._dispatchMessage.at(index).midiValue);
@@ -306,7 +302,7 @@ TEST_CASE(Inversion)
     // funky setup: set lower limit to 127, upper to 0 while inversion is enabled
     // result should be the same as when default setup is used (no inversion / 0 as lower limit, 127 as upper limit)
 
-    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
     {
         TEST_ASSERT(_database.update(Database::Section::analog_t::invert, i, 1) == true);
         TEST_ASSERT(_database.update(Database::Section::analog_t::lowerLimit, i, 127) == true);
@@ -321,13 +317,13 @@ TEST_CASE(Inversion)
         _analog.update();
     }
 
-    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 128), _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128), _listener._dispatchMessage.size());
 
     expectedMIDIvalue = 0;
 
-    for (int i = 0; i < _listener._dispatchMessage.size(); i += MAX_NUMBER_OF_ANALOG)
+    for (int i = 0; i < _listener._dispatchMessage.size(); i += IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
     {
-        for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
+        for (int j = 0; j < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
             TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._dispatchMessage.at(index).midiValue);
@@ -341,7 +337,7 @@ TEST_CASE(Inversion)
     // now disable inversion
     _listener._dispatchMessage.clear();
 
-    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+    for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
     {
         TEST_ASSERT(_database.update(Database::Section::analog_t::invert, i, 0) == true);
         _analog.debounceReset(i);
@@ -354,13 +350,13 @@ TEST_CASE(Inversion)
         _analog.update();
     }
 
-    TEST_ASSERT_EQUAL_UINT32((MAX_NUMBER_OF_ANALOG * 128), _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128), _listener._dispatchMessage.size());
 
     expectedMIDIvalue = 127;
 
-    for (int i = 0; i < _listener._dispatchMessage.size(); i += MAX_NUMBER_OF_ANALOG)
+    for (int i = 0; i < _listener._dispatchMessage.size(); i += IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
     {
-        for (int j = 0; j < MAX_NUMBER_OF_ANALOG; j++)
+        for (int j = 0; j < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); j++)
         {
             size_t index = i + j;
             TEST_ASSERT_EQUAL_UINT32(expectedMIDIvalue, _listener._dispatchMessage.at(index).midiValue);
@@ -372,207 +368,213 @@ TEST_CASE(Inversion)
 
 TEST_CASE(Scaling)
 {
-    using namespace IO;
-
-    const uint32_t scaledLower = 11;
-    const uint32_t scaledUpper = 100;
-
-    // set known state
-    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+    if (IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
     {
-        // enable all analog components
-        TEST_ASSERT(_database.update(Database::Section::analog_t::enable, i, 1) == true);
+        using namespace IO;
 
-        // disable invert state
-        TEST_ASSERT(_database.update(Database::Section::analog_t::invert, i, 0) == true);
+        const uint32_t scaledLower = 11;
+        const uint32_t scaledUpper = 100;
 
-        // configure all analog components as potentiometers with CC MIDI message
-        TEST_ASSERT(_database.update(Database::Section::analog_t::type, i, Analog::type_t::potentiometerControlChange) == true);
+        // set known state
+        for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
+        {
+            // enable all analog components
+            TEST_ASSERT(_database.update(Database::Section::analog_t::enable, i, 1) == true);
 
-        // set all lower limits to 0
-        TEST_ASSERT(_database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
+            // disable invert state
+            TEST_ASSERT(_database.update(Database::Section::analog_t::invert, i, 0) == true);
 
-        // set all upper limits to 100
-        TEST_ASSERT(_database.update(Database::Section::analog_t::upperLimit, i, scaledUpper) == true);
+            // configure all analog components as potentiometers with CC MIDI message
+            TEST_ASSERT(_database.update(Database::Section::analog_t::type, i, Analog::type_t::potentiometerControlChange) == true);
 
-        // midi channel
-        TEST_ASSERT(_database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
-    }
+            // set all lower limits to 0
+            TEST_ASSERT(_database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
 
-    for (int i = 0; i <= 127; i++)
-    {
-        _hwaAnalog.adcReturnValue = i;
-        _analog.update();
-    }
+            // set all upper limits to 100
+            TEST_ASSERT(_database.update(Database::Section::analog_t::upperLimit, i, scaledUpper) == true);
 
-    // since the values are scaled, verify that all the messages aren't received
-    TEST_ASSERT((MAX_NUMBER_OF_ANALOG * 128) > _listener._dispatchMessage.size());
+            // midi channel
+            TEST_ASSERT(_database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
+        }
 
-    // first value should be 0
-    // last value should match the configured scaled value (scaledUpper)
-    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
-    {
-        TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.at(i).midiValue);
-        TEST_ASSERT_EQUAL_UINT32(scaledUpper, _listener._dispatchMessage.at(_listener._dispatchMessage.size() - MAX_NUMBER_OF_ANALOG + i).midiValue);
-    }
+        for (int i = 0; i <= 127; i++)
+        {
+            _hwaAnalog.adcReturnValue = i;
+            _analog.update();
+        }
 
-    // now scale minimum value as well
-    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
-        TEST_ASSERT(_database.update(Database::Section::analog_t::lowerLimit, i, scaledLower) == true);
+        // since the values are scaled, verify that all the messages aren't received
+        TEST_ASSERT((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128) > _listener._dispatchMessage.size());
 
-    _listener._dispatchMessage.clear();
+        // first value should be 0
+        // last value should match the configured scaled value (scaledUpper)
+        for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
+        {
+            TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.at(i).midiValue);
+            TEST_ASSERT_EQUAL_UINT32(scaledUpper, _listener._dispatchMessage.at(_listener._dispatchMessage.size() - IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) + i).midiValue);
+        }
 
-    for (int i = 0; i <= 127; i++)
-    {
-        _hwaAnalog.adcReturnValue = i;
-        _analog.update();
-    }
+        // now scale minimum value as well
+        for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
+            TEST_ASSERT(_database.update(Database::Section::analog_t::lowerLimit, i, scaledLower) == true);
 
-    TEST_ASSERT((MAX_NUMBER_OF_ANALOG * 128) > _listener._dispatchMessage.size());
+        _listener._dispatchMessage.clear();
 
-    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
-    {
-        TEST_ASSERT(_listener._dispatchMessage.at(i).midiValue >= scaledLower);
-        TEST_ASSERT(_listener._dispatchMessage.at(_listener._dispatchMessage.size() - MAX_NUMBER_OF_ANALOG + i).midiValue <= scaledUpper);
-    }
+        for (int i = 0; i <= 127; i++)
+        {
+            _hwaAnalog.adcReturnValue = i;
+            _analog.update();
+        }
 
-    // now enable inversion
-    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
-    {
-        TEST_ASSERT(_database.update(Database::Section::analog_t::invert, i, 1) == true);
-        _analog.debounceReset(i);
-    }
+        TEST_ASSERT((IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) * 128) > _listener._dispatchMessage.size());
 
-    _listener._dispatchMessage.clear();
+        for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
+        {
+            TEST_ASSERT(_listener._dispatchMessage.at(i).midiValue >= scaledLower);
+            TEST_ASSERT(_listener._dispatchMessage.at(_listener._dispatchMessage.size() - IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) + i).midiValue <= scaledUpper);
+        }
 
-    for (int i = 0; i <= 127; i++)
-    {
-        _hwaAnalog.adcReturnValue = i;
-        _analog.update();
-    }
+        // now enable inversion
+        for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
+        {
+            TEST_ASSERT(_database.update(Database::Section::analog_t::invert, i, 1) == true);
+            _analog.debounceReset(i);
+        }
 
-    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
-    {
-        TEST_ASSERT(_listener._dispatchMessage.at(i).midiValue >= scaledUpper);
-        TEST_ASSERT(_listener._dispatchMessage.at(_listener._dispatchMessage.size() - MAX_NUMBER_OF_ANALOG + i).midiValue <= scaledLower);
+        _listener._dispatchMessage.clear();
+
+        for (int i = 0; i <= 127; i++)
+        {
+            _hwaAnalog.adcReturnValue = i;
+            _analog.update();
+        }
+
+        for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
+        {
+            TEST_ASSERT(_listener._dispatchMessage.at(i).midiValue >= scaledUpper);
+            TEST_ASSERT(_listener._dispatchMessage.at(_listener._dispatchMessage.size() - IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS) + i).midiValue <= scaledLower);
+        }
     }
 }
 
 TEST_CASE(ButtonForwarding)
 {
-    using namespace IO;
-
-    // set known state
-    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
+    if (IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS))
     {
-        // enable all analog components
-        TEST_ASSERT(_database.update(Database::Section::analog_t::enable, i, 1) == true);
+        using namespace IO;
 
-        // disable invert state
-        TEST_ASSERT(_database.update(Database::Section::analog_t::invert, i, 0) == true);
+        // set known state
+        for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
+        {
+            // enable all analog components
+            TEST_ASSERT(_database.update(Database::Section::analog_t::enable, i, 1) == true);
 
-        // configure all analog components as potentiometers with CC MIDI message
-        TEST_ASSERT(_database.update(Database::Section::analog_t::type, i, Analog::type_t::potentiometerControlChange) == true);
+            // disable invert state
+            TEST_ASSERT(_database.update(Database::Section::analog_t::invert, i, 0) == true);
 
-        // set all lower limits to 0
-        TEST_ASSERT(_database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
+            // configure all analog components as potentiometers with CC MIDI message
+            TEST_ASSERT(_database.update(Database::Section::analog_t::type, i, Analog::type_t::potentiometerControlChange) == true);
 
-        // set all upper limits to MIDI_7_BIT_VALUE_MAX
-        TEST_ASSERT(_database.update(Database::Section::analog_t::upperLimit, i, MIDI::MIDI_7_BIT_VALUE_MAX) == true);
+            // set all lower limits to 0
+            TEST_ASSERT(_database.update(Database::Section::analog_t::lowerLimit, i, 0) == true);
 
-        // midi channel
-        TEST_ASSERT(_database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
+            // set all upper limits to MIDI_7_BIT_VALUE_MAX
+            TEST_ASSERT(_database.update(Database::Section::analog_t::upperLimit, i, MIDI::MIDI_7_BIT_VALUE_MAX) == true);
+
+            // midi channel
+            TEST_ASSERT(_database.update(Database::Section::analog_t::midiChannel, i, 1) == true);
+        }
+
+        // configure one analog component to be button type
+        const size_t index = 1;
+        TEST_ASSERT(_database.update(Database::Section::analog_t::type, index, Analog::type_t::button) == true);
+
+        // configure button with the same index (+offset) to certain parameters
+        TEST_ASSERT(_database.update(Database::Section::button_t::type, IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + index, Buttons::type_t::momentary) == true);
+        TEST_ASSERT(_database.update(Database::Section::button_t::midiChannel, IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + index, 2) == true);
+        TEST_ASSERT(_database.update(Database::Section::button_t::midiMessage, IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + index, Buttons::messageType_t::controlChangeReset) == true);
+        TEST_ASSERT(_database.update(Database::Section::button_t::velocity, IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + index, 100) == true);
+
+        std::vector<Util::MessageDispatcher::message_t> dispatchMessageAnalogFwd;
+        std::vector<Util::MessageDispatcher::message_t> dispatchMessageButtons;
+
+        _dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
+                           Util::MessageDispatcher::listenType_t::forward,
+                           [&](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                               dispatchMessageAnalogFwd.push_back(dispatchMessage);
+                           });
+
+        _dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
+                           Util::MessageDispatcher::listenType_t::nonFwd,
+                           [&](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                               dispatchMessageButtons.push_back(dispatchMessage);
+                           });
+
+        _hwaAnalog.adcReturnValue = 0xFFFF;
+        _analog.update();
+
+        // analog class should just forward the message with the original component index
+        // the rest of the message doesn't matter
+        TEST_ASSERT_EQUAL_UINT32(1, dispatchMessageAnalogFwd.size());
+        TEST_ASSERT_EQUAL_UINT32(index, dispatchMessageAnalogFwd.at(0).componentIndex);
+
+        // button class should receive this message and push new button message with index being IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + index
+        TEST_ASSERT_EQUAL_UINT32(1, dispatchMessageButtons.size());
+        TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + index, dispatchMessageButtons.at(0).componentIndex);
+
+        // verify the rest of the message
+
+        // midi index should be the original one - indexing restarts for each new button group (physical buttons / analog / touchscreen)
+        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, dispatchMessageButtons.at(0).message);
+        TEST_ASSERT_EQUAL_UINT32(index, dispatchMessageButtons.at(0).midiIndex);
+        TEST_ASSERT_EQUAL_UINT32(100, dispatchMessageButtons.at(0).midiValue);
+        TEST_ASSERT_EQUAL_UINT32(2, dispatchMessageButtons.at(0).midiChannel);
+
+        _hwaAnalog.adcReturnValue = 0;
+        _analog.update();
+
+        // since the button was configured in controlChangeReset reset mode, another message should be sent from buttons
+        TEST_ASSERT_EQUAL_UINT32(2, dispatchMessageAnalogFwd.size());
+        TEST_ASSERT_EQUAL_UINT32(index, dispatchMessageAnalogFwd.at(1).componentIndex);
+        TEST_ASSERT_EQUAL_UINT32(2, dispatchMessageButtons.size());
+        TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + index, dispatchMessageButtons.at(1).componentIndex);
+        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, dispatchMessageButtons.at(1).message);
+        TEST_ASSERT_EQUAL_UINT32(index, dispatchMessageButtons.at(1).midiIndex);
+        TEST_ASSERT_EQUAL_UINT32(0, dispatchMessageButtons.at(1).midiValue);
+        TEST_ASSERT_EQUAL_UINT32(2, dispatchMessageButtons.at(1).midiChannel);
+
+        // repeat the update - analog class sends forwarding message again since it's not in charge of filtering it
+        // buttons class shouldn't send anything new since the state of the button hasn't changed
+        _analog.update();
+
+        TEST_ASSERT_EQUAL_UINT32(3, dispatchMessageAnalogFwd.size());
+        TEST_ASSERT_EQUAL_UINT32(2, dispatchMessageButtons.size());
+
+        // similar test with the button message type being normal CC
+        dispatchMessageButtons.clear();
+        dispatchMessageAnalogFwd.clear();
+
+        TEST_ASSERT(_database.update(Database::Section::button_t::midiMessage, IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + index, Buttons::messageType_t::controlChange) == true);
+
+        _hwaAnalog.adcReturnValue = 0xFFFF;
+        _analog.update();
+
+        TEST_ASSERT_EQUAL_UINT32(1, dispatchMessageAnalogFwd.size());
+        TEST_ASSERT_EQUAL_UINT32(index, dispatchMessageAnalogFwd.at(0).componentIndex);
+        TEST_ASSERT_EQUAL_UINT32(1, dispatchMessageButtons.size());
+        TEST_ASSERT_EQUAL_UINT32(IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS) + index, dispatchMessageButtons.at(0).componentIndex);
+        TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, dispatchMessageButtons.at(0).message);
+        TEST_ASSERT_EQUAL_UINT32(index, dispatchMessageButtons.at(0).midiIndex);
+        TEST_ASSERT_EQUAL_UINT32(100, dispatchMessageButtons.at(0).midiValue);
+        TEST_ASSERT_EQUAL_UINT32(2, dispatchMessageButtons.at(0).midiChannel);
+
+        _hwaAnalog.adcReturnValue = 0;
+        _analog.update();
+
+        // this time buttons shouldn't send anything new since standard CC is a latching message
+        TEST_ASSERT_EQUAL_UINT32(2, dispatchMessageAnalogFwd.size());
+        TEST_ASSERT_EQUAL_UINT32(1, dispatchMessageButtons.size());
     }
-
-    // configure one analog component to be button type
-    const size_t index = 1;
-    TEST_ASSERT(_database.update(Database::Section::analog_t::type, index, Analog::type_t::button) == true);
-
-    // configure button with the same index (+offset) to certain parameters
-    TEST_ASSERT(_database.update(Database::Section::button_t::type, MAX_NUMBER_OF_BUTTONS + index, Buttons::type_t::momentary) == true);
-    TEST_ASSERT(_database.update(Database::Section::button_t::midiChannel, MAX_NUMBER_OF_BUTTONS + index, 2) == true);
-    TEST_ASSERT(_database.update(Database::Section::button_t::midiMessage, MAX_NUMBER_OF_BUTTONS + index, Buttons::messageType_t::controlChangeReset) == true);
-    TEST_ASSERT(_database.update(Database::Section::button_t::velocity, MAX_NUMBER_OF_BUTTONS + index, 100) == true);
-
-    std::vector<Util::MessageDispatcher::message_t> dispatchMessageAnalogFwd;
-    std::vector<Util::MessageDispatcher::message_t> dispatchMessageButtons;
-
-    _dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
-                       Util::MessageDispatcher::listenType_t::forward,
-                       [&](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                           dispatchMessageAnalogFwd.push_back(dispatchMessage);
-                       });
-
-    _dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
-                       Util::MessageDispatcher::listenType_t::nonFwd,
-                       [&](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                           dispatchMessageButtons.push_back(dispatchMessage);
-                       });
-
-    _hwaAnalog.adcReturnValue = 0xFFFF;
-    _analog.update();
-
-    // analog class should just forward the message with the original component index
-    // the rest of the message doesn't matter
-    TEST_ASSERT_EQUAL_UINT32(1, dispatchMessageAnalogFwd.size());
-    TEST_ASSERT_EQUAL_UINT32(index, dispatchMessageAnalogFwd.at(0).componentIndex);
-
-    // button class should receive this message and push new button message with index being MAX_NUMBER_OF_BUTTONS + index
-    TEST_ASSERT_EQUAL_UINT32(1, dispatchMessageButtons.size());
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_BUTTONS + index, dispatchMessageButtons.at(0).componentIndex);
-
-    // verify the rest of the message
-
-    // midi index should be the original one - indexing restarts for each new button group (physical buttons / analog / touchscreen)
-    TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, dispatchMessageButtons.at(0).message);
-    TEST_ASSERT_EQUAL_UINT32(index, dispatchMessageButtons.at(0).midiIndex);
-    TEST_ASSERT_EQUAL_UINT32(100, dispatchMessageButtons.at(0).midiValue);
-    TEST_ASSERT_EQUAL_UINT32(2, dispatchMessageButtons.at(0).midiChannel);
-
-    _hwaAnalog.adcReturnValue = 0;
-    _analog.update();
-
-    // since the button was configured in controlChangeReset reset mode, another message should be sent from buttons
-    TEST_ASSERT_EQUAL_UINT32(2, dispatchMessageAnalogFwd.size());
-    TEST_ASSERT_EQUAL_UINT32(index, dispatchMessageAnalogFwd.at(1).componentIndex);
-    TEST_ASSERT_EQUAL_UINT32(2, dispatchMessageButtons.size());
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_BUTTONS + index, dispatchMessageButtons.at(1).componentIndex);
-    TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, dispatchMessageButtons.at(1).message);
-    TEST_ASSERT_EQUAL_UINT32(index, dispatchMessageButtons.at(1).midiIndex);
-    TEST_ASSERT_EQUAL_UINT32(0, dispatchMessageButtons.at(1).midiValue);
-    TEST_ASSERT_EQUAL_UINT32(2, dispatchMessageButtons.at(1).midiChannel);
-
-    // repeat the update - analog class sends forwarding message again since it's not in charge of filtering it
-    // buttons class shouldn't send anything new since the state of the button hasn't changed
-    _analog.update();
-
-    TEST_ASSERT_EQUAL_UINT32(3, dispatchMessageAnalogFwd.size());
-    TEST_ASSERT_EQUAL_UINT32(2, dispatchMessageButtons.size());
-
-    // similar test with the button message type being normal CC
-    dispatchMessageButtons.clear();
-    dispatchMessageAnalogFwd.clear();
-
-    TEST_ASSERT(_database.update(Database::Section::button_t::midiMessage, MAX_NUMBER_OF_BUTTONS + index, Buttons::messageType_t::controlChange) == true);
-
-    _hwaAnalog.adcReturnValue = 0xFFFF;
-    _analog.update();
-
-    TEST_ASSERT_EQUAL_UINT32(1, dispatchMessageAnalogFwd.size());
-    TEST_ASSERT_EQUAL_UINT32(index, dispatchMessageAnalogFwd.at(0).componentIndex);
-    TEST_ASSERT_EQUAL_UINT32(1, dispatchMessageButtons.size());
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_BUTTONS + index, dispatchMessageButtons.at(0).componentIndex);
-    TEST_ASSERT_EQUAL_UINT32(MIDI::messageType_t::controlChange, dispatchMessageButtons.at(0).message);
-    TEST_ASSERT_EQUAL_UINT32(index, dispatchMessageButtons.at(0).midiIndex);
-    TEST_ASSERT_EQUAL_UINT32(100, dispatchMessageButtons.at(0).midiValue);
-    TEST_ASSERT_EQUAL_UINT32(2, dispatchMessageButtons.at(0).midiChannel);
-
-    _hwaAnalog.adcReturnValue = 0;
-    _analog.update();
-
-    // this time buttons shouldn't send anything new since standard CC is a latching message
-    TEST_ASSERT_EQUAL_UINT32(2, dispatchMessageAnalogFwd.size());
-    TEST_ASSERT_EQUAL_UINT32(1, dispatchMessageButtons.size());
 }
 
 #endif

@@ -17,38 +17,38 @@ limitations under the License.
 */
 
 #include "database/Database.h"
+#include "io/buttons/Buttons.h"
+#include "io/analog/Analog.h"
 #include "io/leds/LEDs.h"
+
+// each new group of components should have their IDs start from 0
 
 void Database::customInitButtons()
 {
-    // each new category of buttons should have their IDs start from 0
-    for (int i = 0; i < MAX_NUMBER_OF_BUTTONS; i++)
-        update(Database::Section::button_t::midiID, i, i);
-
-    for (int i = 0; i < MAX_NUMBER_OF_ANALOG; i++)
-        update(Database::Section::button_t::midiID, i + MAX_NUMBER_OF_BUTTONS, i);
-
-    for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
-        update(Database::Section::button_t::midiID, i + MAX_NUMBER_OF_BUTTONS + MAX_NUMBER_OF_ANALOG, i);
+    for (size_t group = 0; group < IO::Buttons::Collection::groups(); group++)
+    {
+        for (size_t i = 0; i < IO::Buttons::Collection::size(group); i++)
+            update(Database::Section::button_t::midiID, i + IO::Buttons::Collection::startIndex(group), i);
+    }
 }
 
 void Database::customInitAnalog()
 {
-    for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
-        update(Database::Section::analog_t::midiID, i + MAX_NUMBER_OF_ANALOG, i);
+    for (size_t group = 0; group < IO::Analog::Collection::groups(); group++)
+    {
+        for (size_t i = 0; i < IO::Analog::Collection::size(group); i++)
+            update(Database::Section::analog_t::midiID, i + IO::Analog::Collection::startIndex(group), i);
+    }
 }
 
 void Database::customInitLEDs()
 {
-    for (int i = 0; i < MAX_NUMBER_OF_LEDS; i++)
+    for (size_t group = 0; group < IO::LEDs::Collection::groups(); group++)
     {
-        update(Database::Section::leds_t::activationID, i, i);
-        update(Database::Section::leds_t::controlType, i, IO::LEDs::controlType_t::midiInNoteMultiVal);
-    }
-
-    for (int i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
-    {
-        update(Database::Section::leds_t::activationID, i + MAX_NUMBER_OF_LEDS, i);
-        update(Database::Section::leds_t::controlType, i + MAX_NUMBER_OF_LEDS, IO::LEDs::controlType_t::midiInNoteMultiVal);
+        for (size_t i = 0; i < IO::LEDs::Collection::size(group); i++)
+        {
+            update(Database::Section::leds_t::activationID, i + IO::LEDs::Collection::startIndex(group), i);
+            update(Database::Section::leds_t::controlType, i + IO::LEDs::Collection::startIndex(group), IO::LEDs::controlType_t::midiInNoteMultiVal);
+        }
     }
 }

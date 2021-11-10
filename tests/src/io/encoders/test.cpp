@@ -1,5 +1,3 @@
-#ifdef ENCODERS_SUPPORTED
-
 #include "unity/Framework.h"
 #include "io/encoders/Encoders.h"
 #include "core/src/general/Timing.h"
@@ -7,6 +5,8 @@
 #include "stubs/database/DB_ReadWrite.h"
 #include "stubs/EncodersFilter.h"
 #include "stubs/Listener.h"
+
+#ifdef ENCODERS_SUPPORTED
 
 namespace
 {
@@ -62,7 +62,7 @@ TEST_CASE(StateDecoding)
     using namespace IO;
 
     // set known state
-    for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
+    for (int i = 0; i < IO::Encoders::Collection::size(); i++)
     {
         // enable all encoders
         TEST_ASSERT(_database.update(Database::Section::encoder_t::enable, i, 1) == true);
@@ -83,7 +83,7 @@ TEST_CASE(StateDecoding)
     };
 
     auto verifyValue = [](MIDI::messageType_t message, uint16_t value) {
-        for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
+        for (int i = 0; i < IO::Encoders::Collection::size(); i++)
         {
             TEST_ASSERT_EQUAL_UINT32(message, _listener._dispatchMessage.at(i).message);
             TEST_ASSERT_EQUAL_UINT32(value, _listener._dispatchMessage.at(i).midiValue);
@@ -99,17 +99,17 @@ TEST_CASE(StateDecoding)
     _listener._dispatchMessage.clear();
 
     setState(0b10);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
     _listener._dispatchMessage.clear();
 
     setState(0b11);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
     _listener._dispatchMessage.clear();
 
     setState(0b01);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
     _listener._dispatchMessage.clear();
 
@@ -118,17 +118,17 @@ TEST_CASE(StateDecoding)
     _listener._dispatchMessage.clear();
 
     setState(0b11);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
     _listener._dispatchMessage.clear();
 
     setState(0b01);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
     _listener._dispatchMessage.clear();
 
     setState(0b00);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
     _listener._dispatchMessage.clear();
 
@@ -137,17 +137,17 @@ TEST_CASE(StateDecoding)
     _listener._dispatchMessage.clear();
 
     setState(0b01);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
     _listener._dispatchMessage.clear();
 
     setState(0b00);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
     _listener._dispatchMessage.clear();
 
     setState(0b10);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
     _listener._dispatchMessage.clear();
 
@@ -156,17 +156,17 @@ TEST_CASE(StateDecoding)
     _listener._dispatchMessage.clear();
 
     setState(0b00);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
     _listener._dispatchMessage.clear();
 
     setState(0b10);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
     _listener._dispatchMessage.clear();
 
     setState(0b11);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
     _listener._dispatchMessage.clear();
 
@@ -177,17 +177,17 @@ TEST_CASE(StateDecoding)
     _listener._dispatchMessage.clear();
 
     setState(0b01);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
     _listener._dispatchMessage.clear();
 
     setState(0b11);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
     _listener._dispatchMessage.clear();
 
     setState(0b10);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
     _listener._dispatchMessage.clear();
 
@@ -196,17 +196,17 @@ TEST_CASE(StateDecoding)
     _listener._dispatchMessage.clear();
 
     setState(0b11);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
     _listener._dispatchMessage.clear();
 
     setState(0b10);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
     _listener._dispatchMessage.clear();
 
     setState(0b00);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
     _listener._dispatchMessage.clear();
 
@@ -215,17 +215,17 @@ TEST_CASE(StateDecoding)
     _listener._dispatchMessage.clear();
 
     setState(0b10);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
     _listener._dispatchMessage.clear();
 
     setState(0b00);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
     _listener._dispatchMessage.clear();
 
     setState(0b01);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
     _listener._dispatchMessage.clear();
 
@@ -234,22 +234,22 @@ TEST_CASE(StateDecoding)
     _listener._dispatchMessage.clear();
 
     setState(0b00);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
     _listener._dispatchMessage.clear();
 
     setState(0b01);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
     _listener._dispatchMessage.clear();
 
     setState(0b11);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
     _listener._dispatchMessage.clear();
 
     // this time configure 4 pulses per step
-    for (int i = 0; i < MAX_NUMBER_OF_ENCODERS; i++)
+    for (int i = 0; i < IO::Encoders::Collection::size(); i++)
     {
         TEST_ASSERT(_database.update(Database::Section::encoder_t::pulsesPerStep, i, 4) == true);
         _encoders.resetValue(i);
@@ -276,7 +276,7 @@ TEST_CASE(StateDecoding)
     // 4
     // pulse should be registered
     setState(0b00);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
     _listener._dispatchMessage.clear();
 
@@ -294,7 +294,7 @@ TEST_CASE(StateDecoding)
 
     // 4
     setState(0b00);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 1);
     _listener._dispatchMessage.clear();
 
@@ -312,7 +312,7 @@ TEST_CASE(StateDecoding)
     TEST_ASSERT_EQUAL_UINT32(0, _listener._dispatchMessage.size());
 
     setState(0b00);
-    TEST_ASSERT_EQUAL_UINT32(MAX_NUMBER_OF_ENCODERS, _listener._dispatchMessage.size());
+    TEST_ASSERT_EQUAL_UINT32(IO::Encoders::Collection::size(), _listener._dispatchMessage.size());
     verifyValue(MIDI::messageType_t::controlChange, 127);
 }
 

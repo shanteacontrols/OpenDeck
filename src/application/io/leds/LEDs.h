@@ -20,16 +20,29 @@ limitations under the License.
 
 #include "database/Database.h"
 #include "util/messaging/Messaging.h"
+#include "io/common/Common.h"
 
-#ifndef LEDS_SUPPORTED
-#include "stub/LEDs.h"
-#else
+#if defined(DIGITAL_OUTPUTS_SUPPORTED) || defined(TOUCHSCREEN_SUPPORTED)
+#define LEDS_SUPPORTED
 
 namespace IO
 {
     class LEDs
     {
         public:
+        class Collection : public Common::BaseCollection<NR_OF_DIGITAL_OUTPUTS,
+                                                         NR_OF_TOUCHSCREEN_COMPONENTS>
+        {
+            public:
+            Collection() = delete;
+        };
+
+        enum
+        {
+            GROUP_DIGITAL_OUTPUTS,
+            GROUP_TOUCHSCREEN_COMPONENTS
+        };
+
         enum class rgbIndex_t : uint8_t
         {
             r,
@@ -149,19 +162,18 @@ namespace IO
         HWA&      _hwa;
         Database& _database;
 
-        static constexpr size_t  MAX_LEDS                        = MAX_NUMBER_OF_LEDS + MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS;
         static constexpr size_t  TOTAL_BLINK_SPEEDS              = 4;
         static constexpr size_t  TOTAL_BRIGHTNESS_VALUES         = 4;
         static constexpr uint8_t LED_BLINK_TIMER_TYPE_CHECK_TIME = 50;
 
         /// Array holding current LED status for all LEDs.
-        uint8_t _ledState[MAX_LEDS] = {};
+        uint8_t _ledState[Collection::size()] = {};
 
         /// Array holding current LED brightness for all LEDs.
-        brightness_t _brightness[MAX_LEDS] = {};
+        brightness_t _brightness[Collection::size()] = {};
 
         /// Array holding time after which LEDs should blink.
-        uint8_t _blinkTimer[MAX_LEDS] = {};
+        uint8_t _blinkTimer[Collection::size()] = {};
 
         /// Holds currently active LED blink type.
         blinkType_t _ledBlinkType = blinkType_t::timer;
@@ -209,4 +221,6 @@ namespace IO
     };
 }    // namespace IO
 
+#else
+#include "stub/LEDs.h"
 #endif

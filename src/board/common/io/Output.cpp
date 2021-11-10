@@ -24,10 +24,12 @@ limitations under the License.
 #include "core/src/general/Atomic.h"
 #include <Pins.h>
 
+#define NR_OF_RGB_LEDS (NR_OF_DIGITAL_OUTPUTS / 3)
+
 namespace
 {
     uint8_t          _pwmCounter;
-    volatile uint8_t _ledState[(MAX_NUMBER_OF_LEDS / 8) + 1][static_cast<uint8_t>(Board::io::ledBrightness_t::b100)];
+    volatile uint8_t _ledState[(NR_OF_DIGITAL_OUTPUTS / 8) + 1][static_cast<uint8_t>(Board::io::ledBrightness_t::b100)];
 
 #ifdef NUMBER_OF_LED_COLUMNS
     enum class switchState_t : uint8_t
@@ -63,7 +65,7 @@ namespace Board
     {
         void writeLEDstate(size_t ledID, io::ledBrightness_t ledBrightness)
         {
-            if (ledID >= MAX_NUMBER_OF_LEDS)
+            if (ledID >= NR_OF_DIGITAL_OUTPUTS)
                 return;
 
             ledID = detail::map::ledIndex(ledID);
@@ -117,15 +119,15 @@ namespace Board
 
             uint8_t result = (row * NUMBER_OF_LED_COLUMNS) / 3 + column;
 
-            if (result >= MAX_NUMBER_OF_RGB_LEDS)
-                return MAX_NUMBER_OF_RGB_LEDS - 1;
+            if (result >= NR_OF_RGB_LEDS)
+                return NR_OF_RGB_LEDS - 1;
             else
                 return result;
 #else
             uint8_t result = ledID / 3;
 
-            if (result >= MAX_NUMBER_OF_RGB_LEDS)
-                return MAX_NUMBER_OF_RGB_LEDS - 1;
+            if (result >= NR_OF_RGB_LEDS)
+                return NR_OF_RGB_LEDS - 1;
             else
                 return result;
 #endif
@@ -215,7 +217,7 @@ namespace Board
 #else
             void checkDigitalOutputs()
             {
-                for (size_t ledID = 0; ledID < MAX_NUMBER_OF_LEDS; ledID++)
+                for (size_t ledID = 0; ledID < NR_OF_DIGITAL_OUTPUTS; ledID++)
                 {
                     uint8_t arrayIndex = ledID / 8;
                     uint8_t ledBit     = ledID - 8 * arrayIndex;

@@ -226,7 +226,7 @@ void Touchscreen::setIconState(size_t index, bool state)
     if (!isInitialized(mode_t::normal))
         return;
 
-    if (index >= MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS)
+    if (index >= Collection::size())
         return;
 
     icon_t icon;
@@ -283,7 +283,7 @@ bool Touchscreen::setBrightness(brightness_t brightness)
 
 void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16_t yPos)
 {
-    for (size_t i = 0; i < MAX_NUMBER_OF_TOUCHSCREEN_COMPONENTS; i++)
+    for (size_t i = 0; i < Collection::size(); i++)
     {
         if (_database.read(Database::Section::touchscreen_t::analogPage, i) == static_cast<int32_t>(activeScreen()))
         {
