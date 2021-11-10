@@ -19,14 +19,14 @@
       index: 2
     -
       port: "E"
-      index: 3
+      index: 4
     -
       port: "E"
-      index: 4
+      index: 6
     - 
       port: "E"
-      index: 5
-    -
+      index: 3
+    - 
       port: "E"
       index: 5
     -
@@ -37,64 +37,64 @@
       index: 7
     -
       port: "D"
-      index: 4
-    -
-      port: "D"
       index: 3
     -
       port: "D"
-      index: 2
-    -
-      port: "D"
       index: 1
-    -
-      port: "D"
-      index: 0
     -
       port: "C"
       index: 12
     -
       port: "C"
-      index: 11
-    -
-      port: "C"
       index: 10
-    -
-      port: "A"
-      index: 15
     -
       port: "C"
       index: 8
-    -
-      port: "C"
-      index: 7
     -
       port: "C"
       index: 6
     -
       port: "D"
-      index: 15
-    -
-      port: "D"
       index: 14
-    -
-      port: "D"
-      index: 13
     -
       port: "D"
       index: 12
     -
       port: "D"
-      index: 11
-    -
-      port: "D"
       index: 10
     -
       port: "D"
-      index: 9
+      index: 8
     -
       port: "D"
-      index: 8
+      index: 4
+    -
+      port: "D"
+      index: 2
+    -
+      port: "D"
+      index: 0
+    -
+      port: "C"
+      index: 11
+    -
+      port: "A"
+      index: 15
+    -
+      port: "C"
+      index: 7
+    -
+      port: "D"
+      index: 15
+    -
+      port: "D"
+      index: 13
+    -
+      port: "D"
+      index: 11
+    -
+      port: "D"
+      index: 9
     -
       port: "B"
       index: 15
@@ -159,47 +159,47 @@
       type: "native"
       pins:
       -
-        port: "B"
-        index: 1
-      -
         port: "E"
         index: 7
-      -
-        port: "E"
-        index: 8
       -
         port: "E"
         index: 9
       -
         port: "E"
-        index: 10
-      -
-        port: "E"
         index: 11
       -
         port: "E"
-        index: 12
-      -
-        port: "E"
         index: 13
-      -
-        port: "E"
-        index: 14
       -
         port: "E"
         index: 15
       -
         port: "B"
-        index: 10
-      -
-        port: "B"
         index: 11
       -
         port: "B"
-        index: 12
+        index: 13
       -
         port: "B"
-        index: 13
+        index: 1
+      -
+        port: "E"
+        index: 8
+      -
+        port: "E"
+        index: 10
+      -
+        port: "E"
+        index: 12
+      -
+        port: "E"
+        index: 14
+      -
+        port: "B"
+        index: 10
+      -
+        port: "B"
+        index: 12
       -
         port: "B"
         index: 14
@@ -207,8 +207,8 @@
         port: "E"
         index: 1
       -
-        port: "E"
-        index: 0
-      -
         port: "B"
         index: 9
+      -
+        port: "E"
+        index: 0
