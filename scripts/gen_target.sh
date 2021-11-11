@@ -822,14 +822,14 @@ then
             printf "%s\n" "#define UNUSED_PIN_${i} CORE_IO_PORT_INDEX(${index})"
         } >> "$OUT_FILE_HEADER_PINS"
 
-        printf "%s" "{ .pin = { .port= UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}, " >> "$OUT_FILE_SOURCE_PINS"
-
         case $mode in
             "in-pull")
                 {
                     printf "\n%s\n" "#ifdef __AVR__"
+                    printf "%s\n" "{ .pin = { .port= &UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}",
                     printf "%s\n" ".mode = core::io::pinMode_t::input, },"
                     printf "%s\n" "#else"
+                    printf "%s\n" "{ .pin = { .port= UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}",
                     printf "%s\n" ".mode = core::io::pinMode_t::input, .pull = core::io::pullMode_t::up, },"
                     printf "%s\n" "#endif"
                     printf "%s\n" ".state = true, },"
@@ -839,8 +839,10 @@ then
             "out-low")
                 {
                     printf "\n%s\n" "#ifdef __AVR__"
+                    printf "%s\n" "{ .pin = { .port= &UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}",
                     printf "%s\n" ".mode = core::io::pinMode_t::output, },"
                     printf "%s\n" "#else"
+                    printf "%s\n" "{ .pin = { .port= UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}",
                     printf "%s\n" ".mode = core::io::pinMode_t::outputPP, .pull = core::io::pullMode_t::none, },"
                     printf "%s\n" "#endif"
                     printf "%s\n" ".state = false, },"
@@ -850,8 +852,10 @@ then
             "out-high")
                 {
                     printf "\n%s\n" "#ifdef __AVR__"
+                    printf "%s\n" "{ .pin = { .port= &UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}",
                     printf "%s\n" ".mode = core::io::pinMode_t::output, },"
                     printf "%s\n" "#else"
+                    printf "%s\n" "{ .pin = { .port= UNUSED_PORT_${i}, .index = UNUSED_PIN_${i}",
                     printf "%s\n" ".mode = core::io::pinMode_t::outputPP, .pull = core::io::pullMode_t::none, }," >> "$OUT_FILE_SOURCE_PINS"
                     printf "%s\n" "#endif"
                     printf "%s\n" ".state = true, }," >> "$OUT_FILE_SOURCE_PINS"
