@@ -44,7 +44,6 @@ namespace
     const char eventMMCrecordOn_string[] PROGMEM  = "MMC Record On";
     const char eventMMCrecordOff_string[] PROGMEM = "MMC Record Off";
     const char eventNRPN_string[] PROGMEM         = "NRPN";
-    const char eventPresetChange_string[] PROGMEM = "Preset";
     const char eventInvalid_string[] PROGMEM      = "";
 
     const char noteC_string[] PROGMEM      = "C";
