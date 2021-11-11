@@ -68,7 +68,7 @@
             "device": "STM32F405",
             "BMPGDBSerialPort": "/dev/ttyBmpGdb",
             "targetId": 1,
-            "gdbPath": "/usr/bin/gdb"
+            "gdbPath": "arm-none-eabi-gdb"
         },
         {
             "type": "cortex-debug",
@@ -82,7 +82,7 @@
             "device": "STM32F411",
             "BMPGDBSerialPort": "/dev/ttyBmpGdb",
             "targetId": 1,
-            "gdbPath": "/usr/bin/gdb"
+            "gdbPath": "arm-none-eabi-gdb"
         },
         {
             "type": "cortex-debug",

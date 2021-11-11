@@ -38,7 +38,6 @@ $(CPP_COMPILER_NATIVE) \
 objcopy \
 $(YAML_PARSER) \
 $(SHA256SUM) \
-gdb \
 avrdude
 
 #don't allow running make at all if required packages don't exist on the system
