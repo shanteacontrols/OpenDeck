@@ -278,12 +278,6 @@ uint8_t System::onGetLEDs(Section::leds_t section, size_t index, uint16_t& value
     }
     break;
 
-    case Section::leds_t::testBlink:
-    {
-        readValue = _leds.blinkSpeed(index) != IO::LEDs::blinkSpeed_t::noBlink;
-    }
-    break;
-
     case Section::leds_t::midiChannel:
     {
         result = _database.read(dbSection(section), index, readValue) ? SysExConf::DataHandler::STATUS_OK : SysExConf::DataHandler::STATUS_ERROR_RW;

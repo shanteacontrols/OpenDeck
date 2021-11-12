@@ -448,15 +448,6 @@ uint8_t System::onSetLEDs(Section::leds_t section, size_t index, uint16_t newVal
     }
     break;
 
-    case Section::leds_t::testBlink:
-    {
-        // no writing to database
-        _leds.setBlinkSpeed(index, newValue ? IO::LEDs::blinkSpeed_t::s500ms : IO::LEDs::blinkSpeed_t::noBlink);
-        result    = SysExConf::DataHandler::STATUS_OK;
-        writeToDb = false;
-    }
-    break;
-
     case Section::leds_t::global:
     {
         auto ledSetting = static_cast<IO::LEDs::setting_t>(index);
