@@ -71,6 +71,7 @@ then
             addressStart=$($YAML_PARSER "$MCU_DEF_FILE" flash.pages.["$i"].address)
             page_size=$($YAML_PARSER "$MCU_DEF_FILE" flash.pages.["$i"].size)
             addressEnd=$((addressStart+page_size-1))
+            app_offset=$($YAML_PARSER "$MCU_DEF_FILE" flash.pages.["$i"].app-offset)
             app_size=$($YAML_PARSER "$MCU_DEF_FILE" flash.pages.["$i"].app-size)
 
             #based on provided app start page address, find its index and create a new symbol in header
@@ -80,26 +81,33 @@ then
                 printf "%s\n" "#define FLASH_PAGE_APP_START $i" >> "$OUT_FILE_HEADER"
             fi
 
+            if [[ $app_offset == "null" ]]
+            then
+                app_offset=0
+            fi
+
             if [[ $app_size == "null" ]]
             then
                 app_size=$page_size
             fi
 
             {
-                printf "%s\n" "#define FLASH_PAGE_ADDRESS_${i} $addressStart"
                 printf "%s\n" "#ifdef FW_BOOT"
+                printf "%s\n" "#define FLASH_PAGE_ADDRESS_${i} $addressStart"
                 printf "%s\n" "#define FLASH_PAGE_SIZE_${i} $page_size"
                 printf "%s\n" "#else"
+                printf "%s\n" "#define FLASH_PAGE_ADDRESS_${i} (($addressStart+$app_offset))"
                 printf "%s\n" "#define FLASH_PAGE_SIZE_${i} $app_size"
                 printf "%s\n" "#endif"
             } >> "$OUT_FILE_HEADER"
 
             {
                 printf "%s\n" "{"
-                printf "%s\n" ".address = $addressStart",
                 printf "%s\n" "#ifdef FW_BOOT"
+                printf "%s\n" ".address = $addressStart",
                 printf "%s\n" ".size = $page_size",
                 printf "%s\n" "#else"
+                printf "%s\n" ".address = (($addressStart+$app_offset))",
                 printf "%s\n" ".size = $app_size",
                 printf "%s\n" "#endif"
                 printf "%s\n" "},"

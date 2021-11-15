@@ -29,6 +29,7 @@
       address: 0x8020000
       size: 131072
       app-size: 65536
+      app-offset: 0x10000
     -
       address: 0x8040000
       size: 131072
