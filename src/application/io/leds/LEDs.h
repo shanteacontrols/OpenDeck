@@ -21,13 +21,15 @@ limitations under the License.
 #include "database/Database.h"
 #include "util/messaging/Messaging.h"
 #include "io/common/Common.h"
+#include "system/Config.h"
+#include "io/IOBase.h"
 
 #if defined(DIGITAL_OUTPUTS_SUPPORTED) || defined(TOUCHSCREEN_SUPPORTED)
 #define LEDS_SUPPORTED
 
 namespace IO
 {
-    class LEDs
+    class LEDs : public IO::Base
     {
         public:
         class Collection : public Common::BaseCollection<NR_OF_DIGITAL_OUTPUTS,
@@ -119,23 +121,15 @@ namespace IO
             virtual size_t rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent) = 0;
         };
 
-        LEDs(HWA&                     hwa,
-             Database&                database,
-             Util::MessageDispatcher& dispatcher);
+        LEDs(HWA&      hwa,
+             Database& database);
 
-        void         init(bool startUp = true);
-        void         update(bool forceChange = false);
-        void         setAllOn();
-        void         setAllOff();
-        void         refresh();
-        void         setColor(uint8_t ledID, color_t color, brightness_t brightness);
+        void         init() override;
+        void         update(bool forceRefresh = false) override;
         color_t      color(uint8_t ledID);
-        void         setBlinkSpeed(uint8_t ledID, blinkSpeed_t value);
+        void         setColor(uint8_t ledID, color_t color, brightness_t brightness);
         blinkSpeed_t blinkSpeed(uint8_t ledID);
-        size_t       rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent);
-        size_t       rgbIndex(size_t singleLEDindex);
-        void         setBlinkType(blinkType_t blinkType);
-        void         resetBlinking();
+        void         setAllOff();
 
         private:
         enum class ledBit_t : uint8_t
@@ -149,15 +143,25 @@ namespace IO
             rgb_b       ///< B index of RGB LED
         };
 
-        void         updateBit(uint8_t index, ledBit_t bit, bool state);
-        bool         bit(uint8_t index, ledBit_t bit);
-        void         resetState(uint8_t index);
-        color_t      valueToColor(uint8_t receivedVelocity);
-        blinkSpeed_t valueToBlinkSpeed(uint8_t value);
-        brightness_t valueToBrightness(uint8_t value);
-        void         startUpAnimation();
-        bool         isControlTypeMatched(MIDI::messageType_t midiMessage, controlType_t controlType);
-        void         midiToState(Util::MessageDispatcher::message_t message, Util::MessageDispatcher::messageSource_t source);
+        void                   setAllOn();
+        void                   refresh();
+        void                   setBlinkSpeed(uint8_t ledID, blinkSpeed_t value);
+        size_t                 rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent);
+        size_t                 rgbIndex(size_t singleLEDindex);
+        void                   setBlinkType(blinkType_t blinkType);
+        void                   resetBlinking();
+        void                   updateBit(uint8_t index, ledBit_t bit, bool state);
+        bool                   bit(uint8_t index, ledBit_t bit);
+        void                   resetState(uint8_t index);
+        color_t                valueToColor(uint8_t receivedVelocity);
+        blinkSpeed_t           valueToBlinkSpeed(uint8_t value);
+        brightness_t           valueToBrightness(uint8_t value);
+        void                   startUpAnimation();
+        bool                   isControlTypeMatched(MIDI::messageType_t midiMessage, controlType_t controlType);
+        void                   midiToState(Util::MessageDispatcher::message_t message, Util::MessageDispatcher::messageSource_t source);
+        void                   setState(size_t index, brightness_t brightness);
+        std::optional<uint8_t> sysConfigGet(System::Config::Section::leds_t section, size_t index, uint16_t& value);
+        std::optional<uint8_t> sysConfigSet(System::Config::Section::leds_t section, size_t index, uint16_t value);
 
         HWA&      _hwa;
         Database& _database;

@@ -25,6 +25,25 @@ namespace IO
 {
     namespace Common
     {
+        enum class incDecType_t : uint8_t
+        {
+            toEdge,
+            reset,
+        };
+
+        enum class initAction_t : uint8_t
+        {
+            asIs,
+            init,
+            deInit
+        };
+
+        enum class interface_t : uint8_t
+        {
+            uart,
+            cdc
+        };
+
         template<size_t... T>
         class BaseCollection
         {
@@ -58,10 +77,10 @@ namespace IO
             }
         };
 
-        enum class incDecType_t : uint8_t
+        class Allocatable
         {
-            toEdge,
-            reset,
+            public:
+            virtual bool allocated(interface_t interface) = 0;
         };
 
         bool    pcIncrement(uint8_t channel);

@@ -416,38 +416,38 @@ class MIDIHelper
     }
 #endif
 
-    static System::block_t block(System::Section::global_t section)
+    static System::Config::block_t block(System::Config::Section::global_t section)
     {
-        return System::block_t::global;
+        return System::Config::block_t::global;
     }
 
-    static System::block_t block(System::Section::button_t section)
+    static System::Config::block_t block(System::Config::Section::button_t section)
     {
-        return System::block_t::buttons;
+        return System::Config::block_t::buttons;
     }
 
-    static System::block_t block(System::Section::encoder_t section)
+    static System::Config::block_t block(System::Config::Section::encoder_t section)
     {
-        return System::block_t::encoders;
+        return System::Config::block_t::encoders;
     }
 
-    static System::block_t block(System::Section::analog_t section)
+    static System::Config::block_t block(System::Config::Section::analog_t section)
     {
-        return System::block_t::analog;
+        return System::Config::block_t::analog;
     }
 
-    static System::block_t block(System::Section::leds_t section)
+    static System::Config::block_t block(System::Config::Section::leds_t section)
     {
-        return System::block_t::leds;
+        return System::Config::block_t::leds;
     }
 
-    static System::block_t block(System::Section::display_t section)
+    static System::Config::block_t block(System::Config::Section::display_t section)
     {
-        return System::block_t::display;
+        return System::Config::block_t::display;
     }
 
-    static System::block_t block(System::Section::touchscreen_t section)
+    static System::Config::block_t block(System::Config::Section::touchscreen_t section)
     {
-        return System::block_t::touchscreen;
+        return System::Config::block_t::touchscreen;
     }
 };

@@ -20,18 +20,9 @@ limitations under the License.
 
 using namespace Util;
 
-bool MessageDispatcher::listen(messageSource_t source, listenType_t listenType, messageCallback_t&& callback)
+void MessageDispatcher::listen(messageSource_t source, listenType_t listenType, messageCallback_t&& callback)
 {
-    if (_listenerCounter >= MAX_LISTENERS)
-        return false;
-
-    _listener[_listenerCounter].source     = source;
-    _listener[_listenerCounter].listenType = listenType;
-    _listener[_listenerCounter].callback   = std::move(callback);
-
-    _listenerCounter++;
-
-    return true;
+    _listener.push_back({ source, listenType, std::move(callback) });
 }
 
 void MessageDispatcher::notify(messageSource_t source, message_t const& message, listenType_t listenType)

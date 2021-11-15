@@ -19,15 +19,18 @@ limitations under the License.
 #pragma once
 
 #include "database/Database.h"
+#include "io/IOBase.h"
 #include "util/messaging/Messaging.h"
 #include "io/common/Common.h"
+#include "system/Config.h"
+#include "io/IOBase.h"
 
 #if defined(DIGITAL_INPUTS_SUPPORTED) && (NR_OF_DIGITAL_INPUTS > 1)
 #define ENCODERS_SUPPORTED
 
 namespace IO
 {
-    class Encoders
+    class Encoders : public IO::Base
     {
         public:
         class Collection : public Common::BaseCollection<NR_OF_DIGITAL_INPUTS / 2>
@@ -85,19 +88,16 @@ namespace IO
             virtual uint32_t lastMovementTime(size_t index) = 0;
         };
 
-        Encoders(HWA&                     hwa,
-                 Filter&                  filter,
-                 uint32_t                 timeDiffTimeout,
-                 Database&                database,
-                 Util::MessageDispatcher& dispatcher);
+        Encoders(HWA&      hwa,
+                 Filter&   filter,
+                 Database& database,
+                 uint32_t  timeDiffTimeout);
 
-        void update();
-        void resetValue(size_t index);
+        void init() override;
+        void update(bool forceRefresh = false) override;
+        void reset(size_t index);
 
         private:
-        HWA&    _hwa;
-        Filter& _filter;
-
         struct encoderDescriptor_t
         {
             type_t                             type          = type_t::controlChange7Fh01h;
@@ -107,17 +107,20 @@ namespace IO
             encoderDescriptor_t() = default;
         };
 
+        void                   fillEncoderDescriptor(size_t index, encoderDescriptor_t& descriptor);
+        position_t             read(size_t index, uint8_t pairState);
+        void                   processReading(size_t index, uint8_t pairValue, uint32_t sampleTime);
+        void                   sendMessage(size_t index, encoderDescriptor_t& descriptor);
+        void                   setValue(size_t index, uint16_t value);
+        std::optional<uint8_t> sysConfigGet(System::Config::Section::encoder_t section, size_t index, uint16_t& value);
+        std::optional<uint8_t> sysConfigSet(System::Config::Section::encoder_t section, size_t index, uint16_t value);
+
+        HWA&      _hwa;
+        Filter&   _filter;
+        Database& _database;
+
         /// Time difference betweeen multiple encoder readouts in milliseconds.
         const uint32_t TIME_DIFF_READOUT;
-
-        Database&                _database;
-        Util::MessageDispatcher& _dispatcher;
-
-        void       fillEncoderDescriptor(size_t index, encoderDescriptor_t& descriptor);
-        position_t read(size_t index, uint8_t pairState);
-        void       processReading(size_t index, uint8_t pairValue, uint32_t sampleTime);
-        void       sendMessage(size_t index, encoderDescriptor_t& descriptor);
-        void       setValue(size_t index, uint16_t value);
 
         /// Time threshold in milliseconds between two encoder steps used to detect fast movement.
         static constexpr uint32_t ENCODERS_SPEED_TIMEOUT = 140;

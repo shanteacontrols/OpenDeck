@@ -57,7 +57,8 @@ CPP_FLAGS := \
 -std=c++17 \
 -fno-rtti \
 -fno-exceptions \
--fpermissive
+-fpermissive \
+-fno-threadsafe-statics
 
 #c compiler only
 C_FLAGS := \

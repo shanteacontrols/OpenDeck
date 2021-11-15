@@ -20,7 +20,7 @@ limitations under the License.
 
 namespace IO
 {
-    class Buttons
+    class Buttons : public IO::Base
     {
         public:
         class Collection : public Common::BaseCollection<0>
@@ -80,13 +80,16 @@ namespace IO
             virtual bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
         };
 
-        Buttons(HWA&                     hwa,
-                Filter&                  filter,
-                Database&                database,
-                Util::MessageDispatcher& dispatcher)
+        Buttons(HWA&      hwa,
+                Filter&   filter,
+                Database& database)
         {}
 
-        void update(bool forceResend = false)
+        void init() override
+        {
+        }
+
+        void update(bool forceRefresh = false) override
         {
         }
 

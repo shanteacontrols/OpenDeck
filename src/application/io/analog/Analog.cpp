@@ -17,36 +17,72 @@ limitations under the License.
 */
 
 #include "Analog.h"
+#include "sysex/src/SysExConf.h"
+#include "system/Config.h"
 
 #ifdef ANALOG_SUPPORTED
 
 #include "core/src/general/Helpers.h"
+#include "util/conversion/Conversion.h"
+#include "util/configurable/Configurable.h"
 
 using namespace IO;
 
-Analog::Analog(HWA&                     hwa,
-               Filter&                  filter,
-               Database&                database,
-               Util::MessageDispatcher& dispatcher)
+Analog::Analog(HWA&      hwa,
+               Filter&   filter,
+               Database& database)
     : _hwa(hwa)
     , _filter(filter)
     , _database(database)
-    , _dispatcher(dispatcher)
 {
-    _dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenAnalog,
-                       Util::MessageDispatcher::listenType_t::forward,
-                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                           size_t index = dispatchMessage.componentIndex + Collection::startIndex(GROUP_TOUCHSCREEN_COMPONENTS);
-                           processReading(index, dispatchMessage.midiValue);
-                       });
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenAnalog,
+                      Util::MessageDispatcher::listenType_t::fwd,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          size_t index = dispatchMessage.componentIndex + Collection::startIndex(GROUP_TOUCHSCREEN_COMPONENTS);
+                          processReading(index, dispatchMessage.midiValue);
+                      });
+
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::system,
+                      Util::MessageDispatcher::listenType_t::all,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          switch (dispatchMessage.componentIndex)
+                          {
+                          case static_cast<uint8_t>(Util::MessageDispatcher::systemMessages_t::forceIOrefresh):
+                          {
+                              update(true);
+                          }
+                          break;
+
+                          default:
+                              break;
+                          }
+                      });
+
+    ConfigHandler.registerConfig(
+        System::Config::block_t::analog,
+        // read
+        [this](uint8_t section, size_t index, uint16_t& value) {
+            return sysConfigGet(static_cast<System::Config::Section::analog_t>(section), index, value);
+        },
+
+        // write
+        [this](uint8_t section, size_t index, uint16_t value) {
+            return sysConfigSet(static_cast<System::Config::Section::analog_t>(section), index, value);
+        });
 }
 
-void Analog::update(bool forceResend)
+void Analog::init()
+{
+    for (size_t i = 0; i < Collection::size(); i++)
+        reset(i);
+}
+
+void Analog::update(bool forceRefresh)
 {
     // check values
     for (size_t i = 0; i < Collection::size(GROUP_ANALOG_INPUTS); i++)
     {
-        if (!forceResend)
+        if (!forceRefresh)
         {
             uint16_t value;
 
@@ -66,11 +102,6 @@ void Analog::update(bool forceResend)
             }
         }
     }
-}
-
-Analog::adcType_t Analog::adcType()
-{
-    return _filter.adcType();
 }
 
 void Analog::processReading(size_t index, uint16_t value)
@@ -257,13 +288,13 @@ void Analog::sendMessage(size_t index, analogDescriptor_t& descriptor)
 
     if (send)
     {
-        _dispatcher.notify(Util::MessageDispatcher::messageSource_t::analog,
-                           descriptor.dispatchMessage,
-                           forward ? Util::MessageDispatcher::listenType_t::forward : Util::MessageDispatcher::listenType_t::nonFwd);
+        Dispatcher.notify(Util::MessageDispatcher::messageSource_t::analog,
+                          descriptor.dispatchMessage,
+                          forward ? Util::MessageDispatcher::listenType_t::fwd : Util::MessageDispatcher::listenType_t::nonFwd);
     }
 }
 
-void Analog::debounceReset(size_t index)
+void Analog::reset(size_t index)
 {
     setFSRstate(index, false);
     _lastValue[index] = 0xFFFF;
@@ -296,6 +327,62 @@ void Analog::fillAnalogDescriptor(size_t index, analogDescriptor_t& descriptor)
     descriptor.dispatchMessage.midiChannel    = _database.read(Database::Section::analog_t::midiChannel, index);
     descriptor.dispatchMessage.midiIndex      = _database.read(Database::Section::analog_t::midiID, index);
     descriptor.dispatchMessage.message        = _internalMsgToMIDIType[static_cast<uint8_t>(descriptor.type)];
+}
+
+std::optional<uint8_t> Analog::sysConfigGet(System::Config::Section::analog_t section, size_t index, uint16_t& value)
+{
+    int32_t readValue;
+    auto    result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ack : System::Config::status_t::errorRead;
+
+    switch (section)
+    {
+    case System::Config::Section::analog_t::midiID_MSB:
+    case System::Config::Section::analog_t::lowerLimit_MSB:
+    case System::Config::Section::analog_t::upperLimit_MSB:
+        return System::Config::status_t::errorNotSupported;
+
+    case System::Config::Section::analog_t::midiChannel:
+    {
+        // channels start from 0 in db, start from 1 in sysex
+        if (result == System::Config::status_t::ack)
+            readValue++;
+    }
+    break;
+
+    default:
+        break;
+    }
+
+    value = readValue;
+
+    return result;
+}
+
+std::optional<uint8_t> Analog::sysConfigSet(System::Config::Section::analog_t section, size_t index, uint16_t value)
+{
+    switch (section)
+    {
+    case System::Config::Section::analog_t::midiID_MSB:
+    case System::Config::Section::analog_t::lowerLimit_MSB:
+    case System::Config::Section::analog_t::upperLimit_MSB:
+        return System::Config::status_t::errorNotSupported;
+
+    case System::Config::Section::analog_t::type:
+    {
+        reset(index);
+    }
+    break;
+
+    default:
+    {
+        // channels start from 0 in db, start from 1 in sysex
+        if (section == System::Config::Section::analog_t::midiChannel)
+            value--;
+    }
+    break;
+    }
+
+    return _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ack : System::Config::status_t::errorWrite;
 }
 
 #endif

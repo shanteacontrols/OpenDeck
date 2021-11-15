@@ -24,14 +24,15 @@ limitations under the License.
 #include "model/nextion/Nextion.h"
 #include "model/viewtech/Viewtech.h"
 #include "io/common/Common.h"
+#include "system/Config.h"
+#include "util/messaging/Messaging.h"
+#include "io/IOBase.h"
 
-#ifndef TOUCHSCREEN_SUPPORTED
-#include "stub/Touchscreen.h"
-#else
+#ifdef TOUCHSCREEN_SUPPORTED
 
 namespace IO
 {
-    class Touchscreen
+    class Touchscreen : public IO::Base
     {
         public:
         class Collection : public Common::BaseCollection<NR_OF_TOUCHSCREEN_COMPONENTS>
@@ -56,15 +57,7 @@ namespace IO
             cdcPassthrough
         };
 
-        class EventNotifier
-        {
-            public:
-            virtual void button(size_t index, bool state)                                 = 0;
-            virtual void analog(size_t index, uint16_t value, uint16_t min, uint16_t max) = 0;
-            virtual void screenChange(size_t screenID)                                    = 0;
-        };
-
-        class CDCPassthrough
+        class CDCPassthrough : public Common::Allocatable
         {
             public:
             virtual bool init()                                                       = 0;
@@ -84,18 +77,11 @@ namespace IO
 
         Touchscreen(TouchscreenBase::HWA& hwa,
                     Database&             database,
-                    CDCPassthrough&       cdcPassthrough);
+                    CDCPassthrough&       cdcPassthrough,
+                    uint16_t              adcResolution);
 
-        bool   init(mode_t mode);
-        bool   deInit(mode_t mode);
-        bool   isInitialized() const;
-        bool   isInitialized(mode_t mode) const;
-        void   update();
-        void   setScreen(size_t screenID);
-        size_t activeScreen();
-        void   registerEventNotifier(EventNotifier& eventNotifer);
-        void   setIconState(size_t index, bool state);
-        bool   setBrightness(brightness_t brightness);
+        void init() override;
+        void update(bool forceRefresh = false) override;
 
         private:
         enum class analogType_t : uint8_t
@@ -104,14 +90,27 @@ namespace IO
             vertical
         };
 
-        IO::TouchscreenBase& modelInstance();
-        void                 processButton(const size_t buttonID, const bool state);
-        void                 processCoordinate(pressType_t pressType, uint16_t xPos, uint16_t yPos);
+        IO::TouchscreenBase&   modelInstance();
+        bool                   init(mode_t mode);
+        bool                   deInit(mode_t mode);
+        bool                   isInitialized() const;
+        bool                   isInitialized(mode_t mode) const;
+        void                   setScreen(size_t screenID);
+        size_t                 activeScreen();
+        void                   setIconState(size_t index, bool state);
+        bool                   setBrightness(brightness_t brightness);
+        void                   processButton(const size_t buttonID, const bool state);
+        void                   processCoordinate(pressType_t pressType, uint16_t xPos, uint16_t yPos);
+        void                   buttonHandler(size_t index, bool state);
+        void                   analogHandler(size_t index, uint16_t value, uint16_t min, uint16_t max);
+        void                   screenChangeHandler(size_t screenID);
+        std::optional<uint8_t> sysConfigGet(System::Config::Section::touchscreen_t section, size_t index, uint16_t& value);
+        std::optional<uint8_t> sysConfigSet(System::Config::Section::touchscreen_t section, size_t index, uint16_t value);
 
         TouchscreenBase::HWA&        _hwa;
         Database&                    _database;
         CDCPassthrough&              _cdcPassthrough;
-        EventNotifier*               _eventNotifier                                 = nullptr;
+        const uint16_t               ADC_RESOLUTION;
         size_t                       _activeScreenID                                = 0;
         bool                         _initialized                                   = false;
         mode_t                       _mode                                          = mode_t::normal;
@@ -124,4 +123,6 @@ namespace IO
     };
 }    // namespace IO
 
+#else
+#include "stub/Touchscreen.h"
 #endif

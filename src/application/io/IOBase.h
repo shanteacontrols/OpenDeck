@@ -16,9 +16,27 @@ limitations under the License.
 
 */
 
-#include "system/System.h"
+#pragma once
 
-bool System::HWAAnalog::value(size_t index, uint16_t& value)
+#include <inttypes.h>
+
+namespace IO
 {
-    return _system._hwa.io().analog().value(index, value);
-}
+    enum class ioComponent_t : uint8_t
+    {
+        buttons,
+        encoders,
+        analog,
+        leds,
+        display,
+        touchscreen,
+        AMOUNT
+    };
+
+    class Base
+    {
+        public:
+        virtual void init()                            = 0;
+        virtual void update(bool forceRefresh = false) = 0;
+    };
+}    // namespace IO

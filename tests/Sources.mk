@@ -26,8 +26,10 @@ ifeq (,$(findstring USB_LINK_MCU,$(DEFINES)))
     $(BOARD_TARGET_DIR)/$(TARGET).cpp \
     stubs/Board.cpp \
     stubs/Core.cpp \
+    application/util/configurable/Configurable.cpp \
     application/util/messaging/Messaging.cpp \
-    application/util/scheduler/Scheduler.cpp
+    application/util/scheduler/Scheduler.cpp \
+    application/util/conversion/Conversion.cpp
 endif
 
 ifeq ($(ARCH),stm32)

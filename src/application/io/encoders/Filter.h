@@ -18,9 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#ifndef ENCODERS_SUPPORTED
-#include "stub/Filter.h"
-#else
+#ifdef ENCODERS_SUPPORTED
 
 #include "io/encoders/Encoders.h"
 #include "core/src/general/Helpers.h"
@@ -113,4 +111,6 @@ namespace IO
     };
 }    // namespace IO
 
+#else
+#include "stub/Filter.h"
 #endif

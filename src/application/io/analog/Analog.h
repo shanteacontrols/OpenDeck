@@ -18,17 +18,18 @@ limitations under the License.
 
 #pragma once
 
-#include <functional>
 #include "database/Database.h"
 #include "util/messaging/Messaging.h"
 #include "io/common/Common.h"
+#include "system/Config.h"
+#include "io/IOBase.h"
 
 #if defined(ADC_SUPPORTED) || defined(TOUCHSCREEN_SUPPORTED)
 #define ANALOG_SUPPORTED
 
 namespace IO
 {
-    class Analog
+    class Analog : public IO::Base
     {
         public:
         class Collection : public Common::BaseCollection<NR_OF_ANALOG_INPUTS,
@@ -63,12 +64,6 @@ namespace IO
             aftertouch
         };
 
-        enum class adcType_t : uint16_t
-        {
-            adc10bit = 1023,
-            adc12bit = 4095
-        };
-
         class HWA
         {
             public:
@@ -79,19 +74,23 @@ namespace IO
         class Filter
         {
             public:
-            virtual Analog::adcType_t adcType()                                                                              = 0;
-            virtual bool              isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) = 0;
-            virtual void              reset(size_t index)                                                                    = 0;
+            enum class adcType_t : uint16_t
+            {
+                adc10bit = 1023,
+                adc12bit = 4095
+            };
+
+            virtual bool isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) = 0;
+            virtual void reset(size_t index)                                                                    = 0;
         };
 
-        Analog(HWA&                     hwa,
-               Filter&                  filter,
-               Database&                database,
-               Util::MessageDispatcher& dispatcher);
+        Analog(HWA&      hwa,
+               Filter&   filter,
+               Database& database);
 
-        void      update(bool forceResend = false);
-        void      debounceReset(size_t index);
-        adcType_t adcType();
+        void init() override;
+        void update(bool forceRefresh = false) override;
+        void reset(size_t index);
 
         private:
         struct analogDescriptor_t
@@ -105,18 +104,19 @@ namespace IO
             analogDescriptor_t() = default;
         };
 
-        void fillAnalogDescriptor(size_t index, analogDescriptor_t& descriptor);
-        void processReading(size_t index, uint16_t value);
-        bool checkPotentiometerValue(size_t index, analogDescriptor_t& descriptor);
-        bool checkFSRvalue(size_t index, analogDescriptor_t& descriptor);
-        void sendMessage(size_t index, analogDescriptor_t& descriptor);
-        void setFSRstate(size_t index, bool state);
-        bool fsrState(size_t index);
+        void                   fillAnalogDescriptor(size_t index, analogDescriptor_t& descriptor);
+        void                   processReading(size_t index, uint16_t value);
+        bool                   checkPotentiometerValue(size_t index, analogDescriptor_t& descriptor);
+        bool                   checkFSRvalue(size_t index, analogDescriptor_t& descriptor);
+        void                   sendMessage(size_t index, analogDescriptor_t& descriptor);
+        void                   setFSRstate(size_t index, bool state);
+        bool                   fsrState(size_t index);
+        std::optional<uint8_t> sysConfigGet(System::Config::Section::analog_t section, size_t index, uint16_t& value);
+        std::optional<uint8_t> sysConfigSet(System::Config::Section::analog_t section, size_t index, uint16_t value);
 
-        HWA&                     _hwa;
-        Filter&                  _filter;
-        Database&                _database;
-        Util::MessageDispatcher& _dispatcher;
+        HWA&      _hwa;
+        Filter&   _filter;
+        Database& _database;
 
         uint8_t  _fsrPressed[Collection::size() / 8 + 1] = {};
         uint16_t _lastValue[Collection::size()]          = {};

@@ -28,12 +28,11 @@ namespace
         uint32_t _state = 0;
     } _hwaEncoders;
 
-    Util::MessageDispatcher _dispatcher;
-    Listener                _listener;
-    DBstorageMock           _dbStorageMock;
-    Database                _database = Database(_dbStorageMock, true);
-    EncodersFilterStub      _encodersFilter;
-    IO::Encoders            _encoders = IO::Encoders(_hwaEncoders, _encodersFilter, 1, _database, _dispatcher);
+    Listener           _listener;
+    DBstorageMock      _dbStorageMock;
+    Database           _database = Database(_dbStorageMock, true);
+    EncodersFilterStub _encodersFilter;
+    IO::Encoders       _encoders = IO::Encoders(_hwaEncoders, _encodersFilter, _database, 1);
 }    // namespace
 
 TEST_SETUP()
@@ -45,11 +44,11 @@ TEST_SETUP()
 
     if (!listenerActive)
     {
-        _dispatcher.listen(Util::MessageDispatcher::messageSource_t::encoders,
-                           Util::MessageDispatcher::listenType_t::nonFwd,
-                           [](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                               _listener.messageListener(dispatchMessage);
-                           });
+        Dispatcher.listen(Util::MessageDispatcher::messageSource_t::encoders,
+                          Util::MessageDispatcher::listenType_t::nonFwd,
+                          [](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                              _listener.messageListener(dispatchMessage);
+                          });
 
         listenerActive = true;
     }
@@ -252,7 +251,7 @@ TEST_CASE(StateDecoding)
     for (int i = 0; i < IO::Encoders::Collection::size(); i++)
     {
         TEST_ASSERT(_database.update(Database::Section::encoder_t::pulsesPerStep, i, 4) == true);
-        _encoders.resetValue(i);
+        _encoders.reset(i);
     }
 
     // clockwise: 00, 10, 11, 01

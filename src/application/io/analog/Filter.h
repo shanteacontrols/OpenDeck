@@ -18,9 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#ifndef ANALOG_SUPPORTED
-#include "stub/Filter.h"
-#else
+#ifdef ANALOG_SUPPORTED
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,18 +61,18 @@ namespace IO
     class AnalogFilter : public Analog::Filter
     {
         public:
-        AnalogFilter(Analog::adcType_t adcType)
-            : _adcType(adcType)
-            , _adcConfig(adcType == IO::Analog::adcType_t::adc10bit ? adc10bit : adc12bit)
-            , _stepDiff7Bit(static_cast<uint16_t>(adcType) / 128)
+#ifdef ADC_12_BIT
+        static constexpr adcType_t ADC_RESOLUTION = adcType_t::adc12bit;
+#else
+        static constexpr adcType_t ADC_RESOLUTION = adcType_t::adc10bit;
+#endif
+
+        AnalogFilter()
+            : _adcConfig(ADC_RESOLUTION == adcType_t::adc10bit ? adc10bit : adc12bit)
+            , _stepDiff7Bit(static_cast<uint16_t>(ADC_RESOLUTION) / 128)
         {
             _adcMinValueOffset = _adcConfig.adcMinValue;
             _adcMaxValueOffset = _adcConfig.adcMaxValue;
-        }
-
-        Analog::adcType_t adcType() override
-        {
-            return _adcType;
         }
 
         bool isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) override
@@ -254,10 +252,8 @@ namespace IO
             .digitalValueThresholdOff = 2400,
         };
 
-        const IO::Analog::adcType_t _adcType;
-        adcConfig_t&                _adcConfig;
-        const uint16_t              _stepDiff7Bit;
-
+        adcConfig_t&              _adcConfig;
+        const uint16_t            _stepDiff7Bit;
         uint32_t                  _adcMinValueOffset          = 0;
         uint32_t                  _adcMaxValueOffset          = 0;
         static constexpr uint32_t FAST_FILTER_ENABLE_AFTER_MS = 50;
@@ -274,4 +270,7 @@ namespace IO
         uint16_t _lastStableValue[IO::Analog::Collection::size()]     = {};
     };    // namespace IO
 }    // namespace IO
+
+#else
+#include "stub/Filter.h"
 #endif

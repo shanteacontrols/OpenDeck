@@ -20,7 +20,7 @@ limitations under the License.
 
 namespace IO
 {
-    class Display
+    class Display : public IO::Base
     {
         public:
         enum eventType_t : uint8_t
@@ -77,24 +77,16 @@ namespace IO
             AMOUNT
         };
 
-        Display(IO::U8X8&                u8x8,
-                Database&                database,
-                Util::MessageDispatcher& dispatcher)
+        Display(IO::U8X8& u8x8,
+                Database& database)
         {}
 
-        bool init(bool startupInfo)
+        void init() override
         {
-            return false;
         }
 
-        bool deInit()
+        void update(bool forceRefresh = false) override
         {
-            return false;
-        }
-
-        bool update()
-        {
-            return false;
         }
 
         void setAlternateNoteDisplay(bool state)

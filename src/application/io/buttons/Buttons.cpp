@@ -17,49 +17,85 @@ limitations under the License.
 */
 
 #include "Buttons.h"
+#include "sysex/src/SysExConf.h"
+#include "system/Config.h"
 
 #ifdef BUTTONS_SUPPORTED
 
 #include "core/src/general/Helpers.h"
 #include "core/src/general/Timing.h"
+#include "util/conversion/Conversion.h"
+#include "util/configurable/Configurable.h"
 
 using namespace IO;
 
-Buttons::Buttons(HWA&                     hwa,
-                 Filter&                  filter,
-                 Database&                database,
-                 Util::MessageDispatcher& dispatcher)
+Buttons::Buttons(HWA&      hwa,
+                 Filter&   filter,
+                 Database& database)
     : _hwa(hwa)
     , _filter(filter)
     , _database(database)
-    , _dispatcher(dispatcher)
 {
-    _dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
-                       Util::MessageDispatcher::listenType_t::forward,
-                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                           size_t             index = dispatchMessage.componentIndex + Collection::startIndex(GROUP_ANALOG_INPUTS);
-                           buttonDescriptor_t descriptor;
-                           fillButtonDescriptor(index, descriptor);
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
+                      Util::MessageDispatcher::listenType_t::fwd,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          size_t             index = dispatchMessage.componentIndex + Collection::startIndex(GROUP_ANALOG_INPUTS);
+                          buttonDescriptor_t descriptor;
+                          fillButtonDescriptor(index, descriptor);
 
-                           // dispatchMessage.midiValue in this case contains state information only
-                           processButton(index, dispatchMessage.midiValue, descriptor);
-                       });
+                          // dispatchMessage.midiValue in this case contains state information only
+                          processButton(index, dispatchMessage.midiValue, descriptor);
+                      });
 
-    _dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenButton,
-                       Util::MessageDispatcher::listenType_t::forward,
-                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                           size_t index = dispatchMessage.componentIndex + Collection::startIndex(GROUP_TOUCHSCREEN_COMPONENTS);
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenButton,
+                      Util::MessageDispatcher::listenType_t::fwd,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          size_t index = dispatchMessage.componentIndex + Collection::startIndex(GROUP_TOUCHSCREEN_COMPONENTS);
 
-                           buttonDescriptor_t descriptor;
-                           fillButtonDescriptor(index, descriptor);
+                          buttonDescriptor_t descriptor;
+                          fillButtonDescriptor(index, descriptor);
 
-                           // dispatchMessage.midiValue in this case contains state information only
-                           processButton(index, dispatchMessage.midiValue, descriptor);
-                       });
+                          // dispatchMessage.midiValue in this case contains state information only
+                          processButton(index, dispatchMessage.midiValue, descriptor);
+                      });
+
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::system,
+                      Util::MessageDispatcher::listenType_t::all,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          switch (dispatchMessage.componentIndex)
+                          {
+                          case static_cast<uint8_t>(Util::MessageDispatcher::systemMessages_t::forceIOrefresh):
+                          {
+                              update(true);
+                          }
+                          break;
+
+                          default:
+                              break;
+                          }
+                      });
+
+    ConfigHandler.registerConfig(
+        System::Config::block_t::buttons,
+        // read
+        [this](uint8_t section, size_t index, uint16_t& value) {
+            return sysConfigGet(static_cast<System::Config::Section::button_t>(section), index, value);
+        },
+
+        // write
+        [this](uint8_t section, size_t index, uint16_t value) {
+            return sysConfigSet(static_cast<System::Config::Section::button_t>(section), index, value);
+        });
+}
+
+void Buttons::init()
+{
+    for (size_t i = 0; i < Collection::size(); i++)
+        reset(i);
 }
 
 /// Continuously reads inputs from buttons and acts if necessary.
-void Buttons::update(bool forceResend)
+void Buttons::update(bool forceRefresh)
 {
     for (size_t i = 0; i < Collection::size(GROUP_DIGITAL_INPUTS); i++)
     {
@@ -69,9 +105,9 @@ void Buttons::update(bool forceResend)
         buttonDescriptor_t descriptor;
         fillButtonDescriptor(i, descriptor);
 
-        if (!forceResend)
+        if (!forceRefresh)
         {
-            if (!_hwa.state(i, numberOfReadings, states))
+            if (!state(i, numberOfReadings, states))
                 continue;
 
             // this filter will return amount of stable changed readings
@@ -315,9 +351,9 @@ void Buttons::sendMessage(size_t index, bool state, buttonDescriptor_t& descript
 
     if (send)
     {
-        _dispatcher.notify(Util::MessageDispatcher::messageSource_t::buttons,
-                           descriptor.dispatchMessage,
-                           Util::MessageDispatcher::listenType_t::nonFwd);
+        Dispatcher.notify(Util::MessageDispatcher::messageSource_t::buttons,
+                          descriptor.dispatchMessage,
+                          Util::MessageDispatcher::listenType_t::nonFwd);
     }
 }
 
@@ -430,6 +466,48 @@ void Buttons::fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor)
     }
 
     descriptor.dispatchMessage.message = _internalMsgToMIDIType[static_cast<uint8_t>(descriptor.messageType)];
+}
+
+bool Buttons::state(size_t index, uint8_t& numberOfReadings, uint32_t& states)
+{
+    // if encoder under this index is enabled, just return false state each time
+    if (_database.read(Database::Section::encoder_t::enable, _hwa.buttonToEncoderIndex(index)))
+        return false;
+
+    return _hwa.state(index, numberOfReadings, states);
+}
+
+std::optional<uint8_t> Buttons::sysConfigGet(System::Config::Section::button_t section, size_t index, uint16_t& value)
+{
+    int32_t readValue;
+    auto    result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ack : System::Config::status_t::errorRead;
+
+    // channels start from 0 in db, start from 1 in sysex
+    if ((section == System::Config::Section::button_t::midiChannel) && (result == System::Config::status_t::ack))
+        readValue++;
+
+    value = readValue;
+
+    return result;
+}
+
+std::optional<uint8_t> Buttons::sysConfigSet(System::Config::Section::button_t section, size_t index, uint16_t value)
+{
+    // channels start from 0 in db, start from 1 in sysex
+    if (section == System::Config::Section::button_t::midiChannel)
+        value--;
+
+    uint8_t result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ack : System::Config::status_t::errorWrite;
+
+    if (result == System::Config::status_t::ack)
+    {
+        if (
+            (section == System::Config::Section::button_t::type) ||
+            (section == System::Config::Section::button_t::midiMessage))
+            reset(index);
+    }
+
+    return result;
 }
 
 #endif

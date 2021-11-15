@@ -2,7 +2,18 @@
 
 #include "unity/Framework.h"
 #include "stubs/database/DB_ReadWrite.h"
-#include "system/System.h"
+#include "database/Database.h"
+#include "io/buttons/Buttons.h"
+#include "io/buttons/Filter.h"
+#include "io/encoders/Encoders.h"
+#include "io/encoders/Filter.h"
+#include "io/analog/Analog.h"
+#include "io/analog/Filter.h"
+#include "io/leds/LEDs.h"
+#include "io/display/Display.h"
+#include "io/touchscreen/Touchscreen.h"
+#include "protocol/dmx/DMX.h"
+#include "protocol/midi/MIDI.h"
 
 namespace
 {
@@ -19,18 +30,24 @@ TEST_CASE(ReadInitialValues)
     {
         TEST_ASSERT(database.setPreset(preset) == true);
 
-        // MIDI block
+        // global block
         //----------------------------------
-        // feature section
+        // MIDI feature section
         // all values should be set to 0
-        for (int i = 0; i < static_cast<uint8_t>(System::midiFeature_t::AMOUNT); i++)
+        for (int i = 0; i < static_cast<uint8_t>(Protocol::MIDI::feature_t::AMOUNT); i++)
             TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiFeatures, i));
 
-        // merge section
+        // MIDI merge section
         // all values should be set to 0
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiMerge, System::midiMerge_t::mergeType));
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiMerge, System::midiMerge_t::mergeUSBchannel));
-        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiMerge, System::midiMerge_t::mergeDINchannel));
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiMerge, Protocol::MIDI::mergeSetting_t::mergeType));
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiMerge, Protocol::MIDI::mergeSetting_t::mergeUSBchannel));
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::midiMerge, Protocol::MIDI::mergeSetting_t::mergeDINchannel));
+
+#ifdef DMX_SUPPORTED
+        // DMX section
+        // all values should be set to 0
+        TEST_ASSERT_EQUAL_UINT32(0, database.read(Database::Section::global_t::dmx, Protocol::DMX::setting_t::enable));
+#endif
 
         // button block
         //----------------------------------

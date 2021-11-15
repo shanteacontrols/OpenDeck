@@ -706,7 +706,7 @@ TEST_CASE(DMX)
     TEST_ASSERT(verify(false));
 
     LOG(INFO) << "Enabling DMX";
-    TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::dmx, static_cast<int>(System::dmxSetting_t::enabled), 1) == true);
+    TEST_ASSERT(MIDIHelper::setSingleSysExReq(System::Section::global_t::dmx, static_cast<int>(System::dmxSetting_t::enable), 1) == true);
 
     LOG(INFO) << "Checking if the board is detectable by OLA";
     TEST_ASSERT(verify(true));

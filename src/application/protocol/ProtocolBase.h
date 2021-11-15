@@ -16,9 +16,23 @@ limitations under the License.
 
 */
 
-#include "system/System.h"
+#pragma once
 
-bool System::HWAEncoders::state(size_t index, uint8_t& numberOfReadings, uint32_t& states)
+#include <inttypes.h>
+
+namespace Protocol
 {
-    return _system._hwa.io().encoders().state(index, numberOfReadings, states);
-}
+    enum class protocol_t : uint8_t
+    {
+        midi,
+        dmx,
+        AMOUNT
+    };
+
+    class Base
+    {
+        public:
+        virtual void init() = 0;
+        virtual void read() = 0;
+    };
+}    // namespace Protocol

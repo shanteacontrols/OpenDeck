@@ -22,60 +22,73 @@ limitations under the License.
 #include "midi/src/MIDI.h"
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
+#include "io/common/Common.h"
+#include "util/conversion/Conversion.h"
+#include "util/configurable/Configurable.h"
 
 using namespace IO;
 
-Display::Display(IO::U8X8&                u8x8,
-                 Database&                database,
-                 Util::MessageDispatcher& dispatcher)
+Display::Display(IO::U8X8& u8x8,
+                 Database& database)
     : _u8x8(u8x8)
     , _database(database)
 {
-    dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
                       Util::MessageDispatcher::listenType_t::nonFwd,
                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
                           displayMIDIevent(Display::eventType_t::out, dispatchMessage);
                       });
 
-    dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
                       Util::MessageDispatcher::listenType_t::nonFwd,
                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
                           displayMIDIevent(Display::eventType_t::out, dispatchMessage);
                       });
 
-    dispatcher.listen(Util::MessageDispatcher::messageSource_t::encoders,
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::encoders,
                       Util::MessageDispatcher::listenType_t::nonFwd,
                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
                           displayMIDIevent(Display::eventType_t::out, dispatchMessage);
                       });
 
-    dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenButton,
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenButton,
                       Util::MessageDispatcher::listenType_t::nonFwd,
                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
                           displayMIDIevent(Display::eventType_t::out, dispatchMessage);
                       });
 
-    dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenAnalog,
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenAnalog,
                       Util::MessageDispatcher::listenType_t::nonFwd,
                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
                           displayMIDIevent(Display::eventType_t::out, dispatchMessage);
                       });
 
-    dispatcher.listen(Util::MessageDispatcher::messageSource_t::midiIn,
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::midiIn,
                       Util::MessageDispatcher::listenType_t::nonFwd,
                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
                           displayMIDIevent(Display::eventType_t::in, dispatchMessage);
                       });
 
-    dispatcher.listen(Util::MessageDispatcher::messageSource_t::preset,
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::preset,
                       Util::MessageDispatcher::listenType_t::all,
                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
                           setPreset(dispatchMessage.midiIndex);
                       });
+
+    ConfigHandler.registerConfig(
+        System::Config::block_t::display,
+        // read
+        [this](uint8_t section, size_t index, uint16_t& value) {
+            return sysConfigGet(static_cast<System::Config::Section::display_t>(section), index, value);
+        },
+
+        // write
+        [this](uint8_t section, size_t index, uint16_t value) {
+            return sysConfigSet(static_cast<System::Config::Section::display_t>(section), index, value);
+        });
 }
 
-/// Initialize display driver and variables.
-bool Display::init(bool startupInfo)
+void Display::init()
 {
     if (_database.read(Database::Section::display_t::features, feature_t::enable))
     {
@@ -83,19 +96,17 @@ bool Display::init(bool startupInfo)
         auto    resolution = static_cast<U8X8::displayResolution_t>(_database.read(Database::Section::display_t::setting, setting_t::resolution));
         uint8_t address    = _database.read(Database::Section::display_t::setting, setting_t::i2cAddress);
 
-        if (!startupInfo)
+        // avoid reinitializing display with the same settings in this case
+        if (_initialized)
         {
-            // avoid reinitializing display with the same settings in this case
-            if (_initialized)
+            if (_lastController == controller)
             {
-                if (_lastController == controller)
+                if (_lastResolution == resolution)
                 {
-                    if (_lastResolution == resolution)
+                    if (_lastAddress == address)
                     {
-                        if (_lastAddress == address)
-                        {
-                            return true;
-                        }
+                        // init done
+                        return;
                     }
                 }
             }
@@ -131,17 +142,19 @@ bool Display::init(bool startupInfo)
 
             _initialized = true;
 
-            if (startupInfo)
+            if (!_startupInfoShown)
             {
                 setDirectWriteState(true);
 
-                if (_database.read(Database::Section::display_t::features, feature_t::welcomeMsg))
+                if (_database.read(Database::Section::display_t::features, feature_t::welcomeMsg) && !_startupInfoShown)
                     displayWelcomeMessage();
 
-                if (_database.read(Database::Section::display_t::features, feature_t::vInfoMsg))
+                if (_database.read(Database::Section::display_t::features, feature_t::vInfoMsg) && !_startupInfoShown)
                     displayVinfo(false);
 
                 setDirectWriteState(false);
+
+                _startupInfoShown = true;
             }
 
             setAlternateNoteDisplay(_database.read(Database::Section::display_t::features, feature_t::MIDInotesAlternate));
@@ -152,12 +165,8 @@ bool Display::init(bool startupInfo)
 
             _lastController = controller;
             _lastResolution = resolution;
-
-            return true;
         }
     }
-
-    return false;
 }
 
 bool Display::deInit()
@@ -167,10 +176,11 @@ bool Display::deInit()
 
     if (_u8x8.deInit())
     {
-        _initialized    = false;
-        _lastController = U8X8::displayController_t::invalid;
-        _lastResolution = U8X8::displayResolution_t::invalid;
-        _lastAddress    = 0;
+        _initialized      = false;
+        _lastController   = U8X8::displayController_t::invalid;
+        _lastResolution   = U8X8::displayResolution_t::invalid;
+        _lastAddress      = 0;
+        _startupInfoShown = false;
         return true;
     }
 
@@ -178,13 +188,13 @@ bool Display::deInit()
 }
 
 /// Checks if LCD requires updating continuously.
-bool Display::update()
+void Display::update(bool forceRefresh)
 {
     if (!_initialized)
-        return false;
+        return;
 
     if ((core::timing::currentRunTimeMs() - _lastLCDupdateTime) < LCD_REFRESH_TIME)
-        return false;    // we don't need to update lcd in real time
+        return;    // we don't need to update lcd in real time
 
     // use char pointer to point to line we're going to print
     char* charPointer;
@@ -234,8 +244,6 @@ bool Display::update()
                 clearMIDIevent(static_cast<eventType_t>(i));
         }
     }
-
-    return true;
 }
 
 /// Updates text to be shown on display.
@@ -685,4 +693,106 @@ void Display::setPreset(uint8_t preset)
 
         _activePreset = preset;
     }
+}
+
+std::optional<uint8_t> Display::sysConfigGet(System::Config::Section::display_t section, size_t index, uint16_t& value)
+{
+    int32_t readValue;
+    auto    result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ack : System::Config::status_t::errorRead;
+
+    value = readValue;
+
+    return result;
+}
+
+std::optional<uint8_t> Display::sysConfigSet(System::Config::Section::display_t section, size_t index, uint16_t value)
+{
+    auto initAction = Common::initAction_t::asIs;
+
+    switch (section)
+    {
+    case System::Config::Section::display_t::features:
+    {
+        auto feature = static_cast<feature_t>(index);
+
+        switch (feature)
+        {
+        case feature_t::enable:
+        {
+            initAction = value ? Common::initAction_t::init : Common::initAction_t::deInit;
+        }
+        break;
+
+        case feature_t::MIDInotesAlternate:
+        {
+            setAlternateNoteDisplay(value);
+        }
+        break;
+
+        default:
+            break;
+        }
+    }
+    break;
+
+    case System::Config::Section::display_t::setting:
+    {
+        auto setting = static_cast<setting_t>(index);
+
+        switch (setting)
+        {
+        case setting_t::controller:
+        {
+            if ((value <= static_cast<uint8_t>(U8X8::displayController_t::AMOUNT)) && (value >= 0))
+            {
+                initAction = Common::initAction_t::init;
+            }
+        }
+        break;
+
+        case setting_t::resolution:
+        {
+            if ((value <= static_cast<uint8_t>(U8X8::displayResolution_t::AMOUNT)) && (value >= 0))
+            {
+                initAction = Common::initAction_t::init;
+            }
+        }
+        break;
+
+        case setting_t::MIDIeventTime:
+        {
+            setRetentionTime(value * 1000);
+        }
+        break;
+
+        case setting_t::octaveNormalization:
+        {
+            setOctaveNormalization(value);
+        }
+        break;
+
+        case setting_t::i2cAddress:
+        {
+            initAction = Common::initAction_t::init;
+        }
+        break;
+
+        default:
+            break;
+        }
+    }
+    break;
+
+    default:
+        break;
+    }
+
+    auto result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ack : System::Config::status_t::errorWrite;
+
+    if (initAction == Common::initAction_t::init)
+        init();
+    else if (initAction == Common::initAction_t::deInit)
+        deInit();
+
+    return result;
 }

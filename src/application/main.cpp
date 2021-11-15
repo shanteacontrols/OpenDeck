@@ -18,15 +18,37 @@ limitations under the License.
 
 #include "core/src/general/Timing.h"
 #include "board/Board.h"
+#include "io/common/Common.h"
 #include "system/System.h"
+#include "system/Builder.h"
 
-class CDCUser
+class CDCLocker
 {
     public:
-    virtual bool isUsed() = 0;
+    CDCLocker() = default;
+
+    static bool locked()
+    {
+        return _locked;
+    }
+
+    static void lock()
+    {
+        _locked = false;
+    }
+
+    static void unlock()
+    {
+        _locked = true;
+    }
+
+    private:
+    static bool _locked;
 };
 
-class StorageAccess : public LESSDB::StorageAccess
+bool CDCLocker::_locked = false;
+
+class StorageAccess : public System::Builder::HWA::Database
 {
     public:
     StorageAccess() = default;
@@ -46,48 +68,43 @@ class StorageAccess : public LESSDB::StorageAccess
         return Board::NVM::clear(0, Board::NVM::size());
     }
 
-    bool read(uint32_t address, int32_t& value, LESSDB::sectionParameterType_t type) override
+    bool read(uint32_t address, int32_t& value, Database::sectionParameterType_t type) override
     {
         return Board::NVM::read(address, value, boardParamType(type));
     }
 
-    bool write(uint32_t address, int32_t value, LESSDB::sectionParameterType_t type) override
+    bool write(uint32_t address, int32_t value, Database::sectionParameterType_t type) override
     {
         return Board::NVM::write(address, value, boardParamType(type));
     }
 
-    size_t paramUsage(LESSDB::sectionParameterType_t type) override
+    size_t paramUsage(Database::sectionParameterType_t type) override
     {
         return Board::NVM::paramUsage(boardParamType(type));
     }
 
     private:
-    Board::NVM::parameterType_t boardParamType(LESSDB::sectionParameterType_t type)
+    Board::NVM::parameterType_t boardParamType(Database::sectionParameterType_t type)
     {
         switch (type)
         {
-        case LESSDB::sectionParameterType_t::word:
+        case Database::sectionParameterType_t::word:
             return Board::NVM::parameterType_t::word;
 
-        case LESSDB::sectionParameterType_t::dword:
+        case Database::sectionParameterType_t::dword:
             return Board::NVM::parameterType_t::dword;
 
         default:
             return Board::NVM::parameterType_t::byte;
         }
     }
-} _storageAccess;
+} _hwaDatabase;
 
 #ifdef LEDS_SUPPORTED
-class HWALEDs : public System::HWA::IO::LEDs
+class HWALEDs : public System::Builder::HWA::IO::LEDs
 {
     public:
     HWALEDs() = default;
-
-    bool supported() override
-    {
-        return true;
-    }
 
     void setState(size_t index, IO::LEDs::brightness_t brightness) override
     {
@@ -152,15 +169,10 @@ class HWALEDs : public System::HWA::IO::LEDs
     }
 } _hwaLEDs;
 #else
-class HWALEDsStub : public System::HWA::IO::LEDs
+class HWALEDsStub : public System::Builder::HWA::IO::LEDs
 {
     public:
     HWALEDsStub() {}
-
-    bool supported() override
-    {
-        return false;
-    }
 
     void setState(size_t index, IO::LEDs::brightness_t brightness) override
     {
@@ -183,15 +195,10 @@ class HWALEDsStub : public System::HWA::IO::LEDs
 #endif
 
 #ifdef ANALOG_SUPPORTED
-class HWAAnalog : public System::HWA::IO::Analog
+class HWAAnalog : public System::Builder::HWA::IO::Analog
 {
     public:
     HWAAnalog() = default;
-
-    bool supported() override
-    {
-        return true;
-    }
 
     bool value(size_t index, uint16_t& value) override
     {
@@ -200,15 +207,10 @@ class HWAAnalog : public System::HWA::IO::Analog
 } _hwaAnalog;
 
 #else
-class HWAAnalogStub : public System::HWA::IO::Analog
+class HWAAnalogStub : public System::Builder::HWA::IO::Analog
 {
     public:
     HWAAnalogStub() {}
-
-    bool supported() override
-    {
-        return false;
-    }
 
     bool value(size_t index, uint16_t& value) override
     {
@@ -274,15 +276,10 @@ class HWADigitalIn
 
 #ifdef BUTTONS_SUPPORTED
 
-class HWAButtons : public System::HWA::IO::Buttons
+class HWAButtons : public System::Builder::HWA::IO::Buttons
 {
     public:
     HWAButtons() = default;
-
-    bool supported() override
-    {
-        return true;
-    }
 
     bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
     {
@@ -295,15 +292,10 @@ class HWAButtons : public System::HWA::IO::Buttons
     }
 } _hwaButtons;
 #else
-class HWAButtonsStub : public System::HWA::IO::Buttons
+class HWAButtonsStub : public System::Builder::HWA::IO::Buttons
 {
     public:
     HWAButtonsStub() {}
-
-    bool supported() override
-    {
-        return false;
-    }
 
     bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
     {
@@ -319,15 +311,10 @@ class HWAButtonsStub : public System::HWA::IO::Buttons
 
 #ifdef ENCODERS_SUPPORTED
 
-class HWAEncoders : public System::HWA::IO::Encoders
+class HWAEncoders : public System::Builder::HWA::IO::Encoders
 {
     public:
     HWAEncoders() = default;
-
-    bool supported() override
-    {
-        return true;
-    }
 
     bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
     {
@@ -335,15 +322,10 @@ class HWAEncoders : public System::HWA::IO::Encoders
     }
 } _hwaEncoders;
 #else
-class HWAEncodersStub : public System::HWA::IO::Encoders
+class HWAEncodersStub : public System::Builder::HWA::IO::Encoders
 {
     public:
     HWAEncodersStub() {}
-
-    bool supported() override
-    {
-        return false;
-    }
 
     bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) override
     {
@@ -352,7 +334,7 @@ class HWAEncodersStub : public System::HWA::IO::Encoders
 } _hwaEncoders;
 #endif
 
-class HWAMIDI : public System::HWA::Protocol::MIDI
+class HWAMIDI : public System::Builder::HWA::Protocol::MIDI
 {
     public:
     HWAMIDI() = default;
@@ -458,18 +440,29 @@ class HWAMIDI : public System::HWA::Protocol::MIDI
 
         return false;
     }
+
+    bool allocated(IO::Common::interface_t interface) override
+    {
+        if (interface == IO::Common::interface_t::uart)
+        {
+#ifdef UART_CHANNEL_DIN
+            return Board::UART::isInitialized(UART_CHANNEL_DIN);
+#else
+            return false;
+#endif
+        }
+        else
+        {
+            return false;
+        }
+    }
 } _hwaMIDI;
 
 #ifdef DMX_SUPPORTED
-class HWADMX : public System::HWA::Protocol::DMX, public CDCUser
+class HWADMX : public System::Builder::HWA::Protocol::DMX
 {
     public:
     HWADMX() = default;
-
-    bool supported() override
-    {
-        return true;
-    }
 
     bool init() override
     {
@@ -481,7 +474,7 @@ class HWADMX : public System::HWA::Protocol::DMX, public CDCUser
 
         if (Board::UART::init(UART_CHANNEL_DMX, config) == Board::UART::initStatus_t::ok)
         {
-            _isUsed = true;
+            CDCLocker::lock();
             return true;
         }
 
@@ -492,7 +485,7 @@ class HWADMX : public System::HWA::Protocol::DMX, public CDCUser
     {
         if (Board::UART::deInit(UART_CHANNEL_DMX))
         {
-            _isUsed = false;
+            CDCLocker::unlock();
             return true;
         }
 
@@ -536,24 +529,33 @@ class HWADMX : public System::HWA::Protocol::DMX, public CDCUser
         // todo
     }
 
-    bool isUsed() override
+    bool uniqueID(Protocol::DMX::uniqueID_t& uniqueID) override
     {
-        return _isUsed;
+        Board::uniqueID(uniqueID);
+        return true;
     }
 
-    private:
-    bool _isUsed = false;
+    bool allocated(IO::Common::interface_t interface) override
+    {
+        if (interface == IO::Common::interface_t::uart)
+        {
+#ifdef UART_CHANNEL_DMX
+            return Board::UART::isInitialized(UART_CHANNEL_DMX);
+#else
+            return false;
+#endif
+        }
+        else
+        {
+            return CDCLocker::locked();
+        }
+    }
 } _hwaDMX;
 #else
-class HWADMXStub : public System::HWA::Protocol::DMX, public CDCUser
+class HWADMXStub : public System::Builder::HWA::Protocol::DMX
 {
     public:
     HWADMXStub() = default;
-
-    bool supported() override
-    {
-        return false;
-    }
 
     bool init() override
     {
@@ -584,7 +586,12 @@ class HWADMXStub : public System::HWA::Protocol::DMX, public CDCUser
     {
     }
 
-    bool isUsed() override
+    bool uniqueID(Protocol::DMX::uniqueID_t& uniqueID) override
+    {
+        return false;
+    }
+
+    bool allocated(IO::Common::interface_t interface) override
     {
         return false;
     }
@@ -592,15 +599,10 @@ class HWADMXStub : public System::HWA::Protocol::DMX, public CDCUser
 #endif
 
 #ifdef TOUCHSCREEN_SUPPORTED
-class HWATouchscreen : public System::HWA::IO::Touchscreen
+class HWATouchscreen : public System::Builder::HWA::IO::Touchscreen
 {
     public:
     HWATouchscreen() {}
-
-    bool supported() override
-    {
-        return true;
-    }
 
     bool init() override
     {
@@ -626,22 +628,36 @@ class HWATouchscreen : public System::HWA::IO::Touchscreen
     {
         return Board::UART::read(UART_CHANNEL_TOUCHSCREEN, value);
     }
+
+    bool allocated(IO::Common::interface_t interface) override
+    {
+#ifdef UART_CHANNEL_TOUCHSCREEN
+        return Board::UART::isInitialized(UART_CHANNEL_TOUCHSCREEN);
+#else
+        return false;
+#endif
+    }
 } _hwaTouchscreen;
 
-class HWACDCPassthrough : public System::HWA::IO::CDCPassthrough, public CDCUser
+class HWACDCPassthrough : public System::Builder::HWA::IO::CDCPassthrough
 {
     public:
     HWACDCPassthrough() = default;
 
     bool init() override
     {
+        if (CDCLocker::locked())
+            return false;
+
         _passThroughState = true;
+        CDCLocker::lock();
         return true;
     }
 
     bool deInit() override
     {
         _passThroughState = false;
+        CDCLocker::unlock();
         return true;
     }
 
@@ -702,24 +718,19 @@ class HWACDCPassthrough : public System::HWA::IO::CDCPassthrough, public CDCUser
         }
     }
 
-    bool isUsed() override
+    bool allocated(IO::Common::interface_t interface) override
     {
-        return _passThroughState;
+        return CDCLocker::locked();
     }
 
     private:
     bool _passThroughState = false;
 } _hwaCDCPassthrough;
 #else
-class HWATouchscreenStub : public System::HWA::IO::Touchscreen
+class HWATouchscreenStub : public System::Builder::HWA::IO::Touchscreen
 {
     public:
     HWATouchscreenStub() {}
-
-    bool supported() override
-    {
-        return false;
-    }
 
     bool init() override
     {
@@ -740,9 +751,14 @@ class HWATouchscreenStub : public System::HWA::IO::Touchscreen
     {
         return false;
     }
+
+    bool allocated(IO::Common::interface_t interface) override
+    {
+        return false;
+    }
 } _hwaTouchscreen;
 
-class HWACDCPassthroughStub : public System::HWA::IO::CDCPassthrough, public CDCUser
+class HWACDCPassthroughStub : public System::Builder::HWA::IO::CDCPassthrough
 {
     public:
     HWACDCPassthroughStub() = default;
@@ -777,25 +793,18 @@ class HWACDCPassthroughStub : public System::HWA::IO::CDCPassthrough, public CDC
         return false;
     }
 
-    bool isUsed() override
+    bool allocated(IO::Common::interface_t interface) override
     {
         return false;
     }
-
-    private:
 } _hwaCDCPassthrough;
 #endif
 
 #ifdef DISPLAY_SUPPORTED
-class Display : public System::HWA::IO::Display
+class Display : public System::Builder::HWA::IO::Display
 {
     public:
     Display() {}
-
-    bool supported() override
-    {
-        return true;
-    }
 
     bool init() override
     {
@@ -813,15 +822,10 @@ class Display : public System::HWA::IO::Display
     }
 } _hwaDisplay;
 #else
-class DisplayStub : public System::HWA::IO::Display
+class DisplayStub : public System::Builder::HWA::IO::Display
 {
     public:
     DisplayStub() = default;
-
-    bool supported() override
-    {
-        return false;
-    }
 
     bool init() override
     {
@@ -840,7 +844,7 @@ class DisplayStub : public System::HWA::IO::Display
 } _hwaDisplay;
 #endif
 
-class HWASystem : public System::HWA
+class HWASystem : public System::Builder::HWA::System
 {
     public:
     HWASystem() = default;
@@ -855,7 +859,6 @@ class HWASystem : public System::HWA
     {
         static uint32_t lastCheckTime       = 0;
         static bool     lastConnectionState = false;
-        bool            readCDC             = true;
 
         if (core::timing::currentRunTimeMs() - lastCheckTime > USB_CONN_CHECK_TIME)
         {
@@ -874,16 +877,7 @@ class HWASystem : public System::HWA
             lastCheckTime       = core::timing::currentRunTimeMs();
         }
 
-        for (size_t i = 0; i < _cdcUserCount; i++)
-        {
-            if (_cdcUser[i]->isUsed())
-            {
-                readCDC = false;
-                break;
-            }
-        }
-
-        if (readCDC)
+        if (!CDCLocker::locked())
         {
             // nobody is using CDC, read it here to avoid lockups but ignore the data
             uint8_t dummy;
@@ -900,140 +894,90 @@ class HWASystem : public System::HWA
         Board::reboot();
     }
 
-    void registerOnUSBconnectionHandler(System::usbConnectionHandler_t&& usbConnectionHandler) override
+    void registerOnUSBconnectionHandler(System::Instance::usbConnectionHandler_t&& usbConnectionHandler) override
     {
         _usbConnectionHandler = std::move(usbConnectionHandler);
     }
 
-    bool serialPeripheralAllocated(System::serialPeripheral_t peripheral) override
-    {
-#ifdef USE_UART
-        switch (peripheral)
-        {
-        case System::serialPeripheral_t::dinMIDI:
-        {
-#ifdef UART_CHANNEL_DIN
-            return Board::UART::isInitialized(UART_CHANNEL_DIN);
-#else
-            return false;
-#endif
-        }
-        break;
+    private:
+    static constexpr uint32_t                USB_CONN_CHECK_TIME   = 2000;
+    System::Instance::usbConnectionHandler_t _usbConnectionHandler = nullptr;
+} _hwaSystem;
 
-        case System::serialPeripheral_t::touchscreen:
-        {
-#ifdef UART_CHANNEL_TOUCHSCREEN
-            return Board::UART::isInitialized(UART_CHANNEL_TOUCHSCREEN);
-#else
-            return false;
-#endif
-        }
-        break;
+class HWABuilder : public ::System::Builder::HWA
+{
+    public:
+    HWABuilder() = default;
 
-        case System::serialPeripheral_t::dmx:
-        {
-#ifdef UART_CHANNEL_DMX
-            return Board::UART::isInitialized(UART_CHANNEL_DMX);
-#else
-            return false;
-#endif
-        }
-        break;
-
-        default:
-            return false;
-        }
-#else
-        return false;
-#endif
-    }
-
-    bool uniqueID(System::uniqueID_t& uniqueID) override
-    {
-        Board::uniqueID(uniqueID);
-        return true;
-    }
-
-    System::HWA::IO& io() override
+    ::System::Builder::HWA::IO& io() override
     {
         return _hwaIO;
     }
 
-    System::HWA::Protocol& protocol() override
+    ::System::Builder::HWA::Protocol& protocol() override
     {
         return _hwaProtocol;
     }
 
-    void addCDCUser(CDCUser& cdcUser)
+    ::System::Builder::HWA::System& system() override
     {
-        if (_cdcUserCount == MAX_CDC_USERS)
-            return;
-
-        _cdcUser[_cdcUserCount++] = &cdcUser;
+        return _hwaSystem;
     }
 
     private:
-    static constexpr uint32_t      USB_CONN_CHECK_TIME   = 2000;
-    static constexpr uint32_t      MAX_CDC_USERS         = 2;
-    System::usbConnectionHandler_t _usbConnectionHandler = nullptr;
-    CDCUser*                       _cdcUser[MAX_CDC_USERS];
-    size_t                         _cdcUserCount = 0;
-
-    class SystemHWAIO : public System::HWA::IO
+    class HWAIO : public ::System::Builder::HWA::IO
     {
         public:
-        SystemHWAIO() = default;
-
-        System::HWA::IO::LEDs& leds() override
+        ::System::Builder::HWA::IO::LEDs& leds() override
         {
             return _hwaLEDs;
         }
 
-        System::HWA::IO::Analog& analog() override
+        ::System::Builder::HWA::IO::Analog& analog() override
         {
             return _hwaAnalog;
         }
 
-        System::HWA::IO::Buttons& buttons() override
+        ::System::Builder::HWA::IO::Buttons& buttons() override
         {
             return _hwaButtons;
         }
 
-        System::HWA::IO::Encoders& encoders() override
+        ::System::Builder::HWA::IO::Encoders& encoders() override
         {
             return _hwaEncoders;
         }
 
-        System::HWA::IO::Touchscreen& touchscreen() override
+        ::System::Builder::HWA::IO::Touchscreen& touchscreen() override
         {
             return _hwaTouchscreen;
         }
 
-        System::HWA::IO::CDCPassthrough& cdcPassthrough() override
+        ::System::Builder::HWA::IO::CDCPassthrough& cdcPassthrough() override
         {
             return _hwaCDCPassthrough;
         }
 
-        System::HWA::IO::Display& display() override
+        ::System::Builder::HWA::IO::Display& display() override
         {
             return _hwaDisplay;
         }
     } _hwaIO;
 
-    class SystemHWAProtocol : public System::HWA::Protocol
+    class HWAProtocol : public ::System::Builder::HWA::Protocol
     {
         public:
-        System::HWA::Protocol::MIDI& midi()
+        ::System::Builder::HWA::Protocol::MIDI& midi()
         {
             return _hwaMIDI;
         }
 
-        System::HWA::Protocol::DMX& dmx()
+        ::System::Builder::HWA::Protocol::DMX& dmx()
         {
             return _hwaDMX;
         }
     } _hwaProtocol;
-} _hwaSystem;
+} _hwa;
 
 #ifdef TOUCHSCREEN_SUPPORTED
 namespace Board
@@ -1048,25 +992,24 @@ namespace Board
 }    // namespace Board
 #endif
 
-Database _database(_storageAccess,
+Database _database(_hwaDatabase,
 #ifdef __AVR__
                    true
 #else
                    false
 #endif
 );
-System sys(_hwaSystem, _database);
+
+System::Builder  _builder(_hwa, _database);
+System::Instance _sys(_builder.hwa(), _builder.components());
 
 int main()
 {
-    _hwaSystem.addCDCUser(_hwaDMX);
-    _hwaSystem.addCDCUser(_hwaCDCPassthrough);
-
-    sys.init();
+    _sys.init();
 
     while (true)
     {
-        sys.run();
+        _sys.run();
     }
 
     return 1;

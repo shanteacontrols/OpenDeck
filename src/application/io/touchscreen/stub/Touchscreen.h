@@ -20,7 +20,7 @@ limitations under the License.
 
 namespace IO
 {
-    class Touchscreen
+    class Touchscreen : public IO::Base
     {
         public:
         class Collection : public Common::BaseCollection<0>
@@ -53,7 +53,7 @@ namespace IO
             virtual void screenChange(size_t screenID)                                    = 0;
         };
 
-        class CDCPassthrough
+        class CDCPassthrough : public Common::Allocatable
         {
             public:
             virtual bool init()                                                       = 0;
@@ -68,53 +68,16 @@ namespace IO
 
         Touchscreen(TouchscreenBase::HWA& hwa,
                     Database&             database,
-                    CDCPassthrough&       cdcPassthrough)
+                    CDCPassthrough&       cdcPassthrough,
+                    uint16_t              adcResolution)
         {}
 
-        bool init(mode_t mode)
-        {
-            return false;
-        }
-
-        bool deInit(mode_t mode)
-        {
-            return false;
-        }
-
-        bool isInitialized() const
-        {
-            return false;
-        }
-
-        bool isInitialized(mode_t mode)
-        {
-            return false;
-        }
-
-        void update()
+        void init() override
         {
         }
 
-        void setScreen(size_t screenID)
+        void update(bool forceRefresh = false) override
         {
-        }
-
-        size_t activeScreen()
-        {
-            return 0;
-        }
-
-        void registerEventNotifier(EventNotifier& eventNotifer)
-        {
-        }
-
-        void setIconState(size_t index, bool state)
-        {
-        }
-
-        bool setBrightness(TouchscreenBase::brightness_t brightness)
-        {
-            return false;
         }
     };
 }    // namespace IO

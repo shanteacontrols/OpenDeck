@@ -20,7 +20,7 @@ limitations under the License.
 
 namespace IO
 {
-    class Encoders
+    class Encoders : public IO::Base
     {
         public:
         class Collection : public Common::BaseCollection<0>
@@ -76,26 +76,17 @@ namespace IO
             virtual uint32_t lastMovementTime(size_t index) = 0;
         };
 
-        Encoders(HWA&                     hwa,
-                 Filter&                  filter,
-                 uint32_t                 timeDiffTimeout,
-                 Database&                database,
-                 Util::MessageDispatcher& dispatcher)
+        Encoders(HWA&      hwa,
+                 Filter&   filter,
+                 uint32_t  timeDiffTimeout,
+                 Database& database)
         {}
 
-        void init()
+        void init() override
         {
         }
 
-        void update()
-        {
-        }
-
-        void resetValue(size_t index)
-        {
-        }
-
-        void setValue(size_t index, uint16_t value)
+        void update(bool forceRefresh = false) override
         {
         }
     };

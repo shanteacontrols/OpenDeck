@@ -24,17 +24,21 @@ namespace
             return true;
         }
 
+        size_t buttonToEncoderIndex(size_t index) override
+        {
+            return index / 2;
+        }
+
         bool _state[IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS)] = {};
     } _hwaButtons;
 
-    Util::MessageDispatcher _dispatcher;
-    Listener                _listener;
-    DBstorageMock           _dbStorageMock;
-    Database                _database = Database(_dbStorageMock, true);
-    HWALEDsStub             _hwaLEDs;
-    IO::LEDs                _leds(_hwaLEDs, _database, _dispatcher);
-    ButtonsFilterStub       _buttonsFilter;
-    IO::Buttons             _buttons = IO::Buttons(_hwaButtons, _buttonsFilter, _database, _dispatcher);
+    Listener          _listener;
+    DBstorageMock     _dbStorageMock;
+    Database          _database = Database(_dbStorageMock, true);
+    HWALEDsStub       _hwaLEDs;
+    IO::LEDs          _leds(_hwaLEDs, _database);
+    ButtonsFilterStub _buttonsFilter;
+    IO::Buttons       _buttons = IO::Buttons(_hwaButtons, _buttonsFilter, _database);
 
     void stateChangeRegister(bool state)
     {
@@ -59,14 +63,14 @@ TEST_SETUP()
 
     if (!listenerActive)
     {
-        _dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
-                           Util::MessageDispatcher::listenType_t::nonFwd,
-                           [](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                               _listener.messageListener(dispatchMessage);
-                           });
+        Dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
+                          Util::MessageDispatcher::listenType_t::nonFwd,
+                          [](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                              _listener.messageListener(dispatchMessage);
+                          });
 
         listenerActive = true;
-        _leds.init(false);
+        _leds.init();
     }
 
     _listener._dispatchMessage.clear();

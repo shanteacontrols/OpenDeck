@@ -31,12 +31,14 @@ namespace Util
 
         struct task_t
         {
-            std::function<void()> function = nullptr;
+            size_t                id       = 0;
             uint32_t              timeout  = 0;
+            std::function<void()> function = nullptr;
 
             task_t() = default;
         };
 
+        void init();
         void update();
         bool registerTask(task_t&& task);
 

@@ -18,9 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#ifndef BUTTONS_SUPPORTED
-#include "stub/Filter.h"
-#else
+#ifdef BUTTONS_SUPPORTED
 
 #include "io/buttons/Buttons.h"
 
@@ -69,4 +67,6 @@ namespace IO
     };
 }    // namespace IO
 
+#else
+#include "stub/Filter.h"
 #endif

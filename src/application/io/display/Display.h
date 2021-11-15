@@ -22,14 +22,14 @@ limitations under the License.
 #include "core/src/general/StringBuilder.h"
 #include "database/Database.h"
 #include "util/messaging/Messaging.h"
+#include "system/Config.h"
+#include "io/IOBase.h"
 
-#ifndef DISPLAY_SUPPORTED
-#include "stub/Display.h"
-#else
+#ifdef DISPLAY_SUPPORTED
 
 namespace IO
 {
-    class Display
+    class Display : public IO::Base
     {
         public:
         /// List of all possible text types on display.
@@ -80,31 +80,32 @@ namespace IO
             AMOUNT
         };
 
-        Display(IO::U8X8&                u8x8,
-                Database&                database,
-                Util::MessageDispatcher& dispatcher);
+        Display(IO::U8X8& u8x8,
+                Database& database);
 
-        bool init(bool startupInfo);
-        bool deInit();
-        bool update();
-        void setAlternateNoteDisplay(bool state);
-        void setOctaveNormalization(int8_t value);
-        void setRetentionTime(uint32_t time);
-        void setPreset(uint8_t preset);
+        void init() override;
+        void update(bool forceRefresh = false) override;
 
         private:
-        void          displayMIDIevent(eventType_t type, const Util::MessageDispatcher::message_t& dispatchMessage);
-        void          displayWelcomeMessage();
-        void          displayVinfo(bool newFw);
-        void          setDirectWriteState(bool state);
-        lcdTextType_t getActiveTextType();
-        void          updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex);
-        uint8_t       getTextCenter(uint8_t textSize);
-        int8_t        normalizeOctave(uint8_t octave, int8_t normalization);
-        void          buildString(const char* text, ...);
-        void          updateScrollStatus(uint8_t row);
-        void          updateTempTextStatus();
-        void          clearMIDIevent(eventType_t type);
+        bool                   deInit();
+        void                   setAlternateNoteDisplay(bool state);
+        void                   setOctaveNormalization(int8_t value);
+        void                   setRetentionTime(uint32_t time);
+        void                   setPreset(uint8_t preset);
+        void                   displayMIDIevent(eventType_t type, const Util::MessageDispatcher::message_t& dispatchMessage);
+        void                   displayWelcomeMessage();
+        void                   displayVinfo(bool newFw);
+        void                   setDirectWriteState(bool state);
+        lcdTextType_t          getActiveTextType();
+        void                   updateText(uint8_t row, lcdTextType_t textType, uint8_t startIndex);
+        uint8_t                getTextCenter(uint8_t textSize);
+        int8_t                 normalizeOctave(uint8_t octave, int8_t normalization);
+        void                   buildString(const char* text, ...);
+        void                   updateScrollStatus(uint8_t row);
+        void                   updateTempTextStatus();
+        void                   clearMIDIevent(eventType_t type);
+        std::optional<uint8_t> sysConfigGet(System::Config::Section::display_t section, size_t index, uint16_t& value);
+        std::optional<uint8_t> sysConfigSet(System::Config::Section::display_t section, size_t index, uint16_t value);
 
         IO::U8X8& _u8x8;
         Database& _database;
@@ -210,11 +211,14 @@ namespace IO
             }
         };
 
-        U8X8::displayController_t _lastController = U8X8::displayController_t::invalid;
-        U8X8::displayResolution_t _lastResolution = U8X8::displayResolution_t::invalid;
-        uint8_t                   _lastAddress    = 0;
-        uint8_t                   _activePreset   = 0;
+        U8X8::displayController_t _lastController   = U8X8::displayController_t::invalid;
+        U8X8::displayResolution_t _lastResolution   = U8X8::displayResolution_t::invalid;
+        uint8_t                   _lastAddress      = 0;
+        uint8_t                   _activePreset     = 0;
+        bool                      _startupInfoShown = false;
     };
 }    // namespace IO
 
+#else
+#include "stub/Display.h"
 #endif

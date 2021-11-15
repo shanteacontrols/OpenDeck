@@ -19,10 +19,14 @@ limitations under the License.
 #pragma once
 
 #include "Database.h"
+#include "io/buttons/Buttons.h"
+#include "io/encoders/Encoders.h"
+#include "io/analog/Analog.h"
 #include "io/leds/LEDs.h"
 #include "io/display/Display.h"
 #include "io/touchscreen/Touchscreen.h"
-#include "system/System.h"
+#include "protocol/dmx/DMX.h"
+#include "protocol/midi/MIDI.h"
 
 #define MAX_PRESETS 10
 
@@ -52,7 +56,7 @@ namespace
 
         // presets
         {
-            .numberOfParameters     = static_cast<uint8_t>(System::presetSetting_t::AMOUNT),
+            .numberOfParameters     = static_cast<uint8_t>(Database::presetSetting_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -64,7 +68,7 @@ namespace
     LESSDB::section_t globalSections[static_cast<uint8_t>(Database::Section::global_t::AMOUNT)] = {
         // midi feature section
         {
-            .numberOfParameters     = static_cast<uint8_t>(System::midiFeature_t::AMOUNT),
+            .numberOfParameters     = static_cast<uint8_t>(Protocol::MIDI::feature_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::bit,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -74,7 +78,7 @@ namespace
 
         // midi merge section
         {
-            .numberOfParameters     = static_cast<uint8_t>(System::midiMerge_t::AMOUNT),
+            .numberOfParameters     = static_cast<uint8_t>(Protocol::MIDI::mergeSetting_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::halfByte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,
@@ -84,7 +88,7 @@ namespace
 
         // dmx section
         {
-            .numberOfParameters     = static_cast<uint8_t>(System::dmxSetting_t::AMOUNT),
+            .numberOfParameters     = static_cast<uint8_t>(Protocol::DMX::setting_t::AMOUNT),
             .parameterType          = LESSDB::sectionParameterType_t::byte,
             .preserveOnPartialReset = false,
             .defaultValue           = 0,

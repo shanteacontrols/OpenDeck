@@ -20,6 +20,7 @@ limitations under the License.
 
 #include <inttypes.h>
 #include <stddef.h>
+#include "io/common/Common.h"
 
 namespace IO
 {
@@ -87,7 +88,7 @@ namespace IO
             _100
         };
 
-        class HWA
+        class HWA : public ::IO::Common::Allocatable
         {
             public:
             virtual bool init()               = 0;

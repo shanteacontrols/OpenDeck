@@ -36,17 +36,21 @@ namespace
             return true;
         }
 
+        size_t buttonToEncoderIndex(size_t index) override
+        {
+            return index / 2;
+        }
+
         bool _state[IO::Buttons::Collection::size(IO::Buttons::GROUP_DIGITAL_INPUTS)] = {};
     } _hwaButtons;
 
-    Util::MessageDispatcher _dispatcher;
-    Listener                _listener;
-    DBstorageMock           _dbStorageMock;
-    Database                _database = Database(_dbStorageMock, true);
-    AnalogFilterStub        _analogFilter;
-    ButtonsFilterStub       _buttonsFilter;
-    IO::Analog              _analog(_hwaAnalog, _analogFilter, _database, _dispatcher);
-    IO::Buttons             _buttons(_hwaButtons, _buttonsFilter, _database, _dispatcher);
+    Listener          _listener;
+    DBstorageMock     _dbStorageMock;
+    Database          _database = Database(_dbStorageMock, true);
+    AnalogFilterStub  _analogFilter;
+    ButtonsFilterStub _buttonsFilter;
+    IO::Analog        _analog(_hwaAnalog, _analogFilter, _database);
+    IO::Buttons       _buttons(_hwaButtons, _buttonsFilter, _database);
 }    // namespace
 
 TEST_SETUP()
@@ -56,17 +60,17 @@ TEST_SETUP()
     TEST_ASSERT(_database.factoryReset() == true);
 
     for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
-        _analog.debounceReset(i);
+        _analog.reset(i);
 
     static bool listenerActive = false;
 
     if (!listenerActive)
     {
-        _dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
-                           Util::MessageDispatcher::listenType_t::nonFwd,
-                           [](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                               _listener.messageListener(dispatchMessage);
-                           });
+        Dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
+                          Util::MessageDispatcher::listenType_t::nonFwd,
+                          [](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                              _listener.messageListener(dispatchMessage);
+                          });
 
         listenerActive = true;
     }
@@ -307,7 +311,7 @@ TEST_CASE(Inversion)
         TEST_ASSERT(_database.update(Database::Section::analog_t::invert, i, 1) == true);
         TEST_ASSERT(_database.update(Database::Section::analog_t::lowerLimit, i, 127) == true);
         TEST_ASSERT(_database.update(Database::Section::analog_t::upperLimit, i, 0) == true);
-        _analog.debounceReset(i);
+        _analog.reset(i);
     }
 
     // feed all the values again
@@ -340,7 +344,7 @@ TEST_CASE(Inversion)
     for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
     {
         TEST_ASSERT(_database.update(Database::Section::analog_t::invert, i, 0) == true);
-        _analog.debounceReset(i);
+        _analog.reset(i);
     }
 
     // feed all the values again
@@ -438,7 +442,7 @@ TEST_CASE(Scaling)
         for (int i = 0; i < IO::Analog::Collection::size(IO::Analog::GROUP_ANALOG_INPUTS); i++)
         {
             TEST_ASSERT(_database.update(Database::Section::analog_t::invert, i, 1) == true);
-            _analog.debounceReset(i);
+            _analog.reset(i);
         }
 
         _listener._dispatchMessage.clear();
@@ -498,17 +502,17 @@ TEST_CASE(ButtonForwarding)
         std::vector<Util::MessageDispatcher::message_t> dispatchMessageAnalogFwd;
         std::vector<Util::MessageDispatcher::message_t> dispatchMessageButtons;
 
-        _dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
-                           Util::MessageDispatcher::listenType_t::forward,
-                           [&](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                               dispatchMessageAnalogFwd.push_back(dispatchMessage);
-                           });
+        Dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
+                          Util::MessageDispatcher::listenType_t::fwd,
+                          [&](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                              dispatchMessageAnalogFwd.push_back(dispatchMessage);
+                          });
 
-        _dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
-                           Util::MessageDispatcher::listenType_t::nonFwd,
-                           [&](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                               dispatchMessageButtons.push_back(dispatchMessage);
-                           });
+        Dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
+                          Util::MessageDispatcher::listenType_t::nonFwd,
+                          [&](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                              dispatchMessageButtons.push_back(dispatchMessage);
+                          });
 
         _hwaAnalog.adcReturnValue = 0xFFFF;
         _analog.update();

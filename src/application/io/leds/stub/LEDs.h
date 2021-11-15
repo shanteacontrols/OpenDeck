@@ -20,7 +20,7 @@ limitations under the License.
 
 namespace IO
 {
-    class LEDs
+    class LEDs : public IO::Base
     {
         public:
         class Collection : public Common::BaseCollection<0>
@@ -123,64 +123,15 @@ namespace IO
             virtual size_t rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent) = 0;
         };
 
-        LEDs(HWA&                     hwa,
-             Database&                database,
-             Util::MessageDispatcher& dispatcher)
+        LEDs(HWA&      hwa,
+             Database& database)
         {}
 
-        void init(bool startUp = true)
+        void init() override
         {
         }
 
-        void update(bool forceChange = false)
-        {
-        }
-
-        void setAllOn()
-        {
-        }
-
-        void setAllOff()
-        {
-        }
-
-        void refresh()
-        {
-        }
-
-        void setColor(uint8_t ledID, color_t color, brightness_t brightness)
-        {
-        }
-
-        color_t color(uint8_t ledID)
-        {
-            return color_t::off;
-        }
-
-        void setBlinkSpeed(uint8_t ledID, blinkSpeed_t value)
-        {
-        }
-
-        blinkSpeed_t blinkSpeed(uint8_t ledID)
-        {
-            return blinkSpeed_t::noBlink;
-        }
-
-        size_t rgbSignalIndex(size_t rgbIndex, LEDs::rgbIndex_t rgbComponent)
-        {
-            return 0;
-        }
-
-        size_t rgbIndex(size_t singleLEDindex)
-        {
-            return 0;
-        }
-
-        void setBlinkType(blinkType_t blinkType)
-        {
-        }
-
-        void resetBlinking()
+        void update(bool forceRefresh = false) override
         {
         }
     };

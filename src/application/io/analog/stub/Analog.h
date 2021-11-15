@@ -18,9 +18,10 @@ limitations under the License.
 
 #pragma once
 
+#include "io/IOBase.h"
 namespace IO
 {
-    class Analog
+    class Analog : public IO::Base
     {
         public:
         class Collection : public Common::BaseCollection<0>
@@ -32,12 +33,6 @@ namespace IO
         enum
         {
             GROUP_ANALOG_INPUTS,
-        };
-
-        enum class adcType_t : uint16_t
-        {
-            adc10bit = 1023,
-            adc12bit = 4095
         };
 
         typedef struct
@@ -80,55 +75,29 @@ namespace IO
         class Filter
         {
             public:
-            virtual Analog::adcType_t adcType()                                                                              = 0;
-            virtual bool              isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) = 0;
-            virtual void              reset(size_t index)                                                                    = 0;
+            enum class adcType_t : uint16_t
+            {
+                adc10bit = 1023,
+                adc12bit = 4095
+            };
+
+            virtual bool isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) = 0;
+            virtual void reset(size_t index)                                                                    = 0;
         };
 
         using buttonHandler_t = std::function<void(size_t index, bool state)>;
 
-        Analog(HWA&                     hwa,
-               Filter&                  filter,
-               Database&                database,
-               Util::MessageDispatcher& dispatcher)
+        Analog(HWA&      hwa,
+               Filter&   filter,
+               Database& database)
         {}
 
-        void update(bool forceResend = false)
+        void init() override
         {
         }
 
-        adcType_t adcType()
-        {
-#ifdef ADC_12_BIT
-            return adcType_t::adc12bit;
-#else
-            return adcType_t::adc10bit;
-#endif
-        }
-
-        void debounceReset(uint16_t index)
+        void update(bool forceRefresh = false) override
         {
         }
-
-        void registerButtonHandler(buttonHandler_t buttonHandler)
-        {
-        }
-
-        adcConfig_t& config()
-        {
-            return adcConfigStub;
-        }
-
-        private:
-        adcConfig_t adcConfigStub = {
-            .adcMinValue              = 0,
-            .adcMaxValue              = 0,
-            .stepDiff14Bit            = 0,
-            .fsrMinValue              = 0,
-            .fsrMaxValue              = 0,
-            .aftertouchMaxValue       = 0,
-            .digitalValueThresholdOn  = 0,
-            .digitalValueThresholdOff = 0,
-        };
     };    // namespace IO
 }    // namespace IO

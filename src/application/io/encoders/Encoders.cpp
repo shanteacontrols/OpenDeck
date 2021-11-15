@@ -22,57 +22,72 @@ limitations under the License.
 
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
+#include "util/conversion/Conversion.h"
+#include "util/configurable/Configurable.h"
 
 using namespace IO;
 
-Encoders::Encoders(HWA&                     hwa,
-                   Filter&                  filter,
-                   uint32_t                 timeDiffTimeout,
-                   Database&                database,
-                   Util::MessageDispatcher& dispatcher)
+Encoders::Encoders(HWA&      hwa,
+                   Filter&   filter,
+                   Database& database,
+                   uint32_t  timeDiffTimeout)
     : _hwa(hwa)
     , _filter(filter)
-    , TIME_DIFF_READOUT(timeDiffTimeout)
     , _database(database)
-    , _dispatcher(dispatcher)
+    , TIME_DIFF_READOUT(timeDiffTimeout)
+{
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::midiIn,
+                      Util::MessageDispatcher::listenType_t::nonFwd,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          switch (dispatchMessage.message)
+                          {
+                          case MIDI::messageType_t::controlChange:
+                          {
+                              for (size_t i = 0; i < Collection::size(); i++)
+                              {
+                                  if (!_database.read(Database::Section::encoder_t::remoteSync, i))
+                                      continue;
+
+                                  if (_database.read(Database::Section::encoder_t::mode, i) != static_cast<int32_t>(IO::Encoders::type_t::controlChange))
+                                      continue;
+
+                                  if (_database.read(Database::Section::encoder_t::midiChannel, i) != dispatchMessage.midiChannel)
+                                      continue;
+
+                                  if (_database.read(Database::Section::encoder_t::midiID, i) != dispatchMessage.midiIndex)
+                                      continue;
+
+                                  setValue(i, dispatchMessage.midiValue);
+                              }
+                          }
+                          break;
+
+                          default:
+                              break;
+                          }
+                      });
+
+    ConfigHandler.registerConfig(
+        System::Config::block_t::encoders,
+        // read
+        [this](uint8_t section, size_t index, uint16_t& value) {
+            return sysConfigGet(static_cast<System::Config::Section::encoder_t>(section), index, value);
+        },
+
+        // write
+        [this](uint8_t section, size_t index, uint16_t value) {
+            return sysConfigSet(static_cast<System::Config::Section::encoder_t>(section), index, value);
+        });
+}
+
+void Encoders::init()
 {
     for (size_t i = 0; i < Collection::size(); i++)
-        resetValue(i);
-
-    _dispatcher.listen(Util::MessageDispatcher::messageSource_t::midiIn,
-                       Util::MessageDispatcher::listenType_t::nonFwd,
-                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
-                           switch (dispatchMessage.message)
-                           {
-                           case MIDI::messageType_t::controlChange:
-                           {
-                               for (size_t i = 0; i < Collection::size(); i++)
-                               {
-                                   if (!_database.read(Database::Section::encoder_t::remoteSync, i))
-                                       continue;
-
-                                   if (_database.read(Database::Section::encoder_t::mode, i) != static_cast<int32_t>(IO::Encoders::type_t::controlChange))
-                                       continue;
-
-                                   if (_database.read(Database::Section::encoder_t::midiChannel, i) != dispatchMessage.midiChannel)
-                                       continue;
-
-                                   if (_database.read(Database::Section::encoder_t::midiID, i) != dispatchMessage.midiIndex)
-                                       continue;
-
-                                   setValue(i, dispatchMessage.midiValue);
-                               }
-                           }
-                           break;
-
-                           default:
-                               break;
-                           }
-                       });
+        reset(i);
 }
 
 /// Continuously checks state of all encoders.
-void Encoders::update()
+void Encoders::update(bool forceRefresh)
 {
     for (size_t i = 0; i < Collection::size(); i++)
     {
@@ -256,14 +271,14 @@ void Encoders::sendMessage(size_t index, encoderDescriptor_t& descriptor)
 
     if (send)
     {
-        _dispatcher.notify(Util::MessageDispatcher::messageSource_t::encoders,
-                           descriptor.dispatchMessage,
-                           Util::MessageDispatcher::listenType_t::nonFwd);
+        Dispatcher.notify(Util::MessageDispatcher::messageSource_t::encoders,
+                          descriptor.dispatchMessage,
+                          Util::MessageDispatcher::listenType_t::nonFwd);
     }
 }
 
 /// Sets the MIDI value of specified encoder to default.
-void Encoders::resetValue(size_t index)
+void Encoders::reset(size_t index)
 {
     if (_database.read(Database::Section::encoder_t::mode, index) == static_cast<int32_t>(type_t::pitchBend))
         _midiValue[index] = 8192;
@@ -326,6 +341,52 @@ void Encoders::fillEncoderDescriptor(size_t index, encoderDescriptor_t& descript
     descriptor.dispatchMessage.midiChannel    = _database.read(Database::Section::encoder_t::midiChannel, index);
     descriptor.dispatchMessage.midiIndex      = _database.read(Database::Section::encoder_t::midiID, index);
     descriptor.dispatchMessage.message        = _internalMsgToMIDIType[static_cast<uint8_t>(descriptor.type)];
+}
+
+std::optional<uint8_t> Encoders::sysConfigGet(System::Config::Section::encoder_t section, size_t index, uint16_t& value)
+{
+    int32_t readValue;
+    auto    result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ack : System::Config::status_t::errorRead;
+
+    if (result == System::Config::status_t::ack)
+    {
+        if (section == System::Config::Section::encoder_t::midiID_MSB)
+            return System::Config::status_t::errorNotSupported;
+
+        if (section == System::Config::Section::encoder_t::midiChannel)
+        {
+            // channels start from 0 in db, start from 1 in sysex
+            readValue++;
+        }
+    }
+
+    value = readValue;
+
+    return result;
+}
+
+std::optional<uint8_t> Encoders::sysConfigSet(System::Config::Section::encoder_t section, size_t index, uint16_t value)
+{
+    switch (section)
+    {
+    case System::Config::Section::encoder_t::midiID_MSB:
+        return System::Config::status_t::errorNotSupported;
+
+    default:
+    {
+        // channels start from 0 in db, start from 1 in sysex
+        if (section == System::Config::Section::encoder_t::midiChannel)
+            value--;
+    }
+    break;
+    }
+
+    auto result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ack : System::Config::status_t::errorWrite;
+
+    if (result == System::Config::status_t::ack)
+        reset(index);
+
+    return result;
 }
 
 #endif

@@ -23,6 +23,11 @@ using namespace Util;
 
 Scheduler::Scheduler()
 {
+    init();
+}
+
+void Scheduler::init()
+{
     for (size_t i = 0; i < MAX_TASKS; i++)
     {
         _tasks[i].function = nullptr;
@@ -51,7 +56,8 @@ bool Scheduler::registerTask(task_t&& task)
 
     for (size_t i = 0; i < MAX_TASKS; i++)
     {
-        if (_tasks[i].function == nullptr)
+        // if the id is already registered, cancel its timeout and reassign
+        if (_tasks[i].function == nullptr || _tasks[i].id == task.id)
         {
             index = i;
             break;

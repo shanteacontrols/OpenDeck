@@ -9,20 +9,9 @@ ifeq (,$(findstring USB_LINK_MCU,$(DEFINES)))
     application/database/CustomInit.cpp \
     application/io/common/Common.cpp \
     application/system/System.cpp \
-    application/system/Get.cpp \
-    application/system/Set.cpp \
-    application/system/Helpers.cpp \
-    application/system/hwa/io/Analog.cpp \
-    application/system/hwa/io/Buttons.cpp \
-    application/system/hwa/io/CDCPassthrough.cpp \
-    application/system/hwa/io/Display.cpp \
-    application/system/hwa/io/Encoders.cpp \
-    application/system/hwa/io/LEDs.cpp \
-    application/system/hwa/io/Touchscreen.cpp \
-    application/system/hwa/protocol/MIDI.cpp \
-    application/system/hwa/protocol/DMX.cpp \
     application/util/cinfo/CInfo.cpp \
-    application/midi/MIDI.cpp \
+    application/protocol/midi/MIDI.cpp \
+    application/protocol/dmx/DMX.cpp \
     modules/sysex/src/SysExConf.cpp \
     modules/dmxusb/src/DMXUSBWidget.cpp \
     application/io/buttons/Buttons.cpp \

@@ -136,7 +136,7 @@ ifeq (,$(findstring gen,$(TYPE)))
             SOURCES += $(shell $(FIND) ./application -maxdepth 1 -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ./application/database -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ./application/system -type f -name "*.cpp")
-            SOURCES += $(shell $(FIND) ./application/midi -type f -name "*.cpp")
+            SOURCES += $(shell $(FIND) ./application/protocol -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ./application/util -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ./application/io/common -maxdepth 1 -type f -name "*.cpp")
             SOURCES += $(shell $(FIND) ../modules/sysex/src -maxdepth 1 -type f -name "*.cpp" | sed "s|^\.\./||")
@@ -204,6 +204,8 @@ else ifeq ($(TYPE),flashgen)
         SOURCES += modules/EmuEEPROM/src/EmuEEPROM.cpp
         SOURCES += $(TSCREEN_GEN_SOURCE)
         SOURCES += flashgen/main.cpp
+        SOURCES += application/util/configurable/Configurable.cpp
+        SOURCES += application/util/conversion/Conversion.cpp
 
         INCLUDE_DIRS += -I"flashgen/"
     endif

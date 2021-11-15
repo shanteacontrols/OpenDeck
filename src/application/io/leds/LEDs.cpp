@@ -17,17 +17,19 @@ limitations under the License.
 */
 
 #include "LEDs.h"
+#include "util/messaging/Messaging.h"
 
 #ifdef LEDS_SUPPORTED
 
 #include "core/src/general/Timing.h"
 #include "core/src/general/Helpers.h"
+#include "util/conversion/Conversion.h"
+#include "util/configurable/Configurable.h"
 
 using namespace IO;
 
-LEDs::LEDs(HWA&                     hwa,
-           Database&                database,
-           Util::MessageDispatcher& dispatcher)
+LEDs::LEDs(HWA&      hwa,
+           Database& database)
     : _hwa(hwa)
     , _database(database)
 {
@@ -37,7 +39,7 @@ LEDs::LEDs(HWA&                     hwa,
     for (size_t i = 0; i < Collection::size(); i++)
         _brightness[i] = brightness_t::bOff;
 
-    dispatcher.listen(Util::MessageDispatcher::messageSource_t::midiIn,
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::midiIn,
                       Util::MessageDispatcher::listenType_t::nonFwd,
                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
                           switch (dispatchMessage.message)
@@ -69,7 +71,7 @@ LEDs::LEDs(HWA&                     hwa,
                           }
                       });
 
-    dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
                       Util::MessageDispatcher::listenType_t::nonFwd,
                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
                           switch (dispatchMessage.message)
@@ -88,7 +90,7 @@ LEDs::LEDs(HWA&                     hwa,
                           }
                       });
 
-    dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
                       Util::MessageDispatcher::listenType_t::nonFwd,
                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
                           switch (dispatchMessage.message)
@@ -107,26 +109,54 @@ LEDs::LEDs(HWA&                     hwa,
                           }
                       });
 
-    dispatcher.listen(Util::MessageDispatcher::messageSource_t::preset,
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::preset,
                       Util::MessageDispatcher::listenType_t::all,
                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
                           setAllOff();
                           midiToState(dispatchMessage, Util::MessageDispatcher::messageSource_t::preset);
                       });
+
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenScreen,
+                      Util::MessageDispatcher::listenType_t::all,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          refresh();
+                      });
+
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::system,
+                      Util::MessageDispatcher::listenType_t::all,
+                      [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
+                          if (dispatchMessage.componentIndex == static_cast<uint8_t>(Util::MessageDispatcher::systemMessages_t::midiProgramIndication))
+                          {
+                              // pretend this is midi in message - source isn't important here as
+                              // both midi in and local control for program change are synced
+                              midiToState(dispatchMessage, Util::MessageDispatcher::messageSource_t::midiIn);
+                          }
+                      });
+
+    ConfigHandler.registerConfig(
+        System::Config::block_t::leds,
+        // read
+        [this](uint8_t section, size_t index, uint16_t& value) {
+            return sysConfigGet(static_cast<System::Config::Section::leds_t>(section), index, value);
+        },
+
+        // write
+        [this](uint8_t section, size_t index, uint16_t value) {
+            return sysConfigSet(static_cast<System::Config::Section::leds_t>(section), index, value);
+        });
 }
 
-void LEDs::init(bool startUp)
+void LEDs::init()
 {
-    if (startUp)
-    {
-        if (_database.read(Database::Section::leds_t::global, setting_t::useStartupAnimation))
-            startUpAnimation();
-    }
+    setAllOff();
+
+    if (_database.read(Database::Section::leds_t::global, setting_t::useStartupAnimation))
+        startUpAnimation();
 
     setBlinkType(static_cast<blinkType_t>(_database.read(Database::Section::leds_t::global, setting_t::blinkWithMIDIclock)));
 }
 
-void LEDs::update(bool forceChange)
+void LEDs::update(bool forceRefresh)
 {
     if (_blinkResetArrayPtr == nullptr)
         return;
@@ -144,7 +174,7 @@ void LEDs::update(bool forceChange)
 
     case blinkType_t::midiClock:
     {
-        if (!forceChange)
+        if (!forceRefresh)
             return;
     }
     break;
@@ -172,7 +202,7 @@ void LEDs::update(bool forceChange)
                 continue;
 
             updateBit(j, ledBit_t::state, _blinkState[i]);
-            _hwa.setState(j, bit(j, ledBit_t::state) ? _brightness[j] : brightness_t::bOff);
+            setState(j, bit(j, ledBit_t::state) ? _brightness[j] : brightness_t::bOff);
         }
     }
 }
@@ -186,19 +216,19 @@ __attribute__((weak)) void LEDs::startUpAnimation()
 
     for (size_t i = 0; i < Collection::size(GROUP_DIGITAL_OUTPUTS); i++)
     {
-        _hwa.setState(i, brightness_t::bOff);
+        setState(i, brightness_t::bOff);
         core::timing::waitMs(35);
     }
 
     for (size_t i = 0; i < Collection::size(GROUP_DIGITAL_OUTPUTS); i++)
     {
-        _hwa.setState(Collection::size(GROUP_DIGITAL_OUTPUTS) - 1 - i, brightness_t::b100);
+        setState(Collection::size(GROUP_DIGITAL_OUTPUTS) - 1 - i, brightness_t::b100);
         core::timing::waitMs(35);
     }
 
     for (size_t i = 0; i < Collection::size(GROUP_DIGITAL_OUTPUTS); i++)
     {
-        _hwa.setState(i, brightness_t::bOff);
+        setState(i, brightness_t::bOff);
         core::timing::waitMs(35);
     }
 
@@ -449,7 +479,7 @@ void LEDs::setBlinkSpeed(uint8_t ledID, blinkSpeed_t state)
             updateBit(ledArray[i], ledBit_t::state, bit(ledArray[i], ledBit_t::active));
         }
 
-        _hwa.setState(ledArray[i], _brightness[ledArray[i]]);
+        setState(ledArray[i], _brightness[ledArray[i]]);
         _blinkTimer[ledID] = static_cast<uint8_t>(state);
     }
 }
@@ -471,7 +501,7 @@ void LEDs::setAllOff()
 void LEDs::refresh()
 {
     for (size_t i = 0; i < Collection::size(); i++)
-        _hwa.setState(i, _brightness[i]);
+        setState(i, _brightness[i]);
 }
 
 void LEDs::setColor(uint8_t ledID, color_t color, brightness_t brightness)
@@ -515,7 +545,7 @@ void LEDs::setColor(uint8_t ledID, color_t color, brightness_t brightness)
             }
 
             _brightness[index] = brightness;
-            _hwa.setState(index, brightness);
+            setState(index, brightness);
         }
         else
         {
@@ -635,7 +665,7 @@ void LEDs::resetState(uint8_t index)
 {
     _ledState[index]   = 0;
     _brightness[index] = brightness_t::bOff;
-    _hwa.setState(index, brightness_t::bOff);
+    setState(index, brightness_t::bOff);
 }
 
 bool LEDs::isControlTypeMatched(MIDI::messageType_t midiMessage, controlType_t controlType)
@@ -645,6 +675,213 @@ bool LEDs::isControlTypeMatched(MIDI::messageType_t midiMessage, controlType_t c
         midiMessage = MIDI::messageType_t::noteOn;
 
     return controlTypeToMIDImessage[static_cast<uint8_t>(controlType)] == midiMessage;
+}
+
+void LEDs::setState(size_t index, brightness_t brightness)
+{
+    if (index >= Collection::size(GROUP_DIGITAL_OUTPUTS))
+    {
+        // specified hwa interface only writes to physical leds
+        // for touchscreen and other destinations, notify via dispatcher
+
+        Util::MessageDispatcher::message_t message;
+        message.componentIndex = index - Collection::startIndex(GROUP_TOUCHSCREEN_COMPONENTS);
+        message.midiValue      = static_cast<uint16_t>(brightness);
+
+        Dispatcher.notify(Util::MessageDispatcher::messageSource_t::leds,
+                          message,
+                          Util::MessageDispatcher::listenType_t::fwd);
+    }
+    else
+    {
+        _hwa.setState(index, brightness);
+    }
+}
+
+std::optional<uint8_t> LEDs::sysConfigGet(System::Config::Section::leds_t section, size_t index, uint16_t& value)
+{
+    int32_t readValue;
+    auto    result = System::Config::status_t::ack;
+
+    switch (section)
+    {
+    case System::Config::Section::leds_t::testColor:
+    {
+        readValue = static_cast<int32_t>(color(index));
+    }
+    break;
+
+    case System::Config::Section::leds_t::midiChannel:
+    {
+        result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ack : System::Config::status_t::errorRead;
+
+        // channels start from 0 in db, start from 1 in sysex
+        if (result == System::Config::status_t::ack)
+            readValue++;
+    }
+    break;
+
+    case System::Config::Section::leds_t::rgbEnable:
+    {
+        result = _database.read(Util::Conversion::sys2DBsection(section), rgbIndex(index), readValue) ? System::Config::status_t::ack : System::Config::status_t::errorRead;
+    }
+    break;
+
+    default:
+    {
+        result = _database.read(Util::Conversion::sys2DBsection(section), index, readValue) ? System::Config::status_t::ack : System::Config::status_t::errorRead;
+    }
+    break;
+    }
+
+    value = readValue;
+
+    return result;
+}
+
+std::optional<uint8_t> LEDs::sysConfigSet(System::Config::Section::leds_t section, size_t index, uint16_t value)
+{
+    uint8_t result = System::Config::status_t::errorWrite;
+
+    bool writeToDb = true;
+
+    switch (section)
+    {
+    case System::Config::Section::leds_t::testColor:
+    {
+        // no writing to database
+        setColor(index, static_cast<color_t>(value), brightness_t::b100);
+        result    = System::Config::status_t::ack;
+        writeToDb = false;
+    }
+    break;
+
+    case System::Config::Section::leds_t::global:
+    {
+        auto ledSetting = static_cast<setting_t>(index);
+
+        switch (ledSetting)
+        {
+        case setting_t::blinkWithMIDIclock:
+        {
+            if ((value <= 1) && (value >= 0))
+            {
+                result = System::Config::status_t::ack;
+                setBlinkType(static_cast<blinkType_t>(value));
+            }
+        }
+        break;
+
+        case setting_t::useStartupAnimation:
+        {
+            if ((value <= 1) && (value >= 0))
+                result = System::Config::status_t::ack;
+        }
+        break;
+
+        case setting_t::unused:
+        {
+            result = System::Config::status_t::ack;
+        }
+        break;
+
+        default:
+            break;
+        }
+
+        // write to db if success is true and writing should take place
+        if ((result == System::Config::status_t::ack) && writeToDb)
+            result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ack : System::Config::status_t::errorWrite;
+    }
+    break;
+
+    case System::Config::Section::leds_t::rgbEnable:
+    {
+        // make sure to turn all three leds off before setting new state
+        setColor(rgbSignalIndex(rgbIndex(index), rgbIndex_t::r), color_t::off, brightness_t::bOff);
+        setColor(rgbSignalIndex(rgbIndex(index), rgbIndex_t::g), color_t::off, brightness_t::bOff);
+        setColor(rgbSignalIndex(rgbIndex(index), rgbIndex_t::b), color_t::off, brightness_t::bOff);
+
+        // write rgb enabled bit to led
+        result = _database.update(Util::Conversion::sys2DBsection(section), rgbIndex(index), value) ? System::Config::status_t::ack : System::Config::status_t::errorWrite;
+
+        if (value && (result == System::Config::status_t::ack))
+        {
+            // copy over note activation local control and midi channel settings to all three leds from the current led index
+
+            for (int i = 0; i < 3; i++)
+            {
+                result = _database.update(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::activationID),
+                                          rgbSignalIndex(rgbIndex(index), static_cast<rgbIndex_t>(i)),
+                                          _database.read(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::activationID), index))
+                             ? System::Config::status_t::ack
+                             : System::Config::status_t::errorWrite;
+
+                if (result != System::Config::status_t::ack)
+                    break;
+
+                result = _database.update(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::controlType),
+                                          rgbSignalIndex(rgbIndex(index), static_cast<rgbIndex_t>(i)),
+                                          _database.read(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::controlType), index))
+                             ? System::Config::status_t::ack
+                             : System::Config::status_t::errorWrite;
+
+                if (result != System::Config::status_t::ack)
+                    break;
+
+                result = _database.update(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::midiChannel),
+                                          rgbSignalIndex(rgbIndex(index), static_cast<rgbIndex_t>(i)),
+                                          _database.read(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::midiChannel), index))
+                             ? System::Config::status_t::ack
+                             : System::Config::status_t::errorWrite;
+
+                if (result != System::Config::status_t::ack)
+                    break;
+            }
+        }
+    }
+    break;
+
+    case System::Config::Section::leds_t::activationID:
+    case System::Config::Section::leds_t::controlType:
+    case System::Config::Section::leds_t::midiChannel:
+    {
+        // channels start from 0 in db, start from 1 in sysex
+        if (section == System::Config::Section::leds_t::midiChannel)
+            value--;
+
+        // first, find out if RGB led is enabled for this led index
+        if (_database.read(Util::Conversion::sys2DBsection(System::Config::Section::leds_t::rgbEnable), rgbIndex(index)))
+        {
+            // rgb led enabled - copy these settings to all three leds
+            for (int i = 0; i < 3; i++)
+            {
+                result = _database.update(Util::Conversion::sys2DBsection(section),
+                                          rgbSignalIndex(rgbIndex(index), static_cast<rgbIndex_t>(i)),
+                                          value)
+                             ? System::Config::status_t::ack
+                             : System::Config::status_t::errorWrite;
+
+                if (result != System::Config::status_t::ack)
+                    break;
+            }
+        }
+        else
+        {
+            // apply to single led only
+            result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ack : System::Config::status_t::errorWrite;
+        }
+    }
+    break;
+
+    default:
+    {
+        result = _database.update(Util::Conversion::sys2DBsection(section), index, value) ? System::Config::status_t::ack : System::Config::status_t::errorWrite;
+    }
+    break;
+    }
+
+    return result;
 }
 
 #endif

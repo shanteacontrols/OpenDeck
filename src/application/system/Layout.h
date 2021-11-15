@@ -18,39 +18,44 @@
 
 #pragma once
 
+#include "database/Database.h"
 #include "sysex/src/SysExConf.h"
-#include "io/leds/LEDs.h"
+#include "io/buttons/Buttons.h"
 #include "io/encoders/Encoders.h"
 #include "io/analog/Analog.h"
+#include "io/leds/LEDs.h"
 #include "io/display/Display.h"
+#include "io/touchscreen/Touchscreen.h"
+#include "protocol/dmx/DMX.h"
+#include "protocol/midi/MIDI.h"
 
 namespace
 {
     std::vector<SysExConf::Section> globalSections = {
         // midi feature section
         {
-            static_cast<uint16_t>(System::midiFeature_t::AMOUNT),
+            static_cast<uint16_t>(Protocol::MIDI::feature_t::AMOUNT),
             0,
             1,
         },
 
         // midi merge section
         {
-            static_cast<uint16_t>(System::midiMerge_t::AMOUNT),
+            static_cast<uint16_t>(Protocol::MIDI::mergeSetting_t::AMOUNT),
             0,
             0,
         },
 
         // preset section
         {
-            static_cast<uint16_t>(System::presetSetting_t::AMOUNT),
+            static_cast<uint16_t>(Database::presetSetting_t::AMOUNT),
             0,
             0,
         },
 
         // dmx section
         {
-            static_cast<uint16_t>(System::dmxSetting_t::AMOUNT),
+            static_cast<uint16_t>(Protocol::DMX::setting_t::AMOUNT),
             0,
             0,
         },

@@ -20,33 +20,33 @@ limitations under the License.
 
 using namespace Util;
 
-ComponentInfo::ComponentInfo(Util::MessageDispatcher& dispatcher)
+ComponentInfo::ComponentInfo()
 {
-    dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::analog,
                       Util::MessageDispatcher::listenType_t::all,
                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
                           send(Database::block_t::analog, dispatchMessage.componentIndex);
                       });
 
-    dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::buttons,
                       Util::MessageDispatcher::listenType_t::all,
                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
                           send(Database::block_t::buttons, dispatchMessage.componentIndex);
                       });
 
-    dispatcher.listen(Util::MessageDispatcher::messageSource_t::encoders,
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::encoders,
                       Util::MessageDispatcher::listenType_t::all,
                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
                           send(Database::block_t::encoders, dispatchMessage.componentIndex);
                       });
 
-    dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenButton,
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenButton,
                       Util::MessageDispatcher::listenType_t::all,
                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
                           send(Database::block_t::touchscreen, dispatchMessage.componentIndex);
                       });
 
-    dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenAnalog,
+    Dispatcher.listen(Util::MessageDispatcher::messageSource_t::touchscreenAnalog,
                       Util::MessageDispatcher::listenType_t::all,
                       [this](const Util::MessageDispatcher::message_t& dispatchMessage) {
                           send(Database::block_t::touchscreen, dispatchMessage.componentIndex);

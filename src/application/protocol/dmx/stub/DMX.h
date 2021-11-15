@@ -18,27 +18,33 @@ limitations under the License.
 
 #pragma once
 
-#include <stdio.h>
-#include <stdlib.h>
-#include "io/analog/Analog.h"
-
-namespace IO
+#include "protocol/ProtocolBase.h"
+namespace Protocol
 {
-    class AnalogFilter : public Analog::Filter
+    class DMX : public Protocol::Base
     {
         public:
-        static constexpr adcType_t ADC_RESOLUTION = adcType_t::adc10bit;
+        using uniqueID_t = std::array<uint8_t, UID_BITS / 8>;
 
-        AnalogFilter()
+        enum class setting_t : uint8_t
+        {
+            enabled,
+            AMOUNT
+        };
+
+        class HWA : public DMXUSBWidget::HWA, public IO::Common::Allocatable
+        {
+            public:
+            virtual bool uniqueID(uniqueID_t& uniqueID) = 0;
+        };
+
+        DMX(HWA& hwa, Database& database)
         {}
 
-        bool isFiltered(size_t index, Analog::type_t type, uint16_t value, uint16_t& filteredValue) override
-        {
-            return false;
-        }
+        void init() override
+        {}
 
-        void reset(size_t index) override
-        {
-        }
+        void read() override
+        {}
     };
-}    // namespace IO
+}    // namespace Protocol

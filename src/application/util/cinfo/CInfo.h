@@ -30,7 +30,7 @@ namespace Util
         public:
         using cinfoHandler_t = std::function<void(size_t, size_t)>;
 
-        ComponentInfo(Util::MessageDispatcher& dispatcher);
+        ComponentInfo();
 
         void registerHandler(cinfoHandler_t&& handler);
 

@@ -19,6 +19,7 @@ limitations under the License.
 #pragma once
 
 #include "dbms/src/LESSDB.h"
+#include "system/Config.h"
 
 class Database : public LESSDB
 {
@@ -33,10 +34,9 @@ class Database : public LESSDB
         virtual void initialized()                = 0;
     };
 
-    Database(LESSDB::StorageAccess& storageAccess, bool initializeData)
-        : LESSDB(storageAccess)
-        , _initializeData(initializeData)
-    {}
+    Database(LESSDB::StorageAccess& storageAccess, bool initializeData);
+
+    using sectionParameterType_t = LESSDB::sectionParameterType_t;
 
     enum class block_t : uint8_t
     {
@@ -138,6 +138,13 @@ class Database : public LESSDB
         };
     };
 
+    enum class presetSetting_t : uint8_t
+    {
+        activePreset,
+        presetPreserve,
+        AMOUNT
+    };
+
     using LESSDB::read;
     using LESSDB::update;
 
@@ -163,22 +170,15 @@ class Database : public LESSDB
     }
 
     bool    init();
+    bool    init(Handlers& handlers);
     bool    factoryReset();
     uint8_t getSupportedPresets();
     bool    setPreset(uint8_t preset);
     uint8_t getPreset();
-    bool    setPresetPreserveState(bool state);
-    bool    getPresetPreserveState();
     bool    isInitialized();
     void    registerHandlers(Handlers& handlers);
-
-    void customInitGlobal();
-    void customInitButtons();
-    void customInitEncoders();
-    void customInitAnalog();
-    void customInitLEDs();
-    void customInitDisplay();
-    void customInitTouchscreen();
+    bool    setPresetPreserveState(bool state);
+    bool    getPresetPreserveState();
 
     private:
     block_t block(Section::global_t section)
@@ -216,10 +216,19 @@ class Database : public LESSDB
         return block_t::touchscreen;
     }
 
-    bool     isSignatureValid();
-    uint16_t getDbUID();
-    bool     setDbUID(uint16_t uid);
-    bool     setPresetInternal(uint8_t preset);
+    void                   customInitGlobal();
+    void                   customInitButtons();
+    void                   customInitEncoders();
+    void                   customInitAnalog();
+    void                   customInitLEDs();
+    void                   customInitDisplay();
+    void                   customInitTouchscreen();
+    bool                   isSignatureValid();
+    uint16_t               getDbUID();
+    bool                   setDbUID(uint16_t uid);
+    bool                   setPresetInternal(uint8_t preset);
+    std::optional<uint8_t> sysConfigGet(System::Config::Section::global_t section, size_t index, uint16_t& value);
+    std::optional<uint8_t> sysConfigSet(System::Config::Section::global_t section, size_t index, uint16_t value);
 
     Handlers* _handlers = nullptr;
 

@@ -18,7 +18,7 @@ limitations under the License.
 
 #pragma once
 
-#include <array>
+#include <vector>
 #include <functional>
 #include "midi/src/MIDI.h"
 
@@ -34,15 +34,28 @@ namespace Util
             encoders,
             touchscreenButton,
             touchscreenAnalog,
+            touchscreenScreen,
             midiIn,
-            preset
+            preset,
+            system,
+            leds
         };
 
         enum class listenType_t : uint8_t
         {
             nonFwd,
-            forward,
+            fwd,
             all
+        };
+
+        // enum indicating what types of system-level messages are possible.
+        // When system message is used, its type should be stored into componentIndex
+        // in message_t structure.
+        enum class systemMessages_t : uint8_t
+        {
+            forceIOrefresh,
+            sysExResponse,
+            midiProgramIndication
         };
 
         struct message_t
@@ -51,6 +64,8 @@ namespace Util
             uint8_t             midiChannel    = 0;
             uint16_t            midiIndex      = 0;
             uint16_t            midiValue      = 0;
+            uint8_t*            sysEx          = nullptr;
+            size_t              sysExLength    = 0;
             MIDI::messageType_t message        = MIDI::messageType_t::invalid;
 
             message_t() = default;
@@ -58,12 +73,18 @@ namespace Util
 
         using messageCallback_t = std::function<void(const message_t& message)>;
 
-        MessageDispatcher() = default;
+        static MessageDispatcher& instance()
+        {
+            static MessageDispatcher _instance;
+            return _instance;
+        }
 
-        bool listen(messageSource_t source, listenType_t listenType, messageCallback_t&& callback);
+        void listen(messageSource_t source, listenType_t listenType, messageCallback_t&& callback);
         void notify(messageSource_t source, message_t const& message, listenType_t listenType);
 
         private:
+        MessageDispatcher() = default;
+
         struct listener_t
         {
             messageSource_t   source;
@@ -71,8 +92,8 @@ namespace Util
             messageCallback_t callback   = nullptr;
         };
 
-        static constexpr size_t               MAX_LISTENERS    = 20;
-        std::array<listener_t, MAX_LISTENERS> _listener        = {};
-        size_t                                _listenerCounter = 0;
+        std::vector<listener_t> _listener = {};
     };
 }    // namespace Util
+
+#define Dispatcher Util::MessageDispatcher::instance()

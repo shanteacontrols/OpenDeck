@@ -21,13 +21,15 @@ limitations under the License.
 #include "database/Database.h"
 #include "util/messaging/Messaging.h"
 #include "io/common/Common.h"
+#include "system/Config.h"
+#include "io/IOBase.h"
 
 #if defined(DIGITAL_INPUTS_SUPPORTED) || defined(TOUCHSCREEN_SUPPORTED) || defined(ADC_SUPPORTED)
 #define BUTTONS_SUPPORTED
 
 namespace IO
 {
-    class Buttons
+    class Buttons : public IO::Base
     {
         public:
         class Collection : public Common::BaseCollection<NR_OF_DIGITAL_INPUTS,
@@ -85,7 +87,8 @@ namespace IO
         {
             public:
             // should return true if the value has been refreshed, false otherwise
-            virtual bool state(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
+            virtual bool   state(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
+            virtual size_t buttonToEncoderIndex(size_t index)                               = 0;
         };
 
         class Filter
@@ -94,13 +97,12 @@ namespace IO
             virtual bool isFiltered(size_t index, uint8_t& numberOfReadings, uint32_t& states) = 0;
         };
 
-        Buttons(HWA&                     hwa,
-                Filter&                  filter,
-                Database&                database,
-                Util::MessageDispatcher& dispatcher);
+        Buttons(HWA&      hwa,
+                Filter&   filter,
+                Database& database);
 
-        void update(bool forceResend = false);
-        bool state(size_t index);
+        void init() override;
+        void update(bool forceRefresh = false) override;
         void reset(size_t index);
 
         private:
@@ -113,17 +115,20 @@ namespace IO
             buttonDescriptor_t() = default;
         };
 
-        void fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor);
-        void processButton(size_t index, bool reading, buttonDescriptor_t& descriptor);
-        void sendMessage(size_t index, bool state, buttonDescriptor_t& descriptor);
-        void setState(size_t index, bool state);
-        void setLatchingState(size_t index, bool state);
-        bool latchingState(size_t index);
+        bool                   state(size_t index);
+        bool                   state(size_t index, uint8_t& numberOfReadings, uint32_t& states);
+        void                   fillButtonDescriptor(size_t index, buttonDescriptor_t& descriptor);
+        void                   processButton(size_t index, bool reading, buttonDescriptor_t& descriptor);
+        void                   sendMessage(size_t index, bool state, buttonDescriptor_t& descriptor);
+        void                   setState(size_t index, bool state);
+        void                   setLatchingState(size_t index, bool state);
+        bool                   latchingState(size_t index);
+        std::optional<uint8_t> sysConfigGet(System::Config::Section::button_t section, size_t index, uint16_t& value);
+        std::optional<uint8_t> sysConfigSet(System::Config::Section::button_t section, size_t index, uint16_t value);
 
-        HWA&                     _hwa;
-        Filter&                  _filter;
-        Database&                _database;
-        Util::MessageDispatcher& _dispatcher;
+        HWA&      _hwa;
+        Filter&   _filter;
+        Database& _database;
 
         uint8_t _buttonPressed[Collection::size() / 8 + 1]     = {};
         uint8_t _lastLatchingState[Collection::size() / 8 + 1] = {};
