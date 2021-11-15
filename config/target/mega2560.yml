@@ -6,10 +6,10 @@
   display:
     i2cChannel: 0
   touchscreen:
-    uartChannel: 2
+    uartChannel: 1
     components: 32
   dmx:
-    uartChannel: 2
+    uartChannel: 1
   buttons:
     type: "native"
     pins:

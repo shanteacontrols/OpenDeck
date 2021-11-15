@@ -11,7 +11,7 @@
   eeprom:
     size: 0x1000
   interfaces:
-    uart: 3
+    uart: 2
     i2c: 1
   fuses:
     unlock: 0xFF

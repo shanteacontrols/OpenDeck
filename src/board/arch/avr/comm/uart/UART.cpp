@@ -24,6 +24,13 @@ limitations under the License.
 #include "core/src/arch/avr/UART.h"
 #include <MCU.h>
 
+#if MAX_UART_INTERFACES < 3
+#undef UCSRA_2
+#undef UCSRB_2
+#undef UCSRC_2
+#undef UDR_2
+#endif
+
 namespace
 {
 #ifdef DMX_SUPPORTED
