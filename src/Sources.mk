@@ -172,7 +172,6 @@ ifeq (,$(findstring gen,$(TYPE)))
 
             ifneq (,$(findstring TOUCHSCREEN_SUPPORTED,$(DEFINES)))
                 SOURCES += $(shell $(FIND) ./application/io/touchscreen -maxdepth 1 -type f -name "*.cpp")
-                SOURCES += $(shell $(FIND) ./application/io/touchscreen/model/sdw -maxdepth 1 -type f -name "*.cpp")
                 SOURCES += $(shell $(FIND) ./application/io/touchscreen/model -type f -name "*.cpp")
             endif
 

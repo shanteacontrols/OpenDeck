@@ -20,9 +20,8 @@ limitations under the License.
 
 #include <inttypes.h>
 #include <stdlib.h>
+#include <array>
 #include "database/Database.h"
-#include "model/nextion/Nextion.h"
-#include "model/viewtech/Viewtech.h"
 #include "io/common/Common.h"
 #include "system/Config.h"
 #include "util/messaging/Messaging.h"
@@ -57,6 +56,66 @@ namespace IO
             cdcPassthrough
         };
 
+        struct icon_t
+        {
+            uint16_t xPos      = 0;
+            uint16_t yPos      = 0;
+            uint16_t width     = 0;
+            uint16_t height    = 0;
+            uint16_t onScreen  = 0;
+            uint16_t offScreen = 0;
+        };
+
+        enum class tsEvent_t : uint8_t
+        {
+            none,
+            button,
+            coordinate
+        };
+
+        enum class pressType_t : uint8_t
+        {
+            none,
+            initial,
+            hold
+        };
+
+        struct tsData_t
+        {
+            pressType_t pressType   = pressType_t::none;
+            size_t      buttonID    = 0;
+            bool        buttonState = false;
+            uint16_t    xPos        = 0;
+            uint16_t    yPos        = 0;
+        };
+
+        enum class brightness_t : uint8_t
+        {
+            _10,
+            _25,
+            _50,
+            _75,
+            _80,
+            _90,
+            _100
+        };
+
+        enum class model_t : uint8_t
+        {
+            nextion,
+            viewtech,
+            AMOUNT
+        };
+
+        class HWA : public ::IO::Common::Allocatable
+        {
+            public:
+            virtual bool init()               = 0;
+            virtual bool deInit()             = 0;
+            virtual bool write(uint8_t value) = 0;
+            virtual bool read(uint8_t& value) = 0;
+        };
+
         class CDCPassthrough : public Common::Allocatable
         {
             public:
@@ -68,20 +127,30 @@ namespace IO
             virtual bool cdcWrite(uint8_t* buffer, size_t size)                       = 0;
         };
 
-        using model_t      = TouchscreenBase::model_t;
-        using icon_t       = TouchscreenBase::icon_t;
-        using tsEvent_t    = TouchscreenBase::tsEvent_t;
-        using pressType_t  = TouchscreenBase::pressType_t;
-        using tsData_t     = TouchscreenBase::tsData_t;
-        using brightness_t = TouchscreenBase::brightness_t;
+        class Model
+        {
+            public:
+            virtual bool      init()                                 = 0;
+            virtual bool      deInit()                               = 0;
+            virtual bool      setScreen(size_t screenID)             = 0;
+            virtual tsEvent_t update(tsData_t& tsData)               = 0;
+            virtual void      setIconState(icon_t& icon, bool state) = 0;
+            virtual bool      setBrightness(brightness_t brightness) = 0;
 
-        Touchscreen(TouchscreenBase::HWA& hwa,
-                    Database&             database,
-                    CDCPassthrough&       cdcPassthrough,
-                    uint16_t              adcResolution);
+            protected:
+            static constexpr size_t BUFFER_SIZE = 50;
+            static uint8_t          _rxBuffer[BUFFER_SIZE];
+            static size_t           _bufferCount;
+        };
 
-        void init() override;
-        void update(bool forceRefresh = false) override;
+        Touchscreen(HWA&            hwa,
+                    Database&       database,
+                    CDCPassthrough& cdcPassthrough,
+                    uint16_t        adcResolution);
+
+        void        init() override;
+        void        update(bool forceRefresh = false) override;
+        static void registerModel(model_t model, Model* instance);
 
         private:
         enum class analogType_t : uint8_t
@@ -90,7 +159,7 @@ namespace IO
             vertical
         };
 
-        IO::TouchscreenBase&   modelInstance();
+        Model*                 modelInstance(model_t model);
         bool                   init(mode_t mode);
         bool                   deInit(mode_t mode);
         bool                   isInitialized() const;
@@ -107,19 +176,18 @@ namespace IO
         std::optional<uint8_t> sysConfigGet(System::Config::Section::touchscreen_t section, size_t index, uint16_t& value);
         std::optional<uint8_t> sysConfigSet(System::Config::Section::touchscreen_t section, size_t index, uint16_t value);
 
-        TouchscreenBase::HWA&        _hwa;
-        Database&                    _database;
-        CDCPassthrough&              _cdcPassthrough;
-        const uint16_t               ADC_RESOLUTION;
-        size_t                       _activeScreenID                                = 0;
-        bool                         _initialized                                   = false;
-        mode_t                       _mode                                          = mode_t::normal;
-        Nextion                      _nextion                                       = Nextion(_hwa);
-        Viewtech                     _viewtech                                      = Viewtech(_hwa);
-        IO::TouchscreenBase::model_t _activeModel                                   = TouchscreenBase::model_t::nextion;
-        bool                         _analogActive[Collection::size()]              = {};
-        uint8_t                      _txBuffer[TSCREEN_CDC_PASSTHROUGH_BUFFER_SIZE] = {};
-        uint8_t                      _rxBuffer[TSCREEN_CDC_PASSTHROUGH_BUFFER_SIZE] = {};
+        HWA&                                                            _hwa;
+        Database&                                                       _database;
+        CDCPassthrough&                                                 _cdcPassthrough;
+        const uint16_t                                                  ADC_RESOLUTION;
+        size_t                                                          _activeScreenID                                = 0;
+        bool                                                            _initialized                                   = false;
+        mode_t                                                          _mode                                          = mode_t::normal;
+        model_t                                                         _activeModel                                   = model_t::AMOUNT;
+        bool                                                            _analogActive[Collection::size()]              = {};
+        uint8_t                                                         _txBuffer[TSCREEN_CDC_PASSTHROUGH_BUFFER_SIZE] = {};
+        uint8_t                                                         _rxBuffer[TSCREEN_CDC_PASSTHROUGH_BUFFER_SIZE] = {};
+        static std::array<Model*, static_cast<size_t>(model_t::AMOUNT)> _models;
     };
 }    // namespace IO
 

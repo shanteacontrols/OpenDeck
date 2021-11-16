@@ -19,22 +19,20 @@ limitations under the License.
 #pragma once
 
 #include <inttypes.h>
-#include "io/touchscreen/model/Base.h"
+#include "io/touchscreen/Touchscreen.h"
 #include "core/src/general/RingBuffer.h"
 
-class Viewtech : public IO::TouchscreenBase, public IO::TouchscreenBase::Common
+class Viewtech : public IO::Touchscreen::Model
 {
     public:
-    Viewtech(IO::TouchscreenBase::HWA& hwa)
-        : _hwa(hwa)
-    {}
+    Viewtech(IO::Touchscreen::HWA& hwa);
 
-    bool                           init() override;
-    bool                           deInit() override;
-    bool                           setScreen(size_t screenID) override;
-    IO::TouchscreenBase::tsEvent_t update(IO::TouchscreenBase::tsData_t& data) override;
-    void                           setIconState(IO::TouchscreenBase::icon_t& icon, bool state) override;
-    bool                           setBrightness(IO::TouchscreenBase::brightness_t brightness) override;
+    bool                       init() override;
+    bool                       deInit() override;
+    bool                       setScreen(size_t screenID) override;
+    IO::Touchscreen::tsEvent_t update(IO::Touchscreen::tsData_t& data) override;
+    void                       setIconState(IO::Touchscreen::icon_t& icon, bool state) override;
+    bool                       setBrightness(IO::Touchscreen::brightness_t brightness) override;
 
     private:
     enum class response_t : uint32_t
@@ -45,7 +43,7 @@ class Viewtech : public IO::TouchscreenBase, public IO::TouchscreenBase::Common
 
     void pollXY();
 
-    IO::TouchscreenBase::HWA& _hwa;
+    IO::Touchscreen::HWA& _hwa;
 
     // as fast as possible on viewtech - minimum variable response is 80ms
     static constexpr uint32_t XY_POLL_TIME_MS = 80;

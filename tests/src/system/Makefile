@@ -29,6 +29,7 @@ ifeq (,$(findstring USB_LINK_MCU,$(DEFINES)))
     ifneq (,$(findstring TOUCHSCREEN_SUPPORTED,$(DEFINES)))
         SOURCES_$(shell basename $(dir $(lastword $(MAKEFILE_LIST)))) += \
         application/io/touchscreen/Touchscreen.cpp \
+        application/io/touchscreen/model/Builder.cpp \
         application/io/touchscreen/model/nextion/Nextion.cpp \
         application/io/touchscreen/model/viewtech/Viewtech.cpp
     endif

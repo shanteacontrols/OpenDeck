@@ -19,22 +19,20 @@ limitations under the License.
 #pragma once
 
 #include <inttypes.h>
-#include "io/touchscreen/model/Base.h"
+#include "io/touchscreen/Touchscreen.h"
 #include "core/src/general/RingBuffer.h"
 
-class Nextion : public IO::TouchscreenBase, public IO::TouchscreenBase::Common
+class Nextion : public IO::Touchscreen::Model
 {
     public:
-    Nextion(IO::TouchscreenBase::HWA& hwa)
-        : _hwa(hwa)
-    {}
+    Nextion(IO::Touchscreen::HWA& hwa);
 
-    bool                           init() override;
-    bool                           deInit() override;
-    bool                           setScreen(size_t screenID) override;
-    IO::TouchscreenBase::tsEvent_t update(IO::TouchscreenBase::tsData_t& data) override;
-    void                           setIconState(IO::TouchscreenBase::icon_t& icon, bool state) override;
-    bool                           setBrightness(IO::TouchscreenBase::brightness_t brightness) override;
+    bool                       init() override;
+    bool                       deInit() override;
+    bool                       setScreen(size_t screenID) override;
+    IO::Touchscreen::tsEvent_t update(IO::Touchscreen::tsData_t& data) override;
+    void                       setIconState(IO::Touchscreen::icon_t& icon, bool state) override;
+    bool                       setBrightness(IO::Touchscreen::brightness_t brightness) override;
 
     private:
     enum class responseID_t : uint8_t
@@ -59,16 +57,16 @@ class Nextion : public IO::TouchscreenBase, public IO::TouchscreenBase::Common
         yRequested,
     };
 
-    bool                           writeCommand(const char* line, ...);
-    bool                           endCommand();
-    IO::TouchscreenBase::tsEvent_t response(IO::TouchscreenBase::tsData_t& data);
-    void                           pollXY();
+    bool                       writeCommand(const char* line, ...);
+    bool                       endCommand();
+    IO::Touchscreen::tsEvent_t response(IO::Touchscreen::tsData_t& data);
+    void                       pollXY();
 
     static constexpr uint32_t XY_POLL_TIME_MS = 5;
 
-    IO::TouchscreenBase::HWA& _hwa;
+    IO::Touchscreen::HWA& _hwa;
 
-    char             _commandBuffer[IO::TouchscreenBase::Common::bufferSize];
+    char             _commandBuffer[IO::Touchscreen::Model::BUFFER_SIZE];
     size_t           _endCounter     = 0;
     bool             _screenPressed  = false;
     xyRequestState_t _xyRequestState = xyRequestState_t::xRequest;

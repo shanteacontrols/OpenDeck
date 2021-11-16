@@ -45,12 +45,64 @@ namespace IO
             cdcPassthrough
         };
 
-        class EventNotifier
+        struct icon_t
+        {
+            uint16_t xPos      = 0;
+            uint16_t yPos      = 0;
+            uint16_t width     = 0;
+            uint16_t height    = 0;
+            uint16_t onScreen  = 0;
+            uint16_t offScreen = 0;
+        };
+
+        enum class tsEvent_t : uint8_t
+        {
+            none,
+            button,
+            coordinate
+        };
+
+        enum class pressType_t : uint8_t
+        {
+            none,
+            initial,
+            hold
+        };
+
+        struct tsData_t
+        {
+            pressType_t pressType   = pressType_t::none;
+            size_t      buttonID    = 0;
+            bool        buttonState = false;
+            uint16_t    xPos        = 0;
+            uint16_t    yPos        = 0;
+        };
+
+        enum class brightness_t : uint8_t
+        {
+            _10,
+            _25,
+            _50,
+            _75,
+            _80,
+            _90,
+            _100
+        };
+
+        enum class model_t : uint8_t
+        {
+            nextion,
+            viewtech,
+            AMOUNT
+        };
+
+        class HWA : public ::IO::Common::Allocatable
         {
             public:
-            virtual void button(size_t index, bool state)                                 = 0;
-            virtual void analog(size_t index, uint16_t value, uint16_t min, uint16_t max) = 0;
-            virtual void screenChange(size_t screenID)                                    = 0;
+            virtual bool init()               = 0;
+            virtual bool deInit()             = 0;
+            virtual bool write(uint8_t value) = 0;
+            virtual bool read(uint8_t& value) = 0;
         };
 
         class CDCPassthrough : public Common::Allocatable
@@ -64,12 +116,21 @@ namespace IO
             virtual bool cdcWrite(uint8_t* buffer, size_t size)                       = 0;
         };
 
-        using brightness_t = TouchscreenBase::brightness_t;
+        class Model
+        {
+            public:
+            virtual bool      init()                                 = 0;
+            virtual bool      deInit()                               = 0;
+            virtual bool      setScreen(size_t screenID)             = 0;
+            virtual tsEvent_t update(tsData_t& tsData)               = 0;
+            virtual void      setIconState(icon_t& icon, bool state) = 0;
+            virtual bool      setBrightness(brightness_t brightness) = 0;
+        };
 
-        Touchscreen(TouchscreenBase::HWA& hwa,
-                    Database&             database,
-                    CDCPassthrough&       cdcPassthrough,
-                    uint16_t              adcResolution)
+        Touchscreen(HWA&            hwa,
+                    Database&       database,
+                    CDCPassthrough& cdcPassthrough,
+                    uint16_t        adcResolution)
         {}
 
         void init() override

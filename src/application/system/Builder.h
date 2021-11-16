@@ -28,6 +28,7 @@ limitations under the License.
 #include "io/leds/LEDs.h"
 #include "io/display/Display.h"
 #include "io/touchscreen/Touchscreen.h"
+#include "io/touchscreen/model/Builder.h"
 #include "protocol/dmx/DMX.h"
 #include "protocol/midi/MIDI.h"
 
@@ -49,7 +50,7 @@ namespace System
                 using Display        = ::IO::U8X8::HWAI2C;
                 using Encoders       = ::IO::Encoders::HWA;
                 using LEDs           = ::IO::LEDs::HWA;
-                using Touchscreen    = ::IO::TouchscreenBase::HWA;
+                using Touchscreen    = ::IO::Touchscreen::HWA;
 
                 virtual Analog&         analog()         = 0;
                 virtual Buttons&        buttons()        = 0;
@@ -110,17 +111,18 @@ namespace System
         IO::EncodersFilter                                                             _encodersFilter;
         IO::ButtonsFilter                                                              _buttonsFilter;
         IO::AnalogFilter                                                               _analogFilter;
-        IO::Analog                                                                     _analog      = IO::Analog(_hwa.io().analog(), _analogFilter, _database);
-        IO::Buttons                                                                    _buttons     = IO::Buttons(_hwa.io().buttons(), _buttonsFilter, _database);
-        IO::LEDs                                                                       _leds        = IO::LEDs(_hwa.io().leds(), _database);
-        IO::Encoders                                                                   _encoders    = IO::Encoders(_hwa.io().encoders(), _encodersFilter, _database, 1);
-        IO::Touchscreen                                                                _touchscreen = IO::Touchscreen(_hwa.io().touchscreen(), _database, _hwa.io().cdcPassthrough(), static_cast<uint16_t>(IO::AnalogFilter::ADC_RESOLUTION));
-        IO::U8X8                                                                       _u8x8        = IO::U8X8(_hwa.io().display());
-        IO::Display                                                                    _display     = IO::Display(_u8x8, _database);
-        Protocol::MIDI                                                                 _midi        = Protocol::MIDI(_hwa.protocol().midi(), _database);
-        Protocol::DMX                                                                  _dmx         = Protocol::DMX(_hwa.protocol().dmx(), _database);
-        std::array<IO::Base*, static_cast<size_t>(IO::ioComponent_t::AMOUNT)>          _io          = {};
-        std::array<Protocol::Base*, static_cast<size_t>(Protocol::protocol_t::AMOUNT)> _protocol    = {};
+        IO::Analog                                                                     _analog            = IO::Analog(_hwa.io().analog(), _analogFilter, _database);
+        IO::Buttons                                                                    _buttons           = IO::Buttons(_hwa.io().buttons(), _buttonsFilter, _database);
+        IO::LEDs                                                                       _leds              = IO::LEDs(_hwa.io().leds(), _database);
+        IO::Encoders                                                                   _encoders          = IO::Encoders(_hwa.io().encoders(), _encodersFilter, _database, 1);
+        IO::TouchscreenModelBuilder                                                    _touchscreenModels = IO::TouchscreenModelBuilder(_hwa.io().touchscreen());
+        IO::Touchscreen                                                                _touchscreen       = IO::Touchscreen(_hwa.io().touchscreen(), _database, _hwa.io().cdcPassthrough(), static_cast<uint16_t>(IO::AnalogFilter::ADC_RESOLUTION));
+        IO::U8X8                                                                       _u8x8              = IO::U8X8(_hwa.io().display());
+        IO::Display                                                                    _display           = IO::Display(_u8x8, _database);
+        Protocol::MIDI                                                                 _midi              = Protocol::MIDI(_hwa.protocol().midi(), _database);
+        Protocol::DMX                                                                  _dmx               = Protocol::DMX(_hwa.protocol().dmx(), _database);
+        std::array<IO::Base*, static_cast<size_t>(IO::ioComponent_t::AMOUNT)>          _io                = {};
+        std::array<Protocol::Base*, static_cast<size_t>(Protocol::protocol_t::AMOUNT)> _protocol          = {};
 
         class Components : public System::Instance::Components
         {

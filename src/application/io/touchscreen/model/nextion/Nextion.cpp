@@ -16,16 +16,24 @@ limitations under the License.
 
 */
 
-#include "Nextion.h"
-#include "core/src/general/Timing.h"
-#include "io/touchscreen/Touchscreen.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+#include "Nextion.h"
+#include "core/src/general/Timing.h"
+#include "io/touchscreen/Touchscreen.h"
+
+using namespace IO;
+
+Nextion::Nextion(IO::Touchscreen::HWA& hwa)
+    : _hwa(hwa)
+{
+    IO::Touchscreen::registerModel(IO::Touchscreen::model_t::nextion, this);
+}
 
 bool Nextion::init()
 {
-    IO::TouchscreenBase::Common::bufferCount = 0;
+    Touchscreen::Model::_bufferCount = 0;
 
     if (_hwa.init())
     {
@@ -48,17 +56,17 @@ bool Nextion::setScreen(size_t screenID)
     return writeCommand("page %u", screenID);
 }
 
-IO::TouchscreenBase::tsEvent_t Nextion::update(IO::TouchscreenBase::tsData_t& data)
+Touchscreen::tsEvent_t Nextion::update(Touchscreen::tsData_t& data)
 {
     pollXY();
 
     uint8_t value     = 0;
     bool    process   = false;
-    auto    returnVal = IO::TouchscreenBase::tsEvent_t::none;
+    auto    returnVal = Touchscreen::tsEvent_t::none;
 
     while (_hwa.read(value))
     {
-        IO::TouchscreenBase::Common::rxBuffer[IO::TouchscreenBase::Common::bufferCount++] = value;
+        Touchscreen::Model::_rxBuffer[Touchscreen::Model::_bufferCount++] = value;
 
         if (value == 0xFF)
         {
@@ -81,14 +89,14 @@ IO::TouchscreenBase::tsEvent_t Nextion::update(IO::TouchscreenBase::tsData_t& da
 
     if (process)
     {
-        returnVal                                = response(data);
-        IO::TouchscreenBase::Common::bufferCount = 0;
+        returnVal                        = response(data);
+        Touchscreen::Model::_bufferCount = 0;
     }
 
     return returnVal;
 }
 
-void Nextion::setIconState(IO::TouchscreenBase::icon_t& icon, bool state)
+void Nextion::setIconState(Touchscreen::icon_t& icon, bool state)
 {
     // ignore width/height zero - set either intentionally to avoid display or incorrectly
     if (!icon.width)
@@ -105,7 +113,7 @@ bool Nextion::writeCommand(const char* line, ...)
     va_list args;
     va_start(args, line);
 
-    int retVal = vsnprintf(_commandBuffer, IO::TouchscreenBase::Common::bufferSize, line, args);
+    int retVal = vsnprintf(_commandBuffer, Touchscreen::Model::BUFFER_SIZE, line, args);
 
     va_end(args);
 
@@ -132,21 +140,21 @@ bool Nextion::endCommand()
     return true;
 }
 
-bool Nextion::setBrightness(IO::TouchscreenBase::brightness_t brightness)
+bool Nextion::setBrightness(Touchscreen::brightness_t brightness)
 {
     return writeCommand("dims=%d", _brightnessMapping[static_cast<uint8_t>(brightness)]);
 }
 
-IO::TouchscreenBase::tsEvent_t Nextion::response(IO::TouchscreenBase::tsData_t& data)
+Touchscreen::tsEvent_t Nextion::response(Touchscreen::tsData_t& data)
 {
     bool responseFound = false;
     auto response      = responseID_t::button;    // assumption for now
 
     for (size_t i = 0; i < static_cast<size_t>(responseID_t::AMOUNT); i++)
     {
-        if (IO::TouchscreenBase::Common::bufferCount == _responses[i].size)
+        if (Touchscreen::Model::_bufferCount == _responses[i].size)
         {
-            if (IO::TouchscreenBase::Common::rxBuffer[0] == static_cast<uint8_t>(_responses[i].responseID))
+            if (Touchscreen::Model::_rxBuffer[0] == static_cast<uint8_t>(_responses[i].responseID))
             {
                 response      = static_cast<responseID_t>(i);
                 responseFound = true;
@@ -161,25 +169,25 @@ IO::TouchscreenBase::tsEvent_t Nextion::response(IO::TouchscreenBase::tsData_t& 
         {
         case responseID_t::button:
         {
-            data.buttonState = IO::TouchscreenBase::Common::rxBuffer[1];
-            data.buttonID    = IO::TouchscreenBase::Common::rxBuffer[2];
+            data.buttonState = Touchscreen::Model::_rxBuffer[1];
+            data.buttonID    = Touchscreen::Model::_rxBuffer[2];
 
-            return IO::TouchscreenBase::tsEvent_t::button;
+            return Touchscreen::tsEvent_t::button;
         }
         break;
 
         case responseID_t::initialFinalCoord:
         {
-            data.xPos = IO::TouchscreenBase::Common::rxBuffer[1] << 8;
-            data.xPos |= IO::TouchscreenBase::Common::rxBuffer[2];
+            data.xPos = Touchscreen::Model::_rxBuffer[1] << 8;
+            data.xPos |= Touchscreen::Model::_rxBuffer[2];
 
-            data.yPos = IO::TouchscreenBase::Common::rxBuffer[3] << 8;
-            data.yPos |= IO::TouchscreenBase::Common::rxBuffer[4];
+            data.yPos = Touchscreen::Model::_rxBuffer[3] << 8;
+            data.yPos |= Touchscreen::Model::_rxBuffer[4];
 
-            if (IO::TouchscreenBase::Common::rxBuffer[5])
+            if (Touchscreen::Model::_rxBuffer[5])
             {
                 _screenPressed = true;
-                data.pressType = IO::TouchscreenBase::pressType_t::initial;
+                data.pressType = Touchscreen::pressType_t::initial;
 
                 // on each press, restart the xy coordinate retrieval process
                 _xyRequestState = xyRequestState_t::xRequest;
@@ -187,10 +195,10 @@ IO::TouchscreenBase::tsEvent_t Nextion::response(IO::TouchscreenBase::tsData_t& 
             else
             {
                 _screenPressed = false;
-                data.pressType = IO::TouchscreenBase::pressType_t::none;
+                data.pressType = Touchscreen::pressType_t::none;
             }
 
-            return IO::TouchscreenBase::tsEvent_t::coordinate;
+            return Touchscreen::tsEvent_t::coordinate;
         }
         break;
 
@@ -202,8 +210,8 @@ IO::TouchscreenBase::tsEvent_t Nextion::response(IO::TouchscreenBase::tsData_t& 
             {
             case xyRequestState_t::xRequested:
             {
-                _xPos = IO::TouchscreenBase::Common::rxBuffer[2] << 8;
-                _xPos |= IO::TouchscreenBase::Common::rxBuffer[1];
+                _xPos = Touchscreen::Model::_rxBuffer[2] << 8;
+                _xPos |= Touchscreen::Model::_rxBuffer[1];
 
                 _xyRequestState = xyRequestState_t::yRequest;
             }
@@ -213,8 +221,8 @@ IO::TouchscreenBase::tsEvent_t Nextion::response(IO::TouchscreenBase::tsData_t& 
             {
                 data.xPos = _xPos;
 
-                data.yPos = IO::TouchscreenBase::Common::rxBuffer[2] << 8;
-                data.yPos |= IO::TouchscreenBase::Common::rxBuffer[1];
+                data.yPos = Touchscreen::Model::_rxBuffer[2] << 8;
+                data.yPos |= Touchscreen::Model::_rxBuffer[1];
 
                 _xyRequestState = xyRequestState_t::xRequest;
                 xyUpdated       = true;
@@ -227,22 +235,22 @@ IO::TouchscreenBase::tsEvent_t Nextion::response(IO::TouchscreenBase::tsData_t& 
 
             if (xyUpdated && _screenPressed)
             {
-                data.pressType = IO::TouchscreenBase::pressType_t::hold;
-                return IO::TouchscreenBase::tsEvent_t::coordinate;
+                data.pressType = Touchscreen::pressType_t::hold;
+                return Touchscreen::tsEvent_t::coordinate;
             }
             else
             {
-                return IO::TouchscreenBase::tsEvent_t::none;
+                return Touchscreen::tsEvent_t::none;
             }
         }
         break;
 
         default:
-            return IO::TouchscreenBase::tsEvent_t::none;
+            return Touchscreen::tsEvent_t::none;
         }
     }
 
-    return IO::TouchscreenBase::tsEvent_t::none;
+    return Touchscreen::tsEvent_t::none;
 }
 
 void Nextion::pollXY()

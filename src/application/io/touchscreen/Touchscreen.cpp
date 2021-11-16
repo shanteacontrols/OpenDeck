@@ -24,13 +24,12 @@ limitations under the License.
 
 using namespace IO;
 
-uint8_t TouchscreenBase::Common::rxBuffer[TouchscreenBase::Common::bufferSize];
-size_t  TouchscreenBase::Common::bufferCount;
+std::array<Touchscreen::Model*, static_cast<size_t>(Touchscreen::model_t::AMOUNT)> Touchscreen::_models;
 
-Touchscreen::Touchscreen(TouchscreenBase::HWA& hwa,
-                         Database&             database,
-                         CDCPassthrough&       cdcPassthrough,
-                         uint16_t              adcResolution)
+Touchscreen::Touchscreen(HWA&            hwa,
+                         Database&       database,
+                         CDCPassthrough& cdcPassthrough,
+                         uint16_t        adcResolution)
     : _hwa(hwa)
     , _database(database)
     , _cdcPassthrough(cdcPassthrough)
@@ -86,8 +85,11 @@ bool Touchscreen::init(mode_t mode)
 
             if (_cdcPassthrough.deInit())
             {
-                _activeModel = dbModel;
-                _initialized = modelInstance().init();
+                _activeModel  = dbModel;
+                auto instance = modelInstance(_activeModel);
+
+                if (instance != nullptr)
+                    _initialized = instance->init();
 
                 if (_initialized)
                 {
@@ -142,7 +144,7 @@ bool Touchscreen::deInit(mode_t mode)
 
         if (_cdcPassthrough.deInit())
         {
-            if (modelInstance().deInit())
+            if (modelInstance(_activeModel)->deInit())
             {
                 _mode        = mode_t::normal;
                 _initialized = false;
@@ -175,7 +177,7 @@ void Touchscreen::update(bool forceRefresh)
     if (isInitialized(mode_t::normal))
     {
         tsData_t  tsData;
-        tsEvent_t event = modelInstance().update(tsData);
+        tsEvent_t event = modelInstance(_activeModel)->update(tsData);
 
         switch (event)
         {
@@ -237,6 +239,11 @@ void Touchscreen::update(bool forceRefresh)
     }
 }
 
+void Touchscreen::registerModel(model_t model, Model* instance)
+{
+    _models[static_cast<size_t>(model)] = instance;
+}
+
 /// Switches to requested screen on display
 /// param [in]: screenID  Index of screen to display.
 void Touchscreen::setScreen(size_t screenID)
@@ -244,7 +251,7 @@ void Touchscreen::setScreen(size_t screenID)
     if (!isInitialized(mode_t::normal))
         return;
 
-    modelInstance().setScreen(screenID);
+    modelInstance(_activeModel)->setScreen(screenID);
     _activeScreenID = screenID;
     screenChangeHandler(screenID);
 }
@@ -280,7 +287,7 @@ void Touchscreen::setIconState(size_t index, bool state)
     icon.width  = _database.read(Database::Section::touchscreen_t::width, index);
     icon.height = _database.read(Database::Section::touchscreen_t::height, index);
 
-    modelInstance().setIconState(icon, state);
+    modelInstance(_activeModel)->setIconState(icon, state);
 }
 
 void Touchscreen::processButton(const size_t buttonID, const bool state)
@@ -310,7 +317,7 @@ bool Touchscreen::setBrightness(brightness_t brightness)
     if (!isInitialized(mode_t::normal))
         return false;
 
-    return modelInstance().setBrightness(brightness);
+    return modelInstance(_activeModel)->setBrightness(brightness);
 }
 
 void Touchscreen::processCoordinate(pressType_t pressType, uint16_t xPos, uint16_t yPos)
@@ -421,16 +428,9 @@ bool Touchscreen::isInitialized(mode_t mode) const
     }
 }
 
-TouchscreenBase& Touchscreen::modelInstance()
+Touchscreen::Model* Touchscreen::modelInstance(model_t model)
 {
-    switch (_activeModel)
-    {
-    case TouchscreenBase::model_t::viewtech:
-        return _viewtech;
-
-    default:
-        return _nextion;
-    }
+    return _models[static_cast<size_t>(model)];
 }
 
 void Touchscreen::buttonHandler(size_t index, bool state)
