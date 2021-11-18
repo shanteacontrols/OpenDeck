@@ -18,7 +18,6 @@ echo -n "Please type the serial port on which ArduinoISP is connected, without /
 Port name usually has the following pattern, where X is number representing the port:
     * Linux: ttyACMX (or ttyUSBX)
     * macOS: cu.usbmodemXXX
-    * WSL: ttySX (where X corresponds with COMX port name from Windows)
 If unsure, open Arduino IDE and check where your Arduino as an programmer is connected to under Tools/Port.
 Port: "
 
