@@ -41,8 +41,10 @@ namespace Protocol
         DMX(HWA& hwa, Database& database)
         {}
 
-        void init() override
-        {}
+        bool init() override
+        {
+            return false;
+        }
 
         void read() override
         {}

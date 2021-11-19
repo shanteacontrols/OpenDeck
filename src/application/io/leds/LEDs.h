@@ -124,7 +124,7 @@ namespace IO
         LEDs(HWA&      hwa,
              Database& database);
 
-        void         init() override;
+        bool         init() override;
         void         update(bool forceRefresh = false) override;
         color_t      color(uint8_t ledID);
         void         setColor(uint8_t ledID, color_t color, brightness_t brightness);

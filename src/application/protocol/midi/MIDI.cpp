@@ -90,9 +90,11 @@ Protocol::MIDI::MIDI(HWA& hwa, Database& database)
         });
 }
 
-void Protocol::MIDI::init()
+bool Protocol::MIDI::init()
 {
-    ::MIDI::init(MIDI::interface_t::usb);
+    if (!::MIDI::init(MIDI::interface_t::usb))
+        return false;
+
     ::MIDI::setInputChannel(::MIDI::MIDI_CHANNEL_OMNI);
     ::MIDI::setNoteOffMode(isFeatureEnabled(feature_t::standardNoteOff) ? MIDI::noteOffType_t::standardNoteOff : MIDI::noteOffType_t::noteOnZeroVel);
     ::MIDI::setRunningStatusState(isFeatureEnabled(feature_t::runningStatus));
@@ -108,6 +110,8 @@ void Protocol::MIDI::init()
         ::MIDI::deInit(MIDI::interface_t::din);
         ::MIDI::useRecursiveParsing(false);
     }
+
+    return true;
 }
 
 void Protocol::MIDI::read()

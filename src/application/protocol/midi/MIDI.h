@@ -72,7 +72,7 @@ namespace Protocol
         MIDI(HWA&      hwa,
              Database& database);
 
-        void init() override;
+        bool init() override;
         void read() override;
 
         private:

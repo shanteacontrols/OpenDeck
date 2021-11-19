@@ -88,10 +88,12 @@ Buttons::Buttons(HWA&      hwa,
         });
 }
 
-void Buttons::init()
+bool Buttons::init()
 {
     for (size_t i = 0; i < Collection::size(); i++)
         reset(i);
+
+    return true;
 }
 
 /// Continuously reads inputs from buttons and acts if necessary.

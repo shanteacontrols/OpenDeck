@@ -26,13 +26,15 @@ Scheduler::Scheduler()
     init();
 }
 
-void Scheduler::init()
+bool Scheduler::init()
 {
     for (size_t i = 0; i < MAX_TASKS; i++)
     {
         _tasks[i].function = nullptr;
         _tasks[i].timeout  = 0;
     }
+
+    return true;
 }
 
 void Scheduler::update()

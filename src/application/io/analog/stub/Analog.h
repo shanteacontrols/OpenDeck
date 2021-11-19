@@ -92,8 +92,9 @@ namespace IO
                Database& database)
         {}
 
-        void init() override
+        bool init() override
         {
+            return false;
         }
 
         void update(bool forceRefresh = false) override

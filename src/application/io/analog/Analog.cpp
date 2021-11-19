@@ -71,10 +71,12 @@ Analog::Analog(HWA&      hwa,
         });
 }
 
-void Analog::init()
+bool Analog::init()
 {
     for (size_t i = 0; i < Collection::size(); i++)
         reset(i);
+
+    return true;
 }
 
 void Analog::update(bool forceRefresh)

@@ -32,7 +32,7 @@ namespace Protocol
     class Base
     {
         public:
-        virtual void init() = 0;
+        virtual bool init() = 0;
         virtual void read() = 0;
     };
 }    // namespace Protocol

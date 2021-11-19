@@ -54,9 +54,9 @@ Touchscreen::Touchscreen(HWA&            hwa,
         });
 }
 
-void Touchscreen::init()
+bool Touchscreen::init()
 {
-    init(mode_t::normal);
+    return init(mode_t::normal);
 }
 
 bool Touchscreen::init(mode_t mode)

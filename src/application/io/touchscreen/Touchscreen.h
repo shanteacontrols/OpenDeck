@@ -148,7 +148,7 @@ namespace IO
                     CDCPassthrough& cdcPassthrough,
                     uint16_t        adcResolution);
 
-        void        init() override;
+        bool        init() override;
         void        update(bool forceRefresh = false) override;
         static void registerModel(model_t model, Model* instance);
 

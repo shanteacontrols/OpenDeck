@@ -146,7 +146,7 @@ LEDs::LEDs(HWA&      hwa,
         });
 }
 
-void LEDs::init()
+bool LEDs::init()
 {
     setAllOff();
 
@@ -154,6 +154,8 @@ void LEDs::init()
         startUpAnimation();
 
     setBlinkType(static_cast<blinkType_t>(_database.read(Database::Section::leds_t::global, setting_t::blinkWithMIDIclock)));
+
+    return true;
 }
 
 void LEDs::update(bool forceRefresh)

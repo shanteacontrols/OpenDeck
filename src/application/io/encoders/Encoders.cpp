@@ -80,10 +80,12 @@ Encoders::Encoders(HWA&      hwa,
         });
 }
 
-void Encoders::init()
+bool Encoders::init()
 {
     for (size_t i = 0; i < Collection::size(); i++)
         reset(i);
+
+    return true;
 }
 
 /// Continuously checks state of all encoders.

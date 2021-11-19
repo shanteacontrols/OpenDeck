@@ -83,7 +83,7 @@ namespace IO
         Display(IO::U8X8& u8x8,
                 Database& database);
 
-        void init() override;
+        bool init() override;
         void update(bool forceRefresh = false) override;
 
         private:

@@ -36,7 +36,7 @@ namespace IO
     class Base
     {
         public:
-        virtual void init()                            = 0;
+        virtual bool init()                            = 0;
         virtual void update(bool forceRefresh = false) = 0;
     };
 }    // namespace IO

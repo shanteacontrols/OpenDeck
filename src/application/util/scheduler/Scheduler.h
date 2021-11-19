@@ -38,7 +38,7 @@ namespace Util
             task_t() = default;
         };
 
-        void init();
+        bool init();
         void update();
         bool registerTask(task_t&& task);
 

@@ -88,7 +88,7 @@ Display::Display(IO::U8X8& u8x8,
         });
 }
 
-void Display::init()
+bool Display::init()
 {
     if (_database.read(Database::Section::display_t::features, feature_t::enable))
     {
@@ -106,7 +106,7 @@ void Display::init()
                     if (_lastAddress == address)
                     {
                         // init done
-                        return;
+                        return true;
                     }
                 }
             }
@@ -165,7 +165,17 @@ void Display::init()
 
             _lastController = controller;
             _lastResolution = resolution;
+
+            return true;
         }
+        else
+        {
+            return false;
+        }
+    }
+    else
+    {
+        return false;
     }
 }
 

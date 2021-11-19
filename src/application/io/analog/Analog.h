@@ -88,7 +88,7 @@ namespace IO
                Filter&   filter,
                Database& database);
 
-        void init() override;
+        bool init() override;
         void update(bool forceRefresh = false) override;
         void reset(size_t index);
 

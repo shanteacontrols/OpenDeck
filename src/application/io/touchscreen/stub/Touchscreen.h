@@ -133,8 +133,9 @@ namespace IO
                     uint16_t        adcResolution)
         {}
 
-        void init() override
+        bool init() override
         {
+            return false;
         }
 
         void update(bool forceRefresh = false) override

@@ -45,7 +45,7 @@ Protocol::DMX::DMX(HWA& hwa, Database& database)
         });
 }
 
-void Protocol::DMX::init()
+bool Protocol::DMX::init()
 {
     uniqueID_t uniqueID;
     _hwa.uniqueID(uniqueID);
@@ -67,7 +67,9 @@ void Protocol::DMX::init()
                     BOARD_STRING });
 
     if (_database.read(Database::Section::global_t::dmx, setting_t::enable))
-        ::DMXUSBWidget::init();
+        return ::DMXUSBWidget::init();
+
+    return true;
 }
 
 void Protocol::DMX::read()
